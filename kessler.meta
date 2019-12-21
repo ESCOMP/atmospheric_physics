@@ -1,0 +1,59 @@
+[ccpp-arg-table]
+  name = cam7_kessler_sub
+  type = host
+[ col_start ]
+    standard_name = horizontal_loop_begin
+    type = integer
+    units = count
+    dimensions = ()
+[ col_end ]
+    standard_name = horizontal_loop_end
+    type = integer
+    units = count
+    dimensions = ()
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  long_name = number of columns
+  units = count
+  dimensions = ()
+  type = integer
+[ state ]
+    standard_name = cam_state_derived_type
+    long_name = CAM state derived type
+    state_variable = true
+    ddt_type = physics_state
+    dimensions = ()
+[ tend ]
+    standard_name = cam_physics_tendency_derived_type
+    long_name = CAM physics tendency derived type
+    state_variable = false
+    ddt_type = physics_tend
+    dimensions = ()
+[ precl ]
+    standard_name = precipitation
+    state_variable = false
+    type = real
+    kind = kind_phys
+    units = m/s
+    dimensions = ( horizontal_dimension )
+[ ztodt ]
+    standard_name = time_step_for_physics
+    long_name = Model time step
+    state_variable = false
+    type = real
+    kind = kind_phys
+    units = s
+    dimensions = ()
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = count
+  dimensions = ()
+  type = character
+  kind = len=512
+[ errflg ]
+  standard_name = ccpp_error_flag
+  long_name = Error flag for error handling in CCPP
+  units = flag
+  dimensions = ()
+  type = integer

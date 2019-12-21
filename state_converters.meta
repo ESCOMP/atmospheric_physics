@@ -1,0 +1,432 @@
+[ccpp-arg-table]
+  name = temp_to_potential_temp_run
+  type = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  long_name = number of columns
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ nz ]
+  standard_name = vertical_layer_dimension
+  long_name = number of vertical levels
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ temp ]
+  standard_name = temperature
+  state_variable = true
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ exner ]
+  standard_name = inverse_exner_function_wrt_surface_pressure
+  long_name = inverse exner function w.r.t. surface pressure, (ps/p)^(R/cp)
+  state_variable = true
+  units = count
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ theta ]
+  standard_name = potential_temperature
+  long_name = potential temperature
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+  persistence = timestep
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = 1
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+  optional = F
+[ errflg ]
+  standard_name = ccpp_error_flag
+  long_name = Error flag for error handling in CCPP
+  units = flag
+  type = integer
+  dimensions = ()
+  intent = out
+  optional = F
+#####################################################################
+[ccpp-arg-table]
+  name = potential_temp_to_temp_run
+  type = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  long_name = number of columns
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ nz ]
+  standard_name = vertical_layer_dimension
+  long_name = number of vertical levels
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ theta ]
+  standard_name = potential_temperature
+  long_name = potential temperature
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ exner ]
+  standard_name = inverse_exner_function_wrt_surface_pressure
+  long_name = inverse exner function w.r.t. surface pressure, (ps/p)^(R/cp)
+  state_variable = true
+  units = count
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ temp ]
+  standard_name = temperature
+  state_variable = true
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = 1
+  dimensions = ()
+  type = character | kind = len=*
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_flag
+  long_name = Error flag for error handling in CCPP
+  units = flag
+  type = integer
+  dimensions = ()
+  intent = out
+#########################################################
+[ccpp-arg-table]
+  name = pres_to_density_dry_init
+  type = scheme
+[ cpair ]
+  standard_name = specific_heat_of_dry_air_at_constant_pressure
+  units = J kg-1 K-1
+  dimensions = ()
+  type = real | kind = kind_phys
+  intent = in
+[ rair ]
+  standard_name = gas_constant_dry_air
+  long_name = long_name="ideal gas constant for dry air
+  units = J kg-1 K-1
+  dimensions = ()
+  type = real | kind = kind_phys
+  intent = in
+[ errmsg ]
+   standard_name = ccpp_error_message
+   long_name = Error message for error handling in CCPP
+   units = 1
+   dimensions = ()
+   type = character | kind = len=*
+   intent = out
+   optional = F
+[ errflg ]
+   standard_name = ccpp_error_flag
+   long_name = Error flag for error handling in CCPP
+   units = flag
+   dimensions = ()
+   type = integer
+   intent = out
+   optional = F
+
+#########################################################
+[ccpp-arg-table]
+  name = pres_to_density_dry_run
+  type = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  long_name = number of columns
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+  optional = F
+[ nz ]
+  standard_name = vertical_layer_dimension
+  long_name = number of vertical levels
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+  optional = F
+[ pmiddry ]
+  standard_name = air_pressure_of_dry_air
+  long_name = Dry midpoint pressure
+  state_variable = true
+  type = real | kind = kind_phys
+  units = Pa
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ temp ]
+  standard_name = temperature
+  state_variable = true
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ rho ]
+   standard_name = dry_air_density
+   long_name = dry air density
+   units = kg/m^3
+   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+   type = real | kind = kind_phys
+   intent = out
+[ errmsg ]
+   standard_name = ccpp_error_message
+   long_name = Error message for error handling in CCPP
+   units = 1
+   dimensions = ()
+   type = character | kind = len=*
+   intent = out
+   optional = F
+[ errflg ]
+   standard_name = ccpp_error_flag
+   long_name = Error flag for error handling in CCPP
+   units = flag
+   dimensions = ()
+   type = integer
+   intent = out
+   optional = F
+#########################################################
+[ccpp-arg-table]
+  name = calc_exner_init
+  type = scheme
+[ errmsg ]
+   standard_name = ccpp_error_message
+   long_name = Error message for error handling in CCPP
+   units = 1
+   dimensions = ()
+   type = character | kind = len=*
+   intent = out
+   optional = F
+[ errflg ]
+   standard_name = ccpp_error_flag
+   long_name = Error flag for error handling in CCPP
+   units = flag
+   dimensions = ()
+   type = integer
+   intent = out
+   optional = F
+#########################################################
+[ccpp-arg-table]
+  name = calc_exner_run
+  type = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  long_name = number of columns
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ nz ]
+  standard_name = vertical_layer_dimension
+  long_name = number of vertical levels
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ cpair ]
+  standard_name = specific_heat_of_dry_air_at_constant_pressure
+  units = J kg-1 K-1
+  dimensions = ()
+  type = real | kind = kind_phys
+  intent = in
+[ rair ]
+  standard_name = gas_constant_dry_air
+  long_name = long_name="ideal gas constant for dry air
+  units = J kg-1 K-1
+  dimensions = ()
+  type = real | kind = kind_phys
+  intent = in
+[ pmid ]
+  standard_name = air_pressure
+  state_variable = true
+  type = real
+  kind = kind_phys
+  units = Pa
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ exner ]
+  standard_name = inverse_exner_function_wrt_surface_pressure
+  state_variable = true
+  type = real
+  kind = kind_phys
+  units = count
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ errmsg ]
+   standard_name = ccpp_error_message
+   long_name = Error message for error handling in CCPP
+   units = 1
+   dimensions = ()
+   type = character | kind = len=*
+   intent = out
+   optional = F
+[ errflg ]
+   standard_name = ccpp_error_flag
+   long_name = Error flag for error handling in CCPP
+   units = flag
+   dimensions = ()
+   type = integer
+   intent = out
+   optional = F
+#########################################################
+[ccpp-arg-table]
+  name = wet_to_dry_run
+  type = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[ nz ]
+  standard_name = vertical_layer_dimension
+  long_name = number of vertical levels
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[ pdel ]
+  standard_name = pressure_thickness
+  state_variable = true
+  type = real
+  kind = kind_phys
+  units = Pa
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  intent = in
+[ pdeldry ]
+  standard_name = pressure_thickness_of_dry_air
+  state_variable = true
+  type = real
+  kind = kind_phys
+  units = Pa
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  intent = in
+[ qv ]
+  standard_name = water_vapor_specific_humidity
+  long_name = water vapor
+  units = kg kg-1
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  type = real
+  kind = kind_phys
+  intent = inout
+[ qc ]
+  standard_name = cloud_liquid_water_mixing_ratio
+  units = kg kg-1
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  type = real
+  kind = kind_phys
+  intent = inout
+  optional = T
+[ qr ]
+  standard_name = rain_water_mixing_ratio
+  units = gm/gm
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  type = real
+  kind = kind_phys
+  intent = inout
+  optional = T
+[ errmsg ]
+   standard_name = ccpp_error_message
+   long_name = Error message for error handling in CCPP
+   units = 1
+   dimensions = ()
+   type = character | kind = len=*
+   intent = out
+[ errflg ]
+   standard_name = ccpp_error_flag
+   long_name = Error flag for error handling in CCPP
+   units = flag
+   dimensions = ()
+   type = integer
+   intent = out
+   optional = F
+
+#########################################################
+[ccpp-arg-table]
+  name = dry_to_wet_run
+  type = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[ nz ]
+  standard_name = vertical_layer_dimension
+  long_name = number of vertical levels
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[ pdel ]
+  standard_name = pressure_thickness
+  state_variable = true
+  type = real
+  kind = kind_phys
+  units = Pa
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  intent = in
+[ pdeldry ]
+  standard_name = pressure_thickness_of_dry_air
+  state_variable = true
+  type = real
+  kind = kind_phys
+  units = Pa
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  intent = in
+[ qv ]
+  standard_name = water_vapor_specific_humidity
+  long_name = water vapor
+  units = kg kg-1
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  type = real
+  kind = kind_phys
+  intent = inout
+[ qc ]
+  standard_name = cloud_liquid_water_mixing_ratio
+  units = kg kg-1
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  type = real
+  kind = kind_phys
+  intent = inout
+  optional = T
+[ qr ]
+  standard_name = rain_water_mixing_ratio
+  units = gm/gm
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  type = real
+  kind = kind_phys
+  intent = inout
+  optional = T
+[ errmsg ]
+   standard_name = ccpp_error_message
+   long_name = Error message for error handling in CCPP
+   units = 1
+   dimensions = ()
+   type = character | kind = len=*
+   intent = out
+[ errflg ]
+   standard_name = ccpp_error_flag
+   long_name = Error flag for error handling in CCPP
+   units = flag
+   dimensions = ()
+   type = integer
+   intent = out
+
+#########################################################
+

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<suite name="cam_kessler_test" version="1.0">
+  <group name="physics">
+    <scheme>calc_exner</scheme>
+    <scheme>temp_to_potential_temp</scheme>
+    <scheme>pres_to_density_dry</scheme>
+    <scheme>kessler</scheme>
+    <scheme>potential_temp_to_temp</scheme>
+    <scheme>dry_to_wet</scheme>
+    <scheme>kessler_update</scheme>
+  </group>
+</suite>
