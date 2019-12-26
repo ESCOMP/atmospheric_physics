@@ -1,4 +1,4 @@
-module cam7_kessler_mod
+module kessler_mod
 
   use ccpp_kinds, only: kind_phys
 
@@ -7,10 +7,10 @@ module cam7_kessler_mod
 
 contains
 
-  !> \section arg_table_cam7_kessler_sub  Argument Table
-  !! \htmlinclude arg_table_cam7_kessler_sub.html
+  !> \section arg_table_kessler_run  Argument Table
+  !! \htmlinclude arg_table_kessler_run.html
 
-  subroutine cam7_kessler_sub()
+  subroutine kessler_run()
 
     use ppgrid,            only: pcols, pver, pverp
     use physics_types_cam7,only: physics_state
@@ -189,15 +189,6 @@ contains
        stop
     end if
 
-  end subroutine cam7_kessler_sub
+  end subroutine kessler_run
 
-end module cam7_kessler_mod
-
-!> \brief Main SCM program that calls the main SCM subroutine
-!!
-!! The Doxygen documentation system cannot handle in-body comments in Fortran main programs, so the "main" program was put in the
-!! subroutine \ref cam_kessler_main_sub above.
-program cam7_kessler
-  use cam7_kessler_mod, only: cam7_kessler_sub
-  call cam7_kessler_sub()
-end program cam7_kessler
+end module kessler_mod

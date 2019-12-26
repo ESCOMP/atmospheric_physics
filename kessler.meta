@@ -1,5 +1,5 @@
 [ccpp-arg-table]
-  name = cam7_kessler_sub
+  name = kessler_run
   type = host
 [ col_start ]
     standard_name = horizontal_loop_begin
