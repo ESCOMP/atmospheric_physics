@@ -1,5 +1,6 @@
 module kessler_update
 
+! use ccpp_kinds, only: kind_phys => kind_phys
 use ccpp_kinds, only: kind_phys
 use geopotential, only: geopotential_t
 
