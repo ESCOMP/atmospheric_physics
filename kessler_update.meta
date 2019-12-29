@@ -62,7 +62,7 @@
    type = integer
    intent = in
 [ gravit ]
-   standard_name = acceleration_of_gravity
+   standard_name = gravitational_acceleration
    units = m s-2
    dimensions = ()
    type = real
@@ -106,12 +106,12 @@
   dimensions = (horizontal_dimension, vertical_layer_dimension)
    intent = in
 [ lnpint ]
-  standard_name = ln_air_pressure_at_interface
+  standard_name = natural_log_of_air_pressure_at_interface
   state_variable = true
   type = real
   kind = kind_phys
   units = ln(Pa)
-  dimensions = (horizontal_dimension, vertical_level_dimension)
+  dimensions = (horizontal_dimension, vertical_interface_dimension)
    intent = in
 [ lnpmid ]
   standard_name = natural_log_of_air_pressure
@@ -127,7 +127,7 @@
   type = real
   kind = kind_phys
   units = Pa
-  dimensions = (horizontal_dimension, vertical_level_dimension)
+  dimensions = (horizontal_dimension, vertical_interface_dimension)
    intent = in
 [ pmid ]
   standard_name = air_pressure
@@ -139,7 +139,7 @@
   dimensions = (horizontal_dimension, vertical_layer_dimension)
    intent = in
 [ pdel ]
-  standard_name = pressure_thickness
+  standard_name = pressure_thickness_of_air_layer
   state_variable = true
   type = real
   kind = kind_phys
@@ -147,7 +147,7 @@
   dimensions = (horizontal_dimension, vertical_layer_dimension)
    intent = in
 [ rpdel ]
-  standard_name = reciprocal_of_pressure_thickness
+  standard_name = reciprocal_pressure_thickness_of_air_layer
   state_variable = true
   type = real
   kind = kind_phys
@@ -192,7 +192,7 @@
   type = real
   kind = kind_phys
   units = m
-  dimensions = (horizontal_dimension, vertical_level_dimension)
+  dimensions = (horizontal_dimension, vertical_interface_dimension)
    intent = inout
 [ zm ]
   standard_name = geopotential_height_above_surface_at_midpoints
@@ -217,7 +217,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
    intent = inout
 [ st_energy ]
-  standard_name = dry_static_energy_content_of_atmosphere_layer
+  standard_name = dry_static_energy_content
   long_name = Dry static energy
   state_variable = true
   type = real
@@ -260,4 +260,3 @@
   intent = out
 
 #########################################################
-

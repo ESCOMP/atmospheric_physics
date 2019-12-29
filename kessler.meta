@@ -72,7 +72,7 @@
   type = integer
   intent = in
 [ pdel ]
-  standard_name = layer_pressure_thickness
+  standard_name = pressure_thickness_of_air_layer
   state_variable = true
   type = real
   kind = kind_phys
@@ -80,7 +80,7 @@
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = in
 [ pdeldry ]
-  standard_name = layer_pressure_thickness_of_dry_air
+  standard_name = pressure_thickness_of_air_layer_of_dry_air
   state_variable = true
   type = real
   kind = kind_phys
