@@ -1,117 +1,131 @@
 module kessler_update
 
-! use ccpp_kinds, only: kind_phys => kind_phys
-use ccpp_kinds, only: kind_phys
-use geopotential, only: geopotential_t
+   use ccpp_kinds, only: kind_phys
 
-implicit none
-private
-public :: kessler_update_timestep_init, kessler_update_run, kessler_update_finalize
+   implicit none
+   private
 
-contains
+   public :: kessler_update_init
+   public :: kessler_update_timestep_init
+   public :: kessler_update_run
+   public :: kessler_update_timestep_final
 
-!> \section arg_table_kessler_update_timestep_init  Argument Table
-!! \htmlinclude kessler_update_timestep_init.html
-  subroutine kessler_update_timestep_init(temp, temp_prev, ttend_t, errmsg, errflg)
+   ! Private module variables
+   real(kind_phys)    :: gravit
+   real(kind_phys)    :: cpair
+   real(kind_phys)    :: rair
+   real(kind_phys)    :: zvir
 
-    real(kind_phys), intent(in)    :: temp(:,:)
-    real(kind_phys), intent(out)   :: temp_prev(:,:)
-    real(kind_phys), intent(out)   :: ttend_t(:,:)
-    character(len=512),      intent(out)   :: errmsg
-    integer,                 intent(out)   :: errflg
 
-!   Initialize the previous temperature and its tendency to zero
-    temp_prev(:,:)  = temp(:,:)
-    ttend_t(:,:)    = 0._kind_phys
+CONTAINS
 
-    errmsg = ' '
-    errflg = 0
+   !> \section arg_table_kessler_update_init  Argument Table
+   !! \htmlinclude kessler_update_init.html
+   subroutine kessler_update_init(gravit_in, cpair_in, rair_in, zvir_in)
+      real(kind_phys),    intent(in)    :: gravit_in
+      real(kind_phys),    intent(in)    :: cpair_in
+      real(kind_phys),    intent(in)    :: rair_in
+      real(kind_phys),    intent(in)    :: zvir_in
 
-  end subroutine kessler_update_timestep_init
+      gravit = gravit_in
+      cpair = cpair_in
+      rair = rair_in
+      zvir = zvir_in
 
-!> \section arg_table_kessler_update_run  Argument Table
-!! \htmlinclude kessler_update_run.html
-  subroutine kessler_update_run(nz, pcols, ncol, gravit, cpair, rair, zvir, phis, temp, &
-                 lnpint, lnpmid, pint, pmid, pdel, rpdel, qc, theta, exner, dt,  &
-                 zi, zm, temp_prev, ttend_t, st_energy, errmsg, errflg )
+   end subroutine kessler_update_init
 
-    integer, intent(in)     :: nz
-    integer, intent(in)     :: pcols
-    integer, intent(in)     :: ncol
-    real(kind_phys), intent(in)    :: gravit
-    real(kind_phys), intent(in)    :: cpair
-    real(kind_phys), intent(in)    :: rair
-    real(kind_phys), intent(in)    :: zvir
-    real(kind_phys), intent(in)    :: phis(:)
-    real(kind_phys), intent(in)    :: temp(:,:)   ! temperature
-    real(kind_phys), intent(in)    :: lnpint(:,:)
-    real(kind_phys), intent(in)    :: lnpmid(:,:)
-    real(kind_phys), intent(in)    :: pint(:,:)
-    real(kind_phys), intent(in)    :: pmid(:,:)
-    real(kind_phys), intent(in)    :: pdel(:,:)
-    real(kind_phys), intent(in)    :: rpdel(:,:)
-    real(kind_phys), intent(in)    :: qc(:,:)
-    real(kind_phys), intent(in)    :: exner(:,:)
-    real(kind_phys), intent(in)    :: dt
+   !> \section arg_table_kessler_update_timestep_init  Argument Table
+   !! \htmlinclude kessler_update_timestep_init.html
+   subroutine kessler_update_timestep_init(temp, temp_prev, ttend_t,          &
+        errmsg, errflg)
 
-    real(kind_phys), intent(inout) :: theta(:,:)
-    real(kind_phys), intent(inout) :: zi(:,:)
-    real(kind_phys), intent(inout) :: zm(:,:)
-    real(kind_phys), intent(inout) :: temp_prev(:,:)
-    real(kind_phys), intent(inout) :: ttend_t(:,:)
-    real(kind_phys), intent(inout) :: st_energy(:,:)
+      real(kind_phys),    intent(in)  :: temp(:,:)
+      real(kind_phys),    intent(out) :: temp_prev(:,:)
+      real(kind_phys),    intent(out) :: ttend_t(:,:)
+      character(len=512), intent(out) :: errmsg
+      integer,            intent(out) :: errflg
 
-    character(len=512),      intent(out)   :: errmsg
-    integer,                 intent(out)   :: errflg
+      !   Initialize the previous temperature and its tendency to zero
+      temp_prev(:,:)  = temp(:,:)
+      ttend_t(:,:)    = 0._kind_phys
 
-    integer                 :: k, rk
-    integer                 :: vert_surf, vert_toa
-    real(kind_phys)                :: rairv(pcols,nz)
-    real(kind_phys)                :: zvirv(pcols,nz)
-    real(kind_phys)                :: ptend_s(pcols,nz)
+      errmsg = ''
+      errflg = 0
 
-    errmsg = ' '
-    errflg = 0
+   end subroutine kessler_update_timestep_init
 
-    rairv(:,:) = rair
-    zvirv(:,:) = zvir
+   !> \section arg_table_kessler_update_run  Argument Table
+   !! \htmlinclude kessler_update_run.html
+   subroutine kessler_update_run(nz, ncol, phis, temp, theta, exner, dt,      &
+        temp_prev, ttend_t, errmsg, errflg)
 
-    ! Back out tendencies from updated fields
-    do k = 1, nz
-      ptend_s(:ncol,k) = (theta(:ncol,k) * exner(:ncol,k) - temp_prev(:ncol,k)) * cpair / dt
-      ttend_t(:ncol,k) = ttend_t(:ncol,k) + ptend_s(:ncol,k)/cpair
-    end do
- 
-    ! Kessler is bottom to top
-    vert_toa = 30
-    vert_surf = 1
+      integer,            intent(in)    :: nz
+      integer,            intent(in)    :: ncol
+      real(kind_phys),    intent(in)    :: phis(:)
+      real(kind_phys),    intent(in)    :: temp(:,:) ! temperature
+      real(kind_phys),    intent(in)    :: exner(:,:)
+      real(kind_phys),    intent(in)    :: dt
 
-    call geopotential_t  ( nz, nz+1, .true., vert_surf, vert_toa, &
-            lnpint,    lnpmid,    pint  , pmid  , pdel  , rpdel  , &
-            temp     , qc, rairv, gravit  , zvirv              , &
-            zi    , zm      , ncol         )
+      real(kind_phys),    intent(inout) :: theta(:,:)
+      real(kind_phys),    intent(inout) :: temp_prev(:,:)
+      real(kind_phys),    intent(inout) :: ttend_t(:,:)
 
-    do k = 1, nz
-      st_energy(:ncol,k) = temp(:ncol,k)*cpair+gravit*zm(:ncol,k)+phis(:ncol)
-    end do
+      character(len=512), intent(out)   :: errmsg
+      integer,            intent(out)   :: errflg
+
+      integer                           :: klev
+      real(kind_phys)                   :: ptend_s(pcols)
+
+      errmsg = ''
+      errflg = 0
+
+      ! Back out tendencies from updated fields
+      do klev = 1, nz
+         ptend_s(:ncol) = ((theta(:ncol,klev) * exner(:ncol,klev)) -          &
+              temp_prev(:ncol,klev)) * cpair / dt
+         ttend_t(:ncol,klev) = ttend_t(:ncol,klev) + (ptend_s(:ncol) / cpair)
+      end do
+
+      ! Save the temperature for the next time step
+      !!XXgoldyXX ==> @cacraigucar: Does this have any effect?
+      temp_prev(:,:)     = temp(:,:)
+
+!      call geopotential_t(nz, nz+1, .true., vert_surf, vert_toa, &
+!           lnpint,    lnpmid,    pint, pmid, pdel, rpdel,        &
+!           temp, qc, rairv, gravit, zvirv,                       &
+!           zi, zm, ncol)
 
 
 !    surf_state%precl(:ncol) = surf_state%precl(:ncol) + precl(:ncol)  ! KEEPING THIS HERE AS A REMINDER
 
-    ! Set the previous q values to the current q
-    temp_prev(:,:)     = temp(:,:)
+   end subroutine kessler_update_run
 
-  end subroutine kessler_update_run
+   !> \section arg_table_kessler_update_timestep_final  Argument Table
+   !! \htmlinclude kessler_update_timestep_final.html
+   subroutine kessler_update_timestep_final(nz, temp, zm, phis, st_energy,    &
+        errflg, errmsg)
 
-!> \section arg_table_kessler_update_finalize  Argument Table
-!! \htmlinclude kessler_update_finalize.html
-  subroutine kessler_update_finalize(errmsg, errflg)
+      ! Dummy arguments
+      integer,            intent(in)    :: nz
+      real(kind_phys),    intent(in)    :: temp(:,:) ! temperature
+      real(kind_phys),    intent(in)    :: zm(:,:)
+      real(kind_phys),    intent(in)    :: phis(:)
+      real(kind_phys),    intent(out)   :: st_energy(:,:)
 
-    character(len=512),      intent(out)   :: errmsg
-    integer,                 intent(out)   :: errflg
+      character(len=512), intent(out)   :: errmsg
+      integer,            intent(out)   :: errflg
 
-    errmsg = ' '
-    errflg = 0
+      ! Local variable
+      integer :: klev
 
-  end subroutine kessler_update_finalize
+      errmsg = ''
+      errflg = 0
+
+      do klev = 1, nz
+         st_energy(:,k) = (temp(:,k) * cpair) + (gravit * zm(:,k)) + phis(:)
+      end do
+
+   end subroutine kessler_update_timestep_final
+
+
 end module kessler_update

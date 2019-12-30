@@ -9,5 +9,6 @@
     <scheme>potential_temp_to_temp</scheme>
     <scheme>dry_to_wet</scheme>
     <scheme>kessler_update</scheme>
+    <scheme>geopotential_t</scheme>
   </group>
 </suite>
