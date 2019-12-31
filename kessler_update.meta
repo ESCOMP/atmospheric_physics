@@ -15,20 +15,6 @@
   type = real
   kind = kind_phys
   intent = in
-[ rair_in ]
-  standard_name = gas_constant_dry_air
-  units = J kg-1 K-1
-  dimensions = ()
-  type = real
-  kind = kind_phys
-  intent = in
-[ zvir_in ]
-  standard_name = ratio_of_dry_air_to_water_vapor_gas_constants_minus_one
-  units = -1
-  dimensions = ()
-  type = real
-  kind = kind_phys
-  intent = in
 #########################################################
 [ccpp-arg-table]
   name = kessler_update_timestep_init
@@ -179,7 +165,7 @@
   state_variable = true
   type = real | kind = kind_phys
   units = m
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = in
 [ phis ]
   standard_name = surface_geopotential
@@ -196,7 +182,7 @@
   type = real
   kind = kind_phys
   units = J m-2
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = out
 [ errflg ]
   standard_name = ccpp_error_flag

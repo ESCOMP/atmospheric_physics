@@ -13,24 +13,17 @@ module kessler_update
    ! Private module variables
    real(kind_phys)    :: gravit
    real(kind_phys)    :: cpair
-   real(kind_phys)    :: rair
-   real(kind_phys)    :: zvir
-
 
 CONTAINS
 
    !> \section arg_table_kessler_update_init  Argument Table
    !! \htmlinclude kessler_update_init.html
-   subroutine kessler_update_init(gravit_in, cpair_in, rair_in, zvir_in)
+   subroutine kessler_update_init(gravit_in, cpair_in)
       real(kind_phys),    intent(in)    :: gravit_in
       real(kind_phys),    intent(in)    :: cpair_in
-      real(kind_phys),    intent(in)    :: rair_in
-      real(kind_phys),    intent(in)    :: zvir_in
 
       gravit = gravit_in
       cpair = cpair_in
-      rair = rair_in
-      zvir = zvir_in
 
    end subroutine kessler_update_init
 
@@ -74,7 +67,7 @@ CONTAINS
       integer,            intent(out)   :: errflg
 
       integer                           :: klev
-      real(kind_phys)                   :: ptend_s(pcols)
+      real(kind_phys)                   :: ptend_s(ncol)
 
       errmsg = ''
       errflg = 0
@@ -89,12 +82,6 @@ CONTAINS
       ! Save the temperature for the next time step
       !!XXgoldyXX ==> @cacraigucar: Does this have any effect?
       temp_prev(:,:)     = temp(:,:)
-
-!      call geopotential_t(nz, nz+1, .true., vert_surf, vert_toa, &
-!           lnpint,    lnpmid,    pint, pmid, pdel, rpdel,        &
-!           temp, qc, rairv, gravit, zvirv,                       &
-!           zi, zm, ncol)
-
 
 !    surf_state%precl(:ncol) = surf_state%precl(:ncol) + precl(:ncol)  ! KEEPING THIS HERE AS A REMINDER
 
@@ -122,7 +109,8 @@ CONTAINS
       errflg = 0
 
       do klev = 1, nz
-         st_energy(:,k) = (temp(:,k) * cpair) + (gravit * zm(:,k)) + phis(:)
+         st_energy(:,klev) = (temp(:,klev) * cpair) + (gravit * zm(:,klev)) + &
+              phis(:)
       end do
 
    end subroutine kessler_update_timestep_final
