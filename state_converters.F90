@@ -21,7 +21,7 @@ module state_converters
   ! Convert between wet and dry
   public :: wet_to_dry_run
   public :: dry_to_wet_run
- 
+
   ! Private module data (constants set at initialization)
   real(kind_phys), parameter :: unset = 98989.8e99_kind_phys
   real(kind_phys) :: rd = unset    ! gas constant for dry air, J/(kgK)
@@ -126,8 +126,8 @@ CONTAINS
   subroutine pres_to_density_dry_run(ncol, nz, pmiddry, temp, rho, errmsg, errflg)
     integer,          intent(in)    :: ncol      ! Number of columns
     integer,          intent(in)    :: nz        ! Number of vertical levels
-    real(kind_phys),  intent(in)    :: pmiddry(:,:) 
-    real(kind_phys),  intent(in)    :: temp(:,:) 
+    real(kind_phys),  intent(in)    :: pmiddry(:,:)
+    real(kind_phys),  intent(in)    :: temp(:,:)
     real(kind_phys),         intent(out)   :: rho(:,:)  ! Dry air density (kg/m^3)
     character(len=*), intent(out)   :: errmsg
     integer,          intent(out)   :: errflg
@@ -164,8 +164,8 @@ CONTAINS
     integer,          intent(in)  :: nz         ! Number of vertical levels
     real(kind_phys),  intent(in)  :: rair  ! gas constant for dry air
     real(kind_phys),  intent(in)  :: cpair ! heat capacity at constant pressure
-    real(kind_phys),  intent(in)  :: pmid(:,:) 
-    real(kind_phys),  intent(out) :: exner(:,:) 
+    real(kind_phys),  intent(in)  :: pmid(:,:)
+    real(kind_phys),  intent(out) :: exner(:,:)
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
 

@@ -15,14 +15,26 @@
   dimensions = ()
   type = integer
   intent = in
-[ vert_surf ]
+[ layer_surf ]
   standard_name = index_of_bottom_vertical_layer
   units = count
   dimensions = ()
   type = integer
   intent = in
-[ vert_toa ]
+[ layer_toa ]
   standard_name = index_of_top_vertical_layer
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[ interface_surf ]
+  standard_name = index_of_bottom_vertical_interface
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[ interface_toa ]
+  standard_name = index_of_top_vertical_interface
   units = count
   dimensions = ()
   type = integer
