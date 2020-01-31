@@ -18,7 +18,7 @@
 [ lagrang ]
   standard_name = lagrangian_vertical_coordinate
   long_name = flag indicating if vertical coordinate is lagrangian
-  units = 
+  units = flag
   dimensions = ()
   type = logical
   intent = in
