@@ -180,7 +180,7 @@
 [ rho ]
    standard_name = density_of_dry_air_at_STP
    long_name = dry air density
-   units = kg/m^3
+   units = kg m-3
    dimensions = (horizontal_loop_extent, vertical_layer_dimension)
    type = real | kind = kind_phys
    intent = out
@@ -334,7 +334,7 @@
   optional = T
 [ qr ]
   standard_name = rain_water_mixing_ratio
-  units = gm/gm
+  units = gm gm-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real
   kind = kind_phys
@@ -407,7 +407,7 @@
   optional = T
 [ qr ]
   standard_name = rain_water_mixing_ratio
-  units = gm/gm
+  units = gm gm-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real
   kind = kind_phys
