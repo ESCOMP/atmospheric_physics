@@ -76,14 +76,14 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ pdel ]
-  standard_name = pressure_thickness_of_air_layer
+  standard_name = pressure_thickness
   state_variable = true
   type = real | kind = kind_phys
   units = Pa
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ rpdel ]
-  standard_name = reciprocal_pressure_thickness_of_air_layer
+  standard_name = reciprocal_of_pressure_thickness
   state_variable = true
   type = real | kind = kind_phys
   units = Pa-1
@@ -104,7 +104,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ rair ]
-  standard_name = pressure_dependent_gas_constant_dry_air
+  standard_name = pressure_dependent_gas_constant_of_dry_air
   units = J kg-1 K-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real
@@ -125,14 +125,14 @@
   kind = kind_phys
   intent = in
 [ zi ]
-  standard_name = geopotential_height_above_surface_at_interfaces
+  standard_name = geopotential_at_interface
   state_variable = true
   type = real | kind = kind_phys
   units = m
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ zm ]
-  standard_name = geopotential_height_above_surface_at_midpoints
+  standard_name = geopotential
   state_variable = true
   type = real | kind = kind_phys
   units = m

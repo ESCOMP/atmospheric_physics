@@ -72,7 +72,7 @@
   type = integer
   intent = in
 [ pdel ]
-  standard_name = pressure_thickness_of_air_layer
+  standard_name = pressure_thickness
   state_variable = true
   type = real
   kind = kind_phys
@@ -80,7 +80,7 @@
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = in
 [ pdeldry ]
-  standard_name = pressure_thickness_of_air_layer_of_dry_air
+  standard_name = pressure_thickness_of_dry_air
   state_variable = true
   type = real
   kind = kind_phys
@@ -153,7 +153,7 @@
   kind = kind_phys
   intent = in
 [ rho ]
-  standard_name = dry_air_density
+  standard_name = density_of_dry_air_at_STP
   long_name = dry air density
   units = kg/m^3
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -161,7 +161,7 @@
   kind = kind_phys
   intent = in
 [ z ]
-  standard_name = geopotential_height_above_surface_at_midpoints
+  standard_name = geopotential
   long_name = geopotential height
   units = m
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -207,7 +207,7 @@
   kind = kind_phys
   intent = inout
 [ precl ]
-  standard_name = precipitation
+  standard_name = total_precipitation_at_surface
   long_name = precipitation
   units = m/s
   dimensions = (horizontal_loop_extent)

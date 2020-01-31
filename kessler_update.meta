@@ -161,7 +161,7 @@
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = in
 [ zm ]
-  standard_name = geopotential_height_above_surface_at_midpoints
+  standard_name = geopotential
   state_variable = true
   type = real | kind = kind_phys
   units = m

@@ -178,7 +178,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ rho ]
-   standard_name = dry_air_density
+   standard_name = density_of_dry_air_at_STP
    long_name = dry air density
    units = kg/m^3
    dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -301,7 +301,7 @@
   type = integer
   intent = in
 [ pdel ]
-  standard_name = pressure_thickness_of_air_layer
+  standard_name = pressure_thickness
   state_variable = true
   type = real
   kind = kind_phys
@@ -309,7 +309,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ pdeldry ]
-  standard_name = pressure_thickness_of_air_layer_of_dry_air
+  standard_name = pressure_thickness_of_dry_air
   state_variable = true
   type = real
   kind = kind_phys
@@ -374,7 +374,7 @@
   type = integer
   intent = in
 [ pdel ]
-  standard_name = pressure_thickness_of_air_layer
+  standard_name = pressure_thickness
   state_variable = true
   type = real
   kind = kind_phys
@@ -382,7 +382,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ pdeldry ]
-  standard_name = pressure_thickness_of_air_layer_of_dry_air
+  standard_name = pressure_thickness_of_dry_air
   state_variable = true
   type = real
   kind = kind_phys
