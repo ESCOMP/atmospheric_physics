@@ -72,7 +72,7 @@
   type = integer
   intent = in
 [ pdel ]
-  standard_name = pressure_thickness_of_air_layer
+  standard_name = pressure_thickness
   state_variable = true
   type = real
   kind = kind_phys
@@ -80,7 +80,7 @@
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = in
 [ pdeldry ]
-  standard_name = pressure_thickness_of_air_layer_of_dry_air
+  standard_name = pressure_thickness_of_dry_air
   state_variable = true
   type = real
   kind = kind_phys
@@ -104,7 +104,7 @@
   intent = inout
 [ qr ]
   standard_name = rain_water_mixing_ratio
-  units = gm/gm
+  units = kg kg-1
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   type = real
   kind = kind_phys
@@ -153,18 +153,18 @@
   kind = kind_phys
   intent = in
 [ rho ]
-  standard_name = dry_air_density
+  standard_name = density_of_dry_air_at_STP
   long_name = dry air density
-  units = kg/m^3
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  units = kg m-3
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real
   kind = kind_phys
   intent = in
 [ z ]
-  standard_name = geopotential_height_above_surface_at_midpoints
+  standard_name = geopotential
   long_name = geopotential height
   units = m
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real
   kind = kind_phys
   intent = in
@@ -172,7 +172,7 @@
   standard_name = inverse_exner_function_wrt_surface_pressure
   long_name = inverse exner function w.r.t. surface pressure, (ps/p)^(R/cp)
   units = count
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real
   kind = kind_phys
   intent = in
@@ -180,7 +180,7 @@
   standard_name = potential_temperature
   long_name = potential temperature
   units = K
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real
   kind = kind_phys
   intent = inout
@@ -188,29 +188,29 @@
   standard_name = water_vapor_specific_humidity
   long_name = water vapor
   units = kg kg-1
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real
   kind = kind_phys
   intent = inout
 [ qc ]
   standard_name = cloud_liquid_water_mixing_ratio
   units = kg kg-1
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real
   kind = kind_phys
   intent = inout
 [ qr ]
   standard_name = rain_water_mixing_ratio
-  units = gm/gm
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  units = kg kg-1
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real
   kind = kind_phys
   intent = inout
 [ precl ]
-  standard_name = precipitation
+  standard_name = total_precipitation_at_surface
   long_name = precipitation
-  units = m/s
-  dimensions = (horizontal_dimension)
+  units = m s-1
+  dimensions = (horizontal_loop_extent)
   type = real
   kind = kind_phys
   intent = out

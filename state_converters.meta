@@ -178,9 +178,9 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ rho ]
-   standard_name = dry_air_density
+   standard_name = density_of_dry_air_at_STP
    long_name = dry air density
-   units = kg/m^3
+   units = kg m-3
    dimensions = (horizontal_loop_extent, vertical_layer_dimension)
    type = real | kind = kind_phys
    intent = out
@@ -301,41 +301,41 @@
   type = integer
   intent = in
 [ pdel ]
-  standard_name = pressure_thickness_of_air_layer
+  standard_name = pressure_thickness
   state_variable = true
   type = real
   kind = kind_phys
   units = Pa
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ pdeldry ]
-  standard_name = pressure_thickness_of_air_layer_of_dry_air
+  standard_name = pressure_thickness_of_dry_air
   state_variable = true
   type = real
   kind = kind_phys
   units = Pa
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ qv ]
   standard_name = water_vapor_specific_humidity
   long_name = water vapor
   units = kg kg-1
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real
   kind = kind_phys
   intent = inout
 [ qc ]
   standard_name = cloud_liquid_water_mixing_ratio
   units = kg kg-1
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real
   kind = kind_phys
   intent = inout
   optional = T
 [ qr ]
   standard_name = rain_water_mixing_ratio
-  units = gm/gm
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  units = kg kg-1
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real
   kind = kind_phys
   intent = inout
@@ -374,41 +374,41 @@
   type = integer
   intent = in
 [ pdel ]
-  standard_name = pressure_thickness_of_air_layer
+  standard_name = pressure_thickness
   state_variable = true
   type = real
   kind = kind_phys
   units = Pa
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ pdeldry ]
-  standard_name = pressure_thickness_of_air_layer_of_dry_air
+  standard_name = pressure_thickness_of_dry_air
   state_variable = true
   type = real
   kind = kind_phys
   units = Pa
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ qv ]
   standard_name = water_vapor_specific_humidity
   long_name = water vapor
   units = kg kg-1
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real
   kind = kind_phys
   intent = inout
 [ qc ]
   standard_name = cloud_liquid_water_mixing_ratio
   units = kg kg-1
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real
   kind = kind_phys
   intent = inout
   optional = T
 [ qr ]
   standard_name = rain_water_mixing_ratio
-  units = gm/gm
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  units = kg kg-1
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real
   kind = kind_phys
   intent = inout
