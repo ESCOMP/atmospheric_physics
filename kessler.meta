@@ -104,7 +104,7 @@
   intent = inout
 [ qr ]
   standard_name = rain_water_mixing_ratio
-  units = gm gm-1
+  units = kg kg-1
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   type = real
   kind = kind_phys
@@ -201,7 +201,7 @@
   intent = inout
 [ qr ]
   standard_name = rain_water_mixing_ratio
-  units = gm gm-1
+  units = kg kg-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real
   kind = kind_phys
