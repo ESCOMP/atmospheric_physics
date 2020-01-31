@@ -15,6 +15,13 @@
   dimensions = ()
   type = integer
   intent = in
+[ lagrang ]
+  standard_name = lagrangian_vertical_coordinate
+  long_name = flag indicating if vertical coordinate is lagrangian
+  units = 
+  dimensions = ()
+  type = logical
+  intent = in
 [ layer_surf ]
   standard_name = index_of_bottom_vertical_layer
   units = count

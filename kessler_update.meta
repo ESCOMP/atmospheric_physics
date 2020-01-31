@@ -79,7 +79,7 @@
   type = real
   kind = kind_phys
   units = m2 s-2
-  dimensions = (horizontal_dimension)
+  dimensions = (horizontal_loop_extent)
   intent = in
 [ temp ]
   standard_name = temperature
@@ -87,13 +87,13 @@
   type = real
   kind = kind_phys
   units = K
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ theta ]
   standard_name = potential_temperature
   long_name = potential temperature
   units = K
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real
   kind = kind_phys
   intent = inout
@@ -176,7 +176,7 @@
   dimensions = (horizontal_dimension)
   intent = in
 [ st_energy ]
-  standard_name = dry_static_energy_content
+  standard_name = dry_static_energy_content_of_atmosphere_layer
   long_name = Dry static energy
   state_variable = true
   type = real

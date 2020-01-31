@@ -251,7 +251,8 @@ CONTAINS
                                    0._kind_phys)
 
                ! Saturation vapor mixing ratio (gm/gm) following KW eq. 2.11
-               qvs = pc(klev) * exp(f2x*(pk(col, klev)*theta(col, klev) - 273._kind_phys) / (pk(col, klev)*theta(col, klev) - 36._kind_phys))
+               qvs = pc(klev) * exp(f2x*(pk(col, klev)*theta(col, klev) - 273._kind_phys) / (pk(col, klev)*theta(col, klev) &
+                              - 36._kind_phys))
                prod = (qv(col, klev) - qvs) / (1._kind_phys + qvs*f5 / (pk(col, klev)*theta(col, klev) - 36._kind_phys)**2)
 
 

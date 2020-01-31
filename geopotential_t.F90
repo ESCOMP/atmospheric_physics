@@ -25,12 +25,9 @@ CONTAINS
 
    !> \section arg_table_geopotential_t_run  Argument Table
    !! \htmlinclude geopotential_t_run.html
-   subroutine geopotential_t_run(pver, pverp, layer_surf, layer_toa,          &
+   subroutine geopotential_t_run(pver, pverp, lagrang, layer_surf, layer_toa,          &
         interface_surf, interface_toa, piln, pmln, pint, pmid, pdel, rpdel,   &
         t, q, rair, gravit, zvir, zi, zm, ncol, errflg, errmsg)
-      !!XXgoldyXX: This is a CCPP violation. Why do we need this?
-      !!XXgoldyXX: If this is legit, we can add it to the metadata
-      use physics_grid, only: dycore_name
 
       !-----------------------------------------------------------------------
       !
@@ -46,6 +43,7 @@ CONTAINS
       !
       integer,         intent(in)  :: pver
       integer,         intent(in)  :: pverp
+      logical,         intent(in)  :: lagrang     ! lagrangian vertical coordinate?
       integer,         intent(in)  :: layer_surf
       integer,         intent(in)  :: layer_toa
       integer,         intent(in)  :: interface_surf
@@ -96,15 +94,12 @@ CONTAINS
       real(kind_phys)              :: rog(ncol,pver) ! Rair / gravit
       real(kind_phys)              :: tv        ! virtual temperature
       real(kind_phys)              :: tvfac     ! Tv / T
-      logical                      :: fvdyn     ! FV dycore?
       !
       !-----------------------------------------------------------------------
       !
 
       errmsg = ''
       errflg = 0
-
-      fvdyn = trim(dycore_name) == 'LR'
 
       rog(:ncol,:) = rair(:ncol,:) / gravit
 
@@ -129,7 +124,7 @@ CONTAINS
       do kint = interface_surf + int_step, interface_toa, int_step
 
          ! First set hydrostatic elements consistent with dynamics
-         if (fvdyn) then
+         if (lagrang) then
             do icol = 1, ncol
                hkl(icol) = piln(icol, kint-int_step) - piln(icol,kint)
                hkk(icol) = 1._kind_phys -                                     &
