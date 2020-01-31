@@ -57,7 +57,7 @@
   standard_name = natural_log_of_air_pressure
   state_variable = true
   type = real | kind = kind_phys
-  units = pmid
+  units = ln(Pa)
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ pint ]
