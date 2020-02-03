@@ -1,13 +1,6 @@
 [ccpp-arg-table]
   name = kessler_init
   type = scheme
-[ rd_in ]
-  standard_name = gas_constant_dry_air
-  units =  J kg-1 K-1
-  dimensions = ()
-  type = real
-  kind = kind_phys
-  intent = in
 [ cp_in ]
   standard_name = specific_heat_of_dry_air_at_constant_pressure
   units =  J kg-1 K-1

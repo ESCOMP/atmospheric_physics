@@ -49,12 +49,11 @@ CONTAINS
 
    !> \section arg_table_kessler_update_run  Argument Table
    !! \htmlinclude kessler_update_run.html
-   subroutine kessler_update_run(nz, ncol, phis, temp, theta, exner, dt,      &
+   subroutine kessler_update_run(nz, ncol, temp, theta, exner, dt,      &
         temp_prev, ttend_t, errmsg, errflg)
 
       integer,            intent(in)    :: nz
       integer,            intent(in)    :: ncol
-      real(kind_phys),    intent(in)    :: phis(:)
       real(kind_phys),    intent(in)    :: temp(:,:) ! temperature
       real(kind_phys),    intent(in)    :: exner(:,:)
       real(kind_phys),    intent(in)    :: dt

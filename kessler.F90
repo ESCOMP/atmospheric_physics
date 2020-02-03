@@ -11,7 +11,6 @@ module kessler
    public :: kessler_timestep_init ! init timestep routine
 
    ! Private module data (constants set at initialization)
-   real(kind_phys) :: rd    ! gas constant for dry air, J/(kgK)
    real(kind_phys) :: cp    ! heat capacity at constant pressure, J/(kgK)
    real(kind_phys) :: lv    ! latent heat of vaporization, J/kg
    real(kind_phys) :: psl   ! reference pressure at sea level, mb
@@ -21,9 +20,8 @@ CONTAINS
 
    !> \section arg_table_kessler_init  Argument Table
    !! \htmlinclude kessler_init.html
-   subroutine kessler_init(rd_in, cp_in, lv_in, psl_in, rhoqr_in, errmsg, errflg)
+   subroutine kessler_init(cp_in, lv_in, psl_in, rhoqr_in, errmsg, errflg)
       ! Set physical constants to be consistent with calling model
-      real(kind_phys),    intent(in)  :: rd_in    ! gas constant for dry air, J/(kgK)
       real(kind_phys),    intent(in)  :: cp_in    ! heat capacity at constant pres., J/(kgK)
       real(kind_phys),    intent(in)  :: lv_in    ! latent heat of vaporization, J/kg
       real(kind_phys),    intent(in)  :: psl_in   ! reference pressure at sea level, mb
@@ -35,7 +33,6 @@ CONTAINS
       errmsg = ''
       errflg = 0
 
-      rd    = rd_in
       cp    = cp_in
       lv    = lv_in
       psl   = psl_in/100._kind_phys
@@ -59,8 +56,6 @@ CONTAINS
 
       character(len=*), intent(out) :: errmsg
       integer,          intent(out) :: errflg
-      ! Local variables
-      integer  :: k
 
       errflg = 0
       errmsg = ''

@@ -8,13 +8,6 @@
   dimensions = ()
   type = integer
   intent = in
-[ pverp ]
-  standard_name = vertical_interface_dimension
-  long_name = number of vertical layer interfaces
-  units = count
-  dimensions = ()
-  type = integer
-  intent = in
 [ lagrang ]
   standard_name = lagrangian_vertical_coordinate
   long_name = flag indicating if vertical coordinate is lagrangian
@@ -52,13 +45,6 @@
   type = real | kind = kind_phys
   units = ln(Pa)
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
-  intent = in
-[ pmln ]
-  standard_name = natural_log_of_air_pressure
-  state_variable = true
-  type = real | kind = kind_phys
-  units = ln(Pa)
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ pint ]
   standard_name = air_pressure_at_interface
