@@ -73,14 +73,6 @@
   dimensions = ()
   type = integer
   intent = in
-[ phis ]
-  standard_name = surface_geopotential
-  state_variable = true
-  type = real
-  kind = kind_phys
-  units = m2 s-2
-  dimensions = (horizontal_loop_extent)
-  intent = in
 [ temp ]
   standard_name = temperature
   state_variable = true
@@ -168,7 +160,7 @@
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = in
 [ phis ]
-  standard_name = surface_geopotential
+  standard_name = geopotential_at_surface
   state_variable = true
   type = real
   kind = kind_phys

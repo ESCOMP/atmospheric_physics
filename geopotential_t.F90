@@ -25,8 +25,8 @@ CONTAINS
 
    !> \section arg_table_geopotential_t_run  Argument Table
    !! \htmlinclude geopotential_t_run.html
-   subroutine geopotential_t_run(pver, pverp, lagrang, layer_surf, layer_toa,          &
-        interface_surf, interface_toa, piln, pmln, pint, pmid, pdel, rpdel,   &
+   subroutine geopotential_t_run(pver, lagrang, layer_surf, layer_toa,        &
+        interface_surf, interface_toa, piln, pint, pmid, pdel, rpdel,         &
         t, q, rair, gravit, zvir, zi, zm, ncol, errflg, errmsg)
 
       !-----------------------------------------------------------------------
@@ -42,7 +42,6 @@ CONTAINS
       ! Input arguments
       !
       integer,         intent(in)  :: pver
-      integer,         intent(in)  :: pverp
       logical,         intent(in)  :: lagrang     ! lagrangian vertical coordinate?
       integer,         intent(in)  :: layer_surf
       integer,         intent(in)  :: layer_toa
@@ -52,8 +51,6 @@ CONTAINS
 
       ! piln: Log interface pressures
       real(kind_phys), intent(in)  :: piln(:,:)  ! (ncol,pverp)
-      ! pmln: Log midpoint pressures
-      real(kind_phys), intent(in)  :: pmln(:,:)  ! (ncol,pver)
       ! pint: Interface pressures
       real(kind_phys), intent(in)  :: pint(:,:)  ! (ncol,pverp)
       ! pmid: Midpoint pressures

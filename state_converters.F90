@@ -26,9 +26,6 @@ module state_converters
   real(kind_phys), parameter :: unset = 98989.8e99_kind_phys
   real(kind_phys) :: rd = unset    ! gas constant for dry air, J/(kgK)
   real(kind_phys) :: cp = unset    ! heat capacity at constant pressure, J/(kgK)
-  real(kind_phys) :: lv = unset    ! latent heat of vaporization, J/kg
-  real(kind_phys) :: psl = unset   ! reference pressure at sea level, mb
-  real(kind_phys) :: rhoqr = unset ! density of liquid water, kg/m^3
 
   ! Private interfaces
   private :: safe_set ! Set constants checking for consistency
