@@ -129,11 +129,10 @@ CONTAINS
     character(len=*), intent(out)   :: errmsg
     integer,          intent(out)   :: errflg
 
-    integer :: k, rk
+    integer :: k
 
     do k = 1, nz
-      rk = nz - k + 1
-      rho(:ncol,rk) = pmiddry(:ncol,k)/(rd*temp(:ncol,k))
+      rho(:ncol,k) = pmiddry(:ncol,k)/(rd*temp(:ncol,k))
     end do
 
     errmsg = ''
