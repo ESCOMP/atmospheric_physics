@@ -5,6 +5,7 @@
     <scheme>calc_exner</scheme>
     <scheme>temp_to_potential_temp</scheme>
     <scheme>pres_to_density_dry</scheme>
+    <scheme>wet_to_dry</scheme>
     <scheme>kessler</scheme>
     <scheme>potential_temp_to_temp</scheme>
     <scheme>dry_to_wet</scheme>
