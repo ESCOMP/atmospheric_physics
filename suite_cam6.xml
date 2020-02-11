@@ -47,7 +47,6 @@
       <scheme>check_energy_chng</scheme>        <!-- Global integral checker required for certain diagnostic outputs -->
       <scheme>check_tracers_chng</scheme>       <!-- Global tracer mass checker that kills model if error is large enough. -->
       <scheme>sslt_rebin_adv</scheme>           <!-- Only matters if certain sea salt species are present in chemistry package-->
-      <scheme>carma_timestep_tend</scheme>      <!-- Only matters if CARMA is active -->
       <subcycle loop="cloud_macmic_num_steps">  <!-- Cloud macrophysics-microphysics loop -->
         <!-- CLUBB turbulence, convection, and macrophysics -->
         <!-- **************************** -->
@@ -180,7 +179,6 @@
       <scheme>ma_convproc_intr</scheme>               <!-- Convective in-cloud aerosol removal parameterization, only used if convproc_do_aer is True -->
       <scheme>set_srf_wetdep</scheme>                 <!-- Add aerosol deposition rates to host model surface fluxes -->
       <!-- **************************** -->
-      <scheme>carma_wetdep_tend</scheme>              <!-- Apply CARMA's wet deposition routine.  Only matters if CARMA is active -->
       <scheme>convtran</scheme>                       <!-- Actual ZM convective transport scheme, for constituents in cnst_is_convtran2 -->
       <scheme>check_tracers_chng</scheme>             <!-- Global tracer mass checker that kills model if error is large enough. -->
       <scheme>diag_phys_writeout</scheme>             <!-- Calculate generic atmospheric physics diagnostics and output them to history file -->
@@ -247,7 +245,6 @@
       <scheme>srf_emis_diag_output</scheme>           <!-- Add surface chemistry emissions to host model's surface inputs and history files -->
       <scheme>fire_emissions_srf</scheme>             <!-- Calculate fire emissions, and add to host model's surface inputs -->
       <!-- **************************** -->
-      <scheme>carma_emission_tend</scheme>            <!-- Calculate CARMA emissions.  Only matters if CARMA is active -->
       <scheme>check_tracers_init</scheme>             <!-- Initalize tracer/constituent mass checker -->
       <!-- Negative moisture/tracer check -->
       <!-- **************************** -->
@@ -277,7 +274,6 @@
       <scheme>ubc_get_vals</scheme>                   <!-- Calcuate upper-level boundary conditions (depends on chemistry and model-top choice) -->
       <scheme>set_top_tint_val</scheme>               <!-- Calculate air temperature at top interface level -->
       <scheme>pres_1D_convert</scheme>                <!-- Convert pressure and dry pressure into 1-D variables (managed by framework?) -->
-      <scheme>rairi_calc</scheme>                     <!-- Interpolate gas constant (rair) at layer interface levels.  Only matters if using WACCM-X -->
       <scheme>rhoi_calc</scheme>                      <!-- Interpolate air density and dry air density to layer interface levels -->
       <scheme>compute_tms</scheme>                    <!-- Calculate Turbulent Mountain Stress (TMS) tendency -->
       <scheme>tms_diag_output</scheme>                <!-- Calculate TMS diangostic variables, and output them to history file -->
@@ -302,7 +298,6 @@
       <scheme>pbl_output</scheme>                     <!-- Write PBL diagnostic variables to history files -->
       <scheme>pres_1D_finalize</scheme>               <!-- Deallocate 1-D pressure variables -->
       <!-- **************************** -->
-      <scheme>waccmx_phys_mspd_tend</scheme>          <!-- Only if WACCM-X "ionosphere" or "neutral" is being used -->
       <scheme>rayleigh_friction_tend</scheme>         <!-- Calculate Rayleigh friction tendency -->
       <scheme>check_energy_chng</scheme>              <!-- Global integral checker required for certain diagnostic outputs -->
       <scheme>check_tracers_chng</scheme>             <!-- Global tracer mass checker that kills model if error is large enough. -->
@@ -328,7 +323,6 @@
       </subcycle>
       <scheme>set_srf_drydep</scheme>                 <!-- Add dry deposition surface fluxes to host model, if aerodep_flx_prescribed is False -->
       <!-- **************************** -->
-      <scheme>carma_timestep_tend</scheme>            <!-- Calculate CARMA microphysics.  Only matters if CARMA is active -->
       <scheme>charge_balance</scheme>                 <!-- Enforce charge nuetrality, if chemistry simulates electrons -->
       <!-- Gravit wave tendencies -->
       <!-- **************************** -->
@@ -362,14 +356,10 @@
       <scheme>pres_1D_finalize</scheme>                <!-- Deallocate 1-D pressure variables -->
       <!-- **************************** -->
       <scheme>check_energy_chng</scheme>               <!-- Global integral checker required for certain diagnostic outputs -->
-      <scheme>qbo_relax</scheme>                       <!-- Relax zonal winds towards QBO sequence.  Only matters if host model is WACCM or WACCM-X -->
       <scheme>check_energy_chng</scheme>               <!-- Global integral checker required for certain diagnostic outputs -->
       <scheme>lunar_tides_tend</scheme>                <!-- Calculate horizontal wind tendencies due to M2 lunar tide, but only if apply_lunar_tides is True -->
       <scheme>check_energy_chng</scheme>               <!-- Global integral checker required for certain diagnostic outputs -->
-      <scheme>iondrag_calc</scheme>                    <!-- Calculate ion drag and joule heating tendencies.  Only matters if host model is WACCM or WACCM-X -->
-      <scheme>waccmx_phys_ion_elec_temp_tend</scheme>  <!-- Calculate ionosphere tendencies.  Only matters if host model is WACCM-X in 'ionosphere' mode -->
       <scheme>calc_te_and_aam_budgets</scheme>         <!-- Managed by host model? -->
-      <scheme>charge_balance</scheme>                  <!-- Enforce charge nuetrality, if chemistry simulates electrons and host model is WACCM-X in 'ionosphere' mode -->
       <scheme>nudging_timestep_tend</scheme>           <!-- Apply nudging to horizontal winds, heat, and water vapor, and output diagnostics, but only if nudging is turned on. -->
       <scheme>set_dry_to_wet</scheme>                  <!-- Only matters if dycore is FV (LR) or SE -->
       <!-- Dry air mass adjuster -->                   <!-- Only matters if dycore is FV (LR), otherwise this calculation is purely diagnostic -->
