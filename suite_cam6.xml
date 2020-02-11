@@ -3,7 +3,7 @@
 <suite name="cam6" version="1.0">
   <group name="physics_bc">
     <!--cam6:  deep=ZM, shallow=CLUBB, macrop=CLUBB, microp=MG2, radiation=RRTMG, chem=trop_mam4 -->
-    <timesplit>
+    <time_split>
       <scheme>physics_state_check</scheme> <!-- Only if state_debug_checks is True. This scheme only looks for infs/nans, and kills the model if found. -->
       <scheme>clybry_fam_adj</scheme>      <!-- Only matters if chemistry package with Cly and Bry is used -->
       <!-- Negative moisture/tracer check -->
@@ -89,7 +89,7 @@
         <scheme>physics_state_dealloc</scheme>        <!-- This never actually happens in the current code (at least from what I could tell).  Bug? -->
         <!-- **************************** -->
         <scheme>check_energy_chng</scheme>            <!-- Global integral checker required for certain diagnostic outputs -->
-        <subcol gen=subcol_generator_name avg=subcol_averager_name>
+        <subcol gen="subcol_generator_name" avg="subcol_averager_name">
           <process_split>
             <!-- MG aerosol microphysics -->
             <!-- **************************** -->
@@ -204,14 +204,14 @@
       <scheme>calc_snow_optics_lw</scheme>            <!-- Calculate snow longwave optics -->
       <scheme>calc_snow_optics_lw</scheme>            <!-- Calculate graupel longwave optics -->
       <scheme>get_variability</scheme>                <!-- Calculate solar spectral irradiance scaling factors -->
-      <subcycle loop="N_DIAG">                        <!-- Loop over radiatively active constituents -->
+      <subcycle loop="n_diag">                        <!-- Loop over radiatively active constituents -->
         <scheme>rrtmg_state_update</scheme>           <!-- Add shortwave constiuent concentrations to RRTMG state structure -->
         <scheme>aer_rad_props_sw</scheme>             <!-- Gather/calculate aerosol shortwave optical properties (potentially provided by registry/framework?) -->
         <scheme>rad_rrtmg_sw</scheme>                 <!-- Actual RRTMG shortwave radiation parameterization -->
         <scheme>rad_sw_diag_output</scheme>           <!-- Calculate shortwave diagnostic variables, and output them to history file -->
       </subcycle>
       <scheme>rad_cnst_out</scheme>                   <!-- Calculate radiatively active constituent diagnostic variables, and output them to history file -->
-      <subcycle loop="N_DIAG">                        <!-- Loop over radiatively active constituents (combine with shortwave loop?)-->
+      <subcycle loop="n_diag">                        <!-- Loop over radiatively active constituents (combine with shortwave loop?)-->
         <scheme>rrtmg_state_update</scheme>           <!-- Add longwave constiuent concentrations to RRTMG state structure -->
         <scheme>aer_rad_props_lw</scheme>             <!-- Gather/calculate aerosol longwave optical properties (potentially provided by registry/framework?) -->
         <scheme>rad_rrtmg_lw</scheme>                 <!-- Actual RRTMG longwave radiation parameterization -->
@@ -231,10 +231,10 @@
       <scheme>tropopause_output</scheme>              <!-- Calculate tropopause diagnostic variables, and output them to history file -->
       <scheme>cam_export</scheme>                     <!-- Add various physics state variables to host model surface fluxes -->
       <scheme>diag_export</scheme>                    <!-- Output various host model surface fluxes to history file -->
-    </timesplit>
+    </time_split>
   </group>
   <group name="physics_ac">
-    <timesplit>
+    <time_split>
       <!--cam6:  diffusion=CLUBB, chem=trop_mam4 -->
       <scheme>flux_avg_run</scheme>                   <!-- Smooth/average surface fluxes, but only if phys_do_flux_avg is True -->
       <scheme>physics_state_check</scheme>            <!-- Only if state_debug_checks is True. This scheme only looks for infs/nans, and kills the model if found -->
@@ -311,7 +311,7 @@
       <scheme>calcram</scheme>                        <!-- Calculate aerodynamic resistance and friction velocity -->
       <scheme>calcram_diag_output</scheme>            <!-- Write aerodynamic resistance and friction velocity to history file -->
       <scheme>calc_atm_density</scheme>               <!-- Calculate atmospheric density -->
-      <subcyle loop="jvlc34">                         <!-- loop over vlc array index values 3 and 4 -->
+      <subcycle loop="jvlc34">                        <!-- loop over vlc array index values 3 and 4 -->
         <scheme>modal_aero_depvel_part</scheme>       <!-- Calculate dry deposition velocity for cloud droplets -->
       </subcycle>
       <subcycle loop="ntot_amode">                    <!-- Loop over aerosol modes -->
@@ -381,6 +381,6 @@
       <scheme>dtcore_reset</scheme>                    <!-- Reset "dtcore" variable to equal temperature -->
       <scheme>diag_phys_tend_writeout</scheme>         <!-- Calculate physics diagnostic variables, and output them to history file -->
       <scheme>clybry_fam_set</scheme>                  <!-- Set ClOy and BrOy mass mixig ratios. Only matters if chemistry package with Cly and Bry is used -->
-    </timesplit>
+    </time_split>
   </group>
 </suite>
