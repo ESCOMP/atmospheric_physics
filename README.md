@@ -6,7 +6,7 @@ Physics packages which are CCPP_enabled (along with supporting routines) are sto
 
 * Physics packages contain two files, a .F90 file which contains the routines and a .meta file which contains the CCPP metadata.
 
-* Standard names for metadata can be found [here] (https://github.com/gold2718/ccpp-framework/wiki/Metadata-standard-names)
+* Standard names for metadata can be found [here](https://github.com/gold2718/ccpp-framework/wiki/Metadata-standard-names)
 
 * Physics modules may contain one or more of the following routines (where XXX is the name of the module containing the physics)
   * XXX_init - contains the startup/restart initialization required for the package.  This is unthreaded and may contain I/O
@@ -19,5 +19,5 @@ Physics packages which are CCPP_enabled (along with supporting routines) are sto
 
 # CCPP resources
 
-* [ccpp framework repository] (https://github.com/NCAR/ccpp-framework)
+* [ccpp framework repository](https://github.com/NCAR/ccpp-framework)
 
