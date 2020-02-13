@@ -90,15 +90,12 @@
             <!-- **************************** -->
             <!-- MG cloud microphysics -->
             <!-- **************************** -->
-            <scheme>micro_mg_get_cols2_0</scheme>     <!-- Determine packed columns used by the MG2 microphysics schemes -->
+            <scheme>micro_mg_get_cols3_0</scheme>     <!-- Determine atmospheric columns used by the MG2 microphysics schemes -->
             <scheme>calc_incloud_LWP</scheme>         <!-- Calculate in-cloud Liquid Water Path (LWP) before MG2 is run -->
             <scheme>micro_calc_tropopause</scheme>    <!-- Calculate the cold-point tropopause for use by the microphysics -->
-            <scheme>mg_variable_packer</scheme>       <!-- Pack grid-domain variables together to reduce loop sizes (necessary?) -->
             <scheme>micro_mg_tend2_0</scheme>         <!-- Actual MG2 cloud micro-physics parameterization scheme -->
-            <scheme>mg_unpack_process</scheme>        <!-- Un-pack variables, and do additional processing to calculate certain variables, sums, and averages -->
             <scheme>mg_calc_outputs</scheme>          <!-- Calculate additional MG2 output variables and diagnostics -->
             <scheme>calc_atm_density</scheme>         <!-- Calculate atmospheric density -->
-            <scheme>subcol_field_avg</scheme>         <!-- Average sub-columns together to generate grid-scale values -->
             <!-- This section of code could likely be grouped together as one scheme (at least partially)-->
             <!-- +++++++++++++++++++++++++ -->
             <scheme>size_dist_param_liq</scheme>      <!-- Calculate size distribution of cloud droplets -->
@@ -115,24 +112,27 @@
             <scheme>calc_micro_column_vars</scheme>   <!-- Calculate Liquid Water Path (LWP) and net column condensation -->
             <scheme>calc_prec_efficiency</scheme>     <!-- Calculate precipitation efficiency -->
             <scheme>micro_diag_output</scheme>        <!-- Calculate microphysics diagnostic variables, and output them to history file -->
-            <!-- **************************** -->
-            <!-- SILHS subcolumn covariance -->
-            <!-- **************************** -->
-            <scheme>subcol_unpack</scheme>                     <!-- Unpack sub-column variables -->
-            <scheme>calc_total_moisture</scheme>               <!-- Combine vapor and condensate (manageable by registry/framework)? -->
-            <scheme>calc_dry_static_density</scheme>           <!-- Calculate the dry static density -->
-            <scheme>convert_omega_to_w</scheme>                <!-- Convert pressure velocity to vertical velocity, manageable by registry/framework? -->
-            <scheme>convert_dse_to_temp</scheme>               <!-- Convert dry static energy (DSE) to air temperature, manageable by registry/framework? -->
-            <scheme>exner_silhs</scheme>                       <!-- Calculate the Exner function according to SILHS (should be the same as CLUBB, but possible issues) -->
-            <scheme>thl_calc</scheme>                          <!-- Calculate liquid water potential temperature (theta-l) -->
-            <scheme>silhs_var_vert_inv</scheme>                <!-- Change order of vertical levels for SILHS input variables, and add ghost point (should be manageable via the registry/meta file) -->
-            <scheme>silhs_get_subcol_wgts</scheme>             <!--  Collect subcolumn weights for SILHS -->
-            <scheme>lh_microphys_var_covar_driver_api</scheme> <!-- Actual SILHS sub-column parameterization -->
-            <scheme>zero_upper_level</scheme>                  <!-- Set covariances above SILHS max altitude to zero -->
-            <!-- **************************** -->
-            <scheme>subcol_SILHS_fill_holes_conserv_calc</scheme> <!-- Prevent holes (values less than qmin) using mass-conserving adjustments -->
-            <scheme>massless_droplet_destroyer</scheme>           <!-- Remove massless droplets, doesn't influences only grid-scale tendencies -->
-            <scheme>subcol_SILHS_hydromet_conc_tend_lim</scheme>  <!-- Place limits on hydrometeor drop-size -->
+            <execute test="use_SILHS" default=".false." >
+              <!-- **************************** -->
+              <!-- SILHS subcolumn covariance -->
+              <!-- **************************** -->
+              <scheme>calc_total_moisture</scheme>               <!-- Combine vapor and condensate (manageable by registry/framework)? -->
+              <scheme>calc_dry_static_density</scheme>           <!-- Calculate the dry static density -->
+              <scheme>convert_omega_to_w</scheme>                <!-- Convert pressure velocity to vertical velocity, manageable by registry/framework? -->
+              <scheme>convert_dse_to_temp</scheme>               <!-- Convert dry static energy (DSE) to air temperature, manageable by registry/framework? -->
+              <scheme>exner_silhs</scheme>                       <!-- Calculate the Exner function according to SILHS (should be the same as CLUBB, but possible issues) -->
+              <scheme>thl_calc</scheme>                          <!-- Calculate liquid water potential temperature (theta-l) -->
+              <scheme>silhs_var_vert_inv</scheme>                <!-- Change order of vertical levels for SILHS input variables, and add ghost point (should be manageable via the registry/meta file) -->
+              <scheme>silhs_get_subcol_wgts</scheme>             <!--  Collect subcolumn weights for SILHS -->
+              <scheme>lh_microphys_var_covar_driver_api</scheme> <!-- Actual SILHS sub-column parameterization -->
+              <scheme>zero_upper_level</scheme>                  <!-- Set covariances above SILHS max altitude to zero -->
+              <!-- **************************** -->
+              <scheme>subcol_SILHS_fill_holes_conserv_calc</scheme> <!-- Prevent holes (values less than qmin) using mass-conserving adjustments -->
+            </execute>
+            <scheme>massless_droplet_destroyer</scheme>             <!-- Remove massless droplets, doesn't influences only grid-scale tendencies -->
+            <execute test="use_SILHS" default=".false." >
+              <scheme>subcol_SILHS_hydromet_conc_tend_lim</scheme>  <!-- Place limits on hydrometeor drop-size -->
+            </execute>
           </process_split>
           <scheme>check_energy_chng</scheme>          <!-- Global integral checker required for certain diagnostic outputs -->
         </subcol>
