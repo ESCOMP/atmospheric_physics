@@ -8,8 +8,7 @@
       <scheme>clybry_fam_adj</scheme>      <!-- Only matters if chemistry package with Cly and Bry is used -->
       <!-- Negative moisture/tracer check -->
       <!-- **************************** -->
-      <scheme>qneg3</scheme>                    <!-- This scheme modifies the state directly.  Combine with state check? -->
-      <scheme>qneg3_diag_output</scheme>        <!-- Scheme to output qneg diagnostics (i.e. the "outfld" calls) -->
+      <scheme>qneg3</scheme>               <!-- This scheme modifies the state directly.  Combine with state check? -->
       <!-- **************************** -->
       <scheme>physics_state_check</scheme>      <!-- Only if state_debug_checks is True. This scheme only looks for infs/nans, and kills the model if found. -->
       <scheme>diag_state_b4_phys_write</scheme> <!-- Diagnostics -->
@@ -26,14 +25,11 @@
       <scheme>calc_dtcore</scheme>             <!-- diagnostic calculation.  Could likely be included in energy fixer scheme. -->
       <!-- Dry adiabatic adjustment  -->
       <!-- **************************** -->
-      <scheme>physics_state_copy</scheme>      <!-- Technically only need T and q here, not entire state -->
-      <scheme>dadadj_calc</scheme>             <!-- Actual dry adiabatic adjustment scheme -->
-      <scheme>dadadj_cam_update</scheme>       <!-- Placeholder for CAM ptend calculations -->
-      <scheme>physics_state_dealloc</scheme>
+      <!-- Technically only needs temperature and humidity as inputs -->
+      <scheme>dadadj_calc_update</scheme>      <!-- Actual dry adiabatic adjustment scheme, with placeholders for CAM ptend calculations -->
       <!-- **************************** -->
       <!-- Zhang-Macfarlane deep convection scheme -->
       <!-- **************************** -->
-      <scheme>physics_state_copy</scheme>
       <scheme>zm_convr</scheme>                 <!-- Actual deep convection routine -->
       <scheme>zm_convr_cam_update</scheme>      <!-- Placeholder for CAM ptend and diagnostic output calculations -->
       <scheme>zm_conv_evap</scheme>             <!-- Actual ZM rain evaporation scheme -->
@@ -42,7 +38,6 @@
       <scheme>momtran_cam_update</scheme>       <!-- Placeholder for CAM ptend and diagnostic output calculations -->
       <scheme>convtran</scheme>                 <!-- Actual ZM convective transport scheme, for constituents in cnst_is_convtran1 -->
       <scheme>convtran_cam_update</scheme>      <!-- Placeholder for CAM ptend and diagnostic output calculations -->
-      <scheme>physics_state_dealloc</scheme>
       <!-- **************************** -->
       <scheme>check_energy_chng</scheme>        <!-- Global integral checker required for certain diagnostic outputs -->
       <scheme>check_tracers_chng</scheme>       <!-- Global tracer mass checker that kills model if error is large enough. -->
@@ -56,7 +51,6 @@
             of host model inputs.  Thus they can likely be
             managed by the framework itself, and won't need
             their own scheme calls.-->
-        <scheme>physics_state_copy</scheme>
         <scheme>set_dry_to_wet</scheme>               <!-- Convert mixing ratios from dry air to air + water vapor -->
         <scheme>grid_size</scheme>                    <!-- Calculate grid-cell size (not sure if this will be managed by registry/interface?) -->
         <scheme>clubb_dtime_calc</scheme>             <!-- Calculate CLUBB time-step as function of host model time-step -->
@@ -85,7 +79,6 @@
         <scheme>conv_cond_detrain_cam_update</scheme> <!-- Placeholder for CAM ptend and diagnostic output calculations -->
         <scheme>set_wet_to_dry</scheme>               <!-- Convert mixing ratios from air + water vapor to dry air -->
         <scheme>clubb_diag_output</scheme>            <!-- Calculate numerous different CLUBB diagnostic variables, and output them to history file -->
-        <scheme>physics_state_dealloc</scheme>        <!-- This never actually happens in the current code (at least from what I could tell).  Bug? -->
         <!-- **************************** -->
         <scheme>check_energy_chng</scheme>            <!-- Global integral checker required for certain diagnostic outputs -->
         <subcol gen="subcol_generator_name" avg="subcol_averager_name">
@@ -99,7 +92,6 @@
             <!-- **************************** -->
             <scheme>micro_mg_get_cols2_0</scheme>     <!-- Determine packed columns used by the MG2 microphysics schemes -->
             <scheme>calc_incloud_LWP</scheme>         <!-- Calculate in-cloud Liquid Water Path (LWP) before MG2 is run -->
-            <scheme>physics_state_copy</scheme>
             <scheme>micro_calc_tropopause</scheme>    <!-- Calculate the cold-point tropopause for use by the microphysics -->
             <scheme>mg_variable_packer</scheme>       <!-- Pack grid-domain variables together to reduce loop sizes (necessary?) -->
             <scheme>micro_mg_tend2_0</scheme>         <!-- Actual MG2 cloud micro-physics parameterization scheme -->
@@ -123,7 +115,6 @@
             <scheme>calc_micro_column_vars</scheme>   <!-- Calculate Liquid Water Path (LWP) and net column condensation -->
             <scheme>calc_prec_efficiency</scheme>     <!-- Calculate precipitation efficiency -->
             <scheme>micro_diag_output</scheme>        <!-- Calculate microphysics diagnostic variables, and output them to history file -->
-            <scheme>physics_state_dealloc</scheme>
             <!-- **************************** -->
             <!-- SILHS subcolumn covariance -->
             <!-- **************************** -->
@@ -248,8 +239,7 @@
       <scheme>check_tracers_init</scheme>             <!-- Initalize tracer/constituent mass checker -->
       <!-- Negative moisture/tracer check -->
       <!-- **************************** -->
-      <scheme>qneg4</scheme>                          <!-- Modify surface moisture and heat fluxes to prevent negative moisture values -->
-      <scheme>qneg4_diag_output</scheme>              <!-- Output qneg4 diagnostics (i.e. the "outfld" calls) -->
+      <scheme>qneg4</scheme>                          <!-- Modify surface moisture and heat fluxes to prevent negative moisture values, and output diagnostics -->
       <!-- **************************** -->
       <scheme>aoa_tracers_timestep_tend</scheme>      <!-- Calculate age of air tracer tendencies.  Also output tendencies to history file -->
       <scheme>check_tracers_chng</scheme>             <!-- Global tracer mass checker that kills model if error is large enough. -->
@@ -273,7 +263,6 @@
       <scheme>tint_calc</scheme>                      <!-- Interpolate air temperature to layer interface levels -->
       <scheme>ubc_get_vals</scheme>                   <!-- Calcuate upper-level boundary conditions (depends on chemistry and model-top choice) -->
       <scheme>set_top_tint_val</scheme>               <!-- Calculate air temperature at top interface level -->
-      <scheme>pres_1D_convert</scheme>                <!-- Convert pressure and dry pressure into 1-D variables (managed by framework?) -->
       <scheme>rhoi_calc</scheme>                      <!-- Interpolate air density and dry air density to layer interface levels -->
       <scheme>compute_tms</scheme>                    <!-- Calculate Turbulent Mountain Stress (TMS) tendency -->
       <scheme>tms_diag_output</scheme>                <!-- Calculate TMS diangostic variables, and output them to history file -->
@@ -296,7 +285,6 @@
       <scheme>pbl_diag_calc</scheme>                  <!-- Calculate PBL diagnositc variables, if do_pbl_diags is False -->
       <scheme>diff_mass_check</scheme>                <!-- Check mass conservation after vertical diffusion, and send error messages if check fails -->
       <scheme>pbl_output</scheme>                     <!-- Write PBL diagnostic variables to history files -->
-      <scheme>pres_1D_finalize</scheme>               <!-- Deallocate 1-D pressure variables -->
       <!-- **************************** -->
       <scheme>rayleigh_friction_tend</scheme>         <!-- Calculate Rayleigh friction tendency -->
       <scheme>check_energy_chng</scheme>              <!-- Global integral checker required for certain diagnostic outputs -->
@@ -337,9 +325,7 @@
            out once "if-statement" like dependencies
            can be added to suite definition files
            like this one -->
-      <scheme>physics_state_copy</scheme>
       <scheme>set_dry_to_wet</scheme>                  <!-- Convert mixing ratios from dry air to air + water vapor -->
-      <scheme>pres_1D_convert</scheme>                 <!-- Convert pressure and dry pressure into 1-D variables (managed by framework?) -->
       <scheme>gw_prof</scheme>                         <!-- Calculate layer interface densities and Brunt-Viasala frequencies (combine with other schemes?) -->
       <!-- Generic gravity wave scheme order  -->
       <!-- +++++++++++++++++++++++++ -->
@@ -353,9 +339,7 @@
       <scheme>energy_fixer</scheme>                    <!-- Ensure energy conservation -->
       <scheme>gw_cam_update</scheme>                   <!-- Placeholder for CAM gravity wave ptend and diagnostic output calculations -->
       <!-- +++++++++++++++++++++++++ -->
-      <scheme>pres_1D_finalize</scheme>                <!-- Deallocate 1-D pressure variables -->
       <!-- **************************** -->
-      <scheme>check_energy_chng</scheme>               <!-- Global integral checker required for certain diagnostic outputs -->
       <scheme>check_energy_chng</scheme>               <!-- Global integral checker required for certain diagnostic outputs -->
       <scheme>lunar_tides_tend</scheme>                <!-- Calculate horizontal wind tendencies due to M2 lunar tide, but only if apply_lunar_tides is True -->
       <scheme>check_energy_chng</scheme>               <!-- Global integral checker required for certain diagnostic outputs -->
