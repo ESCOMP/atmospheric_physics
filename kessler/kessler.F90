@@ -191,7 +191,7 @@ CONTAINS
       do col = 1, ncol
          do klev = lyr_surf, lyr_toa, lyr_step
             r(klev)     = 0.001_kind_phys * rho(col, klev)
-            rhalf(klev) = sqrt(rho(col, 1) / rho(col, klev))
+            rhalf(klev) = sqrt(rho(col, lyr_surf) / rho(col, klev))
             pc(klev)    = 3.8_kind_phys / (pk(col, klev)**(1._kind_phys/xk)*psl)
             !
             ! if qr is (round-off) negative then the computation of
@@ -229,8 +229,8 @@ CONTAINS
          do while (nt <= rainsplit)
 
             ! Precipitation rate (m/s)
-            precl(col) = precl(col) + rho(col, 1) * qr(col, 1) *  &
-                 velqr(1) / rhoqr
+            precl(col) = precl(col) + rho(col, lyr_surf) * qr(col, lyr_surf) *  &
+                 velqr(lyr_surf) / rhoqr
 
             ! Sedimentation term using upstream differencing
             do klev = lyr_surf, lyr_toa - lyr_step, lyr_step
@@ -239,8 +239,8 @@ CONTAINS
                      (r(klev) * qr(col, klev) * velqr(klev))) /               &
                     (r(klev) * (z(col, klev+lyr_step) - z(col, klev)))
             end do
-            sed(nz) = -dt0 * qr(col, nz) * velqr(nz) / &
-                 (0.5_kind_phys * (z(col, nz)-z(col, nz-1)))
+            sed(lyr_toa) = -dt0 * qr(col, lyr_toa) * velqr(lyr_toa) / &
+                 (0.5_kind_phys * (z(col, lyr_toa)-z(col, lyr_toa-lyr_step)))
 
             ! Adjustment terms
             do klev = lyr_surf, lyr_toa, lyr_step
