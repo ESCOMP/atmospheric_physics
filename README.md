@@ -1,3 +1,5 @@
+# IMPORTANT NOTE - This repository is currently under development and items contained within it should be used with caution.
+
 # NCAR CCPP-enabled Atmospheric Physics
 
 Physics packages which are CCPP_enabled (along with supporting routines) are stored in this repository.
