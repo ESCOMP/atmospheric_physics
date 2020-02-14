@@ -145,6 +145,18 @@
   type = real
   kind = kind_phys
   intent = in
+[ lyr_surf ]
+  standard_name = index_of_bottom_vertical_layer
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[ lyr_toa ]
+  standard_name = index_of_top_vertical_layer
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
 [ rho ]
   standard_name = density_of_dry_air_at_STP
   long_name = dry air density

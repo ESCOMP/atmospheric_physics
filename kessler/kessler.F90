@@ -60,10 +60,6 @@ CONTAINS
       errflg = 0
       errmsg = ''
 
-      !!XXgoldyXX ==> cacraigucar: Why is this here instead of having
-      !                            a wet_to_dry_timestep_init?
-      call wet_to_dry_run(ncol, nz, pdel, pdeldry, qv, qc, qr, errmsg, errflg)
-
    end subroutine kessler_timestep_init
 
    !-----------------------------------------------------------------------
@@ -130,7 +126,7 @@ CONTAINS
 
    !> \section arg_table_kessler_run  Argument Table
    !! \htmlinclude kessler_run.html
-   subroutine kessler_run(ncol, nz, dt, rho, z, pk, theta,                    &
+   subroutine kessler_run(ncol, nz, dt,  lyr_surf, lyr_toa, rho, z, pk, theta, &
         qv, qc, qr, precl, errmsg, errflg)
 
       !------------------------------------------------
@@ -139,6 +135,8 @@ CONTAINS
       integer,          intent(in)    :: ncol       ! Number of columns
       integer,          intent(in)    :: nz         ! Number of vertical levels
       real(kind_phys),  intent(in)    :: dt         ! Time step (s)
+      integer,          intent(in)    :: lyr_surf   ! Index of surface layer in the vertical coordinate
+      integer,          intent(in)    :: lyr_toa    ! Index of top of the atmosphere in the vertical coordinate
       real(kind_phys),  intent(in)    :: rho(:,:)   ! Dry air density (kg/m^3)
       real(kind_phys),  intent(in)    :: z(:,:)     ! Heights of thermo. levels (m)
       real(kind_phys),  intent(in)    :: pk(:,:)    ! Exner function (p/p0)**(R/cp)
@@ -159,6 +157,8 @@ CONTAINS
       real(kind_phys) :: f5, f2x, xk, ern, qrprod, prod, qvs, dt_max, dt0
       integer         :: col, klev, rainsplit, nt
 
+      integer         :: lyr_step  ! increment to move up a level
+
       ! Initialize output variables
       precl = 0._kind_phys
       errmsg = ''
@@ -171,6 +171,12 @@ CONTAINS
          return
       end if
 
+      if (lyr_surf > lyr_toa) then
+         lyr_step = -1
+      else
+         lyr_step = 1
+      end if
+
       !------------------------------------------------
       !   Begin calculation
       !------------------------------------------------
@@ -179,9 +185,9 @@ CONTAINS
       xk    = .2875_kind_phys  !  kappa (r/cp)
       ! Loop through columns
       do col = 1, ncol
-         do klev = 1, nz
+         do klev = lyr_surf, lyr_toa, lyr_step
             r(klev)     = 0.001_kind_phys * rho(col, klev)
-            rhalf(klev) = sqrt(rho(col, 1) / rho(col, klev))
+            rhalf(klev) = sqrt(rho(col, lyr_surf) / rho(col, klev))
             pc(klev)    = 3.8_kind_phys / (pk(col, klev)**(1._kind_phys/xk)*psl)
             !
             ! if qr is (round-off) negative then the computation of
@@ -197,10 +203,10 @@ CONTAINS
 
          ! Maximum time step size in accordance with CFL condition
          dt_max = dt
-         do klev = 1, nz - 1
+         do klev = lyr_surf, lyr_toa - lyr_step, lyr_step
             ! NB: Original test for velqr /= 0 numerically unstable
             if (abs(velqr(klev)) > 1.0E-12_kind_phys) then
-               dt_max = min(dt_max, 0.8_kind_phys*(z(col, klev+1) -           &
+               dt_max = min(dt_max, 0.8_kind_phys*(z(col, klev+lyr_step) -           &
                     z(col, klev)) / velqr(klev))
             end if
          end do
@@ -219,21 +225,21 @@ CONTAINS
          do while (nt <= rainsplit)
 
             ! Precipitation rate (m/s)
-            precl(col) = precl(col) + rho(col, 1) * qr(col, 1) *  &
-                 velqr(1) / rhoqr
+            precl(col) = precl(col) + rho(col, lyr_surf) * qr(col, lyr_surf) *  &
+                 velqr(lyr_surf) / rhoqr
 
             ! Sedimentation term using upstream differencing
-            do klev = 1, nz-1
+            do klev = lyr_surf, lyr_toa - lyr_step, lyr_step
                sed(klev) = dt0 *                                              &
-                    ((r(klev+1) * qr(col, klev+1) * velqr(klev+1)) -          &
+                    ((r(klev+lyr_step) * qr(col, klev+lyr_step) * velqr(klev+lyr_step)) -          &
                      (r(klev) * qr(col, klev) * velqr(klev))) /               &
-                    (r(klev) * (z(col, klev+1) - z(col, klev)))
+                    (r(klev) * (z(col, klev+lyr_step) - z(col, klev)))
             end do
-            sed(nz) = -dt0 * qr(col, nz) * velqr(nz) / &
-                 (0.5_kind_phys * (z(col, nz)-z(col, nz-1)))
+            sed(lyr_toa) = -dt0 * qr(col, lyr_toa) * velqr(lyr_toa) / &
+                 (0.5_kind_phys * (z(col, lyr_toa)-z(col, lyr_toa-lyr_step)))
 
             ! Adjustment terms
-            do klev = 1, nz
+            do klev = lyr_surf, lyr_toa, lyr_step
 
                ! Autoconversion and accretion rates following KW eq. 2.13a,b
                qrprod = qc(col, klev) - (qc(col, klev) - dt0 * &
@@ -267,15 +273,15 @@ CONTAINS
 
             ! Recalculate liquid water terminal velocity
             if (nt /= rainsplit) then
-               do klev = 1, nz
+               do klev = lyr_surf, lyr_toa, lyr_step
                   velqr(klev)  = 36.34_kind_phys * rhalf(klev) * (qr(col, klev)*r(klev))**0.1364_kind_phys
                end do
                !
                ! recompute rainsplit since velqr has changed
                !
-               do klev = 1, nz - 1
+               do klev = lyr_surf, lyr_toa - lyr_step, lyr_step
                   if (abs(velqr(klev)) > 1.0E-12_kind_phys) then
-                     dt_max = min(dt_max, 0.8_kind_phys*(z(col, klev+1) - z(col, klev)) / velqr(klev))
+                     dt_max = min(dt_max, 0.8_kind_phys*(z(col, klev+lyr_step) - z(col, klev)) / velqr(klev))
                   end if
                end do
                ! Number of subcycles
