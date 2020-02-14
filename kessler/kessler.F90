@@ -60,10 +60,6 @@ CONTAINS
       errflg = 0
       errmsg = ''
 
-!      !!XXgoldyXX ==> cacraigucar: Why is this here instead of having
-!      !                            a wet_to_dry_timestep_init?
-!      call wet_to_dry_run(ncol, nz, pdel, pdeldry, qv, qc, qr, errmsg, errflg)
-
    end subroutine kessler_timestep_init
 
    !-----------------------------------------------------------------------
@@ -139,8 +135,8 @@ CONTAINS
       integer,          intent(in)    :: ncol       ! Number of columns
       integer,          intent(in)    :: nz         ! Number of vertical levels
       real(kind_phys),  intent(in)    :: dt         ! Time step (s)
-      integer,          intent(in)    :: lyr_surf
-      integer,          intent(in)    :: lyr_toa
+      integer,          intent(in)    :: lyr_surf   ! Index of surface layer in the vertical coordinate
+      integer,          intent(in)    :: lyr_toa    ! Index of top of the atmosphere in the vertical coordinate
       real(kind_phys),  intent(in)    :: rho(:,:)   ! Dry air density (kg/m^3)
       real(kind_phys),  intent(in)    :: z(:,:)     ! Heights of thermo. levels (m)
       real(kind_phys),  intent(in)    :: pk(:,:)    ! Exner function (p/p0)**(R/cp)
