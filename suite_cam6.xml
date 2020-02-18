@@ -345,6 +345,7 @@
       <scheme>check_energy_chng</scheme>               <!-- Global integral checker required for certain diagnostic outputs -->
       <scheme>calc_te_and_aam_budgets</scheme>         <!-- Managed by host model? -->
       <scheme>nudging_timestep_tend</scheme>           <!-- Apply nudging to horizontal winds, heat, and water vapor, and output diagnostics, but only if nudging is turned on. -->
+      <scheme>check_energy_chng</scheme>               <!-- Global integral checker required for certain diagnostic outputs -->
       <scheme>set_dry_to_wet</scheme>                  <!-- Only matters if dycore is FV (LR) or SE -->
       <!-- Dry air mass adjuster -->                   <!-- Only matters if dycore is FV (LR), otherwise this calculation is purely diagnostic -->
       <!-- **************************** -->
