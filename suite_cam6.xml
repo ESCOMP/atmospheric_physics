@@ -14,12 +14,12 @@
       <scheme>diag_state_b4_phys_write</scheme> <!-- Diagnostics -->
       <!-- energy and momentum fixer -->
       <!-- **************************** -->
-      <scheme>calc_te_and_aam_budgets</scheme>
-      <scheme>check_energy_fix</scheme>                  <!--Only matters if dycore is FV (called "LR" in physics) or SE-->
+      <scheme>calc_te_and_aam_budgets</scheme>           <!-- Managed by host model? Diagnostic output suffix = 'pBF' -->
+      <scheme>check_energy_fix</scheme>                  <!-- Only matters if dycore is FV (called "LR" in physics) or SE-->
       <scheme>check_energy_cam_update_pre_chng</scheme>  <!-- Placeholder for CAM ptend and diagnostic output calculations before "chng" call. -->
       <scheme>check_energy_chng</scheme>                 <!-- Global integral checker required for certain diagnostic outputs -->
       <scheme>check_energy_cam_update_post_chng</scheme> <!-- Placeholder for CAM ptend and diagnostic output calculations after "chng" call. -->
-      <scheme>calc_te_and_aam_budgets</scheme>
+      <scheme>calc_te_and_aam_budgets</scheme>           <!-- Managed by host model? Diagnostic output suffix = 'pBP' -->
       <!-- **************************** -->
       <scheme>diag_conv_tend_ini</scheme>      <!-- Initalizes convective-scheme diagnostic outputs -->
       <scheme>calc_dtcore</scheme>             <!-- diagnostic calculation.  Could likely be included in energy fixer scheme. -->
@@ -144,7 +144,7 @@
       <scheme>modal_aero_calcsize_diag</scheme>       <!-- Only if climatological aerosols are used instead of prognostic aerosols -->
       <!-- Modal Aerosol water uptake -->             <!-- Only if climatological aerosols are used instead of prognostic aerosols -->
       <!-- **************************** -->
-      <scheme>tropopause_find</scheme>                <!-- Calculate tropopause height -->
+      <scheme>tropopause_find</scheme>                <!-- CalManaged by host model?culate tropopause height -->
       <scheme>calc_h2so4_equilib_mixrat</scheme>      <!-- Calculate Sulfuric acid phase equilibrium, if modal_strat_sulfate is True -->
       <scheme>h2so4_equilib_diag</scheme>             <!-- Output sulfer aerosol diagnostics to history file -->
       <scheme>qsat_water</scheme>                     <!-- Calculate saturation vapor pressure with respect to liquid water -->
@@ -343,7 +343,7 @@
       <scheme>check_energy_chng</scheme>               <!-- Global integral checker required for certain diagnostic outputs -->
       <scheme>lunar_tides_tend</scheme>                <!-- Calculate horizontal wind tendencies due to M2 lunar tide, but only if apply_lunar_tides is True -->
       <scheme>check_energy_chng</scheme>               <!-- Global integral checker required for certain diagnostic outputs -->
-      <scheme>calc_te_and_aam_budgets</scheme>         <!-- Managed by host model? -->
+      <scheme>calc_te_and_aam_budgets</scheme>         <!-- Managed by host model? Diagnostic output suffix = 'pAP' -->
       <scheme>nudging_timestep_tend</scheme>           <!-- Apply nudging to horizontal winds, heat, and water vapor, and output diagnostics, but only if nudging is turned on. -->
       <scheme>check_energy_chng</scheme>               <!-- Global integral checker required for certain diagnostic outputs -->
       <scheme>set_dry_to_wet</scheme>                  <!-- Only matters if dycore is FV (LR) or SE -->
@@ -352,7 +352,7 @@
       <scheme>qfac_state_adjust</scheme>               <!-- Adjust state variables based off the change in water vapor -->
       <scheme>geopotential_dse</scheme>                <!-- Calculate the temperatue and geopotential height using pressure and dry static energy -->
       <!-- **************************** -->
-      <scheme>calc_te_and_aam_budgets</scheme>         <!-- Managed by host model? -->
+      <scheme>calc_te_and_aam_budgets</scheme>         <!-- Managed by host model? Diagnostic output suffix = 'pAM' -->
       <scheme>dtcore_reset</scheme>                    <!-- Reset "dtcore" variable to equal temperature -->
       <scheme>diag_phys_tend_writeout</scheme>         <!-- Calculate physics diagnostic variables, and output them to history file -->
       <scheme>clybry_fam_set</scheme>                  <!-- Set ClOy and BrOy mass mixig ratios. Only matters if chemistry package with Cly and Bry is used -->
