@@ -15,12 +15,12 @@
       <scheme>diag_state_b4_phys_write</scheme> <!-- Diagnostics -->
       <!-- energy and momentum fixer -->
       <!-- **************************** -->
-      <scheme>calc_te_and_aam_budgets</scheme>
-      <scheme>check_energy_fix</scheme>                  <!--Only matters if dycore is FV (called "LR" in physics) or SE-->
+      <scheme>calc_te_and_aam_budgets</scheme>           <!-- Managed by host model? Diagnostic output suffix = 'pBF' -->
+      <scheme>check_energy_fix</scheme>                  <!-- Only matters if dycore is FV (called "LR" in physics) or SE -->
       <scheme>check_energy_cam_update_pre_chng</scheme>  <!-- Placeholder for CAM ptend and diagnostic output calculations before "chng" call. -->
       <scheme>check_energy_chng</scheme>                 <!-- Global integral checker required for certain diagnostic outputs -->
       <scheme>check_energy_cam_update_post_chng</scheme> <!-- Placeholder for CAM ptend and diagnostic output calculations after "chng" call. -->
-      <scheme>calc_te_and_aam_budgets</scheme>
+      <scheme>calc_te_and_aam_budgets</scheme>           <!-- Managed by host model? Diagnostic output suffix = 'pBP' -->
       <!-- **************************** -->
       <scheme>diag_conv_tend_ini</scheme>      <!-- Initalizes convective-scheme diagnostic outputs -->
       <scheme>calc_dtcore</scheme>             <!-- diagnostic calculation.  Could likely be included in energy fixer scheme. -->
@@ -187,7 +187,7 @@
       <scheme>check_energy_chng</scheme>               <!-- Global integral checker required for certain diagnostic outputs -->
       <scheme>lunar_tides_tend</scheme>                <!-- Calculate horizontal wind tendencies due to M2 lunar tide, but only if apply_lunar_tides is True -->
       <scheme>check_energy_chng</scheme>               <!-- Global integral checker required for certain diagnostic outputs -->
-      <scheme>calc_te_and_aam_budgets</scheme>         <!-- Managed by host model? -->
+      <scheme>calc_te_and_aam_budgets</scheme>         <!-- Managed by host model? Diagnostic output suffix = 'pAP' -->
       <scheme>nudging_timestep_tend</scheme>           <!-- Apply nudging to horizontal winds, heat, and water vapor, and output diagnostics, but only if nudging is turned on. -->
       <scheme>check_energy_chng</scheme>               <!-- Global integral checker required for certain diagnostic outputs -->
       <scheme>set_dry_to_wet</scheme>                  <!-- Only matters if dycore is LR (still used?) or SE-->
@@ -196,7 +196,7 @@
       <scheme>qfac_state_adjust</scheme>               <!-- Adjust state variables based off the change in water vapor -->
       <scheme>geopotential_dse</scheme>                <!-- Calculate the temperatue and geopotential height using pressure and dry static energy -->
       <!-- **************************** -->
-      <scheme>calc_te_and_aam_budgets</scheme>         <!-- Managed by host model? -->
+      <scheme>calc_te_and_aam_budgets</scheme>         <!-- Managed by host model? Diagnostic output suffix = 'pAM' -->
       <scheme>dtcore_reset</scheme>                    <!-- Reset "dtcore" variable to equal temperature -->
       <scheme>diag_phys_tend_writeout</scheme>         <!-- Calculate physics diagnostic variables, and output them to history file -->
     </time_split>
