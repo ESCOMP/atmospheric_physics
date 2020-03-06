@@ -51,34 +51,38 @@
             of host model inputs.  Thus they can likely be
             managed by the framework itself, and won't need
             their own scheme calls.-->
-        <scheme>set_dry_to_wet</scheme>               <!-- Convert mixing ratios from dry air to air + water vapor -->
-        <scheme>grid_size</scheme>                    <!-- Calculate grid-cell size (not sure if this will be managed by registry/interface?) -->
-        <scheme>clubb_dtime_calc</scheme>             <!-- Calculate CLUBB time-step as function of host model time-step -->
-        <scheme>exner_clubb</scheme>                  <!-- Calculate Exner function using CLUBB definition (should be manageable via the registry/meta file) -->
-        <scheme>tropopause_findChemTrop</scheme>      <!-- Calculate tropopause height -->
-        <scheme>clubb_vertical_grid_inv</scheme>      <!-- Change order of vertical levels (should be manageable by registry/meta file) -->
-        <scheme>clubb_calc_ustar</scheme>             <!-- Only matters for single-column mode -->
-        <scheme>setup_grid_heights_api</scheme>       <!-- Re-calculate CLUBB grid heights -->
-        <scheme>setup_parameters_api</scheme>         <!-- Re-calculate grid-dependent CLUBB parameters -->
-        <scheme>zt2zm_convert</scheme>                <!-- Transition variables on thermodynamic levels to momentum levels (manageable by registry/meta file?) -->
-        <scheme>clubb_var_vert_inv</scheme>           <!-- Change order of vertical levels for CLUBB input variables (should be manageable via the registry/meta file) -->
-        <subcycle loop="clubb_time_substep">          <!-- CLUBB sub-step loop (number of iterations should be calculated in the "clubb_dtime_calc" scheme), CAM6 var = 'clubb_nadv' -->
-          <scheme>stats_begin_timestep_api</scheme>   <!-- Only matters if "l_stats" is True -->
-          <scheme>advance_clubb_core_api</scheme>     <!-- Actual CLUBB parameterization scheme -->
-          <scheme>update_xp2_mc_api</scheme>          <!-- Only matters if "do_rainturb" is True -->
-          <scheme>calculate_thlp2_rad_api</scheme>    <!-- Only matters if "do_cldcool" is True -->
-          <scheme>stats_end_timestep_clubb</scheme>   <!-- Only matters if "l_stats" is True -->
+        <scheme>set_dry_to_wet</scheme>                  <!-- Convert mixing ratios from dry air to air + water vapor -->
+        <scheme>grid_size</scheme>                       <!-- Calculate grid-cell size (not sure if this will be managed by registry/interface?) -->
+        <scheme>clubb_dtime_calc</scheme>                <!-- Calculate CLUBB time-step as function of host model time-step -->
+        <scheme>exner_clubb</scheme>                     <!-- Calculate Exner function using CLUBB definition (should be manageable via the registry/meta file) -->
+        <scheme>clubb_thermo_vars</scheme>               <!-- Calculate various thermodynamic variables needed for CLUBB (Theta-V, Theta-L, etc.) -->
+        <scheme>tropopause_findChemTrop</scheme>         <!-- Calculate tropopause height -->
+        <scheme>clubb_vertical_grid_create_inv</scheme>  <!-- Create CLUBB vertical grids, which is in the opposite order of CAM -->
+        <scheme>clubb_thermo_vars_grid</scheme>          <!-- Calculate additional thermodynamic variables that are on the CLUBB vertical grid -->
+        <scheme>clubb_calc_ustar</scheme>                <!-- Only matters for single-column mode -->
+        <scheme>setup_grid_heights_api</scheme>          <!-- Re-calculate CLUBB grid heights -->
+        <scheme>setup_parameters_api</scheme>            <!-- Re-calculate grid-dependent CLUBB parameters -->
+        <scheme>zt2zm_convert</scheme>                   <!-- Transition variables on thermodynamic levels to momentum levels (manageable by registry/meta file?) -->
+        <scheme>clubb_calc_input_vars</scheme>           <!-- Calculate additional CLUBB input variables -->
+        <scheme>clubb_var_vert_inv</scheme>              <!-- Change order of vertical levels for CLUBB input variables -->
+        <subcycle loop="clubb_time_substep">             <!-- CLUBB sub-step loop (number of iterations should be calculated in the "clubb_dtime_calc" scheme), CAM6 var = 'clubb_nadv' -->
+          <scheme>stats_begin_timestep_api</scheme>      <!-- Only matters if "l_stats" is True -->
+          <scheme>advance_clubb_core_api</scheme>        <!-- Actual CLUBB parameterization scheme -->
+          <scheme>update_xp2_mc_intr</scheme>            <!-- Only matters if "do_rainturb" is True -->
+          <scheme>calculate_thlp2_rad_intr</scheme>      <!-- Only matters if "do_cldcool" is True -->
+          <scheme>stats_end_timestep_clubb</scheme>      <!-- Only matters if "l_stats" is True -->
         </subcycle>
-        <scheme>zm2zt_convert</scheme>                <!-- Transition variables on momentum levels to thermodynamic levels (manageable by registry/meta file?) -->
-        <scheme>clubb_var_vert_rev</scheme>           <!-- Change order of vertical levels for CLUBB output variables back to host model ordering  (should be manageable via the registry/meta file) -->
-        <scheme>clubb_upper_diss</scheme>             <!-- CLUBB energy and total water mass fixer -->
-        <scheme>clubb_cam_update</scheme>             <!-- Placeholder for CAM ptend and diagnostic output calculations -->
-        <scheme>liquid_macro_tend</scheme>            <!-- Only matters if "clubb_do_liqsupersat" is True-->
-        <scheme>liquid_macro_CAM_update</scheme>      <!-- Placeholder for CAM ptend and diagnostic output calculations -->
-        <scheme>conv_cond_detrain_calc</scheme>       <!-- Calculate the host model cloud condensate and energy tendencies produced by convective detrainment -->
-        <scheme>conv_cond_detrain_cam_update</scheme> <!-- Placeholder for CAM ptend and diagnostic output calculations -->
-        <scheme>set_wet_to_dry</scheme>               <!-- Convert mixing ratios from air + water vapor to dry air -->
-        <scheme>clubb_diag_output</scheme>            <!-- Calculate numerous different CLUBB diagnostic variables, and output them to history file -->
+        <scheme>zm2zt_convert</scheme>                   <!-- Transition variables on momentum levels to thermodynamic levels (manageable by registry/meta file?) -->
+        <scheme>clubb_calc_output_vars</scheme>          <!-- Calculate additional CLUBB output variables -->
+        <scheme>clubb_var_vert_rev</scheme>              <!-- Change order of vertical levels for CLUBB output variables back to host model ordering -->
+        <scheme>clubb_upper_diss</scheme>                <!-- CLUBB energy and total water mass fixer -->
+        <scheme>clubb_cam_update</scheme>                <!-- Placeholder for CAM ptend and diagnostic output calculations -->
+        <scheme>liquid_macro_tend</scheme>               <!-- Only matters if "clubb_do_liqsupersat" is True-->
+        <scheme>liquid_macro_CAM_update</scheme>         <!-- Placeholder for CAM ptend and diagnostic output calculations -->
+        <scheme>conv_cond_detrain_calc</scheme>          <!-- Calculate the host model cloud condensate and energy tendencies produced by convective detrainment -->
+        <scheme>conv_cond_detrain_cam_update</scheme>    <!-- Placeholder for CAM ptend and diagnostic output calculations -->
+        <scheme>set_wet_to_dry</scheme>                  <!-- Convert mixing ratios from air + water vapor to dry air -->
+        <scheme>clubb_diag_output</scheme>               <!-- Calculate numerous different CLUBB diagnostic variables, and output them to history file -->
         <!-- **************************** -->
         <scheme>check_energy_chng</scheme>            <!-- Global integral checker required for certain diagnostic outputs -->
         <subcol gen="subcol_generator_name" avg="subcol_averager_name">
@@ -93,7 +97,7 @@
             <scheme>micro_mg_get_cols3_0</scheme>     <!-- Determine atmospheric columns used by the MG2 microphysics schemes -->
             <scheme>calc_incloud_LWP</scheme>         <!-- Calculate in-cloud Liquid Water Path (LWP) before MG2 is run -->
             <scheme>micro_calc_tropopause</scheme>    <!-- Calculate the cold-point tropopause for use by the microphysics -->
-            <scheme>micro_mg_tend2_0</scheme>         <!-- Actual MG2 cloud micro-physics parameterization scheme -->
+            <scheme>micro_mg_tend3_0</scheme>         <!-- Actual MG2 cloud micro-physics parameterization scheme -->
             <scheme>mg_calc_outputs</scheme>          <!-- Calculate additional MG2 output variables and diagnostics -->
             <scheme>calc_atm_density</scheme>         <!-- Calculate atmospheric density -->
             <!-- This section of code could likely be grouped together as one scheme (at least partially)-->
