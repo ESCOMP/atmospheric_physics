@@ -89,8 +89,16 @@
           <process_split>
             <!-- MG aerosol microphysics -->
             <!-- **************************** -->
-            <scheme>microp_aero_run</scheme>          <!-- Some, but not all, tendencices from here are added to the state before microp.  This is done via pbuf.-->
-            <scheme>microp_aero_diag_output</scheme>  <!-- Output diagnostics from MG aerosol microphysics. -->
+            <scheme>hetfrz_classnuc_cam_save_cbaero</scheme> <!-- Save copy of cloud-borne aerosols (only needed if use_hetfrz_classnuc is True) -->
+            <scheme>aero_get_num_mmr</scheme>                <!-- Collect particle number and mass mixing ratios for each aerosol species, unless already managed by framework -->
+            <scheme>aero_calc_wsub</scheme>                  <!-- Calculate subgrid-scale vertical velocity -->
+            <scheme>nucleate_ice_cam_calc</scheme>           <!-- Calculate ice nucleation -->
+            <scheme>lcldm_min_check</scheme>                 <!-- Check that low cloud fraction is above threshold -->
+            <scheme>aero_cam_drop_activate</scheme>          <!-- Calculate droplet activation -->
+            <scheme>aero_cam_contact_freezing</scheme>       <!-- Calculate contact freezing -->
+            <scheme>ndrop_bam_ccn<scheme>                    <!-- Calculate bulk CCN concentration (only needed if clim_modal_aero is False) -->
+            <scheme>hetfrz_classnuc_cam_calc</scheme>        <!-- Calculate heterogeneous freezing (only needed if use_hetfrz_classnuc is True) -->
+            <scheme>microp_aero_diag_output</scheme>         <!-- Output diagnostics from MG aerosol microphysics. -->
             <!-- **************************** -->
             <!-- MG cloud microphysics -->
             <!-- **************************** -->
@@ -148,7 +156,7 @@
       <scheme>modal_aero_calcsize_diag</scheme>       <!-- Only if climatological aerosols are used instead of prognostic aerosols -->
       <!-- Modal Aerosol water uptake -->             <!-- Only if climatological aerosols are used instead of prognostic aerosols -->
       <!-- **************************** -->
-      <scheme>tropopause_find</scheme>                <!-- CalManaged by host model?culate tropopause height -->
+      <scheme>tropopause_find</scheme>                <!-- Calculate tropopause height -->
       <scheme>calc_h2so4_equilib_mixrat</scheme>      <!-- Calculate Sulfuric acid phase equilibrium, if modal_strat_sulfate is True -->
       <scheme>h2so4_equilib_diag</scheme>             <!-- Output sulfer aerosol diagnostics to history file -->
       <scheme>qsat_water</scheme>                     <!-- Calculate saturation vapor pressure with respect to liquid water -->
@@ -240,7 +248,6 @@
       <scheme>srf_emis_diag_output</scheme>           <!-- Add surface chemistry emissions to host model's surface inputs and history files -->
       <scheme>fire_emissions_srf</scheme>             <!-- Calculate fire emissions, and add to host model's surface inputs -->
       <!-- **************************** -->
-      <scheme>check_tracers_init</scheme>             <!-- Initalize tracer/constituent mass checker -->
       <!-- Negative moisture/tracer check -->
       <!-- **************************** -->
       <scheme>qneg4</scheme>                          <!-- Modify surface moisture and heat fluxes to prevent negative moisture values, and output diagnostics -->
