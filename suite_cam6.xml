@@ -16,9 +16,9 @@
       <!-- **************************** -->
       <scheme>calc_te_and_aam_budgets</scheme>           <!-- Managed by host model? Diagnostic output suffix = 'pBF' -->
       <scheme>check_energy_fix</scheme>                  <!-- Only matters if dycore is FV (called "LR" in physics) or SE-->
-      <scheme>check_energy_cam_update_pre_chng</scheme>  <!-- Placeholder for CAM ptend and diagnostic output calculations before "chng" call. -->
+      <scheme>check_energy_cam_update_pre_chng</scheme>  <!-- Placeholder for CAM updates and diagnostic output calculations before "chng" call. -->
       <scheme>check_energy_chng</scheme>                 <!-- Global integral checker required for certain diagnostic outputs -->
-      <scheme>check_energy_cam_update_post_chng</scheme> <!-- Placeholder for CAM ptend and diagnostic output calculations after "chng" call. -->
+      <scheme>check_energy_cam_update_post_chng</scheme> <!-- Placeholder for CAM updates and diagnostic output calculations after "chng" call. -->
       <scheme>calc_te_and_aam_budgets</scheme>           <!-- Managed by host model? Diagnostic output suffix = 'pBP' -->
       <!-- **************************** -->
       <scheme>diag_conv_tend_ini</scheme>      <!-- Initalizes convective-scheme diagnostic outputs -->
@@ -26,18 +26,18 @@
       <!-- Dry adiabatic adjustment  -->
       <!-- **************************** -->
       <!-- Technically only needs temperature and humidity as inputs -->
-      <scheme>dadadj_calc_update</scheme>      <!-- Actual dry adiabatic adjustment scheme, with placeholders for CAM ptend calculations -->
+      <scheme>dadadj_calc_update</scheme>      <!-- Actual dry adiabatic adjustment scheme, with placeholders for CAM accumulation calculations -->
       <!-- **************************** -->
       <!-- Zhang-Macfarlane deep convection scheme -->
       <!-- **************************** -->
       <scheme>zm_convr</scheme>                 <!-- Actual deep convection routine -->
-      <scheme>zm_convr_cam_update</scheme>      <!-- Placeholder for CAM ptend and diagnostic output calculations -->
+      <scheme>zm_convr_cam_update</scheme>      <!-- Placeholder for CAM updates and diagnostic output calculations -->
       <scheme>zm_conv_evap</scheme>             <!-- Actual ZM rain evaporation scheme -->
-      <scheme>zm_conv_evap_cam_update</scheme>  <!-- Placeholder for CAM ptend and diagnostic output calculations -->
+      <scheme>zm_conv_evap_cam_update</scheme>  <!-- Placeholder for CAM updates and diagnostic output calculations -->
       <scheme>momtran</scheme>                  <!-- Actual ZM momentum transport scheme -->
-      <scheme>momtran_cam_update</scheme>       <!-- Placeholder for CAM ptend and diagnostic output calculations -->
+      <scheme>momtran_cam_update</scheme>       <!-- Placeholder for CAM updates and diagnostic output calculations -->
       <scheme>convtran</scheme>                 <!-- Actual ZM convective transport scheme, for constituents in cnst_is_convtran1 -->
-      <scheme>convtran_cam_update</scheme>      <!-- Placeholder for CAM ptend and diagnostic output calculations -->
+      <scheme>convtran_cam_update</scheme>      <!-- Placeholder for CAM updates and diagnostic output calculations -->
       <!-- **************************** -->
       <scheme>check_energy_chng</scheme>        <!-- Global integral checker required for certain diagnostic outputs -->
       <scheme>check_tracers_chng</scheme>       <!-- Global tracer mass checker that kills model if error is large enough. -->
@@ -76,11 +76,11 @@
         <scheme>clubb_calc_output_vars</scheme>          <!-- Calculate additional CLUBB output variables -->
         <scheme>clubb_var_vert_rev</scheme>              <!-- Change order of vertical levels for CLUBB output variables back to host model ordering -->
         <scheme>clubb_upper_diss</scheme>                <!-- CLUBB energy and total water mass fixer -->
-        <scheme>clubb_cam_update</scheme>                <!-- Placeholder for CAM ptend and diagnostic output calculations -->
+        <scheme>clubb_cam_update</scheme>                <!-- Placeholder for CAM updates and diagnostic output calculations -->
         <scheme>liquid_macro_tend</scheme>               <!-- Only matters if "clubb_do_liqsupersat" is True-->
-        <scheme>liquid_macro_CAM_update</scheme>         <!-- Placeholder for CAM ptend and diagnostic output calculations -->
+        <scheme>liquid_macro_CAM_update</scheme>         <!-- Placeholder for CAM updates and diagnostic output calculations -->
         <scheme>conv_cond_detrain_calc</scheme>          <!-- Calculate the host model cloud condensate and energy tendencies produced by convective detrainment -->
-        <scheme>conv_cond_detrain_cam_update</scheme>    <!-- Placeholder for CAM ptend and diagnostic output calculations -->
+        <scheme>conv_cond_detrain_cam_update</scheme>    <!-- Placeholder for CAM updates and diagnostic output calculations -->
         <scheme>set_wet_to_dry</scheme>                  <!-- Convert mixing ratios from air + water vapor to dry air -->
         <scheme>clubb_diag_output</scheme>               <!-- Calculate numerous different CLUBB diagnostic variables, and output them to history file -->
         <!-- **************************** -->
@@ -348,7 +348,7 @@
       <scheme>momentum_flux_calc</scheme>              <!-- Calculate momentum fluxes/wind tendencies -->
       <scheme>energy_change</scheme>                   <!-- Calculate atmospheric energy change -->
       <scheme>energy_fixer</scheme>                    <!-- Ensure energy conservation -->
-      <scheme>gw_cam_update</scheme>                   <!-- Placeholder for CAM gravity wave ptend and diagnostic output calculations -->
+      <scheme>gw_cam_update</scheme>                   <!-- Placeholder for CAM gravity wave updates and diagnostic output calculations -->
       <!-- +++++++++++++++++++++++++ -->
       <!-- **************************** -->
       <scheme>check_energy_chng</scheme>               <!-- Global integral checker required for certain diagnostic outputs -->
