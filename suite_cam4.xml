@@ -2,8 +2,6 @@
 
 <suite name="cam4" version="1.0">
   <group name="physics_bc">
-    <!-- Should state/tendency checks be included as well if they don't change values? -->
-    <!-- Should calculations that are only used for diagnostic outputs be included? -->
     <!--cam4:  deep=ZM, shallow=Hack, macrop=RK, microp=RK, radiation=CAMRT, chem=none -->
     <time_split>
       <scheme>physics_state_check</scheme> <!-- Only if state_debug_checks is True. This scheme only looks for infs/nans, and kills the model if found. -->
@@ -17,9 +15,9 @@
       <!-- **************************** -->
       <scheme>calc_te_and_aam_budgets</scheme>           <!-- Managed by host model? Diagnostic output suffix = 'pBF' -->
       <scheme>check_energy_fix</scheme>                  <!-- Only matters if dycore is FV (called "LR" in physics) or SE -->
-      <scheme>check_energy_cam_update_pre_chng</scheme>  <!-- Placeholder for CAM ptend and diagnostic output calculations before "chng" call. -->
+      <scheme>check_energy_cam_update_pre_chng</scheme>  <!-- Placeholder for CAM updates and diagnostic output calculations before "chng" call. -->
       <scheme>check_energy_chng</scheme>                 <!-- Global integral checker required for certain diagnostic outputs -->
-      <scheme>check_energy_cam_update_post_chng</scheme> <!-- Placeholder for CAM ptend and diagnostic output calculations after "chng" call. -->
+      <scheme>check_energy_cam_update_post_chng</scheme> <!-- Placeholder for CAM updates and diagnostic output calculations after "chng" call. -->
       <scheme>calc_te_and_aam_budgets</scheme>           <!-- Managed by host model? Diagnostic output suffix = 'pBP' -->
       <!-- **************************** -->
       <scheme>diag_conv_tend_ini</scheme>      <!-- Initalizes convective-scheme diagnostic outputs -->
@@ -27,28 +25,28 @@
       <!-- Dry adiabatic adjustment  -->
       <!-- **************************** -->
       <!-- Technically only needs temperature and humidity as inputs -->
-      <scheme>dadadj_calc_update</scheme>      <!-- Actual dry adiabatic adjustment scheme, with placeholders for CAM ptend calculations -->
+      <scheme>dadadj_calc_update</scheme>      <!-- Actual dry adiabatic adjustment scheme, with placeholders for CAM updates calculations -->
       <!-- **************************** -->
       <!-- Zhang-Macfarlane deep convection scheme -->
       <!-- **************************** -->
       <!-- Is ZM microphysics going to be supported? -->
       <!-- Is initalization scheme required (it depends on numerous physics settings? -->
       <scheme>zm_convr</scheme>                 <!-- Actual deep convection routine -->
-      <scheme>zm_convr_cam_update</scheme>      <!-- Placeholder for CAM ptend and diagnostic output calculations -->
+      <scheme>zm_convr_cam_update</scheme>      <!-- Placeholder for CAM updates and diagnostic output calculations -->
       <scheme>zm_conv_evap</scheme>             <!-- Actual ZM rain evaporation scheme -->
-      <scheme>zm_conv_evap_cam_update</scheme>  <!-- Placeholder for CAM ptend and diagnostic output calculations -->
+      <scheme>zm_conv_evap_cam_update</scheme>  <!-- Placeholder for CAM updates and diagnostic output calculations -->
       <scheme>momtran</scheme>                  <!-- Actual ZM momentum transport scheme -->
-      <scheme>momtran_cam_update</scheme>       <!-- Placeholder for CAM ptend and diagnostic output calculations -->
+      <scheme>momtran_cam_update</scheme>       <!-- Placeholder for CAM updates and diagnostic output calculations -->
       <scheme>convtran</scheme>                 <!-- Actual ZM convective transport scheme -->
-      <scheme>convtran_cam_update</scheme>      <!-- Placeholder for CAM ptend and diagnostic output calculations -->
+      <scheme>convtran_cam_update</scheme>      <!-- Placeholder for CAM updates and diagnostic output calculations -->
       <!-- **************************** -->
       <scheme>check_energy_chng</scheme>        <!-- Global integral checker required for certain diagnostic outputs -->
       <!-- Hack shallow convection scheme -->
       <!-- **************************** -->
       <scheme>cmfmca</scheme>                   <!-- Actual shallow convective scheme -->
-      <scheme>cmfmca_cam_update</scheme>        <!-- Placeholder for CAM ptend and diagnostic output calculations -->
+      <scheme>cmfmca_cam_update</scheme>        <!-- Placeholder for CAM updates and diagnostic output calculations -->
       <scheme>zm_conv_evap</scheme>             <!-- Actual ZM rain evaporation scheme -->
-      <scheme>zm_conv_evap_cam_update</scheme>  <!-- Placeholder for CAM ptend and diagnostic output calculations -->
+      <scheme>zm_conv_evap_cam_update</scheme>  <!-- Placeholder for CAM updates and diagnostic output calculations -->
       <!-- **************************** -->
       <scheme>check_energy_chng</scheme>        <!-- Global integral checker required for certain diagnostic outputs -->
       <scheme>check_tracers_chng</scheme>       <!-- Global tracer mass checker that kills model if error is large enough. -->
@@ -58,7 +56,7 @@
       <scheme>tropopause_find</scheme>                <!-- Calculate tropopause height, but only if do_psrhmin is True -->
       <scheme>cld_sediment_vel</scheme>               <!-- Calculate cloud liquid and ice sedimentation velocities -->
       <scheme>cld_sediment_tend</scheme>              <!-- Calculate tendencies produced by cloud sedimentation -->
-      <scheme>rk_sed_cam_update</scheme>              <!-- Placeholder for CAM ptend and diagnostic output calculations -->
+      <scheme>rk_sed_cam_update</scheme>              <!-- Placeholder for CAM updates and diagnostic output calculations -->
       <scheme>add_conv_detrain_rliq</scheme>          <!-- Add convectively-detrained cloud liquid to environment, and reserved liquid back to precipitaton (managed by host model?) -->
       <scheme>cldfrc</scheme>                         <!-- Calculate cloud fraction -->
       <scheme>cldfrc_rh2</scheme>                     <!-- Calculate cloud fraction with perturbed RH (is there a better way to do this, e.g. subcycle?) -->
@@ -66,7 +64,7 @@
       <scheme>cldfrc_fice</scheme>                    <!-- Calculate ice cloud fraction -->
       <scheme>strat_cond_repartition</scheme>         <!-- Re-partition stratiform cloud ice and cloud liquid, and calculate relevant heating rates -->
       <scheme>pcond</scheme>                          <!-- Actual RK macro/micro-physics scheme -->
-      <scheme>rk_pcond_cam_update</scheme>            <!-- Placeholder for CAM ptend and diagnostic output calculations -->
+      <scheme>rk_pcond_cam_update</scheme>            <!-- Placeholder for CAM updates and diagnostic output calculations -->
       <scheme>cldfrc</scheme>                         <!-- Calculate cloud fraction -->
       <scheme>cldfrc_diag_output</scheme>             <!-- Calculate cloud fraction diagnostics and output them to history file -->
       <scheme>cldefr</scheme>                         <!-- Calculate cloud liquid and ice particle effective radii, and output to history file/host model -->
@@ -84,10 +82,10 @@
       <scheme>eccf_calc</scheme>                      <!-- Calculate "earth sun distance factor". -->
       <scheme>tropopause_find</scheme>                <!-- Calculate tropopause height -->
       <scheme>calc_col_mean_o2</scheme>               <!-- Calculate column mean O2 values -->
-      <scheme>aer_rad_props_sw</scheme>               <!-- Gather/calculate aerosol shortwave optical properties (potentially provided by registry/framework?) -->
+      <scheme>aer_rad_props_sw</scheme>               <!-- Gather/calculate aerosol shortwave optical properties -->
       <scheme>radcswmx</scheme>                       <!-- Actual CAM-RT shortwave radiation parameterization -->
       <scheme>rad_sw_diag_output</scheme>             <!-- Calculate shortwave diagnostic variables, and output them to history file -->
-      <scheme>aer_rad_props_lw</scheme>               <!-- Gather/calculate aerosol longwave optical properties (potentially provided by registry/framework?) -->
+      <scheme>aer_rad_props_lw</scheme>               <!-- Gather/calculate aerosol longwave optical properties -->
       <scheme>radclwmx</scheme>                       <!-- Actual CAM-RT longwave radiation parameterization -->
       <scheme>rad_lw_diag_output</scheme>             <!-- Calculate longwave diagnostic variables, and output them to history file -->
       <scheme>cloud_cover_diags_output</scheme>       <!-- Calculate cloud cover diagnostic variables, and output them to history file -->
@@ -128,7 +126,7 @@
       <scheme>tms_diag_output</scheme>                <!-- Calculate TMS diangostic variables, and output them to history file -->
       <scheme>compute_blj</scheme>                    <!-- Calculate Sub-Grid Orgraphic (SGO) drag via Beljaars parameterization -->
       <scheme>blj_diag_output</scheme>                <!-- Calculate SGO diagnostic variables, and output them to history file -->
-      <scheme>theta_calc</scheme>                     <!-- Calculate potential temperature (managed by registry/framework?) -->
+      <scheme>temp_to_potential_temp</scheme>         <!-- Calculate potential temperature -->
       <scheme>virtem</scheme>                         <!-- Calculate virtual temperature (managed by registry/framework?) -->
       <scheme>calc_ustar</scheme>                     <!-- Calculate friction velocity -->
       <scheme>calc_obklen</scheme>                    <!-- Calculate Obhukov length -->
@@ -177,11 +175,11 @@
       <scheme>gw_src_calc</scheme>                     <!-- Determine gravity wave sources -->
       <scheme>gw_drag_prof</scheme>                    <!-- Solve for the drag profile with the gravity wave spectrum -->
       <scheme>calc_taucd</scheme>                      <!-- Project stress into directional components -->
-      <scheme>egwdffi_tot_calc</scheme>                <!-- add diffusion coefficients (manageable by registry/framework?) -->
+      <scheme>egwdffi_tot_calc</scheme>                <!-- add diffusion coefficients -->
       <scheme>momentum_flux_calc</scheme>              <!-- Calculate momentum fluxes/wind tendencies -->
       <scheme>energy_change</scheme>                   <!-- Calculate atmospheric energy change -->
       <scheme>energy_fixer</scheme>                    <!-- Ensure energy conservation -->
-      <scheme>gw_cam_update</scheme>                   <!-- Placeholder for CAM gravity wave ptend and diagnostic output calculations -->
+      <scheme>gw_cam_update</scheme>                   <!-- Placeholder for CAM gravity wave updates and diagnostic output calculations -->
       <!-- +++++++++++++++++++++++++ -->
       <!-- **************************** -->
       <scheme>check_energy_chng</scheme>               <!-- Global integral checker required for certain diagnostic outputs -->
