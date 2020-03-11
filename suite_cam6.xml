@@ -102,28 +102,30 @@
             <!-- **************************** -->
             <!-- MG cloud microphysics -->
             <!-- **************************** -->
-            <scheme>micro_mg_get_cols3_0</scheme>     <!-- Determine atmospheric columns used by the MG2 microphysics schemes -->
-            <scheme>calc_incloud_LWP</scheme>         <!-- Calculate in-cloud Liquid Water Path (LWP) before MG2 is run -->
-            <scheme>micro_calc_tropopause</scheme>    <!-- Calculate the cold-point tropopause for use by the microphysics -->
-            <scheme>micro_mg_tend3_0</scheme>         <!-- Actual MG2 cloud micro-physics parameterization scheme -->
-            <scheme>mg_calc_outputs</scheme>          <!-- Calculate additional MG2 output variables and diagnostics -->
-            <scheme>calc_atm_density</scheme>         <!-- Calculate atmospheric density -->
+            <scheme>micro_mg_get_cols3_0</scheme>       <!-- Determine atmospheric columns used by the MG2 microphysics schemes -->
+            <scheme>calc_incloud_LWP</scheme>           <!-- Calculate in-cloud Liquid Water Path (LWP) before MG2 is run -->
+            <scheme>micro_calc_tropopause</scheme>      <!-- Calculate the cold-point tropopause for use by the microphysics -->
+            <scheme>micro_mg_tend3_0</scheme>           <!-- Actual MG2 cloud micro-physics parameterization scheme -->
+            <scheme>mg_calc_outputs</scheme>            <!-- Calculate additional MG2 output variables and diagnostics -->
+            <scheme>calc_atm_density</scheme>           <!-- Calculate atmospheric density -->
             <!-- This section of code could likely be grouped together as one scheme (at least partially)-->
             <!-- +++++++++++++++++++++++++ -->
-            <scheme>size_dist_param_liq</scheme>      <!-- Calculate size distribution of cloud droplets -->
-            <scheme>micro_eff_radius_liq</scheme>     <!-- Calculate the effective radius of a given cloud droplet distribution -->
-            <scheme>calc_ncic_grid</scheme>           <!-- Calculate ncic (number of cloud droplets?) in grid cell -->
-            <scheme>size_dist_param_liq</scheme>      <!-- Calculate size distribution of cloud droplets -->
-            <scheme>micro_eff_radius_liq</scheme>     <!-- Calculate the effective radius of a given cloud droplet distribution -->
-            <scheme>micro_eff_radius_rain</scheme>    <!-- Calculate the effective radius of rain (assumed size distribution?) -->
-            <scheme>micro_eff_radius_snow</scheme>    <!-- Calculate the effective radius of snow (assumed size distribution?) -->
-            <scheme>calc_niic_grid</scheme>           <!-- Calculate niic (number of cloud ice crystals?) in grid cell -->
-            <scheme>size_dist_param_basic</scheme>    <!-- Calculate the size distribution of ice crystals -->
-            <scheme>micro_eff_radius_ice</scheme>     <!-- Calculate the effective radius of a given cloud ice distribution -->
+            <scheme>size_dist_param_liq</scheme>        <!-- Calculate size distribution of cloud droplets -->
+            <scheme>micro_eff_radius_liq</scheme>       <!-- Calculate the effective radius of a given cloud droplet distribution -->
+            <scheme>size_dist_param_liq_const</scheme>  <!-- Calculate size distribution of cloud droplets assuming a constant ncic -->
+            <scheme>calc_ncic_grid</scheme>             <!-- Calculate ncic (number of cloud droplets?) in grid cell -->
+            <scheme>size_dist_param_liq</scheme>        <!-- Calculate size distribution of cloud droplets -->
+            <scheme>micro_eff_radius_liq</scheme>       <!-- Calculate the effective radius of a given cloud droplet distribution -->
+            <scheme>micro_eff_radius_rain</scheme>      <!-- Calculate the effective radius of rain (assumed size distribution?) -->
+            <scheme>micro_eff_radius_snow</scheme>      <!-- Calculate the effective radius of snow (assumed size distribution?) -->
+            <scheme>micro_eff_radius_graupel</scheme>   <!-- Calculate the effective radius of graupel (only if MG microphysics version 3 or later is used) -->
+            <scheme>calc_niic_grid</scheme>             <!-- Calculate niic (number of cloud ice crystals?) in grid cell -->
+            <scheme>size_dist_param_basic</scheme>      <!-- Calculate the size distribution of ice crystals -->
+            <scheme>micro_eff_radius_ice</scheme>       <!-- Calculate the effective radius of a given cloud ice distribution -->
             <!-- +++++++++++++++++++++++++ -->
-            <scheme>calc_micro_column_vars</scheme>   <!-- Calculate Liquid Water Path (LWP) and net column condensation -->
-            <scheme>calc_prec_efficiency</scheme>     <!-- Calculate precipitation efficiency -->
-            <scheme>micro_diag_output</scheme>        <!-- Calculate microphysics diagnostic variables, and output them to history file -->
+            <scheme>calc_micro_column_vars</scheme>     <!-- Calculate Liquid Water Path (LWP) and net column condensation -->
+            <scheme>calc_prec_efficiency</scheme>       <!-- Calculate precipitation efficiency -->
+            <scheme>micro_diag_output</scheme>          <!-- Calculate microphysics diagnostic variables, and output them to history file -->
             <execute test="use_SILHS" default=".false." >
               <!-- **************************** -->
               <!-- SILHS subcolumn covariance -->
