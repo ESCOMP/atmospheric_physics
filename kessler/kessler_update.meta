@@ -160,7 +160,7 @@
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = in
 [ phis ]
-  standard_name = geopotential_height_at_surface
+  standard_name = geopotential_at_surface
   state_variable = true
   type = real
   kind = kind_phys
