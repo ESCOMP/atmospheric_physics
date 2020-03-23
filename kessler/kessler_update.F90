@@ -66,16 +66,15 @@ CONTAINS
       integer,            intent(out)   :: errflg
 
       integer                           :: klev
-      real(kind_phys)                   :: ptend_s(ncol)
+      real(kind_phys)                   :: new_temp(ncol)
 
       errmsg = ''
       errflg = 0
 
       ! Back out tendencies from updated fields
       do klev = 1, nz
-         ptend_s(:ncol) = ((theta(:ncol,klev) * exner(:ncol,klev)) -          &
-              temp_prev(:ncol,klev)) * cpair / dt
-         ttend_t(:ncol,klev) = ttend_t(:ncol,klev) + (ptend_s(:ncol) / cpair)
+         new_temp(:ncol) = theta(:ncol,klev) * exner(:ncol,klev)
+         ttend_t(:ncol,klev) = ttend_t(:ncol,klev) + ((new_temp(:ncol) - temp_prev(:ncol,klev)) / dt)
       end do
 
    end subroutine kessler_update_run
