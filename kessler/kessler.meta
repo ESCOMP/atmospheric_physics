@@ -166,7 +166,7 @@
   kind = kind_phys
   intent = in
 [ z ]
-  standard_name = geopotential
+  standard_name = geopotential_height
   long_name = geopotential height
   units = m
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

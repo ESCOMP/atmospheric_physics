@@ -78,12 +78,6 @@ CONTAINS
          ttend_t(:ncol,klev) = ttend_t(:ncol,klev) + (ptend_s(:ncol) / cpair)
       end do
 
-      ! Save the temperature for the next time step
-      !!XXgoldyXX ==> @cacraigucar: Does this have any effect?
-      temp_prev(:,:)     = temp(:,:)
-
-!    surf_state%precl(:ncol) = surf_state%precl(:ncol) + precl(:ncol)  ! KEEPING THIS HERE AS A REMINDER
-
    end subroutine kessler_update_run
 
    !> \section arg_table_kessler_update_timestep_final  Argument Table
