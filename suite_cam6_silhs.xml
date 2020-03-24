@@ -156,15 +156,19 @@
       <scheme>modal_aero_calcsize_diag</scheme>       <!-- Only if climatological aerosols are used instead of prognostic aerosols -->
       <!-- Modal Aerosol water uptake -->             <!-- Only if climatological aerosols are used instead of prognostic aerosols -->
       <!-- **************************** -->
-      <scheme>tropopause_find</scheme>                <!-- Calculate tropopause height -->
-      <scheme>calc_h2so4_equilib_mixrat</scheme>      <!-- Calculate Sulfuric acid phase equilibrium, if modal_strat_sulfate is True -->
-      <scheme>h2so4_equilib_diag</scheme>             <!-- Output sulfer aerosol diagnostics to history file -->
-      <scheme>qsat_water</scheme>                     <!-- Calculate saturation vapor pressure with respect to liquid water -->
-      <scheme>relhum_calc</scheme>                    <!-- Calculate the relative humidity -->
-      <scheme>calc_atm_density</scheme>               <!-- Calculate atmospheric density -->
-      <scheme>modal_aero_wateruptake_sub</scheme>     <!-- Actual aerosol moisture up-take parameterization -->
-      <scheme>modal_aero_wetdens_calc</scheme>        <!-- Calculate the wet density of aerosols -->
-      <scheme>modal_aero_wateruptake_diag</scheme>    <!-- Calculate aerosol water uptake diagnostic variables, and output them to history file -->
+      <!-- The commented-out schemes below are all included in the "modal_aero_wateruptake_dr" scheme -->
+      <!-- ++++++++++++++++++++++++++++++
+      <scheme>tropopause_find</scheme>                Calculate tropopause height
+      <scheme>calc_h2so4_equilib_mixrat</scheme>      Calculate Sulfuric acid phase equilibrium, if modal_strat_sulfate is True
+      <scheme>h2so4_equilib_diag</scheme>             Output sulfer aerosol diagnostics to history file
+      <scheme>qsat_water</scheme>                     Calculate saturation vapor pressure with respect to liquid water
+      <scheme>relhum_calc</scheme>                    Calculate the relative humidity
+      <scheme>calc_atm_density</scheme>               Calculate atmospheric density
+      <scheme>modal_aero_wateruptake_sub</scheme>     Actual aerosol moisture up-take parameterization
+      <scheme>modal_aero_wetdens_calc</scheme>        Calculate the wet density of aerosols
+      <scheme>modal_aero_wateruptake_diag</scheme>    Calculate aerosol water uptake diagnostic variables, and output them to history file
+      ++++++++++++++++++++++++++++++++++ -->
+      <scheme>modal_aero_wateruptake_dr</scheme>
       <!-- **************************** -->
       <!-- Aerosol wet deposition -->
       <!-- **************************** -->
