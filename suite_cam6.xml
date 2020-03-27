@@ -128,6 +128,7 @@
             <scheme>calc_micro_column_vars</scheme>     <!-- Calculate Liquid Water Path (LWP) and net column condensation -->
             <scheme>calc_prec_efficiency</scheme>       <!-- Calculate precipitation efficiency -->
             <scheme>micro_diag_output</scheme>          <!-- Calculate microphysics diagnostic variables, and output them to history file -->
+            <!-- **************************** -->
             <scheme>massless_droplet_destroyer</scheme> <!-- Remove massless droplets, doesn't influences only grid-scale tendencies -->
           </process_split>
           <scheme>check_energy_chng</scheme>          <!-- Global integral checker required for certain diagnostic outputs -->

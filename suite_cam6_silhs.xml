@@ -138,13 +138,13 @@
             <scheme>exner_silhs</scheme>                       <!-- Calculate the Exner function according to SILHS (should be the same as CLUBB, but possible issues) -->
             <scheme>thl_calc</scheme>                          <!-- Calculate liquid water potential temperature (theta-l) -->
             <scheme>silhs_var_vert_inv</scheme>                <!-- Change order of vertical levels for SILHS input variables, and add ghost point (should be manageable via the registry/meta file) -->
-            <scheme>silhs_get_subcol_wgts</scheme>             <!--  Collect subcolumn weights for SILHS -->
+            <scheme>silhs_get_subcol_wgts</scheme>             <!-- Collect subcolumn weights for SILHS -->
             <scheme>lh_microphys_var_covar_driver_api</scheme> <!-- Actual SILHS sub-column parameterization -->
             <scheme>zero_upper_level</scheme>                  <!-- Set covariances above SILHS max altitude to zero -->
             <!-- **************************** -->
             <scheme>subcol_SILHS_fill_holes_conserv_calc</scheme> <!-- Prevent holes (values less than qmin) using mass-conserving adjustments -->
             <scheme>massless_droplet_destroyer</scheme>           <!-- Remove massless droplets, doesn't influences only grid-scale tendencies -->
-            <scheme>subcol_SILHS_hydromet_conc_tend_lim</scheme>  <!-- Place limits on hydrometeor drop-size -->
+            <scheme>subcol_SILHS_hydromet_conc_tend_lim</scheme>  <!-- Place limits on hydrometeor drop-size. Only used if SILHS is enabled. -->
           </process_split>
           <scheme>check_energy_chng</scheme>          <!-- Global integral checker required for certain diagnostic outputs -->
         </partition>
