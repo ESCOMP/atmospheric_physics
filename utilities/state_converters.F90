@@ -34,7 +34,7 @@ CONTAINS
 
   subroutine safe_set(var, set_val, var_name, errmsg, errflg)
     ! Dummy arguments
-    real(kind_phys),  intent(out)  :: var     ! variable to set
+    real(kind_phys),  intent(inout):: var     ! variable to set
     real(kind_phys),  intent(in)  :: set_val ! value to set
     character(len=*), intent(in)  :: var_name
     character(len=*), intent(out) :: errmsg
