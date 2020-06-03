@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<suite name="held_suarez" version="1.0">
+  <group name="physics">
+    <scheme>held_suarez_1994</scheme>
+  </group>
+</suite>
