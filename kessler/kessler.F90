@@ -127,7 +127,7 @@ CONTAINS
    !> \section arg_table_kessler_run  Argument Table
    !! \htmlinclude kessler_run.html
    subroutine kessler_run(ncol, nz, dt,  lyr_surf, lyr_toa, rho, z, pk, theta, &
-        qv, qc, qr, precl, errmsg, errflg)
+        qv, qc, qr, precl, relhum, errmsg, errflg)
 
       !------------------------------------------------
       !   Input / output parameters
@@ -147,6 +147,9 @@ CONTAINS
       real(kind_phys),  intent(inout) :: qr(:,:)    ! Rain  water mixing ratio (gm/gm)
 
       real(kind_phys),  intent(out)   :: precl(:)   ! Precipi tation rate (m_water / s)
+
+      real(kind_phys),  intent(out)   :: relhum(:,:) 
+
       character(len=*), intent(out)   :: errmsg
       integer,          intent(out)   :: errflg
 
@@ -297,6 +300,14 @@ CONTAINS
          end do
 
          precl(col) = precl(col) / real(rainsplit, kind_phys)
+
+         ! Diagnostic: relative humidity
+         do klev = lyr_surf, lyr_toa, lyr_step
+            ! Saturation vapor mixing ratio (gm/gm) following KW eq. 2.11
+            qvs = pc(klev) * exp(f2x*(pk(col, klev)*theta(col, klev) - 273._kind_phys) / (pk(col, klev)*theta(col, klev) &
+                           - 36._kind_phys))
+            relhum(col,klev) = qv(col,klev) / qvs * 100._kind_phys ! in percent
+         end do
 
       end do ! column loop
 
