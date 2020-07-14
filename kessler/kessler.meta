@@ -24,6 +24,13 @@
   type = real
   kind = kind_phys
   intent = in
+[ rair_in ]
+  standard_name = gas_constant_dry_air 
+  units =  J kg-1 K-1
+  dimensions = ()
+  type = real
+  kind = kind_phys
+  intent = in
 [ rhoqr_in ]
   standard_name = density_of_liquid_water_at_0c
   long_name = density of liquid water at 0C
