@@ -24,6 +24,13 @@
   type = real
   kind = kind_phys
   intent = in
+[ rair_in ]
+  standard_name = gas_constant_dry_air 
+  units =  J kg-1 K-1
+  dimensions = ()
+  type = real
+  kind = kind_phys
+  intent = in
 [ rhoqr_in ]
   standard_name = density_of_liquid_water_at_0c
   long_name = density of liquid water at 0C
@@ -216,6 +223,13 @@
   long_name = precipitation
   units = m s-1
   dimensions = (horizontal_loop_extent)
+  type = real
+  kind = kind_phys
+  intent = out
+[ relhum ]
+  standard_name = relative_humidity
+  units = percent 
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real
   kind = kind_phys
   intent = out
