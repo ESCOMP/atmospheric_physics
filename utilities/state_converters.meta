@@ -1,3 +1,6 @@
+[ccpp-table-properties]
+  name = temp_to_potential_temp
+  type = scheme
 [ccpp-arg-table]
   name = temp_to_potential_temp_run
   type = scheme
@@ -55,6 +58,9 @@
   intent = out
   optional = F
 #####################################################################
+[ccpp-table-properties]
+  name = potential_temp_to_temp
+  type = scheme
 [ccpp-arg-table]
   name = potential_temp_to_temp_run
   type = scheme
@@ -109,6 +115,9 @@
   dimensions = ()
   intent = out
 #########################################################
+[ccpp-table-properties]
+  name = pres_to_density_dry
+  type = scheme
 [ccpp-arg-table]
   name = pres_to_density_dry_init
   type = scheme
@@ -201,6 +210,9 @@
    intent = out
    optional = F
 #########################################################
+[ccpp-table-properties]
+  name = calc_exner
+  type = scheme
 [ccpp-arg-table]
   name = calc_exner_init
   type = scheme
@@ -284,6 +296,9 @@
    intent = out
    optional = F
 #########################################################
+[ccpp-table-properties]
+  name = wet_to_dry
+  type = scheme
 [ccpp-arg-table]
   name = wet_to_dry_run
   type = scheme
@@ -357,6 +372,9 @@
    optional = F
 
 #########################################################
+[ccpp-table-properties]
+  name = dry_to_wet
+  type = scheme
 [ccpp-arg-table]
   name = dry_to_wet_run
   type = scheme
