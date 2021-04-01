@@ -1,3 +1,6 @@
+[ccpp-table-properties]
+  name = geopotential_t
+  type = scheme
 [ccpp-arg-table]
   name = geopotential_t_run
   type = scheme

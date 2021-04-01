@@ -1,3 +1,6 @@
+[ccpp-table-properties]
+  name = kessler
+  type = scheme
 [ccpp-arg-table]
   name = kessler_init
   type = scheme
@@ -25,7 +28,7 @@
   kind = kind_phys
   intent = in
 [ rair_in ]
-  standard_name = gas_constant_dry_air 
+  standard_name = gas_constant_of_dry_air
   units =  J kg-1 K-1
   dimensions = ()
   type = real
@@ -228,7 +231,7 @@
   intent = out
 [ relhum ]
   standard_name = relative_humidity
-  units = percent 
+  units = percent
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real
   kind = kind_phys
