@@ -1,3 +1,6 @@
+[ccpp-table-properties]
+  name = kessler_update
+  type = scheme
 [ccpp-arg-table]
   name = kessler_update_init
   type = scheme
