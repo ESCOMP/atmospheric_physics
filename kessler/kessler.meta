@@ -20,7 +20,7 @@
   kind = kind_phys
   intent = in
 [ psl_in ]
-  standard_name = reference_pressure_at_sea_level
+  standard_name = us_standard_atmospheric_pressure_at_sea_level
   long_name = reference pressure at sea level
   units = mb
   dimensions = ()
@@ -148,7 +148,7 @@
   type = integer
   intent = in
 [ dt ]
-  standard_name = time_step_for_physics
+  standard_name = timestep_for_physics
   long_name = time step
   units = s
   dimensions = ()
@@ -168,7 +168,7 @@
   type = integer
   intent = in
 [ rho ]
-  standard_name = density_of_dry_air_at_STP
+  standard_name = density_of_dry_air_at_stp
   long_name = dry air density
   units = kg m-3
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

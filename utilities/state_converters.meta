@@ -19,7 +19,7 @@
   dimensions = ()
   intent = in
 [ temp ]
-  standard_name = temperature
+  standard_name = air_temperature
   state_variable = true
   units = K
   type = real | kind = kind_phys
@@ -94,7 +94,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ temp ]
-  standard_name = temperature
+  standard_name = air_temperature
   state_variable = true
   units = K
   type = real | kind = kind_phys
@@ -180,14 +180,14 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ temp ]
-  standard_name = temperature
+  standard_name = air_temperature
   state_variable = true
   units = K
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ rho ]
-   standard_name = density_of_dry_air_at_STP
+   standard_name = density_of_dry_air_at_stp
    long_name = dry air density
    units = kg m-3
    dimensions = (horizontal_loop_extent, vertical_layer_dimension)
