@@ -99,7 +99,7 @@
   kind = kind_phys
   intent = inout
 [ qc ]
-  standard_name = cloud_liquid_water_mixing_ratio
+  standard_name = cloud_liquid_water_mixing_ratio_of_moist_air
   units = kg kg-1
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   type = real
@@ -208,7 +208,7 @@
   kind = kind_phys
   intent = inout
 [ qc ]
-  standard_name = cloud_liquid_water_mixing_ratio
+  standard_name = cloud_liquid_water_mixing_ratio_of_moist_air
   units = kg kg-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real
