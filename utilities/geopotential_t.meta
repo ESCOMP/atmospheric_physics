@@ -12,7 +12,7 @@
   type = integer
   intent = in
 [ lagrang ]
-  standard_name = lagrangian_vertical_coordinate_coordinate
+  standard_name = lagrangian_vertical_coordinate
   long_name = flag indicating if vertical coordinate is lagrangian
   units = flag
   dimensions = ()
