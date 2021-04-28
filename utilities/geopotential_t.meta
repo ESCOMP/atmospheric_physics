@@ -44,6 +44,7 @@
   intent = in
 [ piln ]
   standard_name = ln_of_air_pressure_at_interface
+  long_name = ln(air_pressure_at_interface)
   state_variable = true
   type = real | kind = kind_phys
   units = ln(Pa)
