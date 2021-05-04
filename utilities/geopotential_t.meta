@@ -43,7 +43,8 @@
   type = integer
   intent = in
 [ piln ]
-  standard_name = natural_log_of_air_pressure_at_interface
+  standard_name = ln_of_air_pressure_at_interface
+  long_name = ln(air_pressure_at_interface)
   state_variable = true
   type = real | kind = kind_phys
   units = ln(Pa)
@@ -79,7 +80,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ t ]
-  standard_name = temperature
+  standard_name = air_temperature
   state_variable = true
   type = real | kind = kind_phys
   units = K
@@ -93,7 +94,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ rair ]
-  standard_name = pressure_dependent_gas_constant_of_dry_air
+  standard_name = composition_dependent_gas_constant_of_dry_air
   units = J kg-1 K-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real
@@ -107,7 +108,7 @@
   kind = kind_phys
   intent = in
 [ zvir ]
-  standard_name = pressure_dependent_ratio_of_dry_air_to_water_vapor_gas_constants_minus_one
+  standard_name = composition_dependent_ratio_of_dry_air_to_water_vapor_gas_constants_minus_one
   units = -1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real

@@ -23,7 +23,7 @@
   name = kessler_update_timestep_init
   type = scheme
 [ temp ]
-  standard_name = temperature
+  standard_name = air_temperature
   state_variable = true
   type = real
   kind = kind_phys
@@ -31,14 +31,14 @@
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = in
 [ temp_prev ]
-  standard_name = temperature_from_previous_timestep
+  standard_name = air_temperature_on_previous_timestep
   units = K
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   type = real
   kind = kind_phys
   intent = out
 [ ttend_t ]
-  standard_name = total_tendency_of_temperature
+  standard_name = tendency_of_air_temperature
   units = K s-1
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   type = real
@@ -77,7 +77,7 @@
   type = integer
   intent = in
 [ temp ]
-  standard_name = temperature
+  standard_name = air_temperature
   state_variable = true
   type = real
   kind = kind_phys
@@ -101,7 +101,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ dt ]
-  standard_name = time_step_for_physics
+  standard_name = timestep_for_physics
   long_name = time step
   units = s
   dimensions = ()
@@ -109,14 +109,14 @@
   kind = kind_phys
   intent = in
 [ temp_prev ]
-  standard_name = temperature_from_previous_timestep
+  standard_name = air_temperature_on_previous_timestep
   units = K
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real
   kind = kind_phys
   intent = inout
 [ ttend_t ]
-  standard_name = total_tendency_of_temperature
+  standard_name = tendency_of_air_temperature
   type = real
   kind = kind_phys
   units = K s-1
@@ -148,7 +148,7 @@
   type = integer
   intent = in
 [ temp ]
-  standard_name = temperature
+  standard_name = air_temperature
   state_variable = true
   type = real
   kind = kind_phys
@@ -171,7 +171,7 @@
   dimensions = (horizontal_dimension)
   intent = in
 [ st_energy ]
-  standard_name = dry_static_energy_content_of_atmosphere_layer
+  standard_name = dry_static_energy
   long_name = Dry static energy
   state_variable = true
   type = real
