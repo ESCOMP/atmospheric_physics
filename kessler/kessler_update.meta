@@ -38,7 +38,7 @@
   kind = kind_phys
   intent = out
 [ ttend_t ]
-  standard_name = tendency_of_air_temperature
+  standard_name = total_tendency_of_air_temperature
   units = K s-1
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   type = real
@@ -116,7 +116,7 @@
   kind = kind_phys
   intent = inout
 [ ttend_t ]
-  standard_name = tendency_of_air_temperature
+  standard_name = total_tendency_of_air_temperature
   type = real
   kind = kind_phys
   units = K s-1
