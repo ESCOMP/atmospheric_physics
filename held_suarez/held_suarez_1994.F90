@@ -1,4 +1,6 @@
-module held_suarez
+!< \section arg_table_held_suarez_1994
+!! \htmlinclude held_suarez_1994.html
+module held_suarez_1994
   !----------------------------------------------------------------------- 
   ! 
   ! Purpose: Implement idealized Held-Suarez forcings
@@ -41,7 +43,6 @@ module held_suarez
   real(kind_phys)              :: psurf_ref = 0.0_kind_phys       ! Surface pressure
   ! pref_mid_norm are layer midpoints normalized by surface pressure ('eta' coordinate)
   real(kind_phys), allocatable :: pref_mid_norm(:)
-  integer               :: pver                     ! Num vertical levels
 
 
 
@@ -49,16 +50,19 @@ module held_suarez
 contains
 !======================================================================= 
 
-  !> \section arg_table_held_suarez_1994_init  Argument Table
-  !! \htmlinclude held_suarez_1994_init.html
-  subroutine held_suarez_1994_init(cappa_in, cpair_in, psurf_ref_in, pref_mid_norm_in)
+!> \section arg_table_held_suarez_1994_init Argument Table
+!! \htmlinclude held_suarez_1994_init.html
+  subroutine held_suarez_1994_init(pver_in, cappa_in, cpair_in, psurf_ref_in, pref_mid_norm_in)
     !! Dummy arguments
+    integer,         intent(in) :: pver_in
     real(kind_phys), intent(in) :: cappa_in
     real(kind_phys), intent(in) :: cpair_in
     real(kind_phys), intent(in) :: psurf_ref_in
     real(kind_phys), intent(in) :: pref_mid_norm_in(:)
 
-    pver = size(pref_mid_norm_in)
+    integer               :: pver                     ! Num vertical levels
+
+    pver = pver_in
     allocate(pref_mid_norm(pver))
     cappa         = cappa_in
     cpair         = cpair_in
@@ -67,23 +71,24 @@ contains
 
   end subroutine held_suarez_1994_init
 
-  !> \section arg_table_held_suarez_1994_run  Argument Table
-  !! \htmlinclude held_suarez_1994_run.html
-  subroutine held_suarez_1994_run(ncol, clat, pmid, &
+!> \section arg_table_held_suarez_1994_run Argument Table
+!! \htmlinclude held_suarez_1994_run.html
+  subroutine held_suarez_1994_run(pver, ncol, clat, pmid, &
        u, v, t, du, dv, s)
 
     !
     ! Input arguments
     !
-    integer,  intent(in)  :: ncol             ! Num active columns
-    real(kind_phys), intent(in)  :: clat(:)      ! latitudes(radians) for columns
+    integer,  intent(in)  :: pver      ! Num vertical levels
+    integer,  intent(in)  :: ncol      ! Num active columns
+    real(kind_phys), intent(in)  :: clat(:)   ! latitudes(radians) for columns
     real(kind_phys), intent(in)  :: pmid(:,:) ! mid-point pressure
     real(kind_phys), intent(in)  :: u(:,:)    ! Zonal wind (m/s)
     real(kind_phys), intent(in)  :: v(:,:)    ! Meridional wind (m/s)
     real(kind_phys), intent(in)  :: t(:,:)    ! Temperature (K)
-                                              !
-                                              ! Output arguments
-                                              !
+    !
+    ! Output arguments
+    !
     real(kind_phys), intent(out) :: du(:,:)   ! Zonal wind tend
     real(kind_phys), intent(out) :: dv(:,:)   ! Meridional wind tend
     real(kind_phys), intent(out) :: s(:,:)    ! Heating rate
@@ -163,4 +168,4 @@ contains
 
   end subroutine held_suarez_1994_run
 
-end module held_suarez
+end module held_suarez_1994
