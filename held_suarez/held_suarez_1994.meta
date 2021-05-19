@@ -6,96 +6,96 @@
   name  = held_suarez_1994_init
   type  = scheme
 [ pver_in ]
-  standard_name = enter_standard_name_1
-  units = enter_units
+  standard_name =  vertical_layer_dimension
+  units = count
   type = integer
   dimensions = ()
   intent = in
 [ cappa_in ]
-  standard_name = enter_standard_name_2
-  units = enter_units
+  standard_name =  ratio_of_dry_air_to_water_vapor_gas_constants
+  units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ cpair_in ]
-  standard_name = enter_standard_name_3
-  units = enter_units
+  standard_name = specific_heat_of_dry_air_at_constant_pressure
+  units = J kg-1 K-1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ psurf_ref_in ]
-  standard_name = enter_standard_name_4
-  units = enter_units
+  standard_name = us_standard_atmospheric_pressure_at_sea_level
+  units = Pa
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ pref_mid_norm_in ]
-  standard_name = enter_standard_name_5
-  units = enter_units
+  standard_name = reference_pressure
+  units = Pa
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_16:enter_standard_name_17)
+  dimensions = (vertical_layer_dimension)
   intent = in
 
 [ccpp-arg-table]
   name  = held_suarez_1994_run
   type  = scheme
 [ pver ]
-  standard_name = enter_standard_name_6
-  units = enter_units
+  standard_name =  vertical_layer_dimension
+  units = count
   type = integer
   dimensions = ()
   intent = in
 [ ncol ]
-  standard_name = enter_standard_name_7
-  units = enter_units
+  standard_name = horizontal_loop_extent
+  units = count
   type = integer
   dimensions = ()
   intent = in
 [ clat ]
-  standard_name = enter_standard_name_8
-  units = enter_units
+  standard_name = latitude
+  units = radians
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_18:enter_standard_name_19)
+  dimensions = (horizontal_loop_extent)
   intent = in
 [ pmid ]
-  standard_name = enter_standard_name_9
-  units = enter_units
+  standard_name = air_pressure
+  units = Pa
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_20:enter_standard_name_21,enter_standard_name_22:enter_standard_name_23)
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ u ]
-  standard_name = enter_standard_name_10
-  units = enter_units
+  standard_name = x_wind
+  units = m s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_24:enter_standard_name_25,enter_standard_name_26:enter_standard_name_27)
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ v ]
-  standard_name = enter_standard_name_11
-  units = enter_units
+  standard_name = y_wind
+  units = m s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_28:enter_standard_name_29,enter_standard_name_30:enter_standard_name_31)
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ t ]
-  standard_name = enter_standard_name_12
-  units = enter_units
+  standard_name = air_temperature
+  units = K
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_32:enter_standard_name_33,enter_standard_name_34:enter_standard_name_35)
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ du ]
-  standard_name = enter_standard_name_13
-  units = enter_units
+  standard_name = tendency_of_x_wind
+  units = m s-2
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_36:enter_standard_name_37,enter_standard_name_38:enter_standard_name_39)
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = out
 [ dv ]
-  standard_name = enter_standard_name_14
-  units = enter_units
+  standard_name = tendency_of_y_wind
+  units = m s-2
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_40:enter_standard_name_41,enter_standard_name_42:enter_standard_name_43)
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = out
 [ s ]
-  standard_name = enter_standard_name_15
-  units = enter_units
+  standard_name = tendency_of_temperature
+  units = K s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_44:enter_standard_name_45,enter_standard_name_46:enter_standard_name_47)
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = out
