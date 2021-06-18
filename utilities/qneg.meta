@@ -1,0 +1,119 @@
+[ccpp-table-properties]
+  name = qneg
+  type = module
+
+[ccpp-arg-table]
+  name  = qneg_init
+  type  = scheme
+[ print_qneg_warn ]
+  standard_name = print_qneg_warn
+  units = 1
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+
+[ccpp-arg-table]
+  name  = qneg_run
+  type  = scheme
+[ subnam ]
+  standard_name = qneg_subnam
+  units = 1
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ idx ]
+  standard_name = 
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ ncol ]
+  standard_name = horizontal_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ ncold ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ lver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ lconst_beg ]
+  standard_name = enter_standard_name_16
+  units = enter_units
+  type = integer
+  dimensions = ()
+  intent = in
+[ lconst_end ]
+  standard_name = enter_standard_name_17
+  units = enter_units
+  type = integer
+  dimensions = ()
+  intent = in
+[ qmin ]
+  standard_name = enter_standard_name_18
+  units = enter_units
+  type = real | kind = r8
+  dimensions = (enter_standard_name_16:enter_standard_name_17)
+  intent = in
+[ q ]
+  standard_name = enter_standard_name_19
+  units = enter_units
+  type = real | kind = r8
+  dimensions = (enter_standard_name_14,enter_standard_name_15,enter_standard_name_16:enter_standard_name_17)
+  intent = inout
+
+[ccpp-arg-table]
+  name  = qneg_timestep_final
+  type  = scheme
+[ mpi_communicator ]
+  standard_name = mpi_communicator
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ rootprocid ]
+  standard_name = rootprocid
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ isrootproc ]
+  standard_name = isrootproc
+  units = 1
+  type = logical
+  dimensions = ()
+  intent = in
+
+[ccpp-table-properties]
+  name = reset_stats_scalar
+  type = scheme
+
+[ccpp-arg-table]
+  name  = reset_stats_scalar
+  type  = scheme
+[ mpi_communicator ]
+  standard_name = mpi_communicator
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ rootprocid ]
+  standard_name = rootprocid
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ isrootproc ]
+  standard_name = isrootproc
+  units = 1
+  type = logical
+  dimensions = ()
+  intent = in

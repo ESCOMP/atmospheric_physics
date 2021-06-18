@@ -1,0 +1,13 @@
+[ccpp-table-properties]
+  name = qneg_readnl_mod
+  type = module
+
+[ccpp-arg-table]
+  name  = qneg_readnl_mod
+  type  = module
+[ print_qneg_warn ]
+  standard_name = print_qneg_warn
+  units = 1
+  type = character | kind = len=8
+  dimensions = ()
+  protected = True
