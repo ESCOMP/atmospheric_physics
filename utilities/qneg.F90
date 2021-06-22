@@ -1,13 +1,13 @@
 module qneg
 
-  use shr_kind_mod,        only: r8 => shr_kind_r8, CS => SHR_KIND_CS
-  use perf_mod,            only: t_startf, t_stopf
+  use shr_kind_mod,        only: CS => SHR_KIND_CS
+  use ccpp_types,          only: kind_phys
+  use perf_mod,            only: t_startf, t_stop
   use cam_logfile,         only: iulog
-  use cam_abortutils,      only: endrun
+  use cam_abortutils,      only: endrun, check_allocate
   use shr_sys_mod,         only: shr_sys_flush
 !  use cam_history_support, only: max_fieldname_len
 !  use ppgrid,              only: pcols
-  use constituents,        only: pcnst
 
   implicit none
   private
@@ -24,25 +24,27 @@ module qneg
   ! Private module variables
   logical          :: collect_stats = .false.
   logical          :: timestep_reset = .false.
+  logical          :: qneg_initialized = .false.
+  integer          :: num_constituents = 0
 
-  real(r8), parameter :: tol = 1.e-12_r8
-  real(r8), parameter :: worst_reset = 1.e35_r8
+  real(kind_phys), parameter :: tol = 1.e-12_kind_phys
+  real(kind_phys), parameter :: worst_reset = 1.e35_kind_phys
 
   ! Diagnostic field names
-  integer, parameter               :: num_diag_fields = (2 * pcnst) + 1
+!  integer              :: num_diag_fields = 0
 !  character(len=max_fieldname_len) :: diag_names(num_diag_fields)
 !  logical             :: cnst_out_calc = .false.
 !  logical             :: cnst_outfld(num_diag_fields) = .false.
 
   ! Summary buffers
-  integer, parameter  :: num3_bins = 24
-!  integer, parameter  :: num4_bins = 4
-  character(len=CS)   :: qneg3_warn_labels(num3_bins) = ''
-!  character(len=CS)   :: qneg4_warn_labels(num4_bins) = ''
-  integer             :: qneg3_warn_num(pcnst, num3_bins)   = 0
-!  integer             :: qneg4_warn_num(num4_bins)          = 0
-  real(r8)            :: qneg3_warn_worst(pcnst, num3_bins) = worst_reset
-!  real(r8)            :: qneg4_warn_worst(num4_bins)        = worst_reset
+  integer, parameter    :: num3_bins = 24
+!  integer, parameter    :: num4_bins = 4
+  character(len=CS)     :: qneg3_warn_labels(num3_bins) = ''
+!  character(len=CS)     :: qneg4_warn_labels(num4_bins) = ''
+  integer, allocatable  :: qneg3_warn_num(:,:)
+!  integer               :: qneg4_warn_num(num4_bins)          = 0
+  real(kind_phys), allocatable :: qneg3_warn_worst(:,:)
+!  real(kind_phys)              :: qneg4_warn_worst(num4_bins)        = worst_reset
 
   private             :: qneg_print_summary
 !  private             :: calc_cnst_out
@@ -57,41 +59,66 @@ contains
 
 !> \section arg_table_qneg_init Argument Table
 !! \htmlinclude qneg_init.html
-  subroutine qneg_init(print_qneg_warn)
+  subroutine qneg_init(print_qneg_warn, number_of_constituents, qmin)
     !use cam_history,    only: addfld, horiz_only
     !use constituents,   only: cnst_longname
 
-    character(len=*), intent(in) :: print_qneg_warn
+    character(len=*), intent(in)  :: print_qneg_warn
+    integer,          intent(in)  :: number_of_constituents
+    real(kind_phys),  intent(out) :: qmin(:)
+
+    character(len=*), parameter  :: subname = 'qneg_init'
+    integer                      :: ierr
+
+    !Check if already initialized:
+    if (qneg_initialized) then
+       return
+    end if
 
 !    integer :: index
 
-!    do index = 1, pcnst
+!    do index = 1, num_constituents
 !       diag_names(index) = trim(cnst_name(index))//'_qneg3'
 !       call addfld(diag_names(index), (/ 'lev' /), 'I', 'kg/kg',              &
 !            trim(cnst_longname(index))//' QNEG3 error (cell)')
-!       diag_names(pcnst+index) = trim(cnst_name(index))//'_qneg3_col'
-!       call addfld(diag_names(pcnst+index), horiz_only, 'I', 'kg/kg',         &
+!       diag_names(num_constituents+index) = trim(cnst_name(index))//'_qneg3_col'
+!       call addfld(diag_names(num_constituents+index), horiz_only, 'I', 'kg/kg',         &
 !            trim(cnst_longname(index))//' QNEG3 error (column)')
 !    end do
-!    diag_names((2*pcnst) + 1) = 'qflux_exceeded'
-!    call addfld(diag_names((2*pcnst) + 1), horiz_only, 'I', 'kg/m^2/s',     &
+!    diag_names((2*num_constituents) + 1) = 'qflux_exceeded'
+!    call addfld(diag_names((2*num_constituents) + 1), horiz_only, 'I', 'kg/m^2/s',     &
 !         'qflux excess (QNEG4)')
 
-     select case(trim(print_qneg_warn))
-        case('summary')
-           collect_stats = .true.
-           timestep_reset = .false.
-        case('timestep')
-           collect_stats = .true.
-           timestep_reset = .true.
-        case('off')
-           collect_stats = .false.
-           timestep_reset =.false.
-        case default
-           !do nothing
-!           call endrun(sub//"FATAL: '"//trim(print_qneg_warn)//"' is not a    &
-!              valid value for print_qneg_warn")
-     end select
+    !Create fake qmin -> will be removed when qmin exists
+    qmin = 0._kind_phys
+
+    !Allocate and initialize arrays whose dimensions depend on num_constituents:
+    num_constituents = number_of_constituents
+    allocate(qneg3_warn_num(num_constituents, num3_bins), stat=ierr)
+    call check_allocate(ierr, subname, 'qneg3_warn_num')
+    allocate(qneg3_warn_worst(num_constituents, num3_bins), stat=ierr)
+    call check_allocate(ierr, subname, 'qneg3_warn_worst')
+    qneg3_warn_num = 0
+    qneg3_warn_worst = worst_reset
+
+    select case(trim(print_qneg_warn))
+       case('summary')
+          collect_stats = .true.
+          timestep_reset = .false.
+       case('timestep')
+          collect_stats = .true.
+          timestep_reset = .true.
+       case('off')
+          collect_stats = .false.
+          timestep_reset =.false.
+       case default
+          !do nothing
+!          call endrun(sub//"FATAL: '"//trim(print_qneg_warn)//"' is not a    &
+!             valid value for print_qneg_warn")
+    end select
+
+    !Set qneg_initialized to .true.
+    qneg_initialized = .true.
 
   end subroutine qneg_init
 
@@ -155,8 +182,7 @@ contains
 
 !> \section arg_table_qneg_run Argument Table
 !! \htmlinclude qneg_run.html
-  subroutine qneg_run (subnam, idx, ncol, ncold, lver, lconst_beg, &
-       lconst_end, qmin, q)
+  subroutine qneg_run (subnam, idx, ncol, ncold, lver, qmin, q)
     !-----------------------------------------------------------------------
     !
     ! Purpose:
@@ -183,15 +209,13 @@ contains
     integer, intent(in) :: ncol         ! number of atmospheric columns
     integer, intent(in) :: ncold        ! declared number of atmospheric columns
     integer, intent(in) :: lver         ! number of vertical levels in column
-    integer, intent(in) :: lconst_beg   ! beginning constituent
-    integer, intent(in) :: lconst_end   ! ending    constituent
 
-    real(r8), intent(in) :: qmin(lconst_beg:lconst_end)      ! Global minimum constituent concentration
+    real(kind_phys), intent(in) :: qmin(:)      ! Global minimum constituent concentration
 
     !
     ! Input/Output arguments
     !
-    real(r8), intent(inout) :: q(ncold,lver,lconst_beg:lconst_end) ! moisture/tracer field
+    real(kind_phys), intent(inout) :: q(:,:,:) ! moisture/tracer field
     !
     !---------------------------Local workspace-----------------------------
     !
@@ -203,9 +227,9 @@ contains
 
     logical  :: found            ! true => at least 1 minimum violator found
 
-    real(r8) :: badvals(ncold, lver) ! Collector for outfld calls
-    real(r8) :: badcols(ncold)  ! Column sum for outfld
-    real(r8) :: worst           ! biggest violator
+    real(kind_phys) :: badvals(ncold, lver) ! Collector for outfld calls
+    real(kind_phys) :: badcols(ncold)  ! Column sum for outfld
+    real(kind_phys) :: worst           ! biggest violator
     !
     !-----------------------------------------------------------------------
     !
@@ -222,11 +246,11 @@ contains
        index = -1
     end if
 
-    do m = lconst_beg, lconst_end
+    do m = 1, num_constituents
        nvals = 0
        found = .false.
        worst = worst_reset
-       badvals(:,:) = 0.0_r8
+       badvals(:,:) = 0.0_kind_phys
        iw = -1
        kw = -1
        !
@@ -258,11 +282,11 @@ contains
 !       if ((cnst_outfld(m)) .and. (worst < worst_reset)) then
 !          call outfld(trim(diag_names(m)), badvals, pcols, idx)
 !       end if
-!       if ((cnst_outfld(pcnst+m)) .and. (worst < worst_reset)) then
+!       if ((cnst_outfld(num_constituents+m)) .and. (worst < worst_reset)) then
 !          do i = 1, pcols
 !             badcols(i) = SUM(badvals(i,:))
 !          end do
-!          call outfld(trim(diag_names(pcnst+m)), badcols, pcols, idx)
+!          call outfld(trim(diag_names(num_constituents+m)), badcols, pcols, idx)
 !       end if
     end do
     call t_stopf ('qneg_run')
@@ -298,15 +322,15 @@ contains
 !    integer, intent(in) :: lchnk             ! chunk index
 !    integer, intent(in) :: ncol              ! number of atmospheric columns
 !    !
-!    real(r8), intent(in) :: ztodt            ! two times model timestep (2 delta-t)
-!    real(r8), intent(in) :: qbot(ncol,pcnst) ! moisture at lowest model level
-!    real(r8), intent(in) :: srfrpdel(ncol)   ! 1./(pint(K+1)-pint(K))
+!    real(kind_phys), intent(in) :: ztodt            ! two times model timestep (2 delta-t)
+!    real(kind_phys), intent(in) :: qbot(ncol,num_constituents) ! moisture at lowest model level
+!    real(kind_phys), intent(in) :: srfrpdel(ncol)   ! 1./(pint(K+1)-pint(K))
 !    !
 !    ! Input/Output arguments
 !    !
-!    real(r8), intent(inout) :: shflx(ncol)   ! Surface sensible heat flux (J/m2/s)
-!    real(r8), intent(inout) :: lhflx(ncol)   ! Surface latent   heat flux (J/m2/s)
-!    real(r8), intent(inout) :: qflx (ncol,pcnst) ! surface water flux (kg/m^2/s)
+!    real(kind_phys), intent(inout) :: shflx(ncol)   ! Surface sensible heat flux (J/m2/s)
+!    real(kind_phys), intent(inout) :: lhflx(ncol)   ! Surface latent   heat flux (J/m2/s)
+!    real(kind_phys), intent(inout) :: qflx (ncol,num_constituents) ! surface water flux (kg/m^2/s)
 !    !
 !    !---------------------------Local workspace-----------------------------
 !    !
@@ -314,8 +338,8 @@ contains
 !    integer :: iw                ! i index of worst violator
 !    integer :: index             ! caller bin index
 !    !
-!    real(r8):: worst             ! biggest violator
-!    real(r8):: excess(ncol)     ! Excess downward sfc latent heat flux
+!    real(kind_phys):: worst             ! biggest violator
+!    real(kind_phys):: excess(ncol)     ! Excess downward sfc latent heat flux
 !    !
 !    !-----------------------------------------------------------------------
 !
@@ -343,7 +367,7 @@ contains
 !       ! If there is an excess downward (negative) q flux, then subtract
 !       ! excess from "qflx" and "lhflx" and add to "shflx".
 !       !
-!       if (excess(i) < 0._r8) then
+!       if (excess(i) < 0._kind_phys) then
 !          if (excess(i) < worst) then
 !             iw = i
 !             worst = excess(i)
@@ -357,13 +381,13 @@ contains
 !       end if
 !    end do
 !    ! Maybe output bad values
-!    if ((cnst_outfld((2*pcnst)+1)) .and. (worst < worst_reset)) then
+!    if ((cnst_outfld((2*num_constituents)+1)) .and. (worst < worst_reset)) then
 !       do i = 1, ncol
-!          if (excess(i) > 0.0_r8) then
-!             excess(i) = 0.0_r8
+!          if (excess(i) > 0.0_kind_phys) then
+!             excess(i) = 0.0_kind_phys
 !          end if
 !       end do
-!       call outfld(trim(diag_names((2*pcnst)+1)), excess(1:ncol), ncol, lchnk)
+!       call outfld(trim(diag_names((2*num_constituents)+1)), excess(1:ncol), ncol, lchnk)
 !    end if
 !    call t_stopf ('qneg4')
 
@@ -393,6 +417,8 @@ contains
     if (.not.timestep_reset .and. collect_stats) then
        call qneg_print_summary(mpi_communicator, rootprocid, isrootproc)
     end if
+    deallocate(qneg3_warn_num)
+    deallocate(qneg3_warn_worst)
 
   subroutine qneg_print_summary(mpi_communicator, rootprocid, isrootproc)
     use mpi, only: MPI_MIN, MPI_SUM, MPI_INTEGER, MPI_REAL8
@@ -401,8 +427,8 @@ contains
     integer, intent(in) :: rootprocid
     logical, intent(in) :: isrootproc
 
-    integer             :: global_warn_num(pcnst)
-    real(r8)            :: global_warn_worst(pcnst)
+    integer             :: global_warn_num(num_constituents)
+    real(kind_phys)            :: global_warn_worst(num_constituents)
     integer             :: index, m
     integer             :: ierr
 
@@ -410,11 +436,11 @@ contains
        ! QNEG3
        call reset_stats(global_warn_num(:), global_warn_worst(:))
        call MPI_REDUCE(qneg3_warn_num(:, index), global_warn_num(:),    &
-            pcnst, MPI_INTEGER, MPI_SUM, masterprocid, mpicom, ierr)
+            num_constituents, MPI_INTEGER, MPI_SUM, masterprocid, mpicom, ierr)
        call MPI_REDUCE(qneg3_warn_worst(:, index), global_warn_worst(:),&
-            pcnst, MPI_REAL8, MPI_MIN, masterprocid, mpicom, ierr)
+            num_constituents, MPI_REAL8, MPI_MIN, masterprocid, mpicom, ierr)
        if (isrootproc) then
-          do m = 1, pcnst
+          do m = 1, num_constituents
              if ( (global_warn_num(m) > 0) .and.                        &
                   (abs(global_warn_worst(m)) > tol)) then
                 write(iulog, 9100) trim(qneg3_warn_labels(index)),      &
@@ -456,7 +482,7 @@ contains
   subroutine reset_stats_array(num_array, worst_array)
     ! Private routine to reset statistics
     integer,  intent(inout) :: num_array(:)
-    real(r8), intent(inout) :: worst_array(:)
+    real(kind_phys), intent(inout) :: worst_array(:)
 
     num_array(:)    = 0
     worst_array(:)  = worst_reset
@@ -465,7 +491,7 @@ contains
   subroutine reset_stats_scalar(num, worst)
     ! Private routine to reset statistics
     integer,  intent(inout) :: num
-    real(r8), intent(inout) :: worst
+    real(kind_phys), intent(inout) :: worst
 
     num    = 0
     worst  = worst_reset

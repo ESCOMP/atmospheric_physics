@@ -11,6 +11,18 @@
   type = character | kind = len=*
   dimensions = ()
   intent = in
+[ number_of_constituents ]
+  standard_name = number_of_constituents
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ qmin ]
+  standard_name = constituent_minimum_value
+  units =
+  type = real | kind = r8
+  dimensions = (number_of_constituents)
+  intent = out
 
 [ccpp-arg-table]
   name  = qneg_run
@@ -22,19 +34,19 @@
   dimensions = ()
   intent = in
 [ idx ]
-  standard_name = 
+  standard_name =
   units = count
   type = integer
   dimensions = ()
   intent = in
 [ ncol ]
-  standard_name = horizontal_dimension
+  standard_name = horizontal_loop_extent
   units = count
   type = integer
   dimensions = ()
   intent = in
 [ ncold ]
-  standard_name = horizontal_loop_extent
+  standard_name = horizontal_dimension
   units = count
   type = integer
   dimensions = ()
@@ -45,29 +57,17 @@
   type = integer
   dimensions = ()
   intent = in
-[ lconst_beg ]
-  standard_name = enter_standard_name_16
-  units = enter_units
-  type = integer
-  dimensions = ()
-  intent = in
-[ lconst_end ]
-  standard_name = enter_standard_name_17
-  units = enter_units
-  type = integer
-  dimensions = ()
-  intent = in
 [ qmin ]
-  standard_name = enter_standard_name_18
-  units = enter_units
+  standard_name = constituent_minimum_value
+  units = 1
   type = real | kind = r8
-  dimensions = (enter_standard_name_16:enter_standard_name_17)
+  dimensions = (number_of_constituents)
   intent = in
 [ q ]
-  standard_name = enter_standard_name_19
-  units = enter_units
+  standard_name = constituent_mixing_ratio
+  units = 1
   type = real | kind = r8
-  dimensions = (enter_standard_name_14,enter_standard_name_15,enter_standard_name_16:enter_standard_name_17)
+  dimensions = (horizontal_dimension,vertical_layer_dimension,number_of_constituents)
   intent = inout
 
 [ccpp-arg-table]
@@ -80,24 +80,20 @@
   dimensions = ()
   intent = in
 [ rootprocid ]
-  standard_name = rootprocid
+  standard_name = mpi_root
   units = 1
   type = integer
   dimensions = ()
   intent = in
 [ isrootproc ]
-  standard_name = isrootproc
-  units = 1
+  standard_name = flag_for_mpi_root
+  units = flag
   type = logical
   dimensions = ()
   intent = in
 
-[ccpp-table-properties]
-  name = reset_stats_scalar
-  type = scheme
-
 [ccpp-arg-table]
-  name  = reset_stats_scalar
+  name  = qneg_final
   type  = scheme
 [ mpi_communicator ]
   standard_name = mpi_communicator
@@ -106,14 +102,14 @@
   dimensions = ()
   intent = in
 [ rootprocid ]
-  standard_name = rootprocid
+  standard_name = mpi_root
   units = 1
   type = integer
   dimensions = ()
   intent = in
 [ isrootproc ]
-  standard_name = isrootproc
-  units = 1
+  standard_name = flag_for_mpi_root
+  units = flag
   type = logical
   dimensions = ()
   intent = in
