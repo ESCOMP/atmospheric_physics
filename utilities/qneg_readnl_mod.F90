@@ -18,8 +18,6 @@ module qneg_readnl_mod
   character(len=8), public, protected :: print_qneg_warn
 
 contains
-!> \section qneg_readnl Argument Table
-!! \htmlinclude qneg_readnl.html
   subroutine qneg_readnl(nlfile, mpi_communicator, rootprocid, isrootproc)
     use namelist_utils,  only: find_group_name
     use units,           only: getunit, freeunit
@@ -33,13 +31,14 @@ contains
     integer :: unitn, ierr
     character(len=*), parameter :: sub = 'qneg_readnl'
 
+    !> \section qneg_readnl Argument Table
+    !! \htmlinclude qneg_readnl.html
     namelist /qneg_nl/ print_qneg_warn
 
     print_qneg_warn = ''
 
     if (isrootproc) then
-       unitn = getunit()
-       open( unitn, file=trim(nlfile), status='old' )
+       open( newunit=unitn, file=trim(nlfile), status='old' )
        call find_group_name(unitn, 'qneg_nl', status=ierr)
        if (ierr == 0) then
           read(unitn, qneg_nl, iostat=ierr)
@@ -48,7 +47,6 @@ contains
           end if
        end if
        close(unitn)
-       call freeunit(unitn)
     end if
 
     call mpi_bcast(print_qneg_warn, len(print_qneg_warn), mpi_character, mstrid, mpi_communicator, ierr)
