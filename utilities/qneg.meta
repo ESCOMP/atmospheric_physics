@@ -1,6 +1,6 @@
 [ccpp-table-properties]
   name = qneg
-  type = module
+  type = scheme
 
 [ccpp-arg-table]
   name  = qneg_init

@@ -420,6 +420,8 @@ contains
     deallocate(qneg3_warn_num)
     deallocate(qneg3_warn_worst)
 
+  end subroutine qneg_final
+
   subroutine qneg_print_summary(mpi_communicator, rootprocid, isrootproc)
     use mpi, only: MPI_MIN, MPI_SUM, MPI_INTEGER, MPI_REAL8
 
