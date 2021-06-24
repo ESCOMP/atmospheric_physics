@@ -182,7 +182,7 @@ contains
 
 !> \section arg_table_qneg_run Argument Table
 !! \htmlinclude qneg_run.html
-  subroutine qneg_run (subnam, idx, ncol, ncold, lver, qmin, q)
+  subroutine qneg_run (subnam, ncol, ncold, lver, qmin, q)
     !-----------------------------------------------------------------------
     !
     ! Purpose:
@@ -205,7 +205,6 @@ contains
     !
     character(len=*), intent(in) :: subnam ! name of calling routine
 
-    integer, intent(in) :: idx          ! chunk/latitude index
     integer, intent(in) :: ncol         ! number of atmospheric columns
     integer, intent(in) :: ncold        ! declared number of atmospheric columns
     integer, intent(in) :: lver         ! number of vertical levels in column
