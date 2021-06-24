@@ -14,6 +14,9 @@ module qneg_readnl_mod
 
   public :: qneg_readnl
 
+  !> \section arg_table_qneg_readnl_mod Argument Table
+  !! \htmlinclude qneg_readnl_mod.html
+
   ! Protected module variables
   character(len=8), public, protected :: print_qneg_warn
 
@@ -31,8 +34,6 @@ contains
     integer :: unitn, ierr
     character(len=*), parameter :: sub = 'qneg_readnl'
 
-    !> \section qneg_readnl Argument Table
-    !! \htmlinclude qneg_readnl.html
     namelist /qneg_nl/ print_qneg_warn
 
     print_qneg_warn = ''
