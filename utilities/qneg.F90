@@ -59,12 +59,12 @@ contains
 
 !> \section arg_table_qneg_init Argument Table
 !! \htmlinclude qneg_init.html
-  subroutine qneg_init(print_qneg_warn, number_of_constituents, qmin)
+  subroutine qneg_init(print_qneg_warn, num_constituents, qmin)
     !use cam_history,    only: addfld, horiz_only
     !use constituents,   only: cnst_longname
 
     character(len=*), intent(in)  :: print_qneg_warn
-    integer,          intent(in)  :: number_of_constituents
+    integer,          intent(in)  :: num_constituents
     real(kind_phys),  intent(out) :: qmin(:)
 
     character(len=*), parameter  :: subname = 'qneg_init'
@@ -93,7 +93,7 @@ contains
     qmin = 0._kind_phys
 
     !Allocate and initialize arrays whose dimensions depend on num_constituents:
-    num_constituents = number_of_constituents
+    num_constituents = num_constituents
     allocate(qneg3_warn_num(num_constituents, num3_bins), stat=ierr)
     call check_allocate(ierr, subname, 'qneg3_warn_num')
     allocate(qneg3_warn_worst(num_constituents, num3_bins), stat=ierr)
@@ -182,7 +182,7 @@ contains
 
 !> \section arg_table_qneg_run Argument Table
 !! \htmlinclude qneg_run.html
-  subroutine qneg_run (subnam, ncol, ncold, lver, qmin, q)
+  subroutine qneg_run (subnam, ncol, ncold, lver, num_constituents, qmin, q)
     !-----------------------------------------------------------------------
     !
     ! Purpose:
@@ -208,6 +208,7 @@ contains
     integer, intent(in) :: ncol         ! number of atmospheric columns
     integer, intent(in) :: ncold        ! declared number of atmospheric columns
     integer, intent(in) :: lver         ! number of vertical levels in column
+    integer, intent(in) :: num_constituents ! number of constituents
 
     real(kind_phys), intent(in) :: qmin(:)      ! Global minimum constituent concentration
 

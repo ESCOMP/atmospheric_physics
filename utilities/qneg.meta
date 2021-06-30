@@ -11,7 +11,7 @@
   type = character | kind = len=*
   dimensions = ()
   intent = in
-[ number_of_constituents ]
+[ num_constituents ]
   standard_name = number_of_constituents
   units = count
   type = integer
@@ -51,6 +51,12 @@
   type = integer
   dimensions = ()
   intent = in
+[ num_constituents ]
+  standard_name = number_of_constituents
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
 [ qmin ]
   standard_name = constituent_minimum_value
   units = 1
@@ -59,7 +65,8 @@
   intent = in
 [ q ]
   standard_name = constituent_mixing_ratio
-  units = 1
+  units = kg kg-1
+  state_variable = true
   type = real | kind = kind_phys
   dimensions = (horizontal_dimension,vertical_layer_dimension,number_of_constituents)
   intent = inout

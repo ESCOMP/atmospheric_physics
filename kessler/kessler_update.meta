@@ -122,6 +122,12 @@
   units = K s-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
+[ subname ]
+  standard_name = scheme_name
+  type = character | kind = len=64
+  units = 1
+  dimensions = ()
+  intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
   long_name = Error message for error handling in CCPP
