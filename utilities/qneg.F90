@@ -1,8 +1,8 @@
 module qneg
 
   use shr_kind_mod,        only: CS => SHR_KIND_CS
-  use ccpp_types,          only: kind_phys
-  use perf_mod,            only: t_startf, t_stop
+  use ccpp_kinds,          only: kind_phys
+  use perf_mod,            only: t_startf, t_stopf
   use cam_logfile,         only: iulog
   use cam_abortutils,      only: endrun, check_allocate
   use shr_sys_mod,         only: shr_sys_flush
@@ -59,12 +59,12 @@ contains
 
 !> \section arg_table_qneg_init Argument Table
 !! \htmlinclude qneg_init.html
-  subroutine qneg_init(print_qneg_warn, num_constituents, qmin)
+  subroutine qneg_init(print_qneg_warn, number_of_constituents, qmin)
     !use cam_history,    only: addfld, horiz_only
     !use constituents,   only: cnst_longname
 
     character(len=*), intent(in)  :: print_qneg_warn
-    integer,          intent(in)  :: num_constituents
+    integer,          intent(in)  :: number_of_constituents
     real(kind_phys),  intent(out) :: qmin(:)
 
     character(len=*), parameter  :: subname = 'qneg_init'
@@ -93,7 +93,7 @@ contains
     qmin = 0._kind_phys
 
     !Allocate and initialize arrays whose dimensions depend on num_constituents:
-    num_constituents = num_constituents
+    num_constituents = number_of_constituents
     allocate(qneg3_warn_num(num_constituents, num3_bins), stat=ierr)
     call check_allocate(ierr, subname, 'qneg3_warn_num')
     allocate(qneg3_warn_worst(num_constituents, num3_bins), stat=ierr)
@@ -158,27 +158,27 @@ contains
     end do
   end function find_index3
 
-  integer function find_index4(nam) result(index)
-    ! Find a valid or new index for 'nam' entries
-    character(len=*),  intent(in) :: nam
-
-    integer                      :: i
-
-    index = -1
-    do i = 1, num4_bins
-       if (trim(nam) == trim(qneg4_warn_labels(i))) then
-          ! We found this entry, return its index
-          index = i
-          exit
-       else if (len_trim(qneg4_warn_labels(i)) == 0) then
-          ! We have run out of known entries, use a new one and reset its stats
-          qneg4_warn_labels(i) = nam
-          index = i
-          call reset_stats(qneg4_warn_num(index), qneg4_warn_worst(index))
-          exit
-       end if
-    end do
-  end function find_index4
+!  integer function find_index4(nam) result(index)
+!    ! Find a valid or new index for 'nam' entries
+!    character(len=*),  intent(in) :: nam
+!
+!    integer                      :: i
+!
+!    index = -1
+!    do i = 1, num4_bins
+!       if (trim(nam) == trim(qneg4_warn_labels(i))) then
+!          ! We found this entry, return its index
+!          index = i
+!          exit
+!       else if (len_trim(qneg4_warn_labels(i)) == 0) then
+!          ! We have run out of known entries, use a new one and reset its stats
+!          qneg4_warn_labels(i) = nam
+!          index = i
+!          call reset_stats(qneg4_warn_num(index), qneg4_warn_worst(index))
+!          exit
+!       end if
+!    end do
+!  end function find_index4
 
 !> \section arg_table_qneg_run Argument Table
 !! \htmlinclude qneg_run.html
@@ -438,9 +438,11 @@ contains
        ! QNEG3
        call reset_stats(global_warn_num(:), global_warn_worst(:))
        call MPI_REDUCE(qneg3_warn_num(:, index), global_warn_num(:),    &
-            num_constituents, MPI_INTEGER, MPI_SUM, masterprocid, mpicom, ierr)
+            num_constituents, MPI_INTEGER, MPI_SUM, rootprocid,         &
+            mpi_communicator, ierr)
        call MPI_REDUCE(qneg3_warn_worst(:, index), global_warn_worst(:),&
-            num_constituents, MPI_REAL8, MPI_MIN, masterprocid, mpicom, ierr)
+            num_constituents, MPI_REAL8, MPI_MIN, rootprocid,           &
+            mpi_communicator, ierr)
        if (isrootproc) then
           do m = 1, num_constituents
              if ( (global_warn_num(m) > 0) .and.                        &
@@ -472,7 +474,6 @@ contains
 !       end if
 !       call reset_stats(qneg4_warn_num(index), qneg4_warn_worst(index))
 !    end do
-    end if
 
     return
 9100 format(' QNEG3 from ', a, ':', a, &
