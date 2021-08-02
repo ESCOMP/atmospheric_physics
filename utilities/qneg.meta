@@ -19,7 +19,7 @@
   intent = in
 [ qmin ]
   standard_name = constituent_minimum_value
-  units =
+  units = kg kg-1
   type = real | kind = kind_phys
   dimensions = (number_of_constituents)
   intent = out
@@ -92,6 +92,18 @@
   type = logical
   dimensions = ()
   intent = in
+[ ix_qv ]
+  standard_name = index_of_water_vapor_specific_humidity
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ ix_cld_liq ]
+  standard_name = index_of_cloud_liquid_water_mixing_ratio_of_moist_air
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
 
 [ccpp-arg-table]
   name  = qneg_final
@@ -112,5 +124,17 @@
   standard_name = flag_for_mpi_root
   units = flag
   type = logical
+  dimensions = ()
+  intent = in
+[ ix_qv ]
+  standard_name = index_of_water_vapor_specific_humidity
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ ix_cld_liq ]
+  standard_name = index_of_cloud_liquid_water_mixing_ratio_of_moist_air
+  units = 1
+  type = integer
   dimensions = ()
   intent = in
