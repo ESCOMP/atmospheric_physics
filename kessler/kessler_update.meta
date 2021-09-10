@@ -38,7 +38,7 @@
   kind = kind_phys
   intent = out
 [ ttend_t ]
-  standard_name = total_tendency_of_air_temperature
+  standard_name = tendency_of_air_temperature_due_to_model_physics
   units = K s-1
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   type = real
@@ -52,7 +52,7 @@
   dimensions = ()
   intent = out
 [ errflg ]
-  standard_name = ccpp_error_flag
+  standard_name = ccpp_error_code
   long_name = Error flag for error handling in CCPP
   units = flag
   type = integer
@@ -116,7 +116,7 @@
   kind = kind_phys
   intent = inout
 [ ttend_t ]
-  standard_name = total_tendency_of_air_temperature
+  standard_name = tendency_of_air_temperature_due_to_model_physics
   type = real
   kind = kind_phys
   units = K s-1
@@ -130,7 +130,7 @@
   dimensions = ()
   intent = out
 [ errflg ]
-  standard_name = ccpp_error_flag
+  standard_name = ccpp_error_code
   long_name = Error flag for error handling in CCPP
   units = flag
   type = integer
@@ -180,7 +180,7 @@
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = out
 [ errflg ]
-  standard_name = ccpp_error_flag
+  standard_name = ccpp_error_code
   long_name = Error flag for error handling in CCPP
   units = flag
   type = integer

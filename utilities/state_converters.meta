@@ -50,7 +50,7 @@
   intent = out
   optional = F
 [ errflg ]
-  standard_name = ccpp_error_flag
+  standard_name = ccpp_error_code
   long_name = Error flag for error handling in CCPP
   units = flag
   type = integer
@@ -108,7 +108,7 @@
   type = character | kind = len=*
   intent = out
 [ errflg ]
-  standard_name = ccpp_error_flag
+  standard_name = ccpp_error_code
   long_name = Error flag for error handling in CCPP
   units = flag
   type = integer
@@ -143,7 +143,7 @@
    intent = out
    optional = F
 [ errflg ]
-   standard_name = ccpp_error_flag
+   standard_name = ccpp_error_code
    long_name = Error flag for error handling in CCPP
    units = flag
    dimensions = ()
@@ -202,7 +202,7 @@
    intent = out
    optional = F
 [ errflg ]
-   standard_name = ccpp_error_flag
+   standard_name = ccpp_error_code
    long_name = Error flag for error handling in CCPP
    units = flag
    dimensions = ()
@@ -225,7 +225,7 @@
    intent = out
    optional = F
 [ errflg ]
-   standard_name = ccpp_error_flag
+   standard_name = ccpp_error_code
    long_name = Error flag for error handling in CCPP
    units = flag
    dimensions = ()
@@ -288,7 +288,7 @@
    intent = out
    optional = F
 [ errflg ]
-   standard_name = ccpp_error_flag
+   standard_name = ccpp_error_code
    long_name = Error flag for error handling in CCPP
    units = flag
    dimensions = ()
@@ -363,7 +363,7 @@
    type = character | kind = len=*
    intent = out
 [ errflg ]
-   standard_name = ccpp_error_flag
+   standard_name = ccpp_error_code
    long_name = Error flag for error handling in CCPP
    units = flag
    dimensions = ()
@@ -439,7 +439,7 @@
    type = character | kind = len=*
    intent = out
 [ errflg ]
-   standard_name = ccpp_error_flag
+   standard_name = ccpp_error_code
    long_name = Error flag for error handling in CCPP
    units = flag
    dimensions = ()
