@@ -7,8 +7,8 @@ module physics_tendency_updaters
 
   public :: apply_tendency_of_x_wind_run
   public :: apply_tendency_of_y_wind_run
-  public :: apply_heating_rate
-  public :: apply_tendency_of_air_temperature
+  public :: apply_heating_rate_run
+  public :: apply_tendency_of_air_temperature_run
   public :: update_dry_static_energy_init
   public :: update_dry_static_energy_run
 
@@ -23,13 +23,13 @@ CONTAINS
    subroutine apply_tendency_of_x_wind_run(nz, du, u, dudt, dt,             &
         errcode, errmsg)
       ! Dummy arguments
-      integer,          intent(in)    :: nz        ! Num vertical  layers
-      real(kind_phys),  intent(in)    :: du(:,:)   ! tendency of x wind
-      real(kind_phys),  intent(inout) :: u(:,:)    ! x wind
-      real(kind_phys),  intent(inout) :: dudt(:,:) ! total tendency of x wind
-      real(kind_phys),  intent(in)    :: dt        ! physics time step
-      real(kind_phys),  intent(out)   :: errcode
-      character(len=*), intent(out)   :: errmsg
+      integer,            intent(in)    :: nz        ! Num vertical  layers
+      real(kind_phys),    intent(in)    :: du(:,:)   ! tendency of x wind
+      real(kind_phys),    intent(inout) :: u(:,:)    ! x wind
+      real(kind_phys),    intent(inout) :: dudt(:,:) ! total tendency of x wind
+      real(kind_phys),    intent(in)    :: dt        ! physics time step
+      integer,            intent(out)   :: errcode
+      character(len=512), intent(out)   :: errmsg
 
       ! Local variable
       integer :: klev
@@ -49,13 +49,13 @@ CONTAINS
    subroutine apply_tendency_of_y_wind_run(nz, dv, v, dvdt, dt,             &
         errcode, errmsg)
       ! Dummy arguments
-      integer,         intent(in)    :: nz        ! Num vertical  layers
-      real(kind_phys), intent(in)    :: dv(:,:)   ! tendency of y wind
-      real(kind_phys), intent(inout) :: v(:,:)    ! y wind
-      real(kind_phys), intent(inout) :: dvdt(:,:) ! total tendency of y wind
-      real(kind_phys), intent(in)    :: dt        ! physics time step
-      integer,          intent(out)   :: errcode
-      character(len=*), intent(out)   :: errmsg
+      integer,            intent(in)    :: nz        ! Num vertical  layers
+      real(kind_phys),    intent(in)    :: dv(:,:)   ! tendency of y wind
+      real(kind_phys),    intent(inout) :: v(:,:)    ! y wind
+      real(kind_phys),    intent(inout) :: dvdt(:,:) ! total tendency of y wind
+      real(kind_phys),    intent(in)    :: dt        ! physics time step
+      integer,            intent(out)   :: errcode
+      character(len=512), intent(out)   :: errmsg
 
       ! Local variable
       integer :: klev
@@ -70,19 +70,19 @@ CONTAINS
 
    end subroutine apply_tendency_of_y_wind_run
 
-   !> \section arg_table_apply_heating_rate  Argument Table
-   !! \htmlinclude apply_heating_rate.html
-   subroutine apply_heating_rate(nz, s, temp, dtdt, dt, cpair,              &
+   !> \section arg_table_apply_heating_rate_run  Argument Table
+   !! \htmlinclude apply_heating_rate_run.html
+   subroutine apply_heating_rate_run(nz, s, temp, dtdt, dt, cpair,            &
         errcode, errmsg)
       ! Dummy arguments
-      integer,          intent(in)    :: nz        ! Num vertical  layers
-      real(kind_phys),  intent(in)    :: s(:,:)    ! heating rate
-      real(kind_phys),  intent(inout) :: temp(:,:) ! air temperature
-      real(kind_phys),  intent(inout) :: dtdt(:,:) ! total temperature tendency
-      real(kind_phys),  intent(in)    :: dt        ! physics time step
-      real(kind_phys),  intent(in)    :: cpair     ! specific heat, dry air
-      integer,          intent(out)   :: errcode
-      character(len=*), intent(out)   :: errmsg
+      integer,            intent(in)    :: nz        ! Num vertical  layers
+      real(kind_phys),    intent(in)    :: s(:,:)    ! heating rate
+      real(kind_phys),    intent(inout) :: temp(:,:) ! air temperature
+      real(kind_phys),    intent(inout) :: dtdt(:,:) ! total temperature tend.
+      real(kind_phys),    intent(in)    :: dt        ! physics time step
+      real(kind_phys),    intent(in)    :: cpair     ! specific heat, dry air
+      integer,            intent(out)   :: errcode
+      character(len=512), intent(out)   :: errmsg
 
       ! Local variable
       integer :: klev
@@ -95,21 +95,20 @@ CONTAINS
          dtdt(:, klev) = dtdt(:, klev) + (s(:, klev) / cpair)
       end do
 
-   end subroutine apply_heating_rate
+   end subroutine apply_heating_rate_run
 
-   !> \section arg_table_apply_tendency_of_air_temperature  Argument Table
-   !! \htmlinclude apply_tendency_of_air_temperature.html
-   subroutine apply_tendency_of_air_temperature(nz, t_tend, temp, dtdt, dt, &
-        errcode, errmsg)
+   !> \section arg_table_apply_tendency_of_air_temperature_run  Argument Table
+   !! \htmlinclude apply_tendency_of_air_temperature_run.html
+   subroutine apply_tendency_of_air_temperature_run(nz, t_tend, temp, dtdt,   &
+        dt, errcode, errmsg)
       ! Dummy arguments
-      integer,          intent(in)    :: nz          ! Num vertical  layers
-      real(kind_phys),  intent(in)    :: t_tend(:,:) ! temperature tendency
-      real(kind_phys),  intent(inout) :: temp(:,:)   ! air temperature
-      real(kind_phys),  intent(inout) :: dtdt(:,:)   ! total temp. tendency
-      real(kind_phys),  intent(in)    :: dt          ! physics time step
-      real(kind_phys),  intent(in)    :: cpair       ! specific heat, dry air
-      integer,          intent(out)   :: errcode
-      character(len=*), intent(out)   :: errmsg
+      integer,            intent(in)    :: nz          ! Num vertical  layers
+      real(kind_phys),    intent(in)    :: t_tend(:,:) ! temperature tendency
+      real(kind_phys),    intent(inout) :: temp(:,:)   ! air temperature
+      real(kind_phys),    intent(inout) :: dtdt(:,:)   ! total temp. tendency
+      real(kind_phys),    intent(in)    :: dt          ! physics time step
+      integer,            intent(out)   :: errcode
+      character(len=512), intent(out)   :: errmsg
 
       ! Local variable
       integer :: klev
@@ -122,7 +121,7 @@ CONTAINS
          dtdt(:, klev) = dtdt(:, klev) + t_tend(:, klev)
       end do
 
-   end subroutine apply_tendency_of_air_temperature
+   end subroutine apply_tendency_of_air_temperature_run
 
    !> \section arg_table_update_dry_static_energy_init  Argument Table
    !! \htmlinclude update_dry_static_energy_init.html
@@ -139,14 +138,14 @@ CONTAINS
         cpair, errcode, errmsg)
 
       ! Dummy arguments
-      integer,          intent(in)  :: nz             ! Num vertical  layers
-      real(kind_phys),  intent(in)  :: temp(:,:)      ! air temperature
-      real(kind_phys),  intent(in)  :: zm(:,:)        ! geopotential height
-      real(kind_phys),  intent(in)  :: phis(:)        ! geopotential at surface
-      real(kind_phys),  intent(out) :: st_energy(:,:) ! dry static energy
-      real(kind_phys),  intent(in)  :: cpair          ! specific heat, dry air
-      character(len=*), intent(out) :: errcode
-      integer,          intent(out) :: errflg
+      integer,            intent(in)  :: nz             ! Num vertical  layers
+      real(kind_phys),    intent(in)  :: temp(:,:)      ! air temperature
+      real(kind_phys),    intent(in)  :: zm(:,:)        ! geopotential height
+      real(kind_phys),    intent(in)  :: phis(:)        ! surface geopotential
+      real(kind_phys),    intent(out) :: st_energy(:,:) ! dry static energy
+      real(kind_phys),    intent(in)  :: cpair          ! specific heat, dry air
+      integer,            intent(out) :: errcode
+      character(len=512), intent(out) :: errmsg
 
       ! Local variable
       integer :: klev

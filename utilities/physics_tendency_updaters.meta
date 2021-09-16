@@ -6,7 +6,7 @@
   type = scheme
 [ nz ]
   standard_name = vertical_layer_dimension
-  long_name = number of columns
+  long_name = Number of vertical layers
   units = count
   type = integer
   dimensions = ()
@@ -23,12 +23,13 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
+  state_variable = True
 [ dudt ]
   standard_name = tendency_of_x_wind_due_to_model_physics
   units = m s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = in
+  intent = inout
 [ dt ]
   standard_name = timestep_for_physics
   long_name = time step
@@ -59,7 +60,7 @@
   type = scheme
 [ nz ]
   standard_name = vertical_layer_dimension
-  long_name = number of columns
+  long_name = Number of vertical layers
   units = count
   type = integer
   dimensions = ()
@@ -76,12 +77,13 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
+  state_variable = True
 [ dvdt ]
   standard_name = tendency_of_y_wind_due_to_model_physics
   units = m s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = in
+  intent = inout
 [ dt ]
   standard_name = timestep_for_physics
   long_name = time step
@@ -112,7 +114,7 @@
   type = scheme
 [ nz ]
   standard_name = vertical_layer_dimension
-  long_name = number of columns
+  long_name = Number of vertical layers
   units = count
   type = integer
   dimensions = ()
@@ -125,11 +127,11 @@
   intent = in
 [ temp ]
   standard_name = air_temperature
-  state_variable = true
   units = K
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
+  state_variable = true
 [ dtdt ]
   standard_name = tendency_of_air_temperature_due_to_model_physics
   units = K s-1
@@ -172,7 +174,7 @@
   type = scheme
 [ nz ]
   standard_name = vertical_layer_dimension
-  long_name = number of columns
+  long_name = Number of vertical layers
   units = count
   type = integer
   dimensions = ()
@@ -185,11 +187,11 @@
   intent = in
 [ temp ]
   standard_name = air_temperature
-  state_variable = true
   units = K
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
+  state_variable = true
 [ dtdt ]
   standard_name = tendency_of_air_temperature_due_to_model_physics
   units = K s-1
@@ -200,12 +202,6 @@
   standard_name = timestep_for_physics
   long_name = time step
   units = s
-  dimensions = ()
-  type = real | kind = kind_phys
-  intent = in
-[ cpair ]
-  standard_name = specific_heat_of_dry_air_at_constant_pressure
-  units = J kg-1 K-1
   dimensions = ()
   type = real | kind = kind_phys
   intent = in
@@ -244,29 +240,27 @@
   type = scheme
 [ nz ]
   standard_name = vertical_layer_dimension
-  long_name = number of vertical levels
+  long_name = number of vertical layers
   units = count
   dimensions = ()
   type = integer
   intent = in
 [ temp ]
   standard_name = air_temperature
-  state_variable = true
   type = real
   kind = kind_phys
   units = K
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = in
+  state_variable = true
 [ zm ]
   standard_name = geopotential_height
-  state_variable = true
   type = real | kind = kind_phys
   units = m
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = in
 [ phis ]
   standard_name = geopotential_at_surface
-  state_variable = true
   type = real
   kind = kind_phys
   units = m2 s-2

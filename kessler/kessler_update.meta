@@ -64,7 +64,7 @@
   type = scheme
 [ nz ]
   standard_name = vertical_layer_dimension
-  long_name = number of vertical levels
+  long_name = number of vertical layers
   units = count
   dimensions = ()
   type = integer
@@ -142,7 +142,7 @@
   type = scheme
 [ nz ]
   standard_name = vertical_layer_dimension
-  long_name = number of vertical levels
+  long_name = number of vertical layers
   units = count
   dimensions = ()
   type = integer

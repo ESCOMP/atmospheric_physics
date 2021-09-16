@@ -13,7 +13,7 @@
   intent = in
 [ nz ]
   standard_name = vertical_layer_dimension
-  long_name = number of vertical levels
+  long_name = number of vertical layers
   units = count
   type = integer
   dimensions = ()
@@ -73,7 +73,7 @@
   intent = in
 [ nz ]
   standard_name = vertical_layer_dimension
-  long_name = number of vertical levels
+  long_name = number of vertical layers
   units = count
   type = integer
   dimensions = ()
@@ -165,7 +165,7 @@
   optional = F
 [ nz ]
   standard_name = vertical_layer_dimension
-  long_name = number of vertical levels
+  long_name = number of vertical layers
   units = count
   dimensions = ()
   type = integer
@@ -245,7 +245,7 @@
   intent = in
 [ nz ]
   standard_name = vertical_layer_dimension
-  long_name = number of vertical levels
+  long_name = number of vertical layers
   units = count
   type = integer
   dimensions = ()
@@ -310,7 +310,7 @@
   intent = in
 [ nz ]
   standard_name = vertical_layer_dimension
-  long_name = number of vertical levels
+  long_name = number of vertical layers
   units = count
   dimensions = ()
   type = integer
@@ -386,7 +386,7 @@
   intent = in
 [ nz ]
   standard_name = vertical_layer_dimension
-  long_name = number of vertical levels
+  long_name = number of vertical layers
   units = count
   dimensions = ()
   type = integer
