@@ -1,0 +1,76 @@
+#########################################################
+[ccpp-table-properties]
+  name = update_dry_static_energy
+  type = scheme
+
+[ccpp-arg-table]
+  name = update_dry_static_energy_init
+  type = scheme
+[ gravit_in ]
+  standard_name = gravitational_acceleration
+  units = m s-2
+  dimensions = ()
+  type = real
+  kind = kind_phys
+  intent = in
+
+[ccpp-arg-table]
+  name = update_dry_static_energy_run
+  type = scheme
+[ nz ]
+  standard_name = vertical_layer_dimension
+  long_name = number of vertical layers
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[ temp ]
+  standard_name = air_temperature
+  type = real
+  kind = kind_phys
+  units = K
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  intent = in
+  state_variable = true
+[ zm ]
+  standard_name = geopotential_height
+  type = real | kind = kind_phys
+  units = m
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  intent = in
+[ phis ]
+  standard_name = geopotential_at_surface
+  type = real
+  kind = kind_phys
+  units = m2 s-2
+  dimensions = (horizontal_dimension)
+  intent = in
+[ st_energy ]
+  standard_name = dry_static_energy
+  long_name = Dry static energy
+  state_variable = true
+  type = real
+  kind = kind_phys
+  units = J m-2
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  intent = out
+[ cpair ]
+  standard_name = specific_heat_of_dry_air_at_constant_pressure
+  units = J kg-1 K-1
+  dimensions = ()
+  type = real | kind = kind_phys
+  intent = in
+[ errcode ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = flag
+  type = integer
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = 1
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
