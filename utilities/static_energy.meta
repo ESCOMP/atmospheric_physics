@@ -51,7 +51,7 @@
   state_variable = true
   type = real
   kind = kind_phys
-  units = J m-2
+  units = J kg-1
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = out
 [ cpair ]
@@ -63,7 +63,7 @@
 [ errcode ]
   standard_name = ccpp_error_code
   long_name = Error flag for error handling in CCPP
-  units = flag
+  units = 1
   type = integer
   dimensions = ()
   intent = out
