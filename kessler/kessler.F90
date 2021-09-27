@@ -21,7 +21,7 @@ CONTAINS
 
    !> \section arg_table_kessler_init  Argument Table
    !! \htmlinclude kessler_init.html
-   subroutine kessler_init(cp_in, lv_in, psl_in, rair_in, rhoqr_in, errmsg, errflg)
+   subroutine kessler_init(cp_in, lv_in, psl_in, rair_in, rhoqr_in, scheme_name, errmsg, errflg)
       ! Set physical constants to be consistent with calling model
       real(kind_phys),    intent(in)  :: cp_in    ! heat capacity at constant pres., J/(kgK)
       real(kind_phys),    intent(in)  :: lv_in    ! latent heat of vaporization, J/kg
@@ -29,6 +29,7 @@ CONTAINS
       real(kind_phys),    intent(in)  :: rair_in  ! dry air gas constant J/(kgK)
       real(kind_phys),    intent(in)  :: rhoqr_in ! density of liquid water, kg/m^3
 
+      character(len=64),  intent(out) :: scheme_name
       character(len=512), intent(out) :: errmsg
       integer,            intent(out) :: errflg
 
@@ -40,6 +41,7 @@ CONTAINS
       psl   = psl_in/100._kind_phys
       rair  = rair_in
       rhoqr = rhoqr_in
+      scheme_name = "KESSLER"
 
    end subroutine kessler_init
 
@@ -294,7 +296,7 @@ CONTAINS
              do klev = lyr_surf, lyr_toa, lyr_step
                 velqr(klev)  = 36.34_kind_phys * rhalf(klev) * (qr(col, klev)*r(klev))**0.1364_kind_phys
              end do
-          
+
           ! recompute the time step
              dt0 = max(dt -  time_counter, 0.0_kind_phys)
              do klev = lyr_surf, lyr_toa - lyr_step, lyr_step

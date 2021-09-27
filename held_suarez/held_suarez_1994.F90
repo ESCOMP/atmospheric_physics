@@ -52,13 +52,14 @@ contains
 
 !> \section arg_table_held_suarez_1994_init Argument Table
 !! \htmlinclude held_suarez_1994_init.html
-  subroutine held_suarez_1994_init(pver_in, cappa_in, cpair_in, psurf_ref_in, pref_mid_norm_in, errmsg, errflg)
+  subroutine held_suarez_1994_init(pver_in, cappa_in, cpair_in, psurf_ref_in, pref_mid_norm_in, scheme_name, errmsg, errflg)
     !! Dummy arguments
     integer,           intent(in) :: pver_in
     real(kind_phys),   intent(in) :: cappa_in
     real(kind_phys),   intent(in) :: cpair_in
     real(kind_phys),   intent(in) :: psurf_ref_in
     real(kind_phys),   intent(in) :: pref_mid_norm_in(:)
+    character(len=64), intent(out):: scheme_name
     character(len=512),intent(out):: errmsg
     integer,           intent(out):: errflg
 
@@ -73,6 +74,7 @@ contains
     cpair         = cpair_in
     psurf_ref     = psurf_ref_in
     pref_mid_norm = pref_mid_norm_in
+    scheme_name = "HELD_SUAREZ_1994"
 
   end subroutine held_suarez_1994_init
 
