@@ -31,7 +31,6 @@ contains
 
     errmsg = ' '
     errflg = 0
-    subnam = "HELD_SUAREZ_1994"
 
     ! Add the tendencies to the state variables
     u(:,:) = u(:,:) + du(:,:) * dt

@@ -50,7 +50,7 @@ CONTAINS
    !> \section arg_table_kessler_update_run  Argument Table
    !! \htmlinclude kessler_update_run.html
    subroutine kessler_update_run(nz, ncol, temp, theta, exner, dt,      &
-        temp_prev, ttend_t, subname, errmsg, errflg)
+        temp_prev, ttend_t, errmsg, errflg)
 
       integer,            intent(in)    :: nz
       integer,            intent(in)    :: ncol
@@ -62,7 +62,6 @@ CONTAINS
       real(kind_phys),    intent(inout) :: temp_prev(:,:)
       real(kind_phys),    intent(inout) :: ttend_t(:,:)
 
-      character(len=64),  intent(out)   :: subname
       character(len=512), intent(out)   :: errmsg
       integer,            intent(out)   :: errflg
 
@@ -71,7 +70,6 @@ CONTAINS
 
       errmsg = ''
       errflg = 0
-      subname = "KESSLER"
 
       ! Back out tendencies from updated fields
       do klev = 1, nz
