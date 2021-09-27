@@ -23,6 +23,20 @@
   type = real | kind = kind_phys
   dimensions = (number_of_constituents)
   intent = out
+[ errcode ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = flag
+  type = integer
+  dimensions = ()
+  intent = out
+[errmsg]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = 1
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
 
 [ccpp-arg-table]
   name  = qneg_run
@@ -70,6 +84,20 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_dimension,vertical_layer_dimension,number_of_constituents)
   intent = inout
+[ errcode ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = flag
+  type = integer
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = 1
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
 
 [ccpp-arg-table]
   name  = qneg_timestep_final

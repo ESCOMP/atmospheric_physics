@@ -53,16 +53,21 @@ contains
 
 !> \section arg_table_qneg_init Argument Table
 !! \htmlinclude qneg_init.html
-  subroutine qneg_init(print_qneg_warn, number_of_constituents, qmin)
+  subroutine qneg_init(print_qneg_warn, number_of_constituents, qmin, errcode, errmsg)
     !use cam_history,    only: addfld, horiz_only
     !use constituents,   only: cnst_longname
 
-    character(len=*), intent(in)  :: print_qneg_warn
-    integer,          intent(in)  :: number_of_constituents
-    real(kind_phys),  intent(out) :: qmin(:)
+    character(len=*),  intent(in)  :: print_qneg_warn
+    integer,           intent(in)  :: number_of_constituents
+    real(kind_phys),   intent(out) :: qmin(:)
+    integer,           intent(out) :: errcode
+    character(len=512),intent(out) :: errmsg
 
     character(len=*), parameter  :: subname = 'qneg_init'
     integer                      :: ierr
+
+    errcode = 0
+    errmsg = ''
 
     !Check if already initialized:
     if (qneg_initialized) then
@@ -106,9 +111,9 @@ contains
           collect_stats = .false.
           timestep_reset =.false.
        case default
-          !do nothing
-!          call endrun(sub//"FATAL: '"//trim(print_qneg_warn)//"' is not a    &
-!             valid value for print_qneg_warn")
+          errcode = 1
+          errmsg = sub//"FATAL: '"//trim(print_qneg_warn)//"' is not a valid &
+            value for print_qneg_warn")
     end select
 
     !Set qneg_initialized to .true.
@@ -154,7 +159,7 @@ contains
 
 !> \section arg_table_qneg_run Argument Table
 !! \htmlinclude qneg_run.html
-  subroutine qneg_run (subnam, ncol, ncold, lver, num_constituents, qmin, q)
+  subroutine qneg_run (subnam, ncol, ncold, lver, num_constituents, qmin, q, errcode, errmsg)
     !-----------------------------------------------------------------------
     !
     ! Purpose:
@@ -187,7 +192,9 @@ contains
     !
     ! Input/Output arguments
     !
-    real(kind_phys), intent(inout) :: q(:,:,:) ! moisture/tracer field
+    real(kind_phys),   intent(inout) :: q(:,:,:) ! moisture/tracer field
+    integer,           intent(out)   :: errcode
+    character(len=512),intent(out)   :: errmsg
     !
     !---------------------------Local workspace-----------------------------
     !
@@ -205,6 +212,9 @@ contains
     !
     !-----------------------------------------------------------------------
     !
+
+    errcode = 0
+    errmsg = ''
 
     call t_startf ('qneg_run')
     ! The first time we call this, we need to determine whether to call outfld
