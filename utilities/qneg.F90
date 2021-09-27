@@ -91,7 +91,6 @@ contains
 
     !Create fake qmin -> will be removed when qmin exists
     qmin = 0._kind_phys
-    qmin(1) = 1.e-2
 
     !Allocate and initialize arrays whose dimensions depend on num_constituents:
     num_constituents = number_of_constituents
@@ -397,51 +396,40 @@ contains
 
 !> \section arg_table_qneg_timestep_final Argument Table
 !! \htmlinclude qneg_timestep_final.html
-  subroutine qneg_timestep_final(mpi_communicator, rootprocid, isrootproc,    &
-       ix_qv, ix_cld_liq)
+  subroutine qneg_timestep_final(mpi_communicator, rootprocid, isrootproc)
 
     integer, intent(in) :: mpi_communicator
     integer, intent(in) :: rootprocid
     logical, intent(in) :: isrootproc
-    integer, intent(in) :: ix_qv
-    integer, intent(in) :: ix_cld_liq
 
     if (timestep_reset .and. collect_stats) then
-       call qneg_print_summary(mpi_communicator, rootprocid, isrootproc,      &
-          ix_qv, ix_cld_liq)
+       call qneg_print_summary(mpi_communicator, rootprocid, isrootproc)
     end if
 
   end subroutine qneg_timestep_final
 !> \section arg_table_qneg_final Argument Table
 !! \htmlinclude qneg_final.html
-  subroutine qneg_final(mpi_communicator, rootprocid, isrootproc, ix_qv,      &
-       ix_cld_liq)
+  subroutine qneg_final(mpi_communicator, rootprocid, isrootproc)
 
     integer, intent(in) :: mpi_communicator
     integer, intent(in) :: rootprocid
     logical, intent(in) :: isrootproc
-    integer, intent(in) :: ix_qv
-    integer, intent(in) :: ix_cld_liq
 
     if (.not.timestep_reset .and. collect_stats) then
-       call qneg_print_summary(mpi_communicator, rootprocid, isrootproc,      &
-           ix_qv, ix_cld_liq)
+       call qneg_print_summary(mpi_communicator, rootprocid, isrootproc)
     end if
     deallocate(qneg3_warn_num)
     deallocate(qneg3_warn_worst)
 
   end subroutine qneg_final
 
-  subroutine qneg_print_summary(mpi_communicator, rootprocid, isrootproc,     &
-       ix_qv, ix_cld_liq)
+  subroutine qneg_print_summary(mpi_communicator, rootprocid, isrootproc)
 
     use mpi, only: MPI_MIN, MPI_SUM, MPI_INTEGER, MPI_REAL8
 
     integer, intent(in) :: mpi_communicator
     integer, intent(in) :: rootprocid
     logical, intent(in) :: isrootproc
-    integer, intent(in) :: ix_qv
-    integer, intent(in) :: ix_cld_liq
 
     integer             :: global_warn_num(num_constituents)
     real(kind_phys)            :: global_warn_worst(num_constituents)
@@ -464,17 +452,9 @@ contains
           do m = 1, num_constituents
              if ( (global_warn_num(m) > 0) .and.                        &
                   (abs(global_warn_worst(m)) > tol)) then
-                ! PEVERWHEE:  will need to change when constituents is hooked up!
-                if (m == ix_qv) then
-                   cnst_name = 'Q'
-                else if (m == ix_cld_liq) then
-                   cnst_name = 'CLDLIQ'
-                else
-                   cnst_name = 'RAINQM'
-                end if
-                ! ^PEVERWHEE
+                !cnst_name will need to be set once constituents is plugged in
                 write(iulog, 9100) trim(qneg3_warn_labels(index)),      &
-                     trim(cnst_name), global_warn_num(m),            &
+                     trim(cnst_name), global_warn_num(m),               &
                      global_warn_worst(m)
              end if
              call shr_sys_flush(iulog)
