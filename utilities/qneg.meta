@@ -47,14 +47,14 @@
   type = character | kind = len=*
   dimensions = ()
   intent = in
-[ ncol ]
-  standard_name = horizontal_loop_extent
+[ loop_begin ]
+  standard_name = horizontal_loop_begin
   units = count
   type = integer
   dimensions = ()
   intent = in
-[ ncold ]
-  standard_name = horizontal_dimension
+[ loop_end ]
+  standard_name = horizontal_loop_end
   units = count
   type = integer
   dimensions = ()

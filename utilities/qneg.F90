@@ -112,8 +112,8 @@ contains
           timestep_reset =.false.
        case default
           errcode = 1
-          errmsg = sub//"FATAL: '"//trim(print_qneg_warn)//"' is not a valid &
-            value for print_qneg_warn")
+          errmsg = subname//"FATAL: '"//trim(print_qneg_warn)//"' is not a valid &
+            value for print_qneg_warn"
     end select
 
     !Set qneg_initialized to .true.
@@ -159,7 +159,7 @@ contains
 
 !> \section arg_table_qneg_run Argument Table
 !! \htmlinclude qneg_run.html
-  subroutine qneg_run (subnam, ncol, ncold, lver, num_constituents, qmin, q, errcode, errmsg)
+  subroutine qneg_run (subnam, loop_begin, loop_end, lver, num_constituents, qmin, q, errcode, errmsg)
     !-----------------------------------------------------------------------
     !
     ! Purpose:
@@ -182,8 +182,8 @@ contains
     !
     character(len=*), intent(in) :: subnam ! name of calling routine
 
-    integer, intent(in) :: ncol         ! number of atmospheric columns
-    integer, intent(in) :: ncold        ! declared number of atmospheric columns
+    integer, intent(in) :: loop_begin
+    integer, intent(in) :: loop_end
     integer, intent(in) :: lver         ! number of vertical levels in column
     integer, intent(in) :: num_constituents ! number of constituents
 
@@ -206,8 +206,8 @@ contains
 
     logical  :: found            ! true => at least 1 minimum violator found
 
-    real(kind_phys) :: badvals(ncold, lver) ! Collector for outfld calls
-    real(kind_phys) :: badcols(ncold)  ! Column sum for outfld
+    real(kind_phys) :: badvals(loop_begin:loop_end, lver) ! Collector for outfld calls
+    real(kind_phys) :: badcols(loop_begin:loop_end)  ! Column sum for outfld
     real(kind_phys) :: worst           ! biggest violator
     !
     !-----------------------------------------------------------------------
@@ -241,7 +241,7 @@ contains
        !
 
        do k = 1, lver
-          do i = 1, ncol
+          do i = loop_begin, loop_end
              if (q(i,k,m) < qmin(m)) then
                 found = .true.
                 nvals = nvals + 1
