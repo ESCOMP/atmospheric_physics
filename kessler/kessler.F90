@@ -21,7 +21,7 @@ CONTAINS
 
    !> \section arg_table_kessler_init  Argument Table
    !! \htmlinclude kessler_init.html
-   subroutine kessler_init(cp_in, lv_in, psl_in, rair_in, rhoqr_in, scheme_name, errmsg, errflg)
+   subroutine kessler_init(cp_in, lv_in, psl_in, rair_in, rhoqr_in, errmsg, errflg)
       ! Set physical constants to be consistent with calling model
       real(kind_phys),    intent(in)  :: cp_in    ! heat capacity at constant pres., J/(kgK)
       real(kind_phys),    intent(in)  :: lv_in    ! latent heat of vaporization, J/kg
@@ -29,7 +29,6 @@ CONTAINS
       real(kind_phys),    intent(in)  :: rair_in  ! dry air gas constant J/(kgK)
       real(kind_phys),    intent(in)  :: rhoqr_in ! density of liquid water, kg/m^3
 
-      character(len=64),  intent(out) :: scheme_name
       character(len=512), intent(out) :: errmsg
       integer,            intent(out) :: errflg
 
@@ -41,7 +40,6 @@ CONTAINS
       psl   = psl_in/100._kind_phys
       rair  = rair_in
       rhoqr = rhoqr_in
-      scheme_name = "KESSLER"
 
    end subroutine kessler_init
 
@@ -120,7 +118,7 @@ CONTAINS
    !> \section arg_table_kessler_run  Argument Table
    !! \htmlinclude kessler_run.html
    subroutine kessler_run(ncol, nz, dt,  lyr_surf, lyr_toa, rho, z, pk, theta, &
-        qv, qc, qr, precl, relhum, errmsg, errflg)
+        qv, qc, qr, precl, relhum, scheme_name, errmsg, errflg)
 
       !------------------------------------------------
       !   Input / output parameters
@@ -143,6 +141,7 @@ CONTAINS
 
       real(kind_phys),  intent(out)   :: relhum(:,:)! Relative humidity in percent
 
+      character(len=64),intent(out)   :: scheme_name
       character(len=*), intent(out)   :: errmsg
       integer,          intent(out)   :: errflg
 
@@ -174,6 +173,7 @@ CONTAINS
       precl = 0._kind_phys
       errmsg = ''
       errflg = 0
+      scheme_name = "KESSLER"
 
       ! Check inputs
       if (dt <= 0._kind_phys) then

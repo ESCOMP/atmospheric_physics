@@ -1,14 +1,14 @@
 !< \section arg_table_held_suarez_1994
 !! \htmlinclude held_suarez_1994.html
 module held_suarez_1994
-  !----------------------------------------------------------------------- 
-  ! 
+  !-----------------------------------------------------------------------
+  !
   ! Purpose: Implement idealized Held-Suarez forcings
   !    Held, I. M., and M. J. Suarez, 1994: 'A proposal for the
   !    intercomparison of the dynamical cores of atmospheric general
   !    circulation models.'
   !    Bulletin of the Amer. Meteor. Soc., vol. 75, pp. 1825-1830.
-  ! 
+  !
   !-----------------------------------------------------------------------
 
   use ccpp_kinds, only: kind_phys
@@ -46,20 +46,19 @@ module held_suarez_1994
 
 
 
-!======================================================================= 
+!=======================================================================
 contains
-!======================================================================= 
+!=======================================================================
 
 !> \section arg_table_held_suarez_1994_init Argument Table
 !! \htmlinclude held_suarez_1994_init.html
-  subroutine held_suarez_1994_init(pver_in, cappa_in, cpair_in, psurf_ref_in, pref_mid_norm_in, scheme_name, errmsg, errflg)
+  subroutine held_suarez_1994_init(pver_in, cappa_in, cpair_in, psurf_ref_in, pref_mid_norm_in, errmsg, errflg)
     !! Dummy arguments
     integer,           intent(in) :: pver_in
     real(kind_phys),   intent(in) :: cappa_in
     real(kind_phys),   intent(in) :: cpair_in
     real(kind_phys),   intent(in) :: psurf_ref_in
     real(kind_phys),   intent(in) :: pref_mid_norm_in(:)
-    character(len=64), intent(out):: scheme_name
     character(len=512),intent(out):: errmsg
     integer,           intent(out):: errflg
 
@@ -74,14 +73,13 @@ contains
     cpair         = cpair_in
     psurf_ref     = psurf_ref_in
     pref_mid_norm = pref_mid_norm_in
-    scheme_name = "HELD_SUAREZ_1994"
 
   end subroutine held_suarez_1994_init
 
 !> \section arg_table_held_suarez_1994_run Argument Table
 !! \htmlinclude held_suarez_1994_run.html
   subroutine held_suarez_1994_run(pver, ncol, clat, pmid, &
-       u, v, t, du, dv, s, errmsg, errflg)
+       u, v, t, du, dv, s, scheme_name, errmsg, errflg)
 
     !
     ! Input arguments
@@ -99,6 +97,7 @@ contains
     real(kind_phys),   intent(out) :: du(:,:)   ! Zonal wind tend
     real(kind_phys),   intent(out) :: dv(:,:)   ! Meridional wind tend
     real(kind_phys),   intent(out) :: s(:,:)    ! Heating rate
+    character(len=64), intent(out) :: scheme_name
     character(len=512),intent(out):: errmsg
     integer,           intent(out):: errflg
     !
@@ -120,6 +119,7 @@ contains
 
     errmsg = ' '
     errflg = 0
+    scheme_name = "HELD_SUAREZ"
 
     do i = 1, ncol
       coslat (i) = cos(clat(i))

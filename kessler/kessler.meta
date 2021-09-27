@@ -42,12 +42,6 @@
   type = real
   kind = kind_phys
   intent = in
-[ scheme_name ]
-  standard_name = scheme_name
-  units = 1
-  type = character | kind = len=64
-  dimensions = ()
-  intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
   long_name = Error message for error handling in CCPP
@@ -241,6 +235,12 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real
   kind = kind_phys
+  intent = out
+[ scheme_name ]
+  standard_name = scheme_name
+  units = 1
+  type = character | kind = len=64
+  dimensions = ()
   intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
