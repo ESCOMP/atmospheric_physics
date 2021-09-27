@@ -242,7 +242,7 @@
       <!-- **************************** -->
       <!-- Negative moisture/tracer check -->
       <!-- **************************** -->
-<!--      <scheme>qneg4</scheme>                         --><!-- Modify surface moisture and heat fluxes to prevent negative moisture values, and output diagnostics -->
+      <scheme>qneg_surface</scheme>                   <!-- Modify surface moisture and heat fluxes to prevent negative moisture values, and output diagnostics - qneg4 in CAM6 -->
       <!-- **************************** -->
       <scheme>aoa_tracers_timestep_tend</scheme>      <!-- Calculate age of air tracer tendencies.  Also output tendencies to history file -->
       <scheme>check_tracers_chng</scheme>             <!-- Global tracer mass checker that kills model if error is large enough. -->
