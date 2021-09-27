@@ -278,11 +278,16 @@ contains
 
 !> \section arg_table_qneg_timestep_final Argument Table
 !! \htmlinclude qneg_timestep_final.html
-  subroutine qneg_timestep_final(mpi_communicator, rootprocid, isrootproc)
+  subroutine qneg_timestep_final(mpi_communicator, rootprocid, isrootproc, errcode, errmsg)
 
-    integer, intent(in) :: mpi_communicator
-    integer, intent(in) :: rootprocid
-    logical, intent(in) :: isrootproc
+    integer,            intent(in) :: mpi_communicator
+    integer,            intent(in) :: rootprocid
+    logical,            intent(in) :: isrootproc
+    integer,            intent(out):: errcode
+    character(len=512), intent(out):: errmsg
+
+    errcode = 0
+    errmsg = ''
 
     if (timestep_reset .and. collect_stats) then
        call qneg_print_summary(mpi_communicator, rootprocid, isrootproc)
@@ -291,11 +296,16 @@ contains
   end subroutine qneg_timestep_final
 !> \section arg_table_qneg_final Argument Table
 !! \htmlinclude qneg_final.html
-  subroutine qneg_final(mpi_communicator, rootprocid, isrootproc)
+  subroutine qneg_final(mpi_communicator, rootprocid, isrootproc, errcode, errmsg)
 
-    integer, intent(in) :: mpi_communicator
-    integer, intent(in) :: rootprocid
-    logical, intent(in) :: isrootproc
+    integer,            intent(in) :: mpi_communicator
+    integer,            intent(in) :: rootprocid
+    logical,            intent(in) :: isrootproc
+    integer,            intent(out):: errcode
+    character(len=512), intent(out):: errmsg
+
+    errcode = 0
+    errmsg = ''
 
     if (.not.timestep_reset .and. collect_stats) then
        call qneg_print_summary(mpi_communicator, rootprocid, isrootproc)
