@@ -94,14 +94,14 @@ contains
     num_constituents = number_of_constituents
     allocate(qneg_warn_num(num_constituents, num_bins), stat=ierr)
     if (ierr /= 0) then
-       errcode = 1
+       errcode = ierr
        errmsg = trim(subname)//': Allocate of qneg_warn_num failed'
        return
     end if
     allocate(qneg_warn_worst(num_constituents, num_bins), stat=ierr)
     if (ierr /= 0) then
-       errcode = 1
-       errmsg = trim(subname)//': Allocate of qneg_warn_worst'
+       errcode = ierr
+       errmsg = trim(subname)//': Allocate of qneg_warn_worst failed'
        return
     end if
     qneg_warn_num = 0
