@@ -4,7 +4,6 @@ module qneg
   use ccpp_kinds,          only: kind_phys
   use perf_mod,            only: t_startf, t_stopf
   use cam_logfile,         only: iulog
-  use cam_abortutils,      only: endrun, check_allocate
   use shr_sys_mod,         only: shr_sys_flush
 !  use cam_history_support, only: max_fieldname_len
 !  use ppgrid,              only: pcols
@@ -94,9 +93,17 @@ contains
     !Allocate and initialize arrays whose dimensions depend on num_constituents:
     num_constituents = number_of_constituents
     allocate(qneg_warn_num(num_constituents, num_bins), stat=ierr)
-    call check_allocate(ierr, subname, 'qneg_warn_num')
+    if (ierr /= 0) then
+       errcode = 1
+       errmsg = trim(subname)//': Allocate of qneg_warn_num failed'
+       return
+    end if
     allocate(qneg_warn_worst(num_constituents, num_bins), stat=ierr)
-    call check_allocate(ierr, subname, 'qneg_warn_worst')
+    if (ierr /= 0) then
+       errcode = 1
+       errmsg = trim(subname)//': Allocate of qneg_warn_worst'
+       return
+    end if
     qneg_warn_num = 0
     qneg_warn_worst = worst_reset
 
