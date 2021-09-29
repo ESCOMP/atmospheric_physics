@@ -1,4 +1,6 @@
 module qneg
+! qneg parameterization of qneg_module [qneg3 only] in CAM6
+!   -- will not be ported back to CAM6 --
 
   use shr_kind_mod,        only: CS => SHR_KIND_CS
   use ccpp_kinds,          only: kind_phys
@@ -6,7 +8,6 @@ module qneg
   use cam_logfile,         only: iulog
   use shr_sys_mod,         only: shr_sys_flush
 !  use cam_history_support, only: max_fieldname_len
-!  use ppgrid,              only: pcols
 
   implicit none
   private
@@ -35,7 +36,7 @@ module qneg
 !  logical             :: cnst_outfld(num_diag_fields) = .false.
 
   ! Summary buffers
-  integer, parameter    :: num_bins = 24
+  integer, parameter    :: num_bins = 24 !max number of schemes calling qneg
   character(len=CS)     :: qneg_warn_labels(num_bins) = ''
   integer, allocatable  :: qneg_warn_num(:,:)
   real(kind_phys), allocatable :: qneg_warn_worst(:,:)
@@ -52,12 +53,12 @@ contains
 
 !> \section arg_table_qneg_init Argument Table
 !! \htmlinclude qneg_init.html
-  subroutine qneg_init(print_qneg_warn, number_of_constituents, qmin, errcode, errmsg)
+  subroutine qneg_init(print_qneg_warn, num_constituents_in, qmin, errcode, errmsg)
     !use cam_history,    only: addfld, horiz_only
     !use constituents,   only: cnst_longname
 
     character(len=*),  intent(in)  :: print_qneg_warn
-    integer,           intent(in)  :: number_of_constituents
+    integer,           intent(in)  :: num_constituents_in
     real(kind_phys),   intent(out) :: qmin(:)
     integer,           intent(out) :: errcode
     character(len=512),intent(out) :: errmsg
@@ -91,7 +92,7 @@ contains
     qmin = 0._kind_phys
 
     !Allocate and initialize arrays whose dimensions depend on num_constituents:
-    num_constituents = number_of_constituents
+    num_constituents = num_constituents_in
     allocate(qneg_warn_num(num_constituents, num_bins), stat=ierr)
     if (ierr /= 0) then
        errcode = ierr

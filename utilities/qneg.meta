@@ -11,7 +11,7 @@
   type = character | kind = len=*
   dimensions = ()
   intent = in
-[ number_of_constituents ]
+[ num_constituents_in ]
   standard_name = number_of_constituents
   units = count
   type = integer
