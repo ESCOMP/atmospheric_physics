@@ -6,5 +6,6 @@
     <scheme>apply_tendency_of_x_wind</scheme>
     <scheme>apply_tendency_of_y_wind</scheme>
     <scheme>apply_heating_rate</scheme>
+    <scheme>qneg</scheme>
   </group>
 </suite>

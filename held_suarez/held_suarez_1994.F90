@@ -1,14 +1,14 @@
 !< \section arg_table_held_suarez_1994
 !! \htmlinclude held_suarez_1994.html
 module held_suarez_1994
-  !----------------------------------------------------------------------- 
-  ! 
+  !-----------------------------------------------------------------------
+  !
   ! Purpose: Implement idealized Held-Suarez forcings
   !    Held, I. M., and M. J. Suarez, 1994: 'A proposal for the
   !    intercomparison of the dynamical cores of atmospheric general
   !    circulation models.'
   !    Bulletin of the Amer. Meteor. Soc., vol. 75, pp. 1825-1830.
-  ! 
+  !
   !-----------------------------------------------------------------------
 
   use ccpp_kinds, only: kind_phys
@@ -46,9 +46,9 @@ module held_suarez_1994
 
 
 
-!======================================================================= 
+!=======================================================================
 contains
-!======================================================================= 
+!=======================================================================
 
 !> \section arg_table_held_suarez_1994_init Argument Table
 !! \htmlinclude held_suarez_1994_init.html
@@ -79,7 +79,7 @@ contains
 !> \section arg_table_held_suarez_1994_run Argument Table
 !! \htmlinclude held_suarez_1994_run.html
   subroutine held_suarez_1994_run(pver, ncol, clat, pmid, &
-       u, v, t, du, dv, s, errmsg, errflg)
+       u, v, t, du, dv, s, scheme_name, errmsg, errflg)
 
     !
     ! Input arguments
@@ -97,6 +97,7 @@ contains
     real(kind_phys),   intent(out) :: du(:,:)   ! Zonal wind tend
     real(kind_phys),   intent(out) :: dv(:,:)   ! Meridional wind tend
     real(kind_phys),   intent(out) :: s(:,:)    ! Heating rate
+    character(len=64), intent(out) :: scheme_name
     character(len=512),intent(out):: errmsg
     integer,           intent(out):: errflg
     !
@@ -118,6 +119,7 @@ contains
 
     errmsg = ' '
     errflg = 0
+    scheme_name = "HELD_SUAREZ"
 
     do i = 1, ncol
       coslat (i) = cos(clat(i))

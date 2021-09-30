@@ -11,5 +11,6 @@
     <scheme>dry_to_wet</scheme>
     <scheme>kessler_update</scheme>
     <scheme>geopotential_t</scheme>
+    <scheme>qneg</scheme>
   </group>
 </suite>
