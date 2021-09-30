@@ -118,7 +118,7 @@ CONTAINS
    !> \section arg_table_kessler_run  Argument Table
    !! \htmlinclude kessler_run.html
    subroutine kessler_run(ncol, nz, dt,  lyr_surf, lyr_toa, rho, z, pk, theta, &
-        qv, qc, qr, precl, relhum, errmsg, errflg)
+        qv, qc, qr, precl, relhum, scheme_name, errmsg, errflg)
 
       !------------------------------------------------
       !   Input / output parameters
@@ -141,6 +141,7 @@ CONTAINS
 
       real(kind_phys),  intent(out)   :: relhum(:,:)! Relative humidity in percent
 
+      character(len=64),intent(out)   :: scheme_name
       character(len=*), intent(out)   :: errmsg
       integer,          intent(out)   :: errflg
 
@@ -172,6 +173,7 @@ CONTAINS
       precl = 0._kind_phys
       errmsg = ''
       errflg = 0
+      scheme_name = "KESSLER"
 
       ! Check inputs
       if (dt <= 0._kind_phys) then
@@ -294,7 +296,7 @@ CONTAINS
              do klev = lyr_surf, lyr_toa, lyr_step
                 velqr(klev)  = 36.34_kind_phys * rhalf(klev) * (qr(col, klev)*r(klev))**0.1364_kind_phys
              end do
-          
+
           ! recompute the time step
              dt0 = max(dt -  time_counter, 0.0_kind_phys)
              do klev = lyr_surf, lyr_toa - lyr_step, lyr_step

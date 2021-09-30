@@ -1,0 +1,172 @@
+[ccpp-table-properties]
+  name = qneg
+  type = scheme
+
+[ccpp-arg-table]
+  name  = qneg_init
+  type  = scheme
+[ print_qneg_warn ]
+  standard_name = print_qneg_warn
+  units = 1
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ num_constituents_in ]
+  standard_name = number_of_constituents
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ qmin ]
+  standard_name = constituent_minimum_value
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (number_of_constituents)
+  intent = out
+[ errcode ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = flag
+  type = integer
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = 1
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = qneg_run
+  type  = scheme
+[ subnam ]
+  standard_name = scheme_name
+  units = 1
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ loop_begin ]
+  standard_name = horizontal_loop_begin
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ loop_end ]
+  standard_name = horizontal_loop_end
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ lver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ num_constituents ]
+  standard_name = number_of_constituents
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ qmin ]
+  standard_name = constituent_minimum_value
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (number_of_constituents)
+  intent = in
+[ q ]
+  standard_name = constituent_mixing_ratio
+  units = kg kg-1
+  state_variable = true
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension,vertical_layer_dimension,number_of_constituents)
+  intent = inout
+[ errcode ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = flag
+  type = integer
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = 1
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = qneg_timestep_final
+  type  = scheme
+[ mpi_communicator ]
+  standard_name = mpi_communicator
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ rootprocid ]
+  standard_name = mpi_root
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ isrootproc ]
+  standard_name = flag_for_mpi_root
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ errcode ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = flag
+  type = integer
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = 1
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = qneg_final
+  type  = scheme
+[ mpi_communicator ]
+  standard_name = mpi_communicator
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ rootprocid ]
+  standard_name = mpi_root
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ isrootproc ]
+  standard_name = flag_for_mpi_root
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ errcode ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = flag
+  type = integer
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = 1
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
