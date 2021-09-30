@@ -68,6 +68,7 @@ contains
 
     errcode = 0
     errmsg = ''
+    num_constituents = num_constituents_in
 
     !Check if already initialized:
     if (qneg_initialized) then
@@ -92,7 +93,6 @@ contains
     qmin = 0._kind_phys
 
     !Allocate and initialize arrays whose dimensions depend on num_constituents:
-    num_constituents = num_constituents_in
     allocate(qneg_warn_num(num_constituents, num_bins), stat=ierr)
     if (ierr /= 0) then
        errcode = ierr
