@@ -11,7 +11,7 @@
   type = integer
   dimensions = ()
   intent = in
-[ du ]
+[ dudt ]
   standard_name = tendency_of_x_wind
   units = m s-2
   type = real | kind = kind_phys
@@ -24,7 +24,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
   state_variable = True
-[ dudt ]
+[ dudt_total ]
   standard_name = tendency_of_x_wind_due_to_model_physics
   units = m s-2
   type = real | kind = kind_phys
@@ -65,7 +65,7 @@
   type = integer
   dimensions = ()
   intent = in
-[ dv ]
+[ dvdt ]
   standard_name = tendency_of_y_wind
   units = m s-2
   type = real | kind = kind_phys
@@ -78,7 +78,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
   state_variable = True
-[ dvdt ]
+[ dvdt_total ]
   standard_name = tendency_of_y_wind_due_to_model_physics
   units = m s-2
   type = real | kind = kind_phys
@@ -119,7 +119,7 @@
   type = integer
   dimensions = ()
   intent = in
-[ s ]
+[ heating_rate ]
   standard_name = heating_rate
   units = J kg-1 s-1
   type = real | kind = kind_phys
@@ -132,7 +132,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
   state_variable = true
-[ dtdt ]
+[ dTdt_total ]
   standard_name = tendency_of_air_temperature_due_to_model_physics
   units = K s-1
   type = real | kind = kind_phys
@@ -192,7 +192,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
   state_variable = true
-[ dtdt ]
+[ dTdt_total ]
   standard_name = tendency_of_air_temperature_due_to_model_physics
   units = K s-1
   type = real | kind = kind_phys
