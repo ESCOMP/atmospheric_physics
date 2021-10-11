@@ -3,7 +3,9 @@
 <suite name="held_suarez" version="1.0">
   <group name="physics">
     <scheme>held_suarez_1994</scheme>
-    <scheme>held_suarez_update</scheme>
+    <scheme>apply_tendency_of_x_wind</scheme>
+    <scheme>apply_tendency_of_y_wind</scheme>
+    <scheme>apply_heating_rate</scheme>
     <scheme>qneg</scheme>
   </group>
 </suite>

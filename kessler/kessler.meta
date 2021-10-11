@@ -50,9 +50,9 @@
   dimensions = ()
   intent = out
 [ errflg ]
-  standard_name = ccpp_error_flag
+  standard_name = ccpp_error_code
   long_name = Error flag for error handling in CCPP
-  units = flag
+  units = 1
   type = integer
   dimensions = ()
   intent = out
@@ -69,7 +69,7 @@
   intent = in
 [ nz ]
   standard_name = vertical_layer_dimension
-  long_name = number of vertical levels
+  long_name = number of vertical layers
   units = count
   dimensions = ()
   type = integer
@@ -121,9 +121,9 @@
   kind = len=*
   intent = out
 [ errflg ]
-  standard_name = ccpp_error_flag
+  standard_name = ccpp_error_code
   long_name = Error flag for error handling in CCPP
-  units = flag
+  units = 1
   dimensions = ()
   type = integer
   intent = out
@@ -142,7 +142,7 @@
   intent = in
 [ nz ]
   standard_name = vertical_layer_dimension
-  long_name = number of vertical levels
+  long_name = number of vertical layers
   units = count
   dimensions = ()
   type = integer
@@ -251,9 +251,9 @@
   kind = len=*
   intent = out
 [ errflg ]
-  standard_name = ccpp_error_flag
+  standard_name = ccpp_error_code
   long_name = Error flag for error handling in CCPP
-  units = flag
+  units = 1
   dimensions = ()
   type = integer
   intent = out

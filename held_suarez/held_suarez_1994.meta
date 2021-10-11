@@ -43,9 +43,9 @@
   dimensions = ()
   intent = out
 [ errflg ]
-  standard_name = ccpp_error_flag
+  standard_name = ccpp_error_code
   long_name = Error flag for error handling in CCPP
-  units = flag
+  units = 1
   type = integer
   dimensions = ()
   intent = out
@@ -108,8 +108,8 @@
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = out
 [ s ]
-  standard_name = tendency_of_temperature
-  units = K s-1
+  standard_name = heating_rate
+  units = J kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = out
@@ -127,9 +127,9 @@
   dimensions = ()
   intent = out
 [ errflg ]
-  standard_name = ccpp_error_flag
+  standard_name = ccpp_error_code
   long_name = Error flag for error handling in CCPP
-  units = flag
+  units = 1
   type = integer
   dimensions = ()
   intent = out
