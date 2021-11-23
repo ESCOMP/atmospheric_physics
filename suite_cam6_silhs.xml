@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<suite name="cam6" version="1.0">
+<suite name="cam6_silhs" version="1.0">
   <group name="physics_bc">
     <!--cam6:  deep=ZM, shallow=CLUBB, macrop=CLUBB, microp=MG2, radiation=RRTMG, chem=trop_mam4 -->
     <time_split>
