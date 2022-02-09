@@ -8,16 +8,28 @@
   standard_name = gravitational_acceleration
   units = m s-2
   dimensions = ()
-  type = real
-  kind = kind_phys
+  type = real | kind = kind_phys
   intent = in
 [ cpair_in ]
   standard_name = specific_heat_of_dry_air_at_constant_pressure
   units = J kg-1 K-1
   dimensions = ()
-  type = real
-  kind = kind_phys
+  type = real | kind = kind_phys
   intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
 #########################################################
 [ccpp-arg-table]
   name = kessler_update_timestep_init
@@ -25,8 +37,7 @@
 [ temp ]
   standard_name = air_temperature
   state_variable = true
-  type = real
-  kind = kind_phys
+  type = real | kind = kind_phys
   units = K
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = in
@@ -34,20 +45,18 @@
   standard_name = air_temperature_on_previous_timestep
   units = K
   dimensions = (horizontal_dimension, vertical_layer_dimension)
-  type = real
-  kind = kind_phys
+  type = real | kind = kind_phys
   intent = out
 [ ttend_t ]
   standard_name = tendency_of_air_temperature_due_to_model_physics
   units = K s-1
   dimensions = (horizontal_dimension, vertical_layer_dimension)
-  type = real
-  kind = kind_phys
+  type = real | kind = kind_phys
   intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
   long_name = Error message for error handling in CCPP
-  units = 1
+  units = none
   type = character | kind = len=512
   dimensions = ()
   intent = out
@@ -79,8 +88,7 @@
 [ temp ]
   standard_name = air_temperature
   state_variable = true
-  type = real
-  kind = kind_phys
+  type = real | kind = kind_phys
   units = K
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
@@ -89,8 +97,7 @@
   long_name = potential temperature
   units = K
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  type = real
-  kind = kind_phys
+  type = real | kind = kind_phys
   intent = inout
 [ exner ]
   standard_name = inverse_exner_function_wrt_surface_pressure
@@ -105,27 +112,24 @@
   long_name = time step
   units = s
   dimensions = ()
-  type = real
-  kind = kind_phys
+  type = real | kind = kind_phys
   intent = in
 [ temp_prev ]
   standard_name = air_temperature_on_previous_timestep
   units = K
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  type = real
-  kind = kind_phys
+  type = real | kind = kind_phys
   intent = inout
 [ ttend_t ]
   standard_name = tendency_of_air_temperature_due_to_model_physics
-  type = real
-  kind = kind_phys
+  type = real | kind = kind_phys
   units = K s-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ errmsg ]
   standard_name = ccpp_error_message
   long_name = Error message for error handling in CCPP
-  units = 1
+  units = none
   type = character | kind = len=512
   dimensions = ()
   intent = out
@@ -150,8 +154,7 @@
 [ temp ]
   standard_name = air_temperature
   state_variable = true
-  type = real
-  kind = kind_phys
+  type = real | kind = kind_phys
   units = K
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = in
@@ -165,8 +168,7 @@
 [ phis ]
   standard_name = geopotential_at_surface
   state_variable = true
-  type = real
-  kind = kind_phys
+  type = real | kind = kind_phys
   units = m2 s-2
   dimensions = (horizontal_dimension)
   intent = in
@@ -174,8 +176,7 @@
   standard_name = dry_static_energy
   long_name = Dry static energy
   state_variable = true
-  type = real
-  kind = kind_phys
+  type = real | kind = kind_phys
   units = J m-2
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = out
@@ -189,7 +190,7 @@
 [ errmsg ]
   standard_name = ccpp_error_message
   long_name = Error message for error handling in CCPP
-  units = 1
+  units = none
   type = character | kind = len=512
   dimensions = ()
   intent = out

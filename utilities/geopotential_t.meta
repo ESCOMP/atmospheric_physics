@@ -87,7 +87,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ q ]
-  standard_name = water_vapor_specific_humidity
+  standard_name = specific_humidity
   state_variable = true
   type = real | kind = kind_phys
   units = kg kg-1
@@ -97,22 +97,19 @@
   standard_name = composition_dependent_gas_constant_of_dry_air
   units = J kg-1 K-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  type = real
-  kind = kind_phys
+  type = real | kind = kind_phys
   intent = in
 [ gravit ]
   standard_name = gravitational_acceleration
   units = m s-2
   dimensions = ()
-  type = real
-  kind = kind_phys
+  type = real | kind = kind_phys
   intent = in
 [ zvir ]
   standard_name = composition_dependent_ratio_of_dry_air_to_water_vapor_gas_constants_minus_one
   units = -1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  type = real
-  kind = kind_phys
+  type = real | kind = kind_phys
   intent = in
 [ zi ]
   standard_name = geopotential_height_at_interface
@@ -144,7 +141,7 @@
 [ errmsg ]
   standard_name = ccpp_error_message
   long_name = Error message for error handling in CCPP
-  units = 1
+  units = none
   type = character | kind = len=512
   dimensions = ()
   intent = out

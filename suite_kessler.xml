@@ -5,10 +5,14 @@
     <scheme>calc_exner</scheme>
     <scheme>temp_to_potential_temp</scheme>
     <scheme>pres_to_density_dry</scheme>
-    <scheme>wet_to_dry</scheme>
+    <scheme>wet_to_dry_water_vapor</scheme>
+    <scheme>wet_to_dry_cloud_liquid_water</scheme>
+    <scheme>wet_to_dry_rain</scheme>
     <scheme>kessler</scheme>
     <scheme>potential_temp_to_temp</scheme>
-    <scheme>dry_to_wet</scheme>
+    <scheme>dry_to_wet_water_vapor</scheme>
+    <scheme>dry_to_wet_cloud_liquid_water</scheme>
+    <scheme>dry_to_wet_rain</scheme>
     <scheme>kessler_update</scheme>
     <scheme>geopotential_t</scheme>
     <scheme>qneg</scheme>

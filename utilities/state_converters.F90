@@ -19,8 +19,12 @@ module state_converters
   public :: calc_exner_run
 
   ! Convert between wet and dry
-  public :: wet_to_dry_run
-  public :: dry_to_wet_run
+  public :: wet_to_dry_water_vapor_run
+  public :: wet_to_dry_cloud_liquid_water_run
+  public :: wet_to_dry_rain_run
+  public :: dry_to_wet_water_vapor_run
+  public :: dry_to_wet_cloud_liquid_water_run
+  public :: dry_to_wet_rain_run
 
   ! Private module data (constants set at initialization)
   real(kind_phys), parameter :: unset = 98989.8e99_kind_phys
@@ -176,65 +180,154 @@ CONTAINS
 
   end subroutine calc_exner_run
 
-!> \section arg_table_wet_to_dry_run  Argument Table
-!! \htmlinclude wet_to_dry_run.html
-  subroutine wet_to_dry_run(ncol, nz, pdel, pdeldry, qv, qc, qr, errmsg, errflg)
+!> \section arg_table_wet_to_dry_water_vapor_run  Argument Table
+!! \htmlinclude wet_to_dry_water_vapor_run.html
+  subroutine wet_to_dry_water_vapor_run(ncol, nz, pdel, pdeldry, qv, qv_dry,  &
+       errmsg, errflg)
 
-     integer, intent(in)     :: ncol
-     integer, intent(in)     :: nz
-     real(kind_phys), intent(in)    :: pdel(:,:)
-     real(kind_phys), intent(in)    :: pdeldry(:,:)
-     real(kind_phys), intent(inout) :: qv(:,:)
-     real(kind_phys), intent(inout),optional :: qc(:,:)
-     real(kind_phys), intent(inout),optional :: qr(:,:)
+     integer,          intent(in)  :: ncol
+     integer,          intent(in)  :: nz
+     real(kind_phys),  intent(in)  :: pdel(:,:)
+     real(kind_phys),  intent(in)  :: pdeldry(:,:)
+     real(kind_phys),  intent(in)  :: qv(:,:)
+     real(kind_phys),  intent(out) :: qv_dry(:,:)
      character(len=*), intent(out) :: errmsg
      integer,          intent(out) :: errflg
 
-     integer  :: k
-     real(kind_phys) :: w_to_d(ncol)
+     integer         :: k
 
      errflg = 0
      errmsg = ''
 
-     do k=1,nz
-       w_to_d(:ncol) = pdel(:ncol,k)/pdeldry(:ncol,k)
-       qv(:ncol,k) = qv(:ncol,k)*w_to_d(:ncol)
-       if (present(qc)) qc(:ncol,k) = qc(:ncol,k)*w_to_d(:ncol)
-       if (present(qr)) qr(:ncol,k) = qr(:ncol,k)*w_to_d(:ncol)
+     do k = 1, nz
+       qv_dry(:ncol,k) = qv(:ncol,k) * pdel(:ncol,k) / pdeldry(:ncol,k)
      end do
 
+  end subroutine wet_to_dry_water_vapor_run
 
-  end subroutine wet_to_dry_run
+!> \section arg_table_wet_to_dry_cloud_liquid_water_run  Argument Table
+!! \htmlinclude wet_to_dry_cloud_liquid_water_run.html
+  subroutine wet_to_dry_cloud_liquid_water_run(ncol, nz, pdel, pdeldry,       &
+       qc, qc_dry, errmsg, errflg)
 
-!> \section arg_table_dry_to_wet_run  Argument Table
-!! \htmlinclude dry_to_wet_run.html
-  subroutine dry_to_wet_run(ncol, nz, pdel, pdeldry, qv, qc, qr, errmsg, errflg)
-
-     integer, intent(in)     :: ncol
-     integer, intent(in)     :: nz
-     real(kind_phys), intent(in)    :: pdel(:,:)
-     real(kind_phys), intent(in)    :: pdeldry(:,:)
-     real(kind_phys), intent(inout) :: qv(:,:)
-     real(kind_phys), intent(inout),optional :: qc(:,:)
-     real(kind_phys), intent(inout),optional :: qr(:,:)
+     integer,          intent(in)  :: ncol
+     integer,          intent(in)  :: nz
+     real(kind_phys),  intent(in)  :: pdel(:,:)
+     real(kind_phys),  intent(in)  :: pdeldry(:,:)
+     real(kind_phys),  intent(in)  :: qc(:,:)
+     real(kind_phys),  intent(out) :: qc_dry(:,:)
      character(len=*), intent(out) :: errmsg
      integer,          intent(out) :: errflg
 
-     integer  :: k
-     real(kind_phys) :: d_to_w(ncol)
+     integer         :: k
 
      errflg = 0
      errmsg = ''
 
-     do k=1,nz
-       d_to_w(:ncol) = pdeldry(:ncol,k)/pdel(:ncol,k)
-       qv(:ncol,k) = qv(:ncol,k)*d_to_w(:ncol)
-       if (present(qc)) qc(:ncol,k) = qc(:ncol,k)*d_to_w(:ncol)
-       if (present(qr)) qr(:ncol,k) = qr(:ncol,k)*d_to_w(:ncol)
+     do k = 1, nz
+       qc_dry(:ncol,k) = qc(:ncol,k) * pdel(:ncol,k) / pdeldry(:ncol,k)
      end do
 
+  end subroutine wet_to_dry_cloud_liquid_water_run
 
-  end subroutine dry_to_wet_run
+!> \section arg_table_wet_to_dry_rain_run  Argument Table
+!! \htmlinclude wet_to_dry_rain_run.html
+  subroutine wet_to_dry_rain_run(ncol, nz, pdel, pdeldry, qr, qr_dry,         &
+       errmsg, errflg)
 
+     integer,          intent(in)  :: ncol
+     integer,          intent(in)  :: nz
+     real(kind_phys),  intent(in)  :: pdel(:,:)
+     real(kind_phys),  intent(in)  :: pdeldry(:,:)
+     real(kind_phys),  intent(in)  :: qr(:,:)
+     real(kind_phys),  intent(out) :: qr_dry(:,:)
+     character(len=*), intent(out) :: errmsg
+     integer,          intent(out) :: errflg
+
+     integer         :: k
+
+     errflg = 0
+     errmsg = ''
+
+     do k = 1, nz
+       qr_dry(:ncol,k) = qr(:ncol,k) * pdel(:ncol,k) / pdeldry(:ncol,k)
+     end do
+
+  end subroutine wet_to_dry_rain_run
+
+!> \section arg_table_dry_to_wet_water_vapor_run  Argument Table
+!! \htmlinclude dry_to_wet_water_vapor_run.html
+  subroutine dry_to_wet_water_vapor_run(ncol, nz, pdel, pdeldry, qv_dry, qv,  &
+       errmsg, errflg)
+
+     integer,          intent(in)  :: ncol
+     integer,          intent(in)  :: nz
+     real(kind_phys),  intent(in)  :: pdel(:,:)
+     real(kind_phys),  intent(in)  :: pdeldry(:,:)
+     real(kind_phys),  intent(in)  :: qv_dry(:,:)
+     real(kind_phys),  intent(out) :: qv(:,:)
+     character(len=*), intent(out) :: errmsg
+     integer,          intent(out) :: errflg
+
+     integer  :: k
+
+     errflg = 0
+     errmsg = ''
+
+     do k = 1, nz
+       qv(:ncol,k) = qv_dry(:ncol,k) * pdeldry(:ncol,k) / pdel(:ncol,k)
+     end do
+
+  end subroutine dry_to_wet_water_vapor_run
+
+!> \section arg_table_dry_to_wet_cloud_liquid_water_run  Argument Table
+!! \htmlinclude dry_to_wet_cloud_liquid_water_run.html
+  subroutine dry_to_wet_cloud_liquid_water_run(ncol, nz, pdel, pdeldry,       &
+       qc_dry, qc, errmsg, errflg)
+
+     integer,          intent(in)  :: ncol
+     integer,          intent(in)  :: nz
+     real(kind_phys),  intent(in)  :: pdel(:,:)
+     real(kind_phys),  intent(in)  :: pdeldry(:,:)
+     real(kind_phys),  intent(in)  :: qc_dry(:,:)
+     real(kind_phys),  intent(out) :: qc(:,:)
+     character(len=*), intent(out) :: errmsg
+     integer,          intent(out) :: errflg
+
+     integer  :: k
+
+     errflg = 0
+     errmsg = ''
+
+     do k = 1, nz
+       qc(:ncol,k) = qc_dry(:ncol,k) * pdeldry(:ncol,k) / pdel(:ncol,k)
+     end do
+
+  end subroutine dry_to_wet_cloud_liquid_water_run
+
+!> \section arg_table_dry_to_wet_rain_run  Argument Table
+!! \htmlinclude dry_to_wet_rain_run.html
+  subroutine dry_to_wet_rain_run(ncol, nz, pdel, pdeldry, qr_dry, qr,         &
+       errmsg, errflg)
+
+     integer,          intent(in)  :: ncol
+     integer,          intent(in)  :: nz
+     real(kind_phys),  intent(in)  :: pdel(:,:)
+     real(kind_phys),  intent(in)  :: pdeldry(:,:)
+     real(kind_phys),  intent(in)  :: qr_dry(:,:)
+     real(kind_phys),  intent(out) :: qr(:,:)
+     character(len=*), intent(out) :: errmsg
+     integer,          intent(out) :: errflg
+
+     integer  :: k
+
+     errflg = 0
+     errmsg = ''
+
+     do k = 1, nz
+       qr(:ncol,k) = qr_dry(:ncol,k) * pdeldry(:ncol,k) / pdel(:ncol,k)
+     end do
+
+  end subroutine dry_to_wet_rain_run
 
 end module state_converters

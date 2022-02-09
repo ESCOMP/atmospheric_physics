@@ -18,9 +18,14 @@ CONTAINS
 
    !> \section arg_table_kessler_update_init  Argument Table
    !! \htmlinclude kessler_update_init.html
-   subroutine kessler_update_init(gravit_in, cpair_in)
-      real(kind_phys),    intent(in)    :: gravit_in
-      real(kind_phys),    intent(in)    :: cpair_in
+   subroutine kessler_update_init(gravit_in, cpair_in, errmsg, errflg)
+      real(kind_phys),    intent(in)  :: gravit_in
+      real(kind_phys),    intent(in)  :: cpair_in
+      character(len=512), intent(out) :: errmsg
+      integer,            intent(out) :: errflg
+
+      errmsg = ''
+      errflg = 0
 
       gravit = gravit_in
       cpair = cpair_in
@@ -38,12 +43,12 @@ CONTAINS
       character(len=512), intent(out) :: errmsg
       integer,            intent(out) :: errflg
 
+      errmsg = ''
+      errflg = 0
+
       !   Initialize the previous temperature and its tendency to zero
       temp_prev(:,:)  = temp(:,:)
       ttend_t(:,:)    = 0._kind_phys
-
-      errmsg = ''
-      errflg = 0
 
    end subroutine kessler_update_timestep_init
 
