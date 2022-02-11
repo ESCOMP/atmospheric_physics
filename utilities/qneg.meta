@@ -17,12 +17,13 @@
   type = integer
   dimensions = ()
   intent = in
-[ qmin ]
-  standard_name = constituent_minimum_value
+[ qprops ]
+  standard_name = ccpp_constituent_properties_array
   units = kg kg-1
+  state_variable = true
   type = real | kind = kind_phys
   dimensions = (number_of_constituents)
-  intent = out
+  intent = inout
 [ errcode ]
   standard_name = ccpp_error_code
   long_name = Error flag for error handling in CCPP
@@ -72,13 +73,20 @@
   dimensions = ()
   intent = in
 [ qmin ]
-  standard_name = constituent_minimum_value
+  standard_name = ccpp_constituent_array_minimum_values
   units = 1
   type = real | kind = kind_phys
   dimensions = (number_of_constituents)
   intent = in
+[ qprops ]
+  standard_name = ccpp_constituent_properties_array
+  units = kg kg-1
+  state_variable = true
+  type = real | kind = kind_phys
+  dimensions = (number_of_constituents)
+  intent = in
 [ q ]
-  standard_name = constituent_mixing_ratio
+  standard_name = ccpp_constituent_fields_array
   units = kg kg-1
   state_variable = true
   type = real | kind = kind_phys
@@ -115,10 +123,29 @@
   dimensions = ()
   intent = in
 [ isrootproc ]
-  standard_name = flag_for_mpi_root
+  standard_name = is_mpi_root
   units = flag
   type = logical
   dimensions = ()
+  intent = in
+[ iulog ]
+  standard_name = log_output_unit
+  units = None
+  type = integer
+  dimensions = ()
+  intent = in
+[ log_output ]
+  standard_name = do_log_output
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ qprops ]
+  standard_name = ccpp_constituent_properties_array
+  units = kg kg-1
+  state_variable = true
+  type = real | kind = kind_phys
+  dimensions = (number_of_constituents)
   intent = in
 [ errcode ]
   standard_name = ccpp_error_code
@@ -151,10 +178,29 @@
   dimensions = ()
   intent = in
 [ isrootproc ]
-  standard_name = flag_for_mpi_root
+  standard_name = is_mpi_root
   units = flag
   type = logical
   dimensions = ()
+  intent = in
+[ iulog ]
+  standard_name = log_output_unit
+  units = None
+  type = integer
+  dimensions = ()
+  intent = in
+[ log_output ]
+  standard_name = do_log_output
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ qprops ]
+  standard_name = ccpp_constituent_properties_array
+  units = kg kg-1
+  state_variable = true
+  type = real | kind = kind_phys
+  dimensions = (number_of_constituents)
   intent = in
 [ errcode ]
   standard_name = ccpp_error_code
