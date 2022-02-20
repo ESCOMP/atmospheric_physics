@@ -12,7 +12,7 @@
   dimensions = ()
   intent = in
 [ num_constituents_in ]
-  standard_name = number_of_constituents
+  standard_name = ccpp_num_constituents
   units = count
   type = integer
   dimensions = ()
@@ -21,9 +21,9 @@
   standard_name = ccpp_constituent_properties_array
   units = kg kg-1
   state_variable = true
-  type = real | kind = kind_phys
+  type = ccpp_constituent_prop_ptr_t
   dimensions = (number_of_constituents)
-  intent = inout
+  intent = in
 [ errcode ]
   standard_name = ccpp_error_code
   long_name = Error flag for error handling in CCPP
@@ -67,7 +67,7 @@
   dimensions = ()
   intent = in
 [ num_constituents ]
-  standard_name = number_of_constituents
+  standard_name = ccpp_num_constituents
   units = count
   type = integer
   dimensions = ()
@@ -76,21 +76,21 @@
   standard_name = ccpp_constituent_array_minimum_values
   units = 1
   type = real | kind = kind_phys
-  dimensions = (number_of_constituents)
+  dimensions = (ccpp_num_constituents)
   intent = in
 [ qprops ]
   standard_name = ccpp_constituent_properties_array
   units = kg kg-1
   state_variable = true
-  type = real | kind = kind_phys
-  dimensions = (number_of_constituents)
+  type = ccpp_constituent_prop_ptr_t
+  dimensions = (ccpp_num_constituents)
   intent = in
 [ q ]
-  standard_name = ccpp_constituent_fields_array
+  standard_name = ccpp_constituent_array
   units = kg kg-1
   state_variable = true
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension,vertical_layer_dimension,number_of_constituents)
+  dimensions = (horizontal_dimension,vertical_layer_dimension,ccpp_num_constituents)
   intent = inout
 [ errcode ]
   standard_name = ccpp_error_code
@@ -144,8 +144,8 @@
   standard_name = ccpp_constituent_properties_array
   units = kg kg-1
   state_variable = true
-  type = real | kind = kind_phys
-  dimensions = (number_of_constituents)
+  type = ccpp_constituent_prop_ptr_t
+  dimensions = (ccpp_num_constituents)
   intent = in
 [ errcode ]
   standard_name = ccpp_error_code
@@ -199,8 +199,8 @@
   standard_name = ccpp_constituent_properties_array
   units = kg kg-1
   state_variable = true
-  type = real | kind = kind_phys
-  dimensions = (number_of_constituents)
+  type = ccpp_constituent_prop_ptr_t
+  dimensions = (ccpp_num_constituents)
   intent = in
 [ errcode ]
   standard_name = ccpp_error_code
