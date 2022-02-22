@@ -19,10 +19,9 @@
   intent = in
 [ qprops ]
   standard_name = ccpp_constituent_properties_array
-  units = kg kg-1
-  state_variable = true
+  units = None
   type = ccpp_constituent_prop_ptr_t
-  dimensions = (number_of_constituents)
+  dimensions = (ccpp_num_constituents)
   intent = in
 [ errcode ]
   standard_name = ccpp_error_code
@@ -74,14 +73,13 @@
   intent = in
 [ qmin ]
   standard_name = ccpp_constituent_array_minimum_values
-  units = 1
+  units = kg kg-1
   type = real | kind = kind_phys
   dimensions = (ccpp_num_constituents)
   intent = in
 [ qprops ]
   standard_name = ccpp_constituent_properties_array
-  units = kg kg-1
-  state_variable = true
+  units = None
   type = ccpp_constituent_prop_ptr_t
   dimensions = (ccpp_num_constituents)
   intent = in
@@ -142,8 +140,7 @@
   intent = in
 [ qprops ]
   standard_name = ccpp_constituent_properties_array
-  units = kg kg-1
-  state_variable = true
+  units = None
   type = ccpp_constituent_prop_ptr_t
   dimensions = (ccpp_num_constituents)
   intent = in
@@ -197,8 +194,7 @@
   intent = in
 [ qprops ]
   standard_name = ccpp_constituent_properties_array
-  units = kg kg-1
-  state_variable = true
+  units = None
   type = ccpp_constituent_prop_ptr_t
   dimensions = (ccpp_num_constituents)
   intent = in

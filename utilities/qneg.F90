@@ -359,12 +359,12 @@ CONTAINS
       ! qprops is the array of constituent properties
       type(ccpp_constituent_prop_ptr_t), intent(in) :: qprops(:)
 
-      integer             :: global_warn_num(num_constituents)
-      real(kind_phys)     :: global_warn_worst(num_constituents)
-      integer             :: index, m
-      integer             :: ierr
-      character(len=512), :: errmsg
-      character(len=CS)   :: cnst_name
+      integer            :: global_warn_num(num_constituents)
+      real(kind_phys)    :: global_warn_worst(num_constituents)
+      integer            :: index, m
+      integer            :: ierr
+      character(len=512) :: errmsg
+      character(len=CS)  :: cnst_name
 
       do index = 1, num_bins
          ! QNEG
@@ -379,7 +379,7 @@ CONTAINS
             do m = 1, num_constituents
                if ( (global_warn_num(m) > 0) .and.                            &
                     (abs(global_warn_worst(m)) > tol)) then
-                  call qprops(m)%standard(namecnst_name, ierr, errmsg)
+                  call qprops(m)%standard_name(cnst_name, ierr, errmsg)
                   write(iulog, 9100) trim(qneg_warn_labels(index)),           &
                        trim(cnst_name), global_warn_num(m),                   &
                        global_warn_worst(m)
