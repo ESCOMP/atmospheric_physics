@@ -384,7 +384,7 @@ CONTAINS
                        trim(cnst_name), global_warn_num(m),                   &
                        global_warn_worst(m)
                end if
-               call shr_sys_flush(iulog)
+               flush(iulog)
             end do
          end if
          call reset_stats(qneg_warn_num(:,index), qneg_warn_worst(:,index))
