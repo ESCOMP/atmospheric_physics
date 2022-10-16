@@ -187,7 +187,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ rho ]
-   standard_name = density_of_dry_air_at_stp
+   standard_name = dry_air_density
    long_name = dry air density
    units = kg m-3
    dimensions = (horizontal_loop_extent, vertical_layer_dimension)
