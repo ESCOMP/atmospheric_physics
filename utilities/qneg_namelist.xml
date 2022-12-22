@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<?xml-stylesheet type="text/xsl" href="namelist_definition.xsl"?>
+<?xml-stylesheet type="text/xsl"?>
 
 <entry_id_pg version="2.0">
 
@@ -33,7 +33,7 @@
      input_pathname
           Only include this attribute to indicate that the variable
           contains the pathname of an input dataset that resides in the
-          CCSM inputdata directory tree.  Note that the variables
+          CESM inputdata directory tree.  Note that the variables
           containing the names of restart files that are used in branch
           runs don't reside in the inputdata tree and should not be given
           this attribute.
@@ -51,7 +51,29 @@
 
      valid_values
           This is an optional attribute that is mainly useful for variables
-          that have only a small number of allowed values.
+          that have only a small number of allowed values. It is a
+          comma-separated list of valid values for the variable.
+
+     desc
+          This is a text description of the variable including its
+          purpose and use.
+
+     values
+          This is a grouping of all the cases where a value can be
+          assigned with the namelist generator has been run.
+
+     value
+          Each <value> tag specifies a case where a value is assigned
+          to this variable when the namelist generator is run. If the
+          tag has no attributes, it is a default value. In general,
+          the namelist generator attempts to find a value with the
+          maximium number of attribute matches (and no non-matches).
+
+     standard_name
+          This is the CCPP Standard Name of the variable
+
+     units
+          This is CCPP unit specification of the variable (e.g., m s-1).
                                                                         -->
 <!-- Qneg Parameterization -->
 

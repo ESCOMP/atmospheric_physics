@@ -128,7 +128,7 @@
   intent = in
 [ iulog ]
   standard_name = log_output_unit
-  units = None
+  units = 1
   type = integer
   dimensions = ()
   intent = in
@@ -182,7 +182,7 @@
   intent = in
 [ iulog ]
   standard_name = log_output_unit
-  units = None
+  units = 1
   type = integer
   dimensions = ()
   intent = in
