@@ -8,7 +8,6 @@ module kessler
 
    public :: kessler_run ! Main routine
    public :: kessler_init ! init routine
-   public :: kessler_timestep_init ! init timestep routine
 
    ! Private module data (constants set at initialization)
    real(kind_phys) :: cp    ! heat capacity at constant pressure, J/(kgK)
@@ -42,28 +41,6 @@ CONTAINS
       rhoqr = rhoqr_in
 
    end subroutine kessler_init
-
-   !> \section arg_table_kessler_timestep_init  Argument Table
-   !! \htmlinclude kessler_timestep_init.html
-   subroutine kessler_timestep_init(ncol, nz, pdel, pdeldry, qv, qc, qr, errmsg, errflg)
-      use state_converters, only : wet_to_dry_run
-
-      ! Dummy arguments
-      integer,         intent(in)    :: ncol
-      integer,         intent(in)    :: nz
-      real(kind_phys), intent(in)    :: pdel(:,:)
-      real(kind_phys), intent(in)    :: pdeldry(:,:)
-      real(kind_phys), intent(inout) :: qv(:,:)
-      real(kind_phys), intent(inout) :: qc(:,:)
-      real(kind_phys), intent(inout) :: qr(:,:)
-
-      character(len=*), intent(out) :: errmsg
-      integer,          intent(out) :: errflg
-
-      errflg = 0
-      errmsg = ''
-
-   end subroutine kessler_timestep_init
 
    !-----------------------------------------------------------------------
    !

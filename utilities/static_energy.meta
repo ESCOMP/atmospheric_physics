@@ -10,8 +10,7 @@
   standard_name = gravitational_acceleration
   units = m s-2
   dimensions = ()
-  type = real
-  kind = kind_phys
+  type = real | kind = kind_phys
   intent = in
 
 [ccpp-arg-table]
@@ -26,8 +25,7 @@
   intent = in
 [ temp ]
   standard_name = air_temperature
-  type = real
-  kind = kind_phys
+  type = real | kind = kind_phys
   units = K
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = in
@@ -40,8 +38,7 @@
   intent = in
 [ phis ]
   standard_name = geopotential_at_surface
-  type = real
-  kind = kind_phys
+  type = real | kind = kind_phys
   units = m2 s-2
   dimensions = (horizontal_dimension)
   intent = in
@@ -49,8 +46,7 @@
   standard_name = dry_static_energy
   long_name = Dry static energy
   state_variable = true
-  type = real
-  kind = kind_phys
+  type = real | kind = kind_phys
   units = J kg-1
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = out
@@ -70,7 +66,7 @@
 [ errmsg ]
   standard_name = ccpp_error_message
   long_name = Error message for error handling in CCPP
-  units = 1
+  units = none
   type = character | kind = len=512
   dimensions = ()
   intent = out
