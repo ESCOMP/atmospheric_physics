@@ -134,7 +134,7 @@
   type = real | kind = kind_phys
   intent = inout
 [ qr ]
-  standard_name = rain_mixing_ratio_wrt_dry_air
+  standard_name = rain_water_mixing_ratio_wrt_dry_air
   long_name = Mass mixing ratio of rain / dry air
   advected = true
   units = kg kg-1
