@@ -183,7 +183,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ rho ]
-   standard_name = density_of_dry_air_at_stp
+   standard_name = dry_air_density
    long_name = dry air density
    units = kg m-3
    dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -379,8 +379,8 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ qc ]
-  standard_name = cloud_liquid_water_mixing_ratio_wrt_total_mass
-  long_name = Mass mixing ratio of cloud liquid water / total mass
+  standard_name = cloud_liquid_water_mixing_ratio_wrt_moist_air
+  long_name = Mass mixing ratio of cloud liquid water / moist_air
   advected = True
   type = real | kind = kind_phys
   units = kg kg-1
@@ -441,15 +441,15 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ qr ]
-  standard_name = rain_mixing_ratio_wrt_total_mass
-  long_name = Mass mixing ratio of rain / total mass
+  standard_name = rain_water_mixing_ratio_wrt_moist_air
+  long_name = Mass mixing ratio of rain / moist air
   advected = True
   type = real | kind = kind_phys
   units = kg kg-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ qr_dry ]
-  standard_name = rain_mixing_ratio_wrt_dry_air
+  standard_name = rain_water_mixing_ratio_wrt_dry_air
   long_name = Mass mixing ratio of rain / dry air
   type = real | kind = kind_phys
   units = kg kg-1
@@ -570,8 +570,8 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ qc ]
-  standard_name = cloud_liquid_water_mixing_ratio_wrt_total_mass
-  long_name = Mass mixing ratio of cloud liquid water / total mass
+  standard_name = cloud_liquid_water_mixing_ratio_wrt_moist_air
+  long_name = Mass mixing ratio of cloud liquid water / moist air
   type = real | kind = kind_phys
   units = kg kg-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -624,15 +624,15 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ qr_dry ]
-  standard_name = rain_mixing_ratio_wrt_dry_air
+  standard_name = rain_water_mixing_ratio_wrt_dry_air
   long_name = Mass mixing ratio of rain / dry air
   type = real | kind = kind_phys
   units = kg kg-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ qr ]
-  standard_name = rain_mixing_ratio_wrt_total_mass
-  long_name = Mass mixing ratio of rain / total mass
+  standard_name = rain_water_mixing_ratio_wrt_moist_air
+  long_name = Mass mixing ratio of rain / moist_air
   type = real | kind = kind_phys
   units = kg kg-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

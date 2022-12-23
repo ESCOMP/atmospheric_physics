@@ -106,7 +106,7 @@
   type = real | kind = kind_phys
   intent = in
 [ zvir ]
-  standard_name = composition_dependent_ratio_of_dry_air_to_water_vapor_gas_constants_minus_one
+  standard_name = composition_dependent_ratio_of_water_vapor_to_dry_air_gas_constants_minus_one
   units = -1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real | kind = kind_phys

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<suite name="kessler_cam" version="1.0">
+<suite name="kessler" version="1.0">
   <group name="physics">
     <scheme>calc_exner</scheme>
     <scheme>temp_to_potential_temp</scheme>
