@@ -379,7 +379,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ qc ]
-  standard_name = cloud_liquid_water_mixing_ratio_wrt_moist_air
+  standard_name = cloud_liquid_water_mixing_ratio_of_moist_air
   long_name = Mass mixing ratio of cloud liquid water / moist_air
   advected = True
   type = real | kind = kind_phys
@@ -441,7 +441,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ qr ]
-  standard_name = rain_water_mixing_ratio_wrt_moist_air
+  standard_name = rain_water_mixing_ratio
   long_name = Mass mixing ratio of rain / moist air
   advected = True
   type = real | kind = kind_phys
@@ -570,7 +570,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ qc ]
-  standard_name = cloud_liquid_water_mixing_ratio_wrt_moist_air
+  standard_name = cloud_liquid_water_mixing_ratio_of_moist_air
   long_name = Mass mixing ratio of cloud liquid water / moist air
   type = real | kind = kind_phys
   units = kg kg-1
@@ -631,7 +631,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ qr ]
-  standard_name = rain_water_mixing_ratio_wrt_moist_air
+  standard_name = rain_water_mixing_ratio
   long_name = Mass mixing ratio of rain / moist_air
   type = real | kind = kind_phys
   units = kg kg-1
