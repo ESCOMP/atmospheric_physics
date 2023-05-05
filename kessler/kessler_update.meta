@@ -85,28 +85,6 @@
   dimensions = ()
   type = integer
   intent = in
-[ temp ]
-  standard_name = air_temperature
-  state_variable = true
-  type = real | kind = kind_phys
-  units = K
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = in
-[ theta ]
-  standard_name = potential_temperature
-  long_name = potential temperature
-  units = K
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  type = real | kind = kind_phys
-  intent = inout
-[ exner ]
-  standard_name = inverse_exner_function_wrt_surface_pressure
-  long_name = inverse exner function w.r.t. surface pressure, (ps/p)^(R/cp)
-  state_variable = true
-  units = count
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = in
 [ dt ]
   standard_name = timestep_for_physics
   long_name = time step
@@ -114,12 +92,27 @@
   dimensions = ()
   type = real | kind = kind_phys
   intent = in
+[ theta ]
+  standard_name = air_potential_temperature
+  long_name = air potential temperature
+  units = K
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  type = real | kind = kind_phys
+  intent = in
+[ exner ]
+  standard_name = dimensionless_exner_function
+  long_name = exner function
+  state_variable = true
+  units = count
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
 [ temp_prev ]
   standard_name = air_temperature_on_previous_timestep
   units = K
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real | kind = kind_phys
-  intent = inout
+  intent = in
 [ ttend_t ]
   standard_name = tendency_of_air_temperature_due_to_model_physics
   type = real | kind = kind_phys
@@ -159,14 +152,15 @@
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = in
 [ zm ]
-  standard_name = geopotential_height
+  standard_name = geopotential_height_wrt_surface
+  long_name = geopotential height w.r.t. local surface
   state_variable = true
   type = real | kind = kind_phys
   units = m
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = in
 [ phis ]
-  standard_name = geopotential_at_surface
+  standard_name = surface_geopotential
   state_variable = true
   type = real | kind = kind_phys
   units = m2 s-2

@@ -18,8 +18,8 @@
   type = real | kind = kind_phys
   intent = in
 [ psl_in ]
-  standard_name = us_standard_atmospheric_pressure_at_sea_level
-  long_name = reference pressure at sea level
+  standard_name = reference_pressure
+  long_name = reference pressure used in definition of Exner function
   units = mb
   dimensions = ()
   type = real | kind = kind_phys
@@ -31,8 +31,8 @@
   type = real | kind = kind_phys
   intent = in
 [ rhoqr_in ]
-  standard_name = density_of_liquid_water_at_0c
-  long_name = density of liquid water at 0C
+  standard_name = fresh_liquid_water_density_at_0c
+  long_name = density of fresh liquid water at 0C
   units = kg m-3
   dimensions = ()
   type = real | kind = kind_phys
@@ -46,7 +46,7 @@
   intent = out
 [ errflg ]
   standard_name = ccpp_error_code
-  long_name = Error flag for error handling in CCPP
+  long_name = Error code for error handling in CCPP
   units = 1
   type = integer
   dimensions = ()
@@ -78,13 +78,13 @@
   type = real | kind = kind_phys
   intent = in
 [ lyr_surf ]
-  standard_name = index_of_bottom_vertical_layer
+  standard_name = vertical_index_at_surface_adjacent_layer
   units = count
   dimensions = ()
   type = integer
   intent = in
 [ lyr_toa ]
-  standard_name = index_of_top_vertical_layer
+  standard_name = vertical_index_at_top_adjacent_layer
   units = count
   dimensions = ()
   type = integer
@@ -97,22 +97,22 @@
   type = real | kind = kind_phys
   intent = in
 [ z ]
-  standard_name = geopotential_height
-  long_name = geopotential height
+  standard_name = geopotential_height_wrt_surface
+  long_name = geopotential height w.r.t. local surface
   units = m
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real | kind = kind_phys
   intent = in
 [ pk ]
-  standard_name = inverse_exner_function_wrt_surface_pressure
-  long_name = inverse exner function w.r.t. surface pressure, (ps/p)^(R/cp)
-  units = count
+  standard_name = dimensionless_exner_function
+  long_name = exner function
+  units = 1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real | kind = kind_phys
   intent = in
 [ theta ]
-  standard_name = potential_temperature
-  long_name = potential temperature
+  standard_name = air_potential_temperature
+  long_name = air potential temperature
   units = K
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real | kind = kind_phys
@@ -134,7 +134,7 @@
   type = real | kind = kind_phys
   intent = inout
 [ qr ]
-  standard_name = rain_water_mixing_ratio_wrt_dry_air
+  standard_name = rain_mixing_ratio_wrt_dry_air
   long_name = Mass mixing ratio of rain / dry air
   advected = true
   units = kg kg-1
@@ -143,13 +143,14 @@
   intent = inout
 [ precl ]
   standard_name = total_precipitation_rate_at_surface
-  long_name = precipitation
+  long_name = Total precipitation rate at surface
   units = m s-1
   dimensions = (horizontal_loop_extent)
   type = real | kind = kind_phys
   intent = out
 [ relhum ]
   standard_name = relative_humidity
+  long_name = Relative humidity
   units = percent
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real | kind = kind_phys

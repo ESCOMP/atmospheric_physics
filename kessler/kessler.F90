@@ -12,9 +12,9 @@ module kessler
    ! Private module data (constants set at initialization)
    real(kind_phys) :: cp    ! heat capacity at constant pressure, J/(kgK)
    real(kind_phys) :: lv    ! latent heat of vaporization, J/kg
-   real(kind_phys) :: psl   ! reference pressure at sea level, mb
+   real(kind_phys) :: psl   ! reference pressure, mb
    real(kind_phys) :: rair  ! dry air gas constant J/(kgK)
-   real(kind_phys) :: rhoqr ! density of liquid water, kg/m^3
+   real(kind_phys) :: rhoqr ! density of fresh liquid water, kg/m^3
 
 CONTAINS
 
@@ -24,9 +24,9 @@ CONTAINS
       ! Set physical constants to be consistent with calling model
       real(kind_phys),    intent(in)  :: cp_in    ! heat capacity at constant pres., J/(kgK)
       real(kind_phys),    intent(in)  :: lv_in    ! latent heat of vaporization, J/kg
-      real(kind_phys),    intent(in)  :: psl_in   ! reference pressure at sea level, mb
+      real(kind_phys),    intent(in)  :: psl_in   ! reference pressure, mb
       real(kind_phys),    intent(in)  :: rair_in  ! dry air gas constant J/(kgK)
-      real(kind_phys),    intent(in)  :: rhoqr_in ! density of liquid water, kg/m^3
+      real(kind_phys),    intent(in)  :: rhoqr_in ! density of fresh liquid water, kg/m^3
 
       character(len=512), intent(out) :: errmsg
       integer,            intent(out) :: errflg

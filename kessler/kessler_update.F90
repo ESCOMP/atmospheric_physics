@@ -54,22 +54,23 @@ CONTAINS
 
    !> \section arg_table_kessler_update_run  Argument Table
    !! \htmlinclude kessler_update_run.html
-   subroutine kessler_update_run(nz, ncol, temp, theta, exner, dt,      &
+   subroutine kessler_update_run(nz, ncol, dt, theta, exner,                  &
         temp_prev, ttend_t, errmsg, errflg)
 
       integer,            intent(in)    :: nz
       integer,            intent(in)    :: ncol
-      real(kind_phys),    intent(in)    :: temp(:,:) ! temperature
-      real(kind_phys),    intent(in)    :: exner(:,:)
-      real(kind_phys),    intent(in)    :: dt
+      real(kind_phys),    intent(in)    :: dt             !time step
+      real(kind_phys),    intent(in)    :: theta(:,:)     !potential temperature
+      real(kind_phys),    intent(in)    :: exner(:,:)     !Exner function
+      real(kind_phys),    intent(in)    :: temp_prev(:,:) !air temperature before kessler physics
 
-      real(kind_phys),    intent(inout) :: theta(:,:)
-      real(kind_phys),    intent(inout) :: temp_prev(:,:)
-      real(kind_phys),    intent(inout) :: ttend_t(:,:)
+      real(kind_phys),    intent(inout) :: ttend_t(:,:)   !total air temperature tendency due to
+                                                          !kessler physics
 
       character(len=512), intent(out)   :: errmsg
       integer,            intent(out)   :: errflg
 
+      !Local variables
       integer                           :: klev
       real(kind_phys)                   :: new_temp(ncol)
 
