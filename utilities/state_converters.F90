@@ -158,12 +158,14 @@ CONTAINS
 
 !> \section arg_table_calc_exner_run  Argument Table
 !! \htmlinclude calc_exner_run.html
-  subroutine calc_exner_run(ncol, nz, cpair, rair, pmid, exner, errmsg, errflg)
+  subroutine calc_exner_run(ncol, nz, cpair, rair, ref_pres, pmid, exner,     &
+       errmsg, errflg)
 
     integer,          intent(in)  :: ncol       ! Number of columns
     integer,          intent(in)  :: nz         ! Number of vertical levels
-    real(kind_phys),  intent(in)  :: rair  ! gas constant for dry air
-    real(kind_phys),  intent(in)  :: cpair ! heat capacity at constant pressure
+    real(kind_phys),  intent(in)  :: rair       ! Gas constant for dry air
+    real(kind_phys),  intent(in)  :: cpair      ! Heat capacity at constant pressure
+    real(kind_phys),  intent(in)  :: ref_pres   ! Reference pressure
     real(kind_phys),  intent(in)  :: pmid(:,:)
     real(kind_phys),  intent(out) :: exner(:,:)
     character(len=*), intent(out) :: errmsg
@@ -172,7 +174,7 @@ CONTAINS
     integer :: i
 
     do i=1,nz
-      exner(:ncol,i) = (pmid(:ncol,i)/1.e5_kind_phys)**(rair/cpair)
+      exner(:ncol,i) = (pmid(:ncol,i)/ref_pres)**(rair/cpair)
     end do
 
     errflg = 0

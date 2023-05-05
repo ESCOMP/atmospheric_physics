@@ -252,8 +252,15 @@
   intent = in
 [ rair ]
   standard_name = gas_constant_of_dry_air
-  long_name = long_name="ideal gas constant for dry air
+  long_name = ideal gas constant for dry air
   units = J kg-1 K-1
+  dimensions = ()
+  type = real | kind = kind_phys
+  intent = in
+[ ref_pres ]
+  standard_name = reference_pressure
+  long_name = reference pressure used in definition of potential temperature, Exner function, etc.
+  units = Pa
   dimensions = ()
   type = real | kind = kind_phys
   intent = in
