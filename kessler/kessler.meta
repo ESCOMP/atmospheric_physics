@@ -25,7 +25,7 @@
   type = real | kind = kind_phys
   intent = in
 [ rair_in ]
-  standard_name = gas_constant_of_dry_air
+  standard_name = composition_dependent_gas_constant_of_dry_air
   units =  J kg-1 K-1
   dimensions = ()
   type = real | kind = kind_phys

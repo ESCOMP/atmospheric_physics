@@ -27,7 +27,7 @@ CONTAINS
    !! \htmlinclude geopotential_t_run.html
    subroutine geopotential_t_run(pver, lagrang, layer_surf, layer_toa,        &
         interface_surf, interface_toa, piln, pint, pmid, pdel, rpdel,         &
-        t, q, rair, gravit, zvir, zi, zm, ncol, errflg, errmsg)
+        temp, qv, rair, gravit, zvir, zi, zm, ncol, errflg, errmsg)
 
       !-----------------------------------------------------------------------
       !
@@ -59,10 +59,10 @@ CONTAINS
       real(kind_phys), intent(in)  :: pdel(:,:)  ! (ncol,pver)
       ! rpdel: inverse of layer thickness
       real(kind_phys), intent(in)  :: rpdel(:,:) ! (ncol,pver)
-      ! t: temperature
-      real(kind_phys), intent(in)  :: t(:,:)     ! (ncol,pver)
-      ! q: specific humidity
-      real(kind_phys), intent(in)  :: q(:,:)     ! (ncol,pver)
+      ! temp: temperature
+      real(kind_phys), intent(in)  :: temp(:,:)  ! (ncol,pver)
+      ! qv: specific humidity
+      real(kind_phys), intent(in)  :: qv(:,:)    ! (ncol,pver)
       ! rair: Gas constant for dry air
       real(kind_phys), intent(in)  :: rair(:,:)  ! (ncol,pver)
       ! gravit: Acceleration of gravity
@@ -137,8 +137,8 @@ CONTAINS
          ! Now compute tv, zm, zi
 
          do icol = 1, ncol
-            tvfac   = 1._kind_phys + zvir(icol,klyr) * q(icol,klyr)
-            tv      = t(icol,klyr) * tvfac
+            tvfac   = 1._kind_phys + zvir(icol,klyr) * qv(icol,klyr)
+            tv      = temp(icol,klyr) * tvfac
 
             zm(icol,klyr) = zi(icol,kint-int_step) +                          &
                  (rog(icol,klyr) * tv * hkk(icol))

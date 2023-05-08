@@ -19,32 +19,32 @@
   type = logical
   intent = in
 [ layer_surf ]
-  standard_name = index_of_bottom_vertical_layer
+  standard_name = vertical_index_at_surface_adjacent_layer
   units = count
   dimensions = ()
   type = integer
   intent = in
 [ layer_toa ]
-  standard_name = index_of_top_vertical_layer
+  standard_name = vertical_index_at_top_adjacent_layer
   units = count
   dimensions = ()
   type = integer
   intent = in
 [ interface_surf ]
-  standard_name = index_of_bottom_vertical_interface
+  standard_name = vertical_index_at_surface_interface
   units = count
   dimensions = ()
   type = integer
   intent = in
 [ interface_toa ]
-  standard_name = index_of_top_vertical_interface
+  standard_name = vertical_index_at_top_interface
   units = count
   dimensions = ()
   type = integer
   intent = in
 [ piln ]
-  standard_name = ln_of_air_pressure_at_interface
-  long_name = ln(air_pressure_at_interface)
+  standard_name = ln_air_pressure_at_interface
+  long_name = natural log of air_pressure_at_interface
   type = real | kind = kind_phys
   units = 1
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
@@ -63,25 +63,26 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ pdel ]
-  standard_name = pressure_thickness
+  standard_name = air_pressure_thickness
   type = real | kind = kind_phys
   units = Pa
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ rpdel ]
-  standard_name = reciprocal_of_pressure_thickness
+  standard_name = reciprocal_of_air_pressure_thickness
   type = real | kind = kind_phys
   units = Pa-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
-[ t ]
+[ temp ]
   standard_name = air_temperature
   type = real | kind = kind_phys
   units = K
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
-[ q ]
-  standard_name = specific_humidity
+[ qv ]
+  standard_name = mixing_ratio_of_vapor_wrt_moist_air
+  long_name = Ratio of the mass of water vapor to the mass of dry air plus water vapor
   type = real | kind = kind_phys
   units = kg kg-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -105,13 +106,13 @@
   type = real | kind = kind_phys
   intent = in
 [ zi ]
-  standard_name = geopotential_height_at_interface
+  standard_name = geopotential_height_wrt_surface_at_interface
   type = real | kind = kind_phys
   units = m
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ zm ]
-  standard_name = geopotential_height
+  standard_name = geopotential_height_wrt_surface
   type = real | kind = kind_phys
   units = m
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
