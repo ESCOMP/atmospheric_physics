@@ -36,7 +36,6 @@
   type = scheme
 [ temp ]
   standard_name = air_temperature
-  state_variable = true
   type = real | kind = kind_phys
   units = K
   dimensions = (horizontal_dimension, vertical_layer_dimension)
@@ -102,7 +101,6 @@
 [ exner ]
   standard_name = dimensionless_exner_function
   long_name = exner function
-  state_variable = true
   units = count
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -146,7 +144,6 @@
   intent = in
 [ temp ]
   standard_name = air_temperature
-  state_variable = true
   type = real | kind = kind_phys
   units = K
   dimensions = (horizontal_dimension, vertical_layer_dimension)
@@ -154,14 +151,12 @@
 [ zm ]
   standard_name = geopotential_height_wrt_surface
   long_name = geopotential height w.r.t. local surface
-  state_variable = true
   type = real | kind = kind_phys
   units = m
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = in
 [ phis ]
   standard_name = surface_geopotential
-  state_variable = true
   type = real | kind = kind_phys
   units = m2 s-2
   dimensions = (horizontal_dimension)
@@ -169,7 +164,6 @@
 [ st_energy ]
   standard_name = dry_static_energy
   long_name = Dry static energy
-  state_variable = true
   type = real | kind = kind_phys
   units = J m-2
   dimensions = (horizontal_dimension, vertical_layer_dimension)

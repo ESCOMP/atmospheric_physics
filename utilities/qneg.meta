@@ -86,7 +86,6 @@
 [ q ]
   standard_name = ccpp_constituent_array
   units = kg kg-1
-  state_variable = true
   type = real | kind = kind_phys
   dimensions = (horizontal_dimension,vertical_layer_dimension,ccpp_num_constituents)
   intent = inout

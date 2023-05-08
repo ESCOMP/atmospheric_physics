@@ -45,14 +45,12 @@
 [ piln ]
   standard_name = ln_of_air_pressure_at_interface
   long_name = ln(air_pressure_at_interface)
-  state_variable = true
   type = real | kind = kind_phys
   units = 1
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ pint ]
   standard_name = air_pressure_at_interface
-  state_variable = true
   type = real | kind = kind_phys
   units = Pa
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
@@ -60,35 +58,30 @@
 [ pmid ]
   standard_name = air_pressure
   long_name = Midpoint air pressure
-  state_variable = true
   type = real | kind = kind_phys
   units = Pa
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ pdel ]
   standard_name = pressure_thickness
-  state_variable = true
   type = real | kind = kind_phys
   units = Pa
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ rpdel ]
   standard_name = reciprocal_of_pressure_thickness
-  state_variable = true
   type = real | kind = kind_phys
   units = Pa-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ t ]
   standard_name = air_temperature
-  state_variable = true
   type = real | kind = kind_phys
   units = K
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ q ]
   standard_name = specific_humidity
-  state_variable = true
   type = real | kind = kind_phys
   units = kg kg-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -113,14 +106,12 @@
   intent = in
 [ zi ]
   standard_name = geopotential_height_at_interface
-  state_variable = true
   type = real | kind = kind_phys
   units = m
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ zm ]
   standard_name = geopotential_height
-  state_variable = true
   type = real | kind = kind_phys
   units = m
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

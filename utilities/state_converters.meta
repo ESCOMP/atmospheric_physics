@@ -20,7 +20,6 @@
   intent = in
 [ temp ]
   standard_name = air_temperature
-  state_variable = true
   units = K
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -28,7 +27,6 @@
 [ exner ]
   standard_name = inverse_exner_function_wrt_surface_pressure
   long_name = inverse exner function w.r.t. surface pressure, (ps/p)^(R/cp)
-  state_variable = true
   units = count
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -87,14 +85,12 @@
 [ exner ]
   standard_name = inverse_exner_function_wrt_surface_pressure
   long_name = inverse exner function w.r.t. surface pressure, (ps/p)^(R/cp)
-  state_variable = true
   units = count
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ temp ]
   standard_name = air_temperature
-  state_variable = true
   units = K
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -170,14 +166,12 @@
 [ pmiddry ]
   standard_name = air_pressure_of_dry_air
   long_name = Dry midpoint pressure
-  state_variable = true
   type = real | kind = kind_phys
   units = Pa
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ temp ]
   standard_name = air_temperature
-  state_variable = true
   units = K
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -266,14 +260,12 @@
   intent = in
 [ pmid ]
   standard_name = air_pressure
-  state_variable = true
   type = real | kind = kind_phys
   units = Pa
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ exner ]
   standard_name = inverse_exner_function_wrt_surface_pressure
-  state_variable = true
   type = real | kind = kind_phys
   units = count
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

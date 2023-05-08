@@ -29,7 +29,6 @@
   units = K
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = in
-  state_variable = true
 [ zm ]
   standard_name = geopotential_height
   type = real | kind = kind_phys
@@ -45,7 +44,6 @@
 [ st_energy ]
   standard_name = dry_static_energy
   long_name = Dry static energy
-  state_variable = true
   type = real | kind = kind_phys
   units = J kg-1
   dimensions = (horizontal_dimension, vertical_layer_dimension)
