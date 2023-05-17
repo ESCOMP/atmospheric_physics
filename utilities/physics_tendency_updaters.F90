@@ -74,7 +74,7 @@ CONTAINS
       real(kind_phys),    intent(inout) :: temp(:,:)         ! air temperature
       real(kind_phys),    intent(inout) :: dTdt_total(:,:)   ! total temperature tend.
       real(kind_phys),    intent(in)    :: dt                ! physics time step
-      real(kind_phys),    intent(in)    :: cpair             ! specific heat, dry air
+      real(kind_phys),    intent(in)    :: cpair(:,:)        ! specific heat, dry air
       integer,            intent(out)   :: errcode
       character(len=512), intent(out)   :: errmsg
 
@@ -85,7 +85,7 @@ CONTAINS
       errmsg = ''
 
       do klev = 1, nz
-         temp(:, klev) = temp(:, klev) + (heating_rate(:, klev) * dt / cpair)
+         temp(:, klev) = temp(:, klev) + (heating_rate(:, klev) * dt / cpair(:, klev))
          dTdt_total(:, klev) = dTdt_total(:, klev) + (heating_rate(:, klev) / cpair)
       end do
 

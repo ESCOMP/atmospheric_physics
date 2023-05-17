@@ -70,10 +70,10 @@ CONTAINS
 
 !> \section arg_table_pres_to_density_dry_run  Argument Table
 !! \htmlinclude pres_to_density_dry_run.html
-  subroutine pres_to_density_dry_run(ncol, nz, rdair, pmiddry, temp, rho, errmsg, errflg)
+  subroutine pres_to_density_dry_run(ncol, nz, rair, pmiddry, temp, rho, errmsg, errflg)
     integer,          intent(in)    :: ncol         ! Number of columns
     integer,          intent(in)    :: nz           ! Number of vertical levels
-    real(kind_phys),  intent(in)    :: rdair        ! gas constant for dry air (J kg-1)
+    real(kind_phys),  intent(in)    :: rair(:,:)   ! gas constant for dry air (J kg-1)
     real(kind_phys),  intent(in)    :: pmiddry(:,:) ! Air pressure of dry air (Pa)
     real(kind_phys),  intent(in)    :: temp(:,:)    ! Air temperature (K)
     real(kind_phys),  intent(out)   :: rho(:,:)     ! Dry air density (kg m-3)
@@ -83,7 +83,7 @@ CONTAINS
     integer :: k
 
     do k = 1, nz
-      rho(:ncol,k) = pmiddry(:ncol,k)/(rdair*temp(:ncol,k))
+      rho(:ncol,k) = pmiddry(:ncol,k)/(rair(:ncol,k)*temp(:ncol,k))
     end do
 
     errmsg = ''
@@ -98,8 +98,8 @@ CONTAINS
 
     integer,          intent(in)  :: ncol       ! Number of columns
     integer,          intent(in)  :: nz         ! Number of vertical levels
-    real(kind_phys),  intent(in)  :: rair       ! Gas constant for dry air (J kg-1)
-    real(kind_phys),  intent(in)  :: cpair      ! Heat capacity at constant pressure (J kg-1)
+    real(kind_phys),  intent(in)  :: rair(:,:)  ! Gas constant for dry air (J kg-1)
+    real(kind_phys),  intent(in)  :: cpair(:,:) ! Heat capacity at constant pressure (J kg-1)
     real(kind_phys),  intent(in)  :: ref_pres   ! Reference pressure (Pa)
     real(kind_phys),  intent(in)  :: pmid(:,:)  ! Mid-point air pressure (Pa)
     real(kind_phys),  intent(out) :: exner(:,:) ! Exner function
@@ -109,7 +109,7 @@ CONTAINS
     integer :: i
 
     do i=1,nz
-      exner(:ncol,i) = (pmid(:ncol,i)/ref_pres)**(rair/cpair)
+      exner(:ncol,i) = (pmid(:ncol,i)/ref_pres)**(rair(:ncol,i)/cpair(:ncol,i))
     end do
 
     errflg = 0

@@ -34,7 +34,7 @@ CONTAINS
       real(kind_phys),    intent(in)  :: zm(:,:)        ! geopotential height
       real(kind_phys),    intent(in)  :: phis(:)        ! surface geopotential
       real(kind_phys),    intent(out) :: st_energy(:,:) ! dry static energy
-      real(kind_phys),    intent(in)  :: cpair          ! specific heat, dry air
+      real(kind_phys),    intent(in)  :: cpair(:,:)     ! specific heat, dry air
       integer,            intent(out) :: errcode
       character(len=512), intent(out) :: errmsg
 
@@ -45,7 +45,7 @@ CONTAINS
       errmsg = ''
 
       do klev = 1, nz
-         st_energy(:, klev) = (temp(:, klev) * cpair) +                       &
+         st_energy(:, klev) = (temp(:, klev) * cpair(:,klev)) +               &
               (gravit * zm(:, klev)) + phis(:)
       end do
 
