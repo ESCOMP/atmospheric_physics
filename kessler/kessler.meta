@@ -90,8 +90,8 @@
   type = integer
   intent = in
 [ rho ]
-  standard_name = dry_air_density
-  long_name = dry air density
+  standard_name = density_of_dry_air
+  long_name = density of dry air
   units = kg m-3
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real | kind = kind_phys

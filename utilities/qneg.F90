@@ -172,7 +172,7 @@ CONTAINS
 
    !> \section arg_table_qneg_run Argument Table
    !! \htmlinclude qneg_run.html
-   subroutine qneg_run(subnam, loop_begin, loop_end, lver, num_constituents,  &
+   subroutine qneg_run(subnam, num_columns, lver, num_constituents,  &
         qmin, qprops, q, errcode, errmsg)
       use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
 !!XXgoldyXX: v Reinstate when history is implemented
@@ -196,8 +196,8 @@ CONTAINS
       !
       character(len=*), intent(in) :: subnam ! name of calling routine
 
-      integer,                           intent(in)    :: loop_begin
-      integer,                           intent(in)    :: loop_end
+      ! num_columns: Horizontal loop extent
+      integer,                           intent(in)    :: num_columns
       ! lver: Number of vertical levels in column
       integer,                           intent(in)    :: lver
       ! num_constituents: Number of constituents
@@ -221,9 +221,9 @@ CONTAINS
 
       logical  :: found            ! true => at least 1 minimum violator found
 
-      real(kind_phys) :: badvals(loop_begin:loop_end, lver) ! Collector for outfld calls
-      real(kind_phys) :: badcols(loop_begin:loop_end)  ! Column sum for outfld
-      real(kind_phys) :: worst           ! biggest violator
+      real(kind_phys) :: badvals(1:num_columns, lver) ! Collector for outfld calls
+      real(kind_phys) :: badcols(1:num_columns)       ! Column sum for outfld
+      real(kind_phys) :: worst                        ! biggest violator
       !
       !-----------------------------------------------------------------------
       !
@@ -242,7 +242,7 @@ CONTAINS
          index = -1
       end if
 
-      do m = 1, num_constituents
+      do m = 1, num_constituent             s
          nvals = 0
          found = .false.
          worst = worst_reset
@@ -255,7 +255,7 @@ CONTAINS
          !
 
          do k = 1, lver
-            do i = loop_begin, loop_end
+            do i = 1, num_columns
                if (q(i,k,m) < qmin(m)) then
                   found = .true.
                   nvals = nvals + 1
@@ -296,14 +296,13 @@ CONTAINS
    !> \section arg_table_qneg_timestep_final Argument Table
    !! \htmlinclude qneg_timestep_final.html
    subroutine qneg_timestep_final(mpi_communicator, rootprocid, isrootproc,   &
-        iulog, log_output, qprops, errcode, errmsg)
+        iulog, qprops, errcode, errmsg)
       use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
 
       integer,                           intent(in)  :: mpi_communicator
       integer,                           intent(in)  :: rootprocid
       logical,                           intent(in)  :: isrootproc
       integer,                           intent(in)  :: iulog
-      logical,                           intent(in)  :: log_output
       ! qprops: The array of constituent properties
       type(ccpp_constituent_prop_ptr_t), intent(in)  :: qprops(:)
       integer,                           intent(out) :: errcode
@@ -314,21 +313,20 @@ CONTAINS
 
       if (timestep_reset .and. collect_stats) then
          call qneg_print_summary(mpi_communicator, rootprocid, isrootproc,    &
-              iulog, log_output, qprops)
+              iulog, qprops)
       end if
 
    end subroutine qneg_timestep_final
    !> \section arg_table_qneg_final Argument Table
    !! \htmlinclude qneg_final.html
    subroutine qneg_final(mpi_communicator, rootprocid, isrootproc,            &
-        iulog, log_output, qprops, errcode, errmsg)
+        iulog, qprops, errcode, errmsg)
       use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
 
       integer,                           intent(in)  :: mpi_communicator
       integer,                           intent(in)  :: rootprocid
       logical,                           intent(in)  :: isrootproc
       integer,                           intent(in)  :: iulog
-      logical,                           intent(in)  :: log_output
       ! qprops is the array of constituent properties
       type(ccpp_constituent_prop_ptr_t), intent(in)  :: qprops(:)
       integer,                           intent(out) :: errcode
@@ -339,7 +337,7 @@ CONTAINS
 
       if (.not.timestep_reset .and. collect_stats) then
          call qneg_print_summary(mpi_communicator, rootprocid, isrootproc,    &
-              iulog, log_output, qprops)
+              iulog, qprops)
       end if
       deallocate(qneg_warn_num)
       deallocate(qneg_warn_worst)
@@ -347,7 +345,7 @@ CONTAINS
    end subroutine qneg_final
 
    subroutine qneg_print_summary(mpi_communicator, rootprocid, isrootproc,    &
-        iulog, log_output, qprops)
+        iulog, qprops)
       use mpi, only: MPI_MIN, MPI_SUM, MPI_INTEGER, MPI_REAL8
       use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
 
@@ -355,7 +353,6 @@ CONTAINS
       integer,                           intent(in) :: rootprocid
       logical,                           intent(in) :: isrootproc
       integer,                           intent(in) :: iulog
-      logical,                           intent(in) :: log_output
       ! qprops is the array of constituent properties
       type(ccpp_constituent_prop_ptr_t), intent(in) :: qprops(:)
 

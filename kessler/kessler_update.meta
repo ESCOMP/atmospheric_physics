@@ -101,7 +101,7 @@
 [ exner ]
   standard_name = dimensionless_exner_function
   long_name = exner function
-  units = count
+  units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in

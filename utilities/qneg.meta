@@ -47,14 +47,8 @@
   type = character | kind = len=*
   dimensions = ()
   intent = in
-[ loop_begin ]
-  standard_name = horizontal_loop_begin
-  units = count
-  type = integer
-  dimensions = ()
-  intent = in
-[ loop_end ]
-  standard_name = horizontal_loop_end
+[ num_columns ]
+  standard_name = horizontal_loop_extent
   units = count
   type = integer
   dimensions = ()
@@ -183,12 +177,6 @@
   standard_name = log_output_unit
   units = 1
   type = integer
-  dimensions = ()
-  intent = in
-[ log_output ]
-  standard_name = do_log_output
-  units = flag
-  type = logical
   dimensions = ()
   intent = in
 [ qprops ]
