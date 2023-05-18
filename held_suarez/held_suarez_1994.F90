@@ -63,8 +63,8 @@ contains
 
 !> \section arg_table_held_suarez_1994_run Argument Table
 !! \htmlinclude held_suarez_1994_run.html
-  subroutine held_suarez_1994_run(pver, ncol, clat, pmid, &
-       u, v, t, du, dv, s, scheme_name, errmsg, errflg)
+  subroutine held_suarez_1994_run(pver, ncol, pref_mid_norm, clat, &
+       cappa, cpair, pmid, u, v, t, du, dv, s, scheme_name, errmsg, errflg)
 
     !
     ! Input arguments
@@ -73,6 +73,8 @@ contains
     integer,  intent(in)  :: ncol                    ! Num active columns
     real(kind_phys), intent(in)  :: pref_mid_norm(:) ! reference pressure normalized by surface pressure
     real(kind_phys), intent(in)  :: clat(:)          ! latitudes(radians) for columns
+    real(kind_phys), intent(in)  :: cappa(:,:)       ! ratio of dry air gas constant to specific heat at constant pressure
+    real(kind_phys), intent(in)  :: cpair(:,:)       ! specific heat of dry air at constant pressure
     real(kind_phys), intent(in)  :: pmid(:,:)        ! mid-point pressure
     real(kind_phys), intent(in)  :: u(:,:)           ! Zonal wind (m/s)
     real(kind_phys), intent(in)  :: v(:,:)           ! Meridional wind (m/s)
@@ -134,16 +136,16 @@ contains
         do i = 1, ncol
           kt = ka + (ks - ka)*cossqsq(i)*(pref_mid_norm(k) - sigmab)/onemsig
           trefc   = 315._kind_phys - (60._kind_phys * sinsq(i))
-          trefa = (trefc - 10._kind_phys*cossq(i)*log((pmid(i,k)/psurf_ref)))*(pmid(i,k)/psurf_ref)**cappa
+          trefa = (trefc - 10._kind_phys*cossq(i)*log((pmid(i,k)/pref)))*(pmid(i,k)/pref)**cappa(i,k)
           trefa    = max(t00,trefa)
-          s(i,k) = (trefa - t(i,k))*kt*cpair
+          s(i,k) = (trefa - t(i,k))*kt*cpair(i,k)
         end do
       else
         do i = 1, ncol
           trefc   = 315._kind_phys - 60._kind_phys*sinsq(i)
-          trefa = (trefc - 10._kind_phys*cossq(i)*log((pmid(i,k)/psurf_ref)))*(pmid(i,k)/psurf_ref)**cappa
+          trefa = (trefc - 10._kind_phys*cossq(i)*log((pmid(i,k)/pref)))*(pmid(i,k)/pref)**cappa(i,k)
           trefa    = max(t00,trefa)
-          s(i,k) = (trefa - t(i,k))*ka*cpair
+          s(i,k) = (trefa - t(i,k))*ka*cpair(i,k)
         end do
       end if
     end do
