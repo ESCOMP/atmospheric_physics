@@ -157,7 +157,7 @@
   intent = out
 [ scheme_name ]
   standard_name = scheme_name
-  units = 1
+  units = none
   type = character | kind = len=64
   dimensions = ()
   intent = out

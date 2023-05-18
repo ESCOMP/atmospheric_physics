@@ -38,11 +38,7 @@ module held_suarez_1994
   !!
   !! Model constants, reset in init call
   !!
-  real(kind_phys)              :: cappa = 2.0_kind_phys / 7.0_kind_phys  ! R/Cp
-  real(kind_phys)              :: cpair = 1004.0_kind_phys        ! specific heat of dry air (J/K/kg)
-  real(kind_phys)              :: psurf_ref = 0.0_kind_phys       ! Surface pressure
-  ! pref_mid_norm are layer midpoints normalized by surface pressure ('eta' coordinate)
-  real(kind_phys), allocatable :: pref_mid_norm(:)
+  real(kind_phys)            :: pref    = 0.0_kind_phys  ! Surface pressure
 
 
 
@@ -52,27 +48,16 @@ contains
 
 !> \section arg_table_held_suarez_1994_init Argument Table
 !! \htmlinclude held_suarez_1994_init.html
-  subroutine held_suarez_1994_init(pver_in, cappa_in, cpair_in, psurf_ref_in, pref_mid_norm_in, errmsg, errflg)
+  subroutine held_suarez_1994_init(pref_in, errmsg, errflg)
     !! Dummy arguments
-    integer,           intent(in) :: pver_in
-    real(kind_phys),   intent(in) :: cappa_in
-    real(kind_phys),   intent(in) :: cpair_in
-    real(kind_phys),   intent(in) :: psurf_ref_in
     real(kind_phys),   intent(in) :: pref_mid_norm_in(:)
     character(len=512),intent(out):: errmsg
     integer,           intent(out):: errflg
 
-    integer               :: pver                     ! Num vertical levels
-
     errmsg = ' '
     errflg = 0
 
-    pver = pver_in
-    allocate(pref_mid_norm(pver))
-    cappa         = cappa_in
-    cpair         = cpair_in
-    psurf_ref     = psurf_ref_in
-    pref_mid_norm = pref_mid_norm_in
+    pref   = pref_in
 
   end subroutine held_suarez_1994_init
 
@@ -84,13 +69,14 @@ contains
     !
     ! Input arguments
     !
-    integer,  intent(in)  :: pver      ! Num vertical levels
-    integer,  intent(in)  :: ncol      ! Num active columns
-    real(kind_phys), intent(in)  :: clat(:)   ! latitudes(radians) for columns
-    real(kind_phys), intent(in)  :: pmid(:,:) ! mid-point pressure
-    real(kind_phys), intent(in)  :: u(:,:)    ! Zonal wind (m/s)
-    real(kind_phys), intent(in)  :: v(:,:)    ! Meridional wind (m/s)
-    real(kind_phys), intent(in)  :: t(:,:)    ! Temperature (K)
+    integer,  intent(in)  :: pver                    ! Num vertical levels
+    integer,  intent(in)  :: ncol                    ! Num active columns
+    real(kind_phys), intent(in)  :: pref_mid_norm(:) ! reference pressure normalized by surface pressure
+    real(kind_phys), intent(in)  :: clat(:)          ! latitudes(radians) for columns
+    real(kind_phys), intent(in)  :: pmid(:,:)        ! mid-point pressure
+    real(kind_phys), intent(in)  :: u(:,:)           ! Zonal wind (m/s)
+    real(kind_phys), intent(in)  :: v(:,:)           ! Meridional wind (m/s)
+    real(kind_phys), intent(in)  :: t(:,:)           ! Temperature (K)
     !
     ! Output arguments
     !

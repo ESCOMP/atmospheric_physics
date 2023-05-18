@@ -55,15 +55,13 @@ CONTAINS
 
    !> \section arg_table_qneg_init Argument Table
    !! \htmlinclude qneg_init.html
-   subroutine qneg_init(print_qneg_warn, num_constituents_in, qprops,         &
+   subroutine qneg_init(print_qneg_warn, num_constituents_in,        &
         errcode, errmsg)
       use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
       !use cam_history,    only: addfld, horiz_only
 
       character(len=*),                    intent(in)  :: print_qneg_warn
       integer,                             intent(in)  :: num_constituents_in
-      ! qprops is the array of constituent properties
-      type(ccpp_constituent_prop_ptr_t), intent(in)  :: qprops(:)
       integer,                             intent(out) :: errcode
       character(len=512),                  intent(out) :: errmsg
 
@@ -173,7 +171,7 @@ CONTAINS
    !> \section arg_table_qneg_run Argument Table
    !! \htmlinclude qneg_run.html
    subroutine qneg_run(subnam, num_columns, lver, num_constituents,  &
-        qmin, qprops, q, errcode, errmsg)
+        qmin, q, errcode, errmsg)
       use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
 !!XXgoldyXX: v Reinstate when history is implemented
 #if 0
@@ -204,8 +202,6 @@ CONTAINS
       integer,                           intent(in)    :: num_constituents
       ! qmin: Global minimum constituent concentration
       real(kind_phys),                   intent(in)    :: qmin(:)
-      ! qprops: The array of constituent properties
-      type(ccpp_constituent_prop_ptr_t), intent(in)    :: qprops(:)
       ! q: The array of constituents
       real(kind_phys),                   intent(inout) :: q(:,:,:)
       integer,                           intent(out)   :: errcode

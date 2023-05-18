@@ -17,12 +17,6 @@
   type = integer
   dimensions = ()
   intent = in
-[ qprops ]
-  standard_name = ccpp_constituent_properties_array
-  units = None
-  type = ccpp_constituent_prop_ptr_t
-  dimensions = (ccpp_num_constituents)
-  intent = in
 [ errcode ]
   standard_name = ccpp_error_code
   long_name = Error flag for error handling in CCPP
@@ -43,7 +37,7 @@
   type  = scheme
 [ subnam ]
   standard_name = scheme_name
-  units = 1
+  units = none
   type = character | kind = len=*
   dimensions = ()
   intent = in
@@ -69,12 +63,6 @@
   standard_name = ccpp_constituent_array_minimum_values
   units = kg kg-1
   type = real | kind = kind_phys
-  dimensions = (ccpp_num_constituents)
-  intent = in
-[ qprops ]
-  standard_name = ccpp_constituent_properties_array
-  units = None
-  type = ccpp_constituent_prop_ptr_t
   dimensions = (ccpp_num_constituents)
   intent = in
 [ q ]

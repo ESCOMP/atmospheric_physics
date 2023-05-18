@@ -5,35 +5,11 @@
 [ccpp-arg-table]
   name  = held_suarez_1994_init
   type  = scheme
-[ pver_in ]
-  standard_name =  vertical_layer_dimension
-  units = count
-  type = integer
-  dimensions = ()
-  intent = in
-[ cappa_in ]
-  standard_name =  ratio_of_dry_air_to_water_vapor_gas_constants
-  units = 1
-  type = real | kind = kind_phys
-  dimensions = ()
-  intent = in
-[ cpair_in ]
-  standard_name = specific_heat_of_dry_air_at_constant_pressure
-  units = J kg-1 K-1
-  type = real | kind = kind_phys
-  dimensions = ()
-  intent = in
-[ psurf_ref_in ]
-  standard_name = reference_pressure_at_surface
+[ pref_in ]
+  standard_name = reference_pressure
   units = Pa
   type = real | kind = kind_phys
   dimensions = ()
-  intent = in
-[ pref_mid_norm_in ]
-  standard_name = reference_pressure_normalized_by_surface_pressure
-  units = Pa
-  type = real | kind = kind_phys
-  dimensions = (vertical_layer_dimension)
   intent = in
 [ errmsg ]
   standard_name = ccpp_error_message
@@ -65,6 +41,12 @@
   type = integer
   dimensions = ()
   intent = in
+[ pref_mid_norm ]
+  standard_name = reference_pressure_in_atmosphere_layer_normalized_by_reference_pressure
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (vertical_layer_dimension)
+  intent = in
 [ clat ]
   standard_name = latitude
   units = radians
@@ -78,13 +60,13 @@
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ u ]
-  standard_name = x_wind
+  standard_name = eastward_wind
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ v ]
-  standard_name = y_wind
+  standard_name = northward_wind
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
@@ -96,13 +78,13 @@
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ du ]
-  standard_name = tendency_of_x_wind
+  standard_name = tendency_of_eastward_wind
   units = m s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = out
 [ dv ]
-  standard_name = tendency_of_y_wind
+  standard_name = tendency_of_northward_wind
   units = m s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
@@ -115,7 +97,7 @@
   intent = out
 [ scheme_name ]
   standard_name = scheme_name
-  units = 1
+  units = none
   type = character | kind = len=64
   dimensions = ()
   intent = out
