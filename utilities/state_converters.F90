@@ -11,7 +11,7 @@ module state_converters
   public :: potential_temp_to_temp_run
 
   ! Calculate density from equation of state/ideal gas law
-  public :: calc_dry_ideal_gas_density_run
+  public :: calc_dry_air_ideal_gas_density_run
 
   ! Calculate exner
   public :: calc_exner_run
@@ -68,8 +68,8 @@ CONTAINS
     errmsg = ''
   end subroutine potential_temp_to_temp_run
 
-!> \section arg_table_calc_dry_ideal_gas_density_run  Argument Table
-!! \htmlinclude calc_dry_ideal_gas_density_run.html
+!> \section arg_table_calc_dry_air_ideal_gas_density_run  Argument Table
+!! \htmlinclude calc_dry_air_ideal_gas_density_run.html
   subroutine calc_dry_ideal_gas_density_run(ncol, nz, rair, pmiddry, temp, rho, errmsg, errflg)
     integer,          intent(in)    :: ncol         ! Number of columns
     integer,          intent(in)    :: nz           ! Number of vertical levels
@@ -89,7 +89,7 @@ CONTAINS
     errmsg = ''
     errflg = 0
 
-  end subroutine calc_dry_ideal_gas_density_run
+  end subroutine calc_dry_air_ideal_gas_density_run
 
 !> \section arg_table_calc_exner_run  Argument Table
 !! \htmlinclude calc_exner_run.html
