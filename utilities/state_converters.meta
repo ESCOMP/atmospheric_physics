@@ -112,10 +112,10 @@
 
 #########################################################
 [ccpp-table-properties]
-  name = pres_to_density_dry
+  name = calc_dry_ideal_gas_density
   type = scheme
 [ccpp-arg-table]
-  name = pres_to_density_dry_run
+  name = calc_dry_ideal_gas_density_run
   type = scheme
 [ ncol ]
   standard_name = horizontal_loop_extent

@@ -10,8 +10,8 @@ module state_converters
   public :: temp_to_potential_temp_run
   public :: potential_temp_to_temp_run
 
-  ! Convert dry pressure to dry air density
-  public :: pres_to_density_dry_run
+  ! Calculate density from equation of state/ideal gas law
+  public :: calc_dry_ideal_gas_density_run
 
   ! Calculate exner
   public :: calc_exner_run
@@ -68,9 +68,9 @@ CONTAINS
     errmsg = ''
   end subroutine potential_temp_to_temp_run
 
-!> \section arg_table_pres_to_density_dry_run  Argument Table
-!! \htmlinclude pres_to_density_dry_run.html
-  subroutine pres_to_density_dry_run(ncol, nz, rair, pmiddry, temp, rho, errmsg, errflg)
+!> \section arg_table_calc_dry_ideal_gas_density_run  Argument Table
+!! \htmlinclude calc_dry_ideal_gas_density_run.html
+  subroutine calc_dry_ideal_gas_density_run(ncol, nz, rair, pmiddry, temp, rho, errmsg, errflg)
     integer,          intent(in)    :: ncol         ! Number of columns
     integer,          intent(in)    :: nz           ! Number of vertical levels
     real(kind_phys),  intent(in)    :: rair(:,:)   ! gas constant for dry air (J kg-1)
@@ -89,7 +89,7 @@ CONTAINS
     errmsg = ''
     errflg = 0
 
-  end subroutine pres_to_density_dry_run
+  end subroutine calc_dry_ideal_gas_density_run
 
 !> \section arg_table_calc_exner_run  Argument Table
 !! \htmlinclude calc_exner_run.html
