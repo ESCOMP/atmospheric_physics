@@ -6,12 +6,12 @@ module kessler
    private
    save
 
-   public :: kessler_run ! Main routine
    public :: kessler_init ! init routine
+   public :: kessler_run  ! main routine
 
    ! Private module data (constants set at initialization)
    real(kind_phys) :: lv    ! latent heat of vaporization, J/kg
-   real(kind_phys) :: pref   ! reference pressure, hPa
+   real(kind_phys) :: pref  ! reference pressure, hPa
    real(kind_phys) :: rhoqr ! density of fresh liquid water, kg/m^3
 
 CONTAINS
@@ -106,9 +106,9 @@ CONTAINS
       real(kind_phys),  intent(in)    :: pk(:,:)    ! Exner function (p/p0)**(R/cp)
 
       real(kind_phys),  intent(inout) :: theta(:,:) ! Potential temperature (K)
-      real(kind_phys),  intent(inout) :: qv(:,:)    ! Water vapor mixing ratio (gm/gm)
-      real(kind_phys),  intent(inout) :: qc(:,:)    ! Cloud water mixing ratio (gm/gm)
-      real(kind_phys),  intent(inout) :: qr(:,:)    ! Rain  water mixing ratio (gm/gm)
+      real(kind_phys),  intent(inout) :: qv(:,:)    ! Water vapor mixing ratio wrt dry air (kg/kg)
+      real(kind_phys),  intent(inout) :: qc(:,:)    ! Cloud water mixing ratio wrt dry air (kg/kg)
+      real(kind_phys),  intent(inout) :: qr(:,:)    ! Rain water mixing ratio wrt dry air (kg/kg)
 
       real(kind_phys),  intent(out)   :: precl(:)   ! Precipitation rate (m_water / s)
 
