@@ -70,7 +70,7 @@ CONTAINS
 
 !> \section arg_table_calc_dry_air_ideal_gas_density_run  Argument Table
 !! \htmlinclude calc_dry_air_ideal_gas_density_run.html
-  subroutine calc_dry_ideal_gas_density_run(ncol, nz, rair, pmiddry, temp, rho, errmsg, errflg)
+  subroutine calc_dry_air_ideal_gas_density_run(ncol, nz, rair, pmiddry, temp, rho, errmsg, errflg)
     integer,          intent(in)    :: ncol         ! Number of columns
     integer,          intent(in)    :: nz           ! Number of vertical levels
     real(kind_phys),  intent(in)    :: rair(:,:)   ! gas constant for dry air (J kg-1)

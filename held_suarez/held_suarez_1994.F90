@@ -49,10 +49,12 @@ contains
 !> \section arg_table_held_suarez_1994_init Argument Table
 !! \htmlinclude held_suarez_1994_init.html
   subroutine held_suarez_1994_init(pref_in, errmsg, errflg)
+
     !! Dummy arguments
-    real(kind_phys),   intent(in) :: pref_mid_norm_in(:)
-    character(len=512),intent(out):: errmsg
-    integer,           intent(out):: errflg
+    real(kind_phys),    intent(in)  :: pref_in
+
+    character(len=512), intent(out) :: errmsg
+    integer,            intent(out) :: errflg
 
     errmsg = ' '
     errflg = 0
@@ -63,8 +65,8 @@ contains
 
 !> \section arg_table_held_suarez_1994_run Argument Table
 !! \htmlinclude held_suarez_1994_run.html
-  subroutine held_suarez_1994_run(pver, ncol, pref_mid_norm, clat, &
-       cappa, cpair, pmid, u, v, t, du, dv, s, scheme_name, errmsg, errflg)
+  subroutine held_suarez_1994_run(pver, ncol, pref_mid_norm, clat, cappa, &
+       cpair, pmid, uwnd, vwnd, temp, du, dv, ds, scheme_name, errmsg, errflg)
 
     !
     ! Input arguments
@@ -76,15 +78,15 @@ contains
     real(kind_phys), intent(in)  :: cappa(:,:)       ! ratio of dry air gas constant to specific heat at constant pressure
     real(kind_phys), intent(in)  :: cpair(:,:)       ! specific heat of dry air at constant pressure
     real(kind_phys), intent(in)  :: pmid(:,:)        ! mid-point pressure
-    real(kind_phys), intent(in)  :: u(:,:)           ! Zonal wind (m/s)
-    real(kind_phys), intent(in)  :: v(:,:)           ! Meridional wind (m/s)
-    real(kind_phys), intent(in)  :: t(:,:)           ! Temperature (K)
+    real(kind_phys), intent(in)  :: uwnd(:,:)        ! Zonal wind (m/s)
+    real(kind_phys), intent(in)  :: vwnd(:,:)        ! Meridional wind (m/s)
+    real(kind_phys), intent(in)  :: temp(:,:)        ! Temperature (K)
     !
     ! Output arguments
     !
     real(kind_phys),   intent(out) :: du(:,:)   ! Zonal wind tend
     real(kind_phys),   intent(out) :: dv(:,:)   ! Meridional wind tend
-    real(kind_phys),   intent(out) :: s(:,:)    ! Heating rate
+    real(kind_phys),   intent(out) :: ds(:,:)   ! Heating rate
     character(len=64), intent(out) :: scheme_name
     character(len=512),intent(out):: errmsg
     integer,           intent(out):: errflg
@@ -134,18 +136,18 @@ contains
     do k = 1, pver
       if (pref_mid_norm(k) > sigmab) then
         do i = 1, ncol
-          kt = ka + (ks - ka)*cossqsq(i)*(pref_mid_norm(k) - sigmab)/onemsig
+          kt      = ka + (ks - ka)*cossqsq(i)*(pref_mid_norm(k) - sigmab)/onemsig
           trefc   = 315._kind_phys - (60._kind_phys * sinsq(i))
-          trefa = (trefc - 10._kind_phys*cossq(i)*log((pmid(i,k)/pref)))*(pmid(i,k)/pref)**cappa(i,k)
-          trefa    = max(t00,trefa)
-          s(i,k) = (trefa - t(i,k))*kt*cpair(i,k)
+          trefa   = (trefc - 10._kind_phys*cossq(i)*log((pmid(i,k)/pref)))*(pmid(i,k)/pref)**cappa(i,k)
+          trefa   = max(t00,trefa)
+          ds(i,k) = (trefa - temp(i,k))*kt*cpair(i,k)
         end do
       else
         do i = 1, ncol
           trefc   = 315._kind_phys - 60._kind_phys*sinsq(i)
-          trefa = (trefc - 10._kind_phys*cossq(i)*log((pmid(i,k)/pref)))*(pmid(i,k)/pref)**cappa(i,k)
-          trefa    = max(t00,trefa)
-          s(i,k) = (trefa - t(i,k))*ka*cpair(i,k)
+          trefa   = (trefc - 10._kind_phys*cossq(i)*log((pmid(i,k)/pref)))*(pmid(i,k)/pref)**cappa(i,k)
+          trefa   = max(t00,trefa)
+          ds(i,k) = (trefa - temp(i,k))*ka*cpair(i,k)
         end do
       end if
     end do
@@ -160,8 +162,8 @@ contains
       if (pref_mid_norm(k) > sigmab) then
         kv  = kf*(pref_mid_norm(k) - sigmab)/onemsig
         do i = 1, ncol
-          du(i,k) = -kv*u(i,k)
-          dv(i,k) = -kv*v(i,k)
+          du(i,k) = -kv*uwnd(i,k)
+          dv(i,k) = -kv*vwnd(i,k)
         end do
       end if
     end do

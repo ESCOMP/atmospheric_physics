@@ -71,19 +71,19 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
-[ u ]
+[ uwnd ]
   standard_name = eastward_wind
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
-[ v ]
+[ vwnd ]
   standard_name = northward_wind
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
-[ t ]
+[ temp ]
   standard_name = air_temperature
   units = K
   type = real | kind = kind_phys
@@ -101,7 +101,7 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = out
-[ s ]
+[ ds ]
   standard_name = heating_rate
   units = J kg-1 s-1
   type = real | kind = kind_phys

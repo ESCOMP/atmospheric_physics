@@ -3,7 +3,6 @@ module qneg
    !   -- will not be ported back to CAM6 --
 
    use ccpp_kinds,                only: kind_phys
-   use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
 !!XXgoldyXX: v Reinstate when history is implemented
 #if 0
    use cam_history_support, only: max_fieldname_len
@@ -57,7 +56,6 @@ CONTAINS
    !! \htmlinclude qneg_init.html
    subroutine qneg_init(print_qneg_warn, num_constituents_in,        &
         errcode, errmsg)
-      use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
       !use cam_history,    only: addfld, horiz_only
 
       character(len=*),                    intent(in)  :: print_qneg_warn
@@ -170,9 +168,7 @@ CONTAINS
 
    !> \section arg_table_qneg_run Argument Table
    !! \htmlinclude qneg_run.html
-   subroutine qneg_run(subnam, num_columns, lver, num_constituents,  &
-        qmin, q, errcode, errmsg)
-      use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
+   subroutine qneg_run(subnam, num_columns, lver, qmin, q, errcode, errmsg)
 !!XXgoldyXX: v Reinstate when history is implemented
 #if 0
       use cam_history, only: outfld
@@ -198,8 +194,6 @@ CONTAINS
       integer,                           intent(in)    :: num_columns
       ! lver: Number of vertical levels in column
       integer,                           intent(in)    :: lver
-      ! num_constituents: Number of constituents
-      integer,                           intent(in)    :: num_constituents
       ! qmin: Global minimum constituent concentration
       real(kind_phys),                   intent(in)    :: qmin(:)
       ! q: The array of constituents
@@ -238,7 +232,7 @@ CONTAINS
          index = -1
       end if
 
-      do m = 1, num_constituent             s
+      do m = 1, num_constituents
          nvals = 0
          found = .false.
          worst = worst_reset
@@ -372,7 +366,8 @@ CONTAINS
             do m = 1, num_constituents
                if ( (global_warn_num(m) > 0) .and.                            &
                     (abs(global_warn_worst(m)) > tol)) then
-                  call qprops(m)%standard_name(cnst_name, ierr, errmsg)
+                  call qprops(m)%standard_name(cnst_name, errcode=ierr,       &
+                                               errmsg=errmsg)
                   write(iulog, 9100) trim(qneg_warn_labels(index)),           &
                        trim(cnst_name), global_warn_num(m),                   &
                        global_warn_worst(m)

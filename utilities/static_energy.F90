@@ -51,4 +51,4 @@ CONTAINS
 
    end subroutine update_dry_static_energy_run
 
-end module physics_tendency_updaters
+end module static_energy

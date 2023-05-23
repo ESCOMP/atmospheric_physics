@@ -86,7 +86,7 @@ CONTAINS
 
       do klev = 1, nz
          temp(:, klev) = temp(:, klev) + (heating_rate(:, klev) * dt / cpair(:, klev))
-         dTdt_total(:, klev) = dTdt_total(:, klev) + (heating_rate(:, klev) / cpair)
+         dTdt_total(:, klev) = dTdt_total(:, klev) + (heating_rate(:, klev) / cpair(:,klev))
       end do
 
    end subroutine apply_heating_rate_run
