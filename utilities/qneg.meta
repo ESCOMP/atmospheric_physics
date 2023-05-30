@@ -12,7 +12,7 @@
   dimensions = ()
   intent = in
 [ num_constituents_in ]
-  standard_name = ccpp_num_constituents
+  standard_name = number_of_ccpp_constituents
   units = count
   type = integer
   dimensions = ()
@@ -54,22 +54,22 @@
   dimensions = ()
   intent = in
 [ num_constituents ]
-  standard_name = ccpp_num_constituents
+  standard_name = number_of_ccpp_constituents
   units = count
   type = integer
   dimensions = ()
   intent = in
 [ qmin ]
-  standard_name = ccpp_constituent_array_minimum_values
+  standard_name = ccpp_constituent_minimum_values
   units = kg kg-1
   type = real | kind = kind_phys
-  dimensions = (ccpp_num_constituents)
+  dimensions = (number_of_ccpp_constituents)
   intent = in
 [ q ]
-  standard_name = ccpp_constituent_array
+  standard_name = ccpp_constituents
   units = kg kg-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension,vertical_layer_dimension,ccpp_num_constituents)
+  dimensions = (horizontal_dimension,vertical_layer_dimension,number_of_ccpp_constituents)
   intent = inout
 [ errcode ]
   standard_name = ccpp_error_code
@@ -102,7 +102,7 @@
   dimensions = ()
   intent = in
 [ isrootproc ]
-  standard_name = is_mpi_root
+  standard_name = flag_for_mpi_root
   units = flag
   type = logical
   dimensions = ()
@@ -120,10 +120,10 @@
   dimensions = ()
   intent = in
 [ qprops ]
-  standard_name = ccpp_constituent_properties_array
+  standard_name = ccpp_constituent_properties
   units = None
   type = ccpp_constituent_prop_ptr_t
-  dimensions = (ccpp_num_constituents)
+  dimensions = (number_of_ccpp_constituents)
   intent = in
 [ errcode ]
   standard_name = ccpp_error_code
@@ -156,7 +156,7 @@
   dimensions = ()
   intent = in
 [ isrootproc ]
-  standard_name = is_mpi_root
+  standard_name = flag_for_mpi_root
   units = flag
   type = logical
   dimensions = ()
@@ -168,10 +168,10 @@
   dimensions = ()
   intent = in
 [ qprops ]
-  standard_name = ccpp_constituent_properties_array
+  standard_name = ccpp_constituent_properties
   units = None
   type = ccpp_constituent_prop_ptr_t
-  dimensions = (ccpp_num_constituents)
+  dimensions = (number_of_ccpp_constituents)
   intent = in
 [ errcode ]
   standard_name = ccpp_error_code
