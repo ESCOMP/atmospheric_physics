@@ -42,6 +42,12 @@
   dimensions = ()
   type = integer
   intent = in
+[ ncnst ]
+  standard_name = number_of_ccpp_constituents
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
 [ piln ]
   standard_name = ln_air_pressure_at_interface
   long_name = natural log of air_pressure_at_interface
@@ -86,6 +92,18 @@
   type = real | kind = kind_phys
   units = kg kg-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ carr ]
+  standard_name = ccpp_constituents
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension,vertical_layer_dimension,number_of_ccpp_constituents)
+  intent = inout
+[ cprops ]
+  standard_name = ccpp_constituent_properties
+  units = None
+  type = ccpp_constituent_prop_ptr_t
+  dimensions = (number_of_ccpp_constituents)
   intent = in
 [ rair ]
   standard_name = composition_dependent_gas_constant_of_dry_air
