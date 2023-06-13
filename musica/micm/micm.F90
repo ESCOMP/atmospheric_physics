@@ -34,21 +34,21 @@ contains
 
    !> \section arg_table_micm_init Argument Table
    !! \htmlinclude micm_init.html
-   subroutine micm_init(filepath, errmsg, errflg)
+   subroutine micm_init(filename_of_micm_configuration, errmsg, errflg)
       ! Arguments
       character(len=512), intent(out)  :: errmsg
       integer, intent(out)             :: errflg
-      character(len=*), intent(in)     :: filepath
+      character(len=*), intent(in)     :: filename_of_micm_configuration
 
       ! Local variables
       type(c_funptr)                   :: csolver_func_pointer
       ! Convert Fortran character array to C character array
-      character(len=len(filepath)+1, kind=c_char) :: c_filepath
+      character(len=len(filename_of_micm_configuration)+1, kind=c_char) :: c_filepath
 
       errmsg = ''
       errflg = 0
 
-      c_filepath = transfer(filepath, c_filepath)
+      c_filepath = transfer(filename_of_micm_configuration, c_filepath)
 
       csolver_func_pointer = get_solver(c_filepath)
       call c_f_procpointer(csolver_func_pointer, fsolver)
@@ -56,10 +56,9 @@ contains
 
    !> \section arg_table_micm_run Argument Table
    !! \htmlinclude micm_run.html
-   subroutine micm_run(state, state_size, time_step, errmsg, errflg)
-      real(kind_phys), dimension(:), allocatable, intent(inout) :: state
-      integer, intent(in)                        :: state_size
-      integer, intent(in)                        :: time_step
+   subroutine micm_run(number_of_chemical_species, timestep_for_physics, errmsg, errflg)
+      integer, intent(in)                        :: number_of_chemical_species
+      integer, intent(in)                        :: timestep_for_physics
       character(len=512), intent(out)                       :: errmsg
       integer,            intent(out)                       :: errflg
 
@@ -70,14 +69,14 @@ contains
       errflg = 0
 
       ! Allocate and convert the state array to c_double
-      allocate(state_cdouble(state_size))
-      state_cdouble = transfer(state, state_cdouble)
+      allocate(state_cdouble(number_of_chemical_species))
+      state_cdouble = 1
 
       ! call fsolver(state, state_size, time_step)
-      call fsolver(state_cdouble, int(state_size, c_int64_t), int(time_step, c_int64_t))
+      call fsolver(state_cdouble, int(number_of_chemical_species, c_int64_t), int(timestep_for_physics, c_int64_t))
 
-      state = state_cdouble
-
+      print *, "new state", state_cdouble
+      
       ! Deallocate the temporary array
       deallocate(state_cdouble)
 
