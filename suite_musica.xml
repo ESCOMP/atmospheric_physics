@@ -2,6 +2,6 @@
 
 <suite name="musica" version="1.0">
   <group name="physics">
-    <scheme>musica</scheme>
+    <scheme>micm</scheme>
   </group>
 </suite>
