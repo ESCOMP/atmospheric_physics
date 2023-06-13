@@ -5,20 +5,20 @@
 [ccpp-arg-table]
   name  = micm_init
   type  = scheme
-[ filepath ]
-  standard_name = enter_standard_name_3
-  units = enter_units
+[ filename_of_micm_configuration ]
+  standard_name = filename_of_micm_configuration
+  units = unitless
   type = character | kind = len=*
   dimensions = ()
   intent = in
 [ errmsg ]
-  standard_name = enter_standard_name_1
+  standard_name = errmsg
   units = enter_units
   type = character | kind = len=512
   dimensions = ()
   intent = out
 [ errflg ]
-  standard_name = enter_standard_name_2
+  standard_name = errflg
   units = enter_units
   type = integer
   dimensions = ()
@@ -27,32 +27,26 @@
 [ccpp-arg-table]
   name  = micm_run
   type  = scheme
-[ state ]
-  standard_name = enter_standard_name_4
-  units = enter_units
-  type = real | kind = kind_phys
-  dimensions = (enter_standard_name_9:enter_standard_name_10)
-  intent = inout
-[ state_size ]
-  standard_name = enter_standard_name_5
+[ number_of_chemical_species ]
+  standard_name = number_of_chemical_species
   units = enter_units
   type = integer
   dimensions = ()
   intent = in
-[ time_step ]
-  standard_name = enter_standard_name_6
+[ timestep_for_physics ]
+  standard_name = timestep_for_physics
   units = enter_units
   type = integer
   dimensions = ()
   intent = in
 [ errmsg ]
-  standard_name = enter_standard_name_7
+  standard_name = errmsg
   units = enter_units
   type = character | kind = len=512
   dimensions = ()
   intent = out
 [ errflg ]
-  standard_name = enter_standard_name_8
+  standard_name = errflg
   units = enter_units
   type = integer
   dimensions = ()
