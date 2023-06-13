@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<suite name="musica" version="1.0">
+<suite name="micm" version="1.0">
   <group name="physics">
     <scheme>musica/micm</scheme>
   </group>
