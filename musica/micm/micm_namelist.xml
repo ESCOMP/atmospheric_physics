@@ -75,10 +75,10 @@
      units
           This is CCPP unit specification of the variable (e.g., m s-1).
                                                                         -->
-<!-- Qneg Parameterization -->
+<!-- MICM configuration options -->
 
   <entry id="filename_of_micm_configuration">
-    <type>char*</type>
+    <type>char*512</type>
     <category>musica</category>
     <group>micm</group>
     <standard_name>filename_of_micm_configuration</standard_name>
