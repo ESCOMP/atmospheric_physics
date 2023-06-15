@@ -78,7 +78,7 @@
 <!-- Qneg Parameterization -->
 
   <entry id="filename_of_micm_configuration">
-    <type>character</type>
+    <type>character*</type>
     <category>musica</category>
     <group>micm</group>
     <standard_name>filename_of_micm_configuration</standard_name>
