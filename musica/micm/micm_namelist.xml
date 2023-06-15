@@ -86,7 +86,7 @@
      A conifugration file for the MICM chemical solver.
     </desc>
     <values>
-      <value>""</value>
+      <value>"/a/path"</value>
     </values>
   </entry>
 
