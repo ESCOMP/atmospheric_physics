@@ -5,9 +5,7 @@ module micm
 
    implicit none
 
-   ! use ccpp_kinds, only:  kind_phys
-   ! //TODO: figure out how to connect the test to ccpp to use their actual kind
-   integer, parameter :: kind_phys = kind(8)
+   use ccpp_kinds, only:  kind_phys
 
    private
    public :: micm_init, micm_run
