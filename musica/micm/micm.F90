@@ -57,10 +57,10 @@ contains
    !> \section arg_table_micm_run Argument Table
    !! \htmlinclude micm_run.html
    subroutine micm_run(ccpp_num_constituents, timestep_for_physics, errmsg, errflg)
-      integer, intent(in)                        :: ccpp_num_constituents
-      integer, intent(in)                        :: timestep_for_physics
-      character(len=512), intent(out)                       :: errmsg
-      integer,            intent(out)                       :: errflg
+      integer, intent(in)              :: ccpp_num_constituents
+      real(kind=kind_phys), intent(in) :: timestep_for_physics
+      character(len=512), intent(out)  :: errmsg
+      integer,            intent(out)  :: errflg
 
       ! Declare a temporary array of type c_double
       real(c_double), dimension(:), allocatable :: state_cdouble

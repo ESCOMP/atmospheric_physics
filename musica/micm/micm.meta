@@ -7,7 +7,7 @@
   type  = scheme
 [ filename_of_micm_configuration ]
   standard_name = filename_of_micm_configuration
-  units = unitless
+  units = enter_units
   type = character | kind = len=*
   dimensions = ()
   intent = in
@@ -36,7 +36,7 @@
 [ timestep_for_physics ]
   standard_name = timestep_for_physics
   units = enter_units
-  type = integer
+  type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ errmsg ]
