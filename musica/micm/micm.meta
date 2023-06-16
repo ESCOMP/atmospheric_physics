@@ -27,8 +27,8 @@
 [ccpp-arg-table]
   name  = micm_run
   type  = scheme
-[ number_of_chemical_species ]
-  standard_name = number_of_chemical_species
+[ ccpp_num_constituents ]
+  standard_name = ccpp_num_constituents
   units = enter_units
   type = integer
   dimensions = ()

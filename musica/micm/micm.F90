@@ -56,8 +56,8 @@ contains
 
    !> \section arg_table_micm_run Argument Table
    !! \htmlinclude micm_run.html
-   subroutine micm_run(number_of_chemical_species, timestep_for_physics, errmsg, errflg)
-      integer, intent(in)                        :: number_of_chemical_species
+   subroutine micm_run(ccpp_num_constituents, timestep_for_physics, errmsg, errflg)
+      integer, intent(in)                        :: ccpp_num_constituents
       integer, intent(in)                        :: timestep_for_physics
       character(len=512), intent(out)                       :: errmsg
       integer,            intent(out)                       :: errflg
@@ -69,11 +69,11 @@ contains
       errflg = 0
 
       ! Allocate and convert the state array to c_double
-      allocate(state_cdouble(number_of_chemical_species))
+      allocate(state_cdouble(ccpp_num_constituents))
       state_cdouble = 1
 
       ! call fsolver(state, state_size, time_step)
-      call fsolver(state_cdouble, int(number_of_chemical_species, c_int64_t), int(timestep_for_physics, c_int64_t))
+      call fsolver(state_cdouble, int(ccpp_num_constituents, c_int64_t), int(timestep_for_physics, c_int64_t))
 
       print *, "new state", state_cdouble
       
