@@ -2,10 +2,9 @@
 !! \htmlinclude micm.html
 module micm
    use iso_c_binding
+   use ccpp_kinds, only:  kind_phys
 
    implicit none
-
-   use ccpp_kinds, only:  kind_phys
 
    private
    public :: micm_init, micm_run
