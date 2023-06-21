@@ -140,7 +140,7 @@ CONTAINS
             do klyr = layer_surf, layer_toa, lyr_step
                do icol = 1, ncol
                   !Add thermodynamically active species to mixing ratio factor:
-                  qfac(icol, k)lyr = qfac(icol, klyr) - carr(icol, klyr, cidx)
+                  qfac(icol, klyr) = qfac(icol, klyr) - carr(icol, klyr, cidx)
                end do
             end do
          end if
@@ -177,7 +177,7 @@ CONTAINS
             do icol = 1, ncol
                hkl(icol) = piln(icol, kint-int_step) - piln(icol,kint)
                hkk(icol) = 1._kind_phys -                                     &
-                    (pint(icol,kint) * hkl(icol) * rpdel(icol,klyr))
+                    (pint(icol,kint) * hkl(icol) * rpdel(icol,kyr))
             end do
          else
             do icol = 1,ncol
@@ -189,8 +189,9 @@ CONTAINS
          ! Now compute tv, zm, zi
 
          do icol = 1, ncol
-            tvfac   = (1._kind_phys + (zvir(i,k) + 1._kind_phys) * q(i,k,1) * &
-                      qv(i,k)) * sum_dry_mixing_ratio(i,k)
+            tvfac   = (1._kind_phys + (zvir(icol,klyr) + 1._kind_phys) *      &
+                      qv(icol,klyr)*qfac(icol,klyr)) *                        &
+                      sum_dry_mixing_ratio(icol,klyr)
             tv      = temp(icol,klyr) * tvfac
 
             zm(icol,klyr) = zi(icol,kint-int_step) +                          &
