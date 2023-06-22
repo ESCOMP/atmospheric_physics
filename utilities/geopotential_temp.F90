@@ -1,4 +1,4 @@
-module geopotential_t
+module geopotential_temp
 
    !---------------------------------------------------------------------------
    ! Compute geopotential from temperature
@@ -19,14 +19,14 @@ module geopotential_t
    private
    save
 
-   public geopotential_t_run
+   public geopotential_temp_run
 
 CONTAINS
    !===========================================================================
 
    !> \section arg_table_geopotential_t_run  Argument Table
    !! \htmlinclude geopotential_t_run.html
-   subroutine geopotential_t_run(pver, lagrang, layer_surf, layer_toa,        &
+   subroutine geopotential_temp_run(pver, lagrang, layer_surf, layer_toa,        &
         interface_surf, interface_toa, ncnst, piln, pint, pmid, pdel, rpdel,  &
         temp, qv, carr, cprops, rair, gravit, zvir, zi, zm, ncol,             &
         errflg, errmsg)
@@ -136,7 +136,7 @@ CONTAINS
       do cidx = 1,ncnst
          !Check if constituent is thermodynamically active:
          call cprops(cidx)%is_thermo_active(active_flag)
-         if (active_flag)
+         if (active_flag) then
             do klyr = layer_surf, layer_toa, lyr_step
                do icol = 1, ncol
                   !Add thermodynamically active species to mixing ratio factor:
@@ -154,7 +154,7 @@ CONTAINS
       do cidx = 1,ncnst
          !Check if constituent is thermodynamically active:
          call cprops(cidx)%is_thermo_active(active_flag)
-         if (active_flag)
+         if (active_flag) then
             do klyr = layer_surf, layer_toa, lyr_step
                do icol = 1, ncol
                   sum_dry_mixing_ratio(icol, klyr) =                          &
@@ -177,7 +177,7 @@ CONTAINS
             do icol = 1, ncol
                hkl(icol) = piln(icol, kint-int_step) - piln(icol,kint)
                hkk(icol) = 1._kind_phys -                                     &
-                    (pint(icol,kint) * hkl(icol) * rpdel(icol,kyr))
+                    (pint(icol,kint) * hkl(icol) * rpdel(icol,klyr))
             end do
          else
             do icol = 1,ncol
@@ -202,6 +202,6 @@ CONTAINS
          klyr = klyr + lyr_step
       end do
 
-   end subroutine geopotential_t_run
+   end subroutine geopotential_temp_run
 
-end module geopotential_t
+end module geopotential_temp

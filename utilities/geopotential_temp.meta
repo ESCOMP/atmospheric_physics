@@ -1,8 +1,8 @@
 [ccpp-table-properties]
-  name = geopotential_t
+  name = geopotential_temp
   type = scheme
 [ccpp-arg-table]
-  name = geopotential_t_run
+  name = geopotential_temp_run
   type = scheme
 [ pver ]
   standard_name = vertical_layer_dimension
