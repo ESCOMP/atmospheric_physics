@@ -126,7 +126,7 @@ CONTAINS
      integer,          intent(in)  :: nz
      real(kind_phys),  intent(in)  :: pdel(:,:)    ! pressure thickness of layer (Pa)
      real(kind_phys),  intent(in)  :: pdeldry(:,:) ! dry air pressure thickness of layer (Pa)
-     real(kind_phys),  intent(in)  :: qv(:,:)      ! water vapor mixing ratio wrt moist air (kg/kg)
+     real(kind_phys),  intent(in)  :: qv(:,:)      ! water vapor mixing ratio wrt moist air + condensates (kg/kg)
      real(kind_phys),  intent(out) :: qv_dry(:,:)  ! water vapor mixing ratio wrt dry air (kg/kg)
      character(len=*), intent(out) :: errmsg
      integer,          intent(out) :: errflg
@@ -202,7 +202,7 @@ CONTAINS
      real(kind_phys),  intent(in)  :: pdel(:,:)     ! pressure thickness of layer (Pa)
      real(kind_phys),  intent(in)  :: pdeldry(:,:)  ! dry air pressure thickness of layer (Pa)
      real(kind_phys),  intent(in)  :: qv_dry(:,:)   ! water vapor mixing ratio wrt dry air (kg/kg)
-     real(kind_phys),  intent(out) :: qv(:,:)       ! water vapor mixing ratio wrt moist air (kg/kg)
+     real(kind_phys),  intent(out) :: qv(:,:)       ! water vapor mixing ratio wrt moist air + condensates (kg/kg)
      character(len=*), intent(out) :: errmsg
      integer,          intent(out) :: errflg
 

@@ -87,8 +87,8 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ qv ]
-  standard_name = mixing_ratio_of_vapor_wrt_moist_air
-  long_name = Ratio of the mass of water vapor to the mass of dry air plus water vapor
+  standard_name = water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
+  long_name = Ratio of the mass of water vapor to the mass of dry air plus water vapor and condensates
   type = real | kind = kind_phys
   units = kg kg-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
