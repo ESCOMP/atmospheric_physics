@@ -14,7 +14,7 @@
     <scheme>dry_to_wet_cloud_liquid_water</scheme>
     <scheme>dry_to_wet_rain</scheme>
     <scheme>kessler_update</scheme>
-    <scheme>geopotential_temp</scheme>
     <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
   </group>
 </suite>
