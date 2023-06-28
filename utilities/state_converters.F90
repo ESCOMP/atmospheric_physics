@@ -137,7 +137,7 @@ CONTAINS
      errmsg = ''
 
      do k = 1, nz
-       qv_dry(:ncol,k) = qv(:ncol,k) * pdel(:ncol,k) / pdeldry(:ncol,k)
+       qv_dry(:ncol,k) = qv(:ncol,k) * (pdel(:ncol,k) / pdeldry(:ncol,k))
      end do
 
   end subroutine wet_to_dry_water_vapor_run
@@ -162,7 +162,7 @@ CONTAINS
      errmsg = ''
 
      do k = 1, nz
-       qc_dry(:ncol,k) = qc(:ncol,k) * pdel(:ncol,k) / pdeldry(:ncol,k)
+       qc_dry(:ncol,k) = qc(:ncol,k) * (pdel(:ncol,k) / pdeldry(:ncol,k))
      end do
 
   end subroutine wet_to_dry_cloud_liquid_water_run
@@ -187,7 +187,7 @@ CONTAINS
      errmsg = ''
 
      do k = 1, nz
-       qr_dry(:ncol,k) = qr(:ncol,k) * pdel(:ncol,k) / pdeldry(:ncol,k)
+       qr_dry(:ncol,k) = qr(:ncol,k) * (pdel(:ncol,k) / pdeldry(:ncol,k))
      end do
 
   end subroutine wet_to_dry_rain_run
@@ -212,7 +212,7 @@ CONTAINS
      errmsg = ''
 
      do k = 1, nz
-       qv(:ncol,k) = qv_dry(:ncol,k) * pdeldry(:ncol,k) / pdel(:ncol,k)
+       qv(:ncol,k) = qv_dry(:ncol,k) * (pdeldry(:ncol,k) / pdel(:ncol,k))
      end do
 
   end subroutine dry_to_wet_water_vapor_run
@@ -237,7 +237,7 @@ CONTAINS
      errmsg = ''
 
      do k = 1, nz
-       qc(:ncol,k) = qc_dry(:ncol,k) * pdeldry(:ncol,k) / pdel(:ncol,k)
+       qc(:ncol,k) = qc_dry(:ncol,k) * (pdeldry(:ncol,k) / pdel(:ncol,k))
      end do
 
   end subroutine dry_to_wet_cloud_liquid_water_run
@@ -262,7 +262,7 @@ CONTAINS
      errmsg = ''
 
      do k = 1, nz
-       qr(:ncol,k) = qr_dry(:ncol,k) * pdeldry(:ncol,k) / pdel(:ncol,k)
+       qr(:ncol,k) = qr_dry(:ncol,k) * (pdeldry(:ncol,k) / pdel(:ncol,k))
      end do
 
   end subroutine dry_to_wet_rain_run
