@@ -78,7 +78,7 @@ contains
       ! call fsolver(state, state_size, time_step)
       call fsolver(state_cdouble, int(ccpp_num_constituents, c_int64_t), int(timestep_for_physics, c_int64_t))
 
-      print *, "new state", state_cdouble
+      write(log_output_unit,*), "new state", state_cdouble
       
       ! Deallocate the temporary array
       deallocate(state_cdouble)
