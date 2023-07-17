@@ -47,7 +47,7 @@
   intent = out
 [ errflg ]
   standard_name = errflg
-  units = enter_units
+  units = 1
   type = integer
   dimensions = ()
   intent = out
