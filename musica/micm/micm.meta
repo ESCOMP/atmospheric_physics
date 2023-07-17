@@ -7,7 +7,7 @@
   type  = scheme
 [ filename_of_micm_configuration ]
   standard_name = filename_of_micm_configuration
-  units = enter_units
+  units = none
   type = character | kind = len=*
   dimensions = ()
   intent = in
