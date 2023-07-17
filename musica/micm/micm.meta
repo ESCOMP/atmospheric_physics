@@ -13,7 +13,7 @@
   intent = in
 [ errmsg ]
   standard_name = errmsg
-  units = enter_units
+  units = none
   type = character | kind = len=512
   dimensions = ()
   intent = out
