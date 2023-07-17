@@ -29,7 +29,7 @@
   type  = scheme
 [ ccpp_num_constituents ]
   standard_name = ccpp_num_constituents
-  units = enter_units
+  units = count
   type = integer
   dimensions = ()
   intent = in
