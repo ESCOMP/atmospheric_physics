@@ -66,8 +66,14 @@ contains
       errflg = 0
 
       ! Allocate and convert the state array to c_double
-      allocate(state_cdouble(ccpp_num_constituents))
+      allocate(state_cdouble(ccpp_num_constituents), stat=errflg)
       state_cdouble = 1
+
+      ! Check if the allocation was successful
+      if (errflg /= 0) then
+         errmsg = "Failed to allocate memory to transfer the constituent concentrations to MICM."
+         return
+      endif
 
       ! call fsolver(state, state_size, time_step)
       call fsolver(state_cdouble, int(ccpp_num_constituents, c_int64_t), int(timestep_for_physics, c_int64_t))
