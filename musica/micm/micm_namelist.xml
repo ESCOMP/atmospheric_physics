@@ -84,7 +84,7 @@
     <standard_name>filename_of_micm_configuration</standard_name>
     <units>none</units>
     <desc>
-     A conifugration file for the MICM chemical solver.
+     A configuration file for the MICM chemical solver.
     </desc>
     <values>
       <value>/a/path</value>
