@@ -35,7 +35,7 @@
   intent = in
 [ timestep_for_physics ]
   standard_name = timestep_for_physics
-  units = enter_units
+  units = s
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
