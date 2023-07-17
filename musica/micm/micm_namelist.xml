@@ -73,7 +73,7 @@
           This is the CCPP Standard Name of the variable
 
      units
-          This is CCPP unit specification of the variable (e.g., m s-1).
+          This is the CCPP unit specification of the variable (e.g., m s-1).
                                                                         -->
 <!-- MICM configuration options -->
 
