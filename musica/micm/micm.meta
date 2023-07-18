@@ -39,6 +39,12 @@
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
+[ log_output_unit ]
+  standard_name = do_log_output
+  units = flag
+  type = logical
+  dimensions = ()
+  protected = True
 [ errmsg ]
   standard_name = errmsg
   units = none

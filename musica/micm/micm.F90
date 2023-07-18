@@ -53,9 +53,10 @@ contains
 
    !> \section arg_table_micm_run Argument Table
    !! \htmlinclude micm_run.html
-   subroutine micm_run(ccpp_num_constituents, timestep_for_physics, errmsg, errflg)
+   subroutine micm_run(ccpp_num_constituents, timestep_for_physics, log_output_unit, errmsg, errflg)
       integer, intent(in)              :: ccpp_num_constituents
       real(kind=kind_phys), intent(in) :: timestep_for_physics
+      logical, intent(in)              :: log_output_unit
       character(len=512), intent(out)  :: errmsg
       integer,            intent(out)  :: errflg
 
