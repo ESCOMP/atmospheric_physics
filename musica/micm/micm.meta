@@ -40,9 +40,9 @@
   dimensions = ()
   intent = in
 [ log_output_unit ]
-  standard_name = do_log_output
-  units = flag
-  type = logical
+  standard_name = log_output_unit
+  units = 1
+  type = integer
   dimensions = ()
   protected = True
 [ errmsg ]
