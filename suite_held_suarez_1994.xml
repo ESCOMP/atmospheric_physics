@@ -3,8 +3,8 @@
 <suite name="held_suarez_1994" version="1.0">
   <group name="physics">
     <scheme>held_suarez_1994</scheme>
-    <scheme>apply_tendency_of_x_wind</scheme>
-    <scheme>apply_tendency_of_y_wind</scheme>
+    <scheme>apply_tendency_of_eastward_wind</scheme>
+    <scheme>apply_tendency_of_northward_wind</scheme>
     <scheme>apply_heating_rate</scheme>
     <scheme>qneg</scheme>
     <scheme>geopotential_temp</scheme>

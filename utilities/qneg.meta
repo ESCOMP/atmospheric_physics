@@ -53,12 +53,6 @@
   type = integer
   dimensions = ()
   intent = in
-[ num_constituents ]
-  standard_name = number_of_ccpp_constituents
-  units = count
-  type = integer
-  dimensions = ()
-  intent = in
 [ qmin ]
   standard_name = ccpp_constituent_minimum_values
   units = kg kg-1
@@ -111,12 +105,6 @@
   standard_name = log_output_unit
   units = 1
   type = integer
-  dimensions = ()
-  intent = in
-[ log_output ]
-  standard_name = do_log_output
-  units = flag
-  type = logical
   dimensions = ()
   intent = in
 [ qprops ]

@@ -24,8 +24,8 @@ module geopotential_temp
 CONTAINS
    !===========================================================================
 
-   !> \section arg_table_geopotential_t_run  Argument Table
-   !! \htmlinclude geopotential_t_run.html
+   !> \section arg_table_geopotential_temp_run  Argument Table
+   !! \htmlinclude geopotential_temp_run.html
    subroutine geopotential_temp_run(pver, lagrang, layer_surf, layer_toa,        &
         interface_surf, interface_toa, ncnst, piln, pint, pmid, pdel, rpdel,  &
         temp, qv, carr, cprops, rair, gravit, zvir, zi, zm, ncol,             &
