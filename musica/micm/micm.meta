@@ -45,6 +45,7 @@
   type = integer
   dimensions = ()
   protected = True
+  intent = in
 [ errmsg ]
   standard_name = errmsg
   units = none
