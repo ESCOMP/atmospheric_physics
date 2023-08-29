@@ -6,7 +6,6 @@
     <scheme>apply_tendency_of_eastward_wind</scheme>
     <scheme>apply_tendency_of_northward_wind</scheme>
     <scheme>apply_heating_rate</scheme>
-    <scheme>qneg</scheme>
     <scheme>geopotential_temp</scheme>
   </group>
 </suite>

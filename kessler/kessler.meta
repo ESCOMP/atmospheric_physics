@@ -120,7 +120,7 @@
 [ qv ]
   standard_name = water_vapor_mixing_ratio_wrt_dry_air
   long_name = mass mixing ratio of water vapor / dry air
-  advected = true
+  advected = True
   units = kg kg-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real | kind = kind_phys
@@ -128,7 +128,7 @@
 [ qc ]
   standard_name = cloud_liquid_water_mixing_ratio_wrt_dry_air
   long_name = Mass mixing ratio of cloud liquid water / dry air
-  advected = true
+  advected = True
   units = kg kg-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real | kind = kind_phys
@@ -136,7 +136,7 @@
 [ qr ]
   standard_name = rain_mixing_ratio_wrt_dry_air
   long_name = Mass mixing ratio of rain / dry air
-  advected = true
+  advected = True
   units = kg kg-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real | kind = kind_phys
