@@ -4,7 +4,7 @@
   <group name="physics">
     <scheme>calc_exner</scheme>
     <scheme>temp_to_potential_temp</scheme>
-    <scheme>calc_dry_ideal_gas_density</scheme>
+    <scheme>calc_dry_air_ideal_gas_density</scheme>
     <scheme>wet_to_dry_water_vapor</scheme>
     <scheme>wet_to_dry_cloud_liquid_water</scheme>
     <scheme>wet_to_dry_rain</scheme>

@@ -98,8 +98,8 @@ CONTAINS
 
     integer,          intent(in)  :: ncol       ! Number of columns
     integer,          intent(in)  :: nz         ! Number of vertical levels
-    real(kind_phys),  intent(in)  :: rair(:,:)  ! Gas constant for dry air (J kg-1)
-    real(kind_phys),  intent(in)  :: cpair(:,:) ! Heat capacity at constant pressure (J kg-1)
+    real(kind_phys),  intent(in)  :: rair(:,:)  ! Gas constant for dry air (J kg-1 K-1)
+    real(kind_phys),  intent(in)  :: cpair(:,:) ! Heat capacity at constant pressure (J kg-1 K-1)
     real(kind_phys),  intent(in)  :: ref_pres   ! Reference pressure (Pa)
     real(kind_phys),  intent(in)  :: pmid(:,:)  ! Mid-point air pressure (Pa)
     real(kind_phys),  intent(out) :: exner(:,:) ! Exner function

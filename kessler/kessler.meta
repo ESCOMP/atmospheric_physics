@@ -19,7 +19,7 @@
   type = real | kind = kind_phys
   intent = in
 [ rhoqr_in ]
-  standard_name = fresh_liquid_water_density_at_0c
+  standard_name = density_of_fresh_liquid_water_at_0c
   long_name = density of fresh liquid water at 0C
   units = kg m-3
   dimensions = ()

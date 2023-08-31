@@ -120,7 +120,7 @@
   intent = in
 [ zvir ]
   standard_name = ratio_of_water_vapor_gas_constant_to_composition_dependent_dry_air_gas_constant_minus_one
-  units = -1
+  units = 1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real | kind = kind_phys
   intent = in
