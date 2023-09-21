@@ -81,13 +81,13 @@
   standard_name = composition_dependent_specific_heat_of_dry_air_at_constant_pressure
   units = J kg-1 K-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ rair ]
   standard_name = composition_dependent_gas_constant_of_dry_air
   units = J kg-1 K-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ rho ]
   standard_name = density_of_dry_air

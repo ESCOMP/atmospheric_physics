@@ -98,7 +98,7 @@
   standard_name = ccpp_constituents
   units = kg kg-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension,vertical_layer_dimension,number_of_ccpp_constituents)
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension,number_of_ccpp_constituents)
   intent = in
 [ cprops ]
   standard_name = ccpp_constituent_properties
