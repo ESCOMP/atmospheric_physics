@@ -159,7 +159,7 @@ CONTAINS
                do icol = 1, ncol
                   sum_dry_mixing_ratio(icol, klyr) =                          &
                   sum_dry_mixing_ratio(icol, klyr) +                          &
-                  carr(icol, klyr, cidx) * qfac(icol,klyr)
+                       carr(icol, klyr, cidx) * qfac(icol,klyr)
                end do
             end do
          end if
