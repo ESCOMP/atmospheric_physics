@@ -89,6 +89,7 @@ CONTAINS
       !---------------------------Local variables-----------------------------
       !
       logical                      :: active_flag     ! Flag for whether consitutent is thermodynamically active
+      logical                      :: water_flag      ! Flag for whether constituent is a water species
       integer                      :: icol            ! Horizontal index
       integer                      :: klyr            ! Vertical layer index
       integer                      :: kint            ! Vertical interface index
@@ -131,37 +132,49 @@ CONTAINS
       !
       ! Compute factor for converting wet to dry mixing ratio (eq.7)
       !
-      qfac = 1._kind_phys
+      qfac        = 1._kind_phys
       active_flag = .false.
+      water_flag  = .false.
       do cidx = 1,ncnst
-         !Check if constituent is thermodynamically active:
+         ! Check if constituent is thermodynamically active:
          call cprops(cidx)%is_thermo_active(active_flag)
          if (active_flag) then
-            do klyr = layer_surf, layer_toa, lyr_step
-               do icol = 1, ncol
-                  !Add thermodynamically active species to mixing ratio factor:
-                  qfac(icol, klyr) = qfac(icol, klyr) - carr(icol, klyr, cidx)
+            ! Check if consitutent is also a water species:
+            call cprops(cidx)%is_water_species(water_flag)
+            if (water_flag) then
+               do klyr = layer_surf, layer_toa, lyr_step
+                  do icol = 1, ncol
+                     ! Add thermodynamically active water species
+                     ! to mixing ratio factor:
+                     qfac(icol, klyr) = qfac(icol, klyr) -                    &
+                                        carr(icol, klyr, cidx)
+                  end do
                end do
-            end do
+            end if
          end if
       end do
       qfac = 1._kind_phys/qfac
 
-      ! Compute sum of thermodynamically active constituent
-      ! mixing ratios with respect to dry air:
+      ! Compute sum of thermodynamically active water
+      ! constituent mixing ratios with respect to dry air:
       sum_dry_mixing_ratio = 1._kind_phys
-      active_flag = .false.
+      active_flag          = .false.
+      water_flag           = .false.
       do cidx = 1,ncnst
          !Check if constituent is thermodynamically active:
          call cprops(cidx)%is_thermo_active(active_flag)
          if (active_flag) then
-            do klyr = layer_surf, layer_toa, lyr_step
-               do icol = 1, ncol
-                  sum_dry_mixing_ratio(icol, klyr) =                          &
-                  sum_dry_mixing_ratio(icol, klyr) +                          &
-                       carr(icol, klyr, cidx) * qfac(icol,klyr)
+            !Check if consitutent is also a water species:
+            call cprops(cidx)%is_water_species(water_flag)
+            if (water_flag) then
+               do klyr = layer_surf, layer_toa, lyr_step
+                  do icol = 1, ncol
+                     sum_dry_mixing_ratio(icol, klyr) =                       &
+                        sum_dry_mixing_ratio(icol, klyr) +                    &
+                        carr(icol, klyr, cidx) * qfac(icol,klyr)
+                  end do
                end do
-            end do
+            end if
          end if
       end do
       sum_dry_mixing_ratio(:,:) = 1._kind_phys/sum_dry_mixing_ratio(:,:)
