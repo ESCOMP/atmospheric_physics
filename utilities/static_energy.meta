@@ -2,17 +2,6 @@
 [ccpp-table-properties]
   name = update_dry_static_energy
   type = scheme
-
-[ccpp-arg-table]
-  name = update_dry_static_energy_init
-  type = scheme
-[ gravit_in ]
-  standard_name = gravitational_acceleration
-  units = m s-2
-  dimensions = ()
-  type = real | kind = kind_phys
-  intent = in
-
 [ccpp-arg-table]
   name = update_dry_static_energy_run
   type = scheme
@@ -22,6 +11,12 @@
   units = count
   dimensions = ()
   type = integer
+  intent = in
+[ gravit ]
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
+  dimensions = ()
+  type = real | kind = kind_phys
   intent = in
 [ temp ]
   standard_name = air_temperature
