@@ -1,91 +1,86 @@
 
 #######################
 Date/time of when script was run:
-2023-09-22 14:17:13.744163
+2023-10-09 13:43:57.056889
 #######################
 
 Non-dictionary standard names found in the following metadata files:
 
 --------------------------
 
-/glade/work/nusbaume/SE_projects/NCAR_atmospheric_physics_fork/held_suarez/held_suarez_1994.meta
+../NCAR_atmospheric_physics_fork/held_suarez/held_suarez_1994.meta
 
-    - tendency_of_eastward_wind
-    - heating_rate
-    - reference_pressure_in_atmosphere_layer_normalized_by_reference_pressure
-    - scheme_name
     - composition_dependent_specific_heat_of_dry_air_at_constant_pressure
+    - scheme_name
+    - reference_pressure_in_atmosphere_layer_normalized_by_reference_pressure
+    - heating_rate
+    - tendency_of_eastward_wind
     - composition_dependent_ratio_of_dry_air_gas_constant_to_specific_heat_of_dry_air_at_constant_pressure
     - tendency_of_northward_wind
 
 --------------------------
 
-/glade/work/nusbaume/SE_projects/NCAR_atmospheric_physics_fork/kessler/kessler_update.meta
+../NCAR_atmospheric_physics_fork/kessler/kessler_update.meta
 
     - composition_dependent_specific_heat_of_dry_air_at_constant_pressure
 
 --------------------------
 
-/glade/work/nusbaume/SE_projects/NCAR_atmospheric_physics_fork/kessler/kessler.meta
+../NCAR_atmospheric_physics_fork/kessler/kessler.meta
 
-    - density_of_dry_air
-    - density_of_fresh_liquid_water_at_0c
+    - composition_dependent_specific_heat_of_dry_air_at_constant_pressure
     - rain_mixing_ratio_wrt_dry_air
     - scheme_name
-    - composition_dependent_specific_heat_of_dry_air_at_constant_pressure
-    - composition_dependent_gas_constant_of_dry_air
+    - density_of_dry_air
 
 --------------------------
 
-/glade/work/nusbaume/SE_projects/NCAR_atmospheric_physics_fork/utilities/static_energy.meta
+../NCAR_atmospheric_physics_fork/utilities/static_energy.meta
 
     - composition_dependent_specific_heat_of_dry_air_at_constant_pressure
 
 --------------------------
 
-/glade/work/nusbaume/SE_projects/NCAR_atmospheric_physics_fork/utilities/physics_tendency_updaters.meta
+../NCAR_atmospheric_physics_fork/utilities/physics_tendency_updaters.meta
 
-    - tendency_of_northward_wind_due_to_model_physics
-    - tendency_of_eastward_wind
-    - heating_rate
+    - composition_dependent_specific_heat_of_dry_air_at_constant_pressure
     - tendency_of_eastward_wind_due_to_model_physics
-    - composition_dependent_specific_heat_of_dry_air_at_constant_pressure
+    - tendency_of_northward_wind_due_to_model_physics
+    - heating_rate
+    - tendency_of_eastward_wind
     - tendency_of_northward_wind
 
 --------------------------
 
-/glade/work/nusbaume/SE_projects/NCAR_atmospheric_physics_fork/utilities/qneg.meta
+../NCAR_atmospheric_physics_fork/utilities/qneg.meta
 
-    - flag_for_mpi_root
-    - print_qneg_warn
-    - ccpp_constituent_minimum_values
-    - ccpp_constituent_properties
     - scheme_name
-    - log_output_unit
     - ccpp_constituents
+    - flag_for_mpi_root
+    - ccpp_constituent_minimum_values
+    - print_qneg_warn
     - number_of_ccpp_constituents
-
---------------------------
-
-/glade/work/nusbaume/SE_projects/NCAR_atmospheric_physics_fork/utilities/geopotential_temp.meta
-
-    - geopotential_height_wrt_surface_at_interface
-    - lagrangian_vertical_coordinate
     - ccpp_constituent_properties
-    - ratio_of_water_vapor_gas_constant_to_composition_dependent_dry_air_gas_constant_minus_one
-    - composition_dependent_gas_constant_of_dry_air
-    - ccpp_constituents
-    - number_of_ccpp_constituents
+    - log_output_unit
 
 --------------------------
 
-/glade/work/nusbaume/SE_projects/NCAR_atmospheric_physics_fork/utilities/state_converters.meta
+../NCAR_atmospheric_physics_fork/utilities/geopotential_temp.meta
 
-    - density_of_dry_air
-    - cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water
-    - rain_mixing_ratio_wrt_dry_air
+    - ccpp_constituents
+    - geopotential_height_wrt_surface_at_interface
+    - number_of_ccpp_constituents
+    - ccpp_constituent_properties
+    - lagrangian_vertical_coordinate
+
+--------------------------
+
+../NCAR_atmospheric_physics_fork/utilities/state_converters.meta
+
     - rain_mixing_ratio_wrt_moist_air_and_condensed_water
     - composition_dependent_specific_heat_of_dry_air_at_constant_pressure
-    - composition_dependent_gas_constant_of_dry_air
+    - rain_mixing_ratio_wrt_dry_air
+    - density_of_dry_air
+    - cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water
 
 #######################
