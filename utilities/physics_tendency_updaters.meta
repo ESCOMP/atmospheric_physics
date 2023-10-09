@@ -1,8 +1,8 @@
 [ccpp-table-properties]
-  name = apply_tendency_of_x_wind
+  name = apply_tendency_of_eastward_wind
   type = scheme
 [ccpp-arg-table]
-  name = apply_tendency_of_x_wind_run
+  name = apply_tendency_of_eastward_wind_run
   type = scheme
 [ nz ]
   standard_name = vertical_layer_dimension
@@ -12,20 +12,19 @@
   dimensions = ()
   intent = in
 [ dudt ]
-  standard_name = tendency_of_x_wind
+  standard_name = tendency_of_eastward_wind
   units = m s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ u ]
-  standard_name = x_wind
+  standard_name = eastward_wind
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
-  state_variable = True
 [ dudt_total ]
-  standard_name = tendency_of_x_wind_due_to_model_physics
+  standard_name = tendency_of_eastward_wind_due_to_model_physics
   units = m s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -53,10 +52,10 @@
   intent = out
 #####################################################################
 [ccpp-table-properties]
-  name = apply_tendency_of_y_wind
+  name = apply_tendency_of_northward_wind
   type = scheme
 [ccpp-arg-table]
-  name = apply_tendency_of_y_wind_run
+  name = apply_tendency_of_northward_wind_run
   type = scheme
 [ nz ]
   standard_name = vertical_layer_dimension
@@ -66,20 +65,19 @@
   dimensions = ()
   intent = in
 [ dvdt ]
-  standard_name = tendency_of_y_wind
+  standard_name = tendency_of_northward_wind
   units = m s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ v ]
-  standard_name = y_wind
+  standard_name = northward_wind
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
-  state_variable = True
 [ dvdt_total ]
-  standard_name = tendency_of_y_wind_due_to_model_physics
+  standard_name = tendency_of_northward_wind_due_to_model_physics
   units = m s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -131,7 +129,6 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
-  state_variable = true
 [ dTdt_total ]
   standard_name = tendency_of_air_temperature_due_to_model_physics
   units = K s-1
@@ -146,9 +143,9 @@
   type = real | kind = kind_phys
   intent = in
 [ cpair ]
-  standard_name = specific_heat_of_dry_air_at_constant_pressure
+  standard_name = composition_dependent_specific_heat_of_dry_air_at_constant_pressure
   units = J kg-1 K-1
-  dimensions = ()
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real | kind = kind_phys
   intent = in
 [ errcode ]
@@ -191,7 +188,6 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
-  state_variable = true
 [ dTdt_total ]
   standard_name = tendency_of_air_temperature_due_to_model_physics
   units = K s-1

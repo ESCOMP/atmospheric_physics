@@ -20,21 +20,19 @@
   intent = in
 [ temp ]
   standard_name = air_temperature
-  state_variable = true
   units = K
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ exner ]
-  standard_name = inverse_exner_function_wrt_surface_pressure
-  long_name = inverse exner function w.r.t. surface pressure, (ps/p)^(R/cp)
-  state_variable = true
-  units = count
+  standard_name = dimensionless_exner_function
+  long_name = exner function
+  units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ theta ]
-  standard_name = potential_temperature
+  standard_name = air_potential_temperature
   long_name = potential temperature
   units = K
   type = real | kind = kind_phys
@@ -78,23 +76,21 @@
   dimensions = ()
   intent = in
 [ theta ]
-  standard_name = potential_temperature
+  standard_name = air_potential_temperature
   long_name = potential temperature
   units = K
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ exner ]
-  standard_name = inverse_exner_function_wrt_surface_pressure
-  long_name = inverse exner function w.r.t. surface pressure, (ps/p)^(R/cp)
-  state_variable = true
-  units = count
+  standard_name = dimensionless_exner_function
+  long_name = exner function
+  units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ temp ]
   standard_name = air_temperature
-  state_variable = true
   units = K
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -116,42 +112,10 @@
 
 #########################################################
 [ccpp-table-properties]
-  name = pres_to_density_dry
+  name = calc_dry_air_ideal_gas_density
   type = scheme
 [ccpp-arg-table]
-  name = pres_to_density_dry_init
-  type = scheme
-[ cpair ]
-  standard_name = specific_heat_of_dry_air_at_constant_pressure
-  units = J kg-1 K-1
-  dimensions = ()
-  type = real | kind = kind_phys
-  intent = in
-[ rair ]
-  standard_name = gas_constant_of_dry_air
-  long_name = long_name="ideal gas constant for dry air
-  units = J kg-1 K-1
-  dimensions = ()
-  type = real | kind = kind_phys
-  intent = in
-[ errmsg ]
-   standard_name = ccpp_error_message
-   long_name = Error message for error handling in CCPP
-   units = none
-   dimensions = ()
-   type = character | kind = len=*
-   intent = out
-[ errflg ]
-   standard_name = ccpp_error_code
-   long_name = Error flag for error handling in CCPP
-   units = 1
-   dimensions = ()
-   type = integer
-   intent = out
-
-#########################################################
-[ccpp-arg-table]
-  name = pres_to_density_dry_run
+  name = calc_dry_air_ideal_gas_density_run
   type = scheme
 [ ncol ]
   standard_name = horizontal_loop_extent
@@ -167,23 +131,28 @@
   dimensions = ()
   type = integer
   intent = in
+[ rair ]
+  standard_name = composition_dependent_gas_constant_of_dry_air
+  long_name = dry air gas constant
+  units = J kg-1 K-1
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  type = real | kind = kind_phys
+  intent = in
 [ pmiddry ]
   standard_name = air_pressure_of_dry_air
   long_name = Dry midpoint pressure
-  state_variable = true
   type = real | kind = kind_phys
   units = Pa
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ temp ]
   standard_name = air_temperature
-  state_variable = true
   units = K
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ rho ]
-   standard_name = dry_air_density
+   standard_name = density_of_dry_air
    long_name = dry air density
    units = kg m-3
    dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -209,25 +178,6 @@
   name = calc_exner
   type = scheme
 [ccpp-arg-table]
-  name = calc_exner_init
-  type = scheme
-[ errmsg ]
-   standard_name = ccpp_error_message
-   long_name = Error message for error handling in CCPP
-   units = none
-   dimensions = ()
-   type = character | kind = len=*
-   intent = out
-[ errflg ]
-   standard_name = ccpp_error_code
-   long_name = Error flag for error handling in CCPP
-   units = 1
-   dimensions = ()
-   type = integer
-   intent = out
-
-#########################################################
-[ccpp-arg-table]
   name = calc_exner_run
   type = scheme
 [ ncol ]
@@ -245,28 +195,33 @@
   dimensions = ()
   intent = in
 [ cpair ]
-  standard_name = specific_heat_of_dry_air_at_constant_pressure
+  standard_name = composition_dependent_specific_heat_of_dry_air_at_constant_pressure
   units = J kg-1 K-1
-  dimensions = ()
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real | kind = kind_phys
   intent = in
 [ rair ]
-  standard_name = gas_constant_of_dry_air
-  long_name = long_name="ideal gas constant for dry air
+  standard_name = composition_dependent_gas_constant_of_dry_air
+  long_name = ideal gas constant for dry air
   units = J kg-1 K-1
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  type = real | kind = kind_phys
+  intent = in
+[ ref_pres ]
+  standard_name = reference_pressure
+  long_name = reference pressure used in definition of potential temperature, Exner function, etc.
+  units = Pa
   dimensions = ()
   type = real | kind = kind_phys
   intent = in
 [ pmid ]
   standard_name = air_pressure
-  state_variable = true
   type = real | kind = kind_phys
   units = Pa
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ exner ]
-  standard_name = inverse_exner_function_wrt_surface_pressure
-  state_variable = true
+  standard_name = dimensionless_exner_function
   type = real | kind = kind_phys
   units = count
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -307,19 +262,20 @@
   type = integer
   intent = in
 [ pdel ]
-  standard_name = pressure_thickness
+  standard_name = air_pressure_thickness
   type = real | kind = kind_phys
   units = Pa
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ pdeldry ]
-  standard_name = pressure_thickness_of_dry_air
+  standard_name = air_pressure_thickness_of_dry_air
   type = real | kind = kind_phys
   units = Pa
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ qv ]
-  standard_name = specific_humidity
+  standard_name = water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
+  advected = True
   type = real | kind = kind_phys
   units = kg kg-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -367,20 +323,20 @@
   type = integer
   intent = in
 [ pdel ]
-  standard_name = pressure_thickness
+  standard_name = air_pressure_thickness
   type = real | kind = kind_phys
   units = Pa
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ pdeldry ]
-  standard_name = pressure_thickness_of_dry_air
+  standard_name = air_pressure_thickness_of_dry_air
   type = real | kind = kind_phys
   units = Pa
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ qc ]
-  standard_name = cloud_liquid_water_mixing_ratio_wrt_moist_air
-  long_name = Mass mixing ratio of cloud liquid water / moist_air
+  standard_name = cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water
+  long_name = Mass mixing ratio of cloud liquid water / moist_air + condensed water
   advected = True
   type = real | kind = kind_phys
   units = kg kg-1
@@ -429,27 +385,27 @@
   type = integer
   intent = in
 [ pdel ]
-  standard_name = pressure_thickness
+  standard_name = air_pressure_thickness
   type = real | kind = kind_phys
   units = Pa
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ pdeldry ]
-  standard_name = pressure_thickness_of_dry_air
+  standard_name = air_pressure_thickness_of_dry_air
   type = real | kind = kind_phys
   units = Pa
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ qr ]
-  standard_name = rain_water_mixing_ratio_wrt_moist_air
-  long_name = Mass mixing ratio of rain / moist air
+  standard_name = rain_mixing_ratio_wrt_moist_air_and_condensed_water
+  long_name = Mass mixing ratio of rain / moist air + condensed water
   advected = True
   type = real | kind = kind_phys
   units = kg kg-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ qr_dry ]
-  standard_name = rain_water_mixing_ratio_wrt_dry_air
+  standard_name = rain_mixing_ratio_wrt_dry_air
   long_name = Mass mixing ratio of rain / dry air
   type = real | kind = kind_phys
   units = kg kg-1
@@ -491,13 +447,13 @@
   type = integer
   intent = in
 [ pdel ]
-  standard_name = pressure_thickness
+  standard_name = air_pressure_thickness
   type = real | kind = kind_phys
   units = Pa
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ pdeldry ]
-  standard_name = pressure_thickness_of_dry_air
+  standard_name = air_pressure_thickness_of_dry_air
   type = real | kind = kind_phys
   units = Pa
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -510,7 +466,8 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ qv ]
-  standard_name = specific_humidity
+  standard_name = water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
+  advected = True
   type = real | kind = kind_phys
   units = kg kg-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -551,13 +508,13 @@
   type = integer
   intent = in
 [ pdel ]
-  standard_name = pressure_thickness
+  standard_name = air_pressure_thickness
   type = real | kind = kind_phys
   units = Pa
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ pdeldry ]
-  standard_name = pressure_thickness_of_dry_air
+  standard_name = air_pressure_thickness_of_dry_air
   type = real | kind = kind_phys
   units = Pa
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -570,8 +527,9 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ qc ]
-  standard_name = cloud_liquid_water_mixing_ratio_wrt_moist_air
+  standard_name = cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water
   long_name = Mass mixing ratio of cloud liquid water / moist air
+  advected = True
   type = real | kind = kind_phys
   units = kg kg-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -612,27 +570,28 @@
   type = integer
   intent = in
 [ pdel ]
-  standard_name = pressure_thickness
+  standard_name = air_pressure_thickness
   type = real | kind = kind_phys
   units = Pa
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ pdeldry ]
-  standard_name = pressure_thickness_of_dry_air
+  standard_name = air_pressure_thickness_of_dry_air
   type = real | kind = kind_phys
   units = Pa
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ qr_dry ]
-  standard_name = rain_water_mixing_ratio_wrt_dry_air
+  standard_name = rain_mixing_ratio_wrt_dry_air
   long_name = Mass mixing ratio of rain / dry air
   type = real | kind = kind_phys
   units = kg kg-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ qr ]
-  standard_name = rain_water_mixing_ratio_wrt_moist_air
+  standard_name = rain_mixing_ratio_wrt_moist_air_and_condensed_water
   long_name = Mass mixing ratio of rain / moist_air
+  advected = True
   type = real | kind = kind_phys
   units = kg kg-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

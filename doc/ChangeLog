@@ -1,0 +1,77 @@
+===============================================================
+
+Tag name: atmos_phys0_01_000
+Originator(s): nusbaume
+Date: 9 Sep 2023
+One-line Summary: Update standard and function names plus major code clean-up
+Github PR URL: https://github.com/NCAR/atmospheric_physics/pull/67
+
+Purpose of changes (include the issue number and title text for each relevant GitHub issue):
+
+The main purpose of this PR is to update the CCPP standard names to match the
+internal AMP agreed-upon names, as well as rename some of the physics routines
+to make them less ambigious and more accurate.  Along with these changes,
+significant code cleanup was performed along with some minor bug fixes,
+with the goal being to produce bit-for-bit results using the same repo
+version in both CAM and CAM-SIMA.
+
+This PR fixes the following NCAR/atmospheric_physics Github issues:
+
+#60 -> Required atmospheric physics updates
+#61 -> "calc_exner_run" routine should be given reference pressure argument
+#62 -> Need to update geopotential_t to use "generalized" virtual temperature
+#64 -> held_suarez_1994 SDF needs the geopotential_t scheme.
+
+Code reviewed by: cacraig, peverwhee, mwaxmonsky
+
+List all existing files that have been added (A), modified (M), or deleted (D),
+and describe the changes:
+
+A       doc/ChangeLog
+  - So future developers can know the development history
+M       held_suarez/held_suarez_1994.F90
+  - Code cleanup
+M       held_suarez/held_suarez_1994.meta
+  - Updated variable standard names and removed unused variables
+M       kessler/kessler.F90
+  - Code cleanup and bug fixes
+M       kessler/kessler.meta
+  - Updated variable standard names and did some metadata cleanup
+M       kessler/kessler_update.F90
+  - Code cleanup
+M       kessler/kessler_update.meta
+  - Updated variable standard names and did some metadata cleanup
+M       suite_held_suarez_1994.xml
+  - Updated scheme names, and modified scheme list to better match CAM
+M       suite_kessler.xml
+  - Updated scheme names
+D       utilities/geopotential_t.F90
+  - Replaced with utilities/geopotential_temp.F90
+A       utilities/geopotential_temp.F90
+  - New geopotential calculation routine which uses generalized virtual temperature,
+    i.e. all thermodynamically active species
+M       utilities/physics_tendency_updaters.F90
+  - Updated variable names and dimensioning
+M       utilities/physics_tendency_updaters.meta
+  - Updated variable standard names
+M       utilities/qneg.F90
+  - Code cleanup
+M       utilities/qneg.meta
+  - Updated variable standard names and removed unused variables
+M       utilities/state_converters.F90
+  - Code cleanup and updated variable/scheme names
+M       utilities/state_converters.meta
+  - Updated variable standard names and scheme names,
+    and removed unused variables.
+M       utilities/static_energy.F90
+  - Code cleanup and updated variable dimensioning
+M       utilities/static_energy.meta
+  - Updated variable standard names
+
+List and Describe any test failures: No known test failures.
+
+Summarize any changes to answers: bit-for-bit unchanged
+
+NOTE: This is the first ChangeLog Entry.  All previous modifications or additions
+      are solely described in the git log and Github PR documentation.
+===============================================================

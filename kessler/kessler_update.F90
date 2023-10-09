@@ -12,15 +12,13 @@ module kessler_update
 
    ! Private module variables
    real(kind_phys)    :: gravit
-   real(kind_phys)    :: cpair
 
 CONTAINS
 
    !> \section arg_table_kessler_update_init  Argument Table
    !! \htmlinclude kessler_update_init.html
-   subroutine kessler_update_init(gravit_in, cpair_in, errmsg, errflg)
+   subroutine kessler_update_init(gravit_in, errmsg, errflg)
       real(kind_phys),    intent(in)  :: gravit_in
-      real(kind_phys),    intent(in)  :: cpair_in
       character(len=512), intent(out) :: errmsg
       integer,            intent(out) :: errflg
 
@@ -28,7 +26,6 @@ CONTAINS
       errflg = 0
 
       gravit = gravit_in
-      cpair = cpair_in
 
    end subroutine kessler_update_init
 
@@ -54,22 +51,23 @@ CONTAINS
 
    !> \section arg_table_kessler_update_run  Argument Table
    !! \htmlinclude kessler_update_run.html
-   subroutine kessler_update_run(nz, ncol, temp, theta, exner, dt,      &
+   subroutine kessler_update_run(nz, ncol, dt, theta, exner,                  &
         temp_prev, ttend_t, errmsg, errflg)
 
       integer,            intent(in)    :: nz
       integer,            intent(in)    :: ncol
-      real(kind_phys),    intent(in)    :: temp(:,:) ! temperature
-      real(kind_phys),    intent(in)    :: exner(:,:)
-      real(kind_phys),    intent(in)    :: dt
+      real(kind_phys),    intent(in)    :: dt             !time step
+      real(kind_phys),    intent(in)    :: theta(:,:)     !potential temperature
+      real(kind_phys),    intent(in)    :: exner(:,:)     !Exner function
+      real(kind_phys),    intent(in)    :: temp_prev(:,:) !air temperature before kessler physics
 
-      real(kind_phys),    intent(inout) :: theta(:,:)
-      real(kind_phys),    intent(inout) :: temp_prev(:,:)
-      real(kind_phys),    intent(inout) :: ttend_t(:,:)
+      real(kind_phys),    intent(inout) :: ttend_t(:,:)   !total air temperature tendency due to
+                                                          !kessler physics
 
       character(len=512), intent(out)   :: errmsg
       integer,            intent(out)   :: errflg
 
+      !Local variables
       integer                           :: klev
       real(kind_phys)                   :: new_temp(ncol)
 
@@ -86,12 +84,13 @@ CONTAINS
 
    !> \section arg_table_kessler_update_timestep_final  Argument Table
    !! \htmlinclude kessler_update_timestep_final.html
-   subroutine kessler_update_timestep_final(nz, temp, zm, phis, st_energy,    &
+   subroutine kessler_update_timestep_final(nz, cpair, temp, zm, phis, st_energy, &
         errflg, errmsg)
 
       ! Dummy arguments
       integer,            intent(in)    :: nz
-      real(kind_phys),    intent(in)    :: temp(:,:) ! temperature
+      real(kind_phys),    intent(in)    :: cpair(:,:) ! Specific_heat_of_dry_air_at_constant_pressure (J/kg/K)
+      real(kind_phys),    intent(in)    :: temp(:,:)  ! Temperature
       real(kind_phys),    intent(in)    :: zm(:,:)
       real(kind_phys),    intent(in)    :: phis(:)
       real(kind_phys),    intent(out)   :: st_energy(:,:)
@@ -106,7 +105,7 @@ CONTAINS
       errflg = 0
 
       do klev = 1, nz
-         st_energy(:,klev) = (temp(:,klev) * cpair) + (gravit * zm(:,klev)) + &
+         st_energy(:,klev) = (temp(:,klev) * cpair(:,klev)) + (gravit * zm(:,klev)) + &
               phis(:)
       end do
 

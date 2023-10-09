@@ -12,16 +12,10 @@
   dimensions = ()
   intent = in
 [ num_constituents_in ]
-  standard_name = ccpp_num_constituents
+  standard_name = number_of_ccpp_constituents
   units = count
   type = integer
   dimensions = ()
-  intent = in
-[ qprops ]
-  standard_name = ccpp_constituent_properties_array
-  units = None
-  type = ccpp_constituent_prop_ptr_t
-  dimensions = (ccpp_num_constituents)
   intent = in
 [ errcode ]
   standard_name = ccpp_error_code
@@ -43,18 +37,12 @@
   type  = scheme
 [ subnam ]
   standard_name = scheme_name
-  units = 1
+  units = none
   type = character | kind = len=*
   dimensions = ()
   intent = in
-[ loop_begin ]
-  standard_name = horizontal_loop_begin
-  units = count
-  type = integer
-  dimensions = ()
-  intent = in
-[ loop_end ]
-  standard_name = horizontal_loop_end
+[ num_columns ]
+  standard_name = horizontal_loop_extent
   units = count
   type = integer
   dimensions = ()
@@ -65,30 +53,17 @@
   type = integer
   dimensions = ()
   intent = in
-[ num_constituents ]
-  standard_name = ccpp_num_constituents
-  units = count
-  type = integer
-  dimensions = ()
-  intent = in
 [ qmin ]
-  standard_name = ccpp_constituent_array_minimum_values
+  standard_name = ccpp_constituent_minimum_values
   units = kg kg-1
   type = real | kind = kind_phys
-  dimensions = (ccpp_num_constituents)
-  intent = in
-[ qprops ]
-  standard_name = ccpp_constituent_properties_array
-  units = None
-  type = ccpp_constituent_prop_ptr_t
-  dimensions = (ccpp_num_constituents)
+  dimensions = (number_of_ccpp_constituents)
   intent = in
 [ q ]
-  standard_name = ccpp_constituent_array
+  standard_name = ccpp_constituents
   units = kg kg-1
-  state_variable = true
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension,vertical_layer_dimension,ccpp_num_constituents)
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension,number_of_ccpp_constituents)
   intent = inout
 [ errcode ]
   standard_name = ccpp_error_code
@@ -121,7 +96,7 @@
   dimensions = ()
   intent = in
 [ isrootproc ]
-  standard_name = is_mpi_root
+  standard_name = flag_for_mpi_root
   units = flag
   type = logical
   dimensions = ()
@@ -132,17 +107,11 @@
   type = integer
   dimensions = ()
   intent = in
-[ log_output ]
-  standard_name = do_log_output
-  units = flag
-  type = logical
-  dimensions = ()
-  intent = in
 [ qprops ]
-  standard_name = ccpp_constituent_properties_array
+  standard_name = ccpp_constituent_properties
   units = None
   type = ccpp_constituent_prop_ptr_t
-  dimensions = (ccpp_num_constituents)
+  dimensions = (number_of_ccpp_constituents)
   intent = in
 [ errcode ]
   standard_name = ccpp_error_code
@@ -175,7 +144,7 @@
   dimensions = ()
   intent = in
 [ isrootproc ]
-  standard_name = is_mpi_root
+  standard_name = flag_for_mpi_root
   units = flag
   type = logical
   dimensions = ()
@@ -186,17 +155,11 @@
   type = integer
   dimensions = ()
   intent = in
-[ log_output ]
-  standard_name = do_log_output
-  units = flag
-  type = logical
-  dimensions = ()
-  intent = in
 [ qprops ]
-  standard_name = ccpp_constituent_properties_array
+  standard_name = ccpp_constituent_properties
   units = None
   type = ccpp_constituent_prop_ptr_t
-  dimensions = (ccpp_num_constituents)
+  dimensions = (number_of_ccpp_constituents)
   intent = in
 [ errcode ]
   standard_name = ccpp_error_code
