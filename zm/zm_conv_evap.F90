@@ -5,8 +5,6 @@ module zm_conv_evap_mod
 ! CACNOTE - Need to ccpp'ize cloud_fraction
   use cloud_fraction,  only: cldfrc_fice
 
-  use zm_conv_common,  only: cpres, ke, ke_lnd, zm_org
-
   implicit none
 
   save
@@ -25,6 +23,7 @@ contains
 !!
 subroutine zm_conv_evap_run(ncol, pcols, pver, pverp, &
      gravit, latice, latvap, tmelt, &
+     cpres, ke, ke_lnd, zm_org, &
      t,pmid,pdel,q, &
      landfrac, &
      tend_s, tend_s_snwprd, tend_s_snwevmlt, tend_q, &
@@ -51,6 +50,10 @@ subroutine zm_conv_evap_run(ncol, pcols, pver, pverp, &
     real(kind_phys),intent(in) :: latice                     ! Latent heat of fusion (J kg-1)
     real(kind_phys),intent(in) :: latvap                     ! Latent heat of vaporization (J kg-1)
     real(kind_phys),intent(in) :: tmelt                      ! Freezing point of water (K)
+    real(kind_phys), intent(in) :: cpres      ! specific heat at constant pressure in j/kg-degk.
+    real(kind_phys), intent(in) :: ke           ! Tunable evaporation efficiency set from namelist input zmconv_ke
+    real(kind_phys), intent(in) :: ke_lnd
+    logical, intent(in)         :: zm_org
     real(kind_phys),intent(in), dimension(:,:) :: t          ! temperature (K)                              (pcols,pver)
     real(kind_phys),intent(in), dimension(:,:) :: pmid       ! midpoint pressure (Pa)                       (pcols,pver)
     real(kind_phys),intent(in), dimension(:,:) :: pdel       ! layer thickness (Pa)                         (pcols,pver)

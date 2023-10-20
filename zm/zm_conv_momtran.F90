@@ -1,7 +1,6 @@
 module zm_conv_momtran_mod
 
   use ccpp_kinds, only:  kind_phys
-  use zm_conv_common,  only: momcu, momcd
 
   implicit none
 
@@ -18,6 +17,7 @@ contains
 !!
 subroutine zm_conv_momtran_run(ncol, pcols, pver, pverp, &
                     domomtran,q       ,ncnst   ,mu      ,md    , &
+                    momcu   , momcd, &
                     du      ,eu      ,ed      ,dp      ,dsubcld , &
                     jt      ,mx      ,ideep   ,il1g    ,il2g    , &
                     nstep   ,dqdt    ,pguall     ,pgdall, icwu, icwd, dt, seten    )
@@ -49,6 +49,8 @@ subroutine zm_conv_momtran_run(ncol, pcols, pver, pverp, &
    real(kind_phys), intent(in) :: q(:,:,:)  ! Wind array                                    (pcols,pver,ncnst)
    real(kind_phys), intent(in) :: mu(:,:)       ! Mass flux up                              (pcols,pver)
    real(kind_phys), intent(in) :: md(:,:)       ! Mass flux down                            (pcols,pver)
+   real(kind_phys), intent(in) :: momcu
+   real(kind_phys), intent(in) :: momcd
    real(kind_phys), intent(in) :: du(:,:)       ! Mass detraining from updraft              (pcols,pver)
    real(kind_phys), intent(in) :: eu(:,:)       ! Mass entraining from updraft              (pcols,pver)
    real(kind_phys), intent(in) :: ed(:,:)       ! Mass entraining from downdraft            (pcols,pver)
