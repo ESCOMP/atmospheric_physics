@@ -1,87 +1,79 @@
-module micm
+module micm_wrapper
+   ! Wrapper for MICM functionality
+
    use iso_c_binding
-   use ccpp_kinds, only:  kind_phys
-
+   use micm_core
+    ! use ccpp_kinds, only:  kind_phys  !TODO(jiwon) - do we need this?
+ 
    implicit none
-
+ 
    private
-   public :: micm_init, micm_run
+   public :: micm_init, micm_run, micm_final
+   
+   type(micm_t), pointer :: micm_ptr
+   
+   ! type :: micm_wrapper_t
+   !    private
+   !    type(micm_t),     pointer :: micm_
+   ! ! contains
+   ! !    final :: finalize
+   ! end type micm_wrapper_t
 
-   procedure(solver), pointer :: fsolver
+   ! type(micm_wrapper_t), allocatable :: micm_wrappers
 
-   interface
-
-      type(c_funptr) function get_solver(filepath) bind(c)
-         import :: c_char, c_funptr
-         character(len=1, kind=c_char), dimension(*), intent(in) :: filepath
-      end function get_solver
-
-      subroutine solver(state, state_size, time_step) bind(c)
-         import :: c_ptr, c_double, c_int64_t
-         real(c_double), dimension(*) :: state
-         integer(c_int64_t), value :: state_size
-         integer(c_int64_t), value :: time_step
-      end subroutine
-
-   end interface
-
-contains
-
+ contains
+ 
    !> \section arg_table_micm_init Argument Table
    !! \htmlinclude micm_init.html
-   subroutine micm_init(filename_of_micm_configuration, errmsg, errflg)
-      ! Arguments
+   subroutine micm_init(config_path, errmsg, errflg)
+      ! Initializes MICM objects by creating solvers from configure files
+
+      character(len=*), intent(in)     :: config_path
       character(len=512), intent(out)  :: errmsg
-      integer, intent(out)             :: errflg
-      character(len=*), intent(in)     :: filename_of_micm_configuration
-
-      ! Local variables
-      type(c_funptr)                   :: csolver_func_pointer
-      ! Convert Fortran character array to C character array
-      character(len=len(filename_of_micm_configuration)+1, kind=c_char) :: c_filepath
-
+      integer(c_size_t), intent(out)   :: errflg
+ 
       errmsg = ''
       errflg = 0
+      
+      ! Constructs MICM object
+      allocate(micm_ptr)
+      micm_ptr = micm_t(config_path)
+      
+      write(*,*) "  * [MICM wrapper] Created MICM solver "
 
-      c_filepath = transfer(filename_of_micm_configuration, c_filepath)
+      ! Creates solver
+      errflg = micm_ptr%create_solver()  ! TODO(jiwon)
 
-      csolver_func_pointer = get_solver(c_filepath)
-      call c_f_procpointer(csolver_func_pointer, fsolver)
+      ! allocate(micm_wrappers)
+      ! micm_wrappers%micm_ = micm_t(config_path)
+
    end subroutine micm_init
 
    !> \section arg_table_micm_run Argument Table
    !! \htmlinclude micm_run.html
-   subroutine micm_run(ccpp_num_constituents, timestep_for_physics, log_output_unit, errmsg, errflg)
-      integer, intent(in)              :: ccpp_num_constituents
-      real(kind=kind_phys), intent(in) :: timestep_for_physics
-      integer, intent(in)              :: log_output_unit
-      character(len=512), intent(out)  :: errmsg
-      integer,            intent(out)  :: errflg
-
-      ! Declare a temporary array of type c_double
-      real(c_double), dimension(:), allocatable :: state_cdouble
+   subroutine micm_run(temperature, pressure, time_step, concentrations, num_concentrations, errmsg, errflg)
+      real(c_double), intent(in) :: temperature
+      real(c_double), intent(in) :: pressure
+      real(c_double), intent(in) :: time_step
+      real(c_double), dimension(*), intent(inout) :: concentrations
+      integer(c_size_t), intent(in) :: num_concentrations
+      character(len=512), intent(out) :: errmsg
+      integer(c_size_t), intent(out) :: errflg
 
       errmsg = ''
       errflg = 0
 
-      ! Allocate and convert the state array to c_double
-      allocate(state_cdouble(ccpp_num_constituents), stat=errflg)
-      state_cdouble = 1
-
-      ! Check if the allocation was successful
-      if (errflg /= 0) then
-         errmsg = "Failed to allocate memory to transfer the constituent concentrations to MICM."
-         return
-      endif
-
-      ! call fsolver(state, state_size, time_step)
-      call fsolver(state_cdouble, int(ccpp_num_constituents, c_int64_t), int(timestep_for_physics, c_int64_t))
-
-      write(log_output_unit,*), "new state", state_cdouble
-      
-      ! Deallocate the temporary array
-      deallocate(state_cdouble)
+      write(*,*) "  * [MICM wrapper] Running MICM solver... "
+      call micm_ptr%solve(temperature, pressure, time_step, concentrations, num_concentrations)  ! TODO(jiwon): handling error
 
    end subroutine micm_run
+ 
+   subroutine micm_final()
+      write(*,*) "  * [MICM wrapper] Deallocating MICM object... "
+      call micm_ptr%delete()
+      deallocate(micm_ptr)
 
-end module micm
+   end subroutine micm_final
+
+ end module micm_wrapper
+ 
