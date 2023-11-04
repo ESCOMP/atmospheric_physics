@@ -70,7 +70,6 @@ module micm_wrapper
  
    subroutine micm_final()
       write(*,*) "  * [MICM wrapper] Deallocating MICM object... "
-      call micm_ptr%delete()
       deallocate(micm_ptr)
 
    end subroutine micm_final
