@@ -5,56 +5,101 @@
 [ccpp-arg-table]
   name  = micm_init
   type  = scheme
-[ filename_of_micm_configuration ]
+[ config_path ]
   standard_name = filename_of_micm_configuration
   units = none
   type = character | kind = len=*
   dimensions = ()
   intent = in
+[ iulog ]
+  standard_name = iulog
+  units = none
+  type = integer
+  dimensions = ()
+  intent = in
+[ errcode ]
+  standard_name = errcode
+  units = 1
+  type = integer | kind = c_size_t
+  dimensions = ()
+  intent = out
 [ errmsg ]
   standard_name = errmsg
   units = none
   type = character | kind = len=512
-  dimensions = ()
-  intent = out
-[ errflg ]
-  standard_name = errflg
-  units = 1
-  type = integer
   dimensions = ()
   intent = out
 
 [ccpp-arg-table]
   name  = micm_run
   type  = scheme
-[ ccpp_num_constituents ]
-  standard_name = ccpp_num_constituents
+[ temperature ]
+  standard_name = temperature
+  units = K
+  type = real | kind = c_double
+  dimensions = ()
+  intent = in
+[ pressure ]
+  standard_name = pressure
+  units = Pa
+  type = real | kind = c_double
+  dimensions = ()
+  intent = in
+[ time_step ]
+  standard_name = time_step
+  units = second
+  type = real | kind = c_double
+  dimensions = ()
+  intent = in
+[ concentrations ]
+  standard_name = concentrations
+  units = none
+  type = real | kind = c_double
+  dimensions = (enter_standard_name_13:enter_standard_name_14)
+  intent = inout
+[ num_concentrations ]
+  standard_name = num_concentrations
   units = count
+  type = integer | kind = c_size_t
+  dimensions = ()
+  intent = in
+[ iulog ]
+  standard_name = iulog
+  units = none
   type = integer
   dimensions = ()
   intent = in
-[ timestep_for_physics ]
-  standard_name = timestep_for_physics
-  units = s
-  type = real | kind = kind_phys
-  dimensions = ()
-  intent = in
-[ log_output_unit ]
-  standard_name = log_output_unit
+[ errcode ]
+  standard_name = errcode
   units = 1
-  type = integer
+  type = integer | kind = c_size_t
   dimensions = ()
-  protected = True
-  intent = in
+  intent = out
 [ errmsg ]
   standard_name = errmsg
   units = none
   type = character | kind = len=512
   dimensions = ()
   intent = out
-[ errflg ]
-  standard_name = errflg
-  units = 1
+
+[ccpp-arg-table]
+  name  = micm_final
+  type  = scheme
+[ iulog ]
+  standard_name = iulog
+  units = none
   type = integer
+  dimensions = ()
+  intent = in
+[ errcode ]
+  standard_name = errcode
+  units = 1
+  type = integer | kind = c_size_t
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = errmsg
+  units = none
+  type = character | kind = len=512
   dimensions = ()
   intent = out
