@@ -18,13 +18,13 @@
   dimensions = ()
   intent = in
 [ errcode ]
-  standard_name = errcode
+  standard_name = ccpp_error_code
   units = 1
   type = integer | kind = c_size_t
   dimensions = ()
   intent = out
 [ errmsg ]
-  standard_name = errmsg
+  standard_name = ccpp_error_message
   units = none
   type = character | kind = len=512
   dimensions = ()
@@ -34,31 +34,31 @@
   name  = micm_run
   type  = scheme
 [ temperature ]
-  standard_name = temperature
+  standard_name = air_temperature
   units = K
   type = real | kind = c_double
   dimensions = ()
   intent = in
 [ pressure ]
-  standard_name = pressure
+  standard_name = air_pressure
   units = Pa
   type = real | kind = c_double
   dimensions = ()
   intent = in
 [ time_step ]
-  standard_name = time_step
+  standard_name = timestep_for_physics
   units = second
   type = real | kind = c_double
   dimensions = ()
   intent = in
 [ concentrations ]
-  standard_name = concentrations
+  standard_name = ccpp_constituents
   units = none
   type = real | kind = c_double
   dimensions = (enter_standard_name_13:enter_standard_name_14)
   intent = inout
 [ num_concentrations ]
-  standard_name = num_concentrations
+  standard_name = number_of_ccpp_constituents
   units = count
   type = integer | kind = c_size_t
   dimensions = ()
@@ -70,13 +70,13 @@
   dimensions = ()
   intent = in
 [ errcode ]
-  standard_name = errcode
+  standard_name = ccpp_error_code
   units = 1
   type = integer | kind = c_size_t
   dimensions = ()
   intent = out
 [ errmsg ]
-  standard_name = errmsg
+  standard_name = ccpp_error_message
   units = none
   type = character | kind = len=512
   dimensions = ()
@@ -92,13 +92,13 @@
   dimensions = ()
   intent = in
 [ errcode ]
-  standard_name = errcode
+  standard_name = ccpp_error_code
   units = 1
   type = integer | kind = c_size_t
   dimensions = ()
   intent = out
 [ errmsg ]
-  standard_name = errmsg
+  standard_name = ccpp_error_message
   units = none
   type = character | kind = len=512
   dimensions = ()
