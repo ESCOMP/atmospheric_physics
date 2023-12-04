@@ -12,7 +12,7 @@
   dimensions = ()
   intent = in
 [ iulog ]
-  standard_name = iulog
+  standard_name = log_output_unit
   units = none
   type = integer
   dimensions = ()
@@ -64,7 +64,7 @@
   dimensions = ()
   intent = in
 [ iulog ]
-  standard_name = iulog
+  standard_name = log_output_unit
   units = none
   type = integer
   dimensions = ()
@@ -86,7 +86,7 @@
   name  = micm_final
   type  = scheme
 [ iulog ]
-  standard_name = iulog
+  standard_name = log_output_unit
   units = none
   type = integer
   dimensions = ()

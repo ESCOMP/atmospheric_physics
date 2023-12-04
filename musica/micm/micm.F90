@@ -46,14 +46,16 @@ module micm_wrapper
    !> \section arg_table_micm_run Argument Table
    !! \htmlinclude micm_run.html
    subroutine micm_run(temperature, pressure, time_step, concentrations, num_concentrations, iulog, errcode, errmsg)
-      real(c_double), intent(in)                   :: temperature
-      real(c_double), intent(in)                   :: pressure
-      real(c_double), intent(in)                   :: time_step
-      real(c_double), dimension(*), intent(inout)  :: concentrations
-      integer(c_size_t), intent(in)                :: num_concentrations
-      integer, intent(in)                          :: iulog
-      integer(c_size_t), intent(out)               :: errcode
-      character(len=512), intent(out)              :: errmsg
+      real(c_double), intent(in)                                :: temperature
+      real(c_double), intent(in)                                :: pressure
+      real(c_double), intent(in)                                :: time_step
+      ! TODO(jiwon) - 1d
+      ! real(c_double), dimension(*), intent(inout)  :: concentrations
+      real(c_double), dimension(:), allocatable, intent(inout)  :: concentrations      
+      integer(c_size_t), intent(in)                             :: num_concentrations
+      integer, intent(in)                                       :: iulog
+      integer(c_size_t), intent(out)                            :: errcode
+      character(len=512), intent(out)                           :: errmsg
 
       errcode = 0
       errmsg = ''
@@ -62,7 +64,9 @@ module micm_wrapper
       call micm_ptr%solve(temperature, pressure, time_step, concentrations, num_concentrations)
 
    end subroutine micm_run
- 
+
+   !> \section arg_table_micm_final Argument Table
+   !! \htmlinclude micm_final.html
    subroutine micm_final(iulog, errcode, errmsg)
       integer, intent(in)              :: iulog
       integer(c_size_t), intent(out)   :: errcode
