@@ -21,7 +21,7 @@ module micm_wrapper
 
       character(len=*), intent(in)     :: config_path
       integer, intent(in)              :: iulog
-      integer(c_size_t), intent(out)   :: errcode
+      integer, intent(out)             :: errcode
       character(len=512), intent(out)  :: errmsg
 
       errcode = 0
@@ -49,12 +49,12 @@ module micm_wrapper
       real(c_double), intent(in)                                :: temperature
       real(c_double), intent(in)                                :: pressure
       real(c_double), intent(in)                                :: time_step
-      ! TODO(jiwon) - 1d
+      ! TODO(jiwon)
       ! real(c_double), dimension(*), intent(inout)  :: concentrations
-      real(c_double), dimension(:), allocatable, intent(inout)  :: concentrations      
-      integer(c_size_t), intent(in)                             :: num_concentrations
+      real(c_double), dimension(:,:,:), allocatable, intent(inout)  :: concentrations      
+      integer, intent(in)                                       :: num_concentrations
       integer, intent(in)                                       :: iulog
-      integer(c_size_t), intent(out)                            :: errcode
+      integer, intent(out)                                      :: errcode
       character(len=512), intent(out)                           :: errmsg
 
       errcode = 0
@@ -69,7 +69,7 @@ module micm_wrapper
    !! \htmlinclude micm_final.html
    subroutine micm_final(iulog, errcode, errmsg)
       integer, intent(in)              :: iulog
-      integer(c_size_t), intent(out)   :: errcode
+      integer, intent(out)             :: errcode
       character(len=512), intent(out)  :: errmsg
 
       errcode = 0

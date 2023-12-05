@@ -20,7 +20,7 @@
 [ errcode ]
   standard_name = ccpp_error_code
   units = 1
-  type = integer | kind = c_size_t
+  type = integer
   dimensions = ()
   intent = out
 [ errmsg ]
@@ -55,12 +55,12 @@
   standard_name = ccpp_constituents
   units = none
   type = real | kind = c_double
-  dimensions = (enter_standard_name_13:enter_standard_name_14)
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension,number_of_ccpp_constituents)
   intent = inout
 [ num_concentrations ]
   standard_name = number_of_ccpp_constituents
   units = count
-  type = integer | kind = c_size_t
+  type = integer
   dimensions = ()
   intent = in
 [ iulog ]
@@ -72,7 +72,7 @@
 [ errcode ]
   standard_name = ccpp_error_code
   units = 1
-  type = integer | kind = c_size_t
+  type = integer
   dimensions = ()
   intent = out
 [ errmsg ]
@@ -94,7 +94,7 @@
 [ errcode ]
   standard_name = ccpp_error_code
   units = 1
-  type = integer | kind = c_size_t
+  type = integer
   dimensions = ()
   intent = out
 [ errmsg ]
