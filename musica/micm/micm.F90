@@ -1,4 +1,4 @@
-module micm_wrapper
+module micm
    ! Wrapper for MICM functionality
 
    use iso_c_binding
@@ -49,7 +49,7 @@ module micm_wrapper
       real(c_double), intent(in)                                :: temperature
       real(c_double), intent(in)                                :: pressure
       real(c_double), intent(in)                                :: time_step
-      ! TODO(jiwon)
+      ! TODO(jiwon) - 1d
       ! real(c_double), dimension(*), intent(inout)  :: concentrations
       real(c_double), dimension(:,:,:), allocatable, intent(inout)  :: concentrations      
       integer, intent(in)                                       :: num_concentrations
@@ -80,5 +80,5 @@ module micm_wrapper
 
    end subroutine micm_final
 
- end module micm_wrapper
+ end module micm
  
