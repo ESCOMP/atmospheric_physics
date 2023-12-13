@@ -3,7 +3,8 @@ module micm
 
    use iso_c_binding
    use micm_core
-   !  use ccpp_kinds, only:  kind_phys  !TODO(jiwon) - do we need this?
+   use ccpp_kinds, only:  kind_phys ! TODO(jiwon) - temporary solution until
+                                    ! the framework can handle the kind conversions automatically
  
    implicit none
  
@@ -46,22 +47,34 @@ module micm
    !> \section arg_table_micm_run Argument Table
    !! \htmlinclude micm_run.html
    subroutine micm_run(temperature, pressure, time_step, concentrations, num_concentrations, iulog, errcode, errmsg)
-      real(c_double), intent(in)                                :: temperature
-      real(c_double), intent(in)                                :: pressure
-      real(c_double), intent(in)                                :: time_step
-      ! TODO(jiwon) - 1d
-      ! real(c_double), dimension(*), intent(inout)  :: concentrations
-      real(c_double), dimension(:,:,:), allocatable, intent(inout)  :: concentrations      
-      integer, intent(in)                                       :: num_concentrations
-      integer, intent(in)                                       :: iulog
-      integer, intent(out)                                      :: errcode
-      character(len=512), intent(out)                           :: errmsg
+      real(kind_phys), intent(in)                                    :: temperature
+      real(kind_phys), intent(in)                                    :: pressure
+      real(kind_phys), intent(in)                                    :: time_step
+      real(kind_phys), dimension(:,:,:), allocatable, intent(inout)  :: concentrations      
+
+      real(c_double), intent(in)                                     :: c_temperature
+      real(c_double), intent(in)                                     :: c_pressure
+      real(c_double), intent(in)                                     :: c_time_step
+      real(c_double), dimension(:,:,:), allocatable, intent(inout)   :: c_concentrations
+   
+      integer, intent(in)                                            :: num_concentrations
+      integer, intent(in)                                            :: iulog
+      integer, intent(out)                                           :: errcode
+      character(len=512), intent(out)                                :: errmsg
+      
+      real(kind_phys) :: var_phys
+      real(c_double)  :: var_doub
+      
+      c_temperature = kind(temperature, c_double)
+      c_pressure = kind(pressure, c_double)
+      c_time_step = kind(time_step, c_double)
+      c_concentrations = kind(concentrations, c_double)
 
       errcode = 0
       errmsg = ''
 
       write(iulog,*) "RUN MICM: INFO: Running MICM solver..."
-      call micm_ptr%solve(temperature, pressure, time_step, concentrations, num_concentrations)
+      call micm_ptr%solve(c_temperature, c_pressure, c_time_step, c_concentrations, num_concentrations)
 
    end subroutine micm_run
 

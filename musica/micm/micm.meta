@@ -36,25 +36,25 @@
 [ temperature ]
   standard_name = air_temperature
   units = K
-  type = real | kind = c_double
+  type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ pressure ]
   standard_name = air_pressure
   units = Pa
-  type = real | kind = c_double
+  type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ time_step ]
   standard_name = timestep_for_physics
   units = second
-  type = real | kind = c_double
+  type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ concentrations ]
   standard_name = ccpp_constituents
   units = none
-  type = real | kind = c_double
+  type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension,number_of_ccpp_constituents)
   intent = inout
 [ num_concentrations ]
