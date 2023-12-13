@@ -1,0 +1,60 @@
+[ccpp-table-properties]
+  name = micm
+  type = scheme
+
+[ccpp-arg-table]
+  name  = micm_init
+  type  = scheme
+[ filename_of_micm_configuration ]
+  standard_name = filename_of_micm_configuration
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ errmsg ]
+  standard_name = errmsg
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = errflg
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = micm_run
+  type  = scheme
+[ ccpp_num_constituents ]
+  standard_name = ccpp_num_constituents
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ timestep_for_physics ]
+  standard_name = timestep_for_physics
+  units = s
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ log_output_unit ]
+  standard_name = log_output_unit
+  units = 1
+  type = integer
+  dimensions = ()
+  protected = True
+  intent = in
+[ errmsg ]
+  standard_name = errmsg
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = errflg
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

@@ -6,28 +6,23 @@ module kessler
    private
    save
 
-   public :: kessler_run ! Main routine
    public :: kessler_init ! init routine
-   public :: kessler_timestep_init ! init timestep routine
+   public :: kessler_run  ! main routine
 
    ! Private module data (constants set at initialization)
-   real(kind_phys) :: cp    ! heat capacity at constant pressure, J/(kgK)
    real(kind_phys) :: lv    ! latent heat of vaporization, J/kg
-   real(kind_phys) :: psl   ! reference pressure at sea level, mb
-   real(kind_phys) :: rair  ! dry air gas constant J/(kgK)
-   real(kind_phys) :: rhoqr ! density of liquid water, kg/m^3
+   real(kind_phys) :: pref  ! reference pressure, hPa
+   real(kind_phys) :: rhoqr ! density of fresh liquid water, kg/m^3
 
 CONTAINS
 
    !> \section arg_table_kessler_init  Argument Table
    !! \htmlinclude kessler_init.html
-   subroutine kessler_init(cp_in, lv_in, psl_in, rair_in, rhoqr_in, errmsg, errflg)
+   subroutine kessler_init(lv_in, pref_in, rhoqr_in, errmsg, errflg)
       ! Set physical constants to be consistent with calling model
-      real(kind_phys),    intent(in)  :: cp_in    ! heat capacity at constant pres., J/(kgK)
       real(kind_phys),    intent(in)  :: lv_in    ! latent heat of vaporization, J/kg
-      real(kind_phys),    intent(in)  :: psl_in   ! reference pressure at sea level, mb
-      real(kind_phys),    intent(in)  :: rair_in  ! dry air gas constant J/(kgK)
-      real(kind_phys),    intent(in)  :: rhoqr_in ! density of liquid water, kg/m^3
+      real(kind_phys),    intent(in)  :: pref_in  ! reference pressure, Pa
+      real(kind_phys),    intent(in)  :: rhoqr_in ! density of fresh liquid water, kg/m^3
 
       character(len=512), intent(out) :: errmsg
       integer,            intent(out) :: errflg
@@ -35,35 +30,11 @@ CONTAINS
       errmsg = ''
       errflg = 0
 
-      cp    = cp_in
       lv    = lv_in
-      psl   = psl_in/100._kind_phys
-      rair  = rair_in
+      pref  = pref_in/100._kind_phys
       rhoqr = rhoqr_in
 
    end subroutine kessler_init
-
-   !> \section arg_table_kessler_timestep_init  Argument Table
-   !! \htmlinclude kessler_timestep_init.html
-   subroutine kessler_timestep_init(ncol, nz, pdel, pdeldry, qv, qc, qr, errmsg, errflg)
-      use state_converters, only : wet_to_dry_run
-
-      ! Dummy arguments
-      integer,         intent(in)    :: ncol
-      integer,         intent(in)    :: nz
-      real(kind_phys), intent(in)    :: pdel(:,:)
-      real(kind_phys), intent(in)    :: pdeldry(:,:)
-      real(kind_phys), intent(inout) :: qv(:,:)
-      real(kind_phys), intent(inout) :: qc(:,:)
-      real(kind_phys), intent(inout) :: qr(:,:)
-
-      character(len=*), intent(out) :: errmsg
-      integer,          intent(out) :: errflg
-
-      errflg = 0
-      errmsg = ''
-
-   end subroutine kessler_timestep_init
 
    !-----------------------------------------------------------------------
    !
@@ -117,8 +88,8 @@ CONTAINS
 
    !> \section arg_table_kessler_run  Argument Table
    !! \htmlinclude kessler_run.html
-   subroutine kessler_run(ncol, nz, dt,  lyr_surf, lyr_toa, rho, z, pk, theta, &
-        qv, qc, qr, precl, relhum, errmsg, errflg)
+   subroutine kessler_run(ncol, nz, dt, lyr_surf, lyr_toa, cpair, rair, rho, z, &
+        pk, theta, qv, qc, qr, precl, relhum, scheme_name, errmsg, errflg)
 
       !------------------------------------------------
       !   Input / output parameters
@@ -128,19 +99,22 @@ CONTAINS
       real(kind_phys),  intent(in)    :: dt         ! Physics time step (s)
       integer,          intent(in)    :: lyr_surf   ! Index of surface layer in the vertical coordinate
       integer,          intent(in)    :: lyr_toa    ! Index of top of the atmosphere in the vertical coordinate
+      real(kind_phys),  intent(in)    :: cpair(:,:) ! Specific_heat_of_dry_air_at_constant_pressure (J/kg/K)
+      real(kind_phys),  intent(in)    :: rair(:,:)  ! Gas constant of dry air (J/kg/K)
       real(kind_phys),  intent(in)    :: rho(:,:)   ! Dry air density (kg/m^3)
       real(kind_phys),  intent(in)    :: z(:,:)     ! Heights of thermo. levels (m)
       real(kind_phys),  intent(in)    :: pk(:,:)    ! Exner function (p/p0)**(R/cp)
 
       real(kind_phys),  intent(inout) :: theta(:,:) ! Potential temperature (K)
-      real(kind_phys),  intent(inout) :: qv(:,:)    ! Water vapor mixing ratio (gm/gm)
-      real(kind_phys),  intent(inout) :: qc(:,:)    ! Cloud water mixing ratio (gm/gm)
-      real(kind_phys),  intent(inout) :: qr(:,:)    ! Rain  water mixing ratio (gm/gm)
+      real(kind_phys),  intent(inout) :: qv(:,:)    ! Water vapor mixing ratio wrt dry air (kg/kg)
+      real(kind_phys),  intent(inout) :: qc(:,:)    ! Cloud water mixing ratio wrt dry air (kg/kg)
+      real(kind_phys),  intent(inout) :: qr(:,:)    ! Rain water mixing ratio wrt dry air (kg/kg)
 
       real(kind_phys),  intent(out)   :: precl(:)   ! Precipitation rate (m_water / s)
 
       real(kind_phys),  intent(out)   :: relhum(:,:)! Relative humidity in percent
 
+      character(len=64),intent(out)   :: scheme_name
       character(len=*), intent(out)   :: errmsg
       integer,          intent(out)   :: errflg
 
@@ -172,6 +146,7 @@ CONTAINS
       precl = 0._kind_phys
       errmsg = ''
       errflg = 0
+      scheme_name = "KESSLER"
 
       ! Check inputs
       if (dt <= 0._kind_phys) then
@@ -186,19 +161,23 @@ CONTAINS
          lyr_step = 1
       end if
 
+      f2x = 17.27_kind_phys  ! constant for the saturation mixing ratio
+
       !------------------------------------------------
       !   Begin calculation
       !------------------------------------------------
-      f2x   = 17.27_kind_phys                      ! constant for the saturation mixing ratio
-      f5    = 4093._kind_phys * lv / cp            ! constant for the condensation rate
-      xk    = cp/rair                              ! 1/kappa = cp/R
 
       ! Loop through columns
       do col = 1, ncol
          do klev = lyr_surf, lyr_toa, lyr_step
+
+            !Calculate constants:
+            f5  = 4093._kind_phys * lv / cpair(col,klev) ! constant for the condensation rate
+            xk  = cpair(col,klev) / rair(col,klev)       ! 1/kappa = cp/R
+
             r(klev)     = 0.001_kind_phys * rho(col, klev)
             rhalf(klev) = sqrt(rho(col, lyr_surf) / rho(col, klev))
-            pc(klev)    = 3.8_kind_phys / ((pk(col, klev)**xk) * psl)
+            pc(klev)    = 3.8_kind_phys / ((pk(col, klev)**xk) * pref)
             !
             ! if qr is (round-off) negative then the computation of
             ! velqr triggers floating point exception error when running
@@ -281,7 +260,7 @@ CONTAINS
                     max(-prod-qc(col, klev),0._kind_phys),qr(col, klev))
 
                ! Saturation adjustment following Durran and Klemp (1983) Eqs. (A1-A4), also Klemp and Wilhelmson (1978) Eq. (3.10)
-               theta(col, klev)= theta(col, klev) + (lv / (cp * pk(col, klev)) * (max(prod,-qc(col, klev)) - ern))
+               theta(col, klev)= theta(col, klev) + (lv / (cpair(col,klev) * pk(col, klev)) * (max(prod,-qc(col, klev)) - ern))
                qv(col, klev) = max(qv(col, klev) - max(prod, -qc(col, klev)) + ern, 0._kind_phys)
                qc(col, klev) = qc(col, klev) + max(prod, -qc(col, klev))
                qr(col, klev) = max(qr(col, klev) - ern, 0._kind_phys)
@@ -294,7 +273,7 @@ CONTAINS
              do klev = lyr_surf, lyr_toa, lyr_step
                 velqr(klev)  = 36.34_kind_phys * rhalf(klev) * (qr(col, klev)*r(klev))**0.1364_kind_phys
              end do
-          
+
           ! recompute the time step
              dt0 = max(dt -  time_counter, 0.0_kind_phys)
              do klev = lyr_surf, lyr_toa - lyr_step, lyr_step

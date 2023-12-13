@@ -1,14 +1,14 @@
 !< \section arg_table_held_suarez_1994
 !! \htmlinclude held_suarez_1994.html
 module held_suarez_1994
-  !----------------------------------------------------------------------- 
-  ! 
+  !-----------------------------------------------------------------------
+  !
   ! Purpose: Implement idealized Held-Suarez forcings
   !    Held, I. M., and M. J. Suarez, 1994: 'A proposal for the
   !    intercomparison of the dynamical cores of atmospheric general
   !    circulation models.'
   !    Bulletin of the Amer. Meteor. Soc., vol. 75, pp. 1825-1830.
-  ! 
+  !
   !-----------------------------------------------------------------------
 
   use ccpp_kinds, only: kind_phys
@@ -38,65 +38,56 @@ module held_suarez_1994
   !!
   !! Model constants, reset in init call
   !!
-  real(kind_phys)              :: cappa = 2.0_kind_phys / 7.0_kind_phys  ! R/Cp
-  real(kind_phys)              :: cpair = 1004.0_kind_phys        ! specific heat of dry air (J/K/kg)
-  real(kind_phys)              :: psurf_ref = 0.0_kind_phys       ! Surface pressure
-  ! pref_mid_norm are layer midpoints normalized by surface pressure ('eta' coordinate)
-  real(kind_phys), allocatable :: pref_mid_norm(:)
+  real(kind_phys)            :: pref    = 0.0_kind_phys  ! Surface pressure
 
 
 
-!======================================================================= 
+!=======================================================================
 contains
-!======================================================================= 
+!=======================================================================
 
 !> \section arg_table_held_suarez_1994_init Argument Table
 !! \htmlinclude held_suarez_1994_init.html
-  subroutine held_suarez_1994_init(pver_in, cappa_in, cpair_in, psurf_ref_in, pref_mid_norm_in, errmsg, errflg)
-    !! Dummy arguments
-    integer,           intent(in) :: pver_in
-    real(kind_phys),   intent(in) :: cappa_in
-    real(kind_phys),   intent(in) :: cpair_in
-    real(kind_phys),   intent(in) :: psurf_ref_in
-    real(kind_phys),   intent(in) :: pref_mid_norm_in(:)
-    character(len=512),intent(out):: errmsg
-    integer,           intent(out):: errflg
+  subroutine held_suarez_1994_init(pref_in, errmsg, errflg)
 
-    integer               :: pver                     ! Num vertical levels
+    !! Dummy arguments
+    real(kind_phys),    intent(in)  :: pref_in
+
+    character(len=512), intent(out) :: errmsg
+    integer,            intent(out) :: errflg
 
     errmsg = ' '
     errflg = 0
 
-    pver = pver_in
-    allocate(pref_mid_norm(pver))
-    cappa         = cappa_in
-    cpair         = cpair_in
-    psurf_ref     = psurf_ref_in
-    pref_mid_norm = pref_mid_norm_in
+    pref   = pref_in
 
   end subroutine held_suarez_1994_init
 
 !> \section arg_table_held_suarez_1994_run Argument Table
 !! \htmlinclude held_suarez_1994_run.html
-  subroutine held_suarez_1994_run(pver, ncol, clat, pmid, &
-       u, v, t, du, dv, s, errmsg, errflg)
+  subroutine held_suarez_1994_run(pver, ncol, pref_mid_norm, clat, cappa, &
+       cpair, pmid, uwnd, vwnd, temp, du, dv, ds, scheme_name, errmsg, errflg)
 
     !
     ! Input arguments
     !
-    integer,  intent(in)  :: pver      ! Num vertical levels
-    integer,  intent(in)  :: ncol      ! Num active columns
-    real(kind_phys), intent(in)  :: clat(:)   ! latitudes(radians) for columns
-    real(kind_phys), intent(in)  :: pmid(:,:) ! mid-point pressure
-    real(kind_phys), intent(in)  :: u(:,:)    ! Zonal wind (m/s)
-    real(kind_phys), intent(in)  :: v(:,:)    ! Meridional wind (m/s)
-    real(kind_phys), intent(in)  :: t(:,:)    ! Temperature (K)
+    integer,  intent(in)  :: pver                    ! Num vertical levels
+    integer,  intent(in)  :: ncol                    ! Num active columns
+    real(kind_phys), intent(in)  :: pref_mid_norm(:) ! reference pressure normalized by surface pressure
+    real(kind_phys), intent(in)  :: clat(:)          ! latitudes(radians) for columns
+    real(kind_phys), intent(in)  :: cappa(:,:)       ! ratio of dry air gas constant to specific heat at constant pressure
+    real(kind_phys), intent(in)  :: cpair(:,:)       ! specific heat of dry air at constant pressure
+    real(kind_phys), intent(in)  :: pmid(:,:)        ! mid-point pressure
+    real(kind_phys), intent(in)  :: uwnd(:,:)        ! Zonal wind (m/s)
+    real(kind_phys), intent(in)  :: vwnd(:,:)        ! Meridional wind (m/s)
+    real(kind_phys), intent(in)  :: temp(:,:)        ! Temperature (K)
     !
     ! Output arguments
     !
     real(kind_phys),   intent(out) :: du(:,:)   ! Zonal wind tend
     real(kind_phys),   intent(out) :: dv(:,:)   ! Meridional wind tend
-    real(kind_phys),   intent(out) :: s(:,:)    ! Heating rate
+    real(kind_phys),   intent(out) :: ds(:,:)   ! Heating rate
+    character(len=64), intent(out) :: scheme_name
     character(len=512),intent(out):: errmsg
     integer,           intent(out):: errflg
     !
@@ -118,6 +109,7 @@ contains
 
     errmsg = ' '
     errflg = 0
+    scheme_name = "HELD_SUAREZ"
 
     do i = 1, ncol
       coslat (i) = cos(clat(i))
@@ -144,18 +136,18 @@ contains
     do k = 1, pver
       if (pref_mid_norm(k) > sigmab) then
         do i = 1, ncol
-          kt = ka + (ks - ka)*cossqsq(i)*(pref_mid_norm(k) - sigmab)/onemsig
+          kt      = ka + (ks - ka)*cossqsq(i)*(pref_mid_norm(k) - sigmab)/onemsig
           trefc   = 315._kind_phys - (60._kind_phys * sinsq(i))
-          trefa = (trefc - 10._kind_phys*cossq(i)*log((pmid(i,k)/psurf_ref)))*(pmid(i,k)/psurf_ref)**cappa
-          trefa    = max(t00,trefa)
-          s(i,k) = (trefa - t(i,k))*kt*cpair
+          trefa   = (trefc - 10._kind_phys*cossq(i)*log((pmid(i,k)/pref)))*(pmid(i,k)/pref)**cappa(i,k)
+          trefa   = max(t00,trefa)
+          ds(i,k) = (trefa - temp(i,k))*kt*cpair(i,k)
         end do
       else
         do i = 1, ncol
           trefc   = 315._kind_phys - 60._kind_phys*sinsq(i)
-          trefa = (trefc - 10._kind_phys*cossq(i)*log((pmid(i,k)/psurf_ref)))*(pmid(i,k)/psurf_ref)**cappa
-          trefa    = max(t00,trefa)
-          s(i,k) = (trefa - t(i,k))*ka*cpair
+          trefa   = (trefc - 10._kind_phys*cossq(i)*log((pmid(i,k)/pref)))*(pmid(i,k)/pref)**cappa(i,k)
+          trefa   = max(t00,trefa)
+          ds(i,k) = (trefa - temp(i,k))*ka*cpair(i,k)
         end do
       end if
     end do
@@ -170,8 +162,8 @@ contains
       if (pref_mid_norm(k) > sigmab) then
         kv  = kf*(pref_mid_norm(k) - sigmab)/onemsig
         do i = 1, ncol
-          du(i,k) = -kv*u(i,k)
-          dv(i,k) = -kv*v(i,k)
+          du(i,k) = -kv*uwnd(i,k)
+          dv(i,k) = -kv*vwnd(i,k)
         end do
       end if
     end do

@@ -8,25 +8,29 @@
   standard_name = gravitational_acceleration
   units = m s-2
   dimensions = ()
-  type = real
-  kind = kind_phys
+  type = real | kind = kind_phys
   intent = in
-[ cpair_in ]
-  standard_name = specific_heat_of_dry_air_at_constant_pressure
-  units = J kg-1 K-1
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=512
   dimensions = ()
-  type = real
-  kind = kind_phys
-  intent = in
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
 #########################################################
 [ccpp-arg-table]
   name = kessler_update_timestep_init
   type = scheme
 [ temp ]
   standard_name = air_temperature
-  state_variable = true
-  type = real
-  kind = kind_phys
+  type = real | kind = kind_phys
   units = K
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = in
@@ -34,27 +38,25 @@
   standard_name = air_temperature_on_previous_timestep
   units = K
   dimensions = (horizontal_dimension, vertical_layer_dimension)
-  type = real
-  kind = kind_phys
+  type = real | kind = kind_phys
   intent = out
 [ ttend_t ]
-  standard_name = total_tendency_of_air_temperature
+  standard_name = tendency_of_air_temperature_due_to_model_physics
   units = K s-1
   dimensions = (horizontal_dimension, vertical_layer_dimension)
-  type = real
-  kind = kind_phys
+  type = real | kind = kind_phys
   intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
   long_name = Error message for error handling in CCPP
-  units = 1
+  units = none
   type = character | kind = len=512
   dimensions = ()
   intent = out
 [ errflg ]
-  standard_name = ccpp_error_flag
+  standard_name = ccpp_error_code
   long_name = Error flag for error handling in CCPP
-  units = flag
+  units = 1
   type = integer
   dimensions = ()
   intent = out
@@ -64,7 +66,7 @@
   type = scheme
 [ nz ]
   standard_name = vertical_layer_dimension
-  long_name = number of vertical levels
+  long_name = number of vertical layers
   units = count
   dimensions = ()
   type = integer
@@ -76,63 +78,50 @@
   dimensions = ()
   type = integer
   intent = in
-[ temp ]
-  standard_name = air_temperature
-  state_variable = true
-  type = real
-  kind = kind_phys
-  units = K
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = in
-[ theta ]
-  standard_name = potential_temperature
-  long_name = potential temperature
-  units = K
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  type = real
-  kind = kind_phys
-  intent = inout
-[ exner ]
-  standard_name = inverse_exner_function_wrt_surface_pressure
-  long_name = inverse exner function w.r.t. surface pressure, (ps/p)^(R/cp)
-  state_variable = true
-  units = count
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = in
 [ dt ]
   standard_name = timestep_for_physics
   long_name = time step
   units = s
   dimensions = ()
-  type = real
-  kind = kind_phys
+  type = real | kind = kind_phys
+  intent = in
+[ theta ]
+  standard_name = air_potential_temperature
+  long_name = air potential temperature
+  units = K
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  type = real | kind = kind_phys
+  intent = in
+[ exner ]
+  standard_name = dimensionless_exner_function
+  long_name = exner function
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ temp_prev ]
   standard_name = air_temperature_on_previous_timestep
   units = K
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  type = real
-  kind = kind_phys
-  intent = inout
+  type = real | kind = kind_phys
+  intent = in
 [ ttend_t ]
-  standard_name = total_tendency_of_air_temperature
-  type = real
-  kind = kind_phys
+  standard_name = tendency_of_air_temperature_due_to_model_physics
+  type = real | kind = kind_phys
   units = K s-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ errmsg ]
   standard_name = ccpp_error_message
   long_name = Error message for error handling in CCPP
-  units = 1
+  units = none
   type = character | kind = len=512
   dimensions = ()
   intent = out
 [ errflg ]
-  standard_name = ccpp_error_flag
+  standard_name = ccpp_error_code
   long_name = Error flag for error handling in CCPP
-  units = flag
+  units = 1
   type = integer
   dimensions = ()
   intent = out
@@ -142,54 +131,54 @@
   type = scheme
 [ nz ]
   standard_name = vertical_layer_dimension
-  long_name = number of vertical levels
+  long_name = number of vertical layers
   units = count
   dimensions = ()
   type = integer
   intent = in
+[ cpair ]
+  standard_name = composition_dependent_specific_heat_of_dry_air_at_constant_pressure
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  intent = in
 [ temp ]
   standard_name = air_temperature
-  state_variable = true
-  type = real
-  kind = kind_phys
+  type = real | kind = kind_phys
   units = K
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = in
 [ zm ]
-  standard_name = geopotential_height
-  state_variable = true
+  standard_name = geopotential_height_wrt_surface
+  long_name = geopotential height w.r.t. local surface
   type = real | kind = kind_phys
   units = m
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = in
 [ phis ]
-  standard_name = geopotential_at_surface
-  state_variable = true
-  type = real
-  kind = kind_phys
+  standard_name = surface_geopotential
+  type = real | kind = kind_phys
   units = m2 s-2
   dimensions = (horizontal_dimension)
   intent = in
 [ st_energy ]
   standard_name = dry_static_energy
   long_name = Dry static energy
-  state_variable = true
-  type = real
-  kind = kind_phys
+  type = real | kind = kind_phys
   units = J m-2
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = out
 [ errflg ]
-  standard_name = ccpp_error_flag
+  standard_name = ccpp_error_code
   long_name = Error flag for error handling in CCPP
-  units = flag
+  units = 1
   type = integer
   dimensions = ()
   intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
   long_name = Error message for error handling in CCPP
-  units = 1
+  units = none
   type = character | kind = len=512
   dimensions = ()
   intent = out
