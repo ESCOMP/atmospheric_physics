@@ -65,10 +65,10 @@ module micm
       real(kind_phys) :: var_phys
       real(c_double)  :: var_doub
       
-      c_temperature = kind(temperature, c_double)
-      c_pressure = kind(pressure, c_double)
-      c_time_step = kind(time_step, c_double)
-      c_concentrations = kind(concentrations, c_double)
+      c_temperature = real(temperature, c_double)
+      c_pressure = real(pressure, c_double)
+      c_time_step = real(time_step, c_double)
+      c_concentrations = real(concentrations, c_double)
 
       errcode = 0
       errmsg = ''
