@@ -52,10 +52,10 @@ module micm
       real(kind_phys), intent(in)                                    :: time_step
       real(kind_phys), dimension(:,:,:), allocatable, intent(inout)  :: concentrations      
 
-      real(c_double), intent(in)                                     :: c_temperature
-      real(c_double), intent(in)                                     :: c_pressure
-      real(c_double), intent(in)                                     :: c_time_step
-      real(c_double), dimension(:,:,:), allocatable, intent(inout)   :: c_concentrations
+      real(c_double)                                                 :: c_temperature
+      real(c_double)                                                 :: c_pressure
+      real(c_double)                                                 :: c_time_step
+      real(c_double), dimension(:,:,:), allocatable                  :: c_concentrations
    
       integer, intent(in)                                            :: num_concentrations
       integer, intent(in)                                            :: iulog
