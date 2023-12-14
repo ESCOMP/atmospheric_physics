@@ -1,4 +1,4 @@
-module zm_convr_mod
+module zm_convr
 
   use ccpp_kinds, only:  kind_phys
 
@@ -140,8 +140,7 @@ end subroutine zm_convr_init
 !! \htmlinclude zm_convr_run.html
 !!
 subroutine zm_convr_run(     ncol    ,pcols   ,pver    , &
-                    pverp,   gravit  ,latice  ,cpwv    ,cpliq   , &
-                    rh2o                                        , &
+                    pverp,   gravit  ,latice  ,cpwv    ,cpliq   , rh2o, &
                     t       ,qh      ,prec    ,jctop   ,jcbot   , &
                     pblh    ,zm      ,geos    ,zi      ,qtnd    , &
                     heat    ,pap     ,paph    ,dpp     , &
@@ -171,8 +170,6 @@ subroutine zm_convr_run(     ncol    ,pcols   ,pver    , &
 ! and will make use of the standard CAM nomenclature
 !
 !-----------------------------------------------------------------------
-   use phys_control, only: cam_physpkg_is
-
 !
 ! ************************ index of variables **********************
 !
@@ -327,6 +324,7 @@ subroutine zm_convr_run(     ncol    ,pcols   ,pver    , &
 
 
 !CACNOTE - Figure out whether these should all be intent(out) or (inout)
+!CACNOTE - Remove the pointer when ZM wrapper is modified to make it allocatable
    real(kind_phys), pointer, intent(inout) :: org(:,:)     ! Only used if zm_org is true
    real(kind_phys), pointer, intent(inout) :: orgt(:,:)   ! Only used if zm_org is true
    real(kind_phys), pointer, intent(inout) :: org2d(:,:)  ! Only used if zm_org is true
@@ -596,30 +594,18 @@ subroutine zm_convr_run(     ncol    ,pcols   ,pver    , &
       dsubcld(i) = 0._kind_phys
    end do
 
-   if( cam_physpkg_is('cam3')) then
 
-      !  For cam3 physics package, call non-dilute
+   !  Evaluate Tparcel, qs(Tparcel), buoyancy and CAPE,
+   !     lcl, lel, parcel launch level at index maxi()=hmax
 
-      call buoyan(ncol    , pcols  ,pver    , &
-                  q       ,t       ,p       ,z       ,pf       , &
-                  tp      ,qstp    ,tl      ,rl      ,cape     , &
-                  pblt    ,lcl     ,lel     ,lon     ,maxi     , &
-                  rgas    ,grav    ,cpres   ,msg     , &
-                  tpert   )
-   else
-
-      !  Evaluate Tparcel, qs(Tparcel), buoyancy and CAPE,
-      !     lcl, lel, parcel launch level at index maxi()=hmax
-
-      call buoyan_dilute(  ncol    ,pcols   ,pver     , &
-                  cpliq   ,latice  ,cpwv    ,rh2o    ,&
-                  q       ,t       ,p       ,z       ,pf       , &
-                  tp      ,qstp    ,tl      ,rl      ,cape     , &
-                  pblt    ,lcl     ,lel     ,lon     ,maxi     , &
-                  rgas    ,grav    ,cpres   ,msg     , &
-                  zi      ,zs      ,tpert   , org2d  , landfrac,&
-                  errmsg  ,errflg)
-   end if
+   call buoyan_dilute(  ncol    ,pcols   ,pver     , &
+               cpliq   ,latice  ,cpwv    ,rh2o    ,&
+               q       ,t       ,p       ,z       ,pf       , &
+               tp      ,qstp    ,tl      ,rl      ,cape     , &
+               pblt    ,lcl     ,lel     ,lon     ,maxi     , &
+               rgas    ,grav    ,cpres   ,msg     , &
+               zi      ,zs      ,tpert   , org2d  , landfrac,&
+               errmsg  ,errflg)
 
 !
 ! determine whether grid points will undergo some deep convection
@@ -860,292 +846,6 @@ subroutine zm_convr_finalize
 end subroutine zm_convr_finalize
 
 !=========================================================================================
-
-subroutine buoyan(ncol    ,pcols   ,pver    , &
-                  q       ,t       ,p       ,z       ,pf      , &
-                  tp      ,qstp    ,tl      ,rl      ,cape    , &
-                  pblt    ,lcl     ,lel     ,lon     ,mx      , &
-                  rd      ,grav    ,cp      ,msg     , &
-                  tpert   )
-!-----------------------------------------------------------------------
-!
-! Purpose:
-! <Say what the routine does>
-!
-! Method:
-! <Describe the algorithm(s) used in the routine.>
-! <Also include any applicable external references.>
-!
-! Author:
-! This is contributed code not fully standardized by the CCM core group.
-! The documentation has been enhanced to the degree that we are able.
-! Reviewed:          P. Rasch, April 1996
-!
-!-----------------------------------------------------------------------
-   implicit none
-!-----------------------------------------------------------------------
-!
-! input arguments
-!
-   integer, intent(in) :: ncol                  ! number of atmospheric columns
-   integer, intent(in) :: pcols
-   integer, intent(in) :: pver
-
-   real(kind_phys), intent(in) :: q(pcols,pver)        ! spec. humidity
-   real(kind_phys), intent(in) :: t(pcols,pver)        ! temperature
-   real(kind_phys), intent(in) :: p(pcols,pver)        ! pressure
-   real(kind_phys), intent(in) :: z(pcols,pver)        ! height
-   real(kind_phys), intent(in) :: pf(pcols,pver+1)     ! pressure at interfaces
-   real(kind_phys), intent(in) :: pblt(pcols)          ! index of pbl depth
-   real(kind_phys), intent(in) :: tpert(pcols)         ! perturbation temperature by pbl processes
-
-!
-! output arguments
-!
-   real(kind_phys), intent(out) :: tp(pcols,pver)       ! parcel temperature
-   real(kind_phys), intent(out) :: qstp(pcols,pver)     ! saturation mixing ratio of parcel
-   real(kind_phys), intent(out) :: tl(pcols)            ! parcel temperature at lcl
-   real(kind_phys), intent(out) :: cape(pcols)          ! convective aval. pot. energy.
-   integer lcl(pcols)        !
-   integer lel(pcols)        !
-   integer lon(pcols)        ! level of onset of deep convection
-   integer mx(pcols)         ! level of max moist static energy
-!
-!--------------------------Local Variables------------------------------
-!
-   real(kind_phys) capeten(pcols,num_cin)     ! provisional value of cape
-   real(kind_phys) tv(pcols,pver)       !
-   real(kind_phys) tpv(pcols,pver)      !
-   real(kind_phys) buoy(pcols,pver)
-
-   real(kind_phys) a1(pcols)
-   real(kind_phys) a2(pcols)
-   real(kind_phys) estp(pcols)
-   real(kind_phys) pl(pcols)
-   real(kind_phys) plexp(pcols)
-   real(kind_phys) hmax(pcols)
-   real(kind_phys) hmn(pcols)
-   real(kind_phys) y(pcols)
-
-   logical plge600(pcols)
-   integer knt(pcols)
-   integer lelten(pcols,num_cin)
-
-   real(kind_phys) cp
-   real(kind_phys) e
-   real(kind_phys) grav
-
-   integer i
-   integer k
-   integer msg
-   integer n
-
-   real(kind_phys) rd
-   real(kind_phys) rl
-!
-!-----------------------------------------------------------------------
-!
-   do n = 1,num_cin
-      do i = 1,ncol
-         lelten(i,n) = pver
-         capeten(i,n) = 0._kind_phys
-      end do
-   end do
-!
-   do i = 1,ncol
-      lon(i) = pver
-      knt(i) = 0
-      lel(i) = pver
-      mx(i) = lon(i)
-      cape(i) = 0._kind_phys
-      hmax(i) = 0._kind_phys
-   end do
-
-   tp(:ncol,:) = t(:ncol,:)
-   qstp(:ncol,:) = q(:ncol,:)
-
-!!! RBN - Initialize tv and buoy for output.
-!!! tv=tv : tpv=tpv : qstp=q : buoy=0.
-   tv(:ncol,:) = t(:ncol,:) *(1._kind_phys+1.608_kind_phys*q(:ncol,:))/ (1._kind_phys+q(:ncol,:))
-   tpv(:ncol,:) = tv(:ncol,:)
-   buoy(:ncol,:) = 0._kind_phys
-
-!
-! set "launching" level(mx) to be at maximum moist static energy.
-! search for this level stops at planetary boundary layer top.
-!
-   do k = pver,msg + 1,-1
-      do i = 1,ncol
-         hmn(i) = cp*t(i,k) + grav*z(i,k) + rl*q(i,k)
-         if (k >= nint(pblt(i)) .and. k <= lon(i) .and. hmn(i) > hmax(i)) then
-            hmax(i) = hmn(i)
-            mx(i) = k
-         end if
-      end do
-   end do
-
-!
-   do i = 1,ncol
-      lcl(i) = mx(i)
-      e = p(i,mx(i))*q(i,mx(i))/ (eps1+q(i,mx(i)))
-      tl(i) = 2840._kind_phys/ (3.5_kind_phys*log(t(i,mx(i)))-log(e)-4.805_kind_phys) + 55._kind_phys
-      if (tl(i) < t(i,mx(i))) then
-         plexp(i) = (1._kind_phys/ (0.2854_kind_phys* (1._kind_phys-0.28_kind_phys*q(i,mx(i)))))
-         pl(i) = p(i,mx(i))* (tl(i)/t(i,mx(i)))**plexp(i)
-      else
-         tl(i) = t(i,mx(i))
-         pl(i) = p(i,mx(i))
-      end if
-   end do
-
-!
-! calculate lifting condensation level (lcl).
-!
-   do k = pver,msg + 2,-1
-      do i = 1,ncol
-         if (k <= mx(i) .and. (p(i,k) > pl(i) .and. p(i,k-1) <= pl(i))) then
-            lcl(i) = k - 1
-         end if
-      end do
-   end do
-!
-! if lcl is above the nominal level of non-divergence (600 mbs),
-! no deep convection is permitted (ensuing calculations
-! skipped and cape retains initialized value of zero).
-!
-   do i = 1,ncol
-      plge600(i) = pl(i).ge.600._kind_phys
-   end do
-!
-! initialize parcel properties in sub-cloud layer below lcl.
-!
-   do k = pver,msg + 1,-1
-      do i=1,ncol
-         if (k > lcl(i) .and. k <= mx(i) .and. plge600(i)) then
-            tv(i,k) = t(i,k)* (1._kind_phys+1.608_kind_phys*q(i,k))/ (1._kind_phys+q(i,k))
-            qstp(i,k) = q(i,mx(i))
-            tp(i,k) = t(i,mx(i))* (p(i,k)/p(i,mx(i)))**(0.2854_kind_phys* (1._kind_phys-0.28_kind_phys*q(i,mx(i))))
-!
-! buoyancy is increased by 0.5 k as in tiedtke
-!
-!-jjh          tpv (i,k)=tp(i,k)*(1.+1.608*q(i,mx(i)))/
-!-jjh     1                     (1.+q(i,mx(i)))
-            tpv(i,k) = (tp(i,k)+tpert(i))*(1._kind_phys+1.608_kind_phys*q(i,mx(i)))/ (1._kind_phys+q(i,mx(i)))
-            buoy(i,k) = tpv(i,k) - tv(i,k) + tiedke_add
-         end if
-      end do
-   end do
-
-!
-! define parcel properties at lcl (i.e. level immediately above pl).
-!
-   do k = pver,msg + 1,-1
-      do i=1,ncol
-         if (k == lcl(i) .and. plge600(i)) then
-            tv(i,k) = t(i,k)* (1._kind_phys+1.608_kind_phys*q(i,k))/ (1._kind_phys+q(i,k))
-            qstp(i,k) = q(i,mx(i))
-            tp(i,k) = tl(i)* (p(i,k)/pl(i))**(0.2854_kind_phys* (1._kind_phys-0.28_kind_phys*qstp(i,k)))
-!              estp(i)  =exp(21.656_kind_phys - 5418._kind_phys/tp(i,k))
-! use of different formulas for es has about 1 g/kg difference
-! in qs at t= 300k, and 0.02 g/kg at t=263k, with the formula
-! above giving larger qs.
-            call qsat_hPa(tp(i,k), p(i,k), estp(i), qstp(i,k))
-            a1(i) = cp / rl + qstp(i,k) * (1._kind_phys+ qstp(i,k) / eps1) * rl * eps1 / &
-                    (rd * tp(i,k) ** 2)
-            a2(i) = .5_kind_phys* (qstp(i,k)* (1._kind_phys+2._kind_phys/eps1*qstp(i,k))* &
-                    (1._kind_phys+qstp(i,k)/eps1)*eps1**2*rl*rl/ &
-                    (rd**2*tp(i,k)**4)-qstp(i,k)* &
-                    (1._kind_phys+qstp(i,k)/eps1)*2._kind_phys*eps1*rl/ &
-                    (rd*tp(i,k)**3))
-            a1(i) = 1._kind_phys/a1(i)
-            a2(i) = -a2(i)*a1(i)**3
-            y(i) = q(i,mx(i)) - qstp(i,k)
-            tp(i,k) = tp(i,k) + a1(i)*y(i) + a2(i)*y(i)**2
-            call qsat_hPa(tp(i,k), p(i,k), estp(i), qstp(i,k))
-!
-! buoyancy is increased by 0.5 k in cape calculation.
-! dec. 9, 1994
-!-jjh          tpv(i,k) =tp(i,k)*(1.+1.608*qstp(i,k))/(1.+q(i,mx(i)))
-!
-            tpv(i,k) = (tp(i,k)+tpert(i))* (1._kind_phys+1.608_kind_phys*qstp(i,k)) / (1._kind_phys+q(i,mx(i)))
-            buoy(i,k) = tpv(i,k) - tv(i,k) + tiedke_add
-         end if
-      end do
-   end do
-!
-! main buoyancy calculation.
-!
-   do k = pver - 1,msg + 1,-1
-      do i=1,ncol
-         if (k < lcl(i) .and. plge600(i)) then
-            tv(i,k) = t(i,k)* (1._kind_phys+1.608_kind_phys*q(i,k))/ (1._kind_phys+q(i,k))
-            qstp(i,k) = qstp(i,k+1)
-            tp(i,k) = tp(i,k+1)* (p(i,k)/p(i,k+1))**(0.2854_kind_phys* (1._kind_phys-0.28_kind_phys*qstp(i,k)))
-            call qsat_hPa(tp(i,k), p(i,k), estp(i), qstp(i,k))
-            a1(i) = cp/rl + qstp(i,k)* (1._kind_phys+qstp(i,k)/eps1)*rl*eps1/ (rd*tp(i,k)**2)
-            a2(i) = .5_kind_phys* (qstp(i,k)* (1._kind_phys+2._kind_phys/eps1*qstp(i,k))* &
-                    (1._kind_phys+qstp(i,k)/eps1)*eps1**2*rl*rl/ &
-                    (rd**2*tp(i,k)**4)-qstp(i,k)* &
-                    (1._kind_phys+qstp(i,k)/eps1)*2._kind_phys*eps1*rl/ &
-                    (rd*tp(i,k)**3))
-            a1(i) = 1._kind_phys/a1(i)
-            a2(i) = -a2(i)*a1(i)**3
-            y(i) = qstp(i,k+1) - qstp(i,k)
-            tp(i,k) = tp(i,k) + a1(i)*y(i) + a2(i)*y(i)**2
-            call qsat_hPa(tp(i,k), p(i,k), estp(i), qstp(i,k))
-!-jjh          tpv(i,k) =tp(i,k)*(1.+1.608*qstp(i,k))/
-!jt            (1.+q(i,mx(i)))
-            tpv(i,k) = (tp(i,k)+tpert(i))* (1._kind_phys+1.608_kind_phys*qstp(i,k))/(1._kind_phys+q(i,mx(i)))
-            buoy(i,k) = tpv(i,k) - tv(i,k) + tiedke_add
-         end if
-      end do
-   end do
-
-!
-   do k = msg + 2,pver
-      do i = 1,ncol
-         if (k < lcl(i) .and. plge600(i)) then
-            if (buoy(i,k+1) > 0._kind_phys .and. buoy(i,k) <= 0._kind_phys) then
-               knt(i) = min(5,knt(i) + 1)
-               lelten(i,knt(i)) = k
-            end if
-         end if
-      end do
-   end do
-!
-! calculate convective available potential energy (cape).
-!
-   do n = 1,5
-      do k = msg + 1,pver
-         do i = 1,ncol
-            if (plge600(i) .and. k <= mx(i) .and. k > lelten(i,n)) then
-               capeten(i,n) = capeten(i,n) + rd*buoy(i,k)*log(pf(i,k+1)/pf(i,k))
-            end if
-         end do
-      end do
-   end do
-!
-! find maximum cape from all possible tentative capes from
-! one sounding,
-! and use it as the final cape, april 26, 1995
-!
-   do n = 1,5
-      do i = 1,ncol
-         if (capeten(i,n) > cape(i)) then
-            cape(i) = capeten(i,n)
-            lel(i) = lelten(i,n)
-         end if
-      end do
-   end do
-!
-! put lower bound on cape for diagnostic purposes.
-!
-   do i = 1,ncol
-      cape(i) = max(cape(i), 0._kind_phys)
-   end do
-!
-   return
-end subroutine buoyan
 
 subroutine buoyan_dilute(  ncol    ,pcols   ,pver    , &
                   cpliq   ,latice  ,cpwv    ,rh2o    ,&
@@ -1907,7 +1607,8 @@ SUBROUTINE ientropy (rcall,icol,s,p,qt,T,qst,Tfg,cpliq,cpwv,rh2o,errmsg,errflg)
 ! for T and saturated vapor mixing ratio
 !
 
-  use phys_grid, only: get_rlon_p, get_rlat_p
+! CACNOTE - Remove this when pass in lat/lon or pass out lchnk,icol
+!  use phys_grid, only: get_rlon_p, get_rlat_p
 
   integer, intent(in) :: icol, rcall
   real(kind_phys), intent(in)  :: s, p, Tfg, qt
@@ -2031,6 +1732,7 @@ subroutine cldprp(pcols   ,pver    ,pverp   ,cpliq   , &
                   qcde     ,qhat  )
 
 !-----------------------------------------------------------------------
+!CACNOTE - fill in documentation
 !
 ! Purpose:
 ! <Say what the routine does>
@@ -2751,6 +2453,7 @@ subroutine closure(pcols   ,pver, &
                    il2g    ,rd      ,grav    ,cp      ,rl      , &
                    msg     ,capelmt )
 !-----------------------------------------------------------------------
+!CACNOTE - fill in documentation
 !
 ! Purpose:
 ! <Say what the routine does>
@@ -2965,6 +2668,7 @@ subroutine q1q2_pjr(pcols   ,pver    ,latice  ,&
    implicit none
 
 !-----------------------------------------------------------------------
+! CACNOTE -fill in documentation
 !
 ! Purpose:
 ! <Say what the routine does>
@@ -3089,6 +2793,7 @@ end subroutine q1q2_pjr
 ! qsat_water uses Pa internally, so get it right, need to pass in Pa.
 ! Afterward, set es back to hPa.
 subroutine qsat_hPa(t, p, es, qm)
+!CACNOTE - Need to figure out how to handle this
   use wv_saturation, only: qsat_water
 
   ! Inputs
@@ -3105,4 +2810,4 @@ subroutine qsat_hPa(t, p, es, qm)
 
 end subroutine qsat_hPa
 
-end module zm_convr_mod
+end module zm_convr

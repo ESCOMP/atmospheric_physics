@@ -1,4 +1,4 @@
-module zm_conv_evap_mod
+module zm_conv_evap
 
   use ccpp_kinds, only:  kind_phys
 
@@ -275,4 +275,4 @@ subroutine zm_conv_evap_run(ncol, pcols, pver, pverp, &
   end subroutine zm_conv_evap_run
 
 
-end module zm_conv_evap_mod
+end module zm_conv_evap

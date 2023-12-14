@@ -1,4 +1,4 @@
-module zm_conv_convtran_mod
+module zm_conv_convtran
 
   use ccpp_kinds, only:  kind_phys
 
@@ -37,6 +37,7 @@ subroutine zm_conv_convtran_run(pcols, pver, &
 ! Author: P. Rasch
 !
 !-----------------------------------------------------------------------
+! CACNOTE - replace with CCPP constituents
    use constituents,    only: cnst_get_type_byind
 
    implicit none
@@ -315,4 +316,4 @@ subroutine zm_conv_convtran_run(pcols, pver, &
 end subroutine zm_conv_convtran_run
 
 
-end module zm_conv_convtran_mod
+end module zm_conv_convtran

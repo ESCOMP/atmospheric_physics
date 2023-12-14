@@ -1,4 +1,4 @@
-module zm_conv_momtran_mod
+module zm_conv_momtran
 
   use ccpp_kinds, only:  kind_phys
 
@@ -35,6 +35,7 @@ subroutine zm_conv_momtran_run(ncol, pcols, pver, pverp, &
 ! Author: J. Richter and P. Rasch
 !
 !-----------------------------------------------------------------------
+! CACNOTE - use CCPP constituents object
    use constituents,    only: cnst_get_type_byind
 
    implicit none
@@ -419,4 +420,4 @@ subroutine zm_conv_momtran_run(ncol, pcols, pver, pverp, &
 end subroutine zm_conv_momtran_run
 
 
-end module zm_conv_momtran_mod
+end module zm_conv_momtran
