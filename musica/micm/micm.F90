@@ -46,12 +46,12 @@ module micm
 
    !> \section arg_table_micm_run Argument Table
    !! \htmlinclude micm_run.html
-   subroutine micm_run(temperature, pressure, time_step, concentrations, num_concentrations, iulog, errcode, errmsg)
+   subroutine micm_run(temperature, pressure, time_step, num_concentrations, concentrations, iulog, errcode, errmsg)
       real(kind_phys), dimension(:,:), intent(in)        :: temperature
       real(kind_phys), dimension(:,:), intent(in)        :: pressure
       real(kind_phys), intent(in)                        :: time_step
-      real(kind_phys), dimension(:,:,:), intent(inout)   :: concentrations      
       integer, intent(in)                                :: num_concentrations
+      real(kind_phys), dimension(:,:,:), intent(inout)   :: concentrations      
       integer, intent(in)                                :: iulog
       integer, intent(out)                               :: errcode
       character(len=512), intent(out)                    :: errmsg
@@ -61,10 +61,8 @@ module micm
       real(c_double), dimension(shape(pressure))         :: c_pressure
       real(c_double)                                     :: c_time_step
       real(c_double), dimension(shape(concentrations))   :: c_concentrations
-      integer                                            :: horizontal_loop_extent
-      integer                                            :: vertical_layer_dimension
-      integer                                            :: i_column
-      integer                                            :: i_layer
+      integer                                            :: horizontal_loop_extent, vertical_layer_dimension
+      integer                                            :: i_column, i_layer
 
       c_temperature = real(temperature, c_double)
       c_pressure = real(pressure, c_double)

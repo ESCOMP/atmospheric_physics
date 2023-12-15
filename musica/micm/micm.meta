@@ -37,18 +37,24 @@
   standard_name = air_temperature
   units = K
   type = real | kind = kind_phys
-  dimensions = ()
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ pressure ]
   standard_name = air_pressure
   units = Pa
   type = real | kind = kind_phys
-  dimensions = ()
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ time_step ]
   standard_name = timestep_for_physics
   units = second
   type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ num_concentrations ]
+  standard_name = number_of_ccpp_constituents
+  units = count
+  type = integer
   dimensions = ()
   intent = in
 [ concentrations ]
@@ -57,12 +63,6 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension,number_of_ccpp_constituents)
   intent = inout
-[ num_concentrations ]
-  standard_name = number_of_ccpp_constituents
-  units = count
-  type = integer
-  dimensions = ()
-  intent = in
 [ iulog ]
   standard_name = log_output_unit
   units = none
