@@ -59,7 +59,7 @@
   intent = in
 [ concentrations ]
   standard_name = ccpp_constituents
-  units = none
+  units = mol m-3
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension,number_of_ccpp_constituents)
   intent = inout

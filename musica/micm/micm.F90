@@ -11,7 +11,7 @@ module micm
    private
    public :: micm_init, micm_run, micm_final
 
-   type(micm_t), pointer :: micm_ptr
+   type(micm_t), pointer :: micm_ptr => null()
 
  contains
  
@@ -101,7 +101,7 @@ module micm
       errmsg = ''
       
       write(iulog,*) "FINAL MICM: INFO: Deallocating MICM object..."
-      deallocate(micm_ptr)
+      if (associated(micm_ptr)) deallocate(micm_ptr)
 
    end subroutine micm_final
 
