@@ -13,7 +13,7 @@
   intent = in
 [ iulog ]
   standard_name = log_output_unit
-  units = none
+  units = 1
   type = integer
   dimensions = ()
   intent = in
@@ -47,7 +47,7 @@
   intent = in
 [ time_step ]
   standard_name = timestep_for_physics
-  units = second
+  units = s
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
@@ -65,7 +65,7 @@
   intent = inout
 [ iulog ]
   standard_name = log_output_unit
-  units = none
+  units = 1
   type = integer
   dimensions = ()
   intent = in
@@ -87,7 +87,7 @@
   type  = scheme
 [ iulog ]
   standard_name = log_output_unit
-  units = none
+  units = 1
   type = integer
   dimensions = ()
   intent = in

@@ -2,16 +2,19 @@ module micm
    ! Wrapper for MICM functionality
 
    use iso_c_binding
-   use micm_core
-   use ccpp_kinds, only:  kind_phys ! TODO(jiwon) - temporary solution until
-                                    ! the framework can handle the kind conversions automatically
- 
+
+   ! Note: "micm_core" is included in an external pre-built MICM library that the host
+   ! model is responsible for linking to during compilation
+   use micm_core, only: micm_t
+   use ccpp_kinds, only: kind_phys  ! TODO(jiwon) - temporary solution until the framework
+                                    ! can handle the kind conversions automatically
+
    implicit none
  
    private
    public :: micm_init, micm_run, micm_final
 
-   type(micm_t), pointer :: micm_ptr => null()
+   type(micm_t), allocatable :: micm_obj
 
  contains
  
@@ -29,11 +32,11 @@ module micm
       errmsg = ''
 
       ! Constructs MICM object
-      allocate(micm_ptr)
-      micm_ptr = micm_t(config_path)
+      allocate(micm_obj)
+      micm_obj = micm_t(config_path)
 
       ! Creates solver
-      errcode = micm_ptr%create_solver()
+      errcode = micm_obj%create_solver()
 
       if (errcode /= 0) then
          errmsg = "INIT MICM: FATAL: Failed in creating MICM solver because parsing configuration files failed. &
@@ -81,10 +84,11 @@ module micm
       write(iulog,*) "RUN MICM: INFO: Running MICM solver..."
       do i_column = 1, horizontal_loop_extent
          do i_layer = 1, vertical_layer_dimension
-            call micm_ptr%solve(c_temperature(i_column, i_layer), c_pressure(i_column, i_layer), c_time_step, &
+            call micm_obj%solve(c_temperature(i_column, i_layer), c_pressure(i_column, i_layer), c_time_step, &
                                 num_concentrations, c_concentrations(i_column, i_layer, :))
          end do
-      end do 
+      end do
+      write(iulog,*) "RUN MICM: INFO: MICM solver has finished."
 
       concentrations = real(c_concentrations, kind_phys)
 
@@ -101,7 +105,7 @@ module micm
       errmsg = ''
       
       write(iulog,*) "FINAL MICM: INFO: Deallocating MICM object..."
-      if (associated(micm_ptr)) deallocate(micm_ptr)
+      if (allocated(micm_obj)) deallocate(micm_obj)
 
    end subroutine micm_final
 
