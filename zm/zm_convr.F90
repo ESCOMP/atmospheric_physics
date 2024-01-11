@@ -139,7 +139,7 @@ end subroutine zm_convr_init
 !> \section arg_table_zm_convr_run Argument Table
 !! \htmlinclude zm_convr_run.html
 !!
-subroutine zm_convr_run(     ncol    ,pcols   ,pver    , &
+subroutine zm_convr_run(     ncol    ,pver    , &
                     pverp,   gravit  ,latice  ,cpwv    ,cpliq   , rh2o, &
                     t       ,qh      ,prec    ,jctop   ,jcbot   , &
                     pblh    ,zm      ,geos    ,zi      ,qtnd    , &
@@ -268,7 +268,7 @@ subroutine zm_convr_run(     ncol    ,pcols   ,pver    , &
 ! input arguments
 !
    integer, intent(in) :: ncol                    ! number of atmospheric columns
-   integer, intent(in) :: pcols, pver, pverp
+   integer, intent(in) :: pver, pverp
 
    real(kind_phys), intent(in) :: gravit          ! gravitational acceleration (m s-2)
    real(kind_phys), intent(in) :: latice          ! Latent heat of fusion (J kg-1)
@@ -276,83 +276,82 @@ subroutine zm_convr_run(     ncol    ,pcols   ,pver    , &
    real(kind_phys), intent(in) :: cpliq           ! specific heat of fresh h2o (J K-1 kg-1)
    real(kind_phys), intent(in) :: rh2o            ! Water vapor gas constant (J K-1 kg-1)
 
-   real(kind_phys), intent(in) :: t(:,:)          ! grid slice of temperature at mid-layer.           (pcols,pver)
-   real(kind_phys), intent(in) :: qh(:,:)         ! grid slice of specific humidity.                  (pcols,pver)
-   real(kind_phys), intent(in) :: pap(:,:)        !                                                   (pcols,pver)
-   real(kind_phys), intent(in) :: paph(:,:)     !                                                     (pcols,pver+1)
-   real(kind_phys), intent(in) :: dpp(:,:)        ! local sigma half-level thickness (i.e. dshj).     (pcols,pver)
-   real(kind_phys), intent(in) :: zm(:,:)       !                                                     (pcols,pver)
-   real(kind_phys), intent(in) :: geos(:)       !                                                     (pcols)
-   real(kind_phys), intent(in) :: zi(:,:)      !                                                      (pcols,pver+1)
-   real(kind_phys), intent(in) :: pblh(:)     !                                                       (pcols)
-   real(kind_phys), intent(in) :: tpert(:)      !                                                     (pcols)
-   real(kind_phys), intent(in) :: landfrac(:) ! RBN Landfrac                                          (pcols)
+   real(kind_phys), intent(in) :: t(:,:)          ! grid slice of temperature at mid-layer.           (ncol,pver)
+   real(kind_phys), intent(in) :: qh(:,:)         ! grid slice of specific humidity.                  (ncol,pver)
+   real(kind_phys), intent(in) :: pap(:,:)        !                                                   (ncol,pver)
+   real(kind_phys), intent(in) :: paph(:,:)     !                                                     (ncol,pver+1)
+   real(kind_phys), intent(in) :: dpp(:,:)        ! local sigma half-level thickness (i.e. dshj).     (ncol,pver)
+   real(kind_phys), intent(in) :: zm(:,:)       !                                                     (ncol,pver)
+   real(kind_phys), intent(in) :: geos(:)       !                                                     (ncol)
+   real(kind_phys), intent(in) :: zi(:,:)      !                                                      (ncol,pver+1)
+   real(kind_phys), intent(in) :: pblh(:)     !                                                       (ncol)
+   real(kind_phys), intent(in) :: tpert(:)      !                                                     (ncol)
+   real(kind_phys), intent(in) :: landfrac(:) ! RBN Landfrac                                          (ncol)
 
 ! output arguments
 !
-   real(kind_phys), intent(out) :: qtnd(:,:)           ! specific humidity tendency (kg/kg/s)             (pcols,pver)
-   real(kind_phys), intent(out) :: heat(:,:)           ! heating rate (dry static energy tendency, W/kg)  (pcols,pver)
-   real(kind_phys), intent(out) :: mcon(:,:)  !   (pcols,pverp)
-   real(kind_phys), intent(out) :: dlf(:,:)    ! scattrd version of the detraining cld h2o tend (pcols,pver)
-   real(kind_phys), intent(out) :: pflx(:,:)  ! scattered precip flux at each level                                                          (pcols,pverp)
-   real(kind_phys), intent(out) :: cme(:,:)    !                                                          (pcols,pver)
-   real(kind_phys), intent(out) :: cape(:)        ! w  convective available potential energy.             (pcols)
-   real(kind_phys), intent(out) :: zdu(:,:)    ! (pcols,pver)
-   real(kind_phys), intent(out) :: rprd(:,:)     ! rain production rate (pcols,pver)
-   real(kind_phys), intent(out) :: dif(:,:)        ! detrained convective cloud ice mixing ratio.         (pcols,pver)
-   real(kind_phys), intent(out) :: dnlf(:,:)       ! detrained convective cloud water num concen.         (pcols,pver)
-   real(kind_phys), intent(out) :: dnif(:,:)       ! detrained convective cloud ice num concen.           (pcols,pver)
+   real(kind_phys), intent(out) :: qtnd(:,:)           ! specific humidity tendency (kg/kg/s)             (ncol,pver)
+   real(kind_phys), intent(out) :: heat(:,:)           ! heating rate (dry static energy tendency, W/kg)  (ncol,pver)
+   real(kind_phys), intent(out) :: mcon(:,:)  !   (ncol,pverp)
+   real(kind_phys), intent(out) :: dlf(:,:)    ! scattrd version of the detraining cld h2o tend (ncol,pver)
+   real(kind_phys), intent(out) :: pflx(:,:)  ! scattered precip flux at each level                                                          (ncol,pverp)
+   real(kind_phys), intent(out) :: cme(:,:)    !                                                          (ncol,pver)
+   real(kind_phys), intent(out) :: cape(:)        ! w  convective available potential energy.             (ncol)
+   real(kind_phys), intent(out) :: zdu(:,:)    ! (ncol,pver)
+   real(kind_phys), intent(out) :: rprd(:,:)     ! rain production rate (ncol,pver)
+   real(kind_phys), intent(out) :: dif(:,:)        ! detrained convective cloud ice mixing ratio.         (ncol,pver)
+   real(kind_phys), intent(out) :: dnlf(:,:)       ! detrained convective cloud water num concen.         (ncol,pver)
+   real(kind_phys), intent(out) :: dnif(:,:)       ! detrained convective cloud ice num concen.           (ncol,pver)
 
 ! move these vars from local storage to output so that convective
 ! transports can be done in outside of conv_cam.
-   real(kind_phys), intent(out) :: mu(:,:)  !                                                                 (pcols,pver)
-   real(kind_phys), intent(out) :: eu(:,:)  !                                                                 (pcols,pver)
-   real(kind_phys), intent(out) :: du(:,:)  !                                                                 (pcols,pver)
-   real(kind_phys), intent(out) :: md(:,:)  !                                                                 (pcols,pver)
-   real(kind_phys), intent(out) :: ed(:,:)  !                                                                 (pcols,pver)
-   real(kind_phys), intent(out) :: dp(:,:)       ! wg layer thickness in mbs (between upper/lower interface). (pcols,pver)
-   real(kind_phys), intent(out) :: dsubcld(:)       ! wg layer thickness in mbs between lcl and maxi.         (pcols)
-   real(kind_phys), intent(out) :: jctop(:)  ! o row of top-of-deep-convection indices passed out.            (pcols)
-   real(kind_phys), intent(out) :: jcbot(:)  ! o row of base of cloud indices passed out.                     (pcols)
-   real(kind_phys), intent(out) :: prec(:)  !                                                                 (pcols)
-   real(kind_phys), intent(out) :: rliq(:) ! reserved liquid (not yet in cldliq) for energy integrals         (pcols)
-   real(kind_phys), intent(out) :: rice(:) ! reserved ice (not yet in cldce) for energy integrals             (pcols)
+   real(kind_phys), intent(out) :: mu(:,:)  !                                                                 (ncol,pver)
+   real(kind_phys), intent(out) :: eu(:,:)  !                                                                 (ncol,pver)
+   real(kind_phys), intent(out) :: du(:,:)  !                                                                 (ncol,pver)
+   real(kind_phys), intent(out) :: md(:,:)  !                                                                 (ncol,pver)
+   real(kind_phys), intent(out) :: ed(:,:)  !                                                                 (ncol,pver)
+   real(kind_phys), intent(out) :: dp(:,:)       ! wg layer thickness in mbs (between upper/lower interface). (ncol,pver)
+   real(kind_phys), intent(out) :: dsubcld(:)       ! wg layer thickness in mbs between lcl and maxi.         (ncol)
+   real(kind_phys), intent(out) :: jctop(:)  ! o row of top-of-deep-convection indices passed out.            (ncol)
+   real(kind_phys), intent(out) :: jcbot(:)  ! o row of base of cloud indices passed out.                     (ncol)
+   real(kind_phys), intent(out) :: prec(:)  !                                                                 (ncol)
+   real(kind_phys), intent(out) :: rliq(:) ! reserved liquid (not yet in cldliq) for energy integrals         (ncol)
+   real(kind_phys), intent(out) :: rice(:) ! reserved ice (not yet in cldce) for energy integrals             (ncol)
 
-   integer,  intent(out) :: ideep(:)  ! column indices of gathered points                              (pcols)
+   integer,  intent(out) :: ideep(:)  ! column indices of gathered points                              (ncol)
+
    character(len=512), intent(out)      :: errmsg
    integer, intent(out)                 :: errflg
 
 
-!CACNOTE - Figure out whether these should all be intent(out) or (inout)
-!CACNOTE - Remove the pointer when ZM wrapper is modified to make it allocatable
-   real(kind_phys), pointer, intent(inout) :: org(:,:)     ! Only used if zm_org is true
-   real(kind_phys), pointer, intent(inout) :: orgt(:,:)   ! Only used if zm_org is true
-   real(kind_phys), pointer, intent(inout) :: org2d(:,:)  ! Only used if zm_org is true
+   real(kind_phys), intent(in) :: org(:,:)     ! Only used if zm_org is true  ! in
+   real(kind_phys), intent(out) :: orgt(:,:)   ! Only used if zm_org is true   ! out
+   real(kind_phys), intent(out) :: org2d(:,:)  ! Only used if zm_org is true   ! out
 
    ! Local variables
 
-   real(kind_phys) zs(pcols)
-   real(kind_phys) dlg(pcols,pver)    ! gathrd version of the detraining cld h2o tend
-   real(kind_phys) pflxg(pcols,pverp) ! gather precip flux at each level
-   real(kind_phys) cug(pcols,pver)    ! gathered condensation rate
+   real(kind_phys) zs(ncol)
+   real(kind_phys) dlg(ncol,pver)    ! gathrd version of the detraining cld h2o tend
+   real(kind_phys) pflxg(ncol,pverp) ! gather precip flux at each level
+   real(kind_phys) cug(ncol,pver)    ! gathered condensation rate
 
-   real(kind_phys) evpg(pcols,pver)   ! gathered evap rate of rain in downdraft
-   real(kind_phys) orgavg(pcols)
-   real(kind_phys) dptot(pcols)
+   real(kind_phys) evpg(ncol,pver)   ! gathered evap rate of rain in downdraft
+   real(kind_phys) orgavg(ncol)
+   real(kind_phys) dptot(ncol)
 
-   real(kind_phys) mumax(pcols)
+   real(kind_phys) mumax(ncol)
 
 !CACNOTE - Figure out real intent for jt and maxg
-   integer, intent(inout) :: jt(pcols)                          ! wg top  level index of deep cumulus convection.
-   integer, intent(inout) :: maxg(pcols)                        ! wg gathered values of maxi.
+   integer, intent(inout) :: jt(ncol)                          ! wg top  level index of deep cumulus convection.
+   integer, intent(inout) :: maxg(ncol)                        ! wg gathered values of maxi.
 
    integer lengath
 !     diagnostic field used by chem/wetdep codes
 
 !CACNOTE - Figure out real intent for ql
-   real(kind_phys),intent(inout):: ql(pcols,pver)                    ! wg grid slice of cloud liquid water.
+   real(kind_phys),intent(inout):: ql(ncol,pver)                    ! wg grid slice of cloud liquid water.
 !
-   real(kind_phys) pblt(pcols)           ! i row of pbl top indices.
+   real(kind_phys) pblt(ncol)           ! i row of pbl top indices.
 
 
 
@@ -362,66 +361,66 @@ subroutine zm_convr_run(     ncol    ,pcols   ,pver    , &
 !
 ! general work fields (local variables):
 !
-   real(kind_phys) q(pcols,pver)              ! w  grid slice of mixing ratio.
-   real(kind_phys) p(pcols,pver)              ! w  grid slice of ambient mid-layer pressure in mbs.
-   real(kind_phys) z(pcols,pver)              ! w  grid slice of ambient mid-layer height in metres.
-   real(kind_phys) s(pcols,pver)              ! w  grid slice of scaled dry static energy (t+gz/cp).
-   real(kind_phys) tp(pcols,pver)             ! w  grid slice of parcel temperatures.
-   real(kind_phys) zf(pcols,pver+1)           ! w  grid slice of ambient interface height in metres.
-   real(kind_phys) pf(pcols,pver+1)           ! w  grid slice of ambient interface pressure in mbs.
-   real(kind_phys) qstp(pcols,pver)           ! w  grid slice of parcel temp. saturation mixing ratio.
+   real(kind_phys) q(ncol,pver)              ! w  grid slice of mixing ratio.
+   real(kind_phys) p(ncol,pver)              ! w  grid slice of ambient mid-layer pressure in mbs.
+   real(kind_phys) z(ncol,pver)              ! w  grid slice of ambient mid-layer height in metres.
+   real(kind_phys) s(ncol,pver)              ! w  grid slice of scaled dry static energy (t+gz/cp).
+   real(kind_phys) tp(ncol,pver)             ! w  grid slice of parcel temperatures.
+   real(kind_phys) zf(ncol,pver+1)           ! w  grid slice of ambient interface height in metres.
+   real(kind_phys) pf(ncol,pver+1)           ! w  grid slice of ambient interface pressure in mbs.
+   real(kind_phys) qstp(ncol,pver)           ! w  grid slice of parcel temp. saturation mixing ratio.
 
-   real(kind_phys) tl(pcols)                  ! w  row of parcel temperature at lcl.
+   real(kind_phys) tl(ncol)                  ! w  row of parcel temperature at lcl.
 
-   integer lcl(pcols)                  ! w  base level index of deep cumulus convection.
-   integer lel(pcols)                  ! w  index of highest theoretical convective plume.
-   integer lon(pcols)                  ! w  index of onset level for deep convection.
-   integer maxi(pcols)                 ! w  index of level with largest moist static energy.
+   integer lcl(ncol)                  ! w  base level index of deep cumulus convection.
+   integer lel(ncol)                  ! w  index of highest theoretical convective plume.
+   integer lon(ncol)                  ! w  index of onset level for deep convection.
+   integer maxi(ncol)                 ! w  index of level with largest moist static energy.
 
    real(kind_phys) precip
 !
 ! gathered work fields:
 !
-   real(kind_phys) qg(pcols,pver)             ! wg grid slice of gathered values of q.
-   real(kind_phys) tg(pcols,pver)             ! w  grid slice of temperature at interface.
-   real(kind_phys) pg(pcols,pver)             ! wg grid slice of gathered values of p.
-   real(kind_phys) zg(pcols,pver)             ! wg grid slice of gathered values of z.
-   real(kind_phys) sg(pcols,pver)             ! wg grid slice of gathered values of s.
-   real(kind_phys) tpg(pcols,pver)            ! wg grid slice of gathered values of tp.
-   real(kind_phys) zfg(pcols,pver+1)          ! wg grid slice of gathered values of zf.
-   real(kind_phys) qstpg(pcols,pver)          ! wg grid slice of gathered values of qstp.
-   real(kind_phys) ug(pcols,pver)             ! wg grid slice of gathered values of u.
-   real(kind_phys) vg(pcols,pver)             ! wg grid slice of gathered values of v.
-   real(kind_phys) cmeg(pcols,pver)
+   real(kind_phys) qg(ncol,pver)             ! wg grid slice of gathered values of q.
+   real(kind_phys) tg(ncol,pver)             ! w  grid slice of temperature at interface.
+   real(kind_phys) pg(ncol,pver)             ! wg grid slice of gathered values of p.
+   real(kind_phys) zg(ncol,pver)             ! wg grid slice of gathered values of z.
+   real(kind_phys) sg(ncol,pver)             ! wg grid slice of gathered values of s.
+   real(kind_phys) tpg(ncol,pver)            ! wg grid slice of gathered values of tp.
+   real(kind_phys) zfg(ncol,pver+1)          ! wg grid slice of gathered values of zf.
+   real(kind_phys) qstpg(ncol,pver)          ! wg grid slice of gathered values of qstp.
+   real(kind_phys) ug(ncol,pver)             ! wg grid slice of gathered values of u.
+   real(kind_phys) vg(ncol,pver)             ! wg grid slice of gathered values of v.
+   real(kind_phys) cmeg(ncol,pver)
 
-   real(kind_phys) rprdg(pcols,pver)           ! wg gathered rain production rate
-   real(kind_phys) capeg(pcols)               ! wg gathered convective available potential energy.
-   real(kind_phys) tlg(pcols)                 ! wg grid slice of gathered values of tl.
-   real(kind_phys) landfracg(pcols)            ! wg grid slice of landfrac
+   real(kind_phys) rprdg(ncol,pver)           ! wg gathered rain production rate
+   real(kind_phys) capeg(ncol)               ! wg gathered convective available potential energy.
+   real(kind_phys) tlg(ncol)                 ! wg grid slice of gathered values of tl.
+   real(kind_phys) landfracg(ncol)            ! wg grid slice of landfrac
 
-   integer lclg(pcols)       ! wg gathered values of lcl.
-   integer lelg(pcols)
+   integer lclg(ncol)       ! wg gathered values of lcl.
+   integer lelg(ncol)
 !
 ! work fields arising from gathered calculations.
 !
-   real(kind_phys) dqdt(pcols,pver)           ! wg mixing ratio tendency at gathered points.
-   real(kind_phys) dsdt(pcols,pver)           ! wg dry static energy ("temp") tendency at gathered points.
-!      real(kind_phys) alpha(pcols,pver)      ! array of vertical differencing used (=1. for upstream).
-   real(kind_phys) sd(pcols,pver)             ! wg grid slice of dry static energy in downdraft.
-   real(kind_phys) qd(pcols,pver)             ! wg grid slice of mixing ratio in downdraft.
-   real(kind_phys) mc(pcols,pver)             ! wg net upward (scaled by mb) cloud mass flux.
-   real(kind_phys) qhat(pcols,pver)           ! wg grid slice of upper interface mixing ratio.
-   real(kind_phys) qu(pcols,pver)             ! wg grid slice of mixing ratio in updraft.
-   real(kind_phys) su(pcols,pver)             ! wg grid slice of dry static energy in updraft.
-   real(kind_phys) qs(pcols,pver)             ! wg grid slice of saturation mixing ratio.
-   real(kind_phys) shat(pcols,pver)           ! wg grid slice of upper interface dry static energy.
-   real(kind_phys) hmn(pcols,pver)            ! wg moist static energy.
-   real(kind_phys) hsat(pcols,pver)           ! wg saturated moist static energy.
-   real(kind_phys) qlg(pcols,pver)
-   real(kind_phys) dudt(pcols,pver)           ! wg u-wind tendency at gathered points.
-   real(kind_phys) dvdt(pcols,pver)           ! wg v-wind tendency at gathered points.
-!      real(kind_phys) ud(pcols,pver)
-!      real(kind_phys) vd(pcols,pver)
+   real(kind_phys) dqdt(ncol,pver)           ! wg mixing ratio tendency at gathered points.
+   real(kind_phys) dsdt(ncol,pver)           ! wg dry static energy ("temp") tendency at gathered points.
+!      real(kind_phys) alpha(ncol,pver)      ! array of vertical differencing used (=1. for upstream).
+   real(kind_phys) sd(ncol,pver)             ! wg grid slice of dry static energy in downdraft.
+   real(kind_phys) qd(ncol,pver)             ! wg grid slice of mixing ratio in downdraft.
+   real(kind_phys) mc(ncol,pver)             ! wg net upward (scaled by mb) cloud mass flux.
+   real(kind_phys) qhat(ncol,pver)           ! wg grid slice of upper interface mixing ratio.
+   real(kind_phys) qu(ncol,pver)             ! wg grid slice of mixing ratio in updraft.
+   real(kind_phys) su(ncol,pver)             ! wg grid slice of dry static energy in updraft.
+   real(kind_phys) qs(ncol,pver)             ! wg grid slice of saturation mixing ratio.
+   real(kind_phys) shat(ncol,pver)           ! wg grid slice of upper interface dry static energy.
+   real(kind_phys) hmn(ncol,pver)            ! wg moist static energy.
+   real(kind_phys) hsat(ncol,pver)           ! wg saturated moist static energy.
+   real(kind_phys) qlg(ncol,pver)
+   real(kind_phys) dudt(ncol,pver)           ! wg u-wind tendency at gathered points.
+   real(kind_phys) dvdt(ncol,pver)           ! wg v-wind tendency at gathered points.
+!      real(kind_phys) ud(ncol,pver)
+!      real(kind_phys) vd(ncol,pver)
 
 
 
@@ -429,12 +428,12 @@ subroutine zm_convr_run(     ncol    ,pcols   ,pver    , &
 
 
 
-   real(kind_phys) qldeg(pcols,pver)        ! cloud liquid water mixing ratio for detrainment (kg/kg)
-   real(kind_phys) mb(pcols)                ! wg cloud base mass flux.
+   real(kind_phys) qldeg(ncol,pver)        ! cloud liquid water mixing ratio for detrainment (kg/kg)
+   real(kind_phys) mb(ncol)                ! wg cloud base mass flux.
 
-   integer jlcl(pcols)
-   integer j0(pcols)                 ! wg detrainment initiation level index.
-   integer jd(pcols)                 ! wg downdraft initiation level index.
+   integer jlcl(ncol)
+   integer j0(ncol)                 ! wg detrainment initiation level index.
+   integer jd(ncol)                 ! wg downdraft initiation level index.
 
    real(kind_phys),intent(in):: delt                     ! length of model time-step in seconds.
 
@@ -598,7 +597,7 @@ subroutine zm_convr_run(     ncol    ,pcols   ,pver    , &
    !  Evaluate Tparcel, qs(Tparcel), buoyancy and CAPE,
    !     lcl, lel, parcel launch level at index maxi()=hmax
 
-   call buoyan_dilute(  ncol    ,pcols   ,pver     , &
+   call buoyan_dilute(  ncol   ,pver     , &
                cpliq   ,latice  ,cpwv    ,rh2o    ,&
                q       ,t       ,p       ,z       ,pf       , &
                tp      ,qstp    ,tl      ,rl      ,cape     , &
@@ -694,7 +693,7 @@ subroutine zm_convr_run(     ncol    ,pcols   ,pver    , &
 ! obtain cloud properties.
 !
 
-   call cldprp(pcols   ,pver    ,pverp   ,cpliq  , &
+   call cldprp(ncol   ,pver    ,pverp   ,cpliq  , &
                latice  ,cpwv    ,rh2o    ,&
                qg      ,tg      ,ug      ,vg      ,pg      , &
                zg      ,sg      ,mu      ,eu      ,du      , &
@@ -724,7 +723,7 @@ subroutine zm_convr_run(     ncol    ,pcols   ,pver    , &
       end do
    end do
 
-   call closure(pcols   ,pver    , &
+   call closure(ncol   ,pver    , &
                 qg      ,tg      ,pg      ,zg      ,sg      , &
                 tpg     ,qs      ,qu      ,su      ,mc      , &
                 du      ,mu      ,md      ,qd      ,sd      , &
@@ -780,7 +779,7 @@ subroutine zm_convr_run(     ncol    ,pcols   ,pver    , &
 !
 ! compute temperature and moisture changes due to convection.
 !
-   call q1q2_pjr(pcols   ,pver    ,latice  , &
+   call q1q2_pjr(ncol   ,pver    ,latice  , &
                  dqdt    ,dsdt    ,qg      ,qs      ,qu      , &
                  su      ,du      ,qhat    ,shat    ,dp      , &
                  mu      ,md      ,sd      ,qd      ,qldeg   , &
@@ -847,7 +846,7 @@ end subroutine zm_convr_finalize
 
 !=========================================================================================
 
-subroutine buoyan_dilute(  ncol    ,pcols   ,pver    , &
+subroutine buoyan_dilute(  ncol   ,pver    , &
                   cpliq   ,latice  ,cpwv    ,rh2o    ,&
                   q       ,t       ,p       ,z       ,pf      , &
                   tp      ,qstp    ,tl      ,rl      ,cape    , &
@@ -886,82 +885,82 @@ subroutine buoyan_dilute(  ncol    ,pcols   ,pver    , &
 ! input arguments
 !
    integer, intent(in) :: ncol                  ! number of atmospheric columns
-   integer, intent(in) :: pcols
    integer, intent(in) :: pver
    real(kind_phys), intent(in) :: cpliq
    real(kind_phys), intent(in) :: latice
    real(kind_phys), intent(in) :: cpwv
    real(kind_phys), intent(in) :: rh2o
 
-   real(kind_phys), intent(in) :: q(pcols,pver)        ! spec. humidity
-   real(kind_phys), intent(in) :: t(pcols,pver)        ! temperature
-   real(kind_phys), intent(in) :: p(pcols,pver)        ! pressure
-   real(kind_phys), intent(in) :: z(pcols,pver)        ! height
-   real(kind_phys), intent(in) :: pf(pcols,pver+1)     ! pressure at interfaces
-   real(kind_phys), intent(in) :: pblt(pcols)          ! index of pbl depth
-   real(kind_phys), intent(in) :: tpert(pcols)         ! perturbation temperature by pbl processes
+   real(kind_phys), intent(in) :: q(ncol,pver)        ! spec. humidity
+   real(kind_phys), intent(in) :: t(ncol,pver)        ! temperature
+   real(kind_phys), intent(in) :: p(ncol,pver)        ! pressure
+   real(kind_phys), intent(in) :: z(ncol,pver)        ! height
+   real(kind_phys), intent(in) :: pf(ncol,pver+1)     ! pressure at interfaces
+   real(kind_phys), intent(in) :: pblt(ncol)          ! index of pbl depth
+   real(kind_phys), intent(in) :: tpert(ncol)         ! perturbation temperature by pbl processes
 
 ! Use z interface/surface relative values for PBL parcel calculations.
-   real(kind_phys), intent(in) :: zi(pcols,pver+1)
-   real(kind_phys), intent(in) :: zs(pcols)
+   real(kind_phys), intent(in) :: zi(ncol,pver+1)
+   real(kind_phys), intent(in) :: zs(ncol)
 
 !
 ! output arguments
 !
-   real(kind_phys), intent(out) :: tp(pcols,pver)       ! parcel temperature
-   real(kind_phys), intent(out) :: qstp(pcols,pver)     ! saturation mixing ratio of parcel (only above lcl, just q below).
-   real(kind_phys), intent(out) :: tl(pcols)            ! parcel temperature at lcl
-   real(kind_phys), intent(out) :: cape(pcols)          ! convective aval. pot. energy.
-   integer lcl(pcols)        !
-   integer lel(pcols)        !
-   integer lon(pcols)        ! level of onset of deep convection
-   integer mx(pcols)         ! level of max moist static energy
 
-   real(kind_phys), pointer :: org(:,:)      ! organization parameter
-   real(kind_phys), intent(in) :: landfrac(pcols)
+   real(kind_phys), intent(out) :: tp(ncol,pver)       ! parcel temperature
+   real(kind_phys), intent(out) :: qstp(ncol,pver)     ! saturation mixing ratio of parcel (only above lcl, just q below).
+   real(kind_phys), intent(out) :: tl(ncol)            ! parcel temperature at lcl
+   real(kind_phys), intent(out) :: cape(ncol)          ! convective aval. pot. energy.
+   integer lcl(ncol)        !
+   integer lel(ncol)        !
+   integer lon(ncol)        ! level of onset of deep convection
+   integer mx(ncol)         ! level of max moist static energy
+
+   real(kind_phys)  :: org(:,:)      ! organization parameter
+   real(kind_phys), intent(in) :: landfrac(ncol)
    character(len=512), intent(out)      :: errmsg
    integer, intent(out)                 :: errflg
 
 !
 !--------------------------Local Variables------------------------------
 !
-   real(kind_phys) capeten(pcols,5)     ! provisional value of cape
-   real(kind_phys) tv(pcols,pver)       !
-   real(kind_phys) tpv(pcols,pver)      !
-   real(kind_phys) buoy(pcols,pver)
+   real(kind_phys) capeten(ncol,5)     ! provisional value of cape
+   real(kind_phys) tv(ncol,pver)       !
+   real(kind_phys) tpv(ncol,pver)      !
+   real(kind_phys) buoy(ncol,pver)
 
-   real(kind_phys) a1(pcols)
-   real(kind_phys) a2(pcols)
-   real(kind_phys) estp(pcols)
-   real(kind_phys) pl(pcols)
-   real(kind_phys) plexp(pcols)
-   real(kind_phys) hmax(pcols)
-   real(kind_phys) hmn(pcols)
-   real(kind_phys) y(pcols)
+   real(kind_phys) a1(ncol)
+   real(kind_phys) a2(ncol)
+   real(kind_phys) estp(ncol)
+   real(kind_phys) pl(ncol)
+   real(kind_phys) plexp(ncol)
+   real(kind_phys) hmax(ncol)
+   real(kind_phys) hmn(ncol)
+   real(kind_phys) y(ncol)
 
-   logical plge600(pcols)
-   integer knt(pcols)
-   integer lelten(pcols,5)
+   logical plge600(ncol)
+   integer knt(ncol)
+   integer lelten(ncol,5)
 
 
 
 
 ! Parcel property variables
 
-  real(kind_phys)           :: hmn_lev(pcols,pver)  ! Vertical profile of moist static energy for each column
-  real(kind_phys)           :: dp_lev(pcols,pver)   ! Level dpressure between interfaces
-  real(kind_phys)           :: hmn_zdp(pcols,pver)  ! Integrals of hmn_lev*dp_lev at each level
-  real(kind_phys)           :: q_zdp(pcols,pver)    ! Integrals of q*dp_lev at each level
+  real(kind_phys)           :: hmn_lev(ncol,pver)  ! Vertical profile of moist static energy for each column
+  real(kind_phys)           :: dp_lev(ncol,pver)   ! Level dpressure between interfaces
+  real(kind_phys)           :: hmn_zdp(ncol,pver)  ! Integrals of hmn_lev*dp_lev at each level
+  real(kind_phys)           :: q_zdp(ncol,pver)    ! Integrals of q*dp_lev at each level
   real(kind_phys)           :: dp_zfrac             ! Fraction of vertical grid box below mixing top (usually pblt)
-  real(kind_phys)           :: parcel_dz(pcols)     ! Depth of parcel mixing (usually parcel_hscale*parcel_dz)
-  real(kind_phys)           :: parcel_ztop(pcols)   ! Height of parcel mixing (usually parcel_ztop+zm(nlev))
-  real(kind_phys)           :: parcel_dp(pcols)     ! Pressure integral over parcel mixing depth (usually pblt)
-  real(kind_phys)           :: parcel_hdp(pcols)    ! Pressure*MSE integral over parcel mixing depth (usually pblt)
-  real(kind_phys)           :: parcel_qdp(pcols)    ! Pressure*q integral over parcel mixing depth (usually pblt)
-  real(kind_phys)           :: pbl_dz(pcols)        ! Previously diagnosed PBL height
-  real(kind_phys)           :: hpar(pcols)          ! Initial MSE of the parcel
-  real(kind_phys)           :: qpar(pcols)          ! Initial humidity of the parcel
-  real(kind_phys)           :: ql(pcols)          ! Initial parcel humidity (for ientropy routine)
+  real(kind_phys)           :: parcel_dz(ncol)     ! Depth of parcel mixing (usually parcel_hscale*parcel_dz)
+  real(kind_phys)           :: parcel_ztop(ncol)   ! Height of parcel mixing (usually parcel_ztop+zm(nlev))
+  real(kind_phys)           :: parcel_dp(ncol)     ! Pressure integral over parcel mixing depth (usually pblt)
+  real(kind_phys)           :: parcel_hdp(ncol)    ! Pressure*MSE integral over parcel mixing depth (usually pblt)
+  real(kind_phys)           :: parcel_qdp(ncol)    ! Pressure*q integral over parcel mixing depth (usually pblt)
+  real(kind_phys)           :: pbl_dz(ncol)        ! Previously diagnosed PBL height
+  real(kind_phys)           :: hpar(ncol)          ! Initial MSE of the parcel
+  real(kind_phys)           :: qpar(ncol)          ! Initial humidity of the parcel
+  real(kind_phys)           :: ql(ncol)          ! Initial parcel humidity (for ientropy routine)
   integer            :: ipar ! Index for top of parcel mixing/launch level.
 
 
@@ -1126,7 +1125,7 @@ end if ! Mixed parcel properties
 !!! DILUTE PLUME CALCULATION USING ENTRAINING PLUME !!!
 !!!   RBN 9/9/04   !!!
 
-   call parcel_dilute(ncol, pcols, pver, cpliq, cpwv, rh2o, latice, msg, mx, p, t, q, &
+   call parcel_dilute(ncol, pver, cpliq, cpwv, rh2o, latice, msg, mx, p, t, q, &
    tpert, tp, tpv, qstp, pl, tl, ql, lcl, &
    org, landfrac, errmsg, errflg)
 
@@ -1209,7 +1208,7 @@ end if ! Mixed parcel properties
    return
 end subroutine buoyan_dilute
 
-subroutine parcel_dilute (ncol, pcols, pver, cpliq, cpwv, rh2o, latice, msg, klaunch, p, t, q, &
+subroutine parcel_dilute (ncol, pver, cpliq, cpwv, rh2o, latice, msg, klaunch, p, t, q, &
   tpert, tp, tpv, qstp, pl, tl, ql, lcl, &
   org, landfrac,errmsg,errflg)
 
@@ -1222,7 +1221,6 @@ implicit none
 !--------------------
 
 integer, intent(in) :: ncol
-integer, intent(in) :: pcols
 integer, intent(in) :: pver
 real(kind_phys), intent(in) :: cpliq
 real(kind_phys), intent(in) :: cpwv
@@ -1230,29 +1228,30 @@ real(kind_phys), intent(in) :: rh2o
 real(kind_phys), intent(in) :: latice
 integer, intent(in) :: msg
 
-integer, intent(in), dimension(pcols) :: klaunch(pcols)
+integer, intent(in), dimension(ncol) :: klaunch(ncol)
 
-real(kind_phys), intent(in), dimension(pcols,pver) :: p
-real(kind_phys), intent(in), dimension(pcols,pver) :: t
-real(kind_phys), intent(in), dimension(pcols,pver) :: q
-real(kind_phys), intent(in), dimension(pcols) :: tpert ! PBL temperature perturbation.
+real(kind_phys), intent(in), dimension(ncol,pver) :: p
+real(kind_phys), intent(in), dimension(ncol,pver) :: t
+real(kind_phys), intent(in), dimension(ncol,pver) :: q
+real(kind_phys), intent(in), dimension(ncol) :: tpert ! PBL temperature perturbation.
 
-real(kind_phys), intent(inout), dimension(pcols,pver) :: tp    ! Parcel temp.
-real(kind_phys), intent(inout), dimension(pcols,pver) :: qstp  ! Parcel water vapour (sat value above lcl).
-real(kind_phys), intent(inout), dimension(pcols) :: tl         ! Actual temp of LCL.
-real(kind_phys), intent(inout), dimension(pcols) :: ql ! Actual humidity of LCL
-real(kind_phys), intent(inout), dimension(pcols) :: pl          ! Actual pressure of LCL.
+real(kind_phys), intent(inout), dimension(ncol,pver) :: tp    ! Parcel temp.
+real(kind_phys), intent(inout), dimension(ncol,pver) :: qstp  ! Parcel water vapour (sat value above lcl).
+real(kind_phys), intent(inout), dimension(ncol) :: tl         ! Actual temp of LCL.
+real(kind_phys), intent(inout), dimension(ncol) :: ql ! Actual humidity of LCL
+real(kind_phys), intent(inout), dimension(ncol) :: pl          ! Actual pressure of LCL.
 
-integer, intent(inout), dimension(pcols) :: lcl ! Lifting condesation level (first model level with saturation).
+integer, intent(inout), dimension(ncol) :: lcl ! Lifting condesation level (first model level with saturation).
 
-real(kind_phys), intent(out), dimension(pcols,pver) :: tpv   ! Define tpv within this routine.
+real(kind_phys), intent(out), dimension(ncol,pver) :: tpv   ! Define tpv within this routine.
+
 character(len=512), intent(out)      :: errmsg
 integer, intent(out)                 :: errflg
 
 
 
-real(kind_phys), pointer, dimension(:,:) :: org
-real(kind_phys), intent(in), dimension(pcols) :: landfrac
+real(kind_phys), dimension(:,:) :: org
+real(kind_phys), intent(in), dimension(ncol) :: landfrac
 !--------------------
 
 ! Have to be careful as s is also dry static energy.
@@ -1262,22 +1261,22 @@ real(kind_phys), intent(in), dimension(pcols) :: landfrac
 ! loop then we need to dimension sp,atp,mp,xsh2o with ncol.
 
 
-real(kind_phys) tmix(pcols,pver)        ! Tempertaure of the entraining parcel.
-real(kind_phys) qtmix(pcols,pver)       ! Total water of the entraining parcel.
-real(kind_phys) qsmix(pcols,pver)       ! Saturated mixing ratio at the tmix.
-real(kind_phys) smix(pcols,pver)        ! Entropy of the entraining parcel.
-real(kind_phys) xsh2o(pcols,pver)       ! Precipitate lost from parcel.
-real(kind_phys) ds_xsh2o(pcols,pver)    ! Entropy change due to loss of condensate.
-real(kind_phys) ds_freeze(pcols,pver)   ! Entropy change sue to freezing of precip.
-real(kind_phys) dmpdz2d(pcols,pver)     ! variable detrainment rate
+real(kind_phys) tmix(ncol,pver)        ! Tempertaure of the entraining parcel.
+real(kind_phys) qtmix(ncol,pver)       ! Total water of the entraining parcel.
+real(kind_phys) qsmix(ncol,pver)       ! Saturated mixing ratio at the tmix.
+real(kind_phys) smix(ncol,pver)        ! Entropy of the entraining parcel.
+real(kind_phys) xsh2o(ncol,pver)       ! Precipitate lost from parcel.
+real(kind_phys) ds_xsh2o(ncol,pver)    ! Entropy change due to loss of condensate.
+real(kind_phys) ds_freeze(ncol,pver)   ! Entropy change sue to freezing of precip.
+real(kind_phys) dmpdz2d(ncol,pver)     ! variable detrainment rate
 
-real(kind_phys) mp(pcols)    ! Parcel mass flux.
-real(kind_phys) qtp(pcols)   ! Parcel total water.
-real(kind_phys) sp(pcols)    ! Parcel entropy.
+real(kind_phys) mp(ncol)    ! Parcel mass flux.
+real(kind_phys) qtp(ncol)   ! Parcel total water.
+real(kind_phys) sp(ncol)    ! Parcel entropy.
 
-real(kind_phys) sp0(pcols)    ! Parcel launch entropy.
-real(kind_phys) qtp0(pcols)   ! Parcel launch total water.
-real(kind_phys) mp0(pcols)    ! Parcel launch relative mass flux.
+real(kind_phys) sp0(ncol)    ! Parcel launch entropy.
+real(kind_phys) qtp0(ncol)   ! Parcel launch total water.
+real(kind_phys) mp0(ncol)    ! Parcel launch relative mass flux.
 
 real(kind_phys) lwmax      ! Maximum condesate that can be held in cloud before rainout.
 real(kind_phys) dmpdp      ! Parcel fractional mass entrainment rate (/mb).
@@ -1718,7 +1717,7 @@ SUBROUTINE ientropy (rcall,icol,s,p,qt,T,qst,Tfg,cpliq,cpwv,rh2o,errmsg,errflg)
 
 end SUBROUTINE ientropy
 
-subroutine cldprp(pcols   ,pver    ,pverp   ,cpliq   , &
+subroutine cldprp(ncol   ,pver    ,pverp   ,cpliq   , &
                   latice  ,cpwv    ,rh2o    ,&
                   q       ,t       ,u       ,v       ,p       , &
                   z       ,s       ,mu      ,eu      ,du      , &
@@ -1759,7 +1758,7 @@ subroutine cldprp(pcols   ,pver    ,pverp   ,cpliq   , &
 !
 ! Input arguments
 !
-   integer, intent(in) :: pcols
+   integer, intent(in) :: ncol
    integer, intent(in) :: pver
    integer, intent(in) :: pverp
 
@@ -1768,51 +1767,52 @@ subroutine cldprp(pcols   ,pver    ,pverp   ,cpliq   , &
    real(kind_phys), intent(in) :: cpwv
    real(kind_phys), intent(in) :: rh2o
 
-   real(kind_phys), intent(in) :: q(pcols,pver)         ! spec. humidity of env
-   real(kind_phys), intent(in) :: t(pcols,pver)         ! temp of env
-   real(kind_phys), intent(in) :: p(pcols,pver)         ! pressure of env
-   real(kind_phys), intent(in) :: z(pcols,pver)         ! height of env
-   real(kind_phys), intent(in) :: s(pcols,pver)         ! normalized dry static energy of env
-   real(kind_phys), intent(in) :: zf(pcols,pverp)       ! height of interfaces
-   real(kind_phys), intent(in) :: u(pcols,pver)         ! zonal velocity of env
-   real(kind_phys), intent(in) :: v(pcols,pver)         ! merid. velocity of env
+   real(kind_phys), intent(in) :: q(ncol,pver)         ! spec. humidity of env
+   real(kind_phys), intent(in) :: t(ncol,pver)         ! temp of env
+   real(kind_phys), intent(in) :: p(ncol,pver)         ! pressure of env
+   real(kind_phys), intent(in) :: z(ncol,pver)         ! height of env
+   real(kind_phys), intent(in) :: s(ncol,pver)         ! normalized dry static energy of env
+   real(kind_phys), intent(in) :: zf(ncol,pverp)       ! height of interfaces
+   real(kind_phys), intent(in) :: u(ncol,pver)         ! zonal velocity of env
+   real(kind_phys), intent(in) :: v(ncol,pver)         ! merid. velocity of env
 
-   real(kind_phys), intent(in) :: landfrac(pcols) ! RBN Landfrac
+   real(kind_phys), intent(in) :: landfrac(ncol) ! RBN Landfrac
 
-   integer, intent(in) :: jb(pcols)              ! updraft base level
-   integer, intent(in) :: lel(pcols)             ! updraft launch level
-   integer, intent(out) :: jt(pcols)              ! updraft plume top
-   integer, intent(out) :: jlcl(pcols)            ! updraft lifting cond level
-   integer, intent(in) :: mx(pcols)              ! updraft base level (same is jb)
-   integer, intent(out) :: j0(pcols)              ! level where updraft begins detraining
-   integer, intent(out) :: jd(pcols)              ! level of downdraft
+   integer, intent(in) :: jb(ncol)              ! updraft base level
+   integer, intent(in) :: lel(ncol)             ! updraft launch level
+   integer, intent(in) :: mx(ncol)              ! updraft base level (same is jb)
+   integer, intent(out) :: jt(ncol)              ! updraft plume top
+   integer, intent(out) :: jlcl(ncol)            ! updraft lifting cond level
+   integer, intent(out) :: j0(ncol)              ! level where updraft begins detraining
+   integer, intent(out) :: jd(ncol)              ! level of downdraft
    integer, intent(in) :: limcnv                 ! convection limiting level
    integer, intent(in) :: il2g                   !CORE GROUP REMOVE
    integer, intent(in) :: msg                    ! missing moisture vals (always 0)
    real(kind_phys), intent(in) :: rl                    ! latent heat of vap
-   real(kind_phys), intent(in) :: shat(pcols,pver)      ! interface values of dry stat energy
-   real(kind_phys), intent(in) :: qhat(pcols,pver)      ! wg grid slice of upper interface mixing ratio.
+   real(kind_phys), intent(in) :: shat(ncol,pver)      ! interface values of dry stat energy
+   real(kind_phys), intent(in) :: qhat(ncol,pver)      ! wg grid slice of upper interface mixing ratio.
 
 !
 ! output
 !
-   real(kind_phys), intent(out) :: rprd(pcols,pver)     ! rate of production of precip at that layer
-   real(kind_phys), intent(out) :: du(pcols,pver)       ! detrainement rate of updraft
-   real(kind_phys), intent(out) :: ed(pcols,pver)       ! entrainment rate of downdraft
-   real(kind_phys), intent(out) :: eu(pcols,pver)       ! entrainment rate of updraft
-   real(kind_phys), intent(out) :: hmn(pcols,pver)      ! moist stat energy of env
-   real(kind_phys), intent(out) :: hsat(pcols,pver)     ! sat moist stat energy of env
-   real(kind_phys), intent(out) :: mc(pcols,pver)       ! net mass flux
-   real(kind_phys), intent(out) :: md(pcols,pver)       ! downdraft mass flux
-   real(kind_phys), intent(out) :: mu(pcols,pver)       ! updraft mass flux
-   real(kind_phys), intent(out) :: pflx(pcols,pverp)    ! precipitation flux thru layer
-   real(kind_phys), intent(out) :: qd(pcols,pver)       ! spec humidity of downdraft
-   real(kind_phys), intent(out) :: ql(pcols,pver)       ! liq water of updraft
-   real(kind_phys), intent(out) :: qst(pcols,pver)      ! saturation mixing ratio of env.
-   real(kind_phys), intent(out) :: qu(pcols,pver)       ! spec hum of updraft
-   real(kind_phys), intent(out) :: sd(pcols,pver)       ! normalized dry stat energy of downdraft
-   real(kind_phys), intent(out) :: su(pcols,pver)       ! normalized dry stat energy of updraft
-   real(kind_phys), intent(out) :: qcde(pcols,pver)     ! cloud water mixing ratio for detrainment (kg/kg)
+
+   real(kind_phys), intent(out) :: rprd(ncol,pver)     ! rate of production of precip at that layer
+   real(kind_phys), intent(out) :: du(ncol,pver)       ! detrainement rate of updraft
+   real(kind_phys), intent(out) :: ed(ncol,pver)       ! entrainment rate of downdraft
+   real(kind_phys), intent(out) :: eu(ncol,pver)       ! entrainment rate of updraft
+   real(kind_phys), intent(out) :: hmn(ncol,pver)      ! moist stat energy of env
+   real(kind_phys), intent(out) :: hsat(ncol,pver)     ! sat moist stat energy of env
+   real(kind_phys), intent(out) :: mc(ncol,pver)       ! net mass flux
+   real(kind_phys), intent(out) :: md(ncol,pver)       ! downdraft mass flux
+   real(kind_phys), intent(out) :: mu(ncol,pver)       ! updraft mass flux
+   real(kind_phys), intent(out) :: pflx(ncol,pverp)    ! precipitation flux thru layer
+   real(kind_phys), intent(out) :: qd(ncol,pver)       ! spec humidity of downdraft
+   real(kind_phys), intent(out) :: ql(ncol,pver)       ! liq water of updraft
+   real(kind_phys), intent(out) :: qst(ncol,pver)      ! saturation mixing ratio of env.
+   real(kind_phys), intent(out) :: qu(ncol,pver)       ! spec hum of updraft
+   real(kind_phys), intent(out) :: sd(ncol,pver)       ! normalized dry stat energy of downdraft
+   real(kind_phys), intent(out) :: su(ncol,pver)       ! normalized dry stat energy of updraft
+   real(kind_phys), intent(out) :: qcde(ncol,pver)     ! cloud water mixing ratio for detrainment (kg/kg)
 
    real(kind_phys) rd                   ! gas constant for dry air
    real(kind_phys) grav                 ! gravity
@@ -1821,43 +1821,43 @@ subroutine cldprp(pcols   ,pver    ,pverp   ,cpliq   , &
 !
 ! Local workspace
 !
-   real(kind_phys) gamma(pcols,pver)
-   real(kind_phys) dz(pcols,pver)
-   real(kind_phys) iprm(pcols,pver)
-   real(kind_phys) hu(pcols,pver)
-   real(kind_phys) hd(pcols,pver)
-   real(kind_phys) eps(pcols,pver)
-   real(kind_phys) f(pcols,pver)
-   real(kind_phys) k1(pcols,pver)
-   real(kind_phys) i2(pcols,pver)
-   real(kind_phys) ihat(pcols,pver)
-   real(kind_phys) i3(pcols,pver)
-   real(kind_phys) idag(pcols,pver)
-   real(kind_phys) i4(pcols,pver)
-   real(kind_phys) qsthat(pcols,pver)
-   real(kind_phys) hsthat(pcols,pver)
-   real(kind_phys) gamhat(pcols,pver)
-   real(kind_phys) cu(pcols,pver)
-   real(kind_phys) evp(pcols,pver)
-   real(kind_phys) cmeg(pcols,pver)
-   real(kind_phys) qds(pcols,pver)
+   real(kind_phys) gamma(ncol,pver)
+   real(kind_phys) dz(ncol,pver)
+   real(kind_phys) iprm(ncol,pver)
+   real(kind_phys) hu(ncol,pver)
+   real(kind_phys) hd(ncol,pver)
+   real(kind_phys) eps(ncol,pver)
+   real(kind_phys) f(ncol,pver)
+   real(kind_phys) k1(ncol,pver)
+   real(kind_phys) i2(ncol,pver)
+   real(kind_phys) ihat(ncol,pver)
+   real(kind_phys) i3(ncol,pver)
+   real(kind_phys) idag(ncol,pver)
+   real(kind_phys) i4(ncol,pver)
+   real(kind_phys) qsthat(ncol,pver)
+   real(kind_phys) hsthat(ncol,pver)
+   real(kind_phys) gamhat(ncol,pver)
+   real(kind_phys) cu(ncol,pver)
+   real(kind_phys) evp(ncol,pver)
+   real(kind_phys) cmeg(ncol,pver)
+   real(kind_phys) qds(ncol,pver)
 ! RBN For c0mask
-   real(kind_phys) c0mask(pcols)
+   real(kind_phys) c0mask(ncol)
 
-   real(kind_phys) hmin(pcols)
-   real(kind_phys) expdif(pcols)
-   real(kind_phys) expnum(pcols)
-   real(kind_phys) ftemp(pcols)
-   real(kind_phys) eps0(pcols)
-   real(kind_phys) rmue(pcols)
-   real(kind_phys) zuef(pcols)
-   real(kind_phys) zdef(pcols)
-   real(kind_phys) epsm(pcols)
-   real(kind_phys) ratmjb(pcols)
-   real(kind_phys) est(pcols)
-   real(kind_phys) totpcp(pcols)
-   real(kind_phys) totevp(pcols)
-   real(kind_phys) alfa(pcols)
+   real(kind_phys) hmin(ncol)
+   real(kind_phys) expdif(ncol)
+   real(kind_phys) expnum(ncol)
+   real(kind_phys) ftemp(ncol)
+   real(kind_phys) eps0(ncol)
+   real(kind_phys) rmue(ncol)
+   real(kind_phys) zuef(ncol)
+   real(kind_phys) zdef(ncol)
+   real(kind_phys) epsm(ncol)
+   real(kind_phys) ratmjb(ncol)
+   real(kind_phys) est(ncol)
+   real(kind_phys) totpcp(ncol)
+   real(kind_phys) totevp(ncol)
+   real(kind_phys) alfa(ncol)
    real(kind_phys) ql1
    real(kind_phys) tu
    real(kind_phys) estu
@@ -1866,15 +1866,15 @@ subroutine cldprp(pcols   ,pver    ,pverp   ,cpliq   , &
    real(kind_phys) small
    real(kind_phys) mdt
 
-   real(kind_phys) fice(pcols,pver)        ! ice fraction in precip production
-   real(kind_phys) tug(pcols,pver)
+   real(kind_phys) fice(ncol,pver)        ! ice fraction in precip production
+   real(kind_phys) tug(ncol,pver)
 
-   real(kind_phys) tvuo(pcols,pver)        ! updraft virtual T w/o freezing heating
-   real(kind_phys) tvu(pcols,pver)         ! updraft virtual T with freezing heating
-   real(kind_phys) totfrz(pcols)
-   real(kind_phys) frz (pcols,pver)        ! rate of freezing
-   integer  jto(pcols)              ! updraft plume old top
-   integer  tmplel(pcols)
+   real(kind_phys) tvuo(ncol,pver)        ! updraft virtual T w/o freezing heating
+   real(kind_phys) tvu(ncol,pver)         ! updraft virtual T with freezing heating
+   real(kind_phys) totfrz(ncol)
+   real(kind_phys) frz (ncol,pver)        ! rate of freezing
+   integer  jto(ncol)              ! updraft plume old top
+   integer  tmplel(ncol)
 
    integer  iter, itnum
    integer  m
@@ -1884,8 +1884,8 @@ subroutine cldprp(pcols   ,pver    ,pverp   ,cpliq   , &
    integer kount
    integer i,k
 
-   logical doit(pcols)
-   logical done(pcols)
+   logical doit(ncol)
+   logical done(ncol)
 !
 !------------------------------------------------------------------------------
 !
@@ -2443,7 +2443,7 @@ subroutine cldprp(pcols   ,pver    ,pverp   ,cpliq   , &
    return
 end subroutine cldprp
 
-subroutine closure(pcols   ,pver, &
+subroutine closure(ncol   ,pver, &
                    q       ,t       ,p       ,z       ,s       , &
                    tp      ,qs      ,qu      ,su      ,mc      , &
                    du      ,mu      ,md      ,qd      ,sd      , &
@@ -2475,56 +2475,56 @@ subroutine closure(pcols   ,pver, &
 !
 !-----------------------------Arguments---------------------------------
 !
-   integer, intent(in) :: pcols
+   integer, intent(in) :: ncol
    integer, intent(in) :: pver
 
-   real(kind_phys), intent(inout) :: q(pcols,pver)        ! spec humidity
-   real(kind_phys), intent(inout) :: t(pcols,pver)        ! temperature
-   real(kind_phys), intent(inout) :: p(pcols,pver)        ! pressure (mb)
-   real(kind_phys), intent(inout) :: mb(pcols)            ! cloud base mass flux
-   real(kind_phys), intent(in) :: z(pcols,pver)        ! height (m)
-   real(kind_phys), intent(in) :: s(pcols,pver)        ! normalized dry static energy
-   real(kind_phys), intent(in) :: tp(pcols,pver)       ! parcel temp
-   real(kind_phys), intent(in) :: qs(pcols,pver)       ! sat spec humidity
-   real(kind_phys), intent(in) :: qu(pcols,pver)       ! updraft spec. humidity
-   real(kind_phys), intent(in) :: su(pcols,pver)       ! normalized dry stat energy of updraft
-   real(kind_phys), intent(in) :: mc(pcols,pver)       ! net convective mass flux
-   real(kind_phys), intent(in) :: du(pcols,pver)       ! detrainment from updraft
-   real(kind_phys), intent(in) :: mu(pcols,pver)       ! mass flux of updraft
-   real(kind_phys), intent(in) :: md(pcols,pver)       ! mass flux of downdraft
-   real(kind_phys), intent(in) :: qd(pcols,pver)       ! spec. humidity of downdraft
-   real(kind_phys), intent(in) :: sd(pcols,pver)       ! dry static energy of downdraft
-   real(kind_phys), intent(in) :: qhat(pcols,pver)     ! environment spec humidity at interfaces
-   real(kind_phys), intent(in) :: shat(pcols,pver)     ! env. normalized dry static energy at intrfcs
-   real(kind_phys), intent(in) :: dp(pcols,pver)       ! pressure thickness of layers
-   real(kind_phys), intent(in) :: qstp(pcols,pver)     ! spec humidity of parcel
-   real(kind_phys), intent(in) :: zf(pcols,pver+1)     ! height of interface levels
-   real(kind_phys), intent(in) :: ql(pcols,pver)       ! liquid water mixing ratio
+   real(kind_phys), intent(inout) :: q(ncol,pver)        ! spec humidity
+   real(kind_phys), intent(inout) :: t(ncol,pver)        ! temperature
+   real(kind_phys), intent(inout) :: p(ncol,pver)        ! pressure (mb)
+   real(kind_phys), intent(inout) :: mb(ncol)            ! cloud base mass flux
+   real(kind_phys), intent(in) :: z(ncol,pver)        ! height (m)
+   real(kind_phys), intent(in) :: s(ncol,pver)        ! normalized dry static energy
+   real(kind_phys), intent(in) :: tp(ncol,pver)       ! parcel temp
+   real(kind_phys), intent(in) :: qs(ncol,pver)       ! sat spec humidity
+   real(kind_phys), intent(in) :: qu(ncol,pver)       ! updraft spec. humidity
+   real(kind_phys), intent(in) :: su(ncol,pver)       ! normalized dry stat energy of updraft
+   real(kind_phys), intent(in) :: mc(ncol,pver)       ! net convective mass flux
+   real(kind_phys), intent(in) :: du(ncol,pver)       ! detrainment from updraft
+   real(kind_phys), intent(in) :: mu(ncol,pver)       ! mass flux of updraft
+   real(kind_phys), intent(in) :: md(ncol,pver)       ! mass flux of downdraft
+   real(kind_phys), intent(in) :: qd(ncol,pver)       ! spec. humidity of downdraft
+   real(kind_phys), intent(in) :: sd(ncol,pver)       ! dry static energy of downdraft
+   real(kind_phys), intent(in) :: qhat(ncol,pver)     ! environment spec humidity at interfaces
+   real(kind_phys), intent(in) :: shat(ncol,pver)     ! env. normalized dry static energy at intrfcs
+   real(kind_phys), intent(in) :: dp(ncol,pver)       ! pressure thickness of layers
+   real(kind_phys), intent(in) :: qstp(ncol,pver)     ! spec humidity of parcel
+   real(kind_phys), intent(in) :: zf(ncol,pver+1)     ! height of interface levels
+   real(kind_phys), intent(in) :: ql(ncol,pver)       ! liquid water mixing ratio
 
-   real(kind_phys), intent(in) :: cape(pcols)          ! available pot. energy of column
-   real(kind_phys), intent(in) :: tl(pcols)
-   real(kind_phys), intent(in) :: dsubcld(pcols)       ! thickness of subcloud layer
+   real(kind_phys), intent(in) :: cape(ncol)          ! available pot. energy of column
+   real(kind_phys), intent(in) :: tl(ncol)
+   real(kind_phys), intent(in) :: dsubcld(ncol)       ! thickness of subcloud layer
 
-   integer, intent(in) :: lcl(pcols)        ! index of lcl
-   integer, intent(in) :: lel(pcols)        ! index of launch leve
-   integer, intent(in) :: jt(pcols)         ! top of updraft
-   integer, intent(in) :: mx(pcols)         ! base of updraft
+   integer, intent(in) :: lcl(ncol)        ! index of lcl
+   integer, intent(in) :: lel(ncol)        ! index of launch leve
+   integer, intent(in) :: jt(ncol)         ! top of updraft
+   integer, intent(in) :: mx(ncol)         ! base of updraft
 !
 !--------------------------Local variables------------------------------
 !
-   real(kind_phys) dtpdt(pcols,pver)
-   real(kind_phys) dqsdtp(pcols,pver)
-   real(kind_phys) dtmdt(pcols,pver)
-   real(kind_phys) dqmdt(pcols,pver)
-   real(kind_phys) dboydt(pcols,pver)
-   real(kind_phys) thetavp(pcols,pver)
-   real(kind_phys) thetavm(pcols,pver)
+   real(kind_phys) dtpdt(ncol,pver)
+   real(kind_phys) dqsdtp(ncol,pver)
+   real(kind_phys) dtmdt(ncol,pver)
+   real(kind_phys) dqmdt(ncol,pver)
+   real(kind_phys) dboydt(ncol,pver)
+   real(kind_phys) thetavp(ncol,pver)
+   real(kind_phys) thetavm(ncol,pver)
 
-   real(kind_phys) dtbdt(pcols),dqbdt(pcols),dtldt(pcols)
+   real(kind_phys) dtbdt(ncol),dqbdt(ncol),dtldt(ncol)
    real(kind_phys) beta
    real(kind_phys) capelmt
    real(kind_phys) cp
-   real(kind_phys) dadt(pcols)
+   real(kind_phys) dadt(ncol)
    real(kind_phys) debdt
    real(kind_phys) dltaa
    real(kind_phys) eb
@@ -2657,7 +2657,7 @@ subroutine closure(pcols   ,pver, &
    return
 end subroutine closure
 
-subroutine q1q2_pjr(pcols   ,pver    ,latice  ,&
+subroutine q1q2_pjr(ncol   ,pver    ,latice  ,&
                     dqdt    ,dsdt    ,q       ,qs      ,qu      , &
                     su      ,du      ,qhat    ,shat    ,dp      , &
                     mu      ,md      ,sd      ,qd      ,ql      , &
@@ -2684,37 +2684,37 @@ subroutine q1q2_pjr(pcols   ,pver    ,latice  ,&
 
    real(kind_phys), intent(in) :: cp
 
-   integer, intent(in) :: pcols
+   integer, intent(in) :: ncol
    integer, intent(in) :: pver
    real(kind_phys), intent(in) :: latice
    integer, intent(in) :: il1g
    integer, intent(in) :: il2g
    integer, intent(in) :: msg
 
-   real(kind_phys), intent(in) :: q(pcols,pver)
-   real(kind_phys), intent(in) :: qs(pcols,pver)
-   real(kind_phys), intent(in) :: qu(pcols,pver)
-   real(kind_phys), intent(in) :: su(pcols,pver)
-   real(kind_phys), intent(in) :: du(pcols,pver)
-   real(kind_phys), intent(in) :: qhat(pcols,pver)
-   real(kind_phys), intent(in) :: shat(pcols,pver)
-   real(kind_phys), intent(in) :: dp(pcols,pver)
-   real(kind_phys), intent(in) :: mu(pcols,pver)
-   real(kind_phys), intent(in) :: md(pcols,pver)
-   real(kind_phys), intent(in) :: sd(pcols,pver)
-   real(kind_phys), intent(in) :: qd(pcols,pver)
-   real(kind_phys), intent(in) :: ql(pcols,pver)
-   real(kind_phys), intent(in) :: evp(pcols,pver)
-   real(kind_phys), intent(in) :: cu(pcols,pver)
-   real(kind_phys), intent(in) :: dsubcld(pcols)
+   real(kind_phys), intent(in) :: q(ncol,pver)
+   real(kind_phys), intent(in) :: qs(ncol,pver)
+   real(kind_phys), intent(in) :: qu(ncol,pver)
+   real(kind_phys), intent(in) :: su(ncol,pver)
+   real(kind_phys), intent(in) :: du(ncol,pver)
+   real(kind_phys), intent(in) :: qhat(ncol,pver)
+   real(kind_phys), intent(in) :: shat(ncol,pver)
+   real(kind_phys), intent(in) :: dp(ncol,pver)
+   real(kind_phys), intent(in) :: mu(ncol,pver)
+   real(kind_phys), intent(in) :: md(ncol,pver)
+   real(kind_phys), intent(in) :: sd(ncol,pver)
+   real(kind_phys), intent(in) :: qd(ncol,pver)
+   real(kind_phys), intent(in) :: ql(ncol,pver)
+   real(kind_phys), intent(in) :: evp(ncol,pver)
+   real(kind_phys), intent(in) :: cu(ncol,pver)
+   real(kind_phys), intent(in) :: dsubcld(ncol)
 
-   real(kind_phys),intent(out) :: dqdt(pcols,pver),dsdt(pcols,pver)
-   real(kind_phys),intent(out) :: dl(pcols,pver)
+   real(kind_phys),intent(out) :: dqdt(ncol,pver),dsdt(ncol,pver)
+   real(kind_phys),intent(out) :: dl(ncol,pver)
 
    integer kbm
    integer ktm
-   integer jt(pcols)
-   integer mx(pcols)
+   integer jt(ncol)
+   integer mx(ncol)
 !
 ! work fields:
 !

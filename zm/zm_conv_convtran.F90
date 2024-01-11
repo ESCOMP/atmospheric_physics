@@ -18,7 +18,7 @@ contains
 !> \section arg_table_zm_conv_convtran_run Argument Table
 !! \htmlinclude zm_conv_convtran_run.html
 !!
-subroutine zm_conv_convtran_run(pcols, pver, &
+subroutine zm_conv_convtran_run(ncol, pver, &
                     doconvtran,q       ,ncnst   ,mu      ,md      , &
                     du      ,eu      ,ed      ,dp      ,dsubcld , &
                     jt      ,mx      ,ideep   ,il1g    ,il2g    , &
@@ -45,35 +45,35 @@ subroutine zm_conv_convtran_run(pcols, pver, &
 !
 ! Input arguments
 !
-   integer, intent(in) :: pcols
+   integer, intent(in) :: ncol
    integer, intent(in) :: pver
    integer, intent(in) :: ncnst          ! number of tracers to transport
    logical, intent(in) :: doconvtran(:)  ! flag for doing convective transport      (ncnst)
-   real(kind_phys), intent(in) :: q(:,:,:)      ! Tracer array including moisture          (pcols,pver,ncnst)
-   real(kind_phys), intent(in) :: mu(:,:)       ! Mass flux up                             (pcols,pver)
-   real(kind_phys), intent(in) :: md(:,:)       ! Mass flux down                           (pcols,pver)
-   real(kind_phys), intent(in) :: du(:,:)       ! Mass detraining from updraft             (pcols,pver)
-   real(kind_phys), intent(in) :: eu(:,:)       ! Mass entraining from updraft             (pcols,pver)
-   real(kind_phys), intent(in) :: ed(:,:)       ! Mass entraining from downdraft           (pcols,pver)
-   real(kind_phys), intent(in) :: dp(:,:)       ! Delta pressure between interfaces        (pcols,pver)
-   real(kind_phys), intent(in) :: dsubcld(:)    ! Delta pressure from cloud base to sfc    (pcols)
-   real(kind_phys), intent(in) :: fracis(:,:,:) ! fraction of tracer that is insoluble     (pcols,pver,ncnst)
+   real(kind_phys), intent(in) :: q(:,:,:)      ! Tracer array including moisture          (ncol,pver,ncnst)
+   real(kind_phys), intent(in) :: mu(:,:)       ! Mass flux up                             (ncol,pver)
+   real(kind_phys), intent(in) :: md(:,:)       ! Mass flux down                           (ncol,pver)
+   real(kind_phys), intent(in) :: du(:,:)       ! Mass detraining from updraft             (ncol,pver)
+   real(kind_phys), intent(in) :: eu(:,:)       ! Mass entraining from updraft             (ncol,pver)
+   real(kind_phys), intent(in) :: ed(:,:)       ! Mass entraining from downdraft           (ncol,pver)
+   real(kind_phys), intent(in) :: dp(:,:)       ! Delta pressure between interfaces        (ncol,pver)
+   real(kind_phys), intent(in) :: dsubcld(:)    ! Delta pressure from cloud base to sfc    (ncol)
+   real(kind_phys), intent(in) :: fracis(:,:,:) ! fraction of tracer that is insoluble     (ncol,pver,ncnst)
 
-   integer, intent(in) :: jt(:)          ! Index of cloud top for each column       (pcols)
-   integer, intent(in) :: mx(:)          ! Index of cloud top for each column       (pcols)
-   integer, intent(in) :: ideep(:)       ! Gathering array                          (pcols)
+   integer, intent(in) :: jt(:)          ! Index of cloud top for each column       (ncol)
+   integer, intent(in) :: mx(:)          ! Index of cloud top for each column       (ncol)
+   integer, intent(in) :: ideep(:)       ! Gathering array                          (ncol)
    integer, intent(in) :: il1g           ! Gathered min lon indices over which to operate
    integer, intent(in) :: il2g           ! Gathered max lon indices over which to operate
    integer, intent(in) :: nstep          ! Time step index
 
-   real(kind_phys), intent(in) :: dpdry(:,:)    ! Delta pressure between interfaces        (pcols,pver)
+   real(kind_phys), intent(in) :: dpdry(:,:)    ! Delta pressure between interfaces        (ncol,pver)
 
    real(kind_phys), intent(in) :: dt                      ! 2 delta t (model time increment)
 
 
 ! input/output
 
-   real(kind_phys), intent(out) :: dqdt(:,:,:)  ! Tracer tendency array  (pcols,pver,ncnst)
+   real(kind_phys), intent(out) :: dqdt(:,:,:)  ! Tracer tendency array  (ncol,pver,ncnst)
 
 !--------------------------Local Variables------------------------------
 
@@ -90,12 +90,12 @@ subroutine zm_conv_convtran_run(pcols, pver, &
    real(kind_phys) cabv                 ! Mix ratio of constituent above
    real(kind_phys) cbel                 ! Mix ratio of constituent below
    real(kind_phys) cdifr                ! Normalized diff between cabv and cbel
-   real(kind_phys) chat(pcols,pver)     ! Mix ratio in env at interfaces
-   real(kind_phys) cond(pcols,pver)     ! Mix ratio in downdraft at interfaces
-   real(kind_phys) const(pcols,pver)    ! Gathered tracer array
-   real(kind_phys) fisg(pcols,pver)     ! gathered insoluble fraction of tracer
-   real(kind_phys) conu(pcols,pver)     ! Mix ratio in updraft at interfaces
-   real(kind_phys) dcondt(pcols,pver)   ! Gathered tend array
+   real(kind_phys) chat(ncol,pver)     ! Mix ratio in env at interfaces
+   real(kind_phys) cond(ncol,pver)     ! Mix ratio in downdraft at interfaces
+   real(kind_phys) const(ncol,pver)    ! Gathered tracer array
+   real(kind_phys) fisg(ncol,pver)     ! gathered insoluble fraction of tracer
+   real(kind_phys) conu(ncol,pver)     ! Mix ratio in updraft at interfaces
+   real(kind_phys) dcondt(ncol,pver)   ! Gathered tend array
    real(kind_phys) small                ! A small number
    real(kind_phys) mbsth                ! Threshold for mass fluxes
    real(kind_phys) mupdudp              ! A work variable
@@ -105,11 +105,11 @@ subroutine zm_conv_convtran_run(pcols, pver, &
    real(kind_phys) fluxout              ! A work variable
    real(kind_phys) netflux              ! A work variable
 
-   real(kind_phys) dutmp(pcols,pver)       ! Mass detraining from updraft
-   real(kind_phys) eutmp(pcols,pver)       ! Mass entraining from updraft
-   real(kind_phys) edtmp(pcols,pver)       ! Mass entraining from downdraft
-   real(kind_phys) dptmp(pcols,pver)    ! Delta pressure between interfaces
-   real(kind_phys) total(pcols)
+   real(kind_phys) dutmp(ncol,pver)       ! Mass detraining from updraft
+   real(kind_phys) eutmp(ncol,pver)       ! Mass entraining from updraft
+   real(kind_phys) edtmp(ncol,pver)       ! Mass entraining from downdraft
+   real(kind_phys) dptmp(ncol,pver)    ! Delta pressure between interfaces
+   real(kind_phys) total(ncol)
    real(kind_phys) negadt,qtmp
 
 !-----------------------------------------------------------------------

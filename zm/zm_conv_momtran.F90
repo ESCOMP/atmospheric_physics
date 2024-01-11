@@ -15,7 +15,7 @@ contains
 !> \section arg_table_zm_conv_momtran_run Argument Table
 !! \htmlinclude zm_conv_momtran_run.html
 !!
-subroutine zm_conv_momtran_run(ncol, pcols, pver, pverp, &
+subroutine zm_conv_momtran_run(ncol, pver, pverp, &
                     domomtran,q       ,ncnst   ,mu      ,md    , &
                     momcu   , momcd, &
                     du      ,eu      ,ed      ,dp      ,dsubcld , &
@@ -45,23 +45,23 @@ subroutine zm_conv_momtran_run(ncol, pcols, pver, pverp, &
 !
    integer, intent(in) :: ncol                  ! number of atmospheric columns
    integer, intent(in) :: ncnst                 ! number of tracers to transport
-   integer, intent(in) :: pcols, pver, pverp
+   integer, intent(in) :: pver, pverp
    logical, intent(in) :: domomtran(:)      ! flag for doing convective transport    (ncnst)
-   real(kind_phys), intent(in) :: q(:,:,:)  ! Wind array                                    (pcols,pver,ncnst)
-   real(kind_phys), intent(in) :: mu(:,:)       ! Mass flux up                              (pcols,pver)
-   real(kind_phys), intent(in) :: md(:,:)       ! Mass flux down                            (pcols,pver)
+   real(kind_phys), intent(in) :: q(:,:,:)  ! Wind array                                    (ncol,pver,ncnst)
+   real(kind_phys), intent(in) :: mu(:,:)       ! Mass flux up                              (ncol,pver)
+   real(kind_phys), intent(in) :: md(:,:)       ! Mass flux down                            (ncol,pver)
    real(kind_phys), intent(in) :: momcu
    real(kind_phys), intent(in) :: momcd
-   real(kind_phys), intent(in) :: du(:,:)       ! Mass detraining from updraft              (pcols,pver)
-   real(kind_phys), intent(in) :: eu(:,:)       ! Mass entraining from updraft              (pcols,pver)
-   real(kind_phys), intent(in) :: ed(:,:)       ! Mass entraining from downdraft            (pcols,pver)
-   real(kind_phys), intent(in) :: dp(:,:)       ! Delta pressure between interfaces         (pcols,pver)
-   real(kind_phys), intent(in) :: dsubcld(:)       ! Delta pressure from cloud base to sfc  (pcols)
+   real(kind_phys), intent(in) :: du(:,:)       ! Mass detraining from updraft              (ncol,pver)
+   real(kind_phys), intent(in) :: eu(:,:)       ! Mass entraining from updraft              (ncol,pver)
+   real(kind_phys), intent(in) :: ed(:,:)       ! Mass entraining from downdraft            (ncol,pver)
+   real(kind_phys), intent(in) :: dp(:,:)       ! Delta pressure between interfaces         (ncol,pver)
+   real(kind_phys), intent(in) :: dsubcld(:)       ! Delta pressure from cloud base to sfc  (ncol)
    real(kind_phys), intent(in) :: dt                   !  time step in seconds : 2*delta_t
 
-   integer, intent(in) :: jt(:)         ! Index of cloud top for each column         (pcols)
-   integer, intent(in) :: mx(:)         ! Index of cloud top for each column         (pcols)
-   integer, intent(in) :: ideep(pcols)      ! Gathering array                        (pcols)
+   integer, intent(in) :: jt(:)         ! Index of cloud top for each column         (ncol)
+   integer, intent(in) :: mx(:)         ! Index of cloud top for each column         (ncol)
+   integer, intent(in) :: ideep(:)      ! Gathering array                            (ncol)
    integer, intent(in) :: il1g              ! Gathered min lon indices over which to operate
    integer, intent(in) :: il2g              ! Gathered max lon indices over which to operate
    integer, intent(in) :: nstep             ! Time step index
@@ -70,7 +70,7 @@ subroutine zm_conv_momtran_run(ncol, pcols, pver, pverp, &
 
 ! input/output
 
-   real(kind_phys), intent(out) :: dqdt(:,:,:)  ! Tracer tendency array                     (pcols,pver,ncnst)
+   real(kind_phys), intent(out) :: dqdt(:,:,:)  ! Tracer tendency array                     (ncol,pver,ncnst)
 
 !--------------------------Local Variables------------------------------
 
@@ -89,11 +89,11 @@ subroutine zm_conv_momtran_run(ncol, pcols, pver, pverp, &
    real(kind_phys) cabv                 ! Mix ratio of constituent above
    real(kind_phys) cbel                 ! Mix ratio of constituent below
    real(kind_phys) cdifr                ! Normalized diff between cabv and cbel
-   real(kind_phys) chat(pcols,pver)     ! Mix ratio in env at interfaces
-   real(kind_phys) cond(pcols,pver)     ! Mix ratio in downdraft at interfaces
-   real(kind_phys) const(pcols,pver)    ! Gathered wind array
-   real(kind_phys) conu(pcols,pver)     ! Mix ratio in updraft at interfaces
-   real(kind_phys) dcondt(pcols,pver)   ! Gathered tend array
+   real(kind_phys) chat(ncol,pver)     ! Mix ratio in env at interfaces
+   real(kind_phys) cond(ncol,pver)     ! Mix ratio in downdraft at interfaces
+   real(kind_phys) const(ncol,pver)    ! Gathered wind array
+   real(kind_phys) conu(ncol,pver)     ! Mix ratio in updraft at interfaces
+   real(kind_phys) dcondt(ncol,pver)   ! Gathered tend array
    real(kind_phys) mbsth                ! Threshold for mass fluxes
    real(kind_phys) mupdudp              ! A work variable
    real(kind_phys) minc                 ! A work variable
@@ -105,25 +105,25 @@ subroutine zm_conv_momtran_run(ncol, pcols, pver, pverp, &
    real(kind_phys) sum                  ! sum
    real(kind_phys) sum2                  ! sum2
 
-   real(kind_phys) mududp(pcols,pver) ! working variable
-   real(kind_phys) mddudp(pcols,pver)     ! working variable
+   real(kind_phys) mududp(ncol,pver) ! working variable
+   real(kind_phys) mddudp(ncol,pver)     ! working variable
 
-   real(kind_phys) pgu(pcols,pver)      ! Pressure gradient term for updraft
-   real(kind_phys) pgd(pcols,pver)      ! Pressure gradient term for downdraft
+   real(kind_phys) pgu(ncol,pver)      ! Pressure gradient term for updraft
+   real(kind_phys) pgd(ncol,pver)      ! Pressure gradient term for downdraft
 
-   real(kind_phys),intent(out) ::  pguall(pcols,pver,ncnst)      ! Apparent force from  updraft PG
-   real(kind_phys),intent(out) ::  pgdall(pcols,pver,ncnst)      ! Apparent force from  downdraft PG
+   real(kind_phys),intent(out) ::  pguall(:,:,:)      ! Apparent force from  updraft PG   ! (ncol,pver,ncnst)
+   real(kind_phys),intent(out) ::  pgdall(:,:,:)      ! Apparent force from  downdraft PG ! (ncol,pver,ncnst)
 
-   real(kind_phys),intent(out) ::  icwu(pcols,pver,ncnst)      ! In-cloud winds in updraft
-   real(kind_phys),intent(out) ::  icwd(pcols,pver,ncnst)      ! In-cloud winds in downdraft
+   real(kind_phys),intent(out) ::  icwu(:,:,:)      ! In-cloud winds in updraft           ! (ncol,pver,ncnst)
+   real(kind_phys),intent(out) ::  icwd(:,:,:)      ! In-cloud winds in downdraft         ! (ncol,pver,ncnst)
 
-   real(kind_phys),intent(out) ::  seten(pcols,pver) ! Dry static energy tendency
-   real(kind_phys)                 gseten(pcols,pver) ! Gathered dry static energy tendency
+   real(kind_phys),intent(out) ::  seten(:,:) ! Dry static energy tendency                ! (ncol,pver)
+   real(kind_phys)                 gseten(ncol,pver) ! Gathered dry static energy tendency
 
-   real(kind_phys)  mflux(pcols,pverp,ncnst)   ! Gathered momentum flux
+   real(kind_phys)  mflux(ncol,pverp,ncnst)   ! Gathered momentum flux
 
-   real(kind_phys)  wind0(pcols,pver,ncnst)       !  gathered  wind before time step
-   real(kind_phys)  windf(pcols,pver,ncnst)       !  gathered  wind after time step
+   real(kind_phys)  wind0(ncol,pver,ncnst)       !  gathered  wind before time step
+   real(kind_phys)  windf(ncol,pver,ncnst)       !  gathered  wind after time step
    real(kind_phys) fkeb, fket, ketend_cons, ketend, utop, ubot, vtop, vbot, gset2
 
 
