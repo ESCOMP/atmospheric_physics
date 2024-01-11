@@ -1,5 +1,42 @@
 ===============================================================
 
+Tag name:atmos_phys0_01_001
+Originator(s): boulderdaze
+Date: 11 Jan 2024
+One-line Summary: Update the MICM CCPP wrapper to use new MUSICA functions
+Github PR URL: https://github.com/ESCOMP/atmospheric_physics/pull/71
+
+Purpose of changes (include the issue number and title text for each relevant GitHub issue):
+
+The main purpose of this PR is to update the MICM interface to run MICM configuration
+that was introduced with the new MUSICA functions.
+
+This PR fixes the following NCAR/atmospheric_physics Github issues:
+
+#71 -> Update the MICM CCPP wrapper to use new MUSICA functions
+
+Code reviewed by: mattldawson, nusbaume, K20shores, peverwhee
+
+List all existing files that have been added (A), modified (M), or deleted (D),
+and describe the changes:
+
+A       musica/micm/configs/chapman/config.json
+A       musica/micm/configs/chapman/reactions.json
+A       musica/micm/configs/chapman/species.json
+  - Added a set of the MICM configuration as an example to create a MICM instance
+M       musica/micm/micm.F90
+  - Updated the MICM interface to work with the new functions in MUSICA
+M       musica/micm/micm.meta
+  - Updated meta file to work with the new functions in MUSICA
+M       musica/micm/micm_namelist.xml
+  - Updated the xml to describe unspecified path
+
+List and Describe any test failures: No known test failures.
+
+Summarize any changes to answers: Answer changes when MICM is used.
+
+===============================================================
+
 Tag name: atmos_phys0_01_000
 Originator(s): nusbaume
 Date: 9 Sep 2023
