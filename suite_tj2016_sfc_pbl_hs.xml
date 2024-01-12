@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<suite name="tj2016" version="1.0">
+  <group name="physics">
+    <scheme>tj2016_sfc_pbl_hs</scheme>
+    <scheme>apply_tendency_of_x_wind</scheme>
+    <scheme>apply_tendency_of_y_wind</scheme>
+    <scheme>qneg</scheme>
+  </group>
+</suite>
+

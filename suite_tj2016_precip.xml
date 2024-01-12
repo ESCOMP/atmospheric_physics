@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<suite name="tj2016" version="1.0">
+  <group name="physics">
+    <scheme>tj2016_precip</scheme>
+    <scheme>apply_tendency_of_air_temperature</scheme>
+    <scheme>qneg</scheme>
+  </group>
+</suite>
+
