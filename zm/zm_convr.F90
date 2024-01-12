@@ -405,7 +405,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
 !
    real(kind_phys) dqdt(ncol,pver)           ! wg mixing ratio tendency at gathered points.
    real(kind_phys) dsdt(ncol,pver)           ! wg dry static energy ("temp") tendency at gathered points.
-!      real(kind_phys) alpha(ncol,pver)      ! array of vertical differencing used (=1. for upstream).
    real(kind_phys) sd(ncol,pver)             ! wg grid slice of dry static energy in downdraft.
    real(kind_phys) qd(ncol,pver)             ! wg grid slice of mixing ratio in downdraft.
    real(kind_phys) mc(ncol,pver)             ! wg net upward (scaled by mb) cloud mass flux.
@@ -419,14 +418,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
    real(kind_phys) qlg(ncol,pver)
    real(kind_phys) dudt(ncol,pver)           ! wg u-wind tendency at gathered points.
    real(kind_phys) dvdt(ncol,pver)           ! wg v-wind tendency at gathered points.
-!      real(kind_phys) ud(ncol,pver)
-!      real(kind_phys) vd(ncol,pver)
-
-
-
-
-
-
 
    real(kind_phys) qldeg(ncol,pver)        ! cloud liquid water mixing ratio for detrainment (kg/kg)
    real(kind_phys) mb(ncol)                ! wg cloud base mass flux.
@@ -1606,7 +1597,7 @@ SUBROUTINE ientropy (rcall,icol,s,p,qt,T,qst,Tfg,cpliq,cpwv,rh2o,errmsg,errflg)
 ! for T and saturated vapor mixing ratio
 !
 
-! CACNOTE - Remove this when pass in lat/lon or pass out lchnk,icol
+! CACNOTE - Remove this when pass in lat/lon or pass out lchnk,icol (Note: lchnk will not exist in CAM-SIMA)
 !  use phys_grid, only: get_rlon_p, get_rlat_p
 
   integer, intent(in) :: icol, rcall
