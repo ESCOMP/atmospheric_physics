@@ -87,7 +87,7 @@
      A configuration file for the MICM chemical solver.
     </desc>
     <values>
-      <value>/a/path</value>
+      <value>UNSET_PATH</value>
     </values>
   </entry>
 
