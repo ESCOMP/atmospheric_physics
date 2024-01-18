@@ -661,7 +661,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
 !
    do k = msg + 2,pver
       do i = 1,lengath
-!            alpha(i,k) = 0.5
          sdifr = 0._kind_phys
          qdifr = 0._kind_phys
          if (sg(i,k) > 0._kind_phys .or. sg(i,k-1) > 0._kind_phys) &
@@ -1271,7 +1270,6 @@ real(kind_phys) mp0(ncol)    ! Parcel launch relative mass flux.
 
 real(kind_phys) lwmax      ! Maximum condesate that can be held in cloud before rainout.
 real(kind_phys) dmpdp      ! Parcel fractional mass entrainment rate (/mb).
-!real(kind_phys) dmpdpc     ! In cloud parcel mass entrainment rate (/mb).
 real(kind_phys) dmpdz      ! Parcel fractional mass entrainment rate (/m)
 real(kind_phys) dpdz,dzdp  ! Hydrstatic relation and inverse of.
 real(kind_phys) senv       ! Environmental entropy at each grid point.
@@ -1314,7 +1312,6 @@ endif
 nit_lheat = 2 ! iterations for ds,dq changes from condensation freezing.
 dmpdz=dmpdz_param       ! Entrainment rate. (-ve for /m)
 dmpdz_lnd=-1.e-3_kind_phys
-!dmpdpc = 3.e-2_kind_phys   ! In cloud entrainment rate (/mb).
 lwmax = 1.e-3_kind_phys    ! Need to put formula in for this.
 tscool = 0.0_kind_phys   ! Temp at which water loading freezes in the cloud.
 
@@ -1832,7 +1829,6 @@ subroutine cldprp(ncol   ,pver    ,pverp   ,cpliq   , &
    real(kind_phys) evp(ncol,pver)
    real(kind_phys) cmeg(ncol,pver)
    real(kind_phys) qds(ncol,pver)
-! RBN For c0mask
    real(kind_phys) c0mask(ncol)
 
    real(kind_phys) hmin(ncol)
@@ -2379,7 +2375,6 @@ subroutine cldprp(ncol   ,pver    ,pverp   ,cpliq   , &
       end do
    end do
    do i = 1,il2g
-!*guang         totevp(i) = totevp(i) + md(i,jd(i))*q(i,jd(i)-1) -
       totevp(i) = totevp(i) + md(i,jd(i))*qd(i,jd(i)) - md(i,jb(i))*qd(i,jb(i))
    end do
 !!$   if (.true.) then
@@ -2575,10 +2570,6 @@ subroutine closure(ncol   ,pver, &
          if (k > jt(i) .and. k < mx(i)) then
             dtmdt(i,k) = (mc(i,k)* (shat(i,k)-s(i,k))+mc(i,k+1)* (s(i,k)-shat(i,k+1)))/ &
                          dp(i,k) - rl/cp*du(i,k)*(beta*ql(i,k)+ (1-beta)*ql(i,k+1))
-!          dqmdt(i,k)=(mc(i,k)*(qhat(i,k)-q(i,k))
-!     1                +mc(i,k+1)*(q(i,k)-qhat(i,k+1)))/dp(i,k)
-!     2                +du(i,k)*(qs(i,k)-q(i,k))
-!     3                +du(i,k)*(beta*ql(i,k)+(1-beta)*ql(i,k+1))
 
             dqmdt(i,k) = (mu(i,k+1)* (qu(i,k+1)-qhat(i,k+1)+cp/rl* (su(i,k+1)-s(i,k)))- &
                           mu(i,k)* (qu(i,k)-qhat(i,k)+cp/rl*(su(i,k)-s(i,k)))+md(i,k+1)* &

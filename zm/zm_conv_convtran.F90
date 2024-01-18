@@ -237,21 +237,7 @@ subroutine zm_conv_convtran_run(ncol, pver, &
             kp1 = min(pver,k+1)
             do i = il1g,il2g
 
-! version 1 hard to check for roundoff errors
-!               dcondt(i,k) =
-!     $                  +(+mu(i,kp1)* (conu(i,kp1)-chat(i,kp1))
-!     $                    -mu(i,k)*   (conu(i,k)-chat(i,k))
-!     $                    +md(i,kp1)* (cond(i,kp1)-chat(i,kp1))
-!     $                    -md(i,k)*   (cond(i,k)-chat(i,k))
-!     $                   )/dp(i,k)
-
-! version 2 hard to limit fluxes
-!               fluxin =  mu(i,kp1)*conu(i,kp1) + mu(i,k)*chat(i,k)
-!     $                 -(md(i,k)  *cond(i,k)   + md(i,kp1)*chat(i,kp1))
-!               fluxout = mu(i,k)*conu(i,k)     + mu(i,kp1)*chat(i,kp1)
-!     $                 -(md(i,kp1)*cond(i,kp1) + md(i,k)*chat(i,k))
-
-! version 3 limit fluxes outside convection to mass in appropriate layer
+! limit fluxes outside convection to mass in appropriate layer
 ! these limiters are probably only safe for positive definite quantitities
 ! it assumes that mu and md already satify a courant number limit of 1
                fluxin =  mu(i,kp1)*conu(i,kp1)+ mu(i,k)*min(chat(i,k),const(i,km1)) &
@@ -273,16 +259,6 @@ subroutine zm_conv_convtran_run(ncol, pver, &
             do i = il1g,il2g
                if (k == mx(i)) then
 
-! version 1
-!                  dcondt(i,k) = (1./dsubcld(i))*
-!     $              (-mu(i,k)*(conu(i,k)-chat(i,k))
-!     $               -md(i,k)*(cond(i,k)-chat(i,k))
-!     $              )
-
-! version 2
-!                  fluxin =  mu(i,k)*chat(i,k) - md(i,k)*cond(i,k)
-!                  fluxout = mu(i,k)*conu(i,k) - md(i,k)*chat(i,k)
-! version 3
                   fluxin =  mu(i,k)*min(chat(i,k),const(i,km1)) - md(i,k)*cond(i,k)
                   fluxout = mu(i,k)*conu(i,k) - md(i,k)*min(chat(i,k),const(i,k))
 
@@ -290,10 +266,8 @@ subroutine zm_conv_convtran_run(ncol, pver, &
                   if (abs(netflux) < max(fluxin,fluxout)*1.e-12_kind_phys) then
                      netflux = 0._kind_phys
                   endif
-!                  dcondt(i,k) = netflux/dsubcld(i)
                   dcondt(i,k) = netflux/dptmp(i,k)
                else if (k > mx(i)) then
-!                  dcondt(i,k) = dcondt(i,k-1)
                   dcondt(i,k) = 0._kind_phys
                end if
             end do

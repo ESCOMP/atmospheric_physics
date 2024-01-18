@@ -58,7 +58,7 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
     real(kind_phys),intent(in), dimension(:,:) :: pmid       ! midpoint pressure (Pa)                       (ncol,pver)
     real(kind_phys),intent(in), dimension(:,:) :: pdel       ! layer thickness (Pa)                         (ncol,pver)
     real(kind_phys),intent(in), dimension(:,:) :: q          ! water vapor (kg/kg)                          (ncol,pver)
-    real(kind_phys),intent(in), dimension(:) :: landfrac                                                    (ncol)
+    real(kind_phys),intent(in), dimension(:) :: landfrac     ! land fraction                                (ncol)
     real(kind_phys),intent(inout), dimension(:,:) :: tend_s     ! heating rate (J/kg/s)                     (ncol,pver)
     real(kind_phys),intent(inout), dimension(:,:) :: tend_q     ! water vapor tendency (kg/kg/s)            (ncol,pver)
     real(kind_phys),intent(out), dimension(:,:) :: tend_s_snwprd ! Heating rate of snow production        (ncol,pver)
@@ -181,9 +181,6 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
 ! total evaporation depends on flux in the top of the layer
 ! flux prec is the net production above layer minus evaporation into environmet
           evpprec(i) = kemask * (1._kind_phys - cldfrc(i,k)) * evplimit * sqrt(flxprec(i,k))
-!**********************************************************
-!!          evpprec(i) = 0.    ! turn off evaporation for now
-!**********************************************************
 
 ! Don't let evaporation supersaturate layer (approx). Layer may already be saturated.
 ! Currently does not include heating/cooling change to qs
@@ -192,7 +189,6 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
 ! Don't evaporate more than is falling into the layer - do not evaporate rain formed
 ! in this layer but if precip production is negative, remove from the available precip
 ! Negative precip production occurs because of evaporation in downdrafts.
-!!$          evplimit   = flxprec(i,k) * gravit / pdel(i,k) + min(prdprec(i,k), 0.)
           evplimit   = min(evplimit, flxprec(i,k) * gravit / pdel(i,k))
 
 ! Total evaporation cannot exceed input precipitation
@@ -207,7 +203,6 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
 
 ! evaporation of snow depends on snow fraction of total precipitation in the top after melting
           if (flxprec(i,k) > 0._kind_phys) then
-!            evpsnow(i) = evpprec(i) * flxsntm(i) / flxprec(i,k)
 !            prevent roundoff problems
              work1 = min(max(0._kind_phys,flxsntm(i)/flxprec(i,k)),1._kind_phys)
              evpsnow(i) = evpprec(i) * work1
@@ -221,8 +216,6 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
 ! net precip production is production - evaporation
           ntprprd(i,k) = prdprec(i,k) - evpprec(i)
 ! net snow production is precip production * ice fraction - evaporation - melting
-!pjrworks ntsnprd(i,k) = prdprec(i,k)*fice(i,k) - evpsnow(i) - snowmlt(i)
-!pjrwrks2 ntsnprd(i,k) = prdprec(i,k)*fsnow_conv(i,k) - evpsnow(i) - snowmlt(i)
 ! the small amount added to flxprec in the work1 expression has been increased from
 ! 1e-36 to 8.64e-11 (1e-5 mm/day).  This causes the temperature based partitioning
 ! scheme to be used for small flxprec amounts.  This is to address error growth problems.
@@ -236,7 +229,6 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
 
           work2 = max(fsnow_conv(i,k), work1)
           if (snowmlt(i).gt.0._kind_phys) work2 = 0._kind_phys
-!         work2 = fsnow_conv(i,k)
           ntsnprd(i,k) = prdprec(i,k)*work2 - evpsnow(i) - snowmlt(i)
           tend_s_snwprd  (i,k) = prdprec(i,k)*work2*latice
           tend_s_snwevmlt(i,k) = - ( evpsnow(i) + snowmlt(i) )*latice
@@ -253,8 +245,6 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
 ! protect against rounding error
           flxprec(i,k+1) = max(flxprec(i,k+1), 0._kind_phys)
           flxsnow(i,k+1) = max(flxsnow(i,k+1), 0._kind_phys)
-! more protection (pjr)
-!         flxsnow(i,k+1) = min(flxsnow(i,k+1), flxprec(i,k+1))
 
 ! heating (cooling) and moistening due to evaporation
 ! - latent heat of vaporization for precip production has already been accounted for
@@ -271,10 +261,6 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
 ! set output precipitation rates (m/s)
     prec(:ncol) = flxprec(:ncol,pver+1) / 1000._kind_phys
     snow(:ncol) = flxsnow(:ncol,pver+1) / 1000._kind_phys
-
-!**********************************************************
-!!$    tend_s(:ncol,:)   = 0.      ! turn heating off
-!**********************************************************
 
   end subroutine zm_conv_evap_run
 
