@@ -1,3 +1,44 @@
+
+===============================================================
+
+Tag name: atmos_phys0_02_000
+Originator(s): cacraig
+Date: Jan 19, 2024
+One-line Summary: Cleanup of ZM for conversion
+Github PR URL: https://github.com/NCAR/atmospheric_physics/pull/69
+
+This PR fixes the following NCAR/atmospheric_physics Github issues:
+   - This partially addresses:  Add ccpp'ized ZM:  https://github.com/ESCOMP/atmospheric_physics/issues/66
+       - Move ZM into atmospheric_physics repo
+       - Removes some, but not all "use" statements and uses ncol instead of pcols for the dimension along with other changes
+
+Code reviewed by: mwaxmonsky, nusbaume
+
+List all existing files that have been added (A), modified (M), or deleted (D),
+and describe the changes:
+
+M       doc/ChangeLog_template
+           - removed line which duplicated the purpose of the PR
+
+M       utilities/geopotential_temp.meta
+           - Changed incorrect metadata name per request by nusbaume
+
+A       zm/zm_conv_convtran.F90
+A       zm/zm_conv_evap.F90
+A       zm/zm_conv_momtran.F90
+A       zm/zm_convr.F90
+           - Changes to prep for CCPP conversion
+
+
+List and Describe any test failures:
+
+     - Tested with CAM regression tests on izumi and all tests were BFB except for CAM3 test which will be removed
+     - Full testing will be done when the corresponding CAM tag is made
+
+Summarize any changes to answers: N/A
+
+===============================================================
+
 ===============================================================
 
 Tag name: atmos_phys0_01_000
