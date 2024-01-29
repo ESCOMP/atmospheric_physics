@@ -53,7 +53,6 @@
   intent = in
 [ dry_air_density ]
   standard_name = density_of_dry_air
-  long_name = density of dry air
   units = kg m-3
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real | kind = kind_phys
