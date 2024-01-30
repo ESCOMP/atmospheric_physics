@@ -2,7 +2,7 @@
 
 <suite name="musica" version="1.0">
   <group name="physics">
-    <scheme>micm</scheme>
     <scheme>calc_dry_air_ideal_gas_density</scheme>
+    <scheme>micm</scheme>
   </group>
 </suite>

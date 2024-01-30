@@ -1,3 +1,35 @@
+===============================================================
+
+Tag name:atmos_phys0_02_001
+Originator(s): boulderdaze
+Date: 29 Jan 2024
+One-line Summary: Update MICM wrapper for species unit conversions
+Github PR URL: https://github.com/ESCOMP/atmospheric_physics/issues/73
+
+Purpose of changes (include the issue number and title text for each relevant GitHub issue):
+
+The main purpose of this PR is to add unit conversion functions for species concentrations
+from CAM-SIMA units (kg kg-1) to MICM units (mol m-3) and vise versa.
+
+This PR fixes the following NCAR/atmospheric_physics Github issues:
+
+#73 -> Update MICM wrapper for species unit conversions
+
+Code reviewed by: mattldawson, nusbaume, K20shores, peverwhee
+
+List all existing files that have been added (A), modified (M), or deleted (D),
+and describe the changes:
+
+M       musica/micm/micm.F90
+  - Added unit conversion functions for species concentrations
+M       musica/micm/micm.meta
+  - Updated the list of the entries that are added
+M       suite_musica.xml
+  - Updated the xml to add dry air density scheme
+
+List and Describe any test failures: No known test failures.
+
+Summarize any changes to answers: Answer changes when MICM is used.
 
 ===============================================================
 
