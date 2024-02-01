@@ -4,12 +4,12 @@ Tag name:atmos_phys0_02_001
 Originator(s): boulderdaze
 Date: 29 Jan 2024
 One-line Summary: Update MICM wrapper for species unit conversions
-Github PR URL: https://github.com/ESCOMP/atmospheric_physics/issues/73
+Github PR URL: https://github.com/ESCOMP/atmospheric_physics/pull/78
 
 Purpose of changes (include the issue number and title text for each relevant GitHub issue):
 
 The main purpose of this PR is to add unit conversion functions for species concentrations
-from CAM-SIMA units (kg kg-1) to MICM units (mol m-3) and vise versa.
+to convert CAM-SIMA units (kg kg-1) to MICM units (mol m-3) and vise versa.
 
 This PR fixes the following NCAR/atmospheric_physics Github issues:
 
