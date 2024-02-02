@@ -23,17 +23,12 @@ module held_suarez_1994
   !!
   !! Forcing parameters
   !!
-  real(kind_phys), parameter :: efoldf  =  1._kind_phys  ! efolding time for wind dissipation
-  real(kind_phys), parameter :: efolda  = 40._kind_phys  ! efolding time for T dissipation
-  real(kind_phys), parameter :: efolds  =  4._kind_phys  ! efolding time for T dissipation
-  real(kind_phys), parameter :: sigmab  =  0.7_kind_phys ! threshold sigma level
-  real(kind_phys), parameter :: t00     = 200._kind_phys ! minimum reference temperature
-  real(kind_phys), parameter :: kf      = 1._kind_phys/(86400._kind_phys*efoldf) ! 1./efolding_time for wind dissipation
+  real(kind_phys) :: kf
 
-  real(kind_phys), parameter :: onemsig = 1._kind_phys - sigmab ! 1. - sigma_reference
+  real(kind_phys) :: onemsig
 
-  real(kind_phys), parameter :: ka      = 1._kind_phys/(86400._kind_phys * efolda) ! 1./efolding_time for temperature diss.
-  real(kind_phys), parameter :: ks      = 1._kind_phys/(86400._kind_phys * efolds)
+  real(kind_phys) :: ka
+  real(kind_phys) :: ks
 
   !!
   !! Model constants, reset in init call
@@ -48,7 +43,7 @@ contains
 
 !> \section arg_table_held_suarez_1994_init Argument Table
 !! \htmlinclude held_suarez_1994_init.html
-  subroutine held_suarez_1994_init(pref_in, errmsg, errflg)
+  subroutine held_suarez_1994_init(pref_in, errmsg, errflg, efoldf, sigmab, efolda, efolds)
 
     !! Dummy arguments
     real(kind_phys),    intent(in)  :: pref_in
@@ -56,21 +51,40 @@ contains
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
+    real(kind_phys),    intent(in)  :: efoldf  ! efolding time for wind dissipation
+    real(kind_phys),    intent(in)  :: sigmab  ! threshold sigma level
+    real(kind_phys),    intent(in)  :: efolda  ! efolding time for T dissipation
+    real(kind_phys),    intent(in)  :: efolds  ! efolding time for T dissipation
+    
+
     errmsg = ' '
     errflg = 0
 
     pref   = pref_in
 
+    kf      = 1._kind_phys/(86400._kind_phys*efoldf) ! 1./efolding_time for wind dissipation
+
+    onemsig = 1._kind_phys - sigmab ! 1. - sigma_reference
+  
+    ka      = 1._kind_phys/(86400._kind_phys * efolda) ! 1./efolding_time for temperature diss.
+    ks      = 1._kind_phys/(86400._kind_phys * efolds)
+
   end subroutine held_suarez_1994_init
 
 !> \section arg_table_held_suarez_1994_run Argument Table
 !! \htmlinclude held_suarez_1994_run.html
-  subroutine held_suarez_1994_run(pver, ncol, pref_mid_norm, clat, cappa, &
+  subroutine held_suarez_1994_run(sigmab, t00, delta_T_y, delta_theta_z, pver, ncol, pref_mid_norm, clat, cappa, &
        cpair, pmid, uwnd, vwnd, temp, du, dv, ds, scheme_name, errmsg, errflg)
 
     !
     ! Input arguments
     !
+    real(kind_phys), intent(in)  :: sigmab           ! threshold sigma level
+    real(kind_phys), intent(in)  :: t00              ! minimum reference temperature
+
+    real(kind_phys), intent(in)  :: delta_T_y        ! equilibrium temperature parameter for latitude
+    real(kind_phys), intent(in)  :: delta_theta_z    ! equilibrium temperature parameter for veritical level
+
     integer,  intent(in)  :: pver                    ! Num vertical levels
     integer,  intent(in)  :: ncol                    ! Num active columns
     real(kind_phys), intent(in)  :: pref_mid_norm(:) ! reference pressure normalized by surface pressure
@@ -137,15 +151,15 @@ contains
       if (pref_mid_norm(k) > sigmab) then
         do i = 1, ncol
           kt      = ka + (ks - ka)*cossqsq(i)*(pref_mid_norm(k) - sigmab)/onemsig
-          trefc   = 315._kind_phys - (60._kind_phys * sinsq(i))
-          trefa   = (trefc - 10._kind_phys*cossq(i)*log((pmid(i,k)/pref)))*(pmid(i,k)/pref)**cappa(i,k)
+          trefc   = 315._kind_phys - (delta_T_y * sinsq(i))
+          trefa   = (trefc - delta_theta_z*cossq(i)*log((pmid(i,k)/pref)))*(pmid(i,k)/pref)**cappa(i,k)
           trefa   = max(t00,trefa)
           ds(i,k) = (trefa - temp(i,k))*kt*cpair(i,k)
         end do
       else
         do i = 1, ncol
-          trefc   = 315._kind_phys - 60._kind_phys*sinsq(i)
-          trefa   = (trefc - 10._kind_phys*cossq(i)*log((pmid(i,k)/pref)))*(pmid(i,k)/pref)**cappa(i,k)
+          trefc   = 315._kind_phys - delta_T_y*sinsq(i)
+          trefa   = (trefc - delta_theta_z*cossq(i)*log((pmid(i,k)/pref)))*(pmid(i,k)/pref)**cappa(i,k)
           trefa   = max(t00,trefa)
           ds(i,k) = (trefa - temp(i,k))*ka*cpair(i,k)
         end do
