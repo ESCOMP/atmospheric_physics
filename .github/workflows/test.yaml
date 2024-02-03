@@ -1,0 +1,16 @@
+name: build
+
+on: [push, pull_request]
+
+jobs:
+  build_test_connections:
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+    - name: build Docker image
+      run: docker build -t musica -f docker/Dockerfile.musica .
+    - name: run tests in container
+      run: docker run --name test-container -t musica bash -c 'ctest'
