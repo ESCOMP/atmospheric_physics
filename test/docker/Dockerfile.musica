@@ -44,6 +44,7 @@ RUN cd musica \
         -D USE_MUSICA=ON \
         -D USE_MUSICA_FORTRAN=OFF \
         -D MAKE_MUSICA_FORTRAN_INSTALLABLE=ON \
+        -D ENABLE_MICM=ON \
         -D ENABLE_TESTS=OFF \
         -D ENABLE_TUVX=OFF \
     && cd build \
@@ -54,19 +55,19 @@ ENV MUSICA_VERSION="0.5.0"
 
 COPY . atmospheric_physics
 
-RUN cd atmospheric_physics \
+RUN cd atmospheric_physics/test \
     && mkdir lib \
     && cd lib \
-    && git clone -b add_const_interface --depth 1 https://github.com/peverwhee/ccpp-framework.git
+    && git clone -b CPF_0.2.051 --depth 1 https://github.com/peverwhee/ccpp-framework.git
 ENV CCPP_SRC_PATH="lib/ccpp-framework/src"
 
-RUN cd atmospheric_physics \
+RUN cd atmospheric_physics/test \
     && cmake -S. \
              -B build \
              -D ENABLE_MICM_TEST=ON \
     && cmake --build ./build
 
 RUN cd atmospheric_physics \
-    && cp -r test/musica/micm/configs/chapman ./build/chapman
+    && cp -r test/musica/micm/configs/chapman ./test/build/chapman
 
-WORKDIR atmospheric_physics/build
+WORKDIR atmospheric_physics/test/build

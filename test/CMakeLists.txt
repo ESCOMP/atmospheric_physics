@@ -21,11 +21,11 @@ option(ENABLE_MICM_TEST "Build the micm test" OFF)
 
 if (ENABLE_MICM_TEST)
   set(MUSICA_VERSION $ENV{MUSICA_VERSION})
-  set(MICM_SRC_PATH ${CMAKE_SOURCE_DIR}/musica/micm)
+  set(MICM_SRC_PATH ${CMAKE_SOURCE_DIR}/../musica/micm)
   set(CCPP_SRC_PATH ${CMAKE_SOURCE_DIR}/$ENV{CCPP_SRC_PATH})
-  set(CCPP_TEST_SRC_PATH ${CMAKE_SOURCE_DIR}/test/include)
+  set(CCPP_TEST_SRC_PATH ${CMAKE_SOURCE_DIR}/include)
 
-  add_subdirectory(test/musica/micm)
+  add_subdirectory(musica/micm)
 
   enable_testing()
 endif()

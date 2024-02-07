@@ -96,23 +96,32 @@ subroutine test_micm_ccpp_api()
 
   call micm_init("chapman", iulog, errcode, errmsg)
 
+  if (errcode /= 0) then
+    write(*,*) "    -- Failed to create solver"
+    stop 3
+  endif
+
   write(*,*) "    -- Initial time_step", time_step
   write(*,*) "    -- Initial temp", temperature
   write(*,*) "    -- Initial pressure", pressure
   write(*,*) "    -- Initial concentrations", constituents
 
-  if (errcode == 0) then
-    call micm_run(time_step, temperature, pressure, dry_air_density, constituent_props_ptr, &
+  call micm_run(time_step, temperature, pressure, dry_air_density, constituent_props_ptr, &
                 constituents, iulog, errcode, errmsg)
 
-    write(*,*) "    -- After solving, conentrations", constituents
-  else
-    write(*,*) "    -- Exiting due to the error in creating solver"
+  if (errcode /= 0) then
+    write(*,*) "    -- Solver failed to converge"
     stop 3
   endif
 
-  write(*,*) "    -- Completed solving"
+  write(*,*) "    -- Completed solving. After solving, conentrations", constituents
+
   call micm_final(iulog, errcode, errmsg)
+
+  if (errcode /= 0) then
+    write(*,*) "    -- Failed to finalize micm"
+    stop 3
+  endif
 
 end subroutine test_micm_ccpp_api
 

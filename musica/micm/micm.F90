@@ -32,8 +32,8 @@ contains
     errcode = micm_obj%create_solver()
 
     if (errcode /= 0) then
-      errmsg = "[fatal] [micm] Failed to creat MICM solver. Parsing configuration failed. &
-                Please look over at the other file for further information."
+      errmsg = "[fatal] [micm] Failed to create MICM solver. Parsing configuration failed. &
+                Please look over at MICM log file for further information."
       write(iulog,*) trim(errmsg)
       return
     endif

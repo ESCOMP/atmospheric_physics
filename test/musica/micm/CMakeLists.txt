@@ -43,7 +43,8 @@ target_link_libraries(test_micm_api
 
 set_target_properties(test_micm_api
   PROPERTIES
-  LINKER_LANGUAGE Fortran)
+  LINKER_LANGUAGE Fortran
+)
 
 include(CTest)
 
