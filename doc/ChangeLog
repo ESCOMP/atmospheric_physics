@@ -10,6 +10,7 @@ Purpose of changes (include the issue number and title text for each relevant Gi
 
 The main purpose of this PR is to add unit conversion functions for species concentrations
 to convert CAM-SIMA units (kg kg-1) to MICM units (mol m-3) and vise versa.
+A github action has also been added to test the new MICM-CCPP interface.
 
 This PR fixes the following NCAR/atmospheric_physics Github issues:
 
@@ -26,6 +27,26 @@ M       musica/micm/micm.meta
   - Updated the list of the entries that are added
 M       suite_musica.xml
   - Updated the xml to add dry air density scheme
+M       utilities/state_converters.meta
+  - Updated the standard name of dry air density
+A       .github/workflows/test.yaml
+  - Added github action to automate testing
+A       test/.dockerignore
+A       test/CMakeLists.txt
+A       test/cmake/SetDefaults.cmake
+A       test/docker/Dockerfile.musica
+A       test/include/ccpp_kinds.F90
+A       test/musica/micm/CMakeLists.txt
+A       test/musica/micm/test_micm_api.F90
+  - Added docker, cmake and test files to test the new MICM-CCPP interface
+A       test/musica/micm/configs/chapman/config.json
+A       test/musica/micm/configs/chapman/reactions.json
+A       test/musica/micm/configs/chapman/species.json
+  - Moved a set of the MICM configuration to be underneath the test directory
+D       musica/micm/configs/chapman/config.json
+D       musica/micm/configs/chapman/reactions.json
+D       musica/micm/configs/chapman/species.json
+  - Deleted a set of the MICM configuration
 
 List and Describe any test failures: No known test failures.
 

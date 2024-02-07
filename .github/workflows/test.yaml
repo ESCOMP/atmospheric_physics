@@ -11,6 +11,6 @@ jobs:
       with:
         submodules: recursive
     - name: build Docker image
-      run: docker build -t musica -f docker/Dockerfile.musica .
+      run: docker build -t musica -f test/docker/Dockerfile.musica .
     - name: run tests in container
       run: docker run --name test-container -t musica bash -c 'ctest'
