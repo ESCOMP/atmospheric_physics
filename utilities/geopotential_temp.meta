@@ -20,25 +20,25 @@
   intent = in
 [ layer_surf ]
   standard_name = vertical_index_at_surface_adjacent_layer
-  units = count
+  units = index
   dimensions = ()
   type = integer
   intent = in
 [ layer_toa ]
   standard_name = vertical_index_at_top_adjacent_layer
-  units = count
+  units = index
   dimensions = ()
   type = integer
   intent = in
 [ interface_surf ]
   standard_name = vertical_index_at_surface_interface
-  units = count
+  units = index
   dimensions = ()
   type = integer
   intent = in
 [ interface_toa ]
   standard_name = vertical_index_at_top_interface
-  units = count
+  units = index
   dimensions = ()
   type = integer
   intent = in
