@@ -14,7 +14,7 @@
 [ pref_in ]
   standard_name = reference_pressure
   long_name = reference pressure used in definition of Exner function
-  units = mb
+  units = Pa
   dimensions = ()
   type = real | kind = kind_phys
   intent = in
@@ -90,7 +90,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ rho ]
-  standard_name = density_of_dry_air
+  standard_name = dry_air_density
   long_name = density of dry air
   units = kg m-3
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
