@@ -34,7 +34,6 @@ contains
     if (errcode /= 0) then
       errmsg = "[fatal] [micm] Failed to create MICM solver. Parsing configuration failed. &
                 Please look over at MICM log file for further information."
-      write(iulog,*) trim(errmsg)
       return
     endif
 
@@ -86,7 +85,6 @@ contains
 
       if (errcode /= 0) then
         errmsg = "[error] [micm] Unable to get molar mass."
-        write(iulog,*) trim(errmsg)
         return
       end if
     end do
@@ -97,7 +95,6 @@ contains
       if (molar_mass_arr(i_elem) == 0) then
         errcode = 1
         errmsg = "[error] [micm] Molar mass must be a non zero value."
-        write(iulog,*) trim(errmsg)
         return
       end if
     end do

@@ -97,7 +97,7 @@ subroutine test_micm_ccpp_api()
   call micm_init("chapman", iulog, errcode, errmsg)
 
   if (errcode /= 0) then
-    write(*,*) "    -- Failed to create solver"
+    write(*,*) trim(errmsg)
     stop 3
   endif
 
@@ -110,16 +110,16 @@ subroutine test_micm_ccpp_api()
                 constituents, iulog, errcode, errmsg)
 
   if (errcode /= 0) then
-    write(*,*) "    -- Solver failed to converge"
+    write(*,*) trim(errmsg)
     stop 3
   endif
 
-  write(*,*) "    -- Completed solving. After solving, conentrations", constituents
+  write(*,*) "    -- After solving, concentrations", constituents
 
   call micm_final(iulog, errcode, errmsg)
 
   if (errcode /= 0) then
-    write(*,*) "    -- Failed to finalize micm"
+    write(*,*) trim(errmsg)
     stop 3
   endif
 
