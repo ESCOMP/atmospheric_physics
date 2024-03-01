@@ -1,0 +1,13 @@
+# ignore all
+*
+
+# add things to copy
+!cmake/
+!docker/
+!held_suarez
+!kessler
+!musica/
+!test/
+!utilities
+!zm
+!CMakeLists.txt
