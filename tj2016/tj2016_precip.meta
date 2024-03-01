@@ -1,10 +1,22 @@
 [ccpp-table-properties]
-  name = tj2016
+  name = tj2016_precip
   type = scheme
 
 [ccpp-arg-table]
-  name  = tj2016_run
+  name  = tj2016_precip_run
   type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
 [ gravit ]
   standard_name = standard_gravitational_acceleration
   units = m s-2
@@ -36,25 +48,25 @@
   dimensions = ()
   intent = in
 [ rh2o ]
-  standard_name = 
+  standard_name = gas_constant_of_water_vapor
   units = J K-1 kg-1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ epsilo ]
-  standard_name = ratio_of_water_vapor_to_dry_air_gas_constants_minus_one
+  standard_name = ratio_of_h2o_to_dry_air_molecular_weights
   units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ rhoh2o ]
-  standard_name = density_of_fresh_water
+  standard_name = fresh_liquid_water_density_at_0c
   units = kg m-3
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ zvir ]
-  standard_name = ratio_of_water_vapor_to_dry_air_gas_constants_minus_one
+  standard_name = ratio_of_dry_air_to_water_vapor_gas_constants_minus_one
   units = 1
   type = real | kind = kind_phys
   dimensions = ()
@@ -70,18 +82,6 @@
   units = 1
   type = real | kind = kind_phys
   dimensions = (vertical_layer_dimension)
-  intent = in
-[ ncol ]
-  standard_name = horizontal_loop_extent
-  units = count
-  type = integer
-  dimensions = ()
-  intent = in
-[ pver ]
-  standard_name = vertical_layer_dimension
-  units = count
-  type = integer
-  dimensions = ()
   intent = in
 [ dtime ]
   standard_name = timestep_for_physics
@@ -110,6 +110,7 @@
 [ qv ]
   standard_name = water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
   units = kg kg-1
+  advected = True
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
@@ -131,9 +132,16 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
-[ tendency_of_air_temp ]
-  standard_name = tendency_of_air_temperature_due_to_model_physics
-  units = K s-1
+[ tendency_of_air_enthalpy ]
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure
+  units = J kg-1 s-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ scheme_name ]
+  standard_name = scheme_name
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
   intent = out
+

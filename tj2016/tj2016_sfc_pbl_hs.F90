@@ -6,7 +6,7 @@ module TJ2016_sfc_pbl_hs
     private
     save
 
-    public :: tj2016_run
+    public :: tj2016_sfc_pbl_hs_run
 
 CONTAINS
 
@@ -19,7 +19,7 @@ CONTAINS
     subroutine tj2016_sfc_pbl_hs_run(ncol, pver, gravit, cappa, rair,                     &
         cpair, latvap, rh2o, epsilo, rhoh2o, zvir, ps0, etamid, dtime, clat,      &
         PS, pmid, pint, lnpint, rpdel, T, U, V, qv, shflx, lhflx, taux, tauy,     &
-        evap, dqdt_vdiff, dtdt_vdiff, dtdt_heating, Km, Ke, Tsurf, errmsg, errflg)
+        evap, dqdt_vdiff, dtdt_vdiff, dtdt_heating, Km, Ke, Tsurf, scheme_name, errmsg, errflg)
     !------------------------------------------------
     !   Input / output parameters
     !------------------------------------------------
@@ -44,8 +44,7 @@ CONTAINS
     real(kind_phys), intent(in)    :: PS(:)               ! surface pressure (Pa)
     real(kind_phys), intent(in)    :: pmid(:,:)           ! mid-point pressure (Pa)
     real(kind_phys), intent(in)    :: pint(:,:)           ! interface pressure (Pa)
-    real(kind_phys), intent(in)    :: lnpintat(:)         ! ln(interface pressure (Pa)) at the surface
-    real(kind_phys), intent(in)    :: lnpintabove(:)      ! ln(interface pressure (Pa)) above the surface
+    real(kind_phys), intent(in)    :: lnpint(:,:)         ! ln(interface pressure (Pa)) at and above the surface
     real(kind_phys), intent(in)    :: rpdel(:,:)          ! reciprocal of layer thickness (Pa)
 
     real(kind_phys), intent(inout) :: T(:,:)              ! temperature (K)
@@ -65,6 +64,7 @@ CONTAINS
     real(kind_phys), intent(out)   :: Ke(:,:)             ! Eddy diffusivity for boundary layer calculations
     real(kind_phys), intent(out)   :: Tsurf(:)            ! sea surface temperature K (varied by latitude)
 
+    character(len=512), intent(out):: scheme_name
     character(len=512), intent(out):: errmsg
     integer,            intent(out):: errflg
 
@@ -144,6 +144,7 @@ CONTAINS
     ! Define simple_physics_option to either "TJ16" (moist HS) or "RJ12" (simple-physics)
     character(LEN=4)    :: simple_physics_option
 
+    scheme_name = "TJ2016_sfc_pbl_hs"
     errmsg = ' '
     errflg = 0
 
@@ -450,6 +451,6 @@ CONTAINS
         end do
     endif
 
-    end subroutine tj2016_run
+    end subroutine tj2016_sfc_pbl_hs_run
 
 end module TJ2016_sfc_pbl_hs
