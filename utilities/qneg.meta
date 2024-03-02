@@ -6,7 +6,7 @@
   name  = qneg_init
   type  = scheme
 [ print_qneg_warn ]
-  standard_name = print_qneg_warn
+  standard_name = control_for_negative_constituent_warning
   units = 1
   type = character | kind = len=*
   dimensions = ()

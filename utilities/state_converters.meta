@@ -208,7 +208,7 @@
   type = real | kind = kind_phys
   intent = in
 [ ref_pres ]
-  standard_name = reference_pressure
+  standard_name = surface_reference_pressure
   long_name = reference pressure used in definition of potential temperature, Exner function, etc.
   units = Pa
   dimensions = ()
