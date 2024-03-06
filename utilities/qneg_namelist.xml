@@ -77,7 +77,7 @@
                                                                         -->
 <!-- Qneg Parameterization -->
 
-  <entry id="control_for_negative_constituent_warning">
+  <entry id="print_qneg_warn">
     <type>char*8</type>
     <category>diagnostics</category>
     <group>qneg_nl</group>
