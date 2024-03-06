@@ -111,11 +111,11 @@ subroutine zm_conv_momtran_run(ncol, pver, pverp, &
    real(kind_phys) pgu(ncol,pver)      ! Pressure gradient term for updraft
    real(kind_phys) pgd(ncol,pver)      ! Pressure gradient term for downdraft
 
-   real(kind_phys),intent(out) ::  pguall(:,:,:)      ! Apparent force from  updraft PG   ! (ncol,pver,ncnst)
-   real(kind_phys),intent(out) ::  pgdall(:,:,:)      ! Apparent force from  downdraft PG ! (ncol,pver,ncnst)
+   real(kind_phys),intent(out) ::  pguall(:,:,:)      ! Apparent force from  updraft PG   ! (ncol,pver,2)
+   real(kind_phys),intent(out) ::  pgdall(:,:,:)      ! Apparent force from  downdraft PG ! (ncol,pver,2)
 
-   real(kind_phys),intent(out) ::  icwu(:,:,:)      ! In-cloud winds in updraft           ! (ncol,pver,ncnst)
-   real(kind_phys),intent(out) ::  icwd(:,:,:)      ! In-cloud winds in downdraft         ! (ncol,pver,ncnst)
+   real(kind_phys),intent(out) ::  icwu(:,:,:)      ! In-cloud winds in updraft           ! (ncol,pver,2)
+   real(kind_phys),intent(out) ::  icwd(:,:,:)      ! In-cloud winds in downdraft         ! (ncol,pver,2)
 
    real(kind_phys),intent(out) ::  seten(:,:) ! Dry static energy tendency                ! (ncol,pver)
    real(kind_phys)                 gseten(ncol,pver) ! Gathered dry static energy tendency

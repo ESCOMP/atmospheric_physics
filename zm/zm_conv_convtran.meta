@@ -25,7 +25,7 @@
   intent = in
 [ q ]
   standard_name = ccpp_constituents
-  units = kg kg-1
+  units = none
   type = real | kind = kind_phys
   dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension,1:number_of_ccpp_constituents)
   intent = in
@@ -121,7 +121,7 @@
   intent = in
 [ dqdt ]
   standard_name = tendency_of_ccpp_constituents?
-  units = kg kg-1 s-1?
+  units = none
   type = real | kind = kind_phys
   dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension,1:number_of_ccpp_constituents)
   intent = out

@@ -288,7 +288,7 @@
   dimensions = ()
   intent = in
 [ mcon ]
-  standard_name = net_mass_flux_due_to_deep_convection?
+  standard_name = atmosphere_convective_mass_flux_due_to all_convection?
   units = hPa s-1?
   type = real | kind = kind_phys
   dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
