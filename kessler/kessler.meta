@@ -12,7 +12,7 @@
   type = real | kind = kind_phys
   intent = in
 [ pref_in ]
-  standard_name = reference_pressure
+  standard_name = surface_reference_pressure
   long_name = reference pressure used in definition of Exner function
   units = Pa
   dimensions = ()

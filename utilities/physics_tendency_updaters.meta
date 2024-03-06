@@ -118,7 +118,7 @@
   dimensions = ()
   intent = in
 [ heating_rate ]
-  standard_name = heating_rate
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure
   units = J kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

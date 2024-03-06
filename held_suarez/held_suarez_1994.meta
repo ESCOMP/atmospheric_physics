@@ -6,7 +6,8 @@
   name  = held_suarez_1994_init
   type  = scheme
 [ pref_in ]
-  standard_name = reference_pressure
+  standard_name = surface_reference_pressure
+  long_name = reference pressure used in definition of potential temperature, Exner function, etc.
   units = Pa
   type = real | kind = kind_phys
   dimensions = ()
@@ -42,7 +43,7 @@
   dimensions = ()
   intent = in
 [ pref_mid_norm ]
-  standard_name = reference_pressure_in_atmosphere_layer_normalized_by_reference_pressure
+  standard_name = reference_pressure_in_atmosphere_layer_normalized_by_surface_reference_pressure
   units = 1
   type = real | kind = kind_phys
   dimensions = (vertical_layer_dimension)
@@ -102,7 +103,7 @@
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = out
 [ ds ]
-  standard_name = heating_rate
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure
   units = J kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
