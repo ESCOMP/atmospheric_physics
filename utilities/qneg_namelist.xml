@@ -77,11 +77,11 @@
                                                                         -->
 <!-- Qneg Parameterization -->
 
-  <entry id="print_qneg_warn">
+  <entry id="control_for_negative_constituent_warning">
     <type>char*8</type>
     <category>diagnostics</category>
     <group>qneg_nl</group>
-    <standard_name>print_qneg_warn</standard_name>
+    <standard_name>control_for_negative_constituent_warning</standard_name>
     <units>1</units>
     <valid_values>summary,timestep,off</valid_values>
     <desc>
