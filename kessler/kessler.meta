@@ -12,9 +12,9 @@
   type = real | kind = kind_phys
   intent = in
 [ pref_in ]
-  standard_name = reference_pressure
+  standard_name = surface_reference_pressure
   long_name = reference pressure used in definition of Exner function
-  units = mb
+  units = Pa
   dimensions = ()
   type = real | kind = kind_phys
   intent = in
@@ -67,13 +67,13 @@
   intent = in
 [ lyr_surf ]
   standard_name = vertical_index_at_surface_adjacent_layer
-  units = count
+  units = index
   dimensions = ()
   type = integer
   intent = in
 [ lyr_toa ]
   standard_name = vertical_index_at_top_adjacent_layer
-  units = count
+  units = index
   dimensions = ()
   type = integer
   intent = in
@@ -90,7 +90,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ rho ]
-  standard_name = density_of_dry_air
+  standard_name = dry_air_density
   long_name = density of dry air
   units = kg m-3
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

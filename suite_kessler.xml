@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <suite name="kessler" version="1.0">
-  <group name="physics">
+  <group name="physics_before_coupler">
     <scheme>calc_exner</scheme>
     <scheme>temp_to_potential_temp</scheme>
     <scheme>calc_dry_air_ideal_gas_density</scheme>
