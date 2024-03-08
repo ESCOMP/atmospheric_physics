@@ -16,11 +16,11 @@ contains
 !! \htmlinclude zm_conv_momtran_run.html
 !!
 subroutine zm_conv_momtran_run(ncol, pver, pverp, &
-                    domomtran,q       ,ncnst   ,mu      ,md    , &
+                    domomtran,windu, windv      ,num_winds   ,mu      ,md    , &
                     momcu   , momcd, &
                     du      ,eu      ,ed      ,dp      ,dsubcld , &
                     jt      ,mx      ,ideep   ,il1g    ,il2g    , &
-                    nstep   ,dqdt    ,pguall     ,pgdall, icwu, icwd, dt, seten    )
+                    nstep   ,windu_tend, windv_tend  ,pguall     ,pgdall, icwu, icwd, dt, seten    )
 !-----------------------------------------------------------------------
 !
 ! Purpose:
@@ -44,10 +44,11 @@ subroutine zm_conv_momtran_run(ncol, pver, pverp, &
 ! Input arguments
 !
    integer, intent(in) :: ncol                  ! number of atmospheric columns
-   integer, intent(in) :: ncnst                 ! number of tracers to transport
+   integer, intent(in) :: num_winds             ! number of wind directions
    integer, intent(in) :: pver, pverp
-   logical, intent(in) :: domomtran(:)      ! flag for doing convective transport    (ncnst)
-   real(kind_phys), intent(in) :: q(:,:,:)  ! Wind array                                    (ncol,pver,ncnst)
+   logical, intent(in) :: domomtran(:)      ! flag for doing convective transport    (num_winds)
+   real(kind_phys), intent(in) :: windu(:,:)  ! U Wind array                                    (ncol,pver)
+   real(kind_phys), intent(in) :: windv(:,:)  ! V Wind array                                    (ncol,pver)
    real(kind_phys), intent(in) :: mu(:,:)       ! Mass flux up                              (ncol,pver)
    real(kind_phys), intent(in) :: md(:,:)       ! Mass flux down                            (ncol,pver)
    real(kind_phys), intent(in) :: momcu
@@ -70,7 +71,8 @@ subroutine zm_conv_momtran_run(ncol, pver, pverp, &
 
 ! input/output
 
-   real(kind_phys), intent(out) :: dqdt(:,:,:)  ! Tracer tendency array                     (ncol,pver,ncnst)
+   real(kind_phys), intent(out) :: windu_tend(:,:)  ! U wind tendency
+   real(kind_phys), intent(out) :: windv_tend(:,:)  ! V wind tendency
 
 !--------------------------Local Variables------------------------------
 
@@ -102,6 +104,9 @@ subroutine zm_conv_momtran_run(ncol, pver, pverp, &
    real(kind_phys) fluxout              ! A work variable
    real(kind_phys) netflux              ! A work variable
 
+   real(kind_phys) :: winds(ncol,pver,num_winds)       ! combined winds array
+   real(kind_phys) :: wind_tends(ncol,pver,num_winds)  ! combined tendency array                     (ncol,pver,num_winds)
+
    real(kind_phys) sum                  ! sum
    real(kind_phys) sum2                  ! sum2
 
@@ -120,22 +125,25 @@ subroutine zm_conv_momtran_run(ncol, pver, pverp, &
    real(kind_phys),intent(out) ::  seten(:,:) ! Dry static energy tendency                ! (ncol,pver)
    real(kind_phys)                 gseten(ncol,pver) ! Gathered dry static energy tendency
 
-   real(kind_phys)  mflux(ncol,pverp,ncnst)   ! Gathered momentum flux
+   real(kind_phys)  mflux(ncol,pverp,num_winds)   ! Gathered momentum flux
 
-   real(kind_phys)  wind0(ncol,pver,ncnst)       !  gathered  wind before time step
-   real(kind_phys)  windf(ncol,pver,ncnst)       !  gathered  wind after time step
+   real(kind_phys)  wind0(ncol,pver,num_winds)       !  gathered  wind before time step
+   real(kind_phys)  windf(ncol,pver,num_winds)       !  gathered  wind after time step
    real(kind_phys) fkeb, fket, ketend_cons, ketend, utop, ubot, vtop, vbot, gset2
 
 
 !-----------------------------------------------------------------------
 !
+! Combine winds in single array
+   winds(:,:,1) = windu(:,:)
+   winds(:,:,2) = windv(:,:)
 
 ! Initialize outgoing fields
    pguall(:,:,:)     = 0.0_kind_phys
    pgdall(:,:,:)     = 0.0_kind_phys
 ! Initialize in-cloud winds to environmental wind
-   icwu(:ncol,:,:)       = q(:ncol,:,:)
-   icwd(:ncol,:,:)       = q(:ncol,:,:)
+   icwu(:ncol,:,:)       = winds(:ncol,:,:)
+   icwd(:ncol,:,:)       = winds(:ncol,:,:)
 
 ! Initialize momentum flux and  final winds
    mflux(:,:,:)       = 0.0_kind_phys
@@ -159,13 +167,13 @@ subroutine zm_conv_momtran_run(ncol, pver, pverp, &
    end do
 
 ! Loop ever each wind component
-   do m = 1, ncnst                    !start at m = 1 to transport momentum
+   do m = 1, num_winds                    !start at m = 1 to transport momentum
       if (domomtran(m)) then
 
 ! Gather up the winds and set tend to zero
          do k = 1,pver
             do i =il1g,il2g
-               const(i,k) = q(ideep(i),k,m)
+               const(i,k) = winds(ideep(i),k,m)
                 wind0(i,k,m) = const(i,k)
             end do
          end do
@@ -332,12 +340,12 @@ subroutine zm_conv_momtran_run(ncol, pver, pverp, &
           end do
 
 ! Initialize to zero everywhere, then scatter tendency back to full array
-         dqdt(:,:,m) = 0._kind_phys
+         wind_tends(:,:,m) = 0._kind_phys
 
          do k = 1,pver
             do i = il1g,il2g
                ii = ideep(i)
-               dqdt(ii,k,m) = dcondt(i,k)
+               wind_tends(ii,k,m) = dcondt(i,k)
     ! Output apparent force on the mean flow from pressure gradient
                pguall(ii,k,m) = -pgu(i,k)
                pgdall(ii,k,m) = -pgd(i,k)
@@ -415,6 +423,10 @@ subroutine zm_conv_momtran_run(ncol, pver, pverp, &
 
        end do
     end do
+
+! Split out the wind tendencies
+   windu_tend(:,:) = wind_tends(:,:,1)
+   windv_tend(:,:) = wind_tends(:,:,2)
 
    return
 end subroutine zm_conv_momtran_run

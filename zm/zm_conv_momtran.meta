@@ -29,15 +29,21 @@
   type = logical
   dimensions = (2)
   intent = in
-[ q ]
-  standard_name = ccpp_constituents
-  units = none
+[ windu ]
+  standard_name = enter_name
+  units = enter_name
   type = real | kind = kind_phys
-  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension,1:number_of_ccpp_constituents)
+  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
   intent = in
-[ ncnst ]
-  standard_name = number_of_ccpp_constituents
-  units = count
+[ windv ]
+  standard_name = enter_name
+  units = enter_name
+  type = real | kind = kind_phys
+  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
+  intent = in
+[ num_winds ]
+  standard_name = enter_name
+  units = enter_name
   type = integer
   dimensions = ()
   intent = in
@@ -131,9 +137,15 @@
   type = integer
   dimensions = ()
   intent = in
-[ dqdt ]
-  standard_name = tendency_of_ccpp_constituents?
-  units = none
+[ windu_tend ]
+  standard_name = enter_name
+  units = enter_name
+  type = real | kind = kind_phys
+  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension,1:number_of_ccpp_constituents)
+  intent = out
+[ windv_tend ]
+  standard_name = enter_name
+  units = enter_name
   type = real | kind = kind_phys
   dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension,1:number_of_ccpp_constituents)
   intent = out
