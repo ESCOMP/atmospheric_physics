@@ -59,7 +59,8 @@ subroutine zm_convr_init(cpair, epsilo, gravit, latvap, tmelt, rair, &
                     limcnv_in, zmconv_c0_lnd, zmconv_c0_ocn, zmconv_ke, zmconv_ke_lnd, &
                     zmconv_momcu, zmconv_momcd, zmconv_num_cin, zmconv_org, &
                     no_deep_pbl_in, zmconv_tiedke_add, &
-                    zmconv_capelmt, zmconv_dmpdz, zmconv_parcel_pbl, zmconv_tau, errmsg, errflg)
+                    zmconv_capelmt, zmconv_dmpdz, zmconv_parcel_pbl, zmconv_tau, &
+                    masterproc, iulog, errmsg, errflg)
 
    real(kind_phys), intent(in)   :: cpair           ! specific heat of dry air (J K-1 kg-1)
    real(kind_phys), intent(in)   :: epsilo          ! ratio of h2o to dry air molecular weights
@@ -83,6 +84,8 @@ subroutine zm_convr_init(cpair, epsilo, gravit, latvap, tmelt, rair, &
    real(kind_phys),intent(in)           :: zmconv_dmpdz
    logical, intent(in)           :: zmconv_parcel_pbl ! Should the parcel properties include PBL mixing?
    real(kind_phys),intent(in)           :: zmconv_tau
+   logical, intent(in)                  :: masterproc
+   integer, intent(in)                  :: iulog
    character(len=512), intent(out)      :: errmsg
    integer, intent(out)                 :: errflg
 
@@ -117,20 +120,19 @@ subroutine zm_convr_init(cpair, epsilo, gravit, latvap, tmelt, rair, &
 
    tau = zmconv_tau
 
-!CACNOTE - How handle writes like this?
-!   if ( masterproc ) then
-!      write(iulog,*) 'tuning parameters zm_convr_init: tau',tau
-!      write(iulog,*) 'tuning parameters zm_convr_init: c0_lnd',c0_lnd, ', c0_ocn', c0_ocn
-!      write(iulog,*) 'tuning parameters zm_convr_init: num_cin', num_cin
-!      write(iulog,*) 'tuning parameters zm_convr_init: ke',ke
-!      write(iulog,*) 'tuning parameters zm_convr_init: no_deep_pbl',no_deep_pbl
-!      write(iulog,*) 'tuning parameters zm_convr_init: zm_capelmt', capelmt
-!      write(iulog,*) 'tuning parameters zm_convr_init: zm_dmpdz', dmpdz_param
-!      write(iulog,*) 'tuning parameters zm_convr_init: zm_tiedke_add', tiedke_add
-!      write(iulog,*) 'tuning parameters zm_convr_init: zm_parcel_pbl', lparcel_pbl
-!   endif
-!
-!   if (masterproc) write(iulog,*)'**** ZM: DILUTE Buoyancy Calculation ****'
+   if ( masterproc ) then
+      write(iulog,*) 'tuning parameters zm_convr_init: tau',tau
+      write(iulog,*) 'tuning parameters zm_convr_init: c0_lnd',c0_lnd, ', c0_ocn', c0_ocn
+      write(iulog,*) 'tuning parameters zm_convr_init: num_cin', num_cin
+      write(iulog,*) 'tuning parameters zm_convr_init: ke',ke
+      write(iulog,*) 'tuning parameters zm_convr_init: no_deep_pbl',no_deep_pbl
+      write(iulog,*) 'tuning parameters zm_convr_init: zm_capelmt', capelmt
+      write(iulog,*) 'tuning parameters zm_convr_init: zm_dmpdz', dmpdz_param
+      write(iulog,*) 'tuning parameters zm_convr_init: zm_tiedke_add', tiedke_add
+      write(iulog,*) 'tuning parameters zm_convr_init: zm_parcel_pbl', lparcel_pbl
+   endif
+
+   if (masterproc) write(iulog,*)'**** ZM: DILUTE Buoyancy Calculation ****'
 
 end subroutine zm_convr_init
 
