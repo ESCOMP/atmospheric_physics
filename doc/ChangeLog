@@ -1,5 +1,30 @@
 ===============================================================
 
+Tag name:atmos_phys0_02_003
+Originator(s): peverwhee
+Date: 11 Mar 2024
+One-line Summary: update qneg namelist standard name
+Github PR URL: https://github.com/ESCOMP/atmospheric_physics/pull/84
+
+Purpose of changes (include the issue number and title text for each relevant GitHub issue):
+ - Update qneg flag standard name in qneg namelist file
+
+This PR fixes the following NCAR/atmospheric_physics Github issues:
+
+Code reviewed by: nusbaume, cacraigucar
+
+List all existing files that have been added (A), modified (M), or deleted (D),
+and describe the changes:
+
+M       utilities/qneg_namelist.xml
+        - update standard name
+
+List and Describe any test failures: None; tested kessler with SIMA
+
+Summarize any changes to answers: None
+
+===============================================================
+
 Tag name:atmos_phys0_02_002
 Originator(s): peverwhee, nusbaume
 Date: 05 Mar 2024
