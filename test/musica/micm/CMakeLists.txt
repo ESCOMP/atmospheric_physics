@@ -8,7 +8,7 @@ include(FetchContent)
 
 FetchContent_Declare(musica
   GIT_REPOSITORY https://github.com/NCAR/musica.git
-  GIT_TAG        main
+  GIT_TAG        8ab0aa0
 )
 
 set(USE_MUSICA OFF)
