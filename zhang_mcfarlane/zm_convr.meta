@@ -317,12 +317,6 @@
   type = real | kind = kind_phys
   dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
   intent = out
-[ pflx ]
-  standard_name = precipitation_flux_at_interface_due_to_deep_convection
-  units = tbd
-  type = real | kind = kind_phys
-  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
-  intent = out
 [ zdu ]
   standard_name = detrainment_mass_flux_due_to_deep_convection
   units = tbd

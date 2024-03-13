@@ -147,7 +147,7 @@ subroutine zm_convr_run(     ncol    ,pver    , &
                     pblh    ,zm      ,geos    ,zi      ,qtnd    , &
                     heat    ,pap     ,paph    ,dpp     , &
                     delt    ,mcon    ,cme     ,cape    , &
-                    tpert   ,dlf     ,pflx    ,zdu     ,rprd    , &
+                    tpert   ,dlf     ,zdu     ,rprd    , &
                     mu      ,md      ,du      ,eu      ,ed      , &
                     dp      ,dsubcld ,jt      ,maxg    ,ideep   , &
                     ql      ,rliq    ,landfrac,                   &
@@ -294,7 +294,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
    real(kind_phys), intent(out) :: heat(:,:)           ! heating rate (dry static energy tendency, W/kg)  (ncol,pver)
    real(kind_phys), intent(out) :: mcon(:,:)  !   (ncol,pverp)
    real(kind_phys), intent(out) :: dlf(:,:)    ! scattrd version of the detraining cld h2o tend (ncol,pver)
-   real(kind_phys), intent(out) :: pflx(:,:)  ! scattered precip flux at each level                                                          (ncol,pverp)
    real(kind_phys), intent(out) :: cme(:,:)    !                                                          (ncol,pver)
    real(kind_phys), intent(out) :: cape(:)        ! w  convective available potential energy.             (ncol)
    real(kind_phys), intent(out) :: zdu(:,:)    ! (ncol,pver)
@@ -330,7 +329,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
 
    real(kind_phys) zs(ncol)
    real(kind_phys) dlg(ncol,pver)    ! gathrd version of the detraining cld h2o tend
-   real(kind_phys) pflxg(ncol,pverp) ! gather precip flux at each level
    real(kind_phys) cug(ncol,pver)    ! gathered condensation rate
 
    real(kind_phys) evpg(ncol,pver)   ! gathered evap rate of rain in downdraft
@@ -474,8 +472,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
          dsdt(i,k)  = 0._kind_phys
          dudt(i,k)  = 0._kind_phys
          dvdt(i,k)  = 0._kind_phys
-         pflx(i,k)  = 0._kind_phys
-         pflxg(i,k) = 0._kind_phys
          cme(i,k)   = 0._kind_phys
          rprd(i,k)  = 0._kind_phys
          zdu(i,k)   = 0._kind_phys
@@ -492,11 +488,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
       end do
    end do
 
-   do i = 1,ncol
-      pflx(i,pverp) = 0
-      pflxg(i,pverp) = 0
-   end do
-!
    do i = 1,ncol
       pblt(i) = pver
       dsubcld(i) = 0._kind_phys
@@ -687,7 +678,7 @@ subroutine zm_convr_run(     ncol    ,pver    , &
                cmeg    ,maxg    ,lelg    ,jt      ,jlcl    , &
                maxg    ,j0      ,jd      ,rl      ,lengath , &
                rgas    ,grav    ,cpres   ,msg     , &
-               pflxg   ,evpg    ,cug     ,rprdg   ,limcnv  ,landfracg , &
+               evpg    ,cug     ,rprdg   ,limcnv  ,landfracg , &
                qldeg    ,qhat    )
 
 
@@ -756,7 +747,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
          rprdg(i,k)  = rprdg(i,k)*mb(i)
          cug  (i,k)  = cug  (i,k)*mb(i)
          evpg (i,k)  = evpg (i,k)*mb(i)
-         pflxg(i,k+1)= pflxg(i,k+1)*mb(i)*100._kind_phys/grav
 
       end do
    end do
@@ -788,13 +778,8 @@ subroutine zm_convr_run(     ncol    ,pver    , &
          mcon(ideep(i),k) = mc   (i,k)
          heat(ideep(i),k) = dsdt (i,k)*cpres
          dlf (ideep(i),k) = dlg  (i,k)
-         pflx(ideep(i),k) = pflxg(i,k)
          ql  (ideep(i),k) = qlg  (i,k)
       end do
-   end do
-
-   do i = 1,lengath
-      pflx(ideep(i),pverp) = pflxg(i,pverp)
    end do
 
 ! Compute precip by integrating change in water vapor minus detrained cloud water
@@ -1707,7 +1692,7 @@ subroutine cldprp(ncol   ,pver    ,pverp   ,cpliq   , &
                   cmeg    ,jb      ,lel     ,jt      ,jlcl    , &
                   mx      ,j0      ,jd      ,rl      ,il2g    , &
                   rd      ,grav    ,cp      ,msg     , &
-                  pflx    ,evp     ,cu      ,rprd    ,limcnv  ,landfrac, &
+                  evp     ,cu      ,rprd    ,limcnv  ,landfrac, &
                   qcde     ,qhat  )
 
 !-----------------------------------------------------------------------
@@ -1785,7 +1770,6 @@ subroutine cldprp(ncol   ,pver    ,pverp   ,cpliq   , &
    real(kind_phys), intent(out) :: mc(ncol,pver)       ! net mass flux
    real(kind_phys), intent(out) :: md(ncol,pver)       ! downdraft mass flux
    real(kind_phys), intent(out) :: mu(ncol,pver)       ! updraft mass flux
-   real(kind_phys), intent(out) :: pflx(ncol,pverp)    ! precipitation flux thru layer
    real(kind_phys), intent(out) :: qd(ncol,pver)       ! spec humidity of downdraft
    real(kind_phys), intent(out) :: ql(ncol,pver)       ! liq water of updraft
    real(kind_phys), intent(out) :: qst(ncol,pver)      ! saturation mixing ratio of env.
@@ -1887,8 +1871,6 @@ subroutine cldprp(ncol   ,pver    ,pverp   ,cpliq   , &
 !
 ! initialize many output and work variables to zero
 !
-   pflx(:il2g,1) = 0
-
    do k = 1,pver
       do i = 1,il2g
          k1(i,k) = 0._kind_phys
@@ -2404,13 +2386,6 @@ subroutine cldprp(ncol   ,pver    ,pverp   ,cpliq   , &
       end do
    end do
 
-! compute the net precipitation flux across interfaces
-   pflx(:il2g,1) = 0._kind_phys
-   do k = 2,pverp
-      do i = 1,il2g
-         pflx(i,k) = pflx(i,k-1) + rprd(i,k-1)*dz(i,k-1)
-      end do
-   end do
 !
    do k = msg + 1,pver
       do i = 1,il2g
