@@ -143,7 +143,7 @@ end subroutine zm_convr_init
 !!
 subroutine zm_convr_run(     ncol    ,pver    , &
                     pverp,   gravit  ,latice  ,cpwv    ,cpliq   , rh2o, &
-                    t       ,qh      ,prec    ,jctop   ,jcbot   , &
+                    t       ,qh      ,prec    , &
                     pblh    ,zm      ,geos    ,zi      ,qtnd    , &
                     heat    ,pap     ,paph    ,dpp     , &
                     delt    ,mcon    ,cme     ,cape    , &
@@ -237,8 +237,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
 !  wg * shat     grid slice of upper interface dry static energy.
 !  wg * su       grid slice of dry static energy in updraft.
 !  i/o * t
-!  o  * jctop    row of top-of-deep-convection indices passed out.
-!  O  * jcbot    row of base of cloud indices passed out.
 !  wg * tg       grid slice of gathered values of t.
 !  w  * tl       row of parcel temperature at lcl.
 !  wg * tlg      grid slice of gathered values of tl.
@@ -314,8 +312,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
    real(kind_phys), intent(out) :: ed(:,:)  !                                                                 (ncol,pver)
    real(kind_phys), intent(out) :: dp(:,:)       ! wg layer thickness in mbs (between upper/lower interface). (ncol,pver)
    real(kind_phys), intent(out) :: dsubcld(:)       ! wg layer thickness in mbs between lcl and maxi.         (ncol)
-   real(kind_phys), intent(out) :: jctop(:)  ! o row of top-of-deep-convection indices passed out.            (ncol)
-   real(kind_phys), intent(out) :: jcbot(:)  ! o row of base of cloud indices passed out.                     (ncol)
    real(kind_phys), intent(out) :: prec(:)  !                                                                 (ncol)
    real(kind_phys), intent(out) :: rliq(:) ! reserved liquid (not yet in cldliq) for energy integrals         (ncol)
    real(kind_phys), intent(out) :: rice(:) ! reserved ice (not yet in cldce) for energy integrals             (ncol)
@@ -504,10 +500,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
    do i = 1,ncol
       pblt(i) = pver
       dsubcld(i) = 0._kind_phys
-
-
-      jctop(i) = pver
-      jcbot(i) = 1
 
    end do
 
@@ -802,8 +794,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
    end do
 
    do i = 1,lengath
-      jctop(ideep(i)) = jt(i)
-      jcbot(ideep(i)) = maxg(i)
       pflx(ideep(i),pverp) = pflxg(i,pverp)
    end do
 

@@ -227,18 +227,6 @@
   type = real | kind = kind_phys
   dimensions = (1:horizontal_loop_extent)
   intent = out
-[ jctop ]
-  standard_name = vertical_layer_indices_for_top_of_deep_convection?
-  units = index?
-  type = real | kind = kind_phys
-  dimensions = (1:horizontal_loop_extent)
-  intent = out
-[ jcbot ]
-  standard_name = vertical_layer_indices_for_base_of_deep_convection?
-  units = index?
-  type = real | kind = kind_phys
-  dimensions = (1:horizontal_loop_extent)
-  intent = out
 [ pblh ]
   standard_name = atmosphere_boundary_layer_thickness
   units = m
