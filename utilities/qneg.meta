@@ -6,7 +6,7 @@
   name  = qneg_init
   type  = scheme
 [ print_qneg_warn ]
-  standard_name = print_qneg_warn
+  standard_name = control_for_negative_constituent_warning
   units = 1
   type = character | kind = len=*
   dimensions = ()
@@ -61,7 +61,7 @@
   intent = in
 [ q ]
   standard_name = ccpp_constituents
-  units = kg kg-1
+  units = none
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension,number_of_ccpp_constituents)
   intent = inout
@@ -85,13 +85,13 @@
   type  = scheme
 [ mpi_communicator ]
   standard_name = mpi_communicator
-  units = 1
+  units = index
   type = integer
   dimensions = ()
   intent = in
 [ rootprocid ]
   standard_name = mpi_root
-  units = 1
+  units = index
   type = integer
   dimensions = ()
   intent = in
@@ -133,13 +133,13 @@
   type  = scheme
 [ mpi_communicator ]
   standard_name = mpi_communicator
-  units = 1
+  units = index
   type = integer
   dimensions = ()
   intent = in
 [ rootprocid ]
   standard_name = mpi_root
-  units = 1
+  units = index
   type = integer
   dimensions = ()
   intent = in
