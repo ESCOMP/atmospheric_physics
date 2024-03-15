@@ -16,9 +16,9 @@ CONTAINS
 
     !> \section arg_table_tj2016_sfc_pbl_hs_run  Argument Table
     !! \htmlinclude tj2016_sfc_pbl_hs_run.html
-    subroutine tj2016_sfc_pbl_hs_run(ncol, pver, gravit, cappa, rair,                     &
-        cpair, latvap, rh2o, epsilo, rhoh2o, zvir, ps0, etamid, dtime, clat,      &
-        PS, pmid, pint, lnpint, rpdel, T, U, V, qv, shflx, lhflx, taux, tauy,     &
+    subroutine tj2016_sfc_pbl_hs_run(ncol, pver, gravit, cappa, rairv,                     &
+        cpairv, latvap, rh2o, epsilo, rhoh2o, zvir, ps0, etamid, dtime, clat,      &
+        PS, pmid, pint, lnpint, rpdel, T, U, dudt, V, dvdt, qv, shflx, lhflx, taux, tauy,     &
         evap, dqdt_vdiff, dtdt_vdiff, dtdt_heating, Km, Ke, Tsurf, scheme_name, errmsg, errflg)
     !------------------------------------------------
     !   Input / output parameters
@@ -29,8 +29,8 @@ CONTAINS
 
     real(kind_phys), intent(in)    :: gravit              ! g: gravitational acceleration (m/s2)
     real(kind_phys), intent(in)    :: cappa               ! Rd/cp
-    real(kind_phys), intent(in)    :: rair                ! Rd: dry air gas constant (J/K/kg)
-    real(kind_phys), intent(in)    :: cpair               ! cp: specific heat of dry air (J/K/kg)
+    real(kind_phys), intent(in)    :: rairv(:)            ! Rd: dry air gas constant (J/K/kg)
+    real(kind_phys), intent(in)    :: cpairv(:)           ! cp: specific heat of dry air (J/K/kg)
     real(kind_phys), intent(in)    :: latvap              ! L: latent heat of vaporization (J/kg)
     real(kind_phys), intent(in)    :: rh2o                ! Rv: water vapor gas constant (J/K/kg)
     real(kind_phys), intent(in)    :: epsilo              ! Rd/Rv: ratio of h2o to dry air molecular weights
@@ -48,8 +48,10 @@ CONTAINS
     real(kind_phys), intent(in)    :: rpdel(:,:)          ! reciprocal of layer thickness (Pa)
 
     real(kind_phys), intent(inout) :: T(:,:)              ! temperature (K)
-    real(kind_phys), intent(inout) :: U(:,:)              ! zonal wind (m/s)
-    real(kind_phys), intent(inout) :: V(:,:)              ! meridional wind (m/s)
+    real(kind_phys), intent(in)    :: U(:,:)              ! zonal wind (m/s)
+    real(kind_phys), intent(out)   :: dudt(:,:)           ! zonal wind tendency (m/s)
+    real(kind_phys), intent(in)    :: V(:,:)              ! meridional wind (m/s)
+    real(kind_phys), intent(out)   :: dvdt(:,:)           ! meridional wind tendency (m/s)
     real(kind_phys), intent(inout) :: qv(:,:)             ! moisture variable (vapor form) Q (kg/kg)
 
     real(kind_phys), intent(out)   :: shflx(:)            ! surface sensible heat flux (W/m2)
@@ -137,6 +139,8 @@ CONTAINS
 
     ! Temporary storage variable
     real(kind_phys)            :: tmp
+    real(kind_phys)            :: UCopy(ncol, pver)  ! Local copy of modifiable U
+    real(kind_phys)            :: VCopy(ncol, pver)  ! Local copy of modifiable V
 
     ! Loop variables
     integer             :: i, k
@@ -147,6 +151,9 @@ CONTAINS
     scheme_name = "TJ2016_sfc_pbl_hs"
     errmsg = ' '
     errflg = 0
+
+    UCopy = U
+    VCopy = V
 
     ! Set the simple_physics_option "TJ16" (default, moist HS)
     simple_physics_option = "TJ16"
@@ -212,7 +219,7 @@ CONTAINS
     ! Km is used for momentum (not used by TJ16, only RJ12)
     !--------------------------------------------------------------------------
     do i = 1, ncol
-        wind(i) = sqrt(U(i,pver)**2 + V(i,pver)**2)   ! wind speed closest to the surface
+        wind(i) = sqrt(UCopy(i,pver)**2 + VCopy(i,pver)**2)   ! wind speed closest to the surface
     end do
     do i = 1, ncol
         Ke(i,pver+1) = C*wind(i)*za(i)
@@ -269,10 +276,10 @@ CONTAINS
         !--------------------------------------------------------------------------
         do i = 1, ncol
             tmp          = Cd(i) * wind(i)
-            taux(i)      = -rho(i) * tmp * U(i,pver)                      ! zonal surface momentum flux (N/m2) 
-            U(i,pver)    = U(i,pver)/(1._kind_phys+tmp*dtime/za(i))              ! new U
-            tauy(i)      = -rho(i) * tmp * V(i,pver)                      ! meridional surface momentum flux (N/m2) 
-            V(i,pver)    = V(i,pver)/(1._kind_phys+tmp*dtime/za(i))              ! new V
+            taux(i)      = -rho(i) * tmp * UCopy(i,pver)                      ! zonal surface momentum flux (N/m2) 
+            UCopy(i,pver)    = UCopy(i,pver)/(1._kind_phys+tmp*dtime/za(i))              ! new U
+            tauy(i)      = -rho(i) * tmp * VCopy(i,pver)                      ! meridional surface momentum flux (N/m2) 
+            VCopy(i,pver)    = VCopy(i,pver)/(1._kind_phys+tmp*dtime/za(i))              ! new V
         enddo
     endif
 
@@ -359,8 +366,8 @@ CONTAINS
             dlnpint = (lnpint(i,2) - lnpint(i,1))
             za(i)   = rair/gravit*T(i,pver)*(1._kind_phys+zvir*qv(i,pver))*0.5_kind_phys*dlnpint ! height of lowest full model level
             rho(i)  = pmid(i,pver)/(rair * T(i,pver) *(1._kind_phys+zvir*qv(i,pver)))     ! air density at the lowest level rho = p/(Rd Tv)
-            taux(i) = -kv * rho(i) * U(i,pver) * za(i)                             ! U surface momentum flux in N/m2
-            tauy(i) = -kv * rho(i) * V(i,pver) * za(i)                             ! V surface momentum flux in N/m2
+            taux(i) = -kv * rho(i) * UCopy(i,pver) * za(i)                             ! U surface momentum flux in N/m2
+            tauy(i) = -kv * rho(i) * VCop(i,pver) * za(i)                             ! V surface momentum flux in N/m2
         end do
 
         !--------------------------------------------------------------------------
@@ -371,8 +378,8 @@ CONTAINS
             if (etamid(k) > sigmab) then
                 kv  = kf*(etamid(k) - sigmab)/onemsig                         ! RF coefficient 
                 do i=1,ncol
-                    U(i,k) = U(i,k) -kv*U(i,k)*dtime                            ! apply RF to U
-                    V(i,k) = V(i,k) -kv*V(i,k)*dtime                            ! apply RF to V
+                    UCopy(i,k) = UCopy(i,k) -kv*UCopy(i,k)*dtime                            ! apply RF to U
+                    VCopy(i,k) = VCopy(i,k) -kv*VCopy(i,k)*dtime                            ! apply RF to V
                 end do
             end if
         end do
@@ -423,8 +430,8 @@ CONTAINS
         do i = 1, ncol
             do k = pver, 1, -1
                 CEm(i,k) = CCm(i,k)/(1._kind_phys+CAm(i,k)+CCm(i,k)-CAm(i,k)*CEm(i,k+1))
-                CFu(i,k) = (U(i,k)+CAm(i,k)*CFu(i,k+1))/(1._kind_phys+CAm(i,k)+CCm(i,k)-CAm(i,k)*CEm(i,k+1))
-                CFv(i,k) = (V(i,k)+CAm(i,k)*CFv(i,k+1))/(1._kind_phys+CAm(i,k)+CCm(i,k)-CAm(i,k)*CEm(i,k+1))
+                CFu(i,k) = (UCopy(i,k)+CAm(i,k)*CFu(i,k+1))/(1._kind_phys+CAm(i,k)+CCm(i,k)-CAm(i,k)*CEm(i,k+1))
+                CFv(i,k) = (VCopy(i,k)+CAm(i,k)*CFv(i,k+1))/(1._kind_phys+CAm(i,k)+CCm(i,k)-CAm(i,k)*CEm(i,k+1))
             end do
         end do
 
@@ -436,8 +443,8 @@ CONTAINS
         ! First: calculate the PBL diffusive tendencies at the top model level
         !---------------------------------------------------------------------
         do i = 1, ncol
-            U(i,1)    = CFu(i,1)                                 ! new U at the model top
-            V(i,1)    = CFv(i,1)                                 ! new V at the model top
+            UCopy(i,1)    = CFu(i,1)                                 ! new U at the model top
+            VCopy(i,1)    = CFv(i,1)                                 ! new V at the model top
         end do
 
         !-----------------------------------------
@@ -445,11 +452,18 @@ CONTAINS
         !-----------------------------------------
         do i = 1, ncol
             do k = 2, pver
-                U(i,k) = CEm(i,k)*U(i,k-1) + CFu(i,k)     ! new U
-                V(i,k) = CEm(i,k)*V(i,k-1) + CFv(i,k)     ! new V
+                UCopy(i,k) = CEm(i,k)*UCopy(i,k-1) + CFu(i,k)     ! new U
+                VCopy(i,k) = CEm(i,k)*VCopy(i,k-1) + CFv(i,k)     ! new V
             end do
         end do
     endif
+
+    do i = i, ncol
+        do k = 1, pver
+            dudt(i, k) = UCopy(i, k) - U(i, k)
+            dvdt(i, k) = VCopy(i, k) - V(i, k)
+        end do
+    end do
 
     end subroutine tj2016_sfc_pbl_hs_run
 
