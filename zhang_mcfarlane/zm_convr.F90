@@ -59,7 +59,8 @@ subroutine zm_convr_init(cpair, epsilo, gravit, latvap, tmelt, rair, &
                     limcnv_in, zmconv_c0_lnd, zmconv_c0_ocn, zmconv_ke, zmconv_ke_lnd, &
                     zmconv_momcu, zmconv_momcd, zmconv_num_cin, zmconv_org, &
                     no_deep_pbl_in, zmconv_tiedke_add, &
-                    zmconv_capelmt, zmconv_dmpdz, zmconv_parcel_pbl, zmconv_tau, errmsg, errflg)
+                    zmconv_capelmt, zmconv_dmpdz, zmconv_parcel_pbl, zmconv_tau, &
+                    masterproc, iulog, errmsg, errflg)
 
    real(kind_phys), intent(in)   :: cpair           ! specific heat of dry air (J K-1 kg-1)
    real(kind_phys), intent(in)   :: epsilo          ! ratio of h2o to dry air molecular weights
@@ -83,6 +84,8 @@ subroutine zm_convr_init(cpair, epsilo, gravit, latvap, tmelt, rair, &
    real(kind_phys),intent(in)           :: zmconv_dmpdz
    logical, intent(in)           :: zmconv_parcel_pbl ! Should the parcel properties include PBL mixing?
    real(kind_phys),intent(in)           :: zmconv_tau
+   logical, intent(in)                  :: masterproc
+   integer, intent(in)                  :: iulog
    character(len=512), intent(out)      :: errmsg
    integer, intent(out)                 :: errflg
 
@@ -117,20 +120,19 @@ subroutine zm_convr_init(cpair, epsilo, gravit, latvap, tmelt, rair, &
 
    tau = zmconv_tau
 
-!CACNOTE - How handle writes like this?
-!   if ( masterproc ) then
-!      write(iulog,*) 'tuning parameters zm_convr_init: tau',tau
-!      write(iulog,*) 'tuning parameters zm_convr_init: c0_lnd',c0_lnd, ', c0_ocn', c0_ocn
-!      write(iulog,*) 'tuning parameters zm_convr_init: num_cin', num_cin
-!      write(iulog,*) 'tuning parameters zm_convr_init: ke',ke
-!      write(iulog,*) 'tuning parameters zm_convr_init: no_deep_pbl',no_deep_pbl
-!      write(iulog,*) 'tuning parameters zm_convr_init: zm_capelmt', capelmt
-!      write(iulog,*) 'tuning parameters zm_convr_init: zm_dmpdz', dmpdz_param
-!      write(iulog,*) 'tuning parameters zm_convr_init: zm_tiedke_add', tiedke_add
-!      write(iulog,*) 'tuning parameters zm_convr_init: zm_parcel_pbl', lparcel_pbl
-!   endif
-!
-!   if (masterproc) write(iulog,*)'**** ZM: DILUTE Buoyancy Calculation ****'
+   if ( masterproc ) then
+      write(iulog,*) 'tuning parameters zm_convr_init: tau',tau
+      write(iulog,*) 'tuning parameters zm_convr_init: c0_lnd',c0_lnd, ', c0_ocn', c0_ocn
+      write(iulog,*) 'tuning parameters zm_convr_init: num_cin', num_cin
+      write(iulog,*) 'tuning parameters zm_convr_init: ke',ke
+      write(iulog,*) 'tuning parameters zm_convr_init: no_deep_pbl',no_deep_pbl
+      write(iulog,*) 'tuning parameters zm_convr_init: zm_capelmt', capelmt
+      write(iulog,*) 'tuning parameters zm_convr_init: zm_dmpdz', dmpdz_param
+      write(iulog,*) 'tuning parameters zm_convr_init: zm_tiedke_add', tiedke_add
+      write(iulog,*) 'tuning parameters zm_convr_init: zm_parcel_pbl', lparcel_pbl
+   endif
+
+   if (masterproc) write(iulog,*)'**** ZM: DILUTE Buoyancy Calculation ****'
 
 end subroutine zm_convr_init
 
@@ -141,11 +143,11 @@ end subroutine zm_convr_init
 !!
 subroutine zm_convr_run(     ncol    ,pver    , &
                     pverp,   gravit  ,latice  ,cpwv    ,cpliq   , rh2o, &
-                    t       ,qh      ,prec    ,jctop   ,jcbot   , &
+                    t       ,qh      ,prec    , &
                     pblh    ,zm      ,geos    ,zi      ,qtnd    , &
                     heat    ,pap     ,paph    ,dpp     , &
                     delt    ,mcon    ,cme     ,cape    , &
-                    tpert   ,dlf     ,pflx    ,zdu     ,rprd    , &
+                    tpert   ,dlf     ,zdu     ,rprd    , &
                     mu      ,md      ,du      ,eu      ,ed      , &
                     dp      ,dsubcld ,jt      ,maxg    ,ideep   , &
                     ql      ,rliq    ,landfrac,                   &
@@ -235,8 +237,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
 !  wg * shat     grid slice of upper interface dry static energy.
 !  wg * su       grid slice of dry static energy in updraft.
 !  i/o * t
-!  o  * jctop    row of top-of-deep-convection indices passed out.
-!  O  * jcbot    row of base of cloud indices passed out.
 !  wg * tg       grid slice of gathered values of t.
 !  w  * tl       row of parcel temperature at lcl.
 !  wg * tlg      grid slice of gathered values of tl.
@@ -294,7 +294,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
    real(kind_phys), intent(out) :: heat(:,:)           ! heating rate (dry static energy tendency, W/kg)  (ncol,pver)
    real(kind_phys), intent(out) :: mcon(:,:)  !   (ncol,pverp)
    real(kind_phys), intent(out) :: dlf(:,:)    ! scattrd version of the detraining cld h2o tend (ncol,pver)
-   real(kind_phys), intent(out) :: pflx(:,:)  ! scattered precip flux at each level                                                          (ncol,pverp)
    real(kind_phys), intent(out) :: cme(:,:)    !                                                          (ncol,pver)
    real(kind_phys), intent(out) :: cape(:)        ! w  convective available potential energy.             (ncol)
    real(kind_phys), intent(out) :: zdu(:,:)    ! (ncol,pver)
@@ -312,8 +311,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
    real(kind_phys), intent(out) :: ed(:,:)  !                                                                 (ncol,pver)
    real(kind_phys), intent(out) :: dp(:,:)       ! wg layer thickness in mbs (between upper/lower interface). (ncol,pver)
    real(kind_phys), intent(out) :: dsubcld(:)       ! wg layer thickness in mbs between lcl and maxi.         (ncol)
-   real(kind_phys), intent(out) :: jctop(:)  ! o row of top-of-deep-convection indices passed out.            (ncol)
-   real(kind_phys), intent(out) :: jcbot(:)  ! o row of base of cloud indices passed out.                     (ncol)
    real(kind_phys), intent(out) :: prec(:)  !                                                                 (ncol)
    real(kind_phys), intent(out) :: rliq(:) ! reserved liquid (not yet in cldliq) for energy integrals         (ncol)
    real(kind_phys), intent(out) :: rice(:) ! reserved ice (not yet in cldce) for energy integrals             (ncol)
@@ -332,7 +329,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
 
    real(kind_phys) zs(ncol)
    real(kind_phys) dlg(ncol,pver)    ! gathrd version of the detraining cld h2o tend
-   real(kind_phys) pflxg(ncol,pverp) ! gather precip flux at each level
    real(kind_phys) cug(ncol,pver)    ! gathered condensation rate
 
    real(kind_phys) evpg(ncol,pver)   ! gathered evap rate of rain in downdraft
@@ -476,8 +472,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
          dsdt(i,k)  = 0._kind_phys
          dudt(i,k)  = 0._kind_phys
          dvdt(i,k)  = 0._kind_phys
-         pflx(i,k)  = 0._kind_phys
-         pflxg(i,k) = 0._kind_phys
          cme(i,k)   = 0._kind_phys
          rprd(i,k)  = 0._kind_phys
          zdu(i,k)   = 0._kind_phys
@@ -495,17 +489,8 @@ subroutine zm_convr_run(     ncol    ,pver    , &
    end do
 
    do i = 1,ncol
-      pflx(i,pverp) = 0
-      pflxg(i,pverp) = 0
-   end do
-!
-   do i = 1,ncol
       pblt(i) = pver
       dsubcld(i) = 0._kind_phys
-
-
-      jctop(i) = pver
-      jcbot(i) = 1
 
    end do
 
@@ -693,7 +678,7 @@ subroutine zm_convr_run(     ncol    ,pver    , &
                cmeg    ,maxg    ,lelg    ,jt      ,jlcl    , &
                maxg    ,j0      ,jd      ,rl      ,lengath , &
                rgas    ,grav    ,cpres   ,msg     , &
-               pflxg   ,evpg    ,cug     ,rprdg   ,limcnv  ,landfracg , &
+               evpg    ,cug     ,rprdg   ,limcnv  ,landfracg , &
                qldeg    ,qhat    )
 
 
@@ -762,7 +747,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
          rprdg(i,k)  = rprdg(i,k)*mb(i)
          cug  (i,k)  = cug  (i,k)*mb(i)
          evpg (i,k)  = evpg (i,k)*mb(i)
-         pflxg(i,k+1)= pflxg(i,k+1)*mb(i)*100._kind_phys/grav
 
       end do
    end do
@@ -794,15 +778,8 @@ subroutine zm_convr_run(     ncol    ,pver    , &
          mcon(ideep(i),k) = mc   (i,k)
          heat(ideep(i),k) = dsdt (i,k)*cpres
          dlf (ideep(i),k) = dlg  (i,k)
-         pflx(ideep(i),k) = pflxg(i,k)
          ql  (ideep(i),k) = qlg  (i,k)
       end do
-   end do
-
-   do i = 1,lengath
-      jctop(ideep(i)) = jt(i)
-      jcbot(ideep(i)) = maxg(i)
-      pflx(ideep(i),pverp) = pflxg(i,pverp)
    end do
 
 ! Compute precip by integrating change in water vapor minus detrained cloud water
@@ -1715,7 +1692,7 @@ subroutine cldprp(ncol   ,pver    ,pverp   ,cpliq   , &
                   cmeg    ,jb      ,lel     ,jt      ,jlcl    , &
                   mx      ,j0      ,jd      ,rl      ,il2g    , &
                   rd      ,grav    ,cp      ,msg     , &
-                  pflx    ,evp     ,cu      ,rprd    ,limcnv  ,landfrac, &
+                  evp     ,cu      ,rprd    ,limcnv  ,landfrac, &
                   qcde     ,qhat  )
 
 !-----------------------------------------------------------------------
@@ -1793,7 +1770,6 @@ subroutine cldprp(ncol   ,pver    ,pverp   ,cpliq   , &
    real(kind_phys), intent(out) :: mc(ncol,pver)       ! net mass flux
    real(kind_phys), intent(out) :: md(ncol,pver)       ! downdraft mass flux
    real(kind_phys), intent(out) :: mu(ncol,pver)       ! updraft mass flux
-   real(kind_phys), intent(out) :: pflx(ncol,pverp)    ! precipitation flux thru layer
    real(kind_phys), intent(out) :: qd(ncol,pver)       ! spec humidity of downdraft
    real(kind_phys), intent(out) :: ql(ncol,pver)       ! liq water of updraft
    real(kind_phys), intent(out) :: qst(ncol,pver)      ! saturation mixing ratio of env.
@@ -1895,8 +1871,6 @@ subroutine cldprp(ncol   ,pver    ,pverp   ,cpliq   , &
 !
 ! initialize many output and work variables to zero
 !
-   pflx(:il2g,1) = 0
-
    do k = 1,pver
       do i = 1,il2g
          k1(i,k) = 0._kind_phys
@@ -2412,13 +2386,6 @@ subroutine cldprp(ncol   ,pver    ,pverp   ,cpliq   , &
       end do
    end do
 
-! compute the net precipitation flux across interfaces
-   pflx(:il2g,1) = 0._kind_phys
-   do k = 2,pverp
-      do i = 1,il2g
-         pflx(i,k) = pflx(i,k-1) + rprd(i,k-1)*dz(i,k-1)
-      end do
-   end do
 !
    do k = msg + 1,pver
       do i = 1,il2g

@@ -1,0 +1,211 @@
+[ccpp-table-properties]
+  name = zm_conv_momtran
+  type = scheme
+
+[ccpp-arg-table]
+  name  = zm_conv_momtran_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pverp ]
+  standard_name = vertical_interface_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ domomtran ]
+  standard_name = flag_for_zhang_mcfarlane_deep_momentum_transport?
+  units = flag?
+  type = logical
+  dimensions = (2)
+  intent = in
+[ windu ]
+  standard_name = enter_name
+  units = enter_name
+  type = real | kind = kind_phys
+  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
+  intent = in
+[ windv ]
+  standard_name = enter_name
+  units = enter_name
+  type = real | kind = kind_phys
+  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
+  intent = in
+[ num_winds ]
+  standard_name = enter_name
+  units = enter_name
+  type = integer
+  dimensions = ()
+  intent = in
+[ mu ]
+  standard_name = atmosphere_updraft_convective_mass_flux_for_deep_convection_for_convective_columns
+  units = tbd
+  type = real | kind = kind_phys
+  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
+  intent = in
+[ md ]
+  standard_name = atmosphere_downdraft_convective_mass_flux_for_deep_convection_for_convective_columns
+  units = tbd
+  type = real | kind = kind_phys
+  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
+  intent = in
+[ momcu ]
+  standard_name = momentum_upward_transport_parameter_for_zhang_mcfarlane?
+  units = tbd
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ momcd ]
+  standard_name = momentum_downward_transport_parameter_for_zhang_mcfarlane?
+  units = tbd
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ du ]
+  standard_name = atmosphere_detrainment_convective_mass_flux_for_deep_convection_for_convective_columns
+  units = tbd
+  type = real | kind = kind_phys
+  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
+  intent = in
+[ eu ]
+  standard_name = atmosphere_updraft_entrainment_convective_mass_flux_for_deep_convection_for_convective_columns
+  units = tbd
+  type = real | kind = kind_phys
+  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
+  intent = in
+[ ed ]
+  standard_name = atmosphere_downdraft_entrainment_convective_mass_flux_for_deep_convection_for_convective_columns
+  units = tbd
+  type = real | kind = kind_phys
+  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
+  intent = in
+[ dp ]
+  standard_name = pressure_thickness_for_deep_convection_for_convective_columns
+  units = hPa
+  type = real | kind = kind_phys
+  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
+  intent = in
+[ dsubcld ]
+  standard_name = pressure_thickness_for_subcloud_layer_for_deep_convection_for_convective_columns
+  units = hPa
+  type = real | kind = kind_phys
+  dimensions = (1:horizontal_loop_extent)
+  intent = in
+[ jt ]
+  standard_name = vertical_index_at_top_of_deep_convection_for_convective_columns
+  units = index
+  type = integer
+  dimensions = (1:horizontal_loop_extent)
+  intent = in
+[ mx ]
+  standard_name = vertical_index_of_deep_conveciton_launch_level_for_convective_columns
+  units = index
+  type = integer
+  dimensions = (1:horizontal_loop_extent)
+  intent = in
+[ ideep ]
+  standard_name = horizontal_index_of_convective_columns_for_deep_convection_for_convective_columns
+  units = index
+  type = integer
+  dimensions = (1:horizontal_loop_extent)
+  intent = in
+[ il1g ]
+  standard_name = minimum_number_of_grid_cells_with_deep_convection?
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ il2g ]
+  standard_name = maximum_number_of_grid_cells_with_deep_convection?
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ nstep ]
+  standard_name = current_timestep_number
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ windu_tend ]
+  standard_name = enter_name
+  units = enter_name
+  type = real | kind = kind_phys
+  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
+  intent = out
+[ windv_tend ]
+  standard_name = enter_name
+  units = enter_name
+  type = real | kind = kind_phys
+  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
+  intent = out
+[ pguallu ]
+  standard_name = tendency_of_eastward_wind_due_to_zhang_mcfarlane_deep_convective_updraft_pressure_gradient_term
+  units = tbd
+  type = real | kind = kind_phys
+  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
+  intent = out
+[ pguallv ]
+  standard_name = tendency_of_northward_wind_due_to_zhang_mcfarlane_deep_convective_updraft_pressure_gradient_term
+  units = tbd
+  type = real | kind = kind_phys
+  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
+  intent = out
+[ pgdallu ]
+  standard_name = tendency_of_eastward_wind_due_to_zhang_mcfarlane_deep_convective_downdraft_pressure_gradient_term
+  units = tbd
+  type = real | kind = kind_phys
+  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
+  intent = out
+[ pgdallv ]
+  standard_name = tendency_of_northward_wind_due_to_zhang_mcfarlane_deep_convective_downdraft_pressure_gradient_term
+  units = tbd
+  type = real | kind = kind_phys
+  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
+  intent = out
+[ icwuu ]
+  standard_name = eastward_wind
+  units = tbd
+  type = real | kind = kind_phys
+  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
+  intent = out
+[ icwuv ]
+  standard_name = northward_wind
+  units = tbd
+  type = real | kind = kind_phys
+  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
+  intent = out
+[ icwdu ]
+  standard_name = eastward_and_northward_winds_in_deep_convective_downdrafts?
+  units = tbd
+  type = real | kind = kind_phys
+  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
+  intent = out
+[ icwdv ]
+  standard_name = eastward_and_northward_winds_in_deep_convective_downdrafts?
+  units = tbd
+  type = real | kind = kind_phys
+  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
+  intent = out
+[ dt ]
+  standard_name = timestep_for_physics
+  units = s
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ seten ]
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure
+  units = J kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
+  intent = out
