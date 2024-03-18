@@ -141,37 +141,61 @@
   standard_name = enter_name
   units = enter_name
   type = real | kind = kind_phys
-  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension,1:number_of_ccpp_constituents)
+  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
   intent = out
 [ windv_tend ]
   standard_name = enter_name
   units = enter_name
   type = real | kind = kind_phys
-  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension,1:number_of_ccpp_constituents)
+  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
   intent = out
-[ pguall ]
-  standard_name = tendency_of_eastward_and_northward_winds_due_to_deep_convective_updraft_pressure_gradient_term?
+[ pguallu ]
+  standard_name = tendency_of_eastward_wind_due_to_zhang_mcfarlane_deep_convective_updraft_pressure_gradient_term
   units = tbd
   type = real | kind = kind_phys
-  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension,1:number_of_ccpp_constituents)
+  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
   intent = out
-[ pgdall ]
-  standard_name = tendency_of_eastward_and_northward_winds_due_to_deep_convective_downdraft_pressure_gradient_term?
+[ pguallv ]
+  standard_name = tendency_of_northward_wind_due_to_zhang_mcfarlane_deep_convective_updraft_pressure_gradient_term
   units = tbd
   type = real | kind = kind_phys
-  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension,1:number_of_ccpp_constituents)
+  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
   intent = out
-[ icwu ]
-  standard_name = eastward_and_northward_winds_in_deep_convective_updrafts?
+[ pgdallu ]
+  standard_name = tendency_of_eastward_wind_due_to_zhang_mcfarlane_deep_convective_downdraft_pressure_gradient_term
   units = tbd
   type = real | kind = kind_phys
-  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension,1:number_of_ccpp_constituents)
+  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
   intent = out
-[ icwd ]
+[ pgdallv ]
+  standard_name = tendency_of_northward_wind_due_to_zhang_mcfarlane_deep_convective_downdraft_pressure_gradient_term
+  units = tbd
+  type = real | kind = kind_phys
+  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
+  intent = out
+[ icwuu ]
+  standard_name = eastward_wind
+  units = tbd
+  type = real | kind = kind_phys
+  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
+  intent = out
+[ icwuv ]
+  standard_name = northward_wind
+  units = tbd
+  type = real | kind = kind_phys
+  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
+  intent = out
+[ icwdu ]
   standard_name = eastward_and_northward_winds_in_deep_convective_downdrafts?
   units = tbd
   type = real | kind = kind_phys
-  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension,1:number_of_ccpp_constituents)
+  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
+  intent = out
+[ icwdv ]
+  standard_name = eastward_and_northward_winds_in_deep_convective_downdrafts?
+  units = tbd
+  type = real | kind = kind_phys
+  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
   intent = out
 [ dt ]
   standard_name = timestep_for_physics

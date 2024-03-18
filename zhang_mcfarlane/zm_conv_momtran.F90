@@ -16,11 +16,12 @@ contains
 !! \htmlinclude zm_conv_momtran_run.html
 !!
 subroutine zm_conv_momtran_run(ncol, pver, pverp, &
-                    domomtran,windu, windv      ,num_winds   ,mu      ,md    , &
-                    momcu   , momcd, &
-                    du      ,eu      ,ed      ,dp      ,dsubcld , &
-                    jt      ,mx      ,ideep   ,il1g    ,il2g    , &
-                    nstep   ,windu_tend, windv_tend  ,pguall     ,pgdall, icwu, icwd, dt, seten    )
+                    domomtran,windu, windv,num_winds, mu, md, &
+                    momcu, momcd, &
+                    du, eu, ed, dp, dsubcld , &
+                    jt, mx, ideep , il1g, il2g, &
+                    nstep, windu_tend, windv_tend, pguallu, pguallv, pgdallu, pgdallv, &
+                    icwuu, icwuv, icwdu, icwdv, dt, seten)
 !-----------------------------------------------------------------------
 !
 ! Purpose:
@@ -104,8 +105,6 @@ subroutine zm_conv_momtran_run(ncol, pver, pverp, &
    real(kind_phys) fluxout              ! A work variable
    real(kind_phys) netflux              ! A work variable
 
-   real(kind_phys) :: winds(ncol,pver,num_winds)       ! combined winds array
-   real(kind_phys) :: wind_tends(ncol,pver,num_winds)  ! combined tendency array                     (ncol,pver,num_winds)
 
    real(kind_phys) sum                  ! sum
    real(kind_phys) sum2                  ! sum2
@@ -116,14 +115,25 @@ subroutine zm_conv_momtran_run(ncol, pver, pverp, &
    real(kind_phys) pgu(ncol,pver)      ! Pressure gradient term for updraft
    real(kind_phys) pgd(ncol,pver)      ! Pressure gradient term for downdraft
 
-   real(kind_phys),intent(out) ::  pguall(:,:,:)      ! Apparent force from  updraft PG   ! (ncol,pver,2)
-   real(kind_phys),intent(out) ::  pgdall(:,:,:)      ! Apparent force from  downdraft PG ! (ncol,pver,2)
+   real(kind_phys),intent(out) ::  pguallu(:,:)      ! Apparent force from  updraft PG U winds  ! (ncol,pver)
+   real(kind_phys),intent(out) ::  pguallv(:,:)      ! Apparent force from  updraft PG V winds  ! (ncol,pver)
+   real(kind_phys),intent(out) ::  pgdallu(:,:)      ! Apparent force from  downdraft PG U winds! (ncol,pver)
+   real(kind_phys),intent(out) ::  pgdallv(:,:)      ! Apparent force from  downdraft PG V winds! (ncol,pver)
 
-   real(kind_phys),intent(out) ::  icwu(:,:,:)      ! In-cloud winds in updraft           ! (ncol,pver,2)
-   real(kind_phys),intent(out) ::  icwd(:,:,:)      ! In-cloud winds in downdraft         ! (ncol,pver,2)
+   real(kind_phys),intent(out) ::  icwuu(:,:)      ! In-cloud U winds in updraft           ! (ncol,pver)
+   real(kind_phys),intent(out) ::  icwuv(:,:)      ! In-cloud V winds in updraft           ! (ncol,pver)
+   real(kind_phys),intent(out) ::  icwdu(:,:)      ! In-cloud U winds in downdraft         ! (ncol,pver)
+   real(kind_phys),intent(out) ::  icwdv(:,:)      ! In-cloud V winds in downdraft         ! (ncol,pver)
 
    real(kind_phys),intent(out) ::  seten(:,:) ! Dry static energy tendency                ! (ncol,pver)
    real(kind_phys)                 gseten(ncol,pver) ! Gathered dry static energy tendency
+
+   real(kind_phys) :: winds(ncol,pver,num_winds)       ! combined winds array
+   real(kind_phys) :: wind_tends(ncol,pver,num_winds)  ! combined tendency array
+   real(kind_phys) :: pguall(ncol,pver,num_winds)      ! Combined apparent force from  updraft PG U winds
+   real(kind_phys) :: pgdall(ncol,pver,num_winds)      ! Combined apparent force from  downdraft PG U winds
+   real(kind_phys) :: icwu(ncol,pver,num_winds)        ! Comibined In-cloud winds in updraft
+   real(kind_phys) :: icwd(ncol,pver,num_winds)        ! Comibined In-cloud winds in downdraft
 
    real(kind_phys)  mflux(ncol,pverp,num_winds)   ! Gathered momentum flux
 
@@ -427,6 +437,15 @@ subroutine zm_conv_momtran_run(ncol, pver, pverp, &
 ! Split out the wind tendencies
    windu_tend(:,:) = wind_tends(:,:,1)
    windv_tend(:,:) = wind_tends(:,:,2)
+
+   pguallu(:,:)     = pguall(:,:,1)
+   pguallv(:,:)     = pguall(:,:,2)
+   pgdallu(:,:)     = pgdall(:,:,1)
+   pgdallv(:,:)     = pgdall(:,:,2)
+   icwuu(:ncol,:)       = icwu(:,:,1)
+   icwuu(:ncol,:)       = icwu(:,:,1)
+   icwdu(:ncol,:)       = icwd(:,:,1)
+   icwdv(:ncol,:)       = icwd(:,:,2)
 
    return
 end subroutine zm_conv_momtran_run
