@@ -35,7 +35,6 @@ target_sources(test_micm_api
 
 target_link_libraries(test_micm_api
   PRIVATE
-    musica::musica
     musica::musica-fortran
 )
 
