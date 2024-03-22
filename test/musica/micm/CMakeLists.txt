@@ -1,6 +1,3 @@
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(netcdff IMPORTED_TARGET REQUIRED netcdf-fortran)
-
 find_package(musica ${MUSICA_VERSION} REQUIRED)
 message(STATUS "  MUSICA version ${MUSICA_VERSION}")
 
@@ -8,14 +5,14 @@ include(FetchContent)
 
 FetchContent_Declare(musica
   GIT_REPOSITORY https://github.com/NCAR/musica.git
-  GIT_TAG        8ab0aa0
+  GIT_TAG        atmo_fixes
+  GIT_SUBMODULES
 )
 
-set(USE_MUSICA OFF)
-set(USE_MUSICA_FORTRAN ON)
-set(MAKE_MUSICA_FORTRAN_INSTALLABLE OFF)
-set(ENABLE_TUVX OFF)
-set(ENABLE_TESTS OFF)
+set(MUSICA_ENABLE_TESTS OFF)
+set(MUSICA_BUILD_C_CXX_INTERFACE OFF)
+set(MUSICA_BUILD_FORTRAN_INTERFACE ON)
+set(MUSICA_ENABLE_TUVX OFF)
 
 FetchContent_MakeAvailable(musica)
 
@@ -38,6 +35,7 @@ target_sources(test_micm_api
 
 target_link_libraries(test_micm_api
   PRIVATE
+    musica::musica
     musica::musica-fortran
 )
 

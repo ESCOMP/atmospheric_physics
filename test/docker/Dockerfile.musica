@@ -5,53 +5,37 @@ RUN apt update \
     cmake \
     cmake-curses-gui \
     curl \
-    libcurl4-openssl-dev \
-    libhdf5-dev \
-    m4 \
-    nlohmann-json3-dev \
-    vim \
-    zlib1g-dev \
-    git \
-    lcov \
-    make \
-    libnetcdff-dev \
-    valgrind \
+    g++ \
     gcc \
     gfortran \
-    g++ \
+    git \
+    lcov \
+    libcurl4-openssl-dev \
+    libhdf5-dev \
+    libnetcdff-dev \
+    m4 \
+    make \
+    nlohmann-json3-dev \
     tree \
+    valgrind \
+    vim \
+    zlib1g-dev \
     && apt clean
 
 ENV FC=gfortran
 ENV FFLAGS="-I/usr/include/"
 
-RUN curl -LO https://github.com/jacobwilliams/json-fortran/archive/8.2.0.tar.gz \
-    && tar -zxvf 8.2.0.tar.gz \
-    && cd json-fortran-8.2.0 \
-    && mkdir build \
-    && cd build \
-    && cmake -D SKIP_DOC_GEN:BOOL=TRUE .. \
-    && make install
-
-ENV JSON_FORTRAN_HOME="/usr/local/jsonfortran-gnu-8.2.0"
-
 # Install MUSICA (MUSICA-C)
-RUN git clone --depth 1 https://github.com/NCAR/musica.git
+RUN git clone https://github.com/NCAR/musica.git
 RUN cd musica \
+    && git fetch \
+    && git checkout atmo_fixes \
     && cmake \
         -S . \
         -B build \
-        -D USE_MUSICA=ON \
-        -D USE_MUSICA_FORTRAN=OFF \
-        -D MAKE_MUSICA_FORTRAN_INSTALLABLE=ON \
-        -D ENABLE_MICM=ON \
-        -D ENABLE_TESTS=OFF \
-        -D ENABLE_TUVX=OFF \
+        -D MUSICA_ENABLE_TESTS=OFF \
     && cd build \
-    && make install -j 8
-
-RUN ln -s /usr/local/musica-0.5.0/lib/libmusica.a /usr/local/lib/libmusica.a
-ENV MUSICA_VERSION="0.5.0"
+    && make install
 
 COPY . atmospheric_physics
 
@@ -64,7 +48,7 @@ ENV CCPP_SRC_PATH="lib/ccpp-framework/src"
 RUN cd atmospheric_physics/test \
     && cmake -S. \
              -B build \
-             -D ENABLE_MICM_TEST=ON \
+             -D CCPP_ENABLE_MUSICA_TESTS=ON \
     && cmake --build ./build
 
 RUN cd atmospheric_physics \
