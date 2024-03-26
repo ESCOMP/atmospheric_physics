@@ -5,7 +5,7 @@ include(FetchContent)
 
 FetchContent_Declare(musica
   GIT_REPOSITORY https://github.com/NCAR/musica.git
-  GIT_TAG        main
+  GIT_TAG        v0.6.1
 )
 
 set(MUSICA_ENABLE_TESTS OFF)
