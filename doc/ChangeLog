@@ -1,6 +1,33 @@
 ===============================================================
 
 Tag name:atmos_phys0_02_004
+Originator(s): kshores
+Date: 12 Mar 2024
+One-line Summary: Update MUSICA git tag
+Github PR URL: https://github.com/ESCOMP/atmospheric_physics/pull/89
+
+Purpose of changes (include the issue number and title text for each relevant GitHub issue):
+- Update the MUSICA git tag
+
+This PR fixes the following NCAR/atmospheric_physics Github issues:
+
+- [Update MUSICA tag](https://github.com/NCAR/musica/issues/72)
+
+Code reviewed by: cacraigucar, boulderdaze
+
+List all existing files that have been added (A), modified (M), or deleted (D),
+and describe the changes:
+
+See [https://github.com/ESCOMP/atmospheric_physics/pull/89](https://github.com/ESCOMP/atmospheric_physics/pull/89)
+for a list of changed files and what changed.
+
+List and Describe any test failures: No known test failures.
+
+Summarize any changes to answers: None
+
+===============================================================
+
+Tag name:atmos_phys0_02_004
 Originator(s): boulderdaze
 Date: 12 Mar 2024
 One-line Summary: Update MUSICA git tag
