@@ -11,15 +11,15 @@ set(CMAKE_USER_MAKE_RULES_OVERRIDE ${CMAKE_MODULE_PATH}/SetDefaults.cmake)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 # --------------------------------------------------------------------------------
-# NOTE: If 'ENABLE_MICM_TEST' on, this is not a stand-alone cmake project anymore. 
+# NOTE: If 'CCPP_ENABLE_MUSICA_TESTS' on, this is not a stand-alone cmake project anymore. 
 #       MICM CCPP wrapper needs MUSICA library and ccpp-framework/src.
-#       To 'ENABLE_MICM_TEST', you either build a cmake project through
+#       To 'CCPP_ENABLE_MUSICA_TESTS', you either build a cmake project through
 #       'docker/Dockerfile.musica' or follow the build instructions in the file.
 #       The following '$ENV' variables are set by the docker file.
 # --------------------------------------------------------------------------------
-option(ENABLE_MICM_TEST "Build the micm test" OFF)
+option(CCPP_ENABLE_MUSICA_TESTS "Build the micm test" OFF)
 
-if (ENABLE_MICM_TEST)
+if (CCPP_ENABLE_MUSICA_TESTS)
   set(MUSICA_VERSION $ENV{MUSICA_VERSION})
   set(MICM_SRC_PATH ${CMAKE_SOURCE_DIR}/../musica/micm)
   set(CCPP_SRC_PATH ${CMAKE_SOURCE_DIR}/$ENV{CCPP_SRC_PATH})
