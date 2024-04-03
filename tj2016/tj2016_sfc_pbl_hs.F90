@@ -16,10 +16,11 @@ CONTAINS
 
     !> \section arg_table_tj2016_sfc_pbl_hs_run  Argument Table
     !! \htmlinclude tj2016_sfc_pbl_hs_run.html
-    subroutine tj2016_sfc_pbl_hs_run(ncol, pver, gravit, cappa, rairv,                     &
-        cpairv, latvap, rh2o, epsilo, rhoh2o, zvir, ps0, etamid, dtime, clat,      &
+    subroutine tj2016_sfc_pbl_hs_run(ncol, pver, gravit, cappa, rairv,                        &
+        cpairv, latvap, rh2o, epsilo, rhoh2o, zvirv, ps0, etamid, dtime, clat,                &
         PS, pmid, pint, lnpint, rpdel, T, U, dudt, V, dvdt, qv, shflx, lhflx, taux, tauy,     &
-        evap, dqdt_vdiff, dtdt_vdiff, dtdt_heating, Km, Ke, Tsurf, scheme_name, errmsg, errflg)
+        evap, dqdt_vdiff, dtdt_vdiff, dtdt_heating, Km, Ke, Tsurf, tendency_of_air_enthalpy,  &
+        scheme_name, errmsg, errflg)
     !------------------------------------------------
     !   Input / output parameters
     !------------------------------------------------
@@ -30,12 +31,12 @@ CONTAINS
     real(kind_phys), intent(in)    :: gravit              ! g: gravitational acceleration (m/s2)
     real(kind_phys), intent(in)    :: cappa               ! Rd/cp
     real(kind_phys), intent(in)    :: rairv(:)            ! Rd: dry air gas constant (J/K/kg)
-    real(kind_phys), intent(in)    :: cpairv(:)           ! cp: specific heat of dry air (J/K/kg)
+    real(kind_phys), intent(in)    :: cpairv(:,:)         ! cp: specific heat of dry air (J/K/kg)
     real(kind_phys), intent(in)    :: latvap              ! L: latent heat of vaporization (J/kg)
     real(kind_phys), intent(in)    :: rh2o                ! Rv: water vapor gas constant (J/K/kg)
     real(kind_phys), intent(in)    :: epsilo              ! Rd/Rv: ratio of h2o to dry air molecular weights
     real(kind_phys), intent(in)    :: rhoh2o              ! density of liquid water (kg/m3)
-    real(kind_phys), intent(in)    :: zvir                ! (rh2o/rair) - 1, needed for virtual temperaturr
+    real(kind_phys), intent(in)    :: zvirv(:)            ! (rh2o/rair) - 1, needed for virtual temperaturr
     real(kind_phys), intent(in)    :: ps0                 ! Base state surface pressure (Pa)
     real(kind_phys), intent(in)    :: etamid(:)           ! hybrid coordinate - midpoints
 
@@ -65,6 +66,7 @@ CONTAINS
     real(kind_phys), intent(out)   :: Km(:,:)             ! Eddy diffusivity for boundary layer calculations
     real(kind_phys), intent(out)   :: Ke(:,:)             ! Eddy diffusivity for boundary layer calculations
     real(kind_phys), intent(out)   :: Tsurf(:)            ! sea surface temperature K (varied by latitude)
+    real(kind_phys), intent(out)   :: tendency_of_air_enthalpy(:,:)
 
     character(len=512), intent(out):: scheme_name
     character(len=512), intent(out):: errmsg
@@ -141,6 +143,7 @@ CONTAINS
     real(kind_phys)            :: tmp
     real(kind_phys)            :: UCopy(ncol, pver)  ! Local copy of modifiable U
     real(kind_phys)            :: VCopy(ncol, pver)  ! Local copy of modifiable V
+    real(kind_phys)            :: stateT(ncol, pver) ! air temperature (K) _before_ run
 
     ! Loop variables
     integer             :: i, k
@@ -148,12 +151,14 @@ CONTAINS
     ! Define simple_physics_option to either "TJ16" (moist HS) or "RJ12" (simple-physics)
     character(LEN=4)    :: simple_physics_option
 
+    tendency_of_air_enthalpy = 0.0_kind_phys
     scheme_name = "TJ2016_sfc_pbl_hs"
     errmsg = ' '
     errflg = 0
 
-    UCopy = U
-    VCopy = V
+    UCopy  = U
+    VCopy  = V
+    stateT = T
 
     ! Set the simple_physics_option "TJ16" (default, moist HS)
     simple_physics_option = "TJ16"
@@ -193,7 +198,7 @@ CONTAINS
     !==========================================================================
     do i = 1, ncol
         dlnpint = (lnpint(i,2) - lnpint(i,1))
-        za(i) = rair/gravit*T(i,pver)*(1._kind_phys+zvir*qv(i,pver))*0.5_kind_phys*dlnpint
+        za(i) = rairv(i)/gravit*T(i,pver)*(1._kind_phys+zvirv(i)*qv(i,pver))*0.5_kind_phys*dlnpint
     end do
 
     !==========================================================================
@@ -253,11 +258,11 @@ CONTAINS
     !--------------------------------------------------------------------------
     do i = 1, ncol
         qsat   = epsilo*e0/PS(i)*exp(-latvap/rh2o*((1._kind_phys/Tsurf(i))-1._kind_phys/T0))     ! saturation value for Q at the surface
-        rho(i) = pmid(i,pver)/(rair * T(i,pver) *(1._kind_phys+zvir*qv(i,pver)))          ! air density at the lowest level rho = p/(Rd Tv)
+        rho(i) = pmid(i,pver)/(rairv(i) * T(i,pver) *(1._kind_phys+zvirv(i)*qv(i,pver)))          ! air density at the lowest level rho = p/(Rd Tv)
 
         tmp                = (T(i,pver)+C*wind(i)*Tsurf(i)*dtime/za(i))/(1._kind_phys+C*wind(i)*dtime/za(i)) ! new T
         dtdt_vdiff(i,pver) = (tmp-T(i,pver))/dtime                                 ! T tendency due to surface flux 
-        shflx(i)           = rho(i) * cpair * C*wind(i)*(Tsurf(i)-T(i,pver))       ! sensible heat flux (W/m2)
+        shflx(i)           = rho(i) * cpairv(i,pver) * C*wind(i)*(Tsurf(i)-T(i,pver))       ! sensible heat flux (W/m2)
         T(i,pver)          = tmp                                                   ! update T
 
         tmp                = (qv(i,pver)+C*wind(i)*qsat*dtime/za(i))/(1._kind_phys+C*wind(i)*dtime/za(i)) ! new Q 
@@ -288,7 +293,7 @@ CONTAINS
     !--------------------------------------------------------------------------
     do k = 1, pver-1
         do i = 1, ncol
-            rho(i)     = (pint(i,k+1)/(rair*(T(i,k+1)*(1._kind_phys+zvir*qv(i,k+1))+T(i,k)*(1._kind_phys+zvir*qv(i,k)))/2.0_kind_phys))
+            rho(i)     = (pint(i,k+1)/(rairv(i)*(T(i,k+1)*(1._kind_phys+zvirv(i)*qv(i,k+1))+T(i,k)*(1._kind_phys+zvirv(i)*qv(i,k)))/2.0_kind_phys))
             CA(i,k)    = rpdel(i,k)*dtime*gravit*gravit*Ke(i,k+1)*rho(i)*rho(i)/(pmid(i,k+1)-pmid(i,k))
             CC(i,k+1)  = rpdel(i,k+1)*dtime*gravit*gravit*Ke(i,k+1)*rho(i)*rho(i)/(pmid(i,k+1)-pmid(i,k))
             ! the next two PBL variables are initialized here for the potential use of RJ12 instead of TJ16
@@ -364,10 +369,10 @@ CONTAINS
         kv  = kf*(etamid(pver) - sigmab)/onemsig                                 ! RF coefficient at the lowest level
         do i = 1, ncol
             dlnpint = (lnpint(i,2) - lnpint(i,1))
-            za(i)   = rair/gravit*T(i,pver)*(1._kind_phys+zvir*qv(i,pver))*0.5_kind_phys*dlnpint ! height of lowest full model level
-            rho(i)  = pmid(i,pver)/(rair * T(i,pver) *(1._kind_phys+zvir*qv(i,pver)))     ! air density at the lowest level rho = p/(Rd Tv)
+            za(i)   = rairv(i)/gravit*T(i,pver)*(1._kind_phys+zvirv(i)*qv(i,pver))*0.5_kind_phys*dlnpint ! height of lowest full model level
+            rho(i)  = pmid(i,pver)/(rairv(i) * T(i,pver) *(1._kind_phys+zvirv(i)*qv(i,pver)))     ! air density at the lowest level rho = p/(Rd Tv)
             taux(i) = -kv * rho(i) * UCopy(i,pver) * za(i)                             ! U surface momentum flux in N/m2
-            tauy(i) = -kv * rho(i) * VCop(i,pver) * za(i)                             ! V surface momentum flux in N/m2
+            tauy(i) = -kv * rho(i) * VCopy(i,pver) * za(i)                             ! V surface momentum flux in N/m2
         end do
 
         !--------------------------------------------------------------------------
@@ -460,8 +465,9 @@ CONTAINS
 
     do i = i, ncol
         do k = 1, pver
-            dudt(i, k) = UCopy(i, k) - U(i, k)
-            dvdt(i, k) = VCopy(i, k) - V(i, k)
+            dudt(i, k) = UCopy(i, k) - U(i, k) / dtime
+            dvdt(i, k) = VCopy(i, k) - V(i, k) / dtime
+            tendency_of_air_enthalpy(i,k) = (T(i,k) - stateT(i,k)) / dtime * cpairv(i,k)
         end do
     end do
 
