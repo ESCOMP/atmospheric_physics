@@ -89,8 +89,8 @@ CONTAINS
     real(kind_phys) :: zgamma    ! intermediate constant
     real(kind_phys) :: qave      ! mean q between levels
     real(kind_phys) :: cappaint  ! Kappa at level intefaces
-    real(kind_phys), pointer :: t(:,:) 
-    real(kind_phys), pointer :: q(:,:) 
+    real(kind_phys), pointer :: t(:,:)
+    real(kind_phys), pointer :: q(:,:)
 
     logical :: ilconv          ! .TRUE. ==> convergence was attained
     logical :: dodad(ncol)     ! .TRUE. ==> do dry adjustment
@@ -107,7 +107,7 @@ CONTAINS
     ! t_tend< and tend_dtdq used as workspace until needed to calculate tendencies
     t => t_tend
     q => q_tend
-    
+
     t = state_t
     q = state_q
 
@@ -136,10 +136,14 @@ CONTAINS
    ! Make a dry adiabatic adjustment
    ! Note: nlvdry ****MUST**** be < pver
 
-   i=1
-   do while(errflg==0 .and. i <= ncol)
+   COL: do i = 1, ncol
+
       if (dodad(i)) then
+
+         zeps = 2.0e-5_kind_phys
+
          do k = 1, nlvdry
+            cappaint = 0.5_kind_phys*(cappa(i,k+1) + cappa(i,k))
             c1dad(k) = cappaint*0.5_kind_phys*(pmid(i,k+1)-pmid(i,k))/pint(i,k+1)
             c2dad(k) = (1._kind_phys - c1dad(k))/(1._kind_phys + c1dad(k))
             rdenom = 1._kind_phys/(pdel(i,k)*c2dad(k) + pdel(i,k+1))
@@ -147,11 +151,11 @@ CONTAINS
             c4dad(k) = rdenom*pdel(i,k+1)
          end do
 
-         jiter = 1
          ilconv = .false.
-         do while (.not. ilconv .and. zeps <= 1.e-4_kind_phys)
+         jiter = 1
 
-            if (jiter == 1) ilconv = .true.
+         do while (.not. ilconv .and. jiter <= niter)
+            ilconv = .true.
 
             do k = 1, nlvdry
                zepsdp = zeps*(pmid(i,k+1) - pmid(i,k))
@@ -165,27 +169,25 @@ CONTAINS
                   q(i,k+1) = qave
                   q(i,k) = qave
                end if
+
             end do
 
-            ! if reach niter double convergence criterion
-            if (jiter == niter ) then
-               zeps = zeps + zeps
-               jiter = 1
-            else
-               jiter = jiter + 1
-            end if
-
+            jiter = jiter + 1
          end do
 
-         if (zeps > 1.e-4_kind_phys) then
-            errflg = i
-            write(errmsg,*) 'dadadj_run: No convergence in column ',i
-            exit
+         if (.not. ilconv) then
+            zeps = zeps + zeps
+            if (zeps > 1.e-4_kind_phys) then
+               errflg = i
+               return                ! error return
+            else
+               cycle COL
+            end if
          end if
 
       end if
-      i=i+1
-   end do
+
+   end do COL
 
    deallocate(c1dad, c2dad, c3dad, c4dad)
 
