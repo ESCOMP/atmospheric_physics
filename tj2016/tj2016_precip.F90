@@ -18,7 +18,7 @@ CONTAINS
     !> \section arg_table_tj2016_precip_run  Argument Table
     !! \htmlinclude tj2016_precip_run.html
     subroutine tj2016_precip_run(ncol, pver, gravit, cappa, rairv,    &
-        cpairv, latvap, rh2o, epsilo, rhoh2o, zvirv, ps0, etamid, dtime,                &
+        cpairv, latvap, rh2o, epsilo, rhoh2o, ps0, etamid, dtime,                &
         pmid, pdel, T, qv, relhum, precl, precc, tendency_of_air_enthalpy, scheme_name, errmsg, errflg)
         !------------------------------------------------
         !   Input / output parameters
@@ -29,13 +29,12 @@ CONTAINS
         
         real(kind_phys), intent(in)    :: gravit      ! g: gravitational acceleration (m/s2)
         real(kind_phys), intent(in)    :: cappa       ! Rd/cp
-        real(kind_phys), intent(in)    :: rairv(:)    ! Rd: dry air gas constant (J/K/kg)
+        real(kind_phys), intent(in)    :: rairv(:,:)  ! Rd: dry air gas constant (J/K/kg)
         real(kind_phys), intent(in)    :: cpairv(:,:) ! cp: specific heat of dry air (J/K/kg)
         real(kind_phys), intent(in)    :: latvap      ! L: latent heat of vaporization (J/kg)
         real(kind_phys), intent(in)    :: rh2o        ! Rv: water vapor gas constant (J/K/kg)
         real(kind_phys), intent(in)    :: epsilo      ! Rd/Rv: ratio of h2o to dry air molecular weights
         real(kind_phys), intent(in)    :: rhoh2o      ! density of liquid water (kg/m3)
-        real(kind_phys), intent(in)    :: zvirv(:)    ! (rh2o/rair) - 1, needed for virtual temperaturr
         real(kind_phys), intent(in)    :: ps0         ! Base state surface pressure (Pa)
         real(kind_phys), intent(in)    :: etamid(:)   ! hybrid coordinate - midpoints
 
@@ -100,7 +99,7 @@ CONTAINS
                 qsat = epsilo*e0/pmid(i,k)*exp(-latvap/rh2o*((1._kind_phys/T(i,k))-1._kind_phys/T0)) ! saturation value for Q
                 if (qv(i,k) > qsat) then
                 ! if > 100% relative humidity rain falls out
-                    tmp         = 1._kind_phys/dtime*(qv(i,k)-qsat)/(1._kind_phys+(latvap/cpairv(i,k))*(epsilo*latvap*qsat/(rairv(i)*T(i,k)**2))) ! condensation rate
+                    tmp         = 1._kind_phys/dtime*(qv(i,k)-qsat)/(1._kind_phys+(latvap/cpairv(i,k))*(epsilo*latvap*qsat/(rairv(i,k)*T(i,k)**2))) ! condensation rate
                     tmp_t       = latvap/cpairv(i,k)*tmp       ! dT/dt tendency from large-scale condensation
                     tmp_q       = -tmp                   ! dqv/dt tendency from large-scale condensation
                     precl(i)    = precl(i) + tmp*pdel(i,k)/(gravit*rhoh2o) ! large-scale precipitation rate (m/s)

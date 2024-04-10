@@ -30,13 +30,13 @@ CONTAINS
 
     real(kind_phys), intent(in)    :: gravit              ! g: gravitational acceleration (m/s2)
     real(kind_phys), intent(in)    :: cappa               ! Rd/cp
-    real(kind_phys), intent(in)    :: rairv(:)            ! Rd: dry air gas constant (J/K/kg)
+    real(kind_phys), intent(in)    :: rairv(:,:)          ! Rd: dry air gas constant (J/K/kg)
     real(kind_phys), intent(in)    :: cpairv(:,:)         ! cp: specific heat of dry air (J/K/kg)
     real(kind_phys), intent(in)    :: latvap              ! L: latent heat of vaporization (J/kg)
     real(kind_phys), intent(in)    :: rh2o                ! Rv: water vapor gas constant (J/K/kg)
     real(kind_phys), intent(in)    :: epsilo              ! Rd/Rv: ratio of h2o to dry air molecular weights
     real(kind_phys), intent(in)    :: rhoh2o              ! density of liquid water (kg/m3)
-    real(kind_phys), intent(in)    :: zvirv(:)            ! (rh2o/rair) - 1, needed for virtual temperaturr
+    real(kind_phys), intent(in)    :: zvirv(:,:)          ! (rh2o/rair) - 1, needed for virtual temperaturr
     real(kind_phys), intent(in)    :: ps0                 ! Base state surface pressure (Pa)
     real(kind_phys), intent(in)    :: etamid(:)           ! hybrid coordinate - midpoints
 
@@ -198,7 +198,7 @@ CONTAINS
     !==========================================================================
     do i = 1, ncol
         dlnpint = (lnpint(i,2) - lnpint(i,1))
-        za(i) = rairv(i)/gravit*T(i,pver)*(1._kind_phys+zvirv(i)*qv(i,pver))*0.5_kind_phys*dlnpint
+        za(i) = rairv(i,pver)/gravit*T(i,pver)*(1._kind_phys+zvirv(i,pver)*qv(i,pver))*0.5_kind_phys*dlnpint
     end do
 
     !==========================================================================
@@ -258,7 +258,7 @@ CONTAINS
     !--------------------------------------------------------------------------
     do i = 1, ncol
         qsat   = epsilo*e0/PS(i)*exp(-latvap/rh2o*((1._kind_phys/Tsurf(i))-1._kind_phys/T0))     ! saturation value for Q at the surface
-        rho(i) = pmid(i,pver)/(rairv(i) * T(i,pver) *(1._kind_phys+zvirv(i)*qv(i,pver)))          ! air density at the lowest level rho = p/(Rd Tv)
+        rho(i) = pmid(i,pver)/(rairv(i,pver) * T(i,pver) *(1._kind_phys+zvirv(i,pver)*qv(i,pver)))          ! air density at the lowest level rho = p/(Rd Tv)
 
         tmp                = (T(i,pver)+C*wind(i)*Tsurf(i)*dtime/za(i))/(1._kind_phys+C*wind(i)*dtime/za(i)) ! new T
         dtdt_vdiff(i,pver) = (tmp-T(i,pver))/dtime                                 ! T tendency due to surface flux 
@@ -293,7 +293,7 @@ CONTAINS
     !--------------------------------------------------------------------------
     do k = 1, pver-1
         do i = 1, ncol
-            rho(i)     = (pint(i,k+1)/(rairv(i)*(T(i,k+1)*(1._kind_phys+zvirv(i)*qv(i,k+1))+T(i,k)*(1._kind_phys+zvirv(i)*qv(i,k)))/2.0_kind_phys))
+            rho(i)     = (pint(i,k+1)/(rairv(i,k)*(T(i,k+1)*(1._kind_phys+zvirv(i,pver)*qv(i,k+1))+T(i,k)*(1._kind_phys+zvirv(i,pver)*qv(i,k)))/2.0_kind_phys))
             CA(i,k)    = rpdel(i,k)*dtime*gravit*gravit*Ke(i,k+1)*rho(i)*rho(i)/(pmid(i,k+1)-pmid(i,k))
             CC(i,k+1)  = rpdel(i,k+1)*dtime*gravit*gravit*Ke(i,k+1)*rho(i)*rho(i)/(pmid(i,k+1)-pmid(i,k))
             ! the next two PBL variables are initialized here for the potential use of RJ12 instead of TJ16
@@ -369,8 +369,8 @@ CONTAINS
         kv  = kf*(etamid(pver) - sigmab)/onemsig                                 ! RF coefficient at the lowest level
         do i = 1, ncol
             dlnpint = (lnpint(i,2) - lnpint(i,1))
-            za(i)   = rairv(i)/gravit*T(i,pver)*(1._kind_phys+zvirv(i)*qv(i,pver))*0.5_kind_phys*dlnpint ! height of lowest full model level
-            rho(i)  = pmid(i,pver)/(rairv(i) * T(i,pver) *(1._kind_phys+zvirv(i)*qv(i,pver)))     ! air density at the lowest level rho = p/(Rd Tv)
+            za(i)   = rairv(i,pver)/gravit*T(i,pver)*(1._kind_phys+zvirv(i,pver)*qv(i,pver))*0.5_kind_phys*dlnpint ! height of lowest full model level
+            rho(i)  = pmid(i,pver)/(rairv(i,pver) * T(i,pver) *(1._kind_phys+zvirv(i,pver)*qv(i,pver)))     ! air density at the lowest level rho = p/(Rd Tv)
             taux(i) = -kv * rho(i) * UCopy(i,pver) * za(i)                             ! U surface momentum flux in N/m2
             tauy(i) = -kv * rho(i) * VCopy(i,pver) * za(i)                             ! V surface momentum flux in N/m2
         end do
