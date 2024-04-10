@@ -33,7 +33,7 @@
   standard_name = composition_dependent_gas_constant_of_dry_air
   units = J kg-1 K-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ cpairv ]
   standard_name = composition_dependent_specific_heat_of_dry_air_at_constant_pressure
@@ -69,7 +69,7 @@
   standard_name = ratio_of_water_vapor_gas_constant_to_composition_dependent_dry_air_gas_constant_minus_one
   units = 1
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ ps0 ]
   standard_name = surface_reference_pressure
