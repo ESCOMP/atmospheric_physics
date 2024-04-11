@@ -19,7 +19,7 @@ CONTAINS
     !! \htmlinclude tj2016_precip_run.html
     subroutine tj2016_precip_run(ncol, pver, gravit, cappa, rairv,    &
         cpairv, latvap, rh2o, epsilo, rhoh2o, ps0, etamid, dtime,                &
-        pmid, pdel, T, qv, relhum, precl, precc, tendency_of_air_enthalpy, scheme_name, errmsg, errflg)
+        pmid, pdel, T, qv, relhum, precl, tendency_of_air_enthalpy, scheme_name, errmsg, errflg)
         !------------------------------------------------
         !   Input / output parameters
         !------------------------------------------------
@@ -47,7 +47,6 @@ CONTAINS
 
         real(kind_phys), intent(out)   :: relhum(:,:)       ! relative humidity
         real(kind_phys), intent(out)   :: precl(:)             ! large-scale precipitation rate (m/s)
-        real(kind_phys), intent(out)   :: precc(:)             ! convective precipitation (m/s)
         real(kind_phys), intent(out)   :: tendency_of_air_enthalpy(:,:)         !
         character(len=512), intent(out):: scheme_name
         character(len=512), intent(out):: errmsg
@@ -76,7 +75,6 @@ CONTAINS
         errmsg = ' '
         errflg = 0
 
-        precc   = 0.0_kind_phys
         precl   = 0.0_kind_phys
         tendency_of_air_enthalpy    = 0.0_kind_phys
 
@@ -86,7 +84,7 @@ CONTAINS
         ! An example could be the simplified Betts-Miller (SBM) convection
         ! parameterization described in Frierson (JAS, 2007).
         ! The parameterization is expected to update 
-        ! the convective precipitation rate precc and the temporary state variables
+        ! and the temporary state variables
         ! T and qv. T and qv will then be updated again with the 
         ! large-scale condensation process below.
 

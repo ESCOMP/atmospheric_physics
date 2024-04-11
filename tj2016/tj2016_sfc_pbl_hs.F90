@@ -151,30 +151,31 @@ CONTAINS
     ! Define simple_physics_option to either "TJ16" (moist HS) or "RJ12" (simple-physics)
     character(LEN=4)    :: simple_physics_option
 
+    ! Initialize certain outfields
     tendency_of_air_enthalpy = 0.0_kind_phys
-    scheme_name = "TJ2016_sfc_pbl_hs"
-    errmsg = ' '
-    errflg = 0
+    scheme_name              = "TJ2016_sfc_pbl_hs"
+    errmsg                   = ' '
+    errflg                   = 0
 
+    ! Set local copies to not modify model state directly
     UCopy  = U
     VCopy  = V
     stateT = T
 
-    ! Set the simple_physics_option "TJ16" (default, moist HS)
-    simple_physics_option = "TJ16"
+    simple_physics_option = "TJ16"   ! Set the simple_physics_option "TJ16" (default, moist HS)
     ! simple_physics_option = "RJ12"   ! alternative simple-physics forcing, Reed and Jablonowski (2012)
 
     !==========================================================================
     ! Calculate Sea Surface Temperature and set exchange coefficient
     !==========================================================================
     if (simple_physics_option == "TJ16") then
-        C=0.0044_kind_phys        ! Surface exchange coefficient for sensible and latent heat for moist HS
-        do i = 1, ncol     ! set SST profile
+        C=0.0044_kind_phys  ! Surface exchange coefficient for sensible and latent heat for moist HS
+        do i = 1, ncol      ! set SST profile
             Tsurf(i) = del_T*exp(-(((clat(i))**2.0_kind_phys)/(2.0_kind_phys*(T_width**2.0_kind_phys)))) + T_min
         end do
-    else                 ! settings for RJ12
+    else                          ! settings for RJ12
         C     = 0.0011_kind_phys  ! Surface exchange coefficient for sensible and latent heat for simple-physics
-        Tsurf = Tsurf_RJ12 ! constant SST
+        Tsurf = Tsurf_RJ12        ! constant SST
     endif
 
     !==========================================================================
@@ -198,7 +199,7 @@ CONTAINS
     !==========================================================================
     do i = 1, ncol
         dlnpint = (lnpint(i,2) - lnpint(i,1))
-        za(i) = rairv(i,pver)/gravit*T(i,pver)*(1._kind_phys+zvirv(i,pver)*qv(i,pver))*0.5_kind_phys*dlnpint
+        za(i)   = rairv(i,pver)/gravit*T(i,pver)*(1._kind_phys+zvirv(i,pver)*qv(i,pver))*0.5_kind_phys*dlnpint
     end do
 
     !==========================================================================
@@ -228,7 +229,7 @@ CONTAINS
     end do
     do i = 1, ncol
         Ke(i,pver+1) = C*wind(i)*za(i)
-        if (wind(i) < v20) then                       ! if wind speed is less than 20 m/s
+        if (wind(i) < v20) then                 ! if wind speed is less than 20 m/s
             Cd(i)        = Cd0+Cd1*wind(i)
             Km(i,pver+1) = Cd(i)*wind(i)*za(i)
         else
@@ -257,19 +258,19 @@ CONTAINS
     ! note: this only occurs in the lowermost model level
     !--------------------------------------------------------------------------
     do i = 1, ncol
-        qsat   = epsilo*e0/PS(i)*exp(-latvap/rh2o*((1._kind_phys/Tsurf(i))-1._kind_phys/T0))     ! saturation value for Q at the surface
-        rho(i) = pmid(i,pver)/(rairv(i,pver) * T(i,pver) *(1._kind_phys+zvirv(i,pver)*qv(i,pver)))          ! air density at the lowest level rho = p/(Rd Tv)
+        qsat   = epsilo*e0/PS(i)*exp(-latvap/rh2o*((1._kind_phys/Tsurf(i))-1._kind_phys/T0))        ! saturation value for Q at the surface
+        rho(i) = pmid(i,pver)/(rairv(i,pver) * T(i,pver) *(1._kind_phys+zvirv(i,pver)*qv(i,pver)))  ! air density at the lowest level rho = p/(Rd Tv)
 
         tmp                = (T(i,pver)+C*wind(i)*Tsurf(i)*dtime/za(i))/(1._kind_phys+C*wind(i)*dtime/za(i)) ! new T
-        dtdt_vdiff(i,pver) = (tmp-T(i,pver))/dtime                                 ! T tendency due to surface flux 
-        shflx(i)           = rho(i) * cpairv(i,pver) * C*wind(i)*(Tsurf(i)-T(i,pver))       ! sensible heat flux (W/m2)
-        T(i,pver)          = tmp                                                   ! update T
+        dtdt_vdiff(i,pver) = (tmp-T(i,pver))/dtime                                    ! T tendency due to surface flux 
+        shflx(i)           = rho(i) * cpairv(i,pver) * C*wind(i)*(Tsurf(i)-T(i,pver)) ! sensible heat flux (W/m2)
+        T(i,pver)          = tmp                                                      ! update T
 
         tmp                = (qv(i,pver)+C*wind(i)*qsat*dtime/za(i))/(1._kind_phys+C*wind(i)*dtime/za(i)) ! new Q 
-        dqdt_vdiff(i,pver) = (tmp-qv(i,pver))/dtime                                ! Q tendency due to surface flux
-        lhflx(i)           = rho(i) * latvap * C*wind(i)*(qsat-qv(i,pver))         ! latent heat flux (W/m2) 
-        evap(i)            = rho(i) * C*wind(i)*(qsat-qv(i,pver))                  ! surface water flux (kg/m2/s)
-        qv(i,pver)         = tmp                                                   ! update Q
+        dqdt_vdiff(i,pver) = (tmp-qv(i,pver))/dtime                                   ! Q tendency due to surface flux
+        lhflx(i)           = rho(i) * latvap * C*wind(i)*(qsat-qv(i,pver))            ! latent heat flux (W/m2)
+        evap(i)            = rho(i) * C*wind(i)*(qsat-qv(i,pver))                     ! surface water flux (kg/m2/s)
+        qv(i,pver)         = tmp                                                      ! update Q
     end do
 
     if (simple_physics_option == "RJ12") then
@@ -280,11 +281,11 @@ CONTAINS
         ! above is used 
         !--------------------------------------------------------------------------
         do i = 1, ncol
-            tmp          = Cd(i) * wind(i)
-            taux(i)      = -rho(i) * tmp * UCopy(i,pver)                      ! zonal surface momentum flux (N/m2) 
-            UCopy(i,pver)    = UCopy(i,pver)/(1._kind_phys+tmp*dtime/za(i))              ! new U
-            tauy(i)      = -rho(i) * tmp * VCopy(i,pver)                      ! meridional surface momentum flux (N/m2) 
-            VCopy(i,pver)    = VCopy(i,pver)/(1._kind_phys+tmp*dtime/za(i))              ! new V
+            tmp           = Cd(i) * wind(i)
+            taux(i)       = -rho(i) * tmp * UCopy(i,pver)                 ! zonal surface momentum flux (N/m2)
+            UCopy(i,pver) = UCopy(i,pver)/(1._kind_phys+tmp*dtime/za(i))  ! new U
+            tauy(i)       = -rho(i) * tmp * VCopy(i,pver)                 ! meridional surface momentum flux (N/m2)
+            VCopy(i,pver) = VCopy(i,pver)/(1._kind_phys+tmp*dtime/za(i))  ! new V
         enddo
     endif
 
@@ -370,9 +371,9 @@ CONTAINS
         do i = 1, ncol
             dlnpint = (lnpint(i,2) - lnpint(i,1))
             za(i)   = rairv(i,pver)/gravit*T(i,pver)*(1._kind_phys+zvirv(i,pver)*qv(i,pver))*0.5_kind_phys*dlnpint ! height of lowest full model level
-            rho(i)  = pmid(i,pver)/(rairv(i,pver) * T(i,pver) *(1._kind_phys+zvirv(i,pver)*qv(i,pver)))     ! air density at the lowest level rho = p/(Rd Tv)
-            taux(i) = -kv * rho(i) * UCopy(i,pver) * za(i)                             ! U surface momentum flux in N/m2
-            tauy(i) = -kv * rho(i) * VCopy(i,pver) * za(i)                             ! V surface momentum flux in N/m2
+            rho(i)  = pmid(i,pver)/(rairv(i,pver) * T(i,pver) *(1._kind_phys+zvirv(i,pver)*qv(i,pver)))            ! air density at the lowest level rho = p/(Rd Tv)
+            taux(i) = -kv * rho(i) * UCopy(i,pver) * za(i)                                                         ! U surface momentum flux in N/m2
+            tauy(i) = -kv * rho(i) * VCopy(i,pver) * za(i)                                                         ! V surface momentum flux in N/m2
         end do
 
         !--------------------------------------------------------------------------
@@ -381,10 +382,10 @@ CONTAINS
         !--------------------------------------------------------------------------
         do k = 1, pver
             if (etamid(k) > sigmab) then
-                kv  = kf*(etamid(k) - sigmab)/onemsig                         ! RF coefficient 
+                kv  = kf*(etamid(k) - sigmab)/onemsig             ! RF coefficient
                 do i=1,ncol
-                    UCopy(i,k) = UCopy(i,k) -kv*UCopy(i,k)*dtime                            ! apply RF to U
-                    VCopy(i,k) = VCopy(i,k) -kv*VCopy(i,k)*dtime                            ! apply RF to V
+                    UCopy(i,k) = UCopy(i,k) -kv*UCopy(i,k)*dtime  ! apply RF to U
+                    VCopy(i,k) = VCopy(i,k) -kv*VCopy(i,k)*dtime  ! apply RF to V
                 end do
             end if
         end do
@@ -394,7 +395,7 @@ CONTAINS
         ! mimics radiation
         !-----------------------------------------------------------------------
         do k = 1, pver
-            if (etamid(k) > sigmab) then                                    ! lower atmosphere
+            if (etamid(k) > sigmab) then                                        ! lower atmosphere
                 do i = 1, ncol
                     kt = ka + (ks - ka)*cossqsq(i)*(etamid(k) - sigmab)/onemsig ! relaxation coefficent varies in the vertical
                     trefc             = T_max - delta_T*sinsq(i)
@@ -448,8 +449,8 @@ CONTAINS
         ! First: calculate the PBL diffusive tendencies at the top model level
         !---------------------------------------------------------------------
         do i = 1, ncol
-            UCopy(i,1)    = CFu(i,1)                                 ! new U at the model top
-            VCopy(i,1)    = CFv(i,1)                                 ! new V at the model top
+            UCopy(i,1)    = CFu(i,1)  ! new U at the model top
+            VCopy(i,1)    = CFv(i,1)  ! new V at the model top
         end do
 
         !-----------------------------------------
@@ -457,16 +458,16 @@ CONTAINS
         !-----------------------------------------
         do i = 1, ncol
             do k = 2, pver
-                UCopy(i,k) = CEm(i,k)*UCopy(i,k-1) + CFu(i,k)     ! new U
-                VCopy(i,k) = CEm(i,k)*VCopy(i,k-1) + CFv(i,k)     ! new V
+                UCopy(i,k) = CEm(i,k)*UCopy(i,k-1) + CFu(i,k)  ! new U
+                VCopy(i,k) = CEm(i,k)*VCopy(i,k-1) + CFv(i,k)  ! new V
             end do
         end do
     endif
 
-    do i = i, ncol
+    do i = 1, ncol
         do k = 1, pver
-            dudt(i, k) = UCopy(i, k) - U(i, k) / dtime
-            dvdt(i, k) = VCopy(i, k) - V(i, k) / dtime
+            dudt(i, k)                    = UCopy(i, k) - U(i, k) / dtime
+            dvdt(i, k)                    = VCopy(i, k) - V(i, k) / dtime
             tendency_of_air_enthalpy(i,k) = (T(i,k) - stateT(i,k)) / dtime * cpairv(i,k)
         end do
     end do
