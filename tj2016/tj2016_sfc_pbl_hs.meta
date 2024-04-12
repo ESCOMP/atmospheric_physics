@@ -23,6 +23,12 @@
   type = integer
   dimensions = ()
   intent = in
+[ index_surface_interface ]
+  standard_name = vertical_index_at_surface_interface
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
 [ gravit ]
   standard_name = standard_gravitational_acceleration
   units = m s-2
