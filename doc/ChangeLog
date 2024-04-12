@@ -1,5 +1,32 @@
 ===============================================================
 
+Tag name:atmos_phys0_02_004
+Originator(s): boulderdaze
+Date: 12 Mar 2024
+One-line Summary: Update MUSICA git tag
+Github PR URL: https://github.com/ESCOMP/atmospheric_physics/pull/87
+
+Purpose of changes (include the issue number and title text for each relevant GitHub issue):
+- Update the MUSICA git tag
+
+This PR fixes the following NCAR/atmospheric_physics Github issues:
+
+#86 -> Update MUSICA git tag
+
+Code reviewed by: nusbaume, peverwhee
+
+List all existing files that have been added (A), modified (M), or deleted (D),
+and describe the changes:
+
+M       test/musica/micm/CMakeLists.txt
+        - Update the git tag
+
+List and Describe any test failures: No known test failures.
+
+Summarize any changes to answers: Answer changes when MICM is used.
+
+===============================================================
+
 Tag name:atmos_phys0_02_003
 Originator(s): peverwhee
 Date: 11 Mar 2024
