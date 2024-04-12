@@ -17,6 +17,12 @@
   type = integer
   dimensions = ()
   intent = in
+[ pverp ]
+  standard_name = vertical_interface_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
 [ index_surface ]
   standard_name = vertical_index_at_surface_adjacent_layer
   units = index

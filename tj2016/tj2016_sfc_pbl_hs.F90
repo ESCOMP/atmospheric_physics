@@ -16,7 +16,7 @@ CONTAINS
 
     !> \section arg_table_tj2016_sfc_pbl_hs_run  Argument Table
     !! \htmlinclude tj2016_sfc_pbl_hs_run.html
-    subroutine tj2016_sfc_pbl_hs_run(ncol, pver, index_surface, index_surface_interface, gravit, cappa, rairv,                 &
+    subroutine tj2016_sfc_pbl_hs_run(ncol, pver, pverp, index_surface, index_surface_interface, gravit, cappa, rairv,  &
         cpairv, latvap, rh2o, epsilo, rhoh2o, zvirv, ps0, etamid, dtime, clat,                &
         PS, pmid, pint, lnpint, rpdel, T, U, dudt, V, dvdt, qv, shflx, lhflx, taux, tauy,     &
         evap, dqdt_vdiff, dtdt_vdiff, dtdt_heating, Km, Ke, Tsurf, tendency_of_air_enthalpy,  &
@@ -27,6 +27,7 @@ CONTAINS
 
     integer,  intent(in)           :: ncol                ! number of columns
     integer,  intent(in)           :: pver                ! number of vertical levels
+    integer,  intent(in)           :: pverp               ! number of vertical levels + 1
     integer,  intent(in)           :: index_surface       ! index of surface (layer)
     integer,  intent(in)           :: index_surface_interface ! index of surface (interface)
 
@@ -127,16 +128,16 @@ CONTAINS
     ! Variables for the simple-physics and moist HS boundary layer turbulence calculation (for T and qv)
     real(kind_phys)            :: CA(ncol,pver)      ! Matrix Coefficents for PBL Scheme
     real(kind_phys)            :: CC(ncol,pver)      ! Matrix Coefficents for PBL Scheme
-    real(kind_phys)            :: CE(ncol,pver+1)    ! Matrix Coefficents for PBL Scheme
-    real(kind_phys)            :: CFt(ncol,pver+1)   ! Matrix Coefficents for PBL Scheme
-    real(kind_phys)            :: CFq(ncol,pver+1)   ! Matrix Coefficents for PBL Scheme
+    real(kind_phys)            :: CE(ncol,pverp)    ! Matrix Coefficents for PBL Scheme
+    real(kind_phys)            :: CFt(ncol,pverp)   ! Matrix Coefficents for PBL Scheme
+    real(kind_phys)            :: CFq(ncol,pverp)   ! Matrix Coefficents for PBL Scheme
 
     ! Variables for the simple-physics boundary layer turbulence calculation for u and v, not used by JT16, only by RJ12 
     real(kind_phys)            :: CAm(ncol,pver)     ! Matrix Coefficents for PBL Scheme
     real(kind_phys)            :: CCm(ncol,pver)     ! Matrix Coefficents for PBL Scheme
-    real(kind_phys)            :: CEm(ncol,pver+1)   ! Matrix Coefficents for PBL Scheme
-    real(kind_phys)            :: CFu(ncol,pver+1)   ! Matrix Coefficents for PBL Scheme
-    real(kind_phys)            :: CFv(ncol,pver+1)   ! Matrix Coefficents for PBL Scheme
+    real(kind_phys)            :: CEm(ncol,pverp)   ! Matrix Coefficents for PBL Scheme
+    real(kind_phys)            :: CFu(ncol,pverp)   ! Matrix Coefficents for PBL Scheme
+    real(kind_phys)            :: CFv(ncol,pverp)   ! Matrix Coefficents for PBL Scheme
 
     ! Variable for surface flux calculation
     real(kind_phys)            :: qsat               ! saturation value for Q (kg/kg)
@@ -201,7 +202,7 @@ CONTAINS
     !==========================================================================
     do i = 1, ncol
         dlnpint = (lnpint(i,index_surface_interface) - lnpint(i,index_surface))
-        za(i)   = rairv(i,pver)/gravit*T(i,pver)*(1._kind_phys+zvirv(i,pver)*qv(i,pver))*0.5_kind_phys*dlnpint
+        za(i)   = rairv(i,index_surface)/gravit*T(i,index_surface)*(1._kind_phys+zvirv(i,index_surface)*qv(i,index_surface))*0.5_kind_phys*dlnpint
     end do
 
     !==========================================================================
@@ -227,16 +228,16 @@ CONTAINS
     ! Km is used for momentum (not used by TJ16, only RJ12)
     !--------------------------------------------------------------------------
     do i = 1, ncol
-        wind(i) = sqrt(UCopy(i,pver)**2 + VCopy(i,pver)**2)   ! wind speed closest to the surface
+        wind(i) = sqrt(UCopy(i,index_surface)**2 + VCopy(i,index_surface)**2)   ! wind speed closest to the surface
     end do
     do i = 1, ncol
-        Ke(i,pver+1) = C*wind(i)*za(i)
+        Ke(i,index_surface_interface) = C*wind(i)*za(i)
         if (wind(i) < v20) then                 ! if wind speed is less than 20 m/s
             Cd(i)        = Cd0+Cd1*wind(i)
-            Km(i,pver+1) = Cd(i)*wind(i)*za(i)
+            Km(i,index_surface_interface) = Cd(i)*wind(i)*za(i)
         else
             Cd(i)        = Cm
-            Km(i,pver+1) = Cm*wind(i)*za(i)
+            Km(i,index_surface_interface) = Cm*wind(i)*za(i)
         end if
     end do
 
@@ -244,12 +245,12 @@ CONTAINS
         do i = 1, ncol
             if( pint(i,k) >= pbltop) then
                 ! keep diffusion coefficients constant below pbltop 
-                Km(i,k) = Km(i,pver+1)
-                Ke(i,k) = Ke(i,pver+1)
+                Km(i,k) = Km(i,index_surface_interface)
+                Ke(i,k) = Ke(i,index_surface_interface)
             else
                 ! PBL diffusion coefficients are dragged to zero above pbltop
-                Km(i,k) = Km(i,pver+1)*exp(-(pbltop-pint(i,k))**2/(pblconst)**2)
-                Ke(i,k) = Ke(i,pver+1)*exp(-(pbltop-pint(i,k))**2/(pblconst)**2)
+                Km(i,k) = Km(i,index_surface_interface)*exp(-(pbltop-pint(i,k))**2/(pblconst)**2)
+                Ke(i,k) = Ke(i,index_surface_interface)*exp(-(pbltop-pint(i,k))**2/(pblconst)**2)
             end if
         end do
     end do
@@ -261,18 +262,18 @@ CONTAINS
     !--------------------------------------------------------------------------
     do i = 1, ncol
         qsat   = epsilo*e0/PS(i)*exp(-latvap/rh2o*((1._kind_phys/Tsurf(i))-1._kind_phys/T0))        ! saturation value for Q at the surface
-        rho(i) = pmid(i,pver)/(rairv(i,pver) * T(i,pver) *(1._kind_phys+zvirv(i,pver)*qv(i,pver)))  ! air density at the lowest level rho = p/(Rd Tv)
+        rho(i) = pmid(i,index_surface)/(rairv(i,index_surface) * T(i,index_surface) *(1._kind_phys+zvirv(i,index_surface)*qv(i,index_surface)))  ! air density at the lowest level rho = p/(Rd Tv)
 
-        tmp                = (T(i,pver)+C*wind(i)*Tsurf(i)*dtime/za(i))/(1._kind_phys+C*wind(i)*dtime/za(i)) ! new T
-        dtdt_vdiff(i,pver) = (tmp-T(i,pver))/dtime                                    ! T tendency due to surface flux 
-        shflx(i)           = rho(i) * cpairv(i,pver) * C*wind(i)*(Tsurf(i)-T(i,pver)) ! sensible heat flux (W/m2)
-        T(i,pver)          = tmp                                                      ! update T
+        tmp                = (T(i,index_surface)+C*wind(i)*Tsurf(i)*dtime/za(i))/(1._kind_phys+C*wind(i)*dtime/za(i)) ! new T
+        dtdt_vdiff(i,index_surface) = (tmp-T(i,index_surface))/dtime                                    ! T tendency due to surface flux 
+        shflx(i)           = rho(i) * cpairv(i,index_surface) * C*wind(i)*(Tsurf(i)-T(i,index_surface)) ! sensible heat flux (W/m2)
+        T(i,index_surface)          = tmp                                                      ! update T
 
-        tmp                = (qv(i,pver)+C*wind(i)*qsat*dtime/za(i))/(1._kind_phys+C*wind(i)*dtime/za(i)) ! new Q 
-        dqdt_vdiff(i,pver) = (tmp-qv(i,pver))/dtime                                   ! Q tendency due to surface flux
-        lhflx(i)           = rho(i) * latvap * C*wind(i)*(qsat-qv(i,pver))            ! latent heat flux (W/m2)
-        evap(i)            = rho(i) * C*wind(i)*(qsat-qv(i,pver))                     ! surface water flux (kg/m2/s)
-        qv(i,pver)         = tmp                                                      ! update Q
+        tmp                = (qv(i,index_surface)+C*wind(i)*qsat*dtime/za(i))/(1._kind_phys+C*wind(i)*dtime/za(i)) ! new Q 
+        dqdt_vdiff(i,index_surface) = (tmp-qv(i,index_surface))/dtime                                   ! Q tendency due to surface flux
+        lhflx(i)           = rho(i) * latvap * C*wind(i)*(qsat-qv(i,index_surface))            ! latent heat flux (W/m2)
+        evap(i)            = rho(i) * C*wind(i)*(qsat-qv(i,index_surface))                     ! surface water flux (kg/m2/s)
+        qv(i,index_surface)         = tmp                                                      ! update Q
     end do
 
     if (simple_physics_option == "RJ12") then
@@ -284,10 +285,10 @@ CONTAINS
         !--------------------------------------------------------------------------
         do i = 1, ncol
             tmp           = Cd(i) * wind(i)
-            taux(i)       = -rho(i) * tmp * UCopy(i,pver)                 ! zonal surface momentum flux (N/m2)
-            UCopy(i,pver) = UCopy(i,pver)/(1._kind_phys+tmp*dtime/za(i))  ! new U
-            tauy(i)       = -rho(i) * tmp * VCopy(i,pver)                 ! meridional surface momentum flux (N/m2)
-            VCopy(i,pver) = VCopy(i,pver)/(1._kind_phys+tmp*dtime/za(i))  ! new V
+            taux(i)       = -rho(i) * tmp * UCopy(i,index_surface)                 ! zonal surface momentum flux (N/m2)
+            UCopy(i,index_surface) = UCopy(i,index_surface)/(1._kind_phys+tmp*dtime/za(i))  ! new U
+            tauy(i)       = -rho(i) * tmp * VCopy(i,index_surface)                 ! meridional surface momentum flux (N/m2)
+            VCopy(i,index_surface) = VCopy(i,index_surface)/(1._kind_phys+tmp*dtime/za(i))  ! new V
         enddo
     endif
 
@@ -296,7 +297,7 @@ CONTAINS
     !--------------------------------------------------------------------------
     do k = 1, pver-1
         do i = 1, ncol
-            rho(i)     = (pint(i,k+1)/(rairv(i,k)*(T(i,k+1)*(1._kind_phys+zvirv(i,pver)*qv(i,k+1))+T(i,k)*(1._kind_phys+zvirv(i,pver)*qv(i,k)))/2.0_kind_phys))
+            rho(i)     = (pint(i,k+1)/(rairv(i,k)*(T(i,k+1)*(1._kind_phys+zvirv(i,index_surface)*qv(i,k+1))+T(i,k)*(1._kind_phys+zvirv(i,index_surface)*qv(i,k)))/2.0_kind_phys))
             CA(i,k)    = rpdel(i,k)*dtime*gravit*gravit*Ke(i,k+1)*rho(i)*rho(i)/(pmid(i,k+1)-pmid(i,k))
             CC(i,k+1)  = rpdel(i,k+1)*dtime*gravit*gravit*Ke(i,k+1)*rho(i)*rho(i)/(pmid(i,k+1)-pmid(i,k))
             ! the next two PBL variables are initialized here for the potential use of RJ12 instead of TJ16
@@ -306,11 +307,11 @@ CONTAINS
         end do
     end do
     do i = 1, ncol
-        CA(i,pver)    = 0._kind_phys
+        CA(i,index_surface)    = 0._kind_phys
         CC(i,1)       = 0._kind_phys
-        CE(i,pver+1)  = 0._kind_phys
-        CFt(i,pver+1) = 0._kind_phys
-        CFq(i,pver+1) = 0._kind_phys
+        CE(i,index_surface_interface)  = 0._kind_phys
+        CFt(i,index_surface_interface) = 0._kind_phys
+        CFq(i,index_surface_interface) = 0._kind_phys
     end do
     do i = 1, ncol
         do k = pver, 1, -1
@@ -369,13 +370,13 @@ CONTAINS
         !  Compute frictional tendency from HS Rayleigh Friction (RF) at the lowest
         !  level as a diagnostic (surface momentum fluxes)
         !--------------------------------------------------------------------------
-        kv  = kf*(etamid(pver) - sigmab)/onemsig                                 ! RF coefficient at the lowest level
+        kv  = kf*(etamid(index_surface) - sigmab)/onemsig                                 ! RF coefficient at the lowest level
         do i = 1, ncol
             dlnpint = (lnpint(i,index_surface_interface) - lnpint(i,index_surface))
-            za(i)   = rairv(i,pver)/gravit*T(i,pver)*(1._kind_phys+zvirv(i,pver)*qv(i,pver))*0.5_kind_phys*dlnpint ! height of lowest full model level
-            rho(i)  = pmid(i,pver)/(rairv(i,pver) * T(i,pver) *(1._kind_phys+zvirv(i,pver)*qv(i,pver)))            ! air density at the lowest level rho = p/(Rd Tv)
-            taux(i) = -kv * rho(i) * UCopy(i,pver) * za(i)                                                         ! U surface momentum flux in N/m2
-            tauy(i) = -kv * rho(i) * VCopy(i,pver) * za(i)                                                         ! V surface momentum flux in N/m2
+            za(i)   = rairv(i,index_surface)/gravit*T(i,index_surface)*(1._kind_phys+zvirv(i,index_surface)*qv(i,index_surface))*0.5_kind_phys*dlnpint ! height of lowest full model level
+            rho(i)  = pmid(i,index_surface)/(rairv(i,index_surface) * T(i,index_surface) *(1._kind_phys+zvirv(i,index_surface)*qv(i,index_surface)))            ! air density at the lowest level rho = p/(Rd Tv)
+            taux(i) = -kv * rho(i) * UCopy(i,index_surface) * za(i)                                                         ! U surface momentum flux in N/m2
+            tauy(i) = -kv * rho(i) * VCopy(i,index_surface) * za(i)                                                         ! V surface momentum flux in N/m2
         end do
 
         !--------------------------------------------------------------------------
@@ -429,11 +430,11 @@ CONTAINS
         ! The fields CAm and CCm are also initialized above to guarantee the use of the same density.
         !--------------------------------------------------------------------------
         do i = 1, ncol
-            CAm(i,pver)   = 0._kind_phys
+            CAm(i,index_surface)   = 0._kind_phys
             CCm(i,1)      = 0._kind_phys
-            CEm(i,pver+1) = 0._kind_phys
-            CFu(i,pver+1) = 0._kind_phys
-            CFv(i,pver+1) = 0._kind_phys
+            CEm(i,index_surface_interface) = 0._kind_phys
+            CFu(i,index_surface_interface) = 0._kind_phys
+            CFv(i,index_surface_interface) = 0._kind_phys
         end do
         do i = 1, ncol
             do k = pver, 1, -1
