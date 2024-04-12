@@ -16,7 +16,7 @@ CONTAINS
 
     !> \section arg_table_tj2016_sfc_pbl_hs_run  Argument Table
     !! \htmlinclude tj2016_sfc_pbl_hs_run.html
-    subroutine tj2016_sfc_pbl_hs_run(ncol, pver, gravit, cappa, rairv,                        &
+    subroutine tj2016_sfc_pbl_hs_run(ncol, pver, index_surface, gravit, cappa, rairv,                 &
         cpairv, latvap, rh2o, epsilo, rhoh2o, zvirv, ps0, etamid, dtime, clat,                &
         PS, pmid, pint, lnpint, rpdel, T, U, dudt, V, dvdt, qv, shflx, lhflx, taux, tauy,     &
         evap, dqdt_vdiff, dtdt_vdiff, dtdt_heating, Km, Ke, Tsurf, tendency_of_air_enthalpy,  &
@@ -25,8 +25,9 @@ CONTAINS
     !   Input / output parameters
     !------------------------------------------------
 
-    integer,  intent(in)    :: ncol                       ! number of columns
-    integer,  intent(in)    :: pver                       ! number of vertical levels
+    integer,  intent(in)           :: ncol                ! number of columns
+    integer,  intent(in)           :: pver                ! number of vertical levels
+    integer,  intent(in)           :: index_surface       ! index of surface
 
     real(kind_phys), intent(in)    :: gravit              ! g: gravitational acceleration (m/s2)
     real(kind_phys), intent(in)    :: cappa               ! Rd/cp
@@ -198,7 +199,7 @@ CONTAINS
     ! Calculate hydrostatic height za of the lowermost model level
     !==========================================================================
     do i = 1, ncol
-        dlnpint = (lnpint(i,2) - lnpint(i,1))
+        dlnpint = (lnpint(i,index_surface+1) - lnpint(i,index_surface))
         za(i)   = rairv(i,pver)/gravit*T(i,pver)*(1._kind_phys+zvirv(i,pver)*qv(i,pver))*0.5_kind_phys*dlnpint
     end do
 
@@ -369,7 +370,7 @@ CONTAINS
         !--------------------------------------------------------------------------
         kv  = kf*(etamid(pver) - sigmab)/onemsig                                 ! RF coefficient at the lowest level
         do i = 1, ncol
-            dlnpint = (lnpint(i,2) - lnpint(i,1))
+            dlnpint = (lnpint(i,index_surface+1) - lnpint(i,index_surface))
             za(i)   = rairv(i,pver)/gravit*T(i,pver)*(1._kind_phys+zvirv(i,pver)*qv(i,pver))*0.5_kind_phys*dlnpint ! height of lowest full model level
             rho(i)  = pmid(i,pver)/(rairv(i,pver) * T(i,pver) *(1._kind_phys+zvirv(i,pver)*qv(i,pver)))            ! air density at the lowest level rho = p/(Rd Tv)
             taux(i) = -kv * rho(i) * UCopy(i,pver) * za(i)                                                         ! U surface momentum flux in N/m2
