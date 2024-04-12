@@ -467,8 +467,8 @@ CONTAINS
 
     do i = 1, ncol
         do k = 1, pver
-            dudt(i, k)                    = UCopy(i, k) - U(i, k) / dtime
-            dvdt(i, k)                    = VCopy(i, k) - V(i, k) / dtime
+            dudt(i, k)                    = (UCopy(i, k) - U(i, k)) / dtime
+            dvdt(i, k)                    = (VCopy(i, k) - V(i, k)) / dtime
             tendency_of_air_enthalpy(i,k) = (T(i,k) - stateT(i,k)) / dtime * cpairv(i,k)
         end do
     end do
