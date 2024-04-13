@@ -152,38 +152,38 @@ CONTAINS
          end do
 
          ilconv = .false.
-         jiter = 1
+         
+         DBLZEP: do while (.not. ilconv)
+            
+            do jiter = 1, niter
+               ilconv = .true.
 
-         do while (.not. ilconv .and. jiter <= niter)
-            ilconv = .true.
+               do k = 1, nlvdry
+                  zepsdp = zeps*(pmid(i,k+1) - pmid(i,k))
+                  zgamma = c1dad(k)*(t(i,k) + t(i,k+1))
+                  
+                  if ((t(i,k+1)-t(i,k)) >= (zgamma+zepsdp)) then
+                     write(6,*)'adjusting t and q at i,k=',i,k
+                     ilconv = .false.
+                     t(i,k+1) = t(i,k)*c3dad(k) + t(i,k+1)*c4dad(k)
+                     t(i,k) = c2dad(k)*t(i,k+1)
+                     qave = (pdel(i,k+1)*q(i,k+1) + pdel(i,k)*q(i,k))/(pdel(i,k+1)+ pdel(i,k))
+                     q(i,k+1) = qave
+                     q(i,k) = qave
+                  end if
+                  
+               end do
 
-            do k = 1, nlvdry
-               zepsdp = zeps*(pmid(i,k+1) - pmid(i,k))
-               zgamma = c1dad(k)*(t(i,k) + t(i,k+1))
-
-               if ((t(i,k+1)-t(i,k)) >= (zgamma+zepsdp)) then
-                  ilconv = .false.
-                  t(i,k+1) = t(i,k)*c3dad(k) + t(i,k+1)*c4dad(k)
-                  t(i,k) = c2dad(k)*t(i,k+1)
-                  qave = (pdel(i,k+1)*q(i,k+1) + pdel(i,k)*q(i,k))/(pdel(i,k+1)+ pdel(i,k))
-                  q(i,k+1) = qave
-                  q(i,k) = qave
-               end if
+               if (ilconv) cycle COL ! convergence => next longitude
 
             end do
 
-            jiter = jiter + 1
-         end do
-
-         if (.not. ilconv) then
             zeps = zeps + zeps
             if (zeps > 1.e-4_kind_phys) then
                errflg = i
                return                ! error return
-            else
-               cycle COL
             end if
-         end if
+         end do DBLZEP
 
       end if
 
