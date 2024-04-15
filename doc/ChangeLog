@@ -18,8 +18,14 @@ Code reviewed by: cacraigucar, boulderdaze
 List all existing files that have been added (A), modified (M), or deleted (D),
 and describe the changes:
 
-See [https://github.com/ESCOMP/atmospheric_physics/pull/89](https://github.com/ESCOMP/atmospheric_physics/pull/89)
-for a list of changed files and what changed.
+M       .github/workflows/test.yaml
+          - Clean-up Github Action workflow
+         
+M       musica/micm/micm.F90
+M       test/CMakeLists.txt
+M       test/docker/Dockerfile.musica
+M       test/musica/micm/CMakeLists.txt
+           - Update MICM interface
 
 List and Describe any test failures: No known test failures.
 
