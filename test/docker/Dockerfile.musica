@@ -29,6 +29,7 @@ ENV FFLAGS="-I/usr/include/"
 RUN git clone https://github.com/NCAR/musica.git
 RUN cd musica \
     && git fetch \
+    && git checkout 0.6.0 \
     && cmake \
         -S . \
         -B build \
