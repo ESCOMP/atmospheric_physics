@@ -11,7 +11,7 @@ module micm
   public :: micm_init, micm_run, micm_final
   private :: convert_to_mol_per_cubic_meter, convert_to_mass_mixing_ratio
 
-  type(micm_t), allocatable :: micm_obj
+  type(micm_t), pointer         :: micm_obj
 
 contains
 
@@ -26,10 +26,7 @@ contains
     errcode = 0
     errmsg = ''
 
-    allocate(micm_obj)
-    micm_obj = micm_t(config_path)
-
-    errcode = micm_obj%create_solver()
+    micm_obj => micm_t(config_path, errcode)
 
     if (errcode /= 0) then
       errmsg = "[fatal] [micm] Failed to create MICM solver. Parsing configuration failed. &
@@ -136,7 +133,6 @@ contains
     errmsg = ''
 
     write(iulog,*) "[debug] [micm] Deallocating MICM object..."
-    if (allocated(micm_obj)) deallocate(micm_obj)
 
   end subroutine micm_final
 
