@@ -115,10 +115,10 @@ subroutine zm_conv_momtran_run(ncol, pver, pverp, &
    real(kind_phys) pgu(ncol,pver)      ! Pressure gradient term for updraft
    real(kind_phys) pgd(ncol,pver)      ! Pressure gradient term for downdraft
 
-   real(kind_phys),intent(out) ::  pguallu(:,:)      ! Apparent force from  updraft PG U winds  ! (ncol,pver)
-   real(kind_phys),intent(out) ::  pguallv(:,:)      ! Apparent force from  updraft PG V winds  ! (ncol,pver)
-   real(kind_phys),intent(out) ::  pgdallu(:,:)      ! Apparent force from  downdraft PG U winds! (ncol,pver)
-   real(kind_phys),intent(out) ::  pgdallv(:,:)      ! Apparent force from  downdraft PG V winds! (ncol,pver)
+   real(kind_phys),intent(out) ::  pguallu(:,:)      ! Apparent force from  updraft PG on U winds  ! (ncol,pver)
+   real(kind_phys),intent(out) ::  pguallv(:,:)      ! Apparent force from  updraft PG on V winds  ! (ncol,pver)
+   real(kind_phys),intent(out) ::  pgdallu(:,:)      ! Apparent force from  downdraft PG on U winds! (ncol,pver)
+   real(kind_phys),intent(out) ::  pgdallv(:,:)      ! Apparent force from  downdraft PG on V winds! (ncol,pver)
 
    real(kind_phys),intent(out) ::  icwuu(:,:)      ! In-cloud U winds in updraft           ! (ncol,pver)
    real(kind_phys),intent(out) ::  icwuv(:,:)      ! In-cloud V winds in updraft           ! (ncol,pver)
@@ -130,10 +130,10 @@ subroutine zm_conv_momtran_run(ncol, pver, pverp, &
 
    real(kind_phys) :: winds(ncol,pver,num_winds)       ! combined winds array
    real(kind_phys) :: wind_tends(ncol,pver,num_winds)  ! combined tendency array
-   real(kind_phys) :: pguall(ncol,pver,num_winds)      ! Combined apparent force from  updraft PG U winds
-   real(kind_phys) :: pgdall(ncol,pver,num_winds)      ! Combined apparent force from  downdraft PG U winds
-   real(kind_phys) :: icwu(ncol,pver,num_winds)        ! Comibined In-cloud winds in updraft
-   real(kind_phys) :: icwd(ncol,pver,num_winds)        ! Comibined In-cloud winds in downdraft
+   real(kind_phys) :: pguall(ncol,pver,num_winds)      ! Combined apparent force from  updraft on PG U winds
+   real(kind_phys) :: pgdall(ncol,pver,num_winds)      ! Combined apparent force from  downdraft on PG U winds
+   real(kind_phys) :: icwu(ncol,pver,num_winds)        ! Combined In-cloud winds in updraft
+   real(kind_phys) :: icwd(ncol,pver,num_winds)        ! Combined In-cloud winds in downdraft
 
    real(kind_phys)  mflux(ncol,pverp,num_winds)   ! Gathered momentum flux
 
@@ -443,7 +443,7 @@ subroutine zm_conv_momtran_run(ncol, pver, pverp, &
    pgdallu(:,:)     = pgdall(:,:,1)
    pgdallv(:,:)     = pgdall(:,:,2)
    icwuu(:ncol,:)       = icwu(:,:,1)
-   icwuu(:ncol,:)       = icwu(:,:,1)
+   icwuv(:ncol,:)       = icwu(:,:,2)
    icwdu(:ncol,:)       = icwd(:,:,1)
    icwdv(:ncol,:)       = icwd(:,:,2)
 
