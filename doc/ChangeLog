@@ -1,3 +1,41 @@
+
+===============================================================
+
+Tag name: atmos_phys0_02_006
+Originator(s): cacraig
+Date: April 16, 2024
+One-line Summary: ZM clean up round 2
+Github PR URL: hhttps://github.com/ESCOMP/atmospheric_physics/pull/88
+
+This PR fixes the following NCAR/atmospheric_physics Github issues:
+ - Change directory name from zm to zhang_mcfarlane https://github.com/ESCOMP/atmospheric_physics/issues/83
+ - Address additional changes discovered during CCPP standard name meetings
+
+Code reviewed by: nusbaume
+
+List all existing files that have been added (A), modified (M), or deleted (D),
+and describe the changes:
+A       zhang_mcfarlane/zm_conv_convtran.meta
+A       zhang_mcfarlane/zm_conv_evap.meta
+A       zhang_mcfarlane/zm_conv_momtran.meta
+A       zhang_mcfarlane/zm_convr.meta
+          - Add incomplete metadata files (will be finalized in future commit)
+
+R079    zm/zm_conv_momtran.F90  zhang_mcfarlane/zm_conv_momtran.F90
+R097    zm/zm_convr.F90 zhang_mcfarlane/zm_convr.F90
+          - These files also had code modifications
+
+R100    zm/zm_conv_evap.F90     zhang_mcfarlane/zm_conv_evap.F90
+R100    zm/zm_conv_convtran.F90 zhang_mcfarlane/zm_conv_convtran.F90
+          - Renamed zm directory to zhang_mcfarlane
+
+List and Describe any test failures:
+    - Tested in CAM
+
+Summarize any changes to answers:
+    - none
+
+===============================================================
 ===============================================================
 
 Tag name:atmos_phys0_02_005
@@ -20,7 +58,7 @@ and describe the changes:
 
 M       .github/workflows/test.yaml
           - Clean-up Github Action workflow
-         
+
 M       musica/micm/micm.F90
 M       test/CMakeLists.txt
 M       test/docker/Dockerfile.musica
