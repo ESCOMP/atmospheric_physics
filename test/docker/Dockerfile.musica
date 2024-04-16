@@ -1,0 +1,57 @@
+FROM ubuntu:22.04
+
+RUN apt update \
+    && apt -y install \
+    cmake \
+    cmake-curses-gui \
+    curl \
+    g++ \
+    gcc \
+    gfortran \
+    git \
+    lcov \
+    libcurl4-openssl-dev \
+    libhdf5-dev \
+    libnetcdff-dev \
+    m4 \
+    make \
+    nlohmann-json3-dev \
+    tree \
+    valgrind \
+    vim \
+    zlib1g-dev \
+    && apt clean
+
+ENV FC=gfortran
+ENV FFLAGS="-I/usr/include/"
+
+# Install MUSICA (MUSICA-C)
+RUN git clone https://github.com/NCAR/musica.git
+RUN cd musica \
+    && git fetch \
+    && git checkout v0.6.0 \
+    && cmake \
+        -S . \
+        -B build \
+        -D MUSICA_ENABLE_TESTS=OFF \
+    && cd build \
+    && make install
+
+COPY . atmospheric_physics
+
+RUN cd atmospheric_physics/test \
+    && mkdir lib \
+    && cd lib \
+    && git clone -b CPF_0.2.051 --depth 1 https://github.com/peverwhee/ccpp-framework.git
+ENV CCPP_SRC_PATH="lib/ccpp-framework/src"
+
+RUN cd atmospheric_physics/test \
+    && cmake -S. \
+             -B build \
+             -D CCPP_ENABLE_MUSICA_TESTS=ON \
+    && cmake --build ./build
+
+RUN cd atmospheric_physics \
+    && cp -r test/musica/micm/configs/chapman ./test/build/chapman
+
+WORKDIR atmospheric_physics/test/build

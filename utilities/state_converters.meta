@@ -152,7 +152,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ rho ]
-   standard_name = density_of_dry_air
+   standard_name = dry_air_density
    long_name = dry air density
    units = kg m-3
    dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -208,7 +208,7 @@
   type = real | kind = kind_phys
   intent = in
 [ ref_pres ]
-  standard_name = reference_pressure
+  standard_name = surface_reference_pressure
   long_name = reference pressure used in definition of potential temperature, Exner function, etc.
   units = Pa
   dimensions = ()

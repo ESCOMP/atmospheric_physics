@@ -1,0 +1,15 @@
+name: build
+
+on: [pull_request,workflow_dispatch]
+
+jobs:
+  test_micm_api:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    - name: build Docker image
+      run: docker build -t musica -f test/docker/Dockerfile.musica .
+    - name: run tests in container
+      run: docker run --name test-container -t musica bash -c 'make test ARGS="--rerun-failed --output-on-failure -j8"'
