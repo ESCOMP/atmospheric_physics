@@ -130,8 +130,8 @@ subroutine zm_conv_momtran_run(ncol, pver, pverp, &
 
    real(kind_phys) :: winds(ncol,pver,num_winds)       ! combined winds array
    real(kind_phys) :: wind_tends(ncol,pver,num_winds)  ! combined tendency array
-   real(kind_phys) :: pguall(ncol,pver,num_winds)      ! Combined apparent force from  updraft on PG U winds
-   real(kind_phys) :: pgdall(ncol,pver,num_winds)      ! Combined apparent force from  downdraft on PG U winds
+   real(kind_phys) :: pguall(ncol,pver,num_winds)      ! Combined apparent force from  updraft PG on U winds
+   real(kind_phys) :: pgdall(ncol,pver,num_winds)      ! Combined apparent force from  downdraft PG on U winds
    real(kind_phys) :: icwu(ncol,pver,num_winds)        ! Combined In-cloud winds in updraft
    real(kind_phys) :: icwd(ncol,pver,num_winds)        ! Combined In-cloud winds in downdraft
 
