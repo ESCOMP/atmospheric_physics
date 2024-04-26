@@ -1,6 +1,6 @@
-!< \section arg_table_held_suarez_1994
-!! \htmlinclude held_suarez_1994.html
-module held_suarez_1994
+!< \section arg_table_held_suarez_1994_mars
+!! \htmlinclude held_suarez_1994_mars.html
+module held_suarez_1994_mars
   !-----------------------------------------------------------------------
   !
   ! Purpose: Implement idealized Held-Suarez forcings
@@ -17,8 +17,8 @@ module held_suarez_1994
   private
   save
 
-  public :: held_suarez_1994_init
-  public :: held_suarez_1994_run
+  public :: held_suarez_1994_mars_init
+  public :: held_suarez_1994_mars_run
 
   !!
   !! Forcing parameters
@@ -27,7 +27,6 @@ module held_suarez_1994
   real(kind_phys), parameter :: efolda  = 40._kind_phys  ! efolding time for T dissipation
   real(kind_phys), parameter :: efolds  =  4._kind_phys  ! efolding time for T dissipation
   real(kind_phys), parameter :: sigmab  =  0.7_kind_phys ! threshold sigma level
-  real(kind_phys), parameter :: t00     = 200._kind_phys ! minimum reference temperature
   real(kind_phys), parameter :: kf      = 1._kind_phys/(86400._kind_phys*efoldf) ! 1./efolding_time for wind dissipation
 
   real(kind_phys), parameter :: onemsig = 1._kind_phys - sigmab ! 1. - sigma_reference
@@ -48,49 +47,49 @@ contains
 
 !> \section arg_table_held_suarez_1994_init Argument Table
 !! \htmlinclude held_suarez_1994_init.html
-  subroutine held_suarez_1994_init(pref_in, errmsg, errflg)
+  subroutine held_suarez_1994_mars_init(pref_in, errmsg, errflg)
 
     !! Dummy arguments
     real(kind_phys),    intent(in)  :: pref_in
 
-    character(len=512), intent(out) :: errmsg
-    integer,            intent(out) :: errflg
+    character(len=512),intent(out):: errmsg
+    integer,           intent(out):: errflg
 
     errmsg = ' '
     errflg = 0
 
     pref   = pref_in
 
-  end subroutine held_suarez_1994_init
+  end subroutine held_suarez_1994_mars_init
 
-!> \section arg_table_held_suarez_1994_run Argument Table
-!! \htmlinclude held_suarez_1994_run.html
-  subroutine held_suarez_1994_run( &
-       pver, ncol, pref_mid_norm, clat, cappa, &
-       cpair, pmid,      &
-       uwnd, vwnd, temp, &
-       du, dv, ds,       &
+!> \section arg_table_held_suarez_1994_mars_run Argument Table
+!! \htmlinclude held_suarez_1994_mars_run.html
+  subroutine held_suarez_1994_mars_run( &
+       pver, ncol, pref_mid_norm, clat, &
+       cpair, pmid, tref,               &
+       uwnd, vwnd, temp,                &
+       du, dv, ds,                      &
        scheme_name, errmsg, errflg)
 
     !
     ! Input arguments
     !
-    integer,  intent(in)  :: pver                    ! Num vertical levels
-    integer,  intent(in)  :: ncol                    ! Num active columns
+    integer,  intent(in)  :: pver      ! Num vertical levels
+    integer,  intent(in)  :: ncol      ! Num active columns
     real(kind_phys), intent(in)  :: pref_mid_norm(:) ! reference pressure normalized by surface pressure
-    real(kind_phys), intent(in)  :: clat(:)          ! latitudes(radians) for columns
-    real(kind_phys), intent(in)  :: cappa(:,:)       ! ratio of dry air gas constant to specific heat at constant pressure
+    real(kind_phys), intent(in)  :: clat(:)   ! latitudes(radians) for columns
     real(kind_phys), intent(in)  :: cpair(:,:)       ! specific heat of dry air at constant pressure
-    real(kind_phys), intent(in)  :: pmid(:,:)        ! mid-point pressure
-    real(kind_phys), intent(in)  :: uwnd(:,:)        ! Zonal wind (m/s)
-    real(kind_phys), intent(in)  :: vwnd(:,:)        ! Meridional wind (m/s)
-    real(kind_phys), intent(in)  :: temp(:,:)        ! Temperature (K)
+    real(kind_phys), intent(in)  :: pmid(:,:) ! mid-point pressure
+    real(kind_phys), intent(in)  :: tref(:,:) ! reference temperature
+    real(kind_phys), intent(in)  :: uwnd(:,:)    ! Zonal wind (m/s)
+    real(kind_phys), intent(in)  :: vwnd(:,:)    ! Meridional wind (m/s)
+    real(kind_phys), intent(in)  :: temp(:,:)    ! Temperature (K)
     !
     ! Output arguments
     !
     real(kind_phys),   intent(out) :: du(:,:)   ! Zonal wind tend
     real(kind_phys),   intent(out) :: dv(:,:)   ! Meridional wind tend
-    real(kind_phys),   intent(out) :: ds(:,:)   ! Heating rate
+    real(kind_phys),   intent(out) :: ds(:,:)    ! Heating rate
     character(len=64), intent(out) :: scheme_name
     character(len=512),intent(out):: errmsg
     integer,           intent(out):: errflg
@@ -138,22 +137,14 @@ contains
     !
     !
     do k = 1, pver
-      if (pref_mid_norm(k) > sigmab) then
-        do i = 1, ncol
-          kt      = ka + (ks - ka)*cossqsq(i)*(pref_mid_norm(k) - sigmab)/onemsig
-          trefc   = 315._kind_phys - (60._kind_phys * sinsq(i))
-          trefa   = (trefc - 10._kind_phys*cossq(i)*log((pmid(i,k)/pref)))*(pmid(i,k)/pref)**cappa(i,k)
-          trefa   = max(t00,trefa)
-          ds(i,k) = (trefa - temp(i,k))*kt*cpair(i,k)
-        end do
-      else
-        do i = 1, ncol
-          trefc   = 315._kind_phys - 60._kind_phys*sinsq(i)
-          trefa   = (trefc - 10._kind_phys*cossq(i)*log((pmid(i,k)/pref)))*(pmid(i,k)/pref)**cappa(i,k)
-          trefa   = max(t00,trefa)
-          ds(i,k) = (trefa - temp(i,k))*ka*cpair(i,k)
-        end do
-      end if
+      do i = 1, ncol
+        if (pref_mid_norm(k) > sigmab) then
+          kt = ka + (ks - ka)*cossqsq(i)*(pref_mid_norm(k) - sigmab)/onemsig
+          ds(i,k) = (tref(i,k) - temp(i,k))*kt*cpair
+        else
+          ds(i,k) = (tref(i,k) - temp(i,k))*ka*cpair
+        end if
+      end do
     end do
     !
     ! Add diffusion near the surface for the wind fields
@@ -171,7 +162,6 @@ contains
         end do
       end if
     end do
+  end subroutine held_suarez_1994_mars_run
 
-  end subroutine held_suarez_1994_run
-
-end module held_suarez_1994
+end module held_suarez_1994_mars
