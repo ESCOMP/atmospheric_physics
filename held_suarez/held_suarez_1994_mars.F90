@@ -140,9 +140,9 @@ contains
       do i = 1, ncol
         if (pref_mid_norm(k) > sigmab) then
           kt = ka + (ks - ka)*cossqsq(i)*(pref_mid_norm(k) - sigmab)/onemsig
-          ds(i,k) = (tref(i,k) - temp(i,k))*kt*cpair
+          ds(i,k) = (tref(i,k) - temp(i,k))*kt*cpair(i,k)
         else
-          ds(i,k) = (tref(i,k) - temp(i,k))*ka*cpair
+          ds(i,k) = (tref(i,k) - temp(i,k))*ka*cpair(i,k)
         end if
       end do
     end do
