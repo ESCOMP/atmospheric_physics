@@ -1,6 +1,52 @@
 
 ===============================================================
 
+Tag name: atmos_phys0_02_xxx
+Originator(s): jet
+Date: May 3, 2024
+One-line Summary: dadadj CCPP mods
+Github PR URL: hhttps://github.com/ESCOMP/atmospheric_physics/pull/
+
+This PR fixes the following NCAR/atmospheric_physics Github issues:
+    - Creates the CCPP interface for the dadadj routine
+    - dadadj.F90 routine was slightly refactored to update the logic and syntax
+
+Code reviewed by:
+
+List all existing files that have been added (A), modified (M), or deleted (D),
+and describe the changes:
+
+A	dadadj/dadadj.F90  - minor refactor to the cam routine - ccpp'ize
+A	dadadj/dadadj.meta
+A	dadadj/dadadj_namelist.xml
+M	doc/ChangeLog
+A	suite_dadadj.xml - CCPP suite file
+
+
+List and Describe any test failures:
+    - Tested in CAM
+	Because dadadj doesn't normally get tripped I modified the Temp
+	profile to create an instability where the code would be exercized.
+	The snapshot files continain this instability.  The modification adds
+	60 degrees to the layer 2 temperature.
+
+	--- /project/amp/jet/collections/cam6_3_160_dryadj.042924.1856/src/dynamics/se/dyn_comp.F90	2024-05-02 16:56:49.746341064 -0600
+	+++ SourceMods/src.cam/dyn_comp.F90	2024-05-02 16:37:13.171433366 -0600
+	@@ -1429,6 +1429,7 @@
+          do j = 1, np
+             do i = 1, np
+                elem(ie)%state%T(i,j,:,1) = dbuf3(indx,:,ie)
++               elem(ie)%state%T(i,j,2,1) = dbuf3(indx,2,ie) + 60._r8
+                indx = indx + 1
+             end do
+          end do
+
+Summarize any changes to answers:
+    - none: base code includes the same mod above to exercise code.
+
+===============================================================
+===============================================================
+
 Tag name: atmos_phys0_02_006
 Originator(s): cacraig
 Date: April 16, 2024
