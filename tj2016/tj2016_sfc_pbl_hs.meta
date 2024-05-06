@@ -143,12 +143,12 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
-[ T ]
+[ stateT ]
   standard_name = air_temperature
   units = K
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = inout
+  intent = in
 [ U ]
   standard_name = eastward_wind
   units = m s-1

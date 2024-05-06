@@ -2,7 +2,7 @@
 
 <suite name="tj2016" version="1.0">
   <!-- groups can be uncommended after PR #253 in cam-sima-->
-  <!--<group name="physics_before_coupler">
+  <!-- <group name="physics_before_coupler">
     <scheme>tj2016_precip</scheme>
     <scheme>apply_heating_rate</scheme>
     <scheme>qneg</scheme>
