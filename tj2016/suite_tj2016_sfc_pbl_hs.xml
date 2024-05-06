@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<suite name="tj2016" version="1.0">
-  <group name="physics_before_coupler">
-    <scheme>tj2016_precip</scheme>
-    <scheme>apply_heating_rate</scheme>
-    <scheme>qneg</scheme>
-  </group>
+<suite name="tj2016_sfc_pbl_hs" version="1.0">
   <group name="physics_after_coupler">
     <scheme>tj2016_sfc_pbl_hs</scheme>
     <scheme>apply_heating_rate</scheme>
