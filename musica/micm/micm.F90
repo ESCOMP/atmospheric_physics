@@ -1,55 +1,98 @@
-module micm
+module musica_ccpp_micm
   use iso_c_binding
 
   ! Note: "micm_core" is included in an external pre-built MICM library that the host
   ! model is responsible for linking to during compilation
-  use micm_core, only: micm_t
-  use ccpp_kinds, only: kind_phys
+  use musica_micm, only: micm_t
+  use musica_ccpp_util, only: has_error_occurred
+  use ccpp_kinds, only: rk =>kind_phys
+  use musica_namelist, only: filename_of_micm_configuration
 
   implicit none
+  private
 
-  public :: micm_init, micm_run, micm_final
-  private :: convert_to_mol_per_cubic_meter, convert_to_mass_mixing_ratio
+  public :: micm_register, micm_init, micm_run, micm_final
 
-  type(micm_t), pointer         :: micm_obj
+  type(micm_t), pointer  :: micm => null( )
 
 contains
 
-  !> \section arg_table_micm_init Argument Table
-  !! \htmlinclude micm_init.html
-  subroutine micm_init(config_path, iulog, errcode, errmsg)
-    character(len=*), intent(in)    :: config_path
-    integer, intent(in)             :: iulog
+  !> Register MICM constituents with the CCPP
+  subroutine micm_register(constituents, errcode, errmsg)
+    use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
+    use musica_util, only: error_t, mapping_t
+    type(ccpp_constituent_properties_t), allocatable, intent(out)   :: constituents(:)
+    integer, intent(out)            :: errcode
+    character(len=512), intent(out) :: errmsg
+
+    type(error_t) :: error
+    type(mapping_t) :: mapping
+    real(kind=rk) :: molar_mass
+    logical :: is_advected
+    integer :: i
+
+    errcode = 0
+    errmsg = ''
+
+    micm => micm_t(filename_of_micm_configuration, error)
+    if (has_error_occurred(error, errcode, errmsg)) return
+
+    allocate(constituents(size(micm%species_ordering)), stat=errcode)
+    if (errcode /= 0) then
+      errmsg = "[MUSICA Error] Failed to allocate memory for constituents."
+      return
+    end if
+
+    do i = 1, size(micm%species_ordering)
+    associate( map => micm%species_ordering(i) )
+      molar_mass = micm%get_species_property_double(map%name(), &
+                                                    "molecular weight [kg mol-1]", &
+                                                    error)
+      if (has_error_occurred(error, errcode, errmsg)) return
+      is_advected = micm%get_species_property_bool(map%name(), &
+                                                      "__is advected", &
+                                                      error)
+      if (has_error_occurred(error, errcode, errmsg)) return
+
+      call constituents(map%index())%instantiate( &
+        std_name = map%name(), &
+        long_name = map%name(), &
+        units = 'kg kg-1', &
+        vertical_dim = 'vertical_layer_dimension', &
+        default_value = 0.0_rk, &
+        min_value = 0.0_rk, &
+        molar_mass = molar_mass, &
+        advected = is_advected, &
+        errcode = errcode, &
+        errmsg = errmsg)
+      if (errcode /= 0) return
+    end associate
+    end do
+
+  end subroutine micm_register
+
+  !> Intitialize MICM
+  subroutine micm_init(errcode, errmsg)
     integer, intent(out)            :: errcode
     character(len=512), intent(out) :: errmsg
 
     errcode = 0
     errmsg = ''
 
-    micm_obj => micm_t(config_path, errcode)
-
-    if (errcode /= 0) then
-      errmsg = "[fatal] [micm] Failed to create MICM solver. Parsing configuration failed. &
-                Please look over at MICM log file for further information."
-      return
-    endif
-
-    write(iulog,*) "[info] [micm] Created MICM solver."
-
   end subroutine micm_init
 
-  !> \section arg_table_micm_run Argument Table
-  !! \htmlinclude micm_run.html
+  !> Solve chemistry at the current time step
   subroutine micm_run(time_step, temperature, pressure, dry_air_density, constituent_props, &
                       constituents, iulog, errcode, errmsg)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
+    use musica_util, only: error_t
 
-    real(kind_phys),                   intent(in)    :: time_step            ! s
-    real(kind_phys),                   intent(in)    :: temperature(:,:)     ! K
-    real(kind_phys),                   intent(in)    :: pressure(:,:)        ! Pa
-    real(kind_phys),                   intent(in)    :: dry_air_density(:,:) ! kg m-3
+    real(rk),                   intent(in)    :: time_step            ! s
+    real(rk),                   intent(in)    :: temperature(:,:)     ! K
+    real(rk),                   intent(in)    :: pressure(:,:)        ! Pa
+    real(rk),                   intent(in)    :: dry_air_density(:,:) ! kg m-3
     type(ccpp_constituent_prop_ptr_t), intent(in)    :: constituent_props(:)
-    real(kind_phys),                   intent(inout) :: constituents(:,:,:)  ! kg kg-1
+    real(rk),                   intent(inout) :: constituents(:,:,:)  ! kg kg-1
     integer,                           intent(in)    :: iulog
     integer,                           intent(out)   :: errcode
     character(len=512),                intent(out)   :: errmsg
@@ -63,8 +106,12 @@ contains
     real(c_double), dimension(size(constituents, dim=1), &
                               size(constituents, dim=2), &
                               size(constituents, dim=3))   :: c_constituents
+    real(c_double), dimension(size(constituents, dim=1), &
+                              size(constituents, dim=3), &
+                              0)                           :: c_rate_params
 
-    real(kind_phys), dimension(size(constituents, dim=3))  :: molar_mass_arr ! kg mol-1
+    real(rk), dimension(size(constituents, dim=3))  :: molar_mass_arr ! kg mol-1
+    type(error_t) :: error
 
     integer :: num_columns, num_layers, num_constituents
     integer :: i_column, i_layer, i_elem
@@ -104,48 +151,42 @@ contains
     c_pressure = real(pressure, c_double)
     c_constituents = real(constituents, c_double)
 
-    write(iulog,*) "[info] [micm] Running MICM solver..."
-
     do i_column = 1, num_columns
       do i_layer = 1, num_layers
-        call micm_obj%solve(c_temperature(i_column, i_layer), c_pressure(i_column, i_layer), &
-                        c_time_step, num_constituents, c_constituents(i_column, i_layer, :))
+        call micm%solve(c_temperature(i_column, i_layer), c_pressure(i_column, i_layer), &
+                        c_time_step, num_constituents, c_constituents(i_column, i_layer, :), &
+                        0, c_rate_params(i_column, i_layer, :), error)
+        if (has_error_occurred(error, errcode, errmsg)) return
       end do
     end do
 
-    write(iulog,*) "[info] [micm] MICM solver has finished."
-
-    constituents = real(c_constituents, kind_phys)
+    constituents = real(c_constituents, rk)
 
     ! Convert MICM unit back to CAM-SIMA unit (mol m-3  ->  kg kg-1)
     call convert_to_mass_mixing_ratio(dry_air_density, molar_mass_arr, constituents)
 
   end subroutine micm_run
 
-  !> \section arg_table_micm_final Argument Table
-  !! \htmlinclude micm_final.html
-  subroutine micm_final(iulog, errcode, errmsg)
-    integer, intent(in)             :: iulog
+  !> Finalize MICM
+  subroutine micm_final(errcode, errmsg)
     integer, intent(out)            :: errcode
     character(len=512), intent(out) :: errmsg
 
     errcode = 0
     errmsg = ''
 
-    write(iulog,*) "[debug] [micm] Deallocating MICM object..."
-
   end subroutine micm_final
 
   ! Convert CAM-SIMA unit to MICM unit (kg kg-1  ->  mol m-3)
   subroutine convert_to_mol_per_cubic_meter(dry_air_density, molar_mass_arr, constituents)
-    real(kind_phys), intent(in)    :: dry_air_density(:,:) ! kg m-3
-    real(kind_phys), intent(in)    :: molar_mass_arr(:)    ! kg mol-1
-    real(kind_phys), intent(inout) :: constituents(:,:,:)  ! in: kg kg-1 | out: mol m-3
+    real(rk), intent(in)    :: dry_air_density(:,:) ! kg m-3
+    real(rk), intent(in)    :: molar_mass_arr(:)    ! kg mol-1
+    real(rk), intent(inout) :: constituents(:,:,:)  ! in: kg kg-1 | out: mol m-3
 
     integer :: num_columns, num_layers, num_constituents
     integer :: i_column, i_layer, i_elem
 
-    real(kind_phys) :: val
+    real(rk) :: val
 
     num_columns = size(constituents, dim=1)
     num_layers = size(constituents, dim=2)
@@ -165,14 +206,14 @@ contains
 
   ! Convert MICM unit to CAM-SIMA unit (mol m-3  ->  kg kg-1)
   subroutine convert_to_mass_mixing_ratio(dry_air_density, molar_mass_arr, constituents)
-    real(kind_phys), intent(in)    :: dry_air_density(:,:) ! kg m-3
-    real(kind_phys), intent(in)    :: molar_mass_arr(:)    ! kg mol-1
-    real(kind_phys), intent(inout) :: constituents(:,:,:)  ! in: mol m-3 | out: kg kg-1
+    real(rk), intent(in)    :: dry_air_density(:,:) ! kg m-3
+    real(rk), intent(in)    :: molar_mass_arr(:)    ! kg mol-1
+    real(rk), intent(inout) :: constituents(:,:,:)  ! in: mol m-3 | out: kg kg-1
 
     integer :: num_columns, num_layers, num_constituents
     integer :: i_column, i_layer, i_elem
 
-    real(kind_phys) :: val
+    real(rk) :: val
 
     num_columns = size(constituents, dim=1)
     num_layers = size(constituents, dim=2)
@@ -190,4 +231,4 @@ contains
 
   end subroutine convert_to_mass_mixing_ratio
 
-end module micm
+end module musica_ccpp_micm
