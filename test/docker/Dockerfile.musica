@@ -50,7 +50,7 @@ RUN cd musica \
         -S . \
         -B build \
         -D CMAKE_BUILD_TYPE=Release \
-        -D MUSICA_ENABLE_TESTS=ON \
+        -D MUSICA_ENABLE_TESTS=OFF \
         -D MUSICA_BUILD_FORTRAN_INTERFACE=OFF \
         -D MUSICA_ENABLE_MICM=ON \
         -D MUSICA_ENABLE_TUVX=ON \

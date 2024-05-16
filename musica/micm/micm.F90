@@ -5,7 +5,7 @@ module musica_ccpp_micm
   ! model is responsible for linking to during compilation
   use musica_micm, only: micm_t
   use musica_ccpp_util, only: has_error_occurred
-  use ccpp_kinds, only: rk =>kind_phys
+  use ccpp_kinds, only: kind_phys
   use musica_namelist, only: filename_of_micm_configuration
 
   implicit none
@@ -27,7 +27,7 @@ contains
 
     type(error_t) :: error
     type(mapping_t) :: mapping
-    real(kind=rk) :: molar_mass
+    real(kind=kind_phys) :: molar_mass
     logical :: is_advected
     integer :: i
 
@@ -59,8 +59,8 @@ contains
         long_name = map%name(), &
         units = 'kg kg-1', &
         vertical_dim = 'vertical_layer_dimension', &
-        default_value = 0.0_rk, &
-        min_value = 0.0_rk, &
+        default_value = 0.0_kind_phys, &
+        min_value = 0.0_kind_phys, &
         molar_mass = molar_mass, &
         advected = is_advected, &
         errcode = errcode, &
@@ -87,12 +87,12 @@ contains
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use musica_util, only: error_t
 
-    real(rk),                   intent(in)    :: time_step            ! s
-    real(rk),                   intent(in)    :: temperature(:,:)     ! K
-    real(rk),                   intent(in)    :: pressure(:,:)        ! Pa
-    real(rk),                   intent(in)    :: dry_air_density(:,:) ! kg m-3
+    real(kind_phys),                   intent(in)    :: time_step            ! s
+    real(kind_phys),                   intent(in)    :: temperature(:,:)     ! K
+    real(kind_phys),                   intent(in)    :: pressure(:,:)        ! Pa
+    real(kind_phys),                   intent(in)    :: dry_air_density(:,:) ! kg m-3
     type(ccpp_constituent_prop_ptr_t), intent(in)    :: constituent_props(:)
-    real(rk),                   intent(inout) :: constituents(:,:,:)  ! kg kg-1
+    real(kind_phys),                   intent(inout) :: constituents(:,:,:)  ! kg kg-1
     integer,                           intent(in)    :: iulog
     integer,                           intent(out)   :: errcode
     character(len=512),                intent(out)   :: errmsg
@@ -110,7 +110,7 @@ contains
                               size(constituents, dim=3), &
                               0)                           :: c_rate_params
 
-    real(rk), dimension(size(constituents, dim=3))  :: molar_mass_arr ! kg mol-1
+    real(kind_phys), dimension(size(constituents, dim=3))  :: molar_mass_arr ! kg mol-1
     type(error_t) :: error
 
     integer :: num_columns, num_layers, num_constituents
@@ -160,7 +160,7 @@ contains
       end do
     end do
 
-    constituents = real(c_constituents, rk)
+    constituents = real(c_constituents, kind_phys)
 
     ! Convert MICM unit back to CAM-SIMA unit (mol m-3  ->  kg kg-1)
     call convert_to_mass_mixing_ratio(dry_air_density, molar_mass_arr, constituents)
@@ -179,14 +179,14 @@ contains
 
   ! Convert CAM-SIMA unit to MICM unit (kg kg-1  ->  mol m-3)
   subroutine convert_to_mol_per_cubic_meter(dry_air_density, molar_mass_arr, constituents)
-    real(rk), intent(in)    :: dry_air_density(:,:) ! kg m-3
-    real(rk), intent(in)    :: molar_mass_arr(:)    ! kg mol-1
-    real(rk), intent(inout) :: constituents(:,:,:)  ! in: kg kg-1 | out: mol m-3
+    real(kind_phys), intent(in)    :: dry_air_density(:,:) ! kg m-3
+    real(kind_phys), intent(in)    :: molar_mass_arr(:)    ! kg mol-1
+    real(kind_phys), intent(inout) :: constituents(:,:,:)  ! in: kg kg-1 | out: mol m-3
 
     integer :: num_columns, num_layers, num_constituents
     integer :: i_column, i_layer, i_elem
 
-    real(rk) :: val
+    real(kind_phys) :: val
 
     num_columns = size(constituents, dim=1)
     num_layers = size(constituents, dim=2)
@@ -206,14 +206,14 @@ contains
 
   ! Convert MICM unit to CAM-SIMA unit (mol m-3  ->  kg kg-1)
   subroutine convert_to_mass_mixing_ratio(dry_air_density, molar_mass_arr, constituents)
-    real(rk), intent(in)    :: dry_air_density(:,:) ! kg m-3
-    real(rk), intent(in)    :: molar_mass_arr(:)    ! kg mol-1
-    real(rk), intent(inout) :: constituents(:,:,:)  ! in: mol m-3 | out: kg kg-1
+    real(kind_phys), intent(in)    :: dry_air_density(:,:) ! kg m-3
+    real(kind_phys), intent(in)    :: molar_mass_arr(:)    ! kg mol-1
+    real(kind_phys), intent(inout) :: constituents(:,:,:)  ! in: mol m-3 | out: kg kg-1
 
     integer :: num_columns, num_layers, num_constituents
     integer :: i_column, i_layer, i_elem
 
-    real(rk) :: val
+    real(kind_phys) :: val
 
     num_columns = size(constituents, dim=1)
     num_layers = size(constituents, dim=2)
