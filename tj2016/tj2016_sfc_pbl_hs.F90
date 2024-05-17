@@ -105,7 +105,7 @@ contains
     ! Simplified physics: constants
     real(kind_phys), parameter :: T_min      = 271._kind_phys                    ! Minimum sea surface temperature (K)
     real(kind_phys), parameter :: del_T      = 29._kind_phys                     ! difference in eq-polar sea surface temperature (K)
-    real(kind_phys), parameter :: T_width    = 26.0_kind_phys*pi/180.0_kind_phys ! width parameter for sea surface temperature (C)
+    real(kind_phys),           :: T_width                                        ! width parameter for sea surface temperature (C)
     real(kind_phys), parameter :: Tsurf_RJ12 = 302.15_kind_phys                  ! constant sea surface temperature (K) for RJ12
 
     real(kind_phys), parameter :: T0=273.16_kind_phys       ! Control temperature (K) for calculation of qsat
@@ -153,6 +153,9 @@ contains
 
     ! Define simple_physics_option to either "TJ16" (moist HS) or "RJ12" (simple-physics)
     character(LEN=4)    :: simple_physics_option
+
+    ! Initialize certain constants
+    T_width    = 26.0_kind_phys*pi/180.0_kind_phys
 
     ! Initialize certain outfields
     tendency_of_air_enthalpy = 0.0_kind_phys
