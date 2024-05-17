@@ -31,7 +31,7 @@ contains
         real(kind_phys), intent(in)    :: cpairv(:,:) ! cp: specific heat of dry air (J/K/kg)
         real(kind_phys), intent(in)    :: latvap      ! L: latent heat of vaporization (J/kg)
         real(kind_phys), intent(in)    :: rh2o        ! Rv: water vapor gas constant (J/K/kg)
-        real(kind_phys), intent(in)    :: epsilo      ! Rd/Rv: ratio of h2o to dry air molecular weights
+        real(kind_phys), intent(in)    :: epsilo      ! ratio of h2o to dry air molecular weights
         real(kind_phys), intent(in)    :: rhoh2o      ! density of liquid water (kg/m3)
         real(kind_phys), intent(in)    :: ps0         ! Base state surface pressure (Pa)
         real(kind_phys), intent(in)    :: etamid(:)   ! hybrid coordinate - midpoints
