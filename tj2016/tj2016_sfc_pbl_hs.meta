@@ -77,7 +77,7 @@
   dimensions = ()
   intent = in
 [ epsilo ]
-  standard_name = ratio_of_h2o_to_dry_air_molecular_weights
+  standard_name = ratio_of_water_vapor_to_dry_air_molecular_weights
   units = 1
   type = real | kind = kind_phys
   dimensions = ()
