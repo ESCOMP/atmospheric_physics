@@ -7,6 +7,7 @@ module zm_conv_momtran
   save
   private                         ! Make default type private to the module
   public zm_conv_momtran_run      ! convective momentum transport
+  integer, parameter, private :: num_winds=2  ! Number of wind directions (for historical purposes)
 
 
 contains
@@ -16,7 +17,7 @@ contains
 !! \htmlinclude zm_conv_momtran_run.html
 !!
 subroutine zm_conv_momtran_run(ncol, pver, pverp, &
-                    domomtran,windu, windv,num_winds, mu, md, &
+                    domomtran,windu, windv, mu, md, &
                     momcu, momcd, &
                     du, eu, ed, dp, dsubcld , &
                     jt, mx, ideep , il1g, il2g, &
@@ -45,7 +46,6 @@ subroutine zm_conv_momtran_run(ncol, pver, pverp, &
 ! Input arguments
 !
    integer, intent(in) :: ncol                  ! number of atmospheric columns
-   integer, intent(in) :: num_winds             ! number of wind directions
    integer, intent(in) :: pver, pverp
    logical, intent(in) :: domomtran(:)      ! flag for doing convective transport    (num_winds)
    real(kind_phys), intent(in) :: windu(:,:)  ! U Wind array                                    (ncol,pver)

@@ -12,26 +12,26 @@
   dimensions = ()
   intent = in
 [ epsilo ]
-  standard_name = ratio_of_h2o_to_dry_air_molecular_weights?
-  units = 1?
+  standard_name = ratio_of_water_vapor_to_dry_air_molecular_weights
+  units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ gravit ]
-  standard_name = gravitational_acceleration
+  standard_name = standard_gravitational_acceleration
   units = m s-2
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ latvap ]
-  standard_name = latent_heat_of_vaporization_of_water_at_0c?
-  units = J kg-1?
+  standard_name = latent_heat_of_vaporization_of_water_at_0c
+  units = J kg-1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ tmelt ]
-  standard_name = freezing_point_of_water?
-  units = K?
+  standard_name = freezing_point_of_water
+  units = K
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
@@ -42,104 +42,104 @@
   dimensions = ()
   intent = in
 [ limcnv_in ]
-  standard_name = vertical_interface_index_of_deep_convection_height_limit?
-  units = index?
+  standard_name = vertical_interface_index_of_deep_convection_height_limit
+  units = index
   type = integer
   dimensions = ()
   intent = in
 [ zmconv_c0_lnd ]
-  standard_name = condensate_to_precipitation_autoconversion_coefficient_over_land_for_zhang_mcfarlane?
-  units = 1?
+  standard_name = cloud_condensate_to_precipitation_autoconversion_coefficient_over_land_for_zhang_mcfarlane_deep_convection_scheme
+  units = m-1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ zmconv_c0_ocn ]
-  standard_name = condensate_to_precipitation_autoconversion_coefficient_over_ocean_for_zhang_mcfarlane?
-  units = 1?
+  standard_name = cloud_condensate_to_precipitation_autoconversion_coefficient_over_ocean_for_zhang_mcfarlane_deep_convection_scheme
+  units = m-1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ zmconv_ke ]
-  standard_name = tunable_evaporation_efficiency_in_zhang_mcfarlane_deep_convection_scheme?
-  units = 1?
+  standard_name = tunable_evaporation_efficiency_over_ocean_for_zhang_mcfarlane_deep_convection_scheme
+  units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ zmconv_ke_lnd ]
-  standard_name = tunable_evaporation_efficiency_for_land_in zhang_mcfarlane_deep_convection_scheme?
-  units = 1?
+  standard_name = tunable_evaporation_efficiency_over_land_for_zhang_mcfarlane_deep_convection_scheme
+  units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ zmconv_momcu ]
-  standard_name = momentum_upward_transport_parameter_for_zhang_mcfarlane?
-  units = 1?
+  standard_name = momentum_transport_parameter_for_vertical_pressure_gradient_force_for_updraft_for_zhang_mcfarlane_deep_convection_scheme
+  units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ zmconv_momcd ]
-  standard_name = momentum_downward_transport_parameter_for_zhang_mcfarlane?
-  units = tbd
+  standard_name = momentum_transport_parameter_for_vertical_pressure_gradient_force_for_downdraft_for_zhang_mcfarlane_deep_convection_scheme
+  units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ zmconv_num_cin ]
-  standard_name = number_of_negative_buoyancy_regions_allowed_before_convection_top_for_zhang_mcfarlane?
-  units = count?
+  standard_name = number_of_negative_buoyancy_layers_allowed_before_convection_top_for_zhang_mcfarlane_deep_convection_scheme
+  units = count
   type = integer
   dimensions = ()
   intent = in
 [ zmconv_org ]
-  standard_name = deep_convective_organization_amount_for_zhang_mcfarlane?
-  units = 1?
+  standard_name = flag_for_convective_organization_parameterization_for_zhang_mcfarlane_deep_convection_scheme
+  units = flag
   type = logical
   dimensions = ()
   intent = in
 [ no_deep_pbl_in ]
-  standard_name = flag_for_no_deep_convection_in_pbl?
-  units = flag?
+  standard_name = flag_for_no_deep_convection_in_pbl
+  units = flag
   type = logical
   dimensions = ()
   intent = in
 [ zmconv_tiedke_add ]
-  standard_name = parcel_temperature_perturbation_for_zhang_mcfarlane?
-  units = K?
+  standard_name = parcel_temperature_perturbation_for_zhang_mcfarlane_deep_convection_scheme
+  units = flag
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ zmconv_capelmt ]
-  standard_name = deep_convection_triggering_cape_threshold_for_zhang_mcfarlane?
-  units = J kg-1?
+  standard_name = cape_threshold_for_zhang_mcfarlane_deep_convection_scheme
+  units = J kg-1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ zmconv_dmpdz ]
-  standard_name = deep_convective_entrainment_rate_for_zhang_mcfarlane?
-  units = m-1?
+  standard_name = entrainment_rate_for_cape_for_zhang_mcfarlane_deep_convection_scheme
+  units = m-1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ zmconv_parcel_pbl ]
-  standard_name = initial_parcel_property_as_function_of_well-mixed_pbl_for_zhang_mcfarlane?
-  units = flag?
+  standard_name = flag_for_well_mixed_pbl_parcel_property_for_zhang_mcfarlane_deep_convection_scheme
+  units = flag
   type = logical
   dimensions = ()
   intent = in
 [ zmconv_tau ]
-  standard_name = deep_convective_adjustment_timescale_for_zhang_mcfarlane?
-  units = s?
+  standard_name = deep_convective_adjustment_timescale_for_zhang_mcfarlane_deep_convection_scheme
+  units = s
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ masterproc ]
-  standard_name = enter_name
-  units = enter_name
+  standard_name = flag_for_mpi_root
+  units = flag
   type = logical
   dimensions = ()
   intent = in
 [ iulog ]
-  standard_name = enter_name
-  units = enter_name
+  standard_name = log_output_unit
+  units = 1
   type = integer
   dimensions = ()
   intent = in
@@ -186,26 +186,26 @@
   dimensions = ()
   intent = in
 [ latice ]
-  standard_name = latent_heat_of_fusion_of_water_at_0c?
-  units = J kg-1?
+  standard_name = latent_heat_of_fusion_of_water_at_0c
+  units = J kg-1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ cpwv ]
-  standard_name = specific_heat_of_water_vapor_at_constant_pressure?
+  standard_name = specific_heat_of_water_vapor_at_constant_pressure
   units = J kg-1 K-1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ cpliq ]
-  standard_name = specific_heat_of_liquid_water_at_20c
+  standard_name = specific_heat_of_liquid_water_at_constant_pressure
   units = J kg-1 K-1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ rh2o ]
-  standard_name = gas_constant_of_water_vapor?
-  units = J kg-1 K-1?
+  standard_name = gas_constant_of_water_vapor
+  units = J kg-1 K-1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
@@ -259,7 +259,7 @@
   intent = out
 [ heat ]
   standard_name = dry_static_energy
-  units = tbd
+  units = J kg-1
   type = real | kind = kind_phys
   dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
   intent = out
@@ -282,26 +282,26 @@
   dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
   intent = in
 [ delt ]
-  standard_name = timestep_for_physics
+  standard_name = half_timestep_for_physics
   units = s
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ mcon ]
-  standard_name = atmosphere_convective_mass_flux_due_to all_convection?
-  units = hPa s-1?
+  standard_name = atmosphere_convective_mass_flux_due_to deep_convection
+  units = hPa s-1
   type = real | kind = kind_phys
   dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
   intent = out
 [ cme ]
-  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_cloud_condensation_minus_precipitation_evaporation_in_deep_convection?
-  units = kg kg-1 s-1?
+  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_from_cloud_condensation_minus_precipitation_evaporation_due_to_deep_convection
+  units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
   intent = out
 [ cape ]
-  standard_name = convective_available_potential_energy?
-  units = J kg-1?
+  standard_name = zhang_mcfarlane_convective_available_potential_energy
+  units = J kg-1
   type = real | kind = kind_phys
   dimensions = (1:horizontal_loop_extent)
   intent = out
@@ -319,7 +319,7 @@
   intent = out
 [ zdu ]
   standard_name = detrainment_mass_flux_due_to_deep_convection
-  units = tbd
+  units = s-1
   type = real | kind = kind_phys
   dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
   intent = out
@@ -331,31 +331,31 @@
   intent = out
 [ mu ]
   standard_name = atmosphere_updraft_convective_mass_flux_for_deep_convection_for_convective_columns
-  units = tbd
+  units = hPa s-1
   type = real | kind = kind_phys
   dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
   intent = out
 [ md ]
   standard_name = atmosphere_downdraft_convective_mass_flux_for_deep_convection_for_convective_columns
-  units = tbd
+  units = hPa s-1
   type = real | kind = kind_phys
   dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
   intent = out
 [ du ]
   standard_name = atmosphere_detrainment_convective_mass_flux_for_deep_convection_for_convective_columns
-  units = tbd
+  units = s-1
   type = real | kind = kind_phys
   dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
   intent = out
 [ eu ]
   standard_name = atmosphere_updraft_entrainment_convective_mass_flux_for_deep_convection_for_convective_columns
-  units = tbd
+  units = s-1
   type = real | kind = kind_phys
   dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
   intent = out
 [ ed ]
   standard_name = atmosphere_downdraft_entrainment_convective_mass_flux_for_deep_convection_for_convective_columns
-  units = tbd
+  units = s-1
   type = real | kind = kind_phys
   dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
   intent = out
@@ -408,20 +408,20 @@
   dimensions = (1:horizontal_loop_extent)
   intent = in
 [ org ]
-  standard_name = deep_convective_organization_amount?
+  standard_name = zhang_mcfarlane_organization_parameter_of_deep_convection
   units = 1
   type = real | kind = kind_phys
   dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
   intent = in
 [ orgt ]
-  standard_name = deep_convective_organization_amount_at_single_vertical_layer_spread_over_whole_column?
-  units = 1
+  standard_name = tendency_of_zhang_mcfarlane_organization_parameter_of_deep_convection
+  units = s-1
   type = real | kind = kind_phys
   dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
   intent = out
 [ org2d ]
-  standard_name = tendency_of_deep_convective_organization_amount?
-  units = s-1
+  standard_name = zhang_mcfarlane_organization_parameter_of_deep_convection_copied_to_whole_column
+  units = 1
   type = real | kind = kind_phys
   dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
   intent = out
@@ -432,20 +432,20 @@
   dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
   intent = out
 [ dnlf ]
-  standard_name = detrained_cloud_droplet_number_concentration_from_deep_convection?
-  units = kg-1?
+  standard_name = tbd
+  units = tbd
   type = real | kind = kind_phys
   dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
   intent = out
 [ dnif ]
-  standard_name = detrained_cloud_ice_crystal_number_concentration_from_deep_convection?
-  units = kg-1
+  standard_name = tbd
+  units = tbd
   type = real | kind = kind_phys
   dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
   intent = out
 [ rice ]
   standard_name = vertically_integrated_cloud_ice_tendency_due_to_all_convection_to_be_applied_later_in_time_loop
-  units = tbd
+  units = m s-1
   type = real | kind = kind_phys
   dimensions = (1:horizontal_loop_extent)
   intent = out

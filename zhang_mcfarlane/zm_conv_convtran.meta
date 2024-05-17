@@ -18,14 +18,14 @@
   dimensions = ()
   intent = in
 [ doconvtran ]
-  standard_name = flag_for_zhang_mcfarlane_deep_convective_transport?
+  standard_name = flag_for_tracer_transport_by_zhang_mcfarlane_deep_scheme
   units = flag
   type = logical
   dimensions = (1:number_of_ccpp_constituents)
   intent = in
 [ q ]
   standard_name = ccpp_constituents
-  units = none
+  units = kg kg-1
   type = real | kind = kind_phys
   dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension,1:number_of_ccpp_constituents)
   intent = in
@@ -37,31 +37,31 @@
   intent = in
 [ mu ]
   standard_name = atmosphere_updraft_convective_mass_flux_for_deep_convection_for_convective_columns
-  units = tbd
+  units = hPa s-1
   type = real | kind = kind_phys
   dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
   intent = in
 [ md ]
   standard_name = atmosphere_downdraft_convective_mass_flux_for_deep_convection_for_convective_columns
-  units = tbd
+  units = hPa s-1
   type = real | kind = kind_phys
   dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
   intent = in
 [ du ]
   standard_name = atmosphere_detrainment_convective_mass_flux_for_deep_convection_for_convective_columns
-  units = tbd
+  units = s-1
   type = real | kind = kind_phys
   dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
   intent = in
 [ eu ]
   standard_name = atmosphere_updraft_entrainment_convective_mass_flux_for_deep_convection_for_convective_columns
-  units = tbd
+  units = s-1
   type = real | kind = kind_phys
   dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
   intent = in
 [ ed ]
   standard_name = atmosphere_downdraft_entrainment_convective_mass_flux_for_deep_convection_for_convective_columns
-  units = tbd
+  units = s-1
   type = real | kind = kind_phys
   dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
   intent = in
@@ -96,14 +96,14 @@
   dimensions = (1:horizontal_loop_extent)
   intent = in
 [ il1g ]
-  standard_name = minimum_number_of_grid_cells_with_deep_convection?
-  units = 1
+  standard_name = index_of_first_column_of_gathered_deep_convection_arrays
+  units = index
   type = integer
   dimensions = ()
   intent = in
 [ il2g ]
-  standard_name = maximum_number_of_grid_cells_with_deep_convection?
-  units = 1
+  standard_name = index_of_last_column_of_gathered_deep_convection_arrays
+  units = index
   type = integer
   dimensions = ()
   intent = in
@@ -120,13 +120,13 @@
   dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension,1:number_of_ccpp_constituents)
   intent = in
 [ dqdt ]
-  standard_name = tendency_of_ccpp_constituents?
+  standard_name = tendency_of_ccpp_constituents
   units = none
   type = real | kind = kind_phys
   dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension,1:number_of_ccpp_constituents)
   intent = out
 [ dpdry ]
-  standard_name = pressure_thickness_of_dry_air_for_deep_convection_for_convective_columns?
+  standard_name = air_pressure_thickness_of_dry_air_for_deep_convection_for_gathered_convective_columns
   units = hPa
   type = real | kind = kind_phys
   dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
