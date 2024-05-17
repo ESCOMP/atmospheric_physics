@@ -431,18 +431,6 @@
   type = real | kind = kind_phys
   dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
   intent = out
-[ dnlf ]
-  standard_name = tbd
-  units = tbd
-  type = real | kind = kind_phys
-  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
-  intent = out
-[ dnif ]
-  standard_name = tbd
-  units = tbd
-  type = real | kind = kind_phys
-  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
-  intent = out
 [ rice ]
   standard_name = vertically_integrated_cloud_ice_tendency_due_to_all_convection_to_be_applied_later_in_time_loop
   units = m s-1

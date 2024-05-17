@@ -152,8 +152,7 @@ subroutine zm_convr_run(     ncol    ,pver    , &
                     dp      ,dsubcld ,jt      ,maxg    ,ideep   , &
                     ql      ,rliq    ,landfrac,                   &
                     org     ,orgt    ,org2d   ,  &
-                    dif     ,dnlf    ,dnif    , &
-                    rice   ,errmsg  ,errflg)
+                    dif     ,rice   ,errmsg  ,errflg)
 !-----------------------------------------------------------------------
 !
 ! Purpose:
@@ -299,8 +298,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
    real(kind_phys), intent(out) :: zdu(:,:)    ! (ncol,pver)
    real(kind_phys), intent(out) :: rprd(:,:)     ! rain production rate (ncol,pver)
    real(kind_phys), intent(out) :: dif(:,:)        ! detrained convective cloud ice mixing ratio.         (ncol,pver)
-   real(kind_phys), intent(out) :: dnlf(:,:)       ! detrained convective cloud water num concen.         (ncol,pver)
-   real(kind_phys), intent(out) :: dnif(:,:)       ! detrained convective cloud ice num concen.           (ncol,pver)
 
 ! move these vars from local storage to output so that convective
 ! transports can be done in outside of conv_cam.
@@ -482,8 +479,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
          qldeg(i,k) = 0._kind_phys
 
          dif(i,k)   = 0._kind_phys
-         dnlf(i,k)  = 0._kind_phys
-         dnif(i,k)  = 0._kind_phys
 
       end do
    end do
