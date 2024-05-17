@@ -15,7 +15,7 @@ contains
 
     !> \section arg_table_tj2016_sfc_pbl_hs_run  Argument Table
     !! \htmlinclude tj2016_sfc_pbl_hs_run.html
-    subroutine tj2016_sfc_pbl_hs_run(ncol, pver, pverp, index_surface, index_surface_interface, gravit, cappav, rairv,  &
+    subroutine tj2016_sfc_pbl_hs_run(ncol, pver, pverp, index_surface, index_surface_interface, gravit, pi, cappav, rairv,  &
         cpairv, latvap, rh2o, epsilo, rhoh2o, zvirv, ps0, etamid, dtime, clat,                &
         PS, pmid, pint, lnpint, rpdel, stateT, U, dudt, V, dvdt, qv, shflx, lhflx, taux, tauy,     &
         evap, dqdt_vdiff, dtdt_vdiff, dtdt_heating, Km, Ke, Tsurf, tendency_of_air_enthalpy,  &
