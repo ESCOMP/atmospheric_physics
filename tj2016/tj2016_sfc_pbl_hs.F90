@@ -1,6 +1,5 @@
 module TJ2016_sfc_pbl_hs
     use ccpp_kinds, only: kind_phys
-    use shr_const_mod, only: pi => shr_const_pi
   
     implicit none
     private
@@ -8,7 +7,7 @@ module TJ2016_sfc_pbl_hs
 
     public :: tj2016_sfc_pbl_hs_run
 
-CONTAINS
+contains
 
     !=======================================================================
     ! Surface fluxes and planetary boundary layer parameterization  
@@ -16,7 +15,7 @@ CONTAINS
 
     !> \section arg_table_tj2016_sfc_pbl_hs_run  Argument Table
     !! \htmlinclude tj2016_sfc_pbl_hs_run.html
-    subroutine tj2016_sfc_pbl_hs_run(ncol, pver, pverp, index_surface, index_surface_interface, gravit, cappa, rairv,  &
+    subroutine tj2016_sfc_pbl_hs_run(ncol, pver, pverp, index_surface, index_surface_interface, gravit, cappav, rairv,  &
         cpairv, latvap, rh2o, epsilo, rhoh2o, zvirv, ps0, etamid, dtime, clat,                &
         PS, pmid, pint, lnpint, rpdel, stateT, U, dudt, V, dvdt, qv, shflx, lhflx, taux, tauy,     &
         evap, dqdt_vdiff, dtdt_vdiff, dtdt_heating, Km, Ke, Tsurf, tendency_of_air_enthalpy,  &
@@ -32,14 +31,15 @@ CONTAINS
     integer,  intent(in)           :: index_surface_interface ! index of surface (interface)
 
     real(kind_phys), intent(in)    :: gravit              ! g: gravitational acceleration (m/s2)
-    real(kind_phys), intent(in)    :: cappa               ! Rd/cp
+    real(kind_phys), intent(in)    :: pi                  ! pi constant
+    real(kind_phys), intent(in)    :: cappav(:,:)         ! Rd/cp
     real(kind_phys), intent(in)    :: rairv(:,:)          ! Rd: dry air gas constant (J/K/kg)
     real(kind_phys), intent(in)    :: cpairv(:,:)         ! cp: specific heat of dry air (J/K/kg)
     real(kind_phys), intent(in)    :: latvap              ! L: latent heat of vaporization (J/kg)
     real(kind_phys), intent(in)    :: rh2o                ! Rv: water vapor gas constant (J/K/kg)
-    real(kind_phys), intent(in)    :: epsilo              ! Rd/Rv: ratio of h2o to dry air molecular weights
+    real(kind_phys), intent(in)    :: epsilo              ! ratio of h2o to dry air molecular weights
     real(kind_phys), intent(in)    :: rhoh2o              ! density of liquid water (kg/m3)
-    real(kind_phys), intent(in)    :: zvirv(:,:)          ! (rh2o/rair) - 1, needed for virtual temperaturr
+    real(kind_phys), intent(in)    :: zvirv(:,:)          ! (rh2o/rair) - 1, needed for virtual temperature
     real(kind_phys), intent(in)    :: ps0                 ! Base state surface pressure (Pa)
     real(kind_phys), intent(in)    :: etamid(:)           ! hybrid coordinate - midpoints
 
@@ -316,7 +316,7 @@ CONTAINS
     do i = 1, ncol
         do k = pver, 1, -1
             CE(i,k)  = CC(i,k)/(1._kind_phys+CA(i,k)+CC(i,k)-CA(i,k)*CE(i,k+1))
-            CFt(i,k) = ((ps0/pmid(i,k))**cappa*TCopy(i,k)+CA(i,k)*CFt(i,k+1))/(1._kind_phys+CA(i,k)+CC(i,k)-CA(i,k)*CE(i,k+1))
+            CFt(i,k) = ((ps0/pmid(i,k))**cappav(i,k)*TCopy(i,k)+CA(i,k)*CFt(i,k+1))/(1._kind_phys+CA(i,k)+CC(i,k)-CA(i,k)*CE(i,k+1))
             CFq(i,k) = (qv(i,k)+CA(i,k)*CFq(i,k+1))/(1._kind_phys+CA(i,k)+CC(i,k)-CA(i,k)*CE(i,k+1))
         end do
     end do
@@ -329,7 +329,7 @@ CONTAINS
     ! First: calculate the PBL mixing tendencies at the top model level
     !---------------------------------------------------------------------
     do i = 1, ncol
-        tmp             = CFt(i,1)*(pmid(i,1)/ps0)**cappa         ! new T at the model top
+        tmp             = CFt(i,1)*(pmid(i,1)/ps0)**cappav(i,1)       ! new T at the model top
         dtdt_vdiff(i,1) = (tmp-TCopy(i,1))/dtime                      ! T tendency due to PBL diffusion (model top)
         TCopy(i,1)          = tmp                                     ! update T at the model top
 
@@ -342,7 +342,7 @@ CONTAINS
     !-----------------------------------------
     do i = 1, ncol
         do k = 2, pver
-            tmp             = (CE(i,k)*TCopy(i,k-1)*(ps0/pmid(i,k-1))**cappa+CFt(i,k))*(pmid(i,k)/ps0)**cappa  ! new T
+            tmp             = (CE(i,k)*TCopy(i,k-1)*(ps0/pmid(i,k-1))**cappav(i,k)+CFt(i,k))*(pmid(i,k)/ps0)**cappav(i,k)  ! new T
             dtdt_vdiff(i,k) = dtdt_vdiff(i,k) + (tmp-TCopy(i,k))/dtime  ! update the T tendency due to surface fluxes and the PBL diffusion
             TCopy(i,k)          = tmp                                   ! update T
 
@@ -402,7 +402,7 @@ CONTAINS
                 do i = 1, ncol
                     kt = ka + (ks - ka)*cossqsq(i)*(etamid(k) - sigmab)/onemsig ! relaxation coefficent varies in the vertical
                     trefc             = T_max - delta_T*sinsq(i)
-                    trefa             = (trefc - delta_theta*cossq(i)*log((pmid(i,k)/ps0)))*(pmid(i,k)/ps0)**cappa
+                    trefa             = (trefc - delta_theta*cossq(i)*log((pmid(i,k)/ps0)))*(pmid(i,k)/ps0)**cappav(i,k)
                     trefa             = max(t00,trefa)                          ! relaxation temperature
                     dtdt_heating(i,k) = (trefa - TCopy(i,k))*kt                     ! temperature forcing due to relaxation
                     TCopy(i,k)            = TCopy(i,k) + dtdt_heating(i,k)*dtime        ! update T
@@ -410,7 +410,7 @@ CONTAINS
             else
                 do i=1,ncol
                     trefc             = T_max - delta_T*sinsq(i)
-                    trefa             = (trefc - delta_theta*cossq(i)*log((pmid(i,k)/ps0)))*(pmid(i,k)/ps0)**cappa
+                    trefa             = (trefc - delta_theta*cossq(i)*log((pmid(i,k)/ps0)))*(pmid(i,k)/ps0)**cappav(i,k)
                     trefa             = max(t00,trefa)                          ! relaxation temperature
                     dtdt_heating(i,k) = (trefa - TCopy(i,k))*ka                     ! temperature forcing due to relaxation
                     TCopy(i,k)            = TCopy(i,k) + dtdt_heating(i,k)*dtime        ! update T

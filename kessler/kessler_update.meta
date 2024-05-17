@@ -5,7 +5,7 @@
   name = kessler_update_init
   type = scheme
 [ gravit_in ]
-  standard_name = standard_ravitational_acceleration
+  standard_name = standard_gravitational_acceleration
   units = m s-2
   dimensions = ()
   type = real | kind = kind_phys

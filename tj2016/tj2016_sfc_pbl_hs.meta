@@ -41,11 +41,16 @@
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
-[ cappa ]
-  standard_name = ratio_of_dry_air_to_water_vapor_gas_constants
+[ pi ]
+  standard_name = pi_constant
   units = 1
   type = real | kind = kind_phys
-  dimensions = ()
+  intent = in
+[ cappav]
+  standard_name = composition_dependent_ratio_of_dry_air_gas_constant_to_specific_heat_of_dry_air_at_constant_pressure
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ rairv ]
   standard_name = composition_dependent_gas_constant_of_dry_air
@@ -193,14 +198,14 @@
   dimensions = (horizontal_loop_extent)
   intent = out
 [ taux ]
-  standard_name = surface_x_momentum_flux_for_coupling
-  units = Pa
+  standard_name = surface_eastward_wind_stress
+  units = N m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
 [ tauy ]
-  standard_name = surface_y_momentum_flux_for_coupling
-  units = Pa
+  standard_name = surface_northward_wind_stress
+  units = N m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out

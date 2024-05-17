@@ -23,12 +23,6 @@
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
-[ cappa ]
-  standard_name = ratio_of_dry_air_to_water_vapor_gas_constants
-  units = 1
-  type = real | kind = kind_phys
-  dimensions = ()
-  intent = in
 [ rairv ]
   standard_name = composition_dependent_gas_constant_of_dry_air
   units = J kg-1 K-1
@@ -54,7 +48,7 @@
   dimensions = ()
   intent = in
 [ epsilo ]
-  standard_name = ratio_of_h2o_to_dry_air_molecular_weights
+  standard_name = ratio_of_water_vapor_to_dry_air_molecular_weights
   units = 1
   type = real | kind = kind_phys
   dimensions = ()
@@ -110,12 +104,12 @@
   intent = inout
 [ relhum ]
   standard_name = relative_humidity
-  units = 1
+  units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ precl ]
-  standard_name = stratiform_precipitation_rate
+  standard_name = lwe_large_scale_precipitation_rate_at_surface
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)

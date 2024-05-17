@@ -1,7 +1,6 @@
 module TJ2016_precip
 
     use ccpp_kinds, only: kind_phys
-    use shr_const_mod, only: pi => shr_const_pi
   
     implicit none
     private
@@ -9,7 +8,7 @@ module TJ2016_precip
 
     public :: tj2016_precip_run
 
-CONTAINS
+contains
 
     !=======================================================================
     ! Moist processes   
@@ -17,8 +16,8 @@ CONTAINS
 
     !> \section arg_table_tj2016_precip_run  Argument Table
     !! \htmlinclude tj2016_precip_run.html
-    subroutine tj2016_precip_run(ncol, pver, gravit, cappa, rairv,    &
-        cpairv, latvap, rh2o, epsilo, rhoh2o, ps0, etamid, dtime,                &
+    subroutine tj2016_precip_run(ncol, pver, gravit, rairv,                                      &
+        cpairv, latvap, rh2o, epsilo, rhoh2o, ps0, etamid, dtime,                                &
         pmid, pdel, T, qv, relhum, precl, tendency_of_air_enthalpy, scheme_name, errmsg, errflg)
         !------------------------------------------------
         !   Input / output parameters
@@ -28,7 +27,6 @@ CONTAINS
         integer,  intent(in)    :: pver                    ! number of vertical levels
         
         real(kind_phys), intent(in)    :: gravit      ! g: gravitational acceleration (m/s2)
-        real(kind_phys), intent(in)    :: cappa       ! Rd/cp
         real(kind_phys), intent(in)    :: rairv(:,:)  ! Rd: dry air gas constant (J/K/kg)
         real(kind_phys), intent(in)    :: cpairv(:,:) ! cp: specific heat of dry air (J/K/kg)
         real(kind_phys), intent(in)    :: latvap      ! L: latent heat of vaporization (J/kg)
@@ -38,16 +36,16 @@ CONTAINS
         real(kind_phys), intent(in)    :: ps0         ! Base state surface pressure (Pa)
         real(kind_phys), intent(in)    :: etamid(:)   ! hybrid coordinate - midpoints
 
-        real(kind_phys), intent(in)    :: dtime                   ! time step (s)
-        real(kind_phys), intent(in)    :: pmid(:,:)         ! mid-point pressure (Pa)
-        real(kind_phys), intent(in)    :: pdel(:,:)         ! layer thickness (Pa)
+        real(kind_phys), intent(in)    :: dtime       ! time step (s)
+        real(kind_phys), intent(in)    :: pmid(:,:)   ! mid-point pressure (Pa)
+        real(kind_phys), intent(in)    :: pdel(:,:)   ! layer thickness (Pa)
 
-        real(kind_phys), intent(inout) :: T(:,:)            ! air temperature (K)
-        real(kind_phys), intent(inout) :: qv(:,:)           ! specific humidity Q (kg/kg)
+        real(kind_phys), intent(inout) :: T(:,:)      ! air temperature (K)
+        real(kind_phys), intent(inout) :: qv(:,:)     ! specific humidity Q (kg/kg)
 
-        real(kind_phys), intent(out)   :: relhum(:,:)       ! relative humidity
-        real(kind_phys), intent(out)   :: precl(:)             ! large-scale precipitation rate (m/s)
-        real(kind_phys), intent(out)   :: tendency_of_air_enthalpy(:,:)         !
+        real(kind_phys), intent(out)   :: relhum(:,:)                   ! relative humidity
+        real(kind_phys), intent(out)   :: precl(:)                      ! large-scale precipitation rate (m/s)
+        real(kind_phys), intent(out)   :: tendency_of_air_enthalpy(:,:) ! change in air enthalpy (J/kg/s)
         character(len=512), intent(out):: scheme_name
         character(len=512), intent(out):: errmsg
         integer,            intent(out):: errflg
