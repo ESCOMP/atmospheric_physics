@@ -25,6 +25,8 @@ subroutine test_musica_ccpp_api()
   type(ccpp_constituent_properties_t), allocatable, target :: constituent_props(:)
   type(ccpp_constituent_properties_t), pointer             :: const_prop
   integer                                                  :: i
+  character(len=512)                                       :: tmp_string
+  logical                                                  :: tmp_bool
 
   time_step = 60._kind_phys
 
@@ -48,6 +50,22 @@ subroutine test_musica_ccpp_api()
 
   call musica_register(constituent_props, errcode, errmsg)
   ASSERT(allocated(constituent_props))
+  ASSERT(size(constituent_props) == 5)
+  do i = 1, size(constituent_props)
+    ASSERT(constituent_props(i)%is_instantiated(errcode, errmsg))
+    ASSERT(errcode == 0)
+    call constituent_props(i)%standard_name(tmp_string, errcode, errmsg)
+    ASSERT(errcode == 0)
+    tmp_bool = trim(tmp_string) == "M" .or. &
+               trim(tmp_string) == "O2" .or. &
+               trim(tmp_string) == "O" .or. &
+               trim(tmp_string) == "O1D" .or. &
+               trim(tmp_string) == "O3"
+    ASSERT(tmp_bool)
+    call constituent_props(i)%units(tmp_string, errcode, errmsg)
+    ASSERT(errcode == 0)
+    ASSERT(trim(tmp_string) == 'kg kg-1')
+  end do
   if (errcode /= 0) then
     write(*,*) errcode, trim(errmsg)
     stop 3
