@@ -152,7 +152,7 @@ subroutine zm_convr_run(     ncol    ,pver    , &
                     dp      ,dsubcld ,jt      ,maxg    ,ideep   , &
                     ql      ,rliq    ,landfrac,                   &
                     org     ,orgt    ,org2d   ,  &
-                    dif     ,rice   ,errmsg  ,errflg)
+                    rice   ,errmsg  ,errflg)
 !-----------------------------------------------------------------------
 !
 ! Purpose:
@@ -297,7 +297,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
    real(kind_phys), intent(out) :: cape(:)        ! w  convective available potential energy.             (ncol)
    real(kind_phys), intent(out) :: zdu(:,:)    ! (ncol,pver)
    real(kind_phys), intent(out) :: rprd(:,:)     ! rain production rate (ncol,pver)
-   real(kind_phys), intent(out) :: dif(:,:)        ! detrained convective cloud ice mixing ratio.         (ncol,pver)
 
 ! move these vars from local storage to output so that convective
 ! transports can be done in outside of conv_cam.
@@ -317,8 +316,7 @@ subroutine zm_convr_run(     ncol    ,pver    , &
    character(len=512), intent(out)      :: errmsg
    integer, intent(out)                 :: errflg
 
-
-   real(kind_phys), intent(in) :: org(:,:)     ! Only used if zm_org is true  ! in
+   real(kind_phys), intent(in)  :: org(:,:)     ! Only used if zm_org is true  ! in
    real(kind_phys), intent(out) :: orgt(:,:)   ! Only used if zm_org is true   ! out
    real(kind_phys), intent(out) :: org2d(:,:)  ! Only used if zm_org is true   ! out
 
@@ -477,8 +475,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
          dlf(i,k)   = 0._kind_phys
          dlg(i,k)   = 0._kind_phys
          qldeg(i,k) = 0._kind_phys
-
-         dif(i,k)   = 0._kind_phys
 
       end do
    end do
@@ -780,7 +776,7 @@ subroutine zm_convr_run(     ncol    ,pver    , &
 ! Compute precip by integrating change in water vapor minus detrained cloud water
    do k = pver,msg + 1,-1
       do i = 1,ncol
-          prec(i) = prec(i) - dpp(i,k)* (q(i,k)-qh(i,k)) - dpp(i,k)*(dlf(i,k)+dif(i,k))*2._kind_phys*delt
+          prec(i) = prec(i) - dpp(i,k)* (q(i,k)-qh(i,k)) - dpp(i,k)*(dlf(i,k))*2._kind_phys*delt
       end do
    end do
 
@@ -793,8 +789,8 @@ subroutine zm_convr_run(     ncol    ,pver    , &
 ! Treat rliq as flux out bottom, to be added back later.
    do k = 1, pver
       do i = 1, ncol
-          rliq(i) = rliq(i) + (dlf(i,k)+dif(i,k))*dpp(i,k)/gravit
-          rice(i) = rice(i) + dif(i,k)*dpp(i,k)/gravit
+          rliq(i) = rliq(i) + (dlf(i,k))*dpp(i,k)/gravit
+          rice(i) = rice(i)/gravit
       end do
    end do
    rliq(:ncol) = rliq(:ncol) /1000._kind_phys

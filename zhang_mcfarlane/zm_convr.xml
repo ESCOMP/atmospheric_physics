@@ -4,7 +4,7 @@
 
 <entry_id_pg version="2.0">
 
-<entry id="zm_conv_co_lnd">
+<entry id="zmconv_co_lnd">
   <category>conv</category>
   <group>zmconv_nl</group>
   <standard_name>cloud_condensate_to_precipitation_autoconversion_coefficient_over_land_for_zhang_mcfarlane_deep_convection_scheme </standard_name>
@@ -13,7 +13,7 @@
   <kind>kind_phys</kind>
   <desc> Autoconversion coefficient over land in ZM deep convection scheme. </desc>
   <values>
-     <value>unset</value>
+     <value>0.0075D0</value>
   </values>
 
 <entry id="zmconv_c0_ocn">
@@ -25,7 +25,7 @@
   <kind>kind_phys</kind>
   <desc>Autoconversion coefficient over ocean in ZM deep convection scheme.</desc>
   <values>
-     <value>MANY VALUES IN NAMELIST DEFAULTS FILE</value>
+     <value>0.0300D0</value>
   </values>
 </entry>
 
@@ -52,7 +52,20 @@
   <kind>kind_phys</kind>
   <desc>Tunable evaporation efficiency in ZM deep convection scheme.</desc>
   <values>
-     <value>unset</value>
+     <value>5.0E-6</value>
+  </values>
+</entry>
+
+<entry id="zmconv_ke_lnd">
+  <category>conv</category>
+  <group>zmconv_nl</group>
+  <standard_name>tunable_evaporation_efficiency_over_land_for_zhang_mcfarlane_deep_convection_scheme</standard_name>
+  <units>1</units>
+  <type>real>
+  <kind>kind_phys</kind>
+  <desc>Tunable evaporation efficiency for land in ZM deep convection scheme.</desc>
+  <values>
+     <value>1.0E-5</value>
   </values>
 </entry>
 
