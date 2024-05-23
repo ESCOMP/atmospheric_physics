@@ -9,8 +9,6 @@ module musica_ccpp
 
 contains
 
-  !> \section arg_table_musica_register Argument Table
-  !! \htmlinclude musica_register.html
   subroutine musica_register(constituents, errcode, errmsg)
     use ccpp_constituent_prop_mod, only : ccpp_constituent_properties_t
     type(ccpp_constituent_properties_t), allocatable, intent(out) :: constituents(:)
