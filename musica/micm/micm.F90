@@ -66,7 +66,7 @@ contains
         errcode = errcode, &
         errmsg = errmsg)
       if (errcode /= 0) return
-    end associate
+    end associate ! map
     end do
 
   end subroutine micm_register
