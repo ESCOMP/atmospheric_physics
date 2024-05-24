@@ -152,7 +152,7 @@ subroutine zm_convr_run(     ncol    ,pver    , &
                     dp      ,dsubcld ,jt      ,maxg    ,ideep   , &
                     ql      ,rliq    ,landfrac,                   &
                     org     ,orgt    ,org2d   ,  &
-                    dif     ,rice   ,errmsg  ,errflg)
+                    rice   ,errmsg  ,errflg)
 !-----------------------------------------------------------------------
 !
 ! Purpose:
