@@ -64,8 +64,8 @@ CONTAINS
     real(kind_phys), intent(in) :: cappa(:,:)  ! variable Kappa
     real(kind_phys), intent(in) :: state_t(:,:)   ! temperature (K)
     real(kind_phys), intent(in) :: state_q(:,:)   ! specific humidity
-    real(kind_phys), intent(out), TARGET :: t_tend(:,:)   ! temperature tendency
-    real(kind_phys), intent(out), TARGET :: q_tend(:,:)   ! specific humidity tendency
+    real(kind_phys), intent(out), target :: t_tend(:,:)   ! temperature tendency
+    real(kind_phys), intent(out), target :: q_tend(:,:)   ! specific humidity tendency
     real(kind_phys), intent(out) :: dadpdf(:,:)  ! PDF of where adjustments happened
 
     character(len=64),  intent(out) :: scheme_name
