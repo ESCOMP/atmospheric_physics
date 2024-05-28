@@ -38,7 +38,8 @@ CONTAINS
 
     if (dadadj_nlvdry >= nz .or. dadadj_nlvdry < 0) then
        errflg = 1
-       write(errmsg,*) 'dadadj_init: dadadj_nlvdry=',dadadj_nlvdry,' but must be less than the number of vertical levels '
+       write(errmsg,*) 'dadadj_init: dadadj_nlvdry=',dadadj_nlvdry,' but must be less than the number of vertical levels ',&
+       '(',nz,'), and must be a positive integer.`
     end if
 
     nlvdry = dadadj_nlvdry
@@ -63,8 +64,8 @@ CONTAINS
     real(kind_phys), intent(in) :: cappa(:,:)  ! variable Kappa
     real(kind_phys), intent(in) :: state_t(:,:)   ! temperature (K)
     real(kind_phys), intent(in) :: state_q(:,:)   ! specific humidity
-    real(kind_phys), intent(out), TARGET :: t_tend(:,:)   ! temperature tendency
-    real(kind_phys), intent(out), TARGET :: q_tend(:,:)   ! specific humidity tendency
+    real(kind_phys), intent(out), target :: t_tend(:,:)   ! temperature tendency
+    real(kind_phys), intent(out), target :: q_tend(:,:)   ! specific humidity tendency
     real(kind_phys), intent(out) :: dadpdf(:,:)  ! PDF of where adjustments happened
 
     character(len=64),  intent(out) :: scheme_name
@@ -102,7 +103,30 @@ CONTAINS
     errflg = 0
     scheme_name = 'DADADJ'
 
-    allocate(c1dad(nlvdry), c2dad(nlvdry), c3dad(nlvdry), c4dad(nlvdry))
+    allocate(c1dad(nlvdry), stat=ierr)
+    if (ierr /= 0) then
+       errcode = ierr
+       errmsg = trim(scheme_name)//': Allocate of c1dad(nlvdry) failed'
+       return
+    end if
+    allocate(c2dad(nlvdry), stat=ierr)
+    if (ierr /= 0) then
+       errcode = ierr
+       errmsg = trim(scheme_name)//': Allocate of c2dad(nlvdry) failed'
+       return
+    end if
+    allocate(c3dad(nlvdry), stat=ierr)
+    if (ierr /= 0) then
+       errcode = ierr
+       errmsg = trim(scheme_name)//': Allocate of c3dad(nlvdry) failed'
+       return
+    end if
+    allocate(c4dad(nlvdry), stat=ierr)
+    if (ierr /= 0) then
+       errcode = ierr
+       errmsg = trim(scheme_name)//': Allocate of c4dad(nlvdry) failed'
+       return
+    end if
 
     ! t_tend< and tend_dtdq used as workspace until needed to calculate tendencies
     t => t_tend
@@ -117,7 +141,7 @@ CONTAINS
        cappaint = 0.5_kind_phys*(cappa(i,2) + cappa(i,1))
        gammad = cappaint*0.5_kind_phys*(t(i,2) + t(i,1))/pint(i,2)
        dtdp = (t(i,2) - t(i,1))/(pmid(i,2) - pmid(i,1))
-       dodad(i) = (dtdp + zeps) .gt. gammad
+       dodad(i) = (dtdp + zeps) > gammad
     end do
 
     dadpdf(:ncol,:) = 0._kind_phys
@@ -126,8 +150,8 @@ CONTAINS
          cappaint = 0.5_kind_phys*(cappa(i,k+1) + cappa(i,k))
          gammad = cappaint*0.5_kind_phys*(t(i,k+1) + t(i,k))/pint(i,k+1)
          dtdp = (t(i,k+1) - t(i,k))/(pmid(i,k+1) - pmid(i,k))
-         dodad(i) = dodad(i) .or. (dtdp + zeps).gt.gammad
-         if ((dtdp + zeps).gt.gammad) then
+         dodad(i) = dodad(i) .or. (dtdp + zeps) > gammad
+         if ((dtdp + zeps) > gammad) then
             dadpdf(i,k) = 1._kind_phys
          end if
       end do
@@ -152,18 +176,17 @@ CONTAINS
          end do
 
          ilconv = .false.
-         
+
          DBLZEP: do while (.not. ilconv)
-            
+
             do jiter = 1, niter
                ilconv = .true.
 
                do k = 1, nlvdry
                   zepsdp = zeps*(pmid(i,k+1) - pmid(i,k))
                   zgamma = c1dad(k)*(t(i,k) + t(i,k+1))
-                  
+
                   if ((t(i,k+1)-t(i,k)) >= (zgamma+zepsdp)) then
-                     write(6,*)'adjusting t and q at i,k=',i,k
                      ilconv = .false.
                      t(i,k+1) = t(i,k)*c3dad(k) + t(i,k+1)*c4dad(k)
                      t(i,k) = c2dad(k)*t(i,k+1)
@@ -171,7 +194,7 @@ CONTAINS
                      q(i,k+1) = qave
                      q(i,k) = qave
                   end if
-                  
+
                end do
 
                if (ilconv) cycle COL ! convergence => next longitude
@@ -181,6 +204,8 @@ CONTAINS
             zeps = zeps + zeps
             if (zeps > 1.e-4_kind_phys) then
                errflg = i
+               write(errmsg,*) 'dadadj_init: dadadj_nlvdry=',dadadj_nlvdry,' but must be less than the number of vertical levels ',&
+               errmsg = trim(scheme_name)//': Convergence failure, zeps > 1.e-4'
                return                ! error return
             end if
          end do DBLZEP

@@ -84,7 +84,7 @@
   <standard_name>number_of_vertical_levels_from_model_top_where_dry_adiabatic_adjustment_occurs</standard_name>
   <units>count</units>
   <desc>
-    Number of layers from the top of the model over which to do dry convective adjustment.
+    Number of layers from the top of the model over which to do dry adiabatic adjustment.
     Must be less than plev (the number of vertical levels).
   </desc>
   <values>
@@ -99,7 +99,7 @@
   <units>count</units>
   <desc>
     The maximum number of iterations to achieve convergence in dry adiabatic adjustment.
-    For WACCM-X it can be advantageous to use a number which is much higher than the CAM
+    For WACCM-X it can be advantageous to use a number which is much higher than the default CAM value.
   </desc>
   <values>
     <value>15</value>

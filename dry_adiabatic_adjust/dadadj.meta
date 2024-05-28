@@ -32,9 +32,9 @@
   dimensions = ()
   intent = out
 [ errflg ]
-  standard_name = ccpp_error_flag
-  long_name = Error flag for error handling in CCPP
-  units = flag
+  standard_name = ccpp_error_code
+  long_name = Error code for error handling in CCPP
+  units = 1
   type = integer
   dimensions = ()
   intent = out
@@ -78,10 +78,10 @@
   standard_name = air_temperature
   type = real | kind = kind_phys
   units = K
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ state_q ]
-  standard_name = water_vapor_mixing_ratio_wrt_dry_air
+  standard_name = water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
   long_name = mass mixing ratio of water vapor / dry air
   advected = True
   units = kg kg-1
@@ -97,20 +97,20 @@
 [ t_tend ]
   standard_name = tendency_of_air_temperature
   units = K s-1
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real | kind = kind_phys
   intent = out
 [ q_tend ]
   standard_name = tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
   units = kg kg-1 s-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ dadpdf ]
-  standard_name = indicator_for_dry_adiabatic_adjusted_grid_cell
-  units = 1
+  standard_name = binary_indicator_for_dry_adiabatic_adjusted_grid_cell
+  units = fraction
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ scheme_name ]
   standard_name = scheme_name
@@ -126,9 +126,9 @@
   dimensions = ()
   intent = out
 [ errflg ]
-  standard_name = ccpp_error_flag
-  long_name = Error flag for error handling in CCPP
-  units = flag
+  standard_name = ccpp_error_code
+  long_name = Error code for error handling in CCPP
+  units = 1
   type = integer
   dimensions = ()
   intent = out
