@@ -83,7 +83,7 @@ contains
 
   !> Solve chemistry at the current time step
   subroutine micm_run(time_step, temperature, pressure, dry_air_density, constituent_props, &
-                      constituents, iulog, errcode, errmsg)
+                      constituents, errcode, errmsg)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use musica_util, only: error_t
 
@@ -93,7 +93,6 @@ contains
     real(kind_phys),                   intent(in)    :: dry_air_density(:,:) ! kg m-3
     type(ccpp_constituent_prop_ptr_t), intent(in)    :: constituent_props(:)
     real(kind_phys),                   intent(inout) :: constituents(:,:,:)  ! kg kg-1
-    integer,                           intent(in)    :: iulog
     integer,                           intent(out)   :: errcode
     character(len=512),                intent(out)   :: errmsg
 
@@ -107,7 +106,7 @@ contains
                               size(constituents, dim=2), &
                               size(constituents, dim=3))   :: c_constituents
     real(c_double), dimension(size(constituents, dim=1), &
-                              size(constituents, dim=3), &
+                              size(constituents, dim=2), &
                               0)                           :: c_rate_params
 
     real(kind_phys), dimension(size(constituents, dim=3))  :: molar_mass_arr ! kg mol-1

@@ -17,7 +17,6 @@ subroutine test_musica_ccpp_api()
   type(ccpp_constituent_prop_ptr_t), allocatable      :: constituent_props_ptr(:)
   real(kind_phys),                   dimension(5)     :: molar_mass_arr        ! kg mol-1
   real(kind_phys),                   dimension(2,1,5) :: constituents          ! kg kg-1
-  integer                                             :: iulog
   integer                                             :: errcode
   character(len=512)                                  :: errmsg
 
@@ -25,8 +24,9 @@ subroutine test_musica_ccpp_api()
   type(ccpp_constituent_properties_t), allocatable, target :: constituent_props(:)
   type(ccpp_constituent_properties_t), pointer             :: const_prop
   integer                                                  :: i
-  character(len=512)                                       :: tmp_string
-  logical                                                  :: tmp_bool
+  character(len=512)                                       :: species_name, units
+  logical                                                  :: tmp_bool, is_advected
+  real(kind_phys)                                          :: molar_mass
 
   time_step = 60._kind_phys
 
@@ -46,25 +46,27 @@ subroutine test_musica_ccpp_api()
   constituents(2,1,1:5) = (/ 0.75_kind_phys, 8.1e-6_kind_phys, 2.42e-17_kind_phys, &
                           1.15e-5_kind_phys, 6.61e-9_kind_phys /)
 
-  iulog = 6
-
   call musica_register(constituent_props, errcode, errmsg)
   ASSERT(allocated(constituent_props))
   ASSERT(size(constituent_props) == 5)
   do i = 1, size(constituent_props)
     ASSERT(constituent_props(i)%is_instantiated(errcode, errmsg))
     ASSERT(errcode == 0)
-    call constituent_props(i)%standard_name(tmp_string, errcode, errmsg)
+    call constituent_props(i)%standard_name(species_name, errcode, errmsg)
     ASSERT(errcode == 0)
-    tmp_bool = trim(tmp_string) == "M" .or. &
-               trim(tmp_string) == "O2" .or. &
-               trim(tmp_string) == "O" .or. &
-               trim(tmp_string) == "O1D" .or. &
-               trim(tmp_string) == "O3"
+    call constituent_props(i)%molar_mass(molar_mass, errcode, errmsg)
+    ASSERT(errcode == 0)
+    call constituent_props(i)%is_advected(is_advected, errcode, errmsg)
+    ASSERT(errcode == 0)
+    tmp_bool = (trim(species_name) == "M" .and. molar_mass == 0.029_kind_phys .and. .not. is_advected) .or. &
+               (trim(species_name) == "O2" .and. molar_mass == 0.032_kind_phys .and. .not. is_advected) .or. &
+               (trim(species_name) == "O" .and. molar_mass == 0.016_kind_phys .and. .not. is_advected) .or. &
+               (trim(species_name) == "O1D" .and. molar_mass == 0.016_kind_phys .and. .not. is_advected) .or. &
+               (trim(species_name) == "O3" .and. molar_mass == 0.048_kind_phys .and. is_advected)
     ASSERT(tmp_bool)
-    call constituent_props(i)%units(tmp_string, errcode, errmsg)
+    call constituent_props(i)%units(units, errcode, errmsg)
     ASSERT(errcode == 0)
-    ASSERT(trim(tmp_string) == 'kg kg-1')
+    ASSERT(trim(units) == 'kg kg-1')
   end do
   if (errcode /= 0) then
     write(*,*) errcode, trim(errmsg)
@@ -90,7 +92,7 @@ subroutine test_musica_ccpp_api()
   write(*,*) "    -- Initial concentrations", constituents
 
   call musica_run(time_step, temperature, pressure, dry_air_density, constituent_props_ptr, &
-                  constituents, iulog, errcode, errmsg)
+                  constituents, errcode, errmsg)
 
   if (errcode /= 0) then
     write(*,*) trim(errmsg)

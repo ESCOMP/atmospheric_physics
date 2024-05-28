@@ -56,7 +56,6 @@ RUN cd musica \
         -D MUSICA_ENABLE_TUVX=ON \
     && cd build \
     && sudo make install
-ENV MUSICA_VERSION="0.6.1"
 
 COPY . atmospheric_physics
 RUN sudo chown -R test_user:test_user atmospheric_physics

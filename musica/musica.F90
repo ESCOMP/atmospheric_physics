@@ -30,7 +30,7 @@ contains
   !> \section arg_table_musica_run Argument Table
   !! \htmlinclude musica_run.html
   subroutine musica_run(time_step, temperature, pressure, dry_air_density, constituent_props, &
-                      constituents, iulog, errcode, errmsg)
+                      constituents, errcode, errmsg)
     use ccpp_kinds, only: kind_phys
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
 
@@ -40,12 +40,11 @@ contains
     real(kind_phys),                   intent(in)    :: dry_air_density(:,:) ! kg m-3
     type(ccpp_constituent_prop_ptr_t), intent(in)    :: constituent_props(:)
     real(kind_phys),                   intent(inout) :: constituents(:,:,:)  ! kg kg-1
-    integer,                           intent(in)    :: iulog
     integer,                           intent(out)   :: errcode
     character(len=512),                intent(out)   :: errmsg
 
     call micm_run(time_step, temperature, pressure, dry_air_density, constituent_props, &
-                  constituents, iulog, errcode, errmsg)
+                  constituents, errcode, errmsg)
 
   end subroutine musica_run
 
