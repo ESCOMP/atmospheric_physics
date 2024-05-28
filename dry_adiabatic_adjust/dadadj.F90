@@ -204,7 +204,6 @@ CONTAINS
             zeps = zeps + zeps
             if (zeps > 1.e-4_kind_phys) then
                errflg = i
-               write(errmsg,*) 'dadadj_init: dadadj_nlvdry=',dadadj_nlvdry,' but must be less than the number of vertical levels ',&
                errmsg = trim(scheme_name)//': Convergence failure, zeps > 1.e-4'
                return                ! error return
             end if
