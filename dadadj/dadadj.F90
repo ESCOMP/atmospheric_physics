@@ -38,7 +38,8 @@ CONTAINS
 
     if (dadadj_nlvdry >= nz .or. dadadj_nlvdry < 0) then
        errflg = 1
-       write(errmsg,*) 'dadadj_init: dadadj_nlvdry=',dadadj_nlvdry,' but must be less than the number of vertical levels '
+       write(errmsg,*) 'dadadj_init: dadadj_nlvdry=',dadadj_nlvdry,' but must be less than the number of vertical levels ',&
+       '(',nz,'), and must be a positive integer.`     
     end if
 
     nlvdry = dadadj_nlvdry
