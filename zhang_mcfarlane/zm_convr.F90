@@ -55,12 +55,15 @@ contains
 !> \section arg_table_zm_convr_init Argument Table
 !! \htmlinclude zm_convr_init.html
 !!
-subroutine zm_convr_init(cpair, epsilo, gravit, latvap, tmelt, rair, &
-                    limcnv_in, zmconv_c0_lnd, zmconv_c0_ocn, zmconv_ke, zmconv_ke_lnd, &
+subroutine zm_convr_init(plev, plevp, cpair, epsilo, gravit, latvap, tmelt, rair, &
+                    pref_edge, zmconv_c0_lnd, zmconv_c0_ocn, zmconv_ke, zmconv_ke_lnd, &
                     zmconv_momcu, zmconv_momcd, zmconv_num_cin, zmconv_org, &
                     no_deep_pbl_in, zmconv_tiedke_add, &
                     zmconv_capelmt, zmconv_dmpdz, zmconv_parcel_pbl, zmconv_tau, &
                     masterproc, iulog, errmsg, errflg)
+
+   integer, intent(in)   :: plev
+   integer, intent(in)   :: plevp
 
    real(kind_phys), intent(in)   :: cpair           ! specific heat of dry air (J K-1 kg-1)
    real(kind_phys), intent(in)   :: epsilo          ! ratio of h2o to dry air molecular weights
@@ -68,7 +71,7 @@ subroutine zm_convr_init(cpair, epsilo, gravit, latvap, tmelt, rair, &
    real(kind_phys), intent(in)   :: latvap          ! Latent heat of vaporization (J kg-1)
    real(kind_phys), intent(in)   :: tmelt           ! Freezing point of water (K)
    real(kind_phys), intent(in)   :: rair            ! Dry air gas constant     (J K-1 kg-1)
-   integer, intent(in)           :: limcnv_in       ! top interface level limit for convection
+   real(kind_phys), intent(in)   :: pref_edge(:)    ! reference pressures at interfaces
    integer, intent(in)           :: zmconv_num_cin  ! Number negative buoyancy regions that are allowed
                                                     ! before the convection top and CAPE calculations are completed.
    real(kind_phys),intent(in)           :: zmconv_c0_lnd
@@ -89,11 +92,12 @@ subroutine zm_convr_init(cpair, epsilo, gravit, latvap, tmelt, rair, &
    character(len=512), intent(out)      :: errmsg
    integer, intent(out)                 :: errflg
 
+   integer :: k
+
    errmsg =''
    errflg = 0
 
    ! Initialization of ZM constants
-   limcnv = limcnv_in
    tfreez = tmelt
    eps1   = epsilo
    rl     = latvap
@@ -120,7 +124,26 @@ subroutine zm_convr_init(cpair, epsilo, gravit, latvap, tmelt, rair, &
 
    tau = zmconv_tau
 
-   if ( masterproc ) then
+   !
+   ! Limit deep convection to regions below 40 mb
+   ! Note this calculation is repeated in the shallow convection interface
+   !
+    limcnv = 0   ! null value to check against below
+    if (pref_edge(1) >= 4.e3_kind_phys) then
+       limcnv = 1
+    else
+       do k=1,plev
+          if (pref_edge(k) < 4.e3_kind_phys .and. pref_edge(k+1) >= 4.e3_kind_phys) then
+             limcnv = k
+             exit
+          end if
+       end do
+       if ( limcnv == 0 ) limcnv = plevp
+    end if
+
+    if ( masterproc ) then
+       write(iulog,*)'ZM_CONV_INIT: Deep convection will be capped at intfc ',limcnv, &
+            ' which is ',pref_edge(limcnv),' pascals'
       write(iulog,*) 'tuning parameters zm_convr_init: tau',tau
       write(iulog,*) 'tuning parameters zm_convr_init: c0_lnd',c0_lnd, ', c0_ocn', c0_ocn
       write(iulog,*) 'tuning parameters zm_convr_init: num_cin', num_cin
