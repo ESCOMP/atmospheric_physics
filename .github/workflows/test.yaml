@@ -3,7 +3,7 @@ name: build
 on: [pull_request,workflow_dispatch]
 
 jobs:
-  test_micm_api:
+  test_musica_api:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
