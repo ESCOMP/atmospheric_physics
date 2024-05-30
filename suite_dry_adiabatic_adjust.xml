@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<suite name="dadadj" version="1.0">
+<suite name="dry_adiabatic_adjust" version="1.0">
   <group name="physics_before_coupler">
     <scheme>dadadj</scheme>
     <scheme>apply_tendency_of_air_temperature</scheme>

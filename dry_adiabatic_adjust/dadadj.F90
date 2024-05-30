@@ -39,7 +39,7 @@ CONTAINS
     if (dadadj_nlvdry >= nz .or. dadadj_nlvdry < 0) then
        errflg = 1
        write(errmsg,*) 'dadadj_init: dadadj_nlvdry=',dadadj_nlvdry,' but must be less than the number of vertical levels ',&
-       '(',nz,'), and must be a positive integer.`
+       '(',nz,'), and must be a positive integer.'
     end if
 
     nlvdry = dadadj_nlvdry
@@ -103,27 +103,23 @@ CONTAINS
     errflg = 0
     scheme_name = 'DADADJ'
 
-    allocate(c1dad(nlvdry), stat=ierr)
-    if (ierr /= 0) then
-       errcode = ierr
+    allocate(c1dad(nlvdry), stat=errflg)
+    if (errflg /= 0) then
        errmsg = trim(scheme_name)//': Allocate of c1dad(nlvdry) failed'
        return
     end if
-    allocate(c2dad(nlvdry), stat=ierr)
-    if (ierr /= 0) then
-       errcode = ierr
+    allocate(c2dad(nlvdry), stat=errflg)
+    if (errflg /= 0) then
        errmsg = trim(scheme_name)//': Allocate of c2dad(nlvdry) failed'
        return
     end if
-    allocate(c3dad(nlvdry), stat=ierr)
-    if (ierr /= 0) then
-       errcode = ierr
+    allocate(c3dad(nlvdry), stat=errflg)
+    if (errflg /= 0) then
        errmsg = trim(scheme_name)//': Allocate of c3dad(nlvdry) failed'
        return
     end if
-    allocate(c4dad(nlvdry), stat=ierr)
-    if (ierr /= 0) then
-       errcode = ierr
+    allocate(c4dad(nlvdry), stat=errflg)
+    if (errflg /= 0) then
        errmsg = trim(scheme_name)//': Allocate of c4dad(nlvdry) failed'
        return
     end if
