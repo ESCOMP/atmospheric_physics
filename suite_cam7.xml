@@ -2,6 +2,7 @@
 
 <suite name="cam7" version="1.0">
   <group name="physics_before_coupler">
+    <!-- Dry Adiabatic Adjustment -->
     <scheme>dadadj</scheme>
     <scheme>apply_tendency_of_air_temperature</scheme>
     <scheme>qneg</scheme>
