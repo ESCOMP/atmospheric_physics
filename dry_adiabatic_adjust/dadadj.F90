@@ -200,7 +200,8 @@ CONTAINS
             zeps = zeps + zeps
             if (zeps > 1.e-4_kind_phys) then
                errflg = i
-               errmsg = trim(scheme_name)//': Convergence failure, zeps > 1.e-4'
+               write(errmsg,*) trim(scheme_name)//': Convergence failure at column ',i,' zeps > 1.e-4 '// &
+                    '(errflg set to failing column index)'
                return                ! error return
             end if
          end do DBLZEP
