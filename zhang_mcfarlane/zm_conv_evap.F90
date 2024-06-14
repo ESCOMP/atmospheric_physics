@@ -93,7 +93,6 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
     real(kind_phys) :: evpsnow(ncol)         ! evaporation of snowfall (kg/kg/s)
     real(kind_phys) :: snowmlt(ncol)         ! snow melt tendency in layer
     real(kind_phys) :: flxsntm(ncol)         ! flux of snow into layer, after melting
-    real(kind_phys) allocatable  :: prdsnow(:,:) ! snow production (kg/ks/s)
 
     real(kind_phys) :: kemask
     real(kind_phys) :: evplimit               ! temp variable for evaporation limits
@@ -107,14 +106,7 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
 
 !-----------------------------------------------------------------------
 
-    ! If prdsnow is passed in and allocated, then use it in the calculation, otherwise
-    ! use the old snow calculation
     old_snow=.true.
-!    if (present(prdsnow)) then
-!       if (allocated(prdsnow)) then
-!          old_snow=.false.
-!       end if
-!    end if
 
 ! convert input precip to kg/m2/s
     prec(:ncol) = prec(:ncol)*1000._kind_phys
@@ -232,10 +224,6 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
           ntsnprd(i,k) = prdprec(i,k)*work2 - evpsnow(i) - snowmlt(i)
           tend_s_snwprd  (i,k) = prdprec(i,k)*work2*latice
           tend_s_snwevmlt(i,k) = - ( evpsnow(i) + snowmlt(i) )*latice
-      else
-          ntsnprd(i,k) = prdsnow(i,k) - min(flxsnow(i,k)*gravit/pdel(i,k), evpsnow(i)+snowmlt(i))
-          tend_s_snwprd  (i,k) = prdsnow(i,k)*latice
-          tend_s_snwevmlt(i,k) = -min(flxsnow(i,k)*gravit/pdel(i,k), evpsnow(i)+snowmlt(i) )*latice
       end if
 
 ! precipitation fluxes
