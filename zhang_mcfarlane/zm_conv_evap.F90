@@ -28,7 +28,7 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
      landfrac, &
      tend_s, tend_s_snwprd, tend_s_snwevmlt, tend_q, &
      prdprec, cldfrc, deltat,  &
-     prec, snow, ntprprd, ntsnprd, flxprec, flxsnow, prdsnow)
+     prec, snow, ntprprd, ntsnprd, flxprec, flxsnow)
 
 
 !-----------------------------------------------------------------------
@@ -59,8 +59,8 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
     real(kind_phys),intent(in), dimension(:,:) :: pdel       ! layer thickness (Pa)                         (ncol,pver)
     real(kind_phys),intent(in), dimension(:,:) :: q          ! water vapor (kg/kg)                          (ncol,pver)
     real(kind_phys),intent(in), dimension(:) :: landfrac     ! land fraction                                (ncol)
-    real(kind_phys),intent(inout), dimension(:,:) :: tend_s     ! heating rate (J/kg/s)                     (ncol,pver)
-    real(kind_phys),intent(inout), dimension(:,:) :: tend_q     ! water vapor tendency (kg/kg/s)            (ncol,pver)
+    real(kind_phys),intent(out), dimension(:,:) :: tend_s     ! heating rate (J/kg/s)                     (ncol,pver)
+    real(kind_phys),intent(out), dimension(:,:) :: tend_q     ! water vapor tendency (kg/kg/s)            (ncol,pver)
     real(kind_phys),intent(out), dimension(:,:) :: tend_s_snwprd ! Heating rate of snow production        (ncol,pver)
     real(kind_phys),intent(out), dimension(:,:) :: tend_s_snwevmlt ! Heating rate of evap/melting of snow (ncol,pver)
 
@@ -73,7 +73,6 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
     real(kind_phys), intent(inout) :: prec(:)        ! Convective-scale preciptn rate                       (ncol)
     real(kind_phys), intent(out)   :: snow(:)        ! Convective-scale snowfall rate                       (ncol)
 
-    real(kind_phys), optional, intent(in), allocatable  :: prdsnow(:,:) ! snow production (kg/ks/s)
 
 !
 !---------------------------Local storage-------------------------------
@@ -94,6 +93,7 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
     real(kind_phys) :: evpsnow(ncol)         ! evaporation of snowfall (kg/kg/s)
     real(kind_phys) :: snowmlt(ncol)         ! snow melt tendency in layer
     real(kind_phys) :: flxsntm(ncol)         ! flux of snow into layer, after melting
+    real(kind_phys) allocatable  :: prdsnow(:,:) ! snow production (kg/ks/s)
 
     real(kind_phys) :: kemask
     real(kind_phys) :: evplimit               ! temp variable for evaporation limits
@@ -110,11 +110,11 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
     ! If prdsnow is passed in and allocated, then use it in the calculation, otherwise
     ! use the old snow calculation
     old_snow=.true.
-    if (present(prdsnow)) then
-       if (allocated(prdsnow)) then
-          old_snow=.false.
-       end if
-    end if
+!    if (present(prdsnow)) then
+!       if (allocated(prdsnow)) then
+!          old_snow=.false.
+!       end if
+!    end if
 
 ! convert input precip to kg/m2/s
     prec(:ncol) = prec(:ncol)*1000._kind_phys

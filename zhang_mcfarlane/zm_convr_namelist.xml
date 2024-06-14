@@ -7,7 +7,7 @@
 <entry id="zmconv_co_lnd">
   <category>conv</category>
   <group>zmconv_nl</group>
-  <standard_name>cloud_condensate_to_precipitation_autoconversion_coefficient_over_land_for_zhang_mcfarlane_deep_convection_scheme </standard_name>
+  <standard_name>cloud_condensate_to_precipitation_autoconversion_coefficient_over_land_for_zhang_mcfarlane_deep_convection_scheme</standard_name>
   <units>m-1</units>
   <type>real</type>
   <kind>kind_phys</kind>
@@ -15,6 +15,7 @@
   <values>
      <value>0.0075D0</value>
   </values>
+</entry>
 
 <entry id="zmconv_c0_ocn">
   <category>conv</category>
@@ -48,7 +49,7 @@
   <group>zmconv_nl</group>
   <standard_name>tunable_evaporation_efficiency_over_ocean_for_zhang_mcfarlane_deep_convection_scheme</standard_name>
   <units>1</units>
-  <type>real>
+  <type>real</type>
   <kind>kind_phys</kind>
   <desc>Tunable evaporation efficiency in ZM deep convection scheme.</desc>
   <values>
@@ -61,7 +62,7 @@
   <group>zmconv_nl</group>
   <standard_name>tunable_evaporation_efficiency_over_land_for_zhang_mcfarlane_deep_convection_scheme</standard_name>
   <units>1</units>
-  <type>real>
+  <type>real</type>
   <kind>kind_phys</kind>
   <desc>Tunable evaporation efficiency for land in ZM deep convection scheme.</desc>
   <values>
@@ -80,8 +81,23 @@
     Default: .false., unless -zmconv_org set in configure
   </desc>
   <values>
-     <value>false</value>
-     <value zmconv_org="1">true</value>
+     <value>.false.</value>
+     <value zmconv_org="1">.true.</value>
+  </values>
+</entry>
+
+<entry id="no_deep_pbl">
+  <category>conv</category>
+  <group>zmconv_nl</group>
+  <standard_name>flag_for_no_deep_convection_in_pbl</standard_name>
+  <units>flag</units>
+  <type>logical</type>
+  <desc>Include organization parameterization in ZM.   This value is set to true automatically
+    if -zmconv_org is set in configure.
+    Default: .false., unless -zmconv_org set in configure
+  </desc>
+  <values>
+     <value>.false.</value>
   </values>
 </entry>
 
@@ -96,6 +112,7 @@
      Convective momentum transport parameter (upward)
   </desc>
   <values>
+     <value                              >0.4000D0</value>
      <value clubb_sgs="1" microphys="mg3">0.7000D0</value>
   </values>
 </entry>
@@ -112,6 +129,7 @@
      Convective momentum transport parameter (downward)
   </desc>
   <values>
+     <value                              >0.4000D0</value>
      <value clubb_sgs="1" microphys="mg3">0.7000D0</value>
   </values>
 </entry>
@@ -191,4 +209,3 @@
 </entry>
 
 </entry_id_pg>
-

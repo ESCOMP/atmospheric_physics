@@ -22,7 +22,9 @@ subroutine zm_conv_convtran_run(ncol, pver, &
                     doconvtran,q       ,ncnst   ,mu      ,md      , &
                     du      ,eu      ,ed      ,dp      ,dsubcld , &
                     jt      ,mx      ,ideep   ,il1g    ,il2g    , &
-                    nstep   ,fracis  ,dqdt    ,dpdry   ,dt      )
+                    nstep   ,fracis  ,dqdt    ,dpdry   ,dt, const_metadata      )
+! ccpp_constituent_properties - standard name -- see chat
+
 !-----------------------------------------------------------------------
 !
 ! Purpose:
@@ -37,8 +39,8 @@ subroutine zm_conv_convtran_run(ncol, pver, &
 ! Author: P. Rasch
 !
 !-----------------------------------------------------------------------
-! CACNOTE - replace with CCPP constituents
-   use constituents,    only: cnst_get_type_byind
+!!!!   use constituents,    only: cnst_get_type_byind
+   use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
 
    implicit none
 !-----------------------------------------------------------------------
@@ -70,6 +72,8 @@ subroutine zm_conv_convtran_run(ncol, pver, &
 
    real(kind_phys), intent(in) :: dt                      ! 2 delta t (model time increment)
 
+   type(ccpp_constituent_prop_ptr_t), intent(in) :: const_metadata(:)
+
 
 ! input/output
 
@@ -86,6 +90,8 @@ subroutine zm_conv_convtran_run(ncol, pver, &
    integer kp1               ! Work index
    integer ktm               ! Highest altitude index of cloud top
    integer m                 ! Work index
+
+   logical :: is_dry
 
    real(kind_phys) cabv                 ! Mix ratio of constituent above
    real(kind_phys) cbel                 ! Mix ratio of constituent below
@@ -112,6 +118,7 @@ subroutine zm_conv_convtran_run(ncol, pver, &
    real(kind_phys) total(ncol)
    real(kind_phys) negadt,qtmp
 
+
 !-----------------------------------------------------------------------
 !
    small = 1.e-36_kind_phys
@@ -127,10 +134,19 @@ subroutine zm_conv_convtran_run(ncol, pver, &
    end do
 
 ! Loop ever each constituent
-   do m = 2, ncnst
+!CACNOTE - This should probably loop 1, ncnst - figure out what was being done for 1
+   do m = 1, ncnst
+
+      call const_metadata(m)%standard_name(standard_name, errcode, errmsg)
+      if (standard_name == 'water_vapor_wrt_moist_air_and_condensed_water') then
+        cycle
+      end if
+
       if (doconvtran(m)) then
 
-         if (cnst_get_type_byind(m).eq.'dry') then
+!         if (cnst_get_type_byind(m).eq.'dry') then
+          call const_metadata(m)%is_dry(is_dry, errcode, errmsg)
+          if (is_dry) then
             do k = 1,pver
                do i =il1g,il2g
                   dptmp(i,k) = dpdry(i,k)

@@ -37,8 +37,6 @@ subroutine zm_conv_momtran_run(ncol, pver, pverp, &
 ! Author: J. Richter and P. Rasch
 !
 !-----------------------------------------------------------------------
-! CACNOTE - use CCPP constituents object
-   use constituents,    only: cnst_get_type_byind
 
    implicit none
 !-----------------------------------------------------------------------
@@ -47,7 +45,7 @@ subroutine zm_conv_momtran_run(ncol, pver, pverp, &
 !
    integer, intent(in) :: ncol                  ! number of atmospheric columns
    integer, intent(in) :: pver, pverp
-   logical, intent(in) :: domomtran(:)      ! flag for doing convective transport    (num_winds)
+   logical, intent(in) :: domomtran      ! flag for doing convective transport    (num_winds)
    real(kind_phys), intent(in) :: windu(:,:)  ! U Wind array                                    (ncol,pver)
    real(kind_phys), intent(in) :: windv(:,:)  ! V Wind array                                    (ncol,pver)
    real(kind_phys), intent(in) :: mu(:,:)       ! Mass flux up                              (ncol,pver)
@@ -178,7 +176,7 @@ subroutine zm_conv_momtran_run(ncol, pver, pverp, &
 
 ! Loop ever each wind component
    do m = 1, num_winds                    !start at m = 1 to transport momentum
-      if (domomtran(m)) then
+      if (domomtran) then
 
 ! Gather up the winds and set tend to zero
          do k = 1,pver
