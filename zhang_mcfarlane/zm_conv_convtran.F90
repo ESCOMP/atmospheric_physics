@@ -22,7 +22,7 @@ subroutine zm_conv_convtran_run(ncol, pver, &
                     doconvtran,q       ,ncnst   ,mu      ,md      , &
                     du      ,eu      ,ed      ,dp      ,dsubcld , &
                     jt      ,mx      ,ideep   ,il1g    ,il2g    , &
-                    nstep   ,fracis  ,dqdt    ,dpdry   ,dt, const_metadata      )
+                    nstep   ,fracis  ,dqdt    ,dpdry   ,dt, const_metadata)
 ! ccpp_constituent_properties - standard name -- see chat
 
 !-----------------------------------------------------------------------
@@ -118,6 +118,7 @@ subroutine zm_conv_convtran_run(ncol, pver, &
    real(kind_phys) total(ncol)
    real(kind_phys) negadt,qtmp
 
+   character(len=256) :: standard_name
 
 !-----------------------------------------------------------------------
 !
@@ -137,7 +138,7 @@ subroutine zm_conv_convtran_run(ncol, pver, &
 !CACNOTE - This should probably loop 1, ncnst - figure out what was being done for 1
    do m = 1, ncnst
 
-      call const_metadata(m)%standard_name(standard_name, errcode, errmsg)
+      call const_metadata(m)%standard_name(standard_name)
       if (standard_name == 'water_vapor_wrt_moist_air_and_condensed_water') then
         cycle
       end if
@@ -145,7 +146,7 @@ subroutine zm_conv_convtran_run(ncol, pver, &
       if (doconvtran(m)) then
 
 !         if (cnst_get_type_byind(m).eq.'dry') then
-          call const_metadata(m)%is_dry(is_dry, errcode, errmsg)
+          call const_metadata(m)%is_dry(is_dry)
           if (is_dry) then
             do k = 1,pver
                do i =il1g,il2g
