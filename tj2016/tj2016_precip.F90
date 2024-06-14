@@ -40,7 +40,7 @@ contains
         real(kind_phys), intent(in)    :: pmid(:,:)   ! mid-point pressure (Pa)
         real(kind_phys), intent(in)    :: pdel(:,:)   ! layer thickness (Pa)
 
-        real(kind_phys), intent(inout) :: T(:,:)      ! air temperature (K)
+        real(kind_phys), intent(in)    :: T(:,:)      ! air temperature (K)
         real(kind_phys), intent(inout) :: qv(:,:)     ! specific humidity Q (kg/kg)
 
         real(kind_phys), intent(out)   :: relhum(:,:)                   ! relative humidity
@@ -62,7 +62,7 @@ contains
         ! Variables for condensation, precipitation, and temperature
         real(kind_phys) :: qsat                       ! saturation value for Q (kg/kg)
         real(kind_phys) :: tmp, tmp_t, tmp_q
-        real(kind_phys) :: stateT(ncol, pver)                ! air temperature (K) _before_ run
+        real(kind_phys) :: localT(ncol, pver)                ! air temperature (K) _before_ run
         ! Loop variables
         integer  :: i, k
 
@@ -89,7 +89,7 @@ contains
         !=========================================================================
         ! Large-Scale Condensation and Precipitation without cloud stage 
         !=========================================================================
-        stateT = T
+        localT = T
         do k = 1, pver
             do i = 1, ncol
                 qsat = epsilo*e0/pmid(i,k)*exp(-latvap/rh2o*((1._kind_phys/T(i,k))-1._kind_phys/T0)) ! saturation value for Q
@@ -99,17 +99,16 @@ contains
                     tmp_t       = latvap/cpairv(i,k)*tmp       ! dT/dt tendency from large-scale condensation
                     tmp_q       = -tmp                   ! dqv/dt tendency from large-scale condensation
                     precl(i)    = precl(i) + tmp*pdel(i,k)/(gravit*rhoh2o) ! large-scale precipitation rate (m/s)
-                    T(i,k)      = T(i,k)   + tmp_t*dtime ! update T (temperature)
+                    localT(i,k) = localT(i,k)   + tmp_t*dtime ! update T (temperature)
                     qv(i,k)     = qv(i,k)  + tmp_q*dtime ! update qv (specific humidity)
                     ! recompute qsat with updated T
-                    qsat = epsilo*e0/pmid(i,k)*exp(-latvap/rh2o*((1._kind_phys/T(i,k))-1._kind_phys/T0)) ! saturation value for Q
+                    qsat = epsilo*e0/pmid(i,k)*exp(-latvap/rh2o*((1._kind_phys/localT(i,k))-1._kind_phys/T0)) ! saturation value for Q
                 end if
 
                 relhum(i,k) = qv(i,k) / qsat * 100._kind_phys ! in percent
-                tendency_of_air_enthalpy(i,k) = (T(i,k) - stateT(i,k)) / dtime * cpairv(i,k)
+                tendency_of_air_enthalpy(i,k) = (localT(i,k) - T(i,k)) / dtime * cpairv(i,k)
             end do
         end do
-        
 
     end subroutine tj2016_precip_run
 end module TJ2016_precip
