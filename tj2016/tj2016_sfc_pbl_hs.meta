@@ -187,7 +187,7 @@
   intent = inout
   advected = True
 [ shflx ]
-  standard_name = surface_upward_sensible_heat_flux_for_coupling
+  standard_name = surface_upward_sensible_heat_flux
   units = W m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
