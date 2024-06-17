@@ -23,6 +23,12 @@
   type = integer
   dimensions = ()
   intent = in
+[ index_top_interface ]
+  standard_name = vertical_index_at_top_interface
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
 [ index_surface ]
   standard_name = vertical_index_at_surface_adjacent_layer
   units = index

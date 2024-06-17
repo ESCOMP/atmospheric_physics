@@ -15,19 +15,21 @@ contains
 
     !> \section arg_table_tj2016_sfc_pbl_hs_run  Argument Table
     !! \htmlinclude tj2016_sfc_pbl_hs_run.html
-    subroutine tj2016_sfc_pbl_hs_run(ncol, pver, pverp, index_surface, index_surface_interface, gravit, pi, cappav, rairv,  &
-        cpairv, latvap, rh2o, epsilo, rhoh2o, zvirv, ps0, etamid, dtime, clat,                &
-        PS, pmid, pint, lnpint, rpdel, stateT, U, dudt, V, dvdt, qv, shflx, lhflx, taux, tauy,     &
-        evap, dqdt_vdiff, dtdt_vdiff, dtdt_heating, Km, Ke, Tsurf, tendency_of_air_enthalpy,  &
+    subroutine tj2016_sfc_pbl_hs_run(ncol, pver, pverp, index_top_interface, index_surface,    &
+        index_surface_interface, gravit, pi, cappav, rairv,                                    &
+        cpairv, latvap, rh2o, epsilo, rhoh2o, zvirv, ps0, etamid, dtime, clat,                 &
+        PS, pmid, pint, lnpint, rpdel, stateT, U, dudt, V, dvdt, qv, shflx, lhflx, taux, tauy, &
+        evap, dqdt_vdiff, dtdt_vdiff, dtdt_heating, Km, Ke, Tsurf, tendency_of_air_enthalpy,   &
         scheme_name, errmsg, errflg)
     !------------------------------------------------
     !   Input / output parameters
     !------------------------------------------------
 
-    integer,  intent(in)           :: ncol                ! number of columns
-    integer,  intent(in)           :: pver                ! number of vertical levels
-    integer,  intent(in)           :: pverp               ! number of vertical levels + 1
-    integer,  intent(in)           :: index_surface       ! index of surface (layer)
+    integer,  intent(in)           :: ncol                    ! number of columns
+    integer,  intent(in)           :: pver                    ! number of vertical levels
+    integer,  intent(in)           :: pverp                   ! number of vertical levels + 1
+    integer,  intent(in)           :: index_top_interface     ! index of top interface
+    integer,  intent(in)           :: index_surface           ! index of surface (layer)
     integer,  intent(in)           :: index_surface_interface ! index of surface (interface)
 
     real(kind_phys), intent(in)    :: gravit              ! g: gravitational acceleration (m/s2)
@@ -151,6 +153,9 @@ contains
     ! Loop variables
     integer             :: i, k
 
+    ! Vertical index loop control variable:
+    integer             :: vdir
+
     ! Define simple_physics_option to either "TJ16" (moist HS) or "RJ12" (simple-physics)
     character(LEN=4)    :: simple_physics_option
 
@@ -170,6 +175,13 @@ contains
 
     simple_physics_option = "TJ16"   ! Set the simple_physics_option "TJ16" (default, moist HS)
     ! simple_physics_option = "RJ12"   ! alternative simple-physics forcing, Reed and Jablonowski (2012)
+
+    ! Determine what direction vertical integration/looping should occur:
+    if (index_top_interface < index_surface) then
+       vdir = 1
+    else
+       vdir = -1
+    end if
 
     !==========================================================================
     ! Calculate Sea Surface Temperature and set exchange coefficient
@@ -298,29 +310,29 @@ contains
     !--------------------------------------------------------------------------
     ! Calculate Diagonal Variables for PBL Scheme (semi-implicit technique follows the CESM PBL implementation)
     !--------------------------------------------------------------------------
-    do k = 1, pver-1
+    do k = index_top_interface, index_surface-vdir, vdir
         do i = 1, ncol
-            rho(i)     = (pint(i,k+1)/(rairv(i,k)*(TCopy(i,k+1)*(1._kind_phys+zvirv(i,index_surface)*qv(i,k+1))+TCopy(i,k)*(1._kind_phys+zvirv(i,index_surface)*qv(i,k)))/2.0_kind_phys))
-            CA(i,k)    = rpdel(i,k)*dtime*gravit*gravit*Ke(i,k+1)*rho(i)*rho(i)/(pmid(i,k+1)-pmid(i,k))
-            CC(i,k+1)  = rpdel(i,k+1)*dtime*gravit*gravit*Ke(i,k+1)*rho(i)*rho(i)/(pmid(i,k+1)-pmid(i,k))
+            rho(i)     = (pint(i,k+vdir)/(rairv(i,k)*(TCopy(i,k+vdir)*(1._kind_phys+zvirv(i,index_surface)*qv(i,k+vdir))+TCopy(i,k)*(1._kind_phys+zvirv(i,index_surface)*qv(i,k)))/2.0_kind_phys))
+            CA(i,k)    = rpdel(i,k)*dtime*gravit*gravit*Ke(i,k+vdir)*rho(i)*rho(i)/(pmid(i,k+vdir)-pmid(i,k))
+            CC(i,k+vdir)  = rpdel(i,k+vdir)*dtime*gravit*gravit*Ke(i,k+vdir)*rho(i)*rho(i)/(pmid(i,k+vdir)-pmid(i,k))
             ! the next two PBL variables are initialized here for the potential use of RJ12 instead of TJ16
             ! since they need to use the same density field rho
-            CAm(i,k)   = rpdel(i,k)*dtime*gravit*gravit*Km(i,k+1)*rho(i)*rho(i)/(pmid(i,k+1)-pmid(i,k))
-            CCm(i,k+1) = rpdel(i,k+1)*dtime*gravit*gravit*Km(i,k+1)*rho(i)*rho(i)/(pmid(i,k+1)-pmid(i,k))
+            CAm(i,k)   = rpdel(i,k)*dtime*gravit*gravit*Km(i,k+vdir)*rho(i)*rho(i)/(pmid(i,k+vdir)-pmid(i,k))
+            CCm(i,k+vdir) = rpdel(i,k+vdir)*dtime*gravit*gravit*Km(i,k+vdir)*rho(i)*rho(i)/(pmid(i,k+vdir)-pmid(i,k))
         end do
     end do
     do i = 1, ncol
-        CA(i,index_surface)    = 0._kind_phys
-        CC(i,1)       = 0._kind_phys
+        CA(i,index_surface)            = 0._kind_phys
+        CC(i,index_top_interface)      = 0._kind_phys
         CE(i,index_surface_interface)  = 0._kind_phys
         CFt(i,index_surface_interface) = 0._kind_phys
         CFq(i,index_surface_interface) = 0._kind_phys
     end do
     do i = 1, ncol
-        do k = pver, 1, -1
-            CE(i,k)  = CC(i,k)/(1._kind_phys+CA(i,k)+CC(i,k)-CA(i,k)*CE(i,k+1))
-            CFt(i,k) = ((ps0/pmid(i,k))**cappav(i,k)*TCopy(i,k)+CA(i,k)*CFt(i,k+1))/(1._kind_phys+CA(i,k)+CC(i,k)-CA(i,k)*CE(i,k+1))
-            CFq(i,k) = (qv(i,k)+CA(i,k)*CFq(i,k+1))/(1._kind_phys+CA(i,k)+CC(i,k)-CA(i,k)*CE(i,k+1))
+        do k = index_surface, index_top_interface, -1*vdir
+            CE(i,k)  = CC(i,k)/(1._kind_phys+CA(i,k)+CC(i,k)-CA(i,k)*CE(i,k+vdir))
+            CFt(i,k) = ((ps0/pmid(i,k))**cappav(i,k)*TCopy(i,k)+CA(i,k)*CFt(i,k+vdir))/(1._kind_phys+CA(i,k)+CC(i,k)-CA(i,k)*CE(i,k+vdir))
+            CFq(i,k) = (qv(i,k)+CA(i,k)*CFq(i,k+vdir))/(1._kind_phys+CA(i,k)+CC(i,k)-CA(i,k)*CE(i,k+vdir))
         end do
     end do
 
@@ -332,24 +344,24 @@ contains
     ! First: calculate the PBL mixing tendencies at the top model level
     !---------------------------------------------------------------------
     do i = 1, ncol
-        tmp             = CFt(i,1)*(pmid(i,1)/ps0)**cappav(i,1)       ! new T at the model top
-        dtdt_vdiff(i,1) = (tmp-TCopy(i,1))/dtime                      ! T tendency due to PBL diffusion (model top)
-        TCopy(i,1)          = tmp                                     ! update T at the model top
+        tmp             = CFt(i,index_top_interface)*(pmid(i,index_top_interface)/ps0)**cappav(i,index_top_interface)  ! new T at the model top
+        dtdt_vdiff(i,index_top_interface) = (tmp-TCopy(i,index_top_interface))/dtime                                   ! T tendency due to PBL diffusion (model top)
+        TCopy(i,index_top_interface)      = tmp                                                                        ! update T at the model top
 
-        dqdt_vdiff(i,1) = (CFq(i,1)-qv(i,1))/dtime                ! Q tendency due to PBL diffusion (model top)
-        qv(i,1)         = CFq(i,1)                                ! update Q at the model top
+        dqdt_vdiff(i,index_top_interface) = (CFq(i,index_top_interface)-qv(i,index_top_interface))/dtime               ! Q tendency due to PBL diffusion (model top)
+        qv(i,index_top_interface)         = CFq(i,index_top_interface)                                                 ! update Q at the model top
     end do
 
     !-----------------------------------------
     ! PBL mixing at all other model levels
     !-----------------------------------------
     do i = 1, ncol
-        do k = 2, pver
-            tmp             = (CE(i,k)*TCopy(i,k-1)*(ps0/pmid(i,k-1))**cappav(i,k)+CFt(i,k))*(pmid(i,k)/ps0)**cappav(i,k)  ! new T
+        do k = index_top_interface+vdir, index_surface
+            tmp             = (CE(i,k)*TCopy(i,k-vdir)*(ps0/pmid(i,k-vdir))**cappav(i,k)+CFt(i,k))*(pmid(i,k)/ps0)**cappav(i,k)  ! new T
             dtdt_vdiff(i,k) = dtdt_vdiff(i,k) + (tmp-TCopy(i,k))/dtime  ! update the T tendency due to surface fluxes and the PBL diffusion
             TCopy(i,k)          = tmp                                   ! update T
 
-            tmp             = CE(i,k)*qv(i,k-1)+CFq(i,k)            ! new Q
+            tmp             = CE(i,k)*qv(i,k-vdir)+CFq(i,k)         ! new Q
             dqdt_vdiff(i,k) = dqdt_vdiff(i,k) + (tmp-qv(i,k))/dtime ! update the Q tendency due to surface fluxes and the PBL diffusion
             qv(i,k)         = tmp                                   ! update Q
         end do
@@ -386,7 +398,7 @@ contains
         ! Apply HS Rayleigh Friction (RF) near the surface (below eta=0.7):
         ! represents surface stresses and PBL diffusion for U and V
         !--------------------------------------------------------------------------
-        do k = 1, pver
+        do k = index_top_interface, index_surface
             if (etamid(k) > sigmab) then
                 kv  = kf*(etamid(k) - sigmab)/onemsig             ! RF coefficient
                 do i=1,ncol
@@ -400,7 +412,7 @@ contains
         ! Compute idealized radiative heating rates (with modified HS equilibrium temperature)
         ! mimics radiation
         !-----------------------------------------------------------------------
-        do k = 1, pver
+        do k = index_top_interface, index_surface
             if (etamid(k) > sigmab) then                                        ! lower atmosphere
                 do i = 1, ncol
                     kt = ka + (ks - ka)*cossqsq(i)*(etamid(k) - sigmab)/onemsig ! relaxation coefficent varies in the vertical
@@ -433,17 +445,17 @@ contains
         ! The fields CAm and CCm are also initialized above to guarantee the use of the same density.
         !--------------------------------------------------------------------------
         do i = 1, ncol
-            CAm(i,index_surface)   = 0._kind_phys
-            CCm(i,1)      = 0._kind_phys
+            CAm(i,index_surface)           = 0._kind_phys
+            CCm(i,index_top_interface)         = 0._kind_phys
             CEm(i,index_surface_interface) = 0._kind_phys
             CFu(i,index_surface_interface) = 0._kind_phys
             CFv(i,index_surface_interface) = 0._kind_phys
         end do
         do i = 1, ncol
-            do k = pver, 1, -1
-                CEm(i,k) = CCm(i,k)/(1._kind_phys+CAm(i,k)+CCm(i,k)-CAm(i,k)*CEm(i,k+1))
-                CFu(i,k) = (UCopy(i,k)+CAm(i,k)*CFu(i,k+1))/(1._kind_phys+CAm(i,k)+CCm(i,k)-CAm(i,k)*CEm(i,k+1))
-                CFv(i,k) = (VCopy(i,k)+CAm(i,k)*CFv(i,k+1))/(1._kind_phys+CAm(i,k)+CCm(i,k)-CAm(i,k)*CEm(i,k+1))
+            do k = index_surface, index_top_interface, -1*vdir
+                CEm(i,k) = CCm(i,k)/(1._kind_phys+CAm(i,k)+CCm(i,k)-CAm(i,k)*CEm(i,k+vdir))
+                CFu(i,k) = (UCopy(i,k)+CAm(i,k)*CFu(i,k+vdir))/(1._kind_phys+CAm(i,k)+CCm(i,k)-CAm(i,k)*CEm(i,k+vdir))
+                CFv(i,k) = (VCopy(i,k)+CAm(i,k)*CFv(i,k+vdir))/(1._kind_phys+CAm(i,k)+CCm(i,k)-CAm(i,k)*CEm(i,k+vdir))
             end do
         end do
 
@@ -455,23 +467,23 @@ contains
         ! First: calculate the PBL diffusive tendencies at the top model level
         !---------------------------------------------------------------------
         do i = 1, ncol
-            UCopy(i,1)    = CFu(i,1)  ! new U at the model top
-            VCopy(i,1)    = CFv(i,1)  ! new V at the model top
+            UCopy(i,index_top_interface) = CFu(i,index_top_interface)  ! new U at the model top
+            VCopy(i,index_top_interface) = CFv(i,index_top_interface)  ! new V at the model top
         end do
 
         !-----------------------------------------
         ! PBL diffusion of U and V at all other model levels
         !-----------------------------------------
         do i = 1, ncol
-            do k = 2, pver
-                UCopy(i,k) = CEm(i,k)*UCopy(i,k-1) + CFu(i,k)  ! new U
-                VCopy(i,k) = CEm(i,k)*VCopy(i,k-1) + CFv(i,k)  ! new V
+            do k = index_top_interface+vdir, index_surface
+                UCopy(i,k) = CEm(i,k)*UCopy(i,k-vdir) + CFu(i,k)  ! new U
+                VCopy(i,k) = CEm(i,k)*VCopy(i,k-vdir) + CFv(i,k)  ! new V
             end do
         end do
     endif
 
     do i = 1, ncol
-        do k = 1, pver
+        do k = index_top_interface, index_surface
             dudt(i, k)                    = (UCopy(i, k) - U(i, k)) / dtime
             dvdt(i, k)                    = (VCopy(i, k) - V(i, k)) / dtime
             tendency_of_air_enthalpy(i,k) = (TCopy(i,k) - stateT(i,k)) / dtime * cpairv(i,k)
