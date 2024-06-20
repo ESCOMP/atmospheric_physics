@@ -16,9 +16,9 @@ Code reviewed by:
 List all existing files that have been added (A), modified (M), or deleted (D),
 and describe the changes:
 
-A	dadadj/dadadj.F90  - minor refactor to the cam routine - ccpp'ize
-A	dadadj/dadadj.meta
-A	dadadj/dadadj_namelist.xml
+A	dry_adiabatic_adjust/dadadj.F90  - minor refactor to the cam routine - ccpp'ize
+A	dry_adiabatic_adjust/dadadj.meta
+A	dry_adiabatic_adjust/dadadj_namelist.xml
 M	doc/ChangeLog
 A	suite_dadadj.xml - CCPP suite file
 
@@ -26,11 +26,12 @@ A	suite_dadadj.xml - CCPP suite file
 List and Describe any test failures:
     - Tested in CAM
 	Because dadadj doesn't normally get tripped I modified the Temp
-	profile to create an instability where the code would be exercized.
-	The snapshot files continain this instability.  The modification adds
+	profile to create an instability where the code would be exercised.
+	The snapshot files contain this instability.  The modification adds
 	60 degrees to the layer 2 temperature.
 
-	--- /project/amp/jet/collections/cam6_3_160_dryadj.042924.1856/src/dynamics/se/dyn_comp.F90	2024-05-02 16:56:49.746341064 -0600
+	--- /project/amp/jet/collections/cam6_3_160_dryadj.042924.1856/src/dynamics/se/dyn_comp.F90
+	2024-05-02 16:56:49.746341064 -0600
 	+++ SourceMods/src.cam/dyn_comp.F90	2024-05-02 16:37:13.171433366 -0600
 	@@ -1429,6 +1429,7 @@
           do j = 1, np
