@@ -36,7 +36,9 @@ definition file.
 4) Updates several variables from CAM that were 2D to now be 3D to enable
 future updates to take the vertical dimension into account for different
 planetary physics.
-5) Introduces minor answer change to `*_sfc_pbl_hs` functionality decoumented
+5) Adds `index_top_interface` in `*_sfc_pbl_hs` scheme to allow integrating
+with models that invert the vertical dimension data.
+6) Introduces minor answer change to `*_sfc_pbl_hs` functionality decoumented
 below.
 
 List and Describe any test failures:
