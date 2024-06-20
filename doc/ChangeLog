@@ -38,7 +38,7 @@ future updates to take the vertical dimension into account for different
 planetary physics.
 5) Adds `index_top_interface` in `*_sfc_pbl_hs` scheme to allow integrating
 with models that invert the vertical dimension data.
-6) Introduces minor answer change to `*_sfc_pbl_hs` functionality decoumented
+6) Introduces minor answer change to `*_sfc_pbl_hs` functionality documented
 below.
 
 List and Describe any test failures:
@@ -47,7 +47,7 @@ List and Describe any test failures:
 Summarize any changes to answers:
 - There is a single know change to the after coupler run function
 (tj2016_sfc_pbl_hs) which has consistently been off on timestep 2 only
-by at most 0.13E-22 for a single variable (exerpt from run/atm log):
+by at most 0.13E-22 for a single variable (excerpt from run/atm log):
 
 ********** Physics Check Data Results **********
 
