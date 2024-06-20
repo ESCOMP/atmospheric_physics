@@ -1,21 +1,21 @@
 
 #######################
 Date/time of when script was run:
-2024-05-17 13:07:10.147797
+2024-06-20 11:25:12.714233
 #######################
 
 Non-dictionary standard names found in the following metadata files:
 
 --------------------------
 
-atmospheric_physics-mwaxmonsky/utilities/geopotential_temp.meta
+/home/mwaxmonsky/source/atmospheric_physics-mwaxmonsky/utilities/geopotential_temp.meta
 
     - air_pressure_at_interface
     - ln_air_pressure_at_interface
 
 --------------------------
 
-atmospheric_physics-mwaxmonsky/zhang_mcfarlane/zm_conv_momtran.meta
+/home/mwaxmonsky/source/atmospheric_physics-mwaxmonsky/zhang_mcfarlane/zm_conv_momtran.meta
 
     - atmosphere_detrainment_convective_mass_flux_for_deep_convection_for_convective_columns
     - atmosphere_downdraft_convective_mass_flux_for_deep_convection_for_convective_columns
@@ -42,7 +42,7 @@ atmospheric_physics-mwaxmonsky/zhang_mcfarlane/zm_conv_momtran.meta
 
 --------------------------
 
-atmospheric_physics-mwaxmonsky/zhang_mcfarlane/zm_convr.meta
+/home/mwaxmonsky/source/atmospheric_physics-mwaxmonsky/zhang_mcfarlane/zm_convr.meta
 
     - air_pressure_at_interface
     - atmosphere_convective_mass_flux_due_to all_convection?
@@ -98,7 +98,7 @@ atmospheric_physics-mwaxmonsky/zhang_mcfarlane/zm_convr.meta
 
 --------------------------
 
-atmospheric_physics-mwaxmonsky/zhang_mcfarlane/zm_conv_convtran.meta
+/home/mwaxmonsky/source/atmospheric_physics-mwaxmonsky/zhang_mcfarlane/zm_conv_convtran.meta
 
     - atmosphere_detrainment_convective_mass_flux_for_deep_convection_for_convective_columns
     - atmosphere_downdraft_convective_mass_flux_for_deep_convection_for_convective_columns
@@ -120,7 +120,7 @@ atmospheric_physics-mwaxmonsky/zhang_mcfarlane/zm_conv_convtran.meta
 
 --------------------------
 
-atmospheric_physics-mwaxmonsky/zhang_mcfarlane/zm_conv_evap.meta
+/home/mwaxmonsky/source/atmospheric_physics-mwaxmonsky/zhang_mcfarlane/zm_conv_evap.meta
 
     - 
     - cloud_area_fraction
@@ -146,7 +146,7 @@ atmospheric_physics-mwaxmonsky/zhang_mcfarlane/zm_conv_evap.meta
 
 --------------------------
 
-atmospheric_physics-mwaxmonsky/tj2016/tj2016_precip.meta
+/home/mwaxmonsky/source/atmospheric_physics-mwaxmonsky/tj2016/tj2016_precip.meta
 
     - gas_constant_of_water_vapor
     - lwe_large_scale_precipitation_rate_at_surface
@@ -155,7 +155,7 @@ atmospheric_physics-mwaxmonsky/tj2016/tj2016_precip.meta
 
 --------------------------
 
-atmospheric_physics-mwaxmonsky/tj2016/tj2016_sfc_pbl_hs.meta
+/home/mwaxmonsky/source/atmospheric_physics-mwaxmonsky/tj2016/tj2016_sfc_pbl_hs.meta
 
     - air_pressure_at_interface
     - eddy_heat_diffusivity
@@ -168,6 +168,7 @@ atmospheric_physics-mwaxmonsky/tj2016/tj2016_sfc_pbl_hs.meta
     - surface_eastward_wind_stress
     - surface_evaporation_rate
     - surface_northward_wind_stress
+    - surface_upward_sensible_heat_flux
     - tendency_of_air_temperature_due_to_diabatic_heating
     - tendency_of_air_temperature_due_to_vertical_diffusion
     - tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_vertical_diffusion
