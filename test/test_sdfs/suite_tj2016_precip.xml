@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<suite name="tj2016_precip" version="1.0">
+  <group name="physics_before_coupler">
+    <scheme>tj2016_precip</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>qneg</scheme>
+  </group>
+</suite>
+
