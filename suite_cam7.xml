@@ -4,7 +4,8 @@
   <group name="physics_before_coupler">
     <!-- Dry Adiabatic Adjustment -->
     <scheme>dadadj</scheme>
-    <scheme>apply_tendency_of_air_temperature</scheme>
+    <scheme>dadadj_apply_qv_tendency</scheme>
+    <scheme>apply_heating_rate</scheme>
     <scheme>qneg</scheme>
     <scheme>geopotential_temp</scheme>
   </group>

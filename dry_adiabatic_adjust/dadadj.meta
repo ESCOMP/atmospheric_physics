@@ -1,7 +1,6 @@
 [ccpp-table-properties]
   name = dadadj
   type = scheme
-
 [ccpp-arg-table]
   name  = dadadj_init
   type  = scheme
@@ -39,12 +38,20 @@
   dimensions = ()
   intent = out
 
+#########################################################
 [ccpp-arg-table]
   name  = dadadj_run
   type  = scheme
 [ ncol ]
   standard_name = horizontal_loop_extent
   long_name = number of columns
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[ nz ]
+  standard_name = vertical_layer_dimension
+  long_name = number of vertical layers
   units = count
   dimensions = ()
   type = integer
@@ -94,11 +101,17 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real | kind = kind_phys
   intent = in
-[ t_tend ]
-  standard_name = tendency_of_air_temperature
-  units = K s-1
+[ cpair ]
+  standard_name = composition_dependent_specific_heat_of_dry_air_at_constant_pressure
+  units = J kg-1 K-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real | kind = kind_phys
+  intent = in
+[ s_tend ]
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure
+  units = J kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = out
 [ q_tend ]
   standard_name = tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water

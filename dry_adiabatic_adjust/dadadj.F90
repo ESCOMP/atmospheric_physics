@@ -50,22 +50,24 @@ CONTAINS
   !> \section arg_table_dadadj_run Argument Table
   !! \htmlinclude dadadj_run.html
   subroutine dadadj_run( &
-       ncol, dt, pmid, pint, pdel, state_t, state_q, cappa, t_tend, &
+       ncol, nz, dt, pmid, pint, pdel, state_t, state_q, cappa, cpair, s_tend, &
        q_tend, dadpdf, scheme_name, errmsg, errflg)
 
     !------------------------------------------------
     !   Input / output parameters
     !------------------------------------------------
     integer,  intent(in)        :: ncol  ! number of atmospheric columns
+    integer,  intent(in)        :: nz    ! number of atmospheric levels
     real(kind_phys), intent(in) :: dt          ! physics timestep
     real(kind_phys), intent(in) :: pmid(:,:)   ! pressure at model levels
     real(kind_phys), intent(in) :: pint(:,:)   ! pressure at model interfaces
     real(kind_phys), intent(in) :: pdel(:,:)   ! vertical delta-p
     real(kind_phys), intent(in) :: cappa(:,:)  ! variable Kappa
+    real(kind_phys), intent(in) :: cpair(:,:)  ! heat capacity of air
     real(kind_phys), intent(in) :: state_t(:,:)   ! temperature (K)
     real(kind_phys), intent(in) :: state_q(:,:)   ! specific humidity
-    real(kind_phys), intent(out), target :: t_tend(:,:)   ! temperature tendency
-    real(kind_phys), intent(out), target :: q_tend(:,:)   ! specific humidity tendency
+    real(kind_phys), intent(out) :: s_tend(:,:)   ! temperature tendency
+    real(kind_phys), intent(out) :: q_tend(:,:)   ! specific humidity tendency
     real(kind_phys), intent(out) :: dadpdf(:,:)  ! PDF of where adjustments happened
 
     character(len=64),  intent(out) :: scheme_name
@@ -90,8 +92,8 @@ CONTAINS
     real(kind_phys) :: zgamma    ! intermediate constant
     real(kind_phys) :: qave      ! mean q between levels
     real(kind_phys) :: cappaint  ! Kappa at level intefaces
-    real(kind_phys), pointer :: t(:,:)
-    real(kind_phys), pointer :: q(:,:)
+    real(kind_phys) :: t(ncol,nz)
+    real(kind_phys) :: q(ncol,nz)
 
     logical :: ilconv          ! .TRUE. ==> convergence was attained
     logical :: dodad(ncol)     ! .TRUE. ==> do dry adjustment
@@ -123,10 +125,6 @@ CONTAINS
        errmsg = trim(scheme_name)//': Allocate of c4dad(nlvdry) failed'
        return
     end if
-
-    ! t_tend< and tend_dtdq used as workspace until needed to calculate tendencies
-    t => t_tend
-    q => q_tend
 
     t = state_t
     q = state_q
@@ -210,10 +208,10 @@ CONTAINS
 
    end do COL
 
-   deallocate(c1dad, c2dad, c3dad, c4dad)
-
-   t_tend = (t - state_t)/dt
+   s_tend = (t - state_t)/dt*cpair
    q_tend = (q - state_q)/dt
+
+   deallocate(c1dad, c2dad, c3dad, c4dad)
 
  end subroutine dadadj_run
 
