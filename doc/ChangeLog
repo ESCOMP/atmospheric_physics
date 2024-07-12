@@ -1,3 +1,65 @@
+===============================================================
+
+Tag name: atmos_phys0_03_00
+Originator(s): mwaxmonsky
+Date: June 18, 2024
+One-line Summary: Initial TJ2016 (Moist Held-Suarez) implementation
+Github PR URL: https://github.com/ESCOMP/atmospheric_physics/pull/92
+
+This PR fixes the following NCAR/atmospheric_physics Github issues:
+
+Code reviewed by: nusbaume, peverwhee
+
+List all existing files that have been added (A), modified (M), or deleted (D),
+and describe the changes:
+
+A         doc/NamesNotInDictionary.xml
+M         kessler/kessler_update.meta
+A         suite_tj2016.xml
+A         test/test_defs/suite_tj2016_precip.xml
+A         test/test_defs/suite_tj2016_sfc_pbl_hs.xml
+A         tj2016/tj2016_precip.F90
+A         tj2016/tj2016_precip.meta
+A         tj2016/tj2016_sfc_pbl_hs.xml
+A         tj2016/tj2016_sfc_pbl_hs.F90
+M         utilities/geopotential_temp.meta
+M         zhang_mcfarlane/zm_conv_evap.meta
+M         zhang_mcfarlane/zm_convr.meta
+
+1) Updated Kessler/ZM/geopotential meta data files to use updated gravity standard name
+2) Added test suite definition files to test the before/after coupler
+functions in isolation
+3) Updated the design of the `run` functions to pass in state data and output
+tendencies (instead of modifying state directly) and the tendencies are now
+applied afterwards via additional `apply_*` schemes listed in the suite
+definition file.
+4) Updates several variables from CAM that were 2D to now be 3D to enable
+future updates to take the vertical dimension into account for different
+planetary physics.
+5) Adds `index_top_interface` in `*_sfc_pbl_hs` scheme to allow integrating
+with models that invert the vertical dimension data.
+6) Introduces minor answer change to `*_sfc_pbl_hs` functionality documented
+below.
+
+List and Describe any test failures:
+- None
+
+Summarize any changes to answers:
+- There is a single know change to the after coupler run function
+(tj2016_sfc_pbl_hs) which has consistently been off on timestep 2 only
+by at most 0.13E-22 for a single variable (excerpt from run/atm log):
+
+********** Physics Check Data Results **********
+
+TIMESTEP:            2
+
+ Variable                                          # Diffs  Max Diff   Max Diff loc (rank, col, lev)
+ --------                                          -------  --------   -----------------------------
+water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
+                                                         3  0.13E-22   (43,7,29)
+
+********** End Physics Check Data Results **********
+
 
 ===============================================================
 

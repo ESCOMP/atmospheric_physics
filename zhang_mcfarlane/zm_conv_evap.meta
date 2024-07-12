@@ -24,7 +24,7 @@
   dimensions = ()
   intent = in
 [ gravit ]
-  standard_name = gravitational_acceleration
+  standard_name = standard_gravitational_acceleration
   units = m s-2
   type = real | kind = kind_phys
   dimensions = ()
