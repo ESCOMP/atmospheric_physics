@@ -16,12 +16,15 @@ Code reviewed by:
 List all existing files that have been added (A), modified (M), or deleted (D),
 and describe the changes:
 
+A	dadadj_apply_qv_tendency.F90 - temp file to update constituent tendency
+A	dadadj_apply_qv_tendency.meta
 A	dry_adiabatic_adjust/dadadj.F90  - minor refactor to the cam routine - ccpp'ize
 A	dry_adiabatic_adjust/dadadj.meta
 A	dry_adiabatic_adjust/dadadj_namelist.xml
 M	doc/ChangeLog
-A	suite_dadadj.xml - CCPP suite file
-
+A	test/test_sdfs/suite_dry_adiabatic_adjust.xml - CCPP suite file for testing
+M	suite_cam7.xml - added dry adiabatic adjust to cam7 CCPP suite file
+M	NamesNotInDictionary.txt - updated with current set of names
 
 List and Describe any test failures:
     - Tested in CAM
