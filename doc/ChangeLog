@@ -15,8 +15,8 @@ Code reviewed by:
 List all existing files that have been added (A), modified (M), or deleted (D),
 and describe the changes:
 
-A	dadadj_apply_qv_tendency.F90 - temp file to update constituent tendency
-A	dadadj_apply_qv_tendency.meta
+A	dry_adiabatic_adjust/dadadj_apply_qv_tendency.F90 - temp file to update constituent tendency
+A	dry_adiabatic_adjust/dadadj_apply_qv_tendency.meta
 A	dry_adiabatic_adjust/dadadj.F90  - minor refactor to the cam routine - ccpp'ize
 A	dry_adiabatic_adjust/dadadj.meta
 A	dry_adiabatic_adjust/dadadj_namelist.xml
