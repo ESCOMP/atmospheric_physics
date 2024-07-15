@@ -3,7 +3,7 @@ module zm_conv_evap
   use ccpp_kinds, only:  kind_phys
 
 ! CACNOTE - Need to ccpp'ize cloud_fraction
-  use cloud_fraction,  only: cldfrc_fice
+!  use cloud_fraction_fice,  only: cldfrc_fice
 
   implicit none
 
@@ -115,12 +115,14 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
     do k = 1,pver
        call qsat(t(1:ncol,k), pmid(1:ncol,k), es(1:ncol,k), qs(1:ncol,k), ncol)
     end do
-! determine ice fraction in rain production (use cloud water parameterization fraction at present)
-!REMOVECAM - no longer need these when CAM is retired and pcols no longer exists
-    fice(:,:) = 0._kind_phys
-    fsnow_conv(:,:) = 0._kind_phys
-!REMOVECAM_END
-    call cldfrc_fice(ncol, t(1:ncol,:), fice(1:ncol,:), fsnow_conv(1:ncol,:))
+
+! CACNOTE Now it's own scheme
+!!! determine ice fraction in rain production (use cloud water parameterization fraction at present)
+!!!REMOVECAM - no longer need these when CAM is retired and pcols no longer exists
+!!    fice(:,:) = 0._kind_phys
+!!    fsnow_conv(:,:) = 0._kind_phys
+!!!REMOVECAM_END
+!!!    call cldfrc_fice_run(ncol, t(1:ncol,:), tmelt, fice(1:ncol,:), fsnow_conv(1:ncol,:))
 
 ! zero the flux integrals on the top boundary
     flxprec(:ncol,1) = 0._kind_phys

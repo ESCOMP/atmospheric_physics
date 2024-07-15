@@ -22,7 +22,7 @@ subroutine zm_conv_convtran_run(ncol, pver, &
                     doconvtran,q       ,ncnst   ,mu      ,md      , &
                     du      ,eu      ,ed      ,dp      ,dsubcld , &
                     jt      ,mx      ,ideep   ,il1g    ,il2g    , &
-                    nstep   ,fracis  ,dqdt    ,dpdry   ,dt)
+                    nstep   ,fracis  ,dqdt    ,dpdry   ,dt, const_metadata, errflg, errmsg)
 ! ccpp_constituent_properties - standard name -- see chat
 
 !-----------------------------------------------------------------------
@@ -39,8 +39,10 @@ subroutine zm_conv_convtran_run(ncol, pver, &
 ! Author: P. Rasch
 !
 !-----------------------------------------------------------------------
-   use constituents,    only: cnst_get_type_byind
-   use ccpp_constituent_prop_mod, only: ccpp_const_props
+!   use constituents,    only: cnst_get_type_byind
+!   use ccpp_constituent_prop_mod, only: ccpp_const_props
+   use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
+
 
    implicit none
 !-----------------------------------------------------------------------
@@ -72,7 +74,9 @@ subroutine zm_conv_convtran_run(ncol, pver, &
 
    real(kind_phys), intent(in) :: dt                      ! 2 delta t (model time increment)
 
-
+   type(ccpp_constituent_prop_ptr_t), intent(in) :: const_metadata(:)
+   character(len=512), intent(out) :: errmsg
+   integer,            intent(out) :: errflg
 
 ! input/output
 
@@ -137,7 +141,7 @@ subroutine zm_conv_convtran_run(ncol, pver, &
 !CACNOTE - This should probably loop 1, ncnst - figure out what was being done for 1
    do m = 1, ncnst
 
-      call ccpp_const_props(m)%standard_name(standard_name)
+      call const_metadata(m)%standard_name(standard_name)
       write(0,*) ' standard_name=',standard_name
       if (standard_name == 'water_vapor_wrt_moist_air_and_condensed_water') then
         cycle
@@ -146,9 +150,8 @@ subroutine zm_conv_convtran_run(ncol, pver, &
       if (doconvtran(m)) then
 
 !         if (cnst_get_type_byind(m).eq.'dry') then
-          call ccpp_const_props(m)%is_dry(is_dry)
+          call const_metadata(m)%is_dry(is_dry, errflg, errmsg)
           write(0,*) ' is_dry=', is_dry
-          write(0,*) ' cnst_get_type_byind(m)=',cnst_get_type_byind(m)
           if (is_dry) then
             do k = 1,pver
                do i =il1g,il2g

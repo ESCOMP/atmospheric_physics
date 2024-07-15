@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = zm_convr
   type = scheme
+  dependencies = ../to_be_ccppized/wv_saturation.F90
 
 [ccpp-arg-table]
   name  = zm_convr_init
@@ -18,7 +19,7 @@
   dimensions = ()
   intent = in
 [ cpair ]
-  standard_name = composition_dependent_specific_heat_of_dry_air_at_constant_pressure
+  standard_name = specific_heat_of_dry_air_at_constant_pressure
   units = J kg-1 K-1
   type = real | kind = kind_phys
   dimensions = ()
@@ -48,7 +49,7 @@
   dimensions = ()
   intent = in
 [ rair ]
-  standard_name = composition_dependent_gas_constant_of_dry_air
+  standard_name = gas_constant_of_dry_air
   units = J kg-1 K-1
   type = real | kind = kind_phys
   dimensions = ()
@@ -389,13 +390,13 @@
   units = index
   type = integer
   dimensions = (horizontal_loop_extent)
-  intent = inout
+  intent = out
 [ maxg ]
   standard_name = vertical_index_of_deep_convection_launch_level_for_convective_columns
   units = index
   type = integer
   dimensions = (horizontal_loop_extent)
-  intent = inout
+  intent = out
 [ ideep ]
   standard_name = horizontal_index_of_convective_columns_for_deep_convection_for_convective_columns
   units = index

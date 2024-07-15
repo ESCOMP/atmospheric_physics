@@ -360,8 +360,8 @@ subroutine zm_convr_run(     ncol    ,pver    , &
    real(kind_phys) :: dif(ncol,pver)  ! detrained convective cloud ice mixing ratio.
 
 !CACNOTE - Figure out real intent for jt and maxg
-   integer, intent(inout) :: jt(ncol)                          ! wg top  level index of deep cumulus convection.
-   integer, intent(inout) :: maxg(ncol)                        ! wg gathered values of maxi.
+   integer, intent(out) :: jt(ncol)                          ! wg top  level index of deep cumulus convection.
+   integer, intent(out) :: maxg(ncol)                        ! wg gathered values of maxi.
 
    integer lengath
 !     diagnostic field used by chem/wetdep codes
