@@ -1,16 +1,22 @@
 ===============================================================
 
-Tag name: atmos_phys0_0x_xxx
+Tag name: atmos_phys0_04_000
 Originator(s): jet
 Date: May 3, 2024
 One-line Summary: dadadj CCPP mods
-Github PR URL: hhttps://github.com/ESCOMP/atmospheric_physics/pull/
+Github PR URL: https://github.com/ESCOMP/atmospheric_physics/pull/91
 
 This PR fixes the following NCAR/atmospheric_physics Github issues:
     - Creates the CCPP interface for the dadadj routine
     - dadadj.F90 routine was slightly refactored to update the logic and syntax
 
-Code reviewed by:
+Additionally it was discovered that the temporary variable for cappa interface was
+	not set properly each time through the loop that makes the dry adiabatic adjustment.
+	This bug was fixed as part of this PR with the following line.
+
+	cappaint = 0.5_kind_phys*(cappa(i,k+1) + cappa(i,k))
+
+Code reviewed by: nusbaume, cacraigucar
 
 List all existing files that have been added (A), modified (M), or deleted (D),
 and describe the changes:

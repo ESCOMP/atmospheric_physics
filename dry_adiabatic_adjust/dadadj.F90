@@ -66,7 +66,7 @@ CONTAINS
     real(kind_phys), intent(in) :: cpair(:,:)  ! heat capacity of air
     real(kind_phys), intent(in) :: state_t(:,:)   ! temperature (K)
     real(kind_phys), intent(in) :: state_q(:,:)   ! specific humidity
-    real(kind_phys), intent(out) :: s_tend(:,:)   ! temperature tendency
+    real(kind_phys), intent(out) :: s_tend(:,:)   ! dry air enthalpy tendency
     real(kind_phys), intent(out) :: q_tend(:,:)   ! specific humidity tendency
     real(kind_phys), intent(out) :: dadpdf(:,:)  ! PDF of where adjustments happened
 

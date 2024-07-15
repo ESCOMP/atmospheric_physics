@@ -13,7 +13,7 @@
   intent = in
 [ state_q ]
   standard_name = water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
-  long_name = mass mixing ratio of water vapor / dry air
+  long_name = mass mixing ratio of water vapor / moist air and condensed water
   advected = True
   units = kg kg-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
