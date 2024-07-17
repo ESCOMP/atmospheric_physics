@@ -18,7 +18,7 @@ contains
     call micm_register(constituents, errcode, errmsg)
   end subroutine musica_ccpp_register
 
-  !> \section arg_table_musica_init Argument Table
+  !> \section arg_table_musica_ccpp_init Argument Table
   !! \htmlinclude musica_ccpp_init.html
   subroutine musica_ccpp_init(errcode, errmsg)
     integer, intent(out) :: errcode
@@ -27,7 +27,7 @@ contains
     call micm_init(errcode, errmsg)
   end subroutine musica_ccpp_init
 
-  !> \section arg_table_musica_run Argument Table
+  !> \section arg_table_musica_ccpp_run Argument Table
   !! \htmlinclude musica_ccpp_run.html
   subroutine musica_ccpp_run(time_step, temperature, pressure, dry_air_density, constituent_props, &
                       constituents, errcode, errmsg)
@@ -48,7 +48,7 @@ contains
 
   end subroutine musica_ccpp_run
 
-  !> \section arg_table_musica_final Argument Table
+  !> \section arg_table_musica_ccpp_final Argument Table
   !! \htmlinclude musica_ccpp_final.html
   subroutine musica_ccpp_final(errcode, errmsg)
     integer, intent(out) :: errcode
