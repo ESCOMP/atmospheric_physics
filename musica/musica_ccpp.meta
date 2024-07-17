@@ -1,11 +1,11 @@
 [ccpp-table-properties]
   name = musica_ccpp
   type = scheme
-  dependencies = micm/musica_ccpp_micm.F90
-  dynamic_constituent_routine = musica_register
+  dependencies = micm/musica_ccpp_micm.F90,musica_ccpp_util.F90
+  dynamic_constituent_routine = musica_ccpp_register
 
 [ccpp-arg-table]
-  name  = musica_init
+  name  = musica_ccpp_init
   type  = scheme
 [ errcode ]
   standard_name = ccpp_error_code
@@ -21,7 +21,7 @@
   intent = out
 
 [ccpp-arg-table]
-  name  = musica_run
+  name  = musica_ccpp_run
   type  = scheme
 [ time_step ]
   standard_name = timestep_for_physics
@@ -73,7 +73,7 @@
   intent = out
 
 [ccpp-arg-table]
-  name  = musica_final
+  name  = musica_ccpp_final
   type  = scheme
 [ errcode ]
   standard_name = ccpp_error_code

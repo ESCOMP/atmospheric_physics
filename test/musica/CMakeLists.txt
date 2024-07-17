@@ -22,9 +22,9 @@ add_executable(test_musica_api test_musica_api.F90 musica_namelist.F90)
 
 target_sources(test_musica_api
   PUBLIC
-    ${MUSICA_SRC_PATH}/micm/micm.F90
-    ${MUSICA_SRC_PATH}/musica.F90
-    ${MUSICA_SRC_PATH}/util.F90
+    ${MUSICA_SRC_PATH}/micm/musica_ccpp_micm.F90
+    ${MUSICA_SRC_PATH}/musica_ccpp.F90
+    ${MUSICA_SRC_PATH}/musica_ccpp_util.F90
     ${CCPP_SRC_PATH}/ccpp_constituent_prop_mod.F90
     ${CCPP_SRC_PATH}/ccpp_hash_table.F90
     ${CCPP_SRC_PATH}/ccpp_hashable.F90
