@@ -6,7 +6,7 @@ module musica_ccpp_micm
   use musica_micm, only: micm_t
   use musica_ccpp_util, only: has_error_occurred
   use ccpp_kinds, only: kind_phys
-  use musica_namelist, only: filename_of_micm_configuration
+  use musica_ccpp_namelist, only: filename_of_micm_configuration
 
   implicit none
   private

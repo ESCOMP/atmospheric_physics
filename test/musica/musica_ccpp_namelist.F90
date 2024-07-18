@@ -1,5 +1,5 @@
 ! Stub for auto-generated MUSICA namelist module
-module musica__ccpp_namelist
+module musica_ccpp_namelist
 
   implicit none
 

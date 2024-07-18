@@ -18,7 +18,7 @@ FetchContent_MakeAvailable(musica)
 # Create a test for MUSICA CCPP wrapper
 # ---------------------------------------------------------
 
-add_executable(test_musica_api test_musica_api.F90 musica_namelist.F90)
+add_executable(test_musica_api test_musica_api.F90 musica_ccpp_namelist.F90)
 
 target_sources(test_musica_api
   PUBLIC
