@@ -79,8 +79,8 @@
 
   <entry id="filename_of_micm_configuration">
     <type>char*512</type>
-    <category>musica</category>
-    <group>musica</group>
+    <category>musica_ccpp</category>
+    <group>musica_ccpp</group>
     <standard_name>filename_of_micm_configuration</standard_name>
     <units>none</units>
     <desc>
