@@ -1,10 +1,10 @@
-module <scheme>_diagnostics
+module SCHEME_diagnostics
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
 ! THIS IS A TEMPLATE
 !   1. copy this file to a new file with the correct name
-!        (<scheme>_diagnostics.F90)
-!   2. do a search and replace for "<scheme>" in this file and
+!        (SCHEME_diagnostics.F90)
+!   2. do a search and replace for "SCHEME" in this file and
 !        replace with your scheme name
 !   3. Add desired history_add_field calls to the init phase
 !   4. Add all fields that are being output as inputs to the run phase
@@ -23,14 +23,14 @@ module <scheme>_diagnostics
    private
    save
 
-   public :: <scheme>_diagnostics_init ! init routine
-   public :: <scheme>_diagnostics_run  ! main routine
+   public :: SCHEME_diagnostics_init ! init routine
+   public :: SCHEME_diagnostics_run  ! main routine
 
 CONTAINS
 
-   !> \section arg_table_<scheme>_diagnostics_init  Argument Table
-   !! \htmlinclude <scheme>_diagnostics_init.html
-   subroutine <scheme>_diagnostics_init(errmsg, errflg)
+   !> \section arg_table_SCHEME_diagnostics_init  Argument Table
+   !! \htmlinclude SCHEME_diagnostics_init.html
+   subroutine SCHEME_diagnostics_init(errmsg, errflg)
       use cam_history,         only: history_add_field
       use cam_history_support, only: horiz_only
 
@@ -46,11 +46,11 @@ CONTAINS
       ! Example:
       ! call history_add_field('TESTDIAG', 'not_a_real_diagnostic_field', horiz_only, 'avg', 'gremlin s-1')
 
-   end subroutine <scheme>_diagnostics_init
+   end subroutine SCHEME_diagnostics_init
 
-   !> \section arg_table_<scheme>_diagnostics_run  Argument Table
-   !! \htmlinclude <scheme>_diagnostics_run.html
-   subroutine <scheme>_diagnostics_run(list, of, fields, errmsg, errflg)
+   !> \section arg_table_SCHEME_diagnostics_run  Argument Table
+   !! \htmlinclude SCHEME_diagnostics_run.html
+   subroutine SCHEME_diagnostics_run(list, of, fields, errmsg, errflg)
 
       use cam_history, only: history_out_field
       !------------------------------------------------
@@ -71,8 +71,8 @@ CONTAINS
       ! Example:
       ! call history_out_field('TESTDIAG', of)
 
-   end subroutine <scheme>_diagnostics_run
+   end subroutine SCHEME_diagnostics_run
 
    !=======================================================================
 
-end module <scheme>_diagnostics
+end module SCHEME_diagnostics
