@@ -1,7 +1,6 @@
 module kessler_diagnostics
 
    use ccpp_kinds, only:  kind_phys
-   use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
 
    implicit none
    private
