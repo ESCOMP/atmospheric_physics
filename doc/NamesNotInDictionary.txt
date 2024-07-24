@@ -1,1 +1,176 @@
-All standard names are in the dictionary!
+
+#######################
+Date/time of when script was run:
+2024-06-20 11:25:12.714233
+#######################
+
+Non-dictionary standard names found in the following metadata files:
+
+--------------------------
+
+/home/mwaxmonsky/source/atmospheric_physics-mwaxmonsky/utilities/geopotential_temp.meta
+
+    - air_pressure_at_interface
+    - ln_air_pressure_at_interface
+
+--------------------------
+
+/home/mwaxmonsky/source/atmospheric_physics-mwaxmonsky/zhang_mcfarlane/zm_conv_momtran.meta
+
+    - atmosphere_detrainment_convective_mass_flux_for_deep_convection_for_convective_columns
+    - atmosphere_downdraft_convective_mass_flux_for_deep_convection_for_convective_columns
+    - atmosphere_downdraft_entrainment_convective_mass_flux_for_deep_convection_for_convective_columns
+    - atmosphere_updraft_convective_mass_flux_for_deep_convection_for_convective_columns
+    - atmosphere_updraft_entrainment_convective_mass_flux_for_deep_convection_for_convective_columns
+    - current_timestep_number
+    - eastward_and_northward_winds_in_deep_convective_downdrafts?
+    - enter_name
+    - flag_for_zhang_mcfarlane_deep_momentum_transport?
+    - horizontal_index_of_convective_columns_for_deep_convection_for_convective_columns
+    - maximum_number_of_grid_cells_with_deep_convection?
+    - minimum_number_of_grid_cells_with_deep_convection?
+    - momentum_downward_transport_parameter_for_zhang_mcfarlane?
+    - momentum_upward_transport_parameter_for_zhang_mcfarlane?
+    - pressure_thickness_for_deep_convection_for_convective_columns
+    - pressure_thickness_for_subcloud_layer_for_deep_convection_for_convective_columns
+    - tendency_of_eastward_wind_due_to_zhang_mcfarlane_deep_convective_downdraft_pressure_gradient_term
+    - tendency_of_eastward_wind_due_to_zhang_mcfarlane_deep_convective_updraft_pressure_gradient_term
+    - tendency_of_northward_wind_due_to_zhang_mcfarlane_deep_convective_downdraft_pressure_gradient_term
+    - tendency_of_northward_wind_due_to_zhang_mcfarlane_deep_convective_updraft_pressure_gradient_term
+    - vertical_index_at_top_of_deep_convection_for_convective_columns
+    - vertical_index_of_deep_conveciton_launch_level_for_convective_columns
+
+--------------------------
+
+/home/mwaxmonsky/source/atmospheric_physics-mwaxmonsky/zhang_mcfarlane/zm_convr.meta
+
+    - air_pressure_at_interface
+    - atmosphere_convective_mass_flux_due_to all_convection?
+    - atmosphere_detrainment_convective_mass_flux_for_deep_convection_for_convective_columns
+    - atmosphere_downdraft_convective_mass_flux_for_deep_convection_for_convective_columns
+    - atmosphere_downdraft_entrainment_convective_mass_flux_for_deep_convection_for_convective_columns
+    - atmosphere_updraft_convective_mass_flux_for_deep_convection_for_convective_columns
+    - atmosphere_updraft_entrainment_convective_mass_flux_for_deep_convection_for_convective_columns
+    - condensate_to_precipitation_autoconversion_coefficient_over_land_for_zhang_mcfarlane?
+    - condensate_to_precipitation_autoconversion_coefficient_over_ocean_for_zhang_mcfarlane?
+    - convective_available_potential_energy?
+    - convective_temperature_perturbation_due_to_pbl_eddies
+    - deep_convection_triggering_cape_threshold_for_zhang_mcfarlane?
+    - deep_convective_adjustment_timescale_for_zhang_mcfarlane?
+    - deep_convective_entrainment_rate_for_zhang_mcfarlane?
+    - deep_convective_organization_amount?
+    - deep_convective_organization_amount_at_single_vertical_layer_spread_over_whole_column?
+    - deep_convective_organization_amount_for_zhang_mcfarlane?
+    - detrained_cloud_droplet_number_concentration_from_deep_convection?
+    - detrained_cloud_ice_crystal_number_concentration_from_deep_convection?
+    - detrainment_mass_flux_due_to_deep_convection
+    - detrainment_of_cloud_ice_due_to_deep_convection
+    - detrainment_of_cloud_liquid_due_to_deep_convection
+    - enter_name
+    - flag_for_no_deep_convection_in_pbl?
+    - freezing_point_of_water?
+    - gas_constant_of_water_vapor?
+    - horizontal_index_of_convective_columns_for_deep_convection_for_convective_columns
+    - in_cloud_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_deep_convection
+    - initial_parcel_property_as_function_of_well-mixed_pbl_for_zhang_mcfarlane?
+    - latent_heat_of_fusion_of_water_at_0c?
+    - latent_heat_of_vaporization_of_water_at_0c?
+    - lwe_precipitation_rate_at_surface_due_to_deep_convection
+    - momentum_downward_transport_parameter_for_zhang_mcfarlane?
+    - momentum_upward_transport_parameter_for_zhang_mcfarlane?
+    - number_of_negative_buoyancy_regions_allowed_before_convection_top_for_zhang_mcfarlane?
+    - parcel_temperature_perturbation_for_zhang_mcfarlane?
+    - pressure_thickness_for_deep_convection_for_convective_columns
+    - pressure_thickness_for_subcloud_layer_for_deep_convection_for_convective_columns
+    - ratio_of_h2o_to_dry_air_molecular_weights?
+    - specific_heat_of_water_vapor_at_constant_pressure?
+    - tendency_of_deep_convective_organization_amount?
+    - tendency_of_precipitation_wrt_moist_air_and_condensed_water_due_to_deep_convection_excluding_subcloud_evaporation
+    - tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
+    - tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_cloud_condensation_minus_precipitation_evaporation_in_deep_convection?
+    - tunable_evaporation_efficiency_for_land_in zhang_mcfarlane_deep_convection_scheme?
+    - tunable_evaporation_efficiency_in_zhang_mcfarlane_deep_convection_scheme?
+    - vertical_index_at_top_of_deep_convection_for_convective_columns
+    - vertical_index_of_deep_convection_launch_level_for_convective_columns
+    - vertical_interface_index_of_deep_convection_height_limit?
+    - vertically_integrated_cloud_ice_tendency_due_to_all_convection_to_be_applied_later_in_time_loop
+    - vertically_integrated_cloud_liquid_tendency_due_to_all_convection_to_be_applied_later_in_time_loop
+
+--------------------------
+
+/home/mwaxmonsky/source/atmospheric_physics-mwaxmonsky/zhang_mcfarlane/zm_conv_convtran.meta
+
+    - atmosphere_detrainment_convective_mass_flux_for_deep_convection_for_convective_columns
+    - atmosphere_downdraft_convective_mass_flux_for_deep_convection_for_convective_columns
+    - atmosphere_downdraft_entrainment_convective_mass_flux_for_deep_convection_for_convective_columns
+    - atmosphere_updraft_convective_mass_flux_for_deep_convection_for_convective_columns
+    - atmosphere_updraft_entrainment_convective_mass_flux_for_deep_convection_for_convective_columns
+    - current_timestep_number
+    - flag_for_zhang_mcfarlane_deep_convective_transport?
+    - fraction_of_water_insoluble_convectively_transported_species
+    - horizontal_index_of_convective_columns_for_deep_convection_for_convective_columns
+    - maximum_number_of_grid_cells_with_deep_convection?
+    - minimum_number_of_grid_cells_with_deep_convection?
+    - pressure_thickness_for_deep_convection_for_convective_columns
+    - pressure_thickness_for_subcloud_layer_for_deep_convection_for_convective_columns
+    - pressure_thickness_of_dry_air_for_deep_convection_for_convective_columns?
+    - tendency_of_ccpp_constituents?
+    - vertical_index_at_top_of_deep_convection_for_convective_columns
+    - vertical_index_of_deep_conveciton_launch_level_for_convective_columns
+
+--------------------------
+
+/home/mwaxmonsky/source/atmospheric_physics-mwaxmonsky/zhang_mcfarlane/zm_conv_evap.meta
+
+    - 
+    - cloud_area_fraction
+    - flag_for_zhang_mcfarlane_convective_organization_parameterization?
+    - freezing_point_of_water?
+    - frozen_precipitation_mass_flux_at_interface_due_to_deep_convection?
+    - heating_rate
+    - latent_heat_of_fusion_of_water_at_0c?
+    - latent_heat_of_vaporization_of_water_at_0c?
+    - lwe_frozen_precipitation_rate_at_surface_due_to_deep_convection
+    - lwe_precipitation_rate_at_surface_due_to_deep_convection
+    - precipitation_mass_flux_at_interface_due_to_deep_convection?
+    - pressure_thickness
+    - specific_heat_of_dry_air_at_constant_pressure?
+    - tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_frozen_precipitation_melt?
+    - tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_frozen_precipitation_production_in_deep_convection?
+    - tendency_of_frozen_precipitation_wrt_moist_air_and_condensed_water_due_to_deep_convection?
+    - tendency_of_precipitation_wrt_moist_air_and_condensed_water_due_to_deep_convection?
+    - tendency_of_precipitation_wrt_moist_air_and_condensed_water_due_to_deep_convection_excluding_subcloud_evaporation
+    - tendency_of_water_vapor_mixing_ratio_wrt_moist_air and_condensed_water?
+    - tunable_evaporation_efficiency_for_land_in_zhang_mcfarlane_deep_convection_scheme?
+    - tunable_evaporation_efficiency_in_zhang_mcfarlane_deep_convection_scheme?
+
+--------------------------
+
+/home/mwaxmonsky/source/atmospheric_physics-mwaxmonsky/tj2016/tj2016_precip.meta
+
+    - gas_constant_of_water_vapor
+    - lwe_large_scale_precipitation_rate_at_surface
+    - ratio_of_water_vapor_to_dry_air_molecular_weights
+    - sum_of_sigma_pressure_hybrid_coordinate_a_coefficient_and_sigma_pressure_hybrid_coordinate_b_coefficient
+
+--------------------------
+
+/home/mwaxmonsky/source/atmospheric_physics-mwaxmonsky/tj2016/tj2016_sfc_pbl_hs.meta
+
+    - air_pressure_at_interface
+    - eddy_heat_diffusivity
+    - eddy_momentum_diffusivity
+    - gas_constant_of_water_vapor
+    - ln_air_pressure_at_interface
+    - pi_constant
+    - ratio_of_water_vapor_to_dry_air_molecular_weights
+    - sum_of_sigma_pressure_hybrid_coordinate_a_coefficient_and_sigma_pressure_hybrid_coordinate_b_coefficient
+    - surface_eastward_wind_stress
+    - surface_evaporation_rate
+    - surface_northward_wind_stress
+    - surface_upward_sensible_heat_flux
+    - tendency_of_air_temperature_due_to_diabatic_heating
+    - tendency_of_air_temperature_due_to_vertical_diffusion
+    - tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_vertical_diffusion
+
+#######################
