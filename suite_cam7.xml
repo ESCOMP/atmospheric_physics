@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<suite name="cam7" version="1.0">
+  <group name="physics_before_coupler">
+    <!-- Dry Adiabatic Adjustment -->
+    <scheme>dadadj</scheme>
+    <scheme>dadadj_apply_qv_tendency</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+  </group>
+</suite>
