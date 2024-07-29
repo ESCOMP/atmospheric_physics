@@ -40,8 +40,8 @@ CONTAINS
       ! State variables
       real(kind_phys), intent(in) :: precl(:) ! Total precipitation
       ! CCPP error handling variables
-      character(len=*), intent(out) :: errmsg
-      integer,          intent(out) :: errflg
+      character(len=512), intent(out) :: errmsg
+      integer,            intent(out) :: errflg
 
       errmsg = ''
       errflg = 0

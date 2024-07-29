@@ -180,7 +180,7 @@
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
-  type = character | kind = len=*
+  type = character | kind = len=512
   dimensions = ()
   intent = out
 [ errflg ]

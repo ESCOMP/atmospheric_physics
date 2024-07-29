@@ -61,8 +61,8 @@ CONTAINS
       real(kind_phys), intent(in) :: of(:)
       real(kind_phys), intent(in) :: fields(:,:)
       ! CCPP error handling variables
-      character(len=*), intent(out) :: errmsg
-      integer,          intent(out) :: errflg
+      character(len=512), intent(out) :: errmsg
+      integer,            intent(out) :: errflg
 
       errmsg = ''
       errflg = 0

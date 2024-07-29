@@ -118,8 +118,8 @@ CONTAINS
       real(kind_phys), intent(in) :: const_array(:,:,:)
       type(ccpp_constituent_prop_ptr_t), intent(in) :: const_props(:)
       ! CCPP error handling variables
-      character(len=*), intent(out) :: errmsg
-      integer,          intent(out) :: errflg
+      character(len=512), intent(out) :: errmsg
+      integer,            intent(out) :: errflg
 
       character(len=512) :: standard_name
       integer :: const_idx, name_idx
