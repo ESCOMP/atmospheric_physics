@@ -46,7 +46,7 @@ subroutine test_musica_ccpp_api()
   constituents(2,1,1:5) = (/ 0.75_kind_phys, 8.1e-6_kind_phys, 2.42e-17_kind_phys, &
                           1.15e-5_kind_phys, 6.61e-9_kind_phys /)
 
-  call musica_ccpp_register(constituent_props, errcode, errmsg)
+  call musica_ccpp_register(constituent_props, errmsg, errcode)
   ASSERT(allocated(constituent_props))
   ASSERT(size(constituent_props) == 5)
   do i = 1, size(constituent_props)
@@ -79,7 +79,7 @@ subroutine test_musica_ccpp_api()
     call constituent_props_ptr(i)%set(const_prop, errcode, errmsg)
   end do
 
-  call musica_ccpp_init(errcode, errmsg)
+  call musica_ccpp_init(errmsg, errcode)
 
   if (errcode /= 0) then
     write(*,*) trim(errmsg)
@@ -92,7 +92,7 @@ subroutine test_musica_ccpp_api()
   write(*,*) "    -- Initial concentrations", constituents
 
   call musica_ccpp_run(time_step, temperature, pressure, dry_air_density, constituent_props_ptr, &
-                       constituents, errcode, errmsg)
+                       constituents, errmsg, errcode)
 
   if (errcode /= 0) then
     write(*,*) trim(errmsg)
@@ -101,7 +101,7 @@ subroutine test_musica_ccpp_api()
 
   write(*,*) "    -- After solving, concentrations", constituents
 
-  call musica_ccpp_final(errcode, errmsg)
+  call musica_ccpp_final(errmsg, errcode)
 
   if (errcode /= 0) then
     write(*,*) trim(errmsg)

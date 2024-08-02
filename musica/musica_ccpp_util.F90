@@ -11,14 +11,14 @@ contains
 
   !> @brief Evaluate a MUSICA error for failure and convert to CCPP error data
   !> @param[in] error The error code to evaluate and convert.
-  !> @param[out] error_code The CCPP error code.
   !> @param[out] error_message The CCPP error message.
+  !> @param[out] error_code The CCPP error code.
   !> @return True for an error, false for success.
-  logical function has_error_occurred(error, error_code, error_message)
+  logical function has_error_occurred(error, error_message, error_code)
     use musica_util, only : error_t
     type(error_t), intent(in) :: error
-    integer, intent(out) :: error_code
     character(len=512), intent(out) :: error_message
+    integer, intent(out) :: error_code
 
     character(len=30) :: error_code_str
 

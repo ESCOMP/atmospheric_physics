@@ -9,28 +9,28 @@ module musica_ccpp
 
 contains
 
-  subroutine musica_ccpp_register(constituents, errcode, errmsg)
+  subroutine musica_ccpp_register(constituents, errmsg, errcode)
     use ccpp_constituent_prop_mod, only : ccpp_constituent_properties_t
     type(ccpp_constituent_properties_t), allocatable, intent(out) :: constituents(:)
-    integer, intent(out) :: errcode
     character(len=512), intent(out) :: errmsg
+    integer, intent(out) :: errcode
 
-    call micm_register(constituents, errcode, errmsg)
+    call micm_register(constituents, errmsg, errcode)
   end subroutine musica_ccpp_register
 
   !> \section arg_table_musica_ccpp_init Argument Table
   !! \htmlinclude musica_ccpp_init.html
-  subroutine musica_ccpp_init(errcode, errmsg)
-    integer, intent(out) :: errcode
+  subroutine musica_ccpp_init(errmsg, errcode)
     character(len=512), intent(out) :: errmsg
+    integer, intent(out) :: errcode
 
-    call micm_init(errcode, errmsg)
+    call micm_init(errmsg, errcode)
   end subroutine musica_ccpp_init
 
   !> \section arg_table_musica_ccpp_run Argument Table
   !! \htmlinclude musica_ccpp_run.html
   subroutine musica_ccpp_run(time_step, temperature, pressure, dry_air_density, constituent_props, &
-                      constituents, errcode, errmsg)
+                      constituents, errmsg, errcode)
     use ccpp_kinds, only: kind_phys
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
 
@@ -40,21 +40,21 @@ contains
     real(kind_phys),                   intent(in)    :: dry_air_density(:,:) ! kg m-3
     type(ccpp_constituent_prop_ptr_t), intent(in)    :: constituent_props(:)
     real(kind_phys),                   intent(inout) :: constituents(:,:,:)  ! kg kg-1
-    integer,                           intent(out)   :: errcode
     character(len=512),                intent(out)   :: errmsg
+    integer,                           intent(out)   :: errcode
 
     call micm_run(time_step, temperature, pressure, dry_air_density, constituent_props, &
-                  constituents, errcode, errmsg)
+                  constituents, errmsg, errcode)
 
   end subroutine musica_ccpp_run
 
   !> \section arg_table_musica_ccpp_final Argument Table
   !! \htmlinclude musica_ccpp_final.html
-  subroutine musica_ccpp_final(errcode, errmsg)
+  subroutine musica_ccpp_final(errmsg, errcode)
     integer, intent(out) :: errcode
     character(len=512), intent(out) :: errmsg
 
-    call micm_final(errcode, errmsg)
+    call micm_final(errmsg, errcode)
   end subroutine musica_ccpp_final
 
 end module musica_ccpp

@@ -18,12 +18,12 @@ module musica_ccpp_micm
 contains
 
   !> Register MICM constituents with the CCPP
-  subroutine micm_register(constituents, errcode, errmsg)
+  subroutine micm_register(constituents, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
     use musica_util, only: error_t, mapping_t
     type(ccpp_constituent_properties_t), allocatable, intent(out)   :: constituents(:)
-    integer, intent(out)            :: errcode
     character(len=512), intent(out) :: errmsg
+    integer, intent(out)            :: errcode
 
     type(error_t) :: error
     type(mapping_t) :: mapping
@@ -35,7 +35,7 @@ contains
     errmsg = ''
 
     micm => micm_t(filename_of_micm_configuration, error)
-    if (has_error_occurred(error, errcode, errmsg)) return
+    if (has_error_occurred(error, errmsg, errcode)) return
 
     allocate(constituents(size(micm%species_ordering)), stat=errcode)
     if (errcode /= 0) then
@@ -48,11 +48,11 @@ contains
       molar_mass = micm%get_species_property_double(map%name(), &
                                                     "molecular weight [kg mol-1]", &
                                                     error)
-      if (has_error_occurred(error, errcode, errmsg)) return
+      if (has_error_occurred(error, errmsg, errcode)) return
       is_advected = micm%get_species_property_bool(map%name(), &
                                                       "__is advected", &
                                                       error)
-      if (has_error_occurred(error, errcode, errmsg)) return
+      if (has_error_occurred(error, errmsg, errcode)) return
 
       call constituents(map%index())%instantiate( &
         std_name = map%name(), &
@@ -72,9 +72,9 @@ contains
   end subroutine micm_register
 
   !> Intitialize MICM
-  subroutine micm_init(errcode, errmsg)
-    integer, intent(out)            :: errcode
+  subroutine micm_init(errmsg, errcode)
     character(len=512), intent(out) :: errmsg
+    integer, intent(out)            :: errcode
 
     errcode = 0
     errmsg = ''
@@ -83,7 +83,7 @@ contains
 
   !> Solve chemistry at the current time step
   subroutine micm_run(time_step, temperature, pressure, dry_air_density, constituent_props, &
-                      constituents, errcode, errmsg)
+                      constituents, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use musica_util, only: error_t
 
@@ -93,8 +93,8 @@ contains
     real(kind_phys),                   intent(in)    :: dry_air_density(:,:) ! kg m-3
     type(ccpp_constituent_prop_ptr_t), intent(in)    :: constituent_props(:)
     real(kind_phys),                   intent(inout) :: constituents(:,:,:)  ! kg kg-1
-    integer,                           intent(out)   :: errcode
     character(len=512),                intent(out)   :: errmsg
+    integer,                           intent(out)   :: errcode
 
     ! local variables
     real(c_double)                                         :: c_time_step
@@ -155,7 +155,7 @@ contains
         call micm%solve(c_temperature(i_column, i_layer), c_pressure(i_column, i_layer), &
                         c_time_step, num_constituents, c_constituents(i_column, i_layer, :), &
                         0, c_rate_params(i_column, i_layer, :), error)
-        if (has_error_occurred(error, errcode, errmsg)) return
+        if (has_error_occurred(error, errmsg, errcode)) return
       end do
     end do
 
@@ -167,9 +167,9 @@ contains
   end subroutine micm_run
 
   !> Finalize MICM
-  subroutine micm_final(errcode, errmsg)
-    integer, intent(out)            :: errcode
+  subroutine micm_final(errmsg, errcode)
     character(len=512), intent(out) :: errmsg
+    integer, intent(out)            :: errcode
 
     errcode = 0
     errmsg = ''
