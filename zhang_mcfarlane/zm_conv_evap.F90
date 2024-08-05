@@ -28,8 +28,7 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
      landfrac, &
      tend_s, tend_s_snwprd, tend_s_snwevmlt, tend_q, &
      prdprec, cldfrc, deltat,  &
-     prec, snow, ntprprd, ntsnprd, flxprec, flxsnow)
-
+     prec, snow, ntprprd, ntsnprd, fsnow_conv, flxprec, flxsnow)
 
 !-----------------------------------------------------------------------
 ! Compute tendencies due to evaporation of rain from ZM scheme
@@ -69,6 +68,7 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
     real(kind_phys), intent(in   ) :: prdprec(:,:)! precipitation production (kg/ks/s)                      (ncol,pver)
     real(kind_phys), intent(in   ) :: cldfrc(:,:) ! cloud fraction                                          (ncol,pver)
     real(kind_phys), intent(in   ) :: deltat             ! time step
+    real(kind_phys), intent(in   ) :: fsnow_conv(:,:) ! snow fraction in precip production
 
     real(kind_phys), intent(inout) :: prec(:)        ! Convective-scale preciptn rate                       (ncol)
     real(kind_phys), intent(out)   :: snow(:)        ! Convective-scale snowfall rate                       (ncol)
@@ -79,7 +79,6 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
 
     real(kind_phys) :: es    (ncol,pver)    ! Saturation vapor pressure
     real(kind_phys) :: fice   (ncol,pver)    ! ice fraction in precip production
-    real(kind_phys) :: fsnow_conv(ncol,pver) ! snow fraction in precip production
     real(kind_phys) :: qs   (ncol,pver)    ! saturation specific humidity
     real(kind_phys),intent(out) :: flxprec(:,:)   ! Convective-scale flux of precip at interfaces (kg/m2/s) ! (ncol,pverp)
     real(kind_phys),intent(out) :: flxsnow(:,:)   ! Convective-scale flux of snow   at interfaces (kg/m2/s) ! (ncol,pverp)

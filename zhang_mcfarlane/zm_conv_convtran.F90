@@ -22,7 +22,7 @@ subroutine zm_conv_convtran_run(ncol, pver, &
                     doconvtran,q       ,ncnst   ,mu      ,md      , &
                     du      ,eu      ,ed      ,dp      ,dsubcld , &
                     jt      ,mx      ,ideep   ,il1g    ,il2g    , &
-                    nstep   ,fracis  ,dqdt    ,dpdry   ,dt, const_metadata, errflg, errmsg)
+                    nstep   ,fracis  ,dqdt    ,dpdry   ,dt, const_metadata, errmsg, errflg)
 ! ccpp_constituent_properties - standard name -- see chat
 
 !-----------------------------------------------------------------------

@@ -1,6 +1,7 @@
 module cloud_fraction_fice
 
   use ccpp_kinds, only:  kind_phys
+  implicit none
 
 contains
 
@@ -10,7 +11,7 @@ contains
 !> \section arg_table_cloud_fraction_fice_run Argument Table
 !! \htmlinclude cloud_fraction_fice_run.html
 !!
-  subroutine cloud_fraction_fice_run(ncol, t, tmelt, fice, fsnow)
+  subroutine cloud_fraction_fice_run(ncol, t, tmelt, top_lev, pver, fice, fsnow)
 !
 ! Compute the fraction of the total cloud water which is in ice phase.
 ! The fraction depends on temperature only.
@@ -24,6 +25,8 @@ contains
     integer,  intent(in)  :: ncol          ! number of active columns
     real(kind_phys), intent(in)  :: t(:,:)        ! temperature
     real(kind_phys), intent(in)  :: tmelt         ! freezing point of water
+    integer, intent(in)  :: top_lev
+    integer, intent(in)  :: pver
 
     real(kind_phys), intent(out) :: fice(:,:)     ! Fractional ice content within cloud
     real(kind_phys), intent(out) :: fsnow(:,:)    ! Fractional snow content for convection
