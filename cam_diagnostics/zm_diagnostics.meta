@@ -1,0 +1,69 @@
+[ccpp-table-properties]
+  name = zm_diagnostics
+  type = scheme
+
+[ccpp-arg-table]
+  name  = zm_diagnostics_init
+  type  = scheme
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = zm_diagnostics_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ cpair ]
+  standard_name = specific_heat_of_dry_air_at_constant_pressure
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ heat ]
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure
+  units = J kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
+  intent = in
+[ prec ]
+  standard_name = lwe_precipitation_rate_at_surface_due_to_deep_convection
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (1:horizontal_loop_extent)
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
