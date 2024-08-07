@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<suite name="ZM" version="1.0">
+<suite name="zhang_mcfarlane" version="1.0">
    <group name="physics_before_coupler">
        <scheme>zm_convr</scheme>
        <scheme>cloud_fraction_fice</scheme>
        <scheme>zm_conv_evap</scheme>
        <scheme>zm_conv_momtran</scheme>
        <scheme>zm_conv_convtran</scheme>
+       <scheme>zm_diagnostics</scheme>
    </group>
 </suite>
 

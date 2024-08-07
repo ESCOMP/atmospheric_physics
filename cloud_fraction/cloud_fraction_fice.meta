@@ -23,6 +23,18 @@
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
+[ top_lev ]
+  standard_name = index_of_pressure_at_troposphere_cloud_top
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
 [ fice ]
   standard_name = mass_fraction_of_ice_content_within_stratiform_cloud
   units = fraction

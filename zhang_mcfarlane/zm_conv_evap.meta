@@ -26,7 +26,7 @@
   dimensions = ()
   intent = in
 [ gravit ]
-  standard_name = gravitational_acceleration
+  standard_name = standard_gravitational_acceleration
   units = m s-2
   type = real | kind = kind_phys
   dimensions = ()
@@ -169,6 +169,12 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = out
+[ fsnow_conv ]
+  standard_name = mass_fraction_of_snow_content_within_stratiform_cloud
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
 [ flxprec ]
   standard_name = precipitation_flux_at_interface_due_to_deep_convection
   units = kg m-2 s-1
@@ -178,12 +184,6 @@
 [ flxsnow ]
   standard_name = frozen_precipitation_flux_at_interface_due_to_deep_convection
   units = kg m-2 s-1
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
-  intent = out
-[ fsnow_conv ]
-  standard_name = mass_fraction_of_snow_content_within_stratiform_cloud
-  units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = out
