@@ -1,5 +1,52 @@
 ===============================================================
 
+Tag name:
+Originator(s): mattldawson
+Date: 29 May 2024
+One-line Summary: Add dynamic species from MICM
+Github PR URL: https://github.com/ESCOMP/atmospheric_physics/pull/93
+
+This PR fixes the following NCAR/atmospheric_physics Github issues: 74
+
+Code reviewed by: cacraigucar, k20shores, boulderdaze, peverwhee, mwaxmonsky, nusbaume
+
+List all existing files that have been added (A), modified (M), or deleted (D),
+and describe the changes:
+
+M       .github/workflows/test.yaml
+M       doc/ChangeLog
+M       musica/micm/micm.F90
+A       musica/musica.F90
+M       musica/micm/micm.meta  ->  musica/musica.meta
+M       musica/micm/micm_namelist.xml ->  musica/musica_namelist.xml
+A       musica/util.F90
+M       suite_musica.xml
+M       test/CMakeLists.txt
+M       test/cmake/SetDefaults.cmake
+A       test/cmake/TestUtils.cmake
+M       test/docker/Dockerfile.musica
+M       test/musica/micm/CMakeLists.txt -> test/musica/CMakeLists.txt
+M       test/musica/micm/configs/chapman/reactions.json
+M       test/musica/micm/configs/chapman/species.json
+D       test/musica/micm/test_micm_api.F90
+A       test/musica/musica_namelist.F90
+A       test/musica/test_musica_api.F90
+
+Registers constituents and sets needed constituent properties from MICM configuration.
+
+Additionally:
+
+- returns error codes and messages from MUSICA functions using new error handling in MICM
+- creates a musica_ccpp module to act as a the CCPP interface and moves existing functionality to a musica_ccpp_micm module in preparation for adding TUV-x (we will use musica_ccpp_ as a prefix for all the MUSICA modules in this repo to prevent naming conflicts with MUSICA Fortran library modules)
+- updates build scripts for changes to MUSICA and CCPP framework
+- adds memory checking to MUSICA tests
+
+List and Describe any test failures: none
+
+Summarize any changes to answers: none
+
+===============================================================
+
 Tag name: atmos_phys0_04_000
 Originator(s): jet
 Date: May 3, 2024
