@@ -7,5 +7,9 @@
     <scheme>apply_tendency_of_northward_wind</scheme>
     <scheme>apply_heating_rate</scheme>
     <scheme>geopotential_temp</scheme>
+    <scheme>cam_state_diagnostics</scheme>
+  </group>
+  <group name="physics_after_coupler">
+    <scheme>cam_tend_diagnostics</scheme>
   </group>
 </suite>
