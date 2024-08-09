@@ -33,7 +33,7 @@ contains
   !> \section arg_table_musica_ccpp_run Argument Table
   !! \htmlinclude musica_ccpp_run.html
   subroutine musica_ccpp_run(time_step, temperature, pressure, dry_air_density, constituent_props, &
-                      constituents, errmsg, errcode)
+                      constituents, height, photolysis_rate_constants, errmsg, errcode)
     use ccpp_kinds, only: kind_phys
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
 
@@ -43,17 +43,15 @@ contains
     real(kind_phys),                   intent(in)    :: dry_air_density(:,:) ! kg m-3
     type(ccpp_constituent_prop_ptr_t), intent(in)    :: constituent_props(:)
     real(kind_phys),                   intent(inout) :: constituents(:,:,:)  ! kg kg-1
-    real(kind=dk),                     intent(in)    :: height(:,:)
-    real(kind=dk),                     intent(in)    :: air_density(:,:)
-    real(kind=dk),                     intent(in)    :: temperature(:,:)
-    real(kind=dk),                     intent(out)   :: photolysis_rate_constants(:,:,:)
+    real(kind_phys),                   intent(in)    :: height(:,:)
+    real(kind_phys),                   intent(out)   :: photolysis_rate_constants(:,:,:)
     character(len=512),                intent(out)   :: errmsg
     integer,                           intent(out)   :: errcode
 
     call micm_run(time_step, temperature, pressure, dry_air_density, constituent_props, &
                   constituents, errmsg, errcode)
-    call tuvx_run( height, air_density, temperature, photolysis_rate_constants &
-                  photolysis_rate_constants, errmsg, errcode )
+    call tuvx_run(height, temperature, dry_air_density, photolysis_rate_constants, &
+                  errmsg, errcode)
   end subroutine musica_ccpp_run
 
   !> \section arg_table_musica_ccpp_final Argument Table
