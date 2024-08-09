@@ -7,5 +7,6 @@ module musica_ccpp_namelist
   public :: filename_of_micm_configuration
 
   character(len=*), parameter :: filename_of_micm_configuration = 'chapman'
+  character(len=*), parameter :: filename_of_tuvx_configuration = 'ts1_tsmlt.json'
 
 end module musica_ccpp_namelist

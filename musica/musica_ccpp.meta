@@ -1,7 +1,7 @@
 [ccpp-table-properties]
   name = musica_ccpp
   type = scheme
-  dependencies = micm/musica_ccpp_micm.F90,musica_ccpp_util.F90
+  dependencies = micm/musica_ccpp_micm.F90,micm/musica_ccpp_tuvx.F90,musica_ccpp_util.F90
   dynamic_constituent_routine = musica_ccpp_register
 
 [ccpp-arg-table]
