@@ -82,17 +82,18 @@ contains
   end subroutine micm_init
 
   !> Solve chemistry at the current time step
-  subroutine micm_run(time_step, temperature, pressure, dry_air_density, constituent_props, &
-                      constituents, errmsg, errcode)
+  subroutine micm_run(time_step, temperature, pressure, dry_air_density, photolysis_rate_constants, &
+                      constituent_props, constituents,  errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use musica_util, only: error_t
 
-    real(kind_phys),                   intent(in)    :: time_step            ! s
-    real(kind_phys),                   intent(in)    :: temperature(:,:)     ! K
-    real(kind_phys),                   intent(in)    :: pressure(:,:)        ! Pa
-    real(kind_phys),                   intent(in)    :: dry_air_density(:,:) ! kg m-3
+    real(kind_phys),                   intent(in)    :: time_step                        ! s
+    real(kind_phys),                   intent(in)    :: temperature(:,:)                 ! K
+    real(kind_phys),                   intent(in)    :: pressure(:,:)                    ! Pa
+    real(kind_phys),                   intent(in)    :: dry_air_density(:,:)             ! kg m-3
+    real(kind_phys),                   intent(in)    :: photolysis_rate_constants(:,:,:) ! s-1
     type(ccpp_constituent_prop_ptr_t), intent(in)    :: constituent_props(:)
-    real(kind_phys),                   intent(inout) :: constituents(:,:,:)  ! kg kg-1
+    real(kind_phys),                   intent(inout) :: constituents(:,:,:)              ! kg kg-1
     character(len=512),                intent(out)   :: errmsg
     integer,                           intent(out)   :: errcode
 

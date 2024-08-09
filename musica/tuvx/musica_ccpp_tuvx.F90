@@ -18,14 +18,17 @@ module musica_ccpp_tuvx
 contains
 
   !> Intitialize TUVX
-  subroutine tuvx_init(n_vertical_levels, errmsg, errcode)
-    use musica_tuvx, only: grid_map_t, grid_t, profile_map_t, profile_t
+  subroutine tuvx_init(errmsg, errcode)
+    use musica_tuvx, only: grid_map_t, profile_map_t, radiator_map_t,
     use musica_util, only: error_t, mapping_t
 
-    integer,            intent(in)  :: n_vertical_levels  ! Number of vertical levels per column
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errcode
 
+    ! local variables
+    type(grid_map_t),     pointer    :: grids
+    type(profile_map_t),  pointer    :: profiles
+    type(radiator_map_t), pointer    :: radiators
     type(error_t) :: error
 
     errcode = 0
@@ -35,27 +38,17 @@ contains
     if (has_error_occurred( error, errmsg, errcode )) return
 
     grids => grid_map_t( error )
-    height_grid => grid_t( "height", "km", n_vertical_levels )
-    call grids%add( height, error )
+    if (has_error_occurred( error, errmsg, errcode )) return
 
     profiles => profile_map_t( error )
-    temperature_profile => profile_t( "temperature", "K", height, error )
-    call profiles%add( temperature_profile, error )
+    if (has_error_occurred( error, errmsg, errcode )) return
 
-    ! ! unpack the core for each OMP thread on every MPI process
-    ! allocate( tuvx_wrappers )
-    ! do i_thread = 1, omp_threads
-    ! associate( wrapper => tuvx_wrappers( i_thread ) )
-    !   allocate( wrapper%core_ )
-    !   pos = 0
-    !   wrapper%height_      => wrapper%core_%get_updater( height      )
-    !   wrapper%temperature_ => wrapper%core_%get_updater( temperature )
-    !   wrapper%air_         => wrapper%core_%get_updater( air         )
-    ! end associate
-    ! end do
+    radiators =>radiator_map_t( error )
+    if (has_error_occurred( error, errmsg, errcode )) return
 
     deallocate( grids )
     deallocate( profiles )
+    deallocate( radiators )
 
   end subroutine tuvx_init
 

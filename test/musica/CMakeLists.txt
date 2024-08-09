@@ -1,10 +1,11 @@
 include(FetchContent)
 include(TestUtils)
 
+set(MUSICA_GIT_TAG 92b3365c1b567fbdfd135d8643b7c4cf81933bf4 CACHE STRING "Git tag for the musica repository")
+
 FetchContent_Declare(musica
   GIT_REPOSITORY https://github.com/NCAR/musica.git
-#  GIT_TAG        v0.6.1
-  GIT_TAG        2a5eeaac982a3eb80b96d1e2087b91b301d1e748
+  GIT_TAG        ${MUSICA_GIT_TAG}
 )
 
 set(MUSICA_BUILD_C_CXX_INTERFACE OFF)
