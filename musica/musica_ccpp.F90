@@ -1,6 +1,7 @@
 !> Top-level wrapper for MUSICA chemistry components
 module musica_ccpp
   use musica_ccpp_micm, only : micm_register, micm_init, micm_run, micm_final
+  use musica_ccpp_tuvx, only : tuvx_init, tuvx_run, tuvx_final
 
   implicit none
   private
@@ -13,7 +14,7 @@ contains
     use ccpp_constituent_prop_mod, only : ccpp_constituent_properties_t
     type(ccpp_constituent_properties_t), allocatable, intent(out) :: constituents(:)
     character(len=512), intent(out) :: errmsg
-    integer, intent(out) :: errcode
+    integer,            intent(out) :: errcode
 
     call micm_register(constituents, errmsg, errcode)
   end subroutine musica_ccpp_register
@@ -21,10 +22,12 @@ contains
   !> \section arg_table_musica_ccpp_init Argument Table
   !! \htmlinclude musica_ccpp_init.html
   subroutine musica_ccpp_init(errmsg, errcode)
+    integer,            intent(in)  :: n_vertical_levels
     character(len=512), intent(out) :: errmsg
-    integer, intent(out) :: errcode
+    integer,            intent(out) :: errcode
 
     call micm_init(errmsg, errcode)
+    call tuvx_init(n_vertical_levels, errmsg, errcode)
   end subroutine musica_ccpp_init
 
   !> \section arg_table_musica_ccpp_run Argument Table
@@ -40,12 +43,17 @@ contains
     real(kind_phys),                   intent(in)    :: dry_air_density(:,:) ! kg m-3
     type(ccpp_constituent_prop_ptr_t), intent(in)    :: constituent_props(:)
     real(kind_phys),                   intent(inout) :: constituents(:,:,:)  ! kg kg-1
+    real(kind=dk),                     intent(in)    :: height(:,:)
+    real(kind=dk),                     intent(in)    :: air_density(:,:)
+    real(kind=dk),                     intent(in)    :: temperature(:,:)
+    real(kind=dk),                     intent(out)   :: photolysis_rate_constants(:,:,:)
     character(len=512),                intent(out)   :: errmsg
     integer,                           intent(out)   :: errcode
 
     call micm_run(time_step, temperature, pressure, dry_air_density, constituent_props, &
                   constituents, errmsg, errcode)
-
+    call tuvx_run( height, air_density, temperature, photolysis_rate_constants &
+                  photolysis_rate_constants, errmsg, errcode )
   end subroutine musica_ccpp_run
 
   !> \section arg_table_musica_ccpp_final Argument Table
@@ -55,6 +63,7 @@ contains
     character(len=512), intent(out) :: errmsg
 
     call micm_final(errmsg, errcode)
+    call tuvx_final(errmsg, errcode)
   end subroutine musica_ccpp_final
 
 end module musica_ccpp

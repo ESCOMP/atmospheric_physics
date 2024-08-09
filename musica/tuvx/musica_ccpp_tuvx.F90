@@ -54,19 +54,8 @@ contains
     ! end associate
     ! end do
 
-    deallocate( grids    )
+    deallocate( grids )
     deallocate( profiles )
-
-  end subroutine tuvx_init
-
-
-  !> Intitialize tuvx
-  subroutine tuvx_init(errmsg, errcode)
-    character(len=512), intent(out) :: errmsg
-    integer, intent(out)            :: errcode
-
-    errcode = 0
-    errmsg = ''
 
   end subroutine tuvx_init
 
@@ -93,13 +82,13 @@ contains
     !   call core%calculate( photolysis_rate_constants                        &
     !                       = photolysis_rate_constants( :, :, i_col ) )
     ! end do
-    
+
   end subroutine tuvx_run
 
   !> Finalize tuvx
   subroutine tuvx_final(errmsg, errcode)
     character(len=512), intent(out) :: errmsg
-    integer, intent(out)            :: errcode
+    integer,            intent(out) :: errcode
 
     errcode = 0
     errmsg = ''
