@@ -1,7 +1,7 @@
 module musica_ccpp_micm
   use iso_c_binding
 
-  ! Note: "micm_core" is included in an external pre-built MICM library that the host
+  ! Note: "micm_t" is included in an external pre-built MICM library that the host
   ! model is responsible for linking to during compilation
   use musica_micm, only: micm_t
   use musica_ccpp_util, only: has_error_occurred
