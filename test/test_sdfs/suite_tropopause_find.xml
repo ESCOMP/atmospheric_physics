@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<suite name="tropopause_find" version="1.0">
+  <group name="physics_before_coupler">
+    <!-- Find tropopause -->
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+    <!-- Tropopause find has to make history output at the end of convective adjustment -->
+    <!-- so supersaturated cells are not written to the tape. -->
+    <scheme>tropopause_find</scheme>
+  </group>
+</suite>
