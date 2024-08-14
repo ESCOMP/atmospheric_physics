@@ -13,35 +13,31 @@
 !
 ! Author: Charles Bardeen
 ! Created: April, 2009
-
+!
+! CCPP-ized: Haipeng Lin, August 2024
 module tropopause_find
   !---------------------------------------------------------------
   ! ... variables for the tropopause module
   !---------------------------------------------------------------
 
   use ccpp_kinds,           only : kind_phys
-  use shr_const_mod,        only : pi => shr_const_pi
-  use ppgrid,               only : pcols, pver, begchunk, endchunk
   use cam_abortutils,       only : endrun
   use cam_logfile,          only : iulog
   use cam_history_support,  only : fillvalue
-  use physics_types,        only : physics_state
-  use spmd_utils,           only : masterproc
 
   implicit none
 
   private
 
   ! CCPP-compliant subroutines
-  public  :: tropopause_find_init
-  public  :: tropopause_find_run
-  
-  public  :: tropopause_readnl, tropopause_output
-  public  :: tropopause_findChemTrop
-  public  :: TROP_ALG_NONE, TROP_ALG_ANALYTIC, TROP_ALG_CLIMATE
-  public  :: TROP_ALG_STOBIE, TROP_ALG_HYBSTOB, TROP_ALG_TWMO, TROP_ALG_WMO
-  public  :: TROP_ALG_CPP
-  public  :: NOTFOUND
+  public :: tropopause_find_init
+  public :: tropopause_find_run
+
+  public :: tropopause_findChemTrop
+  public :: TROP_ALG_NONE, TROP_ALG_ANALYTIC, TROP_ALG_CLIMATE
+  public :: TROP_ALG_STOBIE, TROP_ALG_HYBSTOB, TROP_ALG_TWMO, TROP_ALG_WMO
+  public :: TROP_ALG_CPP
+  public :: NOTFOUND
 
   save
 
@@ -58,6 +54,7 @@ module tropopause_find
   integer, parameter    :: TROP_ALG_WMO       = 6    ! WMO Definition
   integer, parameter    :: TROP_ALG_HYBSTOB   = 7    ! Hybrid Stobie Algorithm
   integer, parameter    :: TROP_ALG_CPP       = 8    ! Cold Point Parabolic
+  integer, parameter    :: TROP_ALG_CHEMTROP  = 9    ! Chemical tropopause
   
   integer, parameter    :: TROP_NALG          = 8    ! Number of Algorithms  
   character,parameter   :: TROP_LETTER(TROP_NALG) = (/ ' ', 'A', 'C', 'S', 'T', 'W', 'H', 'F' /)
@@ -70,10 +67,6 @@ module tropopause_find
 
   ! Namelist variables
   character(len=256)    :: tropopause_climo_file = 'trop_climo'      ! absolute filepath of climatology file
-
-  ! These variables are used to store the climatology data.
-  real(kind_phys)              :: days(12)                                  ! days in the climatology
-  real(kind_phys), pointer     :: tropp_p_loc(:,:,:)                        ! climatological tropopause pressures
 
   integer, parameter :: NOTFOUND = -1
 
@@ -92,56 +85,20 @@ module tropopause_find
 contains
 !================================================================================================
 
-   ! Read namelist variables.
-   subroutine tropopause_readnl(nlfile)
-
-      use namelist_utils,  only: find_group_name
-      use units,           only: getunit, freeunit
-      use mpishorthand
-
-      character(len=*), intent(in) :: nlfile  ! filepath for file containing namelist input
-
-      ! Local variables
-      integer :: unitn, ierr
-      character(len=*), parameter :: subname = 'tropopause_readnl'
-
-      namelist /tropopause_nl/ tropopause_climo_file
-      !-----------------------------------------------------------------------------
-
-      if (masterproc) then
-         unitn = getunit()
-         open( unitn, file=trim(nlfile), status='old' )
-         call find_group_name(unitn, 'tropopause_nl', status=ierr)
-         if (ierr == 0) then
-            read(unitn, tropopause_nl, iostat=ierr)
-            if (ierr /= 0) then
-               call endrun(subname // ':: ERROR reading namelist')
-            end if
-         end if
-         close(unitn)
-         call freeunit(unitn)
-      end if
-
-#ifdef SPMD
-      ! Broadcast namelist variables
-      call mpibcast(tropopause_climo_file, len(tropopause_climo_file), mpichar, 0, mpicom)
-#endif
-
-   end subroutine tropopause_readnl
-
-
   ! This routine is called during intialization and must be called before the
   ! other methods in this module can be used. Its main tasks are to read in the
   ! climatology from a file and to define the output fields. Much of this code
   ! is taken from mo_tropopause.
-  !> \section arg_table_tropopause_find_init Argument Table
-  !! \htmlinclude tropopause_find_init.html
-  subroutine tropopause_find_init(cappa, rair, gravit, errmsg, errflg)
+!> \section arg_table_tropopause_find_init Argument Table
+!! \htmlinclude tropopause_find_init.html
+  subroutine tropopause_find_init(cappa, rair, gravit, pi, tropopause_climo_file, errmsg, errflg)
   
-    !use cam_history,   only: addfld, horiz_only
     real(kind_phys), intent(in)         :: cappa   ! R/Cp
     real(kind_phys), intent(in)         :: rair    ! Dry air gas constant (J K-1 kg-1)
     real(kind_phys), intent(in)         :: gravit  ! Gravitational acceleration (m s-2)
+    real(kind_phys), intent(in)         :: pi      ! Pi
+
+    character(len=256), intent(in)      :: tropopause_climo_file  ! absolute path of climatology file
 
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errflg
@@ -154,76 +111,10 @@ contains
     cnst_faktor = -gravit/rair
     cnst_rga    = 1._kind_phys/gravit              ! Reciprocal of gravit (s2 m-1)
     cnst_ka1    = cnst_kap - 1._kind_phys
+    cnst_pi     = pi
 
-    ! Define the output fields.
-    ! call addfld('TROP_P',          horiz_only,  'A', 'Pa',          'Tropopause Pressure',              flag_xyfill=.True.)
-    ! call addfld('TROP_T',          horiz_only,  'A', 'K',           'Tropopause Temperature',           flag_xyfill=.True.)
-    ! call addfld('TROP_Z',          horiz_only,  'A', 'm',           'Tropopause Height',                flag_xyfill=.True.)
-    ! call addfld('TROP_DZ',         (/ 'lev' /), 'A', 'm',           'Relative Tropopause Height')
-    ! call addfld('TROP_PD',         (/ 'lev' /), 'A', 'probability', 'Tropopause Probabilty')
-    ! call addfld('TROP_FD',         horiz_only,  'A', 'probability', 'Tropopause Found')
-    
-    ! call addfld('TROPP_P',         horiz_only,  'A', 'Pa',          'Tropopause Pressure (primary)',    flag_xyfill=.True.)
-    ! call addfld('TROPP_T',         horiz_only,  'A', 'K',           'Tropopause Temperature (primary)', flag_xyfill=.True.)
-    ! call addfld('TROPP_Z',         horiz_only,  'A', 'm',           'Tropopause Height (primary)',      flag_xyfill=.True.)
-    ! call addfld('TROPP_DZ',        (/ 'lev' /), 'A', 'm',           'Relative Tropopause Height (primary)')
-    ! call addfld('TROPP_PD',        (/ 'lev' /), 'A', 'probability', 'Tropopause Distribution (primary)')
-    ! call addfld('TROPP_FD',        horiz_only,  'A', 'probability', 'Tropopause Found (primary)')
-    
-    ! call addfld('TROPF_P',         horiz_only,  'A',  'Pa',         'Tropopause Pressure (cold point)',    flag_xyfill=.True.)
-    ! call addfld('TROPF_T',         horiz_only,  'A',  'K',          'Tropopause Temperature (cold point)', flag_xyfill=.True.)
-    ! call addfld('TROPF_Z',         horiz_only,  'A',  'm',          'Tropopause Height (cold point)',      flag_xyfill=.True.)
-    ! call addfld('TROPF_DZ',        (/ 'lev' /),  'A', 'm',          'Relative Tropopause Height (cold point)', flag_xyfill=.True.)
-    ! call addfld('TROPF_PD',        (/ 'lev' /), 'A', 'probability', 'Tropopause Distribution (cold point)')
-    ! call addfld('TROPF_FD',        horiz_only,  'A', 'probability', 'Tropopause Found (cold point)')
-
-    ! call addfld( 'hstobie_trop',   (/ 'lev' /), 'I',  'fraction of model time', 'Lowest level with stratospheric chemsitry')
-    ! call addfld( 'hstobie_linoz',  (/ 'lev' /), 'I',  'fraction of model time', 'Lowest possible Linoz level')
-    ! call addfld( 'hstobie_tropop', (/ 'lev' /), 'I', 'fraction of model time', &
-    !      'Troposphere boundary calculated in chemistry' )
-
-    ! ! If requested, be prepared to output results from all of the methods.
-    ! if (output_all) then
-    !   call addfld('TROPA_P',  horiz_only,  'A',  'Pa',          'Tropopause Pressure (analytic)',        flag_xyfill=.True.)
-    !   call addfld('TROPA_T',  horiz_only,  'A',  'K',          'Tropopause Temperature (analytic)',      flag_xyfill=.True.)
-    !   call addfld('TROPA_Z',  horiz_only,  'A',  'm',          'Tropopause Height (analytic)',           flag_xyfill=.True.)
-    !   call addfld('TROPA_PD', (/ 'lev' /), 'A', 'probability', 'Tropopause Distribution (analytic)')
-    !   call addfld('TROPA_FD', horiz_only,  'A', 'probability', 'Tropopause Found (analytic)')
-
-    !   call addfld('TROPC_P',  horiz_only,  'A',  'Pa',         'Tropopause Pressure (climatology)',      flag_xyfill=.True.)
-    !   call addfld('TROPC_T',  horiz_only,  'A',  'K',          'Tropopause Temperature (climatology)',   flag_xyfill=.True.)
-    !   call addfld('TROPC_Z',  horiz_only,  'A',  'm',          'Tropopause Height (climatology)',        flag_xyfill=.True.)
-    !   call addfld('TROPC_PD', (/ 'lev' /), 'A', 'probability', 'Tropopause Distribution (climatology)')
-    !   call addfld('TROPC_FD', horiz_only,  'A', 'probability', 'Tropopause Found (climatology)')
-
-    !   call addfld('TROPS_P',  horiz_only,  'A',  'Pa',         'Tropopause Pressure (stobie)',           flag_xyfill=.True.)
-    !   call addfld('TROPS_T',  horiz_only,  'A',  'K',          'Tropopause Temperature (stobie)',        flag_xyfill=.True.)
-    !   call addfld('TROPS_Z',  horiz_only,  'A',  'm',          'Tropopause Height (stobie)',             flag_xyfill=.True.)
-    !   call addfld('TROPS_PD', (/ 'lev' /), 'A', 'probability', 'Tropopause Distribution (stobie)')
-    !   call addfld('TROPS_FD', horiz_only,  'A', 'probability', 'Tropopause Found (stobie)')
-
-    !   call addfld('TROPT_P',  horiz_only,  'A',  'Pa',         'Tropopause Pressure (twmo)',             flag_xyfill=.True.)
-    !   call addfld('TROPT_T',  horiz_only,  'A',  'K',          'Tropopause Temperature (twmo)',          flag_xyfill=.True.)
-    !   call addfld('TROPT_Z',  horiz_only,  'A',  'm',          'Tropopause Height (twmo)',               flag_xyfill=.True.)
-    !   call addfld('TROPT_PD', (/ 'lev' /), 'A', 'probability', 'Tropopause Distribution (twmo)')
-    !   call addfld('TROPT_FD', horiz_only,  'A', 'probability', 'Tropopause Found (twmo)')
-
-    !   call addfld('TROPW_P',  horiz_only,  'A',  'Pa',         'Tropopause Pressure (WMO)',              flag_xyfill=.True.)
-    !   call addfld('TROPW_T',  horiz_only,  'A',  'K',          'Tropopause Temperature (WMO)',           flag_xyfill=.True.)
-    !   call addfld('TROPW_Z',  horiz_only,  'A',  'm',          'Tropopause Height (WMO)',                flag_xyfill=.True.)
-    !   call addfld('TROPW_PD', (/ 'lev' /), 'A', 'probability', 'Tropopause Distribution (WMO)')
-    !   call addfld('TROPW_FD', horiz_only,  'A', 'probability', 'Tropopause Found (WMO)')
-
-    !   call addfld('TROPH_P',  horiz_only,  'A',  'Pa',         'Tropopause Pressure (Hybrid Stobie)',    flag_xyfill=.True.)
-    !   call addfld('TROPH_T',  horiz_only,  'A',  'K',          'Tropopause Temperature (Hybrid Stobie)', flag_xyfill=.True.)
-    !   call addfld('TROPH_Z',  horiz_only,  'A',  'm',          'Tropopause Height (Hybrid Stobie)',      flag_xyfill=.True.)
-    !   call addfld('TROPH_PD', (/ 'lev' /), 'A', 'probability', 'Tropopause Distribution (Hybrid Stobie)')
-    !   call addfld('TROPH_FD', horiz_only,  'A', 'probability', 'Tropopause Found (Hybrid Stobie)')
-    ! end if
-
-
-    call tropopause_read_file()
-
+    ! read tropopause climatological data from file
+    call tropopause_read_file(tropopause_climo_file)
 
   end subroutine tropopause_find_init
 
@@ -233,17 +124,16 @@ contains
   ! backup routine which will be tried only if the first routine fails. If the
   ! tropopause can not be identified by either routine, then a NOTFOUND is returned
   ! for the tropopause level, temperature and pressure.
-  !> \section arg_table_tropopause_find_run Argument Table
-  !! \htmlinclude tropopause_find_run.html
+!> \section arg_table_tropopause_find_run Argument Table
+!! \htmlinclude tropopause_find_run.html
   subroutine tropopause_find_run(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
-    tropLev, tropP, tropT, tropZ, primary, backup, &
-    errmsg, errflg)
-
-    implicit none
+                                 calday, tropp_p_loc, &
+                                 tropLev, tropP, tropT, tropZ, primary, backup, &
+                                 errmsg, errflg)
 
     real(kind_phys), intent(in)         :: ncol          ! Number of atmospheric columns
     real(kind_phys), intent(in)         :: pver          ! Number of vertical levels
-    real(kind_phys), intent(in)         :: lat(:,:)      ! Latitudes (radians)
+    real(kind_phys), intent(in)         :: lat(:)        ! Latitudes (radians)
     real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa), pverp
     real(kind_phys), intent(in)         :: pmid(:,:)     ! Midpoint pressures (Pa)
     real(kind_phys), intent(in)         :: t(:,:)        ! Temperature (K)
@@ -251,12 +141,19 @@ contains
     real(kind_phys), intent(in)         :: zm(:,:)       ! Geopotential height above surface at midpoints (m), pver
     real(kind_phys), intent(in)         :: phis(:)       ! Surface geopotential (m2 s-2)
 
+    real(kind_phys), intent(in)         :: calday        ! Day of year including fraction from get_curr_calday
+
+    ! Climatological tropopause pressures (Pa), (pcols,ntimes=12).
+    ! Remark: Not chunkized, subsetted to chunk for backwards compatibility with CAM
+    real(kind_phys), intent(in), pointer:: tropp_p_loc(:,:)
+
+    integer,                   intent(out)     :: tropLev(:)                ! tropopause level index
+    real(kind_phys), optional, intent(out)     :: tropP(:)           ! tropopause pressure (Pa)
+    real(kind_phys), optional, intent(out)     :: tropT(:)           ! tropopause temperature (K)
+    real(kind_phys), optional, intent(out)     :: tropZ(:)           ! tropopause height (m)
+
     integer, optional, intent(in)       :: primary                   ! primary detection algorithm
     integer, optional, intent(in)       :: backup                    ! backup detection algorithm
-    integer,            intent(out)     :: tropLev(:)            ! tropopause level index
-    real(kind_phys), optional, intent(out)     :: tropP(:)              ! tropopause pressure (Pa)
-    real(kind_phys), optional, intent(out)     :: tropT(:)              ! tropopause temperature (K)
-    real(kind_phys), optional, intent(out)     :: tropZ(:)              ! tropopause height (m)
 
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errflg
@@ -302,153 +199,6 @@ contains
     return
   end subroutine tropopause_find_run
 
-  subroutine tropopause_read_file
-    !------------------------------------------------------------------
-    ! ... initialize upper boundary values
-    !------------------------------------------------------------------
-    use interpolate_data,  only : lininterp_init, lininterp, interp_type, lininterp_finish
-    use dyn_grid,     only : get_dyn_grid_parm
-    use phys_grid,    only : get_ncols_p, get_rlat_all_p, get_rlon_all_p	
-    use ioFileMod,    only : getfil
-    use time_manager, only : get_calday
-    use physconst,    only : pi
-    use cam_pio_utils, only: cam_pio_openfile
-    use pio,          only : file_desc_t, var_desc_t, pio_inq_dimid, pio_inq_dimlen, &
-         pio_inq_varid, pio_get_var, pio_closefile, pio_nowrite
-
-    !------------------------------------------------------------------
-    ! ... local variables
-    !------------------------------------------------------------------
-    integer :: i, j, n
-    integer :: ierr
-    type(file_desc_t) :: pio_id
-    integer :: dimid
-    type(var_desc_t) :: vid
-    integer :: nlon, nlat, ntimes
-    integer :: start(3)
-    integer :: count(3)
-    integer, parameter :: dates(12) = (/ 116, 214, 316, 415,  516,  615, &
-         716, 816, 915, 1016, 1115, 1216 /)
-    integer :: plon, plat
-    type(interp_type) :: lon_wgts, lat_wgts
-    real(kind_phys), allocatable :: tropp_p_in(:,:,:)
-    real(kind_phys), allocatable :: lat(:)
-    real(kind_phys), allocatable :: lon(:)
-    real(kind_phys) :: to_lats(pcols), to_lons(pcols)
-    real(kind_phys), parameter :: d2r=pi/180._kind_phys, zero=0._kind_phys, twopi=pi*2._kind_phys
-    character(len=256) :: locfn
-    integer  :: c, ncols
-
-
-    plon = get_dyn_grid_parm('plon')
-    plat = get_dyn_grid_parm('plat')
-
-
-    !-----------------------------------------------------------------------
-    !       ... open netcdf file
-    !-----------------------------------------------------------------------
-    call getfil (tropopause_climo_file, locfn, 0)
-    call cam_pio_openfile(pio_id, trim(locfn), PIO_NOWRITE)
-
-    !-----------------------------------------------------------------------
-    !       ... get time dimension
-    !-----------------------------------------------------------------------
-    ierr = pio_inq_dimid( pio_id, 'time', dimid )
-    ierr = pio_inq_dimlen( pio_id, dimid, ntimes )
-    if( ntimes /= 12 )then
-       write(iulog,*) 'tropopause_find_init: number of months = ',ntimes,'; expecting 12'
-       call endrun
-    end if
-    !-----------------------------------------------------------------------
-    !       ... get latitudes
-    !-----------------------------------------------------------------------
-    ierr = pio_inq_dimid( pio_id, 'lat', dimid )
-    ierr = pio_inq_dimlen( pio_id, dimid, nlat )
-    allocate( lat(nlat), stat=ierr )
-    if( ierr /= 0 ) then
-       write(iulog,*) 'tropopause_find_init: lat allocation error = ',ierr
-       call endrun
-    end if
-    ierr = pio_inq_varid( pio_id, 'lat', vid )
-    ierr = pio_get_var( pio_id, vid, lat )
-    lat(:nlat) = lat(:nlat) * d2r
-    !-----------------------------------------------------------------------
-    !       ... get longitudes
-    !-----------------------------------------------------------------------
-    ierr = pio_inq_dimid( pio_id, 'lon', dimid )
-    ierr = pio_inq_dimlen( pio_id, dimid, nlon )
-    allocate( lon(nlon), stat=ierr )
-    if( ierr /= 0 ) then
-       write(iulog,*) 'tropopause_find_init: lon allocation error = ',ierr
-       call endrun
-    end if
-    ierr = pio_inq_varid( pio_id, 'lon', vid )
-    ierr = pio_get_var( pio_id, vid, lon )
-    lon(:nlon) = lon(:nlon) * d2r
-
-    !------------------------------------------------------------------
-    !  ... allocate arrays
-    !------------------------------------------------------------------
-    allocate( tropp_p_in(nlon,nlat,ntimes), stat=ierr )
-    if( ierr /= 0 ) then
-       write(iulog,*) 'tropopause_find_init: tropp_p_in allocation error = ',ierr
-       call endrun
-    end if
-    !------------------------------------------------------------------
-    !  ... read in the tropopause pressure
-    !------------------------------------------------------------------
-    ierr = pio_inq_varid( pio_id, 'trop_p', vid )
-    start = (/ 1, 1, 1 /)
-    count = (/ nlon, nlat, ntimes /)
-    ierr = pio_get_var( pio_id, vid, start, count, tropp_p_in )
-
-    !------------------------------------------------------------------
-    !  ... close the netcdf file
-    !------------------------------------------------------------------
-    call pio_closefile( pio_id )
-
-    !--------------------------------------------------------------------
-    !  ... regrid
-    !--------------------------------------------------------------------
-
-    allocate( tropp_p_loc(pcols,begchunk:endchunk,ntimes), stat=ierr )
-
-    if( ierr /= 0 ) then
-      write(iulog,*) 'tropopause_find_init: tropp_p_loc allocation error = ',ierr
-      call endrun
-    end if
-
-    do c=begchunk,endchunk
-       ncols = get_ncols_p(c)
-       call get_rlat_all_p(c, pcols, to_lats)
-       call get_rlon_all_p(c, pcols, to_lons)
-       call lininterp_init(lon, nlon, to_lons, ncols, 2, lon_wgts, zero, twopi)
-       call lininterp_init(lat, nlat, to_lats, ncols, 1, lat_wgts)
-       do n=1,ntimes
-          call lininterp(tropp_p_in(:,:,n), nlon, nlat, tropp_p_loc(1:ncols,c,n), ncols, lon_wgts, lat_wgts)    
-       end do
-       call lininterp_finish(lon_wgts)
-       call lininterp_finish(lat_wgts)
-    end do
-    deallocate(lon)
-    deallocate(lat)
-    deallocate(tropp_p_in)
-
-    !--------------------------------------------------------
-    ! ... initialize the monthly day of year times
-    !--------------------------------------------------------
-
-    do n = 1,12
-       days(n) = get_calday( dates(n), 0 )
-    end do
-    if (masterproc) then
-       write(iulog,*) 'tropopause_find_init : days'
-       write(iulog,'(1p,5g15.8)') days(:)
-    endif
-
-  end subroutine tropopause_read_file
-  
-
   ! This analytic expression closely matches the mean tropopause determined
   ! by the NCEP reanalysis and has been used by the radiation code.
   subroutine tropopause_analytic(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
@@ -456,14 +206,14 @@ contains
 
     real(kind_phys), intent(in)         :: ncol          ! Number of atmospheric columns
     real(kind_phys), intent(in)         :: pver          ! Number of vertical levels
-    real(kind_phys), intent(in)         :: lat(:,:)      ! Latitudes (radians)
+    real(kind_phys), intent(in)         :: lat(:)        ! Latitudes (radians)
     real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa), pverp
     real(kind_phys), intent(in)         :: pmid(:,:)     ! Midpoint pressures (Pa)
     real(kind_phys), intent(in)         :: t(:,:)        ! Temperature (K)
     real(kind_phys), intent(in)         :: zi(:,:)       ! Geopotential height above surface at interfaces (m), pverp
     real(kind_phys), intent(in)         :: zm(:,:)       ! Geopotential height above surface at midpoints (m), pver
     real(kind_phys), intent(in)         :: phis(:)       ! Surface geopotential (m2 s-2)
-    integer,            intent(inout)   :: tropLev(:)             ! tropopause level index
+    integer,                   intent(inout)   :: tropLev(:)             ! tropopause level index
     real(kind_phys), optional, intent(inout)   :: tropP(:)               ! tropopause pressure (Pa)
     real(kind_phys), optional, intent(inout)   :: tropT(:)               ! tropopause temperature (K)
     real(kind_phys), optional, intent(inout)   :: tropZ(:)               ! tropopause height (m)
@@ -504,26 +254,31 @@ contains
     end do
   end subroutine tropopause_analytic
 
-
   ! Read the tropopause pressure in from a file containging a climatology. The
   ! data is interpolated to the current dat of year and latitude.
   !
   ! NOTE: The data is read in during tropopause_init and stored in the module
   ! variable trop
   subroutine tropopause_climate(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
-                                tropLev, tropP, tropT, tropZ)
-     use time_manager, only : get_curr_calday
+                                calday, tropp_p_loc, tropLev, tropP, tropT, tropZ)
 
     real(kind_phys), intent(in)         :: ncol          ! Number of atmospheric columns
     real(kind_phys), intent(in)         :: pver          ! Number of vertical levels
-    real(kind_phys), intent(in)         :: lat(:,:)      ! Latitudes (radians)
+    real(kind_phys), intent(in)         :: lat(:)        ! Latitudes (radians)
     real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa), pverp
     real(kind_phys), intent(in)         :: pmid(:,:)     ! Midpoint pressures (Pa)
     real(kind_phys), intent(in)         :: t(:,:)        ! Temperature (K)
     real(kind_phys), intent(in)         :: zi(:,:)       ! Geopotential height above surface at interfaces (m), pverp
     real(kind_phys), intent(in)         :: zm(:,:)       ! Geopotential height above surface at midpoints (m), pver
     real(kind_phys), intent(in)         :: phis(:)       ! Surface geopotential (m2 s-2)
-    integer,            intent(inout)  :: tropLev(:)            ! tropopause level index
+
+    real(kind_phys), intent(in)         :: calday        ! Day of year including fraction from get_curr_calday
+
+    ! Climatological tropopause pressures (Pa), (pcols,ntimes=12).
+    ! Remark: Not chunkized, subsetted to chunk for backwards compatibility with CAM
+    real(kind_phys), intent(in), pointer:: tropp_p_loc(:,:)
+
+    integer,                   intent(inout)  :: tropLev(:)            ! tropopause level index
     real(kind_phys), optional, intent(inout)  :: tropP(:)              ! tropopause pressure (Pa)
     real(kind_phys), optional, intent(inout)  :: tropT(:)              ! tropopause temperature (K)
     real(kind_phys), optional, intent(inout)  :: tropZ(:)              ! tropopause height (m)
@@ -532,23 +287,16 @@ contains
     integer       :: i
     integer       :: k
     integer       :: m
-    integer       :: lchnk                    ! chunk identifier
     real(kind_phys)      :: tP                       ! tropopause pressure (Pa)
     real(kind_phys)      :: calday                   ! day of year including fraction
     real(kind_phys)      :: dels
     integer       :: last
     integer       :: next
-
-    ! Information about the chunk.  
-    lchnk = pstate%lchnk
     
     ! If any columns remain to be indentified, the nget the current
     ! day from the calendar.
     
     if (any(tropLev == NOTFOUND)) then
-    
-      ! Determine the calendar day.
-      calday = get_curr_calday()
       
       !--------------------------------------------------------
       ! ... setup the time interpolation
@@ -585,8 +333,8 @@ contains
         ! ... get tropopause level from climatology
         !--------------------------------------------------------
           ! Interpolate the tropopause pressure.
-          tP = tropp_p_loc(i,lchnk,last) &
-            + dels * (tropp_p_loc(i,lchnk,next) - tropp_p_loc(i,lchnk,last))
+          tP = tropp_p_loc(i,last) &
+            + dels * (tropp_p_loc(i,next) - tropp_p_loc(i,last))
                 
           ! Find the associated level.
           do k = pver, 2, -1
@@ -647,12 +395,12 @@ contains
 
     integer      :: i, k, ncol
     real(kind_phys)     :: stobie_min, shybrid_temp      !temporary variable for case 2 & 3.
-    integer      :: ltrop_linoz(pcols)            !Lowest possible Linoz vertical level
-    integer      :: ltrop_trop(pcols)             !Tropopause level for hybrid case.
+    integer      :: ltrop_linoz(ncol)            !Lowest possible Linoz vertical level
+    integer      :: ltrop_trop(ncol)             !Tropopause level for hybrid case.
     logical      :: ltrop_linoz_set               !Flag that lowest linoz level already found.
-    real(kind_phys)     :: trop_output(pcols,pver)        !For output purposes only.
-    real(kind_phys)     :: trop_linoz_output(pcols,pver)  !For output purposes only.
-    real(kind_phys)     :: trop_trop_output(pcols,pver)   !For output purposes only.
+    real(kind_phys)     :: trop_output(ncol,pver)        !For output purposes only.
+    real(kind_phys)     :: trop_linoz_output(ncol,pver)  !For output purposes only.
+    real(kind_phys)     :: trop_trop_output(ncol,pver)   !For output purposes only.
 
     !    write(iulog,*) 'In set_chem_trop, o3_ndx =',o3_ndx
     ltrop_linoz(:) = 1  ! Initialize to default value.
@@ -720,7 +468,7 @@ contains
 
     real(kind_phys), intent(in)         :: ncol          ! Number of atmospheric columns
     real(kind_phys), intent(in)         :: pver          ! Number of vertical levels
-    real(kind_phys), intent(in)         :: lat(:,:)      ! Latitudes (radians)
+    real(kind_phys), intent(in)         :: lat(:)        ! Latitudes (radians)
     real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa), pverp
     real(kind_phys), intent(in)         :: pmid(:,:)     ! Midpoint pressures (Pa)
     real(kind_phys), intent(in)         :: t(:,:)        ! Temperature (K)
@@ -917,7 +665,7 @@ contains
 
     real(kind_phys), intent(in)         :: ncol          ! Number of atmospheric columns
     real(kind_phys), intent(in)         :: pver          ! Number of vertical levels
-    real(kind_phys), intent(in)         :: lat(:,:)      ! Latitudes (radians)
+    real(kind_phys), intent(in)         :: lat(:)        ! Latitudes (radians)
     real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa), pverp
     real(kind_phys), intent(in)         :: pmid(:,:)     ! Midpoint pressures (Pa)
     real(kind_phys), intent(in)         :: t(:,:)        ! Temperature (K)
@@ -986,7 +734,16 @@ contains
   subroutine tropopause_wmo(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
                             tropLev, tropP, tropT, tropZ)
 
-    type(physics_state), intent(in)    :: pstate 
+    real(kind_phys), intent(in)         :: ncol          ! Number of atmospheric columns
+    real(kind_phys), intent(in)         :: pver          ! Number of vertical levels
+    real(kind_phys), intent(in)         :: lat(:)        ! Latitudes (radians)
+    real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa), pverp
+    real(kind_phys), intent(in)         :: pmid(:,:)     ! Midpoint pressures (Pa)
+    real(kind_phys), intent(in)         :: t(:,:)        ! Temperature (K)
+    real(kind_phys), intent(in)         :: zi(:,:)       ! Geopotential height above surface at interfaces (m), pverp
+    real(kind_phys), intent(in)         :: zm(:,:)       ! Geopotential height above surface at midpoints (m), pver
+    real(kind_phys), intent(in)         :: phis(:)       ! Surface geopotential (m2 s-2)
+
     integer,            intent(inout)  :: tropLev(:)            ! tropopause level index
     real(kind_phys), optional, intent(inout)  :: tropP(:)              ! tropopause pressure (Pa)
     real(kind_phys), optional, intent(inout)  :: tropT(:)              ! tropopause temperature (K)
@@ -1075,7 +832,7 @@ contains
 
     real(kind_phys), intent(in)         :: ncol          ! Number of atmospheric columns
     real(kind_phys), intent(in)         :: pver          ! Number of vertical levels
-    real(kind_phys), intent(in)         :: lat(:,:)      ! Latitudes (radians)
+    real(kind_phys), intent(in)         :: lat(:)        ! Latitudes (radians)
     real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa), pverp
     real(kind_phys), intent(in)         :: pmid(:,:)     ! Midpoint pressures (Pa)
     real(kind_phys), intent(in)         :: t(:,:)        ! Temperature (K)
@@ -1199,42 +956,39 @@ contains
   ! eliminate false events that are sometimes detected in the cold polar stratosphere.
   !
   ! NOTE: This routine was adapted from code in chemistry.F90 and mo_gasphase_chemdr.F90.
+  ! During the CCPP-ization, findChemTrop is now called from tropopause_find_run using method CHEMTROP
+  ! and now also returns the standard tropLev, tropP, tropT, tropZ outputs (optional).
+  ! The "backup" option is dropped as it is not used anywhere in current CAM.
   subroutine tropopause_findChemTrop(ncol, pver, lat, pint, pmid, t, zm, phis, &
-                                     tropLev, primary, backup)
-
-    implicit none
+                                     tropLev, tropP, tropT, tropZ)
 
     real(kind_phys), intent(in)         :: ncol          ! Number of atmospheric columns
     real(kind_phys), intent(in)         :: pver          ! Number of vertical levels
-    real(kind_phys), intent(in)         :: lat(:,:)      ! Latitudes (radians)
+    real(kind_phys), intent(in)         :: lat(:)        ! Latitudes (radians)
     real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa), pverp
     real(kind_phys), intent(in)         :: pmid(:,:)     ! Midpoint pressures (Pa)
     real(kind_phys), intent(in)         :: t(:,:)        ! Temperature (K)
     real(kind_phys), intent(in)         :: zm(:,:)       ! Geopotential height above surface at midpoints (m), pver
     real(kind_phys), intent(in)         :: phis(:)       ! Surface geopotential (m2 s-2)
 
-    integer, optional, intent(in)       :: primary                   ! primary detection algorithm
-    integer, optional, intent(in)       :: backup                    ! backup detection algorithm
-    integer,            intent(out)     :: tropLev(:)            ! tropopause level index
+    integer,                   intent(out)     :: tropLev(:)            ! tropopause level index
+    real(kind_phys), optional, intent(inout)   :: tropP(:)              ! tropopause pressure (Pa)
+    real(kind_phys), optional, intent(inout)   :: tropT(:)              ! tropopause temperature (K)
+    real(kind_phys), optional, intent(inout)   :: tropZ(:)              ! tropopause height (m)
 
     ! Local Variable
     real(kind_phys), parameter :: rad2deg = 180._kind_phys/pi                      ! radians to degrees conversion factor
-    real(kind_phys)            :: dlats(pcols)
+    real(kind_phys)            :: dlats(ncol)
     integer             :: i
     integer             :: backAlg
 
     ! First use the lapse rate tropopause.
-    call tropopause_find_run(ncol, pver, lat, pint, pmid, t, zm, phis, tropLev, primary=primary, backup=TROP_ALG_NONE)
+    ! (Not specifying primary will use the lapse rate)
+    call tropopause_find_run(ncol, pver, lat, pint, pmid, t, zm, phis, tropLev, backup=TROP_ALG_NONE)
    
     ! Now check high latitudes (poleward of 50) and set the level to the
     ! climatology if the level was not found or is at P <= 125 hPa.
     dlats(:ncol) = lat(:ncol) * rad2deg ! convert to degrees
-
-    if (present(backup)) then
-      backAlg = backup
-    else
-      backAlg = default_backup
-    end if
     
     do i = 1, ncol
       if (abs(dlats(i)) > 50._kind_phys) then
@@ -1248,7 +1002,7 @@ contains
         
     ! Now use the backup algorithm
     if ((backAlg /= TROP_ALG_NONE) .and. any(tropLev(:) == NOTFOUND)) then
-      call tropopause_findUsing(ncol, pver, lat, pint, pmid, t, zm, phis, backAlg, tropLev)
+      call tropopause_findUsing(ncol, pver, lat, pint, pmid, t, zm, phis, default_backup, tropLev)
     end if
     
     return
@@ -1261,13 +1015,12 @@ contains
   ! NOTE: It is assumed that the output fields have been initialized by the
   ! caller, and only output values set to fillvalue will be detected.
   subroutine tropopause_findUsing(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
+                                  calday, tropp_p_loc, &
                                   algorithm, tropLev, tropP, tropT, tropZ)
-
-    implicit none
 
     real(kind_phys), intent(in)         :: ncol          ! Number of atmospheric columns
     real(kind_phys), intent(in)         :: pver          ! Number of vertical levels
-    real(kind_phys), intent(in)         :: lat(:,:)      ! Latitudes (radians)
+    real(kind_phys), intent(in)         :: lat(:)        ! Latitudes (radians)
     real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa), pverp
     real(kind_phys), intent(in)         :: pmid(:,:)     ! Midpoint pressures (Pa)
     real(kind_phys), intent(in)         :: t(:,:)        ! Temperature (K)
@@ -1275,8 +1028,14 @@ contains
     real(kind_phys), intent(in)         :: zm(:,:)       ! Geopotential height above surface at midpoints (m), pver
     real(kind_phys), intent(in)         :: phis(:)       ! Surface geopotential (m2 s-2)
 
-    integer,            intent(in)      :: algorithm                 ! detection algorithm
-    integer,            intent(inout)   :: tropLev(:)            ! tropopause level index
+    real(kind_phys), intent(in)         :: calday        ! Day of year including fraction from get_curr_calday
+
+    ! Climatological tropopause pressures (Pa), (pcols,ntimes=12).
+    ! Remark: Not chunkized, subsetted to chunk for backwards compatibility with CAM
+    real(kind_phys), intent(in), pointer:: tropp_p_loc(:,:)
+
+    integer,                   intent(in)      :: algorithm             ! detection algorithm
+    integer,                   intent(inout)   :: tropLev(:)            ! tropopause level index
     real(kind_phys), optional, intent(inout)   :: tropP(:)              ! tropopause pressure (Pa)
     real(kind_phys), optional, intent(inout)   :: tropT(:)              ! tropopause temperature (K)
     real(kind_phys), optional, intent(inout)   :: tropZ(:)              ! tropopause height (m)
@@ -1287,7 +1046,8 @@ contains
         call tropopause_analytic(ncol, pver, lat, pint, pmid, t, zi, zm, phis, tropLev, tropP, tropT, tropZ)
 
       case(TROP_ALG_CLIMATE)
-        call tropopause_climate(ncol, pver, lat, pint, pmid, t, zi, zm, phis, tropLev, tropP, tropT, tropZ)
+        call tropopause_climate(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
+                                calday, tropp_p_loc, tropLev, tropP, tropT, tropZ)
 
       case(TROP_ALG_STOBIE)
         call tropopause_stobie(ncol, pver, lat, pint, pmid, t, zi, zm, phis, tropLev, tropP, tropT, tropZ)
@@ -1303,6 +1063,9 @@ contains
 
       case(TROP_ALG_CPP)
         call tropopause_cpp(ncol, pver, lat, pint, pmid, t, zi, zm, phis, tropLev, tropP, tropT, tropZ)
+
+      case(TROP_ALG_CHEMTROP)
+        call tropopause_findChemTrop(ncol, pver, lat, pint, pmid, t, zm, phis, tropLev, tropP, tropT, tropZ)
 
       case default
         write(iulog, *) 'tropopause: Invalid detection algorithm (',  algorithm, ') specified.'
@@ -1444,135 +1207,4 @@ contains
     
     tropopause_interpolateZ = tropZ + phis(icol)*cnst_rga
   end function tropopause_interpolateZ
-
-  
-  ! Output the tropopause pressure and temperature to the history files. Two sets
-  ! of output will be generated, one for the default algorithm and another one
-  ! using the default routine, but backed by a climatology when the default
-  ! algorithm fails.
-  subroutine tropopause_output(ncol, pver, lat, pint, pmid, t, zi, zm, phis)
-    !use cam_history,  only : outfld
-    
-    real(kind_phys), intent(in)         :: ncol          ! Number of atmospheric columns
-    real(kind_phys), intent(in)         :: pver          ! Number of vertical levels
-    real(kind_phys), intent(in)         :: lat(:,:)      ! Latitudes (radians)
-    real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa), pverp
-    real(kind_phys), intent(in)         :: pmid(:,:)     ! Midpoint pressures (Pa)
-    real(kind_phys), intent(in)         :: t(:,:)        ! Temperature (K)
-    real(kind_phys), intent(in)         :: zi(:,:)       ! Geopotential height above surface at interfaces (m), pverp
-    real(kind_phys), intent(in)         :: zm(:,:)       ! Geopotential height above surface at midpoints (m), pver
-    real(kind_phys), intent(in)         :: phis(:)       ! Surface geopotential (m2 s-2)
-  
-    ! Local Variables
-    integer       :: i
-    integer       :: alg
-    integer       :: ncol                     ! number of cloumns in the chunk
-    !integer       :: lchnk                    ! chunk identifier
-    integer       :: tropLev(pcols)           ! tropopause level index   
-    real(kind_phys)      :: tropP(pcols)             ! tropopause pressure (Pa)
-    real(kind_phys)      :: tropT(pcols)             ! tropopause temperature (K)
-    real(kind_phys)      :: tropZ(pcols)             ! tropopause height (m)
-    real(kind_phys)      :: tropFound(pcols)         ! tropopause found
-    real(kind_phys)      :: tropDZ(pcols, pver)      ! relative tropopause height (m)
-    real(kind_phys)      :: tropPdf(pcols, pver)     ! tropopause probability distribution
-
-    ! Information about the chunk.  
-    !lchnk = pstate%lchnk
-
-    ! Find the tropopause using the default algorithm backed by the climatology.
-    call tropopause_find_run(ncol, pver, lat, pint, pmid, t, zi, zm, phis, tropLev, tropP=tropP, tropT=tropT, tropZ=tropZ)
-    
-    tropPdf(:,:) = 0._kind_phys
-    tropFound(:) = 0._kind_phys
-    tropDZ(:,:) = fillvalue 
-    do i = 1, ncol
-      if (tropLev(i) /= NOTFOUND) then
-        tropPdf(i, tropLev(i)) = 1._kind_phys
-        tropFound(i) = 1._kind_phys
-        tropDZ(i,:) = zm(i,:) - tropZ(i)
-      end if
-    end do
-
-    ! call outfld('TROP_P',   tropP(:ncol),      ncol, lchnk)
-    ! call outfld('TROP_T',   tropT(:ncol),      ncol, lchnk)
-    ! call outfld('TROP_Z',   tropZ(:ncol),      ncol, lchnk)
-    ! call outfld('TROP_DZ',  tropDZ(:ncol, :), ncol, lchnk)
-    ! call outfld('TROP_PD',  tropPdf(:ncol, :), ncol, lchnk)
-    ! call outfld('TROP_FD',  tropFound(:ncol),  ncol, lchnk)
-    
-    
-    ! Find the tropopause using just the primary algorithm.
-    call tropopause_find_run(ncol, pver, lat, pint, pmid, t, zi, zm, phis, tropLev, tropP=tropP, tropT=tropT, tropZ=tropZ, backup=TROP_ALG_NONE)
-
-    tropPdf(:,:) = 0._kind_phys
-    tropFound(:) = 0._kind_phys
-    tropDZ(:,:) = fillvalue 
-    
-    do i = 1, ncol
-      if (tropLev(i) /= NOTFOUND) then
-        tropPdf(i, tropLev(i)) = 1._kind_phys
-        tropFound(i) = 1._kind_phys
-        tropDZ(i,:) = zm(i,:) - tropZ(i)
-      end if
-    end do
-
-    ! call outfld('TROPP_P',   tropP(:ncol),      ncol, lchnk)
-    ! call outfld('TROPP_T',   tropT(:ncol),      ncol, lchnk)
-    ! call outfld('TROPP_Z',   tropZ(:ncol),      ncol, lchnk)
-    ! call outfld('TROPP_DZ',  tropDZ(:ncol, :), ncol, lchnk)
-    ! call outfld('TROPP_PD',  tropPdf(:ncol, :), ncol, lchnk)
-    ! call outfld('TROPP_FD',  tropFound(:ncol),  ncol, lchnk)
-
-
-    ! Find the tropopause using just the cold point algorithm.
-    call tropopause_find_run(ncol, pver, lat, pint, pmid, t, zi, zm, phis, tropLev, tropP=tropP, tropT=tropT, tropZ=tropZ, primary=TROP_ALG_CPP, backup=TROP_ALG_NONE)
-
-    tropPdf(:,:) = 0._kind_phys
-    tropFound(:) = 0._kind_phys
-    tropDZ(:,:) = fillvalue 
-    
-    do i = 1, ncol
-      if (tropLev(i) /= NOTFOUND) then
-        tropPdf(i, tropLev(i)) = 1._kind_phys
-        tropFound(i) = 1._kind_phys
-        tropDZ(i,:) = zm(i,:) - tropZ(i)
-      end if
-    end do
-
-    ! call outfld('TROPF_P',   tropP(:ncol),      ncol, lchnk)
-    ! call outfld('TROPF_T',   tropT(:ncol),      ncol, lchnk)
-    ! call outfld('TROPF_Z',   tropZ(:ncol),      ncol, lchnk)
-    ! call outfld('TROPF_DZ',  tropDZ(:ncol, :), ncol, lchnk)
-    ! call outfld('TROPF_PD',  tropPdf(:ncol, :), ncol, lchnk)
-    ! call outfld('TROPF_FD',  tropFound(:ncol),  ncol, lchnk)
-    
-    
-    ! If requested, do all of the algorithms.
-    if (output_all) then
-    
-      do alg = 2, TROP_NALG
-    
-        ! Find the tropopause using just the analytic algorithm.
-        call tropopause_find_run(ncol, pver, lat, pint, pmid, t, zi, zm, phis, tropLev, tropP=tropP, tropT=tropT, tropZ=tropZ, primary=alg, backup=TROP_ALG_NONE)
-  
-        tropPdf(:,:) = 0._kind_phys
-        tropFound(:) = 0._kind_phys
-      
-        do i = 1, ncol
-          if (tropLev(i) /= NOTFOUND) then
-            tropPdf(i, tropLev(i)) = 1._kind_phys
-            tropFound(i) = 1._kind_phys
-          end if
-        end do
-  
-        ! call outfld('TROP' // TROP_LETTER(alg) // '_P',   tropP(:ncol),      ncol, lchnk)
-        ! call outfld('TROP' // TROP_LETTER(alg) // '_T',   tropT(:ncol),      ncol, lchnk)
-        ! call outfld('TROP' // TROP_LETTER(alg) // '_Z',   tropZ(:ncol),      ncol, lchnk)
-        ! call outfld('TROP' // TROP_LETTER(alg) // '_PD',  tropPdf(:ncol, :), ncol, lchnk)
-        ! call outfld('TROP' // TROP_LETTER(alg) // '_FD',  tropFound(:ncol),  ncol, lchnk)
-      end do
-    end if
-    
-    return
-  end subroutine tropopause_output
 end module tropopause_find
