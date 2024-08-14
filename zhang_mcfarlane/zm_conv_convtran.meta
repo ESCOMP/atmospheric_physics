@@ -126,7 +126,7 @@
   dimensions = (horizontal_loop_extent,vertical_layer_dimension,number_of_ccpp_constituents)
   intent = out
 [ dpdry ]
-  standard_name = air_pressure_thickness_of_dry_air_for_deep_convection_for_gathered_convective_columns
+  standard_name = air_pressure_thickness_of_dry_air
   units = hPa
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
