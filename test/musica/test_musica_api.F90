@@ -18,8 +18,6 @@ subroutine test_musica_ccpp_api()
   real(kind_phys),              dimension(5)     :: molar_mass_arr            ! kg mol-1
   real(kind_phys),              dimension(2,1,5) :: constituents              ! kg kg-1
   real(kind_phys),              dimension(2,1)   :: height                    ! km
-  real(kind_phys),              dimension(4,2,1) :: photolysis_rate_constants ! s-1
-  integer                                        :: n_vertical_levels
   integer                                        :: errcode
   character(len=512)                             :: errmsg
 
@@ -31,7 +29,6 @@ subroutine test_musica_ccpp_api()
   logical                                                  :: tmp_bool, is_advected
   real(kind_phys)                                          :: molar_mass
 
-  n_vertical_levels = 2
   time_step = 60._kind_phys
   temperature(:,1) = (/ 206.6374207_kind_phys, 206.6374207_kind_phys /)
   pressure(:,1) = (/ 6152.049805_kind_phys, 6152.049805_kind_phys /)
@@ -77,7 +74,7 @@ subroutine test_musica_ccpp_api()
     call constituent_props_ptr(i)%set(const_prop, errcode, errmsg)
   end do
 
-  call musica_ccpp_init(n_vertical_levels, errmsg, errcode)
+  call musica_ccpp_init(errmsg, errcode)
 
   if (errcode /= 0) then
     write(*,*) trim(errmsg)
@@ -90,7 +87,7 @@ subroutine test_musica_ccpp_api()
   write(*,*) "    -- Initial concentrations", constituents
 
   call musica_ccpp_run(time_step, temperature, pressure, dry_air_density, constituent_props_ptr, &
-                       constituents, height, photolysis_rate_constants, errmsg, errcode)
+                       constituents, height, errmsg, errcode)
 
   if (errcode /= 0) then
     write(*,*) trim(errmsg)

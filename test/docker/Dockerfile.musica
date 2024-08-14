@@ -1,6 +1,6 @@
 FROM ubuntu:22.04
 
-ARG MUSICA_GIT_TAG=92b3365c1b567fbdfd135d8643b7c4cf81933bf4
+ARG MUSICA_GIT_TAG=a030011202ff3f8b753981578fead22274b4d64c
 
 RUN apt update \
     && apt install -y sudo \
@@ -76,6 +76,7 @@ RUN cd atmospheric_physics/test \
     && cmake --build ./build
 
 RUN cd atmospheric_physics \
-    && cp -r test/musica/micm/configs/chapman ./test/build/chapman
+    && cp -r test/musica/micm/configs/chapman ./test/build/chapman \
+    && cp -r test/musica/tuvx/configs/ts1_tsmlt.json ./test/build/ts1_tsmlt.json
 
 WORKDIR /home/test_user/atmospheric_physics/test/build

@@ -20,21 +20,27 @@ contains
   !> Register MICM constituents with the CCPP
   subroutine micm_register(constituents, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
-    use musica_util, only: error_t, mapping_t
-    type(ccpp_constituent_properties_t), allocatable, intent(out)   :: constituents(:)
-    character(len=512), intent(out) :: errmsg
-    integer, intent(out)            :: errcode
+    use musica_micm, only: Rosenbrock, RosenbrockStandardOrder
+    use musica_util, only: error_t
 
-    type(error_t) :: error
-    type(mapping_t) :: mapping
+    type(ccpp_constituent_properties_t), allocatable, intent(out) :: constituents(:)
+    character(len=512),                               intent(out) :: errmsg
+    integer,                                          intent(out) :: errcode
+
+    ! local variables
+    type(error_t)        :: error
     real(kind=kind_phys) :: molar_mass
-    logical :: is_advected
-    integer :: i
+    logical              :: is_advected
+    integer              :: solver_type
+    integer              :: 9
+    integer              :: i
 
+    solver_type = Rosenbrock
+    num_grid_cells = 1
     errcode = 0
     errmsg = ''
 
-    micm => micm_t(filename_of_micm_configuration, error)
+    micm => micm_t(filename_of_micm_configuration, solver_type, num_grid_cells, error)
     if (has_error_occurred(error, errmsg, errcode)) return
 
     allocate(constituents(size(micm%species_ordering)), stat=errcode)
@@ -82,26 +88,26 @@ contains
   end subroutine micm_init
 
   !> Solve chemistry at the current time step
-  subroutine micm_run(time_step, temperature, pressure, dry_air_density, photolysis_rate_constants, &
-                      constituent_props, constituents,  errmsg, errcode)
+  subroutine micm_run(time_step, temperature, pressure, dry_air_density, constituent_props, &
+                      constituents, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
-    use musica_util, only: error_t
+    use musica_micm, only: solver_stats_t
+    use musica_util, only: string_t, error_t
 
-    real(kind_phys),                   intent(in)    :: time_step                        ! s
-    real(kind_phys),                   intent(in)    :: temperature(:,:)                 ! K
-    real(kind_phys),                   intent(in)    :: pressure(:,:)                    ! Pa
-    real(kind_phys),                   intent(in)    :: dry_air_density(:,:)             ! kg m-3
-    real(kind_phys),                   intent(in)    :: photolysis_rate_constants(:,:,:) ! s-1
+    real(kind_phys),                   intent(in)    :: time_step            ! s
+    real(kind_phys),                   intent(in)    :: temperature(:,:)     ! K
+    real(kind_phys),                   intent(in)    :: pressure(:,:)        ! Pa
+    real(kind_phys),                   intent(in)    :: dry_air_density(:,:) ! kg m-3
     type(ccpp_constituent_prop_ptr_t), intent(in)    :: constituent_props(:)
-    real(kind_phys),                   intent(inout) :: constituents(:,:,:)              ! kg kg-1
+    real(kind_phys),                   intent(inout) :: constituents(:,:,:)  ! kg kg-1
     character(len=512),                intent(out)   :: errmsg
     integer,                           intent(out)   :: errcode
 
     ! local variables
     real(c_double)                                         :: c_time_step
-    real(c_double), dimension(size(temperature, dim=1), &
+    real(c_double), dimension(size(temperature, dim=1),  &
                               size(temperature, dim=2))    :: c_temperature
-    real(c_double), dimension(size(pressure, dim=1), &
+    real(c_double), dimension(size(pressure, dim=1),     &
                               size(pressure, dim=2))       :: c_pressure
     real(c_double), dimension(size(constituents, dim=1), &
                               size(constituents, dim=2), &
@@ -109,12 +115,12 @@ contains
     real(c_double), dimension(size(constituents, dim=1), &
                               size(constituents, dim=2), &
                               0)                           :: c_rate_params
-
     real(kind_phys), dimension(size(constituents, dim=3))  :: molar_mass_arr ! kg mol-1
-    type(error_t) :: error
-
-    integer :: num_columns, num_layers, num_constituents
-    integer :: i_column, i_layer, i_elem
+    type(string_t)       :: solver_state
+    type(solver_stats_t) :: solver_stats
+    type(error_t)        :: error
+    integer              :: num_columns, num_layers, num_constituents
+    integer              :: i_column, i_layer, i_elem
 
     num_columns = size(constituents, dim=1)
     num_layers = size(constituents, dim=2)
@@ -150,15 +156,22 @@ contains
     c_temperature = real(temperature, c_double)
     c_pressure = real(pressure, c_double)
     c_constituents = real(constituents, c_double)
-
-    do i_column = 1, num_columns
+    ! c_constitnudents_()
+    ! do i_column = 1, num_columns
       do i_layer = 1, num_layers
-        call micm%solve(c_temperature(i_column, i_layer), c_pressure(i_column, i_layer), &
-                        c_time_step, num_constituents, c_constituents(i_column, i_layer, :), &
-                        0, c_rate_params(i_column, i_layer, :), error)
+        c_constituents_ = 
+        call micm%solve(c_time_step,                          &
+                        c_temperature(:,  i_layer),     &
+                        c_pressure(:, i_layer),        &
+                        dry_air_density(:, i_layer),   & 
+                        c_constituents(1, i_layer, :), &  !TODO(jiwon)
+                        c_rate_params(1, i_layer, :),  &
+                        solver_state,                         &
+                        solver_stats,                         &
+                        error)
         if (has_error_occurred(error, errmsg, errcode)) return
       end do
-    end do
+    ! end do
 
     constituents = real(c_constituents, kind_phys)
 

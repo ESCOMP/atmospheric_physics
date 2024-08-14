@@ -1,7 +1,7 @@
 include(FetchContent)
 include(TestUtils)
 
-set(MUSICA_GIT_TAG 92b3365c1b567fbdfd135d8643b7c4cf81933bf4 CACHE STRING "Git tag for the musica repository")
+set(MUSICA_GIT_TAG a030011202ff3f8b753981578fead22274b4d64c CACHE STRING "Git tag for the musica repository")
 
 FetchContent_Declare(musica
   GIT_REPOSITORY https://github.com/NCAR/musica.git
@@ -14,7 +14,7 @@ set(MUSICA_ENABLE_TESTS OFF)
 set(MUSICA_ENABLE_INSTALL OFF)
 
 FetchContent_MakeAvailable(musica)
-
+ 
 # ---------------------------------------------------------
 # Create a test for MUSICA CCPP wrapper
 # ---------------------------------------------------------

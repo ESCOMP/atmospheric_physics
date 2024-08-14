@@ -19,7 +19,7 @@ contains
 
   !> Intitialize TUVX
   subroutine tuvx_init(errmsg, errcode)
-    use musica_tuvx, only: grid_map_t, profile_map_t, radiator_map_t,
+    use musica_tuvx, only: grid_map_t, profile_map_t, radiator_map_t
     use musica_util, only: error_t, mapping_t
 
     character(len=512), intent(out) :: errmsg
@@ -29,13 +29,10 @@ contains
     type(grid_map_t),     pointer    :: grids
     type(profile_map_t),  pointer    :: profiles
     type(radiator_map_t), pointer    :: radiators
-    type(error_t) :: error
+    type(error_t)                    :: error
 
     errcode = 0
     errmsg = ''
-
-    tuvx => tuvx_t( filename_of_tuvx_configuration, error )
-    if (has_error_occurred( error, errmsg, errcode )) return
 
     grids => grid_map_t( error )
     if (has_error_occurred( error, errmsg, errcode )) return
@@ -46,35 +43,32 @@ contains
     radiators =>radiator_map_t( error )
     if (has_error_occurred( error, errmsg, errcode )) return
 
+    tuvx => tuvx_t( filename_of_tuvx_configuration, error )
+    ! TODO(jiwon) - MUSICA TUVX constuctor needs update
+    ! tuvx => tuvx_t( filename_of_tuvx_configuration, grids, profiles, radiators, error )
+    if (has_error_occurred( error, errmsg, errcode )) return
+
     deallocate( grids )
     deallocate( profiles )
     deallocate( radiators )
 
   end subroutine tuvx_init
 
-  subroutine tuvx_run( height, air_density, temperature, photolysis_rate_constants &
-      photolysis_rate_constants, errmsg, errcode )
-    ! Calculates photolysis rate constants for the current model conditions
+  !> Calculates photolysis rate constants for the current model conditions
+  subroutine tuvx_run( height, temperature, dry_air_density, errmsg, errcode )
     use musica_util, only: error_t
 
-    real(kind=dk),      intent(in)  :: height(:,:) ! height above sea level [km] (layer, column)
-    real(kind=dk),      intent(in)  :: air_density(:,:) ! number density of dry (?) air [molecule cm-3] (layer, column)
-    real(kind=dk),      intent(in)  :: temperature(:,:) ! temperature [K] (layer, column)
-    real(kind=dk),      intent(out) :: photolysis_rate_constants(:,:,:) ! photolysis rate constants [s-1] (reaction, layer, column)
+    real(kind_phys),    intent(in)  :: height(:,:)                      ! [km] (layer, column)
+    real(kind_phys),    intent(in)  :: temperature(:,:)                 ! [K] (layer, column)
+    real(kind_phys),    intent(in)  :: dry_air_density(:,:)             ! [molecule cm-3] (layer, column)
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errcode
-    integer :: i_col
+
+    ! local variables
+    type(error_t) :: error
 
     errcode = 0
     errmsg = ''
-
-    ! do i_col = 1, size( height, 2 )
-    !   call wrapper%height_%update( height( :, i_col ) )
-    !   call wrapper%air_%update( air_density( :, i_col ) )
-    !   call wrapper%temperature_%update( temperature( :, i_col ) )
-    !   call core%calculate( photolysis_rate_constants                        &
-    !                       = photolysis_rate_constants( :, :, i_col ) )
-    ! end do
 
   end subroutine tuvx_run
 

@@ -13,20 +13,19 @@ contains
   subroutine musica_ccpp_register(constituents, errmsg, errcode)
     use ccpp_constituent_prop_mod, only : ccpp_constituent_properties_t
     type(ccpp_constituent_properties_t), allocatable, intent(out) :: constituents(:)
-    character(len=512), intent(out) :: errmsg
-    integer,            intent(out) :: errcode
+    character(len=512),                               intent(out) :: errmsg
+    integer,                                          intent(out) :: errcode
 
     call micm_register(constituents, errmsg, errcode)
   end subroutine musica_ccpp_register
 
   !> \section arg_table_musica_ccpp_init Argument Table
   !! \htmlinclude musica_ccpp_init.html
-  subroutine musica_ccpp_init(n_vertical_levels, errmsg, errcode)
-    integer,            intent(in)  :: n_vertical_levels ! Number of vertical levels per column
+  subroutine musica_ccpp_init(errmsg, errcode)
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errcode
 
-    call tuvx_init(n_vertical_levels, errmsg, errcode)
+    call tuvx_init(errmsg, errcode)
     call micm_init(errmsg, errcode)
   end subroutine musica_ccpp_init
 
@@ -47,18 +46,16 @@ contains
     character(len=512),                intent(out)   :: errmsg
     integer,                           intent(out)   :: errcode
 
-    ! local variables
-    real(kind_phys) :: photolysis_rate_constants(:,:,:) ! s-1
-
-    call tuvx_run(height, temperature, dry_air_density, photolysis_rate_constants, errmsg, errcode)
+    call tuvx_run(height, temperature, dry_air_density, errmsg, errcode)
     call micm_run(time_step, temperature, pressure, dry_air_density, constituent_props, &
-                  constituents, photolysis_rate_constants, errmsg, errcode)
+                  constituents, errmsg, errcode)
+
   end subroutine musica_ccpp_run
 
   !> \section arg_table_musica_ccpp_final Argument Table
   !! \htmlinclude musica_ccpp_final.html
   subroutine musica_ccpp_final(errmsg, errcode)
-    integer, intent(out) :: errcode
+    integer,            intent(out) :: errcode
     character(len=512), intent(out) :: errmsg
 
     call tuvx_final(errmsg, errcode)
