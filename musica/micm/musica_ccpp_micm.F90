@@ -32,7 +32,7 @@ contains
     real(kind=kind_phys) :: molar_mass
     logical              :: is_advected
     integer              :: solver_type
-    integer              :: 9
+    integer              :: num_grid_cells
     integer              :: i
 
     solver_type = Rosenbrock
@@ -116,6 +116,7 @@ contains
                               size(constituents, dim=2), &
                               0)                           :: c_rate_params
     real(kind_phys), dimension(size(constituents, dim=3))  :: molar_mass_arr ! kg mol-1
+
     type(string_t)       :: solver_state
     type(solver_stats_t) :: solver_stats
     type(error_t)        :: error
@@ -159,7 +160,7 @@ contains
     ! c_constitnudents_()
     ! do i_column = 1, num_columns
       do i_layer = 1, num_layers
-        c_constituents_ = 
+
         call micm%solve(c_time_step,                          &
                         c_temperature(:,  i_layer),     &
                         c_pressure(:, i_layer),        &
