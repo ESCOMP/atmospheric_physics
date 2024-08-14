@@ -59,7 +59,7 @@ subroutine zm_conv_momtran_run(ncol, pver, pverp, &
    real(kind_phys), intent(in) :: ed(:,:)       ! Mass entraining from downdraft            (ncol,pver)
    real(kind_phys), intent(in) :: dp(:,:)       ! Delta pressure between interfaces         (ncol,pver)
    real(kind_phys), intent(in) :: dsubcld(:)       ! Delta pressure from cloud base to sfc  (ncol)
-   real(kind_phys), intent(in) :: dt                   !  time step in seconds : 2*delta_t
+   real(kind_phys), intent(in) :: dt
 
    integer, intent(in) :: jt(:)         ! Index of cloud top for each column         (ncol)
    integer, intent(in) :: mx(:)         ! Index of cloud top for each column         (ncol)
@@ -415,7 +415,7 @@ subroutine zm_conv_momtran_run(ncol, pver, pverp, &
           ketend_cons = (fket-fkeb)/dp(i,k)
 
           ! tendency in kinetic energy resulting from the momentum transport
-          ketend = ((windf(i,k,1)**2 + windf(i,k,2)**2) - (wind0(i,k,1)**2 + wind0(i,k,2)**2))*0.5_kind_phys/dt
+          ketend = ((windf(i,k,1)**2 + windf(i,k,2)**2) - (wind0(i,k,1)**2 + wind0(i,k,2)**2))/dt
 
           ! the difference should be the dissipation
           gset2 = ketend_cons - ketend
