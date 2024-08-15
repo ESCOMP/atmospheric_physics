@@ -86,13 +86,13 @@
   units = m
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
-  intent = out
+  intent = in
 [ zm ]
   standard_name = geopotential_height_wrt_surface
   units = m
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = out
+  intent = in
 [ phis ]
   standard_name = surface_geopotential
   units = m2 s-2

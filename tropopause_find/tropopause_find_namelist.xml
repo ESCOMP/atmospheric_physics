@@ -8,7 +8,7 @@
 
   <entry id="tropopause_climo_file">
     <type>char*256</type>
-    <input_pathname>abs</input_pathname>
+    <!--<input_pathname>abs</input_pathname>-->
     <category>tropo</category>
     <group>tropopause_nl</group>
     <standard_name>filename_of_tropopause_air_pressure_from_climatology</standard_name>

@@ -127,8 +127,8 @@ contains
                                  tropLev, tropP, tropT, tropZ, primary, backup, &
                                  errmsg, errflg)
 
-    real(kind_phys), intent(in)         :: ncol          ! Number of atmospheric columns
-    real(kind_phys), intent(in)         :: pver          ! Number of vertical levels
+    integer,         intent(in)         :: ncol          ! Number of atmospheric columns
+    integer,         intent(in)         :: pver          ! Number of vertical levels
     real(kind_phys), intent(in)         :: lat(:)        ! Latitudes (radians)
     real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa), pverp
     real(kind_phys), intent(in)         :: pmid(:,:)     ! Midpoint pressures (Pa)
@@ -188,8 +188,8 @@ contains
   subroutine tropopause_analytic(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
                                  tropLev, tropP, tropT, tropZ)
 
-    real(kind_phys), intent(in)         :: ncol          ! Number of atmospheric columns
-    real(kind_phys), intent(in)         :: pver          ! Number of vertical levels
+    integer,         intent(in)         :: ncol          ! Number of atmospheric columns
+    integer,         intent(in)         :: pver          ! Number of vertical levels
     real(kind_phys), intent(in)         :: lat(:)        ! Latitudes (radians)
     real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa), pverp
     real(kind_phys), intent(in)         :: pmid(:,:)     ! Midpoint pressures (Pa)
@@ -246,8 +246,8 @@ contains
   subroutine tropopause_climate(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
                                 calday, tropp_p_loc, tropp_days, tropLev, tropP, tropT, tropZ)
 
-    real(kind_phys), intent(in)         :: ncol          ! Number of atmospheric columns
-    real(kind_phys), intent(in)         :: pver          ! Number of vertical levels
+    integer,         intent(in)         :: ncol          ! Number of atmospheric columns
+    integer,         intent(in)         :: pver          ! Number of vertical levels
     real(kind_phys), intent(in)         :: lat(:)        ! Latitudes (radians)
     real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa), pverp
     real(kind_phys), intent(in)         :: pmid(:,:)     ! Midpoint pressures (Pa)
@@ -364,8 +364,8 @@ contains
     !-----------------------------------------------------------------------
     !        ... Local variables
     !-----------------------------------------------------------------------
-    real(kind_phys), intent(in)         :: ncol          ! Number of atmospheric columns
-    real(kind_phys), intent(in)         :: pver          ! Number of vertical levelserp
+    integer,         intent(in)         :: ncol          ! Number of atmospheric columns
+    integer,         intent(in)         :: pver          ! Number of vertical levelserp
     real(kind_phys), intent(in)         :: pmid(:,:)     ! Midpoint pressures (Pa)
     real(kind_phys), intent(in)         :: t(:,:)        ! Temperature (K)
     real(kind_phys), intent(in)         :: zm(:,:)       ! Geopotential height above surface at midpoints (m), pver
@@ -451,8 +451,8 @@ contains
   subroutine tropopause_stobie(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
                                tropLev, tropP, tropT, tropZ)
 
-    real(kind_phys), intent(in)         :: ncol          ! Number of atmospheric columns
-    real(kind_phys), intent(in)         :: pver          ! Number of vertical levels
+    integer,         intent(in)         :: ncol          ! Number of atmospheric columns
+    integer,         intent(in)         :: pver          ! Number of vertical levels
     real(kind_phys), intent(in)         :: lat(:)        ! Latitudes (radians)
     real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa), pverp
     real(kind_phys), intent(in)         :: pmid(:,:)     ! Midpoint pressures (Pa)
@@ -648,8 +648,8 @@ contains
   subroutine tropopause_twmo(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
                              tropLev, tropP, tropT, tropZ)
 
-    real(kind_phys), intent(in)         :: ncol          ! Number of atmospheric columns
-    real(kind_phys), intent(in)         :: pver          ! Number of vertical levels
+    integer,         intent(in)         :: ncol          ! Number of atmospheric columns
+    integer,         intent(in)         :: pver          ! Number of vertical levels
     real(kind_phys), intent(in)         :: lat(:)        ! Latitudes (radians)
     real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa), pverp
     real(kind_phys), intent(in)         :: pmid(:,:)     ! Midpoint pressures (Pa)
@@ -719,8 +719,8 @@ contains
   subroutine tropopause_wmo(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
                             tropLev, tropP, tropT, tropZ)
 
-    real(kind_phys), intent(in)         :: ncol          ! Number of atmospheric columns
-    real(kind_phys), intent(in)         :: pver          ! Number of vertical levels
+    integer,         intent(in)         :: ncol          ! Number of atmospheric columns
+    integer,         intent(in)         :: pver          ! Number of vertical levels
     real(kind_phys), intent(in)         :: lat(:)        ! Latitudes (radians)
     real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa), pverp
     real(kind_phys), intent(in)         :: pmid(:,:)     ! Midpoint pressures (Pa)
@@ -815,8 +815,8 @@ contains
   subroutine tropopause_cpp(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
                             tropLev, tropP, tropT, tropZ)
 
-    real(kind_phys), intent(in)         :: ncol          ! Number of atmospheric columns
-    real(kind_phys), intent(in)         :: pver          ! Number of vertical levels
+    integer,         intent(in)         :: ncol          ! Number of atmospheric columns
+    integer,         intent(in)         :: pver          ! Number of vertical levels
     real(kind_phys), intent(in)         :: lat(:)        ! Latitudes (radians)
     real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa), pverp
     real(kind_phys), intent(in)         :: pmid(:,:)     ! Midpoint pressures (Pa)
@@ -948,8 +948,8 @@ contains
                                      calday, tropp_p_loc, tropp_days, &
                                      tropLev, tropP, tropT, tropZ)
 
-    real(kind_phys), intent(in)         :: ncol          ! Number of atmospheric columns
-    real(kind_phys), intent(in)         :: pver          ! Number of vertical levels
+    integer,         intent(in)         :: ncol          ! Number of atmospheric columns
+    integer,         intent(in)         :: pver          ! Number of vertical levels
     real(kind_phys), intent(in)         :: lat(:)        ! Latitudes (radians)
     real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa), pverp
     real(kind_phys), intent(in)         :: pmid(:,:)     ! Midpoint pressures (Pa)
@@ -1013,8 +1013,8 @@ contains
                                   calday, tropp_p_loc, tropp_days, &
                                   algorithm, tropLev, tropP, tropT, tropZ)
 
-    real(kind_phys), intent(in)         :: ncol          ! Number of atmospheric columns
-    real(kind_phys), intent(in)         :: pver          ! Number of vertical levels
+    integer,         intent(in)         :: ncol          ! Number of atmospheric columns
+    integer,         intent(in)         :: pver          ! Number of vertical levels
     real(kind_phys), intent(in)         :: lat(:)        ! Latitudes (radians)
     real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa), pverp
     real(kind_phys), intent(in)         :: pmid(:,:)     ! Midpoint pressures (Pa)
