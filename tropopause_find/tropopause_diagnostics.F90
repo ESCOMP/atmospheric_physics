@@ -1,6 +1,7 @@
-module tropopause_output
+module tropopause_diagnostics
   ! ... output tropopause diagnostics
   ! this will be moved to cam_diagnostics when History is available. (hplin, 8/14/24)
+  ! Currently stubbed out
   use ccpp_kinds,           only : kind_phys
 
   implicit none
@@ -12,6 +13,8 @@ module tropopause_output
 
 contains
   ! Initialize the output history fields.
+!> \section arg_table_tropopause_diagnostics_init Argument Table
+!! \htmlinclude tropopause_diagnostics_init.html
   subroutine tropopause_diagnostics_init(errmsg, errflg)
 
     !use cam_history,         only: history_add_field
@@ -94,131 +97,127 @@ contains
   ! of output will be generated, one for the default algorithm and another one
   ! using the default routine, but backed by a climatology when the default
   ! algorithm fails.
-  !> \section arg_table_tropopause_diagnostics_run Argument Table
-  !! \htmlinclude tropopause_diagnostics_run.html
-  subroutine tropopause_diagnostics_run(ncol, pver, lat, pint, pmid, t, zi, zm, phis)
+!> \section arg_table_tropopause_diagnostics_run Argument Table
+!! \htmlinclude tropopause_diagnostics_run.html
+  subroutine tropopause_diagnostics_run(errmsg, errflg)
     !use cam_history,  only : outfld
 
-    real(kind_phys), intent(in)         :: ncol          ! Number of atmospheric columns
-    real(kind_phys), intent(in)         :: pver          ! Number of vertical levels
-    real(kind_phys), intent(in)         :: lat(:,:)      ! Latitudes (radians)
-    real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa), pverp
-    real(kind_phys), intent(in)         :: pmid(:,:)     ! Midpoint pressures (Pa)
-    real(kind_phys), intent(in)         :: t(:,:)        ! Temperature (K)
-    real(kind_phys), intent(in)         :: zi(:,:)       ! Geopotential height above surface at interfaces (m), pverp
-    real(kind_phys), intent(in)         :: zm(:,:)       ! Geopotential height above surface at midpoints (m), pver
-    real(kind_phys), intent(in)         :: phis(:)       ! Surface geopotential (m2 s-2)
+    character(len=512), intent(out) :: errmsg
+    integer,            intent(out) :: errflg
 
-    ! Local Variables
-    integer       :: i
-    integer       :: alg
-    integer       :: ncol                     ! number of cloumns in the chunk
-    !integer       :: lchnk                    ! chunk identifier
-    integer       :: tropLev(pcols)           ! tropopause level index
-    real(kind_phys)      :: tropP(pcols)             ! tropopause pressure (Pa)
-    real(kind_phys)      :: tropT(pcols)             ! tropopause temperature (K)
-    real(kind_phys)      :: tropZ(pcols)             ! tropopause height (m)
-    real(kind_phys)      :: tropFound(pcols)         ! tropopause found
-    real(kind_phys)      :: tropDZ(pcols, pver)      ! relative tropopause height (m)
-    real(kind_phys)      :: tropPdf(pcols, pver)     ! tropopause probability distribution
+    errmsg = ' '
+    errflg = 0
 
-    ! Information about the chunk.
-    !lchnk = pstate%lchnk
+    ! ! Local Variables
+    ! integer       :: i
+    ! integer       :: alg
+    ! integer       :: ncol                     ! number of cloumns in the chunk
+    ! !integer       :: lchnk                    ! chunk identifier
+    ! integer       :: tropLev(pcols)           ! tropopause level index
+    ! real(kind_phys)      :: tropP(pcols)             ! tropopause pressure (Pa)
+    ! real(kind_phys)      :: tropT(pcols)             ! tropopause temperature (K)
+    ! real(kind_phys)      :: tropZ(pcols)             ! tropopause height (m)
+    ! real(kind_phys)      :: tropFound(pcols)         ! tropopause found
+    ! real(kind_phys)      :: tropDZ(pcols, pver)      ! relative tropopause height (m)
+    ! real(kind_phys)      :: tropPdf(pcols, pver)     ! tropopause probability distribution
 
-    ! Find the tropopause using the default algorithm backed by the climatology.
-    call tropopause_find_run(ncol, pver, lat, pint, pmid, t, zi, zm, phis, tropLev, tropP=tropP, tropT=tropT, tropZ=tropZ)
+    ! ! Information about the chunk.
+    ! !lchnk = pstate%lchnk
 
-    tropPdf(:,:) = 0._kind_phys
-    tropFound(:) = 0._kind_phys
-    tropDZ(:,:) = fillvalue
-    do i = 1, ncol
-      if (tropLev(i) /= NOTFOUND) then
-        tropPdf(i, tropLev(i)) = 1._kind_phys
-        tropFound(i) = 1._kind_phys
-        tropDZ(i,:) = zm(i,:) - tropZ(i)
-      end if
-    end do
+    ! ! Find the tropopause using the default algorithm backed by the climatology.
+    ! call tropopause_find_run(ncol, pver, lat, pint, pmid, t, zi, zm, phis, tropLev, tropP=tropP, tropT=tropT, tropZ=tropZ)
 
-    ! call outfld('TROP_P',   tropP(:ncol),      ncol, lchnk)
-    ! call outfld('TROP_T',   tropT(:ncol),      ncol, lchnk)
-    ! call outfld('TROP_Z',   tropZ(:ncol),      ncol, lchnk)
-    ! call outfld('TROP_DZ',  tropDZ(:ncol, :), ncol, lchnk)
-    ! call outfld('TROP_PD',  tropPdf(:ncol, :), ncol, lchnk)
-    ! call outfld('TROP_FD',  tropFound(:ncol),  ncol, lchnk)
+    ! tropPdf(:,:) = 0._kind_phys
+    ! tropFound(:) = 0._kind_phys
+    ! tropDZ(:,:) = fillvalue
+    ! do i = 1, ncol
+    !   if (tropLev(i) /= NOTFOUND) then
+    !     tropPdf(i, tropLev(i)) = 1._kind_phys
+    !     tropFound(i) = 1._kind_phys
+    !     tropDZ(i,:) = zm(i,:) - tropZ(i)
+    !   end if
+    ! end do
+
+    ! ! call outfld('TROP_P',   tropP(:ncol),      ncol, lchnk)
+    ! ! call outfld('TROP_T',   tropT(:ncol),      ncol, lchnk)
+    ! ! call outfld('TROP_Z',   tropZ(:ncol),      ncol, lchnk)
+    ! ! call outfld('TROP_DZ',  tropDZ(:ncol, :), ncol, lchnk)
+    ! ! call outfld('TROP_PD',  tropPdf(:ncol, :), ncol, lchnk)
+    ! ! call outfld('TROP_FD',  tropFound(:ncol),  ncol, lchnk)
 
 
-    ! Find the tropopause using just the primary algorithm.
-    call tropopause_find_run(ncol, pver, lat, pint, pmid, t, zi, zm, phis, tropLev, tropP=tropP, tropT=tropT, tropZ=tropZ, backup=TROP_ALG_NONE)
+    ! ! Find the tropopause using just the primary algorithm.
+    ! call tropopause_find_run(ncol, pver, lat, pint, pmid, t, zi, zm, phis, tropLev, tropP=tropP, tropT=tropT, tropZ=tropZ, backup=TROP_ALG_NONE)
 
-    tropPdf(:,:) = 0._kind_phys
-    tropFound(:) = 0._kind_phys
-    tropDZ(:,:) = fillvalue
+    ! tropPdf(:,:) = 0._kind_phys
+    ! tropFound(:) = 0._kind_phys
+    ! tropDZ(:,:) = fillvalue
 
-    do i = 1, ncol
-      if (tropLev(i) /= NOTFOUND) then
-        tropPdf(i, tropLev(i)) = 1._kind_phys
-        tropFound(i) = 1._kind_phys
-        tropDZ(i,:) = zm(i,:) - tropZ(i)
-      end if
-    end do
+    ! do i = 1, ncol
+    !   if (tropLev(i) /= NOTFOUND) then
+    !     tropPdf(i, tropLev(i)) = 1._kind_phys
+    !     tropFound(i) = 1._kind_phys
+    !     tropDZ(i,:) = zm(i,:) - tropZ(i)
+    !   end if
+    ! end do
 
-    ! call outfld('TROPP_P',   tropP(:ncol),      ncol, lchnk)
-    ! call outfld('TROPP_T',   tropT(:ncol),      ncol, lchnk)
-    ! call outfld('TROPP_Z',   tropZ(:ncol),      ncol, lchnk)
-    ! call outfld('TROPP_DZ',  tropDZ(:ncol, :), ncol, lchnk)
-    ! call outfld('TROPP_PD',  tropPdf(:ncol, :), ncol, lchnk)
-    ! call outfld('TROPP_FD',  tropFound(:ncol),  ncol, lchnk)
-
-
-    ! Find the tropopause using just the cold point algorithm.
-    call tropopause_find_run(ncol, pver, lat, pint, pmid, t, zi, zm, phis, tropLev, tropP=tropP, tropT=tropT, tropZ=tropZ, primary=TROP_ALG_CPP, backup=TROP_ALG_NONE)
-
-    tropPdf(:,:) = 0._kind_phys
-    tropFound(:) = 0._kind_phys
-    tropDZ(:,:) = fillvalue
-
-    do i = 1, ncol
-      if (tropLev(i) /= NOTFOUND) then
-        tropPdf(i, tropLev(i)) = 1._kind_phys
-        tropFound(i) = 1._kind_phys
-        tropDZ(i,:) = zm(i,:) - tropZ(i)
-      end if
-    end do
-
-    ! call outfld('TROPF_P',   tropP(:ncol),      ncol, lchnk)
-    ! call outfld('TROPF_T',   tropT(:ncol),      ncol, lchnk)
-    ! call outfld('TROPF_Z',   tropZ(:ncol),      ncol, lchnk)
-    ! call outfld('TROPF_DZ',  tropDZ(:ncol, :), ncol, lchnk)
-    ! call outfld('TROPF_PD',  tropPdf(:ncol, :), ncol, lchnk)
-    ! call outfld('TROPF_FD',  tropFound(:ncol),  ncol, lchnk)
+    ! ! call outfld('TROPP_P',   tropP(:ncol),      ncol, lchnk)
+    ! ! call outfld('TROPP_T',   tropT(:ncol),      ncol, lchnk)
+    ! ! call outfld('TROPP_Z',   tropZ(:ncol),      ncol, lchnk)
+    ! ! call outfld('TROPP_DZ',  tropDZ(:ncol, :), ncol, lchnk)
+    ! ! call outfld('TROPP_PD',  tropPdf(:ncol, :), ncol, lchnk)
+    ! ! call outfld('TROPP_FD',  tropFound(:ncol),  ncol, lchnk)
 
 
-    ! If requested, do all of the algorithms.
-    if (output_all) then
+    ! ! Find the tropopause using just the cold point algorithm.
+    ! call tropopause_find_run(ncol, pver, lat, pint, pmid, t, zi, zm, phis, tropLev, tropP=tropP, tropT=tropT, tropZ=tropZ, primary=TROP_ALG_CPP, backup=TROP_ALG_NONE)
 
-      do alg = 2, TROP_NALG
+    ! tropPdf(:,:) = 0._kind_phys
+    ! tropFound(:) = 0._kind_phys
+    ! tropDZ(:,:) = fillvalue
 
-        ! Find the tropopause using just the analytic algorithm.
-        call tropopause_find_run(ncol, pver, lat, pint, pmid, t, zi, zm, phis, tropLev, tropP=tropP, tropT=tropT, tropZ=tropZ, primary=alg, backup=TROP_ALG_NONE)
+    ! do i = 1, ncol
+    !   if (tropLev(i) /= NOTFOUND) then
+    !     tropPdf(i, tropLev(i)) = 1._kind_phys
+    !     tropFound(i) = 1._kind_phys
+    !     tropDZ(i,:) = zm(i,:) - tropZ(i)
+    !   end if
+    ! end do
 
-        tropPdf(:,:) = 0._kind_phys
-        tropFound(:) = 0._kind_phys
+    ! ! call outfld('TROPF_P',   tropP(:ncol),      ncol, lchnk)
+    ! ! call outfld('TROPF_T',   tropT(:ncol),      ncol, lchnk)
+    ! ! call outfld('TROPF_Z',   tropZ(:ncol),      ncol, lchnk)
+    ! ! call outfld('TROPF_DZ',  tropDZ(:ncol, :), ncol, lchnk)
+    ! ! call outfld('TROPF_PD',  tropPdf(:ncol, :), ncol, lchnk)
+    ! ! call outfld('TROPF_FD',  tropFound(:ncol),  ncol, lchnk)
 
-        do i = 1, ncol
-          if (tropLev(i) /= NOTFOUND) then
-            tropPdf(i, tropLev(i)) = 1._kind_phys
-            tropFound(i) = 1._kind_phys
-          end if
-        end do
 
-        ! call outfld('TROP' // TROP_LETTER(alg) // '_P',   tropP(:ncol),      ncol, lchnk)
-        ! call outfld('TROP' // TROP_LETTER(alg) // '_T',   tropT(:ncol),      ncol, lchnk)
-        ! call outfld('TROP' // TROP_LETTER(alg) // '_Z',   tropZ(:ncol),      ncol, lchnk)
-        ! call outfld('TROP' // TROP_LETTER(alg) // '_PD',  tropPdf(:ncol, :), ncol, lchnk)
-        ! call outfld('TROP' // TROP_LETTER(alg) // '_FD',  tropFound(:ncol),  ncol, lchnk)
-      end do
-    end if
+    ! ! If requested, do all of the algorithms.
+    ! if (output_all) then
+
+    !   do alg = 2, TROP_NALG
+
+    !     ! Find the tropopause using just the analytic algorithm.
+    !     call tropopause_find_run(ncol, pver, lat, pint, pmid, t, zi, zm, phis, tropLev, tropP=tropP, tropT=tropT, tropZ=tropZ, primary=alg, backup=TROP_ALG_NONE)
+
+    !     tropPdf(:,:) = 0._kind_phys
+    !     tropFound(:) = 0._kind_phys
+
+    !     do i = 1, ncol
+    !       if (tropLev(i) /= NOTFOUND) then
+    !         tropPdf(i, tropLev(i)) = 1._kind_phys
+    !         tropFound(i) = 1._kind_phys
+    !       end if
+    !     end do
+
+    !     ! call outfld('TROP' // TROP_LETTER(alg) // '_P',   tropP(:ncol),      ncol, lchnk)
+    !     ! call outfld('TROP' // TROP_LETTER(alg) // '_T',   tropT(:ncol),      ncol, lchnk)
+    !     ! call outfld('TROP' // TROP_LETTER(alg) // '_Z',   tropZ(:ncol),      ncol, lchnk)
+    !     ! call outfld('TROP' // TROP_LETTER(alg) // '_PD',  tropPdf(:ncol, :), ncol, lchnk)
+    !     ! call outfld('TROP' // TROP_LETTER(alg) // '_FD',  tropFound(:ncol),  ncol, lchnk)
+    !   end do
+    ! end if
 
     return
-  end subroutine tropopause_output
-end module tropopause_output
+  end subroutine tropopause_diagnostics_run
+end module tropopause_diagnostics

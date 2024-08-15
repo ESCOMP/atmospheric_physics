@@ -29,12 +29,6 @@
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
-[ tropopause_climo_file ]
-  standard_name = enter_standard_name_5
-  units = enter_units
-  type = character | kind = len=256
-  dimensions = ()
-  intent = in
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
@@ -105,8 +99,26 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
+[ calday ]
+  standard_name = fractional_calendar_days_on_end_of_current_timestep
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ tropp_p_loc ]
+  standard_name = tropopause_air_pressure_from_climatology
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,12)
+  intent = in
+[ tropp_days ]
+  standard_name = tropopause_calendar_days_from_climatology
+  units = 1
+  type = integer
+  dimensions = (12)
+  intent = in
 [ tropLev ]
-  standard_name = enter_standard_name_19
+  standard_name = model_level_number_at_tropopause
   units = 1
   type = integer
   dimensions = (horizontal_loop_extent)
@@ -130,14 +142,14 @@
   dimensions = (horizontal_loop_extent)
   intent = out
 [ primary ]
-  standard_name = enter_standard_name_17
-  units = enter_units
+  standard_name = control_for_tropopause_find_method
+  units = 1
   type = integer
   dimensions = ()
   intent = in
 [ backup ]
-  standard_name = enter_standard_name_18
-  units = enter_units
+  standard_name = control_for_tropopause_find_method_secondary
+  units = 1
   type = integer
   dimensions = ()
   intent = in

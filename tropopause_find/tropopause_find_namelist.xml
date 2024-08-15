@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet type="text/xsl"?>
+
+<entry_id_pg version="2.0">
+
+<!-- Tropopause_find configuration options -->
+
+  <entry id="tropopause_climo_file">
+    <type>char*256</type>
+    <input_pathname>abs</input_pathname>
+    <category>tropo</category>
+    <group>tropopause_nl</group>
+    <standard_name>filename_of_tropopause_air_pressure_from_climatology</standard_name>
+    <units>none</units>
+    <valid_values></valid_values>
+    <desc>
+      Full pathname of boundary dataset for tropopause climatology. Default: set by build-namelist.
+    </desc>
+    <values>
+      <value>trop_climo</value>
+    </values>
+  </entry>
+</entry_id_pg>
