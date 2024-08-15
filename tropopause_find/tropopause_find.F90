@@ -22,11 +22,6 @@ module tropopause_find
 
   use ccpp_kinds,           only : kind_phys
 
-  ! FIXME: hplin remove use statements here.
-  use cam_abortutils,       only : endrun
-  use cam_logfile,          only : iulog
-  use cam_history_support,  only : fillvalue
-
   implicit none
 
   private
@@ -72,6 +67,10 @@ module tropopause_find
   integer, parameter :: NOTFOUND = -1
 
   real(kind_phys), parameter :: ALPHA  = 0.03_kind_phys
+
+  ! FIXME hplin 8/15/24: fillvalue from cam_history_support. To check how it is used
+  ! and if we can remove it with a generic (NOTFOUND?) value
+  real(kind_phys), parameter :: fillvalue = 1.e36_kind_phys
     
   ! physical constants
   ! These constants are set in module variables rather than as parameters 
@@ -389,7 +388,6 @@ contains
     real(kind_phys)     :: trop_linoz_output(ncol,pver)  !For output purposes only.
     real(kind_phys)     :: trop_trop_output(ncol,pver)   !For output purposes only.
 
-    !    write(iulog,*) 'In set_chem_trop, o3_ndx =',o3_ndx
     ltrop_linoz(:) = 1  ! Initialize to default value.
     ltrop_trop(:) = 1   ! Initialize to default value.
 
@@ -1070,8 +1068,8 @@ contains
                                      tropLev, tropP, tropT, tropZ)
 
       case default
-        write(iulog, *) 'tropopause: Invalid detection algorithm (',  algorithm, ') specified.'
-        call endrun
+        errflg = 1
+        write(errmsg,*) 'tropopause: Invalid detection algorithm (',  algorithm, ') specified.'
     end select
     
     return
