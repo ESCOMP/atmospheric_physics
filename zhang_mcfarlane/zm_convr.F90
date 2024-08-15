@@ -721,7 +721,7 @@ subroutine zm_convr_run(     ncol    ,pver    , &
 
    do i=1,lengath
       if (mumax(i) > 0._kind_phys) then
-         mb(i) = min(mb(i),0.5_kind_phys/(delt*mumax(i)))
+         mb(i) = min(mb(i),1._kind_phys/(delt*mumax(i)))
       else
          mb(i) = 0._kind_phys
       endif
@@ -770,7 +770,7 @@ subroutine zm_convr_run(     ncol    ,pver    , &
 !
 ! q is updated to compute net precip.
 !
-         q(ideep(i),k) = qh(ideep(i),k) + 2._kind_phys*delt*dqdt(i,k)
+         q(ideep(i),k) = qh(ideep(i),k) + delt*dqdt(i,k)
          qtnd(ideep(i),k) = dqdt (i,k)
          cme (ideep(i),k) = cmeg (i,k)
          rprd(ideep(i),k) = rprdg(i,k)
@@ -785,13 +785,13 @@ subroutine zm_convr_run(     ncol    ,pver    , &
 ! Compute precip by integrating change in water vapor minus detrained cloud water
    do k = pver,msg + 1,-1
       do i = 1,ncol
-          prec(i) = prec(i) - dpp(i,k)* (q(i,k)-qh(i,k)) - dpp(i,k)*(dlf(i,k)+dif(i,k))*2._kind_phys*delt
+          prec(i) = prec(i) - dpp(i,k)* (q(i,k)-qh(i,k)) - dpp(i,k)*(dlf(i,k)+dif(i,k))*delt
       end do
    end do
 
 ! obtain final precipitation rate in m/s.
    do i = 1,ncol
-      prec(i) = rgrav*max(prec(i),0._kind_phys)/ (2._kind_phys*delt)/1000._kind_phys
+      prec(i) = rgrav*max(prec(i),0._kind_phys)/ delt/1000._kind_phys
    end do
 
 ! Compute reserved liquid (not yet in cldliq) for energy integrals.
