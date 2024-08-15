@@ -125,7 +125,7 @@ contains
   subroutine tropopause_find_run(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
                                  calday, tropp_p_loc, tropp_days, &
                                  tropLev, tropP, tropT, tropZ, primary, backup, &
-                                 errmsg, errflg)
+                                 scheme_name, errmsg, errflg)
 
     integer,         intent(in)         :: ncol          ! Number of atmospheric columns
     integer,         intent(in)         :: pver          ! Number of vertical levels
@@ -154,9 +154,11 @@ contains
     integer, intent(in)       :: primary                   ! primary detection algorithm
     integer, intent(in)       :: backup                    ! backup detection algorithm
 
+    character(len=64),  intent(out) :: scheme_name
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
+    scheme_name = 'tropopause_find'
     errmsg = ' '
     errflg = 0
 
