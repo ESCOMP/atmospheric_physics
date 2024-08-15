@@ -1,7 +1,16 @@
 FROM ubuntu:22.04
 
 RUN apt update \
-    && apt -y install \
+    && apt install -y sudo \
+    && adduser test_user \
+    && echo "test_user ALL=(root) NOPASSWD: ALL" >> /etc/sudoers.d/test_user \
+    && chmod 0440 /etc/sudoers.d/test_user
+
+USER test_user
+WORKDIR /home/test_user
+
+RUN sudo apt update \
+    && sudo apt -y install \
     cmake \
     cmake-curses-gui \
     curl \
@@ -9,49 +18,62 @@ RUN apt update \
     gcc \
     gfortran \
     git \
+    libblas-dev \
+    liblapack-dev \
     lcov \
     libcurl4-openssl-dev \
     libhdf5-dev \
     libnetcdff-dev \
+    libopenmpi-dev \
     m4 \
     make \
     nlohmann-json3-dev \
+    openmpi-bin \
+    python3 \
     tree \
     valgrind \
     vim \
     zlib1g-dev \
-    && apt clean
+    && sudo apt clean
 
-ENV FC=gfortran
+ENV PATH="${PATH}:/usr/lib/openmpi/bin"
+
+ENV FC=mpif90
 ENV FFLAGS="-I/usr/include/"
 
 # Install MUSICA (MUSICA-C)
 RUN git clone https://github.com/NCAR/musica.git
 RUN cd musica \
     && git fetch \
-    && git checkout v0.6.0 \
+    && git checkout 2a5eeaac982a3eb80b96d1e2087b91b301d1e748 \
     && cmake \
         -S . \
         -B build \
+        -D CMAKE_BUILD_TYPE=Release \
         -D MUSICA_ENABLE_TESTS=OFF \
+        -D MUSICA_BUILD_FORTRAN_INTERFACE=OFF \
+        -D MUSICA_ENABLE_MICM=ON \
+        -D MUSICA_ENABLE_TUVX=ON \
     && cd build \
-    && make install
+    && sudo make install
 
 COPY . atmospheric_physics
+RUN sudo chown -R test_user:test_user atmospheric_physics
 
 RUN cd atmospheric_physics/test \
     && mkdir lib \
     && cd lib \
-    && git clone -b CPF_0.2.051 --depth 1 https://github.com/peverwhee/ccpp-framework.git
+    && git clone -b add_const_interface --depth 1 https://github.com/peverwhee/ccpp-framework.git
 ENV CCPP_SRC_PATH="lib/ccpp-framework/src"
 
 RUN cd atmospheric_physics/test \
-    && cmake -S. \
+    && cmake -S . \
              -B build \
              -D CCPP_ENABLE_MUSICA_TESTS=ON \
+             -D CCPP_ENABLE_MEMCHECK=ON \
     && cmake --build ./build
 
 RUN cd atmospheric_physics \
     && cp -r test/musica/micm/configs/chapman ./test/build/chapman
 
-WORKDIR atmospheric_physics/test/build
+WORKDIR /home/test_user/atmospheric_physics/test/build

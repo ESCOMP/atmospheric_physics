@@ -1,37 +1,27 @@
 [ccpp-table-properties]
-  name = micm
+  name = musica_ccpp
   type = scheme
+  dependencies = micm/musica_ccpp_micm.F90,musica_ccpp_util.F90
+  dynamic_constituent_routine = musica_ccpp_register
 
 [ccpp-arg-table]
-  name  = micm_init
+  name  = musica_ccpp_init
   type  = scheme
-[ config_path ]
-  standard_name = filename_of_micm_configuration
-  units = none
-  type = character | kind = len=*
-  dimensions = ()
-  intent = in
-[ iulog ]
-  standard_name = log_output_unit
-  units = 1
-  type = integer
-  dimensions = ()
-  intent = in
-[ errcode ]
-  standard_name = ccpp_error_code
-  units = 1
-  type = integer
-  dimensions = ()
-  intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
   type = character | kind = len=512
   dimensions = ()
   intent = out
+[ errcode ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
 
 [ccpp-arg-table]
-  name  = micm_run
+  name  = musica_ccpp_run
   type  = scheme
 [ time_step ]
   standard_name = timestep_for_physics
@@ -59,53 +49,41 @@
   intent = in
 [ constituent_props ]
   standard_name = ccpp_constituent_properties
-  units = none
+  units = None
   type = ccpp_constituent_prop_ptr_t
   dimensions = (number_of_ccpp_constituents)
   intent = in
 [ constituents ]
   standard_name = ccpp_constituents
-  units = kg kg-1
+  units = none
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension,number_of_ccpp_constituents)
   intent = inout
-[ iulog ]
-  standard_name = log_output_unit
-  units = 1
-  type = integer
-  dimensions = ()
-  intent = in
-[ errcode ]
-  standard_name = ccpp_error_code
-  units = 1
-  type = integer
-  dimensions = ()
-  intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
   type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errcode ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
   dimensions = ()
   intent = out
 
 [ccpp-arg-table]
-  name  = micm_final
+  name  = musica_ccpp_final
   type  = scheme
-[ iulog ]
-  standard_name = log_output_unit
-  units = 1
-  type = integer
-  dimensions = ()
-  intent = in
-[ errcode ]
-  standard_name = ccpp_error_code
-  units = 1
-  type = integer
-  dimensions = ()
-  intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
   type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errcode ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
   dimensions = ()
   intent = out
