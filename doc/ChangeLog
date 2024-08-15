@@ -1,3 +1,31 @@
+
+===============================================================
+
+Tag name: atmos_phys0_04_001
+Originator(s): cacraig
+Date: Aug 15, 2024
+One-line Summary: Remove 0.5*timestep logic from call to zm
+Github PR URL: https://github.com/ESCOMP/atmospheric_physics/pull/109
+
+This PR fixes the following NCAR/atmospheric_physics Github issues:
+none
+
+Code reviewed by: adamrher, peverwhee
+
+List all existing files that have been added (A), modified (M), or deleted (D),
+and describe the changes:
+M       zhang_mcfarlane/zm_conv_convtran.F90
+M       zhang_mcfarlane/zm_conv_convtran.meta
+M       zhang_mcfarlane/zm_conv_momtran.F90
+M       zhang_mcfarlane/zm_convr.F90
+          - remove all the modifications that were being done because 0.5*timestep was being passed in
+
+List and Describe any test failures: N/A
+
+Summarize any changes to answers:
+Adam Herrington ran with these changes and determined they were roundoff (see PR for more details)
+
+===============================================================
 ===============================================================
 
 Tag name: atmos_phys0_03_00
