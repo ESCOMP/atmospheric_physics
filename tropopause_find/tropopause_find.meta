@@ -109,13 +109,13 @@
   standard_name = tropopause_air_pressure_from_climatology
   units = Pa
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent,12)
+  dimensions = (horizontal_dimension, number_of_months_in_year)
   intent = in
 [ tropp_days ]
   standard_name = tropopause_calendar_days_from_climatology
   units = 1
   type = integer
-  dimensions = (12)
+  dimensions = (number_of_months_in_year)
   intent = in
 [ tropLev ]
   standard_name = model_level_number_at_tropopause
