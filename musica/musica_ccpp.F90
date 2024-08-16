@@ -29,7 +29,7 @@ contains
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errcode
 
-    ! call tuvx_init(errmsg, errcode)
+    call tuvx_init(errmsg, errcode)
     call micm_init(errmsg, errcode)
   end subroutine musica_ccpp_init
 
@@ -50,7 +50,7 @@ contains
     character(len=512),                intent(out)   :: errmsg
     integer,                           intent(out)   :: errcode
 
-    ! call tuvx_run(height, temperature, dry_air_density, errmsg, errcode)
+    call tuvx_run(height, temperature, dry_air_density, errmsg, errcode)
     call micm_run(time_step, temperature, pressure, dry_air_density, constituent_props, &
                   constituents, errmsg, errcode)
 
@@ -62,7 +62,7 @@ contains
     integer,            intent(out) :: errcode
     character(len=512), intent(out) :: errmsg
 
-    ! call tuvx_final(errmsg, errcode)
+    call tuvx_final(errmsg, errcode)
     call micm_final(errmsg, errcode)
   end subroutine musica_ccpp_final
 
