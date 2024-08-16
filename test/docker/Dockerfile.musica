@@ -45,6 +45,7 @@ ENV FFLAGS="-I/usr/include/"
 
 # Install MUSICA (MUSICA-C)
 RUN git clone https://github.com/NCAR/musica.git
+
 RUN cd musica \
     && git fetch \
     && git checkout ${MUSICA_GIT_TAG} \
@@ -76,7 +77,6 @@ RUN cd atmospheric_physics/test \
     && cmake --build ./build
 
 RUN cd atmospheric_physics \
-    && cp -r test/musica/micm/configs/chapman ./test/build/chapman \
-    && cp -r test/musica/tuvx/configs/ts1_tsmlt.json ./test/build/ts1_tsmlt.json
+    && cp -r test/musica/micm/configs/chapman ./test/build/chapman
 
 WORKDIR /home/test_user/atmospheric_physics/test/build

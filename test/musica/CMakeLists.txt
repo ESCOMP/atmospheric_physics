@@ -1,11 +1,9 @@
 include(FetchContent)
 include(TestUtils)
 
-set(MUSICA_GIT_TAG a030011202ff3f8b753981578fead22274b4d64c CACHE STRING "Git tag for the musica repository")
-
 FetchContent_Declare(musica
   GIT_REPOSITORY https://github.com/NCAR/musica.git
-  GIT_TAG        ${MUSICA_GIT_TAG}
+  GIT_TAG        $ENV{MUSICA_GIT_TAG}  # this is set by docker
 )
 
 set(MUSICA_BUILD_C_CXX_INTERFACE OFF)
