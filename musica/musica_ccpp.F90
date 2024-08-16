@@ -2,7 +2,6 @@
 module musica_ccpp
   use musica_ccpp_micm, only : micm_register, micm_init, micm_run, micm_final
   use musica_ccpp_tuvx, only : tuvx_init, tuvx_run, tuvx_final
-
   implicit none
   private
 
@@ -10,13 +9,18 @@ module musica_ccpp
 
 contains
 
-  subroutine musica_ccpp_register(constituents, errmsg, errcode)
+  subroutine musica_ccpp_register(constituents, solver_type, num_grid_cells, errmsg, errcode)
     use ccpp_constituent_prop_mod, only : ccpp_constituent_properties_t
+    use musica_micm, only: Rosenbrock, RosenbrockStandardOrder
+
     type(ccpp_constituent_properties_t), allocatable, intent(out) :: constituents(:)
+    integer,                                          intent(in)  :: solver_type
+    integer,                                          intent(in)  :: num_grid_cells
     character(len=512),                               intent(out) :: errmsg
     integer,                                          intent(out) :: errcode
 
-    call micm_register(constituents, errmsg, errcode)
+
+    call micm_register(constituents, solver_type, num_grid_cells, errmsg, errcode)
   end subroutine musica_ccpp_register
 
   !> \section arg_table_musica_ccpp_init Argument Table
@@ -25,7 +29,7 @@ contains
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errcode
 
-    call tuvx_init(errmsg, errcode)
+    ! call tuvx_init(errmsg, errcode)
     call micm_init(errmsg, errcode)
   end subroutine musica_ccpp_init
 
@@ -46,7 +50,7 @@ contains
     character(len=512),                intent(out)   :: errmsg
     integer,                           intent(out)   :: errcode
 
-    call tuvx_run(height, temperature, dry_air_density, errmsg, errcode)
+    ! call tuvx_run(height, temperature, dry_air_density, errmsg, errcode)
     call micm_run(time_step, temperature, pressure, dry_air_density, constituent_props, &
                   constituents, errmsg, errcode)
 
@@ -58,7 +62,7 @@ contains
     integer,            intent(out) :: errcode
     character(len=512), intent(out) :: errmsg
 
-    call tuvx_final(errmsg, errcode)
+    ! call tuvx_final(errmsg, errcode)
     call micm_final(errmsg, errcode)
   end subroutine musica_ccpp_final
 

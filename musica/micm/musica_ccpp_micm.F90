@@ -18,12 +18,14 @@ module musica_ccpp_micm
 contains
 
   !> Register MICM constituents with the CCPP
-  subroutine micm_register(constituents, errmsg, errcode)
+  subroutine micm_register(constituents, solver_type, num_grid_cells, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
     use musica_micm, only: Rosenbrock, RosenbrockStandardOrder
     use musica_util, only: error_t
 
     type(ccpp_constituent_properties_t), allocatable, intent(out) :: constituents(:)
+    integer(c_int),                                   intent(in)  :: solver_type
+    integer(c_int),                                   intent(in)  :: num_grid_cells
     character(len=512),                               intent(out) :: errmsg
     integer,                                          intent(out) :: errcode
 
@@ -31,12 +33,8 @@ contains
     type(error_t)        :: error
     real(kind=kind_phys) :: molar_mass
     logical              :: is_advected
-    integer              :: solver_type
-    integer              :: num_grid_cells
     integer              :: i
 
-    solver_type = Rosenbrock
-    num_grid_cells = 1
     errcode = 0
     errmsg = ''
 
@@ -103,12 +101,14 @@ contains
     character(len=512),                intent(out)   :: errmsg
     integer,                           intent(out)   :: errcode
 
-    ! local variables
+    ! Local variables
     real(c_double)                                         :: c_time_step
     real(c_double), dimension(size(temperature, dim=1),  &
                               size(temperature, dim=2))    :: c_temperature
     real(c_double), dimension(size(pressure, dim=1),     &
                               size(pressure, dim=2))       :: c_pressure
+    real(c_double), dimension(size(pressure, dim=1),     &
+                              size(pressure, dim=2))       :: c_dry_air_density
     real(c_double), dimension(size(constituents, dim=1), &
                               size(constituents, dim=2), &
                               size(constituents, dim=3))   :: c_constituents
@@ -117,15 +117,29 @@ contains
                               0)                           :: c_rate_params
     real(kind_phys), dimension(size(constituents, dim=3))  :: molar_mass_arr ! kg mol-1
 
+    ! 1-D array
+    real(c_double), dimension(size(temperature, dim=1)  &
+                            * size(temperature, dim=2))  :: c_temperature_1d
+    real(c_double), dimension(size(pressure, dim=1)     &
+                            * size(pressure, dim=2))     :: c_pressure_1d
+    real(c_double), dimension(size(pressure, dim=1)     &
+                            * size(pressure, dim=2))     :: c_dry_air_density_1d
+    real(c_double), dimension(size(constituents, dim=1) &
+                            * size(constituents, dim=2) & 
+                            * size(constituents, dim=3)) :: c_constituents_1d
+    real(c_double), dimension(size(constituents, dim=1) &
+                            * size(constituents, dim=2)) :: c_rate_params_1d
+
     type(string_t)       :: solver_state
     type(solver_stats_t) :: solver_stats
     type(error_t)        :: error
-    integer              :: num_columns, num_layers, num_constituents
-    integer              :: i_column, i_layer, i_elem
+    integer              :: num_columns, num_layers, num_constituents, num_grid_cells
+    integer              :: i_column, i_layer, i_elem, start
 
     num_columns = size(constituents, dim=1)
     num_layers = size(constituents, dim=2)
     num_constituents = size(constituents, dim=3)
+    num_grid_cells = num_columns * num_layers
 
     errcode = 0
     errmsg = ''
@@ -156,23 +170,54 @@ contains
     c_time_step = real(time_step, c_double)
     c_temperature = real(temperature, c_double)
     c_pressure = real(pressure, c_double)
+    c_dry_air_density = real(dry_air_density, c_double)
     c_constituents = real(constituents, c_double)
-    ! c_constitnudents_()
-    ! do i_column = 1, num_columns
-      do i_layer = 1, num_layers
 
-        call micm%solve(c_time_step,                          &
-                        c_temperature(:,  i_layer),     &
-                        c_pressure(:, i_layer),        &
-                        dry_air_density(:, i_layer),   & 
-                        c_constituents(1, i_layer, :), &  !TODO(jiwon)
-                        c_rate_params(1, i_layer, :),  &
-                        solver_state,                         &
-                        solver_stats,                         &
-                        error)
-        if (has_error_occurred(error, errmsg, errcode)) return
+    ! Reshape to 1-D array
+    c_temperature_1d = [c_temperature]
+    c_pressure_1d = [c_pressure]
+    c_dry_air_density_1d = [dry_air_density]
+    c_rate_params_1d = [c_rate_params]
+    
+    ! Reshape to 1-D arry in species-column first order
+    ! refers to: state.variables_[i_cell][i_species] = concentrations[i_species_elem++];
+    start = 1
+    do i_layer = 1, num_layers
+      do i_column = 1, num_columns
+        c_constituents_1d(start : start + num_constituents - 1) = c_constituents(i_column, i_layer, :)
+        start = start + num_constituents
       end do
+    end do
+
+    write(*,*) "1d concentrations :   ", c_constituents_1d
+    ! call micm%solve(c_time_step,     &
+    !                 c_temperature_1d,    &
+    !                 c_pressure_1d,      &
+    !                 c_dry_air_density_1d, & 
+    !                 c_constituents_1d,  &
+    !                 c_rate_params_1d,   &
+    !                 solver_state,                         &
+    !                 solver_stats,                         &
+    !                 error)
+    ! if (has_error_occurred(error, errmsg, errcode)) return
+
+    !TODO(jiwon) add something like this for test
+    ! do start = 1, 20
+    !     c_constituents_1d(start) = c_constituents_1d(start) + 100
     ! end do
+
+    ! Reshape back to the original dimension
+    start = 1
+    do i_layer = 1, num_layers
+      do i_column = 1, num_columns
+        c_constituents(i_column, i_layer, :) = c_constituents_1d(start : start + num_constituents - 1)
+        start = start + num_constituents
+      end do
+    end do
+
+    write(*,*) "[musica] Jiwon Concentrations"
+    ! the first digit in the format (4) indicates the number of column * the number of vertical layers
+    write(*,fmt="(4(3x,f13.6))") c_constituents
 
     constituents = real(c_constituents, kind_phys)
 
@@ -244,5 +289,9 @@ contains
     end do
 
   end subroutine convert_to_mass_mixing_ratio
+
+  subroutine reshape_to_1d_array(array_1d)
+    real(c_double) array_1d(*)
+  end subroutine
 
 end module musica_ccpp_micm
