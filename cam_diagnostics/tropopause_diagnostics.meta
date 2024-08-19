@@ -21,6 +21,138 @@
 [ccpp-arg-table]
   name  = tropopause_diagnostics_run
   type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ zm ]
+  standard_name = geopotential_height_wrt_surface
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ tropLev ]
+  standard_name = model_level_number_at_tropopause
+  units = 1
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropP ]
+  standard_name = tropopause_air_pressure
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropT ]
+  standard_name = tropopause_air_temperature
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropZ ]
+  standard_name = tropopause_altitude
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropLev_clim ]
+  standard_name = model_level_number_at_tropopause_assuming_climatology
+  units = 1
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropP_clim ]
+  standard_name = tropopause_air_pressure_assuming_climatology
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropT_clim ]
+  standard_name = tropopause_air_temperature_assuming_climatology
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropZ_clim ]
+  standard_name = tropopause_altitude_assuming_climatology
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropLev_hybstob ]
+  standard_name = model_level_number_at_tropopause_assuming_hybridstobie_and_climatology
+  units = 1
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropP_hybstob ]
+  standard_name = tropopause_air_pressure_assuming_hybridstobie_and_climatology
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropT_hybstob ]
+  standard_name = tropopause_air_temperature_assuming_hybridstobie_and_climatology
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropZ_hybstob ]
+  standard_name = tropopause_altitude_assuming_hybridstobie_and_climatology
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropLev_cpp ]
+  standard_name = model_level_number_at_tropopause_assuming_cold_point
+  units = 1
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropP_cpp ]
+  standard_name = tropopause_air_pressure_assuming_cold_point
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropT_cpp ]
+  standard_name = tropopause_air_temperature_assuming_cold_point
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropZ_cpp ]
+  standard_name = tropopause_altitude_assuming_cold_point
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ hstobie_trop ]
+  standard_name = lower_bound_of_model_level_number_for_stratospheric_chemistry
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ hstobie_linoz ]
+  standard_name = lower_bound_of_model_level_number_for_linoz_chemistry
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ hstobie_tropop ]
+  standard_name = model_level_number_at_tropopause_for_chemistry
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
