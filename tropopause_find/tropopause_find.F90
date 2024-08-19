@@ -30,6 +30,11 @@ module tropopause_find
   public :: tropopause_find_init
   public :: tropopause_find_run
 
+  ! "Wrapped" routine for use in old CAM for backward compatibility.
+  ! Also called by tropopause_find_run driver routine.
+  public :: tropopause_findWithBackup
+
+  ! Switches for tropopause method
   public :: TROP_ALG_NONE, TROP_ALG_ANALYTIC, TROP_ALG_CLIMATE
   public :: TROP_ALG_STOBIE, TROP_ALG_HYBSTOB, TROP_ALG_TWMO, TROP_ALG_WMO
   public :: TROP_ALG_CPP
@@ -114,17 +119,20 @@ contains
 
   end subroutine tropopause_find_init
 
-
-  ! Searches all the columns in the chunk and attempts to identify the tropopause.
-  ! Two routines can be specifed, a primary routine which is tried first and a
-  ! backup routine which will be tried only if the first routine fails. If the
-  ! tropopause can not be identified by either routine, then a NOTFOUND is returned
-  ! for the tropopause level, temperature and pressure.
+  ! "Driver" routine for tropopause_find. Identifies the tropopause using several methods
+  ! and populates them into the model state.
+  ! Most methods use climatological tropopause as a backup, and as such is guaranteed to
+  ! find a tropopause in all columns. Others are explicitly single-method and used by
+  ! other parameterizations as-is with NOTFOUND values being intentional.
 !> \section arg_table_tropopause_find_run Argument Table
 !! \htmlinclude tropopause_find_run.html
   subroutine tropopause_find_run(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
                                  calday, tropp_p_loc, tropp_days, &
-                                 tropLev, tropP, tropT, tropZ, primary, backup, &
+                                 tropLev, tropP, tropT, tropZ, & ! Default primary+backup ( twmo+climate)
+                                 tropLev_clim, tropP_clim, tropT_clim, tropZ_clim, & ! Climate-only
+                                 tropLev_hybstob, tropP_hybstob, tropT_hybstob, tropZ_hybstob, & !      Hybridstobie + climate backup
+                                 tropLev_cpp, tropP_cpp, tropT_cpp, tropZ_cpp, & ! Cold point only
+                                 hstobie_trop, hstobie_linoz, hstobie_tropop, & ! Hybridstobie only for chemistry diagnostics
                                  scheme_name, errmsg, errflg)
 
     integer,         intent(in)         :: ncol          ! Number of atmospheric columns
@@ -149,16 +157,113 @@ contains
     real(kind_phys), intent(out)     :: tropT(:)           ! tropopause temperature (K)
     real(kind_phys), intent(out)     :: tropZ(:)           ! tropopause height (m)
 
-    ! primary and backup are no longer optional arguments for CCPP-compliance.
-    ! specify defaults when calling (TWMO, CLIMO)
-    integer, intent(in)       :: primary                   ! primary detection algorithm
-    integer, intent(in)       :: backup                    ! backup detection algorithm
+    integer,         intent(out)     :: tropLev_clim(:)    ! climatology-backed tropopause level index
+    real(kind_phys), intent(out)     :: tropP_clim(:)      ! climatology-backed tropopause pressure (Pa)
+    real(kind_phys), intent(out)     :: tropT_clim(:)      ! climatology-backed tropopause temperature (K)
+    real(kind_phys), intent(out)     :: tropZ_clim(:)      ! climatology-backed tropopause height (m)
+
+    integer,         intent(out)     :: tropLev_hybstob(:) ! hybridstobie climatology-backed tropopause level index
+    real(kind_phys), intent(out)     :: tropP_hybstob(:)   ! hybridstobie climatology-backed tropopause pressure (Pa)
+    real(kind_phys), intent(out)     :: tropT_hybstob(:)   ! hybridstobie climatology-backed tropopause temperature (K)
+    real(kind_phys), intent(out)     :: tropZ_hybstob(:)   ! hybridstobie climatology-backed tropopause height (m)
+
+    integer,         intent(out)     :: tropLev_cpp(:)     ! cold point tropopause level index
+    real(kind_phys), intent(out)     :: tropP_cpp(:)       ! cold point tropopause pressure (Pa)
+    real(kind_phys), intent(out)     :: tropT_cpp(:)       ! cold point tropopause temperature (K)
+    real(kind_phys), intent(out)     :: tropZ_cpp(:)       ! cold point tropopause height (m)
+
+    ! Optional output arguments for hybridstobie with chemistry
+    real(kind_phys), intent(out)   :: hstobie_trop(:,:)   ! Lowest level with strat. chem
+    real(kind_phys), intent(out)   :: hstobie_linoz(:,:)  ! Lowest possible Linoz level
+    real(kind_phys), intent(out)   :: hstobie_tropop(:,:) ! Troposphere boundary calculated in chem.
 
     character(len=64),  intent(out) :: scheme_name
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     scheme_name = 'tropopause_find'
+    errmsg = ' '
+    errflg = 0
+
+    ! Obtain the primary output, which is TWMO + climate
+    call tropopause_findWithBackup(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
+                         calday, tropp_p_loc, tropp_days, &
+                         tropLev, tropP, tropT, tropZ, &
+                         primary=default_primary, backup=default_backup, &
+                         errmsg=errmsg, errflg=errflg)
+
+    ! Any other intended outputs
+    ! Climatology only
+    call tropopause_findWithBackup(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
+                         calday, tropp_p_loc, tropp_days, &
+                         tropLev_clim, tropP_clim, tropT_clim, tropZ_clim, &
+                         primary=TROP_ALG_CLIMATE, backup=TROP_ALG_NONE, &
+                         errmsg=errmsg, errflg=errflg)
+
+    ! Cold point (CPP) only
+    call tropopause_findWithBackup(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
+                         calday, tropp_p_loc, tropp_days, &
+                         tropLev_cpp, tropP_cpp, tropT_cpp, tropZ_cpp, &
+                         primary=TROP_ALG_CPP, backup=TROP_ALG_NONE, &
+                         errmsg=errmsg, errflg=errflg)
+
+    ! Hybridstobie with climatology-backed
+    call tropopause_findWithBackup(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
+                         calday, tropp_p_loc, tropp_days, &
+                         tropLev_hybstob, tropP_hybstob, tropT_hybstob, tropZ_hybstob, &
+                         hstobie_trop, hstobie_linoz, hstobie_tropop, &
+                         primary=TROP_ALG_HYBSTOB, backup=TROP_ALG_CLIMATE, &
+                         errmsg=errmsg, errflg=errflg)
+
+  end subroutine tropopause_find_run
+
+  ! Searches all the columns in the chunk and attempts to identify the tropopause.
+  ! Two routines can be specifed, a primary routine which is tried first and a
+  ! backup routine which will be tried only if the first routine fails. If the
+  ! tropopause can not be identified by either routine, then a NOTFOUND is returned
+  ! for the tropopause level, temperature and pressure.
+  subroutine tropopause_findWithBackup(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
+                                       calday, tropp_p_loc, tropp_days, &
+                                       tropLev, tropP, tropT, tropZ, &
+                                       hstobie_trop, hstobie_linoz, hstobie_tropop, &
+                                       primary, backup, &
+                                       errmsg, errflg)
+
+    integer,         intent(in)         :: ncol          ! Number of atmospheric columns
+    integer,         intent(in)         :: pver          ! Number of vertical levels
+    real(kind_phys), intent(in)         :: lat(:)        ! Latitudes (radians)
+    real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa), pverp
+    real(kind_phys), intent(in)         :: pmid(:,:)     ! Midpoint pressures (Pa)
+    real(kind_phys), intent(in)         :: t(:,:)        ! Temperature (K)
+    real(kind_phys), intent(in)         :: zi(:,:)       ! Geopotential height above surface at interfaces (m), pverp
+    real(kind_phys), intent(in)         :: zm(:,:)       ! Geopotential height above surface at midpoints (m), pver
+    real(kind_phys), intent(in)         :: phis(:)       ! Surface geopotential (m2 s-2)
+
+    real(kind_phys), intent(in)         :: calday        ! Day of year including fraction from get_curr_calday
+
+    ! Climatological tropopause pressures (Pa), (pcols,ntimes=12).
+    ! Remark: Not chunkized, subsetted to chunk for backwards compatibility with CAM
+    real(kind_phys), intent(in)         :: tropp_p_loc(:,:)
+    integer,         intent(in)         :: tropp_days(:) ! Day-of-year for climo data, 12
+
+    integer,         intent(out)     :: tropLev(:)         ! tropopause level index
+    real(kind_phys), intent(out)     :: tropP(:)           ! tropopause pressure (Pa)
+    real(kind_phys), intent(out)     :: tropT(:)           ! tropopause temperature (K)
+    real(kind_phys), intent(out)     :: tropZ(:)           ! tropopause height (m)
+
+    ! Optional output arguments for hybridstobie with chemistry
+    real(kind_phys), optional, intent(inout)   :: hstobie_trop(:,:)   ! Lowest level with strat. chem
+    real(kind_phys), optional, intent(inout)   :: hstobie_linoz(:,:)  ! Lowest possible Linoz level
+    real(kind_phys), optional, intent(inout)   :: hstobie_tropop(:,:) ! Troposphere boundary calculated in chem.
+
+    ! primary and backup are no longer optional arguments for CCPP-compliance.
+    ! specify defaults when calling (TWMO, CLIMO)
+    integer, intent(in)       :: primary                   ! primary detection algorithm
+    integer, intent(in)       :: backup                    ! backup detection algorithm
+
+    character(len=512), intent(out) :: errmsg
+    integer,            intent(out) :: errflg
+
     errmsg = ' '
     errflg = 0
 
@@ -173,17 +278,112 @@ contains
     if (primary /= TROP_ALG_NONE) then
       call tropopause_findUsing(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
                                 calday, tropp_p_loc, tropp_days, &
-                                primary, tropLev, tropP, tropT, tropZ, errmsg, errflg)
+                                primary, tropLev, tropP=tropP, tropT=tropT, tropZ=tropZ, &
+                                hstobie_trop=hstobie_trop, hstobie_linoz=hstobie_linoz, hstobie_tropop=hstobie_tropop, & ! only for HYBSTOB
+                                errmsg=errmsg, errflg=errflg)
     end if
 
     if ((backup /= TROP_ALG_NONE) .and. any(tropLev(:) == NOTFOUND)) then
       call tropopause_findUsing(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
                                 calday, tropp_p_loc, tropp_days, &
-                                backup, tropLev, tropP, tropT, tropZ, errmsg, errflg)
+                                backup, tropLev, tropP=tropP, tropT=tropT, tropZ=tropZ, &
+                                errmsg=errmsg, errflg=errflg)
     end if
 
     return
-  end subroutine tropopause_find_run
+  end subroutine tropopause_findWithBackup
+
+  ! Call the appropriate tropopause detection routine based upon the algorithm
+  ! specifed.
+  !
+  ! NOTE: It is assumed that the output fields have been initialized by the
+  ! caller, and only output values set to fillvalue will be detected.
+  subroutine tropopause_findUsing(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
+                                  calday, tropp_p_loc, tropp_days, &
+                                  algorithm, tropLev, tropP, tropT, tropZ, &
+                                  hstobie_trop, hstobie_linoz, hstobie_tropop, &
+                                  errmsg, errflg)
+
+    integer,         intent(in)         :: ncol          ! Number of atmospheric columns
+    integer,         intent(in)         :: pver          ! Number of vertical levels
+    real(kind_phys), intent(in)         :: lat(:)        ! Latitudes (radians)
+    real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa), pverp
+    real(kind_phys), intent(in)         :: pmid(:,:)     ! Midpoint pressures (Pa)
+    real(kind_phys), intent(in)         :: t(:,:)        ! Temperature (K)
+    real(kind_phys), intent(in)         :: zi(:,:)       ! Geopotential height above surface at interfaces (m), pverp
+    real(kind_phys), intent(in)         :: zm(:,:)       ! Geopotential height above surface at midpoints (m), pver
+    real(kind_phys), intent(in)         :: phis(:)       ! Surface geopotential (m2 s-2)
+
+    real(kind_phys), intent(in)         :: calday        ! Day of year including fraction from get_curr_calday
+
+    ! Climatological tropopause pressures (Pa), (pcols,ntimes=12).
+    ! Remark: Not chunkized, subsetted to chunk for backwards compatibility with CAM
+    real(kind_phys), intent(in)         :: tropp_p_loc(:,:)
+    integer,         intent(in)         :: tropp_days(:) ! Day-of-year for climo data, 12
+
+    integer,                   intent(in)      :: algorithm             ! detection algorithm
+    integer,                   intent(inout)   :: tropLev(:)            ! tropopause level index
+    real(kind_phys), optional, intent(inout)   :: tropP(:)              ! tropopause pressure (Pa)
+    real(kind_phys), optional, intent(inout)   :: tropT(:)              ! tropopause temperature (K)
+    real(kind_phys), optional, intent(inout)   :: tropZ(:)              ! tropopause height (m)
+
+    ! Optional output arguments for hybridstobie with chemistry
+    real(kind_phys), optional, intent(inout)   :: hstobie_trop(:,:)   ! Lowest level with strat. chem
+    real(kind_phys), optional, intent(inout)   :: hstobie_linoz(:,:)  ! Lowest possible Linoz level
+    real(kind_phys), optional, intent(inout)   :: hstobie_tropop(:,:) ! Troposphere boundary calculated in chem.
+
+    character(len=512), intent(out) :: errmsg
+    integer,            intent(out) :: errflg
+
+    errmsg = ' '
+    errflg = 0
+
+    ! Dispatch the request to the appropriate routine.
+    select case(algorithm)
+      case(TROP_ALG_ANALYTIC)
+        call tropopause_analytic(ncol, pver, lat, pint, pmid, t, zi, zm, phis, tropLev, tropP, tropT, tropZ)
+
+      case(TROP_ALG_CLIMATE)
+        call tropopause_climate(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
+                                calday, tropp_p_loc, tropp_days, &
+                                tropLev, tropP, tropT, tropZ)
+
+      case(TROP_ALG_STOBIE)
+        call tropopause_stobie(ncol, pver, lat, pint, pmid, t, zi, zm, phis, tropLev, tropP, tropT, tropZ)
+
+      case(TROP_ALG_HYBSTOB)
+        if(present(hstobie_trop) .and. present(hstobie_linoz) .and. present(hstobie_tropop)) then
+          call tropopause_hybridstobie(ncol, pver, pmid, t, zm, &
+                                       tropLev, tropP, tropT, tropZ, &
+                                       hstobie_trop, hstobie_linoz, hstobie_tropop)
+        else
+          call tropopause_hybridstobie(ncol, pver, pmid, t, zm, &
+                                       tropLev, tropP, tropT, tropZ)
+        endif
+
+      case(TROP_ALG_TWMO)
+        call tropopause_twmo(ncol, pver, lat, pint, pmid, t, zi, zm, phis, tropLev, tropP, tropT, tropZ)
+
+      case(TROP_ALG_WMO)
+        call tropopause_wmo(ncol, pver, lat, pint, pmid, t, zi, zm, phis, tropLev, tropP, tropT, tropZ)
+
+      case(TROP_ALG_CPP)
+        call tropopause_cpp(ncol, pver, lat, pint, pmid, t, zi, zm, phis, tropLev, tropP, tropT, tropZ)
+
+      case(TROP_ALG_CHEMTROP)
+        ! hplin: needs climatological arguments as calling tropopause_findUsing from within findChemTrop
+        call tropopause_findChemTrop(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
+                                     calday, tropp_p_loc, tropp_days, &
+                                     tropLev, tropP, tropT, tropZ, &
+                                     errmsg, errflg)
+
+      case default
+        errflg = 1
+        write(errmsg,*) 'tropopause: Invalid detection algorithm (',  algorithm, ') specified.'
+    end select
+
+    return
+  end subroutine tropopause_findUsing
 
   ! This analytic expression closely matches the mean tropopause determined
   ! by the NCEP reanalysis and has been used by the radiation code.
@@ -350,7 +550,8 @@ contains
   !-----------------------------------------------------------------------
   !-----------------------------------------------------------------------
   subroutine tropopause_hybridstobie(ncol, pver, pmid, t, zm, &
-                                     tropLev, tropP, tropT, tropZ)
+                                     tropLev, tropP, tropT, tropZ, &
+                                     hstobie_trop, hstobie_linoz, hstobie_tropop)
     !use cam_history,  only : outfld
   
     !-----------------------------------------------------------------------
@@ -375,6 +576,11 @@ contains
     real(kind_phys), optional, intent(inout)   :: tropP(:)               ! tropopause pressure (Pa)
     real(kind_phys), optional, intent(inout)   :: tropT(:)               ! tropopause temperature (K)
     real(kind_phys), optional, intent(inout)   :: tropZ(:)               ! tropopause height (m)
+
+    ! Optional output arguments for hybridstobie with chemistry
+    real(kind_phys), optional, intent(inout)   :: hstobie_trop(:,:)   ! Lowest level with strat. chem
+    real(kind_phys), optional, intent(inout)   :: hstobie_linoz(:,:)  ! Lowest possible Linoz level
+    real(kind_phys), optional, intent(inout)   :: hstobie_tropop(:,:) ! Troposphere boundary calculated in chem.
     
     real(kind_phys),parameter  ::  min_Stobie_Pressure= 40.E2_kind_phys !For case 2 & 4.  [Pa]
     real(kind_phys),parameter  ::  max_Linoz_Pressure =208.E2_kind_phys !For case     4.  [Pa]
@@ -438,6 +644,18 @@ contains
           trop_trop_output(i,ltrop_trop(i))=1._kind_phys
        endif
     enddo
+
+    if(present(hstobie_trop)) then
+      hstobie_trop(:,:) = trop_output(:,:)
+    endif
+
+    if(present(hstobie_linoz)) then
+      hstobie_linoz(:,:) = trop_linoz_output(:,:)
+    endif
+
+    if(present(hstobie_tropop)) then
+      hstobie_tropop(:,:) = trop_trop_output(:,:)
+    endif
 
     !call outfld( 'hstobie_trop',   trop_output(:ncol,:),       ncol, pstate%lchnk )
     !call outfld( 'hstobie_linoz',  trop_linoz_output(:ncol,:), ncol, pstate%lchnk )
@@ -983,8 +1201,8 @@ contains
     ! (Not specifying primary will use the lapse rate)
     call tropopause_findUsing(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
                               calday, tropp_p_loc, tropp_days, &
-                              TROP_ALG_TWMO, tropLev, tropP, tropT, tropZ, &
-                              errmsg, errflg)
+                              TROP_ALG_TWMO, tropLev, tropP=tropP, tropT=tropT, tropZ=tropZ, &
+                              errmsg=errmsg, errflg=errflg)
    
     ! Now check high latitudes (poleward of 50) and set the level to the
     ! climatology if the level was not found or is at P <= 125 hPa.
@@ -1004,92 +1222,12 @@ contains
     if ((backAlg /= TROP_ALG_NONE) .and. any(tropLev(:) == NOTFOUND)) then
       call tropopause_findUsing(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
                                 calday, tropp_p_loc, tropp_days, &
-                                default_backup, tropLev, tropP, tropT, tropZ, &
-                                errmsg, errflg)
+                                default_backup, tropLev, tropP=tropP, tropT=tropT, tropZ=tropZ, &
+                                errmsg=errmsg, errflg=errflg)
     end if
     
     return
   end subroutine tropopause_findChemTrop
-  
-  
-  ! Call the appropriate tropopause detection routine based upon the algorithm
-  ! specifed.
-  !
-  ! NOTE: It is assumed that the output fields have been initialized by the
-  ! caller, and only output values set to fillvalue will be detected.
-  subroutine tropopause_findUsing(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
-                                  calday, tropp_p_loc, tropp_days, &
-                                  algorithm, tropLev, tropP, tropT, tropZ, errmsg, errflg)
-
-    integer,         intent(in)         :: ncol          ! Number of atmospheric columns
-    integer,         intent(in)         :: pver          ! Number of vertical levels
-    real(kind_phys), intent(in)         :: lat(:)        ! Latitudes (radians)
-    real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa), pverp
-    real(kind_phys), intent(in)         :: pmid(:,:)     ! Midpoint pressures (Pa)
-    real(kind_phys), intent(in)         :: t(:,:)        ! Temperature (K)
-    real(kind_phys), intent(in)         :: zi(:,:)       ! Geopotential height above surface at interfaces (m), pverp
-    real(kind_phys), intent(in)         :: zm(:,:)       ! Geopotential height above surface at midpoints (m), pver
-    real(kind_phys), intent(in)         :: phis(:)       ! Surface geopotential (m2 s-2)
-
-    real(kind_phys), intent(in)         :: calday        ! Day of year including fraction from get_curr_calday
-
-    ! Climatological tropopause pressures (Pa), (pcols,ntimes=12).
-    ! Remark: Not chunkized, subsetted to chunk for backwards compatibility with CAM
-    real(kind_phys), intent(in)         :: tropp_p_loc(:,:)
-    integer,         intent(in)         :: tropp_days(:) ! Day-of-year for climo data, 12
-
-    integer,                   intent(in)      :: algorithm             ! detection algorithm
-    integer,                   intent(inout)   :: tropLev(:)            ! tropopause level index
-    real(kind_phys), optional, intent(inout)   :: tropP(:)              ! tropopause pressure (Pa)
-    real(kind_phys), optional, intent(inout)   :: tropT(:)              ! tropopause temperature (K)
-    real(kind_phys), optional, intent(inout)   :: tropZ(:)              ! tropopause height (m)
-
-    character(len=512), intent(out) :: errmsg
-    integer,            intent(out) :: errflg
-
-    errmsg = ' '
-    errflg = 0
-
-    ! Dispatch the request to the appropriate routine.
-    select case(algorithm)
-      case(TROP_ALG_ANALYTIC)
-        call tropopause_analytic(ncol, pver, lat, pint, pmid, t, zi, zm, phis, tropLev, tropP, tropT, tropZ)
-
-      case(TROP_ALG_CLIMATE)
-        call tropopause_climate(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
-                                calday, tropp_p_loc, tropp_days, &
-                                tropLev, tropP, tropT, tropZ)
-
-      case(TROP_ALG_STOBIE)
-        call tropopause_stobie(ncol, pver, lat, pint, pmid, t, zi, zm, phis, tropLev, tropP, tropT, tropZ)
-
-      case(TROP_ALG_HYBSTOB)
-        call tropopause_hybridstobie(ncol, pver, pmid, t, zm, tropLev, tropP, tropT, tropZ)
-
-      case(TROP_ALG_TWMO)
-        call tropopause_twmo(ncol, pver, lat, pint, pmid, t, zi, zm, phis, tropLev, tropP, tropT, tropZ)
-
-      case(TROP_ALG_WMO)
-        call tropopause_wmo(ncol, pver, lat, pint, pmid, t, zi, zm, phis, tropLev, tropP, tropT, tropZ)
-
-      case(TROP_ALG_CPP)
-        call tropopause_cpp(ncol, pver, lat, pint, pmid, t, zi, zm, phis, tropLev, tropP, tropT, tropZ)
-
-      case(TROP_ALG_CHEMTROP)
-        ! hplin: needs climatological arguments as calling tropopause_findUsing from within findChemTrop
-        call tropopause_findChemTrop(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
-                                     calday, tropp_p_loc, tropp_days, &
-                                     tropLev, tropP, tropT, tropZ, &
-                                     errmsg, errflg)
-
-      case default
-        errflg = 1
-        write(errmsg,*) 'tropopause: Invalid detection algorithm (',  algorithm, ') specified.'
-    end select
-    
-    return
-  end subroutine tropopause_findUsing
-
 
   ! This routine interpolates the pressures in the physics state to
   ! find the pressure at the specified tropopause altitude.
