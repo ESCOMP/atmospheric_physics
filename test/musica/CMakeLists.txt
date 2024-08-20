@@ -53,7 +53,7 @@ add_test(
 add_memory_check_test(test_musica_api $<TARGET_FILE:test_musica_api> "" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 add_custom_target(
-  copy_tuvx_configs ALL ${CMAKE_COMMAND} -E copy_directory
+  copy_micm_configs ALL ${CMAKE_COMMAND} -E copy_directory
   ${CMAKE_CURRENT_SOURCE_DIR}/micm/configs/chapman ${CMAKE_BINARY_DIR}/chapman
 )
 
