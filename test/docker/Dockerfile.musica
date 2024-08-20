@@ -1,7 +1,6 @@
 FROM ubuntu:22.04
 
-# TODO(jiwon) git tag
-ARG MUSICA_GIT_TAG=main
+ARG MUSICA_GIT_TAG=d7d70e313a917fd9a4294e56bb50c87e483f9d38
 
 RUN apt update \
     && apt install -y sudo \
