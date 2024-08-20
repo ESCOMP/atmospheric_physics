@@ -279,8 +279,4 @@ contains
 
   end subroutine convert_to_mass_mixing_ratio
 
-  subroutine reshape_to_1d_array(array_1d)
-    real(c_double) array_1d(*)
-  end subroutine
-
 end module musica_ccpp_micm

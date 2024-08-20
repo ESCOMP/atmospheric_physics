@@ -87,7 +87,7 @@ subroutine test_musica_ccpp_api()
   end do
 
   call musica_ccpp_init(errmsg, errcode)
-  
+
   if (errcode /= 0) then
     write(*,*) trim(errmsg)
     stop 3

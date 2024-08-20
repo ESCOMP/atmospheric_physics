@@ -90,7 +90,7 @@
       <value>UNSET_PATH</value>
     </values>
   </entry>
-    <entry id="filename_of_tuvx_configuration">
+  <entry id="filename_of_tuvx_configuration">
     <type>char*512</type>
     <category>musica_ccpp</category>
     <group>musica_ccpp</group>

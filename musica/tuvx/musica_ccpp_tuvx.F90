@@ -26,10 +26,10 @@ contains
     integer,            intent(out) :: errcode
 
     ! local variables
-    type(grid_map_t),     pointer    :: grids
-    type(profile_map_t),  pointer    :: profiles
-    type(radiator_map_t), pointer    :: radiators
-    type(error_t)                    :: error
+    type(grid_map_t),     pointer :: grids
+    type(profile_map_t),  pointer :: profiles
+    type(radiator_map_t), pointer :: radiators
+    type(error_t)                 :: error
 
     errcode = 0
     errmsg = ''
@@ -67,9 +67,9 @@ contains
   subroutine tuvx_run( height, temperature, dry_air_density, errmsg, errcode )
     use musica_util, only: error_t
 
-    real(kind_phys),    intent(in)  :: height(:,:)                      ! [km] (layer, column)
-    real(kind_phys),    intent(in)  :: temperature(:,:)                 ! [K] (layer, column)
-    real(kind_phys),    intent(in)  :: dry_air_density(:,:)             ! [molecule cm-3] (layer, column)
+    real(kind_phys),    intent(in)  :: height(:,:)          ! km (layer, column)
+    real(kind_phys),    intent(in)  :: temperature(:,:)     ! K (layer, column)
+    real(kind_phys),    intent(in)  :: dry_air_density(:,:) ! molecule cm-3 (layer, column)
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errcode
 
