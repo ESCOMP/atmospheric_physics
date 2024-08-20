@@ -1,8 +1,6 @@
 module tropopause_diagnostics
-  ! ... output tropopause diagnostics
-  ! this will be moved to cam_diagnostics when History is available. (hplin, 8/14/24)
-  ! Currently stubbed out
-  use ccpp_kinds,           only : kind_phys
+  ! ... output tropopause diagnostics within CAM-SIMA
+  use ccpp_kinds,           only: kind_phys
 
   implicit none
   private
@@ -10,6 +8,9 @@ module tropopause_diagnostics
   ! CCPP-compliant subroutines
   public :: tropopause_diagnostics_init
   public :: tropopause_diagnostics_run
+
+  ! Parameters consistent with tropopause_find - can they be imported?
+  integer, parameter :: NOTFOUND = -1
 
 contains
   ! Initialize the output history fields.
@@ -69,7 +70,8 @@ contains
                                         tropLev_cpp, tropP_cpp, tropT_cpp, tropZ_cpp, & ! Cold point only
                                         hstobie_trop, hstobie_linoz, hstobie_tropop, & ! Hybridstobie only for chemistry diagnostics
                                         errmsg, errflg)
-    use cam_history, only: history_out_field
+    use cam_history,          only: history_out_field
+    use cam_history_support,  only: fillvalue
 
     integer,         intent(in)      :: ncol               ! Number of atmospheric columns
     integer,         intent(in)      :: pver               ! Number of vertical levels
@@ -104,19 +106,15 @@ contains
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
-    errmsg = ' '
-    errflg = 0
-
     ! Local Variables
     integer       :: i
     integer       :: alg
-    integer       :: tropLev(ncol)           ! tropopause level index
-    real(kind_phys)      :: tropP(ncol)             ! tropopause pressure (Pa)
-    real(kind_phys)      :: tropT(ncol)             ! tropopause temperature (K)
-    real(kind_phys)      :: tropZ(ncol)             ! tropopause height (m)
     real(kind_phys)      :: tropFound(ncol)         ! tropopause found
     real(kind_phys)      :: tropDZ(ncol, pver)      ! relative tropopause height (m)
     real(kind_phys)      :: tropPdf(ncol, pver)     ! tropopause probability distribution
+
+    errmsg = ' '
+    errflg = 0
 
     ! Default algorithm output
     tropPdf(:,:) = 0._kind_phys
