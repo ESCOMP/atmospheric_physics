@@ -114,7 +114,7 @@
 [ tropp_days ]
   standard_name = tropopause_calendar_days_from_climatology
   units = 1
-  type = integer
+  type = real | kind = kind_phys
   dimensions = (number_of_months_in_year)
   intent = in
 [ tropLev ]

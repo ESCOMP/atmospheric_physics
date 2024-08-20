@@ -151,7 +151,7 @@ contains
     ! Climatological tropopause pressures (Pa), (pcols,ntimes=12).
     ! Remark: Not chunkized, subsetted to chunk for backwards compatibility with CAM
     real(kind_phys), intent(in)         :: tropp_p_loc(:,:)
-    integer,         intent(in)         :: tropp_days(:) ! Day-of-year for climo data, 12
+    real(kind_phys), intent(in)         :: tropp_days(:) ! Day-of-year for climo data, 12
 
     integer,         intent(out)     :: tropLev(:)         ! tropopause level index
     real(kind_phys), intent(out)     :: tropP(:)           ! tropopause pressure (Pa)
@@ -258,7 +258,7 @@ contains
     ! Climatological tropopause pressures (Pa), (pcols,ntimes=12).
     ! Remark: Not chunkized, subsetted to chunk for backwards compatibility with CAM
     real(kind_phys), intent(in)         :: tropp_p_loc(:,:)
-    integer,         intent(in)         :: tropp_days(:) ! Day-of-year for climo data, 12
+    real(kind_phys), intent(in)         :: tropp_days(:) ! Day-of-year for climo data, 12
 
     integer,         intent(out)     :: tropLev(:)         ! tropopause level index
     real(kind_phys), intent(out)     :: tropP(:)           ! tropopause pressure (Pa)
@@ -333,7 +333,7 @@ contains
     ! Climatological tropopause pressures (Pa), (pcols,ntimes=12).
     ! Remark: Not chunkized, subsetted to chunk for backwards compatibility with CAM
     real(kind_phys), intent(in)         :: tropp_p_loc(:,:)
-    integer,         intent(in)         :: tropp_days(:) ! Day-of-year for climo data, 12
+    real(kind_phys), intent(in)         :: tropp_days(:) ! Day-of-year for climo data, 12
 
     integer,                   intent(in)      :: algorithm             ! detection algorithm
     integer,                   intent(inout)   :: tropLev(:)            ! tropopause level index
@@ -477,7 +477,7 @@ contains
     ! Climatological tropopause pressures (Pa), (pcols,ntimes=12).
     ! Remark: Not chunkized, subsetted to chunk for backwards compatibility with CAM
     real(kind_phys), intent(in)         :: tropp_p_loc(:,:)
-    integer,         intent(in)         :: tropp_days(:) ! Day-of-year for climo data, 12
+    real(kind_phys), intent(in)         :: tropp_days(:) ! Day-of-year for climo data, 12
 
     integer,                   intent(inout)  :: tropLev(:)            ! tropopause level index
     real(kind_phys), optional, intent(inout)  :: tropP(:)              ! tropopause pressure (Pa)
@@ -1193,7 +1193,7 @@ contains
     ! Climatological tropopause pressures (Pa), (pcols,ntimes=12).
     ! Remark: Not chunkized, subsetted to chunk for backwards compatibility with CAM
     real(kind_phys), intent(in)         :: tropp_p_loc(:,:)
-    integer,         intent(in)         :: tropp_days(:) ! Day-of-year for climo data, 12
+    real(kind_phys), intent(in)         :: tropp_days(:) ! Day-of-year for climo data, 12
 
     integer,            intent(out)     :: tropLev(:)            ! tropopause level index
     real(kind_phys),    intent(inout)   :: tropP(:)              ! tropopause pressure (Pa)
