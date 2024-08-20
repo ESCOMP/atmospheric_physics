@@ -188,16 +188,16 @@ contains
       end do
     end do
 
-    call micm%solve(c_time_step,          &
-                    c_temperature_1d,     &
-                    c_pressure_1d,        &
-                    c_dry_air_density_1d, &
-                    c_constituents_1d,    &
-                    c_rate_params_1d,     &
-                    solver_state,         &
-                    solver_stats,         &
-                    error)
-    if (has_error_occurred(error, errmsg, errcode)) return
+    ! call micm%solve(c_time_step,          &
+    !                 c_temperature_1d,     &
+    !                 c_pressure_1d,        &
+    !                 c_dry_air_density_1d, &
+    !                 c_constituents_1d,    &
+    !                 c_rate_params_1d,     &
+    !                 solver_state,         &
+    !                 solver_stats,         &
+    !                 error)
+    ! if (has_error_occurred(error, errmsg, errcode)) return
 
     ! Reshape the 1-D constituents array back to the original dimension
     start = 1
