@@ -36,24 +36,24 @@ contains
 
     grids => grid_map_t( error )
     if (has_error_occurred( error, errmsg, errcode )) then
-      write(*,*) "  [tuvx] error: ", errmsg
+      write(*,*) "[MUSICA Error] ", errmsg
     end if
 
     profiles => profile_map_t( error )
     if (has_error_occurred( error, errmsg, errcode )) then
-      write(*,*) "  [tuvx] error: ", errmsg
+      write(*,*) "[MUSICA Error] ", errmsg
     end if
 
     radiators =>radiator_map_t( error )
     if (has_error_occurred( error, errmsg, errcode )) then
-      write(*,*) "  [tuvx] error: ", errmsg
+      write(*,*) "[MUSICA Error] ", errmsg
     end if
 
     ! TODO(jiwon) - MUSICA TUVX constuctor needs update
     ! tuvx => tuvx_t( filename_of_tuvx_configuration, grids, profiles, radiators, error )
     tuvx => tuvx_t( filename_of_tuvx_configuration, error )
     if (has_error_occurred( error, errmsg, errcode )) then
-      write(*,*) "  [tuvx] error: ", errmsg
+      write(*,*) "[MUSICA Error] ", errmsg
     end if
 
     deallocate( grids )

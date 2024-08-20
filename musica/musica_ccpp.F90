@@ -19,8 +19,8 @@ contains
     character(len=512),                               intent(out) :: errmsg
     integer,                                          intent(out) :: errcode
 
-
     call micm_register(constituents, solver_type, num_grid_cells, errmsg, errcode)
+
   end subroutine musica_ccpp_register
 
   !> \section arg_table_musica_ccpp_init Argument Table
@@ -31,6 +31,7 @@ contains
 
     call tuvx_init(errmsg, errcode)
     call micm_init(errmsg, errcode)
+
   end subroutine musica_ccpp_init
 
   !> \section arg_table_musica_ccpp_run Argument Table
@@ -40,13 +41,13 @@ contains
     use ccpp_kinds, only: kind_phys
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
 
-    real(kind_phys),                   intent(in)    :: time_step                        ! s
-    real(kind_phys),                   intent(in)    :: temperature(:,:)                 ! K
-    real(kind_phys),                   intent(in)    :: pressure(:,:)                    ! Pa
-    real(kind_phys),                   intent(in)    :: dry_air_density(:,:)             ! kg m-3
+    real(kind_phys),                   intent(in)    :: time_step            ! [s]
+    real(kind_phys),                   intent(in)    :: temperature(:,:)     ! [K]
+    real(kind_phys),                   intent(in)    :: pressure(:,:)        ! [Pa]
+    real(kind_phys),                   intent(in)    :: dry_air_density(:,:) ! [kg m-3]
     type(ccpp_constituent_prop_ptr_t), intent(in)    :: constituent_props(:)
-    real(kind_phys),                   intent(inout) :: constituents(:,:,:)              ! kg kg-1
-    real(kind_phys),                   intent(in)    :: height(:,:)                      ! km
+    real(kind_phys),                   intent(inout) :: constituents(:,:,:)  ! [kg kg-1]
+    real(kind_phys),                   intent(in)    :: height(:,:)          ! [km]
     character(len=512),                intent(out)   :: errmsg
     integer,                           intent(out)   :: errcode
 
@@ -64,6 +65,7 @@ contains
 
     call tuvx_final(errmsg, errcode)
     call micm_final(errmsg, errcode)
+
   end subroutine musica_ccpp_final
 
 end module musica_ccpp

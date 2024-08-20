@@ -3,10 +3,10 @@ module musica_ccpp_micm
 
   ! Note: "micm_t" is included in an external pre-built MICM library that the host
   ! model is responsible for linking to during compilation
-  use musica_micm, only: micm_t
-  use musica_ccpp_util, only: has_error_occurred
-  use ccpp_kinds, only: kind_phys
+  use musica_micm,          only: micm_t
+  use musica_ccpp_util,     only: has_error_occurred
   use musica_ccpp_namelist, only: filename_of_micm_configuration
+  use ccpp_kinds,           only: kind_phys
 
   implicit none
   private
@@ -92,16 +92,16 @@ contains
     use musica_micm, only: solver_stats_t
     use musica_util, only: string_t, error_t
 
-    real(kind_phys),                   intent(in)    :: time_step            ! s
-    real(kind_phys),                   intent(in)    :: temperature(:,:)     ! K
-    real(kind_phys),                   intent(in)    :: pressure(:,:)        ! Pa
-    real(kind_phys),                   intent(in)    :: dry_air_density(:,:) ! kg m-3
+    real(kind_phys),                   intent(in)    :: time_step            ! [s]
+    real(kind_phys),                   intent(in)    :: temperature(:,:)     ! [K]
+    real(kind_phys),                   intent(in)    :: pressure(:,:)        ! [Pa]
+    real(kind_phys),                   intent(in)    :: dry_air_density(:,:) ! [kg m-3]
     type(ccpp_constituent_prop_ptr_t), intent(in)    :: constituent_props(:)
-    real(kind_phys),                   intent(inout) :: constituents(:,:,:)  ! kg kg-1
+    real(kind_phys),                   intent(inout) :: constituents(:,:,:)  ! [kg kg-1]
     character(len=512),                intent(out)   :: errmsg
     integer,                           intent(out)   :: errcode
 
-    ! Local variables
+    ! local variables
     real(c_double)                                         :: c_time_step
     real(c_double), dimension(size(temperature, dim=1),  &
                               size(temperature, dim=2))    :: c_temperature
@@ -115,7 +115,7 @@ contains
     real(c_double), dimension(size(constituents, dim=1), &
                               size(constituents, dim=2), &
                               0)                           :: c_rate_params
-    real(kind_phys), dimension(size(constituents, dim=3))  :: molar_mass_arr ! kg mol-1
+    real(kind_phys), dimension(size(constituents, dim=3))  :: molar_mass_arr ! [kg mol-1]
 
     ! 1-D array
     real(c_double), dimension(size(temperature, dim=1)  &
@@ -140,7 +140,6 @@ contains
     num_layers = size(constituents, dim=2)
     num_constituents = size(constituents, dim=3)
     num_grid_cells = num_columns * num_layers
-
     errcode = 0
     errmsg = ''
 
@@ -149,7 +148,7 @@ contains
       call constituent_props(i_elem)%molar_mass(molar_mass_arr(i_elem), errcode, errmsg)
 
       if (errcode /= 0) then
-        errmsg = "[error] [micm] Unable to get molar mass."
+        errmsg = "[MUSICA Error] Unable to get molar mass."
         return
       end if
     end do
@@ -159,7 +158,7 @@ contains
     do i_elem = 1, num_constituents
       if (molar_mass_arr(i_elem) == 0) then
         errcode = 1
-        errmsg = "[error] [micm] Molar mass must be a non zero value."
+        errmsg = "[MUSICA Error] Molar mass must be a non zero value."
         return
       end if
     end do
@@ -180,7 +179,7 @@ contains
     c_rate_params_1d = [c_rate_params]
     
     ! Reshape to 1-D arry in species-column first order
-    ! refers to: state.variables_[i_cell][i_species] = concentrations[i_species_elem++];
+    ! refers to: state.variables_[i_cell][i_species] = concentrations[i_species_elem++]
     start = 1
     do i_layer = 1, num_layers
       do i_column = 1, num_columns
