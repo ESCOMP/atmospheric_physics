@@ -132,6 +132,7 @@ contains
                                  tropLev_clim, tropP_clim, tropT_clim, tropZ_clim, & ! Climate-only
                                  tropLev_hybstob, tropP_hybstob, tropT_hybstob, tropZ_hybstob, & !      Hybridstobie + climate backup
                                  tropLev_cpp, tropP_cpp, tropT_cpp, tropZ_cpp, & ! Cold point only
+                                 tropLev_chem, tropP_chem, tropT_chem, tropZ_chem, & ! Chemical tropopause only
                                  hstobie_trop, hstobie_linoz, hstobie_tropop, & ! Hybridstobie only for chemistry diagnostics
                                  scheme_name, errmsg, errflg)
 
@@ -171,6 +172,11 @@ contains
     real(kind_phys), intent(out)     :: tropP_cpp(:)       ! cold point tropopause pressure (Pa)
     real(kind_phys), intent(out)     :: tropT_cpp(:)       ! cold point tropopause temperature (K)
     real(kind_phys), intent(out)     :: tropZ_cpp(:)       ! cold point tropopause height (m)
+
+    integer,         intent(out)     :: tropLev_chem(:)    ! chemical tropopause level index
+    real(kind_phys), intent(out)     :: tropP_chem(:)      ! chemical tropopause pressure (Pa)
+    real(kind_phys), intent(out)     :: tropT_chem(:)      ! chemical tropopause temperature (K)
+    real(kind_phys), intent(out)     :: tropZ_chem(:)      ! chemical tropopause height (m)
 
     ! Optional output arguments for hybridstobie with chemistry
     real(kind_phys), intent(out)   :: hstobie_trop(:,:)   ! Lowest level with strat. chem
@@ -213,6 +219,14 @@ contains
                          tropLev_hybstob, tropP_hybstob, tropT_hybstob, tropZ_hybstob, &
                          hstobie_trop, hstobie_linoz, hstobie_tropop, &
                          primary=TROP_ALG_HYBSTOB, backup=TROP_ALG_CLIMATE, &
+                         errmsg=errmsg, errflg=errflg)
+
+    ! Chemical tropopause (used for chemistry)
+    call tropopause_findWithBackup(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
+                         calday, tropp_p_loc, tropp_days, &
+                         tropLev_chem, tropP_chem, tropT_chem, tropZ_chem, &
+                         hstobie_trop, hstobie_linoz, hstobie_tropop, &
+                         primary=TROP_ALG_CHEMTROP, backup=TROP_ALG_CLIMATE, &
                          errmsg=errmsg, errflg=errflg)
 
   end subroutine tropopause_find_run
@@ -1192,7 +1206,6 @@ contains
     ! Local Variable
     real(kind_phys)     :: dlats(ncol)
     integer             :: i
-    integer             :: backAlg
 
     errmsg = ' '
     errflg = 0
@@ -1219,7 +1232,7 @@ contains
     end do
         
     ! Now use the backup algorithm
-    if ((backAlg /= TROP_ALG_NONE) .and. any(tropLev(:) == NOTFOUND)) then
+    if (any(tropLev(:) == NOTFOUND)) then
       call tropopause_findUsing(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
                                 calday, tropp_p_loc, tropp_days, &
                                 default_backup, tropLev, tropP=tropP, tropT=tropT, tropZ=tropZ, &
