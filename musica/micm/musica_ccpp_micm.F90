@@ -92,12 +92,12 @@ contains
     use musica_micm, only: solver_stats_t
     use musica_util, only: string_t, error_t
 
-    real(kind_phys),                   intent(in)    :: time_step            ! [s]
-    real(kind_phys),                   intent(in)    :: temperature(:,:)     ! [K]
-    real(kind_phys),                   intent(in)    :: pressure(:,:)        ! [Pa]
-    real(kind_phys),                   intent(in)    :: dry_air_density(:,:) ! [kg m-3]
+    real(kind_phys),                   intent(in)    :: time_step            ! s
+    real(kind_phys),                   intent(in)    :: temperature(:,:)     ! K
+    real(kind_phys),                   intent(in)    :: pressure(:,:)        ! Pa
+    real(kind_phys),                   intent(in)    :: dry_air_density(:,:) ! kg m-3
     type(ccpp_constituent_prop_ptr_t), intent(in)    :: constituent_props(:)
-    real(kind_phys),                   intent(inout) :: constituents(:,:,:)  ! [kg kg-1]
+    real(kind_phys),                   intent(inout) :: constituents(:,:,:)  ! kg kg-1
     character(len=512),                intent(out)   :: errmsg
     integer,                           intent(out)   :: errcode
 
@@ -115,7 +115,7 @@ contains
     real(c_double), dimension(size(constituents, dim=1), &
                               size(constituents, dim=2), &
                               0)                           :: c_rate_params
-    real(kind_phys), dimension(size(constituents, dim=3))  :: molar_mass_arr ! [kg mol-1]
+    real(kind_phys), dimension(size(constituents, dim=3))  :: molar_mass_arr ! kg mol-1
 
     ! 1-D array
     real(c_double), dimension(size(temperature, dim=1)  &
@@ -188,24 +188,18 @@ contains
       end do
     end do
 
-    write(*,*) "1d concentrations :   ", c_constituents_1d
-    ! call micm%solve(c_time_step,     &
-    !                 c_temperature_1d,    &
-    !                 c_pressure_1d,      &
-    !                 c_dry_air_density_1d, & 
-    !                 c_constituents_1d,  &
-    !                 c_rate_params_1d,   &
-    !                 solver_state,                         &
-    !                 solver_stats,                         &
-    !                 error)
-    ! if (has_error_occurred(error, errmsg, errcode)) return
+    call micm%solve(c_time_step,          &
+                    c_temperature_1d,     &
+                    c_pressure_1d,        &
+                    c_dry_air_density_1d, &
+                    c_constituents_1d,    &
+                    c_rate_params_1d,     &
+                    solver_state,         &
+                    solver_stats,         &
+                    error)
+    if (has_error_occurred(error, errmsg, errcode)) return
 
-    !TODO(jiwon) add something like this for test
-    ! do start = 1, 20
-    !     c_constituents_1d(start) = c_constituents_1d(start) + 100
-    ! end do
-
-    ! Reshape back to the original dimension
+    ! Reshape the 1-D constituents array back to the original dimension
     start = 1
     do i_layer = 1, num_layers
       do i_column = 1, num_columns
@@ -213,10 +207,6 @@ contains
         start = start + num_constituents
       end do
     end do
-
-    write(*,*) "[musica] Jiwon Concentrations"
-    ! the first digit in the format (4) indicates the number of column * the number of vertical layers
-    write(*,fmt="(4(3x,f13.6))") c_constituents
 
     constituents = real(c_constituents, kind_phys)
 
