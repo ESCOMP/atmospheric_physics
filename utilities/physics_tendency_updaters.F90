@@ -9,6 +9,7 @@ module physics_tendency_updaters
   public :: apply_tendency_of_northward_wind_run
   public :: apply_heating_rate_run
   public :: apply_tendency_of_air_temperature_run
+  public :: apply_constituent_tendencies_run
 
 CONTAINS
 
@@ -116,5 +117,32 @@ CONTAINS
       end do
 
    end subroutine apply_tendency_of_air_temperature_run
+
+   !> \section arg_table_apply_constituent_tendencies_run Argument Table
+   !!! \htmlinclude apply_constituent_tendencies_run.html
+   subroutine apply_constituent_tendencies_run(nz, q_tend, q, dt, errcode, errmsg)
+      ! Dummy arguments
+      integer,            intent(in)    :: nz             ! Num vertical layers
+      real(kind_phys),    intent(inout) :: q_tend(:,:,:)  ! constituent tendency array
+      real(kind_phys),    intent(inout) :: q(:,:,:)       ! constituent state array
+      real(kind_phys),    intent(in)    :: dt             ! physics time step
+      integer,            intent(out)   :: errcode
+      character(len=512), intent(out)   :: errmsg
+
+      ! Local variables
+      integer :: klev, jcnst
+
+      errcode = 0
+      errmsg = ''
+
+      do klev = 1, nz
+         do jcnst = 1, size(q_tend, 3)
+            q(:, klev, jcnst) = q(:, klev, jcnst) + (q_tend(:, klev, jcnst) * dt)
+         end do
+      end do
+
+      q_tend = 0._kind_phys
+
+   end subroutine apply_constituent_tendencies_run
 
 end module physics_tendency_updaters
