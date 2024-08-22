@@ -119,6 +119,7 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
+  constituent = True
 [ dadpdf ]
   standard_name = binary_indicator_for_dry_adiabatic_adjusted_grid_cell
   units = fraction
