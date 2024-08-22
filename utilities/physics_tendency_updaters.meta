@@ -229,14 +229,14 @@
   type = integer
   dimensions = ()
   intent = in
-[ q_tend ]
+[ const_tend ]
   standard_name = ccpp_constituent_tendencies
   long_name = ccpp constituent tendencies
   units = none
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
-  intent = in
-[ q ]
+  intent = inout
+[ const ]
   standard_name = ccpp_constituents
   long_name = ccpp constituents
   units = none

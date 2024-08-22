@@ -120,12 +120,12 @@ CONTAINS
 
    !> \section arg_table_apply_constituent_tendencies_run Argument Table
    !!! \htmlinclude apply_constituent_tendencies_run.html
-   subroutine apply_constituent_tendencies_run(nz, q_tend, q, dt, errcode, errmsg)
+   subroutine apply_constituent_tendencies_run(nz, const_tend, const, dt, errcode, errmsg)
       ! Dummy arguments
-      integer,            intent(in)    :: nz             ! Num vertical layers
-      real(kind_phys),    intent(inout) :: q_tend(:,:,:)  ! constituent tendency array
-      real(kind_phys),    intent(inout) :: q(:,:,:)       ! constituent state array
-      real(kind_phys),    intent(in)    :: dt             ! physics time step
+      integer,            intent(in)    :: nz                 ! Num vertical layers
+      real(kind_phys),    intent(inout) :: const_tend(:,:,:)  ! constituent tendency array
+      real(kind_phys),    intent(inout) :: const(:,:,:)       ! constituent state array
+      real(kind_phys),    intent(in)    :: dt                 ! physics time step
       integer,            intent(out)   :: errcode
       character(len=512), intent(out)   :: errmsg
 
@@ -136,12 +136,12 @@ CONTAINS
       errmsg = ''
 
       do klev = 1, nz
-         do jcnst = 1, size(q_tend, 3)
-            q(:, klev, jcnst) = q(:, klev, jcnst) + (q_tend(:, klev, jcnst) * dt)
+         do jcnst = 1, size(const_tend, 3)
+            const(:, klev, jcnst) = const(:, klev, jcnst) + (const_tend(:, klev, jcnst) * dt)
          end do
       end do
 
-      q_tend = 0._kind_phys
+      const_tend = 0._kind_phys
 
    end subroutine apply_constituent_tendencies_run
 
