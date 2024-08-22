@@ -130,15 +130,13 @@ CONTAINS
       character(len=512), intent(out)   :: errmsg
 
       ! Local variables
-      integer :: klev, jcnst
+      integer :: klev
 
       errcode = 0
       errmsg = ''
 
       do klev = 1, nz
-         do jcnst = 1, size(const_tend, 3)
-            const(:, klev, jcnst) = const(:, klev, jcnst) + (const_tend(:, klev, jcnst) * dt)
-         end do
+         const(:, klev, :) = const(:, klev, :) + (const_tend(:, klev, :) * dt)
       end do
 
       const_tend = 0._kind_phys
