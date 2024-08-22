@@ -10,52 +10,54 @@ subroutine test_musica_ccpp_api()
   use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
 
   implicit none
-  integer                                        :: solver_type
-  integer                                        :: num_column, num_vertical_layer, num_grid_cells
-  real(kind_phys)                                :: time_step                 ! s
-  real(kind_phys),              dimension(2,2)   :: temperature               ! K
-  real(kind_phys),              dimension(2,2)   :: pressure                  ! Pa
-  real(kind_phys),              dimension(2,2)   :: dry_air_density           ! kg m-3
-  type(ccpp_constituent_prop_ptr_t), allocatable :: constituent_props_ptr(:)
-  real(kind_phys),              dimension(5)     :: molar_mass_arr            ! kg mol-1
-  real(kind_phys),              dimension(2,2,5) :: constituents              ! kg kg-1
-  real(kind_phys),              dimension(2,2)   :: height                    ! km
-  integer                                        :: errcode
-  character(len=512)                             :: errmsg
+
+  integer, parameter                                                     :: NUM_SPECIES = 4
+  integer, parameter                                                     :: NUM_RATES = 2
+  integer, parameter                                                     :: NUM_COLUMNS = 2
+  integer, parameter                                                     :: NUM_LAYERS = 2
+  integer, parameter                                                     :: NUM_GRID_CELLS = 4
+  integer                                                                :: solver_type
+  integer                                                                :: errcode
+  character(len=512)                                                     :: errmsg
+  real(kind_phys)                                                        :: time_step       ! s
+  real(kind_phys), target, dimension(NUM_SPECIES)                        :: molar_mass_arr  ! kg mol-1  
+  real(kind_phys),         dimension(NUM_COLUMNS,NUM_LAYERS)             :: height          ! km
+  real(kind_phys), target, dimension(NUM_COLUMNS,NUM_LAYERS)             :: temperature     ! K
+  real(kind_phys), target, dimension(NUM_COLUMNS,NUM_LAYERS)             :: pressure        ! Pa
+  real(kind_phys), target, dimension(NUM_COLUMNS,NUM_LAYERS)             :: dry_air_density ! kg m-3
+  real(kind_phys), target, dimension(NUM_COLUMNS,NUM_LAYERS,NUM_SPECIES) :: constituents    ! kg kg-1
+  real(kind_phys), target, dimension(NUM_COLUMNS,NUM_LAYERS,NUM_RATES)   :: user_defined_reaction_rates
+  type(ccpp_constituent_prop_ptr_t), allocatable                         :: constituent_props_ptr(:)
 
   ! local variables
   type(ccpp_constituent_properties_t), allocatable, target :: constituent_props(:)
   type(ccpp_constituent_properties_t), pointer             :: const_prop
+  real(kind_phys)                                          :: molar_mass
   character(len=512)                                       :: species_name, units
   logical                                                  :: tmp_bool, is_advected
-  real(kind_phys)                                          :: molar_mass
   integer                                                  :: i
 
   solver_type = Rosenbrock
-  num_column = 2
-  num_vertical_layer = 2
-  num_grid_cells = num_column * num_vertical_layer
   time_step = 60._kind_phys
-
   temperature(:,1) = (/ 100._kind_phys, 200._kind_phys /)
   temperature(:,2) = (/ 300._kind_phys, 400._kind_phys /)
-
   pressure(:,1) = (/ 6000.04_kind_phys, 7000.04_kind_phys /)
   pressure(:,2) = (/ 8000.04_kind_phys, 9000.04_kind_phys /)
-
   dry_air_density(:,1) = (/ 3.5_kind_phys, 4.5_kind_phys /)
   dry_air_density(:,2) = (/ 5.5_kind_phys, 6.5_kind_phys /)
-
-  molar_mass_arr = (/ 200._kind_phys, 200._kind_phys, 200._kind_phys, 200._kind_phys, 200._kind_phys /)
-
-  constituents(1,1,1:5) = (/ 0.1_kind_phys, 0.2_kind_phys, 0.3_kind_phys, 0.4_kind_phys, 0.5_kind_phys /)
-  constituents(1,2,1:5) = (/ 0.41_kind_phys, 0.42_kind_phys, 0.43_kind_phys, 0.44_kind_phys, 0.45_kind_phys /)
-  constituents(2,1,1:5) = (/ 0.21_kind_phys, 0.22_kind_phys, 0.23_kind_phys, 0.24_kind_phys, 0.25_kind_phys /)
-  constituents(2,2,1:5) = (/ 0.31_kind_phys, 0.32_kind_phys, 0.33_kind_phys, 0.34_kind_phys, 0.35_kind_phys /)
+  molar_mass_arr = (/ 200._kind_phys, 200._kind_phys, 200._kind_phys, 200._kind_phys /)
+  constituents(1,1,:) = (/ 0.1_kind_phys, 0.2_kind_phys, 0.3_kind_phys, 0.4_kind_phys /)
+  constituents(1,2,:) = (/ 0.41_kind_phys, 0.42_kind_phys, 0.43_kind_phys, 0.44_kind_phys /)
+  constituents(2,1,:) = (/ 0.21_kind_phys, 0.22_kind_phys, 0.23_kind_phys, 0.24_kind_phys /)
+  constituents(2,2,:) = (/ 0.31_kind_phys, 0.32_kind_phys, 0.33_kind_phys, 0.34_kind_phys /)
+  user_defined_reaction_rates(1,1,:) = (/2.7e-19_kind_phys, 1.13e-9_kind_phys/)
+  user_defined_reaction_rates(1,2,:) = (/2.7e-19_kind_phys, 1.13e-9_kind_phys/)
+  user_defined_reaction_rates(2,1,:) = (/2.7e-19_kind_phys, 1.13e-9_kind_phys/)
+  user_defined_reaction_rates(2,2,:) = (/2.7e-19_kind_phys, 1.13e-9_kind_phys/)
 
   call musica_ccpp_register(constituent_props, solver_type, num_grid_cells, errmsg, errcode)
   ASSERT(allocated(constituent_props))
-  ASSERT(size(constituent_props) == 5)
+  ASSERT(size(constituent_props) == NUM_SPECIES)
   do i = 1, size(constituent_props)
     ASSERT(constituent_props(i)%is_instantiated(errcode, errmsg))
     ASSERT(errcode == 0)
@@ -65,12 +67,13 @@ subroutine test_musica_ccpp_api()
     ASSERT(errcode == 0)
     call constituent_props(i)%is_advected(is_advected, errcode, errmsg)
     ASSERT(errcode == 0)
-    tmp_bool = (trim(species_name) == "M" .and. molar_mass == 0.029_kind_phys .and. .not. is_advected) .or. &
-               (trim(species_name) == "O2" .and. molar_mass == 0.032_kind_phys .and. .not. is_advected) .or. &
-               (trim(species_name) == "O" .and. molar_mass == 0.016_kind_phys .and. .not. is_advected) .or. &
-               (trim(species_name) == "O1D" .and. molar_mass == 0.016_kind_phys .and. .not. is_advected) .or. &
-               (trim(species_name) == "O3" .and. molar_mass == 0.048_kind_phys .and. is_advected)
-    ASSERT(tmp_bool)
+    ! tmp_bool = (trim(species_name) == "M" .and. molar_mass == 0.029_kind_phys .and. .not. is_advected) .or. &
+    tmp_booL = (trim(species_name) == "O2" .and. molar_mass == 0.032_kind_phys .and. .not. is_advected) .or. &
+             !  (trim(species_name) == "O2" .and. molar_mass == 0.032_kind_phys .and. .not. is_advected) .or. &
+              (trim(species_name) == "O" .and. molar_mass == 0.016_kind_phys .and. .not. is_advected) .or. &
+              (trim(species_name) == "O1D" .and. molar_mass == 0.016_kind_phys .and. .not. is_advected) .or. &
+              (trim(species_name) == "O3" .and. molar_mass == 0.048_kind_phys .and. is_advected)
+   ASSERT(tmp_bool)
     call constituent_props(i)%units(units, errcode, errmsg)
     ASSERT(errcode == 0)
     ASSERT(trim(units) == 'kg kg-1')
@@ -87,7 +90,6 @@ subroutine test_musica_ccpp_api()
   end do
 
   call musica_ccpp_init(errmsg, errcode)
-
   if (errcode /= 0) then
     write(*,*) trim(errmsg)
     stop 3
@@ -103,7 +105,7 @@ subroutine test_musica_ccpp_api()
   write(*,fmt="(4(3x,e13.6))") constituents
 
   call musica_ccpp_run(time_step, temperature, pressure, dry_air_density, constituent_props_ptr, &
-                       constituents, height, errmsg, errcode)
+                       constituents, user_defined_reaction_rates, height, errmsg, errcode)
   if (errcode /= 0) then
     write(*,*) trim(errmsg)
     stop 3

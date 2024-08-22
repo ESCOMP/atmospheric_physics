@@ -37,23 +37,24 @@ contains
   !> \section arg_table_musica_ccpp_run Argument Table
   !! \htmlinclude musica_ccpp_run.html
   subroutine musica_ccpp_run(time_step, temperature, pressure, dry_air_density, constituent_props, &
-                      constituents, height, errmsg, errcode)
+                      constituents, rate_params, height, errmsg, errcode)
     use ccpp_kinds, only: kind_phys
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
 
     real(kind_phys),                   intent(in)    :: time_step            ! s
-    real(kind_phys),                   intent(in)    :: temperature(:,:)     ! K
-    real(kind_phys),                   intent(in)    :: pressure(:,:)        ! Pa
-    real(kind_phys),                   intent(in)    :: dry_air_density(:,:) ! kg m-3
+    real(kind_phys), target,           intent(in)    :: temperature(:,:)     ! K
+    real(kind_phys), target,           intent(in)    :: pressure(:,:)        ! Pa
+    real(kind_phys), target,           intent(in)    :: dry_air_density(:,:) ! kg m-3
     type(ccpp_constituent_prop_ptr_t), intent(in)    :: constituent_props(:)
-    real(kind_phys),                   intent(inout) :: constituents(:,:,:)  ! kg kg-1
-    real(kind_phys),                   intent(in)    :: height(:,:)          ! km
+    real(kind_phys), target,           intent(inout) :: constituents(:,:,:)  ! kg kg-1
+    real(kind_phys), target,           intent(inout) :: rate_params(:,:,:)
+    real(kind_phys), target,           intent(in)    :: height(:,:)          ! km
     character(len=512),                intent(out)   :: errmsg
     integer,                           intent(out)   :: errcode
 
     call tuvx_run(height, temperature, dry_air_density, errmsg, errcode)
     call micm_run(time_step, temperature, pressure, dry_air_density, constituent_props, &
-                  constituents, errmsg, errcode)
+                  constituents, rate_params, errmsg, errcode)
 
   end subroutine musica_ccpp_run
 

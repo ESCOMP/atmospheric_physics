@@ -87,17 +87,18 @@ contains
 
   !> Solve chemistry at the current time step
   subroutine micm_run(time_step, temperature, pressure, dry_air_density, constituent_props, &
-                      constituents, errmsg, errcode)
+                      constituents, rate_params, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use musica_micm, only: solver_stats_t
     use musica_util, only: string_t, error_t
 
-    real(kind_phys),                   intent(in)    :: time_step            ! s
-    real(kind_phys),                   intent(in)    :: temperature(:,:)     ! K
-    real(kind_phys),                   intent(in)    :: pressure(:,:)        ! Pa
-    real(kind_phys),                   intent(in)    :: dry_air_density(:,:) ! kg m-3
+    real(kind_phys),                   intent(in)    :: time_step             ! s
+    real(kind_phys), target,           intent(in)    :: temperature(:,:)      ! K
+    real(kind_phys), target,           intent(in)    :: pressure(:,:)         ! Pa
+    real(kind_phys), target,           intent(in)    :: dry_air_density(:,:)  ! kg m-3
     type(ccpp_constituent_prop_ptr_t), intent(in)    :: constituent_props(:)
-    real(kind_phys),                   intent(inout) :: constituents(:,:,:)  ! kg kg-1
+    real(kind_phys), target,           intent(inout) :: constituents(:,:,:)   ! kg kg-1
+    real(kind_phys), target,           intent(inout) :: rate_params(:,:,:)    ! kg kg-1
     character(len=512),                intent(out)   :: errmsg
     integer,                           intent(out)   :: errcode
 
@@ -112,41 +113,48 @@ contains
     real(c_double), dimension(size(constituents, dim=1), &
                               size(constituents, dim=2), &
                               size(constituents, dim=3))   :: c_constituents
-    real(c_double), dimension(size(constituents, dim=1), &
-                              size(constituents, dim=2), &
-                              0)                           :: c_rate_params
+    real(c_double), dimension(size(rate_params, dim=1),  &
+                              size(rate_params, dim=2),  &
+                              size(rate_params, dim=3))    :: c_rate_params
     real(kind_phys), dimension(size(constituents, dim=3))  :: molar_mass_arr ! kg mol-1
 
     ! 1-D array
-    real(c_double), dimension(size(temperature, dim=1)  &
-                            * size(temperature, dim=2))  :: c_temperature_1d
-    real(c_double), dimension(size(pressure, dim=1)     &
-                            * size(pressure, dim=2))     :: c_pressure_1d
-    real(c_double), dimension(size(pressure, dim=1)     &
-                            * size(pressure, dim=2))     :: c_dry_air_density_1d
-    real(c_double), dimension(size(constituents, dim=1) &
+    real(c_double), target, dimension(size(temperature, dim=1)  &
+                            * size(temperature, dim=2))   :: c_temperature_1d
+    real(c_double), target, dimension(size(pressure, dim=1)     &
+                            * size(pressure, dim=2))      :: c_pressure_1d
+    real(c_double), target, dimension(size(pressure, dim=1)     &
+                            * size(pressure, dim=2))      :: c_dry_air_density_1d
+    real(c_double), target, dimension(size(constituents, dim=1) &
                             * size(constituents, dim=2) & 
-                            * size(constituents, dim=3)) :: c_constituents_1d
-    real(c_double), dimension(size(constituents, dim=1) &
-                            * size(constituents, dim=2)) :: c_rate_params_1d
-
+                            * size(constituents, dim=3))  :: c_constituents_1d
+    real(c_double), target, dimension(size(constituents, dim=1) &
+                            * size(constituents, dim=2) & 
+                            * size(rate_params, dim=3))   :: c_rate_params_1d
     type(string_t)       :: solver_state
     type(solver_stats_t) :: solver_stats
     type(error_t)        :: error
-    integer              :: num_columns, num_layers, num_constituents, num_grid_cells
+    integer              :: num_columns, num_layers, num_grid_cells
+    integer              :: num_constituents, num_rate_params
     integer              :: i_column, i_layer, i_elem, start
 
     num_columns = size(constituents, dim=1)
     num_layers = size(constituents, dim=2)
-    num_constituents = size(constituents, dim=3)
     num_grid_cells = num_columns * num_layers
+    num_constituents = size(constituents, dim=3)
+    num_rate_params = size(rate_params, dim=3)
     errcode = 0
     errmsg = ''
+
+    write(*,*) "num_columns ", num_columns
+    write(*,*) "num_layers ", num_layers 
+    write(*,*) "num_grid_cells ", num_grid_cells
+    write(*,*) "num_constituents ", num_constituents
+    write(*,*) "num_rate_params ", num_rate_params
 
     ! Get the molar_mass that is set in the call to instantiate()
     do i_elem = 1, num_constituents
       call constituent_props(i_elem)%molar_mass(molar_mass_arr(i_elem), errcode, errmsg)
-
       if (errcode /= 0) then
         errmsg = "[MUSICA Error] Unable to get molar mass."
         return
@@ -165,18 +173,19 @@ contains
 
     ! Convert CAM-SIMA unit to MICM unit (kg kg-1  ->  mol m-3)
     call convert_to_mol_per_cubic_meter(dry_air_density, molar_mass_arr, constituents)
+    call convert_to_mol_per_cubic_meter(dry_air_density, molar_mass_arr, rate_params)
 
     c_time_step = real(time_step, c_double)
     c_temperature = real(temperature, c_double)
     c_pressure = real(pressure, c_double)
     c_dry_air_density = real(dry_air_density, c_double)
     c_constituents = real(constituents, c_double)
+    c_rate_params = real(rate_params, c_double)
 
     ! Reshape to 1-D array
     c_temperature_1d = [c_temperature]
     c_pressure_1d = [c_pressure]
     c_dry_air_density_1d = [dry_air_density]
-    c_rate_params_1d = [c_rate_params]
     
     ! Reshape to 1-D arry in species-column first order
     ! refers to: state.variables_[i_cell][i_species] = concentrations[i_species_elem++]
@@ -188,17 +197,28 @@ contains
       end do
     end do
 
-    ! call micm%solve(c_time_step,          &
-    !                 c_temperature_1d,     &
-    !                 c_pressure_1d,        &
-    !                 c_dry_air_density_1d, &
-    !                 c_constituents_1d,    &
-    !                 c_rate_params_1d,     &
-    !                 solver_state,         &
-    !                 solver_stats,         &
-    !                 error)
-    ! if (has_error_occurred(error, errmsg, errcode)) return
+    start = 1
+    do i_layer = 1, num_layers
+      do i_column = 1, num_columns
+        c_rate_params_1d(start : start + num_rate_params - 1) = c_rate_params(i_column, i_layer, :)
+        start = start + num_rate_params
+      end do
+    end do
 
+    call micm%solve(c_time_step,          &
+                    c_temperature_1d,     &
+                    c_pressure_1d,        &
+                    c_dry_air_density_1d, &
+                    c_constituents_1d,    &
+                    c_rate_params_1d,     &
+                    solver_state,         &
+                    solver_stats,         &
+                    error)
+    if (has_error_occurred(error, errmsg, errcode)) then
+      write(*,*) "[solve error]: ", errmsg
+    end if
+
+    write(*,*) "Solving done: "
     ! Reshape the 1-D constituents array back to the original dimension
     start = 1
     do i_layer = 1, num_layers
@@ -208,11 +228,20 @@ contains
       end do
     end do
 
+    start = 1
+    do i_layer = 1, num_layers
+      do i_column = 1, num_columns
+        c_rate_params(i_column, i_layer, :) = c_rate_params_1d(start : start + num_rate_params - 1)
+        start = start + num_rate_params
+      end do
+    end do
+
     constituents = real(c_constituents, kind_phys)
+    rate_params = real(c_rate_params, kind_phys)
 
     ! Convert MICM unit back to CAM-SIMA unit (mol m-3  ->  kg kg-1)
     call convert_to_mass_mixing_ratio(dry_air_density, molar_mass_arr, constituents)
-
+    call convert_to_mass_mixing_ratio(dry_air_density, molar_mass_arr, rate_params)
   end subroutine micm_run
 
   !> Finalize MICM
