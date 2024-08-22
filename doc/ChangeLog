@@ -1,3 +1,44 @@
+===============================================================
+
+Tag name:
+Originator(s): jimmielin
+Date: August 22, 2024
+One-line Summary: tropopause_find CCPP-ization
+Github PR URL:
+
+This PR fixes the following NCAR/atmospheric_physics Github issues:
+    - Creates the CCPP interface for the tropopause_find routine
+
+    Several (extensive) changes were made to tropopause_find.F90 for CCPP-compatibility:
+    - tropopause_read_file, which provides tropp_p_loc and tropp_days climatological data used as the default fall-back method, has been moved to a utility module in CAM-SIMA to read, regrid, and provide this climatology to the CCPP-ized physics; it also removes lchnk indexing since they're no longer used in CAM-SIMA.
+    - tropopause_find used to accept (optional) arguments for returning tropT, tropZ, tropP (tropopause temperature, height, and pressure) which are no longer optional;
+    - tropopause_find accepted "primary" and "backup" methods for finding the tropopause. All the methods known to be used in CAM are now calculated at the same time in the tropopause_find_run main driver routine; it calls the underlying logic as appropriate with and populates the appropriate standard name physics fields. Because the same physical quantities for tropopause level, height, pressure, temperature, etc. using different methods are used throughout the CAM physics and simultaneously output in the diagnostics, the same standard names with a suffix are used to differentiate between these quantities computed by different methods.
+    - Standard CCPP-ization procedures, metadata, explicit use of fields instead of physics state, only passing active :ncol fields, ...
+
+    A "shim" that will completely replicate existing behavior, bit-for-bit in current CAM, will be included in current CAM as tropopause.F90.
+
+Code reviewed by:
+
+List all existing files that have been added (A), modified (M), or deleted (D),
+and describe the changes:
+- Implementation of tropopause_find using CCPP and test SDF:
+A       test/test_sdfs/suite_tropopause_find.xml
+A       tropopause_find/tropopause_find.F90
+A       tropopause_find/tropopause_find.meta
+
+- Implementation of diagnostics (history) output within CAM-SIMA:
+A       cam_diagnostics/tropopause_diagnostics.F90
+A       cam_diagnostics/tropopause_diagnostics.meta
+
+- Metadata for changes made in this PR:
+M       doc/ChangeLog
+M       doc/NamesNotInDictionary.txt
+
+
+List and Describe any test failures: N/A
+
+Summarize any changes to answers:
+Difference in
 
 ===============================================================
 
