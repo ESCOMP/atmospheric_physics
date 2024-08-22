@@ -12,20 +12,24 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 # --------------------------------------------------------------------------------
 # NOTE: If 'CCPP_ENABLE_MUSICA_TESTS' on, this is not a stand-alone cmake project anymore. 
-#       MICM CCPP wrapper needs MUSICA library and ccpp-framework/src.
+#       MUSICA CCPP wrapper needs MUSICA library and ccpp-framework/src.
 #       To 'CCPP_ENABLE_MUSICA_TESTS', you either build a cmake project through
 #       'docker/Dockerfile.musica' or follow the build instructions in the file.
 #       The following '$ENV' variables are set by the docker file.
 # --------------------------------------------------------------------------------
-option(CCPP_ENABLE_MUSICA_TESTS "Build the micm test" OFF)
+option(CCPP_ENABLE_MUSICA_TESTS "Build the MUSICA tests" OFF)
+option(CCPP_ENABLE_MEMCHECK "Enable memory checks in tests" OFF)
+
+set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
+set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)
 
 if (CCPP_ENABLE_MUSICA_TESTS)
   set(MUSICA_VERSION $ENV{MUSICA_VERSION})
-  set(MICM_SRC_PATH ${CMAKE_SOURCE_DIR}/../musica/micm)
+  set(MUSICA_SRC_PATH ${CMAKE_SOURCE_DIR}/../musica)
   set(CCPP_SRC_PATH ${CMAKE_SOURCE_DIR}/$ENV{CCPP_SRC_PATH})
   set(CCPP_TEST_SRC_PATH ${CMAKE_SOURCE_DIR}/include)
 
-  add_subdirectory(musica/micm)
+  add_subdirectory(musica)
 
   enable_testing()
 endif()
