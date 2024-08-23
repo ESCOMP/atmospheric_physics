@@ -62,8 +62,3 @@ add_custom_target(
   copy_tuvx_configs ALL ${CMAKE_COMMAND} -E copy_directory
   ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/configs ${CMAKE_BINARY_DIR}/configs
 )
-
-add_custom_target(
-  copy_tuvx_data_dir ALL ${CMAKE_COMMAND} -E copy_directory
-  ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/data ${CMAKE_BINARY_DIR}/data
-)
