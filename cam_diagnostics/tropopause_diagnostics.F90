@@ -35,6 +35,13 @@ contains
     call history_add_field('TROP_PD',  'probability_distribution_of_model_level_number_at_tropopause', 'lev', 'avg', 'probability')
     call history_add_field('TROP_FD',  'tropopause_found', horiz_only,  'avg', 'probability')
 
+    call history_add_field('TROPP_P',   'tropopause_air_pressure_assuming_lapse_rate',    horiz_only,  'avg', 'Pa')
+    call history_add_field('TROPP_T',   'tropopause_air_temperature_assuming_lapse_rate', horiz_only,  'avg', 'K' )
+    call history_add_field('TROPP_Z',   'tropopause_altitude_assuming_lapse_rate',        horiz_only,  'avg', 'm' )
+    call history_add_field('TROPP_DZ',  'tropopause_altitude_relative_assuming_lapse_rate', 'lev',       'avg', 'm')
+    call history_add_field('TROPP_PD',  'probability_distribution_of_model_level_number_at_tropopause_assuming_lapse_rate', 'lev', 'avg', 'probability')
+    call history_add_field('TROPP_FD',  'tropopause_found_assuming_lapse_rate', horiz_only,  'avg', 'probability')
+
     call history_add_field('TROPF_P',  'tropopause_air_pressure_assuming_cold_point',    horiz_only,  'avg', 'Pa')
     call history_add_field('TROPF_T',  'tropopause_air_temperature_assuming_cold_point', horiz_only,  'avg', 'K' )
     call history_add_field('TROPF_Z',  'tropopause_altitude_assuming_cold_point',        horiz_only,  'avg', 'm' )
