@@ -87,44 +87,34 @@ contains
 
   !> Solve chemistry at the current time step
   subroutine micm_run(time_step, temperature, pressure, dry_air_density, constituent_props, &
-                      constituents, rate_params, errmsg, errcode)
+                      num_constituents, constituents, rate_params, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use musica_micm, only: solver_stats_t
     use musica_util, only: string_t, error_t
 
-    real(kind_phys),                   intent(in)    :: time_step             ! s
-    real(c_double), target,           intent(in)    :: temperature(:)      ! K
-    real(c_double), target,           intent(in)    :: pressure(:)         ! Pa
-    real(c_double), target,           intent(in)    :: dry_air_density(:)  ! kg m-3
+    real(kind_phys),                   intent(in)    :: time_step           ! s
+    real(c_double), target,            intent(in)    :: temperature(:)      ! K
+    real(c_double), target,            intent(in)    :: pressure(:)         ! Pa
+    real(c_double), target,            intent(in)    :: dry_air_density(:)  ! kg m-3
     type(ccpp_constituent_prop_ptr_t), intent(in)    :: constituent_props(:)
-    real(c_double), target,           intent(inout) :: constituents(:)   ! kg kg-1
-    real(c_double), target,           intent(inout) :: rate_params(:)    ! kg kg-1
+    integer,                           intent(in)    :: num_constituents
+    real(c_double), target,            intent(inout) :: constituents(:)     ! kg kg-1
+    real(c_double), target,            intent(inout) :: rate_params(:)
     character(len=512),                intent(out)   :: errmsg
     integer,                           intent(out)   :: errcode
 
-    real(kind_phys), dimension(4)  :: molar_mass_arr ! kg mol-1
-    type(string_t)       :: solver_state
-    type(solver_stats_t) :: solver_stats
-    type(error_t)        :: error
-    integer              :: num_columns, num_layers, num_grid_cells
-    integer              :: num_constituents, num_rate_params
-    integer              :: i_column, i_layer, i_elem, start
-    real(c_double)      :: c_time_step 
+    ! local variables
+    real(kind_phys), dimension(num_constituents) :: molar_mass_arr ! kg mol-1
+    type(string_t)                               :: solver_state
+    type(solver_stats_t)                         :: solver_stats
+    type(error_t)                                :: error
+    real(c_double)                               :: c_time_step
+    integer                                      :: i_elem
+    logical                                      :: debug = .true.
 
-    num_columns = 2
-    num_layers = 2
-    num_grid_cells = 4
-    num_constituents = 4
-    num_rate_params = 2
     errcode = 0
     errmsg = ''
-
     c_time_step = real(time_step, c_double) 
-    write(*,*) "num_columns ", num_columns
-    write(*,*) "num_layers ", num_layers 
-    write(*,*) "num_grid_cells ", num_grid_cells
-    write(*,*) "num_constituents ", num_constituents
-    write(*,*) "num_rate_params ", num_rate_params
 
     ! Get the molar_mass that is set in the call to instantiate()
     do i_elem = 1, num_constituents
@@ -146,30 +136,35 @@ contains
     end do
 
     ! Convert CAM-SIMA unit to MICM unit (kg kg-1  ->  mol m-3)
-    ! call convert_to_mol_per_cubic_meter(dry_air_density, molar_mass_arr, constituents)
-    ! call convert_to_mol_per_cubic_meter(dry_air_density, molar_mass_arr, rate_params)
-  
-    c_time_step = real(time_step, c_double) 
+    call convert_to_mol_per_cubic_meter(dry_air_density, molar_mass_arr, constituents)
 
-    call micm%solve(c_time_step,          &
-                    temperature,   &
+    call micm%solve(c_time_step,     &
+                    temperature,     &
                     pressure,        &
                     dry_air_density, &
                     constituents,    &
                     rate_params,     &
-                    solver_state,         &
-                    solver_stats,         &
+                    solver_state,    &
+                    solver_stats,    &
                     error)
-    if (has_error_occurred(error, errmsg, errcode)) then
-      write(*,*) "[solve error]: ", errmsg
+    if (has_error_occurred(error, errmsg, errcode)) return
+
+    if (debug) then
+      write(*,*) "[MUSICA DEBUG] Solver state: ", solver_state%get_char_array()
+      write(*,*) "[MUSICA DEBUG] Function calls: ", solver_stats%function_calls()
+      write(*,*) "[MUSICA DEBUG] Jacobian updates: ", solver_stats%jacobian_updates()
+      write(*,*) "[MUSICA DEBUG] Number of steps: ", solver_stats%number_of_steps()
+      write(*,*) "[MUSICA DEBUG] Accepted: ", solver_stats%accepted()
+      write(*,*) "[MUSICA DEBUG] Rejected: ", solver_stats%rejected()
+      write(*,*) "[MUSICA DEBUG] Decompositions: ", solver_stats%decompositions()
+      write(*,*) "[MUSICA DEBUG] Solves: ", solver_stats%solves()
+      write(*,*) "[MUSICA DEBUG] Singular: ", solver_stats%singular()
+      write(*,*) "[MUSICA DEBUG] Final time: ", solver_stats%final_time()
     end if
 
-    write(*,*) "Solving done: "
-
-
     ! Convert MICM unit back to CAM-SIMA unit (mol m-3  ->  kg kg-1)
-    ! call convert_to_mass_mixing_ratio(dry_air_density, molar_mass_arr, constituents)
-    ! call convert_to_mass_mixing_ratio(dry_air_density, molar_mass_arr, rate_params)
+    call convert_to_mass_mixing_ratio(dry_air_density, molar_mass_arr, constituents)
+
   end subroutine micm_run
 
   !> Finalize MICM
@@ -182,56 +177,33 @@ contains
 
   end subroutine micm_final
 
-  ! Convert CAM-SIMA unit to MICM unit (kg kg-1  ->  mol m-3)
+  ! ! Convert CAM-SIMA unit to MICM unit (kg kg-1  ->  mol m-3)
   subroutine convert_to_mol_per_cubic_meter(dry_air_density, molar_mass_arr, constituents)
-    real(kind_phys), intent(in)    :: dry_air_density(:,:) ! kg m-3
-    real(kind_phys), intent(in)    :: molar_mass_arr(:)    ! kg mol-1
-    real(kind_phys), intent(inout) :: constituents(:,:,:)  ! in: kg kg-1 | out: mol m-3
+    real(c_double), intent(in)    :: dry_air_density(:) ! kg m-3
+    real(c_double), intent(in)    :: molar_mass_arr(:)    ! kg mol-1
+    real(c_double), intent(inout) :: constituents(:)  ! in: kg kg-1 | out: mol m-3
 
-    integer :: num_columns, num_layers, num_constituents
-    integer :: i_column, i_layer, i_elem
+    integer        :: i_elem
+    real(c_double) :: val
 
-    real(kind_phys) :: val
-
-    num_columns = size(constituents, dim=1)
-    num_layers = size(constituents, dim=2)
-    num_constituents = size(constituents, dim=3)
-
-    do i_column = 1, num_columns
-      do i_layer = 1, num_layers
-        do i_elem = 1, num_constituents
-          val = constituents(i_column, i_layer, i_elem) * dry_air_density(i_column, i_layer) &
-                / molar_mass_arr(i_elem)
-          constituents(i_column, i_layer, i_elem) = val
-        end do
-      end do
+    do i_elem = 1, size(dry_air_density)
+      val = constituents(i_elem) * dry_air_density(i_elem) / molar_mass_arr(i_elem)
+      constituents(i_elem) = val
     end do
-
   end subroutine convert_to_mol_per_cubic_meter
 
   ! Convert MICM unit to CAM-SIMA unit (mol m-3  ->  kg kg-1)
   subroutine convert_to_mass_mixing_ratio(dry_air_density, molar_mass_arr, constituents)
-    real(kind_phys), intent(in)    :: dry_air_density(:,:) ! kg m-3
-    real(kind_phys), intent(in)    :: molar_mass_arr(:)    ! kg mol-1
-    real(kind_phys), intent(inout) :: constituents(:,:,:)  ! in: mol m-3 | out: kg kg-1
+    real(c_double), intent(in)    :: dry_air_density(:) ! kg m-3
+    real(c_double), intent(in)    :: molar_mass_arr(:)    ! kg mol-1
+    real(c_double), intent(inout) :: constituents(:)  ! in: mol m-3 | out: kg kg-1
 
-    integer :: num_columns, num_layers, num_constituents
-    integer :: i_column, i_layer, i_elem
-
-    real(kind_phys) :: val
-
-    num_columns = size(constituents, dim=1)
-    num_layers = size(constituents, dim=2)
-    num_constituents = size(constituents, dim=3)
-
-    do i_column = 1, num_columns
-      do i_layer = 1, num_layers
-        do i_elem = 1, num_constituents
-          val = constituents(i_column, i_layer, i_elem) / dry_air_density(i_column, i_layer) &
-                * molar_mass_arr(i_elem)
-          constituents(i_column, i_layer, i_elem) = val
-        end do
-      end do
+    integer        :: i_elem
+    real(c_double) :: val
+    
+    do i_elem = 1, size(dry_air_density)
+      val = constituents(i_elem) / dry_air_density(i_elem) * molar_mass_arr(i_elem)
+      constituents(i_elem) = val
     end do
 
   end subroutine convert_to_mass_mixing_ratio

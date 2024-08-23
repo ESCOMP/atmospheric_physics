@@ -43,17 +43,18 @@ contains
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use ccpp_kinds,                only: kind_phys
     use iso_c_binding,             only: c_double
-    real(kind_phys),                   intent(in)    :: time_step            ! s
-    real(kind_phys), target,           intent(in)    :: temperature(:,:)     ! K
-    real(kind_phys), target,           intent(in)    :: pressure(:,:)        ! Pa
-    real(kind_phys), target,           intent(in)    :: dry_air_density(:,:) ! kg m-3
-    type(ccpp_constituent_prop_ptr_t), intent(in)    :: constituent_props(:)
+    real(kind_phys),                   intent(inout) :: time_step            ! s
+    real(kind_phys), target,           intent(inout) :: temperature(:,:)     ! K
+    real(kind_phys), target,           intent(inout) :: pressure(:,:)        ! Pa
+    real(kind_phys), target,           intent(inout) :: dry_air_density(:,:) ! kg m-3
+    type(ccpp_constituent_prop_ptr_t), intent(inout) :: constituent_props(:)
     real(kind_phys), target,           intent(inout) :: constituents(:,:,:)  ! kg kg-1
     real(kind_phys), target,           intent(inout) :: rate_params(:,:,:)
     real(kind_phys), target,           intent(in)    :: height(:,:)          ! km
     character(len=512),                intent(out)   :: errmsg
     integer,                           intent(out)   :: errcode
-    
+
+    ! local variables
     real(c_double), target, dimension(size(temperature, dim=1)     &
                                     * size(temperature, dim=2))      :: m_temperature
     real(c_double), target, dimension(size(pressure, dim=1)        &
@@ -67,14 +68,13 @@ contains
                                     * size(rate_params, dim=2)     & 
                                     * size(rate_params, dim=3))      :: m_rate_params
 
-
     call tuvx_run(height, temperature, dry_air_density, errmsg, errcode)
 
     call reshape_into_micm_arr(temperature, pressure, dry_air_density, constituents, rate_params, &
                       m_temperature, m_pressure, m_dry_air_density, m_constituents, m_rate_params)
 
     call micm_run(time_step, m_temperature, m_pressure, m_dry_air_density, constituent_props,     &
-                      m_constituents, m_rate_params, errmsg, errcode)
+                      size(constituents, dim=3), m_constituents, m_rate_params, errmsg, errcode)
 
     call reshape_into_ccpp_arr(temperature, pressure, dry_air_density, constituents, rate_params, &
                       m_temperature, m_pressure, m_dry_air_density, m_constituents, m_rate_params)

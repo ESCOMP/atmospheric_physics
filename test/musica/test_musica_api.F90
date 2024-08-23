@@ -94,15 +94,15 @@ subroutine test_musica_ccpp_api()
     stop 3
   endif
 
-  write(*,*) "[musica] Initial Time Step"
+  write(*,*) "[MUSICA INFO] Initial Time Step"
   write(*,fmt="(1x,f10.2)") time_step
-  write(*,*) "[musica] Initial Temperature"
-  write(*,fmt="(2(1x,f10.4))") temperature
-  write(*,*) "[musica] Initial Pressure"
-  write(*,fmt="(2(1x,f10.4))") pressure
-  write(*,*) "[musica] Initial Concentrations"
+  write(*,*) "[MUSICA INFO] Initial Temperature"
+  write(*,fmt="(4(1x,f10.4))") temperature
+  write(*,*) "[MUSICA INFO] Initial Pressure"
+  write(*,fmt="(4(1x,f10.4))") pressure
+  write(*,*) "[MUSICA INFO] Initial Concentrations"
   write(*,fmt="(4(3x,e13.6))") constituents
-  write(*,*) "[musica] Initial User-defined Reaction Rates"
+  write(*,*) "[MUSICA INFO] Initial User-defined Reaction Rates"
   write(*,fmt="(3(3x,e13.6))") user_defined_reaction_rates
 
   call musica_ccpp_run(time_step, temperature, pressure, dry_air_density, constituent_props_ptr, &
@@ -112,9 +112,9 @@ subroutine test_musica_ccpp_api()
     stop 3
   endif
 
-  write(*,*) "[musica] Solved Concentrations"
+  write(*,*) "[MUSICA INFO] Solved Concentrations"
   write(*,fmt="(4(3x,e13.6))") constituents
-  write(*,*) "[musica] Solved User-defined Reaction Rates"
+  write(*,*) "[MUSICA INFO] Solved User-defined Reaction Rates"
   write(*,fmt="(3(3x,e13.6))") user_defined_reaction_rates
 
   call musica_ccpp_final(errmsg, errcode)
