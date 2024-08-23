@@ -23,7 +23,6 @@ module zm_convr
    integer  :: num_cin      ! set from namelist input zmconv_num_cin
                             ! The number of negative buoyancy regions that are allowed
                             ! before the convection top and CAPE calculations are completed.
-   logical  :: zm_org
    real(kind_phys) tau   ! convective time scale
    real(kind_phys) :: tfreez
    real(kind_phys) :: eps1
@@ -57,7 +56,7 @@ contains
 !!
 subroutine zm_convr_init(plev, plevp, cpair, epsilo, gravit, latvap, tmelt, rair, &
                     pref_edge, zmconv_c0_lnd, zmconv_c0_ocn, zmconv_ke, zmconv_ke_lnd, &
-                    zmconv_momcu, zmconv_momcd, zmconv_num_cin, zmconv_org, &
+                    zmconv_momcu, zmconv_momcd, zmconv_num_cin, &
                     no_deep_pbl_in, zmconv_tiedke_add, &
                     zmconv_capelmt, zmconv_dmpdz, zmconv_parcel_pbl, zmconv_tau, &
                     masterproc, iulog, errmsg, errflg)
@@ -80,7 +79,6 @@ subroutine zm_convr_init(plev, plevp, cpair, epsilo, gravit, latvap, tmelt, rair
    real(kind_phys),intent(in)           :: zmconv_ke_lnd
    real(kind_phys),intent(in)           :: zmconv_momcu
    real(kind_phys),intent(in)           :: zmconv_momcd
-   logical, intent(in)           :: zmconv_org
    logical, intent(in)           :: no_deep_pbl_in  ! no_deep_pbl = .true. eliminates ZM convection entirely within PBL
    real(kind_phys),intent(in)           :: zmconv_tiedke_add
    real(kind_phys),intent(in)           :: zmconv_capelmt
@@ -112,7 +110,6 @@ subroutine zm_convr_init(plev, plevp, cpair, epsilo, gravit, latvap, tmelt, rair
    num_cin = zmconv_num_cin
    ke      = zmconv_ke
    ke_lnd  = zmconv_ke_lnd
-   zm_org  = zmconv_org
    momcu   = zmconv_momcu
    momcd   = zmconv_momcd
 
@@ -174,7 +171,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
                     mu      ,md      ,du      ,eu      ,ed      , &
                     dp      ,dsubcld ,jt      ,maxg    ,ideep   , &
                     ql      ,rliq    ,landfrac,                   &
-                    org     ,orgt    ,org2d   ,  &
                     rice   ,errmsg  ,errflg)
 !-----------------------------------------------------------------------
 !
@@ -340,10 +336,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
    integer, intent(out)                 :: errflg
 
 
-   real(kind_phys), intent(in) :: org(:,:)     ! Only used if zm_org is true  ! in
-   real(kind_phys), intent(out) :: orgt(:,:)   ! Only used if zm_org is true   ! out
-   real(kind_phys), intent(out) :: org2d(:,:)  ! Only used if zm_org is true   ! out
-
    ! Local variables
 
 
@@ -352,7 +344,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
    real(kind_phys) cug(ncol,pver)    ! gathered condensation rate
 
    real(kind_phys) evpg(ncol,pver)   ! gathered evap rate of rain in downdraft
-   real(kind_phys) orgavg(ncol)
    real(kind_phys) dptot(ncol)
 
    real(kind_phys) mumax(ncol)
@@ -474,10 +465,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
 ! zero out variables not used in cam
 !
 
-   if (zm_org) then
-      orgt(:,:) = 0._kind_phys
-   end if
-
    qtnd(:,:) = 0._kind_phys
    heat(:,:) = 0._kind_phys
    mcon(:,:) = 0._kind_phys
@@ -513,34 +500,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
       dsubcld(i) = 0._kind_phys
 
    end do
-
-  if (zm_org) then
-! compute vertical average here
-      orgavg(:) = 0._kind_phys
-      dptot(:) = 0._kind_phys
-
-      do k = 1, pver
-        do i = 1,ncol
-          if (org(i,k) .gt. 0) then
-            orgavg(i) = orgavg(i)+dpp(i,k)*org(i,k)
-            dptot(i) = dptot(i)+dpp(i,k)
-          endif
-        enddo
-      enddo
-
-      do i = 1,ncol
-        if (dptot(i) .gt. 0) then
-          orgavg(i) = orgavg(i)/dptot(i)
-        endif
-      enddo
-
-      do k = 1, pver
-        do i = 1, ncol
-           org2d(i,k) = orgavg(i)
-        enddo
-      enddo
-
-   endif
 
 !
 ! calculate local pressure (mbs) and height (m) for both interface
@@ -599,7 +558,7 @@ subroutine zm_convr_run(     ncol    ,pver    , &
                tp      ,qstp    ,tl      ,rl      ,cape     , &
                pblt    ,lcl     ,lel     ,lon     ,maxi     , &
                rgas    ,grav    ,cpres   ,msg     , &
-               zi      ,zs      ,tpert   , org2d  , landfrac,&
+               zi      ,zs      ,tpert   ,  landfrac,&
                errmsg  ,errflg)
 
 !
@@ -839,7 +798,7 @@ subroutine buoyan_dilute(  ncol   ,pver    , &
                   tp      ,qstp    ,tl      ,rl      ,cape    , &
                   pblt    ,lcl     ,lel     ,lon     ,mx      , &
                   rd      ,grav    ,cp      ,msg     , &
-                  zi      ,zs      ,tpert    ,org    , landfrac,&
+                  zi      ,zs      ,tpert    , landfrac,&
                   errmsg  ,errflg)
 !-----------------------------------------------------------------------
 !
@@ -903,7 +862,6 @@ subroutine buoyan_dilute(  ncol   ,pver    , &
    integer lon(ncol)        ! level of onset of deep convection
    integer mx(ncol)         ! level of max moist static energy
 
-   real(kind_phys)  :: org(:,:)      ! organization parameter
    real(kind_phys), intent(in) :: landfrac(ncol)
    character(len=512), intent(out)      :: errmsg
    integer, intent(out)                 :: errflg
@@ -1114,7 +1072,7 @@ end if ! Mixed parcel properties
 
    call parcel_dilute(ncol, pver, cpliq, cpwv, rh2o, latice, msg, mx, p, t, q, &
    tpert, tp, tpv, qstp, pl, tl, ql, lcl, &
-   org, landfrac, errmsg, errflg)
+   landfrac, errmsg, errflg)
 
 
 ! If lcl is above the nominal level of non-divergence (600 mbs),
@@ -1197,7 +1155,7 @@ end subroutine buoyan_dilute
 
 subroutine parcel_dilute (ncol, pver, cpliq, cpwv, rh2o, latice, msg, klaunch, p, t, q, &
   tpert, tp, tpv, qstp, pl, tl, ql, lcl, &
-  org, landfrac,errmsg,errflg)
+  landfrac,errmsg,errflg)
 
 ! Routine  to determine
 !   1. Tp   - Parcel temperature
@@ -1237,7 +1195,6 @@ integer, intent(out)                 :: errflg
 
 
 
-real(kind_phys), dimension(:,:) :: org
 real(kind_phys), intent(in), dimension(ncol) :: landfrac
 !--------------------
 
@@ -1282,7 +1239,6 @@ real(kind_phys) tscool     ! Super cooled temperature offset (in degC) (eg -35).
 real(kind_phys) qxsk, qxskp1        ! LCL excess water (k, k+1)
 real(kind_phys) dsdp, dqtdp, dqxsdp ! LCL s, qt, p gradients (k, k+1)
 real(kind_phys) slcl,qtlcl,qslcl    ! LCL s, qt, qs values.
-real(kind_phys) org2rkm, org2Tpert
 real(kind_phys) dmpdz_lnd, dmpdz_mask
 
 integer rcall       ! Number of ientropy call for errors recording
@@ -1302,10 +1258,6 @@ integer i,k,ii   ! Loop counters.
 ! Set some values that may be changed frequently.
 !
 
-if (zm_org) then
-   org2rkm = 10._kind_phys
-   org2Tpert = 0._kind_phys
-endif
 nit_lheat = 2 ! iterations for ds,dq changes from condensation freezing.
 dmpdz=dmpdz_param       ! Entrainment rate. (-ve for /m)
 dmpdz_lnd=-1.e-3_kind_phys
@@ -1377,12 +1329,7 @@ do k = pver, msg+1, -1
 
          dpdz = -(penv*grav)/(rgas*tenv) ! in mb/m since  p in mb.
          dzdp = 1._kind_phys/dpdz                  ! in m/mb
-         if (zm_org) then
-            dmpdz_mask = landfrac(i) * dmpdz_lnd + (1._kind_phys - landfrac(i)) * dmpdz
-            dmpdp = (dmpdz_mask/(1._kind_phys+org(i,k)*org2rkm))*dzdp              ! /mb Fractional entrainment
-         else
-            dmpdp = dmpdz*dzdp
-         endif
+         dmpdp = dmpdz*dzdp
 
 ! Sum entrainment to current level
 ! entrains q,s out of intervening dp layers, in which linear variation is assumed
@@ -1474,11 +1421,7 @@ do k = pver, msg+1, -1
 
          tp(i,k)    = tmix(i,k)
          qstp(i,k)  = q(i,k)
-         if (zm_org) then
-            tpv(i,k)   =  (tp(i,k) + (org2Tpert*org(i,k)+tpert(i))) * (1._kind_phys+1.608_kind_phys*qstp(i,k)) / (1._kind_phys+qstp(i,k))
-         else
-            tpv(i,k)   =  (tp(i,k) + tpert(i)) * (1._kind_phys+1.608_kind_phys*qstp(i,k)) / (1._kind_phys+qstp(i,k))
-         endif
+         tpv(i,k)   =  (tp(i,k) + tpert(i)) * (1._kind_phys+1.608_kind_phys*qstp(i,k)) / (1._kind_phys+qstp(i,k))
 
       end if
 
@@ -1538,11 +1481,7 @@ do k = pver, msg+1, -1
             qstp(i,k) = new_q
          end if
 
-         if (zm_org) then
-            tpv(i,k) = (tp(i,k)+(org2Tpert*org(i,k)+tpert(i)))* (1._kind_phys+1.608_kind_phys*qstp(i,k)) / (1._kind_phys+ new_q)
-         else
-            tpv(i,k) = (tp(i,k)+tpert(i))* (1._kind_phys+1.608_kind_phys*qstp(i,k)) / (1._kind_phys+ new_q)
-         endif
+         tpv(i,k) = (tp(i,k)+tpert(i))* (1._kind_phys+1.608_kind_phys*qstp(i,k)) / (1._kind_phys+ new_q)
 
       end if ! k < klaunch
 

@@ -23,7 +23,7 @@ contains
 !!
 subroutine zm_conv_evap_run(ncol, pver, pverp, &
      gravit, latice, latvap, tmelt, &
-     cpres, ke, ke_lnd, zm_org, &
+     cpres, ke, ke_lnd, &
      t,pmid,pdel,q, &
      landfrac, &
      tend_s, tend_s_snwprd, tend_s_snwevmlt, tend_q, &
@@ -52,7 +52,6 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
     real(kind_phys), intent(in) :: cpres      ! specific heat at constant pressure in j/kg-degk.
     real(kind_phys), intent(in) :: ke           ! Tunable evaporation efficiency set from namelist input zmconv_ke
     real(kind_phys), intent(in) :: ke_lnd
-    logical, intent(in)         :: zm_org
     real(kind_phys),intent(in), dimension(:,:) :: t          ! temperature (K)                              (ncol,pver)
     real(kind_phys),intent(in), dimension(:,:) :: pmid       ! midpoint pressure (Pa)                       (ncol,pver)
     real(kind_phys),intent(in), dimension(:,:) :: pdel       ! layer thickness (Pa)                         (ncol,pver)
@@ -165,11 +164,7 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
 ! relative humidity depression must be > 0 for evaporation
           evplimit = max(1._kind_phys - q(i,k)/qs(i,k), 0._kind_phys)
 
-          if (zm_org) then
-             kemask = ke * (1._kind_phys - landfrac(i)) + ke_lnd * landfrac(i)
-          else
-             kemask = ke
-          endif
+          kemask = ke
 
 ! total evaporation depends on flux in the top of the layer
 ! flux prec is the net production above layer minus evaporation into environmet

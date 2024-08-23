@@ -102,12 +102,6 @@
   type = integer
   dimensions = ()
   intent = in
-[ zmconv_org ]
-  standard_name = flag_for_convective_organization_parameterization_for_zhang_mcfarlane_deep_convection_scheme
-  units = flag
-  type = logical
-  dimensions = ()
-  intent = in
 [ no_deep_pbl_in ]
   standard_name = flag_for_no_deep_convection_in_pbl
   units = flag
@@ -421,24 +415,6 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
-[ org ]
-  standard_name = zhang_mcfarlane_organization_parameter_of_deep_convection
-  units = 1
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
-  intent = in
-[ orgt ]
-  standard_name = tendency_of_zhang_mcfarlane_organization_parameter_of_deep_convection
-  units = s-1
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
-  intent = out
-[ org2d ]
-  standard_name = zhang_mcfarlane_organization_parameter_of_deep_convection_copied_to_whole_column
-  units = 1
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
-  intent = out
 [ rice ]
   standard_name = vertically_integrated_cloud_ice_tendency_due_to_all_convection_to_be_applied_later_in_time_loop
   units = m s-1

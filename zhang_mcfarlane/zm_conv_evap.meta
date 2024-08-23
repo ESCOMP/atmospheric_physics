@@ -67,12 +67,6 @@
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
-[ zm_org ]
-  standard_name = flag_for_convective_organization_parameterization_for_zhang_mcfarlane_deep_convection_scheme
-  units = flag
-  type = logical
-  dimensions = ()
-  intent = in
 [ t ]
   standard_name = air_temperature
   units = K

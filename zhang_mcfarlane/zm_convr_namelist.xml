@@ -70,22 +70,6 @@
   </values>
 </entry>
 
-<entry id="zmconv_org">
-  <category>conv</category>
-  <group>zmconv_nl</group>
-  <standard_name>flag_for_convective_organization_parameterization_for_zhang_mcfarlane_deep_convection_scheme</standard_name>
-  <units>flag</units>
-  <type>logical</type>
-  <desc>Include organization parameterization in ZM.   This value is set to true automatically
-    if -zmconv_org is set in configure.
-    Default: .false., unless -zmconv_org set in configure
-  </desc>
-  <values>
-     <value>.false.</value>
-     <value zmconv_org="1">.true.</value>
-  </values>
-</entry>
-
 <entry id="no_deep_pbl">
   <category>conv</category>
   <group>zmconv_nl</group>
