@@ -131,9 +131,3 @@
   type = real | kind = kind_phys
   dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
   intent = in
-[ dt ]
-  standard_name = timestep_for_physics
-  units = s
-  type = real | kind = kind_phys
-  dimensions = ()
-  intent = in
