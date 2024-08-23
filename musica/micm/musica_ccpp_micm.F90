@@ -125,8 +125,8 @@ contains
       end if
     end do
 
-    ! ! TODO(jiwon) Check molar mass is non zero as it becomes a denominator for unit converison
-    ! ! this code needs to go when ccpp framework does the check
+    ! TODO(jiwon) Check molar mass is non zero as it becomes a denominator for unit converison
+    ! this code needs to go when ccpp framework does the check
     do i_elem = 1, num_constituents
       if (molar_mass_arr(i_elem) == 0) then
         errcode = 1
@@ -177,11 +177,11 @@ contains
 
   end subroutine micm_final
 
-  ! ! Convert CAM-SIMA unit to MICM unit (kg kg-1  ->  mol m-3)
+  ! Convert CAM-SIMA unit to MICM unit (kg kg-1  ->  mol m-3)
   subroutine convert_to_mol_per_cubic_meter(dry_air_density, molar_mass_arr, constituents)
     real(c_double), intent(in)    :: dry_air_density(:) ! kg m-3
-    real(c_double), intent(in)    :: molar_mass_arr(:)    ! kg mol-1
-    real(c_double), intent(inout) :: constituents(:)  ! in: kg kg-1 | out: mol m-3
+    real(c_double), intent(in)    :: molar_mass_arr(:)  ! kg mol-1
+    real(c_double), intent(inout) :: constituents(:)    ! in: kg kg-1 | out: mol m-3
 
     integer        :: i_elem
     real(c_double) :: val
@@ -195,8 +195,8 @@ contains
   ! Convert MICM unit to CAM-SIMA unit (mol m-3  ->  kg kg-1)
   subroutine convert_to_mass_mixing_ratio(dry_air_density, molar_mass_arr, constituents)
     real(c_double), intent(in)    :: dry_air_density(:) ! kg m-3
-    real(c_double), intent(in)    :: molar_mass_arr(:)    ! kg mol-1
-    real(c_double), intent(inout) :: constituents(:)  ! in: mol m-3 | out: kg kg-1
+    real(c_double), intent(in)    :: molar_mass_arr(:)  ! kg mol-1
+    real(c_double), intent(inout) :: constituents(:)    ! in: mol m-3 | out: kg kg-1
 
     integer        :: i_elem
     real(c_double) :: val
