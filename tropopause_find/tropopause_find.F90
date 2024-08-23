@@ -128,7 +128,8 @@ contains
 !! \htmlinclude tropopause_find_run.html
   subroutine tropopause_find_run(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
                                  calday, tropp_p_loc, tropp_days, &
-                                 tropLev, tropP, tropT, tropZ, & ! Default primary+backup ( twmo+climate)
+                                 tropLev, tropP, tropT, tropZ, & ! Default primary+backup (twmo+climate)
+                                 tropLev_twmo, tropP_twmo, tropT_twmo, tropZ_twmo, & ! Primary only (twmo)
                                  tropLev_clim, tropP_clim, tropT_clim, tropZ_clim, & ! Climate-only
                                  tropLev_hybstob, tropP_hybstob, tropT_hybstob, tropZ_hybstob, & !      Hybridstobie + climate backup
                                  tropLev_cpp, tropP_cpp, tropT_cpp, tropZ_cpp, & ! Cold point only
@@ -157,6 +158,11 @@ contains
     real(kind_phys), intent(out)     :: tropP(:)           ! tropopause pressure (Pa)
     real(kind_phys), intent(out)     :: tropT(:)           ! tropopause temperature (K)
     real(kind_phys), intent(out)     :: tropZ(:)           ! tropopause height (m)
+
+    integer,         intent(out)     :: tropLev_twmo(:)    ! lapse-rate tropopause level index
+    real(kind_phys), intent(out)     :: tropP_twmo(:)      ! lapse-rate tropopause pressure (Pa)
+    real(kind_phys), intent(out)     :: tropT_twmo(:)      ! lapse-rate tropopause temperature (K)
+    real(kind_phys), intent(out)     :: tropZ_twmo(:)      ! lapse-rate tropopause height (m)
 
     integer,         intent(out)     :: tropLev_clim(:)    ! climatology-backed tropopause level index
     real(kind_phys), intent(out)     :: tropP_clim(:)      ! climatology-backed tropopause pressure (Pa)
@@ -192,42 +198,152 @@ contains
     errflg = 0
 
     ! Obtain the primary output, which is TWMO + climate
-    call tropopause_findWithBackup(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
-                         calday, tropp_p_loc, tropp_days, &
-                         tropLev, tropP, tropT, tropZ, &
-                         primary=default_primary, backup=default_backup, &
-                         errmsg=errmsg, errflg=errflg)
+    call tropopause_findWithBackup( &
+         ncol           = ncol, &
+         pver           = pver, &
+         lat            = lat, &
+         pint           = pint, &
+         pmid           = pmid, &
+         t              = t, &
+         zi             = zi, &
+         zm             = zm, &
+         phis           = phis, &
+         calday         = calday, &
+         tropp_p_loc    = tropp_p_loc, &
+         tropp_days     = tropp_days, &
+         tropLev        = tropLev, &
+         tropP          = tropP, &
+         tropT          = tropT, &
+         tropZ          = tropZ, &
+         primary        = default_primary, &
+         backup         = default_backup, &
+         errmsg         = errmsg, &
+         errflg         = errflg &
+    )
 
     ! Any other intended outputs
+    ! Primary (TWMO) only
+    call tropopause_findWithBackup( &
+         ncol           = ncol, &
+         pver           = pver, &
+         lat            = lat, &
+         pint           = pint, &
+         pmid           = pmid, &
+         t              = t, &
+         zi             = zi, &
+         zm             = zm, &
+         phis           = phis, &
+         calday         = calday, &
+         tropp_p_loc    = tropp_p_loc, &
+         tropp_days     = tropp_days, &
+         tropLev        = tropLev_twmo, &
+         tropP          = tropP_twmo, &
+         tropT          = tropT_twmo, &
+         tropZ          = tropZ_twmo, &
+         primary        = default_primary, &
+         backup         = TROP_ALG_NONE, &
+         errmsg         = errmsg, &
+         errflg         = errflg &
+    )
+
     ! Climatology only
-    call tropopause_findWithBackup(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
-                         calday, tropp_p_loc, tropp_days, &
-                         tropLev_clim, tropP_clim, tropT_clim, tropZ_clim, &
-                         primary=TROP_ALG_CLIMATE, backup=TROP_ALG_NONE, &
-                         errmsg=errmsg, errflg=errflg)
+    call tropopause_findWithBackup( &
+         ncol           = ncol, &
+         pver           = pver, &
+         lat            = lat, &
+         pint           = pint, &
+         pmid           = pmid, &
+         t              = t, &
+         zi             = zi, &
+         zm             = zm, &
+         phis           = phis, &
+         calday         = calday, &
+         tropp_p_loc    = tropp_p_loc, &
+         tropp_days     = tropp_days, &
+         tropLev        = tropLev_clim, &
+         tropP          = tropP_clim, &
+         tropT          = tropT_clim, &
+         tropZ          = tropZ_clim, &
+         primary        = TROP_ALG_CLIMATE, &
+         backup         = TROP_ALG_NONE, &
+         errmsg         = errmsg, &
+         errflg         = errflg &
+    )
 
     ! Cold point (CPP) only
-    call tropopause_findWithBackup(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
-                         calday, tropp_p_loc, tropp_days, &
-                         tropLev_cpp, tropP_cpp, tropT_cpp, tropZ_cpp, &
-                         primary=TROP_ALG_CPP, backup=TROP_ALG_NONE, &
-                         errmsg=errmsg, errflg=errflg)
+    call tropopause_findWithBackup( &
+         ncol           = ncol, &
+         pver           = pver, &
+         lat            = lat, &
+         pint           = pint, &
+         pmid           = pmid, &
+         t              = t, &
+         zi             = zi, &
+         zm             = zm, &
+         phis           = phis, &
+         calday         = calday, &
+         tropp_p_loc    = tropp_p_loc, &
+         tropp_days     = tropp_days, &
+         tropLev        = tropLev_cpp, &
+         tropP          = tropP_cpp, &
+         tropT          = tropT_cpp, &
+         tropZ          = tropZ_cpp, &
+         primary        = TROP_ALG_CPP, &
+         backup         = TROP_ALG_NONE, &
+         errmsg         = errmsg, &
+         errflg         = errflg &
+    )
 
     ! Hybridstobie with climatology-backed
-    call tropopause_findWithBackup(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
-                         calday, tropp_p_loc, tropp_days, &
-                         tropLev_hybstob, tropP_hybstob, tropT_hybstob, tropZ_hybstob, &
-                         hstobie_trop, hstobie_linoz, hstobie_tropop, &
-                         primary=TROP_ALG_HYBSTOB, backup=TROP_ALG_CLIMATE, &
-                         errmsg=errmsg, errflg=errflg)
+    call tropopause_findWithBackup( &
+         ncol           = ncol, &
+         pver           = pver, &
+         lat            = lat, &
+         pint           = pint, &
+         pmid           = pmid, &
+         t              = t, &
+         zi             = zi, &
+         zm             = zm, &
+         phis           = phis, &
+         calday         = calday, &
+         tropp_p_loc    = tropp_p_loc, &
+         tropp_days     = tropp_days, &
+         tropLev        = tropLev_hybstob, &
+         tropP          = tropP_hybstob, &
+         tropT          = tropT_hybstob, &
+         tropZ          = tropZ_hybstob, &
+         primary        = TROP_ALG_HYBSTOB, &
+         backup         = TROP_ALG_CLIMATE, &
+         hstobie_trop   = hstobie_trop, &    ! Only used if TROP_ALG_HYBSTOB
+         hstobie_linoz  = hstobie_linoz, &   ! Only used if TROP_ALG_HYBSTOB
+         hstobie_tropop = hstobie_tropop, &  ! Only used if TROP_ALG_HYBSTOB
+         errmsg         = errmsg, &
+         errflg         = errflg &
+    )
 
     ! Chemical tropopause (used for chemistry)
-    call tropopause_findWithBackup(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
-                         calday, tropp_p_loc, tropp_days, &
-                         tropLev_chem, tropP_chem, tropT_chem, tropZ_chem, &
-                         hstobie_trop, hstobie_linoz, hstobie_tropop, &
-                         primary=TROP_ALG_CHEMTROP, backup=TROP_ALG_CLIMATE, &
-                         errmsg=errmsg, errflg=errflg)
+    call tropopause_findWithBackup( &
+         ncol           = ncol, &
+         pver           = pver, &
+         lat            = lat, &
+         pint           = pint, &
+         pmid           = pmid, &
+         t              = t, &
+         zi             = zi, &
+         zm             = zm, &
+         phis           = phis, &
+         calday         = calday, &
+         tropp_p_loc    = tropp_p_loc, &
+         tropp_days     = tropp_days, &
+         tropLev        = tropLev_chem, &
+         tropP          = tropP_chem, &
+         tropT          = tropT_chem, &
+         tropZ          = tropZ_chem, &
+         primary        = TROP_ALG_CHEMTROP, &
+         backup         = TROP_ALG_CLIMATE, &
+         errmsg         = errmsg, &
+         errflg         = errflg &
+    )
 
   end subroutine tropopause_find_run
 

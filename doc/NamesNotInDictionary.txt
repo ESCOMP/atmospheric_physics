@@ -1,7 +1,7 @@
 
 #######################
 Date/time of when script was run:
-2024-08-22 16:28:19.167822
+2024-08-23 02:03:20.542270
 #######################
 
 Non-dictionary standard names found in the following metadata files:
@@ -226,6 +226,7 @@ Non-dictionary standard names found in the following metadata files:
     - model_level_number_at_tropopause_assuming_climatology
     - model_level_number_at_tropopause_assuming_cold_point
     - model_level_number_at_tropopause_assuming_hybridstobie_and_climatology
+    - model_level_number_at_tropopause_assuming_lapse_rate
     - model_level_number_at_tropopause_for_chemistry
     - pi_constant
     - ratio_of_dry_air_gas_constant_to_specific_heat_of_dry_air_at_constant_pressure
@@ -234,17 +235,20 @@ Non-dictionary standard names found in the following metadata files:
     - tropopause_air_pressure_assuming_climatology
     - tropopause_air_pressure_assuming_cold_point
     - tropopause_air_pressure_assuming_hybridstobie_and_climatology
+    - tropopause_air_pressure_assuming_lapse_rate
     - tropopause_air_pressure_from_climatology
     - tropopause_air_temperature
     - tropopause_air_temperature_assuming_chemical
     - tropopause_air_temperature_assuming_climatology
     - tropopause_air_temperature_assuming_cold_point
     - tropopause_air_temperature_assuming_hybridstobie_and_climatology
+    - tropopause_air_temperature_assuming_lapse_rate
     - tropopause_altitude
     - tropopause_altitude_assuming_chemical
     - tropopause_altitude_assuming_climatology
     - tropopause_altitude_assuming_cold_point
     - tropopause_altitude_assuming_hybridstobie_and_climatology
+    - tropopause_altitude_assuming_lapse_rate
     - tropopause_calendar_days_from_climatology
 
 #######################

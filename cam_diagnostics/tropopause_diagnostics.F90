@@ -64,7 +64,8 @@ contains
 !! \htmlinclude tropopause_diagnostics_run.html
   subroutine tropopause_diagnostics_run(ncol, pver, &
                                         zm, &
-                                        tropLev, tropP, tropT, tropZ, & ! Default primary+backup ( twmo+climate)
+                                        tropLev, tropP, tropT, tropZ, & ! Default primary+backup (twmo+climate)
+                                        tropLev_twmo, tropP_twmo, tropT_twmo, tropZ_twmo, & ! Primary only (twmo)
                                         tropLev_clim, tropP_clim, tropT_clim, tropZ_clim, & ! Climate-only
                                         tropLev_hybstob, tropP_hybstob, tropT_hybstob, tropZ_hybstob, & !      Hybridstobie + climate backup
                                         tropLev_cpp, tropP_cpp, tropT_cpp, tropZ_cpp, & ! Cold point only
@@ -78,30 +79,35 @@ contains
 
     real(kind_phys), intent(in)      :: zm(:,:)            ! Geopotential height above surface at midpoints (m), pver
 
-    integer,         intent(out)     :: tropLev(:)         ! tropopause level index
-    real(kind_phys), intent(out)     :: tropP(:)           ! tropopause pressure (Pa)
-    real(kind_phys), intent(out)     :: tropT(:)           ! tropopause temperature (K)
-    real(kind_phys), intent(out)     :: tropZ(:)           ! tropopause height (m)
+    integer,         intent(in)      :: tropLev(:)         ! tropopause level index
+    real(kind_phys), intent(in)      :: tropP(:)           ! tropopause pressure (Pa)
+    real(kind_phys), intent(in)      :: tropT(:)           ! tropopause temperature (K)
+    real(kind_phys), intent(in)      :: tropZ(:)           ! tropopause height (m)
 
-    integer,         intent(out)     :: tropLev_clim(:)    ! climatology-backed tropopause level index
-    real(kind_phys), intent(out)     :: tropP_clim(:)      ! climatology-backed tropopause pressure (Pa)
-    real(kind_phys), intent(out)     :: tropT_clim(:)      ! climatology-backed tropopause temperature (K)
-    real(kind_phys), intent(out)     :: tropZ_clim(:)      ! climatology-backed tropopause height (m)
+    integer,         intent(in)      :: tropLev_twmo(:)    ! lapse-rate tropopause level index
+    real(kind_phys), intent(in)      :: tropP_twmo(:)      ! lapse-rate tropopause pressure (Pa)
+    real(kind_phys), intent(in)      :: tropT_twmo(:)      ! lapse-rate tropopause temperature (K)
+    real(kind_phys), intent(in)      :: tropZ_twmo(:)      ! lapse-rate tropopause height (m)
 
-    integer,         intent(out)     :: tropLev_hybstob(:) ! hybridstobie climatology-backed tropopause level index
-    real(kind_phys), intent(out)     :: tropP_hybstob(:)   ! hybridstobie climatology-backed tropopause pressure (Pa)
-    real(kind_phys), intent(out)     :: tropT_hybstob(:)   ! hybridstobie climatology-backed tropopause temperature (K)
-    real(kind_phys), intent(out)     :: tropZ_hybstob(:)   ! hybridstobie climatology-backed tropopause height (m)
+    integer,         intent(in)      :: tropLev_clim(:)    ! climatology-backed tropopause level index
+    real(kind_phys), intent(in)      :: tropP_clim(:)      ! climatology-backed tropopause pressure (Pa)
+    real(kind_phys), intent(in)      :: tropT_clim(:)      ! climatology-backed tropopause temperature (K)
+    real(kind_phys), intent(in)      :: tropZ_clim(:)      ! climatology-backed tropopause height (m)
 
-    integer,         intent(out)     :: tropLev_cpp(:)     ! cold point tropopause level index
-    real(kind_phys), intent(out)     :: tropP_cpp(:)       ! cold point tropopause pressure (Pa)
-    real(kind_phys), intent(out)     :: tropT_cpp(:)       ! cold point tropopause temperature (K)
-    real(kind_phys), intent(out)     :: tropZ_cpp(:)       ! cold point tropopause height (m)
+    integer,         intent(in)      :: tropLev_hybstob(:) ! hybridstobie climatology-backed tropopause level index
+    real(kind_phys), intent(in)      :: tropP_hybstob(:)   ! hybridstobie climatology-backed tropopause pressure (Pa)
+    real(kind_phys), intent(in)      :: tropT_hybstob(:)   ! hybridstobie climatology-backed tropopause temperature (K)
+    real(kind_phys), intent(in)      :: tropZ_hybstob(:)   ! hybridstobie climatology-backed tropopause height (m)
+
+    integer,         intent(in)      :: tropLev_cpp(:)     ! cold point tropopause level index
+    real(kind_phys), intent(in)      :: tropP_cpp(:)       ! cold point tropopause pressure (Pa)
+    real(kind_phys), intent(in)      :: tropT_cpp(:)       ! cold point tropopause temperature (K)
+    real(kind_phys), intent(in)      :: tropZ_cpp(:)       ! cold point tropopause height (m)
 
     ! Optional output arguments for hybridstobie with chemistry
-    real(kind_phys), intent(out)   :: hstobie_trop(:,:)   ! Lowest level with strat. chem
-    real(kind_phys), intent(out)   :: hstobie_linoz(:,:)  ! Lowest possible Linoz level
-    real(kind_phys), intent(out)   :: hstobie_tropop(:,:) ! Troposphere boundary calculated in chem.
+    real(kind_phys), intent(in)      :: hstobie_trop(:,:)   ! Lowest level with strat. chem
+    real(kind_phys), intent(in)      :: hstobie_linoz(:,:)  ! Lowest possible Linoz level
+    real(kind_phys), intent(in)      :: hstobie_tropop(:,:) ! Troposphere boundary calculated in chem.
 
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errflg
@@ -134,6 +140,25 @@ contains
     call history_out_field('TROP_DZ', tropDZ)
     call history_out_field('TROP_PD', tropPdf)
     call history_out_field('TROP_FD', tropFound)
+
+    ! Primary-only (currently TWMO) algorithm output
+    tropPdf(:,:) = 0._kind_phys
+    tropFound(:) = 0._kind_phys
+    tropDZ(:,:) = fillvalue
+    do i = 1, ncol
+      if (tropLev_twmo(i) /= NOTFOUND) then
+        tropPdf(i, tropLev_twmo(i)) = 1._kind_phys
+        tropFound(i) = 1._kind_phys
+        tropDZ(i,:) = zm(i,:) - tropZ(i)
+      end if
+    end do
+
+    call history_out_field('TROPP_P',  tropP_twmo)
+    call history_out_field('TROPP_T',  tropT_twmo)
+    call history_out_field('TROPP_Z',  tropZ_twmo)
+    call history_out_field('TROPP_DZ', tropDZ)
+    call history_out_field('TROPP_PD', tropPdf)
+    call history_out_field('TROPP_FD', tropFound)
 
     ! Cold point output
     tropPdf(:,:) = 0._kind_phys

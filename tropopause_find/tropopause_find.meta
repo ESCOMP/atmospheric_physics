@@ -141,6 +141,30 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
+[ tropLev_twmo ]
+  standard_name = model_level_number_at_tropopause_assuming_lapse_rate
+  units = 1
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropP_twmo ]
+  standard_name = tropopause_air_pressure_assuming_lapse_rate
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropT_twmo ]
+  standard_name = tropopause_air_temperature_assuming_lapse_rate
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropZ_twmo ]
+  standard_name = tropopause_altitude_assuming_lapse_rate
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
 [ tropLev_clim ]
   standard_name = model_level_number_at_tropopause_assuming_climatology
   units = 1
