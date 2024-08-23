@@ -131,12 +131,6 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
-[ dt ]
-  standard_name = timestep_for_physics
-  units = s
-  type = real | kind = kind_phys
-  dimensions = ()
-  intent = in
 [ const_metadata ]
   standard_name = ccpp_constituent_properties
   units = None

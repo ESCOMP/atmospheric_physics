@@ -22,7 +22,7 @@ subroutine zm_conv_convtran_run(ncol, pver, &
                     doconvtran,q       ,ncnst   ,mu      ,md      , &
                     du      ,eu      ,ed      ,dp      ,dsubcld , &
                     jt      ,mx      ,ideep   ,il1g    ,il2g    , &
-                    nstep   ,fracis  ,dqdt    ,dpdry   ,dt, const_metadata, errmsg, errflg)
+                    nstep   ,fracis  ,dqdt    ,dpdry   , const_metadata, errmsg, errflg)
 ! ccpp_constituent_properties - standard name -- see chat
 
 !-----------------------------------------------------------------------
@@ -72,7 +72,6 @@ subroutine zm_conv_convtran_run(ncol, pver, &
 
    real(kind_phys), intent(in) :: dpdry(:,:)    ! Delta pressure between interfaces        (ncol,pver)
 
-   real(kind_phys), intent(in) :: dt                      ! 2 delta t (model time increment)
 
    type(ccpp_constituent_prop_ptr_t), intent(in) :: const_metadata(:)
    character(len=512), intent(out) :: errmsg
