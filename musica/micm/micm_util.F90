@@ -108,9 +108,8 @@ contains
     real(kind_phys), intent(in)    :: molar_mass_arr(:)    ! kg mol-1
     real(kind_phys), intent(inout) :: constituents(:,:,:)  ! in: kg kg-1 | out: mol m-3
 
-    integer :: num_columns, num_layers, num_constituents
-    integer :: i_column, i_layer, i_elem
-
+    integer         :: num_columns, num_layers, num_constituents
+    integer         :: i_column, i_layer, i_elem
     real(kind_phys) :: val
 
     num_columns = size(constituents, dim=1)
@@ -137,9 +136,8 @@ contains
     real(kind_phys), intent(in)    :: molar_mass_arr(:)    ! kg mol-1
     real(kind_phys), intent(inout) :: constituents(:,:,:)  ! in: mol m-3 | out: kg kg-1
 
-    integer :: num_columns, num_layers, num_constituents
-    integer :: i_column, i_layer, i_elem
-
+    integer         :: num_columns, num_layers, num_constituents
+    integer         :: i_column, i_layer, i_elem
     real(kind_phys) :: val
 
     num_columns = size(constituents, dim=1)
