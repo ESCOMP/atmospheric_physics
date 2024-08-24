@@ -62,3 +62,5 @@ add_custom_target(
   copy_tuvx_configs ALL ${CMAKE_COMMAND} -E copy_directory
   ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/configs ${CMAKE_BINARY_DIR}/configs
 )
+
+add_subdirectory(micm)

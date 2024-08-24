@@ -89,6 +89,7 @@ contains
   subroutine micm_run(time_step, temperature, pressure, dry_air_density, constituent_props, &
                       num_constituents, constituents, rate_params, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
+    use micm_util, only: convert_to_mol_per_cubic_meter, convert_to_mass_mixing_ratio
     use musica_micm, only: solver_stats_t
     use musica_util, only: string_t, error_t
 
@@ -176,36 +177,5 @@ contains
     errmsg = ''
 
   end subroutine micm_final
-
-  ! Convert CAM-SIMA unit to MICM unit (kg kg-1  ->  mol m-3)
-  subroutine convert_to_mol_per_cubic_meter(dry_air_density, molar_mass_arr, constituents)
-    real(c_double), intent(in)    :: dry_air_density(:) ! kg m-3
-    real(c_double), intent(in)    :: molar_mass_arr(:)  ! kg mol-1
-    real(c_double), intent(inout) :: constituents(:)    ! in: kg kg-1 | out: mol m-3
-
-    integer        :: i_elem
-    real(c_double) :: val
-
-    do i_elem = 1, size(dry_air_density)
-      val = constituents(i_elem) * dry_air_density(i_elem) / molar_mass_arr(i_elem)
-      constituents(i_elem) = val
-    end do
-  end subroutine convert_to_mol_per_cubic_meter
-
-  ! Convert MICM unit to CAM-SIMA unit (mol m-3  ->  kg kg-1)
-  subroutine convert_to_mass_mixing_ratio(dry_air_density, molar_mass_arr, constituents)
-    real(c_double), intent(in)    :: dry_air_density(:) ! kg m-3
-    real(c_double), intent(in)    :: molar_mass_arr(:)  ! kg mol-1
-    real(c_double), intent(inout) :: constituents(:)    ! in: mol m-3 | out: kg kg-1
-
-    integer        :: i_elem
-    real(c_double) :: val
-    
-    do i_elem = 1, size(dry_air_density)
-      val = constituents(i_elem) / dry_air_density(i_elem) * molar_mass_arr(i_elem)
-      constituents(i_elem) = val
-    end do
-
-  end subroutine convert_to_mass_mixing_ratio
 
 end module musica_ccpp_micm
