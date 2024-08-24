@@ -22,7 +22,7 @@ subroutine zm_conv_convtran_run(ncol, pver, &
                     doconvtran,q       ,ncnst   ,mu      ,md      , &
                     du      ,eu      ,ed      ,dp      ,dsubcld , &
                     jt      ,mx      ,ideep   ,il1g    ,il2g    , &
-                    nstep   ,fracis  ,dqdt    ,dpdry   ,dt      )
+                    nstep   ,fracis  ,dqdt    ,dpdry)
 !-----------------------------------------------------------------------
 !
 ! Purpose:
@@ -67,9 +67,6 @@ subroutine zm_conv_convtran_run(ncol, pver, &
    integer, intent(in) :: nstep          ! Time step index
 
    real(kind_phys), intent(in) :: dpdry(:,:)    ! Delta pressure between interfaces        (ncol,pver)
-
-   real(kind_phys), intent(in) :: dt                      ! 2 delta t (model time increment)
-
 
 ! input/output
 
