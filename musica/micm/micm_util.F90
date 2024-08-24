@@ -102,35 +102,58 @@ contains
 
   ! Convert CAM-SIMA unit to MICM unit (kg kg-1  ->  mol m-3)
   subroutine convert_to_mol_per_cubic_meter(dry_air_density, molar_mass_arr, constituents)
-    use iso_c_binding, only: c_double
+    use ccpp_kinds,    only: kind_phys
 
-    real(c_double), intent(in)    :: dry_air_density(:) ! kg m-3
-    real(c_double), intent(in)    :: molar_mass_arr(:)  ! kg mol-1
-    real(c_double), intent(inout) :: constituents(:)    ! in: kg kg-1 | out: mol m-3
+    real(kind_phys), intent(in)    :: dry_air_density(:,:) ! kg m-3
+    real(kind_phys), intent(in)    :: molar_mass_arr(:)    ! kg mol-1
+    real(kind_phys), intent(inout) :: constituents(:,:,:)  ! in: kg kg-1 | out: mol m-3
 
-    integer        :: i_elem
-    real(c_double) :: val
+    integer :: num_columns, num_layers, num_constituents
+    integer :: i_column, i_layer, i_elem
 
-    do i_elem = 1, size(constituents)
-      val = constituents(i_elem) * dry_air_density(i_elem) / molar_mass_arr(i_elem)
-      constituents(i_elem) = val
+    real(kind_phys) :: val
+
+    num_columns = size(constituents, dim=1)
+    num_layers = size(constituents, dim=2)
+    num_constituents = size(constituents, dim=3)
+
+    do i_column = 1, num_columns
+      do i_layer = 1, num_layers
+        do i_elem = 1, num_constituents
+          val = constituents(i_column, i_layer, i_elem) * dry_air_density(i_column, i_layer) &
+                / molar_mass_arr(i_elem)
+          constituents(i_column, i_layer, i_elem) = val
+        end do
+      end do
     end do
+
   end subroutine convert_to_mol_per_cubic_meter
 
   ! Convert MICM unit to CAM-SIMA unit (mol m-3  ->  kg kg-1)
   subroutine convert_to_mass_mixing_ratio(dry_air_density, molar_mass_arr, constituents)
-    use iso_c_binding, only: c_double
-    
-    real(c_double), intent(in)    :: dry_air_density(:) ! kg m-3
-    real(c_double), intent(in)    :: molar_mass_arr(:)  ! kg mol-1
-    real(c_double), intent(inout) :: constituents(:)    ! in: mol m-3 | out: kg kg-1
+    use ccpp_kinds,    only: kind_phys
 
-    integer        :: i_elem
-    real(c_double) :: val
-    
-    do i_elem = 1, size(constituents)
-      val = constituents(i_elem) / dry_air_density(i_elem) * molar_mass_arr(i_elem)
-      constituents(i_elem) = val
+    real(kind_phys), intent(in)    :: dry_air_density(:,:) ! kg m-3
+    real(kind_phys), intent(in)    :: molar_mass_arr(:)    ! kg mol-1
+    real(kind_phys), intent(inout) :: constituents(:,:,:)  ! in: mol m-3 | out: kg kg-1
+
+    integer :: num_columns, num_layers, num_constituents
+    integer :: i_column, i_layer, i_elem
+
+    real(kind_phys) :: val
+
+    num_columns = size(constituents, dim=1)
+    num_layers = size(constituents, dim=2)
+    num_constituents = size(constituents, dim=3)
+
+    do i_column = 1, num_columns
+      do i_layer = 1, num_layers
+        do i_elem = 1, num_constituents
+          val = constituents(i_column, i_layer, i_elem) / dry_air_density(i_column, i_layer) &
+                * molar_mass_arr(i_elem)
+          constituents(i_column, i_layer, i_elem) = val
+        end do
+      end do
     end do
 
   end subroutine convert_to_mass_mixing_ratio

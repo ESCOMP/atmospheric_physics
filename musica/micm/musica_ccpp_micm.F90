@@ -86,58 +86,31 @@ contains
   end subroutine micm_init
 
   !> Solve chemistry at the current time step
-  subroutine micm_run(time_step, temperature, pressure, dry_air_density, constituent_props, &
-                      num_constituents, constituents, rate_params, errmsg, errcode)
-    use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
-    use micm_util, only: convert_to_mol_per_cubic_meter, convert_to_mass_mixing_ratio
+  subroutine micm_run(time_step, temperature, pressure, dry_air_density, constituents, &
+                      rate_params, errmsg, errcode)
     use musica_micm, only: solver_stats_t
     use musica_util, only: string_t, error_t
 
-    real(kind_phys),                   intent(in)    :: time_step           ! s
-    real(c_double), target,            intent(in)    :: temperature(:)      ! K
-    real(c_double), target,            intent(in)    :: pressure(:)         ! Pa
-    real(c_double), target,            intent(in)    :: dry_air_density(:)  ! kg m-3
-    type(ccpp_constituent_prop_ptr_t), intent(in)    :: constituent_props(:)
-    integer,                           intent(in)    :: num_constituents
-    real(c_double), target,            intent(inout) :: constituents(:)     ! kg kg-1
-    real(c_double), target,            intent(inout) :: rate_params(:)
-    character(len=512),                intent(out)   :: errmsg
-    integer,                           intent(out)   :: errcode
+    real(kind_phys),        intent(in)    :: time_step          ! s
+    real(c_double), target, intent(in)    :: temperature(:)     ! K
+    real(c_double), target, intent(in)    :: pressure(:)        ! Pa
+    real(c_double), target, intent(in)    :: dry_air_density(:) ! kg m-3
+    real(c_double), target, intent(inout) :: constituents(:)    ! mol m-3
+    real(c_double), target, intent(inout) :: rate_params(:)
+    character(len=512),     intent(out)   :: errmsg
+    integer,                intent(out)   :: errcode
 
     ! local variables
-    real(kind_phys), dimension(num_constituents) :: molar_mass_arr ! kg mol-1
-    type(string_t)                               :: solver_state
-    type(solver_stats_t)                         :: solver_stats
-    type(error_t)                                :: error
-    real(c_double)                               :: c_time_step
-    integer                                      :: i_elem
-    logical                                      :: debug = .true.
+    type(string_t)       :: solver_state
+    type(solver_stats_t) :: solver_stats
+    type(error_t)        :: error
+    real(c_double)       :: c_time_step
+    integer              :: i_elem
+    logical              :: debug = .true.
 
     errcode = 0
     errmsg = ''
     c_time_step = real(time_step, c_double) 
-
-    ! Get the molar_mass that is set in the call to instantiate()
-    do i_elem = 1, num_constituents
-      call constituent_props(i_elem)%molar_mass(molar_mass_arr(i_elem), errcode, errmsg)
-      if (errcode /= 0) then
-        errmsg = "[MUSICA Error] Unable to get molar mass."
-        return
-      end if
-    end do
-
-    ! TODO(jiwon) Check molar mass is non zero as it becomes a denominator for unit converison
-    ! this code needs to go when ccpp framework does the check
-    do i_elem = 1, num_constituents
-      if (molar_mass_arr(i_elem) == 0) then
-        errcode = 1
-        errmsg = "[MUSICA Error] Molar mass must be a non zero value."
-        return
-      end if
-    end do
-
-    ! Convert CAM-SIMA unit to MICM unit (kg kg-1  ->  mol m-3)
-    call convert_to_mol_per_cubic_meter(dry_air_density, molar_mass_arr, constituents)
 
     call micm%solve(c_time_step,     &
                     temperature,     &
@@ -162,9 +135,6 @@ contains
       write(*,*) "[MUSICA DEBUG] Singular: ", solver_stats%singular()
       write(*,*) "[MUSICA DEBUG] Final time: ", solver_stats%final_time()
     end if
-
-    ! Convert MICM unit back to CAM-SIMA unit (mol m-3  ->  kg kg-1)
-    call convert_to_mass_mixing_ratio(dry_air_density, molar_mass_arr, constituents)
 
   end subroutine micm_run
 

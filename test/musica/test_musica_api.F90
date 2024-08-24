@@ -19,7 +19,6 @@ subroutine test_musica_ccpp_api()
   integer                                                                :: errcode
   character(len=512)                                                     :: errmsg
   real(kind_phys)                                                        :: time_step       ! s
-  real(kind_phys), target, dimension(NUM_SPECIES)                        :: molar_mass_arr  ! kg mol-1  
   real(kind_phys),         dimension(NUM_COLUMNS,NUM_LAYERS)             :: height          ! km
   real(kind_phys), target, dimension(NUM_COLUMNS,NUM_LAYERS)             :: temperature     ! K
   real(kind_phys), target, dimension(NUM_COLUMNS,NUM_LAYERS)             :: pressure        ! Pa
@@ -54,7 +53,6 @@ subroutine test_musica_ccpp_api()
   user_defined_reaction_rates(1,2,:) = (/2.7e-19_kind_phys, 1.13e-9_kind_phys, 5.8e-8_kind_phys/)
   user_defined_reaction_rates(2,1,:) = (/2.7e-19_kind_phys, 1.13e-9_kind_phys, 5.8e-8_kind_phys/)
   user_defined_reaction_rates(2,2,:) = (/2.7e-19_kind_phys, 1.13e-9_kind_phys, 5.8e-8_kind_phys/)
-  molar_mass_arr = (/ 200._kind_phys, 200._kind_phys, 200._kind_phys, 200._kind_phys /)
 
   call musica_ccpp_register(constituent_props, solver_type, num_grid_cells, errmsg, errcode)
   ASSERT(allocated(constituent_props))

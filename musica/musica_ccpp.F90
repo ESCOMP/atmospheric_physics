@@ -40,6 +40,7 @@ contains
   subroutine musica_ccpp_run(time_step, temperature, pressure, dry_air_density, constituent_props, &
                       constituents, rate_params, height, errmsg, errcode)
     use micm_util,                 only: reshape_into_micm_arr, reshape_into_ccpp_arr
+    use micm_util,                 only: convert_to_mol_per_cubic_meter, convert_to_mass_mixing_ratio
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use ccpp_kinds,                only: kind_phys
     use iso_c_binding,             only: c_double
@@ -63,21 +64,50 @@ contains
                                     * size(dry_air_density, dim=2))  :: m_dry_air_density
     real(c_double), target, dimension(size(constituents, dim=1)    &
                                     * size(constituents, dim=2)    & 
-                                    * size(constituents, dim=3))     :: m_constituents
+                                    * size(constituents, dim=3))     :: m_constituents ! mol m-3
     real(c_double), target, dimension(size(rate_params, dim=1)     &
                                     * size(rate_params, dim=2)     & 
                                     * size(rate_params, dim=3))      :: m_rate_params
+    real(kind_phys), target, dimension(size(constituents, dim=3))    :: molar_mass_arr ! kg mol-1
+    integer :: i_elem
 
     call tuvx_run(height, temperature, dry_air_density, errmsg, errcode)
 
+    ! Get the molar_mass that is set in the call to instantiate()
+    do i_elem = 1, size(molar_mass_arr)
+      call constituent_props(i_elem)%molar_mass(molar_mass_arr(i_elem), errcode, errmsg)
+      if (errcode /= 0) then
+        errmsg = "[MUSICA Error] Unable to get molar mass."
+        return
+      end if
+    end do
+
+    ! TODO(jiwon) Check molar mass is non zero as it becomes a denominator for unit converison
+    ! this code needs to go when ccpp framework does the check
+    do i_elem = 1, size(molar_mass_arr)
+      if (molar_mass_arr(i_elem) == 0) then
+        errcode = 1
+        errmsg = "[MUSICA Error] Molar mass must be a non zero value."
+        return
+      end if
+    end do
+
+    ! Convert CAM-SIMA unit to MICM unit (kg kg-1  ->  mol m-3)
+    call convert_to_mol_per_cubic_meter(dry_air_density, molar_mass_arr, constituents)
+
+    ! Reshape array (3D -> 1D) and convert type (kind_phys -> c_double)
     call reshape_into_micm_arr(temperature, pressure, dry_air_density, constituents, rate_params, &
                       m_temperature, m_pressure, m_dry_air_density, m_constituents, m_rate_params)
 
-    call micm_run(time_step, m_temperature, m_pressure, m_dry_air_density, constituent_props,     &
-                      size(constituents, dim=3), m_constituents, m_rate_params, errmsg, errcode)
+    call micm_run(time_step, m_temperature, m_pressure, m_dry_air_density, m_constituents, &
+                      m_rate_params, errmsg, errcode)
 
+    ! Reshape array (1D -> 3D) and convert type (c_double -> kind_phys)
     call reshape_into_ccpp_arr(temperature, pressure, dry_air_density, constituents, rate_params, &
                       m_temperature, m_pressure, m_dry_air_density, m_constituents, m_rate_params)
+
+    ! Convert MICM unit back to CAM-SIMA unit (mol m-3  ->  kg kg-1)
+    call convert_to_mass_mixing_ratio(dry_air_density, molar_mass_arr, constituents)
 
   end subroutine musica_ccpp_run
 
