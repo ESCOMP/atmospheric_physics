@@ -149,7 +149,6 @@ contains
     do i_column = 1, NUM_COLUMNS
       do i_layer = 1, NUM_LAYERS
         do i_elem = 1, NUM_SPECIES
-          write(*,*) "c", constituents(i_column, i_layer, i_elem) - micm_constituents(i_column, i_layer, i_elem)
           ASSERT_NEAR(constituents(i_column, i_layer, i_elem), micm_constituents(i_column, i_layer, i_elem), abs_error)
         end do
       end do

@@ -22,3 +22,5 @@ add_test(
   COMMAND $<TARGET_FILE:test_micm_util>
   WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
 )
+
+add_memory_check_test(test_micm_util $<TARGET_FILE:test_micm_util> "" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
