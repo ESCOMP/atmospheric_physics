@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:latest
 
 ARG MUSICA_GIT_TAG=aa0854ecee54bd7a5aeb7ea1ba0eebb2cf656146
 
