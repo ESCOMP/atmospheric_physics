@@ -2,7 +2,6 @@
   name = zm_conv_evap
   type = scheme
   dependencies = ../to_be_ccppized/wv_saturation.F90
-  dependencies = ../cloud_fraction/cloud_fraction_fice.F90
 
 [ccpp-arg-table]
   name  = zm_conv_evap_run
@@ -173,11 +172,11 @@
   standard_name = precipitation_flux_at_interface_due_to_deep_convection
   units = kg m-2 s-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent,vertical_interface_dimension)
   intent = out
 [ flxsnow ]
   standard_name = frozen_precipitation_flux_at_interface_due_to_deep_convection
   units = kg m-2 s-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent,vertical_interface_dimension)
   intent = out

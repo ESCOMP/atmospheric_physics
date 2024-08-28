@@ -171,7 +171,7 @@ subroutine zm_convr_run(     ncol    ,pver    , &
                     mu      ,md      ,du      ,eu      ,ed      , &
                     dp      ,dsubcld ,jt      ,maxg    ,ideep   , &
                     ql      ,rliq    ,landfrac,                   &
-                    rice   ,errmsg  ,errflg)
+                    rice    ,lengath ,errmsg  ,errflg)
 !-----------------------------------------------------------------------
 !
 ! Purpose:
@@ -354,8 +354,7 @@ subroutine zm_convr_run(     ncol    ,pver    , &
    integer, intent(out) :: jt(ncol)                          ! wg top  level index of deep cumulus convection.
    integer, intent(out) :: maxg(ncol)                        ! wg gathered values of maxi.
 
-   integer lengath
-!     diagnostic field used by chem/wetdep codes
+   integer, intent(out) :: lengath
 
 !CACNOTE - Figure out real intent for ql
    real(kind_phys),intent(inout):: ql(ncol,pver)                    ! wg grid slice of cloud liquid water.
@@ -465,6 +464,7 @@ subroutine zm_convr_run(     ncol    ,pver    , &
 ! zero out variables not used in cam
 !
 
+
    qtnd(:,:) = 0._kind_phys
    heat(:,:) = 0._kind_phys
    mcon(:,:) = 0._kind_phys
@@ -500,6 +500,7 @@ subroutine zm_convr_run(     ncol    ,pver    , &
       dsubcld(i) = 0._kind_phys
 
    end do
+
 
 !
 ! calculate local pressure (mbs) and height (m) for both interface
@@ -558,7 +559,7 @@ subroutine zm_convr_run(     ncol    ,pver    , &
                tp      ,qstp    ,tl      ,rl      ,cape     , &
                pblt    ,lcl     ,lel     ,lon     ,maxi     , &
                rgas    ,grav    ,cpres   ,msg     , &
-               zi      ,zs      ,tpert   ,  landfrac,&
+               zi      ,zs      ,tpert   , landfrac,&
                errmsg  ,errflg)
 
 !
@@ -1788,7 +1789,7 @@ subroutine cldprp(ncol   ,pver    ,pverp   ,cpliq   , &
    real(kind_phys) small
    real(kind_phys) mdt
 
-   real(kind_phys) fice(ncol,pver)        ! ice fraction in precip production
+!!   real(kind_phys) fice(ncol,pver)        ! ice fraction in precip production
    real(kind_phys) tug(ncol,pver)
 
    real(kind_phys) tvuo(ncol,pver)        ! updraft virtual T w/o freezing heating
@@ -1866,7 +1867,7 @@ subroutine cldprp(ncol   ,pver    ,pverp   ,cpliq   , &
          hd(i,k) = hmn(i,k)
          rprd(i,k) = 0._kind_phys
 
-         fice(i,k) = 0._kind_phys
+!!         fice(i,k) = 0._kind_phys
          tug(i,k)  = 0._kind_phys
          qcde(i,k)   = 0._kind_phys
          tvuo(i,k) = (shat(i,k) - grav/cp*zf(i,k))*(1._kind_phys + 0.608_kind_phys*qhat(i,k))

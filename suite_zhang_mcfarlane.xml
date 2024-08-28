@@ -2,6 +2,7 @@
 
 <suite name="zhang_mcfarlane" version="1.0">
    <group name="physics_before_coupler">
+       <scheme>to_be_ccppized_temporary</scheme>
        <scheme>zm_convr</scheme>
        <scheme>cloud_fraction_fice</scheme>
        <scheme>zm_conv_evap</scheme>

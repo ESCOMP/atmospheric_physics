@@ -57,7 +57,7 @@ subroutine zm_conv_momtran_run(ncol, pver, pverp, &
    real(kind_phys), intent(in) :: ed(:,:)       ! Mass entraining from downdraft            (ncol,pver)
    real(kind_phys), intent(in) :: dp(:,:)       ! Delta pressure between interfaces         (ncol,pver)
    real(kind_phys), intent(in) :: dsubcld(:)       ! Delta pressure from cloud base to sfc  (ncol)
-   real(kind_phys), intent(in) :: dt            ! time step in seconds
+   real(kind_phys), intent(in) :: dt    ! time step in seconds
 
    integer, intent(in) :: jt(:)         ! Index of cloud top for each column         (ncol)
    integer, intent(in) :: mx(:)         ! Index of cloud top for each column         (ncol)

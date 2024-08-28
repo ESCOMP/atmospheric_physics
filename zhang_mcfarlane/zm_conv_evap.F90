@@ -77,7 +77,7 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
 !---------------------------Local storage-------------------------------
 
     real(kind_phys) :: es    (ncol,pver)    ! Saturation vapor pressure
-    real(kind_phys) :: fice   (ncol,pver)    ! ice fraction in precip production
+!!    real(kind_phys) :: fice   (ncol,pver)    ! ice fraction in precip production
     real(kind_phys) :: qs   (ncol,pver)    ! saturation specific humidity
     real(kind_phys),intent(out) :: flxprec(:,:)   ! Convective-scale flux of precip at interfaces (kg/m2/s) ! (ncol,pverp)
     real(kind_phys),intent(out) :: flxsnow(:,:)   ! Convective-scale flux of snow   at interfaces (kg/m2/s) ! (ncol,pverp)
