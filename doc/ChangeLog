@@ -4,7 +4,7 @@ Tag name:
 Originator(s): jimmielin
 Date: August 22, 2024
 One-line Summary: tropopause_find CCPP-ization
-Github PR URL:
+Github PR URL: https://github.com/ESCOMP/atmospheric_physics/pull/112
 
 This PR fixes the following NCAR/atmospheric_physics Github issues:
     - Creates the CCPP interface for the tropopause_find routine
@@ -37,8 +37,7 @@ M       doc/NamesNotInDictionary.txt
 
 List and Describe any test failures: N/A
 
-Summarize any changes to answers:
-Difference in
+Summarize any changes to answers: none
 
 ===============================================================
 

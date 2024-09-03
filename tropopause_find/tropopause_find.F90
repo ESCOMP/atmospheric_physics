@@ -5,12 +5,6 @@
 ! when the original algorithm fails. The tropopause temperature and
 ! pressure are determined and can be output to the history file.
 !
-! These routines are based upon code in the WACCM chemistry module
-! including mo_tropoause.F90 and llnl_set_chem_trop.F90. The code
-! for the Reichler et al. [2003] algorithm is from:
-!
-!   http://www.gfdl.noaa.gov/~tjr/TROPO/tropocode.htm
-!
 ! Author: Charles Bardeen
 ! Created: April, 2009
 !
@@ -42,10 +36,10 @@ module tropopause_find
 
   save
 
-  ! These parameters define and enumeration to be used to define the primary
+  ! These parameters define an enumeration to be used to define the primary
   ! and backup algorithms to be used with the tropopause_find() method. The
   ! backup algorithm is meant to provide a solution when the primary algorithm
-  ! fail. The algorithms that can't fail are: TROP_ALG_ANALYTIC, TROP_ALG_CLIMATE
+  ! fails. The algorithms that can't fail are: TROP_ALG_ANALYTIC, TROP_ALG_CLIMATE
   ! and TROP_ALG_STOBIE.
   integer, parameter    :: TROP_ALG_NONE      = 1    ! Don't evaluate
   integer, parameter    :: TROP_ALG_ANALYTIC  = 2    ! Analytic Expression
@@ -91,10 +85,6 @@ module tropopause_find
 contains
 !================================================================================================
 
-  ! This routine is called during intialization and must be called before the
-  ! other methods in this module can be used. Its main tasks are to read in the
-  ! climatology from a file and to define the output fields. Much of this code
-  ! is taken from mo_tropopause.
 !> \section arg_table_tropopause_find_init Argument Table
 !! \htmlinclude tropopause_find_init.html
   subroutine tropopause_find_init(cappa, rair, gravit, pi, errmsg, errflg)
@@ -131,7 +121,7 @@ contains
                                  tropLev, tropP, tropT, tropZ, & ! Default primary+backup (twmo+climate)
                                  tropLev_twmo, tropP_twmo, tropT_twmo, tropZ_twmo, & ! Primary only (twmo)
                                  tropLev_clim, tropP_clim, tropT_clim, tropZ_clim, & ! Climate-only
-                                 tropLev_hybstob, tropP_hybstob, tropT_hybstob, tropZ_hybstob, & !      Hybridstobie + climate backup
+                                 tropLev_hybstob, tropP_hybstob, tropT_hybstob, tropZ_hybstob, & ! Hybridstobie + climate backup
                                  tropLev_cpp, tropP_cpp, tropT_cpp, tropZ_cpp, & ! Cold point only
                                  tropLev_chem, tropP_chem, tropT_chem, tropZ_chem, & ! Chemical tropopause only
                                  hstobie_trop, hstobie_linoz, hstobie_tropop, & ! Hybridstobie only for chemistry diagnostics
@@ -140,14 +130,14 @@ contains
     integer,         intent(in)         :: ncol          ! Number of atmospheric columns
     integer,         intent(in)         :: pver          ! Number of vertical levels
     real(kind_phys), intent(in)         :: lat(:)        ! Latitudes (radians)
-    real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa), pverp
+    real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa)
     real(kind_phys), intent(in)         :: pmid(:,:)     ! Midpoint pressures (Pa)
     real(kind_phys), intent(in)         :: t(:,:)        ! Temperature (K)
-    real(kind_phys), intent(in)         :: zi(:,:)       ! Geopotential height above surface at interfaces (m), pverp
-    real(kind_phys), intent(in)         :: zm(:,:)       ! Geopotential height above surface at midpoints (m), pver
+    real(kind_phys), intent(in)         :: zi(:,:)       ! Geopotential height above surface at interfaces (m)
+    real(kind_phys), intent(in)         :: zm(:,:)       ! Geopotential height above surface at midpoints (m)
     real(kind_phys), intent(in)         :: phis(:)       ! Surface geopotential (m2 s-2)
 
-    real(kind_phys), intent(in)         :: calday        ! Day of year including fraction from get_curr_calday
+    real(kind_phys), intent(in)         :: calday        ! Day of year including fraction of day
 
     ! Climatological tropopause pressures (Pa), (pcols,ntimes=12).
     ! Remark: Not chunkized, subsetted to chunk for backwards compatibility with CAM
@@ -362,14 +352,14 @@ contains
     integer,         intent(in)         :: ncol          ! Number of atmospheric columns
     integer,         intent(in)         :: pver          ! Number of vertical levels
     real(kind_phys), intent(in)         :: lat(:)        ! Latitudes (radians)
-    real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa), pverp
+    real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa)
     real(kind_phys), intent(in)         :: pmid(:,:)     ! Midpoint pressures (Pa)
     real(kind_phys), intent(in)         :: t(:,:)        ! Temperature (K)
-    real(kind_phys), intent(in)         :: zi(:,:)       ! Geopotential height above surface at interfaces (m), pverp
-    real(kind_phys), intent(in)         :: zm(:,:)       ! Geopotential height above surface at midpoints (m), pver
+    real(kind_phys), intent(in)         :: zi(:,:)       ! Geopotential height above surface at interfaces (m)
+    real(kind_phys), intent(in)         :: zm(:,:)       ! Geopotential height above surface at midpoints (m)
     real(kind_phys), intent(in)         :: phis(:)       ! Surface geopotential (m2 s-2)
 
-    real(kind_phys), intent(in)         :: calday        ! Day of year including fraction from get_curr_calday
+    real(kind_phys), intent(in)         :: calday        ! Day of year including fraction of day
 
     ! Climatological tropopause pressures (Pa), (pcols,ntimes=12).
     ! Remark: Not chunkized, subsetted to chunk for backwards compatibility with CAM
@@ -420,7 +410,6 @@ contains
                                 errmsg=errmsg, errflg=errflg)
     end if
 
-    return
   end subroutine tropopause_findWithBackup
 
   ! Call the appropriate tropopause detection routine based upon the algorithm
@@ -437,14 +426,14 @@ contains
     integer,         intent(in)         :: ncol          ! Number of atmospheric columns
     integer,         intent(in)         :: pver          ! Number of vertical levels
     real(kind_phys), intent(in)         :: lat(:)        ! Latitudes (radians)
-    real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa), pverp
+    real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa)
     real(kind_phys), intent(in)         :: pmid(:,:)     ! Midpoint pressures (Pa)
     real(kind_phys), intent(in)         :: t(:,:)        ! Temperature (K)
-    real(kind_phys), intent(in)         :: zi(:,:)       ! Geopotential height above surface at interfaces (m), pverp
-    real(kind_phys), intent(in)         :: zm(:,:)       ! Geopotential height above surface at midpoints (m), pver
+    real(kind_phys), intent(in)         :: zi(:,:)       ! Geopotential height above surface at interfaces (m)
+    real(kind_phys), intent(in)         :: zm(:,:)       ! Geopotential height above surface at midpoints (m)
     real(kind_phys), intent(in)         :: phis(:)       ! Surface geopotential (m2 s-2)
 
-    real(kind_phys), intent(in)         :: calday        ! Day of year including fraction from get_curr_calday
+    real(kind_phys), intent(in)         :: calday        ! Day of year including fraction of day
 
     ! Climatological tropopause pressures (Pa), (pcols,ntimes=12).
     ! Remark: Not chunkized, subsetted to chunk for backwards compatibility with CAM
@@ -512,7 +501,6 @@ contains
         write(errmsg,*) 'tropopause: Invalid detection algorithm (',  algorithm, ') specified.'
     end select
 
-    return
   end subroutine tropopause_findUsing
 
   ! This analytic expression closely matches the mean tropopause determined
@@ -523,11 +511,11 @@ contains
     integer,         intent(in)         :: ncol          ! Number of atmospheric columns
     integer,         intent(in)         :: pver          ! Number of vertical levels
     real(kind_phys), intent(in)         :: lat(:)        ! Latitudes (radians)
-    real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa), pverp
+    real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa)
     real(kind_phys), intent(in)         :: pmid(:,:)     ! Midpoint pressures (Pa)
     real(kind_phys), intent(in)         :: t(:,:)        ! Temperature (K)
-    real(kind_phys), intent(in)         :: zi(:,:)       ! Geopotential height above surface at interfaces (m), pverp
-    real(kind_phys), intent(in)         :: zm(:,:)       ! Geopotential height above surface at midpoints (m), pver
+    real(kind_phys), intent(in)         :: zi(:,:)       ! Geopotential height above surface at interfaces (m)
+    real(kind_phys), intent(in)         :: zm(:,:)       ! Geopotential height above surface at midpoints (m)
     real(kind_phys), intent(in)         :: phis(:)       ! Surface geopotential (m2 s-2)
     integer,                   intent(inout)   :: tropLev(:)             ! tropopause level index
     real(kind_phys), optional, intent(inout)   :: tropP(:)               ! tropopause pressure (Pa)
@@ -568,13 +556,11 @@ contains
         end if
       end if
     end do
+
   end subroutine tropopause_analytic
 
   ! Read the tropopause pressure in from a file containging a climatology. The
   ! data is interpolated to the current dat of year and latitude.
-  !
-  ! NOTE: The data is read in during tropopause_init and stored in the module
-  ! variable trop
   subroutine tropopause_climate(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
                                 calday, tropp_p_loc, tropp_days, tropLev, tropP, tropT, tropZ)
 
@@ -584,11 +570,11 @@ contains
     real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa), pverp
     real(kind_phys), intent(in)         :: pmid(:,:)     ! Midpoint pressures (Pa)
     real(kind_phys), intent(in)         :: t(:,:)        ! Temperature (K)
-    real(kind_phys), intent(in)         :: zi(:,:)       ! Geopotential height above surface at interfaces (m), pverp
-    real(kind_phys), intent(in)         :: zm(:,:)       ! Geopotential height above surface at midpoints (m), pver
+    real(kind_phys), intent(in)         :: zi(:,:)       ! Geopotential height above surface at interfaces (m)
+    real(kind_phys), intent(in)         :: zm(:,:)       ! Geopotential height above surface at midpoints (m)
     real(kind_phys), intent(in)         :: phis(:)       ! Surface geopotential (m2 s-2)
 
-    real(kind_phys), intent(in)         :: calday        ! Day of year including fraction from get_curr_calday
+    real(kind_phys), intent(in)         :: calday        ! Day of year including fraction of day
 
     ! Climatological tropopause pressures (Pa), (pcols,ntimes=12).
     ! Remark: Not chunkized, subsetted to chunk for backwards compatibility with CAM
@@ -674,7 +660,6 @@ contains
       end do
     end if        
 
-    return    
   end subroutine tropopause_climate
   
   !-----------------------------------------------------------------------
@@ -682,7 +667,6 @@ contains
   subroutine tropopause_hybridstobie(ncol, pver, pmid, t, zm, &
                                      tropLev, tropP, tropT, tropZ, &
                                      hstobie_trop, hstobie_linoz, hstobie_tropop)
-    !use cam_history,  only : outfld
   
     !-----------------------------------------------------------------------
     ! Originally written by Philip Cameron-Smith, LLNL
@@ -700,7 +684,7 @@ contains
     integer,         intent(in)         :: pver          ! Number of vertical levelserp
     real(kind_phys), intent(in)         :: pmid(:,:)     ! Midpoint pressures (Pa)
     real(kind_phys), intent(in)         :: t(:,:)        ! Temperature (K)
-    real(kind_phys), intent(in)         :: zm(:,:)       ! Geopotential height above surface at midpoints (m), pver
+    real(kind_phys), intent(in)         :: zm(:,:)       ! Geopotential height above surface at midpoints (m)
 
     integer,            intent(inout)   :: tropLev(:)             ! tropopause level index
     real(kind_phys), optional, intent(inout)   :: tropP(:)               ! tropopause pressure (Pa)
@@ -787,10 +771,6 @@ contains
       hstobie_tropop(:,:) = trop_trop_output(:,:)
     endif
 
-    !call outfld( 'hstobie_trop',   trop_output(:ncol,:),       ncol, pstate%lchnk )
-    !call outfld( 'hstobie_linoz',  trop_linoz_output(:ncol,:), ncol, pstate%lchnk )
-    !call outfld( 'hstobie_tropop', trop_trop_output(:ncol,:),  ncol, pstate%lchnk )
-
   end subroutine tropopause_hybridstobie
   
   ! This routine originates with Stobie at NASA Goddard, but does not have a
@@ -802,11 +782,11 @@ contains
     integer,         intent(in)         :: ncol          ! Number of atmospheric columns
     integer,         intent(in)         :: pver          ! Number of vertical levels
     real(kind_phys), intent(in)         :: lat(:)        ! Latitudes (radians)
-    real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa), pverp
+    real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa)
     real(kind_phys), intent(in)         :: pmid(:,:)     ! Midpoint pressures (Pa)
     real(kind_phys), intent(in)         :: t(:,:)        ! Temperature (K)
-    real(kind_phys), intent(in)         :: zi(:,:)       ! Geopotential height above surface at interfaces (m), pverp
-    real(kind_phys), intent(in)         :: zm(:,:)       ! Geopotential height above surface at midpoints (m), pver
+    real(kind_phys), intent(in)         :: zi(:,:)       ! Geopotential height above surface at interfaces (m)
+    real(kind_phys), intent(in)         :: zm(:,:)       ! Geopotential height above surface at midpoints (m)
     real(kind_phys), intent(in)         :: phis(:)       ! Surface geopotential (m2 s-2)
 
     integer,            intent(inout)   :: tropLev(:)             ! tropopause level index
@@ -867,8 +847,7 @@ contains
         end if
       end if
     end do
-    
-    return
+
   end subroutine tropopause_stobie
 
 
@@ -892,7 +871,9 @@ contains
   !
   ! determination of tropopause height from gridded temperature data
   !
-  ! reference: Reichler, T., M. Dameris, and R. Sausen (2003)
+  ! Reichler, T., M. Dameris, and R. Sausen (2003),
+  ! Determining the tropopause height from gridded data,
+  ! Geophys. Res. Lett., 30, 2042, doi:10.1029/2003GL018240, 20.
   !
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   subroutine twmo(t, p, plimu, pliml, gam, trp)
@@ -999,11 +980,11 @@ contains
     integer,         intent(in)         :: ncol          ! Number of atmospheric columns
     integer,         intent(in)         :: pver          ! Number of vertical levels
     real(kind_phys), intent(in)         :: lat(:)        ! Latitudes (radians)
-    real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa), pverp
+    real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa)
     real(kind_phys), intent(in)         :: pmid(:,:)     ! Midpoint pressures (Pa)
     real(kind_phys), intent(in)         :: t(:,:)        ! Temperature (K)
-    real(kind_phys), intent(in)         :: zi(:,:)       ! Geopotential height above surface at interfaces (m), pverp
-    real(kind_phys), intent(in)         :: zm(:,:)       ! Geopotential height above surface at midpoints (m), pver
+    real(kind_phys), intent(in)         :: zi(:,:)       ! Geopotential height above surface at interfaces (m)
+    real(kind_phys), intent(in)         :: zm(:,:)       ! Geopotential height above surface at midpoints (m)
     real(kind_phys), intent(in)         :: phis(:)       ! Surface geopotential (m2 s-2)
     integer,            intent(inout)  :: tropLev(:)            ! tropopause level index
     real(kind_phys), optional, intent(inout)  :: tropP(:)              ! tropopause pressure (Pa)
@@ -1053,28 +1034,27 @@ contains
       end if
     end do
     
-    return
   end subroutine tropopause_twmo
   
   ! This routine implements the WMO definition of the tropopause (WMO, 1957; Seidel and Randel, 2006).
+  ! Seidel, D. J., and W. J. Randel (2006),
+  ! Variability and trends in the global tropopause estimated from radiosonde data,
+  ! J. Geophys. Res., 111, D21101, doi:10.1029/2006JD007363.
+  !
   ! This requires that the lapse rate be less than 2 K/km for an altitude range
   ! of 2 km. The search starts at the surface and stops the first time this
   ! criteria is met.
-  !
-  ! NOTE: This code was modeled after the code in mo_tropopause; however, the
-  ! requirement that dt be greater than 0 was removed and the check to make
-  ! sure that the lapse rate is maintained for 2 km was added.
   subroutine tropopause_wmo(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
                             tropLev, tropP, tropT, tropZ)
 
     integer,         intent(in)         :: ncol          ! Number of atmospheric columns
     integer,         intent(in)         :: pver          ! Number of vertical levels
     real(kind_phys), intent(in)         :: lat(:)        ! Latitudes (radians)
-    real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa), pverp
+    real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa)
     real(kind_phys), intent(in)         :: pmid(:,:)     ! Midpoint pressures (Pa)
     real(kind_phys), intent(in)         :: t(:,:)        ! Temperature (K)
-    real(kind_phys), intent(in)         :: zi(:,:)       ! Geopotential height above surface at interfaces (m), pverp
-    real(kind_phys), intent(in)         :: zm(:,:)       ! Geopotential height above surface at midpoints (m), pver
+    real(kind_phys), intent(in)         :: zi(:,:)       ! Geopotential height above surface at interfaces (m)
+    real(kind_phys), intent(in)         :: zm(:,:)       ! Geopotential height above surface at midpoints (m)
     real(kind_phys), intent(in)         :: phis(:)       ! Surface geopotential (m2 s-2)
 
     integer,            intent(inout)  :: tropLev(:)            ! tropopause level index
@@ -1152,7 +1132,6 @@ contains
       end if
     end do
     
-    return
   end subroutine tropopause_wmo
   
   
@@ -1165,11 +1144,11 @@ contains
     integer,         intent(in)         :: ncol          ! Number of atmospheric columns
     integer,         intent(in)         :: pver          ! Number of vertical levels
     real(kind_phys), intent(in)         :: lat(:)        ! Latitudes (radians)
-    real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa), pverp
+    real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa)
     real(kind_phys), intent(in)         :: pmid(:,:)     ! Midpoint pressures (Pa)
     real(kind_phys), intent(in)         :: t(:,:)        ! Temperature (K)
-    real(kind_phys), intent(in)         :: zi(:,:)       ! Geopotential height above surface at interfaces (m), pverp
-    real(kind_phys), intent(in)         :: zm(:,:)       ! Geopotential height above surface at midpoints (m), pver
+    real(kind_phys), intent(in)         :: zi(:,:)       ! Geopotential height above surface at interfaces (m)
+    real(kind_phys), intent(in)         :: zm(:,:)       ! Geopotential height above surface at midpoints (m)
     real(kind_phys), intent(in)         :: phis(:)       ! Surface geopotential (m2 s-2)
     integer,            intent(inout)  :: tropLev(:)            ! tropopause level index
     real(kind_phys), optional, intent(inout)  :: tropP(:)              ! tropopause pressure (Pa)
@@ -1275,7 +1254,6 @@ contains
       end if
     end do
     
-    return
   end subroutine tropopause_cpp
   
   ! Searches all the columns in the chunk and attempts to identify the "chemical"
@@ -1297,17 +1275,16 @@ contains
     integer,         intent(in)         :: ncol          ! Number of atmospheric columns
     integer,         intent(in)         :: pver          ! Number of vertical levels
     real(kind_phys), intent(in)         :: lat(:)        ! Latitudes (radians)
-    real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa), pverp
+    real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa)
     real(kind_phys), intent(in)         :: pmid(:,:)     ! Midpoint pressures (Pa)
     real(kind_phys), intent(in)         :: t(:,:)        ! Temperature (K)
-    real(kind_phys), intent(in)         :: zi(:,:)       ! Geopotential height above surface at interfaces (m), pverp
-    real(kind_phys), intent(in)         :: zm(:,:)       ! Geopotential height above surface at midpoints (m), pver
+    real(kind_phys), intent(in)         :: zi(:,:)       ! Geopotential height above surface at interfaces (m)
+    real(kind_phys), intent(in)         :: zm(:,:)       ! Geopotential height above surface at midpoints (m)
     real(kind_phys), intent(in)         :: phis(:)       ! Surface geopotential (m2 s-2)
 
-    real(kind_phys), intent(in)         :: calday        ! Day of year including fraction from get_curr_calday
+    real(kind_phys), intent(in)         :: calday        ! Day of year including fraction of day
 
     ! Climatological tropopause pressures (Pa), (pcols,ntimes=12).
-    ! Remark: Not chunkized, subsetted to chunk for backwards compatibility with CAM
     real(kind_phys), intent(in)         :: tropp_p_loc(:,:)
     real(kind_phys), intent(in)         :: tropp_days(:) ! Day-of-year for climo data, 12
 
@@ -1355,7 +1332,6 @@ contains
                                 errmsg=errmsg, errflg=errflg)
     end if
     
-    return
   end subroutine tropopause_findChemTrop
 
   ! This routine interpolates the pressures in the physics state to
@@ -1366,7 +1342,7 @@ contains
 
     integer,         intent(in)         :: pver          ! Number of vertical levels
     real(kind_phys), intent(in)         :: pmid(:,:)     ! Midpoint pressures (Pa)
-    real(kind_phys), intent(in)         :: zm(:,:)       ! Geopotential height above surface at midpoints (m), pver
+    real(kind_phys), intent(in)         :: zm(:,:)       ! Geopotential height above surface at midpoints (m)
     integer, intent(in)                 :: icol               ! column being processed
     integer, intent(in)                 :: tropLev            ! tropopause level index   
     real(kind_phys), optional, intent(in)      :: tropZ              ! tropopause pressure (m)
@@ -1454,10 +1430,10 @@ contains
   ! find the geopotential height at the specified tropopause pressure.
   function tropopause_interpolateZ(pint, pmid, zi, zm, phis, icol, tropLev, tropP)
 
-    real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa), pverp
+    real(kind_phys), intent(in)         :: pint(:,:)     ! Interface pressures (Pa)
     real(kind_phys), intent(in)         :: pmid(:,:)     ! Midpoint pressures (Pa)
-    real(kind_phys), intent(in)         :: zi(:,:)       ! Geopotential height above surface at interfaces (m), pverp
-    real(kind_phys), intent(in)         :: zm(:,:)       ! Geopotential height above surface at midpoints (m), pver
+    real(kind_phys), intent(in)         :: zi(:,:)       ! Geopotential height above surface at interfaces (m)
+    real(kind_phys), intent(in)         :: zm(:,:)       ! Geopotential height above surface at midpoints (m)
     real(kind_phys), intent(in)         :: phis(:)       ! Surface geopotential (m2 s-2)
     integer, intent(in)                 :: icol               ! column being processed
     integer, intent(in)                 :: tropLev            ! tropopause level index   

@@ -28,38 +28,43 @@ contains
     errflg = 0
 
     ! Define the output fields.
+
+    ! Primary (Lapse rate) + backup (climatology) method
     call history_add_field('TROP_P',   'tropopause_air_pressure',    horiz_only,  'avg', 'Pa')
     call history_add_field('TROP_T',   'tropopause_air_temperature', horiz_only,  'avg', 'K' )
-    call history_add_field('TROP_Z',   'tropopause_altitude',        horiz_only,  'avg', 'm' )
-    call history_add_field('TROP_DZ',  'tropopause_altitude_relative', 'lev',       'avg', 'm')
-    call history_add_field('TROP_PD',  'probability_distribution_of_model_level_number_at_tropopause', 'lev', 'avg', 'probability')
+    call history_add_field('TROP_Z',   'tropopause_geopotential_height_wrt_surface', horiz_only,  'avg', 'm' )
+    call history_add_field('TROP_DZ',  'geopotential_height_difference_between_atmosphere_layer_and_tropopause', 'lev', 'avg', 'm')
+    call history_add_field('TROP_PD',  'probability_distribution_of_tropopause_vertical_layer_index', 'lev', 'avg', 'probability')
     call history_add_field('TROP_FD',  'tropopause_found', horiz_only,  'avg', 'probability')
 
-    call history_add_field('TROPP_P',   'tropopause_air_pressure_assuming_lapse_rate',    horiz_only,  'avg', 'Pa')
-    call history_add_field('TROPP_T',   'tropopause_air_temperature_assuming_lapse_rate', horiz_only,  'avg', 'K' )
-    call history_add_field('TROPP_Z',   'tropopause_altitude_assuming_lapse_rate',        horiz_only,  'avg', 'm' )
-    call history_add_field('TROPP_DZ',  'tropopause_altitude_relative_assuming_lapse_rate', 'lev',       'avg', 'm')
-    call history_add_field('TROPP_PD',  'probability_distribution_of_model_level_number_at_tropopause_assuming_lapse_rate', 'lev', 'avg', 'probability')
-    call history_add_field('TROPP_FD',  'tropopause_found_assuming_lapse_rate', horiz_only,  'avg', 'probability')
+    ! Primary (Lapse rate) only
+    call history_add_field('TROPP_P',  'tropopause_air_pressure_from_lapse_rate_method', horiz_only,  'avg', 'Pa')
+    call history_add_field('TROPP_T',  'tropopause_air_temperature_from_lapse_rate_method', horiz_only,  'avg', 'K' )
+    call history_add_field('TROPP_Z',  'tropopause_geopotential_height_wrt_surface_from_lapse_rate_method', horiz_only, 'avg', 'm' )
+    call history_add_field('TROPP_DZ', 'geopotential_height_difference_between_atmosphere_layer_and_tropopause_from_lapse_rate_method', 'lev', 'avg', 'm')
+    call history_add_field('TROPP_PD', 'probability_distribution_of_tropopause_vertical_layer_index_from_lapse_rate_method', 'lev', 'avg', 'probability')
+    call history_add_field('TROPP_FD', 'tropopause_found_from_lapse_rate_method', horiz_only,  'avg', 'probability')
 
-    call history_add_field('TROPF_P',  'tropopause_air_pressure_assuming_cold_point',    horiz_only,  'avg', 'Pa')
-    call history_add_field('TROPF_T',  'tropopause_air_temperature_assuming_cold_point', horiz_only,  'avg', 'K' )
-    call history_add_field('TROPF_Z',  'tropopause_altitude_assuming_cold_point',        horiz_only,  'avg', 'm' )
-    call history_add_field('TROPF_DZ', 'tropopause_altitude_relative_assuming_cold_point', 'lev',       'avg', 'm')
-    call history_add_field('TROPF_PD', 'probability_distribution_of_model_level_number_at_tropopause_assuming_cold_point', 'lev', 'avg', 'probability')
-    call history_add_field('TROPF_FD', 'tropopause_found_assuming_cold_point', horiz_only,  'avg', 'probability')
+    ! Cold point (CPP) only
+    call history_add_field('TROPF_P',  'tropopause_air_pressure_from_cold_point_method', horiz_only,  'avg', 'Pa')
+    call history_add_field('TROPF_T',  'tropopause_air_temperature_from_cold_point_method', horiz_only,  'avg', 'K' )
+    call history_add_field('TROPF_Z',  'tropopause_geopotential_height_wrt_surface_from_cold_point_method', horiz_only,  'avg', 'm' )
+    call history_add_field('TROPF_DZ', 'geopotential_height_difference_between_atmosphere_layer_and_tropopause_from_cold_point_method', 'lev', 'avg', 'm')
+    call history_add_field('TROPF_PD', 'probability_distribution_of_tropopause_vertical_layer_index_from_cold_point_method', 'lev', 'avg', 'probability')
+    call history_add_field('TROPF_FD', 'tropopause_found_from_cold_point_method', horiz_only,  'avg', 'probability')
 
-    call history_add_field('TROPC_P',  'tropopause_air_pressure_assuming_climatology',    horiz_only,  'avg', 'Pa')
-    call history_add_field('TROPC_T',  'tropopause_air_temperature_assuming_climatology', horiz_only,  'avg', 'K' )
-    call history_add_field('TROPC_Z',  'tropopause_altitude_assuming_climatology',        horiz_only,  'avg', 'm' )
-    call history_add_field('TROPC_DZ', 'tropopause_altitude_relative_assuming_climatology', 'lev', 'avg', 'm')
-    call history_add_field('TROPC_PD', 'probability_distribution_of_model_level_number_at_tropopause_assuming_climatology', 'lev', 'avg', 'probability')
-    call history_add_field('TROPC_FD', 'tropopause_found_assuming_cold_point', horiz_only,  'avg', 'probability')
+    ! Climatology only - will never fail
+    call history_add_field('TROPC_P',  'tropopause_air_pressure_from_climatological_method', horiz_only,  'avg', 'Pa')
+    call history_add_field('TROPC_T',  'tropopause_air_temperature_from_climatological_method', horiz_only,  'avg', 'K' )
+    call history_add_field('TROPC_Z',  'tropopause_geopotential_height_wrt_surface_from_climatological_method', horiz_only, 'avg', 'm' )
+    call history_add_field('TROPC_DZ', 'geopotential_height_difference_between_atmosphere_layer_and_tropopause_from_climatological_method', 'lev', 'avg', 'm')
+    call history_add_field('TROPC_PD', 'probability_distribution_of_tropopause_vertical_layer_index_from_climatological_method', 'lev', 'avg', 'probability')
+    call history_add_field('TROPC_FD', 'tropopause_found_from_climatological_method', horiz_only,  'avg', 'probability')
 
     ! Hybridstobie output fields
-    call history_add_field('hstobie_trop', 'lower_bound_of_model_level_number_for_stratospheric_chemistry', 'lev', 'inst', 'fraction of model time')
-    call history_add_field('hstobie_linoz', 'lower_bound_of_model_level_number_for_linoz_chemistry', 'lev', 'inst', 'fraction of model time')
-    call history_add_field('hstobie_tropop', 'model_level_number_at_tropopause_for_chemistry', 'lev', 'inst', 'fraction of model time')
+    call history_add_field('hstobie_trop', 'vertical_layer_index_lower_bound_from_hybrid_stobie_linoz_with_climatological_backup_method_for_stratospheric_chemistry', 'lev', 'inst', 'fraction of model time')
+    call history_add_field('hstobie_linoz', 'vertical_layer_index_lower_bound_from_hybrid_stobie_linoz_with_climatological_backup_method_for_linearized_ozone_chemistry', 'lev', 'inst', 'fraction of model time')
+    call history_add_field('hstobie_tropop', 'tropopause_vertical_layer_index_from_hybrid_stobie_linoz_with_climatological_backup_method_for_chemistry', 'lev', 'inst', 'fraction of model time')
 
   end subroutine tropopause_diagnostics_init
 
