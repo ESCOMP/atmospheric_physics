@@ -12,7 +12,6 @@ contains
 
   subroutine musica_ccpp_register(constituents, solver_type, num_grid_cells, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
-    use musica_micm,               only: Rosenbrock, RosenbrockStandardOrder
 
     type(ccpp_constituent_properties_t), allocatable, intent(out) :: constituents(:)
     integer,                                          intent(in)  :: solver_type
@@ -48,7 +47,7 @@ contains
     real(kind_phys), target,           intent(inout) :: temperature(:,:)     ! K
     real(kind_phys), target,           intent(inout) :: pressure(:,:)        ! Pa
     real(kind_phys), target,           intent(inout) :: dry_air_density(:,:) ! kg m-3
-    type(ccpp_constituent_prop_ptr_t), intent(inout) :: constituent_props(:)
+    type(ccpp_constituent_prop_ptr_t), intent(in)    :: constituent_props(:)
     real(kind_phys), target,           intent(inout) :: constituents(:,:,:)  ! kg kg-1
     real(kind_phys), target,           intent(inout) :: rate_params(:,:,:)
     real(kind_phys), target,           intent(in)    :: height(:,:)          ! km
@@ -85,9 +84,9 @@ contains
     ! TODO(jiwon) Check molar mass is non zero as it becomes a denominator for unit converison
     ! this code needs to go when ccpp framework does the check
     do i_elem = 1, size(molar_mass_arr)
-      if (molar_mass_arr(i_elem) == 0) then
+      if (molar_mass_arr(i_elem) <= 0) then
         errcode = 1
-        errmsg = "[MUSICA Error] Molar mass must be a non zero value."
+        errmsg = "[MUSICA Error] Molar mass must be greater than zero."
         return
       end if
     end do

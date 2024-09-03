@@ -37,16 +37,19 @@ contains
     grids => grid_map_t( error )
     if (has_error_occurred( error, errmsg, errcode )) then
       write(*,*) "[MUSICA Error] ", errmsg
+      return
     end if
 
     profiles => profile_map_t( error )
     if (has_error_occurred( error, errmsg, errcode )) then
       write(*,*) "[MUSICA Error] ", errmsg
+      return
     end if
 
     radiators =>radiator_map_t( error )
     if (has_error_occurred( error, errmsg, errcode )) then
       write(*,*) "[MUSICA Error] ", errmsg
+      return
     end if
 
     ! TODO(jiwon) - MUSICA TUVX constuctor needs update
@@ -54,6 +57,7 @@ contains
     tuvx => tuvx_t( filename_of_tuvx_configuration, error )
     if (has_error_occurred( error, errmsg, errcode )) then
       write(*,*) "[MUSICA Error] ", errmsg
+      return
     end if
 
     deallocate( grids )

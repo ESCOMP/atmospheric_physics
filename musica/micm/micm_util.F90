@@ -45,7 +45,7 @@ contains
         m_dry_air_density(i_elem) = real(dry_air_density(i_column, i_layer), c_double)
         m_constituents(i_constituents : i_constituents + num_constituents - 1) &
                             = real(constituents(i_column, i_layer, :), c_double)
-        m_rate_params(i_rate_params : i_rate_params + num_constituents - 1) &
+        m_rate_params(i_rate_params : i_rate_params + num_rate_params - 1) &
                             = real(rate_params(i_column, i_layer, :), c_double)
         i_elem = i_elem + 1
         i_constituents = i_constituents + num_constituents
@@ -91,7 +91,7 @@ contains
         constituents(i_column, i_layer, :) &
             = real(m_constituents(i_constituents : i_constituents + num_constituents - 1), kind_phys)
         rate_params(i_column, i_layer, :) &
-            = real(m_rate_params(i_rate_params : i_rate_params + num_constituents - 1), kind_phys)
+            = real(m_rate_params(i_rate_params : i_rate_params + num_rate_params - 1), kind_phys)
         i_elem = i_elem + 1
         i_constituents = i_constituents + num_constituents
         i_rate_params = i_rate_params + num_rate_params
@@ -116,9 +116,9 @@ contains
     num_layers = size(constituents, dim=2)
     num_constituents = size(constituents, dim=3)
 
-    do i_column = 1, num_columns
+    do i_elem = 1, num_constituents
       do i_layer = 1, num_layers
-        do i_elem = 1, num_constituents
+        do i_column = 1, num_columns
           val = constituents(i_column, i_layer, i_elem) * dry_air_density(i_column, i_layer) &
                 / molar_mass_arr(i_elem)
           constituents(i_column, i_layer, i_elem) = val
@@ -144,9 +144,9 @@ contains
     num_layers = size(constituents, dim=2)
     num_constituents = size(constituents, dim=3)
 
-    do i_column = 1, num_columns
+    do i_elem = 1, num_constituents
       do i_layer = 1, num_layers
-        do i_elem = 1, num_constituents
+        do i_column = 1, num_columns
           val = constituents(i_column, i_layer, i_elem) / dry_air_density(i_column, i_layer) &
                 * molar_mass_arr(i_elem)
           constituents(i_column, i_layer, i_elem) = val
