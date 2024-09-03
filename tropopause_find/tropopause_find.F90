@@ -50,25 +50,17 @@ module tropopause_find
   integer, parameter    :: TROP_ALG_HYBSTOB   = 7    ! Hybrid Stobie Algorithm
   integer, parameter    :: TROP_ALG_CPP       = 8    ! Cold Point Parabolic
   integer, parameter    :: TROP_ALG_CHEMTROP  = 9    ! Chemical tropopause
-  
-  integer, parameter    :: TROP_NALG          = 9    ! Number of Algorithms
-  character,parameter   :: TROP_LETTER(TROP_NALG) = (/ ' ', 'A', 'C', 'S', 'T', 'W', 'H', 'F', 'M' /)
-                                                     ! unique identifier for output, don't use P
 
-  ! These variables should probably be controlled by namelist entries.
-  logical ,parameter    :: output_all         = .False.              ! output tropopause info from all algorithms
-  integer ,parameter    :: default_primary    = TROP_ALG_TWMO        ! default primary algorithm
-  integer ,parameter    :: default_backup     = TROP_ALG_CLIMATE     ! default backup algorithm
+  integer, parameter    :: default_primary    = TROP_ALG_TWMO        ! default primary algorithm
+  integer, parameter    :: default_backup     = TROP_ALG_CLIMATE     ! default backup algorithm
 
-  ! Namelist variables
-  character(len=256)    :: tropopause_climo_file = 'trop_climo'      ! absolute filepath of climatology file
-
-  integer, parameter :: NOTFOUND = -1
+  integer, parameter    :: NOTFOUND = -1
 
   real(kind_phys), parameter :: ALPHA  = 0.03_kind_phys
 
-  ! FIXME hplin 8/15/24: fillvalue from cam_history_support. To check how it is used
-  ! and if we can remove it with a generic (NOTFOUND?) value
+  ! FIXME hplin 8/15/24 9/3/24: fillvalue from cam_history_support.
+  ! Used to fill arrays that are eventually output from tropopause_diagnostics and thus
+  ! needs to use the same value as the underlying History component.
   real(kind_phys), parameter :: fillvalue = 1.e36_kind_phys
     
   ! physical constants
