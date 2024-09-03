@@ -36,19 +36,15 @@ contains
 
     grids => grid_map_t( error )
     if (has_error_occurred(error, errmsg, errcode)) return
-    end if
 
     profiles => profile_map_t( error )
     if (has_error_occurred(error, errmsg, errcode)) return
-    end if
 
     radiators =>radiator_map_t( error )
     if (has_error_occurred(error, errmsg, errcode)) return
-    end if
 
     tuvx => tuvx_t( filename_of_tuvx_configuration, error )
     if (has_error_occurred(error, errmsg, errcode)) return
-    end if
 
     deallocate( grids )
     deallocate( profiles )
