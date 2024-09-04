@@ -110,7 +110,6 @@ contains
     type(error_t)        :: error
     real(c_double)       :: c_time_step
     integer              :: i_elem
-    logical              :: debug = .true.
 
     errcode = 0
     errmsg = ''
@@ -126,19 +125,6 @@ contains
                     solver_stats,    &
                     error)
     if (has_error_occurred(error, errmsg, errcode)) return
-
-    if (debug) then
-      write(*,*) "[MUSICA DEBUG] Solver state: ", solver_state%get_char_array()
-      write(*,*) "[MUSICA DEBUG] Function calls: ", solver_stats%function_calls()
-      write(*,*) "[MUSICA DEBUG] Jacobian updates: ", solver_stats%jacobian_updates()
-      write(*,*) "[MUSICA DEBUG] Number of steps: ", solver_stats%number_of_steps()
-      write(*,*) "[MUSICA DEBUG] Accepted: ", solver_stats%accepted()
-      write(*,*) "[MUSICA DEBUG] Rejected: ", solver_stats%rejected()
-      write(*,*) "[MUSICA DEBUG] Decompositions: ", solver_stats%decompositions()
-      write(*,*) "[MUSICA DEBUG] Solves: ", solver_stats%solves()
-      write(*,*) "[MUSICA DEBUG] Singular: ", solver_stats%singular()
-      write(*,*) "[MUSICA DEBUG] Final time: ", solver_stats%final_time()
-    end if
 
   end subroutine micm_run
 
