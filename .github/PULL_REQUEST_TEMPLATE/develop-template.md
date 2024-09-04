@@ -12,3 +12,5 @@ List all existing files that have been modified, and describe the changes:
 (Helpful git command: `git diff --name-status development...<your_branch_name>`)
 
 List any test failures:
+
+Is this a science-changing update? New physics package, algorithm change, tuning changes, etc?
