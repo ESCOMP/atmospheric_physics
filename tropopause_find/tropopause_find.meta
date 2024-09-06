@@ -57,6 +57,12 @@
   type = integer
   dimensions = ()
   intent = in
+[ fillvalue ]
+  standard_name = fill_value_for_diagnostic_output
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
 [ lat ]
   standard_name = latitude
   units = radians
