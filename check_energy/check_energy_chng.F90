@@ -1,196 +1,420 @@
 module check_energy_chng
 
-	use ccpp_kinds, only: kind_phys
+    use ccpp_kinds, only: kind_phys
 
-	implicit none
-	private
+    ! FIXME hplin: for DEBUG only
+    use cam_logfile,      only: iulog
 
-	public :: check_energy_chng_run
+    implicit none
+    private
+
+    public  :: check_energy_chng_timestep_init
+    public  :: check_energy_chng_run
+
+    ! Private module options.
+    logical :: print_energy_errors = .false.
 
 contains
 
-  subroutine check_energy_chng_run( &
-  	   state, tend, name, nstep, ztodt,        &
-       flx_vap, flx_cnd, flx_ice, flx_sen)
+  ! Compute initial values of energy and water integrals,
+  ! and zero out cumulative boundary tendencies.
+!> \section arg_table_check_energy_chng_timestep_init Argument Table
+!! \htmlinclude arg_table_check_energy_chng_timestep_init.html
+  subroutine check_energy_chng_timestep_init( &
+       ncol, pver, pcnst, &
+       q, pdel, pdeldry, &
+       u, v, T, &
+       pint, pintdry, phis, zm, &
+       cp_phys, &              ! cpairv generally, cpair fixed size for subcolumns code
+       cp_or_cv_dycore, &
+       te_ini_phys, te_ini_dyn, &
+       tw_ini, &
+       te_cur_phys, te_cur_dyn, &
+       tw_cur, &
+       tend_te_tnd, tend_tw_tnd, &
+       temp_ini, z_ini, &
+       count, &
+       vc_physics, vc_dycore, &
+       errmsg, errflg)
+
     use cam_thermo,      only: get_hydrostatic_energy
-    use dyn_tests_utils, only: vc_physics, vc_dycore, vc_height, vc_dry_pressure
-    use cam_abortutils,  only: endrun
+    use dyn_tests_utils, only: vc_height, vc_dry_pressure
     use physics_types,   only: phys_te_idx, dyn_te_idx
+
+    ! Input arguments
+    integer,            intent(in)    :: ncol           ! number of atmospheric columns
+    integer,            intent(in)    :: pver           ! number of vertical layers
+    integer,            intent(in)    :: pcnst          ! number of ccpp constituents
+    real(kind_phys),    intent(in)    :: q(:,:,:)       ! constituent mass mixing ratios [kg kg-1]
+    real(kind_phys),    intent(in)    :: pdel(:,:)      ! layer thickness [Pa]
+    real(kind_phys),    intent(in)    :: pdeldry(:,:)   ! dry air layer thickness [Pa]
+    real(kind_phys),    intent(in)    :: u(:,:)         ! zonal wind [m s-1]
+    real(kind_phys),    intent(in)    :: v(:,:)         ! meridional wind [m s-1]
+    real(kind_phys),    intent(in)    :: T(:,:)         ! temperature [K]
+    real(kind_phys),    intent(in)    :: pint(:,:)      ! interface pressure [Pa]
+    real(kind_phys),    intent(in)    :: pintdry(:)     ! interface pressure dry [Pa]
+    real(kind_phys),    intent(in)    :: phis(:)        ! surface geopotential [m2 s-2]
+    real(kind_phys),    intent(in)    :: zm(:,:)        ! geopotential height at layer midpoints [m]
+    real(kind_phys),    intent(in)    :: temp_ini(:,:)  ! initial temperature [K]
+    real(kind_phys),    intent(in)    :: z_ini(:,:)     ! initial geopotential height [m]
+    real(kind_phys),    intent(in)    :: cp_phys(:,:)   ! enthalpy (cpairv generally) [J kg-1 K-1]
+    real(kind_phys),    intent(in)    :: cp_or_cv_dycore(:,:)  ! enthalpy or heat capacity, dycore dependent [J K-1 kg-1]
+    integer,            intent(in)    :: vc_physics     ! vertical coordinate system, physics
+    integer,            intent(in)    :: vc_dycore      ! vertical coordinate system, dycore
+
+    ! Input/Output arguments
+    real(kind_phys),    intent(inout) :: te_ini_phys(:) ! physics formula: initial total energy [J m-2]
+    real(kind_phys),    intent(inout) :: te_ini_dyn (:) ! dycore  formula: initial total energy [J m-2]
+    real(kind_phys),    intent(inout) :: tw_ini     (:) ! initial total water [kg m-2]
+    real(kind_phys),    intent(inout) :: te_cur_phys(:) ! physics formula: current total energy [J m-2]
+    real(kind_phys),    intent(inout) :: te_cur_dyn (:) ! dycore  formula: current total energy [J m-2]
+    real(kind_phys),    intent(inout) :: tw_cur     (:) ! current total water [kg m-2]
+    integer,            intent(inout) :: count          ! count of values with significant energy or water imbalances [1]
+    real(kind_phys),    intent(inout) :: tend_te_tnd(:) ! total energy tendency [J m-2 s-1]
+    real(kind_phys),    intent(inout) :: tend_tw_tnd(:) ! total water tendency [kg m-2 s-1]
+
+    ! Output arguments
+    character(len=512), intent(out)   :: errmsg         ! error message
+    integer,            intent(out)   :: errflg         ! error flag
+
+    !------------------------------------------------
+    ! Physics total energy.
+    !------------------------------------------------
+    call get_hydrostatic_energy(                           &
+        tracer             = q(1:ncol,1:pver,1:pcnst),     & ! moist mixing ratios
+        moist_mixing_ratio = .true.,                       &
+        pdel_in            = pdel       (1:ncol,1:pver),   &
+        cp_or_cv           = cp_phys    (1:ncol,1:pver),   &
+        U                  = u          (1:ncol,1:pver),   &
+        V                  = v          (1:ncol,1:pver),   &
+        T                  = T          (1:ncol,1:pver),   &
+        vcoord             = vc_physics,                   & ! vertical coordinate for physics
+        ptop               = pintdry    (1:ncol,1),        &
+        phis               = phis       (1:ncol),          &
+        te                 = te_ini_phys(1:ncol),          & ! vertically integrated total energy
+        H2O                = tw_ini     (1:ncol),          & ! v.i. total water
+    )
+
+    ! Save initial state temperature and geopotential height for use in run phase
+    temp_ini(:ncol,:) = T (:ncol, :)
+    z_ini   (:ncol,:) = zm(:ncol, :)
+
+    !------------------------------------------------
+    ! Dynamical core total energy.
+    !------------------------------------------------
+    if (vc_dycore == vc_dry_pressure) then
+      ! SE dycore specific hydrostatic energy (enthalpy)
+      call get_hydrostatic_energy(                               &
+          tracer             = q(1:ncol,1:pver,1:pcnst),         & ! moist mixing ratios
+          moist_mixing_ratio = .true.,                           &
+          pdel_in            = pdel           (1:ncol,1:pver),   &
+          cp_or_cv           = cp_or_cv_dycore(1:ncol,1:pver),   &
+          U                  = u              (1:ncol,1:pver),   &
+          V                  = v              (1:ncol,1:pver),   &
+          T                  = T              (1:ncol,1:pver),   &
+          vcoord             = vc_dycore,                        & ! vertical coordinate for dycore
+          ptop               = pintdry        (1:ncol,1),        &
+          phis               = phis           (1:ncol),          &
+          te                 = te_ini_dyn     (1:ncol)           & ! WRITE OPERATION - vertically integrated total energy
+      )
+
+    else if (vc_dycore == vc_height) then
+      ! MPAS dycore: compute cv if vertical coordinate is height: cv = cp - R (internal energy)
+      call get_hydrostatic_energy(                               &
+          tracer             = q(1:ncol,1:pver,1:pcnst),         & ! moist mixing ratios
+          moist_mixing_ratio = .true.,                           &
+          pdel_in            = pdel           (1:ncol,1:pver),   &
+          cp_or_cv           = cp_or_cv_dycore(1:ncol,1:pver),   &
+          U                  = u              (1:ncol,1:pver),   &
+          V                  = v              (1:ncol,1:pver),   &
+          T                  = T              (1:ncol,1:pver),   & ! enthalpy-scaled temperature for energy consistency
+          vcoord             = vc_dycore,                        & ! vertical coordinate for dycore
+          ptop               = pintdry        (1:ncol,1),        &
+          phis               = phis           (1:ncol),          &
+          z_mid              = z_ini          (1:ncol),          & ! unique for vc_height (MPAS)
+          te                 = te_ini_dyn     (1:ncol)           & ! WRITE OPERATION - vertically integrated total energy
+      )
+    else
+      ! FV dycore: dycore energy is the same as physics
+      te_ini_dyn(:ncol) = te_ini_phys(:ncol)
+    endif
+
+    ! Set current state to be the same as initial
+    te_cur_phys(:ncol) = te_ini_phys(:ncol)
+    te_cur_dyn (:ncol) = te_ini_dyn (:ncol)
+    tw_cur     (:ncol) = tw_ini     (:ncol)
+
+    ! Zero out current energy unbalances count
+    count = 0
+
+    ! Zero out cumulative boundary fluxes
+    tend_te_tnd(:ncol) = 0._kind_phys
+    tend_tw_tnd(:ncol) = 0._kind_phys
+
+  end subroutine check_energy_chng_timestep_init
+
+
+  ! Check that energy and water change matches the boundary fluxes.
+!> \section arg_table_check_energy_chng_run Argument Table
+!! \htmlinclude arg_table_check_energy_chng_run.html
+  subroutine check_energy_chng_run( &
+       ncol, pver, pcnst, &
+       q, pdel, pdeldry, &
+       u, v, T, &
+       pint, pintdry, phis, zm, &
+       cp_phys, &              ! cpairv generally, cpair fixed size for subcolumns code
+       cp_or_cv_dycore, &
+       scaling_dycore, &       ! From check_energy_scaling to work around subcolumns code
+       te_cur_phys, te_cur_dyn, &
+       tw_cur, &
+       tend_te_tnd, tend_tw_tnd, &
+       temp_ini, z_ini, &
+       count, ztodt, &
+       vc_physics, vc_dycore, &
+       name, flx_vap, flx_cnd, flx_ice, flx_sen, &
+       errmsg, errflg)
+
+    use cam_thermo,      only: get_hydrostatic_energy
+    use dyn_tests_utils, only: vc_height, vc_dry_pressure
+    use physics_types,   only: phys_te_idx, dyn_te_idx
+
+    ! Input arguments
+    integer,            intent(in)    :: ncol           ! number of atmospheric columns
+    integer,            intent(in)    :: pver           ! number of vertical layers
+    integer,            intent(in)    :: pcnst          ! number of ccpp constituents
+    real(kind_phys),    intent(in)    :: q(:,:,:)       ! constituent mass mixing ratios [kg kg-1]
+    real(kind_phys),    intent(in)    :: pdel(:,:)      ! layer thickness [Pa]
+    real(kind_phys),    intent(in)    :: pdeldry(:,:)   ! dry air layer thickness [Pa]
+    real(kind_phys),    intent(in)    :: u(:,:)         ! zonal wind [m s-1]
+    real(kind_phys),    intent(in)    :: v(:,:)         ! meridional wind [m s-1]
+    real(kind_phys),    intent(in)    :: T(:,:)         ! temperature [K]
+    real(kind_phys),    intent(in)    :: pint(:,:)      ! interface pressure [Pa]
+    real(kind_phys),    intent(in)    :: pintdry(:)     ! interface pressure dry [Pa]
+    real(kind_phys),    intent(in)    :: phis(:)        ! surface geopotential [m2 s-2]
+    real(kind_phys),    intent(in)    :: zm(:,:)        ! geopotential height at layer midpoints [m]
+    real(kind_phys),    intent(in)    :: temp_ini(:,:)  ! initial temperature [K]
+    real(kind_phys),    intent(in)    :: z_ini(:,:)     ! initial geopotential height [m]
+    real(kind_phys),    intent(in)    :: cp_phys(:,:)   ! enthalpy (cpairv generally) [J kg-1 K-1]
+    real(kind_phys),    intent(in)    :: cp_or_cv_dycore(:,:)  ! enthalpy or heat capacity, dycore dependent [J K-1 kg-1]
+    real(kind_phys),    intent(in)    :: scaling_dycore(:,:)   ! scaling for conversion of temperature increment [1]
+    real(kind_phys),    intent(in)    :: ztodt          ! 2 delta t (model time increment) [s]
+    integer,            intent(in)    :: vc_physics     ! vertical coordinate system, physics
+    integer,            intent(in)    :: vc_dycore      ! vertical coordinate system, dycore
+
+    ! Input from CCPP-scheme being checked:
+    ! parameterization name; surface fluxes of (1) vapor, (2) liquid+ice, (3) ice, (4) sensible heat
+    ! to pass in the values to be checked, call check_energy_zero_input_fluxes to reset these values
+    ! before a parameterization that is checked, then update these values as-needed
+    ! (can be all zero; in fact, most parameterizations calling _chng call with zero arguments)
+    !
+    ! Original comment from BAB:
+    ! Note that the precip and ice fluxes are in precip units (m/s).
+    ! I would prefer to have kg/m2/s.
+    ! I would also prefer liquid (not total) and ice fluxes
+    character(len=*),   intent(in)    :: name           ! parameterization name for fluxes
+    real(kind_phys),    intent(in)    :: flx_vap(:)     ! boundary flux of vapor [kg m-2 s-1]
+    real(kind_phys),    intent(in)    :: flx_cnd(:)     ! boundary flux of liquid+ice (precip?) [m s-1]
+    real(kind_phys),    intent(in)    :: flx_ice(:)     ! boundary flux of ice (snow?) [m s-1]
+    real(kind_phys),    intent(in)    :: flx_sen(:)     ! boundary flux of sensible heat [W m-2]
+
+    ! Input/Output arguments
+    real(kind_phys),    intent(inout) :: te_cur_phys(:) ! physics formula: current total energy [J m-2]
+    real(kind_phys),    intent(inout) :: te_cur_dyn (:) ! dycore  formula: current total energy [J m-2]
+    real(kind_phys),    intent(inout) :: tw_cur     (:) ! current total water [kg m-2]
+    integer,            intent(inout) :: count          ! count of values with significant energy or water imbalances [1]
+    real(kind_phys),    intent(inout) :: tend_te_tnd(:) ! total energy tendency [J m-2 s-1]
+    real(kind_phys),    intent(inout) :: tend_tw_tnd(:) ! total water tendency [kg m-2 s-1]
+
+    ! Output arguments
+    character(len=512), intent(out)   :: errmsg         ! error message
+    integer,            intent(out)   :: errflg         ! error flag
+
+    ! Local variables
+    real(kind_phys) :: te_xpd(ncol)                     ! expected value (f0 + dt*boundary_flux)
+    real(kind_phys) :: te_dif(ncol)                     ! energy of input state - original energy
+    real(kind_phys) :: te_tnd(ncol)                     ! tendency from last process
+    real(kind_phys) :: te_rer(ncol)                     ! relative error in energy column
+
+    real(kind_phys) :: tw_xpd(ncol)                     ! expected value (w0 + dt*boundary_flux)
+    real(kind_phys) :: tw_dif(ncol)                     ! tw_inp - original water
+    real(kind_phys) :: tw_tnd(ncol)                     ! tendency from last process
+    real(kind_phys) :: tw_rer(ncol)                     ! relative error in water column
+
+    real(kind_phys) :: te(ncol)                         ! vertical integral of total energy
+    real(kind_phys) :: tw(ncol)                         ! vertical integral of total water
+    real(kind_phys) :: temp(ncol,pver)                  ! temperature
+
+    real(kind_phys) :: se(ncol)                         ! enthalpy or internal energy (J/m2)
+    real(kind_phys) :: po(ncol)                         ! surface potential or potential energy (J/m2)
+    real(kind_phys) :: ke(ncol)                         ! kinetic energy    (J/m2)
+    real(kind_phys) :: wv(ncol)                         ! column integrated vapor       (kg/m2)
+    real(kind_phys) :: liq(ncol)                        ! column integrated liquid      (kg/m2)
+    real(kind_phys) :: ice(ncol)                        ! column integrated ice         (kg/m2)
+
+    integer :: i
 !-----------------------------------------------------------------------
-! Check that the energy and water change matches the boundary fluxes
-!-----------------------------------------------------------------------
-!------------------------------Arguments--------------------------------
-
-    type(physics_state)    , intent(inout) :: state
-    type(physics_tend )    , intent(inout) :: tend
-    character*(*),intent(in) :: name               ! parameterization name for fluxes
-    integer , intent(in   ) :: nstep               ! current timestep number
-    real(r8), intent(in   ) :: ztodt               ! 2 delta t (model time increment)
-    real(r8), intent(in   ) :: flx_vap(:)          ! (pcols) - boundary flux of vapor         (kg/m2/s)
-    real(r8), intent(in   ) :: flx_cnd(:)          ! (pcols) -boundary flux of liquid+ice    (m/s) (precip?)
-    real(r8), intent(in   ) :: flx_ice(:)          ! (pcols) -boundary flux of ice           (m/s) (snow?)
-    real(r8), intent(in   ) :: flx_sen(:)          ! (pcols) -boundary flux of sensible heat (w/m2)
-
-!******************** BAB ******************************************************
-!******* Note that the precip and ice fluxes are in precip units (m/s). ********
-!******* I would prefer to have kg/m2/s.                                ********
-!******* I would also prefer liquid (not total) and ice fluxes          ********
-!*******************************************************************************
-
-!---------------------------Local storage-------------------------------
-
-    real(r8) :: te_xpd(state%ncol)                 ! expected value (f0 + dt*boundary_flux)
-    real(r8) :: te_dif(state%ncol)                 ! energy of input state - original energy
-    real(r8) :: te_tnd(state%ncol)                 ! tendency from last process
-    real(r8) :: te_rer(state%ncol)                 ! relative error in energy column
-
-    real(r8) :: tw_xpd(state%ncol)                 ! expected value (w0 + dt*boundary_flux)
-    real(r8) :: tw_dif(state%ncol)                 ! tw_inp - original water
-    real(r8) :: tw_tnd(state%ncol)                 ! tendency from last process
-    real(r8) :: tw_rer(state%ncol)                 ! relative error in water column
-
-    real(r8) :: te(state%ncol)                     ! vertical integral of total energy
-    real(r8) :: tw(state%ncol)                     ! vertical integral of total water
-    real(r8) :: cp_or_cv(state%psetcols,pver)      ! cp or cv depending on vcoord
-    real(r8) :: scaling(state%psetcols,pver)       ! scaling for conversion of temperature increment
-    real(r8) :: temp(state%ncol,pver)              ! temperature
-
-    real(r8) :: se(state%ncol)                     ! enthalpy or internal energy (J/m2)
-    real(r8) :: po(state%ncol)                     ! surface potential or potential energy (J/m2)
-    real(r8) :: ke(state%ncol)                     ! kinetic energy    (J/m2)
-    real(r8) :: wv(state%ncol)                     ! column integrated vapor       (kg/m2)
-    real(r8) :: liq(state%ncol)                    ! column integrated liquid      (kg/m2)
-    real(r8) :: ice(state%ncol)                    ! column integrated ice         (kg/m2)
-
-    integer lchnk                                  ! chunk identifier
-    integer ncol                                   ! number of atmospheric columns
-    integer  i                                     ! column index
-!-----------------------------------------------------------------------
-
-    lchnk = state%lchnk
-    ncol  = state%ncol
 
     ! If psetcols == pcols, cpairv is the correct size and just copy into cp_or_cv
     ! If psetcols > pcols and all cpairv match cpair, then assign the constant cpair
 
-    if (state%psetcols == pcols) then
-       cp_or_cv(:,:) = cpairv(:,:,lchnk)
-    else if (state%psetcols > pcols .and. all(cpairv(:,:,:) == cpair)) then
-       cp_or_cv(:,:) = cpair
-    else
-       call endrun('check_energy_chng: cpairv is not allowed to vary when subcolumns are turned on')
-    end if
+    ! below to be passed to cp_phys:
+    ! if (state%psetcols == pcols) then
+    !    cp_or_cv(:,:) = cpairv(:,:,lchnk)
+    ! else if (state%psetcols > pcols .and. all(cpairv(:,:,:) == cpair)) then
+    !    cp_or_cv(:,:) = cpair
+    ! else
+    !    call endrun('check_energy_chng: cpairv is not allowed to vary when subcolumns are turned on')
+    ! end if
 
-    call get_hydrostatic_energy(state%q(1:ncol,1:pver,1:pcnst),.true.,               &
-         state%pdel(1:ncol,1:pver), cp_or_cv(1:ncol,1:pver),                         &
-         state%u(1:ncol,1:pver), state%v(1:ncol,1:pver), state%T(1:ncol,1:pver),     &
-         vc_physics, ptop=state%pintdry(1:ncol,1), phis = state%phis(1:ncol),        &
-         te = te(1:ncol), H2O = tw(1:ncol), se=se(1:ncol),po=po(1:ncol),             &
-         ke=ke(1:ncol),wv=wv(1:ncol),liq=liq(1:ncol),ice=ice(1:ncol))
+    !------------------------------------------------
+    ! Physics total energy.
+    !------------------------------------------------
+    call get_hydrostatic_energy(                       &
+        tracer             = q(1:ncol,1:pver,1:pcnst), & ! moist mixing ratios
+        moist_mixing_ratio = .true.,                   &
+        pdel_in            = pdel   (1:ncol,1:pver),   &
+        cp_or_cv           = cp_phys(1:ncol,1:pver),   &
+        U                  = u      (1:ncol,1:pver),   &
+        V                  = v      (1:ncol,1:pver),   &
+        T                  = T      (1:ncol,1:pver),   &
+        vcoord             = vc_physics,               & ! vertical coordinate for physics
+        ptop               = pintdry(1:ncol,1),        &
+        phis               = phis   (1:ncol),          &
+        te                 = te     (1:ncol),          & ! vertically integrated total energy
+        H2O                = tw     (1:ncol),          & ! v.i. total water
+        se                 = se     (1:ncol),          & ! v.i. enthalpy
+        po                 = po     (1:ncol),          & ! v.i. PHIS term
+        ke                 = ke     (1:ncol),          & ! v.i. kinetic energy
+        wv                 = wv     (1:ncol),          & ! v.i. water vapor
+        liq                = liq    (1:ncol),          & ! v.i. liquid
+        ice                = ice    (1:ncol)           & ! v.i. ice
+    )
+
     ! compute expected values and tendencies
     do i = 1, ncol
        ! change in static energy and total water
-       te_dif(i) = te(i) - state%te_cur(i,phys_te_idx)
-       tw_dif(i) = tw(i) - state%tw_cur(i,phys_te_idx)
+       te_dif(i) = te(i) - te_cur_phys(i)
+       tw_dif(i) = tw(i) - tw_cur     (i)
 
        ! expected tendencies from boundary fluxes for last process
-       te_tnd(i) = flx_vap(i)*(latvap+latice) - (flx_cnd(i) - flx_ice(i))*1000._r8*latice + flx_sen(i)
-       tw_tnd(i) = flx_vap(i) - flx_cnd(i) *1000._r8
+       te_tnd(i) = flx_vap(i)*(latvap+latice) - (flx_cnd(i) - flx_ice(i))*1000._kind_phys*latice + flx_sen(i)
+       tw_tnd(i) = flx_vap(i) - flx_cnd(i) *1000._kind_phys
 
        ! cummulative tendencies from boundary fluxes
-       tend%te_tnd(i) = tend%te_tnd(i) + te_tnd(i)
-       tend%tw_tnd(i) = tend%tw_tnd(i) + tw_tnd(i)
+       tend_te_tnd(i) = tend_te_tnd(i) + te_tnd(i)
+       tend_tw_tnd(i) = tend_tw_tnd(i) + tw_tnd(i)
 
        ! expected new values from previous state plus boundary fluxes
-       te_xpd(i) = state%te_cur(i,phys_te_idx) + te_tnd(i)*ztodt
-       tw_xpd(i) = state%tw_cur(i,phys_te_idx) + tw_tnd(i)*ztodt
+       te_xpd(i) = te_cur_phys(i) + te_tnd(i)*ztodt
+       tw_xpd(i) = tw_cur     (i) + tw_tnd(i)*ztodt
 
        ! relative error, expected value - input state / previous state
-       te_rer(i) = (te_xpd(i) - te(i)) / state%te_cur(i,phys_te_idx)
+       te_rer(i) = (te_xpd(i) - te(i)) / te_cur_phys(i)
     end do
 
     ! relative error for total water (allow for dry atmosphere)
-    tw_rer = 0._r8
-    where (state%tw_cur(:ncol,phys_te_idx) > 0._r8)
+    tw_rer = 0._kind_phys
+    where (tw_cur(:ncol) > 0._kind_phys)
        tw_rer(:ncol) = (tw_xpd(:ncol) - tw(:ncol)) / state%tw_cur(:ncol,1)
     end where
 
     ! error checking
     if (print_energy_errors) then
-       if (any(abs(te_rer(1:ncol)) > 1.E-14_r8 .or. abs(tw_rer(1:ncol)) > 1.E-10_r8)) then
+       if (any(abs(te_rer(1:ncol)) > 1.E-14_kind_phys .or. abs(tw_rer(1:ncol)) > 1.E-10_kind_phys)) then
           do i = 1, ncol
              ! the relative error threshold for the water budget has been reduced to 1.e-10
              ! to avoid messages generated by QNEG3 calls
              ! PJR- change to identify if error in energy or water
-             if (abs(te_rer(i)) > 1.E-14_r8 ) then
-                state%count = state%count + 1
+             if (abs(te_rer(i)) > 1.E-14_kind_phys ) then
+                count = count + 1
                 write(iulog,*) "significant energy conservation error after ", name,        &
-                      " count", state%count, " nstep", nstep, "chunk", lchnk, "col", i
-                write(iulog,*) te(i),te_xpd(i),te_dif(i),tend%te_tnd(i)*ztodt,  &
+                      " count", count, "col", i
+                write(iulog,*) te(i),te_xpd(i),te_dif(i),tend_te_tnd(i)*ztodt,  &
                       te_tnd(i)*ztodt,te_rer(i)
              endif
-             if ( abs(tw_rer(i)) > 1.E-10_r8) then
-                state%count = state%count + 1
+             if ( abs(tw_rer(i)) > 1.E-10_kind_phys) then
+                count = count + 1
                 write(iulog,*) "significant water conservation error after ", name,        &
-                      " count", state%count, " nstep", nstep, "chunk", lchnk, "col", i
-                write(iulog,*) tw(i),tw_xpd(i),tw_dif(i),tend%tw_tnd(i)*ztodt,  &
+                      " count", count, "col", i
+                write(iulog,*) tw(i),tw_xpd(i),tw_dif(i),tend_tw_tnd(i)*ztodt,  &
                       tw_tnd(i)*ztodt,tw_rer(i)
              end if
           end do
        end if
     end if
 
-    ! copy new value to state
-
+    ! WRITE OPERATION - copy new value to state, including total water.
+    ! the total water operations are consistent regardless of vcoord, so it only has to be written once.
     do i = 1, ncol
-      state%te_cur(i,phys_te_idx) = te(i)
-      state%tw_cur(i,phys_te_idx) = tw(i)
+      te_cur_phys(i) = te(i)
+      tw_cur(i)      = tw(i)
     end do
 
-    !
-    ! Dynamical core total energy
-    !
-    if (vc_dycore == vc_height) then
-      !
-      ! compute cv if vertical coordinate is height: cv = cp - R
-      !
-      ! Note: cp_or_cv set above for pressure coordinate
-      if (state%psetcols == pcols) then
-        cp_or_cv(:ncol,:) = cp_or_cv_dycore(:ncol,:,lchnk)
-      else
-        cp_or_cv(:ncol,:) = cpair-rair
-      endif
-      scaling(:,:)   = cpairv(:,:,lchnk)/cp_or_cv(:,:) !cp/cv scaling
-      temp(1:ncol,:) = state%temp_ini(1:ncol,:)+scaling(1:ncol,:)*(state%T(1:ncol,:)-state%temp_ini(1:ncol,:))
-      call get_hydrostatic_energy(state%q(1:ncol,1:pver,1:pcnst),.true.,               &
-           state%pdel(1:ncol,1:pver), cp_or_cv(1:ncol,1:pver),                         &
-           state%u(1:ncol,1:pver), state%v(1:ncol,1:pver), temp(1:ncol,1:pver),        &
-           vc_dycore, ptop=state%pintdry(1:ncol,1), phis = state%phis(1:ncol),         &
-           z_mid = state%z_ini(1:ncol,:),                                              &
-           te = state%te_cur(1:ncol,dyn_te_idx), H2O = state%tw_cur(1:ncol,dyn_te_idx))
-    else if (vc_dycore == vc_dry_pressure) then
-      !
-      ! SE specific hydrostatic energy
-      !
-      if (state%psetcols == pcols) then
-        cp_or_cv(:ncol,:) = cp_or_cv_dycore(:ncol,:,lchnk)
-        scaling(:ncol,:)  = cpairv(:ncol,:,lchnk)/cp_or_cv_dycore(:ncol,:,lchnk)
-      else
-        cp_or_cv(:ncol,:) = cpair
-        scaling(:ncol,:)  = 1.0_r8
-      endif
-      !
+    !------------------------------------------------
+    ! Dynamical core total energy.
+    !------------------------------------------------
+    if (vc_dycore == vc_dry_pressure) then
+      ! SE dycore specific hydrostatic energy
+
+      ! logic for cp_or_cv_dycore and scaling_dycore -- to extract into CAM shim
+      ! if (state%psetcols == pcols) then
+      !   cp_or_cv(:ncol,:) = cp_or_cv_dycore(:ncol,:,lchnk)
+      !   scaling_dycore(:ncol,:)  = cpairv(:ncol,:,lchnk)/cp_or_cv_dycore(:ncol,:,lchnk)
+      ! else
+      !   cp_or_cv(:ncol,:) = cpair
+      !   scaling_dycore(:ncol,:)  = 1.0_kind_phys
+      ! endif
+
       ! enthalpy scaling for energy consistency
-      !
-      temp(1:ncol,:)   = state%temp_ini(1:ncol,:)+scaling(1:ncol,:)*(state%T(1:ncol,:)-state%temp_ini(1:ncol,:))
-      call get_hydrostatic_energy(state%q(1:ncol,1:pver,1:pcnst),.true.,               &
-           state%pdel(1:ncol,1:pver), cp_or_cv(1:ncol,1:pver),                         &
-           state%u(1:ncol,1:pver), state%v(1:ncol,1:pver), temp(1:ncol,1:pver),        &
-           vc_dry_pressure, ptop=state%pintdry(1:ncol,1), phis = state%phis(1:ncol),   &
-           te = state%te_cur(1:ncol,dyn_te_idx), H2O = state%tw_cur(1:ncol,dyn_te_idx))
+      temp(1:ncol,:)   = temp_ini(1:ncol,:)+scaling_dycore(1:ncol,:)*(T(1:ncol,:)-temp_ini(1:ncol,:))
+
+      call get_hydrostatic_energy(                               &
+          tracer             = q(1:ncol,1:pver,1:pcnst),         & ! moist mixing ratios
+          moist_mixing_ratio = .true.,                           &
+          pdel_in            = pdel           (1:ncol,1:pver),   &
+          cp_or_cv           = cp_or_cv_dycore(1:ncol,1:pver),   &
+          U                  = u              (1:ncol,1:pver),   &
+          V                  = v              (1:ncol,1:pver),   &
+          T                  = temp           (1:ncol,1:pver),   & ! enthalpy-scaled temperature for energy consistency
+          vcoord             = vc_dycore,                        & ! vertical coordinate for dycore
+          ptop               = pintdry        (1:ncol,1),        &
+          phis               = phis           (1:ncol),          &
+          te                 = te_cur_dyn     (1:ncol)           & ! WRITE OPERATION - vertically integrated total energy
+      )
+
+    else if (vc_dycore == vc_height) then
+      ! MPAS dycore: compute cv if vertical coordinate is height: cv = cp - R
+
+      ! logic for cp_or_cv_dycore and scaling_dycore -- to extract into CAM shim
+      ! Note: cp_or_cv set above for pressure coordinate
+      ! if (state%psetcols == pcols) then
+      !   cp_or_cv(:ncol,:) = cp_or_cv_dycore(:ncol,:,lchnk)
+      ! else
+      !   cp_or_cv(:ncol,:) = cpair-rair
+      ! endif
+      ! scaling(:,:)   = cpairv(:,:,lchnk)/cp_or_cv(:,:) !cp/cv scaling
+
+      ! REMOVECAM: note this scaling is different with subcols off/on which is why it was put into separate scheme (hplin, 9/5/24)
+      temp(1:ncol,:) = temp_ini(1:ncol,:)+scaling_dycore(1:ncol,:)*(T(1:ncol,:)-temp_ini(1:ncol,:))
+
+      call get_hydrostatic_energy(                               &
+          tracer             = q(1:ncol,1:pver,1:pcnst),         & ! moist mixing ratios
+          moist_mixing_ratio = .true.,                           &
+          pdel_in            = pdel           (1:ncol,1:pver),   &
+          cp_or_cv           = cp_or_cv_dycore(1:ncol,1:pver),   &
+          U                  = u              (1:ncol,1:pver),   &
+          V                  = v              (1:ncol,1:pver),   &
+          T                  = temp           (1:ncol,1:pver),   & ! enthalpy-scaled temperature for energy consistency
+          vcoord             = vc_dycore,                        & ! vertical coordinate for dycore
+          ptop               = pintdry        (1:ncol,1),        &
+          phis               = phis           (1:ncol),          &
+          z_mid              = z_ini          (1:ncol),          & ! unique for vc_height (MPAS)
+          te                 = te_cur_dyn     (1:ncol)           & ! WRITE OPERATION - vertically integrated total energy
+      )
+
     else
-      state%te_cur(1:ncol,dyn_te_idx) = te(1:ncol)
-      state%tw_cur(1:ncol,dyn_te_idx) = tw(1:ncol)
+      ! FV dycore
+      te_cur_dyn(1:ncol) = te(1:ncol)
     end if
   end subroutine check_energy_chng
 
