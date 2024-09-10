@@ -554,8 +554,8 @@ contains
 
   end subroutine tropopause_analytic
 
-  ! Read the tropopause pressure in from a file containging a climatology. The
-  ! data is interpolated to the current dat of year and latitude.
+  ! Determine the tropopause pressure from a climatology,
+  ! interpolated to the current day of year and latitude.
   subroutine tropopause_climate(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
                                 calday, tropp_p_loc, tropp_days, tropLev, tropP, tropT, tropZ)
 
