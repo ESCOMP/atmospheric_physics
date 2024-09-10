@@ -22,9 +22,9 @@ contains
 !! \htmlinclude arg_table_check_energy_chng_timestep_init.html
   subroutine check_energy_chng_timestep_init( &
        ncol, pver, pcnst, &
-       q, pdel, pdeldry, &
+       q, pdel, &
        u, v, T, &
-       pint, pintdry, phis, zm, &
+       pintdry, phis, zm, &
        cp_phys, &              ! cpairv generally, cpair fixed size for subcolumns code
        cp_or_cv_dycore, &
        te_ini_phys, te_ini_dyn, &
@@ -37,9 +37,11 @@ contains
        vc_physics, vc_dycore, &
        errmsg, errflg)
 
+    ! Dependency for hydrostatic energy calculation (physics and dycore formulas)
     use cam_thermo,      only: get_hydrostatic_energy
+
+    ! FIXME: Flags for vertical coordinate used in physics/dycore
     use dyn_tests_utils, only: vc_height, vc_dry_pressure
-    use physics_types,   only: phys_te_idx, dyn_te_idx
 
     ! Input arguments
     integer,            intent(in)    :: ncol           ! number of atmospheric columns
@@ -47,20 +49,23 @@ contains
     integer,            intent(in)    :: pcnst          ! number of ccpp constituents
     real(kind_phys),    intent(in)    :: q(:,:,:)       ! constituent mass mixing ratios [kg kg-1]
     real(kind_phys),    intent(in)    :: pdel(:,:)      ! layer thickness [Pa]
-    real(kind_phys),    intent(in)    :: pdeldry(:,:)   ! dry air layer thickness [Pa]
     real(kind_phys),    intent(in)    :: u(:,:)         ! zonal wind [m s-1]
     real(kind_phys),    intent(in)    :: v(:,:)         ! meridional wind [m s-1]
     real(kind_phys),    intent(in)    :: T(:,:)         ! temperature [K]
-    real(kind_phys),    intent(in)    :: pint(:,:)      ! interface pressure [Pa]
-    real(kind_phys),    intent(in)    :: pintdry(:)     ! interface pressure dry [Pa]
+    real(kind_phys),    intent(in)    :: pintdry(:,:)   ! interface pressure dry [Pa]
     real(kind_phys),    intent(in)    :: phis(:)        ! surface geopotential [m2 s-2]
     real(kind_phys),    intent(in)    :: zm(:,:)        ! geopotential height at layer midpoints [m]
-    real(kind_phys),    intent(in)    :: temp_ini(:,:)  ! initial temperature [K]
-    real(kind_phys),    intent(in)    :: z_ini(:,:)     ! initial geopotential height [m]
     real(kind_phys),    intent(in)    :: cp_phys(:,:)   ! enthalpy (cpairv generally) [J kg-1 K-1]
     real(kind_phys),    intent(in)    :: cp_or_cv_dycore(:,:)  ! enthalpy or heat capacity, dycore dependent [J K-1 kg-1]
     integer,            intent(in)    :: vc_physics     ! vertical coordinate system, physics
     integer,            intent(in)    :: vc_dycore      ! vertical coordinate system, dycore
+
+    ! Output arguments
+    real(kind_phys),    intent(out)   :: temp_ini(:,:)  ! initial temperature [K]
+    real(kind_phys),    intent(out)   :: z_ini(:,:)     ! initial geopotential height [m]
+    integer,            intent(out)   :: count          ! count of values with significant energy or water imbalances [1]
+    real(kind_phys),    intent(out)   :: tend_te_tnd(:) ! total energy tendency [J m-2 s-1]
+    real(kind_phys),    intent(out)   :: tend_tw_tnd(:) ! total water tendency [kg m-2 s-1]
 
     ! Input/Output arguments
     real(kind_phys),    intent(inout) :: te_ini_phys(:) ! physics formula: initial total energy [J m-2]
@@ -69,9 +74,6 @@ contains
     real(kind_phys),    intent(inout) :: te_cur_phys(:) ! physics formula: current total energy [J m-2]
     real(kind_phys),    intent(inout) :: te_cur_dyn (:) ! dycore  formula: current total energy [J m-2]
     real(kind_phys),    intent(inout) :: tw_cur     (:) ! current total water [kg m-2]
-    integer,            intent(inout) :: count          ! count of values with significant energy or water imbalances [1]
-    real(kind_phys),    intent(inout) :: tend_te_tnd(:) ! total energy tendency [J m-2 s-1]
-    real(kind_phys),    intent(inout) :: tend_tw_tnd(:) ! total water tendency [kg m-2 s-1]
 
     ! Output arguments
     character(len=512), intent(out)   :: errmsg         ! error message
@@ -92,7 +94,7 @@ contains
         ptop               = pintdry    (1:ncol,1),        &
         phis               = phis       (1:ncol),          &
         te                 = te_ini_phys(1:ncol),          & ! vertically integrated total energy
-        H2O                = tw_ini     (1:ncol),          & ! v.i. total water
+        H2O                = tw_ini     (1:ncol)           & ! v.i. total water
     )
 
     ! Save initial state temperature and geopotential height for use in run phase
@@ -131,7 +133,7 @@ contains
           vcoord             = vc_dycore,                        & ! vertical coordinate for dycore
           ptop               = pintdry        (1:ncol,1),        &
           phis               = phis           (1:ncol),          &
-          z_mid              = z_ini          (1:ncol),          & ! unique for vc_height (MPAS)
+          z_mid              = z_ini          (1:ncol,:),        & ! unique for vc_height (MPAS)
           te                 = te_ini_dyn     (1:ncol)           & ! WRITE OPERATION - vertically integrated total energy
       )
     else
@@ -159,9 +161,9 @@ contains
 !! \htmlinclude arg_table_check_energy_chng_run.html
   subroutine check_energy_chng_run( &
        ncol, pver, pcnst, &
-       q, pdel, pdeldry, &
+       q, pdel, &
        u, v, T, &
-       pint, pintdry, phis, zm, &
+       pintdry, phis, zm, &
        cp_phys, &              ! cpairv generally, cpair fixed size for subcolumns code
        cp_or_cv_dycore, &
        scaling_dycore, &       ! From check_energy_scaling to work around subcolumns code
@@ -170,13 +172,16 @@ contains
        tend_te_tnd, tend_tw_tnd, &
        temp_ini, z_ini, &
        count, ztodt, &
+       latice, latvap, &
        vc_physics, vc_dycore, &
        name, flx_vap, flx_cnd, flx_ice, flx_sen, &
        errmsg, errflg)
 
+    ! Dependency for hydrostatic energy calculation (physics and dycore formulas)
     use cam_thermo,      only: get_hydrostatic_energy
+
+    ! FIXME: Flags for vertical coordinate used in physics/dycore
     use dyn_tests_utils, only: vc_height, vc_dry_pressure
-    use physics_types,   only: phys_te_idx, dyn_te_idx
 
     ! Input arguments
     integer,            intent(in)    :: ncol           ! number of atmospheric columns
@@ -184,12 +189,10 @@ contains
     integer,            intent(in)    :: pcnst          ! number of ccpp constituents
     real(kind_phys),    intent(in)    :: q(:,:,:)       ! constituent mass mixing ratios [kg kg-1]
     real(kind_phys),    intent(in)    :: pdel(:,:)      ! layer thickness [Pa]
-    real(kind_phys),    intent(in)    :: pdeldry(:,:)   ! dry air layer thickness [Pa]
     real(kind_phys),    intent(in)    :: u(:,:)         ! zonal wind [m s-1]
     real(kind_phys),    intent(in)    :: v(:,:)         ! meridional wind [m s-1]
     real(kind_phys),    intent(in)    :: T(:,:)         ! temperature [K]
-    real(kind_phys),    intent(in)    :: pint(:,:)      ! interface pressure [Pa]
-    real(kind_phys),    intent(in)    :: pintdry(:)     ! interface pressure dry [Pa]
+    real(kind_phys),    intent(in)    :: pintdry(:,:)   ! interface pressure dry [Pa]
     real(kind_phys),    intent(in)    :: phis(:)        ! surface geopotential [m2 s-2]
     real(kind_phys),    intent(in)    :: zm(:,:)        ! geopotential height at layer midpoints [m]
     real(kind_phys),    intent(in)    :: temp_ini(:,:)  ! initial temperature [K]
@@ -198,6 +201,8 @@ contains
     real(kind_phys),    intent(in)    :: cp_or_cv_dycore(:,:)  ! enthalpy or heat capacity, dycore dependent [J K-1 kg-1]
     real(kind_phys),    intent(in)    :: scaling_dycore(:,:)   ! scaling for conversion of temperature increment [1]
     real(kind_phys),    intent(in)    :: ztodt          ! 2 delta t (model time increment) [s]
+    real(kind_phys),    intent(in)    :: latice         ! constant, latent heat of fusion of water at 0 C [J kg-1]
+    real(kind_phys),    intent(in)    :: latvap         ! constant, latent heat of vaporization of water at 0 C [J kg-1]
     integer,            intent(in)    :: vc_physics     ! vertical coordinate system, physics
     integer,            intent(in)    :: vc_dycore      ! vertical coordinate system, dycore
 
@@ -252,19 +257,6 @@ contains
     real(kind_phys) :: ice(ncol)                        ! column integrated ice         (kg/m2)
 
     integer :: i
-!-----------------------------------------------------------------------
-
-    ! If psetcols == pcols, cpairv is the correct size and just copy into cp_or_cv
-    ! If psetcols > pcols and all cpairv match cpair, then assign the constant cpair
-
-    ! below to be passed to cp_phys:
-    ! if (state%psetcols == pcols) then
-    !    cp_or_cv(:,:) = cpairv(:,:,lchnk)
-    ! else if (state%psetcols > pcols .and. all(cpairv(:,:,:) == cpair)) then
-    !    cp_or_cv(:,:) = cpair
-    ! else
-    !    call endrun('check_energy_chng: cpairv is not allowed to vary when subcolumns are turned on')
-    ! end if
 
     !------------------------------------------------
     ! Physics total energy.
@@ -315,7 +307,7 @@ contains
     ! relative error for total water (allow for dry atmosphere)
     tw_rer = 0._kind_phys
     where (tw_cur(:ncol) > 0._kind_phys)
-       tw_rer(:ncol) = (tw_xpd(:ncol) - tw(:ncol)) / state%tw_cur(:ncol,1)
+       tw_rer(:ncol) = (tw_xpd(:ncol) - tw(:ncol)) / tw_cur(:ncol)
     end where
 
     ! error checking
@@ -356,15 +348,6 @@ contains
     if (vc_dycore == vc_dry_pressure) then
       ! SE dycore specific hydrostatic energy
 
-      ! logic for cp_or_cv_dycore and scaling_dycore -- to extract into CAM shim
-      ! if (state%psetcols == pcols) then
-      !   cp_or_cv(:ncol,:) = cp_or_cv_dycore(:ncol,:,lchnk)
-      !   scaling_dycore(:ncol,:)  = cpairv(:ncol,:,lchnk)/cp_or_cv_dycore(:ncol,:,lchnk)
-      ! else
-      !   cp_or_cv(:ncol,:) = cpair
-      !   scaling_dycore(:ncol,:)  = 1.0_kind_phys
-      ! endif
-
       ! enthalpy scaling for energy consistency
       temp(1:ncol,:)   = temp_ini(1:ncol,:)+scaling_dycore(1:ncol,:)*(T(1:ncol,:)-temp_ini(1:ncol,:))
 
@@ -385,15 +368,6 @@ contains
     else if (vc_dycore == vc_height) then
       ! MPAS dycore: compute cv if vertical coordinate is height: cv = cp - R
 
-      ! logic for cp_or_cv_dycore and scaling_dycore -- to extract into CAM shim
-      ! Note: cp_or_cv set above for pressure coordinate
-      ! if (state%psetcols == pcols) then
-      !   cp_or_cv(:ncol,:) = cp_or_cv_dycore(:ncol,:,lchnk)
-      ! else
-      !   cp_or_cv(:ncol,:) = cpair-rair
-      ! endif
-      ! scaling(:,:)   = cpairv(:,:,lchnk)/cp_or_cv(:,:) !cp/cv scaling
-
       ! REMOVECAM: note this scaling is different with subcols off/on which is why it was put into separate scheme (hplin, 9/5/24)
       temp(1:ncol,:) = temp_ini(1:ncol,:)+scaling_dycore(1:ncol,:)*(T(1:ncol,:)-temp_ini(1:ncol,:))
 
@@ -408,7 +382,7 @@ contains
           vcoord             = vc_dycore,                        & ! vertical coordinate for dycore
           ptop               = pintdry        (1:ncol,1),        &
           phis               = phis           (1:ncol),          &
-          z_mid              = z_ini          (1:ncol),          & ! unique for vc_height (MPAS)
+          z_mid              = z_ini          (1:ncol,:),        & ! unique for vc_height (MPAS)
           te                 = te_cur_dyn     (1:ncol)           & ! WRITE OPERATION - vertically integrated total energy
       )
 
@@ -416,6 +390,6 @@ contains
       ! FV dycore
       te_cur_dyn(1:ncol) = te(1:ncol)
     end if
-  end subroutine check_energy_chng
+  end subroutine check_energy_chng_run
 
 end module check_energy_chng

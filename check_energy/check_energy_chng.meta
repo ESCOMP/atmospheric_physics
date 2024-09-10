@@ -36,12 +36,6 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
-[ pdeldry ]
-  standard_name = air_pressure_thickness_of_dry_air
-  units = Pa
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = in
 [ u ]
   standard_name = eastward_wind
   units = m s-1
@@ -59,12 +53,6 @@
   units = K
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = in
-[ pint ]
-  standard_name = air_pressure_at_interface
-  units = Pa
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ pintdry ]
   standard_name = air_pressure_of_dry_air_at_interface
@@ -137,31 +125,31 @@
   units = J m-2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
-  intent = inout
+  intent = out
 [ tend_tw_tnd ]
   standard_name = tendency_of_total_water?
   units = kg m-2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
-  intent = inout
+  intent = out
 [ temp_ini ]
   standard_name = temperature_on_current_timestep_for_check_energy?
   units = K
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = in
+  intent = out
 [ z_ini ]
   standard_name = geopotential_height_on_current_timestep_for_check_energy?
   units = m
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = in
+  intent = out
 [ count ]
   standard_name = number_of_values_with_significant_energy_or_water_imbalances?
   units = count
   type = integer
   dimensions = ()
-  intent = inout
+  intent = out
 [ vc_physics ]
   standard_name = vertical_coordinate_for_physics?
   units = 1
@@ -220,12 +208,6 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
-[ pdeldry ]
-  standard_name = air_pressure_thickness_of_dry_air
-  units = Pa
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = in
 [ u ]
   standard_name = eastward_wind
   units = m s-1
@@ -243,12 +225,6 @@
   units = K
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = in
-[ pint ]
-  standard_name = air_pressure_at_interface
-  units = Pa
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ pintdry ]
   standard_name = air_pressure_of_dry_air_at_interface
@@ -337,6 +313,18 @@
 [ ztodt ]
   standard_name = timestep_for_physics
   units = s
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ latice ]
+  standard_name = latent_heat_of_fusion_of_water_at_0c
+  units = J kg-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ latvap ]
+  standard_name = latent_heat_of_vaporization_of_water_at_0c
+  units = J kg-1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
