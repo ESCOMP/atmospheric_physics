@@ -35,16 +35,28 @@ contains
     errmsg = ''
 
     grids => grid_map_t( error )
-    if (has_error_occurred(error, errmsg, errcode)) return
+    if (has_error_occurred( error, errmsg, errcode )) return
 
     profiles => profile_map_t( error )
-    if (has_error_occurred(error, errmsg, errcode)) return
+    if (has_error_occurred( error, errmsg, errcode )) then
+      deallocate( grids )
+      return
+    end if
 
     radiators =>radiator_map_t( error )
-    if (has_error_occurred(error, errmsg, errcode)) return
+    if (has_error_occurred( error, errmsg, errcode )) then
+      deallocate( grids )
+      deallocate( profiles )
+      return
+    end if
 
     tuvx => tuvx_t( filename_of_tuvx_configuration, error )
-    if (has_error_occurred(error, errmsg, errcode)) return
+    if (has_error_occurred( error, errmsg, errcode )) then
+      deallocate( grids )
+      deallocate( profiles )
+      deallocate( radiators )
+      return
+    end if
 
     deallocate( grids )
     deallocate( profiles )

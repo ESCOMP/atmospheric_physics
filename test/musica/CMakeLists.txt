@@ -64,3 +64,4 @@ add_custom_target(
 )
 
 add_subdirectory(micm)
+add_subdirectory(tuvx)

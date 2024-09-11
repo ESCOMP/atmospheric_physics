@@ -30,10 +30,11 @@ contains
     integer,                                          intent(out) :: errcode
 
     ! local variables
-    type(error_t)        :: error
-    real(kind=kind_phys) :: molar_mass
-    logical              :: is_advected
-    integer              :: i
+    type(error_t)                 :: error
+    real(kind=kind_phys)          :: molar_mass
+    character(len=:), allocatable :: species_name
+    logical                       :: is_advected
+    integer                       :: i, species_index
 
     errcode = 0
     errmsg = ''
@@ -41,26 +42,29 @@ contains
     micm => micm_t(filename_of_micm_configuration, solver_type, num_grid_cells, error)
     if (has_error_occurred(error, errmsg, errcode)) return
 
-    allocate(constituents(size(micm%species_ordering)), stat=errcode)
+    allocate(constituents(micm%species_ordering%size()), stat=errcode)
     if (errcode /= 0) then
       errmsg = "[MUSICA Error] Failed to allocate memory for constituents."
       return
     end if
 
-    do i = 1, size(micm%species_ordering)
-    associate( map => micm%species_ordering(i) )
-      molar_mass = micm%get_species_property_double(map%name(), &
+    do i = 1, micm%species_ordering%size()
+    associate( map => micm%species_ordering )
+      species_name = map%name(i)
+      species_index = map%index(i)
+
+      molar_mass = micm%get_species_property_double(species_name, &
                                                     "molecular weight [kg mol-1]", &
                                                     error)
       if (has_error_occurred(error, errmsg, errcode)) return
-      is_advected = micm%get_species_property_bool(map%name(), &
-                                                      "__is advected", &
-                                                      error)
+      is_advected = micm%get_species_property_bool(species_name, &
+                                                   "__is advected", &
+                                                   error)
       if (has_error_occurred(error, errmsg, errcode)) return
 
-      call constituents(map%index())%instantiate( &
-        std_name = map%name(), &
-        long_name = map%name(), &
+      call constituents(species_index)%instantiate( &
+        std_name = species_name, &
+        long_name = species_name, &
         units = 'kg kg-1', &
         vertical_dim = 'vertical_layer_dimension', &
         default_value = 0.0_kind_phys, &
