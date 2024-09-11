@@ -2,7 +2,7 @@ module musica_ccpp_temperature
   implicit none
 
   private
-  public :: create_temperature_profile, set_temperatures
+  public :: create_temperature_profile, set_temperature_values
 
   !> Label for temperature in TUV-x
   character(len=*), parameter :: temperature_label = "temperature"
@@ -11,7 +11,7 @@ module musica_ccpp_temperature
 
 contains
 
-  !> Creates a TUVX height grid from the host-model height grid
+  !> Creates a TUVX temperature profile from the host-model height grid
   function create_temperature_profile( height_grid, errmsg, errcode ) & 
       result( profile )
 
@@ -33,8 +33,8 @@ contains
 
   end function create_temperature_profile
 
-  !> Sets TUVX temperatures from the host-model temperatures
-  subroutine set_temperatures( profile, host_temperature_mid, &
+  !> Sets TUVX temperature edges from the host-model temperature midpoints
+  subroutine set_temperature_values( profile, host_temperature_mid, &
       host_surface_temperature, errmsg, errcode )
 
     use ccpp_kinds,          only: kind_phys
@@ -49,17 +49,18 @@ contains
     integer,          intent(out)   :: errcode
 
     type(error_t)   :: error
-    real(kind_phys) :: midpoints(size(host_temperature_mid)+2)
-    integer         :: n_host_midpoints
+    real(kind_phys) :: edges(size(host_temperature_mid)+2)
+    integer         :: n_host_temperature_mid
 
-    n_host_midpoints = size(host_temperature_mid)
+    n_host_temperature_mid = size(host_temperature_mid)
 
-    midpoints(1) = host_surface_temperature
-    midpoints(2:n_host_midpoints+1) = host_temperature_mid(n_host_midpoints:1:-1)
-    midpoints(n_host_midpoints+2) = host_temperature_mid(1)
+    edges(1) = host_surface_temperature
+    edges(2:n_host_temperature_mid+1) = host_temperature_mid(n_host_temperature_mid:1:-1)
+    edges(n_host_temperature_mid+2) = host_temperature_mid(1)
 
-    call profile%set_midpoint_values(midpoints, error)
+    call profile%set_edge_values( edges, error )
     if ( has_error_occurred( error, errmsg, errcode ) ) return
 
- end subroutine set_temperatures
+  end subroutine set_temperature_values
+
 end module
