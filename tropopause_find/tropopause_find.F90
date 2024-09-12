@@ -39,8 +39,8 @@ module tropopause_find
   ! These parameters define an enumeration to be used to define the primary
   ! and backup algorithms to be used with the tropopause_find() method. The
   ! backup algorithm is meant to provide a solution when the primary algorithm
-  ! fails. The algorithms that can't fail are: TROP_ALG_ANALYTIC, TROP_ALG_CLIMATE
-  ! and TROP_ALG_STOBIE.
+  ! fails. The algorithms that can't fail (i.e., always find a tropopause) are:
+  ! TROP_ALG_ANALYTIC, TROP_ALG_CLIMATE, and TROP_ALG_STOBIE.
   integer, parameter    :: TROP_ALG_NONE      = 1    ! Don't evaluate
   integer, parameter    :: TROP_ALG_ANALYTIC  = 2    ! Analytic Expression
   integer, parameter    :: TROP_ALG_CLIMATE   = 3    ! Climatology
@@ -128,7 +128,6 @@ contains
     real(kind_phys), intent(in)         :: calday        ! Day of year including fraction of day
 
     ! Climatological tropopause pressures (Pa), (pcols,ntimes=12).
-    ! Remark: Not chunkized, subsetted to chunk for backwards compatibility with CAM
     real(kind_phys), intent(in)         :: tropp_p_loc(:,:)
     real(kind_phys), intent(in)         :: tropp_days(:) ! Day-of-year for climo data, 12
 
@@ -331,7 +330,7 @@ contains
 
   end subroutine tropopause_find_run
 
-  ! Searches all the columns in the chunk and attempts to identify the tropopause.
+  ! Searches all the columns and attempts to identify the tropopause.
   ! Two routines can be specifed, a primary routine which is tried first and a
   ! backup routine which will be tried only if the first routine fails. If the
   ! tropopause can not be identified by either routine, then a NOTFOUND is returned
@@ -357,7 +356,6 @@ contains
     real(kind_phys), intent(in)         :: calday        ! Day of year including fraction of day
 
     ! Climatological tropopause pressures (Pa), (pcols,ntimes=12).
-    ! Remark: Not chunkized, subsetted to chunk for backwards compatibility with CAM
     real(kind_phys), intent(in)         :: tropp_p_loc(:,:)
     real(kind_phys), intent(in)         :: tropp_days(:) ! Day-of-year for climo data, 12
 
@@ -431,7 +429,6 @@ contains
     real(kind_phys), intent(in)         :: calday        ! Day of year including fraction of day
 
     ! Climatological tropopause pressures (Pa), (pcols,ntimes=12).
-    ! Remark: Not chunkized, subsetted to chunk for backwards compatibility with CAM
     real(kind_phys), intent(in)         :: tropp_p_loc(:,:)
     real(kind_phys), intent(in)         :: tropp_days(:) ! Day-of-year for climo data, 12
 
@@ -572,7 +569,6 @@ contains
     real(kind_phys), intent(in)         :: calday        ! Day of year including fraction of day
 
     ! Climatological tropopause pressures (Pa), (pcols,ntimes=12).
-    ! Remark: Not chunkized, subsetted to chunk for backwards compatibility with CAM
     real(kind_phys), intent(in)         :: tropp_p_loc(:,:)
     real(kind_phys), intent(in)         :: tropp_days(:) ! Day-of-year for climo data, 12
 
@@ -1251,7 +1247,7 @@ contains
 
   end subroutine tropopause_cpp
 
-  ! Searches all the columns in the chunk and attempts to identify the "chemical"
+  ! Searches all the columns and attempts to identify the "chemical"
   ! tropopause. This is the lapse rate tropopause, backed up by the climatology
   ! if the lapse rate fails to find the tropopause at pressures higher than a certain
   ! threshold. This pressure threshold depends on latitude. Between 50S and 50N,

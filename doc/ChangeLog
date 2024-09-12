@@ -15,7 +15,7 @@ This PR fixes the following NCAR/atmospheric_physics Github issues:
     - tropopause_find accepted "primary" and "backup" methods for finding the tropopause. All the methods known to be used in CAM are now calculated at the same time in the tropopause_find_run main driver routine; it calls the underlying logic as appropriate with and populates the appropriate standard name physics fields. Because the same physical quantities for tropopause level, height, pressure, temperature, etc. using different methods are used throughout the CAM physics and simultaneously output in the diagnostics, the same standard names with a suffix are used to differentiate between these quantities computed by different methods.
     - Standard CCPP-ization procedures, metadata, explicit use of fields instead of physics state, only passing active :ncol fields, ...
 
-    A "shim" that will completely replicate existing behavior, bit-for-bit in current CAM, will be included in current CAM as tropopause.F90.
+    CAM interface code that will completely replicate existing behavior, bit-for-bit in current CAM, will be included in current CAM as tropopause.F90.
 
 Code reviewed by:
 

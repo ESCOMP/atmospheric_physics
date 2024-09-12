@@ -9,7 +9,6 @@ module tropopause_diagnostics
   public :: tropopause_diagnostics_init
   public :: tropopause_diagnostics_run
 
-  ! Parameters consistent with tropopause_find - can they be imported?
   integer, parameter :: NOTFOUND = -1
 
 contains
@@ -29,7 +28,7 @@ contains
 
     ! Define the output fields.
 
-    ! Primary (Lapse rate) + backup (climatology) method
+    ! Primary (Lapse rate) + backup (climatology) method - will always find a tropopause
     call history_add_field('TROP_P',   'tropopause_air_pressure',    horiz_only,  'avg', 'Pa')
     call history_add_field('TROP_T',   'tropopause_air_temperature', horiz_only,  'avg', 'K' )
     call history_add_field('TROP_Z',   'tropopause_geopotential_height_wrt_surface', horiz_only,  'avg', 'm' )
@@ -53,7 +52,7 @@ contains
     call history_add_field('TROPF_PD', 'probability_distribution_of_tropopause_vertical_layer_index_from_cold_point_method', 'lev', 'avg', 'probability')
     call history_add_field('TROPF_FD', 'tropopause_found_from_cold_point_method', horiz_only,  'avg', 'probability')
 
-    ! Climatology only - will never fail
+    ! Climatology only - will always find a tropopause
     call history_add_field('TROPC_P',  'tropopause_air_pressure_from_climatological_method', horiz_only,  'avg', 'Pa')
     call history_add_field('TROPC_T',  'tropopause_air_temperature_from_climatological_method', horiz_only,  'avg', 'K' )
     call history_add_field('TROPC_Z',  'tropopause_geopotential_height_wrt_surface_from_climatological_method', horiz_only, 'avg', 'm' )
@@ -215,6 +214,5 @@ contains
     call history_out_field('hstobie_linoz',  hstobie_linoz)
     call history_out_field('hstobie_tropop', hstobie_tropop)
 
-    return
   end subroutine tropopause_diagnostics_run
 end module tropopause_diagnostics
