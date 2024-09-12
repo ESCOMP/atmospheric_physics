@@ -1,7 +1,6 @@
 program test_tuvx_temperature
 
   use musica_ccpp_tuvx_temperature
-  use musica_ccpp_tuvx_height_grid, only: create_height_grid
 
   implicit none
 
@@ -13,14 +12,14 @@ program test_tuvx_temperature
 contains
 
   subroutine test_update_temperature()
-
-    use musica_util,         only: error_t
-    use musica_tuvx_grid,    only: grid_t
-    use musica_tuvx_profile, only: profile_t
-    use ccpp_kinds,          only: kind_phys
+    use musica_ccpp_tuvx_height_grid, only: create_height_grid
+    use musica_util,                  only: error_t
+    use musica_tuvx_grid,             only: grid_t
+    use musica_tuvx_profile,          only: profile_t
+    use ccpp_kinds,                   only: kind_phys
 
     integer, parameter       :: NUM_HOST_MIDPOINTS = 5
-    integer, parameter       :: NUM_HOST_EDGES = 3
+    integer, parameter       :: NUM_HOST_EDGES = 6
     real(kind_phys), target  :: host_temperature_mid(NUM_HOST_MIDPOINTS)
     real(kind_phys), target  :: host_surface_temperature = 300.3_kind_phys
     
@@ -28,7 +27,7 @@ contains
     type(profile_t), pointer :: profile
     character(len=512)       :: errmsg
     integer                  :: errcode
-    real(kind_phys)          :: abs_error = 1e-5
+    real(kind_phys)          :: abs_error = 1e-4
     integer                  :: i
 
     ! local variables
@@ -45,26 +44,18 @@ contains
 
     call set_temperature_values( profile, host_temperature_mid, &
                                  host_surface_temperature, errmsg, errcode )
-    ASSERT(error%is_success())
+    ASSERT(errcode == 0)
 
     call profile%get_edge_values( temperature_edges, error)
     ASSERT(error%is_success())
 
-    ! ASSERT_NEAR(temperature_edges(1), (100.6 + 50.1) * 0.5, abs_error)
-    ! ASSERT_NEAR(temperature_edges(2), 150.2, abs_error)
-    ! ASSERT_NEAR(temperature_edges(3), (250.3 + 200.8) * 0.5, abs_error)
-    ! ASSERT_NEAR(temperature_edges(4), (250.3 + 200.8) * 0.5, abs_error)
-    ! ASSERT_NEAR(temperature_edges(5), (250.3 + 200.8) * 0.5, abs_error)
-    ! ASSERT_NEAR(temperature_edges(6), (250.3 + 200.8) * 0.5, abs_error)
-    ! ASSERT_NEAR(temperature_edges(7), (250.3 + 200.8) * 0.5, abs_error)
-  
-    write(*,*) "temperature_edges(1)", temperature_edges(1)
-    write(*,*) "temperature_edges(2)", temperature_edges(2)
-    write(*,*) "temperature_edges(3)", temperature_edges(3)
-    write(*,*) "temperature_edges(4)", temperature_edges(4)
-    write(*,*) "temperature_edges(5)", temperature_edges(5)
-    write(*,*) "temperature_edges(6)", temperature_edges(6)
-    write(*,*) "temperature_edges(7)", temperature_edges(7)
+    ASSERT_NEAR(temperature_edges(1), 300.3, abs_error)
+    ASSERT_NEAR(temperature_edges(2), 400.4, abs_error)
+    ASSERT_NEAR(temperature_edges(3), 500.5, abs_error)
+    ASSERT_NEAR(temperature_edges(4), 600.6, abs_error)
+    ASSERT_NEAR(temperature_edges(5), 700.7, abs_error)
+    ASSERT_NEAR(temperature_edges(6), 800.8, abs_error)
+    ASSERT_NEAR(temperature_edges(7), 800.8, abs_error)
 
     deallocate( height_grid )
     deallocate( profile )

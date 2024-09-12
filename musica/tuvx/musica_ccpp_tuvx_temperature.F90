@@ -20,11 +20,15 @@ contains
     use musica_tuvx_profile, only: profile_t
     use musica_util,         only: error_t
 
+    ! Arguments
     type(grid_t),     intent(in)  :: height_grid
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errcode
-    type(profile_t),  pointer     :: profile
 
+    ! Return value
+    type(profile_t),  pointer :: profile
+
+    ! Local variables
     type(error_t) :: error
     
     profile => profile_t( temperature_label, temperature_units, &
@@ -42,12 +46,14 @@ contains
     use musica_tuvx_profile, only: profile_t
     use musica_util,         only: error_t
     
+    ! Arguments
     type(profile_t),  intent(inout) :: profile
     real(kind_phys),  intent(in)    :: host_temperature_mid(:)  ! K
     real(kind_phys),  intent(in)    :: host_surface_temperature ! K
     character(len=*), intent(out)   :: errmsg
     integer,          intent(out)   :: errcode
 
+    ! Local variables
     type(error_t)   :: error
     real(kind_phys) :: edges(size(host_temperature_mid)+2)
     integer         :: n_host_temperature_mid
