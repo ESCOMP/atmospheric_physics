@@ -1,4 +1,4 @@
-module musica_ccpp_temperature
+module musica_ccpp_tuvx_temperature
   implicit none
 
   private
@@ -63,4 +63,4 @@ contains
 
   end subroutine set_temperature_values
 
-end module
+end module musica_ccpp_tuvx_temperature
