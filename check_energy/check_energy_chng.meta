@@ -79,7 +79,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ cp_or_cv_dycore ]
-  standard_name = enthalpy_or_internal_energy_scaling_factor_for_energy_consistency?
+  standard_name = enthalpy_or_internal_energy_scaling_factor_for_energy_consistency_TBD
   units = J kg-1 K-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -121,43 +121,43 @@
   dimensions = (horizontal_loop_extent)
   intent = inout
 [ tend_te_tnd ]
-  standard_name = tendency_of_total_energy?
+  standard_name = tendency_of_total_energy_TBD
   units = J m-2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
 [ tend_tw_tnd ]
-  standard_name = tendency_of_total_water?
+  standard_name = tendency_of_total_water_TBD
   units = kg m-2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
 [ temp_ini ]
-  standard_name = temperature_on_current_timestep_for_check_energy?
+  standard_name = temperature_on_current_timestep_for_check_energy_TBD
   units = K
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ z_ini ]
-  standard_name = geopotential_height_on_current_timestep_for_check_energy?
+  standard_name = geopotential_height_on_current_timestep_for_check_energy_TBD
   units = m
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ count ]
-  standard_name = number_of_values_with_significant_energy_or_water_imbalances?
+  standard_name = number_of_values_with_significant_energy_or_water_imbalances_TBD
   units = count
   type = integer
   dimensions = ()
   intent = out
 [ vc_physics ]
-  standard_name = vertical_coordinate_for_physics?
+  standard_name = vertical_coordinate_for_physics_TBD
   units = 1
   type = integer
   dimensions = ()
   intent = in
 [ vc_dycore ]
-  standard_name = vertical_coordinate_for_dynamical_core?
+  standard_name = vertical_coordinate_for_dynamical_core_TBD
   units = 1
   type = integer
   dimensions = ()
@@ -251,13 +251,13 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ cp_or_cv_dycore ]
-  standard_name = enthalpy_or_internal_energy_scaling_factor_for_energy_consistency?
+  standard_name = enthalpy_or_internal_energy_scaling_factor_for_energy_consistency_TBD
   units = J kg-1 K-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ scaling_dycore ]
-  standard_name = composition_dependent_ratio_of_specific_heat_of_dry_air_at_constant_pressure_to_enthalpy_or_internal_energy_scaling_factor_for_energy_consistency?
+  standard_name = composition_dependent_ratio_of_specific_heat_of_dry_air_at_constant_pressure_to_enthalpy_or_internal_energy_scaling_factor_for_energy_consistency_TBD
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -281,31 +281,31 @@
   dimensions = (horizontal_loop_extent)
   intent = inout
 [ tend_te_tnd ]
-  standard_name = tendency_of_total_energy?
+  standard_name = tendency_of_total_energy_TBD
   units = J m-2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = inout
 [ tend_tw_tnd ]
-  standard_name = tendency_of_total_water?
+  standard_name = tendency_of_total_water_TBD
   units = kg m-2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = inout
 [ temp_ini ]
-  standard_name = temperature_on_current_timestep_for_check_energy?
+  standard_name = temperature_on_current_timestep_for_check_energy_TBD
   units = K
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ z_ini ]
-  standard_name = geopotential_height_on_current_timestep_for_check_energy?
+  standard_name = geopotential_height_on_current_timestep_for_check_energy_TBD
   units = m
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ count ]
-  standard_name = number_of_values_with_significant_energy_or_water_imbalances?
+  standard_name = number_of_values_with_significant_energy_or_water_imbalances_TBD
   units = count
   type = integer
   dimensions = ()
@@ -329,13 +329,13 @@
   dimensions = ()
   intent = in
 [ vc_physics ]
-  standard_name = vertical_coordinate_for_physics?
+  standard_name = vertical_coordinate_for_physics_TBD
   units = 1
   type = integer
   dimensions = ()
   intent = in
 [ vc_dycore ]
-  standard_name = vertical_coordinate_for_dynamical_core?
+  standard_name = vertical_coordinate_for_dynamical_core_TBD
   units = 1
   type = integer
   dimensions = ()
@@ -347,25 +347,25 @@
   dimensions = ()
   intent = in
 [ flx_vap ]
-  standard_name = flux_of_vapor_at_surface_due_to_scheme?
+  standard_name = flux_of_vapor_at_surface_due_to_scheme_TBD
   units = kg m-2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
 [ flx_cnd ]
-  standard_name = flux_of_liquid_and_ice_at_surface_due_to_scheme?
+  standard_name = flux_of_liquid_and_ice_at_surface_due_to_scheme_TBD
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
 [ flx_ice ]
-  standard_name = flux_of_ice_at_surface_due_to_scheme?
+  standard_name = flux_of_ice_at_surface_due_to_scheme_TBD
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
 [ flx_sen ]
-  standard_name = flux_of_sensible_heat_at_surface_due_to_scheme?
+  standard_name = flux_of_sensible_heat_at_surface_due_to_scheme_TBD
   units = W m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
