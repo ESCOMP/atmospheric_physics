@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<suite name="check_energy_chng" version="1.0">
+  <group name="physics_before_coupler">
+    <!-- Check that energy and water change matches the boundary fluxes -->
+    <scheme>check_energy_zero_fluxes</scheme>
+    <scheme>check_energy_scaling</scheme>
+    <scheme>check_energy_chng</scheme>
+  </group>
+</suite>
