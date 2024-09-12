@@ -11,7 +11,7 @@ module musica_ccpp_tuvx_temperature
 
 contains
 
-  !> Creates a TUVX temperature profile from the host-model height grid
+  !> Creates a TUV-x temperature profile from the host-model height grid
   function create_temperature_profile( height_grid, errmsg, errcode ) & 
       result( profile )
 
@@ -37,7 +37,7 @@ contains
 
   end function create_temperature_profile
 
-  !> Sets TUVX temperature edges from the host-model temperature midpoints
+  !> Sets TUV-x temperature edges from the host-model temperature midpoints
   subroutine set_temperature_values( profile, host_temperature_mid, &
       host_surface_temperature, errmsg, errcode )
 
