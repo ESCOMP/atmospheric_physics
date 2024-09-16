@@ -1,0 +1,43 @@
+[ccpp-table-properties]
+  name = check_energy_gmean
+  type = scheme
+
+[ccpp-arg-table]
+  name  = check_energy_gmean_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pint ]
+  standard_name = air_pressure_at_interface
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ te_ini_dyn ]
+  standard_name = vertically_integrated_total_energy_of_initial_state_using_dycore_energy_formula
+  units = J m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ teout ]
+  standard_name = vertically_integrated_total_energy_at_end_of_physics
+  units = J m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ heat_glob ]
+  standard_name = global_mean_heating_rate_for_energy_conservation_tbd
+  units = J kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = out

@@ -1,0 +1,49 @@
+[ccpp-table-properties]
+  name = check_energy_fix
+  type = scheme
+
+[ccpp-arg-table]
+  name  = check_energy_fix_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pint ]
+  standard_name = air_pressure_at_interface
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ rga ]
+  standard_name = reciprocal_of_gravitational_acceleration
+  units = s2 m-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ heat_glob ]
+  standard_name = global_mean_heating_rate_for_energy_conservation_tbd
+  units = J kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ ptend_s ]
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure
+  units = J kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ eshflx ]
+  standard_name = effective_surface_upward_sensible_heat_flux_due_to_energy_conservation_tbd
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out

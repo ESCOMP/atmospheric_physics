@@ -1,18 +1,18 @@
 module check_energy_chng
 
-    use ccpp_kinds, only: kind_phys
+  use ccpp_kinds, only: kind_phys
 
-    ! FIXME hplin: for DEBUG only
-    use cam_logfile,      only: iulog
+  ! FIXME hplin: for DEBUG only
+  use cam_logfile,      only: iulog
 
-    implicit none
-    private
+  implicit none
+  private
 
-    public  :: check_energy_chng_timestep_init
-    public  :: check_energy_chng_run
+  public  :: check_energy_chng_timestep_init
+  public  :: check_energy_chng_run
 
-    ! Private module options.
-    logical :: print_energy_errors = .false.
+  ! Private module options.
+  logical :: print_energy_errors = .false.
 
 contains
 
@@ -22,6 +22,7 @@ contains
 !! \htmlinclude arg_table_check_energy_chng_timestep_init.html
   subroutine check_energy_chng_timestep_init( &
        ncol, pver, pcnst, &
+       is_first_timestep, &
        q, pdel, &
        u, v, T, &
        pintdry, phis, zm, &
@@ -34,6 +35,7 @@ contains
        tend_te_tnd, tend_tw_tnd, &
        temp_ini, z_ini, &
        count, &
+       teout, &
        vc_physics, vc_dycore, &
        errmsg, errflg)
 
@@ -47,6 +49,7 @@ contains
     integer,            intent(in)    :: ncol           ! number of atmospheric columns
     integer,            intent(in)    :: pver           ! number of vertical layers
     integer,            intent(in)    :: pcnst          ! number of ccpp constituents
+    logical,            intent(in)    :: is_first_timestep ! is first step of initial run?
     real(kind_phys),    intent(in)    :: q(:,:,:)       ! constituent mass mixing ratios [kg kg-1]
     real(kind_phys),    intent(in)    :: pdel(:,:)      ! layer thickness [Pa]
     real(kind_phys),    intent(in)    :: u(:,:)         ! zonal wind [m s-1]
@@ -64,6 +67,7 @@ contains
     real(kind_phys),    intent(out)   :: temp_ini(:,:)  ! initial temperature [K]
     real(kind_phys),    intent(out)   :: z_ini(:,:)     ! initial geopotential height [m]
     integer,            intent(out)   :: count          ! count of values with significant energy or water imbalances [1]
+    real(kind_phys),    intent(out)   :: teout(:)       ! total energy for global fixer in next timestep [J m-2]
     real(kind_phys),    intent(out)   :: tend_te_tnd(:) ! total energy tendency [J m-2 s-1]
     real(kind_phys),    intent(out)   :: tend_tw_tnd(:) ! total water tendency [kg m-2 s-1]
 
@@ -152,6 +156,11 @@ contains
     ! Zero out cumulative boundary fluxes
     tend_te_tnd(:ncol) = 0._kind_phys
     tend_tw_tnd(:ncol) = 0._kind_phys
+
+    ! If first timestep, initialize value of teout
+    if(is_first_timestep) then
+      teout(:ncol) = te_ini_dyn(:ncol)
+    endif
 
   end subroutine check_energy_chng_timestep_init
 

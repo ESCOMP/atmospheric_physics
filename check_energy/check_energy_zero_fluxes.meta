@@ -5,6 +5,12 @@
 [ccpp-arg-table]
   name  = check_energy_zero_fluxes_run
   type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
 [ name ]
   standard_name = scheme_name
   units = none
@@ -12,25 +18,25 @@
   dimensions = ()
   intent = out
 [ flx_vap ]
-  standard_name = flux_of_vapor_at_surface_due_to_scheme_TBD
+  standard_name = flux_of_vapor_at_surface_due_to_scheme_tbd
   units = kg m-2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
 [ flx_cnd ]
-  standard_name = flux_of_liquid_and_ice_at_surface_due_to_scheme_TBD
+  standard_name = flux_of_liquid_and_ice_at_surface_due_to_scheme_tbd
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
 [ flx_ice ]
-  standard_name = flux_of_ice_at_surface_due_to_scheme_TBD
+  standard_name = flux_of_ice_at_surface_due_to_scheme_tbd
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
 [ flx_sen ]
-  standard_name = flux_of_sensible_heat_at_surface_due_to_scheme_TBD
+  standard_name = flux_of_sensible_heat_at_surface_due_to_scheme_tbd
   units = W m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
