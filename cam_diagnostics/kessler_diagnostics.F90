@@ -1,4 +1,7 @@
 module kessler_diagnostics
+!
+! Diagnostics for use by the Kessler physics suite only
+!
 
    use ccpp_kinds, only:  kind_phys
 

@@ -124,7 +124,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ inv_exner ]
-  standard_name = inverse_exner_function_wrt_surface_pressure
+  standard_name = reciprocal_of_dimensionless_exner_function_wrt_surface_air_pressure
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

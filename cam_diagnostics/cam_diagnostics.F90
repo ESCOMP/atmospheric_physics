@@ -38,43 +38,49 @@ CONTAINS
       ! Local variables:
 
       integer :: const_idx, name_idx
+      integer :: const_num_found
       character(len=512) :: standard_name
 
       errmsg = ''
       errflg = 0
 
       ! Add state fields
-      call history_add_field('PS',        'surface_pressure',                           horiz_only,  'avg', 'Pa')
-      call history_add_field('PSDRY',     'surface_pressure_of_dry_air',                horiz_only,  'avg', 'Pa')
-      call history_add_field('PHIS',      'surface_geopotential',                       horiz_only,  'lst', 'Pa')
-      call history_add_field('T',         'air_temperature',                                 'lev',  'avg', 'K')
-      call history_add_field('U',         'eastward_wind',                                   'lev',  'avg', 'm s-1')
-      call history_add_field('V',         'northward_wind',                                  'lev',  'avg', 'm s-1')
-      call history_add_field('DSE',       'dry_static_energy',                               'lev',  'avg', 'm s-1')
-      call history_add_field('OMEGA',     'lagrangian_tendency_of_air_pressure',             'lev',  'avg', 'Pa s-1')
-      call history_add_field('PMID',      'air_pressure',                                    'lev',  'avg', 'Pa')
-      call history_add_field('PMIDDRY',   'air_pressure_of_dry_air',                         'lev',  'avg', 'Pa')
-      call history_add_field('PDEL',      'air_pressure_thickness',                          'lev',  'avg', 'Pa')
-      call history_add_field('PDELDRY',   'air_pressure_thickness_of_dry_air',               'lev',  'avg', 'Pa')
-      call history_add_field('RPDEL',     'reciprocal_of_air_pressure_thickness',            'lev',  'avg', 'Pa-1')
-      call history_add_field('RPDELDRY',  'reciprocal_of_air_pressure_thickness_of_dry_air', 'lev',  'avg', 'Pa-1')
-      call history_add_field('LNPMID',    'ln_air_pressure',                                 'lev',  'avg', '1')
-      call history_add_field('LNPMIDDRY', 'ln_air_pressure_of_dry_air',                      'lev',  'avg', '1')
-      call history_add_field('EXNER',     'inverse_exner_function_wrt_surface_pressure',     'lev',  'avg', '1')
-      call history_add_field('ZM',        'geopotential_height_wrt_surface',                 'lev',  'avg', 'm')
-      call history_add_field('PINT',      'air_pressure_at_interface',                       'ilev', 'avg', 'Pa')
-      call history_add_field('PINTDRY',   'air_pressure_of_dry_air_at_interface',            'ilev', 'avg', 'Pa')
-      call history_add_field('LNPINT',    'ln_air_pressure_at_interface',                    'ilev', 'avg', '1')
-      call history_add_field('LNPINTDRY', 'ln_air_pressure_of_dry_air_at_interface',         'ilev', 'avg', '1')
-      call history_add_field('ZI',        'geopotential_heigh_wrt_surface_at_interface',     'ilev', 'avg', 'm')
+      call history_add_field('PS',        'surface_pressure',                                              horiz_only,  'avg', 'Pa')
+      call history_add_field('PSDRY',     'surface_pressure_of_dry_air',                                   horiz_only,  'avg', 'Pa')
+      call history_add_field('PHIS',      'surface_geopotential',                                          horiz_only,  'lst', 'Pa')
+      call history_add_field('T',         'air_temperature',                                                    'lev',  'avg', 'K')
+      call history_add_field('U',         'eastward_wind',                                                      'lev',  'avg', 'm s-1')
+      call history_add_field('V',         'northward_wind',                                                     'lev',  'avg', 'm s-1')
+      call history_add_field('DSE',       'dry_static_energy',                                                  'lev',  'avg', 'm s-1')
+      call history_add_field('OMEGA',     'lagrangian_tendency_of_air_pressure',                                'lev',  'avg', 'Pa s-1')
+      call history_add_field('PMID',      'air_pressure',                                                       'lev',  'avg', 'Pa')
+      call history_add_field('PMIDDRY',   'air_pressure_of_dry_air',                                            'lev',  'avg', 'Pa')
+      call history_add_field('PDEL',      'air_pressure_thickness',                                             'lev',  'avg', 'Pa')
+      call history_add_field('PDELDRY',   'air_pressure_thickness_of_dry_air',                                  'lev',  'avg', 'Pa')
+      call history_add_field('RPDEL',     'reciprocal_of_air_pressure_thickness',                               'lev',  'avg', 'Pa-1')
+      call history_add_field('RPDELDRY',  'reciprocal_of_air_pressure_thickness_of_dry_air',                    'lev',  'avg', 'Pa-1')
+      call history_add_field('LNPMID',    'ln_air_pressure',                                                    'lev',  'avg', '1')
+      call history_add_field('LNPMIDDRY', 'ln_air_pressure_of_dry_air',                                         'lev',  'avg', '1')
+      call history_add_field('EXNER',     'reciprocal_of_dimensionless_exner_function_wrt_surface_air_pressure','lev',  'avg', '1')
+      call history_add_field('ZM',        'geopotential_height_wrt_surface',                                    'lev',  'avg', 'm')
+      call history_add_field('PINT',      'air_pressure_at_interfaces',                                         'ilev', 'avg', 'Pa')
+      call history_add_field('PINTDRY',   'air_pressure_of_dry_air_at_interfaces',                              'ilev', 'avg', 'Pa')
+      call history_add_field('LNPINT',    'ln_air_pressure_at_interfaces',                                      'ilev', 'avg', '1')
+      call history_add_field('LNPINTDRY', 'ln_air_pressure_of_dry_air_at_interfaces',                           'ilev', 'avg', '1')
+      call history_add_field('ZI',        'geopotential_height_wrt_surface_at_interfaces',                      'ilev', 'avg', 'm')
       ! Add constituent fields
+      const_num_found = 0
       do const_idx = 1, size(const_props)
          call const_props(const_idx)%standard_name(standard_name, errflg, errmsg)
          do name_idx = 1, size(const_std_names)
             if (trim(standard_name) == trim(const_std_names(name_idx))) then
                call history_add_field(trim(const_diag_names(name_idx)), trim(const_std_names(name_idx)), 'lev', 'avg', 'kg kg-1', mixing_ratio='wet')
+               const_num_found = const_num_found + 1
             end if
          end do
+         if (const_num_found == size(const_std_names)) then
+            exit
+         end if
       end do
 
    end subroutine cam_state_diagnostics_init
@@ -109,11 +115,11 @@ CONTAINS
       real(kind_phys), intent(in) :: lnpmiddry(:,:) ! ln air pressure of dry air
       real(kind_phys), intent(in) :: inv_exner(:,:) ! inverse exner function wrt surface pressure
       real(kind_phys), intent(in) :: zm(:,:)        ! geopotential height wrt surface
-      real(kind_phys), intent(in) :: pint(:,:)      ! air pressure at interface
-      real(kind_phys), intent(in) :: pintdry(:,:)   ! air pressure of dry air at interface
-      real(kind_phys), intent(in) :: lnpint(:,:)    ! ln air pressure at interface
-      real(kind_phys), intent(in) :: lnpintdry(:,:) ! ln air pressure of dry air at interface
-      real(kind_phys), intent(in) :: zi(:,:)        ! geopotential height wrt surface at interface
+      real(kind_phys), intent(in) :: pint(:,:)      ! air pressure at interfaces
+      real(kind_phys), intent(in) :: pintdry(:,:)   ! air pressure of dry air at interfaces
+      real(kind_phys), intent(in) :: lnpint(:,:)    ! ln air pressure at interfaces
+      real(kind_phys), intent(in) :: lnpintdry(:,:) ! ln air pressure of dry air at interfaces
+      real(kind_phys), intent(in) :: zi(:,:)        ! geopotential height wrt surface at interfaces
       ! Constituent variables
       real(kind_phys), intent(in) :: const_array(:,:,:)
       type(ccpp_constituent_prop_ptr_t), intent(in) :: const_props(:)
@@ -123,6 +129,7 @@ CONTAINS
 
       character(len=512) :: standard_name
       integer :: const_idx, name_idx
+      integer :: const_num_found
 
       errmsg = ''
       errflg = 0
@@ -153,13 +160,18 @@ CONTAINS
       call history_out_field('ZI'       , zi)
 
       ! Capture constituent fields
+      const_num_found = 0
       do const_idx = 1, size(const_props)
          call const_props(const_idx)%standard_name(standard_name, errflg, errmsg)
          do name_idx = 1, size(const_std_names)
             if (trim(standard_name) == trim(const_std_names(name_idx))) then
                call history_out_field(trim(const_diag_names(name_idx)), const_array(:,:,const_idx))
+               const_num_found = const_num_found + 1
             end if
          end do
+         if (const_num_found == size(const_std_names)) then
+            exit
+         end if
       end do
 
    end subroutine cam_state_diagnostics_run
