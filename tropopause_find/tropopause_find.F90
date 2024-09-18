@@ -127,7 +127,7 @@ contains
 
     real(kind_phys), intent(in)         :: calday        ! Day of year including fraction of day
 
-    ! Climatological tropopause pressures (Pa), (pcols,ntimes=12).
+    ! Climatological tropopause pressures (Pa), (ncol,ntimes=12).
     real(kind_phys), intent(in)         :: tropp_p_loc(:,:)
     real(kind_phys), intent(in)         :: tropp_days(:) ! Day-of-year for climo data, 12
 
@@ -355,7 +355,7 @@ contains
 
     real(kind_phys), intent(in)         :: calday        ! Day of year including fraction of day
 
-    ! Climatological tropopause pressures (Pa), (pcols,ntimes=12).
+    ! Climatological tropopause pressures (Pa), (ncol,ntimes=12).
     real(kind_phys), intent(in)         :: tropp_p_loc(:,:)
     real(kind_phys), intent(in)         :: tropp_days(:) ! Day-of-year for climo data, 12
 
@@ -428,7 +428,7 @@ contains
 
     real(kind_phys), intent(in)         :: calday        ! Day of year including fraction of day
 
-    ! Climatological tropopause pressures (Pa), (pcols,ntimes=12).
+    ! Climatological tropopause pressures (Pa), (ncol,ntimes=12).
     real(kind_phys), intent(in)         :: tropp_p_loc(:,:)
     real(kind_phys), intent(in)         :: tropp_days(:) ! Day-of-year for climo data, 12
 
@@ -568,7 +568,7 @@ contains
 
     real(kind_phys), intent(in)         :: calday        ! Day of year including fraction of day
 
-    ! Climatological tropopause pressures (Pa), (pcols,ntimes=12).
+    ! Climatological tropopause pressures (Pa), (ncol,ntimes=12).
     real(kind_phys), intent(in)         :: tropp_p_loc(:,:)
     real(kind_phys), intent(in)         :: tropp_days(:) ! Day-of-year for climo data, 12
 
@@ -1275,7 +1275,7 @@ contains
 
     real(kind_phys), intent(in)         :: calday        ! Day of year including fraction of day
 
-    ! Climatological tropopause pressures (Pa), (pcols,ntimes=12).
+    ! Climatological tropopause pressures (Pa), (ncol,ntimes=12).
     real(kind_phys), intent(in)         :: tropp_p_loc(:,:)
     real(kind_phys), intent(in)         :: tropp_days(:) ! Day-of-year for climo data, 12
 

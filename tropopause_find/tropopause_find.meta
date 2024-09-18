@@ -112,7 +112,7 @@
   dimensions = ()
   intent = in
 [ tropp_p_loc ]
-  standard_name = tropopause_air_pressure_from_climatology
+  standard_name = tropopause_air_pressure_from_climatology_dataset
   units = Pa
   type = real | kind = kind_phys
   dimensions = (horizontal_dimension, number_of_months_in_year)
