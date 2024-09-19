@@ -266,7 +266,7 @@
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = out
 [ heat ]
-  standard_name = dry_static_energy
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure
   units = J kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
@@ -425,6 +425,13 @@
   standard_name = index_of_last_column_of_gathered_deep_convection_arrays
   units = index
   type = integer
+  dimensions = ()
+  intent = out
+[ scheme_name ]
+  standard_name = scheme_name
+  long_name = scheme name
+  units = none
+  type = character | kind = len=40
   dimensions = ()
   intent = out
 [ errmsg ]

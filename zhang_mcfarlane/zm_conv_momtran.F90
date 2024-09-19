@@ -22,7 +22,7 @@ subroutine zm_conv_momtran_run(ncol, pver, pverp, &
                     du, eu, ed, dp, dsubcld , &
                     jt, mx, ideep , il1g, il2g, &
                     nstep, windu_tend, windv_tend, pguallu, pguallv, pgdallu, pgdallv, &
-                    icwuu, icwuv, icwdu, icwdv, dt, seten)
+                    icwuu, icwuv, icwdu, icwdv, dt, seten, scheme_name, errmsg, errflg)
 !-----------------------------------------------------------------------
 !
 ! Purpose:
@@ -72,6 +72,10 @@ subroutine zm_conv_momtran_run(ncol, pver, pverp, &
 
    real(kind_phys), intent(out) :: windu_tend(:,:)  ! U wind tendency
    real(kind_phys), intent(out) :: windv_tend(:,:)  ! V wind tendency
+
+   character(len=512), intent(out) :: errmsg
+   integer,            intent(out) :: errflg
+   character(len=40),  intent(out) :: scheme_name
 
 !--------------------------Local Variables------------------------------
 
@@ -141,7 +145,10 @@ subroutine zm_conv_momtran_run(ncol, pver, pverp, &
 
 
 !-----------------------------------------------------------------------
-!
+   scheme_name = "zm_conv_momtran_run"
+   errmsg = ''
+   errflg = 0
+
 ! Combine winds in single array
    winds(:,:,1) = windu(:,:)
    winds(:,:,2) = windv(:,:)

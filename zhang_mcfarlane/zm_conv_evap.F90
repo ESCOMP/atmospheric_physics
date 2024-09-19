@@ -28,7 +28,7 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
      landfrac, &
      tend_s, tend_s_snwprd, tend_s_snwevmlt, tend_q, &
      prdprec, cldfrc, deltat,  &
-     prec, snow, ntprprd, ntsnprd, fsnow_conv, flxprec, flxsnow)
+     prec, snow, ntprprd, ntsnprd, fsnow_conv, flxprec, flxsnow, scheme_name, errmsg, errflg)
 
 !-----------------------------------------------------------------------
 ! Compute tendencies due to evaporation of rain from ZM scheme
@@ -83,6 +83,11 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
     real(kind_phys),intent(out) :: flxsnow(:,:)   ! Convective-scale flux of snow   at interfaces (kg/m2/s) ! (ncol,pverp)
     real(kind_phys),intent(out) :: ntprprd(:,:)   ! net precip production in layer                          ! (ncol,pver)
     real(kind_phys),intent(out) :: ntsnprd(:,:)   ! net snow production in layer                            ! (ncol,pver)
+
+    character(len=512), intent(out) :: errmsg
+    integer,            intent(out) :: errflg
+    character(len=40),  intent(out) :: scheme_name
+
     real(kind_phys) :: work1                  ! temp variable (pjr)
     real(kind_phys) :: work2                  ! temp variable (pjr)
 
@@ -103,6 +108,9 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
 
 
 !-----------------------------------------------------------------------
+    scheme_name = "zm_conv_evap_run"
+    errmsg = ''
+    errflg = 0
 
     old_snow=.true.
 

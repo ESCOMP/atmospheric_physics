@@ -171,7 +171,7 @@ subroutine zm_convr_run(     ncol    ,pver    , &
                     mu      ,md      ,du      ,eu      ,ed      , &
                     dp      ,dsubcld ,jt      ,maxg    ,ideep   , &
                     ql      ,rliq    ,landfrac,                   &
-                    rice    ,lengath ,errmsg  ,errflg)
+                    rice    ,lengath ,scheme_name, errmsg  ,errflg)
 !-----------------------------------------------------------------------
 !
 ! Purpose:
@@ -332,6 +332,7 @@ subroutine zm_convr_run(     ncol    ,pver    , &
 
    integer,  intent(out) :: ideep(:)  ! column indices of gathered points                              (ncol)
 
+   character(len=40),  intent(out)      :: scheme_name
    character(len=512), intent(out)      :: errmsg
    integer, intent(out)                 :: errflg
 
@@ -453,6 +454,7 @@ subroutine zm_convr_run(     ncol    ,pver    , &
 !
 !--------------------------Data statements------------------------------
 
+   scheme_name = "zm_convr_run"
    errmsg = ''
    errflg = 0
 !

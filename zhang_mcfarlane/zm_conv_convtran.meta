@@ -137,6 +137,13 @@
   type = ccpp_constituent_prop_ptr_t
   dimensions = (number_of_ccpp_constituents)
   intent = in
+[ scheme_name ]
+  standard_name = scheme_name
+  long_name = scheme name
+  units = none
+  type = character | kind = len=40
+  dimensions = ()
+  intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
   long_name = Error message for error handling in CCPP

@@ -22,7 +22,8 @@ subroutine zm_conv_convtran_run(ncol, pver, &
                     doconvtran,q       ,ncnst   ,mu      ,md      , &
                     du      ,eu      ,ed      ,dp      ,dsubcld , &
                     jt      ,mx      ,ideep   ,il1g    ,il2g    , &
-                    nstep   ,fracis  ,dqdt    ,dpdry   ,const_metadata, errmsg, errflg)
+                    nstep   ,fracis  ,dqdt    ,dpdry   ,const_metadata, &
+                    scheme_name, errmsg, errflg)
 ! ccpp_constituent_properties - standard name -- see chat
 
 !-----------------------------------------------------------------------
@@ -74,6 +75,7 @@ subroutine zm_conv_convtran_run(ncol, pver, &
 
 
    type(ccpp_constituent_prop_ptr_t), intent(in) :: const_metadata(:)
+   character(len=40),  intent(out) :: scheme_name
    character(len=512), intent(out) :: errmsg
    integer,            intent(out) :: errflg
 
@@ -124,6 +126,10 @@ subroutine zm_conv_convtran_run(ncol, pver, &
 
 !-----------------------------------------------------------------------
 !
+   scheme_name = "zm_conv_convtran_run"
+   errmsg = ''
+   errflg = 0
+
    small = 1.e-36_kind_phys
 ! mbsth is the threshold below which we treat the mass fluxes as zero (in mb/s)
    mbsth = 1.e-15_kind_phys
