@@ -1295,11 +1295,7 @@ contains
     errflg = 0
 
     ! First use the lapse rate tropopause.
-    ! (Not specifying primary will use the lapse rate)
-    call tropopause_findUsing(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
-                              calday, tropp_p_loc, tropp_days, &
-                              TROP_ALG_TWMO, tropLev, tropP=tropP, tropT=tropT, tropZ=tropZ, &
-                              errmsg=errmsg, errflg=errflg)
+    call tropopause_twmo(ncol, pver, lat, pint, pmid, t, zi, zm, phis, tropLev, tropP, tropT, tropZ)
 
     ! Now check high latitudes (poleward of 50) and set the level to the
     ! climatology if the level was not found or is at P <= 125 hPa.
@@ -1315,12 +1311,11 @@ contains
       end if
     end do
 
-    ! Now use the backup algorithm
+    ! Now use the climatology backup
     if (any(tropLev(:) == NOTFOUND)) then
-      call tropopause_findUsing(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
-                                calday, tropp_p_loc, tropp_days, &
-                                default_backup, tropLev, tropP=tropP, tropT=tropT, tropZ=tropZ, &
-                                errmsg=errmsg, errflg=errflg)
+      call tropopause_climate(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
+                              calday, tropp_p_loc, tropp_days, &
+                              tropLev, tropP, tropT, tropZ)
     end if
 
   end subroutine tropopause_findChemTrop
