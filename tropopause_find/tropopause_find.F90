@@ -482,7 +482,7 @@ contains
         call tropopause_cpp(ncol, pver, lat, pint, pmid, t, zi, zm, phis, tropLev, tropP, tropT, tropZ)
 
       case(TROP_ALG_CHEMTROP)
-        ! hplin: needs climatological arguments as calling tropopause_findUsing from within findChemTrop
+        ! hplin: needs climatological arguments as calling tropopause_climate from within findChemTrop
         call tropopause_findChemTrop(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
                                      calday, tropp_p_loc, tropp_days, &
                                      tropLev, tropP, tropT, tropZ, &
@@ -1279,10 +1279,10 @@ contains
     real(kind_phys), intent(in)         :: tropp_p_loc(:,:)
     real(kind_phys), intent(in)         :: tropp_days(:) ! Day-of-year for climo data, 12
 
-    integer,            intent(out)     :: tropLev(:)            ! tropopause level index
-    real(kind_phys),    intent(inout)   :: tropP(:)              ! tropopause pressure (Pa)
-    real(kind_phys),    intent(inout)   :: tropT(:)              ! tropopause temperature (K)
-    real(kind_phys),    intent(inout)   :: tropZ(:)              ! tropopause height (m)
+    integer,                   intent(out)     :: tropLev(:)            ! tropopause level index
+    real(kind_phys), optional, intent(inout)   :: tropP(:)              ! tropopause pressure (Pa)
+    real(kind_phys), optional, intent(inout)   :: tropT(:)              ! tropopause temperature (K)
+    real(kind_phys), optional, intent(inout)   :: tropZ(:)              ! tropopause height (m)
 
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errflg
