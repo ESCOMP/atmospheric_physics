@@ -359,10 +359,10 @@ contains
     real(kind_phys), intent(in)         :: tropp_p_loc(:,:)
     real(kind_phys), intent(in)         :: tropp_days(:) ! Day-of-year for climo data, 12
 
-    integer,         intent(out)     :: tropLev(:)         ! tropopause level index
-    real(kind_phys), intent(out)     :: tropP(:)           ! tropopause pressure (Pa)
-    real(kind_phys), intent(out)     :: tropT(:)           ! tropopause temperature (K)
-    real(kind_phys), intent(out)     :: tropZ(:)           ! tropopause height (m)
+    integer,                   intent(out)     :: tropLev(:)          ! tropopause level index
+    real(kind_phys), optional, intent(out)     :: tropP(:)            ! tropopause pressure (Pa)
+    real(kind_phys), optional, intent(out)     :: tropT(:)            ! tropopause temperature (K)
+    real(kind_phys), optional, intent(out)     :: tropZ(:)            ! tropopause height (m)
 
     ! Optional output arguments for hybridstobie with chemistry
     real(kind_phys), optional, intent(inout)   :: hstobie_trop(:,:)   ! Lowest level with strat. chem
@@ -383,9 +383,9 @@ contains
     ! Initialize the results to a missing value, so that the algorithms will
     ! attempt to find the tropopause for all of them.
     tropLev(:) = NOTFOUND
-    tropP(:) = fillvalue
-    tropT(:) = fillvalue
-    tropZ(:) = fillvalue
+    if(present(tropP)) tropP(:) = fillvalue
+    if(present(tropT)) tropT(:) = fillvalue
+    if(present(tropZ)) tropZ(:) = fillvalue
 
     ! Try to find the tropopause using the primary algorithm.
     if (primary /= TROP_ALG_NONE) then
@@ -1432,7 +1432,7 @@ contains
 
     ! Interpolate the geopotential height linearly against log(P)
 
-    ! Is the tropoause at the midpoint?
+    ! Is the tropopause at the midpoint?
     if (tropP == pmid(icol, tropLev)) then
       tropZ = zm(icol, tropLev)
 
