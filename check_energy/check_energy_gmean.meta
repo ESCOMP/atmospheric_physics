@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = check_energy_gmean
   type = scheme
+  dependencies = ../../../utils/gmean_mod.F90
 
 [ccpp-arg-table]
   name  = check_energy_gmean_run
@@ -15,6 +16,18 @@
   standard_name = vertical_layer_dimension
   units = count
   type = integer
+  dimensions = ()
+  intent = in
+[ dtime ]
+  standard_name = timestep_for_physics
+  units = s
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ gravit ]
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
+  type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ pint ]
@@ -35,6 +48,12 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
+[ tedif_glob ]
+  standard_name = global_mean_total_energy_difference_for_energy_conservation_tbd
+  units = J m-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = out
 [ heat_glob ]
   standard_name = global_mean_heating_rate_for_energy_conservation_tbd
   units = J kg-1 s-1

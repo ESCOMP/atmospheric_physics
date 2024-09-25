@@ -8,13 +8,24 @@ module check_energy_chng
   implicit none
   private
 
+  public  :: check_energy_chng_init
   public  :: check_energy_chng_timestep_init
   public  :: check_energy_chng_run
 
   ! Private module options.
-  logical :: print_energy_errors = .false.
+  logical :: print_energy_errors = .false.    ! Turn on verbose output identifying columns that fail
+                                              ! energy/water checks?
 
 contains
+
+!> \section arg_table_check_energy_chng_init Argument Table
+!! \htmlinclude arg_table_check_energy_chng_init.html
+  subroutine check_energy_chng_init(print_energy_errors_in)
+    ! Input arguments
+    logical,            intent(in)    :: print_energy_errors_in
+
+    print_energy_errors = print_energy_errors_in
+  end subroutine check_energy_chng_init
 
   ! Compute initial values of energy and water integrals,
   ! and zero out cumulative boundary tendencies.

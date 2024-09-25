@@ -3,6 +3,17 @@
   type = scheme
   dependencies = ../../../data/cam_thermo.F90,../../../dynamics/tests/dyn_tests_utils.F90
 
+
+[ccpp-arg-table]
+  name  = check_energy_chng_init
+  type  = scheme
+[ print_energy_errors_in ]
+  standard_name = control_for_energy_conservation_warning_tbd
+  units = none
+  type = logical
+  dimensions = ()
+  intent = in
+
 [ccpp-arg-table]
   name  = check_energy_chng_timestep_init
   type  = scheme

@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet type="text/xsl"?>
+
+<entry_id_pg version="2.0">
+  <entry id="print_energy_errors">
+    <type>logical</type>
+    <category>diagnostics</category>
+    <group>check_energy_nl</group>
+    <standard_name>control_for_energy_conservation_warning_tbd</standard_name>
+    <units>none</units>
+    <valid_values></valid_values>
+    <desc>
+      Turn on verbose output identifying columns that fail energy/water conservation checks. Default: FALSE
+    </desc>
+    <values>
+      <value>.false.</value>
+    </values>
+  </entry>
+</entry_id_pg>

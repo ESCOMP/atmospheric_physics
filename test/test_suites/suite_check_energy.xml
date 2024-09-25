@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<suite name="check_energy_chng" version="1.0">
+  <group name="physics_before_coupler">
+    <!-- Check that energy and water change matches the boundary fluxes -->
+    <scheme>check_energy_zero_fluxes</scheme>
+    <scheme>check_energy_scaling</scheme>
+    <scheme>check_energy_chng</scheme>
+
+    <!-- Compute global means of physics input and output total energy -->
+    <scheme>check_energy_gmean</scheme>
+    <!-- Add global mean energy difference as heating (diff between gmean and save_teout) -->
+    <scheme>check_energy_fix</scheme>
+    <scheme>apply_heating_rate</scheme>
+  </group>
+  <group name="physics_after_coupler">
+    <!-- Save current total energy from dycore for energy fixer in time step -->
+    <scheme>check_energy_save_teout</scheme>
+  </group>
+</suite>
