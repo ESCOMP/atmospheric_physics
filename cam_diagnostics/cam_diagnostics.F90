@@ -16,12 +16,16 @@ module cam_diagnostics
    (/'water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water       ', &
      'cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water', &
      'rain_mixing_ratio_wrt_moist_air_and_condensed_water              ', &
-     'cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water         '/)
+     'cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water         ', &
+     'snow_mixing_ratio_wrt_moist_air_and_condensed_water              ', &
+     'graupel_water_mixing_ratio_wrt_moist_air_and_condensed_water     '/)
 
    character(len=6) :: const_diag_names(4) = (/'Q     ', &
                                                'CLDLIQ', &
+                                               'RAINQM', &
                                                'CLDICE', &
-                                               'RAINQM'/)
+                                               'SNOWQM', &
+                                               'GRAUQM'/)
 
 CONTAINS
 
