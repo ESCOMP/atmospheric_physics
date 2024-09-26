@@ -43,10 +43,10 @@ contains
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use ccpp_kinds,                only: kind_phys
     use iso_c_binding,             only: c_double
-    real(kind_phys),                   intent(inout) :: time_step            ! s
-    real(kind_phys), target,           intent(inout) :: temperature(:,:)     ! K
-    real(kind_phys), target,           intent(inout) :: pressure(:,:)        ! Pa
-    real(kind_phys), target,           intent(inout) :: dry_air_density(:,:) ! kg m-3
+    real(kind_phys),                   intent(in)    :: time_step            ! s
+    real(kind_phys), target,           intent(in)    :: temperature(:,:)     ! K
+    real(kind_phys), target,           intent(in)    :: pressure(:,:)        ! Pa
+    real(kind_phys), target,           intent(in)    :: dry_air_density(:,:) ! kg m-3
     type(ccpp_constituent_prop_ptr_t), intent(in)    :: constituent_props(:)
     real(kind_phys), target,           intent(inout) :: constituents(:,:,:)  ! kg kg-1
     real(kind_phys), target,           intent(inout) :: rate_params(:,:,:)

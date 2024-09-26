@@ -63,8 +63,9 @@ add_custom_target(
   ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/configs ${CMAKE_BINARY_DIR}/configs
 )
 
-# add_subdirectory(micm)
+add_subdirectory(micm)
 add_subdirectory(tuvx)
+
 # Test metdadata
 find_package(Python REQUIRED)
 

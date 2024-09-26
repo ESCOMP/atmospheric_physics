@@ -59,6 +59,18 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension,number_of_ccpp_constituents)
   intent = inout
+[ rate_params ]
+  standard_name = ccpp_rate_params
+  units = none
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension,number_of_ccpp_rate_params)
+  intent = inout
+[ height ]
+  standard_name = ccpp_height
+  units = km
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
