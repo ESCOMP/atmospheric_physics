@@ -63,11 +63,13 @@ RUN cd musica \
 COPY . atmospheric_physics
 RUN sudo chown -R test_user:test_user atmospheric_physics
 
+# Must make ccpp-framework available before building test
 RUN cd atmospheric_physics/test \
     && mkdir lib \
     && cd lib \
     && git clone -b add_const_interface --depth 1 https://github.com/peverwhee/ccpp-framework.git
 ENV CCPP_SRC_PATH="lib/ccpp-framework/src"
+ENV CCPP_FORTRAN_TOOLS_PATH="lib/ccpp-framework/scripts/fortran_tools"
 
 RUN cd atmospheric_physics/test \
     && cmake -S . \
