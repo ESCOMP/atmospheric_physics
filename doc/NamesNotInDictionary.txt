@@ -1,43 +1,46 @@
 
 #######################
 Date/time of when script was run:
-2024-07-12 11:08:18.467654
+2024-09-25 16:20:02.082335
 #######################
 
 Non-dictionary standard names found in the following metadata files:
 
 --------------------------
 
-atmospheric_physics.jt.062024/utilities/geopotential_temp.meta
+atmospheric_physics/cam_diagnostics/cam_diagnostics.meta
+
+    - air_pressure_at_interface
+    - air_pressure_of_dry_air_at_interface
+    - ln_air_pressure_at_interface
+    - ln_air_pressure_of_dry_air_at_interface
+
+--------------------------
+
+atmospheric_physics/dry_adiabatic_adjust/dadadj.meta
+
+    - air_pressure_at_interface
+    - binary_indicator_for_dry_adiabatic_adjusted_grid_cell
+    - number_of_iterations_for_dry_adiabatic_adjustment_algorithm_convergence
+    - number_of_vertical_levels_from_model_top_where_dry_adiabatic_adjustment_occurs
+    - tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
+
+--------------------------
+
+atmospheric_physics/dry_adiabatic_adjust/dadadj_apply_qv_tendency.meta
+
+    - tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
+
+--------------------------
+
+atmospheric_physics/utilities/geopotential_temp.meta
 
     - air_pressure_at_interface
     - ln_air_pressure_at_interface
 
 --------------------------
 
-atmospheric_physics.jt.062024/zhang_mcfarlane/zm_conv_convtran.meta
-
-    - atmosphere_detrainment_convective_mass_flux_for_deep_convection_for_convective_columns
-    - atmosphere_downdraft_convective_mass_flux_for_deep_convection_for_convective_columns
-    - atmosphere_downdraft_entrainment_convective_mass_flux_for_deep_convection_for_convective_columns
-    - atmosphere_updraft_convective_mass_flux_for_deep_convection_for_convective_columns
-    - atmosphere_updraft_entrainment_convective_mass_flux_for_deep_convection_for_convective_columns
-    - current_timestep_number
-    - flag_for_zhang_mcfarlane_deep_convective_transport?
-    - fraction_of_water_insoluble_convectively_transported_species
-    - horizontal_index_of_convective_columns_for_deep_convection_for_convective_columns
-    - maximum_number_of_grid_cells_with_deep_convection?
-    - minimum_number_of_grid_cells_with_deep_convection?
-    - pressure_thickness_for_deep_convection_for_convective_columns
-    - pressure_thickness_for_subcloud_layer_for_deep_convection_for_convective_columns
-    - pressure_thickness_of_dry_air_for_deep_convection_for_convective_columns?
-    - tendency_of_ccpp_constituents?
-    - vertical_index_at_top_of_deep_convection_for_convective_columns
-    - vertical_index_of_deep_conveciton_launch_level_for_convective_columns
-
---------------------------
-
-atmospheric_physics.jt.062024/zhang_mcfarlane/zm_conv_momtran.meta
+atmospheric_physics/zhang_mcfarlane/zm_conv_momtran.meta
 
     - atmosphere_detrainment_convective_mass_flux_for_deep_convection_for_convective_columns
     - atmosphere_downdraft_convective_mass_flux_for_deep_convection_for_convective_columns
@@ -64,33 +67,7 @@ atmospheric_physics.jt.062024/zhang_mcfarlane/zm_conv_momtran.meta
 
 --------------------------
 
-atmospheric_physics.jt.062024/zhang_mcfarlane/zm_conv_evap.meta
-
-    - 
-    - cloud_area_fraction
-    - flag_for_zhang_mcfarlane_convective_organization_parameterization?
-    - freezing_point_of_water?
-    - frozen_precipitation_mass_flux_at_interface_due_to_deep_convection?
-    - heating_rate
-    - latent_heat_of_fusion_of_water_at_0c?
-    - latent_heat_of_vaporization_of_water_at_0c?
-    - lwe_frozen_precipitation_rate_at_surface_due_to_deep_convection
-    - lwe_precipitation_rate_at_surface_due_to_deep_convection
-    - precipitation_mass_flux_at_interface_due_to_deep_convection?
-    - pressure_thickness
-    - specific_heat_of_dry_air_at_constant_pressure?
-    - tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_frozen_precipitation_melt?
-    - tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_frozen_precipitation_production_in_deep_convection?
-    - tendency_of_frozen_precipitation_wrt_moist_air_and_condensed_water_due_to_deep_convection?
-    - tendency_of_precipitation_wrt_moist_air_and_condensed_water_due_to_deep_convection?
-    - tendency_of_precipitation_wrt_moist_air_and_condensed_water_due_to_deep_convection_excluding_subcloud_evaporation
-    - tendency_of_water_vapor_mixing_ratio_wrt_moist_air and_condensed_water?
-    - tunable_evaporation_efficiency_for_land_in_zhang_mcfarlane_deep_convection_scheme?
-    - tunable_evaporation_efficiency_in_zhang_mcfarlane_deep_convection_scheme?
-
---------------------------
-
-atmospheric_physics.jt.062024/zhang_mcfarlane/zm_convr.meta
+atmospheric_physics/zhang_mcfarlane/zm_convr.meta
 
     - air_pressure_at_interface
     - atmosphere_convective_mass_flux_due_to all_convection?
@@ -146,23 +123,55 @@ atmospheric_physics.jt.062024/zhang_mcfarlane/zm_convr.meta
 
 --------------------------
 
-atmospheric_physics.jt.062024/dry_adiabatic_adjust/dadadj.meta
+atmospheric_physics/zhang_mcfarlane/zm_conv_convtran.meta
 
-    - air_pressure_at_interface
-    - binary_indicator_for_dry_adiabatic_adjusted_grid_cell
-    - number_of_iterations_for_dry_adiabatic_adjustment_algorithm_convergence
-    - number_of_vertical_levels_from_model_top_where_dry_adiabatic_adjustment_occurs
-    - tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
+    - atmosphere_detrainment_convective_mass_flux_for_deep_convection_for_convective_columns
+    - atmosphere_downdraft_convective_mass_flux_for_deep_convection_for_convective_columns
+    - atmosphere_downdraft_entrainment_convective_mass_flux_for_deep_convection_for_convective_columns
+    - atmosphere_updraft_convective_mass_flux_for_deep_convection_for_convective_columns
+    - atmosphere_updraft_entrainment_convective_mass_flux_for_deep_convection_for_convective_columns
+    - current_timestep_number
+    - flag_for_zhang_mcfarlane_deep_convective_transport?
+    - fraction_of_water_insoluble_convectively_transported_species
+    - horizontal_index_of_convective_columns_for_deep_convection_for_convective_columns
+    - maximum_number_of_grid_cells_with_deep_convection?
+    - minimum_number_of_grid_cells_with_deep_convection?
+    - pressure_thickness_for_deep_convection_for_convective_columns
+    - pressure_thickness_for_subcloud_layer_for_deep_convection_for_convective_columns
+    - pressure_thickness_of_dry_air_for_deep_convection_for_convective_columns?
+    - tendency_of_ccpp_constituents?
+    - vertical_index_at_top_of_deep_convection_for_convective_columns
+    - vertical_index_of_deep_conveciton_launch_level_for_convective_columns
 
 --------------------------
 
-atmospheric_physics.jt.062024/dry_adiabatic_adjust/dadadj_apply_qv_tendency.meta
+atmospheric_physics/zhang_mcfarlane/zm_conv_evap.meta
 
-    - tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
+    - 
+    - cloud_area_fraction
+    - flag_for_zhang_mcfarlane_convective_organization_parameterization?
+    - freezing_point_of_water?
+    - frozen_precipitation_mass_flux_at_interface_due_to_deep_convection?
+    - heating_rate
+    - latent_heat_of_fusion_of_water_at_0c?
+    - latent_heat_of_vaporization_of_water_at_0c?
+    - lwe_frozen_precipitation_rate_at_surface_due_to_deep_convection
+    - lwe_precipitation_rate_at_surface_due_to_deep_convection
+    - precipitation_mass_flux_at_interface_due_to_deep_convection?
+    - pressure_thickness
+    - specific_heat_of_dry_air_at_constant_pressure?
+    - tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_frozen_precipitation_melt?
+    - tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_frozen_precipitation_production_in_deep_convection?
+    - tendency_of_frozen_precipitation_wrt_moist_air_and_condensed_water_due_to_deep_convection?
+    - tendency_of_precipitation_wrt_moist_air_and_condensed_water_due_to_deep_convection?
+    - tendency_of_precipitation_wrt_moist_air_and_condensed_water_due_to_deep_convection_excluding_subcloud_evaporation
+    - tendency_of_water_vapor_mixing_ratio_wrt_moist_air and_condensed_water?
+    - tunable_evaporation_efficiency_for_land_in_zhang_mcfarlane_deep_convection_scheme?
+    - tunable_evaporation_efficiency_in_zhang_mcfarlane_deep_convection_scheme?
 
 --------------------------
 
-atmospheric_physics.jt.062024/tj2016/tj2016_precip.meta
+atmospheric_physics/tj2016/tj2016_precip.meta
 
     - gas_constant_of_water_vapor
     - lwe_large_scale_precipitation_rate_at_surface
@@ -171,7 +180,7 @@ atmospheric_physics.jt.062024/tj2016/tj2016_precip.meta
 
 --------------------------
 
-atmospheric_physics.jt.062024/tj2016/tj2016_sfc_pbl_hs.meta
+atmospheric_physics/tj2016/tj2016_sfc_pbl_hs.meta
 
     - air_pressure_at_interface
     - eddy_heat_diffusivity
