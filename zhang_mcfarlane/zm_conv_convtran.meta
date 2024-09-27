@@ -120,7 +120,7 @@
   dimensions = (horizontal_loop_extent,vertical_layer_dimension,number_of_ccpp_constituents)
   intent = in
 [ dqdt ]
-  standard_name = tendency_of_ccpp_constituents
+  standard_name = ccpp_constituent_tendencies
   units = none
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension,number_of_ccpp_constituents)

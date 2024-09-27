@@ -2,6 +2,7 @@
 
 <suite name="zhang_mcfarlane" version="1.0">
    <group name="physics_before_coupler">
+       <scheme>initialize_constituents</scheme>
        <scheme>to_be_ccppized_temporary</scheme>
        <scheme>zm_convr</scheme>
        <scheme>apply_heating_rate</scheme>
@@ -22,6 +23,7 @@
        <scheme>qneg</scheme>
        <scheme>geopotential_temp</scheme>
        <scheme>zm_conv_convtran</scheme>
+       <scheme>apply_constituent_tendencies</scheme>
        <scheme>zm_diagnostics</scheme>
    </group>
 </suite>

@@ -2704,7 +2704,6 @@ end subroutine q1q2_pjr
 ! qsat_water uses Pa internally, so get it right, need to pass in Pa.
 ! Afterward, set es back to hPa.
 subroutine qsat_hPa(t, p, es, qm)
-!CACNOTE - Need to figure out how to handle this
   use wv_saturation, only: qsat_water
 
   ! Inputs

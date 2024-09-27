@@ -144,17 +144,17 @@ subroutine zm_conv_convtran_run(ncol, pver, &
 
 ! Loop ever each constituent
 !CACNOTE - This should probably loop 1, ncnst - figure out what was being done for 1
+   dqdt(:,:,:) = 0._kind_phys
    do m = 1, ncnst
 
       call const_metadata(m)%standard_name(standard_name)
       write(0,*) ' standard_name=',standard_name
-      if (standard_name == 'water_vapor_wrt_moist_air_and_condensed_water') then
+      if (standard_name == 'water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water') then
         cycle
       end if
 
       if (doconvtran(m)) then
 
-!         if (cnst_get_type_byind(m).eq.'dry') then
           call const_metadata(m)%is_dry(is_dry, errflg, errmsg)
           write(0,*) ' is_dry=', is_dry
           if (is_dry) then
@@ -301,7 +301,6 @@ subroutine zm_conv_convtran_run(ncol, pver, &
          end do
 
 ! Initialize to zero everywhere, then scatter tendency back to full array
-         dqdt(:,:,m) = 0._kind_phys
          do k = 1,pver
             kp1 = min(pver,k+1)
             do i = il1g,il2g
