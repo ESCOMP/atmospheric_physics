@@ -42,10 +42,12 @@ CONTAINS
     errmsg = ''
     errflg = 0
 
-    call history_add_field ('ZM_ORG     ', 'Organization parameter', 'lev', 'avg', '1')
-    call history_add_field ('ZM_ORG2D   ', 'Organization parameter 2D', 'lev', 'avg', '1')
+    call history_add_field ('ZM_ORG     ', 'zhang_mcfarlane_organization_parameter_of_deep_convection', 'lev', 'avg', '1')
+    call history_add_field ('ZM_ORG2D   ', 'zhang_mcfarlane_organization_parameter_of_deep_convection_copied_to_whole_column',&
+                            'lev', 'avg', '1')
 
-    call history_add_field ('PRECZ', 'total precipitation from ZM convection', horiz_only, 'avg', 'm s-1')
+    call history_add_field ('PRECZ', 'lwe_precipitation_rate_at_surface_due_to_deep_convection_due_to_Zhang-McFarlane', &
+                            horiz_only, 'avg', 'm s-1')
     call history_add_field ('ZMDT', 'T tendency - Zhang-McFarlane moist convection', 'lev', 'avg', 'K s-1')
     call history_add_field ('ZMDQ', 'Q tendency - Zhang-McFarlane moist convection', 'lev', 'avg', 'kg kg-1 s-1')
     call history_add_field ('ZMDICE', 'Cloud ice tendency - Zhang-McFarlane convection', 'lev',  'avg', 'kg kg-1 s-1')
@@ -67,7 +69,7 @@ CONTAINS
     call history_add_field ('PCONVB', 'convection base pressure',  horiz_only ,  'avg', 'Pa'    )
     call history_add_field ('PCONVT', 'convection top  pressure',  horiz_only ,  'avg', 'Pa'    )
 
-    call history_add_field ('CAPE',   'Convectively available potential energy',  horiz_only,   'avg', 'J kg-1')
+    call history_add_field ('CAPE',   'zhang_mcfarlane_convective_available_potential_energycap',  horiz_only,   'avg', 'J kg-1')
     call history_add_field ('FREQZM', 'Fractional occurance of ZM convection',  horiz_only  , 'avg', 'fraction')
     call history_add_field ('ZMMTT',  'T tendency - ZM convective momentum transport', 'lev',  'avg', 'K s-1')
     call history_add_field ('ZMMTU',  'U tendency - ZM convective momentum transport', 'lev',  'avg', 'm s-2')
@@ -93,7 +95,7 @@ CONTAINS
 
    !> \section arg_table_zm_diagnostics_run  Argument Table
    !! \htmlinclude zm_diagnostics_run.html
-   subroutine zm_diagnostics_run(ncol, pver, cpair, heat, prec, errmsg, errflg)
+   subroutine zm_diagnostics_run(ncol, pver, pverp, ideep, cpair, heat, prec, cape, errmsg, errflg)
 
       use cam_history, only: history_out_field
       !------------------------------------------------
@@ -101,25 +103,48 @@ CONTAINS
       !------------------------------------------------
       integer, intent(in) :: ncol
       integer, intent(in) :: pver
+      integer, intent(in) :: pverp
+      integer, intent(in) :: ideep(:)
 
       real(kind_phys), intent(in) :: cpair
       real(kind_phys), intent(in) :: heat(:,:)
       real(kind_phys), intent(in) :: prec(:)
+      real(kind_phys), intent(in) :: cape(:)
 
       ! CCPP error handling variables
       character(len=512), intent(out) :: errmsg
       integer,          intent(out) :: errflg
 
+      integer :: lengath  ! number of columns with deep convection
+
       real(kind_phys) :: ftem(ncol,pver)
+      real(kind_phys) :: mcon(ncol,pverp)
+      real(kind_phys) :: mconzm(ncol,pverp)
 
       errmsg = ''
       errflg = 0
+
+      lengath = count(ideep > 0)
+      if (lengath > ncol) lengath = ncol  ! should not happen, but force it to not be larger than ncol for safety sake
 
       call history_out_field('PRECZ', prec)
 
       ftem(:,:) = 0._kind_phys
       ftem(:ncol,:pver) = heat(:ncol,:pver)/cpair
       call history_out_field('ZMDT', ftem)
+
+      call history_out_field('CAPE', cape)
+
+      freqzm(:) = 0._r8
+      do i = 1,lengath
+         freqzm(ideep(i)) = 1.0_r8
+      end do
+      call history_out_field('FREQZM  ',freqzm)
+`
+      mcon(:ncol,:pverp) = mcon(:ncol,:pverp) * 100._r8/gravit
+      mconzm(:ncol,:pverp) = mcon(:ncol,:pverp)
+
+      call outfld('CMFMC_DP', mconzm)
 
    end subroutine zm_diagnostics_run
 

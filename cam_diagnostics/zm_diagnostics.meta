@@ -35,6 +35,18 @@
   type = integer
   dimensions = ()
   intent = in
+[ pverp ]
+  standard_name = vertical_interface_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ ideep ]
+  standard_name = horizontal_index_of_convective_columns_for_deep_convection_for_convective_columns
+  units = index
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = in
 [ cpair ]
   standard_name = specific_heat_of_dry_air_at_constant_pressure
   units = J kg-1 K-1
@@ -52,6 +64,12 @@
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (1:horizontal_loop_extent)
+  intent = in
+[ cape ]
+  standard_name = zhang_mcfarlane_convective_available_potential_energy
+  units = J kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
   intent = in
 [ errmsg ]
   standard_name = ccpp_error_message
