@@ -1,7 +1,7 @@
 
 #######################
 Date/time of when script was run:
-2024-10-02 16:46:33.523210
+2024-10-02 17:21:48.293385
 #######################
 
 Non-dictionary standard names found in the following metadata files:
@@ -14,6 +14,34 @@ atmospheric_physics/sima_diagnostics/sima_state_diagnostics.meta
     - air_pressure_of_dry_air_at_interface
     - ln_air_pressure_at_interface
     - ln_air_pressure_of_dry_air_at_interface
+
+--------------------------
+
+atmospheric_physics/sima_diagnostics/tropopause_diagnostics.meta
+
+    - tropopause_air_pressure
+    - tropopause_air_pressure_from_climatological_method
+    - tropopause_air_pressure_from_cold_point_method
+    - tropopause_air_pressure_from_hybrid_stobie_linoz_with_climatological_backup_method
+    - tropopause_air_pressure_from_lapse_rate_method
+    - tropopause_air_temperature
+    - tropopause_air_temperature_from_climatological_method
+    - tropopause_air_temperature_from_cold_point_method
+    - tropopause_air_temperature_from_hybrid_stobie_linoz_with_climatological_backup_method
+    - tropopause_air_temperature_from_lapse_rate_method
+    - tropopause_geopotential_height_wrt_surface
+    - tropopause_geopotential_height_wrt_surface_from_climatological_method
+    - tropopause_geopotential_height_wrt_surface_from_cold_point_method
+    - tropopause_geopotential_height_wrt_surface_from_hybrid_stobie_linoz_with_climatological_backup_method
+    - tropopause_geopotential_height_wrt_surface_from_lapse_rate_method
+    - tropopause_vertical_layer_index
+    - tropopause_vertical_layer_index_from_climatological_method
+    - tropopause_vertical_layer_index_from_cold_point_method
+    - tropopause_vertical_layer_index_from_hybrid_stobie_linoz_with_climatological_backup_method
+    - tropopause_vertical_layer_index_from_hybrid_stobie_linoz_with_climatological_backup_method_for_chemistry
+    - tropopause_vertical_layer_index_from_lapse_rate_method
+    - vertical_layer_index_lower_bound_from_hybrid_stobie_linoz_with_climatological_backup_method_for_linearized_ozone_chemistry
+    - vertical_layer_index_lower_bound_from_hybrid_stobie_linoz_with_climatological_backup_method_for_stratospheric_chemistry
 
 --------------------------
 
@@ -37,6 +65,45 @@ atmospheric_physics/utilities/geopotential_temp.meta
 
     - air_pressure_at_interface
     - ln_air_pressure_at_interface
+
+--------------------------
+
+atmospheric_physics/tropopause_find/tropopause_find.meta
+
+    - air_pressure_at_interface
+    - fill_value_for_diagnostic_output
+    - fractional_calendar_days_on_end_of_current_timestep
+    - pi_constant
+    - ratio_of_dry_air_gas_constant_to_specific_heat_of_dry_air_at_constant_pressure
+    - tropopause_air_pressure
+    - tropopause_air_pressure_from_chemical_method
+    - tropopause_air_pressure_from_climatological_method
+    - tropopause_air_pressure_from_climatology_dataset
+    - tropopause_air_pressure_from_cold_point_method
+    - tropopause_air_pressure_from_hybrid_stobie_linoz_with_climatological_backup_method
+    - tropopause_air_pressure_from_lapse_rate_method
+    - tropopause_air_temperature
+    - tropopause_air_temperature_from_chemical_method
+    - tropopause_air_temperature_from_climatological_method
+    - tropopause_air_temperature_from_cold_point_method
+    - tropopause_air_temperature_from_hybrid_stobie_linoz_with_climatological_backup_method
+    - tropopause_air_temperature_from_lapse_rate_method
+    - tropopause_calendar_days_from_climatology
+    - tropopause_geopotential_height_wrt_surface
+    - tropopause_geopotential_height_wrt_surface_from_chemical_method
+    - tropopause_geopotential_height_wrt_surface_from_climatological_method
+    - tropopause_geopotential_height_wrt_surface_from_cold_point_method
+    - tropopause_geopotential_height_wrt_surface_from_hybrid_stobie_linoz_with_climatological_backup_method
+    - tropopause_geopotential_height_wrt_surface_from_lapse_rate_method
+    - tropopause_vertical_layer_index
+    - tropopause_vertical_layer_index_from_chemical_method
+    - tropopause_vertical_layer_index_from_climatological_method
+    - tropopause_vertical_layer_index_from_cold_point_method
+    - tropopause_vertical_layer_index_from_hybrid_stobie_linoz_with_climatological_backup_method
+    - tropopause_vertical_layer_index_from_hybrid_stobie_linoz_with_climatological_backup_method_for_chemistry
+    - tropopause_vertical_layer_index_from_lapse_rate_method
+    - vertical_layer_index_lower_bound_from_hybrid_stobie_linoz_with_climatological_backup_method_for_linearized_ozone_chemistry
+    - vertical_layer_index_lower_bound_from_hybrid_stobie_linoz_with_climatological_backup_method_for_stratospheric_chemistry
 
 --------------------------
 

@@ -1,5 +1,7 @@
 FROM ubuntu:22.04
 
+ARG MUSICA_GIT_TAG=aa0854ecee54bd7a5aeb7ea1ba0eebb2cf656146
+
 RUN apt update \
     && apt install -y sudo \
     && adduser test_user \
@@ -43,9 +45,10 @@ ENV FFLAGS="-I/usr/include/"
 
 # Install MUSICA (MUSICA-C)
 RUN git clone https://github.com/NCAR/musica.git
+
 RUN cd musica \
     && git fetch \
-    && git checkout 2a5eeaac982a3eb80b96d1e2087b91b301d1e748 \
+    && git checkout ${MUSICA_GIT_TAG} \
     && cmake \
         -S . \
         -B build \
@@ -73,7 +76,10 @@ RUN cd atmospheric_physics/test \
              -D CCPP_ENABLE_MEMCHECK=ON \
     && cmake --build ./build
 
-RUN cd atmospheric_physics \
-    && cp -r test/musica/micm/configs/chapman ./test/build/chapman
+RUN cd atmospheric_physics/test \
+    && mkdir third_party \
+    && cd third_party \
+    && git clone --depth 1 https://github.com/NCAR/tuv-x.git \
+    && cp -r tuv-x/data ../build/data
 
 WORKDIR /home/test_user/atmospheric_physics/test/build
