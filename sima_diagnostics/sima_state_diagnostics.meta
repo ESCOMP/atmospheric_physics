@@ -1,9 +1,9 @@
 [ccpp-table-properties]
-  name = cam_state_diagnostics
+  name = sima_state_diagnostics
   type = scheme
 
 [ccpp-arg-table]
-  name  = cam_state_diagnostics_init
+  name  = sima_state_diagnostics_init
   type  = scheme
 [ const_props ]
   standard_name = ccpp_constituent_properties
@@ -25,7 +25,7 @@
   intent = out
 
 [ccpp-arg-table]
-  name  = cam_state_diagnostics_run
+  name  = sima_state_diagnostics_run
   type  = scheme
 [ ps ]
   standard_name = surface_air_pressure

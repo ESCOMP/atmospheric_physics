@@ -1,9 +1,9 @@
 [ccpp-table-properties]
-  name = cam_tend_diagnostics
+  name = sima_tend_diagnostics
   type = scheme
 
 [ccpp-arg-table]
-  name  = cam_tend_diagnostics_init
+  name  = sima_tend_diagnostics_init
   type  = scheme
 [ errmsg ]
   standard_name = ccpp_error_message
@@ -19,7 +19,7 @@
   intent = out
 
 [ccpp-arg-table]
-  name  = cam_tend_diagnostics_run
+  name  = sima_tend_diagnostics_run
   type  = scheme
 [ dTdt_total ]
   standard_name = tendency_of_air_temperature_due_to_model_physics

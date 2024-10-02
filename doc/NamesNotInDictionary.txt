@@ -1,14 +1,14 @@
 
 #######################
 Date/time of when script was run:
-2024-09-25 16:20:02.082335
+2024-10-02 16:46:33.523210
 #######################
 
 Non-dictionary standard names found in the following metadata files:
 
 --------------------------
 
-atmospheric_physics/cam_diagnostics/cam_diagnostics.meta
+atmospheric_physics/sima_diagnostics/sima_state_diagnostics.meta
 
     - air_pressure_at_interface
     - air_pressure_of_dry_air_at_interface

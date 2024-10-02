@@ -1,4 +1,4 @@
-module cam_state_diagnostics
+module sima_state_diagnostics
 
    use ccpp_kinds, only:  kind_phys
    use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
@@ -7,8 +7,8 @@ module cam_state_diagnostics
    private
    save
 
-   public :: cam_state_diagnostics_init ! init routine
-   public :: cam_state_diagnostics_run  ! main routine
+   public :: sima_state_diagnostics_init ! init routine
+   public :: sima_state_diagnostics_run  ! main routine
 
    character(len=65) :: const_std_names(6) = &
    (/'water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water       ', &
@@ -27,9 +27,9 @@ module cam_state_diagnostics
 
 CONTAINS
 
-   !> \section arg_table_cam_state_diagnostics_init  Argument Table
-   !! \htmlinclude cam_state_diagnostics_init.html
-   subroutine cam_state_diagnostics_init(const_props, errmsg, errflg)
+   !> \section arg_table_sima_state_diagnostics_init  Argument Table
+   !! \htmlinclude sima_state_diagnostics_init.html
+   subroutine sima_state_diagnostics_init(const_props, errmsg, errflg)
       use cam_history,         only: history_add_field
       use cam_history_support, only: horiz_only
 
@@ -85,11 +85,11 @@ CONTAINS
          end if
       end do
 
-   end subroutine cam_state_diagnostics_init
+   end subroutine sima_state_diagnostics_init
 
-   !> \section arg_table_cam_state_diagnostics_run  Argument Table
-   !! \htmlinclude cam_state_diagnostics_run.html
-   subroutine cam_state_diagnostics_run(ps, psdry, phis, T, u, v, dse, omega, &
+   !> \section arg_table_sima_state_diagnostics_run  Argument Table
+   !! \htmlinclude sima_state_diagnostics_run.html
+   subroutine sima_state_diagnostics_run(ps, psdry, phis, T, u, v, dse, omega, &
         pmid, pmiddry, pdel, pdeldry, rpdel, rpdeldry, lnpmid, lnpmiddry,     &
         inv_exner, zm, pint, pintdry, lnpint, lnpintdry, zi, const_array,     &
         const_props, errmsg, errflg)
@@ -176,5 +176,5 @@ CONTAINS
          end if
       end do
 
-   end subroutine cam_state_diagnostics_run
-end module cam_state_diagnostics
+   end subroutine sima_state_diagnostics_run
+end module sima_state_diagnostics
