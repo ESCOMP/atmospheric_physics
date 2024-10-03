@@ -1,6 +1,6 @@
 ===============================================================
 
-Tag name:
+Tag name: atmos_phys0_05_001
 Originator(s): nusbaume
 Date: October 10, 2024
 One-line Summary: Move suite and scheme files to new directories
@@ -10,7 +10,7 @@ This PR fixes the following NCAR/atmospheric_physics Github issues:
 
 Fixes #124 -> Re-organize directory structure
 
-Code reviewed by:
+Code reviewed by: peverwhee, jimmielin
 
 List all existing files that have been added (A), modified (M), or deleted (D),
 and describe the changes:
@@ -81,14 +81,13 @@ R100    zhang_mcfarlane/zm_convr.meta                      schemes/zhang_mcfarla
 - Update CMake path to point to new directory location (found during testing):
 M       test/CMakeLists.txt
 
-
 List and Describe any test failures: N/A
 
 Summarize any changes to answers: none
 
 ===============================================================
 
-Tag name:
+Tag name: atmos_phys0_05_000
 Originator(s): jimmielin
 Date: August 22, 2024
 One-line Summary: tropopause_find CCPP-ization
