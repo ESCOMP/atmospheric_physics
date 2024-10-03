@@ -2,9 +2,6 @@ module check_energy_chng
 
   use ccpp_kinds, only: kind_phys
 
-  ! FIXME hplin: for DEBUG only
-  use cam_logfile,      only: iulog
-
   implicit none
   private
 
@@ -202,6 +199,9 @@ contains
 
     ! FIXME: Flags for vertical coordinate used in physics/dycore
     use dyn_tests_utils, only: vc_height, vc_dry_pressure
+
+    ! FIXME hplin: for DEBUG only
+    use cam_logfile,      only: iulog
 
     ! Input arguments
     integer,            intent(in)    :: ncol           ! number of atmospheric columns

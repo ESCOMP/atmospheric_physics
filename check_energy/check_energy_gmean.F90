@@ -23,6 +23,11 @@ contains
     ! Dependency: Uses gmean from src/utils
     use gmean_mod, only: gmean
 
+    ! Dev-only Dependency: Debug output to mimic CAM behavior
+    use spmd_utils,   only: masterproc
+    use cam_logfile,  only: iulog
+    use time_manager, only: get_nstep
+
     ! Input arguments
     integer,            intent(in)    :: ncol           ! number of atmospheric columns
     integer,            intent(in)    :: pver           ! number of vertical layers
@@ -68,6 +73,12 @@ contains
     ! Compute global mean total energy difference for check_energy_fix
     tedif_glob = teinp_glob - teout_glob
     heat_glob  = -tedif_glob/dtime * gravit / (psurf_glob - ptopb_glob)    ! [J kg-1 s-1]
+
+    ! Dev-only: Debug output for CAM only
+    if (masterproc) then
+      write(iulog,'(1x,a9,1x,i8,5(1x,e25.17))') "nstep, te", get_nstep(), teinp_glob, teout_glob, &
+            heat_glob, psurf_glob, ptopb_glob
+    endif
   end subroutine check_energy_gmean_run
 
 end module check_energy_gmean
