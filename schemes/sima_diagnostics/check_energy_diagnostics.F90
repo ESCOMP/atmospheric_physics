@@ -1,0 +1,86 @@
+! Diagnostic scheme for check_energy
+! Not all quantities are needed as diagnostics; this module is designed to ease development
+module check_energy_diagnostics
+   use ccpp_kinds, only: kind_phys
+
+   implicit none
+   private
+   save
+
+   public :: check_energy_diagnostics_init ! init routine
+   public :: check_energy_diagnostics_run  ! main routine
+
+CONTAINS
+
+   !> \section arg_table_check_energy_diagnostics_init  Argument Table
+   !! \htmlinclude check_energy_diagnostics_init.html
+   subroutine check_energy_diagnostics_init(errmsg, errflg)
+      use cam_history,         only: history_add_field
+      use cam_history_support, only: horiz_only
+
+      character(len=512), intent(out) :: errmsg
+      integer,            intent(out) :: errflg
+
+      ! Local variables:
+
+      errmsg = ''
+      errflg = 0
+
+      ! History add field calls
+      call history_add_field('cp_or_cv_dycore', 'enthalpy_or_internal_energy_scaling_factor_for_energy_consistency_tbd', 'lev', 'inst', 'J kg-1 K-1')
+      call history_add_field('scaling_dycore', 'composition_dependent_ratio_of_specific_heat_of_dry_air_at_constant_pressure_to_enthalpy_or_internal_energy_scaling_factor_for_energy_consistency_tbd', 'lev', 'inst', '1')
+
+      call history_add_field('te_cur_phys', 'vertically_integrated_total_energy_of_current_state_using_physics_energy_formula', horiz_only, 'inst', 'J m-2')
+      call history_add_field('te_cur_dyn', 'vertically_integrated_total_energy_of_current_state_using_dycore_energy_formula', horiz_only, 'inst', 'J m-2')
+      call history_add_field('tw_cur', 'vertically_integrated_moist_air_and_condensed_water_of_current_state', horiz_only, 'inst', 'kg m-2')
+
+      call history_add_field('tend_te_tnd', 'cumulative_total_energy_boundary_flux_using_physics_energy_formula', horiz_only, 'inst', 'J m-2 s-1')
+      call history_add_field('tend_tw_tnd', 'cumulative_total_water_boundary_flux', horiz_only, 'inst', 'kg m-2 s-1')
+
+      call history_add_field('teout', 'vertically_integrated_total_energy_at_end_of_physics', horiz_only, 'inst', 'J m-2')
+
+   end subroutine check_energy_diagnostics_init
+
+   !> \section arg_table_check_energy_diagnostics_run  Argument Table
+   !! \htmlinclude check_energy_diagnostics_run.html
+   subroutine check_energy_diagnostics_run( &
+      cp_or_cv_dycore, scaling_dycore, &
+      te_cur_phys, te_cur_dyn, tw_cur, &
+      tend_te_tnd, tend_tw_tnd, teout, &
+      errmsg, errflg)
+
+      use cam_history, only: history_out_field
+      !------------------------------------------------
+      !   Input / output parameters
+      !------------------------------------------------
+      ! State variables
+      real(kind_phys), intent(in) :: cp_or_cv_dycore(:,:)
+      real(kind_phys), intent(in) :: scaling_dycore(:,:)
+      real(kind_phys), intent(in) :: te_cur_phys(:)
+      real(kind_phys), intent(in) :: te_cur_dyn(:)
+      real(kind_phys), intent(in) :: tw_cur(:)
+      real(kind_phys), intent(in) :: tend_te_tnd(:)
+      real(kind_phys), intent(in) :: tend_tw_tnd(:)
+      real(kind_phys), intent(in) :: teout(:)
+
+
+      ! CCPP error handling variables
+      character(len=512), intent(out) :: errmsg
+      integer,            intent(out) :: errflg
+
+      errmsg = ''
+      errflg = 0
+
+      ! History out field calls
+      call history_out_field('cp_or_cv_dycore', cp_or_cv_dycore)
+      call history_out_field('scaling_dycore', scaling_dycore)
+      call history_out_field('te_cur_phys', te_cur_phys)
+      call history_out_field('te_cur_dyn', te_cur_dyn)
+      call history_out_field('tw_cur', tw_cur)
+      call history_out_field('tend_te_tnd', tend_te_tnd)
+      call history_out_field('tend_tw_tnd', tend_tw_tnd)
+      call history_out_field('teout', teout)
+
+   end subroutine check_energy_diagnostics_run
+
+end module check_energy_diagnostics
