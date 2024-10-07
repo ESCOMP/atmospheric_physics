@@ -4,7 +4,7 @@ module check_energy_fix
   implicit none
   private
 
-  public  :: check_energy_fix
+  public  :: check_energy_fix_run
 
 contains
 

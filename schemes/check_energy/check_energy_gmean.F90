@@ -4,7 +4,7 @@ module check_energy_gmean
   implicit none
   private
 
-  public  :: check_energy_gmean
+  public  :: check_energy_gmean_run
 
 contains
 
