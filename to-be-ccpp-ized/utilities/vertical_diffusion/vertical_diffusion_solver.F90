@@ -1,4 +1,4 @@
-module vertical_diffusion
+module vertical_diffusion_solver
 
     implicit none
     private
@@ -25,7 +25,7 @@ module vertical_diffusion
     function fin_vol_solve(dt, p, toSolve, ncols, pver, coef_q, coef_q_diff, coef_q_adv, &
         coef_q_weight, upper_bndry, lower_bndry, l_cond, r_cond)  result(solution)
     
-        use linear_1d_operators, only: &
+        use atmos_phys_linear_1d_operators, only: &
         zero_operator,               &
         diagonal_operator,           &
         diffusion_operator,          &
@@ -36,7 +36,7 @@ module vertical_diffusion
         BoundaryCond,                &
         operator(+)
         use shr_kind_mod,        only: r8 => shr_kind_r8
-        use coords_1d,           only: Coords1D
+        use atmos_phys_coords_1d,           only: Coords1D
     
         ! ---------------------- !
         ! Input-Output Arguments !
@@ -132,5 +132,5 @@ module vertical_diffusion
     
     end function fin_vol_solve
     
-end module vertical_diffusion
+end module vertical_diffusion_solver
     

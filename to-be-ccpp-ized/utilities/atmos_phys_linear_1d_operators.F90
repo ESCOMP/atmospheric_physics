@@ -41,7 +41,7 @@ module linear_1d_operators
     use shr_kind_mod, only: r8 => shr_kind_r8
     use shr_log_mod, only: errMsg => shr_log_errMsg
     use shr_sys_mod, only: shr_sys_abort
-    use coords_1d, only: Coords1D
+    use atmos_phys_coords_1d, only: Coords1D
     
     implicit none
     private

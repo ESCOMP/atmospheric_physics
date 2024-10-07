@@ -1,4 +1,4 @@
-module coords_1d
+module atmos_phys_coords_1d
 
     ! This module defines the Coords1D type, which is intended to to cache
     ! commonly used information derived from a collection of sets of 1-D
@@ -148,5 +148,5 @@ module coords_1d
     
     end subroutine finalize
     
-end module coords_1d
+end module atmos_phys_coords_1d
     
