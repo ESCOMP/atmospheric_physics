@@ -36,7 +36,7 @@ module vertical_diffusion_solver
         BoundaryCond,                &
         operator(+)
         use shr_kind_mod,        only: r8 => shr_kind_r8
-        use atmos_phys_coords_1d,           only: Coords1D
+        use coords_1d,           only: Coords1D
     
         ! ---------------------- !
         ! Input-Output Arguments !
