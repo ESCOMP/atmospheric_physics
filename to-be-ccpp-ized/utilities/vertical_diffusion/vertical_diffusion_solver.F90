@@ -25,7 +25,7 @@ module vertical_diffusion_solver
     function fin_vol_solve(dt, p, toSolve, ncols, pver, coef_q, coef_q_diff, coef_q_adv, &
         coef_q_weight, upper_bndry, lower_bndry, l_cond, r_cond)  result(solution)
     
-        use atmos_phys_linear_1d_operators, only: &
+        use linear_1d_operators, only: &
         zero_operator,               &
         diagonal_operator,           &
         diffusion_operator,          &
