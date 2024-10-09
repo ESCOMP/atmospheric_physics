@@ -1,4 +1,10 @@
 module musica_ccpp_tuvx_height_grid
+
+  implicit none
+
+  private
+  public :: create_height_grid, set_height_grid_values
+
   ! Conversions between the CAM-SIMA height grid and the TUVX height grid
   !
   !-----------------------------------------------------------------------
@@ -37,9 +43,9 @@ module musica_ccpp_tuvx_height_grid
   !-----------------------------------------------------------------------
 
   !> Label for height grid in TUV-x
-  character(len=*), parameter :: height_grid_label = "height"
+  character(len=*), parameter, public :: height_grid_label = "height"
   !> Units for height grid in TUV-x
-  character(len=*), parameter :: height_grid_units = "km"
+  character(len=*), parameter, public :: height_grid_units = "km"
 
 contains
 

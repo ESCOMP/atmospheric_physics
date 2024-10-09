@@ -1,7 +1,7 @@
 [ccpp-table-properties]
   name = musica_ccpp
   type = scheme
-  dependencies = micm/musica_ccpp_micm.F90,micm/musica_ccpp_tuvx.F90,musica_ccpp_util.F90
+  dependencies = micm/musica_ccpp_micm.F90,micm/musica_ccpp_micm_util.F90,tuvx/musica_ccpp_tuvx.F90,tuvx/musica_ccpp_tuvx_height_grid.F90,musica_ccpp_util.F90
   dynamic_constituent_routine = musica_ccpp_register
 
 [ccpp-arg-table]
@@ -59,6 +59,8 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension,number_of_ccpp_constituents)
   intent = inout
+[ height ]
+  standard_name = 
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none

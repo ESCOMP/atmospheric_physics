@@ -25,32 +25,38 @@ contains
 
   !> \section arg_table_musica_ccpp_init Argument Table
   !! \htmlinclude musica_ccpp_init.html
-  subroutine musica_ccpp_init(errmsg, errcode)
+  subroutine musica_ccpp_init(vertical_layer_dimension, vertical_interface_dimension, &
+      errmsg, errcode)
+    integer,            intent(in)  :: vertical_layer_dimension     ! (count)
+    integer,            intent(in)  :: vertical_interface_dimension ! (count)
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errcode
 
-    call tuvx_init(errmsg, errcode)
+    call tuvx_init(vertical_layer_dimension, vertical_interface_dimension, &
+                   errmsg, errcode)
+    if (errcode /= 0) return
     call micm_init(errmsg, errcode)
+    if (errcode /= 0) return
 
   end subroutine musica_ccpp_init
 
   !> \section arg_table_musica_ccpp_run Argument Table
   !! \htmlinclude musica_ccpp_run.html
   subroutine musica_ccpp_run(time_step, temperature, pressure, dry_air_density, constituent_props, &
-                      constituents, rate_params, height, errmsg, errcode)
-    use micm_util,                 only: reshape_into_micm_arr, reshape_into_ccpp_arr
-    use micm_util,                 only: convert_to_mol_per_cubic_meter, convert_to_mass_mixing_ratio
+                      constituents, height_midpoints, height_interfaces, errmsg, errcode)
+    use musica_ccpp_micm_util,     only: reshape_into_micm_arr, reshape_into_ccpp_arr
+    use musica_ccpp_micm_util,     only: convert_to_mol_per_cubic_meter, convert_to_mass_mixing_ratio
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use ccpp_kinds,                only: kind_phys
     use iso_c_binding,             only: c_double
-    real(kind_phys),                   intent(inout) :: time_step            ! s
-    real(kind_phys), target,           intent(inout) :: temperature(:,:)     ! K
-    real(kind_phys), target,           intent(inout) :: pressure(:,:)        ! Pa
-    real(kind_phys), target,           intent(inout) :: dry_air_density(:,:) ! kg m-3
+    real(kind_phys),                   intent(in)    :: time_step              ! s
+    real(kind_phys), target,           intent(in)    :: temperature(:,:)       ! K
+    real(kind_phys), target,           intent(in)    :: pressure(:,:)          ! Pa
+    real(kind_phys), target,           intent(in)    :: dry_air_density(:,:)   ! kg m-3
     type(ccpp_constituent_prop_ptr_t), intent(in)    :: constituent_props(:)
-    real(kind_phys), target,           intent(inout) :: constituents(:,:,:)  ! kg kg-1
-    real(kind_phys), target,           intent(inout) :: rate_params(:,:,:)
-    real(kind_phys), target,           intent(in)    :: height(:,:)          ! km
+    real(kind_phys), target,           intent(inout) :: constituents(:,:,:)    ! kg kg-1
+    real(kind_phys), target,           intent(in)    :: height_midpoints(:,:)  ! km
+    real(kind_phys), target,           intent(in)    :: height_interfaces(:,:) ! km
     character(len=512),                intent(out)   :: errmsg
     integer,                           intent(out)   :: errcode
 
@@ -64,13 +70,16 @@ contains
     real(c_double), target, dimension(size(constituents, dim=1)    &
                                     * size(constituents, dim=2)    & 
                                     * size(constituents, dim=3))     :: m_constituents ! mol m-3
-    real(c_double), target, dimension(size(rate_params, dim=1)     &
-                                    * size(rate_params, dim=2)     & 
-                                    * size(rate_params, dim=3))      :: m_rate_params
     real(kind_phys), target, dimension(size(constituents, dim=3))    :: molar_mass_arr ! kg mol-1
+    
+    ! temporarily dimensioned to Chapman mechanism until mapping between MICM and TUV-x is implemented
+    real(c_double), target, dimension(size(constituents, dim=1) &
+                                    * size(constituents, dim=2) &
+                                    * 3) :: photolysis_rate_constants ! s-1
     integer :: i_elem
 
-    call tuvx_run(height, temperature, dry_air_density, errmsg, errcode)
+    call tuvx_run(temperature, dry_air_density, height_midpoints, height_interfaces, &
+                  photolysis_rate_constants, errmsg, errcode)
 
     ! Get the molar_mass that is set in the call to instantiate()
     do i_elem = 1, size(molar_mass_arr)
@@ -95,15 +104,15 @@ contains
     call convert_to_mol_per_cubic_meter(dry_air_density, molar_mass_arr, constituents)
 
     ! Reshape array (3D -> 1D) and convert type (kind_phys -> c_double)
-    call reshape_into_micm_arr(temperature, pressure, dry_air_density, constituents, rate_params, &
-                      m_temperature, m_pressure, m_dry_air_density, m_constituents, m_rate_params)
+    call reshape_into_micm_arr(temperature, pressure, dry_air_density, constituents, &
+                      m_temperature, m_pressure, m_dry_air_density, m_constituents)
 
+    ! temporarily pass in unmapped photolysis rate constants until mapping between MICM and TUV-x is implemented
     call micm_run(time_step, m_temperature, m_pressure, m_dry_air_density, m_constituents, &
-                      m_rate_params, errmsg, errcode)
+                  photolysis_rate_constants, errmsg, errcode)
 
     ! Reshape array (1D -> 3D) and convert type (c_double -> kind_phys)
-    call reshape_into_ccpp_arr(temperature, pressure, dry_air_density, constituents, rate_params, &
-                      m_temperature, m_pressure, m_dry_air_density, m_constituents, m_rate_params)
+    call reshape_into_ccpp_arr(constituents, m_constituents)
 
     ! Convert MICM unit back to CAM-SIMA unit (mol m-3  ->  kg kg-1)
     call convert_to_mass_mixing_ratio(dry_air_density, molar_mass_arr, constituents)

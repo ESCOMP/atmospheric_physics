@@ -91,7 +91,7 @@ contains
 
   !> Solve chemistry at the current time step
   subroutine micm_run(time_step, temperature, pressure, dry_air_density, constituents, &
-                      rate_params, errmsg, errcode)
+                      user_defined_rate_parameters, errmsg, errcode)
     use musica_micm, only: solver_stats_t
     use musica_util, only: string_t, error_t
 
@@ -100,7 +100,7 @@ contains
     real(c_double), target, intent(in)    :: pressure(:)        ! Pa
     real(c_double), target, intent(in)    :: dry_air_density(:) ! kg m-3
     real(c_double), target, intent(inout) :: constituents(:)    ! mol m-3
-    real(c_double), target, intent(inout) :: rate_params(:)
+    real(c_double), target, intent(in)    :: user_defined_rate_parameters(:) ! various units
     character(len=512),     intent(out)   :: errmsg
     integer,                intent(out)   :: errcode
 
@@ -115,14 +115,14 @@ contains
     errmsg = ''
     c_time_step = real(time_step, c_double) 
 
-    call micm%solve(c_time_step,     &
-                    temperature,     &
-                    pressure,        &
-                    dry_air_density, &
-                    constituents,    &
-                    rate_params,     &
-                    solver_state,    &
-                    solver_stats,    &
+    call micm%solve(c_time_step,                  &
+                    temperature,                  &
+                    pressure,                     &
+                    dry_air_density,              &
+                    constituents,                 &
+                    user_defined_rate_parameters, &
+                    solver_state,                 &
+                    solver_stats,                 &
                     error)
     if (has_error_occurred(error, errmsg, errcode)) return
 
