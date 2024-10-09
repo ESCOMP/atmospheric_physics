@@ -1,6 +1,6 @@
 FROM ubuntu:22.04
 
-ARG MUSICA_GIT_TAG=c58c266ea967eca7899dac797319e8d600037ea7
+ARG MUSICA_GIT_TAG=dbbdb22f5f2807e27c2695db85291951ba178634
 
 RUN apt update \
     && apt install -y sudo \
