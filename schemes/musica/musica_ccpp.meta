@@ -60,7 +60,11 @@
   dimensions = (horizontal_loop_extent,vertical_layer_dimension,number_of_ccpp_constituents)
   intent = inout
 [ height ]
-  standard_name = 
+  standard_name = ccpp_height
+  units = km
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
