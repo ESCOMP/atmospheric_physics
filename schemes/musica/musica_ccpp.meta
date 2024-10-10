@@ -7,6 +7,18 @@
 [ccpp-arg-table]
   name  = musica_ccpp_init
   type  = scheme
+[ vertical_layer_dimension ]
+  standard_name = vertical_layer_dimension
+  units = none
+  type = integer
+  dimensions = ()
+  intent = in
+[ vertical_interface_dimension ]
+  standard_name = vertical_interface_dimension
+  units = none
+  type = integer
+  dimensions = ()
+  intent = in
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
@@ -59,8 +71,14 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension,number_of_ccpp_constituents)
   intent = inout
-[ height ]
-  standard_name = ccpp_height
+[ height_midpoints ]
+  standard_name = ccpp_height_midpoints
+  units = km
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ height_interfaces ]
+  standard_name = ccpp_height_interfaces
   units = km
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
