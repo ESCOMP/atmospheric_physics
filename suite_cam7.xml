@@ -8,10 +8,8 @@
     <scheme>apply_heating_rate</scheme>
     <scheme>qneg</scheme>
     <scheme>geopotential_temp</scheme>
+    <!-- State diagnostics -->
     <scheme>sima_state_diagnostics</scheme>
-  </group>
-  <group name="physics_after_coupler">
-    <scheme>sima_tend_diagnostics</scheme>
   </group>
   <group name="physics_after_coupler">
     <!-- Find tropopause -->
@@ -19,5 +17,7 @@
     <!-- so supersaturated cells are not written to the tape. -->
     <scheme>tropopause_find</scheme>
     <scheme>tropopause_diagnostics</scheme>
+    <!-- Tendency diagnostics -->
+    <scheme>sima_tend_diagnostics</scheme>
   </group>
 </suite>
