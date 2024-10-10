@@ -18,13 +18,13 @@ subroutine test_musica_ccpp_api()
   integer                                                                :: solver_type
   integer                                                                :: errcode
   character(len=512)                                                     :: errmsg
-  real(kind_phys)                                                        :: time_step       ! s
-  real(kind_phys),         dimension(NUM_COLUMNS,NUM_LAYERS)             :: height          ! km
-  real(kind_phys), target, dimension(NUM_COLUMNS,NUM_LAYERS)             :: temperature     ! K
-  real(kind_phys), target, dimension(NUM_COLUMNS,NUM_LAYERS)             :: pressure        ! Pa
-  real(kind_phys), target, dimension(NUM_COLUMNS,NUM_LAYERS)             :: dry_air_density ! kg m-3
-  real(kind_phys), target, dimension(NUM_COLUMNS,NUM_LAYERS,NUM_SPECIES) :: constituents    ! kg kg-1
-  real(kind_phys), target, dimension(NUM_COLUMNS,NUM_LAYERS,NUM_RATES)   :: user_defined_reaction_rates
+  real(kind_phys)                                                        :: time_step         ! s
+  real(kind_phys),         dimension(NUM_COLUMNS,NUM_LAYERS)             :: height_midpoints  ! km
+  real(kind_phys),         dimension(NUM_COLUMNS,NUM_LAYERS+1)           :: height_interfaces ! km
+  real(kind_phys), target, dimension(NUM_COLUMNS,NUM_LAYERS)             :: temperature       ! K
+  real(kind_phys), target, dimension(NUM_COLUMNS,NUM_LAYERS)             :: pressure          ! Pa
+  real(kind_phys), target, dimension(NUM_COLUMNS,NUM_LAYERS)             :: dry_air_density   ! kg m-3
+  real(kind_phys), target, dimension(NUM_COLUMNS,NUM_LAYERS,NUM_SPECIES) :: constituents      ! kg kg-1
   type(ccpp_constituent_prop_ptr_t), allocatable                         :: constituent_props_ptr(:)
 
   ! local variables
@@ -39,6 +39,10 @@ subroutine test_musica_ccpp_api()
   solver_type = Rosenbrock
   num_grid_cells = NUM_COLUMNS * NUM_LAYERS
   time_step = 60._kind_phys
+  height_midpoints(1,:) = (/ 3.0_kind_phys, 1.0_kind_phys /)
+  height_midpoints(2,:) = (/ 4.0_kind_phys, 1.5_kind_phys /)
+  height_interfaces(1,:) = (/ 4.0_kind_phys, 2.0_kind_phys, 1.0_kind_phys /)
+  height_interfaces(2,:) = (/ 5.0_kind_phys, 2.5_kind_phys, 0.5_kind_phys /)
   temperature(:,1) = (/ 100._kind_phys, 200._kind_phys /)
   temperature(:,2) = (/ 300._kind_phys, 400._kind_phys /)
   pressure(:,1) = (/ 6000.04_kind_phys, 7000.04_kind_phys /)
@@ -49,11 +53,7 @@ subroutine test_musica_ccpp_api()
   constituents(1,2,:) = (/ 0.41_kind_phys, 0.42_kind_phys, 0.43_kind_phys, 0.44_kind_phys /)
   constituents(2,1,:) = (/ 0.21_kind_phys, 0.22_kind_phys, 0.23_kind_phys, 0.24_kind_phys /)
   constituents(2,2,:) = (/ 0.31_kind_phys, 0.32_kind_phys, 0.33_kind_phys, 0.34_kind_phys /)
-  user_defined_reaction_rates(1,1,:) = (/2.7e-19_kind_phys, 1.13e-9_kind_phys, 5.8e-8_kind_phys/)
-  user_defined_reaction_rates(1,2,:) = (/2.7e-19_kind_phys, 1.13e-9_kind_phys, 5.8e-8_kind_phys/)
-  user_defined_reaction_rates(2,1,:) = (/2.7e-19_kind_phys, 1.13e-9_kind_phys, 5.8e-8_kind_phys/)
-  user_defined_reaction_rates(2,2,:) = (/2.7e-19_kind_phys, 1.13e-9_kind_phys, 5.8e-8_kind_phys/)
-
+  
   call musica_ccpp_register(constituent_props, solver_type, num_grid_cells, errmsg, errcode)
   ASSERT(allocated(constituent_props))
   ASSERT(size(constituent_props) == NUM_SPECIES)
@@ -66,7 +66,7 @@ subroutine test_musica_ccpp_api()
     ASSERT(errcode == 0)
     call constituent_props(i)%is_advected(is_advected, errcode, errmsg)
     ASSERT(errcode == 0)
-    tmp_booL = (trim(species_name) == "O2" .and. molar_mass == 0.032_kind_phys .and. .not. is_advected) .or.  &
+    tmp_bool = (trim(species_name) == "O2" .and. molar_mass == 0.032_kind_phys .and. .not. is_advected) .or.  &
                (trim(species_name) == "O" .and. molar_mass == 0.016_kind_phys .and. .not. is_advected) .or.   &
                (trim(species_name) == "O1D" .and. molar_mass == 0.016_kind_phys .and. .not. is_advected) .or. &
                (trim(species_name) == "O3" .and. molar_mass == 0.048_kind_phys .and. is_advected)
@@ -86,7 +86,7 @@ subroutine test_musica_ccpp_api()
     call constituent_props_ptr(i)%set(const_prop, errcode, errmsg)
   end do
 
-  call musica_ccpp_init(errmsg, errcode)
+  call musica_ccpp_init(NUM_LAYERS, NUM_LAYERS+1, errmsg, errcode)
   if (errcode /= 0) then
     write(*,*) trim(errmsg)
     stop 3
@@ -100,11 +100,9 @@ subroutine test_musica_ccpp_api()
   write(*,fmt="(4(1x,f10.4))") pressure
   write(*,*) "[MUSICA INFO] Initial Concentrations"
   write(*,fmt="(4(3x,e13.6))") constituents
-  write(*,*) "[MUSICA INFO] Initial User-defined Reaction Rates"
-  write(*,fmt="(3(3x,e13.6))") user_defined_reaction_rates
 
   call musica_ccpp_run(time_step, temperature, pressure, dry_air_density, constituent_props_ptr, &
-                       constituents, user_defined_reaction_rates, height, errmsg, errcode)
+                       constituents, height_midpoints, height_interfaces, errmsg, errcode)
   if (errcode /= 0) then
     write(*,*) trim(errmsg)
     stop 3
@@ -112,8 +110,6 @@ subroutine test_musica_ccpp_api()
 
   write(*,*) "[MUSICA INFO] Solved Concentrations"
   write(*,fmt="(4(3x,e13.6))") constituents
-  write(*,*) "[MUSICA INFO] Solved User-defined Reaction Rates"
-  write(*,fmt="(3(3x,e13.6))") user_defined_reaction_rates
 
   call musica_ccpp_final(errmsg, errcode)
 
