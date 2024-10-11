@@ -3,7 +3,7 @@
         {
             "name": "M",
             "type": "CHEM_SPEC",
-            "tracer type": "CONSTANT",
+            "tracer type": "THIRD_BODY",
             "molecular weight [kg mol-1]": 0.029,
             "__is advected": false
         },
