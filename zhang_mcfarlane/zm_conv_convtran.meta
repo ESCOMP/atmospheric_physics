@@ -3,6 +3,41 @@
   type = scheme
 
 [ccpp-arg-table]
+  name  = zm_conv_convtran_init
+  type  = scheme
+[ qprops ]
+  standard_name = ccpp_constituent_properties
+  units = None
+  type = ccpp_constituent_prop_ptr_t
+  dimensions = (number_of_ccpp_constituents)
+  intent = in
+[ ncnst ]
+  standard_name = number_of_ccpp_constituents
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ doconvtran ]
+  standard_name = flag_for_tracer_transport_by_zhang_mcfarlane_deep_scheme
+  units = flag
+  type = logical
+  dimensions = (number_of_ccpp_constituents)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+[ccpp-arg-table]
   name  = zm_conv_convtran_run
   type  = scheme
 [ ncol ]

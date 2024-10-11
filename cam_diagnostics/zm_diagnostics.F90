@@ -48,15 +48,6 @@ CONTAINS
 
     call history_add_field ('PRECZ', 'lwe_precipitation_rate_at_surface_due_to_deep_convection_due_to_Zhang-McFarlane', &
                             horiz_only, 'avg', 'm s-1')
-    call history_add_field ('ZMDT', 'T tendency - Zhang-McFarlane moist convection', 'lev', 'avg', 'K s-1')
-    call history_add_field ('ZMDQ', 'Q tendency - Zhang-McFarlane moist convection', 'lev', 'avg', 'kg kg-1 s-1')
-    call history_add_field ('ZMDICE', 'Cloud ice tendency - Zhang-McFarlane convection', 'lev',  'avg', 'kg kg-1 s-1')
-    call history_add_field ('ZMDLIQ', 'Cloud liq tendency - Zhang-McFarlane convection', 'lev',  'avg', 'kg kg-1 s-1')
-    call history_add_field ('EVAPTZM', 'T tendency - Evaporation/snow prod from Zhang convection', 'lev',  'avg', 'K s-1')
-    call history_add_field ('FZSNTZM', 'T tendency - Rain to snow conversion from Zhang convection', 'lev',  'avg', 'K s-1')
-    call history_add_field ('EVSNTZM', 'T tendency - Snow to rain prod from Zhang convection', 'lev',  'avg', 'K s-1')
-    call history_add_field ('EVAPQZM', 'Q tendency - Evaporation from Zhang-McFarlane moist convection', 'lev',  'avg', &
-                            'kg kg-1 s-1')
     call history_add_field ('ZMFLXPRC', 'Flux of precipitation from ZM convection', 'ilev', 'avg', 'kg m-2 s-1')
     call history_add_field ('ZMFLXSNW', 'Flux of snow from ZM convection', 'ilev', 'avg', 'kg m-2 s-1')
     call history_add_field ('ZMNTPRPD', 'Net precipitation production from ZM convection', 'lev', 'avg', 'kg kg-1 s-1')
@@ -71,9 +62,6 @@ CONTAINS
 
     call history_add_field ('CAPE',   'zhang_mcfarlane_convective_available_potential_energycap',  horiz_only,   'avg', 'J kg-1')
     call history_add_field ('FREQZM', 'Fractional occurance of ZM convection',  horiz_only  , 'avg', 'fraction')
-    call history_add_field ('ZMMTT',  'T tendency - ZM convective momentum transport', 'lev',  'avg', 'K s-1')
-    call history_add_field ('ZMMTU',  'U tendency - ZM convective momentum transport', 'lev',  'avg', 'm s-2')
-    call history_add_field ('ZMMTV',  'V tendency - ZM convective momentum transport', 'lev',  'avg', 'm s-2')
 
     call history_add_field ('ZMMU',   'ZM convection updraft mass flux',  'lev',  'avg', 'kg m-2 s-1')
     call history_add_field ('ZMMD',   'ZM convection downdraft mass flux', 'lev',  'avg', 'kg m-2 s-1')
@@ -98,12 +86,14 @@ CONTAINS
    subroutine zm_diagnostics_run(ncol, pver, pverp, ideep, cpair, heat, prec, cape, errmsg, errflg)
 
       use cam_history, only: history_out_field
+
       !------------------------------------------------
       !   Input / output parameters
       !------------------------------------------------
       integer, intent(in) :: ncol
       integer, intent(in) :: pver
       integer, intent(in) :: pverp
+!      real(kind_phys), intent(in) :: const_array(:,:,:)
       integer, intent(in) :: ideep(:)
 
       real(kind_phys), intent(in) :: cpair
@@ -121,6 +111,8 @@ CONTAINS
       real(kind_phys) :: mcon(ncol,pverp)
       real(kind_phys) :: mconzm(ncol,pverp)
 
+      integer :: index_cldliq
+
       errmsg = ''
       errflg = 0
 
@@ -129,22 +121,23 @@ CONTAINS
 
       call history_out_field('PRECZ', prec)
 
-      ftem(:,:) = 0._kind_phys
-      ftem(:ncol,:pver) = heat(:ncol,:pver)/cpair
-      call history_out_field('ZMDT', ftem)
+!      ftem(:,:) = 0._kind_phys
+!      ftem(:ncol,:pver) = heat(:ncol,:pver)/cpair
+!      call history_out_field('ZMDT', ftem)
 
-      call history_out_field('CAPE', cape)
+!      call history_out_field('CAPE', cape)
 
-      freqzm(:) = 0._r8
-      do i = 1,lengath
-         freqzm(ideep(i)) = 1.0_r8
-      end do
-      call history_out_field('FREQZM  ',freqzm)
-`
-      mcon(:ncol,:pverp) = mcon(:ncol,:pverp) * 100._r8/gravit
-      mconzm(:ncol,:pverp) = mcon(:ncol,:pverp)
+!      freqzm(:) = 0._r8
+!      do i = 1,lengath
+!         freqzm(ideep(i)) = 1.0_r8
+!      end do
+!      call history_out_field('FREQZM  ',freqzm)
 
-      call outfld('CMFMC_DP', mconzm)
+!      mcon(:ncol,:pverp) = mcon(:ncol,:pverp) * 100._r8/gravit
+!      mconzm(:ncol,:pverp) = mcon(:ncol,:pverp)
+
+!      call outfld('CMFMC_DP', mconzm)
+
 
    end subroutine zm_diagnostics_run
 

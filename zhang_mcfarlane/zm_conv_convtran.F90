@@ -9,11 +9,41 @@ module zm_conv_convtran
 !
 ! PUBLIC: interfaces
 !
+  public zm_conv_convtran_init
   public zm_conv_convtran_run     ! convective transport
 
 
 contains
 
+!===============================================================================
+!> \section arg_table_zm_conv_convtran_init Argument Table
+!! \htmlinclude zm_conv_convtran_init.html
+!!
+subroutine zm_conv_convtran_init(qprops, ncnst, doconvtran, errmsg, errflg)
+
+use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
+
+   implicit none
+
+   type(ccpp_constituent_prop_ptr_t), intent(in)  :: qprops(:)
+   integer,             intent(in) :: ncnst          ! number of tracers to transport
+
+   logical,            intent(out) :: doconvtran(:)  ! flag for doing convective transport      (ncnst)
+   character(len=512), intent(out) :: errmsg
+   integer,            intent(out) :: errflg
+
+
+   integer :: q_index
+
+   errmsg = ''
+   errflg = 0
+
+   do q_index=1,ncnst
+       call qprops(q_index)%is_water_species(doconvtran(q_index), errflg, errmsg)
+       if (errflg /= 0) return
+   end do
+
+end subroutine zm_conv_convtran_init
 !===============================================================================
 !> \section arg_table_zm_conv_convtran_run Argument Table
 !! \htmlinclude zm_conv_convtran_run.html
