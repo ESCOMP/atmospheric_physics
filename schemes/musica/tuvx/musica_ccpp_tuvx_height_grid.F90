@@ -3,7 +3,7 @@ module musica_ccpp_tuvx_height_grid
   implicit none
 
   private
-  public :: create_height_grid, set_height_grid_values
+  public :: create_height_grid, set_height_grid_values, calculate_heights
 
   ! Conversions between the CAM-SIMA height grid and the TUVX height grid
   !
@@ -134,5 +134,40 @@ contains
     if ( has_error_occurred( error, errmsg, errcode ) ) return
 
   end subroutine set_height_grid_values
+
+  !> Calculates the heights needed for the TUV-x grid based on available data
+  !!
+  !! Uses the reciprocal of gravitational acceleration, the surface geopotential,
+  !! and the geopotential height wrt the surface and midpoints/interfaces to calculate
+  !! the midpoint/interface height above sea level in km needed for the TUV-x grid.
+  !!
+  !! The equation used is taked from CAMChem
+  !! (see https://github.com/ESCOMP/CAM/blob/f0e489e9708ce7b91635f6d4997fbf1e390b0dbb/src/chemistry/mozart/mo_gas_phase_chemdr.F90#L514-L526)
+  subroutine calculate_heights( geopotential_height_wrt_surface_at_midpoint, &
+      geopotential_height_wrt_surface_at_interface, &
+      surface_geopotential, reciprocal_of_gravitational_acceleration, &
+      height_midpoints, height_interfaces )
+
+    use ccpp_kinds,       only: kind_phys
+    use musica_ccpp_util, only: has_error_occurred
+    use musica_util,      only: error_t
+
+    real(kind_phys),  intent(in)  :: geopotential_height_wrt_surface_at_midpoint(:) ! m
+    real(kind_phys),  intent(in)  :: geopotential_height_wrt_surface_at_interface(:) ! m
+    real(kind_phys),  intent(in)  :: surface_geopotential ! m2 s-2
+    real(kind_phys),  intent(in)  :: reciprocal_of_gravitational_acceleration ! s2 m-1
+    real(kind_phys),  intent(out) :: height_midpoints(:) ! Pa
+    real(kind_phys),  intent(out) :: height_interfaces(:) ! Pa
+    real(kind_phys) :: surface_height ! km
+
+    surface_height = surface_geopotential * reciprocal_of_gravitational_acceleration
+    height_midpoints(:) = 0.001_kind_phys * &
+                          ( geopotential_height_wrt_surface_at_midpoint(:) &
+                            + surface_height )
+    height_interfaces(:) = 0.001_kind_phys * &
+                           ( geopotential_height_wrt_surface_at_interface(:) &
+                             + surface_height )
+
+  end subroutine calculate_heights
 
 end module musica_ccpp_tuvx_height_grid

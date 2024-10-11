@@ -96,15 +96,20 @@ contains
   end subroutine tuvx_init
 
   !> Calculates photolysis rate constants for the current model conditions
-  subroutine tuvx_run( temperature, dry_air_density, height_midpoints, &
-      height_interfaces, photolysis_rate_constants, errmsg, errcode )
+  subroutine tuvx_run( temperature, dry_air_density, &
+      geopotential_height_wrt_surface_at_midpoint, &
+      geopotential_height_wrt_surface_at_interface, &
+      surface_geopotential, reciprocal_of_gravitational_acceleration, &
+      photolysis_rate_constants, errmsg, errcode )
     use musica_util, only: error_t
-    use musica_ccpp_tuvx_height_grid, only: set_height_grid_values
+    use musica_ccpp_tuvx_height_grid, only: set_height_grid_values, calculate_heights
 
     real(kind_phys),    intent(in)  :: temperature(:,:)       ! K (column, layer)
     real(kind_phys),    intent(in)  :: dry_air_density(:,:)   ! molecule cm-3 (column, layer)
-    real(kind_phys),    intent(in)  :: height_midpoints(:,:)  ! km (column, layer)
-    real(kind_phys),    intent(in)  :: height_interfaces(:,:) ! km (column, interface)
+    real(kind_phys),    intent(in)  :: geopotential_height_wrt_surface_at_midpoint(:,:)  ! m (column, layer)
+    real(kind_phys),    intent(in)  :: geopotential_height_wrt_surface_at_interface(:,:) ! m (column, interface)
+    real(kind_phys),    intent(in)  :: surface_geopotential(:)    ! m2 s-2
+    real(kind_phys),    intent(in)  :: reciprocal_of_gravitational_acceleration ! s2 m-1
     ! temporarily set to Chapman mechanism and 1 dimension
     ! until mapping between MICM and TUV-x is implemented
     real(kind_phys),    intent(out) :: photolysis_rate_constants(:) ! s-1 (column, reaction)
@@ -113,14 +118,20 @@ contains
 
     ! local variables
     type(error_t) :: error
+    real(kind_phys), dimension(size(geopotential_height_wrt_surface_at_midpoint, dim = 2)) :: height_midpoints
+    real(kind_phys), dimension(size(geopotential_height_wrt_surface_at_interface, dim = 2)) :: height_interfaces
     integer :: i_col
 
     errcode = 0
     errmsg = ''
 
     do i_col = 1, size(temperature, dim=1)
-      call set_height_grid_values( height_grid, height_midpoints(i_col,:), &
-          height_interfaces(i_col,:), errmsg, errcode )
+      call calculate_heights( geopotential_height_wrt_surface_at_midpoint(i_col,:), &
+          geopotential_height_wrt_surface_at_interface(i_col,:), &
+          surface_geopotential(i_col), reciprocal_of_gravitational_acceleration, &
+          height_midpoints, height_interfaces )
+      call set_height_grid_values( height_grid, height_midpoints, &
+          height_interfaces, errmsg, errcode )
     end do
     if (errcode /= 0) return
 

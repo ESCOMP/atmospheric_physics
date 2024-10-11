@@ -19,8 +19,10 @@ subroutine test_musica_ccpp_api()
   integer                                                                :: errcode
   character(len=512)                                                     :: errmsg
   real(kind_phys)                                                        :: time_step         ! s
-  real(kind_phys),         dimension(NUM_COLUMNS,NUM_LAYERS)             :: height_midpoints  ! km
-  real(kind_phys),         dimension(NUM_COLUMNS,NUM_LAYERS+1)           :: height_interfaces ! km
+  real(kind_phys),         dimension(NUM_COLUMNS,NUM_LAYERS)             :: geopotential_height_wrt_surface_at_midpoint  ! m
+  real(kind_phys),         dimension(NUM_COLUMNS,NUM_LAYERS+1)           :: geopotential_height_wrt_surface_at_interface ! m
+  real(kind_phys),         dimension(NUM_COLUMNS)                        :: surface_geopotential ! m2 s-2
+  real(kind_phys)                                                        :: reciprocal_of_gravitational_acceleration ! s2 m-1
   real(kind_phys), target, dimension(NUM_COLUMNS,NUM_LAYERS)             :: temperature       ! K
   real(kind_phys), target, dimension(NUM_COLUMNS,NUM_LAYERS)             :: pressure          ! Pa
   real(kind_phys), target, dimension(NUM_COLUMNS,NUM_LAYERS)             :: dry_air_density   ! kg m-3
@@ -39,10 +41,12 @@ subroutine test_musica_ccpp_api()
   solver_type = Rosenbrock
   num_grid_cells = NUM_COLUMNS * NUM_LAYERS
   time_step = 60._kind_phys
-  height_midpoints(1,:) = (/ 3.0_kind_phys, 1.0_kind_phys /)
-  height_midpoints(2,:) = (/ 4.0_kind_phys, 1.5_kind_phys /)
-  height_interfaces(1,:) = (/ 4.0_kind_phys, 2.0_kind_phys, 1.0_kind_phys /)
-  height_interfaces(2,:) = (/ 5.0_kind_phys, 2.5_kind_phys, 0.5_kind_phys /)
+  geopotential_height_wrt_surface_at_midpoint(1,:) = (/ 2000.0_kind_phys, 500.0_kind_phys /)
+  geopotential_height_wrt_surface_at_midpoint(2,:) = (/ 2000.0_kind_phys, -500.0_kind_phys /)
+  geopotential_height_wrt_surface_at_interface(1,:) = (/ 3000.0_kind_phys, 1000.0_kind_phys, 0.0_kind_phys /)
+  geopotential_height_wrt_surface_at_interface(2,:) = (/ 3000.0_kind_phys, 500.0_kind_phys, -1500.0_kind_phys /)
+  surface_geopotential = (/ 100.0_kind_phys, 200.0_kind_phys /)
+  reciprocal_of_gravitational_acceleration = 10.0_kind_phys
   temperature(:,1) = (/ 100._kind_phys, 200._kind_phys /)
   temperature(:,2) = (/ 300._kind_phys, 400._kind_phys /)
   pressure(:,1) = (/ 6000.04_kind_phys, 7000.04_kind_phys /)
@@ -102,7 +106,10 @@ subroutine test_musica_ccpp_api()
   write(*,fmt="(4(3x,e13.6))") constituents
 
   call musica_ccpp_run(time_step, temperature, pressure, dry_air_density, constituent_props_ptr, &
-                       constituents, height_midpoints, height_interfaces, errmsg, errcode)
+                       constituents, geopotential_height_wrt_surface_at_midpoint, &
+                       geopotential_height_wrt_surface_at_interface, &
+                       surface_geopotential, reciprocal_of_gravitational_acceleration, &
+                       errmsg, errcode)
   if (errcode /= 0) then
     write(*,*) trim(errmsg)
     stop 3

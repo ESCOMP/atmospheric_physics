@@ -10,6 +10,7 @@ program test_tuvx_height_grid
 #define ASSERT_NEAR( a, b, abs_error ) if( (abs(a - b) >= abs_error) .and. (abs(a - b) /= 0.0) ) then; write(*,*) "Assertion failed[", __FILE__, ":", __LINE__, "]: a, b"; stop 1; endif
 
   call test_create_height_grid()
+  call test_calculate_height_grid_values()
 
 contains
 
@@ -72,5 +73,35 @@ contains
     deallocate( height_grid )
 
   end subroutine test_create_height_grid
+
+  subroutine test_calculate_height_grid_values()
+
+    use ccpp_kinds, only: kind_phys
+
+    integer, parameter                       :: NUM_LAYERS = 2
+    real(kind_phys), dimension(NUM_LAYERS)   :: geopotential_height_wrt_surface_at_midpoint ! m
+    real(kind_phys), dimension(NUM_LAYERS+1) :: geopotential_height_wrt_surface_at_interface ! m
+    real(kind_phys)                          :: surface_geopotential ! m2 s-2
+    real(kind_phys)                          :: reciprocal_of_gravitational_acceleration ! s2 m-1
+    real(kind_phys), dimension(NUM_LAYERS)   :: height_midpoints
+    real(kind_phys), dimension(NUM_LAYERS+1) :: height_interfaces
+
+    geopotential_height_wrt_surface_at_midpoint(:) = (/ 2000.0_kind_phys, 500.0_kind_phys /)
+    geopotential_height_wrt_surface_at_interface(:) = (/ 3000.0_kind_phys, 1000.0_kind_phys, 0.0_kind_phys /)
+    surface_geopotential = 100.0_kind_phys
+    reciprocal_of_gravitational_acceleration = 10.0_kind_phys
+
+    call calculate_heights(geopotential_height_wrt_surface_at_midpoint, &
+                           geopotential_height_wrt_surface_at_interface, &
+                           surface_geopotential, reciprocal_of_gravitational_acceleration, &
+                           height_midpoints, height_interfaces)
+
+    ASSERT_NEAR(height_midpoints(1), 3.0, 1e-5)
+    ASSERT_NEAR(height_midpoints(2), 1.5, 1e-5)
+    ASSERT_NEAR(height_interfaces(1), 4.0, 1e-5)
+    ASSERT_NEAR(height_interfaces(2), 2.0, 1e-5)
+    ASSERT_NEAR(height_interfaces(3), 1.0, 1e-5)
+
+  end subroutine test_calculate_height_grid_values
 
 end program test_tuvx_height_grid

@@ -43,7 +43,10 @@ contains
   !> \section arg_table_musica_ccpp_run Argument Table
   !! \htmlinclude musica_ccpp_run.html
   subroutine musica_ccpp_run(time_step, temperature, pressure, dry_air_density, constituent_props, &
-                      constituents, height_midpoints, height_interfaces, errmsg, errcode)
+                      constituents, geopotential_height_wrt_surface_at_midpoint, &
+                      geopotential_height_wrt_surface_at_interface, &
+                      surface_geopotential, reciprocal_of_gravitational_acceleration, &
+                      errmsg, errcode)
     use musica_ccpp_micm_util,     only: reshape_into_micm_arr, reshape_into_ccpp_arr
     use musica_ccpp_micm_util,     only: convert_to_mol_per_cubic_meter, convert_to_mass_mixing_ratio
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
@@ -55,8 +58,10 @@ contains
     real(kind_phys), target,           intent(in)    :: dry_air_density(:,:)   ! kg m-3
     type(ccpp_constituent_prop_ptr_t), intent(in)    :: constituent_props(:)
     real(kind_phys), target,           intent(inout) :: constituents(:,:,:)    ! kg kg-1
-    real(kind_phys), target,           intent(in)    :: height_midpoints(:,:)  ! km
-    real(kind_phys), target,           intent(in)    :: height_interfaces(:,:) ! km
+    real(kind_phys), target,           intent(in)    :: geopotential_height_wrt_surface_at_midpoint(:,:)  ! m
+    real(kind_phys), target,           intent(in)    :: geopotential_height_wrt_surface_at_interface(:,:) ! m
+    real(kind_phys), target,           intent(in)    :: surface_geopotential(:)    ! m2 s-2
+    real(kind_phys), target,           intent(in)    :: reciprocal_of_gravitational_acceleration ! s2 m-1
     character(len=512),                intent(out)   :: errmsg
     integer,                           intent(out)   :: errcode
 
@@ -78,7 +83,9 @@ contains
                                     * 3) :: photolysis_rate_constants ! s-1
     integer :: i_elem
 
-    call tuvx_run(temperature, dry_air_density, height_midpoints, height_interfaces, &
+    call tuvx_run(temperature, dry_air_density, geopotential_height_wrt_surface_at_midpoint, &
+                  geopotential_height_wrt_surface_at_interface, &
+                  surface_geopotential, reciprocal_of_gravitational_acceleration, &
                   photolysis_rate_constants, errmsg, errcode)
 
     ! Get the molar_mass that is set in the call to instantiate()

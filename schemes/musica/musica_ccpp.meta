@@ -71,17 +71,29 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension,number_of_ccpp_constituents)
   intent = inout
-[ height_midpoints ]
-  standard_name = ccpp_height_midpoints
+[ geopotential_height_wrt_surface_at_midpoint ]
+  standard_name = geopotential_height_wrt_surface
   units = km
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
-[ height_interfaces ]
-  standard_name = ccpp_height_interfaces
+[ geopotential_height_wrt_surface_at_interface ]
+  standard_name = geopotential_height_wrt_surface_at_interface
   units = km
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ surface_geopotential ]
+  standard_name = surface_geopotential
+  type = real | kind = kind_phys
+  units = m2 s-2
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ reciprocal_of_gravitational_acceleration ]
+  standard_name = reciprocal_of_gravitational_acceleration
+  units = s2 m-1
+  type = real | kind = kind_phys
+  dimensions = ()
   intent = in
 [ errmsg ]
   standard_name = ccpp_error_message
