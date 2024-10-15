@@ -30,7 +30,7 @@
   dimensions = ()
   intent = in
 [ heat_glob ]
-  standard_name = global_mean_heating_rate_for_energy_conservation_tbd
+  standard_name = global_mean_heating_rate_correction_for_energy_conservation
   units = J kg-1 s-1
   type = real | kind = kind_phys
   dimensions = ()
@@ -42,7 +42,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ eshflx ]
-  standard_name = effective_surface_upward_sensible_heat_flux_due_to_energy_conservation_tbd
+  standard_name = net_sensible_heat_flux_through_top_and_bottom_of_atmosphere_column_from_global_total_energy_correction
   units = W m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)

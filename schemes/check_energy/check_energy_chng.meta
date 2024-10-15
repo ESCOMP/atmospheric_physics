@@ -8,7 +8,7 @@
   name  = check_energy_chng_init
   type  = scheme
 [ print_energy_errors_in ]
-  standard_name = control_for_energy_conservation_warning_tbd
+  standard_name = control_for_energy_conservation_warning
   units = none
   type = logical
   dimensions = ()
@@ -96,7 +96,7 @@
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = in
 [ cp_or_cv_dycore ]
-  standard_name = enthalpy_or_internal_energy_scaling_factor_for_energy_consistency_tbd
+  standard_name = specific_heat_for_air_used_in_dycore
   units = J kg-1 K-1
   type = real | kind = kind_phys
   dimensions = (horizontal_dimension, vertical_layer_dimension)
@@ -162,7 +162,7 @@
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = out
 [ count ]
-  standard_name = number_of_values_with_significant_energy_or_water_imbalances_tbd
+  standard_name = number_of_values_with_significant_energy_or_water_imbalances
   units = count
   type = integer
   dimensions = ()
@@ -174,13 +174,13 @@
   dimensions = (horizontal_dimension)
   intent = out
 [ vc_physics ]
-  standard_name = vertical_coordinate_for_physics_tbd
+  standard_name = total_energy_formula_for_physics
   units = 1
   type = integer
   dimensions = ()
   intent = in
 [ vc_dycore ]
-  standard_name = vertical_coordinate_for_dynamical_core_tbd
+  standard_name = total_energy_formula_for_dycore
   units = 1
   type = integer
   dimensions = ()
@@ -274,13 +274,13 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ cp_or_cv_dycore ]
-  standard_name = enthalpy_or_internal_energy_scaling_factor_for_energy_consistency_tbd
+  standard_name = specific_heat_for_air_used_in_dycore
   units = J kg-1 K-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ scaling_dycore ]
-  standard_name = composition_dependent_ratio_of_specific_heat_of_dry_air_at_constant_pressure_to_enthalpy_or_internal_energy_scaling_factor_for_energy_consistency_tbd
+  standard_name = ratio_of_specific_heat_for_air_used_in_physics_energy_formula_and_specific_heat_for_air_used_in_dycore_energy_formula
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -328,7 +328,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ count ]
-  standard_name = number_of_values_with_significant_energy_or_water_imbalances_tbd
+  standard_name = number_of_values_with_significant_energy_or_water_imbalances
   units = count
   type = integer
   dimensions = ()
@@ -352,13 +352,13 @@
   dimensions = ()
   intent = in
 [ vc_physics ]
-  standard_name = vertical_coordinate_for_physics_tbd
+  standard_name = total_energy_formula_for_physics
   units = 1
   type = integer
   dimensions = ()
   intent = in
 [ vc_dycore ]
-  standard_name = vertical_coordinate_for_dynamical_core_tbd
+  standard_name = total_energy_formula_for_dycore
   units = 1
   type = integer
   dimensions = ()
@@ -370,25 +370,25 @@
   dimensions = ()
   intent = in
 [ flx_vap ]
-  standard_name = flux_of_vapor_at_surface_due_to_scheme_tbd
+  standard_name = net_water_vapor_fluxes_through_top_and_bottom_of_atmosphere_column
   units = kg m-2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
 [ flx_cnd ]
-  standard_name = flux_of_liquid_and_ice_at_surface_due_to_scheme_tbd
+  standard_name = net_liquid_and_ice_fluxes_through_top_and_bottom_of_atmosphere_column
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
 [ flx_ice ]
-  standard_name = flux_of_ice_at_surface_due_to_scheme_tbd
+  standard_name = net_ice_fluxes_through_top_and_bottom_of_atmosphere_column
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
 [ flx_sen ]
-  standard_name = flux_of_sensible_heat_at_surface_due_to_scheme_tbd
+  standard_name = net_sensible_heat_flux_through_top_and_bottom_of_atmosphere_column
   units = W m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)

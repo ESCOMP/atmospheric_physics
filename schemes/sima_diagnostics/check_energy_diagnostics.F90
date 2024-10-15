@@ -27,8 +27,8 @@ CONTAINS
       errflg = 0
 
       ! History add field calls
-      call history_add_field('cp_or_cv_dycore', 'enthalpy_or_internal_energy_scaling_factor_for_energy_consistency_tbd', 'lev', 'inst', 'J kg-1 K-1')
-      call history_add_field('scaling_dycore', 'composition_dependent_ratio_of_specific_heat_of_dry_air_at_constant_pressure_to_enthalpy_or_internal_energy_scaling_factor_for_energy_consistency_tbd', 'lev', 'inst', '1')
+      call history_add_field('cp_or_cv_dycore', 'specific_heat_for_air_used_in_dycore', 'lev', 'inst', 'J kg-1 K-1')
+      call history_add_field('scaling_dycore', 'ratio_of_specific_heat_for_air_used_in_physics_energy_formula_and_specific_heat_for_air_used_in_dycore_energy_formula', 'lev', 'inst', '1')
 
       call history_add_field('te_cur_phys', 'vertically_integrated_total_energy_of_current_state_using_physics_energy_formula', horiz_only, 'inst', 'J m-2')
       call history_add_field('te_cur_dyn', 'vertically_integrated_total_energy_of_current_state_using_dycore_energy_formula', horiz_only, 'inst', 'J m-2')

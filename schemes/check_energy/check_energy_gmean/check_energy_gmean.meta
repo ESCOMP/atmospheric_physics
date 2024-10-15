@@ -49,13 +49,13 @@
   dimensions = (horizontal_loop_extent)
   intent = in
 [ tedif_glob ]
-  standard_name = global_mean_total_energy_difference_for_energy_conservation_tbd
+  standard_name = global_mean_total_energy_correction_for_energy_conservation
   units = J m-2
   type = real | kind = kind_phys
   dimensions = ()
   intent = out
 [ heat_glob ]
-  standard_name = global_mean_heating_rate_for_energy_conservation_tbd
+  standard_name = global_mean_heating_rate_correction_for_energy_conservation
   units = J kg-1 s-1
   type = real | kind = kind_phys
   dimensions = ()

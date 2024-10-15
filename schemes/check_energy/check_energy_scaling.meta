@@ -18,7 +18,7 @@
   dimensions = ()
   intent = in
 [ cp_or_cv_dycore ]
-  standard_name = enthalpy_or_internal_energy_scaling_factor_for_energy_consistency_tbd
+  standard_name = specific_heat_for_air_used_in_dycore
   units = J kg-1 K-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -30,7 +30,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ scaling_dycore ]
-  standard_name = composition_dependent_ratio_of_specific_heat_of_dry_air_at_constant_pressure_to_enthalpy_or_internal_energy_scaling_factor_for_energy_consistency_tbd
+  standard_name = ratio_of_specific_heat_for_air_used_in_physics_energy_formula_and_specific_heat_for_air_used_in_dycore_energy_formula
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

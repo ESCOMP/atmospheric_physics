@@ -7,7 +7,7 @@
     <type>logical</type>
     <category>diagnostics</category>
     <group>check_energy_nl</group>
-    <standard_name>control_for_energy_conservation_warning_tbd</standard_name>
+    <standard_name>control_for_energy_conservation_warning</standard_name>
     <units>none</units>
     <valid_values></valid_values>
     <desc>
