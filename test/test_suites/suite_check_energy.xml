@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<suite name="check_energy_chng" version="1.0">
+<suite name="check_energy" version="1.0">
   <group name="physics_before_coupler">
     <!-- TEST ONLY: provide teout from snapshot te_cur_dyn. In an actual run, save_teout is only at the end of the physics_after_coupler -->
     <scheme>check_energy_save_teout</scheme>
