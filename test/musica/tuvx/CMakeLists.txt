@@ -1,4 +1,3 @@
-
 add_executable(test_tuvx_height_grid test_tuvx_height_grid.F90)
 
 target_sources(test_tuvx_height_grid

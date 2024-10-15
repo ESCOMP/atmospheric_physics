@@ -49,7 +49,7 @@ module musica_ccpp_tuvx_height_grid
 
 contains
 
-  !> Creates a TUVX height grid from the host-model height grid
+  !> Creates a TUV-x height grid
   function create_height_grid( vertical_layer_dimension, &
       vertical_interface_dimension, errmsg, errcode ) result( height_grid )
 
@@ -63,7 +63,11 @@ contains
     integer,          intent(out) :: errcode
     type(grid_t),     pointer     :: height_grid
 
+    ! local variable
     type(error_t) :: error
+
+    errcode = 0
+    errmsg = ''
 
     height_grid => null()
     if ( vertical_layer_dimension < 1 ) then
@@ -82,9 +86,9 @@ contains
 
   end function create_height_grid
 
-  !> Sets TUVX height grid values from the host-model height grid
+  !> Sets TUV-x height grid values from the host-model height grid
   subroutine set_height_grid_values( height_grid, host_midpoints, &
-      host_edges, errmsg, errcode )
+      host_interfaces, errmsg, errcode )
 
     use ccpp_kinds,       only: kind_phys
     use musica_ccpp_util, only: has_error_occurred
@@ -92,44 +96,48 @@ contains
     use musica_util,      only: error_t
 
     type(grid_t),     intent(inout) :: height_grid
-    real(kind_phys),  intent(in)    :: host_midpoints(:) ! km
-    real(kind_phys),  intent(in)    :: host_edges(:)     ! km
+    real(kind_phys),  intent(in)    :: host_midpoints(:)  ! km
+    real(kind_phys),  intent(in)    :: host_interfaces(:) ! km
     character(len=*), intent(out)   :: errmsg
     integer,          intent(out)   :: errcode
 
-    type(error_t) :: error
+    ! local variables
+    type(error_t)   :: error
     real(kind_phys) :: midpoints(size(host_midpoints)+1)
-    real(kind_phys) :: edges(size(host_edges)+1)
-    integer :: n_host_midpoints, n_host_edges
+    real(kind_phys) :: interfaces(size(host_interfaces)+1)
+    integer         :: n_host_midpoints, n_host_interfaces
+
+    errcode = 0
+    errmsg = ''
 
     if ( size(midpoints) /= height_grid%number_of_sections( error ) ) then
       errmsg = "[MUSICA Error] Invalid size of TUV-x mid-point heights."
       errcode = 1
       return
     end if
-    if ( has_error_occurred( error, errmsg, errcode ) ) return
-    if ( size(edges) /= height_grid%number_of_sections( error ) + 1 ) then
+
+    if ( size(interfaces) /= height_grid%number_of_sections( error ) + 1 ) then
       errmsg = "[MUSICA Error] Invalid size of TUV-x interface heights."
       errcode = 1
       return
     end if
-    if ( has_error_occurred( error, errmsg, errcode ) ) return
 
     n_host_midpoints = size(host_midpoints)
-    n_host_edges = size(host_edges)
+    n_host_interfaces = size(host_interfaces)
 
-    edges(1) = host_edges(n_host_edges)
-    edges(2:n_host_edges) = host_midpoints(n_host_midpoints:1:-1)
-    edges(n_host_edges+1) = host_edges(1)
+    interfaces(1) = host_interfaces(n_host_interfaces)
+    interfaces(2:n_host_interfaces) = host_midpoints(n_host_midpoints:1:-1)
+    interfaces(n_host_interfaces+1) = host_interfaces(1)
 
     midpoints(1) = 0.5_kind_phys * &
-              ( host_midpoints(n_host_midpoints) + host_edges(n_host_edges) )
-    midpoints(2:n_host_midpoints) = host_edges(n_host_midpoints:2:-1)
+              ( host_midpoints(n_host_midpoints) + host_interfaces(n_host_interfaces) )
+    midpoints(2:n_host_midpoints) = host_interfaces(n_host_midpoints:2:-1)
     midpoints(n_host_midpoints+1) = 0.5_kind_phys * &
-              ( edges(n_host_edges) + edges(n_host_edges+1) )
+              ( interfaces(n_host_interfaces) + interfaces(n_host_interfaces+1) )
 
-    call height_grid%set_edges( edges, error )
+    call height_grid%set_edges( interfaces, error )
     if ( has_error_occurred( error, errmsg, errcode ) ) return
+
     call height_grid%set_midpoints( midpoints, error )
     if ( has_error_occurred( error, errmsg, errcode ) ) return
 
@@ -149,16 +157,16 @@ contains
       height_midpoints, height_interfaces )
 
     use ccpp_kinds,       only: kind_phys
-    use musica_ccpp_util, only: has_error_occurred
-    use musica_util,      only: error_t
 
-    real(kind_phys),  intent(in)  :: geopotential_height_wrt_surface_at_midpoint(:) ! m
-    real(kind_phys),  intent(in)  :: geopotential_height_wrt_surface_at_interface(:) ! m
-    real(kind_phys),  intent(in)  :: surface_geopotential ! m2 s-2
-    real(kind_phys),  intent(in)  :: reciprocal_of_gravitational_acceleration ! s2 m-1
-    real(kind_phys),  intent(out) :: height_midpoints(:) ! Pa
-    real(kind_phys),  intent(out) :: height_interfaces(:) ! Pa
-    real(kind_phys) :: surface_height ! km
+    real(kind_phys), intent(in)  :: geopotential_height_wrt_surface_at_midpoint(:)  ! m
+    real(kind_phys), intent(in)  :: geopotential_height_wrt_surface_at_interface(:) ! m
+    real(kind_phys), intent(in)  :: surface_geopotential ! m2 s-2
+    real(kind_phys), intent(in)  :: reciprocal_of_gravitational_acceleration ! s2 m-1
+    real(kind_phys), intent(out) :: height_midpoints(:)  ! km
+    real(kind_phys), intent(out) :: height_interfaces(:) ! km
+
+    ! local variable
+    real(kind_phys) :: surface_height ! m
 
     surface_height = surface_geopotential * reciprocal_of_gravitational_acceleration
     height_midpoints(:) = 0.001_kind_phys * &

@@ -1,8 +1,6 @@
 program test_micm_util
 
-  use iso_c_binding
   use musica_ccpp_micm_util
-  use ccpp_kinds,   only: kind_phys
 
   implicit none
 
@@ -12,7 +10,6 @@ program test_micm_util
   call test_reshape()
   call test_unit_conversion()
 
-
 contains
 
   subroutine test_reshape()
@@ -20,7 +17,6 @@ contains
     use ccpp_kinds,    only: kind_phys
 
     integer, parameter      :: NUM_SPECIES = 4
-    integer, parameter      :: NUM_RATES = 3
     integer, parameter      :: NUM_COLUMNS = 2
     integer, parameter      :: NUM_LAYERS = 2
     integer, parameter      :: NUM_GRID_CELLS = 4
@@ -28,10 +24,10 @@ contains
     real(kind_phys), target :: pressure(NUM_COLUMNS,NUM_LAYERS)
     real(kind_phys), target :: dry_air_density(NUM_COLUMNS,NUM_LAYERS)
     real(kind_phys), target :: constituents(NUM_COLUMNS,NUM_LAYERS,NUM_SPECIES)
-    real(c_double),  target :: m_temperature(NUM_GRID_CELLS)
-    real(c_double),  target :: m_pressure(NUM_GRID_CELLS)
-    real(c_double),  target :: m_dry_air_density(NUM_GRID_CELLS)
-    real(c_double),  target :: m_constituents(NUM_GRID_CELLS*NUM_SPECIES)
+    real(c_double),  target :: micm_temperature(NUM_GRID_CELLS)
+    real(c_double),  target :: micm_pressure(NUM_GRID_CELLS)
+    real(c_double),  target :: micm_dry_air_density(NUM_GRID_CELLS)
+    real(c_double),  target :: micm_constituents(NUM_GRID_CELLS*NUM_SPECIES)
 
     ! local variables
     real(c_double), dimension(NUM_GRID_CELLS)             :: arr_conditions
@@ -54,19 +50,19 @@ contains
     arr_constituents = (/ 0.1, 0.2, 0.3, 0.4, 0.21, 0.22, 0.23, 0.24, 0.41, 0.42, 0.43, 0.44, 0.31, 0.32, 0.33, 0.34 /)
     
     call reshape_into_micm_arr(temperature, pressure, dry_air_density, constituents, &
-      m_temperature, m_pressure, m_dry_air_density, m_constituents)
+      micm_temperature, micm_pressure, micm_dry_air_density, micm_constituents)
 
     do i_elem = 1, NUM_GRID_CELLS
-      ASSERT(m_temperature(i_elem) == arr_conditions(i_elem))
-      ASSERT(m_pressure(i_elem) == arr_conditions(i_elem))
-      ASSERT(m_dry_air_density(i_elem) == arr_conditions(i_elem))
+      ASSERT(micm_temperature(i_elem) == arr_conditions(i_elem))
+      ASSERT(micm_pressure(i_elem) == arr_conditions(i_elem))
+      ASSERT(micm_dry_air_density(i_elem) == arr_conditions(i_elem))
     end do
 
-    do i_elem = 1, size(m_constituents)
-      ASSERT_NEAR(m_constituents(i_elem), arr_constituents(i_elem), abs_error)
+    do i_elem = 1, size(micm_constituents)
+      ASSERT_NEAR(micm_constituents(i_elem), arr_constituents(i_elem), abs_error)
     end do
 
-    call reshape_into_ccpp_arr(constituents, m_constituents)
+    call reshape_into_ccpp_arr(micm_constituents, constituents)
 
     i_arr = 1
     do i_layer = 1, NUM_LAYERS
@@ -81,15 +77,15 @@ contains
   end subroutine test_reshape
 
   subroutine test_unit_conversion()
-    use ccpp_kinds,    only: kind_phys
+    use ccpp_kinds, only: kind_phys
 
     integer, parameter                                                     :: NUM_COLUMNS = 2
     integer, parameter                                                     :: NUM_LAYERS = 2
     integer, parameter                                                     :: NUM_SPECIES = 4
     real(kind_phys), target, dimension(NUM_COLUMNS,NUM_LAYERS)             :: dry_air_density   ! kg m-3
     real(kind_phys), target, dimension(NUM_SPECIES)                        :: molar_mass_arr
-    real(kind_phys), target, dimension(NUM_COLUMNS,NUM_LAYERS,NUM_SPECIES) :: constituents ! kg kg-1
-    real(kind_phys), target, dimension(NUM_COLUMNS,NUM_LAYERS,NUM_SPECIES) :: ccpp_constituents ! mol m-3
+    real(kind_phys), target, dimension(NUM_COLUMNS,NUM_LAYERS,NUM_SPECIES) :: constituents
+    real(kind_phys), target, dimension(NUM_COLUMNS,NUM_LAYERS,NUM_SPECIES) :: ccpp_constituents ! kg kg-1
     real(kind_phys), target, dimension(NUM_COLUMNS,NUM_LAYERS,NUM_SPECIES) :: micm_constituents ! mol m-3
     integer                                                                :: i_column, i_layer, i_elem
     real                                                                   :: abs_error = 1e-3

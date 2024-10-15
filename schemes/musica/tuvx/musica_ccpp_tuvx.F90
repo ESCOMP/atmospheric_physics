@@ -1,11 +1,10 @@
 module musica_ccpp_tuvx
-  use iso_c_binding
 
   ! Note: "tuvx_t" is included in an external pre-built tuvx library that the host
   ! model is responsible for linking to during compilation
-  use musica_tuvx, only: tuvx_t, grid_t
-  use musica_ccpp_util, only: has_error_occurred
-  use ccpp_kinds, only: kind_phys
+  use musica_tuvx,          only: tuvx_t, grid_t
+  use musica_ccpp_util,     only: has_error_occurred
+  use ccpp_kinds,           only: kind_phys
   use musica_ccpp_namelist, only: filename_of_tuvx_configuration
 
   implicit none
@@ -13,16 +12,16 @@ module musica_ccpp_tuvx
 
   public :: tuvx_init, tuvx_run, tuvx_final
 
-  type(tuvx_t), pointer  :: tuvx => null( )
-  type(grid_t), pointer  :: height_grid => null( )
+  type(tuvx_t), pointer :: tuvx => null( )
+  type(grid_t), pointer :: height_grid => null( )
 
 contains
 
   !> Intitialize TUVX
   subroutine tuvx_init(vertical_layer_dimension, &
       vertical_interface_dimension, errmsg, errcode)
-    use musica_tuvx, only: grid_map_t, grid_t, profile_map_t, radiator_map_t
-    use musica_util, only: error_t, mapping_t
+    use musica_tuvx, only: grid_map_t, profile_map_t, radiator_map_t
+    use musica_util, only: error_t
     use musica_ccpp_tuvx_height_grid, only: create_height_grid, &
                                             height_grid_label, height_grid_units
 
@@ -45,7 +44,7 @@ contains
 
     height_grid => create_height_grid( vertical_layer_dimension, &
         vertical_interface_dimension, errmsg, errcode )
-    if (errcode /= 0) return
+    if (has_error_occurred( error, errmsg, errcode )) return
     call grids%add( height_grid, error )
     if (has_error_occurred( error, errmsg, errcode )) return
 
@@ -101,14 +100,14 @@ contains
       geopotential_height_wrt_surface_at_interface, &
       surface_geopotential, reciprocal_of_gravitational_acceleration, &
       photolysis_rate_constants, errmsg, errcode )
-    use musica_util, only: error_t
+    use musica_util,                  only: error_t
     use musica_ccpp_tuvx_height_grid, only: set_height_grid_values, calculate_heights
 
     real(kind_phys),    intent(in)  :: temperature(:,:)       ! K (column, layer)
     real(kind_phys),    intent(in)  :: dry_air_density(:,:)   ! molecule cm-3 (column, layer)
     real(kind_phys),    intent(in)  :: geopotential_height_wrt_surface_at_midpoint(:,:)  ! m (column, layer)
     real(kind_phys),    intent(in)  :: geopotential_height_wrt_surface_at_interface(:,:) ! m (column, interface)
-    real(kind_phys),    intent(in)  :: surface_geopotential(:)    ! m2 s-2
+    real(kind_phys),    intent(in)  :: surface_geopotential(:) ! m2 s-2
     real(kind_phys),    intent(in)  :: reciprocal_of_gravitational_acceleration ! s2 m-1
     ! temporarily set to Chapman mechanism and 1 dimension
     ! until mapping between MICM and TUV-x is implemented
@@ -132,8 +131,8 @@ contains
           height_midpoints, height_interfaces )
       call set_height_grid_values( height_grid, height_midpoints, &
           height_interfaces, errmsg, errcode )
+      if (has_error_occurred( error, errmsg, errcode )) return
     end do
-    if (errcode /= 0) return
 
     ! stand-in until actual photolysis rate constants are calculated
     photolysis_rate_constants(:) = 1.0e-6_kind_phys

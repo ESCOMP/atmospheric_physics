@@ -1,5 +1,4 @@
 module musica_ccpp_micm
-  use iso_c_binding
 
   ! Note: "micm_t" is included in an external pre-built MICM library that the host
   ! model is responsible for linking to during compilation
@@ -18,21 +17,22 @@ module musica_ccpp_micm
 contains
 
   !> Register MICM constituents with the CCPP
-  subroutine micm_register(constituents, solver_type, num_grid_cells, errmsg, errcode)
+  subroutine micm_register(solver_type, num_grid_cells, constituents, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
-    use musica_micm, only: Rosenbrock, RosenbrockStandardOrder
-    use musica_util, only: error_t
+    use musica_micm,               only: Rosenbrock, RosenbrockStandardOrder
+    use musica_util,               only: error_t
+    use iso_c_binding,             only: c_int
 
-    type(ccpp_constituent_properties_t), allocatable, intent(out) :: constituents(:)
     integer(c_int),                                   intent(in)  :: solver_type
     integer(c_int),                                   intent(in)  :: num_grid_cells
+    type(ccpp_constituent_properties_t), allocatable, intent(out) :: constituents(:)
     character(len=512),                               intent(out) :: errmsg
     integer,                                          intent(out) :: errcode
 
     ! local variables
     type(error_t)                 :: error
     real(kind=kind_phys)          :: molar_mass
-    character(len=:), allocatable :: species_name
+    character(len=:), allocatable :: species_name  !TODO(jiwon) test withouth allocatable
     logical                       :: is_advected
     integer                       :: i, species_index
 
@@ -82,7 +82,7 @@ contains
   !> Intitialize MICM
   subroutine micm_init(errmsg, errcode)
     character(len=512), intent(out) :: errmsg
-    integer, intent(out)            :: errcode
+    integer,            intent(out) :: errcode
 
     errcode = 0
     errmsg = ''
@@ -90,17 +90,18 @@ contains
   end subroutine micm_init
 
   !> Solve chemistry at the current time step
-  subroutine micm_run(time_step, temperature, pressure, dry_air_density, constituents, &
-                      user_defined_rate_parameters, errmsg, errcode)
-    use musica_micm, only: solver_stats_t
-    use musica_util, only: string_t, error_t
+  subroutine micm_run(time_step, temperature, pressure, dry_air_density, &
+              user_defined_rate_parameters, constituents, errmsg, errcode)
+    use musica_micm,   only: solver_stats_t
+    use musica_util,   only: string_t, error_t
+    use iso_c_binding, only: c_double
 
     real(kind_phys),        intent(in)    :: time_step          ! s
     real(c_double), target, intent(in)    :: temperature(:)     ! K
     real(c_double), target, intent(in)    :: pressure(:)        ! Pa
     real(c_double), target, intent(in)    :: dry_air_density(:) ! kg m-3
-    real(c_double), target, intent(inout) :: constituents(:)    ! mol m-3
     real(c_double), target, intent(in)    :: user_defined_rate_parameters(:) ! various units
+    real(c_double), target, intent(inout) :: constituents(:)    ! mol m-3
     character(len=512),     intent(out)   :: errmsg
     integer,                intent(out)   :: errcode
 
@@ -131,7 +132,7 @@ contains
   !> Finalize MICM
   subroutine micm_final(errmsg, errcode)
     character(len=512), intent(out) :: errmsg
-    integer, intent(out)            :: errcode
+    integer,            intent(out) :: errcode
 
     errcode = 0
     errmsg = ''

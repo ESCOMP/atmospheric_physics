@@ -1,4 +1,3 @@
-
 add_executable(test_micm_util test_micm_util.F90)
 
 target_sources(test_micm_util
