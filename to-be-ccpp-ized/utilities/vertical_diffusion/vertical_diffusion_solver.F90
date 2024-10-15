@@ -2,7 +2,6 @@ module vertical_diffusion_solver
 
     implicit none
     private
-    save
     
     public :: fin_vol_solve
     
