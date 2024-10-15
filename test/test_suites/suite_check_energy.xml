@@ -2,13 +2,16 @@
 
 <suite name="check_energy_chng" version="1.0">
   <group name="physics_before_coupler">
+    <!-- TEST ONLY: provide teout from snapshot te_cur_dyn. In an actual run, save_teout is only at the end of the physics_after_coupler -->
+    <scheme>check_energy_save_teout</scheme>
+
+    <!-- Compute global means of physics input and output total energy -->
+    <scheme>check_energy_gmean</scheme>
+
     <!-- Check that energy and water change matches the boundary fluxes -->
     <scheme>check_energy_zero_fluxes</scheme>
     <scheme>check_energy_scaling</scheme>
     <scheme>check_energy_chng</scheme>
-
-    <!-- Compute global means of physics input and output total energy -->
-    <scheme>check_energy_gmean</scheme>
     <!-- Add global mean energy difference as heating (diff between gmean and save_teout) -->
     <scheme>check_energy_fix</scheme>
     <scheme>apply_heating_rate</scheme>
