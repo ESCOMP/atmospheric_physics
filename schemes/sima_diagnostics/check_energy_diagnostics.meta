@@ -46,7 +46,7 @@
   dimensions = (horizontal_loop_extent)
   intent = in
 [ tw_cur ]
-  standard_name = vertically_integrated_moist_air_and_condensed_water_of_current_state
+  standard_name = vertically_integrated_water_vapor_and_condensed_water_of_current_state
   units = kg m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
