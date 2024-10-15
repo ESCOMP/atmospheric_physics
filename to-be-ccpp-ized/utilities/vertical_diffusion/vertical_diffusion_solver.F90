@@ -120,14 +120,13 @@ module vertical_diffusion_solver
         decomp = TriDiagDecomp(net_operator)
         solution = toSolve
     
-        call net_operator%finalize()
-        call add_term%finalize()
-    
         call decomp%left_div(solution(:ncols, :), l_cond=l_cond, r_cond=r_cond)
         !tendency = tendency - toSolve
     
         ! Ensure local objects are deallocated.
         call decomp%finalize()
+        call net_operator%finalize()
+        call add_term%finalize()
     
     end function fin_vol_solve
     
