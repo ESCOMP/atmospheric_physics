@@ -18,7 +18,7 @@ contains
     integer,            intent(in)     :: ncol           ! number of atmospheric columns
 
     ! Output arguments
-    character(len=*),   intent(out)    :: name           ! parameterization name for fluxes
+    character(len=64),  intent(out)    :: name           ! parameterization name for fluxes
     real(kind_phys),    intent(out)    :: flx_vap(:)     ! boundary flux of vapor [kg m-2 s-1]
     real(kind_phys),    intent(out)    :: flx_cnd(:)     ! boundary flux of liquid+ice (precip?) [m s-1]
     real(kind_phys),    intent(out)    :: flx_ice(:)     ! boundary flux of ice (snow?) [m s-1]

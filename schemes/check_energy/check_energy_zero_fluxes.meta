@@ -14,7 +14,7 @@
 [ name ]
   standard_name = scheme_name
   units = none
-  type = character | kind = len=*
+  type = character | kind = len=64
   dimensions = ()
   intent = out
 [ flx_vap ]

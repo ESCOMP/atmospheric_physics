@@ -1,7 +1,7 @@
 [ccpp-table-properties]
   name = check_energy_gmean
   type = scheme
-  dependencies = ../../../utils/gmean_mod.F90
+  dependencies = ../../../../../utils/gmean_mod.F90
 
 [ccpp-arg-table]
   name  = check_energy_gmean_run

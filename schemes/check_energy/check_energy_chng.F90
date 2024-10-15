@@ -236,7 +236,7 @@ contains
     ! Note that the precip and ice fluxes are in precip units (m/s).
     ! I would prefer to have kg/m2/s.
     ! I would also prefer liquid (not total) and ice fluxes
-    character(len=*),   intent(in)    :: name           ! parameterization name for fluxes
+    character(len=64),  intent(in)    :: name           ! parameterization name for fluxes
     real(kind_phys),    intent(in)    :: flx_vap(:)     ! boundary flux of vapor [kg m-2 s-1]
     real(kind_phys),    intent(in)    :: flx_cnd(:)     ! boundary flux of liquid+ice (precip?) [m s-1]
     real(kind_phys),    intent(in)    :: flx_ice(:)     ! boundary flux of ice (snow?) [m s-1]
