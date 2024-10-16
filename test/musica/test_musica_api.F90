@@ -112,10 +112,9 @@ contains
     write(*,fmt="(4(3x,e13.6))") constituents
 
     call musica_ccpp_run(time_step, temperature, pressure, dry_air_density, constituent_props_ptr, &
-                        constituents, geopotential_height_wrt_surface_at_midpoint, &
-                        geopotential_height_wrt_surface_at_interface, &
-                        surface_geopotential, reciprocal_of_gravitational_acceleration, &
-                        errmsg, errcode)
+                         constituents, geopotential_height_wrt_surface_at_midpoint,                &
+                         geopotential_height_wrt_surface_at_interface, surface_geopotential,       &
+                         reciprocal_of_gravitational_acceleration, errmsg, errcode)
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3

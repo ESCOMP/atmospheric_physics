@@ -10,16 +10,16 @@ module musica_ccpp
 
 contains
 
-  subroutine musica_ccpp_register(solver_type, num_grid_cells, constituents, errmsg, errcode)
+  subroutine musica_ccpp_register(solver_type, num_grid_cells, constituent_props, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
 
     integer,                                          intent(in)  :: solver_type
     integer,                                          intent(in)  :: num_grid_cells
-    type(ccpp_constituent_properties_t), allocatable, intent(out) :: constituents(:)
+    type(ccpp_constituent_properties_t), allocatable, intent(out) :: constituent_props(:)
     character(len=512),                               intent(out) :: errmsg
     integer,                                          intent(out) :: errcode
 
-    call micm_register(solver_type, num_grid_cells, constituents, errmsg, errcode)
+    call micm_register(solver_type, num_grid_cells, constituent_props, errmsg, errcode)
 
   end subroutine musica_ccpp_register
 
@@ -43,10 +43,9 @@ contains
   !> \section arg_table_musica_ccpp_run Argument Table
   !! \htmlinclude musica_ccpp_run.html
   subroutine musica_ccpp_run(time_step, temperature, pressure, dry_air_density, constituent_props, &
-                      constituents, geopotential_height_wrt_surface_at_midpoint, &
-                      geopotential_height_wrt_surface_at_interface, &
-                      surface_geopotential, reciprocal_of_gravitational_acceleration, &
-                      errmsg, errcode)
+                             constituents, geopotential_height_wrt_surface_at_midpoint,            &
+                             geopotential_height_wrt_surface_at_interface, surface_geopotential,   &
+                             reciprocal_of_gravitational_acceleration, errmsg, errcode)
     use musica_ccpp_micm_util,     only: reshape_into_micm_arr, reshape_into_ccpp_arr
     use musica_ccpp_micm_util,     only: convert_to_mol_per_cubic_meter, convert_to_mass_mixing_ratio
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
@@ -130,8 +129,8 @@ contains
   !> \section arg_table_musica_ccpp_final Argument Table
   !! \htmlinclude musica_ccpp_final.html
   subroutine musica_ccpp_final(errmsg, errcode)
-    integer,            intent(out) :: errcode
     character(len=512), intent(out) :: errmsg
+    integer,            intent(out) :: errcode
 
     call tuvx_final(errmsg, errcode)
     call micm_final(errmsg, errcode)
