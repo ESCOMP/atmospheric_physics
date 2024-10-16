@@ -63,7 +63,7 @@ contains
     constituents(1,2,:) = (/ 0.41_kind_phys, 0.42_kind_phys, 0.43_kind_phys, 0.44_kind_phys /)
     constituents(2,1,:) = (/ 0.21_kind_phys, 0.22_kind_phys, 0.23_kind_phys, 0.24_kind_phys /)
     constituents(2,2,:) = (/ 0.31_kind_phys, 0.32_kind_phys, 0.33_kind_phys, 0.34_kind_phys /)
-    
+
     call musica_ccpp_register(solver_type, num_grid_cells, constituent_props, errmsg, errcode)
     ASSERT(allocated(constituent_props))
     ASSERT(size(constituent_props) == NUM_SPECIES)

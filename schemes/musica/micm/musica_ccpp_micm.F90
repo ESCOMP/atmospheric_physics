@@ -16,8 +16,8 @@ module musica_ccpp_micm
 
 contains
 
-  !> Register MICM constituents with the CCPP
-  subroutine micm_register(solver_type, num_grid_cells, constituents, errmsg, errcode)
+  !> Register MICM constituent properties with the CCPP
+  subroutine micm_register(solver_type, num_grid_cells, constituent_props, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
     use musica_micm,               only: Rosenbrock, RosenbrockStandardOrder
     use musica_util,               only: error_t
@@ -25,26 +25,23 @@ contains
 
     integer(c_int),                                   intent(in)  :: solver_type
     integer(c_int),                                   intent(in)  :: num_grid_cells
-    type(ccpp_constituent_properties_t), allocatable, intent(out) :: constituents(:)
+    type(ccpp_constituent_properties_t), allocatable, intent(out) :: constituent_props(:)
     character(len=512),                               intent(out) :: errmsg
     integer,                                          intent(out) :: errcode
 
     ! local variables
     type(error_t)                 :: error
     real(kind=kind_phys)          :: molar_mass
-    character(len=:), allocatable :: species_name  !TODO(jiwon) test withouth allocatable
+    character(len=:), allocatable :: species_name
     logical                       :: is_advected
     integer                       :: i, species_index
-
-    errcode = 0
-    errmsg = ''
 
     micm => micm_t(filename_of_micm_configuration, solver_type, num_grid_cells, error)
     if (has_error_occurred(error, errmsg, errcode)) return
 
-    allocate(constituents(micm%species_ordering%size()), stat=errcode)
+    allocate(constituent_props(micm%species_ordering%size()), stat=errcode)
     if (errcode /= 0) then
-      errmsg = "[MUSICA Error] Failed to allocate memory for constituents."
+      errmsg = "[MUSICA Error] Failed to allocate memory for constituent properties."
       return
     end if
 
@@ -62,7 +59,7 @@ contains
                                                    error)
       if (has_error_occurred(error, errmsg, errcode)) return
 
-      call constituents(species_index)%instantiate( &
+      call constituent_props(species_index)%instantiate( &
         std_name = species_name, &
         long_name = species_name, &
         units = 'kg kg-1', &
@@ -84,8 +81,8 @@ contains
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errcode
 
-    errcode = 0
     errmsg = ''
+    errcode = 0
 
   end subroutine micm_init
 
@@ -112,8 +109,6 @@ contains
     real(c_double)       :: c_time_step
     integer              :: i_elem
 
-    errcode = 0
-    errmsg = ''
     c_time_step = real(time_step, c_double) 
 
     call micm%solve(c_time_step,                  &
@@ -134,8 +129,8 @@ contains
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errcode
 
-    errcode = 0
     errmsg = ''
+    errcode = 0
 
   end subroutine micm_final
 

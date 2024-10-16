@@ -36,17 +36,21 @@ contains
     type(radiator_map_t), pointer :: radiators
     type(error_t)                 :: error
 
-    errcode = 0
-    errmsg = ''
-
     grids => grid_map_t( error )
     if (has_error_occurred( error, errmsg, errcode )) return
 
     height_grid => create_height_grid( vertical_layer_dimension, &
         vertical_interface_dimension, errmsg, errcode )
-    if (has_error_occurred( error, errmsg, errcode )) return
+    if (errcode /= 0) then
+      deallocate( grids )
+      return
+    endif
+
     call grids%add( height_grid, error )
-    if (has_error_occurred( error, errmsg, errcode )) return
+    if (has_error_occurred( error, errmsg, errcode )) then
+      deallocate( grids )
+      return
+    end if
 
     profiles => profile_map_t( error )
     if (has_error_occurred( error, errmsg, errcode )) then
@@ -116,22 +120,19 @@ contains
     integer,            intent(out) :: errcode
 
     ! local variables
-    type(error_t) :: error
-    real(kind_phys), dimension(size(geopotential_height_wrt_surface_at_midpoint, dim = 2)) :: height_midpoints
+    real(kind_phys), dimension(size(geopotential_height_wrt_surface_at_midpoint, dim = 2))  :: height_midpoints
     real(kind_phys), dimension(size(geopotential_height_wrt_surface_at_interface, dim = 2)) :: height_interfaces
     integer :: i_col
 
-    errcode = 0
-    errmsg = ''
-
     do i_col = 1, size(temperature, dim=1)
-      call calculate_heights( geopotential_height_wrt_surface_at_midpoint(i_col,:), &
-          geopotential_height_wrt_surface_at_interface(i_col,:), &
-          surface_geopotential(i_col), reciprocal_of_gravitational_acceleration, &
-          height_midpoints, height_interfaces )
-      call set_height_grid_values( height_grid, height_midpoints, &
-          height_interfaces, errmsg, errcode )
-      if (has_error_occurred( error, errmsg, errcode )) return
+      call calculate_heights( geopotential_height_wrt_surface_at_midpoint(i_col,:),  &
+                              geopotential_height_wrt_surface_at_interface(i_col,:), &
+                              surface_geopotential(i_col),                           &
+                              reciprocal_of_gravitational_acceleration,              &
+                              height_midpoints, height_interfaces )
+      call set_height_grid_values( height_grid, height_midpoints, height_interfaces, &
+                                   errmsg, errcode )
+      if (errcode /= 0) return
     end do
 
     ! stand-in until actual photolysis rate constants are calculated
@@ -144,8 +145,8 @@ contains
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errcode
 
-    errcode = 0
     errmsg = ''
+    errcode = 0
     deallocate( height_grid )
 
   end subroutine tuvx_final

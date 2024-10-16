@@ -66,9 +66,6 @@ contains
     ! local variable
     type(error_t) :: error
 
-    errcode = 0
-    errmsg = ''
-
     height_grid => null()
     if ( vertical_layer_dimension < 1 ) then
       errmsg = "[MUSICA Error] Invalid vertical_layer_dimension."
@@ -106,9 +103,6 @@ contains
     real(kind_phys) :: midpoints(size(host_midpoints)+1)
     real(kind_phys) :: interfaces(size(host_interfaces)+1)
     integer         :: n_host_midpoints, n_host_interfaces
-
-    errcode = 0
-    errmsg = ''
 
     if ( size(midpoints) /= height_grid%number_of_sections( error ) ) then
       errmsg = "[MUSICA Error] Invalid size of TUV-x mid-point heights."
