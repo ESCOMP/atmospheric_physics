@@ -1,5 +1,5 @@
 ! ccpp_const_utils contains utility functions that use
-! the ccpp constituents property pointer.
+! the ccpp constituent properties pointer.
 ! this code was separated out to remove circular dependencies.
 module ccpp_const_utils
   implicit none
