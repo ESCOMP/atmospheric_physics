@@ -11,8 +11,8 @@ module musica_ccpp_tuvx_temperature
 
 contains
 
-  !> Creates a TUV-x temperature profile from the host-model height grid
-  function create_temperature_profile( height_grid, errmsg, errcode ) & 
+  !> Creates a TUV-x temperature profile
+  function create_temperature_profile( height_grid, errmsg, errcode ) &
       result( profile )
 
     use musica_ccpp_util,    only: has_error_occurred
@@ -30,41 +30,44 @@ contains
 
     ! Local variables
     type(error_t) :: error
-    
+
     profile => profile_t( temperature_label, temperature_units, &
                           height_grid, error )
     if ( has_error_occurred( error, errmsg, errcode ) ) return
 
   end function create_temperature_profile
 
-  !> Sets TUV-x temperature edges from the host-model temperature midpoints
-  subroutine set_temperature_values( profile, host_temperature_mid, &
+  !> Sets TUV-x temperatures from host-model temperatures
+  !!
+  !! See description of `musica_ccpp_tuvx_hegihts_grid.F90` for
+  !! CAM-SIMA <-> TUV-x height grid mapping
+  subroutine set_temperature_values( profile, host_midpoint_temperatures, &
       host_surface_temperature, errmsg, errcode )
 
-    use ccpp_kinds,          only: kind_phys
     use musica_ccpp_util,    only: has_error_occurred
     use musica_tuvx_profile, only: profile_t
     use musica_util,         only: error_t
-    
+    use ccpp_kinds,          only: kind_phys
+
     ! Arguments
     type(profile_t),  intent(inout) :: profile
-    real(kind_phys),  intent(in)    :: host_temperature_mid(:)  ! K
-    real(kind_phys),  intent(in)    :: host_surface_temperature ! K
+    real(kind_phys),  intent(in)    :: host_midpoint_temperatures(:)  ! K
+    real(kind_phys),  intent(in)    :: host_surface_temperature       ! K
     character(len=*), intent(out)   :: errmsg
     integer,          intent(out)   :: errcode
 
     ! Local variables
     type(error_t)   :: error
-    real(kind_phys) :: edges(size(host_temperature_mid)+2)
-    integer         :: n_host_temperature_mid
+    real(kind_phys) :: interfaces(size(host_midpoint_temperatures)+2)
+    integer         :: n_host_midpoint_temperatures
 
-    n_host_temperature_mid = size(host_temperature_mid)
+    n_host_midpoint_temperatures = size(host_midpoint_temperatures)
 
-    edges(1) = host_surface_temperature
-    edges(2:n_host_temperature_mid+1) = host_temperature_mid(n_host_temperature_mid:1:-1)
-    edges(n_host_temperature_mid+2) = host_temperature_mid(1)
+    interfaces(1) = host_surface_temperature
+    interfaces(2:n_host_midpoint_temperatures+1) = host_midpoint_temperatures(n_host_midpoint_temperatures:1:-1)
+    interfaces(n_host_midpoint_temperatures+2) = host_midpoint_temperatures(1)
 
-    call profile%set_edge_values( edges, error )
+    call profile%set_edge_values( interfaces, error )
     if ( has_error_occurred( error, errmsg, errcode ) ) return
 
   end subroutine set_temperature_values
