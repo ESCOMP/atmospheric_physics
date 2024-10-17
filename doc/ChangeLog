@@ -1,5 +1,32 @@
 ===============================================================
 
+Tag name:
+Originator(s): jimmielin
+Date: October 17, 2024
+One-line Summary: Implement ccpp_const_get_index in to_be_ccppized to avoid circular dependencies
+Github PR URL: https://github.com/ESCOMP/atmospheric_physics/pull/135
+
+This PR fixes the following NCAR/atmospheric_physics Github issues: N/A
+
+    This routine can be shared by CAM-SIMA code (companion PR to be filled) and atmospheric_physics schemes by passing in the CCPP constituents pointer object.
+
+    This loop-based workaround is to avoid a dependency on cam_ccpp_cap which would in turn depend on all schemes creating a circular dependency.
+
+Code reviewed by: cacraigucar, nusbaume
+
+List all existing files that have been added (A), modified (M), or deleted (D),
+and describe the changes:
+
+- Add to_be_ccppized directory and ccpp_const_utils implementing ccpp_const_get_index
+M       doc/ChangeLog
+A       to_be_ccppized/ccpp_const_utils.F90
+
+List and Describe any test failures: N/A
+
+Summarize any changes to answers: none
+
+===============================================================
+
 Tag name: atmos_phys0_05_001
 Originator(s): nusbaume
 Date: October 10, 2024
