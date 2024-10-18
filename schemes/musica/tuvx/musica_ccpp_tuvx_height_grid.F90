@@ -44,8 +44,8 @@ module musica_ccpp_tuvx_height_grid
 
   !> Label for height grid in TUV-x
   character(len=*), parameter, public :: height_grid_label = "height"
-  !> Units for height grid in TUV-x
-  character(len=*), parameter, public :: height_grid_units = "km"
+  !> Unit for height grid in TUV-x
+  character(len=*), parameter, public :: height_grid_unit = "km"
 
 contains
 
@@ -77,7 +77,7 @@ contains
       errcode = 1
       return
     end if
-    height_grid => grid_t( height_grid_label, height_grid_units, &
+    height_grid => grid_t( height_grid_label, height_grid_unit, &
                            vertical_interface_dimension, error )
     if ( has_error_occurred( error, errmsg, errcode ) ) return
 
