@@ -15,10 +15,11 @@ contains
   !> @param[out] error_code The CCPP error code.
   !> @return True for an error, false for success.
   logical function has_error_occurred(error, error_message, error_code)
-    use musica_util, only : error_t
-    type(error_t), intent(in) :: error
+    use musica_util, only: error_t
+
+    type(error_t),      intent(in)  :: error
     character(len=512), intent(out) :: error_message
-    integer, intent(out) :: error_code
+    integer,            intent(out) :: error_code
 
     character(len=30) :: error_code_str
 
@@ -33,6 +34,7 @@ contains
     error_message = '[MUSICA Error]: ' // error%category( ) // '[' // &
                     trim( adjustl( error_code_str ) ) // ']: ' // error%message( )
     has_error_occurred = .true.
+
   end function has_error_occurred
 
 end module musica_ccpp_util
