@@ -6,8 +6,8 @@ module musica_ccpp_tuvx_temperature
 
   !> Label for temperature in TUV-x
   character(len=*), parameter :: temperature_label = "temperature"
-  !> Units for temperature in TUV-x
-  character(len=*), parameter :: temperature_units = "K"
+  !> Unit for temperature in TUV-x
+  character(len=*), parameter :: temperature_unit = "K"
 
 contains
 
@@ -31,7 +31,7 @@ contains
     ! Local variables
     type(error_t) :: error
 
-    profile => profile_t( temperature_label, temperature_units, &
+    profile => profile_t( temperature_label, temperature_unit, &
                           height_grid, error )
     if ( has_error_occurred( error, errmsg, errcode ) ) return
 
