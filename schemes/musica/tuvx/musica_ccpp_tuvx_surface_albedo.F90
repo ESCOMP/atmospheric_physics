@@ -6,8 +6,12 @@ module musica_ccpp_tuvx_surface_albedo
 
   !> Label for surface albedo in TUV-x
   character(len=*), parameter :: surface_albedo_label = "surface_albedo"
-  !> Units for surface albedo in TUV-x
-  character(len=*), parameter :: surface_albedo_units = ""
+  !> Unit for surface albedo in TUV-x
+  character(len=*), parameter :: surface_albedo_unit = "" ! unitless
+  !> Default value of number of wavelength bins
+  integer, parameter :: DEFAULT_NUM_WAVELENGTH_BINS = 0
+  !> Number of wavelength bins
+  integer, protected :: num_wavelength_bins = DEFAULT_NUM_WAVELENGTH_BINS
 
 contains
 
@@ -20,24 +24,26 @@ contains
     use musica_tuvx_profile, only: profile_t
     use musica_util,         only: error_t
 
-    ! Arguments
-    type(grid_t),     intent(in)  :: wavelength_grid
-    character(len=*), intent(out) :: errmsg
-    integer,          intent(out) :: errcode
+    type(grid_t),     intent(inout) :: wavelength_grid
+    character(len=*), intent(out)   :: errmsg
+    integer,          intent(out)   :: errcode
 
-    ! Return value
+    ! return value
     type(profile_t),  pointer :: profile
 
-    ! Local variables
+    ! local variables
     type(error_t) :: error
 
-    profile => profile_t( surface_albedo_label, surface_albedo_units, &
+    num_wavelength_bins = wavelength_grid%number_of_sections( error )
+    if ( has_error_occurred( error, errmsg, errcode ) ) return
+
+    profile => profile_t( surface_albedo_label, surface_albedo_unit, &
                           wavelength_grid, error )
     if ( has_error_occurred( error, errmsg, errcode ) ) return
 
   end function create_surface_albedo_profile
 
-  !> Sets TUV-x temperature edges from the host-model temperature midpoints
+  !> Sets TUV-x surface albedo value
   subroutine set_surface_albedo_values( profile, host_surface_albedo, &
       errmsg, errcode )
 
@@ -46,24 +52,26 @@ contains
     use musica_tuvx_profile, only: profile_t
     use musica_util,         only: error_t
 
-    ! Arguments
     type(profile_t),  intent(inout) :: profile
     real(kind_phys),  intent(in)    :: host_surface_albedo ! unitless
     character(len=*), intent(out)   :: errmsg
     integer,          intent(out)   :: errcode
 
-    ! Local variables
+    ! local variables
     type(error_t)   :: error
+    real(kind_phys) :: surface_albedos(num_wavelength_bins + 1)
 
-    ! TODO(jiwon) - is this correct?
-    ! real(r8) :: albedos(this%n_wavelength_bins_ + 1)
-    real(kind_phys) :: surface_albedo(size(host_surface_albedo))
+    if (size(surface_albedos) <= DEFAULT_NUM_WAVELENGTH_BINS + 1) then
+      errmsg = "[MUSICA Error] Invalid dimension for number of wavelngth bins"
+      errcode = 1
+      return
+    end if
 
-    surface_albedo = host_surface_albedo
+    surface_albedos(:) = host_surface_albedo
 
-    call profile%set_edge_values( surface_albedo, error )
+    call profile%set_edge_values( surface_albedos, error )
     if ( has_error_occurred( error, errmsg, errcode ) ) return
 
-  end subroutine set_surface_albedo
+  end subroutine set_surface_albedo_values
 
 end module musica_ccpp_tuvx_surface_albedo
