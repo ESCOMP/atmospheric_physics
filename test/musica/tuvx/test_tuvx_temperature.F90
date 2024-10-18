@@ -1,0 +1,64 @@
+program test_tuvx_temperature
+
+  use musica_ccpp_tuvx_temperature
+
+  implicit none
+
+#define ASSERT(x) if (.not.(x)) then; write(*,*) "Assertion failed[", __FILE__, ":", __LINE__, "]: x"; stop 1; endif
+#define ASSERT_NEAR( a, b, abs_error ) if( (abs(a - b) >= abs_error) .and. (abs(a - b) /= 0.0) ) then; write(*,*) "Assertion failed[", __FILE__, ":", __LINE__, "]: a, b"; stop 1; endif
+
+  call test_update_temperature()
+
+contains
+
+  subroutine test_update_temperature()
+    use musica_ccpp_tuvx_height_grid, only: create_height_grid
+    use musica_util,                  only: error_t
+    use musica_tuvx_grid,             only: grid_t
+    use musica_tuvx_profile,          only: profile_t
+    use ccpp_kinds,                   only: kind_phys
+
+    integer, parameter       :: NUM_HOST_MIDPOINTS = 5
+    integer, parameter       :: NUM_HOST_INTERFACES = 6
+    real(kind_phys), target  :: host_midpoint_temperature(NUM_HOST_MIDPOINTS)
+    real(kind_phys), target  :: host_surface_temperature = 300.3_kind_phys
+    type(grid_t),    pointer :: height_grid
+    type(profile_t), pointer :: profile
+    character(len=512)       :: errmsg
+    integer                  :: errcode
+    real(kind_phys)          :: abs_error = 1e-4
+    integer                  :: i
+
+    ! local variables
+    real(kind_phys), dimension(NUM_HOST_MIDPOINTS+2) :: interface_temperatures
+    type(error_t) :: error
+
+    host_midpoint_temperature = (/ 800.8_kind_phys, 700.7_kind_phys, 600.6_kind_phys, 500.5_kind_phys, 400.4_kind_phys /)
+
+    height_grid => create_height_grid(NUM_HOST_MIDPOINTS, NUM_HOST_INTERFACES, &
+                                      errmsg, errcode)
+    profile => create_temperature_profile( height_grid, errmsg, errcode )
+    ASSERT(errcode == 0)
+    ASSERT(associated(profile))
+
+    call set_temperature_values( profile, host_midpoint_temperature, &
+                                 host_surface_temperature, errmsg, errcode )
+    ASSERT(errcode == 0)
+
+    call profile%get_edge_values( interface_temperatures, error)
+    ASSERT(error%is_success())
+
+    ASSERT_NEAR(interface_temperatures(1), 300.3, abs_error)
+    ASSERT_NEAR(interface_temperatures(2), 400.4, abs_error)
+    ASSERT_NEAR(interface_temperatures(3), 500.5, abs_error)
+    ASSERT_NEAR(interface_temperatures(4), 600.6, abs_error)
+    ASSERT_NEAR(interface_temperatures(5), 700.7, abs_error)
+    ASSERT_NEAR(interface_temperatures(6), 800.8, abs_error)
+    ASSERT_NEAR(interface_temperatures(7), 800.8, abs_error)
+
+    deallocate( profile )
+    deallocate( height_grid )
+
+  end subroutine test_update_temperature
+
+end program test_tuvx_temperature
