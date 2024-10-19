@@ -23,7 +23,7 @@ contains
     use musica_tuvx, only: grid_map_t, profile_map_t, radiator_map_t
     use musica_util, only: error_t
     use musica_ccpp_tuvx_height_grid, only: create_height_grid, &
-                                            height_grid_label, height_grid_units
+                                            height_grid_label, height_grid_unit
 
     integer,            intent(in)  :: vertical_layer_dimension     ! (count)
     integer,            intent(in)  :: vertical_interface_dimension ! (count)
@@ -86,7 +86,7 @@ contains
       return
     end if
 
-    height_grid => grids%get( height_grid_label, height_grid_units, error )
+    height_grid => grids%get( height_grid_label, height_grid_unit, error )
     if (has_error_occurred( error, errmsg, errcode )) then
       deallocate( tuvx )
       tuvx => null()
