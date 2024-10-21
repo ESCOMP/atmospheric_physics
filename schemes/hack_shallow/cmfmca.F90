@@ -118,7 +118,7 @@ contains
     pmid, pmiddry, &
     pdel, pdeldry, rpdel, rpdeldry, &
     zm, &
-    tpert, qpert, &
+    qpert, &
     phis, &
     pblh, &
     t, &
@@ -158,7 +158,7 @@ contains
     real(kind_phys), intent(in)    :: rpdeldry(:,:)      ! 1.0 / pdeldry
 
     real(kind_phys), intent(in)    :: zm(:,:)            ! geopotential height at midpoints [m]
-    real(kind_phys), intent(in)    :: qpert(:,:)         ! PBL perturbation specific humidity (convective humidity excess) [kg/kg]
+    real(kind_phys), intent(inout) :: qpert(:,:)         ! PBL perturbation specific humidity (convective humidity excess) [kg/kg]
     real(kind_phys), intent(in)    :: phis(:)            ! surface geopotential [m2 s-2]
     real(kind_phys), intent(in)    :: pblh(:)            ! PBL height [m]
     real(kind_phys), intent(in)    :: t(:,:)             ! temperature [K]
@@ -179,7 +179,7 @@ contains
     real(kind_phys), intent(out)   :: rliq_sh(:)         ! vertically-integrated shallow reserved cloud condensate [m s-1]
 
     ! Local variables
-    real(kind_phys)                :: tpert(:)           ! PBL perturbation temperature (convective temperature excess) [K]
+    real(kind_phys)                :: tpert(ncol)        ! PBL perturbation temperature (convective temperature excess) [K]
 
     real(kind_phys) :: pm(ncol,pver)       ! pressure
     real(kind_phys) :: pd(ncol,pver)       ! delta-p
@@ -190,10 +190,10 @@ contains
     real(kind_phys) :: hb(ncol,pver)       ! moist static energy (h bar)
     real(kind_phys) :: shbs(ncol,pver)     ! sat. specific humidity (sh bar star)
     real(kind_phys) :: hbs(ncol,pver)      ! sat. moist static energy (h bar star)
-    real(kind_phys) :: shbh(ncol,pverp)    ! specific humidity on interfaces
-    real(kind_phys) :: sbh(ncol,pverp)     ! s bar on interfaces
-    real(kind_phys) :: hbh(ncol,pverp)     ! h bar on interfaces
-    real(kind_phys) :: cmrh(ncol,pverp)    ! interface constituent mixing ratio
+    real(kind_phys) :: shbh(ncol,pver+1)   ! specific humidity on interfaces
+    real(kind_phys) :: sbh(ncol,pver+1)    ! s bar on interfaces
+    real(kind_phys) :: hbh(ncol,pver+1)    ! h bar on interfaces
+    real(kind_phys) :: cmrh(ncol,pver+1)   ! interface constituent mixing ratio
     real(kind_phys) :: prec(ncol)          ! instantaneous total precipitation
     real(kind_phys) :: dzcld(ncol)         ! depth of convective layer (m)
     real(kind_phys) :: beta(ncol)          ! overshoot parameter (fraction)
@@ -287,7 +287,11 @@ contains
     ! "This field probably should reference the pbuf tpert field but it doesnt"
     tpert(:ncol) = 0.0_kind_phys
 
-    ! Reset PBL perturbation in constituents other than water to zero. (appears to be destructive op.)
+    ! Reset PBL perturbation in constituents other than water to zero.
+    ! NOTE: this is a destructive operation - in convert_shallow qpert is directly
+    ! mutated when Hack scheme is enabled, so we do the same here.
+    ! Technically, this should be a intent(in) argument, but it is not to replicate
+    ! existing functionality.
     qpert(:ncol,2:pcnst) = 0.0_kind_phys
 
     !---------------------------------------------------
@@ -357,7 +361,7 @@ contains
        prec(i)  = 0.0_kind_phys
        dzcld(i) = 0.0_kind_phys
        cnb_sh(i)= 0.0_kind_phys
-       cnt_sh(i)= real(pver+1,r8)
+       cnt_sh(i)= real(pver+1,kind_phys)
     end do
 
     !---------------------------------------------------

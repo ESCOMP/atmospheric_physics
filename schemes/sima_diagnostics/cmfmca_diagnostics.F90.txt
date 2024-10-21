@@ -1,0 +1,7 @@
+! simply a note of diagnostics in CMFMCA corresponding to physical quantities now
+! ICWMRSH - icwmr
+! QC - qc2 (qc_sh)
+! CMFDQR - rprdsh/cmfdqr
+! CMFSL - cmfsl
+! CMFLQ - cmflq
+! PRECSH - precc
