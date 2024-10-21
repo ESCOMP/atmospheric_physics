@@ -67,21 +67,21 @@ contains
     integer,            intent(out)   :: errcode
 
     ! local variables
-    real(c_double), target, dimension(size(temperature, dim=1)     &
-                                    * size(temperature, dim=2))      :: micm_temperature
-    real(c_double), target, dimension(size(pressure, dim=1)        &
-                                    * size(pressure, dim=2))         :: micm_pressure
-    real(c_double), target, dimension(size(dry_air_density, dim=1) &
-                                    * size(dry_air_density, dim=2))  :: micm_dry_air_density
-    real(c_double), target, dimension(size(constituents, dim=1)    &
-                                    * size(constituents, dim=2)    & 
-                                    * size(constituents, dim=3))     :: micm_constituents ! mol m-3
-    real(kind_phys), target, dimension(size(constituents, dim=3))    :: molar_mass_arr    ! kg mol-1
+    real(c_double), dimension(size(temperature, dim=1)     &
+                            * size(temperature, dim=2))      :: micm_temperature
+    real(c_double), dimension(size(pressure, dim=1)        &
+                            * size(pressure, dim=2))         :: micm_pressure
+    real(c_double), dimension(size(dry_air_density, dim=1) &
+                            * size(dry_air_density, dim=2))  :: micm_dry_air_density
+    real(c_double), dimension(size(constituents, dim=1)    &
+                            * size(constituents, dim=2)    &
+                            * size(constituents, dim=3))     :: micm_constituents ! mol m-3
+    real(kind_phys), dimension(size(constituents, dim=3))    :: molar_mass_arr    ! kg mol-1
     
     ! temporarily dimensioned to Chapman mechanism until mapping between MICM and TUV-x is implemented
-    real(c_double), target, dimension(size(constituents, dim=1) &
-                                    * size(constituents, dim=2) &
-                                    * 3) :: photolysis_rate_constants ! s-1
+    real(c_double), dimension(size(constituents, dim=1) &
+                            * size(constituents, dim=2) &
+                            * 3) :: photolysis_rate_constants ! s-1
     integer :: i_elem
 
     call tuvx_run(temperature, dry_air_density,                 &
