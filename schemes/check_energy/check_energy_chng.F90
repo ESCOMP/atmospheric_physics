@@ -50,7 +50,8 @@ contains
     ! Dependency for hydrostatic energy calculation (physics and dycore formulas)
     use cam_thermo,      only: get_hydrostatic_energy
 
-    ! FIXME: Flags for vertical coordinate used in physics/dycore
+    !REMOVECAM: when CAM is retired the energy formulation flag values which are
+    ! stored in dyn_tests_utils can be moved elsewhere.
     use dyn_tests_utils, only: vc_height, vc_dry_pressure
 
     ! Input arguments
