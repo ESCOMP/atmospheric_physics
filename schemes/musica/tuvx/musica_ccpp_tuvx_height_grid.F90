@@ -5,10 +5,10 @@ module musica_ccpp_tuvx_height_grid
   private
   public :: create_height_grid, set_height_grid_values, calculate_heights
 
-  ! Conversions between the CAM-SIMA height grid and the TUVX height grid
+  ! Conversions between the CAM-SIMA height grid and the TUV-x height grid
   !
   !-----------------------------------------------------------------------
-  ! Notes on the conversion between the host-model height grid and the TUVX
+  ! Notes on the conversion between the host-model height grid and the TUV-x
   !
   !  TUV-x heights are "bottom-up" and require atmospheric constituent
   !  concentrations at interfaces. Therefore, CAM-SIMA mid-points are used
@@ -52,7 +52,6 @@ contains
   !> Creates a TUV-x height grid
   function create_height_grid( vertical_layer_dimension, &
       vertical_interface_dimension, errmsg, errcode ) result( height_grid )
-
     use musica_ccpp_util, only: has_error_occurred
     use musica_tuvx_grid, only: grid_t
     use musica_util,      only: error_t
@@ -86,7 +85,6 @@ contains
   !> Sets TUV-x height grid values from the host-model height grid
   subroutine set_height_grid_values( height_grid, host_midpoints, &
       host_interfaces, errmsg, errcode )
-
     use ccpp_kinds,       only: kind_phys
     use musica_ccpp_util, only: has_error_occurred
     use musica_tuvx_grid, only: grid_t
@@ -146,29 +144,26 @@ contains
   !! The equation used is taked from CAMChem
   !! (see https://github.com/ESCOMP/CAM/blob/f0e489e9708ce7b91635f6d4997fbf1e390b0dbb/src/chemistry/mozart/mo_gas_phase_chemdr.F90#L514-L526)
   subroutine calculate_heights( geopotential_height_wrt_surface_at_midpoint, &
-      geopotential_height_wrt_surface_at_interface, &
-      surface_geopotential, reciprocal_of_gravitational_acceleration, &
-      height_midpoints, height_interfaces )
-
+      geopotential_height_wrt_surface_at_interface, surface_geopotential,    &
+      standard_gravitational_acceleration, height_midpoints, height_interfaces )
     use ccpp_kinds,       only: kind_phys
 
     real(kind_phys), intent(in)  :: geopotential_height_wrt_surface_at_midpoint(:)  ! m
     real(kind_phys), intent(in)  :: geopotential_height_wrt_surface_at_interface(:) ! m
-    real(kind_phys), intent(in)  :: surface_geopotential ! m2 s-2
-    real(kind_phys), intent(in)  :: reciprocal_of_gravitational_acceleration ! s2 m-1
-    real(kind_phys), intent(out) :: height_midpoints(:)  ! km
-    real(kind_phys), intent(out) :: height_interfaces(:) ! km
+    real(kind_phys), intent(in)  :: surface_geopotential                            ! m2 s-2
+    real(kind_phys), intent(in)  :: standard_gravitational_acceleration             ! m s-2
+    real(kind_phys), intent(out) :: height_midpoints(:)                             ! km
+    real(kind_phys), intent(out) :: height_interfaces(:)                            ! km
 
     ! local variable
     real(kind_phys) :: surface_height ! m
 
-    surface_height = surface_geopotential * reciprocal_of_gravitational_acceleration
-    height_midpoints(:) = 0.001_kind_phys * &
-                          ( geopotential_height_wrt_surface_at_midpoint(:) &
-                            + surface_height )
-    height_interfaces(:) = 0.001_kind_phys * &
-                           ( geopotential_height_wrt_surface_at_interface(:) &
-                             + surface_height )
+    surface_height = &
+      surface_geopotential * ( 1.0_kind_phys / standard_gravitational_acceleration )
+    height_midpoints(:) = &
+      0.001_kind_phys * ( geopotential_height_wrt_surface_at_midpoint(:) + surface_height )
+    height_interfaces(:) = &
+      0.001_kind_phys * ( geopotential_height_wrt_surface_at_interface(:) + surface_height )
 
   end subroutine calculate_heights
 

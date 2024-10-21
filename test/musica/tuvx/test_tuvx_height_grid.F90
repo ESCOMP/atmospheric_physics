@@ -78,18 +78,18 @@ contains
     real(kind_phys), dimension(NUM_LAYERS)   :: geopotential_height_wrt_surface_at_midpoint  ! m
     real(kind_phys), dimension(NUM_LAYERS+1) :: geopotential_height_wrt_surface_at_interface ! m
     real(kind_phys)                          :: surface_geopotential ! m2 s-2
-    real(kind_phys)                          :: reciprocal_of_gravitational_acceleration ! s2 m-1
+    real(kind_phys)                          :: standard_gravitational_acceleration ! m s-2
     real(kind_phys), dimension(NUM_LAYERS)   :: height_midpoints  ! km
     real(kind_phys), dimension(NUM_LAYERS+1) :: height_interfaces ! km
 
     geopotential_height_wrt_surface_at_midpoint(:) = (/ 2000.0_kind_phys, 500.0_kind_phys /)
     geopotential_height_wrt_surface_at_interface(:) = (/ 3000.0_kind_phys, 1000.0_kind_phys, 0.0_kind_phys /)
     surface_geopotential = 100.0_kind_phys
-    reciprocal_of_gravitational_acceleration = 10.0_kind_phys
+    standard_gravitational_acceleration = 0.1_kind_phys
 
     call calculate_heights(geopotential_height_wrt_surface_at_midpoint, &
                            geopotential_height_wrt_surface_at_interface, &
-                           surface_geopotential, reciprocal_of_gravitational_acceleration, &
+                           surface_geopotential, standard_gravitational_acceleration, &
                            height_midpoints, height_interfaces)
 
     ASSERT_NEAR(height_midpoints(1), 3.0, 1e-5)

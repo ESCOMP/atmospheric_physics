@@ -16,18 +16,18 @@ contains
     use iso_c_binding, only: c_double
     use ccpp_kinds,    only: kind_phys
 
-    integer, parameter      :: NUM_SPECIES = 4
-    integer, parameter      :: NUM_COLUMNS = 2
-    integer, parameter      :: NUM_LAYERS = 2
-    integer, parameter      :: NUM_GRID_CELLS = 4
-    real(kind_phys), target :: temperature(NUM_COLUMNS,NUM_LAYERS)
-    real(kind_phys), target :: pressure(NUM_COLUMNS,NUM_LAYERS)
-    real(kind_phys), target :: dry_air_density(NUM_COLUMNS,NUM_LAYERS)
-    real(kind_phys), target :: constituents(NUM_COLUMNS,NUM_LAYERS,NUM_SPECIES)
-    real(c_double),  target :: micm_temperature(NUM_GRID_CELLS)
-    real(c_double),  target :: micm_pressure(NUM_GRID_CELLS)
-    real(c_double),  target :: micm_dry_air_density(NUM_GRID_CELLS)
-    real(c_double),  target :: micm_constituents(NUM_GRID_CELLS*NUM_SPECIES)
+    integer, parameter :: NUM_SPECIES = 4
+    integer, parameter :: NUM_COLUMNS = 2
+    integer, parameter :: NUM_LAYERS = 2
+    integer, parameter :: NUM_GRID_CELLS = 4
+    real(kind_phys)    :: temperature(NUM_COLUMNS,NUM_LAYERS)
+    real(kind_phys)    :: pressure(NUM_COLUMNS,NUM_LAYERS)
+    real(kind_phys)    :: dry_air_density(NUM_COLUMNS,NUM_LAYERS)
+    real(kind_phys)    :: constituents(NUM_COLUMNS,NUM_LAYERS,NUM_SPECIES)
+    real(c_double)     :: micm_temperature(NUM_GRID_CELLS)
+    real(c_double)     :: micm_pressure(NUM_GRID_CELLS)
+    real(c_double)     :: micm_dry_air_density(NUM_GRID_CELLS)
+    real(c_double)     :: micm_constituents(NUM_GRID_CELLS*NUM_SPECIES)
 
     ! local variables
     real(c_double), dimension(NUM_GRID_CELLS)             :: arr_conditions

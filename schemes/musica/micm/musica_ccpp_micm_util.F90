@@ -13,14 +13,14 @@ contains
     use iso_c_binding, only: c_double
     use ccpp_kinds,    only: kind_phys
 
-    real(kind_phys), target, intent(in)  :: temperature(:,:)        ! K
-    real(kind_phys), target, intent(in)  :: pressure(:,:)           ! Pa
-    real(kind_phys), target, intent(in)  :: dry_air_density(:,:)    ! kg m-3
-    real(kind_phys), target, intent(in)  :: constituents(:,:,:)     ! kg kg-1
-    real(c_double),  target, intent(out) :: micm_temperature(:)     ! K
-    real(c_double),  target, intent(out) :: micm_pressure(:)        ! Pa
-    real(c_double),  target, intent(out) :: micm_dry_air_density(:) ! kg m-3
-    real(c_double),  target, intent(out) :: micm_constituents(:)    ! kg kg-1
+    real(kind_phys), intent(in)  :: temperature(:,:)        ! K
+    real(kind_phys), intent(in)  :: pressure(:,:)           ! Pa
+    real(kind_phys), intent(in)  :: dry_air_density(:,:)    ! kg m-3
+    real(kind_phys), intent(in)  :: constituents(:,:,:)     ! kg kg-1
+    real(c_double),  intent(out) :: micm_temperature(:)     ! K
+    real(c_double),  intent(out) :: micm_pressure(:)        ! Pa
+    real(c_double),  intent(out) :: micm_dry_air_density(:) ! kg m-3
+    real(c_double),  intent(out) :: micm_constituents(:)    ! kg kg-1
 
     ! local variables
     integer :: num_columns, num_layers, num_constituents
@@ -83,6 +83,7 @@ contains
     real(kind_phys), intent(in)    :: molar_mass_arr(:)    ! kg mol-1
     real(kind_phys), intent(inout) :: constituents(:,:,:)  ! in: kg kg-1 | out: mol m-3
 
+    ! local variables
     integer         :: num_columns, num_layers, num_constituents
     integer         :: i_column, i_layer, i_elem
     real(kind_phys) :: val
