@@ -270,14 +270,14 @@ contains
     if(pcnst > 1) then
       dq    (:ncol,:,2:)  = q(:ncol,:,2:)
     endif
-    cmfdt   (:ncol,:)     = 0._r8
-    cmfdq   (:ncol,:)     = 0._r8
-    cmfmc_sh(:ncol,:)     = 0._r8
-    cmfdqr  (:ncol,:)     = 0._r8
-    cmfsl   (:ncol,:)     = 0._r8
-    cmflq   (:ncol,:)     = 0._r8
-    qc_sh   (:ncol,:)     = 0._r8
-    rliq_sh (:ncol)       = 0._r8
+    cmfdt   (:ncol,:)     = 0._kind_phys
+    cmfdq   (:ncol,:)     = 0._kind_phys
+    cmfmc_sh(:ncol,:)     = 0._kind_phys
+    cmfdqr  (:ncol,:)     = 0._kind_phys
+    cmfsl   (:ncol,:)     = 0._kind_phys
+    cmflq   (:ncol,:)     = 0._kind_phys
+    qc_sh   (:ncol,:)     = 0._kind_phys
+    rliq_sh (:ncol)       = 0._kind_phys
 
     !---------------------------------------------------
     ! Quantity preparations from convect_shallow.F90.
@@ -304,9 +304,9 @@ contains
        adjfac = ztodt/(max(ztodt,cmftau))
     else
        cats   = max(ztodt,cmftau) ! relaxation applied to triplet
-       adjfac = 1.0_r8
+       adjfac = 1.0_kind_phys
     endif
-    rtdt = 1.0_r8/ztodt
+    rtdt = 1.0_kind_phys/ztodt
 
     ! Move temperature and moisture into working storage
     do k=limcnv,pver
@@ -317,7 +317,7 @@ contains
     end do
     do k=1,pver
        do i=1,ncol
-          icwmr(i,k) = 0._r8
+          icwmr(i,k) = 0._kind_phys
        end do
     end do
 
@@ -339,7 +339,7 @@ contains
     ! Compute sbh, shbh
     do k=limcnv+1,pver
        do i=1,ncol
-          sbh (i,k) = 0.5_r8*(sb(i,k-1) + sb(i,k))
+          sbh (i,k) = 0.5_kind_phys*(sb(i,k-1) + sb(i,k))
           shbh(i,k) = qhalf(shb(i,k-1),shb(i,k),shbs(i,k-1),shbs(i,k))
           hbh (i,k) = sbh(i,k) + hlat*shbh(i,k)
        end do
@@ -354,10 +354,10 @@ contains
 
     ! Zero vertically independent control, tendency & diagnostic arrays
     do i=1,ncol
-       prec(i)  = 0.0_r8
-       dzcld(i) = 0.0_r8
-       cnb(i)   = 0.0_r8
-       cnt(i)   = real(pver+1,r8)
+       prec(i)  = 0.0_kind_phys
+       dzcld(i) = 0.0_kind_phys
+       cnb_sh(i)= 0.0_kind_phys
+       cnt_sh(i)= real(pver+1,r8)
     end do
 
     !---------------------------------------------------
@@ -366,18 +366,18 @@ contains
     !---------------------------------------------------
     kloop: do k = pver-1,limcnv+1,-1
       do i = 1, ncol
-        etagdt(i) = 0.0_r8
-        eta   (i) = 0.0_r8
-        beta  (i) = 0.0_r8
-        ds1   (i) = 0.0_r8
-        ds2   (i) = 0.0_r8
-        ds3   (i) = 0.0_r8
-        dq1   (i) = 0.0_r8
-        dq2   (i) = 0.0_r8
-        dq3   (i) = 0.0_r8
+        etagdt(i) = 0.0_kind_phys
+        eta   (i) = 0.0_kind_phys
+        beta  (i) = 0.0_kind_phys
+        ds1   (i) = 0.0_kind_phys
+        ds2   (i) = 0.0_kind_phys
+        ds3   (i) = 0.0_kind_phys
+        dq1   (i) = 0.0_kind_phys
+        dq2   (i) = 0.0_kind_phys
+        dq3   (i) = 0.0_kind_phys
         ! Specification of "cloud base" conditions
-        qprime    = 0.0_r8
-        tprime    = 0.0_r8
+        qprime    = 0.0_kind_phys
+        tprime    = 0.0_kind_phys
 
         ! Assign tprime within the PBL to be proportional to the quantity
         ! tpert (which will be bounded by tpmax), passed to this routine by
@@ -388,16 +388,16 @@ contains
         ! quantity qprime should be less than the local saturation value
         ! (qsattp=qsat[t+tprime,p]).  In both cases, tpert and qpert are
         ! linearly reduced toward zero as the PBL top is approached.
-        pblhgt = max(pblh(i),1.0_r8)
-        if ( (zm(i,k+1) <= pblhgt) .and. dzcld(i) == 0.0_r8 ) then
-           fac1   = max(0.0_r8,1.0_r8-zm(i,k+1)/pblhgt)
+        pblhgt = max(pblh(i),1.0_kind_phys)
+        if ( (zm(i,k+1) <= pblhgt) .and. dzcld(i) == 0.0_kind_phys ) then
+           fac1   = max(0.0_kind_phys,1.0_kind_phys-zm(i,k+1)/pblhgt)
            tprime = min(tpert(i),tpmax)*fac1
            qsattp = shbs(i,k+1) + cp*rhlat*gam(i,k+1)*tprime
-           shprme = min(min(qpert(i,1),shpmax)*fac1,max(qsattp-shb(i,k+1),0.0_r8))
+           shprme = min(min(qpert(i,1),shpmax)*fac1,max(qsattp-shb(i,k+1),0.0_kind_phys))
            qprime = max(qprime,shprme)
         else
-           tprime = 0.0_r8
-           qprime = 0.0_r8
+           tprime = 0.0_kind_phys
+           qprime = 0.0_kind_phys
         end if
 
         ! Specify "updraft" (in-cloud) thermodynamic properties
@@ -407,10 +407,10 @@ contains
         hc (i)    = sc (i    ) + hlat*shc(i)
         vtemp4(i) = hc(i) - hbs(i,k)
         dz        = pdel(i,k)*rgas*tb(i,k)*rgrav/pmid(i,k)
-        if (vtemp4(i) > 0.0_r8) then
+        if (vtemp4(i) > 0.0_kind_phys) then
            dzcld(i) = dzcld(i) + dz
         else
-           dzcld(i) = 0.0_r8
+           dzcld(i) = 0.0_kind_phys
         end if
       enddo
 
@@ -418,7 +418,7 @@ contains
       ! Build index vector of points where instability exists
       len1 = 0
       do i=1,ncol
-         if (vtemp4(i) > 0.0_r8) then
+         if (vtemp4(i) > 0.0_kind_phys) then
             len1 = len1 + 1
             indx1(len1) = i
          end if
@@ -430,10 +430,10 @@ contains
       if (k <= limcnv+1) then
          do ii=1,len1
             i = indx1(ii)
-            temp1     = vtemp4(i)/(1.0_r8 + gam(i,k))
-            cldwtr(i) = max(0.0_r8,(sb(i,k) - sc(i) + temp1))
-            beta(i)   = 0.0_r8
-            vtemp3(i) = (1.0_r8 + gam(i,k))*(sc(i) - sbh(i,k))
+            temp1     = vtemp4(i)/(1.0_kind_phys + gam(i,k))
+            cldwtr(i) = max(0.0_kind_phys,(sb(i,k) - sc(i) + temp1))
+            beta(i)   = 0.0_kind_phys
+            vtemp3(i) = (1.0_kind_phys + gam(i,k))*(sc(i) - sbh(i,k))
          end do
       else
         ! First guess at overshoot parameter using crude buoyancy closure
@@ -442,25 +442,25 @@ contains
         ! cldwtr is temporarily equal to hlat*l (l=> liquid water)
         do ii=1,len1
           i = indx1(ii)
-          temp1     = vtemp4(i)/(1.0_r8 + gam(i,k))
-          cldwtr(i) = max(0.0_r8,(sb(i,k)-sc(i)+temp1))
-          betamx(i) = 1.0_r8 - c0*max(0.0_r8,(dzcld(i)-dzmin))
+          temp1     = vtemp4(i)/(1.0_kind_phys + gam(i,k))
+          cldwtr(i) = max(0.0_kind_phys,(sb(i,k)-sc(i)+temp1))
+          betamx(i) = 1.0_kind_phys - c0*max(0.0_kind_phys,(dzcld(i)-dzmin))
           b1        = (hc(i) - hbs(i,k-1))*pdel(i,k-1)
           b2        = (hc(i) - hbs(i,k  ))*pdel(i,k  )
-          beta(i)   = max(betamn,min(betamx(i), 1.0_r8 + b1/b2))
-          if (hbs(i,k-1) <= hb(i,k-1)) beta(i) = 0.0_r8
+          beta(i)   = max(betamn,min(betamx(i), 1.0_kind_phys + b1/b2))
+          if (hbs(i,k-1) <= hb(i,k-1)) beta(i) = 0.0_kind_phys
 
           ! Bound maximum beta to ensure physically realistic solutions
           !
           ! First check constrains beta so that eta remains positive
           ! (assuming that eta is already positive for beta equal zero)
           vtemp1(i) = -(hbh(i,k+1) - hc(i))*pdel(i,k)*rpdel(i,k+1)+ &
-                      (1.0_r8 + gam(i,k))*(sc(i) - sbh(i,k+1) + cldwtr(i))
-          vtemp2(i) = (1.0_r8 + gam(i,k))*(sc(i) - sbh(i,k))
+                      (1.0_kind_phys + gam(i,k))*(sc(i) - sbh(i,k+1) + cldwtr(i))
+          vtemp2(i) = (1.0_kind_phys + gam(i,k))*(sc(i) - sbh(i,k))
           vtemp3(i) = vtemp2(i)
-          if ((beta(i)*vtemp2(i) - vtemp1(i)) > 0._r8) then
-            betamx(i) = 0.99_r8*(vtemp1(i)/vtemp2(i))
-            beta(i)   = max(0.0_r8,min(betamx(i),beta(i)))
+          if ((beta(i)*vtemp2(i) - vtemp1(i)) > 0._kind_phys) then
+            betamx(i) = 0.99_kind_phys*(vtemp1(i)/vtemp2(i))
+            beta(i)   = max(0.0_kind_phys,min(betamx(i),beta(i)))
           end if
         end do
 
@@ -475,12 +475,12 @@ contains
             temp3 = vtemp3(i)*rpdel(i,k)
             vtemp2(i) = (ztodt/cats)*(hc(i) - hbs(i,k))*temp2/ &
                         (pdel(i,k-1)*(hbs(i,k-1) - hb(i,k-1))) + temp3
-            if ((beta(i)*vtemp2(i) - vtemp1(i)) > 0._r8) then
+            if ((beta(i)*vtemp2(i) - vtemp1(i)) > 0._kind_phys) then
               betamx(i) = ssfac*(vtemp1(i)/vtemp2(i))
-              beta(i)   = max(0.0_r8,min(betamx(i),beta(i)))
+              beta(i)   = max(0.0_kind_phys,min(betamx(i),beta(i)))
             end if
           else
-             beta(i) = 0.0_r8
+             beta(i) = 0.0_kind_phys
           end if
         end do
 
@@ -489,18 +489,18 @@ contains
         ! so that the adjustment doesn't contribute to "kinks" in h
         do ii=1,len1
            i = indx1(ii)
-           g = min(0.0_r8,hb(i,k) - hb(i,k-1))
+           g = min(0.0_kind_phys,hb(i,k) - hb(i,k-1))
            temp1 = (hb(i,k) - hb(i,k-1) - g)*(cats/ztodt)/(hc(i) - hbs(i,k))
            vtemp1(i) = temp1*vtemp1(i) + (hc(i) - hbh(i,k+1))*rpdel(i,k)
            vtemp2(i) = temp1*vtemp3(i)*rpdel(i,k) + (hc(i) - hbh(i,k) - cldwtr(i))* &
                        (rpdel(i,k) + rpdel(i,k+1))
-           if ((beta(i)*vtemp2(i) - vtemp1(i)) > 0._r8) then
-              if (vtemp2(i) /= 0.0_r8) then
+           if ((beta(i)*vtemp2(i) - vtemp1(i)) > 0._kind_phys) then
+              if (vtemp2(i) /= 0.0_kind_phys) then
                 betamx(i) = vtemp1(i)/vtemp2(i)
               else
-                betamx(i) = 0.0_r8
+                betamx(i) = 0.0_kind_phys
               end if
-              beta(i) = max(0.0_r8,min(betamx(i),beta(i)))
+              beta(i) = max(0.0_kind_phys,min(betamx(i),beta(i)))
            end if
         end do
       end if ! (k <= limcnv+1) Current level just below top level => no overshoot
@@ -516,31 +516,31 @@ contains
       ! physical states and adjust eta accordingly.
       do ii=1,len1
         i = indx1(ii)
-        beta(i) = max(0.0_r8,beta(i))
+        beta(i) = max(0.0_kind_phys,beta(i))
         temp1 = hc(i) - hbs(i,k)
-        temp2 = ((1.0_r8 + gam(i,k))*(sc(i) - sbh(i,k+1) + cldwtr(i)) - &
+        temp2 = ((1.0_kind_phys + gam(i,k))*(sc(i) - sbh(i,k+1) + cldwtr(i)) - &
                   beta(i)*vtemp3(i))*rpdel(i,k) - (hbh(i,k+1) - hc(i))*rpdel(i,k+1)
         eta(i) = temp1/(temp2*grav*cats)
         tmass = min(pdel(i,k),pdel(i,k+1))*rgrav
-        if (eta(i) > tmass*rtdt .or. eta(i) <= 0.0_r8) eta(i) = 0.0_r8
+        if (eta(i) > tmass*rtdt .or. eta(i) <= 0.0_kind_phys) eta(i) = 0.0_kind_phys
 
         ! Check on negative q in top layer (bound beta)
-        if (shc(i)-shbh(i,k) < 0.0_r8 .and. beta(i)*eta(i) /= 0.0_r8) then
+        if (shc(i)-shbh(i,k) < 0.0_kind_phys .and. beta(i)*eta(i) /= 0.0_kind_phys) then
            denom = eta(i)*grav*ztodt*(shc(i) - shbh(i,k))*rpdel(i,k-1)
-           beta(i) = max(0.0_r8,min(-0.999_r8*shb(i,k-1)/denom,beta(i)))
+           beta(i) = max(0.0_kind_phys,min(-0.999_kind_phys*shb(i,k-1)/denom,beta(i)))
         end if
 
         ! Check on negative q in middle layer (zero eta)
         qtest1 = shb(i,k) + eta(i)*grav*ztodt*((shc(i) - shbh(i,k+1)) - &
-                 (1.0_r8 - beta(i))*cldwtr(i)*rhlat - beta(i)*(shc(i) - shbh(i,k)))* &
+                 (1.0_kind_phys - beta(i))*cldwtr(i)*rhlat - beta(i)*(shc(i) - shbh(i,k)))* &
            rpdel(i,k)
-        if (qtest1 <= 0.0_r8) eta(i) = 0.0_r8
+        if (qtest1 <= 0.0_kind_phys) eta(i) = 0.0_kind_phys
 
         ! Check on negative q in lower layer (bound eta)
         fac1 = -(shbh(i,k+1) - shc(i))*rpdel(i,k+1)
         qtest2 = shb(i,k+1) - eta(i)*grav*ztodt*fac1
-        if (qtest2 < 0.0_r8) then
-           eta(i) = 0.99_r8*shb(i,k+1)/(grav*ztodt*fac1)
+        if (qtest2 < 0.0_kind_phys) then
+           eta(i) = 0.99_kind_phys*shb(i,k+1)/(grav*ztodt*fac1)
         end if
         etagdt(i) = eta(i)*grav*ztodt
       end do
@@ -552,7 +552,7 @@ contains
         cldwtr(i) = etagdt(i)*cldwtr(i)*rhlat*rgrav
 
         ! JJH changes to facilitate export of cloud liquid water --------------------------------
-        totcond(i) = (1.0_r8 - beta(i))*cldwtr(i)
+        totcond(i) = (1.0_kind_phys - beta(i))*cldwtr(i)
         rnwtr(i) = min(totcond(i),c0*(dzcld(i)-dzmin)*cldwtr(i))
         ds1(i) = etagdt(i)*(sbh(i,k+1) - sc(i))*rpdel(i,k+1)
         dq1(i) = etagdt(i)*(shbh(i,k+1) - shc(i))*rpdel(i,k+1)
@@ -599,10 +599,10 @@ contains
         cmfdq (i,k-1) = cmfdq (i,k-1) + dq3(i)*rtdt*adjfac
 
         ! JJH changes to export cloud liquid water --------------------------------
-        qc    (i,k  ) = (grav*(totcond(i)-rnwtr(i))*rpdel(i,k))*rtdt*adjfac
-        cmfdqr(i,k  ) = cmfdqr(i,k  ) + (grav*rnwtr(i)*rpdel(i,k))*rtdt*adjfac
-        cmfmc (i,k+1) = cmfmc (i,k+1) + eta(i)*adjfac
-        cmfmc (i,k  ) = cmfmc (i,k  ) + beta(i)*eta(i)*adjfac
+        qc_sh   (i,k  ) = (grav*(totcond(i)-rnwtr(i))*rpdel(i,k))*rtdt*adjfac
+        cmfdqr  (i,k  ) = cmfdqr(i,k  ) + (grav*rnwtr(i)*rpdel(i,k))*rtdt*adjfac
+        cmfmc_sh(i,k+1) = cmfmc_sh(i,k+1) + eta(i)*adjfac
+        cmfmc_sh(i,k  ) = cmfmc_sh(i,k  ) + beta(i)*eta(i)*adjfac
 
         ! The following variables have units of w/m**2
         cmfsl (i,k+1) = cmfsl (i,k+1) + fslkp*adjfac
@@ -636,16 +636,16 @@ contains
 
           ! If any of the reported values of the constituent is negative in
           ! the three adjacent levels, nothing will be done to the profile
-          if ((dq(i,k+1,m) < 0.0_r8) .or. (dq(i,k,m) < 0.0_r8) .or. (dq(i,k-1,m) < 0.0_r8)) cycle pcl1loop
+          if ((dq(i,k+1,m) < 0.0_kind_phys) .or. (dq(i,k,m) < 0.0_kind_phys) .or. (dq(i,k-1,m) < 0.0_kind_phys)) cycle pcl1loop
 
           ! Specify constituent interface values (linear interpolation)
-          cmrh(i,k  ) = 0.5_r8*(dq(i,k-1,m) + dq(i,k  ,m))
-          cmrh(i,k+1) = 0.5_r8*(dq(i,k  ,m) + dq(i,k+1,m))
+          cmrh(i,k  ) = 0.5_kind_phys*(dq(i,k-1,m) + dq(i,k  ,m))
+          cmrh(i,k+1) = 0.5_kind_phys*(dq(i,k  ,m) + dq(i,k+1,m))
 
           ! Specify perturbation properties of constituents in PBL
-          pblhgt = max(pblh(i),1.0_r8)
-          if ( (zm(i,k+1) <= pblhgt) .and. dzcld(i) == 0.0_r8 ) then
-             fac1 = max(0.0_r8,1.0_r8-zm(i,k+1)/pblhgt)
+          pblhgt = max(pblh(i),1.0_kind_phys)
+          if ( (zm(i,k+1) <= pblhgt) .and. dzcld(i) == 0.0_kind_phys ) then
+             fac1 = max(0.0_kind_phys,1.0_kind_phys-zm(i,k+1)/pblhgt)
              cmrc(i) = dq(i,k+1,m) + qpert(i,m)*fac1
           else
              cmrc(i) = dq(i,k+1,m)
@@ -659,43 +659,43 @@ contains
           botflx   = etagdt(i)*(cmrc(i) - cmrh(i,k+1))*adjfac
           topflx   = beta(i)*etagdt(i)*(cmrc(i)-cmrh(i,k))*adjfac
           dcmr1(i) = -botflx*rpd(i,k+1)
-          efac1    = 1.0_r8
-          efac2    = 1.0_r8
-          efac3    = 1.0_r8
+          efac1    = 1.0_kind_phys
+          efac2    = 1.0_kind_phys
+          efac3    = 1.0_kind_phys
 
-          if (dq(i,k+1,m)+dcmr1(i) < 0.0_r8) then
-             if ( abs(dcmr1(i)) > 1.e-300_r8 ) then
+          if (dq(i,k+1,m)+dcmr1(i) < 0.0_kind_phys) then
+             if ( abs(dcmr1(i)) > 1.e-300_kind_phys ) then
                 efac1 = max(tiny,abs(dq(i,k+1,m)/dcmr1(i)) - eps)
              else
                 efac1 = tiny
              endif
           end if
 
-          if (efac1 == tiny .or. efac1 > 1.0_r8) efac1 = 0.0_r8
+          if (efac1 == tiny .or. efac1 > 1.0_kind_phys) efac1 = 0.0_kind_phys
           dcmr1(i) = -efac1*botflx*rpd(i,k+1)
           dcmr2(i) = (efac1*botflx - topflx)*rpd(i,k)
 
-          if (dq(i,k,m)+dcmr2(i) < 0.0_r8) then
-             if ( abs(dcmr2(i)) > 1.e-300_r8 ) then
+          if (dq(i,k,m)+dcmr2(i) < 0.0_kind_phys) then
+             if ( abs(dcmr2(i)) > 1.e-300_kind_phys ) then
                 efac2 = max(tiny,abs(dq(i,k  ,m)/dcmr2(i)) - eps)
              else
                 efac2 = tiny
              endif
           end if
 
-          if (efac2 == tiny .or. efac2 > 1.0_r8) efac2 = 0.0_r8
+          if (efac2 == tiny .or. efac2 > 1.0_kind_phys) efac2 = 0.0_kind_phys
           dcmr2(i) = (efac1*botflx - efac2*topflx)*rpd(i,k)
           dcmr3(i) = efac2*topflx*rpd(i,k-1)
 
-          if ( (dq(i,k-1,m)+dcmr3(i) < 0.0_r8 ) ) then
-             if  ( abs(dcmr3(i)) > 1.e-300_r8 ) then
+          if ( (dq(i,k-1,m)+dcmr3(i) < 0.0_kind_phys ) ) then
+             if  ( abs(dcmr3(i)) > 1.e-300_kind_phys ) then
                 efac3 = max(tiny,abs(dq(i,k-1,m)/dcmr3(i)) - eps)
              else
                 efac3 = tiny
              endif
           end if
 
-          if (efac3 == tiny .or. efac3 > 1.0_r8) efac3 = 0.0_r8
+          if (efac3 == tiny .or. efac3 > 1.0_kind_phys) efac3 = 0.0_kind_phys
           efac3    = min(efac2,efac3)
           dcmr2(i) = (efac1*botflx - efac3*topflx)*rpd(i,k)
           dcmr3(i) = efac3*topflx*rpd(i,k-1)
@@ -713,18 +713,18 @@ contains
         ! specify the current vertical extent of the convective activity
         ! top of convective layer determined by size of overshoot param.
          do i=1,ncol
-             etagt0 = eta(i).gt.0.0_r8
-             if ( .not. etagt0) dzcld(i) = 0.0_r8
+             etagt0 = eta(i).gt.0.0_kind_phys
+             if ( .not. etagt0) dzcld(i) = 0.0_kind_phys
              if (etagt0 .and. beta(i) > betamn) then
                 ktp = k-1
              else
                 ktp = k
              end if
              if (etagt0) then
-                rk=k
-                rktp=ktp
-                cnt(i) = min(cnt(i),rktp)
-                cnb(i) = max(cnb(i),rk)
+                rk = k
+                rktp = ktp
+                cnt_sh(i) = min(cnt_sh(i),rktp)
+                cnb_sh(i) = max(cnb_sh(i),rk)
              end if
           end do
       else
@@ -756,10 +756,10 @@ contains
         ! Update thermodynamic information at half (i.e., interface) levels
         do ii=1,len1
            i = indx1(ii)
-           sbh (i,k) = 0.5_r8*(sb(i,k) + sb(i,k-1))
+           sbh (i,k) = 0.5_kind_phys*(sb(i,k) + sb(i,k-1))
            shbh(i,k) = qhalf(shb(i,k-1),shb(i,k),shbs(i,k-1),shbs(i,k))
            hbh (i,k) = sbh(i,k) + hlat*shbh(i,k)
-           sbh (i,k-1) = 0.5_r8*(sb(i,k-1) + sb(i,k-2))
+           sbh (i,k-1) = 0.5_kind_phys*(sb(i,k-1) + sb(i,k-2))
            shbh(i,k-1) = qhalf(shb(i,k-2),shb(i,k-1),shbs(i,k-2),shbs(i,k-1))
            hbh (i,k-1) = sbh(i,k-1) + hlat*shbh(i,k-1)
         end do
@@ -773,11 +773,11 @@ contains
     dq(:ncol,:,1 ) = cmfdq(:ncol,:)
     dq(:ncol,:,2:) = (dq(:ncol,:,2:) - q(:ncol,:,2:))/ztodt
 
-    ! Kludge to prevent cnb-cnt from being zero (in the event
+    ! Kludge to prevent cnb_sh-cnt_sh from being zero (in the event
     ! someone decides that they want to divide by this quantity)
     do i=1,ncol
-       if (cnb(i) /= 0.0_r8 .and. cnb(i) == cnt(i)) then
-          cnt(i) = cnt(i) - 1.0_r8
+       if (cnb_sh(i) /= 0.0_kind_phys .and. cnb_sh(i) == cnt_sh(i)) then
+          cnt_sh(i) = cnt_sh(i) - 1.0_kind_phys
        end if
     end do
 
@@ -786,13 +786,13 @@ contains
     end do
 
     ! Compute reserved liquid (not yet in cldliq) for energy integrals.
-    ! Treat rliq as flux out bottom, to be added back later.
+    ! Treat rliq_sh as flux out bottom, to be added back later.
     do k = 1, pver
        do i = 1, ncol
-          rliq(i) = rliq(i) + qc(i,k)*pdel(i,k)/grav
+          rliq_sh(i) = rliq_sh(i) + qc_sh(i,k)*pdel(i,k)/grav
        end do
     end do
-    rliq(:ncol) = rliq(:ncol) / 1000._r8
+    rliq_sh(:ncol) = rliq_sh(:ncol) / 1000._kind_phys
   end subroutine cmfmca_run
 
   pure function qhalf(sh1,sh2,shbs1,shbs2) result(qh)
