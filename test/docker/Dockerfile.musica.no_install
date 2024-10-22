@@ -3,8 +3,8 @@
 # - Unit tests for MUSICA utility functions
 # - Integration tests for MUSICA CCPP APIs
 #
-# Note: No installation is required, as the CMake FetchContent module
-#       retrieves the MUSICA library automatically.
+# No MUSICA library installation is required, as the CMake FetchContent module
+# retrieves the MUSICA library automatically.
 
 FROM ubuntu:22.04
 

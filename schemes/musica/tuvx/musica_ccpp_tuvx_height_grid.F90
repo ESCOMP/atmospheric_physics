@@ -44,14 +44,14 @@ module musica_ccpp_tuvx_height_grid
 
   !> Label for height grid in TUV-x
   character(len=*), parameter, public :: height_grid_label = "height"
-  !> Units for height grid in TUV-x
-  character(len=*), parameter, public :: height_grid_units = "km"
+  !> Unit for height grid in TUV-x
+  character(len=*), parameter, public :: height_grid_unit = "km"
 
 contains
 
   !> Creates a TUV-x height grid
-  function create_height_grid( vertical_layer_dimension, &
-      vertical_interface_dimension, errmsg, errcode ) result( height_grid )
+  function create_height_grid(vertical_layer_dimension, vertical_interface_dimension, &
+                              errmsg, errcode) result(height_grid)
     use musica_ccpp_util, only: has_error_occurred
     use musica_tuvx_grid, only: grid_t
     use musica_util,      only: error_t
@@ -76,15 +76,15 @@ contains
       errcode = 1
       return
     end if
-    height_grid => grid_t( height_grid_label, height_grid_units, &
+    height_grid => grid_t( height_grid_label, height_grid_unit, &
                            vertical_interface_dimension, error )
     if ( has_error_occurred( error, errmsg, errcode ) ) return
 
   end function create_height_grid
 
   !> Sets TUV-x height grid values from the host-model height grid
-  subroutine set_height_grid_values( height_grid, host_midpoints, &
-      host_interfaces, errmsg, errcode )
+  subroutine set_height_grid_values(height_grid, host_midpoints, &
+                                    host_interfaces, errmsg, errcode)
     use ccpp_kinds,       only: kind_phys
     use musica_ccpp_util, only: has_error_occurred
     use musica_tuvx_grid, only: grid_t
@@ -143,9 +143,11 @@ contains
   !!
   !! The equation used is taked from CAMChem
   !! (see https://github.com/ESCOMP/CAM/blob/f0e489e9708ce7b91635f6d4997fbf1e390b0dbb/src/chemistry/mozart/mo_gas_phase_chemdr.F90#L514-L526)
-  subroutine calculate_heights( geopotential_height_wrt_surface_at_midpoint, &
-      geopotential_height_wrt_surface_at_interface, surface_geopotential,    &
-      standard_gravitational_acceleration, height_midpoints, height_interfaces )
+  subroutine calculate_heights(geopotential_height_wrt_surface_at_midpoint,  &
+                               geopotential_height_wrt_surface_at_interface, &
+                               surface_geopotential,                         &
+                               standard_gravitational_acceleration,          &
+                               height_midpoints, height_interfaces)
     use ccpp_kinds,       only: kind_phys
 
     real(kind_phys), intent(in)  :: geopotential_height_wrt_surface_at_midpoint(:)  ! m

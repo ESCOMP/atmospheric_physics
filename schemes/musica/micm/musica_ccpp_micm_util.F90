@@ -8,8 +8,9 @@ module musica_ccpp_micm_util
 contains
 
   !> Reshape array (2D/3D -> 1D) and convert type (kind_phys -> c_double)
-  subroutine reshape_into_micm_arr(temperature, pressure, dry_air_density, constituents, &
-      micm_temperature, micm_pressure, micm_dry_air_density, micm_constituents)
+  subroutine reshape_into_micm_arr(temperature, pressure, dry_air_density, constituents,  &
+                                   micm_temperature, micm_pressure, micm_dry_air_density, &
+                                   micm_constituents)
     use iso_c_binding, only: c_double
     use ccpp_kinds,    only: kind_phys
 

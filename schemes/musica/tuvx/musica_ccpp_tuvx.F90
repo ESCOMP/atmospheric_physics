@@ -18,12 +18,12 @@ module musica_ccpp_tuvx
 contains
 
   !> Intitialize TUV-x
-  subroutine tuvx_init( vertical_layer_dimension, vertical_interface_dimension, &
-      errmsg, errcode )
+  subroutine tuvx_init(vertical_layer_dimension, vertical_interface_dimension, &
+                       errmsg, errcode)
     use musica_tuvx, only: grid_map_t, profile_map_t, radiator_map_t
     use musica_util, only: error_t
     use musica_ccpp_tuvx_height_grid, only: create_height_grid, &
-                                            height_grid_label, height_grid_units
+                                            height_grid_label, height_grid_unit
 
     integer,            intent(in)  :: vertical_layer_dimension     ! (count)
     integer,            intent(in)  :: vertical_interface_dimension ! (count)
@@ -86,7 +86,7 @@ contains
       return
     end if
 
-    height_grid => grids%get( height_grid_label, height_grid_units, error )
+    height_grid => grids%get( height_grid_label, height_grid_unit, error )
     if (has_error_occurred( error, errmsg, errcode )) then
       deallocate( tuvx )
       tuvx => null()
@@ -99,11 +99,12 @@ contains
   end subroutine tuvx_init
 
   !> Calculates photolysis rate constants for the current model conditions
-  subroutine tuvx_run( temperature, dry_air_density, &
-      geopotential_height_wrt_surface_at_midpoint, &
-      geopotential_height_wrt_surface_at_interface, &
-      surface_geopotential, standard_gravitational_acceleration, &
-      photolysis_rate_constants, errmsg, errcode )
+  subroutine tuvx_run(temperature, dry_air_density,                 &
+                      geopotential_height_wrt_surface_at_midpoint,  &
+                      geopotential_height_wrt_surface_at_interface, &
+                      surface_geopotential,                         &
+                      standard_gravitational_acceleration,          &
+                      photolysis_rate_constants, errmsg, errcode)
     use musica_util,                  only: error_t
     use musica_ccpp_tuvx_height_grid, only: set_height_grid_values, calculate_heights
 
@@ -141,7 +142,7 @@ contains
   end subroutine tuvx_run
 
   !> Finalize tuvx
-  subroutine tuvx_final( errmsg, errcode )
+  subroutine tuvx_final(errmsg, errcode)
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errcode
 
