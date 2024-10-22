@@ -44,14 +44,14 @@ contains
        temp_ini, z_ini, &
        count, &
        teout, &
-       vc_physics, vc_dycore, &
+       energy_formula_physics, energy_formula_dycore, &
        errmsg, errflg)
 
     ! Dependency for hydrostatic energy calculation (physics and dycore formulas)
     use cam_thermo,      only: get_hydrostatic_energy
 
     !REMOVECAM: when CAM is retired the energy formulation flag values which are
-    ! stored in dyn_tests_utils can be moved elsewhere.
+    ! stored in dyn_tests_utils can be changed to use cam_thermo_formula
     use dyn_tests_utils, only: vc_height, vc_dry_pressure
 
     ! Input arguments
@@ -69,8 +69,8 @@ contains
     real(kind_phys),    intent(in)    :: zm(:,:)        ! geopotential height at layer midpoints [m]
     real(kind_phys),    intent(in)    :: cp_phys(:,:)   ! enthalpy (cpairv generally) [J kg-1 K-1]
     real(kind_phys),    intent(in)    :: cp_or_cv_dycore(:,:)  ! enthalpy or heat capacity, dycore dependent [J K-1 kg-1]
-    integer,            intent(in)    :: vc_physics     ! vertical coordinate system, physics
-    integer,            intent(in)    :: vc_dycore      ! vertical coordinate system, dycore
+    integer,            intent(in)    :: energy_formula_physics! total energy formulation physics
+    integer,            intent(in)    :: energy_formula_dycore ! total energy formulation dycore
 
     ! Output arguments
     real(kind_phys),    intent(out)   :: temp_ini(:,:)  ! initial temperature [K]
@@ -103,7 +103,7 @@ contains
         U                  = u          (1:ncol,1:pver),   &
         V                  = v          (1:ncol,1:pver),   &
         T                  = T          (1:ncol,1:pver),   &
-        vcoord             = vc_physics,                   & ! vertical coordinate for physics
+        vcoord             = energy_formula_physics,       & ! energy formula for physics
         ptop               = pintdry    (1:ncol,1),        &
         phis               = phis       (1:ncol),          &
         te                 = te_ini_phys(1:ncol),          & ! vertically integrated total energy
@@ -117,7 +117,7 @@ contains
     !------------------------------------------------
     ! Dynamical core total energy.
     !------------------------------------------------
-    if (vc_dycore == vc_dry_pressure) then
+    if (energy_formula_dycore == vc_dry_pressure) then
       ! SE dycore specific hydrostatic energy (enthalpy)
       call get_hydrostatic_energy(                               &
           tracer             = q(1:ncol,1:pver,1:pcnst),         & ! moist mixing ratios
@@ -127,13 +127,13 @@ contains
           U                  = u              (1:ncol,1:pver),   &
           V                  = v              (1:ncol,1:pver),   &
           T                  = T              (1:ncol,1:pver),   &
-          vcoord             = vc_dycore,                        & ! vertical coordinate for dycore
+          vcoord             = energy_formula_dycore,            & ! energy formula for dycore
           ptop               = pintdry        (1:ncol,1),        &
           phis               = phis           (1:ncol),          &
           te                 = te_ini_dyn     (1:ncol)           & ! WRITE OPERATION - vertically integrated total energy
       )
 
-    else if (vc_dycore == vc_height) then
+    else if (energy_formula_dycore == vc_height) then
       ! MPAS dycore: compute cv if vertical coordinate is height: cv = cp - R (internal energy)
       call get_hydrostatic_energy(                               &
           tracer             = q(1:ncol,1:pver,1:pcnst),         & ! moist mixing ratios
@@ -143,7 +143,7 @@ contains
           U                  = u              (1:ncol,1:pver),   &
           V                  = v              (1:ncol,1:pver),   &
           T                  = T              (1:ncol,1:pver),   & ! enthalpy-scaled temperature for energy consistency
-          vcoord             = vc_dycore,                        & ! vertical coordinate for dycore
+          vcoord             = energy_formula_dycore,            & ! energy formula for dycore
           ptop               = pintdry        (1:ncol,1),        &
           phis               = phis           (1:ncol),          &
           z_mid              = z_ini          (1:ncol,:),        & ! unique for vc_height (MPAS)
@@ -191,14 +191,15 @@ contains
        temp_ini, z_ini, &
        count, ztodt, &
        latice, latvap, &
-       vc_physics, vc_dycore, &
+       energy_formula_physics, energy_formula_dycore, &
        name, flx_vap, flx_cnd, flx_ice, flx_sen, &
        errmsg, errflg)
 
     ! Dependency for hydrostatic energy calculation (physics and dycore formulas)
     use cam_thermo,      only: get_hydrostatic_energy
 
-    ! FIXME: Flags for vertical coordinate used in physics/dycore
+    !REMOVECAM: when CAM is retired the energy formulation flag values which are
+    ! stored in dyn_tests_utils can be changed to use cam_thermo_formula
     use dyn_tests_utils, only: vc_height, vc_dry_pressure
 
     ! FIXME hplin: for DEBUG only
@@ -224,8 +225,8 @@ contains
     real(kind_phys),    intent(in)    :: ztodt          ! 2 delta t (model time increment) [s]
     real(kind_phys),    intent(in)    :: latice         ! constant, latent heat of fusion of water at 0 C [J kg-1]
     real(kind_phys),    intent(in)    :: latvap         ! constant, latent heat of vaporization of water at 0 C [J kg-1]
-    integer,            intent(in)    :: vc_physics     ! vertical coordinate system, physics
-    integer,            intent(in)    :: vc_dycore      ! vertical coordinate system, dycore
+    integer,            intent(in)    :: energy_formula_physics! total energy formulation physics
+    integer,            intent(in)    :: energy_formula_dycore ! total energy formulation dycore
 
     ! Input from CCPP-scheme being checked:
     ! parameterization name; surface fluxes of (1) vapor, (2) liquid+ice, (3) ice, (4) sensible heat
@@ -290,7 +291,7 @@ contains
         U                  = u      (1:ncol,1:pver),   &
         V                  = v      (1:ncol,1:pver),   &
         T                  = T      (1:ncol,1:pver),   &
-        vcoord             = vc_physics,               & ! vertical coordinate for physics
+        vcoord             = energy_formula_physics,   & ! energy formula for physics
         ptop               = pintdry(1:ncol,1),        &
         phis               = phis   (1:ncol),          &
         te                 = te     (1:ncol),          & ! vertically integrated total energy
@@ -366,7 +367,7 @@ contains
     !------------------------------------------------
     ! Dynamical core total energy.
     !------------------------------------------------
-    if (vc_dycore == vc_dry_pressure) then
+    if (energy_formula_dycore == vc_dry_pressure) then
       ! SE dycore specific hydrostatic energy
 
       ! enthalpy scaling for energy consistency
@@ -380,13 +381,13 @@ contains
           U                  = u              (1:ncol,1:pver),   &
           V                  = v              (1:ncol,1:pver),   &
           T                  = temp           (1:ncol,1:pver),   & ! enthalpy-scaled temperature for energy consistency
-          vcoord             = vc_dycore,                        & ! vertical coordinate for dycore
+          vcoord             = energy_formula_dycore,            & ! energy formula for dycore
           ptop               = pintdry        (1:ncol,1),        &
           phis               = phis           (1:ncol),          &
           te                 = te_cur_dyn     (1:ncol)           & ! WRITE OPERATION - vertically integrated total energy
       )
 
-    else if (vc_dycore == vc_height) then
+    else if (energy_formula_dycore == vc_height) then
       ! MPAS dycore: compute cv if vertical coordinate is height: cv = cp - R
 
       ! REMOVECAM: note this scaling is different with subcols off/on which is why it was put into separate scheme (hplin, 9/5/24)
@@ -400,7 +401,7 @@ contains
           U                  = u              (1:ncol,1:pver),   &
           V                  = v              (1:ncol,1:pver),   &
           T                  = temp           (1:ncol,1:pver),   & ! enthalpy-scaled temperature for energy consistency
-          vcoord             = vc_dycore,                        & ! vertical coordinate for dycore
+          vcoord             = energy_formula_dycore,            & ! energy formula for dycore
           ptop               = pintdry        (1:ncol,1),        &
           phis               = phis           (1:ncol),          &
           z_mid              = z_ini          (1:ncol,:),        & ! unique for vc_height (MPAS)

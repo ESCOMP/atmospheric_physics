@@ -173,13 +173,13 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_dimension)
   intent = out
-[ vc_physics ]
+[ energy_formula_physics ]
   standard_name = total_energy_formula_for_physics
   units = 1
   type = integer
   dimensions = ()
   intent = in
-[ vc_dycore ]
+[ energy_formula_dycore ]
   standard_name = total_energy_formula_for_dycore
   units = 1
   type = integer
@@ -351,13 +351,13 @@
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
-[ vc_physics ]
+[ energy_formula_physics ]
   standard_name = total_energy_formula_for_physics
   units = 1
   type = integer
   dimensions = ()
   intent = in
-[ vc_dycore ]
+[ energy_formula_dycore ]
   standard_name = total_energy_formula_for_dycore
   units = 1
   type = integer
