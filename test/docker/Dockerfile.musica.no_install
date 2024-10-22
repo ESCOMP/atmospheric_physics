@@ -1,3 +1,11 @@
+# This Dockerfile is designed for testing MUSICA CCPP functionality.
+# It includes:
+# - Unit tests for MUSICA utility functions
+# - Integration tests for MUSICA CCPP APIs
+#
+# No MUSICA library installation is required, as the CMake FetchContent module
+# retrieves the MUSICA library automatically.
+
 FROM ubuntu:22.04
 
 ARG MUSICA_GIT_TAG=dbbdb22f5f2807e27c2695db85291951ba178634
@@ -51,7 +59,7 @@ RUN sudo chown -R test_user:test_user atmospheric_physics
 RUN cd atmospheric_physics/test \
     && mkdir lib \
     && cd lib \
-    && git clone -b add_const_interface --depth 1 https://github.com/peverwhee/ccpp-framework.git
+    && git clone -b develop --depth 1 https://github.com/NCAR/ccpp-framework.git
 ENV CCPP_SRC_PATH="lib/ccpp-framework/src"
 ENV CCPP_FORTRAN_TOOLS_PATH="lib/ccpp-framework/scripts/fortran_tools"
 

@@ -88,19 +88,19 @@ contains
 
   !> Solve chemistry at the current time step
   subroutine micm_run(time_step, temperature, pressure, dry_air_density, &
-              user_defined_rate_parameters, constituents, errmsg, errcode)
+                      user_defined_rate_parameters, constituents, errmsg, errcode)
     use musica_micm,   only: solver_stats_t
     use musica_util,   only: string_t, error_t
     use iso_c_binding, only: c_double
 
-    real(kind_phys),        intent(in)    :: time_step          ! s
-    real(c_double), target, intent(in)    :: temperature(:)     ! K
-    real(c_double), target, intent(in)    :: pressure(:)        ! Pa
-    real(c_double), target, intent(in)    :: dry_air_density(:) ! kg m-3
-    real(c_double), target, intent(in)    :: user_defined_rate_parameters(:) ! various units
-    real(c_double), target, intent(inout) :: constituents(:)    ! mol m-3
-    character(len=512),     intent(out)   :: errmsg
-    integer,                intent(out)   :: errcode
+    real(kind_phys),    intent(in)    :: time_step          ! s
+    real(c_double),     intent(in)    :: temperature(:)     ! K
+    real(c_double),     intent(in)    :: pressure(:)        ! Pa
+    real(c_double),     intent(in)    :: dry_air_density(:) ! kg m-3
+    real(c_double),     intent(in)    :: user_defined_rate_parameters(:) ! various units
+    real(c_double),     intent(inout) :: constituents(:)    ! mol m-3
+    character(len=512), intent(out)   :: errmsg
+    integer,            intent(out)   :: errcode
 
     ! local variables
     type(string_t)       :: solver_state
@@ -131,6 +131,8 @@ contains
 
     errmsg = ''
     errcode = 0
+
+    deallocate( micm )
 
   end subroutine micm_final
 
