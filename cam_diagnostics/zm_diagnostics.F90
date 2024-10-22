@@ -42,41 +42,49 @@ CONTAINS
     errmsg = ''
     errflg = 0
 
-    call history_add_field ('ZM_ORG     ', 'zhang_mcfarlane_organization_parameter_of_deep_convection', 'lev', 'avg', '1')
-    call history_add_field ('ZM_ORG2D   ', 'zhang_mcfarlane_organization_parameter_of_deep_convection_copied_to_whole_column',&
-                            'lev', 'avg', '1')
-
     call history_add_field ('PRECZ', 'lwe_precipitation_rate_at_surface_due_to_deep_convection_due_to_Zhang-McFarlane', &
                             horiz_only, 'avg', 'm s-1')
-    call history_add_field ('ZMFLXPRC', 'Flux of precipitation from ZM convection', 'ilev', 'avg', 'kg m-2 s-1')
-    call history_add_field ('ZMFLXSNW', 'Flux of snow from ZM convection', 'ilev', 'avg', 'kg m-2 s-1')
-    call history_add_field ('ZMNTPRPD', 'Net precipitation production from ZM convection', 'lev', 'avg', 'kg kg-1 s-1')
-    call history_add_field ('ZMNTSNPD', 'Net snow production from ZM convection', 'lev', 'avg', 'kg kg-1 s-1')
+    call history_add_field ('ZMFLXPRC', 'precipitation_flux_at_interface_due_to_deep_convection', 'ilev', 'avg', 'kg m-2 s-1')
+    call history_add_field ('ZMFLXSNW', 'frozen_precipitation_flux_at_interface_due_to_deep_convection', &
+                            'ilev', 'avg', 'kg m-2 s-1')
+    call history_add_field ('ZMNTPRPD', 'tendency_of_precipitation_wrt_moist_air_and_condensed_water_due_to_deep_convection', &
+                            'lev', 'avg', 'kg kg-1 s-1')
+    call history_add_field ('ZMNTSNPD', &
+                            'tendency_of_frozen_precipitation_wrt_moist_air_and_condensed_water_due_to_deep_convection', &
+                            'lev', 'avg', 'kg kg-1 s-1')
     call history_add_field ('ZMEIHEAT', 'Heating by ice and evaporation in ZM convection', 'lev', 'avg', 'W kg-1')
 
     call history_add_field ('CMFMC_DP', 'Convection mass flux from ZM deep ', 'ilev', 'avg', 'kg m-2 s-1')
-    call history_add_field ('PRECCDZM', 'Convective precipitation rate from ZM deep', horiz_only, 'avg', 'm s-1')
+    call history_add_field ('PRECCDZM', 'lwe_precipitation_rate_at_surface_due_to_deep_convection', horiz_only, 'avg', 'm s-1')
 
     call history_add_field ('PCONVB', 'convection base pressure',  horiz_only ,  'avg', 'Pa'    )
     call history_add_field ('PCONVT', 'convection top  pressure',  horiz_only ,  'avg', 'Pa'    )
 
-    call history_add_field ('CAPE',   'zhang_mcfarlane_convective_available_potential_energycap',  horiz_only,   'avg', 'J kg-1')
+    call history_add_field ('CAPE',   'zhang_mcfarlane_convective_available_potential_energy',  horiz_only,   'avg', 'J kg-1')
     call history_add_field ('FREQZM', 'Fractional occurance of ZM convection',  horiz_only  , 'avg', 'fraction')
 
     call history_add_field ('ZMMU',   'ZM convection updraft mass flux',  'lev',  'avg', 'kg m-2 s-1')
     call history_add_field ('ZMMD',   'ZM convection downdraft mass flux', 'lev',  'avg', 'kg m-2 s-1')
 
-    call history_add_field ('ZMUPGU', 'zonal force from ZM updraft pressure gradient term',  'lev',  'avg', 'm s-2')
-    call history_add_field ('ZMUPGD', 'zonal force from ZM downdraft pressure gradient term',  'lev',  'avg', 'm s-2')
-    call history_add_field ('ZMVPGU', 'meridional force from ZM updraft pressure gradient term', 'lev',  'avg', 'm s-2')
-    call history_add_field ('ZMVPGD', 'merdional force from ZM downdraft pressure gradient term', 'lev',  'avg', 'm s-2')
+    call history_add_field ('ZMUPGU',&
+                            'tendency_of_eastward_wind_due_to_zhang_mcfarlane_deep_convective_updraft_pressure_gradient_term',&
+                            'lev',  'avg', 'm s-2')
+    call history_add_field ('ZMUPGD',&
+                            'tendency_of_eastward_wind_due_to_zhang_mcfarlane_deep_convective_downdraft_pressure_gradient_term',&
+                            'lev',  'avg', 'm s-2')
+    call history_add_field ('ZMVPGU',&
+                            'tendency_of_northward_wind_due_to_zhang_mcfarlane_deep_convective_updraft_pressure_gradient_term',&
+                            'lev',  'avg', 'm s-2')
+    call history_add_field ('ZMVPGD',&
+                            'tendency_of_northward_wind_due_to_zhang_mcfarlane_deep_convective_downdraft_pressure_gradient_term',&
+                            'lev',  'avg', 'm s-2')
 
-    call history_add_field ('ZMICUU', 'ZM in-cloud U updrafts',  'lev',  'avg', 'm/s')
-    call history_add_field ('ZMICUD', 'ZM in-cloud U downdrafts',  'lev',  'avg', 'm/s')
-    call history_add_field ('ZMICVU', 'ZM in-cloud V updrafts',  'lev',  'avg', 'm/s')
-    call history_add_field ('ZMICVD', 'ZM in-cloud V downdrafts', 'lev',  'avg', 'm/s')
+    call history_add_field ('ZMICUU', 'in_cloud_eastward_wind_in_updraft_due_to_deep_convection',  'lev',  'avg', 'm/s')
+    call history_add_field ('ZMICUD', 'in_cloud_eastward_wind_in_downdraft_due_to_deep_convection',  'lev',  'avg', 'm/s')
+    call history_add_field ('ZMICVU', 'in_cloud_northward_wind_in_updraft_due_to_deep_convection',  'lev',  'avg', 'm/s')
+    call history_add_field ('ZMICVD', 'in_cloud_northward_wind_in_downdraft_due_to_deep_convection', 'lev',  'avg', 'm/s')
 
-    call history_add_field ('DLFZM',   'Detrained liquid water from ZM convection', 'lev', 'avg','kg kg-1 s-1 ')
+    call history_add_field ('DLFZM',   'detrainment_of_cloud_liquid_due_to_deep_convection', 'lev', 'avg','kg kg-1 s-1 ')
 
 
    end subroutine zm_diagnostics_init
@@ -107,9 +115,12 @@ CONTAINS
 
       integer :: lengath  ! number of columns with deep convection
 
+      real(kind_phys) :: freqzm(ncol)
       real(kind_phys) :: ftem(ncol,pver)
       real(kind_phys) :: mcon(ncol,pverp)
       real(kind_phys) :: mconzm(ncol,pverp)
+      real(kind_phys) :: mu_out(ncol,pverp)
+      real(kind_phys) :: md_out(ncol,pverp)
 
       integer :: index_cldliq
 
@@ -119,26 +130,71 @@ CONTAINS
       lengath = count(ideep > 0)
       if (lengath > ncol) lengath = ncol  ! should not happen, but force it to not be larger than ncol for safety sake
 
-      call history_out_field('PRECZ', prec)
+      call history_out_field('CAPE', cape)
 
-!      ftem(:,:) = 0._kind_phys
-!      ftem(:ncol,:pver) = heat(:ncol,:pver)/cpair
-!      call history_out_field('ZMDT', ftem)
+      freqzm(:) = 0._r8
+      do i = 1,lengath
+         freqzm(ideep(i)) = 1.0_r8
+      end do
+      call history_out_field('FREQZM  ',freqzm)
 
-!      call history_out_field('CAPE', cape)
+      mcon(:ncol,:pverp) = mcon(:ncol,:pverp) * 100._r8/gravit
+      mconzm(:ncol,:pverp) = mcon(:ncol,:pverp)
 
-!      freqzm(:) = 0._r8
-!      do i = 1,lengath
-!         freqzm(ideep(i)) = 1.0_r8
-!      end do
-!      call history_out_field('FREQZM  ',freqzm)
-
-!      mcon(:ncol,:pverp) = mcon(:ncol,:pverp) * 100._r8/gravit
-!      mconzm(:ncol,:pverp) = mcon(:ncol,:pverp)
-
-!      call outfld('CMFMC_DP', mconzm)
+      call history_out_field('CMFMC_DP', mconzm)
 
 
+   ! Store upward and downward mass fluxes in un-gathered arrays
+   ! + convert from mb/s to kg/m^2/s
+   do i=1,lengath
+      do k=1,pver
+         ii = ideep(i)
+         mu_out(ii,k) = mu(i,k) * 100._r8/gravit
+         md_out(ii,k) = md(i,k) * 100._r8/gravit
+      end do
+   end do
+
+   call history_out_field('ZMMU', mu_out)
+   call history_out_field('ZMMD', md_out)
+
+   call history_out_field('DIFZM'   ,dif)
+   call history_out_field('DLFZM'   ,dlf)
+
+   pcont(:ncol) = pref_edge(:ncol)
+   pconb(:ncol) = pref_edge(:ncol)
+   do i = 1,lengath
+       if (maxg(i).gt.jt(i)) then
+          pcont(ideep(i)) = pref_mid(ideep(i),jt(i))  ! gathered array (or jctop ungathered)
+          pconb(ideep(i)) = pref_mid(ideep(i),maxg(i))! gathered array
+       endif
+       !     write(iulog,*) ' pcont, pconb ', pcont(i), pconb(i), cnt(i), cnb(i)
+    end do
+    call history_out_field('PCONVT  ',pcont)
+    call history_out_field('PCONVB  ',pconb)
+
+   call history_out_field('ZMFLXPRC', flxprec)
+   call history_out_field('ZMFLXSNW', flxsnow)
+   call history_out_field('ZMNTPRPD', ntprprd)
+   call history_out_field('ZMNTSNPD', ntsnprd)
+   call history_out_field('ZMEIHEAT', heat)
+
+!CACNOTE - CAM is outputting the exact same quantity to both fields
+   call history_out_field('PRECCDZM   ',prec)
+   call history_out_field('PRECZ   ', prec)
+
+     ! Output apparent force from  pressure gradient
+     call history_out_field('ZMUPGU', pguallu)
+     call history_out_field('ZMUPGD', pgdallu)
+     call history_out_field('ZMVPGU', pguallv)
+     call history_out_field('ZMVPGD', pgdallv)
+
+     ! Output in-cloud winds
+     call history_out_field('ZMICUU', icwuu, pcols, lchnk)
+     call history_out_field('ZMICUD', icwdu, pcols, lchnk)
+     call history_out_field('ZMICVU', icwuv, pcols, lchnk)
+     call history_out_field('ZMICVD', icwdv, pcols, lchnk)
+
+   end if
    end subroutine zm_diagnostics_run
 
    !=======================================================================

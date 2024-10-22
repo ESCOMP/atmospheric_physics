@@ -42,8 +42,9 @@ CONTAINS
     errmsg = ''
     errflg = 0
 
-    call history_add_field ('ZMDICE', 'Cloud ice tendency - Zhang-McFarlane convection', 'lev',  'avg', 'kg kg-1 s-1')
-    call history_add_field ('ZMDLIQ', 'Cloud liq tendency - Zhang-McFarlane convection', 'lev',  'avg', 'kg kg-1 s-1')
+    call history_add_field ('ZMMTT',  'T tendency - ZM convective momentum transport', 'lev',  'avg', 'K s-1')
+    call history_add_field ('ZMMTU',  'U tendency - ZM convective momentum transport', 'lev',  'avg', 'm s-2')
+    call history_add_field ('ZMMTV',  'V tendency - ZM convective momentum transport', 'lev',  'avg', 'm s-2')
 
    end subroutine zm_tendency_diagnostics_init
 
@@ -77,25 +78,11 @@ CONTAINS
       errmsg = ''
       errflg = 0
 
-      do const_idx = 1, size(const_props)
-         call const_props(const_idx)%standard_name(standard_name, errflg, errmsg)
-!CACNOTE -remove this debug statement
-         write(0,*) ' const_idx=', const_idx, ' standard_name=',standard_name
+      call history_out_field('ZMMTU', windu_tend)
+      call history_out_field('ZMMTV', windv_tend)
 
-         ! Use the regular constituent names, as the location in the dqdt array match the constituent ordering in the
-         ! constituent properties
-
-         select case (trim(standard_name))
-
-         case('cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water')
-            call history_out_field('ZMDLIQ', dqdt(:,:,const_idx))
-
-         case('cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water')
-            call history_out_field('ZMDICE', dqdt(:,:,const_idx))
-
-         end select
-
-     end do
+      ftem(:ncol,:pver) = seten(:ncol,:pver)/cpair
+      call history_out_field('ZMMTT', ftem)
 
    end subroutine zm_tendency_diagnostics_run
 
