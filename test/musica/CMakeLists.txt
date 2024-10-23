@@ -20,14 +20,15 @@ FetchContent_MakeAvailable(musica)
 
 add_executable(test_musica_api test_musica_api.F90 musica_ccpp_namelist.F90)
 
+file(GLOB MUSICA_CCPP_SOURCES
+  ${MUSICA_SRC_PATH}/*.F90
+  ${MUSICA_SRC_PATH}/micm/*.F90
+  ${MUSICA_SRC_PATH}/tuvx/*.F90
+)
+
 target_sources(test_musica_api
   PUBLIC
-    ${MUSICA_SRC_PATH}/micm/musica_ccpp_micm.F90
-    ${MUSICA_SRC_PATH}/micm/musica_ccpp_micm_util.F90
-    ${MUSICA_SRC_PATH}/tuvx/musica_ccpp_tuvx.F90
-    ${MUSICA_SRC_PATH}/tuvx/musica_ccpp_tuvx_height_grid.F90
-    ${MUSICA_SRC_PATH}/musica_ccpp.F90
-    ${MUSICA_SRC_PATH}/musica_ccpp_util.F90
+    ${MUSICA_CCPP_SOURCES}
     ${CCPP_SRC_PATH}/ccpp_constituent_prop_mod.F90
     ${CCPP_SRC_PATH}/ccpp_hash_table.F90
     ${CCPP_SRC_PATH}/ccpp_hashable.F90

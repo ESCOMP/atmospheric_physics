@@ -2,7 +2,8 @@ module musica_ccpp_tuvx_temperature
   implicit none
 
   private
-  public :: create_temperature_profile, set_temperature_values
+  public :: create_temperature_profile, set_temperature_values, &
+            temperature_label, temperature_unit
 
   !> Label for temperature in TUV-x
   character(len=*), parameter :: temperature_label = "temperature"
