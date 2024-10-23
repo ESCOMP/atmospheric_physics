@@ -55,8 +55,10 @@ module vertical_diffusion_solver
         ! The sizes must be consistent among all the coefficients that are
         ! actually present, i.e. coef_q_diff and coef_q_adv should be one level
         ! bigger than coef_q and coef_q_weight, and have the same column number.
-        real(r8), contiguous, intent(in), optional :: coef_q(:,:), &
-        coef_q_diff(:,:), coef_q_adv(:,:), coef_q_weight(:,:)
+        real(r8), contiguous, intent(in), optional :: coef_q(:,:),      &
+                                                      coef_q_diff(:,:), &
+                                                      coef_q_adv(:,:),  &
+                                                      coef_q_weight(:,:)
     
         ! Boundary conditions (optional, default to 0 flux through boundary).
         class(BoundaryType), intent(in), optional :: upper_bndry, lower_bndry
