@@ -14,19 +14,24 @@ module musica_ccpp_tuvx
 
   type(tuvx_t), pointer :: tuvx => null( )
   type(grid_t), pointer :: height_grid => null( )
+  type(grid_t), pointer :: wavelength_grid => null( )
 
 contains
 
   !> Intitialize TUV-x
   subroutine tuvx_init(vertical_layer_dimension, vertical_interface_dimension, &
-                       errmsg, errcode)
+                       wavelength_grid_interfaces, errmsg, errcode)
     use musica_tuvx, only: grid_map_t, profile_map_t, radiator_map_t
     use musica_util, only: error_t
     use musica_ccpp_tuvx_height_grid, only: create_height_grid, &
                                             height_grid_label, height_grid_unit
+    use musica_ccpp_tuvx_wavelength_grid, only: create_wavelength_grid, &
+                                                wavelength_grid_label, &
+                                                wavelength_grid_unit
 
-    integer,            intent(in)  :: vertical_layer_dimension     ! (count)
-    integer,            intent(in)  :: vertical_interface_dimension ! (count)
+    integer,            intent(in)  :: vertical_layer_dimension      ! (count)
+    integer,            intent(in)  :: vertical_interface_dimension  ! (count)
+    real(kind_phys),    intent(in)  :: wavelength_grid_interfaces(:) ! m
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errcode
 
@@ -54,11 +59,32 @@ contains
       return
     end if
 
+    wavelength_grid => create_wavelength_grid( wavelength_grid_interfaces, &
+                                               errmsg, errcode )
+    if (errcode /= 0) then
+      deallocate( grids )
+      deallocate( height_grid )
+      height_grid => null()
+      return
+    endif
+
+    call grids%add( wavelength_grid, error )
+    if (has_error_occurred( error, errmsg, errcode )) then
+      deallocate( grids )
+      deallocate( height_grid )
+      height_grid => null()
+      deallocate( wavelength_grid )
+      wavelength_grid => null()
+      return
+    end if
+
     profiles => profile_map_t( error )
     if (has_error_occurred( error, errmsg, errcode )) then
       deallocate( grids )
       deallocate( height_grid )
       height_grid => null()
+      deallocate( wavelength_grid )
+      wavelength_grid => null()
       return
     end if
 
@@ -68,6 +94,8 @@ contains
       deallocate( profiles )
       deallocate( height_grid )
       height_grid => null()
+      deallocate( wavelength_grid )
+      wavelength_grid => null()
       return
     end if
 
@@ -79,6 +107,8 @@ contains
       deallocate( radiators )
       deallocate( height_grid )
       height_grid => null()
+      deallocate( wavelength_grid )
+      wavelength_grid => null()
       return
     end if
 
@@ -87,6 +117,8 @@ contains
     deallocate( radiators )
     deallocate( height_grid )
     height_grid => null()
+    deallocate( wavelength_grid )
+    wavelength_grid => null()
 
     grids => tuvx%get_grids( error )
     if (has_error_occurred( error, errmsg, errcode )) then
@@ -100,6 +132,17 @@ contains
       deallocate( tuvx )
       tuvx => null()
       deallocate( grids )
+      return
+    end if
+
+    wavelength_grid => grids%get( wavelength_grid_label, wavelength_grid_unit, &
+                                  error )
+    if (has_error_occurred( error, errmsg, errcode )) then
+      deallocate( tuvx )
+      tuvx => null()
+      deallocate( grids )
+      deallocate( height_grid )
+      height_grid => null()
       return
     end if
 
@@ -164,6 +207,11 @@ contains
     if (associated( height_grid )) then
       deallocate( height_grid )
       height_grid => null()
+    end if
+
+    if (associated( wavelength_grid )) then
+      deallocate( wavelength_grid )
+      wavelength_grid => null()
     end if
 
     if (associated( tuvx )) then
