@@ -132,7 +132,10 @@ contains
     errmsg = ''
     errcode = 0
 
-    deallocate( micm )
+    if (associated( micm )) then
+      deallocate( micm )
+      micm => null()
+    end if
 
   end subroutine micm_final
 

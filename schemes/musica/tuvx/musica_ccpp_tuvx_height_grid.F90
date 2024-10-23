@@ -146,22 +146,21 @@ contains
   subroutine calculate_heights(geopotential_height_wrt_surface_at_midpoint,  &
                                geopotential_height_wrt_surface_at_interface, &
                                surface_geopotential,                         &
-                               standard_gravitational_acceleration,          &
+                               reciprocal_of_gravitational_acceleration,     &
                                height_midpoints, height_interfaces)
     use ccpp_kinds,       only: kind_phys
 
     real(kind_phys), intent(in)  :: geopotential_height_wrt_surface_at_midpoint(:)  ! m
     real(kind_phys), intent(in)  :: geopotential_height_wrt_surface_at_interface(:) ! m
     real(kind_phys), intent(in)  :: surface_geopotential                            ! m2 s-2
-    real(kind_phys), intent(in)  :: standard_gravitational_acceleration             ! m s-2
+    real(kind_phys), intent(in)  :: reciprocal_of_gravitational_acceleration        ! s2 m-1
     real(kind_phys), intent(out) :: height_midpoints(:)                             ! km
     real(kind_phys), intent(out) :: height_interfaces(:)                            ! km
 
     ! local variable
     real(kind_phys) :: surface_height ! m
 
-    surface_height = &
-      surface_geopotential * ( 1.0_kind_phys / standard_gravitational_acceleration )
+    surface_height = surface_geopotential * reciprocal_of_gravitational_acceleration
     height_midpoints(:) = &
       0.001_kind_phys * ( geopotential_height_wrt_surface_at_midpoint(:) + surface_height )
     height_interfaces(:) = &
