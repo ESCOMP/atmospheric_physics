@@ -92,12 +92,12 @@ contains
     if(pref_edge(1) >= 4.e3_kind_phys) then
       limcnv = 1
     else
-      do k = 1, pver ! was plev
+      limcnv = pver + 1
+      do k = 1, pver
         if(pref_edge(k) < 4.e3_kind_phys .and. pref_edge(k+1) >= 4.e3_kind_phys) then
           limcnv = k
         endif
       enddo
-      limcnv = pver + 1 ! was plevp
     endif
 
     ! in-module parameters (hardcoded)
@@ -266,10 +266,6 @@ contains
     !---------------------------------------------------
     ! Initialize output tendencies
     !---------------------------------------------------
-    ! q is copied to dq. dq is used for passive tracer transport
-    if(pcnst > 1) then
-      dq    (:ncol,:,2:)  = q(:ncol,:,2:)
-    endif
     cmfdt   (:ncol,:)     = 0._kind_phys
     cmfdq   (:ncol,:)     = 0._kind_phys
     cmfmc_sh(:ncol,:)     = 0._kind_phys
@@ -278,6 +274,14 @@ contains
     cmflq   (:ncol,:)     = 0._kind_phys
     qc_sh   (:ncol,:)     = 0._kind_phys
     rliq_sh (:ncol)       = 0._kind_phys
+
+    !---------------------------------------------------
+    ! copy q to dq for passive tracer transport.
+    ! this is NOT an initialization.
+    !---------------------------------------------------
+    if(pcnst > 1) then
+      dq    (:ncol,:,2:)  = q(:ncol,:,2:)
+    endif
 
     !---------------------------------------------------
     ! Quantity preparations from convect_shallow.F90.
