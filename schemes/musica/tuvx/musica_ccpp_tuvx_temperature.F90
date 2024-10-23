@@ -12,23 +12,19 @@ module musica_ccpp_tuvx_temperature
 contains
 
   !> Creates a TUV-x temperature profile
-  function create_temperature_profile( height_grid, errmsg, errcode ) &
-      result( profile )
-
+  function create_temperature_profile(height_grid, errmsg, errcode) &
+      result(profile)
     use musica_ccpp_util,    only: has_error_occurred
     use musica_tuvx_grid,    only: grid_t
     use musica_tuvx_profile, only: profile_t
     use musica_util,         only: error_t
 
-    ! Arguments
     type(grid_t),     intent(in)  :: height_grid
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errcode
+    type(profile_t),  pointer     :: profile
 
-    ! Return value
-    type(profile_t),  pointer :: profile
-
-    ! Local variables
+    ! local variables
     type(error_t) :: error
 
     profile => profile_t( temperature_label, temperature_unit, &
@@ -37,26 +33,24 @@ contains
 
   end function create_temperature_profile
 
-  !> Sets TUV-x temperatures from host-model temperatures
+  !> Sets TUV-x temperature values from host-model temperatures
   !!
   !! See description of `musica_ccpp_tuvx_hegihts_grid.F90` for
   !! CAM-SIMA <-> TUV-x height grid mapping
-  subroutine set_temperature_values( profile, host_midpoint_temperatures, &
-      host_surface_temperature, errmsg, errcode )
-
+  subroutine set_temperature_values(profile, host_midpoint_temperatures, &
+                                    host_surface_temperature, errmsg, errcode)
     use musica_ccpp_util,    only: has_error_occurred
     use musica_tuvx_profile, only: profile_t
     use musica_util,         only: error_t
     use ccpp_kinds,          only: kind_phys
 
-    ! Arguments
     type(profile_t),  intent(inout) :: profile
-    real(kind_phys),  intent(in)    :: host_midpoint_temperatures(:)  ! K
-    real(kind_phys),  intent(in)    :: host_surface_temperature       ! K
+    real(kind_phys),  intent(in)    :: host_midpoint_temperatures(:) ! K
+    real(kind_phys),  intent(in)    :: host_surface_temperature      ! K
     character(len=*), intent(out)   :: errmsg
     integer,          intent(out)   :: errcode
 
-    ! Local variables
+    ! local variables
     type(error_t)   :: error
     real(kind_phys) :: interfaces(size(host_midpoint_temperatures)+2)
     integer         :: n_host_midpoint_temperatures

@@ -18,25 +18,25 @@ contains
     use musica_tuvx_profile,          only: profile_t
     use ccpp_kinds,                   only: kind_phys
 
-    integer, parameter       :: NUM_HOST_MIDPOINTS = 5
-    integer, parameter       :: NUM_HOST_INTERFACES = 6
-    real(kind_phys), target  :: host_midpoint_temperature(NUM_HOST_MIDPOINTS)
-    real(kind_phys), target  :: host_surface_temperature = 300.3_kind_phys
-    type(grid_t),    pointer :: height_grid
-    type(profile_t), pointer :: profile
-    character(len=512)       :: errmsg
-    integer                  :: errcode
-    real(kind_phys)          :: abs_error = 1e-4
-    integer                  :: i
-
-    ! local variables
-    real(kind_phys), dimension(NUM_HOST_MIDPOINTS+2) :: interface_temperatures
-    type(error_t) :: error
+    integer,         parameter :: NUM_HOST_MIDPOINTS = 5
+    integer,         parameter :: NUM_HOST_INTERFACES = 6
+    real(kind_phys), target    :: host_midpoint_temperature(NUM_HOST_MIDPOINTS)
+    real(kind_phys), target    :: host_surface_temperature = 300.3_kind_phys
+    real(kind_phys)            :: interface_temperatures(NUM_HOST_MIDPOINTS+2)
+    type(grid_t),    pointer   :: height_grid
+    type(profile_t), pointer   :: profile
+    character(len=512)         :: errmsg
+    integer                    :: errcode
+    type(error_t)              :: error
+    real(kind_phys)            :: abs_error = 1e-4
 
     host_midpoint_temperature = (/ 800.8_kind_phys, 700.7_kind_phys, 600.6_kind_phys, 500.5_kind_phys, 400.4_kind_phys /)
 
     height_grid => create_height_grid(NUM_HOST_MIDPOINTS, NUM_HOST_INTERFACES, &
                                       errmsg, errcode)
+    ASSERT(errcode == 0)
+    ASSERT(associated(height_grid))
+
     profile => create_temperature_profile( height_grid, errmsg, errcode )
     ASSERT(errcode == 0)
     ASSERT(associated(profile))
