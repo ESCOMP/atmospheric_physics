@@ -17,9 +17,9 @@ module musica_ccpp_tuvx
 
 contains
 
-  !> Intitialize TUVX
-  subroutine tuvx_init(vertical_layer_dimension, &
-      vertical_interface_dimension, errmsg, errcode)
+  !> Intitialize TUV-x
+  subroutine tuvx_init(vertical_layer_dimension, vertical_interface_dimension, &
+                       errmsg, errcode)
     use musica_tuvx, only: grid_map_t, profile_map_t, radiator_map_t
     use musica_util, only: error_t
     use musica_ccpp_tuvx_height_grid, only: create_height_grid, &
@@ -49,12 +49,16 @@ contains
     call grids%add( height_grid, error )
     if (has_error_occurred( error, errmsg, errcode )) then
       deallocate( grids )
+      deallocate( height_grid )
+      height_grid => null()
       return
     end if
 
     profiles => profile_map_t( error )
     if (has_error_occurred( error, errmsg, errcode )) then
       deallocate( grids )
+      deallocate( height_grid )
+      height_grid => null()
       return
     end if
 
@@ -62,6 +66,8 @@ contains
     if (has_error_occurred( error, errmsg, errcode )) then
       deallocate( grids )
       deallocate( profiles )
+      deallocate( height_grid )
+      height_grid => null()
       return
     end if
 
@@ -71,13 +77,16 @@ contains
       deallocate( grids )
       deallocate( profiles )
       deallocate( radiators )
+      deallocate( height_grid )
+      height_grid => null()
       return
     end if
 
-    deallocate( height_grid )
     deallocate( grids )
     deallocate( profiles )
     deallocate( radiators )
+    deallocate( height_grid )
+    height_grid => null()
 
     grids => tuvx%get_grids( error )
     if (has_error_occurred( error, errmsg, errcode )) then
@@ -99,20 +108,21 @@ contains
   end subroutine tuvx_init
 
   !> Calculates photolysis rate constants for the current model conditions
-  subroutine tuvx_run( temperature, dry_air_density, &
-      geopotential_height_wrt_surface_at_midpoint, &
-      geopotential_height_wrt_surface_at_interface, &
-      surface_geopotential, reciprocal_of_gravitational_acceleration, &
-      photolysis_rate_constants, errmsg, errcode )
+  subroutine tuvx_run(temperature, dry_air_density,                 &
+                      geopotential_height_wrt_surface_at_midpoint,  &
+                      geopotential_height_wrt_surface_at_interface, &
+                      surface_geopotential,                         &
+                      standard_gravitational_acceleration,          &
+                      photolysis_rate_constants, errmsg, errcode)
     use musica_util,                  only: error_t
     use musica_ccpp_tuvx_height_grid, only: set_height_grid_values, calculate_heights
 
-    real(kind_phys),    intent(in)  :: temperature(:,:)       ! K (column, layer)
-    real(kind_phys),    intent(in)  :: dry_air_density(:,:)   ! molecule cm-3 (column, layer)
+    real(kind_phys),    intent(in)  :: temperature(:,:)                                  ! K (column, layer)
+    real(kind_phys),    intent(in)  :: dry_air_density(:,:)                              ! kg m-3 (column, layer)
     real(kind_phys),    intent(in)  :: geopotential_height_wrt_surface_at_midpoint(:,:)  ! m (column, layer)
     real(kind_phys),    intent(in)  :: geopotential_height_wrt_surface_at_interface(:,:) ! m (column, interface)
-    real(kind_phys),    intent(in)  :: surface_geopotential(:) ! m2 s-2
-    real(kind_phys),    intent(in)  :: reciprocal_of_gravitational_acceleration ! s2 m-1
+    real(kind_phys),    intent(in)  :: surface_geopotential(:)                           ! m2 s-2
+    real(kind_phys),    intent(in)  :: standard_gravitational_acceleration               ! m s-2
     ! temporarily set to Chapman mechanism and 1 dimension
     ! until mapping between MICM and TUV-x is implemented
     real(kind_phys),    intent(out) :: photolysis_rate_constants(:) ! s-1 (column, reaction)
@@ -122,7 +132,10 @@ contains
     ! local variables
     real(kind_phys), dimension(size(geopotential_height_wrt_surface_at_midpoint, dim = 2))  :: height_midpoints
     real(kind_phys), dimension(size(geopotential_height_wrt_surface_at_interface, dim = 2)) :: height_interfaces
-    integer :: i_col
+    real(kind_phys) :: reciprocal_of_gravitational_acceleration ! s2 m-1
+    integer         :: i_col
+
+    reciprocal_of_gravitational_acceleration = 1.0_kind_phys / standard_gravitational_acceleration
 
     do i_col = 1, size(temperature, dim=1)
       call calculate_heights( geopotential_height_wrt_surface_at_midpoint(i_col,:),  &
@@ -147,7 +160,16 @@ contains
 
     errmsg = ''
     errcode = 0
-    deallocate( height_grid )
+
+    if (associated( height_grid )) then
+      deallocate( height_grid )
+      height_grid => null()
+    end if
+
+    if (associated( tuvx )) then
+      deallocate( tuvx )
+      tuvx => null()
+    end if
 
   end subroutine tuvx_final
 

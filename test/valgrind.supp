@@ -1,0 +1,38 @@
+##############################################################
+#
+# MUSICA TUV-x suppressions
+#
+# TODO(jiwon) We are experiencing memory leak issues in certain 
+# functions of TUV-x. It appears that these leaks occur only 
+# occasionally during initialization. We believe it’s acceptable 
+# to add a Valgrind suppression for now, and we will investigate 
+# further if it becomes a significant concern.
+#
+##############################################################
+{
+  Suppress_MUSICA_TUV-x_Leak1
+  Memcheck:Leak
+  fun:malloc
+  fun:__musica_config_MOD_get_string
+  fun:__tuvx_radiator_aerosol_MOD_constructor
+  fun:__tuvx_radiator_factory_MOD_radiator_builder
+  fun:__tuvx_radiator_warehouse_MOD_constructor
+  fun:__tuvx_radiative_transfer_MOD_constructor
+  fun:__tuvx_core_MOD_constructor
+  fun:InternalCreateTuvx
+  ...
+}
+{
+  Suppress_MUSICA_TUV-x_Leak2
+  Memcheck:Leak
+  fun:malloc
+  fun:__musica_config_MOD_get_string
+  fun:__tuvx_radiator_MOD_base_constructor
+  fun:__tuvx_radiator_MOD_constructor
+  fun:__tuvx_radiator_factory_MOD_radiator_builder
+  fun:__tuvx_radiator_warehouse_MOD_constructor
+  fun:__tuvx_radiative_transfer_MOD_constructor
+  fun:__tuvx_core_MOD_constructor
+  fun:InternalCreateTuvx
+  ...
+}
