@@ -46,8 +46,6 @@ module vertical_diffusion_solver
         ! Grid spacings.
         type(Coords1D), intent(in) :: p
     
-        ! Matrix to decomp from.
-        ! real(r8), intent(in) :: u(ncols,pver)
         integer,  intent(in)    :: ncols
         integer,  intent(in)    :: pver
         real(r8), intent(in)    :: toSolve(ncols,pver)
@@ -61,8 +59,7 @@ module vertical_diffusion_solver
         coef_q_diff(:,:), coef_q_adv(:,:), coef_q_weight(:,:)
     
         ! Boundary conditions (optional, default to 0 flux through boundary).
-        class(BoundaryType), target, intent(in), optional :: &
-        upper_bndry, lower_bndry
+        class(BoundaryType), intent(in), optional :: upper_bndry, lower_bndry
     
         ! Objects representing boundary conditions.
         class(BoundaryCond), intent(in), optional :: l_cond, r_cond
@@ -88,31 +85,29 @@ module vertical_diffusion_solver
         ! start with an operator of all 0s.
     
         if (present(coef_q_diff)) then
-        net_operator = diffusion_operator(p, coef_q_diff, &
-            upper_bndry, lower_bndry)
+            net_operator = diffusion_operator(p, coef_q_diff, upper_bndry, lower_bndry)
         else
-        net_operator = zero_operator(p%n, p%d)
+            net_operator = zero_operator(p%n, p%d)
         end if
     
         ! Constant term (damping).
         if (present(coef_q)) then
-        add_term = diagonal_operator(coef_q)
-        call net_operator%add(add_term)
+            add_term = diagonal_operator(coef_q)
+            call net_operator%add(add_term)
         end if
     
         ! Effective advection.
         if (present(coef_q_adv)) then
-        add_term = advection_operator(p, coef_q_adv, &
-            upper_bndry, lower_bndry)
-        call net_operator%add(add_term)
+            add_term = advection_operator(p, coef_q_adv, upper_bndry, lower_bndry)
+            call net_operator%add(add_term)
         end if
     
         ! We want I-dt*(w^-1)*A for a single time step, implicit method, where
         ! A is the right-hand-side operator (i.e. what net_operator is now).
         if (present(coef_q_weight)) then
-        call net_operator%lmult_as_diag(-dt/coef_q_weight)
+            call net_operator%lmult_as_diag(-dt/coef_q_weight)
         else
-        call net_operator%lmult_as_diag(-dt)
+            call net_operator%lmult_as_diag(-dt)
         end if
         call net_operator%add_to_diag(1._r8)
     
@@ -121,7 +116,6 @@ module vertical_diffusion_solver
         solution = toSolve
     
         call decomp%left_div(solution(:ncols, :), l_cond=l_cond, r_cond=r_cond)
-        !tendency = tendency - toSolve
     
         ! Ensure local objects are deallocated.
         call decomp%finalize()
