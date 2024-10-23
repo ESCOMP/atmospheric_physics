@@ -97,7 +97,7 @@
     <standard_name>filename_of_tuvx_configuration</standard_name>
     <units>none</units>
     <desc>
-     A configuration file for the TUVX photolysis rate calculator
+     A configuration file for the TUV-x photolysis rate calculator
     </desc>
     <values>
       <value>UNSET_PATH</value>
