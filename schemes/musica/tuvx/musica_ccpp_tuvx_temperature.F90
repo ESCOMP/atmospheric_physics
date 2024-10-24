@@ -36,7 +36,7 @@ contains
 
   !> Sets TUV-x temperature values from host-model temperatures
   !!
-  !! See description of `musica_ccpp_tuvx_hegihts_grid.F90` for
+  !! See description of `musica_ccpp_tuvx_height_grid.F90` for
   !! CAM-SIMA <-> TUV-x height grid mapping
   subroutine set_temperature_values(profile, host_midpoint_temperatures, &
                                     host_surface_temperature, errmsg, errcode)
