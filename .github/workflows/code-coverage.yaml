@@ -60,7 +60,7 @@ jobs:
         run: |
           source venv/bin/activate
           cd build
-          gcovr -r .. --filter '\.\./src' --html atmospheric_physics_code_coverage.html --txt
+          gcovr -r .. --filter '\.\./schemes' --html atmospheric_physics_code_coverage.html --txt
 
       - name: Upload code coverage results
         uses: actions/upload-artifact@v4
