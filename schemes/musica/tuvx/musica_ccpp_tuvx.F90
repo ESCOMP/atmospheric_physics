@@ -276,6 +276,7 @@ contains
     if (associated( wavelength_grid )) then
       deallocate( wavelength_grid )
       wavelength_grid => null()
+    end if
 
     if (associated( temperature_profile )) then
       deallocate( temperature_profile )
