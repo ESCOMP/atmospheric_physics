@@ -34,7 +34,7 @@ jobs:
         run: |
           cmake \
             -DCMAKE_PREFIX_PATH=/home/runner/work/atmospheric_physics/atmospheric_physics/pFUnit/build/installed \
-            -DHISTORY_ENABLE_CODE_COVERAGE=ON \
+            -DATMOSPHERIC_PHYSICS_ENABLE_CODE_COVERAGE=ON \
             -B./build \
             -S./test/unit-test
           cd build
