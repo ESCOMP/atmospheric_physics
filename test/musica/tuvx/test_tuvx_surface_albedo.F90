@@ -32,6 +32,9 @@ contains
     integer                  :: i
 
     wavelength_grid => create_wavelength_grid(wavelength_grid_interfaces, errmsg, errcode)
+    ASSERT(errcode == 0)
+    ASSERT(associated(wavelength_grid))
+
     profile => create_surface_albedo_profile( wavelength_grid, errmsg, errcode )
     ASSERT(errcode == 0)
     ASSERT(associated(profile))

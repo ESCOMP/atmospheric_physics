@@ -16,9 +16,9 @@ module musica_ccpp_tuvx_wavelength_grid
   ! The wavelength grid is defined by the host model. Any wavelength-
   ! resolved quantities passed to TUV-x must be on this grid.
 
-  !> Label for height grid in TUV-x
+  !> Label for wavelength grid in TUV-x
   character(len=*), parameter, public :: wavelength_grid_label = "wavelength"
-  !> Units for height grid in TUV-x
+  !> Unit for wavelength grid in TUV-x
   character(len=*), parameter, public :: wavelength_grid_unit = "nm"
 
 contains
@@ -29,7 +29,6 @@ contains
 
     use ccpp_kinds,       only: kind_phys
     use musica_ccpp_util, only: has_error_occurred
-    use musica_config,    only: config_t
     use musica_tuvx_grid, only: grid_t
     use musica_util,      only: error_t
 
@@ -41,7 +40,7 @@ contains
     ! local variables
     real(kind_phys) :: interfaces( size( wavelength_grid_interfaces ) )    ! [nm]
     reaL(kind_phys) :: midpoints( size( wavelength_grid_interfaces ) - 1 ) ! [nm]
-    type(error_t) :: error
+    type(error_t)   :: error
 
     interfaces(:) = wavelength_grid_interfaces(:) * 1.0e9
     midpoints(:) = &

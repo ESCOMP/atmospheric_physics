@@ -24,13 +24,13 @@ contains
                        wavelength_grid_interfaces, errmsg, errcode)
     use musica_tuvx, only: grid_map_t, profile_map_t, radiator_map_t
     use musica_util, only: error_t
-    use musica_ccpp_tuvx_height_grid, only: create_height_grid, &
-                                            height_grid_label, height_grid_unit
-    use musica_ccpp_tuvx_wavelength_grid, only: create_wavelength_grid, &
-                                                wavelength_grid_label, &
-                                                wavelength_grid_unit
-    use musica_ccpp_tuvx_temperature, only: create_temperature_profile, &
-                                            temperature_label, temperature_unit
+    use musica_ccpp_tuvx_util, only: tuvx_deallocate
+    use musica_ccpp_tuvx_height_grid, &
+      only: create_height_grid, height_grid_label, height_grid_unit
+    use musica_ccpp_tuvx_wavelength_grid, &
+      only: create_wavelength_grid, wavelength_grid_label, wavelength_grid_unit
+    use musica_ccpp_tuvx_temperature, &
+      only: create_temperature_profile, temperature_label, temperature_unit
 
     integer,            intent(in)  :: vertical_layer_dimension      ! (count)
     integer,            intent(in)  :: vertical_interface_dimension  ! (count)
@@ -56,102 +56,62 @@ contains
 
     call grids%add( height_grid, error )
     if (has_error_occurred( error, errmsg, errcode )) then
-      deallocate( grids )
-      deallocate( height_grid )
-      height_grid => null()
+      call tuvx_deallocate( grids, null(), null(), null(), height_grid, null(), null() )
       return
     end if
 
     wavelength_grid => create_wavelength_grid( wavelength_grid_interfaces, &
                                                errmsg, errcode )
     if (errcode /= 0) then
-      deallocate( grids )
-      deallocate( height_grid )
-      height_grid => null()
+      call tuvx_deallocate( grids, null(), null(), null(), height_grid, null(), null() )
       return
     endif
 
     call grids%add( wavelength_grid, error )
     if (has_error_occurred( error, errmsg, errcode )) then
-      deallocate( grids )
-      deallocate( height_grid )
-      height_grid => null()
-      deallocate( wavelength_grid )
-      wavelength_grid => null()
+      call tuvx_deallocate( grids, null(), null(), null(), height_grid, wavelength_grid, &
+                            null() )
       return
     end if
 
     profiles => profile_map_t( error )
     if (has_error_occurred( error, errmsg, errcode )) then
-      deallocate( grids )
-      deallocate( height_grid )
-      height_grid => null()
-      deallocate( wavelength_grid )
-      wavelength_grid => null()
+      call tuvx_deallocate( grids, null(), null(), null(), height_grid, wavelength_grid, &
+                            null() )
       return
     end if
 
     temperature_profile => create_temperature_profile( height_grid, errmsg, errcode )
     if (errcode /= 0) then
-      deallocate( grids )
-      deallocate( height_grid )
-      height_grid => null()
-      deallocate( wavelength_grid )
-      wavelength_grid => null()
-      deallocate( profiles )
+      call tuvx_deallocate( grids, profiles, null(), null(), height_grid, wavelength_grid, &
+                            null() )
       return
     endif
 
     call profiles%add( temperature_profile, error )
     if (has_error_occurred( error, errmsg, errcode )) then
-      deallocate( grids )
-      deallocate( height_grid )
-      height_grid => null()
-      deallocate( wavelength_grid )
-      wavelength_grid => null()
-      deallocate( profiles )
-      deallocate( temperature_profile )
-      temperature_profile => null()
+      call tuvx_deallocate( grids, profiles, null(), null(), height_grid, wavelength_grid, &
+                            temperature_profile )
       return
     end if
 
     radiators => radiator_map_t( error )
     if (has_error_occurred( error, errmsg, errcode )) then
-      deallocate( grids )
-      deallocate( height_grid )
-      height_grid => null()
-      deallocate( wavelength_grid )
-      wavelength_grid => null()
-      deallocate( profiles )
-      deallocate( temperature_profile )
-      temperature_profile => null()
+      call tuvx_deallocate( grids, profiles, null(), null(), height_grid, wavelength_grid, &
+                            temperature_profile )
       return
     end if
 
     tuvx => tuvx_t( filename_of_tuvx_configuration, grids, profiles, &
                     radiators, error )
     if (has_error_occurred( error, errmsg, errcode )) then
-      deallocate( grids )
-      deallocate( height_grid )
-      height_grid => null()
-      deallocate( wavelength_grid )
-      wavelength_grid => null()
-      deallocate( profiles )
-      deallocate( temperature_profile )
-      temperature_profile => null()
-      deallocate( radiators )
+      call tuvx_deallocate( grids, profiles, radiators, null(), height_grid, wavelength_grid, &
+                            temperature_profile )
       return
     end if
 
-    deallocate( grids )
-    deallocate( height_grid )
-    height_grid => null()
-    deallocate( wavelength_grid )
-    wavelength_grid => null()
-    deallocate( profiles )
-    deallocate( temperature_profile )
-    temperature_profile => null()
-    deallocate( radiators )
+    call tuvx_deallocate( grids, profiles, radiators, null(), height_grid, wavelength_grid, &
+                          temperature_profile )
 
     grids => tuvx%get_grids( error )
     if (has_error_occurred( error, errmsg, errcode )) then
@@ -162,49 +122,32 @@ contains
 
     height_grid => grids%get( height_grid_label, height_grid_unit, error )
     if (has_error_occurred( error, errmsg, errcode )) then
-      deallocate( tuvx )
-      tuvx => null()
-      deallocate( grids )
+      call tuvx_deallocate( grids, null(), null(), tuvx, null(), null(), null() )
       return
     end if
 
     wavelength_grid => grids%get( wavelength_grid_label, wavelength_grid_unit, &
                                   error )
     if (has_error_occurred( error, errmsg, errcode )) then
-      deallocate( tuvx )
-      tuvx => null()
-      deallocate( grids )
-      deallocate( height_grid )
-      height_grid => null()
+      call tuvx_deallocate( grids, null(), null(), tuvx, height_grid, null(), null() )
       return
     end if
 
-    deallocate( grids )
-
     profiles => tuvx%get_profiles( error )
     if (has_error_occurred( error, errmsg, errcode )) then
-      deallocate( tuvx )
-      tuvx => null()
-      deallocate( height_grid )
-      height_grid => null()
-      deallocate( wavelength_grid )
-      wavelength_grid => null()
+      call tuvx_deallocate( grids, null(), null(), tuvx, height_grid, wavelength_grid, &
+                            null() )
       return
     end if
 
     temperature_profile => profiles%get( temperature_label, temperature_unit, error )
     if (has_error_occurred( error, errmsg, errcode )) then
-      deallocate( tuvx )
-      tuvx => null()
-      deallocate( height_grid )
-      height_grid => null()
-      deallocate( wavelength_grid )
-      wavelength_grid => null()
-      deallocate( profiles )
+      call tuvx_deallocate( grids, profiles, null(), tuvx, height_grid, wavelength_grid, &
+                            null() )
       return
     end if
 
-    deallocate( profiles )
+    call tuvx_deallocate( grids, profiles, null(), null(), null(), null(), null() )
 
   end subroutine tuvx_init
 
