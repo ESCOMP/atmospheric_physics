@@ -26,14 +26,17 @@ contains
   !> \section arg_table_musica_ccpp_init Argument Table
   !! \htmlinclude musica_ccpp_init.html
   subroutine musica_ccpp_init(vertical_layer_dimension, vertical_interface_dimension, &
-                              errmsg, errcode)
+                              photolysis_wavelength_grid_interfaces, errmsg, errcode)
+    use ccpp_kinds, only : kind_phys
+
     integer,            intent(in)  :: vertical_layer_dimension     ! (count)
     integer,            intent(in)  :: vertical_interface_dimension ! (count)
+    real(kind_phys),    intent(in)  :: photolysis_wavelength_grid_interfaces(:) ! m
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errcode
 
     call tuvx_init(vertical_layer_dimension, vertical_interface_dimension, &
-                   errmsg, errcode)
+                   photolysis_wavelength_grid_interfaces, errmsg, errcode)
     if (errcode /= 0) return
     call micm_init(errmsg, errcode)
     if (errcode /= 0) return

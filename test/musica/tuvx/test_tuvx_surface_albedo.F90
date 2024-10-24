@@ -22,6 +22,8 @@ contains
     type(grid_t),    pointer :: wavelength_grid
     type(profile_t), pointer :: profile
     real(kind_phys), target  :: host_surface_albedo = 500.5_kind_phys
+    real(kind_phys)          :: wavelength_grid_interfaces(NUM_WAVELENGTH_BIN + 1) = &
+        [200.0e-9_kind_phys, 210.0e-9_kind_phys, 240.0e-9_kind_phys, 300.0e-9_kind_phys, 400.0e-9_kind_phys]
     real(kind_phys)          :: surface_albedos(NUM_WAVELENGTH_BIN + 1)
     character(len=512)       :: errmsg
     integer                  :: errcode
@@ -29,7 +31,7 @@ contains
     real(kind_phys)          :: abs_error = 1e-4
     integer                  :: i
 
-    wavelength_grid => create_wavelength_grid(NUM_WAVELENGTH_BIN, errmsg, errcode)
+    wavelength_grid => create_wavelength_grid(wavelength_grid_interfaces, errmsg, errcode)
     profile => create_surface_albedo_profile( wavelength_grid, errmsg, errcode )
     ASSERT(errcode == 0)
     ASSERT(associated(profile))

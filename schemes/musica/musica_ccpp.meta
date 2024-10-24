@@ -19,6 +19,12 @@
   type = integer
   dimensions = ()
   intent = in
+[ photolysis_wavelength_grid_interfaces ]
+  standard_name = photolysis_wavelength_grid_interfaces
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (photolysis_wavelength_grid_interface_dimension)
+  intent = in
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
