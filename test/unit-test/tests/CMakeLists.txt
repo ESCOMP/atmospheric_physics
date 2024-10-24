@@ -1,2 +1,2 @@
-add_subdirectory(utilities-tests)
+add_subdirectory(utilities)
 
