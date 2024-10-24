@@ -21,9 +21,9 @@ FetchContent_MakeAvailable(musica)
 add_executable(test_musica_api test_musica_api.F90 musica_ccpp_namelist.F90)
 
 file(GLOB MUSICA_CCPP_SOURCES
-      ${MUSICA_SRC_PATH}/*.F90
-      ${MUSICA_SRC_PATH}/micm/*.F90
-      ${MUSICA_SRC_PATH}/tuvx/*.F90
+  ${MUSICA_SRC_PATH}/*.F90
+  ${MUSICA_SRC_PATH}/micm/*.F90
+  ${MUSICA_SRC_PATH}/tuvx/*.F90
 )
 
 target_sources(test_musica_api

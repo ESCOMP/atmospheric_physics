@@ -89,6 +89,12 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_interface_dimension)
   intent = in
+[ surface_temperature ]
+  standard_name = blackbody_temperature_at_surface
+  type = real | kind = kind_phys
+  units = K
+  dimensions = (horizontal_loop_extent)
+  intent = in
 [ surface_geopotential ]
   standard_name = surface_geopotential
   type = real | kind = kind_phys
