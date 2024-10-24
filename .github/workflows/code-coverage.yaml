@@ -25,16 +25,10 @@ jobs:
         run: |
           git clone --depth 1 --branch v4.10.0 https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git
           cd pFUnit
+          pwd
           cmake -B./build -S.
           cd build
           make install
-
-      - name: Build ccpp-framework
-        run: |
-          git clone --depth 1 --branch develop https://github.com/NCAR/ccpp-framework.git
-          cd ccpp-framework
-          
-
 
       - name: Build atmospheric_physics
         run: |
