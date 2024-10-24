@@ -22,9 +22,6 @@ endif()
 
 set(CMAKE_BUILD_TYPE Debug)
 
-# add_subdirectory(include)
-# add_subdirectory(../../schemes/utilities utilities)
-
 set(UTILITIES_SRC
     ../../schemes/utilities/state_converters.F90
     ../../schemes/utilities/static_energy.F90
@@ -40,3 +37,4 @@ if(ATMOSPHERIC_PHYSICS_ENABLE_TESTS OR ATMOSPHERIC_PHYSICS_ENABLE_CODE_COVERAGE)
   enable_testing()
   add_subdirectory(tests)
 endif()
+
