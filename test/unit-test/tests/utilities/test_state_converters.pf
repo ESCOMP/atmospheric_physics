@@ -1,0 +1,27 @@
+@test
+subroutine test_temp_to_potential_temp()
+    use funit
+    use state_converters, only : temp_to_potential_temp_run
+    use ccpp_kinds, only: kind_phys
+
+    integer, parameter :: ncol = 5
+    integer, parameter :: nz   = 5
+
+    real(kind_phys) :: temp(ncol, nz)
+    real(kind_phys) :: exner(ncol, nz)
+    real(kind_phys) :: theta(ncol, nz)
+    character(len=512) :: errmsg
+    integer :: errflg
+
+    temp = 1
+    exner = 1
+    theta = 1
+
+    errmsg = ""
+    errflg = 0
+
+    call temp_to_potential_temp_run(ncol, nz, temp, exner, theta, errmsg, errflg)
+
+    @assertEqual(0, errflg)
+
+end subroutine test_temp_to_potential_temp
