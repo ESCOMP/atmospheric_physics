@@ -1,0 +1,76 @@
+name: code-coverage
+
+on:
+  push:
+    branch: development
+  workflow_dispatch:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  gcc:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout atmospheric_physics
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt update && sudo apt -y install libopenmpi-dev openmpi-bin
+
+      - name: Build pFUnit
+        run: |
+          git clone --depth 1 --branch v4.10.0 https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git
+          cd pFUnit
+          cmake -B./build -S.
+          cd build
+          make install
+
+      - name: Build ccpp-framework
+        run: |
+          git clone --depth 1 --branch develop https://github.com/NCAR/ccpp-framework.git
+          cd ccpp-framework
+          
+
+
+      - name: Build atmospheric_physics
+        run: |
+          cmake \
+            -DCMAKE_PREFIX_PATH=/home/runner/work/atmospheric_physics/atmospheric_physics/pFUnit/build/installed \
+            -DHISTORY_ENABLE_CODE_COVERAGE=ON \
+            -B./build \
+            -S.
+          cd build
+          make
+
+      - name: Run tests
+        run: |
+          cd build && ctest -V --output-on-failure --output-junit test_results.xml
+
+      - name: Upload unit test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-results
+          path: build/test_results.xml
+
+      - name: Setup GCov
+        run: |
+          python3 -m venv venv
+          source venv/bin/activate
+          pip3 install gcovr
+
+      - name: Run Gcov
+        run: |
+          source venv/bin/activate
+          cd build
+          gcovr -r .. --filter '\.\./src' --html atmospheric_physics_code_coverage.html --txt
+
+      - name: Upload code coverage results
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-coverage-results
+          path: build/atmospheric_physics_code_coverage.html
+
