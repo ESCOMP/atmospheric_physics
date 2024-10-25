@@ -2,6 +2,67 @@
 
 Tag name:
 Originator(s): jimmielin
+Date: October 25, 2024
+One-line Summary: Implement CCPPized check_energy_chng and check_energy_fix
+Github PR URL:
+
+This PR fixes the following NCAR/atmospheric_physics Github issues: #114
+
+- Implements check_energy_chng. The routine computes total energies using physics and dycore formula and takes in boundary fluxes of vapor, liquid+ice, ice, sensible heat, and writes to log significant energy conservation errors.
+In order to take in the scheme name and fluxes from the last calling physics scheme (usually zero) a check_energy_zero_fluxes has to be ran before the scheme, then the physics scheme to be checked, then check_energy_chng.
+
+- Implements check_energy_fix. The routine computes the heating rate required for global mean total energy conservation which is later applied by apply_heating_rate.
+Supporting routines include the global mean calculator for total energy (check_energy_gmean) - stored in separate folder to prevent CAM from building it.
+The global means are very useful for diagnosing model state (as the computed energy numbers include all model state incl. constituents) through a simple one-line printout. check_energy_gmean_diagnostics implements this.
+At the end of the timestep check_energy_save_teout has to be ran in order to save total energies at the end of the timestep for use in the next timestep.
+
+- Diagnostics of intermediate quantities used in check_energy_diagnostics.
+
+Code reviewed by:
+
+List all existing files that have been added (A), modified (M), or deleted (D),
+and describe the changes:
+
+- Docs:
+M       doc/ChangeLog
+
+- check_energy_chng and supporting routines:
+A       schemes/check_energy/check_energy_chng.F90
+A       schemes/check_energy/check_energy_chng.meta
+A       schemes/check_energy/check_energy_chng_namelist.xml
+A       schemes/check_energy/check_energy_scaling.F90
+A       schemes/check_energy/check_energy_scaling.meta
+A       schemes/check_energy/check_energy_zero_fluxes.F90
+A       schemes/check_energy/check_energy_zero_fluxes.meta
+
+- check_energy_fix and supporting routines:
+A       schemes/check_energy/check_energy_fix.F90
+A       schemes/check_energy/check_energy_fix.meta
+A       schemes/check_energy/check_energy_gmean/check_energy_gmean.F90
+A       schemes/check_energy/check_energy_gmean/check_energy_gmean.meta
+A       schemes/check_energy/check_energy_save_teout.F90
+A       schemes/check_energy/check_energy_save_teout.meta
+
+- check_energy related diagnostics:
+A       schemes/sima_diagnostics/check_energy_diagnostics.F90
+A       schemes/sima_diagnostics/check_energy_diagnostics.meta
+
+- check_energy_gmean "nstep, te" atm.log output:
+A       schemes/sima_diagnostics/check_energy_gmean_diagnostics.F90
+A       schemes/sima_diagnostics/check_energy_gmean_diagnostics.meta
+
+- test SDF including all functionality:
+A       test/test_suites/suite_check_energy.xml
+
+
+List and Describe any test failures: N/A
+
+Summarize any changes to answers: none
+
+===============================================================
+
+Tag name:
+Originator(s): jimmielin
 Date: October 17, 2024
 One-line Summary: Implement ccpp_const_get_index in to_be_ccppized to avoid circular dependencies
 Github PR URL: https://github.com/ESCOMP/atmospheric_physics/pull/135

@@ -354,7 +354,8 @@ contains
     end if
 
     ! WRITE OPERATION - copy new value to state, including total water.
-    ! the total water operations are consistent regardless of vcoord, so it only has to be written once.
+    ! the total water operations are consistent regardless of energy formula,
+    ! so it only has to be written once.
     do i = 1, ncol
       te_cur_phys(i) = te(i)
       tw_cur(i)      = tw(i)

@@ -60,3 +60,27 @@
   type = real | kind = kind_phys
   dimensions = ()
   intent = out
+[ teinp_glob ]
+  standard_name = global_mean_vertically_integrated_total_energy_of_initial_state_using_dycore_energy_formula
+  units = J m-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = out
+[ teout_glob ]
+  standard_name = global_mean_vertically_integrated_total_energy_at_end_of_physics
+  units = J m-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = out
+[ psurf_glob ]
+  standard_name = global_mean_surface_air_pressure
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = out
+[ ptopb_glob ]
+  standard_name = global_mean_air_pressure_at_top_of_atmosphere_model
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = out

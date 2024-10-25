@@ -18,15 +18,11 @@ contains
        gravit, &
        pint, &
        te_ini_dyn, teout, &
-       tedif_glob, heat_glob)
+       tedif_glob, heat_glob, &
+       teinp_glob, teout_glob, psurf_glob, ptopb_glob)
 
     ! Dependency: Uses gmean from src/utils
     use gmean_mod, only: gmean
-
-    ! Dev-only Dependency: Debug output to mimic CAM behavior
-    use spmd_utils,   only: masterproc
-    use cam_logfile,  only: iulog
-    use time_manager, only: get_nstep
 
     ! Input arguments
     integer,            intent(in)    :: ncol           ! number of atmospheric columns
@@ -41,18 +37,15 @@ contains
     real(kind_phys),    intent(out)   :: tedif_glob     ! global mean energy difference [J m-2]
     real(kind_phys),    intent(out)   :: heat_glob      ! global mean heating rate [J kg-1 s-1]
 
+    ! Output for check_energy_gmean_diagnostics
+    real(kind_phys),    intent(out)   :: teinp_glob     ! global mean energy of input state [J m-2]
+    real(kind_phys),    intent(out)   :: teout_glob     ! global mean energy of output state [J m-2]
+    real(kind_phys),    intent(out)   :: psurf_glob     ! global mean surface pressure [Pa]
+    real(kind_phys),    intent(out)   :: ptopb_glob     ! global mean top boundary pressure [Pa]
+
     ! Local variables
     real(kind_phys) :: te(ncol, 4)                      ! total energy of input/output states (copy)
     real(kind_phys) :: te_glob(4)                       ! global means of total energy
-
-    real(kind_phys) :: teinp_glob                       ! global mean energy of input state [J m-2]
-    real(kind_phys) :: teout_glob                       ! global mean energy of output state [J m-2]
-    real(kind_phys) :: psurf_glob                       ! global mean surface pressure [Pa]
-    real(kind_phys) :: ptopb_glob                       ! global mean top boundary pressure [Pa]
-
-    ! DEVNOTE hplin: in CAM te(i, lchnk, 2) gets teout from pbuf and this is chunkized.
-    ! so check_energy_gmean_run ccppized will not be used in CAM because of this chunk handling,
-    ! and so will gmean be different between CAM and CAM-SIMA.
 
     ! Copy total energy out of input and output states.
     ! These four fields will have their global means calculated respectively
@@ -73,12 +66,6 @@ contains
     ! Compute global mean total energy difference for check_energy_fix
     tedif_glob = teinp_glob - teout_glob
     heat_glob  = -tedif_glob/dtime * gravit / (psurf_glob - ptopb_glob)    ! [J kg-1 s-1]
-
-    ! Dev-only: Debug output for CAM only
-    if (masterproc) then
-      write(iulog,'(1x,a9,1x,i8,5(1x,e25.17))') "nstep, te", get_nstep(), teinp_glob, teout_glob, &
-            heat_glob, psurf_glob, ptopb_glob
-    endif
   end subroutine check_energy_gmean_run
 
 end module check_energy_gmean

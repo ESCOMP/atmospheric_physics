@@ -1,7 +1,7 @@
 [ccpp-table-properties]
   name = check_energy_chng
   type = scheme
-  dependencies = ../../../../data/cam_thermo.F90,../../../../dynamics/tests/dyn_tests_utils.F90
+  dependencies = ../../../../data/cam_thermo.F90,../../../../data/cam_thermo_formula.F90
 
 
 [ccpp-arg-table]

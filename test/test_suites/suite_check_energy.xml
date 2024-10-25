@@ -7,6 +7,8 @@
 
     <!-- Compute global means of physics input and output total energy -->
     <scheme>check_energy_gmean</scheme>
+    <!-- After gmean, output the "nstep, te" + 5 numbers for global mean diagnostic -->
+    <scheme>check_energy_gmean_diagnostics</scheme>
 
     <!-- Check that energy and water change matches the boundary fluxes -->
     <scheme>check_energy_zero_fluxes</scheme>
