@@ -63,7 +63,7 @@ contains
     real(kind_phys) :: surface_albedos(num_wavelength_bins + 1)
 
     if (size(surface_albedos) <= DEFAULT_NUM_WAVELENGTH_BINS + 1) then
-      errmsg = "[MUSICA Error] Invalid size of TUV-x interface wavelengths. "
+      errmsg = "[MUSICA Error] Invalid size of TUV-x wavelength interfaces."
       errcode = 1
       return
     end if

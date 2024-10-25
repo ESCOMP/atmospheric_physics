@@ -18,13 +18,14 @@ contains
     use musica_tuvx_profile,              only: profile_t
     use ccpp_kinds,                       only: kind_phys
 
-    integer, parameter       :: NUM_WAVELENGTH_BIN = 4
+    integer, parameter       :: NUM_WAVELENGTH_BINS = 4
     type(grid_t),    pointer :: wavelength_grid
     type(profile_t), pointer :: profile
-    real(kind_phys), target  :: host_surface_albedo = 500.5_kind_phys
-    real(kind_phys)          :: wavelength_grid_interfaces(NUM_WAVELENGTH_BIN + 1) = &
+    real(kind_phys)          :: wavelength_grid_interfaces(NUM_WAVELENGTH_BINS + 1) = &
         [200.0e-9_kind_phys, 210.0e-9_kind_phys, 240.0e-9_kind_phys, 300.0e-9_kind_phys, 400.0e-9_kind_phys]
-    real(kind_phys)          :: surface_albedos(NUM_WAVELENGTH_BIN + 1)
+    real(kind_phys)          :: host_surface_albedo = 500.5_kind_phys
+    real(kind_phys)          :: surface_albedo_interfaces(NUM_WAVELENGTH_BINS + 1)
+    real(kind_phys)          :: expected_surface_albedo_interfaces(NUM_WAVELENGTH_BINS + 1) = host_surface_albedo
     character(len=512)       :: errmsg
     integer                  :: errcode
     type(error_t)            :: error
@@ -42,17 +43,16 @@ contains
     call set_surface_albedo_values( profile, host_surface_albedo, errmsg, errcode )
     ASSERT(errcode == 0)
 
-    call profile%get_edge_values( surface_albedos, error)
+    call profile%get_edge_values( surface_albedo_interfaces, error)
     ASSERT(error%is_success())
-    ASSERT_NEAR(surface_albedos(1), 500.5, abs_error)
-    ASSERT_NEAR(surface_albedos(2), 500.5, abs_error)
-    ASSERT_NEAR(surface_albedos(3), 500.5, abs_error)
-    ASSERT_NEAR(surface_albedos(4), 500.5, abs_error)
-    ASSERT_NEAR(surface_albedos(5), 500.5, abs_error)
+    ASSERT_NEAR(surface_albedo_interfaces(1), expected_surface_albedo_interfaces(1), abs_error)
+    ASSERT_NEAR(surface_albedo_interfaces(2), expected_surface_albedo_interfaces(2), abs_error)
+    ASSERT_NEAR(surface_albedo_interfaces(3), expected_surface_albedo_interfaces(3), abs_error)
+    ASSERT_NEAR(surface_albedo_interfaces(4), expected_surface_albedo_interfaces(4), abs_error)
+    ASSERT_NEAR(surface_albedo_interfaces(5), expected_surface_albedo_interfaces(5), abs_error)
 
     deallocate( profile )
     deallocate( wavelength_grid )
 
-  end subroutine test_update_surface_albedo
-
+  end subroutine test_invalid_size_wavelength_interfaces
 end program test_tuvx_surface_albedo

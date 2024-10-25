@@ -17,15 +17,15 @@ contains
     use musica_tuvx_grid, only: grid_t
     use ccpp_kinds,       only: kind_phys
 
-    integer, parameter      :: NUM_HOST_MIDPOINTS = 2
-    integer, parameter      :: NUM_HOST_INTERFACES = 3
-    real(kind_phys), target :: host_midpoints(NUM_HOST_MIDPOINTS) = [200.8_kind_phys, 100.6_kind_phys]
-    real(kind_phys), target :: host_interfaces(NUM_HOST_INTERFACES) = [250.3_kind_phys, 150.2_kind_phys, 50.1_kind_phys]
-    type(grid_t), pointer   :: height_grid
-    character(len=512)      :: errmsg
-    integer                 :: errcode
-    real(kind_phys)         :: abs_error = 1e-5
-    integer                 :: i
+    integer, parameter    :: NUM_HOST_MIDPOINTS = 2
+    integer, parameter    :: NUM_HOST_INTERFACES = 3
+    real(kind_phys)       :: host_midpoints(NUM_HOST_MIDPOINTS) = [200.8_kind_phys, 100.6_kind_phys]
+    real(kind_phys)       :: host_interfaces(NUM_HOST_INTERFACES) = [250.3_kind_phys, 150.2_kind_phys, 50.1_kind_phys]
+    type(grid_t), pointer :: height_grid
+    character(len=512)    :: errmsg
+    integer               :: errcode
+    real(kind_phys)       :: abs_error = 1e-5
+    integer               :: i
 
     ! local variables
     real(kind_phys), dimension(NUM_HOST_MIDPOINTS+1)  :: midpoints
