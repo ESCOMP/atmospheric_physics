@@ -27,9 +27,7 @@ contains
     type(grid_t),     intent(inout) :: wavelength_grid
     character(len=*), intent(out)   :: errmsg
     integer,          intent(out)   :: errcode
-
-    ! return value
-    type(profile_t),  pointer :: profile
+    type(profile_t),  pointer       :: profile
 
     ! local variables
     type(error_t) :: error
@@ -60,17 +58,17 @@ contains
 
     ! local variables
     type(error_t)   :: error
-    real(kind_phys) :: surface_albedos(num_wavelength_bins + 1)
+    real(kind_phys) :: surface_albedo_interfaces(num_wavelength_bins + 1)
 
-    if (size(surface_albedos) <= DEFAULT_NUM_WAVELENGTH_BINS + 1) then
+    if (size(surface_albedo_interfaces) <= DEFAULT_NUM_WAVELENGTH_BINS + 1) then
       errmsg = "[MUSICA Error] Invalid size of TUV-x wavelength interfaces."
       errcode = 1
       return
     end if
 
-    surface_albedos(:) = host_surface_albedo
+    surface_albedo_interfaces(:) = host_surface_albedo
 
-    call profile%set_edge_values( surface_albedos, error )
+    call profile%set_edge_values( surface_albedo_interfaces, error )
     if ( has_error_occurred( error, errmsg, errcode ) ) return
 
   end subroutine set_surface_albedo_values

@@ -29,8 +29,8 @@ contains
                               photolysis_wavelength_grid_interfaces, errmsg, errcode)
     use ccpp_kinds, only : kind_phys
 
-    integer,            intent(in)  :: vertical_layer_dimension     ! (count)
-    integer,            intent(in)  :: vertical_interface_dimension ! (count)
+    integer,            intent(in)  :: vertical_layer_dimension                 ! (count)
+    integer,            intent(in)  :: vertical_interface_dimension             ! (count)
     real(kind_phys),    intent(in)  :: photolysis_wavelength_grid_interfaces(:) ! m
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errcode
