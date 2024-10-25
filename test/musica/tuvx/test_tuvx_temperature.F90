@@ -20,9 +20,12 @@ contains
 
     integer,         parameter :: NUM_HOST_MIDPOINTS = 5
     integer,         parameter :: NUM_HOST_INTERFACES = 6
-    real(kind_phys), target    :: host_midpoint_temperature(NUM_HOST_MIDPOINTS)
-    real(kind_phys), target    :: host_surface_temperature = 300.3_kind_phys
+    real(kind_phys)            :: host_midpoint_temperature(NUM_HOST_MIDPOINTS) &
+                                  = [800.8_kind_phys, 700.7_kind_phys, 600.6_kind_phys, 500.5_kind_phys, 400.4_kind_phys]
+    real(kind_phys)            :: host_surface_temperature = 300.3_kind_phys
     real(kind_phys)            :: interface_temperatures(NUM_HOST_MIDPOINTS+2)
+    real(kind_phys)            :: expected_interface_temperatures(NUM_HOST_MIDPOINTS+2) &
+                                  = [300.3_kind_phys, 400.4_kind_phys, 500.5_kind_phys, 600.6_kind_phys, 700.7_kind_phys, 800.8_kind_phys, 800.8_kind_phys]
     type(grid_t),    pointer   :: height_grid
     type(profile_t), pointer   :: profile
     character(len=512)         :: errmsg
@@ -30,10 +33,7 @@ contains
     type(error_t)              :: error
     real(kind_phys)            :: abs_error = 1e-4
 
-    host_midpoint_temperature = (/ 800.8_kind_phys, 700.7_kind_phys, 600.6_kind_phys, 500.5_kind_phys, 400.4_kind_phys /)
-
-    height_grid => create_height_grid(NUM_HOST_MIDPOINTS, NUM_HOST_INTERFACES, &
-                                      errmsg, errcode)
+    height_grid => create_height_grid(NUM_HOST_MIDPOINTS, NUM_HOST_INTERFACES, errmsg, errcode)
     ASSERT(errcode == 0)
     ASSERT(associated(height_grid))
 
@@ -48,13 +48,13 @@ contains
     call profile%get_edge_values( interface_temperatures, error)
     ASSERT(error%is_success())
 
-    ASSERT_NEAR(interface_temperatures(1), 300.3, abs_error)
-    ASSERT_NEAR(interface_temperatures(2), 400.4, abs_error)
-    ASSERT_NEAR(interface_temperatures(3), 500.5, abs_error)
-    ASSERT_NEAR(interface_temperatures(4), 600.6, abs_error)
-    ASSERT_NEAR(interface_temperatures(5), 700.7, abs_error)
-    ASSERT_NEAR(interface_temperatures(6), 800.8, abs_error)
-    ASSERT_NEAR(interface_temperatures(7), 800.8, abs_error)
+    ASSERT_NEAR(interface_temperatures(1), expected_interface_temperatures(1), abs_error)
+    ASSERT_NEAR(interface_temperatures(2), expected_interface_temperatures(2), abs_error)
+    ASSERT_NEAR(interface_temperatures(3), expected_interface_temperatures(3), abs_error)
+    ASSERT_NEAR(interface_temperatures(4), expected_interface_temperatures(4), abs_error)
+    ASSERT_NEAR(interface_temperatures(5), expected_interface_temperatures(5), abs_error)
+    ASSERT_NEAR(interface_temperatures(6), expected_interface_temperatures(6), abs_error)
+    ASSERT_NEAR(interface_temperatures(7), expected_interface_temperatures(7), abs_error)
 
     deallocate( profile )
     deallocate( height_grid )
