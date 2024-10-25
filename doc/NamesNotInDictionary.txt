@@ -1,10 +1,33 @@
 
 #######################
 Date/time of when script was run:
-2024-10-10 14:17:36.423628
+2024-10-25 12:47:27.849590
 #######################
 
 Non-dictionary standard names found in the following metadata files:
+
+--------------------------
+
+atmospheric_physics/schemes/sima_diagnostics/check_energy_gmean_diagnostics.meta
+
+    - global_mean_air_pressure_at_top_of_atmosphere_model
+    - global_mean_heating_rate_correction_for_energy_conservation
+    - global_mean_surface_air_pressure
+    - global_mean_vertically_integrated_total_energy_at_end_of_physics
+    - global_mean_vertically_integrated_total_energy_of_initial_state_using_dycore_energy_formula
+
+--------------------------
+
+atmospheric_physics/schemes/sima_diagnostics/check_energy_diagnostics.meta
+
+    - cumulative_total_energy_boundary_flux_using_physics_energy_formula
+    - cumulative_total_water_boundary_flux
+    - ratio_of_specific_heat_for_air_used_in_physics_energy_formula_and_specific_heat_for_air_used_in_dycore_energy_formula
+    - specific_heat_for_air_used_in_dycore
+    - vertically_integrated_total_energy_at_end_of_physics
+    - vertically_integrated_total_energy_of_current_state_using_dycore_energy_formula
+    - vertically_integrated_total_energy_of_current_state_using_physics_energy_formula
+    - vertically_integrated_water_vapor_and_condensed_water_of_current_state
 
 --------------------------
 
@@ -14,6 +37,7 @@ atmospheric_physics/schemes/sima_diagnostics/sima_state_diagnostics.meta
     - air_pressure_of_dry_air_at_interface
     - ln_air_pressure_at_interface
     - ln_air_pressure_of_dry_air_at_interface
+    - surface_air_pressure
 
 --------------------------
 
@@ -45,6 +69,36 @@ atmospheric_physics/schemes/sima_diagnostics/tropopause_diagnostics.meta
 
 --------------------------
 
+atmospheric_physics/schemes/tj2016/tj2016_precip.meta
+
+    - gas_constant_of_water_vapor
+    - lwe_large_scale_precipitation_rate_at_surface
+    - ratio_of_water_vapor_to_dry_air_molecular_weights
+    - sum_of_sigma_pressure_hybrid_coordinate_a_coefficient_and_sigma_pressure_hybrid_coordinate_b_coefficient
+
+--------------------------
+
+atmospheric_physics/schemes/tj2016/tj2016_sfc_pbl_hs.meta
+
+    - air_pressure_at_interface
+    - eddy_heat_diffusivity
+    - eddy_momentum_diffusivity
+    - gas_constant_of_water_vapor
+    - ln_air_pressure_at_interface
+    - pi_constant
+    - ratio_of_water_vapor_to_dry_air_molecular_weights
+    - sum_of_sigma_pressure_hybrid_coordinate_a_coefficient_and_sigma_pressure_hybrid_coordinate_b_coefficient
+    - surface_air_pressure
+    - surface_eastward_wind_stress
+    - surface_evaporation_rate
+    - surface_northward_wind_stress
+    - surface_upward_sensible_heat_flux
+    - tendency_of_air_temperature_due_to_diabatic_heating
+    - tendency_of_air_temperature_due_to_vertical_diffusion
+    - tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_vertical_diffusion
+
+--------------------------
+
 atmospheric_physics/schemes/dry_adiabatic_adjust/dadadj.meta
 
     - air_pressure_at_interface
@@ -58,52 +112,6 @@ atmospheric_physics/schemes/dry_adiabatic_adjust/dadadj.meta
 atmospheric_physics/schemes/dry_adiabatic_adjust/dadadj_apply_qv_tendency.meta
 
     - tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
-
---------------------------
-
-atmospheric_physics/schemes/utilities/geopotential_temp.meta
-
-    - air_pressure_at_interface
-    - ln_air_pressure_at_interface
-
---------------------------
-
-atmospheric_physics/schemes/tropopause_find/tropopause_find.meta
-
-    - air_pressure_at_interface
-    - fill_value_for_diagnostic_output
-    - fractional_calendar_days_on_end_of_current_timestep
-    - pi_constant
-    - ratio_of_dry_air_gas_constant_to_specific_heat_of_dry_air_at_constant_pressure
-    - tropopause_air_pressure
-    - tropopause_air_pressure_from_chemical_method
-    - tropopause_air_pressure_from_climatological_method
-    - tropopause_air_pressure_from_climatology_dataset
-    - tropopause_air_pressure_from_cold_point_method
-    - tropopause_air_pressure_from_hybrid_stobie_linoz_with_climatological_backup_method
-    - tropopause_air_pressure_from_lapse_rate_method
-    - tropopause_air_temperature
-    - tropopause_air_temperature_from_chemical_method
-    - tropopause_air_temperature_from_climatological_method
-    - tropopause_air_temperature_from_cold_point_method
-    - tropopause_air_temperature_from_hybrid_stobie_linoz_with_climatological_backup_method
-    - tropopause_air_temperature_from_lapse_rate_method
-    - tropopause_calendar_days_from_climatology
-    - tropopause_geopotential_height_wrt_surface
-    - tropopause_geopotential_height_wrt_surface_from_chemical_method
-    - tropopause_geopotential_height_wrt_surface_from_climatological_method
-    - tropopause_geopotential_height_wrt_surface_from_cold_point_method
-    - tropopause_geopotential_height_wrt_surface_from_hybrid_stobie_linoz_with_climatological_backup_method
-    - tropopause_geopotential_height_wrt_surface_from_lapse_rate_method
-    - tropopause_vertical_layer_index
-    - tropopause_vertical_layer_index_from_chemical_method
-    - tropopause_vertical_layer_index_from_climatological_method
-    - tropopause_vertical_layer_index_from_cold_point_method
-    - tropopause_vertical_layer_index_from_hybrid_stobie_linoz_with_climatological_backup_method
-    - tropopause_vertical_layer_index_from_hybrid_stobie_linoz_with_climatological_backup_method_for_chemistry
-    - tropopause_vertical_layer_index_from_lapse_rate_method
-    - vertical_layer_index_lower_bound_from_hybrid_stobie_linoz_with_climatological_backup_method_for_linearized_ozone_chemistry
-    - vertical_layer_index_lower_bound_from_hybrid_stobie_linoz_with_climatological_backup_method_for_stratospheric_chemistry
 
 --------------------------
 
@@ -131,6 +139,32 @@ atmospheric_physics/schemes/zhang_mcfarlane/zm_conv_momtran.meta
     - tendency_of_northward_wind_due_to_zhang_mcfarlane_deep_convective_updraft_pressure_gradient_term
     - vertical_index_at_top_of_deep_convection_for_convective_columns
     - vertical_index_of_deep_conveciton_launch_level_for_convective_columns
+
+--------------------------
+
+atmospheric_physics/schemes/zhang_mcfarlane/zm_conv_evap.meta
+
+    - 
+    - cloud_area_fraction
+    - flag_for_zhang_mcfarlane_convective_organization_parameterization?
+    - freezing_point_of_water?
+    - frozen_precipitation_mass_flux_at_interface_due_to_deep_convection?
+    - heating_rate
+    - latent_heat_of_fusion_of_water_at_0c?
+    - latent_heat_of_vaporization_of_water_at_0c?
+    - lwe_frozen_precipitation_rate_at_surface_due_to_deep_convection
+    - lwe_precipitation_rate_at_surface_due_to_deep_convection
+    - precipitation_mass_flux_at_interface_due_to_deep_convection?
+    - pressure_thickness
+    - specific_heat_of_dry_air_at_constant_pressure?
+    - tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_frozen_precipitation_melt?
+    - tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_frozen_precipitation_production_in_deep_convection?
+    - tendency_of_frozen_precipitation_wrt_moist_air_and_condensed_water_due_to_deep_convection?
+    - tendency_of_precipitation_wrt_moist_air_and_condensed_water_due_to_deep_convection?
+    - tendency_of_precipitation_wrt_moist_air_and_condensed_water_due_to_deep_convection_excluding_subcloud_evaporation
+    - tendency_of_water_vapor_mixing_ratio_wrt_moist_air and_condensed_water?
+    - tunable_evaporation_efficiency_for_land_in_zhang_mcfarlane_deep_convection_scheme?
+    - tunable_evaporation_efficiency_in_zhang_mcfarlane_deep_convection_scheme?
 
 --------------------------
 
@@ -212,57 +246,122 @@ atmospheric_physics/schemes/zhang_mcfarlane/zm_conv_convtran.meta
 
 --------------------------
 
-atmospheric_physics/schemes/zhang_mcfarlane/zm_conv_evap.meta
-
-    - 
-    - cloud_area_fraction
-    - flag_for_zhang_mcfarlane_convective_organization_parameterization?
-    - freezing_point_of_water?
-    - frozen_precipitation_mass_flux_at_interface_due_to_deep_convection?
-    - heating_rate
-    - latent_heat_of_fusion_of_water_at_0c?
-    - latent_heat_of_vaporization_of_water_at_0c?
-    - lwe_frozen_precipitation_rate_at_surface_due_to_deep_convection
-    - lwe_precipitation_rate_at_surface_due_to_deep_convection
-    - precipitation_mass_flux_at_interface_due_to_deep_convection?
-    - pressure_thickness
-    - specific_heat_of_dry_air_at_constant_pressure?
-    - tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_frozen_precipitation_melt?
-    - tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_frozen_precipitation_production_in_deep_convection?
-    - tendency_of_frozen_precipitation_wrt_moist_air_and_condensed_water_due_to_deep_convection?
-    - tendency_of_precipitation_wrt_moist_air_and_condensed_water_due_to_deep_convection?
-    - tendency_of_precipitation_wrt_moist_air_and_condensed_water_due_to_deep_convection_excluding_subcloud_evaporation
-    - tendency_of_water_vapor_mixing_ratio_wrt_moist_air and_condensed_water?
-    - tunable_evaporation_efficiency_for_land_in_zhang_mcfarlane_deep_convection_scheme?
-    - tunable_evaporation_efficiency_in_zhang_mcfarlane_deep_convection_scheme?
-
---------------------------
-
-atmospheric_physics/schemes/tj2016/tj2016_precip.meta
-
-    - gas_constant_of_water_vapor
-    - lwe_large_scale_precipitation_rate_at_surface
-    - ratio_of_water_vapor_to_dry_air_molecular_weights
-    - sum_of_sigma_pressure_hybrid_coordinate_a_coefficient_and_sigma_pressure_hybrid_coordinate_b_coefficient
-
---------------------------
-
-atmospheric_physics/schemes/tj2016/tj2016_sfc_pbl_hs.meta
+atmospheric_physics/schemes/utilities/geopotential_temp.meta
 
     - air_pressure_at_interface
-    - eddy_heat_diffusivity
-    - eddy_momentum_diffusivity
-    - gas_constant_of_water_vapor
     - ln_air_pressure_at_interface
+
+--------------------------
+
+atmospheric_physics/schemes/check_energy/check_energy_save_teout.meta
+
+    - vertically_integrated_total_energy_at_end_of_physics
+    - vertically_integrated_total_energy_of_current_state_using_dycore_energy_formula
+
+--------------------------
+
+atmospheric_physics/schemes/check_energy/check_energy_chng.meta
+
+    - air_pressure_of_dry_air_at_interface
+    - control_for_energy_conservation_warning
+    - cumulative_total_energy_boundary_flux_using_physics_energy_formula
+    - cumulative_total_water_boundary_flux
+    - height_wrt_surface_of_initial_state
+    - latent_heat_of_fusion_of_water_at_0c
+    - net_ice_fluxes_through_top_and_bottom_of_atmosphere_column
+    - net_liquid_and_ice_fluxes_through_top_and_bottom_of_atmosphere_column
+    - net_sensible_heat_flux_through_top_and_bottom_of_atmosphere_column
+    - net_water_vapor_fluxes_through_top_and_bottom_of_atmosphere_column
+    - number_of_values_with_significant_energy_or_water_imbalances
+    - ratio_of_specific_heat_for_air_used_in_physics_energy_formula_and_specific_heat_for_air_used_in_dycore_energy_formula
+    - specific_heat_for_air_used_in_dycore
+    - temperature_of_initial_state
+    - total_energy_formula_for_dycore
+    - total_energy_formula_for_physics
+    - vertically_integrated_total_energy_at_end_of_physics
+    - vertically_integrated_total_energy_of_current_state_using_dycore_energy_formula
+    - vertically_integrated_total_energy_of_current_state_using_physics_energy_formula
+    - vertically_integrated_total_energy_of_initial_state_using_dycore_energy_formula
+    - vertically_integrated_total_energy_of_initial_state_using_physics_energy_formula
+    - vertically_integrated_water_vapor_and_condensed_water_of_current_state
+    - vertically_integrated_water_vapor_and_condensed_water_of_initial_state
+
+--------------------------
+
+atmospheric_physics/schemes/check_energy/check_energy_zero_fluxes.meta
+
+    - net_ice_fluxes_through_top_and_bottom_of_atmosphere_column
+    - net_liquid_and_ice_fluxes_through_top_and_bottom_of_atmosphere_column
+    - net_sensible_heat_flux_through_top_and_bottom_of_atmosphere_column
+    - net_water_vapor_fluxes_through_top_and_bottom_of_atmosphere_column
+
+--------------------------
+
+atmospheric_physics/schemes/check_energy/check_energy_scaling.meta
+
+    - ratio_of_specific_heat_for_air_used_in_physics_energy_formula_and_specific_heat_for_air_used_in_dycore_energy_formula
+    - specific_heat_for_air_used_in_dycore
+
+--------------------------
+
+atmospheric_physics/schemes/check_energy/check_energy_fix.meta
+
+    - air_pressure_at_interface
+    - global_mean_heating_rate_correction_for_energy_conservation
+    - net_sensible_heat_flux_through_top_and_bottom_of_atmosphere_column_from_global_total_energy_correction
+    - reciprocal_of_gravitational_acceleration
+
+--------------------------
+
+atmospheric_physics/schemes/check_energy/check_energy_gmean/check_energy_gmean.meta
+
+    - air_pressure_at_interface
+    - global_mean_air_pressure_at_top_of_atmosphere_model
+    - global_mean_heating_rate_correction_for_energy_conservation
+    - global_mean_surface_air_pressure
+    - global_mean_total_energy_correction_for_energy_conservation
+    - global_mean_vertically_integrated_total_energy_at_end_of_physics
+    - global_mean_vertically_integrated_total_energy_of_initial_state_using_dycore_energy_formula
+    - vertically_integrated_total_energy_at_end_of_physics
+    - vertically_integrated_total_energy_of_initial_state_using_dycore_energy_formula
+
+--------------------------
+
+atmospheric_physics/schemes/tropopause_find/tropopause_find.meta
+
+    - air_pressure_at_interface
+    - fill_value_for_diagnostic_output
+    - fractional_calendar_days_on_end_of_current_timestep
     - pi_constant
-    - ratio_of_water_vapor_to_dry_air_molecular_weights
-    - sum_of_sigma_pressure_hybrid_coordinate_a_coefficient_and_sigma_pressure_hybrid_coordinate_b_coefficient
-    - surface_eastward_wind_stress
-    - surface_evaporation_rate
-    - surface_northward_wind_stress
-    - surface_upward_sensible_heat_flux
-    - tendency_of_air_temperature_due_to_diabatic_heating
-    - tendency_of_air_temperature_due_to_vertical_diffusion
-    - tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_vertical_diffusion
+    - ratio_of_dry_air_gas_constant_to_specific_heat_of_dry_air_at_constant_pressure
+    - tropopause_air_pressure
+    - tropopause_air_pressure_from_chemical_method
+    - tropopause_air_pressure_from_climatological_method
+    - tropopause_air_pressure_from_climatology_dataset
+    - tropopause_air_pressure_from_cold_point_method
+    - tropopause_air_pressure_from_hybrid_stobie_linoz_with_climatological_backup_method
+    - tropopause_air_pressure_from_lapse_rate_method
+    - tropopause_air_temperature
+    - tropopause_air_temperature_from_chemical_method
+    - tropopause_air_temperature_from_climatological_method
+    - tropopause_air_temperature_from_cold_point_method
+    - tropopause_air_temperature_from_hybrid_stobie_linoz_with_climatological_backup_method
+    - tropopause_air_temperature_from_lapse_rate_method
+    - tropopause_calendar_days_from_climatology
+    - tropopause_geopotential_height_wrt_surface
+    - tropopause_geopotential_height_wrt_surface_from_chemical_method
+    - tropopause_geopotential_height_wrt_surface_from_climatological_method
+    - tropopause_geopotential_height_wrt_surface_from_cold_point_method
+    - tropopause_geopotential_height_wrt_surface_from_hybrid_stobie_linoz_with_climatological_backup_method
+    - tropopause_geopotential_height_wrt_surface_from_lapse_rate_method
+    - tropopause_vertical_layer_index
+    - tropopause_vertical_layer_index_from_chemical_method
+    - tropopause_vertical_layer_index_from_climatological_method
+    - tropopause_vertical_layer_index_from_cold_point_method
+    - tropopause_vertical_layer_index_from_hybrid_stobie_linoz_with_climatological_backup_method
+    - tropopause_vertical_layer_index_from_hybrid_stobie_linoz_with_climatological_backup_method_for_chemistry
+    - tropopause_vertical_layer_index_from_lapse_rate_method
+    - vertical_layer_index_lower_bound_from_hybrid_stobie_linoz_with_climatological_backup_method_for_linearized_ozone_chemistry
+    - vertical_layer_index_lower_bound_from_hybrid_stobie_linoz_with_climatological_backup_method_for_stratospheric_chemistry
 
 #######################
