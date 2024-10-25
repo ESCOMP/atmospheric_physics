@@ -160,7 +160,7 @@ contains
     geopotential_height_wrt_surface_at_interface(2,:) = (/ 3000.0_kind_phys, 500.0_kind_phys, -1500.0_kind_phys /)
     surface_temperature = (/ 300.0_kind_phys, 300.0_kind_phys /)
     surface_geopotential = (/ 100.0_kind_phys, 200.0_kind_phys /)
-    surface_albedo = 20.0_kind_phys
+    surface_albedo = 0.10_kind_phys
     standard_gravitational_acceleration = 10.0_kind_phys
     temperature(:,1) = (/ 100._kind_phys, 200._kind_phys /)
     temperature(:,2) = (/ 300._kind_phys, 400._kind_phys /)

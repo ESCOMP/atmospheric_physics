@@ -6,9 +6,9 @@ module musica_ccpp_tuvx_surface_albedo
             surface_albedo_label, surface_albedo_unit
 
   !> Label for surface albedo in TUV-x
-  character(len=*), parameter :: surface_albedo_label = "surface_albedo"
+  character(len=*), parameter :: surface_albedo_label = "surface albedo"
   !> Unit for surface albedo in TUV-x
-  character(len=*), parameter :: surface_albedo_unit = "" ! unitless
+  character(len=*), parameter :: surface_albedo_unit = "none"
   !> Default value of number of wavelength bins
   integer, parameter :: DEFAULT_NUM_WAVELENGTH_BINS = 0
   !> Number of wavelength bins

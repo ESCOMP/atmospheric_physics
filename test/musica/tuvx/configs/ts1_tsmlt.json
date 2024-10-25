@@ -49,16 +49,6 @@
          "day": 21
       },
       {
-         "name": "surface albedo",
-         "type": "from config file",
-         "units": "none",
-         "uniform value": 0.10,
-         "grid": {
-           "name": "wavelength",
-           "units": "nm"
-         }
-      },
-      {
          "name": "extraterrestrial flux",
          "enable diagnostics" : true,
          "type": "extraterrestrial flux",
