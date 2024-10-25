@@ -16,5 +16,10 @@
     <scheme>kessler_update</scheme>
     <scheme>qneg</scheme>
     <scheme>geopotential_temp</scheme>
+    <scheme>sima_state_diagnostics</scheme>
+    <scheme>kessler_diagnostics</scheme>
+  </group>
+  <group name="physics_after_coupler">
+    <scheme>sima_tend_diagnostics</scheme>
   </group>
 </suite>

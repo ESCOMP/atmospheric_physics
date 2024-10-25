@@ -5,14 +5,6 @@
    },
    "grids": [
       {
-         "name": "height",
-         "type": "equal interval",
-         "units": "km",
-         "begins at" : 0.0,
-         "ends at" : 120.0,
-         "cell delta" : 1.0
-      },
-      {
          "name": "wavelength",
          "type": "from csv file",
          "units": "nm",
@@ -43,16 +35,6 @@
          "type": "O2",
          "units": "molecule cm-3",
          "file path": "data/profiles/atmosphere/ussa.dens"
-      },
-      {
-         "name": "temperature",
-         "type": "from csv file",
-         "units": "K",
-         "file path": "data/profiles/atmosphere/ussa.temp",
-         "grid": {
-           "name": "height",
-           "units": "km"
-         }
       },
       {
          "name": "solar zenith angle",

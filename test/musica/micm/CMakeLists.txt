@@ -1,9 +1,8 @@
-
 add_executable(test_micm_util test_micm_util.F90)
 
 target_sources(test_micm_util
   PUBLIC
-    ${MUSICA_SRC_PATH}/micm/micm_util.F90
+    ${MUSICA_SRC_PATH}/micm/musica_ccpp_micm_util.F90
     ${CCPP_TEST_SRC_PATH}/ccpp_kinds.F90
 )
 
