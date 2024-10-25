@@ -19,17 +19,17 @@ contains
     use ccpp_kinds,                       only: kind_phys
 
     integer, parameter       :: NUM_WAVELENGTH_BINS = 4
-    type(grid_t),    pointer :: wavelength_grid
-    type(profile_t), pointer :: profile
+    real, parameter          :: ABS_ERROR = 1e-4
     real(kind_phys)          :: wavelength_grid_interfaces(NUM_WAVELENGTH_BINS + 1) = &
         [200.0e-9_kind_phys, 210.0e-9_kind_phys, 240.0e-9_kind_phys, 300.0e-9_kind_phys, 400.0e-9_kind_phys]
     real(kind_phys)          :: host_surface_albedo = 500.5_kind_phys
+    real(kind_phys)          :: expected_surface_albedo_interfaces(NUM_WAVELENGTH_BINS + 1) = 500.5_kind_phys
     real(kind_phys)          :: surface_albedo_interfaces(NUM_WAVELENGTH_BINS + 1)
-    real(kind_phys)          :: expected_surface_albedo_interfaces(NUM_WAVELENGTH_BINS + 1) = host_surface_albedo
+    type(grid_t),    pointer :: wavelength_grid
+    type(profile_t), pointer :: profile
+    type(error_t)            :: error
     character(len=512)       :: errmsg
     integer                  :: errcode
-    type(error_t)            :: error
-    real(kind_phys)          :: abs_error = 1e-4
     integer                  :: i
 
     wavelength_grid => create_wavelength_grid(wavelength_grid_interfaces, errmsg, errcode)
@@ -45,14 +45,13 @@ contains
 
     call profile%get_edge_values( surface_albedo_interfaces, error)
     ASSERT(error%is_success())
-    ASSERT_NEAR(surface_albedo_interfaces(1), expected_surface_albedo_interfaces(1), abs_error)
-    ASSERT_NEAR(surface_albedo_interfaces(2), expected_surface_albedo_interfaces(2), abs_error)
-    ASSERT_NEAR(surface_albedo_interfaces(3), expected_surface_albedo_interfaces(3), abs_error)
-    ASSERT_NEAR(surface_albedo_interfaces(4), expected_surface_albedo_interfaces(4), abs_error)
-    ASSERT_NEAR(surface_albedo_interfaces(5), expected_surface_albedo_interfaces(5), abs_error)
+    do i = 1, size(surface_albedo_interfaces)
+      ASSERT_NEAR(surface_albedo_interfaces(i), expected_surface_albedo_interfaces(i), ABS_ERROR)
+    end do
 
     deallocate( profile )
     deallocate( wavelength_grid )
 
-  end subroutine test_invalid_size_wavelength_interfaces
+  end subroutine test_update_surface_albedo
+
 end program test_tuvx_surface_albedo

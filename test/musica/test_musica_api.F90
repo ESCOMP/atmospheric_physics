@@ -16,16 +16,15 @@ contains
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
 
-    implicit none
-
     integer, parameter                                             :: NUM_SPECIES = 4
     integer, parameter                                             :: NUM_COLUMNS = 2
     integer, parameter                                             :: NUM_LAYERS = 2
     integer, parameter                                             :: NUM_WAVELENGTH_BINS = 102
-    integer                                                        :: solver_type
+    integer                                                        :: num_grid_cells = NUM_COLUMNS * NUM_LAYERS
+    integer                                                        :: solver_type = Rosenbrock
     integer                                                        :: errcode
     character(len=512)                                             :: errmsg
-    real(kind_phys)                                                :: time_step                                    ! s
+    real(kind_phys)                                                :: time_step = 60._kind_phys                    ! s
     real(kind_phys), dimension(NUM_WAVELENGTH_BINS+1)              :: photolysis_wavelength_grid_interfaces        ! m
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)             :: geopotential_height_wrt_surface_at_midpoint  ! m
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS+1)           :: geopotential_height_wrt_surface_at_interface ! m
@@ -38,19 +37,13 @@ contains
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)             :: dry_air_density                              ! kg m-3
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS,NUM_SPECIES) :: constituents                                 ! kg kg-1
     type(ccpp_constituent_prop_ptr_t), allocatable                 :: constituent_props_ptr(:)
+    type(ccpp_constituent_properties_t), allocatable, target       :: constituent_props(:)
+    type(ccpp_constituent_properties_t), pointer                   :: const_prop
+    real(kind_phys)                                                :: molar_mass
+    character(len=512)                                             :: species_name, units
+    logical                                                        :: tmp_bool, is_advected
+    integer                                                        :: i
 
-    ! local variables
-    type(ccpp_constituent_properties_t), allocatable, target :: constituent_props(:)
-    type(ccpp_constituent_properties_t), pointer             :: const_prop
-    real(kind_phys)                                          :: molar_mass
-    character(len=512)                                       :: species_name, units
-    logical                                                  :: tmp_bool, is_advected
-    integer                                                  :: num_grid_cells
-    integer                                                  :: i
-
-    solver_type = Rosenbrock
-    num_grid_cells = NUM_COLUMNS * NUM_LAYERS
-    time_step = 60._kind_phys
     ! These are the values that will be used in CAM-SIMA and correspond to the wavelength
     ! bins used in the CAM-Chem photolysis rate constant lookup table.
     !
@@ -247,6 +240,8 @@ contains
       write(*,*) trim(errmsg)
       stop 3
     endif
+
+    deallocate(constituent_props_ptr)
 
   end subroutine test_musica_ccpp_api
 

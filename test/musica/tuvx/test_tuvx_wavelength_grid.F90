@@ -16,19 +16,19 @@ contains
     use musica_tuvx_grid, only: grid_t
     use ccpp_kinds,       only: kind_phys
 
-    integer, parameter      :: NUM_WAVELENGTH_GRID_MIDPOINTS = 2
-    integer, parameter      :: NUM_WAVELENGTH_GRID_INTERFACES = 3
-    real(kind_phys), target :: host_interfaces(NUM_WAVELENGTH_GRID_INTERFACES) = [180.0e-9_kind_phys, 200.0e-9_kind_phys, 240.0e-9_kind_phys]
-    real(kind_phys), target :: expected_interfaces(NUM_WAVELENGTH_GRID_INTERFACES) = [180.0_kind_phys, 200.0_kind_phys, 240.0_kind_phys]
-    real(kind_phys), target :: expected_midpoints(NUM_WAVELENGTH_GRID_MIDPOINTS) = [190.0_kind_phys, 220.0_kind_phys]
-    real(kind_phys)         :: interfaces(NUM_WAVELENGTH_GRID_INTERFACES)
-    real(kind_phys)         :: midpoints(NUM_WAVELENGTH_GRID_MIDPOINTS)
-    type(grid_t), pointer   :: wavelength_grid => null()
-    character(len=512)      :: errmsg
-    integer                 :: errcode
-    real(kind_phys)         :: abs_error = 1e-5
-    integer                 :: i
-    type(error_t)           :: error
+    integer, parameter    :: NUM_WAVELENGTH_GRID_MIDPOINTS = 2
+    integer, parameter    :: NUM_WAVELENGTH_GRID_INTERFACES = 3
+    real, parameter       :: ABS_ERROR = 1e-5
+    real(kind_phys)       :: host_interfaces(NUM_WAVELENGTH_GRID_INTERFACES) = [180.0e-9_kind_phys, 200.0e-9_kind_phys, 240.0e-9_kind_phys]
+    real(kind_phys)       :: expected_interfaces(NUM_WAVELENGTH_GRID_INTERFACES) = [180.0_kind_phys, 200.0_kind_phys, 240.0_kind_phys]
+    real(kind_phys)       :: expected_midpoints(NUM_WAVELENGTH_GRID_MIDPOINTS) = [190.0_kind_phys, 220.0_kind_phys]
+    real(kind_phys)       :: interfaces(NUM_WAVELENGTH_GRID_INTERFACES)
+    real(kind_phys)       :: midpoints(NUM_WAVELENGTH_GRID_MIDPOINTS)
+    type(grid_t), pointer :: wavelength_grid => null()
+    character(len=512)    :: errmsg
+    integer               :: errcode
+    type(error_t)         :: error
+    integer               :: i
 
     wavelength_grid => create_wavelength_grid(host_interfaces, errmsg, errcode)
     ASSERT(errcode == 0)
@@ -37,13 +37,13 @@ contains
     call wavelength_grid%get_edges(interfaces, error)
     ASSERT(error%is_success())
     do i = 1, NUM_WAVELENGTH_GRID_INTERFACES
-      ASSERT_NEAR(interfaces(i), expected_interfaces(i), abs_error)
+      ASSERT_NEAR(interfaces(i), expected_interfaces(i), ABS_ERROR)
     end do
 
     call wavelength_grid%get_midpoints(midpoints, error)
     ASSERT(error%is_success())
     do i = 1, NUM_WAVELENGTH_GRID_MIDPOINTS
-      ASSERT_NEAR(midpoints(i), expected_midpoints(i), abs_error)
+      ASSERT_NEAR(midpoints(i), expected_midpoints(i), ABS_ERROR)
     end do
 
     deallocate(wavelength_grid)
