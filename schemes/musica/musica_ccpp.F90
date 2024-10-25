@@ -48,7 +48,8 @@ contains
   subroutine musica_ccpp_run(time_step, temperature, pressure, dry_air_density, constituent_props, &
                              constituents, geopotential_height_wrt_surface_at_midpoint,            &
                              geopotential_height_wrt_surface_at_interface, surface_temperature,    &
-                             surface_geopotential, standard_gravitational_acceleration, errmsg, errcode)
+                             surface_geopotential, surface_albedo,                                 &
+                             standard_gravitational_acceleration, errmsg, errcode)
     use musica_ccpp_micm_util,     only: reshape_into_micm_arr, reshape_into_ccpp_arr
     use musica_ccpp_micm_util,     only: convert_to_mol_per_cubic_meter, convert_to_mass_mixing_ratio
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
@@ -66,6 +67,7 @@ contains
     real(kind_phys),    intent(in)    :: geopotential_height_wrt_surface_at_interface(:,:) ! m (column, interface)
     real(kind_phys),    intent(in)    :: surface_temperature(:)                            ! K
     real(kind_phys),    intent(in)    :: surface_geopotential(:)                           ! m2 s-2
+    real(kind_phys),    intent(in)    :: surface_albedo                                    ! unitless
     real(kind_phys),    intent(in)    :: standard_gravitational_acceleration               ! m s-2
     character(len=512), intent(out)   :: errmsg
     integer,            intent(out)   :: errcode
@@ -91,8 +93,8 @@ contains
     call tuvx_run(temperature, dry_air_density,                 &
                   geopotential_height_wrt_surface_at_midpoint,  &
                   geopotential_height_wrt_surface_at_interface, &
-                  surface_temperature,                          &
-                  surface_geopotential,                         &
+                  surface_temperature, surface_geopotential,    &
+                  surface_albedo,                               &
                   standard_gravitational_acceleration,          &
                   photolysis_rate_constants,                    &
                   errmsg, errcode)

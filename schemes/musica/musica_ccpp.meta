@@ -101,6 +101,12 @@
   units = m2 s-2
   dimensions = (horizontal_loop_extent)
   intent = in
+[ surface_albedo ]
+  standard_name = surface_albedo_due_to_UV_and_VIS_direct
+  type = real | kind = kind_phys
+  units = None
+  dimensions = ()
+  intent = in
 [ standard_gravitational_acceleration ]
   standard_name = standard_gravitational_acceleration
   units = m s-2

@@ -38,8 +38,8 @@ contains
     type(grid_t),     pointer     :: wavelength_grid
 
     ! local variables
-    real(kind_phys) :: interfaces( size( wavelength_grid_interfaces ) )    ! [nm]
-    reaL(kind_phys) :: midpoints( size( wavelength_grid_interfaces ) - 1 ) ! [nm]
+    real(kind_phys) :: interfaces( size( wavelength_grid_interfaces ) )    ! nm
+    reaL(kind_phys) :: midpoints( size( wavelength_grid_interfaces ) - 1 ) ! nm
     type(error_t)   :: error
 
     interfaces(:) = wavelength_grid_interfaces(:) * 1.0e9

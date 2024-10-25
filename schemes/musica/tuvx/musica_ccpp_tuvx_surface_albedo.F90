@@ -2,7 +2,8 @@ module musica_ccpp_tuvx_surface_albedo
   implicit none
 
   private
-  public :: create_surface_albedo_profile, set_surface_albedo_values
+  public :: create_surface_albedo_profile, set_surface_albedo_values, &
+            surface_albedo_label, surface_albedo_unit
 
   !> Label for surface albedo in TUV-x
   character(len=*), parameter :: surface_albedo_label = "surface_albedo"
@@ -18,7 +19,6 @@ contains
   !> Creates a TUV-x surface albedo profile from the host-model wavelength grid
   function create_surface_albedo_profile( wavelength_grid, errmsg, errcode ) & 
       result( profile )
-
     use musica_ccpp_util,    only: has_error_occurred
     use musica_tuvx_grid,    only: grid_t
     use musica_tuvx_profile, only: profile_t
@@ -43,10 +43,11 @@ contains
 
   end function create_surface_albedo_profile
 
-  !> Sets TUV-x surface albedo value
+  !> Sets TUV-x surface albedo values
+  !!
+  !! CAM uses a single value for surface albedo at all wavelengths
   subroutine set_surface_albedo_values( profile, host_surface_albedo, &
-      errmsg, errcode )
-
+                                        errmsg, errcode )
     use ccpp_kinds,          only: kind_phys
     use musica_ccpp_util,    only: has_error_occurred
     use musica_tuvx_profile, only: profile_t
@@ -62,7 +63,7 @@ contains
     real(kind_phys) :: surface_albedos(num_wavelength_bins + 1)
 
     if (size(surface_albedos) <= DEFAULT_NUM_WAVELENGTH_BINS + 1) then
-      errmsg = "[MUSICA Error] Invalid dimension for number of wavelngth bins"
+      errmsg = "[MUSICA Error] Invalid size of TUV-x interface wavelengths. "
       errcode = 1
       return
     end if
