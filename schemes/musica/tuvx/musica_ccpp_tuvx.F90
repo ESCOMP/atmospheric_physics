@@ -182,10 +182,6 @@ contains
   end subroutine tuvx_init
 
   !> Calculates photolysis rate constants for the current model conditions
-  !!
-  !! The variable name of 'surface_temperature' is set as 'blackbody_temperature_at_surface'
-  !! according to CCPP standards, assuming that TUV-x needs the temperature everywhere.
-  !! This is a topic that CGD needs to discuss with NOAA.
   subroutine tuvx_run(temperature, dry_air_density,                 &
                       geopotential_height_wrt_surface_at_midpoint,  &
                       geopotential_height_wrt_surface_at_interface, &
