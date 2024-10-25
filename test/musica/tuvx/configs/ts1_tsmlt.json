@@ -5,12 +5,6 @@
    },
    "grids": [
       {
-         "name": "wavelength",
-         "type": "from csv file",
-         "units": "nm",
-         "file path": "data/grids/wavelength/cam.csv"
-      },
-      {
          "name": "time",
          "type": "from config file",
          "units": "hours",
@@ -35,16 +29,6 @@
          "type": "O2",
          "units": "molecule cm-3",
          "file path": "data/profiles/atmosphere/ussa.dens"
-      },
-      {
-         "name": "temperature",
-         "type": "from csv file",
-         "units": "K",
-         "file path": "data/profiles/atmosphere/ussa.temp",
-         "grid": {
-           "name": "height",
-           "units": "km"
-         }
       },
       {
          "name": "solar zenith angle",

@@ -26,14 +26,17 @@ contains
   !> \section arg_table_musica_ccpp_init Argument Table
   !! \htmlinclude musica_ccpp_init.html
   subroutine musica_ccpp_init(vertical_layer_dimension, vertical_interface_dimension, &
-                              errmsg, errcode)
+                              photolysis_wavelength_grid_interfaces, errmsg, errcode)
+    use ccpp_kinds, only : kind_phys
+
     integer,            intent(in)  :: vertical_layer_dimension     ! (count)
     integer,            intent(in)  :: vertical_interface_dimension ! (count)
+    real(kind_phys),    intent(in)  :: photolysis_wavelength_grid_interfaces(:) ! m
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errcode
 
     call tuvx_init(vertical_layer_dimension, vertical_interface_dimension, &
-                   errmsg, errcode)
+                   photolysis_wavelength_grid_interfaces, errmsg, errcode)
     if (errcode /= 0) return
     call micm_init(errmsg, errcode)
     if (errcode /= 0) return
@@ -44,7 +47,8 @@ contains
   !! \htmlinclude musica_ccpp_run.html
   subroutine musica_ccpp_run(time_step, temperature, pressure, dry_air_density, constituent_props, &
                              constituents, geopotential_height_wrt_surface_at_midpoint,            &
-                             geopotential_height_wrt_surface_at_interface, surface_geopotential,   &
+                             geopotential_height_wrt_surface_at_interface, surface_temperature,    &
+                             surface_geopotential, surface_albedo,                                 &
                              standard_gravitational_acceleration, errmsg, errcode)
     use musica_ccpp_micm_util,     only: reshape_into_micm_arr, reshape_into_ccpp_arr
     use musica_ccpp_micm_util,     only: convert_to_mol_per_cubic_meter, convert_to_mass_mixing_ratio
@@ -61,7 +65,9 @@ contains
     real(kind_phys),    intent(inout) :: constituents(:,:,:)                               ! kg kg-1
     real(kind_phys),    intent(in)    :: geopotential_height_wrt_surface_at_midpoint(:,:)  ! m (column, layer)
     real(kind_phys),    intent(in)    :: geopotential_height_wrt_surface_at_interface(:,:) ! m (column, interface)
+    real(kind_phys),    intent(in)    :: surface_temperature(:)                            ! K
     real(kind_phys),    intent(in)    :: surface_geopotential(:)                           ! m2 s-2
+    real(kind_phys),    intent(in)    :: surface_albedo                                    ! unitless
     real(kind_phys),    intent(in)    :: standard_gravitational_acceleration               ! m s-2
     character(len=512), intent(out)   :: errmsg
     integer,            intent(out)   :: errcode
@@ -87,7 +93,8 @@ contains
     call tuvx_run(temperature, dry_air_density,                 &
                   geopotential_height_wrt_surface_at_midpoint,  &
                   geopotential_height_wrt_surface_at_interface, &
-                  surface_geopotential,                         &
+                  surface_temperature, surface_geopotential,    &
+                  surface_albedo,                               &
                   standard_gravitational_acceleration,          &
                   photolysis_rate_constants,                    &
                   errmsg, errcode)
