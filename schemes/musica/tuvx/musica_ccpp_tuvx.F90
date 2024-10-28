@@ -231,7 +231,7 @@ contains
       if (errcode /= 0) return
     end do
 
-    ! surface albedo related to short direct radiation
+    ! surface albedo with respect to direct UV/visible radiation
     call set_surface_albedo_values( surface_albedo_profile, surface_albedo, errmsg, errcode )
     if (errcode /= 0) return
 
