@@ -19,11 +19,11 @@ contains
     use ccpp_kinds,                       only: kind_phys
 
     integer, parameter       :: NUM_WAVELENGTH_BINS = 4
-    real, parameter          :: ABS_ERROR = 1e-4
+    real, parameter          :: ABS_ERROR = 1e-6
     real(kind_phys)          :: wavelength_grid_interfaces(NUM_WAVELENGTH_BINS + 1) = &
         [200.0e-9_kind_phys, 210.0e-9_kind_phys, 240.0e-9_kind_phys, 300.0e-9_kind_phys, 400.0e-9_kind_phys]
-    real(kind_phys)          :: host_surface_albedo = 500.5_kind_phys
-    real(kind_phys)          :: expected_surface_albedo_interfaces(NUM_WAVELENGTH_BINS + 1) = 500.5_kind_phys
+    real(kind_phys)          :: host_surface_albedo = 0.3_kind_phys
+    real(kind_phys)          :: expected_surface_albedo_interfaces(NUM_WAVELENGTH_BINS + 1) = 0.3_kind_phys
     real(kind_phys)          :: surface_albedo_interfaces(NUM_WAVELENGTH_BINS + 1)
     type(grid_t),    pointer :: wavelength_grid
     type(profile_t), pointer :: profile

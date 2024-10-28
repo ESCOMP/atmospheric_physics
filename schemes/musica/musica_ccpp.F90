@@ -46,7 +46,7 @@ contains
   !> \section arg_table_musica_ccpp_run Argument Table
   !! \htmlinclude musica_ccpp_run.html
   !!
-  !! The standard name for the variable 'surface_tempearture' is
+  !! The standard name for the variable 'surface_temperature' is
   !! 'blackbody_temperature_at_surface' because this is what we have as
   !! the standard name for 'cam_in%ts', whcih represents the same quantity.
   subroutine musica_ccpp_run(time_step, temperature, pressure, dry_air_density, constituent_props, &

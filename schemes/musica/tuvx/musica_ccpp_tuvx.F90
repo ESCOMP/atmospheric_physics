@@ -1,6 +1,6 @@
 module musica_ccpp_tuvx
 
-  ! Note: "tuvx_t" is included in an external pre-built tuvx library that the host
+  ! Note: "tuvx_t" is included in an external pre-built TUV-x library that the host
   ! model is responsible for linking to during compilation
   use musica_tuvx,          only: tuvx_t, grid_t, profile_t
   use musica_ccpp_util,     only: has_error_occurred
@@ -20,7 +20,7 @@ module musica_ccpp_tuvx
 
 contains
 
-  !> Intitialize TUV-x
+  !> Initializes TUV-x
   subroutine tuvx_init(vertical_layer_dimension, vertical_interface_dimension, &
                        wavelength_grid_interfaces, errmsg, errcode)
     use musica_tuvx, only: grid_map_t, profile_map_t, radiator_map_t
@@ -231,6 +231,7 @@ contains
       if (errcode /= 0) return
     end do
 
+    ! surface albedo related to short direct radiation
     call set_surface_albedo_values( surface_albedo_profile, surface_albedo, errmsg, errcode )
     if (errcode /= 0) return
 
@@ -239,7 +240,7 @@ contains
 
   end subroutine tuvx_run
 
-  !> Finalize tuvx
+  !> Finalizes TUV-x
   subroutine tuvx_final(errmsg, errcode)
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errcode
