@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<suite name="convect_shallow_hack" version="1.0">
+  <group name="physics_before_coupler">
+    <!--
+      Hack shallow convection.
+      There are several nuances to the convect_shallow calling routine.
+      convect_shallow takes in deep convective cmfmc, qc, rliq and adds shallow convective tendencies
+      from Hack to them, also computing freqsh.
+
+      Tendencies are applied, then zm_conv_evap is ran to evaporate some of the precip directly into the environment to apply another set of tendencies.
+
+      This zm_conv_evap call takes as input some of the shallow convective quantities and adds to them, including
+      - precc -> prec (lwe_precipitation_rate_at_surface_due_to_..._convection)
+
+      Thus, an interstitial scheme to simply "convert" the shallow tendencies to the deep tendencies in preparation for the zm_conv_evap call is also needed.
+      (hplin, 10/29/24)
+    -->
+    <scheme>cmfmca</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <!-- apply constituent tendencies temporary -->
+    <scheme>dadadj_apply_qv_tendency</scheme>
+    <!-- sum deep convective quantities with shallow -->
+    <scheme>convect_shallow_sum_to_deep</scheme>
+    <!-- prepare state for zm_conv_evap (rename shallow outputs to deep inputs) -->
+    <scheme>convect_shallow_zm_conv_evap_prep</scheme>
+    <scheme>zm_conv_evap</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <!-- apply constituent tendencies temporary -->
+    <scheme>dadadj_apply_qv_tendency</scheme>
+  </group>
+</suite>
