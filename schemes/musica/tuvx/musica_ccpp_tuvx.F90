@@ -211,7 +211,10 @@ contains
     ! local variables
     real(kind_phys), dimension(size(geopotential_height_wrt_surface_at_midpoint, dim = 2))  :: height_midpoints
     real(kind_phys), dimension(size(geopotential_height_wrt_surface_at_interface, dim = 2)) :: height_interfaces
-    real(kind_phys) :: reciprocal_of_gravitational_acceleration ! s2 m-1
+    real(kind_phys) :: reciprocal_of_gravitational_acceleration                     ! s2 m-1
+    real(kind_phys) :: num_wavelength_grid_sections                                 ! (count)
+    real(kind_phys) :: wavelength_grid_interfaces(num_wavelength_grid_sections + 1) ! nm
+    real(kind_phys) :: extraterrestrial_flux(host_num_wavelength_grid_sections)     ! photons cm-2 s-1 nm-1
     integer         :: i_col
 
     reciprocal_of_gravitational_acceleration = 1.0_kind_phys / standard_gravitational_acceleration
@@ -233,6 +236,16 @@ contains
 
     ! surface albedo with respect to direct UV/visible radiation
     call set_surface_albedo_values( surface_albedo_profile, surface_albedo, errmsg, errcode )
+    if (errcode /= 0) return
+
+    ! TODO(jiwon) errorcode?
+    call read_extraterrestrial_flux_from_file(num_wavelength_grid_sections, &
+                                              wavelength_grid_interfaces, extraterrestrial_flux)
+
+    call set_extraterrestrial_flux( extraterrestrial_flux_profile, &
+                                    num_wavelength_grid_sections, &
+                                    wavelength_grid_interfaces,   &
+                                    extraterrestrial_flux, errmsg, errcode )
     if (errcode /= 0) return
 
     ! stand-in until actual photolysis rate constants are calculated

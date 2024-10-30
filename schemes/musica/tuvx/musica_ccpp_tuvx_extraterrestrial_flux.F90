@@ -95,27 +95,28 @@ contains
   ! width of the wavelength bins to get the TUV-x units of photon cm-2 s-1
   !
   ! TUV-x only uses mid-point values for extraterrestrial flux
-  subroutine set_extraterrestrial_flux( profile, wavelength_grid, errmsg, errcode )
+  subroutine set_extraterrestrial_flux( profile, wavelength_grid,          &
+                                        host_num_wavelength_grid_sections, &
+                                        host_wavelength_grid_interfaces,   &
+                                        host_extraterrestrial_flux, errmsg, errcode )
     use ccpp_kinds,          only: kind_phys
     use musica_ccpp_util,    only: has_error_occurred
     use musica_tuvx_profile, only: profile_t
     use musica_util,         only: error_t
-    use mo_util,             only: rebin
-    use solar_irrad_data,    only: nbins,  & ! number of wavelength bins
-                                   we,     & ! wavelength bin edges
-                                   sol_etf   ! extraterrestrial flux, photon cm-2 nm-1 s-1
 
     type(profile_t),  intent(inout) :: profile
     type(grid_t),     intent(in)    :: wavelength_grid
+    real(kind_phys),  intent(in)    :: host_num_wavelength_grid_sections  ! (count)
+    real(kind_phys),  intent(in)    :: host_wavelength_grid_interfaces(:) ! nm
+    real(kind_phys),  intent(in)    :: host_extraterrestrial_flux(:)      ! photons cm-2 s-1 nm-1
     character(len=*), intent(out)   :: errmsg
     integer,          intent(out)   :: errcode
 
     ! local variables
     type(error_t)   :: error
-    real(kind_phys) :: wavelegnth_interfaces(num_wavelength_bins_ + 1) 
-    real(kind_phys) :: extraterrestrial_flux(nbins)
-    real(kind_phys) :: midpoints(num_wavelength_bins_) ! photon cm-2 nm-1 s-1
-    integer         :: i_bin
+    real(kind_phys) :: wavelength_grid_interfaces(num_wavelength_bins_ + 1)
+    real(kind_phys) :: extraterrestrial_flux(host_num_wavelength_grid_sections)
+    real(kind_phys) :: midpoints(num_wavelength_bins_)
 
     if (num_wavelength_bins_ <= DEFAULT_NUM_WAVELENGTH_BINS) then
       errmsg = "[MUSICA Error] Invalid size of TUV-x wavelength bins."
@@ -123,17 +124,20 @@ contains
       return
     end if
     
-    call wavelength_grid%get_edge_values(wavelegnth_interfaces, error)
+    call wavelength_grid%get_edge_values(wavelength_grid_interfaces, error)
     if ( has_error_occurred( error, errmsg, errcode ) ) return
 
+    !TODO(jiwon) maybe it doesn't need a copy
+    extraterrestrial_flux(:) = host_extraterrestrial_flux(:)
+
     ! regrid normalized flux to TUV-x wavelength grid
-    extraterrestrial_flux(:) = sol_etf(:)
-    call rebin( nbins, num_wavelength_bins_, we, wavelegnth_interfaces, &
+    call rebin( host_num_wavelength_grid_sections, num_wavelength_bins_,     &
+                host_wavelength_grid_interfaces, wavelength_grid_interfaces, &
                 extraterrestrial_flux, midpoints )
 
     ! convert normalized flux to flux on TUV-x wavelength grid
-    midpoints(:) = midpoints(:) * ( wavelegnth_interfaces(2 : num_wavelength_bins + 1) &
-                 - wavelegnth_interfaces(1 :num_wavelength_bins_) )
+    midpoints(:) = midpoints(:) * ( wavelength_grid_interfaces(2 : num_wavelength_bins + 1) &
+                 - wavelength_grid_interfaces(1 :num_wavelength_bins_) )
 
     call profile%set_midpoints( midpoints, error)
     if ( has_error_occurred( error, errmsg, errcode ) ) return
