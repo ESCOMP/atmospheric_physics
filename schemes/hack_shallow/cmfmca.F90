@@ -3,7 +3,7 @@
 ! Original Author: J. Hack
 ! CCPPized: Haipeng Lin, October 2024
 module cmfmca
-  use ccpp_kinds,           only : kind_phys
+  use ccpp_kinds,           only: kind_phys
   implicit none
   private
   save
@@ -181,13 +181,13 @@ contains
     ! Local variables
     real(kind_phys)                :: tpert(ncol)        ! PBL perturbation temperature (convective temperature excess) [K]
 
-    real(kind_phys) :: pm(ncol,pver)       ! pressure
-    real(kind_phys) :: pd(ncol,pver)       ! delta-p
-    real(kind_phys) :: rpd(ncol,pver)      ! 1./pdel
-    real(kind_phys) :: cmfdq(ncol,pver)    ! dq/dt due to moist convection (later copied to dq(:,:,1))
-    real(kind_phys) :: gam(ncol,pver)      ! 1/cp (d(qsat)/dT)
-    real(kind_phys) :: sb(ncol,pver)       ! dry static energy (s bar)
-    real(kind_phys) :: hb(ncol,pver)       ! moist static energy (h bar)
+    real(kind_phys) :: pm(ncol,pver)       ! pressure [Pa]
+    real(kind_phys) :: pd(ncol,pver)       ! delta-p [Pa]
+    real(kind_phys) :: rpd(ncol,pver)      ! 1./pdel [Pa-1]
+    real(kind_phys) :: cmfdq(ncol,pver)    ! dq/dt due to moist convection (later copied to dq(:,:,1)) [kg kg-1 s-1]
+    real(kind_phys) :: gam(ncol,pver)      ! 1/cp (d(qsat)/dT) change in saturation mixing ratio with temp
+    real(kind_phys) :: sb(ncol,pver)       ! dry static energy (s bar) [J kg-1]
+    real(kind_phys) :: hb(ncol,pver)       ! moist static energy (h bar) [J kg-1]
     real(kind_phys) :: shbs(ncol,pver)     ! sat. specific humidity (sh bar star)
     real(kind_phys) :: hbs(ncol,pver)      ! sat. moist static energy (h bar star)
     real(kind_phys) :: shbh(ncol,pver+1)   ! specific humidity on interfaces
@@ -803,11 +803,12 @@ contains
     rliq_sh(:ncol) = rliq_sh(:ncol) / 1000._kind_phys
   end subroutine cmfmca_run
 
+  ! qhalf computes the specific humidity at interface levels between two model layers (interpolate moisture)
   pure function qhalf(sh1,sh2,shbs1,shbs2) result(qh)
-    real(kind_phys), intent(in) :: sh1
-    real(kind_phys), intent(in) :: sh2
-    real(kind_phys), intent(in) :: shbs1
-    real(kind_phys), intent(in) :: shbs2
+    real(kind_phys), intent(in) :: sh1    ! humidity of layer 1 [kg kg-1]
+    real(kind_phys), intent(in) :: sh2    ! humidity of layer 2 [kg kg-1]
+    real(kind_phys), intent(in) :: shbs1  ! saturation specific humidity of layer 1 [kg kg-1]
+    real(kind_phys), intent(in) :: shbs2  ! saturation specific humidity of layer 2 [kg kg-1]
     real(kind_phys) :: qh
     qh = min(max(sh1,sh2),(shbs2*sh1 + shbs1*sh2)/(shbs1+shbs2))
   end function qhalf

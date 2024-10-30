@@ -202,50 +202,50 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ cmfdqr ]
-  standard_name = enter_standard_name_33
-  units = enter_units
+  standard_name = tendency_of_precipitation_wrt_moist_air_and_condensed_water_due_to_shallow_convection_excluding_subcloud_evaporation
+  units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ cmfsl ]
-  standard_name = enter_standard_name_34
-  units = enter_units
+  standard_name = liquid_water_static_energy_flux_due_to_shallow_convection_tbd
+  units = W m-2
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ cmflq ]
-  standard_name = enter_standard_name_35
-  units = enter_units
+  standard_name = total_water_flux_in_energy_unit_due_to_shallow_convection_tbd
+  units = W m-2
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ precc ]
   standard_name = lwe_precipitation_rate_at_surface_due_to_shallow_convection
-  units = enter_units
+  units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
 [ cnt_sh ]
   standard_name = vertical_index_at_cloud_top_for_shallow_convection
-  units = enter_units
+  units = index
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
 [ cnb_sh ]
   standard_name = vertical_index_at_cloud_bottom_for_shallow_convection
-  units = enter_units
+  units = index
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
 [ icwmr ]
-  standard_name = enter_standard_name_39
-  units = enter_units
+  standard_name = in_cloud_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_shallow_convection
+  units = kg kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ rliq_sh ]
-  standard_name = enter_standard_name_40
-  units = enter_units
+  standard_name = vertically_integrated_reserved_cloud_condensate_due_to_shallow_convection_tbd
+  units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
