@@ -19,6 +19,12 @@
   type = integer
   dimensions = ()
   intent = in
+[ photolysis_wavelength_grid_interfaces ]
+  standard_name = photolysis_wavelength_grid_interfaces
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (photolysis_wavelength_grid_interface_dimension)
+  intent = in
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
@@ -94,6 +100,12 @@
   type = real | kind = kind_phys
   units = m2 s-2
   dimensions = (horizontal_loop_extent)
+  intent = in
+[ surface_albedo ]
+  standard_name = surface_albedo_due_to_UV_and_VIS_direct
+  type = real | kind = kind_phys
+  units = None
+  dimensions = ()
   intent = in
 [ standard_gravitational_acceleration ]
   standard_name = standard_gravitational_acceleration
