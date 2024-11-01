@@ -57,6 +57,7 @@ contains
     use musica_ccpp_micm_util,     only: reshape_into_micm_arr, reshape_into_ccpp_arr
     use musica_ccpp_micm_util,     only: convert_to_mol_per_cubic_meter, convert_to_mass_mixing_ratio
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
+    use read_tuvx_data,            only: read_extraterrestrial_flux
     use ccpp_kinds,                only: kind_phys
     use iso_c_binding,             only: c_double
 
@@ -87,12 +88,20 @@ contains
                             * size(constituents, dim=2)    &
                             * size(constituents, dim=3))     :: micm_constituents ! mol m-3
     real(kind_phys), dimension(size(constituents, dim=3))    :: molar_mass_arr    ! kg mol-1
-    
+    integer                      :: flux_data_wavelength_grid_count         ! (count)
+    real(kind_phys), allocatable :: flux_data_wavelength_grid_interfaces(:) ! nm
+    real(kind_phys), allocatable :: flux_data_extraterrestrial_flux(:)      ! photons cm-2 s-1 nm-1
+
     ! temporarily dimensioned to Chapman mechanism until mapping between MICM and TUV-x is implemented
     real(c_double), dimension(size(constituents, dim=1) &
                             * size(constituents, dim=2) &
                             * 3) :: photolysis_rate_constants ! s-1
     integer :: i_elem
+
+    call read_extraterrestrial_flux( flux_data_wavelength_grid_count, &
+                                     flux_data_wavelength_grid_interfaces,   &
+                                     flux_data_extraterrestrial_flux)
+    if (errcode /= 0) return
 
     call tuvx_run(temperature, dry_air_density,                 &
                   geopotential_height_wrt_surface_at_midpoint,  &
@@ -100,6 +109,9 @@ contains
                   surface_geopotential, surface_temperature,    &
                   surface_albedo,                               &
                   standard_gravitational_acceleration,          &
+                  flux_data_wavelength_grid_count,              &
+                  flux_data_wavelength_grid_interfaces,         &
+                  flux_data_extraterrestrial_flux,              &
                   photolysis_rate_constants,                    &
                   errmsg, errcode)
 
@@ -138,6 +150,9 @@ contains
 
     ! Convert MICM unit back to CAM-SIMA unit (mol m-3  ->  kg kg-1)
     call convert_to_mass_mixing_ratio(dry_air_density, molar_mass_arr, constituents)
+
+    deallocate(flux_data_wavelength_grid_interfaces)
+    deallocate(flux_data_extraterrestrial_flux)
 
   end subroutine musica_ccpp_run
 

@@ -57,8 +57,7 @@ contains
     ASSERT(error%is_success())
 
     do i = 1, size(extraterrestrial_flux_midpoints)
-      ASSERT_NEAR(extraterrestrial_flux_midpoints(i) * MAGNITUDE_REDUCER, &
-                  expected_extraterrestrial_flux_midpoints(i) * MAGNITUDE_REDUCER, ABS_ERROR)
+      ASSERT_NEAR(extraterrestrial_flux_midpoints(i) * MAGNITUDE_REDUCER, expected_extraterrestrial_flux_midpoints(i) * MAGNITUDE_REDUCER, ABS_ERROR)
     end do
 
     deallocate( profile )

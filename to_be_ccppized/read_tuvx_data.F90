@@ -16,9 +16,9 @@ contains
       wavelength_grid_interfaces, extraterrestrial_flux)
     use ccpp_kinds,          only: kind_phys
 
-    integer,         intent(out) :: num_wavelength_grid_sections  ! (count)
-    real(kind_phys), intent(out) :: wavelength_grid_interfaces(:) ! nm
-    real(kind_phys), intent(out) :: extraterrestrial_flux(:)      ! photons cm-2 s-1 nm-1
+    integer,                      intent(out) :: num_wavelength_grid_sections  ! (count)
+    real(kind_phys), allocatable, intent(out) :: wavelength_grid_interfaces(:) ! nm
+    real(kind_phys), allocatable, intent(out) :: extraterrestrial_flux(:)      ! photons cm-2 s-1 nm-1
 
     filepath_of_extraterrestrial_flux(1) = 'data/profiles/solar/susim_hi.flx'
     filepath_of_extraterrestrial_flux(2) = 'data/profiles/solar/atlas3_1994_317_a.dat'
@@ -26,6 +26,9 @@ contains
     filepath_of_extraterrestrial_flux(4) = 'data/profiles/solar/neckel.flx'
       
     num_wavelength_grid_sections = 8
+
+    allocate(wavelength_grid_interfaces(num_wavelength_grid_sections + 1))
+    allocate(extraterrestrial_flux(num_wavelength_grid_sections))
 
     wavelength_grid_interfaces(:) = &
       [200.0_kind_phys, 210.0_kind_phys, 220.0_kind_phys, 230.0_kind_phys, &

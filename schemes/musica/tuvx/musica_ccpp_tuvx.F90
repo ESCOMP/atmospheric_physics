@@ -219,6 +219,9 @@ contains
                       surface_geopotential, surface_temperature,    &
                       surface_albedo,                               &
                       standard_gravitational_acceleration,          &
+                      flux_data_wavelength_grid_count,              &
+                      flux_data_wavelength_grid_interfaces,         &
+                      flux_data_extraterrestrial_flux,              &
                       photolysis_rate_constants, errmsg, errcode)
     use musica_util,                            only: error_t
     use read_tuvx_data,                         only: read_extraterrestrial_flux
@@ -235,6 +238,11 @@ contains
     real(kind_phys),    intent(in)  :: surface_temperature(:)                            ! K
     real(kind_phys),    intent(in)  :: surface_albedo                                    ! unitless
     real(kind_phys),    intent(in)  :: standard_gravitational_acceleration               ! m s-2
+    integer,            intent(in)  :: flux_data_wavelength_grid_count                   ! (count)
+    real(kind_phys),    intent(in)  :: &
+               flux_data_wavelength_grid_interfaces(flux_data_wavelength_grid_count + 1) ! nm
+    real(kind_phys),    intent(in)  :: &
+               flux_data_extraterrestrial_flux(flux_data_wavelength_grid_count)          ! photons cm-2 s-1 nm-1
     ! temporarily set to Chapman mechanism and 1 dimension
     ! until mapping between MICM and TUV-x is implemented
     real(kind_phys),    intent(out) :: photolysis_rate_constants(:) ! s-1 (column, reaction)
@@ -245,9 +253,6 @@ contains
     real(kind_phys), dimension(size(geopotential_height_wrt_surface_at_midpoint, dim = 2))  :: height_midpoints
     real(kind_phys), dimension(size(geopotential_height_wrt_surface_at_interface, dim = 2)) :: height_interfaces
     real(kind_phys) :: reciprocal_of_gravitational_acceleration                                         ! s2 m-1
-    integer         :: from_data_num_wavelength_grid_sections                                           ! (count)
-    real(kind_phys) :: from_data_wavelength_grid_interfaces(from_data_num_wavelength_grid_sections + 1) ! nm
-    real(kind_phys) :: from_data_extraterrestrial_flux(from_data_num_wavelength_grid_sections)          ! photons cm-2 s-1 nm-1
     integer         :: i_col
 
     reciprocal_of_gravitational_acceleration = 1.0_kind_phys / standard_gravitational_acceleration
@@ -271,15 +276,15 @@ contains
     call set_surface_albedo_values( surface_albedo_profile, surface_albedo, errmsg, errcode )
     if (errcode /= 0) return
 
-    call read_extraterrestrial_flux( from_data_num_wavelength_grid_sections, &
-                                     from_data_wavelength_grid_interfaces,   &
-                                     from_data_extraterrestrial_flux, errmsg, errcode )
-    if (errcode /= 0) return
+    ! call read_extraterrestrial_flux( from_data_num_wavelength_grid_sections, &
+    !                                  from_data_wavelength_grid_interfaces,   &
+    !                                  from_data_extraterrestrial_flux, errmsg, errcode )
+    ! if (errcode /= 0) return
 
-    call set_extraterrestrial_flux( extraterrestrial_flux_profile, &
-                                    from_data_num_wavelength_grid_sections,  &
-                                    from_data_wavelength_grid_interfaces,    &
-                                    from_data_extraterrestrial_flux, errmsg, errcode )
+    call set_extraterrestrial_flux_values( extraterrestrial_flux_profile,        &
+                                           flux_data_wavelength_grid_count,      &
+                                           flux_data_wavelength_grid_interfaces, &
+                                           flux_data_extraterrestrial_flux, errmsg, errcode )
     if (errcode /= 0) return
 
     ! stand-in until actual photolysis rate constants are calculated
