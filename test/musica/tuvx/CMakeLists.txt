@@ -112,7 +112,6 @@ add_test(
 
 add_memory_check_test(test_tuvx_surface_albedo $<TARGET_FILE:test_tuvx_surface_albedo> "" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
-
 # Extraterrestrial flux
 add_executable(test_tuvx_extraterrestrial_flux test_tuvx_extraterrestrial_flux.F90)
 
