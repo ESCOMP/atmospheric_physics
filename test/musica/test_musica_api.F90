@@ -15,6 +15,7 @@ contains
     use ccpp_kinds,                only: kind_phys
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
+    use read_tuvx_data,            only: read_extraterrestrial_flux
 
     integer, parameter                                             :: NUM_SPECIES = 4
     integer, parameter                                             :: NUM_COLUMNS = 2
@@ -40,9 +41,13 @@ contains
     type(ccpp_constituent_properties_t), allocatable, target       :: constituent_props(:)
     type(ccpp_constituent_properties_t), pointer                   :: const_prop
     real(kind_phys)                                                :: molar_mass
+    integer                                                        :: flux_data_wavelength_grid_count               ! (count)
+    real(kind_phys), allocatable                                   :: flux_data_wavelength_grid_interfaces(:)       ! nm
+    real(kind_phys), allocatable                                   :: flux_data_extraterrestrial_flux(:)            ! photons cm-2 s-1 nm-1
     character(len=512)                                             :: species_name, units
     logical                                                        :: tmp_bool, is_advected
     integer                                                        :: i
+
 
     ! These are the values that will be used in CAM-SIMA and correspond to the wavelength
     ! bins used in the CAM-Chem photolysis rate constant lookup table.
@@ -212,6 +217,10 @@ contains
       stop 3
     endif
 
+    call read_extraterrestrial_flux( flux_data_wavelength_grid_count,      &
+                                     flux_data_wavelength_grid_interfaces, &
+                                     flux_data_extraterrestrial_flux)
+
     write(*,*) "[MUSICA INFO] Initial Time Step"
     write(*,fmt="(1x,f10.2)") time_step
     write(*,*) "[MUSICA INFO] Initial Temperature"
@@ -221,11 +230,12 @@ contains
     write(*,*) "[MUSICA INFO] Initial Concentrations"
     write(*,fmt="(4(3x,e13.6))") constituents
 
-    call musica_ccpp_run(time_step, temperature, pressure, dry_air_density, constituent_props_ptr,  &
-                         constituents, geopotential_height_wrt_surface_at_midpoint,                 &
-                         geopotential_height_wrt_surface_at_interface, surface_geopotential,        &
-                         surface_temperature, surface_albedo, standard_gravitational_acceleration,  &
-                         errmsg, errcode)
+    call musica_ccpp_run( time_step, temperature, pressure, dry_air_density, constituent_props_ptr, &
+                          constituents, geopotential_height_wrt_surface_at_midpoint,                &
+                          geopotential_height_wrt_surface_at_interface, surface_geopotential,       &
+                          surface_temperature, surface_albedo, flux_data_wavelength_grid_count,     &
+                          flux_data_wavelength_grid_interfaces, flux_data_extraterrestrial_flux,    &
+                          standard_gravitational_acceleration, errmsg, errcode )
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
@@ -242,6 +252,8 @@ contains
     endif
 
     deallocate(constituent_props_ptr)
+    deallocate(flux_data_wavelength_grid_interfaces)
+    deallocate(flux_data_extraterrestrial_flux)
 
   end subroutine test_musica_ccpp_api
 

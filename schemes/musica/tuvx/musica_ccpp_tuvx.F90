@@ -239,10 +239,8 @@ contains
     real(kind_phys),    intent(in)  :: surface_albedo                                    ! unitless
     real(kind_phys),    intent(in)  :: standard_gravitational_acceleration               ! m s-2
     integer,            intent(in)  :: flux_data_wavelength_grid_count                   ! (count)
-    real(kind_phys),    intent(in)  :: &
-               flux_data_wavelength_grid_interfaces(flux_data_wavelength_grid_count + 1) ! nm
-    real(kind_phys),    intent(in)  :: &
-               flux_data_extraterrestrial_flux(flux_data_wavelength_grid_count)          ! photons cm-2 s-1 nm-1
+    real(kind_phys),    intent(in)  :: flux_data_wavelength_grid_interfaces(:)           ! nm
+    real(kind_phys),    intent(in)  :: flux_data_extraterrestrial_flux(:)                ! photons cm-2 s-1 nm-1
     ! temporarily set to Chapman mechanism and 1 dimension
     ! until mapping between MICM and TUV-x is implemented
     real(kind_phys),    intent(out) :: photolysis_rate_constants(:) ! s-1 (column, reaction)
@@ -275,11 +273,6 @@ contains
     ! surface albedo with respect to direct UV/visible radiation
     call set_surface_albedo_values( surface_albedo_profile, surface_albedo, errmsg, errcode )
     if (errcode /= 0) return
-
-    ! call read_extraterrestrial_flux( from_data_num_wavelength_grid_sections, &
-    !                                  from_data_wavelength_grid_interfaces,   &
-    !                                  from_data_extraterrestrial_flux, errmsg, errcode )
-    ! if (errcode /= 0) return
 
     call set_extraterrestrial_flux_values( extraterrestrial_flux_profile,        &
                                            flux_data_wavelength_grid_count,      &

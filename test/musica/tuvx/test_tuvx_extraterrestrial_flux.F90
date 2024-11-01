@@ -19,15 +19,15 @@ contains
     use ccpp_kinds,                       only: kind_phys
 
     integer, parameter       :: NUM_WAVELENGTH_BINS = 4
-    integer, parameter       :: FROM_DATA_NUM_WAVELENGTH_BINS = 8
+    integer, parameter       :: FLUX_DATA_NUM_WAVELENGTH_BINS = 8
     real, parameter          :: ABS_ERROR = 1e-6
     real, parameter          :: MAGNITUDE_REDUCER = 1e-15 ! Its purpose is to adjust the magnitude of the values to reduce absolute errors
     real(kind_phys)          :: wavelength_grid_interfaces(NUM_WAVELENGTH_BINS + 1) = &
         [200.0e-9_kind_phys, 220.0e-9_kind_phys, 240.0e-9_kind_phys, 260.0e-9_kind_phys, 280.0e-9_kind_phys] ! m
-    real(kind_phys)          :: from_data_wavelength_grid_interfaces(FROM_DATA_NUM_WAVELENGTH_BINS + 1) = &
+    real(kind_phys)          :: flux_data_wavelength_grid_interfaces(FLUX_DATA_NUM_WAVELENGTH_BINS + 1) = &
         [200.0_kind_phys, 210.0_kind_phys, 220.0_kind_phys, 230.0_kind_phys, 240.0_kind_phys, &
          250.0_kind_phys, 260.0_kind_phys, 270.0_kind_phys, 280.0_kind_phys]                                 ! nm
-    real(kind_phys)          :: from_data_extraterrestrial_flux(FROM_DATA_NUM_WAVELENGTH_BINS) = &
+    real(kind_phys)          :: flux_data_extraterrestrial_flux(FLUX_DATA_NUM_WAVELENGTH_BINS) = &
         [1.5e13_kind_phys, 1.5e13_kind_phys, 1.4e13_kind_phys, 1.4e13_kind_phys, &
          1.3e13_kind_phys, 1.2e13_kind_phys, 1.1e13_kind_phys, 1.0e13_kind_phys]
     real(kind_phys)          :: expected_extraterrestrial_flux_midpoints(NUM_WAVELENGTH_BINS) = &
@@ -48,9 +48,9 @@ contains
     ASSERT(errcode == 0)
     ASSERT(associated(profile))
 
-    call set_extraterrestrial_flux_values( profile, FROM_DATA_NUM_WAVELENGTH_BINS, &
-                                           from_data_wavelength_grid_interfaces,   &
-                                           from_data_extraterrestrial_flux, errmsg, errcode )
+    call set_extraterrestrial_flux_values( profile, FLUX_DATA_NUM_WAVELENGTH_BINS, &
+                                           flux_data_wavelength_grid_interfaces,   &
+                                           flux_data_extraterrestrial_flux, errmsg, errcode )
     ASSERT(errcode == 0)
 
     call profile%get_midpoint_values( extraterrestrial_flux_midpoints, error )
