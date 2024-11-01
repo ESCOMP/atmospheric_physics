@@ -28,8 +28,8 @@ contains
     real(kind_phys), dimension(NUM_WAVELENGTH_BINS+1)              :: photolysis_wavelength_grid_interfaces        ! m
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)             :: geopotential_height_wrt_surface_at_midpoint  ! m
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS+1)           :: geopotential_height_wrt_surface_at_interface ! m
-    real(kind_phys), dimension(NUM_COLUMNS)                        :: surface_temperature                          ! K
     real(kind_phys), dimension(NUM_COLUMNS)                        :: surface_geopotential                         ! m2 s-2
+    real(kind_phys), dimension(NUM_COLUMNS)                        :: surface_temperature                          ! K
     real(kind_phys)                                                :: surface_albedo                               ! unitless
     real(kind_phys)                                                :: standard_gravitational_acceleration          ! s2 m-1
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)             :: temperature                                  ! K
@@ -158,8 +158,8 @@ contains
     geopotential_height_wrt_surface_at_midpoint(2,:) = (/ 2000.0_kind_phys, -500.0_kind_phys /)
     geopotential_height_wrt_surface_at_interface(1,:) = (/ 3000.0_kind_phys, 1000.0_kind_phys, 0.0_kind_phys /)
     geopotential_height_wrt_surface_at_interface(2,:) = (/ 3000.0_kind_phys, 500.0_kind_phys, -1500.0_kind_phys /)
-    surface_temperature = (/ 300.0_kind_phys, 300.0_kind_phys /)
     surface_geopotential = (/ 100.0_kind_phys, 200.0_kind_phys /)
+    surface_temperature = (/ 300.0_kind_phys, 300.0_kind_phys /)
     surface_albedo = 0.10_kind_phys
     standard_gravitational_acceleration = 10.0_kind_phys
     temperature(:,1) = (/ 100._kind_phys, 200._kind_phys /)
@@ -223,8 +223,8 @@ contains
 
     call musica_ccpp_run(time_step, temperature, pressure, dry_air_density, constituent_props_ptr,  &
                          constituents, geopotential_height_wrt_surface_at_midpoint,                 &
-                         geopotential_height_wrt_surface_at_interface, surface_temperature,         &
-                         surface_geopotential, surface_albedo, standard_gravitational_acceleration, &
+                         geopotential_height_wrt_surface_at_interface, surface_geopotential,        &
+                         surface_temperature, surface_albedo, standard_gravitational_acceleration,  &
                          errmsg, errcode)
     if (errcode /= 0) then
       write(*,*) trim(errmsg)

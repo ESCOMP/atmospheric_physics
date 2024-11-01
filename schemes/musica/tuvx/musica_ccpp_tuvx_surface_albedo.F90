@@ -2,13 +2,12 @@ module musica_ccpp_tuvx_surface_albedo
   implicit none
 
   private
-  public :: create_surface_albedo_profile, set_surface_albedo_values, &
-            surface_albedo_label, surface_albedo_unit
+  public :: create_surface_albedo_profile, set_surface_albedo_values
 
   !> Label for surface albedo in TUV-x
-  character(len=*), parameter :: surface_albedo_label = "surface albedo"
+  character(len=*), parameter, public :: surface_albedo_label = "surface albedo"
   !> Unit for surface albedo in TUV-x
-  character(len=*), parameter :: surface_albedo_unit = "none"
+  character(len=*), parameter, public :: surface_albedo_unit = "none"
   !> Default value of number of wavelength bins
   integer, parameter :: DEFAULT_NUM_WAVELENGTH_BINS = 0
   !> Number of wavelength bins
