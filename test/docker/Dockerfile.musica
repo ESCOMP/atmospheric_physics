@@ -5,7 +5,10 @@
 
 FROM ubuntu:22.04
 
-ARG MUSICA_GIT_TAG=dbbdb22f5f2807e27c2695db85291951ba178634
+# Commit on Nov 4th
+ARG MUSICA_GIT_TAG=186bdfeda84565ebeae0d63dd20579e27711997f
+# Commit on OCT 3rd
+ARG CCPP_GIT_TAG=49a3c3fc221de993640ccc7b6f4a0efc8d0705a9
 
 RUN apt update \
     && apt install -y sudo \
@@ -72,7 +75,9 @@ RUN sudo chown -R test_user:test_user atmospheric_physics
 RUN cd atmospheric_physics/test \
     && mkdir lib \
     && cd lib \
-    && git clone -b develop --depth 1 https://github.com/NCAR/ccpp-framework.git
+    && git clone https://github.com/NCAR/ccpp-framework.git \
+    && cd ccpp-framework \
+    && git checkout ${CCPP_GIT_TAG}
 ENV CCPP_SRC_PATH="lib/ccpp-framework/src"
 ENV CCPP_FORTRAN_TOOLS_PATH="lib/ccpp-framework/scripts/fortran_tools"
 
