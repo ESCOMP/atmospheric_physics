@@ -16,7 +16,7 @@ option(ATMOSPHERIC_PHYSICS_ENABLE_CODE_COVERAGE "Run code coverage tool" OFF)
 
 if(ATMOSPHERIC_PHYSICS_ENABLE_CODE_COVERAGE)
   add_compile_options(-O0 --coverage)
-  add_link_options(-lgcov)
+  add_link_options(--coverage)
 endif()
 
 set(CMAKE_BUILD_TYPE Debug)
