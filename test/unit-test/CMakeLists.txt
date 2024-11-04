@@ -4,7 +4,6 @@ project(atmospheric_physics VERSION 0.0.1 LANGUAGES Fortran)
 
 find_package(PFUNIT REQUIRED)
 
-set(CMAKE_Fortran_FLAGS "-O0 --coverage")
 if(NOT ATMOSPHERIC_PHYSICS_IS_TOP_LEVEL)
   message(WARNING "atmospheric-physics is not integrated into the CMake build of any top level "
                   "project yet and this CMake is for testing purposes only.  "

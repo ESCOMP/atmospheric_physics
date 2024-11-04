@@ -3,6 +3,7 @@ name: code-coverage
 on:
   push:
     branch: development
+    branch: main
   workflow_dispatch:
   pull_request:
 
