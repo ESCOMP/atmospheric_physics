@@ -40,7 +40,7 @@ jobs:
             -B./build \
             -S./test/unit-test
           cd build
-          VERBOSE=1 make
+          make
 
       - name: Run tests
         run: |
