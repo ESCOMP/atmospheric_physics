@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet type="text/xsl"?>
+
+<entry_id_pg version="2.0">
+  <entry id="hkconv_cmftau">
+    <type>real</type>
+    <category>conv</category>
+    <group>hkconv_nl</group>
+    <standard_name>characteristic_adjustment_time_for_shallow_convection_tbd</standard_name>
+    <units>s</units>
+    <desc>
+      Characteristic adjustment time scale for Hack shallow scheme. Default: 1800.0
+    </desc>
+    <values>
+      <value>1800.0</value>
+    </values>
+  </entry>
+  <entry id="hkconv_c0">
+    <type>real</type>
+    <category>conv</category>
+    <group>hkconv_nl</group>
+    <standard_name>rain_water_autoconversion_coefficient_for_shallow_convection_tbd</standard_name>
+    <units>m-1</units>
+    <desc>
+      Rain water autoconversion coefficient for Hack shallow scheme.
+    </desc>
+    <values>
+      <!-- FIXME: This is a resolution-dependent value -->
+      <value>1.0e-4</value>
+    </values>
+  </entry>
+</entry_id_pg>

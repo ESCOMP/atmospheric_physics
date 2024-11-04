@@ -5,8 +5,9 @@
     <!--
       Hack shallow convection.
       There are several nuances to the convect_shallow calling routine.
-      convect_shallow takes in deep convective cmfmc, qc, rliq and adds shallow convective tendencies
+      convect_shallow takes in total (from deep) convective cmfmc, qc, rliq and adds shallow convective tendencies
       from Hack to them, also computing freqsh.
+      rliq is "reserved" liquid to be later added in macrophysics.
 
       Tendencies are applied, then zm_conv_evap is ran to evaporate some of the precip directly into the environment to apply another set of tendencies.
 
@@ -16,17 +17,23 @@
       Thus, an interstitial scheme to simply "convert" the shallow tendencies to the deep tendencies in preparation for the zm_conv_evap call is also needed.
       (hplin, 10/29/24)
     -->
+
+    <!-- SHALLOW CONVECTION: HACK SCHEME -->
     <scheme>cmfmca</scheme>
     <scheme>apply_heating_rate</scheme>
-    <!-- apply constituent tendencies temporary -->
-    <scheme>dadadj_apply_qv_tendency</scheme>
-    <!-- sum deep convective quantities with shallow -->
+    <!-- eventually apply constituent tendencies -->
+
+    <!-- DIAGNOSTIC QUANTITY UPDATES -->
+    <!-- eventually calculate shallow convective fraction diagnostic (FREQSH) -->
+    <!-- sum deep convective quantities with shallow including total convective rainout -->
     <scheme>convect_shallow_sum_to_deep</scheme>
+
+    <!-- SUBCLOUD EVAPORATION -->
     <!-- prepare state for zm_conv_evap (rename shallow outputs to deep inputs) -->
-    <scheme>convect_shallow_zm_conv_evap_prep</scheme>
-    <scheme>zm_conv_evap</scheme>
-    <scheme>apply_heating_rate</scheme>
+    <!-- <scheme>convect_shallow_zm_conv_evap_prep</scheme>  -->
+    <!-- <scheme>zm_conv_evap</scheme> -->
+    <!-- <scheme>apply_heating_rate</scheme> -->
     <!-- apply constituent tendencies temporary -->
-    <scheme>dadadj_apply_qv_tendency</scheme>
+    <!-- <scheme>dadadj_apply_qv_tendency</scheme> -->
   </group>
 </suite>

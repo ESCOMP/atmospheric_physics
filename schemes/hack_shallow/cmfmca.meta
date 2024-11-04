@@ -184,7 +184,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
   intent = out
 [ qc_sh ]
-  standard_name = tendency_of_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_shallow_convection_tbd
+  standard_name = detrainment_of_water_due_to_shallow_convection
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -244,7 +244,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ rliq_sh ]
-  standard_name = vertically_integrated_reserved_cloud_condensate_due_to_shallow_convection_tbd
+  standard_name = vertically_integrated_cloud_liquid_tendency_due_to_shallow_convection_to_be_applied_later_in_time_loop
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)

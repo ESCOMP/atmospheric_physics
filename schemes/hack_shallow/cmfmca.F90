@@ -148,7 +148,7 @@ contains
     integer,         intent(in)    :: pver               ! number of vertical levels
     integer,         intent(in)    :: pcnst              ! number of ccpp constituents
     integer,         intent(in)    :: nstep              ! current time step index
-    real(kind_phys), intent(in)    :: ztodt              ! 2 delta t (model time increment) [s]
+    real(kind_phys), intent(in)    :: ztodt              ! physics timestep [s]
 
     real(kind_phys), intent(in)    :: pmid(:,:)          ! midpoint pressures [Pa]
     real(kind_phys), intent(in)    :: pmiddry(:,:)       ! dry pressure at midpoints [Pa]
@@ -158,11 +158,11 @@ contains
     real(kind_phys), intent(in)    :: rpdeldry(:,:)      ! 1.0 / pdeldry
 
     real(kind_phys), intent(in)    :: zm(:,:)            ! geopotential height at midpoints [m]
-    real(kind_phys), intent(inout) :: qpert(:,:)         ! PBL perturbation specific humidity (convective humidity excess) [kg/kg]
+    real(kind_phys), intent(inout) :: qpert(:,:)         ! PBL perturbation specific humidity (convective humidity excess) [kg kg-1]
     real(kind_phys), intent(in)    :: phis(:)            ! surface geopotential [m2 s-2]
     real(kind_phys), intent(in)    :: pblh(:)            ! PBL height [m]
     real(kind_phys), intent(in)    :: t(:,:)             ! temperature [K]
-    real(kind_phys), intent(in)    :: q(:,:,:)           ! specific humidity and constituents [kg/kg?]
+    real(kind_phys), intent(in)    :: q(:,:,:)           ! constituents [kg kg-1]
 
     ! Output arguments
     real(kind_phys), intent(out)   :: dq(:,:,:)          ! constituent tendencies [kg kg-1 s-1]
@@ -627,7 +627,9 @@ contains
       ! fields, it's computationally much cheaper, no more-or-less justifiable,
       ! and consistent with how the history tape mass fluxes would be used in
       ! an off-line mode (i.e., using an off-line transport model)
-      const_modify_loop: do m=2,pcnst    ! note: indexing assumes water is first field
+
+      ! have to skip water in this loop.
+      const_modify_loop: do m=2, pcnst    ! note: indexing assumes water is first field
         ! FIXME hplin: use CCPP constituents object here
         if (cnst_get_type_byind(m) .eq. 'dry') then
            pd(:ncol,:) = pdeldry(:ncol,:)
