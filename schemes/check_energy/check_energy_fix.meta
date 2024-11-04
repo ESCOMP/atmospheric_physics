@@ -42,8 +42,14 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ eshflx ]
-  standard_name = net_sensible_heat_flux_through_top_and_bottom_of_atmosphere_column_from_global_total_energy_correction
+  standard_name = net_sensible_heat_flux_through_top_and_bottom_of_atmosphere_column
   units = W m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
+  intent = out
+[ scheme_name ]
+  standard_name = scheme_name
+  units = none
+  type = character | kind = len=64
+  dimensions = ()
   intent = out
