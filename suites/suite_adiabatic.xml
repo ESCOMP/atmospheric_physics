@@ -24,8 +24,8 @@
 
     <!-- MPAS and SE specific scaling of temperature for enforcing energy consistency:
          First, calculate the scaling based off cp_or_cv_dycore (from cam_thermo_water_update)
-         Then, perform the temperature scaling -->
+         Then, perform the temperature and temperature tendency scaling -->
     <scheme>check_energy_scaling</scheme>
-    <!-- eventually perform the temperature scaling and apply dtdt tendency -->
+    <scheme>dycore_energy_consistency_adjust</scheme>
   </group>
 </suite>
