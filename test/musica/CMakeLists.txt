@@ -1,18 +1,18 @@
-include(FetchContent)
-include(TestUtils)
+# include(FetchContent)
+# include(TestUtils)
 
-FetchContent_Declare(musica
-  GIT_REPOSITORY https://github.com/NCAR/musica.git
-  GIT_TAG        $ENV{MUSICA_GIT_TAG}  # Set by docker
-)
-message(STATUS "Using MUSICA commit: $ENV{MUSICA_GIT_TAG}")
+# FetchContent_Declare(musica
+#   GIT_REPOSITORY https://github.com/NCAR/musica.git
+#   GIT_TAG        $ENV{MUSICA_GIT_TAG}  # Set by docker
+# )
+# message(STATUS "Using MUSICA commit: $ENV{MUSICA_GIT_TAG}")
 
-set(MUSICA_BUILD_C_CXX_INTERFACE ON)
-set(MUSICA_BUILD_FORTRAN_INTERFACE ON)
-set(MUSICA_ENABLE_TESTS OFF)
-set(MUSICA_ENABLE_INSTALL OFF)
+# set(MUSICA_BUILD_C_CXX_INTERFACE ON)
+# set(MUSICA_BUILD_FORTRAN_INTERFACE ON)
+# set(MUSICA_ENABLE_TESTS OFF)
+# set(MUSICA_ENABLE_INSTALL OFF)
 
-FetchContent_MakeAvailable(musica)
+# FetchContent_MakeAvailable(musica)
 
 # ---------------------------------------------------------
 # Create a test for MUSICA CCPP wrapper

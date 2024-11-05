@@ -12,7 +12,7 @@ ARG CCPP_GIT_TAG=b7d55fd07fa35c5de9b2292596d30784a800b276
 
 RUN apt update \
     && apt install -y sudo \
-    && useradd test_user \
+    && useradd -m test_user \
     && echo "test_user ALL=(root) NOPASSWD: ALL" >> /etc/sudoers.d/test_user \
     && chmod 0440 /etc/sudoers.d/test_user
 
@@ -45,8 +45,6 @@ RUN sudo apt update \
     zlib1g-dev \
     && sudo apt clean
 
-ENV PATH="${PATH}:/usr/lib/openmpi/bin"
-
 ENV FC=mpif90
 ENV FFLAGS="-I/usr/include/"
 
@@ -56,16 +54,14 @@ RUN git clone https://github.com/NCAR/musica.git
 RUN cd musica \
     && git fetch \
     && git checkout ${MUSICA_GIT_TAG} \
-    && cmake \
-        -S . \
-        -B build \
+    && cmake -S . -B build \
         -D CMAKE_BUILD_TYPE=Release \
         -D MUSICA_ENABLE_TESTS=OFF \
-        -D MUSICA_BUILD_FORTRAN_INTERFACE=OFF \
+        -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
         -D MUSICA_ENABLE_MICM=ON \
         -D MUSICA_ENABLE_TUVX=ON \
     && cd build \
-    && sudo make install
+    && make install
 
 COPY . atmospheric_physics
 RUN sudo chown -R test_user:test_user atmospheric_physics
@@ -81,8 +77,7 @@ ENV CCPP_SRC_PATH="lib/ccpp-framework/src"
 ENV CCPP_FORTRAN_TOOLS_PATH="lib/ccpp-framework/scripts/fortran_tools"
 
 RUN cd atmospheric_physics/test \
-    && cmake -S . \
-             -B build \
+    && cmake -S . -B build \
              -D CMAKE_BUILD_TYPE=Debug \
              -D CCPP_ENABLE_MUSICA_TESTS=ON \
              -D CCPP_ENABLE_MEMCHECK=ON \
