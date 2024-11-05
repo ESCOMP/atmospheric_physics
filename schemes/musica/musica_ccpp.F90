@@ -10,6 +10,8 @@ module musica_ccpp
 
 contains
 
+  !> \section arg_table_musica_ccpp_register Argument Table
+  !! \htmlinclude musica_ccpp_register.html
   subroutine musica_ccpp_register(solver_type, num_grid_cells, constituent_props, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
 
