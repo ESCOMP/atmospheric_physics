@@ -3,16 +3,16 @@
 # - Unit tests for MUSICA utility functions
 # - Integration tests for MUSICA CCPP APIs
 
-FROM ubuntu:22.04
+FROM ubuntu:latest
 
-# Commit on Nov 4th
-ARG MUSICA_GIT_TAG=186bdfeda84565ebeae0d63dd20579e27711997f
-# Commit on OCT 3rd
-ARG CCPP_GIT_TAG=49a3c3fc221de993640ccc7b6f4a0efc8d0705a9
+# Commit on Nov 5
+ARG MUSICA_GIT_TAG=3f1718e2cd405cac3a74b13fa0169860f271f51e
+# Commit on OCT 22
+ARG CCPP_GIT_TAG=b7d55fd07fa35c5de9b2292596d30784a800b276
 
 RUN apt update \
     && apt install -y sudo \
-    && adduser test_user \
+    && useradd test_user \
     && echo "test_user ALL=(root) NOPASSWD: ALL" >> /etc/sudoers.d/test_user \
     && chmod 0440 /etc/sudoers.d/test_user
 
@@ -37,7 +37,6 @@ RUN sudo apt update \
     libopenmpi-dev \
     m4 \
     make \
-    nlohmann-json3-dev \
     openmpi-bin \
     python3 \
     tree \
