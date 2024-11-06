@@ -218,10 +218,10 @@ contains
                       geopotential_height_wrt_surface_at_interface, &
                       surface_geopotential, surface_temperature,    &
                       surface_albedo,                               &
-                      standard_gravitational_acceleration,          &
                       flux_data_wavelength_grid_count,              &
                       flux_data_wavelength_grid_interfaces,         &
                       flux_data_extraterrestrial_flux,              &
+                      standard_gravitational_acceleration,          &
                       photolysis_rate_constants, errmsg, errcode)
     use musica_util,                            only: error_t
     use ccpp_tuvx_utils,                        only: read_extraterrestrial_flux
@@ -237,10 +237,10 @@ contains
     real(kind_phys),    intent(in)  :: surface_geopotential(:)                           ! m2 s-2
     real(kind_phys),    intent(in)  :: surface_temperature(:)                            ! K
     real(kind_phys),    intent(in)  :: surface_albedo                                    ! unitless
-    real(kind_phys),    intent(in)  :: standard_gravitational_acceleration               ! m s-2
     integer,            intent(in)  :: flux_data_wavelength_grid_count                   ! (count)
     real(kind_phys),    intent(in)  :: flux_data_wavelength_grid_interfaces(:)           ! nm
     real(kind_phys),    intent(in)  :: flux_data_extraterrestrial_flux(:)                ! photons cm-2 s-1 nm-1
+    real(kind_phys),    intent(in)  :: standard_gravitational_acceleration               ! m s-2
     ! temporarily set to Chapman mechanism and 1 dimension
     ! until mapping between MICM and TUV-x is implemented
     real(kind_phys),    intent(out) :: photolysis_rate_constants(:) ! s-1 (column, reaction)

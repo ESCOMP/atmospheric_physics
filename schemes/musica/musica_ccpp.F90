@@ -105,10 +105,10 @@ contains
                   geopotential_height_wrt_surface_at_interface, &
                   surface_geopotential, surface_temperature,    &
                   surface_albedo,                               &
-                  standard_gravitational_acceleration,          &
                   flux_data_wavelength_grid_count,              &
                   flux_data_wavelength_grid_interfaces,         &
                   flux_data_extraterrestrial_flux,              &
+                  standard_gravitational_acceleration,          &
                   photolysis_rate_constants,                    &
                   errmsg, errcode)
 
