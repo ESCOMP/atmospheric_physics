@@ -79,7 +79,7 @@ ENV CCPP_FORTRAN_TOOLS_PATH="lib/ccpp-framework/scripts/fortran_tools"
 
 RUN cd atmospheric_physics/test \
     && cmake -S . -B build \
-             -D CMAKE_BUILD_TYPE=Debug \
+             -D CMAKE_BUILD_TYPE={BUILD_TYPE} \
              -D CCPP_ENABLE_MUSICA_TESTS=ON \
              -D CCPP_ENABLE_MEMCHECK=ON \
     && cmake --build ./build

@@ -224,7 +224,7 @@ contains
                       flux_data_extraterrestrial_flux,              &
                       photolysis_rate_constants, errmsg, errcode)
     use musica_util,                            only: error_t
-    use read_tuvx_data,                         only: read_extraterrestrial_flux
+    use ccpp_tuvx_utils,                        only: read_extraterrestrial_flux
     use musica_ccpp_tuvx_height_grid,           only: set_height_grid_values, calculate_heights
     use musica_ccpp_tuvx_temperature,           only: set_temperature_values
     use musica_ccpp_tuvx_surface_albedo,        only: set_surface_albedo_values

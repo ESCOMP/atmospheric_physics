@@ -15,7 +15,7 @@ contains
     use ccpp_kinds,                only: kind_phys
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
-    use read_tuvx_data,            only: read_extraterrestrial_flux
+    use ccpp_tuvx_utils,           only: read_extraterrestrial_flux
 
     integer, parameter                                             :: NUM_SPECIES = 4
     integer, parameter                                             :: NUM_COLUMNS = 2

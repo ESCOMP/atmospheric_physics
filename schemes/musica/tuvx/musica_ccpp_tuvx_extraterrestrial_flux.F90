@@ -3,7 +3,7 @@ module musica_ccpp_tuvx_extraterrestrial_flux
 
     implicit none
   
-    private :: rebin
+    private
     public :: create_extraterrestrial_flux_profile, set_extraterrestrial_flux_values
   
     !> Label for extraterrestrial_flux in TUV-x
@@ -19,54 +19,6 @@ module musica_ccpp_tuvx_extraterrestrial_flux
 
 
 contains
-
-  !> Regrids normalized flux data to match a specified wavelength grid
-  !! This function is copied from CAM/src/chemistry/utils/mo_util.F90
-  subroutine rebin( source_dimension, target_dimension, source_coordinates, &
-                    target_coordinates, source, target )
-    use ccpp_kinds, only: kind_phys
-
-    integer,         intent(in)  :: source_dimension
-    integer,         intent(in)  :: target_dimension
-    real(kind_phys), intent(in)  :: source_coordinates(source_dimension+1)
-    real(kind_phys), intent(in)  :: target_coordinates(target_dimension+1)
-    real(kind_phys), intent(in)  :: source(source_dimension)
-    real(kind_phys), intent(out) :: target(target_dimension)
-
-    ! local variables
-    integer         :: i, si, si1, sil, siu
-    real(kind_phys) :: y, sl, su, tl, tu
-
-    do i = 1, target_dimension
-      tl = target_coordinates(i)
-      if( tl < source_coordinates( source_dimension + 1) ) then
-        do sil = 1, source_dimension + 1
-          if( tl <= source_coordinates( sil ) ) then
-            exit
-          end if
-        end do
-        tu = target_coordinates( i + 1 )
-        do siu = 1, source_dimension + 1
-          if( tu <= source_coordinates( siu ) ) then
-            exit
-          end if
-        end do
-        y   = 0._kind_phys
-        sil = max( sil, 2 )
-        siu = min( siu, source_dimension + 1 )
-        do si = sil, siu
-          si1 = si - 1
-          sl  = max( tl, source_coordinates( si1 ) )
-          su  = min( tu, source_coordinates( si ) )
-          y   = y + ( su - sl ) * source( si1 )
-        end do
-        target(i) = y / (target_coordinates( i + 1 ) - target_coordinates( i ) )
-      else
-        target(i) = 0._kind_phys
-      end if
-    end do
-
-  end subroutine rebin
 
   !> Creates a TUV-x extraterrestrial flux profile from the host-model wavelength grid
   function create_extraterrestrial_flux_profile(wavelength_grid, errmsg, errcode) &
@@ -95,8 +47,6 @@ contains
       return
     end if
 
-    wavelength_grid_interfaces_ = wavelength_grid_interfaces_ ! nm
-
     profile => profile_t( extraterrestrial_flux_label, extraterrestrial_flux_unit, &
                           wavelength_grid, error )
     if ( has_error_occurred( error, errmsg, errcode ) ) then
@@ -119,6 +69,7 @@ contains
     use musica_tuvx_profile, only: profile_t
     use musica_util,         only: error_t
     use ccpp_kinds,          only: kind_phys
+    use ccpp_tuvx_utils,     only: rebin
 
     type(profile_t),  intent(inout) :: profile
     integer,          intent(in)    :: from_data_num_wavelength_grid_bins      ! (count)
