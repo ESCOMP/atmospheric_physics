@@ -3,12 +3,11 @@
 # - Unit tests for MUSICA utility functions
 # - Integration tests for MUSICA CCPP APIs
 
-FROM ubuntu:latest
+FROM ubuntu:22.04
 
-# Commit on Nov 5
-ARG MUSICA_GIT_TAG=3f1718e2cd405cac3a74b13fa0169860f271f51e
-# Commit on OCT 22
-ARG CCPP_GIT_TAG=b7d55fd07fa35c5de9b2292596d30784a800b276
+ARG BUILD_TYPE=Debug
+ARG MUSICA_GIT_TAG=5817b5a4bd80f617856a6e5f1b1eefa062880f2b
+ARG CCPP_GIT_TAG=bcc3abaa4878e95b00f1b577c150cef7482bb506
 
 RUN apt update \
     && apt install -y sudo \
@@ -49,17 +48,19 @@ ENV FC=mpif90
 ENV FFLAGS="-I/usr/include/"
 
 # Install MUSICA (MUSICA-C)
-RUN git clone https://github.com/NCAR/musica.git
-
-RUN cd musica \
-    && git fetch \
+RUN git clone https://github.com/NCAR/musica.git \
+    && cd musica \
     && git checkout ${MUSICA_GIT_TAG} \
     && cmake -S . -B build \
-        -D CMAKE_BUILD_TYPE=Release \
+        -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
         -D MUSICA_ENABLE_TESTS=OFF \
         -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
         -D MUSICA_ENABLE_MICM=ON \
         -D MUSICA_ENABLE_TUVX=ON \
+        -D MUSICA_ENABLE_MPI=ON \
+        -D CMAKE_Fortran_COMPILER=mpif90 \
+        -D CMAKE_C_COMPILER=mpicc \
+        -D CMAKE_CXX_COMPILER=mpicxx \
     && cd build \
     && make install
 
