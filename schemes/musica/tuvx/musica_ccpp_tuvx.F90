@@ -131,7 +131,7 @@ contains
       return
     end if
 
-    tuvx => tuvx_t( filename_of_tuvx_configuration, grids, profiles, &
+    tuvx => tuvx_t( trim(filename_of_tuvx_configuration), grids, profiles, &
                     radiators, error )
     if (has_error_occurred( error, errmsg, errcode )) then
       call tuvx_deallocate( grids, profiles, radiators, null(), height_grid, &
@@ -189,7 +189,7 @@ contains
     if (has_error_occurred( error, errmsg, errcode )) return
     number_of_photolysis_rate_constants = photolysis_rate_constants_ordering%size()
 
-    call config%load_from_file( filename_of_tuvx_micm_mapping_configuration, error )
+    call config%load_from_file( trim(filename_of_tuvx_micm_mapping_configuration), error )
     if (has_error_occurred( error, errmsg, errcode )) return
 
     photolysis_rate_constants_mapping => &

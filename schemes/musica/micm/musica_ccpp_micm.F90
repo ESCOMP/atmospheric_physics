@@ -37,7 +37,7 @@ contains
     logical                       :: is_advected
     integer                       :: i, species_index
 
-    micm => micm_t(filename_of_micm_configuration, solver_type, num_grid_cells, error)
+    micm => micm_t(trim(filename_of_micm_configuration), solver_type, num_grid_cells, error)
     if (has_error_occurred(error, errmsg, errcode)) return
 
     allocate(constituent_props(micm%species_ordering%size()), stat=errcode)

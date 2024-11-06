@@ -8,7 +8,7 @@
 
 FROM ubuntu:22.04
 
-ARG MUSICA_GIT_TAG=develop-fix-intent
+ARG MUSICA_GIT_TAG=326b5119768d5be9654baf96ae3bd6a1b757fdc8
 
 RUN apt update \
     && apt install -y sudo \
