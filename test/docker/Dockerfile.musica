@@ -5,7 +5,7 @@
 
 FROM ubuntu:22.04
 
-ARG MUSICA_GIT_TAG=dbbdb22f5f2807e27c2695db85291951ba178634
+ARG MUSICA_GIT_TAG=develop-fix-intent
 
 RUN apt update \
     && apt install -y sudo \
@@ -83,11 +83,5 @@ RUN cd atmospheric_physics/test \
              -D CCPP_ENABLE_MUSICA_TESTS=ON \
              -D CCPP_ENABLE_MEMCHECK=ON \
     && cmake --build ./build
-
-RUN cd atmospheric_physics/test \
-    && mkdir third_party \
-    && cd third_party \
-    && git clone --depth 1 https://github.com/NCAR/tuv-x.git \
-    && cp -r tuv-x/data ../build/data
 
 WORKDIR /home/test_user/atmospheric_physics/test/build

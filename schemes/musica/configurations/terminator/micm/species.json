@@ -1,0 +1,18 @@
+{
+  "camp-data": [
+    {
+      "name": "Cl",
+      "type": "CHEM_SPEC",
+      "absolute tolerance": 1e-12,
+      "molecular weight [kg mol-1]": 0.035453,
+      "__is advected": true
+    },
+    {
+      "name": "Cl2",
+      "type": "CHEM_SPEC",
+      "absolute tolerance": 1e-12,
+      "molecular weight [kg mol-1]": 0.070906,
+      "__is advected": true
+    }
+  ]
+}

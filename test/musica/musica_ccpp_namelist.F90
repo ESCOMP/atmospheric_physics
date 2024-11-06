@@ -4,9 +4,9 @@ module musica_ccpp_namelist
   implicit none
 
   private
-  public :: filename_of_micm_configuration, filename_of_tuvx_configuration
-
-  character(len=*), parameter :: filename_of_micm_configuration = 'chapman'
-  character(len=*), parameter :: filename_of_tuvx_configuration = 'configs/ts1_tsmlt.json'
+  
+  character(len=*), parameter, public :: filename_of_micm_configuration = 'musica_configurations/chapman/micm/config.json'
+  character(len=*), parameter, public :: filename_of_tuvx_configuration = 'musica_configurations/chapman/tuvx/config.json'
+  character(len=*), parameter, public :: filename_of_tuvx_micm_mapping_configuration = 'musica_configurations/chapman/tuvx_micm_mapping.json'
 
 end module musica_ccpp_namelist
