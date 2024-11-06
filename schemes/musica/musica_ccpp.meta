@@ -2,7 +2,41 @@
   name = musica_ccpp
   type = scheme
   dependencies = micm/musica_ccpp_micm.F90,micm/musica_ccpp_micm_util.F90,tuvx/musica_ccpp_tuvx.F90,tuvx/musica_ccpp_tuvx_height_grid.F90,musica_ccpp_util.F90
-  dynamic_constituent_routine = musica_ccpp_register
+
+[ccpp-arg-table]
+  name  = musica_ccpp_register
+  type  = scheme
+[ solver_type ]
+  standard_name = micm_solver_type
+  units = none
+  type = integer
+  dimensions = ()
+  intent = in
+[ num_grid_cells ]
+  standard_name = number_of_grid_cells
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ constituent_props ]
+  standard_name = dynamic_constituents_for_musica_ccpp
+  units = none
+  dimensions = (:)
+  allocatable = True
+  type = ccpp_constituent_properties_t
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errcode ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
 
 [ccpp-arg-table]
   name  = musica_ccpp_init
@@ -18,6 +52,12 @@
   units = none
   type = integer
   dimensions = ()
+  intent = in
+[ photolysis_wavelength_grid_interfaces ]
+  standard_name = photolysis_wavelength_grid_interfaces
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (photolysis_wavelength_grid_interface_dimension)
   intent = in
 [ errmsg ]
   standard_name = ccpp_error_message
@@ -83,11 +123,23 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_interface_dimension)
   intent = in
+[ surface_temperature ]
+  standard_name = blackbody_temperature_at_surface
+  type = real | kind = kind_phys
+  units = K
+  dimensions = (horizontal_loop_extent)
+  intent = in
 [ surface_geopotential ]
   standard_name = surface_geopotential
   type = real | kind = kind_phys
   units = m2 s-2
   dimensions = (horizontal_loop_extent)
+  intent = in
+[ surface_albedo ]
+  standard_name = surface_albedo_due_to_UV_and_VIS_direct
+  type = real | kind = kind_phys
+  units = None
+  dimensions = ()
   intent = in
 [ standard_gravitational_acceleration ]
   standard_name = standard_gravitational_acceleration
