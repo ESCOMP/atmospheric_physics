@@ -62,7 +62,7 @@ RUN git clone https://github.com/NCAR/musica.git \
         -D CMAKE_C_COMPILER=mpicc \
         -D CMAKE_CXX_COMPILER=mpicxx \
     && cd build \
-    && make install
+    && sudo make install
 
 COPY . atmospheric_physics
 RUN sudo chown -R test_user:test_user atmospheric_physics
