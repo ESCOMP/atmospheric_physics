@@ -107,7 +107,6 @@ contains
     type(solver_stats_t) :: solver_stats
     type(error_t)        :: error
     real(c_double)       :: c_time_step
-    integer              :: i_elem
 
     c_time_step = real(time_step, c_double) 
 

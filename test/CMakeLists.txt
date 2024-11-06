@@ -23,6 +23,10 @@ option(CCPP_ENABLE_MEMCHECK "Enable memory checks in tests" OFF)
 set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
 set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)
 
+# Set the Fortran compiler flags
+# set(CMAKE_Fortran_FLAGS "-g -Wall -fno-range-check -O0 -fcheck=all -fbacktrace -ftrapv")
+set(CMAKE_Fortran_FLAGS_DEBUG "-g -Wall -fno-range-check -O0 -fcheck=all -fbacktrace -ftrapv")
+
 if (CCPP_ENABLE_MUSICA_TESTS)
   include(TestUtils)
 
