@@ -14,16 +14,16 @@ contains
   subroutine test_unit_conversion()
     use ccpp_kinds, only: kind_phys
 
-    integer, parameter                                             :: NUM_COLUMNS = 2
-    integer, parameter                                             :: NUM_LAYERS = 2
-    integer, parameter                                             :: NUM_SPECIES = 4
-    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)             :: dry_air_density   ! kg m-3
-    real(kind_phys), dimension(NUM_SPECIES)                        :: molar_mass_arr
-    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS,NUM_SPECIES) :: constituents
-    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS,NUM_SPECIES) :: ccpp_constituents ! kg kg-1
-    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS,NUM_SPECIES) :: micm_constituents ! mol m-3
-    integer                                                        :: i_column, i_layer, i_elem
-    real                                                           :: abs_error = 1e-3
+    integer, parameter :: NUM_COLUMNS = 2
+    integer, parameter :: NUM_LAYERS = 2
+    integer, parameter :: NUM_SPECIES = NUM_COLUMNS * NUM_LAYERS
+    real,    parameter :: ABS_ERROR = 1e-3
+    real(kind_phys)    :: dry_air_density(NUM_COLUMNS,NUM_LAYERS)
+    real(kind_phys)    :: molar_mass_arr(NUM_SPECIES)
+    real(kind_phys)    :: constituents(NUM_COLUMNS,NUM_LAYERS,NUM_SPECIES)
+    real(kind_phys)    :: ccpp_constituents(NUM_COLUMNS,NUM_LAYERS,NUM_SPECIES) ! kg kg-1
+    real(kind_phys)    :: micm_constituents(NUM_COLUMNS,NUM_LAYERS,NUM_SPECIES) ! mol m-3
+    integer            :: i_column, i_layer, i_elem
 
     dry_air_density(:,1) = (/ 3.5_kind_phys, 4.5_kind_phys /)
     dry_air_density(:,2) = (/ 5.5_kind_phys, 6.5_kind_phys /)
@@ -48,7 +48,7 @@ contains
     do i_column = 1, NUM_COLUMNS
       do i_layer = 1, NUM_LAYERS
         do i_elem = 1, NUM_SPECIES
-          ASSERT_NEAR(constituents(i_column, i_layer, i_elem), micm_constituents(i_column, i_layer, i_elem), abs_error)
+          ASSERT_NEAR(constituents(i_column, i_layer, i_elem), micm_constituents(i_column, i_layer, i_elem), ABS_ERROR)
         end do
       end do
     end do
@@ -58,10 +58,11 @@ contains
     do i_column = 1, NUM_COLUMNS
       do i_layer = 1, NUM_LAYERS
         do i_elem = 1, NUM_SPECIES
-          ASSERT_NEAR(constituents(i_column, i_layer, i_elem), ccpp_constituents(i_column, i_layer, i_elem), abs_error)
+          ASSERT_NEAR(constituents(i_column, i_layer, i_elem), ccpp_constituents(i_column, i_layer, i_elem), ABS_ERROR)
         end do
       end do
     end do
+
   end subroutine test_unit_conversion
 
 end program test_micm_util

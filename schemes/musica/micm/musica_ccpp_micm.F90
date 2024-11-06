@@ -17,7 +17,7 @@ module musica_ccpp_micm
 
 contains
 
-  !> Register MICM constituent properties with the CCPP
+  !> Registers MICM constituent properties with the CCPP
   subroutine micm_register(solver_type, num_grid_cells, constituent_props, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
     use musica_micm,               only: Rosenbrock, RosenbrockStandardOrder
@@ -78,7 +78,7 @@ contains
 
   end subroutine micm_register
 
-  !> Intitialize MICM
+  !> Initializes MICM
   subroutine micm_init(errmsg, errcode)
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errcode
@@ -88,7 +88,7 @@ contains
 
   end subroutine micm_init
 
-  !> Solve chemistry at the current time step
+  !> Solves chemistry at the current time step
   subroutine micm_run(time_step, temperature, pressure, dry_air_density, &
                       user_defined_rate_parameters, constituents, errmsg, errcode)
     use musica_micm,   only: solver_stats_t
@@ -123,7 +123,7 @@ contains
 
   end subroutine micm_run
 
-  !> Finalize MICM
+  !> Finalizes MICM
   subroutine micm_final(errmsg, errcode)
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errcode

@@ -12,6 +12,8 @@ module musica_ccpp
 
 contains
 
+  !> \section arg_table_musica_ccpp_register Argument Table
+  !! \htmlinclude musica_ccpp_register.html
   subroutine musica_ccpp_register(solver_type, num_grid_cells, constituent_props, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
 
@@ -28,17 +30,22 @@ contains
   !> \section arg_table_musica_ccpp_init Argument Table
   !! \htmlinclude musica_ccpp_init.html
   subroutine musica_ccpp_init(vertical_layer_dimension, vertical_interface_dimension, &
-                              errmsg, errcode)
+                              photolysis_wavelength_grid_interfaces, errmsg, errcode)
+    use ccpp_kinds, only : kind_phys
+
     use musica_ccpp_micm, only: micm
     use musica_ccpp_util, only: has_error_occurred
-    integer,            intent(in)  :: vertical_layer_dimension     ! (count)
-    integer,            intent(in)  :: vertical_interface_dimension ! (count)
+    integer,            intent(in)  :: vertical_layer_dimension                 ! (count)
+    integer,            intent(in)  :: vertical_interface_dimension             ! (count)
+    real(kind_phys),    intent(in)  :: photolysis_wavelength_grid_interfaces(:) ! m
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errcode
 
+    if (errcode /= 0) return
     call micm_init(errmsg, errcode)
     if (errcode /= 0) return
     call tuvx_init(vertical_layer_dimension, vertical_interface_dimension, &
+                   photolysis_wavelength_grid_interfaces, &
                    micm%user_defined_reaction_rates, errmsg, errcode)
     if (errcode /= 0) return
 
@@ -47,13 +54,14 @@ contains
   !> \section arg_table_musica_ccpp_run Argument Table
   !! \htmlinclude musica_ccpp_run.html
   !!
-  !! The standard name for the variable 'surface_tempearture' is
-  !! `blackbody_temperature_at_surface` because this is what we have as
-  !! the standard name for `cam_in%ts`, whcih represents the same quantity.
+  !! The standard name for the variable 'surface_temperature' is
+  !! 'blackbody_temperature_at_surface' because this is what we have as
+  !! the standard name for 'cam_in%ts', whcih represents the same quantity.
   subroutine musica_ccpp_run(time_step, temperature, pressure, dry_air_density, constituent_props, &
                              constituents, geopotential_height_wrt_surface_at_midpoint,            &
                              geopotential_height_wrt_surface_at_interface, surface_temperature,    &
-                             surface_geopotential, standard_gravitational_acceleration, errmsg, errcode)
+                             surface_geopotential, surface_albedo,                                 &
+                             standard_gravitational_acceleration, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use ccpp_kinds,                only: kind_phys
     use iso_c_binding,             only: c_double
@@ -71,6 +79,7 @@ contains
     real(kind_phys),         intent(in)    :: geopotential_height_wrt_surface_at_interface(:,:) ! m (column, interface)
     real(kind_phys),         intent(in)    :: surface_temperature(:)                            ! K
     real(kind_phys),         intent(in)    :: surface_geopotential(:)                           ! m2 s-2
+    real(kind_phys),         intent(in)    :: surface_albedo                                    ! unitless
     real(kind_phys),         intent(in)    :: standard_gravitational_acceleration               ! m s-2
     character(len=512),      intent(out)   :: errmsg
     integer,                 intent(out)   :: errcode
@@ -82,11 +91,12 @@ contains
                                number_of_rate_parameters)    :: rate_parameters ! various units
     integer :: i_elem
 
+    ! Calculate photolysis rate constants using TUV-x
     call tuvx_run(temperature, dry_air_density,                 &
                   geopotential_height_wrt_surface_at_midpoint,  &
                   geopotential_height_wrt_surface_at_interface, &
-                  surface_temperature,                          &
-                  surface_geopotential,                         &
+                  surface_temperature, surface_geopotential,    &
+                  surface_albedo,                               &
                   standard_gravitational_acceleration,          &
                   rate_parameters,                              &
                   errmsg, errcode)
