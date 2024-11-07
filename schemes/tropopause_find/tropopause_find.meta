@@ -1,0 +1,305 @@
+[ccpp-table-properties]
+  name = tropopause_find
+  type = scheme
+
+[ccpp-arg-table]
+  name  = tropopause_find_init
+  type  = scheme
+[ cappa ]
+  standard_name = ratio_of_dry_air_gas_constant_to_specific_heat_of_dry_air_at_constant_pressure
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ rair ]
+  standard_name = gas_constant_of_dry_air
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ gravit ]
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ pi ]
+  standard_name = pi_constant
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = tropopause_find_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ fillvalue ]
+  standard_name = fill_value_for_diagnostic_output
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ lat ]
+  standard_name = latitude
+  units = radians
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ pint ]
+  standard_name = air_pressure_at_interface
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ pmid ]
+  standard_name = air_pressure
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ t ]
+  standard_name = air_temperature
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ zi ]
+  standard_name = geopotential_height_wrt_surface_at_interface
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ zm ]
+  standard_name = geopotential_height_wrt_surface
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ phis ]
+  standard_name = surface_geopotential
+  units = m2 s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ calday ]
+  standard_name = fractional_calendar_days_on_end_of_current_timestep
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ tropp_p_loc ]
+  standard_name = tropopause_air_pressure_from_climatology_dataset
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension, number_of_months_in_year)
+  intent = in
+[ tropp_days ]
+  standard_name = tropopause_calendar_days_from_climatology
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (number_of_months_in_year)
+  intent = in
+[ tropLev ]
+  standard_name = tropopause_vertical_layer_index
+  units = index
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropP ]
+  standard_name = tropopause_air_pressure
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropT ]
+  standard_name = tropopause_air_temperature
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropZ ]
+  standard_name = tropopause_geopotential_height_wrt_surface
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropLev_twmo ]
+  standard_name = tropopause_vertical_layer_index_from_lapse_rate_method
+  units = index
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropP_twmo ]
+  standard_name = tropopause_air_pressure_from_lapse_rate_method
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropT_twmo ]
+  standard_name = tropopause_air_temperature_from_lapse_rate_method
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropZ_twmo ]
+  standard_name = tropopause_geopotential_height_wrt_surface_from_lapse_rate_method
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropLev_clim ]
+  standard_name = tropopause_vertical_layer_index_from_climatological_method
+  units = index
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropP_clim ]
+  standard_name = tropopause_air_pressure_from_climatological_method
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropT_clim ]
+  standard_name = tropopause_air_temperature_from_climatological_method
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropZ_clim ]
+  standard_name = tropopause_geopotential_height_wrt_surface_from_climatological_method
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropLev_hybstob ]
+  standard_name = tropopause_vertical_layer_index_from_hybrid_stobie_linoz_with_climatological_backup_method
+  units = index
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropP_hybstob ]
+  standard_name = tropopause_air_pressure_from_hybrid_stobie_linoz_with_climatological_backup_method
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropT_hybstob ]
+  standard_name = tropopause_air_temperature_from_hybrid_stobie_linoz_with_climatological_backup_method
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropZ_hybstob ]
+  standard_name = tropopause_geopotential_height_wrt_surface_from_hybrid_stobie_linoz_with_climatological_backup_method
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropLev_cpp ]
+  standard_name = tropopause_vertical_layer_index_from_cold_point_method
+  units = index
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropP_cpp ]
+  standard_name = tropopause_air_pressure_from_cold_point_method
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropT_cpp ]
+  standard_name = tropopause_air_temperature_from_cold_point_method
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropZ_cpp ]
+  standard_name = tropopause_geopotential_height_wrt_surface_from_cold_point_method
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropLev_chem ]
+  standard_name = tropopause_vertical_layer_index_from_chemical_method
+  units = index
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropP_chem ]
+  standard_name = tropopause_air_pressure_from_chemical_method
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropT_chem ]
+  standard_name = tropopause_air_temperature_from_chemical_method
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tropZ_chem ]
+  standard_name = tropopause_geopotential_height_wrt_surface_from_chemical_method
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ hstobie_trop ]
+  standard_name = vertical_layer_index_lower_bound_from_hybrid_stobie_linoz_with_climatological_backup_method_for_stratospheric_chemistry
+  units = index
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ hstobie_linoz ]
+  standard_name = vertical_layer_index_lower_bound_from_hybrid_stobie_linoz_with_climatological_backup_method_for_linearized_ozone_chemistry
+  units = index
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ hstobie_tropop ]
+  standard_name = tropopause_vertical_layer_index_from_hybrid_stobie_linoz_with_climatological_backup_method_for_chemistry
+  units = index
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ scheme_name ]
+  standard_name = scheme_name
+  units = none
+  type = character | kind = len=64
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

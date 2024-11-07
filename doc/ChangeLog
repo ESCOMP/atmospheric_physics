@@ -1,3 +1,157 @@
+===============================================================
+
+Tag name:
+Originator(s): jimmielin
+Date: October 17, 2024
+One-line Summary: Implement ccpp_const_get_index in to_be_ccppized to avoid circular dependencies
+Github PR URL: https://github.com/ESCOMP/atmospheric_physics/pull/135
+
+This PR fixes the following NCAR/atmospheric_physics Github issues: N/A
+
+    This routine can be shared by CAM-SIMA code (companion PR to be filled) and atmospheric_physics schemes by passing in the CCPP constituents pointer object.
+
+    This loop-based workaround is to avoid a dependency on cam_ccpp_cap which would in turn depend on all schemes creating a circular dependency.
+
+Code reviewed by: cacraigucar, nusbaume
+
+List all existing files that have been added (A), modified (M), or deleted (D),
+and describe the changes:
+
+- Add to_be_ccppized directory and ccpp_const_utils implementing ccpp_const_get_index
+M       doc/ChangeLog
+A       to_be_ccppized/ccpp_const_utils.F90
+
+List and Describe any test failures: N/A
+
+Summarize any changes to answers: none
+
+===============================================================
+
+Tag name: atmos_phys0_05_001
+Originator(s): nusbaume
+Date: October 10, 2024
+One-line Summary: Move suite and scheme files to new directories
+Github PR URL: https://github.com/ESCOMP/atmospheric_physics/pull/126
+
+This PR fixes the following NCAR/atmospheric_physics Github issues:
+
+Fixes #124 -> Re-organize directory structure
+
+Code reviewed by: peverwhee, jimmielin
+
+List all existing files that have been added (A), modified (M), or deleted (D),
+and describe the changes:
+
+- Move top-level suite definition files to "suites" directory:
+R100    suite_cam4.xml              suites/suite_cam4.xml
+R100    suite_cam6.xml              suites/suite_cam6.xml
+R100    suite_cam6_silhs.xml        suites/suite_cam6_silhs.xml
+R100    suite_cam7.xml              suites/suite_cam7.xml
+R100    suite_held_suarez_1994.xml  suites/suite_held_suarez_1994.xml
+R100    suite_kessler.xml           suites/suite_kessler.xml
+R100    suite_musica.xml            suites/suite_musica.xml
+R100    suite_tj2016.xml            suites/suite_tj2016.xml
+
+- Rename 'test_sdfs' to 'test_suites':
+R100    test/test_sdfs/suite_dry_adiabatic_adjust.xml   test/test_suites/suite_dry_adiabatic_adjust.xml
+R100    test/test_sdfs/suite_tj2016_precip.xml          test/test_suites/suite_tj2016_precip.xml
+R100    test/test_sdfs/suite_tj2016_sfc_pbl_hs.xml      test/test_suites/suite_tj2016_sfc_pbl_hs.xml
+R100    test/test_sdfs/suite_tropopause_find.xml        test/test_suites/suite_tropopause_find.xml
+
+- Move top-level scheme directories to new "schemes" subdirectory:
+R100    cam_diagnostics/tropopause_diagnostics.F90         schemes/cam_diagnostics/tropopause_diagnostics.F90
+R100    cam_diagnostics/tropopause_diagnostics.meta        schemes/cam_diagnostics/tropopause_diagnostics.meta
+R100    dry_adiabatic_adjust/dadadj.F90                    schemes/dry_adiabatic_adjust/dadadj.F90
+R100    dry_adiabatic_adjust/dadadj.meta                   schemes/dry_adiabatic_adjust/dadadj.meta
+R100    dry_adiabatic_adjust/dadadj_apply_qv_tendency.F90  schemes/dry_adiabatic_adjust/dadadj_apply_qv_tendency.F90
+R100    dry_adiabatic_adjust/dadadj_apply_qv_tendency.meta schemes/dry_adiabatic_adjust/dadadj_apply_qv_tendency.meta
+R100    dry_adiabatic_adjust/dadadj_namelist.xml           schemes/dry_adiabatic_adjust/dadadj_namelist.xml
+R100    held_suarez/held_suarez_1994.F90                   schemes/held_suarez/held_suarez_1994.F90
+R100    held_suarez/held_suarez_1994.meta                  schemes/held_suarez/held_suarez_1994.meta
+R100    kessler/kessler.F90                                schemes/kessler/kessler.F90
+R100    kessler/kessler.meta                               schemes/kessler/kessler.meta
+R100    kessler/kessler_update.F90                         schemes/kessler/kessler_update.F90
+R100    kessler/kessler_update.meta                        schemes/kessler/kessler_update.meta
+R100    musica/micm/micm_util.F90                          schemes/musica/micm/micm_util.F90
+R100    musica/micm/musica_ccpp_micm.F90                   schemes/musica/micm/musica_ccpp_micm.F90
+R100    musica/musica_ccpp.F90                             schemes/musica/musica_ccpp.F90
+R100    musica/musica_ccpp.meta                            schemes/musica/musica_ccpp.meta
+R100    musica/musica_ccpp_namelist.xml                    schemes/musica/musica_ccpp_namelist.xml
+R100    musica/musica_ccpp_util.F90                        schemes/musica/musica_ccpp_util.F90
+R100    musica/tuvx/musica_ccpp_tuvx.F90                   schemes/musica/tuvx/musica_ccpp_tuvx.F90
+R100    tj2016/tj2016_precip.F90                           schemes/tj2016/tj2016_precip.F90
+R100    tj2016/tj2016_precip.meta                          schemes/tj2016/tj2016_precip.meta
+R100    tj2016/tj2016_sfc_pbl_hs.F90                       schemes/tj2016/tj2016_sfc_pbl_hs.F90
+R100    tj2016/tj2016_sfc_pbl_hs.meta                      schemes/tj2016/tj2016_sfc_pbl_hs.meta
+R100    tropopause_find/tropopause_find.F90                schemes/tropopause_find/tropopause_find.F90
+R100    tropopause_find/tropopause_find.meta               schemes/tropopause_find/tropopause_find.meta
+R100    utilities/geopotential_temp.F90                    schemes/utilities/geopotential_temp.F90
+R100    utilities/geopotential_temp.meta                   schemes/utilities/geopotential_temp.meta
+R100    utilities/physics_tendency_updaters.F90            schemes/utilities/physics_tendency_updaters.F90
+R100    utilities/physics_tendency_updaters.meta           schemes/utilities/physics_tendency_updaters.meta
+R100    utilities/qneg.F90                                 schemes/utilities/qneg.F90
+R100    utilities/qneg.meta                                schemes/utilities/qneg.meta
+R100    utilities/qneg_namelist.xml                        schemes/utilities/qneg_namelist.xml
+R100    utilities/state_converters.F90                     schemes/utilities/state_converters.F90
+R100    utilities/state_converters.meta                    schemes/utilities/state_converters.meta
+R100    utilities/static_energy.F90                        schemes/utilities/static_energy.F90
+R100    utilities/static_energy.meta                       schemes/utilities/static_energy.meta
+R100    zhang_mcfarlane/zm_conv_convtran.F90               schemes/zhang_mcfarlane/zm_conv_convtran.F90
+R100    zhang_mcfarlane/zm_conv_convtran.meta              schemes/zhang_mcfarlane/zm_conv_convtran.meta
+R100    zhang_mcfarlane/zm_conv_evap.F90                   schemes/zhang_mcfarlane/zm_conv_evap.F90
+R100    zhang_mcfarlane/zm_conv_evap.meta                  schemes/zhang_mcfarlane/zm_conv_evap.meta
+R100    zhang_mcfarlane/zm_conv_momtran.F90                schemes/zhang_mcfarlane/zm_conv_momtran.F90
+R100    zhang_mcfarlane/zm_conv_momtran.meta               schemes/zhang_mcfarlane/zm_conv_momtran.meta
+R100    zhang_mcfarlane/zm_convr.F90                       schemes/zhang_mcfarlane/zm_convr.F90
+R100    zhang_mcfarlane/zm_convr.meta                      schemes/zhang_mcfarlane/zm_convr.meta
+
+- Update CMake path to point to new directory location (found during testing):
+M       test/CMakeLists.txt
+
+List and Describe any test failures: N/A
+
+Summarize any changes to answers: none
+
+===============================================================
+
+Tag name: atmos_phys0_05_000
+Originator(s): jimmielin
+Date: August 22, 2024
+One-line Summary: tropopause_find CCPP-ization
+Github PR URL: https://github.com/ESCOMP/atmospheric_physics/pull/112
+
+This PR fixes the following NCAR/atmospheric_physics Github issues:
+    - Creates the CCPP interface for the tropopause_find routine
+
+    Several (extensive) changes were made to tropopause_find.F90 for CCPP-compatibility:
+    - tropopause_read_file, which provides tropp_p_loc and tropp_days climatological data used as the default fall-back method, has been moved to a utility module in CAM-SIMA to read, regrid, and provide this climatology to the CCPP-ized physics; it also removes lchnk indexing since they're no longer used in CAM-SIMA.
+    - tropopause_find used to accept (optional) arguments for returning tropT, tropZ, tropP (tropopause temperature, height, and pressure) which are no longer optional;
+    - tropopause_find accepted "primary" and "backup" methods for finding the tropopause. All the methods known to be used in CAM are now calculated at the same time in the tropopause_find_run main driver routine; it calls the underlying logic as appropriate with and populates the appropriate standard name physics fields. Because the same physical quantities for tropopause level, height, pressure, temperature, etc. using different methods are used throughout the CAM physics and simultaneously output in the diagnostics, the same standard names with a suffix are used to differentiate between these quantities computed by different methods.
+    - Standard CCPP-ization procedures, metadata, explicit use of fields instead of physics state, only passing active :ncol fields, ...
+
+    CAM interface code that will completely replicate existing behavior, bit-for-bit in current CAM, will be included in current CAM as tropopause.F90.
+
+Code reviewed by:
+
+List all existing files that have been added (A), modified (M), or deleted (D),
+and describe the changes:
+- Implementation of tropopause_find using CCPP and test SDF:
+A       test/test_sdfs/suite_tropopause_find.xml
+A       tropopause_find/tropopause_find.F90
+A       tropopause_find/tropopause_find.meta
+
+- Implementation of diagnostics (history) output within CAM-SIMA:
+A       cam_diagnostics/tropopause_diagnostics.F90
+A       cam_diagnostics/tropopause_diagnostics.meta
+
+- Metadata for changes made in this PR:
+M       doc/ChangeLog
+M       doc/NamesNotInDictionary.txt
+
+
+List and Describe any test failures: N/A
+
+Summarize any changes to answers: none
 
 ===============================================================
 
