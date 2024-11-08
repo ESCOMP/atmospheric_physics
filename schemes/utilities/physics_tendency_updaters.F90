@@ -19,7 +19,7 @@ CONTAINS
         errcode, errmsg)
       ! Dummy arguments
       integer,            intent(in)    :: nz              ! Num vertical  layers
-      real(kind_phys),    intent(in)    :: dudt(:,:)       ! tendency of eastward wind
+      real(kind_phys),    intent(inout) :: dudt(:,:)       ! tendency of eastward wind
       real(kind_phys),    intent(inout) :: u(:,:)          ! eastward wind
       real(kind_phys),    intent(inout) :: dudt_total(:,:) ! total tendency of eastward wind
       real(kind_phys),    intent(in)    :: dt              ! physics time step
@@ -37,6 +37,8 @@ CONTAINS
          dudt_total(:, klev) = dudt_total(:, klev) + dudt(:, klev)
       end do
 
+      dudt = 0.0_kind_phys
+
    end subroutine apply_tendency_of_eastward_wind_run
 
    !> \section arg_table_apply_tendency_of_northward_wind_run  Argument Table
@@ -45,7 +47,7 @@ CONTAINS
         errcode, errmsg)
       ! Dummy arguments
       integer,            intent(in)    :: nz              ! Num vertical layers
-      real(kind_phys),    intent(in)    :: dvdt(:,:)       ! tendency of northward wind
+      real(kind_phys),    intent(inout) :: dvdt(:,:)       ! tendency of northward wind
       real(kind_phys),    intent(inout) :: v(:,:)          ! northward wind
       real(kind_phys),    intent(inout) :: dvdt_total(:,:) ! total tendency of northward wind
       real(kind_phys),    intent(in)    :: dt              ! physics time step
@@ -63,6 +65,8 @@ CONTAINS
          dvdt_total(:, klev) = dvdt_total(:, klev) + dvdt(:, klev)
       end do
 
+      dvdt = 0.0_kind_phys
+
    end subroutine apply_tendency_of_northward_wind_run
 
    !> \section arg_table_apply_heating_rate_run  Argument Table
@@ -71,7 +75,7 @@ CONTAINS
         errcode, errmsg)
       ! Dummy arguments
       integer,            intent(in)    :: nz                ! Num vertical  layers
-      real(kind_phys),    intent(in)    :: heating_rate(:,:) ! heating rate
+      real(kind_phys),    intent(inout) :: heating_rate(:,:) ! heating rate
       real(kind_phys),    intent(inout) :: temp(:,:)         ! air temperature
       real(kind_phys),    intent(inout) :: dTdt_total(:,:)   ! total temperature tend.
       real(kind_phys),    intent(in)    :: dt                ! physics time step
@@ -90,6 +94,8 @@ CONTAINS
          dTdt_total(:, klev) = dTdt_total(:, klev) + (heating_rate(:, klev) / cpair(:,klev))
       end do
 
+      heating_rate = 0.0_kind_phys
+
    end subroutine apply_heating_rate_run
 
    !> \section arg_table_apply_tendency_of_air_temperature_run  Argument Table
@@ -98,7 +104,7 @@ CONTAINS
         dt, errcode, errmsg)
       ! Dummy arguments
       integer,            intent(in)    :: nz              ! Num vertical  layers
-      real(kind_phys),    intent(in)    :: t_tend(:,:)     ! temperature tendency
+      real(kind_phys),    intent(inout) :: t_tend(:,:)     ! temperature tendency
       real(kind_phys),    intent(inout) :: temp(:,:)       ! air temperature
       real(kind_phys),    intent(inout) :: dTdt_total(:,:) ! total temp. tendency
       real(kind_phys),    intent(in)    :: dt              ! physics time step
@@ -115,6 +121,8 @@ CONTAINS
          temp(:, klev) = temp(:, klev) + (t_tend(:, klev) * dt)
          dTdt_total(:, klev) = dTdt_total(:, klev) + t_tend(:, klev)
       end do
+
+      t_tend = 0.0_kind_phys
 
    end subroutine apply_tendency_of_air_temperature_run
 
