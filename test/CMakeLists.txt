@@ -28,15 +28,14 @@ set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)
 set(CMAKE_Fortran_FLAGS_DEBUG "-g -Wall -fno-range-check -O0 -fcheck=all -fbacktrace -ftrapv")
 
 if (CCPP_ENABLE_MUSICA_TESTS)
-  include(TestUtils)
-
-  set(MUSICA_VERSION $ENV{MUSICA_VERSION})
   set(MUSICA_SRC_PATH ${CMAKE_SOURCE_DIR}/../schemes/musica)
   set(TO_BE_CCPPIZED_SRC_PATH ${CMAKE_SOURCE_DIR}/../to_be_ccppized)
   set(CCPP_SRC_PATH ${CMAKE_SOURCE_DIR}/$ENV{CCPP_SRC_PATH})
   set(CCPP_TEST_SRC_PATH ${CMAKE_SOURCE_DIR}/include)
 
-  add_subdirectory(musica)
-
+  include(TestUtils)
+  include(CTest)
   enable_testing()
+
+  add_subdirectory(musica)
 endif()

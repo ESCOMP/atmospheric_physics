@@ -2,7 +2,8 @@ include(FetchContent)
 
 FetchContent_Declare(musica
   GIT_REPOSITORY https://github.com/NCAR/musica.git
-  GIT_TAG        $ENV{MUSICA_GIT_TAG}  # Set by docker
+  # GIT_TAG        $ENV{MUSICA_GIT_TAG}  # Set by docker
+  GIT_TAG        dbbdb22f5f2807e27c2695db85291951ba178634
 )
 message(STATUS "Using MUSICA commit: $ENV{MUSICA_GIT_TAG}")
 
@@ -66,8 +67,8 @@ add_custom_target(
   ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/configs ${CMAKE_BINARY_DIR}/configs
 )
 
-add_subdirectory(micm)
-add_subdirectory(tuvx)
+# add_subdirectory(micm)
+# add_subdirectory(tuvx)
 
 # Test metdadata
 find_package(Python REQUIRED)
