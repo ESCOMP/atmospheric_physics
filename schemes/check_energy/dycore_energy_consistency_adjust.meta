@@ -6,7 +6,7 @@
   name  = dycore_energy_consistency_adjust_run
   type  = scheme
 [ ncol ]
-  standard_name = horizontal_dimension
+  standard_name = horizontal_loop_extent
   units = count
   type = integer
   dimensions = ()
@@ -33,7 +33,7 @@
   standard_name = temperature_of_initial_state
   units = K
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ T ]
   standard_name = air_temperature
