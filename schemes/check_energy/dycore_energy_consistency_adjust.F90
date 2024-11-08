@@ -33,9 +33,6 @@ contains
     real(kind_phys),    intent(inout) :: T(:,:)                ! temperature [K]
     real(kind_phys),    intent(inout) :: tend_dtdt(:,:)        ! model phys temperature tendency [K s-1]
 
-    errmsg = ''
-    errflg = 0
-
     if(energy_formula_dycore == ENERGY_FORMULA_DYCORE_MPAS .or. &
        energy_formula_dycore == ENERGY_FORMULA_DYCORE_SE) then
       T(:ncol,:) = temp_ini(:ncol,:) + &
