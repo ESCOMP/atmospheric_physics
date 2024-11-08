@@ -10,7 +10,8 @@ module musica_ccpp_tuvx
   implicit none
   private
 
-  public :: tuvx_init, tuvx_run, tuvx_final
+  ! public :: tuvx_init, tuvx_run, tuvx_final
+  public :: tuvx_final
 
   type(tuvx_t),    pointer :: tuvx => null()
   type(grid_t),    pointer :: height_grid => null()
@@ -119,8 +120,8 @@ contains
       return
     end if
 
-    extraterrestrial_flux_profile => &
-      create_extraterrestrial_flux_profile( wavelength_grid, errmsg, errcode )
+    extraterrestrial_flux_profile => create_extraterrestrial_flux_profile( &
+                wavelength_grid, wavelength_grid_interfaces, errmsg, errcode )
     if (errcode /= 0) then
       call tuvx_deallocate( grids, profiles, null(), null(), height_grid, &
             wavelength_grid, temperature_profile, surface_albedo_profile, null() )
@@ -224,11 +225,10 @@ contains
                       standard_gravitational_acceleration,          &
                       photolysis_rate_constants, errmsg, errcode)
     use musica_util,                            only: error_t
-    use ccpp_tuvx_utils,                        only: read_extraterrestrial_flux
     use musica_ccpp_tuvx_height_grid,           only: set_height_grid_values, calculate_heights
     use musica_ccpp_tuvx_temperature,           only: set_temperature_values
     use musica_ccpp_tuvx_surface_albedo,        only: set_surface_albedo_values
-    use musica_ccpp_tuvx_extraterrestrial_flux, only: set_extraterrestrial_flux_values
+    ! use musica_ccpp_tuvx_extraterrestrial_flux, only: set_extraterrestrial_flux_values
 
     real(kind_phys),    intent(in)  :: temperature(:,:)                                  ! K (column, layer)
     real(kind_phys),    intent(in)  :: dry_air_density(:,:)                              ! kg m-3 (column, layer)
@@ -274,11 +274,11 @@ contains
     call set_surface_albedo_values( surface_albedo_profile, surface_albedo, errmsg, errcode )
     if (errcode /= 0) return
 
-    call set_extraterrestrial_flux_values( extraterrestrial_flux_profile,        &
-                                           flux_data_wavelength_grid_count,      &
-                                           flux_data_wavelength_grid_interfaces, &
-                                           flux_data_extraterrestrial_flux, errmsg, errcode )
-    if (errcode /= 0) return
+    ! call set_extraterrestrial_flux_values( extraterrestrial_flux_profile,        &
+    !                                        flux_data_wavelength_grid_count,      &
+    !                                        flux_data_wavelength_grid_interfaces, &
+    !                                        flux_data_extraterrestrial_flux, errmsg, errcode )
+    ! if (errcode /= 0) return
 
     ! stand-in until actual photolysis rate constants are calculated
     photolysis_rate_constants(:) = 1.0e-6_kind_phys

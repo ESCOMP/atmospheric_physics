@@ -48,9 +48,9 @@ contains
     ASSERT(errcode == 0)
     ASSERT(associated(profile))
 
-    call set_extraterrestrial_flux_values( profile, FLUX_DATA_NUM_WAVELENGTH_BINS, &
-                                           flux_data_wavelength_grid_interfaces,   &
-                                           flux_data_extraterrestrial_flux, errmsg, errcode )
+    ! call set_extraterrestrial_flux_values( profile, FLUX_DATA_NUM_WAVELENGTH_BINS, &
+    !                                        flux_data_wavelength_grid_interfaces,   &
+    !                                        flux_data_extraterrestrial_flux, errmsg, errcode )
     ASSERT(errcode == 0)
 
     call profile%get_midpoint_values( extraterrestrial_flux_midpoints, error )

@@ -15,7 +15,7 @@ contains
     use ccpp_kinds,                only: kind_phys
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
-    use ccpp_tuvx_utils,           only: read_extraterrestrial_flux
+    ! use ccpp_tuvx_utils,           only: read_extraterrestrial_flux
 
     integer, parameter                                             :: NUM_SPECIES = 4
     integer, parameter                                             :: NUM_COLUMNS = 2
@@ -217,9 +217,18 @@ contains
       stop 3
     endif
 
-    call read_extraterrestrial_flux( flux_data_wavelength_grid_count,      &
-                                     flux_data_wavelength_grid_interfaces, &
-                                     flux_data_extraterrestrial_flux)
+    ! call read_extraterrestrial_flux( flux_data_wavelength_grid_count,      &
+    !                                  flux_data_wavelength_grid_interfaces, &
+    !                                  flux_data_extraterrestrial_flux)
+
+    flux_data_wavelength_grid_interfaces(:) = &
+      [200.0_kind_phys, 210.0_kind_phys, 220.0_kind_phys, 230.0_kind_phys, &
+       240.0_kind_phys, 250.0_kind_phys, 260.0_kind_phys, 270.0_kind_phys, 280.0_kind_phys]
+
+    flux_data_extraterrestrial_flux(:) = &
+      [1.5e13_kind_phys, 1.5e13_kind_phys, 1.4e13_kind_phys, 1.4e13_kind_phys, &
+       1.3e13_kind_phys, 1.2e13_kind_phys, 1.1e13_kind_phys, 1.0e13_kind_phys]
+
 
     write(*,*) "[MUSICA INFO] Initial Time Step"
     write(*,fmt="(1x,f10.2)") time_step
@@ -252,8 +261,6 @@ contains
     endif
 
     deallocate(constituent_props_ptr)
-    deallocate(flux_data_wavelength_grid_interfaces)
-    deallocate(flux_data_extraterrestrial_flux)
 
   end subroutine test_musica_ccpp_api
 
