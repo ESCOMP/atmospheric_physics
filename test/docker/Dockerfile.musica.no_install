@@ -59,9 +59,10 @@ RUN sudo chown -R test_user:test_user atmospheric_physics
 RUN cd atmospheric_physics/test \
     && mkdir lib \
     && cd lib \
-    && git clone https://github.com/NCAR/ccpp-framework.git \
-    && cd ccpp-framework \
-    && git checkout ${CCPP_GIT_TAG}
+    && git clone -b develop --depth 1 https://github.com/NCAR/ccpp-framework.git
+    # && git clone https://github.com/NCAR/ccpp-framework.git \
+    # && cd ccpp-framework \
+    # && git checkout ${CCPP_GIT_TAG}
 ENV CCPP_SRC_PATH="lib/ccpp-framework/src"
 ENV CCPP_FORTRAN_TOOLS_PATH="lib/ccpp-framework/scripts/fortran_tools"
 
