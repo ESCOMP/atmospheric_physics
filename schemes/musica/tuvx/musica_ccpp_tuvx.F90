@@ -18,6 +18,7 @@ module musica_ccpp_tuvx
   type(grid_t),    pointer :: wavelength_grid => null()
   type(profile_t), pointer :: temperature_profile => null()
   type(profile_t), pointer :: surface_albedo_profile => null()
+  type(profile_t), pointer :: extraterrestrial_flux_profile => null()
 
   type(index_mappings_t), pointer :: photolysis_rate_constants_mapping => null( )
   integer :: number_of_photolysis_rate_constants = 0
@@ -40,11 +41,14 @@ contains
       only: create_temperature_profile, temperature_label, temperature_unit
     use musica_ccpp_tuvx_surface_albedo, &
       only: create_surface_albedo_profile, surface_albedo_label, surface_albedo_unit
+    use musica_ccpp_tuvx_extraterrestrial_flux, &
+      only: create_extraterrestrial_flux_profile, extraterrestrial_flux_label, &
+            extraterrestrial_flux_unit
 
     integer,            intent(in)  :: vertical_layer_dimension      ! (count)
     integer,            intent(in)  :: vertical_interface_dimension  ! (count)
     real(kind_phys),    intent(in)  :: wavelength_grid_interfaces(:) ! m
-    type(mappings_t),   intent(in)  :: micm_rate_parameter_ordering ! index mappings for MICM rate parameters
+    type(mappings_t),   intent(in)  :: micm_rate_parameter_ordering  ! index mappings for MICM rate parameters
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errcode
 
@@ -69,7 +73,7 @@ contains
     call grids%add( height_grid, error )
     if (has_error_occurred( error, errmsg, errcode )) then
       call tuvx_deallocate( grids, null(), null(), null(), height_grid, null(), &
-                            null(), null() )
+                            null(), null(), null() )
       return
     end if
 
@@ -77,35 +81,35 @@ contains
                                                errmsg, errcode )
     if (errcode /= 0) then
       call tuvx_deallocate( grids, null(), null(), null(), height_grid, null(), &
-                            null(), null() )
+                            null(), null(), null() )
       return
     endif
 
     call grids%add( wavelength_grid, error )
     if (has_error_occurred( error, errmsg, errcode )) then
       call tuvx_deallocate( grids, null(), null(), null(), height_grid, &
-                            wavelength_grid, null(), null() )
+                            wavelength_grid, null(), null(), null() )
       return
     end if
 
     profiles => profile_map_t( error )
     if (has_error_occurred( error, errmsg, errcode )) then
       call tuvx_deallocate( grids, null(), null(), null(), height_grid, &
-                            wavelength_grid, null(), null() )
+                            wavelength_grid, null(), null(), null() )
       return
     end if
 
     temperature_profile => create_temperature_profile( height_grid, errmsg, errcode )
     if (errcode /= 0) then
       call tuvx_deallocate( grids, profiles, null(), null(), height_grid, &
-                            wavelength_grid, null(), null() )
+                            wavelength_grid, null(), null(), null() )
       return
     endif
 
     call profiles%add( temperature_profile, error )
     if (has_error_occurred( error, errmsg, errcode )) then
       call tuvx_deallocate( grids, profiles, null(), null(), height_grid, &
-                            wavelength_grid, temperature_profile, null() )
+                            wavelength_grid, temperature_profile, null(), null() )
       return
     end if
 
@@ -113,21 +117,38 @@ contains
                                                              errmsg, errcode )
     if (errcode /= 0) then
       call tuvx_deallocate( grids, profiles, null(), null(), height_grid, &
-                            wavelength_grid, temperature_profile, null() )
+                            wavelength_grid, temperature_profile, null(), null() )
       return
     endif
 
     call profiles%add( surface_albedo_profile, error )
     if (has_error_occurred( error, errmsg, errcode )) then
       call tuvx_deallocate( grids, profiles, null(), null(), height_grid, &
-            wavelength_grid, temperature_profile, surface_albedo_profile )
+            wavelength_grid, temperature_profile, surface_albedo_profile, null() )
+      return
+    end if
+
+    extraterrestrial_flux_profile => create_extraterrestrial_flux_profile( &
+                wavelength_grid, wavelength_grid_interfaces, errmsg, errcode )
+    if (errcode /= 0) then
+      call tuvx_deallocate( grids, profiles, null(), null(), height_grid, &
+            wavelength_grid, temperature_profile, surface_albedo_profile, null() )
+      return
+    endif
+
+    call profiles%add( extraterrestrial_flux_profile, error )
+    if (has_error_occurred( error, errmsg, errcode )) then
+      call tuvx_deallocate( grids, profiles, null(), null(), height_grid, &
+            wavelength_grid, temperature_profile, surface_albedo_profile, &
+            extraterrestrial_flux_profile )
       return
     end if
 
     radiators => radiator_map_t( error )
     if (has_error_occurred( error, errmsg, errcode )) then
       call tuvx_deallocate( grids, profiles, null(), null(), height_grid, &
-            wavelength_grid, temperature_profile, surface_albedo_profile )
+            wavelength_grid, temperature_profile, surface_albedo_profile, &
+            extraterrestrial_flux_profile )
       return
     end if
 
@@ -135,12 +156,14 @@ contains
                     radiators, error )
     if (has_error_occurred( error, errmsg, errcode )) then
       call tuvx_deallocate( grids, profiles, radiators, null(), height_grid, &
-            wavelength_grid, temperature_profile, surface_albedo_profile )
+            wavelength_grid, temperature_profile, surface_albedo_profile, &
+            extraterrestrial_flux_profile )
       return
     end if
 
     call tuvx_deallocate( grids, profiles, radiators, null(), height_grid, &
-          wavelength_grid, temperature_profile, surface_albedo_profile )
+          wavelength_grid, temperature_profile, surface_albedo_profile, &
+          extraterrestrial_flux_profile )
 
     grids => tuvx%get_grids( error )
     if (has_error_occurred( error, errmsg, errcode )) return
@@ -148,7 +171,7 @@ contains
     height_grid => grids%get( height_grid_label, height_grid_unit, error )
     if (has_error_occurred( error, errmsg, errcode )) then
       call tuvx_deallocate( grids, null(), null(), tuvx, null(), null(), &
-                            null(), null() )
+                            null(), null(), null() )
       return
     end if
 
@@ -156,33 +179,41 @@ contains
                                   error )
     if (has_error_occurred( error, errmsg, errcode )) then
       call tuvx_deallocate( grids, null(), null(), tuvx, height_grid, null(), &
-                            null(), null() )
+                            null(), null(), null() )
       return
     end if
 
     profiles => tuvx%get_profiles( error )
     if (has_error_occurred( error, errmsg, errcode )) then
       call tuvx_deallocate( grids, null(), null(), tuvx, height_grid, &
-            wavelength_grid, null(), null() )
+            wavelength_grid, null(), null(), null() )
       return
     end if
 
     temperature_profile => profiles%get( temperature_label, temperature_unit, error )
     if (has_error_occurred( error, errmsg, errcode )) then
       call tuvx_deallocate( grids, profiles, null(), tuvx, height_grid, &
-            wavelength_grid, null(), null() )
+            wavelength_grid, null(), null(), null() )
       return
     end if
 
     surface_albedo_profile => profiles%get( surface_albedo_label, surface_albedo_unit, error )
     if (has_error_occurred( error, errmsg, errcode )) then
       call tuvx_deallocate( grids, profiles, null(), tuvx, height_grid, &
-            wavelength_grid, temperature_profile, null() )
+            wavelength_grid, temperature_profile, null(), null() )
+      return
+    end if
+
+    extraterrestrial_flux_profile => &
+      profiles%get( extraterrestrial_flux_label, extraterrestrial_flux_unit, error )
+    if (has_error_occurred( error, errmsg, errcode )) then
+      call tuvx_deallocate( grids, profiles, null(), tuvx, height_grid, &
+            wavelength_grid, temperature_profile, surface_albedo_profile, null() )
       return
     end if
 
     call tuvx_deallocate( grids, profiles, null(), null(), null(), null(), &
-                          null(), null() )
+                          null(), null(), null() )
 
     photolysis_rate_constants_ordering => &
         tuvx%get_photolysis_rate_constants_ordering( error )
@@ -205,23 +236,30 @@ contains
   subroutine tuvx_run(temperature, dry_air_density,                 &
                       geopotential_height_wrt_surface_at_midpoint,  &
                       geopotential_height_wrt_surface_at_interface, &
-                      surface_temperature, surface_geopotential,    &
+                      surface_geopotential, surface_temperature,    &
                       surface_albedo,                               &
+                      flux_data_wavelength_grid_count,              &
+                      flux_data_wavelength_grid_interface,          &
+                      flux_data_extraterrestrial_flux,              &
                       standard_gravitational_acceleration,          &
                       rate_parameters, errmsg, errcode)
-    use musica_util,                  only: error_t
-    use musica_ccpp_tuvx_height_grid, only: set_height_grid_values, calculate_heights
-    use musica_ccpp_tuvx_temperature, only: set_temperature_values
-    use musica_ccpp_util,             only: has_error_occurred
-    use musica_ccpp_tuvx_surface_albedo, only: set_surface_albedo_values
+    use musica_util,                            only: error_t
+    use musica_ccpp_tuvx_height_grid,           only: set_height_grid_values, calculate_heights
+    use musica_ccpp_tuvx_temperature,           only: set_temperature_values
+    use musica_ccpp_util,                       only: has_error_occurred
+    use musica_ccpp_tuvx_surface_albedo,        only: set_surface_albedo_values
+    use musica_ccpp_tuvx_extraterrestrial_flux, only: set_extraterrestrial_flux_values
 
     real(kind_phys),    intent(in)    :: temperature(:,:)                                  ! K (column, layer)
     real(kind_phys),    intent(in)    :: dry_air_density(:,:)                              ! kg m-3 (column, layer)
     real(kind_phys),    intent(in)    :: geopotential_height_wrt_surface_at_midpoint(:,:)  ! m (column, layer)
     real(kind_phys),    intent(in)    :: geopotential_height_wrt_surface_at_interface(:,:) ! m (column, interface)
-    real(kind_phys),    intent(in)    :: surface_temperature(:)                            ! K
     real(kind_phys),    intent(in)    :: surface_geopotential(:)                           ! m2 s-2
+    real(kind_phys),    intent(in)    :: surface_temperature(:)                            ! K
     real(kind_phys),    intent(in)    :: surface_albedo                                    ! unitless
+    integer,            intent(in)    :: flux_data_wavelength_grid_count                   ! (count)
+    real(kind_phys),    intent(in)    :: flux_data_wavelength_grid_interface(:)            ! nm
+    real(kind_phys),    intent(in)    :: flux_data_extraterrestrial_flux(:)                ! photons cm-2 s-1 nm-1
     real(kind_phys),    intent(in)    :: standard_gravitational_acceleration               ! m s-2
     real(kind_phys),    intent(inout) :: rate_parameters(:,:,:)                            ! various units (column, layer, reaction)
     character(len=512), intent(out)   :: errmsg
@@ -230,10 +268,10 @@ contains
     ! local variables
     real(kind_phys), dimension(size(geopotential_height_wrt_surface_at_midpoint, dim = 2))  :: height_midpoints
     real(kind_phys), dimension(size(geopotential_height_wrt_surface_at_interface, dim = 2)) :: height_interfaces
-    real(kind_phys) :: reciprocal_of_gravitational_acceleration ! s2 m-1
     real(kind_phys), dimension(size(rate_parameters, dim=2)+2, &
                                number_of_photolysis_rate_constants) :: photolysis_rate_constants, & ! s-1
                                                                        heating_rates                ! K s-1 (TODO: check units)
+    real(kind_phys) :: reciprocal_of_gravitational_acceleration ! s2 m-1
     real(kind_phys) :: solar_zenith_angle ! degrees
     real(kind_phys) :: earth_sun_distance ! AU
     type(error_t)   :: error
@@ -243,6 +281,12 @@ contains
 
     ! surface albedo with respect to direct UV/visible radiation
     call set_surface_albedo_values( surface_albedo_profile, surface_albedo, errmsg, errcode )
+    if (errcode /= 0) return
+
+    call set_extraterrestrial_flux_values( extraterrestrial_flux_profile,        &
+                                           flux_data_wavelength_grid_count,      &
+                                           flux_data_wavelength_grid_interface, &
+                                           flux_data_extraterrestrial_flux, errmsg, errcode )
     if (errcode /= 0) return
 
     do i_col = 1, size(temperature, dim=1)
@@ -309,6 +353,11 @@ contains
     if (associated( surface_albedo_profile )) then
       deallocate( surface_albedo_profile )
       surface_albedo_profile => null()
+    end if
+
+    if (associated( extraterrestrial_flux_profile )) then
+      deallocate( extraterrestrial_flux_profile )
+      extraterrestrial_flux_profile => null()
     end if
 
     if (associated( tuvx )) then

@@ -6,10 +6,11 @@
 FROM ubuntu:22.04
 
 ARG MUSICA_GIT_TAG=326b5119768d5be9654baf96ae3bd6a1b757fdc8
+ARG BUILD_TYPE=Debug
 
 RUN apt update \
     && apt install -y sudo \
-    && adduser test_user \
+    && useradd -m test_user \
     && echo "test_user ALL=(root) NOPASSWD: ALL" >> /etc/sudoers.d/test_user \
     && chmod 0440 /etc/sudoers.d/test_user
 
@@ -34,7 +35,6 @@ RUN sudo apt update \
     libopenmpi-dev \
     m4 \
     make \
-    nlohmann-json3-dev \
     openmpi-bin \
     python3 \
     tree \
@@ -43,21 +43,15 @@ RUN sudo apt update \
     zlib1g-dev \
     && sudo apt clean
 
-ENV PATH="${PATH}:/usr/lib/openmpi/bin"
-
 ENV FC=mpif90
 ENV FFLAGS="-I/usr/include/"
 
 # Install MUSICA (MUSICA-C)
-RUN git clone https://github.com/NCAR/musica.git
-
-RUN cd musica \
-    && git fetch \
+RUN git clone https://github.com/NCAR/musica.git \
+    && cd musica \
     && git checkout ${MUSICA_GIT_TAG} \
-    && cmake \
-        -S . \
-        -B build \
-        -D CMAKE_BUILD_TYPE=Release \
+    && cmake -S . -B build \
+        -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
         -D MUSICA_ENABLE_TESTS=OFF \
         -D MUSICA_BUILD_FORTRAN_INTERFACE=OFF \
         -D MUSICA_ENABLE_MICM=ON \
@@ -77,9 +71,8 @@ ENV CCPP_SRC_PATH="lib/ccpp-framework/src"
 ENV CCPP_FORTRAN_TOOLS_PATH="lib/ccpp-framework/scripts/fortran_tools"
 
 RUN cd atmospheric_physics/test \
-    && cmake -S . \
-             -B build \
-             -D CMAKE_BUILD_TYPE=Debug \
+    && cmake -S . -B build \
+             -D CMAKE_BUILD_TYPE={BUILD_TYPE} \
              -D CCPP_ENABLE_MUSICA_TESTS=ON \
              -D CCPP_ENABLE_MEMCHECK=ON \
     && cmake --build ./build

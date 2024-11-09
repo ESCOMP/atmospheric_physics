@@ -47,17 +47,6 @@
          "year" : 2002,
          "month": 3,
          "day": 21
-      },
-      {
-         "name": "extraterrestrial flux",
-         "enable diagnostics" : true,
-         "type": "extraterrestrial flux",
-         "units": "photon cm-2 s-1",
-         "file path": ["musica_configurations/chapman/tuvx/data/profiles/solar/susim_hi.flx",
-                      "musica_configurations/chapman/tuvx/data/profiles/solar/atlas3_1994_317_a.dat",
-                      "musica_configurations/chapman/tuvx/data/profiles/solar/sao2010.solref.converted",
-                      "musica_configurations/chapman/tuvx/data/profiles/solar/neckel.flx"],
-         "interpolator": ["","","","fractional target"]
       }
    ],
    "radiative transfer": {
