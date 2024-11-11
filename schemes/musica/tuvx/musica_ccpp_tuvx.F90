@@ -233,15 +233,15 @@ contains
   end subroutine tuvx_init
 
   !> Calculates photolysis rate constants for the current model conditions
-  subroutine tuvx_run(temperature, dry_air_density,                 &
-                      geopotential_height_wrt_surface_at_midpoint,  &
-                      geopotential_height_wrt_surface_at_interface, &
-                      surface_geopotential, surface_temperature,    &
-                      surface_albedo,                               &
-                      flux_data_wavelength_grid_count,              &
-                      flux_data_wavelength_grid_interface,          &
-                      flux_data_extraterrestrial_flux,              &
-                      standard_gravitational_acceleration,          &
+  subroutine tuvx_run(temperature, dry_air_density,                  &
+                      geopotential_height_wrt_surface_at_midpoint,   &
+                      geopotential_height_wrt_surface_at_interface,  &
+                      surface_geopotential, surface_temperature,     &
+                      surface_albedo,                                &
+                      number_of_photolysis_wavelength_grid_sections, &
+                      photolysis_wavelength_grid_interfaces,         &
+                      extraterrestrial_flux,                         &
+                      standard_gravitational_acceleration,           &
                       rate_parameters, errmsg, errcode)
     use musica_util,                            only: error_t
     use musica_ccpp_tuvx_height_grid,           only: set_height_grid_values, calculate_heights
@@ -257,9 +257,9 @@ contains
     real(kind_phys),    intent(in)    :: surface_geopotential(:)                           ! m2 s-2
     real(kind_phys),    intent(in)    :: surface_temperature(:)                            ! K
     real(kind_phys),    intent(in)    :: surface_albedo                                    ! unitless
-    integer,            intent(in)    :: flux_data_wavelength_grid_count                   ! (count)
-    real(kind_phys),    intent(in)    :: flux_data_wavelength_grid_interface(:)            ! nm
-    real(kind_phys),    intent(in)    :: flux_data_extraterrestrial_flux(:)                ! photons cm-2 s-1 nm-1
+    integer,            intent(in)    :: number_of_photolysis_wavelength_grid_sections     ! (count)
+    real(kind_phys),    intent(in)    :: photolysis_wavelength_grid_interfaces(:)          ! nm
+    real(kind_phys),    intent(in)    :: extraterrestrial_flux(:)                          ! photons cm-2 s-1 nm-1
     real(kind_phys),    intent(in)    :: standard_gravitational_acceleration               ! m s-2
     real(kind_phys),    intent(inout) :: rate_parameters(:,:,:)                            ! various units (column, layer, reaction)
     character(len=512), intent(out)   :: errmsg
@@ -283,10 +283,10 @@ contains
     call set_surface_albedo_values( surface_albedo_profile, surface_albedo, errmsg, errcode )
     if (errcode /= 0) return
 
-    call set_extraterrestrial_flux_values( extraterrestrial_flux_profile,        &
-                                           flux_data_wavelength_grid_count,      &
-                                           flux_data_wavelength_grid_interface, &
-                                           flux_data_extraterrestrial_flux, errmsg, errcode )
+    call set_extraterrestrial_flux_values( extraterrestrial_flux_profile,                 &
+                                           number_of_photolysis_wavelength_grid_sections, &
+                                           photolysis_wavelength_grid_interfaces,         &
+                                           extraterrestrial_flux, errmsg, errcode )
     if (errcode /= 0) return
 
     do i_col = 1, size(temperature, dim=1)

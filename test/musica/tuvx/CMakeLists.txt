@@ -120,8 +120,8 @@ target_sources(test_tuvx_extraterrestrial_flux
     ${MUSICA_SRC_PATH}/tuvx/musica_ccpp_tuvx_wavelength_grid.F90
     ${MUSICA_SRC_PATH}/tuvx/musica_ccpp_tuvx_extraterrestrial_flux.F90
     ${MUSICA_SRC_PATH}/musica_ccpp_util.F90
-    ${CCPP_TEST_SRC_PATH}/ccpp_kinds.F90
     ${TO_BE_CCPPIZED_SRC_PATH}/ccpp_tuvx_utils.F90
+    ${CCPP_TEST_SRC_PATH}/ccpp_kinds.F90
 )
 
 target_link_libraries(test_tuvx_extraterrestrial_flux

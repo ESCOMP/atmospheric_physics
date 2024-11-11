@@ -144,43 +144,43 @@ contains
 
     implicit none
 
-    integer, parameter                                             :: NUM_SPECIES = 5
+    integer, parameter                                                    :: NUM_SPECIES = 5
     ! This test requires that the number of grid cells = 4, which is the default
     ! vector dimension for MICM. This restriction will be removed once
     ! https://github.com/NCAR/musica/issues/217 is finished.
-    integer, parameter                                             :: NUM_COLUMNS = 2
-    integer, parameter                                             :: NUM_LAYERS = 2
-    integer, parameter                                             :: NUM_WAVELENGTH_BINS = 102
-    integer                                                        :: NUM_GRID_CELLS = NUM_COLUMNS * NUM_LAYERS
-    integer                                                        :: solver_type = Rosenbrock
-    integer                                                        :: errcode
-    character(len=512)                                             :: errmsg
-    real(kind_phys)                                                :: time_step = 60._kind_phys                    ! s
-    real(kind_phys), dimension(NUM_WAVELENGTH_BINS+1)              :: photolysis_wavelength_grid_interfaces        ! m
-    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)             :: geopotential_height_wrt_surface_at_midpoint  ! m
-    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS+1)           :: geopotential_height_wrt_surface_at_interface ! m
-    real(kind_phys), dimension(NUM_COLUMNS)                        :: surface_geopotential                         ! m2 s-2
-    real(kind_phys), dimension(NUM_COLUMNS)                        :: surface_temperature                          ! K
-    real(kind_phys)                                                :: surface_albedo                               ! unitless
-    real(kind_phys)                                                :: standard_gravitational_acceleration          ! s2 m-1
-    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)             :: temperature                                  ! K
-    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)             :: pressure                                     ! Pa
-    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)             :: dry_air_density                              ! kg m-3
-    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS,NUM_SPECIES) :: constituents                                 ! kg kg-1
-    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS,NUM_SPECIES) :: initial_constituents                         ! kg kg-1
-    type(ccpp_constituent_prop_ptr_t),   allocatable               :: constituent_props_ptr(:)
-    type(ccpp_constituent_properties_t), allocatable, target       :: constituent_props(:)
-    type(ccpp_constituent_properties_t), pointer                   :: const_prop
-    integer, parameter                                             :: flux_data_wavelength_grid_count = 8          ! (count)
-    real(kind_phys), dimension(flux_data_wavelength_grid_count+1)  :: flux_data_wavelength_grid_interfaces         ! nm
-    real(kind_phys), dimension(flux_data_wavelength_grid_count)    :: flux_data_extraterrestrial_flux              ! photons cm-2 s-1 nm-1
-    real(kind_phys)                                                :: molar_mass, base_conc
-    character(len=512)                                             :: species_name, units
-    character(len=:), allocatable                                  :: micm_species_name
-    logical                                                        :: tmp_bool, is_advected
-    integer                                                        :: i, j, k
-    integer                                                        :: N2_index, O2_index, O_index, O1D_index, O3_index
-    real(kind_phys)                                                :: total_O, total_O_init
+    integer, parameter                                                    :: NUM_COLUMNS = 2
+    integer, parameter                                                    :: NUM_LAYERS = 2
+    integer, parameter                                                    :: NUM_WAVELENGTH_BINS = 102
+    integer                                                               :: NUM_GRID_CELLS = NUM_COLUMNS * NUM_LAYERS
+    integer                                                               :: solver_type = Rosenbrock
+    integer                                                               :: errcode
+    character(len=512)                                                    :: errmsg
+    real(kind_phys)                                                       :: time_step = 60._kind_phys                    ! s
+    real(kind_phys), dimension(NUM_WAVELENGTH_BINS+1)                     :: photolysis_wavelength_grid_interfaces        ! m
+    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)                    :: geopotential_height_wrt_surface_at_midpoint  ! m
+    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS+1)                  :: geopotential_height_wrt_surface_at_interface ! m
+    real(kind_phys), dimension(NUM_COLUMNS)                               :: surface_geopotential                         ! m2 s-2
+    real(kind_phys), dimension(NUM_COLUMNS)                               :: surface_temperature                          ! K
+    real(kind_phys)                                                       :: surface_albedo                               ! unitless
+    integer, parameter                                                    :: num_photolysis_wavelength_grid_sections = 8  ! (count)
+    real(kind_phys), dimension(num_photolysis_wavelength_grid_sections+1) :: flux_data_photolysis_wavelength_interfaces   ! nm
+    real(kind_phys), dimension(num_photolysis_wavelength_grid_sections)   :: extraterrestrial_flux                        ! photons cm-2 s-1 nm-1
+    real(kind_phys)                                                       :: standard_gravitational_acceleration          ! s2 m-1
+    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)                    :: temperature                                  ! K
+    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)                    :: pressure                                     ! Pa
+    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)                    :: dry_air_density                              ! kg m-3
+    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS,NUM_SPECIES)        :: constituents                                 ! kg kg-1
+    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS,NUM_SPECIES)        :: initial_constituents                         ! kg kg-1
+    type(ccpp_constituent_prop_ptr_t),   allocatable                      :: constituent_props_ptr(:)
+    type(ccpp_constituent_properties_t), allocatable, target              :: constituent_props(:)
+    type(ccpp_constituent_properties_t), pointer                          :: const_prop
+    real(kind_phys)                                                       :: molar_mass, base_conc
+    character(len=512)                                                    :: species_name, units
+    character(len=:), allocatable                                         :: micm_species_name
+    logical                                                               :: tmp_bool, is_advected
+    integer                                                               :: i, j, k
+    integer                                                               :: N2_index, O2_index, O_index, O1D_index, O3_index
+    real(kind_phys)                                                       :: total_O, total_O_init
 
     call get_wavelength_edges(photolysis_wavelength_grid_interfaces)
     solver_type = Rosenbrock
@@ -199,10 +199,10 @@ contains
     pressure(:,2) = (/ 8000.04_kind_phys, 9000.04_kind_phys /)
     dry_air_density(:,1) = (/ 3.5_kind_phys, 4.5_kind_phys /)
     dry_air_density(:,2) = (/ 5.5_kind_phys, 6.5_kind_phys /)
-    flux_data_wavelength_grid_interfaces(:) = &
+    flux_data_photolysis_wavelength_interfaces(:) = &
       (/ 200.0_kind_phys, 210.0_kind_phys, 220.0_kind_phys, 230.0_kind_phys, &
         240.0_kind_phys, 250.0_kind_phys, 260.0_kind_phys, 270.0_kind_phys, 280.0_kind_phys /)
-    flux_data_extraterrestrial_flux(:) = &
+    extraterrestrial_flux(:) = &
       (/ 1.5e13_kind_phys, 1.5e13_kind_phys, 1.4e13_kind_phys, 1.4e13_kind_phys, &
         1.3e13_kind_phys, 1.2e13_kind_phys, 1.1e13_kind_phys, 1.0e13_kind_phys /)
 
@@ -295,11 +295,11 @@ contains
     write(*,*) "[MUSICA INFO] Initial Concentrations"
     write(*,fmt="(4(3x,e13.6))") constituents
 
-    call musica_ccpp_run( time_step, temperature, pressure, dry_air_density, constituent_props_ptr, &
-                          constituents, geopotential_height_wrt_surface_at_midpoint,                &
-                          geopotential_height_wrt_surface_at_interface, surface_geopotential,       &
-                          surface_temperature, surface_albedo, flux_data_wavelength_grid_count,     &
-                          flux_data_wavelength_grid_interfaces, flux_data_extraterrestrial_flux,    &
+    call musica_ccpp_run( time_step, temperature, pressure, dry_air_density, constituent_props_ptr,     &
+                          constituents, geopotential_height_wrt_surface_at_midpoint,                    &
+                          geopotential_height_wrt_surface_at_interface, surface_geopotential,           &
+                          surface_temperature, surface_albedo, num_photolysis_wavelength_grid_sections, &
+                          flux_data_photolysis_wavelength_interfaces, extraterrestrial_flux,            &
                           standard_gravitational_acceleration, errmsg, errcode )
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
@@ -353,43 +353,43 @@ contains
 
     implicit none
 
-    integer, parameter                                             :: NUM_SPECIES = 2
+    integer, parameter                                                    :: NUM_SPECIES = 2
     ! This test requires that the number of grid cells = 4, which is the default
     ! vector dimension for MICM. This restriction will be removed once
     ! https://github.com/NCAR/musica/issues/217 is finished.
-    integer, parameter                                             :: NUM_COLUMNS = 2
-    integer, parameter                                             :: NUM_LAYERS = 2
-    integer, parameter                                             :: NUM_WAVELENGTH_BINS = 102
-    integer                                                        :: NUM_GRID_CELLS = NUM_COLUMNS * NUM_LAYERS
-    integer                                                        :: solver_type = Rosenbrock
-    integer                                                        :: errcode
-    character(len=512)                                             :: errmsg
-    real(kind_phys)                                                :: time_step = 60._kind_phys                    ! s
-    real(kind_phys), dimension(NUM_WAVELENGTH_BINS+1)              :: photolysis_wavelength_grid_interfaces        ! m
-    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)             :: geopotential_height_wrt_surface_at_midpoint  ! m
-    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS+1)           :: geopotential_height_wrt_surface_at_interface ! m
-    real(kind_phys), dimension(NUM_COLUMNS)                        :: surface_geopotential                         ! m2 s-2
-    real(kind_phys), dimension(NUM_COLUMNS)                        :: surface_temperature                          ! K
-    real(kind_phys)                                                :: surface_albedo                               ! unitless
-    real(kind_phys)                                                :: standard_gravitational_acceleration          ! s2 m-1
-    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)             :: temperature                                  ! K
-    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)             :: pressure                                     ! Pa
-    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)             :: dry_air_density                              ! kg m-3
-    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS,NUM_SPECIES) :: constituents                                 ! kg kg-1
-    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS,NUM_SPECIES) :: initial_constituents                         ! kg kg-1
-    type(ccpp_constituent_prop_ptr_t),   allocatable               :: constituent_props_ptr(:)
-    type(ccpp_constituent_properties_t), allocatable, target       :: constituent_props(:)
-    type(ccpp_constituent_properties_t), pointer                   :: const_prop
-    integer, parameter                                             :: flux_data_wavelength_grid_count = 8          ! (count)
-    real(kind_phys), dimension(flux_data_wavelength_grid_count+1)  :: flux_data_wavelength_grid_interfaces         ! nm
-    real(kind_phys), dimension(flux_data_wavelength_grid_count)    :: flux_data_extraterrestrial_flux              ! photons cm-2 s-1 nm-1
-    real(kind_phys)                                                :: molar_mass, base_conc
-    character(len=512)                                             :: species_name, units
-    character(len=:), allocatable                                  :: micm_species_name
-    logical                                                        :: tmp_bool, is_advected
-    integer                                                        :: i, j, k
-    integer                                                        :: Cl_index, Cl2_index
-    real(kind_phys)                                                :: total_Cl, total_Cl_init
+    integer, parameter                                                    :: NUM_COLUMNS = 2
+    integer, parameter                                                    :: NUM_LAYERS = 2
+    integer, parameter                                                    :: NUM_WAVELENGTH_BINS = 102
+    integer                                                               :: NUM_GRID_CELLS = NUM_COLUMNS * NUM_LAYERS
+    integer                                                               :: solver_type = Rosenbrock
+    integer                                                               :: errcode
+    character(len=512)                                                    :: errmsg
+    real(kind_phys)                                                       :: time_step = 60._kind_phys                    ! s
+    real(kind_phys), dimension(NUM_WAVELENGTH_BINS+1)                     :: photolysis_wavelength_grid_interfaces        ! m
+    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)                    :: geopotential_height_wrt_surface_at_midpoint  ! m
+    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS+1)                  :: geopotential_height_wrt_surface_at_interface ! m
+    real(kind_phys), dimension(NUM_COLUMNS)                               :: surface_geopotential                         ! m2 s-2
+    real(kind_phys), dimension(NUM_COLUMNS)                               :: surface_temperature                          ! K
+    real(kind_phys)                                                       :: surface_albedo                               ! unitless
+    integer, parameter                                                    :: num_photolysis_wavelength_grid_sections = 8  ! (count)
+    real(kind_phys), dimension(num_photolysis_wavelength_grid_sections+1) :: flux_data_photolysis_wavelength_interfaces   ! nm
+    real(kind_phys), dimension(num_photolysis_wavelength_grid_sections)   :: extraterrestrial_flux                        ! photons cm-2 s-1 nm-1
+    real(kind_phys)                                                       :: standard_gravitational_acceleration          ! s2 m-1
+    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)                    :: temperature                                  ! K
+    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)                    :: pressure                                     ! Pa
+    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)                    :: dry_air_density                              ! kg m-3
+    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS,NUM_SPECIES)        :: constituents                                 ! kg kg-1
+    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS,NUM_SPECIES)        :: initial_constituents                         ! kg kg-1
+    type(ccpp_constituent_prop_ptr_t),   allocatable                      :: constituent_props_ptr(:)
+    type(ccpp_constituent_properties_t), allocatable, target              :: constituent_props(:)
+    type(ccpp_constituent_properties_t), pointer                          :: const_prop
+    real(kind_phys)                                                       :: molar_mass, base_conc
+    character(len=512)                                                    :: species_name, units
+    character(len=:), allocatable                                         :: micm_species_name
+    logical                                                               :: tmp_bool, is_advected
+    integer                                                               :: i, j, k
+    integer                                                               :: Cl_index, Cl2_index
+    real(kind_phys)                                                       :: total_Cl, total_Cl_init
 
     call get_wavelength_edges(photolysis_wavelength_grid_interfaces)
     solver_type = Rosenbrock
@@ -408,10 +408,10 @@ contains
     pressure(:,2) = (/ 8000.04_kind_phys, 9000.04_kind_phys /)
     dry_air_density(:,1) = (/ 3.5_kind_phys, 4.5_kind_phys /)
     dry_air_density(:,2) = (/ 5.5_kind_phys, 6.5_kind_phys /)
-    flux_data_wavelength_grid_interfaces(:) = &
+    flux_data_photolysis_wavelength_interfaces(:) = &
       (/ 200.0_kind_phys, 210.0_kind_phys, 220.0_kind_phys, 230.0_kind_phys, &
         240.0_kind_phys, 250.0_kind_phys, 260.0_kind_phys, 270.0_kind_phys, 280.0_kind_phys /)
-    flux_data_extraterrestrial_flux(:) = &
+    extraterrestrial_flux(:) = &
       (/ 1.5e13_kind_phys, 1.5e13_kind_phys, 1.4e13_kind_phys, 1.4e13_kind_phys, &
         1.3e13_kind_phys, 1.2e13_kind_phys, 1.1e13_kind_phys, 1.0e13_kind_phys /)
 
@@ -492,11 +492,11 @@ contains
     write(*,*) "[MUSICA INFO] Initial Concentrations"
     write(*,fmt="(4(3x,e13.6))") constituents
 
-    call musica_ccpp_run( time_step, temperature, pressure, dry_air_density, constituent_props_ptr, &
-                          constituents, geopotential_height_wrt_surface_at_midpoint,                &
-                          geopotential_height_wrt_surface_at_interface, surface_geopotential,       &
-                          surface_temperature, surface_albedo, flux_data_wavelength_grid_count,     &
-                          flux_data_wavelength_grid_interfaces, flux_data_extraterrestrial_flux,    &
+    call musica_ccpp_run( time_step, temperature, pressure, dry_air_density, constituent_props_ptr,     &
+                          constituents, geopotential_height_wrt_surface_at_midpoint,                    &
+                          geopotential_height_wrt_surface_at_interface, surface_geopotential,           &
+                          surface_temperature, surface_albedo, num_photolysis_wavelength_grid_sections, &
+                          flux_data_photolysis_wavelength_interfaces, extraterrestrial_flux,            &
                           standard_gravitational_acceleration, errmsg, errcode )
     if (errcode /= 0) then
       write(*,*) trim(errmsg)

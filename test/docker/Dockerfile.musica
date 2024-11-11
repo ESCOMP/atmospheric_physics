@@ -51,11 +51,14 @@ RUN git clone https://github.com/NCAR/musica.git \
     && cd musica \
     && git checkout ${MUSICA_GIT_TAG} \
     && cmake -S . -B build \
-        -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
-        -D MUSICA_ENABLE_TESTS=OFF \
-        -D MUSICA_BUILD_FORTRAN_INTERFACE=OFF \
-        -D MUSICA_ENABLE_MICM=ON \
-        -D MUSICA_ENABLE_TUVX=ON \
+             -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+             -D MUSICA_ENABLE_TESTS=OFF \
+             -D MUSICA_BUILD_FORTRAN_INTERFACE=OFF \
+             -D MUSICA_ENABLE_MICM=ON \
+             -D MUSICA_ENABLE_TUVX=ON \
+             -D CMAKE_Fortran_COMPILER=mpif90 \
+             -D CMAKE_C_COMPILER=mpicc \
+             -D CMAKE_CXX_COMPILER=mpicxx \
     && cd build \
     && sudo make install
 

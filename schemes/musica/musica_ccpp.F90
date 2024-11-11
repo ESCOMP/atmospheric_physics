@@ -66,7 +66,6 @@ contains
                              standard_gravitational_acceleration, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use ccpp_kinds,                only: kind_phys
-    use iso_c_binding,             only: c_double
     use musica_ccpp_micm,          only: number_of_rate_parameters
     use musica_ccpp_micm_util,     only: convert_to_mol_per_cubic_meter, convert_to_mass_mixing_ratio
 

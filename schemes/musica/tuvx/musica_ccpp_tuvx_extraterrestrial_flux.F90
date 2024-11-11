@@ -17,7 +17,6 @@ module musica_ccpp_tuvx_extraterrestrial_flux
   !> Number of wavelength grid bins
   integer, protected :: num_wavelength_bins_ = DEFAULT_NUM_WAVELENGTH_BINS
 
-
 contains
 
   !> Creates a TUV-x extraterrestrial flux profile from the host-model wavelength grid
@@ -58,8 +57,8 @@ contains
   ! width of the wavelength bins to get the TUV-x units of photon cm-2 s-1
   !
   ! TUV-x only uses mid-point values for extraterrestrial flux
-  subroutine set_extraterrestrial_flux_values(profile, data_num_wavelength_grid_bins, &
-      data_wavelength_grid_interfaces, data_extraterrestrial_flux, errmsg, errcode)
+  subroutine set_extraterrestrial_flux_values(profile, num_photolysis_wavelength_grid_sections, &
+      photolysis_wavelength_grid_interfaces, extraterrestrial_flux, errmsg, errcode)
     use musica_ccpp_util,    only: has_error_occurred
     use musica_tuvx_profile, only: profile_t
     use musica_util,         only: error_t
@@ -67,9 +66,9 @@ contains
     use ccpp_tuvx_utils,     only: rebin
 
     type(profile_t),  intent(inout) :: profile
-    integer,          intent(in)    :: data_num_wavelength_grid_bins      ! (count)
-    real(kind_phys),  intent(in)    :: data_wavelength_grid_interfaces(:) ! nm
-    real(kind_phys),  intent(in)    :: data_extraterrestrial_flux(:)      ! photons cm-2 s-1 nm-1
+    integer,          intent(in)    :: num_photolysis_wavelength_grid_sections  ! (count)
+    real(kind_phys),  intent(in)    :: photolysis_wavelength_grid_interfaces(:) ! nm
+    real(kind_phys),  intent(in)    :: extraterrestrial_flux(:)                 ! photons cm-2 s-1 nm-1
     character(len=*), intent(out)   :: errmsg
     integer,          intent(out)   :: errcode
 
@@ -90,9 +89,9 @@ contains
     end if
 
     ! Regrid normalized flux to TUV-x wavelength grid
-    call rebin( data_num_wavelength_grid_bins, num_wavelength_bins_,     &
-                data_wavelength_grid_interfaces, wavelength_grid_interfaces_, &
-                data_extraterrestrial_flux, midpoints )
+    call rebin( num_photolysis_wavelength_grid_sections, num_wavelength_bins_,     &
+                photolysis_wavelength_grid_interfaces, wavelength_grid_interfaces_, &
+                extraterrestrial_flux, midpoints )
 
     ! Convert normalized flux to flux on TUV-x wavelength grid
     midpoints = midpoints * ( wavelength_grid_interfaces_(2 : num_wavelength_bins_ + 1) &
