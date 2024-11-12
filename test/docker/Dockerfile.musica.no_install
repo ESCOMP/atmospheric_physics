@@ -61,6 +61,10 @@ RUN cd atmospheric_physics/test \
 ENV CCPP_SRC_PATH="lib/ccpp-framework/src"
 ENV CCPP_FORTRAN_TOOLS_PATH="lib/ccpp-framework/scripts/fortran_tools"
 
+RUN cd atmospheric_physics/test/lib \
+    && git clone --depth 1 https://github.com/ESCOMP/CCPPStandardNames.git
+ENV CCPP_STD_NAMES_TOOLS_PATH="lib/CCPPStandardNames/tools"
+
 RUN cd atmospheric_physics/test \
     && cmake -S . -B build \
              -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
