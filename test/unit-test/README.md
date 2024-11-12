@@ -1,6 +1,14 @@
 # Unit Tests
 
-To add or update unit tests, follow the instructions from the [development guide](https://escomp.github.io/CAM-SIMA-docs/atmospheric_physics/development_workflow/#5-unit-testing).  Also, make sure [pFUnit](https://github.com/Goddard-Fortran-Ecosystem/pFUnit) is built and installed following the [build directions](https://github.com/Goddard-Fortran-Ecosystem/pFUnit?tab=readme-ov-file#building-and-installing-pfunit) (see the associated workflow file for a detailed example).
+To add or update unit tests, follow the instructions from the [development guide](https://escomp.github.io/CAM-SIMA-docs/atmospheric_physics/development_workflow/#5-unit-testing).  Also, make sure [pFUnit](https://github.com/Goddard-Fortran-Ecosystem/pFUnit) is built and installed following the [build directions](https://github.com/Goddard-Fortran-Ecosystem/pFUnit?tab=readme-ov-file#building-and-installing-pfunit) (see the atmospheric_physics github workflow file for a more detailed example):
+
+```
+git clone --depth 1 --branch v4.10.0 https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git
+cd pFUnit
+cmake -B./build -S.
+cd build
+make install
+```
 
 To run the tests, from the root directory of your clone, run:
 
