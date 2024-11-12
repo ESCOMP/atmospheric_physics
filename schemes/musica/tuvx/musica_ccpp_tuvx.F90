@@ -337,7 +337,7 @@ contains
     errmsg = ''
     errcode = 0
 
-    tuvx_deallocate(null(), null(), null(), tuvx, height_grid, &
+    call tuvx_deallocate(null(), null(), null(), tuvx, height_grid, &
                     wavelength_grid, temperature_profile,      &
                     surface_albedo_profile, extraterrestrial_flux_profile)
 
