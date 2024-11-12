@@ -329,41 +329,17 @@ contains
 
   !> Finalizes TUV-x
   subroutine tuvx_final(errmsg, errcode)
+    use musica_ccpp_tuvx_util, only: tuvx_deallocate
+
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errcode
 
     errmsg = ''
     errcode = 0
 
-    if (associated( height_grid )) then
-      deallocate( height_grid )
-      height_grid => null()
-    end if
-
-    if (associated( wavelength_grid )) then
-      deallocate( wavelength_grid )
-      wavelength_grid => null()
-    end if
-
-    if (associated( temperature_profile )) then
-      deallocate( temperature_profile )
-      temperature_profile => null()
-    end if
-
-    if (associated( surface_albedo_profile )) then
-      deallocate( surface_albedo_profile )
-      surface_albedo_profile => null()
-    end if
-
-    if (associated( extraterrestrial_flux_profile )) then
-      deallocate( extraterrestrial_flux_profile )
-      extraterrestrial_flux_profile => null()
-    end if
-
-    if (associated( tuvx )) then
-      deallocate( tuvx )
-      tuvx => null()
-    end if
+    tuvx_deallocate(null(), null(), null(), tuvx, height_grid, &
+                    wavelength_grid, temperature_profile,      &
+                    surface_albedo_profile, extraterrestrial_flux_profile)
 
     if (associated( photolysis_rate_constants_mapping )) then
       deallocate( photolysis_rate_constants_mapping )
