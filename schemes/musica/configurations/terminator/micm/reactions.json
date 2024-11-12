@@ -2,7 +2,7 @@
   "camp-data": [
     {
       "type": "MECHANISM",
-      "name": "Termintor Chemistry",
+      "name": "Terminator Chemistry",
       "reactions": [
         {
           "type": "PHOTOLYSIS",
