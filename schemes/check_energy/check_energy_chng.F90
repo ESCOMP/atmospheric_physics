@@ -204,6 +204,7 @@ contains
     integer,            intent(in)    :: ncol           ! number of atmospheric columns
     integer,            intent(in)    :: pver           ! number of vertical layers
     integer,            intent(in)    :: pcnst          ! number of ccpp constituents
+    integer,            intent(in)    :: iulog          ! log output unit
     real(kind_phys),    intent(in)    :: q(:,:,:)       ! constituent mass mixing ratios [kg kg-1]
     real(kind_phys),    intent(in)    :: pdel(:,:)      ! layer thickness [Pa]
     real(kind_phys),    intent(in)    :: u(:,:)         ! zonal wind [m s-1]
