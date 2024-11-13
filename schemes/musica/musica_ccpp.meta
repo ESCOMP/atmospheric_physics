@@ -1,12 +1,24 @@
 [ccpp-table-properties]
   name = musica_ccpp
   type = scheme
-  dependencies = micm/musica_ccpp_micm.F90,micm/musica_ccpp_tuvx.F90,musica_ccpp_util.F90
+  dependencies = micm/musica_ccpp_micm.F90,micm/musica_ccpp_micm_util.F90,tuvx/musica_ccpp_tuvx.F90,tuvx/musica_ccpp_tuvx_height_grid.F90,musica_ccpp_util.F90
   dynamic_constituent_routine = musica_ccpp_register
 
 [ccpp-arg-table]
   name  = musica_ccpp_init
   type  = scheme
+[ vertical_layer_dimension ]
+  standard_name = vertical_layer_dimension
+  units = none
+  type = integer
+  dimensions = ()
+  intent = in
+[ vertical_interface_dimension ]
+  standard_name = vertical_interface_dimension
+  units = none
+  type = integer
+  dimensions = ()
+  intent = in
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
@@ -59,6 +71,36 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension,number_of_ccpp_constituents)
   intent = inout
+[ geopotential_height_wrt_surface_at_midpoint ]
+  standard_name = geopotential_height_wrt_surface
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ geopotential_height_wrt_surface_at_interface ]
+  standard_name = geopotential_height_wrt_surface_at_interface
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_interface_dimension)
+  intent = in
+[ surface_temperature ]
+  standard_name = blackbody_temperature_at_surface
+  type = real | kind = kind_phys
+  units = K
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ surface_geopotential ]
+  standard_name = surface_geopotential
+  type = real | kind = kind_phys
+  units = m2 s-2
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ standard_gravitational_acceleration ]
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none

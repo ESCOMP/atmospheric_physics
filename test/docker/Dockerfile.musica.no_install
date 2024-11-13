@@ -2,6 +2,9 @@
 # It includes:
 # - Unit tests for MUSICA utility functions
 # - Integration tests for MUSICA CCPP APIs
+#
+# No MUSICA library installation is required, as the CMake FetchContent module
+# retrieves the MUSICA library automatically.
 
 FROM ubuntu:22.04
 
@@ -47,23 +50,7 @@ ENV PATH="${PATH}:/usr/lib/openmpi/bin"
 
 ENV FC=mpif90
 ENV FFLAGS="-I/usr/include/"
-
-# Install MUSICA (MUSICA-C)
-RUN git clone https://github.com/NCAR/musica.git
-
-RUN cd musica \
-    && git fetch \
-    && git checkout ${MUSICA_GIT_TAG} \
-    && cmake \
-        -S . \
-        -B build \
-        -D CMAKE_BUILD_TYPE=Release \
-        -D MUSICA_ENABLE_TESTS=OFF \
-        -D MUSICA_BUILD_FORTRAN_INTERFACE=OFF \
-        -D MUSICA_ENABLE_MICM=ON \
-        -D MUSICA_ENABLE_TUVX=ON \
-    && cd build \
-    && sudo make install
+ENV MUSICA_GIT_TAG=${MUSICA_GIT_TAG}
 
 COPY . atmospheric_physics
 RUN sudo chown -R test_user:test_user atmospheric_physics
