@@ -1,4 +1,4 @@
-name: code-coverage
+name: unit-test-code-coverage
 
 on:
   push:
@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  gcc:
+  gcc-toolchain:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout atmospheric_physics
