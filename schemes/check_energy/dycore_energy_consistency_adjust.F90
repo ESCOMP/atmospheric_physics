@@ -25,8 +25,8 @@ contains
     ! Input arguments
     integer,            intent(in)    :: ncol                  ! number of atmospheric columns
     integer,            intent(in)    :: pver                  ! number of vertical layers
-    integer,            intent(in)    :: energy_formula_dycore ! total energy formulation dycore
-    real(kind_phys),    intent(in)    :: scaling_dycore(:,:)   ! scaling for conversion of   temperature increment [1]
+    integer,            intent(in)    :: energy_formula_dycore ! total energy formulation used by dycore
+    real(kind_phys),    intent(in)    :: scaling_dycore(:,:)   ! scaling for conversion of temperature increment [1]
     real(kind_phys),    intent(in)    :: temp_ini(:,:)         ! initial temperature [K]
 
     ! Input/output arguments

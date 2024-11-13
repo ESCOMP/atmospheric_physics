@@ -11,6 +11,7 @@
     <scheme>check_energy_zero_fluxes</scheme>
     <scheme>check_energy_fix</scheme>
     <scheme>apply_heating_rate</scheme>
+    <scheme>geopotential_temp</scheme>
 
     <!-- Check that energy and water change matches the boundary fluxes -->
     <scheme>check_energy_scaling</scheme>
@@ -18,14 +19,10 @@
 
     <!-- Save current total energy from dycore for energy fixer in time step. This requires te_cur to be updated from check_energy_chng first... -->
     <scheme>check_energy_save_teout</scheme>
+
+    <scheme>sima_state_diagnostics</scheme>
   </group>
   <group name="physics_after_coupler">
-    <!-- <scheme>physics_dme_adjust</scheme> -->
-
-    <!-- MPAS and SE specific scaling of temperature for enforcing energy consistency:
-         First, calculate the scaling based off cp_or_cv_dycore (from cam_thermo_water_update)
-         Then, perform the temperature and temperature tendency scaling -->
-    <scheme>check_energy_scaling</scheme>
-    <scheme>dycore_energy_consistency_adjust</scheme>
+    <scheme>sima_tend_diagnostics</scheme>
   </group>
 </suite>

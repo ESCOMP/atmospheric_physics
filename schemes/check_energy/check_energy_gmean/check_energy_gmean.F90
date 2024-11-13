@@ -21,7 +21,7 @@ contains
        tedif_glob, heat_glob, &
        teinp_glob, teout_glob, psurf_glob, ptopb_glob)
 
-    ! Dependency: Uses gmean from src/utils
+    ! This scheme is non-portable due to dependency: Global mean module gmean from src/utils
     use gmean_mod, only: gmean
 
     ! Input arguments
@@ -30,7 +30,7 @@ contains
     real(kind_phys),    intent(in)    :: dtime          ! physics time step [s]
     real(kind_phys),    intent(in)    :: gravit         ! gravitational acceleration [m s-2]
     real(kind_phys),    intent(in)    :: pint(:,:)      ! interface pressure [Pa]
-    real(kind_phys),    intent(in)    :: te_ini_dyn(:)  ! dycore  formula: initial total energy [J m-2]
+    real(kind_phys),    intent(in)    :: te_ini_dyn(:)  ! dycore formula: initial total energy [J m-2]
     real(kind_phys),    intent(in)    :: teout(:)       ! total energy for global fixer in next timestep [J m-2]
 
     ! Output arguments
@@ -56,7 +56,6 @@ contains
                                             ! not constant for z-based vertical coordinate
 
     ! Compute global means of input and output energies and of surface pressure for heating rate.
-    ! (assuming uniform ptop)
     call gmean(te, te_glob, 4)
     teinp_glob = te_glob(1)
     teout_glob = te_glob(2)

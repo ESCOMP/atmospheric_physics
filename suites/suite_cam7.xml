@@ -11,6 +11,7 @@
     <scheme>check_energy_zero_fluxes</scheme>
     <scheme>check_energy_fix</scheme>
     <scheme>apply_heating_rate</scheme>
+    <scheme>geopotential_temp</scheme>
 
     <!-- Check that energy and water change matches the boundary fluxes -->
     <scheme>check_energy_scaling</scheme>
@@ -22,15 +23,19 @@
     <scheme>apply_heating_rate</scheme>
     <scheme>qneg</scheme>
     <scheme>geopotential_temp</scheme>
-    <!-- State diagnostics -->
-    <scheme>sima_state_diagnostics</scheme>
   </group>
   <group name="physics_after_coupler">
+    <!-- State diagnostics -->
+    <scheme>sima_state_diagnostics</scheme>
+
     <!-- Find tropopause -->
     <!-- Tropopause find has to make history output at the end of convective adjustment -->
     <!-- so supersaturated cells are not written to the tape. -->
     <scheme>tropopause_find</scheme>
     <scheme>tropopause_diagnostics</scheme>
+
+    <!-- Save current total energy from dycore for energy fixer in time step -->
+    <scheme>check_energy_save_teout</scheme>
 
     <!-- MPAS and SE specific scaling of temperature for enforcing energy consistency:
          First, calculate the scaling based off cp_or_cv_dycore (from cam_thermo_water_update)

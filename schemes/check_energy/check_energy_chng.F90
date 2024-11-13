@@ -1,5 +1,4 @@
 module check_energy_chng
-
   use ccpp_kinds, only: kind_phys
 
   implicit none
@@ -47,7 +46,8 @@ contains
        energy_formula_physics, energy_formula_dycore, &
        errmsg, errflg)
 
-    ! Dependency for hydrostatic energy calculation (physics and dycore formulas)
+    ! This scheme is non-portable due to dependencies on cam_thermo
+    ! for hydrostatic energy calculation (physics and dycore formulas)
     use cam_thermo,         only: get_hydrostatic_energy
     use cam_thermo_formula, only: ENERGY_FORMULA_DYCORE_SE, ENERGY_FORMULA_DYCORE_MPAS
 
@@ -176,6 +176,7 @@ contains
 !! \htmlinclude arg_table_check_energy_chng_run.html
   subroutine check_energy_chng_run( &
        ncol, pver, pcnst, &
+       iulog, &
        q, pdel, &
        u, v, T, &
        pintdry, phis, zm, &
@@ -192,14 +193,12 @@ contains
        name, flx_vap, flx_cnd, flx_ice, flx_sen, &
        errmsg, errflg)
 
-    ! Dependency for hydrostatic energy calculation (physics and dycore formulas)
+    ! This scheme is non-portable due to dependencies on cam_thermo
+    ! for hydrostatic energy calculation (physics and dycore formulas)
     use cam_thermo,         only: get_hydrostatic_energy
 
     ! Dependency for energy formula used by physics and dynamical cores
     use cam_thermo_formula, only: ENERGY_FORMULA_DYCORE_FV, ENERGY_FORMULA_DYCORE_SE, ENERGY_FORMULA_DYCORE_MPAS
-
-    ! FIXME hplin: for DEBUG only
-    use cam_logfile,        only: iulog
 
     ! Input arguments
     integer,            intent(in)    :: ncol           ! number of atmospheric columns
@@ -218,7 +217,7 @@ contains
     real(kind_phys),    intent(in)    :: cp_phys(:,:)   ! enthalpy (cpairv generally) [J kg-1 K-1]
     real(kind_phys),    intent(in)    :: cp_or_cv_dycore(:,:)  ! enthalpy or heat capacity, dycore dependent [J K-1 kg-1]
     real(kind_phys),    intent(in)    :: scaling_dycore(:,:)   ! scaling for conversion of temperature increment [1]
-    real(kind_phys),    intent(in)    :: ztodt          ! 2 delta t (model time increment) [s]
+    real(kind_phys),    intent(in)    :: ztodt          ! physics timestep [s]
     real(kind_phys),    intent(in)    :: latice         ! constant, latent heat of fusion of water at 0 C [J kg-1]
     real(kind_phys),    intent(in)    :: latvap         ! constant, latent heat of vaporization of water at 0 C [J kg-1]
     integer,            intent(in)    :: energy_formula_physics! total energy formulation physics

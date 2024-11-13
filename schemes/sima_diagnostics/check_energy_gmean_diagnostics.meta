@@ -5,6 +5,24 @@
 [ccpp-arg-table]
   name  = check_energy_gmean_diagnostics_run
   type  = scheme
+[ amIRoot ]
+  standard_name = flag_for_mpi_root
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ iulog ]
+  standard_name = log_output_unit
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ nstep ]
+  standard_name = current_timestep_number
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
 [ teinp_glob ]
   standard_name = global_mean_vertically_integrated_total_energy_of_initial_state_using_dycore_energy_formula
   units = J m-2

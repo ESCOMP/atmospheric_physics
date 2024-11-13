@@ -1,5 +1,5 @@
 module check_energy_scaling
-  use ccpp_kinds,       only: kind_phys
+  use ccpp_kinds, only: kind_phys
 
   implicit none
   private
@@ -17,14 +17,13 @@ contains
 !> \section arg_table_check_energy_scaling_run Argument Table
 !! \htmlinclude arg_table_check_energy_scaling_run.html
   subroutine check_energy_scaling_run( &
-       ncol, pver,                     &
+       ncol,                           &
        cp_or_cv_dycore, cpairv,        &
        scaling_dycore,                 &
        errmsg, errflg)
 
     ! Input arguments
     integer,            intent(in)    :: ncol                  ! number of atmospheric columns
-    integer,            intent(in)    :: pver                  ! number of vertical layers
     real(kind_phys),    intent(in)    :: cp_or_cv_dycore(:,:)  ! cp or cv from dycore [J kg-1 K-1]
     real(kind_phys),    intent(in)    :: cpairv(:,:)           ! specific heat of dry air at constant pressure [J kg-1 K-1]
 

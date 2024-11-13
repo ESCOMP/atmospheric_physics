@@ -11,12 +11,6 @@
   type = integer
   dimensions = ()
   intent = in
-[ pver ]
-  standard_name = vertical_layer_dimension
-  units = count
-  type = integer
-  dimensions = ()
-  intent = in
 [ cp_or_cv_dycore ]
   standard_name = specific_heat_for_air_used_in_dycore
   units = J kg-1 K-1

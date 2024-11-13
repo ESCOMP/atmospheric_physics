@@ -18,6 +18,8 @@ At the end of the timestep check_energy_save_teout has to be ran in order to sav
 
 - Diagnostics of intermediate quantities used in check_energy_diagnostics.
 
+- Implements dycore_energy_consistency_adjust which adjusts temperature and temperature tendencies for the MPAS and SE dynamical cores.
+
 Code reviewed by:
 
 List all existing files that have been added (A), modified (M), or deleted (D),
@@ -51,8 +53,17 @@ A       schemes/sima_diagnostics/check_energy_diagnostics.meta
 A       schemes/sima_diagnostics/check_energy_gmean_diagnostics.F90
 A       schemes/sima_diagnostics/check_energy_gmean_diagnostics.meta
 
-- test SDF including all functionality:
-A       test/test_suites/suite_check_energy.xml
+- dycore_energy_consistency_adjust and applications in simple physics:
+A       schemes/check_energy/dycore_energy_consistency_adjust.F90
+A       schemes/check_energy/dycore_energy_consistency_adjust.meta
+M       suites/suite_held_suarez_1994.xml
+M       suites/suite_kessler.xml
+
+- add check_energy to SDFs:
+M       suites/suite_cam7.xml
+
+- adiabatic SDF:
+A       suites/suite_adiabatic.xml
 
 
 List and Describe any test failures: N/A

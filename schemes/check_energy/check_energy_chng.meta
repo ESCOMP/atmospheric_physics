@@ -8,8 +8,8 @@
   name  = check_energy_chng_init
   type  = scheme
 [ print_energy_errors_in ]
-  standard_name = control_for_energy_conservation_warning
-  units = none
+  standard_name = flag_for_energy_conservation_warning
+  units = flag
   type = logical
   dimensions = ()
   intent = in
@@ -216,6 +216,12 @@
 [ pcnst ]
   standard_name = number_of_ccpp_constituents
   units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ iulog ]
+  standard_name = log_output_unit
+  units = 1
   type = integer
   dimensions = ()
   intent = in

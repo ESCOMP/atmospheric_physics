@@ -23,6 +23,9 @@ CONTAINS
    !> \section arg_table_check_energy_gmean_diagnostics_run  Argument Table
    !! \htmlinclude check_energy_gmean_diagnostics_run.html
    subroutine check_energy_gmean_diagnostics_run( &
+      amIRoot, &
+      iulog, &
+      nstep, &
       teinp_glob, &
       teout_glob, &
       heat_glob,  &
@@ -30,28 +33,24 @@ CONTAINS
       ptopb_glob, &
       errmsg, errflg)
 
-      use spmd_utils,   only: masterproc
-      use cam_logfile,  only: iulog
-      use time_manager, only: get_nstep
+      logical,            intent(in)  :: amIRoot
+      integer,            intent(in)  :: iulog         ! log output unit
+      integer,            intent(in)  :: nstep         ! current timestep number
 
-      !------------------------------------------------
-      !   Input / output parameters
-      !------------------------------------------------
       real(kind_phys),    intent(in)  :: teinp_glob    ! global mean energy of input state [J m-2]
       real(kind_phys),    intent(in)  :: teout_glob    ! global mean energy of output state [J m-2]
       real(kind_phys),    intent(in)  :: psurf_glob    ! global mean surface pressure [Pa]
       real(kind_phys),    intent(in)  :: ptopb_glob    ! global mean top boundary pressure [Pa]
       real(kind_phys),    intent(in)  :: heat_glob     ! global mean heating rate [J kg-1 s-1]
 
-      ! CCPP error handling variables
       character(len=512), intent(out) :: errmsg
       integer,            intent(out) :: errflg
 
       errmsg = ''
       errflg = 0
 
-      if (masterproc) then
-         write(iulog,'(1x,a9,1x,i8,5(1x,e25.17))') "nstep, te", get_nstep(), teinp_glob, teout_glob, &
+      if (amIRoot) then
+         write(iulog,'(1x,a9,1x,i8,5(1x,e25.17))') "nstep, te", nstep, teinp_glob, teout_glob, &
                heat_glob, psurf_glob, ptopb_glob
       endif
 

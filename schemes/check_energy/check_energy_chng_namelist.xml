@@ -7,8 +7,8 @@
     <type>logical</type>
     <category>diagnostics</category>
     <group>check_energy_nl</group>
-    <standard_name>control_for_energy_conservation_warning</standard_name>
-    <units>none</units>
+    <standard_name>flag_for_energy_conservation_warning</standard_name>
+    <units>flag</units>
     <desc>
       Turn on verbose output identifying columns that fail energy/water conservation checks. Default: FALSE
     </desc>

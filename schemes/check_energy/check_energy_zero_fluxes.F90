@@ -1,7 +1,6 @@
 ! zeros input fluxes to check_energy
 ! before running other schemes
 module check_energy_zero_fluxes
-
   use ccpp_kinds, only: kind_phys
 
   implicit none
