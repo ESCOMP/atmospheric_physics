@@ -162,6 +162,7 @@ contains
     use musica_util,                  only: error_t
     use musica_ccpp_tuvx_height_grid, only: set_height_grid_values, calculate_heights
     use musica_ccpp_tuvx_temperature, only: set_temperature_values
+    use musica_ccpp_tuvx_no_photolysis_rate, only: calculate_NO_photolysis_rate
 
     real(kind_phys),    intent(in)  :: temperature(:,:)                                  ! K (column, layer)
     real(kind_phys),    intent(in)  :: dry_air_density(:,:)                              ! kg m-3 (column, layer)
@@ -181,6 +182,7 @@ contains
     real(kind_phys), dimension(size(geopotential_height_wrt_surface_at_interface, dim = 2)) :: height_interfaces
     real(kind_phys) :: reciprocal_of_gravitational_acceleration ! s2 m-1
     integer         :: i_col
+    real(kind_phys) :: jno                                      ! s-1
 
     reciprocal_of_gravitational_acceleration = 1.0_kind_phys / standard_gravitational_acceleration
 
@@ -201,6 +203,7 @@ contains
 
     ! stand-in until actual photolysis rate constants are calculated
     photolysis_rate_constants(:) = 1.0e-6_kind_phys
+    jno = calculate_NO_photolysis_rate()
 
   end subroutine tuvx_run
 
