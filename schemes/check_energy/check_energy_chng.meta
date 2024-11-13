@@ -96,7 +96,7 @@
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = in
 [ cp_or_cv_dycore ]
-  standard_name = specific_heat_for_air_used_in_dycore
+  standard_name = specific_heat_of_dry_air_used_in_dycore
   units = J kg-1 K-1
   type = real | kind = kind_phys
   dimensions = (horizontal_dimension, vertical_layer_dimension)
@@ -162,13 +162,13 @@
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = out
 [ count ]
-  standard_name = number_of_values_with_significant_energy_or_water_imbalances
+  standard_name = number_of_atmosphere_columns_with_significant_energy_or_water_imbalances
   units = count
   type = integer
   dimensions = ()
   intent = out
 [ teout ]
-  standard_name = vertically_integrated_total_energy_at_end_of_physics
+  standard_name = vertically_integrated_total_energy_at_end_of_physics_timestep
   units = J m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_dimension)
@@ -280,13 +280,13 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ cp_or_cv_dycore ]
-  standard_name = specific_heat_for_air_used_in_dycore
+  standard_name = specific_heat_of_dry_air_used_in_dycore
   units = J kg-1 K-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ scaling_dycore ]
-  standard_name = ratio_of_specific_heat_for_air_used_in_physics_energy_formula_and_specific_heat_for_air_used_in_dycore_energy_formula
+  standard_name = ratio_of_specific_heat_of_dry_air_used_in_physics_energy_formula_to_specific_heat_of_dry_air_used_in_dycore_energy_formula
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -334,7 +334,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ count ]
-  standard_name = number_of_values_with_significant_energy_or_water_imbalances
+  standard_name = number_of_atmosphere_columns_with_significant_energy_or_water_imbalances
   units = count
   type = integer
   dimensions = ()
@@ -382,13 +382,13 @@
   dimensions = (horizontal_loop_extent)
   intent = in
 [ flx_cnd ]
-  standard_name = net_liquid_and_ice_fluxes_through_top_and_bottom_of_atmosphere_column
+  standard_name = net_liquid_and_lwe_ice_fluxes_through_top_and_bottom_of_atmosphere_column
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
 [ flx_ice ]
-  standard_name = net_ice_fluxes_through_top_and_bottom_of_atmosphere_column
+  standard_name = net_lwe_ice_fluxes_through_top_and_bottom_of_atmosphere_column
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)

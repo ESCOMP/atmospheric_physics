@@ -24,13 +24,13 @@
   dimensions = (horizontal_loop_extent)
   intent = out
 [ flx_cnd ]
-  standard_name = net_liquid_and_ice_fluxes_through_top_and_bottom_of_atmosphere_column
+  standard_name = net_liquid_and_lwe_ice_fluxes_through_top_and_bottom_of_atmosphere_column
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
 [ flx_ice ]
-  standard_name = net_ice_fluxes_through_top_and_bottom_of_atmosphere_column
+  standard_name = net_lwe_ice_fluxes_through_top_and_bottom_of_atmosphere_column
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)

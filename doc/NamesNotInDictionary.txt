@@ -1,7 +1,7 @@
 
 #######################
 Date/time of when script was run:
-2024-10-25 12:47:27.849590
+2024-11-13 12:40:59.115207
 #######################
 
 Non-dictionary standard names found in the following metadata files:
@@ -10,10 +10,11 @@ Non-dictionary standard names found in the following metadata files:
 
 atmospheric_physics/schemes/sima_diagnostics/check_energy_gmean_diagnostics.meta
 
+    - current_timestep_number
     - global_mean_air_pressure_at_top_of_atmosphere_model
     - global_mean_heating_rate_correction_for_energy_conservation
     - global_mean_surface_air_pressure
-    - global_mean_vertically_integrated_total_energy_at_end_of_physics
+    - global_mean_vertically_integrated_total_energy_at_end_of_physics_timestep
     - global_mean_vertically_integrated_total_energy_of_initial_state_using_dycore_energy_formula
 
 --------------------------
@@ -22,9 +23,9 @@ atmospheric_physics/schemes/sima_diagnostics/check_energy_diagnostics.meta
 
     - cumulative_total_energy_boundary_flux_using_physics_energy_formula
     - cumulative_total_water_boundary_flux
-    - ratio_of_specific_heat_for_air_used_in_physics_energy_formula_and_specific_heat_for_air_used_in_dycore_energy_formula
-    - specific_heat_for_air_used_in_dycore
-    - vertically_integrated_total_energy_at_end_of_physics
+    - ratio_of_specific_heat_of_dry_air_used_in_physics_energy_formula_to_specific_heat_of_dry_air_used_in_dycore_energy_formula
+    - specific_heat_of_dry_air_used_in_dycore
+    - vertically_integrated_total_energy_at_end_of_physics_timestep
     - vertically_integrated_total_energy_of_current_state_using_dycore_energy_formula
     - vertically_integrated_total_energy_of_current_state_using_physics_energy_formula
     - vertically_integrated_water_vapor_and_condensed_water_of_current_state
@@ -255,7 +256,7 @@ atmospheric_physics/schemes/utilities/geopotential_temp.meta
 
 atmospheric_physics/schemes/check_energy/check_energy_save_teout.meta
 
-    - vertically_integrated_total_energy_at_end_of_physics
+    - vertically_integrated_total_energy_at_end_of_physics_timestep
     - vertically_integrated_total_energy_of_current_state_using_dycore_energy_formula
 
 --------------------------
@@ -263,22 +264,22 @@ atmospheric_physics/schemes/check_energy/check_energy_save_teout.meta
 atmospheric_physics/schemes/check_energy/check_energy_chng.meta
 
     - air_pressure_of_dry_air_at_interface
-    - control_for_energy_conservation_warning
     - cumulative_total_energy_boundary_flux_using_physics_energy_formula
     - cumulative_total_water_boundary_flux
+    - flag_for_energy_conservation_warning
     - height_wrt_surface_of_initial_state
     - latent_heat_of_fusion_of_water_at_0c
-    - net_ice_fluxes_through_top_and_bottom_of_atmosphere_column
-    - net_liquid_and_ice_fluxes_through_top_and_bottom_of_atmosphere_column
+    - net_liquid_and_lwe_ice_fluxes_through_top_and_bottom_of_atmosphere_column
+    - net_lwe_ice_fluxes_through_top_and_bottom_of_atmosphere_column
     - net_sensible_heat_flux_through_top_and_bottom_of_atmosphere_column
     - net_water_vapor_fluxes_through_top_and_bottom_of_atmosphere_column
-    - number_of_values_with_significant_energy_or_water_imbalances
-    - ratio_of_specific_heat_for_air_used_in_physics_energy_formula_and_specific_heat_for_air_used_in_dycore_energy_formula
-    - specific_heat_for_air_used_in_dycore
+    - number_of_atmosphere_columns_with_significant_energy_or_water_imbalances
+    - ratio_of_specific_heat_of_dry_air_used_in_physics_energy_formula_to_specific_heat_of_dry_air_used_in_dycore_energy_formula
+    - specific_heat_of_dry_air_used_in_dycore
     - temperature_of_initial_state
     - total_energy_formula_for_dycore
     - total_energy_formula_for_physics
-    - vertically_integrated_total_energy_at_end_of_physics
+    - vertically_integrated_total_energy_at_end_of_physics_timestep
     - vertically_integrated_total_energy_of_current_state_using_dycore_energy_formula
     - vertically_integrated_total_energy_of_current_state_using_physics_energy_formula
     - vertically_integrated_total_energy_of_initial_state_using_dycore_energy_formula
@@ -290,17 +291,25 @@ atmospheric_physics/schemes/check_energy/check_energy_chng.meta
 
 atmospheric_physics/schemes/check_energy/check_energy_zero_fluxes.meta
 
-    - net_ice_fluxes_through_top_and_bottom_of_atmosphere_column
-    - net_liquid_and_ice_fluxes_through_top_and_bottom_of_atmosphere_column
+    - net_liquid_and_lwe_ice_fluxes_through_top_and_bottom_of_atmosphere_column
+    - net_lwe_ice_fluxes_through_top_and_bottom_of_atmosphere_column
     - net_sensible_heat_flux_through_top_and_bottom_of_atmosphere_column
     - net_water_vapor_fluxes_through_top_and_bottom_of_atmosphere_column
 
 --------------------------
 
+atmospheric_physics/schemes/check_energy/dycore_energy_consistency_adjust.meta
+
+    - ratio_of_specific_heat_of_dry_air_used_in_physics_energy_formula_to_specific_heat_of_dry_air_used_in_dycore_energy_formula
+    - temperature_of_initial_state
+    - total_energy_formula_for_dycore
+
+--------------------------
+
 atmospheric_physics/schemes/check_energy/check_energy_scaling.meta
 
-    - ratio_of_specific_heat_for_air_used_in_physics_energy_formula_and_specific_heat_for_air_used_in_dycore_energy_formula
-    - specific_heat_for_air_used_in_dycore
+    - ratio_of_specific_heat_of_dry_air_used_in_physics_energy_formula_to_specific_heat_of_dry_air_used_in_dycore_energy_formula
+    - specific_heat_of_dry_air_used_in_dycore
 
 --------------------------
 
@@ -308,7 +317,7 @@ atmospheric_physics/schemes/check_energy/check_energy_fix.meta
 
     - air_pressure_at_interface
     - global_mean_heating_rate_correction_for_energy_conservation
-    - net_sensible_heat_flux_through_top_and_bottom_of_atmosphere_column_from_global_total_energy_correction
+    - net_sensible_heat_flux_through_top_and_bottom_of_atmosphere_column
     - reciprocal_of_gravitational_acceleration
 
 --------------------------
@@ -320,9 +329,9 @@ atmospheric_physics/schemes/check_energy/check_energy_gmean/check_energy_gmean.m
     - global_mean_heating_rate_correction_for_energy_conservation
     - global_mean_surface_air_pressure
     - global_mean_total_energy_correction_for_energy_conservation
-    - global_mean_vertically_integrated_total_energy_at_end_of_physics
+    - global_mean_vertically_integrated_total_energy_at_end_of_physics_timestep
     - global_mean_vertically_integrated_total_energy_of_initial_state_using_dycore_energy_formula
-    - vertically_integrated_total_energy_at_end_of_physics
+    - vertically_integrated_total_energy_at_end_of_physics_timestep
     - vertically_integrated_total_energy_of_initial_state_using_dycore_energy_formula
 
 --------------------------

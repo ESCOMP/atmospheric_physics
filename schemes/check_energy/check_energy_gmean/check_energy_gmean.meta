@@ -43,7 +43,7 @@
   dimensions = (horizontal_loop_extent)
   intent = in
 [ teout ]
-  standard_name = vertically_integrated_total_energy_at_end_of_physics
+  standard_name = vertically_integrated_total_energy_at_end_of_physics_timestep
   units = J m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
@@ -67,7 +67,7 @@
   dimensions = ()
   intent = out
 [ teout_glob ]
-  standard_name = global_mean_vertically_integrated_total_energy_at_end_of_physics
+  standard_name = global_mean_vertically_integrated_total_energy_at_end_of_physics_timestep
   units = J m-2
   type = real | kind = kind_phys
   dimensions = ()

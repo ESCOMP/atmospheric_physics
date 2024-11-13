@@ -243,7 +243,7 @@ contains
     real(kind_phys),    intent(inout) :: te_cur_phys(:) ! physics formula: current total energy [J m-2]
     real(kind_phys),    intent(inout) :: te_cur_dyn (:) ! dycore  formula: current total energy [J m-2]
     real(kind_phys),    intent(inout) :: tw_cur     (:) ! current total water [kg m-2]
-    integer,            intent(inout) :: count          ! count of values with significant energy or water imbalances [1]
+    integer,            intent(inout) :: count          ! count of columns with significant energy or water imbalances [1]
     real(kind_phys),    intent(inout) :: tend_te_tnd(:) ! total energy tendency [J m-2 s-1]
     real(kind_phys),    intent(inout) :: tend_tw_tnd(:) ! total water tendency [kg m-2 s-1]
 
