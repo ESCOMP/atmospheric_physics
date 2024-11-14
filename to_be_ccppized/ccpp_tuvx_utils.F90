@@ -3,7 +3,7 @@ module ccpp_tuvx_utils
   implicit none
 
   private
-  public :: rebin
+  public :: rebin, read_extraterrestrial_flux
 
   character(len=50), dimension(4), public :: filepath_of_extraterrestrial_flux
 
