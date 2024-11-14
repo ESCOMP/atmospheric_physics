@@ -65,6 +65,12 @@ RUN git clone https://github.com/NCAR/musica.git \
 COPY . atmospheric_physics
 RUN sudo chown -R test_user:test_user atmospheric_physics
 
+# Clone the MUSICA chemistry data set repository
+RUN git clone https://github.com/NCAR/cam-sima-chemistry-data.git \
+    && cd cam-sima-chemistry-data \
+    && git checkout 144d982715f5bd6fa61e76f255a52db1843c55f2 \
+    && mv mechanisms /home/test_user/atmospheric_physics/schemes/musica/configurations
+
 # Must make ccpp-framework available before building test
 RUN cd atmospheric_physics/test \
     && mkdir lib \

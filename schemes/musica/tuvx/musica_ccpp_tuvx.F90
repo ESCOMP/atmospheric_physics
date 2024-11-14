@@ -221,7 +221,11 @@ contains
     number_of_photolysis_rate_constants = photolysis_rate_constants_ordering%size()
 
     call config%load_from_file( trim(filename_of_tuvx_micm_mapping_configuration), error )
-    if (has_error_occurred( error, errmsg, errcode )) return
+    if (has_error_occurred( error, errmsg, errcode )) then
+      deallocate( photolysis_rate_constants_ordering )
+      photolysis_rate_constants_ordering => null()
+      return
+    end if
 
     photolysis_rate_constants_mapping => &
         index_mappings_t( config, photolysis_rate_constants_ordering, &

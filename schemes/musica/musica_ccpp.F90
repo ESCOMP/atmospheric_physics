@@ -32,7 +32,6 @@ contains
   subroutine musica_ccpp_init(vertical_layer_dimension, vertical_interface_dimension, &
                               photolysis_wavelength_grid_interfaces, errmsg, errcode)
     use ccpp_kinds, only : kind_phys
-
     use musica_ccpp_micm, only: micm
     use musica_ccpp_util, only: has_error_occurred
     integer,            intent(in)  :: vertical_layer_dimension                 ! (count)
@@ -41,7 +40,6 @@ contains
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errcode
 
-    if (errcode /= 0) return
     call micm_init(errmsg, errcode)
     if (errcode /= 0) return
     call tuvx_init(vertical_layer_dimension, vertical_interface_dimension, &
