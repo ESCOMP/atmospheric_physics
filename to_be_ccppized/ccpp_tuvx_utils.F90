@@ -68,11 +68,11 @@ contains
     real(kind_phys), allocatable, intent(out) :: wavelength_grid_interfaces(:) ! nm
     real(kind_phys), allocatable, intent(out) :: extraterrestrial_flux(:)      ! photons cm-2 s-1 nm-1
 
-    filepath_of_extraterrestrial_flux(1) = 'data/profiles/solar/susim_hi.flx'
-    filepath_of_extraterrestrial_flux(2) = 'data/profiles/solar/atlas3_1994_317_a.dat'
-    filepath_of_extraterrestrial_flux(3) = 'data/profiles/solar/sao2010.solref.converted'
-    filepath_of_extraterrestrial_flux(4) = 'data/profiles/solar/neckel.flx'
-      
+    filepath_of_extraterrestrial_flux(1) = 'musica_configurations/chapman/tuvx/data/profiles/solar/susim_hi.flx'
+    filepath_of_extraterrestrial_flux(2) = 'musica_configurations/chapman/tuvx/data/profiles/solar/atlas3_1994_317_a.dat'
+    filepath_of_extraterrestrial_flux(3) = 'musica_configurations/chapman/tuvx/data/profiles/solar/sao2010.solref.converted'
+    filepath_of_extraterrestrial_flux(4) = 'musica_configurations/chapman/tuvx/data/profiles/solar/neckel.flx'
+
     num_wavelength_grid_sections = 8
 
     allocate(wavelength_grid_interfaces(num_wavelength_grid_sections + 1))

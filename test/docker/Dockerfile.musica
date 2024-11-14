@@ -6,6 +6,7 @@
 FROM ubuntu:22.04
 
 ARG MUSICA_GIT_TAG=326b5119768d5be9654baf96ae3bd6a1b757fdc8
+ARG CAM_SIMA_CHEMISTRY_DATA_TAG=abc7cacbec3d33d5c0ed5bb79a157e93b42c45c0
 ARG BUILD_TYPE=Debug
 
 RUN apt update \
@@ -68,7 +69,7 @@ RUN sudo chown -R test_user:test_user atmospheric_physics
 # Clone the MUSICA chemistry data set repository
 RUN git clone https://github.com/NCAR/cam-sima-chemistry-data.git \
     && cd cam-sima-chemistry-data \
-    && git checkout 144d982715f5bd6fa61e76f255a52db1843c55f2 \
+    && git checkout ${CAM_SIMA_CHEMISTRY_DATA_TAG} \
     && mv mechanisms /home/test_user/atmospheric_physics/schemes/musica/configurations
 
 # Must make ccpp-framework available before building test

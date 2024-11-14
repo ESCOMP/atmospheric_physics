@@ -24,7 +24,7 @@ contains
       wavelength_grid_interfaces, errmsg, errcode) result( profile )
     use musica_util,                      only: error_t
     use musica_ccpp_util,                 only: has_error_occurred
-    use musica_ccpp_tuvx_wavelength_grid, only: meters_to_nanometers
+    use musica_ccpp_tuvx_wavelength_grid, only: m_to_nm
     use musica_tuvx_grid,                 only: grid_t
     use musica_tuvx_profile,              only: profile_t
 
@@ -46,14 +46,14 @@ contains
 
     allocate(wavelength_grid_interfaces_( size( wavelength_grid_interfaces ) ))
 
-    wavelength_grid_interfaces_(:) = wavelength_grid_interfaces(:) * meters_to_nanometers
+    wavelength_grid_interfaces_(:) = wavelength_grid_interfaces(:) * m_to_nm
 
   end function create_extraterrestrial_flux_profile
 
   !> Sets TUV-x extraterrestrial flux midpoints
   !
   ! Extraterrestrial flux is read from data files and interpolated to the
-  ! TUV-x wavelength grid. CAM ET Flux values are multiplied by the
+  ! TUV-x wavelength grid. CAM extraterrestrial flux values are multiplied by the
   ! width of the wavelength bins to get the TUV-x units of photon cm-2 s-1
   !
   ! TUV-x only uses mid-point values for extraterrestrial flux
