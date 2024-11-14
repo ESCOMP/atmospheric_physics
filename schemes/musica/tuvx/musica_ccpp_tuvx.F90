@@ -2,10 +2,11 @@ module musica_ccpp_tuvx
 
   ! Note: "tuvx_t" is included in an external pre-built TUV-x library that the host
   ! model is responsible for linking to during compilation
-  use musica_tuvx,          only: tuvx_t, grid_t, profile_t
-  use musica_ccpp_util,     only: has_error_occurred
   use ccpp_kinds,           only: kind_phys
   use musica_ccpp_namelist, only: filename_of_tuvx_configuration
+  use musica_ccpp_util,     only: has_error_occurred
+  use musica_tuvx,          only: tuvx_t, grid_t, profile_t
+  use musica_util,          only: mappings_t, index_mappings_t
 
   implicit none
   private
@@ -18,13 +19,18 @@ module musica_ccpp_tuvx
   type(profile_t), pointer :: temperature_profile => null()
   type(profile_t), pointer :: surface_albedo_profile => null()
 
+  type(index_mappings_t), pointer :: photolysis_rate_constants_mapping => null( )
+  integer :: number_of_photolysis_rate_constants = 0
+
 contains
 
   !> Initializes TUV-x
   subroutine tuvx_init(vertical_layer_dimension, vertical_interface_dimension, &
-                       wavelength_grid_interfaces, errmsg, errcode)
+                       wavelength_grid_interfaces, micm_rate_parameter_ordering, &
+                       errmsg, errcode)
     use musica_tuvx, only: grid_map_t, profile_map_t, radiator_map_t
-    use musica_util, only: error_t
+    use musica_util, only: error_t, configuration_t
+    use musica_ccpp_namelist, only: filename_of_tuvx_micm_mapping_configuration
     use musica_ccpp_tuvx_util, only: tuvx_deallocate
     use musica_ccpp_tuvx_height_grid, &
       only: create_height_grid, height_grid_label, height_grid_unit
@@ -38,14 +44,17 @@ contains
     integer,            intent(in)  :: vertical_layer_dimension      ! (count)
     integer,            intent(in)  :: vertical_interface_dimension  ! (count)
     real(kind_phys),    intent(in)  :: wavelength_grid_interfaces(:) ! m
+    type(mappings_t),   intent(in)  :: micm_rate_parameter_ordering ! index mappings for MICM rate parameters
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errcode
 
     ! local variables
-    type(grid_map_t),     pointer :: grids
-    type(profile_map_t),  pointer :: profiles
-    type(radiator_map_t), pointer :: radiators
-    type(error_t)                 :: error
+    type(grid_map_t),      pointer :: grids
+    type(profile_map_t),   pointer :: profiles
+    type(radiator_map_t),  pointer :: radiators
+    type(configuration_t)          :: config
+    type(mappings_t),      pointer :: photolysis_rate_constants_ordering
+    type(error_t)                  :: error
 
     grids => grid_map_t( error )
     if (has_error_occurred( error, errmsg, errcode )) return
@@ -122,7 +131,7 @@ contains
       return
     end if
 
-    tuvx => tuvx_t( filename_of_tuvx_configuration, grids, profiles, &
+    tuvx => tuvx_t( trim(filename_of_tuvx_configuration), grids, profiles, &
                     radiators, error )
     if (has_error_occurred( error, errmsg, errcode )) then
       call tuvx_deallocate( grids, profiles, radiators, null(), height_grid, &
@@ -134,11 +143,7 @@ contains
           wavelength_grid, temperature_profile, surface_albedo_profile )
 
     grids => tuvx%get_grids( error )
-    if (has_error_occurred( error, errmsg, errcode )) then
-      deallocate( tuvx )
-      tuvx => null()
-      return
-    end if
+    if (has_error_occurred( error, errmsg, errcode )) return
 
     height_grid => grids%get( height_grid_label, height_grid_unit, error )
     if (has_error_occurred( error, errmsg, errcode )) then
@@ -179,6 +184,25 @@ contains
     call tuvx_deallocate( grids, profiles, null(), null(), null(), null(), &
                           null(), null() )
 
+    photolysis_rate_constants_ordering => &
+        tuvx%get_photolysis_rate_constants_ordering( error )
+    if (has_error_occurred( error, errmsg, errcode )) return
+    number_of_photolysis_rate_constants = photolysis_rate_constants_ordering%size()
+
+    call config%load_from_file( trim(filename_of_tuvx_micm_mapping_configuration), error )
+    if (has_error_occurred( error, errmsg, errcode )) then
+      deallocate( photolysis_rate_constants_ordering )
+      photolysis_rate_constants_ordering => null()
+      return
+    end if
+
+    photolysis_rate_constants_mapping => &
+        index_mappings_t( config, photolysis_rate_constants_ordering, &
+                          micm_rate_parameter_ordering, error )
+    deallocate( photolysis_rate_constants_ordering )
+    photolysis_rate_constants_ordering => null()
+    if (has_error_occurred( error, errmsg, errcode )) return
+
   end subroutine tuvx_init
 
   !> Calculates photolysis rate constants for the current model conditions
@@ -188,33 +212,42 @@ contains
                       surface_temperature, surface_geopotential,    &
                       surface_albedo,                               &
                       standard_gravitational_acceleration,          &
-                      photolysis_rate_constants, errmsg, errcode)
-    use musica_util,                     only: error_t
-    use musica_ccpp_tuvx_height_grid,    only: set_height_grid_values, calculate_heights
-    use musica_ccpp_tuvx_temperature,    only: set_temperature_values
+                      rate_parameters, errmsg, errcode)
+    use musica_util,                  only: error_t
+    use musica_ccpp_tuvx_height_grid, only: set_height_grid_values, calculate_heights
+    use musica_ccpp_tuvx_temperature, only: set_temperature_values
+    use musica_ccpp_util,             only: has_error_occurred
     use musica_ccpp_tuvx_surface_albedo, only: set_surface_albedo_values
 
-    real(kind_phys),    intent(in)  :: temperature(:,:)                                  ! K (column, layer)
-    real(kind_phys),    intent(in)  :: dry_air_density(:,:)                              ! kg m-3 (column, layer)
-    real(kind_phys),    intent(in)  :: geopotential_height_wrt_surface_at_midpoint(:,:)  ! m (column, layer)
-    real(kind_phys),    intent(in)  :: geopotential_height_wrt_surface_at_interface(:,:) ! m (column, interface)
-    real(kind_phys),    intent(in)  :: surface_temperature(:)                            ! K
-    real(kind_phys),    intent(in)  :: surface_geopotential(:)                           ! m2 s-2
-    real(kind_phys),    intent(in)  :: surface_albedo                                    ! unitless
-    real(kind_phys),    intent(in)  :: standard_gravitational_acceleration               ! m s-2
-    ! temporarily set to Chapman mechanism and 1 dimension
-    ! until mapping between MICM and TUV-x is implemented
-    real(kind_phys),    intent(out) :: photolysis_rate_constants(:) ! s-1 (column, reaction)
-    character(len=512), intent(out) :: errmsg
-    integer,            intent(out) :: errcode
+    real(kind_phys),    intent(in)    :: temperature(:,:)                                  ! K (column, layer)
+    real(kind_phys),    intent(in)    :: dry_air_density(:,:)                              ! kg m-3 (column, layer)
+    real(kind_phys),    intent(in)    :: geopotential_height_wrt_surface_at_midpoint(:,:)  ! m (column, layer)
+    real(kind_phys),    intent(in)    :: geopotential_height_wrt_surface_at_interface(:,:) ! m (column, interface)
+    real(kind_phys),    intent(in)    :: surface_temperature(:)                            ! K
+    real(kind_phys),    intent(in)    :: surface_geopotential(:)                           ! m2 s-2
+    real(kind_phys),    intent(in)    :: surface_albedo                                    ! unitless
+    real(kind_phys),    intent(in)    :: standard_gravitational_acceleration               ! m s-2
+    real(kind_phys),    intent(inout) :: rate_parameters(:,:,:)                            ! various units (column, layer, reaction)
+    character(len=512), intent(out)   :: errmsg
+    integer,            intent(out)   :: errcode
 
     ! local variables
     real(kind_phys), dimension(size(geopotential_height_wrt_surface_at_midpoint, dim = 2))  :: height_midpoints
     real(kind_phys), dimension(size(geopotential_height_wrt_surface_at_interface, dim = 2)) :: height_interfaces
     real(kind_phys) :: reciprocal_of_gravitational_acceleration ! s2 m-1
-    integer         :: i_col
+    real(kind_phys), dimension(size(rate_parameters, dim=2)+2, &
+                               number_of_photolysis_rate_constants) :: photolysis_rate_constants, & ! s-1
+                                                                       heating_rates                ! K s-1 (TODO: check units)
+    real(kind_phys) :: solar_zenith_angle ! degrees
+    real(kind_phys) :: earth_sun_distance ! AU
+    type(error_t)   :: error
+    integer         :: i_col, i_level
 
     reciprocal_of_gravitational_acceleration = 1.0_kind_phys / standard_gravitational_acceleration
+
+    ! surface albedo with respect to direct UV/visible radiation
+    call set_surface_albedo_values( surface_albedo_profile, surface_albedo, errmsg, errcode )
+    if (errcode /= 0) return
 
     do i_col = 1, size(temperature, dim=1)
       call calculate_heights( geopotential_height_wrt_surface_at_midpoint(i_col,:),  &
@@ -229,14 +262,28 @@ contains
       call set_temperature_values( temperature_profile, temperature(i_col,:), &
                                    surface_temperature(i_col), errmsg, errcode )
       if (errcode /= 0) return
+
+      ! temporary values until these are available from the host model
+      solar_zenith_angle = 0.0_kind_phys
+      earth_sun_distance = 1.0_kind_phys
+
+      ! calculate photolysis rate constants and heating rates
+      call tuvx%run( solar_zenith_angle, earth_sun_distance, &
+                     photolysis_rate_constants(:,:), heating_rates(:,:), &
+                     error )
+      if (has_error_occurred( error, errmsg, errcode )) return
+
+      ! filter out negative photolysis rate constants
+      photolysis_rate_constants(:,:) = &
+          max( photolysis_rate_constants(:,:), 0.0_kind_phys )
+
+      ! map photolysis rate constants to the host model's rate parameters and vertical grid
+      do i_level = 1, size(rate_parameters, dim=2)
+        call photolysis_rate_constants_mapping%copy_data( &
+            photolysis_rate_constants(size(rate_parameters, dim=2)-i_level+2,:), &
+            rate_parameters(i_col,i_level,:) )
+      end do
     end do
-
-    ! surface albedo with respect to direct UV/visible radiation
-    call set_surface_albedo_values( surface_albedo_profile, surface_albedo, errmsg, errcode )
-    if (errcode /= 0) return
-
-    ! stand-in until actual photolysis rate constants are calculated
-    photolysis_rate_constants(:) = 1.0e-6_kind_phys
 
   end subroutine tuvx_run
 
@@ -271,6 +318,11 @@ contains
     if (associated( tuvx )) then
       deallocate( tuvx )
       tuvx => null()
+    end if
+
+    if (associated( photolysis_rate_constants_mapping )) then
+      deallocate( photolysis_rate_constants_mapping )
+      photolysis_rate_constants_mapping => null()
     end if
 
   end subroutine tuvx_final
