@@ -3,6 +3,16 @@
   type = scheme
 
 [ccpp-arg-table]
+  name  = check_energy_gmean_diagnostics_init
+  type  = scheme
+[ print_global_means_in ]
+  standard_name = flag_for_energy_global_means_output
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+
+[ccpp-arg-table]
   name  = check_energy_gmean_diagnostics_run
   type  = scheme
 [ amIRoot ]
@@ -14,12 +24,6 @@
 [ iulog ]
   standard_name = log_output_unit
   units = 1
-  type = integer
-  dimensions = ()
-  intent = in
-[ nstep ]
-  standard_name = current_timestep_number
-  units = count
   type = integer
   dimensions = ()
   intent = in

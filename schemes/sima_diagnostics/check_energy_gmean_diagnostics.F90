@@ -16,16 +16,28 @@ module check_energy_gmean_diagnostics
    private
    save
 
+   public :: check_energy_gmean_diagnostics_init
    public :: check_energy_gmean_diagnostics_run  ! main routine
 
-CONTAINS
+  ! Private module options.
+  logical :: print_global_means = .false.
+
+contains
+
+!> \section arg_table_check_energy_gmean_diagnostics_init Argument Table
+!! \htmlinclude arg_table_check_energy_gmean_diagnostics_init.html
+  subroutine check_energy_gmean_diagnostics_init(print_global_means_in)
+    ! Input arguments
+    logical,            intent(in)    :: print_global_means_in
+
+    print_global_means = print_global_means_in
+  end subroutine check_energy_gmean_diagnostics_init
 
    !> \section arg_table_check_energy_gmean_diagnostics_run  Argument Table
    !! \htmlinclude check_energy_gmean_diagnostics_run.html
    subroutine check_energy_gmean_diagnostics_run( &
       amIRoot, &
       iulog, &
-      nstep, &
       teinp_glob, &
       teout_glob, &
       heat_glob,  &
@@ -35,7 +47,6 @@ CONTAINS
 
       logical,            intent(in)  :: amIRoot
       integer,            intent(in)  :: iulog         ! log output unit
-      integer,            intent(in)  :: nstep         ! current timestep number
 
       real(kind_phys),    intent(in)  :: teinp_glob    ! global mean energy of input state [J m-2]
       real(kind_phys),    intent(in)  :: teout_glob    ! global mean energy of output state [J m-2]
@@ -49,9 +60,9 @@ CONTAINS
       errmsg = ''
       errflg = 0
 
-      if (amIRoot) then
-         write(iulog,'(1x,a9,1x,i8,5(1x,e25.17))') "nstep, te", nstep, teinp_glob, teout_glob, &
-               heat_glob, psurf_glob, ptopb_glob
+      if (print_global_means .and. amIRoot) then
+         write(iulog,'(1x,a26,1x,e25.17,1x,a15,1x,e25.17)') 'global mean input energy =', teinp_glob, 'output energy =', teout_glob
+         write(iulog,'(1x,a38,1x,e25.17)') 'heating rate for energy conservation =', heat_glob
       endif
 
    end subroutine check_energy_gmean_diagnostics_run

@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet type="text/xsl"?>
+
+<entry_id_pg version="2.0">
+  <entry id="print_global_means">
+    <type>logical</type>
+    <category>diagnostics</category>
+    <group>check_energy_gmean_nl</group>
+    <standard_name>flag_for_energy_global_means_output</standard_name>
+    <units>flag</units>
+    <desc>
+      Turn on output of global means of total energy and heating rate for energy conservation. Default: TRUE
+    </desc>
+    <values>
+      <value>true</value>
+    </values>
+  </entry>
+</entry_id_pg>
