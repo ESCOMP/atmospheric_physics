@@ -23,6 +23,9 @@ module musica_ccpp_tuvx
   type(index_mappings_t), pointer :: photolysis_rate_constants_mapping => null( )
   integer :: number_of_photolysis_rate_constants = 0
 
+  type(index_mappings_t), pointer :: photolysis_rate_constants_mapping => null( )
+  integer :: number_of_photolysis_rate_constants = 0
+
 contains
 
   !> Initializes TUV-x
@@ -234,6 +237,25 @@ contains
     photolysis_rate_constants_ordering => null()
     if (has_error_occurred( error, errmsg, errcode )) return
 
+    photolysis_rate_constants_ordering => &
+        tuvx%get_photolysis_rate_constants_ordering( error )
+    if (has_error_occurred( error, errmsg, errcode )) return
+    number_of_photolysis_rate_constants = photolysis_rate_constants_ordering%size()
+
+    call config%load_from_file( trim(filename_of_tuvx_micm_mapping_configuration), error )
+    if (has_error_occurred( error, errmsg, errcode )) then
+      deallocate( photolysis_rate_constants_ordering )
+      photolysis_rate_constants_ordering => null()
+      return
+    end if
+
+    photolysis_rate_constants_mapping => &
+        index_mappings_t( config, photolysis_rate_constants_ordering, &
+                          micm_rate_parameter_ordering, error )
+    deallocate( photolysis_rate_constants_ordering )
+    photolysis_rate_constants_ordering => null()
+    if (has_error_occurred( error, errmsg, errcode )) return
+
   end subroutine tuvx_init
 
   !> Calculates photolysis rate constants for the current model conditions
@@ -344,6 +366,11 @@ contains
     call tuvx_deallocate(null(), null(), null(), tuvx, height_grid, &
                     wavelength_grid, temperature_profile,      &
                     surface_albedo_profile, extraterrestrial_flux_profile)
+
+    if (associated( photolysis_rate_constants_mapping )) then
+      deallocate( photolysis_rate_constants_mapping )
+      photolysis_rate_constants_mapping => null()
+    end if
 
     if (associated( photolysis_rate_constants_mapping )) then
       deallocate( photolysis_rate_constants_mapping )
