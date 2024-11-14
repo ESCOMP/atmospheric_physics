@@ -17,20 +17,20 @@
   type = integer
   dimensions = ()
   intent = in
-[ energy_formula_dycore ]
-  standard_name = total_energy_formula_for_dycore
-  units = 1
-  type = integer
+[ do_consistency_adjust ]
+  standard_name = flag_for_dycore_energy_consistency_adjustment
+  units = flag
+  type = logical
   dimensions = ()
   intent = in
 [ scaling_dycore ]
-  standard_name = ratio_of_specific_heat_of_dry_air_used_in_physics_energy_formula_to_specific_heat_of_dry_air_used_in_dycore_energy_formula
+  standard_name = ratio_of_specific_heat_of_air_used_in_physics_energy_formula_to_specific_heat_of_air_used_in_dycore_energy_formula
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ temp_ini ]
-  standard_name = temperature_of_initial_state
+  standard_name = air_temperature_at_start_of_physics_timestep
   units = K
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

@@ -27,12 +27,12 @@ CONTAINS
       errflg = 0
 
       ! History add field calls
-      call history_add_field('cp_or_cv_dycore', 'specific_heat_of_dry_air_used_in_dycore', 'lev', 'inst', 'J kg-1 K-1')
-      call history_add_field('scaling_dycore', 'ratio_of_specific_heat_of_dry_air_used_in_physics_energy_formula_to_specific_heat_of_dry_air_used_in_dycore_energy_formula', 'lev', 'inst', '1')
+      call history_add_field('cp_or_cv_dycore', 'specific_heat_of_air_used_in_dycore', 'lev', 'inst', 'J kg-1 K-1')
+      call history_add_field('scaling_dycore', 'ratio_of_specific_heat_of_air_used_in_physics_energy_formula_to_specific_heat_of_air_used_in_dycore_energy_formula', 'lev', 'inst', '1')
 
-      call history_add_field('te_cur_phys', 'vertically_integrated_total_energy_of_current_state_using_physics_energy_formula', horiz_only, 'inst', 'J m-2')
-      call history_add_field('te_cur_dyn', 'vertically_integrated_total_energy_of_current_state_using_dycore_energy_formula', horiz_only, 'inst', 'J m-2')
-      call history_add_field('tw_cur', 'vertically_integrated_water_vapor_and_condensed_water_of_current_state', horiz_only, 'inst', 'kg m-2')
+      call history_add_field('te_cur_phys', 'vertically_integrated_total_energy_using_physics_energy_formula', horiz_only, 'inst', 'J m-2')
+      call history_add_field('te_cur_dyn', 'vertically_integrated_total_energy_using_dycore_energy_formula', horiz_only, 'inst', 'J m-2')
+      call history_add_field('tw_cur', 'vertically_integrated_total_water', horiz_only, 'inst', 'kg m-2')
 
       call history_add_field('tend_te_tnd', 'cumulative_total_energy_boundary_flux_using_physics_energy_formula', horiz_only, 'inst', 'J m-2 s-1')
       call history_add_field('tend_tw_tnd', 'cumulative_total_water_boundary_flux', horiz_only, 'inst', 'kg m-2 s-1')

@@ -96,43 +96,43 @@
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = in
 [ cp_or_cv_dycore ]
-  standard_name = specific_heat_of_dry_air_used_in_dycore
+  standard_name = specific_heat_of_air_used_in_dycore
   units = J kg-1 K-1
   type = real | kind = kind_phys
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = in
 [ te_ini_phys ]
-  standard_name = vertically_integrated_total_energy_of_initial_state_using_physics_energy_formula
+  standard_name = vertically_integrated_total_energy_using_physics_energy_formula_at_start_of_physics_timestep
   units = J m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_dimension)
   intent = inout
 [ te_ini_dyn ]
-  standard_name = vertically_integrated_total_energy_of_initial_state_using_dycore_energy_formula
+  standard_name = vertically_integrated_total_energy_using_dycore_energy_formula_at_start_of_physics_timestep
   units = J m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_dimension)
   intent = inout
 [ tw_ini ]
-  standard_name = vertically_integrated_water_vapor_and_condensed_water_of_initial_state
+  standard_name = vertically_integrated_total_water_at_start_of_physics_timestep
   units = kg m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_dimension)
   intent = inout
 [ te_cur_phys ]
-  standard_name = vertically_integrated_total_energy_of_current_state_using_physics_energy_formula
+  standard_name = vertically_integrated_total_energy_using_physics_energy_formula
   units = J m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_dimension)
   intent = inout
 [ te_cur_dyn ]
-  standard_name = vertically_integrated_total_energy_of_current_state_using_dycore_energy_formula
+  standard_name = vertically_integrated_total_energy_using_dycore_energy_formula
   units = J m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_dimension)
   intent = inout
 [ tw_cur ]
-  standard_name = vertically_integrated_water_vapor_and_condensed_water_of_current_state
+  standard_name = vertically_integrated_total_water
   units = kg m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_dimension)
@@ -150,13 +150,13 @@
   dimensions = (horizontal_dimension)
   intent = out
 [ temp_ini ]
-  standard_name = temperature_of_initial_state
+  standard_name = air_temperature_at_start_of_physics_timestep
   units = K
   type = real | kind = kind_phys
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = out
 [ z_ini ]
-  standard_name = height_wrt_surface_of_initial_state
+  standard_name = geopotential_height_wrt_surface_at_start_of_physics_timestep
   units = m
   type = real | kind = kind_phys
   dimensions = (horizontal_dimension, vertical_layer_dimension)
@@ -280,31 +280,31 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ cp_or_cv_dycore ]
-  standard_name = specific_heat_of_dry_air_used_in_dycore
+  standard_name = specific_heat_of_air_used_in_dycore
   units = J kg-1 K-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ scaling_dycore ]
-  standard_name = ratio_of_specific_heat_of_dry_air_used_in_physics_energy_formula_to_specific_heat_of_dry_air_used_in_dycore_energy_formula
+  standard_name = ratio_of_specific_heat_of_air_used_in_physics_energy_formula_to_specific_heat_of_air_used_in_dycore_energy_formula
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ te_cur_phys ]
-  standard_name = vertically_integrated_total_energy_of_current_state_using_physics_energy_formula
+  standard_name = vertically_integrated_total_energy_using_physics_energy_formula
   units = J m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = inout
 [ te_cur_dyn ]
-  standard_name = vertically_integrated_total_energy_of_current_state_using_dycore_energy_formula
+  standard_name = vertically_integrated_total_energy_using_dycore_energy_formula
   units = J m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = inout
 [ tw_cur ]
-  standard_name = vertically_integrated_water_vapor_and_condensed_water_of_current_state
+  standard_name = vertically_integrated_total_water
   units = kg m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
@@ -322,13 +322,13 @@
   dimensions = (horizontal_loop_extent)
   intent = inout
 [ temp_ini ]
-  standard_name = temperature_of_initial_state
+  standard_name = air_temperature_at_start_of_physics_timestep
   units = K
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ z_ini ]
-  standard_name = height_wrt_surface_of_initial_state
+  standard_name = geopotential_height_wrt_surface_at_start_of_physics_timestep
   units = m
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

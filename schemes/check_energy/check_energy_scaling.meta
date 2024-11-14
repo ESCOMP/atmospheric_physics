@@ -12,7 +12,7 @@
   dimensions = ()
   intent = in
 [ cp_or_cv_dycore ]
-  standard_name = specific_heat_of_dry_air_used_in_dycore
+  standard_name = specific_heat_of_air_used_in_dycore
   units = J kg-1 K-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -24,7 +24,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ scaling_dycore ]
-  standard_name = ratio_of_specific_heat_of_dry_air_used_in_physics_energy_formula_to_specific_heat_of_dry_air_used_in_dycore_energy_formula
+  standard_name = ratio_of_specific_heat_of_air_used_in_physics_energy_formula_to_specific_heat_of_air_used_in_dycore_energy_formula
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

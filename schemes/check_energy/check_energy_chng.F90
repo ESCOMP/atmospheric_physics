@@ -237,7 +237,7 @@ contains
     character(len=*),   intent(in)    :: name           ! parameterization name for fluxes
     real(kind_phys),    intent(in)    :: flx_vap(:)     ! boundary flux of vapor [kg m-2 s-1]
     real(kind_phys),    intent(in)    :: flx_cnd(:)     ! boundary flux of liquid+ice (precip?) [m s-1]
-    real(kind_phys),    intent(in)    :: flx_ice(:)     ! boundary flux of ice (snow?) [m s-1]
+    real(kind_phys),    intent(in)    :: flx_ice(:)     ! boundary flux of ice [m s-1]
     real(kind_phys),    intent(in)    :: flx_sen(:)     ! boundary flux of sensible heat [W m-2]
 
     ! Input/Output arguments
