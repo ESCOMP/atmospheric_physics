@@ -23,8 +23,6 @@ module musica_ccpp_tuvx
   type(index_mappings_t), pointer :: photolysis_rate_constants_mapping => null( )
   integer :: number_of_photolysis_rate_constants = 0
 
-  type(index_mappings_t), pointer :: photolysis_rate_constants_mapping => null( )
-  integer :: number_of_photolysis_rate_constants = 0
 
 contains
 
