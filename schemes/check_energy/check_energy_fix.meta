@@ -23,9 +23,9 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
-[ rga ]
-  standard_name = reciprocal_of_gravitational_acceleration
-  units = s2 m-1
+[ gravit ]
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
   type = real | kind = kind_phys
   dimensions = ()
   intent = in

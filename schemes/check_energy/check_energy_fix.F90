@@ -11,12 +11,12 @@ contains
   ! Add heating rate required for global mean total energy conservation
 !> \section arg_table_check_energy_fix_run Argument Table
 !! \htmlinclude arg_table_check_energy_fix_run.html
-  subroutine check_energy_fix_run(ncol, pver, pint, rga, heat_glob, ptend_s, eshflx, scheme_name)
+  subroutine check_energy_fix_run(ncol, pver, pint, gravit, heat_glob, ptend_s, eshflx, scheme_name)
     ! Input arguments
     integer,            intent(in)    :: ncol           ! number of atmospheric columns
     integer,            intent(in)    :: pver           ! number of vertical layers
     real(kind_phys),    intent(in)    :: pint(:,:)      ! interface pressure [Pa]
-    real(kind_phys),    intent(in)    :: rga            ! 1/gravit [m-1 s2]
+    real(kind_phys),    intent(in)    :: gravit         ! gravitational acceleration [m s-2]
     real(kind_phys),    intent(in)    :: heat_glob      ! global mean heating rate [J kg-1 s-1]
     real(kind_phys),    intent(out)   :: ptend_s(:,:)   ! physics tendency heating rate [J kg-1 s-1]
     real(kind_phys),    intent(out)   :: eshflx(:)      ! effective sensible heat flux [W m-2]
@@ -35,7 +35,7 @@ contains
 
     ! compute effective sensible heat flux
     do i = 1, ncol
-      eshflx(i) = heat_glob * (pint(i,pver+1) - pint(i,1)) * rga
+      eshflx(i) = heat_glob * (pint(i,pver+1) - pint(i,1)) / gravit
     end do
   end subroutine check_energy_fix_run
 
