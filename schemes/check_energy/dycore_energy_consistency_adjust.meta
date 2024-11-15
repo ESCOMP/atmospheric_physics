@@ -29,9 +29,9 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
-[ temp_ini ]
-  standard_name = air_temperature_at_start_of_physics_timestep
-  units = K
+[ tend_dTdt ]
+  standard_name = tendency_of_air_temperature_due_to_model_physics
+  units = K s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
@@ -41,9 +41,9 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
-[ tend_dtdt ]
-  standard_name = tendency_of_air_temperature_due_to_model_physics
+[ tend_dTdt_local ]
+  standard_name = tendency_of_air_temperature
   units = K s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = inout
+  intent = out

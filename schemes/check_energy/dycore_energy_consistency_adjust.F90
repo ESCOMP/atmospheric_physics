@@ -15,26 +15,33 @@ contains
       ncol, pver, &
       do_consistency_adjust, &
       scaling_dycore, &
-      temp_ini, &
-      t, &
-      tend_dtdt)
+      tend_dTdt, &
+      T, &
+      tend_dTdt_local)
 
     ! Input arguments
     integer,            intent(in)    :: ncol                  ! number of atmospheric columns
     integer,            intent(in)    :: pver                  ! number of vertical layers
     logical,            intent(in)    :: do_consistency_adjust ! do energy consistency adjustment?
     real(kind_phys),    intent(in)    :: scaling_dycore(:,:)   ! scaling for conversion of temperature increment [1]
-    real(kind_phys),    intent(in)    :: temp_ini(:,:)         ! initial temperature [K]
+    real(kind_phys),    intent(in)    :: tend_dTdt(:,:)        ! model physics temperature tendency [K s-1]
 
     ! Input/output arguments
-    real(kind_phys),    intent(inout) :: T(:,:)                ! temperature [K]
-    real(kind_phys),    intent(inout) :: tend_dtdt(:,:)        ! model phys temperature tendency [K s-1]
+    real(kind_phys),    intent(inout) :: T(:,:)                ! air temperature [K]
 
-    if(do_consistency_adjust) then
-      T(:ncol,:) = temp_ini(:ncol,:) + &
-                   scaling_dycore(:ncol,:) * (T(:ncol,:) - temp_ini(:ncol,:))
+    ! Output arguments
+    real(kind_phys),    intent(out) :: tend_dTdt_local(:,:)  ! (scheme) temperature tendency [K s-1]
 
-      tend_dtdt(:ncol,:) = scaling_dycore(:ncol,:) * tend_dtdt(:ncol,:)
+    if (do_consistency_adjust) then
+      ! original formula for scaling of temperature:
+      !   T(:ncol,:) = temp_ini(:ncol,:) + &
+      !                scaling_dycore(:ncol,:) * (T(:ncol,:) - temp_ini(:ncol,:))
+      ! and temperature tendency due to model physics:
+      !   tend_dTdt(:ncol,:) = scaling_dycore(:ncol,:) * tend_dTdt(:ncol,:)
+      !
+      ! the terms can be arranged for this scaling to be applied through scheme tendencies
+      ! at the cost of a round-off level difference
+      tend_dTdt_local(:ncol,:) = (scaling_dycore(:ncol,:) - 1._kind_phys) * tend_dTdt(:ncol,:)
     endif
     ! do nothing for dynamical cores with energy consistent with CAM physics
 
