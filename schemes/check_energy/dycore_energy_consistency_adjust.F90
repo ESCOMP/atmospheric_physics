@@ -16,7 +16,6 @@ contains
       do_consistency_adjust, &
       scaling_dycore, &
       tend_dTdt, &
-      T, &
       tend_dTdt_local)
 
     ! Input arguments
@@ -25,9 +24,6 @@ contains
     logical,            intent(in)    :: do_consistency_adjust ! do energy consistency adjustment?
     real(kind_phys),    intent(in)    :: scaling_dycore(:,:)   ! scaling for conversion of temperature increment [1]
     real(kind_phys),    intent(in)    :: tend_dTdt(:,:)        ! model physics temperature tendency [K s-1]
-
-    ! Input/output arguments
-    real(kind_phys),    intent(inout) :: T(:,:)                ! air temperature [K]
 
     ! Output arguments
     real(kind_phys),    intent(out) :: tend_dTdt_local(:,:)  ! (scheme) temperature tendency [K s-1]

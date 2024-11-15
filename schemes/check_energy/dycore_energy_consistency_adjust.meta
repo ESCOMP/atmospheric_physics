@@ -35,12 +35,6 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
-[ T ]
-  standard_name = air_temperature
-  units = K
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = inout
 [ tend_dTdt_local ]
   standard_name = tendency_of_air_temperature
   units = K s-1

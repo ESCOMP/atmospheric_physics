@@ -42,6 +42,7 @@
          Then, perform the temperature and temperature tendency scaling -->
     <scheme>check_energy_scaling</scheme>
     <scheme>dycore_energy_consistency_adjust</scheme>
+    <scheme>apply_tendency_of_air_temperature</scheme>
 
     <!-- Tendency diagnostics -->
     <scheme>sima_tend_diagnostics</scheme>
