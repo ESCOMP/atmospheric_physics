@@ -4,7 +4,7 @@
   <group name="physics_before_coupler">
     <!-- Compute global means of physics input and output total energy -->
     <scheme>check_energy_gmean</scheme>
-    <!-- After gmean, output the "nstep, te" + 5 numbers for global mean diagnostic -->
+    <!-- After gmean, output global mean energy diagnostics -->
     <scheme>check_energy_gmean_diagnostics</scheme>
 
     <!-- Add global mean energy difference as heating (diff between gmean and save_teout) -->
@@ -34,7 +34,7 @@
     <scheme>tropopause_find</scheme>
     <scheme>tropopause_diagnostics</scheme>
 
-    <!-- Save current total energy from dycore for energy fixer in time step -->
+    <!-- Save current total energy from dycore for energy fixer in time step. Total energy in current state is updated by the last check_energy_chng call. -->
     <scheme>check_energy_save_teout</scheme>
 
     <!-- MPAS and SE specific scaling of temperature for enforcing energy consistency:

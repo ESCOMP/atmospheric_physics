@@ -45,18 +45,6 @@
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
-[ psurf_glob ]
-  standard_name = global_mean_surface_air_pressure
-  units = Pa
-  type = real | kind = kind_phys
-  dimensions = ()
-  intent = in
-[ ptopb_glob ]
-  standard_name = global_mean_air_pressure_at_top_of_atmosphere_model
-  units = Pa
-  type = real | kind = kind_phys
-  dimensions = ()
-  intent = in
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
