@@ -1,7 +1,9 @@
 !> Top-level wrapper for MUSICA chemistry components
 module musica_ccpp
-  use musica_ccpp_micm, only: micm_register, micm_init, micm_run, micm_final
-  use musica_ccpp_tuvx, only: tuvx_init, tuvx_run, tuvx_final
+  use musica_ccpp_micm,     only: micm_register, micm_init, micm_run, micm_final
+  use musica_ccpp_namelist, only: filename_of_tuvx_micm_mapping_configuration
+  use musica_ccpp_tuvx,     only: tuvx_init, tuvx_run, tuvx_final
+  use musica_util,          only: index_mappings_t
 
   implicit none
   private
@@ -10,6 +12,8 @@ module musica_ccpp
 
 contains
 
+  !> \section arg_table_musica_ccpp_register Argument Table
+  !! \htmlinclude musica_ccpp_register.html
   subroutine musica_ccpp_register(solver_type, num_grid_cells, constituent_props, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
 
@@ -26,70 +30,72 @@ contains
   !> \section arg_table_musica_ccpp_init Argument Table
   !! \htmlinclude musica_ccpp_init.html
   subroutine musica_ccpp_init(vertical_layer_dimension, vertical_interface_dimension, &
-                              errmsg, errcode)
-    integer,            intent(in)  :: vertical_layer_dimension     ! (count)
-    integer,            intent(in)  :: vertical_interface_dimension ! (count)
+                              photolysis_wavelength_grid_interfaces, errmsg, errcode)
+    use ccpp_kinds, only : kind_phys
+    use musica_ccpp_micm, only: micm
+    use musica_ccpp_util, only: has_error_occurred
+    integer,            intent(in)  :: vertical_layer_dimension                 ! (count)
+    integer,            intent(in)  :: vertical_interface_dimension             ! (count)
+    real(kind_phys),    intent(in)  :: photolysis_wavelength_grid_interfaces(:) ! m
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errcode
 
-    call tuvx_init(vertical_layer_dimension, vertical_interface_dimension, &
-                   errmsg, errcode)
-    if (errcode /= 0) return
     call micm_init(errmsg, errcode)
+    if (errcode /= 0) return
+    call tuvx_init(vertical_layer_dimension, vertical_interface_dimension, &
+                   photolysis_wavelength_grid_interfaces, &
+                   micm%user_defined_reaction_rates, errmsg, errcode)
     if (errcode /= 0) return
 
   end subroutine musica_ccpp_init
 
   !> \section arg_table_musica_ccpp_run Argument Table
   !! \htmlinclude musica_ccpp_run.html
+  !!
+  !! The standard name for the variable 'surface_temperature' is
+  !! 'blackbody_temperature_at_surface' because this is what we have as
+  !! the standard name for 'cam_in%ts', whcih represents the same quantity.
   subroutine musica_ccpp_run(time_step, temperature, pressure, dry_air_density, constituent_props, &
                              constituents, geopotential_height_wrt_surface_at_midpoint,            &
-                             geopotential_height_wrt_surface_at_interface, surface_geopotential,   &
+                             geopotential_height_wrt_surface_at_interface, surface_temperature,    &
+                             surface_geopotential, surface_albedo,                                 &
                              standard_gravitational_acceleration, errmsg, errcode)
-    use musica_ccpp_micm_util,     only: reshape_into_micm_arr, reshape_into_ccpp_arr
-    use musica_ccpp_micm_util,     only: convert_to_mol_per_cubic_meter, convert_to_mass_mixing_ratio
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use ccpp_kinds,                only: kind_phys
-    use iso_c_binding,             only: c_double
+    use musica_ccpp_micm,          only: number_of_rate_parameters
+    use musica_ccpp_micm_util,     only: convert_to_mol_per_cubic_meter, convert_to_mass_mixing_ratio
 
-    real(kind_phys),    intent(in)    :: time_step                                         ! s
-    real(kind_phys),    intent(in)    :: temperature(:,:)                                  ! K
-    real(kind_phys),    intent(in)    :: pressure(:,:)                                     ! Pa
-    real(kind_phys),    intent(in)    :: dry_air_density(:,:)                              ! kg m-3
+    real(kind_phys),         intent(in)    :: time_step                                         ! s
+    real(kind_phys), target, intent(in)    :: temperature(:,:)                                  ! K
+    real(kind_phys), target, intent(in)    :: pressure(:,:)                                     ! Pa
+    real(kind_phys), target, intent(in)    :: dry_air_density(:,:)                              ! kg m-3
     type(ccpp_constituent_prop_ptr_t), &
-                        intent(in)    :: constituent_props(:)
-    real(kind_phys),    intent(inout) :: constituents(:,:,:)                               ! kg kg-1
-    real(kind_phys),    intent(in)    :: geopotential_height_wrt_surface_at_midpoint(:,:)  ! m (column, layer)
-    real(kind_phys),    intent(in)    :: geopotential_height_wrt_surface_at_interface(:,:) ! m (column, interface)
-    real(kind_phys),    intent(in)    :: surface_geopotential(:)                           ! m2 s-2
-    real(kind_phys),    intent(in)    :: standard_gravitational_acceleration               ! m s-2
-    character(len=512), intent(out)   :: errmsg
-    integer,            intent(out)   :: errcode
+                             intent(in)    :: constituent_props(:)
+    real(kind_phys), target, intent(inout) :: constituents(:,:,:)                               ! kg kg-1
+    real(kind_phys),         intent(in)    :: geopotential_height_wrt_surface_at_midpoint(:,:)  ! m (column, layer)
+    real(kind_phys),         intent(in)    :: geopotential_height_wrt_surface_at_interface(:,:) ! m (column, interface)
+    real(kind_phys),         intent(in)    :: surface_temperature(:)                            ! K
+    real(kind_phys),         intent(in)    :: surface_geopotential(:)                           ! m2 s-2
+    real(kind_phys),         intent(in)    :: surface_albedo                                    ! unitless
+    real(kind_phys),         intent(in)    :: standard_gravitational_acceleration               ! m s-2
+    character(len=512),      intent(out)   :: errmsg
+    integer,                 intent(out)   :: errcode
 
     ! local variables
-    real(c_double), dimension(size(temperature, dim=1)     &
-                            * size(temperature, dim=2))      :: micm_temperature
-    real(c_double), dimension(size(pressure, dim=1)        &
-                            * size(pressure, dim=2))         :: micm_pressure
-    real(c_double), dimension(size(dry_air_density, dim=1) &
-                            * size(dry_air_density, dim=2))  :: micm_dry_air_density
-    real(c_double), dimension(size(constituents, dim=1)    &
-                            * size(constituents, dim=2)    &
-                            * size(constituents, dim=3))     :: micm_constituents ! mol m-3
     real(kind_phys), dimension(size(constituents, dim=3))    :: molar_mass_arr    ! kg mol-1
-    
-    ! temporarily dimensioned to Chapman mechanism until mapping between MICM and TUV-x is implemented
-    real(c_double), dimension(size(constituents, dim=1) &
-                            * size(constituents, dim=2) &
-                            * 3) :: photolysis_rate_constants ! s-1
+    real(kind_phys), dimension(size(constituents, dim=1), &
+                               size(constituents, dim=2), &
+                               number_of_rate_parameters)    :: rate_parameters ! various units
     integer :: i_elem
 
+    ! Calculate photolysis rate constants using TUV-x
     call tuvx_run(temperature, dry_air_density,                 &
                   geopotential_height_wrt_surface_at_midpoint,  &
                   geopotential_height_wrt_surface_at_interface, &
-                  surface_geopotential,                         &
+                  surface_temperature, surface_geopotential,    &
+                  surface_albedo,                               &
                   standard_gravitational_acceleration,          &
-                  photolysis_rate_constants,                    &
+                  rate_parameters,                              &
                   errmsg, errcode)
 
     ! Get the molar mass that is set in the call to instantiate()
@@ -114,16 +120,9 @@ contains
     ! Convert CAM-SIMA unit to MICM unit (kg kg-1  ->  mol m-3)
     call convert_to_mol_per_cubic_meter(dry_air_density, molar_mass_arr, constituents)
 
-    ! Reshape array (2D/3D -> 1D) and convert type (kind_phys -> c_double)
-    call reshape_into_micm_arr(temperature, pressure, dry_air_density, constituents, &
-                      micm_temperature, micm_pressure, micm_dry_air_density, micm_constituents)
-
-    ! temporarily pass in unmapped photolysis rate constants until mapping between MICM and TUV-x is implemented
-    call micm_run(time_step, micm_temperature, micm_pressure, micm_dry_air_density, &
-                  photolysis_rate_constants, micm_constituents, errmsg, errcode)
-
-    ! Reshape array (1D -> 3D) and convert type (c_double -> kind_phys)
-    call reshape_into_ccpp_arr(micm_constituents, constituents)
+    ! Solve chemistry at the current time step
+    call micm_run(time_step, temperature, pressure, dry_air_density, rate_parameters, &
+                  constituents, errmsg, errcode)
 
     ! Convert MICM unit back to CAM-SIMA unit (mol m-3  ->  kg kg-1)
     call convert_to_mass_mixing_ratio(dry_air_density, molar_mass_arr, constituents)

@@ -5,12 +5,6 @@
    },
    "grids": [
       {
-         "name": "wavelength",
-         "type": "from csv file",
-         "units": "nm",
-         "file path": "data/grids/wavelength/cam.csv"
-      },
-      {
          "name": "time",
          "type": "from config file",
          "units": "hours",
@@ -37,16 +31,6 @@
          "file path": "data/profiles/atmosphere/ussa.dens"
       },
       {
-         "name": "temperature",
-         "type": "from csv file",
-         "units": "K",
-         "file path": "data/profiles/atmosphere/ussa.temp",
-         "grid": {
-           "name": "height",
-           "units": "km"
-         }
-      },
-      {
          "name": "solar zenith angle",
          "type": "solar zenith angle",
          "units": "degrees",
@@ -63,16 +47,6 @@
          "year" : 2002,
          "month": 3,
          "day": 21
-      },
-      {
-         "name": "surface albedo",
-         "type": "from config file",
-         "units": "none",
-         "uniform value": 0.10,
-         "grid": {
-           "name": "wavelength",
-           "units": "nm"
-         }
       },
       {
          "name": "extraterrestrial flux",
