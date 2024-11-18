@@ -1,7 +1,7 @@
 
 #######################
 Date/time of when script was run:
-2024-11-13 21:26:20.526396
+2024-11-18 15:44:54.993446
 #######################
 
 Non-dictionary standard names found in the following metadata files:
@@ -10,10 +10,8 @@ Non-dictionary standard names found in the following metadata files:
 
 atmospheric_physics/schemes/sima_diagnostics/check_energy_gmean_diagnostics.meta
 
-    - current_timestep_number
-    - global_mean_air_pressure_at_top_of_atmosphere_model
+    - flag_for_energy_global_means_output
     - global_mean_heating_rate_correction_for_energy_conservation
-    - global_mean_surface_air_pressure
     - global_mean_vertically_integrated_total_energy_at_end_of_physics_timestep
     - global_mean_vertically_integrated_total_energy_using_dycore_energy_formula_at_start_of_physics_timestep
 
@@ -300,7 +298,6 @@ atmospheric_physics/schemes/check_energy/check_energy_zero_fluxes.meta
 
 atmospheric_physics/schemes/check_energy/dycore_energy_consistency_adjust.meta
 
-    - air_temperature_at_start_of_physics_timestep
     - flag_for_dycore_energy_consistency_adjustment
     - ratio_of_specific_heat_of_air_used_in_physics_energy_formula_to_specific_heat_of_air_used_in_dycore_energy_formula
 
@@ -318,7 +315,6 @@ atmospheric_physics/schemes/check_energy/check_energy_fix.meta
     - air_pressure_at_interface
     - global_mean_heating_rate_correction_for_energy_conservation
     - net_sensible_heat_flux_through_top_and_bottom_of_atmosphere_column
-    - reciprocal_of_gravitational_acceleration
 
 --------------------------
 
@@ -372,5 +368,16 @@ atmospheric_physics/schemes/tropopause_find/tropopause_find.meta
     - tropopause_vertical_layer_index_from_lapse_rate_method
     - vertical_layer_index_lower_bound_from_hybrid_stobie_linoz_with_climatological_backup_method_for_linearized_ozone_chemistry
     - vertical_layer_index_lower_bound_from_hybrid_stobie_linoz_with_climatological_backup_method_for_stratospheric_chemistry
+
+--------------------------
+
+atmospheric_physics/schemes/musica/musica_ccpp.meta
+
+    - blackbody_temperature_at_surface
+    - dynamic_constituents_for_musica_ccpp
+    - micm_solver_type
+    - number_of_grid_cells
+    - photolysis_wavelength_grid_interfaces
+    - surface_albedo_due_to_UV_and_VIS_direct
 
 #######################
