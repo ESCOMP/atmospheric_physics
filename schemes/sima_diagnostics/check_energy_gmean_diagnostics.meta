@@ -1,0 +1,59 @@
+[ccpp-table-properties]
+  name = check_energy_gmean_diagnostics
+  type = scheme
+
+[ccpp-arg-table]
+  name  = check_energy_gmean_diagnostics_init
+  type  = scheme
+[ print_global_means_in ]
+  standard_name = flag_for_energy_global_means_output
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+
+[ccpp-arg-table]
+  name  = check_energy_gmean_diagnostics_run
+  type  = scheme
+[ amIRoot ]
+  standard_name = flag_for_mpi_root
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ iulog ]
+  standard_name = log_output_unit
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ teinp_glob ]
+  standard_name = global_mean_vertically_integrated_total_energy_using_dycore_energy_formula_at_start_of_physics_timestep
+  units = J m-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ teout_glob ]
+  standard_name = global_mean_vertically_integrated_total_energy_at_end_of_physics_timestep
+  units = J m-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ heat_glob ]
+  standard_name = global_mean_heating_rate_correction_for_energy_conservation
+  units = J kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

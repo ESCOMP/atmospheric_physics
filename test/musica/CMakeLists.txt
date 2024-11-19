@@ -56,14 +56,10 @@ add_test(
 
 add_memory_check_test(test_musica_api $<TARGET_FILE:test_musica_api> "" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
+# copy MUSICA configuration data into the build folder
 add_custom_target(
   copy_micm_configs ALL ${CMAKE_COMMAND} -E copy_directory
-  ${CMAKE_CURRENT_SOURCE_DIR}/micm/configs/chapman ${CMAKE_BINARY_DIR}/chapman
-)
-
-add_custom_target(
-  copy_tuvx_configs ALL ${CMAKE_COMMAND} -E copy_directory
-  ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/configs ${CMAKE_BINARY_DIR}/configs
+  ${CMAKE_CURRENT_SOURCE_DIR}/../../schemes/musica/configurations ${CMAKE_BINARY_DIR}/musica_configurations
 )
 
 add_subdirectory(micm)
