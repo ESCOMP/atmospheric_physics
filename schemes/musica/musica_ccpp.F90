@@ -55,10 +55,12 @@ contains
   !! The standard name for the variable 'surface_temperature' is
   !! 'blackbody_temperature_at_surface' because this is what we have as
   !! the standard name for 'cam_in%ts', whcih represents the same quantity.
-  subroutine musica_ccpp_run(time_step, temperature, pressure, dry_air_density, constituent_props, &
-                             constituents, geopotential_height_wrt_surface_at_midpoint,            &
-                             geopotential_height_wrt_surface_at_interface, surface_temperature,    &
-                             surface_geopotential, surface_albedo,                                 &
+  subroutine musica_ccpp_run(time_step, temperature, pressure, dry_air_density, constituent_props,   &
+                             constituents, geopotential_height_wrt_surface_at_midpoint,              &
+                             geopotential_height_wrt_surface_at_interface, surface_geopotential,     &
+                             surface_temperature, surface_albedo,                                    &
+                             number_of_photolysis_wavelength_grid_sections,                          &
+                             photolysis_wavelength_grid_interfaces, extraterrestrial_flux, &
                              standard_gravitational_acceleration, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use ccpp_kinds,                only: kind_phys
@@ -74,9 +76,12 @@ contains
     real(kind_phys), target, intent(inout) :: constituents(:,:,:)                               ! kg kg-1
     real(kind_phys),         intent(in)    :: geopotential_height_wrt_surface_at_midpoint(:,:)  ! m (column, layer)
     real(kind_phys),         intent(in)    :: geopotential_height_wrt_surface_at_interface(:,:) ! m (column, interface)
-    real(kind_phys),         intent(in)    :: surface_temperature(:)                            ! K
     real(kind_phys),         intent(in)    :: surface_geopotential(:)                           ! m2 s-2
+    real(kind_phys),         intent(in)    :: surface_temperature(:)                            ! K
     real(kind_phys),         intent(in)    :: surface_albedo                                    ! unitless
+    integer,                 intent(in)    :: number_of_photolysis_wavelength_grid_sections     ! (count)
+    real(kind_phys),         intent(in)    :: photolysis_wavelength_grid_interfaces(:)          ! nm
+    real(kind_phys),         intent(in)    :: extraterrestrial_flux(:)                          ! photons cm-2 s-1 nm-1
     real(kind_phys),         intent(in)    :: standard_gravitational_acceleration               ! m s-2
     character(len=512),      intent(out)   :: errmsg
     integer,                 intent(out)   :: errcode
@@ -89,13 +94,16 @@ contains
     integer :: i_elem
 
     ! Calculate photolysis rate constants using TUV-x
-    call tuvx_run(temperature, dry_air_density,                 &
-                  geopotential_height_wrt_surface_at_midpoint,  &
-                  geopotential_height_wrt_surface_at_interface, &
-                  surface_temperature, surface_geopotential,    &
-                  surface_albedo,                               &
-                  standard_gravitational_acceleration,          &
-                  rate_parameters,                              &
+    call tuvx_run(temperature, dry_air_density,                  &
+                  geopotential_height_wrt_surface_at_midpoint,   &
+                  geopotential_height_wrt_surface_at_interface,  &
+                  surface_geopotential, surface_temperature,     &
+                  surface_albedo,                                &
+                  number_of_photolysis_wavelength_grid_sections, &
+                  photolysis_wavelength_grid_interfaces,         &
+                  extraterrestrial_flux,                         &
+                  standard_gravitational_acceleration,           &
+                  rate_parameters,                               &
                   errmsg, errcode)
 
     ! Get the molar mass that is set in the call to instantiate()

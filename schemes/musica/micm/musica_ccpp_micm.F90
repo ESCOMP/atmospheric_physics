@@ -108,7 +108,6 @@ contains
     type(string_t)       :: solver_state
     type(solver_stats_t) :: solver_stats
     type(error_t)        :: error
-    integer              :: i_elem
 
     call micm%solve(real(time_step, kind=c_double),      &
                     c_loc(temperature),                  &

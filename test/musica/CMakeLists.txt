@@ -1,5 +1,4 @@
 include(FetchContent)
-include(TestUtils)
 
 FetchContent_Declare(musica
   GIT_REPOSITORY https://github.com/NCAR/musica.git
@@ -29,6 +28,7 @@ file(GLOB MUSICA_CCPP_SOURCES
 target_sources(test_musica_api
   PUBLIC
     ${MUSICA_CCPP_SOURCES}
+    ${TO_BE_CCPPIZED_SRC_PATH}/ccpp_tuvx_utils.F90
     ${CCPP_SRC_PATH}/ccpp_constituent_prop_mod.F90
     ${CCPP_SRC_PATH}/ccpp_hash_table.F90
     ${CCPP_SRC_PATH}/ccpp_hashable.F90
@@ -45,8 +45,6 @@ set_target_properties(test_musica_api
   PROPERTIES
   LINKER_LANGUAGE Fortran
 )
-
-include(CTest)
 
 add_test(
   NAME test_musica_api
