@@ -9,8 +9,9 @@ module musica_ccpp_tuvx
   use musica_util,          only: mappings_t, index_mappings_t
 
   implicit none
+  private
+
   public :: tuvx_init, tuvx_run, tuvx_final
-  private :: reset_tuvx_map_state, cleanup_tuvx_resources
 
   type(tuvx_t),           pointer :: tuvx => null()
   type(grid_t),           pointer :: height_grid => null()
@@ -203,7 +204,7 @@ contains
       return
     end if
 
-    ! Gets resources associated with TUV-x from tuvx
+    ! Gets resources associated with TUV-x from 'tuvx' pointer
     call reset_tuvx_map_state( grids, profiles, radiators )
     call cleanup_tuvx_resources()
 
