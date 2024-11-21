@@ -80,7 +80,7 @@ add_test(
   --directory ${CMAKE_BINARY_DIR}/metadata_test
 )
 
-# Test metdadata against the CCPP standard names
+# Test metadata against the CCPP standard names
 add_test(
   NAME test_metadata_against_ccpp_standard_names
   COMMAND ${Python_EXECUTABLE} ${CMAKE_BINARY_DIR}/../$ENV{CCPP_STD_NAMES_TOOLS_PATH}/meta_stdname_check.py
