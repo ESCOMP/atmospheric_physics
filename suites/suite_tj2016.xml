@@ -5,6 +5,16 @@
     <scheme>tj2016_precip</scheme>
     <scheme>apply_heating_rate</scheme>
     <scheme>qneg</scheme>
+
+    <!-- Energy conservation error messages cannot be turned on in simple physics
+         unless the appropriate heat surface flux is computed
+         and supplied as an argument to check_energy_chng to account for
+         how the simplified physics forcings are changing the total energy. -->
+    <scheme>check_energy_zero_fluxes</scheme>
+    <scheme>check_energy_scaling</scheme>
+    <scheme>check_energy_chng</scheme>
+
+    <!-- State diagnostics -->
     <scheme>sima_state_diagnostics</scheme>
   </group>
   <group name="physics_after_coupler">
@@ -13,6 +23,18 @@
     <scheme>apply_tendency_of_eastward_wind</scheme>
     <scheme>apply_tendency_of_northward_wind</scheme>
     <scheme>qneg</scheme>
+
+    <!-- <scheme>physics_dme_adjust</scheme> -->
+
+    <!-- MPAS and SE specific scaling of temperature for enforcing energy consistency:
+         First, calculate the scaling based off cp_or_cv_dycore (from cam_thermo_water_update)
+         Then, perform the temperature and temperature tendency scaling,
+         and apply tendencies resulting from such adjustment -->
+    <scheme>check_energy_scaling</scheme>
+    <scheme>dycore_energy_consistency_adjust</scheme>
+    <scheme>apply_tendency_of_air_temperature</scheme>
+
+    <!-- Tendency diagnostics -->
     <scheme>sima_tend_diagnostics</scheme>
   </group>
 </suite>
