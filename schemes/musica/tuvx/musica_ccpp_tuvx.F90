@@ -204,10 +204,10 @@ contains
       return
     end if
 
-    ! Gets resources associated with TUV-x from 'tuvx' pointer
     call reset_tuvx_map_state( grids, profiles, radiators )
     call cleanup_tuvx_resources()
 
+    ! Gets resources associated with TUV-x from 'tuvx' pointer
     grids => tuvx%get_grids( error )
     if (has_error_occurred( error, errmsg, errcode )) then
       deallocate( tuvx )
