@@ -4,8 +4,7 @@ module musica_ccpp_tuvx_cloud_optics
   implicit none
 
   private
-  public :: create_cloud_optics_radiator, set_cloud_optics_values, &
-            cloud_optics_label
+  public :: create_cloud_optics_radiator, set_cloud_optics_values
 
   ! This module is used to set the optical properties of clouds in TUV-x.
   ! Optical properties are defined as a function of wavelength and height,
@@ -16,7 +15,7 @@ module musica_ccpp_tuvx_cloud_optics
   ! and its mapping to the CAM-SIMA vertical grid.
 
   !> Label for cloud optical properties in TUV-x
-  character(len=*), parameter :: cloud_optics_label = "clouds"
+  character(len=*), parameter, public :: cloud_optics_label = "clouds"
   !> Default value of number of vertical levels
   integer, parameter :: DEFAULT_NUM_VERTICAL_LEVELS = 0
   !> Number of vertical levels
