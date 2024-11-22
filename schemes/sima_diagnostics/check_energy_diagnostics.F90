@@ -1,5 +1,7 @@
 ! Diagnostic scheme for check_energy
 ! Not all quantities are needed as diagnostics; this module is designed to ease development
+!
+!
 module check_energy_diagnostics
    use ccpp_kinds, only: kind_phys
 
@@ -31,13 +33,14 @@ CONTAINS
       call history_add_field('scaling_dycore', 'ratio_of_specific_heat_of_air_used_in_physics_energy_formula_to_specific_heat_of_air_used_in_dycore_energy_formula', 'lev', 'inst', '1')
 
       call history_add_field('te_cur_phys', 'vertically_integrated_total_energy_using_physics_energy_formula', horiz_only, 'inst', 'J m-2')
-      call history_add_field('te_cur_dyn', 'vertically_integrated_total_energy_using_dycore_energy_formula', horiz_only, 'inst', 'J m-2')
       call history_add_field('tw_cur', 'vertically_integrated_total_water', horiz_only, 'inst', 'kg m-2')
 
       call history_add_field('tend_te_tnd', 'cumulative_total_energy_boundary_flux_using_physics_energy_formula', horiz_only, 'inst', 'J m-2 s-1')
       call history_add_field('tend_tw_tnd', 'cumulative_total_water_boundary_flux', horiz_only, 'inst', 'kg m-2 s-1')
 
+      call history_add_field('teinp', 'vertically_integrated_total_energy_using_dycore_energy_formula_at_start_of_physics_timestep', horiz_only, 'inst', 'J m-2')
       call history_add_field('teout', 'vertically_integrated_total_energy_at_end_of_physics_timestep', horiz_only, 'inst', 'J m-2')
+      call history_add_field('tefix', 'vertically_integrated_total_energy_using_dycore_energy_formula', horiz_only, 'inst', 'J m-2')
 
    end subroutine check_energy_diagnostics_init
 
@@ -45,6 +48,7 @@ CONTAINS
    !! \htmlinclude check_energy_diagnostics_run.html
    subroutine check_energy_diagnostics_run( &
       cp_or_cv_dycore, scaling_dycore, &
+      te_ini_dyn, &
       te_cur_phys, te_cur_dyn, tw_cur, &
       tend_te_tnd, tend_tw_tnd, teout, &
       errmsg, errflg)
@@ -56,6 +60,7 @@ CONTAINS
       ! State variables
       real(kind_phys), intent(in) :: cp_or_cv_dycore(:,:)
       real(kind_phys), intent(in) :: scaling_dycore(:,:)
+      real(kind_phys), intent(in) :: te_ini_dyn(:)
       real(kind_phys), intent(in) :: te_cur_phys(:)
       real(kind_phys), intent(in) :: te_cur_dyn(:)
       real(kind_phys), intent(in) :: tw_cur(:)
@@ -75,11 +80,13 @@ CONTAINS
       call history_out_field('cp_or_cv_dycore', cp_or_cv_dycore)
       call history_out_field('scaling_dycore', scaling_dycore)
       call history_out_field('te_cur_phys', te_cur_phys)
-      call history_out_field('te_cur_dyn', te_cur_dyn)
       call history_out_field('tw_cur', tw_cur)
       call history_out_field('tend_te_tnd', tend_te_tnd)
       call history_out_field('tend_tw_tnd', tend_tw_tnd)
+
+      call history_out_field('teinp', te_ini_dyn)
       call history_out_field('teout', teout)
+      call history_out_field('tefix', te_cur_dyn)
 
    end subroutine check_energy_diagnostics_run
 
