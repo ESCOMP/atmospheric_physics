@@ -29,8 +29,9 @@ subroutine initialize_constituents_register(constituents, errmsg, errcode)
     integer :: found_const_count
     logical :: known_constituent
     character(len=256) :: variable_name
+    character(len=512) :: alloc_err_msg
     character(len=256), allocatable :: constituent_names(:)
-    character(len=65), parameter :: const_std_names(6) = &
+    character(len=65), parameter :: water_species_std_names(6) = &
       (/'water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water       ', &
         'cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water', &
         'rain_mixing_ratio_wrt_moist_air_and_condensed_water              ', &
@@ -59,10 +60,10 @@ subroutine initialize_constituents_register(constituents, errmsg, errcode)
     ncdata => initial_file_get_id()
     ! See how many variables are present on the file
     ierr = pio_inquire(ncdata, nVariables=num_variables)
-    allocate(constituent_names(num_variables), stat=ierr)
+    allocate(constituent_names(num_variables), stat=ierr, errmsg=alloc_err_msg)
     if (ierr /= 0) then
        errcode = 1
-       errmsg = 'Failed to allocate "constituent_names"'
+       errmsg = alloc_err_msg
        return
     end if
 
@@ -74,10 +75,10 @@ subroutine initialize_constituents_register(constituents, errmsg, errcode)
        if (index(variable_name, 'cnst_') > 0) then
           constituent_index = constituent_index + 1
           ! Replace with standard name if known, to avoid duplicates
-          if (found_const_count < size(const_std_names)) then
+          if (found_const_count < size(water_species_std_names)) then
              do known_const_index = 1, size(const_file_names)
                 if (trim(const_file_names(known_const_index)) == trim(variable_name)) then
-                   constituent_names(constituent_index) = const_std_names(known_const_index)
+                   constituent_names(constituent_index) = water_species_std_names(known_const_index)
                    found_const_count = found_const_count + 1
                    known_constituent = .true.
                    exit
@@ -90,35 +91,47 @@ subroutine initialize_constituents_register(constituents, errmsg, errcode)
        end if
     end do
 
-    allocate(constituents(constituent_index), stat=ierr)
+    allocate(constituents(constituent_index), stat=ierr, errmsg=alloc_err_msg)
     if (ierr /= 0) then
        errcode = 1
-       errmsg = 'Failed to allocate "constituents"'
+       errmsg = alloc_err_msg
        return
     end if
 
     do var_index = 1, size(constituents)
        if (any(water_species_number_concentrations == trim(constituent_names(var_index)))) then
-          call constituents(var_index)%instantiate( &
-             std_name = constituent_names(var_index), &
-             long_name = constituent_names(var_index), &
-             units = 'kg kg-1', &
+          call constituents(var_index)%instantiate(     &
+             std_name = constituent_names(var_index),   &
+             long_name = constituent_names(var_index),  &
+             units = 'kg-1',                            &
              vertical_dim = 'vertical_layer_dimension', &
-             min_value = 0.0_kind_phys, &
-             advected = .true., &
-             water_species = .true., &
-             mixing_ratio_type = 'wet', &
-             errcode = errcode, &
+             min_value = 0.0_kind_phys,                 &
+             advected = .true.,                         &
+             water_species = .true.,                    &
+             mixing_ratio_type = 'wet',                 &
+             errcode = errcode,                         &
+             errmsg = errmsg)
+       else if (any(water_species_std_names == trim(constituent_names(var_index)))) then
+          call constituents(var_index)%instantiate(     &
+             std_name = constituent_names(var_index),   &
+             long_name = constituent_names(var_index),  &
+             units = 'kg kg-1',                         &
+             vertical_dim = 'vertical_layer_dimension', &
+             min_value = 0.0_kind_phys,                 &
+             advected = .true.,                         &
+             water_species = .true.,                    &
+             mixing_ratio_type = 'wet',                 &
+             errcode = errcode,                         &
              errmsg = errmsg)
        else
-          call constituents(var_index)%instantiate( &
-             std_name = constituent_names(var_index), &
-             long_name = constituent_names(var_index), &
-             units = 'kg kg-1', &
+          call constituents(var_index)%instantiate(     &
+             std_name = constituent_names(var_index),   &
+             long_name = constituent_names(var_index),  &
+             units = 'kg kg-1',                         &
              vertical_dim = 'vertical_layer_dimension', &
-             min_value = 0.0_kind_phys, &
-             advected = .true., &
-             errcode = errcode, &
+             min_value = 0.0_kind_phys,                 &
+             advected = .true.,                         &
+             errcode = errcode,                         &
              errmsg = errmsg)
        end if
        if (errcode /= 0) then
