@@ -8,9 +8,10 @@ contains
 
   !> This is a helper subroutine created to deallocate objects associated with TUV-x
   subroutine tuvx_deallocate(grids, profiles, radiators, tuvx, height_grid, &
-                             wavelength_grid, temperature_profile, surface_albedo_profile)
+                             wavelength_grid, temperature_profile, surface_albedo_profile, &
+                             cloud_optics)
     use musica_tuvx, only: tuvx_t, grid_map_t, profile_map_t, radiator_map_t, &
-                           grid_t, profile_t
+                           grid_t, profile_t, radiator_t
 
     type(grid_map_t),     pointer :: grids
     type(profile_map_t),  pointer :: profiles
@@ -20,6 +21,7 @@ contains
     type(grid_t),         pointer :: wavelength_grid
     type(profile_t),      pointer :: temperature_profile
     type(profile_t),      pointer :: surface_albedo_profile
+    type(radiator_t),     pointer :: cloud_optics
 
     if (associated( grids )) deallocate( grids )
     if (associated( profiles )) deallocate( profiles )
@@ -48,6 +50,11 @@ contains
     if (associated( surface_albedo_profile )) then
       deallocate( surface_albedo_profile )
       surface_albedo_profile => null()
+    end if
+
+    if (associated( cloud_optics )) then
+      deallocate( cloud_optics )
+      cloud_optics => null()
     end if
 
   end subroutine tuvx_deallocate

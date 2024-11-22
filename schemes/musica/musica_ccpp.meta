@@ -59,6 +59,12 @@
   type = real | kind = kind_phys
   dimensions = (photolysis_wavelength_grid_interface_dimension)
   intent = in
+[ constituent_props ]
+  standard_name = ccpp_constituent_properties
+  units = None
+  type = ccpp_constituent_prop_ptr_t
+  dimensions = (number_of_ccpp_constituents)
+  intent = in
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
@@ -146,6 +152,18 @@
   units = m s-2
   type = real | kind = kind_phys
   dimensions = ()
+  intent = in
+[ cloud_area_fraction ]
+  standard_name = cloud_area_fraction
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ air_pressure_thickness ]
+  standard_name = air_pressure_thickness
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ errmsg ]
   standard_name = ccpp_error_message

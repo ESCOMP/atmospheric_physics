@@ -5,29 +5,73 @@ module musica_ccpp_tuvx
   use ccpp_kinds,           only: kind_phys
   use musica_ccpp_namelist, only: filename_of_tuvx_configuration
   use musica_ccpp_util,     only: has_error_occurred
-  use musica_tuvx,          only: tuvx_t, grid_t, profile_t
+  use musica_tuvx,          only: tuvx_t, grid_t, profile_t, radiator_t
   use musica_util,          only: mappings_t, index_mappings_t
 
   implicit none
   private
 
-  public :: tuvx_init, tuvx_run, tuvx_final
+  public :: tuvx_register, tuvx_init, tuvx_run, tuvx_final
 
-  type(tuvx_t),    pointer :: tuvx => null()
-  type(grid_t),    pointer :: height_grid => null()
-  type(grid_t),    pointer :: wavelength_grid => null()
-  type(profile_t), pointer :: temperature_profile => null()
-  type(profile_t), pointer :: surface_albedo_profile => null()
+  type(tuvx_t),     pointer :: tuvx => null()
+  type(grid_t),     pointer :: height_grid => null()
+  type(grid_t),     pointer :: wavelength_grid => null()
+  type(profile_t),  pointer :: temperature_profile => null()
+  type(profile_t),  pointer :: surface_albedo_profile => null()
+  type(radiator_t), pointer :: cloud_optics => null()
 
   type(index_mappings_t), pointer :: photolysis_rate_constants_mapping => null( )
-  integer :: number_of_photolysis_rate_constants = 0
+  integer, parameter :: DEFAULT_NUM_PHOTOLYSIS_RATE_CONSTANTS = 0
+  integer :: number_of_photolysis_rate_constants = DEFAULT_NUM_PHOTOLYSIS_RATE_CONSTANTS
+  integer, parameter :: DEFAULT_INDEX_NOT_FOUND = -1
+  character(len=*), parameter :: CLOUD_LIQUID_WATER_CONTENT_LABEL = &
+      'cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water'
+  character(len=*), parameter :: CLOUD_LIQUID_WATER_CONTENT_LONG_NAME = &
+      'Cloud water mass mixing ratio with respect to moist air plus all airborne condensates'
+  character(len=*), parameter :: CLOUD_LIQUID_WATER_CONTENT_UNITS = 'kg kg-1'
+  real(kind_phys), parameter :: CLOUD_LIQUID_WATER_CONTENT_MOLAR_MASS = 0.018_kind_phys ! kg mol-1
+  integer :: index_cloud_liquid_water_content = DEFAULT_INDEX_NOT_FOUND
 
 contains
+
+  !> Registers constituent properties with the CCPP needed by TUV-x
+  subroutine tuvx_register(constituent_props, errmsg, errcode)
+    use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
+    use musica_util,               only: error_t
+
+    type(ccpp_constituent_properties_t), allocatable, intent(out) :: constituent_props(:)
+    character(len=512),                               intent(out) :: errmsg
+    integer,                                          intent(out) :: errcode
+
+    allocate(constituent_props(1), stat=errcode)
+    if (errcode /= 0) then
+      errmsg = "[MUSICA Error] Failed to allocate memory for constituent properties."
+      return
+    end if
+
+    ! Register cloud liquid water content needed for cloud optics calculations
+    call constituent_props(1)%instantiate( &
+      std_name = CLOUD_LIQUID_WATER_CONTENT_LABEL, &
+      long_name = CLOUD_LIQUID_WATER_CONTENT_LONG_NAME, &
+      units = CLOUD_LIQUID_WATER_CONTENT_UNITS, &
+      vertical_dim = "vertical_layer_dimension", &
+      default_value = 0.0_kind_phys, &
+      min_value = 0.0_kind_phys, &
+      molar_mass = CLOUD_LIQUID_WATER_CONTENT_MOLAR_MASS, &
+      advected = .true., &
+      errcode = errcode, &
+      errmsg = errmsg &
+    )
+    if (errcode /= 0) return
+
+  end subroutine tuvx_register
 
   !> Initializes TUV-x
   subroutine tuvx_init(vertical_layer_dimension, vertical_interface_dimension, &
                        wavelength_grid_interfaces, micm_rate_parameter_ordering, &
-                       errmsg, errcode)
+                       constituent_props, errmsg, errcode)
+    use ccpp_const_utils, only: ccpp_const_get_idx
+    use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use musica_tuvx, only: grid_map_t, profile_map_t, radiator_map_t
     use musica_util, only: error_t, configuration_t
     use musica_ccpp_namelist, only: filename_of_tuvx_micm_mapping_configuration
@@ -40,13 +84,16 @@ contains
       only: create_temperature_profile, temperature_label, temperature_unit
     use musica_ccpp_tuvx_surface_albedo, &
       only: create_surface_albedo_profile, surface_albedo_label, surface_albedo_unit
+    use musica_ccpp_tuvx_cloud_optics, &
+      only: create_cloud_optics_radiator, cloud_optics_label
 
-    integer,            intent(in)  :: vertical_layer_dimension      ! (count)
-    integer,            intent(in)  :: vertical_interface_dimension  ! (count)
-    real(kind_phys),    intent(in)  :: wavelength_grid_interfaces(:) ! m
-    type(mappings_t),   intent(in)  :: micm_rate_parameter_ordering ! index mappings for MICM rate parameters
-    character(len=512), intent(out) :: errmsg
-    integer,            intent(out) :: errcode
+    integer,                           intent(in)  :: vertical_layer_dimension      ! (count)
+    integer,                           intent(in)  :: vertical_interface_dimension  ! (count)
+    real(kind_phys),                   intent(in)  :: wavelength_grid_interfaces(:) ! m
+    type(mappings_t),                  intent(in)  :: micm_rate_parameter_ordering  ! index mappings for MICM rate parameters
+    type(ccpp_constituent_prop_ptr_t), intent(in)  :: constituent_props(:)
+    character(len=512),                intent(out) :: errmsg
+    integer,                           intent(out) :: errcode
 
     ! local variables
     type(grid_map_t),      pointer :: grids
@@ -55,6 +102,11 @@ contains
     type(configuration_t)          :: config
     type(mappings_t),      pointer :: photolysis_rate_constants_ordering
     type(error_t)                  :: error
+
+    ! Get needed indices in constituents array
+    call ccpp_const_get_idx(constituent_props, CLOUD_LIQUID_WATER_CONTENT_LABEL, &
+                            index_cloud_liquid_water_content, errmsg, errcode)
+    if (errcode /= 0) return
 
     grids => grid_map_t( error )
     if (has_error_occurred( error, errmsg, errcode )) return
@@ -69,7 +121,7 @@ contains
     call grids%add( height_grid, error )
     if (has_error_occurred( error, errmsg, errcode )) then
       call tuvx_deallocate( grids, null(), null(), null(), height_grid, null(), &
-                            null(), null() )
+                            null(), null(), null() )
       return
     end if
 
@@ -77,35 +129,35 @@ contains
                                                errmsg, errcode )
     if (errcode /= 0) then
       call tuvx_deallocate( grids, null(), null(), null(), height_grid, null(), &
-                            null(), null() )
+                            null(), null(), null() )
       return
     endif
 
     call grids%add( wavelength_grid, error )
     if (has_error_occurred( error, errmsg, errcode )) then
       call tuvx_deallocate( grids, null(), null(), null(), height_grid, &
-                            wavelength_grid, null(), null() )
+                            wavelength_grid, null(), null(), null() )
       return
     end if
 
     profiles => profile_map_t( error )
     if (has_error_occurred( error, errmsg, errcode )) then
       call tuvx_deallocate( grids, null(), null(), null(), height_grid, &
-                            wavelength_grid, null(), null() )
+                            wavelength_grid, null(), null(), null() )
       return
     end if
 
     temperature_profile => create_temperature_profile( height_grid, errmsg, errcode )
     if (errcode /= 0) then
       call tuvx_deallocate( grids, profiles, null(), null(), height_grid, &
-                            wavelength_grid, null(), null() )
+                            wavelength_grid, null(), null(), null() )
       return
     endif
 
     call profiles%add( temperature_profile, error )
     if (has_error_occurred( error, errmsg, errcode )) then
       call tuvx_deallocate( grids, profiles, null(), null(), height_grid, &
-                            wavelength_grid, temperature_profile, null() )
+                            wavelength_grid, temperature_profile, null(), null() )
       return
     end if
 
@@ -113,21 +165,37 @@ contains
                                                              errmsg, errcode )
     if (errcode /= 0) then
       call tuvx_deallocate( grids, profiles, null(), null(), height_grid, &
-                            wavelength_grid, temperature_profile, null() )
+                            wavelength_grid, temperature_profile, null(), null() )
       return
     endif
 
     call profiles%add( surface_albedo_profile, error )
     if (has_error_occurred( error, errmsg, errcode )) then
       call tuvx_deallocate( grids, profiles, null(), null(), height_grid, &
-            wavelength_grid, temperature_profile, surface_albedo_profile )
+            wavelength_grid, temperature_profile, surface_albedo_profile, null() )
       return
     end if
 
     radiators => radiator_map_t( error )
     if (has_error_occurred( error, errmsg, errcode )) then
       call tuvx_deallocate( grids, profiles, null(), null(), height_grid, &
-            wavelength_grid, temperature_profile, surface_albedo_profile )
+            wavelength_grid, temperature_profile, surface_albedo_profile, null() )
+      return
+    end if
+
+    cloud_optics => create_cloud_optics_radiator( height_grid, wavelength_grid, &
+                                                  errmsg, errcode )
+    if (errcode /= 0) then
+      call tuvx_deallocate( grids, profiles, radiators, null(), height_grid, &
+            wavelength_grid, temperature_profile, surface_albedo_profile, null() )
+      return
+    endif
+
+    call radiators%add( cloud_optics, error )
+    if (has_error_occurred( error, errmsg, errcode )) then
+      call tuvx_deallocate( grids, profiles, radiators, null(), height_grid, &
+            wavelength_grid, temperature_profile, surface_albedo_profile, &
+            cloud_optics )
       return
     end if
 
@@ -135,12 +203,12 @@ contains
                     radiators, error )
     if (has_error_occurred( error, errmsg, errcode )) then
       call tuvx_deallocate( grids, profiles, radiators, null(), height_grid, &
-            wavelength_grid, temperature_profile, surface_albedo_profile )
+            wavelength_grid, temperature_profile, surface_albedo_profile, null() )
       return
     end if
 
     call tuvx_deallocate( grids, profiles, radiators, null(), height_grid, &
-          wavelength_grid, temperature_profile, surface_albedo_profile )
+          wavelength_grid, temperature_profile, surface_albedo_profile, cloud_optics )
 
     grids => tuvx%get_grids( error )
     if (has_error_occurred( error, errmsg, errcode )) return
@@ -148,7 +216,7 @@ contains
     height_grid => grids%get( height_grid_label, height_grid_unit, error )
     if (has_error_occurred( error, errmsg, errcode )) then
       call tuvx_deallocate( grids, null(), null(), tuvx, null(), null(), &
-                            null(), null() )
+                            null(), null(), null() )
       return
     end if
 
@@ -156,33 +224,47 @@ contains
                                   error )
     if (has_error_occurred( error, errmsg, errcode )) then
       call tuvx_deallocate( grids, null(), null(), tuvx, height_grid, null(), &
-                            null(), null() )
+                            null(), null(), null() )
       return
     end if
 
     profiles => tuvx%get_profiles( error )
     if (has_error_occurred( error, errmsg, errcode )) then
       call tuvx_deallocate( grids, null(), null(), tuvx, height_grid, &
-            wavelength_grid, null(), null() )
+            wavelength_grid, null(), null(), null() )
       return
     end if
 
     temperature_profile => profiles%get( temperature_label, temperature_unit, error )
     if (has_error_occurred( error, errmsg, errcode )) then
       call tuvx_deallocate( grids, profiles, null(), tuvx, height_grid, &
-            wavelength_grid, null(), null() )
+            wavelength_grid, null(), null(), null() )
       return
     end if
 
     surface_albedo_profile => profiles%get( surface_albedo_label, surface_albedo_unit, error )
     if (has_error_occurred( error, errmsg, errcode )) then
       call tuvx_deallocate( grids, profiles, null(), tuvx, height_grid, &
-            wavelength_grid, temperature_profile, null() )
+            wavelength_grid, temperature_profile, null(), null() )
       return
     end if
 
-    call tuvx_deallocate( grids, profiles, null(), null(), null(), null(), &
-                          null(), null() )
+    radiators => tuvx%get_radiators( error )
+    if (has_error_occurred( error, errmsg, errcode )) then
+      call tuvx_deallocate( grids, profiles, null(), tuvx, height_grid, &
+            wavelength_grid, temperature_profile, surface_albedo_profile, null() )
+      return
+    end if
+
+    cloud_optics => radiators%get( cloud_optics_label, error )
+    if (has_error_occurred( error, errmsg, errcode )) then
+      call tuvx_deallocate( grids, profiles, radiators, tuvx, height_grid, &
+            wavelength_grid, temperature_profile, surface_albedo_profile, null() )
+      return
+    end if
+
+    call tuvx_deallocate( grids, profiles, radiators, null(), null(), null(), &
+                          null(), null(), null() )
 
     photolysis_rate_constants_ordering => &
         tuvx%get_photolysis_rate_constants_ordering( error )
@@ -212,12 +294,15 @@ contains
                       surface_temperature, surface_geopotential,    &
                       surface_albedo,                               &
                       standard_gravitational_acceleration,          &
-                      rate_parameters, errmsg, errcode)
-    use musica_util,                  only: error_t
-    use musica_ccpp_tuvx_height_grid, only: set_height_grid_values, calculate_heights
-    use musica_ccpp_tuvx_temperature, only: set_temperature_values
-    use musica_ccpp_util,             only: has_error_occurred
+                      cloud_area_fraction, constituents,            &
+                      air_pressure_thickness, rate_parameters,      &
+                      errmsg, errcode)
+    use musica_util,                     only: error_t
+    use musica_ccpp_tuvx_height_grid,    only: set_height_grid_values, calculate_heights
+    use musica_ccpp_tuvx_temperature,    only: set_temperature_values
+    use musica_ccpp_util,                only: has_error_occurred
     use musica_ccpp_tuvx_surface_albedo, only: set_surface_albedo_values
+    use musica_ccpp_tuvx_cloud_optics,   only: set_cloud_optics_values
 
     real(kind_phys),    intent(in)    :: temperature(:,:)                                  ! K (column, layer)
     real(kind_phys),    intent(in)    :: dry_air_density(:,:)                              ! kg m-3 (column, layer)
@@ -227,6 +312,9 @@ contains
     real(kind_phys),    intent(in)    :: surface_geopotential(:)                           ! m2 s-2
     real(kind_phys),    intent(in)    :: surface_albedo                                    ! unitless
     real(kind_phys),    intent(in)    :: standard_gravitational_acceleration               ! m s-2
+    real(kind_phys),    intent(in)    :: cloud_area_fraction(:,:)                          ! unitless (column, layer)
+    real(kind_phys),    intent(in)    :: constituents(:,:,:)                               ! various (column, layer, constituent)
+    real(kind_phys),    intent(in)    :: air_pressure_thickness(:,:)                       ! Pa (column, layer)
     real(kind_phys),    intent(inout) :: rate_parameters(:,:,:)                            ! various units (column, layer, reaction)
     character(len=512), intent(out)   :: errmsg
     integer,            intent(out)   :: errcode
@@ -261,6 +349,13 @@ contains
 
       call set_temperature_values( temperature_profile, temperature(i_col,:), &
                                    surface_temperature(i_col), errmsg, errcode )
+      if (errcode /= 0) return
+
+      call set_cloud_optics_values( cloud_optics, cloud_area_fraction(i_col,:), &
+                                    air_pressure_thickness(i_col,:), &
+                                    constituents(i_col,:,index_cloud_liquid_water_content), &
+                                    reciprocal_of_gravitational_acceleration, &
+                                    errmsg, errcode )
       if (errcode /= 0) return
 
       ! temporary values until these are available from the host model
@@ -313,6 +408,11 @@ contains
     if (associated( surface_albedo_profile )) then
       deallocate( surface_albedo_profile )
       surface_albedo_profile => null()
+    end if
+
+    if (associated( cloud_optics )) then
+      deallocate( cloud_optics )
+      cloud_optics => null()
     end if
 
     if (associated( tuvx )) then

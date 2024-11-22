@@ -33,6 +33,7 @@ target_sources(test_musica_api
     ${CCPP_SRC_PATH}/ccpp_hash_table.F90
     ${CCPP_SRC_PATH}/ccpp_hashable.F90
     ${CCPP_SRC_PATH}/ccpp_types.F90
+    ${TO_BE_CCPPIZED_PATH}/ccpp_const_utils.F90
     ${CCPP_TEST_SRC_PATH}/ccpp_kinds.F90
 )
 

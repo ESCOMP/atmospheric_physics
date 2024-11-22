@@ -145,6 +145,7 @@ contains
     implicit none
 
     integer, parameter                                             :: NUM_SPECIES = 5
+    integer, parameter                                             :: NUM_TUVX_CONSTITUENTS = 1
     ! This test requires that the number of grid cells = 4, which is the default
     ! vector dimension for MICM. This restriction will be removed once
     ! https://github.com/NCAR/musica/issues/217 is finished.
@@ -166,8 +167,12 @@ contains
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)             :: temperature                                  ! K
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)             :: pressure                                     ! Pa
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)             :: dry_air_density                              ! kg m-3
-    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS,NUM_SPECIES) :: constituents                                 ! kg kg-1
-    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS,NUM_SPECIES) :: initial_constituents                         ! kg kg-1
+    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)             :: cloud_area_fraction                          ! unitless
+    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)             :: air_pressure_thickness                       ! Pa
+    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS, &
+                               NUM_SPECIES+NUM_TUVX_CONSTITUENTS)  :: constituents                                 ! kg kg-1
+    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS, &
+                               NUM_SPECIES+NUM_TUVX_CONSTITUENTS)  :: initial_constituents                         ! kg kg-1
     type(ccpp_constituent_prop_ptr_t),   allocatable               :: constituent_props_ptr(:)
     type(ccpp_constituent_properties_t), allocatable, target       :: constituent_props(:)
     type(ccpp_constituent_properties_t), pointer                   :: const_prop
@@ -196,6 +201,10 @@ contains
     pressure(:,2) = (/ 8000.04_kind_phys, 9000.04_kind_phys /)
     dry_air_density(:,1) = (/ 3.5_kind_phys, 4.5_kind_phys /)
     dry_air_density(:,2) = (/ 5.5_kind_phys, 6.5_kind_phys /)
+    cloud_area_fraction(:,1) = (/ 0.1_kind_phys, 0.2_kind_phys /)
+    cloud_area_fraction(:,2) = (/ 0.3_kind_phys, 0.4_kind_phys /)
+    air_pressure_thickness(:,1) = (/ 900.0_kind_phys, 905.0_kind_phys /)
+    air_pressure_thickness(:,2) = (/ 910.0_kind_phys, 915.0_kind_phys /)
 
     filename_of_micm_configuration = 'musica_configurations/chapman/micm/config.json'
     filename_of_tuvx_configuration = 'musica_configurations/chapman/tuvx/config.json'
@@ -207,7 +216,7 @@ contains
       stop 3
     endif
     ASSERT(allocated(constituent_props))
-    ASSERT(size(constituent_props) == NUM_SPECIES)
+    ASSERT(size(constituent_props) == NUM_SPECIES+NUM_TUVX_CONSTITUENTS)
     do i = 1, size(constituent_props)
       ASSERT(constituent_props(i)%is_instantiated(errcode, errmsg))
       ASSERT(errcode == 0)
@@ -221,7 +230,9 @@ contains
                 (trim(species_name) == "O" .and. molar_mass == 0.0159994_kind_phys .and. .not. is_advected) .or.   &
                 (trim(species_name) == "O1D" .and. molar_mass == 0.0159994_kind_phys .and. .not. is_advected) .or. &
                 (trim(species_name) == "O3" .and. molar_mass == 0.0479982_kind_phys .and. is_advected) .or. &
-                (trim(species_name) == "N2" .and. molar_mass == 0.0280134_kind_phys .and. is_advected)
+                (trim(species_name) == "N2" .and. molar_mass == 0.0280134_kind_phys .and. is_advected) .or. &
+                (trim(species_name) == "cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water" .and. &
+                 molar_mass == 0.018_kind_phys .and. is_advected)
       ASSERT(tmp_bool)
       call constituent_props(i)%units(units, errcode, errmsg)
       if (errcode /= 0) then
@@ -242,7 +253,7 @@ contains
     end do
 
     call musica_ccpp_init(NUM_LAYERS, NUM_LAYERS+1, photolysis_wavelength_grid_interfaces, &
-                          errmsg, errcode)
+                          constituent_props_ptr, errmsg, errcode)
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
@@ -275,6 +286,12 @@ contains
         end do
       end do
     end do
+    ! set initial cloud liquid water mixing ratio to ~1e-3 kg kg-1
+    do j = 1, NUM_COLUMNS
+      do k = 1, NUM_LAYERS
+        constituents(j,k,NUM_SPECIES+1) = 1.0e-3_kind_phys * (1.0 + 0.1 * (j-1) + 0.01 * (k-1))
+      end do
+    end do
     initial_constituents(:,:,:) = constituents(:,:,:)
 
     write(*,*) "[MUSICA INFO] Initial Time Step"
@@ -290,7 +307,7 @@ contains
                          constituents, geopotential_height_wrt_surface_at_midpoint,                 &
                          geopotential_height_wrt_surface_at_interface, surface_temperature,         &
                          surface_geopotential, surface_albedo, standard_gravitational_acceleration, &
-                         errmsg, errcode)
+                         cloud_area_fraction, air_pressure_thickness, errmsg, errcode)
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
@@ -322,6 +339,8 @@ contains
                   constituents(i,j,O2_index) + constituents(i,j,O3_index)
         total_O_init = initial_constituents(i,j,O_index) + initial_constituents(i,j,O1D_index) + &
                        initial_constituents(i,j,O2_index) + initial_constituents(i,j,O3_index)
+        ! cloud liquid water mixing ratio should be unchanged
+        ASSERT_NEAR(constituents(i,j,NUM_SPECIES+1), initial_constituents(i,j,NUM_SPECIES+1), 1.0e-13)
         ASSERT_NEAR(total_O, total_O_init, 1.0e-13)
       end do
     end do
@@ -344,6 +363,7 @@ contains
     implicit none
 
     integer, parameter                                             :: NUM_SPECIES = 2
+    integer, parameter                                             :: NUM_TUVX_CONSTITUENTS = 1
     ! This test requires that the number of grid cells = 4, which is the default
     ! vector dimension for MICM. This restriction will be removed once
     ! https://github.com/NCAR/musica/issues/217 is finished.
@@ -365,8 +385,12 @@ contains
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)             :: temperature                                  ! K
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)             :: pressure                                     ! Pa
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)             :: dry_air_density                              ! kg m-3
-    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS,NUM_SPECIES) :: constituents                                 ! kg kg-1
-    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS,NUM_SPECIES) :: initial_constituents                         ! kg kg-1
+    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)             :: cloud_area_fraction                          ! unitless
+    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)             :: air_pressure_thickness                       ! Pa
+    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS, &
+                               NUM_SPECIES+NUM_TUVX_CONSTITUENTS)  :: constituents                                 ! kg kg-1
+    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS, &
+                               NUM_SPECIES+NUM_TUVX_CONSTITUENTS)  :: initial_constituents                         ! kg kg-1
     type(ccpp_constituent_prop_ptr_t),   allocatable               :: constituent_props_ptr(:)
     type(ccpp_constituent_properties_t), allocatable, target       :: constituent_props(:)
     type(ccpp_constituent_properties_t), pointer                   :: const_prop
@@ -395,6 +419,10 @@ contains
     pressure(:,2) = (/ 8000.04_kind_phys, 9000.04_kind_phys /)
     dry_air_density(:,1) = (/ 3.5_kind_phys, 4.5_kind_phys /)
     dry_air_density(:,2) = (/ 5.5_kind_phys, 6.5_kind_phys /)
+    cloud_area_fraction(:,1) = (/ 0.1_kind_phys, 0.2_kind_phys /)
+    cloud_area_fraction(:,2) = (/ 0.3_kind_phys, 0.4_kind_phys /)
+    air_pressure_thickness(:,1) = (/ 900.0_kind_phys, 905.0_kind_phys /)
+    air_pressure_thickness(:,2) = (/ 910.0_kind_phys, 915.0_kind_phys /)
 
     filename_of_micm_configuration = 'musica_configurations/terminator/micm/config.json'
     filename_of_tuvx_configuration = 'musica_configurations/terminator/tuvx/config.json'
@@ -406,7 +434,7 @@ contains
       stop 3
     endif
     ASSERT(allocated(constituent_props))
-    ASSERT(size(constituent_props) == NUM_SPECIES)
+    ASSERT(size(constituent_props) == NUM_SPECIES+NUM_TUVX_CONSTITUENTS)
     do i = 1, size(constituent_props)
       ASSERT(constituent_props(i)%is_instantiated(errcode, errmsg))
       ASSERT(errcode == 0)
@@ -417,7 +445,9 @@ contains
       call constituent_props(i)%is_advected(is_advected, errcode, errmsg)
       ASSERT(errcode == 0)
       tmp_bool = (trim(species_name) == "Cl" .and. molar_mass == 0.035453_kind_phys .and. is_advected) .or.  &
-                 (trim(species_name) == "Cl2" .and. molar_mass == 0.070906_kind_phys .and. is_advected)
+                 (trim(species_name) == "Cl2" .and. molar_mass == 0.070906_kind_phys .and. is_advected) .or. &
+                  (trim(species_name) == "cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water" &
+                    .and. molar_mass == 0.018_kind_phys .and. is_advected)
       ASSERT(tmp_bool)
       call constituent_props(i)%units(units, errcode, errmsg)
       if (errcode /= 0) then
@@ -438,7 +468,7 @@ contains
     end do
 
     call musica_ccpp_init(NUM_LAYERS, NUM_LAYERS+1, photolysis_wavelength_grid_interfaces, &
-                          errmsg, errcode)
+                          constituent_props_ptr, errmsg, errcode)
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
@@ -462,6 +492,12 @@ contains
         end do
       end do
     end do
+    ! set initial cloud liquid water mixing ratio to ~1e-3 kg kg-1
+    do j = 1, NUM_COLUMNS
+      do k = 1, NUM_LAYERS
+        constituents(j,k,NUM_SPECIES+1) = 1.0e-3_kind_phys * (1.0 + 0.1 * (j-1) + 0.01 * (k-1))
+      end do
+    end do
     initial_constituents(:,:,:) = constituents(:,:,:)
 
     write(*,*) "[MUSICA INFO] Initial Time Step"
@@ -477,7 +513,7 @@ contains
                          constituents, geopotential_height_wrt_surface_at_midpoint,                 &
                          geopotential_height_wrt_surface_at_interface, surface_temperature,         &
                          surface_geopotential, surface_albedo, standard_gravitational_acceleration, &
-                         errmsg, errcode)
+                         cloud_area_fraction, air_pressure_thickness, errmsg, errcode)
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
@@ -504,6 +540,8 @@ contains
         total_Cl = constituents(i,j,Cl_index) + constituents(i,j,Cl2_index)
         total_Cl_init = initial_constituents(i,j,Cl_index) + initial_constituents(i,j,Cl2_index)
         ASSERT_NEAR(total_Cl, total_Cl_init, 1.0e-13)
+        ! cloud liquid water should be unchanged
+        ASSERT_NEAR(constituents(i,j,NUM_SPECIES+1), initial_constituents(i,j,NUM_SPECIES+1), 1.0e-13)
       end do
     end do
 
