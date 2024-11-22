@@ -92,7 +92,7 @@
   type = real | kind = kind_phys
   dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
   intent = out
-[ s ]
+[ dsdt ]
   standard_name = dry_static_energy
   units = J kg-1
   type = real | kind = kind_phys

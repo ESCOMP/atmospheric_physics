@@ -108,7 +108,7 @@ contains
   !=========================================================================================
   !> \section arg_table_rayleigh_friction_run Argument Table
   !! \htmlinclude rayleigh_friction_run.html
-  subroutine rayleigh_friction_run(ncol, pver, ztodt, u, v, dudt, dvdt, s, errmsg, errflg)
+  subroutine rayleigh_friction_run(ncol, pver, ztodt, u, v, dudt, dvdt, dsdt, errmsg, errflg)
 
     !------------------------------Arguments--------------------------------
     integer,             intent(in) :: ncol  
@@ -118,7 +118,7 @@ contains
     real(kind_phys),     intent(in) :: v(:,:)     
     real(kind_phys),    intent(out) :: dudt(:,:) !tendency_of_x_wing    
     real(kind_phys),    intent(out) :: dvdt(:,:) !tendency_of_y_wind    
-    real(kind_phys),    intent(out) :: s(:,:)  !heating_rate 
+    real(kind_phys),    intent(out) :: dsdt(:,:)  !heating_rate 
       
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errflg

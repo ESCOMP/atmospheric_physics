@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<suite name="<parameterization>" version="1.0">  
+  <group name="physics_after_coupler">
+    <!-- Rayleigh Friction -->
+    <scheme>rayleigh_friction</scheme>
+    <scheme>rayleigh_friction_diagnostics</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>apply_tendency_of_eastward_wind</scheme>
+    <scheme>apply_tendency_of_northward_wind</scheme>
+    <scheme>qneg</scheme>
+   </group>
+ </suite>
+ 

@@ -1,0 +1,85 @@
+module rayleigh_friction_diagnostics
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!
+! THIS IS A TEMPLATE
+!   1. copy this file to a new file with the correct name
+!        (SCHEME_diagnostics.F90)
+!   2. do a search and replace for "SCHEME" in this file and
+!        replace with your scheme name
+!   3. Add desired history_add_field calls to the init phase
+!   4. Add all fields that are being output as inputs to the run phase
+!   5. Add desired history_out_field calls to the run phase
+!   6. Run $ccpp_framework/scripts/ccpp_fortran_to_metadata.py on this .F90
+!        file to generate the metadata
+!   7. Complete the metadata (fill out standard names, units, dimensions)
+!   8. Add this scheme to the SDF file for your suite (likely will be at end)
+!   9. Delete this header section
+!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   use ccpp_kinds, only:  kind_phys
+
+   implicit none
+   private
+   save
+
+   public :: rayleigh_friction_diagnostics_init ! init routine
+   public :: rayleigh_friction_diagnostics_run  ! main routine
+
+CONTAINS
+
+   !> \section arg_table_rayleigh_friction_diagnostics_init  Argument Table
+   !! \htmlinclude rayleigh_friction_diagnostics_init.html
+   subroutine rayleigh_friction_diagnostics_init(errmsg, errflg)
+      use cam_history,         only: history_add_field
+      use cam_history_support, only: horiz_only
+
+      character(len=512), intent(out) :: errmsg
+      integer,            intent(out) :: errflg
+
+      ! Local variables:
+
+      errmsg = ''
+      errflg = 0
+
+      ! History add field calls
+      ! Example:
+      ! call history_add_field('TESTDIAG', 'not_a_real_diagnostic_field', horiz_only, 'avg', 'gremlin s-1')
+      call history_add_field('UTEND_RAYLEIGH', 'Zonal wind tendency due to Rayleigh Friction', 'lev', 'avg', 'm s-2')
+      call history_add_field('VTEND_RAYLEIGH', 'Meridional wind tendency due to Rayleigh Friction', 'lev', 'avg', 'm s-2')
+      call history_add_field('STEND_RAYLEIGH', 'Static energy tendency due to Rayleigh Friction', 'lev', 'avg', 'J kg-1')
+      
+   end subroutine rayleigh_friction_diagnostics_init
+
+   !> \section arg_table_rayleigh_friction_diagnostics_run  Argument Table
+   !! \htmlinclude rayleigh_friction_diagnostics_run.html
+   subroutine rayleigh_friction_diagnostics_run(dudt, dvdt, dsdt, errmsg, errflg)
+
+      use cam_history, only: history_out_field
+      !------------------------------------------------
+      !   Input / output parameters
+      !------------------------------------------------
+      ! State variables
+      real(kind_phys), intent(in) :: dudt(:,:) !tendency_of_x_wind due to RF
+      real(kind_phys), intent(in) :: dvdt(:,:) !tendency_of_y_wind due to RF
+      real(kind_phys), intent(in) :: dsdt(:,:) !tendency_of_y_wind due to RF
+
+      ! CCPP error handling variables
+      character(len=512), intent(out) :: errmsg
+      integer,            intent(out) :: errflg
+
+      errmsg = ''
+      errflg = 0
+
+      ! History out field calls
+      ! Example:
+      ! call history_out_field('TESTDIAG', of)
+      call history_out_field('UTEND_RAYLEIGH', dudt)
+      call history_out_field('VTEND_RAYLEIGH', dvdt)
+      call history_out_field('STEND_RAYLEIGH', dsdt)
+
+   end subroutine rayleigh_friction_diagnostics_run
+
+   !=======================================================================
+
+end module rayleigh_friction_diagnostics
