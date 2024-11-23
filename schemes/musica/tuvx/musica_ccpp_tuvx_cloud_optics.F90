@@ -35,11 +35,11 @@ contains
     use musica_tuvx_radiator, only: radiator_t
     use musica_util,          only: error_t
 
-    type(grid_t),                        intent(inout) :: height_grid
-    type(grid_t),                        intent(inout) :: wavelength_grid
-    character(len=*),                    intent(out)   :: errmsg
-    integer,                             intent(out)   :: errcode
-    type(radiator_t), pointer                          :: radiator
+    type(grid_t),     intent(inout) :: height_grid
+    type(grid_t),     intent(inout) :: wavelength_grid
+    character(len=*), intent(out)   :: errmsg
+    integer,          intent(out)   :: errcode
+    type(radiator_t), pointer       :: radiator
 
     ! local variables
     type(error_t) :: error
