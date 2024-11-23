@@ -11,7 +11,7 @@ module musica_ccpp_tuvx_cloud_optics
   ! and include the cloud optical depth, single scattering albedo,
   ! and asymmetry parameter.
   !
-  ! See module_ccpp_tuvx_height_grid for the definition of the height grid
+  ! See musica_ccpp_tuvx_height_grid for the definition of the height grid
   ! and its mapping to the CAM-SIMA vertical grid.
 
   !> Label for cloud optical properties in TUV-x
