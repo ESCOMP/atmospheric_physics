@@ -78,20 +78,21 @@ contains
     type(error_t)   :: error
     real(kind_phys) :: optical_depth(num_vertical_levels) ! working array for cloud optical depth
     real(kind_phys) :: cloud_optical_depth(num_vertical_levels, num_wavelength_bins)
-    integer         :: i_level
+    integer         :: i_level, size_cloud_fraction
     
-    if ( size(delta_pressure) /= size(cloud_fraction) ) then
+    size_cloud_fraction = size(cloud_fraction)
+    if ( size_cloud_fraction + 1 /= num_vertical_levels ) then
+      errmsg = "[MUSICA Error] Invalid size of cloud fraction for TUV-x."
+      errcode = 1
+      return
+    end if
+    if ( size(delta_pressure) /= size_cloud_fraction ) then
       errmsg = "[MUSICA Error] Invalid size of cloud pressure delta for TUV-x."
       errcode = 1
       return
     end if
-    if ( size(cloud_liquid_water_content) /= size(cloud_fraction) ) then
+    if ( size(cloud_liquid_water_content) /= size_cloud_fraction ) then
       errmsg = "[MUSICA Error] Invalid size of cloud liquid water content for TUV-x."
-      errcode = 1
-      return
-    end if
-    if ( size(cloud_fraction) + 1 /= num_vertical_levels ) then
-      errmsg = "[MUSICA Error] Invalid size of cloud fraction for TUV-x."
       errcode = 1
       return
     end if
@@ -105,7 +106,7 @@ contains
     ! The cloud optical depth is then estimated as:
     !   od = lwp * 155 * cf^1.5
     ! A constant cloud optical depth is used for all wavelengths.
-    do i_level = 1, size(cloud_fraction)
+    do i_level = 1, size_cloud_fraction
       if ( cloud_fraction(i_level) > 0.0_kind_phys ) then
         optical_depth(i_level) = ( reciprocal_of_gravitational_acceleration &
                       * cloud_liquid_water_content(i_level) * delta_pressure(i_level) &
@@ -114,8 +115,8 @@ contains
         optical_depth(i_level) = 0.0_kind_phys
       end if
     end do
-    do i_level = 1, size(cloud_fraction)
-      cloud_optical_depth(i_level, :) = optical_depth(size(cloud_fraction)-i_level+1)
+    do i_level = 1, size_cloud_fraction
+      cloud_optical_depth(i_level, :) = optical_depth(size_cloud_fraction-i_level+1)
     end do
     cloud_optical_depth(num_vertical_levels, :) = 0.0_kind_phys
     call radiator%set_optical_depths( cloud_optical_depth, error )
