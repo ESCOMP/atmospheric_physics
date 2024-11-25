@@ -7,15 +7,19 @@
     <!-- After gmean, output global mean energy diagnostics -->
     <scheme>check_energy_gmean_diagnostics</scheme>
 
-    <!-- Add global mean energy difference as heating (diff between gmean and save_teout) -->
+    <!--
+      Global energy fixer (check_energy_fix)
+      Add global mean energy difference as heating (diff between gmean and save_teout)
+    -->
     <scheme>check_energy_zero_fluxes</scheme>
     <scheme>check_energy_fix</scheme>
     <scheme>apply_heating_rate</scheme>
     <scheme>geopotential_temp</scheme>
-
-    <!-- Check that energy and water change matches the boundary fluxes -->
+    <!-- Check that energy and water change matches the boundary fluxes, update global energy -->
     <scheme>check_energy_scaling</scheme>
     <scheme>check_energy_chng</scheme>
+    <!-- Global energy fixer diagnostics (must run after check_energy_chng which updates global energies, but before zero_fluxes zeroes out boundary fluxes from energy fixer) -->
+    <scheme>check_energy_fix_diagnostics</scheme>
 
     <!-- Dry Adiabatic Adjustment -->
     <scheme>dadadj</scheme>
