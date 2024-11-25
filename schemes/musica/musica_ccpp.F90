@@ -72,8 +72,8 @@ contains
                              geopotential_height_wrt_surface_at_interface, surface_geopotential,     &
                              surface_temperature, surface_albedo,                                    &
                              number_of_photolysis_wavelength_grid_sections,                          &
-                             photolysis_wavelength_grid_interfaces, extraterrestrial_flux, &
-                             standard_gravitational_acceleration, cloud_area_fraction,             &
+                             photolysis_wavelength_grid_interfaces, extraterrestrial_flux,           &
+                             standard_gravitational_acceleration, cloud_area_fraction,               &
                              air_pressure_thickness, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use ccpp_kinds,                only: kind_phys

@@ -67,8 +67,8 @@ contains
     use musica_util,          only: error_t
 
     type(radiator_t), intent(inout) :: radiator
-    real(kind_phys),  intent(in)    :: delta_pressure(:) ! pressure delta about vertical level midpoints (Pa)
     real(kind_phys),  intent(in)    :: cloud_fraction(:) ! (unitless)
+    real(kind_phys),  intent(in)    :: delta_pressure(:) ! pressure delta about vertical level midpoints (Pa)
     real(kind_phys),  intent(in)    :: cloud_liquid_water_content(:) ! (kg/kg)
     real(kind_phys),  intent(in)    :: reciprocal_of_gravitational_acceleration ! (s^2/m)
     character(len=*), intent(out)   :: errmsg
@@ -76,23 +76,21 @@ contains
 
     ! local variables
     type(error_t)   :: error
-    real(kind_phys) :: od(num_vertical_levels)
+    real(kind_phys) :: optical_depth(num_vertical_levels) ! working array for cloud optical depth
     real(kind_phys) :: cloud_optical_depth(num_vertical_levels, num_wavelength_bins)
-    integer         :: n_host_midpoints
     integer         :: i_level
     
-    n_host_midpoints = size(cloud_fraction)
-    if ( size(delta_pressure) /= n_host_midpoints ) then
+    if ( size(delta_pressure) /= size(cloud_fraction) ) then
       errmsg = "[MUSICA Error] Invalid size of cloud pressure delta for TUV-x."
       errcode = 1
       return
     end if
-    if ( size(cloud_liquid_water_content) /= n_host_midpoints ) then
+    if ( size(cloud_liquid_water_content) /= size(cloud_fraction) ) then
       errmsg = "[MUSICA Error] Invalid size of cloud liquid water content for TUV-x."
       errcode = 1
       return
     end if
-    if ( n_host_midpoints + 1 /= num_vertical_levels ) then
+    if ( size(cloud_fraction) + 1 /= num_vertical_levels ) then
       errmsg = "[MUSICA Error] Invalid size of cloud fraction for TUV-x."
       errcode = 1
       return
@@ -107,17 +105,17 @@ contains
     ! The cloud optical depth is then estimated as:
     !   od = lwp * 155 * cf^1.5
     ! A constant cloud optical depth is used for all wavelengths.
-    do i_level = 1, n_host_midpoints
+    do i_level = 1, size(cloud_fraction)
       if ( cloud_fraction(i_level) > 0.0_kind_phys ) then
-        od(i_level) = ( reciprocal_of_gravitational_acceleration &
+        optical_depth(i_level) = ( reciprocal_of_gravitational_acceleration &
                       * cloud_liquid_water_content(i_level) * delta_pressure(i_level) &
                       / cloud_fraction(i_level) ) * 155.0_kind_phys * cloud_fraction(i_level)**1.5_kind_phys
       else
-        od(i_level) = 0.0_kind_phys
+        optical_depth(i_level) = 0.0_kind_phys
       end if
     end do
-    do i_level = 1, n_host_midpoints
-      cloud_optical_depth(i_level, :) = od(n_host_midpoints-i_level+1)
+    do i_level = 1, size(cloud_fraction)
+      cloud_optical_depth(i_level, :) = optical_depth(size(cloud_fraction)-i_level+1)
     end do
     cloud_optical_depth(num_vertical_levels, :) = 0.0_kind_phys
     call radiator%set_optical_depths( cloud_optical_depth, error )
