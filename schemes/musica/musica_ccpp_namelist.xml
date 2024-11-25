@@ -75,8 +75,16 @@
      units
           This is the CCPP unit specification of the variable (e.g., m s-1).
                                                                         -->
-<!-- MUSICA configuration options -->
+  <section name="MUSICA Standard Names">
+    <standard_name name="micm_solver_type">
+      <type kind="" units="none">integer</type>
+    </standard_name>
+    <standard_name name="number_of_grid_cells">
+      <type kind="" units="count">integer</type>
+    </standard_name>
+  </section>
 
+<!-- MUSICA configuration options -->
   <entry id="filename_of_micm_configuration">
     <type>char*512</type>
     <category>musica_ccpp</category>

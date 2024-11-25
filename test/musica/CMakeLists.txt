@@ -83,7 +83,7 @@ add_test(
 # Test metadata against the CCPP standard names
 add_test(
   NAME test_metadata_against_ccpp_standard_names
-  COMMAND ${Python_EXECUTABLE} ${CMAKE_BINARY_DIR}/../$ENV{CCPP_STD_NAMES_TOOLS_PATH}/meta_stdname_check.py
+  COMMAND ${Python_EXECUTABLE} ${CMAKE_BINARY_DIR}/../$ENV{CCPP_STD_NAMES_PATH}/tools/meta_stdname_check.py
   --metafile-loc ${CMAKE_BINARY_DIR}/metadata_test/musica_ccpp.meta
-  --stdname-dict ${CMAKE_CURRENT_SOURCE_DIR}/../../schemes/musica/musica_ccpp_namelist.xml
+  --stdname-dict ${CMAKE_BINARY_DIR}/../$ENV{CCPP_STD_NAMES_PATH}/standard_names.xml
 )
