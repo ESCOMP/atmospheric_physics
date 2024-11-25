@@ -33,20 +33,8 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
-[ te_ini_dyn ]
-  standard_name = vertically_integrated_total_energy_using_dycore_energy_formula_at_start_of_physics_timestep
-  units = J m-2
-  type = real | kind = kind_phys
-  dimensions = (horizontal_dimension)
-  intent = in
 [ te_cur_phys ]
   standard_name = vertically_integrated_total_energy_using_physics_energy_formula
-  units = J m-2
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent)
-  intent = in
-[ te_cur_dyn ]
-  standard_name = vertically_integrated_total_energy_using_dycore_energy_formula
   units = J m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
@@ -66,12 +54,6 @@
 [ tend_tw_tnd ]
   standard_name = cumulative_total_water_boundary_flux
   units = kg m-2 s-1
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent)
-  intent = in
-[ teout ]
-  standard_name = vertically_integrated_total_energy_at_end_of_physics_timestep
-  units = J m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in

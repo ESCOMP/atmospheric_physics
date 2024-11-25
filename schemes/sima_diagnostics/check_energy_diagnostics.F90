@@ -38,19 +38,14 @@ CONTAINS
       call history_add_field('tend_te_tnd', 'cumulative_total_energy_boundary_flux_using_physics_energy_formula', horiz_only, 'inst', 'J m-2 s-1')
       call history_add_field('tend_tw_tnd', 'cumulative_total_water_boundary_flux', horiz_only, 'inst', 'kg m-2 s-1')
 
-      call history_add_field('teinp', 'vertically_integrated_total_energy_using_dycore_energy_formula_at_start_of_physics_timestep', horiz_only, 'inst', 'J m-2')
-      call history_add_field('teout', 'vertically_integrated_total_energy_at_end_of_physics_timestep', horiz_only, 'inst', 'J m-2')
-      call history_add_field('tefix', 'vertically_integrated_total_energy_using_dycore_energy_formula', horiz_only, 'inst', 'J m-2')
-
    end subroutine check_energy_diagnostics_init
 
    !> \section arg_table_check_energy_diagnostics_run  Argument Table
    !! \htmlinclude check_energy_diagnostics_run.html
    subroutine check_energy_diagnostics_run( &
       cp_or_cv_dycore, scaling_dycore, &
-      te_ini_dyn, &
-      te_cur_phys, te_cur_dyn, tw_cur, &
-      tend_te_tnd, tend_tw_tnd, teout, &
+      te_cur_phys, tw_cur, &
+      tend_te_tnd, tend_tw_tnd, &
       errmsg, errflg)
 
       use cam_history, only: history_out_field
@@ -60,13 +55,10 @@ CONTAINS
       ! State variables
       real(kind_phys), intent(in) :: cp_or_cv_dycore(:,:)
       real(kind_phys), intent(in) :: scaling_dycore(:,:)
-      real(kind_phys), intent(in) :: te_ini_dyn(:)
       real(kind_phys), intent(in) :: te_cur_phys(:)
-      real(kind_phys), intent(in) :: te_cur_dyn(:)
       real(kind_phys), intent(in) :: tw_cur(:)
       real(kind_phys), intent(in) :: tend_te_tnd(:)
       real(kind_phys), intent(in) :: tend_tw_tnd(:)
-      real(kind_phys), intent(in) :: teout(:)
 
 
       ! CCPP error handling variables
@@ -83,10 +75,6 @@ CONTAINS
       call history_out_field('tw_cur', tw_cur)
       call history_out_field('tend_te_tnd', tend_te_tnd)
       call history_out_field('tend_tw_tnd', tend_tw_tnd)
-
-      call history_out_field('teinp', te_ini_dyn)
-      call history_out_field('teout', teout)
-      call history_out_field('tefix', te_cur_dyn)
 
    end subroutine check_energy_diagnostics_run
 
