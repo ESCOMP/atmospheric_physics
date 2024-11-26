@@ -29,6 +29,7 @@ target_sources(test_musica_api
   PUBLIC
     ${MUSICA_CCPP_SOURCES}
     ${TO_BE_CCPPIZED_SRC_PATH}/ccpp_tuvx_utils.F90
+    ${TO_BE_CCPPIZED_SRC_PATH}/shr_orb_mod.F90
     ${CCPP_SRC_PATH}/ccpp_constituent_prop_mod.F90
     ${CCPP_SRC_PATH}/ccpp_hash_table.F90
     ${CCPP_SRC_PATH}/ccpp_hashable.F90

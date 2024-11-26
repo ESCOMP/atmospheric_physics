@@ -60,8 +60,10 @@ contains
                              geopotential_height_wrt_surface_at_interface, surface_geopotential,     &
                              surface_temperature, surface_albedo,                                    &
                              number_of_photolysis_wavelength_grid_sections,                          &
-                             photolysis_wavelength_grid_interfaces, extraterrestrial_flux, &
-                             standard_gravitational_acceleration, errmsg, errcode)
+                             photolysis_wavelength_grid_interfaces, extraterrestrial_flux,           &
+                             standard_gravitational_acceleration, latitude, longitude,               &
+                             earth_eccentricity, earth_obliquity, perihelion_longitude,              &
+                             moving_vernal_equinox_longitude, calendar_day, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use ccpp_kinds,                only: kind_phys
     use musica_ccpp_micm,          only: number_of_rate_parameters
@@ -83,6 +85,14 @@ contains
     real(kind_phys),         intent(in)    :: photolysis_wavelength_grid_interfaces(:)          ! nm
     real(kind_phys),         intent(in)    :: extraterrestrial_flux(:)                          ! photons cm-2 s-1 nm-1
     real(kind_phys),         intent(in)    :: standard_gravitational_acceleration               ! m s-2
+    real(kind_phys),         intent(in)    :: latitude(:)                                       ! radians (column)
+    real(kind_phys),         intent(in)    :: longitude(:)                                      ! radians (column)
+    
+    real(kind_phys),         intent(in)    :: earth_eccentricity                                ! Earth's eccentricity factor (unitless) (typically 0 to 0.1)
+    real(kind_phys),         intent(in)    :: earth_obliquity                                   ! Earth's obliquity in radians
+    real(kind_phys),         intent(in)    :: perihelion_longitude                              ! Earth's mean perihelion longitude at the vernal equinox (radians)
+    real(kind_phys),         intent(in)    :: moving_vernal_equinox_longitude                   ! Earth's moving vernal equinox longitude of perihelion plus pi (radians)
+    real(kind_phys),         intent(in)    :: calendar_day                                      ! fractional calendar day
     character(len=512),      intent(out)   :: errmsg
     integer,                 intent(out)   :: errcode
 
@@ -91,7 +101,15 @@ contains
     real(kind_phys), dimension(size(constituents, dim=1), &
                                size(constituents, dim=2), &
                                number_of_rate_parameters)    :: rate_parameters ! various units
+    real(kind_phys), dimension(size(latitude))               :: solar_zenith_angle ! radians
+    real(kind_phys)                                          :: earth_sun_distance ! AU
     integer :: i_elem
+
+    ! Calculate solar zenith angle and Earth-Sun distance
+    call calculate_solar_zenith_angle_and_earth_sun_distance(calendar_day, &
+       latitude, longitude, earth_eccentricity, earth_obliquity, perihelion_longitude, &
+       moving_vernal_equinox_longitude, solar_zenith_angle, earth_sun_distance, &
+       errmsg, errcode)
 
     ! Calculate photolysis rate constants using TUV-x
     call tuvx_run(temperature, dry_air_density,                  &
@@ -103,6 +121,8 @@ contains
                   photolysis_wavelength_grid_interfaces,         &
                   extraterrestrial_flux,                         &
                   standard_gravitational_acceleration,           &
+                  solar_zenith_angle,                            &
+                  earth_sun_distance,                            &
                   rate_parameters,                               &
                   errmsg, errcode)
 

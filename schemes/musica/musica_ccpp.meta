@@ -165,6 +165,48 @@
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
+[ latitude ]
+  standard_name = latitude
+  units = radians
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ longitude ]
+  standard_name = longitude
+  units = radians
+  type = real | kind = real_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ earth_eccentricity ]
+  standard_name = eccentricity_factor
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ earth_obliquity ]
+  standard_name = obliquity
+  units = radians
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ perihelion_longitude ]
+  standard_name = mean_longitude_of_perihelion_at_vernal_equinox
+  units = radians
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ moving_vernal_equinox_longitude ]
+  standard_name = moving_vernal_equinox_longitude_perihelion_plus_pi
+  units = radians
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ calendar_day ]
+  standard_name = fractional_calendar_days_on_end_of_current_timestep
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none

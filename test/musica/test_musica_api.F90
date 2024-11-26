@@ -161,6 +161,8 @@ contains
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS+1)                  :: geopotential_height_wrt_surface_at_interface ! m
     real(kind_phys), dimension(NUM_COLUMNS)                               :: surface_geopotential                         ! m2 s-2
     real(kind_phys), dimension(NUM_COLUMNS)                               :: surface_temperature                          ! K
+    real(kind_phys), dimension(NUM_COLUMNS)                               :: latitude                                     ! radians
+    real(kind_phys), dimension(NUM_COLUMNS)                               :: longitude                                    ! radians
     real(kind_phys)                                                       :: surface_albedo                               ! unitless
     integer, parameter                                                    :: num_photolysis_wavelength_grid_sections = 8  ! (count)
     real(kind_phys), dimension(num_photolysis_wavelength_grid_sections+1) :: flux_data_photolysis_wavelength_interfaces   ! nm
@@ -181,6 +183,11 @@ contains
     integer                                                               :: i, j, k
     integer                                                               :: N2_index, O2_index, O_index, O1D_index, O3_index
     real(kind_phys)                                                       :: total_O, total_O_init
+    real(kind_phys)                                                       :: earth_eccentricity
+    real(kind_phys)                                                       :: earth_obliquity
+    real(kind_phys)                                                       :: perihelion_longitude
+    real(kind_phys)                                                       :: moving_vernal_equinox_longitude
+    real(kind_phys)                                                       :: calendar_day
 
     call get_wavelength_edges(photolysis_wavelength_grid_interfaces)
     solver_type = Rosenbrock
@@ -205,6 +212,15 @@ contains
     extraterrestrial_flux(:) = &
       (/ 1.5e13_kind_phys, 1.5e13_kind_phys, 1.4e13_kind_phys, 1.4e13_kind_phys, &
         1.3e13_kind_phys, 1.2e13_kind_phys, 1.1e13_kind_phys, 1.0e13_kind_phys /)
+
+    ! Set conditions for one daytime and one nighttime column
+    latitude = (/ 0.0_kind_phys, 0.0_kind_phys /)
+    longitude = (/ 0.0_kind_phys, 0.0_kind_phys /)
+    earth_eccentricity = 0.0167_kind_phys
+    earth_obliquity = 0.4091_kind_phys
+    perihelion_longitude = 4.71238898038469_kind_phys
+    moving_vernal_equinox_longitude = 4.71238898038469_kind_phys
+    calendar_day = 365.5_kind_phys ! noon GMT Dec. 31st
 
     filename_of_micm_configuration = 'musica_configurations/chapman/micm/config.json'
     filename_of_tuvx_configuration = 'musica_configurations/chapman/tuvx/config.json'

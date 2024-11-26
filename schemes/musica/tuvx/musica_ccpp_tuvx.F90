@@ -304,6 +304,7 @@ contains
                       photolysis_wavelength_grid_interfaces,         &
                       extraterrestrial_flux,                         &
                       standard_gravitational_acceleration,           &
+                      solar_zenith_angle, earth_sun_distance,        &
                       rate_parameters, errmsg, errcode)
     use musica_util,                            only: error_t
     use musica_ccpp_tuvx_height_grid,           only: set_height_grid_values, calculate_heights
@@ -323,6 +324,8 @@ contains
     real(kind_phys),    intent(in)    :: photolysis_wavelength_grid_interfaces(:)          ! nm
     real(kind_phys),    intent(in)    :: extraterrestrial_flux(:)                          ! photons cm-2 s-1 nm-1
     real(kind_phys),    intent(in)    :: standard_gravitational_acceleration               ! m s-2
+    real(kind_phys),    intent(in)    :: solar_zenith_angle(:)                             ! radians
+    real(kind_phys),    intent(in)    :: earth_sun_distance                                ! m
     real(kind_phys),    intent(inout) :: rate_parameters(:,:,:)                            ! various units (column, layer, reaction)
     character(len=512), intent(out)   :: errmsg
     integer,            intent(out)   :: errcode
@@ -334,8 +337,6 @@ contains
                                number_of_photolysis_rate_constants) :: photolysis_rate_constants, & ! s-1
                                                                        heating_rates                ! K s-1 (TODO: check units)
     real(kind_phys) :: reciprocal_of_gravitational_acceleration ! s2 m-1
-    real(kind_phys) :: solar_zenith_angle ! degrees
-    real(kind_phys) :: earth_sun_distance ! AU
     type(error_t)   :: error
     integer         :: i_col, i_level
 
@@ -365,12 +366,8 @@ contains
                                    surface_temperature(i_col), errmsg, errcode )
       if (errcode /= 0) return
 
-      ! temporary values until these are available from the host model
-      solar_zenith_angle = 0.0_kind_phys
-      earth_sun_distance = 1.0_kind_phys
-
       ! calculate photolysis rate constants and heating rates
-      call tuvx%run( solar_zenith_angle, earth_sun_distance, &
+      call tuvx%run( solar_zenith_angle(i_col), earth_sun_distance, &
                      photolysis_rate_constants(:,:), heating_rates(:,:), &
                      error )
       if (has_error_occurred( error, errmsg, errcode )) return
