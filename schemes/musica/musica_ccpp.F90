@@ -23,15 +23,16 @@ contains
     character(len=512),                               intent(out) :: errmsg
     integer,                                          intent(out) :: errcode
 
-    type(ccpp_constituent_properties_t), allocatable :: constituent_set(:)
+    type(ccpp_constituent_properties_t), allocatable :: constituent_props_subset(:)
 
-    call micm_register(solver_type, num_grid_cells, constituent_set, errmsg, errcode)
+    call micm_register(solver_type, num_grid_cells, constituent_props_subset, errmsg, errcode)
     if (errcode /= 0) return
-    constituent_props = constituent_set
+    constituent_props = constituent_props_subset
+    deallocate(constituent_props_subset)
 
-    call tuvx_register(constituent_set, errmsg, errcode)
+    call tuvx_register(constituent_props_subset, errmsg, errcode)
     if (errcode /= 0) return
-    constituent_props = [ constituent_props, constituent_set ]
+    constituent_props = [ constituent_props, constituent_props_subset ]
 
   end subroutine musica_ccpp_register
 
