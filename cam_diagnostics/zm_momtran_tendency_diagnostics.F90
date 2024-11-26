@@ -50,7 +50,7 @@ CONTAINS
 
    !> \section arg_table_zm_tendency_diagnostics_run  Argument Table
    !! \htmlinclude zm_tendency_diagnostics_run.html
-   subroutine zm_tendency_diagnostics_run(ncol, pver, pverp, const_props, dqdt, errmsg, errflg)
+   subroutine zm_tendency_diagnostics_run(ncol, pver, cpair, windu_tend, windv_tend, seten, errmsg, errflg)
 
       use cam_history,               only: history_out_field
       use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
@@ -59,9 +59,10 @@ CONTAINS
       !------------------------------------------------
       integer, intent(in) :: ncol
       integer, intent(in) :: pver
-      integer, intent(in) :: pverp
-      type(ccpp_constituent_prop_ptr_t), intent(in) :: const_props(:)
-      real(kind_phys), intent(in) :: dqdt(:,:,:)  ! Tracer tendency array  (ncol,pver,ncnst)
+      real(kind_phys), intent(in) :: cpair
+      real(kind_phys), intent(in) :: windu_tend(:,:)
+      real(kind_phys), intent(in) :: windv_tend(:,:)
+      real(kind_phys), intent(in) :: seten(:,:)
 
       ! CCPP error handling variables
       character(len=512), intent(out) :: errmsg
@@ -72,8 +73,6 @@ CONTAINS
       character(len=256) :: standard_name
 
       real(kind_phys) :: ftem(ncol,pver)
-      real(kind_phys) :: mcon(ncol,pverp)
-      real(kind_phys) :: mconzm(ncol,pverp)
 
       errmsg = ''
       errflg = 0

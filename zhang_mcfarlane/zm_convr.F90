@@ -167,7 +167,7 @@ subroutine zm_convr_run(     ncol    ,pver    , &
                     pblh    ,zm      ,geos    ,zi      ,qtnd    , &
                     heat    ,pap     ,paph    ,dpp     , &
                     delt    ,mcon    ,cme     ,cape    , &
-                    tpert   ,dlf     ,zdu     ,rprd    , &
+                    tpert   ,dlf     ,dif     ,zdu     ,rprd    , &
                     mu      ,md      ,du      ,eu      ,ed      , &
                     dp      ,dsubcld ,jt      ,maxg    ,ideep   , &
                     ql      ,rliq    ,landfrac,                   &
@@ -311,6 +311,7 @@ subroutine zm_convr_run(     ncol    ,pver    , &
    real(kind_phys), intent(out) :: qtnd(:,:)           ! specific humidity tendency (kg/kg/s)             (ncol,pver)
    real(kind_phys), intent(out) :: heat(:,:)           ! heating rate (dry static energy tendency, W/kg)  (ncol,pver)
    real(kind_phys), intent(out) :: mcon(:,:)  !   (ncol,pverp)
+   real(kind_phys), intent(out) :: dif(:,:)
    real(kind_phys), intent(out) :: dlf(:,:)    ! scattrd version of the detraining cld h2o tend (ncol,pver)
    real(kind_phys), intent(out) :: cme(:,:)    !                                                          (ncol,pver)
    real(kind_phys), intent(out) :: cape(:)        ! w  convective available potential energy.             (ncol)
@@ -348,8 +349,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
    real(kind_phys) dptot(ncol)
 
    real(kind_phys) mumax(ncol)
-
-   real(kind_phys) :: dif(ncol,pver)  ! detrained convective cloud ice mixing ratio.
 
 !CACNOTE - Figure out real intent for jt and maxg
    integer, intent(out) :: jt(ncol)                          ! wg top  level index of deep cumulus convection.

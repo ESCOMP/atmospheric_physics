@@ -52,7 +52,7 @@ CONTAINS
 
    !> \section arg_table_zm_evap_tendency_diagnostics_run  Argument Table
    !! \htmlinclude zm_evap_tendency_diagnostics_run.html
-   subroutine zm_evap_tendency_diagnostics_run(ncol, pver, pverp, const_props, dqdt, errmsg, errflg)
+   subroutine zm_evap_tendency_diagnostics_run(ncol, pver, cpair, tend_s_snwprd, tend_s_snwevmlt, qtnd, errmsg, errflg)
 
       use cam_history,               only: history_out_field
       use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
@@ -61,9 +61,11 @@ CONTAINS
       !------------------------------------------------
       integer, intent(in) :: ncol
       integer, intent(in) :: pver
-      integer, intent(in) :: pverp
-      type(ccpp_constituent_prop_ptr_t), intent(in) :: const_props(:)
-      real(kind_phys), intent(in) :: dqdt(:,:,:)  ! Tracer tendency array  (ncol,pver,ncnst)
+      real(kind_phys), intent(in) :: cpair
+      real(kind_phys), intent(in) :: tend_s_snwprd(:,:)
+      real(kind_phys), intent(in) :: tend_s_snwevmlt(:,:)
+      real(kind_phys), intent(in) :: qtnd(:,:)
+
 
       ! CCPP error handling variables
       character(len=512), intent(out) :: errmsg
@@ -74,13 +76,11 @@ CONTAINS
       character(len=256) :: standard_name
 
       real(kind_phys) :: ftem(ncol,pver)
-      real(kind_phys) :: mcon(ncol,pverp)
-      real(kind_phys) :: mconzm(ncol,pverp)
 
       errmsg = ''
       errflg = 0
 
-   ftem(:ncol,:pver) = ptend_loc%s(:ncol,:pver)/cpair
+   ftem(:ncol,:pver) = qtnd(:ncol,:pver)/cpair
    call history_out_field('EVAPTZM ',ftem)
    ftem(:ncol,:pver) = tend_s_snwprd  (:ncol,:pver)/cpair
    call history_out_field('FZSNTZM ',ftem)

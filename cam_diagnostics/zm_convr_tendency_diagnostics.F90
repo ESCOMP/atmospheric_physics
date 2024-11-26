@@ -49,7 +49,7 @@ CONTAINS
 
    !> \section arg_table_zm_convr_diagnostics_run  Argument Table
    !! \htmlinclude zm_convr_diagnostics_run.html
-   subroutine zm_convr_diagnostics_run(ncol, pver, pverp, ideep, cpair, heat, prec, cape, errmsg, errflg)
+   subroutine zm_convr_diagnostics_run(ncol, pver, cpair, heat, qtnd, errmsg, errflg)
 
       use cam_history, only: history_out_field
 
@@ -58,39 +58,26 @@ CONTAINS
       !------------------------------------------------
       integer, intent(in) :: ncol
       integer, intent(in) :: pver
-      integer, intent(in) :: pverp
-!      real(kind_phys), intent(in) :: const_array(:,:,:)
-      integer, intent(in) :: ideep(:)
 
       real(kind_phys), intent(in) :: cpair
       real(kind_phys), intent(in) :: heat(:,:)
-      real(kind_phys), intent(in) :: prec(:)
-      real(kind_phys), intent(in) :: cape(:)
+      real(kind_phys), intent(in) :: qtnd(:,:)
 
       ! CCPP error handling variables
       character(len=512), intent(out) :: errmsg
       integer,          intent(out) :: errflg
 
-      integer :: lengath  ! number of columns with deep convection
 
-      real(kind_phys) :: freqzm(ncol)
       real(kind_phys) :: ftem(ncol,pver)
-      real(kind_phys) :: mcon(ncol,pverp)
-      real(kind_phys) :: mconzm(ncol,pverp)
-      real(kind_phys) :: mu_out(ncol,pverp)
-      real(kind_phys) :: md_out(ncol,pverp)
 
       integer :: index_cldliq
 
       errmsg = ''
       errflg = 0
 
-      lengath = count(ideep > 0)
-      if (lengath > ncol) lengath = ncol  ! should not happen, but force it to not be larger than ncol for safety sake
-
-   ftem(:ncol,:pver) = ptend_loc%s(:ncol,:pver)/cpair
+   ftem(:ncol,:pver) = heat(:ncol,:pver)/cpair
    call history_out_field('ZMDT    ', ftem)
-   call history_out_field('ZMDQ    ',ptend_loc%q(1,1,1))
+   call history_out_field('ZMDQ    ',qtnd(1,1,1))
 
    end subroutine zm_convr_diagnostics_run
 

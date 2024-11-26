@@ -79,10 +79,10 @@ CONTAINS
                             'tendency_of_northward_wind_due_to_zhang_mcfarlane_deep_convective_downdraft_pressure_gradient_term',&
                             'lev',  'avg', 'm s-2')
 
-    call history_add_field ('ZMICUU', 'in_cloud_eastward_wind_in_updraft_due_to_deep_convection',  'lev',  'avg', 'm/s')
-    call history_add_field ('ZMICUD', 'in_cloud_eastward_wind_in_downdraft_due_to_deep_convection',  'lev',  'avg', 'm/s')
-    call history_add_field ('ZMICVU', 'in_cloud_northward_wind_in_updraft_due_to_deep_convection',  'lev',  'avg', 'm/s')
-    call history_add_field ('ZMICVD', 'in_cloud_northward_wind_in_downdraft_due_to_deep_convection', 'lev',  'avg', 'm/s')
+    call history_add_field ('ZMICUU', 'in_cloud_eastward_wind_in_updraft_due_to_deep_convection',  'lev',  'avg', 'm s-1')
+    call history_add_field ('ZMICUD', 'in_cloud_eastward_wind_in_downdraft_due_to_deep_convection',  'lev',  'avg', 'm s-1')
+    call history_add_field ('ZMICVU', 'in_cloud_northward_wind_in_updraft_due_to_deep_convection',  'lev',  'avg', 'm s-1')
+    call history_add_field ('ZMICVD', 'in_cloud_northward_wind_in_downdraft_due_to_deep_convection', 'lev',  'avg', 'm s-1')
 
     call history_add_field ('DLFZM',   'detrainment_of_cloud_liquid_due_to_deep_convection', 'lev', 'avg','kg kg-1 s-1 ')
 
@@ -91,7 +91,9 @@ CONTAINS
 
    !> \section arg_table_zm_diagnostics_run  Argument Table
    !! \htmlinclude zm_diagnostics_run.html
-   subroutine zm_diagnostics_run(ncol, pver, pverp, ideep, cpair, heat, prec, cape, errmsg, errflg)
+   subroutine zm_diagnostics_run(ncol, pver, pverp, ideep, cpair, heat, prec, cape, gravit, mu, md, &
+      dif, dlf, ps, paph, maxg, jt, flxprec, flxsnow, ntprprd, ntsnprd, pguallu, pguallv, &
+      pgdallu, pgdallv, icwuu, icwuv, icwdu, icwdv, errmsg, errflg)
 
       use cam_history, only: history_out_field
 
@@ -108,6 +110,27 @@ CONTAINS
       real(kind_phys), intent(in) :: heat(:,:)
       real(kind_phys), intent(in) :: prec(:)
       real(kind_phys), intent(in) :: cape(:)
+      real(kind_phys), intent(in) :: gravit
+      real(kind_phys), intent(in) :: mu(:,:)
+      real(kind_phys), intent(in) :: md(:,:)
+      real(kind_phys), intent(in) :: dif(:,:)
+      real(kind_phys), intent(in) :: dlf(:,:)
+      real(kind_phys), intent(in) :: ps(:)
+      real(kind_phys), intent(in) :: paph(:,:)
+      integer, intent(in) :: maxg(ncol)
+      integer, intent(in) :: jt(ncol)
+      real(kind_phys),intent(in) :: flxprec(:,:)
+      real(kind_phys),intent(in) :: flxsnow(:,:)
+      real(kind_phys),intent(in) :: ntprprd(:,:)
+      real(kind_phys),intent(in) :: ntsnprd(:,:)
+      real(kind_phys),intent(in) :: pguallu(:,:)
+      real(kind_phys),intent(in) :: pguallv(:,:)
+      real(kind_phys),intent(in) :: pgdallu(:,:)
+      real(kind_phys),intent(in) :: pgdallv(:,:)
+      real(kind_phys),intent(in) :: icwuu(:,:)
+      real(kind_phys),intent(in) :: icwuv(:,:)
+      real(kind_phys),intent(in) :: icwdu(:,:)
+      real(kind_phys),intent(in) :: icwdv(:,:)
 
       ! CCPP error handling variables
       character(len=512), intent(out) :: errmsg
@@ -116,6 +139,8 @@ CONTAINS
       integer :: lengath  ! number of columns with deep convection
 
       real(kind_phys) :: freqzm(ncol)
+      real(kind_phys) :: pcont(ncol)
+      real(kind_phys) :: pconb(ncol)
       real(kind_phys) :: ftem(ncol,pver)
       real(kind_phys) :: mcon(ncol,pverp)
       real(kind_phys) :: mconzm(ncol,pverp)
@@ -123,6 +148,7 @@ CONTAINS
       real(kind_phys) :: md_out(ncol,pverp)
 
       integer :: index_cldliq
+      integer i, ii, k
 
       errmsg = ''
       errflg = 0
@@ -132,13 +158,13 @@ CONTAINS
 
       call history_out_field('CAPE', cape)
 
-      freqzm(:) = 0._r8
+      freqzm(:) = 0._kind_phys
       do i = 1,lengath
-         freqzm(ideep(i)) = 1.0_r8
+         freqzm(ideep(i)) = 1.0_kind_phys
       end do
       call history_out_field('FREQZM  ',freqzm)
 
-      mcon(:ncol,:pverp) = mcon(:ncol,:pverp) * 100._r8/gravit
+      mcon(:ncol,:pverp) = mcon(:ncol,:pverp) * 100._kind_phys/gravit
       mconzm(:ncol,:pverp) = mcon(:ncol,:pverp)
 
       call history_out_field('CMFMC_DP', mconzm)
@@ -149,8 +175,8 @@ CONTAINS
    do i=1,lengath
       do k=1,pver
          ii = ideep(i)
-         mu_out(ii,k) = mu(i,k) * 100._r8/gravit
-         md_out(ii,k) = md(i,k) * 100._r8/gravit
+         mu_out(ii,k) = mu(i,k) * 100._kind_phys/gravit
+         md_out(ii,k) = md(i,k) * 100._kind_phys/gravit
       end do
    end do
 
@@ -160,12 +186,12 @@ CONTAINS
    call history_out_field('DIFZM'   ,dif)
    call history_out_field('DLFZM'   ,dlf)
 
-   pcont(:ncol) = pref_edge(:ncol)
-   pconb(:ncol) = pref_edge(:ncol)
+   pcont(:ncol) = ps(:ncol)
+   pconb(:ncol) = ps(:ncol)
    do i = 1,lengath
        if (maxg(i).gt.jt(i)) then
-          pcont(ideep(i)) = pref_mid(ideep(i),jt(i))  ! gathered array (or jctop ungathered)
-          pconb(ideep(i)) = pref_mid(ideep(i),maxg(i))! gathered array
+          pcont(ideep(i)) = paph(ideep(i),jt(i))  ! gathered array (or jctop ungathered)
+          pconb(ideep(i)) = paph(ideep(i),maxg(i))! gathered array
        endif
        !     write(iulog,*) ' pcont, pconb ', pcont(i), pconb(i), cnt(i), cnb(i)
     end do
@@ -182,19 +208,18 @@ CONTAINS
    call history_out_field('PRECCDZM   ',prec)
    call history_out_field('PRECZ   ', prec)
 
-     ! Output apparent force from  pressure gradient
-     call history_out_field('ZMUPGU', pguallu)
-     call history_out_field('ZMUPGD', pgdallu)
-     call history_out_field('ZMVPGU', pguallv)
-     call history_out_field('ZMVPGD', pgdallv)
+   ! Output apparent force from  pressure gradient
+   call history_out_field('ZMUPGU', pguallu)
+   call history_out_field('ZMUPGD', pgdallu)
+   call history_out_field('ZMVPGU', pguallv)
+   call history_out_field('ZMVPGD', pgdallv)
 
-     ! Output in-cloud winds
-     call history_out_field('ZMICUU', icwuu, pcols, lchnk)
-     call history_out_field('ZMICUD', icwdu, pcols, lchnk)
-     call history_out_field('ZMICVU', icwuv, pcols, lchnk)
-     call history_out_field('ZMICVD', icwdv, pcols, lchnk)
+   ! Output in-cloud winds
+   call history_out_field('ZMICUU', icwuu)
+   call history_out_field('ZMICUD', icwdu)
+   call history_out_field('ZMICVU', icwuv)
+   call history_out_field('ZMICVD', icwdv)
 
-   end if
    end subroutine zm_diagnostics_run
 
    !=======================================================================
