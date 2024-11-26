@@ -1,7 +1,7 @@
 
 #######################
 Date/time of when script was run:
-2024-11-18 15:44:54.993446
+2024-11-21 12:02:27.234727
 #######################
 
 Non-dictionary standard names found in the following metadata files:
@@ -34,6 +34,7 @@ atmospheric_physics/schemes/sima_diagnostics/sima_state_diagnostics.meta
 
     - air_pressure_at_interface
     - air_pressure_of_dry_air_at_interface
+    - geopotential_height_wrt_surface_at_interface
     - ln_air_pressure_at_interface
     - ln_air_pressure_of_dry_air_at_interface
     - surface_air_pressure
@@ -195,6 +196,7 @@ atmospheric_physics/schemes/zhang_mcfarlane/zm_convr.meta
     - flag_for_no_deep_convection_in_pbl?
     - freezing_point_of_water?
     - gas_constant_of_water_vapor?
+    - geopotential_height_wrt_surface_at_interface
     - horizontal_index_of_convective_columns_for_deep_convection_for_convective_columns
     - in_cloud_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_deep_convection
     - initial_parcel_property_as_function_of_well-mixed_pbl_for_zhang_mcfarlane?
@@ -248,6 +250,7 @@ atmospheric_physics/schemes/zhang_mcfarlane/zm_conv_convtran.meta
 atmospheric_physics/schemes/utilities/geopotential_temp.meta
 
     - air_pressure_at_interface
+    - geopotential_height_wrt_surface_at_interface
     - ln_air_pressure_at_interface
 
 --------------------------
@@ -337,6 +340,7 @@ atmospheric_physics/schemes/tropopause_find/tropopause_find.meta
     - air_pressure_at_interface
     - fill_value_for_diagnostic_output
     - fractional_calendar_days_on_end_of_current_timestep
+    - geopotential_height_wrt_surface_at_interface
     - pi_constant
     - ratio_of_dry_air_gas_constant_to_specific_heat_of_dry_air_at_constant_pressure
     - tropopause_air_pressure
@@ -375,8 +379,11 @@ atmospheric_physics/schemes/musica/musica_ccpp.meta
 
     - blackbody_temperature_at_surface
     - dynamic_constituents_for_musica_ccpp
+    - extraterrestrial_radiation_flux
+    - geopotential_height_wrt_surface_at_interface
     - micm_solver_type
     - number_of_grid_cells
+    - number_of_photolysis_wavelength_grid_sections
     - photolysis_wavelength_grid_interfaces
     - surface_albedo_due_to_UV_and_VIS_direct
 

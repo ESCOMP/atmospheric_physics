@@ -14,16 +14,18 @@ contains
 
   !> \section arg_table_musica_ccpp_register Argument Table
   !! \htmlinclude musica_ccpp_register.html
-  subroutine musica_ccpp_register(solver_type, num_grid_cells, constituent_props, errmsg, errcode)
+  subroutine musica_ccpp_register(micm_solver_type, number_of_grid_cells, &
+                                  constituent_props, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
 
-    integer,                                          intent(in)  :: solver_type
-    integer,                                          intent(in)  :: num_grid_cells
+    integer,                                          intent(in)  :: micm_solver_type
+    integer,                                          intent(in)  :: number_of_grid_cells
     type(ccpp_constituent_properties_t), allocatable, intent(out) :: constituent_props(:)
     character(len=512),                               intent(out) :: errmsg
     integer,                                          intent(out) :: errcode
 
-    call micm_register(solver_type, num_grid_cells, constituent_props, errmsg, errcode)
+    call micm_register(micm_solver_type, number_of_grid_cells, constituent_props, &
+                       errmsg, errcode)
 
   end subroutine musica_ccpp_register
 
