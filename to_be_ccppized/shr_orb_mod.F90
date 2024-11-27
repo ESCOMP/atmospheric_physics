@@ -20,8 +20,8 @@ module shr_orb_mod
 
   ! Dependencies from other parts of the shared code
   integer, parameter           :: SHR_KIND_R8  = kind_phys
-  real(SHR_KIND_R8), parameter :: SHR_CONST_PI = 3.14159265358979323846_SHARE_KIND_R8  ! pi
-
+  real(SHR_KIND_R8), parameter :: pi           = 3.14159265358979323846_SHR_KIND_R8  ! pi
+  
 contains
 
   !=======================================================================
@@ -108,7 +108,7 @@ contains
 
   !=======================================================================
 
-  real(SHR_KIND_R8) pure FUNCTION shr_orb_cosz(jday,lat,lon,declin,dt_avg,uniform_angle)
+  real(SHR_KIND_R8) pure FUNCTION shr_orb_cosz(jday,lat,lon,declin)
 
     !----------------------------------------------------------------------------
     !
@@ -127,37 +127,12 @@ contains
     real   (SHR_KIND_R8),intent(in) :: lat    ! Centered latitude (radians)
     real   (SHR_KIND_R8),intent(in) :: lon    ! Centered longitude (radians)
     real   (SHR_KIND_R8),intent(in) :: declin ! Solar declination (radians)
-    real   (SHR_KIND_R8),intent(in), optional   :: dt_avg ! if present and set non-zero, then use in the
-    real   (SHR_KIND_R8),intent(in), optional   :: uniform_angle ! if present and true, apply uniform insolation 
-    ! average cosz calculation
-    logical :: use_dt_avg
 
     !----------------------------------------------------------------------------
 
-    if ( constant_zenith_angle_deg >= 0 ) then
-      shr_orb_cosz = cos( constant_zenith_angle_deg * SHR_CONST_PI/180. )
-      return
-    end if
-
-    if (present(uniform_angle)) then
-      shr_orb_cosz = cos(uniform_angle)
-      return
-    end if
-
     ! perform the calculation of shr_orb_cosz
-    use_dt_avg = .false.
-    if (present(dt_avg)) then
-      if (dt_avg /= 0.0_shr_kind_r8) use_dt_avg = .true.
-    end if
-    ! If dt for the average cosz is specified, then call the shr_orb_avg_cosz
-    if (use_dt_avg) then
-      !shr_orb_cosz = shr_orb_avg_cosz(jday, lat, lon, declin, dt_avg)
-      write(*,*) 'shr_orb_cosz: shr_orb_avg_cosz not implemented'
-      shr_orb_cosz = -huge(0.0_SHR_KIND_R8)
-    else
-      shr_orb_cosz = sin(lat)*sin(declin) - cos(lat)*cos(declin) * &
-                     cos((jday-floor(jday))*2.0_SHR_KIND_R8*pi + lon)
-    end if
+    shr_orb_cosz = sin(lat)*sin(declin) - cos(lat)*cos(declin) * &
+                   cos((jday-floor(jday))*2.0_SHR_KIND_R8*pi + lon)
 
   END FUNCTION shr_orb_cosz
 

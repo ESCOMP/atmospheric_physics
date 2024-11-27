@@ -68,6 +68,7 @@ contains
     use ccpp_kinds,                only: kind_phys
     use musica_ccpp_micm,          only: number_of_rate_parameters
     use musica_ccpp_micm_util,     only: convert_to_mol_per_cubic_meter, convert_to_mass_mixing_ratio
+    use musica_ccpp_util,          only: calculate_solar_zenith_angle_and_earth_sun_distance
 
     real(kind_phys),         intent(in)    :: time_step                                         ! s
     real(kind_phys), target, intent(in)    :: temperature(:,:)                                  ! K

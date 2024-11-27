@@ -174,7 +174,7 @@
 [ longitude ]
   standard_name = longitude
   units = radians
-  type = real | kind = real_phys
+  type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
 [ earth_eccentricity ]

@@ -5,7 +5,7 @@ module musica_ccpp_util
   implicit none
 
   private
-  public :: has_error_occurred
+  public :: has_error_occurred, calculate_solar_zenith_angle_and_earth_sun_distance
 
 contains
 
@@ -53,6 +53,7 @@ contains
       latitude, longitude, earth_eccentricity, earth_obliquity, perihelion_longitude, &
       moving_vernal_equinox_longitude, solar_zenith_angle, earth_sun_distance, &
       errmsg, errcode)
+    use ccpp_kinds,  only: kind_phys
     use shr_orb_mod, only: shr_orb_decl, shr_orb_cosz
     use musica_util, only: error_t
 
@@ -69,7 +70,7 @@ contains
     integer,            intent(out) :: errcode
 
     real(kind_phys) :: delta
-    integer :: i_lat
+    integer :: i_sza
 
     errcode = 0
     errmsg = ''
@@ -80,7 +81,9 @@ contains
                       delta, earth_sun_distance)
 
     ! Calculate solar zenith angle
-    solar_zenith_angle(:) = shr_orb_cosz(calendar_day, latitude(:), longitude(:), delta)
+    do i_sza = 1, size(solar_zenith_angle)
+      solar_zenith_angle(i_sza) = shr_orb_cosz(calendar_day, latitude(i_sza), longitude(i_sza), delta)
+    end do
 
   end subroutine calculate_solar_zenith_angle_and_earth_sun_distance
 
