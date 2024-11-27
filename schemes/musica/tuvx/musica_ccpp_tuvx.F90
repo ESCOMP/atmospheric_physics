@@ -5,28 +5,39 @@ module musica_ccpp_tuvx
   use ccpp_kinds,           only: kind_phys
   use musica_ccpp_namelist, only: filename_of_tuvx_configuration
   use musica_ccpp_util,     only: has_error_occurred
-  use musica_tuvx,          only: tuvx_t, grid_t, profile_t
+  use musica_tuvx,          only: tuvx_t, grid_t, profile_t, radiator_t
   use musica_util,          only: mappings_t, index_mappings_t
 
   implicit none
   private
 
-  public :: tuvx_init, tuvx_run, tuvx_final
+  public :: tuvx_register, tuvx_init, tuvx_run, tuvx_final
 
   real(kind_phys), parameter :: MAX_SOLAR_ZENITH_ANGLE = 110.0_kind_phys ! degrees
   real(kind_phys), parameter :: MIN_SOLAR_ZENITH_ANGLE = 0.0_kind_phys  ! degrees
 
-  type(tuvx_t),           pointer :: tuvx => null()
-  type(grid_t),           pointer :: height_grid => null()
-  type(grid_t),           pointer :: wavelength_grid => null()
-  type(profile_t),        pointer :: temperature_profile => null()
-  type(profile_t),        pointer :: surface_albedo_profile => null()
-  type(profile_t),        pointer :: extraterrestrial_flux_profile => null()
-  type(index_mappings_t), pointer :: photolysis_rate_constants_mapping => null( )
-  integer                         :: number_of_photolysis_rate_constants = 0
+  type(tuvx_t),            pointer :: tuvx => null()
+  type(grid_t),            pointer :: height_grid => null()
+  type(grid_t),            pointer :: wavelength_grid => null()
+  type(profile_t),         pointer :: temperature_profile => null()
+  type(profile_t),         pointer :: surface_albedo_profile => null()
+  type(profile_t),         pointer :: extraterrestrial_flux_profile => null()
+  type(radiator_t),        pointer :: cloud_optics => null()
+  type(index_mappings_t),  pointer :: photolysis_rate_constants_mapping => null( )
+  integer,               parameter :: DEFAULT_NUM_PHOTOLYSIS_RATE_CONSTANTS = 0
+  integer                          :: number_of_photolysis_rate_constants = DEFAULT_NUM_PHOTOLYSIS_RATE_CONSTANTS
+  integer,               parameter :: DEFAULT_INDEX_NOT_FOUND = -1
+  character(len=*),      parameter :: CLOUD_LIQUID_WATER_CONTENT_LABEL = &
+      'cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water'
+  character(len=*),      parameter :: CLOUD_LIQUID_WATER_CONTENT_LONG_NAME = &
+      'Cloud water mass mixing ratio with respect to moist air plus all airborne condensates'
+  character(len=*),      parameter :: CLOUD_LIQUID_WATER_CONTENT_UNITS = 'kg kg-1'
+  real(kind_phys),       parameter :: CLOUD_LIQUID_WATER_CONTENT_MOLAR_MASS = 0.018_kind_phys ! kg mol-1
+  integer                          :: index_cloud_liquid_water_content = DEFAULT_INDEX_NOT_FOUND
 
 contains
 
+  !> Deallocates TUV-x resources
   subroutine reset_tuvx_map_state( grids, profiles, radiators )
     use musica_tuvx, only: grid_map_t, profile_map_t, radiator_map_t
 
@@ -68,6 +79,11 @@ contains
       extraterrestrial_flux_profile => null()
     end if
 
+    if (associated( cloud_optics )) then
+      deallocate( cloud_optics )
+      cloud_optics => null()
+    end if
+
     if (associated( photolysis_rate_constants_mapping )) then
       deallocate( photolysis_rate_constants_mapping )
       photolysis_rate_constants_mapping => null()
@@ -75,10 +91,44 @@ contains
 
   end subroutine cleanup_tuvx_resources
 
+  !> Registers constituent properties with the CCPP needed by TUV-x
+  subroutine tuvx_register(constituent_props, errmsg, errcode)
+    use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
+    use musica_util,               only: error_t
+
+    type(ccpp_constituent_properties_t), allocatable, intent(out) :: constituent_props(:)
+    character(len=512),                               intent(out) :: errmsg
+    integer,                                          intent(out) :: errcode
+
+    allocate(constituent_props(1), stat=errcode)
+    if (errcode /= 0) then
+      errmsg = "[MUSICA Error] Failed to allocate memory for constituent properties."
+      return
+    end if
+
+    ! Register cloud liquid water content needed for cloud optics calculations
+    call constituent_props(1)%instantiate( &
+      std_name = CLOUD_LIQUID_WATER_CONTENT_LABEL, &
+      long_name = CLOUD_LIQUID_WATER_CONTENT_LONG_NAME, &
+      units = CLOUD_LIQUID_WATER_CONTENT_UNITS, &
+      vertical_dim = "vertical_layer_dimension", &
+      default_value = 0.0_kind_phys, &
+      min_value = 0.0_kind_phys, &
+      molar_mass = CLOUD_LIQUID_WATER_CONTENT_MOLAR_MASS, &
+      advected = .true., &
+      errcode = errcode, &
+      errmsg = errmsg &
+    )
+    if (errcode /= 0) return
+
+  end subroutine tuvx_register
+
   !> Initializes TUV-x
   subroutine tuvx_init(vertical_layer_dimension, vertical_interface_dimension, &
                        wavelength_grid_interfaces, micm_rate_parameter_ordering, &
-                       errmsg, errcode)
+                       constituent_props, errmsg, errcode)
+    use ccpp_const_utils, only: ccpp_const_get_idx
+    use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use musica_tuvx, only: grid_map_t, profile_map_t, radiator_map_t
     use musica_util, only: error_t, configuration_t
     use musica_ccpp_namelist, only: filename_of_tuvx_micm_mapping_configuration
@@ -94,13 +144,16 @@ contains
     use musica_ccpp_tuvx_extraterrestrial_flux, &
       only: create_extraterrestrial_flux_profile, extraterrestrial_flux_label, &
             extraterrestrial_flux_unit
+    use musica_ccpp_tuvx_cloud_optics, &
+      only: create_cloud_optics_radiator, cloud_optics_label
 
-    integer,            intent(in)  :: vertical_layer_dimension      ! (count)
-    integer,            intent(in)  :: vertical_interface_dimension  ! (count)
-    real(kind_phys),    intent(in)  :: wavelength_grid_interfaces(:) ! m
-    type(mappings_t),   intent(in)  :: micm_rate_parameter_ordering  ! index mappings for MICM rate parameters
-    character(len=512), intent(out) :: errmsg
-    integer,            intent(out) :: errcode
+    integer,                           intent(in)  :: vertical_layer_dimension      ! (count)
+    integer,                           intent(in)  :: vertical_interface_dimension  ! (count)
+    real(kind_phys),                   intent(in)  :: wavelength_grid_interfaces(:) ! m
+    type(mappings_t),                  intent(in)  :: micm_rate_parameter_ordering  ! index mappings for MICM rate parameters
+    type(ccpp_constituent_prop_ptr_t), intent(in)  :: constituent_props(:)
+    character(len=512),                intent(out) :: errmsg
+    integer,                           intent(out) :: errcode
 
     ! local variables
     type(grid_map_t),      pointer :: grids
@@ -109,6 +162,16 @@ contains
     type(configuration_t)          :: config
     type(mappings_t),      pointer :: photolysis_rate_constants_ordering
     type(error_t)                  :: error
+
+    ! Get needed indices in constituents array
+    call ccpp_const_get_idx(constituent_props, CLOUD_LIQUID_WATER_CONTENT_LABEL, &
+                            index_cloud_liquid_water_content, errmsg, errcode)
+    if (errcode /= 0) return
+    if (index_cloud_liquid_water_content == DEFAULT_INDEX_NOT_FOUND) then
+      errmsg = "[MUSICA Error] Unable to find index for cloud liquid water content."
+      errcode = 1
+      return
+    end if
 
     grids => grid_map_t( error )
     if (has_error_occurred( error, errmsg, errcode )) return
@@ -200,6 +263,21 @@ contains
       return
     end if
 
+    cloud_optics => create_cloud_optics_radiator( height_grid, wavelength_grid, &
+                                                  errmsg, errcode )
+    if (errcode /= 0) then
+      call reset_tuvx_map_state( grids, profiles, radiators )
+      call cleanup_tuvx_resources()
+      return
+    endif
+
+    call radiators%add( cloud_optics, error )
+    if (has_error_occurred( error, errmsg, errcode )) then
+      call reset_tuvx_map_state( grids, profiles, radiators )
+      call cleanup_tuvx_resources()
+      return
+    end if
+
     tuvx => tuvx_t( trim(filename_of_tuvx_configuration), grids, profiles, &
                     radiators, error )
     if (has_error_occurred( error, errmsg, errcode )) then
@@ -215,13 +293,17 @@ contains
     grids => tuvx%get_grids( error )
     if (has_error_occurred( error, errmsg, errcode )) then
       deallocate( tuvx )
+      tuvx => null()
+      call cleanup_tuvx_resources()
       return
     end if
 
     height_grid => grids%get( height_grid_label, height_grid_unit, error )
     if (has_error_occurred( error, errmsg, errcode )) then
       deallocate( tuvx )
+      tuvx => null()
       call reset_tuvx_map_state( grids, null(), null() )
+      call cleanup_tuvx_resources()
       return
     end if
 
@@ -229,6 +311,7 @@ contains
                                   error )
     if (has_error_occurred( error, errmsg, errcode )) then
       deallocate( tuvx )
+      tuvx => null()
       call reset_tuvx_map_state( grids, null(), null() )
       call cleanup_tuvx_resources()
       return
@@ -237,6 +320,7 @@ contains
     profiles => tuvx%get_profiles( error )
     if (has_error_occurred( error, errmsg, errcode )) then
       deallocate( tuvx )
+      tuvx => null()
       call reset_tuvx_map_state( grids, null(), null() )
       call cleanup_tuvx_resources()
       return
@@ -245,6 +329,7 @@ contains
     temperature_profile => profiles%get( temperature_label, temperature_unit, error )
     if (has_error_occurred( error, errmsg, errcode )) then
       deallocate( tuvx )
+      tuvx => null()
       call reset_tuvx_map_state( grids, profiles, null() )
       call cleanup_tuvx_resources()
       return
@@ -253,6 +338,7 @@ contains
     surface_albedo_profile => profiles%get( surface_albedo_label, surface_albedo_unit, error )
     if (has_error_occurred( error, errmsg, errcode )) then
       deallocate( tuvx )
+      tuvx => null()
       call reset_tuvx_map_state( grids, profiles, null() )
       call cleanup_tuvx_resources()
       return
@@ -262,18 +348,39 @@ contains
       profiles%get( extraterrestrial_flux_label, extraterrestrial_flux_unit, error )
     if (has_error_occurred( error, errmsg, errcode )) then
       deallocate( tuvx )
+      tuvx => null()
       call reset_tuvx_map_state( grids, profiles, null() )
       call cleanup_tuvx_resources()
       return
     end if
 
-    call reset_tuvx_map_state( grids, profiles, null() )
+    radiators => tuvx%get_radiators( error )
+    if (has_error_occurred( error, errmsg, errcode )) then
+      deallocate( tuvx )
+      tuvx => null()
+      call reset_tuvx_map_state( grids, profiles, null() )
+      call cleanup_tuvx_resources()
+      return
+    end if
+
+    cloud_optics => radiators%get( cloud_optics_label, error )
+    if (has_error_occurred( error, errmsg, errcode )) then
+      deallocate( tuvx )
+      tuvx => null()
+      call reset_tuvx_map_state( grids, profiles, radiators )
+      call cleanup_tuvx_resources()
+      return
+    end if
+
+    call reset_tuvx_map_state( grids, profiles, radiators )
 
     ! 'photolysis_rate_constants_ordering' is a local variable
     photolysis_rate_constants_ordering => &
         tuvx%get_photolysis_rate_constants_ordering( error )
     if (has_error_occurred( error, errmsg, errcode )) then
       deallocate( tuvx )
+      tuvx => null()
+      call cleanup_tuvx_resources()
       return
     end if
     number_of_photolysis_rate_constants = photolysis_rate_constants_ordering%size()
@@ -281,6 +388,8 @@ contains
     call config%load_from_file( trim(filename_of_tuvx_micm_mapping_configuration), error )
     if (has_error_occurred( error, errmsg, errcode )) then
       deallocate( tuvx )
+      tuvx => null()
+      call cleanup_tuvx_resources()
       deallocate( photolysis_rate_constants_ordering )
       return
     end if
@@ -290,6 +399,8 @@ contains
                           micm_rate_parameter_ordering, error )
     if (has_error_occurred( error, errmsg, errcode )) then
       deallocate( tuvx )
+      tuvx => null()
+      call cleanup_tuvx_resources()
       deallocate( photolysis_rate_constants_ordering )
       return
     end if
@@ -309,13 +420,16 @@ contains
                       extraterrestrial_flux,                         &
                       standard_gravitational_acceleration,           &
                       solar_zenith_angle, earth_sun_distance,        &
-                      rate_parameters, errmsg, errcode)
-    use musica_util,                            only: error_t
-    use musica_ccpp_tuvx_height_grid,           only: set_height_grid_values, calculate_heights
-    use musica_ccpp_tuvx_temperature,           only: set_temperature_values
-    use musica_ccpp_util,                       only: has_error_occurred, PI
-    use musica_ccpp_tuvx_surface_albedo,        only: set_surface_albedo_values
-    use musica_ccpp_tuvx_extraterrestrial_flux, only: set_extraterrestrial_flux_values
+                      cloud_area_fraction, constituents,             &
+                      air_pressure_thickness, rate_parameters,       &
+                      errmsg, errcode)
+    use musica_util,                               only: error_t
+    use musica_ccpp_tuvx_height_grid,              only: set_height_grid_values, calculate_heights
+    use musica_ccpp_tuvx_temperature,              only: set_temperature_values
+    use musica_ccpp_util,                          only: has_error_occurred, PI
+    use musica_ccpp_tuvx_surface_albedo,           only: set_surface_albedo_values
+    use musica_ccpp_tuvx_extraterrestrial_flux,    only: set_extraterrestrial_flux_values
+    use musica_ccpp_tuvx_cloud_optics,             only: set_cloud_optics_values
 
     real(kind_phys),    intent(in)    :: temperature(:,:)                                  ! K (column, layer)
     real(kind_phys),    intent(in)    :: dry_air_density(:,:)                              ! kg m-3 (column, layer)
@@ -330,6 +444,9 @@ contains
     real(kind_phys),    intent(in)    :: standard_gravitational_acceleration               ! m s-2
     real(kind_phys),    intent(in)    :: solar_zenith_angle(:)                             ! radians
     real(kind_phys),    intent(in)    :: earth_sun_distance                                ! m
+    real(kind_phys),    intent(in)    :: cloud_area_fraction(:,:)                          ! unitless (column, layer)
+    real(kind_phys),    intent(in)    :: constituents(:,:,:)                               ! various (column, layer, constituent)
+    real(kind_phys),    intent(in)    :: air_pressure_thickness(:,:)                       ! Pa (column, layer)
     real(kind_phys),    intent(inout) :: rate_parameters(:,:,:)                            ! various units (column, layer, reaction)
     character(len=512), intent(out)   :: errmsg
     integer,            intent(out)   :: errcode
@@ -378,6 +495,13 @@ contains
                                    surface_temperature(i_col), errmsg, errcode )
         if (errcode /= 0) return
 
+      call set_cloud_optics_values( cloud_optics, cloud_area_fraction(i_col,:), &
+                                    air_pressure_thickness(i_col,:), &
+                                    constituents(i_col,:,index_cloud_liquid_water_content), &
+                                    reciprocal_of_gravitational_acceleration, &
+                                    errmsg, errcode )
+      if (errcode /= 0) return
+
         ! calculate photolysis rate constants and heating rates
         call tuvx%run( solar_zenith_angle(i_col), earth_sun_distance, &
                        photolysis_rate_constants(:,:), heating_rates(:,:), &
@@ -407,12 +531,12 @@ contains
     errmsg = ''
     errcode = 0
 
+    call cleanup_tuvx_resources()
+
     if (associated( tuvx )) then
       deallocate( tuvx )
       tuvx => null()
     end if
-
-    call cleanup_tuvx_resources()
 
   end subroutine tuvx_final
 

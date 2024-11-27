@@ -72,13 +72,18 @@ RUN git clone https://github.com/NCAR/cam-sima-chemistry-data.git \
     && git checkout ${CAM_SIMA_CHEMISTRY_DATA_TAG} \
     && mv mechanisms /home/test_user/atmospheric_physics/schemes/musica/configurations
 
-# Must make ccpp-framework available before building test
+# Make CCPP-framework available before building test
 RUN cd atmospheric_physics/test \
     && mkdir lib \
     && cd lib \
     && git clone -b develop --depth 1 https://github.com/NCAR/ccpp-framework.git
 ENV CCPP_SRC_PATH="lib/ccpp-framework/src"
 ENV CCPP_FORTRAN_TOOLS_PATH="lib/ccpp-framework/scripts/fortran_tools"
+
+# Make the CCPPStandardNames available
+RUN cd atmospheric_physics/test/lib \
+    && git clone --depth 1 https://github.com/ESCOMP/CCPPStandardNames.git
+ENV CCPP_STD_NAMES_PATH="lib/CCPPStandardNames"
 
 RUN cd atmospheric_physics/test \
     && cmake -S . -B build \
