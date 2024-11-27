@@ -226,12 +226,12 @@ contains
 
     ! Set conditions for one daytime and one nighttime column
     ! Greenwich, UK and Wellington, NZ
-    latitude = (/ 51.0_kind_phys, -41.0_kind_phys /)
-    longitude = (/ 0.0_kind_phys, 175.0_kind_phys /)
+    latitude = (/ 51.5_kind_phys, -41.3_kind_phys /)
+    longitude = (/ 0.0_kind_phys, 174.8_kind_phys /)
     earth_eccentricity = 0.0167_kind_phys
     earth_obliquity = 23.5_kind_phys * DEGREE_TO_RADIAN
     perihelion_longitude = 102.9_kind_phys * DEGREE_TO_RADIAN
-    moving_vernal_equinox_longitude = 210.0_kind_phys * DEGREE_TO_RADIAN
+    moving_vernal_equinox_longitude = 182.7_kind_phys * DEGREE_TO_RADIAN
     calendar_day = 183.5_kind_phys ! noon GMT Jul 1
 
     filename_of_micm_configuration = 'musica_configurations/chapman/micm/config.json'
@@ -487,12 +487,12 @@ contains
 
     ! Set conditions for one daytime and one nighttime column
     ! Greenwich, UK and Wellington, NZ
-    latitude = (/ 51.0_kind_phys, -41.0_kind_phys /)
-    longitude = (/ 0.0_kind_phys, 175.0_kind_phys /)
+    latitude = (/ 51.5_kind_phys, -41.3_kind_phys /)
+    longitude = (/ 0.0_kind_phys, 174.8_kind_phys /)
     earth_eccentricity = 0.0167_kind_phys
     earth_obliquity = 23.5_kind_phys * DEGREE_TO_RADIAN
     perihelion_longitude = 102.9_kind_phys * DEGREE_TO_RADIAN
-    moving_vernal_equinox_longitude = 210.0_kind_phys * DEGREE_TO_RADIAN
+    moving_vernal_equinox_longitude = 182.7_kind_phys * DEGREE_TO_RADIAN
     calendar_day = 183.5_kind_phys ! noon GMT Jul 1
 
     filename_of_micm_configuration = 'musica_configurations/terminator/micm/config.json'
