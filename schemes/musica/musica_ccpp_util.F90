@@ -2,10 +2,15 @@
 ! SPDX-License-Identifier: Apache-2.0
 module musica_ccpp_util
 
+  use ccpp_kinds, only: kind_phys
+
   implicit none
 
   private
   public :: has_error_occurred, calculate_solar_zenith_angle_and_earth_sun_distance
+
+  real(kind_phys), parameter, public :: PI = 3.14159265358979323846_kind_phys
+  real(kind_phys), parameter, public :: DEGREE_TO_RADIAN = PI / 180.0_kind_phys
 
 contains
 
@@ -53,7 +58,6 @@ contains
       latitude, longitude, earth_eccentricity, earth_obliquity, perihelion_longitude, &
       moving_vernal_equinox_longitude, solar_zenith_angle, earth_sun_distance, &
       errmsg, errcode)
-    use ccpp_kinds,  only: kind_phys
     use shr_orb_mod, only: shr_orb_decl, shr_orb_cosz
     use musica_util, only: error_t
 
@@ -82,7 +86,7 @@ contains
 
     ! Calculate solar zenith angle
     do i_sza = 1, size(solar_zenith_angle)
-      solar_zenith_angle(i_sza) = shr_orb_cosz(calendar_day, latitude(i_sza), longitude(i_sza), delta)
+      solar_zenith_angle(i_sza) = acos(shr_orb_cosz(calendar_day, latitude(i_sza), longitude(i_sza), delta))
     end do
 
   end subroutine calculate_solar_zenith_angle_and_earth_sun_distance

@@ -1,11 +1,14 @@
 program run_test_musica_ccpp
 
+  use ccpp_kinds, only: kind_phys
   use musica_ccpp
 
   implicit none
 
 #define ASSERT(x) if (.not.(x)) then; write(*,*) "Assertion failed[", __FILE__, ":", __LINE__, "]: x"; stop 1; endif
 #define ASSERT_NEAR( a, b, abs_error ) if( (abs(a - b) >= abs_error) .and. (abs(a - b) /= 0.0) ) then; write(*,*) "Assertion failed[", __FILE__, ":", __LINE__, "]: a, b"; stop 1; endif
+
+  real(kind_phys), parameter :: DEGREE_TO_RADIAN = 3.14159265358979323846_kind_phys / 180.0_kind_phys
 
   call test_chapman()
   call test_terminator()
@@ -134,7 +137,6 @@ contains
   !> Tests the Chapman chemistry scheme
   subroutine test_chapman()
     use musica_micm,               only: Rosenbrock, RosenbrockStandardOrder
-    use ccpp_kinds,                only: kind_phys
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
     use musica_ccpp_micm,          only: micm
@@ -214,13 +216,14 @@ contains
         1.3e13_kind_phys, 1.2e13_kind_phys, 1.1e13_kind_phys, 1.0e13_kind_phys /)
 
     ! Set conditions for one daytime and one nighttime column
-    latitude = (/ 0.0_kind_phys, 0.0_kind_phys /)
-    longitude = (/ 0.0_kind_phys, 0.0_kind_phys /)
+    ! Greenwich, UK and Wellington, NZ
+    latitude = (/ 51.0_kind_phys, -41.0_kind_phys /)
+    longitude = (/ 0.0_kind_phys, 175.0_kind_phys /)
     earth_eccentricity = 0.0167_kind_phys
-    earth_obliquity = 0.4091_kind_phys
-    perihelion_longitude = 4.71238898038469_kind_phys
-    moving_vernal_equinox_longitude = 4.71238898038469_kind_phys
-    calendar_day = 365.5_kind_phys ! noon GMT Dec. 31st
+    earth_obliquity = 23.5_kind_phys * DEGREE_TO_RADIAN
+    perihelion_longitude = 102.9_kind_phys * DEGREE_TO_RADIAN
+    moving_vernal_equinox_longitude = 210.0_kind_phys * DEGREE_TO_RADIAN
+    calendar_day = 183.5_kind_phys ! noon GMT Jul 1
 
     filename_of_micm_configuration = 'musica_configurations/chapman/micm/config.json'
     filename_of_tuvx_configuration = 'musica_configurations/chapman/tuvx/config.json'
@@ -353,6 +356,11 @@ contains
         ASSERT_NEAR(total_O, total_O_init, 1.0e-13)
       end do
     end do
+    do j = 1, NUM_LAYERS
+      ! O and O1D should be lower in the nighttime column
+      ASSERT(constituents(2,j,O_index) < constituents(1,j,O_index))
+      ASSERT(constituents(2,j,O1D_index) < constituents(1,j,O1D_index))
+    end do
 
     deallocate(constituent_props_ptr)
 
@@ -361,7 +369,6 @@ contains
   !> Tests the simple Terminator chemistry scheme
   subroutine test_terminator()
     use musica_micm,               only: Rosenbrock, RosenbrockStandardOrder
-    use ccpp_kinds,                only: kind_phys
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
     use musica_ccpp_micm,          only: micm
@@ -441,13 +448,14 @@ contains
         1.3e13_kind_phys, 1.2e13_kind_phys, 1.1e13_kind_phys, 1.0e13_kind_phys /)
 
     ! Set conditions for one daytime and one nighttime column
-    latitude = (/ 0.0_kind_phys, 0.0_kind_phys /)
-    longitude = (/ 0.0_kind_phys, 0.0_kind_phys /)
+    ! Greenwich, UK and Wellington, NZ
+    latitude = (/ 51.0_kind_phys, -41.0_kind_phys /)
+    longitude = (/ 0.0_kind_phys, 175.0_kind_phys /)
     earth_eccentricity = 0.0167_kind_phys
-    earth_obliquity = 0.4091_kind_phys
-    perihelion_longitude = 4.71238898038469_kind_phys
-    moving_vernal_equinox_longitude = 4.71238898038469_kind_phys
-    calendar_day = 365.5_kind_phys ! noon GMT Dec. 31st
+    earth_obliquity = 23.5_kind_phys * DEGREE_TO_RADIAN
+    perihelion_longitude = 102.9_kind_phys * DEGREE_TO_RADIAN
+    moving_vernal_equinox_longitude = 210.0_kind_phys * DEGREE_TO_RADIAN
+    calendar_day = 183.5_kind_phys ! noon GMT Jul 1
 
     filename_of_micm_configuration = 'musica_configurations/terminator/micm/config.json'
     filename_of_tuvx_configuration = 'musica_configurations/terminator/tuvx/config.json'
@@ -561,6 +569,12 @@ contains
         total_Cl_init = initial_constituents(i,j,Cl_index) + initial_constituents(i,j,Cl2_index)
         ASSERT_NEAR(total_Cl, total_Cl_init, 1.0e-13)
       end do
+    end do
+    do j = 1, NUM_LAYERS
+      ! Cl should be lower in the nighttime column
+      ASSERT(constituents(2,j,Cl_index) < constituents(1,j,Cl_index))
+      ! Cl2 should be higher in the nighttime column
+      ASSERT(constituents(2,j,Cl2_index) > constituents(1,j,Cl2_index))
     end do
 
     deallocate(constituent_props_ptr)
