@@ -48,7 +48,7 @@ contains
 
   end subroutine reset_tuvx_map_state
 
-  !> This is a helper subroutine created to deallocate objects associated with TUV-x
+  !> Deallocates objects associated with TUV-x
   subroutine cleanup_tuvx_resources()
 
     if (associated( height_grid )) then
@@ -142,6 +142,8 @@ contains
             extraterrestrial_flux_unit
     use musica_ccpp_tuvx_cloud_optics, &
       only: create_cloud_optics_radiator, cloud_optics_label
+    use musica_ccpp_tuvx_gas_species_profilev, &
+      only: gas_species_t, configure_gas_species, create_gas_species_profile_group
 
     integer,                           intent(in)  :: vertical_layer_dimension      ! (count)
     integer,                           intent(in)  :: vertical_interface_dimension  ! (count)
@@ -152,12 +154,14 @@ contains
     integer,                           intent(out) :: errcode
 
     ! local variables
-    type(grid_map_t),      pointer :: grids
-    type(profile_map_t),   pointer :: profiles
-    type(radiator_map_t),  pointer :: radiators
-    type(configuration_t)          :: config
-    type(mappings_t),      pointer :: photolysis_rate_constants_ordering
-    type(error_t)                  :: error
+    type(error_t)                    :: error
+    type(grid_map_t),     pointer    :: grids
+    type(profile_map_t),  pointer    :: profiles
+    type(radiator_map_t), pointer    :: radiators
+    type(configuration_t)            :: config
+    type(mappings_t),     pointer    :: photolysis_rate_constants_ordering
+    type(gas_species_t), allocatable :: gas_species_group(:)
+    type(profile_t),      pointer    :: profile_gas_species_group(:)
 
     ! Get needed indices in constituents array
     call ccpp_const_get_idx(constituent_props, CLOUD_LIQUID_WATER_CONTENT_LABEL, &
@@ -246,6 +250,22 @@ contains
       call cleanup_tuvx_resources()
       return
     end if
+
+    call configure_gas_species( constituent_props, gas_species_group, &
+                                errmsg, errcode )
+    if (errcode /= 0) then
+      call reset_tuvx_map_state( grids, profiles, null() )
+      call cleanup_tuvx_resources()
+      return
+    end if
+
+    call create_gas_species_profile_group( height_grid, &
+          gas_species_group, profile_gas_species_group, errmsg, errcode)
+    if (errcode /= 0) then
+      call reset_tuvx_map_state( grids, profiles, null() )
+      call cleanup_tuvx_resources()
+      return
+    endif
 
     radiators => radiator_map_t( error )
     if (has_error_occurred( error, errmsg, errcode )) then

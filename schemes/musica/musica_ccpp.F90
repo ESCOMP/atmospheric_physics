@@ -122,6 +122,7 @@ contains
                   air_pressure_thickness, rate_parameters,       &
                   errmsg, errcode)
 
+    ! TODO(jiwon) this might not be correct because it doesn't know the index
     ! Get the molar mass that is set in the call to instantiate()
     do i_elem = 1, size(molar_mass_arr)
       call constituent_props(i_elem)%molar_mass(molar_mass_arr(i_elem), errcode, errmsg)

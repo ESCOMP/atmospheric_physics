@@ -144,8 +144,8 @@ contains
 
     implicit none
 
-    integer, parameter                                             :: NUM_SPECIES = 5
-    integer, parameter                                             :: NUM_TUVX_CONSTITUENTS = 1
+    integer, parameter                                                    :: NUM_SPECIES = 5
+    integer, parameter                                                    :: NUM_TUVX_CONSTITUENTS = 1
     ! This test requires that the number of grid cells = 4, which is the default
     ! vector dimension for MICM. This restriction will be removed once
     ! https://github.com/NCAR/musica/issues/217 is finished.
@@ -235,11 +235,11 @@ contains
       ASSERT(errcode == 0)
       call constituent_props(i)%is_advected(is_advected, errcode, errmsg)
       ASSERT(errcode == 0)
-      tmp_bool = (trim(species_name) == "O2" .and. molar_mass == 0.0319988_kind_phys .and. is_advected) .or.  &
+      tmp_bool = (trim(species_name) == "O2" .and. molar_mass == 0.0319988_kind_phys .and. .not. is_advected) .or.  &
                 (trim(species_name) == "O" .and. molar_mass == 0.0159994_kind_phys .and. .not. is_advected) .or.   &
                 (trim(species_name) == "O1D" .and. molar_mass == 0.0159994_kind_phys .and. .not. is_advected) .or. &
                 (trim(species_name) == "O3" .and. molar_mass == 0.0479982_kind_phys .and. is_advected) .or. &
-                (trim(species_name) == "N2" .and. molar_mass == 0.0280134_kind_phys .and. is_advected) .or. &
+                (trim(species_name) == "N2" .and. molar_mass == 0.0280134_kind_phys .and. .not. is_advected) .or. &
                 (trim(species_name) == "cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water" .and. &
                  molar_mass == 0.018_kind_phys .and. is_advected)
       ASSERT(tmp_bool)
@@ -372,8 +372,8 @@ contains
 
     implicit none
 
-    integer, parameter                                             :: NUM_SPECIES = 2
-    integer, parameter                                             :: NUM_TUVX_CONSTITUENTS = 1
+    integer, parameter                                                    :: NUM_SPECIES = 4
+    integer, parameter                                                    :: NUM_TUVX_CONSTITUENTS = 1
     ! This test requires that the number of grid cells = 4, which is the default
     ! vector dimension for MICM. This restriction will be removed once
     ! https://github.com/NCAR/musica/issues/217 is finished.
@@ -412,7 +412,7 @@ contains
     character(len=:), allocatable                                         :: micm_species_name
     logical                                                               :: tmp_bool, is_advected
     integer                                                               :: i, j, k
-    integer                                                               :: Cl_index, Cl2_index
+    integer                                                               :: Cl_index, Cl2_index, O2_index, O3_index
     real(kind_phys)                                                       :: total_Cl, total_Cl_init
 
     call get_wavelength_edges(photolysis_wavelength_grid_interfaces)
@@ -465,8 +465,10 @@ contains
       ASSERT(errcode == 0)
       tmp_bool = (trim(species_name) == "Cl" .and. molar_mass == 0.035453_kind_phys .and. is_advected) .or.  &
                  (trim(species_name) == "Cl2" .and. molar_mass == 0.070906_kind_phys .and. is_advected) .or. &
-                  (trim(species_name) == "cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water" &
-                    .and. molar_mass == 0.018_kind_phys .and. is_advected)
+                 (trim(species_name) == "O2" .and. molar_mass == 0.0319988_kind_phys .and. .not. is_advected) .or.  &
+                 (trim(species_name) == "O3" .and. molar_mass == 0.0479982_kind_phys .and. .not. is_advected) .or. &
+                 (trim(species_name) == "cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water" &
+                  .and. molar_mass == 0.018_kind_phys .and. is_advected)
       ASSERT(tmp_bool)
       call constituent_props(i)%units(units, errcode, errmsg)
       if (errcode /= 0) then
@@ -501,6 +503,12 @@ contains
       else if (micm_species_name == "Cl2") then
         Cl2_index = i
         base_conc = 1.0e-6_kind_phys
+      else if (micm_species_name == "O2") then
+        O2_index = i
+        base_conc = 0.21_kind_phys
+      else if (micm_species_name == "O3") then
+        O3_index = i
+        base_conc = 1.0e-4_kind_phys
       else
         write(*,*) "Unknown species: ", micm_species_name
         stop 3
