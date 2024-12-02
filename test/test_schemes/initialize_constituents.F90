@@ -63,7 +63,7 @@ subroutine initialize_constituents_register(constituents, errmsg, errcode)
     allocate(constituent_names(num_variables), stat=ierr, errmsg=alloc_err_msg)
     if (ierr /= 0) then
        errcode = 1
-       errmsg = alloc_err_msg
+       write(errmsg,*) 'Failed to allocate "constituent_names": ', trim(alloc_err_msg)
        return
     end if
 
@@ -94,7 +94,7 @@ subroutine initialize_constituents_register(constituents, errmsg, errcode)
     allocate(constituents(constituent_index), stat=ierr, errmsg=alloc_err_msg)
     if (ierr /= 0) then
        errcode = 1
-       errmsg = alloc_err_msg
+       write(errmsg,*) 'Failed to allocate "constituents": ', trim(alloc_err_msg)
        return
     end if
 
