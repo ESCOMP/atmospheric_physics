@@ -94,7 +94,7 @@ subroutine initialize_constituents_register(constituents, errmsg, errcode)
     allocate(constituents(constituent_index), stat=ierr, errmsg=alloc_err_msg)
     if (ierr /= 0) then
        errcode = 1
-       write(errmsg,*) 'Failed to allocate "constituents" in initialize_constituents_register.F90: ', trim(alloc_err_msg)
+       write(errmsg,*) 'Failed to allocate "constituents" in initialize_constituents_register: ', trim(alloc_err_msg)
        return
     end if
 
