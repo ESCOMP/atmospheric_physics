@@ -18,14 +18,15 @@ module musica_ccpp_micm
 contains
 
   !> Registers MICM constituent properties with the CCPP
-  subroutine micm_register(solver_type, num_grid_cells, constituent_props, errmsg, errcode)
+  subroutine micm_register(solver_type, number_of_grid_cells, constituent_props, &
+                           errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
     use musica_micm,               only: Rosenbrock, RosenbrockStandardOrder
     use musica_util,               only: error_t
     use iso_c_binding,             only: c_int
 
     integer(c_int),                                   intent(in)  :: solver_type
-    integer(c_int),                                   intent(in)  :: num_grid_cells
+    integer(c_int),                                   intent(in)  :: number_of_grid_cells
     type(ccpp_constituent_properties_t), allocatable, intent(out) :: constituent_props(:)
     character(len=512),                               intent(out) :: errmsg
     integer,                                          intent(out) :: errcode
@@ -37,7 +38,8 @@ contains
     logical                       :: is_advected
     integer                       :: i, species_index
 
-    micm => micm_t(trim(filename_of_micm_configuration), solver_type, num_grid_cells, error)
+    micm => micm_t(trim(filename_of_micm_configuration), solver_type, &
+                   number_of_grid_cells, error)
     if (has_error_occurred(error, errmsg, errcode)) return
 
     allocate(constituent_props(micm%species_ordering%size()), stat=errcode)
@@ -108,7 +110,6 @@ contains
     type(string_t)       :: solver_state
     type(solver_stats_t) :: solver_stats
     type(error_t)        :: error
-    integer              :: i_elem
 
     call micm%solve(real(time_step, kind=c_double),      &
                     c_loc(temperature),                  &

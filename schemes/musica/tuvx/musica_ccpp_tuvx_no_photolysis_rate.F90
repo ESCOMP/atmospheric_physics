@@ -7,7 +7,8 @@ module musica_ccpp_tuvx_no_photolysis_rate
   ! Much of the code is also based off of a PR which incorporated TUVx into CAM
   ! https://github.com/ESCOMP/CAM/blob/c12d1e46e0fdc1dccb0a651a6c9fefd6bb80b2ba/src/chemistry/mozart/mo_tuvx.F90#L1849-L1943
   ! The actual method is described in this paper:
-  ! Minschwaner, K., Siskind, D.E., 1993. A new calculation of nitric oxide photolysis in the stratosphere, mesosphere, and lower thermosphere. Journal of Geophysical Research: Atmospheres 98, 20401–20412. https://doi.org/10.1029/93JD02007
+  ! Minschwaner, K., Siskind, D.E., 1993. A new calculation of nitric oxide photolysis in the stratosphere, mesosphere, and lower thermosphere.
+  ! Journal of Geophysical Research: Atmospheres 98, 20401–20412. https://doi.org/10.1029/93JD02007
   ! Acronyms:
   ! SRB: Schumann–Runge bands, a group of electronic transitions in molecular oxygen that absorb solar radiation
   ! NO: Nitric oxide
