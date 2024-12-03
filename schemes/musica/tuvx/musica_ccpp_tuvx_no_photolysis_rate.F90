@@ -21,17 +21,35 @@ module musica_ccpp_tuvx_no_photolysis_rate
 contains
 
   !> Calculates the NO photolysis rate
-  function calculate_NO_photolysis_rate(solar_zenith_angle, extraterrestrial_flux, constituents, height_at_interfaces) &
+  function calculate_NO_photolysis_rate(solar_zenith_angle, extraterrestrial_flux, constituents, height_at_interfaces, &
+    dry_air_density ) &
       result(jNO)
     use ccpp_kinds,          only: kind_phys
     ! inputs
-    real(kind=kind_phys),    intent(in)    :: solar_zenith_angle
+    real(kind_phys),    intent(in)    :: solar_zenith_angle       ! degrees
     real(kind_phys),         intent(in)    :: extraterrestrial_flux(:) ! photons cm-2 s-1 nm-1
-    real(kind_phys), target, intent(inout) :: constituents(:,:,:)      ! kg kg-1
-    real(kind=kind_phys),    intent(in)    :: height_at_interfaces(:)  ! m
+    real(kind_phys), target, intent(inout) :: constituents(:,:,:)      ! various (column, layer, constituent)
+    real(kind_phys),    intent(in)    :: height_at_interfaces(:)  ! m
+    real(kind_phys),    intent(in)         :: dry_air_density(:,:)     ! kg m-3 (column, layer)
 
     ! local variables
-    real(kind=kind_phys) :: jNO
+    real(kind_phys) :: n2_dens(size(constituents, dim=2)+1), o2_dens(size(constituents, dim=2)+1)
+    real(kind_phys) :: o3_dens(size(constituents, dim=2)+1), no_dens(size(constituents, dim=2)+1)
+    ! species slant column densities (molecule cm-2)
+    real(kind_phys) :: o2_slant(size(constituents, dim=2)+1), o3_slant(size(constituents, dim=2)+1)
+    real(kind_phys) :: no_slant(size(constituents, dim=2)+1)
+    ! working photo rate array
+    real(kind_phys) :: work_jno(size(constituents, dim=2)+1)
+    ! parameters needed to calculate slant column densities
+    ! (see sphers routine description for details)
+    integer       :: nid(size(constituents, dim=2)+1)
+    real(kind_phys) :: dsdh(0:size(constituents, dim=2)+1,size(constituents, dim=2)+1)
+    ! layer thickness (cm)
+    real(kind_phys) :: delz(size(constituents, dim=2)+1)
+    ! conversion from km to cm
+    real(kind_phys), parameter :: km2cm = 1.0e5_r8
+    ! final photolysis rate
+    real(kind_phys) :: jNO
 
     jNO = 0.0
 
