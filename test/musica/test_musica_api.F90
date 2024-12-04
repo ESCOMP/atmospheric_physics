@@ -336,7 +336,8 @@ contains
                           geopotential_height_wrt_surface_at_interface, surface_geopotential,           &
                           surface_temperature, surface_albedo, num_photolysis_wavelength_grid_sections, &
                           flux_data_photolysis_wavelength_interfaces, extraterrestrial_flux,            &
-                          standard_gravitational_acceleration, cloud_area_fraction, air_pressure_thickness, latitude, longitude, earth_eccentricity, &
+                          standard_gravitational_acceleration, cloud_area_fraction,                     &
+                          air_pressure_thickness, latitude, longitude, earth_eccentricity,              &
                           earth_obliquity, perihelion_longitude, moving_vernal_equinox_longitude,       &
                           calendar_day, errmsg, errcode )
     if (errcode /= 0) then
@@ -477,16 +478,6 @@ contains
 
     ! Set conditions for one daytime and one nighttime column
     ! Greenwich, UK and Wellington, NZ
-    latitude = (/ 51.0_kind_phys, -41.0_kind_phys /)
-    longitude = (/ 0.0_kind_phys, 175.0_kind_phys /)
-    earth_eccentricity = 0.0167_kind_phys
-    earth_obliquity = 23.5_kind_phys * DEGREE_TO_RADIAN
-    perihelion_longitude = 102.9_kind_phys * DEGREE_TO_RADIAN
-    moving_vernal_equinox_longitude = 210.0_kind_phys * DEGREE_TO_RADIAN
-    calendar_day = 183.5_kind_phys ! noon GMT Jul 1
-
-    ! Set conditions for one daytime and one nighttime column
-    ! Greenwich, UK and Wellington, NZ
     latitude = (/ 51.5_kind_phys, -41.3_kind_phys /)
     longitude = (/ 0.0_kind_phys, 174.8_kind_phys /)
     earth_eccentricity = 0.0167_kind_phys
@@ -585,7 +576,8 @@ contains
                           geopotential_height_wrt_surface_at_interface, surface_geopotential,           &
                           surface_temperature, surface_albedo, num_photolysis_wavelength_grid_sections, &
                           flux_data_photolysis_wavelength_interfaces, extraterrestrial_flux,            &
-                          standard_gravitational_acceleration, cloud_area_fraction, air_pressure_thickness, latitude, longitude, earth_eccentricity, &
+                          standard_gravitational_acceleration, cloud_area_fraction,                     &
+                          air_pressure_thickness, latitude, longitude, earth_eccentricity,              &
                           earth_obliquity, perihelion_longitude, moving_vernal_equinox_longitude,       &
                           calendar_day, errmsg, errcode )
     if (errcode /= 0) then

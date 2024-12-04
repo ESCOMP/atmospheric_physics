@@ -419,8 +419,9 @@ contains
                       photolysis_wavelength_grid_interfaces,         &
                       extraterrestrial_flux,                         &
                       standard_gravitational_acceleration,           &
+                      cloud_area_fraction,                           &
                       solar_zenith_angle, earth_sun_distance,        &
-                      cloud_area_fraction, constituents,             &
+                      constituents,                                  &
                       air_pressure_thickness, rate_parameters,       &
                       errmsg, errcode)
     use musica_util,                               only: error_t
@@ -442,9 +443,9 @@ contains
     real(kind_phys),    intent(in)    :: photolysis_wavelength_grid_interfaces(:)          ! nm
     real(kind_phys),    intent(in)    :: extraterrestrial_flux(:)                          ! photons cm-2 s-1 nm-1
     real(kind_phys),    intent(in)    :: standard_gravitational_acceleration               ! m s-2
+    real(kind_phys),    intent(in)    :: cloud_area_fraction(:,:)                          ! unitless (column, layer)
     real(kind_phys),    intent(in)    :: solar_zenith_angle(:)                             ! radians
     real(kind_phys),    intent(in)    :: earth_sun_distance                                ! m
-    real(kind_phys),    intent(in)    :: cloud_area_fraction(:,:)                          ! unitless (column, layer)
     real(kind_phys),    intent(in)    :: constituents(:,:,:)                               ! various (column, layer, constituent)
     real(kind_phys),    intent(in)    :: air_pressure_thickness(:,:)                       ! Pa (column, layer)
     real(kind_phys),    intent(inout) :: rate_parameters(:,:,:)                            ! various units (column, layer, reaction)
@@ -495,12 +496,12 @@ contains
                                    surface_temperature(i_col), errmsg, errcode )
         if (errcode /= 0) return
 
-      call set_cloud_optics_values( cloud_optics, cloud_area_fraction(i_col,:), &
-                                    air_pressure_thickness(i_col,:), &
-                                    constituents(i_col,:,index_cloud_liquid_water_content), &
-                                    reciprocal_of_gravitational_acceleration, &
-                                    errmsg, errcode )
-      if (errcode /= 0) return
+        call set_cloud_optics_values( cloud_optics, cloud_area_fraction(i_col,:), &
+                                      air_pressure_thickness(i_col,:), &
+                                      constituents(i_col,:,index_cloud_liquid_water_content), &
+                                      reciprocal_of_gravitational_acceleration, &
+                                      errmsg, errcode )
+        if (errcode /= 0) return
 
         ! calculate photolysis rate constants and heating rates
         call tuvx%run( solar_zenith_angle(i_col), earth_sun_distance, &

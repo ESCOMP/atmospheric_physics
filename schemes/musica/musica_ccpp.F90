@@ -106,7 +106,6 @@ contains
     real(kind_phys),         intent(in)    :: air_pressure_thickness(:,:)                       ! Pa (column, level)
     real(kind_phys),         intent(in)    :: latitude(:)                                       ! radians (column)
     real(kind_phys),         intent(in)    :: longitude(:)                                      ! radians (column)
-    
     real(kind_phys),         intent(in)    :: earth_eccentricity                                ! Earth's eccentricity factor (unitless) (typically 0 to 0.1)
     real(kind_phys),         intent(in)    :: earth_obliquity                                   ! Earth's obliquity in radians
     real(kind_phys),         intent(in)    :: perihelion_longitude                              ! Earth's mean perihelion longitude at the vernal equinox (radians)
@@ -140,9 +139,10 @@ contains
                   photolysis_wavelength_grid_interfaces,         &
                   extraterrestrial_flux,                         &
                   standard_gravitational_acceleration,           &
+                  cloud_area_fraction,                           &
                   solar_zenith_angle,                            &
                   earth_sun_distance,                            &
-                  cloud_area_fraction, constituents,             &
+                  constituents,                                  &
                   air_pressure_thickness, rate_parameters,       &
                   errmsg, errcode)
 
