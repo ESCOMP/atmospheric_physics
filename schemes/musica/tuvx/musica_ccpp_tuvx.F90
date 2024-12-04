@@ -31,6 +31,7 @@ module musica_ccpp_tuvx
   character(len=*),      parameter :: CLOUD_LIQUID_WATER_CONTENT_UNITS = 'kg kg-1'
   real(kind_phys),       parameter :: CLOUD_LIQUID_WATER_CONTENT_MOLAR_MASS = 0.018_kind_phys ! kg mol-1
   integer                          :: index_cloud_liquid_water_content = DEFAULT_INDEX_NOT_FOUND
+  integer                          :: N2_index, O2_index, O3_index, NO_index ! needed for NO photolysis rates
 
 contains
 
@@ -97,11 +98,28 @@ contains
     character(len=512),                               intent(out) :: errmsg
     integer,                                          intent(out) :: errcode
 
+    character(len=512)                                            :: species_name
+
     allocate(constituent_props(1), stat=errcode)
     if (errcode /= 0) then
       errmsg = "[MUSICA Error] Failed to allocate memory for constituent properties."
       return
     end if
+
+    ! Sentinal values to indicate that the constituent is not found
+    N2_index = -1
+    O2_index = -1
+    O3_index = -1
+    NO_index = -1
+
+    do i = 1, size(constituent_props)
+      call constituent_props(i)%standard_name(species_name, errcode, errmsg)
+      if (errcode /= 0) return
+      if (trim(species_name) == 'N2') N2_index = i
+      if (trim(species_name) == 'O2') O2_index = i
+      if (trim(species_name) == 'O3') O3_index = i
+      if (trim(species_name) == 'NO') NO_index = i
+    end do
 
     ! Register cloud liquid water content needed for cloud optics calculations
     call constituent_props(1)%instantiate( &
@@ -506,7 +524,10 @@ contains
       photolysis_rate_constants(:,:) = &
           max( photolysis_rate_constants(:,:), 0.0_kind_phys )
 
-      jno = calculate_NO_photolysis_rate(solar_zenith_angle, extraterrestrial_flux, constituents, height_interfaces)
+      if (N2_index > 0 .and. O2_index > 0 .and. O3_index > 0 .and. NO_index > 0) then
+        jno = calculate_NO_photolysis_rate(solar_zenith_angle, extraterrestrial_flux, constituents, height_interfaces, & 
+          N2_index, O2_index, O3_index, NO_index)
+      end if
 
       ! map photolysis rate constants to the host model's rate parameters and vertical grid
       do i_level = 1, size(rate_parameters, dim=2)

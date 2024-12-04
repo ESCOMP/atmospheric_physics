@@ -22,15 +22,16 @@ contains
 
   !> Calculates the NO photolysis rate
   function calculate_NO_photolysis_rate(solar_zenith_angle, extraterrestrial_flux, constituents, height_at_interfaces, &
-    dry_air_density ) &
+    dry_air_density, N2_index, O2_index, O3_index, NO_index) &
       result(jNO)
     use ccpp_kinds,          only: kind_phys
     ! inputs
-    real(kind_phys),    intent(in)    :: solar_zenith_angle       ! degrees
-    real(kind_phys),         intent(in)    :: extraterrestrial_flux(:) ! photons cm-2 s-1 nm-1
+    real(kind_phys), intent(in)            :: solar_zenith_angle       ! degrees
+    real(kind_phys), intent(in)            :: extraterrestrial_flux(:) ! photons cm-2 s-1 nm-1
     real(kind_phys), target, intent(inout) :: constituents(:,:,:)      ! various (column, layer, constituent)
-    real(kind_phys),    intent(in)    :: height_at_interfaces(:)  ! m
-    real(kind_phys),    intent(in)         :: dry_air_density(:,:)     ! kg m-3 (column, layer)
+    real(kind_phys), intent(in)            :: height_at_interfaces(:)  ! m
+    real(kind_phys), intent(in)            :: dry_air_density(:,:)     ! kg m-3 (column, layer)
+    integer                                :: N2_index, O2_index, O3_index, NO_index
 
     ! local variables
     real(kind_phys) :: n2_dens(size(constituents, dim=2)+1), o2_dens(size(constituents, dim=2)+1)
