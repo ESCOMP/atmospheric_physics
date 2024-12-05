@@ -64,6 +64,7 @@ contains
     ! parameters needed to calculate slant column densities
     ! (see sphers routine description for details)
     integer       :: nid(size(constituents, dim=2)+1)
+    integer       :: pver
     real(kind_phys) :: dsdh(0:size(constituents, dim=2)+1,size(constituents, dim=2)+1)
     ! layer thickness (cm)
     real(kind_phys) :: delz(size(constituents, dim=2)+1)
@@ -71,6 +72,9 @@ contains
     real(kind_phys), parameter :: km2cm = 1.0e5_r8
     ! final photolysis rate
     real(kind_phys) :: jNO
+
+    ! number of vertical levels
+    pver = size(constituents, dim=2)
 
     ! what are these constants? scale heights?
     call convert_mixing_ratio_to_molecule_cm3(constituents(:,:,N2_index), dry_air_density, molar_mass_N2, n2_dens(2:))
@@ -82,7 +86,17 @@ contains
     call convert_mixing_ratio_to_molecule_cm3(constituents(:,:,NO_index), dry_air_density, molar_mass_NO, no_dens(2:))
     no_dens(1) = no_dens(2) * 0.9_r8
 
-    jNO = 0.1.5e0
+    ! ================================
+    ! calculate slant column densities
+    ! ================================
+    call sphers( pver+1, height_int, solar_zenith_angle, dsdh, nid )
+    delz(1:pver) = km2cm * ( height_int(1:pver) - height_int(2:pver+1) )
+    call slant_col( pver+1, delz, dsdh, nid, o2_dens, o2_slant )
+    call slant_col( pver+1, delz, dsdh, nid, o3_dens, o3_slant )
+    call slant_col( pver+1, delz, dsdh, nid, no_dens, no_slant )
+
+
+    jNO = calculate_jno()
 
   end function calculate_NO_photolysis_rate
 
@@ -120,12 +134,15 @@ contains
     real(kind_phys) :: kq ! quenching rate of N2
     real(kind_phys) :: jno
 
-    ! Values taken from (Minschwaner and Siskind, 1993)
-    D = 1.65e9 ! s-1
-    A = 5.1e7 ! s-1
-    kq = 1.5e-9 ! cm3 s-1
+    jno = 0.0_r8
 
-    predissociation_factor = 0.0
+    ! Values taken from (Minschwaner and Siskind, 1993)
+    D = 1.65e9_r8 ! s-1
+    A = 5.1e7_r8 ! s-1
+    kq = 1.5e-9_r8 ! cm3 s-1
+
+    predissociation_factor = 0.0_r8
+
   end function calculate_jno
 
   subroutine sphers( nlev, z, zenith_angle, dsdh, nid )
@@ -367,6 +384,5 @@ contains
     end do
     scol(nlev) = .95_r8*scol(nlev-1)
   end subroutine slant_col
-
 
 end module musica_ccpp_tuvx_no_photolysis_rate
