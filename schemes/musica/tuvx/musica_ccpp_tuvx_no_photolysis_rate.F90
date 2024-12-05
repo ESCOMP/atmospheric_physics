@@ -13,23 +13,42 @@ module musica_ccpp_tuvx_no_photolysis_rate
   ! SRB: Schumann–Runge bands, a group of electronic transitions in molecular oxygen that absorb solar radiation
   ! NO: Nitric oxide
 
+  use ccpp_kinds, only: kind_phys 
+  dk => kind_phys
+
   implicit none
 
   private
   public :: calculate_NO_photolysis_rate, convert_mixing_ratio_to_molecule_cm3
 
+  !------------------------------------------------------------------------------
+  !   	... O3 SRB Cross Sections from WMO 1985, interpolated onto MS, 1993 grid
+  !------------------------------------------------------------------------------
+  real(kind_phys), save :: o3_cross_section(4) = (/ 7.3307600e-19_dk, 6.9660105E-19_dk, 5.9257699E-19_dk, 4.8372219E-19_dk /)
+
+  !------------------------------------------------------------------------------
+  !   	... delta wavelength of the MS, 1993 grid
+  !------------------------------------------------------------------------------
+  real(kind_phys), save :: delta_wavelength(4) = (/ 1.50_dk, 1.50_dk, 5.6_dk, 2.3_dk /)
+  
+  !------------------------------------------------------------------------------
+  !   	... O2 SRB Cross Sections for the six ODF regions, MS, 1993
+  !------------------------------------------------------------------------------
+  real(kind_phys), save :: cs250(6)  = (/ 1.117e-23_dk, 2.447e-23_dk, 7.188e-23_dk, 3.042e-22_dk, 1.748e-21_dk, 1.112e-20_dk /)
+  real(kind_phys), save :: cs290(6)  = (/ 1.350e-22_dk, 2.991e-22_dk, 7.334e-22_dk, 3.074e-21_dk, 1.689e-20_dk, 1.658e-19_dk /)
+  real(kind_phys), save :: cs2100(6) = (/ 2.968e-22_dk, 5.831e-22_dk, 2.053e-21_dk, 8.192e-21_dk, 4.802e-20_dk, 2.655e-19_dk /)
+
 contains
 
   !> Convert mixing ratio to molecule cm-3
   subroutine convert_mixing_ratio_to_molecule_cm3(mixing_ratio, dry_air_density, molar_mass, molecule_cm3)
-    use ccpp_kinds, only: kind_phys
     real(kind_phys), intent(in)  :: mixing_ratio(:)       ! kg kg-1
     real(kind_phys), intent(in)  :: dry_air_density(:)    ! kg m-3
     real(kind_phys), intent(in)  :: molar_mass            ! kg mol-1
     real(kind_phys), intent(out) :: molecule_cm3(:)       ! molecule cm-3
 
     integer :: i
-    real(kind_phys), parameter :: avogadro_number = 6.02214076e23 ! mol-1
+    real(kind_phys), parameter :: avogadro_number = 6.02214076e23_r8 ! mol-1
 
     do i = 1, size(mixing_ratio)
       molecule_cm3(i) = mixing_ratio(i) * dry_air_density(i) / molar_mass * avogadro_number * 1.0e-6
@@ -64,7 +83,7 @@ contains
     ! parameters needed to calculate slant column densities
     ! (see sphers routine description for details)
     integer       :: nid(size(constituents, dim=2)+1)
-    integer       :: pver
+    integer       :: num_vertical_layers
     real(kind_phys) :: dsdh(0:size(constituents, dim=2)+1,size(constituents, dim=2)+1)
     ! layer thickness (cm)
     real(kind_phys) :: delz(size(constituents, dim=2)+1)
@@ -74,7 +93,7 @@ contains
     real(kind_phys) :: jNO
 
     ! number of vertical levels
-    pver = size(constituents, dim=2)
+    num_vertical_layers = size(constituents, dim=2)
 
     ! what are these constants? scale heights?
     call convert_mixing_ratio_to_molecule_cm3(constituents(:,:,N2_index), dry_air_density, molar_mass_N2, n2_dens(2:))
@@ -89,19 +108,30 @@ contains
     ! ================================
     ! calculate slant column densities
     ! ================================
-    call sphers( pver+1, height_int, solar_zenith_angle, dsdh, nid )
-    delz(1:pver) = km2cm * ( height_int(1:pver) - height_int(2:pver+1) )
-    call slant_col( pver+1, delz, dsdh, nid, o2_dens, o2_slant )
-    call slant_col( pver+1, delz, dsdh, nid, o3_dens, o3_slant )
-    call slant_col( pver+1, delz, dsdh, nid, no_dens, no_slant )
+    call sphers( num_vertical_layers+1, height_int, solar_zenith_angle, dsdh, nid )
+    delz(1:num_vertical_layers) = km2cm * ( height_int(1:num_vertical_layers) - height_int(2:num_vertical_layers+1) )
+    call slant_col( num_vertical_layers+1, delz, dsdh, nid, o2_dens, o2_slant )
+    call slant_col( num_vertical_layers+1, delz, dsdh, nid, o3_dens, o3_slant )
+    call slant_col( num_vertical_layers+1, delz, dsdh, nid, no_dens, no_slant )
 
 
-    jNO = calculate_jno()
+    jNO = calculate_jno(num_vertical_layers, extraterrestrial_flux, n2_dens, o2_slant, o3_slant, no_slant, work_jno)
 
   end function calculate_NO_photolysis_rate
 
   !> Calculate the photolysis rate of NO (nitric acid)
-  function calculate_jno() result(jno)
+  function calculate_jno(num_vertical_layers, extraterrestrial_flux, n2_dens, o2_slant, o3_slant, no_slant, work_jno) 
+    result(jno)
+
+    use ccpp_kinds, only: kind_phys
+    ! inputs
+    integer, intent(in)            :: num_vertical_layers
+    real(kind_phys), intent(in)    :: extraterrestrial_flux(:) ! photons cm-2 s-1 nm-1
+    real(kind_phys), intent(in)    :: n2_dens(:)              ! molecule cm-3
+    real(kind_phys), intent(in)    :: o2_slant(:)             ! molecule cm-2
+    real(kind_phys), intent(in)    :: o3_slant(:)             ! molecule cm-2
+    real(kind_phys), intent(in)    :: no_slant(:)             ! molecule cm-2
+    real(kind_phys), intent(inout) :: work_jno(:)             ! various
 
     ! For reference, the function being calculate is this:
     ! In latex:
