@@ -62,7 +62,6 @@ contains
   function calculate_jno() result(jno)
 
     ! For reference, the function being calculate is this:
-
     ! In latex:
     ! J_{NO}=\Delta\lambda \overline{I_0} T_{O3}(z) P(z) \sum_{i=1}^{6} \exp[-\sigma^i_{O2}N_{O2}(z)] \sum_{j=1}^{2} W^{i,j}_{NO}\sigma^{i,j}_{NO}\exp[-\sigma^{i,j}_{NO}N_{NO}(z)]
     ! In ASCII:
@@ -71,11 +70,12 @@ contains
     ! J_NO is the photolysis rate of NO
     ! Delta_lambda is the wavelength interval
     ! I_0 is the mean value of solar irradiance (extraterrestrial flux)
-    ! T_O3(z) is the ozone transmittance in the Hartley band
+    ! T_O3(z) is the ozone transmission factor in the Hartley band and is calculated as T_O3 = exp[-sigma_O3 N_O3]
+    !  where sigma_O3 is the absorption cross section of O3 and N_O3 is the slant column density of O3
     ! P(z) is the predissociation factor
     ! sigma^i_O2 is the absorption cross section of O2
     ! N_O2(z) is the slant column density of O2
-    ! W^{i,j}_NO is a weighting factor, from the paper: "The weighting factors represent the fraction of the total spectral interval which is occupied by the corresponding mean value of the cross section.
+    ! W^{i,j}_NO is a weighting factor, from (Minschwaner and Siskind, 1993): "The weighting factors represent the fraction of the total spectral interval which is occupied by the corresponding mean value of the cross section."
     ! sigma^{i,j}_NO is the absorption cross section of NO
     ! N_NO(z) is the slant column density of NO
     ! z is the height
@@ -99,6 +99,145 @@ contains
 
     predissociation_factor = 0.0
   end function calculate_jno
+
+  subroutine sphers( nlev, z, zenith_angle, dsdh, nid )
+    !=============================================================================!
+    !   Subroutine sphers                                                         !
+    !=============================================================================!
+    !   PURPOSE:                                                                  !
+    !   Calculate slant path over vertical depth ds/dh in spherical geometry.     !
+    !   Calculation is based on:  A.Dahlback, and K.Stamnes, A new spheric model  !
+    !   for computing the radiation field available for photolysis and heating    !
+    !   at twilight, Planet.Space Sci., v39, n5, pp. 671-683, 1991 (Appendix B)   !
+    !=============================================================================!
+    !   PARAMETERS:                                                               !
+    !   NZ      - INTEGER, number of specified altitude levels in the working (I) !
+    !             grid                                                            !
+    !   Z       - REAL, specified altitude working grid (km)                  (I) !
+    !   ZEN     - REAL, solar zenith angle (degrees)                          (I) !
+    !   DSDH    - REAL, slant path of direct beam through each layer crossed  (O) !
+    !             when travelling from the top of the atmosphere to layer i;      !
+    !             DSDH(i,j), i = 0..NZ-1, j = 1..NZ-1                             !
+    !   NID     - INTEGER, number of layers crossed by the direct beam when   (O) !
+    !             travelling from the top of the atmosphere to layer i;           !
+    !             NID(i), i = 0..NZ-1                                             !
+    !=============================================================================!
+    !   EDIT HISTORY:                                                             !
+    !   Original: Taken By Doug Kinnison from Sasha Madronich, TUV Code, V4.1a,   !
+    !             on 1/1/02                                                       !
+    !=============================================================================!
+    ! taken from CAM: https://github.com/ESCOMP/CAM/blob/ab476f9b7345cbefdc4cf67ff17f0fe85d8c7387/src/chemistry/mozart/mo_jshort.F90#L1126-L1266
+    
+    !------------------------------------------------------------------------------
+    !       ... Dummy arguments
+    !------------------------------------------------------------------------------
+    integer,  intent(in)   :: nlev              ! number model vertical levels
+    integer,  intent(out)  :: nid(0:nlev)       ! see above
+    real(r8), intent (in)  :: zenith_angle		  ! zenith_angle
+    real(r8), intent (in)  :: z(nlev)		        ! geometric altitude (km)
+    real(r8), intent (out) :: dsdh(0:nlev,nlev) ! see above
+    
+    
+    !------------------------------------------------------------------------------
+    !       ... Local variables
+    !------------------------------------------------------------------------------
+    real(r8) :: radius
+    real(r8) :: re
+    real(r8) :: zenrad
+    real(r8) :: rpsinz
+    real(r8) :: const0
+    real(r8) :: rj
+    real(r8) :: rjp1
+    real(r8) :: dsj
+    real(r8) :: dhj
+    real(r8) :: ga
+    real(r8) :: gb
+    real(r8) :: sm
+    real(r8) :: zd(0:nlev-1)
+
+    integer :: i
+    integer :: j
+    integer :: k
+    integer :: id
+    integer :: nlayer
+
+
+    radius = 6.37100e9_r8 ! radius earth (km)
+    
+    !------------------------------------------------------------------------------
+    !       ... set zenith angle in radians
+    !------------------------------------------------------------------------------
+    zenrad = zenith_angle*d2r
+    const0 = sin( zenrad )
+    
+    !------------------------------------------------------------------------------
+    !       ... set number of layers:
+    !------------------------------------------------------------------------------
+    nlayer = nlev - 1
+
+    !------------------------------------------------------------------------------
+    !       ... include the elevation above sea level to the radius of the earth:
+    !------------------------------------------------------------------------------
+    re = radius + z(nlev)
+
+    !------------------------------------------------------------------------------
+    !       ... inverse coordinate of z
+    !------------------------------------------------------------------------------
+    do k = 0,nlayer
+      zd(k) = z(k+1) - z(nlev)
+    end do
+    
+    !------------------------------------------------------------------------------
+    !       ... initialize dsdh(i,j), nid(i)
+    !------------------------------------------------------------------------------
+    nid(:) = 0
+    do j = 1,nlev
+      dsdh(:,j) = 0._r8
+    end do
+    
+    !------------------------------------------------------------------------------
+    !       ... calculate ds/dh of every layer
+    !------------------------------------------------------------------------------
+    do i = 0,nlayer
+      rpsinz = (re + zd(i)) * const0
+      if( zenith_angle <= 90._r8 .or. rpsinz >= re ) then
+    !------------------------------------------------------------------------------
+    ! Find index of layer in which the screening height lies
+    !------------------------------------------------------------------------------
+          id = i
+          if( zenith_angle > 90._r8 ) then
+            do j = 1,nlayer
+                if( rpsinz < (zd(j-1) + re) .and.  rpsinz >= (zd(j) + re) ) then
+      id = j
+      exit
+    end if
+            end do
+          end if
+
+          do j = 1,id
+            sm = 1._r8
+            if( j == id .and. id == i .and. zenith_angle > 90._r8 ) then
+              sm = -1._r8
+            end if
+            rj   = re + zd(j-1)
+            rjp1 = re + zd(j)
+            dhj  = zd(j-1) - zd(j)
+            ga   = max( rj*rj - rpsinz*rpsinz,0._r8 )
+            gb   = max( rjp1*rjp1 - rpsinz*rpsinz,0._r8 )
+            if( id > i .and. j == id ) then
+              dsj = sqrt( ga )
+            else
+              dsj = sqrt( ga ) - sm*sqrt( gb )
+            end if
+            dsdh(i,j) = dsj / dhj
+          end do
+          nid(i) = id
+      else
+          nid(i) = -1
+      end if
+    end do
+
+  end subroutine sphers
 
 
 end module musica_ccpp_tuvx_no_photolysis_rate
