@@ -32,6 +32,7 @@ module musica_ccpp_tuvx
   real(kind_phys),       parameter :: CLOUD_LIQUID_WATER_CONTENT_MOLAR_MASS = 0.018_kind_phys ! kg mol-1
   integer                          :: index_cloud_liquid_water_content = DEFAULT_INDEX_NOT_FOUND
   integer                          :: N2_index, O2_index, O3_index, NO_index ! needed for NO photolysis rates
+  real(kind_phys) :: molar_mass_N2, molar_mass_O2, molar_mass_O3, molar_mass_NO
 
 contains
 
@@ -99,6 +100,7 @@ contains
     integer,                                          intent(out) :: errcode
 
     character(len=512)                                            :: species_name
+    real(kind_phys) :: molar_mass
 
     allocate(constituent_props(1), stat=errcode)
     if (errcode /= 0) then
@@ -115,10 +117,30 @@ contains
     do i = 1, size(constituent_props)
       call constituent_props(i)%standard_name(species_name, errcode, errmsg)
       if (errcode /= 0) return
-      if (trim(species_name) == 'N2') N2_index = i
-      if (trim(species_name) == 'O2') O2_index = i
-      if (trim(species_name) == 'O3') O3_index = i
-      if (trim(species_name) == 'NO') NO_index = i
+      if (trim(species_name) == 'N2') then
+        N2_index = i
+        call constituent_props(i)%molar_mass(molar_mass, errcode, errmsg)
+        if (errcode /= 0) return
+        molar_mass_N2 = molar_mass
+      end if
+      if (trim(species_name) == 'O2') then
+        O2_index = i
+        call constituent_props(i)%molar_mass(molar_mass, errcode, errmsg)
+        if (errcode /= 0) return
+        molar_mass_O2 = molar_mass
+      end if
+      if (trim(species_name) == 'O3') then
+        O3_index = i
+        call constituent_props(i)%molar_mass(molar_mass, errcode, errmsg)
+        if (errcode /= 0) return
+        molar_mass_O3 = molar_mass
+      end if
+      if (trim(species_name) == 'NO') then
+        NO_index = i
+        call constituent_props(i)%molar_mass(molar_mass, errcode, errmsg)
+        if (errcode /= 0) return
+        molar_mass_NO = molar_mass
+      end if
     end do
 
     ! Register cloud liquid water content needed for cloud optics calculations
@@ -221,7 +243,7 @@ contains
 
     profiles => profile_map_t( error )
     if (has_error_occurred( error, errmsg, errcode )) then
-      call reset_tuvx_map_state( grids, null(), null() )
+      call reset_tuvx_map_state( grids, profiles, null() )
       call cleanup_tuvx_resources()
       return
     end if
@@ -525,8 +547,8 @@ contains
           max( photolysis_rate_constants(:,:), 0.0_kind_phys )
 
       if (N2_index > 0 .and. O2_index > 0 .and. O3_index > 0 .and. NO_index > 0) then
-        jno = calculate_NO_photolysis_rate(solar_zenith_angle, extraterrestrial_flux, constituents, height_interfaces, & 
-          N2_index, O2_index, O3_index, NO_index)
+        jno = calculate_NO_photolysis_rate(solar_zenith_angle, extraterrestrial_flux, constituents, height_interfaces, &
+          dry_air_density, N2_index, O2_index, O3_index, NO_index, molar_mass_N2, molar_mass_O2, molar_mass_O3, molar_mass_NO)
       end if
 
       ! map photolysis rate constants to the host model's rate parameters and vertical grid

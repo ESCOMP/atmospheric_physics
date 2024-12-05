@@ -16,15 +16,31 @@ module musica_ccpp_tuvx_no_photolysis_rate
   implicit none
 
   private
-  public :: calculate_NO_photolysis_rate
+  public :: calculate_NO_photolysis_rate, convert_mixing_ratio_to_molecule_cm3
 
 contains
+
+  !> Convert mixing ratio to molecule cm-3
+  subroutine convert_mixing_ratio_to_molecule_cm3(mixing_ratio, dry_air_density, molar_mass, molecule_cm3)
+    use ccpp_kinds, only: kind_phys
+    real(kind_phys), intent(in)  :: mixing_ratio(:)       ! kg kg-1
+    real(kind_phys), intent(in)  :: dry_air_density(:)    ! kg m-3
+    real(kind_phys), intent(in)  :: molar_mass            ! kg mol-1
+    real(kind_phys), intent(out) :: molecule_cm3(:)       ! molecule cm-3
+
+    integer :: i
+    real(kind_phys), parameter :: avogadro_number = 6.02214076e23 ! mol-1
+
+    do i = 1, size(mixing_ratio)
+      molecule_cm3(i) = mixing_ratio(i) * dry_air_density(i) / molar_mass * avogadro_number * 1.0e-6
+    end do
+  end subroutine convert_mixing_ratio_to_molecule_cm3
 
   !> Prepare to calculate the photolysis rate of NO (nitiric acid). 
   !> This function transforms the inputs into the units
   !> needed by the calculate_jno routine which actually produces the photolysis rate
   function calculate_NO_photolysis_rate(solar_zenith_angle, extraterrestrial_flux, constituents, height_at_interfaces, &
-    dry_air_density, N2_index, O2_index, O3_index, NO_index) &
+    dry_air_density, N2_index, O2_index, O3_index, NO_index, molar_mass_N2, molar_mass_O2, molar_mass_O3, molar_mass_NO) &
       result(jNO)
     use ccpp_kinds,          only: kind_phys
     ! inputs
@@ -34,8 +50,10 @@ contains
     real(kind_phys), intent(in)            :: height_at_interfaces(:)  ! m
     real(kind_phys), intent(in)            :: dry_air_density(:,:)     ! kg m-3 (column, layer)
     integer        , intent(in)            :: N2_index, O2_index, O3_index, NO_index ! position of these species in the constituent arrays
+    real(kind_phys), intent(in)            :: molar_mass_N2, molar_mass_O2, molar_mass_O3, molar_mass_NO
 
     ! local variables
+    ! species column densities (molecule cm-3)
     real(kind_phys) :: n2_dens(size(constituents, dim=2)+1), o2_dens(size(constituents, dim=2)+1)
     real(kind_phys) :: o3_dens(size(constituents, dim=2)+1), no_dens(size(constituents, dim=2)+1)
     ! species slant column densities (molecule cm-2)
@@ -53,6 +71,11 @@ contains
     real(kind_phys), parameter :: km2cm = 1.0e5_r8
     ! final photolysis rate
     real(kind_phys) :: jNO
+
+    call convert_mixing_ratio_to_molecule_cm3(constituents(:,:,N2_index), dry_air_density, molar_mass_N2, n2_dens)
+    call convert_mixing_ratio_to_molecule_cm3(constituents(:,:,O2_index), dry_air_density, molar_mass_O2, o2_dens)
+    call convert_mixing_ratio_to_molecule_cm3(constituents(:,:,O3_index), dry_air_density, molar_mass_O3, o3_dens)
+    call convert_mixing_ratio_to_molecule_cm3(constituents(:,:,NO_index), dry_air_density, molar_mass_NO, no_dens)
 
     jNO = 0.1.5e0
 
@@ -236,8 +259,109 @@ contains
           nid(i) = -1
       end if
     end do
-
   end subroutine sphers
+
+  subroutine slant_col( nlev, delz, dsdh, nid, absden, scol )
+    !=============================================================================!
+    !   PURPOSE:                                                                  !
+    !   Derive Column
+    !=============================================================================!
+    !   PARAMETERS:                                                               !
+    !   NLEV   - INTEGER, number of specified altitude levels in the working  (I) !
+    !            grid                                                             !
+    !   DELZ   - REAL, specified altitude working grid (km)                   (I) !
+    !   DSDH   - REAL, slant path of direct beam through each layer crossed  (O)  !
+    !             when travelling from the top of the atmosphere to layer i;      !
+    !             DSDH(i,j), i = 0..NZ-1, j = 1..NZ-1                             !
+    !   NID    - INTEGER, number of layers crossed by the direct beam when   (O)  !
+    !             travelling from the top of the atmosphere to layer i;           !
+    !             NID(i), i = 0..NZ-1                                             !
+    !            specified altitude at each specified wavelength                  !
+    !   absden - REAL, absorber concentration, molecules cm-3                     !
+    !   SCOL   - REAL, absorber Slant Column, molecules cm-2                      !
+    !=============================================================================!
+    !   EDIT HISTORY:                                                             !
+    !   09/01  Read in profile from an input file, DEK                            !
+    !   01/02  Taken from Sasha Madronich's TUV code                              !
+    !=============================================================================!
+    ! taken from CAM: https://github.com/ESCOMP/CAM/blob/ab476f9b7345cbefdc4cf67ff17f0fe85d8c7387/src/chemistry/mozart/mo_jshort.F90#L1268C7-L1369C31
+    
+    
+    !------------------------------------------------------------------------------
+    !       ... Dummy arguments
+    !------------------------------------------------------------------------------
+    integer,  intent(in)    :: nlev
+    integer,  intent(in)    :: nid(0:nlev)       ! see above
+    real(r8), intent(in)    :: delz(nlev)	       ! layer thickness (cm)
+    real(r8), intent(in)    :: dsdh(0:nlev,nlev) ! see above
+    real(r8), intent(in)    :: absden(nlev)      ! absorber concentration (molec. cm-3)
+    real(r8), intent(out)   :: scol(nlev)		     ! absorber Slant Column (molec. cm-2)
+    
+    !------------------------------------------------------------------------------
+    !       ... Local variables
+    !------------------------------------------------------------------------------
+    real(r8), parameter :: largest = 1.e+36_r8
+
+    real(r8) :: sum
+    real(r8) :: hscale
+    real(r8) :: numer, denom
+    real(r8) :: cz(nlev)
+
+    integer :: id
+    integer :: j
+    integer :: k
+    
+    !------------------------------------------------------------------------------
+    !     ... compute column increments (logarithmic integrals)
+    !------------------------------------------------------------------------------
+    do k = 1,nlev-1
+      if( absden(k) /= 0._r8 .and. absden(k+1) /= 0._r8 ) then
+        cz(nlev-k) = (absden(k) - absden(k+1))/log( absden(k)/absden(k+1) ) * delz(k)
+      else
+        cz(nlev-k) = .5_r8*(absden(k) + absden(k+1)) * delz(k)
+      end if
+    end do
+    
+    !------------------------------------------------------------------------------
+    !     ... Include exponential tail integral from infinity to model top
+    !         specify scale height near top of data.For WACCM-X model, scale
+    !         height needs to be increased for higher model top
+    !------------------------------------------------------------------------------
+    if (nlev==pver) then
+      ! if ( waccmx_is('ionosphere') .or. waccmx_is('neutral') ) then
+        hscale     = 20.e5_r8
+      ! else
+      !   hscale     = 10.e5_r8
+      ! endif
+      cz(nlev-1) = cz(nlev-1) + hscale * absden(1)
+    endif
+    
+    !------------------------------------------------------------------------------
+    !       ...  Calculate vertical and slant column from each level:
+    !            work downward
+    !------------------------------------------------------------------------------
+    do id = 0,nlev-1
+      sum = 0._r8
+      if( nid(id) >= 0 ) then
+        !------------------------------------------------------------------------------
+        !       ...  Single pass layers:
+        !------------------------------------------------------------------------------
+        do j = 1, min(nid(id), id)
+            sum = sum + cz(nlev-j)*dsdh(id,j)
+        end do
+        !------------------------------------------------------------------------------
+        !       ...  Double pass layers:
+        !------------------------------------------------------------------------------
+        do j = min(nid(id),id)+1, nid(id)
+            sum = sum + 2._r8*cz(nlev-j)*dsdh(id,j)
+        end do
+      else
+        sum = largest
+      end if
+      scol(nlev-id) = sum
+    end do
+    scol(nlev) = .95_r8*scol(nlev-1)
+  end subroutine slant_col
 
 
 end module musica_ccpp_tuvx_no_photolysis_rate
