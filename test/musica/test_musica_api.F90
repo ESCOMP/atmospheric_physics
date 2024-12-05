@@ -7,8 +7,13 @@ program run_test_musica_ccpp
 #define ASSERT(x) if (.not.(x)) then; write(*,*) "Assertion failed[", __FILE__, ":", __LINE__, "]: x"; stop 1; endif
 #define ASSERT_NEAR( a, b, abs_error ) if( (abs(a - b) >= abs_error) .and. (abs(a - b) /= 0.0) ) then; write(*,*) "Assertion failed[", __FILE__, ":", __LINE__, "]: a, b"; stop 1; endif
 
+  write(*,*) "[MUSICA Test] Running the Chapman test"
   call test_chapman()
+  write(*,*) "[MUSICA Test] Ends the Chapman test"
+
+  write(*,*) "[MUSICA Test] Running the Terminator test"
   call test_terminator()
+  write(*,*) "[MUSICA Test] Ends the Terminator test"
 
 contains
 

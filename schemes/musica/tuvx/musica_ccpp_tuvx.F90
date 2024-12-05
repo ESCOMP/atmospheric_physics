@@ -22,8 +22,10 @@ module musica_ccpp_tuvx
   type(profile_t),         pointer :: extraterrestrial_flux_profile => null()
   type(radiator_t),        pointer :: cloud_optics => null()
   type(index_mappings_t),  pointer :: photolysis_rate_constants_mapping => null( )
-  type(gas_species_t), allocatable :: gas_species_group(:)
-  type(profile_t),         pointer :: profile_gas_species_group(:)
+
+  real(kind_phys),       allocatable :: height_delta(:) ! tuvx_run needs this
+  type(gas_species_t),   allocatable :: gas_species_group(:)
+  type(profile_group_t), allocatable :: profile_gas_species_group(:)
 
   integer,               parameter :: DEFAULT_NUM_PHOTOLYSIS_RATE_CONSTANTS = 0
   integer                          :: number_of_photolysis_rate_constants = DEFAULT_NUM_PHOTOLYSIS_RATE_CONSTANTS
@@ -92,8 +94,11 @@ contains
       photolysis_rate_constants_mapping => null()
     end if
 
-    call deallocate_gas_species_profile_group( profile_gas_species_group )
+    if (allocated( profile_gas_species_group )) then
+      deallocate( profile_gas_species_group )
+    end if
 
+    call deallocate_gas_species_profile_group( profile_gas_species_group )
   end subroutine cleanup_tuvx_resources
 
   !> Registers constituent properties with the CCPP needed by TUV-x
@@ -151,7 +156,7 @@ contains
     use musica_ccpp_tuvx_cloud_optics, &
       only: create_cloud_optics_radiator, cloud_optics_label
     use musica_ccpp_tuvx_gas_species_profile, &
-      only: configure_gas_species, create_gas_species_profile_group
+      only: configure_gas_species, create_gas_species_profile_group, set_height_delta
 
     integer,                           intent(in)  :: vertical_layer_dimension      ! (count)
     integer,                           intent(in)  :: vertical_interface_dimension  ! (count)
@@ -162,13 +167,15 @@ contains
     integer,                           intent(out) :: errcode
 
     ! local variables
-    type(error_t)                    :: error
-    type(grid_map_t),     pointer    :: grids
-    type(profile_map_t),  pointer    :: profiles
-    type(radiator_map_t), pointer    :: radiators
-    type(configuration_t)            :: config
-    type(mappings_t),     pointer    :: photolysis_rate_constants_ordering
-    integer                          :: i_species
+    type(error_t)                 :: error
+    type(grid_map_t),     pointer :: grids
+    type(profile_map_t),  pointer :: profiles
+    type(radiator_map_t), pointer :: radiators
+    type(configuration_t)         :: config
+    type(mappings_t),     pointer :: photolysis_rate_constants_ordering
+    real(kind_phys)               :: interfaces_height(vertical_interface_dimension)
+    integer                       :: number_of_gas_species
+    integer                       :: i_species
 
     ! Get needed indices in constituents array
     call ccpp_const_get_idx(constituent_props, CLOUD_LIQUID_WATER_CONTENT_LABEL, &
@@ -266,6 +273,17 @@ contains
       return
     end if
 
+    ! Gets interfaces of height to set height delta values
+    ! allocate( interfaces_height( vertical_interface_dimension) )
+    call height_grid%get_edges(interfaces_height, error)
+
+    allocate( height_delta( vertical_interface_dimension - 1) )
+    call set_height_delta(interfaces_height, height_delta)
+    ! deallocate( interfaces_height )
+
+    number_of_gas_species = size(gas_species_group)
+    allocate( profile_gas_species_group( number_of_gas_species ) )
+
     call create_gas_species_profile_group( height_grid, &
           gas_species_group, profile_gas_species_group, errmsg, errcode)
     if (errcode /= 0) then
@@ -273,6 +291,15 @@ contains
       call cleanup_tuvx_resources()
       return
     endif
+
+    do i_species = 1, number_of_gas_species
+      call profiles%add( profile_gas_species_group(i_species)%profile, error )
+      if (has_error_occurred( error, errmsg, errcode )) then
+        call reset_tuvx_map_state( grids, profiles, null() )
+        call cleanup_tuvx_resources()
+        return
+      end if
+    end do
 
     radiators => radiator_map_t( error )
     if (has_error_occurred( error, errmsg, errcode )) then
@@ -372,11 +399,14 @@ contains
       return
     end if
 
-    allocate( profile_gas_species_group( number_of_gas_species ) )
-    do i_species = 1, size(gas_species_group)
-      write(*,*) " [init] profiles%get( gas_species_group(i_species)%name: ", gas_species_group(i_species)%name
-      profile_gas_species_group(i_species) = &
-        profiles%get( gas_species_group(i_species)%name, gas_species_group(i_species)%unit, error )
+    if (.not. allocated( profile_gas_species_group)) then
+      allocate( profile_gas_species_group( number_of_gas_species ) )
+    end if
+
+    do i_species = 1, number_of_gas_species
+      write(*,*) "gas_species_group(i_species)%label",gas_species_group(i_species)%label
+      profile_gas_species_group(i_species)%profile => &
+        profiles%get( gas_species_group(i_species)%label, gas_species_group(i_species)%unit, error )
       if (has_error_occurred( error, errmsg, errcode )) then
         deallocate( tuvx )
         tuvx => null()
@@ -526,19 +556,13 @@ contains
                                     errmsg, errcode )
       if (errcode /= 0) return
 
-      !!!  THIS DOESN'T WORK.........
       do i_gas_species = 1, size(gas_species_group)
-        write(*,*) "gas_species_group(i_gas_species)%index_constituent_props)", gas_species_group(i_gas_species)%index_constituent_props
-        write(*,*) "gas_species_group(i_gas_species)%index_constituent_props)", gas_species_group(i_gas_species)%name
-        write(*,*) "size(gas_species_group)", gas_species_group(1)%name
-
-        call set_gas_species_values(profile_gas_species_group(i_gas_species),        &
-            gas_species_group(i_gas_species),                                              &
-            constituents(i_col,:,gas_species_group(i_gas_species)%index_constituent_props), & ! mol m-3
-            errmsg, errcode)
+        call set_gas_species_values(profile_gas_species_group(i_gas_species)%profile,         &
+              gas_species_group(i_gas_species),                                               &
+              constituents(i_col,:,gas_species_group(i_gas_species)%index_constituent_props), & ! mol m-3
+              height_delta, errmsg, errcode)
         if (errcode /= 0) return
       end do
-      !!!
 
       ! temporary values until these are available from the host model
       solar_zenith_angle = 0.0_kind_phys
@@ -576,6 +600,11 @@ contains
 
     call deallocate_gas_species( gas_species_group )
     call cleanup_tuvx_resources()
+
+    ! TODO(jiwon) is it okay to deallocate this in the final call?
+    if (allocated( height_delta )) then
+      deallocate( height_delta )
+    end if
 
     if (associated( tuvx )) then
       deallocate( tuvx )
