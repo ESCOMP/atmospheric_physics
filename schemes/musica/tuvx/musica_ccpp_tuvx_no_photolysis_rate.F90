@@ -47,7 +47,7 @@ contains
     real(kind_phys), intent(in)            :: solar_zenith_angle       ! degrees
     real(kind_phys), intent(in)            :: extraterrestrial_flux(:) ! photons cm-2 s-1 nm-1
     real(kind_phys), target, intent(inout) :: constituents(:,:,:)      ! various (column, layer, constituent)
-    real(kind_phys), intent(in)            :: height_at_interfaces(:)  ! m
+    real(kind_phys), intent(in)            :: height_at_interfaces(:)  ! km
     real(kind_phys), intent(in)            :: dry_air_density(:,:)     ! kg m-3 (column, layer)
     integer        , intent(in)            :: N2_index, O2_index, O3_index, NO_index ! position of these species in the constituent arrays
     real(kind_phys), intent(in)            :: molar_mass_N2, molar_mass_O2, molar_mass_O3, molar_mass_NO
@@ -72,10 +72,15 @@ contains
     ! final photolysis rate
     real(kind_phys) :: jNO
 
-    call convert_mixing_ratio_to_molecule_cm3(constituents(:,:,N2_index), dry_air_density, molar_mass_N2, n2_dens)
-    call convert_mixing_ratio_to_molecule_cm3(constituents(:,:,O2_index), dry_air_density, molar_mass_O2, o2_dens)
-    call convert_mixing_ratio_to_molecule_cm3(constituents(:,:,O3_index), dry_air_density, molar_mass_O3, o3_dens)
-    call convert_mixing_ratio_to_molecule_cm3(constituents(:,:,NO_index), dry_air_density, molar_mass_NO, no_dens)
+    ! what are these constants? scale heights?
+    call convert_mixing_ratio_to_molecule_cm3(constituents(:,:,N2_index), dry_air_density, molar_mass_N2, n2_dens(2:))
+    n2_dens(1) = n2_dens(2) * 0.9_r8
+    call convert_mixing_ratio_to_molecule_cm3(constituents(:,:,O2_index), dry_air_density, molar_mass_O2, o2_dens(2:))
+    o2_dens(1) = o2_dens(2) * 7.0_r8 / ( height_at_interfaces(1) - height_at_interfaces(2) )
+    call convert_mixing_ratio_to_molecule_cm3(constituents(:,:,O3_index), dry_air_density, molar_mass_O3, o3_dens(2:))
+    o3_dens(1) = o3_dens(2) * 7.0_r8 / ( height_at_interfaces(1) - height_at_interfaces(2) )
+    call convert_mixing_ratio_to_molecule_cm3(constituents(:,:,NO_index), dry_air_density, molar_mass_NO, no_dens(2:))
+    no_dens(1) = no_dens(2) * 0.9_r8
 
     jNO = 0.1.5e0
 
