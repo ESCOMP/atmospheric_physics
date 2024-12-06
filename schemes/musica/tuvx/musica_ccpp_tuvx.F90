@@ -509,6 +509,7 @@ contains
     real(kind_phys), dimension(size(geopotential_height_wrt_surface_at_midpoint, dim = 2))  :: height_midpoints
     real(kind_phys), dimension(size(geopotential_height_wrt_surface_at_interface, dim = 2)) :: height_interfaces
     real(kind_phys), dimension(size(height_interfaces))                                     :: height_deltas ! km
+    real(kind_phys), dimension(size(constituents, dim = 2))                                 :: gas_species_constituents
     real(kind_phys), dimension(size(rate_parameters, dim=2)+2, &
                                number_of_photolysis_rate_constants) :: photolysis_rate_constants, & ! s-1
                                                                        heating_rates                ! K s-1 (TODO: check units)
@@ -553,20 +554,16 @@ contains
       if (errcode /= 0) return
 
       do i_gas_species = 1, size(gas_species_group)
-        ! TODO(jiwon)
         if (gas_species_group(i_gas_species)%label == "air") then
-          call set_gas_species_values(profile_gas_species_group(i_gas_species)%profile, &
-                gas_species_group(i_gas_species),                                       &
-                dry_air_density(i_col,:) * MOLAR_MASS_DRY_AIR,                          & ! mol m-3
-                height_deltas, errmsg, errcode)
-          if (errcode /= 0) return
+          gas_species_constituents = dry_air_density(i_col,:) * MOLAR_MASS_DRY_AIR
         else
-          call set_gas_species_values(profile_gas_species_group(i_gas_species)%profile,         &
-                gas_species_group(i_gas_species),                                               &
-                constituents(i_col,:,gas_species_group(i_gas_species)%index_constituent_props), & ! mol m-3
-                height_deltas, errmsg, errcode)
-          if (errcode /= 0) return
+          gas_species_constituents = constituents(i_col,:,gas_species_group(i_gas_species)%index_constituent_props)
         end if
+        call set_gas_species_values(profile_gas_species_group(i_gas_species)%profile, &
+                                    gas_species_group(i_gas_species),                 &
+                                    gas_species_constituents,                         & ! mol m-3
+                                    height_deltas, errmsg, errcode)
+        if (errcode /= 0) return
       end do
 
       ! temporary values until these are available from the host model

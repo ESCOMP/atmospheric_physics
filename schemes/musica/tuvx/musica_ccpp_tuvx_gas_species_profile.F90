@@ -169,10 +169,15 @@ contains
     interfaces(2:num_constituents+1) = constituent_mol_per_cm_3(num_constituents:1:-1)
     interfaces(num_constituents+2) = constituent_mol_per_cm_3(1)
 
-    densities(:) = height_deltas(:) * km_to_cm             &
-                  * sqrt(interfaces(1:num_constituents+1)) &
-                  * sqrt(interfaces(2:num_constituents+2))
-
+    if (gas_species%label == "O3") then
+      densities(:) = height_deltas(:) * km_to_cm           &
+                  * ( interfaces(1:num_constituents+1)     &
+                  + interfaces(2:num_constituents+2) ) * 0.5_kind_phys
+    else
+      densities(:) = height_deltas(:) * km_to_cm             &
+                    * sqrt(interfaces(1:num_constituents+1)) &
+                    * sqrt(interfaces(2:num_constituents+2))
+    end if
     call profile%set_edge_values( interfaces, error )
     if ( has_error_occurred( error, errmsg, errcode ) ) return
 

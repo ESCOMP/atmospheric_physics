@@ -25,6 +25,7 @@ contains
     real(kind_phys)       :: host_interfaces(NUM_HOST_INTERFACES) = [250.3_kind_phys, 150.2_kind_phys, 50.1_kind_phys]
     real(kind_phys)       :: expected_midpoints(NUM_HOST_MIDPOINTS+1) = [(100.6 + 50.1) * 0.5, 150.2, (250.3 + 200.8) * 0.5]
     real(kind_phys)       :: expected_interfaces(NUM_HOST_INTERFACES+1) = [50.1_kind_phys, 100.6_kind_phys, 200.8_kind_phys, 250.3_kind_phys]
+    real(kind_phys)       :: expected_height_deltas(NUM_HOST_INTERFACES)
     real(kind_phys)       :: midpoints(NUM_HOST_MIDPOINTS+1)
     real(kind_phys)       :: interfaces(NUM_HOST_INTERFACES+1)
     real(kind_phys)       :: height_deltas(NUM_HOST_INTERFACES)
@@ -33,6 +34,9 @@ contains
     character(len=512)    :: errmsg
     integer               :: errcode
     integer               :: i
+
+    expected_height_deltas(:) = expected_interfaces(2:size(expected_interfaces)) &
+                              - expected_interfaces(1:size(expected_interfaces)-1)
 
     height_grid => create_height_grid(-1, 0, errmsg, errcode)
     ASSERT(errcode == 1)
@@ -53,6 +57,10 @@ contains
 
     ASSERT(height_grid%number_of_sections(error) == NUM_HOST_MIDPOINTS + 1)
     ASSERT(error%is_success())
+
+    do i = 1, size(height_deltas)
+      ASSERT_NEAR(height_deltas(i), expected_height_deltas(i), ABS_ERROR)
+    end do
 
     call height_grid%get_midpoints(midpoints, error)
     ASSERT(error%is_success())
