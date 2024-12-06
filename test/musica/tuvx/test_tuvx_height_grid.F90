@@ -27,6 +27,7 @@ contains
     real(kind_phys)       :: expected_interfaces(NUM_HOST_INTERFACES+1) = [50.1_kind_phys, 100.6_kind_phys, 200.8_kind_phys, 250.3_kind_phys]
     real(kind_phys)       :: midpoints(NUM_HOST_MIDPOINTS+1)
     real(kind_phys)       :: interfaces(NUM_HOST_INTERFACES+1)
+    real(kind_phys)       :: height_deltas(NUM_HOST_INTERFACES)
     type(grid_t), pointer :: height_grid => null()
     type(error_t)         :: error
     character(len=512)    :: errmsg
@@ -47,7 +48,7 @@ contains
     ASSERT(associated(height_grid))
 
     call set_height_grid_values(height_grid, host_midpoints, host_interfaces, &
-                                errmsg, errcode)
+                                height_deltas, errmsg, errcode)
     ASSERT(errcode == 0)
 
     ASSERT(height_grid%number_of_sections(error) == NUM_HOST_MIDPOINTS + 1)

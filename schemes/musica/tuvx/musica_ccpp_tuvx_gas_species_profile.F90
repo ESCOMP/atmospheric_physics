@@ -6,13 +6,15 @@ module musica_ccpp_tuvx_gas_species_profile
 
   private
   public :: create_gas_species, configure_gas_species, create_gas_species_profile_group, &
-            set_height_delta, set_gas_species_values, deallocate_gas_species, &
-            deallocate_gas_species_profile_group
+            set_gas_species_values, deallocate_gas_species, deallocate_gas_species_profile_group
 
   !> Conversion factor from km to cm
   real(kind_phys), parameter, public :: km_to_cm = 1.0e5
   !> Conversion factor from m3 to cm3
   real(kind_phys), parameter, public :: m_3_to_cm_3 = 1.0e6
+  !> Molar mass value of dry air is obtained from 'CAM-SIMA/src/utils/std_atm_profile.F90'
+  ! TODO(jiwon)
+  real(kind_phys), parameter, public :: MOLAR_MASS_DRY_AIR = 0.0289644_kind_phys ! kg mol-1
 
   !> Definition of the gas species type
   type, public :: gas_species_t
@@ -66,12 +68,11 @@ contains
     real(kind_phys), parameter :: SCALE_HEIGHT_DRY_AIR = 8.01_kind_phys    ! km
     real(kind_phys), parameter :: SCALE_HEIGHT_O2 = 7.0_kind_phys          ! km
     real(kind_phys), parameter :: SCALE_HEIGHT_O3 = 7.0_kind_phys          ! km
-    ! molar mass of dry air is from 'CAM-SIMA/src/utils/std_atm_profile.F90'
-    real(kind_phys), parameter :: MOLAR_MASS_DRY_AIR = 0.0289644_kind_phys ! kg mol-1
     real(kind_phys)            :: molar_mass_O2                            ! kg mol-1
     real(kind_phys)            :: molar_mass_O3                            ! kg mol-1
+    integer,         parameter :: INDEX_NOT_KNOWN = -9999
+    integer                    :: index_air, index_O2, index_O3
 
-    integer :: index_air, index_O2, index_O3
     allocate(gas_species_group(num_gas_species)) ! need to deallocate 
   
     ! TODO(jiwon) - I commented out this block of code that searches for the molar mass
@@ -88,6 +89,7 @@ contains
     ! call constituent_props(index_air)%molar_mass(molar_mass_air, errcode, errmsg)
     ! if (errcode /= 0) return
 
+    index_air = INDEX_NOT_KNOWN
     gas_species_group(1) = create_gas_species("air", "molecule cm-3", &
                         MOLAR_MASS_DRY_AIR, SCALE_HEIGHT_DRY_AIR, index_air)
     ! O2
@@ -138,23 +140,9 @@ contains
 
   end subroutine create_gas_species_profile_group
 
-  !> Sets the height delta, which is the difference in height between interfaces
-  subroutine set_height_delta(interfaces_height, height_delta)
-    real(kind_phys), intent(in)    :: interfaces_height(:)
-    real(kind_phys), intent(inout) :: height_delta(:)
-
-    ! local variables
-    integer :: i_elem
-
-    do i_elem = 1, size(height_delta)
-      height_delta(i_elem) = interfaces_height(i_elem + 1) - interfaces_height(i_elem)
-    end do
-
-  end subroutine set_height_delta
-
   !> Sets interface, density, and above-column density values for gas species
   subroutine set_gas_species_values(profile, gas_species, constituent, &
-      height_delta, errmsg, errcode)
+      height_deltas, errmsg, errcode)
     use musica_ccpp_util,    only: has_error_occurred
     use musica_tuvx_profile, only: profile_t
     use musica_util,         only: error_t
@@ -162,28 +150,28 @@ contains
     type(profile_t),     intent(inout) :: profile
     type(gas_species_t), intent(in)    :: gas_species
     real(kind_phys),     intent(in)    :: constituent(:)  ! mol m-3
-    real(kind_phys),     intent(in)    :: height_delta(:) ! km
+    real(kind_phys),     intent(in)    :: height_deltas(:) ! km, change in height in each vertical layer
     character(len=*),    intent(out)   :: errmsg
     integer,             intent(out)   :: errcode
 
     ! local variables
-    type(error_t)              :: error
-    integer                    :: num_constituents
-    real(kind_phys)            :: constituent_mol_per_cm_3(size(constituent)) ! mol cm-3
-    real(kind_phys)            :: interfaces(size(constituent) + 2)
-    real(kind_phys)            :: densities(size(constituent) + 1)
+    type(error_t)   :: error
+    integer         :: num_constituents
+    real(kind_phys) :: constituent_mol_per_cm_3(size(constituent)) ! mol cm-3
+    real(kind_phys) :: interfaces(size(constituent) + 2)
+    real(kind_phys) :: densities(size(constituent) + 1)
 
     num_constituents = size(constituent)
     constituent_mol_per_cm_3(:) = constituent(:) / m_3_to_cm_3
+
 
     interfaces(1) = constituent_mol_per_cm_3(num_constituents)
     interfaces(2:num_constituents+1) = constituent_mol_per_cm_3(num_constituents:1:-1)
     interfaces(num_constituents+2) = constituent_mol_per_cm_3(1)
 
-    densities(1:num_constituents+1) = &
-        height_delta(1:num_constituents+1) * km_to_cm &
-        * sqrt(interfaces(1:num_constituents+1)) &
-        * sqrt(interfaces(2:num_constituents+2))
+    densities(:) = height_deltas(:) * km_to_cm             &
+                  * sqrt(interfaces(1:num_constituents+1)) &
+                  * sqrt(interfaces(2:num_constituents+2))
 
     call profile%set_edge_values( interfaces, error )
     if ( has_error_occurred( error, errmsg, errcode ) ) return
@@ -204,36 +192,23 @@ contains
 
   end subroutine
 
-  !> TODO(jiwon) in progress
+  !> Deallocates profiles of each gas species
   subroutine deallocate_gas_species_profile_group(profile_group)
-    use musica_util,         only: error_t
-    use musica_tuvx_profile, only: profile_t
-  
     type(profile_group_t), allocatable, intent(inout) :: profile_group(:)
-    ! character(len=512) :: errmsg
-    integer            :: errcode
-  
-    ! type(error_t) :: error
-    integer :: i_species
-    logical :: deallocation_error
-    type(profile_t), pointer :: profile
-  
-    write(*,*) "Called deallocate_gas_species_profile_group(profile_group)"
-    deallocation_error = .false.
 
-    ! do i_species = 1, size(profile_group)
-    !   if (allocated( profile_group(i_species))%profile ) then
-    !     deallocate(profile_group(i_species)%profile, stat=errcode)
-    !     if (errcode /= 0) then
-    !       ! errmsg = 'Error deallocating profile_group(' // trim(adjustl(i_species)) // ')'
-    !       deallocation_error = .true.
-    !       exit
-    !     end if
-    !   end if
-    ! end do
-    deallocate(profile_group, stat=errcode)
-  
+    ! local variables
+    integer :: i_species
+
+    if (allocated( profile_group )) then
+      do i_species = 1, size(profile_group)
+        if (associated( profile_group(i_species)%profile) ) then
+          deallocate( profile_group(i_species)%profile)
+        end if
+      end do
+
+      deallocate( profile_group )
+    end if
+
   end subroutine deallocate_gas_species_profile_group
 
-  
 end module musica_ccpp_tuvx_gas_species_profile
