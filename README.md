@@ -24,3 +24,20 @@ Physics packages which are CCPP_enabled (along with supporting routines) are sto
 
 * [ccpp framework repository](https://github.com/NCAR/ccpp-framework)
 
+# Testing
+
+## MUSICA Chemistry
+
+To build and test chemistry schemes, a dockerfile is provided.
+
+From the root directory, build the docker file
+
+```
+docker build -t atmo -f test/docker/Dockerfile.musica .
+```
+
+then run it
+
+```
+docker run --rm -it atmo
+```

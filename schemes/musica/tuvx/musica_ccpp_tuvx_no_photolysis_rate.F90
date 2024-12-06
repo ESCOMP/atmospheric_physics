@@ -27,16 +27,9 @@ module musica_ccpp_tuvx_no_photolysis_rate
   !------------------------------------------------------------------------------
   !   	... O3 SRB Cross Sections from WMO 1985, interpolated onto MS, 1993 grid
   !------------------------------------------------------------------------------
-  ! in cm2
+  ! TODO: What are the units? cm2  molecule-1 ?
   real(kind_phys), save :: o3_cross_section(4) = (/ 7.3307600e-19_dk, 6.9660105E-19_dk, 5.9257699E-19_dk, 4.8372219E-19_dk /)
 
-  !------------------------------------------------------------------------------
-  !   	... delta wavelength of the MS, 1993 grid
-  !------------------------------------------------------------------------------
-  ! in nm
-  ! TODO: What is the grid? The paper only has 3 bands listed in the table, but this has 4...
-  real(kind_phys), save :: delta_wavelength(4) = (/ 1.50_dk, 1.50_dk, 5.6_dk, 2.3_dk /)
-  
   !------------------------------------------------------------------------------
   !   	... O2 SRB Cross Sections for the six ODF regions, MS, 1993
   !------------------------------------------------------------------------------
@@ -46,10 +39,35 @@ module musica_ccpp_tuvx_no_photolysis_rate
   real(kind_phys), save :: cross_section290(6)  = (/ 1.350e-22_dk, 2.991e-22_dk, 7.334e-22_dk, 3.074e-21_dk, 1.689e-20_dk, 1.658e-19_dk /)
   real(kind_phys), save :: cross_section2100(6) = (/ 2.968e-22_dk, 5.831e-22_dk, 2.053e-21_dk, 8.192e-21_dk, 4.802e-20_dk, 2.655e-19_dk /)
 
+  !------------------------------------------------------------------------------
+  !   	... O2 SRB Cross Sections for the six ODF regions, MS, 1993
+  !------------------------------------------------------------------------------
+  ! TODO: What are 250, 290, and 2100? 
+  ! TODO: What are the units? cm2  molecule-1 ?
+  real(r8), save :: o2_250_cross_section(6)  = (/ 1.117e-23_r8, 2.447e-23_r8, 7.188e-23_r8, 3.042e-22_r8, 1.748e-21_r8, 1.112e-20_r8 /)
+  real(r8), save :: o2_290_cross_section(6)  = (/ 1.350e-22_r8, 2.991e-22_r8, 7.334e-22_r8, 3.074e-21_r8, 1.689e-20_r8, 1.658e-19_r8 /)
+  real(r8), save :: o2_2100_cross_section(6) = (/ 2.968e-22_r8, 5.831e-22_r8, 2.053e-21_r8, 8.192e-21_r8, 4.802e-20_r8, 2.655e-19_r8 /)
+
+  !------------------------------------------------------------------------------
+  !   	... delta wavelength of the MS, 1993 grid
+  !------------------------------------------------------------------------------
+  ! in nm
+  ! TODO: What is the grid? The paper only has 3 bands listed in the table, but this has 4...
+  real(kind_phys), save :: delta_wavelength(4) = (/ 1.50_dk, 1.50_dk, 5.6_dk, 2.3_dk /)
+  
+
+  ! TODO: Are these correct names
+  integer         :: number_of_levels = 6
+  integer         :: number_of_intervals = 2
+
   real(kind_phys), dimension(24) :: _a, _b, _c
-  real(kind_phys) :: wtno50(6,2)
-  real(kind_phys) :: wtno90(6,2)
-  real(kind_phys) :: wtno100(6,2)
+  ! TODO: What are 50, 90, 100?
+  real(kind_phys) :: no_50_weighting_factor(number_of_levels, number_of_intervals)
+  real(kind_phys) :: no_90_weighting_factor(number_of_levels, number_of_intervals)
+  real(kind_phys) :: no_100_weighting_factor(number_of_levels, number_of_intervals)
+  real(kind_phys) :: no_50_cross_section(number_of_levels, number_of_intervals)
+  real(kind_phys) :: no_90_cross_section(number_of_levels, number_of_intervals)
+  real(kind_phys) :: no_100_cross_section(number_of_levels, number_of_intervals)
 
   !------------------------------------------------------------------------------
   !   	... 6 sub-intervals for O2 5-0 at 265K,
@@ -84,18 +102,18 @@ module musica_ccpp_tuvx_no_photolysis_rate
               1.80e-01_dk, 2.00e-02_dk, 6.72e-20_dk, 2.73e-17_dk, &
               4.50e-02_dk, 5.00e-03_dk, 1.49e-21_dk, 6.57e-18_dk /)
   
-  wtno50 (1:6,1) = _a(1:24:4)
-  wtno50 (1:6,2) = _a(2:24:4)
-  csno50 (1:6,1) = _a(3:24:4)
-  csno50 (1:6,2) = _a(4:24:4)
-  wtno90 (1:6,1) = _b(1:24:4)
-  wtno90 (1:6,2) = _b(2:24:4)
-  csno90 (1:6,1) = _b(3:24:4)
-  csno90 (1:6,2) = _b(4:24:4)
-  wtno100(1:6,1) = _c(1:24:4)
-  wtno100(1:6,2) = _c(2:24:4)
-  csno100(1:6,1) = _c(3:24:4)
-  csno100(1:6,2) = _c(4:24:4)
+  no_50_weighting_factor (1:6,1) = _a(1:24:4)
+  no_50_weighting_factor (1:6,2) = _a(2:24:4)
+  no_50_cross_section (1:6,1) = _a(3:24:4)
+  no_50_cross_section (1:6,2) = _a(4:24:4)
+  no_90_weighting_factor (1:6,1) = _b(1:24:4)
+  no_90_weighting_factor (1:6,2) = _b(2:24:4)
+  no_90_cross_section (1:6,1) = _b(3:24:4)
+  no_90_cross_section (1:6,2) = _b(4:24:4)
+  no_100_weighting_factor(1:6,1) = _c(1:24:4)
+  no_100_weighting_factor(1:6,2) = _c(2:24:4)
+  no_100_cross_section(1:6,1) = _c(3:24:4)
+  no_100_cross_section(1:6,2) = _c(4:24:4)
 
 contains
 
@@ -196,37 +214,20 @@ contains
     real(kind_phys), intent(in)    :: no_slant(:)             ! molecule cm-2
     real(kind_phys), intent(inout) :: work_jno(:)             ! various
 
-    ! For reference, the function being calculate is this:
-    ! In latex:
-    ! J_{NO}=\Delta\lambda \overline{I_0} T_{O3}(z) P(z) \sum_{i=1}^{6} \exp[-\sigma^i_{O2}N_{O2}(z)] \sum_{j=1}^{2} W^{i,j}_{NO}\sigma^{i,j}_{NO}\exp[-\sigma^{i,j}_{NO}N_{NO}(z)]
-    ! In ASCII:
-    ! J_NO = Delta_lambda * I_0 * T_O3(z) * P(z) * sum_{i=1}^{6} exp[-sigma^i_O2 * N_O2(z)] * sum_{j=1}^{2} W^{i,j}_NO * sigma^{i,j}_NO * exp[-sigma^{i,j}_NO * N_NO(z)]
-    ! where:
-    ! J_NO is the photolysis rate of NO
-    ! Delta_lambda is the wavelength interval
-    ! I_0 is the mean value of solar irradiance (extraterrestrial flux)
-    ! T_O3(z) is the ozone transmission factor in the Hartley band and is calculated as T_O3 = exp[-sigma_O3 N_O3]
-    !  where sigma_O3 is the absorption cross section of O3 and N_O3 is the slant column density of O3
-    ! P(z) is the predissociation factor
-    ! sigma^i_O2 is the absorption cross section of O2
-    ! N_O2(z) is the slant column density of O2
-    ! W^{i,j}_NO is a weighting factor, from (Minschwaner and Siskind, 1993): "The weighting factors represent the fraction of the total spectral interval which is occupied by the corresponding mean value of the cross section."
-    ! sigma^{i,j}_NO is the absorption cross section of NO
-    ! N_NO(z) is the slant column density of NO
-    ! z is the height
-    ! i and j are indices for the absorption cross sections of O2 and NO, respectively
-    ! The sums represent the calculation of the opacity distribution functions for O2 and NO
-
     ! local variables
     ! NO in an excited electronic state may result in an emission of NO or be quenched by an interaction 
     ! with N2. The predissociation faction is the probability that a precissociation of NO will occur from
     ! an excited electronic state
     real(kind_phys) :: o3_transmission_factor
     real(kind_phys) :: jno
+    real(kind_phys) :: jno100, jno90, jno50
     integer         :: wavelength_bins ! wavelength bins for MS, 93
     integer         :: idx 
 
     jno = 0.0_dk
+    jno100 = 0.0_dk
+    jno90 = 0.0_dk
+    jno50 = 0.0_dk
     wavelength_bins = 4
 
     ! ... derive O3 transmission for the three O2 SRB
@@ -237,72 +238,102 @@ contains
       o3_transmission_factor(:,idx) = exp( -o3_cross_section(idx)*o3_slant(:) )
     end do
 
+    !------------------------------------------------------------------------------
+    !   	... Call PJNO Function to derive SR Band JNO contributions
+    !         Called in order of wavelength interval (shortest firs)
+    ! TODO: what are 90, 100, and 50?
+    !------------------------------------------------------------------------------
+    do lev = 1,nlev
+      jno100   = pjno( 1, o2_2100_cross_section, no_100_weighting_factor, no_100_cross_section )
+      jno90    = pjno( 2, o2_290_cross_section,  no_90_weighting_factor,  no_90_cross_section )
+      jno50    = pjno( 4, o2_250_cross_section,  no_50_weighting_factor,  no_50_cross_section )
+      jno(lev) = jno50 + jno90 + jno100
+    end do
 
-    function pjno( w, cso2, wtno, csno )
+
+    function pjno( wavelength_interval, o2_cross_section, no_weighting_factor, no_cross_section ) result(result)
       !------------------------------------------------------------------------------
       !   	... uses xsec at center of g subinterval for o2
       !           uses mean values for no
       !------------------------------------------------------------------------------
-      
-      !------------------------------------------------------------------------------
-      !	... parameters
-      !------------------------------------------------------------------------------
-      integer, parameter :: ngint = 6
-      integer, parameter :: nno = 2
+      ! For reference, the function being calculate is this:
+      ! In latex:
+      ! J_{NO}=\Delta\lambda \overline{I_0} T_{O3}(z) P(z) \sum_{i=1}^{6} \exp[-\sigma^i_{O2}N_{O2}(z)] \sum_{j=1}^{2} W^{i,j}_{NO}\sigma^{i,j}_{NO}\exp[-\sigma^{i,j}_{NO}N_{NO}(z)]
+      ! In ASCII:
+      ! J_NO = Delta_lambda * I_0 * T_O3(z) * P(z) * sum_{i=1}^{6} exp[-sigma^i_O2 * N_O2(z)] * sum_{j=1}^{2} W^{i,j}_NO * sigma^{i,j}_NO * exp[-sigma^{i,j}_NO * N_NO(z)]
+      ! where:
+      ! J_NO is the photolysis rate of NO
+      ! Delta_lambda is the wavelength interval
+      ! I_0 is the mean value of solar irradiance (extraterrestrial flux)
+      ! T_O3(z) is the ozone transmission factor in the Hartley band and is calculated as T_O3 = exp[-sigma_O3 N_O3]
+      !  where sigma_O3 is the absorption cross section of O3 and N_O3 is the slant column density of O3
+      ! P(z) is the predissociation factor
+      ! sigma^i_O2 is the absorption cross section of O2
+      ! N_O2(z) is the slant column density of O2
+      ! W^{i,j}_NO is a weighting factor, from (Minschwaner and Siskind, 1993): "The weighting factors represent the fraction of the total spectral interval which is occupied by the corresponding mean value of the cross section."
+      ! sigma^{i,j}_NO is the absorption cross section of NO
+      ! N_NO(z) is the slant column density of NO
+      ! z is the height
+      ! i and j are indices for the absorption cross sections of O2 and NO, respectively
+      ! The sums represent the calculation of the opacity distribution functions for O2 and NO
     
       !----------------------------------------------------------------
       !	... Dummy arguments
       !----------------------------------------------------------------
-      integer, intent(in)     :: w
-      real(dk),    intent(in) :: cso2(ngint)
-      real(dk),    intent(in) :: csno(ngint,nno)
-      real(dk),    intent(in) :: wtno(ngint,nno)
+      integer, intent(in)     :: wavelength_interval
+      real(dk),    intent(in) :: o2_cross_section()
+      real(dk),    intent(in) :: no_cross_section(number_of_levels,number_of_intervals)
+      real(dk),    intent(in) :: no_weighting_factor(number_of_levels,number_of_intervals)
       
       !----------------------------------------------------------------
       !	... Function declarations
       !----------------------------------------------------------------
-      real(dk) :: pjno
+      real(dk) :: result
       
       !----------------------------------------------------------------
       !	... Local variables
       !----------------------------------------------------------------
-      integer  ::  jj, i, k
-      real(dk) :: tauno
-      real(dk) :: transno
-      real(dk) :: transo2
-      real(dk) :: tauo2
-      real(dk) :: j
+      integer  ::  j, i
+      real(dk) :: no_optical_depth
+      real(dk) :: no_transmission
+      real(dk) :: o2_transmission
+      real(dk) :: o2_optical_depth
+      real(dk) :: rate
       real(dk) :: jno1
       real(kind_phys) :: D ! spontaneous rate of predissociation
       real(kind_phys) :: A ! spontaneous rate of emission
       real(kind_phys) :: kq ! quenching rate of N2
+      real(kind_phys) :: predissociation_factor
       
       !----------------------------------------------------------------
       !	... derive the photolysis frequency for no within a given
       !         srb (i.e., 5-0, 9-0, 10-0)
       !----------------------------------------------------------------
-      j = 0._dk
-      do k = 1,ngint
-        tauo2 = o2scol(lev) * cso2(k)
-        if( tauo2 < 50._dk ) then
-          transo2 = exp( -tauo2 )
+      rate = 0._dk
+      do i = 1,6
+        o2_optical_depth = o2_slant(lev) * o2_cross_section(i)
+        ! TODO: What is the value of 50? units? where does it come from?
+        if( o2_optical_depth < 50._dk ) then
+          o2_transmission = exp( -o2_optical_depth )
         else
-          transo2 = 0._dk
+          o2_transmission = 0._dk
          end if
         jno1 = 0._dk
-        do jj = 1,nno
-          tauno = noscol(lev)*csno(k,jj)
-          if( tauno < 50._dk ) then
-            transno = exp( -tauno )
+        do j = 1,2
+          no_optical_depth = noscol(lev)*no_cross_section(i,j)
+          ! TODO: What is the value of 50? units? where does it come from?
+          if( no_optical_depth < 50._dk ) then
+            no_transmission = exp( -no_optical_depth )
           else
-            transno = 0._dk
+            no_transmission = 0._dk
           end if
-          jno1 = jno1 + csno(k,jj) * wtno(k,jj) * transno
+          jno1 = jno1 + no_cross_section(i,j) * no_weighting_factor(i,j) * no_transmission
         end do
-        j = j + jno1*transo2
+        rate = rate + jno1*o2_transmission
       end do
       
-      pjno = wlintv_ms93(w)*etfphot_ms93(w)*tauo3(lev,w)*jno
+      result = delta_wavelength(wavelength_interval) * extraterrestrial_flux(wavelength_interval) &
+                * o3_transmission_factor(lev,wavelength_interval) * rate
 
       ! Values taken from (Minschwaner and Siskind, 1993)
       D = 1.65e9_dk ! s-1
@@ -313,8 +344,9 @@ contains
       !	... correct for the predissociation of the deltq 1-0
       !         transition in the srb (5-0)
       !----------------------------------------------------------------
-      if( w == 4 ) then
-        pjno = D/(A + D + (kq*n2cc(nlev-lev+1)))*pjno
+      if( wavelength_interval == 4 ) then
+        predissociation_factor = D/(A + D + (kq * n2cc(nlev-lev+1)))
+        result = predissociation_factor * result
       end if
       
     end function pjno
