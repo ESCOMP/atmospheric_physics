@@ -14,28 +14,28 @@ module musica_ccpp_tuvx
 
   public :: tuvx_register, tuvx_init, tuvx_run, tuvx_final
 
-  type(tuvx_t),            pointer :: tuvx => null()
-  type(grid_t),            pointer :: height_grid => null()
-  type(grid_t),            pointer :: wavelength_grid => null()
-  type(profile_t),         pointer :: temperature_profile => null()
-  type(profile_t),         pointer :: surface_albedo_profile => null()
-  type(profile_t),         pointer :: extraterrestrial_flux_profile => null()
-  type(radiator_t),        pointer :: cloud_optics => null()
-  type(index_mappings_t),  pointer :: photolysis_rate_constants_mapping => null( )
+  type(tuvx_t),            pointer   :: tuvx => null()
+  type(grid_t),            pointer   :: height_grid => null()
+  type(grid_t),            pointer   :: wavelength_grid => null()
+  type(profile_t),         pointer   :: temperature_profile => null()
+  type(profile_t),         pointer   :: surface_albedo_profile => null()
+  type(profile_t),         pointer   :: extraterrestrial_flux_profile => null()
+  type(radiator_t),        pointer   :: cloud_optics => null()
+  type(index_mappings_t),  pointer   :: photolysis_rate_constants_mapping => null( )
 
   type(gas_species_t),   allocatable :: gas_species_group(:)
   type(profile_group_t), allocatable :: profile_gas_species_group(:)
 
-  integer,               parameter :: DEFAULT_NUM_PHOTOLYSIS_RATE_CONSTANTS = 0
-  integer                          :: number_of_photolysis_rate_constants = DEFAULT_NUM_PHOTOLYSIS_RATE_CONSTANTS
-  integer,               parameter :: DEFAULT_INDEX_NOT_FOUND = -1
-  character(len=*),      parameter :: CLOUD_LIQUID_WATER_CONTENT_LABEL = &
+  integer,               parameter   :: DEFAULT_NUM_PHOTOLYSIS_RATE_CONSTANTS = 0
+  integer                            :: number_of_photolysis_rate_constants = DEFAULT_NUM_PHOTOLYSIS_RATE_CONSTANTS
+  integer,               parameter   :: DEFAULT_INDEX_NOT_FOUND = -1
+  character(len=*),      parameter   :: CLOUD_LIQUID_WATER_CONTENT_LABEL = &
       'cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water'
-  character(len=*),      parameter :: CLOUD_LIQUID_WATER_CONTENT_LONG_NAME = &
+  character(len=*),      parameter   :: CLOUD_LIQUID_WATER_CONTENT_LONG_NAME = &
       'Cloud water mass mixing ratio with respect to moist air plus all airborne condensates'
-  character(len=*),      parameter :: CLOUD_LIQUID_WATER_CONTENT_UNITS = 'kg kg-1'
-  real(kind_phys),       parameter :: CLOUD_LIQUID_WATER_CONTENT_MOLAR_MASS = 0.018_kind_phys ! kg mol-1
-  integer                          :: index_cloud_liquid_water_content = DEFAULT_INDEX_NOT_FOUND
+  character(len=*),      parameter   :: CLOUD_LIQUID_WATER_CONTENT_UNITS = 'kg kg-1'
+  real(kind_phys),       parameter   :: CLOUD_LIQUID_WATER_CONTENT_MOLAR_MASS = 0.018_kind_phys ! kg mol-1
+  integer                            :: index_cloud_liquid_water_content = DEFAULT_INDEX_NOT_FOUND
 
 contains
 

@@ -77,9 +77,9 @@ contains
   
     ! TODO(jiwon) - I commented out this block of code that searches for the molar mass
     ! of air and instead hard-coded it using the value imported from CAM-SIMA.
-    ! Should we register air in the register phase like cloud liquid water content,
-    ! or should we include it in the configuration file, or is it good as it is?
-  
+    ! Should we register air during the registration phase, similar to cloud liquid water content?
+    ! Or should we include it in the configuration file, or is it fine as it is?
+
     ! Air
     ! Find the index of the species and create a 'gas_species_t' for it
     ! call ccpp_const_get_idx(constituent_props, "air", index_air, errmsg, errcode)

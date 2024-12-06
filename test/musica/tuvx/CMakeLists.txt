@@ -173,7 +173,6 @@ add_test(
 add_memory_check_test(test_tuvx_cloud_optics $<TARGET_FILE:test_tuvx_cloud_optics> "" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 # Gas species profile
-
 add_executable(test_tuvx_gas_species_profile test_tuvx_gas_species_profile.F90)
 
 target_sources(test_tuvx_gas_species_profile
