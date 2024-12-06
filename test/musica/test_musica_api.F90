@@ -1,11 +1,14 @@
 program run_test_musica_ccpp
 
+  use ccpp_kinds, only: kind_phys
   use musica_ccpp
 
   implicit none
 
 #define ASSERT(x) if (.not.(x)) then; write(*,*) "Assertion failed[", __FILE__, ":", __LINE__, "]: x"; stop 1; endif
 #define ASSERT_NEAR( a, b, abs_error ) if( (abs(a - b) >= abs_error) .and. (abs(a - b) /= 0.0) ) then; write(*,*) "Assertion failed[", __FILE__, ":", __LINE__, "]: a, b"; stop 1; endif
+
+  real(kind_phys), parameter :: DEGREE_TO_RADIAN = 3.14159265358979323846_kind_phys / 180.0_kind_phys
 
   call test_chapman()
   call test_terminator()
@@ -134,7 +137,6 @@ contains
   !> Tests the Chapman chemistry scheme
   subroutine test_chapman()
     use musica_micm,               only: Rosenbrock, RosenbrockStandardOrder
-    use ccpp_kinds,                only: kind_phys
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
     use musica_ccpp_micm,          only: micm
@@ -162,6 +164,8 @@ contains
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS+1)                  :: geopotential_height_wrt_surface_at_interface ! m
     real(kind_phys), dimension(NUM_COLUMNS)                               :: surface_geopotential                         ! m2 s-2
     real(kind_phys), dimension(NUM_COLUMNS)                               :: surface_temperature                          ! K
+    real(kind_phys), dimension(NUM_COLUMNS)                               :: latitude                                     ! radians
+    real(kind_phys), dimension(NUM_COLUMNS)                               :: longitude                                    ! radians
     real(kind_phys)                                                       :: surface_albedo                               ! unitless
     integer, parameter                                                    :: num_photolysis_wavelength_grid_sections = 8  ! (count)
     real(kind_phys), dimension(num_photolysis_wavelength_grid_sections+1) :: flux_data_photolysis_wavelength_interfaces   ! nm
@@ -186,6 +190,11 @@ contains
     integer                                                               :: i, j, k
     integer                                                               :: N2_index, O2_index, O_index, O1D_index, O3_index
     real(kind_phys)                                                       :: total_O, total_O_init
+    real(kind_phys)                                                       :: earth_eccentricity
+    real(kind_phys)                                                       :: earth_obliquity
+    real(kind_phys)                                                       :: perihelion_longitude
+    real(kind_phys)                                                       :: moving_vernal_equinox_longitude
+    real(kind_phys)                                                       :: calendar_day
 
     call get_wavelength_edges(photolysis_wavelength_grid_interfaces)
     solver_type = Rosenbrock
@@ -214,6 +223,16 @@ contains
     cloud_area_fraction(:,2) = (/ 0.3_kind_phys, 0.4_kind_phys /)
     air_pressure_thickness(:,1) = (/ 900.0_kind_phys, 905.0_kind_phys /)
     air_pressure_thickness(:,2) = (/ 910.0_kind_phys, 915.0_kind_phys /)
+
+    ! Set conditions for one daytime and one nighttime column
+    ! Greenwich, UK and Wellington, NZ
+    latitude = (/ 51.5_kind_phys, -41.3_kind_phys /)
+    longitude = (/ 0.0_kind_phys, 174.8_kind_phys /)
+    earth_eccentricity = 0.0167_kind_phys
+    earth_obliquity = 23.5_kind_phys * DEGREE_TO_RADIAN
+    perihelion_longitude = 102.9_kind_phys * DEGREE_TO_RADIAN
+    moving_vernal_equinox_longitude = 182.7_kind_phys * DEGREE_TO_RADIAN
+    calendar_day = 183.5_kind_phys ! noon GMT Jul 1
 
     filename_of_micm_configuration = 'musica_configurations/chapman/micm/config.json'
     filename_of_tuvx_configuration = 'musica_configurations/chapman/tuvx/config.json'
@@ -317,7 +336,10 @@ contains
                           geopotential_height_wrt_surface_at_interface, surface_geopotential,           &
                           surface_temperature, surface_albedo, num_photolysis_wavelength_grid_sections, &
                           flux_data_photolysis_wavelength_interfaces, extraterrestrial_flux,            &
-                          standard_gravitational_acceleration, cloud_area_fraction, air_pressure_thickness, errmsg, errcode )
+                          standard_gravitational_acceleration, cloud_area_fraction,                     &
+                          air_pressure_thickness, latitude, longitude, earth_eccentricity,              &
+                          earth_obliquity, perihelion_longitude, moving_vernal_equinox_longitude,       &
+                          calendar_day, errmsg, errcode )
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
@@ -354,6 +376,11 @@ contains
         ASSERT_NEAR(total_O, total_O_init, 1.0e-13)
       end do
     end do
+    do j = 1, NUM_LAYERS
+      ! O and O1D should be lower in the nighttime column
+      ASSERT(constituents(2,j,O_index) < constituents(1,j,O_index))
+      ASSERT(constituents(2,j,O1D_index) < constituents(1,j,O1D_index))
+    end do
 
     deallocate(constituent_props_ptr)
 
@@ -362,7 +389,6 @@ contains
   !> Tests the simple Terminator chemistry scheme
   subroutine test_terminator()
     use musica_micm,               only: Rosenbrock, RosenbrockStandardOrder
-    use ccpp_kinds,                only: kind_phys
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
     use musica_ccpp_micm,          only: micm
@@ -390,6 +416,8 @@ contains
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS+1)                  :: geopotential_height_wrt_surface_at_interface ! m
     real(kind_phys), dimension(NUM_COLUMNS)                               :: surface_geopotential                         ! m2 s-2
     real(kind_phys), dimension(NUM_COLUMNS)                               :: surface_temperature                          ! K
+    real(kind_phys), dimension(NUM_COLUMNS)                               :: latitude                                     ! radians
+    real(kind_phys), dimension(NUM_COLUMNS)                               :: longitude                                    ! radians
     real(kind_phys)                                                       :: surface_albedo                               ! unitless
     integer, parameter                                                    :: num_photolysis_wavelength_grid_sections = 8  ! (count)
     real(kind_phys), dimension(num_photolysis_wavelength_grid_sections+1) :: flux_data_photolysis_wavelength_interfaces   ! nm
@@ -414,6 +442,11 @@ contains
     integer                                                               :: i, j, k
     integer                                                               :: Cl_index, Cl2_index
     real(kind_phys)                                                       :: total_Cl, total_Cl_init
+    real(kind_phys)                                                       :: earth_eccentricity
+    real(kind_phys)                                                       :: earth_obliquity
+    real(kind_phys)                                                       :: perihelion_longitude
+    real(kind_phys)                                                       :: moving_vernal_equinox_longitude
+    real(kind_phys)                                                       :: calendar_day
 
     call get_wavelength_edges(photolysis_wavelength_grid_interfaces)
     solver_type = Rosenbrock
@@ -442,6 +475,16 @@ contains
     cloud_area_fraction(:,2) = (/ 0.3_kind_phys, 0.4_kind_phys /)
     air_pressure_thickness(:,1) = (/ 900.0_kind_phys, 905.0_kind_phys /)
     air_pressure_thickness(:,2) = (/ 910.0_kind_phys, 915.0_kind_phys /)
+
+    ! Set conditions for one daytime and one nighttime column
+    ! Greenwich, UK and Wellington, NZ
+    latitude = (/ 51.5_kind_phys, -41.3_kind_phys /)
+    longitude = (/ 0.0_kind_phys, 174.8_kind_phys /)
+    earth_eccentricity = 0.0167_kind_phys
+    earth_obliquity = 23.5_kind_phys * DEGREE_TO_RADIAN
+    perihelion_longitude = 102.9_kind_phys * DEGREE_TO_RADIAN
+    moving_vernal_equinox_longitude = 182.7_kind_phys * DEGREE_TO_RADIAN
+    calendar_day = 183.5_kind_phys ! noon GMT Jul 1
 
     filename_of_micm_configuration = 'musica_configurations/terminator/micm/config.json'
     filename_of_tuvx_configuration = 'musica_configurations/terminator/tuvx/config.json'
@@ -533,7 +576,10 @@ contains
                           geopotential_height_wrt_surface_at_interface, surface_geopotential,           &
                           surface_temperature, surface_albedo, num_photolysis_wavelength_grid_sections, &
                           flux_data_photolysis_wavelength_interfaces, extraterrestrial_flux,            &
-                          standard_gravitational_acceleration, cloud_area_fraction, air_pressure_thickness, errmsg, errcode )
+                          standard_gravitational_acceleration, cloud_area_fraction,                     &
+                          air_pressure_thickness, latitude, longitude, earth_eccentricity,              &
+                          earth_obliquity, perihelion_longitude, moving_vernal_equinox_longitude,       &
+                          calendar_day, errmsg, errcode )
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
@@ -563,6 +609,12 @@ contains
         ! cloud liquid water should be unchanged
         ASSERT_NEAR(constituents(i,j,NUM_SPECIES+1), initial_constituents(i,j,NUM_SPECIES+1), 1.0e-13)
       end do
+    end do
+    do j = 1, NUM_LAYERS
+      ! Cl should be lower in the nighttime column
+      ASSERT(constituents(2,j,Cl_index) < constituents(1,j,Cl_index))
+      ! Cl2 should be higher in the nighttime column
+      ASSERT(constituents(2,j,Cl2_index) > constituents(1,j,Cl2_index))
     end do
 
     deallocate(constituent_props_ptr)
