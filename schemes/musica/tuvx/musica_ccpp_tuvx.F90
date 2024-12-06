@@ -179,6 +179,11 @@ contains
     call ccpp_const_get_idx(constituent_props, CLOUD_LIQUID_WATER_CONTENT_LABEL, &
                             index_cloud_liquid_water_content, errmsg, errcode)
     if (errcode /= 0) return
+    if (index_cloud_liquid_water_content == DEFAULT_INDEX_NOT_FOUND) then
+      errmsg = "[MUSICA Error] Unable to find index for cloud liquid water content."
+      errcode = 1
+      return
+    end if
 
     grids => grid_map_t( error )
     if (has_error_occurred( error, errmsg, errcode )) return
