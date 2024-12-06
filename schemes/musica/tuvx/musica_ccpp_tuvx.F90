@@ -7,30 +7,35 @@ module musica_ccpp_tuvx
   use musica_ccpp_util,     only: has_error_occurred
   use musica_tuvx,          only: tuvx_t, grid_t, profile_t, radiator_t
   use musica_util,          only: mappings_t, index_mappings_t
+  use musica_ccpp_tuvx_gas_species_profile, only: gas_species_t, profile_group_t
 
   implicit none
   private
 
   public :: tuvx_register, tuvx_init, tuvx_run, tuvx_final
 
-  type(tuvx_t),            pointer :: tuvx => null()
-  type(grid_t),            pointer :: height_grid => null()
-  type(grid_t),            pointer :: wavelength_grid => null()
-  type(profile_t),         pointer :: temperature_profile => null()
-  type(profile_t),         pointer :: surface_albedo_profile => null()
-  type(profile_t),         pointer :: extraterrestrial_flux_profile => null()
-  type(radiator_t),        pointer :: cloud_optics => null()
-  type(index_mappings_t),  pointer :: photolysis_rate_constants_mapping => null( )
-  integer,               parameter :: DEFAULT_NUM_PHOTOLYSIS_RATE_CONSTANTS = 0
-  integer                          :: number_of_photolysis_rate_constants = DEFAULT_NUM_PHOTOLYSIS_RATE_CONSTANTS
-  integer,               parameter :: DEFAULT_INDEX_NOT_FOUND = -1
-  character(len=*),      parameter :: CLOUD_LIQUID_WATER_CONTENT_LABEL = &
+  type(tuvx_t),            pointer   :: tuvx => null()
+  type(grid_t),            pointer   :: height_grid => null()
+  type(grid_t),            pointer   :: wavelength_grid => null()
+  type(profile_t),         pointer   :: temperature_profile => null()
+  type(profile_t),         pointer   :: surface_albedo_profile => null()
+  type(profile_t),         pointer   :: extraterrestrial_flux_profile => null()
+  type(radiator_t),        pointer   :: cloud_optics => null()
+  type(index_mappings_t),  pointer   :: photolysis_rate_constants_mapping => null( )
+
+  type(gas_species_t),   allocatable :: gas_species_group(:)
+  type(profile_group_t), allocatable :: profile_gas_species_group(:)
+
+  integer,               parameter   :: DEFAULT_NUM_PHOTOLYSIS_RATE_CONSTANTS = 0
+  integer                            :: number_of_photolysis_rate_constants = DEFAULT_NUM_PHOTOLYSIS_RATE_CONSTANTS
+  integer,               parameter   :: DEFAULT_INDEX_NOT_FOUND = -1
+  character(len=*),      parameter   :: CLOUD_LIQUID_WATER_CONTENT_LABEL = &
       'cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water'
-  character(len=*),      parameter :: CLOUD_LIQUID_WATER_CONTENT_LONG_NAME = &
+  character(len=*),      parameter   :: CLOUD_LIQUID_WATER_CONTENT_LONG_NAME = &
       'Cloud water mass mixing ratio with respect to moist air plus all airborne condensates'
-  character(len=*),      parameter :: CLOUD_LIQUID_WATER_CONTENT_UNITS = 'kg kg-1'
-  real(kind_phys),       parameter :: CLOUD_LIQUID_WATER_CONTENT_MOLAR_MASS = 0.018_kind_phys ! kg mol-1
-  integer                          :: index_cloud_liquid_water_content = DEFAULT_INDEX_NOT_FOUND
+  character(len=*),      parameter   :: CLOUD_LIQUID_WATER_CONTENT_UNITS = 'kg kg-1'
+  real(kind_phys),       parameter   :: CLOUD_LIQUID_WATER_CONTENT_MOLAR_MASS = 0.018_kind_phys ! kg mol-1
+  integer                            :: index_cloud_liquid_water_content = DEFAULT_INDEX_NOT_FOUND
 
 contains
 
@@ -48,8 +53,13 @@ contains
 
   end subroutine reset_tuvx_map_state
 
-  !> This is a helper subroutine created to deallocate objects associated with TUV-x
+  !> Deallocates objects associated with TUV-x
   subroutine cleanup_tuvx_resources()
+    use musica_ccpp_tuvx_gas_species_profile, &
+      only: deallocate_gas_species_profile_group
+
+    ! local variable
+    integer :: i_species
 
     if (associated( height_grid )) then
       deallocate( height_grid )
@@ -85,6 +95,8 @@ contains
       deallocate( photolysis_rate_constants_mapping )
       photolysis_rate_constants_mapping => null()
     end if
+
+    call deallocate_gas_species_profile_group( profile_gas_species_group )
 
   end subroutine cleanup_tuvx_resources
 
@@ -142,6 +154,8 @@ contains
             extraterrestrial_flux_unit
     use musica_ccpp_tuvx_cloud_optics, &
       only: create_cloud_optics_radiator, cloud_optics_label
+    use musica_ccpp_tuvx_gas_species_profile, &
+      only: configure_gas_species, create_gas_species_profile_group
 
     integer,                           intent(in)  :: vertical_layer_dimension      ! (count)
     integer,                           intent(in)  :: vertical_interface_dimension  ! (count)
@@ -152,12 +166,14 @@ contains
     integer,                           intent(out) :: errcode
 
     ! local variables
-    type(grid_map_t),      pointer :: grids
-    type(profile_map_t),   pointer :: profiles
-    type(radiator_map_t),  pointer :: radiators
-    type(configuration_t)          :: config
-    type(mappings_t),      pointer :: photolysis_rate_constants_ordering
-    type(error_t)                  :: error
+    type(error_t)                 :: error
+    type(grid_map_t),     pointer :: grids
+    type(profile_map_t),  pointer :: profiles
+    type(radiator_map_t), pointer :: radiators
+    type(configuration_t)         :: config
+    type(mappings_t),     pointer :: photolysis_rate_constants_ordering
+    integer                       :: number_of_gas_species
+    integer                       :: i_species
 
     ! Get needed indices in constituents array
     call ccpp_const_get_idx(constituent_props, CLOUD_LIQUID_WATER_CONTENT_LABEL, &
@@ -251,6 +267,34 @@ contains
       call cleanup_tuvx_resources()
       return
     end if
+
+    call configure_gas_species( constituent_props, gas_species_group, &
+                                errmsg, errcode )
+    if (errcode /= 0) then
+      call reset_tuvx_map_state( grids, profiles, null() )
+      call cleanup_tuvx_resources()
+      return
+    end if
+
+    number_of_gas_species = size(gas_species_group)
+    allocate( profile_gas_species_group( number_of_gas_species ) )
+
+    call create_gas_species_profile_group( height_grid, &
+          gas_species_group, profile_gas_species_group, errmsg, errcode)
+    if (errcode /= 0) then
+      call reset_tuvx_map_state( grids, profiles, null() )
+      call cleanup_tuvx_resources()
+      return
+    endif
+
+    do i_species = 1, number_of_gas_species
+      call profiles%add( profile_gas_species_group(i_species)%profile, error )
+      if (has_error_occurred( error, errmsg, errcode )) then
+        call reset_tuvx_map_state( grids, profiles, null() )
+        call cleanup_tuvx_resources()
+        return
+      end if
+    end do
 
     radiators => radiator_map_t( error )
     if (has_error_occurred( error, errmsg, errcode )) then
@@ -350,6 +394,22 @@ contains
       return
     end if
 
+    if (.not. allocated( profile_gas_species_group)) then
+      allocate( profile_gas_species_group( number_of_gas_species ) )
+    end if
+
+    do i_species = 1, number_of_gas_species
+      profile_gas_species_group(i_species)%profile => &
+        profiles%get( gas_species_group(i_species)%label, gas_species_group(i_species)%unit, error )
+      if (has_error_occurred( error, errmsg, errcode )) then
+        deallocate( tuvx )
+        tuvx => null()
+        call reset_tuvx_map_state( grids, profiles, null() )
+        call cleanup_tuvx_resources()
+        return
+      end if
+    end do
+
     radiators => tuvx%get_radiators( error )
     if (has_error_occurred( error, errmsg, errcode )) then
       deallocate( tuvx )
@@ -418,13 +478,14 @@ contains
                       cloud_area_fraction, constituents,             &
                       air_pressure_thickness, rate_parameters,       &
                       errmsg, errcode)
-    use musica_util,                               only: error_t
-    use musica_ccpp_tuvx_height_grid,              only: set_height_grid_values, calculate_heights
-    use musica_ccpp_tuvx_temperature,              only: set_temperature_values
-    use musica_ccpp_util,                          only: has_error_occurred
-    use musica_ccpp_tuvx_surface_albedo,           only: set_surface_albedo_values
-    use musica_ccpp_tuvx_extraterrestrial_flux,    only: set_extraterrestrial_flux_values
-    use musica_ccpp_tuvx_cloud_optics,             only: set_cloud_optics_values
+    use musica_util,                            only: error_t
+    use musica_ccpp_tuvx_height_grid,           only: set_height_grid_values, calculate_heights
+    use musica_ccpp_tuvx_temperature,           only: set_temperature_values
+    use musica_ccpp_util,                       only: has_error_occurred
+    use musica_ccpp_tuvx_surface_albedo,        only: set_surface_albedo_values
+    use musica_ccpp_tuvx_extraterrestrial_flux, only: set_extraterrestrial_flux_values
+    use musica_ccpp_tuvx_cloud_optics,          only: set_cloud_optics_values
+    use musica_ccpp_tuvx_gas_species_profile,   only: set_gas_species_values, MOLAR_MASS_DRY_AIR
 
     real(kind_phys),    intent(in)    :: temperature(:,:)                                  ! K (column, layer)
     real(kind_phys),    intent(in)    :: dry_air_density(:,:)                              ! kg m-3 (column, layer)
@@ -447,6 +508,8 @@ contains
     ! local variables
     real(kind_phys), dimension(size(geopotential_height_wrt_surface_at_midpoint, dim = 2))  :: height_midpoints
     real(kind_phys), dimension(size(geopotential_height_wrt_surface_at_interface, dim = 2)) :: height_interfaces
+    real(kind_phys), dimension(size(height_interfaces))                                     :: height_deltas ! km
+    real(kind_phys), dimension(size(constituents, dim = 2))                                 :: gas_species_constituents
     real(kind_phys), dimension(size(rate_parameters, dim=2)+2, &
                                number_of_photolysis_rate_constants) :: photolysis_rate_constants, & ! s-1
                                                                        heating_rates                ! K s-1 (TODO: check units)
@@ -454,7 +517,7 @@ contains
     real(kind_phys) :: solar_zenith_angle ! degrees
     real(kind_phys) :: earth_sun_distance ! AU
     type(error_t)   :: error
-    integer         :: i_col, i_level
+    integer         :: i_col, i_level, i_gas_species
 
     reciprocal_of_gravitational_acceleration = 1.0_kind_phys / standard_gravitational_acceleration
 
@@ -469,13 +532,14 @@ contains
     if (errcode /= 0) return
 
     do i_col = 1, size(temperature, dim=1)
+
       call calculate_heights( geopotential_height_wrt_surface_at_midpoint(i_col,:),  &
                               geopotential_height_wrt_surface_at_interface(i_col,:), &
                               surface_geopotential(i_col),                           &
                               reciprocal_of_gravitational_acceleration,              &
                               height_midpoints, height_interfaces )
       call set_height_grid_values( height_grid, height_midpoints, height_interfaces, &
-                                   errmsg, errcode )
+                                   height_deltas, errmsg, errcode )
       if (errcode /= 0) return
 
       call set_temperature_values( temperature_profile, temperature(i_col,:), &
@@ -488,6 +552,19 @@ contains
                                     reciprocal_of_gravitational_acceleration, &
                                     errmsg, errcode )
       if (errcode /= 0) return
+
+      do i_gas_species = 1, size(gas_species_group)
+        if (gas_species_group(i_gas_species)%label == "air") then
+          gas_species_constituents = dry_air_density(i_col,:) * MOLAR_MASS_DRY_AIR
+        else
+          gas_species_constituents = constituents(i_col,:,gas_species_group(i_gas_species)%index_constituent_props)
+        end if
+        call set_gas_species_values(profile_gas_species_group(i_gas_species)%profile, &
+                                    gas_species_group(i_gas_species),                 &
+                                    gas_species_constituents,                         & ! mol m-3
+                                    height_deltas, errmsg, errcode)
+        if (errcode /= 0) return
+      end do
 
       ! temporary values until these are available from the host model
       solar_zenith_angle = 0.0_kind_phys
@@ -515,12 +592,15 @@ contains
 
   !> Finalizes TUV-x
   subroutine tuvx_final(errmsg, errcode)
+    use musica_ccpp_tuvx_gas_species_profile, only: deallocate_gas_species
+
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errcode
 
     errmsg = ''
     errcode = 0
 
+    call deallocate_gas_species( gas_species_group )
     call cleanup_tuvx_resources()
 
     if (associated( tuvx )) then
