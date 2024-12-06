@@ -6,12 +6,15 @@ module musica_ccpp_tuvx_no_photolysis_rate
   ! https://github.com/ESCOMP/CAM/blob/ab476f9b7345cbefdc4cf67ff17f0fe85d8c7387/src/chemistry/mozart/mo_jshort.F90#L1796-L1870
   ! Much of the code is also based off of a PR which incorporated TUVx into CAM
   ! https://github.com/ESCOMP/CAM/blob/c12d1e46e0fdc1dccb0a651a6c9fefd6bb80b2ba/src/chemistry/mozart/mo_tuvx.F90#L1849-L1943
+  !
   ! The actual method is described in this paper:
   ! Minschwaner, K., Siskind, D.E., 1993. A new calculation of nitric oxide photolysis in the stratosphere, mesosphere, and lower thermosphere.
   ! Journal of Geophysical Research: Atmospheres 98, 20401–20412. https://doi.org/10.1029/93JD02007
+  !
   ! Acronyms:
   ! SRB: Schumann–Runge bands, a group of electronic transitions in molecular oxygen that absorb solar radiation
   ! NO: Nitric oxide
+  ! MS93: A reference to the Minschwaner and Siskind paper
 
   use ccpp_kinds, only: kind_phys 
   dk => kind_phys
@@ -24,19 +27,75 @@ module musica_ccpp_tuvx_no_photolysis_rate
   !------------------------------------------------------------------------------
   !   	... O3 SRB Cross Sections from WMO 1985, interpolated onto MS, 1993 grid
   !------------------------------------------------------------------------------
+  ! in cm2
   real(kind_phys), save :: o3_cross_section(4) = (/ 7.3307600e-19_dk, 6.9660105E-19_dk, 5.9257699E-19_dk, 4.8372219E-19_dk /)
 
   !------------------------------------------------------------------------------
   !   	... delta wavelength of the MS, 1993 grid
   !------------------------------------------------------------------------------
+  ! in nm
+  ! TODO: What is the grid? The paper only has 3 bands listed in the table, but this has 4...
   real(kind_phys), save :: delta_wavelength(4) = (/ 1.50_dk, 1.50_dk, 5.6_dk, 2.3_dk /)
   
   !------------------------------------------------------------------------------
   !   	... O2 SRB Cross Sections for the six ODF regions, MS, 1993
   !------------------------------------------------------------------------------
-  real(kind_phys), save :: cs250(6)  = (/ 1.117e-23_dk, 2.447e-23_dk, 7.188e-23_dk, 3.042e-22_dk, 1.748e-21_dk, 1.112e-20_dk /)
-  real(kind_phys), save :: cs290(6)  = (/ 1.350e-22_dk, 2.991e-22_dk, 7.334e-22_dk, 3.074e-21_dk, 1.689e-20_dk, 1.658e-19_dk /)
-  real(kind_phys), save :: cs2100(6) = (/ 2.968e-22_dk, 5.831e-22_dk, 2.053e-21_dk, 8.192e-21_dk, 4.802e-20_dk, 2.655e-19_dk /)
+  ! TODO: What are 250, 290, and 2100? 
+  ! TODO: What are the units? cm2  molecule-1 ?
+  real(kind_phys), save :: cross_section250(6)  = (/ 1.117e-23_dk, 2.447e-23_dk, 7.188e-23_dk, 3.042e-22_dk, 1.748e-21_dk, 1.112e-20_dk /)
+  real(kind_phys), save :: cross_section290(6)  = (/ 1.350e-22_dk, 2.991e-22_dk, 7.334e-22_dk, 3.074e-21_dk, 1.689e-20_dk, 1.658e-19_dk /)
+  real(kind_phys), save :: cross_section2100(6) = (/ 2.968e-22_dk, 5.831e-22_dk, 2.053e-21_dk, 8.192e-21_dk, 4.802e-20_dk, 2.655e-19_dk /)
+
+  real(kind_phys), dimension(24) :: _a, _b, _c
+  real(kind_phys) :: wtno50(6,2)
+  real(kind_phys) :: wtno90(6,2)
+  real(kind_phys) :: wtno100(6,2)
+
+  !------------------------------------------------------------------------------
+  !   	... 6 sub-intervals for O2 5-0 at 265K,
+  !	    2 sub-sub-intervals for NO 0-0 at 250K
+  !------------------------------------------------------------------------------
+  _a(:) = (/    0._dk,       0._dk,       0._dk,       0._dk, &
+                5.12e-02_dk, 5.68e-03_dk, 1.32e-18_dk, 4.41e-17_dk, &
+                1.36e-01_dk, 1.52e-02_dk, 6.35e-19_dk, 4.45e-17_dk, &
+                1.65e-01_dk, 1.83e-02_dk, 7.09e-19_dk, 4.50e-17_dk, &
+                1.41e-01_dk, 1.57e-02_dk, 2.18e-19_dk, 2.94e-17_dk, &
+                4.50e-02_dk, 5.00e-03_dk, 4.67e-19_dk, 4.35e-17_dk /)
+  
+  !------------------------------------------------------------------------------
+  !   	... sub-intervals for o2 9-0 band,
+  !	    2 sub-sub-intervals for no 1-0 at 250 k
+  !------------------------------------------------------------------------------
+  _b(:) = (/        0._dk,       0._dk,       0._dk,       0._dk, &
+                    0._dk,       0._dk,       0._dk,       0._dk, &
+              1.93e-03_dk, 2.14e-04_dk, 3.05e-21_dk, 3.20e-21_dk, &
+              9.73e-02_dk, 1.08e-02_dk, 5.76e-19_dk, 5.71e-17_dk, &
+              9.75e-02_dk, 1.08e-02_dk, 2.29e-18_dk, 9.09e-17_dk, &
+              3.48e-02_dk, 3.86e-03_dk, 2.21e-18_dk, 6.00e-17_dk /)
+  
+  !------------------------------------------------------------------------------
+  ! 	... sub-intervals for o2 10-0 band,
+  !	    2 sub-sub-intervals for no 1-0 at 250 k
+  !------------------------------------------------------------------------------
+  _c(:) = (/  4.50e-02_dk, 5.00e-03_dk, 1.80e-18_dk, 1.40e-16_dk, &
+              1.80e-01_dk, 2.00e-02_dk, 1.50e-18_dk, 1.52e-16_dk, &
+              2.25e-01_dk, 2.50e-02_dk, 5.01e-19_dk, 7.00e-17_dk, &
+              2.25e-01_dk, 2.50e-02_dk, 7.20e-20_dk, 2.83e-17_dk, &
+              1.80e-01_dk, 2.00e-02_dk, 6.72e-20_dk, 2.73e-17_dk, &
+              4.50e-02_dk, 5.00e-03_dk, 1.49e-21_dk, 6.57e-18_dk /)
+  
+  wtno50 (1:6,1) = _a(1:24:4)
+  wtno50 (1:6,2) = _a(2:24:4)
+  csno50 (1:6,1) = _a(3:24:4)
+  csno50 (1:6,2) = _a(4:24:4)
+  wtno90 (1:6,1) = _b(1:24:4)
+  wtno90 (1:6,2) = _b(2:24:4)
+  csno90 (1:6,1) = _b(3:24:4)
+  csno90 (1:6,2) = _b(4:24:4)
+  wtno100(1:6,1) = _c(1:24:4)
+  wtno100(1:6,2) = _c(2:24:4)
+  csno100(1:6,1) = _c(3:24:4)
+  csno100(1:6,2) = _c(4:24:4)
 
 contains
 
@@ -48,7 +107,7 @@ contains
     real(kind_phys), intent(out) :: molecule_cm3(:)       ! molecule cm-3
 
     integer :: i
-    real(kind_phys), parameter :: avogadro_number = 6.02214076e23_r8 ! mol-1
+    real(kind_phys), parameter :: avogadro_number = 6.02214076e23_dk ! mol-1
 
     do i = 1, size(mixing_ratio)
       molecule_cm3(i) = mixing_ratio(i) * dry_air_density(i) / molar_mass * avogadro_number * 1.0e-6
@@ -88,22 +147,26 @@ contains
     ! layer thickness (cm)
     real(kind_phys) :: delz(size(constituents, dim=2)+1)
     ! conversion from km to cm
-    real(kind_phys), parameter :: km2cm = 1.0e5_r8
+    real(kind_phys), parameter :: km2cm = 1.0e5_dk
     ! final photolysis rate
     real(kind_phys) :: jNO
 
     ! number of vertical levels
     num_vertical_layers = size(constituents, dim=2)
 
-    ! what are these constants? scale heights?
+    ! TODO: what are these constants? scale heights?
+    ! TODO: the values at index 1 appear to be for values above the model top in CAM, but how does that affect cam sima?
     call convert_mixing_ratio_to_molecule_cm3(constituents(:,:,N2_index), dry_air_density, molar_mass_N2, n2_dens(2:))
-    n2_dens(1) = n2_dens(2) * 0.9_r8
+    n2_dens(1) = n2_dens(2) * 0.9_dk
+
     call convert_mixing_ratio_to_molecule_cm3(constituents(:,:,O2_index), dry_air_density, molar_mass_O2, o2_dens(2:))
-    o2_dens(1) = o2_dens(2) * 7.0_r8 / ( height_at_interfaces(1) - height_at_interfaces(2) )
+    o2_dens(1) = o2_dens(2) * 7.0_dk / ( height_at_interfaces(1) - height_at_interfaces(2) )
+
     call convert_mixing_ratio_to_molecule_cm3(constituents(:,:,O3_index), dry_air_density, molar_mass_O3, o3_dens(2:))
-    o3_dens(1) = o3_dens(2) * 7.0_r8 / ( height_at_interfaces(1) - height_at_interfaces(2) )
+    o3_dens(1) = o3_dens(2) * 7.0_dk / ( height_at_interfaces(1) - height_at_interfaces(2) )
+
     call convert_mixing_ratio_to_molecule_cm3(constituents(:,:,NO_index), dry_air_density, molar_mass_NO, no_dens(2:))
-    no_dens(1) = no_dens(2) * 0.9_r8
+    no_dens(1) = no_dens(2) * 0.9_dk
 
     ! ================================
     ! calculate slant column densities
@@ -158,20 +221,104 @@ contains
     ! NO in an excited electronic state may result in an emission of NO or be quenched by an interaction 
     ! with N2. The predissociation faction is the probability that a precissociation of NO will occur from
     ! an excited electronic state
-    real(kind_phys) :: predissociation_factor 
-    real(kind_phys) :: D ! spontaneous rate of predissociation
-    real(kind_phys) :: A ! spontaneous rate of emission
-    real(kind_phys) :: kq ! quenching rate of N2
+    real(kind_phys) :: o3_transmission_factor
     real(kind_phys) :: jno
+    integer         :: wavelength_bins ! wavelength bins for MS, 93
+    integer         :: idx 
 
-    jno = 0.0_r8
+    jno = 0.0_dk
+    wavelength_bins = 4
 
-    ! Values taken from (Minschwaner and Siskind, 1993)
-    D = 1.65e9_r8 ! s-1
-    A = 5.1e7_r8 ! s-1
-    kq = 1.5e-9_r8 ! cm3 s-1
+    ! ... derive O3 transmission for the three O2 SRB
+    ! ... idx = 1,2, and 4 are used below for jno
+    ! ... TODO: why is 3 not used?
+    !------------------------------------------------------------------------------
+    do idx = 1,wavelength_bins
+      o3_transmission_factor(:,idx) = exp( -o3_cross_section(idx)*o3_slant(:) )
+    end do
 
-    predissociation_factor = 0.0_r8
+
+    function pjno( w, cso2, wtno, csno )
+      !------------------------------------------------------------------------------
+      !   	... uses xsec at center of g subinterval for o2
+      !           uses mean values for no
+      !------------------------------------------------------------------------------
+      
+      !------------------------------------------------------------------------------
+      !	... parameters
+      !------------------------------------------------------------------------------
+      integer, parameter :: ngint = 6
+      integer, parameter :: nno = 2
+    
+      !----------------------------------------------------------------
+      !	... Dummy arguments
+      !----------------------------------------------------------------
+      integer, intent(in)     :: w
+      real(dk),    intent(in) :: cso2(ngint)
+      real(dk),    intent(in) :: csno(ngint,nno)
+      real(dk),    intent(in) :: wtno(ngint,nno)
+      
+      !----------------------------------------------------------------
+      !	... Function declarations
+      !----------------------------------------------------------------
+      real(dk) :: pjno
+      
+      !----------------------------------------------------------------
+      !	... Local variables
+      !----------------------------------------------------------------
+      integer  ::  jj, i, k
+      real(dk) :: tauno
+      real(dk) :: transno
+      real(dk) :: transo2
+      real(dk) :: tauo2
+      real(dk) :: j
+      real(dk) :: jno1
+      real(kind_phys) :: D ! spontaneous rate of predissociation
+      real(kind_phys) :: A ! spontaneous rate of emission
+      real(kind_phys) :: kq ! quenching rate of N2
+      
+      !----------------------------------------------------------------
+      !	... derive the photolysis frequency for no within a given
+      !         srb (i.e., 5-0, 9-0, 10-0)
+      !----------------------------------------------------------------
+      j = 0._dk
+      do k = 1,ngint
+        tauo2 = o2scol(lev) * cso2(k)
+        if( tauo2 < 50._dk ) then
+          transo2 = exp( -tauo2 )
+        else
+          transo2 = 0._dk
+         end if
+        jno1 = 0._dk
+        do jj = 1,nno
+          tauno = noscol(lev)*csno(k,jj)
+          if( tauno < 50._dk ) then
+            transno = exp( -tauno )
+          else
+            transno = 0._dk
+          end if
+          jno1 = jno1 + csno(k,jj) * wtno(k,jj) * transno
+        end do
+        j = j + jno1*transo2
+      end do
+      
+      pjno = wlintv_ms93(w)*etfphot_ms93(w)*tauo3(lev,w)*jno
+
+      ! Values taken from (Minschwaner and Siskind, 1993)
+      D = 1.65e9_dk ! s-1
+      A = 5.1e7_dk ! s-1
+      kq = 1.5e-9_dk ! cm3 s-1
+
+      !----------------------------------------------------------------
+      !	... correct for the predissociation of the deltq 1-0
+      !         transition in the srb (5-0)
+      !----------------------------------------------------------------
+      if( w == 4 ) then
+        pjno = D/(A + D + (kq*n2cc(nlev-lev+1)))*pjno
+      end if
+      
+    end function pjno
+
 
   end function calculate_jno
 
@@ -208,27 +355,27 @@ contains
     !------------------------------------------------------------------------------
     integer,  intent(in)   :: nlev              ! number model vertical levels
     integer,  intent(out)  :: nid(0:nlev)       ! see above
-    real(r8), intent (in)  :: zenith_angle		  ! zenith_angle
-    real(r8), intent (in)  :: z(nlev)		        ! geometric altitude (km)
-    real(r8), intent (out) :: dsdh(0:nlev,nlev) ! see above
+    real(dk), intent (in)  :: zenith_angle		  ! zenith_angle
+    real(dk), intent (in)  :: z(nlev)		        ! geometric altitude (km)
+    real(dk), intent (out) :: dsdh(0:nlev,nlev) ! see above
     
     
     !------------------------------------------------------------------------------
     !       ... Local variables
     !------------------------------------------------------------------------------
-    real(r8) :: radius
-    real(r8) :: re
-    real(r8) :: zenrad
-    real(r8) :: rpsinz
-    real(r8) :: const0
-    real(r8) :: rj
-    real(r8) :: rjp1
-    real(r8) :: dsj
-    real(r8) :: dhj
-    real(r8) :: ga
-    real(r8) :: gb
-    real(r8) :: sm
-    real(r8) :: zd(0:nlev-1)
+    real(dk) :: radius
+    real(dk) :: re
+    real(dk) :: zenrad
+    real(dk) :: rpsinz
+    real(dk) :: const0
+    real(dk) :: rj
+    real(dk) :: rjp1
+    real(dk) :: dsj
+    real(dk) :: dhj
+    real(dk) :: ga
+    real(dk) :: gb
+    real(dk) :: sm
+    real(dk) :: zd(0:nlev-1)
 
     integer :: i
     integer :: j
@@ -237,7 +384,8 @@ contains
     integer :: nlayer
 
 
-    radius = 6.37100e9_r8 ! radius earth (km)
+    ! TODO: Get this from CAM-SIMA
+    radius = 6.37100e9_dk ! radius earth (km)
     
     !------------------------------------------------------------------------------
     !       ... set zenith angle in radians
@@ -267,7 +415,7 @@ contains
     !------------------------------------------------------------------------------
     nid(:) = 0
     do j = 1,nlev
-      dsdh(:,j) = 0._r8
+      dsdh(:,j) = 0._dk
     end do
     
     !------------------------------------------------------------------------------
@@ -275,12 +423,12 @@ contains
     !------------------------------------------------------------------------------
     do i = 0,nlayer
       rpsinz = (re + zd(i)) * const0
-      if( zenith_angle <= 90._r8 .or. rpsinz >= re ) then
+      if( zenith_angle <= 90._dk .or. rpsinz >= re ) then
     !------------------------------------------------------------------------------
     ! Find index of layer in which the screening height lies
     !------------------------------------------------------------------------------
           id = i
-          if( zenith_angle > 90._r8 ) then
+          if( zenith_angle > 90._dk ) then
             do j = 1,nlayer
                 if( rpsinz < (zd(j-1) + re) .and.  rpsinz >= (zd(j) + re) ) then
       id = j
@@ -290,15 +438,15 @@ contains
           end if
 
           do j = 1,id
-            sm = 1._r8
-            if( j == id .and. id == i .and. zenith_angle > 90._r8 ) then
-              sm = -1._r8
+            sm = 1._dk
+            if( j == id .and. id == i .and. zenith_angle > 90._dk ) then
+              sm = -1._dk
             end if
             rj   = re + zd(j-1)
             rjp1 = re + zd(j)
             dhj  = zd(j-1) - zd(j)
-            ga   = max( rj*rj - rpsinz*rpsinz,0._r8 )
-            gb   = max( rjp1*rjp1 - rpsinz*rpsinz,0._r8 )
+            ga   = max( rj*rj - rpsinz*rpsinz,0._dk )
+            gb   = max( rjp1*rjp1 - rpsinz*rpsinz,0._dk )
             if( id > i .and. j == id ) then
               dsj = sqrt( ga )
             else
@@ -344,20 +492,20 @@ contains
     !------------------------------------------------------------------------------
     integer,  intent(in)    :: nlev
     integer,  intent(in)    :: nid(0:nlev)       ! see above
-    real(r8), intent(in)    :: delz(nlev)	       ! layer thickness (cm)
-    real(r8), intent(in)    :: dsdh(0:nlev,nlev) ! see above
-    real(r8), intent(in)    :: absden(nlev)      ! absorber concentration (molec. cm-3)
-    real(r8), intent(out)   :: scol(nlev)		     ! absorber Slant Column (molec. cm-2)
+    real(dk), intent(in)    :: delz(nlev)	       ! layer thickness (cm)
+    real(dk), intent(in)    :: dsdh(0:nlev,nlev) ! see above
+    real(dk), intent(in)    :: absden(nlev)      ! absorber concentration (molec. cm-3)
+    real(dk), intent(out)   :: scol(nlev)		     ! absorber Slant Column (molec. cm-2)
     
     !------------------------------------------------------------------------------
     !       ... Local variables
     !------------------------------------------------------------------------------
-    real(r8), parameter :: largest = 1.e+36_r8
+    real(dk), parameter :: largest = 1.e+36_dk
 
-    real(r8) :: sum
-    real(r8) :: hscale
-    real(r8) :: numer, denom
-    real(r8) :: cz(nlev)
+    real(dk) :: sum
+    real(dk) :: hscale
+    real(dk) :: numer, denom
+    real(dk) :: cz(nlev)
 
     integer :: id
     integer :: j
@@ -367,10 +515,10 @@ contains
     !     ... compute column increments (logarithmic integrals)
     !------------------------------------------------------------------------------
     do k = 1,nlev-1
-      if( absden(k) /= 0._r8 .and. absden(k+1) /= 0._r8 ) then
+      if( absden(k) /= 0._dk .and. absden(k+1) /= 0._dk ) then
         cz(nlev-k) = (absden(k) - absden(k+1))/log( absden(k)/absden(k+1) ) * delz(k)
       else
-        cz(nlev-k) = .5_r8*(absden(k) + absden(k+1)) * delz(k)
+        cz(nlev-k) = .5_dk*(absden(k) + absden(k+1)) * delz(k)
       end if
     end do
     
@@ -381,9 +529,9 @@ contains
     !------------------------------------------------------------------------------
     if (nlev==pver) then
       ! if ( waccmx_is('ionosphere') .or. waccmx_is('neutral') ) then
-        hscale     = 20.e5_r8
+        hscale     = 20.e5_dk
       ! else
-      !   hscale     = 10.e5_r8
+      !   hscale     = 10.e5_dk
       ! endif
       cz(nlev-1) = cz(nlev-1) + hscale * absden(1)
     endif
@@ -393,7 +541,7 @@ contains
     !            work downward
     !------------------------------------------------------------------------------
     do id = 0,nlev-1
-      sum = 0._r8
+      sum = 0._dk
       if( nid(id) >= 0 ) then
         !------------------------------------------------------------------------------
         !       ...  Single pass layers:
@@ -405,14 +553,14 @@ contains
         !       ...  Double pass layers:
         !------------------------------------------------------------------------------
         do j = min(nid(id),id)+1, nid(id)
-            sum = sum + 2._r8*cz(nlev-j)*dsdh(id,j)
+            sum = sum + 2._dk*cz(nlev-j)*dsdh(id,j)
         end do
       else
         sum = largest
       end if
       scol(nlev-id) = sum
     end do
-    scol(nlev) = .95_r8*scol(nlev-1)
+    scol(nlev) = .95_dk*scol(nlev-1)
   end subroutine slant_col
 
 end module musica_ccpp_tuvx_no_photolysis_rate
