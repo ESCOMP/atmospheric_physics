@@ -418,6 +418,10 @@ contains
     integer :: id
     integer :: nlayer
 
+    !TODO: Get pi from CAM-SIMA
+    real(dk), parameter ::  pi  = 3.14159265358979323846_dk
+    real(dk), parameter ::  d2r  = pi/180._dk
+
 
     ! TODO: Get this from CAM-SIMA
     radius = 6.37100e9_dk ! radius earth (km)
@@ -562,14 +566,15 @@ contains
     !         specify scale height near top of data.For WACCM-X model, scale
     !         height needs to be increased for higher model top
     !------------------------------------------------------------------------------
-    if (nlev==pver) then
+    ! TODO: what should I do about nlev and pver here?
+    ! if (nlev==pver) then
       ! if ( waccmx_is('ionosphere') .or. waccmx_is('neutral') ) then
-        hscale     = 20.e5_dk
+        ! hscale     = 20.e5_dk
       ! else
       !   hscale     = 10.e5_dk
       ! endif
-      cz(nlev-1) = cz(nlev-1) + hscale * absden(1)
-    endif
+      ! cz(nlev-1) = cz(nlev-1) + hscale * absden(1)
+    ! endif
     
     !------------------------------------------------------------------------------
     !       ...  Calculate vertical and slant column from each level:
