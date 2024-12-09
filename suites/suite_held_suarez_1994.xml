@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<suite name="held_suarez_1994" version="1.0">
+  <group name="physics_before_coupler">
+    <scheme>held_suarez_1994</scheme>
+    <scheme>apply_tendency_of_eastward_wind</scheme>
+    <scheme>apply_tendency_of_northward_wind</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>geopotential_temp</scheme>
+    <scheme>sima_state_diagnostics</scheme>
+  </group>
+  <group name="physics_after_coupler">
+    <scheme>sima_tend_diagnostics</scheme>
+  </group>
+</suite>

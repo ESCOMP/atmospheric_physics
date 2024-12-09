@@ -1,0 +1,267 @@
+[ccpp-table-properties]
+  name = apply_tendency_of_eastward_wind
+  type = scheme
+[ccpp-arg-table]
+  name = apply_tendency_of_eastward_wind_run
+  type = scheme
+[ nz ]
+  standard_name = vertical_layer_dimension
+  long_name = Number of vertical layers
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ dudt ]
+  standard_name = tendency_of_eastward_wind
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ u ]
+  standard_name = eastward_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ dudt_total ]
+  standard_name = tendency_of_eastward_wind_due_to_model_physics
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ dt ]
+  standard_name = timestep_for_physics
+  long_name = time step
+  units = s
+  dimensions = ()
+  type = real | kind = kind_phys
+  intent = in
+[ errcode ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+#####################################################################
+[ccpp-table-properties]
+  name = apply_tendency_of_northward_wind
+  type = scheme
+[ccpp-arg-table]
+  name = apply_tendency_of_northward_wind_run
+  type = scheme
+[ nz ]
+  standard_name = vertical_layer_dimension
+  long_name = Number of vertical layers
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ dvdt ]
+  standard_name = tendency_of_northward_wind
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ v ]
+  standard_name = northward_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ dvdt_total ]
+  standard_name = tendency_of_northward_wind_due_to_model_physics
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ dt ]
+  standard_name = timestep_for_physics
+  long_name = time step
+  units = s
+  dimensions = ()
+  type = real | kind = kind_phys
+  intent = in
+[ errcode ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+#####################################################################
+[ccpp-table-properties]
+  name = apply_heating_rate
+  type = scheme
+[ccpp-arg-table]
+  name = apply_heating_rate_run
+  type = scheme
+[ nz ]
+  standard_name = vertical_layer_dimension
+  long_name = Number of vertical layers
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ heating_rate ]
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure
+  units = J kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ temp ]
+  standard_name = air_temperature
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ dTdt_total ]
+  standard_name = tendency_of_air_temperature_due_to_model_physics
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ dt ]
+  standard_name = timestep_for_physics
+  long_name = time step
+  units = s
+  dimensions = ()
+  type = real | kind = kind_phys
+  intent = in
+[ cpair ]
+  standard_name = composition_dependent_specific_heat_of_dry_air_at_constant_pressure
+  units = J kg-1 K-1
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  type = real | kind = kind_phys
+  intent = in
+[ errcode ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+#####################################################################
+[ccpp-table-properties]
+  name = apply_tendency_of_air_temperature
+  type = scheme
+[ccpp-arg-table]
+  name = apply_tendency_of_air_temperature_run
+  type = scheme
+[ nz ]
+  standard_name = vertical_layer_dimension
+  long_name = Number of vertical layers
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ t_tend ]
+  standard_name = tendency_of_air_temperature
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ temp ]
+  standard_name = air_temperature
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ dTdt_total ]
+  standard_name = tendency_of_air_temperature_due_to_model_physics
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ dt ]
+  standard_name = timestep_for_physics
+  long_name = time step
+  units = s
+  dimensions = ()
+  type = real | kind = kind_phys
+  intent = in
+[ errcode ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+#####################################################################
+[ccpp-table-properties]
+  name = apply_constituent_tendencies
+  type = scheme
+[ccpp-arg-table]
+  name = apply_constituent_tendencies_run
+  type = scheme
+[ nz ]
+  standard_name = vertical_layer_dimension
+  long_name = Number of vertical layers
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ const_tend ]
+  standard_name = ccpp_constituent_tendencies
+  long_name = ccpp constituent tendencies
+  units = none
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
+  intent = inout
+[ const ]
+  standard_name = ccpp_constituents
+  long_name = ccpp constituents
+  units = none
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
+  intent = inout
+[ dt ]
+  standard_name = timestep_for_physics
+  long_name = time step
+  units = s
+  dimensions = ()
+  type = real | kind = kind_phys
+  intent = in
+[ errcode ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+#########################################################

@@ -1,0 +1,457 @@
+[ccpp-table-properties]
+  name = zm_convr
+  type = scheme
+  dependencies = ../../to_be_ccppized/wv_saturation.F90
+
+[ccpp-arg-table]
+  name  = zm_convr_init
+  type  = scheme
+[ plev ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ plevp ]
+  standard_name = vertical_interface_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ cpair ]
+  standard_name = specific_heat_of_dry_air_at_constant_pressure
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ epsilo ]
+  standard_name = ratio_of_water_vapor_to_dry_air_molecular_weights
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ gravit ]
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ latvap ]
+  standard_name = latent_heat_of_vaporization_of_water_at_0c
+  units = J kg-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ tmelt ]
+  standard_name = freezing_point_of_water
+  units = K
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ rair ]
+  standard_name = gas_constant_of_dry_air
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ pref_edge ]
+  standard_name = reference_pressure_at_interface
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (vertical_interface_dimension)
+  intent = in
+[ zmconv_c0_lnd ]
+  standard_name = cloud_condensate_to_precipitation_autoconversion_coefficient_over_land_for_zhang_mcfarlane_deep_convection_scheme
+  units = m-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ zmconv_c0_ocn ]
+  standard_name = cloud_condensate_to_precipitation_autoconversion_coefficient_over_ocean_for_zhang_mcfarlane_deep_convection_scheme
+  units = m-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ zmconv_ke ]
+  standard_name = tunable_evaporation_efficiency_over_ocean_for_zhang_mcfarlane_deep_convection_scheme
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ zmconv_ke_lnd ]
+  standard_name = tunable_evaporation_efficiency_over_land_for_zhang_mcfarlane_deep_convection_scheme
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ zmconv_momcu ]
+  standard_name = momentum_transport_parameter_for_vertical_pressure_gradient_force_for_updraft_for_zhang_mcfarlane_deep_convection_scheme
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ zmconv_momcd ]
+  standard_name = momentum_transport_parameter_for_vertical_pressure_gradient_force_for_downdraft_for_zhang_mcfarlane_deep_convection_scheme
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ zmconv_num_cin ]
+  standard_name = number_of_negative_buoyancy_layers_allowed_before_convection_top_for_zhang_mcfarlane_deep_convection_scheme
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ no_deep_pbl_in ]
+  standard_name = flag_for_no_deep_convection_in_pbl
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ zmconv_tiedke_add ]
+  standard_name = parcel_temperature_perturbation_for_zhang_mcfarlane_deep_convection_scheme
+  units = flag
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ zmconv_capelmt ]
+  standard_name = cape_threshold_for_zhang_mcfarlane_deep_convection_scheme
+  units = J kg-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ zmconv_dmpdz ]
+  standard_name = entrainment_rate_for_cape_for_zhang_mcfarlane_deep_convection_scheme
+  units = m-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ zmconv_parcel_pbl ]
+  standard_name = flag_for_well_mixed_pbl_parcel_property_for_zhang_mcfarlane_deep_convection_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ zmconv_tau ]
+  standard_name = deep_convective_adjustment_timescale_for_zhang_mcfarlane_deep_convection_scheme
+  units = s
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ masterproc ]
+  standard_name = flag_for_mpi_root
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ iulog ]
+  standard_name = log_output_unit
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = zm_convr_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pverp ]
+  standard_name = vertical_interface_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ gravit ]
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ latice ]
+  standard_name = latent_heat_of_fusion_of_water_at_0c
+  units = J kg-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ cpwv ]
+  standard_name = specific_heat_of_water_vapor_at_constant_pressure
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ cpliq ]
+  standard_name = specific_heat_of_liquid_water_at_constant_pressure
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ rh2o ]
+  standard_name = gas_constant_of_water_vapor
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ t ]
+  standard_name = air_temperature
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ qh ]
+  standard_name = water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
+  advected = true
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ prec ]
+  standard_name = lwe_precipitation_rate_at_surface_due_to_deep_convection
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ pblh ]
+  standard_name = atmosphere_boundary_layer_thickness
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ zm ]
+  standard_name = geopotential_height_wrt_surface
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ geos ]
+  standard_name = surface_geopotential
+  units = m2 s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ zi ]
+  standard_name = geopotential_height_wrt_surface_at_interface
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_interface_dimension)
+  intent = in
+[ qtnd ]
+  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+  constituent = true
+[ heat ]
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure
+  units = J kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+[ pap ]
+  standard_name = air_pressure
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ paph ]
+  standard_name = air_pressure_at_interface
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_interface_dimension)
+  intent = in
+[ dpp ]
+  standard_name = air_pressure_thickness
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ delt ]
+  standard_name = timestep_for_physics
+  units = s
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ mcon ]
+  standard_name = atmosphere_convective_mass_flux_due_to_deep_convection
+  units = hPa s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+[ cme ]
+  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_from_cloud_condensation_minus_precipitation_evaporation_due_to_deep_convection
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+[ cape ]
+  standard_name = zhang_mcfarlane_convective_available_potential_energy
+  units = J kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tpert ]
+  standard_name = convective_temperature_perturbation_due_to_pbl_eddies
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ dlf ]
+  standard_name = detrainment_of_cloud_liquid_due_to_deep_convection
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+[ dif ]
+  standard_name = detrainment_of_cloud_ice_due_to_deep_convection
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+[ zdu ]
+  standard_name = detrainment_mass_flux_due_to_deep_convection
+  units = s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+[ rprd ]
+  standard_name = tendency_of_precipitation_wrt_moist_air_and_condensed_water_due_to_deep_convection_excluding_subcloud_evaporation
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+[ mu ]
+  standard_name = atmosphere_updraft_convective_mass_flux_for_deep_convection_for_convective_columns
+  units = hPa s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+[ md ]
+  standard_name = atmosphere_downdraft_convective_mass_flux_for_deep_convection_for_convective_columns
+  units = hPa s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+[ du ]
+  standard_name = atmosphere_detrainment_convective_mass_flux_for_deep_convection_for_convective_columns
+  units = s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+[ eu ]
+  standard_name = atmosphere_updraft_entrainment_convective_mass_flux_for_deep_convection_for_convective_columns
+  units = s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+[ ed ]
+  standard_name = atmosphere_downdraft_entrainment_convective_mass_flux_for_deep_convection_for_convective_columns
+  units = s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+[ dp ]
+  standard_name = pressure_thickness_for_deep_convection_for_convective_columns
+  units = hPa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+[ dsubcld ]
+  standard_name = pressure_thickness_for_subcloud_layer_for_deep_convection_for_convective_columns
+  units = hPa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ jt ]
+  standard_name = vertical_index_at_top_of_deep_convection_for_convective_columns
+  units = index
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ maxg ]
+  standard_name = vertical_index_of_deep_convection_launch_level_for_convective_columns
+  units = index
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ ideep ]
+  standard_name = horizontal_index_of_convective_columns_for_deep_convection_for_convective_columns
+  units = index
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ ql ]
+  standard_name = in_cloud_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_deep_convection
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = inout
+[ rliq ]
+  standard_name = vertically_integrated_cloud_liquid_tendency_due_to_all_convection_to_be_applied_later_in_time_loop
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ landfrac ]
+  standard_name = land_area_fraction
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ rice ]
+  standard_name = vertically_integrated_cloud_ice_tendency_due_to_all_convection_to_be_applied_later_in_time_loop
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ lengath ]
+  standard_name = index_of_last_column_of_gathered_deep_convection_arrays
+  units = index
+  type = integer
+  dimensions = ()
+  intent = out
+[ scheme_name ]
+  standard_name = scheme_name
+  long_name = scheme name
+  units = none
+  type = character | kind = len=40
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

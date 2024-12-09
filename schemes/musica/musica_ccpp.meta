@@ -1,0 +1,213 @@
+[ccpp-table-properties]
+  name = musica_ccpp
+  type = scheme
+  dependencies = micm/musica_ccpp_micm.F90,micm/musica_ccpp_micm_util.F90,tuvx/musica_ccpp_tuvx.F90,tuvx/musica_ccpp_tuvx_height_grid.F90,musica_ccpp_util.F90
+
+[ccpp-arg-table]
+  name  = musica_ccpp_register
+  type  = scheme
+[ micm_solver_type ]
+  standard_name = micm_solver_type
+  units = none
+  type = integer
+  dimensions = ()
+  intent = in
+[ number_of_grid_cells ]
+  standard_name = number_of_grid_cells
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ constituent_props ]
+  standard_name = dynamic_constituents_for_musica_ccpp
+  units = none
+  dimensions = (:)
+  allocatable = True
+  type = ccpp_constituent_properties_t
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errcode ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = musica_ccpp_init
+  type  = scheme
+[ vertical_layer_dimension ]
+  standard_name = vertical_layer_dimension
+  units = none
+  type = integer
+  dimensions = ()
+  intent = in
+[ vertical_interface_dimension ]
+  standard_name = vertical_interface_dimension
+  units = none
+  type = integer
+  dimensions = ()
+  intent = in
+[ photolysis_wavelength_grid_interfaces ]
+  standard_name = photolysis_wavelength_grid_interfaces
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (photolysis_wavelength_grid_interface_dimension)
+  intent = in
+[ constituent_props ]
+  standard_name = ccpp_constituent_properties
+  units = None
+  type = ccpp_constituent_prop_ptr_t
+  dimensions = (number_of_ccpp_constituents)
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errcode ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = musica_ccpp_run
+  type  = scheme
+[ time_step ]
+  standard_name = timestep_for_physics
+  units = s
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ temperature ]
+  standard_name = air_temperature
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ pressure ]
+  standard_name = air_pressure
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ dry_air_density ]
+  standard_name = dry_air_density
+  units = kg m-3
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  type = real | kind = kind_phys
+  intent = in
+[ constituent_props ]
+  standard_name = ccpp_constituent_properties
+  units = None
+  type = ccpp_constituent_prop_ptr_t
+  dimensions = (number_of_ccpp_constituents)
+  intent = in
+[ constituents ]
+  standard_name = ccpp_constituents
+  units = none
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension,number_of_ccpp_constituents)
+  intent = inout
+[ geopotential_height_wrt_surface_at_midpoint ]
+  standard_name = geopotential_height_wrt_surface
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ geopotential_height_wrt_surface_at_interface ]
+  standard_name = geopotential_height_wrt_surface_at_interface
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_interface_dimension)
+  intent = in
+[ surface_geopotential ]
+  standard_name = surface_geopotential
+  type = real | kind = kind_phys
+  units = m2 s-2
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ surface_temperature ]
+  standard_name = blackbody_temperature_at_surface
+  type = real | kind = kind_phys
+  units = K
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ surface_albedo ]
+  standard_name = surface_albedo_due_to_UV_and_VIS_direct
+  type = real | kind = kind_phys
+  units = None
+  dimensions = ()
+  intent = in
+[ number_of_photolysis_wavelength_grid_sections ]
+  standard_name = number_of_photolysis_wavelength_grid_sections
+  type = integer
+  units = None
+  dimensions = ()
+  intent = in
+[ photolysis_wavelength_grid_interfaces ]
+  standard_name = photolysis_wavelength_grid_interfaces
+  type = real | kind = kind_phys
+  units = nm
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ extraterrestrial_flux ]
+  standard_name = extraterrestrial_radiation_flux
+  type = real | kind = kind_phys
+  units = photons cm-2 s-1 nm-1
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ standard_gravitational_acceleration ]
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ cloud_area_fraction ]
+  standard_name = cloud_area_fraction
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ air_pressure_thickness ]
+  standard_name = air_pressure_thickness
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errcode ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = musica_ccpp_final
+  type  = scheme
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errcode ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
