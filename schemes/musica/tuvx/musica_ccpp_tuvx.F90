@@ -550,6 +550,7 @@ contains
         jno = calculate_NO_photolysis_rate(solar_zenith_angle, extraterrestrial_flux, constituents, height_interfaces, &
           dry_air_density, N2_index, O2_index, O3_index, NO_index, molar_mass_N2, molar_mass_O2, molar_mass_O3, molar_mass_NO)
       end if
+      ! TODO: throw an error or whatever fortran can do if we need the photolysis rate for NO but we can't calculate it
 
       ! map photolysis rate constants to the host model's rate parameters and vertical grid
       do i_level = 1, size(rate_parameters, dim=2)

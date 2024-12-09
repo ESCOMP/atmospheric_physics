@@ -1,5 +1,9 @@
 module musica_ccpp_tuvx_no_photolysis_rate
 
+  use ccpp_kinds, only: dk => kind_phys
+
+  implicit none
+
   !> @file musica_ccpp_tuvx_no_photolysis_rate.F90
   !> @brief Module for calculating the NO photolysis rate
   ! This module calculates the NO photolysis rate using the same method in CAM
@@ -16,116 +20,22 @@ module musica_ccpp_tuvx_no_photolysis_rate
   ! NO: Nitric oxide
   ! MS93: A reference to the Minschwaner and Siskind paper
 
-  use ccpp_kinds, only: kind_phys 
-  dk => kind_phys
 
-  implicit none
 
   private
   public :: calculate_NO_photolysis_rate, convert_mixing_ratio_to_molecule_cm3
-
-  !------------------------------------------------------------------------------
-  !   	... O3 SRB Cross Sections from WMO 1985, interpolated onto MS, 1993 grid
-  !------------------------------------------------------------------------------
-  ! TODO: What are the units? cm2  molecule-1 ?
-  real(kind_phys), save :: o3_cross_section(4) = (/ 7.3307600e-19_dk, 6.9660105E-19_dk, 5.9257699E-19_dk, 4.8372219E-19_dk /)
-
-  !------------------------------------------------------------------------------
-  !   	... O2 SRB Cross Sections for the six ODF regions, MS, 1993
-  !------------------------------------------------------------------------------
-  ! TODO: What are 250, 290, and 2100? 
-  ! TODO: What are the units? cm2  molecule-1 ?
-  real(kind_phys), save :: cross_section250(6)  = (/ 1.117e-23_dk, 2.447e-23_dk, 7.188e-23_dk, 3.042e-22_dk, 1.748e-21_dk, 1.112e-20_dk /)
-  real(kind_phys), save :: cross_section290(6)  = (/ 1.350e-22_dk, 2.991e-22_dk, 7.334e-22_dk, 3.074e-21_dk, 1.689e-20_dk, 1.658e-19_dk /)
-  real(kind_phys), save :: cross_section2100(6) = (/ 2.968e-22_dk, 5.831e-22_dk, 2.053e-21_dk, 8.192e-21_dk, 4.802e-20_dk, 2.655e-19_dk /)
-
-  !------------------------------------------------------------------------------
-  !   	... O2 SRB Cross Sections for the six ODF regions, MS, 1993
-  !------------------------------------------------------------------------------
-  ! TODO: What are 250, 290, and 2100? 
-  ! TODO: What are the units? cm2  molecule-1 ?
-  real(r8), save :: o2_250_cross_section(6)  = (/ 1.117e-23_r8, 2.447e-23_r8, 7.188e-23_r8, 3.042e-22_r8, 1.748e-21_r8, 1.112e-20_r8 /)
-  real(r8), save :: o2_290_cross_section(6)  = (/ 1.350e-22_r8, 2.991e-22_r8, 7.334e-22_r8, 3.074e-21_r8, 1.689e-20_r8, 1.658e-19_r8 /)
-  real(r8), save :: o2_2100_cross_section(6) = (/ 2.968e-22_r8, 5.831e-22_r8, 2.053e-21_r8, 8.192e-21_r8, 4.802e-20_r8, 2.655e-19_r8 /)
-
-  !------------------------------------------------------------------------------
-  !   	... delta wavelength of the MS, 1993 grid
-  !------------------------------------------------------------------------------
-  ! in nm
-  ! TODO: What is the grid? The paper only has 3 bands listed in the table, but this has 4...
-  real(kind_phys), save :: delta_wavelength(4) = (/ 1.50_dk, 1.50_dk, 5.6_dk, 2.3_dk /)
-  
-
-  ! TODO: Are these correct names
-  integer         :: number_of_levels = 6
-  integer         :: number_of_intervals = 2
-
-  real(kind_phys), dimension(24) :: _a, _b, _c
-  ! TODO: What are 50, 90, 100?
-  real(kind_phys) :: no_50_weighting_factor(number_of_levels, number_of_intervals)
-  real(kind_phys) :: no_90_weighting_factor(number_of_levels, number_of_intervals)
-  real(kind_phys) :: no_100_weighting_factor(number_of_levels, number_of_intervals)
-  real(kind_phys) :: no_50_cross_section(number_of_levels, number_of_intervals)
-  real(kind_phys) :: no_90_cross_section(number_of_levels, number_of_intervals)
-  real(kind_phys) :: no_100_cross_section(number_of_levels, number_of_intervals)
-
-  !------------------------------------------------------------------------------
-  !   	... 6 sub-intervals for O2 5-0 at 265K,
-  !	    2 sub-sub-intervals for NO 0-0 at 250K
-  !------------------------------------------------------------------------------
-  _a(:) = (/    0._dk,       0._dk,       0._dk,       0._dk, &
-                5.12e-02_dk, 5.68e-03_dk, 1.32e-18_dk, 4.41e-17_dk, &
-                1.36e-01_dk, 1.52e-02_dk, 6.35e-19_dk, 4.45e-17_dk, &
-                1.65e-01_dk, 1.83e-02_dk, 7.09e-19_dk, 4.50e-17_dk, &
-                1.41e-01_dk, 1.57e-02_dk, 2.18e-19_dk, 2.94e-17_dk, &
-                4.50e-02_dk, 5.00e-03_dk, 4.67e-19_dk, 4.35e-17_dk /)
-  
-  !------------------------------------------------------------------------------
-  !   	... sub-intervals for o2 9-0 band,
-  !	    2 sub-sub-intervals for no 1-0 at 250 k
-  !------------------------------------------------------------------------------
-  _b(:) = (/        0._dk,       0._dk,       0._dk,       0._dk, &
-                    0._dk,       0._dk,       0._dk,       0._dk, &
-              1.93e-03_dk, 2.14e-04_dk, 3.05e-21_dk, 3.20e-21_dk, &
-              9.73e-02_dk, 1.08e-02_dk, 5.76e-19_dk, 5.71e-17_dk, &
-              9.75e-02_dk, 1.08e-02_dk, 2.29e-18_dk, 9.09e-17_dk, &
-              3.48e-02_dk, 3.86e-03_dk, 2.21e-18_dk, 6.00e-17_dk /)
-  
-  !------------------------------------------------------------------------------
-  ! 	... sub-intervals for o2 10-0 band,
-  !	    2 sub-sub-intervals for no 1-0 at 250 k
-  !------------------------------------------------------------------------------
-  _c(:) = (/  4.50e-02_dk, 5.00e-03_dk, 1.80e-18_dk, 1.40e-16_dk, &
-              1.80e-01_dk, 2.00e-02_dk, 1.50e-18_dk, 1.52e-16_dk, &
-              2.25e-01_dk, 2.50e-02_dk, 5.01e-19_dk, 7.00e-17_dk, &
-              2.25e-01_dk, 2.50e-02_dk, 7.20e-20_dk, 2.83e-17_dk, &
-              1.80e-01_dk, 2.00e-02_dk, 6.72e-20_dk, 2.73e-17_dk, &
-              4.50e-02_dk, 5.00e-03_dk, 1.49e-21_dk, 6.57e-18_dk /)
-  
-  no_50_weighting_factor (1:6,1) = _a(1:24:4)
-  no_50_weighting_factor (1:6,2) = _a(2:24:4)
-  no_50_cross_section (1:6,1) = _a(3:24:4)
-  no_50_cross_section (1:6,2) = _a(4:24:4)
-  no_90_weighting_factor (1:6,1) = _b(1:24:4)
-  no_90_weighting_factor (1:6,2) = _b(2:24:4)
-  no_90_cross_section (1:6,1) = _b(3:24:4)
-  no_90_cross_section (1:6,2) = _b(4:24:4)
-  no_100_weighting_factor(1:6,1) = _c(1:24:4)
-  no_100_weighting_factor(1:6,2) = _c(2:24:4)
-  no_100_cross_section(1:6,1) = _c(3:24:4)
-  no_100_cross_section(1:6,2) = _c(4:24:4)
 
 contains
 
   !> Convert mixing ratio to molecule cm-3
   subroutine convert_mixing_ratio_to_molecule_cm3(mixing_ratio, dry_air_density, molar_mass, molecule_cm3)
-    real(kind_phys), intent(in)  :: mixing_ratio(:)       ! kg kg-1
-    real(kind_phys), intent(in)  :: dry_air_density(:)    ! kg m-3
-    real(kind_phys), intent(in)  :: molar_mass            ! kg mol-1
-    real(kind_phys), intent(out) :: molecule_cm3(:)       ! molecule cm-3
+    real(dk), intent(in)  :: mixing_ratio(:)       ! kg kg-1
+    real(dk), intent(in)  :: dry_air_density(:)    ! kg m-3
+    real(dk), intent(in)  :: molar_mass            ! kg mol-1
+    real(dk), intent(out) :: molecule_cm3(:)       ! molecule cm-3
 
     integer :: i
-    real(kind_phys), parameter :: avogadro_number = 6.02214076e23_dk ! mol-1
+    real(dk), parameter :: avogadro_number = 6.02214076e23_dk ! mol-1
 
     do i = 1, size(mixing_ratio)
       molecule_cm3(i) = mixing_ratio(i) * dry_air_density(i) / molar_mass * avogadro_number * 1.0e-6
@@ -138,36 +48,35 @@ contains
   function calculate_NO_photolysis_rate(solar_zenith_angle, extraterrestrial_flux, constituents, height_at_interfaces, &
     dry_air_density, N2_index, O2_index, O3_index, NO_index, molar_mass_N2, molar_mass_O2, molar_mass_O3, molar_mass_NO) &
       result(jNO)
-    use ccpp_kinds,          only: kind_phys
     ! inputs
-    real(kind_phys), intent(in)            :: solar_zenith_angle       ! degrees
-    real(kind_phys), intent(in)            :: extraterrestrial_flux(:) ! photons cm-2 s-1 nm-1
-    real(kind_phys), target, intent(inout) :: constituents(:,:,:)      ! various (column, layer, constituent)
-    real(kind_phys), intent(in)            :: height_at_interfaces(:)  ! km
-    real(kind_phys), intent(in)            :: dry_air_density(:,:)     ! kg m-3 (column, layer)
+    real(dk), intent(in)            :: solar_zenith_angle       ! degrees
+    real(dk), intent(in)            :: extraterrestrial_flux(:) ! photons cm-2 s-1 nm-1
+    real(dk), target, intent(inout) :: constituents(:,:,:)      ! various (column, layer, constituent)
+    real(dk), intent(in)            :: height_at_interfaces(:)  ! km
+    real(dk), intent(in)            :: dry_air_density(:,:)     ! kg m-3 (column, layer)
     integer        , intent(in)            :: N2_index, O2_index, O3_index, NO_index ! position of these species in the constituent arrays
-    real(kind_phys), intent(in)            :: molar_mass_N2, molar_mass_O2, molar_mass_O3, molar_mass_NO
+    real(dk), intent(in)            :: molar_mass_N2, molar_mass_O2, molar_mass_O3, molar_mass_NO
 
     ! local variables
     ! species column densities (molecule cm-3)
-    real(kind_phys) :: n2_dens(size(constituents, dim=2)+1), o2_dens(size(constituents, dim=2)+1)
-    real(kind_phys) :: o3_dens(size(constituents, dim=2)+1), no_dens(size(constituents, dim=2)+1)
+    real(dk) :: n2_dens(size(constituents, dim=2)+1), o2_dens(size(constituents, dim=2)+1)
+    real(dk) :: o3_dens(size(constituents, dim=2)+1), no_dens(size(constituents, dim=2)+1)
     ! species slant column densities (molecule cm-2)
-    real(kind_phys) :: o2_slant(size(constituents, dim=2)+1), o3_slant(size(constituents, dim=2)+1)
-    real(kind_phys) :: no_slant(size(constituents, dim=2)+1)
+    real(dk) :: o2_slant(size(constituents, dim=2)+1), o3_slant(size(constituents, dim=2)+1)
+    real(dk) :: no_slant(size(constituents, dim=2)+1)
     ! working photo rate array
-    real(kind_phys) :: work_jno(size(constituents, dim=2)+1)
+    real(dk) :: work_jno(size(constituents, dim=2)+1)
     ! parameters needed to calculate slant column densities
     ! (see sphers routine description for details)
     integer       :: nid(size(constituents, dim=2)+1)
     integer       :: num_vertical_layers
-    real(kind_phys) :: dsdh(0:size(constituents, dim=2)+1,size(constituents, dim=2)+1)
+    real(dk) :: dsdh(0:size(constituents, dim=2)+1,size(constituents, dim=2)+1)
     ! layer thickness (cm)
-    real(kind_phys) :: delz(size(constituents, dim=2)+1)
+    real(dk) :: delz(size(constituents, dim=2)+1)
     ! conversion from km to cm
-    real(kind_phys), parameter :: km2cm = 1.0e5_dk
+    real(dk), parameter :: km2cm = 1.0e5_dk
     ! final photolysis rate
-    real(kind_phys) :: jNO
+    real(dk) :: jNO
 
     ! number of vertical levels
     num_vertical_layers = size(constituents, dim=2)
@@ -189,8 +98,8 @@ contains
     ! ================================
     ! calculate slant column densities
     ! ================================
-    call sphers( num_vertical_layers+1, height_int, solar_zenith_angle, dsdh, nid )
-    delz(1:num_vertical_layers) = km2cm * ( height_int(1:num_vertical_layers) - height_int(2:num_vertical_layers+1) )
+    call sphers( num_vertical_layers+1, height_at_interfaces, solar_zenith_angle, dsdh, nid )
+    delz(1:num_vertical_layers) = km2cm * ( height_at_interfaces(1:num_vertical_layers) - height_at_interfaces(2:num_vertical_layers+1) )
     call slant_col( num_vertical_layers+1, delz, dsdh, nid, o2_dens, o2_slant )
     call slant_col( num_vertical_layers+1, delz, dsdh, nid, o3_dens, o3_slant )
     call slant_col( num_vertical_layers+1, delz, dsdh, nid, no_dens, no_slant )
@@ -201,28 +110,119 @@ contains
   end function calculate_NO_photolysis_rate
 
   !> Calculate the photolysis rate of NO (nitric acid)
-  function calculate_jno(num_vertical_layers, extraterrestrial_flux, n2_dens, o2_slant, o3_slant, no_slant, work_jno) 
+  function calculate_jno(num_vertical_layers, extraterrestrial_flux, n2_dens, o2_slant, o3_slant, no_slant, work_jno) &
     result(jno)
 
-    use ccpp_kinds, only: kind_phys
     ! inputs
     integer, intent(in)            :: num_vertical_layers
-    real(kind_phys), intent(in)    :: extraterrestrial_flux(:) ! photons cm-2 s-1 nm-1
-    real(kind_phys), intent(in)    :: n2_dens(:)              ! molecule cm-3
-    real(kind_phys), intent(in)    :: o2_slant(:)             ! molecule cm-2
-    real(kind_phys), intent(in)    :: o3_slant(:)             ! molecule cm-2
-    real(kind_phys), intent(in)    :: no_slant(:)             ! molecule cm-2
-    real(kind_phys), intent(inout) :: work_jno(:)             ! various
+    real(dk), intent(in)    :: extraterrestrial_flux(:) ! photons cm-2 s-1 nm-1
+    real(dk), intent(in)    :: n2_dens(:)              ! molecule cm-3
+    real(dk), intent(in)    :: o2_slant(:)             ! molecule cm-2
+    real(dk), intent(in)    :: o3_slant(:)             ! molecule cm-2
+    real(dk), intent(in)    :: no_slant(:)             ! molecule cm-2
+    real(dk), intent(inout) :: work_jno(:)             ! various
 
     ! local variables
     ! NO in an excited electronic state may result in an emission of NO or be quenched by an interaction 
     ! with N2. The predissociation faction is the probability that a precissociation of NO will occur from
     ! an excited electronic state
-    real(kind_phys) :: o3_transmission_factor
-    real(kind_phys) :: jno
-    real(kind_phys) :: jno100, jno90, jno50
+    real(dk) :: o3_transmission_factor
+    real(dk) :: jno
+    real(dk) :: jno100, jno90, jno50
     integer         :: wavelength_bins ! wavelength bins for MS, 93
     integer         :: idx 
+    !------------------------------------------------------------------------------
+    !   	... O3 SRB Cross Sections from WMO 1985, interpolated onto MS, 1993 grid
+    !------------------------------------------------------------------------------
+    ! TODO: What are the units? cm2  molecule-1 ?
+    real(dk), save :: o3_cross_section(4) = (/ 7.3307600e-19_dk, 6.9660105E-19_dk, 5.9257699E-19_dk, 4.8372219E-19_dk /)
+
+    !------------------------------------------------------------------------------
+    !   	... O2 SRB Cross Sections for the six ODF regions, MS, 1993
+    !------------------------------------------------------------------------------
+    ! TODO: What are 250, 290, and 2100? 
+    ! TODO: What are the units? cm2  molecule-1 ?
+    real(dk), save :: cross_section250(6)  = (/ 1.117e-23_dk, 2.447e-23_dk, 7.188e-23_dk, 3.042e-22_dk, 1.748e-21_dk, 1.112e-20_dk /)
+    real(dk), save :: cross_section290(6)  = (/ 1.350e-22_dk, 2.991e-22_dk, 7.334e-22_dk, 3.074e-21_dk, 1.689e-20_dk, 1.658e-19_dk /)
+    real(dk), save :: cross_section2100(6) = (/ 2.968e-22_dk, 5.831e-22_dk, 2.053e-21_dk, 8.192e-21_dk, 4.802e-20_dk, 2.655e-19_dk /)
+
+    !------------------------------------------------------------------------------
+    !   	... O2 SRB Cross Sections for the six ODF regions, MS, 1993
+    !------------------------------------------------------------------------------
+    ! TODO: What are 250, 290, and 2100? 
+    ! TODO: What are the units? cm2  molecule-1 ?
+    real(dk), save :: o2_250_cross_section(6)  = (/ 1.117e-23_dk, 2.447e-23_dk, 7.188e-23_dk, 3.042e-22_dk, 1.748e-21_dk, 1.112e-20_dk /)
+    real(dk), save :: o2_290_cross_section(6)  = (/ 1.350e-22_dk, 2.991e-22_dk, 7.334e-22_dk, 3.074e-21_dk, 1.689e-20_dk, 1.658e-19_dk /)
+    real(dk), save :: o2_2100_cross_section(6) = (/ 2.968e-22_dk, 5.831e-22_dk, 2.053e-21_dk, 8.192e-21_dk, 4.802e-20_dk, 2.655e-19_dk /)
+
+    !------------------------------------------------------------------------------
+    !   	... delta wavelength of the MS, 1993 grid
+    !------------------------------------------------------------------------------
+    ! in nm
+    ! TODO: What is the grid? The paper only has 3 bands listed in the table, but this has 4...
+    real(dk), save :: delta_wavelength(4) = (/ 1.50_dk, 1.50_dk, 5.6_dk, 2.3_dk /)
+    
+
+    ! TODO: Are these correct names
+    integer, parameter :: number_of_levels = 6
+    integer, parameter :: number_of_intervals = 2
+
+    real(dk), dimension(24) :: no_50_weighting_cross_sections, no_90_weighting_cross_sections, no_1000_weighting_cross_sections
+
+    ! TODO: What are 50, 90, 100?
+    real(dk), dimension(number_of_levels, number_of_intervals) :: no_50_weighting_factor
+    real(dk), dimension(number_of_levels, number_of_intervals) :: no_90_weighting_factor
+    real(dk), dimension(number_of_levels, number_of_intervals) :: no_100_weighting_factor
+    real(dk), dimension(number_of_levels, number_of_intervals) :: no_50_cross_section
+    real(dk), dimension(number_of_levels, number_of_intervals) :: no_90_cross_section
+    real(dk), dimension(number_of_levels, number_of_intervals) :: no_100_cross_section
+
+    !------------------------------------------------------------------------------
+    !   	... 6 sub-intervals for O2 5-0 at 265K,
+    !	    2 sub-sub-intervals for NO 0-0 at 250K
+    !------------------------------------------------------------------------------
+    no_50_weighting_cross_sections(:) = (/    0._dk,       0._dk,       0._dk,       0._dk, &
+                  5.12e-02_dk, 5.68e-03_dk, 1.32e-18_dk, 4.41e-17_dk, &
+                  1.36e-01_dk, 1.52e-02_dk, 6.35e-19_dk, 4.45e-17_dk, &
+                  1.65e-01_dk, 1.83e-02_dk, 7.09e-19_dk, 4.50e-17_dk, &
+                  1.41e-01_dk, 1.57e-02_dk, 2.18e-19_dk, 2.94e-17_dk, &
+                  4.50e-02_dk, 5.00e-03_dk, 4.67e-19_dk, 4.35e-17_dk /)
+    
+    !------------------------------------------------------------------------------
+    !   	... sub-intervals for o2 9-0 band,
+    !	    2 sub-sub-intervals for no 1-0 at 250 k
+    !------------------------------------------------------------------------------
+    no_90_weighting_cross_sections(:) = (/        0._dk,       0._dk,       0._dk,       0._dk, &
+                      0._dk,       0._dk,       0._dk,       0._dk, &
+                1.93e-03_dk, 2.14e-04_dk, 3.05e-21_dk, 3.20e-21_dk, &
+                9.73e-02_dk, 1.08e-02_dk, 5.76e-19_dk, 5.71e-17_dk, &
+                9.75e-02_dk, 1.08e-02_dk, 2.29e-18_dk, 9.09e-17_dk, &
+                3.48e-02_dk, 3.86e-03_dk, 2.21e-18_dk, 6.00e-17_dk /)
+    
+    !------------------------------------------------------------------------------
+    ! 	... sub-intervals for o2 10-0 band,
+    !	    2 sub-sub-intervals for no 1-0 at 250 k
+    !------------------------------------------------------------------------------
+    no_1000_weighting_cross_sections(:) = (/  4.50e-02_dk, 5.00e-03_dk, 1.80e-18_dk, 1.40e-16_dk, &
+                1.80e-01_dk, 2.00e-02_dk, 1.50e-18_dk, 1.52e-16_dk, &
+                2.25e-01_dk, 2.50e-02_dk, 5.01e-19_dk, 7.00e-17_dk, &
+                2.25e-01_dk, 2.50e-02_dk, 7.20e-20_dk, 2.83e-17_dk, &
+                1.80e-01_dk, 2.00e-02_dk, 6.72e-20_dk, 2.73e-17_dk, &
+                4.50e-02_dk, 5.00e-03_dk, 1.49e-21_dk, 6.57e-18_dk /)
+    
+    no_50_weighting_factor (1:6,1) = no_50_weighting_cross_sections(1:24:4)
+    no_50_weighting_factor (1:6,2) = no_50_weighting_cross_sections(2:24:4)
+    no_50_cross_section (1:6,1) = no_50_weighting_cross_sections(3:24:4)
+    no_50_cross_section (1:6,2) = no_50_weighting_cross_sections(4:24:4)
+    no_90_weighting_factor (1:6,1) = no_90_weighting_cross_sections(1:24:4)
+    no_90_weighting_factor (1:6,2) = no_90_weighting_cross_sections(2:24:4)
+    no_90_cross_section (1:6,1) = no_90_weighting_cross_sections(3:24:4)
+    no_90_cross_section (1:6,2) = no_90_weighting_cross_sections(4:24:4)
+    no_100_weighting_factor(1:6,1) = no_1000_weighting_cross_sections(1:24:4)
+    no_100_weighting_factor(1:6,2) = no_1000_weighting_cross_sections(2:24:4)
+    no_100_cross_section(1:6,1) = no_1000_weighting_cross_sections(3:24:4)
+    no_100_cross_section(1:6,2) = no_1000_weighting_cross_sections(4:24:4)
+
 
     jno = 0.0_dk
     jno100 = 0.0_dk
@@ -300,10 +300,10 @@ contains
       real(dk) :: o2_optical_depth
       real(dk) :: rate
       real(dk) :: jno1
-      real(kind_phys) :: D ! spontaneous rate of predissociation
-      real(kind_phys) :: A ! spontaneous rate of emission
-      real(kind_phys) :: kq ! quenching rate of N2
-      real(kind_phys) :: predissociation_factor
+      real(dk) :: D ! spontaneous rate of predissociation
+      real(dk) :: A ! spontaneous rate of emission
+      real(dk) :: kq ! quenching rate of N2
+      real(dk) :: predissociation_factor
       
       !----------------------------------------------------------------
       !	... derive the photolysis frequency for no within a given
