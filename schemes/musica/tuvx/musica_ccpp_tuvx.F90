@@ -18,6 +18,7 @@ module musica_ccpp_tuvx
   type(grid_t),           pointer :: wavelength_grid => null()
   type(profile_t),        pointer :: temperature_profile => null()
   type(profile_t),        pointer :: surface_albedo_profile => null()
+  type(profile_t),        pointer :: aerosol_optical_depth_profile => null()
   type(profile_t),        pointer :: extraterrestrial_flux_profile => null()
   type(index_mappings_t), pointer :: photolysis_rate_constants_mapping => null( )
   integer                         :: number_of_photolysis_rate_constants = 0
@@ -60,6 +61,11 @@ contains
       surface_albedo_profile => null()
     end if
 
+    if (associated( aerosol_optical_depth_profile )) then
+      deallocate( aerosol_optical_depth_profile )
+      aerosol_optical_depth_profile => null()
+    end if
+
     if (associated( extraterrestrial_flux_profile )) then
       deallocate( extraterrestrial_flux_profile )
       extraterrestrial_flux_profile => null()
@@ -87,6 +93,8 @@ contains
       only: create_temperature_profile, temperature_label, temperature_unit
     use musica_ccpp_tuvx_surface_albedo, &
       only: create_surface_albedo_profile, surface_albedo_label, surface_albedo_unit
+    use musica_ccpp_tuvx_aerosol_optics, &
+      only: create_aerosol_optical_depth_profile, aerosol_optical_depth_label, aerosol_optical_depth_unit
     use musica_ccpp_tuvx_extraterrestrial_flux, &
       only: create_extraterrestrial_flux_profile, extraterrestrial_flux_label, &
             extraterrestrial_flux_unit
@@ -174,6 +182,21 @@ contains
       return
     end if
 
+    aerosol_optical_depth_profile => create_aerosol_optical_depth_profile( wavelength_grid, &
+                                                                           errmsg, errcode )
+    if (errcode /= 0) then
+      call reset_tuvx_map_state( grids, profiles, null() )
+      call cleanup_tuvx_resources()
+      return
+    endif
+
+    call profiles%add( aerosol_optical_depth_profile, error )
+    if (has_error_occurred( error, errmsg, errcode )) then
+      call reset_tuvx_map_state( grids, profiles, null() )
+      call cleanup_tuvx_resources()
+      return
+    end if
+
     extraterrestrial_flux_profile => create_extraterrestrial_flux_profile( &
                 wavelength_grid, wavelength_grid_interfaces, errmsg, errcode )
     if (errcode /= 0) then
@@ -247,6 +270,14 @@ contains
     end if
 
     surface_albedo_profile => profiles%get( surface_albedo_label, surface_albedo_unit, error )
+    if (has_error_occurred( error, errmsg, errcode )) then
+      deallocate( tuvx )
+      call reset_tuvx_map_state( grids, profiles, null() )
+      call cleanup_tuvx_resources()
+      return
+    end if
+
+    aerosol_optical_depth_profile => profiles%get( aerosol_optical_depth_label, aerosol_optical_depth_unit, error )
     if (has_error_occurred( error, errmsg, errcode )) then
       deallocate( tuvx )
       call reset_tuvx_map_state( grids, profiles, null() )

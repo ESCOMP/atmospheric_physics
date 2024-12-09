@@ -2,7 +2,7 @@ module musica_ccpp_tuvx_aerosol_optics
   implicit none
 
   private
-  public :: set_aerosol_optics_values
+  public :: create_aerosol_optical_depth_profile, set_aerosol_optics_values
 
   !> Label
   character(len=*), parameter, public :: aerosol_optical_depth_label = "optical depths"
