@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<suite name="adiabatic" version="1.0">
+  <group name="physics_before_coupler">
+    <!-- Compute global means of physics input and output total energy -->
+    <scheme>check_energy_gmean</scheme>
+    <!-- After gmean, output global mean energy diagnostics -->
+    <scheme>check_energy_gmean_diagnostics</scheme>
+
+    <!-- Add global mean energy difference as heating (diff between gmean and save_teout) -->
+    <scheme>check_energy_zero_fluxes</scheme>
+    <scheme>check_energy_fix</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>geopotential_temp</scheme>
+
+    <!-- Check that energy and water change matches the boundary fluxes -->
+    <scheme>check_energy_scaling</scheme>
+    <scheme>check_energy_chng</scheme>
+
+    <!-- Save current total energy from dycore for energy fixer in time step. This requires te_cur to be updated from check_energy_chng first. -->
+    <scheme>check_energy_save_teout</scheme>
+
+    <!-- State diagnostics -->
+    <scheme>sima_state_diagnostics</scheme>
+  </group>
+  <group name="physics_after_coupler">
+    <!-- Tendency diagnostics -->
+    <scheme>sima_tend_diagnostics</scheme>
+  </group>
+</suite>
