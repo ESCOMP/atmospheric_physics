@@ -22,7 +22,7 @@ module musica_ccpp_tuvx_aerosol_optics
 contains
 
   !> Creates a TUV-x aerosol optical depth profile from the host-model wavelength grid
-  function create_aerosol_otpical_depth_profile( wavelength_grid, errmsg, errcode ) & 
+  function create_aerosol_optical_depth_profile( wavelength_grid, errmsg, errcode ) & 
       result( profile )
     use musica_ccpp_util,    only: has_error_occurred
     use musica_tuvx_grid,    only: grid_t
