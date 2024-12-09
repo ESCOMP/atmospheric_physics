@@ -5,9 +5,13 @@ module musica_ccpp_tuvx_aerosol_optics
   public :: set_aerosol_optics_values
 
   !> Label
-  character(len=*), parameter, public :: aerosol_extinction_label = "ext"
+  character(len=*), parameter, public :: aerosol_optical_depths_label = "aerosol_optical_depths"
+  character(len=*), parameter, public :: aerosol_single_scattering_albedos_label = "aerosol_single_scattering_albedos"
+  character(len=*), parameter, public :: aerosol_asymmetry_factors_label = "aerosol_asymmetry_factors"
   !> Unit
-  character(len=*), parameter, public :: aerosol_extinction_unit = "units"
+  character(len=*), parameter, public :: aerosol_optical_depths_unit = "none"
+  character(len=*), parameter, public :: aerosol_single_scattering_albedos_unit = "none"
+  character(len=*), parameter, public :: aerosol_asymmetry_factors_unit = "none"
   !> Default value of number of wavelength bins
   integer, parameter :: DEFAULT_NUM_WAVELENGTH_BINS = 0
   !> Number of wavelength bins
@@ -15,13 +19,16 @@ module musica_ccpp_tuvx_aerosol_optics
 
 contains
 
-  subroutine set_aerosol_optics_values( profile, host_aerosol_extinction, &
+  subroutine set_aerosol_optics_values( profile, &
+                                        host_aerosol_optical_depths, &
+                                        host_aerosol_single_scattering_albedos, &
+                                        host_aerosol_asymmetry_factors, &
                                         errmsg, errcode )
     use ccpp_kinds,          only: kind_phys
     use musica_ccpp_util,    only: has_error_occurred
     use musica_util,         only: error_t
 
-    real(kind_phys),  intent(in)    :: host_aerosol_extinction ! units
+    real(kind_phys),  intent(in)    :: host_aerosol_optical_depths
     character(len=*), intent(out)   :: errmsg
     integer,          intent(out)   :: errcode
 
