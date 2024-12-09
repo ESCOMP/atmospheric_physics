@@ -333,6 +333,13 @@ subroutine zm_convr_run(     ncol    ,pver    , &
 
    integer,  intent(out) :: ideep(:)  ! column indices of gathered points                              (ncol)
 
+   integer, intent(out) :: jt(:)  ! wg top  level index of deep cumulus convection.
+   integer, intent(out) :: maxg(:)! wg gathered values of maxi.
+
+   integer, intent(out) :: lengath
+
+   real(kind_phys),intent(out):: ql(:,:)                    ! wg grid slice of cloud liquid water.
+
    character(len=40),  intent(out)      :: scheme_name
    character(len=512), intent(out)      :: errmsg
    integer, intent(out)                 :: errflg
@@ -350,14 +357,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
 
    real(kind_phys) mumax(ncol)
 
-!CACNOTE - Figure out real intent for jt and maxg
-   integer, intent(out) :: jt(ncol)                          ! wg top  level index of deep cumulus convection.
-   integer, intent(out) :: maxg(ncol)                        ! wg gathered values of maxi.
-
-   integer, intent(out) :: lengath
-
-!CACNOTE - Figure out real intent for ql
-   real(kind_phys),intent(inout):: ql(ncol,pver)                    ! wg grid slice of cloud liquid water.
 !
    real(kind_phys) pblt(ncol)           ! i row of pbl top indices.
 
@@ -1532,9 +1531,6 @@ SUBROUTINE ientropy (rcall,icol,s,p,qt,T,qst,Tfg,cpliq,cpwv,rh2o,errmsg,errflg)
 ! for T and saturated vapor mixing ratio
 !
 
-! CACNOTE - Remove this when pass in lat/lon or pass out lchnk,icol (Note: lchnk will not exist in CAM-SIMA)
-!  use phys_grid, only: get_rlon_p, get_rlat_p
-
   integer, intent(in) :: icol, rcall
   real(kind_phys), intent(in)  :: s, p, Tfg, qt
   real(kind_phys), intent(in) :: cpliq
@@ -1660,28 +1656,9 @@ subroutine cldprp(ncol   ,pver    ,pverp   ,cpliq   , &
                   rd      ,grav    ,cp      ,msg     , &
                   evp     ,cu      ,rprd    ,limcnv  ,landfrac, &
                   qcde     ,qhat  )
-
-!-----------------------------------------------------------------------
-!CACNOTE - fill in documentation
-!
-! Purpose:
-! <Say what the routine does>
-!
-! Method:
-! may 09/91 - guang jun zhang, m.lazare, n.mcfarlane.
-!             original version cldprop.
-!
-! Author: See above, modified by P. Rasch
-! This is contributed code not fully standardized by the CCM core group.
-!
-! this code is very much rougher than virtually anything else in the CCM
-! there are debug statements left strewn about and code segments disabled
-! these are to facilitate future development. We expect to release a
-! cleaner code in a future release
-!
-! the documentation has been enhanced to the degree that we are able
-!
-!-----------------------------------------------------------------------
+!----------------------------------------------
+! Purpose: Provide cloud properties
+!----------------------------------------------
 
    implicit none
 
@@ -2371,26 +2348,7 @@ subroutine closure(ncol   ,pver, &
                    lcl     ,lel     ,jt      ,mx      ,il1g    , &
                    il2g    ,rd      ,grav    ,cp      ,rl      , &
                    msg     ,capelmt )
-!-----------------------------------------------------------------------
-!CACNOTE - fill in documentation
-!
-! Purpose:
-! <Say what the routine does>
-!
-! Method:
-! <Describe the algorithm(s) used in the routine.>
-! <Also include any applicable external references.>
-!
-! Author: G. Zhang and collaborators. CCM contact:P. Rasch
-! This is contributed code not fully standardized by the CCM core group.
-!
-! this code is very much rougher than virtually anything else in the CCM
-! We expect to release cleaner code in a future release
-!
-! the documentation has been enhanced to the degree that we are able
-!
-!-----------------------------------------------------------------------
-
+! CACNOTE - add description
 !
 !-----------------------------Arguments---------------------------------
 !
@@ -2583,17 +2541,8 @@ subroutine q1q2_pjr(ncol   ,pver    ,latice  ,&
    implicit none
 
 !-----------------------------------------------------------------------
-! CACNOTE -fill in documentation
-!
 ! Purpose:
-! <Say what the routine does>
-!
-! Method:
-! <Describe the algorithm(s) used in the routine.>
-! <Also include any applicable external references.>
-!
-! Author: phil rasch dec 19 1995
-!
+!    compute temperature and moisture changes due to convection.
 !-----------------------------------------------------------------------
 
 

@@ -409,7 +409,7 @@
   units = kg kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
-  intent = inout
+  intent = out
 [ rliq ]
   standard_name = vertically_integrated_cloud_liquid_tendency_due_to_all_convection_to_be_applied_later_in_time_loop
   units = kg m-2 s-1
