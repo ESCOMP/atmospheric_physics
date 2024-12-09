@@ -251,6 +251,7 @@ contains
       jno(lev) = jno50 + jno90 + jno100
     end do
 
+    contains
 
     function pjno( wavelength_interval, o2_cross_section, no_weighting_factor, no_cross_section, lev ) result(result)
       !------------------------------------------------------------------------------
