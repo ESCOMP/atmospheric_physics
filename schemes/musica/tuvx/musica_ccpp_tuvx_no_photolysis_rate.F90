@@ -126,11 +126,12 @@ contains
     ! NO in an excited electronic state may result in an emission of NO or be quenched by an interaction 
     ! with N2. The predissociation faction is the probability that a precissociation of NO will occur from
     ! an excited electronic state
-    real(dk) :: o3_transmission_factor
-    real(dk) :: jno
+    real(dk) :: o3_transmission_factor(size(o3_slant), 4)  ! Define the correct size
+    real(dk) :: jno(0:num_vertical_layers)
     real(dk) :: jno100, jno90, jno50
     integer         :: wavelength_bins ! wavelength bins for MS, 93
     integer         :: idx 
+    integer :: lev
     !------------------------------------------------------------------------------
     !   	... O3 SRB Cross Sections from WMO 1985, interpolated onto MS, 1993 grid
     !------------------------------------------------------------------------------
@@ -234,24 +235,24 @@ contains
     ! ... idx = 1,2, and 4 are used below for jno
     ! ... TODO: why is 3 not used?
     !------------------------------------------------------------------------------
-    do idx = 1,wavelength_bins
-      o3_transmission_factor(:,idx) = exp( -o3_cross_section(idx)*o3_slant(:) )
+    do idx = 1, wavelength_bins
+      o3_transmission_factor(:,idx) = exp( -o3_cross_section(idx) * o3_slant(:) )
     end do
 
     !------------------------------------------------------------------------------
     !   	... Call PJNO Function to derive SR Band JNO contributions
-    !         Called in order of wavelength interval (shortest firs)
+    !         Called in order of wavelength interval (shortest first)
     ! TODO: what are 90, 100, and 50?
     !------------------------------------------------------------------------------
-    do lev = 1,nlev
-      jno100   = pjno( 1, o2_2100_cross_section, no_100_weighting_factor, no_100_cross_section )
-      jno90    = pjno( 2, o2_290_cross_section,  no_90_weighting_factor,  no_90_cross_section )
-      jno50    = pjno( 4, o2_250_cross_section,  no_50_weighting_factor,  no_50_cross_section )
+    do lev = 1, num_vertical_layers
+      jno100   = pjno( 1, o2_2100_cross_section, no_100_weighting_factor, no_100_cross_section, lev )
+      jno90    = pjno( 2, o2_290_cross_section,  no_90_weighting_factor,  no_90_cross_section, lev )
+      jno50    = pjno( 4, o2_250_cross_section,  no_50_weighting_factor,  no_50_cross_section, lev )
       jno(lev) = jno50 + jno90 + jno100
     end do
 
 
-    function pjno( wavelength_interval, o2_cross_section, no_weighting_factor, no_cross_section ) result(result)
+    function pjno( wavelength_interval, o2_cross_section, no_weighting_factor, no_cross_section, lev ) result(result)
       !------------------------------------------------------------------------------
       !   	... uses xsec at center of g subinterval for o2
       !           uses mean values for no
@@ -281,9 +282,10 @@ contains
       !	... Dummy arguments
       !----------------------------------------------------------------
       integer, intent(in)     :: wavelength_interval
-      real(dk),    intent(in) :: o2_cross_section()
+      real(dk),    intent(in) :: o2_cross_section(6)
       real(dk),    intent(in) :: no_cross_section(number_of_levels,number_of_intervals)
       real(dk),    intent(in) :: no_weighting_factor(number_of_levels,number_of_intervals)
+      integer :: lev
       
       !----------------------------------------------------------------
       !	... Function declarations
@@ -320,7 +322,7 @@ contains
          end if
         jno1 = 0._dk
         do j = 1,2
-          no_optical_depth = noscol(lev)*no_cross_section(i,j)
+          no_optical_depth = no_slant(lev)*no_cross_section(i,j)
           ! TODO: What is the value of 50? units? where does it come from?
           if( no_optical_depth < 50._dk ) then
             no_transmission = exp( -no_optical_depth )
@@ -329,11 +331,11 @@ contains
           end if
           jno1 = jno1 + no_cross_section(i,j) * no_weighting_factor(i,j) * no_transmission
         end do
-        rate = rate + jno1*o2_transmission
+        rate = rate + jno1 * o2_transmission
       end do
       
       result = delta_wavelength(wavelength_interval) * extraterrestrial_flux(wavelength_interval) &
-                * o3_transmission_factor(lev,wavelength_interval) * rate
+                * o3_transmission_factor(lev, wavelength_interval) * rate
 
       ! Values taken from (Minschwaner and Siskind, 1993)
       D = 1.65e9_dk ! s-1
@@ -345,7 +347,7 @@ contains
       !         transition in the srb (5-0)
       !----------------------------------------------------------------
       if( wavelength_interval == 4 ) then
-        predissociation_factor = D/(A + D + (kq * n2cc(nlev-lev+1)))
+        predissociation_factor = D/(A + D + (kq * n2_dens(lev)))
         result = predissociation_factor * result
       end if
       
