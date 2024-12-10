@@ -111,20 +111,7 @@ contains
                                number_of_rate_parameters)    :: rate_parameters ! various units
     integer :: i_elem
 
-    ! Calculate photolysis rate constants using TUV-x
-    call tuvx_run(temperature, dry_air_density,                  &
-                  geopotential_height_wrt_surface_at_midpoint,   &
-                  geopotential_height_wrt_surface_at_interface,  &
-                  surface_geopotential, surface_temperature,     &
-                  surface_albedo,                                &
-                  number_of_photolysis_wavelength_grid_sections, &
-                  photolysis_wavelength_grid_interfaces,         &
-                  extraterrestrial_flux,                         &
-                  standard_gravitational_acceleration,           &
-                  cloud_area_fraction, constituents,             &
-                  air_pressure_thickness, rate_parameters,       &
-                  errmsg, errcode)
-
+    ! TODO(jiwon) this might not be correct because it doesn't know the index
     ! Get the molar mass that is set in the call to instantiate()
     do i_elem = 1, size(molar_mass_arr)
       call constituent_props(i_elem)%molar_mass(molar_mass_arr(i_elem), errcode, errmsg)
@@ -146,6 +133,20 @@ contains
 
     ! Convert CAM-SIMA unit to MICM unit (kg kg-1  ->  mol m-3)
     call convert_to_mol_per_cubic_meter(dry_air_density, molar_mass_arr, constituents)
+
+    ! Calculate photolysis rate constants using TUV-x
+    call tuvx_run(temperature, dry_air_density,                  &
+                  geopotential_height_wrt_surface_at_midpoint,   &
+                  geopotential_height_wrt_surface_at_interface,  &
+                  surface_geopotential, surface_temperature,     &
+                  surface_albedo,                                &
+                  number_of_photolysis_wavelength_grid_sections, &
+                  photolysis_wavelength_grid_interfaces,         &
+                  extraterrestrial_flux,                         &
+                  standard_gravitational_acceleration,           &
+                  cloud_area_fraction, constituents,             &
+                  air_pressure_thickness, rate_parameters,       &
+                  errmsg, errcode)
 
     ! Solve chemistry at the current time step
     call micm_run(time_step, temperature, pressure, dry_air_density, rate_parameters, &

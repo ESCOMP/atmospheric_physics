@@ -84,7 +84,7 @@ contains
 
   !> Sets TUV-x height grid values from the host-model height grid
   subroutine set_height_grid_values(height_grid, host_midpoints, &
-                                    host_interfaces, errmsg, errcode)
+      host_interfaces, height_deltas, errmsg, errcode)
     use ccpp_kinds,       only: kind_phys
     use musica_ccpp_util, only: has_error_occurred
     use musica_tuvx_grid, only: grid_t
@@ -93,6 +93,7 @@ contains
     type(grid_t),     intent(inout) :: height_grid
     real(kind_phys),  intent(in)    :: host_midpoints(:)  ! km
     real(kind_phys),  intent(in)    :: host_interfaces(:) ! km
+    real(kind_phys),  intent(inout) :: height_deltas(:)   ! km
     character(len=*), intent(out)   :: errmsg
     integer,          intent(out)   :: errcode
 
@@ -101,6 +102,9 @@ contains
     real(kind_phys) :: midpoints(size(host_midpoints)+1)
     real(kind_phys) :: interfaces(size(host_interfaces)+1)
     integer         :: n_host_midpoints, n_host_interfaces
+
+    n_host_midpoints = size(host_midpoints)
+    n_host_interfaces = size(host_interfaces)
 
     if ( size(midpoints) /= height_grid%number_of_sections( error ) ) then
       errmsg = "[MUSICA Error] Invalid size of TUV-x mid-point heights."
@@ -114,8 +118,11 @@ contains
       return
     end if
 
-    n_host_midpoints = size(host_midpoints)
-    n_host_interfaces = size(host_interfaces)
+    if ( size(height_deltas) /= n_host_interfaces ) then
+      errmsg = "[MUSICA Error] Invalid size of TUV-x height deltas."
+      errcode = 1
+      return
+    end if
 
     interfaces(1) = host_interfaces(n_host_interfaces)
     interfaces(2:n_host_interfaces) = host_midpoints(n_host_midpoints:1:-1)
@@ -126,6 +133,8 @@ contains
     midpoints(2:n_host_midpoints) = host_interfaces(n_host_midpoints:2:-1)
     midpoints(n_host_midpoints+1) = 0.5_kind_phys * &
               ( interfaces(n_host_interfaces) + interfaces(n_host_interfaces+1) )
+
+    height_deltas(:) = interfaces(2:size(interfaces)) - interfaces(1:size(interfaces)-1)
 
     call height_grid%set_edges( interfaces, error )
     if ( has_error_occurred( error, errmsg, errcode ) ) return
