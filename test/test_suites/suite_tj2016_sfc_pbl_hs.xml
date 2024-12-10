@@ -7,6 +7,8 @@
     <scheme>apply_tendency_of_eastward_wind</scheme>
     <scheme>apply_tendency_of_northward_wind</scheme>
     <scheme>qneg</scheme>
+    <scheme>sima_state_diagnostics</scheme>
+    <scheme>sima_tend_diagnostics</scheme>
   </group>
 </suite>
 
