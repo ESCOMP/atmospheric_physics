@@ -136,7 +136,6 @@ contains
 
   !> Tests the Chapman chemistry scheme
   subroutine test_chapman()
-    use musica_micm,               only: Rosenbrock, RosenbrockStandardOrder
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
     use musica_ccpp_micm,          only: micm
@@ -155,7 +154,6 @@ contains
     integer, parameter                                                    :: NUM_LAYERS = 2
     integer, parameter                                                    :: NUM_WAVELENGTH_BINS = 102
     integer                                                               :: NUM_GRID_CELLS = NUM_COLUMNS * NUM_LAYERS
-    integer                                                               :: solver_type = Rosenbrock
     integer                                                               :: errcode
     character(len=512)                                                    :: errmsg
     real(kind_phys)                                                       :: time_step = 60._kind_phys                    ! s
@@ -192,7 +190,6 @@ contains
     real(kind_phys)                                                       :: total_O, total_O_init
 
     call get_wavelength_edges(photolysis_wavelength_grid_interfaces)
-    solver_type = Rosenbrock
     time_step = 60._kind_phys
     geopotential_height_wrt_surface_at_midpoint(1,:) = (/ 2000.0_kind_phys, 500.0_kind_phys /)
     geopotential_height_wrt_surface_at_midpoint(2,:) = (/ 2000.0_kind_phys, -500.0_kind_phys /)
@@ -225,7 +222,7 @@ contains
     filename_of_tuvx_configuration = 'musica_configurations/chapman/tuvx/config.json'
     filename_of_tuvx_micm_mapping_configuration = 'musica_configurations/chapman/tuvx_micm_mapping.json'
 
-    call musica_ccpp_register(solver_type, NUM_GRID_CELLS, constituent_props, errmsg, errcode)
+    call musica_ccpp_register(NUM_COLUMNS, NUM_LAYERS, constituent_props, errmsg, errcode)
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
@@ -374,7 +371,6 @@ contains
 
   !> Tests the simple Terminator chemistry scheme
   subroutine test_terminator()
-    use musica_micm,               only: Rosenbrock, RosenbrockStandardOrder
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
     use musica_ccpp_micm,          only: micm
@@ -393,7 +389,6 @@ contains
     integer, parameter                                                    :: NUM_LAYERS = 2
     integer, parameter                                                    :: NUM_WAVELENGTH_BINS = 102
     integer                                                               :: NUM_GRID_CELLS = NUM_COLUMNS * NUM_LAYERS
-    integer                                                               :: solver_type = Rosenbrock
     integer                                                               :: errcode
     character(len=512)                                                    :: errmsg
     real(kind_phys)                                                       :: time_step = 60._kind_phys                    ! s
@@ -430,7 +425,6 @@ contains
     real(kind_phys)                                                       :: total_Cl, total_Cl_init
 
     call get_wavelength_edges(photolysis_wavelength_grid_interfaces)
-    solver_type = Rosenbrock
     time_step = 60._kind_phys
     geopotential_height_wrt_surface_at_midpoint(1,:) = (/ 2000.0_kind_phys, 500.0_kind_phys /)
     geopotential_height_wrt_surface_at_midpoint(2,:) = (/ 2000.0_kind_phys, -500.0_kind_phys /)
@@ -463,7 +457,7 @@ contains
     filename_of_tuvx_configuration = 'musica_configurations/terminator/tuvx/config.json'
     filename_of_tuvx_micm_mapping_configuration = 'musica_configurations/terminator/tuvx_micm_mapping.json'
 
-    call musica_ccpp_register(solver_type, NUM_GRID_CELLS, constituent_props, errmsg, errcode)
+    call musica_ccpp_register(NUM_COLUMNS, NUM_LAYERS, constituent_props, errmsg, errcode)
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3

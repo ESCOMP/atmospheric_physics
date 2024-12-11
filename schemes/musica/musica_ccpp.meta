@@ -6,14 +6,14 @@
 [ccpp-arg-table]
   name  = musica_ccpp_register
   type  = scheme
-[ micm_solver_type ]
-  standard_name = micm_solver_type
-  units = none
+[ horizontal_loop_extent ]
+  standard_name = horizontal_loop_extent
+  units = count
   type = integer
   dimensions = ()
   intent = in
-[ number_of_grid_cells ]
-  standard_name = number_of_grid_cells
+[ vertical_layer_dimension ]
+  standard_name = vertical_layer_dimension
   units = count
   type = integer
   dimensions = ()
