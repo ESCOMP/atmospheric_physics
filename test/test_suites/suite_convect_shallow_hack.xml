@@ -21,7 +21,7 @@
     <!-- SHALLOW CONVECTION: HACK SCHEME -->
     <scheme>cmfmca</scheme>
     <scheme>apply_heating_rate</scheme>
-    <!-- eventually apply constituent tendencies -->
+    <scheme>apply_constituent_tendencies</scheme>
 
     <!-- DIAGNOSTIC QUANTITY UPDATES -->
     <!-- eventually calculate shallow convective fraction diagnostic (FREQSH) -->
@@ -33,7 +33,6 @@
     <!-- <scheme>convect_shallow_zm_conv_evap_prep</scheme>  -->
     <!-- <scheme>zm_conv_evap</scheme> -->
     <!-- <scheme>apply_heating_rate</scheme> -->
-    <!-- apply constituent tendencies temporary -->
-    <!-- <scheme>dadadj_apply_qv_tendency</scheme> -->
+    <!-- <scheme>apply_constituent_tendencies</scheme> -->
   </group>
 </suite>

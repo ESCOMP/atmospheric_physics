@@ -93,6 +93,12 @@
   type = integer
   dimensions = ()
   intent = in
+[ const_props ]
+  standard_name = ccpp_constituent_properties
+  units = None
+  type = ccpp_constituent_prop_ptr_t
+  dimensions = (number_of_ccpp_constituents)
+  intent = in
 [ nstep ]
   standard_name = current_timestep_number
   units = count
@@ -178,7 +184,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
   intent = in
 [ dq ]
-  standard_name = tendency_of_ccpp_constituents_due_to_shallow_convection
+  standard_name = ccpp_constituent_tendencies
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)

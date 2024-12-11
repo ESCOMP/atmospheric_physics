@@ -113,6 +113,7 @@ contains
 !! \htmlinclude cmfmca_run.html
   subroutine cmfmca_run( &
     ncol, pver, pcnst, &
+    const_props,       &
     nstep, &
     ztodt, &
     pmid, pmiddry, &
@@ -139,14 +140,12 @@ contains
     ! to_be_ccppized
     use wv_saturation,   only: qsat
 
-    ! FIXME hplin: dependencies on CAM constituents properties ...?
-    ! cnst_get_type_byind --> dry/water ...
-    use constituents,    only: cnst_get_type_byind
-
     ! Input arguments
     integer,         intent(in)    :: ncol               ! number of atmospheric columns
     integer,         intent(in)    :: pver               ! number of vertical levels
     integer,         intent(in)    :: pcnst              ! number of ccpp constituents
+    type(ccpp_constituent_prop_ptr_t), &
+                     intent(in)    :: const_props(:)     ! ccpp constituent properties pointer
     integer,         intent(in)    :: nstep              ! current time step index
     real(kind_phys), intent(in)    :: ztodt              ! physics timestep [s]
 
@@ -180,6 +179,9 @@ contains
 
     ! Local variables
     real(kind_phys)                :: tpert(ncol)        ! PBL perturbation temperature (convective temperature excess) [K]
+
+    character(len=256) :: const_standard_name ! temp: constituent standard name
+    logical            :: const_is_dry        ! temp: constituent is dry flag
 
     real(kind_phys) :: pm(ncol,pver)       ! pressure [Pa]
     real(kind_phys) :: pd(ncol,pver)       ! delta-p [Pa]
@@ -277,9 +279,13 @@ contains
 
     !---------------------------------------------------
     ! copy q to dq for passive tracer transport.
-    ! this is NOT an initialization.
+    ! this is NOT an initialization. the dq at this point
+    ! is not physical (used as temporary here) only at the end
+    ! dq is updated to be an actual tendency.
     !---------------------------------------------------
     if(pcnst > 1) then
+      ! NOTE: index 1 is assumed to be water vapor here and other 2: subset
+      ! operations below.
       dq    (:ncol,:,2:)  = q(:ncol,:,2:)
     endif
 
@@ -627,18 +633,24 @@ contains
       ! fields, it's computationally much cheaper, no more-or-less justifiable,
       ! and consistent with how the history tape mass fluxes would be used in
       ! an off-line mode (i.e., using an off-line transport model)
+      const_modify_loop: do m = 1, pcnst
+        ! TODO hplin: can these be made into module-level flags cached at scheme init??
+        ! skip water in this loop.
+        call const_props(m)%standard_name(const_standard_name)
+        if (const_standard_name == 'water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water') then
+          cycle const_modify_loop
+        endif
 
-      ! have to skip water in this loop.
-      const_modify_loop: do m=2, pcnst    ! note: indexing assumes water is first field
-        ! FIXME hplin: use CCPP constituents object here
-        if (cnst_get_type_byind(m) .eq. 'dry') then
-           pd(:ncol,:) = pdeldry(:ncol,:)
-           rpd(:ncol,:) = rpdeldry(:ncol,:)
-           pm(:ncol,:) = pmiddry(:ncol,:)
+        ! assign pd, rpd, pm temporary properties based on constituent dry/moist mixing ratio
+        call const_props(m)%is_dry(const_is_dry, errflg, errmsg)
+        if(const_is_dry) then
+          pd (:ncol,:) = pdeldry (:ncol,:)
+          rpd(:ncol,:) = rpdeldry(:ncol,:)
+          pm (:ncol,:) = pmiddry (:ncol,:)
         else
-           pd(:ncol,:) = pdel(:ncol,:)
-           rpd(:ncol,:) = rpdel(:ncol,:)
-           pm(:ncol,:) = pmid(:ncol,:)
+          pd (:ncol,:) = pdel    (:ncol,:)
+          rpd(:ncol,:) = rpdel   (:ncol,:)
+          pm (:ncol,:) = pmid    (:ncol,:)
         endif
 
         pcl1loop: do ii=1,len1
