@@ -87,7 +87,7 @@ ENV CCPP_STD_NAMES_PATH="lib/CCPPStandardNames"
 
 RUN cd atmospheric_physics/test \
     && cmake -S . -B build \
-             -D CMAKE_BUILD_TYPE={BUILD_TYPE} \
+             -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
              -D CCPP_ENABLE_MUSICA_TESTS=ON \
              -D CCPP_ENABLE_MEMCHECK=ON \
     && cmake --build ./build

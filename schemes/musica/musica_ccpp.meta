@@ -183,6 +183,18 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
+[ solar_zenith_angle ]
+  standard_name = solar_zenith_angle
+  units = radians
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ earth_sun_distance ]
+  standard_name = earth_sun_distance
+  units = radians
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none

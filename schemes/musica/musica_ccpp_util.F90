@@ -2,10 +2,15 @@
 ! SPDX-License-Identifier: Apache-2.0
 module musica_ccpp_util
 
+  use ccpp_kinds, only: kind_phys
+
   implicit none
 
   private
   public :: has_error_occurred
+
+  real(kind_phys), parameter, public :: PI = 3.14159265358979323846_kind_phys
+  real(kind_phys), parameter, public :: DEGREE_TO_RADIAN = PI / 180.0_kind_phys
 
 contains
 

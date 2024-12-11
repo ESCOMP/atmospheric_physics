@@ -77,7 +77,8 @@ contains
                              number_of_photolysis_wavelength_grid_sections,                          &
                              photolysis_wavelength_grid_interfaces, extraterrestrial_flux,           &
                              standard_gravitational_acceleration, cloud_area_fraction,               &
-                             air_pressure_thickness, errmsg, errcode)
+                             air_pressure_thickness, solar_zenith_angle,                             &
+                             earth_sun_distance, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use ccpp_kinds,                only: kind_phys
     use musica_ccpp_micm,          only: number_of_rate_parameters
@@ -101,6 +102,8 @@ contains
     real(kind_phys),         intent(in)    :: standard_gravitational_acceleration               ! m s-2
     real(kind_phys),         intent(in)    :: cloud_area_fraction(:,:)                          ! unitless (column, level)
     real(kind_phys),         intent(in)    :: air_pressure_thickness(:,:)                       ! Pa (column, level)
+    real(kind_phys),         intent(in)    :: solar_zenith_angle(:)                             ! radians (column)
+    real(kind_phys),         intent(in)    :: earth_sun_distance                                ! AU
     character(len=512),      intent(out)   :: errmsg
     integer,                 intent(out)   :: errcode
 
@@ -121,7 +124,10 @@ contains
                   photolysis_wavelength_grid_interfaces,         &
                   extraterrestrial_flux,                         &
                   standard_gravitational_acceleration,           &
-                  cloud_area_fraction, constituents,             &
+                  cloud_area_fraction,                           &
+                  solar_zenith_angle,                            &
+                  earth_sun_distance,                            &
+                  constituents,                                  &
                   air_pressure_thickness, rate_parameters,       &
                   errmsg, errcode)
 
