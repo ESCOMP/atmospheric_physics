@@ -222,7 +222,7 @@ contains
     filename_of_tuvx_configuration = 'musica_configurations/chapman/tuvx/config.json'
     filename_of_tuvx_micm_mapping_configuration = 'musica_configurations/chapman/tuvx_micm_mapping.json'
 
-    call musica_ccpp_register(NUM_COLUMNS, NUM_LAYERS, constituent_props, errmsg, errcode)
+    call musica_ccpp_register(constituent_props, errmsg, errcode)
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
@@ -264,7 +264,7 @@ contains
       call constituent_props_ptr(i)%set(const_prop, errcode, errmsg)
     end do
 
-    call musica_ccpp_init(NUM_LAYERS, NUM_LAYERS+1, photolysis_wavelength_grid_interfaces, &
+    call musica_ccpp_init(NUM_COLUMNS, NUM_LAYERS, NUM_LAYERS+1, photolysis_wavelength_grid_interfaces, &
                           constituent_props_ptr, errmsg, errcode)
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
@@ -457,7 +457,7 @@ contains
     filename_of_tuvx_configuration = 'musica_configurations/terminator/tuvx/config.json'
     filename_of_tuvx_micm_mapping_configuration = 'musica_configurations/terminator/tuvx_micm_mapping.json'
 
-    call musica_ccpp_register(NUM_COLUMNS, NUM_LAYERS, constituent_props, errmsg, errcode)
+    call musica_ccpp_register(constituent_props, errmsg, errcode)
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
@@ -496,7 +496,7 @@ contains
       call constituent_props_ptr(i)%set(const_prop, errcode, errmsg)
     end do
 
-    call musica_ccpp_init(NUM_LAYERS, NUM_LAYERS+1, photolysis_wavelength_grid_interfaces, &
+    call musica_ccpp_init(NUM_COLUMNS, NUM_LAYERS, NUM_LAYERS+1, photolysis_wavelength_grid_interfaces, &
                           constituent_props_ptr, errmsg, errcode)
     if (errcode /= 0) then
       write(*,*) trim(errmsg)

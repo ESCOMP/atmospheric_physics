@@ -14,14 +14,11 @@ contains
 
   !> \section arg_table_musica_ccpp_register Argument Table
   !! \htmlinclude musica_ccpp_register.html
-  subroutine musica_ccpp_register(horizontal_loop_extent, &
-                                  vertical_layer_dimension, constituent_props, errmsg, &
+  subroutine musica_ccpp_register(constituent_props, errmsg, &
                                   errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
     use musica_ccpp_namelist,      only: micm_solver_type
 
-    integer,                                          intent(in)  :: horizontal_loop_extent
-    integer,                                          intent(in)  :: vertical_layer_dimension
     type(ccpp_constituent_properties_t), allocatable, intent(out) :: constituent_props(:)
     character(len=512),                               intent(out) :: errmsg
     integer,                                          intent(out) :: errcode
@@ -29,7 +26,11 @@ contains
     type(ccpp_constituent_properties_t), allocatable :: constituent_props_subset(:)
     integer :: number_of_grid_cells
 
-    number_of_grid_cells = horizontal_loop_extent * vertical_layer_dimension
+    ! Temporary fix until the number of grid cells is only needed to create a MICM state
+    ! instead of when the solver is created.
+    ! The number of grid cells is not know at this point, so we set it to 1 and recreate
+    ! the solver when the number of grid cells is known at the init stage.
+    number_of_grid_cells = 1
     call micm_register(micm_solver_type, number_of_grid_cells, constituent_props_subset, &
                        errmsg, errcode)
     if (errcode /= 0) return
@@ -44,13 +45,16 @@ contains
 
   !> \section arg_table_musica_ccpp_init Argument Table
   !! \htmlinclude musica_ccpp_init.html
-  subroutine musica_ccpp_init(vertical_layer_dimension, vertical_interface_dimension, &
+  subroutine musica_ccpp_init(horizontal_loop_extent, vertical_layer_dimension, &
+                              vertical_interface_dimension, &
                               photolysis_wavelength_grid_interfaces, &
                               constituent_props, errmsg, errcode)
-    use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
+    use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t, ccpp_constituent_prop_ptr_t
     use ccpp_kinds, only : kind_phys
     use musica_ccpp_micm, only: micm
+    use musica_ccpp_namelist, only: micm_solver_type
     use musica_ccpp_util, only: has_error_occurred
+    integer,                           intent(in)  :: horizontal_loop_extent                   ! (count)
     integer,                           intent(in)  :: vertical_layer_dimension                 ! (count)
     integer,                           intent(in)  :: vertical_interface_dimension             ! (count)
     real(kind_phys),                   intent(in)  :: photolysis_wavelength_grid_interfaces(:) ! m
@@ -58,6 +62,14 @@ contains
     character(len=512),                intent(out) :: errmsg
     integer,                           intent(out) :: errcode
 
+    integer :: number_of_grid_cells
+    type(ccpp_constituent_properties_t), allocatable :: micm_species_props(:)
+
+    ! Temporary fix until the number of grid cells is only needed to create a MICM state
+    ! instead of when the solver is created.
+    ! Re-create the MICM solver with the correct number of grid cells
+    number_of_grid_cells = horizontal_loop_extent * vertical_layer_dimension
+    call micm_register(micm_solver_type, number_of_grid_cells, micm_species_props, errmsg, errcode)
     call micm_init(errmsg, errcode)
     if (errcode /= 0) return
     call tuvx_init(vertical_layer_dimension, vertical_interface_dimension, &

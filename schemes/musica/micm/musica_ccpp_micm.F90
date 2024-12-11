@@ -38,6 +38,10 @@ contains
     logical                       :: is_advected
     integer                       :: i, species_index
 
+    if (associated( micm )) then
+      deallocate( micm )
+      micm => null()
+    end if
     micm => micm_t(trim(filename_of_micm_configuration), solver_type, &
                    number_of_grid_cells, error)
     if (has_error_occurred(error, errmsg, errcode)) return
