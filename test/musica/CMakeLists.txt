@@ -13,32 +13,6 @@ set(MUSICA_ENABLE_INSTALL OFF)
 
 FetchContent_MakeAvailable(musica)
 
-# MUSICA utilities
-add_executable(test_musica_ccpp_util test_musica_ccpp_util.F90)
-
-target_sources(test_musica_ccpp_util
-  PUBLIC
-    ${MUSICA_SRC_PATH}/musica_ccpp_util.F90
-    ${CCPP_TEST_SRC_PATH}/ccpp_kinds.F90
-    ${TO_BE_CCPPIZED_SRC_PATH}/shr_orb_mod.F90
-)
-
-target_link_libraries(test_musica_ccpp_util
-  PRIVATE
-    musica::musica-fortran
-)
-
-set_target_properties(test_musica_ccpp_util
-  PROPERTIES
-  LINKER_LANGUAGE Fortran
-)
-
-add_test(
-  NAME test_musica_ccpp_util
-  COMMAND $<TARGET_FILE:test_musica_ccpp_util>
-  WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-)
-
 # ---------------------------------------------------------
 # Create a test for MUSICA CCPP wrapper
 # ---------------------------------------------------------

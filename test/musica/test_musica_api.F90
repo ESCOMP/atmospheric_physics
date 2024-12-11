@@ -164,8 +164,6 @@ contains
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS+1)                  :: geopotential_height_wrt_surface_at_interface ! m
     real(kind_phys), dimension(NUM_COLUMNS)                               :: surface_geopotential                         ! m2 s-2
     real(kind_phys), dimension(NUM_COLUMNS)                               :: surface_temperature                          ! K
-    real(kind_phys), dimension(NUM_COLUMNS)                               :: latitude                                     ! radians
-    real(kind_phys), dimension(NUM_COLUMNS)                               :: longitude                                    ! radians
     real(kind_phys)                                                       :: surface_albedo                               ! unitless
     integer, parameter                                                    :: num_photolysis_wavelength_grid_sections = 8  ! (count)
     real(kind_phys), dimension(num_photolysis_wavelength_grid_sections+1) :: flux_data_photolysis_wavelength_interfaces   ! nm
@@ -180,6 +178,8 @@ contains
                                NUM_SPECIES+NUM_TUVX_CONSTITUENTS)         :: constituents                                 ! kg kg-1
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS, &
                                NUM_SPECIES+NUM_TUVX_CONSTITUENTS)         :: initial_constituents                         ! kg kg-1
+    real(kind_phys), dimension(NUM_COLUMNS)                               :: solar_zenith_angle                           ! radians
+    real(kind_phys)                                                       :: earth_sun_distance                           ! AU
     type(ccpp_constituent_prop_ptr_t),   allocatable                      :: constituent_props_ptr(:)
     type(ccpp_constituent_properties_t), allocatable, target              :: constituent_props(:)
     type(ccpp_constituent_properties_t), pointer                          :: const_prop
@@ -190,11 +190,6 @@ contains
     integer                                                               :: i, j, k
     integer                                                               :: N2_index, O2_index, O_index, O1D_index, O3_index
     real(kind_phys)                                                       :: total_O, total_O_init
-    real(kind_phys)                                                       :: earth_eccentricity
-    real(kind_phys)                                                       :: earth_obliquity
-    real(kind_phys)                                                       :: perihelion_longitude
-    real(kind_phys)                                                       :: moving_vernal_equinox_longitude
-    real(kind_phys)                                                       :: calendar_day
 
     call get_wavelength_edges(photolysis_wavelength_grid_interfaces)
     solver_type = Rosenbrock
@@ -223,16 +218,8 @@ contains
     cloud_area_fraction(:,2) = (/ 0.3_kind_phys, 0.4_kind_phys /)
     air_pressure_thickness(:,1) = (/ 900.0_kind_phys, 905.0_kind_phys /)
     air_pressure_thickness(:,2) = (/ 910.0_kind_phys, 915.0_kind_phys /)
-
-    ! Set conditions for one daytime and one nighttime column
-    ! Greenwich, UK and Wellington, NZ
-    latitude = (/ 51.5_kind_phys, -41.3_kind_phys /)
-    longitude = (/ 0.0_kind_phys, 174.8_kind_phys /)
-    earth_eccentricity = 0.0167_kind_phys
-    earth_obliquity = 23.5_kind_phys * DEGREE_TO_RADIAN
-    perihelion_longitude = 102.9_kind_phys * DEGREE_TO_RADIAN
-    moving_vernal_equinox_longitude = 182.7_kind_phys * DEGREE_TO_RADIAN
-    calendar_day = 183.5_kind_phys ! noon GMT Jul 1
+    solar_zenith_angle = (/ 0.0_kind_phys, 2.1_kind_phys /)
+    earth_sun_distance = 1.04_kind_phys
 
     filename_of_micm_configuration = 'musica_configurations/chapman/micm/config.json'
     filename_of_tuvx_configuration = 'musica_configurations/chapman/tuvx/config.json'
@@ -337,9 +324,8 @@ contains
                           surface_temperature, surface_albedo, num_photolysis_wavelength_grid_sections, &
                           flux_data_photolysis_wavelength_interfaces, extraterrestrial_flux,            &
                           standard_gravitational_acceleration, cloud_area_fraction,                     &
-                          air_pressure_thickness, latitude, longitude, earth_eccentricity,              &
-                          earth_obliquity, perihelion_longitude, moving_vernal_equinox_longitude,       &
-                          calendar_day, errmsg, errcode )
+                          air_pressure_thickness, solar_zenith_angle, earth_sun_distance, errmsg,       &
+                          errcode )
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
@@ -416,8 +402,6 @@ contains
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS+1)                  :: geopotential_height_wrt_surface_at_interface ! m
     real(kind_phys), dimension(NUM_COLUMNS)                               :: surface_geopotential                         ! m2 s-2
     real(kind_phys), dimension(NUM_COLUMNS)                               :: surface_temperature                          ! K
-    real(kind_phys), dimension(NUM_COLUMNS)                               :: latitude                                     ! radians
-    real(kind_phys), dimension(NUM_COLUMNS)                               :: longitude                                    ! radians
     real(kind_phys)                                                       :: surface_albedo                               ! unitless
     integer, parameter                                                    :: num_photolysis_wavelength_grid_sections = 8  ! (count)
     real(kind_phys), dimension(num_photolysis_wavelength_grid_sections+1) :: flux_data_photolysis_wavelength_interfaces   ! nm
@@ -432,6 +416,8 @@ contains
                                NUM_SPECIES+NUM_TUVX_CONSTITUENTS)         :: constituents                                 ! kg kg-1
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS, &
                                NUM_SPECIES+NUM_TUVX_CONSTITUENTS)         :: initial_constituents                         ! kg kg-1
+    real(kind_phys), dimension(NUM_COLUMNS)                               :: solar_zenith_angle                           ! radians
+    real(kind_phys)                                                       :: earth_sun_distance                           ! AU
     type(ccpp_constituent_prop_ptr_t),   allocatable                      :: constituent_props_ptr(:)
     type(ccpp_constituent_properties_t), allocatable, target              :: constituent_props(:)
     type(ccpp_constituent_properties_t), pointer                          :: const_prop
@@ -442,11 +428,6 @@ contains
     integer                                                               :: i, j, k
     integer                                                               :: Cl_index, Cl2_index
     real(kind_phys)                                                       :: total_Cl, total_Cl_init
-    real(kind_phys)                                                       :: earth_eccentricity
-    real(kind_phys)                                                       :: earth_obliquity
-    real(kind_phys)                                                       :: perihelion_longitude
-    real(kind_phys)                                                       :: moving_vernal_equinox_longitude
-    real(kind_phys)                                                       :: calendar_day
 
     call get_wavelength_edges(photolysis_wavelength_grid_interfaces)
     solver_type = Rosenbrock
@@ -475,16 +456,8 @@ contains
     cloud_area_fraction(:,2) = (/ 0.3_kind_phys, 0.4_kind_phys /)
     air_pressure_thickness(:,1) = (/ 900.0_kind_phys, 905.0_kind_phys /)
     air_pressure_thickness(:,2) = (/ 910.0_kind_phys, 915.0_kind_phys /)
-
-    ! Set conditions for one daytime and one nighttime column
-    ! Greenwich, UK and Wellington, NZ
-    latitude = (/ 51.5_kind_phys, -41.3_kind_phys /)
-    longitude = (/ 0.0_kind_phys, 174.8_kind_phys /)
-    earth_eccentricity = 0.0167_kind_phys
-    earth_obliquity = 23.5_kind_phys * DEGREE_TO_RADIAN
-    perihelion_longitude = 102.9_kind_phys * DEGREE_TO_RADIAN
-    moving_vernal_equinox_longitude = 182.7_kind_phys * DEGREE_TO_RADIAN
-    calendar_day = 183.5_kind_phys ! noon GMT Jul 1
+    solar_zenith_angle = (/ 0.0_kind_phys, 2.1_kind_phys /)
+    earth_sun_distance = 1.04_kind_phys
 
     filename_of_micm_configuration = 'musica_configurations/terminator/micm/config.json'
     filename_of_tuvx_configuration = 'musica_configurations/terminator/tuvx/config.json'
@@ -577,9 +550,8 @@ contains
                           surface_temperature, surface_albedo, num_photolysis_wavelength_grid_sections, &
                           flux_data_photolysis_wavelength_interfaces, extraterrestrial_flux,            &
                           standard_gravitational_acceleration, cloud_area_fraction,                     &
-                          air_pressure_thickness, latitude, longitude, earth_eccentricity,              &
-                          earth_obliquity, perihelion_longitude, moving_vernal_equinox_longitude,       &
-                          calendar_day, errmsg, errcode )
+                          air_pressure_thickness, solar_zenith_angle, earth_sun_distance, errmsg,       &
+                          errcode )
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3

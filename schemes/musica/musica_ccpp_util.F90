@@ -7,7 +7,7 @@ module musica_ccpp_util
   implicit none
 
   private
-  public :: has_error_occurred, calculate_solar_zenith_angle_and_earth_sun_distance
+  public :: has_error_occurred
 
   real(kind_phys), parameter, public :: PI = 3.14159265358979323846_kind_phys
   real(kind_phys), parameter, public :: DEGREE_TO_RADIAN = PI / 180.0_kind_phys
@@ -41,54 +41,5 @@ contains
     has_error_occurred = .true.
 
   end function has_error_occurred
-
-  !> Calculate the solar zenith angle and Earth-Sun distance
-  !> @param[in] calendar_day Calendar day, including fraction
-  !> @param[in] latitude Latitude in radians
-  !> @param[in] longitude Longitude in radians
-  !> @param[in] earth_eccentricity Earth's eccentricity factor (unitless)
-  !> @param[in] earth_obliquity Earth's obliquity in radians
-  !> @param[in] perihelion_longitude Earth's mean perihelion longitude at the vernal equinox (radians)
-  !> @param[in] moving_vernal_equinox_longitude Earth's moving vernal equinox longitude of perihelion plus pi (radians)
-  !> @param[out] solar_zenith_angle Solar zenith angle in radians
-  !> @param[out] earth_sun_distance Earth-Sun distance in AU
-  !> @param[out] errmsg Error message
-  !> @param[out] errcode Error code
-  subroutine calculate_solar_zenith_angle_and_earth_sun_distance(calendar_day, &
-      latitude, longitude, earth_eccentricity, earth_obliquity, perihelion_longitude, &
-      moving_vernal_equinox_longitude, solar_zenith_angle, earth_sun_distance, &
-      errmsg, errcode)
-    use shr_orb_mod, only: shr_orb_decl, shr_orb_cosz
-    use musica_util, only: error_t
-
-    real(kind_phys),    intent(in)  :: calendar_day
-    real(kind_phys),    intent(in)  :: latitude(:)
-    real(kind_phys),    intent(in)  :: longitude(:)
-    real(kind_phys),    intent(in)  :: earth_eccentricity
-    real(kind_phys),    intent(in)  :: earth_obliquity
-    real(kind_phys),    intent(in)  :: perihelion_longitude
-    real(kind_phys),    intent(in)  :: moving_vernal_equinox_longitude
-    real(kind_phys),    intent(out) :: solar_zenith_angle(:)
-    real(kind_phys),    intent(out) :: earth_sun_distance
-    character(len=512), intent(out) :: errmsg
-    integer,            intent(out) :: errcode
-
-    real(kind_phys) :: delta
-    integer :: i_sza
-
-    errcode = 0
-    errmsg = ''
-
-    ! Calculate earth/orbit parameters
-    call shr_orb_decl(calendar_day, earth_eccentricity, earth_obliquity, &
-                      perihelion_longitude, moving_vernal_equinox_longitude, &
-                      delta, earth_sun_distance)
-
-    ! Calculate solar zenith angle
-    do i_sza = 1, size(solar_zenith_angle)
-      solar_zenith_angle(i_sza) = acos(shr_orb_cosz(calendar_day, latitude(i_sza), longitude(i_sza), delta))
-    end do
-
-  end subroutine calculate_solar_zenith_angle_and_earth_sun_distance
 
 end module musica_ccpp_util
