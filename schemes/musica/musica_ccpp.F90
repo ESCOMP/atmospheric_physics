@@ -2,7 +2,7 @@
 module musica_ccpp
   use musica_ccpp_micm,     only: micm_register, micm_init, micm_run, micm_final
   use musica_ccpp_namelist, only: filename_of_tuvx_micm_mapping_configuration
-  use musica_ccpp_tuvx,     only: tuvx_init, tuvx_run, tuvx_final
+  use musica_ccpp_tuvx,     only: tuvx_register, tuvx_init, tuvx_run, tuvx_final
   use musica_util,          only: index_mappings_t
 
   implicit none
@@ -24,29 +24,42 @@ contains
     character(len=512),                               intent(out) :: errmsg
     integer,                                          intent(out) :: errcode
 
-    call micm_register(micm_solver_type, number_of_grid_cells, constituent_props, &
+    type(ccpp_constituent_properties_t), allocatable :: constituent_props_subset(:)
+
+    call micm_register(micm_solver_type, number_of_grid_cells, constituent_props_subset, &
                        errmsg, errcode)
+    if (errcode /= 0) return
+    constituent_props = constituent_props_subset
+    deallocate(constituent_props_subset)
+
+    call tuvx_register(constituent_props_subset, errmsg, errcode)
+    if (errcode /= 0) return
+    constituent_props = [ constituent_props, constituent_props_subset ]
 
   end subroutine musica_ccpp_register
 
   !> \section arg_table_musica_ccpp_init Argument Table
   !! \htmlinclude musica_ccpp_init.html
   subroutine musica_ccpp_init(vertical_layer_dimension, vertical_interface_dimension, &
-                              photolysis_wavelength_grid_interfaces, errmsg, errcode)
+                              photolysis_wavelength_grid_interfaces, &
+                              constituent_props, errmsg, errcode)
+    use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use ccpp_kinds, only : kind_phys
     use musica_ccpp_micm, only: micm
     use musica_ccpp_util, only: has_error_occurred
-    integer,            intent(in)  :: vertical_layer_dimension                 ! (count)
-    integer,            intent(in)  :: vertical_interface_dimension             ! (count)
-    real(kind_phys),    intent(in)  :: photolysis_wavelength_grid_interfaces(:) ! m
-    character(len=512), intent(out) :: errmsg
-    integer,            intent(out) :: errcode
+    integer,                           intent(in)  :: vertical_layer_dimension                 ! (count)
+    integer,                           intent(in)  :: vertical_interface_dimension             ! (count)
+    real(kind_phys),                   intent(in)  :: photolysis_wavelength_grid_interfaces(:) ! m
+    type(ccpp_constituent_prop_ptr_t), intent(in)  :: constituent_props(:)
+    character(len=512),                intent(out) :: errmsg
+    integer,                           intent(out) :: errcode
 
     call micm_init(errmsg, errcode)
     if (errcode /= 0) return
     call tuvx_init(vertical_layer_dimension, vertical_interface_dimension, &
                    photolysis_wavelength_grid_interfaces, &
-                   micm%user_defined_reaction_rates, errmsg, errcode)
+                   micm%user_defined_reaction_rates, &
+                   constituent_props, errmsg, errcode)
     if (errcode /= 0) return
 
   end subroutine musica_ccpp_init
@@ -62,8 +75,9 @@ contains
                              geopotential_height_wrt_surface_at_interface, surface_geopotential,     &
                              surface_temperature, surface_albedo,                                    &
                              number_of_photolysis_wavelength_grid_sections,                          &
-                             photolysis_wavelength_grid_interfaces, extraterrestrial_flux, &
-                             standard_gravitational_acceleration, errmsg, errcode)
+                             photolysis_wavelength_grid_interfaces, extraterrestrial_flux,           &
+                             standard_gravitational_acceleration, cloud_area_fraction,               &
+                             air_pressure_thickness, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use ccpp_kinds,                only: kind_phys
     use musica_ccpp_micm,          only: number_of_rate_parameters
@@ -85,6 +99,8 @@ contains
     real(kind_phys),         intent(in)    :: photolysis_wavelength_grid_interfaces(:)          ! nm
     real(kind_phys),         intent(in)    :: extraterrestrial_flux(:)                          ! photons cm-2 s-1 nm-1
     real(kind_phys),         intent(in)    :: standard_gravitational_acceleration               ! m s-2
+    real(kind_phys),         intent(in)    :: cloud_area_fraction(:,:)                          ! unitless (column, level)
+    real(kind_phys),         intent(in)    :: air_pressure_thickness(:,:)                       ! Pa (column, level)
     character(len=512),      intent(out)   :: errmsg
     integer,                 intent(out)   :: errcode
 
@@ -105,7 +121,8 @@ contains
                   photolysis_wavelength_grid_interfaces,         &
                   extraterrestrial_flux,                         &
                   standard_gravitational_acceleration,           &
-                  rate_parameters,                               &
+                  cloud_area_fraction, constituents,             &
+                  air_pressure_thickness, rate_parameters,       &
                   errmsg, errcode)
 
     ! Get the molar mass that is set in the call to instantiate()
