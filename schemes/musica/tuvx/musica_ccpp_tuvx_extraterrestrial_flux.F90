@@ -89,7 +89,7 @@ contains
     end if
 
     ! Regrid normalized flux to TUV-x wavelength grid
-    call rebin( size(photolysis_wavelength_grid_interfaces), num_wavelength_bins_,     &
+    call rebin( size(photolysis_wavelength_grid_interfaces) - 1, num_wavelength_bins_,     &
                 photolysis_wavelength_grid_interfaces, wavelength_grid_interfaces_, &
                 extraterrestrial_flux, midpoints )
 
