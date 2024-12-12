@@ -37,13 +37,13 @@
   intent = in
 [ vertical_layer_dimension ]
   standard_name = vertical_layer_dimension
-  units = none
+  units = count
   type = integer
   dimensions = ()
   intent = in
 [ vertical_interface_dimension ]
   standard_name = vertical_interface_dimension
-  units = none
+  units = count
   type = integer
   dimensions = ()
   intent = in
