@@ -1,9 +1,13 @@
+! Copyright (C) 2024 National Science Foundation-National Center for Atmospheric Research
+! SPDX-License-Identifier: Apache-2.0
 module musica_ccpp_tuvx_aerosol_optics
   implicit none
 
   private
-  public :: create_aerosol_optical_depth_profile, set_aerosol_optics_values
+  public :: create_aerosol_optical_depth_profile, create_aerosol_optics_radiator, set_aerosol_optics_values
 
+  !> Label for aerosol optical properties in TUV-x
+  character(len=*), parameter, public :: aerosol_optics_label = "aerosols"
   !> Label
   character(len=*), parameter, public :: aerosol_optical_depth_label = "optical depths"
   character(len=*), parameter, public :: aerosol_single_scattering_albedo_label = "single scattering albedos"
@@ -14,6 +18,10 @@ module musica_ccpp_tuvx_aerosol_optics
   character(len=*), parameter, public :: aerosol_single_scattering_albedo_unit = "none"
   character(len=*), parameter, public :: aerosol_asymmetry_factor_unit = "none"
   character(len=*), parameter, public :: aerosol_visible_optical_depth_unit = "none"
+  !> Default value of number of vertical levels
+  integer, parameter :: DEFAULT_NUM_VERTICAL_LEVELS = 0
+  !> Number of vertical levels
+  integer, protected :: num_vertical_levels = DEFAULT_NUM_VERTICAL_LEVELS
   !> Default value of number of wavelength bins
   integer, parameter :: DEFAULT_NUM_WAVELENGTH_BINS = 0
   !> Number of wavelength bins
@@ -45,6 +53,36 @@ contains
     if ( has_error_occurred( error, errmsg, errcode ) ) return
 
   end function create_aerosol_optical_depth_profile
+
+
+  function create_aerosol_optics_radiator( height_grid, wavelength_grid, &
+      errmsg, errcode ) result( radiator )
+    use musica_ccpp_util,     only: has_error_occurred
+    use musica_tuvx_grid,     only: grid_t
+    use musica_tuvx_radiator, only: radiator_t
+    use musica_util,          only: error_t
+
+    type(grid_t),     intent(inout) :: height_grid
+    type(grid_t),     intent(inout) :: wavelength_grid
+    character(len=*), intent(out)   :: errmsg
+    integer,          intent(out)   :: errcode
+    type(radiator_t), pointer       :: radiator
+
+    ! local variables
+    type(error_t) :: error
+
+    num_vertical_levels = height_grid%number_of_sections( error )
+    if ( has_error_occurred( error, errmsg, errcode ) ) return
+
+    num_wavelength_bins = wavelength_grid%number_of_sections( error )
+    if ( has_error_occurred( error, errmsg, errcode ) ) return
+
+    radiator => radiator_t( aerosol_optics_label, height_grid, wavelength_grid, &
+                            error )
+    if ( has_error_occurred( error, errmsg, errcode ) ) return
+
+  end function create_aerosol_optics_radiator
+
 
   subroutine set_aerosol_optics_values( profile, &
                                         host_aerosol_optical_depth, &
