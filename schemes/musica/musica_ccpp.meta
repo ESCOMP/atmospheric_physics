@@ -29,8 +29,8 @@
 [ccpp-arg-table]
   name  = musica_ccpp_init
   type  = scheme
-[ horizontal_loop_extent ]
-  standard_name = horizontal_loop_extent
+[ horizontal_dimension ]
+  standard_name = horizontal_dimension
   units = count
   type = integer
   dimensions = ()

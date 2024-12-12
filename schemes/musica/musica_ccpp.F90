@@ -45,7 +45,7 @@ contains
 
   !> \section arg_table_musica_ccpp_init Argument Table
   !! \htmlinclude musica_ccpp_init.html
-  subroutine musica_ccpp_init(horizontal_loop_extent, vertical_layer_dimension, &
+  subroutine musica_ccpp_init(horizontal_dimension, vertical_layer_dimension, &
                               vertical_interface_dimension, &
                               photolysis_wavelength_grid_interfaces, &
                               constituent_props, errmsg, errcode)
@@ -54,7 +54,7 @@ contains
     use musica_ccpp_micm, only: micm
     use musica_ccpp_namelist, only: micm_solver_type
     use musica_ccpp_util, only: has_error_occurred
-    integer,                           intent(in)  :: horizontal_loop_extent                   ! (count)
+    integer,                           intent(in)  :: horizontal_dimension                     ! (count)
     integer,                           intent(in)  :: vertical_layer_dimension                 ! (count)
     integer,                           intent(in)  :: vertical_interface_dimension             ! (count)
     real(kind_phys),                   intent(in)  :: photolysis_wavelength_grid_interfaces(:) ! m
@@ -68,7 +68,7 @@ contains
     ! Temporary fix until the number of grid cells is only needed to create a MICM state
     ! instead of when the solver is created.
     ! Re-create the MICM solver with the correct number of grid cells
-    number_of_grid_cells = horizontal_loop_extent * vertical_layer_dimension
+    number_of_grid_cells = horizontal_dimension * vertical_layer_dimension
     call micm_register(micm_solver_type, number_of_grid_cells, micm_species_props, errmsg, errcode)
     call micm_init(errmsg, errcode)
     if (errcode /= 0) return
