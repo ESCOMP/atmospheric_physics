@@ -72,6 +72,9 @@ contains
     ! local variables
     integer :: k
 
+    errmsg = ''
+    errflg = 0
+
     ! namelist variables
     cmftau  = cmftau_in
     c0      = c0_in
@@ -135,50 +138,54 @@ contains
     cnt_sh, &
     cnb_sh, &
     icwmr, &
-    rliq_sh &
+    rliq_sh, &
+    errmsg, errflg &
   )
     ! to_be_ccppized
     use wv_saturation,   only: qsat
 
     ! Input arguments
-    integer,         intent(in)    :: ncol               ! number of atmospheric columns
-    integer,         intent(in)    :: pver               ! number of vertical levels
-    integer,         intent(in)    :: pcnst              ! number of ccpp constituents
+    integer,         intent(in)     :: ncol               ! number of atmospheric columns
+    integer,         intent(in)     :: pver               ! number of vertical levels
+    integer,         intent(in)     :: pcnst              ! number of ccpp constituents
     type(ccpp_constituent_prop_ptr_t), &
-                     intent(in)    :: const_props(:)     ! ccpp constituent properties pointer
-    integer,         intent(in)    :: nstep              ! current time step index
-    real(kind_phys), intent(in)    :: ztodt              ! physics timestep [s]
+                     intent(in)     :: const_props(:)     ! ccpp constituent properties pointer
+    integer,         intent(in)     :: nstep              ! current time step index
+    real(kind_phys), intent(in)     :: ztodt              ! physics timestep [s]
 
-    real(kind_phys), intent(in)    :: pmid(:,:)          ! midpoint pressures [Pa]
-    real(kind_phys), intent(in)    :: pmiddry(:,:)       ! dry pressure at midpoints [Pa]
-    real(kind_phys), intent(in)    :: pdel(:,:)          ! layer thickness (delta-p) [Pa]
-    real(kind_phys), intent(in)    :: pdeldry(:,:)       ! dry layer thickness [Pa]
-    real(kind_phys), intent(in)    :: rpdel(:,:)         ! 1.0 / pdel
-    real(kind_phys), intent(in)    :: rpdeldry(:,:)      ! 1.0 / pdeldry
+    real(kind_phys), intent(in)     :: pmid(:,:)          ! midpoint pressures [Pa]
+    real(kind_phys), intent(in)     :: pmiddry(:,:)       ! dry pressure at midpoints [Pa]
+    real(kind_phys), intent(in)     :: pdel(:,:)          ! layer thickness (delta-p) [Pa]
+    real(kind_phys), intent(in)     :: pdeldry(:,:)       ! dry layer thickness [Pa]
+    real(kind_phys), intent(in)     :: rpdel(:,:)         ! 1.0 / pdel
+    real(kind_phys), intent(in)     :: rpdeldry(:,:)      ! 1.0 / pdeldry
 
-    real(kind_phys), intent(in)    :: zm(:,:)            ! geopotential height at midpoints [m]
-    real(kind_phys), intent(inout) :: qpert(:,:)         ! PBL perturbation specific humidity (convective humidity excess) [kg kg-1]
-    real(kind_phys), intent(in)    :: phis(:)            ! surface geopotential [m2 s-2]
-    real(kind_phys), intent(in)    :: pblh(:)            ! PBL height [m]
-    real(kind_phys), intent(in)    :: t(:,:)             ! temperature [K]
-    real(kind_phys), intent(in)    :: q(:,:,:)           ! constituents [kg kg-1]
+    real(kind_phys), intent(in)     :: zm(:,:)            ! geopotential height at midpoints [m]
+    real(kind_phys), intent(inout)  :: qpert(:,:)         ! PBL perturbation specific humidity (convective humidity excess) [kg kg-1]
+    real(kind_phys), intent(in)     :: phis(:)            ! surface geopotential [m2 s-2]
+    real(kind_phys), intent(in)     :: pblh(:)            ! PBL height [m]
+    real(kind_phys), intent(in)     :: t(:,:)             ! temperature [K]
+    real(kind_phys), intent(in)     :: q(:,:,:)           ! constituents [kg kg-1]
 
     ! Output arguments
-    real(kind_phys), intent(out)   :: dq(:,:,:)          ! constituent tendencies [kg kg-1 s-1]
-    real(kind_phys), intent(out)   :: qc_sh(:,:)         ! dq/dt due to export of cloud water / shallow reserved cloud condensate [kg kg-1 s-1]
-    real(kind_phys), intent(out)   :: cmfdt(:,:)         ! heating rate (to ptend%s) [J kg-1 s-1]
-    real(kind_phys), intent(out)   :: cmfmc_sh(:,:)      ! convective updraft mass flux, shallow [kg s-1 m-2]
-    real(kind_phys), intent(out)   :: cmfdqr(:,:)        ! q tendency due to shallow convective rainout [kg kg-1 s-1]
-    real(kind_phys), intent(out)   :: cmfsl(:,:)         ! moist shallow convection liquid water static energy flux [W m-2]
-    real(kind_phys), intent(out)   :: cmflq(:,:)         ! moist shallow convection total water flux [W m-2]
-    real(kind_phys), intent(out)   :: precc(:)           ! shallow convective precipitation rate [m s-1]
-    real(kind_phys), intent(out)   :: cnt_sh(:)          ! top level of shallow convective activity [index]
-    real(kind_phys), intent(out)   :: cnb_sh(:)          ! bottom level of shallow convective activity [index]
-    real(kind_phys), intent(out)   :: icwmr(:,:)         ! shallow convection in-cloud water mixing ratio [kg kg-1]
-    real(kind_phys), intent(out)   :: rliq_sh(:)         ! vertically-integrated shallow reserved cloud condensate [m s-1]
+    real(kind_phys), intent(out)    :: dq(:,:,:)          ! constituent tendencies [kg kg-1 s-1]
+    real(kind_phys), intent(out)    :: qc_sh(:,:)         ! dq/dt due to export of cloud water / shallow reserved cloud condensate [kg kg-1 s-1]
+    real(kind_phys), intent(out)    :: cmfdt(:,:)         ! heating rate (to ptend%s) [J kg-1 s-1]
+    real(kind_phys), intent(out)    :: cmfmc_sh(:,:)      ! convective updraft mass flux, shallow [kg s-1 m-2]
+    real(kind_phys), intent(out)    :: cmfdqr(:,:)        ! q tendency due to shallow convective rainout [kg kg-1 s-1]
+    real(kind_phys), intent(out)    :: cmfsl(:,:)         ! moist shallow convection liquid water static energy flux [W m-2]
+    real(kind_phys), intent(out)    :: cmflq(:,:)         ! moist shallow convection total water flux [W m-2]
+    real(kind_phys), intent(out)    :: precc(:)           ! shallow convective precipitation rate [m s-1]
+    real(kind_phys), intent(out)    :: cnt_sh(:)          ! top level of shallow convective activity [index]
+    real(kind_phys), intent(out)    :: cnb_sh(:)          ! bottom level of shallow convective activity [index]
+    real(kind_phys), intent(out)    :: icwmr(:,:)         ! shallow convection in-cloud water mixing ratio [kg kg-1]
+    real(kind_phys), intent(out)    :: rliq_sh(:)         ! vertically-integrated shallow reserved cloud condensate [m s-1]
+
+    character(len=512), intent(out) :: errmsg
+    integer,            intent(out) :: errflg
 
     ! Local variables
-    real(kind_phys)                :: tpert(ncol)        ! PBL perturbation temperature (convective temperature excess) [K]
+    real(kind_phys)                 :: tpert(ncol)        ! PBL perturbation temperature (convective temperature excess) [K]
 
     character(len=256) :: const_standard_name ! temp: constituent standard name
     logical            :: const_is_dry        ! temp: constituent is dry flag
@@ -264,6 +271,9 @@ contains
     integer         :: len1                ! vector length of "gathered" vectors
     integer         :: m                   ! constituent index
     integer         :: ktp                 ! tmp indx used to track top of convective layer
+
+    errmsg = ''
+    errflg = 0
 
     !---------------------------------------------------
     ! Initialize output tendencies
