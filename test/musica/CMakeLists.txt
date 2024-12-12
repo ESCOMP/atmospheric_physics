@@ -61,28 +61,6 @@ add_custom_target(
   ${CMAKE_CURRENT_SOURCE_DIR}/../../schemes/musica/configurations ${CMAKE_BINARY_DIR}/musica_configurations
 )
 
-# ----------------------------------------------------------
-# Create a test for the temporary MUSICA dependencies module
-# ----------------------------------------------------------
-
-add_executable(test_musica_dependencies test_musica_dependencies.F90)
-
-target_sources(test_musica_dependencies
-  PUBLIC
-    ${MUSICA_SRC_PATH}/musica_ccpp_dependencies.F90
-    ${CCPP_TEST_SRC_PATH}/ccpp_kinds.F90
-)
-
-target_compile_options(test_musica_dependencies PRIVATE -ffree-line-length-none)
-
-add_test(
-  NAME test_musica_dependencies
-  COMMAND $<TARGET_FILE:test_musica_dependencies>
-  WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-)
-
-add_memory_check_test(test_musica_dependencies $<TARGET_FILE:test_musica_dependencies> "" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-
 add_subdirectory(micm)
 add_subdirectory(tuvx)
 
@@ -94,8 +72,6 @@ add_custom_target(
   copy_metadata_test_files ALL ${CMAKE_COMMAND} -E copy
   ${CMAKE_CURRENT_SOURCE_DIR}/../../schemes/musica/musica_ccpp.meta
   ${CMAKE_CURRENT_SOURCE_DIR}/../../schemes/musica/musica_ccpp.F90
-  ${CMAKE_CURRENT_SOURCE_DIR}/../../schemes/musica/musica_ccpp_dependencies.meta
-  ${CMAKE_CURRENT_SOURCE_DIR}/../../schemes/musica/musica_ccpp_dependencies.F90
   ${CMAKE_BINARY_DIR}/metadata_test
 )
 
@@ -110,13 +86,5 @@ add_test(
   NAME test_musica_metadata_against_ccpp_standard_names
   COMMAND ${Python_EXECUTABLE} ${CMAKE_BINARY_DIR}/../$ENV{CCPP_STD_NAMES_PATH}/tools/meta_stdname_check.py
   --metafile-loc ${CMAKE_BINARY_DIR}/metadata_test/musica_ccpp.meta
-  --stdname-dict ${CMAKE_BINARY_DIR}/../$ENV{CCPP_STD_NAMES_PATH}/standard_names.xml
-)
-
-# Test musica scheme dependencies metadata against the CCPP standard names
-add_test(
-  NAME test_musica_dependencies_metadata_against_ccpp_standard_names
-  COMMAND ${Python_EXECUTABLE} ${CMAKE_BINARY_DIR}/../$ENV{CCPP_STD_NAMES_PATH}/tools/meta_stdname_check.py
-  --metafile-loc ${CMAKE_BINARY_DIR}/metadata_test/musica_ccpp_dependencies.meta
   --stdname-dict ${CMAKE_BINARY_DIR}/../$ENV{CCPP_STD_NAMES_PATH}/standard_names.xml
 )
