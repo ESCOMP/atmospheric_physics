@@ -1,19 +1,36 @@
 ! Copyright (C) 2024 National Science Foundation-National Center for Atmospheric Research
 ! SPDX-License-Identifier: Apache-2.0
-module musica_dependencies
+module musica_ccpp_dependencies
+
+  use ccpp_kinds, only: kind_phys
 
   implicit none
   private
 
+  public :: musica_ccpp_dependencies_init
+
+contains
+
   ! This module is used to define the dependencies of the MUSICA scheme, until
   ! they are available from the host model or other CCPP-compliant schemes.
 
-  integer, protected :: photolysis_wavelength_grid_section_dimension = 102
-  integer, protected :: photolysis_wavelength_grid_interface_dimension = &
-                                    photolysis_wavelength_grid_section_dimension + 1
-  real(kind_phys), protected :: surface_albedo = 0.1_kind_phys
-  real(kind_phys), dimension(photolysis_wavelength_grid_interface_dimension), protected :: &
-      photolysis_wavelength_grid_interfaces = (/ &
+  !> \section arg_table_musica_ccpp_dependencies_init Argument Table
+  !! \htmlinclude musica_ccpp_dependencies_init.html
+  subroutine musica_ccpp_dependencies_init(photolysis_wavelength_grid_section_dimension, &
+                                           photolysis_wavelength_grid_interface_dimension, &
+                                           surface_albedo, photolysis_wavelength_grid_interfaces, &
+                                           extraterrestrial_radiation_flux)
+    integer, intent(out) :: photolysis_wavelength_grid_section_dimension
+    integer, intent(out) :: photolysis_wavelength_grid_interface_dimension
+    real(kind_phys), intent(out) :: surface_albedo
+    real(kind_phys), allocatable, intent(out) :: photolysis_wavelength_grid_interfaces(:)
+    real(kind_phys), allocatable, intent(out) :: extraterrestrial_radiation_flux(:)
+
+    photolysis_wavelength_grid_section_dimension = 102
+    photolysis_wavelength_grid_interface_dimension = photolysis_wavelength_grid_section_dimension + 1
+    surface_albedo = 0.1_kind_phys
+
+    photolysis_wavelength_grid_interfaces = (/ &
       120.0e-9_kind_phys, &
       121.4e-9_kind_phys, &
       121.9e-9_kind_phys, &
@@ -119,8 +136,7 @@ module musica_dependencies
       750.0e-9_kind_phys &
     /)
 
-  real(kind_phys), dimension(photolysis_wavelength_grid_section_dimension), protected :: &
-      extraterrestrial_flux = (/ &
+    extraterrestrial_radiation_flux = (/ &
       1.0e14_kind_phys, &
       1.0e14_kind_phys, &
       1.0e14_kind_phys, &
@@ -221,4 +237,10 @@ module musica_dependencies
       1.0e14_kind_phys, &
       1.0e14_kind_phys, &
       1.0e14_kind_phys, &
+      1.0e14_kind_phys, &
+      1.0e14_kind_phys &
     /)
+
+  end subroutine musica_ccpp_dependencies_init
+
+end module musica_ccpp_dependencies
