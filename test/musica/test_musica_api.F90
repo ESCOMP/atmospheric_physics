@@ -318,7 +318,7 @@ contains
     call musica_ccpp_run( time_step, temperature, pressure, dry_air_density, constituent_props_ptr,     &
                           constituents, geopotential_height_wrt_surface_at_midpoint,                    &
                           geopotential_height_wrt_surface_at_interface, surface_geopotential,           &
-                          surface_temperature, surface_albedo, num_photolysis_wavelength_grid_sections, &
+                          surface_temperature, surface_albedo,                                          &
                           flux_data_photolysis_wavelength_interfaces, extraterrestrial_flux,            &
                           standard_gravitational_acceleration, cloud_area_fraction,                     &
                           air_pressure_thickness, solar_zenith_angle, earth_sun_distance, errmsg,       &
@@ -541,7 +541,7 @@ contains
     call musica_ccpp_run( time_step, temperature, pressure, dry_air_density, constituent_props_ptr,     &
                           constituents, geopotential_height_wrt_surface_at_midpoint,                    &
                           geopotential_height_wrt_surface_at_interface, surface_geopotential,           &
-                          surface_temperature, surface_albedo, num_photolysis_wavelength_grid_sections, &
+                          surface_temperature, surface_albedo,                                          &
                           flux_data_photolysis_wavelength_interfaces, extraterrestrial_flux,            &
                           standard_gravitational_acceleration, cloud_area_fraction,                     &
                           air_pressure_thickness, solar_zenith_angle, earth_sun_distance, errmsg,       &

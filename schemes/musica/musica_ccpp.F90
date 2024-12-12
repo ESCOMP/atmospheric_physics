@@ -90,7 +90,6 @@ contains
                              constituents, geopotential_height_wrt_surface_at_midpoint,              &
                              geopotential_height_wrt_surface_at_interface, surface_geopotential,     &
                              surface_temperature, surface_albedo,                                    &
-                             number_of_photolysis_wavelength_grid_sections,                          &
                              photolysis_wavelength_grid_interfaces, extraterrestrial_flux,           &
                              standard_gravitational_acceleration, cloud_area_fraction,               &
                              air_pressure_thickness, solar_zenith_angle,                             &
@@ -112,7 +111,6 @@ contains
     real(kind_phys),         intent(in)    :: surface_geopotential(:)                           ! m2 s-2
     real(kind_phys),         intent(in)    :: surface_temperature(:)                            ! K
     real(kind_phys),         intent(in)    :: surface_albedo                                    ! unitless
-    integer,                 intent(in)    :: number_of_photolysis_wavelength_grid_sections     ! (count)
     real(kind_phys),         intent(in)    :: photolysis_wavelength_grid_interfaces(:)          ! nm
     real(kind_phys),         intent(in)    :: extraterrestrial_flux(:)                          ! photons cm-2 s-1 nm-1
     real(kind_phys),         intent(in)    :: standard_gravitational_acceleration               ! m s-2
@@ -136,7 +134,6 @@ contains
                   geopotential_height_wrt_surface_at_interface,  &
                   surface_geopotential, surface_temperature,     &
                   surface_albedo,                                &
-                  number_of_photolysis_wavelength_grid_sections, &
                   photolysis_wavelength_grid_interfaces,         &
                   extraterrestrial_flux,                         &
                   standard_gravitational_acceleration,           &
