@@ -411,6 +411,7 @@ contains
 
   !> Calculates photolysis rate constants for the current model conditions
   subroutine tuvx_run(temperature, dry_air_density,                  &
+                      constituents,                                  &
                       geopotential_height_wrt_surface_at_midpoint,   &
                       geopotential_height_wrt_surface_at_interface,  &
                       surface_geopotential, surface_temperature,     &
@@ -419,9 +420,10 @@ contains
                       extraterrestrial_flux,                         &
                       standard_gravitational_acceleration,           &
                       cloud_area_fraction,                           &
-                      solar_zenith_angle, earth_sun_distance,        &
-                      constituents,                                  &
-                      air_pressure_thickness, rate_parameters,       &
+                      air_pressure_thickness,                        &
+                      solar_zenith_angle,                            &
+                      earth_sun_distance,                            &
+                      rate_parameters,                               &
                       errmsg, errcode)
     use musica_util,                               only: error_t
     use musica_ccpp_tuvx_height_grid,              only: set_height_grid_values, calculate_heights
@@ -433,6 +435,7 @@ contains
 
     real(kind_phys),    intent(in)    :: temperature(:,:)                                  ! K (column, layer)
     real(kind_phys),    intent(in)    :: dry_air_density(:,:)                              ! kg m-3 (column, layer)
+    real(kind_phys),    intent(in)    :: constituents(:,:,:)                               ! various (column, layer, constituent)
     real(kind_phys),    intent(in)    :: geopotential_height_wrt_surface_at_midpoint(:,:)  ! m (column, layer)
     real(kind_phys),    intent(in)    :: geopotential_height_wrt_surface_at_interface(:,:) ! m (column, interface)
     real(kind_phys),    intent(in)    :: surface_geopotential(:)                           ! m2 s-2
@@ -442,10 +445,9 @@ contains
     real(kind_phys),    intent(in)    :: extraterrestrial_flux(:)                          ! photons cm-2 s-1 nm-1
     real(kind_phys),    intent(in)    :: standard_gravitational_acceleration               ! m s-2
     real(kind_phys),    intent(in)    :: cloud_area_fraction(:,:)                          ! unitless (column, layer)
+    real(kind_phys),    intent(in)    :: air_pressure_thickness(:,:)                       ! Pa (column, layer)
     real(kind_phys),    intent(in)    :: solar_zenith_angle(:)                             ! radians
     real(kind_phys),    intent(in)    :: earth_sun_distance                                ! m
-    real(kind_phys),    intent(in)    :: constituents(:,:,:)                               ! various (column, layer, constituent)
-    real(kind_phys),    intent(in)    :: air_pressure_thickness(:,:)                       ! Pa (column, layer)
     real(kind_phys),    intent(inout) :: rate_parameters(:,:,:)                            ! various units (column, layer, reaction)
     character(len=512), intent(out)   :: errmsg
     integer,            intent(out)   :: errcode

@@ -130,6 +130,7 @@ contains
 
     ! Calculate photolysis rate constants using TUV-x
     call tuvx_run(temperature, dry_air_density,                  &
+                  constituents,                                  &
                   geopotential_height_wrt_surface_at_midpoint,   &
                   geopotential_height_wrt_surface_at_interface,  &
                   surface_geopotential, surface_temperature,     &
@@ -138,10 +139,10 @@ contains
                   extraterrestrial_flux,                         &
                   standard_gravitational_acceleration,           &
                   cloud_area_fraction,                           &
+                  air_pressure_thickness,                        &
                   solar_zenith_angle,                            &
                   earth_sun_distance,                            &
-                  constituents,                                  &
-                  air_pressure_thickness, rate_parameters,       &
+                  rate_parameters,                               &
                   errmsg, errcode)
 
     ! Get the molar mass that is set in the call to instantiate()
