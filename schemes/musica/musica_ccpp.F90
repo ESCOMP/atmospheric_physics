@@ -28,7 +28,7 @@ contains
 
     ! Temporary fix until the number of grid cells is only needed to create a MICM state
     ! instead of when the solver is created.
-    ! The number of grid cells is not know at this point, so we set it to 1 and recreate
+    ! The number of grid cells is not known at this point, so we set it to 1 and recreate
     ! the solver when the number of grid cells is known at the init stage.
     number_of_grid_cells = 1
     call micm_register(micm_solver_type, number_of_grid_cells, constituent_props_subset, &
