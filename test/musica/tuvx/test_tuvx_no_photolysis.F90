@@ -18,7 +18,7 @@ contains
       real(kind_phys) :: solar_zenith_angle
       real(kind_phys), dimension(8) :: extraterrestrial_flux 
       real(kind_phys), dimension(2, 4) :: constituents ! (layers, constituents)
-      real(kind_phys), dimension(5) :: height_at_interfaces
+      real(kind_phys), dimension(2) :: height_at_interfaces ! (layers)
       real(kind_phys), dimension(2) :: dry_air_density
       integer :: N2_index, O2_index, O3_index, NO_index
       real(kind_phys) :: molar_mass_N2, molar_mass_O2, molar_mass_O3, molar_mass_NO
@@ -30,7 +30,7 @@ contains
                                 1.1e13_kind_phys, 1.0e13_kind_phys, 9.0e12_kind_phys, 8.0e12_kind_phys /)
       constituents = reshape([0.21_kind_phys, 0.79_kind_phys, 1.0e-4_kind_phys, 1.0e-9_kind_phys, &
                               0.21_kind_phys, 0.79_kind_phys, 2.0e-4_kind_phys, 2.0e-9_kind_phys], shape(constituents))
-      height_at_interfaces = (/ 0.0_kind_phys, 1.0_kind_phys, 2.0_kind_phys, 3.0_kind_phys, 4.0_kind_phys /)
+      height_at_interfaces = (/ 4.0_kind_phys, 3.0_kind_phys /)
       dry_air_density = (/ 1.2_kind_phys, 1.1_kind_phys /)
       N2_index = 1
       O2_index = 2

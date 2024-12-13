@@ -70,7 +70,7 @@ contains
     integer       :: num_vertical_layers
     real(dk) :: dsdh(0:size(constituents, dim=2)+1,size(constituents, dim=2)+1)
     ! layer thickness (cm)
-    real(dk) :: delz(size(constituents, dim=2)+1)
+    real(dk) :: delz(size(constituents, dim=1)+1)
     ! conversion from km to cm
     real(dk), parameter :: km2cm = 1.0e5_dk
     ! final photolysis rate
@@ -85,12 +85,10 @@ contains
     n2_dens(1) = n2_dens(2) * 0.9_dk
 
     call convert_mixing_ratio_to_molecule_cm3(constituents(:,O2_index), dry_air_density, molar_mass_O2, o2_dens(2:))
-    ! TODO: why are we including the heights? should it always be 2, 1?
-    o2_dens(1) = o2_dens(2) * 7.0_dk / ( height_at_interfaces(2) - height_at_interfaces(1) )
+    o2_dens(1) = o2_dens(2) * 7.0_dk / ( height_at_interfaces(1) - height_at_interfaces(2) )
 
     call convert_mixing_ratio_to_molecule_cm3(constituents(:,O3_index), dry_air_density, molar_mass_O3, o3_dens(2:))
-    ! TODO: why are we including the heights? should it always be 2, 1?
-    o3_dens(1) = o3_dens(2) * 7.0_dk / ( height_at_interfaces(2) - height_at_interfaces(1) )
+    o3_dens(1) = o3_dens(2) * 7.0_dk / ( height_at_interfaces(1) - height_at_interfaces(2) )
 
     call convert_mixing_ratio_to_molecule_cm3(constituents(:,NO_index), dry_air_density, molar_mass_NO, no_dens(2:))
     no_dens(1) = no_dens(2) * 0.9_dk
