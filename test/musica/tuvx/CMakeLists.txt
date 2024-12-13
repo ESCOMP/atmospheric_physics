@@ -171,3 +171,30 @@ add_test(
 )
 
 add_memory_check_test(test_tuvx_cloud_optics $<TARGET_FILE:test_tuvx_cloud_optics> "" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
+# NO photolysis rate
+add_executable(test_tuvx_no_photolysis test_tuvx_no_photolysis.F90)
+
+target_sources(test_tuvx_no_photolysis
+  PUBLIC
+    ${MUSICA_SRC_PATH}/tuvx/musica_ccpp_tuvx_no_photolysis_rate.F90
+    ${CCPP_TEST_SRC_PATH}/ccpp_kinds.F90
+)
+
+target_link_libraries(test_tuvx_no_photolysis
+  PRIVATE
+    musica::musica-fortran
+)
+
+set_target_properties(test_tuvx_no_photolysis
+  PROPERTIES
+  LINKER_LANGUAGE Fortran
+)
+
+add_test(
+  NAME test_tuvx_no_photolysis
+  COMMAND $<TARGET_FILE:test_tuvx_no_photolysis>
+  WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+)
+
+add_memory_check_test(test_tuvx_no_photolysis $<TARGET_FILE:test_tuvx_no_photolysis> "" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})

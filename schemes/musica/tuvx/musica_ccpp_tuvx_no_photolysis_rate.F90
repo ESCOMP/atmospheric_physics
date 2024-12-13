@@ -20,10 +20,8 @@ module musica_ccpp_tuvx_no_photolysis_rate
   ! NO: Nitric oxide
   ! MS93: A reference to the Minschwaner and Siskind paper
 
-
-
   private
-  public :: calculate_NO_photolysis_rate, convert_mixing_ratio_to_molecule_cm3
+  public :: calculate_NO_photolysis_rate
 
 contains
 
@@ -49,26 +47,26 @@ contains
       result(jNO)
     ! inputs
     real(dk), intent(in)            :: solar_zenith_angle       ! degrees
-    real(dk), intent(in)            :: extraterrestrial_flux(:) ! photons cm-2 s-1 nm-1
+    real(dk), intent(in)            :: extraterrestrial_flux(:) ! photons cm-2 s-1 nm-1 (layer)
     real(dk), target, intent(in)    :: constituents(:,:)      ! various (layer, constituent)
-    real(dk), intent(in)            :: height_at_interfaces(:)  ! km
-    real(dk), intent(in)            :: dry_air_density(:)     ! kg m-3 (column, layer)
+    real(dk), intent(in)            :: height_at_interfaces(:)  ! km (layer)
+    real(dk), intent(in)            :: dry_air_density(:)     ! kg m-3 (layer)
     integer , intent(in)            :: N2_index, O2_index, O3_index, NO_index ! position of these species in the constituent arrays
-    real(dk), intent(in)            :: molar_mass_N2, molar_mass_O2, molar_mass_O3, molar_mass_NO
+    real(dk), intent(in)            :: molar_mass_N2, molar_mass_O2, molar_mass_O3, molar_mass_NO ! kg mol-1
 
     ! local variables
     ! TODO: should this really be one more than the number of layers in CAM-SIMA
     ! species column densities (molecule cm-3) (number of layers + 1)
-    real(dk) :: n2_dens(size(constituents, dim=2)+1), o2_dens(size(constituents, dim=2)+1)
-    real(dk) :: o3_dens(size(constituents, dim=2)+1), no_dens(size(constituents, dim=2)+1)
+    real(dk) :: n2_dens(size(constituents, dim=1)+1), o2_dens(size(constituents, dim=1)+1)
+    real(dk) :: o3_dens(size(constituents, dim=1)+1), no_dens(size(constituents, dim=1)+1)
     ! species slant column densities (molecule cm-2)
-    real(dk) :: o2_slant(size(constituents, dim=2)+1), o3_slant(size(constituents, dim=2)+1)
-    real(dk) :: no_slant(size(constituents, dim=2)+1)
+    real(dk) :: o2_slant(size(constituents, dim=1)+1), o3_slant(size(constituents, dim=1)+1)
+    real(dk) :: no_slant(size(constituents, dim=1)+1)
     ! working photo rate array
-    real(dk) :: work_jno(size(constituents, dim=2)+1)
+    real(dk) :: work_jno(size(constituents, dim=1)+1)
     ! parameters needed to calculate slant column densities
     ! (see sphers routine description for details)
-    integer       :: nid(size(constituents, dim=2)+1)
+    integer       :: nid(size(constituents, dim=1)+1)
     integer       :: num_vertical_layers
     real(dk) :: dsdh(0:size(constituents, dim=2)+1,size(constituents, dim=2)+1)
     ! layer thickness (cm)
@@ -76,10 +74,10 @@ contains
     ! conversion from km to cm
     real(dk), parameter :: km2cm = 1.0e5_dk
     ! final photolysis rate
-    real(dk) :: jNO(size(constituents, dim=2))
+    real(dk) :: jNO(size(constituents, dim=1))
 
     ! number of vertical levels
-    num_vertical_layers = size(constituents, dim=2)
+    num_vertical_layers = size(constituents, dim=1)
 
     ! TODO: what are these constants? scale heights?
     ! TODO: the values at index 1 appear to be for values above the model top in CAM, but how does that affect cam sima?
@@ -87,19 +85,27 @@ contains
     n2_dens(1) = n2_dens(2) * 0.9_dk
 
     call convert_mixing_ratio_to_molecule_cm3(constituents(:,O2_index), dry_air_density, molar_mass_O2, o2_dens(2:))
-    o2_dens(1) = o2_dens(2) * 7.0_dk / ( height_at_interfaces(1) - height_at_interfaces(2) )
+    ! TODO: why are we including the heights? should it always be 2, 1?
+    o2_dens(1) = o2_dens(2) * 7.0_dk / ( height_at_interfaces(2) - height_at_interfaces(1) )
 
     call convert_mixing_ratio_to_molecule_cm3(constituents(:,O3_index), dry_air_density, molar_mass_O3, o3_dens(2:))
-    o3_dens(1) = o3_dens(2) * 7.0_dk / ( height_at_interfaces(1) - height_at_interfaces(2) )
+    ! TODO: why are we including the heights? should it always be 2, 1?
+    o3_dens(1) = o3_dens(2) * 7.0_dk / ( height_at_interfaces(2) - height_at_interfaces(1) )
 
     call convert_mixing_ratio_to_molecule_cm3(constituents(:,NO_index), dry_air_density, molar_mass_NO, no_dens(2:))
     no_dens(1) = no_dens(2) * 0.9_dk
+
+    print *, "n2_dens: ", n2_dens
+    print *, "o2_dens: ", o2_dens
+    print *, "o3_dens: ", o3_dens
+    print *, "no_dens: ", no_dens
 
     ! ================================
     ! calculate slant column densities
     ! ================================
     call sphers( num_vertical_layers+1, height_at_interfaces, solar_zenith_angle, dsdh, nid )
     delz(1:num_vertical_layers) = km2cm * ( height_at_interfaces(1:num_vertical_layers) - height_at_interfaces(2:num_vertical_layers+1) )
+    print *, "delz: ", delz
     call slant_col( num_vertical_layers+1, delz, dsdh, nid, o2_dens, o2_slant )
     call slant_col( num_vertical_layers+1, delz, dsdh, nid, o3_dens, o3_slant )
     call slant_col( num_vertical_layers+1, delz, dsdh, nid, no_dens, no_slant )
