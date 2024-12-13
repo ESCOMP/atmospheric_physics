@@ -59,6 +59,10 @@ contains
 
 
   subroutine set_aerosol_optics_values( radiator, &
+                                        aerosol_optical_depth, &
+                                        aerosol_single_scattering_albedo, &
+                                        aerosol_asymmetry_factor, &
+                                        aerosol_visible_optical_depth, &
                                         errmsg, errcode )
     use ccpp_kinds,           only: kind_phys
     use musica_ccpp_util,     only: has_error_occurred
@@ -66,11 +70,18 @@ contains
     use musica_util,          only: error_t
 
     type(radiator_t), intent(inout) :: radiator
+    real(kind_phys),  intent(in)    :: aerosol_optical_depth(:,:)
+    real(kind_phys),  intent(in)    :: aerosol_single_scattering_albedo(:,:)
+    real(kind_phys),  intent(in)    :: aerosol_asymmetry_factor(:,:)
+    real(kind_phys),  intent(in)    :: aerosol_visible_optical_depth(:,:)
     character(len=*), intent(out)   :: errmsg
     integer,          intent(out)   :: errcode
 
     ! local variables
     type(error_t)   :: error
+
+    call radiator%set_optical_depths( aerosol_optical_depth, error )
+    if ( has_error_occurred( error, errmsg, errcode ) ) return
 
   end subroutine set_aerosol_optics_values
 
