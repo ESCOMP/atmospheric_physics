@@ -179,7 +179,7 @@
   intent = in
 [ earth_sun_distance ]
   standard_name = earth_sun_distance
-  units = radians
+  units = AU
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
