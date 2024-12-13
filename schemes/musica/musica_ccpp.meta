@@ -150,7 +150,7 @@
 [ extraterrestrial_flux ]
   standard_name = extraterrestrial_radiation_flux
   type = real | kind = kind_phys
-  units = count cm-2 s-1 nm-1
+  units = photons cm-2 s-1 nm-1
   dimensions = (photolysis_wavelength_grid_section_dimension)
   intent = in
 [ standard_gravitational_acceleration ]
