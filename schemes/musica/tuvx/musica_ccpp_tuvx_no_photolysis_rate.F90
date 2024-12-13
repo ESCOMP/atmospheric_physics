@@ -34,12 +34,11 @@ contains
     real(dk), intent(in)  :: molar_mass            ! kg mol-1
     real(dk), intent(out) :: molecule_cm3(:)       ! molecule cm-3
 
-    integer :: i
+    integer :: i, j
+    ! TODO: Get from CAM-SIMA somehow
     real(dk), parameter :: avogadro_number = 6.02214076e23_dk ! mol-1
 
-    do i = 1, size(mixing_ratio)
-      molecule_cm3(i) = mixing_ratio(i) * dry_air_density(i) / molar_mass * avogadro_number * 1.0e-6
-    end do
+    molecule_cm3 = mixing_ratio * dry_air_density / molar_mass * avogadro_number * 1.0e-6
   end subroutine convert_mixing_ratio_to_molecule_cm3
 
   !> Prepare to calculate the photolysis rate of NO (nitiric acid). 
@@ -51,14 +50,15 @@ contains
     ! inputs
     real(dk), intent(in)            :: solar_zenith_angle       ! degrees
     real(dk), intent(in)            :: extraterrestrial_flux(:) ! photons cm-2 s-1 nm-1
-    real(dk), target, intent(inout) :: constituents(:,:,:)      ! various (column, layer, constituent)
+    real(dk), target, intent(in)    :: constituents(:,:)      ! various (layer, constituent)
     real(dk), intent(in)            :: height_at_interfaces(:)  ! km
-    real(dk), intent(in)            :: dry_air_density(:,:)     ! kg m-3 (column, layer)
-    integer        , intent(in)            :: N2_index, O2_index, O3_index, NO_index ! position of these species in the constituent arrays
+    real(dk), intent(in)            :: dry_air_density(:)     ! kg m-3 (column, layer)
+    integer , intent(in)            :: N2_index, O2_index, O3_index, NO_index ! position of these species in the constituent arrays
     real(dk), intent(in)            :: molar_mass_N2, molar_mass_O2, molar_mass_O3, molar_mass_NO
 
     ! local variables
-    ! species column densities (molecule cm-3)
+    ! TODO: should this really be one more than the number of layers in CAM-SIMA
+    ! species column densities (molecule cm-3) (number of layers + 1)
     real(dk) :: n2_dens(size(constituents, dim=2)+1), o2_dens(size(constituents, dim=2)+1)
     real(dk) :: o3_dens(size(constituents, dim=2)+1), no_dens(size(constituents, dim=2)+1)
     ! species slant column densities (molecule cm-2)
@@ -76,23 +76,23 @@ contains
     ! conversion from km to cm
     real(dk), parameter :: km2cm = 1.0e5_dk
     ! final photolysis rate
-    real(dk) :: jNO
+    real(dk) :: jNO(size(constituents, dim=2))
 
     ! number of vertical levels
     num_vertical_layers = size(constituents, dim=2)
 
     ! TODO: what are these constants? scale heights?
     ! TODO: the values at index 1 appear to be for values above the model top in CAM, but how does that affect cam sima?
-    call convert_mixing_ratio_to_molecule_cm3(constituents(:,:,N2_index), dry_air_density, molar_mass_N2, n2_dens(2:))
+    call convert_mixing_ratio_to_molecule_cm3(constituents(:,N2_index), dry_air_density, molar_mass_N2, n2_dens(2:))
     n2_dens(1) = n2_dens(2) * 0.9_dk
 
-    call convert_mixing_ratio_to_molecule_cm3(constituents(:,:,O2_index), dry_air_density, molar_mass_O2, o2_dens(2:))
+    call convert_mixing_ratio_to_molecule_cm3(constituents(:,O2_index), dry_air_density, molar_mass_O2, o2_dens(2:))
     o2_dens(1) = o2_dens(2) * 7.0_dk / ( height_at_interfaces(1) - height_at_interfaces(2) )
 
-    call convert_mixing_ratio_to_molecule_cm3(constituents(:,:,O3_index), dry_air_density, molar_mass_O3, o3_dens(2:))
+    call convert_mixing_ratio_to_molecule_cm3(constituents(:,O3_index), dry_air_density, molar_mass_O3, o3_dens(2:))
     o3_dens(1) = o3_dens(2) * 7.0_dk / ( height_at_interfaces(1) - height_at_interfaces(2) )
 
-    call convert_mixing_ratio_to_molecule_cm3(constituents(:,:,NO_index), dry_air_density, molar_mass_NO, no_dens(2:))
+    call convert_mixing_ratio_to_molecule_cm3(constituents(:,NO_index), dry_air_density, molar_mass_NO, no_dens(2:))
     no_dens(1) = no_dens(2) * 0.9_dk
 
     ! ================================
@@ -114,7 +114,7 @@ contains
     result(jno)
 
     ! inputs
-    integer, intent(in)            :: num_vertical_layers
+    integer, intent(in)     :: num_vertical_layers
     real(dk), intent(in)    :: extraterrestrial_flux(:) ! photons cm-2 s-1 nm-1
     real(dk), intent(in)    :: n2_dens(:)              ! molecule cm-3
     real(dk), intent(in)    :: o2_slant(:)             ! molecule cm-2
@@ -260,8 +260,6 @@ contains
       !------------------------------------------------------------------------------
       ! For reference, the function being calculate is this:
       ! In latex:
-      ! J_{NO}=\Delta\lambda \overline{I_0} T_{O3}(z) P(z) \sum_{i=1}^{6} \exp[-\sigma^i_{O2}N_{O2}(z)] \sum_{j=1}^{2} W^{i,j}_{NO}\sigma^{i,j}_{NO}\exp[-\sigma^{i,j}_{NO}N_{NO}(z)]
-      ! In ASCII:
       ! J_NO = Delta_lambda * I_0 * T_O3(z) * P(z) * sum_{i=1}^{6} exp[-sigma^i_O2 * N_O2(z)] * sum_{j=1}^{2} W^{i,j}_NO * sigma^{i,j}_NO * exp[-sigma^{i,j}_NO * N_NO(z)]
       ! where:
       ! J_NO is the photolysis rate of NO

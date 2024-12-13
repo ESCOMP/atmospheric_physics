@@ -101,6 +101,7 @@ contains
 
     character(len=512)                                            :: species_name
     real(kind_phys) :: molar_mass
+    integer :: i
 
     allocate(constituent_props(1), stat=errcode)
     if (errcode /= 0) then
@@ -496,7 +497,7 @@ contains
     real(kind_phys) :: earth_sun_distance ! AU
     type(error_t)   :: error
     integer         :: i_col, i_level
-    real(kind_phys) :: jno                                      ! s-1
+    real(kind_phys) :: jno(size(constituents, dim=2))                                      ! s-1
 
     reciprocal_of_gravitational_acceleration = 1.0_kind_phys / standard_gravitational_acceleration
 
@@ -547,8 +548,8 @@ contains
           max( photolysis_rate_constants(:,:), 0.0_kind_phys )
 
       if (N2_index > 0 .and. O2_index > 0 .and. O3_index > 0 .and. NO_index > 0) then
-        jno = calculate_NO_photolysis_rate(solar_zenith_angle, extraterrestrial_flux, constituents, height_interfaces, &
-          dry_air_density, N2_index, O2_index, O3_index, NO_index, molar_mass_N2, molar_mass_O2, molar_mass_O3, molar_mass_NO)
+        jno = calculate_NO_photolysis_rate(solar_zenith_angle, extraterrestrial_flux, constituents(i_col,:,:), height_interfaces, &
+          dry_air_density(i_col,:), N2_index, O2_index, O3_index, NO_index, molar_mass_N2, molar_mass_O2, molar_mass_O3, molar_mass_NO)
       end if
       ! TODO: throw an error or whatever fortran can do if we need the photolysis rate for NO but we can't calculate it
 
