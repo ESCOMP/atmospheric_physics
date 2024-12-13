@@ -71,11 +71,6 @@ contains
       surface_albedo_profile => null()
     end if
 
-    if (associated( aerosol_optical_depth_profile )) then
-      deallocate( aerosol_optical_depth_profile )
-      aerosol_optical_depth_profile => null()
-    end if
-
     if (associated( extraterrestrial_flux_profile )) then
       deallocate( extraterrestrial_flux_profile )
       extraterrestrial_flux_profile => null()
@@ -142,11 +137,11 @@ contains
       only: create_temperature_profile, temperature_label, temperature_unit
     use musica_ccpp_tuvx_surface_albedo, &
       only: create_surface_albedo_profile, surface_albedo_label, surface_albedo_unit
-    use musica_ccpp_tuvx_aerosol_optics, &
-      only: create_aerosol_optical_depth_profile, aerosol_optical_depth_label, aerosol_optical_depth_unit
     use musica_ccpp_tuvx_extraterrestrial_flux, &
       only: create_extraterrestrial_flux_profile, extraterrestrial_flux_label, &
             extraterrestrial_flux_unit
+    use musica_ccpp_tuvx_aerosol_optics, &
+      only: create_aerosol_optics_radiator, aerosol_optics_label
     use musica_ccpp_tuvx_cloud_optics, &
       only: create_cloud_optics_radiator, cloud_optics_label
 
@@ -238,21 +233,6 @@ contains
     endif
 
     call profiles%add( surface_albedo_profile, error )
-    if (has_error_occurred( error, errmsg, errcode )) then
-      call reset_tuvx_map_state( grids, profiles, null() )
-      call cleanup_tuvx_resources()
-      return
-    end if
-
-    aerosol_optical_depth_profile => create_aerosol_optical_depth_profile( wavelength_grid, &
-                                                                           errmsg, errcode )
-    if (errcode /= 0) then
-      call reset_tuvx_map_state( grids, profiles, null() )
-      call cleanup_tuvx_resources()
-      return
-    endif
-
-    call profiles%add( aerosol_optical_depth_profile, error )
     if (has_error_occurred( error, errmsg, errcode )) then
       call reset_tuvx_map_state( grids, profiles, null() )
       call cleanup_tuvx_resources()
@@ -357,14 +337,6 @@ contains
     if (has_error_occurred( error, errmsg, errcode )) then
       deallocate( tuvx )
       tuvx => null()
-      call reset_tuvx_map_state( grids, profiles, null() )
-      call cleanup_tuvx_resources()
-      return
-    end if
-
-    aerosol_optical_depth_profile => profiles%get( aerosol_optical_depth_label, aerosol_optical_depth_unit, error )
-    if (has_error_occurred( error, errmsg, errcode )) then
-      deallocate( tuvx )
       call reset_tuvx_map_state( grids, profiles, null() )
       call cleanup_tuvx_resources()
       return

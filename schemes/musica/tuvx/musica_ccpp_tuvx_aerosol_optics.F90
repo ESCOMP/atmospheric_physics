@@ -25,7 +25,7 @@ module musica_ccpp_tuvx_aerosol_optics
   !> Default value of number of wavelength bins
   integer, parameter :: DEFAULT_NUM_WAVELENGTH_BINS = 0
   !> Number of wavelength bins
-  integer, protected :: num_wavelength_bins_ = DEFAULT_NUM_WAVELENGTH_BINS
+  integer, protected :: num_wavelength_bins = DEFAULT_NUM_WAVELENGTH_BINS
 
 contains
 
@@ -49,7 +49,7 @@ contains
                           wavelength_grid, error )
     if ( has_error_occurred( error, errmsg, errcode ) ) return
 
-    num_wavelength_bins_ = wavelength_grid%number_of_sections( error )
+    num_wavelength_bins = wavelength_grid%number_of_sections( error )
     if ( has_error_occurred( error, errmsg, errcode ) ) return
 
   end function create_aerosol_optical_depth_profile
@@ -105,12 +105,12 @@ contains
 
     ! local variables
     type(error_t)   :: error
-    real(kind_phys) :: aerosol_optical_depth_interfaces(num_wavelength_bins_ + 1)
+    real(kind_phys) :: aerosol_optical_depth_interfaces(num_wavelength_bins + 1)
     real(kind_phys) :: aerosol_single_scattering_albedo
     real(kind_phys) :: aerosol_asymmetry_factor
     real(kind_phys) :: aerosol_visible_optical_depth
 
-    if (num_wavelength_bins_ <= DEFAULT_NUM_WAVELENGTH_BINS) then
+    if (num_wavelength_bins <= DEFAULT_NUM_WAVELENGTH_BINS) then
       errmsg = "[MUSICA Error] Invalid size of TUV-x wavelength bins."
       errcode = 1
       return
