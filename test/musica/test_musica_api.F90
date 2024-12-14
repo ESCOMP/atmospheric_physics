@@ -1,11 +1,14 @@
 program run_test_musica_ccpp
 
+  use ccpp_kinds, only: kind_phys
   use musica_ccpp
 
   implicit none
 
 #define ASSERT(x) if (.not.(x)) then; write(*,*) "Assertion failed[", __FILE__, ":", __LINE__, "]: x"; stop 1; endif
 #define ASSERT_NEAR( a, b, abs_error ) if( (abs(a - b) >= abs_error) .and. (abs(a - b) /= 0.0) ) then; write(*,*) "Assertion failed[", __FILE__, ":", __LINE__, "]: a, b"; stop 1; endif
+
+  real(kind_phys), parameter :: DEGREE_TO_RADIAN = 3.14159265358979323846_kind_phys / 180.0_kind_phys
 
   call test_chapman()
   call test_terminator()
@@ -133,8 +136,6 @@ contains
 
   !> Tests the Chapman chemistry scheme
   subroutine test_chapman()
-    use musica_micm,               only: Rosenbrock, RosenbrockStandardOrder
-    use ccpp_kinds,                only: kind_phys
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
     use musica_ccpp_micm,          only: micm
@@ -153,7 +154,6 @@ contains
     integer, parameter                                                    :: NUM_LAYERS = 2
     integer, parameter                                                    :: NUM_WAVELENGTH_BINS = 102
     integer                                                               :: NUM_GRID_CELLS = NUM_COLUMNS * NUM_LAYERS
-    integer                                                               :: solver_type = Rosenbrock
     integer                                                               :: errcode
     character(len=512)                                                    :: errmsg
     real(kind_phys)                                                       :: time_step = 60._kind_phys                    ! s
@@ -176,6 +176,8 @@ contains
                                NUM_SPECIES+NUM_TUVX_CONSTITUENTS)         :: constituents                                 ! kg kg-1
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS, &
                                NUM_SPECIES+NUM_TUVX_CONSTITUENTS)         :: initial_constituents                         ! kg kg-1
+    real(kind_phys), dimension(NUM_COLUMNS)                               :: solar_zenith_angle                           ! radians
+    real(kind_phys)                                                       :: earth_sun_distance                           ! AU
     type(ccpp_constituent_prop_ptr_t),   allocatable                      :: constituent_props_ptr(:)
     type(ccpp_constituent_properties_t), allocatable, target              :: constituent_props(:)
     type(ccpp_constituent_properties_t), pointer                          :: const_prop
@@ -188,7 +190,6 @@ contains
     real(kind_phys)                                                       :: total_O, total_O_init
 
     call get_wavelength_edges(photolysis_wavelength_grid_interfaces)
-    solver_type = Rosenbrock
     time_step = 60._kind_phys
     geopotential_height_wrt_surface_at_midpoint(1,:) = (/ 2000.0_kind_phys, 500.0_kind_phys /)
     geopotential_height_wrt_surface_at_midpoint(2,:) = (/ 2000.0_kind_phys, -500.0_kind_phys /)
@@ -214,12 +215,14 @@ contains
     cloud_area_fraction(:,2) = (/ 0.3_kind_phys, 0.4_kind_phys /)
     air_pressure_thickness(:,1) = (/ 900.0_kind_phys, 905.0_kind_phys /)
     air_pressure_thickness(:,2) = (/ 910.0_kind_phys, 915.0_kind_phys /)
+    solar_zenith_angle = (/ 0.0_kind_phys, 2.1_kind_phys /)
+    earth_sun_distance = 1.04_kind_phys
 
     filename_of_micm_configuration = 'musica_configurations/chapman/micm/config.json'
     filename_of_tuvx_configuration = 'musica_configurations/chapman/tuvx/config.json'
     filename_of_tuvx_micm_mapping_configuration = 'musica_configurations/chapman/tuvx_micm_mapping.json'
 
-    call musica_ccpp_register(solver_type, NUM_GRID_CELLS, constituent_props, errmsg, errcode)
+    call musica_ccpp_register(constituent_props, errmsg, errcode)
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
@@ -261,7 +264,7 @@ contains
       call constituent_props_ptr(i)%set(const_prop, errcode, errmsg)
     end do
 
-    call musica_ccpp_init(NUM_LAYERS, NUM_LAYERS+1, photolysis_wavelength_grid_interfaces, &
+    call musica_ccpp_init(NUM_COLUMNS, NUM_LAYERS, NUM_LAYERS+1, photolysis_wavelength_grid_interfaces, &
                           constituent_props_ptr, errmsg, errcode)
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
@@ -315,9 +318,11 @@ contains
     call musica_ccpp_run( time_step, temperature, pressure, dry_air_density, constituent_props_ptr,     &
                           constituents, geopotential_height_wrt_surface_at_midpoint,                    &
                           geopotential_height_wrt_surface_at_interface, surface_geopotential,           &
-                          surface_temperature, surface_albedo, num_photolysis_wavelength_grid_sections, &
+                          surface_temperature, surface_albedo,                                          &
                           flux_data_photolysis_wavelength_interfaces, extraterrestrial_flux,            &
-                          standard_gravitational_acceleration, cloud_area_fraction, air_pressure_thickness, errmsg, errcode )
+                          standard_gravitational_acceleration, cloud_area_fraction,                     &
+                          air_pressure_thickness, solar_zenith_angle, earth_sun_distance, errmsg,       &
+                          errcode )
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
@@ -354,6 +359,11 @@ contains
         ASSERT_NEAR(total_O, total_O_init, 1.0e-13)
       end do
     end do
+    do j = 1, NUM_LAYERS
+      ! O and O1D should be lower in the nighttime column
+      ASSERT(constituents(2,j,O_index) < constituents(1,j,O_index))
+      ASSERT(constituents(2,j,O1D_index) < constituents(1,j,O1D_index))
+    end do
 
     deallocate(constituent_props_ptr)
 
@@ -361,8 +371,6 @@ contains
 
   !> Tests the simple Terminator chemistry scheme
   subroutine test_terminator()
-    use musica_micm,               only: Rosenbrock, RosenbrockStandardOrder
-    use ccpp_kinds,                only: kind_phys
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
     use musica_ccpp_micm,          only: micm
@@ -381,7 +389,6 @@ contains
     integer, parameter                                                    :: NUM_LAYERS = 2
     integer, parameter                                                    :: NUM_WAVELENGTH_BINS = 102
     integer                                                               :: NUM_GRID_CELLS = NUM_COLUMNS * NUM_LAYERS
-    integer                                                               :: solver_type = Rosenbrock
     integer                                                               :: errcode
     character(len=512)                                                    :: errmsg
     real(kind_phys)                                                       :: time_step = 60._kind_phys                    ! s
@@ -404,6 +411,8 @@ contains
                                NUM_SPECIES+NUM_TUVX_CONSTITUENTS)         :: constituents                                 ! kg kg-1
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS, &
                                NUM_SPECIES+NUM_TUVX_CONSTITUENTS)         :: initial_constituents                         ! kg kg-1
+    real(kind_phys), dimension(NUM_COLUMNS)                               :: solar_zenith_angle                           ! radians
+    real(kind_phys)                                                       :: earth_sun_distance                           ! AU
     type(ccpp_constituent_prop_ptr_t),   allocatable                      :: constituent_props_ptr(:)
     type(ccpp_constituent_properties_t), allocatable, target              :: constituent_props(:)
     type(ccpp_constituent_properties_t), pointer                          :: const_prop
@@ -416,7 +425,6 @@ contains
     real(kind_phys)                                                       :: total_Cl, total_Cl_init
 
     call get_wavelength_edges(photolysis_wavelength_grid_interfaces)
-    solver_type = Rosenbrock
     time_step = 60._kind_phys
     geopotential_height_wrt_surface_at_midpoint(1,:) = (/ 2000.0_kind_phys, 500.0_kind_phys /)
     geopotential_height_wrt_surface_at_midpoint(2,:) = (/ 2000.0_kind_phys, -500.0_kind_phys /)
@@ -442,12 +450,14 @@ contains
     cloud_area_fraction(:,2) = (/ 0.3_kind_phys, 0.4_kind_phys /)
     air_pressure_thickness(:,1) = (/ 900.0_kind_phys, 905.0_kind_phys /)
     air_pressure_thickness(:,2) = (/ 910.0_kind_phys, 915.0_kind_phys /)
+    solar_zenith_angle = (/ 0.0_kind_phys, 2.1_kind_phys /)
+    earth_sun_distance = 1.04_kind_phys
 
     filename_of_micm_configuration = 'musica_configurations/terminator/micm/config.json'
     filename_of_tuvx_configuration = 'musica_configurations/terminator/tuvx/config.json'
     filename_of_tuvx_micm_mapping_configuration = 'musica_configurations/terminator/tuvx_micm_mapping.json'
 
-    call musica_ccpp_register(solver_type, NUM_GRID_CELLS, constituent_props, errmsg, errcode)
+    call musica_ccpp_register(constituent_props, errmsg, errcode)
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
@@ -486,7 +496,7 @@ contains
       call constituent_props_ptr(i)%set(const_prop, errcode, errmsg)
     end do
 
-    call musica_ccpp_init(NUM_LAYERS, NUM_LAYERS+1, photolysis_wavelength_grid_interfaces, &
+    call musica_ccpp_init(NUM_COLUMNS, NUM_LAYERS, NUM_LAYERS+1, photolysis_wavelength_grid_interfaces, &
                           constituent_props_ptr, errmsg, errcode)
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
@@ -531,9 +541,11 @@ contains
     call musica_ccpp_run( time_step, temperature, pressure, dry_air_density, constituent_props_ptr,     &
                           constituents, geopotential_height_wrt_surface_at_midpoint,                    &
                           geopotential_height_wrt_surface_at_interface, surface_geopotential,           &
-                          surface_temperature, surface_albedo, num_photolysis_wavelength_grid_sections, &
+                          surface_temperature, surface_albedo,                                          &
                           flux_data_photolysis_wavelength_interfaces, extraterrestrial_flux,            &
-                          standard_gravitational_acceleration, cloud_area_fraction, air_pressure_thickness, errmsg, errcode )
+                          standard_gravitational_acceleration, cloud_area_fraction,                     &
+                          air_pressure_thickness, solar_zenith_angle, earth_sun_distance, errmsg,       &
+                          errcode )
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
@@ -563,6 +575,12 @@ contains
         ! cloud liquid water should be unchanged
         ASSERT_NEAR(constituents(i,j,NUM_SPECIES+1), initial_constituents(i,j,NUM_SPECIES+1), 1.0e-13)
       end do
+    end do
+    do j = 1, NUM_LAYERS
+      ! Cl should be lower in the nighttime column
+      ASSERT(constituents(2,j,Cl_index) < constituents(1,j,Cl_index))
+      ! Cl2 should be higher in the nighttime column
+      ASSERT(constituents(2,j,Cl2_index) > constituents(1,j,Cl2_index))
     end do
 
     deallocate(constituent_props_ptr)

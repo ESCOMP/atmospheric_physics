@@ -6,18 +6,6 @@
 [ccpp-arg-table]
   name  = musica_ccpp_register
   type  = scheme
-[ micm_solver_type ]
-  standard_name = micm_solver_type
-  units = none
-  type = integer
-  dimensions = ()
-  intent = in
-[ number_of_grid_cells ]
-  standard_name = number_of_grid_cells
-  units = count
-  type = integer
-  dimensions = ()
-  intent = in
 [ constituent_props ]
   standard_name = dynamic_constituents_for_musica_ccpp
   units = none
@@ -41,15 +29,21 @@
 [ccpp-arg-table]
   name  = musica_ccpp_init
   type  = scheme
+[ horizontal_dimension ]
+  standard_name = horizontal_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
 [ vertical_layer_dimension ]
   standard_name = vertical_layer_dimension
-  units = none
+  units = count
   type = integer
   dimensions = ()
   intent = in
 [ vertical_interface_dimension ]
   standard_name = vertical_interface_dimension
-  units = none
+  units = count
   type = integer
   dimensions = ()
   intent = in
@@ -147,23 +141,17 @@
   units = None
   dimensions = ()
   intent = in
-[ number_of_photolysis_wavelength_grid_sections ]
-  standard_name = number_of_photolysis_wavelength_grid_sections
-  type = integer
-  units = None
-  dimensions = ()
-  intent = in
 [ photolysis_wavelength_grid_interfaces ]
   standard_name = photolysis_wavelength_grid_interfaces
   type = real | kind = kind_phys
-  units = nm
-  dimensions = (horizontal_loop_extent)
+  units = m
+  dimensions = (photolysis_wavelength_grid_interface_dimension)
   intent = in
 [ extraterrestrial_flux ]
   standard_name = extraterrestrial_radiation_flux
   type = real | kind = kind_phys
   units = photons cm-2 s-1 nm-1
-  dimensions = (horizontal_loop_extent)
+  dimensions = (photolysis_wavelength_grid_section_dimension)
   intent = in
 [ standard_gravitational_acceleration ]
   standard_name = standard_gravitational_acceleration
@@ -182,6 +170,18 @@
   units = Pa
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ solar_zenith_angle ]
+  standard_name = solar_zenith_angle
+  units = radians
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ earth_sun_distance ]
+  standard_name = earth_sun_distance
+  units = AU
+  type = real | kind = kind_phys
+  dimensions = ()
   intent = in
 [ errmsg ]
   standard_name = ccpp_error_message
