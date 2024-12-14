@@ -1,11 +1,11 @@
 module musica_ccpp_tuvx_gas_species_profile
   use ccpp_kinds, only: kind_phys
   use musica_tuvx_profile, only: profile_t
-
+  use musica_ccpp_gas_species, only: gas_species_t
   implicit none
 
   private
-  public :: create_gas_species, configure_gas_species, create_gas_species_profile_group, &
+  public :: configure_gas_species, create_gas_species_profile_group, &
             set_gas_species_values, deallocate_gas_species, deallocate_gas_species_profile_group
 
   !> Conversion factor from km to cm
@@ -16,39 +16,12 @@ module musica_ccpp_tuvx_gas_species_profile
   ! TODO(jiwon)
   real(kind_phys), parameter, public :: MOLAR_MASS_DRY_AIR = 0.0289644_kind_phys ! kg mol-1
 
-  !> Definition of the gas species type
-  type, public :: gas_species_t
-    character(len=50) :: label
-    character(len=20) :: unit
-    real(kind_phys)   :: molar_mass              ! kg mol-1
-    real(kind_phys)   :: scale_height            ! km
-    integer           :: index_constituent_props ! index of the constituents
-  end type gas_species_t
-
   !> Defines a type to contaion a pointer to 'profile_t'
   type, public :: profile_group_t
     type(profile_t), pointer :: profile
   end type profile_group_t
 
 contains
-  !> Creates 'gas_species_t' object
-  function create_gas_species(label, unit, molar_mass, scale_height, &
-      index_constituent_props) result( gas_species )
-
-    character(len=*), intent(in) :: label
-    character(len=*), intent(in) :: unit
-    real(kind_phys),  intent(in) :: molar_mass ! kg mol-1
-    real(kind_phys),  intent(in) :: scale_height ! km
-    integer,          intent(in) :: index_constituent_props
-    type(gas_species_t)          :: gas_species
-
-    gas_species%label = label
-    gas_species%unit = unit
-    gas_species%molar_mass = molar_mass
-    gas_species%scale_height = scale_height
-    gas_species%index_constituent_props = index_constituent_props
-
-  end function create_gas_species
 
   !> Configures gas species.
   ! Note: The user can customize this function to configure gas species in the system
@@ -89,8 +62,13 @@ contains
     ! call constituent_props(index_air)%molar_mass(molar_mass_air, errcode, errmsg)
     ! if (errcode /= 0) return
 
+    is_advected = micm%get_species_property_bool(species_name, &
+    "__is advected", &
+    error)
+
+    
     index_air = INDEX_NOT_KNOWN
-    gas_species_group(1) = create_gas_species("air", "molecule cm-3", &
+    gas_species_group(1) = gas_species_t("air", "molecule cm-3", &
                         MOLAR_MASS_DRY_AIR, SCALE_HEIGHT_DRY_AIR, index_air)
     ! O2
     call ccpp_const_get_idx(constituent_props, "O2", index_O2, errmsg, errcode)
@@ -99,7 +77,7 @@ contains
     call constituent_props(index_O2)%molar_mass(molar_mass_O2, errcode, errmsg)
     if (errcode /= 0) return
 
-    gas_species_group(2) = create_gas_species("O2", "molecule cm-3", &
+    gas_species_group(2) = gas_species_t("O2", "molecule cm-3", &
                             molar_mass_O2, SCALE_HEIGHT_O2, index_O2)
 
     ! O3
@@ -109,7 +87,7 @@ contains
     call constituent_props(index_O3)%molar_mass(molar_mass_O3, errcode, errmsg)
     if (errcode /= 0) return
 
-    gas_species_group(3) = create_gas_species("O3", "molecule cm-3", &
+    gas_species_group(3) = gas_species_t("O3", "molecule cm-3", &
                             molar_mass_O3, SCALE_HEIGHT_O3, index_O3)
 
   end subroutine configure_gas_species
@@ -163,8 +141,6 @@ contains
 
     num_constituents = size(constituent)
     constituent_mol_per_cm_3(:) = constituent(:) / m_3_to_cm_3
-
-
     interfaces(1) = constituent_mol_per_cm_3(num_constituents)
     interfaces(2:num_constituents+1) = constituent_mol_per_cm_3(num_constituents:1:-1)
     interfaces(num_constituents+2) = constituent_mol_per_cm_3(1)

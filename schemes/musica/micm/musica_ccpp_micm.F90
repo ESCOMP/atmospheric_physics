@@ -24,10 +24,14 @@ contains
     use musica_micm,               only: Rosenbrock, RosenbrockStandardOrder
     use musica_util,               only: error_t
     use iso_c_binding,             only: c_int
+    use musica_ccpp_gas_species,   only: species_t, species_group_t, &
+      species_profiled_t, species_profiled_groupt_t,INDEX_UNINITIALIZED
 
     integer(c_int),                                   intent(in)  :: solver_type
     integer(c_int),                                   intent(in)  :: number_of_grid_cells
     type(ccpp_constituent_properties_t), allocatable, intent(out) :: constituent_props(:)
+    type(species_groupt_t),              allocatable, intent(out) :: species_group(:)
+    type(species_profiled_group_t),      allocatable, intent(out) :: species_profiled_group(:)
     character(len=512),                               intent(out) :: errmsg
     integer,                                          intent(out) :: errcode
 
@@ -35,20 +39,36 @@ contains
     type(error_t)                 :: error
     real(kind=kind_phys)          :: molar_mass
     character(len=:), allocatable :: species_name
-    logical                       :: is_advected
-    integer                       :: i, species_index
+    logical                       :: is_advected, is_profiled
+    integer                       :: i, i_species_profiled
+    integer                       :: species_index
+    integer                       :: number_of_species
+    real(kind=kind_phys)          :: species_unit, species_scale_height
+
+    type(species_profiled_group_t), allocatable, :: temp_species_profiled_group(:)
 
     micm => micm_t(trim(filename_of_micm_configuration), solver_type, &
                    number_of_grid_cells, error)
     if (has_error_occurred(error, errmsg, errcode)) return
 
-    allocate(constituent_props(micm%species_ordering%size()), stat=errcode)
+    number_of_species = micm%species_ordering%size()
+
+    allocate(constituent_props(number_of_species), stat=errcode)
     if (errcode /= 0) then
       errmsg = "[MUSICA Error] Failed to allocate memory for constituent properties."
       return
     end if
 
-    do i = 1, micm%species_ordering%size()
+    allocate(temp_species_profiled_group(number_of_species), stat=errcode)
+    if (errcode /= 0) then
+      errmsg = "[MUSICA Error] Failed to allocate memory for musica species group."
+      return
+    end if
+
+    i_species_profiled = 0
+
+    ! Sets constituents, creates species_t and species_profiled_t
+    do i = 1, number_of_species
     associate( map => micm%species_ordering )
       species_name = map%name(i)
       species_index = map%index(i)
@@ -74,8 +94,40 @@ contains
         errcode = errcode, &
         errmsg = errmsg)
       if (errcode /= 0) return
+
+      ! set musica species
+      musica_species_group(i) = musica_species_t(species_name, molar_mass, &
+                                species_index, INDEX_UNINITIALIZED)
+
+      is_profiled = micm%get_species_property_bool(species_name, &
+                                            "__is profiled", error)
+      if (has_error_occurred(error, errmsg, errcode)) return
+
+      if (is_profiled) then 
+        i_species_profiled = i_species_profiled + 1
+
+        species_unit = micm%get_species_property_double(species_name, &
+                                                      "__unit", error)
+        if (has_error_occurred(error, errmsg, errcode)) return
+
+        species_scale_height = micm%get_species_property_double(species_name, &
+                                                  "__scale height [km]", error)
+        if (has_error_occurred(error, errmsg, errcode)) return
+
+        musica_species_profiled_group(i_species_profiled) = &
+          musica_species_profiled_t( species_name, species_unit, molar_mass, &
+          species_scale_height, species_index, INDEX_UNINITIALIZED)
+      end if 
+
     end associate ! map
     end do
+
+    if (i_species_profiled /= 0) then
+      allocate( species_profiled_group(i_species_profiled) )
+      species_profiled_group(:) = temp_species_profiled_group(1:i_species_profiled)
+    end if
+    deallocate(temp_species_profiled_group)
+
     number_of_rate_parameters = micm%user_defined_reaction_rates%size()
 
   end subroutine micm_register

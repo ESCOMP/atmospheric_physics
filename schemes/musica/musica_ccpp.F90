@@ -10,24 +10,28 @@ module musica_ccpp
 
   public :: musica_ccpp_register, musica_ccpp_init, musica_ccpp_run, musica_ccpp_final
 
+  type(musica_sequence_t) :: musica_sequence
 contains
 
   !> \section arg_table_musica_ccpp_register Argument Table
   !! \htmlinclude musica_ccpp_register.html
   subroutine musica_ccpp_register(micm_solver_type, number_of_grid_cells, &
-                                  constituent_props, errmsg, errcode)
+                                  constituent_props, species_group, species_profiled_group, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
-
+    use musica_ccpp_gas_species,   only: species_groupt_t, species_profiled_group_t
+  
     integer,                                          intent(in)  :: micm_solver_type
     integer,                                          intent(in)  :: number_of_grid_cells
     type(ccpp_constituent_properties_t), allocatable, intent(out) :: constituent_props(:)
+    type(species_groupt_t),              allocatable, intent(out) :: species_group(:)
+    type(species_profiled_group_t),      allocatable, intent(out) :: species_profiled_group(:)
     character(len=512),                               intent(out) :: errmsg
     integer,                                          intent(out) :: errcode
 
     type(ccpp_constituent_properties_t), allocatable :: constituent_props_subset(:)
 
     call micm_register(micm_solver_type, number_of_grid_cells, constituent_props_subset, &
-                       errmsg, errcode)
+                       species_group, species_profiled_group, errmsg, errcode)
     if (errcode /= 0) return
     constituent_props = constituent_props_subset
     deallocate(constituent_props_subset)
@@ -44,15 +48,42 @@ contains
                               photolysis_wavelength_grid_interfaces, &
                               constituent_props, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
-    use ccpp_kinds, only : kind_phys
-    use musica_ccpp_micm, only: micm
-    use musica_ccpp_util, only: has_error_occurred
+    use ccpp_kinds,                only: kind_phys
+    use ccpp_const_utils,          only: ccpp_const_get_idx
+    use musica_ccpp_micm,          only: micm
+    use musica_ccpp_util,          only: has_error_occurred
+
     integer,                           intent(in)  :: vertical_layer_dimension                 ! (count)
     integer,                           intent(in)  :: vertical_interface_dimension             ! (count)
     real(kind_phys),                   intent(in)  :: photolysis_wavelength_grid_interfaces(:) ! m
     type(ccpp_constituent_prop_ptr_t), intent(in)  :: constituent_props(:)
     character(len=512),                intent(out) :: errmsg
     integer,                           intent(out) :: errcode
+
+    !!!!!!!!! JIWON
+    ! Search for the index based on the species name
+    do i_species = 1, size(species)
+      name = species%name
+      call ccpp_const_get_idx(constituent_props, name, index_constituents, errmsg, errcode)
+      if (errcode /= 0) return
+      species%index_constituents = index_constituents
+      array(i_species) = index_constituents
+    end do
+
+    ! Get the molar mass that is set in the call to instantiate()
+    do i_species = 1, size(species)
+      call constituent_props(array(i_species))%molar_mass(molar_mass_arr(i_elem), errcode, errmsg)
+      if (errcode /= 0) then
+        errmsg = "[MUSICA Error] Unable to get molar mass."
+        return
+      end if
+    end do
+    !!!!!!!!!
+    !!!!!!!!!
+
+    ! set molar mass, set species from tuvx 
+    call set_musica_species()
+
 
     call micm_init(errmsg, errcode)
     if (errcode /= 0) return
@@ -111,25 +142,35 @@ contains
                                number_of_rate_parameters)    :: rate_parameters ! various units
     integer :: i_elem
 
-    ! TODO(jiwon) this might not be correct because it doesn't know the index
-    ! Get the molar mass that is set in the call to instantiate()
-    do i_elem = 1, size(molar_mass_arr)
-      call constituent_props(i_elem)%molar_mass(molar_mass_arr(i_elem), errcode, errmsg)
-      if (errcode /= 0) then
-        errmsg = "[MUSICA Error] Unable to get molar mass."
-        return
-      end if
-    end do
+    real(kind_phys), dimension(size(constituents, dim=1), &
+                               size(constituents, dim=2), &
+                               number_of_musica_speices)    :: constituents_musica
 
-    ! TODO(jiwon) Check molar mass is non zero as it becomes a denominator for unit converison
-    ! this code will be deleted when the framework does the check
-    do i_elem = 1, size(molar_mass_arr)
-      if (molar_mass_arr(i_elem) <= 0) then
-        errcode = 1
-        errmsg = "[MUSICA Error] Molar mass must be greater than zero."
-        return
-      end if
-    end do
+    ! ! TODO(jiwon) this might not be correct because it doesn't know the index
+    ! ! Get the molar mass that is set in the call to instantiate()
+    ! do i_elem = 1, size(molar_mass_arr)
+    !   call constituent_props(i_elem)%molar_mass(molar_mass_arr(i_elem), errcode, errmsg)
+    !   if (errcode /= 0) then
+    !     errmsg = "[MUSICA Error] Unable to get molar mass."
+    !     return
+    !   end if
+    ! end do
+
+    ! ! TODO(jiwon) Check molar mass is non zero as it becomes a denominator for unit converison
+    ! ! this code will be deleted when the framework does the check
+    ! do i_elem = 1, size(molar_mass_arr)
+    !   if (molar_mass_arr(i_elem) <= 0) then
+    !     errcode = 1
+    !     errmsg = "[MUSICA Error] Molar mass must be greater than zero."
+    !     return
+    !   end if
+    ! end do
+
+    ! ! Convert CAM-SIMA unit to MICM unit (kg kg-1  ->  mol m-3)
+    ! call convert_to_mol_per_cubic_meter(dry_air_density, molar_mass_arr, constituents)
+    
+    ! find musica constituents array 
+    call get_musica_constituents(constituents, constituents_musica, sequence_musica_species)
 
     ! Convert CAM-SIMA unit to MICM unit (kg kg-1  ->  mol m-3)
     call convert_to_mol_per_cubic_meter(dry_air_density, molar_mass_arr, constituents)
@@ -144,17 +185,20 @@ contains
                   photolysis_wavelength_grid_interfaces,         &
                   extraterrestrial_flux,                         &
                   standard_gravitational_acceleration,           &
-                  cloud_area_fraction, constituents,             &
+                  cloud_area_fraction, constituents_musica,      &  ! need to reset the arrangement
                   air_pressure_thickness, rate_parameters,       &
                   errmsg, errcode)
 
     ! Solve chemistry at the current time step
     call micm_run(time_step, temperature, pressure, dry_air_density, rate_parameters, &
-                  constituents, errmsg, errcode)
+                  constituents_musica, errmsg, errcode)
 
     ! Convert MICM unit back to CAM-SIMA unit (mol m-3  ->  kg kg-1)
-    call convert_to_mass_mixing_ratio(dry_air_density, molar_mass_arr, constituents)
+    ! return as CAM-SIMA constituents array
+    call convert_to_mass_mixing_ratio(dry_air_density, molar_mass_arr, constituents_musica)
 
+    call update_musica_constituents(constituents_musica, constituents, sequence_musica_species)
+  
   end subroutine musica_ccpp_run
 
   !> \section arg_table_musica_ccpp_final Argument Table
