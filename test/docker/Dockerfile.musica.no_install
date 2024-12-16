@@ -8,7 +8,7 @@
 
 FROM ubuntu:22.04
 
-ARG MUSICA_GIT_TAG=dbbdb22f5f2807e27c2695db85291951ba178634
+ARG MUSICA_GIT_TAG=326b5119768d5be9654baf96ae3bd6a1b757fdc8
 
 RUN apt update \
     && apt install -y sudo \
@@ -55,6 +55,12 @@ ENV MUSICA_GIT_TAG=${MUSICA_GIT_TAG}
 COPY . atmospheric_physics
 RUN sudo chown -R test_user:test_user atmospheric_physics
 
+# Clone the MUSICA chemistry data set repository
+RUN git clone https://github.com/NCAR/cam-sima-chemistry-data.git \
+    && cd cam-sima-chemistry-data \
+    && git checkout 144d982715f5bd6fa61e76f255a52db1843c55f2 \
+    && mv mechanisms /home/test_user/atmospheric_physics/schemes/musica/configurations
+
 # Must make ccpp-framework available before building test
 RUN cd atmospheric_physics/test \
     && mkdir lib \
@@ -70,11 +76,5 @@ RUN cd atmospheric_physics/test \
              -D CCPP_ENABLE_MUSICA_TESTS=ON \
              -D CCPP_ENABLE_MEMCHECK=ON \
     && cmake --build ./build
-
-RUN cd atmospheric_physics/test \
-    && mkdir third_party \
-    && cd third_party \
-    && git clone --depth 1 https://github.com/NCAR/tuv-x.git \
-    && cp -r tuv-x/data ../build/data
 
 WORKDIR /home/test_user/atmospheric_physics/test/build

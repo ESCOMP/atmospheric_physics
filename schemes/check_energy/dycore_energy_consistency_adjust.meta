@@ -1,0 +1,43 @@
+[ccpp-table-properties]
+  name = dycore_energy_consistency_adjust
+  type = scheme
+
+[ccpp-arg-table]
+  name  = dycore_energy_consistency_adjust_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ do_consistency_adjust ]
+  standard_name = flag_for_dycore_energy_consistency_adjustment
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ scaling_dycore ]
+  standard_name = ratio_of_specific_heat_of_air_used_in_physics_energy_formula_to_specific_heat_of_air_used_in_dycore_energy_formula
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ tend_dTdt ]
+  standard_name = tendency_of_air_temperature_due_to_model_physics
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ tend_dTdt_local ]
+  standard_name = tendency_of_air_temperature
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out

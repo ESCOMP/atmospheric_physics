@@ -2,21 +2,22 @@ module musica_ccpp_micm
 
   ! Note: "micm_t" is included in an external pre-built MICM library that the host
   ! model is responsible for linking to during compilation
-  use musica_micm,          only: micm_t
+  use ccpp_kinds,           only: kind_phys
   use musica_ccpp_util,     only: has_error_occurred
   use musica_ccpp_namelist, only: filename_of_micm_configuration
-  use ccpp_kinds,           only: kind_phys
+  use musica_micm,          only: micm_t
 
   implicit none
   private
 
-  public :: micm_register, micm_init, micm_run, micm_final
+  public :: micm_register, micm_init, micm_run, micm_final, micm, number_of_rate_parameters
 
   type(micm_t), pointer  :: micm => null( )
+  integer :: number_of_rate_parameters = 0
 
 contains
 
-  !> Register MICM constituent properties with the CCPP
+  !> Registers MICM constituent properties with the CCPP
   subroutine micm_register(solver_type, num_grid_cells, constituent_props, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
     use musica_micm,               only: Rosenbrock, RosenbrockStandardOrder
@@ -36,7 +37,7 @@ contains
     logical                       :: is_advected
     integer                       :: i, species_index
 
-    micm => micm_t(filename_of_micm_configuration, solver_type, num_grid_cells, error)
+    micm => micm_t(trim(filename_of_micm_configuration), solver_type, num_grid_cells, error)
     if (has_error_occurred(error, errmsg, errcode)) return
 
     allocate(constituent_props(micm%species_ordering%size()), stat=errcode)
@@ -73,10 +74,11 @@ contains
       if (errcode /= 0) return
     end associate ! map
     end do
+    number_of_rate_parameters = micm%user_defined_reaction_rates%size()
 
   end subroutine micm_register
 
-  !> Intitialize MICM
+  !> Initializes MICM
   subroutine micm_init(errmsg, errcode)
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errcode
@@ -86,45 +88,42 @@ contains
 
   end subroutine micm_init
 
-  !> Solve chemistry at the current time step
+  !> Solves chemistry at the current time step
   subroutine micm_run(time_step, temperature, pressure, dry_air_density, &
                       user_defined_rate_parameters, constituents, errmsg, errcode)
     use musica_micm,   only: solver_stats_t
     use musica_util,   only: string_t, error_t
-    use iso_c_binding, only: c_double
+    use iso_c_binding, only: c_double, c_loc
 
-    real(kind_phys),    intent(in)    :: time_step          ! s
-    real(c_double),     intent(in)    :: temperature(:)     ! K
-    real(c_double),     intent(in)    :: pressure(:)        ! Pa
-    real(c_double),     intent(in)    :: dry_air_density(:) ! kg m-3
-    real(c_double),     intent(in)    :: user_defined_rate_parameters(:) ! various units
-    real(c_double),     intent(inout) :: constituents(:)    ! mol m-3
-    character(len=512), intent(out)   :: errmsg
-    integer,            intent(out)   :: errcode
+    real(kind_phys),         intent(in)    :: time_step            ! s
+    real(kind_phys), target, intent(in)    :: temperature(:,:)     ! K
+    real(kind_phys), target, intent(in)    :: pressure(:,:)        ! Pa
+    real(kind_phys), target, intent(in)    :: dry_air_density(:,:) ! kg m-3
+    real(kind_phys), target, intent(in)    :: user_defined_rate_parameters(:,:,:) ! various units
+    real(kind_phys), target, intent(inout) :: constituents(:,:,:)  ! mol m-3
+    character(len=512),      intent(out)   :: errmsg
+    integer,                 intent(out)   :: errcode
 
     ! local variables
     type(string_t)       :: solver_state
     type(solver_stats_t) :: solver_stats
     type(error_t)        :: error
-    real(c_double)       :: c_time_step
     integer              :: i_elem
 
-    c_time_step = real(time_step, c_double) 
-
-    call micm%solve(c_time_step,                  &
-                    temperature,                  &
-                    pressure,                     &
-                    dry_air_density,              &
-                    constituents,                 &
-                    user_defined_rate_parameters, &
-                    solver_state,                 &
-                    solver_stats,                 &
+    call micm%solve(real(time_step, kind=c_double),      &
+                    c_loc(temperature),                  &
+                    c_loc(pressure),                     &
+                    c_loc(dry_air_density),              &
+                    c_loc(constituents),                 &
+                    c_loc(user_defined_rate_parameters), &
+                    solver_state,                        &
+                    solver_stats,                        &
                     error)
     if (has_error_occurred(error, errmsg, errcode)) return
 
   end subroutine micm_run
 
-  !> Finalize MICM
+  !> Finalizes MICM
   subroutine micm_final(errmsg, errcode)
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errcode
