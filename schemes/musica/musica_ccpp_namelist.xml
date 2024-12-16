@@ -103,5 +103,17 @@
       <value>UNSET_PATH</value>
     </values>
   </entry>
+  <entry id="filename_of_tuvx_micm_mapping_configuration">
+    <type>char*512</type>
+    <category>musica_ccpp</category>
+    <group>musica_ccpp</group>
+    <standard_name>filename_of_tuvx_micm_mapping_configuration</standard_name>
+    <units>none</units>
+    <desc>
+     A configuration file for the mapping of TUV-x photolysis rates to MICM custom rate parameters
+    </desc>
+    <values>
+      <value>UNSET_PATH</value>
+    </values>
 
 </entry_id_pg>

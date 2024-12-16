@@ -18,20 +18,21 @@ contains
     use musica_tuvx_profile,          only: profile_t
     use ccpp_kinds,                   only: kind_phys
 
-    integer,         parameter :: NUM_HOST_MIDPOINTS = 5
-    integer,         parameter :: NUM_HOST_INTERFACES = 6
-    real(kind_phys)            :: host_midpoint_temperature(NUM_HOST_MIDPOINTS) &
-                                  = [800.8_kind_phys, 700.7_kind_phys, 600.6_kind_phys, 500.5_kind_phys, 400.4_kind_phys]
-    real(kind_phys)            :: host_surface_temperature = 300.3_kind_phys
-    real(kind_phys)            :: interface_temperatures(NUM_HOST_MIDPOINTS+2)
-    real(kind_phys)            :: expected_interface_temperatures(NUM_HOST_MIDPOINTS+2) &
-                                  = [300.3_kind_phys, 400.4_kind_phys, 500.5_kind_phys, 600.6_kind_phys, 700.7_kind_phys, 800.8_kind_phys, 800.8_kind_phys]
-    type(grid_t),    pointer   :: height_grid
-    type(profile_t), pointer   :: profile
-    character(len=512)         :: errmsg
-    integer                    :: errcode
-    type(error_t)              :: error
-    real(kind_phys)            :: abs_error = 1e-4
+    integer, parameter       :: NUM_HOST_MIDPOINTS = 5
+    integer, parameter       :: NUM_HOST_INTERFACES = 6
+    real, parameter          :: ABS_ERROR = 1e-4
+    real(kind_phys)          :: host_midpoint_temperature(NUM_HOST_MIDPOINTS) = &
+                                [800.8_kind_phys, 700.7_kind_phys, 600.6_kind_phys, 500.5_kind_phys, 400.4_kind_phys]
+    real(kind_phys)          :: host_surface_temperature = 300.3_kind_phys
+    real(kind_phys)          :: expected_temperature_interfaces(NUM_HOST_MIDPOINTS+2) = &
+       [300.3_kind_phys, 400.4_kind_phys, 500.5_kind_phys, 600.6_kind_phys, 700.7_kind_phys, 800.8_kind_phys, 800.8_kind_phys]
+    real(kind_phys)          :: temperature_interfaces(NUM_HOST_MIDPOINTS+2)
+    type(grid_t),    pointer :: height_grid
+    type(profile_t), pointer :: profile
+    character(len=512)       :: errmsg
+    integer                  :: errcode
+    type(error_t)            :: error
+    integer                  :: i
 
     height_grid => create_height_grid(NUM_HOST_MIDPOINTS, NUM_HOST_INTERFACES, errmsg, errcode)
     ASSERT(errcode == 0)
@@ -45,16 +46,11 @@ contains
                                  host_surface_temperature, errmsg, errcode )
     ASSERT(errcode == 0)
 
-    call profile%get_edge_values( interface_temperatures, error)
+    call profile%get_edge_values( temperature_interfaces, error)
     ASSERT(error%is_success())
-
-    ASSERT_NEAR(interface_temperatures(1), expected_interface_temperatures(1), abs_error)
-    ASSERT_NEAR(interface_temperatures(2), expected_interface_temperatures(2), abs_error)
-    ASSERT_NEAR(interface_temperatures(3), expected_interface_temperatures(3), abs_error)
-    ASSERT_NEAR(interface_temperatures(4), expected_interface_temperatures(4), abs_error)
-    ASSERT_NEAR(interface_temperatures(5), expected_interface_temperatures(5), abs_error)
-    ASSERT_NEAR(interface_temperatures(6), expected_interface_temperatures(6), abs_error)
-    ASSERT_NEAR(interface_temperatures(7), expected_interface_temperatures(7), abs_error)
+    do i = 1, size(temperature_interfaces)
+      ASSERT_NEAR(temperature_interfaces(i), expected_temperature_interfaces(i), ABS_ERROR)
+    end do
 
     deallocate( profile )
     deallocate( height_grid )
