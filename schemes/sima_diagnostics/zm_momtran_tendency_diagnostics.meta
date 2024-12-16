@@ -1,9 +1,9 @@
 [ccpp-table-properties]
-  name = zm_tendency_diagnostics
+  name = zm_momtran_tendency_diagnostics
   type = scheme
 
 [ccpp-arg-table]
-  name  = zm_tendency_diagnostics_init
+  name  = zm_momtran_tendency_diagnostics_init
   type  = scheme
 [ errmsg ]
   standard_name = ccpp_error_message
@@ -21,23 +21,23 @@
   intent = out
 
 [ccpp-arg-table]
-  name  = zm_tendency_diagnostics_run
+  name  = zm_momtran_tendency_diagnostics_run
   type  = scheme
 [ ncol ]
-  standard_name = enter_standard_name_3
-  units = enter_units
+  standard_name = horizontal_loop_extent
+  units = count
   type = integer
   dimensions = ()
   intent = in
 [ pver ]
-  standard_name = enter_standard_name_4
-  units = enter_units
+  standard_name = vertical_layer_dimension
+  units = count
   type = integer
   dimensions = ()
   intent = in
 [ cpair ]
-  standard_name = enter_standard_name_5
-  units = enter_units
+  standard_name = specific_heat_of_dry_air_at_constant_pressure
+  units = J kg-1 K-1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in

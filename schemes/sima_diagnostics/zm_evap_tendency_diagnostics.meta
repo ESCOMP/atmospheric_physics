@@ -24,20 +24,20 @@
   name  = zm_evap_tendency_diagnostics_run
   type  = scheme
 [ ncol ]
-  standard_name = enter_standard_name_3
-  units = enter_units
+  standard_name = horizontal_loop_extent
+  units = count
   type = integer
   dimensions = ()
   intent = in
 [ pver ]
-  standard_name = enter_standard_name_4
-  units = enter_units
+  standard_name = vertical_layer_dimension
+  units = count
   type = integer
   dimensions = ()
   intent = in
 [ cpair ]
-  standard_name = enter_standard_name_5
-  units = enter_units
+  standard_name = specific_heat_of_dry_air_at_constant_pressure
+  units = J kg-1 K-1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
@@ -48,8 +48,7 @@
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ tend_s_snwevmlt ]
-  standard_name =
-tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_evaporation_and_melting_of_frozen_precipitation_due_to_deep_convection
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_evaporation_and_melting_of_frozen_precipitation_due_to_deep_convection
   units = J kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
@@ -59,6 +58,12 @@ tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_evaporation_and_melting
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ heat ]
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure
+  units = J kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
   intent = in
 [ errmsg ]
   standard_name = ccpp_error_message

@@ -42,6 +42,8 @@ CONTAINS
     errmsg = ''
     errflg = 0
 
+    call history_add_field ('ZMEIHEAT', 'Heating by ice and evaporation in ZM convection', 'lev', 'avg', 'W kg-1')
+
     call history_add_field ('EVAPTZM', 'T tendency - Evaporation/snow prod from Zhang convection', 'lev',  'avg', 'K s-1')
     call history_add_field ('FZSNTZM', 'T tendency - Rain to snow conversion from Zhang convection', 'lev',  'avg', 'K s-1')
     call history_add_field ('EVSNTZM', 'T tendency - Snow to rain prod from Zhang convection', 'lev',  'avg', 'K s-1')
@@ -52,7 +54,7 @@ CONTAINS
 
    !> \section arg_table_zm_evap_tendency_diagnostics_run  Argument Table
    !! \htmlinclude zm_evap_tendency_diagnostics_run.html
-   subroutine zm_evap_tendency_diagnostics_run(ncol, pver, cpair, tend_s_snwprd, tend_s_snwevmlt, qtnd, errmsg, errflg)
+   subroutine zm_evap_tendency_diagnostics_run(ncol, pver, cpair, tend_s_snwprd, tend_s_snwevmlt, qtnd, heat, errmsg, errflg)
 
       use cam_history,               only: history_out_field
       use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
@@ -65,7 +67,7 @@ CONTAINS
       real(kind_phys), intent(in) :: tend_s_snwprd(:,:)
       real(kind_phys), intent(in) :: tend_s_snwevmlt(:,:)
       real(kind_phys), intent(in) :: qtnd(:,:)
-
+      real(kind_phys), intent(in) :: heat(:,:)
 
       ! CCPP error handling variables
       character(len=512), intent(out) :: errmsg
@@ -78,15 +80,17 @@ CONTAINS
       real(kind_phys) :: ftem(ncol,pver)
 
       errmsg = ''
+
       errflg = 0
 
-   ftem(:ncol,:pver) = qtnd(:ncol,:pver)/cpair
+   ftem(:ncol,:pver) = heat(:ncol,:pver)/cpair
    call history_out_field('EVAPTZM ',ftem)
    ftem(:ncol,:pver) = tend_s_snwprd  (:ncol,:pver)/cpair
    call history_out_field('FZSNTZM ',ftem)
    ftem(:ncol,:pver) = tend_s_snwevmlt(:ncol,:pver)/cpair
    call history_out_field('EVSNTZM ',ftem)
-   call history_out_field('EVAPQZM ',ptend_loc%q(1,1,1))
+   call history_out_field('EVAPQZM ',qtnd)
+   call history_out_field('ZMEIHEAT', heat)
 
    end subroutine zm_evap_tendency_diagnostics_run
 

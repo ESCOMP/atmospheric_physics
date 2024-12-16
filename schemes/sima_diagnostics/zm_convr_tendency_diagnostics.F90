@@ -1,4 +1,4 @@
-module zm_convr_diagnostics
+module zm_convr_tendency_diagnostics
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
 ! THIS IS A TEMPLATE
@@ -23,14 +23,14 @@ module zm_convr_diagnostics
    private
    save
 
-   public :: zm_convr_diagnostics_init ! init routine
-   public :: zm_convr_diagnostics_run  ! main routine
+   public :: zm_convr_tendency_diagnostics_init ! init routine
+   public :: zm_convr_tendency_diagnostics_run  ! main routine
 
 CONTAINS
 
- !> \section arg_table_zm_convr_diagnostics_init  Argument Table
- !! \htmlinclude zm_convr_diagnostics_init.html
- subroutine zm_convr_diagnostics_init(errmsg, errflg)
+ !> \section arg_table_zm_convr_tendency_diagnostics_init  Argument Table
+ !! \htmlinclude zm_convr_tendency_diagnostics_init.html
+ subroutine zm_convr_tendency_diagnostics_init(errmsg, errflg)
     use cam_history,         only: history_add_field
     use cam_history_support, only: horiz_only
 
@@ -45,11 +45,11 @@ CONTAINS
     call history_add_field ('ZMDT', 'T tendency - Zhang-McFarlane moist convection', 'lev', 'avg', 'K s-1')
     call history_add_field ('ZMDQ', 'Q tendency - Zhang-McFarlane moist convection', 'lev', 'avg', 'kg kg-1 s-1')
 
-   end subroutine zm_convr_diagnostics_init
+   end subroutine zm_convr_tendency_diagnostics_init
 
-   !> \section arg_table_zm_convr_diagnostics_run  Argument Table
-   !! \htmlinclude zm_convr_diagnostics_run.html
-   subroutine zm_convr_diagnostics_run(ncol, pver, cpair, heat, qtnd, errmsg, errflg)
+   !> \section arg_table_zm_convr_tendency_diagnostics_run  Argument Table
+   !! \htmlinclude zm_convr_tendency_diagnostics_run.html
+   subroutine zm_convr_tendency_diagnostics_run(ncol, pver, cpair, heat, qtnd, errmsg, errflg)
 
       use cam_history, only: history_out_field
 
@@ -75,12 +75,14 @@ CONTAINS
       errmsg = ''
       errflg = 0
 
-   ftem(:ncol,:pver) = heat(:ncol,:pver)/cpair
-   call history_out_field('ZMDT    ', ftem)
-   call history_out_field('ZMDQ    ',qtnd(1,1,1))
+      ftem(:,:) = 0._kind_phys
 
-   end subroutine zm_convr_diagnostics_run
+      ftem(:ncol,:pver) = heat(:ncol,:pver)/cpair
+      call history_out_field('ZMDT    ', ftem)
+      call history_out_field('ZMDQ    ', qtnd)
+
+   end subroutine zm_convr_tendency_diagnostics_run
 
    !=======================================================================
 
-end module zm_convr_diagnostics
+end module zm_convr_tendency_diagnostics

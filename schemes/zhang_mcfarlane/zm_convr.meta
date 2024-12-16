@@ -300,7 +300,7 @@
   standard_name = atmosphere_convective_mass_flux_due_to_deep_convection
   units = hPa s-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent,vertical_interface_dimension)
   intent = out
 [ cme ]
   standard_name = tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_from_cloud_condensation_minus_precipitation_evaporation_due_to_deep_convection

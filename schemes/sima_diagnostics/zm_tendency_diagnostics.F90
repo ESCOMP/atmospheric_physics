@@ -71,8 +71,6 @@ CONTAINS
       character(len=256) :: standard_name
 
       real(kind_phys) :: ftem(ncol,pver)
-      real(kind_phys) :: mcon(ncol,pverp)
-      real(kind_phys) :: mconzm(ncol,pverp)
 
       errmsg = ''
       errflg = 0

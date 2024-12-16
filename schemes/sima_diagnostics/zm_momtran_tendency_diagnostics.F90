@@ -1,4 +1,4 @@
-module zm_tendency_diagnostics
+module zm_momtran_tendency_diagnostics
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
 ! THIS IS A TEMPLATE
@@ -23,14 +23,14 @@ module zm_tendency_diagnostics
    private
    save
 
-   public :: zm_tendency_diagnostics_init ! init routine
-   public :: zm_tendency_diagnostics_run  ! main routine
+   public :: zm_momtran_tendency_diagnostics_init ! init routine
+   public :: zm_momtran_tendency_diagnostics_run  ! main routine
 
 CONTAINS
 
- !> \section arg_table_zm_tendency_diagnostics_init  Argument Table
- !! \htmlinclude zm_tendency_diagnostics_init.html
- subroutine zm_tendency_diagnostics_init(errmsg, errflg)
+ !> \section arg_table_zm_momtran_tendency_diagnostics_init  Argument Table
+ !! \htmlinclude zm_momtran_tendency_diagnostics_init.html
+ subroutine zm_momtran_tendency_diagnostics_init(errmsg, errflg)
     use cam_history,         only: history_add_field
     use cam_history_support, only: horiz_only
 
@@ -46,11 +46,11 @@ CONTAINS
     call history_add_field ('ZMMTU',  'U tendency - ZM convective momentum transport', 'lev',  'avg', 'm s-2')
     call history_add_field ('ZMMTV',  'V tendency - ZM convective momentum transport', 'lev',  'avg', 'm s-2')
 
-   end subroutine zm_tendency_diagnostics_init
+   end subroutine zm_momtran_tendency_diagnostics_init
 
-   !> \section arg_table_zm_tendency_diagnostics_run  Argument Table
-   !! \htmlinclude zm_tendency_diagnostics_run.html
-   subroutine zm_tendency_diagnostics_run(ncol, pver, cpair, windu_tend, windv_tend, seten, errmsg, errflg)
+   !> \section arg_table_zm_momtran_tendency_diagnostics_run  Argument Table
+   !! \htmlinclude zm_momtran_tendency_diagnostics_run.html
+   subroutine zm_momtran_tendency_diagnostics_run(ncol, pver, cpair, windu_tend, windv_tend, seten, errmsg, errflg)
 
       use cam_history,               only: history_out_field
       use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
@@ -83,8 +83,8 @@ CONTAINS
       ftem(:ncol,:pver) = seten(:ncol,:pver)/cpair
       call history_out_field('ZMMTT', ftem)
 
-   end subroutine zm_tendency_diagnostics_run
+   end subroutine zm_momtran_tendency_diagnostics_run
 
    !=======================================================================
 
-end module zm_tendency_diagnostics
+end module zm_momtran_tendency_diagnostics

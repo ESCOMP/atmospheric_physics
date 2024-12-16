@@ -52,7 +52,6 @@ CONTAINS
     call history_add_field ('ZMNTSNPD', &
                             'tendency_of_frozen_precipitation_wrt_moist_air_and_condensed_water_due_to_deep_convection', &
                             'lev', 'avg', 'kg kg-1 s-1')
-    call history_add_field ('ZMEIHEAT', 'Heating by ice and evaporation in ZM convection', 'lev', 'avg', 'W kg-1')
 
     call history_add_field ('CMFMC_DP', 'Convection mass flux from ZM deep ', 'ilev', 'avg', 'kg m-2 s-1')
     call history_add_field ('PRECCDZM', 'lwe_precipitation_rate_at_surface_due_to_deep_convection', horiz_only, 'avg', 'm s-1')
@@ -91,9 +90,10 @@ CONTAINS
 
    !> \section arg_table_zm_diagnostics_run  Argument Table
    !! \htmlinclude zm_diagnostics_run.html
-   subroutine zm_diagnostics_run(ncol, pver, pverp, ideep, cpair, heat, prec, cape, gravit, mu, md, &
-      dif, dlf, ps, paph, maxg, jt, flxprec, flxsnow, ntprprd, ntsnprd, pguallu, pguallv, &
-      pgdallu, pgdallv, icwuu, icwuv, icwdu, icwdv, errmsg, errflg)
+   subroutine zm_diagnostics_run(ncol, pver, pverp, ideep, cpair, prec, cape, gravit, mu, md, &
+!      dif, dlf, ps, pap, maxg, jt, flxprec, flxsnow, ntprprd, ntsnprd, pguallu, pguallv, &
+      dlf, ps, pap, maxg, jt, flxprec, flxsnow, ntprprd, ntsnprd, pguallu, pguallv, &
+      pgdallu, pgdallv, icwuu, icwuv, icwdu, icwdv, mcon, errmsg, errflg)
 
       use cam_history, only: history_out_field
 
@@ -107,16 +107,15 @@ CONTAINS
       integer, intent(in) :: ideep(:)
 
       real(kind_phys), intent(in) :: cpair
-      real(kind_phys), intent(in) :: heat(:,:)
       real(kind_phys), intent(in) :: prec(:)
       real(kind_phys), intent(in) :: cape(:)
       real(kind_phys), intent(in) :: gravit
       real(kind_phys), intent(in) :: mu(:,:)
       real(kind_phys), intent(in) :: md(:,:)
-      real(kind_phys), intent(in) :: dif(:,:)
+!      real(kind_phys), intent(in) :: dif(:,:)
       real(kind_phys), intent(in) :: dlf(:,:)
       real(kind_phys), intent(in) :: ps(:)
-      real(kind_phys), intent(in) :: paph(:,:)
+      real(kind_phys), intent(in) :: pap(:,:)
       integer, intent(in) :: maxg(ncol)
       integer, intent(in) :: jt(ncol)
       real(kind_phys),intent(in) :: flxprec(:,:)
@@ -132,6 +131,8 @@ CONTAINS
       real(kind_phys),intent(in) :: icwdu(:,:)
       real(kind_phys),intent(in) :: icwdv(:,:)
 
+      real(kind_phys),intent(inout) :: mcon(:,:)
+
       ! CCPP error handling variables
       character(len=512), intent(out) :: errmsg
       integer,          intent(out) :: errflg
@@ -142,16 +143,18 @@ CONTAINS
       real(kind_phys) :: pcont(ncol)
       real(kind_phys) :: pconb(ncol)
       real(kind_phys) :: ftem(ncol,pver)
-      real(kind_phys) :: mcon(ncol,pverp)
       real(kind_phys) :: mconzm(ncol,pverp)
-      real(kind_phys) :: mu_out(ncol,pverp)
-      real(kind_phys) :: md_out(ncol,pverp)
+      real(kind_phys) :: mu_out(ncol,pver)
+      real(kind_phys) :: md_out(ncol,pver)
 
       integer :: index_cldliq
       integer i, ii, k
 
       errmsg = ''
       errflg = 0
+
+      mu_out(:,:) = 0._kind_phys
+      md_out(:,:) = 0._kind_phys
 
       lengath = count(ideep > 0)
       if (lengath > ncol) lengath = ncol  ! should not happen, but force it to not be larger than ncol for safety sake
@@ -183,15 +186,15 @@ CONTAINS
    call history_out_field('ZMMU', mu_out)
    call history_out_field('ZMMD', md_out)
 
-   call history_out_field('DIFZM'   ,dif)
+!   call history_out_field('DIFZM'   ,dif)
    call history_out_field('DLFZM'   ,dlf)
 
    pcont(:ncol) = ps(:ncol)
    pconb(:ncol) = ps(:ncol)
    do i = 1,lengath
        if (maxg(i).gt.jt(i)) then
-          pcont(ideep(i)) = paph(ideep(i),jt(i))  ! gathered array (or jctop ungathered)
-          pconb(ideep(i)) = paph(ideep(i),maxg(i))! gathered array
+          pcont(ideep(i)) = pap(ideep(i),jt(i))  ! gathered array (or jctop ungathered)
+          pconb(ideep(i)) = pap(ideep(i),maxg(i))! gathered array
        endif
        !     write(iulog,*) ' pcont, pconb ', pcont(i), pconb(i), cnt(i), cnb(i)
     end do
@@ -202,7 +205,6 @@ CONTAINS
    call history_out_field('ZMFLXSNW', flxsnow)
    call history_out_field('ZMNTPRPD', ntprprd)
    call history_out_field('ZMNTSNPD', ntsnprd)
-   call history_out_field('ZMEIHEAT', heat)
 
 !CACNOTE - CAM is outputting the exact same quantity to both fields
    call history_out_field('PRECCDZM   ',prec)
