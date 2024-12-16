@@ -141,8 +141,11 @@ contains
     rliq_sh, &
     errmsg, errflg &
   )
+    ! framework dependency for const_props
+    use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
+
     ! to_be_ccppized
-    use wv_saturation,   only: qsat
+    use wv_saturation,             only: qsat
 
     ! Input arguments
     integer,         intent(in)     :: ncol               ! number of atmospheric columns

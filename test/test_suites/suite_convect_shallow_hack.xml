@@ -25,8 +25,9 @@
 
     <!-- DIAGNOSTIC QUANTITY UPDATES -->
     <!-- eventually calculate shallow convective fraction diagnostic (FREQSH) -->
-    <!-- sum deep convective quantities with shallow including total convective rainout -->
-    <scheme>convect_shallow_sum_to_deep</scheme>
+    <!-- sum deep convective quantities with shallow including total convective rainout.
+         requires deep convective quantities to be actually available (i.e., rprddp) -->
+    <!-- <scheme>convect_shallow_sum_to_deep</scheme> -->
 
     <!-- SUBCLOUD EVAPORATION -->
     <!-- prepare state for zm_conv_evap (rename shallow outputs to deep inputs) -->
