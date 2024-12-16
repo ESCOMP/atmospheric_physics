@@ -121,7 +121,7 @@
   intent = in
 [ clat ]
   standard_name = latitude
-  units = radians
+  units = rad
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
