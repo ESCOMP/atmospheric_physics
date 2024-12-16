@@ -17,12 +17,16 @@ contains
 
       real(kind_phys) :: solar_zenith_angle
       real(kind_phys), dimension(8) :: extraterrestrial_flux 
-      real(kind_phys), dimension(2, 4) :: constituents ! (layers, constituents)
-      real(kind_phys), dimension(2) :: height_at_interfaces ! (layers)
-      real(kind_phys), dimension(2) :: dry_air_density
+      real(kind_phys), dimension(1,2,4) :: constituents ! (column, layers, constituents)
+      real(kind_phys), dimension(3) :: height_at_interfaces ! (layers + 1)
+      real(kind_phys), dimension(1,2) :: dry_air_density ! (column, layers)
       integer :: N2_index, O2_index, O3_index, NO_index
       real(kind_phys) :: molar_mass_N2, molar_mass_O2, molar_mass_O3, molar_mass_NO
       real(kind_phys), dimension(4) :: jNO
+
+      ! Some of this initialization data corresponds to values listed in the Minschwaner and Siskind (1993) paper
+      ! see the musica_ccpp_tuvx_no_photolysis_rate.F90 file for the full citation
+      
 
       ! Initialize test data
       solar_zenith_angle = 60.0_kind_phys
@@ -30,8 +34,8 @@ contains
                                 1.1e13_kind_phys, 1.0e13_kind_phys, 9.0e12_kind_phys, 8.0e12_kind_phys /)
       constituents = reshape([0.21_kind_phys, 0.79_kind_phys, 1.0e-4_kind_phys, 1.0e-9_kind_phys, &
                               0.21_kind_phys, 0.79_kind_phys, 2.0e-4_kind_phys, 2.0e-9_kind_phys], shape(constituents))
-      height_at_interfaces = (/ 4.0_kind_phys, 3.0_kind_phys /)
-      dry_air_density = (/ 1.2_kind_phys, 1.1_kind_phys /)
+      height_at_interfaces = reshape([40.0_kind_phys, 30.0_kind_phys, 20.0_kind_phys], shape(height_at_interfaces))
+      dry_air_density = reshape([1.2_kind_phys, 1.1_kind_phys], shape(dry_air_density))
       N2_index = 1
       O2_index = 2
       O3_index = 3
@@ -42,8 +46,8 @@ contains
       molar_mass_NO = 0.0300061_kind_phys
 
       ! Call the function to test
-      jNO = calculate_NO_photolysis_rate(solar_zenith_angle, extraterrestrial_flux, constituents, height_at_interfaces, &
-                                         dry_air_density, N2_index, O2_index, O3_index, NO_index, molar_mass_N2, molar_mass_O2, molar_mass_O3, molar_mass_NO)
+      jNO = calculate_NO_photolysis_rate(size(constituents, dim=2), solar_zenith_angle, extraterrestrial_flux, constituents(1,:,:), height_at_interfaces, &
+                                         dry_air_density(1,:), N2_index, O2_index, O3_index, NO_index, molar_mass_N2, molar_mass_O2, molar_mass_O3, molar_mass_NO)
 
       ! Validate the results
       ASSERT(size(jNO) == 4)

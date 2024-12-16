@@ -42,42 +42,37 @@ contains
   !> Prepare to calculate the photolysis rate of NO (nitiric acid). 
   !> This function transforms the inputs into the units
   !> needed by the calculate_jno routine which actually produces the photolysis rate
-  function calculate_NO_photolysis_rate(solar_zenith_angle, extraterrestrial_flux, constituents, height_at_interfaces, &
+  function calculate_NO_photolysis_rate(number_of_vertical_layers, solar_zenith_angle, extraterrestrial_flux, constituents, height_at_interfaces, &
     dry_air_density, N2_index, O2_index, O3_index, NO_index, molar_mass_N2, molar_mass_O2, molar_mass_O3, molar_mass_NO) &
       result(jNO)
     ! inputs
+    integer,  intent(in)            :: number_of_vertical_layers! unitless
     real(dk), intent(in)            :: solar_zenith_angle       ! degrees
     real(dk), intent(in)            :: extraterrestrial_flux(:) ! photons cm-2 s-1 nm-1 (layer)
     real(dk), target, intent(in)    :: constituents(:,:)      ! various (layer, constituent)
     real(dk), intent(in)            :: height_at_interfaces(:)  ! km (layer)
     real(dk), intent(in)            :: dry_air_density(:)     ! kg m-3 (layer)
-    integer , intent(in)            :: N2_index, O2_index, O3_index, NO_index ! position of these species in the constituent arrays
+    integer,  intent(in)            :: N2_index, O2_index, O3_index, NO_index ! position of these species in the constituent arrays
     real(dk), intent(in)            :: molar_mass_N2, molar_mass_O2, molar_mass_O3, molar_mass_NO ! kg mol-1
 
     ! local variables
-    ! TODO: should this really be one more than the number of layers in CAM-SIMA
-    ! species column densities (molecule cm-3) (number of layers + 1)
-    real(dk) :: n2_dens(size(constituents, dim=1)+1), o2_dens(size(constituents, dim=1)+1)
-    real(dk) :: o3_dens(size(constituents, dim=1)+1), no_dens(size(constituents, dim=1)+1)
+    real(dk) :: n2_dens(number_of_vertical_layers+1), o2_dens(number_of_vertical_layers+1)
+    real(dk) :: o3_dens(number_of_vertical_layers+1), no_dens(number_of_vertical_layers+1)
     ! species slant column densities (molecule cm-2)
-    real(dk) :: o2_slant(size(constituents, dim=1)+1), o3_slant(size(constituents, dim=1)+1)
-    real(dk) :: no_slant(size(constituents, dim=1)+1)
+    real(dk) :: o2_slant(number_of_vertical_layers+1), o3_slant(number_of_vertical_layers+1)
+    real(dk) :: no_slant(number_of_vertical_layers+1)
     ! working photo rate array
-    real(dk) :: work_jno(size(constituents, dim=1)+1)
+    real(dk) :: work_jno(number_of_vertical_layers+1)
     ! parameters needed to calculate slant column densities
     ! (see sphers routine description for details)
-    integer       :: nid(size(constituents, dim=1)+1)
-    integer       :: num_vertical_layers
-    real(dk) :: dsdh(0:size(constituents, dim=2)+1,size(constituents, dim=2)+1)
+    integer       :: nid(number_of_vertical_layers+1)
+    real(dk) :: dsdh(0:number_of_vertical_layers+1,number_of_vertical_layers+1)
     ! layer thickness (cm)
-    real(dk) :: delz(size(constituents, dim=1)+1)
+    real(dk) :: delz(number_of_vertical_layers+1)
     ! conversion from km to cm
     real(dk), parameter :: km2cm = 1.0e5_dk
     ! final photolysis rate
-    real(dk) :: jNO(size(constituents, dim=1))
-
-    ! number of vertical levels
-    num_vertical_layers = size(constituents, dim=1)
+    real(dk) :: jNO(number_of_vertical_layers)
 
     ! TODO: what are these constants? scale heights?
     ! TODO: the values at index 1 appear to be for values above the model top in CAM, but how does that affect cam sima?
@@ -101,15 +96,20 @@ contains
     ! ================================
     ! calculate slant column densities
     ! ================================
-    call sphers( num_vertical_layers+1, height_at_interfaces, solar_zenith_angle, dsdh, nid )
-    delz(1:num_vertical_layers) = km2cm * ( height_at_interfaces(1:num_vertical_layers) - height_at_interfaces(2:num_vertical_layers+1) )
+    call sphers( number_of_vertical_layers+1, height_at_interfaces, solar_zenith_angle, dsdh, nid )
+    print *, "thing: ", (height_at_interfaces(1:number_of_vertical_layers) - height_at_interfaces(2:number_of_vertical_layers+1))
+    delz(1:number_of_vertical_layers) = km2cm * ( height_at_interfaces(1:number_of_vertical_layers) - height_at_interfaces(2:number_of_vertical_layers+1) )
     print *, "delz: ", delz
-    call slant_col( num_vertical_layers+1, delz, dsdh, nid, o2_dens, o2_slant )
-    call slant_col( num_vertical_layers+1, delz, dsdh, nid, o3_dens, o3_slant )
-    call slant_col( num_vertical_layers+1, delz, dsdh, nid, no_dens, no_slant )
+    print *, "dsdh: ", dsdh
+    call slant_col( number_of_vertical_layers+1, delz, dsdh, nid, o2_dens, o2_slant )
+    call slant_col( number_of_vertical_layers+1, delz, dsdh, nid, o3_dens, o3_slant )
+    call slant_col( number_of_vertical_layers+1, delz, dsdh, nid, no_dens, no_slant )
 
+    print *, "o2_slant: ", o2_slant
+    print *, "o3_slant: ", o3_slant
+    print *, "no_slant: ", no_slant
 
-    jNO = calculate_jno(num_vertical_layers, extraterrestrial_flux, n2_dens, o2_slant, o3_slant, no_slant, work_jno)
+    jNO = calculate_jno(number_of_vertical_layers, extraterrestrial_flux, n2_dens, o2_slant, o3_slant, no_slant, work_jno)
 
   end function calculate_NO_photolysis_rate
 
@@ -252,6 +252,7 @@ contains
       jno100   = pjno( 1, o2_2100_cross_section, no_100_weighting_factor, no_100_cross_section, lev )
       jno90    = pjno( 2, o2_290_cross_section,  no_90_weighting_factor,  no_90_cross_section, lev )
       jno50    = pjno( 4, o2_250_cross_section,  no_50_weighting_factor,  no_50_cross_section, lev )
+      print *, "level: ", lev, "jno100: ", jno100, "jno90: ", jno90, "jno50: ", jno50
       jno(lev) = jno50 + jno90 + jno100
     end do
 
@@ -370,14 +371,14 @@ contains
     !   at twilight, Planet.Space Sci., v39, n5, pp. 671-683, 1991 (Appendix B)   !
     !=============================================================================!
     !   PARAMETERS:                                                               !
-    !   NZ      - INTEGER, number of specified altitude levels in the working (I) !
+    !   nlev    - INTEGER, number of specified altitude levels in the working (I) !
     !             grid                                                            !
-    !   Z       - REAL, specified altitude working grid (km)                  (I) !
-    !   ZEN     - REAL, solar zenith angle (degrees)                          (I) !
-    !   DSDH    - REAL, slant path of direct beam through each layer crossed  (O) !
+    !   z       - REAL, specified altitude working grid (km)                  (I) !
+    !   zenith_angle - REAL, solar zenith angle (degrees)                     (I) !
+    !   dsdh    - REAL, slant path of direct beam through each layer crossed  (O) !
     !             when travelling from the top of the atmosphere to layer i;      !
     !             DSDH(i,j), i = 0..NZ-1, j = 1..NZ-1                             !
-    !   NID     - INTEGER, number of layers crossed by the direct beam when   (O) !
+    !   nid     - INTEGER, number of layers crossed by the direct beam when   (O) !
     !             travelling from the top of the atmosphere to layer i;           !
     !             NID(i), i = 0..NZ-1                                             !
     !=============================================================================!
@@ -426,7 +427,7 @@ contains
 
 
     ! TODO: Get this from CAM-SIMA
-    radius = 6.37100e9_dk ! radius earth (km)
+    radius = 6378_dk ! radius earth (km)
     
     !------------------------------------------------------------------------------
     !       ... set zenith angle in radians
@@ -465,39 +466,38 @@ contains
     do i = 0,nlayer
       rpsinz = (re + zd(i)) * const0
       if( zenith_angle <= 90._dk .or. rpsinz >= re ) then
-    !------------------------------------------------------------------------------
-    ! Find index of layer in which the screening height lies
-    !------------------------------------------------------------------------------
-          id = i
-          if( zenith_angle > 90._dk ) then
-            do j = 1,nlayer
-                if( rpsinz < (zd(j-1) + re) .and.  rpsinz >= (zd(j) + re) ) then
-      id = j
-      exit
-    end if
-            end do
-          end if
-
-          do j = 1,id
-            sm = 1._dk
-            if( j == id .and. id == i .and. zenith_angle > 90._dk ) then
-              sm = -1._dk
+        !------------------------------------------------------------------------------
+        ! Find index of layer in which the screening height lies
+        !------------------------------------------------------------------------------
+        id = i
+        if( zenith_angle > 90._dk ) then
+          do j = 1,nlayer
+            if( rpsinz < (zd(j-1) + re) .and.  rpsinz >= (zd(j) + re) ) then
+            id = j
+              exit
             end if
-            rj   = re + zd(j-1)
-            rjp1 = re + zd(j)
-            dhj  = zd(j-1) - zd(j)
-            ga   = max( rj*rj - rpsinz*rpsinz,0._dk )
-            gb   = max( rjp1*rjp1 - rpsinz*rpsinz,0._dk )
-            if( id > i .and. j == id ) then
-              dsj = sqrt( ga )
-            else
-              dsj = sqrt( ga ) - sm*sqrt( gb )
-            end if
-            dsdh(i,j) = dsj / dhj
           end do
-          nid(i) = id
+        end if
+        do j = 1,id
+          sm = 1._dk
+          if( j == id .and. id == i .and. zenith_angle > 90._dk ) then
+            sm = -1._dk
+          end if
+          rj   = re + zd(j-1)
+          rjp1 = re + zd(j)
+          dhj  = zd(j-1) - zd(j)
+          ga   = max( rj*rj - rpsinz*rpsinz,0._dk )
+          gb   = max( rjp1*rjp1 - rpsinz*rpsinz,0._dk )
+          if( id > i .and. j == id ) then
+            dsj = sqrt( ga )
+          else
+            dsj = sqrt( ga ) - sm*sqrt( gb )
+          end if
+          dsdh(i,j) = dsj / dhj
+        end do
+        nid(i) = id
       else
-          nid(i) = -1
+        nid(i) = -1
       end if
     end do
   end subroutine sphers
