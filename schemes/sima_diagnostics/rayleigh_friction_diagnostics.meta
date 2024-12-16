@@ -1,9 +1,9 @@
 [ccpp-table-properties]
-  name = sima_tend_diagnostics
+  name = rayleigh_friction_diagnostics
   type = scheme
 
 [ccpp-arg-table]
-  name  = sima_tend_diagnostics_init
+  name  = rayleigh_friction_diagnostics_init
   type  = scheme
 [ errmsg ]
   standard_name = ccpp_error_message
@@ -19,7 +19,7 @@
   intent = out
 
 [ccpp-arg-table]
-  name  = sima_tend_diagnostics_run
+  name  = rayleigh_friction_diagnostics_run
   type  = scheme
 [ dudt ]
   standard_name = tendency_of_eastward_wind

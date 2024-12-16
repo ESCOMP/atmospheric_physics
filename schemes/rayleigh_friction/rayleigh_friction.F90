@@ -135,7 +135,7 @@ contains
     errflg = 0
     dudt(:,:)=0._kind_phys
     dvdt(:,:)=0._kind_phys
-    s(:,:) =0._kind_phys
+    dsdt(:,:) =0._kind_phys
 
     if (otau0 .eq. 0._kind_phys) return
 
@@ -149,7 +149,7 @@ contains
        c3 = 0.5_kind_phys * (1._kind_phys - c2*c2) * rztodt
        dudt(:ncol,k) = c1 * u(:ncol,k)
        dvdt(:ncol,k) = c1 * v(:ncol,k)
-       s(:ncol,k) = c3 * (u(:ncol,k)**2 + v(:ncol,k)**2)
+       dsdt(:ncol,k) = c3 * (u(:ncol,k)**2 + v(:ncol,k)**2)
     enddo
     
   end subroutine rayleigh_friction_run

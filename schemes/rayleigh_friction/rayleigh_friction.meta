@@ -12,21 +12,21 @@
   dimensions = ()
   intent = in
 [ raytau0_nl ]
-  standard_name = model_top_friction_decay_time
+  standard_name = rayleigh_friction_model_top_decay_time
   long_name = Approx decay time at model top for RF
   units = days
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ raykrange_nl ]
-  standard_name = friction_profile_num_levels
+  standard_name = rayleigh_friction_num_levels
   long_name = Range of levels with RF applied
   units = count
   type = integer
   dimensions = ()
   intent = in
 [ rayk0_nl ]
-  standard_name = friction_profile_center_level
+  standard_name = rayleigh_friction_center_level
   long_name = Vertical level at which RF profile is centered
   units = index
   type = integer
@@ -72,31 +72,31 @@
   standard_name = eastward_wind
   units = m s-1
   type = real | kind = kind_phys
-  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ v ]
   standard_name = northward_wind
   units = m s-1
   type = real | kind = kind_phys
-  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ dudt ]
   standard_name = tendency_of_eastward_wind
   units = m s-2
   type = real | kind = kind_phys
-  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ dvdt ]
   standard_name = tendency_of_northward_wind
   units = m s-2
   type = real | kind = kind_phys
-  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ dsdt ]
-  standard_name = dry_static_energy
-  units = J kg-1
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure
+  units = J kg-1 s-1
   type = real | kind = kind_phys
-  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ errmsg ]
   standard_name = ccpp_error_message

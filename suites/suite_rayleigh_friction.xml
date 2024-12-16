@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<suite name="<parameterization>" version="1.0">  
+<suite name="rayleigh_friction" version="1.0">  
   <group name="physics_after_coupler">
     <!-- Rayleigh Friction -->
     <scheme>rayleigh_friction</scheme>
@@ -8,7 +8,8 @@
     <scheme>apply_heating_rate</scheme>
     <scheme>apply_tendency_of_eastward_wind</scheme>
     <scheme>apply_tendency_of_northward_wind</scheme>
-    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+    <scheme>check_energy_chng</scheme>
    </group>
  </suite>
  
