@@ -31,7 +31,7 @@ contains
       ! History add field calls
       call history_add_field('teinp', 'vertically_integrated_total_energy_using_dycore_energy_formula_at_start_of_physics_timestep', horiz_only, 'inst', 'J m-2')
       call history_add_field('tefix', 'vertically_integrated_total_energy_using_dycore_energy_formula', horiz_only, 'inst', 'J m-2')
-      call history_add_field('teout', 'vertically_integrated_total_energy_at_end_of_physics_timestep', horiz_only, 'inst', 'J m-2')
+      call history_add_field('teout', 'vertically_integrated_total_energy_using_dycore_energy_formula_at_end_of_physics_timestep', horiz_only, 'inst', 'J m-2')
       call history_add_field('efix', 'net_sensible_heat_flux_through_top_and_bottom_of_atmosphere_column_from_global_total_energy_correction', horiz_only, 'inst', 'J m-2')
 
    end subroutine check_energy_fix_diagnostics_init

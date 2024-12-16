@@ -1,7 +1,5 @@
 ! Diagnostic scheme for check_energy
 ! Not all quantities are needed as diagnostics; this module is designed to ease development
-!
-!
 module check_energy_diagnostics
    use ccpp_kinds, only: kind_phys
 

@@ -1,7 +1,7 @@
 
 #######################
 Date/time of when script was run:
-2024-12-16 11:19:41.130567
+2024-12-16 12:15:06.492723
 #######################
 
 Non-dictionary standard names found in the following metadata files:
@@ -12,7 +12,7 @@ atmospheric_physics/schemes/sima_diagnostics/check_energy_gmean_diagnostics.meta
 
     - flag_for_energy_global_means_output
     - global_mean_heating_rate_correction_for_energy_conservation
-    - global_mean_vertically_integrated_total_energy_at_end_of_physics_timestep
+    - global_mean_vertically_integrated_total_energy_using_dycore_energy_formula_at_end_of_physics_timestep
     - global_mean_vertically_integrated_total_energy_using_dycore_energy_formula_at_start_of_physics_timestep
 
 --------------------------
@@ -23,8 +23,6 @@ atmospheric_physics/schemes/sima_diagnostics/check_energy_diagnostics.meta
     - cumulative_total_water_boundary_flux
     - ratio_of_specific_heat_of_air_used_in_physics_energy_formula_to_specific_heat_of_air_used_in_dycore_energy_formula
     - specific_heat_of_air_used_in_dycore
-    - vertically_integrated_total_energy_at_end_of_physics_timestep
-    - vertically_integrated_total_energy_using_dycore_energy_formula
     - vertically_integrated_total_energy_using_physics_energy_formula
     - vertically_integrated_total_water
 
@@ -37,6 +35,15 @@ atmospheric_physics/schemes/sima_diagnostics/sima_state_diagnostics.meta
     - ln_air_pressure_at_interface
     - ln_air_pressure_of_dry_air_at_interface
     - surface_air_pressure
+
+--------------------------
+
+atmospheric_physics/schemes/sima_diagnostics/check_energy_fix_diagnostics.meta
+
+    - net_sensible_heat_flux_through_top_and_bottom_of_atmosphere_column
+    - vertically_integrated_total_energy_using_dycore_energy_formula
+    - vertically_integrated_total_energy_using_dycore_energy_formula_at_end_of_physics_timestep
+    - vertically_integrated_total_energy_using_dycore_energy_formula_at_start_of_physics_timestep
 
 --------------------------
 
@@ -254,8 +261,8 @@ atmospheric_physics/schemes/utilities/physics_tendency_updaters.meta
 
 atmospheric_physics/schemes/check_energy/check_energy_save_teout.meta
 
-    - vertically_integrated_total_energy_at_end_of_physics_timestep
     - vertically_integrated_total_energy_using_dycore_energy_formula
+    - vertically_integrated_total_energy_using_dycore_energy_formula_at_end_of_physics_timestep
 
 --------------------------
 
@@ -277,8 +284,8 @@ atmospheric_physics/schemes/check_energy/check_energy_chng.meta
     - specific_heat_of_air_used_in_dycore
     - total_energy_formula_for_dycore
     - total_energy_formula_for_physics
-    - vertically_integrated_total_energy_at_end_of_physics_timestep
     - vertically_integrated_total_energy_using_dycore_energy_formula
+    - vertically_integrated_total_energy_using_dycore_energy_formula_at_end_of_physics_timestep
     - vertically_integrated_total_energy_using_dycore_energy_formula_at_start_of_physics_timestep
     - vertically_integrated_total_energy_using_physics_energy_formula
     - vertically_integrated_total_energy_using_physics_energy_formula_at_start_of_physics_timestep
@@ -325,9 +332,9 @@ atmospheric_physics/schemes/check_energy/check_energy_gmean/check_energy_gmean.m
     - global_mean_heating_rate_correction_for_energy_conservation
     - global_mean_surface_air_pressure
     - global_mean_total_energy_correction_for_energy_conservation
-    - global_mean_vertically_integrated_total_energy_at_end_of_physics_timestep
+    - global_mean_vertically_integrated_total_energy_using_dycore_energy_formula_at_end_of_physics_timestep
     - global_mean_vertically_integrated_total_energy_using_dycore_energy_formula_at_start_of_physics_timestep
-    - vertically_integrated_total_energy_at_end_of_physics_timestep
+    - vertically_integrated_total_energy_using_dycore_energy_formula_at_end_of_physics_timestep
     - vertically_integrated_total_energy_using_dycore_energy_formula_at_start_of_physics_timestep
 
 --------------------------
