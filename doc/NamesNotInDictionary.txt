@@ -1,7 +1,7 @@
 
 #######################
 Date/time of when script was run:
-2024-12-09 12:02:06.047298
+2024-12-16 11:19:41.130567
 #######################
 
 Non-dictionary standard names found in the following metadata files:
@@ -376,11 +376,10 @@ atmospheric_physics/schemes/musica/musica_ccpp.meta
     - blackbody_temperature_at_surface
     - cloud_area_fraction
     - dynamic_constituents_for_musica_ccpp
+    - earth_sun_distance
     - extraterrestrial_radiation_flux
-    - micm_solver_type
-    - number_of_grid_cells
-    - number_of_photolysis_wavelength_grid_sections
     - photolysis_wavelength_grid_interfaces
+    - solar_zenith_angle
     - surface_albedo_due_to_UV_and_VIS_direct
 
 --------------------------
