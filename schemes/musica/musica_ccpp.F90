@@ -2,7 +2,7 @@
 module musica_ccpp
   use musica_ccpp_micm,     only: micm_register, micm_init, micm_run, micm_final
   use musica_ccpp_namelist, only: filename_of_tuvx_micm_mapping_configuration
-  use musica_ccpp_tuvx,     only: tuvx_init, tuvx_run, tuvx_final
+  use musica_ccpp_tuvx,     only: tuvx_register, tuvx_init, tuvx_run, tuvx_final
   use musica_util,          only: index_mappings_t
 
   implicit none
@@ -14,37 +14,68 @@ contains
 
   !> \section arg_table_musica_ccpp_register Argument Table
   !! \htmlinclude musica_ccpp_register.html
-  subroutine musica_ccpp_register(solver_type, num_grid_cells, constituent_props, errmsg, errcode)
+  subroutine musica_ccpp_register(constituent_props, errmsg, &
+                                  errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
+    use musica_ccpp_namelist,      only: micm_solver_type
 
-    integer,                                          intent(in)  :: solver_type
-    integer,                                          intent(in)  :: num_grid_cells
     type(ccpp_constituent_properties_t), allocatable, intent(out) :: constituent_props(:)
     character(len=512),                               intent(out) :: errmsg
     integer,                                          intent(out) :: errcode
 
-    call micm_register(solver_type, num_grid_cells, constituent_props, errmsg, errcode)
+    type(ccpp_constituent_properties_t), allocatable :: constituent_props_subset(:)
+    integer :: number_of_grid_cells
+
+    ! Temporary fix until the number of grid cells is only needed to create a MICM state
+    ! instead of when the solver is created.
+    ! The number of grid cells is not known at this point, so we set it to 1 and recreate
+    ! the solver when the number of grid cells is known at the init stage.
+    number_of_grid_cells = 1
+    call micm_register(micm_solver_type, number_of_grid_cells, constituent_props_subset, &
+                       errmsg, errcode)
+    if (errcode /= 0) return
+    constituent_props = constituent_props_subset
+    deallocate(constituent_props_subset)
+
+    call tuvx_register(constituent_props_subset, errmsg, errcode)
+    if (errcode /= 0) return
+    constituent_props = [ constituent_props, constituent_props_subset ]
 
   end subroutine musica_ccpp_register
 
   !> \section arg_table_musica_ccpp_init Argument Table
   !! \htmlinclude musica_ccpp_init.html
-  subroutine musica_ccpp_init(vertical_layer_dimension, vertical_interface_dimension, &
-                              photolysis_wavelength_grid_interfaces, errmsg, errcode)
+  subroutine musica_ccpp_init(horizontal_dimension, vertical_layer_dimension, &
+                              vertical_interface_dimension, &
+                              photolysis_wavelength_grid_interfaces, &
+                              constituent_props, errmsg, errcode)
+    use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t, ccpp_constituent_prop_ptr_t
     use ccpp_kinds, only : kind_phys
     use musica_ccpp_micm, only: micm
+    use musica_ccpp_namelist, only: micm_solver_type
     use musica_ccpp_util, only: has_error_occurred
-    integer,            intent(in)  :: vertical_layer_dimension                 ! (count)
-    integer,            intent(in)  :: vertical_interface_dimension             ! (count)
-    real(kind_phys),    intent(in)  :: photolysis_wavelength_grid_interfaces(:) ! m
-    character(len=512), intent(out) :: errmsg
-    integer,            intent(out) :: errcode
+    integer,                           intent(in)  :: horizontal_dimension                     ! (count)
+    integer,                           intent(in)  :: vertical_layer_dimension                 ! (count)
+    integer,                           intent(in)  :: vertical_interface_dimension             ! (count)
+    real(kind_phys),                   intent(in)  :: photolysis_wavelength_grid_interfaces(:) ! m
+    type(ccpp_constituent_prop_ptr_t), intent(in)  :: constituent_props(:)
+    character(len=512),                intent(out) :: errmsg
+    integer,                           intent(out) :: errcode
 
+    integer :: number_of_grid_cells
+    type(ccpp_constituent_properties_t), allocatable :: micm_species_props(:)
+
+    ! Temporary fix until the number of grid cells is only needed to create a MICM state
+    ! instead of when the solver is created.
+    ! Re-create the MICM solver with the correct number of grid cells
+    number_of_grid_cells = horizontal_dimension * vertical_layer_dimension
+    call micm_register(micm_solver_type, number_of_grid_cells, micm_species_props, errmsg, errcode)
     call micm_init(errmsg, errcode)
     if (errcode /= 0) return
     call tuvx_init(vertical_layer_dimension, vertical_interface_dimension, &
                    photolysis_wavelength_grid_interfaces, &
-                   micm%user_defined_reaction_rates, errmsg, errcode)
+                   micm%user_defined_reaction_rates, &
+                   constituent_props, errmsg, errcode)
     if (errcode /= 0) return
 
   end subroutine musica_ccpp_init
@@ -59,9 +90,10 @@ contains
                              constituents, geopotential_height_wrt_surface_at_midpoint,              &
                              geopotential_height_wrt_surface_at_interface, surface_geopotential,     &
                              surface_temperature, surface_albedo,                                    &
-                             number_of_photolysis_wavelength_grid_sections,                          &
-                             photolysis_wavelength_grid_interfaces, extraterrestrial_flux, &
-                             standard_gravitational_acceleration, errmsg, errcode)
+                             photolysis_wavelength_grid_interfaces, extraterrestrial_flux,           &
+                             standard_gravitational_acceleration, cloud_area_fraction,               &
+                             air_pressure_thickness, solar_zenith_angle,                             &
+                             earth_sun_distance, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use ccpp_kinds,                only: kind_phys
     use musica_ccpp_micm,          only: number_of_rate_parameters
@@ -79,10 +111,13 @@ contains
     real(kind_phys),         intent(in)    :: surface_geopotential(:)                           ! m2 s-2
     real(kind_phys),         intent(in)    :: surface_temperature(:)                            ! K
     real(kind_phys),         intent(in)    :: surface_albedo                                    ! unitless
-    integer,                 intent(in)    :: number_of_photolysis_wavelength_grid_sections     ! (count)
     real(kind_phys),         intent(in)    :: photolysis_wavelength_grid_interfaces(:)          ! nm
     real(kind_phys),         intent(in)    :: extraterrestrial_flux(:)                          ! photons cm-2 s-1 nm-1
     real(kind_phys),         intent(in)    :: standard_gravitational_acceleration               ! m s-2
+    real(kind_phys),         intent(in)    :: cloud_area_fraction(:,:)                          ! unitless (column, level)
+    real(kind_phys),         intent(in)    :: air_pressure_thickness(:,:)                       ! Pa (column, level)
+    real(kind_phys),         intent(in)    :: solar_zenith_angle(:)                             ! radians (column)
+    real(kind_phys),         intent(in)    :: earth_sun_distance                                ! AU
     character(len=512),      intent(out)   :: errmsg
     integer,                 intent(out)   :: errcode
 
@@ -95,14 +130,18 @@ contains
 
     ! Calculate photolysis rate constants using TUV-x
     call tuvx_run(temperature, dry_air_density,                  &
+                  constituents,                                  &
                   geopotential_height_wrt_surface_at_midpoint,   &
                   geopotential_height_wrt_surface_at_interface,  &
                   surface_geopotential, surface_temperature,     &
                   surface_albedo,                                &
-                  number_of_photolysis_wavelength_grid_sections, &
                   photolysis_wavelength_grid_interfaces,         &
                   extraterrestrial_flux,                         &
                   standard_gravitational_acceleration,           &
+                  cloud_area_fraction,                           &
+                  air_pressure_thickness,                        &
+                  solar_zenith_angle,                            &
+                  earth_sun_distance,                            &
                   rate_parameters,                               &
                   errmsg, errcode)
 

@@ -57,8 +57,8 @@ contains
   ! width of the wavelength bins to get the TUV-x units of photon cm-2 s-1
   !
   ! TUV-x only uses mid-point values for extraterrestrial flux
-  subroutine set_extraterrestrial_flux_values(profile, num_photolysis_wavelength_grid_sections, &
-      photolysis_wavelength_grid_interfaces, extraterrestrial_flux, errmsg, errcode)
+  subroutine set_extraterrestrial_flux_values(profile, photolysis_wavelength_grid_interfaces, &
+      extraterrestrial_flux, errmsg, errcode)
     use musica_ccpp_util,    only: has_error_occurred
     use musica_tuvx_profile, only: profile_t
     use musica_util,         only: error_t
@@ -66,7 +66,6 @@ contains
     use ccpp_tuvx_utils,     only: rebin
 
     type(profile_t),  intent(inout) :: profile
-    integer,          intent(in)    :: num_photolysis_wavelength_grid_sections  ! (count)
     real(kind_phys),  intent(in)    :: photolysis_wavelength_grid_interfaces(:) ! nm
     real(kind_phys),  intent(in)    :: extraterrestrial_flux(:)                 ! photons cm-2 s-1 nm-1
     character(len=*), intent(out)   :: errmsg
@@ -90,7 +89,7 @@ contains
     end if
 
     ! Regrid normalized flux to TUV-x wavelength grid
-    call rebin( num_photolysis_wavelength_grid_sections, num_wavelength_bins_,     &
+    call rebin( size(photolysis_wavelength_grid_interfaces) - 1, num_wavelength_bins_,     &
                 photolysis_wavelength_grid_interfaces, wavelength_grid_interfaces_, &
                 extraterrestrial_flux, midpoints )
 

@@ -141,3 +141,34 @@ add_test(
 )
 
 add_memory_check_test(test_tuvx_extraterrestrial_flux $<TARGET_FILE:test_tuvx_extraterrestrial_flux> "" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
+# Cloud optics
+add_executable(test_tuvx_cloud_optics test_tuvx_cloud_optics.F90)
+
+target_sources(test_tuvx_cloud_optics
+  PUBLIC
+    ${MUSICA_SRC_PATH}/tuvx/musica_ccpp_tuvx_height_grid.F90
+    ${MUSICA_SRC_PATH}/tuvx/musica_ccpp_tuvx_wavelength_grid.F90
+    ${MUSICA_SRC_PATH}/tuvx/musica_ccpp_tuvx_cloud_optics.F90
+    ${MUSICA_SRC_PATH}/musica_ccpp_util.F90
+    ${TO_BE_CCPPIZED_SRC_PATH}/ccpp_tuvx_utils.F90
+    ${CCPP_TEST_SRC_PATH}/ccpp_kinds.F90
+)
+
+target_link_libraries(test_tuvx_cloud_optics
+  PRIVATE
+    musica::musica-fortran
+)
+
+set_target_properties(test_tuvx_cloud_optics
+  PROPERTIES
+  LINKER_LANGUAGE Fortran
+)
+
+add_test(
+  NAME test_tuvx_cloud_optics
+  COMMAND $<TARGET_FILE:test_tuvx_cloud_optics>
+  WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+)
+
+add_memory_check_test(test_tuvx_cloud_optics $<TARGET_FILE:test_tuvx_cloud_optics> "" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})

@@ -48,8 +48,7 @@ contains
     ASSERT(errcode == 0)
     ASSERT(associated(profile))
 
-    call set_extraterrestrial_flux_values( profile, NUM_PHOTOLYSIS_WAVELENGTH_GRID_SECTIONS, &
-                                           photolysis_wavelength_grid_interfaces,            &
+    call set_extraterrestrial_flux_values( profile, photolysis_wavelength_grid_interfaces, &
                                            extraterrestrial_flux, errmsg, errcode )
     ASSERT(errcode == 0)
 
