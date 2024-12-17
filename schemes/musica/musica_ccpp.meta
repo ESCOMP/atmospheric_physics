@@ -173,7 +173,7 @@
   intent = in
 [ solar_zenith_angle ]
   standard_name = solar_zenith_angle
-  units = radians
+  units = rad
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
