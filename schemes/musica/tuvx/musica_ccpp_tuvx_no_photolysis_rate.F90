@@ -51,7 +51,7 @@ contains
     real(dk), intent(in)            :: extraterrestrial_flux(:) ! photons cm-2 s-1 nm-1 (layer)
     real(dk), target, intent(in)    :: constituents(:,:)        ! various, but should be mixing ratio (kg kg-1)? (layer, constituent)
     real(dk), intent(in)            :: height_at_interfaces(:)  ! km (layer)
-    real(dk), intent(in)            :: dry_air_density(:)     ! kg m-3 (layer)
+    real(dk), intent(in)            :: dry_air_density(:)       ! kg m-3 (layer)
     integer,  intent(in)            :: N2_index, O2_index, O3_index, NO_index ! position of these species in the constituent arrays
     real(dk), intent(in)            :: molar_mass_N2, molar_mass_O2, molar_mass_O3, molar_mass_NO ! kg mol-1
 
@@ -61,18 +61,17 @@ contains
     ! species slant column densities (molecule cm-2)
     real(dk) :: o2_slant(number_of_vertical_layers+1), o3_slant(number_of_vertical_layers+1)
     real(dk) :: no_slant(number_of_vertical_layers+1)
-    ! working photo rate array
-    real(dk) :: work_jno(number_of_vertical_layers+1)
+    real(dk) :: work_jno(number_of_vertical_layers+1) ! working photo rate array
+
     ! parameters needed to calculate slant column densities
     ! (see sphers routine description for details)
-    integer       :: nid(number_of_vertical_layers+1)
-    real(dk) :: dsdh(0:number_of_vertical_layers+1,number_of_vertical_layers+1)
-    ! layer thickness (cm)
-    real(dk) :: delz(number_of_vertical_layers+1)
-    ! conversion from km to cm
-    real(dk), parameter :: km2cm = 1.0e5_dk
-    ! final photolysis rate
-    real(dk) :: jNO(number_of_vertical_layers)
+    integer             :: nid(0:number_of_vertical_layers)
+    real(dk)            :: dsdh(0:number_of_vertical_layers+1,number_of_vertical_layers+1)
+    real(dk)            :: delz(number_of_vertical_layers+1) ! layer thickness (cm)
+    real(dk), parameter :: km2cm = 1.0e5_dk ! conversion from km to cm
+    real(dk)            :: jNO(number_of_vertical_layers) ! final photolysis rate
+
+    print *, "number of vertical layers: ", number_of_vertical_layers
 
     ! TODO: what are these constants? scale heights?
     ! TODO: the values at index 1 appear to be for values above the model top in CAM, but how does that affect cam sima?
@@ -399,7 +398,7 @@ contains
     !       ... Dummy arguments
     !------------------------------------------------------------------------------
     integer,  intent(in)   :: nlev              ! number model vertical levels
-    integer,  intent(out)  :: nid(0:nlev)       ! see above
+    integer,  intent(out)  :: nid(0:nlev)     ! see above
     real(dk), intent (in)  :: zenith_angle		  ! zenith_angle
     real(dk), intent (in)  :: z(nlev)		        ! geometric altitude (km)
     real(dk), intent (out) :: dsdh(0:nlev,nlev) ! see above

@@ -59,7 +59,7 @@ contains
 
       ! Validate the results
       ASSERT(size(jNO) == 4)
-      print *, jNO
+      ! print *, jNO
       ! ASSERT_NEAR(jNO(1), 1.0e-5_kind_phys, 1.0e-6_kind_phys)
       ! ASSERT_NEAR(jNO(2), 1.0e-5_kind_phys, 1.0e-6_kind_phys)
       ! ASSERT_NEAR(jNO(3), 1.0e-5_kind_phys, 1.0e-6_kind_phys)
