@@ -20,6 +20,7 @@ module musica_ccpp_tuvx
   type(profile_t),         pointer :: surface_albedo_profile => null()
   type(profile_t),         pointer :: extraterrestrial_flux_profile => null()
   type(radiator_t),        pointer :: cloud_optics => null()
+  type(radiator_t),        pointer :: aerosol_optics => null()
   type(index_mappings_t),  pointer :: photolysis_rate_constants_mapping => null( )
   integer,               parameter :: DEFAULT_NUM_PHOTOLYSIS_RATE_CONSTANTS = 0
   integer                          :: number_of_photolysis_rate_constants = DEFAULT_NUM_PHOTOLYSIS_RATE_CONSTANTS
@@ -81,6 +82,11 @@ contains
       cloud_optics => null()
     end if
 
+    if (associated( aerosol_optics )) then
+      deallocate( aerosol_optics )
+      aerosol_optics => null()
+    end if
+
     if (associated( photolysis_rate_constants_mapping )) then
       deallocate( photolysis_rate_constants_mapping )
       photolysis_rate_constants_mapping => null()
@@ -140,10 +146,10 @@ contains
     use musica_ccpp_tuvx_extraterrestrial_flux, &
       only: create_extraterrestrial_flux_profile, extraterrestrial_flux_label, &
             extraterrestrial_flux_unit
-    use musica_ccpp_tuvx_aerosol_optics, &
-      only: create_aerosol_optics_radiator, aerosol_optics_label
     use musica_ccpp_tuvx_cloud_optics, &
       only: create_cloud_optics_radiator, cloud_optics_label
+    use musica_ccpp_tuvx_aerosol_optics, &
+      only: create_aerosol_optics_radiator, aerosol_optics_label
 
     integer,                           intent(in)  :: vertical_layer_dimension      ! (count)
     integer,                           intent(in)  :: vertical_interface_dimension  ! (count)
@@ -270,6 +276,21 @@ contains
     endif
 
     call radiators%add( cloud_optics, error )
+    if (has_error_occurred( error, errmsg, errcode )) then
+      call reset_tuvx_map_state( grids, profiles, radiators )
+      call cleanup_tuvx_resources()
+      return
+    end if
+
+    aerosol_optics => create_aerosol_optics_radiator( height_grid, wavelength_grid, &
+                                                      errmsg, errcode )
+    if (errcode /= 0) then
+      call reset_tuvx_map_state( grids, profiles, radiators )
+      call cleanup_tuvx_resources()
+      return
+    endif
+
+    call radiators%add( aerosol_optics, error )
     if (has_error_occurred( error, errmsg, errcode )) then
       call reset_tuvx_map_state( grids, profiles, radiators )
       call cleanup_tuvx_resources()
