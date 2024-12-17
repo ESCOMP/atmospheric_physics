@@ -9,7 +9,8 @@ module musica_ccpp_tuvx_aerosol_optics
   !> Label for aerosol optical properties in TUV-x
   character(len=*), parameter, public :: aerosol_optics_label = "aerosols"
   !> Label
-  character(len=*), parameter, public :: aerosol_optical_depth_label = "optical depths"
+  character(len=*), parameter, public :: \
+    aerosol_optical_depth_label = "optical depths"
   character(len=*), parameter, public :: \
     aerosol_single_scattering_albedo_label = "single scattering albedos"
   character(len=*), parameter, public :: \
@@ -76,15 +77,16 @@ contains
     ! local variables
     type(error_t)   :: error
 
-    real(kind_phys) :: aerosol_optical_depth(num_vertical_levels, num_wavelength_bins)
+    real(kind_phys) :: \
+      aerosol_optical_depth(num_vertical_levels, num_wavelength_bins)
     real(kind_phys) :: \
       aerosol_single_scattering_albedo(num_vertical_levels, num_wavelength_bins)
     real(kind_phys) :: \
       aerosol_asymmetry_factor(num_vertical_levels, num_wavelength_bins, num_streams)
 
-    aerosol_optical_depth(:,:) = 0.0
-    aerosol_single_scattering_albedo(:,:) = 0.0
-    aerosol_asymmetry_factor(:,:,:) = 0.0
+    aerosol_optical_depth(:,:) = 0.0_kind_phys
+    aerosol_single_scattering_albedo(:,:) = 0.0_kind_phys
+    aerosol_asymmetry_factor(:,:,:) = 0.0_kind_phys
 
     call radiator%set_optical_depths( aerosol_optical_depth, error )
     if ( has_error_occurred( error, errmsg, errcode ) ) return
