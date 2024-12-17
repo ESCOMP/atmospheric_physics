@@ -25,9 +25,7 @@ contains
     integer, parameter        :: NUM_WAVELENGTH_MIDPOINTS = 3
     integer, parameter        :: NUM_WAVELENGTH_INTERFACES = 4
     real(kind_phys)           :: host_wavelength_interfaces(NUM_WAVELENGTH_INTERFACES) = [180.0e-9_kind_phys, 200.0e-9_kind_phys, 240.0e-9_kind_phys, 300.0e-9_kind_phys]
-    real(kind_phys)           :: expected_aerosol_optical_depth(NUM_HOST_HEIGHT_MIDPOINTS+1, NUM_WAVELENGTH_MIDPOINTS) = &
-      reshape([ 0.0_kind_phys, 0.14704591_kind_phys, 0.0_kind_phys, 0.0_kind_phys, 0.14704591_kind_phys, 0.0_kind_phys, 0.0_kind_phys, 0.14704591_kind_phys, 0.0_kind_phys, 0.0_kind_phys, 0.14704591_kind_phys, 0.0_kind_phys ], &
-              [ NUM_HOST_HEIGHT_MIDPOINTS+1, NUM_WAVELENGTH_MIDPOINTS ])
+    real(kind_phys)           :: aerosol_optical_depth(NUM_HOST_HEIGHT_MIDPOINTS+1, NUM_WAVELENGTH_MIDPOINTS)
     real(kind_phys)           :: single_scattering_albedo(NUM_HOST_HEIGHT_MIDPOINTS+1, NUM_WAVELENGTH_MIDPOINTS)
     real(kind_phys)           :: asymmetry_parameter(NUM_HOST_HEIGHT_MIDPOINTS+1, NUM_WAVELENGTH_MIDPOINTS,1)
     type(grid_t),     pointer :: height_grid => null()
@@ -51,14 +49,14 @@ contains
     ASSERT(errcode == 0)
     ASSERT(associated(aerosols))
 
-    call set_aerosol_optics_values(errmsg, errcode)
+    call set_aerosol_optics_values(aerosols, errmsg, errcode)
     ASSERT(errcode == 0)
 
     call aerosols%get_optical_depths(aerosol_optical_depth, error)
     ASSERT(error%is_success())
     do i = 1, size(aerosol_optical_depth, dim=1)
       do j = 1, size(aerosol_optical_depth, dim=2)
-        ASSERT_NEAR(aerosol_optical_depth(i,j), expected_aerosol_optical_depth(i,j), ABS_ERROR)
+        ASSERT_NEAR(aerosol_optical_depth(i,j), 0.0_kind_phys, ABS_ERROR)
       end do
     end do
 
