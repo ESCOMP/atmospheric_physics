@@ -49,7 +49,7 @@ contains
     integer,  intent(in)            :: number_of_vertical_layers! unitless
     real(dk), intent(in)            :: solar_zenith_angle       ! degrees
     real(dk), intent(in)            :: extraterrestrial_flux(:) ! photons cm-2 s-1 nm-1 (layer)
-    real(dk), target, intent(in)    :: constituents(:,:)      ! various (layer, constituent)
+    real(dk), target, intent(in)    :: constituents(:,:)        ! various, but should be mixing ratio (kg kg-1)? (layer, constituent)
     real(dk), intent(in)            :: height_at_interfaces(:)  ! km (layer)
     real(dk), intent(in)            :: dry_air_density(:)     ! kg m-3 (layer)
     integer,  intent(in)            :: N2_index, O2_index, O3_index, NO_index ! position of these species in the constituent arrays
@@ -97,7 +97,6 @@ contains
     ! calculate slant column densities
     ! ================================
     call sphers( number_of_vertical_layers+1, height_at_interfaces, solar_zenith_angle, dsdh, nid )
-    print *, "thing: ", (height_at_interfaces(1:number_of_vertical_layers) - height_at_interfaces(2:number_of_vertical_layers+1))
     delz(1:number_of_vertical_layers) = km2cm * ( height_at_interfaces(1:number_of_vertical_layers) - height_at_interfaces(2:number_of_vertical_layers+1) )
     print *, "delz: ", delz
     print *, "dsdh: ", dsdh
@@ -326,7 +325,7 @@ contains
          end if
         jno1 = 0._dk
         do j = 1,2
-          no_optical_depth = no_slant(lev)*no_cross_section(i,j)
+          no_optical_depth = no_slant(lev)*no_cross_section(i,j)*1e-6
           ! TODO: What is the value of 50? units? where does it come from?
           if( no_optical_depth < 50._dk ) then
             no_transmission = exp( -no_optical_depth )
@@ -335,11 +334,19 @@ contains
           end if
           jno1 = jno1 + no_cross_section(i,j) * no_weighting_factor(i,j) * no_transmission
         end do
+        ! print *, "jno1: ", jno1
+        ! print *, "o2_transmission: ", o2_transmission
         rate = rate + jno1 * o2_transmission
       end do
+
+      print *, "delta_wavelength: ", delta_wavelength(wavelength_interval)
+      print *, "extraterrestrial_flux: ", extraterrestrial_flux(wavelength_interval)
+      print *, "o3_transmission_factor: ", o3_transmission_factor(lev, wavelength_interval)
+      print *, "rate: ", rate
       
       result = delta_wavelength(wavelength_interval) * extraterrestrial_flux(wavelength_interval) &
                 * o3_transmission_factor(lev, wavelength_interval) * rate
+      print *, "result: ", result
 
       ! Values taken from (Minschwaner and Siskind, 1993)
       D = 1.65e9_dk ! s-1
@@ -423,7 +430,7 @@ contains
 
     !TODO: Get pi from CAM-SIMA
     real(dk), parameter ::  pi  = 3.14159265358979323846_dk
-    real(dk), parameter ::  d2r  = pi/180._dk
+    real(dk), parameter ::  degrees_to_radians  = pi/180._dk
 
 
     ! TODO: Get this from CAM-SIMA
@@ -432,7 +439,7 @@ contains
     !------------------------------------------------------------------------------
     !       ... set zenith angle in radians
     !------------------------------------------------------------------------------
-    zenrad = zenith_angle*d2r
+    zenrad = zenith_angle*degrees_to_radians
     const0 = sin( zenrad )
     
     !------------------------------------------------------------------------------
