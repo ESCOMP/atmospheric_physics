@@ -391,6 +391,15 @@ contains
       return
     end if
 
+    aerosol_optics => radiators%get( aerosol_optics_label, error )
+    if (has_error_occurred( error, errmsg, errcode )) then
+      deallocate( tuvx )
+      tuvx => null()
+      call reset_tuvx_map_state( grids, profiles, radiators )
+      call cleanup_tuvx_resources()
+      return
+    end if
+
     call reset_tuvx_map_state( grids, profiles, radiators )
 
     ! 'photolysis_rate_constants_ordering' is a local variable
@@ -448,6 +457,7 @@ contains
     use musica_ccpp_tuvx_surface_albedo,           only: set_surface_albedo_values
     use musica_ccpp_tuvx_extraterrestrial_flux,    only: set_extraterrestrial_flux_values
     use musica_ccpp_tuvx_cloud_optics,             only: set_cloud_optics_values
+    use musica_ccpp_tuvx_aerosol_optics,           only: set_aerosol_optics_values
 
     real(kind_phys),    intent(in)    :: temperature(:,:)                                  ! K (column, layer)
     real(kind_phys),    intent(in)    :: dry_air_density(:,:)                              ! kg m-3 (column, layer)
@@ -510,6 +520,9 @@ contains
                                     constituents(i_col,:,index_cloud_liquid_water_content), &
                                     reciprocal_of_gravitational_acceleration, &
                                     errmsg, errcode )
+      if (errcode /= 0) return
+
+      call set_aerosol_optics_values( errmsg, errcode )
       if (errcode /= 0) return
 
       ! temporary values until these are available from the host model
