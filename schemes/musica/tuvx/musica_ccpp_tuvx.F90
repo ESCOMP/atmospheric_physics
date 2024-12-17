@@ -522,7 +522,7 @@ contains
                                     errmsg, errcode )
       if (errcode /= 0) return
 
-      call set_aerosol_optics_values( errmsg, errcode )
+      call set_aerosol_optics_values( aerosol_optics, errmsg, errcode )
       if (errcode /= 0) return
 
       ! temporary values until these are available from the host model
