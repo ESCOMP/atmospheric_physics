@@ -10,14 +10,14 @@ module musica_ccpp_tuvx_aerosol_optics
   character(len=*), parameter, public :: aerosol_optics_label = "aerosols"
   !> Label
   character(len=*), parameter, public :: aerosol_optical_depth_label = "optical depths"
-  character(len=*), parameter, public :: aerosol_single_scattering_albedo_label = "single scattering albedos"
-  character(len=*), parameter, public :: aerosol_asymmetry_factor_label = "asymmetry factor"
-  character(len=*), parameter, public :: aerosol_visible_optical_depth_label = "550 nm optical depth"
+  character(len=*), parameter, public :: \
+    aerosol_single_scattering_albedo_label = "single scattering albedos"
+  character(len=*), parameter, public :: \
+    aerosol_asymmetry_factor_label = "asymmetry factor"
   !> Unit
   character(len=*), parameter, public :: aerosol_optical_depth_unit = "none"
   character(len=*), parameter, public :: aerosol_single_scattering_albedo_unit = "none"
   character(len=*), parameter, public :: aerosol_asymmetry_factor_unit = "none"
-  character(len=*), parameter, public :: aerosol_visible_optical_depth_unit = "none"
   !> Default value of number of vertical levels
   integer, parameter :: DEFAULT_NUM_VERTICAL_LEVELS = 0
   !> Number of vertical levels
@@ -26,6 +26,10 @@ module musica_ccpp_tuvx_aerosol_optics
   integer, parameter :: DEFAULT_NUM_WAVELENGTH_BINS = 0
   !> Number of wavelength bins
   integer, protected :: num_wavelength_bins = DEFAULT_NUM_WAVELENGTH_BINS
+  !> Default value of number of streams
+  integer, parameter :: DEFAULT_NUM_STREAMS = 1
+  !> Number of streams
+  integer, protected :: num_streams = DEFAULT_NUM_STREAMS
 
 contains
 
@@ -73,10 +77,22 @@ contains
     type(error_t)   :: error
 
     real(kind_phys) :: aerosol_optical_depth(num_vertical_levels, num_wavelength_bins)
+    real(kind_phys) :: \
+      aerosol_single_scattering_albedo(num_vertical_levels, num_wavelength_bins)
+    real(kind_phys) :: \
+      aerosol_asymmetry_factor(num_vertical_levels, num_wavelength_bins, num_streams)
 
     aerosol_optical_depth(:,:) = 0.0
+    aerosol_single_scattering_albedo(:,:) = 0.0
+    aerosol_asymmetry_factor(:,:,:) = 0.0
 
     call radiator%set_optical_depths( aerosol_optical_depth, error )
+    if ( has_error_occurred( error, errmsg, errcode ) ) return
+
+    call radiator%set_single_scattering_albedos( aerosol_single_scattering_albedo, error )
+    if ( has_error_occurred( error, errmsg, errcode ) ) return
+
+    call radiator%set_asymmetry_factors( aerosol_asymmetry_factor, error )
     if ( has_error_occurred( error, errmsg, errcode ) ) return
 
   end subroutine set_aerosol_optics_values
