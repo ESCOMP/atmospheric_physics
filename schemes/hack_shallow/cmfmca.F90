@@ -122,7 +122,7 @@ contains
     pmid, pmiddry, &
     pdel, pdeldry, rpdel, rpdeldry, &
     zm, &
-    qpert, &
+    qpert_in, &
     phis, &
     pblh, &
     t, &
@@ -164,7 +164,7 @@ contains
     real(kind_phys), intent(in)     :: rpdeldry(:,:)      ! 1.0 / pdeldry
 
     real(kind_phys), intent(in)     :: zm(:,:)            ! geopotential height at midpoints [m]
-    real(kind_phys), intent(inout)  :: qpert(:,:)         ! PBL perturbation specific humidity (convective humidity excess) [kg kg-1]
+    real(kind_phys), intent(inout)  :: qpert_in(:)        ! PBL perturbation specific humidity (convective humidity excess) [kg kg-1]
     real(kind_phys), intent(in)     :: phis(:)            ! surface geopotential [m2 s-2]
     real(kind_phys), intent(in)     :: pblh(:)            ! PBL height [m]
     real(kind_phys), intent(in)     :: t(:,:)             ! temperature [K]
@@ -193,6 +193,7 @@ contains
     character(len=256) :: const_standard_name ! temp: constituent standard name
     logical            :: const_is_dry        ! temp: constituent is dry flag
 
+    real(kind_phys) :: qpert(ncol,pcnst)   ! qpert scratch copy
     real(kind_phys) :: pm(ncol,pver)       ! pressure [Pa]
     real(kind_phys) :: pd(ncol,pver)       ! delta-p [Pa]
     real(kind_phys) :: rpd(ncol,pver)      ! 1./pdel [Pa-1]
@@ -310,11 +311,8 @@ contains
     ! "This field probably should reference the pbuf tpert field but it doesnt"
     tpert(:ncol) = 0.0_kind_phys
 
-    ! Reset PBL perturbation in constituents other than water to zero.
-    ! NOTE: this is a destructive operation - in convert_shallow qpert is directly
-    ! mutated when Hack scheme is enabled, so we do the same here.
-    ! Technically, this should be a intent(in) argument, but it is not to replicate
-    ! existing functionality.
+    ! Set PBL perturbation in constituents other than water vapor to zero.
+    qpert(:ncol,1)       = qpert_in(:ncol)
     qpert(:ncol,2:pcnst) = 0.0_kind_phys
 
     !---------------------------------------------------

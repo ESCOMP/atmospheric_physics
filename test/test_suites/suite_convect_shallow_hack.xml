@@ -2,6 +2,9 @@
 
 <suite name="convect_shallow_hack" version="1.0">
   <group name="physics_before_coupler">
+    <!-- Helper to read all possible constituents from file -->
+    <scheme>initialize_constituents</scheme>
+
     <!--
       Hack shallow convection.
       There are several nuances to the convect_shallow calling routine.

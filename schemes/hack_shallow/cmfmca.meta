@@ -153,11 +153,11 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
-[ qpert ]
+[ qpert_in ]
   standard_name = convective_water_vapor_wrt_moist_air_and_condensed_water_perturbation_due_to_pbl_eddies
   units = kg kg-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent)
   intent = inout
 [ phis ]
   standard_name = surface_geopotential
