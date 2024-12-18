@@ -158,7 +158,7 @@
   units = kg kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
-  intent = inout
+  intent = in
 [ phis ]
   standard_name = surface_geopotential
   units = m2 s-2

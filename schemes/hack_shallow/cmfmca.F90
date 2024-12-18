@@ -56,6 +56,9 @@ contains
     pref_edge, &
     errmsg, errflg &
   )
+    ! to-be-ccppized
+    use wv_saturation, only: wv_sat_init
+
     integer,            intent(in)  :: pver         ! number of vertical levels
     real(kind_phys),    intent(in)  :: cmftau_in    ! characteristic adjustment time scale [s]
     real(kind_phys),    intent(in)  :: c0_in        ! rain water autoconversion coefficient [m-1]
@@ -74,6 +77,9 @@ contains
 
     errmsg = ''
     errflg = 0
+
+    ! to-be-ccppized: this might have been repeated elsewhere (e.g. ZM)
+    call wv_sat_init()
 
     ! namelist variables
     cmftau  = cmftau_in
@@ -164,7 +170,7 @@ contains
     real(kind_phys), intent(in)     :: rpdeldry(:,:)      ! 1.0 / pdeldry
 
     real(kind_phys), intent(in)     :: zm(:,:)            ! geopotential height at midpoints [m]
-    real(kind_phys), intent(inout)  :: qpert_in(:)        ! PBL perturbation specific humidity (convective humidity excess) [kg kg-1]
+    real(kind_phys), intent(in)     :: qpert_in(:)        ! PBL perturbation specific humidity (convective humidity excess) [kg kg-1]
     real(kind_phys), intent(in)     :: phis(:)            ! surface geopotential [m2 s-2]
     real(kind_phys), intent(in)     :: pblh(:)            ! PBL height [m]
     real(kind_phys), intent(in)     :: t(:,:)             ! temperature [K]
@@ -193,7 +199,6 @@ contains
     character(len=256) :: const_standard_name ! temp: constituent standard name
     logical            :: const_is_dry        ! temp: constituent is dry flag
 
-    real(kind_phys) :: qpert(ncol,pcnst)   ! qpert scratch copy
     real(kind_phys) :: pm(ncol,pver)       ! pressure [Pa]
     real(kind_phys) :: pd(ncol,pver)       ! delta-p [Pa]
     real(kind_phys) :: rpd(ncol,pver)      ! 1./pdel [Pa-1]
@@ -311,10 +316,6 @@ contains
     ! "This field probably should reference the pbuf tpert field but it doesnt"
     tpert(:ncol) = 0.0_kind_phys
 
-    ! Set PBL perturbation in constituents other than water vapor to zero.
-    qpert(:ncol,1)       = qpert_in(:ncol)
-    qpert(:ncol,2:pcnst) = 0.0_kind_phys
-
     !---------------------------------------------------
     ! Preparation of working arrays
     !---------------------------------------------------
@@ -418,7 +419,7 @@ contains
            fac1   = max(0.0_kind_phys,1.0_kind_phys-zm(i,k+1)/pblhgt)
            tprime = min(tpert(i),tpmax)*fac1
            qsattp = shbs(i,k+1) + cp*rhlat*gam(i,k+1)*tprime
-           shprme = min(min(qpert(i,1),shpmax)*fac1,max(qsattp-shb(i,k+1),0.0_kind_phys))
+           shprme = min(min(qpert_in(i),shpmax)*fac1,max(qsattp-shb(i,k+1),0.0_kind_phys))
            qprime = max(qprime,shprme)
         else
            tprime = 0.0_kind_phys
@@ -678,8 +679,10 @@ contains
           ! Specify perturbation properties of constituents in PBL
           pblhgt = max(pblh(i),1.0_kind_phys)
           if ( (zm(i,k+1) <= pblhgt) .and. dzcld(i) == 0.0_kind_phys ) then
-             fac1 = max(0.0_kind_phys,1.0_kind_phys-zm(i,k+1)/pblhgt)
-             cmrc(i) = dq(i,k+1,m) + qpert(i,m)*fac1
+              fac1 = max(0.0_kind_phys,1.0_kind_phys-zm(i,k+1)/pblhgt)
+              ! cmrc(i) = dq(i,k+1,m) + qpert(i,m)*fac1
+              ! hplin - qpert for m>1 is always zero
+              cmrc(i) = dq(i,k+1,m)
           else
              cmrc(i) = dq(i,k+1,m)
           end if
