@@ -13,7 +13,7 @@ contains
 
 !> \section arg_table_check_energy_save_teout_run Argument Table
 !! \htmlinclude arg_table_check_energy_save_teout_run.html
-  subroutine check_energy_save_teout_run(ncol, te_cur_dyn, teout)
+  subroutine check_energy_save_teout_run(ncol, te_cur_dyn, teout, errmsg, errflg)
 
     ! Input arguments
     integer,            intent(in)    :: ncol           ! number of atmospheric columns
@@ -21,6 +21,11 @@ contains
 
     ! Output arguments
     real(kind_phys),    intent(out)   :: teout(:)       ! total energy for global fixer in next timestep [J m-2]
+    character(len=512), intent(out)   :: errmsg         ! error message
+    integer,            intent(out)   :: errflg         ! error flag
+
+    errmsg = ''
+    errflg = 0
 
     ! nb hplin: note that in physpkg.F90, the pbuf is updated to the previous dyn timestep
     ! through itim_old. Need to check if we need to replicate such pbuf functionality

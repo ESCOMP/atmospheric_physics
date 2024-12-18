@@ -89,6 +89,9 @@ contains
     character(len=512), intent(out)   :: errmsg         ! error message
     integer,            intent(out)   :: errflg         ! error flag
 
+    errmsg = ''
+    errflg = 0
+
     !------------------------------------------------
     ! Physics total energy.
     !------------------------------------------------
@@ -275,6 +278,9 @@ contains
     real(kind_phys) :: ice(ncol)                        ! column integrated ice         (kg/m2)
 
     integer :: i
+
+    errmsg = ''
+    errflg = 0
 
     !------------------------------------------------
     ! Physics total energy.

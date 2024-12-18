@@ -1,4 +1,5 @@
 module musica_ccpp_tuvx_wavelength_grid
+  use ccpp_kinds, only: kind_phys
 
   implicit none
 
@@ -20,6 +21,8 @@ module musica_ccpp_tuvx_wavelength_grid
   character(len=*), parameter, public :: wavelength_grid_label = "wavelength"
   !> Unit for wavelength grid in TUV-x
   character(len=*), parameter, public :: wavelength_grid_unit = "nm"
+  !> Conversion factor from meters to nanometers (CAM-SIMA -> TUV-x)
+  real(kind_phys), parameter, public :: m_to_nm = 1.0e9
 
 contains
 
@@ -42,7 +45,7 @@ contains
     reaL(kind_phys) :: midpoints( size( wavelength_grid_interfaces ) - 1 ) ! nm
     type(error_t)   :: error
 
-    interfaces(:) = wavelength_grid_interfaces(:) * 1.0e9
+    interfaces(:) = wavelength_grid_interfaces(:) * m_to_nm
     midpoints(:) = &
         0.5 * ( interfaces( 1: size( interfaces ) - 1 ) &
                 + interfaces( 2: size( interfaces ) ) )

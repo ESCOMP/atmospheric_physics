@@ -12,7 +12,7 @@ contains
 
 !> \section arg_table_check_energy_zero_fluxes_run Argument Table
 !! \htmlinclude arg_table_check_energy_zero_fluxes_run.html
-  subroutine check_energy_zero_fluxes_run(ncol, name, flx_vap, flx_cnd, flx_ice, flx_sen)
+  subroutine check_energy_zero_fluxes_run(ncol, name, flx_vap, flx_cnd, flx_ice, flx_sen, errmsg, errflg)
     ! Input arguments
     integer,            intent(in)     :: ncol           ! number of atmospheric columns
 
@@ -22,6 +22,11 @@ contains
     real(kind_phys),    intent(out)    :: flx_cnd(:)     ! boundary flux of liquid+ice (precip?) [m s-1]
     real(kind_phys),    intent(out)    :: flx_ice(:)     ! boundary flux of ice (snow?) [m s-1]
     real(kind_phys),    intent(out)    :: flx_sen(:)     ! boundary flux of sensible heat [W m-2]
+    character(len=512), intent(out)    :: errmsg         ! error message
+    integer,            intent(out)    :: errflg         ! error flag
+
+    errmsg = ''
+    errflg = 0
 
     ! reset values to zero
     name = ''

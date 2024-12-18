@@ -13,13 +13,13 @@ contains
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
 
     ! Input arguments
-    type(ccpp_constituent_prop_ptr_t), pointer, intent(in)  :: constituent_props(:)
-    character(len=*),                           intent(in)  :: name   ! constituent name
+    type(ccpp_constituent_prop_ptr_t), intent(in)  :: constituent_props(:)
+    character(len=*),                  intent(in)  :: name   ! constituent name
 
     ! Output arguments
-    integer,                                    intent(out) :: cindex ! global constituent index
-    character(len=512),                         intent(out) :: errmsg ! error message
-    integer,                                    intent(out) :: errflg ! error flag
+    integer,                           intent(out) :: cindex ! global constituent index
+    character(len=512),                intent(out) :: errmsg ! error message
+    integer,                           intent(out) :: errflg ! error flag
 
     ! Local variables
     integer            :: t_cindex

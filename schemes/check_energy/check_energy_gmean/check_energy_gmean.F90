@@ -19,7 +19,8 @@ contains
        pint, &
        te_ini_dyn, teout, &
        tedif_glob, heat_glob, &
-       teinp_glob, teout_glob, psurf_glob, ptopb_glob)
+       teinp_glob, teout_glob, psurf_glob, ptopb_glob, &
+       errmsg, errflg)
 
     ! This scheme is non-portable due to dependency: Global mean module gmean from src/utils
     use gmean_mod, only: gmean
@@ -43,9 +44,15 @@ contains
     real(kind_phys),    intent(out)   :: psurf_glob     ! global mean surface pressure [Pa]
     real(kind_phys),    intent(out)   :: ptopb_glob     ! global mean top boundary pressure [Pa]
 
+    character(len=512), intent(out)   :: errmsg         ! error message
+    integer,            intent(out)   :: errflg         ! error flag
+
     ! Local variables
     real(kind_phys) :: te(ncol, 4)                      ! total energy of input/output states (copy)
     real(kind_phys) :: te_glob(4)                       ! global means of total energy
+
+    errmsg = ''
+    errflg = 0
 
     ! Copy total energy out of input and output states.
     ! These four fields will have their global means calculated respectively
