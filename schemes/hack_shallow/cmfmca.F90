@@ -148,6 +148,9 @@ contains
     ! to_be_ccppized
     use wv_saturation,             only: qsat
 
+    ! temporary for debug
+    use cam_logfile,               only: iulog
+
     ! Input arguments
     integer,         intent(in)     :: ncol               ! number of atmospheric columns
     integer,         intent(in)     :: pver               ! number of vertical levels
@@ -276,6 +279,19 @@ contains
     integer         :: m                   ! constituent index
     integer         :: ktp                 ! tmp indx used to track top of convective layer
 
+    ! debug use quantities
+    real(kind_phys) :: rh                  ! relative humidity
+    real(kind_phys) :: es                  ! sat vapor pressure
+    real(kind_phys) :: hsum1               ! moist static energy integral
+    real(kind_phys) :: qsum1               ! total water integral
+    real(kind_phys) :: hsum2               ! final moist static energy integral
+    real(kind_phys) :: qsum2               ! final total water integral
+    real(kind_phys) :: fac                 ! intermediate scratch variable
+    integer         :: n                   ! vertical index     (diagnostics)
+    integer         :: kp                  ! vertical index     (diagnostics)
+    integer         :: kpp                 ! index offset, kp+1 (diagnostics)
+    integer         :: kpm1                ! index offset, kp-1 (diagnostics)
+
     errmsg = ''
     errflg = 0
 
@@ -381,6 +397,32 @@ contains
        cnt_sh(i)= real(pver+1,kind_phys)
     end do
 
+#if 1
+    ! DEBUG DIAGNOSTICS - Output initial thermodynamic profile
+    do i=1,ncol
+      if(i == 1) then
+        ! Approximate vertical integral of moist static energy
+        ! and total precipitable water
+        hsum1 = 0.0_kind_phys
+        qsum1 = 0.0_kind_phys
+        do k=limcnv,pver
+          hsum1 = hsum1 + pdel(i,k)*rgrav*hb(i,k)
+          qsum1 = qsum1 + pdel(i,k)*rgrav*shb(i,k)
+        end do
+
+        write(iulog,8010)
+        fac = grav*864._kind_phys
+        do k=limcnv,pver
+          rh = shb(i,k)/shbs(i,k)
+          write(iulog,8020) shbh(i,k),sbh(i,k),hbh(i,k),fac*cmfmc_sh(i,k),cmfsl(i,k), cmflq(i,k)
+          write(iulog,8040) tb(i,k),shb(i,k),rh,sb(i,k),hb(i,k),hbs(i,k),ztodt*cmfdt(i,k), &
+                        ztodt*cmfdq(i,k),ztodt*cmfdqr(i,k)
+        end do
+        write(iulog, 8000) prec(i)
+      end if
+    end do
+#endif
+
     !---------------------------------------------------
     ! Begin moist convective mass flux adjustment procedure.
     ! Formalism ensures that negative cloud liquid water can never occur
@@ -422,7 +464,6 @@ contains
         end if
 
         ! Specify "updraft" (in-cloud) thermodynamic properties
-
         sc (i)    = sb (i,k+1) + cp*tprime
         shc(i)    = shb(i,k+1) + qprime
         hc (i)    = sc (i    ) + hlat*shc(i)
@@ -434,6 +475,16 @@ contains
            dzcld(i) = 0.0_kind_phys
         end if
       enddo
+
+#if 1
+      ! DEBUG DIAGNOSTICS - output thermodynamic perturbation information
+      do i=1,ncol
+        if(i == 1) then
+          write(iulog,8090) k+1,sc(i),shc(i),hc(i)
+        end if
+      enddo
+#endif
+
 
       ! Check on moist convective instability
       ! Build index vector of points where instability exists
@@ -823,7 +874,63 @@ contains
           rliq_sh(i) = rliq_sh(i) + qc_sh(i,k)*pdel(i,k)/grav
        end do
     end do
+
+    ! rliq_sh is converted to precipitation units [m s-1]
     rliq_sh(:ncol) = rliq_sh(:ncol) / 1000._kind_phys
+
+#if 1
+    ! DEBUG DIAGNOSTICS - show final result
+    do i=1,ncol
+      if (i == 1) then
+        fac = grav*864._kind_phys
+        write(iulog, 8010)
+        do k=limcnv,pver
+          rh = shb(i,k)/shbs(i,k)
+          write(iulog, 8020) shbh(i,k),sbh(i,k),hbh(i,k),fac*cmfmc_sh(i,k), &
+                             cmfsl(i,k), cmflq(i,k)
+          write(iulog, 8040) tb(i,k),shb(i,k),rh   ,sb(i,k),hb(i,k), &
+                             hbs(i,k), ztodt*cmfdt(i,k),ztodt*cmfdq(i,k), &
+                             ztodt*cmfdqr(i,k)
+        end do
+        write(iulog, 8000) prec(i)
+
+        ! approximate vertical integral of moist static energy and
+        ! total preciptable water after adjustment and output changes
+        hsum2 = 0.0_kind_phys
+        qsum2 = 0.0_kind_phys
+        do k=limcnv,pver
+          hsum2 = hsum2 + pdel(i,k)*rgrav*hb(i,k)
+          qsum2 = qsum2 + pdel(i,k)*rgrav*shb(i,k)
+        end do
+        write(iulog,8070) hsum1, hsum2, abs(hsum2-hsum1)/hsum2, &
+                          qsum1, qsum2, abs(qsum2-qsum1)/qsum2
+      end if
+    enddo
+#endif
+
+    ! Diagnostic use format strings
+8000              format(///,10x,'PREC = ',3pf12.6,/)
+8010              format('1**        TB      SHB      RH       SB', &
+                        '       HB      HBS      CAH      CAM       PRECC ', &
+                        '     ETA      FSL       FLQ     **', /)
+8020              format(' ----- ',     9x,3p,f7.3,2x,2p,     9x,-3p,f7.3,2x, &
+                        f7.3, 37x, 0p,2x,f8.2,  0p,2x,f8.2,2x,f8.2, ' ----- ')
+8030              format(' ----- ',  0p,82x,f8.2,  0p,2x,f8.2,2x,f8.2, &
+                         ' ----- ')
+8040              format(' - - - ',f7.3,2x,3p,f7.3,2x,2p,f7.3,2x,-3p,f7.3,2x, &
+                        f7.3, 2x,f8.3,2x,0p,f7.3,3p,2x,f7.3,2x,f7.3,30x, &
+                         ' - - - ')
+8050              format(' ----- ',110x,' ----- ')
+8060              format('1 K =>',  i4,/, &
+                           '           TB      SHB      RH       SB', &
+                           '       HB      HBS      CAH      CAM       PREC ', &
+                           '     ETA      FSL       FLQ', /)
+8070              format(' VERTICALLY INTEGRATED MOIST STATIC ENERGY BEFORE, AFTER', &
+                        ' AND PERCENTAGE DIFFERENCE => ',1p,2e15.7,2x,2p,f7.3,/, &
+                        ' VERTICALLY INTEGRATED MOISTURE            BEFORE, AFTER', &
+                        ' AND PERCENTAGE DIFFERENCE => ',1p,2e15.7,2x,2p,f7.3,/)
+8080              format(' BETA, ETA => ', 1p,2e12.3)
+8090              format (' k+1, sc, shc, hc => ', 1x, i2, 1p, 3e12.4)
   end subroutine cmfmca_run
 
   ! qhalf computes the specific humidity at interface levels between two model layers (interpolate moisture)
