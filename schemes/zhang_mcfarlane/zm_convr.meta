@@ -216,6 +216,18 @@
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
+[ lat ]
+  standard_name = latitude
+  units = rad
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ long ]
+  standard_name = longitude
+  units = rad
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
 [ t ]
   standard_name = air_temperature
   units = K

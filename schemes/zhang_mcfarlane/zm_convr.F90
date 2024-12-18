@@ -163,6 +163,7 @@ end subroutine zm_convr_init
 !!
 subroutine zm_convr_run(     ncol    ,pver    , &
                     pverp,   gravit  ,latice  ,cpwv    ,cpliq   , rh2o, &
+                    lat,     long, &
                     t       ,qh      ,prec    , &
                     pblh    ,zm      ,geos    ,zi      ,qtnd    , &
                     heat    ,pap     ,paph    ,dpp     , &
@@ -293,6 +294,12 @@ subroutine zm_convr_run(     ncol    ,pver    , &
    real(kind_phys), intent(in) :: cpwv            ! specific heat of water vapor (J K-1 kg-1)
    real(kind_phys), intent(in) :: cpliq           ! specific heat of fresh h2o (J K-1 kg-1)
    real(kind_phys), intent(in) :: rh2o            ! Water vapor gas constant (J K-1 kg-1)
+
+   real(kind_phys), intent(in) :: lat(:)
+   real(kind_phys), intent(in) :: long(:)
+
+!    real(kind_phys) :: lat(ncol)
+!    real(kind_phys) :: long(ncol)
 
    real(kind_phys), intent(in) :: t(:,:)          ! grid slice of temperature at mid-layer.           (ncol,pver)
    real(kind_phys), intent(in) :: qh(:,:)         ! grid slice of specific humidity.                  (ncol,pver)
@@ -560,7 +567,7 @@ subroutine zm_convr_run(     ncol    ,pver    , &
                pblt    ,lcl     ,lel     ,lon     ,maxi     , &
                rgas    ,grav    ,cpres   ,msg     , &
                zi      ,zs      ,tpert   , landfrac,&
-               errmsg  ,errflg)
+               lat     ,long    ,errmsg  ,errflg)
 
 !
 ! determine whether grid points will undergo some deep convection
@@ -800,7 +807,7 @@ subroutine buoyan_dilute(  ncol   ,pver    , &
                   pblt    ,lcl     ,lel     ,lon     ,mx      , &
                   rd      ,grav    ,cp      ,msg     , &
                   zi      ,zs      ,tpert    , landfrac,&
-                  errmsg  ,errflg)
+                  lat     ,long    ,errmsg  ,errflg)
 !-----------------------------------------------------------------------
 !
 ! Purpose:
@@ -849,6 +856,9 @@ subroutine buoyan_dilute(  ncol   ,pver    , &
 ! Use z interface/surface relative values for PBL parcel calculations.
    real(kind_phys), intent(in) :: zi(ncol,pver+1)
    real(kind_phys), intent(in) :: zs(ncol)
+
+   real(kind_phys), intent(in) :: lat(:)
+   real(kind_phys), intent(in) :: long(:)
 
 !
 ! output arguments
@@ -1073,7 +1083,7 @@ end if ! Mixed parcel properties
 
    call parcel_dilute(ncol, pver, cpliq, cpwv, rh2o, latice, msg, mx, p, t, q, &
    tpert, tp, tpv, qstp, pl, tl, ql, lcl, &
-   landfrac, errmsg, errflg)
+   landfrac, lat, long, errmsg, errflg)
 
 
 ! If lcl is above the nominal level of non-divergence (600 mbs),
@@ -1156,7 +1166,7 @@ end subroutine buoyan_dilute
 
 subroutine parcel_dilute (ncol, pver, cpliq, cpwv, rh2o, latice, msg, klaunch, p, t, q, &
   tpert, tp, tpv, qstp, pl, tl, ql, lcl, &
-  landfrac,errmsg,errflg)
+  landfrac,lat,long,errmsg,errflg)
 
 ! Routine  to determine
 !   1. Tp   - Parcel temperature
@@ -1180,6 +1190,9 @@ real(kind_phys), intent(in), dimension(ncol,pver) :: p
 real(kind_phys), intent(in), dimension(ncol,pver) :: t
 real(kind_phys), intent(in), dimension(ncol,pver) :: q
 real(kind_phys), intent(in), dimension(ncol) :: tpert ! PBL temperature perturbation.
+
+real(kind_phys), intent(in) :: lat(:)
+real(kind_phys), intent(in) :: long(:)
 
 real(kind_phys), intent(inout), dimension(ncol,pver) :: tp    ! Parcel temp.
 real(kind_phys), intent(inout), dimension(ncol,pver) :: qstp  ! Parcel water vapour (sat value above lcl).
@@ -1310,7 +1323,8 @@ do k = pver, msg+1, -1
          qtmix(i,k) = qtp0(i)
          tfguess = t(i,k)
          rcall = 1
-         call ientropy (rcall,i,smix(i,k),p(i,k),qtmix(i,k),tmix(i,k),qsmix(i,k),tfguess,cpliq,cpwv,rh2o,errmsg,errflg)
+         call ientropy (rcall,i,smix(i,k),p(i,k),qtmix(i,k),tmix(i,k),qsmix(i,k),tfguess,cpliq,cpwv,rh2o,&
+                        lat(i), long(i), errmsg,errflg)
       end if
 
 ! Entraining levels
@@ -1350,7 +1364,8 @@ do k = pver, msg+1, -1
 
          tfguess = tmix(i,k+1)
          rcall = 2
-         call ientropy(rcall,i,smix(i,k),p(i,k),qtmix(i,k),tmix(i,k),qsmix(i,k),tfguess,cpliq,cpwv,rh2o,errmsg,errflg)
+         call ientropy(rcall,i,smix(i,k),p(i,k),qtmix(i,k),tmix(i,k),qsmix(i,k),tfguess,cpliq,cpwv,rh2o,lat(i),&
+                       long(i),errmsg,errflg)
 
 !
 ! Determine if this is lcl of this column if qsmix <= qtmix.
@@ -1369,7 +1384,7 @@ do k = pver, msg+1, -1
 
             tfguess = tmix(i,k)
             rcall = 3
-            call ientropy (rcall,i,slcl,pl(i),qtlcl,tl(i),qslcl,tfguess,cpliq,cpwv,rh2o,errmsg,errflg)
+            call ientropy (rcall,i,slcl,pl(i),qtlcl,tl(i),qslcl,tfguess,cpliq,cpwv,rh2o,lat(i), long(i), errmsg,errflg)
 
 !            write(iulog,*)' '
 !            write(iulog,*)' p',p(i,k+1),pl(i),p(i,lcl(i))
@@ -1465,7 +1480,8 @@ do k = pver, msg+1, -1
 
             tfguess = tmix(i,k)
             rcall =4
-            call ientropy (rcall,i,new_s, p(i,k), new_q, tmix(i,k), qsmix(i,k), tfguess,cpliq,cpwv,rh2o,errmsg,errflg)
+            call ientropy (rcall,i,new_s, p(i,k), new_q, tmix(i,k), qsmix(i,k), tfguess,cpliq,cpwv,rh2o,&
+                           lat(i), long(i), errmsg,errflg)
 
          end do  ! Iteration loop for freezing processes.
 
@@ -1523,7 +1539,7 @@ end FUNCTION entropy
 
 !
 !-----------------------------------------------------------------------------------------
-SUBROUTINE ientropy (rcall,icol,s,p,qt,T,qst,Tfg,cpliq,cpwv,rh2o,errmsg,errflg)
+SUBROUTINE ientropy (rcall,icol,s,p,qt,T,qst,Tfg,cpliq,cpwv,rh2o,this_lat,this_lon,errmsg,errflg)
 !-----------------------------------------------------------------------------------------
 !
 ! p(mb), Tfg/T(K), qt/qv(kg/kg), s(J/kg).
@@ -1536,11 +1552,15 @@ SUBROUTINE ientropy (rcall,icol,s,p,qt,T,qst,Tfg,cpliq,cpwv,rh2o,errmsg,errflg)
   real(kind_phys), intent(in) :: cpliq
   real(kind_phys), intent(in) :: cpwv
   real(kind_phys), intent(in) :: rh2o
+
+  real(kind_phys), intent(in) :: this_lat
+  real(kind_phys), intent(in) :: this_lon
+
   real(kind_phys), intent(out) :: qst, T
   character(len=512), intent(out)      :: errmsg
   integer, intent(out)                 :: errflg
 
-  real(kind_phys) :: est, this_lat,this_lon
+  real(kind_phys) :: est
   real(kind_phys) :: a,b,c,d,ebr,fa,fb,fc,pbr,qbr,rbr,sbr,tol1,xm,tol
   integer :: i
 
@@ -1625,18 +1645,10 @@ SUBROUTINE ientropy (rcall,icol,s,p,qt,T,qst,Tfg,cpliq,cpwv,rh2o,errmsg,errflg)
   call qsat_hPa(T, p, est, qst)
 
   if (.not. converged) then
-!CACNOTE - Revisit this with Jesse
-! Pass in lat/lon in degrees for this
-! latitude_degrees_north
-! longitude_degrees_east
-! Use get_lat_all_p
-! Use get_lon_all_p (lchnk,ncol,lats_all)
-!     this_lat = get_rlat_p(lchnk, icol)*57.296_kind_phys
-!     this_lon = get_rlon_p(lchnk, icol)*57.296_kind_phys
-!     write(errmsg,100) 'ZM_CONV: IENTROPY. Details: call#,lchnk,icol= ',rcall,lchnk,icol, &
-!          ' lat: ',this_lat,' lon: ',this_lon, &
-!          ' P(mb)= ', p, ' Tfg(K)= ', Tfg, ' qt(g/kg) = ', 1000._kind_phys*qt, &
-!          ' qst(g/kg) = ', 1000._kind_phys*qst,', s(J/kg) = ',s
+      write(errmsg,100) 'ZM_CONV: IENTROPY. Details: call#,icol= ',rcall,icol, &
+           ' lat: ',this_lat,' lon: ',this_lon, &
+           ' P(mb)= ', p, ' Tfg(K)= ', Tfg, ' qt(g/kg) = ', 1000._kind_phys*qt, &
+           ' qst(g/kg) = ', 1000._kind_phys*qst,', s(J/kg) = ',s
      errflg=1
   end if
 
@@ -2348,7 +2360,6 @@ subroutine closure(ncol   ,pver, &
                    lcl     ,lel     ,jt      ,mx      ,il1g    , &
                    il2g    ,rd      ,grav    ,cp      ,rl      , &
                    msg     ,capelmt )
-! CACNOTE - add description
 !
 !-----------------------------Arguments---------------------------------
 !
