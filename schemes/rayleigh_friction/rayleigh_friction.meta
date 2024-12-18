@@ -32,6 +32,18 @@
   type = integer
   dimensions = ()
   intent = in
+[ masterproc ]
+  standard_name = flag_for_mpi_root
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ iulog ]
+  standard_name = log_output_unit
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
 [ errmsg ]
   standard_name = ccpp_error_message
   long_name = Error message for error handling in CCPP

@@ -47,12 +47,14 @@ contains
 
   !> \section arg_table_rayleigh_friction_init Argument Table
   !! \htmlinclude rayleigh_friction_init.html
-  subroutine rayleigh_friction_init(pver, raytau0_nl, raykrange_nl, rayk0_nl, errmsg, errflg)
+  subroutine rayleigh_friction_init(pver, raytau0_nl, raykrange_nl, rayk0_nl, masterproc, iulog, errmsg, errflg)
 
     integer, intent(in)                  :: pver
     real, intent(in)                     :: raytau0_nl
     integer, intent(in)                  :: raykrange_nl
     integer, intent(in)                  :: rayk0_nl
+    logical, intent(in)                  :: masterproc
+    integer, intent(in)                  :: iulog
     character(len=512), intent(out)      :: errmsg
     integer, intent(out)                 :: errflg
 
@@ -71,7 +73,7 @@ contains
        ! Allocate module data
        allocate(otau(pver), stat=ierr)
        if (ierr /= 0) then
-          errcode = ierr
+          errflg = ierr
           errmsg = trim(subname)//': Allocate of otau failed'
           return
        end if

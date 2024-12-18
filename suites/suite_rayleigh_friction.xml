@@ -9,7 +9,6 @@
     <scheme>apply_tendency_of_eastward_wind</scheme>
     <scheme>apply_tendency_of_northward_wind</scheme>
     <scheme>geopotential_temp</scheme>
-    <scheme>check_energy_chng</scheme>
    </group>
  </suite>
  
