@@ -1,10 +1,11 @@
-module muscia_ccpp_load_tuvx_species
+module musica_ccpp_load_tuvx_species
+  use ccpp_kinds, only: kind_phys
   use musica_ccpp_species, only: MUSICA_INT_UNASSIGNED
 
   implicit none
   private
 
-  public :: configure_tuvx_species
+  public :: configure_tuvx_species, check_tuvx_species_initialization
   
   integer, protected, public :: index_cloud_liquid_water_content = MUSICA_INT_UNASSIGNED
   integer, protected, public :: index_dry_air = MUSICA_INT_UNASSIGNED
@@ -41,20 +42,22 @@ contains
     use musica_ccpp_species,       only: musica_species_t
     use musica_util,               only: error_t
 
-    type(musica_species_t),                           intent(in)  :: micm_species(:)
-    type(musica_species_t),              allocatable, intent(out) :: tuvx_species(:)
-    type(ccpp_constituent_properties_t), allocatable, intent(out) :: constituent_props(:)
-    character(len=512),                               intent(out) :: errmsg
-    integer,                                          intent(out) :: errcode
+    type(musica_species_t),                           intent(inout) :: micm_species(:)
+    type(musica_species_t),              allocatable, intent(out)   :: tuvx_species(:)
+    type(ccpp_constituent_properties_t), allocatable, intent(out)   :: constituent_props(:)
+    character(len=512),                               intent(out)   :: errmsg
+    integer,                                          intent(out)   :: errcode
 
     ! local variables
     integer                             :: num_new_species = 4
-    integer                             :: num_registered_species = size(micm_species)
-    type(ccpp_constituent_properties_t) :: temp_constituent_props(num_new_species)
+    integer                             :: num_micm_species
+    type(ccpp_constituent_properties_t) :: temp_constituent_props(4)
     logical                             :: is_dry_air_registered = .false.
     logical                             :: is_O2_registered = .false.
     logical                             :: is_O3_registered = .false.
-    integer                             :: i_new, i_registered, i_tuvx_species
+    integer                             :: i_new, i_species, i_tuvx_species
+
+    num_micm_species = size(micm_species)
 
     ! Register cloud liquid water content needed for cloud optics calculations
     i_new = 1 
@@ -75,21 +78,21 @@ contains
     ! iterate through all the registered species to 
     ! check if the species is already registered and if so
     ! update scale_height
-    do i_registered = 1, num_registered_species
+    do i_species = 1, num_micm_species
       if (is_dry_air_registered .and. is_O2_registered .and. is_O3_registered) exit
 
-      if (micm_species(i)%name == "dry_air") then
+      if ( micm_species(i_species)%name == "dry_air" ) then
         is_dry_air_registered = .true.
-        micm_species(i_registered)%profiled = .true.
-        micm_species(i_registered)%scale_height = SCALE_HEIGHT_DRY_AIR
-      else if ( micm_species(i_registered)%name == "O2" ) then
+        micm_species(i_species)%profiled = .true.
+        micm_species(i_species)%scale_height = SCALE_HEIGHT_DRY_AIR
+      else if ( micm_species(i_species)%name == "O2" ) then
         is_O2_registered = .true.
-        micm_species(i_registered)%profiled = .true.
-        micm_species(i_registered)%scale_height = SCALE_HEIGHT_O2
-      else if (micm_species(i)%name == "O3") then 
+        micm_species(i_species)%profiled = .true.
+        micm_species(i_species)%scale_height = SCALE_HEIGHT_O2
+      else if ( micm_species(i_species)%name == "O3" ) then
         is_O3_registered = .true.
-        micm_species(i_registered)%profiled = .true.
-        micm_species(i_registered)%scale_height = SCALE_HEIGHT_O3
+        micm_species(i_species)%profiled = .true.
+        micm_species(i_species)%scale_height = SCALE_HEIGHT_O3
       end if
     end do
 
@@ -165,7 +168,7 @@ contains
     tuvx_species(i_tuvx_species) = musica_species_t( &
       name = 'O2', &
       unit = TUVX_GAS_SPECIES_UNITS, & ! TUV-x profile unit, which can be different from molar mass unit
-      molar_mass = MOLAR_MASS_DRY_O2, & ! kg mol-1
+      molar_mass = MOLAR_MASS_O2, & ! kg mol-1
       index_musica_species = i_tuvx_species, &
       profiled = .true., &
       scale_height = SCALE_HEIGHT_O2 )
@@ -175,7 +178,7 @@ contains
     tuvx_species(i_tuvx_species) = musica_species_t( &
       name = 'O3', &
       unit = TUVX_GAS_SPECIES_UNITS, & ! TUV-x profile unit, which can be different from molar mass unit
-      molar_mass = MOLAR_MASS_DRY_O3, & ! kg mol-1
+      molar_mass = MOLAR_MASS_O3, & ! kg mol-1
       index_musica_species = i_tuvx_species, &
       profiled = .true., &
       scale_height = SCALE_HEIGHT_O3 )
@@ -203,4 +206,4 @@ contains
 
   end subroutine check_tuvx_species_initialization
 
-end module muscia_ccpp_load_tuvx_species
+end module musica_ccpp_load_tuvx_species

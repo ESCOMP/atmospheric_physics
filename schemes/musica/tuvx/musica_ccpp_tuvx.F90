@@ -84,18 +84,18 @@ contains
   end subroutine cleanup_tuvx_resources
 
   !> Registers constituent properties with the CCPP needed by TUV-x
-  subroutine tuvx_register(constituent_props, musica_species, tuvx_specific_species, &
+  subroutine tuvx_register(micm_species, tuvx_species, constituent_props, &
                            errmsg, errcode)
     use ccpp_constituent_prop_mod,     only: ccpp_constituent_properties_t
     use musica_ccpp_species,           only: musica_species_t
     use musica_ccpp_load_tuvx_species, only: configure_tuvx_species
     use musica_util,                   only: error_t
 
-    type(musica_species_t),                           intent(in)  :: micm_species(:)
-    type(musica_species_t),              allocatable, intent(out) :: tuvx_species(:)
-    type(ccpp_constituent_properties_t), allocatable, intent(out) :: constituent_props(:)
-    character(len=512),                               intent(out) :: errmsg
-    integer,                                          intent(out) :: errcode
+    type(musica_species_t),                           intent(inout) :: micm_species(:)
+    type(musica_species_t),              allocatable, intent(out)   :: tuvx_species(:)
+    type(ccpp_constituent_properties_t), allocatable, intent(out)   :: constituent_props(:)
+    character(len=512),                               intent(out)   :: errmsg
+    integer,                                          intent(out)   :: errcode
 
     call configure_tuvx_species(micm_species, tuvx_species, constituent_props, &
                                 errmsg, errcode)
@@ -378,20 +378,20 @@ contains
   end subroutine tuvx_init
 
   !> Calculates photolysis rate constants for the current model conditions
-  subroutine tuvx_run(temperature, dry_air_density,                  &
-                      constituents_tuvx_species,                     &
-                      geopotential_height_wrt_surface_at_midpoint,   &
-                      geopotential_height_wrt_surface_at_interface,  &
-                      surface_geopotential, surface_temperature,     &
-                      surface_albedo,                                &
-                      photolysis_wavelength_grid_interfaces,         &
-                      extraterrestrial_flux,                         &
-                      standard_gravitational_acceleration,           &
-                      cloud_area_fraction,                           &
-                      air_pressure_thickness,                        &
-                      solar_zenith_angle,                            &
-                      earth_sun_distance,                            &
-                      rate_parameters,                               &
+  subroutine tuvx_run(temperature, dry_air_density,                 &
+                      constituents_tuvx_species,                    &
+                      geopotential_height_wrt_surface_at_midpoint,  &
+                      geopotential_height_wrt_surface_at_interface, &
+                      surface_geopotential, surface_temperature,    &
+                      surface_albedo,                               &
+                      photolysis_wavelength_grid_interfaces,        &
+                      extraterrestrial_flux,                        &
+                      standard_gravitational_acceleration,          &
+                      cloud_area_fraction,                          &
+                      air_pressure_thickness,                       &
+                      solar_zenith_angle,                           &
+                      earth_sun_distance,                           &
+                      rate_parameters,                              &
                       errmsg, errcode)
     use musica_util,                            only: error_t
     use musica_ccpp_tuvx_height_grid,           only: set_height_grid_values, calculate_heights

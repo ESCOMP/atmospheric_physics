@@ -15,10 +15,10 @@ contains
   !> \section arg_table_musica_ccpp_register Argument Table
   !! \htmlinclude musica_ccpp_register.html
   subroutine musica_ccpp_register(constituent_props, errmsg, errcode)
-    use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
-    use musica_ccpp_namelist,      only: micm_solver_type
-    use musica_ccpp_species,       only: musica_species_t, register_musica_species, &
-                                         check_tuvx_species_initialization
+    use ccpp_constituent_prop_mod,     only: ccpp_constituent_properties_t
+    use musica_ccpp_namelist,          only: micm_solver_type
+    use musica_ccpp_species,           only: musica_species_t, register_musica_species
+    use musica_ccpp_load_tuvx_species, only: check_tuvx_species_initialization
 
     type(ccpp_constituent_properties_t), allocatable, intent(out) :: constituent_props(:)
     character(len=512),                               intent(out) :: errmsg
@@ -57,31 +57,35 @@ contains
   subroutine musica_ccpp_init(horizontal_dimension, vertical_layer_dimension, &
                               vertical_interface_dimension, &
                               photolysis_wavelength_grid_interfaces, &
-                              constituent_props, errmsg, errcode)
-    use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t, ccpp_constituent_prop_ptr_t
+                              constituent_props_ptr, errmsg, errcode)
+    use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t, ccpp_constituent_properties_t
     use ccpp_kinds,                only: kind_phys
     use musica_ccpp_micm,          only: micm
     use musica_ccpp_namelist,      only: micm_solver_type
     use musica_ccpp_util,          only: has_error_occurred
     use musica_ccpp_species,       only: initialize_musica_species_indices, initialize_molar_mass_array, &
-                                         check_initialization
+                                         check_initialization, musica_species_t
 
     integer,                           intent(in)  :: horizontal_dimension                     ! (count)
     integer,                           intent(in)  :: vertical_layer_dimension                 ! (count)
     integer,                           intent(in)  :: vertical_interface_dimension             ! (count)
     real(kind_phys),                   intent(in)  :: photolysis_wavelength_grid_interfaces(:) ! m
-    type(ccpp_constituent_prop_ptr_t), intent(in)  :: constituent_props(:)
+    type(ccpp_constituent_prop_ptr_t), intent(in)  :: constituent_props_ptr(:)
     character(len=512),                intent(out) :: errmsg
     integer,                           intent(out) :: errcode
 
-    integer :: number_of_grid_cells
-    type(ccpp_constituent_properties_t), allocatable :: micm_species_props(:)
+    ! local variables
+    type(ccpp_constituent_properties_t), allocatable :: constituent_props(:)
+    type(musica_species_t),              allocatable :: micm_species(:)
+    integer                                          :: number_of_grid_cells
 
     ! Temporary fix until the number of grid cells is only needed to create a MICM state
     ! instead of when the solver is created.
     ! Re-create the MICM solver with the correct number of grid cells
     number_of_grid_cells = horizontal_dimension * vertical_layer_dimension
-    call micm_register(micm_solver_type, number_of_grid_cells, micm_species_props, errmsg, errcode)
+    ! TODO(jiwon) - have to clean up before this gets called again
+    call micm_register(micm_solver_type, number_of_grid_cells, constituent_props, &
+                       micm_species, errmsg, errcode)
     call micm_init(errmsg, errcode)
     if (errcode /= 0) return
     call tuvx_init(vertical_layer_dimension, vertical_interface_dimension, &
@@ -89,9 +93,9 @@ contains
                    micm%user_defined_reaction_rates, errmsg, errcode)
     if (errcode /= 0) return
 
-    call initialize_musica_species_indices(constituent_props, errmsg, errcode)
+    call initialize_musica_species_indices(constituent_props_ptr, errmsg, errcode)
     if (errcode /= 0) return
-    call initialize_molar_mass_array(constituent_props, errmsg, errcode)
+    call initialize_molar_mass_array(constituent_props_ptr, errmsg, errcode)
     if (errcode /= 0) return
     call check_initialization(errmsg, errcode)
     if (errcode /= 0) return
@@ -152,30 +156,30 @@ contains
                                size(constituents, dim=2), &
                                number_of_rate_parameters) :: rate_parameters ! various units
 
-    call extract_subset_constituents(constituents, constituents_tuvx_species, errcode, errmsg)
+    call extract_subset_constituents(constituents, constituents_tuvx_species, errmsg, errcode)
     if (errcode /= 0) return
 
     ! Calculate photolysis rate constants using TUV-x
-    call tuvx_run(temperature, dry_air_density,                  &
-                  constituents_tuvx_species,                     &
-                  geopotential_height_wrt_surface_at_midpoint,   &
-                  geopotential_height_wrt_surface_at_interface,  &
-                  surface_geopotential, surface_temperature,     &
-                  surface_albedo,                                &
-                  photolysis_wavelength_grid_interfaces,         &
-                  extraterrestrial_flux,                         &
-                  standard_gravitational_acceleration,           &
-                  cloud_area_fraction,                           &
-                  air_pressure_thickness,                        &
-                  solar_zenith_angle,                            &
-                  earth_sun_distance,                            &
-                  rate_parameters,                               &
+    call tuvx_run(temperature, dry_air_density,                 &
+                  constituents_tuvx_species,                    &
+                  geopotential_height_wrt_surface_at_midpoint,  &
+                  geopotential_height_wrt_surface_at_interface, &
+                  surface_geopotential, surface_temperature,    &
+                  surface_albedo,                               &
+                  photolysis_wavelength_grid_interfaces,        &
+                  extraterrestrial_flux,                        &
+                  standard_gravitational_acceleration,          &
+                  cloud_area_fraction,                          &
+                  air_pressure_thickness,                       &
+                  solar_zenith_angle,                           &
+                  earth_sun_distance,                           &
+                  rate_parameters,                              &
                   errmsg, errcode)
 
     call update_constituents(constituents_tuvx_species, constituents, errmsg, errcode)
     if (errcode /= 0) return
 
-    call extract_subset_constituents(constituents, constituents_micm_species, errcode, errmsg)
+    call extract_subset_constituents(constituents, constituents_micm_species, errmsg, errcode)
     if (errcode /= 0) return
 
     ! Convert CAM-SIMA unit to MICM unit (kg kg-1  ->  mol m-3)

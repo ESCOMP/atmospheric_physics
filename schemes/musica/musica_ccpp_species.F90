@@ -7,18 +7,10 @@ module musica_ccpp_species
   private
 
   public :: cleanup_musica_species, register_musica_species, initialize_musica_species_indices, &
-            initialize_molar_mass_array, extract_subset_constituents, update_constituents
+            initialize_molar_mass_array, extract_subset_constituents, update_constituents, &
+            check_initialization
 
   integer, parameter, public :: MUSICA_INT_UNASSIGNED = -99999
-
-  ! Species are ordered to match the sequence of the MICM state array
-  type(musica_species_t), allocatable, protected, public :: micm_species_set(:) ! index should match with the MICM state array
-  type(musica_species_t), allocatable, protected, public :: tuvx_species_set(:)
-  integer,                allocatable, protected, public :: micm_indices_constituent_props(:)
-  integer,                allocatable, protected, public :: tuvx_indices_constituent_props(:)
-  real(kind_phys),        allocatable, protected, public :: micm_molar_mass_array(:) ! kg mol-1
-  integer,                             protected, public :: number_of_micm_species = MUSICA_INT_UNASSIGNED
-  integer,                             protected, public :: number_of_tuvx_speceis = MUSICA_INT_UNASSIGNED
 
   !> Definition of the gas species type
   type, public :: musica_species_t
@@ -31,32 +23,28 @@ module musica_ccpp_species
     real(kind_phys)               :: scale_height = 0.0_kind_phys ! km, optional
   end type musica_species_t
 
+  interface musica_species_t
+    procedure species_t_constructor
+  end interface musica_species_t
+
   type, public :: musica_species_ptr_t
     type(musica_species_t), pointer :: species
   end type musica_species_ptr_t
 
+  ! Species are ordered to match the sequence of the MICM state array
+  type(musica_species_t), allocatable, protected, public :: micm_species_set(:) ! index should match with the MICM state array
+  type(musica_species_t), allocatable, protected, public :: tuvx_species_set(:)
+  integer,                allocatable, protected, public :: micm_indices_constituent_props(:)
+  integer,                allocatable, protected, public :: tuvx_indices_constituent_props(:)
+  real(kind_phys),        allocatable, protected, public :: micm_molar_mass_array(:) ! kg mol-1
+  integer,                             protected, public :: number_of_micm_species = MUSICA_INT_UNASSIGNED
+  integer,                             protected, public :: number_of_tuvx_species = MUSICA_INT_UNASSIGNED
+
 contains
 
-  !> Constructor for gas_species_t object
-  function species_t_constructor(name, molar_mass, index_musica_species, &
-    index_constituent_props) result( this )
-
-    character(len=*), intent(in) :: name
-    real(kind_phys),  intent(in) :: molar_mass   ! kg mol-1
-    integer,          intent(in) :: index_musica_species
-    integer,          intent(in) :: index_constituent_props
-    type(gas_species_t)          :: this
-    index_musica_species
-    this%name = name
-    this%molar_mass = molar_mass
-    this%index_musica_species = index_musica_species
-    this%index_constituent_props = index_constituent_props
-
-  end function species_t_constructor
-
-  !> Constructor for gas_species_t object
-  function species_profiled_t_constructor(name, unit, molar_mass, scale_height, &
-    index_musica_species, index_constituent_props) result( this )
+  !> Constructor for musica_species_t object
+  function species_t_constructor(name, unit, molar_mass, scale_height, &
+      index_musica_species, index_constituent_props) result( this )
   
     character(len=*), intent(in) :: name
     character(len=*), intent(in) :: unit
@@ -64,7 +52,7 @@ contains
     real(kind_phys),  intent(in) :: scale_height ! km
     integer,          intent(in) :: index_musica_species
     integer,          intent(in) :: index_constituent_props
-    type(gas_species_t)          :: this
+    type(musica_species_t)       :: this
 
     this%name = name
     this%unit = unit
@@ -73,7 +61,7 @@ contains
     this%index_musica_species = index_musica_species
     this%index_constituent_props = index_constituent_props
 
-  end function species_profiled_t_constructor
+  end function species_t_constructor
 
   subroutine cleanup_musica_species()
 
@@ -92,8 +80,9 @@ contains
     number_of_micm_species = size(micm_species)
     allocate( micm_species_set( number_of_micm_species ) )
     micm_species_set = micm_species
-    number_of_micm_species = size(micm_species)
-    allocate( tuvx_elements_set( size(tuvx_species)) )
+
+    number_of_tuvx_species = size(tuvx_species)
+    allocate( tuvx_species_set( number_of_tuvx_species ) )
     tuvx_species_set = tuvx_species
 
   end subroutine register_musica_species
@@ -102,6 +91,7 @@ contains
   subroutine find_musica_species_indices(constituent_props, musica_species_set, &
       indices_constituent_props, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
+    use ccpp_const_utils,          only: ccpp_const_get_idx
 
     type(ccpp_constituent_prop_ptr_t), intent(in)    :: constituent_props(:)
     type(musica_species_t),            intent(inout) :: musica_species_set(:)
@@ -119,7 +109,7 @@ contains
 
       index_species = musica_species_set(i_elem)%index_constituent_props
       if (index_species == MUSICA_INT_UNASSIGNED) then
-        errmsg = "[MUSICA Error] Unable to find index for ", musica_species_set(i_elem)%name
+        errmsg = "[MUSICA Error] Unable to find index for " // musica_species_set(i_elem)%name
         errcode = 1
         return
       end if
@@ -136,7 +126,7 @@ contains
     character(len=512),                intent(out) :: errmsg
     integer,                           intent(out) :: errcode
 
-    if (.not. allocated( micm_species_set ) .or.
+    if (.not. allocated( micm_species_set ) .or. &
         .not. allocated( tuvx_species_set )) then
       errmsg = "[MUSICA Error] The MUSICA species set(s) are not allocated."
       errcode = 1
@@ -148,7 +138,7 @@ contains
                           micm_indices_constituent_props, errmsg, errcode)
     if (errcode /= 0) return
 
-    allocate( tvux_indices_constituent_props( size(tuvx_species_set) ) )
+    allocate( tuvx_indices_constituent_props( size(tuvx_species_set) ) )
     call find_musica_species_indices(constituent_props, tuvx_species_set, &
                           tuvx_indices_constituent_props, errmsg, errcode)
     if (errcode /= 0) return
@@ -176,7 +166,7 @@ contains
       call constituent_props( micm_species_set(i_elem)%index_constituent_props ) &
                             %molar_mass( micm_molar_mass_array(i_elem), errcode, errmsg )
       if (errcode /= 0) then
-        errmsg = "[MUSICA Error] Unable to get molar mass for ", micm_species_set(i_elem)%name
+        errmsg = "[MUSICA Error] Unable to get molar mass for " // micm_species_set(i_elem)%name
         return
       end if
     end do
@@ -187,8 +177,8 @@ contains
     do i_elem = 1, size(micm_molar_mass_array)
       if (micm_molar_mass_array(i_elem) <= 0) then
         errcode = 1
-        errmsg = "[MUSICA Error] Molar mass must be greater than zero for ", &
-                  micm_species_set(i_elem)%name
+        errmsg = "[MUSICA Error] Molar mass must be greater than zero for " &
+                  // micm_species_set(i_elem)%name
         return
       end if
     end do
@@ -285,7 +275,7 @@ contains
       errcode = 1
       return
     end if
-    if (number_of_tuvx_speceis == MUSICA_INT_UNASSIGNED) then
+    if (number_of_tuvx_species == MUSICA_INT_UNASSIGNED) then
       errmsg = "[MUSICA Error] The 'number_of_tuvx_species' variable has not been initialized."
       errcode = 1
       return
