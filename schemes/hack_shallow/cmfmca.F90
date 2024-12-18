@@ -56,8 +56,6 @@ contains
     pref_edge, &
     errmsg, errflg &
   )
-    ! to-be-ccppized
-    use wv_saturation, only: wv_sat_init
 
     integer,            intent(in)  :: pver         ! number of vertical levels
     real(kind_phys),    intent(in)  :: cmftau_in    ! characteristic adjustment time scale [s]
@@ -77,9 +75,6 @@ contains
 
     errmsg = ''
     errflg = 0
-
-    ! to-be-ccppized: this might have been repeated elsewhere (e.g. ZM)
-    call wv_sat_init()
 
     ! namelist variables
     cmftau  = cmftau_in
