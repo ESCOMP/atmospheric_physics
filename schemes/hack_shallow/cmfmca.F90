@@ -196,11 +196,12 @@ contains
 
     character(len=256) :: const_standard_name ! temp: constituent standard name
     logical            :: const_is_dry        ! temp: constituent is dry flag
+    integer            :: const_wv_idx        ! temp: index of water vapor
 
     real(kind_phys) :: pm(ncol,pver)       ! pressure [Pa]
     real(kind_phys) :: pd(ncol,pver)       ! delta-p [Pa]
     real(kind_phys) :: rpd(ncol,pver)      ! 1./pdel [Pa-1]
-    real(kind_phys) :: cmfdq(ncol,pver)    ! dq/dt due to moist convection (later copied to dq(:,:,1)) [kg kg-1 s-1]
+    real(kind_phys) :: cmfdq(ncol,pver)    ! dq/dt due to moist convection (later copied to dq(:,:,const_wv_idx)) [kg kg-1 s-1]
     real(kind_phys) :: gam(ncol,pver)      ! 1/cp (d(qsat)/dT) change in saturation mixing ratio with temp
     real(kind_phys) :: sb(ncol,pver)       ! dry static energy (s bar) [J kg-1]
     real(kind_phys) :: hb(ncol,pver)       ! moist static energy (h bar) [J kg-1]
@@ -307,6 +308,16 @@ contains
     qc_sh   (:ncol,:)     = 0._kind_phys
     rliq_sh (:ncol)       = 0._kind_phys
 
+    ! Check constituents list and locate water vapor index
+    ! (not assumed to be 1)
+    const_check_loop: do m = 1, pcnst
+      call const_props(m)%standard_name(const_standard_name)
+      if (const_standard_name == 'water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water') then
+        const_wv_idx = m
+        exit const_check_loop
+      endif
+    enddo const_check_loop
+
     !---------------------------------------------------
     ! copy q to dq for passive tracer transport.
     ! this is NOT an initialization. the dq at this point
@@ -314,9 +325,11 @@ contains
     ! dq is updated to be an actual tendency.
     !---------------------------------------------------
     if(pcnst > 1) then
-      ! NOTE: index 1 is assumed to be water vapor here and other 2: subset
-      ! operations below.
-      dq    (:ncol,:,2:)  = q(:ncol,:,2:)
+      ! set dq for passive tracer transport from q as temporary...
+      dq(:ncol,:,:) = q(:ncol,:,:)
+
+      ! except for water vapor
+      dq(:ncol,:,const_wv_idx) = 0._kind_phys
     endif
 
     !---------------------------------------------------
@@ -349,7 +362,7 @@ contains
     do k=limcnv,pver
        do i=1,ncol
           tb (i,k) = t(i,k)
-          shb(i,k) = q(i,k,1)
+          shb(i,k) = q(i,k,const_wv_idx)
        end do
     end do
     do k=1,pver
@@ -851,9 +864,16 @@ contains
     !---------------------------------------------------
     ! apply final thermodynamic tendencies
     !---------------------------------------------------
-    ! Set output q tendencies
-    dq(:ncol,:,1 ) = cmfdq(:ncol,:)
-    dq(:ncol,:,2:) = (dq(:ncol,:,2:) - q(:ncol,:,2:))/ztodt
+    ! Set output q tendencies...
+    ! ...for water vapor
+    dq(:ncol,:,const_wv_idx) = cmfdq(:ncol,:)
+
+    ! ...for other tracers from passive tracer transport
+    do m = 1, pcnst
+      if (m .ne. const_wv_idx) then
+        dq(:ncol,:,m) = (dq(:ncol,:,m) - q(:ncol,:,m))/ztodt
+      endif
+    enddo
 
     ! Kludge to prevent cnb_sh-cnt_sh from being zero (in the event
     ! someone decides that they want to divide by this quantity)
