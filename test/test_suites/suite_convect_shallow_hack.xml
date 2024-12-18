@@ -26,6 +26,7 @@
     <scheme>cmfmca</scheme>
     <scheme>apply_heating_rate</scheme>
     <scheme>apply_constituent_tendencies</scheme>
+    <scheme>geopotential_temp</scheme>
 
     <!-- DIAGNOSTIC QUANTITY UPDATES -->
     <!-- eventually calculate shallow convective fraction diagnostic (FREQSH) -->
