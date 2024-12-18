@@ -15,18 +15,19 @@ contains
       use ccpp_kinds, only: kind_phys
       implicit none
 
+      integer, parameter :: number_of_vertical_layers = 2
+
       real(kind_phys) :: solar_zenith_angle
       real(kind_phys), dimension(4) :: extraterrestrial_flux 
-      real(kind_phys), dimension(1,2,4) :: constituents ! (column, layers, constituents)  kg kg-1
+      real(kind_phys), dimension(1,number_of_vertical_layers,4) :: constituents ! (column, layers, constituents)  kg kg-1
       real(kind_phys), dimension(3) :: height_at_interfaces ! (layers + 1) km
-      real(kind_phys), dimension(1,2) :: dry_air_density ! (column, layers) kg m-3
+      real(kind_phys), dimension(1,number_of_vertical_layers) :: dry_air_density ! (column, layers) kg m-3
       integer :: N2_index, O2_index, O3_index, NO_index
       real(kind_phys) :: molar_mass_N2, molar_mass_O2, molar_mass_O3, molar_mass_NO ! kg mol-1
-      real(kind_phys), dimension(4) :: jNO
+      real(kind_phys), dimension(number_of_vertical_layers) :: jNO
 
       ! Some of this initialization data corresponds to values listed in the Minschwaner and Siskind (1993) paper
       ! see the musica_ccpp_tuvx_no_photolysis_rate.F90 file for the full citation
-
 
       ! Initialize test data
       solar_zenith_angle = 60.0_kind_phys
@@ -47,23 +48,16 @@ contains
       constituents(1,:,O3_index) = 20.0e-9_kind_phys
       constituents(1,:,NO_index) = 0.3e-9_kind_phys
 
-      ! print out the consitutents by index to ensure they are set correctly
-      print *, "N2: ", constituents(1,1,N2_index)
-      print *, "O2: ", constituents(1,1,O2_index)
-      print *, "O3: ", constituents(1,1,O3_index)
-      print *, "NO: ", constituents(1,1,NO_index)
-
       ! Call the function to test
       jNO = calculate_NO_photolysis_rate(size(constituents, dim=2), solar_zenith_angle, extraterrestrial_flux, constituents(1,:,:), height_at_interfaces, &
                                          dry_air_density(1,:), N2_index, O2_index, O3_index, NO_index, molar_mass_N2, molar_mass_O2, molar_mass_O3, molar_mass_NO)
 
       ! Validate the results
-      ASSERT(size(jNO) == 4)
-      ! print *, jNO
-      ! ASSERT_NEAR(jNO(1), 1.0e-5_kind_phys, 1.0e-6_kind_phys)
-      ! ASSERT_NEAR(jNO(2), 1.0e-5_kind_phys, 1.0e-6_kind_phys)
-      ! ASSERT_NEAR(jNO(3), 1.0e-5_kind_phys, 1.0e-6_kind_phys)
-      ! ASSERT_NEAR(jNO(4), 1.0e-5_kind_phys, 1.0e-6_kind_phys)
+      print *, jNO
+      ASSERT(jNO(1) .ne. 0.0_kind_phys)
+      ASSERT(jNO(2) .ne. 0.0_kind_phys)
+      ASSERT(jNO(1) .lt. 1.0_kind_phys)
+      ASSERT(jNO(2) .lt. 1.0_kind_phys)
    end subroutine test_calculate_NO_photolysis_rate
 
 end program test_tuvx_surface_albedo

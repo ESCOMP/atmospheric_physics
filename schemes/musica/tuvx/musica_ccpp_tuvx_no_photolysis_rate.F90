@@ -32,11 +32,10 @@ contains
     real(dk), intent(in)  :: molar_mass            ! kg mol-1
     real(dk), intent(out) :: molecule_cm3(:)       ! molecule cm-3
 
-    integer :: i, j
-    ! TODO: Get from CAM-SIMA somehow
-    real(dk), parameter :: avogadro_number = 6.02214076e23_dk ! mol-1
+    ! TODO: get from CAM-SIMA
+    real(dk) :: avogadro = 6.022e23_dk
 
-    molecule_cm3 = mixing_ratio * dry_air_density / molar_mass * avogadro_number * 1.0e-6
+    molecule_cm3 = mixing_ratio * dry_air_density / molar_mass * 1.0e-6 * avogadro
   end subroutine convert_mixing_ratio_to_molecule_cm3
 
   !> Prepare to calculate the photolysis rate of NO (nitiric acid). 
@@ -65,13 +64,11 @@ contains
 
     ! parameters needed to calculate slant column densities
     ! (see sphers routine description for details)
-    integer             :: nid(0:number_of_vertical_layers)
+    integer             :: nid(number_of_vertical_layers+1)
     real(dk)            :: dsdh(0:number_of_vertical_layers+1,number_of_vertical_layers+1)
     real(dk)            :: delz(number_of_vertical_layers+1) ! layer thickness (cm)
     real(dk), parameter :: km2cm = 1.0e5_dk ! conversion from km to cm
     real(dk)            :: jNO(number_of_vertical_layers) ! final photolysis rate
-
-    print *, "number of vertical layers: ", number_of_vertical_layers
 
     ! TODO: what are these constants? scale heights?
     ! TODO: the values at index 1 appear to be for values above the model top in CAM, but how does that affect cam sima?
@@ -87,25 +84,14 @@ contains
     call convert_mixing_ratio_to_molecule_cm3(constituents(:,NO_index), dry_air_density, molar_mass_NO, no_dens(2:))
     no_dens(1) = no_dens(2) * 0.9_dk
 
-    print *, "n2_dens: ", n2_dens
-    print *, "o2_dens: ", o2_dens
-    print *, "o3_dens: ", o3_dens
-    print *, "no_dens: ", no_dens
-
     ! ================================
     ! calculate slant column densities
     ! ================================
-    call sphers( number_of_vertical_layers+1, height_at_interfaces, solar_zenith_angle, dsdh, nid )
+    call sphers( number_of_vertical_layers, height_at_interfaces, solar_zenith_angle, dsdh, nid )
     delz(1:number_of_vertical_layers) = km2cm * ( height_at_interfaces(1:number_of_vertical_layers) - height_at_interfaces(2:number_of_vertical_layers+1) )
-    print *, "delz: ", delz
-    print *, "dsdh: ", dsdh
     call slant_col( number_of_vertical_layers+1, delz, dsdh, nid, o2_dens, o2_slant )
     call slant_col( number_of_vertical_layers+1, delz, dsdh, nid, o3_dens, o3_slant )
     call slant_col( number_of_vertical_layers+1, delz, dsdh, nid, no_dens, no_slant )
-
-    print *, "o2_slant: ", o2_slant
-    print *, "o3_slant: ", o3_slant
-    print *, "no_slant: ", no_slant
 
     jNO = calculate_jno(number_of_vertical_layers, extraterrestrial_flux, n2_dens, o2_slant, o3_slant, no_slant, work_jno)
 
@@ -129,7 +115,7 @@ contains
     ! with N2. The predissociation faction is the probability that a precissociation of NO will occur from
     ! an excited electronic state
     real(dk) :: o3_transmission_factor(size(o3_slant), 4)  ! Define the correct size
-    real(dk) :: jno(0:num_vertical_layers)
+    real(dk) :: jno(num_vertical_layers)
     real(dk) :: jno100, jno90, jno50
     integer         :: wavelength_bins ! wavelength bins for MS, 93
     integer         :: idx 
@@ -247,16 +233,15 @@ contains
     ! TODO: what are 90, 100, and 50?
     !------------------------------------------------------------------------------
     do lev = 1, num_vertical_layers
-      jno100   = pjno( 1, o2_2100_cross_section, no_100_weighting_factor, no_100_cross_section, lev )
-      jno90    = pjno( 2, o2_290_cross_section,  no_90_weighting_factor,  no_90_cross_section, lev )
-      jno50    = pjno( 4, o2_250_cross_section,  no_50_weighting_factor,  no_50_cross_section, lev )
-      print *, "level: ", lev, "jno100: ", jno100, "jno90: ", jno90, "jno50: ", jno50
+      jno100   = pjno( 1, o2_2100_cross_section, no_100_weighting_factor, no_100_cross_section )
+      jno90    = pjno( 2, o2_290_cross_section,  no_90_weighting_factor,  no_90_cross_section )
+      jno50    = pjno( 4, o2_250_cross_section,  no_50_weighting_factor,  no_50_cross_section )
       jno(lev) = jno50 + jno90 + jno100
     end do
 
     contains
 
-    function pjno( wavelength_interval, o2_cross_section, no_weighting_factor, no_cross_section, lev ) result(result)
+    function pjno( wavelength_interval, o2_cross_section, no_weighting_factor, no_cross_section ) result(result)
       !------------------------------------------------------------------------------
       !   	... uses xsec at center of g subinterval for o2
       !           uses mean values for no
@@ -287,7 +272,6 @@ contains
       real(dk),    intent(in) :: o2_cross_section(6)
       real(dk),    intent(in) :: no_cross_section(number_of_levels,number_of_intervals)
       real(dk),    intent(in) :: no_weighting_factor(number_of_levels,number_of_intervals)
-      integer :: lev
       
       !----------------------------------------------------------------
       !	... Function declarations
@@ -315,7 +299,7 @@ contains
       !----------------------------------------------------------------
       rate = 0._dk
       do i = 1,6
-        o2_optical_depth = o2_slant(lev) * o2_cross_section(i)
+        o2_optical_depth = o2_slant(lev) * o2_cross_section(i) * 1e-6
         ! TODO: What is the value of 50? units? where does it come from?
         if( o2_optical_depth < 50._dk ) then
           o2_transmission = exp( -o2_optical_depth )
@@ -324,7 +308,7 @@ contains
          end if
         jno1 = 0._dk
         do j = 1,2
-          no_optical_depth = no_slant(lev)*no_cross_section(i,j)*1e-6
+          no_optical_depth = no_slant(lev)*no_cross_section(i,j)
           ! TODO: What is the value of 50? units? where does it come from?
           if( no_optical_depth < 50._dk ) then
             no_transmission = exp( -no_optical_depth )
@@ -333,19 +317,11 @@ contains
           end if
           jno1 = jno1 + no_cross_section(i,j) * no_weighting_factor(i,j) * no_transmission
         end do
-        ! print *, "jno1: ", jno1
-        ! print *, "o2_transmission: ", o2_transmission
         rate = rate + jno1 * o2_transmission
       end do
 
-      print *, "delta_wavelength: ", delta_wavelength(wavelength_interval)
-      print *, "extraterrestrial_flux: ", extraterrestrial_flux(wavelength_interval)
-      print *, "o3_transmission_factor: ", o3_transmission_factor(lev, wavelength_interval)
-      print *, "rate: ", rate
-      
       result = delta_wavelength(wavelength_interval) * extraterrestrial_flux(wavelength_interval) &
                 * o3_transmission_factor(lev, wavelength_interval) * rate
-      print *, "result: ", result
 
       ! Values taken from (Minschwaner and Siskind, 1993)
       D = 1.65e9_dk ! s-1
@@ -398,7 +374,7 @@ contains
     !       ... Dummy arguments
     !------------------------------------------------------------------------------
     integer,  intent(in)   :: nlev              ! number model vertical levels
-    integer,  intent(out)  :: nid(0:nlev)     ! see above
+    integer,  intent(out)  :: nid(0:nlev)       ! see above
     real(dk), intent (in)  :: zenith_angle		  ! zenith_angle
     real(dk), intent (in)  :: z(nlev)		        ! geometric altitude (km)
     real(dk), intent (out) :: dsdh(0:nlev,nlev) ! see above
