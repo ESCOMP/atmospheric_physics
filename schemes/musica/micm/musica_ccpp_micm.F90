@@ -19,7 +19,7 @@ contains
 
   !> Registers MICM constituent properties with the CCPP
   subroutine micm_register(solver_type, number_of_grid_cells, constituent_props, &
-                           musica_species, errmsg, errcode)
+                           micm_species, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
     use musica_ccpp_species,       only: musica_species_t
     use musica_micm,               only: Rosenbrock, RosenbrockStandardOrder
@@ -29,7 +29,7 @@ contains
     integer(c_int),                                   intent(in)  :: solver_type
     integer(c_int),                                   intent(in)  :: number_of_grid_cells
     type(ccpp_constituent_properties_t), allocatable, intent(out) :: constituent_props(:)
-    type(musica_species_t),              allocatable, intent(out) :: musica_species(:)
+    type(musica_species_t),              allocatable, intent(out) :: micm_species(:)
     character(len=512),                               intent(out) :: errmsg
     integer,                                          intent(out) :: errcode
 
@@ -56,9 +56,9 @@ contains
       return
     end if
 
-    allocate(musica_species(number_of_species), stat=errcode)
+    allocate(micm_species(number_of_species), stat=errcode)
     if (errcode /= 0) then
-      errmsg = "[MUSICA Error] Failed to allocate memory for musica species."
+      errmsg = "[MUSICA Error] Failed to allocate memory for micm species."
       return
     end if
 
@@ -89,8 +89,8 @@ contains
         errmsg = errmsg)
       if (errcode /= 0) return
 
-      ! create musica_species_t
-      musica_species(species_index) = musica_species_t( &
+      ! Species are ordered to match the sequence of the MICM state array
+      micm_species(species_index) = musica_species_t( &
         name = species_name, &
         unit = 'kg kg-1', &
         molar_mass = molar_mass, &

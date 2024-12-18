@@ -26,14 +26,6 @@ module musica_ccpp_tuvx
   type(index_mappings_t),  pointer :: photolysis_rate_constants_mapping => null( )
   integer,               parameter :: DEFAULT_NUM_PHOTOLYSIS_RATE_CONSTANTS = 0
   integer                          :: number_of_photolysis_rate_constants = DEFAULT_NUM_PHOTOLYSIS_RATE_CONSTANTS
-  integer,               parameter :: DEFAULT_INDEX_NOT_FOUND = -1
-  character(len=*),      parameter :: CLOUD_LIQUID_WATER_CONTENT_LABEL = &
-      'cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water'
-  character(len=*),      parameter :: CLOUD_LIQUID_WATER_CONTENT_LONG_NAME = &
-      'Cloud water mass mixing ratio with respect to moist air plus all airborne condensates'
-  character(len=*),      parameter :: CLOUD_LIQUID_WATER_CONTENT_UNITS = 'kg kg-1'
-  real(kind_phys),       parameter :: CLOUD_LIQUID_WATER_CONTENT_MOLAR_MASS = 0.018_kind_phys ! kg mol-1
-  integer                          :: index_cloud_liquid_water_content = DEFAULT_INDEX_NOT_FOUND
 
 contains
 
@@ -92,33 +84,21 @@ contains
   end subroutine cleanup_tuvx_resources
 
   !> Registers constituent properties with the CCPP needed by TUV-x
-  subroutine tuvx_register(constituent_props, errmsg, errcode)
-    use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
-    use musica_util,               only: error_t
+  subroutine tuvx_register(constituent_props, musica_species, tuvx_specific_species, &
+                           errmsg, errcode)
+    use ccpp_constituent_prop_mod,     only: ccpp_constituent_properties_t
+    use musica_ccpp_species,           only: musica_species_t
+    use musica_ccpp_load_tuvx_species, only: configure_tuvx_species
+    use musica_util,                   only: error_t
 
+    type(musica_species_t),                           intent(in)  :: micm_species(:)
+    type(musica_species_t),              allocatable, intent(out) :: tuvx_species(:)
     type(ccpp_constituent_properties_t), allocatable, intent(out) :: constituent_props(:)
     character(len=512),                               intent(out) :: errmsg
     integer,                                          intent(out) :: errcode
 
-    allocate(constituent_props(1), stat=errcode)
-    if (errcode /= 0) then
-      errmsg = "[MUSICA Error] Failed to allocate memory for constituent properties."
-      return
-    end if
-
-    ! Register cloud liquid water content needed for cloud optics calculations
-    call constituent_props(1)%instantiate( &
-      std_name = CLOUD_LIQUID_WATER_CONTENT_LABEL, &
-      long_name = CLOUD_LIQUID_WATER_CONTENT_LONG_NAME, &
-      units = CLOUD_LIQUID_WATER_CONTENT_UNITS, &
-      vertical_dim = "vertical_layer_dimension", &
-      default_value = 0.0_kind_phys, &
-      min_value = 0.0_kind_phys, &
-      molar_mass = CLOUD_LIQUID_WATER_CONTENT_MOLAR_MASS, &
-      advected = .true., &
-      errcode = errcode, &
-      errmsg = errmsg &
-    )
+    call configure_tuvx_species(micm_species, tuvx_species, constituent_props, &
+                                errmsg, errcode)
     if (errcode /= 0) return
 
   end subroutine tuvx_register
@@ -126,8 +106,7 @@ contains
   !> Initializes TUV-x
   subroutine tuvx_init(vertical_layer_dimension, vertical_interface_dimension, &
                        wavelength_grid_interfaces, micm_rate_parameter_ordering, &
-                       constituent_props, errmsg, errcode)
-    use ccpp_const_utils, only: ccpp_const_get_idx
+                       errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use musica_tuvx, only: grid_map_t, profile_map_t, radiator_map_t
     use musica_util, only: error_t, configuration_t
@@ -151,7 +130,6 @@ contains
     integer,                           intent(in)  :: vertical_interface_dimension  ! (count)
     real(kind_phys),                   intent(in)  :: wavelength_grid_interfaces(:) ! m
     type(mappings_t),                  intent(in)  :: micm_rate_parameter_ordering  ! index mappings for MICM rate parameters
-    type(ccpp_constituent_prop_ptr_t), intent(in)  :: constituent_props(:)
     character(len=512),                intent(out) :: errmsg
     integer,                           intent(out) :: errcode
 
@@ -162,16 +140,6 @@ contains
     type(configuration_t)          :: config
     type(mappings_t),      pointer :: photolysis_rate_constants_ordering
     type(error_t)                  :: error
-
-    ! Get needed indices in constituents array
-    call ccpp_const_get_idx(constituent_props, CLOUD_LIQUID_WATER_CONTENT_LABEL, &
-                            index_cloud_liquid_water_content, errmsg, errcode)
-    if (errcode /= 0) return
-    if (index_cloud_liquid_water_content == DEFAULT_INDEX_NOT_FOUND) then
-      errmsg = "[MUSICA Error] Unable to find index for cloud liquid water content."
-      errcode = 1
-      return
-    end if
 
     grids => grid_map_t( error )
     if (has_error_occurred( error, errmsg, errcode )) return
@@ -411,7 +379,7 @@ contains
 
   !> Calculates photolysis rate constants for the current model conditions
   subroutine tuvx_run(temperature, dry_air_density,                  &
-                      constituents,                                  &
+                      constituents_tuvx_species,                     &
                       geopotential_height_wrt_surface_at_midpoint,   &
                       geopotential_height_wrt_surface_at_interface,  &
                       surface_geopotential, surface_temperature,     &
@@ -425,17 +393,18 @@ contains
                       earth_sun_distance,                            &
                       rate_parameters,                               &
                       errmsg, errcode)
-    use musica_util,                               only: error_t
-    use musica_ccpp_tuvx_height_grid,              only: set_height_grid_values, calculate_heights
-    use musica_ccpp_tuvx_temperature,              only: set_temperature_values
-    use musica_ccpp_util,                          only: has_error_occurred, PI
-    use musica_ccpp_tuvx_surface_albedo,           only: set_surface_albedo_values
-    use musica_ccpp_tuvx_extraterrestrial_flux,    only: set_extraterrestrial_flux_values
-    use musica_ccpp_tuvx_cloud_optics,             only: set_cloud_optics_values
+    use musica_util,                            only: error_t
+    use musica_ccpp_tuvx_height_grid,           only: set_height_grid_values, calculate_heights
+    use musica_ccpp_tuvx_temperature,           only: set_temperature_values
+    use musica_ccpp_util,                       only: has_error_occurred, PI
+    use musica_ccpp_tuvx_surface_albedo,        only: set_surface_albedo_values
+    use musica_ccpp_tuvx_extraterrestrial_flux, only: set_extraterrestrial_flux_values
+    use musica_ccpp_tuvx_cloud_optics,          only: set_cloud_optics_values
+    use musica_ccpp_load_tuvx_species,          only: index_cloud_liquid_water_content
 
     real(kind_phys),    intent(in)    :: temperature(:,:)                                  ! K (column, layer)
     real(kind_phys),    intent(in)    :: dry_air_density(:,:)                              ! kg m-3 (column, layer)
-    real(kind_phys),    intent(in)    :: constituents(:,:,:)                               ! various (column, layer, constituent)
+    real(kind_phys),    intent(in)    :: constituents_tuvx_species(:,:,:)                  ! various (column, layer, constituent)
     real(kind_phys),    intent(in)    :: geopotential_height_wrt_surface_at_midpoint(:,:)  ! m (column, layer)
     real(kind_phys),    intent(in)    :: geopotential_height_wrt_surface_at_interface(:,:) ! m (column, interface)
     real(kind_phys),    intent(in)    :: surface_geopotential(:)                           ! m2 s-2
@@ -486,7 +455,7 @@ contains
                                 geopotential_height_wrt_surface_at_interface(i_col,:), &
                                 surface_geopotential(i_col),                           &
                                 reciprocal_of_gravitational_acceleration,              &
-                                 height_midpoints, height_interfaces )
+                                height_midpoints, height_interfaces )
         call set_height_grid_values( height_grid, height_midpoints, height_interfaces, &
                                    errmsg, errcode )
         if (errcode /= 0) return
@@ -496,10 +465,9 @@ contains
         if (errcode /= 0) return
 
         call set_cloud_optics_values( cloud_optics, cloud_area_fraction(i_col,:), &
-                                      air_pressure_thickness(i_col,:), &
-                                      constituents(i_col,:,index_cloud_liquid_water_content), &
-                                      reciprocal_of_gravitational_acceleration, &
-                                      errmsg, errcode )
+              air_pressure_thickness(i_col,:), &
+              constituents_tuvx_species(i_col,:,index_cloud_liquid_water_content), &
+              reciprocal_of_gravitational_acceleration, errmsg, errcode )
         if (errcode /= 0) return
 
         ! calculate photolysis rate constants and heating rates
