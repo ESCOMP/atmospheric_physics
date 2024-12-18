@@ -298,9 +298,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
    real(kind_phys), intent(in) :: lat(:)
    real(kind_phys), intent(in) :: long(:)
 
-!    real(kind_phys) :: lat(ncol)
-!    real(kind_phys) :: long(ncol)
-
    real(kind_phys), intent(in) :: t(:,:)          ! grid slice of temperature at mid-layer.           (ncol,pver)
    real(kind_phys), intent(in) :: qh(:,:)         ! grid slice of specific humidity.                  (ncol,pver)
    real(kind_phys), intent(in) :: pap(:,:)        !                                                   (ncol,pver)
@@ -1645,14 +1642,14 @@ SUBROUTINE ientropy (rcall,icol,s,p,qt,T,qst,Tfg,cpliq,cpwv,rh2o,this_lat,this_l
   call qsat_hPa(T, p, est, qst)
 
   if (.not. converged) then
-      write(errmsg,100) 'ZM_CONV: IENTROPY. Details: call#,icol= ',rcall,icol, &
+      write(errmsg,100) '  ZM_CONV: IENTROPY. Details: call#,icol= ',rcall,icol, &
            ' lat: ',this_lat,' lon: ',this_lon, &
            ' P(mb)= ', p, ' Tfg(K)= ', Tfg, ' qt(g/kg) = ', 1000._kind_phys*qt, &
            ' qst(g/kg) = ', 1000._kind_phys*qst,', s(J/kg) = ',s
      errflg=1
   end if
 
-100 format (A,I1,I4,I4,7(A,F6.2))
+100 format (A,I4,I4,7(A,F6.2))
 
 end SUBROUTINE ientropy
 
