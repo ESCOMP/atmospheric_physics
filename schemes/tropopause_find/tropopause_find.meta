@@ -65,7 +65,7 @@
   intent = in
 [ lat ]
   standard_name = latitude
-  units = radians
+  units = rad
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
@@ -112,16 +112,16 @@
   dimensions = ()
   intent = in
 [ tropp_p_loc ]
-  standard_name = tropopause_air_pressure_from_climatology_dataset
+  standard_name = tropopause_air_pressure_from_tropopause_climatology_dataset
   units = Pa
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension, number_of_months_in_year)
+  dimensions = (horizontal_dimension, number_of_time_slices_in_tropopause_climatology_dataset)
   intent = in
 [ tropp_days ]
-  standard_name = tropopause_calendar_days_from_climatology
+  standard_name = tropopause_calendar_days_from_tropopause_climatology
   units = 1
   type = real | kind = kind_phys
-  dimensions = (number_of_months_in_year)
+  dimensions = (number_of_time_slices_in_tropopause_climatology_dataset)
   intent = in
 [ tropLev ]
   standard_name = tropopause_vertical_layer_index
