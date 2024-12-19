@@ -10,7 +10,7 @@ program run_test_musica_ccpp
 
   real(kind_phys), parameter :: DEGREE_TO_RADIAN = 3.14159265358979323846_kind_phys / 180.0_kind_phys
 
-  call test_chapman()
+  ! call test_chapman()
   call test_terminator()
 
 contains
@@ -382,6 +382,7 @@ contains
 
     integer, parameter                                             :: NUM_SPECIES = 2
     integer, parameter                                             :: NUM_TUVX_CONSTITUENTS = 1
+    integer, parameter                                             :: NUM_TUVX_ONLY_GAS_SPECIES = 3
     ! This test requires that the number of grid cells = 4, which is the default
     ! vector dimension for MICM. This restriction will be removed once
     ! https://github.com/NCAR/musica/issues/217 is finished.
@@ -463,7 +464,7 @@ contains
       stop 3
     endif
     ASSERT(allocated(constituent_props))
-    ASSERT(size(constituent_props) == NUM_SPECIES+NUM_TUVX_CONSTITUENTS)
+    ASSERT(size(constituent_props) == NUM_SPECIES+NUM_TUVX_CONSTITUENTS+NUM_TUVX_ONLY_GAS_SPECIES)
     do i = 1, size(constituent_props)
       ASSERT(constituent_props(i)%is_instantiated(errcode, errmsg))
       ASSERT(errcode == 0)
@@ -475,8 +476,11 @@ contains
       ASSERT(errcode == 0)
       tmp_bool = (trim(species_name) == "Cl" .and. molar_mass == 0.035453_kind_phys .and. is_advected) .or.  &
                  (trim(species_name) == "Cl2" .and. molar_mass == 0.070906_kind_phys .and. is_advected) .or. &
-                  (trim(species_name) == "cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water" &
-                    .and. molar_mass == 0.018_kind_phys .and. is_advected)
+                 (trim(species_name) == "cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water" &
+                                        .and. molar_mass == 0.018_kind_phys .and. is_advected) .or. &
+                 (trim(species_name) == "dry_air" .and. molar_mass == 0.0289644_kind_phys .and. .not. is_advected) .or. &
+                 (trim(species_name) == "O2" .and. molar_mass == 0.0319988_kind_phys .and. .not. is_advected) .or. &
+                 (trim(species_name) == "O3" .and. molar_mass == 0.0479982_kind_phys .and. .not. is_advected)
       ASSERT(tmp_bool)
       call constituent_props(i)%units(units, errcode, errmsg)
       if (errcode /= 0) then

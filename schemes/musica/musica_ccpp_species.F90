@@ -1,6 +1,4 @@
 module musica_ccpp_species
-  ! This module owns musica species
-
   use ccpp_kinds, only: kind_phys
 
   implicit none
@@ -26,10 +24,6 @@ module musica_ccpp_species
   interface musica_species_t
     procedure species_t_constructor
   end interface musica_species_t
-
-  type, public :: musica_species_ptr_t
-    type(musica_species_t), pointer :: species
-  end type musica_species_ptr_t
 
   ! Species are ordered to match the sequence of the MICM state array
   type(musica_species_t), allocatable, protected, public :: micm_species_set(:) ! index should match with the MICM state array

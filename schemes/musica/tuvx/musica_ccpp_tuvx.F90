@@ -22,6 +22,9 @@ module musica_ccpp_tuvx
   type(profile_t),         pointer :: temperature_profile => null()
   type(profile_t),         pointer :: surface_albedo_profile => null()
   type(profile_t),         pointer :: extraterrestrial_flux_profile => null()
+  type(profile_t),         pointer :: dry_air_profile => null()
+  type(profile_t),         pointer :: O2_profile => null()
+  type(profile_t),         pointer :: O3_profile => null()
   type(radiator_t),        pointer :: cloud_optics => null()
   type(index_mappings_t),  pointer :: photolysis_rate_constants_mapping => null( )
   integer,               parameter :: DEFAULT_NUM_PHOTOLYSIS_RATE_CONSTANTS = 0
@@ -43,7 +46,7 @@ contains
 
   end subroutine reset_tuvx_map_state
 
-  !> This is a helper subroutine created to deallocate objects associated with TUV-x
+  !> Deallocates objects associated with TUV-x
   subroutine cleanup_tuvx_resources()
 
     if (associated( height_grid )) then
@@ -69,6 +72,21 @@ contains
     if (associated( extraterrestrial_flux_profile )) then
       deallocate( extraterrestrial_flux_profile )
       extraterrestrial_flux_profile => null()
+    end if
+
+    if (associated( dry_air_profile )) then
+      deallocate( dry_air_profile )
+      dry_air_profile => null()
+    end if
+
+    if (associated( O2_profile )) then
+      deallocate( O2_profile )
+      O2_profile => null()
+    end if
+
+    if (associated( O3_profile )) then
+      deallocate( O3_profile )
+      O3_profile => null()
     end if
 
     if (associated( cloud_optics )) then
@@ -123,6 +141,8 @@ contains
     use musica_ccpp_tuvx_extraterrestrial_flux, &
       only: create_extraterrestrial_flux_profile, extraterrestrial_flux_label, &
             extraterrestrial_flux_unit
+    use musica_ccpp_tuvx_gas_species, &
+      only: create_dry_air_profile, create_O2_profile, create_O3_profile
     use musica_ccpp_tuvx_cloud_optics, &
       only: create_cloud_optics_radiator, cloud_optics_label
 
@@ -218,6 +238,48 @@ contains
     endif
 
     call profiles%add( extraterrestrial_flux_profile, error )
+    if (has_error_occurred( error, errmsg, errcode )) then
+      call reset_tuvx_map_state( grids, profiles, null() )
+      call cleanup_tuvx_resources()
+      return
+    end if
+
+    dry_air_profile => create_dry_air_profile( height_grid, errmsg, errcode )
+    if (errcode /= 0) then
+      call reset_tuvx_map_state( grids, profiles, null() )
+      call cleanup_tuvx_resources()
+      return
+    endif
+
+    call profiles%add( dry_air_profile, error )
+    if (has_error_occurred( error, errmsg, errcode )) then
+      call reset_tuvx_map_state( grids, profiles, null() )
+      call cleanup_tuvx_resources()
+      return
+    end if
+
+    O2_profile => create_O2_profile( height_grid, errmsg, errcode )
+    if (errcode /= 0) then
+      call reset_tuvx_map_state( grids, profiles, null() )
+      call cleanup_tuvx_resources()
+      return
+    endif
+
+    call profiles%add( O2_profile, error )
+    if (has_error_occurred( error, errmsg, errcode )) then
+      call reset_tuvx_map_state( grids, profiles, null() )
+      call cleanup_tuvx_resources()
+      return
+    end if
+
+    O3_profile => create_O3_profile( height_grid, errmsg, errcode )
+    if (errcode /= 0) then
+      call reset_tuvx_map_state( grids, profiles, null() )
+      call cleanup_tuvx_resources()
+      return
+    endif
+
+    call profiles%add( O3_profile, error )
     if (has_error_occurred( error, errmsg, errcode )) then
       call reset_tuvx_map_state( grids, profiles, null() )
       call cleanup_tuvx_resources()
@@ -379,7 +441,7 @@ contains
 
   !> Calculates photolysis rate constants for the current model conditions
   subroutine tuvx_run(temperature, dry_air_density,                 &
-                      constituents_tuvx_species,                    &
+                      constituents,                                 &
                       geopotential_height_wrt_surface_at_midpoint,  &
                       geopotential_height_wrt_surface_at_interface, &
                       surface_geopotential, surface_temperature,    &
@@ -400,11 +462,13 @@ contains
     use musica_ccpp_tuvx_surface_albedo,        only: set_surface_albedo_values
     use musica_ccpp_tuvx_extraterrestrial_flux, only: set_extraterrestrial_flux_values
     use musica_ccpp_tuvx_cloud_optics,          only: set_cloud_optics_values
-    use musica_ccpp_load_tuvx_species,          only: index_cloud_liquid_water_content
+    use musica_ccpp_load_tuvx_species,          only: index_cloud_liquid_water_content, &
+                                                      index_dry_air, index_O2, index_O3
+    use musica_ccpp_tuvx_gas_species,           only: set_gas_species_values
 
     real(kind_phys),    intent(in)    :: temperature(:,:)                                  ! K (column, layer)
     real(kind_phys),    intent(in)    :: dry_air_density(:,:)                              ! kg m-3 (column, layer)
-    real(kind_phys),    intent(in)    :: constituents_tuvx_species(:,:,:)                  ! various (column, layer, constituent)
+    real(kind_phys),    intent(in)    :: constituents(:,:,:)                               ! kg kg-1 (column, layer, constituent)
     real(kind_phys),    intent(in)    :: geopotential_height_wrt_surface_at_midpoint(:,:)  ! m (column, layer)
     real(kind_phys),    intent(in)    :: geopotential_height_wrt_surface_at_interface(:,:) ! m (column, interface)
     real(kind_phys),    intent(in)    :: surface_geopotential(:)                           ! m2 s-2
@@ -424,6 +488,7 @@ contains
     ! local variables
     real(kind_phys), dimension(size(geopotential_height_wrt_surface_at_midpoint, dim = 2))  :: height_midpoints
     real(kind_phys), dimension(size(geopotential_height_wrt_surface_at_interface, dim = 2)) :: height_interfaces
+    real(kind_phys), dimension(size(height_interfaces))                                     :: height_deltas ! km
     real(kind_phys), dimension(size(rate_parameters, dim=2)+2, &
                                number_of_photolysis_rate_constants) :: photolysis_rate_constants, & ! s-1
                                                                        heating_rates                ! K s-1 (TODO: check units)
@@ -457,7 +522,7 @@ contains
                                 reciprocal_of_gravitational_acceleration,              &
                                 height_midpoints, height_interfaces )
         call set_height_grid_values( height_grid, height_midpoints, height_interfaces, &
-                                   errmsg, errcode )
+                                     height_deltas, errmsg, errcode )
         if (errcode /= 0) return
 
         call set_temperature_values( temperature_profile, temperature(i_col,:), &
@@ -466,8 +531,23 @@ contains
 
         call set_cloud_optics_values( cloud_optics, cloud_area_fraction(i_col,:), &
               air_pressure_thickness(i_col,:), &
-              constituents_tuvx_species(i_col,:,index_cloud_liquid_water_content), &
+              constituents(i_col,:,index_cloud_liquid_water_content), &
               reciprocal_of_gravitational_acceleration, errmsg, errcode )
+        if (errcode /= 0) return
+
+        call set_gas_species_values( dry_air_profile, dry_air_density(i_col,:), &
+              constituents(i_col,:,index_dry_air), height_deltas, index_dry_air, &
+              errmsg, errcode)
+        if (errcode /= 0) return
+
+        call set_gas_species_values( O2_profile, dry_air_density(i_col,:), &
+              constituents(i_col,:,index_O2), height_deltas, index_O2, &
+              errmsg, errcode)
+        if (errcode /= 0) return
+
+        call set_gas_species_values( O3_profile, dry_air_density(i_col,:), &
+              constituents(i_col,:,index_O3), height_deltas, index_O3, &
+              errmsg, errcode)
         if (errcode /= 0) return
 
         ! calculate photolysis rate constants and heating rates

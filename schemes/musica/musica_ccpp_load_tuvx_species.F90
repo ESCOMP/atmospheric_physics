@@ -21,6 +21,9 @@ module musica_ccpp_load_tuvx_species
   character(len=*), parameter, public :: CLOUD_LIQUID_WATER_CONTENT_UNITS = 'kg kg-1'
   real(kind_phys),  parameter, public :: CLOUD_LIQUID_WATER_CONTENT_MOLAR_MASS = 0.018_kind_phys ! kg mol-1
   ! Gas species - dry air, O2, O3
+  character(len=*), parameter, public :: DRY_AIR_LABEL = 'air'
+  character(len=*), parameter, public :: O2_LABEL = 'O2'
+  character(len=*), parameter, public :: O3_LABEL = 'O3'
   character(len=*), parameter, public :: TUVX_GAS_SPECIES_UNITS = 'molecule cm-3'
   real(kind_phys),  parameter, public :: SCALE_HEIGHT_DRY_AIR = 8.01_kind_phys ! km
   real(kind_phys),  parameter, public :: SCALE_HEIGHT_O2 = 7.0_kind_phys       ! km
@@ -81,15 +84,15 @@ contains
     do i_species = 1, num_micm_species
       if (is_dry_air_registered .and. is_O2_registered .and. is_O3_registered) exit
 
-      if ( micm_species(i_species)%name == "dry_air" ) then
+      if ( micm_species(i_species)%name == DRY_AIR_LABEL ) then
         is_dry_air_registered = .true.
         micm_species(i_species)%profiled = .true.
         micm_species(i_species)%scale_height = SCALE_HEIGHT_DRY_AIR
-      else if ( micm_species(i_species)%name == "O2" ) then
+      else if ( micm_species(i_species)%name == O2_LABEL ) then
         is_O2_registered = .true.
         micm_species(i_species)%profiled = .true.
         micm_species(i_species)%scale_height = SCALE_HEIGHT_O2
-      else if ( micm_species(i_species)%name == "O3" ) then
+      else if ( micm_species(i_species)%name == O3_LABEL ) then
         is_O3_registered = .true.
         micm_species(i_species)%profiled = .true.
         micm_species(i_species)%scale_height = SCALE_HEIGHT_O3
@@ -99,8 +102,8 @@ contains
     if (.not. is_dry_air_registered) then
       i_new = i_new + 1
       call temp_constituent_props(i_new)%instantiate( &
-        std_name = 'dry_air', &
-        long_name = 'dry_air', &
+        std_name = DRY_AIR_LABEL, &
+        long_name = DRY_AIR_LABEL, &
         units = 'kg kg-1', &
         vertical_dim = "vertical_layer_dimension", &
         default_value = 0.0_kind_phys, &
@@ -115,8 +118,8 @@ contains
     if (.not. is_O2_registered) then
       i_new = i_new + 1
       call temp_constituent_props(i_new)%instantiate( &
-        std_name = 'O2', &
-        long_name = 'O2', &
+        std_name = O2_LABEL, &
+        long_name = O2_LABEL, &
         units = 'kg kg-1', &
         vertical_dim = "vertical_layer_dimension", &
         default_value = 0.0_kind_phys, &
@@ -131,8 +134,8 @@ contains
     if (.not. is_O3_registered) then
       i_new = i_new + 1
       call temp_constituent_props(i_new)%instantiate( &
-        std_name = 'O3', &
-        long_name = 'O3', &
+        std_name = O3_LABEL, &
+        long_name = O3_LABEL, &
         units = 'kg kg-1', &
         vertical_dim = "vertical_layer_dimension", &
         default_value = 0.0_kind_phys, &
@@ -156,7 +159,7 @@ contains
     i_tuvx_species = i_tuvx_species + 1
     index_dry_air = i_tuvx_species
     tuvx_species(i_tuvx_species) = musica_species_t( &
-      name = 'dry_air', &
+      name = DRY_AIR_LABEL, &
       unit = TUVX_GAS_SPECIES_UNITS, & ! TUV-x profile unit, which can be different from molar mass unit
       molar_mass = MOLAR_MASS_DRY_AIR, & ! kg mol-1
       index_musica_species = i_tuvx_species, &
@@ -166,7 +169,7 @@ contains
     i_tuvx_species = i_tuvx_species + 1
     index_O2 = i_tuvx_species
     tuvx_species(i_tuvx_species) = musica_species_t( &
-      name = 'O2', &
+      name = O2_LABEL, &
       unit = TUVX_GAS_SPECIES_UNITS, & ! TUV-x profile unit, which can be different from molar mass unit
       molar_mass = MOLAR_MASS_O2, & ! kg mol-1
       index_musica_species = i_tuvx_species, &
@@ -176,7 +179,7 @@ contains
     i_tuvx_species = i_tuvx_species + 1
     index_O3 = i_tuvx_species
     tuvx_species(i_tuvx_species) = musica_species_t( &
-      name = 'O3', &
+      name = O3_LABEL, &
       unit = TUVX_GAS_SPECIES_UNITS, & ! TUV-x profile unit, which can be different from molar mass unit
       molar_mass = MOLAR_MASS_O3, & ! kg mol-1
       index_musica_species = i_tuvx_species, &
