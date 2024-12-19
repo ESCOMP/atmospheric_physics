@@ -103,8 +103,8 @@ contains
     integer,                                          intent(out) :: errcode
 
     character(len=512)                                            :: species_name
-    real(kind_phys) :: molar_mass
-    integer :: i
+    real(kind_phys)                                               :: molar_mass
+    integer                                                       :: i
 
     allocate(constituent_props(1), stat=errcode)
     if (errcode /= 0) then
