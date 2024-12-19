@@ -3,7 +3,6 @@ module musica_ccpp
   use musica_ccpp_micm,     only: micm_register, micm_init, micm_run, micm_final
   use musica_ccpp_namelist, only: filename_of_tuvx_micm_mapping_configuration
   use musica_ccpp_tuvx,     only: tuvx_register, tuvx_init, tuvx_run, tuvx_final
-  use musica_util,          only: index_mappings_t
 
   implicit none
   private
