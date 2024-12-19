@@ -106,7 +106,7 @@ contains
                            errmsg, errcode)
     use ccpp_constituent_prop_mod,     only: ccpp_constituent_properties_t
     use musica_ccpp_species,           only: musica_species_t
-    use musica_ccpp_load_tuvx_species, only: configure_tuvx_species
+    use musica_ccpp_tuvx_load_species, only: configure_tuvx_species
     use musica_util,                   only: error_t
 
     type(musica_species_t),                           intent(inout) :: micm_species(:)
@@ -462,7 +462,7 @@ contains
     use musica_ccpp_tuvx_surface_albedo,        only: set_surface_albedo_values
     use musica_ccpp_tuvx_extraterrestrial_flux, only: set_extraterrestrial_flux_values
     use musica_ccpp_tuvx_cloud_optics,          only: set_cloud_optics_values
-    use musica_ccpp_load_tuvx_species,          only: index_cloud_liquid_water_content, &
+    use musica_ccpp_tuvx_load_species,          only: index_cloud_liquid_water_content, &
                                                       index_dry_air, index_O2, index_O3
     use musica_ccpp_tuvx_gas_species,           only: set_gas_species_values
 

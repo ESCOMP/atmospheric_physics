@@ -1,4 +1,4 @@
-module musica_ccpp_load_tuvx_species
+module musica_ccpp_tuvx_load_species
   use ccpp_kinds, only: kind_phys
   use musica_ccpp_species, only: MUSICA_INT_UNASSIGNED
 
@@ -209,4 +209,4 @@ contains
 
   end subroutine check_tuvx_species_initialization
 
-end module musica_ccpp_load_tuvx_species
+end module musica_ccpp_tuvx_load_species

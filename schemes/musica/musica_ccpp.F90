@@ -18,7 +18,7 @@ contains
     use ccpp_constituent_prop_mod,     only: ccpp_constituent_properties_t
     use musica_ccpp_namelist,          only: micm_solver_type
     use musica_ccpp_species,           only: musica_species_t, register_musica_species
-    use musica_ccpp_load_tuvx_species, only: check_tuvx_species_initialization
+    use musica_ccpp_tuvx_load_species, only: check_tuvx_species_initialization
 
     type(ccpp_constituent_properties_t), allocatable, intent(out) :: constituent_props(:)
     character(len=512),                               intent(out) :: errmsg

@@ -22,7 +22,7 @@ contains
     use musica_tuvx_profile,           only: profile_t
     use musica_util,                   only: error_t
     use musica_ccpp_species,           only: tuvx_species_set
-    use musica_ccpp_load_tuvx_species, only: index_dry_air
+    use musica_ccpp_tuvx_load_species, only: index_dry_air
 
     type(grid_t),     intent(in)  :: height_grid
     character(len=*), intent(out) :: errmsg
@@ -47,7 +47,7 @@ contains
     use musica_tuvx_profile,           only: profile_t
     use musica_util,                   only: error_t
     use musica_ccpp_species,           only: tuvx_species_set
-    use musica_ccpp_load_tuvx_species, only: index_O2
+    use musica_ccpp_tuvx_load_species, only: index_O2
 
     type(grid_t),     intent(in)  :: height_grid
     character(len=*), intent(out) :: errmsg
@@ -72,7 +72,7 @@ contains
     use musica_tuvx_profile,           only: profile_t
     use musica_util,                   only: error_t
     use musica_ccpp_species,           only: tuvx_species_set
-    use musica_ccpp_load_tuvx_species, only: index_O3
+    use musica_ccpp_tuvx_load_species, only: index_O3
 
     type(grid_t),     intent(in)  :: height_grid
     character(len=*), intent(out) :: errmsg
@@ -94,7 +94,7 @@ contains
                                 height_deltas, index_species, errmsg, errcode)
     use musica_ccpp_util,              only: has_error_occurred
     use musica_ccpp_species,           only: tuvx_species_set
-    use musica_ccpp_load_tuvx_species, only: O3_LABEL
+    use musica_ccpp_tuvx_load_species, only: O3_LABEL
     use musica_tuvx_profile,           only: profile_t
     use musica_util,                   only: error_t
 
