@@ -13,6 +13,9 @@ module musica_ccpp_tuvx
 
   public :: tuvx_register, tuvx_init, tuvx_run, tuvx_final
 
+  real(kind_phys), parameter :: MAX_SOLAR_ZENITH_ANGLE = 110.0_kind_phys ! degrees
+  real(kind_phys), parameter :: MIN_SOLAR_ZENITH_ANGLE = 0.0_kind_phys  ! degrees
+
   type(tuvx_t),            pointer :: tuvx => null()
   type(grid_t),            pointer :: height_grid => null()
   type(grid_t),            pointer :: wavelength_grid => null()
@@ -170,6 +173,7 @@ contains
     use musica_tuvx, only: grid_map_t, profile_map_t, radiator_map_t
     use musica_util, only: error_t, configuration_t
     use musica_ccpp_namelist, only: filename_of_tuvx_micm_mapping_configuration
+    use musica_ccpp_util, only: PI
     use musica_ccpp_tuvx_height_grid, &
       only: create_height_grid, height_grid_label, height_grid_unit
     use musica_ccpp_tuvx_wavelength_grid, &
@@ -448,21 +452,24 @@ contains
 
   !> Calculates photolysis rate constants for the current model conditions
   subroutine tuvx_run(temperature, dry_air_density,                  &
+                      constituents,                                  &
                       geopotential_height_wrt_surface_at_midpoint,   &
                       geopotential_height_wrt_surface_at_interface,  &
                       surface_geopotential, surface_temperature,     &
                       surface_albedo,                                &
-                      number_of_photolysis_wavelength_grid_sections, &
                       photolysis_wavelength_grid_interfaces,         &
                       extraterrestrial_flux,                         &
                       standard_gravitational_acceleration,           &
-                      cloud_area_fraction, constituents,             &
-                      air_pressure_thickness, rate_parameters,       &
+                      cloud_area_fraction,                           &
+                      air_pressure_thickness,                        &
+                      solar_zenith_angle,                            &
+                      earth_sun_distance,                            &
+                      rate_parameters,                               &
                       errmsg, errcode)
     use musica_util,                               only: error_t
     use musica_ccpp_tuvx_height_grid,              only: set_height_grid_values, calculate_heights
     use musica_ccpp_tuvx_temperature,              only: set_temperature_values
-    use musica_ccpp_util,                          only: has_error_occurred
+    use musica_ccpp_util,                          only: has_error_occurred, PI
     use musica_ccpp_tuvx_surface_albedo,           only: set_surface_albedo_values
     use musica_ccpp_tuvx_extraterrestrial_flux,    only: set_extraterrestrial_flux_values
     use musica_ccpp_tuvx_cloud_optics,             only: set_cloud_optics_values
@@ -470,18 +477,19 @@ contains
 
     real(kind_phys),    intent(in)    :: temperature(:,:)                                  ! K (column, layer)
     real(kind_phys),    intent(in)    :: dry_air_density(:,:)                              ! kg m-3 (column, layer)
+    real(kind_phys),    intent(in)    :: constituents(:,:,:)                               ! various (column, layer, constituent)
     real(kind_phys),    intent(in)    :: geopotential_height_wrt_surface_at_midpoint(:,:)  ! m (column, layer)
     real(kind_phys),    intent(in)    :: geopotential_height_wrt_surface_at_interface(:,:) ! m (column, interface)
     real(kind_phys),    intent(in)    :: surface_geopotential(:)                           ! m2 s-2
     real(kind_phys),    intent(in)    :: surface_temperature(:)                            ! K
     real(kind_phys),    intent(in)    :: surface_albedo                                    ! unitless
-    integer,            intent(in)    :: number_of_photolysis_wavelength_grid_sections     ! (count)
     real(kind_phys),    intent(in)    :: photolysis_wavelength_grid_interfaces(:)          ! nm
     real(kind_phys),    intent(in)    :: extraterrestrial_flux(:)                          ! photons cm-2 s-1 nm-1
     real(kind_phys),    intent(in)    :: standard_gravitational_acceleration               ! m s-2
     real(kind_phys),    intent(in)    :: cloud_area_fraction(:,:)                          ! unitless (column, layer)
-    real(kind_phys),    intent(in)    :: constituents(:,:,:)                               ! various (column, layer, constituent)
     real(kind_phys),    intent(in)    :: air_pressure_thickness(:,:)                       ! Pa (column, layer)
+    real(kind_phys),    intent(in)    :: solar_zenith_angle(:)                             ! radians
+    real(kind_phys),    intent(in)    :: earth_sun_distance                                ! m
     real(kind_phys),    intent(inout) :: rate_parameters(:,:,:)                            ! various units (column, layer, reaction)
     character(len=512), intent(out)   :: errmsg
     integer,            intent(out)   :: errcode
@@ -493,8 +501,7 @@ contains
                                number_of_photolysis_rate_constants) :: photolysis_rate_constants, & ! s-1
                                                                        heating_rates                ! K s-1 (TODO: check units)
     real(kind_phys) :: reciprocal_of_gravitational_acceleration ! s2 m-1
-    real(kind_phys) :: solar_zenith_angle ! degrees
-    real(kind_phys) :: earth_sun_distance ! AU
+    real(kind_phys) :: solar_zenith_angle_degrees
     type(error_t)   :: error
     integer         :: i_col, i_level
     real(kind_phys) :: jno(size(constituents, dim=2))                                      ! s-1
@@ -506,46 +513,48 @@ contains
     if (errcode /= 0) return
 
     call set_extraterrestrial_flux_values( extraterrestrial_flux_profile,                 &
-                                           number_of_photolysis_wavelength_grid_sections, &
                                            photolysis_wavelength_grid_interfaces,         &
                                            extraterrestrial_flux, errmsg, errcode )
     if (errcode /= 0) return
 
     do i_col = 1, size(temperature, dim=1)
-      call calculate_heights( geopotential_height_wrt_surface_at_midpoint(i_col,:),  &
-                              geopotential_height_wrt_surface_at_interface(i_col,:), &
-                              surface_geopotential(i_col),                           &
-                              reciprocal_of_gravitational_acceleration,              &
-                              height_midpoints, height_interfaces )
-      call set_height_grid_values( height_grid, height_midpoints, height_interfaces, &
+
+      ! check if solar zenith angle is within the range to calculate photolysis rate constants
+      solar_zenith_angle_degrees = solar_zenith_angle(i_col) * 180.0_kind_phys / PI
+      if (solar_zenith_angle_degrees > MAX_SOLAR_ZENITH_ANGLE .or. &
+          solar_zenith_angle_degrees < MIN_SOLAR_ZENITH_ANGLE) then
+        photolysis_rate_constants(:,:) = 0.0_kind_phys
+      else
+        call calculate_heights( geopotential_height_wrt_surface_at_midpoint(i_col,:),  &
+                                geopotential_height_wrt_surface_at_interface(i_col,:), &
+                                surface_geopotential(i_col),                           &
+                                reciprocal_of_gravitational_acceleration,              &
+                                 height_midpoints, height_interfaces )
+        call set_height_grid_values( height_grid, height_midpoints, height_interfaces, &
                                    errmsg, errcode )
-      if (errcode /= 0) return
+        if (errcode /= 0) return
 
-      call set_temperature_values( temperature_profile, temperature(i_col,:), &
+        call set_temperature_values( temperature_profile, temperature(i_col,:), &
                                    surface_temperature(i_col), errmsg, errcode )
-      if (errcode /= 0) return
+        if (errcode /= 0) return
 
-      call set_cloud_optics_values( cloud_optics, cloud_area_fraction(i_col,:), &
-                                    air_pressure_thickness(i_col,:), &
-                                    constituents(i_col,:,index_cloud_liquid_water_content), &
-                                    reciprocal_of_gravitational_acceleration, &
-                                    errmsg, errcode )
-      if (errcode /= 0) return
+        call set_cloud_optics_values( cloud_optics, cloud_area_fraction(i_col,:), &
+                                      air_pressure_thickness(i_col,:), &
+                                      constituents(i_col,:,index_cloud_liquid_water_content), &
+                                      reciprocal_of_gravitational_acceleration, &
+                                      errmsg, errcode )
+        if (errcode /= 0) return
 
-      ! temporary values until these are available from the host model
-      solar_zenith_angle = 0.0_kind_phys
-      earth_sun_distance = 1.0_kind_phys
+        ! calculate photolysis rate constants and heating rates
+        call tuvx%run( solar_zenith_angle(i_col), earth_sun_distance, &
+                       photolysis_rate_constants(:,:), heating_rates(:,:), &
+                       error )
+        if (has_error_occurred( error, errmsg, errcode )) return
 
-      ! calculate photolysis rate constants and heating rates
-      call tuvx%run( solar_zenith_angle, earth_sun_distance, &
-                     photolysis_rate_constants(:,:), heating_rates(:,:), &
-                     error )
-      if (has_error_occurred( error, errmsg, errcode )) return
-
-
-      ! filter out negative photolysis rate constants
-      photolysis_rate_constants(:,:) = &
-          max( photolysis_rate_constants(:,:), 0.0_kind_phys )
+        ! filter out negative photolysis rate constants
+        photolysis_rate_constants(:,:) = &
+            max( photolysis_rate_constants(:,:), 0.0_kind_phys )      
+      end if ! solar zenith angle check
 
       if (N2_index > 0 .and. O2_index > 0 .and. O3_index > 0 .and. NO_index > 0) then
         ! TODO: How do I ensure that the extraterrestrial flux matches the wavelength grid needed for NO photolysis?
