@@ -146,12 +146,12 @@ contains
     use musica_ccpp_tuvx_cloud_optics, &
       only: create_cloud_optics_radiator, cloud_optics_label
 
-    integer,                           intent(in)  :: vertical_layer_dimension      ! (count)
-    integer,                           intent(in)  :: vertical_interface_dimension  ! (count)
-    real(kind_phys),                   intent(in)  :: wavelength_grid_interfaces(:) ! m
-    type(mappings_t),                  intent(in)  :: micm_rate_parameter_ordering  ! index mappings for MICM rate parameters
-    character(len=512),                intent(out) :: errmsg
-    integer,                           intent(out) :: errcode
+    integer,            intent(in)  :: vertical_layer_dimension      ! (count)
+    integer,            intent(in)  :: vertical_interface_dimension  ! (count)
+    real(kind_phys),    intent(in)  :: wavelength_grid_interfaces(:) ! m
+    type(mappings_t),   intent(in)  :: micm_rate_parameter_ordering  ! index mappings for MICM rate parameters
+    character(len=512), intent(out) :: errmsg
+    integer,            intent(out) :: errcode
 
     ! local variables
     type(grid_map_t),      pointer :: grids

@@ -172,3 +172,36 @@ add_test(
 )
 
 add_memory_check_test(test_tuvx_cloud_optics $<TARGET_FILE:test_tuvx_cloud_optics> "" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
+# TUV-x gas species profiles
+add_executable(test_tuvx_gas_species test_tuvx_gas_species.F90)
+
+target_sources(test_tuvx_gas_species
+  PUBLIC
+    ${MUSICA_CCPP_SOURCES}
+    ${TO_BE_CCPPIZED_SRC_PATH}/ccpp_const_utils.F90
+    ${TO_BE_CCPPIZED_SRC_PATH}/ccpp_tuvx_utils.F90
+    ${CCPP_SRC_PATH}/ccpp_constituent_prop_mod.F90
+    ${CCPP_SRC_PATH}/ccpp_hash_table.F90
+    ${CCPP_SRC_PATH}/ccpp_hashable.F90
+    ${CCPP_TEST_SRC_PATH}/ccpp_kinds.F90
+    ${CMAKE_CURRENT_SOURCE_DIR}/../musica_ccpp_namelist.F90
+)
+
+target_link_libraries(test_tuvx_gas_species
+  PRIVATE
+    musica::musica-fortran
+)
+
+set_target_properties(test_tuvx_gas_species
+  PROPERTIES
+  LINKER_LANGUAGE Fortran
+)
+
+add_test(
+  NAME test_tuvx_gas_species
+  COMMAND $<TARGET_FILE:test_tuvx_gas_species>
+  WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+)
+
+add_memory_check_test(test_tuvx_gas_species $<TARGET_FILE:test_tuvx_gas_species> "" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
