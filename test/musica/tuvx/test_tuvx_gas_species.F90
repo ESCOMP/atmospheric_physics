@@ -333,13 +333,13 @@ contains
 
       tmp_bool = (trim(name) == 'air' .and. trim(unit) == 'molecule cm-3' .and. molar_mass == MOLAR_MASS_DRY_AIR .and. &
                  scale_height == SCALE_HEIGHT_DRY_AIR .and. index_musica == 2 .and. index_constituent_props /= MUSICA_INT_UNASSIGNED &
-                 .and. has_profile .eqv. .true.) .or.  &
+                 .and. has_profile) .or.  &
                 (trim(name) == 'O2' .and. trim(unit) == 'molecule cm-3' .and. molar_mass == MOLAR_MASS_O2 .and. &
                  scale_height == SCALE_HEIGHT_O2 .and. index_musica == 3 .and. index_constituent_props /= MUSICA_INT_UNASSIGNED &
-                 .and. has_profile .eqv. .true.) .or.  &
+                 .and. has_profile) .or.  &
                 (trim(name) == 'O3' .and. trim(unit) == 'molecule cm-3' .and. molar_mass == MOLAR_MASS_O3 .and. &
                  scale_height == SCALE_HEIGHT_O3 .and. index_musica == 4 .and. index_constituent_props /= MUSICA_INT_UNASSIGNED &
-                 .and. has_profile .eqv. .true.)
+                 .and. has_profile)
       ASSERT(tmp_bool)
     end do
 
