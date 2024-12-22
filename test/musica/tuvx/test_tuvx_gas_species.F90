@@ -141,9 +141,7 @@ contains
     use musica_ccpp_namelist,          only: filename_of_micm_configuration, &
                                              filename_of_tuvx_configuration, &
                                              filename_of_tuvx_micm_mapping_configuration
-    use musica_ccpp_tuvx_load_species, only: index_dry_air, index_O2, index_O3, &
-                                             MOLAR_MASS_DRY_AIR, MOLAR_MASS_O2, MOLAR_MASS_O3, &
-                                             SCALE_HEIGHT_DRY_AIR, SCALE_HEIGHT_O2, SCALE_HEIGHT_O3
+    use musica_ccpp_tuvx_load_species, only: index_dry_air, index_O2, index_O3
     use musica_ccpp_species,           only: tuvx_species_set, MUSICA_INT_UNASSIGNED
 
     integer,         parameter                       :: NUM_COLUMNS = 2
@@ -230,12 +228,12 @@ contains
       molar_mass = tuvx_species_set(i_elem)%molar_mass
       scale_height = tuvx_species_set(i_elem)%scale_height
       index_musica = tuvx_species_set(i_elem)%index_musica_species
-      tmp_bool = (trim(name) == 'air' .and. trim(unit) == 'molecule cm-3' .and. molar_mass == MOLAR_MASS_DRY_AIR .and. &
-                  scale_height == SCALE_HEIGHT_DRY_AIR .and. index_musica == 2) .or.  &
-                 (trim(name) == 'O2' .and. trim(unit) == 'molecule cm-3' .and. molar_mass == MOLAR_MASS_O2 .and. &
-                  scale_height == SCALE_HEIGHT_O2 .and. index_musica == 3) .or.  &
-                 (trim(name) == 'O3' .and. trim(unit) == 'molecule cm-3' .and. molar_mass == MOLAR_MASS_O3 .and. &
-                  scale_height == SCALE_HEIGHT_O3 .and. index_musica == 4)
+      tmp_bool = (trim(name) == 'air' .and. trim(unit) == 'molecule cm-3' .and. molar_mass == 0.0289644_kind_phys .and. &
+                  scale_height == 8.01_kind_phys .and. index_musica == 2) .or.  &
+                 (trim(name) == 'O2' .and. trim(unit) == 'molecule cm-3' .and. molar_mass == 0.0319988_kind_phys .and. &
+                  scale_height == 7.0_kind_phys .and. index_musica == 3) .or.  &
+                 (trim(name) == 'O3' .and. trim(unit) == 'molecule cm-3' .and. molar_mass == 0.0479982_kind_phys .and. &
+                  scale_height == 7.0_kind_phys .and. index_musica == 4)
       ASSERT(tmp_bool)
     end do
 
@@ -262,9 +260,7 @@ contains
     use musica_ccpp_namelist,          only: filename_of_micm_configuration, &
                                              filename_of_tuvx_configuration, &
                                              filename_of_tuvx_micm_mapping_configuration
-    use musica_ccpp_tuvx_load_species, only: index_dry_air, index_O2, index_O3, &
-                                             MOLAR_MASS_DRY_AIR, MOLAR_MASS_O2, MOLAR_MASS_O3, &
-                                             SCALE_HEIGHT_DRY_AIR, SCALE_HEIGHT_O2, SCALE_HEIGHT_O3
+    use musica_ccpp_tuvx_load_species, only: index_dry_air, index_O2, index_O3
     use musica_ccpp_species,           only: tuvx_species_set, MUSICA_INT_UNASSIGNED
 
     integer,         parameter                       :: NUM_COLUMNS = 2
@@ -330,15 +326,14 @@ contains
       index_musica = tuvx_species_set(i_elem)%index_musica_species
       index_constituent_props = tuvx_species_set(i_elem)%index_constituent_props
       has_profile = tuvx_species_set(i_elem)%profiled
-
-      tmp_bool = (trim(name) == 'air' .and. trim(unit) == 'molecule cm-3' .and. molar_mass == MOLAR_MASS_DRY_AIR .and. &
-                 scale_height == SCALE_HEIGHT_DRY_AIR .and. index_musica == 2 .and. index_constituent_props /= MUSICA_INT_UNASSIGNED &
+      tmp_bool = (trim(name) == 'air' .and. trim(unit) == 'molecule cm-3' .and. molar_mass == 0.0289644_kind_phys .and. &
+                 scale_height == 8.01_kind_phys .and. index_musica == 2 .and. index_constituent_props /= MUSICA_INT_UNASSIGNED &
                  .and. has_profile) .or.  &
-                (trim(name) == 'O2' .and. trim(unit) == 'molecule cm-3' .and. molar_mass == MOLAR_MASS_O2 .and. &
-                 scale_height == SCALE_HEIGHT_O2 .and. index_musica == 3 .and. index_constituent_props /= MUSICA_INT_UNASSIGNED &
+                (trim(name) == 'O2' .and. trim(unit) == 'molecule cm-3' .and. molar_mass == 0.0319988_kind_phys  .and. &
+                 scale_height == 7.0_kind_phys .and. index_musica == 3 .and. index_constituent_props /= MUSICA_INT_UNASSIGNED &
                  .and. has_profile) .or.  &
-                (trim(name) == 'O3' .and. trim(unit) == 'molecule cm-3' .and. molar_mass == MOLAR_MASS_O3 .and. &
-                 scale_height == SCALE_HEIGHT_O3 .and. index_musica == 4 .and. index_constituent_props /= MUSICA_INT_UNASSIGNED &
+                (trim(name) == 'O3' .and. trim(unit) == 'molecule cm-3' .and. molar_mass == 0.0479982_kind_phys .and. &
+                 scale_height == 7.0_kind_phys .and. index_musica == 4 .and. index_constituent_props /= MUSICA_INT_UNASSIGNED &
                  .and. has_profile)
       ASSERT(tmp_bool)
     end do

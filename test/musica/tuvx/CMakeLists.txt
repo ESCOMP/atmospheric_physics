@@ -205,3 +205,37 @@ add_test(
 )
 
 add_memory_check_test(test_tuvx_gas_species $<TARGET_FILE:test_tuvx_gas_species> "" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
+# Configure TUV-x species/constituents
+add_executable(test_tuvx_load_species test_tuvx_load_species.F90)
+
+target_sources(test_tuvx_load_species
+  PUBLIC
+    ${MUSICA_SRC_PATH}/tuvx/musica_ccpp_tuvx_load_species.F90
+    ${MUSICA_SRC_PATH}/tuvx/musica_ccpp_tuvx_gas_species.F90
+    ${MUSICA_SRC_PATH}/musica_ccpp_species.F90
+    ${MUSICA_SRC_PATH}/musica_ccpp_util.F90
+    ${TO_BE_CCPPIZED_SRC_PATH}/ccpp_const_utils.F90
+    ${CCPP_SRC_PATH}/ccpp_constituent_prop_mod.F90
+    ${CCPP_SRC_PATH}/ccpp_hash_table.F90
+    ${CCPP_SRC_PATH}/ccpp_hashable.F90
+    ${CCPP_TEST_SRC_PATH}/ccpp_kinds.F90
+)
+
+target_link_libraries(test_tuvx_load_species
+  PRIVATE
+    musica::musica-fortran
+)
+
+set_target_properties(test_tuvx_load_species
+  PROPERTIES
+  LINKER_LANGUAGE Fortran
+)
+
+add_test(
+  NAME test_tuvx_load_species
+  COMMAND $<TARGET_FILE:test_tuvx_load_species>
+  WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+)
+
+add_memory_check_test(test_tuvx_load_species $<TARGET_FILE:test_tuvx_load_species> "" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})

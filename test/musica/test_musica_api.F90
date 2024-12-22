@@ -10,8 +10,13 @@ program run_test_musica_ccpp
 
   real(kind_phys), parameter :: DEGREE_TO_RADIAN = 3.14159265358979323846_kind_phys / 180.0_kind_phys
 
+  write(*,*) "[MUSICA Test] Running the Chapman test"
   call test_chapman()
+  write(*,*) "[MUSICA Test] Ends the Chapman test"
+
+  write(*,*) "[MUSICA Test] Running the Terminator test"
   call test_terminator()
+  write(*,*) "[MUSICA Test] Ends the Terminator test"
 
 contains
 

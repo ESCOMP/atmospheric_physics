@@ -61,9 +61,12 @@ contains
     integer                             :: i_new, i_species, i_tuvx_species
 
     num_micm_species = size(micm_species)
+    is_dry_air_registered = .false.
+    is_O2_registered = .false.
+    is_O3_registered = .false.
 
     ! Register cloud liquid water content needed for cloud optics calculations
-    i_new = 1 
+    i_new = 1
     call temp_constituent_props(i_new)%instantiate( &
       std_name = CLOUD_LIQUID_WATER_CONTENT_LABEL, &
       long_name = CLOUD_LIQUID_WATER_CONTENT_LONG_NAME, &
@@ -147,6 +150,9 @@ contains
       if (errcode /= 0) return
     end if
 
+    allocate( constituent_props(i_new) )
+    constituent_props(:) = temp_constituent_props(1:i_new)
+
     allocate(tuvx_species(num_new_species))
     i_tuvx_species = 1
     index_cloud_liquid_water_content = i_tuvx_species
@@ -185,9 +191,6 @@ contains
       index_musica_species = i_tuvx_species, &
       profiled = .true., &
       scale_height = SCALE_HEIGHT_O3 )
-
-    allocate( constituent_props(i_new) )
-    constituent_props(:) = temp_constituent_props(1:i_new)
 
   end subroutine configure_tuvx_species
 
