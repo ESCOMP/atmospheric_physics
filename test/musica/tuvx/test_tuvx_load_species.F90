@@ -69,8 +69,8 @@ contains
         index_musica_species = i_species )
     end do
 
-    call configure_tuvx_species(micm_species, tuvx_species, tuvx_constituent_props, &
-                                errmsg, errcode)
+    call configure_tuvx_species( micm_species, tuvx_species, tuvx_constituent_props, &
+                                 errmsg, errcode )
     ASSERT(errcode == 0)
     ASSERT(allocated(tuvx_constituent_props))
     ASSERT(size(tuvx_constituent_props) == NUM_TUVX_CONSTITUENTS - NUM_SHARED_SPECIES_BETWEEN_MICM_TUVX)
@@ -113,7 +113,7 @@ contains
       ASSERT(tmp_bool)
     end do
 
-    call check_tuvx_species_initialization(errmsg, errcode)
+    call check_tuvx_species_initialization( errmsg, errcode )
     ASSERT(errcode == 0)
     ASSERT(index_cloud_liquid_water_content == 1)
     ASSERT(index_dry_air == 2)
@@ -183,8 +183,8 @@ contains
         index_musica_species = i_species )
     end do
 
-    call configure_tuvx_species(micm_species, tuvx_species, tuvx_constituent_props, &
-                                errmsg, errcode)
+    call configure_tuvx_species( micm_species, tuvx_species, tuvx_constituent_props, &
+                                 errmsg, errcode )
     ASSERT(errcode == 0)
     ASSERT(allocated(tuvx_constituent_props))
     ASSERT(size(tuvx_constituent_props) == NUM_TUVX_CONSTITUENTS - NUM_SHARED_SPECIES_BETWEEN_MICM_TUVX)
@@ -228,7 +228,7 @@ contains
       ASSERT(tmp_bool)
     end do
 
-    call check_tuvx_species_initialization(errmsg, errcode)
+    call check_tuvx_species_initialization( errmsg, errcode )
     ASSERT(errcode == 0)
     ASSERT(index_cloud_liquid_water_content == 1)
     ASSERT(index_dry_air == 2)
@@ -297,8 +297,8 @@ contains
         index_musica_species = i_species )
     end do
 
-    call configure_tuvx_species(micm_species, tuvx_species, tuvx_constituent_props, &
-                                errmsg, errcode)
+    call configure_tuvx_species( micm_species, tuvx_species, tuvx_constituent_props, &
+                                 errmsg, errcode )
     ASSERT(errcode == 0)
     ASSERT(allocated(tuvx_constituent_props))
     ASSERT(size(tuvx_constituent_props) == NUM_TUVX_CONSTITUENTS - NUM_SHARED_SPECIES_BETWEEN_MICM_TUVX)
@@ -344,7 +344,7 @@ contains
       ASSERT(tmp_bool)
     end do
 
-    call check_tuvx_species_initialization(errmsg, errcode)
+    call check_tuvx_species_initialization( errmsg, errcode )
     ASSERT(errcode == 0)
     ASSERT(index_cloud_liquid_water_content == 1)
     ASSERT(index_dry_air == 2)

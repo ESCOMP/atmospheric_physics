@@ -73,6 +73,8 @@ contains
 
   end subroutine musica_species_t_deallocate
 
+  !> Deallocates the memory associated with the MUSICA species object, its indices array,
+  ! and its molar mass array
   subroutine cleanup_musica_species()
     integer :: i
 
@@ -127,8 +129,8 @@ contains
     integer :: i_elem, index_species
 
     do i_elem = 1, size(musica_species_set)
-      call ccpp_const_get_idx(constituent_props, musica_species_set(i_elem)%name, &
-          musica_species_set(i_elem)%index_constituent_props, errmsg, errcode)
+      call ccpp_const_get_idx( constituent_props, musica_species_set(i_elem)%name, &
+          musica_species_set(i_elem)%index_constituent_props, errmsg, errcode )
       if (errcode /= 0) return
 
       index_species = musica_species_set(i_elem)%index_constituent_props
@@ -158,13 +160,13 @@ contains
     end if
 
     allocate( micm_indices_constituent_props( size(micm_species_set) ) )
-    call find_musica_species_indices(constituent_props, micm_species_set, &
-                          micm_indices_constituent_props, errmsg, errcode)
+    call find_musica_species_indices( constituent_props, micm_species_set, &
+                          micm_indices_constituent_props, errmsg, errcode )
     if (errcode /= 0) return
 
     allocate( tuvx_indices_constituent_props( size(tuvx_species_set) ) )
-    call find_musica_species_indices(constituent_props, tuvx_species_set, &
-                          tuvx_indices_constituent_props, errmsg, errcode)
+    call find_musica_species_indices( constituent_props, tuvx_species_set, &
+                          tuvx_indices_constituent_props, errmsg, errcode )
     if (errcode /= 0) return
 
   end subroutine initialize_musica_species_indices

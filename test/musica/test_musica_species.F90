@@ -60,17 +60,17 @@ contains
         index_musica_species = i_species )
     end do
 
-    call configure_tuvx_species(micm_species, tuvx_species, tuvx_constituent_props, &
-                                errmsg, errcode)
+    call configure_tuvx_species( micm_species, tuvx_species, tuvx_constituent_props, &
+                                 errmsg, errcode )
     ASSERT(errcode == 0)
 
-    call register_musica_species(micm_species, tuvx_species)
+    call register_musica_species( micm_species, tuvx_species )
     ASSERT(allocated(micm_species_set))
     ASSERT(allocated(tuvx_species_set))
     ASSERT(number_of_micm_species == NUM_MICM_SPECIES)
     ASSERT(number_of_tuvx_species == NUM_TUVX_CONSTITUENTS)
 
-    call check_tuvx_species_initialization(errmsg, errcode)
+    call check_tuvx_species_initialization( errmsg, errcode )
     ASSERT(errcode == 0)
 
     do i_species = 1, size(micm_species)
@@ -104,7 +104,7 @@ contains
     filename_of_tuvx_configuration = 'musica_configurations/chapman/tuvx/config.json'
     filename_of_tuvx_micm_mapping_configuration = 'musica_configurations/chapman/tuvx_micm_mapping.json'
 
-    call musica_ccpp_register(constituent_props, errmsg, errcode)
+    call musica_ccpp_register( constituent_props, errmsg, errcode )
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
@@ -114,15 +114,15 @@ contains
     allocate(constituent_props_ptr(size(constituent_props)))
     do i = 1, size(constituent_props)
       const_prop => constituent_props(i)
-      call constituent_props_ptr(i)%set(const_prop, errcode, errmsg)
+      call constituent_props_ptr(i)%set( const_prop, errcode, errmsg )
     end do
 
-    call initialize_musica_species_indices(constituent_props_ptr, errmsg, errcode)
+    call initialize_musica_species_indices( constituent_props_ptr, errmsg, errcode )
     ASSERT(errcode == 0)
     ASSERT(allocated(micm_indices_constituent_props))
     ASSERT(allocated(tuvx_indices_constituent_props))
 
-    call initialize_molar_mass_array(constituent_props_ptr, errmsg, errcode)
+    call initialize_molar_mass_array( constituent_props_ptr, errmsg, errcode )
     ASSERT(errcode == 0)
     ASSERT(allocated(micm_molar_mass_array))
 
@@ -137,7 +137,7 @@ contains
       ASSERT(tuvx_species_set(i)%index_constituent_props == tuvx_indices_constituent_props(i))
     end do
 
-    call check_initialization(errmsg, errcode)
+    call check_initialization( errmsg, errcode )
     ASSERT(errcode == 0)
 
     call cleanup_musica_species()
@@ -180,8 +180,8 @@ contains
       end do
     end do
 
-    call extract_subset_constituents(indices_array, constituents, &
-                                     subset_constituents, errmsg, errcode)
+    call extract_subset_constituents( indices_array, constituents, &
+                                      subset_constituents, errmsg, errcode )
     ASSERT(errcode == 0)
     do k = 1, NUM_SUBSET_SPECIES
       do j = 1, NUM_LAYERS
@@ -201,8 +201,8 @@ contains
       end do
     end do
 
-    call update_constituents(indices_array, subset_constituents, &
-                            constituents, errmsg, errcode)
+    call update_constituents( indices_array, subset_constituents, &
+                              constituents, errmsg, errcode )
     ASSERT(errcode == 0)
     do k = 1, NUM_SPECIES
       do j = 1, NUM_LAYERS

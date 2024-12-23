@@ -566,17 +566,17 @@ contains
 
         call set_gas_species_values( dry_air_profile, dry_air_density(i_col,:), &
               constituents(i_col,:,index_dry_air), height_deltas, index_dry_air, &
-              errmsg, errcode)
+              errmsg, errcode )
         if (errcode /= 0) return
 
         call set_gas_species_values( O2_profile, dry_air_density(i_col,:), &
               constituents(i_col,:,index_O2), height_deltas, index_O2, &
-              errmsg, errcode)
+              errmsg, errcode )
         if (errcode /= 0) return
 
         call set_gas_species_values( O3_profile, dry_air_density(i_col,:), &
               constituents(i_col,:,index_O3), height_deltas, index_O3, &
-              errmsg, errcode)
+              errmsg, errcode )
         if (errcode /= 0) return
 
         ! calculate photolysis rate constants and heating rates

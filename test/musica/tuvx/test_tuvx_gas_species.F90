@@ -131,6 +131,7 @@ contains
 
   end subroutine get_wavelength_edges
 
+  ! Calculates the expected values for comparison with the answer
   subroutine calculate_gas_species_interfaces_and_densities( &
       molar_mass, dry_air_density, constituents, height_deltas, &
       is_O3, interfaces, densities)
@@ -316,7 +317,7 @@ contains
       call O2_profile%get_edge_values( O2_interfaces, error )
       ASSERT(error%is_success())
       do i = 1, size(O2_interfaces)
-        ASSERT(O2_interfaces(i)  == expected_O2_interfaces(i_col, i))
+        ASSERT(O2_interfaces(i) == expected_O2_interfaces(i_col, i))
       end do
       call O2_profile%get_layer_densities( O2_densities, error )
       ASSERT(error%is_success())
@@ -333,7 +334,7 @@ contains
       call O3_profile%get_edge_values( O3_interfaces, error )
       ASSERT(error%is_success())
       do i = 1, size(O3_interfaces)
-        ASSERT(O3_interfaces(i)  == expected_O3_interfaces(i_col, i))
+        ASSERT(O3_interfaces(i) == expected_O3_interfaces(i_col, i))
       end do
       call O3_profile%get_layer_densities( O3_densities, error )
       ASSERT(error%is_success())
@@ -415,7 +416,7 @@ contains
 
     dry_air_density(:,1) = (/ 3.5_kind_phys, 4.5_kind_phys /)
     dry_air_density(:,2) = (/ 5.5_kind_phys, 6.5_kind_phys /)
-    call get_wavelength_edges(photolysis_wavelength_grid_interfaces)
+    call get_wavelength_edges( photolysis_wavelength_grid_interfaces )
     do k = 1, 4
       do j = 1, 2
         do i = 1, 2
@@ -424,7 +425,7 @@ contains
       end do
     end do
 
-    call musica_ccpp_register(constituent_props, errmsg, errcode)
+    call musica_ccpp_register( constituent_props, errmsg, errcode )
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
@@ -433,11 +434,11 @@ contains
     allocate(constituent_props_ptr(size(constituent_props)))
     do i = 1, size(constituent_props)
       const_prop => constituent_props(i)
-      call constituent_props_ptr(i)%set(const_prop, errcode, errmsg)
+      call constituent_props_ptr(i)%set( const_prop, errcode, errmsg )
     end do
 
-    call musica_ccpp_init(NUM_COLUMNS, NUM_LAYERS, NUM_LAYERS+1, photolysis_wavelength_grid_interfaces, &
-                          constituent_props_ptr, errmsg, errcode)
+    call musica_ccpp_init( NUM_COLUMNS, NUM_LAYERS, NUM_LAYERS+1, photolysis_wavelength_grid_interfaces, &
+                          constituent_props_ptr, errmsg, errcode )
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3

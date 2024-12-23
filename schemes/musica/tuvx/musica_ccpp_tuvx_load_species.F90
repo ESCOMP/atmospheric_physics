@@ -79,7 +79,7 @@ contains
       errmsg = errmsg )
     if (errcode /= 0) return
 
-    ! Iterates through the MICM species to check if any TUV-x gas
+    ! Iterate through the MICM species to check if any TUV-x gas
     ! species are included; if present, updates the scale height and profiled status.
     do i_species = 1, num_micm_species
       if (is_dry_air_registered .and. is_O2_registered .and. is_O3_registered) exit
@@ -150,7 +150,7 @@ contains
     allocate( constituent_props(i_new) )
     constituent_props(:) = temp_constituent_props(1:i_new)
 
-    allocate(tuvx_species(num_new_species))
+    allocate( tuvx_species(num_new_species) )
     i_tuvx_species = 1
     index_cloud_liquid_water_content = i_tuvx_species
     tuvx_species(i_tuvx_species) = musica_species_t( &
