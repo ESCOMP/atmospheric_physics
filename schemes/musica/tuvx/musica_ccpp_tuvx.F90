@@ -145,6 +145,8 @@ contains
       only: create_dry_air_profile, create_O2_profile, create_O3_profile
     use musica_ccpp_tuvx_cloud_optics, &
       only: create_cloud_optics_radiator, cloud_optics_label
+    use musica_ccpp_tuvx_load_species, &
+      only: DRY_AIR_LABEL, O2_LABEL, O3_LABEL, TUVX_GAS_SPECIES_UNITS
 
     integer,            intent(in)  :: vertical_layer_dimension      ! (count)
     integer,            intent(in)  :: vertical_interface_dimension  ! (count)
@@ -384,6 +386,33 @@ contains
       return
     end if
 
+    dry_air_profile => profiles%get( DRY_AIR_LABEL, TUVX_GAS_SPECIES_UNITS, error )
+    if (has_error_occurred( error, errmsg, errcode )) then
+      deallocate( tuvx )
+      tuvx => null()
+      call reset_tuvx_map_state( grids, profiles, null() )
+      call cleanup_tuvx_resources()
+      return
+    end if
+
+    O2_profile => profiles%get( O2_LABEL, TUVX_GAS_SPECIES_UNITS, error )
+    if (has_error_occurred( error, errmsg, errcode )) then
+      deallocate( tuvx )
+      tuvx => null()
+      call reset_tuvx_map_state( grids, profiles, null() )
+      call cleanup_tuvx_resources()
+      return
+    end if
+
+    O3_profile => profiles%get( O3_LABEL, TUVX_GAS_SPECIES_UNITS, error )
+    if (has_error_occurred( error, errmsg, errcode )) then
+      deallocate( tuvx )
+      tuvx => null()
+      call reset_tuvx_map_state( grids, profiles, null() )
+      call cleanup_tuvx_resources()
+      return
+    end if
+
     radiators => tuvx%get_radiators( error )
     if (has_error_occurred( error, errmsg, errcode )) then
       deallocate( tuvx )
@@ -503,8 +532,8 @@ contains
     call set_surface_albedo_values( surface_albedo_profile, surface_albedo, errmsg, errcode )
     if (errcode /= 0) return
 
-    call set_extraterrestrial_flux_values( extraterrestrial_flux_profile,                 &
-                                           photolysis_wavelength_grid_interfaces,         &
+    call set_extraterrestrial_flux_values( extraterrestrial_flux_profile,         &
+                                           photolysis_wavelength_grid_interfaces, &
                                            extraterrestrial_flux, errmsg, errcode )
     if (errcode /= 0) return
 

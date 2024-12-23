@@ -110,6 +110,13 @@ contains
       ASSERT(tmp_bool)
     end do
 
+    call check_tuvx_species_initialization(errmsg, errcode)
+    ASSERT(errcode == 0)
+    ASSERT(index_cloud_liquid_water_content == 1)
+    ASSERT(index_dry_air == 2)
+    ASSERT(index_O2 == 3)
+    ASSERT(index_O3 == 4)
+
     do i_species = 1, size(tuvx_species)
       call tuvx_species(i_species)%deallocate()
     end do
@@ -219,6 +226,13 @@ contains
       ASSERT(tmp_bool)
     end do
 
+    call check_tuvx_species_initialization(errmsg, errcode)
+    ASSERT(errcode == 0)
+    ASSERT(index_cloud_liquid_water_content == 1)
+    ASSERT(index_dry_air == 2)
+    ASSERT(index_O2 == 3)
+    ASSERT(index_O3 == 4)
+
     do i_species = 1, size(tuvx_species)
       call tuvx_species(i_species)%deallocate()
     end do
@@ -327,6 +341,13 @@ contains
                 .and. .not. has_profile)
       ASSERT(tmp_bool)
     end do
+
+    call check_tuvx_species_initialization(errmsg, errcode)
+    ASSERT(errcode == 0)
+    ASSERT(index_cloud_liquid_water_content == 1)
+    ASSERT(index_dry_air == 2)
+    ASSERT(index_O2 == 3)
+    ASSERT(index_O3 == 4)
 
     do i_species = 1, size(tuvx_species)
       call tuvx_species(i_species)%deallocate()

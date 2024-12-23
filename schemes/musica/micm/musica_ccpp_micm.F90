@@ -76,7 +76,7 @@ contains
                                                    error)
       if (has_error_occurred(error, errmsg, errcode)) return
 
-      call constituent_props(i)%instantiate( &
+      call constituent_props(species_index)%instantiate( &
         std_name = species_name, &
         long_name = species_name, &
         units = 'kg kg-1', &

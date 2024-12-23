@@ -121,7 +121,8 @@ contains
     use musica_ccpp_micm,          only: number_of_rate_parameters
     use musica_ccpp_micm_util,     only: convert_to_mol_per_cubic_meter, convert_to_mass_mixing_ratio
     use musica_ccpp_species,       only: number_of_micm_species, number_of_tuvx_species, &
-      micm_molar_mass_array, extract_subset_constituents, update_constituents
+      micm_indices_constituent_props, tuvx_indices_constituent_props, micm_molar_mass_array, &
+      extract_subset_constituents, update_constituents
 
     real(kind_phys),         intent(in)    :: time_step                                         ! s
     real(kind_phys), target, intent(in)    :: temperature(:,:)                                  ! K
@@ -156,7 +157,8 @@ contains
                                size(constituents, dim=2), &
                                number_of_rate_parameters) :: rate_parameters ! various units
 
-    call extract_subset_constituents(constituents, constituents_tuvx_species, errmsg, errcode)
+    call extract_subset_constituents(tuvx_indices_constituent_props, constituents, &
+                                     constituents_tuvx_species, errmsg, errcode)
     if (errcode /= 0) return
 
     ! Calculate photolysis rate constants using TUV-x
@@ -176,10 +178,11 @@ contains
                   rate_parameters,                              &
                   errmsg, errcode)
 
-    call update_constituents(constituents_tuvx_species, constituents, errmsg, errcode)
+    call update_constituents(tuvx_indices_constituent_props, constituents_tuvx_species, &
+                             constituents, errmsg, errcode)
     if (errcode /= 0) return
-
-    call extract_subset_constituents(constituents, constituents_micm_species, errmsg, errcode)
+    call extract_subset_constituents(micm_indices_constituent_props, constituents, &
+                                     constituents_micm_species, errmsg, errcode)
     if (errcode /= 0) return
 
     ! Convert CAM-SIMA unit to MICM unit (kg kg-1  ->  mol m-3)
@@ -192,7 +195,8 @@ contains
     ! Convert MICM unit back to CAM-SIMA unit (mol m-3  ->  kg kg-1)
     call convert_to_mass_mixing_ratio(dry_air_density, micm_molar_mass_array, constituents_micm_species)
 
-    call update_constituents(constituents_micm_species, constituents, errmsg, errcode)
+    call update_constituents(micm_indices_constituent_props, constituents_micm_species, &
+                             constituents, errmsg, errcode)
     if (errcode /= 0) return
   
   end subroutine musica_ccpp_run

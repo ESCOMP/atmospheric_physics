@@ -14,11 +14,14 @@ module musica_ccpp_species
   type, public :: musica_species_t
     character(len=:), allocatable :: name
     character(len=:), allocatable :: unit
-    real(kind_phys)               :: molar_mass ! kg mol-1
+    real(kind_phys)               :: molar_mass = 0.0_kind_phys ! kg mol-1
     integer                       :: index_musica_species = MUSICA_INT_UNASSIGNED
     integer                       :: index_constituent_props = MUSICA_INT_UNASSIGNED
     logical                       :: profiled = .false. ! optional
     real(kind_phys)               :: scale_height = 0.0_kind_phys ! km, optional
+  contains
+    ! Deallocates the member objects
+    procedure :: deallocate  => musica_species_t_deallocate
   end type musica_species_t
 
   interface musica_species_t
@@ -26,7 +29,7 @@ module musica_ccpp_species
   end interface musica_species_t
 
   ! Species are ordered to match the sequence of the MICM state array
-  type(musica_species_t), allocatable, protected, public :: micm_species_set(:) ! index should match with the MICM state array
+  type(musica_species_t), allocatable, protected, public :: micm_species_set(:)
   type(musica_species_t), allocatable, protected, public :: tuvx_species_set(:)
   integer,                allocatable, protected, public :: micm_indices_constituent_props(:)
   integer,                allocatable, protected, public :: tuvx_indices_constituent_props(:)
@@ -39,7 +42,6 @@ contains
   !> Constructor for musica_species_t object
   function species_t_constructor(name, unit, molar_mass, scale_height, &
       index_musica_species, index_constituent_props) result( this )
-  
     character(len=*), intent(in) :: name
     character(len=*), intent(in) :: unit
     real(kind_phys),  intent(in) :: molar_mass   ! kg mol-1
@@ -57,11 +59,38 @@ contains
 
   end function species_t_constructor
 
-  subroutine cleanup_musica_species()
+  !> Deallocates memory associated with this musica species object
+  subroutine musica_species_t_deallocate(this)
+    class(musica_species_t), intent(inout) :: this
 
-    if (allocated( micm_species_set )) deallocate( micm_species_set )
+    if (allocated(this%name)) deallocate(this%name)
+    if (allocated(this%unit)) deallocate(this%unit)
+    this%molar_mass = 0.0_kind_phys
+    this%index_musica_species = MUSICA_INT_UNASSIGNED
+    this%index_constituent_props = MUSICA_INT_UNASSIGNED
+    this%profiled = .false.
+    this%scale_height = 0.0_kind_phys
+
+  end subroutine musica_species_t_deallocate
+
+  subroutine cleanup_musica_species()
+    integer :: i
+
+    if (allocated( micm_species_set )) then
+      do i = 1, size(micm_species_set)
+        call micm_species_set(i)%deallocate()
+      end do
+      deallocate( micm_species_set )
+    end if
+
+    if (allocated( tuvx_species_set )) then
+      do i = 1, size(tuvx_species_set)
+        call tuvx_species_set(i)%deallocate()
+      end do
+      deallocate( tuvx_species_set )
+    end if
+
     if (allocated( micm_indices_constituent_props )) deallocate( micm_indices_constituent_props )
-    if (allocated( tuvx_species_set )) deallocate( tuvx_species_set )
     if (allocated( tuvx_indices_constituent_props )) deallocate( tuvx_indices_constituent_props )
     if (allocated( micm_molar_mass_array )) deallocate( micm_molar_mass_array )
 
@@ -90,8 +119,8 @@ contains
     type(ccpp_constituent_prop_ptr_t), intent(in)    :: constituent_props(:)
     type(musica_species_t),            intent(inout) :: musica_species_set(:)
     integer,                           intent(inout) :: indices_constituent_props(:)
-    character(len=512),                intent(out) :: errmsg
-    integer,                           intent(out) :: errcode
+    character(len=512),                intent(out)   :: errmsg
+    integer,                           intent(out)   :: errcode
 
     ! local variables
     integer :: i_elem, index_species
@@ -139,6 +168,8 @@ contains
 
   end subroutine initialize_musica_species_indices
 
+  !> Iterate through the constituent property array to populate the molar mass array,
+  ! storing molar mass values in a sequence that matches the order of the MICM state array
   subroutine initialize_molar_mass_array(constituent_props, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
 
@@ -180,63 +211,67 @@ contains
   end subroutine initialize_molar_mass_array
 
   !> Extract sub-constituents array using the indices from constituents array
-  subroutine extract_subset_constituents(constituents, subset_constituents, errmsg, errcode)
-
+  subroutine extract_subset_constituents(indices_constituent_props, constituents, &
+                                         subset_constituents, errmsg, errcode)
+    integer,            intent(in)    :: indices_constituent_props(:)
     real(kind_phys),    intent(in)    :: constituents(:,:,:)        ! kg kg-1
     real(kind_phys),    intent(inout) :: subset_constituents(:,:,:) ! kg kg-1
     character(len=512), intent(out)   :: errmsg
     integer,            intent(out)   :: errcode
     
     ! local variables
-    integer :: i_elem
+    integer :: i
 
-    if ( size(subset_constituents, dim=3) == number_of_micm_species ) then
-      do i_elem = 1, number_of_micm_species
-        subset_constituents(:,:,i_elem) = constituents(:,:,micm_indices_constituent_props(i_elem))
-      end do
-    else if ( size(subset_constituents, dim=3) == number_of_tuvx_species ) then
-      do i_elem = 1, number_of_tuvx_species
-        subset_constituents(:,:,i_elem) = constituents(:,:,tuvx_indices_constituent_props(i_elem))
-      end do
-    else
+    errmsg = ''
+    errcode = 0
+
+    if (size(subset_constituents, dim=3) /= size(indices_constituent_props)) then
       errmsg = "[MUSICA Error] The given dimension for the constituents &
-                doesn't match the size of any species array."
+                doesn't match the size of species indices array."
       errcode = 1
       return
     end if
 
+    do i = 1, size(indices_constituent_props)
+      subset_constituents(:,:,i) = constituents(:,:,indices_constituent_props(i))
+    end do
+
   end subroutine extract_subset_constituents
 
-  subroutine update_constituents(subset_constituents, constituents, errmsg, errcode)
-
+  subroutine update_constituents(indices_constituent_props, subset_constituents, &
+                                 constituents, errmsg, errcode)
+    integer,            intent(in)    :: indices_constituent_props(:)
     real(kind_phys),    intent(in)    :: subset_constituents(:,:,:) ! kg kg-1
     real(kind_phys),    intent(inout) :: constituents(:,:,:)        ! kg kg-1
     character(len=512), intent(out)   :: errmsg
     integer,            intent(out)   :: errcode
   
     ! local variables
-    integer :: i_elem
+    integer :: i
 
-    if ( size(subset_constituents, dim=3) == number_of_micm_species ) then
-      do i_elem = 1, number_of_micm_species
-        constituents(:,:,micm_indices_constituent_props(i_elem)) = subset_constituents(:,:,i_elem)
-      end do
-    else if ( size(subset_constituents, dim=3) == number_of_tuvx_species ) then
-      do i_elem = 1, number_of_tuvx_species
-        constituents(:,:,tuvx_indices_constituent_props(i_elem)) = subset_constituents(:,:,i_elem)
-      end do
-    else
+    errmsg = ''
+    errcode = 0
+
+    if (size(subset_constituents, dim=3) /= size(indices_constituent_props)) then
       errmsg = "[MUSICA Error] The given dimension for the constituents &
-                doesn't match the size of any species array."
+                doesn't match the size of species indices array."
       errcode = 1
       return
     end if
+
+    do i= 1, size(indices_constituent_props)
+      constituents(:,:,indices_constituent_props(i)) = subset_constituents(:,:,i)
+    end do
+
 
   end subroutine update_constituents
 
   subroutine check_initialization(errmsg, errcode)
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errcode
+
+    errmsg = ''
+    errcode = 0
 
     if (.not. allocated( micm_species_set )) then 
       errmsg = "[MUSICA Error] MICM species set has not been allocated."
