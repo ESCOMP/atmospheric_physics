@@ -10,17 +10,17 @@ module musica_ccpp_species
 
   integer, parameter, public :: MUSICA_INT_UNASSIGNED = -99999
 
-  !> Definition of the gas species type
+  !> Definition of musica species object
   type, public :: musica_species_t
     character(len=:), allocatable :: name
     character(len=:), allocatable :: unit
-    real(kind_phys)               :: molar_mass = 0.0_kind_phys ! kg mol-1
+    real(kind_phys)               :: molar_mass = 0.0_kind_phys   ! kg mol-1
     integer                       :: index_musica_species = MUSICA_INT_UNASSIGNED
     integer                       :: index_constituent_props = MUSICA_INT_UNASSIGNED
-    logical                       :: profiled = .false. ! optional
-    real(kind_phys)               :: scale_height = 0.0_kind_phys ! km, optional
+    logical                       :: profiled = .false.           ! TUV-x gas species optional
+    real(kind_phys)               :: scale_height = 0.0_kind_phys ! km, TUV-x gas species optional
   contains
-    ! Deallocates the member objects
+    ! Deallocates memory associated with this musica species object
     procedure :: deallocate  => musica_species_t_deallocate
   end type musica_species_t
 
@@ -39,7 +39,7 @@ module musica_ccpp_species
 
 contains
 
-  !> Constructor for musica_species_t object
+  !> Constructor for musica species object
   function species_t_constructor(name, unit, molar_mass, scale_height, &
       index_musica_species, index_constituent_props) result( this )
     character(len=*), intent(in) :: name
@@ -96,6 +96,7 @@ contains
 
   end subroutine  cleanup_musica_species
 
+  !> Allocates memory and initializes the species array for MICM and TUV-x
   subroutine register_musica_species(micm_species, tuvx_species)
     type(musica_species_t), intent(in)  :: micm_species(:)
     type(musica_species_t), intent(in)  :: tuvx_species(:)
@@ -110,7 +111,7 @@ contains
 
   end subroutine register_musica_species
 
-  !> Retrieve the species indices from the constituents array and store them
+  !> Retrieves the species indices from the constituents array and store them
   subroutine find_musica_species_indices(constituent_props, musica_species_set, &
       indices_constituent_props, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
@@ -141,7 +142,7 @@ contains
 
   end subroutine find_musica_species_indices
 
-  !> Initialize arrays to store the species indices of the CCPP constituents
+  !> Initializes arrays to store the species indices of the CCPP constituents
   subroutine initialize_musica_species_indices(constituent_props, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
 
@@ -168,7 +169,7 @@ contains
 
   end subroutine initialize_musica_species_indices
 
-  !> Iterate through the constituent property array to populate the molar mass array,
+  !> Iterates through the constituent property pointer array to populate the molar mass array,
   ! storing molar mass values in a sequence that matches the order of the MICM state array
   subroutine initialize_molar_mass_array(constituent_props, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
@@ -196,7 +197,6 @@ contains
       end if
     end do
 
-    ! Ask if this has been implemented
     ! TODO(jiwon) Check molar mass is non zero as it becomes a denominator for unit converison
     do i_elem = 1, size(micm_molar_mass_array)
       if (micm_molar_mass_array(i_elem) <= 0) then
@@ -209,7 +209,7 @@ contains
 
   end subroutine initialize_molar_mass_array
 
-  !> Extract sub-constituents array using the indices from constituents array
+  !> Extracts sub-constituents array using the indices from constituents array
   subroutine extract_subset_constituents(indices_constituent_props, constituents, &
                                          subset_constituents, errmsg, errcode)
     integer,            intent(in)    :: indices_constituent_props(:)
@@ -237,6 +237,8 @@ contains
 
   end subroutine extract_subset_constituents
 
+  !> The updated subset of constituents is added back to the constituents array
+  ! using the indices array to specify where the updates should occur
   subroutine update_constituents(indices_constituent_props, subset_constituents, &
                                  constituents, errmsg, errcode)
     integer,            intent(in)    :: indices_constituent_props(:)
@@ -262,9 +264,13 @@ contains
       constituents(:,:,indices_constituent_props(i)) = subset_constituents(:,:,i)
     end do
 
-
   end subroutine update_constituents
 
+  !> Checks that the musica species-related objects are initialized,
+  ! including the MICM species set, TUV-x species set, their constituent property indices,
+  ! and the molar mass values for the MICM species.
+  ! This function is specifically designed to ensure that the musica species are properly
+  ! initialized, so they don't need to be checked during the run phase.
   subroutine check_initialization(errmsg, errcode)
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errcode

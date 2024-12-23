@@ -14,7 +14,7 @@ module musica_ccpp_tuvx_gas_species
 
 contains
 
-  !> Creates a TUV-x dry air profile
+  !> Creates TUV-x dry air profile
   function create_dry_air_profile(height_grid, errmsg, errcode) &
       result(profile)
     use musica_ccpp_util,              only: has_error_occurred
@@ -39,7 +39,7 @@ contains
 
   end function create_dry_air_profile
 
-  !> Creates a TUV-x O2 profile
+  !> Creates TUV-x O2 profile
   function create_O2_profile(height_grid, errmsg, errcode) &
       result(profile)
     use musica_ccpp_util,              only: has_error_occurred
@@ -64,7 +64,7 @@ contains
 
   end function create_O2_profile
 
-  !> Creates a TUV-x O3 profile
+  !> Creates TUV-x O3 profile
   function create_O3_profile(height_grid, errmsg, errcode) &
       result(profile)
     use musica_ccpp_util,              only: has_error_occurred
@@ -89,7 +89,7 @@ contains
 
   end function create_O3_profile
 
-  !> Sets the species concentrations in the vertical layer
+  !> Sets the species constituents in the vertical layer
   subroutine set_gas_species_values(profile, dry_air_density, constituents, &
                                 height_deltas, index_species, errmsg, errcode)
     use musica_ccpp_util,              only: has_error_occurred

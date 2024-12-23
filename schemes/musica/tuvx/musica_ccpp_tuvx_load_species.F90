@@ -1,5 +1,5 @@
 module musica_ccpp_tuvx_load_species
-  use ccpp_kinds, only: kind_phys
+  use ccpp_kinds,          only: kind_phys
   use musica_ccpp_species, only: MUSICA_INT_UNASSIGNED
 
   implicit none
@@ -35,10 +35,9 @@ module musica_ccpp_tuvx_load_species
 
 contains
 
-  ! Add constituent props and then create micm_species
-  ! This is another reason in favor of moving all mechanism parsing of open atmos; 
-  ! you could choose to do this and it would be valid. For micm, we always want 
-  ! a full mechanism becauase that's what we need
+  !> Configures the TUV-x species and their constituent properties.
+  ! If the MICM configuration includes any TUV-x gas species, constituent properties
+  ! are not created; otherwise, new constituent properties are generated for each species.
   subroutine configure_tuvx_species(micm_species, tuvx_species, constituent_props, &
                                     errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
@@ -80,10 +79,8 @@ contains
       errmsg = errmsg )
     if (errcode /= 0) return
 
-    ! Add gas species - dry air, O2, O3 - to be profiled
-    ! iterate through all the registered species to 
-    ! check if the species is already registered and if so
-    ! update scale_height
+    ! Iterates through the MICM species to check if any TUV-x gas
+    ! species are included; if present, updates the scale height and profiled status.
     do i_species = 1, num_micm_species
       if (is_dry_air_registered .and. is_O2_registered .and. is_O3_registered) exit
 
@@ -166,7 +163,7 @@ contains
     index_dry_air = i_tuvx_species
     tuvx_species(i_tuvx_species) = musica_species_t( &
       name = DRY_AIR_LABEL, &
-      unit = TUVX_GAS_SPECIES_UNITS, & ! TUV-x profile unit, which can be different from molar mass unit
+      unit = TUVX_GAS_SPECIES_UNITS, & ! TUV-x profile unit, different from molar mass unit
       molar_mass = MOLAR_MASS_DRY_AIR, & ! kg mol-1
       index_musica_species = i_tuvx_species, &
       profiled = .true., &
@@ -176,7 +173,7 @@ contains
     index_O2 = i_tuvx_species
     tuvx_species(i_tuvx_species) = musica_species_t( &
       name = O2_LABEL, &
-      unit = TUVX_GAS_SPECIES_UNITS, & ! TUV-x profile unit, which can be different from molar mass unit
+      unit = TUVX_GAS_SPECIES_UNITS, & ! TUV-x profile unit, different from molar mass unit
       molar_mass = MOLAR_MASS_O2, & ! kg mol-1
       index_musica_species = i_tuvx_species, &
       profiled = .true., &
@@ -186,7 +183,7 @@ contains
     index_O3 = i_tuvx_species
     tuvx_species(i_tuvx_species) = musica_species_t( &
       name = O3_LABEL, &
-      unit = TUVX_GAS_SPECIES_UNITS, & ! TUV-x profile unit, which can be different from molar mass unit
+      unit = TUVX_GAS_SPECIES_UNITS, & ! TUV-x profile unit, different from molar mass unit
       molar_mass = MOLAR_MASS_O3, & ! kg mol-1
       index_musica_species = i_tuvx_species, &
       profiled = .true., &
@@ -194,6 +191,10 @@ contains
 
   end subroutine configure_tuvx_species
 
+  !> Ensures that the indices of all TUV-x species are initialized.
+  ! This function is typically called during the initialization phase,
+  ! so that the indices can be used during the run phase without the need
+  ! for additional checks.
   subroutine check_tuvx_species_initialization(errmsg, errcode)
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errcode

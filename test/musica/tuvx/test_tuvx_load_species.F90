@@ -16,7 +16,8 @@ contains
   subroutine test_configure_shared_gas_species_tuvx_micm()
     ! There are three gas species required for TUV-x: dry air, O2, and O3.
     ! This test focuses on configuring MUSICA species and constituent properties
-    ! when the MICM species include all of these. Cloud liquid water content is the only component specific to TUVX.
+    ! when the MICM species include all of these. Cloud liquid water content
+    ! is the only component specific to TUVX.
     use ccpp_kinds,                only: kind_phys
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
     use musica_ccpp_species,       only: musica_species_t, MUSICA_INT_UNASSIGNED
@@ -73,16 +74,18 @@ contains
     ASSERT(errcode == 0)
     ASSERT(allocated(tuvx_constituent_props))
     ASSERT(size(tuvx_constituent_props) == NUM_TUVX_CONSTITUENTS - NUM_SHARED_SPECIES_BETWEEN_MICM_TUVX)
-    ASSERT(tuvx_constituent_props(1)%is_instantiated(errcode, errmsg))
-    call tuvx_constituent_props(1)%standard_name(species_name, errcode, errmsg)
-    ASSERT(errcode == 0)
-    call tuvx_constituent_props(1)%molar_mass(molar_mass, errcode, errmsg)
-    ASSERT(errcode == 0)
-    call tuvx_constituent_props(1)%is_advected(is_advected, errcode, errmsg)
-    ASSERT(errcode == 0)
-    tmp_bool = (trim(species_name) == 'cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water' .and. &
-                molar_mass == 0.018_kind_phys .and. is_advected)
-    ASSERT(tmp_bool)
+    do i_species = 1, size(tuvx_constituent_props)
+      ASSERT(tuvx_constituent_props(i_species)%is_instantiated(errcode, errmsg))
+      call tuvx_constituent_props(i_species)%standard_name(species_name, errcode, errmsg)
+      ASSERT(errcode == 0)
+      call tuvx_constituent_props(i_species)%molar_mass(molar_mass, errcode, errmsg)
+      ASSERT(errcode == 0)
+      call tuvx_constituent_props(i_species)%is_advected(is_advected, errcode, errmsg)
+      ASSERT(errcode == 0)
+      tmp_bool = (trim(species_name) == 'cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water' .and. &
+                  molar_mass == 0.018_kind_phys .and. is_advected)
+      ASSERT(tmp_bool)
+    end do
 
     ASSERT(allocated(tuvx_species))
     ASSERT(size(tuvx_species) == NUM_TUVX_CONSTITUENTS)
@@ -184,7 +187,6 @@ contains
                                 errmsg, errcode)
     ASSERT(errcode == 0)
     ASSERT(allocated(tuvx_constituent_props))
-    write(*,*) "size(tuvx_constituent_props): ", size(tuvx_constituent_props)
     ASSERT(size(tuvx_constituent_props) == NUM_TUVX_CONSTITUENTS - NUM_SHARED_SPECIES_BETWEEN_MICM_TUVX)
     do i_species = 1, size(tuvx_constituent_props)
       ASSERT(tuvx_constituent_props(i_species)%is_instantiated(errcode, errmsg))

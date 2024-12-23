@@ -17,8 +17,8 @@ contains
     use ccpp_kinds,                		 only: kind_phys
     use ccpp_constituent_prop_mod, 		 only: ccpp_constituent_properties_t
     use musica_ccpp_species,       		 only: musica_species_t
-    use musica_ccpp_tuvx_load_species, &
-      only: configure_tuvx_species, check_tuvx_species_initialization
+    use musica_ccpp_tuvx_load_species, only: configure_tuvx_species, &
+                                             check_tuvx_species_initialization
 
     integer, parameter                               :: NUM_MICM_SPECIES = 6
     integer, parameter                               :: NUM_TUVX_CONSTITUENTS = 4
@@ -160,8 +160,7 @@ contains
     character(len=512) :: errmsg
     integer            :: errcode
     integer            :: i, j, k
-  
-    ! Initialize the arrays (example values)
+
     constituents = reshape([1.0, 2.0, 3.0, 4.0, 5.0, &
                             6.0, 7.0, 8.0, 9.0, 10.0, &
                             11.0, 12.0, 13.0, 14.0, 15.0, &
