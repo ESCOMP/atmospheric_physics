@@ -148,13 +148,13 @@ contains
     ! local variables
     real(kind_phys), dimension(size(constituents, dim=1), &
                                size(constituents, dim=2), &
+                               number_of_rate_parameters) :: rate_parameters ! various units
+    real(kind_phys), dimension(size(constituents, dim=1), &
+                               size(constituents, dim=2), &
                                number_of_micm_species)    :: constituents_micm_species ! kg kg-1
     real(kind_phys), dimension(size(constituents, dim=1), &
                                size(constituents, dim=2), &
                                number_of_tuvx_species)    :: constituents_tuvx_species ! kg kg-1
-    real(kind_phys), dimension(size(constituents, dim=1), &
-                               size(constituents, dim=2), &
-                               number_of_rate_parameters) :: rate_parameters ! various units
 
     call extract_subset_constituents(tuvx_indices_constituent_props, constituents, &
                                      constituents_tuvx_species, errmsg, errcode)

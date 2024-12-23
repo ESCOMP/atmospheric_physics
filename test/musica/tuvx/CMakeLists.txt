@@ -206,7 +206,7 @@ add_test(
 
 add_memory_check_test(test_tuvx_gas_species $<TARGET_FILE:test_tuvx_gas_species> "" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
-# Configure TUV-x species/constituents
+# Configure TUV-x species
 add_executable(test_tuvx_load_species test_tuvx_load_species.F90)
 
 target_sources(test_tuvx_load_species
