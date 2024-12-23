@@ -22,7 +22,6 @@ contains
                            micm_species, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
     use musica_ccpp_species,       only: musica_species_t
-    use musica_micm,               only: Rosenbrock, RosenbrockStandardOrder
     use musica_util,               only: error_t
     use iso_c_binding,             only: c_int
 
