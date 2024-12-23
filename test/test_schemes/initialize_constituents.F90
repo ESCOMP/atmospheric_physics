@@ -119,7 +119,6 @@ subroutine initialize_constituents_register(constituents, errmsg, errcode)
              vertical_dim = 'vertical_layer_dimension', &
              min_value = 0.0_kind_phys,                 &
              advected = .true.,                         &
-             water_species = .true.,                    &
              mixing_ratio_type = 'wet',                 &
              errcode = errcode,                         &
              errmsg = errmsg)
