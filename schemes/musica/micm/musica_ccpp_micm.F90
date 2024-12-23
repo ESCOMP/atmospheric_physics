@@ -65,7 +65,7 @@ contains
     do i = 1, number_of_species
     associate( map => micm%species_ordering )
       species_name = map%name(i)
-      species_index = map%index(i) ! TODO(jiwon): is this index not in sequence?
+      species_index = map%index(i)
 
       molar_mass = micm%get_species_property_double(species_name, &
                                                     "molecular weight [kg mol-1]", &
@@ -95,8 +95,6 @@ contains
         unit = 'kg kg-1', &
         molar_mass = molar_mass, &
         index_musica_species = species_index )
-
-      write(*,*) " [micm register] species_index: ", species_index ! jiwon
     end associate ! map
     end do
     number_of_rate_parameters = micm%user_defined_reaction_rates%size()

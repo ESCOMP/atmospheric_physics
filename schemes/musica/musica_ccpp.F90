@@ -83,7 +83,6 @@ contains
     ! instead of when the solver is created.
     ! Re-create the MICM solver with the correct number of grid cells
     number_of_grid_cells = horizontal_dimension * vertical_layer_dimension
-    ! TODO(jiwon) - have to clean up before this gets called again
     call micm_register(micm_solver_type, number_of_grid_cells, constituent_props, &
                        micm_species, errmsg, errcode)
     call micm_init(errmsg, errcode)

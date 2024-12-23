@@ -198,7 +198,6 @@ contains
 
     ! Ask if this has been implemented
     ! TODO(jiwon) Check molar mass is non zero as it becomes a denominator for unit converison
-    ! this code will be deleted when the framework does the check
     do i_elem = 1, size(micm_molar_mass_array)
       if (micm_molar_mass_array(i_elem) <= 0) then
         errcode = 1
