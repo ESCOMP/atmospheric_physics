@@ -11,7 +11,9 @@
        <scheme>qneg</scheme>
        <scheme>geopotential_temp</scheme>
        <scheme>cloud_fraction_fice</scheme>
+       <scheme>set_deep_conv_fluxes_to_general</scheme>
        <scheme>zm_conv_evap</scheme>
+       <scheme>set_general_conv_fluxes_to_deep</scheme>
        <scheme>zm_evap_tendency_diagnostics</scheme>
        <scheme>apply_heating_rate</scheme>
        <scheme>apply_constituent_tendencies</scheme>

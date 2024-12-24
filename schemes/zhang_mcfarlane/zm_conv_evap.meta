@@ -103,13 +103,13 @@
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = out
 [ tend_s_snwprd ]
-  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_frozen_precipitation_production_due_to_deep_convection
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_frozen_precipitation_production_due_to_convection
   units = J kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = out
 [ tend_s_snwevmlt ]
-  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_evaporation_and_melting_of_frozen_precipitation_due_to_deep_convection
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_evaporation_and_melting_of_frozen_precipitation_due_to_convection
   units = J kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
@@ -121,8 +121,8 @@
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = out
   constituent = true
-[ prdprec ]
-  standard_name = tendency_of_precipitation_wrt_moist_air_and_condensed_water_due_to_deep_convection_excluding_subcloud_evaporation
+[ prdprec_gen ]
+  standard_name = tendency_of_precipitation_wrt_moist_air_and_condensed_water_due_to_convection_excluding_subcloud_evaporation
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
@@ -139,26 +139,26 @@
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
-[ prec ]
-  standard_name = lwe_precipitation_rate_at_surface_due_to_deep_convection
+[ prec_gen ]
+  standard_name = lwe_precipitation_rate_at_surface_due_to_convection
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = inout
 [ snow ]
-  standard_name = lwe_frozen_precipitation_rate_at_surface_due_to_deep_convection
+  standard_name = lwe_frozen_precipitation_rate_at_surface_due_to_convection
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
 [ ntprprd ]
-  standard_name = tendency_of_precipitation_wrt_moist_air_and_condensed_water_due_to_deep_convection
+  standard_name = tendency_of_precipitation_wrt_moist_air_and_condensed_water_due_to_convection
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = out
 [ ntsnprd ]
-  standard_name = tendency_of_frozen_precipitation_wrt_moist_air_and_condensed_water_due_to_deep_convection
+  standard_name = tendency_of_frozen_precipitation_wrt_moist_air_and_condensed_water_due_to_convection
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
@@ -170,13 +170,13 @@
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ flxprec ]
-  standard_name = precipitation_flux_at_interface_due_to_deep_convection
+  standard_name = precipitation_flux_at_interface_due_to_convection
   units = kg m-2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_interface_dimension)
   intent = out
 [ flxsnow ]
-  standard_name = frozen_precipitation_flux_at_interface_due_to_deep_convection
+  standard_name = frozen_precipitation_flux_at_interface_due_to_convection
   units = kg m-2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_interface_dimension)
