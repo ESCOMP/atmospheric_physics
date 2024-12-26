@@ -15,6 +15,7 @@ subroutine initialize_constituents_register(constituents, errmsg, errcode)
     use cam_initfiles,             only: initial_file_get_id
     use pio,                       only: pio_inquire, file_desc_t, pio_inq_varname
     use ccpp_kinds,                only: kind_phys
+    use runtime_obj,               only: wv_stdname
     ! Dummy variables
     type(ccpp_constituent_properties_t), allocatable, intent(out) :: constituents(:)
     character(len=512), intent(out) :: errmsg
@@ -145,7 +146,10 @@ subroutine initialize_constituents_register(constituents, errmsg, errcode)
 
 !> \section arg_table_initialize_constituents_run  Argument Table
 !! \htmlinclude initialize_constituents_run.html
-  subroutine initialize_constituents_run(errmsg, errcode)
+  subroutine initialize_constituents_run(q, errmsg, errcode)
+     use ccpp_kinds, only: kind_phys
+
+     real(kind_phys),    intent(in)  :: q(:,:)
      character(len=512), intent(out) :: errmsg
      integer,            intent(out) :: errcode
 

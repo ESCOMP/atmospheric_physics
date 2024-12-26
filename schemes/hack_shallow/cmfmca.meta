@@ -238,7 +238,7 @@
   dimensions = (horizontal_loop_extent)
   intent = out
 [ cnb_sh ]
-  standard_name = vertical_index_at_cloud_bottom_for_shallow_convection
+  standard_name = vertical_index_at_cloud_base_for_shallow_convection
   units = index
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)

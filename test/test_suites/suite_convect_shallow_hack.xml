@@ -18,27 +18,36 @@
       This zm_conv_evap call takes as input some of the shallow convective quantities and adds to them, including
       - precc -> prec (lwe_precipitation_rate_at_surface_due_to_..._convection)
 
-      Thus, an interstitial scheme to simply "convert" the shallow tendencies to the deep tendencies in preparation for the zm_conv_evap call is also needed.
+      Thus, an interstitial scheme to simply "convert" the shallow tendencies to the general tendencies in preparation for the zm_conv_evap call is also needed.
       (hplin, 10/29/24)
     -->
 
+    <!-- Snapshot only: convert "all_convection" quantities to "deep_convection" -->
+    <!-- <scheme>snapshot_set_general_conv_to_deep</scheme> -->
+
     <!-- SHALLOW CONVECTION: HACK SCHEME -->
     <scheme>cmfmca</scheme>
+    <scheme>convect_shallow_diagnostics_after_shallow_scheme</scheme>
     <scheme>apply_heating_rate</scheme>
     <scheme>apply_constituent_tendencies</scheme>
     <scheme>geopotential_temp</scheme>
+
+    <!-- SUBCLOUD EVAPORATION -->
+    <!-- prepare state for zm_conv_evap (rename shallow outputs to generic inputs) -->
+    <!-- also zero out quantities going in/out -->
+    <!-- <scheme>set_shallow_conv_fluxes_to_general</scheme>  -->
+    <!-- <scheme>zm_conv_evap</scheme> -->
+    <!-- <scheme>set_general_conv_fluxes_to_shallow</scheme> -->
+    <!-- <scheme>convect_shallow_diagnostics_after_convective_evaporation</scheme> -->
+    <!-- <scheme>apply_heating_rate</scheme> -->
+    <!-- <scheme>apply_constituent_tendencies</scheme> -->
+    <!-- <scheme>geopotential_temp</scheme> -->
 
     <!-- DIAGNOSTIC QUANTITY UPDATES -->
     <!-- eventually calculate shallow convective fraction diagnostic (FREQSH) -->
     <!-- sum deep convective quantities with shallow including total convective rainout.
          requires deep convective quantities to be actually available (i.e., rprddp) -->
     <!-- <scheme>convect_shallow_sum_to_deep</scheme> -->
-
-    <!-- SUBCLOUD EVAPORATION -->
-    <!-- prepare state for zm_conv_evap (rename shallow outputs to deep inputs) -->
-    <!-- <scheme>convect_shallow_zm_conv_evap_prep</scheme>  -->
-    <!-- <scheme>zm_conv_evap</scheme> -->
-    <!-- <scheme>apply_heating_rate</scheme> -->
-    <!-- <scheme>apply_constituent_tendencies</scheme> -->
+    <!-- <scheme>convect_shallow_diagnostics_after_sum_to_deep</scheme> -->
   </group>
 </suite>

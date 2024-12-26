@@ -1,3 +1,6 @@
+! Copyright (C) 2024 National Science Foundation-National Center for Atmospheric Research
+! SPDX-License-Identifier: Apache-2.0
+!
 ! Hack shallow convective scheme.
 !
 ! Original Author: J. Hack
@@ -111,7 +114,6 @@ contains
     ! specify that relaxation timescale should be applied to column as opposed to triplets individually
     rlxclm = .true.
   end subroutine cmfmca_init
-
 
 !> \section arg_table_cmfmca_run Argument Table
 !! \htmlinclude cmfmca_run.html
