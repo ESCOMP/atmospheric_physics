@@ -13,10 +13,7 @@ set(MUSICA_ENABLE_INSTALL OFF)
 
 FetchContent_MakeAvailable(musica)
 
-# ---------------------------------------------------------
-# Create a test for MUSICA CCPP wrapper
-# ---------------------------------------------------------
-
+# MUSICA CCPP API test
 add_executable(test_musica_api test_musica_api.F90 musica_ccpp_namelist.F90)
 
 file(GLOB MUSICA_CCPP_SOURCES
@@ -88,3 +85,35 @@ add_test(
   --metafile-loc ${CMAKE_BINARY_DIR}/metadata_test/musica_ccpp.meta
   --stdname-dict ${CMAKE_BINARY_DIR}/../$ENV{CCPP_STD_NAMES_PATH}/standard_names.xml
 )
+
+# MUSICA species test
+add_executable(test_musica_species test_musica_species.F90 musica_ccpp_namelist.F90)
+
+target_sources(test_musica_species
+  PUBLIC
+  ${MUSICA_CCPP_SOURCES}
+  ${TO_BE_CCPPIZED_SRC_PATH}/ccpp_const_utils.F90
+  ${TO_BE_CCPPIZED_SRC_PATH}/ccpp_tuvx_utils.F90
+  ${CCPP_SRC_PATH}/ccpp_constituent_prop_mod.F90
+  ${CCPP_SRC_PATH}/ccpp_hash_table.F90
+  ${CCPP_SRC_PATH}/ccpp_hashable.F90
+  ${CCPP_TEST_SRC_PATH}/ccpp_kinds.F90
+)
+
+target_link_libraries(test_musica_species
+  PRIVATE
+    musica::musica-fortran
+)
+
+set_target_properties(test_musica_species
+  PROPERTIES
+  LINKER_LANGUAGE Fortran
+)
+
+add_test(
+  NAME test_musica_species
+  COMMAND $<TARGET_FILE:test_musica_species>
+  WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+)
+
+add_memory_check_test(test_musica_species $<TARGET_FILE:test_musica_species> "" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})

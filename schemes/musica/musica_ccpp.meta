@@ -53,7 +53,7 @@
   type = real | kind = kind_phys
   dimensions = (photolysis_wavelength_grid_interface_dimension)
   intent = in
-[ constituent_props ]
+[ constituent_props_ptr ]
   standard_name = ccpp_constituent_properties
   units = None
   type = ccpp_constituent_prop_ptr_t
