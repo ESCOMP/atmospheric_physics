@@ -34,6 +34,8 @@ module musica_ccpp_tuvx
   character(len=*),      parameter :: CLOUD_LIQUID_WATER_CONTENT_UNITS = 'kg kg-1'
   real(kind_phys),       parameter :: CLOUD_LIQUID_WATER_CONTENT_MOLAR_MASS = 0.018_kind_phys ! kg mol-1
   integer                          :: index_cloud_liquid_water_content = DEFAULT_INDEX_NOT_FOUND
+  integer                          :: N2_index, O2_index, O3_index, NO_index ! needed for NO photolysis rates
+  real(kind_phys) :: molar_mass_N2, molar_mass_O2, molar_mass_O3, molar_mass_NO
 
 contains
 
@@ -100,11 +102,50 @@ contains
     character(len=512),                               intent(out) :: errmsg
     integer,                                          intent(out) :: errcode
 
+    character(len=512)                                            :: species_name
+    real(kind_phys)                                               :: molar_mass
+    integer                                                       :: i
+
     allocate(constituent_props(1), stat=errcode)
     if (errcode /= 0) then
       errmsg = "[MUSICA Error] Failed to allocate memory for constituent properties."
       return
     end if
+
+    ! Sentinal values to indicate that the constituent is not found
+    N2_index = -1
+    O2_index = -1
+    O3_index = -1
+    NO_index = -1
+
+    do i = 1, size(constituent_props)
+      call constituent_props(i)%standard_name(species_name, errcode, errmsg)
+      if (errcode /= 0) return
+      if (trim(species_name) == 'N2') then
+        N2_index = i
+        call constituent_props(i)%molar_mass(molar_mass, errcode, errmsg)
+        if (errcode /= 0) return
+        molar_mass_N2 = molar_mass
+      end if
+      if (trim(species_name) == 'O2') then
+        O2_index = i
+        call constituent_props(i)%molar_mass(molar_mass, errcode, errmsg)
+        if (errcode /= 0) return
+        molar_mass_O2 = molar_mass
+      end if
+      if (trim(species_name) == 'O3') then
+        O3_index = i
+        call constituent_props(i)%molar_mass(molar_mass, errcode, errmsg)
+        if (errcode /= 0) return
+        molar_mass_O3 = molar_mass
+      end if
+      if (trim(species_name) == 'NO') then
+        NO_index = i
+        call constituent_props(i)%molar_mass(molar_mass, errcode, errmsg)
+        if (errcode /= 0) return
+        molar_mass_NO = molar_mass
+      end if
+    end do
 
     ! Register cloud liquid water content needed for cloud optics calculations
     call constituent_props(1)%instantiate( &
@@ -207,7 +248,7 @@ contains
 
     profiles => profile_map_t( error )
     if (has_error_occurred( error, errmsg, errcode )) then
-      call reset_tuvx_map_state( grids, null(), null() )
+      call reset_tuvx_map_state( grids, profiles, null() )
       call cleanup_tuvx_resources()
       return
     end if
@@ -432,6 +473,7 @@ contains
     use musica_ccpp_tuvx_surface_albedo,           only: set_surface_albedo_values
     use musica_ccpp_tuvx_extraterrestrial_flux,    only: set_extraterrestrial_flux_values
     use musica_ccpp_tuvx_cloud_optics,             only: set_cloud_optics_values
+    use musica_ccpp_tuvx_no_photolysis_rate,       only: calculate_NO_photolysis_rate
 
     real(kind_phys),    intent(in)    :: temperature(:,:)                                  ! K (column, layer)
     real(kind_phys),    intent(in)    :: dry_air_density(:,:)                              ! kg m-3 (column, layer)
@@ -462,6 +504,7 @@ contains
     real(kind_phys) :: solar_zenith_angle_degrees
     type(error_t)   :: error
     integer         :: i_col, i_level
+    real(kind_phys) :: jno(size(constituents, dim=2))                                      ! s-1
 
     reciprocal_of_gravitational_acceleration = 1.0_kind_phys / standard_gravitational_acceleration
 
@@ -512,6 +555,13 @@ contains
         photolysis_rate_constants(:,:) = &
             max( photolysis_rate_constants(:,:), 0.0_kind_phys )      
       end if ! solar zenith angle check
+
+      if (N2_index > 0 .and. O2_index > 0 .and. O3_index > 0 .and. NO_index > 0) then
+        ! TODO: How do I ensure that the extraterrestrial flux matches the wavelength grid needed for NO photolysis?
+        jno = calculate_NO_photolysis_rate(size(constituents, dim=2), solar_zenith_angle, extraterrestrial_flux, constituents(i_col,:,:), height_interfaces, &
+          dry_air_density(i_col,:), N2_index, O2_index, O3_index, NO_index, molar_mass_N2, molar_mass_O2, molar_mass_O3, molar_mass_NO)
+      end if
+      ! TODO: throw an error or whatever fortran can do if we need the photolysis rate for NO but we can't calculate it
 
       ! map photolysis rate constants to the host model's rate parameters and vertical grid
       do i_level = 1, size(rate_parameters, dim=2)
