@@ -11,7 +11,7 @@ contains
   ! Add heating rate required for global mean total energy conservation
 !> \section arg_table_check_energy_fix_run Argument Table
 !! \htmlinclude arg_table_check_energy_fix_run.html
-  subroutine check_energy_fix_run(ncol, pver, pint, gravit, heat_glob, ptend_s, eshflx, scheme_name)
+  subroutine check_energy_fix_run(ncol, pver, pint, gravit, heat_glob, ptend_s, eshflx, scheme_name, errmsg, errflg)
     ! Input arguments
     integer,            intent(in)    :: ncol           ! number of atmospheric columns
     integer,            intent(in)    :: pver           ! number of vertical layers
@@ -22,10 +22,16 @@ contains
     real(kind_phys),    intent(out)   :: eshflx(:)      ! effective sensible heat flux [W m-2]
                                                         ! for check_energy_chng
 
+    ! Output arguments
     character(len=64),  intent(out)   :: scheme_name    ! scheme name
+    character(len=512), intent(out)   :: errmsg         ! error message
+    integer,            intent(out)   :: errflg         ! error flag
 
     ! Local variables
     integer :: i
+
+    errmsg = ''
+    errflg = 0
 
     ! Set scheme name for check_energy_chng
     scheme_name = "check_energy_fix"

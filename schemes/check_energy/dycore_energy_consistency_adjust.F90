@@ -16,7 +16,8 @@ contains
       do_consistency_adjust, &
       scaling_dycore, &
       tend_dTdt, &
-      tend_dTdt_local)
+      tend_dTdt_local, &
+      errmsg, errflg)
 
     ! Input arguments
     integer,            intent(in)    :: ncol                  ! number of atmospheric columns
@@ -26,7 +27,12 @@ contains
     real(kind_phys),    intent(in)    :: tend_dTdt(:,:)        ! model physics temperature tendency [K s-1]
 
     ! Output arguments
-    real(kind_phys),    intent(out) :: tend_dTdt_local(:,:)  ! (scheme) temperature tendency [K s-1]
+    real(kind_phys),    intent(out)   :: tend_dTdt_local(:,:)  ! (scheme) temperature tendency [K s-1]
+    character(len=512), intent(out)   :: errmsg                ! error message
+    integer,            intent(out)   :: errflg                ! error flag
+
+    errmsg = ''
+    errflg = 0
 
     if (do_consistency_adjust) then
       ! original formula for scaling of temperature:
