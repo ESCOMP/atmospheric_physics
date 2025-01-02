@@ -244,13 +244,13 @@
   units = Pa
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
-  intent = out
+  intent = in
 [ p_cnb ]
   standard_name = pressure_at_cloud_base_for_all_convection
   units = Pa
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
-  intent = out
+  intent = in
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none

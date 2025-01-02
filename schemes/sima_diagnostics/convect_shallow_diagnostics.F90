@@ -42,9 +42,9 @@ contains
     !=======================================================
 
     call history_add_field('CMFDT', 'tendency_of_air_temperature_at_constant_pressure_due_to_shallow_convection', 'lev', 'avg', 'K s-1') ! T tendency - shallow convection (ftem = ptend%s/cpair)
-    call history_add_field('CMFDQ', 'tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_shallow_convection', 'lev', 'avg', '') ! ptend_loc%q(1,1,1)
-    call history_add_field('CMFDLIQ', 'tendency_of_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_shallow_convection', 'lev', 'avg', '') ! ptend_loc%q(1,1,ixcldliq)
-    call history_add_field('CMFDICE', 'tendency_of_cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_shallow_convection', 'lev', 'avg', '') ! ptend_loc%q(1,1,ixcldice)
+    call history_add_field('CMFDQ', 'tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_shallow_convection', 'lev', 'avg', 'kg kg-1 s-1') ! ptend_loc%q(1,1,1)
+    call history_add_field('CMFDLIQ', 'tendency_of_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_shallow_convection', 'lev', 'avg', 'kg kg-1 s-1') ! ptend_loc%q(1,1,ixcldliq)
+    call history_add_field('CMFDICE', 'tendency_of_cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_shallow_convection', 'lev', 'avg', 'kg kg-1 s-1') ! ptend_loc%q(1,1,ixcldice)
     call history_add_field('CMFDQR', 'tendency_of_precipitation_wrt_moist_air_and_condensed_water_due_to_shallow_convection_excluding_subcloud_evaporation', 'lev', 'avg', 'kg kg-1 s-1') ! Q tendency - shallow convection rainout
 
     ! QC and DRP are the same from convect_shallow
@@ -143,7 +143,7 @@ contains
     real(kind_phys)                 :: freqsh(ncol)            ! Fractional occurrence of shallow convection [fraction]
     integer                         :: const_wv_idx, const_cldliq_idx, const_cldice_idx
     character(len=512)              :: const_standard_name
-    integer                         :: i, k
+    integer                         :: i, m
 
     errmsg = ''
     errflg = 0
@@ -191,7 +191,7 @@ contains
     do i = 1, ncol
       if(maxval(cmfmc_sh(i,:)) <= 0._kind_phys) then
         freqsh(i) = 1._kind_phys
-      enddo
+      endif
     enddo
     call history_out_field('FREQSH', freqsh)
 
@@ -274,8 +274,8 @@ contains
     real(kind_phys),  intent(in)  :: cmfmc(:,:)       ! Total convective mass flux [kg m-2 s-1]
     real(kind_phys),  intent(in)  :: cnt(:)           ! Cloud top level index [1]
     real(kind_phys),  intent(in)  :: cnb(:)           ! Cloud base level index [1]
-    real(kind_phys),  intent(out) :: p_cnt(:)         ! Convective cloud top pressure [Pa]
-    real(kind_phys),  intent(out) :: p_cnb(:)         ! Convective cloud base pressure [Pa]
+    real(kind_phys),  intent(in)  :: p_cnt(:)         ! Convective cloud top pressure [Pa]
+    real(kind_phys),  intent(in)  :: p_cnb(:)         ! Convective cloud base pressure [Pa]
 
     ! Output arguments
     character(len=512), intent(out) :: errmsg

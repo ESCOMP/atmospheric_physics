@@ -22,6 +22,9 @@
       (hplin, 10/29/24)
     -->
 
+    <!-- INITIALIZE DIAGNOSTICS (has init phase only) -->
+    <scheme>convect_shallow_diagnostics</scheme>
+
     <!-- Snapshot only: convert "all_convection" quantities to "deep_convection" -->
     <!-- <scheme>snapshot_set_general_conv_to_deep</scheme> -->
 
