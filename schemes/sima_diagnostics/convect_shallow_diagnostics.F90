@@ -98,6 +98,7 @@ contains
     ! Convection diagnostics for shallow and deep combined
     ! (convect_shallow_diagnostics_after_sum_to_deep_run)
     !=======================================================
+    call history_add_field('CMFMC',  'atmosphere_convective_mass_flux_due_to_all_convection', 'ilev', 'avg', 'kg m-2 s-1') ! Moist convection (shallow+deep) mass flux
     call history_add_field('CLDTOP', 'vertical_index_at_cloud_top_for_all_convection', horiz_only, 'avg', '1') ! Vertical index of cloud top
     call history_add_field('CLDBOT', 'vertical_index_at_cloud_base_for_all_convection', horiz_only, 'avg', '1') ! Vertical index of cloud base
     call history_add_field('PCLDTOP', 'pressure_at_cloud_top_for_all_convection', horiz_only, 'avg', 'Pa') ! Pressure of cloud top
@@ -108,18 +109,81 @@ contains
 !> \section arg_table_convect_shallow_diagnostics_after_shallow_scheme_run  Argument Table
 !! \htmlinclude convect_shallow_diagnostics_after_shallow_scheme_run.html
   subroutine convect_shallow_diagnostics_after_shallow_scheme_run( &
+    ncol, pver, pcnst, &
+    const_props, &
+    cpair, &
+    cmfdt, dq, cmfdqr, &
+    qc_sh, icwmr, cmfsl, cmflq, cmfmc_sh, &
     errmsg, errflg)
+
+    ! framework dependency for const_props
+    use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
 
     use cam_history, only: history_out_field
 
-    character(len=512), intent(out) :: errmsg
-    integer,            intent(out) :: errflg
+    ! Input arguments
+    integer,                          intent(in)  :: ncol, pver, pcnst
+    type(ccpp_constituent_prop_ptr_t),intent(in)  :: const_props(:)
+    real(kind_phys),                  intent(in)  :: cpair
+    real(kind_phys),                  intent(in)  :: cmfdt (:,:)
+    real(kind_phys),                  intent(in)  :: dq    (:,:,:)
+    real(kind_phys),                  intent(in)  :: cmfdqr(:,:)
+    real(kind_phys),                  intent(in)  :: qc_sh (:,:)
+    real(kind_phys),                  intent(in)  :: icwmr (:,:)
+    real(kind_phys),                  intent(in)  :: cmfsl (:,:)
+    real(kind_phys),                  intent(in)  :: cmflq (:,:)
+    real(kind_phys),                  intent(in)  :: cmfmc_sh(:,:)
+
+    ! Output arguments
+    character(len=512),               intent(out) :: errmsg
+    integer,                          intent(out) :: errflg
 
     ! Local variables
+    real(kind_phys)                 :: cmfdt_temp(ncol,pver)   ! Temperature tendency from specific heat flux [K s-1]
     real(kind_phys)                 :: freqsh(ncol)            ! Fractional occurrence of shallow convection [fraction]
+    integer                         :: const_wv_idx, const_cldliq_idx, const_cldice_idx
+    character(len=512)              :: const_standard_name
+    integer                         :: i, k
 
     errmsg = ''
     errflg = 0
+
+    ! Find constituent indices for water vapor, cloud liquid, cloud ice
+    const_wv_idx     = -1
+    const_cldliq_idx = -1
+    const_cldice_idx = -1
+    const_check_loop: do m = 1, pcnst
+      call const_props(m)%standard_name(const_standard_name)
+      if (const_standard_name == 'water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water') then
+        const_wv_idx = m
+      endif
+
+      if (const_standard_name == 'cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water') then
+        const_cldliq_idx = m
+      endif
+
+      if (const_standard_name == 'cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water') then
+        const_cldice_idx = m
+      endif
+    enddo const_check_loop
+
+    ! CMFDT - temperature tendency (not just cmfdt from cmfmca)
+    cmfdt_temp(:,:) = cmfdt(:,:)/cpair
+    call history_out_field('CMFDT', cmfdt_temp)
+
+    ! Constituent tendencies
+    if (const_wv_idx > 0) then
+      call history_out_field('CMFDQ',   dq(:,:,const_wv_idx))
+    endif
+    if (const_cldliq_idx > 0) then
+      call history_out_field('CMFDLIQ', dq(:,:,const_cldliq_idx))
+    endif
+    if (const_cldice_idx > 0) then
+      call history_out_field('CMFDICE', dq(:,:,const_cldice_idx))
+    endif
+
+    ! CMFDQR
+    call history_out_field('CMFDQR', cmfdqr)
 
     ! Calculate fractional occurrence of shallow convection
     ! FIXME (hplin): this definition looks counter-intuitive but is replicated verbatim from convect_shallow.F90. To check.
@@ -129,51 +193,102 @@ contains
         freqsh(i) = 1._kind_phys
       enddo
     enddo
+    call history_out_field('FREQSH', freqsh)
+
+    call history_out_field('QC',      qc_sh)
+    call history_out_field('DQP',     qc_sh)           ! Same field as QC
+    call history_out_field('ICWMRSH', icwmr)
+    call history_out_field('CMFSL',   cmfsl)
+    call history_out_field('CMFLQ',   cmflq)
+    call history_out_field('CMFMCSH', cmfmc_sh)
 
   end subroutine convect_shallow_diagnostics_after_shallow_scheme_run
 
 !> \section arg_table_convect_shallow_diagnostics_after_convective_evaporation_run  Argument Table
 !! \htmlinclude convect_shallow_diagnostics_after_convective_evaporation_run.html
   subroutine convect_shallow_diagnostics_after_convective_evaporation_run( &
+    ncol, pver, &
+    cpair, &
+    tend_s, tend_s_snwprd, tend_s_snwevmlt, &
+    tend_q, &
+    ntprpd, ntsnprd, flxprec, flxsnow, precc, &
     errmsg, errflg)
 
     use cam_history, only: history_out_field
 
-    character(len=512), intent(out) :: errmsg
-    integer,            intent(out) :: errflg
+    ! Input arguments
+    integer,             intent(in)  :: ncol                 ! Number of columns
+    integer,             intent(in)  :: pver                 ! Number of model levels
+    real(kind_phys),     intent(in)  :: cpair                ! Specific heat of dry air [J kg-1 K-1]
+    real(kind_phys),     intent(in)  :: tend_s(:,:)          ! Heating rate from evaporation [J kg-1 s-1]
+    real(kind_phys),     intent(in)  :: tend_s_snwprd(:,:)   ! Heating rate from snow production [J kg-1 s-1]
+    real(kind_phys),     intent(in)  :: tend_s_snwevmlt(:,:) ! Heating rate from snow evap/melt [J kg-1 s-1]
+    real(kind_phys),     intent(in)  :: tend_q(:,:)          ! Water vapor tendency [kg kg-1 s-1]
+    real(kind_phys),     intent(in)  :: ntprpd(:,:)          ! Net precipitation production [kg kg-1 s-1]
+    real(kind_phys),     intent(in)  :: ntsnprd(:,:)         ! Net snow production [kg kg-1 s-1]
+    real(kind_phys),     intent(in)  :: flxprec(:,:)         ! Precipitation flux [kg m-2 s-1]
+    real(kind_phys),     intent(in)  :: flxsnow(:,:)         ! Snow flux [kg m-2 s-1]
+    real(kind_phys),     intent(in)  :: precc(:)             ! Shallow precipitation rate [m s-1]
+
+    ! Output arguments
+    character(len=512),  intent(out) :: errmsg
+    integer,             intent(out) :: errflg
 
     ! Local variables
+    real(kind_phys)      :: tend_s_temp(ncol,pver)                ! Temperature tendencies converted from J kg-1 s-1 to K s-1
 
     errmsg = ''
     errflg = 0
 
+    ! Temperature tendencies from energy tendencies
+    tend_s_temp(:,:) = tend_s(:,:)/cpair
+    call history_out_field('EVAPTCM', tend_s_temp)
 
+    tend_s_temp(:,:) = tend_s_snwprd(:,:)/cpair
+    call history_out_field('FZSNTCM', tend_s_temp)
+
+    tend_s_temp(:,:) = tend_s_snwevmlt(:,:)/cpair
+    call history_out_field('EVSNTCM', tend_s_temp)
+
+    call history_out_field('HKNTPRPD', ntprpd)
+    call history_out_field('HKNTSNPD', ntsnprd)
+    call history_out_field('HKFLXPRC', flxprec)
+    call history_out_field('HKFLXSNW', flxsnow)
+    call history_out_field('HKEIHEAT', tend_s)
+    call history_out_field('EVAPQCM',  tend_q)
+    call history_out_field('PRECSH',   precc)
 
   end subroutine convect_shallow_diagnostics_after_convective_evaporation_run
 
 !> \section arg_table_convect_shallow_diagnostics_after_sum_to_deep_run  Argument Table
 !! \htmlinclude convect_shallow_diagnostics_after_sum_to_deep_run.html
   subroutine convect_shallow_diagnostics_after_sum_to_deep_run( &
+    ncol, &
+    cmfmc, cnt, cnb, p_cnt, p_cnb, &
     errmsg, errflg)
 
     use cam_history, only: history_out_field
 
+    ! Input arguments
+    integer,          intent(in)  :: ncol             ! Number of columns
+    real(kind_phys),  intent(in)  :: cmfmc(:,:)       ! Total convective mass flux [kg m-2 s-1]
+    real(kind_phys),  intent(in)  :: cnt(:)           ! Cloud top level index [1]
+    real(kind_phys),  intent(in)  :: cnb(:)           ! Cloud base level index [1]
+    real(kind_phys),  intent(out) :: p_cnt(:)         ! Convective cloud top pressure [Pa]
+    real(kind_phys),  intent(out) :: p_cnb(:)         ! Convective cloud base pressure [Pa]
+
+    ! Output arguments
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errflg
-
-    ! Local variables
 
     errmsg = ''
     errflg = 0
 
-    ! Calculate fractional occurrence of shallow convection
-    ! FIXME (hplin): this definition looks counter-intuitive but is replicated verbatim from convect_shallow.F90. To check.
-    freqsh(:) = 0._kind_phys
-    do i = 1, ncol
-      if(maxval(cmfmc_sh(i,:)) <= 0._kind_phys) then
-        freqsh(i) = 1._kind_phys
-      enddo
-    enddo
+    call history_out_field('CMFMC',   cmfmc)
+    call history_out_field('CLDTOP',  cnt)
+    call history_out_field('CLDBOT',  cnb)
+    call history_out_field('PCLDTOP', p_cnt)
+    call history_out_field('PCLDBOT', p_cnb)
 
   end subroutine convect_shallow_diagnostics_after_sum_to_deep_run
 
