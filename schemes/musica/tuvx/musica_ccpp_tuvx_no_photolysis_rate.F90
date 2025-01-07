@@ -64,9 +64,9 @@ contains
 
     ! parameters needed to calculate slant column densities
     ! (see sphers routine description for details)
-    integer             :: nid(number_of_vertical_layers+1)
-    real(dk)            :: dsdh(0:number_of_vertical_layers+1,number_of_vertical_layers+1)
-    real(dk)            :: delz(number_of_vertical_layers+1) ! layer thickness (cm)
+    integer             :: number_of_crossed_layers(number_of_vertical_layers+1)
+    real(dk)            :: slant_path(0:number_of_vertical_layers+1,number_of_vertical_layers+1)
+    real(dk)            :: delta_z(number_of_vertical_layers+1) ! layer thickness (cm)
     real(dk), parameter :: km2cm = 1.0e5_dk ! conversion from km to cm
     real(dk)            :: jNO(number_of_vertical_layers) ! final photolysis rate
 
@@ -87,11 +87,11 @@ contains
     ! ================================
     ! calculate slant column densities
     ! ================================
-    call sphers( number_of_vertical_layers, height_at_interfaces, solar_zenith_angle, dsdh, nid )
-    delz(1:number_of_vertical_layers) = km2cm * ( height_at_interfaces(1:number_of_vertical_layers) - height_at_interfaces(2:number_of_vertical_layers+1) )
-    call slant_col( number_of_vertical_layers+1, delz, dsdh, nid, o2_dens, o2_slant )
-    call slant_col( number_of_vertical_layers+1, delz, dsdh, nid, o3_dens, o3_slant )
-    call slant_col( number_of_vertical_layers+1, delz, dsdh, nid, no_dens, no_slant )
+    call calculate_slant_path( number_of_vertical_layers, height_at_interfaces, solar_zenith_angle, slant_path, number_of_crossed_layers )
+    delta_z(1:number_of_vertical_layers) = km2cm * ( height_at_interfaces(1:number_of_vertical_layers) - height_at_interfaces(2:number_of_vertical_layers+1) )
+    call calculate_slant_column_density( number_of_vertical_layers+1, delta_z, slant_path, number_of_crossed_layers, o2_dens, o2_slant )
+    call calculate_slant_column_density( number_of_vertical_layers+1, delta_z, slant_path, number_of_crossed_layers, o3_dens, o3_slant )
+    call calculate_slant_column_density( number_of_vertical_layers+1, delta_z, slant_path, number_of_crossed_layers, no_dens, no_slant )
 
     jNO = calculate_jno(number_of_vertical_layers, extraterrestrial_flux, n2_dens, o2_slant, o3_slant, no_slant, work_jno)
 
@@ -104,11 +104,11 @@ contains
     ! inputs
     integer, intent(in)     :: num_vertical_layers
     real(dk), intent(in)    :: extraterrestrial_flux(:) ! photons cm-2 s-1 nm-1
-    real(dk), intent(in)    :: n2_dens(:)              ! molecule cm-3
-    real(dk), intent(in)    :: o2_slant(:)             ! molecule cm-2
-    real(dk), intent(in)    :: o3_slant(:)             ! molecule cm-2
-    real(dk), intent(in)    :: no_slant(:)             ! molecule cm-2
-    real(dk), intent(inout) :: work_jno(:)             ! various
+    real(dk), intent(in)    :: n2_dens(:)               ! molecule cm-3
+    real(dk), intent(in)    :: o2_slant(:)              ! molecule cm-2
+    real(dk), intent(in)    :: o3_slant(:)              ! molecule cm-2
+    real(dk), intent(in)    :: no_slant(:)              ! molecule cm-2
+    real(dk), intent(inout) :: work_jno(:)              ! various
 
     ! local variables
     ! NO in an excited electronic state may result in an emission of NO or be quenched by an interaction 
@@ -117,17 +117,17 @@ contains
     real(dk) :: o3_transmission_factor(size(o3_slant), 4)  ! Define the correct size
     real(dk) :: jno(num_vertical_layers)
     real(dk) :: jno100, jno90, jno50
-    integer         :: wavelength_bins ! wavelength bins for MS, 93
-    integer         :: idx 
+    integer  :: wavelength_bins ! wavelength bins for MS, 93
+    integer  :: idx 
     integer :: lev
     !------------------------------------------------------------------------------
-    !   	... O3 SRB Cross Sections from WMO 1985, interpolated onto MS, 1993 grid
+    !   ... O3 SRB Cross Sections from WMO 1985, interpolated onto MS, 1993 grid
     !------------------------------------------------------------------------------
     ! TODO: What are the units? cm2  molecule-1 ?
     real(dk), save :: o3_cross_section(4) = (/ 7.3307600e-19_dk, 6.9660105E-19_dk, 5.9257699E-19_dk, 4.8372219E-19_dk /)
 
     !------------------------------------------------------------------------------
-    !   	... O2 SRB Cross Sections for the six ODF regions, MS, 1993
+    !   ... O2 SRB Cross Sections for the six ODF regions, MS, 1993
     !------------------------------------------------------------------------------
     ! TODO: What are 250, 290, and 2100? 
     ! TODO: What are the units? cm2  molecule-1 ?
@@ -136,7 +136,7 @@ contains
     real(dk), save :: cross_section2100(6) = (/ 2.968e-22_dk, 5.831e-22_dk, 2.053e-21_dk, 8.192e-21_dk, 4.802e-20_dk, 2.655e-19_dk /)
 
     !------------------------------------------------------------------------------
-    !   	... O2 SRB Cross Sections for the six ODF regions, MS, 1993
+    !   ... O2 SRB Cross Sections for the six ODF regions, MS, 1993
     !------------------------------------------------------------------------------
     ! TODO: What are 250, 290, and 2100? 
     ! TODO: What are the units? cm2  molecule-1 ?
@@ -145,7 +145,7 @@ contains
     real(dk), save :: o2_2100_cross_section(6) = (/ 2.968e-22_dk, 5.831e-22_dk, 2.053e-21_dk, 8.192e-21_dk, 4.802e-20_dk, 2.655e-19_dk /)
 
     !------------------------------------------------------------------------------
-    !   	... delta wavelength of the MS, 1993 grid
+    !   ... delta wavelength of the MS, 1993 grid
     !------------------------------------------------------------------------------
     ! in nm
     ! TODO: What is the grid? The paper only has 3 bands listed in the table, but this has 4...
@@ -167,8 +167,8 @@ contains
     real(dk), dimension(number_of_levels, number_of_intervals) :: no_100_cross_section
 
     !------------------------------------------------------------------------------
-    !   	... 6 sub-intervals for O2 5-0 at 265K,
-    !	    2 sub-sub-intervals for NO 0-0 at 250K
+    !   ... 6 sub-intervals for O2 5-0 at 265K,
+    !    2 sub-sub-intervals for NO 0-0 at 250K
     !------------------------------------------------------------------------------
     no_50_weighting_cross_sections(:) = (/    0._dk,       0._dk,       0._dk,       0._dk, &
                   5.12e-02_dk, 5.68e-03_dk, 1.32e-18_dk, 4.41e-17_dk, &
@@ -178,8 +178,8 @@ contains
                   4.50e-02_dk, 5.00e-03_dk, 4.67e-19_dk, 4.35e-17_dk /)
     
     !------------------------------------------------------------------------------
-    !   	... sub-intervals for o2 9-0 band,
-    !	    2 sub-sub-intervals for no 1-0 at 250 k
+    !   ... sub-intervals for o2 9-0 band,
+    !    2 sub-sub-intervals for no 1-0 at 250 k
     !------------------------------------------------------------------------------
     no_90_weighting_cross_sections(:) = (/        0._dk,       0._dk,       0._dk,       0._dk, &
                       0._dk,       0._dk,       0._dk,       0._dk, &
@@ -189,8 +189,8 @@ contains
                 3.48e-02_dk, 3.86e-03_dk, 2.21e-18_dk, 6.00e-17_dk /)
     
     !------------------------------------------------------------------------------
-    ! 	... sub-intervals for o2 10-0 band,
-    !	    2 sub-sub-intervals for no 1-0 at 250 k
+    ! ... sub-intervals for o2 10-0 band,
+    !    2 sub-sub-intervals for no 1-0 at 250 k
     !------------------------------------------------------------------------------
     no_1000_weighting_cross_sections(:) = (/  4.50e-02_dk, 5.00e-03_dk, 1.80e-18_dk, 1.40e-16_dk, &
                 1.80e-01_dk, 2.00e-02_dk, 1.50e-18_dk, 1.52e-16_dk, &
@@ -228,22 +228,22 @@ contains
     end do
 
     !------------------------------------------------------------------------------
-    !   	... Call PJNO Function to derive SR Band JNO contributions
+    !   ... Call calculate_photolysis_rate_for_interval Function to derive SR Band JNO contributions
     !         Called in order of wavelength interval (shortest first)
     ! TODO: what are 90, 100, and 50?
     !------------------------------------------------------------------------------
     do lev = 1, num_vertical_layers
-      jno100   = pjno( 1, o2_2100_cross_section, no_100_weighting_factor, no_100_cross_section )
-      jno90    = pjno( 2, o2_290_cross_section,  no_90_weighting_factor,  no_90_cross_section )
-      jno50    = pjno( 4, o2_250_cross_section,  no_50_weighting_factor,  no_50_cross_section )
+      jno100   = calculate_photolysis_rate_for_interval( 1, o2_2100_cross_section, no_100_weighting_factor, no_100_cross_section )
+      jno90    = calculate_photolysis_rate_for_interval( 2, o2_290_cross_section,  no_90_weighting_factor,  no_90_cross_section )
+      jno50    = calculate_photolysis_rate_for_interval( 4, o2_250_cross_section,  no_50_weighting_factor,  no_50_cross_section )
       jno(lev) = jno50 + jno90 + jno100
     end do
 
     contains
 
-    function pjno( wavelength_interval, o2_cross_section, no_weighting_factor, no_cross_section ) result(result)
+    function calculate_photolysis_rate_for_interval( wavelength_interval, o2_cross_section, no_weighting_factor, no_cross_section ) result(result)
       !------------------------------------------------------------------------------
-      !   	... uses xsec at center of g subinterval for o2
+      !   ... uses xsec at center of g subinterval for o2
       !           uses mean values for no
       !------------------------------------------------------------------------------
       ! For reference, the function being calculate is this:
@@ -268,7 +268,7 @@ contains
       ! The sums represent the calculation of the opacity distribution functions for O2 and NO
     
       !----------------------------------------------------------------
-      !	... Dummy arguments
+      !... Dummy arguments
       !----------------------------------------------------------------
       integer, intent(in)     :: wavelength_interval
       real(dk),    intent(in) :: o2_cross_section(6)
@@ -276,12 +276,12 @@ contains
       real(dk),    intent(in) :: no_weighting_factor(number_of_levels,number_of_intervals)
       
       !----------------------------------------------------------------
-      !	... Function declarations
+      !... Function declarations
       !----------------------------------------------------------------
       real(dk) :: result
       
       !----------------------------------------------------------------
-      !	... Local variables
+      !... Local variables
       !----------------------------------------------------------------
       integer  ::  j, i
       real(dk) :: no_optical_depth
@@ -296,7 +296,7 @@ contains
       real(dk) :: predissociation_factor
       
       !----------------------------------------------------------------
-      !	... derive the photolysis frequency for no within a given
+      !... derive the photolysis frequency for no within a given
       !         srb (i.e., 5-0, 9-0, 10-0)
       !----------------------------------------------------------------
       rate = 0._dk
@@ -331,7 +331,7 @@ contains
       kq = 1.5e-9_dk ! cm3 s-1
 
       !----------------------------------------------------------------
-      !	... correct for the predissociation of the deltq 1-0
+      !... correct for the predissociation of the deltq 1-0
       !         transition in the srb (5-0)
       !----------------------------------------------------------------
       if( wavelength_interval == 4 ) then
@@ -339,14 +339,13 @@ contains
         result = predissociation_factor * result
       end if
       
-    end function pjno
-
+    end function calculate_photolysis_rate_for_interval
 
   end function calculate_jno
 
-  subroutine sphers( nlev, z, zenith_angle, dsdh, nid )
+  subroutine calculate_slant_path( nlev, altitude, zenith_angle_degrees, slant_path, number_of_crossed_layers )
     !=============================================================================!
-    !   Subroutine sphers                                                         !
+    !   Subroutine calculate_slant_path                                           !
     !=============================================================================!
     !   PURPOSE:                                                                  !
     !   Calculate slant path over vertical depth ds/dh in spherical geometry.     !
@@ -357,14 +356,15 @@ contains
     !   PARAMETERS:                                                               !
     !   nlev    - INTEGER, number of specified altitude levels in the working (I) !
     !             grid                                                            !
-    !   z       - REAL, specified altitude working grid (km)                  (I) !
-    !   zenith_angle - REAL, solar zenith angle (degrees)                     (I) !
-    !   dsdh    - REAL, slant path of direct beam through each layer crossed  (O) !
-    !             when travelling from the top of the atmosphere to layer i;      !
-    !             DSDH(i,j), i = 0..NZ-1, j = 1..NZ-1                             !
-    !   nid     - INTEGER, number of layers crossed by the direct beam when   (O) !
-    !             travelling from the top of the atmosphere to layer i;           !
-    !             NID(i), i = 0..NZ-1                                             !
+    !   altitude       - REAL, specified altitude working grid (km)           (I) !
+    !   zenith_angle_degrees - REAL, solar zenith angle (degrees)             (I) !
+    !   slant_path    - REAL, slant path of direct beam through each          (O) !
+    !   layer crossed when travelling from the top of the atmosphere to layer i;  !
+    !             slant_path(i,j), i = 0..nlev-1, j = 1..nlev-1                             !
+    !   number_of_crossed_layers     - INTEGER, number of layers crossed by   (O) !
+    !             the direct beam when travelling from the top of the atmosphere  !
+    !             to layer i;                                                     !
+    !             number_of_crossed_layers(i), i = 0..nlev-1                                             !
     !=============================================================================!
     !   EDIT HISTORY:                                                             !
     !   Original: Taken By Doug Kinnison from Sasha Madronich, TUV Code, V4.1a,   !
@@ -375,19 +375,21 @@ contains
     !------------------------------------------------------------------------------
     !       ... Dummy arguments
     !------------------------------------------------------------------------------
-    integer,  intent(in)   :: nlev              ! number model vertical levels
-    integer,  intent(out)  :: nid(0:nlev)       ! see above
-    real(dk), intent (in)  :: zenith_angle		  ! zenith_angle
-    real(dk), intent (in)  :: z(nlev)		        ! geometric altitude (km)
-    real(dk), intent (out) :: dsdh(0:nlev,nlev) ! see above
+
+    use musica_ccpp_util, only: DEGREE_TO_RADIAN, EARTH_RADIUS_KM
+
+    integer,  intent(in)   :: nlev                             ! number model vertical levels
+    integer,  intent(out)  :: number_of_crossed_layers(0:nlev) ! see above
+    real(dk), intent (in)  :: zenith_angle_degrees             ! zenith_angle
+    real(dk), intent (in)  :: altitude(nlev)                   ! geometric altitude (km)
+    real(dk), intent (out) :: slant_path(0:nlev,nlev)          ! see above
     
     
     !------------------------------------------------------------------------------
     !       ... Local variables
     !------------------------------------------------------------------------------
-    real(dk) :: radius
-    real(dk) :: re
-    real(dk) :: zenrad
+    real(dk) :: radius_at_current_height
+    real(dk) :: zenith_angle_radians
     real(dk) :: rpsinz
     real(dk) :: const0
     real(dk) :: rj
@@ -396,7 +398,7 @@ contains
     real(dk) :: dhj
     real(dk) :: ga
     real(dk) :: gb
-    real(dk) :: sm
+    real(dk) :: slant_path_sign
     real(dk) :: zd(0:nlev-1)
 
     integer :: i
@@ -404,20 +406,12 @@ contains
     integer :: k
     integer :: id
     integer :: nlayer
-
-    !TODO: Get pi from CAM-SIMA
-    real(dk), parameter ::  pi  = 3.14159265358979323846_dk
-    real(dk), parameter ::  degrees_to_radians  = pi/180._dk
-
-
-    ! TODO: Get this from CAM-SIMA
-    radius = 6378_dk ! radius earth (km)
     
     !------------------------------------------------------------------------------
     !       ... set zenith angle in radians
     !------------------------------------------------------------------------------
-    zenrad = zenith_angle*degrees_to_radians
-    const0 = sin( zenrad )
+    zenith_angle_radians = zenith_angle_degrees*DEGREE_TO_RADIAN
+    const0 = sin( zenith_angle_radians )
     
     !------------------------------------------------------------------------------
     !       ... set number of layers:
@@ -427,83 +421,84 @@ contains
     !------------------------------------------------------------------------------
     !       ... include the elevation above sea level to the radius of the earth:
     !------------------------------------------------------------------------------
-    re = radius + z(nlev)
+    radius_at_current_height = EARTH_RADIUS_KM + altitude(nlev)
 
     !------------------------------------------------------------------------------
     !       ... inverse coordinate of z
     !------------------------------------------------------------------------------
     do k = 0,nlayer
-      zd(k) = z(k+1) - z(nlev)
+      zd(k) = altitude(k+1) - altitude(nlev)
     end do
     
     !------------------------------------------------------------------------------
     !       ... initialize dsdh(i,j), nid(i)
     !------------------------------------------------------------------------------
-    nid(:) = 0
+    number_of_crossed_layers(:) = 0
     do j = 1,nlev
-      dsdh(:,j) = 0._dk
+      slant_path(:,j) = 0._dk
     end do
     
     !------------------------------------------------------------------------------
     !       ... calculate ds/dh of every layer
     !------------------------------------------------------------------------------
     do i = 0,nlayer
-      rpsinz = (re + zd(i)) * const0
-      if( zenith_angle <= 90._dk .or. rpsinz >= re ) then
+      rpsinz = (radius_at_current_height + zd(i)) * const0
+      if( zenith_angle_degrees <= 90._dk .or. rpsinz >= radius_at_current_height ) then
         !------------------------------------------------------------------------------
         ! Find index of layer in which the screening height lies
         !------------------------------------------------------------------------------
         id = i
-        if( zenith_angle > 90._dk ) then
+        if( zenith_angle_degrees > 90._dk ) then
           do j = 1,nlayer
-            if( rpsinz < (zd(j-1) + re) .and.  rpsinz >= (zd(j) + re) ) then
+            if( rpsinz < (zd(j-1) + radius_at_current_height) .and.  rpsinz >= (zd(j) + radius_at_current_height) ) then
             id = j
               exit
             end if
           end do
         end if
         do j = 1,id
-          sm = 1._dk
-          if( j == id .and. id == i .and. zenith_angle > 90._dk ) then
-            sm = -1._dk
+          slant_path_sign = 1._dk
+          if( j == id .and. id == i .and. zenith_angle_degrees > 90._dk ) then
+            slant_path_sign = -1._dk
           end if
-          rj   = re + zd(j-1)
-          rjp1 = re + zd(j)
+          rj   = radius_at_current_height + zd(j-1)
+          rjp1 = radius_at_current_height + zd(j)
           dhj  = zd(j-1) - zd(j)
           ga   = max( rj*rj - rpsinz*rpsinz,0._dk )
           gb   = max( rjp1*rjp1 - rpsinz*rpsinz,0._dk )
           if( id > i .and. j == id ) then
             dsj = sqrt( ga )
           else
-            dsj = sqrt( ga ) - sm*sqrt( gb )
+            dsj = sqrt( ga ) - slant_path_sign*sqrt( gb )
           end if
-          dsdh(i,j) = dsj / dhj
+          slant_path(i,j) = dsj / dhj
         end do
-        nid(i) = id
+        number_of_crossed_layers(i) = id
       else
-        nid(i) = -1
+        number_of_crossed_layers(i) = -1
       end if
     end do
-  end subroutine sphers
+  end subroutine calculate_slant_path
 
-  subroutine slant_col( nlev, delz, dsdh, nid, absden, scol )
+  subroutine calculate_slant_column_density( nlev, delta_z, slant_path, number_of_crossed_layers, species_concentration, slant_column )
     !=============================================================================!
     !   PURPOSE:                                                                  !
-    !   Derive Column
+    !   Derive Column                                                             !
     !=============================================================================!
     !   PARAMETERS:                                                               !
     !   NLEV   - INTEGER, number of specified altitude levels in the working  (I) !
     !            grid                                                             !
-    !   DELZ   - REAL, specified altitude working grid (km)                   (I) !
-    !   DSDH   - REAL, slant path of direct beam through each layer crossed  (O)  !
+    !   delta_z   - REAL, specified altitude working grid (km)                (I) !
+    !   slant_path- REAL, slant path of direct beam through each layer crossed (O)!
     !             when travelling from the top of the atmosphere to layer i;      !
     !             DSDH(i,j), i = 0..NZ-1, j = 1..NZ-1                             !
-    !   NID    - INTEGER, number of layers crossed by the direct beam when   (O)  !
-    !             travelling from the top of the atmosphere to layer i;           !
+    !   number_of_crossed_layers    - INTEGER, number of layers crossed by the    !
+    !             direct beam when travelling from the top of the atmosphere to   !
+    !             layer i;                                                        !
     !             NID(i), i = 0..NZ-1                                             !
     !            specified altitude at each specified wavelength                  !
-    !   absden - REAL, absorber concentration, molecules cm-3                     !
-    !   SCOL   - REAL, absorber Slant Column, molecules cm-2                      !
+    !   species_concentration - REAL, absorber concentration, molecules cm-3      !
+    !   slant_column   - REAL, absorber Slant Column, molecules cm-2              !
     !=============================================================================!
     !   EDIT HISTORY:                                                             !
     !   09/01  Read in profile from an input file, DEK                            !
@@ -516,11 +511,11 @@ contains
     !       ... Dummy arguments
     !------------------------------------------------------------------------------
     integer,  intent(in)    :: nlev
-    integer,  intent(in)    :: nid(0:nlev)       ! see above
-    real(dk), intent(in)    :: delz(nlev)	       ! layer thickness (cm)
-    real(dk), intent(in)    :: dsdh(0:nlev,nlev) ! see above
-    real(dk), intent(in)    :: absden(nlev)      ! absorber concentration (molec. cm-3)
-    real(dk), intent(out)   :: scol(nlev)		     ! absorber Slant Column (molec. cm-2)
+    integer,  intent(in)    :: number_of_crossed_layers(0:nlev)       ! see above
+    real(dk), intent(in)    :: delta_z(nlev)       ! layer thickness (cm)
+    real(dk), intent(in)    :: slant_path(0:nlev,nlev) ! see above
+    real(dk), intent(in)    :: species_concentration(nlev)      ! absorber concentration (molec. cm-3)
+    real(dk), intent(out)   :: slant_column(nlev)     ! absorber Slant Column (molec. cm-2)
     
     !------------------------------------------------------------------------------
     !       ... Local variables
@@ -540,10 +535,10 @@ contains
     !     ... compute column increments (logarithmic integrals)
     !------------------------------------------------------------------------------
     do k = 1,nlev-1
-      if( absden(k) /= 0._dk .and. absden(k+1) /= 0._dk ) then
-        cz(nlev-k) = (absden(k) - absden(k+1))/log( absden(k)/absden(k+1) ) * delz(k)
+      if( species_concentration(k) /= 0._dk .and. species_concentration(k+1) /= 0._dk ) then
+        cz(nlev-k) = (species_concentration(k) - species_concentration(k+1))/log( species_concentration(k)/species_concentration(k+1) ) * delta_z(k)
       else
-        cz(nlev-k) = .5_dk*(absden(k) + absden(k+1)) * delz(k)
+        cz(nlev-k) = .5_dk*(species_concentration(k) + species_concentration(k+1)) * delta_z(k)
       end if
     end do
     
@@ -568,25 +563,25 @@ contains
     !------------------------------------------------------------------------------
     do id = 0,nlev-1
       sum = 0._dk
-      if( nid(id) >= 0 ) then
+      if( number_of_crossed_layers(id) >= 0 ) then
         !------------------------------------------------------------------------------
         !       ...  Single pass layers:
         !------------------------------------------------------------------------------
-        do j = 1, min(nid(id), id)
-            sum = sum + cz(nlev-j)*dsdh(id,j)
+        do j = 1, min(number_of_crossed_layers(id), id)
+            sum = sum + cz(nlev-j)*slant_path(id,j)
         end do
         !------------------------------------------------------------------------------
         !       ...  Double pass layers:
         !------------------------------------------------------------------------------
-        do j = min(nid(id),id)+1, nid(id)
-            sum = sum + 2._dk*cz(nlev-j)*dsdh(id,j)
+        do j = min(number_of_crossed_layers(id),id)+1, number_of_crossed_layers(id)
+            sum = sum + 2._dk*cz(nlev-j)*slant_path(id,j)
         end do
       else
         sum = largest
       end if
-      scol(nlev-id) = sum
+      slant_column(nlev-id) = sum
     end do
-    scol(nlev) = .95_dk*scol(nlev-1)
-  end subroutine slant_col
+    slant_column(nlev) = .95_dk*slant_column(nlev-1)
+  end subroutine calculate_slant_column_density
 
 end module musica_ccpp_tuvx_no_photolysis_rate
