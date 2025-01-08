@@ -123,13 +123,11 @@ contains
     interfaces(num_vertical_levels+2) = constituent_mol_per_cm_3(1)
 
     if (tuvx_species_set(index_species)%name == O3_LABEL) then
-      densities(:) = height_deltas(:) * km_to_cm           &
-                  * ( interfaces(1:num_vertical_levels+1)  &
-                  + interfaces(2:num_vertical_levels+2) ) * 0.5_kind_phys
+      densities(:) = height_deltas(:) * km_to_cm * 0.5_kind_phys &
+          * ( interfaces(1:num_vertical_levels+1) + interfaces(2:num_vertical_levels+2) )
     else
-      densities(:) = height_deltas(:) * km_to_cm             &
-                 * sqrt(interfaces(1:num_vertical_levels+1)) &
-                 * sqrt(interfaces(2:num_vertical_levels+2))
+      densities(:) = height_deltas(:) * km_to_cm &
+          * sqrt(interfaces(1:num_vertical_levels+1)) * sqrt(interfaces(2:num_vertical_levels+2))
     end if
 
     call profile%set_edge_values( interfaces, error )

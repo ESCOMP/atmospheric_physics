@@ -199,7 +199,8 @@ contains
       end if
     end do
 
-    ! TODO(jiwon) Check molar mass is non zero as it becomes a denominator for unit converison
+    ! TODO(jiwon) - This code block can be removed once the CCPP framework handles
+    ! the check for non-zero molar mass
     do i_elem = 1, size(micm_molar_mass_array)
       if (micm_molar_mass_array(i_elem) <= 0) then
         errcode = 1

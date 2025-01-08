@@ -13,7 +13,7 @@ module musica_ccpp_tuvx_load_species
   integer, protected, public :: index_O3 = MUSICA_INT_UNASSIGNED
 
   ! Constants
-  ! Clould liquid water
+  ! Cloud liquid water
   character(len=*), parameter, public :: CLOUD_LIQUID_WATER_CONTENT_LABEL = &
     'cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water'
   character(len=*), parameter, public :: CLOUD_LIQUID_WATER_CONTENT_LONG_NAME = &
