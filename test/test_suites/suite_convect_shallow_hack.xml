@@ -39,12 +39,12 @@
     <!-- prepare state for zm_conv_evap (rename shallow outputs to generic inputs) -->
     <!-- also zero out quantities going in/out -->
     <scheme>set_shallow_conv_fluxes_to_general</scheme>
-    <!-- <scheme>zm_conv_evap</scheme> -->
-    <!-- <scheme>set_general_conv_fluxes_to_shallow</scheme> -->
-    <!-- <scheme>convect_shallow_diagnostics_after_convective_evaporation</scheme> -->
-    <!-- <scheme>apply_heating_rate</scheme> -->
-    <!-- <scheme>apply_constituent_tendencies</scheme> -->
-    <!-- <scheme>geopotential_temp</scheme> -->
+    <scheme>zm_conv_evap</scheme>
+    <scheme>set_general_conv_fluxes_to_shallow</scheme>
+    <scheme>convect_shallow_diagnostics_after_convective_evaporation</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>geopotential_temp</scheme>
 
     <!-- DIAGNOSTIC QUANTITY UPDATES -->
     <!-- eventually calculate shallow convective fraction diagnostic (FREQSH) -->
