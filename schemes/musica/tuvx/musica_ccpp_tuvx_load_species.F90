@@ -53,6 +53,9 @@ contains
     ! local variables
     integer                             :: num_new_species = 4
     integer                             :: num_micm_species
+    ! temp_constituents_props is used to store TUVx-specific constituents and gas species
+    ! that are not registered by MICM. Its fixed array size represents the maximum number
+    ! of possible constituents.
     type(ccpp_constituent_properties_t) :: temp_constituent_props(4)
     logical                             :: is_dry_air_registered = .false.
     logical                             :: is_O2_registered = .false.
