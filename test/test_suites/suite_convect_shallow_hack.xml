@@ -6,6 +6,9 @@
     <scheme>initialize_constituents</scheme>
     <scheme>to_be_ccppized_temporary</scheme>
 
+    <!-- INITIALIZE ZM NAMELIST (init phase only) -->
+    <scheme>zm_conv_options</scheme>
+
     <!--
       Hack shallow convection.
       There are several nuances to the convect_shallow calling routine.
