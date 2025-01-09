@@ -1,5 +1,4 @@
 include(FetchContent)
-include(TestUtils)
 
 FetchContent_Declare(musica
   GIT_REPOSITORY https://github.com/NCAR/musica.git
@@ -29,6 +28,8 @@ file(GLOB MUSICA_CCPP_SOURCES
 target_sources(test_musica_api
   PUBLIC
     ${MUSICA_CCPP_SOURCES}
+    ${TO_BE_CCPPIZED_SRC_PATH}/ccpp_tuvx_utils.F90
+    ${TO_BE_CCPPIZED_SRC_PATH}/ccpp_const_utils.F90
     ${CCPP_SRC_PATH}/ccpp_constituent_prop_mod.F90
     ${CCPP_SRC_PATH}/ccpp_hash_table.F90
     ${CCPP_SRC_PATH}/ccpp_hashable.F90
@@ -45,8 +46,6 @@ set_target_properties(test_musica_api
   PROPERTIES
   LINKER_LANGUAGE Fortran
 )
-
-include(CTest)
 
 add_test(
   NAME test_musica_api
@@ -65,7 +64,7 @@ add_custom_target(
 add_subdirectory(micm)
 add_subdirectory(tuvx)
 
-# Test metdadata
+# Test metadata against the source code
 find_package(Python REQUIRED)
 
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/metadata_test)
@@ -77,7 +76,15 @@ add_custom_target(
 )
 
 add_test(
-  NAME test_metadata
+  NAME test_metadata_against_source_code
   COMMAND ${Python_EXECUTABLE} ${CMAKE_BINARY_DIR}/../$ENV{CCPP_FORTRAN_TOOLS_PATH}/offline_check_fortran_vs_metadata.py
   --directory ${CMAKE_BINARY_DIR}/metadata_test
+)
+
+# Test musica scheme metadata against the CCPP standard names
+add_test(
+  NAME test_musica_metadata_against_ccpp_standard_names
+  COMMAND ${Python_EXECUTABLE} ${CMAKE_BINARY_DIR}/../$ENV{CCPP_STD_NAMES_PATH}/tools/meta_stdname_check.py
+  --metafile-loc ${CMAKE_BINARY_DIR}/metadata_test/musica_ccpp.meta
+  --stdname-dict ${CMAKE_BINARY_DIR}/../$ENV{CCPP_STD_NAMES_PATH}/standard_names.xml
 )

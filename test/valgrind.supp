@@ -36,3 +36,46 @@
   fun:InternalCreateTuvx
   ...
 }
+{
+   Suppress_MUSICA_TUV-x_CreateRadiator
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:__musica_string_MOD_string_assign_char
+   fun:__tuvx_radiator_from_host_MOD_constructor_char
+   fun:__tuvx_radiator_from_host_MOD_constructor_string
+   fun:InternalCreateRadiator
+   ...
+}
+{
+   Suppress_MUSICA_TUV-x_AddRadiator
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:__tuvx_radiator_from_host_MOD___copy_tuvx_radiator_from_host_Radiator_from_host_t
+   fun:__tuvx_radiator_warehouse_MOD_add_radiator
+   fun:InternalAddRadiator
+   ...
+}
+{
+  Suppress_MUSICA_TUV-x_GetRadiator
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:__tuvx_radiator_from_host_MOD___copy_tuvx_radiator_from_host_Radiator_from_host_t
+   fun:InternalGetRadiator
+   ...
+}
+{
+   Suppress_MUSICA_TUV-x_CreateTuvx-RadiatorFromHost
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:__tuvx_radiator_from_host_MOD___copy_tuvx_radiator_from_host_Radiator_from_host_t
+   fun:__tuvx_radiator_warehouse_MOD_add_radiator
+   fun:__tuvx_radiator_warehouse_MOD_add_radiators
+   fun:__tuvx_radiative_transfer_MOD_constructor
+   fun:__tuvx_core_MOD_constructor
+   fun:InternalCreateTuvx
+   ...
+}
