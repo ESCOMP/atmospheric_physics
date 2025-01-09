@@ -81,9 +81,9 @@ add_test(
   --directory ${CMAKE_BINARY_DIR}/metadata_test
 )
 
-# Test metadata against the CCPP standard names
+# Test musica scheme metadata against the CCPP standard names
 add_test(
-  NAME test_metadata_against_ccpp_standard_names
+  NAME test_musica_metadata_against_ccpp_standard_names
   COMMAND ${Python_EXECUTABLE} ${CMAKE_BINARY_DIR}/../$ENV{CCPP_STD_NAMES_PATH}/tools/meta_stdname_check.py
   --metafile-loc ${CMAKE_BINARY_DIR}/metadata_test/musica_ccpp.meta
   --stdname-dict ${CMAKE_BINARY_DIR}/../$ENV{CCPP_STD_NAMES_PATH}/standard_names.xml
