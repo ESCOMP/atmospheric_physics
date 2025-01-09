@@ -22,7 +22,7 @@
   standard_name = rayleigh_friction_num_levels
   long_name = Range of levels with RF applied
   units = count
-  type = integer
+  type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ rayk0_nl ]

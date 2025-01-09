@@ -50,8 +50,8 @@ contains
   subroutine rayleigh_friction_init(pver, raytau0_nl, raykrange_nl, rayk0_nl, masterproc, iulog, errmsg, errflg)
 
     integer, intent(in)                  :: pver
-    real, intent(in)                     :: raytau0_nl
-    integer, intent(in)                  :: raykrange_nl
+    real (kind_phys), intent(in)         :: raytau0_nl
+    real (kind_phys), intent(in)         :: raykrange_nl
     integer, intent(in)                  :: rayk0_nl
     logical, intent(in)                  :: masterproc
     integer, intent(in)                  :: iulog
