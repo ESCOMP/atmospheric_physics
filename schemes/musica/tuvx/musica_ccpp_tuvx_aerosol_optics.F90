@@ -34,6 +34,7 @@ module musica_ccpp_tuvx_aerosol_optics
 
 contains
 
+  !> Creates a TUV-x aerosol optics radiator
   function create_aerosol_optics_radiator( height_grid, wavelength_grid, &
       errmsg, errcode ) result( radiator )
     use musica_ccpp_util,     only: has_error_occurred
@@ -62,9 +63,10 @@ contains
 
   end function create_aerosol_optics_radiator
 
-
-  subroutine set_aerosol_optics_values( radiator, &
-                                        errmsg, errcode )
+  !> Sets TUV-x aerosol optics values
+  ! Temporarily setting optical properties to zero until aerosol optical
+  ! property calculations are ported to CAM-SIMA.
+  subroutine set_aerosol_optics_values( radiator, errmsg, errcode )
     use ccpp_kinds,           only: kind_phys
     use musica_ccpp_util,     only: has_error_occurred
     use musica_tuvx_radiator, only: radiator_t
@@ -76,7 +78,6 @@ contains
 
     ! local variables
     type(error_t)   :: error
-
     real(kind_phys) :: \
       aerosol_optical_depth(num_vertical_levels, num_wavelength_bins)
     real(kind_phys) :: \
