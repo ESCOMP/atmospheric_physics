@@ -223,7 +223,7 @@
 [ exner ]
   standard_name = dimensionless_exner_function
   type = real | kind = kind_phys
-  units = count
+  units = 1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ errmsg ]

@@ -9,10 +9,12 @@
 FROM ubuntu:22.04
 
 ARG MUSICA_GIT_TAG=326b5119768d5be9654baf96ae3bd6a1b757fdc8
+ARG CAM_SIMA_CHEMISTRY_DATA_TAG=abc7cacbec3d33d5c0ed5bb79a157e93b42c45c0
+ARG BUILD_TYPE=Debug
 
 RUN apt update \
     && apt install -y sudo \
-    && adduser test_user \
+    && useradd -m test_user \
     && echo "test_user ALL=(root) NOPASSWD: ALL" >> /etc/sudoers.d/test_user \
     && chmod 0440 /etc/sudoers.d/test_user
 
@@ -37,7 +39,6 @@ RUN sudo apt update \
     libopenmpi-dev \
     m4 \
     make \
-    nlohmann-json3-dev \
     openmpi-bin \
     python3 \
     tree \
@@ -45,8 +46,6 @@ RUN sudo apt update \
     vim \
     zlib1g-dev \
     && sudo apt clean
-
-ENV PATH="${PATH}:/usr/lib/openmpi/bin"
 
 ENV FC=mpif90
 ENV FFLAGS="-I/usr/include/"
@@ -58,10 +57,10 @@ RUN sudo chown -R test_user:test_user atmospheric_physics
 # Clone the MUSICA chemistry data set repository
 RUN git clone https://github.com/NCAR/cam-sima-chemistry-data.git \
     && cd cam-sima-chemistry-data \
-    && git checkout 144d982715f5bd6fa61e76f255a52db1843c55f2 \
+    && git checkout ${CAM_SIMA_CHEMISTRY_DATA_TAG} \
     && mv mechanisms /home/test_user/atmospheric_physics/schemes/musica/configurations
 
-# Must make ccpp-framework available before building test
+# Make ccpp-framework available before building test
 RUN cd atmospheric_physics/test \
     && mkdir lib \
     && cd lib \
@@ -69,10 +68,14 @@ RUN cd atmospheric_physics/test \
 ENV CCPP_SRC_PATH="lib/ccpp-framework/src"
 ENV CCPP_FORTRAN_TOOLS_PATH="lib/ccpp-framework/scripts/fortran_tools"
 
+# Make the CCPPStandardNames available
+RUN cd atmospheric_physics/test/lib \
+    && git clone --depth 1 https://github.com/ESCOMP/CCPPStandardNames.git
+ENV CCPP_STD_NAMES_PATH="lib/CCPPStandardNames"
+
 RUN cd atmospheric_physics/test \
-    && cmake -S . \
-             -B build \
-             -D CMAKE_BUILD_TYPE=Debug \
+    && cmake -S . -B build \
+             -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
              -D CCPP_ENABLE_MUSICA_TESTS=ON \
              -D CCPP_ENABLE_MEMCHECK=ON \
     && cmake --build ./build
