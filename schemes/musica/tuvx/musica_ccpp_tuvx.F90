@@ -26,6 +26,7 @@ module musica_ccpp_tuvx
   type(profile_t),         pointer :: O2_profile => null()
   type(profile_t),         pointer :: O3_profile => null()
   type(radiator_t),        pointer :: cloud_optics => null()
+  type(radiator_t),        pointer :: aerosol_optics => null()
   type(index_mappings_t),  pointer :: photolysis_rate_constants_mapping => null( )
   integer,               parameter :: DEFAULT_NUM_PHOTOLYSIS_RATE_CONSTANTS = 0
   integer                          :: number_of_photolysis_rate_constants = DEFAULT_NUM_PHOTOLYSIS_RATE_CONSTANTS
@@ -94,6 +95,11 @@ contains
       cloud_optics => null()
     end if
 
+    if (associated( aerosol_optics )) then
+      deallocate( aerosol_optics )
+      aerosol_optics => null()
+    end if
+
     if (associated( photolysis_rate_constants_mapping )) then
       deallocate( photolysis_rate_constants_mapping )
       photolysis_rate_constants_mapping => null()
@@ -145,6 +151,8 @@ contains
       only: create_dry_air_profile, create_O2_profile, create_O3_profile
     use musica_ccpp_tuvx_cloud_optics, &
       only: create_cloud_optics_radiator, cloud_optics_label
+    use musica_ccpp_tuvx_aerosol_optics, &
+      only: create_aerosol_optics_radiator, aerosol_optics_label
     use musica_ccpp_tuvx_load_species, &
       only: DRY_AIR_LABEL, O2_LABEL, O3_LABEL, TUVX_GAS_SPECIES_UNITS
 
@@ -310,6 +318,21 @@ contains
       return
     end if
 
+    aerosol_optics => create_aerosol_optics_radiator( height_grid, wavelength_grid, &
+                                                      errmsg, errcode )
+    if (errcode /= 0) then
+      call reset_tuvx_map_state( grids, profiles, radiators )
+      call cleanup_tuvx_resources()
+      return
+    endif
+
+    call radiators%add( aerosol_optics, error )
+    if (has_error_occurred( error, errmsg, errcode )) then
+      call reset_tuvx_map_state( grids, profiles, radiators )
+      call cleanup_tuvx_resources()
+      return
+    end if
+
     tuvx => tuvx_t( trim(filename_of_tuvx_configuration), grids, profiles, &
                     radiators, error )
     if (has_error_occurred( error, errmsg, errcode )) then
@@ -431,6 +454,15 @@ contains
       return
     end if
 
+    aerosol_optics => radiators%get( aerosol_optics_label, error )
+    if (has_error_occurred( error, errmsg, errcode )) then
+      deallocate( tuvx )
+      tuvx => null()
+      call reset_tuvx_map_state( grids, profiles, radiators )
+      call cleanup_tuvx_resources()
+      return
+    end if
+
     call reset_tuvx_map_state( grids, profiles, radiators )
 
     ! 'photolysis_rate_constants_ordering' is a local variable
@@ -491,6 +523,7 @@ contains
     use musica_ccpp_tuvx_surface_albedo,        only: set_surface_albedo_values
     use musica_ccpp_tuvx_extraterrestrial_flux, only: set_extraterrestrial_flux_values
     use musica_ccpp_tuvx_cloud_optics,          only: set_cloud_optics_values
+    use musica_ccpp_tuvx_aerosol_optics,        only: set_aerosol_optics_values
     use musica_ccpp_tuvx_load_species,          only: index_cloud_liquid_water_content, &
                                                       index_dry_air, index_O2, index_O3
     use musica_ccpp_tuvx_gas_species,           only: set_gas_species_values
@@ -579,6 +612,9 @@ contains
               errmsg, errcode )
         if (errcode /= 0) return
 
+        call set_aerosol_optics_values( aerosol_optics, errmsg, errcode )
+        if (errcode /= 0) return
+
         ! calculate photolysis rate constants and heating rates
         call tuvx%run( solar_zenith_angle(i_col), earth_sun_distance, &
                        photolysis_rate_constants(:,:), heating_rates(:,:), &
@@ -587,7 +623,7 @@ contains
 
         ! filter out negative photolysis rate constants
         photolysis_rate_constants(:,:) = &
-            max( photolysis_rate_constants(:,:), 0.0_kind_phys )      
+            max( photolysis_rate_constants(:,:), 0.0_kind_phys )
       end if ! solar zenith angle check
 
       ! map photolysis rate constants to the host model's rate parameters and vertical grid
