@@ -36,6 +36,7 @@
     <scheme>geopotential_temp</scheme>
 
     <!-- SUBCLOUD EVAPORATION -->
+    <scheme>cloud_fraction_fice</scheme>
     <!-- prepare state for zm_conv_evap (rename shallow outputs to generic inputs) -->
     <!-- also zero out quantities going in/out -->
     <scheme>set_shallow_conv_fluxes_to_general</scheme>
