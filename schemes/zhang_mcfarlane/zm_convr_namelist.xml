@@ -4,7 +4,7 @@
 
 <entry_id_pg version="2.0">
 
-<entry id="zmconv_co_lnd">
+<entry id="zmconv_c0_lnd">
   <category>conv</category>
   <group>zmconv_nl</group>
   <standard_name>cloud_condensate_to_precipitation_autoconversion_coefficient_over_land_for_zhang_mcfarlane_deep_convection_scheme</standard_name>
