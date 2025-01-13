@@ -1,22 +1,4 @@
 module zm_tendency_diagnostics
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!
-! THIS IS A TEMPLATE
-!   1. copy this file to a new file with the correct name
-!        (SCHEME_diagnostics.F90)
-!   2. do a search and replace for "SCHEME" in this file and
-!        replace with your scheme name
-!   3. Add desired history_add_field calls to the init phase
-!   4. Add all fields that are being output as inputs to the run phase
-!   5. Add desired history_out_field calls to the run phase
-!   6. Run $ccpp_framework/scripts/ccpp_fortran_to_metadata.py on this .F90
-!        file to generate the metadata
-!   7. Complete the metadata (fill out standard names, units, dimensions)
-!   8. Add this scheme to the SDF file for your suite (likely will be at end)
-!   9. Delete this header section
-!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
    use ccpp_kinds, only:  kind_phys
 
    implicit none
@@ -77,8 +59,6 @@ CONTAINS
 
       do const_idx = 1, size(const_props)
          call const_props(const_idx)%standard_name(standard_name, errflg, errmsg)
-!CACNOTE -remove this debug statement
-         write(0,*) ' const_idx=', const_idx, ' standard_name=',standard_name
 
          ! Use the regular constituent names, as the location in the dqdt array match the constituent ordering in the
          ! constituent properties

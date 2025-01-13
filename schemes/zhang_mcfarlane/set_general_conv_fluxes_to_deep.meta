@@ -29,18 +29,6 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = out
-[ prdprec_gen ]
-  standard_name = tendency_of_precipitation_wrt_moist_air_and_condensed_water_due_to_convection_excluding_subcloud_evaporation
-  units =  kg kg-1 s-1
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
-  intent = in
-[ prdprec_dp ]
-  standard_name = tendency_of_precipitation_wrt_moist_air_and_condensed_water_due_to_deep_convection_excluding_subcloud_evaporation
-  units =  kg kg-1 s-1
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
-  intent = out
 [ prec_gen ]
   standard_name = lwe_precipitation_rate_at_surface_due_to_convection
   units =  m s-1

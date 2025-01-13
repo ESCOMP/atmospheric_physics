@@ -54,7 +54,6 @@ subroutine zm_conv_convtran_run(ncol, pver, &
                     jt      ,mx      ,ideep   ,il1g    ,il2g    , &
                     nstep   ,fracis  ,dqdt    ,dpdry   ,const_metadata, &
                     scheme_name, errmsg, errflg)
-! ccpp_constituent_properties - standard name -- see chat
 
 !-----------------------------------------------------------------------
 !
@@ -70,8 +69,6 @@ subroutine zm_conv_convtran_run(ncol, pver, &
 ! Author: P. Rasch
 !
 !-----------------------------------------------------------------------
-!   use constituents,    only: cnst_get_type_byind
-!   use ccpp_constituent_prop_mod, only: ccpp_const_props
    use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
 
 
