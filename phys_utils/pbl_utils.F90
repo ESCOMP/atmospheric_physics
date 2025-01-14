@@ -218,8 +218,10 @@ contains
     end function unstable_gradient_richardson_stability_parameter
 
     pure elemental function stable_gradient_richardson_stability_parameter(richardson_number) result(modifier)
-        ! ECMWF 74888 Surface flux parameterization schemes: developments and experiences at KNMI (eq. 20)
-        ! Originally used published equation from in CCM1 2.f.12
+        ! Holtslag, A. A. M., and Beljaars A. C. M. , 1989: Surface flux parameterization schemes: Developments and experiences at KNMI.
+        ! ECMWF Workshop on Parameterization of Fluxes and Land Surface, Reading, United Kingdom, ECMWF, 121–147.
+        ! equation 20, page 140
+        ! Originally used published equation from CCM1, 2.f.12, page 11
 
         real(r8), intent(in)  :: richardson_number
 
@@ -228,17 +230,18 @@ contains
         modifier = 1.0_r8 / ( 1.0_r8 + 10.0_r8 * richardson_number * ( 1.0_r8 + 8.0_r8 * richardson_number ) )
     end function stable_gradient_richardson_stability_parameter
 
-    pure elemental function neutral_exchange_coefficient(mixing_length, shear_squared) result(neutral_k)
+    pure elemental function neutral_exchange_coefficient(mixing_length_squared, shear_squared) result(neutral_k)
         ! Williamson, D., Kiehl, J., Ramanathan, V., Dickinson, R., & Hack, J. (1987).
         ! Description of the NCAR Community Climate Model (CCM1).
         ! University Corporation for Atmospheric Research. https://doi.org/10.5065/D6TB14WH (Original work published 1987)
-        ! Equation 2.f.15
+        ! Equation 2.f.15, page 12
+        ! NOTE: shear_squared vriable currently (01/2025) computed in hbdiff matches references equation.
 
-        real(r8), intent(in) :: mixing_length
+        real(r8), intent(in) :: mixing_length_squared
         real(r8), intent(in) :: shear_squared
 
         real(r8)             :: neutral_k
 
-        neutral_k = mixing_length * sqrt(shear_squared)
+        neutral_k = mixing_length_squared * sqrt(shear_squared)
     end function neutral_exchange_coefficient
 end module pbl_utils
