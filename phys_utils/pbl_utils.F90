@@ -235,7 +235,7 @@ contains
         ! Description of the NCAR Community Climate Model (CCM1).
         ! University Corporation for Atmospheric Research. https://doi.org/10.5065/D6TB14WH (Original work published 1987)
         ! Equation 2.f.15, page 12
-        ! NOTE: shear_squared vriable currently (01/2025) computed in hbdiff matches references equation.
+        ! NOTE: shear_squared vriable currently (01/2025) computed in hb_diff.F90 (trbintd) matches references equation.
 
         real(r8), intent(in) :: mixing_length_squared
         real(r8), intent(in) :: shear_squared
