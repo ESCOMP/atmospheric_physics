@@ -60,7 +60,7 @@ CONTAINS
       do const_idx = 1, size(const_props)
          call const_props(const_idx)%standard_name(standard_name, errflg, errmsg)
 
-         ! Use the regular constituent names, as the location in the dqdt array match the constituent ordering in the
+         ! Use the regular constituent names, as the location in the dqdt array does not match the constituent ordering in the
          ! constituent properties
 
          select case (trim(standard_name))

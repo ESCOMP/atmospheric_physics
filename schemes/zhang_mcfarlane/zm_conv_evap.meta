@@ -2,7 +2,6 @@
   name = zm_conv_evap
   type = scheme
   dependencies = ../../to_be_ccppized/wv_saturation.F90
-
 [ccpp-arg-table]
   name  = zm_conv_evap_run
   type  = scheme
@@ -90,6 +89,7 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
+  advected = true
 [ landfrac ]
   standard_name = land_area_fraction
   units = fraction

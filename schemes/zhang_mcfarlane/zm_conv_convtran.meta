@@ -64,6 +64,7 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension,number_of_ccpp_constituents)
   intent = in
+  advected = true
 [ ncnst ]
   standard_name = number_of_ccpp_constituents
   units = count

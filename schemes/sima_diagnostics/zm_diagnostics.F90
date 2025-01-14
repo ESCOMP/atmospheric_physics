@@ -73,7 +73,6 @@ CONTAINS
    !> \section arg_table_zm_diagnostics_run  Argument Table
    !! \htmlinclude zm_diagnostics_run.html
    subroutine zm_diagnostics_run(ncol, pver, pverp, ideep, cpair, prec, cape, gravit, mu, md, &
-!      dif, dlf, ps, pap, maxg, jt, flxprec, flxsnow, ntprprd, ntsnprd, pguallu, pguallv, &
       dlf, ps, pap, maxg, jt, flxprec, flxsnow, ntprprd, ntsnprd, pguallu, pguallv, &
       pgdallu, pgdallv, icwuu, icwuv, icwdu, icwdv, mcon, errmsg, errflg)
 
@@ -85,7 +84,6 @@ CONTAINS
       integer, intent(in) :: ncol
       integer, intent(in) :: pver
       integer, intent(in) :: pverp
-!      real(kind_phys), intent(in) :: const_array(:,:,:)
       integer, intent(in) :: ideep(:)
 
       real(kind_phys), intent(in) :: cpair
@@ -94,7 +92,6 @@ CONTAINS
       real(kind_phys), intent(in) :: gravit
       real(kind_phys), intent(in) :: mu(:,:)
       real(kind_phys), intent(in) :: md(:,:)
-!      real(kind_phys), intent(in) :: dif(:,:)
       real(kind_phys), intent(in) :: dlf(:,:)
       real(kind_phys), intent(in) :: ps(:)
       real(kind_phys), intent(in) :: pap(:,:)
@@ -168,7 +165,6 @@ CONTAINS
    call history_out_field('ZMMU', mu_out)
    call history_out_field('ZMMD', md_out)
 
-!   call history_out_field('DIFZM'   ,dif)
    call history_out_field('DLFZM'   ,dlf)
 
    pcont(:ncol) = ps(:ncol)
@@ -178,7 +174,6 @@ CONTAINS
           pcont(ideep(i)) = pap(ideep(i),jt(i))  ! gathered array (or jctop ungathered)
           pconb(ideep(i)) = pap(ideep(i),maxg(i))! gathered array
        endif
-       !     write(iulog,*) ' pcont, pconb ', pcont(i), pconb(i), cnt(i), cnb(i)
     end do
     call history_out_field('PCONVT  ',pcont)
     call history_out_field('PCONVB  ',pconb)

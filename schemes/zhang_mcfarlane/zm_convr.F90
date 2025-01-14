@@ -1781,7 +1781,6 @@ subroutine cldprp(ncol   ,pver    ,pverp   ,cpliq   , &
    real(kind_phys) small
    real(kind_phys) mdt
 
-!!   real(kind_phys) fice(ncol,pver)        ! ice fraction in precip production
    real(kind_phys) tug(ncol,pver)
 
    real(kind_phys) tvuo(ncol,pver)        ! updraft virtual T w/o freezing heating
@@ -1859,7 +1858,6 @@ subroutine cldprp(ncol   ,pver    ,pverp   ,cpliq   , &
          hd(i,k) = hmn(i,k)
          rprd(i,k) = 0._kind_phys
 
-!!         fice(i,k) = 0._kind_phys
          tug(i,k)  = 0._kind_phys
          qcde(i,k)   = 0._kind_phys
          tvuo(i,k) = (shat(i,k) - grav/cp*zf(i,k))*(1._kind_phys + 0.608_kind_phys*qhat(i,k))

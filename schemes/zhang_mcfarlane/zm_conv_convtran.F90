@@ -324,7 +324,7 @@ subroutine zm_conv_convtran_run(ncol, pver, &
             end do
          end do
 
-! Initialize to zero everywhere, then scatter tendency back to full array
+! Scatter tendency back to full array
          do k = 1,pver
             kp1 = min(pver,k+1)
             do i = il1g,il2g
