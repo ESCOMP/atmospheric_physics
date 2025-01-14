@@ -241,6 +241,7 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
+  advected = true
 [ prec ]
   standard_name = lwe_precipitation_rate_at_surface_due_to_deep_convection
   units = m s-1
