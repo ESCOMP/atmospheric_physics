@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet type="text/xsl"?>
+
+<entry_id_pg version="2.0">
+  <entry id="rk_strat_icritc">
+    <type>real</type>
+    <category>conv</category>
+    <group>rk_stratiform_nl</group>
+    <standard_name>tunable_parameter_for_autoconversion_of_cold_ice_for_rk_microphysics</standard_name>
+    <units>kg kg-1</units>
+    <desc>
+      Threshold for autoconversion of cold ice in RK microphysics scheme.
+    </desc>
+    <values>
+      <value>5.0e-6</value>
+    </values>
+  </entry>
+  <entry id="rk_strat_icritw">
+    <type>real</type>
+    <category>conv</category>
+    <group>rk_stratiform_nl</group>
+    <standard_name>tunable_parameter_for_autoconversion_of_warm_ice_for_rk_microphysics</standard_name>
+    <units>kg kg-1</units>
+    <desc>
+      Threshold for autoconversion of cold ice in RK microphysics scheme.
+    </desc>
+    <values>
+      <value>4.0e-4</value>
+    </values>
+  </entry>
+  <entry id="rk_strat_conke">
+    <type>real</type>
+    <category>conv</category>
+    <group>rk_stratiform_nl</group>
+    <standard_name>tunable_parameter_for_precipitation_evaporation_for_rk_microphysics</standard_name>
+    <units>1</units>
+    <!--
+       actual units: kg**(-0.5) m s**(-0.5)
+       deduct from prodprec [s-1] = conke * [cloud fraction] * sqrt(precab) * [relhum]
+        where [cloud fraction] = [1] and [relhum] = [1]
+        [precab] = [kg m-2 s-1] thus conke is [kg**(-0.5) m s**(-0.5)]
+    -->
+    <desc>
+      Tunable constant for evaporation of precip in RK microphysics scheme.
+    </desc>
+    <values>
+      <value>5.0e-6</value>
+    </values>
+  </entry>
+  <entry id="rk_strat_r3lcrit">
+    <type>real</type>
+    <category>conv</category>
+    <group>rk_stratiform_nl</group>
+    <standard_name>tunable_parameter_for_cloud_water_autoconversion_for_rk_microphysics</standard_name>
+    <units>m</units>
+    <desc>
+      Critical radius at which autoconversion become efficient in RK microphysics scheme.
+    </desc>
+    <values>
+      <value>10.0e-6</value>
+    </values>
+  </entry>
+  <entry id="rk_strat_polstrat_rhmin">
+    <type>real</type>
+    <category>conv</category>
+    <group>rk_stratiform_nl</group>
+    <standard_name>relative_humidity_threshold_for_cloud_formation_in_polar_stratosphere_for_rk_microphysics</standard_name>
+    <units>1</units>
+    <desc>
+      Relative humidity threshold for stratospheric cloud water condensation in RK microphysics
+      poleward of 50 degrees. Used if rk_strat_polstrat_dorhmin is set to true.
+    </desc>
+    <values>
+      <value>1.200e0</value>
+    </values>
+  </entry>
+  <entry id="rk_strat_polstrat_dorhmin">
+    <type>real</type>
+    <category>conv</category>
+    <group>rk_stratiform_nl</group>
+    <standard_name>flag_for_relative_humidity_threshold_for_cloud_formation_in_polar_stratosphere_for_rk_microphysics</standard_name>
+    <units>flag</units>
+    <desc>
+      Flag to set rhu to a different value in the stratosphere poleward of 50 degrees for stratospheric
+      cloud water condensation. Used for special WACCM/CAM-chem cases with CAM4 physics.
+    </desc>
+    <values>
+      <value>false</value>
+    </values>
+  </entry>
+</entry_id_pg>
