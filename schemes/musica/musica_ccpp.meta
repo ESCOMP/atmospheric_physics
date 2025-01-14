@@ -138,7 +138,7 @@
 [ surface_albedo ]
   standard_name = surface_albedo_due_to_UV_and_VIS_direct
   type = real | kind = kind_phys
-  units = None
+  units = fraction
   dimensions = ()
   intent = in
 [ photolysis_wavelength_grid_interfaces ]
@@ -173,7 +173,7 @@
   intent = in
 [ solar_zenith_angle ]
   standard_name = solar_zenith_angle
-  units = radians
+  units = rad
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
