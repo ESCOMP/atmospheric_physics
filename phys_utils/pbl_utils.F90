@@ -6,7 +6,7 @@ module atmos_phys_pbl_utils
     private
 
     public :: calc_rrho
-    public :: calc_ustar
+    public :: calc_friction_velocity
     public :: calc_kinematic_heat_flux
     public :: calc_kinematic_water_vapor_flux
     public :: calc_kinematic_buoyancy_flux
@@ -32,14 +32,14 @@ contains
         rrho = rair * t / pmid
     end function calc_rrho
 
-    pure elemental function calc_ustar(taux, tauy, rrho) result(ustar)
+    pure elemental function calc_friction_velocity(taux, tauy, rrho) result(ustar)
         ! https://glossary.ametsoc.org/wiki/Friction_velocity
         ! NOTE: taux,tauy come form the expansion of the Reynolds stress
         !
         ! Also found in:
         ! Stull, Roland B. An Introduction to Boundary Layer Meteorology. Springer Kluwer Academic Publishers, 1988. Print.
         ! DOI: https://doi.org/10.1007/978-94-009-3027-8
-        ! Equation 2.10b, page 181
+        ! Equation 2.10b, page 67
 
         real(kind_phys), intent(in) :: taux  ! surface u stress [N/m2]
         real(kind_phys), intent(in) :: tauy  ! surface v stress [N/m2]
@@ -48,7 +48,7 @@ contains
         real(kind_phys)             :: ustar ! surface friction velocity [m/s]
 
         ustar = max( sqrt( sqrt(taux**2 + tauy**2)*rrho ), ustar_min )
-    end function calc_ustar
+    end function calc_friction_velocity
 
     pure elemental function calc_kinematic_heat_flux(shflx, rrho, cpair) result(khfs)
         real(kind_phys), intent(in)  :: shflx  ! surface heat flux (W/m2)
