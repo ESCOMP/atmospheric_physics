@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet type="text/xsl"?>
+
+<entry_id_pg version="2.0">
+  <entry id="cldsed_ice_stokes_fac">
+    <type>real</type>
+    <category>cldsed</category>
+    <group>cldsed_nl</group>
+    <standard_name>tunable_parameter_for_ice_fall_velocity_for_cloud_sedimentation</standard_name>
+    <units>1</units>
+    <desc>
+      Factor applied to the ice fall velocity computed from Stokes terminal velocity.
+    </desc>
+    <values>
+      <value>1.0</value>
+    </values>
+  </entry>
+</entry_id_pg>
