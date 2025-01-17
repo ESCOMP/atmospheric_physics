@@ -20,19 +20,19 @@ module atmos_phys_pbl_utils
 
 contains
 
-    pure elemental function calc_rrho(rair, t, pmid) result(rrho)
+    pure elemental function calc_rrho(rair, surface_temperature, pmid) result(rrho)
         ! air density reciprocal
 
-        real(kind_phys), intent(in) :: t     ! surface temperature
+        real(kind_phys), intent(in) :: surface_temperature
         real(kind_phys), intent(in) :: pmid  ! midpoint pressure (bottom level)
         real(kind_phys), intent(in) :: rair  ! gas constant for dry air
 
         real(kind_phys)             :: rrho  ! 1./bottom level density
 
-        rrho = rair * t / pmid
+        rrho = rair * surface_temperature / pmid
     end function calc_rrho
 
-    pure elemental function calc_friction_velocity(taux, tauy, rrho) result(ustar)
+    pure elemental function calc_friction_velocity(taux, tauy, rrho) result(friction_velocity)
         ! https://glossary.ametsoc.org/wiki/Friction_velocity
         ! NOTE: taux,tauy come form the expansion of the Reynolds stress
         !
@@ -41,13 +41,13 @@ contains
         ! DOI: https://doi.org/10.1007/978-94-009-3027-8
         ! Equation 2.10b, page 67
 
-        real(kind_phys), intent(in) :: taux  ! surface u stress [N/m2]
-        real(kind_phys), intent(in) :: tauy  ! surface v stress [N/m2]
-        real(kind_phys), intent(in) :: rrho  ! 1./bottom level density
+        real(kind_phys), intent(in) :: taux              ! surface u stress [N/m2]
+        real(kind_phys), intent(in) :: tauy              ! surface v stress [N/m2]
+        real(kind_phys), intent(in) :: rrho              ! 1./bottom level density
 
-        real(kind_phys)             :: ustar ! surface friction velocity [m/s]
+        real(kind_phys)             :: friction_velocity ! surface friction velocity [m/s]
 
-        ustar = max( sqrt( sqrt(taux**2 + tauy**2)*rrho ), ustar_min )
+        friction_velocity = max( sqrt( sqrt(taux**2 + tauy**2)*rrho ), ustar_min )
     end function calc_friction_velocity
 
     pure elemental function calc_kinematic_heat_flux(shflx, rrho, cpair) result(khfs)
@@ -98,21 +98,25 @@ contains
         obukhov_length = -thvs * ustar**3 / (g*vk*(kbfs + sign(1.e-10_kind_phys,kbfs)))
     end function calc_obukhov_length
 
-    pure elemental function calc_virtual_temperature(t, q, zvir) result(virtual_temperature)
+    pure elemental function calc_virtual_temperature(temperature, specific_humidity, zvir) result(virtual_temperature)
         ! Williamson, D., Kiehl, J., Ramanathan, V., Dickinson, R., & Hack, J. (1987).
         ! Description of the NCAR Community Climate Model (CCM1).
         ! University Corporation for Atmospheric Research. https://doi.org/10.5065/D6TB14WH (Original work published 1987)
         ! Equation 2.a.7
 
-        real(kind_phys), intent(in) :: t, q    ! temperature and specific humidity
+        real(kind_phys), intent(in) :: temperature
+        real(kind_phys), intent(in) :: specific_humidity
         real(kind_phys), intent(in) :: zvir    ! rh2o/rair - 1
 
         real(kind_phys)             :: virtual_temperature
 
-        virtual_temperature = t * (1.0_kind_phys + zvir*q)
+        virtual_temperature = temperature * (1.0_kind_phys + zvir*specific_humidity)
     end function calc_virtual_temperature
 
-    pure function austausch_atm(pcols, ncol, pver, ntop, nbot, ml2, ri, s2) result(kvf)
+    pure elemental function austausch_atm(mixing_length_squared, &
+                                               richardson_number,     &
+                                               shear_squared)         &
+                                               result(kvf)
         !---------------------------------------------------------------------- !
         !                                                                       !
         ! Purpose: Computes exchange coefficients for free turbulent flows.     !
@@ -133,75 +137,48 @@ contains
         !                                                                       !
         !---------------------------------------------------------------------- !
 
-        integer,         intent(in)  :: pcols              ! Atmospheric columns dimension size
-        integer,         intent(in)  :: ncol               ! Number of atmospheric columns
-        integer,         intent(in)  :: pver               ! Number of atmospheric layers
-        integer,         intent(in)  :: ntop               ! Top layer for calculation
-        integer,         intent(in)  :: nbot               ! Bottom layer for calculation
-        real(kind_phys), intent(in)  :: ml2(pver+1)        ! Mixing lengths squared
-        real(kind_phys), intent(in)  :: s2(pcols,pver)     ! Shear squared
-        real(kind_phys), intent(in)  :: ri(pcols,pver)     ! Richardson number
+        real(kind_phys), intent(in)  :: mixing_length_squared
+        real(kind_phys), intent(in)  :: richardson_number
+        real(kind_phys), intent(in)  :: shear_squared
 
-        real(kind_phys)              :: kvf(pcols,pver+1)  ! Eddy diffusivity for heat and tracers
+        real(kind_phys)              :: kvf    ! Eddy diffusivity for heat and tracers
 
-        real(kind_phys)              :: fofri              ! f(ri)
-        real(kind_phys)              :: kvn                ! Neutral Kv
-        integer                      :: i                  ! Longitude index
-        integer                      :: k                  ! Vertical index
+        real(kind_phys)              :: fofri  ! f(ri)
+        real(kind_phys)              :: kvn    ! Neutral Kv
 
-        kvf(:ncol,:) = 0.0_kind_phys
-
-        ! Compute the atmosphere free vertical diffusion coefficients: kvh = kvq = kvm.
-        do k = ntop, nbot - 1
-            do i = 1, ncol
-                if( ri(i,k) < 0.0_kind_phys ) then
-                    fofri = unstable_gradient_richardson_stability_parameter(ri(i,k))
-                else
-                    fofri = stable_gradient_richardson_stability_parameter(ri(i,k))
-                end if
-                kvn = neutral_exchange_coefficient(ml2(k), s2(i,k))
-                kvf(i,k+1) = max( zkmin, kvn * fofri )
-            end do
-        end do
-        
+        if( richardson_number < 0.0_kind_phys ) then
+            fofri = unstable_gradient_richardson_stability_parameter(richardson_number)
+        else
+            fofri = stable_gradient_richardson_stability_parameter(richardson_number)
+        end if
+        kvn = neutral_exchange_coefficient(mixing_length_squared, shear_squared)
+        kvf = max( zkmin, kvn * fofri )
     end function austausch_atm
-        
-    pure function austausch_atm_free(pcols, ncol, pver, ntop, nbot, ml2, ri, s2) result(kvf)
+
+    pure elemental function austausch_atm_free(mixing_length_squared, &
+                                                    richardson_number,     &
+                                                    shear_squared)         &
+                                                    result(kvf)
         !---------------------------------------------------------------------- !
         !                                                                       !
         ! same as austausch_atm but only mixing for Ri<0                        !
         ! i.e. no background mixing and mixing for Ri>0                         !
         !                                                                       !
         !---------------------------------------------------------------------- !
+        real(kind_phys), intent(in)  :: mixing_length_squared
+        real(kind_phys), intent(in)  :: richardson_number
+        real(kind_phys), intent(in)  :: shear_squared
+
+        real(kind_phys)              :: kvf
+
+        real(kind_phys)              :: fofri ! f(ri)
+        real(kind_phys)              :: kvn   ! Neutral Kv
         
-        integer,         intent(in)  :: pcols              ! Atmospheric columns dimension size
-        integer,         intent(in)  :: ncol               ! Number of atmospheric columns
-        integer,         intent(in)  :: pver               ! Number of atmospheric layers
-        integer,         intent(in)  :: ntop               ! Top layer for calculation
-        integer,         intent(in)  :: nbot               ! Bottom layer for calculation
-        real(kind_phys), intent(in)  :: ml2(pver+1)        ! Mixing lengths squared
-        real(kind_phys), intent(in)  :: s2(pcols,pver)     ! Shear squared
-        real(kind_phys), intent(in)  :: ri(pcols,pver)     ! Richardson no
-
-        real(kind_phys)              :: kvf(pcols,pver+1)  ! Eddy diffusivity for heat and tracers
-
-        real(kind_phys)              :: fofri              ! f(ri)
-        real(kind_phys)              :: kvn                ! Neutral Kv
-        integer                      :: i                  ! Longitude index
-        integer                      :: k                  ! Vertical index
-
-        kvf(:ncol,:) = 0.0_kind_phys
-
-        ! Compute the free atmosphere vertical diffusion coefficients: kvh = kvq = kvm.
-        do k = ntop, nbot - 1
-            do i = 1, ncol
-                if( ri(i,k) < 0.0_kind_phys ) then
-                    fofri = unstable_gradient_richardson_stability_parameter(ri(i,k))
-                    kvn = neutral_exchange_coefficient(ml2(k), s2(i,k))
-                    kvf(i,k+1) = kvn * fofri
-                end if
-            end do
-        end do
+        if( richardson_number < 0.0_kind_phys ) then
+            fofri = unstable_gradient_richardson_stability_parameter(richardson_number)
+            kvn = neutral_exchange_coefficient(mixing_length_squared, shear_squared)
+            kvf = kvn * fofri
+        end if
     end function austausch_atm_free
 
     pure elemental function unstable_gradient_richardson_stability_parameter(richardson_number) result(modifier)
