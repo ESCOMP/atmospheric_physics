@@ -1,6 +1,16 @@
+<<<<<<< HEAD
 [submodule "mmm-physics"]
 	path = schemes/mmm/mmm_physics
 	url = https://github.com/NCAR/MMM-physics.git
 	fxtag = 20240626-MPASv8.2
 	fxrequired = AlwaysRequired
 	fxDONOTUSEurl = https://github.com/NCAR/MMM-physics.git
+=======
+[submodule "physics/Radiation/RRTMGP/rte-rrtmgp"]
+  path = physics/Radiation/RRTMGP/rte-rrtmgp
+  url = https://github.com/earth-system-radiation/rte-rrtmgp
+  branch = main
+[submodule "/glade/work/nusbaume/SE_projects/ccpp-physics/physics/MP/PUMAS/pumas"]
+	path = /glade/work/nusbaume/SE_projects/ccpp-physics/physics/MP/PUMAS/pumas
+	url = https://github.com/nusbaume/PUMAS.git
+>>>>>>> ca9d4461 (Add PUMAS submodule (currently points to branch on fork).)
