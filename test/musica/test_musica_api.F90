@@ -10,8 +10,13 @@ program run_test_musica_ccpp
 
   real(kind_phys), parameter :: DEGREE_TO_RADIAN = 3.14159265358979323846_kind_phys / 180.0_kind_phys
 
+  write(*,*) "[MUSICA Test] Running the Chapman test"
   call test_chapman()
+  write(*,*) "[MUSICA Test] Ends the Chapman test"
+
+  write(*,*) "[MUSICA Test] Running the Terminator test"
   call test_terminator()
+  write(*,*) "[MUSICA Test] Ends the Terminator test"
 
 contains
 
@@ -136,17 +141,19 @@ contains
 
   !> Tests the Chapman chemistry scheme
   subroutine test_chapman()
-    use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
-    use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
-    use musica_ccpp_micm,          only: micm
-    use musica_ccpp_namelist,      only: filename_of_micm_configuration, &
-                                         filename_of_tuvx_configuration, &
-                                         filename_of_tuvx_micm_mapping_configuration
+    use ccpp_constituent_prop_mod,     only: ccpp_constituent_prop_ptr_t
+    use ccpp_constituent_prop_mod,     only: ccpp_constituent_properties_t
+    use musica_ccpp_micm,              only: micm
+    use musica_ccpp_namelist,          only: filename_of_micm_configuration, &
+                                             filename_of_tuvx_configuration, &
+                                             filename_of_tuvx_micm_mapping_configuration
+    use musica_ccpp_tuvx_load_species, only: index_dry_air, index_O2, index_O3
 
     implicit none
 
-    integer, parameter                                             :: NUM_SPECIES = 5
-    integer, parameter                                             :: NUM_TUVX_CONSTITUENTS = 1
+    integer, parameter                                                    :: NUM_SPECIES = 5
+    integer, parameter                                                    :: NUM_TUVX_CONSTITUENTS = 1
+    integer, parameter                                                    :: NUM_TUVX_ONLY_GAS_SPECIES = 1
     ! This test requires that the number of grid cells = 4, which is the default
     ! vector dimension for MICM. This restriction will be removed once
     ! https://github.com/NCAR/musica/issues/217 is finished.
@@ -173,9 +180,9 @@ contains
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)                    :: cloud_area_fraction                          ! unitless
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)                    :: air_pressure_thickness                       ! Pa
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS, &
-                               NUM_SPECIES+NUM_TUVX_CONSTITUENTS)         :: constituents                                 ! kg kg-1
+      NUM_SPECIES+NUM_TUVX_CONSTITUENTS+NUM_TUVX_ONLY_GAS_SPECIES)        :: constituents                                 ! kg kg-1
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS, &
-                               NUM_SPECIES+NUM_TUVX_CONSTITUENTS)         :: initial_constituents                         ! kg kg-1
+        NUM_SPECIES+NUM_TUVX_CONSTITUENTS+NUM_TUVX_ONLY_GAS_SPECIES)      :: initial_constituents                         ! kg kg-1
     real(kind_phys), dimension(NUM_COLUMNS)                               :: solar_zenith_angle                           ! radians
     real(kind_phys)                                                       :: earth_sun_distance                           ! AU
     type(ccpp_constituent_prop_ptr_t),   allocatable                      :: constituent_props_ptr(:)
@@ -228,7 +235,7 @@ contains
       stop 3
     endif
     ASSERT(allocated(constituent_props))
-    ASSERT(size(constituent_props) == NUM_SPECIES+NUM_TUVX_CONSTITUENTS)
+    ASSERT(size(constituent_props) == NUM_SPECIES+NUM_TUVX_CONSTITUENTS+NUM_TUVX_ONLY_GAS_SPECIES)
     do i = 1, size(constituent_props)
       ASSERT(constituent_props(i)%is_instantiated(errcode, errmsg))
       ASSERT(errcode == 0)
@@ -244,7 +251,8 @@ contains
                 (trim(species_name) == "O3" .and. molar_mass == 0.0479982_kind_phys .and. is_advected) .or. &
                 (trim(species_name) == "N2" .and. molar_mass == 0.0280134_kind_phys .and. is_advected) .or. &
                 (trim(species_name) == "cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water" .and. &
-                 molar_mass == 0.018_kind_phys .and. is_advected)
+                 molar_mass == 0.018_kind_phys .and. is_advected) .or. &
+                (trim(species_name) == "air" .and. molar_mass == 0.0289644_kind_phys .and. .not. is_advected)
       ASSERT(tmp_bool)
       call constituent_props(i)%units(units, errcode, errmsg)
       if (errcode /= 0) then
@@ -302,6 +310,11 @@ contains
     do j = 1, NUM_COLUMNS
       do k = 1, NUM_LAYERS
         constituents(j,k,NUM_SPECIES+1) = 1.0e-3_kind_phys * (1.0 + 0.1 * (j-1) + 0.01 * (k-1))
+      end do
+    end do
+    do j = 1, NUM_COLUMNS
+      do k = 1, NUM_LAYERS
+        constituents(j,k,NUM_SPECIES+index_dry_air) = 1.0e-3_kind_phys * (1.0 + 0.1 * (j-1) + 0.01 * (k-1))
       end do
     end do
     initial_constituents(:,:,:) = constituents(:,:,:)
@@ -371,17 +384,18 @@ contains
 
   !> Tests the simple Terminator chemistry scheme
   subroutine test_terminator()
-    use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
-    use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
-    use musica_ccpp_micm,          only: micm
-    use musica_ccpp_namelist,      only: filename_of_micm_configuration, &
-                                         filename_of_tuvx_configuration, &
-                                         filename_of_tuvx_micm_mapping_configuration
-
+    use ccpp_constituent_prop_mod,     only: ccpp_constituent_prop_ptr_t
+    use ccpp_constituent_prop_mod,     only: ccpp_constituent_properties_t
+    use musica_ccpp_micm,              only: micm
+    use musica_ccpp_namelist,          only: filename_of_micm_configuration, &
+                                             filename_of_tuvx_configuration, &
+                                             filename_of_tuvx_micm_mapping_configuration
+    use musica_ccpp_tuvx_load_species, only: index_dry_air, index_O2, index_O3
     implicit none
 
     integer, parameter                                                    :: NUM_SPECIES = 2
     integer, parameter                                                    :: NUM_TUVX_CONSTITUENTS = 1
+    integer, parameter                                                    :: NUM_TUVX_ONLY_GAS_SPECIES = 3
     ! This test requires that the number of grid cells = 4, which is the default
     ! vector dimension for MICM. This restriction will be removed once
     ! https://github.com/NCAR/musica/issues/217 is finished.
@@ -408,9 +422,9 @@ contains
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)                    :: cloud_area_fraction                          ! unitless
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)                    :: air_pressure_thickness                       ! Pa
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS, &
-                               NUM_SPECIES+NUM_TUVX_CONSTITUENTS)         :: constituents                                 ! kg kg-1
+      NUM_SPECIES+NUM_TUVX_CONSTITUENTS+NUM_TUVX_ONLY_GAS_SPECIES)        :: constituents                                 ! kg kg-1
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS, &
-                               NUM_SPECIES+NUM_TUVX_CONSTITUENTS)         :: initial_constituents                         ! kg kg-1
+      NUM_SPECIES+NUM_TUVX_CONSTITUENTS+NUM_TUVX_ONLY_GAS_SPECIES)        :: initial_constituents                         ! kg kg-1
     real(kind_phys), dimension(NUM_COLUMNS)                               :: solar_zenith_angle                           ! radians
     real(kind_phys)                                                       :: earth_sun_distance                           ! AU
     type(ccpp_constituent_prop_ptr_t),   allocatable                      :: constituent_props_ptr(:)
@@ -463,7 +477,7 @@ contains
       stop 3
     endif
     ASSERT(allocated(constituent_props))
-    ASSERT(size(constituent_props) == NUM_SPECIES+NUM_TUVX_CONSTITUENTS)
+    ASSERT(size(constituent_props) == NUM_SPECIES+NUM_TUVX_CONSTITUENTS+NUM_TUVX_ONLY_GAS_SPECIES)
     do i = 1, size(constituent_props)
       ASSERT(constituent_props(i)%is_instantiated(errcode, errmsg))
       ASSERT(errcode == 0)
@@ -475,8 +489,11 @@ contains
       ASSERT(errcode == 0)
       tmp_bool = (trim(species_name) == "Cl" .and. molar_mass == 0.035453_kind_phys .and. is_advected) .or.  &
                  (trim(species_name) == "Cl2" .and. molar_mass == 0.070906_kind_phys .and. is_advected) .or. &
-                  (trim(species_name) == "cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water" &
-                    .and. molar_mass == 0.018_kind_phys .and. is_advected)
+                 (trim(species_name) == "cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water" &
+                                        .and. molar_mass == 0.018_kind_phys .and. is_advected) .or. &
+                 (trim(species_name) == "air" .and. molar_mass == 0.0289644_kind_phys .and. .not. is_advected) .or. &
+                 (trim(species_name) == "O2" .and. molar_mass == 0.0319988_kind_phys .and. .not. is_advected) .or. &
+                 (trim(species_name) == "O3" .and. molar_mass == 0.0479982_kind_phys .and. .not. is_advected)
       ASSERT(tmp_bool)
       call constituent_props(i)%units(units, errcode, errmsg)
       if (errcode /= 0) then
@@ -525,6 +542,14 @@ contains
     do j = 1, NUM_COLUMNS
       do k = 1, NUM_LAYERS
         constituents(j,k,NUM_SPECIES+1) = 1.0e-3_kind_phys * (1.0 + 0.1 * (j-1) + 0.01 * (k-1))
+      end do
+    end do
+    ! set concentrations for TUV-x gas species
+    do j = 1, NUM_COLUMNS
+      do k = 1, NUM_LAYERS
+        constituents(j,k,NUM_SPECIES+index_dry_air) = 1.0e-3_kind_phys * (1.0 + 0.1 * (j-1) + 0.01 * (k-1))
+        constituents(j,k,NUM_SPECIES+index_O2) = 1.0e-3_kind_phys * (1.0 + 0.1 * (j-1) + 0.01 * (k-1))
+        constituents(j,k,NUM_SPECIES+index_O3) = 1.0e-3_kind_phys * (1.0 + 0.1 * (j-1) + 0.01 * (k-1))
       end do
     end do
     initial_constituents(:,:,:) = constituents(:,:,:)

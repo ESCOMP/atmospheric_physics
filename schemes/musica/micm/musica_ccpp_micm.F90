@@ -19,15 +19,16 @@ contains
 
   !> Registers MICM constituent properties with the CCPP
   subroutine micm_register(solver_type, number_of_grid_cells, constituent_props, &
-                           errmsg, errcode)
+                           micm_species, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
-    use musica_micm,               only: Rosenbrock, RosenbrockStandardOrder
+    use musica_ccpp_species,       only: musica_species_t
     use musica_util,               only: error_t
     use iso_c_binding,             only: c_int
 
     integer(c_int),                                   intent(in)  :: solver_type
     integer(c_int),                                   intent(in)  :: number_of_grid_cells
     type(ccpp_constituent_properties_t), allocatable, intent(out) :: constituent_props(:)
+    type(musica_species_t),              allocatable, intent(out) :: micm_species(:)
     character(len=512),                               intent(out) :: errmsg
     integer,                                          intent(out) :: errcode
 
@@ -36,6 +37,7 @@ contains
     real(kind=kind_phys)          :: molar_mass
     character(len=:), allocatable :: species_name
     logical                       :: is_advected
+    integer                       :: number_of_species
     integer                       :: i, species_index
 
     if (associated( micm )) then
@@ -46,13 +48,20 @@ contains
                    number_of_grid_cells, error)
     if (has_error_occurred(error, errmsg, errcode)) return
 
-    allocate(constituent_props(micm%species_ordering%size()), stat=errcode)
+    number_of_species = micm%species_ordering%size()
+    allocate(constituent_props(number_of_species), stat=errcode)
     if (errcode /= 0) then
       errmsg = "[MUSICA Error] Failed to allocate memory for constituent properties."
       return
     end if
 
-    do i = 1, micm%species_ordering%size()
+    allocate(micm_species(number_of_species), stat=errcode)
+    if (errcode /= 0) then
+      errmsg = "[MUSICA Error] Failed to allocate memory for micm species."
+      return
+    end if
+
+    do i = 1, number_of_species
     associate( map => micm%species_ordering )
       species_name = map%name(i)
       species_index = map%index(i)
@@ -78,6 +87,13 @@ contains
         errcode = errcode, &
         errmsg = errmsg)
       if (errcode /= 0) return
+
+      ! Species are ordered to match the sequence of the MICM state array
+      micm_species(species_index) = musica_species_t( &
+        name = species_name, &
+        unit = 'kg kg-1', &
+        molar_mass = molar_mass, &
+        index_musica_species = species_index )
     end associate ! map
     end do
     number_of_rate_parameters = micm%user_defined_reaction_rates%size()
