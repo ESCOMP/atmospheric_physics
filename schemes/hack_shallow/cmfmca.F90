@@ -142,6 +142,8 @@ contains
     cnb_sh, &
     icwmr, &
     rliq_sh, &
+    scheme_name, &
+    flx_cnd, &
     errmsg, errflg &
   )
     ! framework dependency for const_props
@@ -189,6 +191,9 @@ contains
     real(kind_phys), intent(out)    :: cnb_sh(:)          ! bottom level of shallow convective activity [index]
     real(kind_phys), intent(out)    :: icwmr(:,:)         ! shallow convection in-cloud water mixing ratio [kg kg-1]
     real(kind_phys), intent(out)    :: rliq_sh(:)         ! vertically-integrated shallow reserved cloud condensate [m s-1]
+
+    character(len=64),  intent(out) :: scheme_name        ! scheme name
+    real(kind_phys), intent(out)    :: flx_cnd(:)         ! net_liquid_and_lwe_ice_fluxes_through_top_and_bottom_of_atmosphere_column [m s-1] for check_energy_chng
 
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errflg
@@ -297,6 +302,8 @@ contains
 
     errmsg = ''
     errflg = 0
+
+    scheme_name = 'cmfmca'
 
     !---------------------------------------------------
     ! Initialize output tendencies
@@ -899,6 +906,9 @@ contains
 
     ! rliq_sh is converted to precipitation units [m s-1]
     rliq_sh(:ncol) = rliq_sh(:ncol) / 1000._kind_phys
+
+    ! Prepare boundary fluxes for check_energy [m s-1]
+    flx_cnd(:ncol) = precc(:ncol) + rliq_sh(:ncol)
 
 #if 1
     ! DEBUG DIAGNOSTICS - show final result
