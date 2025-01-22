@@ -114,9 +114,9 @@ contains
     end function calc_virtual_temperature
 
     pure elemental function austausch_atm(mixing_length_squared, &
-                                               richardson_number,     &
-                                               shear_squared)         &
-                                               result(kvf)
+                                          richardson_number,     &
+                                          shear_squared)         &
+                                          result(kvf)
         !---------------------------------------------------------------------- !
         !                                                                       !
         ! Purpose: Computes exchange coefficients for free turbulent flows.     !
@@ -156,9 +156,9 @@ contains
     end function austausch_atm
 
     pure elemental function austausch_atm_free(mixing_length_squared, &
-                                                    richardson_number,     &
-                                                    shear_squared)         &
-                                                    result(kvf)
+                                               richardson_number,     &
+                                               shear_squared)         &
+                                               result(kvf)
         !---------------------------------------------------------------------- !
         !                                                                       !
         ! same as austausch_atm but only mixing for Ri<0                        !
