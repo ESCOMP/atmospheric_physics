@@ -22,11 +22,11 @@ contains
 !-----------------------------------------------------------------------
 
 ! Arguments
-    integer,  intent(in)  :: ncol          ! number of active columns
-    real(kind_phys), intent(in)  :: t(:,:)        ! temperature
-    real(kind_phys), intent(in)  :: tmelt         ! freezing point of water
-    integer, intent(in)  :: top_lev
-    integer, intent(in)  :: pver
+    integer,  intent(in)  :: ncol          ! number of active columns (count)
+    real(kind_phys), intent(in)  :: t(:,:) ! temperature (K)
+    real(kind_phys), intent(in)  :: tmelt  ! freezing point of water (K)
+    integer, intent(in)  :: top_lev        ! Vertical layer index for highest layer with tropopheric clouds (index)
+    integer, intent(in)  :: pver           ! Number of vertical layers (count)
 
     real(kind_phys), intent(out) :: fice(:,:)     ! Fractional ice content within cloud
     real(kind_phys), intent(out) :: fsnow(:,:)    ! Fractional snow content for convection

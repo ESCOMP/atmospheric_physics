@@ -65,12 +65,10 @@ CONTAINS
 
       ! CCPP error handling variables
       character(len=512), intent(out) :: errmsg
-      integer,          intent(out) :: errflg
+      integer,            intent(out) :: errflg
 
 
       real(kind_phys) :: ftem(ncol,pver)
-
-      integer :: index_cldliq
 
       errmsg = ''
       errflg = 0

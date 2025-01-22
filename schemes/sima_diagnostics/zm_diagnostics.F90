@@ -167,14 +167,14 @@ CONTAINS
       end do
       call history_out_field('FREQZM  ',freqzm)
 
+   !  Convert from hPa s-1 to kg m-2 s-1
       mcon(:ncol,:pverp) = mcon(:ncol,:pverp) * 100._kind_phys/gravit
-      mconzm(:ncol,:pverp) = mcon(:ncol,:pverp)
 
-      call history_out_field('CMFMC_DP', mconzm)
+      call history_out_field('CMFMC_DP', mcon)
 
 
    ! Store upward and downward mass fluxes in un-gathered arrays
-   ! + convert from mb/s to kg/m^2/s
+   ! + convert from hPa s-1 to kg m-2 s-1
    do i=1,lengath
       do k=1,pver
          ii = ideep(i)

@@ -42,7 +42,7 @@ CONTAINS
     errmsg = ''
     errflg = 0
 
-    call history_add_field ('ZMEIHEAT', 'Heating by ice and evaporation in ZM convection', 'lev', 'avg', 'W kg-1')
+    call history_add_field ('ZMEIHEAT', 'Heating by precipitation freezing/melting and evaporation in ZM convection', 'lev', 'avg', 'W kg-1')
 
     call history_add_field ('EVAPTZM', 'T tendency - Evaporation/snow prod from Zhang convection', 'lev',  'avg', 'K s-1')
     call history_add_field ('FZSNTZM', 'T tendency - Rain to snow conversion from Zhang convection', 'lev',  'avg', 'K s-1')
@@ -71,7 +71,7 @@ CONTAINS
 
       ! CCPP error handling variables
       character(len=512), intent(out) :: errmsg
-      integer,          intent(out) :: errflg
+      integer,            intent(out) :: errflg
 
       integer :: lengath  ! number of columns with deep convection
       integer :: const_idx
