@@ -64,14 +64,14 @@ contains
       ! Shallow convective inputs
       real(kind_phys),   intent(in)    :: cmfmc_sh(:,:)          ! Shallow convection cloud mass flux [kg m-2 s-1]
       real(kind_phys),   intent(in)    :: qc_sh(:,:)             ! Shallow convection cloud water tendency [kg kg-1 s-1]
-      real(kind_phys),   intent(in)    :: rliq_sh(:)             ! Shallow convection reserved liquid [kg m-2]
+      real(kind_phys),   intent(in)    :: rliq_sh(:)             ! Shallow convection reserved liquid [m s-1]
       real(kind_phys),   intent(in)    :: rprdsh(:,:)            ! Shallow convection convective rainout Q tendency [kg kg-1 s-1]
       real(kind_phys),   intent(in)    :: cnt_sh(:)              ! Shallow convection cloud top index [index]
       real(kind_phys),   intent(in)    :: cnb_sh(:)              ! Shallow convection cloud base index [index]
 
       ! Input/output (total) arguments
       ! In: deep only, Out: deep+shallow
-      real(kind_phys),   intent(inout) :: rliq_total(:)          ! Total convective reserved liquid [kg m-2]
+      real(kind_phys),   intent(inout) :: rliq_total(:)          ! Total convective reserved liquid [m s-1]
 
       ! Output arguments
       real(kind_phys),   intent(out)   :: cmfmc_total(:,:)       ! Total convective mass flux [kg m-2 s-1]
@@ -110,9 +110,6 @@ contains
       enddo
 
       ! Compute the pressures of cloud top and base based on cnt, cnb
-
-
-      !
 
 
   end subroutine convect_shallow_sum_to_deep_run

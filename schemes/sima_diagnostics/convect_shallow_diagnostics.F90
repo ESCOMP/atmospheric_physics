@@ -104,6 +104,9 @@ contains
     call history_add_field('PCLDTOP', 'pressure_at_cloud_top_for_all_convection', horiz_only, 'avg', 'Pa') ! Pressure of cloud top
     call history_add_field('PCLDBOT', 'pressure_at_cloud_base_for_all_convection', horiz_only, 'avg', 'Pa') ! Pressure of cloud base
 
+    call history_add_field('ZMDLF', 'vertically_integrated_liquid_water_tendency_due_to_all_convection_to_be_applied_later_in_time_loop', horiz_only, 'avg', 'm s-1')
+    call history_add_field('SHDLF', 'vertically_integrated_cloud_liquid_tendency_due_to_shallow_convection_to_be_applied_later_in_time_loop', horiz_only, 'avg', 'm s-1')
+
   end subroutine convect_shallow_diagnostics_init
 
 !> \section arg_table_convect_shallow_diagnostics_after_shallow_scheme_run  Argument Table
@@ -265,6 +268,7 @@ contains
   subroutine convect_shallow_diagnostics_after_sum_to_deep_run( &
     ncol, &
     cmfmc, cnt, cnb, p_cnt, p_cnb, &
+    rliq_total, rliq_sh, &
     errmsg, errflg)
 
     use cam_history, only: history_out_field
@@ -276,6 +280,8 @@ contains
     real(kind_phys),  intent(in)  :: cnb(:)           ! Cloud base level index [1]
     real(kind_phys),  intent(in)  :: p_cnt(:)         ! Convective cloud top pressure [Pa]
     real(kind_phys),  intent(in)  :: p_cnb(:)         ! Convective cloud base pressure [Pa]
+    real(kind_phys),  intent(in)  :: rliq_total(:,:)  !  detrainment_of_water_due_to_all_convection [m s-1]
+    real(kind_phys),  intent(in)  :: rliq_sh(:,:)     !  detrainment_of_water_due_to_shallow_convection [m s-1]
 
     ! Output arguments
     character(len=512), intent(out) :: errmsg
@@ -289,6 +295,12 @@ contains
     call history_out_field('CLDBOT',  cnb)
     call history_out_field('PCLDTOP', p_cnt)
     call history_out_field('PCLDBOT', p_cnb)
+
+    ! even though history notes this as ZMDLF
+    ! (in rk_stratiform_tend)
+    ! this appears to be dlf after shallow added
+    call history_out_field('ZMDLF',   rliq_total)
+    call history_out_field('SHDLF',   rliq_sh)
 
   end subroutine convect_shallow_diagnostics_after_sum_to_deep_run
 
