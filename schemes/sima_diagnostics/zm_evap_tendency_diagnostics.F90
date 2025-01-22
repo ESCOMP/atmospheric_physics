@@ -26,9 +26,9 @@ CONTAINS
 
     call history_add_field ('ZMEIHEAT', 'Heating by precipitation freezing/melting and evaporation in ZM convection', 'lev', 'avg', 'W kg-1')
 
-    call history_add_field ('EVAPTZM', 'T tendency - Evaporation/snow prod from Zhang convection', 'lev',  'avg', 'K s-1')
-    call history_add_field ('FZSNTZM', 'T tendency - Rain to snow conversion from Zhang convection', 'lev',  'avg', 'K s-1')
-    call history_add_field ('EVSNTZM', 'T tendency - Snow to rain prod from Zhang convection', 'lev',  'avg', 'K s-1')
+    call history_add_field ('EVAPTZM', 'T tendency - Evaporation/snow prod from ZM convection', 'lev',  'avg', 'K s-1')
+    call history_add_field ('FZSNTZM', 'T tendency - Rain to snow conversion from ZM convection', 'lev',  'avg', 'K s-1')
+    call history_add_field ('EVSNTZM', 'T tendency - Snow to rain prod from ZM convection', 'lev',  'avg', 'K s-1')
     call history_add_field ('EVAPQZM', 'Q tendency - Evaporation from Zhang-McFarlane moist convection', 'lev',  'avg', &
                                        'kg kg-1 s-1')
 

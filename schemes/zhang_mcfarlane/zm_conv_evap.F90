@@ -236,8 +236,9 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
     end do
 
 ! set output precipitation rates (m/s)
-    prec_gen(:ncol) = flxprec(:ncol,pver+1) / 1000._kind_phys
-    snow(:ncol) = flxsnow(:ncol,pver+1) / 1000._kind_phys
+! convert from precip to kg/m2/s
+    prec_gen(:ncol) = flxprec(:ncol,pverp) / 1000._kind_phys
+    snow(:ncol) = flxsnow(:ncol,pverp) / 1000._kind_phys
 
   end subroutine zm_conv_evap_run
 

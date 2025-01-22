@@ -38,6 +38,7 @@ use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
    errmsg = ''
    errflg = 0
 
+   ! Only convectively transport constituents that are water species 
    do q_index=1,ncnst
        call qprops(q_index)%is_water_species(doconvtran(q_index), errflg, errmsg)
        if (errflg /= 0) return
@@ -180,8 +181,8 @@ subroutine zm_conv_convtran_run(ncol, pver, &
 
       if (doconvtran(m)) then
 
-          call const_metadata(m)%is_dry(is_dry, errflg, errmsg)
-          if (is_dry) then
+         call const_metadata(m)%is_dry(is_dry, errflg, errmsg)
+         if (is_dry) then
             do k = 1,pver
                do i =il1g,il2g
                   dptmp(i,k) = dpdry(i,k)
@@ -200,7 +201,6 @@ subroutine zm_conv_convtran_run(ncol, pver, &
                end do
             end do
          endif
-!        dptmp = dp
 
 ! Gather up the constituent and set tend to zero
          do k = 1,pver

@@ -146,7 +146,7 @@ subroutine wv_sat_readnl(nlfile)
 
   use spmd_utils,      only: masterproc
   use namelist_utils,  only: find_group_name
-  use units,           only: getunit, freeunit
+
 !CACNOTE - Bring this back in along with the mpibcast call below
 !  use mpishorthand
   use cam_abortutils,  only: endrun
@@ -164,8 +164,7 @@ subroutine wv_sat_readnl(nlfile)
   !-----------------------------------------------------------------------------
 
   if (masterproc) then
-     unitn = getunit()
-     open( unitn, file=trim(nlfile), status='old' )
+     open( newunit=unitn, file=trim(nlfile), status='old' )
      call find_group_name(unitn, 'wv_sat_nl', status=ierr)
      if (ierr == 0) then
         read(unitn, wv_sat_nl, iostat=ierr)
@@ -175,7 +174,6 @@ subroutine wv_sat_readnl(nlfile)
         end if
      end if
      close(unitn)
-     call freeunit(unitn)
 
   end if
 

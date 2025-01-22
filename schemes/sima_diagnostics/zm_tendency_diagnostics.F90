@@ -48,11 +48,8 @@ CONTAINS
       character(len=512), intent(out) :: errmsg
       integer,          intent(out) :: errflg
 
-      integer :: lengath  ! number of columns with deep convection
       integer :: const_idx
       character(len=256) :: standard_name
-
-      real(kind_phys) :: ftem(ncol,pver)
 
       errmsg = ''
       errflg = 0
