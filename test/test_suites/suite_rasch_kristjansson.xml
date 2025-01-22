@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<suite name="rasch_kristjansson" version="1.0">
+  <group name="physics_before_coupler">
+    <!-- Find tropopause -->
+    <scheme>tropopause_find</scheme>
+
+    <!-- RK1: cloud sedimentation (pcwsediment) -->
+    <scheme>cloud_particle_sedimentation</scheme>
+    <!--<scheme>cloud_particle_sedimentation_diagnostics</scheme>-->
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+  </group>
+</suite>
