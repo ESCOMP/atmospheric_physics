@@ -52,8 +52,8 @@ contains
     errmsg, errflg)
 
     ! Input arguments
-    logical                           :: amIRoot
-    integer                           :: iulog          ! log output unit
+    logical,            intent(in)    :: amIRoot
+    integer,            intent(in)    :: iulog          ! log output unit
     real(kind_phys),    intent(in)    :: cldsed_ice_stokes_fac_in
     real(kind_phys),    intent(in)    :: gravit
     real(kind_phys),    intent(in)    :: rhoh2o

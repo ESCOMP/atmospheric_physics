@@ -225,7 +225,7 @@ contains
     iulog, &
     pi, gravit, rh2o, epsilo, latvap, latice, cpair, &
     dlat, rlat, &
-    p, pdel, &
+    pmid, pdel, &
     zi, &
     troplev, &
     ttend, tn, &
@@ -264,26 +264,26 @@ contains
     real(kind_phys),    intent(in)    :: cpair          ! specific_heat_of_dry_air_at_constant_pressure [J K-1 kg-1]
     real(kind_phys),    intent(in)    :: dlat(:)        ! latitude_degrees_north [degrees]
     real(kind_phys),    intent(in)    :: rlat(:)        ! latitude [rad]
-    real(kind_phys),    intent(in)    :: p(:,:)         ! Pressure [Pa]
-    real(kind_phys),    intent(in)    :: pdel(:,:)      ! Layer thickness [Pa]
-    real(kind_phys),    intent(in)    :: zi(:,:)        ! Geopotential height at interfaces [m]
-    integer,            intent(in)    :: tropLev(:)     ! Tropopause level [index]
+    real(kind_phys),    intent(in)    :: pmid(:,:)      ! air_pressure [Pa]
+    real(kind_phys),    intent(in)    :: pdel(:,:)      ! air_pressure_thickness [Pa]
+    real(kind_phys),    intent(in)    :: zi(:,:)        ! geopotential_height_wrt_surface_at_interface [m]
+    integer,            intent(in)    :: tropLev(:)     ! tropopause_vertical_layer_index [index]
 
     real(kind_phys),    intent(in)    :: ttend(:,:)     ! Temperature tendency [K s-1] -- from what...?
     real(kind_phys),    intent(in)    :: tn(:,:)        ! New Temperature [K]
     real(kind_phys),    intent(in)    :: qtend(:,:)     ! Water vapor tendency [kg kg-1 s-1] -- from what...?
     real(kind_phys),    intent(in)    :: qn(:,:)        ! New Water vapor mixing ratio [kg kg-1]
     real(kind_phys),    intent(in)    :: lctend(:,:)    ! Cloud liquid water tendency [kg kg-1 s-1] -- from what...?
-    real(kind_phys),    intent(in)    :: cwat(:,:)      ! Cloud water mixing ratio [kg kg-1]
+    real(kind_phys),    intent(in)    :: cwat(:,:)      ! Cloud water mixing ratio (ixcldice+ixcldliq) [kg kg-1]
 
     real(kind_phys),    intent(in)    :: omega(:,:)     ! lagrangian_tendency_of_air_pressure [Pa s-1]
-    real(kind_phys),    intent(in)    :: cldn(:,:)      ! New Cloud fraction [1 (fraction)]
-    real(kind_phys),    intent(in)    :: fice(:,:)      ! Ice fraction within cwat [1 (fraction)]
-    real(kind_phys),    intent(in)    :: fsnow(:,:)     ! Fraction of rain that freezes to show [1 (fraction)]
+    real(kind_phys),    intent(in)    :: cldn(:,:)      ! New Cloud fraction [fraction]
+    real(kind_phys),    intent(in)    :: fice(:,:)      ! Ice fraction within cwat [fraction]
+    real(kind_phys),    intent(in)    :: fsnow(:,:)     ! Fraction of rain that freezes to show [fraction]
 
     real(kind_phys),    intent(in)    :: rhdfda(:,:)    ! dG(a)/da, rh=G(a), when rh>u00 [??]
-    real(kind_phys),    intent(in)    :: rhu00(:,:)     ! Rhlim for cloud [??]
-    real(kind_phys),    intent(in)    :: landm(:)       ! smoothed_land_area_fraction [1 (fraction)]
+    real(kind_phys),    intent(in)    :: rhu00(:,:)     ! Rhlim for cloud [percent]
+    real(kind_phys),    intent(in)    :: landm(:)       ! smoothed_land_area_fraction [fraction]
     real(kind_phys),    intent(in)    :: seaicef(:)     ! Sea ice fraction [1 (fraction)]
     real(kind_phys),    intent(in)    :: snowh(:)       ! Snow depth over land, water equivalent [m]
 
@@ -291,13 +291,15 @@ contains
     real(kind_phys),    intent(out)   :: cme(:,:)       ! Rate of condensation-evaporation of condensate (net_condensation_rate_due_to_microphysics) [s-1]
     real(kind_phys),    intent(out)   :: prodprec(:,:)  ! Conversion rate of condensate to precip (precipitation_production_due_to_microphysics) [s-1]
     real(kind_phys),    intent(out)   :: prodsnow(:,:)  ! Snow production rate (ignored in RK?) [s-1]
-    real(kind_phys),    intent(out)   :: evapprec(:,:)  ! Falling precipitation evaporation rate (precipitation_evaporation_due_to_microphysics) [s-1] -- & apply q(wv) tendency
+    real(kind_phys),    intent(out)   :: evapprec(:,:)  ! Falling precipitation evaporation rate (precipitation_evaporation_due_to_microphysics) [s-1] -- & combined to apply q(wv) tendency
     real(kind_phys),    intent(out)   :: evapsnow(:,:)  ! Falling snow evaporation rate [s-1]
-    real(kind_phys),    intent(out)   :: evapheat(:,:)  ! heating rate due to evaporation of precipitation [W kg-1]
-    real(kind_phys),    intent(out)   :: prfzheat(:,:)  ! heating rate due to freezing of precipitation [W kg-1]
-    real(kind_phys),    intent(out)   :: meltheat(:,:)  ! heating rate due to snow melt [W kg-1]
-    real(kind_phys),    intent(out)   :: precip(:)      ! Precipitation rate (lwe_stratiform_precipitation_rate_at_surface) [kg m-2 s-1]
-    real(kind_phys),    intent(out)   :: snowab(:)      ! Snow rate (lwe_snow_precipitation_rate_at_surface_due_to_microphysics) [kg m-2 s-1]
+    real(kind_phys),    intent(out)   :: evapheat(:,:)  ! heating rate due to evaporation of precipitation [J kg-1 s-1]
+    real(kind_phys),    intent(out)   :: prfzheat(:,:)  ! heating rate due to freezing of precipitation [J kg-1 s-1]
+    real(kind_phys),    intent(out)   :: meltheat(:,:)  ! heating rate due to snow melt [J kg-1 s-1]
+    ! note -- these are precip units for atmosphere-surface exchange.
+    real(kind_phys),    intent(out)   :: precip(:)      ! Precipitation rate (lwe_stratiform_precipitation_rate_at_surface) [m s-1]
+    real(kind_phys),    intent(out)   :: snowab(:)      ! Snow rate (lwe_snow_precipitation_rate_at_surface_due_to_microphysics) [m s-1]
+    ! / note
     real(kind_phys),    intent(out)   :: ice2pr(:,:)    ! Conversion rate of ice to precip [kg kg-1 s-1] -- apply q(cldice) tendency
     real(kind_phys),    intent(out)   :: liq2pr(:,:)    ! Conversion rate of liquid to precip [kg kg-1 s-1] -- apply q(cldliq) tendency
     real(kind_phys),    intent(out)   :: liq2snow(:,:)  ! Conversion rate of liquid to snow [kg kg-1 s-1] -- discard??
@@ -455,10 +457,10 @@ contains
     ! for the provisional t and q without condensation
     mp_level_loop: do k = top_lev, pver
       ! "True" means that ice will be taken into account.
-      call findsp_vc(qn(:ncol,k), tn(:ncol,k), p(:ncol,k), .true., &
+      call findsp_vc(qn(:ncol,k), tn(:ncol,k), pmid(:ncol,k), .true., &
            tsp(:ncol,k), qsp(:ncol,k))
 
-      call qsat(t(1:ncol,k), p(1:ncol,k), es(1:ncol), qs(1:ncol), ncol, gam=gamma(1:ncol))
+      call qsat(t(1:ncol,k), pmid(1:ncol,k), es(1:ncol), qs(1:ncol), ncol, gam=gamma(1:ncol))
 
       do i = 1, ncol
         relhum(i) = q(i,k)/qs(i)
@@ -607,7 +609,7 @@ contains
           precab  = prprov(:ncol), &
           snowab  = snowab(:ncol), &
           t       = t(:ncol,:), &
-          p       = p(:ncol,:), &
+          p       = pmid(:ncol,:), &
           cwm     = cwm(:ncol), &
           cldm    = cldm(:ncol), &
           cldmax  = cldmax(:ncol), &
@@ -746,7 +748,7 @@ contains
           qtmp = qn(i,k) - cme(i,k)*deltat
           ttmp = tn(i,k) + deltat/cpair * ( meltheat(i,k) + (latvap + latice*fice(i,k)) * cme(i,k) )
           esn = estblf(ttmp)
-          qsn = svp_to_qsat(esn, p(i,k))
+          qsn = svp_to_qsat(esn, pmid(i,k))
           qtl(i) = max((qsn - qtmp)/deltat,0._kind_phys)
           relhum1(i) = qtmp/qsn
         end do
@@ -798,7 +800,7 @@ contains
           ttmp = tn(i,k) + deltat/cpair * ( meltheat(i,k) + evapheat(i,k) + prfzheat(i,k)      &
                  + (latvap + latice*fice(i,k)) * cme(i,k) )
 
-          call qsat(ttmp, p(i,k), esn, qsn, dqsdt=dqsdt)
+          call qsat(ttmp, pmid(i,k), esn, qsn, dqsdt=dqsdt)
 
           if(qtmp > qsn) then
             ! now extra condensation to bring air to just saturation
@@ -814,7 +816,7 @@ contains
       end do cme_iter_loop  ! loop over l (iteration)
 
       ! precipitation
-      do i = 1,ncol
+      do i = 1, ncol
         precip(i) = precip(i) + pdel(i,k)/gravit * (prodprec(i,k) - evapprec(i,k))
         precab(i) = precab(i) + pdel(i,k)/gravit * (prodprec(i,k) - evapprec(i,k))
         if(precab(i) < 0._kind_phys) then
@@ -830,6 +832,15 @@ contains
         lsflxsnw(i,k+1) = snowab(i)
       end do
     end do mp_level_loop    ! loop over k (level)
+
+    ! Convert precip (lwe_stratiform_precipitation_rate_at_surface)
+    ! and snowab (lwe_snow_precipitation_rate_at_surface_due_to_microphysics)
+    ! from kg m-2 s-1 to m s-1 (precipitation units) for surface exchange.
+    !
+    ! If this conversion is removed in the future, the metadata needs to
+    ! be updated.
+    precip(:ncol) = precip(:ncol)/1000._r8
+    snowab(:ncol) = snowab(:ncol)/1000._r8
   end subroutine prognostic_cloud_water_run
 
   ! Calculate the conversion of condensate to precipitate
@@ -857,7 +868,7 @@ contains
 
     real(kind_phys), intent(in) :: precab(:)        ! rate of precipitation from above [kg m-2 s-1]
     real(kind_phys), intent(in) :: t(:,:)           ! temperature [K]
-    real(kind_phys), intent(in) :: p(:,:)           ! pressure [Pa]
+    real(kind_phys), intent(in) :: p(:,:)           ! air_pressure [Pa]
     real(kind_phys), intent(in) :: cwm(:)           ! condensate mixing ratio [kg kg-1]
     real(kind_phys), intent(in) :: cldm(:)          ! cloud fraction
     real(kind_phys), intent(in) :: cldmax(:)        ! max cloud fraction above this level
