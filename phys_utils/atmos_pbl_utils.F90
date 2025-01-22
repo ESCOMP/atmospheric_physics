@@ -173,7 +173,8 @@ contains
 
         real(kind_phys)              :: fofri ! f(ri)
         real(kind_phys)              :: kvn   ! Neutral Kv
-        
+
+        kvf = 0.0_kind_phys
         if( richardson_number < 0.0_kind_phys ) then
             fofri = unstable_gradient_richardson_stability_parameter(richardson_number)
             kvn = neutral_exchange_coefficient(mixing_length_squared, shear_squared)
