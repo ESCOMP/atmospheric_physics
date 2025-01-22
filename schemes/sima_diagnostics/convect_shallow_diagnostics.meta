@@ -251,17 +251,17 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
-[ rliq_total ]
-  standard_name = vertically_integrated_liquid_water_tendency_due_to_all_convection_to_be_applied_later_in_time_loop
-  units = m s-1
+[ qc_total ]
+  standard_name = detrainment_of_water_due_to_all_convection
+  units = kg kg-1 s-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
-[ rliq_sh ]
-  standard_name = vertically_integrated_cloud_liquid_tendency_due_to_shallow_convection_to_be_applied_later_in_time_loop
-  units = m s-1
+[ qc_sh ]
+  standard_name = detrainment_of_water_due_to_shallow_convection
+  units = kg kg-1 s-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ errmsg ]
   standard_name = ccpp_error_message
