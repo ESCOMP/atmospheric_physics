@@ -236,11 +236,11 @@
   intent = in
 [ qh ]
   standard_name = water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
-  advected = true
   units = kg kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
+  advected = true
 [ prec ]
   standard_name = lwe_precipitation_rate_at_surface_due_to_deep_convection
   units = m s-1

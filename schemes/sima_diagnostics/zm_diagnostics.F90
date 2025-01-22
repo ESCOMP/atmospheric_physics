@@ -1,22 +1,4 @@
 module zm_diagnostics
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!
-! THIS IS A TEMPLATE
-!   1. copy this file to a new file with the correct name
-!        (SCHEME_diagnostics.F90)
-!   2. do a search and replace for "SCHEME" in this file and
-!        replace with your scheme name
-!   3. Add desired history_add_field calls to the init phase
-!   4. Add all fields that are being output as inputs to the run phase
-!   5. Add desired history_out_field calls to the run phase
-!   6. Run $ccpp_framework/scripts/ccpp_fortran_to_metadata.py on this .F90
-!        file to generate the metadata
-!   7. Complete the metadata (fill out standard names, units, dimensions)
-!   8. Add this scheme to the SDF file for your suite (likely will be at end)
-!   9. Delete this header section
-!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
    use ccpp_kinds, only:  kind_phys
 
    implicit none
@@ -91,7 +73,6 @@ CONTAINS
    !> \section arg_table_zm_diagnostics_run  Argument Table
    !! \htmlinclude zm_diagnostics_run.html
    subroutine zm_diagnostics_run(ncol, pver, pverp, ideep, cpair, prec, cape, gravit, mu, md, &
-!      dif, dlf, ps, pap, maxg, jt, flxprec, flxsnow, ntprprd, ntsnprd, pguallu, pguallv, &
       dlf, ps, pap, maxg, jt, flxprec, flxsnow, ntprprd, ntsnprd, pguallu, pguallv, &
       pgdallu, pgdallv, icwuu, icwuv, icwdu, icwdv, mcon, errmsg, errflg)
 
@@ -103,7 +84,6 @@ CONTAINS
       integer, intent(in) :: ncol
       integer, intent(in) :: pver
       integer, intent(in) :: pverp
-!      real(kind_phys), intent(in) :: const_array(:,:,:)
       integer, intent(in) :: ideep(:)
 
       real(kind_phys), intent(in) :: cpair
@@ -112,7 +92,6 @@ CONTAINS
       real(kind_phys), intent(in) :: gravit
       real(kind_phys), intent(in) :: mu(:,:)
       real(kind_phys), intent(in) :: md(:,:)
-!      real(kind_phys), intent(in) :: dif(:,:)
       real(kind_phys), intent(in) :: dlf(:,:)
       real(kind_phys), intent(in) :: ps(:)
       real(kind_phys), intent(in) :: pap(:,:)
@@ -186,7 +165,6 @@ CONTAINS
    call history_out_field('ZMMU', mu_out)
    call history_out_field('ZMMD', md_out)
 
-!   call history_out_field('DIFZM'   ,dif)
    call history_out_field('DLFZM'   ,dlf)
 
    pcont(:ncol) = ps(:ncol)
@@ -196,7 +174,6 @@ CONTAINS
           pcont(ideep(i)) = pap(ideep(i),jt(i))  ! gathered array (or jctop ungathered)
           pconb(ideep(i)) = pap(ideep(i),maxg(i))! gathered array
        endif
-       !     write(iulog,*) ' pcont, pconb ', pcont(i), pconb(i), cnt(i), cnb(i)
     end do
     call history_out_field('PCONVT  ',pcont)
     call history_out_field('PCONVB  ',pconb)
@@ -206,7 +183,7 @@ CONTAINS
    call history_out_field('ZMNTPRPD', ntprprd)
    call history_out_field('ZMNTSNPD', ntsnprd)
 
-!CACNOTE - CAM is outputting the exact same quantity to both fields
+!CAM was outputting the exact same quantity to both fields
    call history_out_field('PRECCDZM   ',prec)
    call history_out_field('PRECZ   ', prec)
 

@@ -83,12 +83,6 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
-#[ dif ]
-#  standard_name = detrainment_of_cloud_ice_due_to_deep_convection
-#  units = kg kg-1 s-1
-#  type = real | kind = kind_phys
-#  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
-#  intent = in
 [ dlf ]
   standard_name = detrainment_of_cloud_liquid_due_to_deep_convection
   units = kg kg-1 s-1

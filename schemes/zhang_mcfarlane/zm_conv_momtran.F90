@@ -45,7 +45,7 @@ subroutine zm_conv_momtran_run(ncol, pver, pverp, &
 !
    integer, intent(in) :: ncol                  ! number of atmospheric columns
    integer, intent(in) :: pver, pverp
-   logical, intent(in) :: domomtran      ! flag for doing convective transport    (num_winds)
+   logical, intent(in) :: domomtran      ! flag for doing convective transport
    real(kind_phys), intent(in) :: windu(:,:)  ! U Wind array                                    (ncol,pver)
    real(kind_phys), intent(in) :: windv(:,:)  ! V Wind array                                    (ncol,pver)
    real(kind_phys), intent(in) :: mu(:,:)       ! Mass flux up                              (ncol,pver)

@@ -1,22 +1,4 @@
 module zm_momtran_tendency_diagnostics
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!
-! THIS IS A TEMPLATE
-!   1. copy this file to a new file with the correct name
-!        (SCHEME_diagnostics.F90)
-!   2. do a search and replace for "SCHEME" in this file and
-!        replace with your scheme name
-!   3. Add desired history_add_field calls to the init phase
-!   4. Add all fields that are being output as inputs to the run phase
-!   5. Add desired history_out_field calls to the run phase
-!   6. Run $ccpp_framework/scripts/ccpp_fortran_to_metadata.py on this .F90
-!        file to generate the metadata
-!   7. Complete the metadata (fill out standard names, units, dimensions)
-!   8. Add this scheme to the SDF file for your suite (likely will be at end)
-!   9. Delete this header section
-!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
    use ccpp_kinds, only:  kind_phys
 
    implicit none
@@ -53,7 +35,6 @@ CONTAINS
    subroutine zm_momtran_tendency_diagnostics_run(ncol, pver, cpair, windu_tend, windv_tend, seten, errmsg, errflg)
 
       use cam_history,               only: history_out_field
-      use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
       !------------------------------------------------
       !   Input / output parameters
       !------------------------------------------------
@@ -67,10 +48,6 @@ CONTAINS
       ! CCPP error handling variables
       character(len=512), intent(out) :: errmsg
       integer,          intent(out) :: errflg
-
-      integer :: lengath  ! number of columns with deep convection
-      integer :: const_idx
-      character(len=256) :: standard_name
 
       real(kind_phys) :: ftem(ncol,pver)
 
