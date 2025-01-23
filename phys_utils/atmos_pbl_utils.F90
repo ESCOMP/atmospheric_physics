@@ -22,10 +22,9 @@ contains
 
     pure elemental function calc_rrho(rair, surface_temperature, pmid) result(rrho)
         ! air density reciprocal
-
+        real(kind_phys), intent(in) :: rair  ! gas constant for dry air
         real(kind_phys), intent(in) :: surface_temperature
         real(kind_phys), intent(in) :: pmid  ! midpoint pressure (bottom level)
-        real(kind_phys), intent(in) :: rair  ! gas constant for dry air
 
         real(kind_phys)             :: rrho  ! 1./bottom level density
 
@@ -75,7 +74,7 @@ contains
         real(kind_phys), intent(in) :: ths   ! potential temperature at surface [K]
         real(kind_phys), intent(in) :: kqfs  ! sfc kinematic water vapor flux [m/s]
 
-        real(kind_phys)             :: kbfs  ! sfc kinematic buoyancy flux [m^2/s^3]
+        real(kind_phys)             :: kbfs  ! sfc kinematic buoyancy flux [mK/s] (`kbfs = \overline{(w' \theta'_v)}_s`)
 
         kbfs = khfs + zvir*ths*kqfs
     end function calc_kinematic_buoyancy_flux
