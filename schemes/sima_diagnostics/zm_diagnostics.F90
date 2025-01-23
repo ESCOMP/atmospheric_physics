@@ -122,7 +122,6 @@ CONTAINS
       real(kind_phys) :: pcont(ncol)
       real(kind_phys) :: pconb(ncol)
       real(kind_phys) :: ftem(ncol,pver)
-      real(kind_phys) :: mconzm(ncol,pverp)
       real(kind_phys) :: mu_out(ncol,pver)
       real(kind_phys) :: md_out(ncol,pver)
 

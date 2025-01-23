@@ -69,6 +69,7 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
 
 !
 !---------------------------Local storage-------------------------------
+    real(kind_phys), parameter :: density_fresh_water=1000._kind_phys
 
     real(kind_phys) :: es   (ncol,pver)    ! Saturation vapor pressure
     real(kind_phys) :: qs   (ncol,pver)    ! saturation specific humidity
@@ -108,7 +109,7 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
     old_snow=.true.
 
 ! convert input precip to kg/m2/s
-    prec_gen(:ncol) = prec_gen(:ncol)*1000._kind_phys
+    prec_gen(:ncol) = prec_gen(:ncol)* density_fresh_water
 
 ! determine saturation vapor pressure
     do k = 1,pver
@@ -237,8 +238,8 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
 
 ! set output precipitation rates (m/s)
 ! convert from 'kg m-2 s-1' to 'm s-1'
-    prec_gen(:ncol) = flxprec(:ncol,pverp) / 1000._kind_phys
-    snow(:ncol) = flxsnow(:ncol,pverp) / 1000._kind_phys
+    prec_gen(:ncol) = flxprec(:ncol,pverp) / density_fresh_water
+    snow(:ncol) = flxsnow(:ncol,pverp) / density_fresh_water
 
   end subroutine zm_conv_evap_run
 
