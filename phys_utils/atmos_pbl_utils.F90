@@ -204,7 +204,8 @@ contains
 
         real(kind_phys)              :: modifier
 
-        modifier = 1.0_kind_phys / ( 1.0_kind_phys + 10.0_kind_phys * richardson_number * ( 1.0_kind_phys + 8.0_kind_phys * richardson_number ) )
+        modifier = 1.0_kind_phys / &
+                 ( 1.0_kind_phys + 10.0_kind_phys * richardson_number * ( 1.0_kind_phys + 8.0_kind_phys * richardson_number ) )
     end function stable_gradient_richardson_stability_parameter
 
     pure elemental function neutral_exchange_coefficient(mixing_length_squared, shear_squared) result(neutral_k)
