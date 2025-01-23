@@ -94,7 +94,8 @@ contains
 
         ! Added sign(...) term to prevent division by 0 and using the fact that
         ! `kbfs = \overline{(w' \theta_v')}_s`
-        obukhov_length = -thvs * ustar**3 / (g*vk*(kbfs + sign(1.e-10_kind_phys,kbfs)))
+        obukhov_length = -thvs * ustar**3 /                          &
+                         (g*vk*(kbfs + sign(1.e-10_kind_phys,kbfs)))
     end function calc_obukhov_length
 
     pure elemental function calc_virtual_temperature(temperature, specific_humidity, zvir) result(virtual_temperature)
@@ -204,7 +205,7 @@ contains
 
         real(kind_phys)              :: modifier
 
-        modifier = 1.0_kind_phys / &
+        modifier = 1.0_kind_phys /                                                                                              &
                  ( 1.0_kind_phys + 10.0_kind_phys * richardson_number * ( 1.0_kind_phys + 8.0_kind_phys * richardson_number ) )
     end function stable_gradient_richardson_stability_parameter
 
