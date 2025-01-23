@@ -255,10 +255,6 @@ contains
       call calculate_gas_species_interfaces_and_densities( &
         MOLAR_MASS_O3, dry_air_density(i_col,:), constituents(i_col,:,index_O3), &
         height_deltas, .true., expected_O3_interfaces(i_col,:), expected_O3_densities(i_col,:) )
-      write(*,*) " $$$$$$$$$ "
-      write(*,*) "[F] interfaces: ", expected_dry_air_interfaces(i_col,:)
-      write(*,*) "[F] densities: ", expected_dry_air_densities(i_col,:)
-      write(*,*) " $$$$$$$$$ "
     end do
 
     height_grid => create_height_grid( NUM_LAYERS, NUM_LAYERS + 1 , errmsg, errcode )

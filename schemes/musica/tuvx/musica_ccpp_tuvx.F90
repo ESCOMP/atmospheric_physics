@@ -503,6 +503,7 @@ contains
   !> Calculates photolysis rate constants for the current model conditions
   subroutine tuvx_run(temperature, dry_air_density,                 &
                       constituents,                                 &
+                      constituents_NO_photolysis,                   &
                       geopotential_height_wrt_surface_at_midpoint,  &
                       geopotential_height_wrt_surface_at_interface, &
                       surface_geopotential, surface_temperature,    &
@@ -525,16 +526,16 @@ contains
     use musica_ccpp_tuvx_cloud_optics,          only: set_cloud_optics_values
     use musica_ccpp_tuvx_aerosol_optics,        only: set_aerosol_optics_values
     use musica_ccpp_tuvx_load_species,          only: index_cloud_liquid_water_content, &
-                                                      index_dry_air, index_O2, index_O3, &
-                                                      index_N2, index_NO, MOLAR_MASS_N2, &
-                                                      MOLAR_MASS_O2, MOLAR_MASS_O3, MOLAR_MASS_NO
+                                                      index_dry_air, index_O2, index_O3
     use musica_ccpp_tuvx_gas_species,           only: set_gas_species_values
     use musica_ccpp_tuvx_no_photolysis_rate,    only: calculate_NO_photolysis_rate
     use musica_ccpp_species,                    only: MUSICA_INT_UNASSIGNED
+    use musica_ccpp_tuvx_no_photolysis_rate,    only: is_NO_present
 
     real(kind_phys),    intent(in)    :: temperature(:,:)                                  ! K (column, layer)
     real(kind_phys),    intent(in)    :: dry_air_density(:,:)                              ! kg m-3 (column, layer)
     real(kind_phys),    intent(in)    :: constituents(:,:,:)                               ! kg kg-1 (column, layer, constituent)
+    real(kind_phys),    intent(in)    :: constituents_NO_photolysis(:,:,:)                 ! kg kg-1 (column, layer, constituent)
     real(kind_phys),    intent(in)    :: geopotential_height_wrt_surface_at_midpoint(:,:)  ! m (column, layer)
     real(kind_phys),    intent(in)    :: geopotential_height_wrt_surface_at_interface(:,:) ! m (column, interface)
     real(kind_phys),    intent(in)    :: surface_geopotential(:)                           ! m2 s-2
@@ -562,7 +563,7 @@ contains
     real(kind_phys) :: solar_zenith_angle_degrees
     type(error_t)   :: error
     integer         :: i_col, i_level
-    real(kind_phys) :: jno(size(constituents, dim=2))                                      ! s-1
+    real(kind_phys) :: jno(size(constituents, dim=2)) ! s-1
 
     reciprocal_of_gravitational_acceleration = 1.0_kind_phys / standard_gravitational_acceleration
 
@@ -631,11 +632,14 @@ contains
             max( photolysis_rate_constants(:,:), 0.0_kind_phys )
       end if ! solar zenith angle check
 
-      if (index_N2 .ne. MUSICA_INT_UNASSIGNED .and. index_O2 .ne. MUSICA_INT_UNASSIGNED .and. &
-          index_O3 .ne. MUSICA_INT_UNASSIGNED .and. index_NO .ne. MUSICA_INT_UNASSIGNED) then
+      if (is_NO_present) then
         ! TODO: How do I ensure that the extraterrestrial flux matches the wavelength grid needed for NO photolysis?
-        jno = calculate_NO_photolysis_rate(size(constituents, dim=2), solar_zenith_angle(i_col), extraterrestrial_flux, constituents(i_col,:,:), height_interfaces, &
-          dry_air_density(i_col,:), index_N2, index_O2, index_O3, index_NO, MOLAR_MASS_N2, MOLAR_MASS_O2, MOLAR_MASS_O3, MOLAR_MASS_NO)
+        ! jno = calculate_NO_photolysis_rate(size(constituents, dim=2), solar_zenith_angle(i_col), extraterrestrial_flux, constituents(i_col,:,:), height_interfaces, &
+        !   dry_air_density(i_col,:), index_N2, index_O2, index_O3, index_NO, MOLAR_MASS_N2, MOLAR_MASS_O2, MOLAR_MASS_O3, MOLAR_MASS_NO)
+        jno = calculate_NO_photolysis_rate( size(constituents, dim=2),               &
+                solar_zenith_angle(i_col), extraterrestrial_flux, height_interfaces, &
+                dry_air_density(i_col,:), constituents(i_col,:,index_O2),            &
+                constituents(i_col,:,index_O3), constituents_NO_photolysis(i_col,:,:) )
       end if
 
       ! TODO: Where does jno go into the photolysis_rate_constants array?
