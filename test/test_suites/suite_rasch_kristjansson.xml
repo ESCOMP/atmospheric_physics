@@ -12,5 +12,45 @@
     <scheme>apply_heating_rate</scheme>
     <scheme>qneg</scheme>
     <scheme>geopotential_temp</scheme>
+    <scheme>rk_stratiform_sedimentation</scheme>
+
+    <!-- RK2: detrain reserved liquid (dlf = detrainment_of_water_due_to_all_convection) into cloud liquid (pcwdetrain) -->
+    <scheme>rk_stratiform_detrain_convective_condensate</scheme>
+
+    <!-- RK3: computation of various cloud fractions (CAM4 version) - two calls to cldfrc here embedded -->
+    <!--<scheme>rk_stratiform_cloud_fractions</scheme>-->
+
+    <!-- RK4a: stratiform condensate repartitioning (cldwat-repartition) -->
+    <!--
+    <scheme>rk_stratiform_microphysics</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+    -->
+
+    <!-- RK4b: prognostic cloud water (cldwat) -->
+    <scheme>prognostic_cloud_water</scheme>
+    <!--
+    <scheme>rk_stratiform_prognostic_cloud_water_tendencies</scheme>
+    <scheme>rk_stratiform_prognostic_cloud_water_tendencies_diagnostics</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+    -->
+
+    <!-- RK5: cloud fractions (including third call to cldfrc) -->
+    <!--<scheme>rk_stratiform_microphysics_tendencies</scheme>-->
+    <!--<scheme>rk_stratiform_microphysics_diagnostics</scheme>-->
+
+    <!-- RK6: cloud water and ice particle sizes for radiation -->
+    <!--
+    <scheme>rk_stratiform_cloud_optical_properties</scheme>
+    <scheme>rk_stratiform_cloud_optical_properties_diagnostics</scheme>
+    -->
+
+
+    <!-- save non-micro and non-macrophysical external advective forcings -->
+    <!--<scheme>rk_stratiform_save_qtltend</scheme>-->
   </group>
 </suite>

@@ -231,14 +231,14 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ sfliq ]
-  standard_name = enter_standard_name_37
+  standard_name = stratiform_rain_surface_flux_due_to_sedimentation
   units = kg m-2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
 [ sfice ]
-  standard_name = enter_standard_name_38
-  units = kg m-2 s-1
+  standard_name = lwe_cloud_ice_sedimentation_rate_at_surface_due_to_microphysics
+  units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out

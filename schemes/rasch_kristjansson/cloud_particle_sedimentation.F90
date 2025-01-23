@@ -147,7 +147,7 @@ contains
     real(kind_phys),    intent(out)   :: wvtend(:,:)    ! water vapor tendency -- to apply wv tendency
     real(kind_phys),    intent(out)   :: htend(:,:)     ! heating rate [J kg-1 s-1] -- to apply s tendency
     real(kind_phys),    intent(out)   :: sfliq(:)       ! surface flux of liquid (rain) [kg m-2 s-1]
-    real(kind_phys),    intent(out)   :: sfice(:)       ! surface flux of ice (snow) [kg m-2 s-1]
+    real(kind_phys),    intent(out)   :: sfice(:)       ! lwe_cloud_ice_sedimentation_rate_at_surface_due_to_microphysics [m s-1]
     character(len=512), intent(out)   :: errmsg         ! error message
     integer,            intent(out)   :: errflg         ! error flag
 
@@ -358,9 +358,12 @@ contains
       end do
     end do
 
-! convert flux out the bottom to mass units Pa -> kg/m2/s
+    ! convert flux out the bottom to mass units Pa -> kg/m2/s
     sfliq(:ncol) = fxliq(:ncol, pverp)/(dtime*gravit)
     sfice(:ncol) = fxice(:ncol, pverp)/(dtime*gravit)
+
+    ! Convert lwe_cloud_ice_sedimentation_rate_at_surface_due_to_microphysics from kg m-2 s-1 to precip units m s-1
+    sfice(:ncol) = sfice(:ncol)/1000._kind_phys
 
   end subroutine cloud_particle_sedimentation_run
 
