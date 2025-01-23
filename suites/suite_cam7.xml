@@ -60,6 +60,10 @@
     <scheme>geopotential_temp</scheme>
     <scheme>zm_diagnostics</scheme>
 
+    <!-- Check that energy and water change matches the boundary fluxes -->
+    <scheme>check_energy_scaling</scheme>
+    <scheme>check_energy_chng</scheme>
+
   </group>
 
   <!-- **********Physics after the coupler************  -->
