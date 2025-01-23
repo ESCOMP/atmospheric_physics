@@ -15,8 +15,8 @@ module atmos_phys_pbl_utils
     public :: austausch_atm
     public :: austausch_atm_free
 
-    real(kind_phys), parameter :: ustar_min = 0.01_kind_phys
-    real(kind_phys), parameter :: zkmin     = 0.01_kind_phys ! Minimum kneutral*f(ri). CCM1 2.f.14
+    real(kind_phys), parameter :: minimum_friction_velocity = 0.01_kind_phys
+    real(kind_phys), parameter :: zkmin                     = 0.01_kind_phys ! Minimum kneutral*f(ri). CCM1 2.f.14
 
 contains
 
@@ -46,7 +46,7 @@ contains
 
         real(kind_phys)             :: friction_velocity ! surface friction velocity [m/s]
 
-        friction_velocity = max( sqrt( sqrt(taux**2 + tauy**2)*rrho ), ustar_min )
+        friction_velocity = max( sqrt( sqrt(taux**2 + tauy**2)*rrho ), minimum_friction_velocity )
     end function calc_friction_velocity
 
     pure elemental function calc_kinematic_heat_flux(shflx, rrho, cpair) result(khfs)
