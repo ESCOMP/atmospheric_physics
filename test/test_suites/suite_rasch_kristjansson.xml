@@ -30,14 +30,14 @@
 
     <!-- RK4b: prognostic cloud water (cldwat) -->
     <scheme>prognostic_cloud_water</scheme>
-    <!--
     <scheme>rk_stratiform_prognostic_cloud_water_tendencies</scheme>
+    <!--
     <scheme>rk_stratiform_prognostic_cloud_water_tendencies_diagnostics</scheme>
+    -->
     <scheme>apply_constituent_tendencies</scheme>
     <scheme>apply_heating_rate</scheme>
     <scheme>qneg</scheme>
     <scheme>geopotential_temp</scheme>
-    -->
 
     <!-- RK5: cloud fractions (including third call to cldfrc) -->
     <!--<scheme>rk_stratiform_microphysics_tendencies</scheme>-->

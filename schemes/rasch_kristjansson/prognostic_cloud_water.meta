@@ -227,7 +227,7 @@
   intent = in
 [ cwat ]
   standard_name = enter_standard_name_37
-  units = enter_units
+  units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in

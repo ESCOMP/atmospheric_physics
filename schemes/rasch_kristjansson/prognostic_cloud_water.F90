@@ -839,8 +839,8 @@ contains
     !
     ! If this conversion is removed in the future, the metadata needs to
     ! be updated.
-    precip(:ncol) = precip(:ncol)/1000._r8
-    snowab(:ncol) = snowab(:ncol)/1000._r8
+    precip(:ncol) = precip(:ncol)/1000._kind_phys
+    snowab(:ncol) = snowab(:ncol)/1000._kind_phys
   end subroutine prognostic_cloud_water_run
 
   ! Calculate the conversion of condensate to precipitate
