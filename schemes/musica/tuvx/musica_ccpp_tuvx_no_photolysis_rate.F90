@@ -165,12 +165,14 @@ contains
 
     ! local variables
     integer  :: number_of_vertical_layers
-    real(dk) :: n2_dens(size(dry_air_density)+1), o2_dens(size(dry_air_density)+1)
-    real(dk) :: o3_dens(size(dry_air_density)+1), no_dens(size(dry_air_density)+1)
-    ! species slant column densities (molecule cm-2)
-    real(dk) :: o2_slant(size(dry_air_density)+1), o3_slant(size(dry_air_density)+1)
-    real(dk) :: no_slant(size(dry_air_density)+1)
-    real(dk) :: work_jno(size(dry_air_density)+1) ! working photo rate array
+    real(dk) :: N2_densities(size(dry_air_density)+1) ! mol cm-3
+    real(dk) :: O2_densities(size(dry_air_density)+1) ! mol cm-3
+    real(dk) :: O3_densities(size(dry_air_density)+1) ! mol cm-3
+    real(dk) :: NO_densities(size(dry_air_density)+1) ! mol cm-3
+    real(dk) :: O2_slant_colunm_densities(size(dry_air_density)+1) ! mol cm-2
+    real(dk) :: O3_slant_colunm_densities(size(dry_air_density)+1) ! mol cm-2
+    real(dk) :: NO_slant_colunm_densities(size(dry_air_density)+1) ! mol cm-2
+    real(dk) :: current_jNO(size(dry_air_density)+1)
 
     ! parameters needed to calculate slant column densities
     ! (see sphers routine description for details)
@@ -183,36 +185,37 @@ contains
     ! TODO: what are these constants? scale heights?
     ! TODO: the values at index 1 appear to be for values above the model top in CAM, but how does that affect cam sima?
     call convert_mixing_ratio_to_molecule_cm3(constituents_NO_photolysis(:,index_N2), &
-          dry_air_density, MOLAR_MASS_N2, n2_dens(2:))
-    n2_dens(1) = n2_dens(2) * 0.9_dk
+          dry_air_density, MOLAR_MASS_N2, N2_densities(2:))
+    N2_densities(1) = N2_densities(2) * 0.9_dk
 
     call convert_mixing_ratio_to_molecule_cm3(constituents_O2, &
-          dry_air_density, MOLAR_MASS_O2, o2_dens(2:))
-    o2_dens(1) = o2_dens(2) * 7.0_dk / ( height_at_interfaces(1) - height_at_interfaces(2) )
+          dry_air_density, MOLAR_MASS_O2, O2_densities(2:))
+    O2_densities(1) = O2_densities(2) * 7.0_dk / ( height_at_interfaces(1) - height_at_interfaces(2) )
 
     call convert_mixing_ratio_to_molecule_cm3(constituents_O3, &
-          dry_air_density, MOLAR_MASS_O3, o3_dens(2:))
-    o3_dens(1) = o3_dens(2) * 7.0_dk / ( height_at_interfaces(1) - height_at_interfaces(2) )
+          dry_air_density, MOLAR_MASS_O3, O3_densities(2:))
+    O3_densities(1) = O3_densities(2) * 7.0_dk / ( height_at_interfaces(1) - height_at_interfaces(2) )
 
     call convert_mixing_ratio_to_molecule_cm3(constituents_NO_photolysis(:,index_NO), &
-          dry_air_density, MOLAR_MASS_NO, no_dens(2:))
-    no_dens(1) = no_dens(2) * 0.9_dk
+          dry_air_density, MOLAR_MASS_NO, NO_densities(2:))
+    NO_densities(1) = NO_densities(2) * 0.9_dk
 
     ! calculate slant column densities
     call calculate_slant_path( number_of_vertical_layers, height_at_interfaces, &
           solar_zenith_angle, slant_path, number_of_crossed_layers )
-    delta_z(1:number_of_vertical_layers) = km_to_cm *       &
-      (height_at_interfaces(1:number_of_vertical_layers) &
-      - height_at_interfaces(2:number_of_vertical_layers+1) )
+    delta_z(1:number_of_vertical_layers) = km_to_cm *              &
+                (height_at_interfaces(1:number_of_vertical_layers) &
+                - height_at_interfaces(2:number_of_vertical_layers+1) )
     call calculate_slant_column_density( number_of_vertical_layers+1, delta_z,&
-          slant_path, number_of_crossed_layers, o2_dens, o2_slant )
+          slant_path, number_of_crossed_layers, O2_densities, O2_slant_colunm_densities )
     call calculate_slant_column_density( number_of_vertical_layers+1, delta_z, &
-          slant_path, number_of_crossed_layers, o3_dens, o3_slant )
+          slant_path, number_of_crossed_layers, O3_densities, O3_slant_colunm_densities )
     call calculate_slant_column_density( number_of_vertical_layers+1, delta_z, &
-          slant_path, number_of_crossed_layers, no_dens, no_slant )
+          slant_path, number_of_crossed_layers, NO_densities, NO_slant_colunm_densities )
 
-    jNO = calculate_jno(number_of_vertical_layers, extraterrestrial_flux, &
-                        n2_dens, o2_slant, o3_slant, no_slant, work_jno)
+    jNO = calculate_jno(number_of_vertical_layers, extraterrestrial_flux, N2_densities, &
+                        O2_slant_colunm_densities, O3_slant_colunm_densities,           &
+                        NO_slant_colunm_densities, current_jNO)
 
   end function calculate_NO_photolysis_rate
 
