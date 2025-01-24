@@ -145,7 +145,7 @@ contains
     real(kind_phys),    intent(in)    :: latvap
     real(kind_phys),    intent(in)    :: latice
     real(kind_phys),    intent(in)    :: cme(:,:)          ! net_condensation_rate_due_to_microphysics [s-1]
-    real(kind_phys),    intent(in)    :: fice(:,:)         ! from cldfrc_fice -- to fill
+    real(kind_phys),    intent(in)    :: fice(:,:)         ! mass_fraction_of_ice_content_within_stratiform_cloud [fraction]
     real(kind_phys),    intent(in)    :: evapheat(:,:)     !
     real(kind_phys),    intent(in)    :: prfzheat(:,:)     !
     real(kind_phys),    intent(in)    :: meltheat(:,:)     !

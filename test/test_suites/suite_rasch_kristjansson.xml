@@ -17,12 +17,19 @@
     <!-- RK2: detrain reserved liquid (dlf = detrainment_of_water_due_to_all_convection) into cloud liquid (pcwdetrain) -->
     <scheme>rk_stratiform_detrain_convective_condensate</scheme>
 
-    <!-- RK3: computation of various cloud fractions (CAM4 version) - two calls to cldfrc here embedded -->
+    <!-- RK3: computation of various cloud fractions (CAM4 version)
+         two calls to cldfrc here embedded. the first one has to update cloud_area_fraction;
+         the second is used to compute perturbations of RH to cloud fraction deltas later used in prognostic cloud water.
+
+         note: may be clearer in the future to use cloud_fraction_run explicitly once here,
+         then call the second cldfrc silently in rk_stratiform_cloud_fractions. we will see.
+    -->
     <!--<scheme>rk_stratiform_cloud_fractions</scheme>-->
 
     <!-- RK4a: stratiform condensate repartitioning (cldwat-repartition) -->
+    <scheme>cldfrc_fice</scheme>
     <!--
-    <scheme>rk_stratiform_microphysics</scheme>
+    <scheme>rk_stratiform_repartitioning</scheme>
     <scheme>apply_constituent_tendencies</scheme>
     <scheme>qneg</scheme>
     <scheme>geopotential_temp</scheme>
@@ -49,8 +56,7 @@
     <scheme>rk_stratiform_cloud_optical_properties_diagnostics</scheme>
     -->
 
-
     <!-- save non-micro and non-macrophysical external advective forcings -->
-    <!--<scheme>rk_stratiform_save_qtltend</scheme>-->
+    <!--<scheme>rk_stratiform_save_qtcwat</scheme>-->
   </group>
 </suite>

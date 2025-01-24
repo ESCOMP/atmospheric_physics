@@ -322,8 +322,8 @@ contains
     real(kind_phys) :: nice2pr                          ! Rate of conversion from ice to snow [kg kg-1 s-1]
     real(kind_phys) :: nliq2pr                          ! Rate of conversion from liquid to precipitation [kg kg-1 s-1]
     real(kind_phys) :: nliq2snow                        ! Rate of conversion from liquid to snow [kg kg-1 s-1]
-    real(kind_phys) :: precab(ncol)                    ! Rate of precipitation entering layer [kg m-2 s-1]
-    real(kind_phys) :: prprov(ncol)                    ! Provisional precipitation at bottom of layer [kg m-2 s-1]
+    real(kind_phys) :: precab(ncol)                     ! Rate of precipitation entering layer [kg m-2 s-1]
+    real(kind_phys) :: prprov(ncol)                     ! Provisional precipitation at bottom of layer [kg m-2 s-1]
 
     ! Cloud properties
     real(kind_phys) :: cldm(ncol)                       ! Mean cloud fraction over timestep [1]

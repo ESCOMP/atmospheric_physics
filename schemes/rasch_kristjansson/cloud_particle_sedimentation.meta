@@ -192,13 +192,13 @@
   dimensions = (horizontal_loop_extent)
   intent = in
 [ pvliq ]
-  standard_name = enter_standard_name_31
+  standard_name = vertical_velocity_of_cloud_liquid_water_due_to_sedimentation_tbd
   units = Pa s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ pvice ]
-  standard_name = enter_standard_name_32
+  standard_name = vertical_velocity_of_cloud_ice_due_to_sedimentation_tbd
   units = Pa s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
