@@ -200,19 +200,6 @@ contains
                   rate_parameters,                              &
                   errmsg, errcode)
 
-    ! TODO (jiwon) - update constituents doens't have an effect since tuvx_run takes it as intent in
-    !                is this correct?
-    call update_constituents(tuvx_indices_constituent_props, constituents_tuvx_species, &
-                             constituents, errmsg, errcode)
-    if (errcode /= 0) return
-
-    if (is_NO_photolysis_active) then
-      ! TODO(jiwon) - does it need to update NO constituents?
-      call update_constituents(NO_photolysis_indices_constituent_props, constituents_NO_photolysis, &
-                              constituents, errmsg, errcode)
-      if (errcode /= 0) return
-    end if
-
     call extract_subset_constituents(micm_indices_constituent_props, constituents, &
                                      constituents_micm_species, errmsg, errcode)
     if (errcode /= 0) return
