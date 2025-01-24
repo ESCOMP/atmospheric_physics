@@ -1,0 +1,7 @@
+[submodule "pumas_ccpp"]
+        path          = schemes/pumas
+        url           = https://github.com/nusbaume/ccpp-physics
+        fxsparse      = ../.pumas_sparse_checkout
+        fxtag         = 4eff6731a68ea071855550261679d3ac998a2c09
+        fxrequired    = AlwaysRequired
+        fxDONOTUSEurl = https://github.com/ESCOMP/atmospheric_physics
