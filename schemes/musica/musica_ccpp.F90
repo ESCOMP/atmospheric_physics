@@ -68,7 +68,7 @@ contains
     use musica_ccpp_species,       only: initialize_musica_species_indices, initialize_molar_mass_array, &
                                          check_initialization, musica_species_t
     use musica_ccpp_tuvx_no_photolysis_rate, &
-      only: is_NO_present, set_NO_index_constituent_props, check_NO_initialization
+      only: is_NO_photolysis_active, set_NO_index_constituent_props, check_NO_initialization
 
     integer,                           intent(in)  :: horizontal_dimension                     ! (count)
     integer,                           intent(in)  :: vertical_layer_dimension                 ! (count)
@@ -103,7 +103,7 @@ contains
     call check_initialization(errmsg, errcode)
     if (errcode /= 0) return
 
-    if (is_NO_present) then
+    if (is_NO_photolysis_active) then
       call set_NO_index_constituent_props(constituent_props_ptr, errmsg, errcode)
       if (errcode /= 0) return
       call check_NO_initialization(errmsg, errcode)
@@ -134,7 +134,7 @@ contains
       micm_indices_constituent_props, tuvx_indices_constituent_props, micm_molar_mass_array, &
       extract_subset_constituents, update_constituents
     use musica_ccpp_tuvx_no_photolysis_rate, &
-      only: is_NO_present, num_NO_photolysis_constituents, NO_photolysis_indices_constituent_props
+      only: is_NO_photolysis_active, num_NO_photolysis_constituents, NO_photolysis_indices_constituent_props
 
     real(kind_phys),         intent(in)    :: time_step                                         ! s
     real(kind_phys), target, intent(in)    :: temperature(:,:)                                  ! K
@@ -176,7 +176,7 @@ contains
                                      constituents_tuvx_species, errmsg, errcode)
     if (errcode /= 0) return
 
-    if (is_NO_present) then
+    if (is_NO_photolysis_active) then
       call extract_subset_constituents(NO_photolysis_indices_constituent_props, constituents, &
                                       constituents_NO_photolysis, errmsg, errcode)
       if (errcode /= 0) return
@@ -206,7 +206,7 @@ contains
                              constituents, errmsg, errcode)
     if (errcode /= 0) return
 
-    if (is_NO_present) then
+    if (is_NO_photolysis_active) then
       ! TODO(jiwon) - does it need to update NO constituents?
       call update_constituents(NO_photolysis_indices_constituent_props, constituents_NO_photolysis, &
                               constituents, errmsg, errcode)

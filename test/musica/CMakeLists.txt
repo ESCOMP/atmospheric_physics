@@ -14,7 +14,7 @@ set(MUSICA_ENABLE_INSTALL OFF)
 FetchContent_MakeAvailable(musica)
 
 # MUSICA CCPP API test
-add_executable(test_musica_api test_musica_api.F90 musica_ccpp_namelist.F90)
+add_executable(test_musica_api test_musica_api.F90 musica_ccpp_namelist.F90 test_musica_data.F90)
 
 file(GLOB MUSICA_CCPP_SOURCES
   ${MUSICA_SRC_PATH}/*.F90
@@ -87,7 +87,7 @@ add_test(
 )
 
 # MUSICA species test
-add_executable(test_musica_species test_musica_species.F90 musica_ccpp_namelist.F90)
+add_executable(test_musica_species test_musica_species.F90 musica_ccpp_namelist.F90 test_musica_data.F90)
 
 target_sources(test_musica_species
   PUBLIC
