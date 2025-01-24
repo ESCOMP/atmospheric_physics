@@ -28,13 +28,6 @@
 [ccpp-arg-table]
   name = initialize_constituents_run
   type = scheme
-[ q ]
-  standard_name = water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
-  advected = True
-  units = kg kg-1
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  type = real | kind = kind_phys
-  intent = in
 [ errmsg ]
   standard_name = ccpp_error_message
   long_name = Error message for error handling in CCPP
