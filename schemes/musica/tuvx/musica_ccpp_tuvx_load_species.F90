@@ -11,8 +11,6 @@ module musica_ccpp_tuvx_load_species
   integer, protected, public :: index_dry_air = MUSICA_INT_UNASSIGNED
   integer, protected, public :: index_O2 = MUSICA_INT_UNASSIGNED
   integer, protected, public :: index_O3 = MUSICA_INT_UNASSIGNED
-  integer, protected, public :: index_N2 = MUSICA_INT_UNASSIGNED
-  integer, protected, public :: index_NO = MUSICA_INT_UNASSIGNED
 
   ! Constants
   ! Cloud liquid water
@@ -34,9 +32,6 @@ module musica_ccpp_tuvx_load_species
   real(kind_phys),  parameter, public :: MOLAR_MASS_DRY_AIR = 0.0289644_kind_phys ! kg mol-1
   real(kind_phys),  parameter, public :: MOLAR_MASS_O2 = 0.0319988_kind_phys      ! kg mol-1
   real(kind_phys),  parameter, public :: MOLAR_MASS_O3 = 0.0479982_kind_phys      ! kg mol-1
-  real(kind_phys),  parameter, public :: MOLAR_MASS_N2 = 0.0280134_kind_phys      ! kg mol-1
-  real(kind_phys),  parameter, public :: MOLAR_MASS_NO = 0.0300100_kind_phys      ! kg mol-1
-
 
 contains
 
@@ -65,8 +60,6 @@ contains
     logical                             :: is_dry_air_registered = .false.
     logical                             :: is_O2_registered = .false.
     logical                             :: is_O3_registered = .false.
-    logical                             :: is_N2_registered = .false.
-    logical                             :: is_NO_registered = .false.
     integer                             :: i_new, i_species, i_tuvx_species
 
     num_micm_species = size(micm_species)
@@ -92,8 +85,7 @@ contains
     ! Iterate through the MICM species to check if any TUV-x gas
     ! species are included; if present, updates the scale height and profiled status.
     do i_species = 1, num_micm_species
-      if (is_dry_air_registered .and. is_O2_registered .and. is_O3_registered .and. &
-          is_N2_registered .and. is_NO_registered) exit
+      if ( is_dry_air_registered .and. is_O2_registered .and. is_O3_registered ) exit
 
       if ( micm_species(i_species)%name == DRY_AIR_LABEL ) then
         is_dry_air_registered = .true.
@@ -107,12 +99,6 @@ contains
         is_O3_registered = .true.
         micm_species(i_species)%profiled = .true.
         micm_species(i_species)%scale_height = SCALE_HEIGHT_O3
-      else if ( micm_species(i_species)%name == 'N2' ) then
-        num_new_species = num_new_species + 1
-        is_N2_registered = .true.
-      else if ( micm_species(i_species)%name == 'NO' ) then
-        num_new_species = num_new_species + 1
-        is_NO_registered = .true.
       end if
     end do
 
@@ -180,7 +166,7 @@ contains
     index_dry_air = i_tuvx_species
     tuvx_species(i_tuvx_species) = musica_species_t( &
       name = DRY_AIR_LABEL, &
-      unit = TUVX_GAS_SPECIES_UNITS, & ! TUV-x profile unit, different from molar mass unit
+      unit = TUVX_GAS_SPECIES_UNITS, &   ! TUV-x profile unit, different from molar mass unit
       molar_mass = MOLAR_MASS_DRY_AIR, & ! kg mol-1
       index_musica_species = i_tuvx_species, &
       profiled = .true., &
@@ -191,7 +177,7 @@ contains
     tuvx_species(i_tuvx_species) = musica_species_t( &
       name = O2_LABEL, &
       unit = TUVX_GAS_SPECIES_UNITS, & ! TUV-x profile unit, different from molar mass unit
-      molar_mass = MOLAR_MASS_O2, & ! kg mol-1
+      molar_mass = MOLAR_MASS_O2, &    ! kg mol-1
       index_musica_species = i_tuvx_species, &
       profiled = .true., &
       scale_height = SCALE_HEIGHT_O2 )
@@ -201,32 +187,10 @@ contains
     tuvx_species(i_tuvx_species) = musica_species_t( &
       name = O3_LABEL, &
       unit = TUVX_GAS_SPECIES_UNITS, & ! TUV-x profile unit, different from molar mass unit
-      molar_mass = MOLAR_MASS_O3, & ! kg mol-1
+      molar_mass = MOLAR_MASS_O3, &    ! kg mol-1
       index_musica_species = i_tuvx_species, &
       profiled = .true., &
       scale_height = SCALE_HEIGHT_O3 )
-    
-    if (is_NO_registered) then
-      i_tuvx_species = i_tuvx_species + 1
-      index_NO = i_tuvx_species
-      tuvx_species(i_tuvx_species) = musica_species_t( &
-        name = 'NO', &
-        unit = TUVX_GAS_SPECIES_UNITS, &
-        molar_mass = MOLAR_MASS_NO, & ! kg mol-1
-        index_musica_species = i_tuvx_species, &
-        profiled = .true.)
-    end if
-
-    if (is_N2_registered) then
-      i_tuvx_species = i_tuvx_species + 1
-      index_N2 = i_tuvx_species
-      tuvx_species(i_tuvx_species) = musica_species_t( &
-        name = 'N2', &
-        unit = TUVX_GAS_SPECIES_UNITS, &
-        molar_mass = MOLAR_MASS_N2, & ! kg mol-1
-        index_musica_species = i_tuvx_species, &
-        profiled = .true.)
-    end if
 
   end subroutine configure_tuvx_species
 

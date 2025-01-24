@@ -21,7 +21,7 @@ contains
                                              check_tuvx_species_initialization
 
     integer, parameter                               :: NUM_MICM_SPECIES = 6
-    integer, parameter                               :: NUM_TUVX_CONSTITUENTS = 5
+    integer, parameter                               :: NUM_TUVX_CONSTITUENTS = 4
     type(musica_species_t)                           :: micm_species(NUM_MICM_SPECIES)
     type(musica_species_t),              allocatable :: tuvx_species(:)
     type(ccpp_constituent_properties_t)              :: micm_constituent_props(NUM_MICM_SPECIES)
@@ -141,6 +141,7 @@ contains
     ASSERT(errcode == 0)
 
     call cleanup_musica_species()
+    deallocate(constituent_props_ptr)
 
   end subroutine test_initialize_musica_species_indices_and_molar_mass
 

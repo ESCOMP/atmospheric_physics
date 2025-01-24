@@ -14,10 +14,11 @@ contains
   !> \section arg_table_musica_ccpp_register Argument Table
   !! \htmlinclude musica_ccpp_register.html
   subroutine musica_ccpp_register(constituent_props, errmsg, errcode)
-    use ccpp_constituent_prop_mod,     only: ccpp_constituent_properties_t
-    use musica_ccpp_namelist,          only: micm_solver_type
-    use musica_ccpp_species,           only: musica_species_t, register_musica_species
-    use musica_ccpp_tuvx_load_species, only: check_tuvx_species_initialization
+    use ccpp_constituent_prop_mod,           only: ccpp_constituent_properties_t
+    use musica_ccpp_namelist,                only: micm_solver_type
+    use musica_ccpp_species,                 only: musica_species_t, register_musica_species
+    use musica_ccpp_tuvx_load_species,       only: check_tuvx_species_initialization
+    use musica_ccpp_tuvx_no_photolysis_rate, only: check_NO_exist
 
     type(ccpp_constituent_properties_t), allocatable, intent(out) :: constituent_props(:)
     character(len=512),                               intent(out) :: errmsg
@@ -49,6 +50,8 @@ contains
     call check_tuvx_species_initialization(errmsg, errcode)
     if (errcode /= 0) return
 
+    call check_NO_exist(micm_species)
+
   end subroutine musica_ccpp_register
 
   !> \section arg_table_musica_ccpp_init Argument Table
@@ -64,6 +67,8 @@ contains
     use musica_ccpp_util,          only: has_error_occurred
     use musica_ccpp_species,       only: initialize_musica_species_indices, initialize_molar_mass_array, &
                                          check_initialization, musica_species_t
+    use musica_ccpp_tuvx_no_photolysis_rate, &
+      only: is_NO_photolysis_active, set_NO_index_constituent_props, check_NO_initialization
 
     integer,                           intent(in)  :: horizontal_dimension                     ! (count)
     integer,                           intent(in)  :: vertical_layer_dimension                 ! (count)
@@ -98,6 +103,13 @@ contains
     call check_initialization(errmsg, errcode)
     if (errcode /= 0) return
 
+    if (is_NO_photolysis_active) then
+      call set_NO_index_constituent_props(constituent_props_ptr, errmsg, errcode)
+      if (errcode /= 0) return
+      call check_NO_initialization(errmsg, errcode)
+      if (errcode /= 0) return
+    end if
+
   end subroutine musica_ccpp_init
 
   !> \section arg_table_musica_ccpp_run Argument Table
@@ -121,6 +133,8 @@ contains
     use musica_ccpp_species,       only: number_of_micm_species, number_of_tuvx_species, &
       micm_indices_constituent_props, tuvx_indices_constituent_props, micm_molar_mass_array, &
       extract_subset_constituents, update_constituents
+    use musica_ccpp_tuvx_no_photolysis_rate, &
+      only: is_NO_photolysis_active, num_NO_photolysis_constituents, NO_photolysis_indices_constituent_props
 
     real(kind_phys),         intent(in)    :: time_step                                         ! s
     real(kind_phys), target, intent(in)    :: temperature(:,:)                                  ! K
@@ -154,14 +168,24 @@ contains
     real(kind_phys), dimension(size(constituents, dim=1), &
                                size(constituents, dim=2), &
                                number_of_tuvx_species)    :: constituents_tuvx_species ! kg kg-1
+    real(kind_phys), dimension(size(constituents, dim=1), &
+                               size(constituents, dim=2), &
+                               num_NO_photolysis_constituents) :: constituents_NO_photolysis ! kg kg-1
 
     call extract_subset_constituents(tuvx_indices_constituent_props, constituents, &
                                      constituents_tuvx_species, errmsg, errcode)
     if (errcode /= 0) return
 
+    if (is_NO_photolysis_active) then
+      call extract_subset_constituents(NO_photolysis_indices_constituent_props, constituents, &
+                                      constituents_NO_photolysis, errmsg, errcode)
+      if (errcode /= 0) return
+    end if
+
     ! Calculate photolysis rate constants using TUV-x
     call tuvx_run(temperature, dry_air_density,                 &
                   constituents_tuvx_species,                    &
+                  constituents_NO_photolysis,                   &
                   geopotential_height_wrt_surface_at_midpoint,  &
                   geopotential_height_wrt_surface_at_interface, &
                   surface_geopotential, surface_temperature,    &
@@ -176,9 +200,6 @@ contains
                   rate_parameters,                              &
                   errmsg, errcode)
 
-    call update_constituents(tuvx_indices_constituent_props, constituents_tuvx_species, &
-                             constituents, errmsg, errcode)
-    if (errcode /= 0) return
     call extract_subset_constituents(micm_indices_constituent_props, constituents, &
                                      constituents_micm_species, errmsg, errcode)
     if (errcode /= 0) return
