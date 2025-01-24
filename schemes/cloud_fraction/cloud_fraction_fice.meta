@@ -1,0 +1,49 @@
+[ccpp-table-properties]
+  name = cloud_fraction_fice
+  type = scheme
+
+[ccpp-arg-table]
+  name  = cloud_fraction_fice_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ t ]
+  standard_name = air_temperature
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ tmelt ]
+  standard_name = freezing_point_of_water
+  units = K
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ top_lev ]
+  standard_name = vertical_layer_index_of_troposphere_cloud_top
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ fice ]
+  standard_name = mass_fraction_of_ice_content_within_stratiform_cloud
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+[ fsnow ]
+  standard_name = mass_fraction_of_snow_content_within_stratiform_cloud
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
