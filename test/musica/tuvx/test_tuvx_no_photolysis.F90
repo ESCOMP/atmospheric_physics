@@ -225,7 +225,7 @@ contains
                                            NUM_NO_CONSTITUENTS)         :: constituents_NO_photolysis                   ! kg kg-1
     real(kind_phys), dimension(NUM_COLUMNS)                             :: solar_zenith_angle                           ! radians
     real(kind_phys), dimension(NUM_LAYERS+1)                            :: height_at_interfaces                         ! km
-    real(kind_phys), dimension(NUM_LAYERS)                              :: photolysis_rate_NO(NUM_LAYERS)
+    real(kind_phys), dimension(NUM_LAYERS)                              :: NO_photolysis_rate_constant(NUM_LAYERS)
     type(ccpp_constituent_prop_ptr_t),   allocatable                    :: constituent_props_ptr(:)
     type(ccpp_constituent_properties_t), allocatable, target            :: constituent_props(:)
     type(ccpp_constituent_properties_t), pointer                        :: const_prop
@@ -326,13 +326,14 @@ contains
     ASSERT(errcode == 0)
 
     do i_col = 1, size(dry_air_density, dim=1)
-      photolysis_rate_NO = calculate_NO_photolysis_rate( solar_zenith_angle(i_col), & 
-                                       extraterrestrial_flux, height_at_interfaces, & 
-                                       dry_air_density(i_col,:),                    &
-                                       constituents_tuvx_species(i_col,:,index_O2), &
-                                       constituents_tuvx_species(i_col,:,index_O3), &
-                                       constituents_NO_photolysis(i_col,:,:) )
+      NO_photolysis_rate_constant = calculate_NO_photolysis_rate( &
+                solar_zenith_angle(i_col), extraterrestrial_flux, &
+                height_at_interfaces, dry_air_density(i_col,:),   &
+                constituents_tuvx_species(i_col,:,index_O2),      &
+                constituents_tuvx_species(i_col,:,index_O3),      &
+                constituents_NO_photolysis(i_col,:,:) )
     end do
+
 
     call musica_ccpp_final(errmsg, errcode)
     ASSERT(errcode == 0)
