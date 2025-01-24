@@ -173,8 +173,8 @@ contains
     ASSERT(errcode == 0)
     ASSERT(index_N2 == expected_index_N2)
     ASSERT(index_NO == expected_index_NO)
-    ASSERT(NO_photolysis_indices_constituent_props(1) == expected_index_N2)
-    ASSERT(NO_photolysis_indices_constituent_props(2) == expected_index_NO)
+    ASSERT(NO_photolysis_indices_constituent_props(1) == constituent_props_index_N2)
+    ASSERT(NO_photolysis_indices_constituent_props(2) == constituent_props_index_NO)
 
     call check_NO_initialization(errmsg, errcode)
     ASSERT(errcode == 0)

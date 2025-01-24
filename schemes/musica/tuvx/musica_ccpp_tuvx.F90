@@ -562,7 +562,7 @@ contains
     real(kind_phys) :: solar_zenith_angle_degrees
     type(error_t)   :: error
     integer         :: i_col, i_level
-    real(kind_phys) :: photolysis_rate_NO(size(constituents, dim=2)) ! s-1
+    real(kind_phys) :: NO_photolysis_rate_constant(size(constituents, dim=2)) ! s-1
 
     reciprocal_of_gravitational_acceleration = 1.0_kind_phys / standard_gravitational_acceleration
 
@@ -634,10 +634,10 @@ contains
 
       if (is_NO_photolysis_active) then
         ! TODO: How do I ensure that the extraterrestrial flux matches the wavelength grid needed for NO photolysis?
-        photolysis_rate_NO = calculate_NO_photolysis_rate( solar_zenith_angle(i_col),               &
-                                extraterrestrial_flux, height_interfaces, dry_air_density(i_col,:), &
-                                constituents(i_col,:,index_O2), constituents(i_col,:,index_O3),     &
-                                constituents_NO_photolysis(i_col,:,:) )
+        NO_photolysis_rate_constant = calculate_NO_photolysis_rate(              &
+            solar_zenith_angle(i_col), extraterrestrial_flux, height_interfaces, &
+            dry_air_density(i_col,:), constituents(i_col,:,index_O2),            &
+            constituents(i_col,:,index_O3), constituents_NO_photolysis(i_col,:,:) )
       end if
 
       ! TODO: Where does jno go into the photolysis_rate_constants array?
