@@ -1,0 +1,29 @@
+#define GFC_MAX_MANGLED_SYMBOL_LEN 200
+
+@test
+subroutine test_austausch_free_is_zero_when_richardson_stable_at_zero()
+    use funit
+    use atmos_phys_pbl_utils, only : austausch_atm_free
+    use ccpp_kinds, only: kind_phys
+
+    real(kind_phys) :: kvf
+
+    kvf = austausch_atm_free(30.0_kind_phys, 0.0_kind_phys, 0.01_kind_phys)
+ 
+    @assertEqual(0.0_kind_phys, kvf)
+end subroutine test_austausch_free_is_zero_when_richardson_stable_at_zero
+
+#define GFC_MAX_MANGLED_SYMBOL_LEN 200
+
+@test
+subroutine test_austausch_free_is_zero_when_richardson_stable_near_zero()
+    use funit
+    use atmos_phys_pbl_utils, only : austausch_atm_free
+    use ccpp_kinds, only: kind_phys
+
+    real(kind_phys) :: kvf
+
+    kvf = austausch_atm_free(30.0_kind_phys, nearest(0.0_kind_phys, 1.0_kind_phys), 0.01_kind_phys)
+ 
+    @assertEqual(0.0_kind_phys, kvf)
+end subroutine test_austausch_free_is_zero_when_richardson_stable_near_zero
