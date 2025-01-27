@@ -280,8 +280,8 @@ contains
     real(kind_phys),  intent(in)  :: cnb(:)           ! Cloud base level index [1]
     real(kind_phys),  intent(in)  :: p_cnt(:)         ! Convective cloud top pressure [Pa]
     real(kind_phys),  intent(in)  :: p_cnb(:)         ! Convective cloud base pressure [Pa]
-    real(kind_phys),  intent(in)  :: qc_total(:,:)  !  detrainment_of_water_due_to_all_convection [kg kg-1 s-1]
-    real(kind_phys),  intent(in)  :: qc_sh(:,:)     !  detrainment_of_water_due_to_shallow_convection [kg kg-1 s-1]
+    real(kind_phys),  intent(in)  :: qc_total(:,:)    !  detrainment_of_water_due_to_all_convection [kg kg-1 s-1]
+    real(kind_phys),  intent(in)  :: qc_sh(:,:)       !  detrainment_of_water_due_to_shallow_convection [kg kg-1 s-1]
 
     ! Output arguments
     character(len=512), intent(out) :: errmsg

@@ -28,9 +28,6 @@
     <!-- INITIALIZE DIAGNOSTICS (has init phase only) -->
     <scheme>convect_shallow_diagnostics</scheme>
 
-    <!-- Snapshot only: convert "all_convection" quantities to "deep_convection" -->
-    <!-- <scheme>snapshot_set_general_conv_to_deep</scheme> -->
-
     <!-- SHALLOW CONVECTION: HACK SCHEME -->
     <scheme>check_energy_zero_fluxes</scheme>
     <scheme>cmfmca</scheme>

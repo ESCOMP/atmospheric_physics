@@ -88,7 +88,7 @@ contains
       errflg = 0
 
       ! Sum convective mass flux at interfaces
-      cmfmc_total(:ncol,:pverp) = cmfmc_total(:ncol,:pverp) + cmfmc_sh(:ncol,:pverp)
+      cmfmc_total(:ncol,:pverp) = cmfmc_deep(:ncol,:pverp) + cmfmc_sh(:ncol,:pverp)
 
       ! Sum detrainment of water at midpoints
       qc_total(:ncol,:pver) = qc_deep(:ncol,:pver) + qc_sh(:ncol,:pver)
@@ -102,8 +102,8 @@ contains
 
       ! Merge the shallow and deep convective "cloud top/base" and compute pressures
       ! Note: Indices decrease with height
-      cnt(:ncol) = cnt_deep(:ncol)
-      cnb(:ncol) = cnb_deep(:ncol)
+      cnt(:ncol) = real(cnt_deep(:ncol), kind_phys)
+      cnb(:ncol) = real(cnb_deep(:ncol), kind_phys)
       do i = 1, ncol
         ! if shallow cloud top is higher then use shallow cloud top
         if(cnt_sh(i) < cnt_deep(i)) cnt(i) = cnt_sh(i)
