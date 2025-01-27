@@ -16,7 +16,7 @@ module atmos_phys_pbl_utils
     public :: calc_eddy_flux_coefficient
     public :: calc_free_atm_eddy_flux_coefficient
 
-    real(kind_phys), parameter :: minimum_friction_velocity     = 0.01_kind_phys
+    real(kind_phys), parameter :: minimum_friction_velocity     = 0.01_kind_phys ! Assuming minimum for coarse grids
     real(kind_phys), parameter :: minimum_eddy_flux_coefficient = 0.01_kind_phys ! CCM1 2.f.14
 
 contains
