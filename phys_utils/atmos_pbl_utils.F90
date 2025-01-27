@@ -84,7 +84,7 @@ contains
         ! Stull, Roland B. An Introduction to Boundary Layer Meteorology. Springer Kluwer Academic Publishers, 1988. Print.
         ! DOI: https://doi.org/10.1007/978-94-009-3027-8
         ! Equation 5.7c, page 181
-        ! \frac{-\theta*u_*^3}{g*k*\overline{(w' \theta_v')}_s} = frac{
+        ! \frac{-\theta*u_*^3}{g*k*\overline{(w' \theta_v')}_s} = frac{-\theta*u_*^3}{g*k*kbfs}
 
         real(kind_phys), intent(in)  :: thvs              ! virtual potential temperature at surface
         real(kind_phys), intent(in)  :: ustar             ! Surface friction velocity [ m/s ]
