@@ -14,7 +14,7 @@ module atmos_phys_pbl_utils
     public :: calc_obukhov_length
     public :: calc_virtual_temperature
     public :: calc_eddy_flux_coefficient
-    public :: calc_free_eddy_flux_coefficient
+    public :: calc_free_atm_eddy_flux_coefficient
 
     real(kind_phys), parameter :: minimum_friction_velocity     = 0.01_kind_phys
     real(kind_phys), parameter :: minimum_eddy_flux_coefficient = 0.01_kind_phys ! CCM1 2.f.14
@@ -84,6 +84,7 @@ contains
         ! Stull, Roland B. An Introduction to Boundary Layer Meteorology. Springer Kluwer Academic Publishers, 1988. Print.
         ! DOI: https://doi.org/10.1007/978-94-009-3027-8
         ! Equation 5.7c, page 181
+        ! \frac{-\theta*u_*^3}{g*k*\overline{(w' \theta_v')}_s} = frac{
 
         real(kind_phys), intent(in)  :: thvs              ! virtual potential temperature at surface
         real(kind_phys), intent(in)  :: ustar             ! Surface friction velocity [ m/s ]
@@ -142,7 +143,7 @@ contains
         kvf = max( minimum_eddy_flux_coefficient, kvn * fofri )
     end function calc_eddy_flux_coefficient
 
-    pure elemental function calc_free_eddy_flux_coefficient(mixing_length_squared, &
+    pure elemental function calc_free_atm_eddy_flux_coefficient(mixing_length_squared, &
                                                             richardson_number,     &
                                                             shear_squared)         &
                                                             result(kvf)
@@ -164,13 +165,14 @@ contains
             kvn = neutral_exchange_coefficient(mixing_length_squared, shear_squared)
             kvf = kvn * fofri
         end if
-    end function calc_free_eddy_flux_coefficient
+    end function calc_free_atm_eddy_flux_coefficient
 
     pure elemental function unstable_gradient_richardson_stability_parameter(richardson_number) result(modifier)
         ! Williamson, D., Kiehl, J., Ramanathan, V., Dickinson, R., & Hack, J. (1987).
         ! Description of the NCAR Community Climate Model (CCM1).
         ! University Corporation for Atmospheric Research. https://doi.org/10.5065/D6TB14WH (Original work published 1987)
         ! Equation 2.f.13
+        ! \sqrt{ 1-18*Ri }
 
         real(kind_phys), intent(in)  :: richardson_number
 
@@ -184,6 +186,7 @@ contains
         ! ECMWF Workshop on Parameterization of Fluxes and Land Surface, Reading, United Kingdom, ECMWF, 121–147.
         ! equation 20, page 140
         ! Originally used published equation from CCM1, 2.f.12, page 11
+        ! \frac{1}{1+10*Ri*(1+8*Ri)}
 
         real(kind_phys), intent(in)  :: richardson_number
 
