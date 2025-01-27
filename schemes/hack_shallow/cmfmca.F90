@@ -46,6 +46,7 @@ module cmfmca
   real(kind_phys) :: shpmax = 1.50e-3_kind_phys ! maximum acceptable Q perturbation [g/g]
 
   ! diagnostic only
+  logical         :: debug_verbose = .false.    ! control for debug messages
 
 
 contains
@@ -419,31 +420,31 @@ contains
        cnt_sh(i)= real(pver+1,kind_phys)
     end do
 
-#if 1
-    ! DEBUG DIAGNOSTICS - Output initial thermodynamic profile
-    do i=1,ncol
-      if(i == 1) then
-        ! Approximate vertical integral of moist static energy
-        ! and total precipitable water
-        hsum1 = 0.0_kind_phys
-        qsum1 = 0.0_kind_phys
-        do k=limcnv,pver
-          hsum1 = hsum1 + pdel(i,k)*rgrav*hb(i,k)
-          qsum1 = qsum1 + pdel(i,k)*rgrav*shb(i,k)
-        end do
+    if(debug_verbose) then
+      ! DEBUG DIAGNOSTICS - Output initial thermodynamic profile
+      do i=1,ncol
+        if(i == 1) then
+          ! Approximate vertical integral of moist static energy
+          ! and total precipitable water
+          hsum1 = 0.0_kind_phys
+          qsum1 = 0.0_kind_phys
+          do k=limcnv,pver
+            hsum1 = hsum1 + pdel(i,k)*rgrav*hb(i,k)
+            qsum1 = qsum1 + pdel(i,k)*rgrav*shb(i,k)
+          end do
 
-        write(iulog,8010)
-        fac = grav*864._kind_phys
-        do k=limcnv,pver
-          rh = shb(i,k)/shbs(i,k)
-          write(iulog,8020) shbh(i,k),sbh(i,k),hbh(i,k),fac*cmfmc_sh(i,k),cmfsl(i,k), cmflq(i,k)
-          write(iulog,8040) tb(i,k),shb(i,k),rh,sb(i,k),hb(i,k),hbs(i,k),ztodt*cmfdt(i,k), &
-                        ztodt*cmfdq(i,k),ztodt*cmfdqr(i,k)
-        end do
-        write(iulog, 8000) prec(i)
-      end if
-    end do
-#endif
+          write(iulog,8010)
+          fac = grav*864._kind_phys
+          do k=limcnv,pver
+            rh = shb(i,k)/shbs(i,k)
+            write(iulog,8020) shbh(i,k),sbh(i,k),hbh(i,k),fac*cmfmc_sh(i,k),cmfsl(i,k), cmflq(i,k)
+            write(iulog,8040) tb(i,k),shb(i,k),rh,sb(i,k),hb(i,k),hbs(i,k),ztodt*cmfdt(i,k), &
+                          ztodt*cmfdq(i,k),ztodt*cmfdqr(i,k)
+          end do
+          write(iulog, 8000) prec(i)
+        end if
+      end do
+    endif
 
     !---------------------------------------------------
     ! Begin moist convective mass flux adjustment procedure.
@@ -498,14 +499,14 @@ contains
         end if
       enddo
 
-#if 1
-      ! DEBUG DIAGNOSTICS - output thermodynamic perturbation information
-      do i=1,ncol
-        if(i == 1) then
-          write(iulog,8090) k+1,sc(i),shc(i),hc(i)
-        end if
-      enddo
-#endif
+      if(debug_verbose) then
+        ! DEBUG DIAGNOSTICS - output thermodynamic perturbation information
+        do i=1,ncol
+          if(i == 1) then
+            write(iulog,8090) k+1,sc(i),shc(i),hc(i)
+          end if
+        enddo
+      endif
 
 
       ! Check on moist convective instability
@@ -910,35 +911,35 @@ contains
     ! Prepare boundary fluxes for check_energy [m s-1]
     flx_cnd(:ncol) = precc(:ncol) + rliq_sh(:ncol)
 
-#if 1
-    ! DEBUG DIAGNOSTICS - show final result
-    do i=1,ncol
-      if (i == 1) then
-        fac = grav*864._kind_phys
-        write(iulog, 8010)
-        do k=limcnv,pver
-          rh = shb(i,k)/shbs(i,k)
-          write(iulog, 8020) shbh(i,k),sbh(i,k),hbh(i,k),fac*cmfmc_sh(i,k), &
-                             cmfsl(i,k), cmflq(i,k)
-          write(iulog, 8040) tb(i,k),shb(i,k),rh   ,sb(i,k),hb(i,k), &
-                             hbs(i,k), ztodt*cmfdt(i,k),ztodt*cmfdq(i,k), &
-                             ztodt*cmfdqr(i,k)
-        end do
-        write(iulog, 8000) prec(i)
+    if(debug_verbose) then
+      ! DEBUG DIAGNOSTICS - show final result
+      do i=1,ncol
+        if (i == 1) then
+          fac = grav*864._kind_phys
+          write(iulog, 8010)
+          do k=limcnv,pver
+            rh = shb(i,k)/shbs(i,k)
+            write(iulog, 8020) shbh(i,k),sbh(i,k),hbh(i,k),fac*cmfmc_sh(i,k), &
+                               cmfsl(i,k), cmflq(i,k)
+            write(iulog, 8040) tb(i,k),shb(i,k),rh   ,sb(i,k),hb(i,k), &
+                               hbs(i,k), ztodt*cmfdt(i,k),ztodt*cmfdq(i,k), &
+                               ztodt*cmfdqr(i,k)
+          end do
+          write(iulog, 8000) prec(i)
 
-        ! approximate vertical integral of moist static energy and
-        ! total preciptable water after adjustment and output changes
-        hsum2 = 0.0_kind_phys
-        qsum2 = 0.0_kind_phys
-        do k=limcnv,pver
-          hsum2 = hsum2 + pdel(i,k)*rgrav*hb(i,k)
-          qsum2 = qsum2 + pdel(i,k)*rgrav*shb(i,k)
-        end do
-        write(iulog,8070) hsum1, hsum2, abs(hsum2-hsum1)/hsum2, &
-                          qsum1, qsum2, abs(qsum2-qsum1)/qsum2
-      end if
-    enddo
-#endif
+          ! approximate vertical integral of moist static energy and
+          ! total preciptable water after adjustment and output changes
+          hsum2 = 0.0_kind_phys
+          qsum2 = 0.0_kind_phys
+          do k=limcnv,pver
+            hsum2 = hsum2 + pdel(i,k)*rgrav*hb(i,k)
+            qsum2 = qsum2 + pdel(i,k)*rgrav*shb(i,k)
+          end do
+          write(iulog,8070) hsum1, hsum2, abs(hsum2-hsum1)/hsum2, &
+                            qsum1, qsum2, abs(qsum2-qsum1)/qsum2
+        end if
+      enddo
+    endif
 
     ! Diagnostic use format strings
 8000              format(///,10x,'PREC = ',3pf12.6,/)
