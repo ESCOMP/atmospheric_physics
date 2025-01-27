@@ -22,18 +22,14 @@ module musica_ccpp_tuvx
   type(profile_t),         pointer :: temperature_profile => null()
   type(profile_t),         pointer :: surface_albedo_profile => null()
   type(profile_t),         pointer :: extraterrestrial_flux_profile => null()
+  type(profile_t),         pointer :: dry_air_profile => null()
+  type(profile_t),         pointer :: O2_profile => null()
+  type(profile_t),         pointer :: O3_profile => null()
   type(radiator_t),        pointer :: cloud_optics => null()
+  type(radiator_t),        pointer :: aerosol_optics => null()
   type(index_mappings_t),  pointer :: photolysis_rate_constants_mapping => null( )
   integer,               parameter :: DEFAULT_NUM_PHOTOLYSIS_RATE_CONSTANTS = 0
   integer                          :: number_of_photolysis_rate_constants = DEFAULT_NUM_PHOTOLYSIS_RATE_CONSTANTS
-  integer,               parameter :: DEFAULT_INDEX_NOT_FOUND = -1
-  character(len=*),      parameter :: CLOUD_LIQUID_WATER_CONTENT_LABEL = &
-      'cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water'
-  character(len=*),      parameter :: CLOUD_LIQUID_WATER_CONTENT_LONG_NAME = &
-      'Cloud water mass mixing ratio with respect to moist air plus all airborne condensates'
-  character(len=*),      parameter :: CLOUD_LIQUID_WATER_CONTENT_UNITS = 'kg kg-1'
-  real(kind_phys),       parameter :: CLOUD_LIQUID_WATER_CONTENT_MOLAR_MASS = 0.018_kind_phys ! kg mol-1
-  integer                          :: index_cloud_liquid_water_content = DEFAULT_INDEX_NOT_FOUND
 
 contains
 
@@ -51,7 +47,7 @@ contains
 
   end subroutine reset_tuvx_map_state
 
-  !> This is a helper subroutine created to deallocate objects associated with TUV-x
+  !> Deallocates objects associated with TUV-x
   subroutine cleanup_tuvx_resources()
 
     if (associated( height_grid )) then
@@ -79,9 +75,29 @@ contains
       extraterrestrial_flux_profile => null()
     end if
 
+    if (associated( dry_air_profile )) then
+      deallocate( dry_air_profile )
+      dry_air_profile => null()
+    end if
+
+    if (associated( O2_profile )) then
+      deallocate( O2_profile )
+      O2_profile => null()
+    end if
+
+    if (associated( O3_profile )) then
+      deallocate( O3_profile )
+      O3_profile => null()
+    end if
+
     if (associated( cloud_optics )) then
       deallocate( cloud_optics )
       cloud_optics => null()
+    end if
+
+    if (associated( aerosol_optics )) then
+      deallocate( aerosol_optics )
+      aerosol_optics => null()
     end if
 
     if (associated( photolysis_rate_constants_mapping )) then
@@ -92,33 +108,21 @@ contains
   end subroutine cleanup_tuvx_resources
 
   !> Registers constituent properties with the CCPP needed by TUV-x
-  subroutine tuvx_register(constituent_props, errmsg, errcode)
-    use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
-    use musica_util,               only: error_t
+  subroutine tuvx_register(micm_species, tuvx_species, constituent_props, &
+                           errmsg, errcode)
+    use ccpp_constituent_prop_mod,     only: ccpp_constituent_properties_t
+    use musica_ccpp_species,           only: musica_species_t
+    use musica_ccpp_tuvx_load_species, only: configure_tuvx_species
+    use musica_util,                   only: error_t
 
-    type(ccpp_constituent_properties_t), allocatable, intent(out) :: constituent_props(:)
-    character(len=512),                               intent(out) :: errmsg
-    integer,                                          intent(out) :: errcode
+    type(musica_species_t),                           intent(inout) :: micm_species(:)
+    type(musica_species_t),              allocatable, intent(out)   :: tuvx_species(:)
+    type(ccpp_constituent_properties_t), allocatable, intent(out)   :: constituent_props(:)
+    character(len=512),                               intent(out)   :: errmsg
+    integer,                                          intent(out)   :: errcode
 
-    allocate(constituent_props(1), stat=errcode)
-    if (errcode /= 0) then
-      errmsg = "[MUSICA Error] Failed to allocate memory for constituent properties."
-      return
-    end if
-
-    ! Register cloud liquid water content needed for cloud optics calculations
-    call constituent_props(1)%instantiate( &
-      std_name = CLOUD_LIQUID_WATER_CONTENT_LABEL, &
-      long_name = CLOUD_LIQUID_WATER_CONTENT_LONG_NAME, &
-      units = CLOUD_LIQUID_WATER_CONTENT_UNITS, &
-      vertical_dim = "vertical_layer_dimension", &
-      default_value = 0.0_kind_phys, &
-      min_value = 0.0_kind_phys, &
-      molar_mass = CLOUD_LIQUID_WATER_CONTENT_MOLAR_MASS, &
-      advected = .true., &
-      errcode = errcode, &
-      errmsg = errmsg &
-    )
+    call configure_tuvx_species(micm_species, tuvx_species, constituent_props, &
+                                errmsg, errcode)
     if (errcode /= 0) return
 
   end subroutine tuvx_register
@@ -126,8 +130,7 @@ contains
   !> Initializes TUV-x
   subroutine tuvx_init(vertical_layer_dimension, vertical_interface_dimension, &
                        wavelength_grid_interfaces, micm_rate_parameter_ordering, &
-                       constituent_props, errmsg, errcode)
-    use ccpp_const_utils, only: ccpp_const_get_idx
+                       errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use musica_tuvx, only: grid_map_t, profile_map_t, radiator_map_t
     use musica_util, only: error_t, configuration_t
@@ -144,16 +147,21 @@ contains
     use musica_ccpp_tuvx_extraterrestrial_flux, &
       only: create_extraterrestrial_flux_profile, extraterrestrial_flux_label, &
             extraterrestrial_flux_unit
+    use musica_ccpp_tuvx_gas_species, &
+      only: create_dry_air_profile, create_O2_profile, create_O3_profile
     use musica_ccpp_tuvx_cloud_optics, &
       only: create_cloud_optics_radiator, cloud_optics_label
+    use musica_ccpp_tuvx_aerosol_optics, &
+      only: create_aerosol_optics_radiator, aerosol_optics_label
+    use musica_ccpp_tuvx_load_species, &
+      only: DRY_AIR_LABEL, O2_LABEL, O3_LABEL, TUVX_GAS_SPECIES_UNITS
 
-    integer,                           intent(in)  :: vertical_layer_dimension      ! (count)
-    integer,                           intent(in)  :: vertical_interface_dimension  ! (count)
-    real(kind_phys),                   intent(in)  :: wavelength_grid_interfaces(:) ! m
-    type(mappings_t),                  intent(in)  :: micm_rate_parameter_ordering  ! index mappings for MICM rate parameters
-    type(ccpp_constituent_prop_ptr_t), intent(in)  :: constituent_props(:)
-    character(len=512),                intent(out) :: errmsg
-    integer,                           intent(out) :: errcode
+    integer,            intent(in)  :: vertical_layer_dimension      ! (count)
+    integer,            intent(in)  :: vertical_interface_dimension  ! (count)
+    real(kind_phys),    intent(in)  :: wavelength_grid_interfaces(:) ! m
+    type(mappings_t),   intent(in)  :: micm_rate_parameter_ordering  ! index mappings for MICM rate parameters
+    character(len=512), intent(out) :: errmsg
+    integer,            intent(out) :: errcode
 
     ! local variables
     type(grid_map_t),      pointer :: grids
@@ -162,16 +170,6 @@ contains
     type(configuration_t)          :: config
     type(mappings_t),      pointer :: photolysis_rate_constants_ordering
     type(error_t)                  :: error
-
-    ! Get needed indices in constituents array
-    call ccpp_const_get_idx(constituent_props, CLOUD_LIQUID_WATER_CONTENT_LABEL, &
-                            index_cloud_liquid_water_content, errmsg, errcode)
-    if (errcode /= 0) return
-    if (index_cloud_liquid_water_content == DEFAULT_INDEX_NOT_FOUND) then
-      errmsg = "[MUSICA Error] Unable to find index for cloud liquid water content."
-      errcode = 1
-      return
-    end if
 
     grids => grid_map_t( error )
     if (has_error_occurred( error, errmsg, errcode )) return
@@ -256,6 +254,48 @@ contains
       return
     end if
 
+    dry_air_profile => create_dry_air_profile( height_grid, errmsg, errcode )
+    if (errcode /= 0) then
+      call reset_tuvx_map_state( grids, profiles, null() )
+      call cleanup_tuvx_resources()
+      return
+    endif
+
+    call profiles%add( dry_air_profile, error )
+    if (has_error_occurred( error, errmsg, errcode )) then
+      call reset_tuvx_map_state( grids, profiles, null() )
+      call cleanup_tuvx_resources()
+      return
+    end if
+
+    O2_profile => create_O2_profile( height_grid, errmsg, errcode )
+    if (errcode /= 0) then
+      call reset_tuvx_map_state( grids, profiles, null() )
+      call cleanup_tuvx_resources()
+      return
+    endif
+
+    call profiles%add( O2_profile, error )
+    if (has_error_occurred( error, errmsg, errcode )) then
+      call reset_tuvx_map_state( grids, profiles, null() )
+      call cleanup_tuvx_resources()
+      return
+    end if
+
+    O3_profile => create_O3_profile( height_grid, errmsg, errcode )
+    if (errcode /= 0) then
+      call reset_tuvx_map_state( grids, profiles, null() )
+      call cleanup_tuvx_resources()
+      return
+    endif
+
+    call profiles%add( O3_profile, error )
+    if (has_error_occurred( error, errmsg, errcode )) then
+      call reset_tuvx_map_state( grids, profiles, null() )
+      call cleanup_tuvx_resources()
+      return
+    end if
+
     radiators => radiator_map_t( error )
     if (has_error_occurred( error, errmsg, errcode )) then
       call reset_tuvx_map_state( grids, profiles, null() )
@@ -272,6 +312,21 @@ contains
     endif
 
     call radiators%add( cloud_optics, error )
+    if (has_error_occurred( error, errmsg, errcode )) then
+      call reset_tuvx_map_state( grids, profiles, radiators )
+      call cleanup_tuvx_resources()
+      return
+    end if
+
+    aerosol_optics => create_aerosol_optics_radiator( height_grid, wavelength_grid, &
+                                                      errmsg, errcode )
+    if (errcode /= 0) then
+      call reset_tuvx_map_state( grids, profiles, radiators )
+      call cleanup_tuvx_resources()
+      return
+    endif
+
+    call radiators%add( aerosol_optics, error )
     if (has_error_occurred( error, errmsg, errcode )) then
       call reset_tuvx_map_state( grids, profiles, radiators )
       call cleanup_tuvx_resources()
@@ -354,6 +409,33 @@ contains
       return
     end if
 
+    dry_air_profile => profiles%get( DRY_AIR_LABEL, TUVX_GAS_SPECIES_UNITS, error )
+    if (has_error_occurred( error, errmsg, errcode )) then
+      deallocate( tuvx )
+      tuvx => null()
+      call reset_tuvx_map_state( grids, profiles, null() )
+      call cleanup_tuvx_resources()
+      return
+    end if
+
+    O2_profile => profiles%get( O2_LABEL, TUVX_GAS_SPECIES_UNITS, error )
+    if (has_error_occurred( error, errmsg, errcode )) then
+      deallocate( tuvx )
+      tuvx => null()
+      call reset_tuvx_map_state( grids, profiles, null() )
+      call cleanup_tuvx_resources()
+      return
+    end if
+
+    O3_profile => profiles%get( O3_LABEL, TUVX_GAS_SPECIES_UNITS, error )
+    if (has_error_occurred( error, errmsg, errcode )) then
+      deallocate( tuvx )
+      tuvx => null()
+      call reset_tuvx_map_state( grids, profiles, null() )
+      call cleanup_tuvx_resources()
+      return
+    end if
+
     radiators => tuvx%get_radiators( error )
     if (has_error_occurred( error, errmsg, errcode )) then
       deallocate( tuvx )
@@ -364,6 +446,15 @@ contains
     end if
 
     cloud_optics => radiators%get( cloud_optics_label, error )
+    if (has_error_occurred( error, errmsg, errcode )) then
+      deallocate( tuvx )
+      tuvx => null()
+      call reset_tuvx_map_state( grids, profiles, radiators )
+      call cleanup_tuvx_resources()
+      return
+    end if
+
+    aerosol_optics => radiators%get( aerosol_optics_label, error )
     if (has_error_occurred( error, errmsg, errcode )) then
       deallocate( tuvx )
       tuvx => null()
@@ -410,32 +501,36 @@ contains
   end subroutine tuvx_init
 
   !> Calculates photolysis rate constants for the current model conditions
-  subroutine tuvx_run(temperature, dry_air_density,                  &
-                      constituents,                                  &
-                      geopotential_height_wrt_surface_at_midpoint,   &
-                      geopotential_height_wrt_surface_at_interface,  &
-                      surface_geopotential, surface_temperature,     &
-                      surface_albedo,                                &
-                      photolysis_wavelength_grid_interfaces,         &
-                      extraterrestrial_flux,                         &
-                      standard_gravitational_acceleration,           &
-                      cloud_area_fraction,                           &
-                      air_pressure_thickness,                        &
-                      solar_zenith_angle,                            &
-                      earth_sun_distance,                            &
-                      rate_parameters,                               &
+  subroutine tuvx_run(temperature, dry_air_density,                 &
+                      constituents,                                 &
+                      geopotential_height_wrt_surface_at_midpoint,  &
+                      geopotential_height_wrt_surface_at_interface, &
+                      surface_geopotential, surface_temperature,    &
+                      surface_albedo,                               &
+                      photolysis_wavelength_grid_interfaces,        &
+                      extraterrestrial_flux,                        &
+                      standard_gravitational_acceleration,          &
+                      cloud_area_fraction,                          &
+                      air_pressure_thickness,                       &
+                      solar_zenith_angle,                           &
+                      earth_sun_distance,                           &
+                      rate_parameters,                              &
                       errmsg, errcode)
-    use musica_util,                               only: error_t
-    use musica_ccpp_tuvx_height_grid,              only: set_height_grid_values, calculate_heights
-    use musica_ccpp_tuvx_temperature,              only: set_temperature_values
-    use musica_ccpp_util,                          only: has_error_occurred, PI
-    use musica_ccpp_tuvx_surface_albedo,           only: set_surface_albedo_values
-    use musica_ccpp_tuvx_extraterrestrial_flux,    only: set_extraterrestrial_flux_values
-    use musica_ccpp_tuvx_cloud_optics,             only: set_cloud_optics_values
+    use musica_util,                            only: error_t
+    use musica_ccpp_tuvx_height_grid,           only: set_height_grid_values, calculate_heights
+    use musica_ccpp_tuvx_temperature,           only: set_temperature_values
+    use musica_ccpp_util,                       only: has_error_occurred, PI
+    use musica_ccpp_tuvx_surface_albedo,        only: set_surface_albedo_values
+    use musica_ccpp_tuvx_extraterrestrial_flux, only: set_extraterrestrial_flux_values
+    use musica_ccpp_tuvx_cloud_optics,          only: set_cloud_optics_values
+    use musica_ccpp_tuvx_aerosol_optics,        only: set_aerosol_optics_values
+    use musica_ccpp_tuvx_load_species,          only: index_cloud_liquid_water_content, &
+                                                      index_dry_air, index_O2, index_O3
+    use musica_ccpp_tuvx_gas_species,           only: set_gas_species_values
 
     real(kind_phys),    intent(in)    :: temperature(:,:)                                  ! K (column, layer)
     real(kind_phys),    intent(in)    :: dry_air_density(:,:)                              ! kg m-3 (column, layer)
-    real(kind_phys),    intent(in)    :: constituents(:,:,:)                               ! various (column, layer, constituent)
+    real(kind_phys),    intent(in)    :: constituents(:,:,:)                               ! kg kg-1 (column, layer, constituent)
     real(kind_phys),    intent(in)    :: geopotential_height_wrt_surface_at_midpoint(:,:)  ! m (column, layer)
     real(kind_phys),    intent(in)    :: geopotential_height_wrt_surface_at_interface(:,:) ! m (column, interface)
     real(kind_phys),    intent(in)    :: surface_geopotential(:)                           ! m2 s-2
@@ -455,6 +550,7 @@ contains
     ! local variables
     real(kind_phys), dimension(size(geopotential_height_wrt_surface_at_midpoint, dim = 2))  :: height_midpoints
     real(kind_phys), dimension(size(geopotential_height_wrt_surface_at_interface, dim = 2)) :: height_interfaces
+    real(kind_phys), dimension(size(height_interfaces))                                     :: height_deltas ! km
     real(kind_phys), dimension(size(rate_parameters, dim=2)+2, &
                                number_of_photolysis_rate_constants) :: photolysis_rate_constants, & ! s-1
                                                                        heating_rates                ! K s-1 (TODO: check units)
@@ -469,8 +565,8 @@ contains
     call set_surface_albedo_values( surface_albedo_profile, surface_albedo, errmsg, errcode )
     if (errcode /= 0) return
 
-    call set_extraterrestrial_flux_values( extraterrestrial_flux_profile,                 &
-                                           photolysis_wavelength_grid_interfaces,         &
+    call set_extraterrestrial_flux_values( extraterrestrial_flux_profile,         &
+                                           photolysis_wavelength_grid_interfaces, &
                                            extraterrestrial_flux, errmsg, errcode )
     if (errcode /= 0) return
 
@@ -486,9 +582,9 @@ contains
                                 geopotential_height_wrt_surface_at_interface(i_col,:), &
                                 surface_geopotential(i_col),                           &
                                 reciprocal_of_gravitational_acceleration,              &
-                                 height_midpoints, height_interfaces )
+                                height_midpoints, height_interfaces )
         call set_height_grid_values( height_grid, height_midpoints, height_interfaces, &
-                                   errmsg, errcode )
+                                     height_deltas, errmsg, errcode )
         if (errcode /= 0) return
 
         call set_temperature_values( temperature_profile, temperature(i_col,:), &
@@ -496,10 +592,27 @@ contains
         if (errcode /= 0) return
 
         call set_cloud_optics_values( cloud_optics, cloud_area_fraction(i_col,:), &
-                                      air_pressure_thickness(i_col,:), &
-                                      constituents(i_col,:,index_cloud_liquid_water_content), &
-                                      reciprocal_of_gravitational_acceleration, &
-                                      errmsg, errcode )
+              air_pressure_thickness(i_col,:), &
+              constituents(i_col,:,index_cloud_liquid_water_content), &
+              reciprocal_of_gravitational_acceleration, errmsg, errcode )
+        if (errcode /= 0) return
+
+        call set_gas_species_values( dry_air_profile, dry_air_density(i_col,:), &
+              constituents(i_col,:,index_dry_air), height_deltas, index_dry_air, &
+              errmsg, errcode )
+        if (errcode /= 0) return
+
+        call set_gas_species_values( O2_profile, dry_air_density(i_col,:), &
+              constituents(i_col,:,index_O2), height_deltas, index_O2, &
+              errmsg, errcode )
+        if (errcode /= 0) return
+
+        call set_gas_species_values( O3_profile, dry_air_density(i_col,:), &
+              constituents(i_col,:,index_O3), height_deltas, index_O3, &
+              errmsg, errcode )
+        if (errcode /= 0) return
+
+        call set_aerosol_optics_values( aerosol_optics, errmsg, errcode )
         if (errcode /= 0) return
 
         ! calculate photolysis rate constants and heating rates
@@ -510,7 +623,7 @@ contains
 
         ! filter out negative photolysis rate constants
         photolysis_rate_constants(:,:) = &
-            max( photolysis_rate_constants(:,:), 0.0_kind_phys )      
+            max( photolysis_rate_constants(:,:), 0.0_kind_phys )
       end if ! solar zenith angle check
 
       ! map photolysis rate constants to the host model's rate parameters and vertical grid

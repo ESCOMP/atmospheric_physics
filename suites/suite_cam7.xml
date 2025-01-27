@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <suite name="cam7" version="1.0">
+
+  <!-- **********Physics before the coupler************  -->
   <group name="physics_before_coupler">
+
     <!-- Compute global means of physics input and output total energy -->
     <scheme>check_energy_gmean</scheme>
     <!-- After gmean, output global mean energy diagnostics -->
@@ -19,12 +22,53 @@
 
     <!-- Dry Adiabatic Adjustment -->
     <scheme>dadadj</scheme>
-    <scheme>dadadj_apply_qv_tendency</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
     <scheme>apply_heating_rate</scheme>
     <scheme>qneg</scheme>
     <scheme>geopotential_temp</scheme>
+
+    <!-- Zhang McFarlane (convect_deep) -->
+    <scheme>initialize_constituents</scheme>
+    <scheme>to_be_ccppized_temporary</scheme>
+    <scheme>zm_convr</scheme>
+    <scheme>zm_convr_tendency_diagnostics</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+    <scheme>cloud_fraction_fice</scheme>
+    <scheme>set_deep_conv_fluxes_to_general</scheme>
+    <scheme>zm_conv_evap</scheme>
+    <scheme>set_general_conv_fluxes_to_deep</scheme>
+    <scheme>zm_evap_tendency_diagnostics</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+    <scheme>cloud_fraction_fice</scheme>
+    <scheme>zm_conv_momtran</scheme>
+    <scheme>zm_momtran_tendency_diagnostics</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>apply_tendency_of_eastward_wind</scheme>
+    <scheme>apply_tendency_of_northward_wind</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+    <scheme>zm_conv_convtran</scheme>
+    <scheme>zm_tendency_diagnostics</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+    <scheme>zm_diagnostics</scheme>
+
+    <!-- Check that energy and water change matches the boundary fluxes -->
+    <scheme>check_energy_scaling</scheme>
+    <scheme>check_energy_chng</scheme>
+
   </group>
+
+  <!-- **********Physics after the coupler************  -->
   <group name="physics_after_coupler">
+
     <!-- State diagnostics -->
     <scheme>sima_state_diagnostics</scheme>
 
@@ -46,5 +90,7 @@
 
     <!-- Tendency diagnostics -->
     <scheme>sima_tend_diagnostics</scheme>
+
   </group>
+
 </suite>

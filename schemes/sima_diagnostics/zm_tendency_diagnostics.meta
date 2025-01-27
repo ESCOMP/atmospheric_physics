@@ -1,0 +1,69 @@
+[ccpp-table-properties]
+  name = zm_tendency_diagnostics
+  type = scheme
+
+[ccpp-arg-table]
+  name  = zm_tendency_diagnostics_init
+  type  = scheme
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = zm_tendency_diagnostics_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pverp ]
+  standard_name = vertical_interface_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ const_props ]
+  standard_name = ccpp_constituent_properties
+  units = none
+  type = ccpp_constituent_prop_ptr_t
+  dimensions = (number_of_ccpp_constituents)
+  intent = in
+[ dqdt ]
+  standard_name = ccpp_constituent_tendencies
+  units = none
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension,number_of_ccpp_constituents)
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
