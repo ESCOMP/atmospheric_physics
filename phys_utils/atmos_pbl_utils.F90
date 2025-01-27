@@ -16,8 +16,8 @@ module atmos_phys_pbl_utils
     public :: calc_eddy_flux_coefficient
     public :: calc_free_eddy_flux_coefficient
 
-    real(kind_phys), parameter :: minimum_friction_velocity           = 0.01_kind_phys
-    real(kind_phys), parameter :: eddy_flux_coefficient_minimum_value = 0.01_kind_phys ! CCM1 2.f.14
+    real(kind_phys), parameter :: minimum_friction_velocity     = 0.01_kind_phys
+    real(kind_phys), parameter :: minimum_eddy_flux_coefficient = 0.01_kind_phys ! CCM1 2.f.14
 
 contains
 
@@ -139,7 +139,7 @@ contains
             fofri = stable_gradient_richardson_stability_parameter(richardson_number)
         end if
         kvn = neutral_exchange_coefficient(mixing_length_squared, shear_squared)
-        kvf = max( eddy_flux_coefficient_minimum_value, kvn * fofri )
+        kvf = max( minimum_eddy_flux_coefficient, kvn * fofri )
     end function calc_eddy_flux_coefficient
 
     pure elemental function calc_free_eddy_flux_coefficient(mixing_length_squared, &
