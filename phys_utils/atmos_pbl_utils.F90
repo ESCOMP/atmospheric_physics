@@ -1,4 +1,5 @@
 module atmos_phys_pbl_utils
+    ! Planetary boundary layer related functions used for vertical diffusion schemes.
 
     use ccpp_kinds, only: kind_phys
 
@@ -12,11 +13,11 @@ module atmos_phys_pbl_utils
     public :: calc_kinematic_buoyancy_flux
     public :: calc_obukhov_length
     public :: calc_virtual_temperature
-    public :: austausch_atm
-    public :: austausch_atm_free
+    public :: calc_eddy_flux_coefficient
+    public :: calc_free_eddy_flux_coefficient
 
-    real(kind_phys), parameter :: minimum_friction_velocity = 0.01_kind_phys
-    real(kind_phys), parameter :: zkmin                     = 0.01_kind_phys ! Minimum kneutral*f(ri). CCM1 2.f.14
+    real(kind_phys), parameter :: minimum_friction_velocity           = 0.01_kind_phys
+    real(kind_phys), parameter :: eddy_flux_coefficient_minimum_value = 0.01_kind_phys ! CCM1 2.f.14
 
 contains
 
@@ -113,29 +114,15 @@ contains
         virtual_temperature = temperature * (1.0_kind_phys + zvir*specific_humidity)
     end function calc_virtual_temperature
 
-    pure elemental function austausch_atm(mixing_length_squared, &
-                                          richardson_number,     &
-                                          shear_squared)         &
-                                          result(kvf)
-        !---------------------------------------------------------------------- !
-        !                                                                       !
-        ! Purpose: Computes exchange coefficients for free turbulent flows.     !
-        !                                                                       !
-        ! Method:                                                               !
-        !                                                                       !
-        ! The free atmosphere diffusivities are based on standard mixing length !
-        ! forms for the neutral diffusivity multiplied by functns of Richardson !
-        ! number. K = l^2 * |dV/dz| * f(Ri). The same functions are used for    !
-        ! momentum, potential temperature, and constitutents.                   !
-        !                                                                       !
-        ! The stable Richardson num function (Ri>0) is taken from Holtslag and  !
-        ! Beljaars (1989), ECMWF proceedings. f = 1 / (1 + 10*Ri*(1 + 8*Ri))    !
-        ! The unstable Richardson number function (Ri<0) is taken from  CCM1.   !
-        ! f = sqrt(1 - 18*Ri)                                                   !
-        !                                                                       !
-        ! Author: B. Stevens (rewrite, August 2000)                             !
-        !                                                                       !
-        !---------------------------------------------------------------------- !
+    pure elemental function calc_eddy_flux_coefficient(mixing_length_squared, &
+                                                       richardson_number,     &
+                                                       shear_squared)         &
+                                                       result(kvf)
+        ! Computes exchange coefficients for turbulent flows.
+        !
+        ! The stable case (Richardson number, Ri>0) is taken from Holtslag and
+        ! Beljaars (1989), ECMWF proceedings.
+        ! The unstable case (Richardson number, Ri<0) is taken from  CCM1.
 
         real(kind_phys), intent(in)  :: mixing_length_squared
         real(kind_phys), intent(in)  :: richardson_number
@@ -152,19 +139,16 @@ contains
             fofri = stable_gradient_richardson_stability_parameter(richardson_number)
         end if
         kvn = neutral_exchange_coefficient(mixing_length_squared, shear_squared)
-        kvf = max( zkmin, kvn * fofri )
-    end function austausch_atm
+        kvf = max( eddy_flux_coefficient_minimum_value, kvn * fofri )
+    end function calc_eddy_flux_coefficient
 
-    pure elemental function austausch_atm_free(mixing_length_squared, &
-                                               richardson_number,     &
-                                               shear_squared)         &
-                                               result(kvf)
-        !---------------------------------------------------------------------- !
-        !                                                                       !
-        ! same as austausch_atm but only mixing for Ri<0                        !
-        ! i.e. no background mixing and mixing for Ri>0                         !
-        !                                                                       !
-        !---------------------------------------------------------------------- !
+    pure elemental function calc_free_eddy_flux_coefficient(mixing_length_squared, &
+                                                            richardson_number,     &
+                                                            shear_squared)         &
+                                                            result(kvf)
+        ! same as austausch_atm but only mixing for Ri<0
+        ! i.e. no background mixing and mixing for Ri>0
+
         real(kind_phys), intent(in)  :: mixing_length_squared
         real(kind_phys), intent(in)  :: richardson_number
         real(kind_phys), intent(in)  :: shear_squared
@@ -180,7 +164,7 @@ contains
             kvn = neutral_exchange_coefficient(mixing_length_squared, shear_squared)
             kvf = kvn * fofri
         end if
-    end function austausch_atm_free
+    end function calc_free_eddy_flux_coefficient
 
     pure elemental function unstable_gradient_richardson_stability_parameter(richardson_number) result(modifier)
         ! Williamson, D., Kiehl, J., Ramanathan, V., Dickinson, R., & Hack, J. (1987).
