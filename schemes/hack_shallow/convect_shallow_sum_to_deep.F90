@@ -1,4 +1,4 @@
-! Copyright (C) 2024 National Science Foundation-National Center for Atmospheric Research
+! Copyright (C) 2024-2025 National Science Foundation-National Center for Atmospheric Research
 ! SPDX-License-Identifier: Apache-2.0
 !
 ! Note: There is an implicit dependency in the shallow convective code
@@ -21,8 +21,8 @@ contains
 !! \htmlinclude arg_table_convect_shallow_sum_to_deep_run.html
   subroutine convect_shallow_sum_to_deep_run( &
        ncol,                                  &
-       pver,                                  &
-       pverp,                                 &
+       pver, pverp,                           &
+       pmid,                                  &
        ! All convection input+outputs (input is from deep)
        rliq_total,                            &
        ! Deep convection inputs
@@ -49,17 +49,14 @@ contains
       integer,           intent(in)    :: ncol                   ! Number of columns
       integer,           intent(in)    :: pver                   ! Number of model layers
       integer,           intent(in)    :: pverp                  ! pver + 1
+      real(kind_phys),   intent(in)    :: pmid(:,:)
 
       ! Deep convective inputs
-      ! Note: cmfmc_deep does not 'naturally' exist in the snapshot. The snapshot only has one cmfmc, which is the total,
-      ! and it is deep when the snapshot is taken after deep convection, and total after shallow
-      ! (it is implied shallow runs after deep). For the purposes of snapshot testing, cmfmc has to be read into total and renamed
-      ! to deep. In an 'actual' physical scheme, cmfmc_deep exists as an output from deep convection (e.g., ZM)
       real(kind_phys),   intent(in)    :: cmfmc_deep(:,:)        ! Deep convection cloud mass flux [kg m-2 s-1]
       real(kind_phys),   intent(in)    :: rprddp(:,:)            ! Deep convection convective rainout Q tendency [kg kg-1 s-1]
       real(kind_phys),   intent(in)    :: qc_deep(:,:)           ! Deep convection cloud water tendency [kg kg-1 s-1]
-      real(kind_phys),   intent(in)    :: cnt_deep(:)            ! Deep convection cloud top index [index] (jctop, interstitial)
-      real(kind_phys),   intent(in)    :: cnb_deep(:)            ! Deep convection cloud base index [index] (jcbot, interstitial)
+      real(kind_phys),   intent(in)    :: cnt_deep(:)            ! Deep convection cloud top index [index] (jctop / jt)
+      real(kind_phys),   intent(in)    :: cnb_deep(:)            ! Deep convection cloud base index [index] (jcbot / maxg)
 
       ! Shallow convective inputs
       real(kind_phys),   intent(in)    :: cmfmc_sh(:,:)          ! Shallow convection cloud mass flux [kg m-2 s-1]
@@ -103,13 +100,24 @@ contains
       ! CMFDQR is the shallow convective rainout only. The total is stored in RPRDTOT.
       rprdtot(:ncol,:pver) = rprdsh(:ncol,:pver) + rprddp(:ncol,:pver)
 
-      ! Merge the shallow and deep convective "cloud top/base"
+      ! Merge the shallow and deep convective "cloud top/base" and compute pressures
       ! Note: Indices decrease with height
+      cnt(:ncol) = cnt_deep(:ncol)
+      cnb(:ncol) = cnb_deep(:ncol)
       do i = 1, ncol
+        ! if shallow cloud top is higher then use shallow cloud top
+        if(cnt_sh(i) < cnt_deep(i)) cnt(i) = cnt_sh(i)
 
+        ! if shallow cloud base is lower then use shallow cloud base
+        if(cnb_sh(i) > cnb_deep(i)) cnb(i) = cnb_sh(i)
+
+        ! if cloud base is at model top then set it to cloud top
+        if(cnb_deep(i) == 1._kind_phys) cnb(i) = cnt_deep(i)
+
+        ! set pressures
+        p_cnt(i) = pmid(i, int(cnt(i)))
+        p_cnb(i) = pmid(i, int(cnb(i)))
       enddo
-
-      ! Compute the pressures of cloud top and base based on cnt, cnb
 
 
   end subroutine convect_shallow_sum_to_deep_run

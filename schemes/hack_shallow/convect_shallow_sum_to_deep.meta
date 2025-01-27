@@ -23,8 +23,14 @@
   type = integer
   dimensions = ()
   intent = in
+[ pmid ]
+  standard_name = air_pressure
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
 [ rliq_total ]
-  standard_name = vertically_integrated_liquid_water_tendency_due_to_all_convection_to_be_applied_later_in_time_loop
+  standard_name = vertically_integrated_cloud_liquid_tendency_due_to_all_convection_to_be_applied_later_in_time_loop
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
@@ -48,13 +54,13 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ cnt_deep ]
-  standard_name = vertical_index_at_cloud_top_for_deep_convection
+  standard_name = vertical_index_at_top_of_deep_convection_for_convective_columns
   units = index
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
 [ cnb_deep ]
-  standard_name = vertical_index_at_cloud_base_for_deep_convection
+  standard_name = vertical_index_of_deep_convection_launch_level_for_convective_columns
   units = index
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
