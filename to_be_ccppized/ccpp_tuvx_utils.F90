@@ -10,7 +10,7 @@ module ccpp_tuvx_utils
 contains
 
   !> Regrids normalized flux data to match a specified wavelength grid
-  !! This function is copied from CAM/src/chemistry/utils/mo_util.F90
+  ! This function is copied from CAM/src/chemistry/utils/mo_util.F90
   subroutine rebin( source_dimension, target_dimension, source_coordinates, &
     target_coordinates, source, target )
   use ccpp_kinds, only: kind_phys
