@@ -144,9 +144,9 @@ contains
     end function calc_eddy_flux_coefficient
 
     pure elemental function calc_free_atm_eddy_flux_coefficient(mixing_length_squared, &
-                                                            richardson_number,     &
-                                                            shear_squared)         &
-                                                            result(kvf)
+                                                                richardson_number,     &
+                                                                shear_squared)         &
+                                                                result(kvf)
         ! same as austausch_atm but only mixing for Ri<0
         ! i.e. no background mixing and mixing for Ri>0
 
