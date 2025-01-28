@@ -162,7 +162,7 @@ contains
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
 
     ! dependency to get constituent index
-    use ccpp_const_utils,          only: ccpp_const_get_index
+    use ccpp_const_utils,          only: ccpp_const_get_idx
 
     ! to_be_ccppized
     use wv_saturation,             only: qsat
