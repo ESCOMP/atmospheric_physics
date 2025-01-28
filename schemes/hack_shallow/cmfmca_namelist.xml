@@ -23,10 +23,9 @@
     <standard_name>rain_water_autoconversion_coefficient_for_shallow_convection_tbd</standard_name>
     <units>m-1</units>
     <desc>
-      Rain water autoconversion coefficient for Hack shallow scheme.
+      Rain water autoconversion coefficient for Hack shallow scheme. Resolution dependent.
     </desc>
     <values>
-      <!-- FIXME: This is a resolution-dependent value -->
       <value>1.0e-4</value>
     </values>
   </entry>

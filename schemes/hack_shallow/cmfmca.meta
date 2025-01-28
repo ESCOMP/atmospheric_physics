@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = cmfmca
   type = scheme
+  dependencies = ../../to_be_ccppized/wv_saturation.F90
 
 [ccpp-arg-table]
   name  = cmfmca_init
@@ -93,17 +94,17 @@
   type = integer
   dimensions = ()
   intent = in
+[ iulog ]
+  standard_name = log_output_unit
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
 [ const_props ]
   standard_name = ccpp_constituent_properties
   units = None
   type = ccpp_constituent_prop_ptr_t
   dimensions = (number_of_ccpp_constituents)
-  intent = in
-[ nstep ]
-  standard_name = current_timestep_number
-  units = count
-  type = integer
-  dimensions = ()
   intent = in
 [ ztodt ]
   standard_name = timestep_for_physics

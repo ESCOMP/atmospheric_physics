@@ -34,16 +34,17 @@ module cmfmca
                                                 ! derived from reference pressures to below 40 mb
 
   ! internal parameters
-  real(kind_phys) :: betamn                     ! minimum overshoot parameter [???]
-  real(kind_phys) :: dzmin                      ! minimum convective depth for precipitation [m]
-  logical         :: rlxclm                     ! control for relaxing column versus cloud triplet
-  real(kind_phys) :: ssfac = 1.001_kind_phys    ! detrained air supersaturation bound [???]
+  real(kind_phys) :: betamn = 0.10_kind_phys    ! minimum overshoot parameter [???]
+  real(kind_phys) :: dzmin  = 0.0_kind_phys     ! minimum convective depth for precipitation [m]
+  logical         :: rlxclm = .true.            ! control for relaxing column versus cloud triplet (default: true)
+                                                ! true: relaxation timescale should be applied to column as opposed to triplets individually
+  real(kind_phys) :: ssfac  = 1.001_kind_phys   ! detrained air supersaturation bound [???]
 
   ! internal parameters for tolerance
-  real(kind_phys) :: tiny = 1.0e-36_kind_phys   ! arbitrary small num in scalar transport estimates
-  real(kind_phys) :: eps  = 1.0e-13_kind_phys   ! machine dependent convergence criteria
-  real(kind_phys) :: tpmax = 1.50_kind_phys     ! maximum acceptable T perturbation [K]
-  real(kind_phys) :: shpmax = 1.50e-3_kind_phys ! maximum acceptable Q perturbation [g/g]
+  real(kind_phys) :: tiny   = 1.0e-36_kind_phys ! arbitrary small num in scalar transport estimates
+  real(kind_phys) :: eps    = 1.0e-13_kind_phys ! machine dependent convergence criteria
+  real(kind_phys) :: tpmax  = 1.50_kind_phys    ! maximum acceptable T perturbation [K]
+  real(kind_phys) :: shpmax = 1.50e-3_kind_phys ! maximum acceptable Q perturbation [g g-1]
 
   ! diagnostic only
   logical         :: debug_verbose = .false.    ! control for debug messages
@@ -107,21 +108,31 @@ contains
         endif
       enddo
     endif
-
-    ! in-module parameters (hardcoded)
-    dzmin = 0.0_kind_phys
-    betamn = 0.10_kind_phys
-
-    ! specify that relaxation timescale should be applied to column as opposed to triplets individually
-    rlxclm = .true.
   end subroutine cmfmca_init
 
+  ! Moist convective mass flux procedure.
+  !
+  ! If stratification is unstable to nonentraining parcel ascent,
+  ! complete an adjustment making successive use of a simple cloud model
+  ! consisting of three layers (sometimes referred to as a triplet)
+  !
+  ! Code generalized to allow specification of parcel ("updraft")
+  ! properties, as well as convective transport of an arbitrary
+  ! number of passive constituents (see q array).  The code
+  ! is written so the water vapor field is passed independently
+  ! in the calling list from the block of other transported
+  ! constituents, even though as currently designed, it is the
+  ! first component in the constituents field.
+  !
+  ! Reports tendencies in cmfdt and dq instead of updating profiles.
+  !
+  ! Original author: J. Hack, BAB
 !> \section arg_table_cmfmca_run Argument Table
 !! \htmlinclude cmfmca_run.html
   subroutine cmfmca_run( &
     ncol, pver, pcnst, &
-    const_props,       &
-    nstep, &
+    iulog, &
+    const_props, &
     ztodt, &
     pmid, pmiddry, &
     pdel, pdeldry, rpdel, rpdeldry, &
@@ -150,19 +161,19 @@ contains
     ! framework dependency for const_props
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
 
+    ! dependency to get constituent index
+    use ccpp_const_utils,          only: ccpp_const_get_index
+
     ! to_be_ccppized
     use wv_saturation,             only: qsat
-
-    ! temporary for debug
-    use cam_logfile,               only: iulog
 
     ! Input arguments
     integer,         intent(in)     :: ncol               ! number of atmospheric columns
     integer,         intent(in)     :: pver               ! number of vertical levels
     integer,         intent(in)     :: pcnst              ! number of ccpp constituents
+    integer,         intent(in)     :: iulog              ! log output unit
     type(ccpp_constituent_prop_ptr_t), &
                      intent(in)     :: const_props(:)     ! ccpp constituent properties pointer
-    integer,         intent(in)     :: nstep              ! current time step index
     real(kind_phys), intent(in)     :: ztodt              ! physics timestep [s]
 
     real(kind_phys), intent(in)     :: pmid(:,:)          ! midpoint pressures [Pa]
@@ -209,7 +220,7 @@ contains
     real(kind_phys) :: pm(ncol,pver)       ! pressure [Pa]
     real(kind_phys) :: pd(ncol,pver)       ! delta-p [Pa]
     real(kind_phys) :: rpd(ncol,pver)      ! 1./pdel [Pa-1]
-    real(kind_phys) :: cmfdq(ncol,pver)    ! dq/dt due to moist convection (later copied to dq(:,:,const_wv_idx)) [kg kg-1 s-1]
+    real(kind_phys) :: cmfdq(ncol,pver)    ! dq(wv)/dt due to moist convection (later copied to dq(:,:,const_wv_idx)) [kg kg-1 s-1]
     real(kind_phys) :: gam(ncol,pver)      ! 1/cp (d(qsat)/dT) change in saturation mixing ratio with temp
     real(kind_phys) :: sb(ncol,pver)       ! dry static energy (s bar) [J kg-1]
     real(kind_phys) :: hb(ncol,pver)       ! moist static energy (h bar) [J kg-1]
@@ -320,13 +331,9 @@ contains
 
     ! Check constituents list and locate water vapor index
     ! (not assumed to be 1)
-    const_check_loop: do m = 1, pcnst
-      call const_props(m)%standard_name(const_standard_name)
-      if (const_standard_name == 'water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water') then
-        const_wv_idx = m
-        exit const_check_loop
-      endif
-    enddo const_check_loop
+    call ccpp_const_get_idx(const_props, &
+         'water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water', &
+         const_wv_idx, errmsg, errflg)
 
     !---------------------------------------------------
     ! copy q to dq for passive tracer transport.
@@ -715,10 +722,8 @@ contains
       ! and consistent with how the history tape mass fluxes would be used in
       ! an off-line mode (i.e., using an off-line transport model)
       const_modify_loop: do m = 1, pcnst
-        ! TODO hplin: can these be made into module-level flags cached at scheme init??
-        ! skip water in this loop.
-        call const_props(m)%standard_name(const_standard_name)
-        if (const_standard_name == 'water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water') then
+        ! Water vapor needs to be skipped in the loop.
+        if (m == const_wv_idx) then
           cycle const_modify_loop
         endif
 
