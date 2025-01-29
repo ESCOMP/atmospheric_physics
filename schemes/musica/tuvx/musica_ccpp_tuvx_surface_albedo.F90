@@ -43,7 +43,7 @@ contains
   !> Sets TUV-x surface albedo values
   !!
   !! CAM uses a single value for surface albedo at all wavelengths
-  subroutine set_surface_albedo_values( profile, host_surface_albedo, &
+  subroutine set_surface_albedo_values( profile, surface_albedo, &
                                         errmsg, errcode )
     use ccpp_kinds,          only: kind_phys
     use musica_ccpp_util,    only: has_error_occurred
@@ -51,7 +51,7 @@ contains
     use musica_util,         only: error_t
 
     type(profile_t),  intent(inout) :: profile
-    real(kind_phys),  intent(in)    :: host_surface_albedo ! unitless
+    real(kind_phys),  intent(in)    :: surface_albedo ! fraction
     character(len=*), intent(out)   :: errmsg
     integer,          intent(out)   :: errcode
 
@@ -65,7 +65,7 @@ contains
       return
     end if
 
-    surface_albedo_interfaces(:) = host_surface_albedo
+    surface_albedo_interfaces(:) = surface_albedo
 
     call profile%set_edge_values( surface_albedo_interfaces, error )
     if ( has_error_occurred( error, errmsg, errcode ) ) return
