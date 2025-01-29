@@ -1,8 +1,8 @@
 Originator(s):
 
-Summary (include the keyword ['closes', 'fixes', 'resolves'] and issue number):
+Description (include issue title and the keyword ['closes', 'fixes', 'resolves'] and issue number):
 
-Describe any changes made to the namelist:
+List all namelist files that were added or changed:
 
 List all files eliminated and why:
 
@@ -13,4 +13,6 @@ List all existing files that have been modified, and describe the changes:
 
 List any test failures:
 
-Is this a science-changing update? New physics package, algorithm change, tuning changes, etc?
+Is this an answer-changing PR? If so, is it a new physics package, algorithm change, tuning change, etc?
+
+If yes to the above question, list how this code was validated with the new/modified features?
