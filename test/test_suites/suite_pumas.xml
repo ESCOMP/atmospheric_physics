@@ -4,7 +4,11 @@
   <group name="physics_before_coupler">
     <!-- pre-PUMAS interstitial -->
     <scheme>pumas_pre_main</scheme>
+    <!-- subset host variables to microphysics dimensions -->
+    <scheme>micro_pumas_ccpp_dimensions_pre</scheme>
     <!-- core PUMAS (cloud microphysics) scheme -->
     <scheme>micro_pumas_ccpp</scheme>
+    <!-- subset microphysics variables to host dimensions -->
+    <scheme>micro_pumas_ccpp_dimensions_post</scheme>
   </group>
 </suite>
