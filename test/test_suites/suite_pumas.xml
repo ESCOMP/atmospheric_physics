@@ -2,6 +2,8 @@
 
 <suite name="pumas" version="1.0">
   <group name="physics_before_coupler">
+    <!-- pre-PUMAS interstitial -->
+    <scheme>pumas_pre_main</scheme>
     <!-- core PUMAS (cloud microphysics) scheme -->
     <scheme>micro_pumas_ccpp</scheme>
   </group>

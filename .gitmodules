@@ -2,6 +2,6 @@
         path          = schemes/ccpp-physics
         url           = https://github.com/nusbaume/ccpp-physics
         fxsparse      = ../.ccpp_physics_sparse_checkout
-        fxtag         = 4eff6731a68ea071855550261679d3ac998a2c09
+        fxtag         = 8ca9960471ff6ccc5a0976f302da8c99e8a117f9
         fxrequired    = AlwaysRequired
         fxDONOTUSEurl = https://github.com/NCAR/ccpp-physics
