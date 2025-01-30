@@ -39,7 +39,7 @@
   standard_name = atmosphere_convective_mass_flux_due_to_deep_convection
   units = kg m-2 s-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ rprddp ]
   standard_name = tendency_of_precipitation_wrt_moist_air_and_condensed_water_due_to_deep_convection_excluding_subcloud_evaporation
@@ -69,7 +69,7 @@
   standard_name = atmosphere_convective_mass_flux_due_to_shallow_convection
   units = kg m-2 s-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ qc_sh ]
   standard_name = detrainment_of_water_due_to_shallow_convection
@@ -105,7 +105,7 @@
   standard_name = atmosphere_convective_mass_flux_due_to_all_convection
   units = kg m-2 s-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ rprdtot ]
   standard_name = tendency_of_precipitation_wrt_moist_air_and_condensed_water_due_to_convection_excluding_subcloud_evaporation

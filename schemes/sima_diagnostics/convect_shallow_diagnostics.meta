@@ -101,7 +101,7 @@
   standard_name = atmosphere_convective_mass_flux_due_to_shallow_convection
   units = kg m-2 s-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ errmsg ]
   standard_name = ccpp_error_message
@@ -225,7 +225,7 @@
   standard_name = atmosphere_convective_mass_flux_due_to_all_convection
   units = kg m-2 s-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ cnt ]
   standard_name = vertical_index_at_cloud_top_for_all_convection
