@@ -145,9 +145,6 @@ CONTAINS
       end do
       call history_out_field('FREQZM  ',freqzm)
 
-   !  Convert from hPa s-1 to kg m-2 s-1
-      mcon(:ncol,:pverp) = mcon(:ncol,:pverp) * 100._kind_phys/gravit
-
       call history_out_field('CMFMC_DP', mcon)
 
 

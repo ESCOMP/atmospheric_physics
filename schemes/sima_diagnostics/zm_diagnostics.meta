@@ -187,7 +187,7 @@
   intent = in
 [ mcon ]
   standard_name = atmosphere_convective_mass_flux_due_to_deep_convection
-  units = hPa s-1
+  units = kg m-2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_interface_dimension)
   intent = inout

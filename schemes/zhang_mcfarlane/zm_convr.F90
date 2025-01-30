@@ -789,6 +789,9 @@ subroutine zm_convr_run(     ncol    ,pver    , &
    rliq(:ncol) = rliq(:ncol) /1000._kind_phys
    rice(:ncol) = rice(:ncol) /1000._kind_phys
 
+! Convert mass flux from reported mb s-1 to kg m-2 s-1
+   mcon(:ncol,:pverp) = mcon(:ncol,:pverp) * 100._kind_phys / gravit
+
    return
 end subroutine zm_convr_run
 
