@@ -118,9 +118,6 @@ CONTAINS
             else
                mixing_ratio_type = 'dry'
             end if
-            if (errflg /= 0) then
-               return
-            end if
             call history_add_field(trim(diagnostic_name), trim(long_name), 'lev', 'avg', trim(units), mixing_ratio=mixing_ratio_type)
          end if
       end do
