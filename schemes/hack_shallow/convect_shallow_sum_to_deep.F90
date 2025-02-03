@@ -55,8 +55,8 @@ contains
       real(kind_phys),   intent(in)    :: cmfmc_deep(:,:)        ! Deep convection cloud mass flux [kg m-2 s-1]
       real(kind_phys),   intent(in)    :: rprddp(:,:)            ! Deep convection convective rainout Q tendency [kg kg-1 s-1]
       real(kind_phys),   intent(in)    :: qc_deep(:,:)           ! Deep convection cloud water tendency [kg kg-1 s-1]
-      real(kind_phys),   intent(in)    :: cnt_deep(:)            ! Deep convection cloud top index [index] (jctop / jt)
-      real(kind_phys),   intent(in)    :: cnb_deep(:)            ! Deep convection cloud base index [index] (jcbot / maxg)
+      integer,           intent(in)    :: cnt_deep(:)            ! Deep convection cloud top index [index] (jctop / jt)
+      integer,           intent(in)    :: cnb_deep(:)            ! Deep convection cloud base index [index] (jcbot / maxg)
 
       ! Shallow convective inputs
       real(kind_phys),   intent(in)    :: cmfmc_sh(:,:)          ! Shallow convection cloud mass flux [kg m-2 s-1]

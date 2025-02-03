@@ -56,13 +56,13 @@
 [ cnt_deep ]
   standard_name = vertical_index_at_top_of_deep_convection_for_convective_columns
   units = index
-  type = real | kind = kind_phys
+  type = integer
   dimensions = (horizontal_loop_extent)
   intent = in
 [ cnb_deep ]
   standard_name = vertical_index_of_deep_convection_launch_level_for_convective_columns
   units = index
-  type = real | kind = kind_phys
+  type = integer
   dimensions = (horizontal_loop_extent)
   intent = in
 [ cmfmc_sh ]
