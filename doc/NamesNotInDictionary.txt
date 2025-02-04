@@ -1,46 +1,20 @@
 
 #######################
 Date/time of when script was run:
-2024-12-16 11:19:41.130567
+2025-01-15 17:14:26.650552
 #######################
 
 Non-dictionary standard names found in the following metadata files:
 
 --------------------------
 
-atmospheric_physics/schemes/sima_diagnostics/check_energy_gmean_diagnostics.meta
+../CAM-SIMA/src/physics/ncar_ccpp/test/test_schemes/initialize_constituents.meta
 
-    - flag_for_energy_global_means_output
-    - global_mean_heating_rate_correction_for_energy_conservation
-    - global_mean_vertically_integrated_total_energy_at_end_of_physics_timestep
-    - global_mean_vertically_integrated_total_energy_using_dycore_energy_formula_at_start_of_physics_timestep
+    - dynamic_constituents_for_initialize_constituents
 
 --------------------------
 
-atmospheric_physics/schemes/sima_diagnostics/check_energy_diagnostics.meta
-
-    - cumulative_total_energy_boundary_flux_using_physics_energy_formula
-    - cumulative_total_water_boundary_flux
-    - ratio_of_specific_heat_of_air_used_in_physics_energy_formula_to_specific_heat_of_air_used_in_dycore_energy_formula
-    - specific_heat_of_air_used_in_dycore
-    - vertically_integrated_total_energy_at_end_of_physics_timestep
-    - vertically_integrated_total_energy_using_dycore_energy_formula
-    - vertically_integrated_total_energy_using_physics_energy_formula
-    - vertically_integrated_total_water
-
---------------------------
-
-atmospheric_physics/schemes/sima_diagnostics/sima_state_diagnostics.meta
-
-    - air_pressure_at_interface
-    - air_pressure_of_dry_air_at_interface
-    - ln_air_pressure_at_interface
-    - ln_air_pressure_of_dry_air_at_interface
-    - surface_air_pressure
-
---------------------------
-
-atmospheric_physics/schemes/sima_diagnostics/tropopause_diagnostics.meta
+../CAM-SIMA/src/physics/ncar_ccpp/schemes/sima_diagnostics/tropopause_diagnostics.meta
 
     - tropopause_air_pressure
     - tropopause_air_pressure_from_climatological_method
@@ -68,47 +42,40 @@ atmospheric_physics/schemes/sima_diagnostics/tropopause_diagnostics.meta
 
 --------------------------
 
-atmospheric_physics/schemes/tj2016/tj2016_precip.meta
-
-    - gas_constant_of_water_vapor
-    - lwe_large_scale_precipitation_rate_at_surface
-    - ratio_of_water_vapor_to_dry_air_molecular_weights
-    - sum_of_sigma_pressure_hybrid_coordinate_a_coefficient_and_sigma_pressure_hybrid_coordinate_b_coefficient
-
---------------------------
-
-atmospheric_physics/schemes/tj2016/tj2016_sfc_pbl_hs.meta
+../CAM-SIMA/src/physics/ncar_ccpp/schemes/sima_diagnostics/sima_state_diagnostics.meta
 
     - air_pressure_at_interface
-    - eddy_heat_diffusivity
-    - eddy_momentum_diffusivity
-    - gas_constant_of_water_vapor
+    - air_pressure_of_dry_air_at_interface
+    - geopotential_height_wrt_surface_at_interface
     - ln_air_pressure_at_interface
-    - pi_constant
-    - ratio_of_water_vapor_to_dry_air_molecular_weights
-    - sum_of_sigma_pressure_hybrid_coordinate_a_coefficient_and_sigma_pressure_hybrid_coordinate_b_coefficient
+    - ln_air_pressure_of_dry_air_at_interface
     - surface_air_pressure
-    - surface_eastward_wind_stress
-    - surface_evaporation_rate
-    - surface_northward_wind_stress
-    - surface_upward_sensible_heat_flux
-    - tendency_of_air_temperature_due_to_diabatic_heating
-    - tendency_of_air_temperature_due_to_vertical_diffusion
-    - tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_vertical_diffusion
 
 --------------------------
 
-atmospheric_physics/schemes/dry_adiabatic_adjust/dadadj.meta
+../CAM-SIMA/src/physics/ncar_ccpp/schemes/sima_diagnostics/check_energy_gmean_diagnostics.meta
 
-    - air_pressure_at_interface
-    - binary_indicator_for_dry_adiabatic_adjusted_grid_cell
-    - number_of_iterations_for_dry_adiabatic_adjustment_algorithm_convergence
-    - number_of_vertical_levels_from_model_top_where_dry_adiabatic_adjustment_occurs
-    - tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
+    - flag_for_energy_global_means_output
+    - global_mean_heating_rate_correction_for_energy_conservation
+    - global_mean_vertically_integrated_total_energy_at_end_of_physics_timestep
+    - global_mean_vertically_integrated_total_energy_using_dycore_energy_formula_at_start_of_physics_timestep
 
 --------------------------
 
-atmospheric_physics/schemes/zhang_mcfarlane/zm_conv_momtran.meta
+../CAM-SIMA/src/physics/ncar_ccpp/schemes/sima_diagnostics/check_energy_diagnostics.meta
+
+    - cumulative_total_energy_boundary_flux_using_physics_energy_formula
+    - cumulative_total_water_boundary_flux
+    - ratio_of_specific_heat_of_air_used_in_physics_energy_formula_to_specific_heat_of_air_used_in_dycore_energy_formula
+    - specific_heat_of_air_used_in_dycore
+    - vertically_integrated_total_energy_at_end_of_physics_timestep
+    - vertically_integrated_total_energy_using_dycore_energy_formula
+    - vertically_integrated_total_energy_using_physics_energy_formula
+    - vertically_integrated_total_water
+
+--------------------------
+
+../CAM-SIMA/src/physics/ncar_ccpp/schemes/zhang_mcfarlane/zm_conv_momtran.meta
 
     - atmosphere_detrainment_convective_mass_flux_for_deep_convection_for_convective_columns
     - atmosphere_downdraft_convective_mass_flux_for_deep_convection_for_convective_columns
@@ -135,7 +102,7 @@ atmospheric_physics/schemes/zhang_mcfarlane/zm_conv_momtran.meta
 
 --------------------------
 
-atmospheric_physics/schemes/zhang_mcfarlane/zm_conv_evap.meta
+../CAM-SIMA/src/physics/ncar_ccpp/schemes/zhang_mcfarlane/zm_conv_evap.meta
 
     - 
     - cloud_area_fraction
@@ -161,7 +128,29 @@ atmospheric_physics/schemes/zhang_mcfarlane/zm_conv_evap.meta
 
 --------------------------
 
-atmospheric_physics/schemes/zhang_mcfarlane/zm_convr.meta
+../CAM-SIMA/src/physics/ncar_ccpp/schemes/zhang_mcfarlane/zm_conv_convtran.meta
+
+    - atmosphere_detrainment_convective_mass_flux_for_deep_convection_for_convective_columns
+    - atmosphere_downdraft_convective_mass_flux_for_deep_convection_for_convective_columns
+    - atmosphere_downdraft_entrainment_convective_mass_flux_for_deep_convection_for_convective_columns
+    - atmosphere_updraft_convective_mass_flux_for_deep_convection_for_convective_columns
+    - atmosphere_updraft_entrainment_convective_mass_flux_for_deep_convection_for_convective_columns
+    - current_timestep_number
+    - flag_for_zhang_mcfarlane_deep_convective_transport?
+    - fraction_of_water_insoluble_convectively_transported_species
+    - horizontal_index_of_convective_columns_for_deep_convection_for_convective_columns
+    - maximum_number_of_grid_cells_with_deep_convection?
+    - minimum_number_of_grid_cells_with_deep_convection?
+    - pressure_thickness_for_deep_convection_for_convective_columns
+    - pressure_thickness_for_subcloud_layer_for_deep_convection_for_convective_columns
+    - pressure_thickness_of_dry_air_for_deep_convection_for_convective_columns?
+    - tendency_of_ccpp_constituents?
+    - vertical_index_at_top_of_deep_convection_for_convective_columns
+    - vertical_index_of_deep_conveciton_launch_level_for_convective_columns
+
+--------------------------
+
+../CAM-SIMA/src/physics/ncar_ccpp/schemes/zhang_mcfarlane/zm_convr.meta
 
     - air_pressure_at_interface
     - atmosphere_convective_mass_flux_due_to all_convection?
@@ -189,6 +178,7 @@ atmospheric_physics/schemes/zhang_mcfarlane/zm_convr.meta
     - flag_for_no_deep_convection_in_pbl?
     - freezing_point_of_water?
     - gas_constant_of_water_vapor?
+    - geopotential_height_wrt_surface_at_interface
     - horizontal_index_of_convective_columns_for_deep_convection_for_convective_columns
     - in_cloud_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_deep_convection
     - initial_parcel_property_as_function_of_well-mixed_pbl_for_zhang_mcfarlane?
@@ -217,49 +207,23 @@ atmospheric_physics/schemes/zhang_mcfarlane/zm_convr.meta
 
 --------------------------
 
-atmospheric_physics/schemes/zhang_mcfarlane/zm_conv_convtran.meta
+../CAM-SIMA/src/physics/ncar_ccpp/schemes/check_energy/dycore_energy_consistency_adjust.meta
 
-    - atmosphere_detrainment_convective_mass_flux_for_deep_convection_for_convective_columns
-    - atmosphere_downdraft_convective_mass_flux_for_deep_convection_for_convective_columns
-    - atmosphere_downdraft_entrainment_convective_mass_flux_for_deep_convection_for_convective_columns
-    - atmosphere_updraft_convective_mass_flux_for_deep_convection_for_convective_columns
-    - atmosphere_updraft_entrainment_convective_mass_flux_for_deep_convection_for_convective_columns
-    - current_timestep_number
-    - flag_for_zhang_mcfarlane_deep_convective_transport?
-    - fraction_of_water_insoluble_convectively_transported_species
-    - horizontal_index_of_convective_columns_for_deep_convection_for_convective_columns
-    - maximum_number_of_grid_cells_with_deep_convection?
-    - minimum_number_of_grid_cells_with_deep_convection?
-    - pressure_thickness_for_deep_convection_for_convective_columns
-    - pressure_thickness_for_subcloud_layer_for_deep_convection_for_convective_columns
-    - pressure_thickness_of_dry_air_for_deep_convection_for_convective_columns?
-    - tendency_of_ccpp_constituents?
-    - vertical_index_at_top_of_deep_convection_for_convective_columns
-    - vertical_index_of_deep_conveciton_launch_level_for_convective_columns
+    - flag_for_dycore_energy_consistency_adjustment
+    - ratio_of_specific_heat_of_air_used_in_physics_energy_formula_to_specific_heat_of_air_used_in_dycore_energy_formula
 
 --------------------------
 
-atmospheric_physics/schemes/utilities/geopotential_temp.meta
+../CAM-SIMA/src/physics/ncar_ccpp/schemes/check_energy/check_energy_zero_fluxes.meta
 
-    - air_pressure_at_interface
-    - ln_air_pressure_at_interface
-
---------------------------
-
-atmospheric_physics/schemes/utilities/physics_tendency_updaters.meta
-
-    - ccpp_constituent_tendencies
+    - net_liquid_and_lwe_ice_fluxes_through_top_and_bottom_of_atmosphere_column
+    - net_lwe_ice_fluxes_through_top_and_bottom_of_atmosphere_column
+    - net_sensible_heat_flux_through_top_and_bottom_of_atmosphere_column
+    - net_water_vapor_fluxes_through_top_and_bottom_of_atmosphere_column
 
 --------------------------
 
-atmospheric_physics/schemes/check_energy/check_energy_save_teout.meta
-
-    - vertically_integrated_total_energy_at_end_of_physics_timestep
-    - vertically_integrated_total_energy_using_dycore_energy_formula
-
---------------------------
-
-atmospheric_physics/schemes/check_energy/check_energy_chng.meta
+../CAM-SIMA/src/physics/ncar_ccpp/schemes/check_energy/check_energy_chng.meta
 
     - air_pressure_of_dry_air_at_interface
     - air_temperature_at_start_of_physics_timestep
@@ -287,30 +251,7 @@ atmospheric_physics/schemes/check_energy/check_energy_chng.meta
 
 --------------------------
 
-atmospheric_physics/schemes/check_energy/check_energy_zero_fluxes.meta
-
-    - net_liquid_and_lwe_ice_fluxes_through_top_and_bottom_of_atmosphere_column
-    - net_lwe_ice_fluxes_through_top_and_bottom_of_atmosphere_column
-    - net_sensible_heat_flux_through_top_and_bottom_of_atmosphere_column
-    - net_water_vapor_fluxes_through_top_and_bottom_of_atmosphere_column
-
---------------------------
-
-atmospheric_physics/schemes/check_energy/dycore_energy_consistency_adjust.meta
-
-    - flag_for_dycore_energy_consistency_adjustment
-    - ratio_of_specific_heat_of_air_used_in_physics_energy_formula_to_specific_heat_of_air_used_in_dycore_energy_formula
-
---------------------------
-
-atmospheric_physics/schemes/check_energy/check_energy_scaling.meta
-
-    - ratio_of_specific_heat_of_air_used_in_physics_energy_formula_to_specific_heat_of_air_used_in_dycore_energy_formula
-    - specific_heat_of_air_used_in_dycore
-
---------------------------
-
-atmospheric_physics/schemes/check_energy/check_energy_fix.meta
+../CAM-SIMA/src/physics/ncar_ccpp/schemes/check_energy/check_energy_fix.meta
 
     - air_pressure_at_interface
     - global_mean_heating_rate_correction_for_energy_conservation
@@ -318,7 +259,21 @@ atmospheric_physics/schemes/check_energy/check_energy_fix.meta
 
 --------------------------
 
-atmospheric_physics/schemes/check_energy/check_energy_gmean/check_energy_gmean.meta
+../CAM-SIMA/src/physics/ncar_ccpp/schemes/check_energy/check_energy_save_teout.meta
+
+    - vertically_integrated_total_energy_at_end_of_physics_timestep
+    - vertically_integrated_total_energy_using_dycore_energy_formula
+
+--------------------------
+
+../CAM-SIMA/src/physics/ncar_ccpp/schemes/check_energy/check_energy_scaling.meta
+
+    - ratio_of_specific_heat_of_air_used_in_physics_energy_formula_to_specific_heat_of_air_used_in_dycore_energy_formula
+    - specific_heat_of_air_used_in_dycore
+
+--------------------------
+
+../CAM-SIMA/src/physics/ncar_ccpp/schemes/check_energy/check_energy_gmean/check_energy_gmean.meta
 
     - air_pressure_at_interface
     - global_mean_air_pressure_at_top_of_atmosphere_model
@@ -332,11 +287,89 @@ atmospheric_physics/schemes/check_energy/check_energy_gmean/check_energy_gmean.m
 
 --------------------------
 
-atmospheric_physics/schemes/tropopause_find/tropopause_find.meta
+../CAM-SIMA/src/physics/ncar_ccpp/schemes/tj2016/tj2016_sfc_pbl_hs.meta
+
+    - air_pressure_at_interface
+    - eddy_heat_diffusivity
+    - eddy_momentum_diffusivity
+    - gas_constant_of_water_vapor
+    - ln_air_pressure_at_interface
+    - pi_constant
+    - ratio_of_water_vapor_to_dry_air_molecular_weights
+    - sum_of_sigma_pressure_hybrid_coordinate_a_coefficient_and_sigma_pressure_hybrid_coordinate_b_coefficient
+    - surface_air_pressure
+    - surface_eastward_wind_stress
+    - surface_evaporation_rate
+    - surface_northward_wind_stress
+    - surface_upward_sensible_heat_flux
+    - tendency_of_air_temperature_due_to_diabatic_heating
+    - tendency_of_air_temperature_due_to_vertical_diffusion
+    - tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_vertical_diffusion
+
+--------------------------
+
+../CAM-SIMA/src/physics/ncar_ccpp/schemes/tj2016/tj2016_precip.meta
+
+    - gas_constant_of_water_vapor
+    - lwe_large_scale_precipitation_rate_at_surface
+    - ratio_of_water_vapor_to_dry_air_molecular_weights
+    - sum_of_sigma_pressure_hybrid_coordinate_a_coefficient_and_sigma_pressure_hybrid_coordinate_b_coefficient
+
+--------------------------
+
+../CAM-SIMA/src/physics/ncar_ccpp/schemes/musica/musica_ccpp.meta
+
+    - blackbody_temperature_at_surface
+    - cloud_area_fraction
+    - dynamic_constituents_for_musica_ccpp
+    - earth_sun_distance
+    - extraterrestrial_radiation_flux
+    - geopotential_height_wrt_surface_at_interface
+    - photolysis_wavelength_grid_interfaces
+    - solar_zenith_angle
+    - surface_albedo_due_to_UV_and_VIS_direct
+
+--------------------------
+
+../CAM-SIMA/src/physics/ncar_ccpp/schemes/dry_adiabatic_adjust/dadadj.meta
+
+    - air_pressure_at_interface
+    - binary_indicator_for_dry_adiabatic_adjusted_grid_cell
+    - number_of_iterations_for_dry_adiabatic_adjustment_algorithm_convergence
+    - number_of_vertical_levels_from_model_top_where_dry_adiabatic_adjustment_occurs
+    - tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
+
+--------------------------
+
+../CAM-SIMA/src/physics/ncar_ccpp/schemes/rayleigh_friction/rayleigh_friction.meta
+
+    - ccpp_error_flag
+    - rayleigh_friction_center_level
+    - rayleigh_friction_model_top_decay_time
+    - rayleigh_friction_num_levels
+
+--------------------------
+
+../CAM-SIMA/src/physics/ncar_ccpp/schemes/utilities/physics_tendency_updaters.meta
+
+    - ccpp_constituent_tendencies
+
+--------------------------
+
+../CAM-SIMA/src/physics/ncar_ccpp/schemes/utilities/geopotential_temp.meta
+
+    - air_pressure_at_interface
+    - geopotential_height_wrt_surface_at_interface
+    - ln_air_pressure_at_interface
+
+--------------------------
+
+../CAM-SIMA/src/physics/ncar_ccpp/schemes/tropopause_find/tropopause_find.meta
 
     - air_pressure_at_interface
     - fill_value_for_diagnostic_output
     - fractional_calendar_days_on_end_of_current_timestep
+    - geopotential_height_wrt_surface_at_interface
     - pi_constant
     - ratio_of_dry_air_gas_constant_to_specific_heat_of_dry_air_at_constant_pressure
     - tropopause_air_pressure
@@ -368,24 +401,5 @@ atmospheric_physics/schemes/tropopause_find/tropopause_find.meta
     - tropopause_vertical_layer_index_from_lapse_rate_method
     - vertical_layer_index_lower_bound_from_hybrid_stobie_linoz_with_climatological_backup_method_for_linearized_ozone_chemistry
     - vertical_layer_index_lower_bound_from_hybrid_stobie_linoz_with_climatological_backup_method_for_stratospheric_chemistry
-
---------------------------
-
-atmospheric_physics/schemes/musica/musica_ccpp.meta
-
-    - blackbody_temperature_at_surface
-    - cloud_area_fraction
-    - dynamic_constituents_for_musica_ccpp
-    - earth_sun_distance
-    - extraterrestrial_radiation_flux
-    - photolysis_wavelength_grid_interfaces
-    - solar_zenith_angle
-    - surface_albedo_due_to_UV_and_VIS_direct
-
---------------------------
-
-atmospheric_physics/test/test_schemes/initialize_constituents.meta
-
-    - dynamic_constituents_for_initialize_constituents
 
 #######################
