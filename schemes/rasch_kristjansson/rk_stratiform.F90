@@ -17,9 +17,10 @@ module rk_stratiform
   public :: rk_stratiform_detrain_convective_condensate_run
   ! public :: rk_stratiform_cloud_fractions_run
   ! public :: rk_stratiform_microphysics_run
-  ! public :: rk_stratiform_prognostic_cloud_water_tendencies_run
-  ! public :: rk_stratiform_microphysics_tendencies_run
+  public :: rk_stratiform_prognostic_cloud_water_tendencies_run
+  ! public :: rk_stratiform_ice_and_liquid_water_content_run
   ! public :: rk_stratiform_cloud_optical_properties_run
+  ! public :: rk_stratiform_save_qtlcwat_run
 
   !
 
@@ -100,7 +101,7 @@ contains
     ! Input arguments
     integer,            intent(in)    :: ncol
     real(kind_phys),    intent(in)    :: dlf(:,:)       ! detrainment_of_water_due_to_all_convection [kg kg-1 s-1]
-    real(kind_phys),    intent(in)    :: rliq(:,:)      ! vertically_integrated_liquid_water_tendency_due_to_all_convection_to_be_applied_later_in_time_loop [kg kg-1 s-1]
+    real(kind_phys),    intent(in)    :: rliq(:)        ! vertically_integrated_liquid_water_tendency_due_to_all_convection_to_be_applied_later_in_time_loop [kg kg-1 s-1]
 
     ! Input/output arguments
     real(kind_phys),    intent(inout) :: prec_str(:)     ! stratiform_rain_and_snow_surface_flux [m s-1]
@@ -128,11 +129,14 @@ contains
     ncol, pver, &
     dtime, &
     latvap, latice, &
-    cme, fice, &
+    qme, fice, &
     evapheat, prfzheat, meltheat, &
     repartht, &
     evapprec, &
     ice2pr, liq2pr, &
+    prec_pcw, snow_pcw, &
+    prec_str, snow_str, &
+    cmeheat, cmeice, cmeliq, &
     tend_s, &
     tend_q, &
     tend_cldice, &
@@ -142,9 +146,10 @@ contains
     ! Input arguments
     integer,            intent(in)    :: ncol
     integer,            intent(in)    :: pver
+    real(kind_phys),    intent(in)    :: dtime
     real(kind_phys),    intent(in)    :: latvap
     real(kind_phys),    intent(in)    :: latice
-    real(kind_phys),    intent(in)    :: cme(:,:)          ! net_condensation_rate_due_to_microphysics [s-1]
+    real(kind_phys),    intent(in)    :: qme(:,:)          ! net_condensation_rate_due_to_microphysics [s-1]
     real(kind_phys),    intent(in)    :: fice(:,:)         ! mass_fraction_of_ice_content_within_stratiform_cloud [fraction]
     real(kind_phys),    intent(in)    :: evapheat(:,:)     !
     real(kind_phys),    intent(in)    :: prfzheat(:,:)     !
@@ -153,6 +158,12 @@ contains
     real(kind_phys),    intent(in)    :: evapprec(:,:)     !
     real(kind_phys),    intent(in)    :: ice2pr(:,:)       !
     real(kind_phys),    intent(in)    :: liq2pr(:,:)       !
+    real(kind_phys),    intent(inout) :: prec_pcw(:)       ! lwe_stratiform_precipitation_rate_at_surface [m s-1]
+    real(kind_phys),    intent(inout) :: snow_pcw(:)       ! lwe_snow_precipitation_rate_at_surface_due_to_microphysics [m s-1]
+
+    ! Input/output arguments
+    real(kind_phys),    intent(inout) :: prec_str(:)    ! stratiform_rain_and_snow_surface_flux [m s-1]
+    real(kind_phys),    intent(inout) :: snow_str(:)    ! lwe_snow_and_cloud_ice_precipitation_rate_at_surface_due_to_microphysics [m s-1]
 
     ! Output arguments
     real(kind_phys),    intent(out)   :: cmeheat(:,:)      ! ... [J kg-1 s-1]
@@ -165,33 +176,77 @@ contains
     character(len=512), intent(out)   :: errmsg            ! error message
     integer,            intent(out)   :: errflg            ! error flag
 
+    integer :: i, k
     errmsg = ''
     errflg = 0
 
     do k = 1, pver
       do i = 1, ncol
         ! Heating from cond-evap within the cloud [J kg-1 s-1]
-        cmeheat(i,k)     =   cme(i,k)*(latvap + latice*fice(i,k))
+        cmeheat(i,k)     =   qme(i,k)*(latvap + latice*fice(i,k))
 
         ! Rate of cond-evap of ice within the cloud [kg kg-1 s-1]
-        cmeice(i,k)      =   cme(i,k)*fice(i,k)
+        cmeice(i,k)      =   qme(i,k)*fice(i,k)
 
         ! Rate of cond-evap of liq within the cloud [kg kg-1 s-1]
-        cmeliq(i,k)      =   cme(i,k)*(1._kind_phys-fice(i,k))
+        cmeliq(i,k)      =   qme(i,k)*(1._kind_phys-fice(i,k))
 
         tend_s(i,k)      =   cmeheat(i,k) + &
                                       evapheat(i,k) + prfzheat(i,k) + meltheat(i,k) + repartht(i,k)
-        tend_q(i,k)      = - cme(i,k) + evapprec(i,k)
+        tend_q(i,k)      = - qme(i,k) + evapprec(i,k)
         tend_cldice(i,k) =   cmeice(i,k) - ice2pr(i,k)
         tend_cldliq(i,k) =   cmeliq(i,k) - liq2pr(i,k)
       end do
    end do
 
-
+   prec_str(:ncol) = prec_str(:ncol) + prec_pcw(:ncol)
+   snow_str(:ncol) = snow_str(:ncol) + snow_pcw(:ncol)
 
   end subroutine rk_stratiform_prognostic_cloud_water_tendencies_run
 
+  ! might be better suited for diagnostics ...
+  ! subroutine rk_stratiform_ice_and_liquid_water_content_run( &
+  !   ncol, pver, &
+  !   pmid, &
+  !   t, &
+  !   cldice, cldliq, &
+  !   rhcloud, &
+  !   iwc, lwc, &
+  !   icimr, icwmr, &
+  !   errmsg, errflg)
 
+  !   ! Input arguments
+  !   integer,            intent(in)    :: ncol
+  !   integer,            intent(in)    :: pver
+  !   real(kind_phys),    intent(in)    :: pmid(:,:)      ! air_pressure [Pa]
+  !   real(kind_phys),    intent(in)    :: t(:,:)         ! air_temperature [K]
+  !   real(kind_phys),    intent(in)    :: cldliq(:,:)    ! adv: cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water [kg kg-1]
+  !   real(kind_phys),    intent(in)    :: cldice(:,:)    ! adv: cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water [kg kg-1]
+  !   real(kind_phys),    intent(in)    :: rhcloud(:,:)   ! ? [fraction]
+
+  !   ! Output arguments
+  !   real(kind_phys),    intent(out)   :: iwc(:)         ! stratiform_cloud_ice_water_content [kg m-3]
+  !   real(kind_phys),    intent(out)   :: lwc(:)         ! stratiform_cloud_liquid_water_content [kg m-3]
+  !   real(kind_phys),    intent(out)   :: icimr(:)       ! stratiform_cloud_ice_water_mixing_ratio [kg kg-1]
+  !   real(kind_phys),    intent(out)   :: icwmr(:)       ! stratiform_cloud_liquid_water_mixing_ratio [kg kg-1]
+  !   character(len=512), intent(out)   :: errmsg         ! error message
+  !   integer,            intent(out)   :: errflg         ! error flag
+
+  !   integer :: i, k
+  !   errmsg = ''
+  !   errflg = 0
+
+  !   do k = 1, pver
+  !     do i = 1, ncol
+  !        iwc(i,k)   = cldice(i,k)*pmid(i,k)/(287.15_kind_phys*t(i,k))
+  !        lwc(i,k)   = cldliq(i,k)*pmid(i,k) / &
+  !                     (287.15_kind_phys*t(i,k))
+  !        icimr(i,k) = cldice(i,k) / max(0.01_kind_phys,rhcloud(i,k))
+  !        icwmr(i,k) = cldliq(i,k) / max(0.01_kind_phys,rhcloud(i,k))
+  !     end do
+  !  end do
+
+  ! end subroutine rk_stratiform_ice_and_liquid_water_content_run
 
 
 end module rk_stratiform

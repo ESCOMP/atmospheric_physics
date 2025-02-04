@@ -285,7 +285,7 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
-[ cme ]
+[ qme ]
   standard_name = net_condensation_rate_due_to_microphysics
   units = s-1
   type = real | kind = kind_phys

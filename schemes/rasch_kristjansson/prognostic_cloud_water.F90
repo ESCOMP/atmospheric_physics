@@ -214,7 +214,8 @@ contains
   ! https://doi.org/10.1175/1520-0442(1998)011<1587:ACOTCM>2.0.CO;2
   !
   ! with modifications to improve the method of determining condensation/evaporation
-  ! Zhang et al. (2001?) -- citation unknown.
+  ! Zhang, M., W. Lin, C. Bretherton, J. Hack, and P. J. Rasch, 2003, A modified formulation of fractional stratiform condensation rate in the NCAR Community Atmospheric Model (CAM2), J. Geophys. Res., 108(D1), 4035
+  ! https://doi.org/10.1029/2002JD002523
   !
   ! Original authors: M. Zhang, W. Lin, P. Rasch and J.E. Kristjansson
   !                   B. A. Boville (latent heat of fusion)
@@ -236,7 +237,7 @@ contains
     fice, fsnow, &
     rhdfda, rhu00, &
     landm, seaicef, snowh, &
-    cme, &
+    qme, &
     prodprec, prodsnow, &
     evapprec, evapsnow, &
     evapheat, prfzheat, meltheat, &
@@ -288,7 +289,7 @@ contains
     real(kind_phys),    intent(in)    :: snowh(:)       ! Snow depth over land, water equivalent [m]
 
     ! Output arguments
-    real(kind_phys),    intent(out)   :: cme(:,:)       ! Rate of condensation-evaporation of condensate (net_condensation_rate_due_to_microphysics) [s-1]
+    real(kind_phys),    intent(out)   :: qme(:,:)       ! Rate of condensation-evaporation of condensate (net_condensation_rate_due_to_microphysics) [s-1]
     real(kind_phys),    intent(out)   :: prodprec(:,:)  ! Conversion rate of condensate to precip (precipitation_production_due_to_microphysics) [s-1]
     real(kind_phys),    intent(out)   :: prodsnow(:,:)  ! Snow production rate (ignored in RK?) [s-1]
     real(kind_phys),    intent(out)   :: evapprec(:,:)  ! Falling precipitation evaporation rate (precipitation_evaporation_due_to_microphysics) [s-1] -- & combined to apply q(wv) tendency
@@ -361,11 +362,11 @@ contains
     real(kind_phys) :: cgamah(ncol)                     ! Gamma-hat at saturation portion [1]
     real(kind_phys) :: rcgama(ncol)                     ! Ratio of gamma to gamma-hat [1]
     real(kind_phys) :: csigma(ncol)                     ! Sigma term in C-E formulation [1]
-    real(kind_phys) :: cmeres(ncol)                     ! Residual condensation after C-E and evapprec [kg kg-1 s-1]
-    real(kind_phys) :: cmec1(ncol)                      ! Cloud condensation coefficient 1 C-E formulation [1]
-    real(kind_phys) :: cmec2(ncol)                      ! Cloud condensation coefficient 2 C-E formulation [1]
-    real(kind_phys) :: cmec3(ncol)                      ! Cloud condensation coefficient 3 C-E formulation [1]
-    real(kind_phys) :: cmec4(ncol)                      ! Cloud condensation coefficient 4 C-E formulation [1]
+    real(kind_phys) :: qmeres(ncol)                     ! Residual condensation after C-E and evapprec [kg kg-1 s-1]
+    real(kind_phys) :: qmec1(ncol)                      ! Cloud condensation coefficient 1 C-E formulation [1]
+    real(kind_phys) :: qmec2(ncol)                      ! Cloud condensation coefficient 2 C-E formulation [1]
+    real(kind_phys) :: qmec3(ncol)                      ! Cloud condensation coefficient 3 C-E formulation [1]
+    real(kind_phys) :: qmec4(ncol)                      ! Cloud condensation coefficient 4 C-E formulation [1]
 
 
     ! Diagnostic arrays for cloud water budget
@@ -431,7 +432,7 @@ contains
       end do
     end do
 
-    cme     (:ncol,:) = 0._kind_phys
+    qme     (:ncol,:) = 0._kind_phys
     evapprec(:ncol,:) = 0._kind_phys
     prodprec(:ncol,:) = 0._kind_phys
     evapsnow(:ncol,:) = 0._kind_phys
@@ -491,8 +492,8 @@ contains
         evapprec(i,k) = conke*(1._kind_phys - cldm(i))*sqrt(precab(i)) &
                         *(1._kind_phys - min(relhum(i),1._kind_phys))
 
-        ! zero cmeres before iteration for each level
-        cmeres(i) = 0.0_kind_phys
+        ! zero qmeres before iteration for each level
+        qmeres(i) = 0.0_kind_phys
       end do
 
       do i = 1, ncol
@@ -505,19 +506,19 @@ contains
         endif
       end do
 
-      ! calculate cme and formation of precip.
+      ! calculate qme and formation of precip.
       !
-      ! The cloud microphysics is highly nonlinear and coupled with cme
-      ! Both rain processes and cme are calculated iteratively.
-      cme_iter_loop: do l = 1, iter
-        cme_update_loop: do i = 1, ncol
-          ! calculation of cme has 4 scenarios
+      ! The cloud microphysics is highly nonlinear and coupled with qme
+      ! Both rain processes and qme are calculated iteratively.
+      qme_iter_loop: do l = 1, iter
+        qme_update_loop: do i = 1, ncol
+          ! calculation of qme has 4 scenarios
           call relhum_min_adj(ncol, pver, tropLev, dlat, rhu00, rhu_adj)
 
           if(relhum(i) > rhu_adj(i,k)) then
             ! 1. whole grid saturation
             if(relhum(i) >= 0.999_kind_phys .or. cldm(i) >= 0.999_kind_phys) then
-              cme(i,k) = (calpha(i)*qtend(i,k)-cbetah(i)*ttend(i,k))/cgamah(i)
+              qme(i,k) = (calpha(i)*qtend(i,k)-cbetah(i)*ttend(i,k))/cgamah(i)
             ! 2. fractional saturation
             else
               if (rhdfda(i,k) .eq. 0._kind_phys .and. icwc(i) .eq. 0._kind_phys) then
@@ -530,64 +531,64 @@ contains
               endif
 
               csigma(i) = 1.0_kind_phys/(rhdfda(i,k)+cgamma(i)*icwc(i))
-              cmec1(i) = (1.0_kind_phys-cldm(i))*csigma(i)*rhdfda(i,k)
-              cmec2(i) = cldm(i)*calpha(i)/cgamah(i)+(1.0_kind_phys-rcgama(i)*cldm(i))*   &
+              qmec1(i) = (1.0_kind_phys-cldm(i))*csigma(i)*rhdfda(i,k)
+              qmec2(i) = cldm(i)*calpha(i)/cgamah(i)+(1.0_kind_phys-rcgama(i)*cldm(i))*   &
                          csigma(i)*calpha(i)*icwc(i)
-              cmec3(i) = cldm(i)*cbetah(i)/cgamah(i) +  &
+              qmec3(i) = cldm(i)*cbetah(i)/cgamah(i) +  &
                        (cbeta(i)-rcgama(i)*cldm(i)*cbetah(i))*csigma(i)*icwc(i)
-              cmec4(i) = csigma(i)*cgamma(i)*icwc(i)
+              qmec4(i) = csigma(i)*cgamma(i)*icwc(i)
 
               ! Q = C-E = -C1*Al + C2*Aq - C3*At + C4*Er
-              cme(i,k) = -cmec1(i)*lctend(i,k) + cmec2(i)*qtend(i,k)  &
-                         -cmec3(i)*ttend(i,k) + cmec4(i)*evapprec(i,k)
+              qme(i,k) = -qmec1(i)*lctend(i,k) + qmec2(i)*qtend(i,k)  &
+                         -qmec3(i)*ttend(i,k) + qmec4(i)*evapprec(i,k)
             endif
           ! 3. when rh < rhu00, evaporate existing cloud water
           else if(cwat(i,k) > 0.0_kind_phys) then
             ! liquid water should be evaporated but not to exceed
             ! saturation point. if qn > qsp, not to evaporate cwat
-            cme(i,k) = -min(max(0._kind_phys,qsp(i,k)-qn(i,k)),cwat(i,k))/deltat
+            qme(i,k) = -min(max(0._kind_phys,qsp(i,k)-qn(i,k)),cwat(i,k))/deltat
           ! 4. no condensation nor evaporation
           else
-            cme(i,k) = 0.0_kind_phys
+            qme(i,k) = 0.0_kind_phys
           endif
-        end do cme_update_loop
+        end do qme_update_loop
 
         ! Because of the finite time step, place a bound here not to exceed wet bulb point
         ! and not to evaporate more than available water
         do i = 1, ncol
-          qtmp = qn(i,k) - cme(i,k)*deltat
+          qtmp = qn(i,k) - qme(i,k)*deltat
 
           ! possibilities to have qtmp > qsp
           !
           !   1. if qn > qs(tn), it condenses;
-          !      if after applying cme,  qtmp > qsp,  more condensation is applied.
+          !      if after applying qme,  qtmp > qsp,  more condensation is applied.
           !
           !   2. if qn < qs, evaporation should not exceed qsp,
           if(qtmp > qsp(i,k)) then
-            cme(i,k) = cme(i,k) + (qtmp-qsp(i,k))/deltat
+            qme(i,k) = qme(i,k) + (qtmp-qsp(i,k))/deltat
           endif
 
           ! if net evaporation, it should not exceed available cwat
-          if(cme(i,k) < -cwat(i,k)/deltat) then
-             cme(i,k) = -cwat(i,k)/deltat
+          if(qme(i,k) < -cwat(i,k)/deltat) then
+             qme(i,k) = -cwat(i,k)/deltat
           endif
 
           ! addition of residual condensation from previous step of iteration
-          cme(i,k) = cme(i,k) + cmeres(i)
+          qme(i,k) = qme(i,k) + qmeres(i)
 
-          ! limit cme for roundoff errors (multiply by slightly less than unity)
-          cme(i,k) = cme(i,k) * omsm
+          ! limit qme for roundoff errors (multiply by slightly less than unity)
+          qme(i,k) = qme(i,k) * omsm
         end do
 
         do i = 1, ncol
           ! as a safe limit, condensation should not reduce grid mean rh below rhu00
-          if(cme(i,k) > 0.0_kind_phys .and. relhum(i) > rhu_adj(i,k)) then
-            cme(i,k) = min(cme(i,k), (qn(i,k)-qs(i)*rhu_adj(i,k))/deltat)
+          if(qme(i,k) > 0.0_kind_phys .and. relhum(i) > rhu_adj(i,k)) then
+            qme(i,k) = min(qme(i,k), (qn(i,k)-qs(i)*rhu_adj(i,k))/deltat)
           endif
 
           ! initial guess for cwm (mean cloud water over time step) if 1st iteration
           if(l < 2) then
-            cwm(i) = max(cwat(i,k)+cme(i,k)*dto2, 0._kind_phys)
+            cwm(i) = max(cwat(i,k)+qme(i,k)*dto2, 0._kind_phys)
           endif
         enddo
 
@@ -635,14 +636,14 @@ contains
               ! first predict the cloud water
               cdt = coef(i)*deltat
               if(cdt > 0.01_kind_phys) then
-                pol = cme(i,k)/coef(i) ! production over loss
+                pol = qme(i,k)/coef(i) ! production over loss
                 cwn(i) = max(0._kind_phys,(cwat(i,k)-pol)*exp(-cdt)+ pol)
               else
-                cwn(i) = max(0._kind_phys,(cwat(i,k) + cme(i,k)*deltat)/(1+cdt))
+                cwn(i) = max(0._kind_phys,(cwat(i,k) + qme(i,k)*deltat)/(1+cdt))
               endif
 
               ! now back out the tendency of net rain production
-              prodprec(i,k) = max(0._kind_phys,cme(i,k)-(cwn(i)-cwat(i,k))/deltat)
+              prodprec(i,k) = max(0._kind_phys,qme(i,k)-(cwn(i)-cwat(i,k))/deltat)
             else
               prodprec(i,k) = 0.0_kind_phys
               cwn(i) = 0._kind_phys
@@ -664,8 +665,8 @@ contains
             liq2snow(i,k) = max(prodprec(i,k)*fsacw(i,k), fsnow(i,k)*liq2pr(i,k))
 
             ! bounds
-            nice2pr = min(ice2pr(i,k),(cwat(i,k)+cme(i,k)*deltat)*fice(i,k)/deltat)
-            nliq2pr = min(liq2pr(i,k),(cwat(i,k)+cme(i,k)*deltat)*(1._kind_phys-fice(i,k))/deltat)
+            nice2pr = min(ice2pr(i,k),(cwat(i,k)+qme(i,k)*deltat)*fice(i,k)/deltat)
+            nliq2pr = min(liq2pr(i,k),(cwat(i,k)+qme(i,k)*deltat)*(1._kind_phys-fice(i,k))/deltat)
 
             if (liq2pr(i,k) .ne. 0._kind_phys) then
               nliq2snow = liq2snow(i,k)*nliq2pr/liq2pr(i,k)   ! correction
@@ -682,9 +683,9 @@ contains
             prodprec(i,k) = (nliq2pr + nice2pr)
             prodsnow(i,k) = (nice2pr + nliq2snow)
 
-            rcwn(i,l,k) =  cwat(i,k) + (cme(i,k) - prodprec(i,k))*deltat
-            rliq(i,l,k) = (cwat(i,k) + cme(i,k)*deltat)*(1._kind_phys-fice(i,k)) - nliq2pr*deltat
-            rice(i,l,k) = (cwat(i,k) + cme(i,k)*deltat) * fice(i,k) - nice2pr*deltat
+            rcwn(i,l,k) =  cwat(i,k) + (qme(i,k) - prodprec(i,k))*deltat
+            rliq(i,l,k) = (cwat(i,k) + qme(i,k)*deltat)*(1._kind_phys-fice(i,k)) - nliq2pr*deltat
+            rice(i,l,k) = (cwat(i,k) + qme(i,k)*deltat) * fice(i,k) - nice2pr*deltat
 
             ! Sanity checks
             if(abs(rcwn(i,l,k)) < 1.e-300_kind_phys) rcwn(i,l,k) = 0._kind_phys
@@ -696,10 +697,10 @@ contains
             if(error_found) then
               if(rcwn(i,l,k) < 0._kind_phys) then
                 write(iulog,*) 'prognostic_cloud_water: prob with neg rcwn1 ', rcwn(i,l,k), cwn(i)
-                write(iulog,*) ' cwat, cme*deltat, prodprec*deltat ', &
-                   cwat(i,k), cme(i,k)*deltat,               &
+                write(iulog,*) ' cwat, qme*deltat, prodprec*deltat ', &
+                   cwat(i,k), qme(i,k)*deltat,               &
                    prodprec(i,k)*deltat,                     &
-                   (cme(i,k)-prodprec(i,k))*deltat
+                   (qme(i,k)-prodprec(i,k))*deltat
 
                 errflg = 1
                 errmsg = 'prognostic_cloud_water: negative rcwn1'
@@ -745,8 +746,8 @@ contains
         ! calculate provisional value of cloud water for
         ! evaporation of precipitate (evapprec) calculation
         do i = 1,ncol
-          qtmp = qn(i,k) - cme(i,k)*deltat
-          ttmp = tn(i,k) + deltat/cpair * ( meltheat(i,k) + (latvap + latice*fice(i,k)) * cme(i,k) )
+          qtmp = qn(i,k) - qme(i,k)*deltat
+          ttmp = tn(i,k) + deltat/cpair * ( meltheat(i,k) + (latvap + latice*fice(i,k)) * qme(i,k) )
           esn = estblf(ttmp)
           qsn = svp_to_qsat(esn, pmid(i,k))
           qtl(i) = max((qsn - qtmp)/deltat,0._kind_phys)
@@ -789,31 +790,31 @@ contains
 
         ! now remove the residual of any over-saturation. Normally,
         ! the oversaturated water vapor should have been removed by
-        ! cme formulation plus constraints by wet bulb tsp/qsp
+        ! qme formulation plus constraints by wet bulb tsp/qsp
         ! as computed above. However, because of non-linearity,
-        ! addition of (cme-evapprec) to update t and q may still cause
+        ! addition of (qme-evapprec) to update t and q may still cause
         ! a very small amount of over saturation. It is called a
-        ! residual of over-saturation because theoretically, cme
+        ! residual of over-saturation because theoretically, qme
         ! should have taken care of all of large scale condensation.
         do i = 1,ncol
-          qtmp = qn(i,k)-(cme(i,k)-evapprec(i,k))*deltat
+          qtmp = qn(i,k)-(qme(i,k)-evapprec(i,k))*deltat
           ttmp = tn(i,k) + deltat/cpair * ( meltheat(i,k) + evapheat(i,k) + prfzheat(i,k)      &
-                 + (latvap + latice*fice(i,k)) * cme(i,k) )
+                 + (latvap + latice*fice(i,k)) * qme(i,k) )
 
           call qsat(ttmp, pmid(i,k), esn, qsn, dqsdt=dqsdt)
 
           if(qtmp > qsn) then
             ! now extra condensation to bring air to just saturation
             ctmp = (qtmp-qsn)/(1._kind_phys+hlocp*dqsdt)/deltat
-            cme(i,k) = cme(i,k)+ctmp
-            ! save residual on cmeres to addtion to cme on entering next iteration
-            ! cme exit here contain the residual but overrided if back to iteration
-            cmeres(i) = ctmp
+            qme(i,k) = qme(i,k)+ctmp
+            ! save residual on qmeres to addtion to qme on entering next iteration
+            ! qme exit here contain the residual but overrided if back to iteration
+            qmeres(i) = ctmp
           else
-            cmeres(i) = 0.0_kind_phys
+            qmeres(i) = 0.0_kind_phys
           endif
        end do
-      end do cme_iter_loop  ! loop over l (iteration)
+      end do qme_iter_loop  ! loop over l (iteration)
 
       ! precipitation
       do i = 1, ncol

@@ -110,55 +110,37 @@ contains
     end do
   end subroutine cldems
 
-!===============================================================================
-  subroutine cldovrlap(ncol, pint, cld, nmxrgn, pmxrgn)
-!-----------------------------------------------------------------------
-!
-! Purpose:
-! Partitions each column into regions with clouds in neighboring layers.
-! This information is used to implement maximum overlap in these regions
-! with random overlap between them.
-! On output,
-!    nmxrgn contains the number of regions in each column
-!    pmxrgn contains the interface pressures for the lower boundaries of
-!           each region!
-! Method:
+  ! Partitions each column into regions with clouds in neighboring layers.
+  ! This information is used to implement maximum overlap in these regions
+  ! with random overlap between them.
+  ! On output,
+  !    nmxrgn contains the number of regions in each column
+  !    pmxrgn contains the interface pressures for the lower boundaries of
+  !           each region!
+  subroutine cldovrlap(ncol, pver, pverp, pint, cld, nmxrgn, pmxrgn)
 
-!
-! Author: W. Collins
-!
-!-----------------------------------------------------------------------
+    ! Input arguments
+    integer, intent(in) :: ncol
+    integer, intent(in) :: pver
+    integer, intent(in) :: pverp
 
-!
-! Input arguments
-!
-    integer, intent(in) :: ncol                 ! number of atmospheric columns
+    real(r8), intent(in) :: pint(:, :)     ! Interface pressure
+    real(r8), intent(in) :: cld(:, :)      ! Fractional cloud cover
 
-    real(r8), intent(in) :: pint(pcols, pverp)   ! Interface pressure
-    real(r8), intent(in) :: cld(pcols, pver)     ! Fractional cloud cover
-!
-! Output arguments
-!
-    integer, intent(out) :: nmxrgn(pcols)      ! Number of maximally overlapped regions
-    real(r8), intent(out) :: pmxrgn(pcols, pverp)! Maximum values of pressure for each
-!    maximally overlapped region.
-!    0->pmxrgn(i,1) is range of pressure for
-!    1st region,pmxrgn(i,1)->pmxrgn(i,2) for
-!    2nd region, etc
-!
-!---------------------------Local variables-----------------------------
-!
-    integer i                    ! Longitude index
-    integer k                    ! Level index
-    integer n                    ! Max-overlap region counter
+    ! Output arguments
+    integer,  intent(out) :: nmxrgn(:)     ! Number of maximally overlapped regions
+    real(r8), intent(out) :: pmxrgn(:, :)  ! Maximum values of pressure for each
+                                           !    maximally overlapped region.
+                                           !    0->pmxrgn(i,1) is range of pressure for
+                                           !    1st region,pmxrgn(i,1)->pmxrgn(i,2) for
+                                           !    2nd region, etc
+                                           ! (ncol, pverp)
 
-    real(r8) pnm(pcols, pverp)    ! Interface pressure
-
-    logical cld_found            ! Flag for detection of cloud
-    logical cld_layer(pver)      ! Flag for cloud in layer
-!
-!------------------------------------------------------------------------
-!
+    integer  :: i, k
+    integer  :: n                    ! Max-overlap region counter
+    real(r8) :: pnm(ncol, pverp)     ! Interface pressure
+    logical  :: cld_found            ! Flag for detection of cloud
+    logical  :: cld_layer(pver)      ! Flag for cloud in layer
 
     do i = 1, ncol
       cld_found = .false.
@@ -183,57 +165,35 @@ contains
     end do
   end subroutine cldovrlap
 
-!===============================================================================
+  ! Evaluate cloud liquid water path clwp [g m-2]
+  ! Original author: Author: J.T. Kiehl
   subroutine cldclw(ncol, zi, clwp, tpw, hl)
-!-----------------------------------------------------------------------
-!
-! Purpose:
-! Evaluate cloud liquid water path clwp (g/m**2)
-!
-! Method:
-! <Describe the algorithm(s) used in the routine.>
-! <Also include any applicable external references.>
-!
-! Author: J.T. Kiehl
-!
-!-----------------------------------------------------------------------
 
-!
-! Input arguments
-!
-    integer, intent(in) :: ncol                  ! number of atmospheric columns
+    ! Input arguments
+    integer, intent(in) :: ncol                    ! number of atmospheric columns
 
-    real(r8), intent(in) :: zi(pcols, pverp)      ! height at layer interfaces(m)
-    real(r8), intent(in) :: tpw(pcols)           ! total precipitable water (mm)
-!
-! Output arguments
-!
+    real(r8), intent(in) :: zi(pcols, pverp)       ! height at layer interfaces(m)
+    real(r8), intent(in) :: tpw(pcols)             ! total precipitable water (mm)
+
+    ! Output arguments
     real(r8), intent(out) :: clwp(pcols, pver)     ! cloud liquid water path (g/m**2)
-    real(r8), intent(out) :: hl(pcols)            ! liquid water scale height
+    real(r8), intent(out) :: hl(pcols)             ! liquid water scale height
 
-!
-!---------------------------Local workspace-----------------------------
-!
     integer  :: i, k                  ! longitude, level indices
-    real(r8) :: clwc0                ! reference liquid water concentration (g/m**3)
+    real(r8) :: clwc0                 ! reference liquid water concentration (g/m**3)
     real(r8) :: emziohl(pcols, pverp) ! exp(-zi/hl)
-    real(r8) :: rhl(pcols)           ! 1/hl
-!
-!-----------------------------------------------------------------------
-!
-! Set reference liquid water concentration
-!
+    real(r8) :: rhl(pcols)            ! 1/hl
+
+    ! Set reference liquid water concentration
     clwc0 = 0.21_r8
-!
-! Diagnose liquid water scale height from precipitable water
-!
+
+    ! Diagnose liquid water scale height from precipitable water
     do i = 1, ncol
       hl(i) = 700.0_r8*log(max(tpw(i) + 1.0_r8, 1.0_r8))
       rhl(i) = 1.0_r8/hl(i)
     end do
-!
-! Evaluate cloud liquid water path (vertical integral of exponential fn)
-!
+
+    ! Evaluate cloud liquid water path (vertical integral of exponential fn)
     do k = 1, pverp
       do i = 1, ncol
         emziohl(i, k) = exp(-zi(i, k)*rhl(i))
@@ -246,22 +206,13 @@ contains
     end do
   end subroutine cldclw
 
-!===============================================================================
+
+  ! Compute cloud water size
+  ! analytic formula following the formulation originally developed by J. T. Kiehl
+  ! Author: Phil Rasch
   subroutine reltab(ncol, pver, tmelt, t, landfrac, landm, icefrac, snowh, rel)
-!-----------------------------------------------------------------------
-!
-! Purpose:
-! Compute cloud water size
-!
-! Method:
-! analytic formula following the formulation originally developed by J. T. Kiehl
-!
-! Author: Phil Rasch
-!
-!-----------------------------------------------------------------------
-!
-! Input arguments
-!
+
+    ! Input arguments
     integer,  intent(in) :: ncol
     integer,  intent(in) :: pver
     real(r8), intent(in) :: tmelt
@@ -271,23 +222,18 @@ contains
     real(r8), intent(in) :: t(:, :)          ! Temperature [K]
     real(r8), intent(in) :: snowh(:)         ! Snow depth over land, water equivalent [m]
 
-!
-! Output arguments
-!
+    ! Output arguments
     real(r8), intent(out) :: rel(:, :)       ! Liquid effective drop size (microns)
-!
-!---------------------------Local workspace-----------------------------
-!
-    integer i, k               ! Lon, lev indices
+
+    integer i, k
     real(r8) :: rliqland      ! liquid drop size if over land
     real(r8) :: rliqocean     ! liquid drop size if over ocean
     real(r8) :: rliqice       ! liquid drop size if over sea ice
-!
-!-----------------------------------------------------------------------
-!
+
     rliqocean = 14.0_r8
     rliqice = 14.0_r8
     rliqland = 8.0_r8
+
     do k = 1, pver
       do i = 1, ncol
         ! jrm Reworked effective radius algorithm
@@ -305,7 +251,6 @@ contains
     end do
   end subroutine reltab
 
-!===============================================================================
   subroutine reitab(ncol, pver, t, re)
 
     integer, intent(in) :: ncol
@@ -325,7 +270,7 @@ contains
     !
     !       Modified for pmc formation: 136K -- 274K
     !
-    data retab/ &
+    data retab / &
       0.05_r8, 0.05_r8, 0.05_r8, 0.05_r8, 0.05_r8, 0.05_r8, &
       0.055_r8, 0.06_r8, 0.07_r8, 0.08_r8, 0.09_r8, 0.1_r8, &
       0.2_r8, 0.3_r8, 0.40_r8, 0.50_r8, 0.60_r8, 0.70_r8, &
@@ -350,9 +295,7 @@ contains
       124.954_r8, 130.630_r8, 136.457_r8, 142.446_r8, 148.608_r8, 154.956_r8, &
       161.503_r8, 168.262_r8, 175.248_r8, 182.473_r8, 189.952_r8, 197.699_r8, &
       205.728_r8, 214.055_r8, 222.694_r8, 231.661_r8, 240.971_r8, 250.639_r8/
-    !
     save retab
-    !
 
     do k = 1, pver
       do i = 1, ncol
