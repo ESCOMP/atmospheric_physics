@@ -83,6 +83,9 @@ CONTAINS
       const_found = .false.
       do const_idx = 1, size(const_props)
          call const_props(const_idx)%standard_name(standard_name, errflg, errmsg)
+         if (errflg /= 0) then
+            return
+         end if
          do name_idx = 1, size(const_std_names)
             if (trim(standard_name) == trim(const_std_names(name_idx))) then
                call history_add_field(trim(const_diag_names(name_idx)), trim(const_std_names(name_idx)), 'lev', 'avg', 'kg kg-1', mixing_ratio='wet')
@@ -99,6 +102,9 @@ CONTAINS
       do const_idx = 1, size(const_props)
          if (.not. const_found(const_idx)) then
             call const_props(const_idx)%standard_name(standard_name, errflg, errmsg)
+            if (errflg /= 0) then
+               return
+            end if
             ! truncate the standard name if necessary
             diagnostic_name = standard_name
             call const_props(const_idx)%units(units, errflg, errmsg)
@@ -205,6 +211,9 @@ CONTAINS
       const_found = .false.
       do const_idx = 1, size(const_props)
          call const_props(const_idx)%standard_name(standard_name, errflg, errmsg)
+         if (errflg /= 0) then
+            return
+         end if
          do name_idx = 1, size(const_std_names)
             if (trim(standard_name) == trim(const_std_names(name_idx))) then
                call history_out_field(trim(const_diag_names(name_idx)), const_array(:,:,const_idx))
@@ -223,6 +232,9 @@ CONTAINS
       do const_idx = 1, size(const_props)
          if (.not. const_found(const_idx)) then
             call const_props(const_idx)%standard_name(standard_name, errflg, errmsg)
+            if (errflg /= 0) then
+               return
+            end if
             diagnostic_name = standard_name
             call history_out_field(trim(diagnostic_name), const_array(:,:,const_idx))
          end if
