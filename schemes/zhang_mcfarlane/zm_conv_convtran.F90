@@ -9,11 +9,42 @@ module zm_conv_convtran
 !
 ! PUBLIC: interfaces
 !
+  public zm_conv_convtran_init
   public zm_conv_convtran_run     ! convective transport
 
 
 contains
 
+!===============================================================================
+!> \section arg_table_zm_conv_convtran_init Argument Table
+!! \htmlinclude zm_conv_convtran_init.html
+!!
+subroutine zm_conv_convtran_init(qprops, ncnst, doconvtran, errmsg, errflg)
+
+use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
+
+   implicit none
+
+   type(ccpp_constituent_prop_ptr_t), intent(in)  :: qprops(:)
+   integer,             intent(in) :: ncnst          ! number of tracers to transport
+
+   logical,            intent(out) :: doconvtran(:)  ! flag for doing convective transport      (ncnst)
+   character(len=512), intent(out) :: errmsg
+   integer,            intent(out) :: errflg
+
+
+   integer :: q_index
+
+   errmsg = ''
+   errflg = 0
+
+   ! Only convectively transport constituents that are water species 
+   do q_index=1,ncnst
+       call qprops(q_index)%is_water_species(doconvtran(q_index), errflg, errmsg)
+       if (errflg /= 0) return
+   end do
+
+end subroutine zm_conv_convtran_init
 !===============================================================================
 !> \section arg_table_zm_conv_convtran_run Argument Table
 !! \htmlinclude zm_conv_convtran_run.html
@@ -22,7 +53,9 @@ subroutine zm_conv_convtran_run(ncol, pver, &
                     doconvtran,q       ,ncnst   ,mu      ,md      , &
                     du      ,eu      ,ed      ,dp      ,dsubcld , &
                     jt      ,mx      ,ideep   ,il1g    ,il2g    , &
-                    nstep   ,fracis  ,dqdt    ,dpdry)
+                    nstep   ,fracis  ,dqdt    ,dpdry   ,const_metadata, &
+                    scheme_name, errmsg, errflg)
+
 !-----------------------------------------------------------------------
 !
 ! Purpose:
@@ -37,8 +70,8 @@ subroutine zm_conv_convtran_run(ncol, pver, &
 ! Author: P. Rasch
 !
 !-----------------------------------------------------------------------
-! CACNOTE - replace with CCPP constituents
-   use constituents,    only: cnst_get_type_byind
+   use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
+
 
    implicit none
 !-----------------------------------------------------------------------
@@ -68,6 +101,12 @@ subroutine zm_conv_convtran_run(ncol, pver, &
 
    real(kind_phys), intent(in) :: dpdry(:,:)    ! Delta pressure between interfaces        (ncol,pver)
 
+
+   type(ccpp_constituent_prop_ptr_t), intent(in) :: const_metadata(:)
+   character(len=40),  intent(out) :: scheme_name
+   character(len=512), intent(out) :: errmsg
+   integer,            intent(out) :: errflg
+
 ! input/output
 
    real(kind_phys), intent(out) :: dqdt(:,:,:)  ! Tracer tendency array  (ncol,pver,ncnst)
@@ -83,6 +122,8 @@ subroutine zm_conv_convtran_run(ncol, pver, &
    integer kp1               ! Work index
    integer ktm               ! Highest altitude index of cloud top
    integer m                 ! Work index
+
+   logical :: is_dry
 
    real(kind_phys) cabv                 ! Mix ratio of constituent above
    real(kind_phys) cbel                 ! Mix ratio of constituent below
@@ -109,8 +150,14 @@ subroutine zm_conv_convtran_run(ncol, pver, &
    real(kind_phys) total(ncol)
    real(kind_phys) negadt,qtmp
 
+   character(len=256) :: standard_name
+
 !-----------------------------------------------------------------------
 !
+   scheme_name = "zm_conv_convtran_run"
+   errmsg = ''
+   errflg = 0
+
    small = 1.e-36_kind_phys
 ! mbsth is the threshold below which we treat the mass fluxes as zero (in mb/s)
    mbsth = 1.e-15_kind_phys
@@ -124,10 +171,18 @@ subroutine zm_conv_convtran_run(ncol, pver, &
    end do
 
 ! Loop ever each constituent
-   do m = 2, ncnst
+   dqdt(:,:,:) = 0._kind_phys
+   do m = 1, ncnst
+
+      call const_metadata(m)%standard_name(standard_name)
+      if (standard_name == 'water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water') then
+        cycle
+      end if
+
       if (doconvtran(m)) then
 
-         if (cnst_get_type_byind(m).eq.'dry') then
+         call const_metadata(m)%is_dry(is_dry, errflg, errmsg)
+         if (is_dry) then
             do k = 1,pver
                do i =il1g,il2g
                   dptmp(i,k) = dpdry(i,k)
@@ -146,7 +201,6 @@ subroutine zm_conv_convtran_run(ncol, pver, &
                end do
             end do
          endif
-!        dptmp = dp
 
 ! Gather up the constituent and set tend to zero
          do k = 1,pver
@@ -270,8 +324,7 @@ subroutine zm_conv_convtran_run(ncol, pver, &
             end do
          end do
 
-! Initialize to zero everywhere, then scatter tendency back to full array
-         dqdt(:,:,m) = 0._kind_phys
+! Scatter tendency back to full array
          do k = 1,pver
             kp1 = min(pver,k+1)
             do i = il1g,il2g

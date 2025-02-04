@@ -7,6 +7,7 @@ module zm_conv_momtran
   save
   private                         ! Make default type private to the module
   public zm_conv_momtran_run      ! convective momentum transport
+  integer, parameter, private :: num_winds=2  ! Number of wind directions (for historical purposes)
 
 
 contains
@@ -16,12 +17,12 @@ contains
 !! \htmlinclude zm_conv_momtran_run.html
 !!
 subroutine zm_conv_momtran_run(ncol, pver, pverp, &
-                    domomtran,windu, windv,num_winds, mu, md, &
+                    domomtran,windu, windv, mu, md, &
                     momcu, momcd, &
                     du, eu, ed, dp, dsubcld , &
                     jt, mx, ideep , il1g, il2g, &
                     nstep, windu_tend, windv_tend, pguallu, pguallv, pgdallu, pgdallv, &
-                    icwuu, icwuv, icwdu, icwdv, dt, seten)
+                    icwuu, icwuv, icwdu, icwdv, dt, seten, scheme_name, errmsg, errflg)
 !-----------------------------------------------------------------------
 !
 ! Purpose:
@@ -36,8 +37,6 @@ subroutine zm_conv_momtran_run(ncol, pver, pverp, &
 ! Author: J. Richter and P. Rasch
 !
 !-----------------------------------------------------------------------
-! CACNOTE - use CCPP constituents object
-   use constituents,    only: cnst_get_type_byind
 
    implicit none
 !-----------------------------------------------------------------------
@@ -45,9 +44,8 @@ subroutine zm_conv_momtran_run(ncol, pver, pverp, &
 ! Input arguments
 !
    integer, intent(in) :: ncol                  ! number of atmospheric columns
-   integer, intent(in) :: num_winds             ! number of wind directions
    integer, intent(in) :: pver, pverp
-   logical, intent(in) :: domomtran(:)      ! flag for doing convective transport    (num_winds)
+   logical, intent(in) :: domomtran      ! flag for doing convective transport
    real(kind_phys), intent(in) :: windu(:,:)  ! U Wind array                                    (ncol,pver)
    real(kind_phys), intent(in) :: windv(:,:)  ! V Wind array                                    (ncol,pver)
    real(kind_phys), intent(in) :: mu(:,:)       ! Mass flux up                              (ncol,pver)
@@ -59,7 +57,7 @@ subroutine zm_conv_momtran_run(ncol, pver, pverp, &
    real(kind_phys), intent(in) :: ed(:,:)       ! Mass entraining from downdraft            (ncol,pver)
    real(kind_phys), intent(in) :: dp(:,:)       ! Delta pressure between interfaces         (ncol,pver)
    real(kind_phys), intent(in) :: dsubcld(:)       ! Delta pressure from cloud base to sfc  (ncol)
-   real(kind_phys), intent(in) :: dt            ! time step in seconds
+   real(kind_phys), intent(in) :: dt    ! time step in seconds
 
    integer, intent(in) :: jt(:)         ! Index of cloud top for each column         (ncol)
    integer, intent(in) :: mx(:)         ! Index of cloud top for each column         (ncol)
@@ -74,6 +72,10 @@ subroutine zm_conv_momtran_run(ncol, pver, pverp, &
 
    real(kind_phys), intent(out) :: windu_tend(:,:)  ! U wind tendency
    real(kind_phys), intent(out) :: windv_tend(:,:)  ! V wind tendency
+
+   character(len=512), intent(out) :: errmsg
+   integer,            intent(out) :: errflg
+   character(len=40),  intent(out) :: scheme_name
 
 !--------------------------Local Variables------------------------------
 
@@ -143,7 +145,10 @@ subroutine zm_conv_momtran_run(ncol, pver, pverp, &
 
 
 !-----------------------------------------------------------------------
-!
+   scheme_name = "zm_conv_momtran_run"
+   errmsg = ''
+   errflg = 0
+
 ! Combine winds in single array
    winds(:,:,1) = windu(:,:)
    winds(:,:,2) = windv(:,:)
@@ -178,7 +183,7 @@ subroutine zm_conv_momtran_run(ncol, pver, pverp, &
 
 ! Loop ever each wind component
    do m = 1, num_winds                    !start at m = 1 to transport momentum
-      if (domomtran(m)) then
+      if (domomtran) then
 
 ! Gather up the winds and set tend to zero
          do k = 1,pver

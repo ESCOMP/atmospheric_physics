@@ -2,6 +2,7 @@ module sima_state_diagnostics
 
    use ccpp_kinds, only:  kind_phys
    use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
+   use cam_history_support,       only: fieldname_len
 
    implicit none
    private
@@ -41,7 +42,13 @@ CONTAINS
 
       integer :: const_idx, name_idx
       integer :: const_num_found
+      character(len=64) :: units
+      logical :: is_wet
       character(len=512) :: standard_name
+      character(len=fieldname_len) :: diagnostic_name
+      character(len=512) :: long_name
+      character(len=3) :: mixing_ratio_type
+      logical :: const_found(size(const_props))
 
       errmsg = ''
       errflg = 0
@@ -70,18 +77,54 @@ CONTAINS
       call history_add_field('LNPINT',    'ln_air_pressure_at_interfaces',                                      'ilev', 'avg', '1')
       call history_add_field('LNPINTDRY', 'ln_air_pressure_of_dry_air_at_interfaces',                           'ilev', 'avg', '1')
       call history_add_field('ZI',        'geopotential_height_wrt_surface_at_interfaces',                      'ilev', 'avg', 'm')
-      ! Add constituent fields
+
+      ! Add expected constituent fields
       const_num_found = 0
+      const_found = .false.
       do const_idx = 1, size(const_props)
          call const_props(const_idx)%standard_name(standard_name, errflg, errmsg)
+         if (errflg /= 0) then
+            return
+         end if
          do name_idx = 1, size(const_std_names)
             if (trim(standard_name) == trim(const_std_names(name_idx))) then
                call history_add_field(trim(const_diag_names(name_idx)), trim(const_std_names(name_idx)), 'lev', 'avg', 'kg kg-1', mixing_ratio='wet')
                const_num_found = const_num_found + 1
+               const_found(const_idx) = .true.
             end if
          end do
          if (const_num_found == size(const_std_names)) then
             exit
+         end if
+      end do
+
+      ! Add fields for all other constituents
+      do const_idx = 1, size(const_props)
+         if (.not. const_found(const_idx)) then
+            call const_props(const_idx)%standard_name(standard_name, errflg, errmsg)
+            if (errflg /= 0) then
+               return
+            end if
+            ! truncate the standard name if necessary
+            diagnostic_name = standard_name
+            call const_props(const_idx)%units(units, errflg, errmsg)
+            if (errflg /= 0) then
+               return
+            end if
+            call const_props(const_idx)%is_wet(is_wet, errflg, errmsg)
+            if (errflg /= 0) then
+               return
+            end if
+            call const_props(const_idx)%long_name(long_name, errflg, errmsg)
+            if (errflg /= 0) then
+               return
+            end if
+            if (is_wet) then
+               mixing_ratio_type = 'wet'
+            else
+               mixing_ratio_type = 'dry'
+            end if
+            call history_add_field(trim(diagnostic_name), trim(long_name), 'lev', 'avg', trim(units), mixing_ratio=mixing_ratio_type)
          end if
       end do
 
@@ -130,8 +173,10 @@ CONTAINS
       integer,            intent(out) :: errflg
 
       character(len=512) :: standard_name
+      character(len=fieldname_len)  :: diagnostic_name
       integer :: const_idx, name_idx
       integer :: const_num_found
+      logical :: const_found(size(const_props))
 
       errmsg = ''
       errflg = 0
@@ -161,18 +206,37 @@ CONTAINS
       call history_out_field('LNPINTDRY', lnpintdry)
       call history_out_field('ZI'       , zi)
 
-      ! Capture constituent fields
+      ! Capture expected constituent fields
       const_num_found = 0
+      const_found = .false.
       do const_idx = 1, size(const_props)
          call const_props(const_idx)%standard_name(standard_name, errflg, errmsg)
+         if (errflg /= 0) then
+            return
+         end if
          do name_idx = 1, size(const_std_names)
             if (trim(standard_name) == trim(const_std_names(name_idx))) then
                call history_out_field(trim(const_diag_names(name_idx)), const_array(:,:,const_idx))
                const_num_found = const_num_found + 1
+               const_found(const_idx) = .true.
+            else
+               call history_out_field(trim(standard_name), const_array(:,:,const_idx))
             end if
          end do
          if (const_num_found == size(const_std_names)) then
             exit
+         end if
+      end do
+
+      ! Capture all other constituent fields
+      do const_idx = 1, size(const_props)
+         if (.not. const_found(const_idx)) then
+            call const_props(const_idx)%standard_name(standard_name, errflg, errmsg)
+            if (errflg /= 0) then
+               return
+            end if
+            diagnostic_name = standard_name
+            call history_out_field(trim(diagnostic_name), const_array(:,:,const_idx))
          end if
       end do
 

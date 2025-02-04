@@ -99,7 +99,7 @@
      A configuration file for the MICM chemical solver.
     </desc>
     <values>
-      <value>UNSET_PATH</value>
+      <value>${CASEROOT}</value>
     </values>
   </entry>
   <entry id="filename_of_tuvx_configuration">
@@ -112,7 +112,7 @@
      A configuration file for the TUV-x photolysis rate calculator
     </desc>
     <values>
-      <value>UNSET_PATH</value>
+      <value>${CASEROOT}</value>
     </values>
   </entry>
   <entry id="filename_of_tuvx_micm_mapping_configuration">
@@ -125,7 +125,7 @@
      A configuration file for the mapping of TUV-x photolysis rates to MICM custom rate parameters
     </desc>
     <values>
-      <value>UNSET_PATH</value>
+      <value>${CASEROOT}</value>
     </values>
   </entry>
 </entry_id_pg>

@@ -1,7 +1,12 @@
 [ccpp-table-properties]
   name = musica_ccpp
   type = scheme
-  dependencies = micm/musica_ccpp_micm.F90,micm/musica_ccpp_micm_util.F90,tuvx/musica_ccpp_tuvx.F90,tuvx/musica_ccpp_tuvx_height_grid.F90,musica_ccpp_util.F90
+  dependencies = musica_ccpp.F90,musica_ccpp_util.F90,musica_ccpp_species.F90
+  dependencies = micm/musica_ccpp_micm.F90,micm/musica_ccpp_micm_util.F90
+  dependencies = tuvx/musica_ccpp_tuvx_aerosol_optics.F90,tuvx/musica_ccpp_tuvx_cloud_optics.F90,tuvx/musica_ccpp_tuvx_extraterrestrial_flux.F90
+  dependencies = tuvx/musica_ccpp_tuvx_gas_species.F90,tuvx/musica_ccpp_tuvx_height_grid.F90,tuvx/musica_ccpp_tuvx_load_species.F90
+  dependencies = tuvx/musica_ccpp_tuvx_surface_albedo.F90,tuvx/musica_ccpp_tuvx_temperature.F90,tuvx/musica_ccpp_tuvx_wavelength_grid.F90
+  dependencies = tuvx/musica_ccpp_tuvx.F90
 
 [ccpp-arg-table]
   name  = musica_ccpp_register
@@ -53,7 +58,7 @@
   type = real | kind = kind_phys
   dimensions = (photolysis_wavelength_grid_interface_dimension)
   intent = in
-[ constituent_props ]
+[ constituent_props_ptr ]
   standard_name = ccpp_constituent_properties
   units = None
   type = ccpp_constituent_prop_ptr_t
@@ -139,7 +144,7 @@
   standard_name = surface_albedo_due_to_UV_and_VIS_direct
   type = real | kind = kind_phys
   units = fraction
-  dimensions = ()
+  dimensions = (horizontal_loop_extent)
   intent = in
 [ photolysis_wavelength_grid_interfaces ]
   standard_name = photolysis_wavelength_grid_interfaces
