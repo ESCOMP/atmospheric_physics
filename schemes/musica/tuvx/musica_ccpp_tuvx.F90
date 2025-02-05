@@ -528,7 +528,8 @@ contains
     use musica_ccpp_tuvx_load_species,          only: index_cloud_liquid_water_content, &
                                                       index_dry_air, index_O2, index_O3
     use musica_ccpp_tuvx_gas_species,           only: set_gas_species_values
-    use musica_ccpp_tuvx_no_photolysis_rate,    only: is_NO_photolysis_active, calculate_NO_photolysis_rate
+    use musica_ccpp_tuvx_no_photolysis_rate,    only: is_NO_photolysis_active, calculate_NO_photolysis_rate, &
+                                                      index_NO_photolysis_rate
     use musica_ccpp_species,                    only: MUSICA_INT_UNASSIGNED
 
     real(kind_phys),    intent(in)    :: temperature(:,:)                                  ! K (column, layer)
@@ -647,6 +648,9 @@ contains
             photolysis_rate_constants(size(rate_parameters, dim=2)-i_level+2,:), &
             rate_parameters(i_col,i_level,:) )
       end do
+      if (is_NO_photolysis_active) then
+        rate_parameters(i_col,i_level,index_NO_photolysis_rate) = NO_photolysis_rate_constant(i_level)
+      end if
     end do
 
   end subroutine tuvx_run

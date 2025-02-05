@@ -23,12 +23,13 @@ module musica_ccpp_tuvx_no_photolysis_rate
 
   private
   public :: check_NO_exist, set_NO_index_constituent_props, check_NO_initialization, &
-            calculate_NO_photolysis_rate
+            calculate_NO_photolysis_rate, set_NO_photolysis_index
 
   character(len=*), parameter, public :: N2_label = 'N2'
   character(len=*), parameter, public :: NO_label = 'NO'
   integer,          parameter, public :: num_NO_photolysis_constituents = 2
   logical,          protected, public :: is_NO_photolysis_active = .false.
+  integer,          protected, public :: index_NO_photolysis_rate = MUSICA_INT_UNASSIGNED
   integer,          protected, public :: index_N2 = MUSICA_INT_UNASSIGNED
   integer,          protected, public :: index_NO = MUSICA_INT_UNASSIGNED
   integer,          protected, public :: constituent_props_index_N2 = MUSICA_INT_UNASSIGNED
@@ -42,10 +43,11 @@ contains
 
   !> Checks for the presence of NO and N2, and sets the flag to indicate
   !! whether the NO photolysis calculation is enabled or disabled
-  subroutine check_NO_exist(micm_species)
+  subroutine check_NO_exist(micm_species, includes_no_photolysis)
     use musica_ccpp_species, only: musica_species_t
 
     type(musica_species_t), intent(in) :: micm_species(:)
+    logical,                intent(in) :: includes_no_photolysis
 
     ! local variables
     logical :: is_N2_registered = .false.
@@ -72,11 +74,18 @@ contains
       end if
     end do
 
-    if (is_N2_registered .and. is_NO_registered) then
+    if (is_N2_registered .and. is_NO_registered .and. includes_no_photolysis) then
       is_NO_photolysis_active = .true.
     end if
 
   end subroutine check_NO_exist
+
+  subroutine set_NO_photolysis_index(no_index)
+    integer, intent(in) :: no_index
+
+    index_NO_photolysis_rate = no_index
+
+  end subroutine set_NO_photolysis_index
 
   !> Gets the indices of NO constituents from the CCPP constituent properties,
   !! and stores them in the indices array along with their relative positions

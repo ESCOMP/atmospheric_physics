@@ -28,6 +28,7 @@ contains
     type(ccpp_constituent_properties_t), allocatable :: constituent_props_subset(:)
     type(musica_species_t),              allocatable :: micm_species(:)
     type(musica_species_t),              allocatable :: tuvx_species(:)
+    logical                                          :: includes_no_photolysis
     integer :: number_of_grid_cells
 
     ! Temporary fix until the number of grid cells is only needed to create a MICM state
@@ -36,10 +37,17 @@ contains
     ! the solver when the number of grid cells is known at the init stage.
     number_of_grid_cells = 1
     call micm_register(micm_solver_type, number_of_grid_cells, constituent_props_subset, &
-                       micm_species, errmsg, errcode)
+                       micm_species, includes_no_photolysis,errmsg, errcode)
     if (errcode /= 0) return
     constituent_props = constituent_props_subset
     deallocate(constituent_props_subset)
+    
+    if (includes_no_photolysis) then
+      print *, "Do NO photolysis? yes" 
+    else 
+      print *, "Do NO photolysis? no"
+    end if
+
 
     call tuvx_register(micm_species, tuvx_species, constituent_props_subset, &
                        errmsg, errcode)
@@ -50,7 +58,7 @@ contains
     call check_tuvx_species_initialization(errmsg, errcode)
     if (errcode /= 0) return
 
-    call check_NO_exist(micm_species)
+    call check_NO_exist(micm_species, includes_no_photolysis)
 
   end subroutine musica_ccpp_register
 
@@ -81,6 +89,7 @@ contains
     ! local variables
     type(ccpp_constituent_properties_t), allocatable :: constituent_props(:)
     type(musica_species_t),              allocatable :: micm_species(:)
+    logical                                          :: includes_no_photolysis
     integer                                          :: number_of_grid_cells
 
     ! Temporary fix until the number of grid cells is only needed to create a MICM state
@@ -88,7 +97,7 @@ contains
     ! Re-create the MICM solver with the correct number of grid cells
     number_of_grid_cells = horizontal_dimension * vertical_layer_dimension
     call micm_register(micm_solver_type, number_of_grid_cells, constituent_props, &
-                       micm_species, errmsg, errcode)
+                       micm_species, includes_no_photolysis, errmsg, errcode)
     call micm_init(errmsg, errcode)
     if (errcode /= 0) return
     call tuvx_init(vertical_layer_dimension, vertical_interface_dimension, &
