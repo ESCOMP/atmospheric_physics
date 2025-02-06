@@ -59,8 +59,8 @@ contains
     cmftau_in, c0_in, &
     rair, cpair, gravit, latvap, rhoh2o_in, &
     pref_edge, &
-    errmsg, errflg &
-  )
+    use_shfrc, shfrc, &
+    errmsg, errflg)
 
     integer,            intent(in)  :: pver         ! number of vertical levels
     real(kind_phys),    intent(in)  :: cmftau_in    ! characteristic adjustment time scale [s]
@@ -71,6 +71,9 @@ contains
     real(kind_phys),    intent(in)  :: latvap       ! latent heat of vaporization [J kg-1]
     real(kind_phys),    intent(in)  :: rhoh2o_in    ! density of liquid water [kg m-3]
     real(kind_phys),    intent(in)  :: pref_edge(:) ! reference pressures at interface [Pa]
+
+    logical,            intent(out) :: use_shfrc    ! this shallow scheme provides convective cloud fractions? [flag]
+    real(kind_phys),    intent(out) :: shfrc(:,:)   ! (dummy) shallow convective cloud fractions calculated in-scheme [fraction]
 
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errflg
@@ -108,6 +111,15 @@ contains
         endif
       enddo
     endif
+
+    ! flags for whether this shallow convection scheme
+    ! calculates and provides convective cloud fractions
+    ! to convective cloud cover scheme.
+    !
+    ! the Hack scheme does not provide this.
+    ! a dummy shfrc is provided and is never used.
+    use_shfrc = .false.
+    shfrc(:,:) = 0._kind_phys
   end subroutine cmfmca_init
 
   ! Moist convective mass flux procedure.

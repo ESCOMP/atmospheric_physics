@@ -60,6 +60,18 @@
   type = real | kind = kind_phys
   dimensions = (vertical_interface_dimension)
   intent = in
+[ use_shfrc ]
+  standard_name = flag_for_cloud_fraction_use_shallow_convection_calculated_clouds_tbd
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ shfrc ]
+  standard_name = convective_cloud_fraction_due_to_shallow_convection_tbd
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
