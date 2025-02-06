@@ -44,13 +44,6 @@ contains
     constituent_props = constituent_props_subset
     deallocate(constituent_props_subset)
     
-    if (includes_no_photolysis) then
-      print *, "Do NO photolysis? yes" 
-    else 
-      print *, "Do NO photolysis? no"
-    end if
-
-
     call tuvx_register(micm_species, tuvx_species, constituent_props_subset, &
                        errmsg, errcode)
     if (errcode /= 0) return
@@ -61,6 +54,12 @@ contains
     if (errcode /= 0) return
 
     call check_NO_exist(micm_species, includes_no_photolysis)
+
+    if (includes_no_photolysis) then
+      print *, "Do NO photolysis? yes" 
+    else 
+      print *, "Do NO photolysis? no"
+    end if
 
   end subroutine musica_ccpp_register
 

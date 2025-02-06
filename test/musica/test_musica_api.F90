@@ -19,6 +19,10 @@ program run_test_musica_ccpp
   call test_terminator()
   write(*,*) "[MUSICA Test] Ends the Terminator test"
 
+  write(*,*) "[MUSICA Test] Running the TUVX with NO photolysis test"
+  call test_chapman_with_no_photolysis()
+  write(*,*) "[MUSICA Test] Ends the TUVX with NO photolysis test"
+
 contains
 
   !> Tests the Chapman chemistry scheme
@@ -546,8 +550,7 @@ contains
     character(len=:), allocatable                                         :: micm_species_name
     logical                                                               :: tmp_bool, is_advected
     integer                                                               :: i, j, k
-    integer                                                               :: N2_index, O2_index, O_index, O1D_index, O3_index
-    real(kind_phys)                                                       :: total_O, total_O_init
+    integer                                                               :: NO_index
 
     call get_wavelength_edges(photolysis_wavelength_grid_interfaces)
     time_step = 60._kind_phys
@@ -589,34 +592,6 @@ contains
     endif
     ASSERT(allocated(constituent_props))
     ASSERT(size(constituent_props) == NUM_SPECIES+NUM_TUVX_CONSTITUENTS)
-    do i = 1, size(constituent_props)
-      ASSERT(constituent_props(i)%is_instantiated(errcode, errmsg))
-      ASSERT(errcode == 0)
-      call constituent_props(i)%standard_name(species_name, errcode, errmsg)
-      ASSERT(errcode == 0)
-      call constituent_props(i)%molar_mass(molar_mass, errcode, errmsg)
-      ASSERT(errcode == 0)
-      call constituent_props(i)%is_advected(is_advected, errcode, errmsg)
-      ASSERT(errcode == 0)
-      tmp_bool = (trim(species_name) == "O2" .and. molar_mass == 0.0319988_kind_phys .and. is_advected) .or.  &
-                (trim(species_name) == "O" .and. molar_mass == 0.0159994_kind_phys .and. .not. is_advected) .or.   &
-                (trim(species_name) == "O1D" .and. molar_mass == 0.0159994_kind_phys .and. .not. is_advected) .or. &
-                (trim(species_name) == "O3" .and. molar_mass == 0.0479982_kind_phys .and. is_advected) .or. &
-                (trim(species_name) == "N2" .and. molar_mass == 0.0280134_kind_phys .and. is_advected) .or. &
-                (trim(species_name) == "cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water" .and. &
-                 molar_mass == 0.018_kind_phys .and. is_advected)
-      ASSERT(tmp_bool)
-      call constituent_props(i)%units(units, errcode, errmsg)
-      if (errcode /= 0) then
-        write(*,*) errcode, trim(errmsg)
-        stop 3
-      endif
-      ASSERT(trim(units) == 'kg kg-1')
-    end do
-    if (errcode /= 0) then
-      write(*,*) errcode, trim(errmsg)
-      stop 3
-    end if
 
     allocate(constituent_props_ptr(size(constituent_props)))
     do i = 1, size(constituent_props)
@@ -633,28 +608,12 @@ contains
 
     do i = 1, micm%species_ordering%size()
       micm_species_name = micm%species_ordering%name(i)
-      if (micm_species_name == "O2") then
-        O2_index = i
-        base_conc = 0.21_kind_phys
-      else if (micm_species_name == "O") then
-        O_index = i
-        base_conc = 1.0e-9_kind_phys
-      else if (micm_species_name == "O1D") then
-        O1D_index = i
-        base_conc = 1.0e-9_kind_phys
-      else if (micm_species_name == "O3") then
-        O3_index = i
-        base_conc = 1.0e-4_kind_phys
-      else if (micm_species_name == "N2") then
-        N2_index = i
-        base_conc = 0.79_kind_phys
-      else
-        write(*,*) "Unknown species: ", micm_species_name
-        stop 3
+      if (micm_species_name == "NO") then
+        NO_index = i
       endif
       do j = 1, NUM_COLUMNS
         do k = 1, NUM_LAYERS
-          constituents(j,k,i) = base_conc * (1.0 + 0.1 * (j-1) + 0.01 * (k-1))
+          constituents(j,k,i) = 0.21_kind_phys * (1.0 + 0.1 * (j-1) + 0.01 * (k-1))
         end do
       end do
     end do
@@ -701,28 +660,9 @@ contains
     ! Check the results
     do i = 1, NUM_COLUMNS
       do j = 1, NUM_LAYERS
-        ! N2 should be unchanged
-        ASSERT_NEAR(constituents(i,j,N2_index), initial_constituents(i,j,N2_index), 1.0e-13)
-        ! O3 and O2 should be relatively unchanged
-        ASSERT_NEAR(constituents(i,j,O3_index), initial_constituents(i,j,O3_index), 1.0e-4)
-        ASSERT_NEAR(constituents(i,j,O2_index), initial_constituents(i,j,O2_index), 1.0e-4)
-        ! O and O1D should be < 1e-10 kg kg-1
-        ASSERT(constituents(i,j,O_index) < 1.0e-10)
-        ASSERT(constituents(i,j,O1D_index) < 1.0e-10)
-        ! total O mass should be conserved
-        total_O = constituents(i,j,O_index) + constituents(i,j,O1D_index) + &
-                  constituents(i,j,O2_index) + constituents(i,j,O3_index)
-        total_O_init = initial_constituents(i,j,O_index) + initial_constituents(i,j,O1D_index) + &
-                       initial_constituents(i,j,O2_index) + initial_constituents(i,j,O3_index)
-        ! cloud liquid water mixing ratio should be unchanged
-        ASSERT_NEAR(constituents(i,j,NUM_SPECIES+1), initial_constituents(i,j,NUM_SPECIES+1), 1.0e-13)
-        ASSERT_NEAR(total_O, total_O_init, 1.0e-13)
+        ! NO should be different
+        ASSERT(constituents(i,j,NO_index) .ne. initial_constituents(i,j,NO_index))
       end do
-    end do
-    do j = 1, NUM_LAYERS
-      ! O and O1D should be lower in the nighttime column
-      ASSERT(constituents(2,j,O_index) < constituents(1,j,O_index))
-      ASSERT(constituents(2,j,O1D_index) < constituents(1,j,O1D_index))
     end do
 
     deallocate(constituent_props_ptr)
