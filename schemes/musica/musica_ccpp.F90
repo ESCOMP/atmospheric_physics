@@ -31,6 +31,8 @@ contains
     logical                                          :: includes_no_photolysis
     integer :: number_of_grid_cells
 
+    includes_no_photolysis = .false.
+
     ! Temporary fix until the number of grid cells is only needed to create a MICM state
     ! instead of when the solver is created.
     ! The number of grid cells is not known at this point, so we set it to 1 and recreate
