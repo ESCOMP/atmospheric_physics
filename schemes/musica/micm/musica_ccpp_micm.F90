@@ -100,6 +100,7 @@ contains
     end do
     number_of_rate_parameters = micm%user_defined_reaction_rates%size()
 
+    includes_no_photolysis = .false.
     ! iterate through the user defined reaction rates and print their names and indices
     do i = 1, number_of_rate_parameters
       associate( map => micm%user_defined_reaction_rates )
