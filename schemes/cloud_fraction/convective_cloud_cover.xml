@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet type="text/xsl"?>
+
+<entry_id_pg version="2.0">
+  <entry id="cldfrc_sh1">
+    <type>real</type>
+    <kind>kind_phys</kind>
+    <category>cldfrc</category>
+    <group>convective_cloud_cover_nl</group>
+    <standard_name>tunable_parameter_for_shallow_convection_1_for_cloud_fraction</standard_name>
+    <units>1</units>
+    <desc>
+      Tunable parameter 1 for shallow convection cloud fraction.
+    </desc>
+    <values>
+      <value>0.04D0</value>
+    </values>
+  </entry>
+  <entry id="cldfrc_sh2">
+    <type>real</type>
+    <kind>kind_phys</kind>
+    <category>cldfrc</category>
+    <group>convective_cloud_cover_nl</group>
+    <standard_name>tunable_parameter_for_shallow_convection_2_for_cloud_fraction</standard_name>
+    <units>s kg-1 m2</units>
+    <desc>
+      Tunable parameter 2 for shallow convection cloud fraction.
+    </desc>
+    <values>
+      <value>500.0D0</value>
+    </values>
+  </entry>
+  <entry id="cldfrc_dp1">
+    <type>real</type>
+    <kind>kind_phys</kind>
+    <category>cldfrc</category>
+    <group>convective_cloud_cover_nl</group>
+    <standard_name>tunable_parameter_for_deep_convection_1_for_cloud_fraction</standard_name>
+    <units>1</units>
+    <desc>
+      Tunable parameter 1 for deep convection cloud fraction.
+    </desc>
+    <values>
+      <value>0.10D0</value>
+    </values>
+  </entry>
+  <entry id="cldfrc_dp2">
+    <type>real</type>
+    <kind>kind_phys</kind>
+    <category>cldfrc</category>
+    <group>convective_cloud_cover_nl</group>
+    <standard_name>tunable_parameter_for_deep_convection_2_for_cloud_fraction</standard_name>
+    <units>s kg-1 m2</units>
+    <desc>
+      Tunable parameter 2 for deep convection cloud fraction.
+    </desc>
+    <values>
+      <value>500.0D0</value>
+    </values>
+  </entry>
+</entry_id_pg>
