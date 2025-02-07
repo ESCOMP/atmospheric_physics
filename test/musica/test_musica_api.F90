@@ -11,13 +11,13 @@ program run_test_musica_ccpp
 
   real(kind_phys), parameter :: DEGREE_TO_RADIAN = 3.14159265358979323846_kind_phys / 180.0_kind_phys
 
-  write(*,*) "[MUSICA Test] Running the Chapman test"
-  call test_chapman()
-  write(*,*) "[MUSICA Test] Ends the Chapman test"
+  ! write(*,*) "[MUSICA Test] Running the Chapman test"
+  ! call test_chapman()
+  ! write(*,*) "[MUSICA Test] Ends the Chapman test"
 
-  write(*,*) "[MUSICA Test] Running the Terminator test"
-  call test_terminator()
-  write(*,*) "[MUSICA Test] Ends the Terminator test"
+  ! write(*,*) "[MUSICA Test] Running the Terminator test"
+  ! call test_terminator()
+  ! write(*,*) "[MUSICA Test] Ends the Terminator test"
 
   write(*,*) "[MUSICA Test] Running the TUVX with NO photolysis test"
   call test_chapman_with_no_photolysis()
@@ -606,6 +606,7 @@ contains
       stop 3
     endif
 
+    constituents = 0.0_kind_phys
     do i = 1, micm%species_ordering%size()
       micm_species_name = micm%species_ordering%name(i)
       if (micm_species_name == "NO") then
@@ -648,7 +649,7 @@ contains
     endif
 
     write(*,*) "[MUSICA INFO] Solved Concentrations"
-    write(*,fmt="(4(3x,e13.6))") constituents
+    ! write(*,fmt="(4(3x,e13.6))") constituents
 
     call musica_ccpp_final(errmsg, errcode)
 

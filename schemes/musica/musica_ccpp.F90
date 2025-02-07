@@ -55,12 +55,6 @@ contains
 
     call check_NO_exist(micm_species, includes_no_photolysis)
 
-    if (includes_no_photolysis) then
-      print *, "Do NO photolysis? yes" 
-    else 
-      print *, "Do NO photolysis? no"
-    end if
-
   end subroutine musica_ccpp_register
 
   !> \section arg_table_musica_ccpp_init Argument Table

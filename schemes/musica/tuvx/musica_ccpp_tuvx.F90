@@ -649,6 +649,7 @@ contains
             rate_parameters(i_col,i_level,:) )
       end do
       if (is_NO_photolysis_active) then
+        print *, "NO photolysis rate constant: ", NO_photolysis_rate_constant
         rate_parameters(i_col,i_level,index_NO_photolysis_rate) = NO_photolysis_rate_constant(i_level)
       end if
     end do
