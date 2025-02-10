@@ -189,10 +189,9 @@ contains
     call history_out_field('CMFDQR', cmfdqr)
 
     ! Calculate fractional occurrence of shallow convection
-    ! FIXME (hplin): this definition looks counter-intuitive but is replicated verbatim from convect_shallow.F90. To check.
     freqsh(:) = 0._kind_phys
     do i = 1, ncol
-      if(maxval(cmfmc_sh(i,:)) <= 0._kind_phys) then
+      if(maxval(cmfmc_sh(i,:)) > 0._kind_phys) then
         freqsh(i) = 1._kind_phys
       endif
     enddo
