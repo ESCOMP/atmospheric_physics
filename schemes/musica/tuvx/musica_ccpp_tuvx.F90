@@ -647,11 +647,10 @@ contains
         call photolysis_rate_constants_mapping%copy_data( &
             photolysis_rate_constants(size(rate_parameters, dim=2)-i_level+2,:), &
             rate_parameters(i_col,i_level,:) )
+        if (is_NO_photolysis_active) then
+          rate_parameters(i_col,i_level,index_NO_photolysis_rate) = NO_photolysis_rate_constant(i_level)
+        end if
       end do
-      if (is_NO_photolysis_active) then
-        print *, "NO photolysis rate constant: ", NO_photolysis_rate_constant
-        rate_parameters(i_col,i_level,index_NO_photolysis_rate) = NO_photolysis_rate_constant(i_level)
-      end if
     end do
 
   end subroutine tuvx_run

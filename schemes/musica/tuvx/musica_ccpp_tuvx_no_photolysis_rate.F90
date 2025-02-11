@@ -84,7 +84,6 @@ contains
     integer, intent(in) :: no_index
 
     index_NO_photolysis_rate = no_index
-    print *, "NO photolysis index set to: ", index_NO_photolysis_rate
 
   end subroutine set_NO_photolysis_index
 

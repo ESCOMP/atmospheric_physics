@@ -253,9 +253,9 @@ contains
                   constituents(i,j,O2_index) + constituents(i,j,O3_index)
         total_O_init = initial_constituents(i,j,O_index) + initial_constituents(i,j,O1D_index) + &
                        initial_constituents(i,j,O2_index) + initial_constituents(i,j,O3_index)
+        ASSERT_NEAR(total_O, total_O_init, 1.0e-13)
         ! cloud liquid water mixing ratio should be unchanged
         ASSERT_NEAR(constituents(i,j,NUM_SPECIES+1), initial_constituents(i,j,NUM_SPECIES+1), 1.0e-13)
-        ASSERT_NEAR(total_O, total_O_init, 1.0e-13)
       end do
     end do
     do j = 1, NUM_LAYERS
