@@ -526,7 +526,7 @@ contains
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS+1)                  :: geopotential_height_wrt_surface_at_interface ! m
     real(kind_phys), dimension(NUM_COLUMNS)                               :: surface_geopotential                         ! m2 s-2
     real(kind_phys), dimension(NUM_COLUMNS)                               :: surface_temperature                          ! K
-    real(kind_phys)                                                       :: surface_albedo                               ! unitless
+    real(kind_phys), dimension(NUM_COLUMNS)                               :: surface_albedo                               ! unitless
     integer, parameter                                                    :: num_photolysis_wavelength_grid_sections = 8  ! (count)
     real(kind_phys), dimension(num_photolysis_wavelength_grid_sections+1) :: flux_data_photolysis_wavelength_interfaces   ! nm
     real(kind_phys), dimension(num_photolysis_wavelength_grid_sections)   :: extraterrestrial_flux                        ! photons cm-2 s-1 nm-1
@@ -560,7 +560,7 @@ contains
     geopotential_height_wrt_surface_at_interface(2,:) = (/ 3000.0_kind_phys, 500.0_kind_phys, -1500.0_kind_phys /)
     surface_temperature = (/ 300.0_kind_phys, 300.0_kind_phys /)
     surface_geopotential = (/ 100.0_kind_phys, 200.0_kind_phys /)
-    surface_albedo = 0.10_kind_phys
+    surface_albedo(:) = 0.10_kind_phys
     standard_gravitational_acceleration = 10.0_kind_phys
     temperature(:,1) = (/ 100._kind_phys, 200._kind_phys /)
     temperature(:,2) = (/ 300._kind_phys, 400._kind_phys /)
