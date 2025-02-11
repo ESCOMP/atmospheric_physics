@@ -25,13 +25,18 @@ contains
 
 !> \section arg_table_convective_cloud_cover_init Argument Table
 !! \htmlinclude convective_cloud_cover_init.html
-  subroutine convective_cloud_cover_init(sh1_in, sh2_in, dp1_in, dp2_in, errmsg, errflg)
-    real(kind_phys),  intent(in)  :: sh1_in     ! Shallow convection parameter 1
-    real(kind_phys),  intent(in)  :: sh2_in     ! Shallow convection parameter 2
-    real(kind_phys),  intent(in)  :: dp1_in     ! Deep convection parameter 1
-    real(kind_phys),  intent(in)  :: dp2_in     ! Deep convection parameter 2
+  subroutine convective_cloud_cover_init( &
+    amIRoot, iulog, &
+    sh1_in, sh2_in, dp1_in, dp2_in, errmsg, errflg)
+
+    logical,            intent(in)  :: amIRoot
+    integer,            intent(in)  :: iulog      ! log output unit
+    real(kind_phys),    intent(in)  :: sh1_in     ! Shallow convection parameter 1
+    real(kind_phys),    intent(in)  :: sh2_in     ! Shallow convection parameter 2
+    real(kind_phys),    intent(in)  :: dp1_in     ! Deep convection parameter 1
+    real(kind_phys),    intent(in)  :: dp2_in     ! Deep convection parameter 2
     character(len=512), intent(out) :: errmsg
-    integer,          intent(out) :: errflg
+    integer,            intent(out) :: errflg
 
     errmsg = ''
     errflg = 0
@@ -42,9 +47,16 @@ contains
     dp1 = dp1_in
     dp2 = dp2_in
 
+    if(amIRoot) then
+      write(iulog,*) 'tuning parameters convective_cloud_cover: dp1',dp1,'dp2',dp2,'sh1',sh1,'sh2',sh2
+    endif
+
   end subroutine convective_cloud_cover_init
 
   ! Compute convective cloud cover (deep and shallow)
+  ! Should produce typical numbers of 20%
+  ! Shallow and deep convective cloudiness are evaluated separately and summed
+  ! because the processes are evaluated separately.
 !> \section arg_table_convective_cloud_cover_run Argument Table
 !! \htmlinclude convective_cloud_cover_run.html
   subroutine convective_cloud_cover_run( &
@@ -52,7 +64,7 @@ contains
     top_lev_cloudphys, &
     use_shfrc, shfrc, &
     cmfmc_total, cmfmc_sh, &
-    shallowcu, deepcu, &
+    shallowcu, deepcu, concld, &
     errmsg, errflg)
 
     ! Input arguments
@@ -69,6 +81,7 @@ contains
     ! Output arguments
     real(kind_phys),  intent(out) :: shallowcu(:, :)   ! Shallow convective cloud fraction [fraction]
     real(kind_phys),  intent(out) :: deepcu(:, :)      ! Deep convective cloud fraction [fraction]
+    real(kind_phys),  intent(out) :: concld(:, :)      ! Convective cloud cover [fraction]
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
@@ -78,6 +91,7 @@ contains
     errmsg = ''
     errflg = 0
 
+    concld(:ncol, :) = 0.0_kind_phys
     do k = top_lev_cloudphys, pver
       do i = 1, ncol
         if (.not. use_shfrc) then
@@ -97,6 +111,11 @@ contains
                                    dp2 * (cmfmc_total(i, k + 1) - cmfmc_sh(i, k + 1)) &
                                 ), &
                                0.60_kind_phys))
+
+        ! Estimate of local convective cloud cover based on convective mass flux
+        ! Modify local large-scale relative humidity to account for presence of
+        ! convective cloud when evaluating relative humidity based layered cloud amount
+        concld(i, k) = min(shallowcu(i, k) + deepcu(i, k), 0.80_kind_phys)
       end do
     end do
 

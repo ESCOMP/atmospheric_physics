@@ -64,13 +64,13 @@
   dimensions = ()
   intent = in
 [ use_shfrc ]
-  standard_name = flag_for_cloud_fraction_use_shallow_convection_calculated_clouds_tbd
+  standard_name = flag_for_cloud_area_fraction_to_use_shallow_convection_calculated_cloud_area_fraction
   units = flag
   type = logical
   dimensions = ()
   intent = in
 [ shfrc ]
-  standard_name = convective_cloud_fraction_due_to_shallow_convection_tbd
+  standard_name = shallow_convective_cloud_area_fraction
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -95,6 +95,12 @@
   intent = out
 [ deepcu ]
   standard_name = shallow_convective_cloud_area_fraction_tbd
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ concld ]
+  standard_name = convective_cloud_area_fraction
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
