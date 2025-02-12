@@ -23,11 +23,11 @@ contains
 
     pure elemental function calc_rrho(rair, surface_temperature, pmid) result(rrho)
         ! air density reciprocal
-        real(kind_phys), intent(in) :: rair  ! gas constant for dry air
-        real(kind_phys), intent(in) :: surface_temperature
-        real(kind_phys), intent(in) :: pmid  ! midpoint pressure (bottom level)
+        real(kind_phys), intent(in) :: rair  ! gas constant for dry air         [ J kg-1 K-1 ]
+        real(kind_phys), intent(in) :: surface_temperature                    ! [ K          ]
+        real(kind_phys), intent(in) :: pmid  ! midpoint pressure (bottom level) [ Pa         ]
 
-        real(kind_phys)             :: rrho  ! 1./bottom level density
+        real(kind_phys)             :: rrho  ! 1./bottom level density          [ m3 kg-1    ]
 
         rrho = rair * surface_temperature / pmid
     end function calc_rrho
@@ -41,41 +41,42 @@ contains
         ! DOI: https://doi.org/10.1007/978-94-009-3027-8
         ! Equation 2.10b, page 67
 
-        real(kind_phys), intent(in) :: taux              ! surface u stress [N/m2]
-        real(kind_phys), intent(in) :: tauy              ! surface v stress [N/m2]
-        real(kind_phys), intent(in) :: rrho              ! 1./bottom level density
+        real(kind_phys), intent(in) :: taux              ! surface u stress          [ N m-2   ]
+        real(kind_phys), intent(in) :: tauy              ! surface v stress          [ N m-2   ]
+        real(kind_phys), intent(in) :: rrho              ! 1./bottom level density   [ m3 kg-1 ]
 
-        real(kind_phys)             :: friction_velocity ! surface friction velocity [m/s]
+        real(kind_phys)             :: friction_velocity ! surface friction velocity [ m s-1   ]
 
         friction_velocity = max( sqrt( sqrt(taux**2 + tauy**2)*rrho ), minimum_friction_velocity )
     end function calc_friction_velocity
 
     pure elemental function calc_kinematic_heat_flux(shflx, rrho, cpair) result(khfs)
-        real(kind_phys), intent(in)  :: shflx  ! surface heat flux (W/m2)
-        real(kind_phys), intent(in)  :: rrho   ! 1./bottom level density [ m3/kg ]
-        real(kind_phys), intent(in)  :: cpair  ! specific heat of dry air
+        real(kind_phys), intent(in)  :: shflx  ! surface heat flux        [ W m-2   ]
+        real(kind_phys), intent(in)  :: rrho   ! 1./bottom level density  [ m3 kg-1 ]
+        real(kind_phys), intent(in)  :: cpair  ! specific heat of dry air [  ]
 
-        real(kind_phys)              :: khfs   ! sfc kinematic heat flux [mK/s]
+        real(kind_phys)              :: khfs   ! sfc kinematic heat flux  [ m K s-1 ]
 
         khfs = shflx*rrho/cpair
     end function calc_kinematic_heat_flux
 
     pure elemental function calc_kinematic_water_vapor_flux(qflx, rrho) result(kqfs)
-        real(kind_phys), intent(in)  :: qflx ! water vapor flux (kg/m2/s)
-        real(kind_phys), intent(in)  :: rrho ! 1./bottom level density [ m3/kg ]
+        real(kind_phys), intent(in)  :: qflx ! water vapor flux               [ kg m-2 s-1 ]
+        real(kind_phys), intent(in)  :: rrho ! 1./bottom level density        [ m3 kg-1    ]
 
-        real(kind_phys)              :: kqfs ! sfc kinematic water vapor flux [m/s]
+        real(kind_phys)              :: kqfs ! sfc kinematic water vapor flux [ m s-1      ]
 
         kqfs = qflx*rrho
     end function calc_kinematic_water_vapor_flux
 
     pure elemental function calc_kinematic_buoyancy_flux(khfs, zvir, ths, kqfs) result(kbfs)
-        real(kind_phys), intent(in) :: khfs  ! sfc kinematic heat flux [mK/s]
+        real(kind_phys), intent(in) :: khfs  ! sfc kinematic heat flux          [ m K s-1 ]
         real(kind_phys), intent(in) :: zvir  ! rh2o/rair - 1
-        real(kind_phys), intent(in) :: ths   ! potential temperature at surface [K]
-        real(kind_phys), intent(in) :: kqfs  ! sfc kinematic water vapor flux [m/s]
+        real(kind_phys), intent(in) :: ths   ! potential temperature at surface [ K       ]
+        real(kind_phys), intent(in) :: kqfs  ! sfc kinematic water vapor flux   [ m s-1   ]
 
-        real(kind_phys)             :: kbfs  ! sfc kinematic buoyancy flux [mK/s] (`kbfs = \overline{(w' \theta'_v)}_s`)
+        ! (`kbfs = \overline{(w' \theta'_v)}_s`)
+        real(kind_phys)             :: kbfs  ! sfc kinematic buoyancy flux      [ m K s-1 ]
 
         kbfs = khfs + zvir*ths*kqfs
     end function calc_kinematic_buoyancy_flux
@@ -86,13 +87,13 @@ contains
         ! Equation 5.7c, page 181
         ! \frac{-\theta*u_*^3}{g*k*\overline{(w' \theta_v')}_s} = frac{-\theta*u_*^3}{g*k*kbfs}
 
-        real(kind_phys), intent(in)  :: thvs              ! virtual potential temperature at surface
-        real(kind_phys), intent(in)  :: ustar             ! Surface friction velocity [ m/s ]
-        real(kind_phys), intent(in)  :: g                 ! acceleration of gravity
-        real(kind_phys), intent(in)  :: vk                ! Von Karman's constant
-        real(kind_phys), intent(in)  :: kbfs              ! sfc kinematic buoyancy flux [m*K/s]
+        real(kind_phys), intent(in)  :: thvs              ! virtual potential temperature at surface [ K       ]
+        real(kind_phys), intent(in)  :: ustar             ! Surface friction velocity                [ m s-1   ]
+        real(kind_phys), intent(in)  :: g                 ! acceleration of gravity                  [ m       ]
+        real(kind_phys), intent(in)  :: karman            ! Von Karman's constant (unitless)
+        real(kind_phys), intent(in)  :: kbfs              ! sfc kinematic buoyancy flux              [ m K s-1 ]
 
-        real(kind_phys)              :: obukhov_length    ! Obukhov length
+        real(kind_phys)              :: obukhov_length    ! Obukhov length                           [ m       ]
 
         ! Added sign(...) term to prevent division by 0 and using the fact that
         ! `kbfs = \overline{(w' \theta_v')}_s`
@@ -125,11 +126,11 @@ contains
         ! Beljaars (1989), ECMWF proceedings.
         ! The unstable case (Richardson number, Ri<0) is taken from  CCM1.
 
-        real(kind_phys), intent(in)  :: mixing_length_squared
-        real(kind_phys), intent(in)  :: richardson_number
-        real(kind_phys), intent(in)  :: shear_squared
+        real(kind_phys), intent(in)  :: mixing_length_squared     ! [ m2     ]
+        real(kind_phys), intent(in)  :: richardson_number         ! [ 1      ]
+        real(kind_phys), intent(in)  :: shear_squared             ! [ s-2    ]
 
-        real(kind_phys)              :: kvf    ! Eddy diffusivity for heat and tracers
+        real(kind_phys)              :: kvf    ! Eddy diffusivity ! [ m2 s-1 ]
 
         real(kind_phys)              :: fofri  ! f(ri)
         real(kind_phys)              :: kvn    ! Neutral Kv
@@ -150,11 +151,11 @@ contains
         ! same as austausch_atm but only mixing for Ri<0
         ! i.e. no background mixing and mixing for Ri>0
 
-        real(kind_phys), intent(in)  :: mixing_length_squared
-        real(kind_phys), intent(in)  :: richardson_number
-        real(kind_phys), intent(in)  :: shear_squared
+        real(kind_phys), intent(in)  :: mixing_length_squared ! [ m2     ]
+        real(kind_phys), intent(in)  :: richardson_number     ! [ 1      ]
+        real(kind_phys), intent(in)  :: shear_squared         ! [ s-2    ]
 
-        real(kind_phys)              :: kvf
+        real(kind_phys)              :: kvf                   ! [ m2 s-1 ]
 
         real(kind_phys)              :: fofri ! f(ri)
         real(kind_phys)              :: kvn   ! Neutral Kv
@@ -201,10 +202,10 @@ contains
         ! Description of the NCAR Community Climate Model (CCM1).
         ! University Corporation for Atmospheric Research. https://doi.org/10.5065/D6TB14WH (Original work published 1987)
         ! Equation 2.f.15, page 12
-        ! NOTE: shear_squared vriable currently (01/2025) computed in hb_diff.F90 (trbintd) matches referenced equation.
+        ! NOTE: shear_squared variable currently (01/2025) computed in hb_diff.F90 (s2 in trbintd(...)) matches referenced equation.
 
-        real(kind_phys), intent(in) :: mixing_length_squared
-        real(kind_phys), intent(in) :: shear_squared
+        real(kind_phys), intent(in) :: mixing_length_squared ! [ m2     ]
+        real(kind_phys), intent(in) :: shear_squared         ! [ s-2    ]
 
         real(kind_phys)             :: neutral_k
 
