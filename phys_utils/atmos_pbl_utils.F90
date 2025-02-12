@@ -81,7 +81,7 @@ contains
         kbfs = khfs + zvir*ths*kqfs
     end function calc_kinematic_buoyancy_flux
 
-    pure elemental function calc_obukhov_length(thvs, ustar, g, vk, kbfs) result(obukhov_length)
+    pure elemental function calc_obukhov_length(thvs, ustar, g, karman, kbfs) result(obukhov_length)
         ! Stull, Roland B. An Introduction to Boundary Layer Meteorology. Springer Kluwer Academic Publishers, 1988. Print.
         ! DOI: https://doi.org/10.1007/978-94-009-3027-8
         ! Equation 5.7c, page 181
@@ -97,8 +97,8 @@ contains
 
         ! Added sign(...) term to prevent division by 0 and using the fact that
         ! `kbfs = \overline{(w' \theta_v')}_s`
-        obukhov_length = -thvs * ustar**3 /                          &
-                         (g*vk*(kbfs + sign(1.e-10_kind_phys,kbfs)))
+        obukhov_length = -thvs * ustar**3 /                             &
+                         (g*karman*(kbfs + sign(1.e-10_kind_phys,kbfs)))
     end function calc_obukhov_length
 
     pure elemental function calc_virtual_temperature(temperature, specific_humidity, zvir) result(virtual_temperature)
