@@ -659,6 +659,14 @@ contains
         etagdt(i) = eta(i)*grav*ztodt
       end do
 
+      if(debug_verbose) then
+        do i=1,ncol
+          if (i == 1) then
+            write(iulog,8080) beta(i), eta(i)
+          endif
+        enddo
+      endif
+
       ! Calculate cloud water, rain water, and thermodynamic changes
       do ii=1,len1
         i = indx1(ii)
@@ -830,26 +838,7 @@ contains
       ! Constituent modifications complete
 
       ! This if restructured from a goto
-      if (k == limcnv+1) then
-        ! Ensure that dzcld is reset if convective mass flux zero
-        ! specify the current vertical extent of the convective activity
-        ! top of convective layer determined by size of overshoot param.
-         do i=1,ncol
-             etagt0 = eta(i).gt.0.0_kind_phys
-             if ( .not. etagt0) dzcld(i) = 0.0_kind_phys
-             if (etagt0 .and. beta(i) > betamn) then
-                ktp = k-1
-             else
-                ktp = k
-             end if
-             if (etagt0) then
-                rk = k
-                rktp = ktp
-                cnt_sh(i) = min(cnt_sh(i),rktp)
-                cnb_sh(i) = max(cnb_sh(i),rk)
-             end if
-          end do
-      else
+      if (k /= limcnv+1) then
         ! Complete update of thermodynamic structure at integer levels
         ! gather/scatter points that need new values of shbs and gamma
         do ii=1,len1
@@ -886,6 +875,25 @@ contains
            hbh (i,k-1) = sbh(i,k-1) + hlat*shbh(i,k-1)
         end do
       end if ! k /= limcnv+1
+
+      ! Ensure that dzcld is reset if convective mass flux zero
+      ! specify the current vertical extent of the convective activity
+      ! top of convective layer determined by size of overshoot param.
+      do i=1,ncol
+        etagt0 = eta(i).gt.0.0_kind_phys
+        if ( .not. etagt0) dzcld(i) = 0.0_kind_phys
+        if (etagt0 .and. beta(i) > betamn) then
+           ktp = k-1
+        else
+           ktp = k
+        end if
+        if (etagt0) then
+           rk = k
+           rktp = ktp
+           cnt_sh(i) = min(cnt_sh(i),rktp)
+           cnb_sh(i) = max(cnb_sh(i),rk)
+        end if
+      end do
     end do kloop
 
     !---------------------------------------------------
