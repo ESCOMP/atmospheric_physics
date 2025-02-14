@@ -29,10 +29,10 @@ contains
       errflg = 0
 
       ! History add field calls
-      call history_add_field('teinp', 'vertically_integrated_total_energy_using_dycore_energy_formula_at_start_of_physics_timestep', horiz_only, 'inst', 'J m-2')
-      call history_add_field('tefix', 'vertically_integrated_total_energy_using_dycore_energy_formula', horiz_only, 'inst', 'J m-2')
-      call history_add_field('teout', 'vertically_integrated_total_energy_using_dycore_energy_formula_at_end_of_physics_timestep', horiz_only, 'inst', 'J m-2')
-      call history_add_field('efix', 'net_sensible_heat_flux_through_top_and_bottom_of_atmosphere_column_from_global_total_energy_correction', horiz_only, 'inst', 'J m-2')
+      call history_add_field('TEINP', 'vertically_integrated_total_energy_using_dycore_energy_formula_at_start_of_physics_timestep', horiz_only, 'inst', 'J m-2')
+      call history_add_field('TEFIX', 'vertically_integrated_total_energy_using_dycore_energy_formula', horiz_only, 'inst', 'J m-2')
+      call history_add_field('TEOUT', 'vertically_integrated_total_energy_using_dycore_energy_formula_at_end_of_physics_timestep', horiz_only, 'inst', 'J m-2')
+      call history_add_field('EFIX', 'net_sensible_heat_flux_through_top_and_bottom_of_atmosphere_column_from_global_total_energy_correction', horiz_only, 'inst', 'J m-2')
 
    end subroutine check_energy_fix_diagnostics_init
 
@@ -63,10 +63,10 @@ contains
       errflg = 0
 
       ! History out field calls
-      call history_out_field('teinp', te_ini_dyn)
-      call history_out_field('teout', teout)
-      call history_out_field('tefix', te_cur_dyn)
-      call history_out_field('efix',  eshflx)
+      call history_out_field('TEINP', te_ini_dyn)
+      call history_out_field('TEOUT', teout)
+      call history_out_field('TEFIX', te_cur_dyn)
+      call history_out_field('EFIX',  eshflx)
 
    end subroutine check_energy_fix_diagnostics_run
 
