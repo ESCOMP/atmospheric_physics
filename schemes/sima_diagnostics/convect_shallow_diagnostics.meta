@@ -86,13 +86,13 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ cmfsl ]
-  standard_name = liquid_water_static_energy_flux_due_to_shallow_convection_tbd
+  standard_name = liquid_water_static_energy_flux_due_to_shallow_convection
   units = W m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ cmflq ]
-  standard_name = total_water_flux_in_energy_unit_due_to_shallow_convection_tbd
+  standard_name = total_water_flux_due_to_shallow_convection
   units = W m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)

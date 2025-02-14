@@ -13,13 +13,13 @@
   dimensions = ()
   intent = in
 [ cmftau_in ]
-  standard_name = characteristic_adjustment_time_for_shallow_convection_tbd
+  standard_name = characteristic_adjustment_time_for_shallow_convection
   units = s
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ c0_in ]
-  standard_name = rain_water_autoconversion_coefficient_for_shallow_convection_tbd
+  standard_name = rain_water_autoconversion_coefficient_for_shallow_convection
   units = m-1
   type = real | kind = kind_phys
   dimensions = ()
@@ -61,13 +61,13 @@
   dimensions = (vertical_interface_dimension)
   intent = in
 [ use_shfrc ]
-  standard_name = flag_for_cloud_fraction_use_shallow_convection_calculated_clouds_tbd
+  standard_name = flag_for_cloud_area_fraction_use_shallow_convection_calculated_cloud_area_fraction
   units = flag
   type = logical
   dimensions = ()
   intent = out
 [ shfrc ]
-  standard_name = convective_cloud_fraction_due_to_shallow_convection_tbd
+  standard_name = shallow_convective_cloud_area_fraction
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_dimension, vertical_layer_dimension)
@@ -227,13 +227,13 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ cmfsl ]
-  standard_name = liquid_water_static_energy_flux_due_to_shallow_convection_tbd
+  standard_name = liquid_water_static_energy_flux_due_to_shallow_convection
   units = W m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ cmflq ]
-  standard_name = total_water_flux_in_energy_unit_due_to_shallow_convection_tbd
+  standard_name = total_water_flux_due_to_shallow_convection
   units = W m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)

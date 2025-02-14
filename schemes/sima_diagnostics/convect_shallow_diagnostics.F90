@@ -53,10 +53,10 @@ contains
 
     call history_add_field('ICWMRSH', 'in_cloud_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_shallow_convection', 'lev', 'avg', 'kg kg-1') ! Shallow Convection in-cloud water mixing ratio
 
-    call history_add_field('CMFSL', 'liquid_water_static_energy_flux_due_to_shallow_convection_tbd', 'ilev', 'avg', 'W m-2') ! Moist shallow convection liquid water static energy flux
-    call history_add_field('CMFLQ', 'total_water_flux_in_energy_unit_due_to_shallow_convection_tbd', 'ilev', 'avg', 'W m-2') ! Moist shallow convection total water flux
+    call history_add_field('CMFSL', 'liquid_water_static_energy_flux_due_to_shallow_convection', 'ilev', 'avg', 'W m-2') ! Moist shallow convection liquid water static energy flux
+    call history_add_field('CMFLQ', 'total_water_flux_due_to_shallow_convection', 'ilev', 'avg', 'W m-2') ! Moist shallow convection total water flux
 
-    call history_add_field('FREQSH', 'frequency_of_shallow_convection_tbd', horiz_only, 'avg', 'fraction') ! Fractional occurence of shallow convection
+    call history_add_field('FREQSH', 'frequency_of_shallow_convection', horiz_only, 'avg', 'fraction') ! Fractional occurence of shallow convection
 
     ! UW convection
     ! call history_add_field('CBMF', '', horiz_only, 'avg', 'kg m-2 s-1') ! Cloud base mass flux

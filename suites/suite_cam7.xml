@@ -4,6 +4,12 @@
 
   <!-- **********Physics before the coupler************  -->
   <group name="physics_before_coupler">
+    <!-- (temporary) Initialize all constituents and to_be_ccppized modules -->
+    <scheme>initialize_constituents</scheme>
+    <scheme>to_be_ccppized_temporary</scheme>
+
+    <!-- Set top level for cloud fraction calculations -->
+    <scheme>set_cloud_fraction_top</scheme>
 
     <!-- Compute global means of physics input and output total energy -->
     <scheme>check_energy_gmean</scheme>
@@ -28,8 +34,6 @@
     <scheme>geopotential_temp</scheme>
 
     <!-- Zhang McFarlane (convect_deep) -->
-    <scheme>initialize_constituents</scheme>
-    <scheme>to_be_ccppized_temporary</scheme>
     <scheme>zm_conv_options</scheme>
     <scheme>zm_convr</scheme>
     <scheme>zm_convr_tendency_diagnostics</scheme>

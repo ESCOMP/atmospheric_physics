@@ -56,13 +56,17 @@ contains
 !! \htmlinclude cmfmca_init.html
   subroutine cmfmca_init( &
     pver, &
+    amIRoot, iulog, &
     cmftau_in, c0_in, &
     rair, cpair, gravit, latvap, rhoh2o_in, &
     pref_edge, &
     use_shfrc, shfrc, &
+    top_lev, &
     errmsg, errflg)
 
     integer,            intent(in)  :: pver         ! number of vertical levels
+    logical,            intent(in)  :: amIRoot
+    integer,            intent(in)  :: iulog        ! log output unit
     real(kind_phys),    intent(in)  :: cmftau_in    ! characteristic adjustment time scale [s]
     real(kind_phys),    intent(in)  :: c0_in        ! rain water autoconversion coefficient [m-1]
     real(kind_phys),    intent(in)  :: rair         ! gas constant for dry air [J K-1 kg-1]
@@ -74,6 +78,8 @@ contains
 
     logical,            intent(out) :: use_shfrc    ! this shallow scheme provides convective cloud fractions? [flag]
     real(kind_phys),    intent(out) :: shfrc(:,:)   ! (dummy) shallow convective cloud fractions calculated in-scheme [fraction]
+
+    integer,            intent(out) :: top_lev      ! top level for cloud fraction [index]
 
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errflg
@@ -87,6 +93,11 @@ contains
     ! namelist variables
     cmftau  = cmftau_in
     c0      = c0_in
+
+    if(amIRoot) then
+      write(iulog,*) 'tuning parameters cmfmca: cmftau',cmftau
+      write(iulog,*) 'tuning parameters cmfmca: c0',c0
+    endif
 
     ! host model physical constants
     cp      = cpair
@@ -112,6 +123,11 @@ contains
       enddo
     endif
 
+    if(amIRoot) then
+      write(iulog,*) "cmfmca_init: convection will be capped at interface ", limcnv, &
+                     "which is ", pref_edge(limcnv), " pascals"
+    endif
+
     ! flags for whether this shallow convection scheme
     ! calculates and provides convective cloud fractions
     ! to convective cloud cover scheme.
@@ -120,6 +136,10 @@ contains
     ! a dummy shfrc is provided and is never used.
     use_shfrc = .false.
     shfrc(:,:) = 0._kind_phys
+
+    ! for Hack shallow convection (CAM4 physics), do not limit cloud fraction
+    ! (extend all the way to model top)
+    top_lev = 1
   end subroutine cmfmca_init
 
   ! Moist convective mass flux procedure.

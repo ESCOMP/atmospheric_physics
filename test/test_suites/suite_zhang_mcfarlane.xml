@@ -4,6 +4,7 @@
    <group name="physics_before_coupler">
        <scheme>initialize_constituents</scheme>
        <scheme>to_be_ccppized_temporary</scheme>
+       <scheme>set_cloud_fraction_top</scheme>
        <scheme>zm_conv_options</scheme>
        <scheme>zm_convr</scheme>
        <scheme>zm_convr_tendency_diagnostics</scheme>
