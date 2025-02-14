@@ -29,7 +29,7 @@ contains
     real(kind_phys), intent(in)  :: mmr(:,:,:)            ! constituent mass mixing ratios [kg kg-1]
     integer,         intent(in)  :: ncol                  ! number of atmospheric columns
     integer,         intent(in)  :: pver                  ! number of vertical layers
-    integer,         intent(in)  :: energy_formula_dycore ! total energy formulation dycore
+    integer,         intent(in)  :: energy_formula_dycore ! total energy formulation used by dycore
     real(kind_phys), intent(in)  :: pdel(:,:)             ! layer thickness [Pa]
     real(kind_phys), intent(in)  :: pdeldry(:,:)          ! dry layer thickness [Pa]
 
