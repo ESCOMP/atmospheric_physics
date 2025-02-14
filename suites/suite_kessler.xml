@@ -30,6 +30,10 @@
     <scheme>kessler_diagnostics</scheme>
   </group>
   <group name="physics_after_coupler">
+
+    <!-- Update cp/cv for energy computation based in updated water variables -->
+    <scheme>thermo_water_update</scheme>
+
     <!-- <scheme>physics_dme_adjust</scheme> -->
 
     <!-- MPAS and SE specific scaling of temperature for enforcing energy consistency:
