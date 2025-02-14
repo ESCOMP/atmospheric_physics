@@ -2,9 +2,6 @@ module zm_conv_evap
 
   use ccpp_kinds, only:  kind_phys
 
-! CACNOTE - Need to ccpp'ize cloud_fraction
-  use cloud_fraction,  only: cldfrc_fice
-
   implicit none
 
   save
@@ -23,13 +20,12 @@ contains
 !!
 subroutine zm_conv_evap_run(ncol, pver, pverp, &
      gravit, latice, latvap, tmelt, &
-     cpres, ke, ke_lnd, zm_org, &
+     cpres, ke, ke_lnd, &
      t,pmid,pdel,q, &
      landfrac, &
      tend_s, tend_s_snwprd, tend_s_snwevmlt, tend_q, &
-     prdprec, cldfrc, deltat,  &
-     prec, snow, ntprprd, ntsnprd, flxprec, flxsnow, prdsnow)
-
+     prdprec_gen, cldfrc, deltat,  &
+     prec_gen, snow, ntprprd, ntsnprd, fsnow_conv, flxprec, flxsnow, scheme_name, errmsg, errflg)
 
 !-----------------------------------------------------------------------
 ! Compute tendencies due to evaporation of rain from ZM scheme
@@ -40,7 +36,6 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
 ! Evaporate some of the precip directly into the environment using a Sundqvist type algorithm
 !-----------------------------------------------------------------------
 
-!CACNOTE - Not sure what to do about qsat_water
     use wv_saturation,  only: qsat
 
 !------------------------------Arguments--------------------------------
@@ -53,39 +48,40 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
     real(kind_phys), intent(in) :: cpres      ! specific heat at constant pressure in j/kg-degk.
     real(kind_phys), intent(in) :: ke           ! Tunable evaporation efficiency set from namelist input zmconv_ke
     real(kind_phys), intent(in) :: ke_lnd
-    logical, intent(in)         :: zm_org
     real(kind_phys),intent(in), dimension(:,:) :: t          ! temperature (K)                              (ncol,pver)
     real(kind_phys),intent(in), dimension(:,:) :: pmid       ! midpoint pressure (Pa)                       (ncol,pver)
     real(kind_phys),intent(in), dimension(:,:) :: pdel       ! layer thickness (Pa)                         (ncol,pver)
     real(kind_phys),intent(in), dimension(:,:) :: q          ! water vapor (kg/kg)                          (ncol,pver)
     real(kind_phys),intent(in), dimension(:) :: landfrac     ! land fraction                                (ncol)
-    real(kind_phys),intent(inout), dimension(:,:) :: tend_s     ! heating rate (J/kg/s)                     (ncol,pver)
-    real(kind_phys),intent(inout), dimension(:,:) :: tend_q     ! water vapor tendency (kg/kg/s)            (ncol,pver)
+
+    real(kind_phys),intent(out), dimension(:,:) :: tend_s     ! heating rate (J/kg/s)                     (ncol,pver)
+    real(kind_phys),intent(out), dimension(:,:) :: tend_q     ! water vapor tendency (kg/kg/s)            (ncol,pver)
     real(kind_phys),intent(out), dimension(:,:) :: tend_s_snwprd ! Heating rate of snow production        (ncol,pver)
     real(kind_phys),intent(out), dimension(:,:) :: tend_s_snwevmlt ! Heating rate of evap/melting of snow (ncol,pver)
 
-
-
-    real(kind_phys), intent(in   ) :: prdprec(:,:)! precipitation production (kg/ks/s)                      (ncol,pver)
+    real(kind_phys), intent(in   ) :: prdprec_gen(:,:)! precipitation production (kg/ks/s)                      (ncol,pver)
     real(kind_phys), intent(in   ) :: cldfrc(:,:) ! cloud fraction                                          (ncol,pver)
     real(kind_phys), intent(in   ) :: deltat             ! time step
+    real(kind_phys), intent(in   ) :: fsnow_conv(:,:) ! snow fraction in precip production
 
-    real(kind_phys), intent(inout) :: prec(:)        ! Convective-scale preciptn rate                       (ncol)
+    real(kind_phys), intent(inout) :: prec_gen(:)        ! Convective-scale preciptn rate                       (ncol)
     real(kind_phys), intent(out)   :: snow(:)        ! Convective-scale snowfall rate                       (ncol)
-
-    real(kind_phys), optional, intent(in), allocatable  :: prdsnow(:,:) ! snow production (kg/ks/s)
 
 !
 !---------------------------Local storage-------------------------------
+    real(kind_phys), parameter :: density_fresh_water=1000._kind_phys
 
-    real(kind_phys) :: es    (ncol,pver)    ! Saturation vapor pressure
-    real(kind_phys) :: fice   (ncol,pver)    ! ice fraction in precip production
-    real(kind_phys) :: fsnow_conv(ncol,pver) ! snow fraction in precip production
+    real(kind_phys) :: es   (ncol,pver)    ! Saturation vapor pressure
     real(kind_phys) :: qs   (ncol,pver)    ! saturation specific humidity
     real(kind_phys),intent(out) :: flxprec(:,:)   ! Convective-scale flux of precip at interfaces (kg/m2/s) ! (ncol,pverp)
     real(kind_phys),intent(out) :: flxsnow(:,:)   ! Convective-scale flux of snow   at interfaces (kg/m2/s) ! (ncol,pverp)
     real(kind_phys),intent(out) :: ntprprd(:,:)   ! net precip production in layer                          ! (ncol,pver)
     real(kind_phys),intent(out) :: ntsnprd(:,:)   ! net snow production in layer                            ! (ncol,pver)
+
+    character(len=512), intent(out) :: errmsg
+    integer,            intent(out) :: errflg
+    character(len=40),  intent(out) :: scheme_name
+
     real(kind_phys) :: work1                  ! temp variable (pjr)
     real(kind_phys) :: work2                  ! temp variable (pjr)
 
@@ -106,29 +102,19 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
 
 
 !-----------------------------------------------------------------------
+    scheme_name = "zm_conv_evap_run"
+    errmsg = ''
+    errflg = 0
 
-    ! If prdsnow is passed in and allocated, then use it in the calculation, otherwise
-    ! use the old snow calculation
     old_snow=.true.
-    if (present(prdsnow)) then
-       if (allocated(prdsnow)) then
-          old_snow=.false.
-       end if
-    end if
 
 ! convert input precip to kg/m2/s
-    prec(:ncol) = prec(:ncol)*1000._kind_phys
+    prec_gen(:ncol) = prec_gen(:ncol)* density_fresh_water
 
 ! determine saturation vapor pressure
     do k = 1,pver
        call qsat(t(1:ncol,k), pmid(1:ncol,k), es(1:ncol,k), qs(1:ncol,k), ncol)
     end do
-! determine ice fraction in rain production (use cloud water parameterization fraction at present)
-!REMOVECAM - no longer need these when CAM is retired and pcols no longer exists
-    fice(:,:) = 0._kind_phys
-    fsnow_conv(:,:) = 0._kind_phys
-!REMOVECAM_END
-    call cldfrc_fice(ncol, t(1:ncol,:), fice(1:ncol,:), fsnow_conv(1:ncol,:))
 
 ! zero the flux integrals on the top boundary
     flxprec(:ncol,1) = 0._kind_phys
@@ -140,7 +126,7 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
        do i = 1, ncol
 
 ! Melt snow falling into layer, if necessary.
-        if( old_snow ) then
+         if( old_snow ) then
           if (t(i,k) > tmelt) then
              flxsntm(i) = 0._kind_phys
              snowmlt(i) = flxsnow(i,k) * gravit/ pdel(i,k)
@@ -172,11 +158,7 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
 ! relative humidity depression must be > 0 for evaporation
           evplimit = max(1._kind_phys - q(i,k)/qs(i,k), 0._kind_phys)
 
-          if (zm_org) then
-             kemask = ke * (1._kind_phys - landfrac(i)) + ke_lnd * landfrac(i)
-          else
-             kemask = ke
-          endif
+          kemask = ke
 
 ! total evaporation depends on flux in the top of the layer
 ! flux prec is the net production above layer minus evaporation into environmet
@@ -192,7 +174,7 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
           evplimit   = min(evplimit, flxprec(i,k) * gravit / pdel(i,k))
 
 ! Total evaporation cannot exceed input precipitation
-          evplimit   = min(evplimit, (prec(i) - evpvint(i)) * gravit / pdel(i,k))
+          evplimit   = min(evplimit, (prec_gen(i) - evpvint(i)) * gravit / pdel(i,k))
 
           evpprec(i) = min(evplimit, evpprec(i))
           if( .not.old_snow ) then
@@ -214,7 +196,7 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
           evpvint(i) = evpvint(i) + evpprec(i) * pdel(i,k)/gravit
 
 ! net precip production is production - evaporation
-          ntprprd(i,k) = prdprec(i,k) - evpprec(i)
+          ntprprd(i,k) = prdprec_gen(i,k) - evpprec(i)
 ! net snow production is precip production * ice fraction - evaporation - melting
 ! the small amount added to flxprec in the work1 expression has been increased from
 ! 1e-36 to 8.64e-11 (1e-5 mm/day).  This causes the temperature based partitioning
@@ -229,13 +211,9 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
 
           work2 = max(fsnow_conv(i,k), work1)
           if (snowmlt(i).gt.0._kind_phys) work2 = 0._kind_phys
-          ntsnprd(i,k) = prdprec(i,k)*work2 - evpsnow(i) - snowmlt(i)
-          tend_s_snwprd  (i,k) = prdprec(i,k)*work2*latice
+          ntsnprd(i,k) = prdprec_gen(i,k)*work2 - evpsnow(i) - snowmlt(i)
+          tend_s_snwprd  (i,k) = prdprec_gen(i,k)*work2*latice
           tend_s_snwevmlt(i,k) = - ( evpsnow(i) + snowmlt(i) )*latice
-      else
-          ntsnprd(i,k) = prdsnow(i,k) - min(flxsnow(i,k)*gravit/pdel(i,k), evpsnow(i)+snowmlt(i))
-          tend_s_snwprd  (i,k) = prdsnow(i,k)*latice
-          tend_s_snwevmlt(i,k) = -min(flxsnow(i,k)*gravit/pdel(i,k), evpsnow(i)+snowmlt(i) )*latice
       end if
 
 ! precipitation fluxes
@@ -259,8 +237,9 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
     end do
 
 ! set output precipitation rates (m/s)
-    prec(:ncol) = flxprec(:ncol,pver+1) / 1000._kind_phys
-    snow(:ncol) = flxsnow(:ncol,pver+1) / 1000._kind_phys
+! convert from 'kg m-2 s-1' to 'm s-1'
+    prec_gen(:ncol) = flxprec(:ncol,pverp) / density_fresh_water
+    snow(:ncol) = flxsnow(:ncol,pverp) / density_fresh_water
 
   end subroutine zm_conv_evap_run
 
