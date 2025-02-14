@@ -141,6 +141,7 @@ contains
     ASSERT(errcode == 0)
 
     call cleanup_musica_species()
+    deallocate(constituent_props_ptr)
 
   end subroutine test_initialize_musica_species_indices_and_molar_mass
 

@@ -85,7 +85,7 @@ contains
     ! Iterate through the MICM species to check if any TUV-x gas
     ! species are included; if present, updates the scale height and profiled status.
     do i_species = 1, num_micm_species
-      if (is_dry_air_registered .and. is_O2_registered .and. is_O3_registered) exit
+      if ( is_dry_air_registered .and. is_O2_registered .and. is_O3_registered ) exit
 
       if ( micm_species(i_species)%name == DRY_AIR_LABEL ) then
         is_dry_air_registered = .true.
@@ -166,7 +166,7 @@ contains
     index_dry_air = i_tuvx_species
     tuvx_species(i_tuvx_species) = musica_species_t( &
       name = DRY_AIR_LABEL, &
-      unit = TUVX_GAS_SPECIES_UNITS, & ! TUV-x profile unit, different from molar mass unit
+      unit = TUVX_GAS_SPECIES_UNITS, &   ! TUV-x profile unit, different from molar mass unit
       molar_mass = MOLAR_MASS_DRY_AIR, & ! kg mol-1
       index_musica_species = i_tuvx_species, &
       profiled = .true., &
@@ -177,7 +177,7 @@ contains
     tuvx_species(i_tuvx_species) = musica_species_t( &
       name = O2_LABEL, &
       unit = TUVX_GAS_SPECIES_UNITS, & ! TUV-x profile unit, different from molar mass unit
-      molar_mass = MOLAR_MASS_O2, & ! kg mol-1
+      molar_mass = MOLAR_MASS_O2, &    ! kg mol-1
       index_musica_species = i_tuvx_species, &
       profiled = .true., &
       scale_height = SCALE_HEIGHT_O2 )
@@ -187,7 +187,7 @@ contains
     tuvx_species(i_tuvx_species) = musica_species_t( &
       name = O3_LABEL, &
       unit = TUVX_GAS_SPECIES_UNITS, & ! TUV-x profile unit, different from molar mass unit
-      molar_mass = MOLAR_MASS_O3, & ! kg mol-1
+      molar_mass = MOLAR_MASS_O3, &    ! kg mol-1
       index_musica_species = i_tuvx_species, &
       profiled = .true., &
       scale_height = SCALE_HEIGHT_O3 )
