@@ -48,8 +48,8 @@ contains
     call history_add_field('CMFDQR', 'tendency_of_precipitation_wrt_moist_air_and_condensed_water_due_to_shallow_convection_excluding_subcloud_evaporation', 'lev', 'avg', 'kg kg-1 s-1') ! Q tendency - shallow convection rainout
 
     ! QC and DRP are the same from convect_shallow
-    call history_add_field('QC', 'detrainment_of_water_due_to_shallow_convection', 'lev', 'avg', 'kg kg-1 s-1') ! Q tendency - shallow convection LW export
-    call history_add_field('DQP', 'detrainment_of_water_due_to_shallow_convection', 'lev', 'avg', 'kg kg-1 s-1') ! Specific humidity tendency due to precipitation
+    call history_add_field('QC', 'detrainment_of_cloud_liquid_water_wrt_moist_air_and_condensed_water_due_to_shallow_convection', 'lev', 'avg', 'kg kg-1 s-1') ! Q tendency - shallow convection LW export
+    call history_add_field('DQP', 'detrainment_of_cloud_liquid_water_wrt_moist_air_and_condensed_water_due_to_shallow_convection', 'lev', 'avg', 'kg kg-1 s-1') ! Specific humidity tendency due to precipitation
 
     call history_add_field('ICWMRSH', 'in_cloud_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_shallow_convection', 'lev', 'avg', 'kg kg-1') ! Shallow Convection in-cloud water mixing ratio
 
@@ -86,10 +86,6 @@ contains
     ! For Hack only, the below quantities are modified after zm_conv_evap
     call history_add_field('PRECSH', 'lwe_precipitation_rate_at_surface_due_to_shallow_convection', horiz_only, 'avg', 'm s-1') ! Shallow Convection precipitation rate
 
-    ! call history_add_field('', '', 'lev', 'avg', '')
-    ! call history_add_field('', '', horiz_only, 'avg', '')
-    ! call history_add_field('', '', 'ilev', 'avg', '')
-
     ! CMFMC is shallow+deep.
     ! Define a CMFMCSH for shallow only
     call history_add_field('CMFMCSH', 'atmosphere_convective_mass_flux_due_to_shallow_convection', 'ilev', 'avg', 'kg m-2 s-1') ! Moist convection (shallow) mass flux
@@ -104,8 +100,8 @@ contains
     call history_add_field('PCLDTOP', 'pressure_at_cloud_top_for_all_convection', horiz_only, 'avg', 'Pa') ! Pressure of cloud top
     call history_add_field('PCLDBOT', 'pressure_at_cloud_base_for_all_convection', horiz_only, 'avg', 'Pa') ! Pressure of cloud base
 
-    call history_add_field('ZMDLF', 'detrainment_of_water_due_to_all_convection', 'lev', 'avg', 'kg kg-1 s-1')
-    call history_add_field('SHDLF', 'detrainment_of_water_due_to_shallow_convection', 'lev', 'avg', 'kg kg-1 s-1')
+    call history_add_field('ZMDLF', 'detrainment_of_cloud_liquid_water_wrt_moist_air_and_condensed_water_due_to_all_convection', 'lev', 'avg', 'kg kg-1 s-1')
+    call history_add_field('SHDLF', 'detrainment_of_cloud_liquid_water_wrt_moist_air_and_condensed_water_due_to_shallow_convection', 'lev', 'avg', 'kg kg-1 s-1')
 
   end subroutine convect_shallow_diagnostics_init
 
@@ -279,8 +275,8 @@ contains
     real(kind_phys),  intent(in)  :: cnb(:)           ! Cloud base level index [1]
     real(kind_phys),  intent(in)  :: p_cnt(:)         ! Convective cloud top pressure [Pa]
     real(kind_phys),  intent(in)  :: p_cnb(:)         ! Convective cloud base pressure [Pa]
-    real(kind_phys),  intent(in)  :: qc_total(:,:)    !  detrainment_of_water_due_to_all_convection [kg kg-1 s-1]
-    real(kind_phys),  intent(in)  :: qc_sh(:,:)       !  detrainment_of_water_due_to_shallow_convection [kg kg-1 s-1]
+    real(kind_phys),  intent(in)  :: qc_total(:,:)    !  detrainment_of_cloud_liquid_water_wrt_moist_air_and_condensed_water_due_to_all_convection [kg kg-1 s-1]
+    real(kind_phys),  intent(in)  :: qc_sh(:,:)       !  detrainment_of_cloud_liquid_water_wrt_moist_air_and_condensed_water_due_to_shallow_convection [kg kg-1 s-1]
 
     ! Output arguments
     character(len=512), intent(out) :: errmsg

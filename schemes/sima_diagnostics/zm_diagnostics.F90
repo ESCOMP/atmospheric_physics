@@ -65,7 +65,7 @@ CONTAINS
     call history_add_field ('ZMICVU', 'in_cloud_northward_wind_in_updraft_due_to_deep_convection',  'lev',  'avg', 'm s-1')
     call history_add_field ('ZMICVD', 'in_cloud_northward_wind_in_downdraft_due_to_deep_convection', 'lev',  'avg', 'm s-1')
 
-    call history_add_field ('DLFZM',   'detrainment_of_cloud_liquid_due_to_deep_convection', 'lev', 'avg','kg kg-1 s-1 ')
+    call history_add_field ('DLFZM',   'detrainment_of_cloud_liquid_water_wrt_moist_air_and_condensed_water_due_to_deep_convection', 'lev', 'avg','kg kg-1 s-1 ')
 
 
    end subroutine zm_diagnostics_init
