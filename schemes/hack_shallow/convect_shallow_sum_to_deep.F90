@@ -49,7 +49,7 @@ contains
       integer,           intent(in)    :: ncol                   ! # of columns
       integer,           intent(in)    :: pver                   ! # of model layers
       integer,           intent(in)    :: pverp                  ! # of layer interfaces (pver + 1)
-      real(kind_phys),   intent(in)    :: pmid(:,:)
+      real(kind_phys),   intent(in)    :: pmid(:,:)              ! air_pressure [Pa]
 
       ! Deep convective inputs
       real(kind_phys),   intent(in)    :: cmfmc_deep(:,:)        ! Deep convection cloud mass flux [kg m-2 s-1]
@@ -67,6 +67,8 @@ contains
       real(kind_phys),   intent(in)    :: cnb_sh(:)              ! Shallow convection cloud base index [index]
 
       ! Input/output (total) arguments
+      ! At this point, "total" is only deep because deep convection has written
+      ! to these quantities but shallow convection has not.
       ! In: deep only, Out: deep+shallow
       real(kind_phys),   intent(inout) :: rliq_total(:)          ! Total convective reserved liquid [m s-1]
 
@@ -106,13 +108,13 @@ contains
       cnb(:ncol) = real(cnb_deep(:ncol), kind_phys)
       do i = 1, ncol
         ! if shallow cloud top is higher then use shallow cloud top
-        if(cnt_sh(i) < cnt_deep(i)) cnt(i) = cnt_sh(i)
+        if(cnt_sh(i) < cnt(i)) cnt(i) = cnt_sh(i)
 
         ! if shallow cloud base is lower then use shallow cloud base
-        if(cnb_sh(i) > cnb_deep(i)) cnb(i) = cnb_sh(i)
+        if(cnb_sh(i) > cnb(i)) cnb(i) = cnb_sh(i)
 
         ! if cloud base is at model top then set it to cloud top
-        if(cnb_deep(i) == 1._kind_phys) cnb(i) = cnt_deep(i)
+        if(cnb(i) == 1._kind_phys) cnb(i) = cnt(i)
 
         ! set pressures
         p_cnt(i) = pmid(i, int(cnt(i)))

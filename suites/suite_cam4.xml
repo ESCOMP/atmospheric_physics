@@ -130,6 +130,9 @@
       RK Stratiform
     -->
 
+    <!-- State diagnostics -->
+    <scheme>sima_state_diagnostics</scheme>
+
     <!--
       Radiation
     -->
@@ -147,9 +150,6 @@
     <!--
       Vertical diffusion
     -->
-
-    <!-- State diagnostics -->
-    <scheme>sima_state_diagnostics</scheme>
 
     <!-- Save current total energy from dycore for energy fixer in time step. Total energy in current state is updated by the last check_energy_chng call. -->
     <scheme>check_energy_save_teout</scheme>
