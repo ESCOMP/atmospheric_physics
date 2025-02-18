@@ -30,7 +30,7 @@ module cmfmca
   real(kind_phys) :: rgrav                      ! reciprocal of grav
   real(kind_phys) :: rhlat                      ! reciprocal of hlat
 
-  integer         :: limcnv                     ! top interface level limit for convection [index]
+  integer         :: limcnv                     ! top vertical interface level limit for convection [index]
                                                 ! derived from reference pressures to below 40 mb
 
   ! internal parameters

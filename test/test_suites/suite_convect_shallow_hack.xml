@@ -34,6 +34,7 @@
     <scheme>convect_shallow_diagnostics_after_shallow_scheme</scheme>
     <scheme>apply_heating_rate</scheme>
     <scheme>apply_constituent_tendencies</scheme>
+    <scheme>qneg</scheme>
     <scheme>geopotential_temp</scheme>
 
     <!-- SUBCLOUD EVAPORATION -->
@@ -46,6 +47,7 @@
     <scheme>convect_shallow_diagnostics_after_convective_evaporation</scheme>
     <scheme>apply_heating_rate</scheme>
     <scheme>apply_constituent_tendencies</scheme>
+    <scheme>qneg</scheme>
     <scheme>geopotential_temp</scheme>
 
     <!-- CHECK ENERGY -->
@@ -53,11 +55,8 @@
     <scheme>check_energy_chng</scheme>
 
     <!-- DIAGNOSTIC QUANTITY UPDATES -->
-    <!-- eventually calculate shallow convective fraction diagnostic (FREQSH) -->
-    <!-- sum deep convective quantities with shallow including total convective rainout.
-         requires deep convective quantities to be actually available (i.e., rprddp)
+    <!-- sum deep convective quantities with shallow including total convective rainout -->
     <scheme>convect_shallow_sum_to_deep</scheme>
     <scheme>convect_shallow_diagnostics_after_sum_to_deep</scheme>
-    -->
   </group>
 </suite>

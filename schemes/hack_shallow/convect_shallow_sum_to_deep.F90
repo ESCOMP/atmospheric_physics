@@ -46,9 +46,9 @@ contains
        errmsg, errflg)
 
       ! Input arguments
-      integer,           intent(in)    :: ncol                   ! Number of columns
-      integer,           intent(in)    :: pver                   ! Number of model layers
-      integer,           intent(in)    :: pverp                  ! pver + 1
+      integer,           intent(in)    :: ncol                   ! # of columns
+      integer,           intent(in)    :: pver                   ! # of model layers
+      integer,           intent(in)    :: pverp                  ! # of layer interfaces (pver + 1)
       real(kind_phys),   intent(in)    :: pmid(:,:)
 
       ! Deep convective inputs

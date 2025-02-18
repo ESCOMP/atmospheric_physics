@@ -60,7 +60,6 @@
     <scheme>apply_heating_rate</scheme>
     <scheme>apply_tendency_of_eastward_wind</scheme>
     <scheme>apply_tendency_of_northward_wind</scheme>
-    <scheme>qneg</scheme>
     <scheme>geopotential_temp</scheme>
     <scheme>zm_conv_convtran</scheme>
     <scheme>zm_tendency_diagnostics</scheme>

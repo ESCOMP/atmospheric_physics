@@ -15,7 +15,7 @@ contains
     no_deep_pbl_in, zmconv_tiedke_add, &
     zmconv_capelmt, zmconv_dmpdz, zmconv_parcel_pbl, zmconv_tau)
 
-    integer, intent(in)                  :: zmconv_num_cin  ! Number negative buoyancy regions that are allowed
+    integer, intent(in)                  :: zmconv_num_cin  ! Number of negative buoyancy regions that are allowed
                                                              ! before the convection top and CAPE calculations are completed.
     real(kind_phys),intent(in)           :: zmconv_c0_lnd
     real(kind_phys),intent(in)           :: zmconv_c0_ocn

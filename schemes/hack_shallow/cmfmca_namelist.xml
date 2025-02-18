@@ -26,7 +26,8 @@
       Rain water autoconversion coefficient for Hack shallow scheme. Resolution dependent.
     </desc>
     <values>
-      <value>1.0e-4</value>
+      <value>2.0e-4</value>
+      <value dyn="se">1.0e-4</value>
     </values>
   </entry>
 </entry_id_pg>

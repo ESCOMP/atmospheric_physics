@@ -110,7 +110,7 @@ CONTAINS
       real(kind_phys),intent(in) :: icwdu(:,:)
       real(kind_phys),intent(in) :: icwdv(:,:)
 
-      real(kind_phys),intent(inout) :: mcon(:,:)
+      real(kind_phys),intent(in) :: mcon(:,:)
 
       ! CCPP error handling variables
       character(len=512), intent(out) :: errmsg

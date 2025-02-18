@@ -137,7 +137,7 @@
   <category>conv</category>
   <group>zmconv_nl</group>
   <standard_name>parcel_temperature_perturbation_for_zhang_mcfarlane_deep_convection_scheme</standard_name>
-  <units>flag</units>
+  <units>K</units>
   <type>real</type>
   <kind>kind_phys</kind>
   <desc>

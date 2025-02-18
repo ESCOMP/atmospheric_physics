@@ -5,11 +5,11 @@
       CAM4 PHYSICS SUITE
       Deep convection         ZM
       Shallow convection      Hack
-      Macrophysics            RK    (not implemented)
-      Microphysics            RK    (not implemented)
-      Radiation               CAMRT (not implemented)
-      Chemistry               None  (not implemented)
-      Vertical Diffusion      HB    (not implemented)
+      Macrophysics            RK     (not implemented)
+      Microphysics            RK     (not implemented)
+      Radiation               RRTMGP (not implemented)
+      Chemistry               None   (not implemented)
+      Vertical Diffusion      HB     (not implemented)
   -->
   <group name="physics_before_coupler">
     <!-- Helper to read all possible constituents from file -->
@@ -64,7 +64,6 @@
     <scheme>apply_heating_rate</scheme>
     <scheme>apply_tendency_of_eastward_wind</scheme>
     <scheme>apply_tendency_of_northward_wind</scheme>
-    <scheme>qneg</scheme>
     <scheme>geopotential_temp</scheme>
     <scheme>zm_conv_convtran</scheme>
     <scheme>zm_tendency_diagnostics</scheme>
@@ -102,6 +101,7 @@
     <scheme>convect_shallow_diagnostics_after_shallow_scheme</scheme>
     <scheme>apply_heating_rate</scheme>
     <scheme>apply_constituent_tendencies</scheme>
+    <scheme>qneg</scheme>
     <scheme>geopotential_temp</scheme>
 
     <!-- SUBCLOUD EVAPORATION -->
@@ -114,12 +114,11 @@
     <scheme>convect_shallow_diagnostics_after_convective_evaporation</scheme>
     <scheme>apply_heating_rate</scheme>
     <scheme>apply_constituent_tendencies</scheme>
+    <scheme>qneg</scheme>
     <scheme>geopotential_temp</scheme>
 
     <!-- DIAGNOSTIC QUANTITY UPDATES -->
-    <!-- eventually calculate shallow convective fraction diagnostic (FREQSH) -->
-    <!-- sum deep convective quantities with shallow including total convective rainout.
-         requires deep convective quantities to be actually available (i.e., rprddp) -->
+    <!-- sum deep convective quantities with shallow including total convective rainout -->
     <scheme>convect_shallow_sum_to_deep</scheme>
     <scheme>convect_shallow_diagnostics_after_sum_to_deep</scheme>
 
@@ -135,6 +134,12 @@
       Radiation
     -->
 
+    <!-- Find tropopause -->
+    <!-- Tropopause find has to make history output at the end of convective adjustment -->
+    <!-- so supersaturated cells are not written to the tape. -->
+    <scheme>tropopause_find</scheme>
+    <scheme>tropopause_diagnostics</scheme>
+
   </group>
 
   <group name="physics_after_coupler">
@@ -145,12 +150,6 @@
 
     <!-- State diagnostics -->
     <scheme>sima_state_diagnostics</scheme>
-
-    <!-- Find tropopause -->
-    <!-- Tropopause find has to make history output at the end of convective adjustment -->
-    <!-- so supersaturated cells are not written to the tape. -->
-    <scheme>tropopause_find</scheme>
-    <scheme>tropopause_diagnostics</scheme>
 
     <!-- Save current total energy from dycore for energy fixer in time step. Total energy in current state is updated by the last check_energy_chng call. -->
     <scheme>check_energy_save_teout</scheme>
