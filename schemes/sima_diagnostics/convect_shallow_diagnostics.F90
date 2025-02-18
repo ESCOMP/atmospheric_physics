@@ -138,7 +138,6 @@ contains
     integer,                          intent(out) :: errflg
 
     ! Local variables
-    real(kind_phys)                 :: cmfdt_temp(ncol,pver)   ! Temperature tendency from specific heat flux [K s-1]
     real(kind_phys)                 :: freqsh(ncol)            ! Fractional occurrence of shallow convection [fraction]
     integer                         :: const_wv_idx, const_cldliq_idx, const_cldice_idx
     character(len=512)              :: const_standard_name
@@ -166,9 +165,9 @@ contains
       endif
     enddo const_check_loop
 
-    ! CMFDT - temperature tendency (not just cmfdt from cmfmca)
-    cmfdt_temp(:,:) = cmfdt(:,:)/cpair
-    call history_out_field('CMFDT', cmfdt_temp)
+    ! CMFDT - temperature tendency
+    ! Calculate temperature tendency from specific heat flux [K s-1]
+    call history_out_field('CMFDT', cmfdt(:,:)/cpair)
 
     ! Constituent tendencies
     if (const_wv_idx > 0) then
@@ -232,21 +231,14 @@ contains
     character(len=512),  intent(out) :: errmsg
     integer,             intent(out) :: errflg
 
-    ! Local variables
-    real(kind_phys)      :: tend_s_temp(ncol,pver)                ! Temperature tendencies converted from J kg-1 s-1 to K s-1
-
     errmsg = ''
     errflg = 0
 
     ! Temperature tendencies from energy tendencies
-    tend_s_temp(:,:) = tend_s(:,:)/cpair
-    call history_out_field('EVAPTCM', tend_s_temp)
-
-    tend_s_temp(:,:) = tend_s_snwprd(:,:)/cpair
-    call history_out_field('FZSNTCM', tend_s_temp)
-
-    tend_s_temp(:,:) = tend_s_snwevmlt(:,:)/cpair
-    call history_out_field('EVSNTCM', tend_s_temp)
+    ! (converted from J kg-1 s-1 to K s-1)
+    call history_out_field('EVAPTCM', tend_s(:,:)/cpair)
+    call history_out_field('FZSNTCM', tend_s_snwprd(:,:)/cpair)
+    call history_out_field('EVSNTCM', tend_s_snwevmlt(:,:)/cpair)
 
     call history_out_field('HKNTPRPD', ntprpd)
     call history_out_field('HKNTSNPD', ntsnprd)
