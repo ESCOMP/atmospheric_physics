@@ -81,6 +81,10 @@
     <!-- Save current total energy from dycore for energy fixer in time step. Total energy in current state is updated by the last check_energy_chng call. -->
     <scheme>check_energy_save_teout</scheme>
 
+    <! CACNOTE Thermowater update is here>
+    <!-- Dry Mass and Energy adjust -->
+    <scheme>dme_adjust</scheme>
+
     <!-- MPAS and SE specific scaling of temperature for enforcing energy consistency:
          First, calculate the scaling based off cp_or_cv_dycore (from cam_thermo_water_update)
          Then, perform the temperature and temperature tendency scaling -->

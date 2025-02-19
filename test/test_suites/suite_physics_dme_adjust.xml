@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<suite name="physics_dme_adjust" version="1.0">
+   <group name="physics_after_coupler">
+       <scheme>physics_dme_adjust</scheme>
+   </group>
+</suite>
+

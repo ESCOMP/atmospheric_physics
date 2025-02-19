@@ -1,4 +1,4 @@
-module dme_adjust
+module physics_dme_adjust
 
    use ccpp_kinds, only:  kind_phys
 
@@ -6,10 +6,10 @@ module dme_adjust
 
 contains
 !===============================================================================
-!> \section arg_table_dme_adjust_run Argument Table
-!! \htmlinclude dme_adjust_run.html
+!> \section arg_table_physics_dme_adjust_run Argument Table
+!! \htmlinclude physics_dme_adjust_run.html
 !!
-  subroutine dme_adjust_run(ncol, pver, pcnst, ps, pint, pdel, lnpint, rpdel, const_props, const_array, qini, liqini, iceini, &
+  subroutine physics_dme_adjust_run(ncol, pver, pcnst, ps, pint, pdel, lnpint, rpdel, const_props, const_array, qini, liqini, iceini, &
                             errmsg, errflg)
     !-----------------------------------------------------------------------
     !
@@ -103,6 +103,6 @@ contains
       !note that mid-level variables (e.g. pmid) are not recomputed
     end do
 
-  end subroutine dme_adjust_run
+  end subroutine physics_dme_adjust_run
 
-end module dme_adjust
+end module physics_dme_adjust
