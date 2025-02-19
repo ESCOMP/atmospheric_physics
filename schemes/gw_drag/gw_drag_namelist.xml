@@ -1,0 +1,883 @@
+<?xml version="1.0" encoding="utf-8"?>
+  namelist /gw_drag_nl/ pgwv, gw_dc, pgwv_long, gw_dc_long, tau_0_ubc, &
+       effgw_beres_dp, effgw_beres_sh, effgw_cm, effgw_cm_igw, effgw_oro, &
+       frontgfc, gw_drag_file, gw_drag_file_sh, gw_drag_file_mm, taubgnd, &
+       taubgnd_igw, gw_polar_taper, &
+       use_gw_rdg_beta, n_rdg_beta, effgw_rdg_beta, effgw_rdg_beta_max, &
+       rdg_beta_cd_llb, trpd_leewv_rdg_beta, &
+       use_gw_rdg_gamma, n_rdg_gamma, effgw_rdg_gamma, effgw_rdg_gamma_max, &
+       rdg_gamma_cd_llb, trpd_leewv_rdg_gamma, bnd_rdggm, &
+       gw_oro_south_fac, gw_limit_tau_without_eff, &
+       gw_lndscl_sgh, gw_prndl, gw_apply_tndmax, gw_qbo_hdepth_scaling, &
+       gw_top_taper, front_gaussian_width, alpha_gw_movmtn, use_gw_rdg_resid, &
+       effgw_rdg_resid, effgw_movmtn_pbl, movmtn_source, movmtn_psteer, &
+       movmtn_plaunch
+
+
+<entry id="use_gw_oro">
+  <type>logical</type>
+  <category>gw_drag</category>
+  <standard_name> flag_to_use_orographic_gravity_waves</standard_name>
+  <group>phys_ctl_nl</group> 
+  <desc>
+    Whether or not to enable gravity waves produced by orography.
+  </desc>
+  <values>
+    <value></value>
+  </values>
+</entry>
+
+<entry id="use_gw_front">
+  <type>logical</type>
+  <category>gw_drag</category>
+  <standard_name>flag_to_use_frontally_gravity_waves</standard_name>
+  <group>phys_ctl_nl</group>
+  <desc>
+    Whether or not to enable gravity waves produced by frontogenesis.
+  </desc>
+  <values>
+    <value></value>
+  </values>
+</entry>
+
+<entry id="use_gw_front_igw">
+  <type>logical</type>
+  <category>gw_drag</category>
+  <standard_name>flag_to_use_frontally_generated_inertial_gravity_waves</standard_name>
+  <group>phys_ctl_nl</group>
+  <desc>
+    Whether or not to enable inertial gravity waves produced by frontogenesis.
+  </desc>
+  <values>
+    <value></value>
+  </values>
+</entry>
+
+<entry id="use_gw_convect_dp">
+  <type>logical</type>
+  <category>gw_drag</catego<group>phys_ctl_nl</group>
+  <standard_name>flag_to_use_deep_convection_gravity_waves</standard_name>
+  <desc>
+    Whether or not to enable gravity waves produced by deep convection.
+  </desc>
+  <values>
+    <value></value>
+  </values>
+</entry>
+
+<entry id="use_gw_convect_sh">
+  <type>logical</type>
+  <category>gw_drag</category>
+  <standard_name>flag_to_use_shallow_convection_gravity_waves</standard_name>
+  <group>phys_ctl_nl</group>
+  <desc>
+    Whether or not to enable gravity waves produced by shallow convection.
+  </desc>
+  <values>
+    <value>
+      .false.
+    </value>
+  </values>
+</entry>
+
+<entry id="use_gw_movmtn_pbl">
+  <type>logical</type>
+  <category>gw_drag</category>
+  <standard_name>flag_to_enable_gravity_waves_from_PBL_moving_mountains_source</standard_name>
+  <group>phys_ctl_nl</group>
+  <desc>
+    Whether or not to enable gravity waves from PBL moving mountains source.
+  </desc>
+  <values>
+    <value>
+      .false.
+    </value>
+  </values>
+</entry>
+
+<entry id="use_gw_rdg_resid">
+  <type>logical</type>
+  <category>gw_drag</category>
+  <standard_name>flag_to_enable_gravity_waves_from_residual_non-ridge_orography</standard_name>
+  <group>gw_drag_nl</group>
+  <desc>
+    Whether or not to enable gravity waves from residual (non-ridge) orography
+  </desc>
+  <values>
+    <value></value>
+  </values>
+</entry>
+
+<entry id="pgwv">
+  <type>integer</type>
+  <category>gw_drag</category>
+  <standard_name>mid_gravity_wave_band_size</standard_name>
+  <group>gw_drag_nl</group>
+  <desc>
+    Gravity wave spectrum dimension (wave numbers are from -pgwv to pgwv).
+  </desc>
+  <values>
+    <value></value>
+  </values>
+</entry>
+
+<entry id="gw_dc">
+  <type>real</type>
+  <category>gw_drag</category>
+  <standard_name>delta_between_nearest_phase_speeds_in_a_gravity_band</standard_name>
+  <group>gw_drag_nl</group>
+  <desc>
+    Width of speed bins (delta c) for gravity wave spectrum (reference wa
+    speeds are from -pgwv*dc to pgwv*dc).
+  </desc>
+  <values>
+    <value></value>
+  </values>
+</entry>
+
+<entry id="pgwv_long">
+  <type>integer</type>
+  <category>gw_drag</category>
+  <standard_name>long_gravity_wave_band_size</standard_name>
+  <group>gw_drag_nl</group>
+  <desc>
+    Dimension for long wavelength gravity wave spectrum (wave numbers are fr
+    -pgwv_long to pgwv_long).
+  </desc>
+  <values>
+    <value></value>
+  </values>
+</entry>
+
+<entry id="gw_dc_long">
+  <type>real</type>
+  <category>gw_drag</category>
+  <standard_name>delta_between_nearest_phase_speeds_in_the_long_gravity_wave_band</standard_name>
+  <group>gw_drag_nl</group>
+  <desc>
+    Width of speed bins (delta c) for long wavelength gravity wave spectr
+    (reference wave speeds are from -pgwv_long*dc_long to pgwv_long*dc_long).
+  </desc>
+  <values>
+    <value></value>
+  </values>
+</entry>
+
+<entry id="tau_0_ubc">
+  <type>logical</type>
+  <category>gw_drag</category>
+  <standard_name>flag_to_enforce_an_upper_boundary_condition_of_tau_equal_to_zero</standard_name>
+  <group>gw_drag_nl</group>
+  <desc>
+    Force the stress due to gravity waves to be zero at the top of the mode
+    In the low-top model, this helps to conserve momentum and produce a QBO.
+  </desc>
+  <values>
+    <value></value>
+  </values>
+</entry>
+
+<entry id="gw_limit_tau_without_eff">
+  <type>logical</type>
+  <category>gw_drag</category>
+  <standard_name>flag_to_limit_tau_before_applying_any_efficiency_factors</standard_name>
+  <group>gw_drag_nl</group>
+  <desc>
+    Apply limiters to tau before applying the efficiency factor, rather th
+    afterward.
+  </desc>
+  <values>
+    <value></value>
+  </values>
+</entry>
+
+<entry id="gw_apply_tndmax">
+  <type>logical</type>
+  <category>gw_drag</category>
+  <standard_name>flag_to_apply_limiter_on_maximum_wind_tendency_from_stress_divergence_in_gravity_wave_drag_scheme</standard_name>
+  <group>gw_drag_nl</group>
+  <desc>
+    Apply limiter on maximum wind tendency from stress divergence in gravity wave drag scheme.
+  </desc>
+  <values>
+    <value></value>
+  </values>
+</entry>
+
+<entry id="effgw_beres_dp">
+
+  <type>real</type>
+  <category>gw_drag</category>
+  <standard_name>beres_deep_scheme_efficiency_of_gravity_wave_momentum_transfer</standard_name>
+  <group>gw_drag_nl</group>
+  <desc>
+    Efficiency associated with convective gravity waves from the Ber
+    scheme (deep convection).
+  </desc>
+  <values>
+    <value></value>
+  </values>
+</entry>
+
+<entry id="effgw_beres_sh">
+  <type>real</type>
+  <category>gw_drag</category>
+  <standard_name>beres_shallow_scheme_efficiency_of_gravity_wave_momentum_transfer</standard_name>
+  <group>gw_drag_nl</group>
+  <desc>
+    Efficiency associated with convective gravity waves from the Ber
+    scheme (shallow convection).
+  </desc>
+  <values>
+    <value></value>
+  </values>
+</entry>
+
+<entry id="effgw_cm">
+  <type>real</type>
+  <category>gw_drag</category>
+  <standard_name>c_and_m_scheme_efficiency_of_gravity_wave_momentum_transfer</standard_name>
+  <group>gw_drag_nl</group>
+  <desc>
+    Efficiency associated with gravity waves from frontogenesis.
+  </desc>
+  <values>
+    <value></value>
+  </values>
+</entry>
+
+<entry id="effgw_cm_igw">
+  <type>real</type>
+  <category>gw_drag</category>
+  <standard_name>c_and_m_initeral_wave_scheme_efficiency_of_gravity_wave_momentum_transfer</standard_name>
+  <group>gw_drag_nl</group>
+  <desc>
+    Efficiency associated with inertial gravity waves from frontogenesis.
+  </desc>
+  <values>
+    <value></value>
+  </values>
+</entry>
+
+<entry id="effgw_oro">
+  <type>real</type>
+  <category>gw_drag</category>
+  <standard_name>orographic_scheme_efficiency_of_gravity_wave_momentum_transfer</standard_name>
+  <group>gw_drag_nl</group>
+  <values>
+    <value></value>
+  </values>
+  <desc>
+    Efficiency associated with orographic gravity waves.
+  </desc>
+</entry>
+
+<entry id="use_gw_rdg_beta">
+  <type>logical</type>
+  <category>gw_drag</category>
+  <standard_name>flag_to_use_beta_ridge_generated_gravity_waves</standard_name>
+  <group>gw_drag_nl</group>
+  <values>
+    <value></value>
+  </values>
+  <desc>
+    Whether or not to enable gravity waves produced by meso-Beta Ridges.
+  </desc>
+</entry>
+
+<entry id="n_rdg_beta">
+  <type>integer</type>
+  <category>gw_drag</category>
+  <standard_name>number_of_meso_beta_ridges_per_gridbox_to_invoke</standard_name>
+  <group>gw_drag_nl</group>
+  <values>
+    <value>10</value>
+  </values>
+  <desc>
+    Number of meso-Beta ridges (per gridbox) to invoke.
+  </desc>
+</entry>
+
+<entry id="effgw_rdg_beta">
+  <type>real</type>
+  <category>gw_drag</category>
+  <standard_name>efficiency_scaling_factor_associated_with_meso_beta_gravity_waves</standard_name>
+  <group>gw_drag_nl</group>
+  <values>
+    <value></value>
+  </values>
+  <desc>
+    Efficiency scaling factor associated with anisotropic OGW.
+  </desc>
+</entry>
+
+<entry id="effgw_rdg_beta_max">
+  <type>real</type>
+  <category>gw_drag</category>
+  <standard_name>max_efficiency_scaling_factor_associated_with_meso_beta_gravity_waves</standard_name>
+  <group>gw_drag_nl</group>
+  <values>
+    <value>1.0</value>
+  </values>
+  <desc>
+    Max efficiency associated with anisotropic OGW.
+  </desc>
+</entry>
+
+<entry id="effgw_rdg_resid">
+  <type>real</type>
+  <category>gw_drag</category>
+  <standard_name>efficiency_scaling_factor_associated_with_residual_non-ridge_topo</standard_name>
+  <group>gw_drag_nl</group>
+  <values>
+    <value></value>
+  </values>
+  <desc>
+    Efficiency scaling factor associated with residual non-ridge topo
+  </desc>
+</entry>
+
+<entry id="effgw_movmtn_pbl">
+  <type>real</type>
+  <category>gw_drag</category>
+  <standard_name>efficiency_scaling_factor_for_moving_mountain_source</standard_name>
+  <group>gw_drag_nl</group>
+  <values>
+    <value></value>
+  </values>
+  <desc>
+    Efficiency scaling factor for moving mountain source
+  </desc>
+</entry>
+
+<entry id="movmtn_psteer">
+  <type>real</type>
+  <category>gw_drag</category>
+  <standard_name>global_steering_pressure_level_for_moving_mountain_gravity_wave_scheme</standard_name>
+  <group>gw_drag_nl</group>
+  <values>
+    <value></value>
+  </values>
+  <desc>
+    Global steering level (Pa) for moving mtns. If negative steering level, it will be provided by future code
+  </desc>
+</entry>
+
+<entry id="movmtn_plaunch">
+  <type>real</type>
+  <category>gw_drag</category>
+  <standard_name>global_launch_level_for_moving_mountain_gravity_wave_scheme</standard_name>
+  <group>gw_drag_nl</group>
+  <values>
+    <value></value>
+  </values>
+  <desc>
+    Global launch level (Pa) for moving mtns. If negative launch level, it will be provided by future code
+  </desc>
+</entry>
+
+<entry id="movmtn_source">
+  <type>integer</type>
+  <category>gw_drag</category>
+  <standard_name>integer_code_for_movmtn_source_1=vorticity_2=upwp
+  <group>gw_drag_nl</group>
+  <values>
+    <value></value>
+  </values>
+  <desc>
+    Integer code for movmtn source: 1=vorticity, 2=upwp
+  </desc>
+</entry>
+
+<entry id="rdg_beta_cd_llb">
+  <type>real</type>
+  <category>gw_drag</category>
+  <standard_name>low_level_obstacle_drag_coefficient_for_beta_ridge_gravity_waves</standard_name>
+  <group>gw_drag_nl</group>
+  <values>
+    <value>1.0</value>
+  </values>
+  <desc>
+    Drag coefficient for obstacles in low-level flow.
+  </desc>
+</entry>
+
+<entry id="trpd_leewv_rdg_beta">
+  <type>logical</type>
+  <category>gw_drag</category>
+  <standard_name>flag_to_allow_trapping_for_meso_beta_ridge_gravity_waves</standard_name>
+  <group>gw_drag_nl</group>
+  <values>
+    <value>FALSE</value>
+  </values>
+  <desc>
+    Whether or not to allow trapping for meso-Beta Ridges.
+  </desc>
+</entry>
+
+<entry id="use_gw_rdg_gamma">
+  <type>logical</type>
+  <category>gw_drag</category>
+  <standard_name>flag_to_use_meso_gamma_ridge_generated_gravity_waves</standard_name>
+  <group>gw_drag_nl</group>
+  <values>
+    <value>FALSE</value>
+  </values>
+  <desc>
+    Whether or not to enable gravity waves produced by meso-gamma Ridges.
+  </desc>
+</entry>
+<entry id="n_rdg_gamma">
+  <type>integer</type>
+  <category>gw_drag</category>
+  <standard_name>number_of_meso_gamma_ridges_per_gridbox_to_invoke</standard_name>
+  <group>gw_drag_nl</group>
+  <values>
+    <value>-1</value>
+  </values>
+  <desc>
+    Number of meso-gamma ridges (per gridbox) to invoke.
+  </desc>
+</entry>
+
+<entry id="effgw_rdg_gamma">
+  <type>real</type>
+  <category>gw_drag</category>
+  <standard_name>efficiency_scaling_factor_associated_with_meso_gamma_gravity_waves</standard_name>
+  <group>gw_drag_nl</group>
+  <values>
+    <value></value>
+  </values>
+  <desc>
+    Efficiency scaling factor associated with anisotropic OGW.
+  </desc>
+</entry>
+
+<entry id="effgw_rdg_gamma_max">
+  <type>real</type>
+  <category>gw_drag</category>
+  <standard_name>max_efficiency_scaling_factor_associated_with_meso_gamma_gravity_waves</standard_name>
+  <group>gw_drag_nl</group>
+  <values>
+    <value>1.0</value>
+  </values>
+  <desc>
+    Max efficiency associated with anisotropic OGW.
+  </desc>
+</entry>
+
+<entry id="rdg_gamma_cd_llb">
+  <type>real</type>
+  <category>gw_drag</category>
+  <standard_name>low_level_obstacle_drag_coefficient_for_gamma_ridge_gravity_waves</standard_name>
+  <group>gw_drag_nl</group>
+  <values>
+    <value>1.0</value>
+  </values>
+  <desc>
+    Drag coefficient for obstacles in low-level flow.
+  </desc>
+</entry>
+
+<entry id="trpd_leewv_rdg_gamma">
+  <type>logical</type>
+  <category>gw_drag</category>
+  <standard_name>flag_to_allow_trapping_for_meso_gamma_ridge_gravity_waves</standard_name>
+  <group>gw_drag_nl</group>
+  <values>
+    <value></value>
+  </values>
+  <desc>
+    Whether or not to allow trapping for meso-gamma Ridges.
+  </desc>
+</entry>
+
+<entry id="bnd_rdggm">
+  <type>char*256" input_pathname="abs</type>
+  <category>gw_drag</category>
+  <standard_name>pathname_of_boundary_dataset_for_meso_gamma_ridge_gravity_wave_source</standard_name>
+  <group>gw_drag_nl</group>
+  <values>
+    <value></value>
+  </values>
+  <desc>
+    Full pathname of boundary dataset for meso-gamma ridges.
+  </desc>
+</entry>
+
+<entry id="gw_oro_south_fac">
+  <type>real</type>
+  <category>gw_drag</category>
+  <standard_name>factor_to_multiply_tau_by_for_orographic_waves_in_the_southern_hemisphere</standard_name>
+  <group>gw_drag_nl</group>
+  <values>
+    <value>1._r8</value>
+  </values>
+  <desc>
+    Factor to multiply tau by, for orographic waves in the southern hemisphere.
+  </desc>
+</entry>
+
+<entry id="gw_prndl">
+  <type>real</type>
+  <category>gw_drag</category>
+  <standard_name>inverse_prandtl_number_used_in_gravity_wave_diffusion</standard_name>
+  <group>gw_drag_nl</group>
+  <values>
+    <value></value>
+  </values>
+  <desc>
+    Inverse Prandtl number used in gravity wave diffusion
+  </desc>
+</entry>
+
+<entry id="gw_qbo_hdepth_scaling">
+  <type>real</type>
+  <category>gw_drag</category>  
+  <standard_name>scaling_factor_for_heating_depth_in_gravity_waves_from_convection</standard_name>
+  <group>gw_drag_nl</group>
+  <values>
+    <value></value>
+  </values>
+  <desc>
+    Scaling factor for heating depth in gravity waves from convection.  If less than 1.0 this acts as an effective reduction of the gravity wave phase speeds needed to drive the QBO.
+  </desc>
+</entry>
+
+<entry id="gw_lndscl_sgh">
+  <type>logical</type>
+  <category>gw_drag</category>
+  <standard_name>scale_SGH_by_land_fraction_in_gravity_wave_drag</standard_name>
+  <group>gw_drag_nl</group>
+  <values>
+    <value></value>
+  </values>
+  <desc>
+    Scale SGH by land fraction in gravity wave drag
+  </desc>
+</entry>
+
+<entry id="frontgfc">
+  <type>real</type>
+  <category>gw_drag</category>
+  <standard_name>frontogenesis_function_critical_threshold</standard_name>
+  <group>gw_drag_nl</group>
+  <values>
+    <value></value>
+  </values>
+  <desc>
+    Frontogenesis function critical threshold.
+</desc>
+</entry>
+
+<entry id="front_gaussian_width">
+  <type>real</type>
+  <category>gw_drag</category>
+  <standard_name>width_of_gaussian_used_to_create_frontogenesis_tau_profile</standard_name>
+  <group>gw_drag_nl</group>
+  <values>
+    <value></value>
+  </values>
+  <desc>
+    Width of gaussian used to create frontogenesis tau profile [m/s].
+  </desc>
+</entry>
+<entry id="alpha_gw_movmtn">
+  <type>real</type>
+  <category>gw_drag</category>
+  <standard_name>fraction_of_boundary_layer_momentum_flux_escaping_as_GW_momentum_flux</standard_name>
+  <group>gw_drag_nl</group>
+  <values>
+    <value></value>
+  </values>
+  <desc>
+    Tunable parameter controlling proportion of boundary layer momentum flux escaping as GW momentum flux
+  </desc>
+</entry>
+<entry id="gw_drag_file">
+  <type>char*256" input_pathname="abs</type>
+  <category>gw_drag</category>
+  <standard_name>filename_for_gw_source_spectra</standard_name>
+  <group>gw_drag_nl</group>
+  <values>
+    <value></value>
+  </values>
+  <desc>
+    Full pathname of Beres lookup table data file for gravity waves sourced from deep convection.
+  </desc>
+</entry>
+
+<entry id="gw_drag_file_sh">
+  <type>char*256" input_pathname="abs</type>
+  <category>gw_drag</category>
+  <standard_name>file_containing_source_spectra_for_the_beres_shallow_scheme</standard_name>
+  <group>gw_drag_nl</group>
+  <values>
+    <value></value>
+  </values>
+  <desc>
+    Full pathname of Beres lookup table data file for gravity waves sourced from shallow convection.
+  </desc>
+</entry>
+
+<entry id="gw_drag_file_mm">
+  <type>char*256" input_pathname="abs</type>
+  <category>gw_drag</category>
+  <standard_name>file_containing_source_spectra_for_the_moving_mountain_scheme</standard_name>
+  <group>gw_drag_nl</group>
+  <values>
+    <value></value>
+  </values>
+  <desc>
+    Relative pathname of lookup table for moving mountain GW source
+  </desc>
+</entry>
+
+<entry id="taubgnd">
+  <type>real</type>
+  <category>gw_drag</category>
+  <standard_name>background_stress_source_strengths for frontogenesis gravity waves</standard_name>
+  <group>gw_drag_nl</group>
+  <values>
+    <value></value>
+  </values>
+  <desc>
+    Background source strength (used for waves from frontogenesis).
+  </desc>
+</entry>
+
+<entry id="taubgnd_igw">
+  <type>real</type>
+  <category>gw_drag</category>
+  <standard_name>background_stress_source_strength_for_initertial_gravity_waves</standard_name>
+  <group>gw_drag_nl</group>
+  <values>
+    <value></value>
+  </values>
+  <desc>
+    Background source strength (used for inertial waves from frontogenesis).
+  </desc>
+</entry>
+
+<entry id="gw_polar_taper">
+  <type>logical</type>
+  <category>gw_drag</category>
+  <standard_name>flag_to_use_a_polar_taper_for_frontally_generated_waves</standard_name>
+  <group>gw_drag_nl</group>
+  <values>
+    <value></value>
+  </values>
+  <desc>
+    Whether or not to use tapering at the poles to reduce the effects mid-scale gravity waves from frontogenesis.
+  </desc>
+</entry>
+
+<entry id="gw_top_taper">
+  <type>logical</type>
+  <category>gw_drag</category>
+  <standard_name>flag_to_apply_tapering_at_the_top_of_the_model</standard_name>
+  <group>gw_drag_nl</group>
+  <values>
+    <value></value>
+  </values>
+  <desc>
+    Whether or not to apply tapering at the top of the model to reduce undesired effects of gravity waves in the thermosphere/ionosphere. The pressure above which tapering will be applied is set the gw_bot_taper_pressure parameter.
+  </desc>
+</entry>
+
+<!-- Gravity Wave Ridge -->
+<entry id="gw_rdg_do_divstream">
+  <type>logical</type>
+  <category>gw_rdg</category>
+  <group>gw_rdg_nl</group>
+  <values>
+    <value></value>
+  </values>
+  <desc>
+    If .true. use separate dividing streamlines for downslope wind and flow
+    splitting regimes ("DS" configuration).
+    If .false. use single dividing streamline as in Scinocca &amp; McFarlane
+    2000 ("SM" configuration).
+  </desc>
+</entry>
+
+<entry id="gw_rdg_do_smooth_regimes">
+  <type>logical</type>
+  <category>gw_rdg</category>
+  <group>gw_rdg_nl</group>
+  <values>
+    <value></value>
+  </values>
+  <desc>
+    If true, then use smooth regimes
+  </desc>
+</entry>
+
+<entry id="gw_rdg_do_adjust_tauoro">
+  <type>logical</type>
+  <category>gw_rdg</category>
+  <group>gw_rdg_nl</group>
+  <values>
+    <value>
+    </value>
+  </values>
+  <desc>
+    If true, then adujust tauoro
+  </desc>
+</entry>
+
+<entry id="gw_rdg_do_backward_compat">
+  <type>logical</type>
+  <category>gw_rdg</category>
+  <group>gw_rdg_nl        </group>
+  <values>
+  <value>
+  </value>
+  </values>
+  <desc>
+    If true, then adjust for bit-for-bit answers with the ("N5") configuration
+  </desc>
+</entry>
+
+<entry id="gw_rdg_C_BetaMax_DS">
+  <type>real</type>
+  <category>gw_rdg</category>
+  <group>gw_rdg_nl </group>
+  <values>
+    <value>
+    </value>
+  </values>
+  <desc>
+    Enhancement factor for downslope wind stress in DS configuration.
+  </desc>
+</entry>
+
+<entry id="gw_rdg_C_GammaMax">
+  <type>real</type>
+  <category>gw_rdg</category>
+  <group>gw_rdg_nl</group>
+  <values>
+  <value>
+  </value>
+  </values>
+  <desc>
+    Enhancement factor for depth of downslope wind regime in DS configuration
+  </desc>
+</entry>
+
+<entry id="gw_rdg_Frx0">
+  <type>real</type>
+  <category>gw_rdg</category>
+  <group>gw_rdg_nl</group>
+  <values>
+    <value>
+    </value>
+  </values>
+  <desc>
+    Lower inverse Froude number limits on linear ramp terminating downslope wind regime for high mountains in DS configuration
+  </desc>
+</entry>
+
+<entry id="gw_rdg_Frx1">
+  <type>real</type>
+  <category>gw_rdg</category>
+  <group>gw_rdg_nl</group>
+  <values>
+    <value>
+    </value>
+  </values>
+  <desc>
+    Upper inverse Froude number limits on linear ramp terminating downslope wind regime for high mountains in DS configuration
+  </desc>
+</entry>
+
+<entry id="gw_rdg_C_BetaMax_SM">
+  <type>real</type>
+  <category>gw_rdg</category>
+  <group>gw_rdg_nl</group>
+  <values>
+    <value>
+    </value>
+  </values>
+  <desc>
+    Enhancement factor for downslope wind stress in SM configuration.
+  </desc>
+</entry>
+
+<entry id="gw_rdg_Fr_c">
+  <type>real</type>
+  <category>gw_rdg</category>
+  <group>gw_rdg_nl</group>
+  <values>
+    <value>
+    </value>
+  </values>
+  <desc>
+    Critical inverse4 Froude number
+  </desc>
+</entry>
+
+<entry id="gw_rdg_orohmin">
+  <type>real</type>
+  <category>gw_rdg</category>
+  <group>gw_rdg_nl</group>
+  <values>
+    <value>
+    </value>
+  </values>
+  <desc>
+    minimum surface displacement height for orographic waves (m)
+  </desc>
+</entry>
+
+<entry id="gw_rdg_orovmin">
+  <type>real</type>
+  <category>gw_rdg</category>
+  <group>gw_rdg_nl</group>
+  <values>
+    <value>
+    </value>
+  </values>
+  <desc>
+    Minimum wind speed for orographic waves
+  </desc>
+</entry>
+
+<entry id="gw_rdg_orostratmin">
+  <type>real</type>
+  <category>gw_rdg</category>
+  <group>gw_rdg_nl</group>
+  <values>
+    <value>
+    </value>
+  </values>
+  <desc>
+    Minimum stratification allowing wave behavior
+  </desc>
+</entry>
+
+<entry id="gw_rdg_orom2min">
+  <type>real</type>
+  <category>gw_rdg</category>
+  <group>gw_rdg_nl</group>
+  <values>
+    <value>
+    </value>
+  </values>
+  <desc>
+    Minimum stratification allowing wave behavior
+  </desc>
+</entry>
+
+<entry id="gw_rdg_do_vdiff">
+  <type>logical</type>
+  <category>gw_rdg</category>
+  <group>gw_rdg_nl</group>
+  <values>
+    <value>
+    </value>
+  </values>
+  <desc>
+    If TRUE gravity wave ridge scheme will contribute to vertical diffusion tendencies.
+  </desc>
+</entry>
