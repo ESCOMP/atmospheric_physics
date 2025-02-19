@@ -1,0 +1,25 @@
+@test
+subroutine test_free_eddy_coef_is_zero_when_ri_equals_zero()
+    use funit
+    use atmos_phys_pbl_utils, only : calc_free_atm_eddy_flux_coefficient
+    use ccpp_kinds, only: kind_phys
+
+    real(kind_phys) :: kvf
+
+    kvf = calc_free_atm_eddy_flux_coefficient(30.0_kind_phys, 0.0_kind_phys, 0.01_kind_phys)
+ 
+    @assertEqual(0.0_kind_phys, kvf)
+end subroutine test_free_eddy_coef_is_zero_when_ri_equals_zero
+
+@test
+subroutine test_free_eddy_atm_coef_is_zero_when_ri_stable_near_zero()
+    use funit
+    use atmos_phys_pbl_utils, only : calc_free_atm_eddy_flux_coefficient
+    use ccpp_kinds, only: kind_phys
+
+    real(kind_phys) :: kvf
+
+    kvf = calc_free_atm_eddy_flux_coefficient(30.0_kind_phys, nearest(0.0_kind_phys, 1.0_kind_phys), 0.01_kind_phys)
+ 
+    @assertEqual(0.0_kind_phys, kvf)
+end subroutine test_free_eddy_atm_coef_is_zero_when_ri_stable_near_zero
