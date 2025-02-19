@@ -53,7 +53,7 @@ contains
     pure elemental function calc_kinematic_heat_flux(shflx, rrho, cpair) result(khfs)
         real(kind_phys), intent(in)  :: shflx  ! surface heat flux        [ W m-2   ]
         real(kind_phys), intent(in)  :: rrho   ! 1./bottom level density  [ m3 kg-1 ]
-        real(kind_phys), intent(in)  :: cpair  ! specific heat of dry air [  ]
+        real(kind_phys), intent(in)  :: cpair  ! specific heat of dry air [ J kg-1 K-1  ]
 
         real(kind_phys)              :: khfs   ! sfc kinematic heat flux  [ m K s-1 ]
 
