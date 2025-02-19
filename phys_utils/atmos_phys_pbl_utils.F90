@@ -6,7 +6,7 @@ module atmos_phys_pbl_utils
     implicit none
     private
 
-    public :: calc_rrho
+    public :: calc_ideal_gas_rrho
     public :: calc_friction_velocity
     public :: calc_kinematic_heat_flux
     public :: calc_kinematic_water_vapor_flux
@@ -21,7 +21,7 @@ module atmos_phys_pbl_utils
 
 contains
 
-    pure elemental function calc_rrho(rair, surface_temperature, pmid) result(rrho)
+    pure elemental function calc_ideal_gas_rrho(rair, surface_temperature, pmid) result(rrho)
         ! air density reciprocal
         ! Taken from https://glossary.ametsoc.org/wiki/Equation_of_state
         ! where \alpha = rrho
