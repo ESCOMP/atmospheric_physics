@@ -32,7 +32,7 @@ contains
         real(kind_phys)             :: rrho  ! 1./bottom level density          [ m3 kg-1    ]
 
         rrho = rair * surface_temperature / pmid
-    end function calc_rrho
+    end function calc_ideal_gas_rrho
 
     pure elemental function calc_friction_velocity(taux, tauy, rrho) result(friction_velocity)
         ! https://glossary.ametsoc.org/wiki/Friction_velocity
