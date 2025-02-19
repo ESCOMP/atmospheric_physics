@@ -23,6 +23,8 @@ contains
 
     pure elemental function calc_rrho(rair, surface_temperature, pmid) result(rrho)
         ! air density reciprocal
+        ! Taken from https://glossary.ametsoc.org/wiki/Equation_of_state
+        ! where \alpha = rrho
         real(kind_phys), intent(in) :: rair  ! gas constant for dry air         [ J kg-1 K-1 ]
         real(kind_phys), intent(in) :: surface_temperature                    ! [ K          ]
         real(kind_phys), intent(in) :: pmid  ! midpoint pressure (bottom level) [ Pa         ]
@@ -51,32 +53,32 @@ contains
     end function calc_friction_velocity
 
     pure elemental function calc_kinematic_heat_flux(shflx, rrho, cpair) result(khfs)
-        real(kind_phys), intent(in)  :: shflx  ! surface heat flux        [ W m-2   ]
-        real(kind_phys), intent(in)  :: rrho   ! 1./bottom level density  [ m3 kg-1 ]
-        real(kind_phys), intent(in)  :: cpair  ! specific heat of dry air [ J kg-1 K-1  ]
+        real(kind_phys), intent(in)  :: shflx  ! surface heat flux            [ W m-2       ]
+        real(kind_phys), intent(in)  :: rrho   ! 1./bottom level density      [ m3 kg-1     ]
+        real(kind_phys), intent(in)  :: cpair  ! specific heat of dry air     [ J kg-1 K-1  ]
 
-        real(kind_phys)              :: khfs   ! sfc kinematic heat flux  [ m K s-1 ]
+        real(kind_phys)              :: khfs   ! surface kinematic heat flux  [ m K s-1     ]
 
         khfs = shflx*rrho/cpair
     end function calc_kinematic_heat_flux
 
     pure elemental function calc_kinematic_water_vapor_flux(qflx, rrho) result(kqfs)
-        real(kind_phys), intent(in)  :: qflx ! water vapor flux               [ kg m-2 s-1 ]
-        real(kind_phys), intent(in)  :: rrho ! 1./bottom level density        [ m3 kg-1    ]
+        real(kind_phys), intent(in)  :: qflx ! water vapor flux                   [ kg m-2 s-1    ]
+        real(kind_phys), intent(in)  :: rrho ! 1./bottom level density            [ m3 kg-1       ]
 
-        real(kind_phys)              :: kqfs ! sfc kinematic water vapor flux [ m s-1      ]
+        real(kind_phys)              :: kqfs ! surface kinematic water vapor flux [ kg kg-1 m s-1 ]
 
         kqfs = qflx*rrho
     end function calc_kinematic_water_vapor_flux
 
     pure elemental function calc_kinematic_buoyancy_flux(khfs, zvir, ths, kqfs) result(kbfs)
-        real(kind_phys), intent(in) :: khfs  ! sfc kinematic heat flux          [ m K s-1 ]
+        real(kind_phys), intent(in) :: khfs  ! surface kinematic heat flux          [ m K s-1       ]
         real(kind_phys), intent(in) :: zvir  ! rh2o/rair - 1
-        real(kind_phys), intent(in) :: ths   ! potential temperature at surface [ K       ]
-        real(kind_phys), intent(in) :: kqfs  ! sfc kinematic water vapor flux   [ m s-1   ]
+        real(kind_phys), intent(in) :: ths   ! potential temperature at surface     [ K             ]
+        real(kind_phys), intent(in) :: kqfs  ! surface kinematic water vapor flux   [ kg kg-1 m s-1 ]
 
         ! (`kbfs = \overline{(w' \theta'_v)}_s`)
-        real(kind_phys)             :: kbfs  ! sfc kinematic buoyancy flux      [ m K s-1 ]
+        real(kind_phys)             :: kbfs  ! surface kinematic buoyancy flux      [ m K s-1 ]
 
         kbfs = khfs + zvir*ths*kqfs
     end function calc_kinematic_buoyancy_flux
@@ -89,9 +91,9 @@ contains
 
         real(kind_phys), intent(in)  :: thvs              ! virtual potential temperature at surface [ K       ]
         real(kind_phys), intent(in)  :: ustar             ! Surface friction velocity                [ m s-1   ]
-        real(kind_phys), intent(in)  :: g                 ! acceleration of gravity                  [ m       ]
+        real(kind_phys), intent(in)  :: g                 ! acceleration of gravity                  [ m s-2   ]
         real(kind_phys), intent(in)  :: karman            ! Von Karman's constant (unitless)
-        real(kind_phys), intent(in)  :: kbfs              ! sfc kinematic buoyancy flux              [ m K s-1 ]
+        real(kind_phys), intent(in)  :: kbfs              ! surface kinematic buoyancy flux          [ m K s-1 ]
 
         real(kind_phys)              :: obukhov_length    ! Obukhov length                           [ m       ]
 
