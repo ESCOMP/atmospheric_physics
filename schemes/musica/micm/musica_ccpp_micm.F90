@@ -19,18 +19,16 @@ contains
 
   !> Registers MICM constituent properties with the CCPP
   subroutine micm_register(solver_type, number_of_grid_cells, constituent_props, &
-                           micm_species, includes_no_photolysis, errmsg, errcode)
+                           micm_species, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
     use musica_ccpp_species,       only: musica_species_t
     use musica_util,               only: error_t
     use iso_c_binding,             only: c_int
-    use musica_ccpp_tuvx_no_photolysis_rate, only : set_NO_photolysis_index
 
     integer(c_int),                                   intent(in)  :: solver_type
     integer(c_int),                                   intent(in)  :: number_of_grid_cells
     type(ccpp_constituent_properties_t), allocatable, intent(out) :: constituent_props(:)
     type(musica_species_t),              allocatable, intent(out) :: micm_species(:)
-    logical,                                          intent(out) :: includes_no_photolysis
     character(len=512),                               intent(out) :: errmsg
     integer,                                          intent(out) :: errcode
 
@@ -99,18 +97,6 @@ contains
     end associate ! map
     end do
     number_of_rate_parameters = micm%user_defined_reaction_rates%size()
-
-    includes_no_photolysis = .false.
-    ! iterate through the user defined reaction rates and print their names and indices
-    do i = 1, number_of_rate_parameters
-      associate( map => micm%user_defined_reaction_rates )
-        ! check if any rate is named PHOTO.jNO
-        if (index(map%name(i), "PHOTO.jNO") > 0) then
-          includes_no_photolysis = .true.
-          call set_NO_photolysis_index(map%index(i))
-        end if
-      end associate ! map
-    end do
 
   end subroutine micm_register
 

@@ -1,5 +1,6 @@
 module musica_ccpp_species
   use ccpp_kinds, only: kind_phys
+  use musica_ccpp_util, only: MUSICA_INT_UNASSIGNED
 
   implicit none
   private
@@ -7,8 +8,6 @@ module musica_ccpp_species
   public :: cleanup_musica_species, register_musica_species, initialize_musica_species_indices, &
             initialize_molar_mass_array, extract_subset_constituents, update_constituents, &
             check_initialization
-
-  integer, parameter, public :: MUSICA_INT_UNASSIGNED = -99999
 
   !> Definition of musica species object
   type, public :: musica_species_t

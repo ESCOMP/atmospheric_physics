@@ -1,12 +1,13 @@
-module musica_ccpp_tuvx_no_photolysis_rate
+module musica_ccpp_tuvx_no_photolysis
 
   use ccpp_kinds,          only: dk => kind_phys
-  use musica_ccpp_species, only: MUSICA_INT_UNASSIGNED
+  use musica_util,         only: index_mappings_t
+  use musica_ccpp_util,    only: MUSICA_INT_UNASSIGNED
 
   implicit none
 
   !> @file musica_ccpp_tuvx_no_photolysis_rate.F90
-  !> @brief Module for calculating the NO photolysis rate
+  !> @brief Module for calculating the NO photolysis rate constant
   ! This module calculates the NO photolysis rate using the same method in CAM
   ! https://github.com/ESCOMP/CAM/blob/ab476f9b7345cbefdc4cf67ff17f0fe85d8c7387/src/chemistry/mozart/mo_jshort.F90#L1796-L1870
   ! Much of the code is also based off of a PR which incorporated TUVx into CAM
@@ -22,214 +23,200 @@ module musica_ccpp_tuvx_no_photolysis_rate
   ! MS93: A reference to the Minschwaner and Siskind paper
 
   private
-  public :: check_NO_exist, set_NO_index_constituent_props, check_NO_initialization, &
-            calculate_NO_photolysis_rate, set_NO_photolysis_index
+  public :: NO_photolysis_init, calculate_NO_photolysis_rate_constants, NO_photolysis_final
 
-  character(len=*), parameter, public :: N2_label = 'N2'
-  character(len=*), parameter, public :: NO_label = 'NO'
-  integer,          parameter, public :: num_NO_photolysis_constituents = 2
-  logical,          protected, public :: is_NO_photolysis_active = .false.
-  integer,          protected, public :: index_NO_photolysis_rate = MUSICA_INT_UNASSIGNED
-  integer,          protected, public :: index_N2 = MUSICA_INT_UNASSIGNED
-  integer,          protected, public :: index_NO = MUSICA_INT_UNASSIGNED
-  integer,          protected, public :: constituent_props_index_N2 = MUSICA_INT_UNASSIGNED
-  integer,          protected, public :: constituent_props_index_NO = MUSICA_INT_UNASSIGNED
-  integer,          protected, public :: NO_photolysis_indices_constituent_props(2) = &
-                                        [MUSICA_INT_UNASSIGNED, MUSICA_INT_UNASSIGNED]
-  real(dk),         protected, public :: MOLAR_MASS_N2 = MUSICA_INT_UNASSIGNED ! kg mol-1
-  real(dk),         protected, public :: MOLAR_MASS_NO = MUSICA_INT_UNASSIGNED ! kg mol-1
+  real(dk), parameter :: MAX_SOLAR_ZENITH_ANGLE = 110.0_dk ! degrees
+  real(dk), parameter :: MIN_SOLAR_ZENITH_ANGLE = 0.0_dk  ! degrees
+
+  character(len=*), parameter, public :: NO_PHOTOLYSIS_LABEL = "jNO"
+  logical,          protected, public :: do_NO_photolysis = .false.
+  type(index_mappings_t), pointer, protected, public :: &
+      NO_photolysis_rate_constants_mapping => null()
 
 contains
 
-  !> Checks for the presence of NO and N2, and sets the flag to indicate
-  !! whether the NO photolysis calculation is enabled or disabled
-  subroutine check_NO_exist(micm_species, includes_no_photolysis)
-    use musica_ccpp_species, only: musica_species_t
+  !> Creates a set of mapped indices for the NO photolysis rate constant to
+  !! the expected rate parameter ordering from the chemistry solver.
+  !! Also determines whether NO photolysis should be calculated.
+  subroutine NO_photolysis_init(config, expected_rate_parameter_ordering, &
+      errmsg, errcode)
+    use musica_util, only : mappings_t, mapping_t_c, mapping_t, create_string_c, &
+                            to_c_string, copy_mappings, configuration_t, error_t, &
+                            MUSICA_INDEX_MAPPINGS_MAP_ANY, delete_string_c
+    use musica_ccpp_util, only : has_error_occurred, MUSICA_INT_UNASSIGNED
+    use musica_ccpp_tuvx_load_species, only : index_NO, index_N2, index_O2, index_O3
+    use iso_c_binding, only : c_loc, c_size_t
 
-    type(musica_species_t), intent(in) :: micm_species(:)
-    logical,                intent(in) :: includes_no_photolysis
+    type(configuration_t), intent(in)  :: config
+    type(mappings_t),      intent(in)  :: expected_rate_parameter_ordering
+    character(len=512),    intent(out) :: errmsg
+    integer,               intent(out) :: errcode
+
+    type(mapping_t_c), target      :: c_mappings(1)
+    type(mapping_t),   allocatable :: f_mappings(:)
+    type(mappings_t),  pointer     :: NO_parameter_map
+    type(error_t)                  :: error
+
+    errcode = 0
+    errmsg = ''
+    c_mappings(1)%index_ = 0
+    c_mappings(1)%name_  = create_string_c( to_c_string( NO_PHOTOLYSIS_LABEL ) )
+    call copy_mappings( c_loc( c_mappings ), 1_c_size_t, f_mappings )
+    call delete_string_c( c_mappings(1)%name_ )
+    NO_parameter_map => mappings_t( f_mappings )
+    NO_photolysis_rate_constants_mapping => index_mappings_t( config, &
+        MUSICA_INDEX_MAPPINGS_MAP_ANY, NO_parameter_map, &
+        expected_rate_parameter_ordering, error )
+    deallocate( no_parameter_map )
+    if (has_error_occurred( error, errmsg, errcode )) return
+    if (NO_photolysis_rate_constants_mapping%size() > 0) then
+      do_NO_photolysis = .true.
+      if (index_NO == MUSICA_INT_UNASSIGNED .or. &
+          index_N2 == MUSICA_INT_UNASSIGNED .or. &
+          index_O3 == MUSICA_INT_UNASSIGNED .or. &
+          index_O2 == MUSICA_INT_UNASSIGNED) then
+        do_NO_photolysis = .false.
+        errmsg = "[MUSICA Error] The indices for NO and N2 have not "// &
+                 "been initialized, and are needed for jNO calculations."
+        errcode = 1
+        return
+      end if
+    end if
+
+  end subroutine NO_photolysis_init
+
+  !> Prepares to calculate the photolysis rate of NO (nitiric acid).
+  !! This function transforms the inputs into the units
+  !! needed by the calculate_jno routine which actually produces the photolysis rate
+  subroutine calculate_NO_photolysis_rate_constants(solar_zenith_angle, &
+      extraterrestrial_flux, height_at_interfaces, dry_air_density, &
+      constituents, rate_parameters)
+    use musica_ccpp_tuvx_load_species, only: MOLAR_MASS_O2, MOLAR_MASS_O3, MOLAR_MASS_NO, &
+                                             MOLAR_MASS_N2, index_O2, index_O3, index_NO, &
+                                             index_N2
+    use musica_ccpp_tuvx_gas_species,  only: km_to_cm
+    use musica_ccpp_species,           only: tuvx_indices_constituent_props
+    use musica_ccpp_util,              only: PI
+
+    real(dk), intent(in)    :: solar_zenith_angle(:)     ! radians (column)
+    real(dk), intent(in)    :: extraterrestrial_flux(:)  ! photons cm-2 s-1 nm-1 (wavelength bin)
+    real(dk), intent(in)    :: height_at_interfaces(:,:) ! km (column, layer)
+    real(dk), intent(in)    :: dry_air_density(:,:)      ! kg m-3 (column, layer)
+    real(dk), intent(in)    :: constituents(:,:,:)       ! kg kg-1 (column, layer, species)
+    real(dk), intent(inout) :: rate_parameters(:,:,:)    ! s-1 (column, layer, parameter)
 
     ! local variables
-    logical :: is_N2_registered = .false.
-    logical :: is_NO_registered = .false.
-    integer :: num_micm_species
-    integer :: i_species
+    integer :: number_of_columns
+    integer :: number_of_vertical_layers
+    real(dk) :: N2_densities(size(dry_air_density, dim=2)+1) ! molecule cm-3
+    real(dk) :: O2_densities(size(dry_air_density, dim=2)+1) ! molecule cm-3
+    real(dk) :: O3_densities(size(dry_air_density, dim=2)+1) ! molecule cm-3
+    real(dk) :: NO_densities(size(dry_air_density, dim=2)+1) ! molecule cm-3
+    real(dk) :: O2_slant_column_densities(size(dry_air_density, dim=2)+1) ! molecule cm-2
+    real(dk) :: O3_slant_column_densities(size(dry_air_density, dim=2)+1) ! molecule cm-2
+    real(dk) :: NO_slant_column_densities(size(dry_air_density, dim=2)+1) ! molecule cm-2
 
-    is_N2_registered = .false.
-    is_NO_registered = .false.
-    num_micm_species = size(micm_species)
+    ! parameters needed to calculate slant column densities
+    ! (see sphers routine description for details)
+    integer  :: number_of_crossed_layers(size(dry_air_density, dim=2)+1)
+    real(dk) :: slant_path(0:size(dry_air_density, dim=2)+1, size(dry_air_density, dim=2)+1)
+    real(dk) :: delta_z(size(dry_air_density, dim=2)+1) ! layer thickness (cm)
+    real(dk) :: sza_degrees
+    integer :: i_col, i_level
 
-    do i_species = 1, num_micm_species
-      if ( is_N2_registered .and. is_NO_registered ) then
-        is_NO_photolysis_active = .true.
-        exit
+    ! final photolysis rate (column, layer)
+    real(dk) :: jNO(size(dry_air_density, dim=2), 1)
+
+    if (.not. do_NO_photolysis) return
+
+    number_of_columns = size(dry_air_density, dim=1)
+    number_of_vertical_layers = size(dry_air_density, dim=2)
+
+    do i_col = 1, number_of_columns
+
+      sza_degrees = solar_zenith_angle(i_col) * 180.0_dk / PI
+      if (sza_degrees > MAX_SOLAR_ZENITH_ANGLE .or. &
+          sza_degrees < MIN_SOLAR_ZENITH_ANGLE) then
+        do i_level = 1, number_of_vertical_layers
+          call NO_photolysis_rate_constants_mapping%copy_data( &
+              (/ 0.0_dk /), rate_parameters(i_col, i_level, :) )
+        end do
+        cycle
       end if
 
-      if ( micm_species(i_species)%name == N2_label ) then
-        is_N2_registered = .true.
-        MOLAR_MASS_N2 = micm_species(i_species)%molar_mass
-      else if ( micm_species(i_species)%name == NO_label ) then
-        is_NO_registered = .true.
-        MOLAR_MASS_NO = micm_species(i_species)%molar_mass
-      end if
+      ! TODO: what are these constants? scale heights?
+      ! TODO: the values at index 1 appear to be for values above the model top in CAM, but how does that affect cam sima?
+      call convert_mixing_ratio_to_molecule_cm3(constituents(i_col,:,tuvx_indices_constituent_props(index_N2)), &
+            dry_air_density(i_col,:), MOLAR_MASS_N2, N2_densities(2:))
+      N2_densities(1) = N2_densities(2) * 0.9_dk
+
+      call convert_mixing_ratio_to_molecule_cm3(constituents(i_col,:,tuvx_indices_constituent_props(index_O2)), &
+            dry_air_density(i_col,:), MOLAR_MASS_O2, O2_densities(2:))
+      O2_densities(1) = O2_densities(2) * 7.0_dk / ( height_at_interfaces(i_col,1) - height_at_interfaces(i_col,2) )
+
+      call convert_mixing_ratio_to_molecule_cm3(constituents(i_col,:,tuvx_indices_constituent_props(index_O3)), &
+            dry_air_density(i_col,:), MOLAR_MASS_O3, O3_densities(2:))
+      O3_densities(1) = O3_densities(2) * 7.0_dk / ( height_at_interfaces(i_col,1) - height_at_interfaces(i_col,2) )
+
+      call convert_mixing_ratio_to_molecule_cm3(constituents(i_col,:,tuvx_indices_constituent_props(index_NO)), &
+            dry_air_density(i_col,:), MOLAR_MASS_NO, NO_densities(2:))
+      NO_densities(1) = NO_densities(2) * 0.9_dk
+
+      ! calculate slant column densities
+      call calculate_slant_path( number_of_vertical_layers, height_at_interfaces(i_col,:), &
+          solar_zenith_angle(i_col), slant_path, number_of_crossed_layers )
+      delta_z(1:number_of_vertical_layers) = km_to_cm *              &
+                ( height_at_interfaces(i_col, 1:number_of_vertical_layers) &
+                  - height_at_interfaces(i_col, 2:number_of_vertical_layers+1) )
+      call calculate_slant_column_density( number_of_vertical_layers+1, delta_z,&
+            slant_path, number_of_crossed_layers, O2_densities, O2_slant_column_densities )
+      call calculate_slant_column_density( number_of_vertical_layers+1, delta_z, &
+            slant_path, number_of_crossed_layers, O3_densities, O3_slant_column_densities )
+      call calculate_slant_column_density( number_of_vertical_layers+1, delta_z, &
+            slant_path, number_of_crossed_layers, NO_densities, NO_slant_column_densities )
+
+      jNO(:,1) = calculate_jno(number_of_vertical_layers, extraterrestrial_flux, &
+                  N2_densities, O2_slant_column_densities, O3_slant_column_densities, &
+                  NO_slant_column_densities)
+
+      do i_level = 1, number_of_vertical_layers
+        call NO_photolysis_rate_constants_mapping%copy_data( &
+            jNO(i_level,:), rate_parameters(i_col, i_level, :) )
+      end do
     end do
 
-    if (is_N2_registered .and. is_NO_registered .and. includes_no_photolysis) then
-      is_NO_photolysis_active = .true.
+  end subroutine calculate_NO_photolysis_rate_constants
+
+  !> Finalizes the NO photolysis rate constant calculation
+  subroutine NO_photolysis_final()
+    if (associated(no_photolysis_rate_constants_mapping)) then
+      deallocate( no_photolysis_rate_constants_mapping )
     end if
+  end subroutine NO_photolysis_final
 
-  end subroutine check_NO_exist
-
-  subroutine set_NO_photolysis_index(no_index)
-    integer, intent(in) :: no_index
-
-    index_NO_photolysis_rate = no_index
-
-  end subroutine set_NO_photolysis_index
-
-  !> Gets the indices of NO constituents from the CCPP constituent properties,
-  !! and stores them in the indices array along with their relative positions
-  !! in the NO constituents array
-  subroutine set_NO_index_constituent_props(constituent_props, errmsg, errcode)
-    use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
-    use ccpp_const_utils,          only: ccpp_const_get_idx
-
-    type(ccpp_constituent_prop_ptr_t), intent(in)  :: constituent_props(:)
-    character(len=512),                intent(out) :: errmsg
-    integer,                           intent(out) :: errcode
-
-    call ccpp_const_get_idx( constituent_props, N2_label, &
-              constituent_props_index_N2, errmsg, errcode )
-    if (errcode /= 0) return
-    index_N2 = 1
-
-    call ccpp_const_get_idx( constituent_props, NO_label, &
-              constituent_props_index_NO, errmsg, errcode )
-    if (errcode /= 0) return
-    index_NO = index_N2 + 1
-
-    NO_photolysis_indices_constituent_props = &
-      [constituent_props_index_N2, constituent_props_index_NO]
-
-  end subroutine set_NO_index_constituent_props
-
-  !> Checks if the variables associated with NO photolysis constituents
-  !! have been initialized
-  subroutine check_NO_initialization(errmsg, errcode)
-    character(len=512), intent(out) :: errmsg
-    integer,            intent(out) :: errcode
-
-    errmsg = ''
-    errcode = 0
-
-    if ((index_N2 == MUSICA_INT_UNASSIGNED) .or. &
-        (index_NO == MUSICA_INT_UNASSIGNED) .or. &
-        (constituent_props_index_N2 == MUSICA_INT_UNASSIGNED) .or. &
-        (constituent_props_index_NO == MUSICA_INT_UNASSIGNED) .or. &
-        (NO_photolysis_indices_constituent_props(1) == MUSICA_INT_UNASSIGNED) .or. &
-        (NO_photolysis_indices_constituent_props(2) == MUSICA_INT_UNASSIGNED) .or. &
-        (MOLAR_MASS_N2 == MUSICA_INT_UNASSIGNED) .or. &
-        (MOLAR_MASS_NO == MUSICA_INT_UNASSIGNED)) then
-      errmsg = "[MUSICA Error] The index (or indices) or molar mass values &
-                for NO, N2 have not been initialized."
-      errcode = 1
-      return
-    end if
-
-  end subroutine check_NO_initialization
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!! Internal routines
+!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   !> Converts mixing ratio to molecule cm-3
   subroutine convert_mixing_ratio_to_molecule_cm3(mixing_ratio, &
       dry_air_density, molar_mass, molecule_cm3)
     use musica_ccpp_tuvx_gas_species, only: m_3_to_cm_3
+    use musica_ccpp_util, only: AVOGADRO
 
     real(dk), intent(in)  :: mixing_ratio(:)    ! kg kg-1
     real(dk), intent(in)  :: dry_air_density(:) ! kg m-3
     real(dk), intent(in)  :: molar_mass         ! kg mol-1
     real(dk), intent(out) :: molecule_cm3(:)    ! molecule cm-3
 
-    ! TODO: get from CAM-SIMA
-    real(dk) :: avogadro = 6.022e23_dk
-
-    molecule_cm3 = mixing_ratio * dry_air_density / molar_mass / m_3_to_cm_3 * avogadro
+    molecule_cm3 = mixing_ratio * dry_air_density / molar_mass / m_3_to_cm_3 * AVOGADRO
 
   end subroutine convert_mixing_ratio_to_molecule_cm3
 
-  !> Prepares to calculate the photolysis rate of NO (nitiric acid).
-  !! This function transforms the inputs into the units
-  !! needed by the calculate_jno routine which actually produces the photolysis rate
-  function calculate_NO_photolysis_rate(solar_zenith_angle, extraterrestrial_flux, &
-      height_at_interfaces, dry_air_density, constituents_O2, constituents_O3,     &
-      constituents_NO_photolysis) result(jNO)
-    use musica_ccpp_tuvx_load_species, only: MOLAR_MASS_O2, MOLAR_MASS_O3
-    use musica_ccpp_tuvx_gas_species,  only: km_to_cm
-
-    real(dk), intent(in) :: solar_zenith_angle              ! degrees
-    real(dk), intent(in) :: extraterrestrial_flux(:)        ! photons cm-2 s-1 nm-1 (layer)
-    real(dk), intent(in) :: height_at_interfaces(:)         ! km (layer)
-    real(dk), intent(in) :: dry_air_density(:)              ! kg m-3 (layer)
-    real(dk), intent(in) :: constituents_O2(:)              ! kg kg-1 (layer)
-    real(dk), intent(in) :: constituents_O3(:)              ! kg kg-1 (layer)
-    real(dk), intent(in) :: constituents_NO_photolysis(:,:) ! kg kg-1 (layer, constituent)
-
-    ! local variables
-    integer  :: number_of_vertical_layers
-    real(dk) :: N2_densities(size(dry_air_density)+1) ! mol cm-3
-    real(dk) :: O2_densities(size(dry_air_density)+1) ! mol cm-3
-    real(dk) :: O3_densities(size(dry_air_density)+1) ! mol cm-3
-    real(dk) :: NO_densities(size(dry_air_density)+1) ! mol cm-3
-    real(dk) :: O2_slant_colunm_densities(size(dry_air_density)+1) ! mol cm-2
-    real(dk) :: O3_slant_colunm_densities(size(dry_air_density)+1) ! mol cm-2
-    real(dk) :: NO_slant_colunm_densities(size(dry_air_density)+1) ! mol cm-2
-    real(dk) :: current_jNO(size(dry_air_density)+1)
-
-    ! parameters needed to calculate slant column densities
-    ! (see sphers routine description for details)
-    integer  :: number_of_crossed_layers(size(dry_air_density)+1)
-    real(dk) :: slant_path(0:size(dry_air_density)+1, size(dry_air_density)+1)
-    real(dk) :: delta_z(size(dry_air_density)+1) ! layer thickness (cm)
-    real(dk) :: jNO(size(dry_air_density)) ! final photolysis rate
-
-    number_of_vertical_layers = size(dry_air_density)
-    ! TODO: what are these constants? scale heights?
-    ! TODO: the values at index 1 appear to be for values above the model top in CAM, but how does that affect cam sima?
-    call convert_mixing_ratio_to_molecule_cm3(constituents_NO_photolysis(:,index_N2), &
-          dry_air_density, MOLAR_MASS_N2, N2_densities(2:))
-    N2_densities(1) = N2_densities(2) * 0.9_dk
-
-    call convert_mixing_ratio_to_molecule_cm3(constituents_O2, &
-          dry_air_density, MOLAR_MASS_O2, O2_densities(2:))
-    O2_densities(1) = O2_densities(2) * 7.0_dk / ( height_at_interfaces(1) - height_at_interfaces(2) )
-
-    call convert_mixing_ratio_to_molecule_cm3(constituents_O3, &
-          dry_air_density, MOLAR_MASS_O3, O3_densities(2:))
-    O3_densities(1) = O3_densities(2) * 7.0_dk / ( height_at_interfaces(1) - height_at_interfaces(2) )
-
-    call convert_mixing_ratio_to_molecule_cm3(constituents_NO_photolysis(:,index_NO), &
-          dry_air_density, MOLAR_MASS_NO, NO_densities(2:))
-    NO_densities(1) = NO_densities(2) * 0.9_dk
-
-    ! calculate slant column densities
-    call calculate_slant_path( number_of_vertical_layers, height_at_interfaces, &
-          solar_zenith_angle, slant_path, number_of_crossed_layers )
-    delta_z(1:number_of_vertical_layers) = km_to_cm *              &
-                (height_at_interfaces(1:number_of_vertical_layers) &
-                - height_at_interfaces(2:number_of_vertical_layers+1) )
-    call calculate_slant_column_density( number_of_vertical_layers+1, delta_z,&
-          slant_path, number_of_crossed_layers, O2_densities, O2_slant_colunm_densities )
-    call calculate_slant_column_density( number_of_vertical_layers+1, delta_z, &
-          slant_path, number_of_crossed_layers, O3_densities, O3_slant_colunm_densities )
-    call calculate_slant_column_density( number_of_vertical_layers+1, delta_z, &
-          slant_path, number_of_crossed_layers, NO_densities, NO_slant_colunm_densities )
-
-    jNO = calculate_jno(number_of_vertical_layers, extraterrestrial_flux, N2_densities, &
-                        O2_slant_colunm_densities, O3_slant_colunm_densities,           &
-                        NO_slant_colunm_densities, current_jNO)
-
-  end function calculate_NO_photolysis_rate
-
   !> Calculate the photolysis rate of NO (nitric acid)
-  function calculate_jno(num_vertical_layers, extraterrestrial_flux, n2_dens, o2_slant, o3_slant, no_slant, work_jno) &
+  function calculate_jno(num_vertical_layers, extraterrestrial_flux, n2_dens, o2_slant, o3_slant, no_slant) &
     result(jno)
 
     ! inputs
@@ -239,12 +226,12 @@ contains
     real(dk), intent(in)    :: o2_slant(:)              ! molecule cm-2
     real(dk), intent(in)    :: o3_slant(:)              ! molecule cm-2
     real(dk), intent(in)    :: no_slant(:)              ! molecule cm-2
-    real(dk), intent(inout) :: work_jno(:)              ! various
 
     ! local variables
     ! NO in an excited electronic state may result in an emission of NO or be quenched by an interaction 
     ! with N2. The predissociation faction is the probability that a precissociation of NO will occur from
     ! an excited electronic state
+    real(dk) :: work_jno(size(n2_dens))                    ! various
     real(dk) :: o3_transmission_factor(size(o3_slant), 4)  ! Define the correct size
     real(dk) :: jno(num_vertical_layers)
     real(dk) :: jno100, jno90, jno50
@@ -507,7 +494,7 @@ contains
     !       ... Dummy arguments
     !------------------------------------------------------------------------------
 
-    use musica_ccpp_util, only: DEGREE_TO_RADIAN, EARTH_RADIUS_KM
+    use musica_ccpp_util, only: DEGREE_TO_RADIAN, EARTH_RADIUS_M
 
     integer,  intent(in)   :: nlev                             ! number model vertical levels
     integer,  intent(out)  :: number_of_crossed_layers(0:nlev) ! see above
@@ -552,7 +539,7 @@ contains
     !------------------------------------------------------------------------------
     !       ... include the elevation above sea level to the radius of the earth:
     !------------------------------------------------------------------------------
-    radius_at_current_height = EARTH_RADIUS_KM + altitude(nlev)
+    radius_at_current_height = EARTH_RADIUS_M * 0.001_dk + altitude(nlev)
 
     !------------------------------------------------------------------------------
     !       ... inverse coordinate of z
@@ -715,4 +702,4 @@ contains
     slant_column(nlev) = .95_dk*slant_column(nlev-1)
   end subroutine calculate_slant_column_density
 
-end module musica_ccpp_tuvx_no_photolysis_rate
+end module musica_ccpp_tuvx_no_photolysis

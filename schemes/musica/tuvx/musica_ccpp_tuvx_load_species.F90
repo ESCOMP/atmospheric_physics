@@ -1,6 +1,6 @@
 module musica_ccpp_tuvx_load_species
   use ccpp_kinds,          only: kind_phys
-  use musica_ccpp_species, only: MUSICA_INT_UNASSIGNED
+  use musica_ccpp_util,    only: MUSICA_INT_UNASSIGNED
 
   implicit none
   private
@@ -11,6 +11,8 @@ module musica_ccpp_tuvx_load_species
   integer, protected, public :: index_dry_air = MUSICA_INT_UNASSIGNED
   integer, protected, public :: index_O2 = MUSICA_INT_UNASSIGNED
   integer, protected, public :: index_O3 = MUSICA_INT_UNASSIGNED
+  integer, protected, public :: index_NO = MUSICA_INT_UNASSIGNED
+  integer, protected, public :: index_N2 = MUSICA_INT_UNASSIGNED
 
   ! Constants
   ! Cloud liquid water
@@ -24,6 +26,8 @@ module musica_ccpp_tuvx_load_species
   character(len=*), parameter, public :: DRY_AIR_LABEL = 'air'
   character(len=*), parameter, public :: O2_LABEL = 'O2'
   character(len=*), parameter, public :: O3_LABEL = 'O3'
+  character(len=*), parameter, public :: NO_LABEL = 'NO'
+  character(len=*), parameter, public :: N2_LABEL = 'N2'
   character(len=*), parameter, public :: TUVX_GAS_SPECIES_UNITS = 'molecule cm-3'
   real(kind_phys),  parameter, public :: SCALE_HEIGHT_DRY_AIR = 8.01_kind_phys ! km
   real(kind_phys),  parameter, public :: SCALE_HEIGHT_O2 = 7.0_kind_phys       ! km
@@ -32,6 +36,8 @@ module musica_ccpp_tuvx_load_species
   real(kind_phys),  parameter, public :: MOLAR_MASS_DRY_AIR = 0.0289644_kind_phys ! kg mol-1
   real(kind_phys),  parameter, public :: MOLAR_MASS_O2 = 0.0319988_kind_phys      ! kg mol-1
   real(kind_phys),  parameter, public :: MOLAR_MASS_O3 = 0.0479982_kind_phys      ! kg mol-1
+  real(kind_phys),  parameter, public :: MOLAR_MASS_NO = 0.0300061_kind_phys      ! kg mol-1
+  real(kind_phys),  parameter, public :: MOLAR_MASS_N2 = 0.0280134_kind_phys      ! kg mol-1
 
 contains
 
@@ -42,7 +48,6 @@ contains
                                     errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
     use musica_ccpp_species,       only: musica_species_t
-    use musica_util,               only: error_t
 
     type(musica_species_t),                           intent(inout) :: micm_species(:)
     type(musica_species_t),              allocatable, intent(out)   :: tuvx_species(:)
@@ -57,15 +62,19 @@ contains
     ! that are not registered by MICM. Its fixed array size represents the maximum number
     ! of possible constituents.
     type(ccpp_constituent_properties_t) :: temp_constituent_props(4)
-    logical                             :: is_dry_air_registered = .false.
-    logical                             :: is_O2_registered = .false.
-    logical                             :: is_O3_registered = .false.
+    logical                             :: is_dry_air_registered
+    logical                             :: is_O2_registered
+    logical                             :: is_O3_registered
+    logical                             :: is_NO_registered
+    logical                             :: is_N2_registered
     integer                             :: i_new, i_species, i_tuvx_species
 
     num_micm_species = size(micm_species)
     is_dry_air_registered = .false.
     is_O2_registered = .false.
     is_O3_registered = .false.
+    is_NO_registered = .false.
+    is_N2_registered = .false.
 
     ! Register cloud liquid water content needed for cloud optics calculations
     i_new = 1
@@ -99,8 +108,15 @@ contains
         is_O3_registered = .true.
         micm_species(i_species)%profiled = .true.
         micm_species(i_species)%scale_height = SCALE_HEIGHT_O3
+      else if ( micm_species(i_species)%name == NO_LABEL ) then
+        is_NO_registered = .true.
+      else if ( micm_species(i_species)%name == N2_LABEL ) then
+        is_N2_registered = .true.
       end if
     end do
+    if ( is_NO_registered .and. is_N2_registered ) then
+      num_new_species = num_new_species + 2
+    end if
 
     if (.not. is_dry_air_registered) then
       i_new = i_new + 1
@@ -191,6 +207,26 @@ contains
       index_musica_species = i_tuvx_species, &
       profiled = .true., &
       scale_height = SCALE_HEIGHT_O3 )
+    
+    if ( is_NO_registered .and. is_N2_registered ) then
+      i_tuvx_species = i_tuvx_species + 1
+      index_NO = i_tuvx_species
+      tuvx_species(i_tuvx_species) = musica_species_t( &
+        name = NO_LABEL, &
+        unit = TUVX_GAS_SPECIES_UNITS, & ! TUV-x profile unit, different from molar mass unit
+        molar_mass = MOLAR_MASS_NO, &    ! kg mol-1
+        index_musica_species = i_tuvx_species, &
+        scale_height = 0.0_kind_phys )
+
+      i_tuvx_species = i_tuvx_species + 1
+      index_N2 = i_tuvx_species
+      tuvx_species(i_tuvx_species) = musica_species_t( &
+        name = N2_LABEL, &
+        unit = TUVX_GAS_SPECIES_UNITS, & ! TUV-x profile unit, different from molar mass unit
+        molar_mass = MOLAR_MASS_N2, &    ! kg mol-1
+        index_musica_species = i_tuvx_species, &
+        scale_height = 0.0_kind_phys )
+    end if
 
   end subroutine configure_tuvx_species
 

@@ -11,7 +11,9 @@ module musica_ccpp_util
 
   real(kind_phys), parameter, public :: PI = 3.14159265358979323846_kind_phys
   real(kind_phys), parameter, public :: DEGREE_TO_RADIAN = PI / 180.0_kind_phys
-  real(kind_phys), parameter, public :: EARTH_RADIUS_KM = 6378_kind_phys
+  real(kind_phys), parameter, public :: EARTH_RADIUS_M = 6378000.0_kind_phys
+  real(kind_phys), parameter, public :: AVOGADRO = 6.02214076e23_kind_phys
+  integer,         parameter, public :: MUSICA_INT_UNASSIGNED = -99999
 
 contains
 

@@ -1,0 +1,10 @@
+[
+  {
+    "source": "jNO",
+    "target": "PHOTO.NO"
+  },
+  {
+    "source": "jOther",
+    "target": "PHOTO.jOther"
+  }
+]

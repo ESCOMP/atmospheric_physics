@@ -133,7 +133,7 @@ contains
                        errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use musica_tuvx, only: grid_map_t, profile_map_t, radiator_map_t
-    use musica_util, only: error_t, configuration_t
+    use musica_util, only: error_t, configuration_t, MUSICA_INDEX_MAPPINGS_MAP_ANY
     use musica_ccpp_namelist, only: filename_of_tuvx_micm_mapping_configuration
     use musica_ccpp_util, only: PI
     use musica_ccpp_tuvx_height_grid, &
@@ -155,6 +155,7 @@ contains
       only: create_aerosol_optics_radiator, aerosol_optics_label
     use musica_ccpp_tuvx_load_species, &
       only: DRY_AIR_LABEL, O2_LABEL, O3_LABEL, TUVX_GAS_SPECIES_UNITS
+    use musica_ccpp_tuvx_no_photolysis, only: NO_photolysis_init
 
     integer,            intent(in)  :: vertical_layer_dimension      ! (count)
     integer,            intent(in)  :: vertical_interface_dimension  ! (count)
@@ -486,24 +487,30 @@ contains
     end if
 
     photolysis_rate_constants_mapping => &
-        index_mappings_t( config, photolysis_rate_constants_ordering, &
+        index_mappings_t( config, MUSICA_INDEX_MAPPINGS_MAP_ANY, &
+                          photolysis_rate_constants_ordering, &
                           micm_rate_parameter_ordering, error )
+    deallocate( photolysis_rate_constants_ordering )
     if (has_error_occurred( error, errmsg, errcode )) then
       deallocate( tuvx )
       tuvx => null()
       call cleanup_tuvx_resources()
-      deallocate( photolysis_rate_constants_ordering )
       return
     end if
 
-    deallocate( photolysis_rate_constants_ordering )
+    call NO_photolysis_init(config, micm_rate_parameter_ordering, errmsg, errcode)
+    if (errcode /= 0) then
+      deallocate( tuvx )
+      tuvx => null()
+      call cleanup_tuvx_resources()
+      return
+    endif
 
   end subroutine tuvx_init
 
   !> Calculates photolysis rate constants for the current model conditions
   subroutine tuvx_run(temperature, dry_air_density,                 &
                       constituents,                                 &
-                      constituents_NO_photolysis,                   &
                       geopotential_height_wrt_surface_at_midpoint,  &
                       geopotential_height_wrt_surface_at_interface, &
                       surface_geopotential, surface_temperature,    &
@@ -520,7 +527,7 @@ contains
     use musica_util,                            only: error_t
     use musica_ccpp_tuvx_height_grid,           only: set_height_grid_values, calculate_heights
     use musica_ccpp_tuvx_temperature,           only: set_temperature_values
-    use musica_ccpp_util,                       only: has_error_occurred, PI
+    use musica_ccpp_util,                       only: has_error_occurred, PI, MUSICA_INT_UNASSIGNED
     use musica_ccpp_tuvx_surface_albedo,        only: set_surface_albedo_values
     use musica_ccpp_tuvx_extraterrestrial_flux, only: set_extraterrestrial_flux_values
     use musica_ccpp_tuvx_cloud_optics,          only: set_cloud_optics_values
@@ -528,14 +535,11 @@ contains
     use musica_ccpp_tuvx_load_species,          only: index_cloud_liquid_water_content, &
                                                       index_dry_air, index_O2, index_O3
     use musica_ccpp_tuvx_gas_species,           only: set_gas_species_values
-    use musica_ccpp_tuvx_no_photolysis_rate,    only: is_NO_photolysis_active, calculate_NO_photolysis_rate, &
-                                                      index_NO_photolysis_rate
-    use musica_ccpp_species,                    only: MUSICA_INT_UNASSIGNED
+    use musica_ccpp_tuvx_no_photolysis,         only: calculate_NO_photolysis_rate_constants
 
     real(kind_phys),    intent(in)    :: temperature(:,:)                                  ! K (column, layer)
     real(kind_phys),    intent(in)    :: dry_air_density(:,:)                              ! kg m-3 (column, layer)
     real(kind_phys),    intent(in)    :: constituents(:,:,:)                               ! kg kg-1 (column, layer, constituent)
-    real(kind_phys),    intent(in)    :: constituents_NO_photolysis(:,:,:)                 ! kg kg-1 (column, layer, constituent)
     real(kind_phys),    intent(in)    :: geopotential_height_wrt_surface_at_midpoint(:,:)  ! m (column, layer)
     real(kind_phys),    intent(in)    :: geopotential_height_wrt_surface_at_interface(:,:) ! m (column, interface)
     real(kind_phys),    intent(in)    :: surface_geopotential(:)                           ! m2 s-2 (column)
@@ -548,14 +552,15 @@ contains
     real(kind_phys),    intent(in)    :: air_pressure_thickness(:,:)                       ! Pa (column, layer)
     real(kind_phys),    intent(in)    :: solar_zenith_angle(:)                             ! radians (column)
     real(kind_phys),    intent(in)    :: earth_sun_distance                                ! m
-    real(kind_phys),    intent(inout) :: rate_parameters(:,:,:)                            ! various units (column, layer, reaction)
+    real(kind_phys),    intent(inout) :: rate_parameters(:,:,:)                            ! various units (column, layer, parameter)
     character(len=512), intent(out)   :: errmsg
     integer,            intent(out)   :: errcode
 
     ! local variables
-    real(kind_phys), dimension(size(geopotential_height_wrt_surface_at_midpoint, dim = 2))  :: height_midpoints
-    real(kind_phys), dimension(size(geopotential_height_wrt_surface_at_interface, dim = 2)) :: height_interfaces
-    real(kind_phys), dimension(size(height_interfaces))                                     :: height_deltas ! km
+    real(kind_phys), dimension(size(geopotential_height_wrt_surface_at_midpoint, dim = 2))  :: height_midpoints ! km (layer)
+    real(kind_phys), dimension(size(geopotential_height_wrt_surface_at_interface, dim = 1), &
+                               size(geopotential_height_wrt_surface_at_interface, dim = 2)) :: height_interfaces ! km (column, interface)
+    real(kind_phys), dimension(size(height_interfaces, dim=2))                              :: height_deltas ! km (layer)
     real(kind_phys), dimension(size(rate_parameters, dim=2)+2, &
                                number_of_photolysis_rate_constants) :: photolysis_rate_constants, & ! s-1
                                                                        heating_rates                ! K s-1 (TODO: check units)
@@ -584,9 +589,9 @@ contains
                                 geopotential_height_wrt_surface_at_interface(i_col,:), &
                                 surface_geopotential(i_col),                           &
                                 reciprocal_of_gravitational_acceleration,              &
-                                height_midpoints, height_interfaces )
+                                height_midpoints, height_interfaces(i_col,:) )
 
-        call set_height_grid_values( height_grid, height_midpoints, height_interfaces, &
+        call set_height_grid_values( height_grid, height_midpoints, height_interfaces(i_col,:), &
                                      height_deltas, errmsg, errcode )
         if (errcode /= 0) return
 
@@ -634,30 +639,24 @@ contains
             max( photolysis_rate_constants(:,:), 0.0_kind_phys )
       end if ! solar zenith angle check
 
-      if (is_NO_photolysis_active) then
-        ! TODO: How do I ensure that the extraterrestrial flux matches the wavelength grid needed for NO photolysis?
-        NO_photolysis_rate_constant = calculate_NO_photolysis_rate(              &
-            solar_zenith_angle(i_col), extraterrestrial_flux, height_interfaces, &
-            dry_air_density(i_col,:), constituents(i_col,:,index_O2),            &
-            constituents(i_col,:,index_O3), constituents_NO_photolysis(i_col,:,:) )
-      end if
-
-      ! TODO: Where does jno go into the photolysis_rate_constants array?
       ! map photolysis rate constants to the host model's rate parameters and vertical grid
       do i_level = 1, size(rate_parameters, dim=2)
         call photolysis_rate_constants_mapping%copy_data( &
             photolysis_rate_constants(size(rate_parameters, dim=2)-i_level+2,:), &
             rate_parameters(i_col,i_level,:) )
-        if (is_NO_photolysis_active) then
-          rate_parameters(i_col,i_level,index_NO_photolysis_rate) = NO_photolysis_rate_constant(i_level)
-        end if
       end do
     end do
+
+    ! TODO: How do I ensure that the extraterrestrial flux matches the wavelength grid needed for NO photolysis?
+    call calculate_NO_photolysis_rate_constants( solar_zenith_angle, extraterrestrial_flux, &
+      height_interfaces, dry_air_density, constituents, rate_parameters )
 
   end subroutine tuvx_run
 
   !> Finalizes TUV-x
   subroutine tuvx_final(errmsg, errcode)
+    use musica_ccpp_tuvx_no_photolysis, only: NO_photolysis_final
+
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errcode
 
@@ -670,6 +669,8 @@ contains
       deallocate( tuvx )
       tuvx => null()
     end if
+
+    call NO_photolysis_final()
 
   end subroutine tuvx_final
 

@@ -63,7 +63,8 @@ contains
     use musica_ccpp_tuvx_load_species, only: index_dry_air, index_O2, index_O3, &
                                              SCALE_HEIGHT_DRY_AIR, SCALE_HEIGHT_O2, SCALE_HEIGHT_O3, &
                                              MOLAR_MASS_DRY_AIR, MOLAR_MASS_O2, MOLAR_MASS_O3
-    use musica_ccpp_species,           only: tuvx_species_set, MUSICA_INT_UNASSIGNED
+    use musica_ccpp_util,              only: MUSICA_INT_UNASSIGNED
+    use musica_ccpp_species,           only: tuvx_species_set
 
     integer,         parameter          :: NUM_COLUMNS = 2
     integer,         parameter          :: NUM_LAYERS = 2
@@ -261,11 +262,12 @@ contains
     use musica_tuvx,                   only: grid_t, profile_t
     use musica_ccpp,                   only: musica_ccpp_register, musica_ccpp_init, musica_ccpp_final
     use musica_ccpp_tuvx_height_grid,  only: create_height_grid
+    use musica_ccpp_util,              only: MUSICA_INT_UNASSIGNED
     use musica_ccpp_namelist,          only: filename_of_micm_configuration, &
                                              filename_of_tuvx_configuration, &
                                              filename_of_tuvx_micm_mapping_configuration
     use musica_ccpp_tuvx_load_species, only: index_dry_air, index_O2, index_O3
-    use musica_ccpp_species,           only: tuvx_species_set, MUSICA_INT_UNASSIGNED
+    use musica_ccpp_species,           only: tuvx_species_set
     use test_musica_data,              only: get_wavelength_edges
 
     integer,         parameter                       :: NUM_COLUMNS = 2

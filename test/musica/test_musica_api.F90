@@ -506,11 +506,13 @@ contains
     use musica_ccpp_namelist,      only: filename_of_micm_configuration, &
                                          filename_of_tuvx_configuration, &
                                          filename_of_tuvx_micm_mapping_configuration
+    use musica_ccpp_util,          only: PI
 
     implicit none
 
-    integer, parameter                                             :: NUM_SPECIES = 11
-    integer, parameter                                             :: NUM_TUVX_CONSTITUENTS = 1
+    integer, parameter                                                    :: NUM_SPECIES = 10
+    integer, parameter                                                    :: NUM_TUVX_CONSTITUENTS = 1
+    integer, parameter                                                    :: NUM_TUVX_ONLY_GAS_SPECIES = 1
     ! This test requires that the number of grid cells = 4, which is the default
     ! vector dimension for MICM. This restriction will be removed once
     ! https://github.com/NCAR/musica/issues/217 is finished.
@@ -537,9 +539,9 @@ contains
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)                    :: cloud_area_fraction                          ! unitless
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)                    :: air_pressure_thickness                       ! Pa
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS, &
-                               NUM_SPECIES+NUM_TUVX_CONSTITUENTS)         :: constituents                                 ! kg kg-1
+        NUM_SPECIES+NUM_TUVX_CONSTITUENTS+NUM_TUVX_ONLY_GAS_SPECIES)      :: constituents                                 ! kg kg-1
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS, &
-                               NUM_SPECIES+NUM_TUVX_CONSTITUENTS)         :: initial_constituents                         ! kg kg-1
+        NUM_SPECIES+NUM_TUVX_CONSTITUENTS+NUM_TUVX_ONLY_GAS_SPECIES)      :: initial_constituents                         ! kg kg-1
     real(kind_phys), dimension(NUM_COLUMNS)                               :: solar_zenith_angle                           ! radians
     real(kind_phys)                                                       :: earth_sun_distance                           ! AU
     type(ccpp_constituent_prop_ptr_t),   allocatable                      :: constituent_props_ptr(:)
@@ -566,8 +568,8 @@ contains
     temperature(:,2) = (/ 300._kind_phys, 400._kind_phys /)
     pressure(:,1) = (/ 6000.04_kind_phys, 7000.04_kind_phys /)
     pressure(:,2) = (/ 8000.04_kind_phys, 9000.04_kind_phys /)
-    dry_air_density(:,1) = (/ 3.5_kind_phys, 4.5_kind_phys /)
-    dry_air_density(:,2) = (/ 5.5_kind_phys, 6.5_kind_phys /)
+    dry_air_density(:,1) = (/ 0.95_kind_phys, 0.93_kind_phys /)
+    dry_air_density(:,2) = (/ 1.225_kind_phys, 1.15_kind_phys /)
     flux_data_photolysis_wavelength_interfaces(:) = &
       (/ 200.0_kind_phys, 210.0_kind_phys, 220.0_kind_phys, 230.0_kind_phys, &
         240.0_kind_phys, 250.0_kind_phys, 260.0_kind_phys, 270.0_kind_phys, 280.0_kind_phys /)
@@ -591,7 +593,7 @@ contains
       stop 3
     endif
     ASSERT(allocated(constituent_props))
-    ASSERT(size(constituent_props) == NUM_SPECIES+NUM_TUVX_CONSTITUENTS)
+    ASSERT(size(constituent_props) == NUM_SPECIES+NUM_TUVX_CONSTITUENTS+NUM_TUVX_ONLY_GAS_SPECIES)
 
     allocate(constituent_props_ptr(size(constituent_props)))
     do i = 1, size(constituent_props)
@@ -605,6 +607,8 @@ contains
       write(*,*) trim(errmsg)
       stop 3
     endif
+
+    ASSERT(NUM_SPECIES == micm%species_ordering%size())
 
     constituents = 0.0_kind_phys
     do i = 1, micm%species_ordering%size()
@@ -649,7 +653,7 @@ contains
     endif
 
     write(*,*) "[MUSICA INFO] Solved Concentrations"
-    ! write(*,fmt="(4(3x,e13.6))") constituents
+    write(*,fmt="(4(3x,e13.6))") constituents
 
     call musica_ccpp_final(errmsg, errcode)
 
@@ -662,6 +666,7 @@ contains
     do i = 1, NUM_COLUMNS
       do j = 1, NUM_LAYERS
         ! NO should be different
+        ! TODO: find a more accurate way to check this
         ASSERT(constituents(i,j,NO_index) .ne. initial_constituents(i,j,NO_index))
       end do
     end do
