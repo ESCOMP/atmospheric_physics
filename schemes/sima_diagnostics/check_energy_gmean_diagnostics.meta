@@ -34,7 +34,7 @@
   dimensions = ()
   intent = in
 [ teout_glob ]
-  standard_name = global_mean_vertically_integrated_total_energy_at_end_of_physics_timestep
+  standard_name = global_mean_vertically_integrated_total_energy_using_dycore_energy_formula_at_end_of_physics_timestep
   units = J m-2
   type = real | kind = kind_phys
   dimensions = ()

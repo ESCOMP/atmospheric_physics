@@ -1,9 +1,9 @@
 [ccpp-table-properties]
-  name = physics_dme_adjust
+  name = dme_adjust
   type = scheme
 
 [ccpp-arg-table]
-  name  = physics_dme_adjust_run
+  name  = dme_adjust_run
   type  = scheme
 [ ncol ]
   standard_name = horizontal_loop_extent
