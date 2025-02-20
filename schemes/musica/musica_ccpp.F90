@@ -3,7 +3,6 @@ module musica_ccpp
   use musica_ccpp_micm,     only: micm_register, micm_init, micm_run, micm_final
   use musica_ccpp_namelist, only: filename_of_tuvx_micm_mapping_configuration
   use musica_ccpp_tuvx,     only: tuvx_register, tuvx_init, tuvx_run, tuvx_final
-  use musica_util,          only: index_mappings_t
 
   implicit none
   private
@@ -15,10 +14,10 @@ contains
   !> \section arg_table_musica_ccpp_register Argument Table
   !! \htmlinclude musica_ccpp_register.html
   subroutine musica_ccpp_register(constituent_props, errmsg, errcode)
-    use ccpp_constituent_prop_mod,     only: ccpp_constituent_properties_t
-    use musica_ccpp_namelist,          only: micm_solver_type
-    use musica_ccpp_species,           only: musica_species_t, register_musica_species
-    use musica_ccpp_tuvx_load_species, only: check_tuvx_species_initialization
+    use ccpp_constituent_prop_mod,           only: ccpp_constituent_properties_t
+    use musica_ccpp_namelist,                only: micm_solver_type
+    use musica_ccpp_species,                 only: musica_species_t, register_musica_species
+    use musica_ccpp_tuvx_load_species,       only: check_tuvx_species_initialization
 
     type(ccpp_constituent_properties_t), allocatable, intent(out) :: constituent_props(:)
     character(len=512),                               intent(out) :: errmsg
@@ -40,7 +39,7 @@ contains
     if (errcode /= 0) return
     constituent_props = constituent_props_subset
     deallocate(constituent_props_subset)
-
+    
     call tuvx_register(micm_species, tuvx_species, constituent_props_subset, &
                        errmsg, errcode)
     if (errcode /= 0) return
@@ -85,6 +84,7 @@ contains
     number_of_grid_cells = horizontal_dimension * vertical_layer_dimension
     call micm_register(micm_solver_type, number_of_grid_cells, constituent_props, &
                        micm_species, errmsg, errcode)
+    if (errcode /= 0) return
     call micm_init(errmsg, errcode)
     if (errcode /= 0) return
     call tuvx_init(vertical_layer_dimension, vertical_interface_dimension, &
@@ -176,10 +176,8 @@ contains
                   earth_sun_distance,                           &
                   rate_parameters,                              &
                   errmsg, errcode)
-
-    call update_constituents(tuvx_indices_constituent_props, constituents_tuvx_species, &
-                             constituents, errmsg, errcode)
     if (errcode /= 0) return
+
     call extract_subset_constituents(micm_indices_constituent_props, constituents, &
                                      constituents_micm_species, errmsg, errcode)
     if (errcode /= 0) return
@@ -190,6 +188,7 @@ contains
     ! Solve chemistry at the current time step
     call micm_run(time_step, temperature, pressure, dry_air_density, rate_parameters, &
                   constituents_micm_species, errmsg, errcode)
+    if (errcode /= 0) return
 
     ! Convert MICM unit back to CAM-SIMA unit (mol m-3  ->  kg kg-1)
     call convert_to_mass_mixing_ratio(dry_air_density, micm_molar_mass_array, constituents_micm_species)
