@@ -232,8 +232,8 @@ contains
     real(kind_phys), intent(out)    :: cmfsl(:,:)         ! moist shallow convection liquid water static energy flux [W m-2]
     real(kind_phys), intent(out)    :: cmflq(:,:)         ! moist shallow convection total water flux [W m-2]
     real(kind_phys), intent(out)    :: precc(:)           ! shallow convective precipitation rate [m s-1]
-    real(kind_phys), intent(out)    :: cnt_sh(:)          ! top level of shallow convective activity [index]
-    real(kind_phys), intent(out)    :: cnb_sh(:)          ! bottom level of shallow convective activity [index]
+    integer,         intent(out)    :: cnt_sh(:)          ! top level of shallow convective activity [index]
+    integer,         intent(out)    :: cnb_sh(:)          ! bottom level of shallow convective activity [index]
     real(kind_phys), intent(out)    :: icwmr(:,:)         ! shallow convection in-cloud water mixing ratio [kg kg-1]
     real(kind_phys), intent(out)    :: rliq_sh(:)         ! vertically-integrated shallow reserved cloud condensate [m s-1]
 
@@ -324,8 +324,6 @@ contains
     real(kind_phys) :: tb(ncol,pver)       ! working storage for temp (t bar)
     real(kind_phys) :: shb(ncol,pver)      ! working storage for spec hum (sh bar)
     real(kind_phys) :: adjfac              ! adjustment factor (relaxation related)
-    real(kind_phys) :: rktp
-    real(kind_phys) :: rk
     integer         :: i,k                 ! longitude, level indices
     integer         :: ii                  ! index on "gathered" vectors
     integer         :: len1                ! vector length of "gathered" vectors
@@ -456,8 +454,8 @@ contains
     do i=1,ncol
        prec(i)  = 0.0_kind_phys
        dzcld(i) = 0.0_kind_phys
-       cnb_sh(i)= 0.0_kind_phys
-       cnt_sh(i)= real(pver+1,kind_phys)
+       cnb_sh(i)= 0
+       cnt_sh(i)= pver+1
     end do
 
     if(debug_verbose) then
@@ -909,10 +907,8 @@ contains
            ktp = k
         end if
         if (etagt0) then
-           rk = k
-           rktp = ktp
-           cnt_sh(i) = min(cnt_sh(i),rktp)
-           cnb_sh(i) = max(cnb_sh(i),rk)
+           cnt_sh(i) = min(cnt_sh(i),ktp)
+           cnb_sh(i) = max(cnb_sh(i),k)
         end if
       end do
     end do kloop
@@ -934,8 +930,8 @@ contains
     ! Kludge to prevent cnb_sh-cnt_sh from being zero (in the event
     ! someone decides that they want to divide by this quantity)
     do i=1,ncol
-       if (cnb_sh(i) /= 0.0_kind_phys .and. cnb_sh(i) == cnt_sh(i)) then
-          cnt_sh(i) = cnt_sh(i) - 1.0_kind_phys
+       if (cnb_sh(i) /= 0 .and. cnb_sh(i) == cnt_sh(i)) then
+          cnt_sh(i) = cnt_sh(i) - 1
        end if
     end do
 

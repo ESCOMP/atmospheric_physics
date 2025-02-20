@@ -230,13 +230,13 @@
 [ cnt ]
   standard_name = vertical_index_at_cloud_top_for_all_convection
   units = index
-  type = real | kind = kind_phys
+  type = integer
   dimensions = (horizontal_loop_extent)
   intent = in
 [ cnb ]
   standard_name = vertical_index_at_cloud_base_for_all_convection
   units = index
-  type = real | kind = kind_phys
+  type = integer
   dimensions = (horizontal_loop_extent)
   intent = in
 [ p_cnt ]

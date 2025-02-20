@@ -63,8 +63,8 @@ contains
       real(kind_phys),   intent(in)    :: qc_sh(:,:)             ! Shallow convection cloud water tendency [kg kg-1 s-1]
       real(kind_phys),   intent(in)    :: rliq_sh(:)             ! Shallow convection reserved liquid [m s-1]
       real(kind_phys),   intent(in)    :: rprdsh(:,:)            ! Shallow convection convective rainout Q tendency [kg kg-1 s-1]
-      real(kind_phys),   intent(in)    :: cnt_sh(:)              ! Shallow convection cloud top index [index]
-      real(kind_phys),   intent(in)    :: cnb_sh(:)              ! Shallow convection cloud base index [index]
+      integer,           intent(in)    :: cnt_sh(:)              ! Shallow convection cloud top index [index]
+      integer,           intent(in)    :: cnb_sh(:)              ! Shallow convection cloud base index [index]
 
       ! Input/output (total) arguments
       ! At this point, "total" is only deep because deep convection has written
@@ -76,8 +76,8 @@ contains
       real(kind_phys),   intent(out)   :: cmfmc_total(:,:)       ! Total convective mass flux [kg m-2 s-1]
       real(kind_phys),   intent(out)   :: rprdtot(:,:)           ! Total convective rainout Q tendency [kg kg-1 s-1]
       real(kind_phys),   intent(out)   :: qc_total(:,:)          ! Total convection cloud water tendency [kg kg-1 s-1]
-      real(kind_phys),   intent(out)   :: cnt(:)                 ! Convective cloud top index [index]
-      real(kind_phys),   intent(out)   :: cnb(:)                 ! Convective cloud base index [index]
+      integer,           intent(out)   :: cnt(:)                 ! Convective cloud top index [index]
+      integer,           intent(out)   :: cnb(:)                 ! Convective cloud base index [index]
       real(kind_phys),   intent(out)   :: p_cnt(:)               ! Convective cloud top pressure [Pa]
       real(kind_phys),   intent(out)   :: p_cnb(:)               ! Convective cloud base pressure [Pa]
       character(len=512),intent(out)   :: errmsg
@@ -104,8 +104,8 @@ contains
 
       ! Merge the shallow and deep convective "cloud top/base" and compute pressures
       ! Note: Indices decrease with height
-      cnt(:ncol) = real(cnt_deep(:ncol), kind_phys)
-      cnb(:ncol) = real(cnb_deep(:ncol), kind_phys)
+      cnt(:ncol) = cnt_deep(:ncol)
+      cnb(:ncol) = cnb_deep(:ncol)
       do i = 1, ncol
         ! if shallow cloud top is higher then use shallow cloud top
         if(cnt_sh(i) < cnt(i)) cnt(i) = cnt_sh(i)
@@ -114,11 +114,11 @@ contains
         if(cnb_sh(i) > cnb(i)) cnb(i) = cnb_sh(i)
 
         ! if cloud base is at model top then set it to cloud top
-        if(cnb(i) == 1._kind_phys) cnb(i) = cnt(i)
+        if(cnb(i) == 1) cnb(i) = cnt(i)
 
         ! set pressures
-        p_cnt(i) = pmid(i, int(cnt(i)))
-        p_cnb(i) = pmid(i, int(cnb(i)))
+        p_cnt(i) = pmid(i, cnt(i))
+        p_cnb(i) = pmid(i, cnb(i))
       enddo
 
 

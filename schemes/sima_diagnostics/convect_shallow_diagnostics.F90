@@ -260,8 +260,8 @@ contains
     ! Input arguments
     integer,          intent(in)  :: ncol             ! Number of columns
     real(kind_phys),  intent(in)  :: cmfmc(:,:)       ! Total convective mass flux [kg m-2 s-1]
-    real(kind_phys),  intent(in)  :: cnt(:)           ! Cloud top level index [1]
-    real(kind_phys),  intent(in)  :: cnb(:)           ! Cloud base level index [1]
+    integer,          intent(in)  :: cnt(:)           ! Cloud top level index [1]
+    integer,          intent(in)  :: cnb(:)           ! Cloud base level index [1]
     real(kind_phys),  intent(in)  :: p_cnt(:)         ! Convective cloud top pressure [Pa]
     real(kind_phys),  intent(in)  :: p_cnb(:)         ! Convective cloud base pressure [Pa]
     real(kind_phys),  intent(in)  :: qc_total(:,:)    !  detrainment_of_cloud_liquid_water_wrt_moist_air_and_condensed_water_due_to_all_convection [kg kg-1 s-1]
@@ -275,8 +275,8 @@ contains
     errflg = 0
 
     call history_out_field('CMFMC',   cmfmc)
-    call history_out_field('CLDTOP',  cnt)
-    call history_out_field('CLDBOT',  cnb)
+    call history_out_field('CLDTOP',  real(cnt, kind_phys))
+    call history_out_field('CLDBOT',  real(cnb, kind_phys))
     call history_out_field('PCLDTOP', p_cnt)
     call history_out_field('PCLDBOT', p_cnb)
 
