@@ -30,7 +30,7 @@
 
     <!-- SHALLOW CONVECTION: HACK SCHEME -->
     <scheme>check_energy_zero_fluxes</scheme>
-    <scheme>cmfmca</scheme>
+    <scheme>hack_convect_shallow</scheme>
     <scheme>convect_shallow_diagnostics_after_shallow_scheme</scheme>
     <scheme>apply_heating_rate</scheme>
     <scheme>apply_constituent_tendencies</scheme>
@@ -53,10 +53,5 @@
     <!-- CHECK ENERGY -->
     <scheme>check_energy_scaling</scheme>
     <scheme>check_energy_chng</scheme>
-
-    <!-- DIAGNOSTIC QUANTITY UPDATES -->
-    <!-- sum deep convective quantities with shallow including total convective rainout -->
-    <scheme>convect_shallow_sum_to_deep</scheme>
-    <scheme>convect_shallow_diagnostics_after_sum_to_deep</scheme>
   </group>
 </suite>

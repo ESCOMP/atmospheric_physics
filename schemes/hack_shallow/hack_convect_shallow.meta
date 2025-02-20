@@ -1,10 +1,10 @@
 [ccpp-table-properties]
-  name = cmfmca
+  name = hack_convect_shallow
   type = scheme
   dependencies = ../../to_be_ccppized/wv_saturation.F90
 
 [ccpp-arg-table]
-  name  = cmfmca_init
+  name  = hack_convect_shallow_init
   type  = scheme
 [ pver ]
   standard_name = vertical_layer_dimension
@@ -73,7 +73,7 @@
   dimensions = (vertical_interface_dimension)
   intent = in
 [ use_shfrc ]
-  standard_name = flag_for_cloud_area_fraction_use_shallow_convection_calculated_cloud_area_fraction
+  standard_name = flag_for_cloud_area_fraction_to_use_shallow_convection_calculated_cloud_area_fraction
   units = flag
   type = logical
   dimensions = ()
@@ -104,7 +104,7 @@
   intent = out
 
 [ccpp-arg-table]
-  name  = cmfmca_run
+  name  = hack_convect_shallow_run
   type  = scheme
 [ ncol ]
   standard_name = horizontal_loop_extent

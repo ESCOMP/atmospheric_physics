@@ -47,9 +47,7 @@ contains
     call history_add_field('CMFDICE', 'tendency_of_cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_shallow_convection', 'lev', 'avg', 'kg kg-1 s-1') ! ptend_loc%q(1,1,ixcldice)
     call history_add_field('CMFDQR', 'tendency_of_precipitation_wrt_moist_air_and_condensed_water_due_to_shallow_convection_excluding_subcloud_evaporation', 'lev', 'avg', 'kg kg-1 s-1') ! Q tendency - shallow convection rainout
 
-    ! QC and DRP are the same from convect_shallow
-    call history_add_field('QC', 'detrainment_of_cloud_liquid_water_wrt_moist_air_and_condensed_water_due_to_shallow_convection', 'lev', 'avg', 'kg kg-1 s-1') ! Q tendency - shallow convection LW export
-    call history_add_field('DQP', 'detrainment_of_cloud_liquid_water_wrt_moist_air_and_condensed_water_due_to_shallow_convection', 'lev', 'avg', 'kg kg-1 s-1') ! Specific humidity tendency due to precipitation
+    call history_add_field('DQP', 'detrainment_of_cloud_liquid_water_wrt_moist_air_and_condensed_water_due_to_shallow_convection', 'lev', 'avg', 'kg kg-1 s-1') ! Specific humidity tendency due to precipitation in shallow convection
 
     call history_add_field('ICWMRSH', 'in_cloud_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_shallow_convection', 'lev', 'avg', 'kg kg-1') ! Shallow Convection in-cloud water mixing ratio
 
@@ -192,8 +190,7 @@ contains
     enddo
     call history_out_field('FREQSH', freqsh)
 
-    call history_out_field('QC',      qc_sh)
-    call history_out_field('DQP',     qc_sh)           ! Same field as QC
+    call history_out_field('DQP',     qc_sh)
     call history_out_field('ICWMRSH', icwmr)
     call history_out_field('CMFSL',   cmfsl)
     call history_out_field('CMFLQ',   cmflq)

@@ -97,7 +97,7 @@
 
     <!-- SHALLOW CONVECTION: HACK SCHEME -->
     <scheme>check_energy_zero_fluxes</scheme>
-    <scheme>cmfmca</scheme>
+    <scheme>hack_convect_shallow</scheme>
     <scheme>convect_shallow_diagnostics_after_shallow_scheme</scheme>
     <scheme>apply_heating_rate</scheme>
     <scheme>apply_constituent_tendencies</scheme>

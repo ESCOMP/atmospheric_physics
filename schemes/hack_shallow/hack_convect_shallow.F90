@@ -1,19 +1,20 @@
-! Copyright (C) 2024 National Science Foundation-National Center for Atmospheric Research
+! Copyright (C) 2024-2025 National Science Foundation-National Center for Atmospheric Research
 ! SPDX-License-Identifier: Apache-2.0
 !
 ! Hack shallow convective scheme.
+! The main subroutine was formerly named "cmfmca", and its initialization "mfinti".
 !
 ! Original Author: J. Hack
 ! CCPPized: Haipeng Lin, October 2024
-module cmfmca
+module hack_convect_shallow
   use ccpp_kinds,           only: kind_phys
   implicit none
   private
   save
 
   ! public CCPP-compliant subroutines
-  public :: cmfmca_init
-  public :: cmfmca_run
+  public :: hack_convect_shallow_init
+  public :: hack_convect_shallow_run
 
   ! namelist variables for tuning of hack shallow convective scheme
   real(kind_phys) :: cmftau                     ! characteristic adjustment time scale [s]
@@ -52,9 +53,9 @@ module cmfmca
 
 contains
   ! Initialization of moist convective mass procedure including namelist read.
-!> \section arg_table_cmfmca_init Argument Table
-!! \htmlinclude cmfmca_init.html
-  subroutine cmfmca_init( &
+!> \section arg_table_hack_convect_shallow_init Argument Table
+!! \htmlinclude hack_convect_shallow_init.html
+  subroutine hack_convect_shallow_init( &
     pver, &
     amIRoot, iulog, &
     cmftau_in, c0_in, &
@@ -95,8 +96,8 @@ contains
     c0      = c0_in
 
     if(amIRoot) then
-      write(iulog,*) 'tuning parameters cmfmca: cmftau',cmftau
-      write(iulog,*) 'tuning parameters cmfmca: c0',c0
+      write(iulog,*) 'tuning parameters hack_convect_shallow: cmftau',cmftau
+      write(iulog,*) 'tuning parameters hack_convect_shallow: c0',c0
     endif
 
     ! host model physical constants
@@ -124,7 +125,7 @@ contains
     endif
 
     if(amIRoot) then
-      write(iulog,*) "cmfmca_init: convection will be capped at interface ", limcnv, &
+      write(iulog,*) "hack_convect_shallow_init: convection will be capped at interface ", limcnv, &
                      "which is ", pref_edge(limcnv), " pascals"
     endif
 
@@ -140,7 +141,7 @@ contains
     ! for Hack shallow convection (CAM4 physics), do not limit cloud fraction
     ! (extend all the way to model top)
     top_lev = 1
-  end subroutine cmfmca_init
+  end subroutine hack_convect_shallow_init
 
   ! Moist convective mass flux procedure.
   !
@@ -159,9 +160,9 @@ contains
   ! Reports tendencies in cmfdt and dq instead of updating profiles.
   !
   ! Original author: J. Hack, BAB
-!> \section arg_table_cmfmca_run Argument Table
-!! \htmlinclude cmfmca_run.html
-  subroutine cmfmca_run( &
+!> \section arg_table_hack_convect_shallow_run Argument Table
+!! \htmlinclude hack_convect_shallow_run.html
+  subroutine hack_convect_shallow_run( &
     ncol, pver, pcnst, &
     iulog, &
     const_props, &
@@ -347,7 +348,7 @@ contains
     errmsg = ''
     errflg = 0
 
-    scheme_name = 'cmfmca'
+    scheme_name = 'hack_convect_shallow'
 
     !---------------------------------------------------
     ! Initialize output tendencies
@@ -1009,7 +1010,7 @@ contains
                         ' AND PERCENTAGE DIFFERENCE => ',1p,2e15.7,2x,2p,f7.3,/)
 8080              format(' BETA, ETA => ', 1p,2e12.3)
 8090              format (' k+1, sc, shc, hc => ', 1x, i2, 1p, 3e12.4)
-  end subroutine cmfmca_run
+  end subroutine hack_convect_shallow_run
 
   ! qhalf computes the specific humidity at interface levels between two model layers (interpolate moisture)
   pure function qhalf(sh1,sh2,shbs1,shbs2) result(qh)
@@ -1020,4 +1021,4 @@ contains
     real(kind_phys) :: qh
     qh = min(max(sh1,sh2),(shbs2*sh1 + shbs1*sh2)/(shbs1+shbs2))
   end function qhalf
-end module cmfmca
+end module hack_convect_shallow
