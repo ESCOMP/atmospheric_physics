@@ -116,6 +116,14 @@ contains
         ! if cloud base is at model top then set it to cloud top
         if(cnb(i) == 1) cnb(i) = cnt(i)
 
+        ! ensure cloud top and cloud base indices are within range
+        if(cnt(i) < 1 .or. cnb(i) < 1 .or. cnt(i) > pver .or. cnb(i) > pver) then
+          ! set to a set of "safe" values
+          ! (cnt-cnb should not be zero to avoid division errors with this quantity)
+          cnt(i) = pver-1
+          cnb(i) = pver
+        endif
+
         ! set pressures
         p_cnt(i) = pmid(i, cnt(i))
         p_cnb(i) = pmid(i, cnb(i))
