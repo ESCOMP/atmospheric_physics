@@ -124,22 +124,22 @@ contains
       extract_subset_constituents, update_constituents
 
     real(kind_phys),         intent(in)    :: time_step                                         ! s
-    real(kind_phys), target, intent(in)    :: temperature(:,:)                                  ! K
-    real(kind_phys), target, intent(in)    :: pressure(:,:)                                     ! Pa
-    real(kind_phys), target, intent(in)    :: dry_air_density(:,:)                              ! kg m-3
+    real(kind_phys), target, intent(in)    :: temperature(:,:)                                  ! K (column, layer)
+    real(kind_phys), target, intent(in)    :: pressure(:,:)                                     ! Pa (column, layer)
+    real(kind_phys), target, intent(in)    :: dry_air_density(:,:)                              ! kg m-3 (column, layer)
     type(ccpp_constituent_prop_ptr_t), &
-                             intent(in)    :: constituent_props(:)
-    real(kind_phys), target, intent(inout) :: constituents(:,:,:)                               ! kg kg-1
+                             intent(in)    :: constituent_props(:)                              ! (constituent)
+    real(kind_phys), target, intent(inout) :: constituents(:,:,:)                               ! kg kg-1 (column, layer, constituent)
     real(kind_phys),         intent(in)    :: geopotential_height_wrt_surface_at_midpoint(:,:)  ! m (column, layer)
     real(kind_phys),         intent(in)    :: geopotential_height_wrt_surface_at_interface(:,:) ! m (column, interface)
-    real(kind_phys),         intent(in)    :: surface_geopotential(:)                           ! m2 s-2
-    real(kind_phys),         intent(in)    :: surface_temperature(:)                            ! K
-    real(kind_phys),         intent(in)    :: surface_albedo                                    ! unitless
-    real(kind_phys),         intent(in)    :: photolysis_wavelength_grid_interfaces(:)          ! nm
-    real(kind_phys),         intent(in)    :: extraterrestrial_flux(:)                          ! photons cm-2 s-1 nm-1
+    real(kind_phys),         intent(in)    :: surface_geopotential(:)                           ! m2 s-2 (column)
+    real(kind_phys),         intent(in)    :: surface_temperature(:)                            ! K (column)
+    real(kind_phys),         intent(in)    :: surface_albedo(:)                                 ! fraction (column)
+    real(kind_phys),         intent(in)    :: photolysis_wavelength_grid_interfaces(:)          ! nm (wavelength interface)
+    real(kind_phys),         intent(in)    :: extraterrestrial_flux(:)                          ! photons cm-2 s-1 nm-1 (wavelength interface)
     real(kind_phys),         intent(in)    :: standard_gravitational_acceleration               ! m s-2
-    real(kind_phys),         intent(in)    :: cloud_area_fraction(:,:)                          ! unitless (column, level)
-    real(kind_phys),         intent(in)    :: air_pressure_thickness(:,:)                       ! Pa (column, level)
+    real(kind_phys),         intent(in)    :: cloud_area_fraction(:,:)                          ! fraction (column, layer)
+    real(kind_phys),         intent(in)    :: air_pressure_thickness(:,:)                       ! Pa (column, layer)
     real(kind_phys),         intent(in)    :: solar_zenith_angle(:)                             ! radians (column)
     real(kind_phys),         intent(in)    :: earth_sun_distance                                ! AU
     character(len=512),      intent(out)   :: errmsg
