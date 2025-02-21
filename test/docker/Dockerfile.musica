@@ -5,8 +5,9 @@
 
 FROM ubuntu:22.04
 
-ARG MUSICA_GIT_TAG=326b5119768d5be9654baf96ae3bd6a1b757fdc8
+ARG MUSICA_GIT_TAG=fix_bugs
 ARG CAM_SIMA_CHEMISTRY_DATA_TAG=ea3539f1d7b71162e8a78d900ecbe265ba870e3d
+ARG INSTALL_MUSICA_LIB=ON
 ARG BUILD_TYPE=Debug
 
 RUN apt update \
@@ -47,16 +48,15 @@ RUN sudo apt update \
 ENV FC=mpif90
 ENV FFLAGS="-I/usr/include/"
 
-# Install MUSICA (MUSICA-C)
+# Install MUSICA
 RUN git clone https://github.com/NCAR/musica.git \
     && cd musica \
     && git checkout ${MUSICA_GIT_TAG} \
     && cmake -S . -B build \
              -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
              -D MUSICA_ENABLE_TESTS=OFF \
-             -D MUSICA_BUILD_FORTRAN_INTERFACE=OFF \
-             -D MUSICA_ENABLE_MICM=ON \
-             -D MUSICA_ENABLE_TUVX=ON \
+             -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
+             -D MUSICA_ENABLE_INSTALL=ON \
              -D CMAKE_Fortran_COMPILER=mpif90 \
              -D CMAKE_C_COMPILER=mpicc \
              -D CMAKE_CXX_COMPILER=mpicxx \
@@ -69,8 +69,7 @@ RUN sudo chown -R test_user:test_user atmospheric_physics
 # Clone the MUSICA chemistry data set repository
 RUN git clone https://github.com/NCAR/cam-sima-chemistry-data.git \
     && cd cam-sima-chemistry-data \
-    && git checkout ${CAM_SIMA_CHEMISTRY_DATA_TAG} \
-    && mv mechanisms /home/test_user/atmospheric_physics/schemes/musica/configurations
+    && git checkout ${CAM_SIMA_CHEMISTRY_DATA_TAG}
 
 # Make CCPP-framework available before building test
 RUN cd atmospheric_physics/test \
@@ -91,5 +90,8 @@ RUN cd atmospheric_physics/test \
              -D CCPP_ENABLE_MUSICA_TESTS=ON \
              -D CCPP_ENABLE_MEMCHECK=ON \
     && cmake --build ./build
+
+# Move the MUSICA configuration to the build root to make the data available for testing
+RUN mv /home/test_user/cam-sima-chemistry-data/mechanisms /home/test_user/atmospheric_physics/test/build/musica_configurations
 
 WORKDIR /home/test_user/atmospheric_physics/test/build
