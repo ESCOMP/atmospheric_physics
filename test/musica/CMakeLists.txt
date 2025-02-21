@@ -40,7 +40,6 @@ target_sources(test_musica_api
 target_link_libraries(test_musica_api
   PRIVATE
     musica::musica-fortran
-    musica::musica
 )
 
 set_target_properties(test_musica_api
