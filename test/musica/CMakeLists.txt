@@ -1,6 +1,6 @@
 # If the MUSICA library is not installed, it will fetch
 # the MUSICA repository to build the library
-if(NOT $ENV{INSTALL_MUSICA_LIB})  # Set by docker
+if(NOT $ENV{USE_INSTALLED_MUSICA_LIB})  # Set by docker
   include(FetchContent)
 
   FetchContent_Declare(musica
@@ -14,49 +14,15 @@ if(NOT $ENV{INSTALL_MUSICA_LIB})  # Set by docker
   set(MUSICA_ENABLE_INSTALL OFF)
 
   FetchContent_MakeAvailable(musica)
+
+elseif($ENV{USE_INSTALLED_MUSICA_LIB})
+  # Add flags for gfortran
+  if (CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
+    set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -ffree-line-length-none")
+  endif()
+
+  link_directories("/usr/local/lib")
 endif()
-
-# MUSICA CCPP API test
-add_executable(test_musica_api test_musica_api.F90 musica_ccpp_namelist.F90)
-
-file(GLOB MUSICA_CCPP_SOURCES
-  ${MUSICA_SRC_PATH}/*.F90
-  ${MUSICA_SRC_PATH}/micm/*.F90
-  ${MUSICA_SRC_PATH}/tuvx/*.F90
-)
-
-target_sources(test_musica_api
-  PUBLIC
-    ${MUSICA_CCPP_SOURCES}
-    ${TO_BE_CCPPIZED_SRC_PATH}/ccpp_tuvx_utils.F90
-    ${TO_BE_CCPPIZED_SRC_PATH}/ccpp_const_utils.F90
-    ${CCPP_SRC_PATH}/ccpp_constituent_prop_mod.F90
-    ${CCPP_SRC_PATH}/ccpp_hash_table.F90
-    ${CCPP_SRC_PATH}/ccpp_hashable.F90
-    ${CCPP_SRC_PATH}/ccpp_types.F90
-    ${CCPP_TEST_SRC_PATH}/ccpp_kinds.F90
-)
-
-target_link_libraries(test_musica_api
-  PRIVATE
-    musica::musica-fortran
-)
-
-set_target_properties(test_musica_api
-  PROPERTIES
-  LINKER_LANGUAGE Fortran
-)
-
-add_test(
-  NAME test_musica_api
-  COMMAND $<TARGET_FILE:test_musica_api>
-  WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-)
-
-add_memory_check_test(test_musica_api $<TARGET_FILE:test_musica_api> "" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-
-add_subdirectory(micm)
-add_subdirectory(tuvx)
 
 find_package(Python REQUIRED)
 
@@ -83,6 +49,40 @@ add_test(
   --stdname-dict ${CMAKE_BINARY_DIR}/../$ENV{CCPP_STD_NAMES_PATH}/standard_names.xml
 )
 
+# MUSICA CCPP API test
+add_executable(test_musica_api test_musica_api.F90 musica_ccpp_namelist.F90)
+
+file(GLOB MUSICA_CCPP_SOURCES
+  ${MUSICA_SRC_PATH}/*.F90
+  ${MUSICA_SRC_PATH}/micm/*.F90
+  ${MUSICA_SRC_PATH}/tuvx/*.F90
+)
+
+target_sources(test_musica_api
+  PUBLIC
+    ${MUSICA_CCPP_SOURCES}
+    ${TO_BE_CCPPIZED_SRC_PATH}/ccpp_tuvx_utils.F90
+    ${TO_BE_CCPPIZED_SRC_PATH}/ccpp_const_utils.F90
+    ${CCPP_SRC_PATH}/ccpp_constituent_prop_mod.F90
+    ${CCPP_SRC_PATH}/ccpp_hash_table.F90
+    ${CCPP_SRC_PATH}/ccpp_hashable.F90
+    ${CCPP_SRC_PATH}/ccpp_types.F90
+    ${CCPP_TEST_SRC_PATH}/ccpp_kinds.F90
+)
+
+target_link_libraries(test_musica_api
+  PRIVATE
+    musica-fortran musica yaml-cpp stdc++ netcdff
+)
+
+add_test(
+  NAME test_musica_api
+  COMMAND $<TARGET_FILE:test_musica_api>
+  WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+)
+
+add_memory_check_test(test_musica_api $<TARGET_FILE:test_musica_api> "" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
 # MUSICA species test
 add_executable(test_musica_species test_musica_species.F90 musica_ccpp_namelist.F90)
 
@@ -99,12 +99,7 @@ target_sources(test_musica_species
 
 target_link_libraries(test_musica_species
   PRIVATE
-    musica::musica-fortran
-)
-
-set_target_properties(test_musica_species
-  PROPERTIES
-  LINKER_LANGUAGE Fortran
+    musica-fortran musica yaml-cpp stdc++ netcdff
 )
 
 add_test(
@@ -114,3 +109,6 @@ add_test(
 )
 
 add_memory_check_test(test_musica_species $<TARGET_FILE:test_musica_species> "" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
+add_subdirectory(micm)
+add_subdirectory(tuvx)

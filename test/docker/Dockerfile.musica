@@ -7,7 +7,7 @@ FROM ubuntu:22.04
 
 ARG MUSICA_GIT_TAG=fix_bugs
 ARG CAM_SIMA_CHEMISTRY_DATA_TAG=ea3539f1d7b71162e8a78d900ecbe265ba870e3d
-ARG INSTALL_MUSICA_LIB=ON
+ARG USE_INSTALLED_MUSICA_LIB=ON
 ARG BUILD_TYPE=Debug
 
 RUN apt update \
@@ -53,15 +53,21 @@ RUN git clone https://github.com/NCAR/musica.git \
     && cd musica \
     && git checkout ${MUSICA_GIT_TAG} \
     && cmake -S . -B build \
-             -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+             -D CMAKE_BUILD_TYPE=Release \
              -D MUSICA_ENABLE_TESTS=OFF \
-             -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
              -D MUSICA_ENABLE_INSTALL=ON \
+             -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
              -D CMAKE_Fortran_COMPILER=mpif90 \
-             -D CMAKE_C_COMPILER=mpicc \
              -D CMAKE_CXX_COMPILER=mpicxx \
     && cd build \
     && sudo make install
+
+ENV FFLAGS="${FFLAGS} \
+            -I/usr/local/include/micm \
+            -I/usr/local/include/musica \
+            -I/usr/local/include/musica/micm \
+            -I/usr/local/include/musica/tuvx \
+            -I/usr/local/include/musica/fortran"
 
 COPY . atmospheric_physics
 RUN sudo chown -R test_user:test_user atmospheric_physics
@@ -89,9 +95,11 @@ RUN cd atmospheric_physics/test \
              -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
              -D CCPP_ENABLE_MUSICA_TESTS=ON \
              -D CCPP_ENABLE_MEMCHECK=ON \
+             -D CMAKE_Fortran_COMPILER=mpif90 \
+             -D CMAKE_CXX_COMPILER=mpicxx \
     && cmake --build ./build
 
-# Move the MUSICA configuration to the build root to make the data available for testing
+# # Move the MUSICA configuration to the build root to make the data available for testing
 RUN mv /home/test_user/cam-sima-chemistry-data/mechanisms /home/test_user/atmospheric_physics/test/build/musica_configurations
 
 WORKDIR /home/test_user/atmospheric_physics/test/build

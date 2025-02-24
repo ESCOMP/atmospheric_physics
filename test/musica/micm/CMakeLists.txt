@@ -8,12 +8,7 @@ target_sources(test_micm_util
 
 target_link_libraries(test_micm_util
   PRIVATE
-    musica::musica-fortran
-)
-
-set_target_properties(test_micm_util
-  PROPERTIES
-  LINKER_LANGUAGE Fortran
+    musica-fortran musica yaml-cpp stdc++ netcdff
 )
 
 add_test(
