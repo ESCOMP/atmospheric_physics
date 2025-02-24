@@ -69,7 +69,7 @@ contains
 
 
     integer :: m_cnst
-    logical :: water_flag
+    logical :: water_flag, active_flag
 
     errmsg = ' '
     errflg = 0
@@ -85,7 +85,8 @@ contains
       tot_water(:,2) = 0.0_kind_phys
       do m_cnst=1,pcnst
         call const_props(m_cnst)%is_water_species(water_flag)
-        if(water_flag) then
+        call const_props(m_cnst)%is_thermo_active(active_flag)
+        if(water_flag .and. active_flag) then
           tot_water(:,2) = tot_water(:,2)+const_array(:,k,m_cnst)
         end if
       end do
