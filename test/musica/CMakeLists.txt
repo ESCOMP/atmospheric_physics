@@ -15,7 +15,7 @@ if(NOT $ENV{USE_INSTALLED_MUSICA_LIB})  # Set by docker
 
   FetchContent_MakeAvailable(musica)
 
-elseif($ENV{USE_INSTALLED_MUSICA_LIB})
+else()
   if (CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
     set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -ffree-line-length-none")
   endif()
