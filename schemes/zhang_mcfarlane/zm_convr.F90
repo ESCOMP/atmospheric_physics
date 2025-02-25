@@ -84,7 +84,7 @@ subroutine zm_convr_init(plev, plevp, cpair, epsilo, gravit, latvap, tmelt, rair
    real(kind_phys),intent(in)           :: zmconv_capelmt
    real(kind_phys),intent(in)           :: zmconv_dmpdz
    logical, intent(in)                  :: zmconv_parcel_pbl ! Should the parcel properties include PBL mixing?
-   real(kind_phys),intent(in)           :: zmconv_parcel_hscale ! Fraction of PBL over whic to mix ZM parcel.
+   real(kind_phys),intent(in)           :: zmconv_parcel_hscale ! Fraction of PBL over which to mix ZM parcel.
    real(kind_phys),intent(in)           :: zmconv_tau
    logical, intent(in)                  :: masterproc
    integer, intent(in)                  :: iulog
