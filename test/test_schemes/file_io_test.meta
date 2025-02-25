@@ -1,0 +1,44 @@
+[ccpp-table-properties]
+  name = file_io_test
+  type = scheme
+[ccpp-arg-table]
+  name = file_io_test_init
+  type = scheme
+[ file_path ]
+  standard_name = filename_of_rrtmgp_shortwave_coefficients
+  long_name = file name and path to RRTMGP shortwave coefficients file
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errcode ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+[ccpp-arg-table]
+  name = file_io_test_run
+  type = scheme
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errcode ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
