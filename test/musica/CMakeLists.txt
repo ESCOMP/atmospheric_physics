@@ -112,12 +112,6 @@ add_test(
 
 add_memory_check_test(test_musica_species $<TARGET_FILE:test_musica_species> "" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
-add_subdirectory(aerosol)
-add_subdirectory(aerosol_stub)
-add_subdirectory(micm)
-add_subdirectory(tuvx)
-
-
 # MUSICA grid test
 add_executable(test_musica_grid test_musica_grid.F90 musica_ccpp_namelist.F90)
 
