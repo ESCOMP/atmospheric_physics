@@ -8,7 +8,7 @@
   standard_name = filename_of_rrtmgp_shortwave_coefficients
   long_name = file name and path to RRTMGP shortwave coefficients file
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = in
 [ errmsg ]

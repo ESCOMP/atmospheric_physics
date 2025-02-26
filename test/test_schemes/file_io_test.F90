@@ -23,7 +23,7 @@ contains
      use ccpp_kinds, only: kind_phys
 
      !Non-portable (CAM-SIMA specific) use statements:
-     use ioFileMod,     only: getfil
+     use ioFileMod,     only: cam_get_file
      use cam_pio_utils, only: cam_pio_openfile
      use pio,           only: file_desc_t
      use pio,           only: PIO_NOWRITE
@@ -33,6 +33,7 @@ contains
      use pio,           only: pio_inq_dimlen
      use pio,           only: pio_inq_varid
      use pio,           only: pio_get_var
+     use pio,           only: pio_seterrorhandling
 
      !Input variables:
      character(len=*),   intent(in)  :: file_path
@@ -59,7 +60,7 @@ contains
      errmsg  = ''
 
      ! Open file
-     call getfil(file_path, local_file_path, 0)
+     call cam_get_file(file_path, local_file_path)
      call cam_pio_openfile(fh, local_file_path, PIO_NOWRITE)
 
      call pio_seterrorhandling(fh, PIO_BCAST_ERROR)
@@ -99,7 +100,7 @@ contains
      end if
 
      !Write max pressure value to stdout:
-     write(*,*) 'Max RRTMGP reference pressure value = ', max(press_ref)
+     write(*,*) 'Max RRTMGP reference pressure value = ', maxval(press_ref)
 
   end subroutine file_io_test_init
 
