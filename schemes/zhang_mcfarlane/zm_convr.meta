@@ -110,7 +110,7 @@
   intent = in
 [ zmconv_tiedke_add ]
   standard_name = parcel_temperature_perturbation_for_zhang_mcfarlane_deep_convection_scheme
-  units = flag
+  units = K
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
@@ -310,7 +310,7 @@
   intent = in
 [ mcon ]
   standard_name = atmosphere_convective_mass_flux_due_to_deep_convection
-  units = hPa s-1
+  units = kg m-2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_interface_dimension)
   intent = out
@@ -333,13 +333,13 @@
   dimensions = (horizontal_loop_extent)
   intent = in
 [ dlf ]
-  standard_name = detrainment_of_cloud_liquid_due_to_deep_convection
+  standard_name = detrainment_of_cloud_liquid_water_wrt_moist_air_and_condensed_water_due_to_deep_convection
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = out
 [ dif ]
-  standard_name = detrainment_of_cloud_ice_due_to_deep_convection
+  standard_name = detrainment_of_cloud_ice_wrt_moist_air_and_condensed_water_due_to_deep_convection
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
@@ -423,8 +423,8 @@
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = out
 [ rliq ]
-  standard_name = vertically_integrated_cloud_liquid_tendency_due_to_all_convection_to_be_applied_later_in_time_loop
-  units = kg m-2 s-1
+  standard_name = vertically_integrated_cloud_liquid_water_tendency_due_to_all_convection_to_be_applied_later_in_time_loop
+  units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out

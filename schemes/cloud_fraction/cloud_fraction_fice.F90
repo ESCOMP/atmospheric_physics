@@ -11,7 +11,7 @@ contains
 !> \section arg_table_cloud_fraction_fice_run Argument Table
 !! \htmlinclude cloud_fraction_fice_run.html
 !!
-  subroutine cloud_fraction_fice_run(ncol, t, tmelt, top_lev, pver, fice, fsnow)
+  subroutine cloud_fraction_fice_run(ncol, t, tmelt, top_lev, pver, fice, fsnow, errmsg, errflg)
 !
 ! Compute the fraction of the total cloud water which is in ice phase.
 ! The fraction depends on temperature only.
@@ -22,14 +22,17 @@ contains
 !-----------------------------------------------------------------------
 
 ! Arguments
-    integer,  intent(in)  :: ncol          ! number of active columns (count)
-    real(kind_phys), intent(in)  :: t(:,:) ! temperature (K)
-    real(kind_phys), intent(in)  :: tmelt  ! freezing point of water (K)
-    integer, intent(in)  :: top_lev        ! Vertical layer index for highest layer with tropopheric clouds (index)
-    integer, intent(in)  :: pver           ! Number of vertical layers (count)
+    integer,            intent(in)  :: ncol          ! number of active columns (count)
+    real(kind_phys),    intent(in)  :: t(:,:)        ! temperature (K)
+    real(kind_phys),    intent(in)  :: tmelt         ! freezing point of water (K)
+    integer,            intent(in)  :: top_lev       ! Vertical layer index for highest layer with tropopheric clouds (index)
+    integer,            intent(in)  :: pver          ! Number of vertical layers (count)
 
-    real(kind_phys), intent(out) :: fice(:,:)     ! Fractional ice content within cloud
-    real(kind_phys), intent(out) :: fsnow(:,:)    ! Fractional snow content for convection
+    real(kind_phys),    intent(out) :: fice(:,:)     ! Fractional ice content within cloud
+    real(kind_phys),    intent(out) :: fsnow(:,:)    ! Fractional snow content for convection
+
+    character(len=512), intent(out) :: errmsg
+    integer,            intent(out) :: errflg
 
 ! Local variables
     real(kind_phys) :: tmax_fice                         ! max temperature for cloud ice formation
@@ -40,6 +43,9 @@ contains
     integer :: i,k                                ! loop indexes
 
 !-----------------------------------------------------------------------
+
+    errmsg = ''
+    errflg = 0
 
     tmax_fice = tmelt - 10._kind_phys        ! max temperature for cloud ice formation
     tmin_fice = tmax_fice - 30._kind_phys    ! min temperature for cloud ice formation
