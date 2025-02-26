@@ -2,13 +2,16 @@ cmake_minimum_required(VERSION 3.21)
 
 project(
   atmosphericphysics
-  VERSION 0.0.0
+  VERSION 0.1.0
   LANGUAGES Fortran C CXX
 )
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH};${CMAKE_CURRENT_LIST_DIR}/cmake)
 set(CMAKE_USER_MAKE_RULES_OVERRIDE ${CMAKE_MODULE_PATH}/SetDefaults.cmake)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # ---------------------------------------------------------------------------------------------
 # NOTE: If 'CCPP_ENABLE_MUSICA_TESTS' is enabled, this is no longer a stand-alone CMake project.
