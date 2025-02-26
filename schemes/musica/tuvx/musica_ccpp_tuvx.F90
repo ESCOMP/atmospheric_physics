@@ -133,7 +133,7 @@ contains
                        errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use musica_tuvx, only: grid_map_t, profile_map_t, radiator_map_t
-    use musica_util, only: error_t, configuration_t
+    use musica_util, only: error_t, configuration_t, MUSICA_INDEX_MAPPINGS_MAP_ANY
     use musica_ccpp_namelist, only: filename_of_tuvx_micm_mapping_configuration
     use musica_ccpp_util, only: PI
     use musica_ccpp_tuvx_height_grid, &
@@ -486,8 +486,8 @@ contains
     end if
 
     photolysis_rate_constants_mapping => &
-        index_mappings_t( config, photolysis_rate_constants_ordering, &
-                          micm_rate_parameter_ordering, error )
+        index_mappings_t( config, MUSICA_INDEX_MAPPINGS_MAP_ANY, &
+        photolysis_rate_constants_ordering, micm_rate_parameter_ordering, error )
     if (has_error_occurred( error, errmsg, errcode )) then
       deallocate( tuvx )
       tuvx => null()
