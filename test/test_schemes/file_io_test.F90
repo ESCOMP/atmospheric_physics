@@ -33,6 +33,7 @@ contains
      use pio,           only: pio_inq_dimlen
      use pio,           only: pio_inq_varid
      use pio,           only: pio_get_var
+     use pio,           only: pio_closefile
      use pio,           only: pio_seterrorhandling
 
      !Input variables:
@@ -98,6 +99,9 @@ contains
         errcode = 1
         errmsg  = "Failed to read 'press_ref' in '"//local_file_path//"'"
      end if
+
+     ! Close file
+     call pio_closefile(fh)
 
      !Write max pressure value to stdout:
      write(*,*) 'Max RRTMGP reference pressure value = ', maxval(press_ref)
