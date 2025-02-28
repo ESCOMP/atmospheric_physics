@@ -1,0 +1,31 @@
+[ccpp-table-properties]
+  name = set_cloud_fraction_top
+  type = scheme
+
+[ccpp-arg-table]
+  name  = set_cloud_fraction_top_init
+  type  = scheme
+[ trop_cloud_top_lev ]
+  standard_name = vertical_layer_index_of_troposphere_cloud_physics_top
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
+[ top_lev ]
+  standard_name = vertical_layer_index_of_cloud_fraction_top
+  units = index
+  type = integer
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
