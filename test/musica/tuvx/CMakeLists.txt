@@ -10,12 +10,7 @@ target_sources(test_tuvx_height_grid
 
 target_link_libraries(test_tuvx_height_grid
   PRIVATE
-    musica::musica-fortran
-)
-
-set_target_properties(test_tuvx_height_grid
-  PROPERTIES
-  LINKER_LANGUAGE Fortran
+    musica-fortran musica yaml-cpp stdc++ netcdff
 )
 
 add_test(
@@ -38,12 +33,7 @@ target_sources(test_tuvx_wavelength_grid
 
 target_link_libraries(test_tuvx_wavelength_grid
   PRIVATE
-    musica::musica-fortran
-)
-
-set_target_properties(test_tuvx_wavelength_grid
-  PROPERTIES
-  LINKER_LANGUAGE Fortran
+    musica-fortran musica yaml-cpp stdc++ netcdff
 )
 
 add_test(
@@ -67,12 +57,7 @@ target_sources(test_tuvx_temperature
 
 target_link_libraries(test_tuvx_temperature
   PRIVATE
-    musica::musica-fortran
-)
-
-set_target_properties(test_tuvx_temperature
-  PROPERTIES
-  LINKER_LANGUAGE Fortran
+    musica-fortran musica yaml-cpp stdc++ netcdff
 )
 
 add_test(
@@ -96,12 +81,7 @@ target_sources(test_tuvx_surface_albedo
 
 target_link_libraries(test_tuvx_surface_albedo
   PRIVATE
-    musica::musica-fortran
-)
-
-set_target_properties(test_tuvx_surface_albedo
-  PROPERTIES
-  LINKER_LANGUAGE Fortran
+    musica-fortran musica yaml-cpp stdc++ netcdff
 )
 
 add_test(
@@ -126,12 +106,7 @@ target_sources(test_tuvx_extraterrestrial_flux
 
 target_link_libraries(test_tuvx_extraterrestrial_flux
   PRIVATE
-    musica-fortran
-)
-
-set_target_properties(test_tuvx_extraterrestrial_flux
-  PROPERTIES
-  LINKER_LANGUAGE Fortran
+    musica-fortran musica yaml-cpp stdc++ netcdff
 )
 
 add_test(
@@ -157,12 +132,7 @@ target_sources(test_tuvx_cloud_optics
 
 target_link_libraries(test_tuvx_cloud_optics
   PRIVATE
-    musica::musica-fortran
-)
-
-set_target_properties(test_tuvx_cloud_optics
-  PROPERTIES
-  LINKER_LANGUAGE Fortran
+    musica-fortran musica yaml-cpp stdc++ netcdff
 )
 
 add_test(
@@ -187,12 +157,7 @@ target_sources(test_tuvx_aerosol_optics
 
 target_link_libraries(test_tuvx_aerosol_optics
   PRIVATE
-    musica::musica-fortran
-)
-
-set_target_properties(test_tuvx_aerosol_optics
-  PROPERTIES
-  LINKER_LANGUAGE Fortran
+    musica-fortran musica yaml-cpp stdc++ netcdff
 )
 
 add_test(
@@ -220,12 +185,7 @@ target_sources(test_tuvx_gas_species
 
 target_link_libraries(test_tuvx_gas_species
   PRIVATE
-    musica::musica-fortran
-)
-
-set_target_properties(test_tuvx_gas_species
-  PROPERTIES
-  LINKER_LANGUAGE Fortran
+    musica-fortran musica yaml-cpp stdc++ netcdff
 )
 
 add_test(
@@ -254,12 +214,7 @@ target_sources(test_tuvx_load_species
 
 target_link_libraries(test_tuvx_load_species
   PRIVATE
-    musica::musica-fortran
-)
-
-set_target_properties(test_tuvx_load_species
-  PROPERTIES
-  LINKER_LANGUAGE Fortran
+    musica-fortran musica yaml-cpp stdc++ netcdff
 )
 
 add_test(

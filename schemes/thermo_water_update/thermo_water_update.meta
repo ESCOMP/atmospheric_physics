@@ -1,0 +1,50 @@
+[ccpp-table-properties]
+  name = thermo_water_update
+  type = scheme
+  dependencies = ../../../../data/cam_thermo.F90
+
+[ccpp-arg-table]
+  name  = thermo_water_update_run
+  type  = scheme
+[ mmr ]
+  standard_name = ccpp_constituents
+  units = none
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
+  intent = in
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ energy_formula_dycore ]
+  standard_name = total_energy_formula_for_dycore
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ pdel ]
+  standard_name = air_pressure_thickness
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ pdeldry ]
+  standard_name = air_pressure_thickness_of_dry_air
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ cp_or_cv_dycore ]
+  standard_name = specific_heat_of_air_used_in_dycore
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
