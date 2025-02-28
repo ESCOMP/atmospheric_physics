@@ -23,18 +23,17 @@ contains
      use ccpp_kinds, only: kind_phys
 
      !Non-portable (CAM-SIMA specific) use statements:
-     use ioFileMod,     only: cam_get_file
-     use cam_pio_utils, only: cam_pio_openfile
-     use pio,           only: file_desc_t
-     use pio,           only: PIO_NOWRITE
-     use pio,           only: PIO_BCAST_ERROR
-     use pio,           only: PIO_NOERR
-     use pio,           only: pio_inq_dimid
-     use pio,           only: pio_inq_dimlen
-     use pio,           only: pio_inq_varid
-     use pio,           only: pio_get_var
-     use pio,           only: pio_closefile
-     use pio,           only: pio_seterrorhandling
+     use sima_ccpp_FileIO, only: sima_get_netcdf_var
+     use ioFileMod,        only: cam_get_file
+     use cam_pio_utils,    only: cam_pio_openfile
+     use pio,              only: file_desc_t
+     use pio,              only: PIO_NOWRITE
+     use pio,              only: PIO_BCAST_ERROR
+     use pio,              only: PIO_NOERR
+     use pio,              only: pio_inq_dimid
+     use pio,              only: pio_inq_dimlen
+     use pio,              only: pio_closefile
+     use pio,              only: pio_seterrorhandling
 
      !Input variables:
      character(len=*),   intent(in)  :: file_path
@@ -85,19 +84,11 @@ contains
         return
      end if
 
-     !Look for reference pressure on file:
-     ierr = pio_inq_varid(fh, 'press_ref', var_id)
-     if (ierr /= PIO_NOERR) then
-        errcode = 1
-        errmsg  = "Failed to find 'press_ref' in '"//local_file_path//"'"
-        return
-     end if
-
-     !Read reference pressure from file:
-     ierr = pio_get_var(fh, var_id, press_ref)
-     if (ierr /= PIO_NOERR) then
-        errcode = 1
+     !Attempt to get reference pressure from file:
+     call sima_get_netcdf_var(fh, 'press_ref', press_ref, errcode, errmsg)
+     if (errcode /= 0) then
         errmsg  = "Failed to read 'press_ref' in '"//local_file_path//"'"
+        return !Error has occurred, so exit scheme
      end if
 
      ! Close file
