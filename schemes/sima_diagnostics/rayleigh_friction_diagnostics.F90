@@ -28,7 +28,7 @@ CONTAINS
       ! History add field calls
       call history_add_field('UTEND_RAYLEIGH', 'Zonal wind tendency due to Rayleigh Friction', 'lev', 'avg', 'm s-2')
       call history_add_field('VTEND_RAYLEIGH', 'Meridional wind tendency due to Rayleigh Friction', 'lev', 'avg', 'm s-2')
-      call history_add_field('STEND_RAYLEIGH', 'Static energy tendency due to Rayleigh Friction', 'lev', 'avg', 'J kg-1')
+      call history_add_field('STEND_RAYLEIGH', 'Dry air enthalpy tendency due to Rayleigh Friction', 'lev', 'avg', 'J kg-1')
       
    end subroutine rayleigh_friction_diagnostics_init
 
@@ -41,9 +41,9 @@ CONTAINS
       !   Input / output parameters
       !------------------------------------------------
       ! State variables
-      real(kind_phys), intent(in) :: dudt(:,:) !tendency_of_x_wind due to RF
-      real(kind_phys), intent(in) :: dvdt(:,:) !tendency_of_y_wind due to RF
-      real(kind_phys), intent(in) :: dsdt(:,:) !tendency_of_y_wind due to RF
+      real(kind_phys), intent(in) :: dudt(:,:) !tendency_of_eastward_wind due to RF
+      real(kind_phys), intent(in) :: dvdt(:,:) !tendency_of_northward_wind due to RF
+      real(kind_phys), intent(in) :: dsdt(:,:) !tendency_of_dry_air_enthalpy_at_constant_pressure due to RF
 
       ! CCPP error handling variables
       character(len=512), intent(out) :: errmsg

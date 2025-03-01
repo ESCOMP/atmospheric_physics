@@ -118,7 +118,7 @@ contains
     real(kind_phys),     intent(in) :: ztodt   !physics timestep
     real(kind_phys),     intent(in) :: u(:,:)     
     real(kind_phys),     intent(in) :: v(:,:)     
-    real(kind_phys),    intent(out) :: dudt(:,:) !tendency_of_x_wing    
+    real(kind_phys),    intent(out) :: dudt(:,:) !tendency_of_x_wind    
     real(kind_phys),    intent(out) :: dvdt(:,:) !tendency_of_y_wind    
     real(kind_phys),    intent(out) :: dsdt(:,:)  !heating_rate 
       
@@ -139,7 +139,7 @@ contains
     dvdt(:,:)=0._kind_phys
     dsdt(:,:) =0._kind_phys
 
-    if (otau0 .eq. 0._kind_phys) return
+    if (raytau0 .eq. 0._kind_phys) return
 
     rztodt = 1._kind_phys/ztodt
 

@@ -11,7 +11,7 @@
     <type>integer</type>
     <category>rayleigh_friction</category>
     <group>rayleigh_friction_nl</group>
-    <standard_name>rayleigh_friction_center_level</standard_name>
+    <standard_name>center_vertical_layer_for_rayleigh_friction</standard_name>
     <units>index</units>
     <desc>
       Variable to specify the vertical index at which the
@@ -27,10 +27,10 @@
   <kind>kind_phys</kind>
   <category>rayleigh_friction</category>
   <group>rayleigh_friction_nl</group>
-  <standard_name>rayleigh_friction_num_levels</standard_name>
+  <standard_name>number_of_vertical_layers_for_rayleigh_friction</standard_name>
     <units>count</units>
     <desc>
-      Range (number of levels) of the Rayleigh Friction profile. If 0, range is set to satisfy center=2.
+      Range (number of layers) of the Rayleigh Friction profile. If 0, range is set to satisfy center=2.
     </desc>
     <values>
       <value>0</value>
@@ -42,7 +42,7 @@
   <kind>kind_phys</kind>
   <category>rayleigh_friction</category>
   <group>rayleigh_friction_nl</group>
-  <standard_name>rayleigh_friction_model_top_decay_time</standard_name>
+  <standard_name>model_top_decay_time_for_rayleigh_friction</standard_name>
     <units>days</units>
     <desc>
       Approximate value of max decay time (in units of days) at model top. If 0, no Rayleigh Friction is computed or applied.
