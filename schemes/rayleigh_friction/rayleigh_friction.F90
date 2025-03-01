@@ -118,8 +118,8 @@ contains
     real(kind_phys),     intent(in) :: ztodt   !physics timestep
     real(kind_phys),     intent(in) :: u(:,:)     
     real(kind_phys),     intent(in) :: v(:,:)     
-    real(kind_phys),    intent(out) :: dudt(:,:) !tendency_of_x_wind    
-    real(kind_phys),    intent(out) :: dvdt(:,:) !tendency_of_y_wind    
+    real(kind_phys),    intent(out) :: dudt(:,:) !tendency_of_eastward_wind    
+    real(kind_phys),    intent(out) :: dvdt(:,:) !tendency_of_northward_wind    
     real(kind_phys),    intent(out) :: dsdt(:,:)  !heating_rate 
       
     character(len=512), intent(out) :: errmsg
