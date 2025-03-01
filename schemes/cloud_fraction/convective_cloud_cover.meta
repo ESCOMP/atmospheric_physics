@@ -58,7 +58,7 @@
   dimensions = ()
   intent = in
 [ top_lev_cloudphys ]
-  standard_name = vertical_layer_index_of_cloud_physics_top_tbd
+  standard_name = vertical_layer_index_of_cloud_fraction_top
   units = index
   type = integer
   dimensions = ()
@@ -94,7 +94,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ deepcu ]
-  standard_name = shallow_convective_cloud_area_fraction_tbd
+  standard_name = deep_convective_cloud_area_fraction_tbd
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

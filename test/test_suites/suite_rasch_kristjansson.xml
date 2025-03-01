@@ -18,13 +18,15 @@
     <scheme>rk_stratiform_detrain_convective_condensate</scheme>
 
     <!-- RK3: computation of various cloud fractions (CAM4 version)
-         two calls to cldfrc here embedded. the first one has to update cloud_area_fraction;
+         two calls to compute_cloud_fraction here embedded. the first one has to update cloud_area_fraction;
          the second is used to compute perturbations of RH to cloud fraction deltas later used in prognostic cloud water.
 
-         note: may be clearer in the future to use cloud_fraction_run explicitly once here,
-         then call the second cldfrc silently in rk_stratiform_cloud_fractions. we will see.
+         for clarity, we call cloud_fraction_run explicitly once here,
+         then call the second compute_cloud_fraction in rk_stratiform_cloud_fraction_perturbation_run, to compute the
+         relative humidity derivative used in the prognostic_cloud_water scheme.
     -->
-    <!--<scheme>rk_stratiform_cloud_fractions</scheme>-->
+    <scheme>compute_cloud_fraction</scheme>
+    <scheme>rk_stratiform_cloud_fraction_perturbation_run</scheme>
 
     <!-- RK4a: stratiform condensate repartitioning (cldwat-repartition) -->
     <scheme>cldfrc_fice</scheme>
@@ -47,6 +49,8 @@
     <scheme>geopotential_temp</scheme>
 
     <!-- RK5: cloud fractions (including third call to cldfrc) -->
+    <scheme>compute_cloud_fraction</scheme>
+    <!--<scheme>compute_cloud_fraction_diagnostics</scheme>-->
     <!--<scheme>rk_stratiform_microphysics_tendencies</scheme>-->
     <!--<scheme>rk_stratiform_microphysics_diagnostics</scheme>-->
 

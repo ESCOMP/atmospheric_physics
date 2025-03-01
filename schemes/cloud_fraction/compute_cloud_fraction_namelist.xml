@@ -1,0 +1,148 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet type="text/xsl"?>
+
+<entry_id_pg version="2.0">
+  <entry id="cldfrc_freeze_dry">
+    <type>logical</type>
+    <category>cldfrc</category>
+    <group>cldfrc_nl</group>
+    <standard_name>flag_for_vavrus_freeze_dry_adjustment_for_cloud_fraction</standard_name>
+    <units>flag</units>
+    <desc>
+      Turn on for Vavrus "freeze dry" adjustment in cloud fraction.
+      Default: TRUE
+    </desc>
+    <values>
+      <value>true</value>
+    </values>
+  </entry>
+  <entry id="cldfrc_ice">
+    <type>logical</type>
+    <category>cldfrc</category>
+    <group>cldfrc_nl</group>
+    <standard_name>flag_for_ice_cloud_fraction_for_cloud_fraction</standard_name>
+    <units>flag</units>
+    <desc>
+      Turn on ice cloud fraction calculation
+      Default: TRUE (CAM5 and CAM6) or FALSE
+    </desc>
+    <values>
+      <value>false</value>
+    </values>
+  </entry>
+  <entry id="cldfrc_inversion_cld_off">
+    <type>logical</type>
+    <category>cldfrc</category>
+    <group>cldfrc_nl</group>
+    <standard_name>flag_for_turning_off_stratification_based_for_cloud_fraction</standard_name>
+    <units>flag</units>
+    <desc>
+      Turn off stratification-based cloud fraction
+      Default: FALSE
+    </desc>
+    <values>
+      <value>false</value>
+      <!-- true for UW shallow scheme or diag_TKE eddy scheme only -->
+    </values>
+  </entry>
+  <entry id="cldfrc_rhminl">
+    <type>real</type>
+    <category>cldfrc</category>
+    <group>cldfrc_nl</group>
+    <standard_name>tunable_parameter_for_minimum_relative_humidity_for_low_stable_clouds_for_cloud_fraction</standard_name>
+    <units>1</units>
+    <desc>
+      Minimum rh for low stable clouds.
+    </desc>
+    <values>
+      <value>0.900D0</value>
+    </values>
+  </entry>
+  <entry id="cldfrc_rhminl_adj_land">
+    <type>real</type>
+    <category>cldfrc</category>
+    <group>cldfrc_nl</group>
+    <standard_name>tunable_parameter_for_adjustment_to_minimum_relative_humidity_for_low_stable_clouds_for_land_without_snow_cover_for_cloud_fraction</standard_name>
+    <units>1</units>
+    <desc>
+      Adjustment to rhminl for land without snow cover.
+      Default: 0.0 for CAM6, CAM7; 0.10 for all others
+    </desc>
+    <values>
+      <value>0.1D0</value>
+    </values>
+  </entry>
+  <entry id="cldfrc_rhminh">
+    <type>real</type>
+    <category>cldfrc</category>
+    <group>cldfrc_nl</group>
+    <standard_name>tunable_parameter_for_minimum_relative_humidity_for_high_stable_clouds_for_cloud_fraction</standard_name>
+    <units>1</units>
+    <desc>
+      Minimum rh for high stable clouds.
+    </desc>
+    <values>
+      <value>0.800D0</value>
+    </values>
+  </entry>
+  <entry id="cldfrc_premit">
+    <type>real</type>
+    <category>cldfrc</category>
+    <group>cldfrc_nl</group>
+    <standard_name>tunable_parameter_for_top_pressure_bound_for_mid_level_clouds_for_cloud_fraction</standard_name>
+    <units>Pa</units>
+    <desc>
+      Top pressure bound for mid level cloud.
+    </desc>
+    <values>
+      <value dyn="mpas">75000.0D0</value>
+      <value dyn="se">40000.0D0</value>
+      <value>40000.0D0</value>
+    </values>
+  </entry>
+  <entry id="cldfrc_premib">
+    <type>real</type>
+    <category>cldfrc</category>
+    <group>cldfrc_nl</group>
+    <standard_name>tunable_parameter_for_bottom_pressure_bound_for_mid_level_liquid_stratus_for_cloud_fraction</standard_name>
+    <units>Pa</units>
+    <desc>
+      Bottom height for mid-level liquid stratus fraction.
+    </desc>
+    <values>
+      <value>750.0D2</value>
+    </values>
+  </entry>
+  <entry id="cldfrc_iceopt">
+    <type>integer</type>
+    <category>cldfrc</category>
+    <group>cldfrc_nl</group>
+    <standard_name>scheme_for_ice_cloud_fraction</standard_name>
+    <units>1</units>
+    <desc>
+      Scheme for ice cloud fraction.
+      1 = Wang and Sassen
+      2 = Schiller (iciwc)
+      3 = Wood and Field
+      4 = Wilson (based on Smith)
+      5 = modified Slingo (ssat and empty cloud)
+    </desc>
+    <values>
+      <value>5</value>
+    </values>
+  </entry>
+  <entry id="cldfrc_icecrit">
+    <type>real</type>
+    <category>cldfrc</category>
+    <group>cldfrc_nl</group>
+    <standard_name>tunable_parameter_for_critical_relative_humidity_for_ice_clouds_for_cloud_fraction_using_wilson_from_ballard_scheme</standard_name>
+    <units>1</units>
+    <desc>
+      Critical RH for ice clouds using the Wilson and Ballard scheme
+    </desc>
+    <values>
+      <value>0.95D0</value>
+    </values>
+  </entry>
+</entry_id_pg>

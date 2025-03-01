@@ -32,6 +32,8 @@ module compute_cloud_fraction
 
 contains
   ! Initialize cloud_fraction from namelist parameters
+!> \section arg_table_compute_cloud_fraction_init Argument Table
+!! \htmlinclude compute_cloud_fraction_init.html
   subroutine compute_cloud_fraction_init( &
     amIRoot, iulog, &
     pver, &
@@ -133,7 +135,7 @@ contains
     shallowcu, deepcu, concld, & ! convective cloud cover
     landfrac, ocnfrac, snowh, &
     rhpert_flag, & ! todo: decide what to do with this
-    cloud, rhcloud, clc, &
+    cloud, rhcloud, &
     cldst, &
     rhu00, icecldf, liqcldf, relhum, &
     errmsg, errflg)
@@ -165,12 +167,11 @@ contains
     logical,         intent(in) :: rhpert_flag       ! 0 or 1 to perturb rh
 
     ! Output arguments
-    real(kind_phys), intent(out) :: cloud(:, :)      ! cloud fraction
+    real(kind_phys), intent(out) :: cloud(:, :)      ! cloud_area_fraction [fraction]
     real(kind_phys), intent(out) :: rhcloud(:, :)    ! cloud fraction
-    real(kind_phys), intent(out) :: clc(:)           ! column convective cloud amount
     real(kind_phys), intent(out) :: cldst(:, :)      ! stratiform_cloud_area_fraction [fraction]
     real(kind_phys), intent(out) :: rhu00(:, :)      ! RH threshold for cloud
-    real(kind_phys), intent(out) :: relhum(:, :)     ! RH
+    real(kind_phys), intent(out) :: relhum(:, :)     ! RH for prognostic cldwat [percent]
     real(kind_phys), intent(out) :: icecldf(:, :)    ! ice cloud fraction
     real(kind_phys), intent(out) :: liqcldf(:, :)    ! liquid cloud fraction (combined into cloud)
     character(len=512), intent(out) :: errmsg        ! error message
@@ -300,7 +301,6 @@ contains
       if (ocnfrac(i) .gt. 0.01_kind_phys) thetas(i) = &
         (sst(i) - lapse*phis(i)/gravit)*(pnot/ps(i))**cappa
       if (ocnfrac(i) .gt. 0.01_kind_phys .and. sst(i) .lt. 260._kind_phys) ierror = i
-      clc(i) = 0.0_kind_phys
     end do
     coef1 = gravit*864.0_kind_phys    ! conversion to millibars/day
 

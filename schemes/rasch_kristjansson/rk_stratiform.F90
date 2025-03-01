@@ -11,11 +11,14 @@ module rk_stratiform
   save
 
   ! public CCPP-compliant subroutines
+  !   note: cloud_fraction_perturbation_run is NOT a fully CCPP-compliant scheme
+  !         because it calls the compute_cloud_fraction scheme for perturbation.
+  !         this is currently not possible to elegantly handle in the framework.
   public :: rk_stratiform_init
   public :: rk_stratiform_timestep_init
   public :: rk_stratiform_sedimentation_run
   public :: rk_stratiform_detrain_convective_condensate_run
-  ! public :: rk_stratiform_cloud_fractions_run
+  public :: rk_stratiform_cloud_fraction_perturbation_run         ! see note.
   ! public :: rk_stratiform_microphysics_run
   public :: rk_stratiform_prognostic_cloud_water_tendencies_run
   ! public :: rk_stratiform_ice_and_liquid_water_content_run
@@ -123,6 +126,129 @@ contains
     prec_str(:ncol) = prec_str(:ncol) - rliq(:ncol)
 
   end subroutine rk_stratiform_detrain_convective_condensate_run
+
+  ! Call perturbed cloud fraction and compute perturbation threshold criteria
+  ! necessary for prognostic_cloud_water scheme
+  subroutine rk_stratiform_cloud_fraction_perturbation_run( &
+    ncol, pver, &
+    cappa, gravit, rair, tmelt, &
+    top_lev_cloudphys, &
+    pmid, ps, temp, sst, &
+    q_wv, cldice, &
+    phis, &
+    shallowcu, deepcu, concld, & ! inputs from convective_cloud_cover
+    landfrac, ocnfrac, snowh, &
+    cloud, relhum, & ! inputs from unperturbed compute_cloud_fraction
+    rhdfda, & ! output for prognostic_cloud_water
+    errmsg, errflg)
+
+    ! WARN: This is NOT CCPP-compliant!
+    use compute_cloud_fraction, only: compute_cloud_fraction_run
+
+    ! Input arguments
+    integer,         intent(in) :: ncol
+    integer,         intent(in) :: pver
+    real(kind_phys), intent(in) :: cappa
+    real(kind_phys), intent(in) :: gravit
+    real(kind_phys), intent(in) :: rair
+    real(kind_phys), intent(in) :: tmelt
+    integer,         intent(in) :: top_lev_cloudphys ! vertical_layer_index_of_cloud_fraction_top [index]
+    real(kind_phys), intent(in) :: pmid(:, :)        ! air_pressure [Pa]
+    real(kind_phys), intent(in) :: ps(:)             ! surface_air_pressure [Pa]
+    real(kind_phys), intent(in) :: temp(:, :)        ! air_temperature [K]
+    real(kind_phys), intent(in) :: sst(:)            ! sea_surface_temperature [K]
+    real(kind_phys), intent(in) :: q_wv(:, :)        ! water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water [kg kg-1]
+    real(kind_phys), intent(in) :: cldice(:, :)      ! cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water [kg kg-1]
+    real(kind_phys), intent(in) :: phis(:)           ! surface_geopotential [m2 s-2]
+    real(kind_phys), intent(in) :: shallowcu(:, :)   ! shallow convective cloud fraction
+    real(kind_phys), intent(in) :: deepcu(:, :)      ! deep convective cloud fraction
+    real(kind_phys), intent(in) :: concld(:, :)      ! convective_cloud_area_fraction [fraction]
+    real(kind_phys), intent(in) :: landfrac(:)       ! land_area_fraction [fraction]
+    real(kind_phys), intent(in) :: ocnfrac(:)        ! ocean_area_fraction [fraction]
+    real(kind_phys), intent(in) :: snowh(:)          ! lwe_surface_snow_depth_over_land [m]
+
+    real(kind_phys), intent(in) :: cloud(:, :)       ! cloud_area_fraction [fraction]
+    real(kind_phys), intent(in) :: relhum(:, :)      ! RH for prognostic cldwat [percent]
+
+    ! Input/output arguments
+    ! Note: CAM4 intentionally mutates the top level of rhu00 so this is inout here.
+    real(kind_phys),  intent(inout) :: rhu00(:, :)      ! RH threshold for cloud
+
+    ! Output arguments
+    real(kind_phys),    intent(out) :: rhdfda(:, :)     ! derivative of RH w.r.t. cloud fraction for prognostic cloud water [percent]
+    character(len=512), intent(out) :: errmsg           ! error message
+    integer,            intent(out) :: errflg           ! error flag
+
+    ! Local variables (outputs from perturbed compute_cloud_fraction)
+    real(kind_phys)  :: cloud2(ncol, pver)
+
+    ! Dummy outputs (unused)
+    real(kind_phys)  :: rhcloud2(ncol, pver)
+    real(kind_phys)  :: cldst2(ncol, pver)
+    real(kind_phys)  :: rhu002(ncol, pver)
+    real(kind_phys)  :: icecldf2(ncol, pver)
+    real(kind_phys)  :: liqcldf2(ncol, pver)
+    real(kind_phys)  :: relhum2(ncol, pver)
+
+    errmsg = ''
+    errflg = 0
+
+    ! Call perturbed version of compute_cloud_fraction
+    ! WARN: This is NOT CCPP-compliant!
+    call compute_cloud_fraction_run( &
+      ncol              = ncol,                 &
+      pver              = pver,                 &
+      cappa             = cappa,                &
+      gravit            = gravit,               &
+      rair              = rair,                 &
+      tmelt             = tmelt,                &
+      top_lev_cloudphys = top_lev_cloudphys,    & ! CAM4 macrophysics - top lev is 1
+      pmid              = pmid(:ncol,:),        &
+      ps                = ps(:ncol),            &
+      temp              = t(:ncol,:),           &
+      sst               = sst(:ncol),           &
+      q                 = q_wv(:ncol,:),        &
+      cldice            = cldice(:ncol,:),      &
+      phis              = phis(:ncol),          &
+      shallowcu         = shallowcu(:ncol,:),   &
+      deepcu            = deepcu(:ncol,:),      &
+      concld            = concld(:ncol,:),      &
+      landfrac          = landfrac(:ncol),      &
+      ocnfrac           = ocnfrac(:ncol),       &
+      snowh             = snowh(:ncol),         &
+      rhpert_flag       = .true.,               & ! ** apply perturbation here **
+      cloud             = cloud2(:ncol, :),     &
+      rhcloud           = rhcloud2(:ncol, :),   &
+      cldst             = cldst2(:ncol,:),      &
+      rhu00             = rhu002(:ncol,:),      &
+      icecldf           = icecldf2(:ncol,:),    &
+      liqcldf           = liqcldf2(:ncol,:),    &
+      relhum            = relhum2(:ncol,:),     &
+      errmsg            = errmsg,               &
+      errflg            = errflg)
+
+    ! Compute rhdfda (derivative of RH w.r.t. cloud fraction)
+    ! for use in the prognostic_cloud_water scheme.
+    rhu00(:ncol,1) = 2.0_kind_phys
+    do k = 1, pver
+      do i = 1, ncol
+         if( relhum(i,k) < rhu00(i,k) ) then
+            rhdfda(i,k) = 0.0_kind_phys
+         elseif( relhum(i,k) >= 1.0_kind_phys ) then
+            rhdfda(i,k) = 0.0_kind_phys
+         else
+            ! Under certain circumstances, rh+ cause cld not to changed
+            ! when at an upper limit, or w/ strong subsidence
+            if( ( cloud2(i,k) - cloud(i,k) ) < 1.e-4_kind_phys ) then
+               rhdfda(i,k) = 0.01_kind_phys*relhum(i,k)*1.e+4_kind_phys
+            else
+               rhdfda(i,k) = 0.01_kind_phys*relhum(i,k)/(cloud2(i,k)-cloud(i,k))
+            endif
+         endif
+      enddo
+    enddo
+
+  end subroutine rk_stratiform_cloud_fraction_perturbation_run
 
   ! Determine tendencies from prognostic cloud water
   subroutine rk_stratiform_prognostic_cloud_water_tendencies_run( &

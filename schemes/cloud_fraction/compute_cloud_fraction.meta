@@ -1,0 +1,310 @@
+[ccpp-table-properties]
+  name = compute_cloud_fraction
+  type = scheme
+  dependencies = ../../to_be_ccppized/wv_saturation.F90
+
+[ccpp-arg-table]
+  name  = compute_cloud_fraction_init
+  type  = scheme
+[ amIRoot ]
+  standard_name = flag_for_mpi_root
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ iulog ]
+  standard_name = log_output_unit
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pref_mid ]
+  standard_name = reference_pressure_in_atmosphere_layer
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (vertical_layer_dimension)
+  intent = in
+[ inversion_cld_off_in ]
+  standard_name = flag_for_turning_off_stratification_based_for_cloud_fraction
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ cldfrc_freeze_dry_in ]
+  standard_name = flag_for_vavrus_freeze_dry_adjustment_for_cloud_fraction
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ cldfrc_ice_in ]
+  standard_name = flag_for_ice_cloud_fraction_for_cloud_fraction
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ iceopt_in ]
+  standard_name = scheme_for_ice_cloud_fraction
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ rhminl_in ]
+  standard_name = tunable_parameter_for_minimum_relative_humidity_for_low_stable_clouds_for_cloud_fraction
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ rhminl_adj_land_in ]
+  standard_name = tunable_parameter_for_adjustment_to_minimum_relative_humidity_for_low_stable_clouds_for_land_without_snow_cover_for_cloud_fraction
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ rhminh_in ]
+  standard_name = tunable_parameter_for_minimum_relative_humidity_for_high_stable_clouds_for_cloud_fraction
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ premit_in ]
+  standard_name = tunable_parameter_for_top_pressure_bound_for_mid_level_clouds_for_cloud_fraction
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ premib_in ]
+  standard_name = tunable_parameter_for_bottom_pressure_bound_for_mid_level_liquid_stratus_for_cloud_fraction
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ icecrit_in ]
+  standard_name = scheme_for_ice_cloud_fraction
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = compute_cloud_fraction_timestep_init
+  type  = scheme
+[ rhpert_flag ]
+  standard_name = flag_for_relative_humidity_perturbation_for_cloud_fraction
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = compute_cloud_fraction_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ cappa ]
+  standard_name = ratio_of_dry_air_gas_constant_to_specific_heat_of_dry_air_at_constant_pressure
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ gravit ]
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ rair ]
+  standard_name = gas_constant_of_dry_air
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ tmelt ]
+  standard_name = freezing_point_of_water
+  units = K
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ top_lev_cloudphys ]
+  standard_name = vertical_layer_index_of_cloud_fraction_top
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
+[ pmid ]
+  standard_name = air_pressure
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ ps ]
+  standard_name = surface_air_pressure
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ temp ]
+  standard_name = air_temperature
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ sst ]
+  standard_name = sea_surface_temperature
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ q ]
+  standard_name = water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ cldice ]
+  standard_name = cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ phis ]
+  standard_name = surface_geopotential
+  units = m2 s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ shallowcu ]
+  standard_name = shallow_convective_cloud_area_fraction_tbd
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ deepcu ]
+  standard_name = deep_convective_cloud_area_fraction_tbd
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ concld ]
+  standard_name = convective_cloud_area_fraction
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ landfrac ]
+  standard_name = land_area_fraction
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ ocnfrac ]
+  standard_name = ocean_area_fraction
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ snowh ]
+  standard_name = lwe_surface_snow_depth_over_land
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ rhpert_flag ]
+  standard_name = flag_for_relative_humidity_perturbation_for_cloud_fraction
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ cloud ]
+  standard_name = cloud_area_fraction
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ rhcloud ]
+  standard_name = cloud_area_fraction_from_relative_humidity_method_tbd
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ cldst ]
+  standard_name = stratiform_cloud_area_fraction
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ rhu00 ]
+  standard_name = relative_humidity_threshold_for_prognostic_cloud_water_tbd
+  units = percent
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ icecldf ]
+  standard_name = stratiform_cloud_ice_area_fraction
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ liqcldf ]
+  standard_name = stratiform_cloud_liquid_area_fraction
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ relhum ]
+  standard_name = relative_humidity_for_prognostic_cloud_water_tbd
+  units = percent
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
