@@ -14,25 +14,23 @@ module rk_stratiform
   !   note: cloud_fraction_perturbation_run is NOT a fully CCPP-compliant scheme
   !         because it calls the compute_cloud_fraction scheme for perturbation.
   !         this is currently not possible to elegantly handle in the framework.
+  !
+  ! refer to test SDF suite_rasch_kristjansson.xml for total order of operations,
+  ! as the full RK-stratiform requires other schemes not included in this module.
   public :: rk_stratiform_init
   public :: rk_stratiform_timestep_init
   public :: rk_stratiform_sedimentation_run
   public :: rk_stratiform_detrain_convective_condensate_run
   public :: rk_stratiform_cloud_fraction_perturbation_run         ! see note.
   ! public :: rk_stratiform_microphysics_run
+  public :: rk_stratiform_condensate_repartioning_run
+  public :: rk_stratiform_external_forcings_run
+  ! -- prognostic_cloud_water --
   public :: rk_stratiform_prognostic_cloud_water_tendencies_run
-  ! public :: rk_stratiform_ice_and_liquid_water_content_run
   ! public :: rk_stratiform_cloud_optical_properties_run
   ! public :: rk_stratiform_save_qtlcwat_run
 
   !
-
-  ! temp: convect_shallow_use_shfrc() is not available so set it to
-  ! false for now. it is used for UW and UNICON shallow convection schemes
-  ! but is unavailable in the pbuf anyway...
-  logical :: use_shfrc = .false.
-
-
 
 contains
 
@@ -157,8 +155,8 @@ contains
     real(kind_phys), intent(in) :: ps(:)             ! surface_air_pressure [Pa]
     real(kind_phys), intent(in) :: temp(:, :)        ! air_temperature [K]
     real(kind_phys), intent(in) :: sst(:)            ! sea_surface_temperature [K]
-    real(kind_phys), intent(in) :: q_wv(:, :)        ! water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water [kg kg-1]
-    real(kind_phys), intent(in) :: cldice(:, :)      ! cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water [kg kg-1]
+    real(kind_phys), intent(in) :: q_wv(:, :)        ! adv: water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water [kg kg-1]
+    real(kind_phys), intent(in) :: cldice(:, :)      ! adv: cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water [kg kg-1]
     real(kind_phys), intent(in) :: phis(:)           ! surface_geopotential [m2 s-2]
     real(kind_phys), intent(in) :: shallowcu(:, :)   ! shallow convective cloud fraction
     real(kind_phys), intent(in) :: deepcu(:, :)      ! deep convective cloud fraction
@@ -249,6 +247,97 @@ contains
     enddo
 
   end subroutine rk_stratiform_cloud_fraction_perturbation_run
+
+  ! Repartitioning of stratiform condensate,
+  ! and compute repartition heating from change in cloud ice
+  subroutine rk_stratiform_condensate_repartioning_run( &
+    ncol, pver, &
+    dtime, &
+    latice, &
+    cldice, cldliq, &
+    fice, &   ! from cloud_fraction_fice
+    repartht, &
+    tend_cldice, &
+    tend_cldliq, &
+    errmsg, errflg)
+
+    ! Input arguments
+    integer,            intent(in)    :: ncol
+    integer,            intent(in)    :: pver
+    real(kind_phys),    intent(in)    :: dtime
+    real(kind_phys),    intent(in)    :: latice
+    real(kind_phys),    intent(in)    :: cldliq(:,:)    ! adv: cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water [kg kg-1]
+    real(kind_phys),    intent(in)    :: cldice(:,:)    ! adv: cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water [kg kg-1]
+    real(kind_phys),    intent(in)    :: fice(:,:)      ! mass_fraction_of_ice_content_within_stratiform_cloud [fraction]
+
+    ! Input/output arguments
+    real(kind_phys),    intent(inout) :: repartht(:,:)  ! [J kg-1 s-1]
+
+    ! Output arguments
+    real(kind_phys),    intent(out)   :: tend_cldice(:,:)  ! tendency_of_cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water [kg kg-1 s-1]
+    real(kind_phys),    intent(out)   :: tend_cldliq(:,:)  ! tendency_of_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water [kg kg-1 s-1]
+    character(len=512), intent(out)   :: errmsg            ! error message
+    integer,            intent(out)   :: errflg            ! error flag
+
+    ! Local arguments
+    real(kind_phys)  :: totcw(ncol, pver)
+
+    errmsg = ''
+    errflg = 0
+
+    totcw(:ncol,:) = cldice(:ncol,:) + cldliq(:ncol,:)
+    tend_cldice(:ncol,:) = 1.0_kind_phys / dtime * ( totcw(:ncol,:)*fice(:ncol,:)          - cldice(:ncol,:) )
+    tend_cldliq(:ncol,:) = 1.0_kind_phys / dtime * ( totcw(:ncol,:)*(1.0_kind_phys-fice(:ncol,:)) - cldliq(:ncol,:) )
+
+    repartht(:ncol,:pver) = latice * tend_cldice(:ncol,:pver)
+
+  end subroutine rk_stratiform_condensate_repartioning_run
+
+  ! Compute non-micro and non-macrophysical external forcings
+  ! for computing of net condensation rate.
+  ! Note: advective forcing of condensate is aggregated into liquid phase.
+  subroutine rk_stratiform_external_forcings_run( &
+    ncol, pver, &
+    dtime, &
+    t, &
+    q_wv, cldice, cldliq, &
+    qcwat, tcwat, lcwat, &  ! ?
+    qtend, ttend, ltend, &  ! output for prognostic_cloud_water
+    errmsg, errflg)
+
+    ! Input arguments
+    integer,            intent(in)    :: ncol
+    integer,            intent(in)    :: pver
+    real(kind_phys),    intent(in)    :: dtime
+    real(kind_phys),    intent(in)    :: t(:,:)         ! air_temperature [K]
+    real(kind_phys),    intent(in)    :: q_wv(:,:)      ! adv: water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water [kg kg-1]
+    real(kind_phys),    intent(in)    :: cldice(:,:)    ! adv: cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water [kg kg-1]
+    real(kind_phys),    intent(in)    :: cldliq(:,:)    ! adv: cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water [kg kg-1]
+
+    real(kind_phys),    intent(in)    :: qcwat(:,:)     ! [kg kg-1]
+    real(kind_phys),    intent(in)    :: tcwat(:,:)     ! [K]
+    real(kind_phys),    intent(in)    :: lcwat(:,:)     ! [kg kg-1]
+
+    ! Output arguments (for prognostic_cloud_water)
+    real(kind_phys),    intent(in)    :: qtend(:,:)     ! not due to micro/macrophysics [kg kg-1 s-1]
+    real(kind_phys),    intent(in)    :: ttend(:,:)     ! not due to micro/macrophysics [K s-1]
+    real(kind_phys),    intent(in)    :: ltend(:,:)     ! not due to micro/macrophysics [kg kg-1 s-1]
+    character(len=512), intent(out)   :: errmsg         ! error message
+    integer,            intent(out)   :: errflg         ! error flag
+
+    ! Local arguments
+    real(kind_phys)  :: totcw(ncol, pver)
+
+    errmsg = ''
+    errflg = 0
+
+    totcw(:ncol,:)     = cldice(:ncol,:) + cldliq(:ncol,:)
+
+    qtend(:ncol,:pver) = (q_wv  (:ncol,:) - qcwat(:ncol,:)) / dtime
+    ttend(:ncol,:pver) = (t     (:ncol,:) - tcwat(:ncol,:)) / dtime
+    ltend(:ncol,:pver) = (totcw (:ncol,:) - lcwat(:ncol,:)) / dtime
+
+  end subroutine rk_stratiform_external_forcings_run
 
   ! Determine tendencies from prognostic cloud water
   subroutine rk_stratiform_prognostic_cloud_water_tendencies_run( &

@@ -208,7 +208,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ qtend ]
-  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_not_due_to_microphysics?
+  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_not_due_to_microphysics_tbd
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -219,8 +219,8 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
-[ lctend ]
-  standard_name = tendency_of_cloud_water_mixing_ratio_wrt_moist_air_and_condensed_water_not_due_to_microphysics?
+[ ltend ]
+  standard_name = tendency_of_cloud_water_mixing_ratio_wrt_moist_air_and_condensed_water_not_due_to_microphysics_tbd
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

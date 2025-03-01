@@ -231,7 +231,7 @@ contains
     troplev, &
     ttend, tn, &
     qtend, qn, &
-    lctend, cwat, &
+    ltend, cwat, &
     omega, &
     cldn, &
     fice, fsnow, &
@@ -270,11 +270,11 @@ contains
     real(kind_phys),    intent(in)    :: zi(:,:)        ! geopotential_height_wrt_surface_at_interface [m]
     integer,            intent(in)    :: tropLev(:)     ! tropopause_vertical_layer_index [index]
 
-    real(kind_phys),    intent(in)    :: ttend(:,:)     ! Temperature tendency [K s-1] -- from what...?
+    real(kind_phys),    intent(in)    :: ttend(:,:)     ! Temperature tendency [K s-1] -- from non-micro/macrophysics
     real(kind_phys),    intent(in)    :: tn(:,:)        ! New Temperature [K]
-    real(kind_phys),    intent(in)    :: qtend(:,:)     ! Water vapor tendency [kg kg-1 s-1] -- from what...?
+    real(kind_phys),    intent(in)    :: qtend(:,:)     ! Water vapor tendency [kg kg-1 s-1] -- from non-micro/macrophysics
     real(kind_phys),    intent(in)    :: qn(:,:)        ! New Water vapor mixing ratio [kg kg-1]
-    real(kind_phys),    intent(in)    :: lctend(:,:)    ! Cloud liquid water tendency [kg kg-1 s-1] -- from what...?
+    real(kind_phys),    intent(in)    :: ltend(:,:)     ! Cloud liquid water tendency [kg kg-1 s-1] -- from non-micro/macrophysics
     real(kind_phys),    intent(in)    :: cwat(:,:)      ! Cloud water mixing ratio (ixcldice+ixcldliq) [kg kg-1]
 
     real(kind_phys),    intent(in)    :: omega(:,:)     ! lagrangian_tendency_of_air_pressure [Pa s-1]
@@ -539,7 +539,7 @@ contains
               qmec4(i) = csigma(i)*cgamma(i)*icwc(i)
 
               ! Q = C-E = -C1*Al + C2*Aq - C3*At + C4*Er
-              qme(i,k) = -qmec1(i)*lctend(i,k) + qmec2(i)*qtend(i,k)  &
+              qme(i,k) = -qmec1(i)*ltend(i,k) + qmec2(i)*qtend(i,k)  &
                          -qmec3(i)*ttend(i,k) + qmec4(i)*evapprec(i,k)
             endif
           ! 3. when rh < rhu00, evaporate existing cloud water

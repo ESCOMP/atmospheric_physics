@@ -1,3 +1,8 @@
+! Copyright (C) 2025 National Science Foundation-National Center for Atmospheric Research
+! SPDX-License-Identifier: Apache-2.0
+!
+! Compute cloud fractions using RH threshold and other methods.
+! CCPP-ized: Haipeng Lin, February 2025
 module compute_cloud_fraction
   use ccpp_kinds, only: kind_phys
   private
