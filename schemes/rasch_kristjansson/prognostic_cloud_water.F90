@@ -246,6 +246,7 @@ contains
     lsflxprc, &
     lsflxsnw, &
     pracwo, psacwo, psacio, &
+    fwaut, fsaut, fracw, fsacw, fsaci, &
     errmsg, errflg)
     ! Dependencies to-be-ccppized.
     use wv_saturation,  only: qsat, estblf, svp_to_qsat, findsp_vc
@@ -309,6 +310,11 @@ contains
     real(kind_phys),    intent(out)   :: pracwo(:,:)    ! accretion of cloud water by rain [s-1]
     real(kind_phys),    intent(out)   :: psacwo(:,:)    ! accretion of cloud water by snow [s-1]
     real(kind_phys),    intent(out)   :: psacio(:,:)    ! accretion of cloud ice by snow [s-1]
+    real(kind_phys),    intent(out)   :: fwaut(ncol,pver)                 ! Relative importance of liquid autoconversion [fraction]
+    real(kind_phys),    intent(out)   :: fsaut(ncol,pver)                 ! Relative importance of ice autoconversion [fraction]
+    real(kind_phys),    intent(out)   :: fracw(ncol,pver)                 ! Relative importance of liquid collection by rain [fraction]
+    real(kind_phys),    intent(out)   :: fsacw(ncol,pver)                 ! Relative importance of liquid collection by snow [fraction]
+    real(kind_phys),    intent(out)   :: fsaci(ncol,pver)                 ! Relative importance of ice collection by snow [fraction]
 
     ! Output arguments
     character(len=512), intent(out)   :: errmsg         ! error message
@@ -335,13 +341,6 @@ contains
     real(kind_phys) :: coef(ncol)                       ! Conversion timescale for condensate to rain [s-1]
     !real(kind_phys) :: ice(ncol,pver)                   ! Ice mixing ratio [kg kg-1]
     !real(kind_phys) :: liq(ncol,pver)                   ! Liquid water mixing ratio [kg kg-1]
-
-    ! Relative importance factors
-    real(kind_phys) :: fracw(ncol,pver)                 ! Relative importance of liquid collection by rain [1]
-    real(kind_phys) :: fsaci(ncol,pver)                 ! Relative importance of ice collection by snow [1]
-    real(kind_phys) :: fsacw(ncol,pver)                 ! Relative importance of liquid collection by snow [1]
-    real(kind_phys) :: fsaut(ncol,pver)                 ! Relative importance of ice autoconversion [1]
-    real(kind_phys) :: fwaut(ncol,pver)                 ! Relative importance of warm cloud autoconversion [1]
 
     ! Thermodynamic variables
     real(kind_phys) :: t(ncol,pver)                     ! Temperature before timestep [K]

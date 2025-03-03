@@ -136,7 +136,7 @@ contains
     phis, &
     shallowcu, deepcu, concld, & ! inputs from convective_cloud_cover
     landfrac, ocnfrac, snowh, &
-    cloud, relhum, & ! inputs from unperturbed compute_cloud_fraction
+    cloud, relhum, rhu00, & ! inputs from unperturbed compute_cloud_fraction
     rhdfda, & ! output for prognostic_cloud_water
     errmsg, errflg)
 
@@ -177,6 +177,9 @@ contains
     character(len=512), intent(out) :: errmsg           ! error message
     integer,            intent(out) :: errflg           ! error flag
 
+    ! Local variables
+    integer :: i, k
+
     ! Local variables (outputs from perturbed compute_cloud_fraction)
     real(kind_phys)  :: cloud2(ncol, pver)
 
@@ -203,7 +206,7 @@ contains
       top_lev_cloudphys = top_lev_cloudphys,    & ! CAM4 macrophysics - top lev is 1
       pmid              = pmid(:ncol,:),        &
       ps                = ps(:ncol),            &
-      temp              = t(:ncol,:),           &
+      temp              = temp(:ncol,:),        &
       sst               = sst(:ncol),           &
       q                 = q_wv(:ncol,:),        &
       cldice            = cldice(:ncol,:),      &
@@ -319,9 +322,9 @@ contains
     real(kind_phys),    intent(in)    :: lcwat(:,:)     ! [kg kg-1]
 
     ! Output arguments (for prognostic_cloud_water)
-    real(kind_phys),    intent(in)    :: qtend(:,:)     ! not due to micro/macrophysics [kg kg-1 s-1]
-    real(kind_phys),    intent(in)    :: ttend(:,:)     ! not due to micro/macrophysics [K s-1]
-    real(kind_phys),    intent(in)    :: ltend(:,:)     ! not due to micro/macrophysics [kg kg-1 s-1]
+    real(kind_phys),    intent(out)   :: qtend(:,:)     ! not due to micro/macrophysics [kg kg-1 s-1]
+    real(kind_phys),    intent(out)   :: ttend(:,:)     ! not due to micro/macrophysics [K s-1]
+    real(kind_phys),    intent(out)   :: ltend(:,:)     ! not due to micro/macrophysics [kg kg-1 s-1]
     character(len=512), intent(out)   :: errmsg         ! error message
     integer,            intent(out)   :: errflg         ! error flag
 

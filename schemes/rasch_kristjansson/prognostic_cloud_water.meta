@@ -393,6 +393,36 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
+[ fwaut ]
+  standard_name = relative_importance_of_liquid_autoconversion_tbd
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ fsaut ]
+  standard_name = relative_importance_of_ice_autoconversion_tbd
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ fracw ]
+  standard_name = relative_importance_of_rain_axcreting_liquid_tbd
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ fsacw ]
+  standard_name = relative_importance_of_snow_accreting_liquid_tbd
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ fsaci ]
+  standard_name = relative_importance_of_snow_accreting_ice_tbd
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
