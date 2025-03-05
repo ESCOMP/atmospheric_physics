@@ -127,32 +127,22 @@ subroutine zm_convr_init(plev, plevp, cpair, epsilo, gravit, latvap, tmelt, rair
    ! Limit deep convection to regions below 40 mb
    ! Note this calculation is repeated in the shallow convection interface
    !
-    limcnv = 0   ! null value to check against below
-    if (pref_edge(1) >= 4.e3_kind_phys) then
-       limcnv = 1
-    else
-       do k=1,plev
-          if (pref_edge(k) < 4.e3_kind_phys .and. pref_edge(k+1) >= 4.e3_kind_phys) then
-             limcnv = k
-             exit
-          end if
-       end do
-       if ( limcnv == 0 ) limcnv = plevp
-    end if
+   limcnv = 0   ! null value to check against below
+   if (pref_edge(1) >= 4.e3_kind_phys) then
+      limcnv = 1
+   else
+      do k=1,plev
+         if (pref_edge(k) < 4.e3_kind_phys .and. pref_edge(k+1) >= 4.e3_kind_phys) then
+            limcnv = k
+            exit
+         end if
+      end do
+      if ( limcnv == 0 ) limcnv = plevp
+   end if
 
-    if ( masterproc ) then
-       write(iulog,*)'ZM_CONV_INIT: Deep convection will be capped at intfc ',limcnv, &
-            ' which is ',pref_edge(limcnv),' pascals'
-      write(iulog,*) 'tuning parameters zm_convr_init: tau',tau
-      write(iulog,*) 'tuning parameters zm_convr_init: c0_lnd',c0_lnd, ', c0_ocn', c0_ocn
-      write(iulog,*) 'tuning parameters zm_convr_init: num_cin', num_cin
-      write(iulog,*) 'tuning parameters zm_convr_init: ke',ke
-      write(iulog,*) 'tuning parameters zm_convr_init: no_deep_pbl',no_deep_pbl
-      write(iulog,*) 'tuning parameters zm_convr_init: zm_capelmt', capelmt
-      write(iulog,*) 'tuning parameters zm_convr_init: zm_dmpdz', dmpdz_param
-      write(iulog,*) 'tuning parameters zm_convr_init: zm_tiedke_add', tiedke_add
-      write(iulog,*) 'tuning parameters zm_convr_init: zm_parcel_pbl', lparcel_pbl
-      write(iulog,*) 'tuning parameters zm_convr_init: zm_parcel_hscale', parcel_hscale
+   if ( masterproc ) then
+      write(iulog,*)'ZM_CONV_INIT: Deep convection will be capped at intfc ',limcnv, &
+                    ' which is ',pref_edge(limcnv),' pascals'
    endif
 
    if (masterproc) write(iulog,*)'**** ZM: DILUTE Buoyancy Calculation ****'
@@ -1382,13 +1372,6 @@ do k = pver, msg+1, -1
             tfguess = tmix(i,k)
             rcall = 3
             call ientropy (rcall,i,slcl,pl(i),qtlcl,tl(i),qslcl,tfguess,cpliq,cpwv,rh2o,lat(i), long(i), errmsg,errflg)
-
-!            write(iulog,*)' '
-!            write(iulog,*)' p',p(i,k+1),pl(i),p(i,lcl(i))
-!            write(iulog,*)' t',tmix(i,k+1),tl(i),tmix(i,lcl(i))
-!            write(iulog,*)' s',smix(i,k+1),slcl,smix(i,lcl(i))
-!            write(iulog,*)'qt',qtmix(i,k+1),qtlcl,qtmix(i,lcl(i))
-!            write(iulog,*)'qs',qsmix(i,k+1),qslcl,qsmix(i,lcl(i))
 
          endif
 !
