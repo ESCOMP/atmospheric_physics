@@ -22,7 +22,7 @@ module musica_ccpp_tuvx_wavelength_grid
   !> Unit for wavelength grid in TUV-x
   character(len=*), parameter, public :: wavelength_grid_unit = "nm"
   !> Conversion factor from meters to nanometers (CAM-SIMA -> TUV-x)
-  real(kind_phys), parameter, public :: m_to_nm = 1.0e9
+  real(kind_phys), parameter, public :: m_to_nm = 1.0e9_kind_phys
 
 contains
 

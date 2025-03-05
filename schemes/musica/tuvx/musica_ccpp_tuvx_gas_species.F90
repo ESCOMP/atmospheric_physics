@@ -8,9 +8,9 @@ module musica_ccpp_tuvx_gas_species
             set_gas_species_values
 
   !> Conversion factor from km to cm
-  real(kind_phys), parameter, public :: km_to_cm = 1.0e5
+  real(kind_phys), parameter, public :: km_to_cm = 1.0e5_kind_phys
   !> Conversion factor from m3 to cm3
-  real(kind_phys), parameter, public :: m_3_to_cm_3 = 1.0e6
+  real(kind_phys), parameter, public :: m_3_to_cm_3 = 1.0e6_kind_phys
 
 contains
 
