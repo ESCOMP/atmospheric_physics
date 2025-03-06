@@ -13,7 +13,8 @@ contains
     zmconv_c0_lnd, zmconv_c0_ocn, zmconv_ke, zmconv_ke_lnd, &
     zmconv_momcu, zmconv_momcd, zmconv_num_cin, &
     no_deep_pbl_in, zmconv_tiedke_add, &
-    zmconv_capelmt, zmconv_dmpdz, zmconv_parcel_pbl, zmconv_tau)
+    zmconv_capelmt, zmconv_dmpdz, zmconv_parcel_pbl, &
+    zmconv_parcel_hscale, zmconv_tau)
 
     integer, intent(in)                  :: zmconv_num_cin  ! Number of negative buoyancy regions that are allowed
                                                              ! before the convection top and CAPE calculations are completed.
@@ -28,6 +29,7 @@ contains
     real(kind_phys),intent(in)           :: zmconv_capelmt
     real(kind_phys),intent(in)           :: zmconv_dmpdz
     logical, intent(in)                  :: zmconv_parcel_pbl ! Should the parcel properties include PBL mixing?
+    real(kind_phys),intent(in)           :: zmconv_parcel_hscale ! Fraction of PBL depth used to set initial ZM parcel properties
     real(kind_phys),intent(in)           :: zmconv_tau
     logical, intent(in)                  :: masterproc
     integer, intent(in)                  :: iulog
@@ -42,6 +44,7 @@ contains
       write(iulog,*) 'tuning parameters zm_conv_options_init: zm_dmpdz', zmconv_dmpdz
       write(iulog,*) 'tuning parameters zm_conv_options_init: zm_tiedke_add', zmconv_tiedke_add
       write(iulog,*) 'tuning parameters zm_conv_options_init: zm_parcel_pbl', zmconv_parcel_pbl
+      write(iulog,*) 'tuning parameters zm_conv_options_init: zm_parcel_hscale', zmconv_parcel_hscale
     endif
 
   end subroutine zm_conv_options_init

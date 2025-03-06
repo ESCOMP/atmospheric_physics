@@ -132,6 +132,12 @@
   type = logical
   dimensions = ()
   intent = in
+[ zmconv_parcel_hscale ]
+  standard_name = fraction_of_pbl_depth_mixed_for_initial_zhang_mcfarlane_parcel_properties
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
 [ zmconv_tau ]
   standard_name = deep_convective_adjustment_timescale_for_zhang_mcfarlane_deep_convection_scheme
   units = s
