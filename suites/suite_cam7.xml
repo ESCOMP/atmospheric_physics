@@ -4,21 +4,31 @@
 
   <!-- **********Physics before the coupler************  -->
   <group name="physics_before_coupler">
+    <!-- (temporary) Initialize all constituents and to_be_ccppized modules -->
+    <scheme>initialize_constituents</scheme>
+    <scheme>to_be_ccppized_temporary</scheme>
+
+    <!-- Set top level for cloud fraction calculations -->
+    <scheme>set_cloud_fraction_top</scheme>
 
     <!-- Compute global means of physics input and output total energy -->
     <scheme>check_energy_gmean</scheme>
     <!-- After gmean, output global mean energy diagnostics -->
     <scheme>check_energy_gmean_diagnostics</scheme>
 
-    <!-- Add global mean energy difference as heating (diff between gmean and save_teout) -->
+    <!--
+      Global energy fixer (check_energy_fix)
+      Add global mean energy difference as heating (diff between gmean and save_teout)
+    -->
     <scheme>check_energy_zero_fluxes</scheme>
     <scheme>check_energy_fix</scheme>
     <scheme>apply_heating_rate</scheme>
     <scheme>geopotential_temp</scheme>
-
-    <!-- Check that energy and water change matches the boundary fluxes -->
+    <!-- Check that energy and water change matches the boundary fluxes, update global energy -->
     <scheme>check_energy_scaling</scheme>
     <scheme>check_energy_chng</scheme>
+    <!-- Global energy fixer diagnostics (must run after check_energy_chng which updates global energies, but before zero_fluxes zeroes out boundary fluxes from energy fixer) -->
+    <scheme>check_energy_fix_diagnostics</scheme>
 
     <!-- Dry Adiabatic Adjustment -->
     <scheme>dadadj</scheme>
@@ -28,8 +38,7 @@
     <scheme>geopotential_temp</scheme>
 
     <!-- Zhang McFarlane (convect_deep) -->
-    <scheme>initialize_constituents</scheme>
-    <scheme>to_be_ccppized_temporary</scheme>
+    <scheme>zm_conv_options</scheme>
     <scheme>zm_convr</scheme>
     <scheme>zm_convr_tendency_diagnostics</scheme>
     <scheme>apply_heating_rate</scheme>
@@ -51,7 +60,6 @@
     <scheme>apply_heating_rate</scheme>
     <scheme>apply_tendency_of_eastward_wind</scheme>
     <scheme>apply_tendency_of_northward_wind</scheme>
-    <scheme>qneg</scheme>
     <scheme>geopotential_temp</scheme>
     <scheme>zm_conv_convtran</scheme>
     <scheme>zm_tendency_diagnostics</scheme>
@@ -80,6 +88,9 @@
 
     <!-- Save current total energy from dycore for energy fixer in time step. Total energy in current state is updated by the last check_energy_chng call. -->
     <scheme>check_energy_save_teout</scheme>
+
+    <!-- Update cp/cv for energy computation based in updated water variables -->
+    <scheme>thermo_water_update</scheme>
 
     <!-- MPAS and SE specific scaling of temperature for enforcing energy consistency:
          First, calculate the scaling based off cp_or_cv_dycore (from cam_thermo_water_update)
