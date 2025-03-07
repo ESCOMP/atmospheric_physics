@@ -56,7 +56,7 @@ CONTAINS
       ! Add state fields
       call history_add_field('PS',        'surface_pressure',                                              horiz_only,  'avg', 'Pa')
       call history_add_field('PSDRY',     'surface_pressure_of_dry_air',                                   horiz_only,  'avg', 'Pa')
-      call history_add_field('PHIS',      'surface_geopotential',                                          horiz_only,  'lst', 'Pa')
+      call history_add_field('PHIS',      'surface_geopotential',                                          horiz_only, 'inst', 'Pa')
       call history_add_field('T',         'air_temperature',                                                    'lev',  'avg', 'K')
       call history_add_field('U',         'eastward_wind',                                                      'lev',  'avg', 'm s-1')
       call history_add_field('V',         'northward_wind',                                                     'lev',  'avg', 'm s-1')
