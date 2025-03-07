@@ -1,4 +1,4 @@
-! Copyright (C) 2025 National Science Foundation-National Center for Atmospheric Research
+! Copyright (C) 2025 University Corporation for Atmospheric Research
 ! SPDX-License-Identifier: Apache-2.0
 !
 ! Rasch and Kristjansson prognostic cloud microphysics and CAM4 macrophysics
@@ -19,10 +19,10 @@ module rk_stratiform
   ! as the full RK-stratiform requires other schemes not included in this module.
   public :: rk_stratiform_init
   public :: rk_stratiform_timestep_init
+  ! -- cloud_particle_sedimentation --
   public :: rk_stratiform_sedimentation_run
   public :: rk_stratiform_detrain_convective_condensate_run
   public :: rk_stratiform_cloud_fraction_perturbation_run         ! see note.
-  ! public :: rk_stratiform_microphysics_run
   public :: rk_stratiform_condensate_repartioning_run
   public :: rk_stratiform_external_forcings_run
   ! -- prognostic_cloud_water --
@@ -35,7 +35,7 @@ module rk_stratiform
 contains
 
   ! Initialize rk_stratiform
-  subroutine rk_stratiform_init(&
+  subroutine rk_stratiform_init( &
     errmsg, errflg)
     ! If qcwat, tcwat, lcwat are not initialized, eventually init them
     character(len=512), intent(out)   :: errmsg         ! error message
@@ -46,7 +46,7 @@ contains
 
   end subroutine rk_stratiform_init
 
-  subroutine rk_stratiform_timestep_init(&
+  subroutine rk_stratiform_timestep_init( &
     errmsg, errflg)
     character(len=512), intent(out)   :: errmsg         ! error message
     integer,            intent(out)   :: errflg         ! error flag
@@ -289,7 +289,7 @@ contains
     errflg = 0
 
     totcw(:ncol,:) = cldice(:ncol,:) + cldliq(:ncol,:)
-    tend_cldice(:ncol,:) = 1.0_kind_phys / dtime * ( totcw(:ncol,:)*fice(:ncol,:)          - cldice(:ncol,:) )
+    tend_cldice(:ncol,:) = 1.0_kind_phys / dtime * ( totcw(:ncol,:)*fice(:ncol,:)                 - cldice(:ncol,:) )
     tend_cldliq(:ncol,:) = 1.0_kind_phys / dtime * ( totcw(:ncol,:)*(1.0_kind_phys-fice(:ncol,:)) - cldliq(:ncol,:) )
 
     repartht(:ncol,:pver) = latice * tend_cldice(:ncol,:pver)
@@ -336,9 +336,9 @@ contains
 
     totcw(:ncol,:)     = cldice(:ncol,:) + cldliq(:ncol,:)
 
-    qtend(:ncol,:pver) = (q_wv  (:ncol,:) - qcwat(:ncol,:)) / dtime
-    ttend(:ncol,:pver) = (t     (:ncol,:) - tcwat(:ncol,:)) / dtime
-    ltend(:ncol,:pver) = (totcw (:ncol,:) - lcwat(:ncol,:)) / dtime
+    qtend(:ncol,:pver) = 1.0_kind_phys / dtime * (q_wv  (:ncol,:pver) - qcwat(:ncol,:pver))
+    ttend(:ncol,:pver) = 1.0_kind_phys / dtime * (t     (:ncol,:pver) - tcwat(:ncol,:pver))
+    ltend(:ncol,:pver) = 1.0_kind_phys / dtime * (totcw (:ncol,:pver) - lcwat(:ncol,:pver))
 
   end subroutine rk_stratiform_external_forcings_run
 
@@ -409,6 +409,7 @@ contains
         ! Rate of cond-evap of liq within the cloud [kg kg-1 s-1]
         cmeliq(i,k)      =   qme(i,k)*(1._kind_phys-fice(i,k))
 
+        ! Tendencies from after prognostic_cloud_water...
         tend_s(i,k)      =   cmeheat(i,k) + &
                                       evapheat(i,k) + prfzheat(i,k) + meltheat(i,k) + repartht(i,k)
         tend_q(i,k)      = - qme(i,k) + evapprec(i,k)

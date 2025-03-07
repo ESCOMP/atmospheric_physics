@@ -1,4 +1,4 @@
-! Copyright (C) 2025 National Science Foundation-National Center for Atmospheric Research
+! Copyright (C) 2025 University Corporation for Atmospheric Research
 ! SPDX-License-Identifier: Apache-2.0
 !
 ! Prognostic cloud water data and methods (cldwat)
@@ -199,9 +199,9 @@ contains
     ciautb = 5.e-4_kind_phys
 
     if(amIRoot) then
-      write(iulog,*) 'tuning parameters cldwat: capnw',capnw,'capnc',capnc,'capnsi',capnsi,'kconst',kconst
-      write(iulog,*) 'tuning parameters cldwat: effc',effc,'alpha',alpha,'capc',capc
-      write(iulog,*) 'tuning parameters cldwat: critpr',critpr,'convfw',convfw,'cracw',cracw,'ciautb',ciautb
+      write(iulog,*) 'tuning parameters prognostic_cloud_water_init: capnw',capnw,'capnc',capnc,'capnsi',capnsi,'kconst',kconst
+      write(iulog,*) 'tuning parameters prognostic_cloud_water_init: effc',effc,'alpha',alpha,'capc',capc
+      write(iulog,*) 'tuning parameters prognostic_cloud_water_init: critpr',critpr,'convfw',convfw,'cracw',cracw,'ciautb',ciautb
     endif
 
   end subroutine prognostic_cloud_water_init
