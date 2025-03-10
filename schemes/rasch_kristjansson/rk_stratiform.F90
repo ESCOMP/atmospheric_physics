@@ -343,9 +343,9 @@ contains
     real(kind_phys),    intent(in)    :: fice(:,:)      ! mass_fraction_of_ice_content_within_stratiform_cloud [fraction]
 
     ! Input/output arguments
-    real(kind_phys),    intent(inout) :: repartht(:,:)  ! [J kg-1 s-1]
 
     ! Output arguments
+    real(kind_phys),    intent(out)   :: repartht(:,:)     ! [J kg-1 s-1]
     real(kind_phys),    intent(out)   :: tend_cldice(:,:)  ! tendency_of_cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water [kg kg-1 s-1]
     real(kind_phys),    intent(out)   :: tend_cldliq(:,:)  ! tendency_of_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water [kg kg-1 s-1]
     character(len=512), intent(out)   :: errmsg            ! error message
