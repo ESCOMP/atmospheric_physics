@@ -117,8 +117,8 @@ contains
 
     ! Input arguments
     integer,            intent(in)    :: ncol
-    real(kind_phys),    intent(in)    :: dlf(:,:)       ! detrainment_of_water_due_to_all_convection [kg kg-1 s-1]
-    real(kind_phys),    intent(in)    :: rliq(:)        ! vertically_integrated_liquid_water_tendency_due_to_all_convection_to_be_applied_later_in_time_loop [kg kg-1 s-1]
+    real(kind_phys),    intent(in)    :: dlf(:,:)       ! detrainment_of_cloud_liquid_water_wrt_moist_air_and_condensed_water_due_to_all_convection [kg kg-1 s-1]
+    real(kind_phys),    intent(in)    :: rliq(:)        ! vertically_integrated_cloud_liquid_water_tendency_due_to_all_convection_to_be_applied_later_in_time_loop [m s-1]
 
     ! Input/output arguments
     real(kind_phys),    intent(inout) :: prec_str(:)     ! stratiform_rain_and_snow_surface_flux [m s-1]

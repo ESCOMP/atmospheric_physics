@@ -122,14 +122,14 @@
   dimensions = ()
   intent = in
 [ dlf ]
-  standard_name = detrainment_of_water_due_to_all_convection
+  standard_name = detrainment_of_cloud_liquid_water_wrt_moist_air_and_condensed_water_due_to_all_convection
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ rliq ]
-  standard_name = vertically_integrated_liquid_water_tendency_due_to_all_convection_to_be_applied_later_in_time_loop
-  units = kg kg-1 s-1
+  standard_name = vertically_integrated_cloud_liquid_water_tendency_due_to_all_convection_to_be_applied_later_in_time_loop
+  units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
@@ -675,6 +675,10 @@
   type = integer
   dimensions = ()
   intent = out
+
+[ccpp-table-properties]
+  name = rk_stratiform_save_qtlcwat
+  type = scheme
 
 [ccpp-arg-table]
   name  = rk_stratiform_save_qtlcwat_run

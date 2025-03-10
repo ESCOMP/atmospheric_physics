@@ -85,7 +85,7 @@
   dimensions = ()
   intent = in
 [ icecrit_in ]
-  standard_name = scheme_for_ice_cloud_fraction
+  standard_name = tunable_parameter_for_critical_relative_humidity_for_ice_clouds_for_cloud_fraction_using_wilson_from_ballard_scheme
   units = 1
   type = real | kind = kind_phys
   dimensions = ()

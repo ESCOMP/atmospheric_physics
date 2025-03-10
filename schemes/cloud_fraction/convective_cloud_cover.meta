@@ -5,6 +5,18 @@
 [ccpp-arg-table]
   name  = convective_cloud_cover_init
   type  = scheme
+[ amIRoot ]
+  standard_name = flag_for_mpi_root
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ iulog ]
+  standard_name = log_output_unit
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
 [ sh1_in ]
   standard_name = tunable_parameter_for_shallow_convection_1_for_cloud_fraction
   units = 1
@@ -79,13 +91,13 @@
   standard_name = atmosphere_convective_mass_flux_due_to_all_convection
   units = kg m-2 s-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ cmfmc_sh ]
   standard_name = atmosphere_convective_mass_flux_due_to_shallow_convection
   units = kg m-2 s-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ shallowcu ]
   standard_name = shallow_convective_cloud_area_fraction_tbd
