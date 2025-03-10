@@ -55,7 +55,9 @@
     <scheme>rk_stratiform_condensate_repartioning_diagnostics</scheme>
     -->
 
-    <!-- RK3d: prognostic cloud water (cldwat) -->
+    <!-- RK3d: prognostic cloud water (cldwat).
+          repartition heating determined in condensate_repartitioning scheme is applied here,
+          together with other heating fluxes from prognostic_cloud_water. -->
     <scheme>prognostic_cloud_water</scheme>
     <scheme>rk_stratiform_prognostic_cloud_water_tendencies</scheme>
     <!--

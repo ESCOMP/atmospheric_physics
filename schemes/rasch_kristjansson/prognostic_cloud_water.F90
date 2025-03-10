@@ -231,7 +231,8 @@ contains
     troplev, &
     ttend, tn, &
     qtend, qn, &
-    ltend, cwat, &
+    ltend, &
+    cldice, cldliq, &
     omega, &
     cldn, &
     fice, fsnow, &
@@ -254,7 +255,7 @@ contains
     ! Input arguments
     integer,            intent(in)    :: ncol
     integer,            intent(in)    :: pver
-    integer,            intent(in)    :: top_lev        ! index_of_pressure_at_troposphere_cloud_top [index]
+    integer,            intent(in)    :: top_lev        ! vertical_layer_index_of_troposphere_cloud_physics_top [index]
     real(kind_phys),    intent(in)    :: deltat         ! timestep [s]
     integer,            intent(in)    :: iulog          ! log output unit [1]
     real(kind_phys),    intent(in)    :: pi             ! pi_constant [1]
@@ -276,7 +277,8 @@ contains
     real(kind_phys),    intent(in)    :: qtend(:,:)     ! Water vapor tendency [kg kg-1 s-1] -- from non-micro/macrophysics
     real(kind_phys),    intent(in)    :: qn(:,:)        ! New Water vapor mixing ratio [kg kg-1]
     real(kind_phys),    intent(in)    :: ltend(:,:)     ! Cloud liquid water tendency [kg kg-1 s-1] -- from non-micro/macrophysics
-    real(kind_phys),    intent(in)    :: cwat(:,:)      ! Cloud water mixing ratio (ixcldice+ixcldliq) [kg kg-1]
+    real(kind_phys),    intent(in)    :: cldice(:,:)    ! adv: cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water [kg kg-1]
+    real(kind_phys),    intent(in)    :: cldliq(:,:)    ! adv: cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water [kg kg-1]
 
     real(kind_phys),    intent(in)    :: omega(:,:)     ! lagrangian_tendency_of_air_pressure [Pa s-1]
     real(kind_phys),    intent(in)    :: cldn(:,:)      ! New Cloud fraction [fraction]
@@ -325,6 +327,9 @@ contains
     integer :: iter                                     ! # of iterations for precipitation calculation [1]
     logical :: error_found                              ! Flag for error detection [flag]
 
+    ! Total cloud water (from cldice+cldliq)
+    real(kind_phys) :: cwat(:,:)                        ! Cloud water mixing ratio [kg kg-1]
+
     ! Precipitation and conversion rates
     real(kind_phys) :: nice2pr                          ! Rate of conversion from ice to snow [kg kg-1 s-1]
     real(kind_phys) :: nliq2pr                          ! Rate of conversion from liquid to precipitation [kg kg-1 s-1]
@@ -366,7 +371,6 @@ contains
     real(kind_phys) :: qmec2(ncol)                      ! Cloud condensation coefficient 2 C-E formulation [1]
     real(kind_phys) :: qmec3(ncol)                      ! Cloud condensation coefficient 3 C-E formulation [1]
     real(kind_phys) :: qmec4(ncol)                      ! Cloud condensation coefficient 4 C-E formulation [1]
-
 
     ! Diagnostic arrays for cloud water budget
     ! Hardcoded 2 here = number of iterations (iter below)
@@ -413,6 +417,9 @@ contains
     mincld = 1.e-4_kind_phys
     iter = 2
 #endif
+
+    ! initialize total cloud water [kg kg-1]
+    cwat(:ncol,:pver) = cldice(:ncol,:pver) + cldliq(:ncol,:pver)
 
     ! initialize single level and multi level fields
     do i = 1, ncol

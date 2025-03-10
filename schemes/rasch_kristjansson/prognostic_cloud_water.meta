@@ -100,7 +100,7 @@
   dimensions = ()
   intent = in
 [ top_lev ]
-  standard_name = index_of_pressure_at_troposhere_cloud_top
+  standard_name = vertical_layer_index_of_troposphere_cloud_physics_top
   units = index
   type = integer
   dimensions = ()
@@ -225,9 +225,15 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
-[ cwat ]
-  standard_name = cloud_water_mixing_ratio_wrt_moist_air_and_condensed_water_tbd
-  units = kg kg-1 s-1
+[ cldice ]
+  standard_name = cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ cldliq ]
+  standard_name = cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water
+  units = kg kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
