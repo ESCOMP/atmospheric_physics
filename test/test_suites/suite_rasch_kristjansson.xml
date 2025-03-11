@@ -76,12 +76,10 @@
     <!--<scheme>rk_stratiform_microphysics_diagnostics</scheme>-->
 
     <!-- RK5: cloud water and ice particle sizes for radiation -->
-    <!--
     <scheme>rk_stratiform_cloud_optical_properties</scheme>
-    <scheme>rk_stratiform_cloud_optical_properties_diagnostics</scheme>
-    -->
+    <!-- <scheme>rk_stratiform_cloud_optical_properties_diagnostics</scheme> -->
 
     <!-- RK6: save non-micro and non-macrophysical external advective forcings -->
-    <!--<scheme>rk_stratiform_save_qtcwat</scheme>-->
+    <scheme>rk_stratiform_save_qtlcwat</scheme>
   </group>
 </suite>

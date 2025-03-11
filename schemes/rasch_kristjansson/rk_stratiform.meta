@@ -1,10 +1,63 @@
 [ccpp-table-properties]
   name = rk_stratiform
   type = scheme
+  dependencies = ../../to_be_ccppized/cloud_optical_properties.F90
 
 [ccpp-arg-table]
   name  = rk_stratiform_init
   type  = scheme
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = rk_stratiform_timestep_init
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ t ]
+  standard_name = air_temperature
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ q_wv ]
+  standard_name = water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ cldice ]
+  standard_name = cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ cldliq ]
+  standard_name = cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
 [ qcwat ]
   standard_name = water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_at_end_of_microphysics
   units = kg kg-1
@@ -23,22 +76,6 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
-[ errmsg ]
-  standard_name = ccpp_error_message
-  units = none
-  type = character | kind = len=512
-  dimensions = ()
-  intent = out
-[ errflg ]
-  standard_name = ccpp_error_code
-  units = 1
-  type = integer
-  dimensions = ()
-  intent = out
-
-[ccpp-arg-table]
-  name  = rk_stratiform_timestep_init
-  type  = scheme
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
@@ -734,6 +771,98 @@
 [ lcwat ]
   standard_name = cloud_water_mixing_ratio_wrt_moist_air_and_condensed_water_at_end_of_microphysics
   units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-table-properties]
+  name = rk_stratiform_cloud_optical_properties
+  type = scheme
+
+[ccpp-arg-table]
+  name  = rk_stratiform_cloud_optical_properties_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ tmelt ]
+  standard_name = freezing_point_of_water
+  units = K
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ landfrac ]
+  standard_name = land_area_fraction
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ icefrac ]
+  standard_name = sea_ice_area_fraction
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ snowh ]
+  standard_name = lwe_surface_snow_depth_over_land
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ landm ]
+  standard_name = smoothed_land_area_fraction
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ t ]
+  standard_name = air_temperature
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ ps ]
+  standard_name = surface_air_pressure
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ pmid ]
+  standard_name = air_pressure
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ rel ]
+  standard_name = effective_radius_of_stratiform_cloud_liquid_water_particle
+  units = um
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ rei ]
+  standard_name = effective_radius_of_stratiform_cloud_ice_particle
+  units = um
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out

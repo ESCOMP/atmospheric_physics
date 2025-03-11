@@ -27,7 +27,7 @@ module rk_stratiform
   public :: rk_stratiform_condensate_repartioning_run
   ! -- prognostic_cloud_water --
   public :: rk_stratiform_prognostic_cloud_water_tendencies_run
-  ! public :: rk_stratiform_cloud_optical_properties_run
+  public :: rk_stratiform_cloud_optical_properties_run
   public :: rk_stratiform_save_qtlcwat_run
 
   !
@@ -38,8 +38,33 @@ contains
 !> \section arg_table_rk_stratiform_init Argument Table
 !! \htmlinclude arg_table_rk_stratiform_init.html
   subroutine rk_stratiform_init( &
+    errmsg, errflg)
+
+    ! Output arguments
+    character(len=512), intent(out)   :: errmsg         ! error message
+    integer,            intent(out)   :: errflg         ! error flag
+
+    errmsg = ''
+    errflg = 0
+
+  end subroutine rk_stratiform_init
+
+!> \section arg_table_rk_stratiform_timestep_init Argument Table
+!! \htmlinclude arg_table_rk_stratiform_timestep_init.html
+  subroutine rk_stratiform_timestep_init( &
+    ncol, pver, &
+    t, q_wv, cldice, cldliq, &
     qcwat, tcwat, lcwat, &  ! from end of last microphysics/macrophysics call.
     errmsg, errflg)
+
+    ! Input arguments
+    integer,            intent(in)    :: ncol
+    integer,            intent(in)    :: pver
+    real(kind_phys),    intent(in)    :: t(:,:)         ! air_temperature [K]
+    real(kind_phys),    intent(in)    :: q_wv(:, :)     ! adv: water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water [kg kg-1]
+    real(kind_phys),    intent(in)    :: cldice(:,:)    ! adv: cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water [kg kg-1]
+    real(kind_phys),    intent(in)    :: cldliq(:,:)    ! adv: cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water [kg kg-1]
+
     ! Input/output arguments
     real(kind_phys),    intent(inout) :: qcwat(:,:)     ! [kg kg-1]
     real(kind_phys),    intent(inout) :: tcwat(:,:)     ! [K]
@@ -52,20 +77,23 @@ contains
     errmsg = ''
     errflg = 0
 
-    ! If qcwat, tcwat, lcwat are not initialized, eventually init them
-    ! (here or in timestep_init? check if initial values are ready at this point.)
+    ! Check that qcwat and tcwat were initialized - if not then initialize
+    ! Note: this is done in timestep_init to be consistent with how rk_stratiform_tend has
+    ! this in the run phase. But maybe it can be moved to the init phase, so that it
+    ! does not have to be checked at every timestep.
 
-  end subroutine rk_stratiform_init
+    ! The registry will set default values of negative if not read from snapshot.
+    if(qcwat(1,1) < 0._kind_phys) then
+      qcwat(:ncol,:) = q_wv(:ncol,:)
+    endif
 
-!> \section arg_table_rk_stratiform_timestep_init Argument Table
-!! \htmlinclude arg_table_rk_stratiform_timestep_init.html
-  subroutine rk_stratiform_timestep_init( &
-    errmsg, errflg)
-    character(len=512), intent(out)   :: errmsg         ! error message
-    integer,            intent(out)   :: errflg         ! error flag
+    if(tcwat(1,1) < 0._kind_phys) then
+      tcwat(:ncol,:) = t(:ncol,:)
+    endif
 
-    errmsg = ''
-    errflg = 0
+    ! lcwat is initialized from initial conditions of cldice, cldliq
+    ! TODO: check if this is always done (appears to be from physpkg.F90) or should be read from snapshot.
+    lcwat(:ncol,:) = cldice(:ncol,:) + cldliq(:ncol,:)
 
 
   end subroutine rk_stratiform_timestep_init
@@ -488,6 +516,58 @@ contains
     enddo
 
   end subroutine rk_stratiform_save_qtlcwat_run
+
+  ! Compute and save cloud water and ice particle sizes for radiation
+!> \section arg_table_rk_stratiform_cloud_optical_properties_run Argument Table
+!! \htmlinclude arg_table_rk_stratiform_cloud_optical_properties_run.html
+  subroutine rk_stratiform_cloud_optical_properties_run( &
+    ncol, pver, &
+    tmelt, &
+    landfrac, icefrac, snowh, landm, &
+    t, ps, pmid, &
+    rel, rei, &
+    errmsg, errflg)
+
+    ! Dependency: to_be_ccppized
+    use cloud_optical_properties, only: cldefr
+
+    ! Input arguments
+    integer,            intent(in)    :: ncol
+    integer,            intent(in)    :: pver
+
+    real(kind_phys),    intent(in)    :: tmelt
+    real(kind_phys),    intent(in)    :: landfrac(:)    ! land_area_fraction [fraction]
+    real(kind_phys),    intent(in)    :: icefrac(:)     ! sea_ice_area_fraction [fraction]
+    real(kind_phys),    intent(in)    :: snowh(:)       ! lwe_surface_snow_depth_over_land [m]
+    real(kind_phys),    intent(in)    :: landm(:)       ! smoothed_land_area_fraction [fraction]
+    real(kind_phys),    intent(in)    :: t(:,:)         ! air_temperature [K]
+    real(kind_phys),    intent(in)    :: ps(:)          ! surface_air_pressure [Pa]
+    real(kind_phys),    intent(in)    :: pmid(:,:)      ! air_pressure [Pa]
+
+    ! Output arguments
+    real(kind_phys),    intent(out)   :: rel(:,:)       ! effective_radius_of_stratiform_cloud_liquid_water_particle [um]
+    real(kind_phys),    intent(out)   :: rei(:,:)       ! effective_radius_of_stratiform_cloud_ice_particle [um]
+    character(len=512), intent(out)   :: errmsg         ! error message
+    integer,            intent(out)   :: errflg         ! error flag
+
+    errmsg = ''
+    errflg = 0
+
+    call cldefr( &
+      ncol = ncol, &
+      pver = pver, &
+      tmelt = tmelt, &
+      landfrac = landfrac(:ncol), &
+      icefrac = icefrac(:ncol), &
+      snowh = snowh(:ncol), &
+      landm = landm(:ncol), &
+      t = t(:ncol,:), &
+      ps = ps(:ncol), &
+      pmid = pmid(:ncol), & ! below output:
+      rel = rel(:ncol,:), &
+      rei = rei(:ncol,:))
+
+  end subroutine rk_stratiform_cloud_optical_properties_run
 
   ! might be better suited for diagnostics ...
   ! subroutine rk_stratiform_ice_and_liquid_water_content_run( &

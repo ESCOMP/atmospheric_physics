@@ -328,7 +328,7 @@ contains
     logical :: error_found                              ! Flag for error detection [flag]
 
     ! Total cloud water (from cldice+cldliq)
-    real(kind_phys) :: cwat(:,:)                        ! Cloud water mixing ratio [kg kg-1]
+    real(kind_phys) :: cwat(ncol,pver)                  ! Cloud water mixing ratio [kg kg-1]
 
     ! Precipitation and conversion rates
     real(kind_phys) :: nice2pr                          ! Rate of conversion from ice to snow [kg kg-1 s-1]
