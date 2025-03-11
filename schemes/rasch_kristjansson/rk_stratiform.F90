@@ -563,7 +563,7 @@ contains
       landm = landm(:ncol), &
       t = t(:ncol,:), &
       ps = ps(:ncol), &
-      pmid = pmid(:ncol), & ! below output:
+      pmid = pmid(:ncol,:), & ! below output:
       rel = rel(:ncol,:), &
       rei = rei(:ncol,:))
 
