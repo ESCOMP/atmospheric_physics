@@ -1,0 +1,103 @@
+[ccpp-table-properties]
+  name = zm_conv_options
+  type = scheme
+
+[ccpp-arg-table]
+  name  = zm_conv_options_init
+  type  = scheme
+[ masterproc ]
+  standard_name = flag_for_mpi_root
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ iulog ]
+  standard_name = log_output_unit
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ zmconv_c0_lnd ]
+  standard_name = cloud_condensate_to_precipitation_autoconversion_coefficient_over_land_for_zhang_mcfarlane_deep_convection_scheme
+  units = m-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ zmconv_c0_ocn ]
+  standard_name = cloud_condensate_to_precipitation_autoconversion_coefficient_over_ocean_for_zhang_mcfarlane_deep_convection_scheme
+  units = m-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ zmconv_ke ]
+  standard_name = tunable_evaporation_efficiency_over_ocean_for_zhang_mcfarlane_deep_convection_scheme
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ zmconv_ke_lnd ]
+  standard_name = tunable_evaporation_efficiency_over_land_for_zhang_mcfarlane_deep_convection_scheme
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ zmconv_momcu ]
+  standard_name = momentum_transport_parameter_for_vertical_pressure_gradient_force_for_updraft_for_zhang_mcfarlane_deep_convection_scheme
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ zmconv_momcd ]
+  standard_name = momentum_transport_parameter_for_vertical_pressure_gradient_force_for_downdraft_for_zhang_mcfarlane_deep_convection_scheme
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ zmconv_num_cin ]
+  standard_name = number_of_negative_buoyancy_layers_allowed_before_convection_top_for_zhang_mcfarlane_deep_convection_scheme
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ no_deep_pbl_in ]
+  standard_name = flag_for_no_deep_convection_in_pbl
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ zmconv_tiedke_add ]
+  standard_name = parcel_temperature_perturbation_for_zhang_mcfarlane_deep_convection_scheme
+  units = K
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ zmconv_capelmt ]
+  standard_name = cape_threshold_for_zhang_mcfarlane_deep_convection_scheme
+  units = J kg-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ zmconv_dmpdz ]
+  standard_name = entrainment_rate_for_cape_for_zhang_mcfarlane_deep_convection_scheme
+  units = m-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ zmconv_parcel_pbl ]
+  standard_name = flag_for_well_mixed_pbl_parcel_property_for_zhang_mcfarlane_deep_convection_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ zmconv_parcel_hscale ]
+  standard_name = fraction_of_pbl_depth_mixed_for_initial_zhang_mcfarlane_parcel_properties
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ zmconv_tau ]
+  standard_name = deep_convective_adjustment_timescale_for_zhang_mcfarlane_deep_convection_scheme
+  units = s
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in

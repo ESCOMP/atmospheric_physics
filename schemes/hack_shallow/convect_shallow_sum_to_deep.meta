@@ -1,0 +1,157 @@
+[ccpp-table-properties]
+  name = convect_shallow_sum_to_deep
+  type = scheme
+
+[ccpp-arg-table]
+  name  = convect_shallow_sum_to_deep_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pverp ]
+  standard_name = vertical_interface_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pmid ]
+  standard_name = air_pressure
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ rliq_total ]
+  standard_name = vertically_integrated_cloud_liquid_water_tendency_due_to_all_convection_to_be_applied_later_in_time_loop
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = inout
+[ cmfmc_deep ]
+  standard_name = atmosphere_convective_mass_flux_due_to_deep_convection
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ rprddp ]
+  standard_name = tendency_of_precipitation_wrt_moist_air_and_condensed_water_due_to_deep_convection_excluding_subcloud_evaporation
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ qc_deep ]
+  standard_name = detrainment_of_cloud_liquid_water_wrt_moist_air_and_condensed_water_due_to_deep_convection
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ cnt_deep ]
+  standard_name = vertical_index_at_top_of_deep_convection_for_convective_columns
+  units = index
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ cnb_deep ]
+  standard_name = vertical_index_of_deep_convection_launch_level_for_convective_columns
+  units = index
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ cmfmc_sh ]
+  standard_name = atmosphere_convective_mass_flux_due_to_shallow_convection
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ qc_sh ]
+  standard_name = detrainment_of_cloud_liquid_water_wrt_moist_air_and_condensed_water_due_to_shallow_convection
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ rliq_sh ]
+  standard_name = vertically_integrated_cloud_liquid_water_tendency_due_to_shallow_convection_to_be_applied_later_in_time_loop
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ rprdsh ]
+  standard_name = tendency_of_precipitation_wrt_moist_air_and_condensed_water_due_to_shallow_convection_excluding_subcloud_evaporation
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ cnt_sh ]
+  standard_name = vertical_index_at_cloud_top_for_shallow_convection
+  units = index
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ cnb_sh ]
+  standard_name = vertical_index_at_cloud_base_for_shallow_convection
+  units = index
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ cmfmc_total ]
+  standard_name = atmosphere_convective_mass_flux_due_to_all_convection
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ rprdtot ]
+  standard_name = tendency_of_precipitation_wrt_moist_air_and_condensed_water_due_to_convection_excluding_subcloud_evaporation
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ qc_total ]
+  standard_name = detrainment_of_cloud_liquid_water_wrt_moist_air_and_condensed_water_due_to_all_convection
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ cnt ]
+  standard_name = vertical_index_at_cloud_top_for_all_convection
+  units = index
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ cnb ]
+  standard_name = vertical_index_at_cloud_base_for_all_convection
+  units = index
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ p_cnt ]
+  standard_name = pressure_at_cloud_top_for_all_convection
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ p_cnb ]
+  standard_name = pressure_at_cloud_base_for_all_convection
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

@@ -133,7 +133,7 @@ contains
                        errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use musica_tuvx, only: grid_map_t, profile_map_t, radiator_map_t
-    use musica_util, only: error_t, configuration_t
+    use musica_util, only: error_t, configuration_t, MUSICA_INDEX_MAPPINGS_MAP_ANY
     use musica_ccpp_namelist, only: filename_of_tuvx_micm_mapping_configuration
     use musica_ccpp_util, only: PI
     use musica_ccpp_tuvx_height_grid, &
@@ -486,8 +486,8 @@ contains
     end if
 
     photolysis_rate_constants_mapping => &
-        index_mappings_t( config, photolysis_rate_constants_ordering, &
-                          micm_rate_parameter_ordering, error )
+        index_mappings_t( config, MUSICA_INDEX_MAPPINGS_MAP_ANY, &
+        photolysis_rate_constants_ordering, micm_rate_parameter_ordering, error )
     if (has_error_occurred( error, errmsg, errcode )) then
       deallocate( tuvx )
       tuvx => null()
@@ -533,15 +533,15 @@ contains
     real(kind_phys),    intent(in)    :: constituents(:,:,:)                               ! kg kg-1 (column, layer, constituent)
     real(kind_phys),    intent(in)    :: geopotential_height_wrt_surface_at_midpoint(:,:)  ! m (column, layer)
     real(kind_phys),    intent(in)    :: geopotential_height_wrt_surface_at_interface(:,:) ! m (column, interface)
-    real(kind_phys),    intent(in)    :: surface_geopotential(:)                           ! m2 s-2
-    real(kind_phys),    intent(in)    :: surface_temperature(:)                            ! K
-    real(kind_phys),    intent(in)    :: surface_albedo                                    ! unitless
-    real(kind_phys),    intent(in)    :: photolysis_wavelength_grid_interfaces(:)          ! nm
-    real(kind_phys),    intent(in)    :: extraterrestrial_flux(:)                          ! photons cm-2 s-1 nm-1
+    real(kind_phys),    intent(in)    :: surface_geopotential(:)                           ! m2 s-2 (column)
+    real(kind_phys),    intent(in)    :: surface_temperature(:)                            ! K (column)
+    real(kind_phys),    intent(in)    :: surface_albedo(:)                                 ! fraction (column)
+    real(kind_phys),    intent(in)    :: photolysis_wavelength_grid_interfaces(:)          ! nm (wavelength interface)
+    real(kind_phys),    intent(in)    :: extraterrestrial_flux(:)                          ! photons cm-2 s-1 nm-1 (wavelength interface)
     real(kind_phys),    intent(in)    :: standard_gravitational_acceleration               ! m s-2
-    real(kind_phys),    intent(in)    :: cloud_area_fraction(:,:)                          ! unitless (column, layer)
+    real(kind_phys),    intent(in)    :: cloud_area_fraction(:,:)                          ! fraction (column, layer)
     real(kind_phys),    intent(in)    :: air_pressure_thickness(:,:)                       ! Pa (column, layer)
-    real(kind_phys),    intent(in)    :: solar_zenith_angle(:)                             ! radians
+    real(kind_phys),    intent(in)    :: solar_zenith_angle(:)                             ! radians (column)
     real(kind_phys),    intent(in)    :: earth_sun_distance                                ! m
     real(kind_phys),    intent(inout) :: rate_parameters(:,:,:)                            ! various units (column, layer, reaction)
     character(len=512), intent(out)   :: errmsg
@@ -560,10 +560,6 @@ contains
     integer         :: i_col, i_level
 
     reciprocal_of_gravitational_acceleration = 1.0_kind_phys / standard_gravitational_acceleration
-
-    ! surface albedo with respect to direct UV/visible radiation
-    call set_surface_albedo_values( surface_albedo_profile, surface_albedo, errmsg, errcode )
-    if (errcode /= 0) return
 
     call set_extraterrestrial_flux_values( extraterrestrial_flux_profile,         &
                                            photolysis_wavelength_grid_interfaces, &
@@ -585,6 +581,11 @@ contains
                                 height_midpoints, height_interfaces )
         call set_height_grid_values( height_grid, height_midpoints, height_interfaces, &
                                      height_deltas, errmsg, errcode )
+        if (errcode /= 0) return
+
+        ! surface albedo with respect to direct UV/visible radiation
+        call set_surface_albedo_values( surface_albedo_profile, surface_albedo(i_col), &
+                                        errmsg, errcode )
         if (errcode /= 0) return
 
         call set_temperature_values( temperature_profile, temperature(i_col,:), &
