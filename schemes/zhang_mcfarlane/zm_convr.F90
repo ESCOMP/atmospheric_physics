@@ -41,7 +41,7 @@ module zm_convr
    integer  limcnv       ! top interface level limit for convection
 
    logical :: lparcel_pbl     ! Switch to turn on mixing of parcel MSE air, and picking launch level to be the top of the PBL.
-
+   real(kind_phys) :: parcel_hscale
 
    real(kind_phys) :: tiedke_add      ! namelist configurable
    real(kind_phys) :: dmpdz_param     ! namelist configurable
@@ -58,7 +58,7 @@ subroutine zm_convr_init(plev, plevp, cpair, epsilo, gravit, latvap, tmelt, rair
                     pref_edge, zmconv_c0_lnd, zmconv_c0_ocn, zmconv_ke, zmconv_ke_lnd, &
                     zmconv_momcu, zmconv_momcd, zmconv_num_cin, &
                     no_deep_pbl_in, zmconv_tiedke_add, &
-                    zmconv_capelmt, zmconv_dmpdz, zmconv_parcel_pbl, zmconv_tau, &
+                    zmconv_capelmt, zmconv_dmpdz, zmconv_parcel_pbl, zmconv_parcel_hscale, zmconv_tau, &
                     masterproc, iulog, errmsg, errflg)
 
    integer, intent(in)   :: plev
@@ -83,7 +83,8 @@ subroutine zm_convr_init(plev, plevp, cpair, epsilo, gravit, latvap, tmelt, rair
    real(kind_phys),intent(in)           :: zmconv_tiedke_add
    real(kind_phys),intent(in)           :: zmconv_capelmt
    real(kind_phys),intent(in)           :: zmconv_dmpdz
-   logical, intent(in)           :: zmconv_parcel_pbl ! Should the parcel properties include PBL mixing?
+   logical, intent(in)                  :: zmconv_parcel_pbl ! Should the parcel properties include PBL mixing?
+   real(kind_phys),intent(in)           :: zmconv_parcel_hscale ! Fraction of PBL over which to mix ZM parcel.
    real(kind_phys),intent(in)           :: zmconv_tau
    logical, intent(in)                  :: masterproc
    integer, intent(in)                  :: iulog
@@ -118,6 +119,7 @@ subroutine zm_convr_init(plev, plevp, cpair, epsilo, gravit, latvap, tmelt, rair
    dmpdz_param = zmconv_dmpdz
    no_deep_pbl = no_deep_pbl_in
    lparcel_pbl = zmconv_parcel_pbl
+   parcel_hscale = zmconv_parcel_hscale
 
    tau = zmconv_tau
 
@@ -125,31 +127,22 @@ subroutine zm_convr_init(plev, plevp, cpair, epsilo, gravit, latvap, tmelt, rair
    ! Limit deep convection to regions below 40 mb
    ! Note this calculation is repeated in the shallow convection interface
    !
-    limcnv = 0   ! null value to check against below
-    if (pref_edge(1) >= 4.e3_kind_phys) then
-       limcnv = 1
-    else
-       do k=1,plev
-          if (pref_edge(k) < 4.e3_kind_phys .and. pref_edge(k+1) >= 4.e3_kind_phys) then
-             limcnv = k
-             exit
-          end if
-       end do
-       if ( limcnv == 0 ) limcnv = plevp
-    end if
+   limcnv = 0   ! null value to check against below
+   if (pref_edge(1) >= 4.e3_kind_phys) then
+      limcnv = 1
+   else
+      do k=1,plev
+         if (pref_edge(k) < 4.e3_kind_phys .and. pref_edge(k+1) >= 4.e3_kind_phys) then
+            limcnv = k
+            exit
+         end if
+      end do
+      if ( limcnv == 0 ) limcnv = plevp
+   end if
 
-    if ( masterproc ) then
-       write(iulog,*)'ZM_CONV_INIT: Deep convection will be capped at intfc ',limcnv, &
-            ' which is ',pref_edge(limcnv),' pascals'
-      write(iulog,*) 'tuning parameters zm_convr_init: tau',tau
-      write(iulog,*) 'tuning parameters zm_convr_init: c0_lnd',c0_lnd, ', c0_ocn', c0_ocn
-      write(iulog,*) 'tuning parameters zm_convr_init: num_cin', num_cin
-      write(iulog,*) 'tuning parameters zm_convr_init: ke',ke
-      write(iulog,*) 'tuning parameters zm_convr_init: no_deep_pbl',no_deep_pbl
-      write(iulog,*) 'tuning parameters zm_convr_init: zm_capelmt', capelmt
-      write(iulog,*) 'tuning parameters zm_convr_init: zm_dmpdz', dmpdz_param
-      write(iulog,*) 'tuning parameters zm_convr_init: zm_tiedke_add', tiedke_add
-      write(iulog,*) 'tuning parameters zm_convr_init: zm_parcel_pbl', lparcel_pbl
+   if ( masterproc ) then
+      write(iulog,*)'ZM_CONV_INIT: Deep convection will be capped at intfc ',limcnv, &
+                    ' which is ',pref_edge(limcnv),' pascals'
    endif
 
    if (masterproc) write(iulog,*)'**** ZM: DILUTE Buoyancy Calculation ****'
@@ -786,8 +779,11 @@ subroutine zm_convr_run(     ncol    ,pver    , &
           rice(i) = rice(i) + dif(i,k)*dpp(i,k)/gravit
       end do
    end do
-   rliq(:ncol) = rliq(:ncol) /1000._kind_phys
-   rice(:ncol) = rice(:ncol) /1000._kind_phys
+   rliq(:ncol) = rliq(:ncol) /1000._kind_phys  ! Converted to precip units m s-1
+   rice(:ncol) = rice(:ncol) /1000._kind_phys  ! Converted to precip units m s-1
+
+! Convert mass flux from reported mb s-1 to kg m-2 s-1
+   mcon(:ncol,:pverp) = mcon(:ncol,:pverp) * 100._kind_phys / gravit
 
    return
 end subroutine zm_convr_run
@@ -930,12 +926,6 @@ subroutine buoyan_dilute(  ncol   ,pver    , &
 
    real(kind_phys) rd
    real(kind_phys) rl
-
-
-! Scaling of PBL height to give parcel mixing length for lparcel_pbl=True
-
-   real(kind_phys), parameter :: parcel_hscale  = 0.5_kind_phys
-
 
 !
 !-----------------------------------------------------------------------
@@ -1382,13 +1372,6 @@ do k = pver, msg+1, -1
             tfguess = tmix(i,k)
             rcall = 3
             call ientropy (rcall,i,slcl,pl(i),qtlcl,tl(i),qslcl,tfguess,cpliq,cpwv,rh2o,lat(i), long(i), errmsg,errflg)
-
-!            write(iulog,*)' '
-!            write(iulog,*)' p',p(i,k+1),pl(i),p(i,lcl(i))
-!            write(iulog,*)' t',tmix(i,k+1),tl(i),tmix(i,lcl(i))
-!            write(iulog,*)' s',smix(i,k+1),slcl,smix(i,lcl(i))
-!            write(iulog,*)'qt',qtmix(i,k+1),qtlcl,qtmix(i,lcl(i))
-!            write(iulog,*)'qs',qsmix(i,k+1),qslcl,qsmix(i,lcl(i))
 
          endif
 !
