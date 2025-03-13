@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = cloud_particle_sedimentation
   type = scheme
+  dependencies = ../../to_be_ccppized/cloud_optical_properties.F90
 
 [ccpp-arg-table]
   name  = cloud_particle_sedimentation_init

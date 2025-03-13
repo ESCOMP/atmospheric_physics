@@ -76,7 +76,7 @@
     </values>
   </entry>
   <entry id="rk_strat_polstrat_dorhmin">
-    <type>real</type>
+    <type>logical</type>
     <category>conv</category>
     <group>rk_stratiform_nl</group>
     <standard_name>flag_for_relative_humidity_threshold_for_cloud_formation_in_polar_stratosphere_for_rk_microphysics</standard_name>
