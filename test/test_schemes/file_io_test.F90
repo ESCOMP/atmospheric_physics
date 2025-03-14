@@ -24,6 +24,7 @@ contains
 
      !Non-portable (CAM-SIMA specific) use statements:
      use sima_ccpp_FileIO, only: sima_get_netcdf_var
+     use sima_ccpp_FileIO, only: sima_get_netcdf_dim
      use ioFileMod,        only: cam_get_file
      use cam_pio_utils,    only: cam_pio_openfile
      use pio,              only: file_desc_t
@@ -66,15 +67,9 @@ contains
      call pio_seterrorhandling(fh, PIO_BCAST_ERROR)
 
      !Get relevant dimensions:
-     ierr = pio_inq_dimid(fh, 'pressure', dim_id)
-     if(ierr /= PIO_NOERR) then
-        errcode = 1
-        errmsg = "Failed to find 'pressure' in '"//local_file_path//"'"
-     end if
-     ierr = pio_inq_dimlen(fh, dim_id, pressure)
-     if(ierr /= PIO_NOERR) then
-        errcode = 1
-        errmsg = "Failed to read 'pressure' dimension in '"//local_file_path//"'"
+     call sima_get_netcdf_dim(fh, local_file_path, 'pressure', errcode, errmsg, dimlen=pressure)
+     if (errcode /= 0) then
+        return !Error has occurred, so exit scheme
      end if
 
      !Allocate RRTMGP reference pressure:
@@ -85,9 +80,8 @@ contains
      end if
 
      !Attempt to get reference pressure from file:
-     call sima_get_netcdf_var(fh, 'press_ref', press_ref, errcode, errmsg)
+     call sima_get_netcdf_var(fh, local_file_path, 'press_ref', press_ref, errcode, errmsg)
      if (errcode /= 0) then
-        errmsg  = "Failed to read 'press_ref' in '"//local_file_path//"'"
         return !Error has occurred, so exit scheme
      end if
 
