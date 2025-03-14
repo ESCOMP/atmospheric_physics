@@ -47,6 +47,7 @@ contains
      real(kind_phys), dimension(:), allocatable :: press_ref
 
      !NetCDF dimensions:
+     integer :: bnd
      integer :: pressure
 
      !Local variables:
@@ -67,7 +68,15 @@ contains
      call pio_seterrorhandling(fh, PIO_BCAST_ERROR)
 
      !Get relevant dimensions:
+
+     !Pressure:
      call sima_get_netcdf_dim(fh, local_file_path, 'pressure', errcode, errmsg, dimlen=pressure)
+     if (errcode /= 0) then
+        return !Error has occurred, so exit scheme
+     end if
+
+     !Bands:
+     call sima_get_netcdf_dim(fh, local_file_path, 'bnd', errcode, errmsg, dimlen=bnd)
      if (errcode /= 0) then
         return !Error has occurred, so exit scheme
      end if
@@ -87,6 +96,10 @@ contains
 
      ! Close file
      call pio_closefile(fh)
+
+     !Write dimension lengths to stdout:
+     write(*,*) 'Pressure dimension length = ', pressure
+     write(*,*) 'Band (bnd) dimension length = ', bnd
 
      !Write max pressure value to stdout:
      write(*,*) 'Max RRTMGP reference pressure value = ', maxval(press_ref)
