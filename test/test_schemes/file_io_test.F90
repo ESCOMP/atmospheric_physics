@@ -44,7 +44,8 @@ contains
      integer,            intent(out) :: errcode
 
      !Variables read from file:
-     real(kind_phys), dimension(:), allocatable :: press_ref
+     real(kind_phys), dimension(:), allocatable   :: press_ref
+     real(kind_phys), dimension(:,:), allocatable :: band_lims_wavenum
 
      !NetCDF dimensions:
      integer :: bnd
@@ -82,14 +83,25 @@ contains
      end if
 
      !Allocate RRTMGP reference pressure:
-     allocate(press_ref(pressure), stat=errcode)
+     allocate(press_ref(pressure), stat=errcode, errmsg=errmsg)
      if(errcode /= 0) then
-        errmsg = "Failed to allocate 'pres_ref(pressure)'"
+        return
+     end if
+
+     !Allocate RRTMGP starting and ending wavenumber for each band:
+     allocate(band_lims_wavenum(2,bnd), stat=errcode, errmsg=errmsg)
+     if(errcode /= 0) then
         return
      end if
 
      !Attempt to get reference pressure from file:
      call sima_get_netcdf_var(fh, local_file_path, 'press_ref', press_ref, errcode, errmsg)
+     if (errcode /= 0) then
+        return !Error has occurred, so exit scheme
+     end if
+
+     !Attempt to get wavelength band start/end points from file:
+     call sima_get_netcdf_var(fh, local_file_path, 'bnd_limits_wavenumber', band_lims_wavenum, errcode, errmsg)
      if (errcode /= 0) then
         return !Error has occurred, so exit scheme
      end if
@@ -101,8 +113,9 @@ contains
      write(*,*) 'Pressure dimension length = ', pressure
      write(*,*) 'Band (bnd) dimension length = ', bnd
 
-     !Write max pressure value to stdout:
+     !Write max values to stdout:
      write(*,*) 'Max RRTMGP reference pressure value = ', maxval(press_ref)
+     write(*,*) 'Max RRTMGP band starting wavenumber = ', maxval(band_lims_wavenum(1,:))
 
   end subroutine file_io_test_init
 
