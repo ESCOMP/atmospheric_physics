@@ -44,6 +44,7 @@ contains
      integer,            intent(out) :: errcode
 
      !Variables read from file:
+     integer,  dimension(:,:), allocatable        :: band2gpt
      real(kind_phys), dimension(:), allocatable   :: press_ref
      real(kind_phys), dimension(:,:), allocatable :: band_lims_wavenum
 
@@ -88,6 +89,12 @@ contains
         return
      end if
 
+     !Allocate RRTMGP starting and ending wavenumber band indices:
+     allocate(band2gpt(2,bnd), stat=errcode, errmsg=errmsg)
+     if(errcode /= 0) then
+        return
+     end if
+
      !Allocate RRTMGP starting and ending wavenumber for each band:
      allocate(band_lims_wavenum(2,bnd), stat=errcode, errmsg=errmsg)
      if(errcode /= 0) then
@@ -100,7 +107,13 @@ contains
         return !Error has occurred, so exit scheme
      end if
 
-     !Attempt to get wavelength band start/end points from file:
+     !Attempt to get wavenumber band grid start/end indices from file:
+     call sima_get_netcdf_var(fh, local_file_path, 'bnd_limits_gpt', band2gpt, errcode, errmsg)
+     if (errcode /= 0) then
+        return !Error has occurred, so exit scheme
+     end if
+
+     !Attempt to get wavenumber band start/end values from file:
      call sima_get_netcdf_var(fh, local_file_path, 'bnd_limits_wavenumber', band_lims_wavenum, errcode, errmsg)
      if (errcode /= 0) then
         return !Error has occurred, so exit scheme
@@ -115,6 +128,7 @@ contains
 
      !Write max values to stdout:
      write(*,*) 'Max RRTMGP reference pressure value = ', maxval(press_ref)
+     write(*,*) 'Max RRTMGP band starting wave idx   = ', maxval(band2gpt(1,:))
      write(*,*) 'Max RRTMGP band starting wavenumber = ', maxval(band_lims_wavenum(1,:))
 
   end subroutine file_io_test_init
