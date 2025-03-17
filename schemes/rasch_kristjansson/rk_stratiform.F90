@@ -18,7 +18,7 @@ module rk_stratiform
   ! refer to test SDF suite_rasch_kristjansson.xml for total order of operations,
   ! as the full RK-stratiform requires other schemes not included in this module.
   public :: rk_stratiform_init
-  public :: rk_stratiform_timestep_init
+  public :: rk_stratiform_check_qtlcwat_run
   ! -- cloud_particle_sedimentation --
   public :: rk_stratiform_sedimentation_run
   public :: rk_stratiform_detrain_convective_condensate_run
@@ -49,9 +49,9 @@ contains
 
   end subroutine rk_stratiform_init
 
-!> \section arg_table_rk_stratiform_timestep_init Argument Table
-!! \htmlinclude arg_table_rk_stratiform_timestep_init.html
-  subroutine rk_stratiform_timestep_init( &
+!> \section arg_table_rk_stratiform_check_qtlcwat_run Argument Table
+!! \htmlinclude arg_table_rk_stratiform_check_qtlcwat_run.html
+  subroutine rk_stratiform_check_qtlcwat_run( &
     ncol, pver, &
     t, q_wv, cldice, cldliq, &
     qcwat, tcwat, lcwat, &  ! from end of last microphysics/macrophysics call.
@@ -78,9 +78,7 @@ contains
     errflg = 0
 
     ! Check that qcwat and tcwat were initialized - if not then initialize
-    ! Note: this is done in timestep_init to be consistent with how rk_stratiform_tend has
-    ! this in the run phase. But maybe it can be moved to the init phase, so that it
-    ! does not have to be checked at every timestep.
+    ! this is made as a separate "run" scheme so it does not have to be used in current CAM
 
     ! The registry will set default values of negative if not read from snapshot.
     if(qcwat(1,1) < 0._kind_phys) then
@@ -93,10 +91,11 @@ contains
 
     ! lcwat is initialized from initial conditions of cldice, cldliq
     ! TODO: check if this is always done (appears to be from physpkg.F90) or should be read from snapshot.
-    lcwat(:ncol,:) = cldice(:ncol,:) + cldliq(:ncol,:)
+    if(qcwat(1,1) < 0._kind_phys .or. tcwat(1,1) < 0._kind_phys) then
+      lcwat(:ncol,:) = cldice(:ncol,:) + cldliq(:ncol,:)
+    endif
 
-
-  end subroutine rk_stratiform_timestep_init
+  end subroutine rk_stratiform_check_qtlcwat_run
 
 !> \section arg_table_rk_stratiform_sedimentation_run Argument Table
 !! \htmlinclude arg_table_rk_stratiform_sedimentation_run.html
@@ -429,8 +428,8 @@ contains
     real(kind_phys),    intent(in)    :: evapprec(:,:)     !
     real(kind_phys),    intent(in)    :: ice2pr(:,:)       !
     real(kind_phys),    intent(in)    :: liq2pr(:,:)       !
-    real(kind_phys),    intent(inout) :: prec_pcw(:)       ! lwe_stratiform_precipitation_rate_at_surface [m s-1]
-    real(kind_phys),    intent(inout) :: snow_pcw(:)       ! lwe_snow_precipitation_rate_at_surface_due_to_microphysics [m s-1]
+    real(kind_phys),    intent(in)    :: prec_pcw(:)       ! lwe_stratiform_precipitation_rate_at_surface [m s-1]
+    real(kind_phys),    intent(in)    :: snow_pcw(:)       ! lwe_snow_precipitation_rate_at_surface_due_to_microphysics [m s-1]
 
     ! Input/output arguments
     real(kind_phys),    intent(inout) :: prec_str(:)    ! stratiform_rain_and_snow_surface_flux [m s-1]
@@ -568,50 +567,5 @@ contains
       rei = rei(:ncol,:))
 
   end subroutine rk_stratiform_cloud_optical_properties_run
-
-  ! might be better suited for diagnostics ...
-  ! subroutine rk_stratiform_ice_and_liquid_water_content_run( &
-  !   ncol, pver, &
-  !   pmid, &
-  !   t, &
-  !   cldice, cldliq, &
-  !   rhcloud, &
-  !   iwc, lwc, &
-  !   icimr, icwmr, &
-  !   errmsg, errflg)
-
-  !   ! Input arguments
-  !   integer,            intent(in)    :: ncol
-  !   integer,            intent(in)    :: pver
-  !   real(kind_phys),    intent(in)    :: pmid(:,:)      ! air_pressure [Pa]
-  !   real(kind_phys),    intent(in)    :: t(:,:)         ! air_temperature [K]
-  !   real(kind_phys),    intent(in)    :: cldliq(:,:)    ! adv: cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water [kg kg-1]
-  !   real(kind_phys),    intent(in)    :: cldice(:,:)    ! adv: cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water [kg kg-1]
-  !   real(kind_phys),    intent(in)    :: rhcloud(:,:)   ! ? [fraction]
-
-  !   ! Output arguments
-  !   real(kind_phys),    intent(out)   :: iwc(:)         ! stratiform_cloud_ice_water_content [kg m-3]
-  !   real(kind_phys),    intent(out)   :: lwc(:)         ! stratiform_cloud_liquid_water_content [kg m-3]
-  !   real(kind_phys),    intent(out)   :: icimr(:)       ! stratiform_cloud_ice_water_mixing_ratio [kg kg-1]
-  !   real(kind_phys),    intent(out)   :: icwmr(:)       ! stratiform_cloud_liquid_water_mixing_ratio [kg kg-1]
-  !   character(len=512), intent(out)   :: errmsg         ! error message
-  !   integer,            intent(out)   :: errflg         ! error flag
-
-  !   integer :: i, k
-  !   errmsg = ''
-  !   errflg = 0
-
-  !   do k = 1, pver
-  !     do i = 1, ncol
-  !        iwc(i,k)   = cldice(i,k)*pmid(i,k)/(287.15_kind_phys*t(i,k))
-  !        lwc(i,k)   = cldliq(i,k)*pmid(i,k) / &
-  !                     (287.15_kind_phys*t(i,k))
-  !        icimr(i,k) = cldice(i,k) / max(0.01_kind_phys,rhcloud(i,k))
-  !        icwmr(i,k) = cldliq(i,k) / max(0.01_kind_phys,rhcloud(i,k))
-  !     end do
-  !  end do
-
-  ! end subroutine rk_stratiform_ice_and_liquid_water_content_run
-
 
 end module rk_stratiform

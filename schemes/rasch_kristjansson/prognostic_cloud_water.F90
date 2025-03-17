@@ -112,7 +112,8 @@ contains
     psrhmin = psrhmin_in
 
     if(amIRoot) then
-      write(iulog,*) 'tuning parameters cldwat: icritw',icritw,'icritc',icritc,'conke',conke,'r3lcrit',r3lcrit
+      write(iulog,*) 'tuning parameters prognostic_cloud_water_init: icritw',icritw,'icritc',icritc,'conke',conke,'r3lcrit',r3lcrit
+      write(iulog,*) 'prognostic_cloud_water_init: do_psrhmin = ', do_psrhmin
     endif
 
     !--------------------------------------------------
@@ -292,11 +293,11 @@ contains
     real(kind_phys),    intent(in)    :: snowh(:)       ! Snow depth over land, water equivalent [m]
 
     ! Output arguments
-    real(kind_phys),    intent(out)   :: qme(:,:)       ! Rate of condensation-evaporation of condensate (net_condensation_rate_due_to_microphysics) [s-1]
-    real(kind_phys),    intent(out)   :: prodprec(:,:)  ! Conversion rate of condensate to precip (precipitation_production_due_to_microphysics) [s-1]
-    real(kind_phys),    intent(out)   :: prodsnow(:,:)  ! Snow production rate (ignored in RK?) [s-1]
-    real(kind_phys),    intent(out)   :: evapprec(:,:)  ! Falling precipitation evaporation rate (precipitation_evaporation_due_to_microphysics) [s-1] -- & combined to apply q(wv) tendency
-    real(kind_phys),    intent(out)   :: evapsnow(:,:)  ! Falling snow evaporation rate [s-1]
+    real(kind_phys),    intent(out)   :: qme(:,:)       ! Rate of condensation-evaporation of condensate (net_condensation_rate_due_to_microphysics) [kg kg-1 s-1]
+    real(kind_phys),    intent(out)   :: prodprec(:,:)  ! Conversion rate of condensate to precip (precipitation_production_due_to_microphysics) [kg kg-1 s-1]
+    real(kind_phys),    intent(out)   :: prodsnow(:,:)  ! Snow production rate (ignored in RK?) [kg kg-1 s-1]
+    real(kind_phys),    intent(out)   :: evapprec(:,:)  ! Falling precipitation evaporation rate (precipitation_evaporation_due_to_microphysics) [kg kg-1 s-1] -- & combined to apply q(wv) tendency
+    real(kind_phys),    intent(out)   :: evapsnow(:,:)  ! Falling snow evaporation rate [kg kg-1 s-1]
     real(kind_phys),    intent(out)   :: evapheat(:,:)  ! heating rate due to evaporation of precipitation [J kg-1 s-1]
     real(kind_phys),    intent(out)   :: prfzheat(:,:)  ! heating rate due to freezing of precipitation [J kg-1 s-1]
     real(kind_phys),    intent(out)   :: meltheat(:,:)  ! heating rate due to snow melt [J kg-1 s-1]
@@ -561,7 +562,7 @@ contains
 
         ! Because of the finite time step, place a bound here not to exceed wet bulb point
         ! and not to evaporate more than available water
-        do i = 1, ncol
+        qme_bound_loop: do i = 1, ncol
           qtmp = qn(i,k) - qme(i,k)*deltat
 
           ! possibilities to have qtmp > qsp
@@ -584,7 +585,7 @@ contains
 
           ! limit qme for roundoff errors (multiply by slightly less than unity)
           qme(i,k) = qme(i,k) * omsm
-        end do
+        end do qme_bound_loop
 
         do i = 1, ncol
           ! as a safe limit, condensation should not reduce grid mean rh below rhu00
@@ -599,18 +600,17 @@ contains
         enddo
 
         ! provisional precipitation falling through model layer
-        do i = 1, ncol
+        prprov_update_loop: do i = 1, ncol
            ! prprov(i) =  precab(i) + prodprec(i,k)*pdel(i,k)/gravit
            ! rain produced in this layer not too effective in collection process
            wtthick = max(0._kind_phys,min(0.5_kind_phys,((zi(i,k)-zi(i,k+1))/1000._kind_phys)**2))
            prprov(i) = precab(i) + wtthick*prodprec(i,k)*pdel(i,k)/gravit
-        end do
+        end do prprov_update_loop
 
         ! calculate conversion of condensate to precipitation by cloud microphysics
         call findmcnew( &
           ncol    = ncol, &
           pver    = pver, &
-          rlat    = rlat(:ncol), &
           pi      = pi,   &
           k       = k,    &
           precab  = prprov(:ncol), &
@@ -637,130 +637,129 @@ contains
 
         ! calculate the precip rate
         error_found = .false.
-        do i = 1, ncol
-            if (cldm(i) > 0) then
-              ! first predict the cloud water
-              cdt = coef(i)*deltat
-              if(cdt > 0.01_kind_phys) then
-                pol = qme(i,k)/coef(i) ! production over loss
-                cwn(i) = max(0._kind_phys,(cwat(i,k)-pol)*exp(-cdt)+ pol)
-              else
-                cwn(i) = max(0._kind_phys,(cwat(i,k) + qme(i,k)*deltat)/(1+cdt))
-              endif
-
-              ! now back out the tendency of net rain production
-              prodprec(i,k) = max(0._kind_phys,qme(i,k)-(cwn(i)-cwat(i,k))/deltat)
+        precip_update_loop: do i = 1, ncol
+          if (cldm(i) > 0) then
+            ! first predict the cloud water
+            cdt = coef(i)*deltat
+            if(cdt > 0.01_kind_phys) then
+              pol = qme(i,k)/coef(i) ! production over loss
+              cwn(i) = max(0._kind_phys,(cwat(i,k)-pol)*exp(-cdt)+ pol)
             else
-              prodprec(i,k) = 0.0_kind_phys
-              cwn(i) = 0._kind_phys
+              cwn(i) = max(0._kind_phys,(cwat(i,k) + qme(i,k)*deltat)/(1+cdt))
             endif
 
-            ! provisional calculation of conversion terms
-            ice2pr(i,k) = prodprec(i,k)*(fsaut(i,k)+fsaci(i,k))
-            liq2pr(i,k) = prodprec(i,k)*(fwaut(i,k)+fsacw(i,k)+fracw(i,k))
+            ! now back out the tendency of net rain production
+            prodprec(i,k) = max(0._kind_phys,qme(i,k)-(cwn(i)-cwat(i,k))/deltat)
+          else
+            prodprec(i,k) = 0.0_kind_phys
+            cwn(i) = 0._kind_phys
+          endif
 
+          ! provisional calculation of conversion terms
+          ice2pr(i,k) = prodprec(i,k)*(fsaut(i,k)+fsaci(i,k))
+          liq2pr(i,k) = prodprec(i,k)*(fwaut(i,k)+fsacw(i,k)+fracw(i,k))
 
-            ! revision suggested by Jim McCaa
-            ! it controls the amount of snow hitting the sfc
-            ! by forcing a lot of conversion of cloud liquid to snow phase
-            ! it might be better done later by an explicit representation of
-            ! rain accreting ice (and freezing), or by an explicit freezing of raindrops
-            !
-            ! old:
-            ! liq2snow(i,k) = prodprec(i,k)*fsacw(i,k)
-            liq2snow(i,k) = max(prodprec(i,k)*fsacw(i,k), fsnow(i,k)*liq2pr(i,k))
+          ! revision suggested by Jim McCaa
+          ! it controls the amount of snow hitting the sfc
+          ! by forcing a lot of conversion of cloud liquid to snow phase
+          ! it might be better done later by an explicit representation of
+          ! rain accreting ice (and freezing), or by an explicit freezing of raindrops
+          !
+          ! old:
+          ! liq2snow(i,k) = prodprec(i,k)*fsacw(i,k)
+          liq2snow(i,k) = max(prodprec(i,k)*fsacw(i,k), fsnow(i,k)*liq2pr(i,k))
 
-            ! bounds
-            nice2pr = min(ice2pr(i,k),(cwat(i,k)+qme(i,k)*deltat)*fice(i,k)/deltat)
-            nliq2pr = min(liq2pr(i,k),(cwat(i,k)+qme(i,k)*deltat)*(1._kind_phys-fice(i,k))/deltat)
+          ! bounds
+          nice2pr = min(ice2pr(i,k),(cwat(i,k)+qme(i,k)*deltat)*fice(i,k)/deltat)
+          nliq2pr = min(liq2pr(i,k),(cwat(i,k)+qme(i,k)*deltat)*(1._kind_phys-fice(i,k))/deltat)
 
-            if (liq2pr(i,k) .ne. 0._kind_phys) then
-              nliq2snow = liq2snow(i,k)*nliq2pr/liq2pr(i,k)   ! correction
-            else
-              nliq2snow = liq2snow(i,k)
+          if (liq2pr(i,k) .ne. 0._kind_phys) then
+            nliq2snow = liq2snow(i,k)*nliq2pr/liq2pr(i,k)   ! correction
+          else
+            nliq2snow = liq2snow(i,k)
+          endif
+
+          ! avoid roundoff problems generating negatives
+          nliq2snow = nliq2snow*omsm
+          nliq2pr   = nliq2pr*omsm
+          nice2pr   = nice2pr*omsm
+
+          ! final estimates of conversion to precip and snow
+          prodprec(i,k) = (nliq2pr + nice2pr)
+          prodsnow(i,k) = (nice2pr + nliq2snow)
+
+          rcwn(i,l,k) =  cwat(i,k) + (qme(i,k) - prodprec(i,k))*deltat
+          rliq(i,l,k) = (cwat(i,k) + qme(i,k)*deltat)*(1._kind_phys-fice(i,k)) - nliq2pr*deltat
+          rice(i,l,k) = (cwat(i,k) + qme(i,k)*deltat) * fice(i,k) - nice2pr*deltat
+
+          ! Sanity checks
+          if(abs(rcwn(i,l,k)) < 1.e-300_kind_phys) rcwn(i,l,k) = 0._kind_phys
+          if(abs(rliq(i,l,k)) < 1.e-300_kind_phys) rliq(i,l,k) = 0._kind_phys
+          if(abs(rice(i,l,k)) < 1.e-300_kind_phys) rice(i,l,k) = 0._kind_phys
+          if(rcwn(i,l,k) < 0._kind_phys) error_found = .true.
+          if(rliq(i,l,k) < 0._kind_phys) error_found = .true.
+          if(rice(i,l,k) < 0._kind_phys) error_found = .true.
+          if(error_found) then
+            if(rcwn(i,l,k) < 0._kind_phys) then
+              write(iulog,*) 'prognostic_cloud_water: prob with neg rcwn1 ', rcwn(i,l,k), cwn(i)
+              write(iulog,*) ' cwat, qme*deltat, prodprec*deltat ', &
+                 cwat(i,k), qme(i,k)*deltat,               &
+                 prodprec(i,k)*deltat,                     &
+                 (qme(i,k)-prodprec(i,k))*deltat
+
+              errflg = 1
+              errmsg = 'prognostic_cloud_water: negative rcwn1'
+              return
             endif
 
-            ! avoid roundoff problems generating negatives
-            nliq2snow = nliq2snow*omsm
-            nliq2pr   = nliq2pr*omsm
-            nice2pr   = nice2pr*omsm
-
-            ! final estimates of conversion to precip and snow
-            prodprec(i,k) = (nliq2pr + nice2pr)
-            prodsnow(i,k) = (nice2pr + nliq2snow)
-
-            rcwn(i,l,k) =  cwat(i,k) + (qme(i,k) - prodprec(i,k))*deltat
-            rliq(i,l,k) = (cwat(i,k) + qme(i,k)*deltat)*(1._kind_phys-fice(i,k)) - nliq2pr*deltat
-            rice(i,l,k) = (cwat(i,k) + qme(i,k)*deltat) * fice(i,k) - nice2pr*deltat
-
-            ! Sanity checks
-            if(abs(rcwn(i,l,k)) < 1.e-300_kind_phys) rcwn(i,l,k) = 0._kind_phys
-            if(abs(rliq(i,l,k)) < 1.e-300_kind_phys) rliq(i,l,k) = 0._kind_phys
-            if(abs(rice(i,l,k)) < 1.e-300_kind_phys) rice(i,l,k) = 0._kind_phys
-            if(rcwn(i,l,k) < 0._kind_phys) error_found = .true.
-            if(rliq(i,l,k) < 0._kind_phys) error_found = .true.
-            if(rice(i,l,k) < 0._kind_phys) error_found = .true.
-            if(error_found) then
-              if(rcwn(i,l,k) < 0._kind_phys) then
-                write(iulog,*) 'prognostic_cloud_water: prob with neg rcwn1 ', rcwn(i,l,k), cwn(i)
-                write(iulog,*) ' cwat, qme*deltat, prodprec*deltat ', &
-                   cwat(i,k), qme(i,k)*deltat,               &
-                   prodprec(i,k)*deltat,                     &
-                   (qme(i,k)-prodprec(i,k))*deltat
-
-                errflg = 1
-                errmsg = 'prognostic_cloud_water: negative rcwn1'
-                return
-              endif
-
-              if (rliq(i,l,k) < 0._kind_phys) then
-                write(iulog,*) 'prognostic_cloud_water: prob with neg rliq1 ', rliq(i,l,k)
-                errflg = 1
-                errmsg = 'prognostic_cloud_water: negative rliq1'
-                return
-              endif
-
-              if (rice(i,l,k) < 0._kind_phys) then
-                write(iulog,*) 'prognostic_cloud_water: prob with neg rice ', rice(i,l,k)
-                errflg = 1
-                errmsg = 'prognostic_cloud_water: negative rice'
-                return
-              endif
+            if (rliq(i,l,k) < 0._kind_phys) then
+              write(iulog,*) 'prognostic_cloud_water: prob with neg rliq1 ', rliq(i,l,k)
+              errflg = 1
+              errmsg = 'prognostic_cloud_water: negative rliq1'
+              return
             endif
 
-            ! Final version of condensate to precip terms
-            liq2pr(i,k) = nliq2pr
-            liq2snow(i,k) = nliq2snow
-            ice2pr(i,k) = nice2pr
-            cwn(i) = rcwn(i,l,k)
-
-            ! update any remaining provisional values
-            cwm(i) = (cwn(i) + cwat(i,k))*0.5_kind_phys
-
-            ! update in cloud water
-            if(cldm(i) > mincld) then
-              icwc(i) = cwm(i)/cldm(i)
-            else
-              icwc(i) = 0.0_kind_phys
+            if (rice(i,l,k) < 0._kind_phys) then
+              write(iulog,*) 'prognostic_cloud_water: prob with neg rice ', rice(i,l,k)
+              errflg = 1
+              errmsg = 'prognostic_cloud_water: negative rice'
+              return
             endif
-            ! PJR the above logic give zero icwc with nonzero cwat, dont like it!
-            ! PJR generates problems with csigma
-            ! PJR set the icwc to a very small number, so we can start from zero cloud cover and make some clouds
-            ! icwc(i) = max(1.e-8_kind_phys,cwm(i)/cldm(i))
-        end do
+          endif
+
+          ! Final version of condensate to precip terms
+          liq2pr(i,k) = nliq2pr
+          liq2snow(i,k) = nliq2snow
+          ice2pr(i,k) = nice2pr
+          cwn(i) = rcwn(i,l,k)
+
+          ! update any remaining provisional values
+          cwm(i) = (cwn(i) + cwat(i,k))*0.5_kind_phys
+
+          ! update in cloud water
+          if(cldm(i) > mincld) then
+            icwc(i) = cwm(i)/cldm(i)
+          else
+            icwc(i) = 0.0_kind_phys
+          endif
+          ! PJR the above logic give zero icwc with nonzero cwat, dont like it!
+          ! PJR generates problems with csigma
+          ! PJR set the icwc to a very small number, so we can start from zero cloud cover and make some clouds
+          ! icwc(i) = max(1.e-8_kind_phys,cwm(i)/cldm(i))
+        end do precip_update_loop
 
         ! calculate provisional value of cloud water for
         ! evaporation of precipitate (evapprec) calculation
-        do i = 1,ncol
+        qtl_update_loop: do i = 1, ncol
           qtmp = qn(i,k) - qme(i,k)*deltat
           ttmp = tn(i,k) + deltat/cpair * ( meltheat(i,k) + (latvap + latice*fice(i,k)) * qme(i,k) )
           esn = estblf(ttmp)
           qsn = svp_to_qsat(esn, pmid(i,k))
           qtl(i) = max((qsn - qtmp)/deltat,0._kind_phys)
           relhum1(i) = qtmp/qsn
-        end do
+        end do qtl_update_loop
 
-        do i = 1,ncol
+        evap_update_loop: do i = 1, ncol
 #ifdef PERGRO
           evapprec(i,k) = conke*(1._kind_phys - max(cldm(i),mincld))* &
                           sqrt(precab(i))*(1._kind_phys - min(relhum1(i),1._kind_phys))
@@ -792,7 +791,7 @@ contains
 
           ! Account for the latent heat of fusion for liquid drops collected by falling snow
           prfzheat(i,k) = latice * liq2snow(i,k)
-        end do
+        end do evap_update_loop
 
         ! now remove the residual of any over-saturation. Normally,
         ! the oversaturated water vapor should have been removed by
@@ -802,7 +801,7 @@ contains
         ! a very small amount of over saturation. It is called a
         ! residual of over-saturation because theoretically, qme
         ! should have taken care of all of large scale condensation.
-        do i = 1,ncol
+        qmeres_update_loop: do i = 1, ncol
           qtmp = qn(i,k)-(qme(i,k)-evapprec(i,k))*deltat
           ttmp = tn(i,k) + deltat/cpair * ( meltheat(i,k) + evapheat(i,k) + prfzheat(i,k)      &
                  + (latvap + latice*fice(i,k)) * qme(i,k) )
@@ -819,11 +818,11 @@ contains
           else
             qmeres(i) = 0.0_kind_phys
           endif
-       end do
+       end do qmeres_update_loop
       end do qme_iter_loop  ! loop over l (iteration)
 
       ! precipitation
-      do i = 1, ncol
+      precip_snow_loop: do i = 1, ncol
         precip(i) = precip(i) + pdel(i,k)/gravit * (prodprec(i,k) - evapprec(i,k))
         precab(i) = precab(i) + pdel(i,k)/gravit * (prodprec(i,k) - evapprec(i,k))
         if(precab(i) < 0._kind_phys) then
@@ -837,7 +836,7 @@ contains
         lsflxprc(i,k+1) = precab(i)   !! making this consistent with other precip fluxes.  prc = rain + snow
         ! lsflxprc(i,k+1) = precab(i) - snowab(i)
         lsflxsnw(i,k+1) = snowab(i)
-      end do
+      end do precip_snow_loop
     end do mp_level_loop    ! loop over k (level)
 
     ! Convert precip (lwe_stratiform_precipitation_rate_at_surface)
@@ -857,7 +856,6 @@ contains
   ! Original author: P. Rasch
   subroutine findmcnew( &
     ncol, pver, &
-    rlat, & ! was get_rlat_all_p
     pi, &
     k, &
     precab, snowab, t, p, cwm, cldm, cldmax, fice, &
@@ -869,7 +867,6 @@ contains
     ! input arguments
     integer,         intent(in) :: ncol             ! number of atmospheric columns
     integer,         intent(in) :: pver             ! number of levels
-    real(kind_phys), intent(in) :: rlat(:)          ! latitudes [rad]
     real(kind_phys), intent(in) :: pi               ! pi_constant [1]
     integer,         intent(in) :: k                ! level index
 
@@ -900,7 +897,6 @@ contains
     integer :: i, ii                                ! Loop index [index]
     integer :: ncols                                ! Number of active columns for microphysics (different from ncol!!) [count]
     integer :: ind(ncol)                            ! Active column indices [index]
-    real(kind_phys), parameter :: degrad = 57.296_kind_phys  ! Degrees per radian [deg rad-1]
     real(kind_phys) :: capn                         ! Local cloud particle number concentration [cm-3]
     real(kind_phys) :: capnoice                     ! Cloud particle concentration excluding sea ice [cm-3]
     real(kind_phys) :: cldloc(ncol)                ! Non-zero cloud fraction [1]
@@ -1103,7 +1099,7 @@ contains
       ! total conversion of condensate to precipitate
       ptot = pwaut + psaut + pracw + psacw + psaci
 
-      ! the recipricol of cloud water amnt (or zero if no cloud water)
+      ! the reciprocal of cloud water amount (or zero if no cloud water)
       !  rcwm =  totmr(i)/(max(totmr(i),small)**2)
 
       ! turn the tendency back into a loss rate [s-1]

@@ -84,6 +84,14 @@ contains
     premit            = premit_in
     premib            = premib_in
     icecrit           = icecrit_in
+    inversion_cld_off = inversion_cld_off_in
+
+    if(amIRoot) then
+      write(iulog,*) 'tuning parameters compute_cloud_fraction_init: inversion_cld_off', inversion_cld_off
+      write(iulog,*) 'tuning parameters compute_cloud_fraction_init: rhminl',rhminl,'rhminl_adj_land',rhminl_adj_land, &
+                       'rhminh',rhminh,'premit',premit,'premib',premib
+      write(iulog,*) 'tuning parameters compute_cloud_fraction_init: iceopt',iceopt,'icecrit',icecrit
+    endif
 
     ! Find vertical level nearest 700 mb.
     k700 = minloc(abs(pref_mid(:) - 7.e4_kind_phys), 1)
@@ -119,15 +127,6 @@ contains
   ! entering that layer from below.
   !
   ! Original authors: Many, including Jim McCaa.
-
-  ! previous call routine
-  ! subroutine cldfrc(lchnk   ,ncol    , pbuf,  &
-  !      pmid    ,temp    ,q       ,omga    , phis, &
-  !      shfrc   ,use_shfrc, &
-  !      cloud   ,rhcloud, clc     ,pdel    , &
-  !      cmfmc   ,cmfmc2  ,landfrac,snowh   ,concld  ,cldst   , &
-  !      ts      ,sst     ,ps      ,zdu     ,ocnfrac ,&
-  !      rhu00   ,cldice  ,icecldf ,liqcldf ,relhum  ,dindex )
 !> \section arg_table_compute_cloud_fraction_run Argument Table
 !! \htmlinclude compute_cloud_fraction_run.html
   subroutine compute_cloud_fraction_run( &

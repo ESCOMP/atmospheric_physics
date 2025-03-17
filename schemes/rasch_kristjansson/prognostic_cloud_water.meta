@@ -293,31 +293,31 @@
   intent = in
 [ qme ]
   standard_name = net_condensation_rate_due_to_microphysics
-  units = s-1
+  units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ prodprec ]
   standard_name = precipitation_production_due_to_microphysics
-  units = s-1
+  units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ prodsnow ]
   standard_name = snow_production_due_to_microphysics
-  units = s-1
+  units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ evapprec ]
   standard_name = precipitation_evaporation_due_to_microphysics
-  units = s-1
+  units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ evapsnow ]
   standard_name = rate_of_evaporation_of_falling_snow_due_to_microphysics_tbd
-  units = s-1
+  units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
@@ -412,7 +412,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ fracw ]
-  standard_name = relative_importance_of_rain_axcreting_liquid_tbd
+  standard_name = relative_importance_of_rain_accreting_liquid_tbd
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

@@ -1,7 +1,6 @@
 [ccpp-table-properties]
   name = rk_stratiform
   type = scheme
-  dependencies = ../../to_be_ccppized/cloud_optical_properties.F90
 
 [ccpp-arg-table]
   name  = rk_stratiform_init
@@ -19,8 +18,12 @@
   dimensions = ()
   intent = out
 
+[ccpp-table-properties]
+  name = rk_stratiform_check_qtlcwat
+  type = scheme
+
 [ccpp-arg-table]
-  name  = rk_stratiform_timestep_init
+  name  = rk_stratiform_check_qtlcwat_run
   type  = scheme
 [ ncol ]
   standard_name = horizontal_loop_extent
@@ -46,18 +49,21 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
+  advected = true
 [ cldice ]
   standard_name = cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water
   units = kg kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
+  advected = true
 [ cldliq ]
   standard_name = cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water
   units = kg kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
+  advected = true
 [ qcwat ]
   standard_name = water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_at_end_of_microphysics
   units = kg kg-1
@@ -579,7 +585,7 @@
   intent = in
 [ qme ]
   standard_name = net_condensation_rate_due_to_microphysics
-  units = s-1
+  units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
@@ -615,7 +621,7 @@
   intent = in
 [ evapprec ]
   standard_name = precipitation_evaporation_due_to_microphysics
-  units = s-1
+  units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
@@ -636,13 +642,13 @@
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
-  intent = inout
+  intent = in
 [ snow_pcw ]
   standard_name = lwe_snow_precipitation_rate_at_surface_due_to_microphysics
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
-  intent = inout
+  intent = in
 [ prec_str ]
   standard_name = stratiform_rain_and_snow_surface_flux
   units = m s-1
@@ -790,6 +796,7 @@
 [ccpp-table-properties]
   name = rk_stratiform_cloud_optical_properties
   type = scheme
+  dependencies = ../../to_be_ccppized/cloud_optical_properties.F90
 
 [ccpp-arg-table]
   name  = rk_stratiform_cloud_optical_properties_run
