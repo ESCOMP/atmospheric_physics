@@ -44,12 +44,14 @@ contains
      integer,            intent(out) :: errcode
 
      !Variables read from file:
+     character(32), dimension(:),  allocatable    :: gas_names
      integer,  dimension(:,:), allocatable        :: band2gpt
      real(kind_phys), dimension(:), allocatable   :: press_ref
      real(kind_phys), dimension(:,:), allocatable :: band_lims_wavenum
 
      !NetCDF dimensions:
      integer :: bnd
+     integer :: absorber
      integer :: pressure
 
      !Local variables:
@@ -70,6 +72,19 @@ contains
      call pio_seterrorhandling(fh, PIO_BCAST_ERROR)
 
      !Get relevant dimensions:
+     !-----------------------
+
+     !Bands:
+     call sima_get_netcdf_dim(fh, local_file_path, 'bnd', errcode, errmsg, dimlen=bnd)
+     if (errcode /= 0) then
+        return !Error has occurred, so exit scheme
+     end if
+
+     !Absorbers:
+     call sima_get_netcdf_dim(fh, local_file_path, 'absorber', errcode, errmsg, dimlen=absorber)
+     if (errcode /= 0) then
+        return !Error has occurred, so exit scheme
+     end if
 
      !Pressure:
      call sima_get_netcdf_dim(fh, local_file_path, 'pressure', errcode, errmsg, dimlen=pressure)
@@ -77,10 +92,13 @@ contains
         return !Error has occurred, so exit scheme
      end if
 
-     !Bands:
-     call sima_get_netcdf_dim(fh, local_file_path, 'bnd', errcode, errmsg, dimlen=bnd)
-     if (errcode /= 0) then
-        return !Error has occurred, so exit scheme
+     !Allocate relevant variables:
+     !-----------------------
+
+     !Allocate RRTMGP absorbing gas names:
+     allocate(gas_names(absorber), stat=errcode, errmsg=errmsg)
+     if(errcode /= 0) then
+        return
      end if
 
      !Allocate RRTMGP reference pressure:
@@ -99,6 +117,15 @@ contains
      allocate(band_lims_wavenum(2,bnd), stat=errcode, errmsg=errmsg)
      if(errcode /= 0) then
         return
+     end if
+
+     !Read variables from NetCDF file:
+     !-----------------------
+
+     !Attempt to get absorbing gas names from file:
+     call sima_get_netcdf_var(fh, local_file_path, 'gas_names', len(gas_names), gas_names, errcode, errmsg)
+     if (errcode /= 0) then
+        return !Error has occurred, so exit scheme
      end if
 
      !Attempt to get reference pressure from file:
@@ -123,10 +150,12 @@ contains
      call pio_closefile(fh)
 
      !Write dimension lengths to stdout:
+     write(*,*) 'Number of gas absorbers = ', absorber
      write(*,*) 'Pressure dimension length = ', pressure
      write(*,*) 'Band (bnd) dimension length = ', bnd
 
      !Write max values to stdout:
+     write(*,*) 'First absorbing gas name = ', gas_names(1)
      write(*,*) 'Max RRTMGP reference pressure value = ', maxval(press_ref)
      write(*,*) 'Max RRTMGP band starting wave idx   = ', maxval(band2gpt(1,:))
      write(*,*) 'Max RRTMGP band starting wavenumber = ', maxval(band_lims_wavenum(1,:))
