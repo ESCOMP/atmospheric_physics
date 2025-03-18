@@ -55,7 +55,7 @@
   intent = inout
 [ const_props ]
   standard_name = ccpp_constituent_properties
-  units = None
+  units = none
   type = ccpp_constituent_prop_ptr_t
   dimensions = (number_of_ccpp_constituents)
   intent = in
@@ -66,22 +66,28 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
   intent = inout
 [ qini ]
-  standard_name = water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_before_coupling
+  standard_name = water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_before_physics
   units = kg kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ liqini ]
-  standard_name = total_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water_before_coupling
+  standard_name = total_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water_before_physics
   units = kg kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ iceini ]
-  standard_name = total_ice_water_mixing_ratio_wrt_moist_air_and_condensed_water_before_coupling
+  standard_name = total_ice_water_mixing_ratio_wrt_moist_air_and_condensed_water_before_physics
   units = kg kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ is_dycore_moist ]
+  standard_name =
+  units = flag
+  type = logical
+  dimensions = ()
   intent = in
 [ errmsg ]
   standard_name = ccpp_error_message

@@ -10,7 +10,7 @@ contains
 !! \htmlinclude dme_adjust_run.html
 !!
   subroutine dme_adjust_run(ncol, pver, pcnst, ps, pint, pdel, lnpint, rpdel, const_props, const_array, qini, liqini, iceini, &
-                            errmsg, errflg)
+                            is_dycore_moist, errmsg, errflg)
     !-----------------------------------------------------------------------
     !
     ! Purpose: Adjust the dry mass in each layer back to the value of physics input state
@@ -55,6 +55,7 @@ contains
     real(kind_phys),                   intent(in)    :: qini(:,:)    ! initial specific humidity
     real(kind_phys),                   intent(in)    :: liqini(:,:)  ! initial total liquid
     real(kind_phys),                   intent(in)    :: iceini(:,:)  ! initial total ice
+    logical,                           intent(in)    :: is_dycore_moist
     character(len=512),                intent(out)   :: errmsg
     integer,                           intent(out)   :: errflg
 
@@ -73,6 +74,11 @@ contains
 
     errmsg = ' '
     errflg = 0
+
+    !-----------------------------------------------------------------------
+    ! if dycore is not moist, return as dme_adjust is only for moist mixing ratios
+
+    if (.not. is_dycore_moist) return
 
     !
     !-----------------------------------------------------------------------
