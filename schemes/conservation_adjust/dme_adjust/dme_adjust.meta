@@ -84,7 +84,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ is_dycore_moist ]
-  standard_name =
+  standard_name = is_moist_basis_dycore
   units = flag
   type = logical
   dimensions = ()
