@@ -461,6 +461,11 @@ contains
     psacwo(:ncol,:)   = 0._kind_phys
     psacio(:ncol,:)   = 0._kind_phys
 
+    ! reset diagnostic arrays
+    rcwn(:,:,:) = 0._kind_phys
+    rliq(:,:,:) = 0._kind_phys
+    rice(:,:,:) = 0._kind_phys
+
     ! find the wet bulb temp and saturation value
     ! for the provisional t and q without condensation
     mp_level_loop: do k = top_lev, pver
@@ -688,6 +693,7 @@ contains
           prodprec(i,k) = (nliq2pr + nice2pr)
           prodsnow(i,k) = (nice2pr + nliq2snow)
 
+          ! compute diagnostics and sanity checks
           rcwn(i,l,k) =  cwat(i,k) + (qme(i,k) - prodprec(i,k))*deltat
           rliq(i,l,k) = (cwat(i,k) + qme(i,k)*deltat)*(1._kind_phys-fice(i,k)) - nliq2pr*deltat
           rice(i,l,k) = (cwat(i,k) + qme(i,k)*deltat) * fice(i,k) - nice2pr*deltat
