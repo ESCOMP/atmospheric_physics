@@ -165,12 +165,6 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
-[ rlat ]
-  standard_name = latitude
-  units = rad
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent)
-  intent = in
 [ pmid ]
   standard_name = air_pressure
   units = Pa

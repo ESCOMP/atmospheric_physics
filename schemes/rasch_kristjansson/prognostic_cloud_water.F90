@@ -226,7 +226,7 @@ contains
     ncol, pver, top_lev, deltat, &
     iulog, &
     pi, gravit, rh2o, epsilo, latvap, latice, cpair, &
-    dlat, rlat, &
+    dlat, &
     pmid, pdel, &
     zi, &
     troplev, &
@@ -267,7 +267,6 @@ contains
     real(kind_phys),    intent(in)    :: latice         ! latent_heat_of_fusion_of_water_at_0c [J kg-1]
     real(kind_phys),    intent(in)    :: cpair          ! specific_heat_of_dry_air_at_constant_pressure [J K-1 kg-1]
     real(kind_phys),    intent(in)    :: dlat(:)        ! latitude_degrees_north [degrees]
-    real(kind_phys),    intent(in)    :: rlat(:)        ! latitude [rad]
     real(kind_phys),    intent(in)    :: pmid(:,:)      ! air_pressure [Pa]
     real(kind_phys),    intent(in)    :: pdel(:,:)      ! air_pressure_thickness [Pa]
     real(kind_phys),    intent(in)    :: zi(:,:)        ! geopotential_height_wrt_surface_at_interface [m]
