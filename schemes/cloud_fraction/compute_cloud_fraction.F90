@@ -56,7 +56,7 @@ contains
     integer,         intent(in)  :: iulog
     integer,         intent(in)  :: pver
     real(kind_phys), intent(in)  :: pref_mid(:)          ! reference_pressure [Pa]
-    logical,         intent(in)  :: inversion_cld_off_in ! flag for turn off inversion_cld?
+    logical,         intent(in)  :: inversion_cld_off_in ! flag to turn off inversion_cld?
     logical,         intent(in)  :: cldfrc_freeze_dry_in ! flag for Vavrus correction
     logical,         intent(in)  :: cldfrc_ice_in        ! flag to compute ice cloud fraction
     integer,         intent(in)  :: iceopt_in            ! option for ice cloud closure
