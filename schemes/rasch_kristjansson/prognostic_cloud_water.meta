@@ -263,7 +263,7 @@
   intent = in
 [ rhu00 ]
   standard_name = relative_humidity_threshold_for_prognostic_cloud_water_tbd
-  units = percent
+  units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
