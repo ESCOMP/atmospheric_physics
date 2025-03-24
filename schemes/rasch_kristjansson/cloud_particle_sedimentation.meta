@@ -19,7 +19,7 @@
   dimensions = ()
   intent = in
 [ cldsed_ice_stokes_fac_in ]
-  standard_name = tunable_parameter_for_ice_fall_velocity_for_cloud_sedimentation
+  standard_name = tunable_parameter_for_ice_fall_velocity_for_rk_microphysics
   units = 1
   type = real | kind = kind_phys
   dimensions = ()

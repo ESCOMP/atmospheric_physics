@@ -19,9 +19,9 @@
     Valid declarations are:
 
           char*n
-    integer
-    logical
-    real
+          integer
+          logical
+          real
 
     Any of these types may be followed by a comma separated list of
     integers enclosed in parenthesis to indicate an array.
@@ -86,7 +86,8 @@
       Tunable parameter 1 for shallow convection cloud fraction.
     </desc>
     <values>
-      <value>0.04D0</value>
+      <value>0.07D0</value>
+      <value dyn="se">0.04D0</value>
     </values>
   </entry>
   <entry id="cldfrc_sh2">
@@ -114,7 +115,11 @@
       Tunable parameter 1 for deep convection cloud fraction.
     </desc>
     <values>
-      <value>0.10D0</value>
+      <value>0.14D0</value>
+      <value          phys_suite="cam5">0.10D0</value>
+      <value          phys_suite="cam6">0.10D0</value>
+      <value          phys_suite="cam7">0.10D0</value>
+      <value dyn="se" phys_suite="cam4">0.10D0</value>
     </values>
   </entry>
   <entry id="cldfrc_dp2">

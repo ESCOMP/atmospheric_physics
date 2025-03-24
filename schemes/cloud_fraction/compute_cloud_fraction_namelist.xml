@@ -19,9 +19,9 @@
     Valid declarations are:
 
           char*n
-    integer
-    logical
-    real
+          integer
+          logical
+          real
 
     Any of these types may be followed by a comma separated list of
     integers enclosed in parenthesis to indicate an array.
@@ -97,12 +97,13 @@
     <units>flag</units>
     <desc>
       Turn on ice cloud fraction calculation
-      Default: TRUE (CAM5 and CAM6) or FALSE
+      Default: TRUE (CAM5, 6, 7) or FALSE
     </desc>
     <values>
       <value>.false.</value>
       <value phys_suite="cam7">.true.</value>
       <value phys_suite="cam6">.true.</value>
+      <value phys_suite="cam5">.true.</value>
     </values>
   </entry>
   <entry id="cldfrc_inversion_cld_off">
@@ -131,6 +132,9 @@
     </desc>
     <values>
       <value>0.900D0</value>
+      <value phys_suite="cam5">0.8975D0</value>
+      <value phys_suite="cam6">0.8975D0</value>
+      <value phys_suite="cam7">0.8975D0</value>
     </values>
   </entry>
   <entry id="cldfrc_rhminl_adj_land">
@@ -145,6 +149,8 @@
     </desc>
     <values>
       <value>0.1D0</value>
+      <value phys_suite="cam6">0.0D0</value>
+      <value phys_suite="cam7">0.0D0</value>
     </values>
   </entry>
   <entry id="cldfrc_rhminh">
@@ -170,9 +176,7 @@
       Top pressure bound for mid level cloud.
     </desc>
     <values>
-      <value dyn="mpas">75000.0D0</value>
-      <value dyn="se">40000.0D0</value>
-      <value>40000.0D0</value>
+      <value>75000.0D0</value>
     </values>
   </entry>
   <entry id="cldfrc_premib">
@@ -186,6 +190,9 @@
     </desc>
     <values>
       <value>750.0D2</value>
+      <value phys_suite="cam5">700.0D2</value>
+      <value phys_suite="cam6">700.0D2</value>
+      <value phys_suite="cam7">700.0D2</value>
     </values>
   </entry>
   <entry id="cldfrc_iceopt">
@@ -203,7 +210,10 @@
       5 = modified Slingo (ssat and empty cloud)
     </desc>
     <values>
-      <value>5</value>
+      <value>1</value>
+      <value phys_suite="cam5">5</value>
+      <value phys_suite="cam6">5</value>
+      <value phys_suite="cam7">5</value>
     </values>
   </entry>
   <entry id="cldfrc_icecrit">
@@ -217,6 +227,9 @@
     </desc>
     <values>
       <value>0.95D0</value>
+      <value phys_suite="cam5">0.93D0</value>
+      <value phys_suite="cam6">0.93D0</value>
+      <value phys_suite="cam7">0.93D0</value>
     </values>
   </entry>
 </entry_id_pg>

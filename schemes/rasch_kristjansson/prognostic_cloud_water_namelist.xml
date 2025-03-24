@@ -19,9 +19,9 @@
     Valid declarations are:
 
           char*n
-    integer
-    logical
-    real
+          integer
+          logical
+          real
 
     Any of these types may be followed by a comma separated list of
     integers enclosed in parenthesis to indicate an array.
@@ -86,6 +86,7 @@
     </desc>
     <values>
       <value>5.0e-6</value>
+      <value dyn="se">18.0e-6</value>
     </values>
   </entry>
   <entry id="rk_strat_icritw">
@@ -99,6 +100,7 @@
     </desc>
     <values>
       <value>4.0e-4</value>
+      <value dyn="se">2.0e-4</value>
     </values>
   </entry>
   <entry id="rk_strat_conke">
@@ -117,7 +119,8 @@
       Tunable constant for evaporation of precip in RK microphysics scheme.
     </desc>
     <values>
-      <value>5.0e-6</value>
+      <value>10.0e-6</value>
+      <value dyn="se">5.0e-6</value>
     </values>
   </entry>
   <entry id="rk_strat_r3lcrit">
@@ -144,7 +147,7 @@
       poleward of 50 degrees. Used if rk_strat_polstrat_dorhmin is set to true.
     </desc>
     <values>
-      <value>1.200e0</value>
+      <value>1.200D0</value>
     </values>
   </entry>
   <entry id="rk_strat_polstrat_dorhmin">
