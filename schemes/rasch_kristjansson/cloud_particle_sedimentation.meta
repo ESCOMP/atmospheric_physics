@@ -232,7 +232,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ sfliq ]
-  standard_name = stratiform_rain_surface_flux_due_to_sedimentation
+  standard_name = stratiform_rain_flux_at_surface_due_to_sedimentation
   units = kg m-2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)

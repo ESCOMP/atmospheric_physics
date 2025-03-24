@@ -2,22 +2,6 @@
   name = rk_stratiform
   type = scheme
 
-[ccpp-arg-table]
-  name  = rk_stratiform_init
-  type  = scheme
-[ errmsg ]
-  standard_name = ccpp_error_message
-  units = none
-  type = character | kind = len=512
-  dimensions = ()
-  intent = out
-[ errflg ]
-  standard_name = ccpp_error_code
-  units = 1
-  type = integer
-  dimensions = ()
-  intent = out
-
 [ccpp-table-properties]
   name = rk_stratiform_check_qtlcwat
   type = scheme
@@ -109,7 +93,7 @@
   dimensions = ()
   intent = in
 [ sfliq ]
-  standard_name = stratiform_rain_surface_flux_due_to_sedimentation
+  standard_name = stratiform_rain_flux_at_surface_due_to_sedimentation
   units = kg m-2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
@@ -127,7 +111,7 @@
   dimensions = (horizontal_loop_extent)
   intent = out
 [ prec_str ]
-  standard_name = stratiform_rain_and_snow_surface_flux
+  standard_name = lwe_large_scale_precipitation_rate_at_surface
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
@@ -177,7 +161,7 @@
   dimensions = (horizontal_loop_extent)
   intent = in
 [ prec_str ]
-  standard_name = stratiform_rain_and_snow_surface_flux
+  standard_name = lwe_large_scale_precipitation_rate_at_surface
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
@@ -337,13 +321,13 @@
   intent = in
 [ relhum ]
   standard_name = relative_humidity_for_prognostic_cloud_water_tbd
-  units = percent
+  units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ rhu00 ]
   standard_name = relative_humidity_threshold_for_prognostic_cloud_water_tbd
-  units = percent
+  units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
@@ -650,7 +634,7 @@
   dimensions = (horizontal_loop_extent)
   intent = in
 [ prec_str ]
-  standard_name = stratiform_rain_and_snow_surface_flux
+  standard_name = lwe_large_scale_precipitation_rate_at_surface
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)

@@ -48,7 +48,7 @@ contains
     dp2 = dp2_in
 
     if(amIRoot) then
-      write(iulog,*) 'tuning parameters convective_cloud_cover: dp1',dp1,'dp2',dp2,'sh1',sh1,'sh2',sh2
+      write(iulog,*) 'tuning parameters convective_cloud_cover: dp1 ',dp1,' dp2 ',dp2,' sh1 ',sh1,' sh2 ',sh2
     endif
 
   end subroutine convective_cloud_cover_init
@@ -72,7 +72,7 @@ contains
     integer,          intent(in)  :: pver
     integer,          intent(in)  :: top_lev_cloudphys ! Top vertical level for cloud physics [index]
 
-    logical,          intent(in)  :: use_shfrc         ! [flag]
+    logical,          intent(in)  :: use_shfrc         ! Use cloud area fraction provided by shallow convection? [flag]
     real(kind_phys),  intent(in)  :: shfrc(:, :)       ! Input shallow cloud fraction [fraction]
 
     real(kind_phys),  intent(in)  :: cmfmc_total(:, :) ! atmosphere_convective_mass_flux_due_to_all_convection [kg m-2 s-1]

@@ -31,25 +31,25 @@
   dimensions = (vertical_layer_dimension)
   intent = in
 [ inversion_cld_off_in ]
-  standard_name = flag_for_turning_off_stratification_based_for_cloud_fraction
+  standard_name = do_no_stratification_based_cloud_fraction
   units = flag
   type = logical
   dimensions = ()
   intent = in
 [ cldfrc_freeze_dry_in ]
-  standard_name = flag_for_vavrus_freeze_dry_adjustment_for_cloud_fraction
+  standard_name = do_vavrus_freeze_dry_adjustment_for_cloud_fraction
   units = flag
   type = logical
   dimensions = ()
   intent = in
 [ cldfrc_ice_in ]
-  standard_name = flag_for_ice_cloud_fraction_for_cloud_fraction
+  standard_name = do_ice_cloud_fraction_for_cloud_fraction
   units = flag
   type = logical
   dimensions = ()
   intent = in
 [ iceopt_in ]
-  standard_name = scheme_for_ice_cloud_fraction
+  standard_name = control_for_ice_cloud_fraction
   units = 1
   type = integer
   dimensions = ()
@@ -85,7 +85,7 @@
   dimensions = ()
   intent = in
 [ icecrit_in ]
-  standard_name = tunable_parameter_for_critical_relative_humidity_for_ice_clouds_for_cloud_fraction_using_wilson_from_ballard_scheme
+  standard_name = tunable_parameter_for_critical_relative_humidity_for_ice_clouds_for_cloud_fraction_using_wilson_and_ballard_scheme
   units = 1
   type = real | kind = kind_phys
   dimensions = ()
@@ -107,7 +107,7 @@
   name  = compute_cloud_fraction_timestep_init
   type  = scheme
 [ rhpert_flag ]
-  standard_name = flag_for_relative_humidity_perturbation_for_cloud_fraction
+  standard_name = do_relative_humidity_perturbation_for_cloud_fraction
   units = flag
   type = logical
   dimensions = ()
@@ -249,7 +249,7 @@
   dimensions = (horizontal_loop_extent)
   intent = in
 [ rhpert_flag ]
-  standard_name = flag_for_relative_humidity_perturbation_for_cloud_fraction
+  standard_name = do_relative_humidity_perturbation_for_cloud_fraction
   units = flag
   type = logical
   dimensions = ()
@@ -274,7 +274,7 @@
   intent = out
 [ rhu00 ]
   standard_name = relative_humidity_threshold_for_prognostic_cloud_water_tbd
-  units = percent
+  units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
@@ -292,7 +292,7 @@
   intent = out
 [ relhum ]
   standard_name = relative_humidity_for_prognostic_cloud_water_tbd
-  units = percent
+  units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out

@@ -112,7 +112,7 @@ contains
     psrhmin = psrhmin_in
 
     if(amIRoot) then
-      write(iulog,*) 'tuning parameters prognostic_cloud_water_init: icritw',icritw,'icritc',icritc,'conke',conke,'r3lcrit',r3lcrit
+      write(iulog,*) 'tuning parameters prognostic_cloud_water_init: icritw ',icritw,' icritc ',icritc,' conke ',conke,' r3lcrit ',r3lcrit
       write(iulog,*) 'prognostic_cloud_water_init: do_psrhmin = ', do_psrhmin
     endif
 
@@ -200,9 +200,9 @@ contains
     ciautb = 5.e-4_kind_phys
 
     if(amIRoot) then
-      write(iulog,*) 'tuning parameters prognostic_cloud_water_init: capnw',capnw,'capnc',capnc,'capnsi',capnsi,'kconst',kconst
-      write(iulog,*) 'tuning parameters prognostic_cloud_water_init: effc',effc,'alpha',alpha,'capc',capc
-      write(iulog,*) 'tuning parameters prognostic_cloud_water_init: critpr',critpr,'convfw',convfw,'cracw',cracw,'ciautb',ciautb
+      write(iulog,*) 'tuning parameters prognostic_cloud_water_init: capnw ',capnw,' capnc ',capnc,' capnsi ',capnsi,' kconst',kconst
+      write(iulog,*) 'tuning parameters prognostic_cloud_water_init: effc ',effc,' alpha ',alpha,' capc ',capc
+      write(iulog,*) 'tuning parameters prognostic_cloud_water_init: critpr ',critpr,' convfw ',convfw,' cracw ',cracw,' ciautb ',ciautb
     endif
 
   end subroutine prognostic_cloud_water_init
@@ -283,7 +283,7 @@ contains
     real(kind_phys),    intent(in)    :: omega(:,:)     ! lagrangian_tendency_of_air_pressure [Pa s-1]
     real(kind_phys),    intent(in)    :: cldn(:,:)      ! New Cloud fraction [fraction]
     real(kind_phys),    intent(in)    :: fice(:,:)      ! Ice fraction within cwat [fraction]
-    real(kind_phys),    intent(in)    :: fsnow(:,:)     ! Fraction of rain that freezes to show [fraction]
+    real(kind_phys),    intent(in)    :: fsnow(:,:)     ! Fraction of rain that freezes to snow [fraction]
 
     real(kind_phys),    intent(in)    :: rhdfda(:,:)    ! dG(a)/da, rh=G(a), when rh>u00 [??]
     real(kind_phys),    intent(in)    :: rhu00(:,:)     ! Rhlim for cloud [percent]
@@ -344,8 +344,6 @@ contains
     real(kind_phys) :: cwm(ncol)                        ! Cloud water mixing ratio at midpoint of timestep [kg kg-1]
     real(kind_phys) :: cwn(ncol)                        ! Cloud water mixing ratio at end of timestep [kg kg-1]
     real(kind_phys) :: coef(ncol)                       ! Conversion timescale for condensate to rain [s-1]
-    !real(kind_phys) :: ice(ncol,pver)                   ! Ice mixing ratio [kg kg-1]
-    !real(kind_phys) :: liq(ncol,pver)                   ! Liquid water mixing ratio [kg kg-1]
 
     ! Thermodynamic variables
     real(kind_phys) :: t(ncol,pver)                     ! Temperature before timestep [K]
@@ -997,9 +995,6 @@ contains
     do ii = 1, ncols
       i = ind(ii)
       rhocgs = rho(i)*1.e-3_kind_phys     ! density in cgs units
-
-      ! exponential temperature factor
-      ! efact = exp(0.025*(t(i,k)-t0))
 
       ! some temperature dependent constants
       wt = fice(i)

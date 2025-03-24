@@ -17,7 +17,6 @@ module rk_stratiform
   !
   ! refer to test SDF suite_rasch_kristjansson.xml for total order of operations,
   ! as the full RK-stratiform requires other schemes not included in this module.
-  public :: rk_stratiform_init
   public :: rk_stratiform_check_qtlcwat_run
   ! -- cloud_particle_sedimentation --
   public :: rk_stratiform_sedimentation_run
@@ -33,21 +32,6 @@ module rk_stratiform
   !
 
 contains
-
-  ! Initialize rk_stratiform
-!> \section arg_table_rk_stratiform_init Argument Table
-!! \htmlinclude arg_table_rk_stratiform_init.html
-  subroutine rk_stratiform_init( &
-    errmsg, errflg)
-
-    ! Output arguments
-    character(len=512), intent(out)   :: errmsg         ! error message
-    integer,            intent(out)   :: errflg         ! error flag
-
-    errmsg = ''
-    errflg = 0
-
-  end subroutine rk_stratiform_init
 
 !> \section arg_table_rk_stratiform_check_qtlcwat_run Argument Table
 !! \htmlinclude arg_table_rk_stratiform_check_qtlcwat_run.html
@@ -80,19 +64,19 @@ contains
     ! Check that qcwat and tcwat were initialized - if not then initialize
     ! this is made as a separate "run" scheme so it does not have to be used in current CAM
 
-    ! The registry will set default values of negative if not read from snapshot.
+    ! lcwat is initialized from initial conditions of cldice, cldliq
+    ! TODO: check if this is always done (appears to be from physpkg.F90) or should be read from snapshot.
+    if(qcwat(1,1) < 0._kind_phys .or. tcwat(1,1) < 0._kind_phys) then
+      lcwat(:ncol,:) = cldice(:ncol,:) + cldliq(:ncol,:)
+    endif
+
+    ! The registry will set default negative values if not read from snapshot.
     if(qcwat(1,1) < 0._kind_phys) then
       qcwat(:ncol,:) = q_wv(:ncol,:)
     endif
 
     if(tcwat(1,1) < 0._kind_phys) then
       tcwat(:ncol,:) = t(:ncol,:)
-    endif
-
-    ! lcwat is initialized from initial conditions of cldice, cldliq
-    ! TODO: check if this is always done (appears to be from physpkg.F90) or should be read from snapshot.
-    if(qcwat(1,1) < 0._kind_phys .or. tcwat(1,1) < 0._kind_phys) then
-      lcwat(:ncol,:) = cldice(:ncol,:) + cldliq(:ncol,:)
     endif
 
   end subroutine rk_stratiform_check_qtlcwat_run
@@ -108,12 +92,12 @@ contains
 
     ! Input arguments
     integer,            intent(in)    :: ncol
-    real(kind_phys),    intent(in)    :: sfliq(:)     ! stratiform_rain_surface_flux_due_to_sedimentation [kg m-2 s-1]
+    real(kind_phys),    intent(in)    :: sfliq(:)        ! stratiform_rain_flux_at_surface_due_to_sedimentation [kg m-2 s-1]
     real(kind_phys),    intent(in)    :: snow_sed(:)     ! sfice = lwe_cloud_ice_sedimentation_rate_at_surface_due_to_microphysics [m s-1]
 
     ! Output arguments
     real(kind_phys),    intent(out)   :: prec_sed(:)     ! stratiform_cloud_water_surface_flux_due_to_sedimentation [m s-1]
-    real(kind_phys),    intent(out)   :: prec_str(:)     ! stratiform_rain_and_snow_surface_flux [m s-1]
+    real(kind_phys),    intent(out)   :: prec_str(:)     ! lwe_large_scale_precipitation_rate_at_surface [m s-1]
     real(kind_phys),    intent(out)   :: snow_str(:)     ! lwe_snow_and_cloud_ice_precipitation_rate_at_surface_due_to_microphysics [m s-1]
     character(len=512), intent(out)   :: errmsg         ! error message
     integer,            intent(out)   :: errflg         ! error flag
@@ -148,7 +132,7 @@ contains
     real(kind_phys),    intent(in)    :: rliq(:)        ! vertically_integrated_cloud_liquid_water_tendency_due_to_all_convection_to_be_applied_later_in_time_loop [m s-1]
 
     ! Input/output arguments
-    real(kind_phys),    intent(inout) :: prec_str(:)     ! stratiform_rain_and_snow_surface_flux [m s-1]
+    real(kind_phys),    intent(inout) :: prec_str(:)     ! lwe_large_scale_precipitation_rate_at_surface [m s-1]
 
     ! Output arguments
     real(kind_phys),    intent(out)   :: tend_cldliq(:,:) ! tendency_of_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water [kg kg-1 s-1]
@@ -215,7 +199,7 @@ contains
 
     ! Input/output arguments
     ! Note: CAM4 intentionally mutates the top level of rhu00 so this is inout here.
-    real(kind_phys),  intent(inout) :: rhu00(:, :)      ! RH threshold for cloud
+    real(kind_phys),  intent(inout) :: rhu00(:, :)      ! RH threshold for cloud [fraction]
 
     ! Output arguments
     real(kind_phys),    intent(out) :: rhdfda(:, :)     ! derivative of RH w.r.t. cloud fraction for prognostic cloud water [percent]
@@ -275,7 +259,7 @@ contains
 
     ! Compute rhdfda (derivative of RH w.r.t. cloud fraction)
     ! for use in the prognostic_cloud_water scheme.
-    rhu00(:ncol,1) = 2.0_kind_phys
+    rhu00(:ncol,1) = 2.0_kind_phys   ! arbitrary number larger than 1 (100%)
     do k = 1, pver
       do i = 1, ncol
          if( relhum(i,k) < rhu00(i,k) ) then
@@ -432,7 +416,7 @@ contains
     real(kind_phys),    intent(in)    :: snow_pcw(:)       ! lwe_snow_precipitation_rate_at_surface_due_to_microphysics [m s-1]
 
     ! Input/output arguments
-    real(kind_phys),    intent(inout) :: prec_str(:)    ! stratiform_rain_and_snow_surface_flux [m s-1]
+    real(kind_phys),    intent(inout) :: prec_str(:)    ! lwe_large_scale_precipitation_rate_at_surface [m s-1]
     real(kind_phys),    intent(inout) :: snow_str(:)    ! lwe_snow_and_cloud_ice_precipitation_rate_at_surface_due_to_microphysics [m s-1]
 
     ! Output arguments

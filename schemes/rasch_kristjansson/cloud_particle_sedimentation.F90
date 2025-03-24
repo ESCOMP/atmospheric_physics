@@ -139,12 +139,13 @@ contains
     real(kind_phys),    intent(in)    :: landm(:)       ! smoothed_land_area_fraction [fraction]
 
     ! Output arguments
-    ! note: pvel is at the interfaces (loss from cell is based on pvel(k+1))
-    real(kind_phys),    intent(out)   :: pvliq(:,:)     ! vertical velocity of cloud liquid drops [Pa s-1] pverp
-    real(kind_phys),    intent(out)   :: pvice(:,:)     ! vertical velocity of cloud ice particles [Pa s-1] pverp
-    real(kind_phys),    intent(out)   :: liqtend(:,:)   ! liquid condensate tendency -- to apply cldliq tendency
-    real(kind_phys),    intent(out)   :: icetend(:,:)   ! ice condensate tendency -- to apply cldice tendency
-    real(kind_phys),    intent(out)   :: wvtend(:,:)    ! water vapor tendency -- to apply wv tendency
+    ! note: pvliq, pvice are at the interfaces (loss from cell is based on pvel(k+1))
+    real(kind_phys),    intent(out)   :: pvliq(:,:)     ! vertical velocity of cloud liquid drops [Pa s-1]
+    real(kind_phys),    intent(out)   :: pvice(:,:)     ! vertical velocity of cloud ice particles [Pa s-1]
+
+    real(kind_phys),    intent(out)   :: liqtend(:,:)   ! liquid condensate tendency [kg kg-1 s-1] -- to apply cldliq tendency
+    real(kind_phys),    intent(out)   :: icetend(:,:)   ! ice condensate tendency [kg kg-1 s-1] -- to apply cldice tendency
+    real(kind_phys),    intent(out)   :: wvtend(:,:)    ! water vapor tendency [kg kg-1 s-1] -- to apply wv tendency
     real(kind_phys),    intent(out)   :: htend(:,:)     ! heating rate [J kg-1 s-1] -- to apply s tendency
     real(kind_phys),    intent(out)   :: sfliq(:)       ! surface flux of liquid (rain) [kg m-2 s-1]
     real(kind_phys),    intent(out)   :: sfice(:)       ! lwe_cloud_ice_sedimentation_rate_at_surface_due_to_microphysics [m s-1]

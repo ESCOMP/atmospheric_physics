@@ -87,17 +87,17 @@ contains
     inversion_cld_off = inversion_cld_off_in
 
     if(amIRoot) then
-      write(iulog,*) 'tuning parameters compute_cloud_fraction_init: inversion_cld_off', inversion_cld_off
-      write(iulog,*) 'tuning parameters compute_cloud_fraction_init: rhminl',rhminl,'rhminl_adj_land',rhminl_adj_land, &
-                       'rhminh',rhminh,'premit',premit,'premib',premib
-      write(iulog,*) 'tuning parameters compute_cloud_fraction_init: iceopt',iceopt,'icecrit',icecrit
+      write(iulog,*) 'tuning parameters compute_cloud_fraction_init: inversion_cld_off ', inversion_cld_off
+      write(iulog,*) 'tuning parameters compute_cloud_fraction_init: rhminl ',rhminl,'rhminl_adj_land ',rhminl_adj_land, &
+                       ' rhminh ',rhminh,' premit ',premit,' premib ',premib
+      write(iulog,*) 'tuning parameters compute_cloud_fraction_init: iceopt ',iceopt,' icecrit ',icecrit
     endif
 
     ! Find vertical level nearest 700 mb.
     k700 = minloc(abs(pref_mid(:) - 7.e4_kind_phys), 1)
 
     if(amIRoot) then
-      write(iulog,*) 'compute_cloud_fraction: model level nearest 700 mb is',k700,'which is',pref_mid(k700),'pascals'
+      write(iulog,*) 'compute_cloud_fraction: model level nearest 700 mb is ',k700,' which is',pref_mid(k700),' pascals '
     endif
 
   end subroutine compute_cloud_fraction_init
@@ -162,8 +162,8 @@ contains
     real(kind_phys), intent(in) :: q(:, :)           ! water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water [kg kg-1]
     real(kind_phys), intent(in) :: cldice(:, :)      ! cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water [kg kg-1]
     real(kind_phys), intent(in) :: phis(:)           ! surface_geopotential [m2 s-2]
-    real(kind_phys), intent(in) :: shallowcu(:, :)   ! shallow convective cloud fraction
-    real(kind_phys), intent(in) :: deepcu(:, :)      ! deep convective cloud fraction
+    real(kind_phys), intent(in) :: shallowcu(:, :)   ! shallow convective cloud fraction [fraction]
+    real(kind_phys), intent(in) :: deepcu(:, :)      ! deep convective cloud fraction [fraction]
     real(kind_phys), intent(in) :: concld(:, :)      ! convective_cloud_area_fraction [fraction]
     real(kind_phys), intent(in) :: landfrac(:)       ! land_area_fraction [fraction]
     real(kind_phys), intent(in) :: ocnfrac(:)        ! ocean_area_fraction [fraction]
@@ -174,10 +174,10 @@ contains
     real(kind_phys), intent(out) :: cloud(:, :)      ! cloud_area_fraction [fraction]
     real(kind_phys), intent(out) :: rhcloud(:, :)    ! cloud fraction
     real(kind_phys), intent(out) :: cldst(:, :)      ! stratiform_cloud_area_fraction [fraction]
-    real(kind_phys), intent(out) :: rhu00(:, :)      ! RH threshold for cloud
-    real(kind_phys), intent(out) :: relhum(:, :)     ! RH for prognostic cldwat [percent]
-    real(kind_phys), intent(out) :: icecldf(:, :)    ! ice cloud fraction
-    real(kind_phys), intent(out) :: liqcldf(:, :)    ! liquid cloud fraction (combined into cloud)
+    real(kind_phys), intent(out) :: rhu00(:, :)      ! RH threshold for cloud [fraction]
+    real(kind_phys), intent(out) :: relhum(:, :)     ! RH for prognostic cldwat [fraction]
+    real(kind_phys), intent(out) :: icecldf(:, :)    ! ice cloud fraction [fraction]
+    real(kind_phys), intent(out) :: liqcldf(:, :)    ! liquid cloud fraction (combined into cloud) [fraction]
     character(len=512), intent(out) :: errmsg        ! error message
     integer,            intent(out) :: errflg        ! error flag
 
@@ -247,7 +247,7 @@ contains
     ! (a sum as opposed to a logical "or" operation)
     !
     !==================================================================================
-    ! set defaults for rhu00
+    ! set defaults for rhu00 - arbitrary number larger than 1.0 (100%)
     rhu00(:, :) = 2.0_kind_phys
     ! define rh perturbation in order to estimate rhdfda
     rhpert = 0.01_kind_phys
@@ -406,6 +406,7 @@ contains
           !               icicval = f(temp,cldice,numice)
           !         Start with a function of temperature.
           !         Wang & Sassen 2002 (JAS), based on ARM site MMCR (midlat cirrus)
+          !         https://doi.org/10.1175/1520-0469(2002)059<2291:CCMPRU>2.0.CO;2
           !           parameterization valid for 203-253K
           !           icival > 0 for t>195K
           if (iceopt .lt. 3) then
@@ -417,6 +418,7 @@ contains
               icicval = icicval*1.e-6_kind_phys/rho
             else
               !--------ICE CLOUD OPTION 2--------Schiller 2008 (JGR)
+              ! https://doi.org/10.1029/2008JD010342
               !          Use a curve based on FISH measurements in
               !          tropics, mid-lats and arctic. Curve is for 180-250K (raise to 273K?)
               !          use median all flights
@@ -432,12 +434,14 @@ contains
           else if (iceopt .eq. 3) then
 
             !--------ICE CLOUD OPTION 3--------Wood & Field 2000 (JAS)
+            ! https://doi.org/10.1175/1520-0469(2000)057<1888:RBTWCW>2.0.CO;2
             ! eq 6: cloud fraction = 1 - exp (-K * qc/qsati)
 
             icecldf(i, k) = 1._kind_phys - exp(-Kc*cldice(i, k)/(qs(i, k)*(esi(i, k)/esl(i, k))))
             icecldf(i, k) = max(0._kind_phys, min(icecldf(i, k), 1._kind_phys))
           else
             !--------ICE CLOUD OPTION 4--------Wilson and ballard 1999
+            ! https://doi.org/10.1002/qj.49712555707
             ! inversion of smith....
             !       ncf = cldice / ((1-RHcrit)*qs)
             ! then a function of ncf....
