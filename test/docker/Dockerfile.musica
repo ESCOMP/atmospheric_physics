@@ -85,10 +85,10 @@ RUN cd atmospheric_physics/test \
 ENV CCPP_SRC_PATH="lib/ccpp-framework/src"
 ENV CCPP_FORTRAN_TOOLS_PATH="lib/ccpp-framework/scripts/fortran_tools"
 
-# Make the CCPPStandardNames available
+# Make the ESMStandardNames available
 RUN cd atmospheric_physics/test/lib \
-    && git clone --depth 1 https://github.com/ESCOMP/CCPPStandardNames.git
-ENV CCPP_STD_NAMES_PATH="lib/CCPPStandardNames"
+    && git clone --depth 1 https://github.com/ESCOMP/ESMStandardNames.git
+ENV CCPP_STD_NAMES_PATH="lib/ESMStandardNames"
 
 RUN cd atmospheric_physics/test \
     && cmake -S . -B build \
