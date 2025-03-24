@@ -31,9 +31,9 @@ module compute_cloud_fraction
   integer         :: k700              ! model level nearest to 700 mb [index]
 
   ! constants
-  real(kind_phys), parameter :: pnot = 1.e5_kind_phys    ! reference pressure
-  real(kind_phys), parameter :: lapse = 6.5e-3_kind_phys ! U.S. Standard Atmosphere lapse rate
-  real(kind_phys), parameter :: pretop = 1.0e2_kind_phys ! pressure bounding high cloud
+  real(kind_phys), parameter :: pnot = 1.e5_kind_phys    ! reference pressure [Pa]
+  real(kind_phys), parameter :: lapse = 6.5e-3_kind_phys ! U.S. Standard Atmosphere lapse rate [K m-1]
+  real(kind_phys), parameter :: pretop = 1.0e2_kind_phys ! pressure bounding high cloud [Pa]
 
 contains
   ! Initialize cloud_fraction from namelist parameters
