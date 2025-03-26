@@ -11,6 +11,7 @@ module musica_ccpp_micm
 
   implicit none
   private
+  save
 
   public :: micm_register, micm_init, micm_run, micm_final, micm, number_of_rate_parameters
 

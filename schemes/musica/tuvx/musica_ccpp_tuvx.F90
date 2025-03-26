@@ -12,6 +12,7 @@ module musica_ccpp_tuvx
 
   implicit none
   private
+  save
 
   public :: tuvx_register, tuvx_init, tuvx_run, tuvx_final
 

@@ -10,6 +10,7 @@ module musica_ccpp
 
   implicit none
   private
+  save
 
   public :: musica_ccpp_register, musica_ccpp_init, musica_ccpp_run, musica_ccpp_final
 
