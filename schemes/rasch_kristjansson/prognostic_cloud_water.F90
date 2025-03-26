@@ -200,7 +200,7 @@ contains
     ciautb = 5.e-4_kind_phys
 
     if(amIRoot) then
-      write(iulog,*) 'tuning parameters prognostic_cloud_water_init: capnw ',capnw,' capnc ',capnc,' capnsi ',capnsi,' kconst',kconst
+      write(iulog,*) 'tuning parameters prognostic_cloud_water_init: capnw ',capnw,' capnc ',capnc,' capnsi ',capnsi,' kconst ',kconst
       write(iulog,*) 'tuning parameters prognostic_cloud_water_init: effc ',effc,' alpha ',alpha,' capc ',capc
       write(iulog,*) 'tuning parameters prognostic_cloud_water_init: critpr ',critpr,' convfw ',convfw,' cracw ',cracw,' ciautb ',ciautb
     endif

@@ -88,7 +88,7 @@ contains
 
     if(amIRoot) then
       write(iulog,*) 'tuning parameters compute_cloud_fraction_init: inversion_cld_off ', inversion_cld_off
-      write(iulog,*) 'tuning parameters compute_cloud_fraction_init: rhminl ',rhminl,'rhminl_adj_land ',rhminl_adj_land, &
+      write(iulog,*) 'tuning parameters compute_cloud_fraction_init: rhminl ',rhminl,' rhminl_adj_land ',rhminl_adj_land, &
                        ' rhminh ',rhminh,' premit ',premit,' premib ',premib
       write(iulog,*) 'tuning parameters compute_cloud_fraction_init: iceopt ',iceopt,' icecrit ',icecrit
     endif
@@ -97,7 +97,7 @@ contains
     k700 = minloc(abs(pref_mid(:) - 7.e4_kind_phys), 1)
 
     if(amIRoot) then
-      write(iulog,*) 'compute_cloud_fraction: model level nearest 700 mb is ',k700,' which is',pref_mid(k700),' pascals '
+      write(iulog,*) 'compute_cloud_fraction: model level nearest 700 mb is ',k700,' which is ',pref_mid(k700),' pascals '
     endif
 
   end subroutine compute_cloud_fraction_init

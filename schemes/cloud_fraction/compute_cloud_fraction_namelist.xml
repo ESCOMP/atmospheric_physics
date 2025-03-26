@@ -102,7 +102,6 @@
     <values>
       <value>.false.</value>
       <value phys_suite="cam7">.true.</value>
-      <value phys_suite="cam6">.true.</value>
       <value phys_suite="cam5">.true.</value>
     </values>
   </entry>
@@ -133,7 +132,6 @@
     <values>
       <value>0.900D0</value>
       <value phys_suite="cam5">0.8975D0</value>
-      <value phys_suite="cam6">0.8975D0</value>
       <value phys_suite="cam7">0.8975D0</value>
     </values>
   </entry>
@@ -149,7 +147,6 @@
     </desc>
     <values>
       <value>0.1D0</value>
-      <value phys_suite="cam6">0.0D0</value>
       <value phys_suite="cam7">0.0D0</value>
     </values>
   </entry>
@@ -191,7 +188,6 @@
     <values>
       <value>750.0D2</value>
       <value phys_suite="cam5">700.0D2</value>
-      <value phys_suite="cam6">700.0D2</value>
       <value phys_suite="cam7">700.0D2</value>
     </values>
   </entry>
@@ -212,7 +208,6 @@
     <values>
       <value>1</value>
       <value phys_suite="cam5">5</value>
-      <value phys_suite="cam6">5</value>
       <value phys_suite="cam7">5</value>
     </values>
   </entry>
@@ -228,7 +223,6 @@
     <values>
       <value>0.95D0</value>
       <value phys_suite="cam5">0.93D0</value>
-      <value phys_suite="cam6">0.93D0</value>
       <value phys_suite="cam7">0.93D0</value>
     </values>
   </entry>
