@@ -1,3 +1,6 @@
+! Copyright (C) 2024-2025 National Science Foundation-National Center for Atmospheric Research
+! SPDX-License-Identifier: Apache-2.0
+
 !> Top-level wrapper for MUSICA chemistry components
 module musica_ccpp
   use musica_ccpp_micm,     only: micm_register, micm_init, micm_run, micm_final

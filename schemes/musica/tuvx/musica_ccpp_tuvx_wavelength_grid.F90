@@ -1,3 +1,5 @@
+! Copyright (C) 2024-2025 National Science Foundation-National Center for Atmospheric Research
+! SPDX-License-Identifier: Apache-2.0
 module musica_ccpp_tuvx_wavelength_grid
   use ccpp_kinds, only: kind_phys
 

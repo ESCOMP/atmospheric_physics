@@ -1,3 +1,5 @@
+! Copyright (C) 2024-2025 National Science Foundation-National Center for Atmospheric Research
+! SPDX-License-Identifier: Apache-2.0
 module musica_ccpp_micm
 
   ! Note: "micm_t" is included in an external pre-built MICM library that the host
