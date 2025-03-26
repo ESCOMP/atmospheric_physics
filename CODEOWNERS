@@ -1,0 +1,76 @@
+# atmospheric_physics CODEOWNERS file.
+# This file lists original authors or maintainers of individual physics schemes,
+# or other components in this repository, for the purposes of code review
+# requests and "who do I ask to learn about this scheme?"
+
+# Lines starting with '#' are comments.
+# Each line is a file pattern followed by one or more owners.
+
+# These owners will be the default owners for everything in the repo,
+# ordered alphabetically.
+*       @boulderdaze @cacraigucar @jimmielin @jtruesdal @K20shores @kuanchihwang @mattldawson @mwaxmonsky @nusbaume @peverwhee
+
+# Order is important. The last matching pattern has the most precedence.
+
+# Simple physics.
+schemes/held_suarez/*                                  @cacraigucar
+schemes/kessler/*                                      @cacraigucar @gold2718
+schemes/tj2016/*                                       @mwaxmonsky @nusbaume
+
+# Common schemes used by all physics.
+schemes/conservation_adjust/check_energy/*             @jimmielin @PeterHjortLauritzen
+schemes/conservation_adjust/dme_adjust/*               @cacraigucar @PeterHjortLauritzen
+schemes/dry_adiabatic_adjust/*                         @jtruesdal
+schemes/cloud_fraction/cloud_fraction_fice*            @cacraigucar
+schemes/cloud_fraction/compute_cloud_fraction*         @jimmielin
+schemes/cloud_fraction/convective_cloud_cover*         @jimmielin
+schemes/mmm/*                                          @kuanchihwang
+schemes/rayleigh_friction/*                            @Katetc
+schemes/rrtmgp/*                                       @peverwhee
+schemes/thermo_water_update/*                          @jimmielin @PeterHjortLauritzen
+schemes/tropopause_find/*                              @jimmielin
+phys_utils/atmos_phys_pbl_utils.F90                    @mwaxmonsky @nusbaume
+phys_utils/atmos_phys_rad_utils.F90                    @peverwhee
+phys_utils/atmos_phys_string_utils.F90                 @peverwhee
+
+# CAM7 physics.
+schemes/zhang_mcfarlane/*                              @cacraigucar
+schemes/pumas/*                                        @cacraigucar
+
+# CAM4 physics.
+schemes/hack_shallow/*                                 @jimmielin
+schemes/rasch_kristjansson/*                           @jimmielin
+
+# Chemistry.
+schemes/musica/*                                       @boulderdaze @K20shores @mattldawson
+test/musica/*                                          @boulderdaze @K20shores @mattldawson
+test/docker/*musica*                                   @boulderdaze @K20shores @mattldawson
+to_be_ccppized/ccpp_tuvx_utils.F90                     @boulderdaze @K20shores @mattldawson
+
+# SIMA-specific diagnostics
+# have code contributed from different schemes, and should be owned by
+# the default code owners.
+# schemes/sima_diagnostics/*
+
+# Utility schemes including tendency updaters
+schemes/utilities/*                                    @peverwhee @nusbaume @gold2718 @cacraigucar
+test/test_schemes/initialize_constituents*             @peverwhee
+
+# CCPP I/O infrastructure
+phys_utils/ccpp_io_reader.F90                          @mwaxmonsky @nusbaume
+test/test_schemes/file_io_test*                        @mwaxmonsky @nusbaume
+
+# Generally, to_be_ccppized code is migrated from current CAM and
+# is to be CCPPized at a later time, and default code owners can apply.
+# However, some of these modules are newly introduced,
+# and a point of contact is included below beyond the default owners
+# when they could be more helpful for a specific set of modules.
+#
+# Vertical diffusion utilities
+to_be_ccppized/vertical_diffusion_solver.F90           @mwaxmonsky @jimmielin
+to_be_ccppized/linear_1d_operators.F90                 @mwaxmonsky @jimmielin
+to_be_ccppized/coords_1d.F90                           @mwaxmonsky @jimmielin
+
+# Other modules moved from CAM
+to_be_ccppized/radiation_utils/*                       @peverwhee
+to_be_ccppized/cloud_optical_properties.F90            @jimmielin
