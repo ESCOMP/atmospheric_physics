@@ -103,8 +103,6 @@ contains
       return
     end if
 
-    deallocate( wavelength_grid_interfaces_ )
-
   end subroutine set_extraterrestrial_flux_values
 
 end module musica_ccpp_tuvx_extraterrestrial_flux
