@@ -11,9 +11,8 @@ module rk_stratiform
   save
 
   ! public CCPP-compliant subroutines
-  !   note: cloud_fraction_perturbation_run is NOT a fully CCPP-compliant scheme
-  !         because it calls the compute_cloud_fraction scheme for perturbation.
-  !         this is currently not possible to elegantly handle in the framework.
+  !   note: cloud_fraction_perturbation_run calls the compute_cloud_fraction
+  !         scheme run phase for perturbation with a modified rhpert_flag = .true.
   !
   ! refer to test SDF suite_rasch_kristjansson.xml for total order of operations,
   ! as the full RK-stratiform requires other schemes not included in this module.
@@ -169,7 +168,10 @@ contains
     rhdfda, & ! output for prognostic_cloud_water
     errmsg, errflg)
 
-    ! WARN: This is NOT CCPP-compliant!
+    ! Dependency: compute_cloud_fraction CCPPized scheme run phase.
+    ! this scheme is called with an altered rhpert_flag = .true.
+    ! then the outputs are combined with the "regular" output of the compute_cloud_fraction
+    ! CCPP scheme to get the perturbed quantities for prognostic_cloud_water.
     use compute_cloud_fraction, only: compute_cloud_fraction_run
 
     ! Input arguments
