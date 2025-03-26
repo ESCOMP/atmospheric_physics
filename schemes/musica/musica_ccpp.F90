@@ -85,8 +85,11 @@ contains
     number_of_grid_cells = horizontal_dimension * vertical_layer_dimension
     call micm_register(micm_solver_type, number_of_grid_cells, constituent_props, &
                        micm_species, errmsg, errcode)
+    if (errcode /= 0) return
+
     call micm_init(errmsg, errcode)
     if (errcode /= 0) return
+
     call tuvx_init(vertical_layer_dimension, vertical_interface_dimension, &
                    photolysis_wavelength_grid_interfaces,                  &
                    micm%user_defined_reaction_rates, errmsg, errcode)
@@ -94,8 +97,10 @@ contains
 
     call initialize_musica_species_indices(constituent_props_ptr, errmsg, errcode)
     if (errcode /= 0) return
+
     call initialize_molar_mass_array(constituent_props_ptr, errmsg, errcode)
     if (errcode /= 0) return
+
     call check_initialization(errmsg, errcode)
     if (errcode /= 0) return
 
@@ -176,10 +181,12 @@ contains
                   earth_sun_distance,                           &
                   rate_parameters,                              &
                   errmsg, errcode)
+    if (errcode /= 0) return
 
     call update_constituents(tuvx_indices_constituent_props, constituents_tuvx_species, &
                              constituents, errmsg, errcode)
     if (errcode /= 0) return
+
     call extract_subset_constituents(micm_indices_constituent_props, constituents, &
                                      constituents_micm_species, errmsg, errcode)
     if (errcode /= 0) return
@@ -190,6 +197,7 @@ contains
     ! Solve chemistry at the current time step
     call micm_run(time_step, temperature, pressure, dry_air_density, rate_parameters, &
                   constituents_micm_species, errmsg, errcode)
+    if (errcode /= 0) return
 
     ! Convert MICM unit back to CAM-SIMA unit (mol m-3  ->  kg kg-1)
     call convert_to_mass_mixing_ratio(dry_air_density, micm_molar_mass_array, constituents_micm_species)
@@ -208,8 +216,12 @@ contains
     integer,            intent(out) :: errcode
 
     call cleanup_musica_species()
+
     call tuvx_final(errmsg, errcode)
+    if (errcode /= 0) return
+
     call micm_final(errmsg, errcode)
+    if (errcode /= 0) return
 
   end subroutine musica_ccpp_final
 
