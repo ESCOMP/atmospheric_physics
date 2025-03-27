@@ -642,6 +642,7 @@ contains
 
   !> Finalizes TUV-x
   subroutine tuvx_final(errmsg, errcode)
+    use musica_ccpp_tuvx_extraterrestrial_flux, only: wavelength_grid_interfaces_
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errcode
 
@@ -655,6 +656,9 @@ contains
       tuvx => null()
     end if
 
+    if (allocated( wavelength_grid_interfaces_ )) then
+      deallocate(wavelength_grid_interfaces_ )
+    end if
   end subroutine tuvx_final
 
 end module musica_ccpp_tuvx

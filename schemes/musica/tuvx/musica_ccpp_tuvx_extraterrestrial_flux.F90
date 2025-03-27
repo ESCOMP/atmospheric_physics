@@ -13,7 +13,7 @@ module musica_ccpp_tuvx_extraterrestrial_flux
   !> Unit for extraterrestrial_flux in TUV-x
   character(len=*), parameter, public :: extraterrestrial_flux_unit = "photon cm-2 s-1"
   !> Wavelength grid interface values
-  real(kind_phys), protected, allocatable :: wavelength_grid_interfaces_(:) ! nm
+  real(kind_phys), allocatable, public :: wavelength_grid_interfaces_(:) ! nm
   !> Default value of number of wavelength grid bins
   integer, parameter :: DEFAULT_NUM_WAVELENGTH_BINS = 0
   !> Number of wavelength grid bins
