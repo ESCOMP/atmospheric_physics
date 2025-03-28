@@ -6,14 +6,15 @@ module musica_ccpp_tuvx_extraterrestrial_flux
   implicit none
 
   private
-  public :: create_extraterrestrial_flux_profile, set_extraterrestrial_flux_values
+  public :: create_extraterrestrial_flux_profile, set_extraterrestrial_flux_values, &
+            deallocate_photolysis_wavelength_grid_interfaces
 
   !> Label for extraterrestrial_flux in TUV-x
   character(len=*), parameter, public :: extraterrestrial_flux_label = "extraterrestrial flux"
   !> Unit for extraterrestrial_flux in TUV-x
   character(len=*), parameter, public :: extraterrestrial_flux_unit = "photon cm-2 s-1"
   !> Wavelength grid interface values
-  real(kind_phys), allocatable, public :: wavelength_grid_interfaces_(:) ! nm
+  real(kind_phys), protected, allocatable :: wavelength_grid_interfaces_(:) ! nm
   !> Default value of number of wavelength grid bins
   integer, parameter :: DEFAULT_NUM_WAVELENGTH_BINS = 0
   !> Number of wavelength grid bins
@@ -106,5 +107,14 @@ contains
     end if
 
   end subroutine set_extraterrestrial_flux_values
+
+  !> Deallocates photolysis wavelength grid interfaces
+  subroutine deallocate_photolysis_wavelength_grid_interfaces()
+
+    if (allocated( wavelength_grid_interfaces_ )) then
+      deallocate(wavelength_grid_interfaces_ )
+    end if
+
+  end subroutine deallocate_photolysis_wavelength_grid_interfaces
 
 end module musica_ccpp_tuvx_extraterrestrial_flux

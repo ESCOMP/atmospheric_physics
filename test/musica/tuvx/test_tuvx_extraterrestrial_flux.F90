@@ -59,8 +59,9 @@ contains
       ASSERT_NEAR(extraterrestrial_flux_midpoints(i) * MAGNITUDE_REDUCER, expected_extraterrestrial_flux_midpoints(i) * MAGNITUDE_REDUCER, ABS_ERROR)
     end do
 
-    deallocate( profile )
+    call deallocate_photolysis_wavelength_grid_interfaces()
     deallocate( wavelength_grid )
+    deallocate( profile )
 
   end subroutine test_update_extraterrestrial_flux
 
