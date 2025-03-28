@@ -23,18 +23,10 @@ contains
      use ccpp_kinds, only: kind_phys
 
      !Non-portable (CAM-SIMA specific) use statements:
+     use sima_ccpp_FileIO, only: sima_open_netcdf_file
+     use sima_ccpp_FileIO, only: sima_close_netcdf_file
      use sima_ccpp_FileIO, only: sima_get_netcdf_var
      use sima_ccpp_FileIO, only: sima_get_netcdf_dim
-     use ioFileMod,        only: cam_get_file
-     use cam_pio_utils,    only: cam_pio_openfile
-     use pio,              only: file_desc_t
-     use pio,              only: PIO_NOWRITE
-     use pio,              only: PIO_BCAST_ERROR
-     use pio,              only: PIO_NOERR
-     use pio,              only: pio_inq_dimid
-     use pio,              only: pio_inq_dimlen
-     use pio,              only: pio_closefile
-     use pio,              only: pio_seterrorhandling
 
      !Input variables:
      character(len=*),   intent(in)  :: file_path
@@ -55,39 +47,35 @@ contains
      integer :: pressure
 
      !Local variables:
-     type(file_desc_t)  :: fh              ! pio file handle
-     character(len=512) :: local_file_path ! path to file on local storage
-     integer :: dim_id                     ! NetCDF dimension ID
-     integer :: var_id                     ! NetCDF variable ID
-     integer :: ierr
+     integer :: file_id                    ! NetCDF file ID provided by host
 
      !Initialize output variables:
      errcode = 0
      errmsg  = ''
 
      ! Open file
-     call cam_get_file(file_path, local_file_path)
-     call cam_pio_openfile(fh, local_file_path, PIO_NOWRITE)
-
-     call pio_seterrorhandling(fh, PIO_BCAST_ERROR)
+     call sima_open_netcdf_file(file_path, file_id, errcode, errmsg)
+     if (errcode /= 0) then
+        return !Error has occurred, so exit scheme
+     end if
 
      !Get relevant dimensions:
      !-----------------------
 
      !Bands:
-     call sima_get_netcdf_dim(fh, local_file_path, 'bnd', errcode, errmsg, dimlen=bnd)
+     call sima_get_netcdf_dim(file_id, 'bnd', errcode, errmsg, dimlen=bnd)
      if (errcode /= 0) then
         return !Error has occurred, so exit scheme
      end if
 
      !Absorbers:
-     call sima_get_netcdf_dim(fh, local_file_path, 'absorber', errcode, errmsg, dimlen=absorber)
+     call sima_get_netcdf_dim(file_id, 'absorber', errcode, errmsg, dimlen=absorber)
      if (errcode /= 0) then
         return !Error has occurred, so exit scheme
      end if
 
      !Pressure:
-     call sima_get_netcdf_dim(fh, local_file_path, 'pressure', errcode, errmsg, dimlen=pressure)
+     call sima_get_netcdf_dim(file_id, 'pressure', errcode, errmsg, dimlen=pressure)
      if (errcode /= 0) then
         return !Error has occurred, so exit scheme
      end if
@@ -123,31 +111,34 @@ contains
      !-----------------------
 
      !Attempt to get absorbing gas names from file:
-     call sima_get_netcdf_var(fh, local_file_path, 'gas_names', len(gas_names), gas_names, errcode, errmsg)
+     call sima_get_netcdf_var(file_id, 'gas_names', len(gas_names), gas_names, errcode, errmsg)
      if (errcode /= 0) then
         return !Error has occurred, so exit scheme
      end if
 
      !Attempt to get reference pressure from file:
-     call sima_get_netcdf_var(fh, local_file_path, 'press_ref', press_ref, errcode, errmsg)
+     call sima_get_netcdf_var(file_id, 'press_ref', press_ref, errcode, errmsg)
      if (errcode /= 0) then
         return !Error has occurred, so exit scheme
      end if
 
      !Attempt to get wavenumber band grid start/end indices from file:
-     call sima_get_netcdf_var(fh, local_file_path, 'bnd_limits_gpt', band2gpt, errcode, errmsg)
+     call sima_get_netcdf_var(file_id, 'bnd_limits_gpt', band2gpt, errcode, errmsg)
      if (errcode /= 0) then
         return !Error has occurred, so exit scheme
      end if
 
      !Attempt to get wavenumber band start/end values from file:
-     call sima_get_netcdf_var(fh, local_file_path, 'bnd_limits_wavenumber', band_lims_wavenum, errcode, errmsg)
+     call sima_get_netcdf_var(file_id, 'bnd_limits_wavenumber', band_lims_wavenum, errcode, errmsg)
      if (errcode /= 0) then
         return !Error has occurred, so exit scheme
      end if
 
      ! Close file
-     call pio_closefile(fh)
+     call sima_close_netcdf_file(file_id, errcode, errmsg)
+     if (errcode /= 0) then
+        return !Error has occurred, so exit scheme
+     end if
 
      !Write dimension lengths to stdout:
      write(*,*) 'Number of gas absorbers = ', absorber
