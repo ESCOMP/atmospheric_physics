@@ -1,3 +1,5 @@
+! Copyright (C) 2024-2025 University Corporation for Atmospheric Research
+! SPDX-License-Identifier: Apache-2.0
 program test_tuvx_wavelength_grid
 
   use musica_ccpp_tuvx_wavelength_grid

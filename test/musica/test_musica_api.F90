@@ -1,3 +1,5 @@
+! Copyright (C) 2024-2025 University Corporation for Atmospheric Research
+! SPDX-License-Identifier: Apache-2.0
 program run_test_musica_ccpp
 
   use ccpp_kinds, only: kind_phys
