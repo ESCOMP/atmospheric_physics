@@ -1,7 +1,6 @@
 ! Copyright (C) 2024-2025 University Corporation for Atmospheric Research
 ! SPDX-License-Identifier: Apache-2.0
 module musica_ccpp_tuvx_wavelength_grid
-  use ccpp_kinds, only: kind_phys
 
   implicit none
 
@@ -23,38 +22,34 @@ module musica_ccpp_tuvx_wavelength_grid
   character(len=*), parameter, public :: wavelength_grid_label = "wavelength"
   !> Unit for wavelength grid in TUV-x
   character(len=*), parameter, public :: wavelength_grid_unit = "nm"
-  !> Conversion factor from meters to nanometers (CAM-SIMA -> TUV-x)
-  real(kind_phys), parameter, public :: m_to_nm = 1.0e9_kind_phys
 
 contains
 
   !> Creates a TUV-x wavelength grid
-  function create_wavelength_grid( wavelength_grid_interfaces, errmsg, errcode ) &
-      result( wavelength_grid )
+  function create_wavelength_grid( photolysis_wavelength_grid_interfaces, &
+      errmsg, errcode ) result( wavelength_grid )
 
     use ccpp_kinds,       only: kind_phys
     use musica_ccpp_util, only: has_error_occurred
     use musica_tuvx_grid, only: grid_t
     use musica_util,      only: error_t
 
-    real(kind_phys),  intent(in)  :: wavelength_grid_interfaces(:) ! m
+    real(kind_phys),  intent(in)  :: photolysis_wavelength_grid_interfaces(:) ! nm
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errcode
     type(grid_t),     pointer     :: wavelength_grid
 
     ! local variables
-    real(kind_phys) :: interfaces( size( wavelength_grid_interfaces ) )    ! nm
-    reaL(kind_phys) :: midpoints( size( wavelength_grid_interfaces ) - 1 ) ! nm
+    reaL(kind_phys) :: midpoints( size( photolysis_wavelength_grid_interfaces ) - 1 ) ! nm
     type(error_t)   :: error
 
-    interfaces(:) = wavelength_grid_interfaces(:) * m_to_nm
     midpoints(:) = &
-        0.5 * ( interfaces( 1: size( interfaces ) - 1 ) &
-                + interfaces( 2: size( interfaces ) ) )
+        0.5 * ( photolysis_wavelength_grid_interfaces( 1: size( photolysis_wavelength_grid_interfaces ) - 1 ) &
+              + photolysis_wavelength_grid_interfaces( 2: size( photolysis_wavelength_grid_interfaces ) ) )
     wavelength_grid => grid_t( wavelength_grid_label, wavelength_grid_unit, &
                                size( midpoints ), error )
     if ( has_error_occurred( error, errmsg, errcode ) ) return
-    call wavelength_grid%set_edges( interfaces, error )
+    call wavelength_grid%set_edges( photolysis_wavelength_grid_interfaces, error )
     if ( has_error_occurred( error, errmsg, errcode ) ) return
     call wavelength_grid%set_midpoints( midpoints, error )
     if ( has_error_occurred( error, errmsg, errcode ) ) return

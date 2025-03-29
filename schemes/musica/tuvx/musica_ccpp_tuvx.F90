@@ -132,8 +132,8 @@ contains
 
   !> Initializes TUV-x
   subroutine tuvx_init(vertical_layer_dimension, vertical_interface_dimension, &
-                       wavelength_grid_interfaces, micm_rate_parameter_ordering, &
-                       errmsg, errcode)
+                       photolysis_wavelength_grid_interfaces_nm,               &
+                       micm_rate_parameter_ordering, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use musica_tuvx, only: grid_map_t, profile_map_t, radiator_map_t
     use musica_util, only: error_t, configuration_t, MUSICA_INDEX_MAPPINGS_MAP_ANY
@@ -161,7 +161,7 @@ contains
 
     integer,            intent(in)  :: vertical_layer_dimension      ! (count)
     integer,            intent(in)  :: vertical_interface_dimension  ! (count)
-    real(kind_phys),    intent(in)  :: wavelength_grid_interfaces(:) ! m
+    real(kind_phys),    intent(in)  :: photolysis_wavelength_grid_interfaces_nm(:) ! nm
     type(mappings_t),   intent(in)  :: micm_rate_parameter_ordering  ! index mappings for MICM rate parameters
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errcode
@@ -191,8 +191,8 @@ contains
       return
     end if
 
-    wavelength_grid => create_wavelength_grid( wavelength_grid_interfaces, &
-                                               errmsg, errcode )
+    wavelength_grid => create_wavelength_grid( &
+            photolysis_wavelength_grid_interfaces_nm, errmsg, errcode )
     if (errcode /= 0) then
       call reset_tuvx_map_state( grids, null(), null() )
       call cleanup_tuvx_resources()
@@ -243,7 +243,7 @@ contains
     end if
 
     extraterrestrial_flux_profile => create_extraterrestrial_flux_profile( &
-                wavelength_grid, wavelength_grid_interfaces, errmsg, errcode )
+      wavelength_grid, photolysis_wavelength_grid_interfaces_nm, errmsg, errcode )
     if (errcode /= 0) then
       call reset_tuvx_map_state( grids, profiles, null() )
       call cleanup_tuvx_resources()
@@ -510,7 +510,7 @@ contains
                       geopotential_height_wrt_surface_at_interface, &
                       surface_geopotential, surface_temperature,    &
                       surface_albedo,                               &
-                      photolysis_wavelength_grid_interfaces,        &
+                      photolysis_wavelength_grid_interfaces_nm,     &
                       extraterrestrial_flux,                        &
                       standard_gravitational_acceleration,          &
                       cloud_area_fraction,                          &
@@ -539,7 +539,7 @@ contains
     real(kind_phys),    intent(in)    :: surface_geopotential(:)                           ! m2 s-2 (column)
     real(kind_phys),    intent(in)    :: surface_temperature(:)                            ! K (column)
     real(kind_phys),    intent(in)    :: surface_albedo(:)                                 ! fraction (column)
-    real(kind_phys),    intent(in)    :: photolysis_wavelength_grid_interfaces(:)          ! nm (wavelength interface)
+    real(kind_phys),    intent(in)    :: photolysis_wavelength_grid_interfaces_nm(:)       ! nm (wavelength interface)
     real(kind_phys),    intent(in)    :: extraterrestrial_flux(:)                          ! photons cm-2 s-1 nm-1 (wavelength interface)
     real(kind_phys),    intent(in)    :: standard_gravitational_acceleration               ! m s-2
     real(kind_phys),    intent(in)    :: cloud_area_fraction(:,:)                          ! fraction (column, layer)
@@ -564,8 +564,8 @@ contains
 
     reciprocal_of_gravitational_acceleration = 1.0_kind_phys / standard_gravitational_acceleration
 
-    call set_extraterrestrial_flux_values( extraterrestrial_flux_profile,         &
-                                           photolysis_wavelength_grid_interfaces, &
+    call set_extraterrestrial_flux_values( extraterrestrial_flux_profile,            &
+                                           photolysis_wavelength_grid_interfaces_nm, &
                                            extraterrestrial_flux, errmsg, errcode )
     if (errcode /= 0) return
 
@@ -642,6 +642,7 @@ contains
 
   !> Finalizes TUV-x
   subroutine tuvx_final(errmsg, errcode)
+    ! TODO (JIWON)
     use musica_ccpp_tuvx_extraterrestrial_flux, &
       only: deallocate_photolysis_wavelength_grid_interfaces
 
