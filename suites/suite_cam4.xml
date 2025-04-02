@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <suite name="cam4" version="1.0">
-  <!-- 
+  <!--
       CAM4 PHYSICS SUITE
       Deep convection         ZM
       Shallow convection      Hack
@@ -153,6 +153,9 @@
 
     <!-- Save current total energy from dycore for energy fixer in time step. Total energy in current state is updated by the last check_energy_chng call. -->
     <scheme>check_energy_save_teout</scheme>
+
+    <!-- Dry Mass and Energy adjust -->
+    <scheme>dme_adjust</scheme>
 
     <!-- MPAS and SE specific scaling of temperature for enforcing energy consistency:
          First, calculate the scaling based off cp_or_cv_dycore (from cam_thermo_water_update)
