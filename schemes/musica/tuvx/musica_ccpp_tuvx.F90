@@ -510,7 +510,6 @@ contains
                       geopotential_height_wrt_surface_at_interface, &
                       surface_geopotential, surface_temperature,    &
                       surface_albedo,                               &
-                      photolysis_wavelength_grid_interfaces_nm,     &
                       extraterrestrial_flux,                        &
                       standard_gravitational_acceleration,          &
                       cloud_area_fraction,                          &
@@ -539,7 +538,6 @@ contains
     real(kind_phys),    intent(in)    :: surface_geopotential(:)                           ! m2 s-2 (column)
     real(kind_phys),    intent(in)    :: surface_temperature(:)                            ! K (column)
     real(kind_phys),    intent(in)    :: surface_albedo(:)                                 ! fraction (column)
-    real(kind_phys),    intent(in)    :: photolysis_wavelength_grid_interfaces_nm(:)       ! nm (wavelength interface)
     real(kind_phys),    intent(in)    :: extraterrestrial_flux(:)                          ! photons cm-2 s-1 nm-1 (wavelength interface)
     real(kind_phys),    intent(in)    :: standard_gravitational_acceleration               ! m s-2
     real(kind_phys),    intent(in)    :: cloud_area_fraction(:,:)                          ! fraction (column, layer)
@@ -565,7 +563,6 @@ contains
     reciprocal_of_gravitational_acceleration = 1.0_kind_phys / standard_gravitational_acceleration
 
     call set_extraterrestrial_flux_values( extraterrestrial_flux_profile,            &
-                                           photolysis_wavelength_grid_interfaces_nm, &
                                            extraterrestrial_flux, errmsg, errcode )
     if (errcode /= 0) return
 
@@ -642,9 +639,8 @@ contains
 
   !> Finalizes TUV-x
   subroutine tuvx_final(errmsg, errcode)
-    ! TODO (JIWON)
     use musica_ccpp_tuvx_extraterrestrial_flux, &
-      only: deallocate_photolysis_wavelength_grid_interfaces
+      only: cleanup_photolysis_wavelength_grid_interfaces
 
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errcode
@@ -653,14 +649,12 @@ contains
     errcode = 0
 
     call cleanup_tuvx_resources()
-
-    call deallocate_photolysis_wavelength_grid_interfaces()
+    call cleanup_photolysis_wavelength_grid_interfaces()
 
     if (associated( tuvx )) then
       deallocate( tuvx )
       tuvx => null()
     end if
-
 
   end subroutine tuvx_final
 

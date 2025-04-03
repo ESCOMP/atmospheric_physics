@@ -125,7 +125,7 @@ contains
       700.0e-9_kind_phys, &
       750.0e-9_kind_phys &
     /)
- 
+
   end subroutine get_wavelength_edges
 
 end module musica_test_data

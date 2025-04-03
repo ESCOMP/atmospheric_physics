@@ -119,17 +119,15 @@ contains
   !! The standard name for the variable 'surface_temperature' is
   !! 'blackbody_temperature_at_surface' as this is the standard name
   !! used for 'cam_in%ts,' which represents the same quantity.
-  subroutine musica_ccpp_run(time_step, temperature, pressure, dry_air_density, constituent_props,   &
-                             constituents, geopotential_height_wrt_surface_at_midpoint,              &
-                             geopotential_height_wrt_surface_at_interface, surface_geopotential,     &
-                             surface_temperature, surface_albedo,                                    &
-                             photolysis_wavelength_grid_interfaces, extraterrestrial_flux,           &
-                             standard_gravitational_acceleration, cloud_area_fraction,               &
-                             air_pressure_thickness, solar_zenith_angle,                             &
-                             earth_sun_distance, errmsg, errcode)
+  subroutine musica_ccpp_run(time_step, temperature, pressure, dry_air_density, constituent_props, &
+                             constituents, geopotential_height_wrt_surface_at_midpoint,            &
+                             geopotential_height_wrt_surface_at_interface, surface_geopotential,   &
+                             surface_temperature, surface_albedo, extraterrestrial_flux,           &
+                             standard_gravitational_acceleration, cloud_area_fraction,             &
+                             air_pressure_thickness, solar_zenith_angle, earth_sun_distance,       &
+                             errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use ccpp_kinds,                only: kind_phys
-    use musica_ccpp_util,          only: m_to_nm
     use musica_ccpp_micm,          only: number_of_rate_parameters
     use musica_ccpp_micm_util,     only: convert_to_mol_per_cubic_meter, convert_to_mass_mixing_ratio
     use musica_ccpp_species,       only: number_of_micm_species, number_of_tuvx_species, &
@@ -148,7 +146,6 @@ contains
     real(kind_phys),         intent(in)    :: surface_geopotential(:)                           ! m2 s-2 (column)
     real(kind_phys),         intent(in)    :: surface_temperature(:)                            ! K (column)
     real(kind_phys),         intent(in)    :: surface_albedo(:)                                 ! fraction (column)
-    real(kind_phys),         intent(in)    :: photolysis_wavelength_grid_interfaces(:)          ! m (wavelength interface)
     real(kind_phys),         intent(in)    :: extraterrestrial_flux(:)                          ! photons cm-2 s-1 nm-1 (wavelength interface)
     real(kind_phys),         intent(in)    :: standard_gravitational_acceleration               ! m s-2
     real(kind_phys),         intent(in)    :: cloud_area_fraction(:,:)                          ! fraction (column, layer)
@@ -168,14 +165,11 @@ contains
     real(kind_phys), dimension(size(constituents, dim=1), &
                                size(constituents, dim=2), &
                                number_of_tuvx_species)    :: constituents_tuvx_species ! kg kg-1
-    real(kind_phys), dimension(size(photolysis_wavelength_grid_interfaces)) &
-                                                          :: photolysis_wavelength_grid_interfaces_nm() ! nm
 
     call extract_subset_constituents(tuvx_indices_constituent_props, constituents, &
                                      constituents_tuvx_species, errmsg, errcode)
     if (errcode /= 0) return
 
-    photolysis_wavelength_grid_interfaces_nm(:) = photolysis_wavelength_grid_interfaces(:) * m_to_nm
     ! Calculate photolysis rate constants using TUV-x
     call tuvx_run(temperature, dry_air_density,                 &
                   constituents_tuvx_species,                    &
@@ -183,7 +177,6 @@ contains
                   geopotential_height_wrt_surface_at_interface, &
                   surface_geopotential, surface_temperature,    &
                   surface_albedo,                               &
-                  photolysis_wavelength_grid_interfaces_nm,     &
                   extraterrestrial_flux,                        &
                   standard_gravitational_acceleration,          &
                   cloud_area_fraction,                          &
