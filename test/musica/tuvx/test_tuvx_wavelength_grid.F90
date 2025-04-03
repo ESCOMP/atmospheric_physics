@@ -21,7 +21,7 @@ contains
     integer, parameter    :: NUM_WAVELENGTH_GRID_MIDPOINTS = 2
     integer, parameter    :: NUM_WAVELENGTH_GRID_INTERFACES = 3
     real, parameter       :: ABS_ERROR = 1e-5
-    real(kind_phys)       :: host_interfaces(NUM_WAVELENGTH_GRID_INTERFACES) = [180.0_kind_phys, 200.0_kind_phys, 240.0_kind_phys]
+    real(kind_phys)       :: host_interfaces(NUM_WAVELENGTH_GRID_INTERFACES) = [180.0_kind_phys, 200.0_kind_phys, 240.0_kind_phys] ! nm
     real(kind_phys)       :: expected_midpoints(NUM_WAVELENGTH_GRID_MIDPOINTS) = [190.0_kind_phys, 220.0_kind_phys]
     real(kind_phys)       :: interfaces(NUM_WAVELENGTH_GRID_INTERFACES)
     real(kind_phys)       :: midpoints(NUM_WAVELENGTH_GRID_MIDPOINTS)

@@ -29,7 +29,7 @@ contains
     real(kind_phys)          :: extraterrestrial_flux(NUM_WAVELENGTH_BINS) = &
       [1.6e13_kind_phys, 1.4e13_kind_phys, 1.2e13_kind_phys, 1.0e13_kind_phys] ! photons cm-2 s-1 nm-1
     real(kind_phys)          :: expected_extraterrestrial_flux_midpoints(NUM_WAVELENGTH_BINS) = &
-      [320e12_kind_phys, 280e12_kind_phys, 240e12_kind_phys, 200e12_kind_phys]
+      [32e13_kind_phys, 28e13_kind_phys, 24e13_kind_phys, 20e13_kind_phys]
     real(kind_phys)          :: extraterrestrial_flux_midpoints(NUM_WAVELENGTH_BINS)
     type(grid_t),    pointer :: wavelength_grid
     type(profile_t), pointer :: profile

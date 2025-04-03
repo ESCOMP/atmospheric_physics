@@ -26,14 +26,16 @@ contains
     integer, parameter        :: NUM_HOST_HEIGHT_INTERFACES = 3
     integer, parameter        :: NUM_WAVELENGTH_MIDPOINTS = 3
     integer, parameter        :: NUM_WAVELENGTH_INTERFACES = 4
-    real(kind_phys)           :: host_wavelength_interfaces(NUM_WAVELENGTH_INTERFACES) = [180.0e-9_kind_phys, 200.0e-9_kind_phys, 240.0e-9_kind_phys, 300.0e-9_kind_phys]
+    real(kind_phys)           :: host_wavelength_interfaces(NUM_WAVELENGTH_INTERFACES) = &
+      [180.0_kind_phys, 200.0_kind_phys, 240.0_kind_phys, 300.0_kind_phys] ! nm
     real(kind_phys)           :: delta_pressure(NUM_HOST_HEIGHT_MIDPOINTS) = [100.0_kind_phys, 200.0_kind_phys]
     real(kind_phys)           :: cloud_fraction(NUM_HOST_HEIGHT_MIDPOINTS) = [0.1_kind_phys, 0.0_kind_phys]
     real(kind_phys)           :: liquid_water_content(NUM_HOST_HEIGHT_MIDPOINTS) = [0.0003_kind_phys, 0.0004_kind_phys]
     real(kind_phys)           :: reciprocal_of_gravitational_acceleration = 0.1_kind_phys
     real(kind_phys)           :: cloud_optical_depth(NUM_HOST_HEIGHT_MIDPOINTS+1, NUM_WAVELENGTH_MIDPOINTS)
     real(kind_phys)           :: expected_cloud_optical_depth(NUM_HOST_HEIGHT_MIDPOINTS+1, NUM_WAVELENGTH_MIDPOINTS) = &
-      reshape([ 0.0_kind_phys, 0.14704591_kind_phys, 0.0_kind_phys, 0.0_kind_phys, 0.14704591_kind_phys, 0.0_kind_phys, 0.0_kind_phys, 0.14704591_kind_phys, 0.0_kind_phys, 0.0_kind_phys, 0.14704591_kind_phys, 0.0_kind_phys ], &
+      reshape([ 0.0_kind_phys, 0.14704591_kind_phys, 0.0_kind_phys, 0.0_kind_phys, 0.14704591_kind_phys, 0.0_kind_phys, &
+                0.0_kind_phys, 0.14704591_kind_phys, 0.0_kind_phys, 0.0_kind_phys, 0.14704591_kind_phys, 0.0_kind_phys ], &
               [ NUM_HOST_HEIGHT_MIDPOINTS+1, NUM_WAVELENGTH_MIDPOINTS ])
     real(kind_phys)           :: single_scattering_albedo(NUM_HOST_HEIGHT_MIDPOINTS+1, NUM_WAVELENGTH_MIDPOINTS)
     real(kind_phys)           :: asymmetry_parameter(NUM_HOST_HEIGHT_MIDPOINTS+1, NUM_WAVELENGTH_MIDPOINTS,1)

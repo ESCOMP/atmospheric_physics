@@ -32,7 +32,7 @@ module musica_ccpp_tuvx
   type(radiator_t),        pointer :: aerosol_optics => null()
   type(index_mappings_t),  pointer :: photolysis_rate_constants_mapping => null( )
   integer,               parameter :: DEFAULT_NUM_PHOTOLYSIS_RATE_CONSTANTS = 0
-  integer                          :: number_of_photolysis_rate_constants = DEFAULT_NUM_PHOTOLYSIS_RATE_CONSTANTS
+  integer,               protected :: number_of_photolysis_rate_constants = DEFAULT_NUM_PHOTOLYSIS_RATE_CONSTANTS
 
 contains
 
