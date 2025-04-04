@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   gcc-toolchain:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout atmospheric_physics
         uses: actions/checkout@v4
