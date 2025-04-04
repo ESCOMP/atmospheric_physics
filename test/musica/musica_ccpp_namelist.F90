@@ -1,3 +1,6 @@
+! Copyright (C) 2024-2025 University Corporation for Atmospheric Research
+! SPDX-License-Identifier: Apache-2.0
+
 ! Stub for auto-generated MUSICA namelist module
 module musica_ccpp_namelist
 

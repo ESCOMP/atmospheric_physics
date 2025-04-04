@@ -181,6 +181,7 @@ target_sources(test_tuvx_gas_species
     ${CCPP_SRC_PATH}/ccpp_hashable.F90
     ${CCPP_TEST_SRC_PATH}/ccpp_kinds.F90
     ${CMAKE_CURRENT_SOURCE_DIR}/../musica_ccpp_namelist.F90
+    ${CMAKE_CURRENT_SOURCE_DIR}/../musica_test_data.F90
 )
 
 target_link_libraries(test_tuvx_gas_species

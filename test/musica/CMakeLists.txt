@@ -49,7 +49,7 @@ add_test(
 )
 
 # MUSICA CCPP API test
-add_executable(test_musica_api test_musica_api.F90 musica_ccpp_namelist.F90)
+add_executable(test_musica_api test_musica_api.F90)
 
 file(GLOB MUSICA_CCPP_SOURCES
   ${MUSICA_SRC_PATH}/*.F90
@@ -60,6 +60,8 @@ file(GLOB MUSICA_CCPP_SOURCES
 target_sources(test_musica_api
   PUBLIC
     ${MUSICA_CCPP_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/musica_ccpp_namelist.F90
+    ${CMAKE_CURRENT_SOURCE_DIR}/musica_test_data.F90
     ${TO_BE_CCPPIZED_SRC_PATH}/ccpp_tuvx_utils.F90
     ${TO_BE_CCPPIZED_SRC_PATH}/ccpp_const_utils.F90
     ${CCPP_SRC_PATH}/ccpp_constituent_prop_mod.F90
