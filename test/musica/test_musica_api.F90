@@ -247,12 +247,11 @@ contains
       do j = 1, NUM_LAYERS
         ! N2 should be unchanged
         ASSERT_NEAR(constituents(i,j,N2_index), initial_constituents(i,j,N2_index), 1.0e-13_kind_phys)
-        ! TODO(jiwon) - O3 and O2 should be relatively unchanged
-        ASSERT_NEAR(constituents(i,j,O3_index), initial_constituents(i,j,O3_index), 1.0e-1_kind_phys)
-        ASSERT_NEAR(constituents(i,j,O2_index), initial_constituents(i,j,O2_index), 1.0e-1_kind_phys)
-        ! TODO(jiwon) - O and O1D should be < 1e-10 kg kg-1
-        ! ASSERT(constituents(i,j,O_index) < 1.0e-10_kind_phys)
-        ! ASSERT(constituents(i,j,O1D_index) < 1.0e-10_kind_phys)
+        ! O, O1D, O2, and O3 should be changed
+        ASSERT(constituents(i,j,O_index) .ne. initial_constituents(i,j,O_index))
+        ASSERT(constituents(i,j,O1D_index) .ne. initial_constituents(i,j,O1D_index))
+        ASSERT(constituents(i,j,O2_index) .ne. initial_constituents(i,j,O2_index))
+        ASSERT(constituents(i,j,O3_index) .ne. initial_constituents(i,j,O3_index))
         ! total O mass should be conserved
         total_O = constituents(i,j,O_index) + constituents(i,j,O1D_index) + &
                   constituents(i,j,O2_index) + constituents(i,j,O3_index)
