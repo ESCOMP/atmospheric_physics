@@ -26,7 +26,7 @@ module musica_ccpp_tuvx_wavelength_grid
 contains
 
   !> Creates a TUV-x wavelength grid
-  function create_wavelength_grid( photolysis_wavelength_grid_interfaces, &
+  function create_wavelength_grid( wavelength_grid_interfaces, &
       errmsg, errcode ) result( wavelength_grid )
 
     use ccpp_kinds,       only: kind_phys
@@ -34,22 +34,22 @@ contains
     use musica_tuvx_grid, only: grid_t
     use musica_util,      only: error_t
 
-    real(kind_phys),  intent(in)  :: photolysis_wavelength_grid_interfaces(:) ! nm
+    real(kind_phys),  intent(in)  :: wavelength_grid_interfaces(:) ! nm
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errcode
     type(grid_t),     pointer     :: wavelength_grid
 
     ! local variables
-    reaL(kind_phys) :: midpoints( size( photolysis_wavelength_grid_interfaces ) - 1 ) ! nm
+    reaL(kind_phys) :: midpoints( size( wavelength_grid_interfaces ) - 1 ) ! nm
     type(error_t)   :: error
 
     midpoints(:) = &
-        0.5 * ( photolysis_wavelength_grid_interfaces( 1: size( photolysis_wavelength_grid_interfaces ) - 1 ) &
-              + photolysis_wavelength_grid_interfaces( 2: size( photolysis_wavelength_grid_interfaces ) ) )
+        0.5 * ( wavelength_grid_interfaces( 1: size( wavelength_grid_interfaces ) - 1 ) &
+              + wavelength_grid_interfaces( 2: size( wavelength_grid_interfaces ) ) )
     wavelength_grid => grid_t( wavelength_grid_label, wavelength_grid_unit, &
                                size( midpoints ), error )
     if ( has_error_occurred( error, errmsg, errcode ) ) return
-    call wavelength_grid%set_edges( photolysis_wavelength_grid_interfaces, error )
+    call wavelength_grid%set_edges( wavelength_grid_interfaces, error )
     if ( has_error_occurred( error, errmsg, errcode ) ) return
     call wavelength_grid%set_midpoints( midpoints, error )
     if ( has_error_occurred( error, errmsg, errcode ) ) return
