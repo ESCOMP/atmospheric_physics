@@ -112,7 +112,6 @@ contains
     prec_str(:ncol) = 0._kind_phys + prec_sed(:ncol)
     snow_str(:ncol) = 0._kind_phys + snow_sed(:ncol)
 
-
   end subroutine rk_stratiform_sedimentation_run
 
 !> \section arg_table_rk_stratiform_detrain_convective_condensate_run Argument Table
@@ -225,8 +224,7 @@ contains
     errmsg = ''
     errflg = 0
 
-    ! Call perturbed version of compute_cloud_fraction
-    ! WARN: This is NOT CCPP-compliant!
+    ! Call perturbed version of compute_cloud_fraction scheme
     call compute_cloud_fraction_run( &
       ncol              = ncol,                 &
       pver              = pver,                 &
