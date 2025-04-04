@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+
+
+<?xml-stylesheet type="text/xsl" href="namelist_definition.xsl"?>
+
+
+<entry_id_pg version="2.0">
+
+
+<entry id="rayk0">
+    <type>integer</type>
+    <category>rayleigh_friction</category>
+    <group>rayleigh_friction_nl</group>
+    <standard_name>center_vertical_layer_for_rayleigh_friction</standard_name>
+    <units>index</units>
+    <desc>
+      Variable to specify the vertical index at which the
+      Rayleigh friction term is centered (the peak value).
+    </desc>
+    <values>
+      <value>2</value>
+    </values>
+</entry>
+
+<entry id="raykrange">
+  <type>real</type>
+  <kind>kind_phys</kind>
+  <category>rayleigh_friction</category>
+  <group>rayleigh_friction_nl</group>
+  <standard_name>number_of_vertical_layers_for_rayleigh_friction</standard_name>
+    <units>count</units>
+    <desc>
+      Range (number of layers) of the Rayleigh Friction profile. If 0, range is set to satisfy center=2.
+    </desc>
+    <values>
+      <value>0</value>
+    </values>
+</entry>
+
+<entry id="raytau0">
+  <type>real</type>
+  <kind>kind_phys</kind>
+  <category>rayleigh_friction</category>
+  <group>rayleigh_friction_nl</group>
+  <standard_name>model_top_decay_time_for_rayleigh_friction</standard_name>
+    <units>days</units>
+    <desc>
+      Approximate value of max decay time (in units of days) at model top. If 0, no Rayleigh Friction is computed or applied.
+    </desc>
+    <values>
+      <value>0</value>
+    </values>
+</entry>
+
+
+</entry_id_pg>
