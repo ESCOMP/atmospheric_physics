@@ -187,10 +187,6 @@ contains
                   errmsg, errcode)
     if (errcode /= 0) return
 
-    call update_constituents(tuvx_indices_constituent_props, constituents_tuvx_species, &
-                             constituents, errmsg, errcode)
-    if (errcode /= 0) return
-
     call extract_subset_constituents(micm_indices_constituent_props, constituents, &
                                      constituents_micm_species, errmsg, errcode)
     if (errcode /= 0) return

@@ -29,7 +29,7 @@ contains
     real(kind_phys)          :: extraterrestrial_flux(NUM_WAVELENGTH_BINS) = &
       [1.6e13_kind_phys, 1.4e13_kind_phys, 1.2e13_kind_phys, 1.0e13_kind_phys] ! photons cm-2 s-1 nm-1
     real(kind_phys)          :: expected_extraterrestrial_flux_midpoints(NUM_WAVELENGTH_BINS) = &
-      [32e13_kind_phys, 28e13_kind_phys, 24e13_kind_phys, 20e13_kind_phys]
+      [32e13_kind_phys, 28e13_kind_phys, 24e13_kind_phys, 20e13_kind_phys]     ! photons cm-2 s-1
     real(kind_phys)          :: extraterrestrial_flux_midpoints(NUM_WAVELENGTH_BINS)
     type(grid_t),    pointer :: wavelength_grid
     type(profile_t), pointer :: profile
@@ -46,15 +46,15 @@ contains
                 host_interfaces, errmsg, errcode )
     ASSERT(errcode == 0)
     ASSERT(associated( profile ))
-    ASSERT(allocated( host_wavelength_grid_interfaces_ ))
-    ASSERT(host_wavelength_grid_interfaces_%size == NUM_WAVELENGTH_GRID_INTERFACES)
+    ASSERT(allocated( host_wavelength_grid_interfaces ))
+    ASSERT(host_wavelength_grid_interfaces%size == NUM_WAVELENGTH_GRID_INTERFACES)
     do i = 1, NUM_WAVELENGTH_GRID_INTERFACES
-      ASSERT_NEAR(host_wavelength_grid_interfaces_%interfaces(i), host_interfaces(i), ABS_ERROR)
+      ASSERT_NEAR(host_wavelength_grid_interfaces%interfaces(i), host_interfaces(i), ABS_ERROR)
     end do
-    ASSERT(allocated( tuvx_wavelength_grid_interfaces_ ))
-    ASSERT(tuvx_wavelength_grid_interfaces_%size == NUM_WAVELENGTH_GRID_INTERFACES)
+    ASSERT(allocated( tuvx_wavelength_grid_interfaces ))
+    ASSERT(tuvx_wavelength_grid_interfaces%size == NUM_WAVELENGTH_GRID_INTERFACES)
     do i = 1, NUM_WAVELENGTH_GRID_INTERFACES
-      ASSERT_NEAR(tuvx_wavelength_grid_interfaces_%interfaces(i), host_interfaces(i), ABS_ERROR)
+      ASSERT_NEAR(tuvx_wavelength_grid_interfaces%interfaces(i), host_interfaces(i), ABS_ERROR)
     end do
 
     call set_extraterrestrial_flux_values( profile, extraterrestrial_flux, errmsg, errcode )
