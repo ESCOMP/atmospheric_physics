@@ -1,5 +1,5 @@
 !> \file rrtmgp_lw_main.F90
-!! This file contains the core longwave RRTMGP radiation calcuation
+!!
 
 !> This module contains the call to the RRTMGP-LW radiation routine
 module rrtmgp_lw_main

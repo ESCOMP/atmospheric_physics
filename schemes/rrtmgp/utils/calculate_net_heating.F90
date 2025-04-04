@@ -1,5 +1,4 @@
 module calculate_net_heating
-! PEVERWHEE - this should go in schemes/rrtmgp/utils
 !-----------------------------------------------------------------------
 !
 ! Purpose:  Provide an interface to convert shortwave and longwave
