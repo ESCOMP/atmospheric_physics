@@ -24,6 +24,8 @@ module qneg
    logical          :: collect_stats = .false.
    logical          :: timestep_reset = .false.
    logical          :: qneg_initialized = .false.
+   logical          :: qneg_timestep_finalized = .false.
+   logical          :: qneg_finalized = .false.
    integer          :: num_constituents = 0
 
    real(kind_phys), parameter :: tol = 1.e-12_kind_phys
@@ -281,6 +283,9 @@ CONTAINS
 !!XXgoldyXX: ^ Reinstate when history is implemented
       end do
 
+      ! Set qneg_timestep_finalized to .false.
+      qneg_timestep_finalized = .false.
+
    end subroutine qneg_run
 
    !> \section arg_table_qneg_timestep_final Argument Table
@@ -301,10 +306,17 @@ CONTAINS
       errcode = 0
       errmsg = ''
 
+      if (qneg_timestep_finalized) then
+         ! Only finalize the timestep once even if qneg_timestep_final is called multiple times
+         return
+      end if
+
       if (timestep_reset .and. collect_stats) then
          call qneg_print_summary(mpi_communicator, rootprocid, isrootproc,    &
               iulog, qprops)
       end if
+
+      qneg_timestep_finalized = .true.
 
    end subroutine qneg_timestep_final
    !> \section arg_table_qneg_final Argument Table
@@ -325,12 +337,19 @@ CONTAINS
       errcode = 0
       errmsg = ''
 
+      if (qneg_finalized) then
+         ! Only finalize once even if qneg_final is called multiple times
+         return
+      end if
+
       if (.not.timestep_reset .and. collect_stats) then
          call qneg_print_summary(mpi_communicator, rootprocid, isrootproc,    &
               iulog, qprops)
       end if
       deallocate(qneg_warn_num)
       deallocate(qneg_warn_worst)
+
+      qneg_finalized = .true.
 
    end subroutine qneg_final
 
