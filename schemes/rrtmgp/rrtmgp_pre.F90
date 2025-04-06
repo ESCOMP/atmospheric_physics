@@ -40,15 +40,46 @@ CONTAINS
 
   end subroutine rrtmgp_pre_init
 
+!> \section arg_table_rrtmgp_pre_timestep_init Argument Table
+!! \htmlinclude rrtmgp_pre_timestep_init.html
+!!
+  subroutine rrtmgp_pre_timestep_init(nstep, dtime, iradsw, irad_always, offset, errmsg, errflg)
+     integer,          intent(in)  :: nstep          ! Current timestep number
+     integer,          intent(in)  :: dtime          ! Timestep size
+     integer,          intent(in)  :: iradsw         ! Freq. of shortwave radiation calc in time steps (positive) or hours (negative)
+     integer,          intent(in)  :: irad_always    ! Number of time steps to execute radiation continuously
+     integer,          intent(out) :: offset         ! Offset for next SW radiation timestep
+     integer,          intent(out) :: errflg
+     character(len=*), intent(out) :: errmsg
+
+     logical :: dosw_next
+     integer :: nstepsw_next
+
+     ! Get timestep of next radiation calculation
+     dosw_next = .false.
+     nstepsw_next = nstep
+     offset = 0
+     do while (.not. dosw_next)
+        nstepsw_next = nstepsw_next + 1
+        offset = offset + dtime
+        call radiation_do_ccpp('sw', nstepsw_next, iradsw, irad_always, dosw_next, errmsg, errflg)
+        if (errflg /= 0) then
+           return
+        end if
+     end do
+
+  end subroutine rrtmgp_pre_timestep_init
+
 !> \section arg_table_rrtmgp_pre_run Argument Table
 !! \htmlinclude rrtmgp_pre_run.html
 !!
   subroutine rrtmgp_pre_run(coszrs, nstep, dtime, iradsw, iradlw, irad_always, ncol, &
-                  nextsw_cday, idxday, nday, idxnite, nnite, dosw, dolw, nlay, nlwbands, &
-                  nswbands, spectralflux, fsw, fswc, flw, flwc, errmsg, errflg)
+                  next_cday, idxday, nday, idxnite, nnite, dosw, dolw, nlay, nlwbands, &
+                  nswbands, spectralflux, nextsw_cday, fsw, fswc, flw, flwc, errmsg, errflg)
      use time_manager,         only: get_curr_calday
      ! Inputs
      real(kind_phys), dimension(:),    intent(in) :: coszrs        ! Cosine solar zenith angle
+     real(kind_phys),                  intent(in) :: next_cday     ! The calendar day of the next timestep
      integer,                          intent(in) :: dtime         ! Timestep size [s]
      integer,                          intent(in) :: nstep         ! Timestep number
      integer,                          intent(in) :: iradsw        ! Freq. of shortwave radiation calc in time steps (positive) or hours (negative)
@@ -60,13 +91,13 @@ CONTAINS
      integer,                          intent(in) :: nswbands      ! Number of shortwave bands
      logical,                          intent(in) :: spectralflux  ! Flag to calculate fluxes (up and down) per band
      ! Outputs
+     real(kind_phys),               intent(inout) :: nextsw_cday   ! The next calendar day during which calculation will be performed
      class(ty_fluxes_broadband_ccpp), intent(out) :: fswc          ! Clear-sky shortwave flux object
      class(ty_fluxes_byband_ccpp),    intent(out) :: fsw           ! All-sky shortwave flux object
      class(ty_fluxes_broadband_ccpp), intent(out) :: flwc          ! Clear-sky longwave flux object
      class(ty_fluxes_byband_ccpp),    intent(out) :: flw           ! All-sky longwave flux object
      integer,                         intent(out) :: nday          ! Number of daylight columns
      integer,                         intent(out) :: nnite         ! Number of nighttime columns
-     real(kind_phys),                 intent(out) :: nextsw_cday   ! The next calendar day during which radiation calculation will be performed
      integer, dimension(:),           intent(out) :: idxday        ! Indices of daylight columns
      integer, dimension(:),           intent(out) :: idxnite       ! Indices of nighttime columns
      logical,                         intent(out) :: dosw          ! Flag to do shortwave calculation
@@ -76,10 +107,6 @@ CONTAINS
 
      ! Local variables
      integer :: idx
-     integer :: offset
-     integer :: nstep_next
-     logical :: dosw_next
-     real(kind_phys) :: caldayp1
 
      ! Set error variables
      errflg = 0
@@ -108,33 +135,9 @@ CONTAINS
         return
      end if
 
-     ! Get time of next radiation calculation - albedos will need to be
-     ! calculated by each surface model at this time
-     nextsw_cday = -1._kind_phys
-     dosw_next = .false.
-     offset = 0
-     nstep_next = nstep
-     do while (.not. dosw_next)
-        nstep_next = nstep_next + 1
-        offset = offset + dtime
-        call radiation_do_ccpp('sw', nstep_next, iradsw, irad_always, dosw_next, errmsg, errflg)
-        if (errflg /= 0) then
-           return
-        end if
-        if (dosw_next) then
-           nextsw_cday = get_curr_calday(offset=offset)
-        end if
-     end do
-     if(nextsw_cday == -1._kind_phys) then
-        errflg = 1
-        errmsg = 'next calendar day with shortwave calculation not found'
-        return
-     end if
-
      ! determine if next radiation time-step not equal to next time-step
      if (nstep >= 1) then
-        caldayp1 = get_curr_calday(offset=int(dtime))
-        if (caldayp1 /= nextsw_cday) nextsw_cday = -1._kind_phys
+        if (next_cday /= nextsw_cday) nextsw_cday = -1._kind_phys
      end if
 
      ! Allocate the flux arrays and init to zero.
