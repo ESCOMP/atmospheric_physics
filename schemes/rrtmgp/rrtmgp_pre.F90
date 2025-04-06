@@ -76,7 +76,6 @@ CONTAINS
   subroutine rrtmgp_pre_run(coszrs, nstep, dtime, iradsw, iradlw, irad_always, ncol, &
                   next_cday, idxday, nday, idxnite, nnite, dosw, dolw, nlay, nlwbands, &
                   nswbands, spectralflux, nextsw_cday, fsw, fswc, flw, flwc, errmsg, errflg)
-     use time_manager,         only: get_curr_calday
      ! Inputs
      real(kind_phys), dimension(:),    intent(in) :: coszrs        ! Cosine solar zenith angle
      real(kind_phys),                  intent(in) :: next_cday     ! The calendar day of the next timestep
