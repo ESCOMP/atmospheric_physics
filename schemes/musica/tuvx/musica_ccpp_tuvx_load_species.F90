@@ -1,3 +1,5 @@
+! Copyright (C) 2024-2025 University Corporation for Atmospheric Research
+! SPDX-License-Identifier: Apache-2.0
 module musica_ccpp_tuvx_load_species
   use ccpp_kinds,          only: kind_phys
   use musica_ccpp_species, only: MUSICA_INT_UNASSIGNED

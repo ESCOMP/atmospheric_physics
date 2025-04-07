@@ -1,3 +1,5 @@
+! Copyright (C) 2024-2025 University Corporation for Atmospheric Research
+! SPDX-License-Identifier: Apache-2.0
 module musica_ccpp_micm
 
   ! Note: "micm_t" is included in an external pre-built MICM library that the host
@@ -9,11 +11,12 @@ module musica_ccpp_micm
 
   implicit none
   private
+  save
 
-  public :: micm_register, micm_init, micm_run, micm_final, micm, number_of_rate_parameters
+  public :: micm_register, micm_init, micm_run, micm_final
 
-  type(micm_t), pointer  :: micm => null( )
-  integer :: number_of_rate_parameters = 0
+  type(micm_t), pointer, public :: micm => null( )
+  integer,               public :: number_of_rate_parameters = 0
 
 contains
 
@@ -85,7 +88,7 @@ contains
         molar_mass = molar_mass, &
         advected = is_advected, &
         errcode = errcode, &
-        errmsg = errmsg)
+        errmsg = errmsg )
       if (errcode /= 0) return
 
       ! Species are ordered to match the sequence of the MICM state array

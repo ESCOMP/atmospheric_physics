@@ -146,12 +146,6 @@
   units = fraction
   dimensions = (horizontal_loop_extent)
   intent = in
-[ photolysis_wavelength_grid_interfaces ]
-  standard_name = photolysis_wavelength_grid_interfaces
-  type = real | kind = kind_phys
-  units = m
-  dimensions = (photolysis_wavelength_grid_interface_dimension)
-  intent = in
 [ extraterrestrial_flux ]
   standard_name = extraterrestrial_radiation_flux
   type = real | kind = kind_phys
