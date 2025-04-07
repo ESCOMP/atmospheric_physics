@@ -10,12 +10,11 @@ contains
 !> \section arg_table_rrtmgp_lw_gas_optics_pre_run Argument Table
 !! \htmlinclude rrtmgp_lw_gas_optics_pre_run.html
 !!
-  subroutine rrtmgp_lw_gas_optics_pre_run(icall, rad_const_array, pmid, pint, nlay, ncol, gaslist, idxday, &
+  subroutine rrtmgp_lw_gas_optics_pre_run(rad_const_array, pmid, pint, nlay, ncol, gaslist, idxday, &
                   pverp, ktoprad, ktopcam, dolw, nradgas, gas_concs, errmsg, errflg)
 
     ! Set gas vmr for the gases in the radconstants module's gaslist.
 
-    integer,                     intent(in) :: icall                  ! Subcycle index of climate/diagnostic radiation call
     character(len=*),            intent(in) :: gaslist(:)             ! Radiatively active gases
     integer,                     intent(in) :: nlay                   ! Number of layers in radiation calculation
     integer,                     intent(in) :: ncol                   ! Total number of columns
