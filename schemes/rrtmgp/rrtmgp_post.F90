@@ -5,6 +5,7 @@ module rrtmgp_post
   use ccpp_source_functions,   only: ty_source_func_lw_ccpp
   use ccpp_fluxes,             only: ty_fluxes_broadband_ccpp
   use ccpp_fluxes_byband,      only: ty_fluxes_byband_ccpp
+  use cam_logfile, only: iulog
 
   public :: rrtmgp_post_run
 
@@ -12,9 +13,11 @@ contains
 !> \section arg_table_rrtmgp_post_run Argument Table
 !! \htmlinclude rrtmgp_post_run.html
 !!
-subroutine rrtmgp_post_run(ncol, qrs, qrl, fsns, pdel, atm_optics_sw, cloud_sw, aer_sw, &
-                  fsw, fswc, sources_lw, cloud_lw, aer_lw, flw, flwc, netsw, errmsg, errflg)
+subroutine rrtmgp_post_run(ncol, nlay, dolw, qrs, qrl, fsns, pdel, atm_optics_sw, cloud_sw, aer_sw, &
+                  fsw, fswc, sources_lw, cloud_lw, aer_lw, flw, flwc, netsw, flwds, errmsg, errflg)
    integer,                          intent(in)    :: ncol           ! Number of columns
+   integer,                          intent(in)    :: nlay           ! Number of layers in radiation calculation
+   logical,                          intent(in)    :: dolw           ! Flag for whether to perform longwave calculation
    real(kind_phys), dimension(:,:),  intent(in)    :: pdel           ! Layer thickness [Pa]
    real(kind_phys), dimension(:),    intent(in)    :: fsns           ! Surface net shortwave flux [W m-2]
    real(kind_phys), dimension(:,:),  intent(inout) :: qrs            ! Shortwave heating rate [J kg-1 s-1]
@@ -30,6 +33,7 @@ subroutine rrtmgp_post_run(ncol, qrs, qrl, fsns, pdel, atm_optics_sw, cloud_sw, 
    type(ty_fluxes_byband_ccpp),      intent(inout) :: flw            ! Longwave all-sky flux object
    type(ty_source_func_lw_ccpp),     intent(inout) :: sources_lw     ! Longwave sources object
    real(kind_phys), dimension(:),    intent(out)   :: netsw          ! Net shortwave flux to be sent to coupler [W m-2]
+   real(kind_phys), dimension(:),    intent(out)   :: flwds          ! Down longwave flux at surface [W m-2]
    character(len=*),                 intent(out)   :: errmsg
    integer,                          intent(out)   :: errflg
 
@@ -41,8 +45,11 @@ subroutine rrtmgp_post_run(ncol, qrs, qrl, fsns, pdel, atm_optics_sw, cloud_sw, 
    qrs(:ncol,:) = qrs(:ncol,:) * pdel(:ncol,:)
    qrl(:ncol,:) = qrl(:ncol,:) * pdel(:ncol,:)
 
-   ! Set the netsw to be sent to the coupler
+   ! Set netsw and flwds to be sent to the coupler
    netsw(:ncol) = fsns(:ncol)
+   if (dolw) then
+      flwds(:ncol) = flw%fluxes%flux_dn(:, nlay+1)
+   end if
 
    call free_optics_sw(atm_optics_sw)
    call free_optics_sw(cloud_sw)
