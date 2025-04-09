@@ -110,10 +110,9 @@ contains
   !=========================================================================================
   !> \section arg_table_rayleigh_friction_run Argument Table
   !! \htmlinclude rayleigh_friction_run.html
-  subroutine rayleigh_friction_run(ncol, pver, ztodt, u, v, dudt, dvdt, dsdt, errmsg, errflg)
+  subroutine rayleigh_friction_run(pver, ztodt, u, v, dudt, dvdt, dsdt, errmsg, errflg)
 
     !------------------------------Arguments--------------------------------
-    integer,             intent(in) :: ncol  
     integer,             intent(in) :: pver
     real(kind_phys),     intent(in) :: ztodt   !physics timestep
     real(kind_phys),     intent(in) :: u(:,:)     
@@ -135,9 +134,6 @@ contains
     ! initialize values
     errmsg = ''
     errflg = 0
-    dudt(:,:)=0._kind_phys
-    dvdt(:,:)=0._kind_phys
-    dsdt(:,:) =0._kind_phys
 
     if (raytau0 .eq. 0._kind_phys) return
 
@@ -149,9 +145,9 @@ contains
        c2 = 1._kind_phys / (1._kind_phys + otau(k)*ztodt)
        c1 = -otau(k) * c2
        c3 = 0.5_kind_phys * (1._kind_phys - c2*c2) * rztodt
-       dudt(:ncol,k) = c1 * u(:ncol,k)
-       dvdt(:ncol,k) = c1 * v(:ncol,k)
-       dsdt(:ncol,k) = c3 * (u(:ncol,k)**2 + v(:ncol,k)**2)
+       dudt(:,k) = c1 * u(:,k)
+       dvdt(:,k) = c1 * v(:,k)
+       dsdt(:,k) = c3 * (u(:,k)**2 + v(:,k)**2)
     enddo
     
   end subroutine rayleigh_friction_run
