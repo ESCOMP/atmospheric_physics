@@ -62,12 +62,6 @@
 [ccpp-arg-table]
   name  = rayleigh_friction_run
   type  = scheme
-[ ncol ]
-  standard_name = horizontal_loop_extent
-  units = count
-  type = integer
-  dimensions = ()
-  intent = in
 [ pver ]
   standard_name = vertical_layer_dimension
   units = count
@@ -96,19 +90,19 @@
   standard_name = tendency_of_eastward_wind
   units = m s-2
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (horizontal_loop_begin:horizontal_loop_end, vertical_layer_dimension)
   intent = out
 [ dvdt ]
   standard_name = tendency_of_northward_wind
   units = m s-2
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (horizontal_loop_begin:horizontal_loop_end, vertical_layer_dimension)
   intent = out
 [ dsdt ]
   standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure
   units = J kg-1 s-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (horizontal_loop_begin:horizontal_loop_end, vertical_layer_dimension)
   intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
