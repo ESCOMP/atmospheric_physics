@@ -1,6 +1,3 @@
-! Copyright (C) 2024-2025 National Science Foundation-National Center for Atmospheric Research
-! SPDX-License-Identifier: Apache-2.0
-!
 ! Note: There is an implicit dependency in the shallow convective code
 ! that deep convection runs *before* shallow convection.
 ! Efforts have been made to make this dependency clear in the form that
