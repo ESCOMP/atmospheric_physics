@@ -246,7 +246,7 @@ module rrtmgp_inputs
      end if
 
      ! RRTMGP set state
-     t_sfc = sqrt(sqrt(lwup(:ncol)/stebol))  ! Surface temp set based on longwave up flux.
+     t_sfc = sqrt(sqrt(lwup(:)/stebol))  ! Surface temp set based on longwave up flux.
 
      ! Set surface emissivity to 1.0.
      ! The land model *does* have its own surface emissivity, but is not spectrally resolved.
@@ -256,13 +256,13 @@ module rrtmgp_inputs
      emis_sfc(:,:) = 1._kind_phys
 
      ! Level ordering is the same for both CAM and RRTMGP (top to bottom)
-     t_rad(:,ktoprad:) = t(:ncol,ktopcam:)
-     pmid_rad(:,ktoprad:) = pmid(:ncol,ktopcam:)
-     pint_rad(:,ktoprad:) = pint(:ncol,ktopcam:)
+     t_rad(:,ktoprad:) = t(:,ktopcam:)
+     pmid_rad(:,ktoprad:) = pmid(:,ktopcam:)
+     pint_rad(:,ktoprad:) = pint(:,ktopcam:)
 
      ! Add extra layer values if needed.
      if (nlay == pverp) then
-        t_rad(:,1) = t(:ncol,1)
+        t_rad(:,1) = t(:,1)
         ! The top reference pressure from the RRTMGP coefficients datasets is 1.005183574463 Pa
         ! Set the top of the extra layer just below that.
         pint_rad(:,1) = 1.01_kind_phys
@@ -359,7 +359,7 @@ module rrtmgp_inputs
            end do
         end do
      else
-        cldfprime(:ncol,:) = cld(:ncol,:)
+        cldfprime(:,:) = cld(:,:)
      end if
 
      if (graupel_associated .and. graupel_in_rad) then

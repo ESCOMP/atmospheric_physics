@@ -104,7 +104,7 @@ subroutine rrtmgp_lw_mcica_subcol_gen_run( &
    end if
 
    ! clip cloud fraction
-   cldf(:,:) = cldfrac(:ncol,:)
+   cldf(:,:) = cldfrac(:,:)
    where (cldf(:,:) < cldmin)
       cldf(:,:) = 0._kind_phys
    end where
