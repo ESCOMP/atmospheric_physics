@@ -1,6 +1,3 @@
-! Copyright (C) 2025 University Corporation for Atmospheric Research
-! SPDX-License-Identifier: Apache-2.0
-!
 ! Prognostic cloud water data and methods (cldwat)
 ! Original authors as marked in subroutines
 ! CCPP-ized: Haipeng Lin, January 2025

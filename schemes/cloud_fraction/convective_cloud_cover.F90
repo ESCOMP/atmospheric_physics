@@ -1,6 +1,3 @@
-! Copyright (C) 2025 University Corporation for Atmospheric Research
-! SPDX-License-Identifier: Apache-2.0
-!
 ! Computes deep and shallow convective cloud fractions
 ! CCPP-ized: Haipeng Lin, February 2025
 module convective_cloud_cover

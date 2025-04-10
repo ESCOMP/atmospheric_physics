@@ -229,6 +229,18 @@
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
+[ pref ]
+  standard_name = surface_reference_pressure
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ lapse_rate ]
+  standard_name = reference_temperature_lapse_rate
+  units = K m-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
 [ top_lev_cloudphys ]
   standard_name = vertical_layer_index_of_cloud_fraction_top
   units = index

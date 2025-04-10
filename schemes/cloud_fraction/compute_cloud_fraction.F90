@@ -1,7 +1,4 @@
-! Copyright (C) 2025 University Corporation for Atmospheric Research
-! SPDX-License-Identifier: Apache-2.0
-!
-! Compute cloud fractions using RH threshold and other methods.
+! Compute cloud fractions using relative humidity (RH) threshold and other methods.
 ! CCPP-ized: Haipeng Lin, February 2025
 module compute_cloud_fraction
   use ccpp_kinds, only: kind_phys
@@ -30,9 +27,7 @@ module compute_cloud_fraction
 
   integer         :: k700              ! model level nearest to 700 mb [index]
 
-  ! constants
-  real(kind_phys), parameter :: pnot = 1.e5_kind_phys    ! reference pressure [Pa]
-  real(kind_phys), parameter :: lapse = 6.5e-3_kind_phys ! U.S. Standard Atmosphere lapse rate [K m-1]
+  ! tuning constants
   real(kind_phys), parameter :: pretop = 1.0e2_kind_phys ! pressure bounding high cloud [Pa]
 
 contains
@@ -131,7 +126,7 @@ contains
 !! \htmlinclude compute_cloud_fraction_run.html
   subroutine compute_cloud_fraction_run( &
     ncol, pver, &
-    cappa, gravit, rair, tmelt, &
+    cappa, gravit, rair, tmelt, pref, lapse_rate, &
     top_lev_cloudphys, &
     pmid, ps, temp, sst, &
     q, cldice, &
@@ -154,6 +149,8 @@ contains
     real(kind_phys), intent(in) :: gravit
     real(kind_phys), intent(in) :: rair
     real(kind_phys), intent(in) :: tmelt
+    real(kind_phys), intent(in) :: pref
+    real(kind_phys), intent(in) :: lapse_rate
     integer,         intent(in) :: top_lev_cloudphys ! vertical_layer_index_of_cloud_fraction_top [index]
     real(kind_phys), intent(in) :: pmid(:, :)        ! air_pressure [Pa]
     real(kind_phys), intent(in) :: ps(:)             ! surface_air_pressure [Pa]
@@ -194,7 +191,6 @@ contains
     real(kind_phys) :: theta(ncol, pver)           ! potential temperature
     real(kind_phys) :: thetas(ncol)                ! ocean surface potential temperature
     real(kind_phys) :: rhlim                       ! local rel. humidity threshold estimate
-    real(kind_phys) :: coef1                       ! coefficient to convert mass flux to mb/d
     real(kind_phys) :: clrsky(ncol)                ! temporary used in random overlap calc
     real(kind_phys) :: rpdeli(ncol, pver - 1)      ! 1./(pmid(k+1)-pmid(k))
     real(kind_phys) :: rhpert                      ! the specified perturbation to rh
@@ -252,25 +248,29 @@ contains
     ! define rh perturbation in order to estimate rhdfda
     rhpert = 0.01_kind_phys
 
-    !set Wang and Sassen IWC paramters
+    ! Parameters for ice cloud fraction methods
+    ! References for these parameters, and the corresponding methods, are in the compute section
+    ! below.
+    ! iceopt = 1. Wang and Sassen IWC
     a = 26.87_kind_phys
     b = 0.569_kind_phys
     c = 0.002892_kind_phys
-    !set schiller parameters
+    ! iceopt = 2. Schiller
     as = -68.4202_kind_phys
     bs = 0.983917_kind_phys
     cs = 2.81795_kind_phys
-    !set wood and field paramters...
+    ! iceopt = 3. Wood and Field
     Kc = 75._kind_phys
 
     ! Evaluate potential temperature and relative humidity
-    ! If not computing ice cloud fraction then hybrid RH, if MG then water RH
     if (cldfrc_ice) then
+      ! If computing ice cloud fraction (CAM5+ MG Morrison and Gettelman microphysics) then water RH
       do k = top_lev_cloudphys, pver
         call qsat_water(temp(1:ncol, k), pmid(1:ncol, k), esl(1:ncol, k), qs(1:ncol, k), ncol)
         call svp_ice_vect(temp(1:ncol, k), esi(1:ncol, k), ncol)
       end do
     else
+      ! If not computing ice cloud fraction (CAM4 RK Rasch-Kristjansson microphysics) then hybrid RH,
       do k = top_lev_cloudphys, pver
         call qsat(temp(1:ncol, k), pmid(1:ncol, k), es(1:ncol, k), qs(1:ncol, k), ncol)
       end do
@@ -283,7 +283,7 @@ contains
     cldst = 0._kind_phys
 
     do k = top_lev_cloudphys, pver
-      theta(:ncol, k) = temp(:ncol, k)*(pnot/pmid(:ncol, k))**cappa
+      theta(:ncol, k) = temp(:ncol, k)*(pref/pmid(:ncol, k))**cappa
 
       do i = 1, ncol
         if(.not. rhpert_flag) then
@@ -302,11 +302,13 @@ contains
     do i = 1, ncol
       ! Adjust thetas(i) in the presence of non-zero ocean heights.
       ! This reduces the temperature for positive heights according to a standard lapse rate.
-      if (ocnfrac(i) .gt. 0.01_kind_phys) thetas(i) = &
-        (sst(i) - lapse*phis(i)/gravit)*(pnot/ps(i))**cappa
-      if (ocnfrac(i) .gt. 0.01_kind_phys .and. sst(i) .lt. 260._kind_phys) ierror = i
+      if (ocnfrac(i) > 0.01_kind_phys) then
+        thetas(i) = (sst(i) - lapse_rate*phis(i)/gravit)*(pref/ps(i))**cappa
+      endif
+      if (ocnfrac(i) > 0.01_kind_phys .and. sst(i) < 260._kind_phys) then
+        ierror = i
+      endif
     end do
-    coef1 = gravit*864.0_kind_phys    ! conversion to millibars/day
 
     if (ierror > 0) then
       write (iulog, *) 'COLDSST: encountered in cldfrc:', ierror, ocnfrac(ierror), sst(ierror)
@@ -337,12 +339,10 @@ contains
     do k = top_lev_cloudphys + 1, numkcld
       kp1 = min(k + 1, pver)
       do i = 1, ncol
-
         ! This is now designed to apply FOR LIQUID CLOUDS (condensation > RH water)
+        cldbnd(i) = pmid(i, k) >= pretop
 
-        cldbnd(i) = pmid(i, k) .ge. pretop
-
-        if (pmid(i, k) .ge. premib) then
+        if (pmid(i, k) >= premib) then
           !==============================================================
           ! This is the low cloud (below premib) block
           !==============================================================
@@ -362,7 +362,7 @@ contains
             rhcloud(i, k) = rhcloud(i, k)*max(0.15_kind_phys, min(1.0_kind_phys, q(i, k)/0.0030_kind_phys))
           end if
 
-        else if (pmid(i, k) .lt. premit) then
+        else if (pmid(i, k) < premit) then
           !==============================================================
           ! This is the high cloud (above premit) block
           !==============================================================
@@ -398,59 +398,54 @@ contains
         !==================================================================================
 
         if (cldfrc_ice) then
-
           ! Evaluate ice cloud fraction based on in-cloud ice content
-
-          !--------ICE CLOUD OPTION 1--------Wang & Sassen 2002
-          !         Evaluate desired in-cloud water content
-          !               icicval = f(temp,cldice,numice)
-          !         Start with a function of temperature.
-          !         Wang & Sassen 2002 (JAS), based on ARM site MMCR (midlat cirrus)
-          !         https://doi.org/10.1175/1520-0469(2002)059<2291:CCMPRU>2.0.CO;2
-          !           parameterization valid for 203-253K
-          !           icival > 0 for t>195K
-          if (iceopt .lt. 3) then
+          if (iceopt .eq. 1 .or. iceopt .eq. 2) then
             if (iceopt .eq. 1) then
+              ! ICE CLOUD OPTION 1 - Wang & Sassen 2002
+              !         Evaluate desired in-cloud water content
+              !               icicval = f(temp,cldice,numice)
+              !         Start with a function of temperature.
+              !         Wang & Sassen 2002 (JAS), based on ARM site MMCR (midlat cirrus)
+              !         https://doi.org/10.1175/1520-0469(2002)059<2291:CCMPRU>2.0.CO;2
+              !           parameterization valid for 203-253K
+              !           icival > 0 for t>195K
               ttmp = max(195._kind_phys, min(temp(i, k), 253._kind_phys)) - 273.16_kind_phys
               icicval = a + b*ttmp + c*ttmp**2._kind_phys
               !convert units
               rho = pmid(i, k)/(rair*temp(i, k))
               icicval = icicval*1.e-6_kind_phys/rho
             else
-              !--------ICE CLOUD OPTION 2--------Schiller 2008 (JGR)
+              ! ICE CLOUD OPTION 2 - Schiller 2008 (JGR)
               ! https://doi.org/10.1029/2008JD010342
               !          Use a curve based on FISH measurements in
               !          tropics, mid-lats and arctic. Curve is for 180-250K (raise to 273K?)
               !          use median all flights
-
               ttmp = max(190._kind_phys, min(temp(i, k), 273.16_kind_phys))
               icicval = 10._kind_phys**(as*bs**ttmp + cs)
-              !convert units from ppmv to kg/kg
+              ! convert units from ppmv to kg kg-1
               icicval = icicval*1.e-6_kind_phys*18._kind_phys/28.97_kind_phys
             end if
-            !set icecldfraction  for OPTION 1 or OPTION2
+
+            ! Set ice cloud fraction for options 1 or 2
             icecldf(i, k) = max(0._kind_phys, min(cldice(i, k)/icicval, 1._kind_phys))
-
           else if (iceopt .eq. 3) then
-
-            !--------ICE CLOUD OPTION 3--------Wood & Field 2000 (JAS)
+            ! ICE CLOUD OPTION 3 - Wood & Field 2000 (JAS)
             ! https://doi.org/10.1175/1520-0469(2000)057<1888:RBTWCW>2.0.CO;2
             ! eq 6: cloud fraction = 1 - exp (-K * qc/qsati)
-
             icecldf(i, k) = 1._kind_phys - exp(-Kc*cldice(i, k)/(qs(i, k)*(esi(i, k)/esl(i, k))))
             icecldf(i, k) = max(0._kind_phys, min(icecldf(i, k), 1._kind_phys))
           else
-            !--------ICE CLOUD OPTION 4--------Wilson and ballard 1999
+            ! ICE CLOUD OPTION 4 - Wilson and Ballard 1999
             ! https://doi.org/10.1002/qj.49712555707
             ! inversion of smith....
             !       ncf = cldice / ((1-RHcrit)*qs)
             ! then a function of ncf....
             ncf = cldice(i, k)/((1._kind_phys - icecrit)*qs(i, k))
-            if (ncf .le. 0._kind_phys) then
+            if (ncf <= 0._kind_phys) then
               icecldf(i, k) = 0._kind_phys
-            else if (ncf .gt. 0._kind_phys .and. ncf .le. 1._kind_phys/6._kind_phys) then
+            else if (ncf > 0._kind_phys .and. ncf <= 1._kind_phys/6._kind_phys) then
               icecldf(i, k) = 0.5_kind_phys*(6._kind_phys*ncf)**(2._kind_phys/3._kind_phys)
-            else if (ncf .gt. 1._kind_phys/6._kind_phys .and. ncf .lt. 1._kind_phys) then
+            else if (ncf > 1._kind_phys/6._kind_phys .and. ncf < 1._kind_phys) then
               phi = (acos(3._kind_phys*(1._kind_phys - ncf)/2._kind_phys**(3._kind_phys/2._kind_phys)) + 4._kind_phys*3.1415927_kind_phys)/3._kind_phys
               icecldf(i, k) = (1._kind_phys - 4._kind_phys*cos(phi)*cos(phi))
             else
@@ -458,24 +453,14 @@ contains
             end if
             icecldf(i, k) = max(0._kind_phys, min(icecldf(i, k), 1._kind_phys))
           end if
-          !TEST: if ice present, icecldf=1.
-          !          if (cldice(i,k).ge.1.e-8_kind_phys) then
-          !             icecldf(i,k) = 0.99_kind_phys
-          !          endif
 
-               !!          if ((cldice(i,k) .gt. icicval) .or. ((cldice(i,k) .gt. 0._kind_phys) .and. (icecldf(i,k) .eq. 0._kind_phys))) then
-          !          if (cldice(i,k) .gt. 1.e-8_kind_phys) then
-          !             write(iulog,*) 'i,k,pmid,rho,t,cldice,icicval,icecldf,rhcloud: ', &
-          !                i,k,pmid(i,k),rho,temp(i,k),cldice(i,k),icicval,icecldf(i,k),rhcloud(i,k)
-          !          endif
-
-          !         Combine ice and liquid cloud fraction assuming maximum overlap.
+          ! Test code: Combine ice and liquid cloud fraction assuming maximum overlap.
           ! Combined cloud fraction is maximum overlap
           !          cloud(i,k)=min(1._kind_phys,max(icecldf(i,k),rhcloud(i,k)))
 
           liqcldf(i, k) = (1._kind_phys - icecldf(i, k))*rhcloud(i, k)
           cloud(i, k) = liqcldf(i, k) + icecldf(i, k)
-        else
+        else ! cldfrc_ice = .false.
           ! For RK microphysics
           cloud(i, k) = rhcloud(i, k)
         end if
@@ -521,7 +506,7 @@ contains
 
       do k = top_lev_cloudphys + 1, pver
         do i = 1, ncol
-          if (pmid(i, k) >= premib .and. ocnfrac(i) .gt. 0.01_kind_phys) then
+          if (pmid(i, k) >= premib .and. ocnfrac(i) > 0.01_kind_phys) then
             ! I think this is done so that dtheta/dp is in units of dg/mb (JJH)
             dthdp = 100.0_kind_phys*(theta(i, k) - theta(i, k - 1))*rpdeli(i, k - 1)
             if (dthdp < dthdpmn(i)) then
@@ -535,7 +520,7 @@ contains
       ! Also check between the bottom layer and the surface
       ! Only perform this check if the criteria were not met above
       do i = 1, ncol
-        if (kdthdp(i) .eq. 0 .and. ocnfrac(i) .gt. 0.01_kind_phys) then
+        if (kdthdp(i) .eq. 0 .and. ocnfrac(i) > 0.01_kind_phys) then
           dthdp = 100.0_kind_phys*(thetas(i) - theta(i, pver))/(ps(i) - pmid(i, pver))
           if (dthdp < dthdpmn(i)) then
             dthdpmn(i) = dthdp

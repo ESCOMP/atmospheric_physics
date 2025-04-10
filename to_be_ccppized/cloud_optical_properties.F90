@@ -52,7 +52,7 @@ contains
   ! Compute cloud emissivity using cloud liquid water path [g m-2]
   ! Original author: J.T. Kiehl
   !
-  ! Variant 1 used for RK and SPCAM_sam1mom
+  ! Variant 1 used for RK microphysics
   subroutine cldems_rk(ncol, pver, clwp, fice, rei, emis, cldtau)
     integer, intent(in) :: ncol                    ! number of atmospheric columns
     integer, intent(in) :: pver                    ! number of vertical levels

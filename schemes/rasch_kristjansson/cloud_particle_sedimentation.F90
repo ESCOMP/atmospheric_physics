@@ -1,6 +1,3 @@
-! Copyright (C) 2025 University Corporation for Atmospheric Research
-! SPDX-License-Identifier: Apache-2.0
-!
 ! Compute tendencies from sedimentation of cloud liquid and ice particles
 ! Original authors: Byron Boville, September 2002 from code by P.J. Rasch
 ! CCPP-ized: Haipeng Lin, January 2025
@@ -21,18 +18,19 @@ module cloud_particle_sedimentation
   real(kind_phys), parameter :: vocean = 2.8_kind_phys       ! liquid fall velocity over ocean [cm s-1]
   real(kind_phys), parameter :: mxsedfac = 0.99_kind_phys    ! maximum sedimentation flux factor
 
-  ! tuning parameters for Stokes terminal velocity
+  ! use Stokes velocity method
+  ! or McFarquhar and Heymsfield (https://doi.org/10.1175/1520-0469(1997)054<2187:POTCIC>2.0.CO;2)
   logical,         parameter :: stokes = .true.              ! use Stokes velocity instead of McFarquhar and Heymsfield
+
+  ! tuning parameters for Stokes terminal velocity
   real(kind_phys)            :: cldsed_ice_stokes_fac        ! factor applied to ice fall vel
                                                              ! from Stokes terminal velocity
   real(kind_phys), parameter :: eta  = 1.7e-5_kind_phys      ! viscosity of air [kg m s-1]
   real(kind_phys), parameter :: r40  = 40._kind_phys         !  40 micron radius
   real(kind_phys), parameter :: r400 = 400._kind_phys        ! 400 micron radius
   real(kind_phys), parameter :: v400 = 1.00_kind_phys        ! fall velocity of 400 micron sphere [m s-1]
-  real(kind_phys)            :: v40                          ! Stokes fall velocity of 40 micron sphere (m/s)
-  ! v40 = (2._kind_phys/9._kind_phys) * rhoh2o * gravit/eta * r40**2 * 1.e-12_kind_phys
+  real(kind_phys)            :: v40                          ! Stokes fall velocity of 40 micron sphere [m s-1]
   real(kind_phys)            :: vslope                       ! linear slope for large particles [m s-1 micron-1]
-  ! vslope = (v400 - v40)/(r400 -r40)
 
   ! tuning parameters for McFarquhar and Heymsfield terminal velocity
   real(kind_phys), parameter :: vice_small = 1._kind_phys    ! ice fall velocity for small concentration [cm s-1]

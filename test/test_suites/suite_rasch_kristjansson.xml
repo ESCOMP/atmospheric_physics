@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   Rasch and Kristjansson (RK) prognostic cloud microphysics and CAM4 macrophysics.
-  RK is split into multiple individual physics schemes that must be ran in a particular order
+  RK is split into multiple individual physics schemes that must be run in a particular order
   Generally, interstitial schemes are in rk_stratiform_* schemes, with most of the
   computation within the
   cloud_particle_sedimentation, prognostic_cloud_water, and compute_cloud_fraction schemes.

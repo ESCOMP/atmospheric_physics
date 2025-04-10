@@ -199,10 +199,10 @@
     <units>1</units>
     <desc>
       Scheme for ice cloud fraction.
-      1 = Wang and Sassen
-      2 = Schiller (iciwc)
-      3 = Wood and Field
-      4 = Wilson (based on Smith)
+      1 = Wang and Sassen (https://doi.org/10.1175/1520-0469(2002)059&lt;2291:CCMPRU&gt;2.0.CO;2)
+      2 = Schiller (iciwc) (https://doi.org/10.1029/2008JD010342)
+      3 = Wood and Field (https://doi.org/10.1175/1520-0469(2000)057&lt;1888:RBTWCW&gt;2.0.CO;2)
+      4 = Wilson (based on Smith) (https://doi.org/10.1002/qj.49712555707)
       5 = modified Slingo (ssat and empty cloud)
     </desc>
     <values>

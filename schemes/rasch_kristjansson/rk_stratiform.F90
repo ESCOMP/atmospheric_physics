@@ -1,6 +1,3 @@
-! Copyright (C) 2025 University Corporation for Atmospheric Research
-! SPDX-License-Identifier: Apache-2.0
-!
 ! Rasch and Kristjansson prognostic cloud microphysics and CAM4 macrophysics
 ! CCPP-ized: Haipeng Lin, January 2025
 module rk_stratiform
@@ -156,7 +153,7 @@ contains
 !! \htmlinclude arg_table_rk_stratiform_cloud_fraction_perturbation_run.html
   subroutine rk_stratiform_cloud_fraction_perturbation_run( &
     ncol, pver, &
-    cappa, gravit, rair, tmelt, &
+    cappa, gravit, rair, tmelt, pref, lapse_rate, &
     top_lev_cloudphys, &
     pmid, ps, temp, sst, &
     q_wv, cldice, &
@@ -180,6 +177,8 @@ contains
     real(kind_phys), intent(in) :: gravit
     real(kind_phys), intent(in) :: rair
     real(kind_phys), intent(in) :: tmelt
+    real(kind_phys), intent(in) :: pref
+    real(kind_phys), intent(in) :: lapse_rate
     integer,         intent(in) :: top_lev_cloudphys ! vertical_layer_index_of_cloud_fraction_top [index]
     real(kind_phys), intent(in) :: pmid(:, :)        ! air_pressure [Pa]
     real(kind_phys), intent(in) :: ps(:)             ! surface_air_pressure [Pa]
@@ -232,6 +231,8 @@ contains
       gravit            = gravit,               &
       rair              = rair,                 &
       tmelt             = tmelt,                &
+      pref              = pref,                 &
+      lapse_rate        = lapse_rate,           &
       top_lev_cloudphys = top_lev_cloudphys,    & ! CAM4 macrophysics - top lev is 1
       pmid              = pmid(:ncol,:),        &
       ps                = ps(:ncol),            &
