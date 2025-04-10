@@ -177,6 +177,22 @@
   </values>
 </entry>
 
+<entry id="zmconv_parcel_hscale">
+  <category>conv</category>
+  <group>zmconv_nl</group>
+  <standard_name>fraction_of_pbl_depth_mixed_for_initial_zhang_mcfarlane_parcel_properties</standard_name>
+  <units>fraction</units>
+  <type>real</type>
+  <kind>kind_phys</kind>
+  <desc>
+     The fraction of the boundary layer (PBL) depth,
+     over which to mix the initial ZM convective parcel properties (fraction).
+  </desc>
+  <values>
+     <value>0.5</value>
+  </values>
+</entry>
+
 <entry id="zmconv_tau">
   <category>conv</category>
   <group>zmconv_nl</group>
