@@ -1,6 +1,3 @@
-! Copyright (C) 2002-2025 University Corporation for Atmospheric Research
-! SPDX-License-Identifier: Apache-2.0
-!
 ! Cloud optical properties (to-be-ccppized utility module)
 ! Computes liquid and ice particle size and emissivity
 ! Author: Byron Boville, Sept 2002 assembled from existing subroutines
