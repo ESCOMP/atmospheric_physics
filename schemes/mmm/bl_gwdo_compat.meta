@@ -1,0 +1,413 @@
+[ccpp-table-properties]
+  name = bl_gwdo_compat_pre
+  type = scheme
+
+[ccpp-arg-table]
+  name = bl_gwdo_compat_pre_init
+  type = scheme
+[ omega ]
+  standard_name = cell_angular_area
+  units = sr
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension)
+  intent = in
+[ rearth ]
+  standard_name = radius_of_earth
+  units = m
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ dxmeter ]
+  standard_name = characteristic_grid_lengthscale
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension)
+  intent = out
+[ sina ]
+  standard_name = sine_of_angle_of_rotation_from_east_to_x
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension)
+  intent = out
+[ cosa ]
+  standard_name = cosine_of_angle_of_rotation_from_east_to_x
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name = bl_gwdo_compat_pre_run
+  type = scheme
+[ u ]
+  standard_name = eastward_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ v ]
+  standard_name = northward_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ uproj ]
+  standard_name = x_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ vproj ]
+  standard_name = y_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+; ----------
+
+[ccpp-table-properties]
+  name = bl_gwdo_compat
+  type = scheme
+  dependencies = ccpp_kind_types.F90, mmm_physics/bl_gwdo.F90
+
+[ccpp-arg-table]
+  name = bl_gwdo_compat_run
+  type = scheme
+[ sina ]
+  standard_name = sine_of_angle_of_rotation_from_east_to_x
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ cosa ]
+  standard_name = cosine_of_angle_of_rotation_from_east_to_x
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ rublten ]
+  standard_name = tendency_of_x_wind_due_to_pbl_processes
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ rvblten ]
+  standard_name = tendency_of_y_wind_due_to_pbl_processes
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ dtaux3d ]
+  standard_name = tendency_of_x_wind_due_to_orographic_gwd
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ dtauy3d ]
+  standard_name = tendency_of_y_wind_due_to_orographic_gwd
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ dusfcg ]
+  standard_name = atmosphere_x_stress_due_to_orographic_gwd
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ dvsfcg ]
+  standard_name = atmosphere_y_stress_due_to_orographic_gwd
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ uproj ]
+  standard_name = x_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ vproj ]
+  standard_name = y_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ t1 ]
+  standard_name = air_temperature
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ q1 ]
+  standard_name = water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+  advected = true
+[ prsi ]
+  standard_name = air_pressure_at_interface
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ prsl ]
+  standard_name = air_pressure
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ prslk ]
+  standard_name = dimensionless_exner_function
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ zl ]
+  standard_name = geopotential_height
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ var ]
+  standard_name = standard_deviation_of_subgrid_orography
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ oc1 ]
+  standard_name = convexity_of_subgrid_orography
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ oa2d1 ]
+  standard_name = eastward_asymmetry_of_subgrid_orography
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ oa2d2 ]
+  standard_name = northward_asymmetry_of_subgrid_orography
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ oa2d3 ]
+  standard_name = northeastward_asymmetry_of_subgrid_orography
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ oa2d4 ]
+  standard_name = southeastward_asymmetry_of_subgrid_orography
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ ol2d1 ]
+  standard_name = eastward_dimensionless_effective_length_of_subgrid_orography
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ ol2d2 ]
+  standard_name = northward_dimensionless_effective_length_of_subgrid_orography
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ ol2d3 ]
+  standard_name = northeastward_dimensionless_effective_length_of_subgrid_orography
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ ol2d4 ]
+  standard_name = southeastward_dimensionless_effective_length_of_subgrid_orography
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ g_ ]
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ cp_ ]
+  standard_name = specific_heat_of_dry_air_at_constant_pressure
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ rd_ ]
+  standard_name = gas_constant_of_dry_air
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ rv_ ]
+  standard_name = gas_constant_of_water_vapor
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ fv_ ]
+  standard_name = ratio_of_water_vapor_to_dry_air_gas_constants_minus_one
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ pi_ ]
+  standard_name = pi_constant
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ dxmeter ]
+  standard_name = characteristic_grid_lengthscale
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ deltim ]
+  standard_name = timestep_for_physics
+  units = s
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ its ]
+  standard_name = horizontal_loop_begin
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ ite ]
+  standard_name = horizontal_loop_end
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ kte ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ kme ]
+  standard_name = vertical_interface_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+; ----------
+
+[ccpp-table-properties]
+  name = bl_gwdo_diagnostics
+  type = scheme
+
+[ccpp-arg-table]
+  name = bl_gwdo_diagnostics_init
+  type = scheme
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name = bl_gwdo_diagnostics_run
+  type = scheme
+[ dtaux3d ]
+  standard_name = tendency_of_x_wind_due_to_orographic_gwd
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ dtauy3d ]
+  standard_name = tendency_of_y_wind_due_to_orographic_gwd
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ dusfcg ]
+  standard_name = atmosphere_x_stress_due_to_orographic_gwd
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ dvsfcg ]
+  standard_name = atmosphere_y_stress_due_to_orographic_gwd
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
