@@ -1,6 +1,3 @@
-! Copyright (C) 2024-2025 National Science Foundation-National Center for Atmospheric Research
-! SPDX-License-Identifier: Apache-2.0
-!
 ! Hack shallow convective scheme.
 ! The main subroutine was formerly named "cmfmca", and its initialization "mfinti".
 !
