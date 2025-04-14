@@ -36,10 +36,10 @@ contains
      integer,            intent(out) :: errcode
 
      !Variables read from file:
-     character(32), dimension(:),  allocatable    :: gas_names
-     integer,  dimension(:,:), allocatable        :: band2gpt
-     real(kind_phys), dimension(:), allocatable   :: press_ref
-     real(kind_phys), dimension(:,:), allocatable :: band_lims_wavenum
+     character(len=:), pointer :: gas_names(:)
+     integer, pointer          :: band2gpt(:,:)
+     real(kind_phys), pointer  :: press_ref(:)
+     real(kind_phys), pointer  :: band_lims_wavenum(:,:)
 
      !NetCDF dimensions:
      integer :: bnd
@@ -47,7 +47,7 @@ contains
      integer :: pressure
 
      !Local variables:
-     integer :: file_id                    ! NetCDF file ID provided by host
+     integer :: file_id  ! NetCDF file ID provided by host
 
      !Initialize output variables:
      errcode = 0
@@ -59,20 +59,8 @@ contains
         return !Error has occurred, so exit scheme
      end if
 
-     !Get relevant dimensions:
+     !See if dimension can be accessed:
      !-----------------------
-
-     !Bands:
-     call sima_get_netcdf_dim(file_id, 'bnd', errcode, errmsg, dimlen=bnd)
-     if (errcode /= 0) then
-        return !Error has occurred, so exit scheme
-     end if
-
-     !Absorbers:
-     call sima_get_netcdf_dim(file_id, 'absorber', errcode, errmsg, dimlen=absorber)
-     if (errcode /= 0) then
-        return !Error has occurred, so exit scheme
-     end if
 
      !Pressure:
      call sima_get_netcdf_dim(file_id, 'pressure', errcode, errmsg, dimlen=pressure)
@@ -80,38 +68,11 @@ contains
         return !Error has occurred, so exit scheme
      end if
 
-     !Allocate relevant variables:
-     !-----------------------
-
-     !Allocate RRTMGP absorbing gas names:
-     allocate(gas_names(absorber), stat=errcode, errmsg=errmsg)
-     if(errcode /= 0) then
-        return
-     end if
-
-     !Allocate RRTMGP reference pressure:
-     allocate(press_ref(pressure), stat=errcode, errmsg=errmsg)
-     if(errcode /= 0) then
-        return
-     end if
-
-     !Allocate RRTMGP starting and ending wavenumber band indices:
-     allocate(band2gpt(2,bnd), stat=errcode, errmsg=errmsg)
-     if(errcode /= 0) then
-        return
-     end if
-
-     !Allocate RRTMGP starting and ending wavenumber for each band:
-     allocate(band_lims_wavenum(2,bnd), stat=errcode, errmsg=errmsg)
-     if(errcode /= 0) then
-        return
-     end if
-
      !Read variables from NetCDF file:
      !-----------------------
 
      !Attempt to get absorbing gas names from file:
-     call sima_get_netcdf_var(file_id, 'gas_names', len(gas_names), gas_names, errcode, errmsg)
+     call sima_get_netcdf_var(file_id, 'gas_names', gas_names, errcode, errmsg)
      if (errcode /= 0) then
         return !Error has occurred, so exit scheme
      end if
@@ -140,10 +101,15 @@ contains
         return !Error has occurred, so exit scheme
      end if
 
-     !Write dimension lengths to stdout:
-     write(*,*) 'Number of gas absorbers = ', absorber
+     !Write dimension length to stdout:
      write(*,*) 'Pressure dimension length = ', pressure
-     write(*,*) 'Band (bnd) dimension length = ', bnd
+
+     !Write array shape information:
+     write(*,*) 'gas_names length', len(gas_names)
+     write(*,*) 'gas_names shape ', shape(gas_names)
+     write(*,*) 'press_ref shape ', shape(press_ref)
+     write(*,*) 'band2gpt shape ', shape(band2gpt)
+     write(*,*) 'band_lims_wavenum ', shape(band_lims_wavenum)
 
      !Write max values to stdout:
      write(*,*) 'First absorbing gas name = ', gas_names(1)
