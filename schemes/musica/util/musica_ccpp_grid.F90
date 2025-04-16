@@ -1,4 +1,4 @@
-! Copyright (C) 2025 National Center for Atmospheric Research
+! Copyright (C) 2025 University Corporation for Atmospheric Research
 ! SPDX-License-Identifier: Apache-2.0
 module musica_ccpp_grid
 
@@ -11,8 +11,8 @@ module musica_ccpp_grid
 
   !> grid_t defines the dimensions for gridded data used in the model.
   type :: grid_t
-    real(rk), allocatable :: interaces_(:) !< Interfaces between grid sections
-    real(rk), allocatable :: centers_(:)   !< Centers of grid sections
+    real(rk), allocatable :: interfaces_(:) !< Interfaces between grid sections
+    real(rk), allocatable :: centers_(:)    !< Centers of grid sections
   contains
     procedure :: number_of_sections => grid_size
   end type grid_t
@@ -48,9 +48,9 @@ contains
         return
       end if
     end do
-    grid%interaces_ = interfaces
-    grid%centers_ = 0.5_rk * (grid%interaces_(1:size(interfaces)-1) &
-                              + grid%interaces_(2:size(interfaces)))
+    grid%interfaces_ = interfaces
+    grid%centers_ = 0.5_rk * (grid%interfaces_(1:size(interfaces)-1) &
+                              + grid%interfaces_(2:size(interfaces)))
   end function grid_constructor_interfaces
 
   !> @brief Constructor for grid_t based on interfaces and centers
@@ -86,7 +86,7 @@ contains
         return
       end if
     end do
-    grid%interaces_ = interfaces
+    grid%interfaces_ = interfaces
     grid%centers_ = centers
   end function grid_constructor_interfaces_centers
 
@@ -116,11 +116,11 @@ contains
     end if
     if (start >= end) then
       error_code = GRID_INVALID
-      error_message = 'Start must be less than end'
+      error_message = 'The start of the grid must be less than the end of the grid'
       return
     end if
     delta = (end - start) / real(number_of_sections)
-    allocate(grid%interaces_(number_of_sections+1), stat=error_code)
+    allocate(grid%interfaces_(number_of_sections+1), stat=error_code)
     if (error_code /= 0) then
       error_message = 'Failed to allocate memory for grid interfaces'
       return
@@ -130,7 +130,7 @@ contains
       error_message = 'Failed to allocate memory for grid centers'
       return
     end if
-    grid%interaces_ = (/ (start + real(i-1) * delta, &
+    grid%interfaces_ = (/ (start + real(i-1) * delta, &
                           i=1, number_of_sections+1) /)
     grid%centers_ = (/ (start + real(i-1) * delta + 0.5_rk * delta, &
                         i=1, number_of_sections) /)
@@ -142,7 +142,7 @@ contains
   function grid_size(this) result(number_of_sections)
     class(grid_t), intent(in) :: this
     integer :: number_of_sections
-    number_of_sections = size(this%interaces_) - 1
+    number_of_sections = size(this%interfaces_) - 1
   end function grid_size
 
 end module musica_ccpp_grid

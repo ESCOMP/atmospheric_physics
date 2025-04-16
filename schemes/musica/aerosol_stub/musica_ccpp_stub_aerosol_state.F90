@@ -1,4 +1,4 @@
-! Copyright (C) 2025 National Center for Atmospheric Research,
+! Copyright (C) 2025 University Corporation for Atmospheric Research
 ! SPDX-License-Identifier: Apache-2.0
 module musica_ccpp_stub_aerosol_state
 
@@ -29,11 +29,18 @@ contains
   !! @param number_of_columns The number of columns in the model grid.
   !! @param number_of_levels The number of levels in the model grid.
   !! @return The stub aerosol state instance.
-  function stub_aerosol_state_constructor(number_of_columns, number_of_levels) result(state)
+  function stub_aerosol_state_constructor(number_of_columns, number_of_levels, &
+      error_message, error_code) result(state)
     type(stub_aerosol_state_t), pointer :: state
-    integer, intent(in) :: number_of_columns
-    integer, intent(in) :: number_of_levels
-    allocate(state)
+    integer,            intent(in) :: number_of_columns
+    integer,            intent(in) :: number_of_levels
+    character(len=512), intent(out) :: error_message
+    integer,            intent(out) :: error_code
+    error_message = ''
+    error_code = 0
+    allocate(state, stat=error_code, errmsg=error_message)
+    if (error_code /= 0) return
+    error_message = ''
     state%number_of_columns_ = number_of_columns
     state%number_of_levels_ = number_of_levels
   end function stub_aerosol_state_constructor

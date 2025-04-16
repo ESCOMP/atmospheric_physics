@@ -1,4 +1,4 @@
-! Copyright (C) 2025 National Center for Atmospheric Research
+! Copyright (C) 2025 University Corporation for Atmospheric Research
 ! SPDX-License-Identifier: Apache-2.0
 program test_musica_grid
 
@@ -27,10 +27,10 @@ contains
     ! Check for valid interfaces
     grid = grid_t(interfaces, error, error_code)
     ASSERT( error_code == 0 )
-    ASSERT( size(grid%interaces_) == 3 )
-    ASSERT_NEAR( grid%interaces_(1), 1.0_rk, 1.0e-6_rk )
-    ASSERT_NEAR( grid%interaces_(2), 2.0_rk, 1.0e-6_rk )
-    ASSERT_NEAR( grid%interaces_(3), 3.0_rk, 1.0e-6_rk )
+    ASSERT( size(grid%interfaces_) == 3 )
+    ASSERT_NEAR( grid%interfaces_(1), 1.0_rk, 1.0e-6_rk )
+    ASSERT_NEAR( grid%interfaces_(2), 2.0_rk, 1.0e-6_rk )
+    ASSERT_NEAR( grid%interfaces_(3), 3.0_rk, 1.0e-6_rk )
     ASSERT( size(grid%centers_) == 2 )
     ASSERT_NEAR( grid%centers_(1), 1.5_rk, 1.0e-6_rk )
     ASSERT_NEAR( grid%centers_(2), 2.5_rk, 1.0e-6_rk )
@@ -54,10 +54,10 @@ contains
     ! Check for valid interfaces and centers
     grid = grid_t(interfaces, centers, error, error_code)
     ASSERT( error_code == 0 )
-    ASSERT( size(grid%interaces_) == 3 )
-    ASSERT_NEAR( grid%interaces_(1), 1.0_rk, 1.0e-6_rk )
-    ASSERT_NEAR( grid%interaces_(2), 2.0_rk, 1.0e-6_rk )
-    ASSERT_NEAR( grid%interaces_(3), 3.0_rk, 1.0e-6_rk )
+    ASSERT( size(grid%interfaces_) == 3 )
+    ASSERT_NEAR( grid%interfaces_(1), 1.0_rk, 1.0e-6_rk )
+    ASSERT_NEAR( grid%interfaces_(2), 2.0_rk, 1.0e-6_rk )
+    ASSERT_NEAR( grid%interfaces_(3), 3.0_rk, 1.0e-6_rk )
     ASSERT( size(grid%centers_) == 2 )
     ASSERT_NEAR( grid%centers_(1), 1.6_rk, 1.0e-6_rk )
     ASSERT_NEAR( grid%centers_(2), 2.7_rk, 1.0e-6_rk )
@@ -90,10 +90,10 @@ contains
     ! Check for valid start, end, and number of sections
     grid = grid_t(start, end, number_of_sections, error, error_code)
     ASSERT( error_code == 0 )
-    ASSERT( size(grid%interaces_) == 3 )
-    ASSERT_NEAR( grid%interaces_(1), 1.0_rk, 1.0e-6_rk )
-    ASSERT_NEAR( grid%interaces_(2), 2.0_rk, 1.0e-6_rk )
-    ASSERT_NEAR( grid%interaces_(3), 3.0_rk, 1.0e-6_rk )
+    ASSERT( size(grid%interfaces_) == 3 )
+    ASSERT_NEAR( grid%interfaces_(1), 1.0_rk, 1.0e-6_rk )
+    ASSERT_NEAR( grid%interfaces_(2), 2.0_rk, 1.0e-6_rk )
+    ASSERT_NEAR( grid%interfaces_(3), 3.0_rk, 1.0e-6_rk )
     ASSERT( size(grid%centers_) == 2 )
     ASSERT_NEAR( grid%centers_(1), 1.5_rk, 1.0e-6_rk )
     ASSERT_NEAR( grid%centers_(2), 2.5_rk, 1.0e-6_rk )

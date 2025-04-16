@@ -1,4 +1,4 @@
-! Copyright (C) 2025 National Center for Atmospheric Research,
+! Copyright (C) 2025 University Corporation for Atmospheric Research
 ! SPDX-License-Identifier: Apache-2.0
 program test_stub_aerosol_model
 
@@ -64,10 +64,7 @@ contains
     call model%optical_properties(state, wavelengths, error_message, &
         error_code, extinction = optical_properties)
     ASSERT( error_code == 0 )
-    ASSERT( optical_properties(1,1,1) == 0.0_rk )
-    ASSERT( optical_properties(1,1,2) == 0.0_rk )
-    ASSERT( optical_properties(1,2,1) == 0.0_rk )
-    ASSERT( optical_properties(1,2,2) == 0.0_rk )
+    ASSERT( all( optical_properties == 0.0_rk ) )
     call model%optical_properties(state, wavelengths, error_message, &
         error_code, extinction = optical_properties_wrong_dims)
     ASSERT( error_code == STUB_AEROSOL_INVALID_DIMENSION )
@@ -75,10 +72,7 @@ contains
     call model%optical_properties(state, wavelengths, error_message, &
         error_code, absorption = optical_properties)
     ASSERT( error_code == 0 )
-    ASSERT( optical_properties(1,1,1) == 0.0_rk )
-    ASSERT( optical_properties(1,1,2) == 0.0_rk )
-    ASSERT( optical_properties(1,2,1) == 0.0_rk )
-    ASSERT( optical_properties(1,2,2) == 0.0_rk )
+    ASSERT( all( optical_properties == 0.0_rk ) )
     call model%optical_properties(state, wavelengths, error_message, &
         error_code, absorption = optical_properties_wrong_dims)
     ASSERT( error_code == STUB_AEROSOL_INVALID_DIMENSION )
@@ -86,10 +80,7 @@ contains
     call model%optical_properties(state, wavelengths, error_message, &
         error_code, scattering = optical_properties)
     ASSERT( error_code == 0 )
-    ASSERT( optical_properties(1,1,1) == 0.0_rk )
-    ASSERT( optical_properties(1,1,2) == 0.0_rk )
-    ASSERT( optical_properties(1,2,1) == 0.0_rk )
-    ASSERT( optical_properties(1,2,2) == 0.0_rk )
+    ASSERT( all( optical_properties == 0.0_rk ) )
     call model%optical_properties(state, wavelengths, error_message, &
         error_code, scattering = optical_properties_wrong_dims)
     ASSERT( error_code == STUB_AEROSOL_INVALID_DIMENSION )
@@ -97,10 +88,7 @@ contains
     call model%optical_properties(state, wavelengths, error_message, &
         error_code, asymmetry_factor = optical_properties)
     ASSERT( error_code == 0 )
-    ASSERT( optical_properties(1,1,1) == 0.0_rk )
-    ASSERT( optical_properties(1,1,2) == 0.0_rk )
-    ASSERT( optical_properties(1,2,1) == 0.0_rk )
-    ASSERT( optical_properties(1,2,2) == 0.0_rk )
+    ASSERT( all( optical_properties == 0.0_rk ) )
     call model%optical_properties(state, wavelengths, error_message, &
         error_code, asymmetry_factor = optical_properties_wrong_dims)
     ASSERT( error_code == STUB_AEROSOL_INVALID_DIMENSION )

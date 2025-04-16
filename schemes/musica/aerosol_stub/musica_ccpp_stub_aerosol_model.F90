@@ -1,4 +1,4 @@
-! Copyright (C) 2025 National Center for Atmospheric Research,
+! Copyright (C) 2025 University Corporation for Atmospheric Research
 ! SPDX-License-Identifier: Apache-2.0
 module musica_ccpp_stub_aerosol_model
 
@@ -47,7 +47,10 @@ contains
     integer,                                intent(out) :: error_code
     error_message = ''
     error_code = 0
-    allocate(model)
+    allocate(model, stat=error_code, errmsg=error_message)
+    if (error_code == 0) then
+      error_message = ''
+    end if
   end function stub_aerosol_model_constructor
 
   !> @brief Create a new aerosol state for the stub aerosol model.
@@ -70,7 +73,8 @@ contains
     error_message = ''
     error_code = 0
     ! Create a new aerosol state for the stub aerosol model
-    aerosol_state => stub_aerosol_state_t(number_of_columns, number_of_levels)
+    aerosol_state => stub_aerosol_state_t(number_of_columns, number_of_levels, &
+        error_message, error_code)
   end function stub_aerosol_model_create_state
 
   !> @brief Compute the optical properties of the aerosol for the stub aerosol model.

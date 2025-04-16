@@ -1,4 +1,4 @@
-! Copyright (C) 2025 National Center for Atmospheric Research,
+! Copyright (C) 2025 University Corporation for Atmospheric Research
 ! SPDX-License-Identifier: Apache-2.0
 program mock_host
 
@@ -29,7 +29,6 @@ contains
   subroutine initialize_aerosol_model(aerosol_model, aerosol_state)
     use musica_ccpp_stub_aerosol_model, only: stub_aerosol_model_t, &
                                               stub_aerosol_model_parameters_t
-    use musica_ccpp_stub_aerosol_state, only: stub_aerosol_state_t
 
     class(aerosol_model_t), pointer, intent(inout) :: aerosol_model
     class(aerosol_state_t), pointer, intent(inout) :: aerosol_state
@@ -53,7 +52,6 @@ contains
     use ccpp_kinds, only: rk => kind_phys
     use musica_ccpp_grid, only: grid_t
     use musica_ccpp_aerosol_state, only: aerosol_state_t
-    use musica_ccpp_stub_aerosol_model, only: stub_aerosol_model_t
 
     class(aerosol_model_t), pointer, intent(inout) :: aerosol_model
     class(aerosol_state_t), pointer, intent(inout) :: aerosol_state
