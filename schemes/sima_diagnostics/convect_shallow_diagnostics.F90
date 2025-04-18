@@ -1,6 +1,3 @@
-! Copyright (C) 2024-2025 National Science Foundation-National Center for Atmospheric Research
-! SPDX-License-Identifier: Apache-2.0
-!
 ! Diagnostics for shallow convection and merged deep + shallow convection
 ! Haipeng Lin, December 2024
 module convect_shallow_diagnostics
