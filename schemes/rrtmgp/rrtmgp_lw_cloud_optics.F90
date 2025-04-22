@@ -112,7 +112,7 @@ contains
 !! \htmlinclude rrtmgp_lw_cloud_optics_run.html
 !!
   subroutine rrtmgp_lw_cloud_optics_run(dolw, ncol, nlay, nlaycam, cld, cldfsnow, cldfgrau, &
-             cldfprime, graupel_in_rad, kdist_lw, cloud_lw, lamc, pgam, iclwpth, iciwpth,   &
+             cldfprime, kdist_lw, cloud_lw, lamc, pgam, iclwpth, iciwpth,   &
              dei, icswpth, des, icgrauwpth, degrau, nlwbands, do_snow, do_graupel, pver,    &
              ktopcam, tauc, cldf, cld_lw_abs, snow_lw_abs, grau_lw_abs, errmsg, errflg)
     ! Compute combined cloud optical properties
@@ -139,7 +139,6 @@ contains
     real(kind_phys), dimension(:,:),   intent(in) :: dei              ! Mean effective radius for ice cloud
     real(kind_phys), dimension(:,:),   intent(in) :: des              ! Mean effective radius for snow
     real(kind_phys), dimension(:,:),   intent(in) :: degrau           ! Mean effective radius for graupel
-    logical,                           intent(in) :: graupel_in_rad   ! Flag for whether to include graupel in calculation
     logical,                           intent(in) :: do_snow          ! Flag for whether cldfsnow is present
     logical,                           intent(in) :: do_graupel       ! Flag for whether cldfgrau is present
     logical,                           intent(in) :: dolw             ! Flag for whether to perform longwave calculation
@@ -214,7 +213,7 @@ contains
     end if
 
     ! add in graupel
-    if (do_graupel .and. graupel_in_rad) then
+    if (do_graupel) then
        call grau_cloud_get_rad_props_lw(ncol, pver, nlwbands, icgrauwpth, degrau, n_g_d, g_d_eff, abs_lw_ice, &
                grau_lw_abs, errmsg, errflg)
        if (errflg /= 0) then
