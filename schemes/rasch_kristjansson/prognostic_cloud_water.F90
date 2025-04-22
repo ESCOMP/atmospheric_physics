@@ -123,7 +123,7 @@ contains
     ! assumed densities of snow, water, ice [g cm-3]
     rhos   = 0.1_kind_phys
     rhow   = 1._kind_phys
-    rhoi   = 1._kind_phys
+    rhoi   = 1._kind_phys ! unused.
 
     esi    = 1._kind_phys
     esw    = 0.1_kind_phys
@@ -378,11 +378,9 @@ contains
     real(kind_phys) :: mincld                           ! Minimum cloud fraction [1]
     real(kind_phys) :: cpohl                            ! Ratio of specific heat to latent heat [K-1]
     real(kind_phys) :: hlocp                            ! Ratio of latent heat to specific heat [K]
-    real(kind_phys) :: clrh2o                           ! Ratio of latent heat to water vapor gas constant [K]
     real(kind_phys) :: dto2                             ! Half timestep [s]
 
     ! Work variables
-    real(kind_phys) :: denom                            ! Denominator work variable [1]
     real(kind_phys) :: dqsdt                            ! Change in saturation specific humidity with temperature [kg kg-1 K-1]
     real(kind_phys) :: gamma(ncol)                     ! Temperature derivative of saturation specific humidity [kg kg-1 K-1]
     real(kind_phys) :: qtl(ncol)                       ! Saturation tendency [kg kg-1 s-1]
@@ -400,7 +398,6 @@ contains
     errflg = 0
     error_found = .false.
 
-    clrh2o = latvap/rh2o
     cpohl  = cpair/latvap
     hlocp  = latvap/cpair
     dto2   = 0.5_kind_phys * deltat
@@ -898,7 +895,6 @@ contains
     integer :: ncols                                ! Number of active columns for microphysics (different from ncol!!) [count]
     integer :: ind(ncol)                            ! Active column indices [index]
     real(kind_phys) :: capn                         ! Local cloud particle number concentration [cm-3]
-    real(kind_phys) :: capnoice                     ! Cloud particle concentration excluding sea ice [cm-3]
     real(kind_phys) :: cldloc(ncol)                ! Non-zero cloud fraction [1]
     real(kind_phys) :: cldpr(ncol)                 ! Cloud fraction for precipitation [1]
     real(kind_phys) :: totmr(ncol)                 ! In-cloud total water mixing ratio [kg kg-1]
@@ -920,11 +916,7 @@ contains
     real(kind_phys) :: rhocgs                       ! Air density in CGS units [g cm-3]
     real(kind_phys) :: r3l                          ! Cloud droplet volume radius [m]
     real(kind_phys) :: icrit                        ! Ice autoconversion threshold [kg kg-1]
-    real(kind_phys) :: wsi                          ! Sea ice weight factor [1]
     real(kind_phys) :: wt                           ! Ice fraction weight [1]
-    real(kind_phys) :: wland                        ! Land fraction weight [1]
-    real(kind_phys) :: wp                           ! Pressure dependence weight [1]
-    real(kind_phys) :: ftot                         ! Total fraction for conversion processes [1]
     real(kind_phys) :: con1                         ! Work constant for radius calculation [m]
     real(kind_phys) :: con2                         ! Work constant for density ratios [1]
     real(kind_phys) :: csacx                        ! Constant used for snow accreting liquid or ice [??]
@@ -1119,8 +1111,6 @@ contains
          fsacw(i) = 0._kind_phys
          fsaci(i) = 0._kind_phys
       endif
-
-      ftot = fwaut(i)+fsaut(i)+fracw(i)+fsacw(i)+fsaci(i)
     end do
 
   end subroutine findmcnew

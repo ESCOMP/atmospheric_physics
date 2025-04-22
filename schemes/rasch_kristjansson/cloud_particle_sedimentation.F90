@@ -390,7 +390,6 @@ contains
     integer         :: i, k
     real(kind_phys) :: psi(ncol, pverp)
     real(kind_phys) :: fdot(ncol, pverp)
-    real(kind_phys) :: xx(ncol)
     real(kind_phys) :: fxdot(ncol)
     real(kind_phys) :: fxdd(ncol)
     real(kind_phys) :: psistar(ncol)
@@ -457,7 +456,6 @@ contains
     real(kind_phys) :: c2
     real(kind_phys) :: c3
     real(kind_phys) :: xx
-    real(kind_phys) :: xinf
     real(kind_phys) :: psi1, psi2, psi3, psim
     real(kind_phys) :: cfint
     real(kind_phys) :: cfnew
@@ -551,7 +549,6 @@ contains
     real(kind_phys), intent(out) :: fdot(ncol, pverp)       ! derivative at nodes
 
     integer :: i, k
-    real(kind_phys) :: a, b, c                 ! work var
     real(kind_phys) :: s(ncol, pverp)         ! first divided differences at nodes
     real(kind_phys) :: sh(ncol, pverp)        ! first divided differences between nodes
     real(kind_phys) :: d(ncol, pverp)         ! second divided differences at nodes
