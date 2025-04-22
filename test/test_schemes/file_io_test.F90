@@ -21,12 +21,7 @@ contains
 
      !Portable use statements:
      use ccpp_kinds, only: kind_phys
-
-     !Non-portable (CAM-SIMA specific) use statements:
-     use sima_ccpp_FileIO, only: sima_open_netcdf_file
-     use sima_ccpp_FileIO, only: sima_close_netcdf_file
-     use sima_ccpp_FileIO, only: sima_get_netcdf_var
-     use sima_ccpp_FileIO, only: sima_get_netcdf_dim
+     use ccpp_io_reader, only: ccpp_io_reader_t, create_io_reader_t
 
      !Input variables:
      character(len=*),   intent(in)  :: file_path
@@ -41,68 +36,57 @@ contains
      real(kind_phys), pointer  :: press_ref(:)
      real(kind_phys), pointer  :: band_lims_wavenum(:,:)
 
+     class(ccpp_io_reader_t), allocatable :: reader
+
      !NetCDF dimensions:
      integer :: bnd
      integer :: absorber
-     integer :: pressure
 
-     !Local variables:
-     integer :: file_id  ! NetCDF file ID provided by host
+     reader = create_io_reader_t()
 
      !Initialize output variables:
      errcode = 0
      errmsg  = ''
 
      ! Open file
-     call sima_open_netcdf_file(file_path, file_id, errcode, errmsg)
+     call reader%open_netcdf_file(file_path, errcode, errmsg)
      if (errcode /= 0) then
         return !Error has occurred, so exit scheme
      end if
 
-     !See if dimension can be accessed:
-     !-----------------------
-
-     !Pressure:
-     call sima_get_netcdf_dim(file_id, 'pressure', errcode, errmsg, dimlen=pressure)
-     if (errcode /= 0) then
-        return !Error has occurred, so exit scheme
-     end if
 
      !Read variables from NetCDF file:
      !-----------------------
 
      !Attempt to get absorbing gas names from file:
-     call sima_get_netcdf_var(file_id, 'gas_names', gas_names, errcode, errmsg)
+     call reader%get_netcdf_var('gas_names', gas_names, errcode, errmsg)
      if (errcode /= 0) then
         return !Error has occurred, so exit scheme
      end if
 
      !Attempt to get reference pressure from file:
-     call sima_get_netcdf_var(file_id, 'press_ref', press_ref, errcode, errmsg)
+     call reader%get_netcdf_var('press_ref', press_ref, errcode, errmsg)
      if (errcode /= 0) then
         return !Error has occurred, so exit scheme
      end if
 
      !Attempt to get wavenumber band grid start/end indices from file:
-     call sima_get_netcdf_var(file_id, 'bnd_limits_gpt', band2gpt, errcode, errmsg)
+     call reader%get_netcdf_var('bnd_limits_gpt', band2gpt, errcode, errmsg)
      if (errcode /= 0) then
         return !Error has occurred, so exit scheme
      end if
 
      !Attempt to get wavenumber band start/end values from file:
-     call sima_get_netcdf_var(file_id, 'bnd_limits_wavenumber', band_lims_wavenum, errcode, errmsg)
+     call reader%get_netcdf_var('bnd_limits_wavenumber', band_lims_wavenum, errcode, errmsg)
      if (errcode /= 0) then
         return !Error has occurred, so exit scheme
      end if
 
      ! Close file
-     call sima_close_netcdf_file(file_id, errcode, errmsg)
+     call reader%close_netcdf_file(errcode, errmsg)
      if (errcode /= 0) then
         return !Error has occurred, so exit scheme
      end if
-
-     !Write dimension length to stdout:
-     write(*,*) 'Pressure dimension length = ', pressure
 
      !Write array shape information:
      write(*,*) 'gas_names length', len(gas_names)

@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = file_io_test
   type = scheme
+  dependencies=../../phys_utils/ccpp_io_reader.F90
 [ccpp-arg-table]
   name = file_io_test_init
   type = scheme
