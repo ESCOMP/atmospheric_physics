@@ -41,7 +41,7 @@ module ccpp_io_reader
             import ccpp_io_reader_t
             class(ccpp_io_reader_t), intent(in)  :: this
             character(len=*),        intent(in)  :: varname
-            integer, pointer,        intent(out) :: var(..) !Character variable that file data will be read to.
+            integer, pointer,        intent(out) :: var(..) !Integer variable that file data will be read to.
             integer,                 intent(out) :: errcode !Error code
             character(len=*),        intent(out) :: errmsg  !Error message
         end subroutine get_netcdf_var_int
@@ -51,7 +51,7 @@ module ccpp_io_reader
             import ccpp_io_reader_t
             class(ccpp_io_reader_t),       intent(in)  :: this
             character(len=*),              intent(in)  :: varname
-            real(kind_phys), pointer,      intent(out) :: var(..) !Character variable that file data will be read to.
+            real(kind_phys), pointer,      intent(out) :: var(..) !Floating-point variable that file data will be read to.
             integer,                       intent(out) :: errcode !Error code
             character(len=*),              intent(out) :: errmsg  !Error message
         end subroutine get_netcdf_var_real
