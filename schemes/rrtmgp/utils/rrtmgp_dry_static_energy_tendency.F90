@@ -26,7 +26,7 @@ contains
 !> \section arg_table_rrtmgp_dry_static_energy_tendency_run Argument Table
 !! \htmlinclude rrtmgp_dry_static_energy_tendency_run.html
 !!
-subroutine rrtmgp_dry_static_energy_tendency_run(ncol, pdel, calc_sw_heat, calc_lw_heat, &
+subroutine rrtmgp_dry_static_energy_tendency_run(pdel, calc_sw_heat, calc_lw_heat, &
                 qrs, qrl, errmsg, errflg)
 !-----------------------------------------------------------------------
 ! Compute net radiative heating from qrs and qrl, and the associated net
@@ -34,7 +34,6 @@ subroutine rrtmgp_dry_static_energy_tendency_run(ncol, pdel, calc_sw_heat, calc_
 !-----------------------------------------------------------------------
 
    ! Arguments
-   integer,                         intent(in)    :: ncol          ! Number of columns
    real(kind_phys), dimension(:,:), intent(in)    :: pdel          ! Layer thickness
    logical,                         intent(in)    :: calc_sw_heat  ! Flag to calculate net shortwave heating
    logical,                         intent(in)    :: calc_lw_heat  ! Flag to calculate net longwave heating
@@ -50,11 +49,11 @@ subroutine rrtmgp_dry_static_energy_tendency_run(ncol, pdel, calc_sw_heat, calc_
    errflg = 0
 
    if (calc_sw_heat) then
-      qrs(:ncol,:) = qrs(:ncol,:) / pdel(:ncol,:)
+      qrs(:,:) = qrs(:,:) / pdel(:,:)
    end if
 
    if (calc_lw_heat) then
-      qrl(:ncol,:) = qrl(:ncol,:) / pdel(:ncol,:)
+      qrl(:,:) = qrl(:,:) / pdel(:,:)
    end if
 
 end subroutine rrtmgp_dry_static_energy_tendency_run

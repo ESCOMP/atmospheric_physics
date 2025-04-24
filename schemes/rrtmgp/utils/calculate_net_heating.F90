@@ -55,7 +55,7 @@ subroutine calculate_net_heating_run(ncol, rad_heat, qrl, qrs, fsns, fsnt, flns,
    errmsg = ''
    errflg = 0
    if (.not. is_offline_dyn) then
-      rad_heat(:ncol,:) = (qrs(:ncol,:) + qrl(:ncol,:))
+      rad_heat(:,:) = (qrs(:,:) + qrl(:,:))
    end if
 
    do idx = 1, ncol

@@ -42,10 +42,9 @@ subroutine rrtmgp_post_run(ncol, nlay, dolw, qrs, qrl, fsns, pdel, atm_optics_sw
    errmsg = ''
    ! The radiative heating rates are carried in the physics buffer across timesteps
    ! as Q*dp (for energy conservation).
-   qrs(:ncol,:) = qrs(:ncol,:) * pdel(:ncol,:)
-   qrl(:ncol,:) = qrl(:ncol,:) * pdel(:ncol,:)
+   qrs(:,:) = qrs(:,:) * pdel(:,:)
+   qrl(:,:) = qrl(:,:) * pdel(:,:)
 
-   ! Set netsw and flwds to be sent to the coupler
    netsw(:ncol) = fsns(:ncol)
    if (dolw) then
       flwds(:ncol) = flw%fluxes%flux_dn(:, nlay+1)

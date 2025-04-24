@@ -1,6 +1,5 @@
 module ccpp_fluxes
-   ! CCPP wrapper for ty_fluxes DDT from RRTMGP
-   use mo_fluxes, only: ty_fluxes
+   ! CCPP wrapper for ty_fluxes_broadband DDT from RRTMGP
    use mo_fluxes, only: ty_fluxes_broadband
 
    !> \section arg_table_ty_fluxes_broadband_ccpp Argument Table
