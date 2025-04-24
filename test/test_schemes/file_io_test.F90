@@ -21,7 +21,7 @@ contains
 
      !Portable use statements:
      use ccpp_kinds, only: kind_phys
-     use ccpp_io_reader, only: ccpp_io_reader_t, create_io_reader_t
+     use ccpp_io_reader, only: abstract_netcdf_reader_t, create_netcdf_reader_t
 
      !Input variables:
      character(len=*),   intent(in)  :: file_path
@@ -36,20 +36,20 @@ contains
      real(kind_phys), pointer  :: press_ref(:)
      real(kind_phys), pointer  :: band_lims_wavenum(:,:)
 
-     class(ccpp_io_reader_t), allocatable :: reader
+     class(abstract_netcdf_reader_t), allocatable :: reader
 
      !NetCDF dimensions:
      integer :: bnd
      integer :: absorber
 
-     reader = create_io_reader_t()
+     reader = create_netcdf_reader_t()
 
      !Initialize output variables:
      errcode = 0
      errmsg  = ''
 
      ! Open file
-     call reader%open_netcdf_file(file_path, errcode, errmsg)
+     call reader%open_file(file_path, errmsg, errcode)
      if (errcode /= 0) then
         return !Error has occurred, so exit scheme
      end if
@@ -59,31 +59,31 @@ contains
      !-----------------------
 
      !Attempt to get absorbing gas names from file:
-     call reader%get_netcdf_var('gas_names', gas_names, errcode, errmsg)
+     call reader%get_var('gas_names', gas_names, errmsg, errcode)
      if (errcode /= 0) then
         return !Error has occurred, so exit scheme
      end if
 
      !Attempt to get reference pressure from file:
-     call reader%get_netcdf_var('press_ref', press_ref, errcode, errmsg)
+     call reader%get_var('press_ref', press_ref, errmsg, errcode)
      if (errcode /= 0) then
         return !Error has occurred, so exit scheme
      end if
 
      !Attempt to get wavenumber band grid start/end indices from file:
-     call reader%get_netcdf_var('bnd_limits_gpt', band2gpt, errcode, errmsg)
+     call reader%get_var('bnd_limits_gpt', band2gpt, errmsg, errcode)
      if (errcode /= 0) then
         return !Error has occurred, so exit scheme
      end if
 
      !Attempt to get wavenumber band start/end values from file:
-     call reader%get_netcdf_var('bnd_limits_wavenumber', band_lims_wavenum, errcode, errmsg)
+     call reader%get_var('bnd_limits_wavenumber', band_lims_wavenum, errmsg, errcode)
      if (errcode /= 0) then
         return !Error has occurred, so exit scheme
      end if
 
      ! Close file
-     call reader%close_netcdf_file(errcode, errmsg)
+     call reader%close_file(errmsg, errcode)
      if (errcode /= 0) then
         return !Error has occurred, so exit scheme
      end if
