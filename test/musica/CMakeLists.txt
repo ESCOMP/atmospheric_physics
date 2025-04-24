@@ -55,6 +55,9 @@ file(GLOB MUSICA_CCPP_SOURCES
   ${MUSICA_SRC_PATH}/*.F90
   ${MUSICA_SRC_PATH}/micm/*.F90
   ${MUSICA_SRC_PATH}/tuvx/*.F90
+  ${MUSICA_SRC_PATH}/util/*.F90
+  ${MUSICA_SRC_PATH}/aerosol/*.F90
+  ${MUSICA_SRC_PATH}/aerosol_stub/*.F90
 )
 
 target_sources(test_musica_api
@@ -111,5 +114,8 @@ add_test(
 
 add_memory_check_test(test_musica_species $<TARGET_FILE:test_musica_species> "" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
+add_subdirectory(aerosol)
+add_subdirectory(aerosol_stub)
 add_subdirectory(micm)
 add_subdirectory(tuvx)
+add_subdirectory(util)

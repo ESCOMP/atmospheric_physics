@@ -1,5 +1,3 @@
-! Copyright (C) 2025 National Science Foundation-National Center for Atmospheric Research
-! SPDX-License-Identifier: Apache-2.0
 module set_shallow_conv_fluxes_to_general
 
    use ccpp_kinds, only:  kind_phys
