@@ -12,7 +12,7 @@ module musica_ccpp_util
   real(kind_phys), parameter, public :: PI = 3.14159265358979323846_kind_phys
   real(kind_phys), parameter, public :: DEGREE_TO_RADIAN = PI / 180.0_kind_phys
 
-  !> Conversion factor for wavelength interfaces from meters to nanometers (CAM-SIMA -> TUV-x)
+  !> Conversion factor for wavelength interfaces from meters (CAM-SIMA) to nanometers (TUV-x)
   real(kind_phys), parameter, public :: m_to_nm = 1.0e9_kind_phys
 
 contains
