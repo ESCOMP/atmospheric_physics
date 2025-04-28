@@ -1,3 +1,5 @@
+! Copyright (C) 2024-2025 University Corporation for Atmospheric Research
+! SPDX-License-Identifier: Apache-2.0
 program test_tuvx_wavelength_grid
 
   use musica_ccpp_tuvx_wavelength_grid
@@ -19,8 +21,7 @@ contains
     integer, parameter    :: NUM_WAVELENGTH_GRID_MIDPOINTS = 2
     integer, parameter    :: NUM_WAVELENGTH_GRID_INTERFACES = 3
     real, parameter       :: ABS_ERROR = 1e-5
-    real(kind_phys)       :: host_interfaces(NUM_WAVELENGTH_GRID_INTERFACES) = [180.0e-9_kind_phys, 200.0e-9_kind_phys, 240.0e-9_kind_phys]
-    real(kind_phys)       :: expected_interfaces(NUM_WAVELENGTH_GRID_INTERFACES) = [180.0_kind_phys, 200.0_kind_phys, 240.0_kind_phys]
+    real(kind_phys)       :: host_interfaces(NUM_WAVELENGTH_GRID_INTERFACES) = [180.0_kind_phys, 200.0_kind_phys, 240.0_kind_phys] ! nm
     real(kind_phys)       :: expected_midpoints(NUM_WAVELENGTH_GRID_MIDPOINTS) = [190.0_kind_phys, 220.0_kind_phys]
     real(kind_phys)       :: interfaces(NUM_WAVELENGTH_GRID_INTERFACES)
     real(kind_phys)       :: midpoints(NUM_WAVELENGTH_GRID_MIDPOINTS)
@@ -37,7 +38,7 @@ contains
     call wavelength_grid%get_edges(interfaces, error)
     ASSERT(error%is_success())
     do i = 1, NUM_WAVELENGTH_GRID_INTERFACES
-      ASSERT_NEAR(interfaces(i), expected_interfaces(i), ABS_ERROR)
+      ASSERT_NEAR(interfaces(i), host_interfaces(i), ABS_ERROR)
     end do
 
     call wavelength_grid%get_midpoints(midpoints, error)

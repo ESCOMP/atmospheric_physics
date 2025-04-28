@@ -1,4 +1,4 @@
-! Copyright (C) 2024 National Science Foundation-National Center for Atmospheric Research
+! Copyright (C) 2024-2025 University Corporation for Atmospheric Research
 ! SPDX-License-Identifier: Apache-2.0
 program test_tuvx_aerosol_optics
 
@@ -24,7 +24,8 @@ contains
     integer, parameter        :: NUM_HOST_HEIGHT_INTERFACES = 3
     integer, parameter        :: NUM_WAVELENGTH_MIDPOINTS = 3
     integer, parameter        :: NUM_WAVELENGTH_INTERFACES = 4
-    real(kind_phys)           :: host_wavelength_interfaces(NUM_WAVELENGTH_INTERFACES) = [180.0e-9_kind_phys, 200.0e-9_kind_phys, 240.0e-9_kind_phys, 300.0e-9_kind_phys]
+    real(kind_phys)           :: host_wavelength_interfaces(NUM_WAVELENGTH_INTERFACES) = &
+      [180.0_kind_phys, 200.0_kind_phys, 240.0_kind_phys, 300.0_kind_phys] ! nm
     real(kind_phys)           :: aerosol_optical_depth(NUM_HOST_HEIGHT_MIDPOINTS+1, NUM_WAVELENGTH_MIDPOINTS)
     real(kind_phys)           :: single_scattering_albedo(NUM_HOST_HEIGHT_MIDPOINTS+1, NUM_WAVELENGTH_MIDPOINTS)
     real(kind_phys)           :: asymmetry_parameter(NUM_HOST_HEIGHT_MIDPOINTS+1, NUM_WAVELENGTH_MIDPOINTS,1)
