@@ -4,6 +4,12 @@
 
   <!-- **********Physics before the coupler************  -->
   <group name="physics_before_coupler">
+    <!-- (temporary) Initialize all constituents and to_be_ccppized modules -->
+    <scheme>initialize_constituents</scheme>
+    <scheme>to_be_ccppized_temporary</scheme>
+
+    <!-- Set top level for cloud fraction calculations -->
+    <scheme>set_cloud_fraction_top</scheme>
 
     <!-- Compute global means of physics input and output total energy -->
     <scheme>check_energy_gmean</scheme>
@@ -32,8 +38,7 @@
     <scheme>geopotential_temp</scheme>
 
     <!-- Zhang McFarlane (convect_deep) -->
-    <scheme>initialize_constituents</scheme>
-    <scheme>to_be_ccppized_temporary</scheme>
+    <scheme>zm_conv_options</scheme>
     <scheme>zm_convr</scheme>
     <scheme>zm_convr_tendency_diagnostics</scheme>
     <scheme>apply_heating_rate</scheme>
@@ -55,7 +60,6 @@
     <scheme>apply_heating_rate</scheme>
     <scheme>apply_tendency_of_eastward_wind</scheme>
     <scheme>apply_tendency_of_northward_wind</scheme>
-    <scheme>qneg</scheme>
     <scheme>geopotential_temp</scheme>
     <scheme>zm_conv_convtran</scheme>
     <scheme>zm_tendency_diagnostics</scheme>
@@ -87,6 +91,11 @@
 
     <!-- Update cp/cv for energy computation based in updated water variables -->
     <scheme>thermo_water_update</scheme>
+
+    <!-- Dry Mass and Energy adjust -->
+    <!-- COMMENTED OUT until qini/liqini/iceini have initialization routines -->
+    <!-- See https://github.com/ESCOMP/atmospheric_physics/issues/222 -->
+    <!-- <scheme>dme_adjust</scheme> -->
 
     <!-- MPAS and SE specific scaling of temperature for enforcing energy consistency:
          First, calculate the scaling based off cp_or_cv_dycore (from cam_thermo_water_update)

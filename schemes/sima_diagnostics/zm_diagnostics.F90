@@ -65,7 +65,7 @@ CONTAINS
     call history_add_field ('ZMICVU', 'in_cloud_northward_wind_in_updraft_due_to_deep_convection',  'lev',  'avg', 'm s-1')
     call history_add_field ('ZMICVD', 'in_cloud_northward_wind_in_downdraft_due_to_deep_convection', 'lev',  'avg', 'm s-1')
 
-    call history_add_field ('DLFZM',   'detrainment_of_cloud_liquid_due_to_deep_convection', 'lev', 'avg','kg kg-1 s-1 ')
+    call history_add_field ('DLFZM',   'detrainment_of_cloud_liquid_water_wrt_moist_air_and_condensed_water_due_to_deep_convection', 'lev', 'avg','kg kg-1 s-1 ')
 
 
    end subroutine zm_diagnostics_init
@@ -110,7 +110,7 @@ CONTAINS
       real(kind_phys),intent(in) :: icwdu(:,:)
       real(kind_phys),intent(in) :: icwdv(:,:)
 
-      real(kind_phys),intent(inout) :: mcon(:,:)
+      real(kind_phys),intent(in) :: mcon(:,:)
 
       ! CCPP error handling variables
       character(len=512), intent(out) :: errmsg
@@ -144,9 +144,6 @@ CONTAINS
          freqzm(ideep(i)) = 1.0_kind_phys
       end do
       call history_out_field('FREQZM  ',freqzm)
-
-   !  Convert from hPa s-1 to kg m-2 s-1
-      mcon(:ncol,:pverp) = mcon(:ncol,:pverp) * 100._kind_phys/gravit
 
       call history_out_field('CMFMC_DP', mcon)
 

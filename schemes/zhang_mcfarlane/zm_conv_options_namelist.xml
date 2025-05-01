@@ -39,7 +39,6 @@
   <desc>The number of negative buoyancy regions that are allowed before the convection top and CAPE calculations are completed.</desc>
   <values>
      <value>5</value>
-     <value phys_suite="cam6">1</value>
      <value phys_suite="cam7">1</value>
   </values>
 </entry>
@@ -137,7 +136,7 @@
   <category>conv</category>
   <group>zmconv_nl</group>
   <standard_name>parcel_temperature_perturbation_for_zhang_mcfarlane_deep_convection_scheme</standard_name>
-  <units>flag</units>
+  <units>K</units>
   <type>real</type>
   <kind>kind_phys</kind>
   <desc>
@@ -174,6 +173,22 @@
   </desc>
   <values>
      <value>.false.</value>
+  </values>
+</entry>
+
+<entry id="zmconv_parcel_hscale">
+  <category>conv</category>
+  <group>zmconv_nl</group>
+  <standard_name>fraction_of_pbl_depth_mixed_for_initial_zhang_mcfarlane_parcel_properties</standard_name>
+  <units>fraction</units>
+  <type>real</type>
+  <kind>kind_phys</kind>
+  <desc>
+     The fraction of the boundary layer (PBL) depth,
+     over which to mix the initial ZM convective parcel properties (fraction).
+  </desc>
+  <values>
+     <value>0.5</value>
   </values>
 </entry>
 
