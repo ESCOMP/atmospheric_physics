@@ -86,7 +86,7 @@
   dimensions = ()
   intent = out
 
-; ----------
+# ----------
 
 [ccpp-table-properties]
   name = geopotential_height_wrt_sfc_to_msl

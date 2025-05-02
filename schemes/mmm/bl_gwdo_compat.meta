@@ -92,7 +92,7 @@
   dimensions = ()
   intent = out
 
-; ----------
+# ----------
 
 [ccpp-table-properties]
   name = bl_gwdo_compat
@@ -346,7 +346,7 @@
   dimensions = ()
   intent = out
 
-; ----------
+# ----------
 
 [ccpp-table-properties]
   name = bl_gwdo_diagnostics
