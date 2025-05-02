@@ -1,3 +1,5 @@
+! Copyright (C) 2024-2025 University Corporation for Atmospheric Research
+! SPDX-License-Identifier: Apache-2.0
 module musica_ccpp_species
   use ccpp_kinds, only: kind_phys
 
@@ -21,7 +23,7 @@ module musica_ccpp_species
     real(kind_phys)               :: scale_height = 0.0_kind_phys ! km, TUV-x gas species optional
   contains
     ! Deallocates memory associated with this musica species object
-    procedure :: deallocate  => musica_species_t_deallocate
+    procedure :: deallocate => musica_species_t_deallocate
   end type musica_species_t
 
   interface musica_species_t
