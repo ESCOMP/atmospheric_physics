@@ -1,0 +1,142 @@
+[ccpp-table-properties]
+  name = rrtmgp_lw_main
+  type = scheme
+
+[ccpp-arg-table]
+  name  = rrtmgp_lw_main_run
+  type  = scheme
+[ doLWrad ]
+  standard_name = do_longwave_radiation
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ doLWclrsky ]
+  standard_name = do_output_of_tendency_of_air_temperature_due_to_longwave_heating_on_radiation_timestep_assuming_clear_sky
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ doGP_lwscat ]
+  standard_name = include_longwave_scattering_in_cloud_optics
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ use_LW_jacobian ]
+  standard_name = calculate_longwave_jacobian_for_RRTMGP
+  units = enter_units
+  type = logical
+  dimensions = ()
+  intent = in
+[ use_LW_optimal_angles ]
+  standard_name = compute_optimal_angles_for_use_in_RRTMGP_longwave_calculation
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ nGauss_angles ]
+  standard_name = number_of_gaussian_quadrature_angles_for_radiation
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ nCol ]
+  standard_name = enter_standard_name_8
+  units = enter_units
+  type = integer
+  dimensions = ()
+  intent = in
+[ iter_num ]
+  standard_name = iteration_number_for_radiation_subcycle
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ rrtmgp_phys_blksz ]
+  standard_name = number_of_columns_per_longwave_block_for_RRTMGP
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ lw_optical_props_clrsky ]
+  standard_name = longwave_atmosphere_optical_properties_object_for_RRTMGP
+  units = none
+  type = ty_optical_props_1scl_ccpp
+  dimensions = ()
+  intent = inout
+[ lw_optical_props_clouds ]
+  standard_name = longwave_cloud_optical_properties_object_for_RRTMGP
+  units = none
+  type = ty_optical_props_1scl_ccpp
+  dimensions = ()
+  intent = inout
+[ top_at_1 ]
+  standard_name = do_top_at_one_vertical_ordering_in_radiation
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ sources ]
+  standard_name = longwave_planck_sources_object_for_RRTMGP
+  units = none
+  type = ty_source_func_lw_ccpp
+  dimensions = ()
+  intent = in
+[ sfc_emiss_byband ]
+  standard_name = longwave_emissivity_at_surface
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (enter_standard_name_23:enter_standard_name_24,enter_standard_name_25:enter_standard_name_26)
+  intent = in
+[ lw_gas_props ]
+  standard_name = longwave_gas_optics_object_for_RRTMGP
+  units = none
+  type = ty_gas_optics_rrtmgp_ccpp
+  dimensions = ()
+  intent = inout
+[ aerlw ]
+  standard_name = longwave_aerosol_optical_properties_object_for_RRTMGP
+  units = none
+  type = ty_optical_props_1scl_ccpp
+  dimensions = ()
+  intent = inout
+[ fluxlwUP_jac ]
+  standard_name = jacobian_of_longwave_upward_flux_for_RRTMGP
+  units = W m-2 K-1
+  type = real | kind = kind_phys
+  dimensions = (enter_standard_name_27:enter_standard_name_28,enter_standard_name_29:enter_standard_name_30)
+  intent = inout
+[ lw_Ds ]
+  standard_name = inverse_cosine_of_radiation_transport_angle_per_column_and_g_point
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (enter_standard_name_31:enter_standard_name_32,enter_standard_name_33:enter_standard_name_34)
+  intent = out
+[ flux_clrsky ]
+  standard_name = longwave_clear_sky_flux_object_for_RRTMGP
+  units = none
+  type = ty_fluxes_broadband_ccpp
+  dimensions = ()
+  intent = inout
+[ flux_allsky ]
+  standard_name = longwave_all_sky_flux_object_for_RRTMGP
+  units = none
+  type = ty_fluxes_byband_ccpp
+  dimensions = ()
+  intent = inout
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+

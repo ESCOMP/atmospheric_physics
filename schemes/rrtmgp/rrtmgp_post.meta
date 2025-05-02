@@ -1,0 +1,136 @@
+[ccpp-table-properties]
+  name = rrtmgp_post
+  type = scheme
+
+[ccpp-arg-table]
+  name  = rrtmgp_post_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ nlay ]
+  standard_name = enter_standard_name_2
+  units = enter_units
+  type = integer
+  dimensions = ()
+  intent = in
+[ dolw ]
+  standard_name = do_longwave_radiation
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ qrs ]
+  standard_name = shortwave_radiative_heating_rate
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (enter_standard_name_22:enter_standard_name_23,enter_standard_name_24:enter_standard_name_25)
+  intent = inout
+[ qrl ]
+  standard_name = longwave_radiative_heating_rate
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (enter_standard_name_26:enter_standard_name_27,enter_standard_name_28:enter_standard_name_29)
+  intent = inout
+[ fsns ]
+  standard_name = shortwave_net_absorbed_solar_flux_at_surface
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = (enter_standard_name_30:enter_standard_name_31)
+  intent = in
+[ pdel ]
+  standard_name = air_pressure_thickness
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (enter_standard_name_32:enter_standard_name_33,enter_standard_name_34:enter_standard_name_35)
+  intent = in
+[ atm_optics_sw ]
+  standard_name = enter_standard_name_8
+  units = enter_units
+  type = ty_optical_props_2str_ccpp
+  dimensions = ()
+  intent = inout
+[ cloud_sw ]
+  standard_name = enter_standard_name_12
+  units = enter_units
+  type = ty_optical_props_2str_ccpp
+  dimensions = ()
+  intent = inout
+[ aer_sw ]
+  standard_name = enter_standard_name_10
+  units = enter_units
+  type = ty_optical_props_2str_ccpp
+  dimensions = ()
+  intent = inout
+[ fsw ]
+  standard_name = enter_standard_name_15
+  units = enter_units
+  type = ty_fluxes_byband_ccpp
+  dimensions = ()
+  intent = inout
+[ fswc ]
+  standard_name = shortwave_atmosphere_optical_properties_object_for_RRTMGP
+  units = none
+  type = ty_fluxes_broadband_ccpp
+  dimensions = ()
+  intent = inout
+[ sources_lw ]
+  standard_name = longwave_planck_sources_object_for_RRTMGP
+  units = none
+  type = ty_source_func_lw_ccpp
+  dimensions = ()
+  intent = inout
+[ cloud_lw ]
+  standard_name = longwave_cloud_optical_properties_object_for_RRTMGP
+  units = none
+  type = ty_optical_props_1scl_ccpp
+  dimensions = ()
+  intent = inout
+[ aer_lw ]
+  standard_name = longwave_aerosol_optical_properties_object_for_RRTMGP
+  units = none
+  type = ty_optical_props_1scl_ccpp
+  dimensions = ()
+  intent = inout
+[ flw ]
+  standard_name = longwave_all_sky_flux_object_for_RRTMGP
+  units = none
+  type = ty_fluxes_byband_ccpp
+  dimensions = ()
+  intent = inout
+[ flwc ]
+  standard_name = longwave_clear_sky_flux_object_for_RRTMGP
+  units = none
+  type = ty_fluxes_broadband_ccpp
+  dimensions = ()
+  intent = inout
+[ netsw ]
+  standard_name = net_shortwave_flux_at_surface
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = (enter_standard_name_36:enter_standard_name_37)
+  intent = out
+[ flwds ]
+  standard_name = longwave_downward_radiative_flux_at_surface
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = (enter_standard_name_38:enter_standard_name_39)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+

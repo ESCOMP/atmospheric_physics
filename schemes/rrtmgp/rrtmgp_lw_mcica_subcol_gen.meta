@@ -1,0 +1,100 @@
+[ccpp-table-properties]
+  name = rrtmgp_lw_mcica_subcol_gen
+  type = scheme
+
+[ccpp-arg-table]
+  name  = rrtmgp_lw_mcica_subcol_gen_run
+  type  = scheme
+[ dolw ]
+  standard_name = do_longwave_radiation
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ ktoprad ]
+  standard_name = RRTMGP_vertical_index_at_top_level_where_RRTMGP_is_active
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
+[ kdist ]
+  standard_name = longwave_gas_optics_object_for_RRTMGP
+  units = none
+  type = ty_gas_optics_rrtmgp_ccpp
+  dimensions = ()
+  intent = in
+[ nbnd ]
+  standard_name = number_of_spectral_bands
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ ngpt ]
+  standard_name = number_of_longwave_g_point_intervals
+  units = enter_units
+  type = integer
+  dimensions = ()
+  intent = in
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ nver ]
+  standard_name = enter_standard_name_8
+  units = enter_units
+  type = integer
+  dimensions = ()
+  intent = in
+[ changeseed ]
+  standard_name = random_number_seed_for_mcica_longwave
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ pmid ]
+  standard_name = air_pressure_for_RRTMGP
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (enter_standard_name_16:enter_standard_name_17,enter_standard_name_18:enter_standard_name_19)
+  intent = in
+[ cldfrac ]
+  standard_name = cloud_area_fraction
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (enter_standard_name_20:enter_standard_name_21,enter_standard_name_22:enter_standard_name_23)
+  intent = in
+[ tauc ]
+  standard_name = cloud_optical_depth
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (enter_standard_name_24:enter_standard_name_25,enter_standard_name_26:enter_standard_name_27,enter_standard_name_28:enter_standard_name_29)
+  intent = in
+[ cloud_lw ]
+  standard_name = longwave_cloud_optical_properties_object_for_RRTMGP
+  units = none
+  type = ty_optical_props_1scl_ccpp
+  dimensions = ()
+  intent = inout
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+

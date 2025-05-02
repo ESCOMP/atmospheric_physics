@@ -1,0 +1,79 @@
+[ccpp-table-properties]
+  name = calculate_net_heating
+  type = scheme
+
+[ccpp-arg-table]
+  name  = calculate_net_heating_run
+  type  = scheme
+[ ncol ]
+  standard_name = enter_standard_name_1
+  units = enter_units
+  type = integer
+  dimensions = ()
+  intent = in
+[ rad_heat ]
+  standard_name = enter_standard_name_9
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = (enter_standard_name_13:enter_standard_name_14,enter_standard_name_15:enter_standard_name_16)
+  intent = out
+[ qrl ]
+  standard_name = enter_standard_name_2
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = (enter_standard_name_17:enter_standard_name_18,enter_standard_name_19:enter_standard_name_20)
+  intent = in
+[ qrs ]
+  standard_name = enter_standard_name_3
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = (enter_standard_name_21:enter_standard_name_22,enter_standard_name_23:enter_standard_name_24)
+  intent = in
+[ fsns ]
+  standard_name = enter_standard_name_4
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = (enter_standard_name_25:enter_standard_name_26)
+  intent = in
+[ fsnt ]
+  standard_name = enter_standard_name_5
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = (enter_standard_name_27:enter_standard_name_28)
+  intent = in
+[ flns ]
+  standard_name = enter_standard_name_6
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = (enter_standard_name_29:enter_standard_name_30)
+  intent = in
+[ flnt ]
+  standard_name = enter_standard_name_7
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = (enter_standard_name_31:enter_standard_name_32)
+  intent = in
+[ is_offline_dyn ]
+  standard_name = enter_standard_name_8
+  units = enter_units
+  type = logical
+  dimensions = ()
+  intent = in
+[ net_flx ]
+  standard_name = enter_standard_name_10
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = (enter_standard_name_33:enter_standard_name_34)
+  intent = out
+[ errmsg ]
+  standard_name = enter_standard_name_11
+  units = enter_units
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = enter_standard_name_12
+  units = enter_units
+  type = integer
+  dimensions = ()
+  intent = out

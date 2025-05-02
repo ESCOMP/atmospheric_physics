@@ -1,0 +1,49 @@
+[ccpp-table-properties]
+  name = rrtmgp_dry_static_energy_tendency
+  type = scheme
+
+[ccpp-arg-table]
+  name  = rrtmgp_dry_static_energy_tendency_run
+  type  = scheme
+[ pdel ]
+  standard_name = enter_standard_name_1
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = (enter_standard_name_8:enter_standard_name_9,enter_standard_name_10:enter_standard_name_11)
+  intent = in
+[ calc_sw_heat ]
+  standard_name = enter_standard_name_2
+  units = enter_units
+  type = logical
+  dimensions = ()
+  intent = in
+[ calc_lw_heat ]
+  standard_name = enter_standard_name_3
+  units = enter_units
+  type = logical
+  dimensions = ()
+  intent = in
+[ qrs ]
+  standard_name = enter_standard_name_4
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = (enter_standard_name_12:enter_standard_name_13,enter_standard_name_14:enter_standard_name_15)
+  intent = inout
+[ qrl ]
+  standard_name = enter_standard_name_5
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = (enter_standard_name_16:enter_standard_name_17,enter_standard_name_18:enter_standard_name_19)
+  intent = inout
+[ errmsg ]
+  standard_name = enter_standard_name_6
+  units = enter_units
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = enter_standard_name_7
+  units = enter_units
+  type = integer
+  dimensions = ()
+  intent = out

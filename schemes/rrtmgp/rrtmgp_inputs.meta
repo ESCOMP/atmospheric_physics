@@ -1,0 +1,586 @@
+[ccpp-table-properties]
+  name = rrtmgp_inputs
+  type = scheme
+
+[ccpp-arg-table]
+  name  = rrtmgp_inputs_init
+  type  = scheme
+[ ktopcam ]
+  standard_name = vertical_index_at_top_level_where_RRTMGP_is_active
+  units = index
+  type = integer
+  dimensions = ()
+  intent = out
+[ ktoprad ]
+  standard_name = RRTMGP_vertical_index_at_top_level_where_RRTMGP_is_active
+  units = index
+  type = integer
+  dimensions = ()
+  intent = out
+[ nlaycam ]
+  standard_name = enter_standard_name_22
+  units = enter_units
+  type = integer
+  dimensions = ()
+  intent = out
+[ sw_low_bounds ]
+  standard_name = min_shortwave_wavenumber_per_band
+  units = cm-1
+  type = real | kind = kind_phys
+  dimensions = (number_of_bands_for_shortwave_radiation)
+  intent = out
+[ sw_high_bounds ]
+  standard_name = max_shortwave_wavenumber_per_band
+  units = cm-1
+  type = real | kind = kind_phys
+  dimensions = (number_of_bands_for_shortwave_radiation)
+  intent = out
+[ nswbands ]
+  standard_name = number_of_bands_for_shortwave_radiation
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pref_edge ]
+  standard_name = reference_pressure_at_interface
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (vertical_interface_dimension)
+  intent = in
+[ nlay ]
+  standard_name = enter_standard_name_23
+  units = enter_units
+  type = integer
+  dimensions = ()
+  intent = out
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pverp ]
+  standard_name = vertical_interface_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ kdist_sw ]
+  standard_name = shortwave_gas_optics_object_for_RRTMGP
+  units = none
+  type = ty_gas_optics_rrtmgp_ccpp
+  dimensions = ()
+  intent = in
+[ kdist_lw ]
+  standard_name = longwave_gas_optics_object_for_RRTMGP
+  units = none
+  type = ty_gas_optics_rrtmgp_ccpp
+  dimensions = ()
+  intent = in
+[ qrl ]
+  standard_name = longwave_radiative_heating_rate
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ is_first_step ]
+  standard_name = is_first_timestep
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ use_rad_dt_cosz ]
+  standard_name = use_adjusted_radiation_timestep_for_solar_zenith_angle_calculation
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ timestep_size ]
+  standard_name = timestep_for_physics
+  units = s
+  type = integer
+  dimensions = ()
+  intent = in
+[ nstep ]
+  standard_name = current_timestep_number
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ iradsw ]
+  standard_name = frequency_of_shortwave_radiation_calculation
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ dt_avg ]
+  standard_name = averaging_time_interval_for_solar_zenith_angle_calculation
+  units = s
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = inout
+[ irad_always ]
+  standard_name = number_of_timesteps_to_force_radiation_calculation_after_initialization
+  units = count
+  type = integer
+  dimensions = ()
+  intent = inout
+[ is_first_restart_step ]
+  standard_name = is_first_restart_timestep
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ is_root ]
+  standard_name = flag_for_mpi_root
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ nlwbands ]
+  standard_name = number_of_bands_for_longwave_radiation
+  units = number_of_bands_for_longwave_radiation
+  type = count
+  dimensions = ()
+  intent = in
+[ nradgas ]
+  standard_name = number_of_active_gases_for_RRTMGP
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ gasnamelength ]
+  standard_name = character_length_of_list_of_active_gases_for_RRTMGP
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ iulog ]
+  standard_name = log_output_unit
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ idx_sw_diag ]
+  standard_name = index_of_shortwave_band
+  units = index
+  type = integer
+  dimensions = ()
+  intent = out
+[ idx_nir_diag ]
+  standard_name = index_of_near_IR_band
+  units = index
+  type = integer
+  dimensions = ()
+  intent = out
+[ idx_uv_diag ]
+  standard_name = index_of_UV_band
+  units = index
+  type = integer
+  dimensions = ()
+  intent = out
+[ idx_sw_cloudsim ]
+  standard_name = index_of_shortwave_band_for_COSP
+  units = index
+  type = integer
+  dimensions = ()
+  intent = out
+[ idx_lw_diag ]
+  standard_name = index_of_longwave_band
+  units = index
+  type = integer
+  dimensions = ()
+  intent = out
+[ idx_lw_cloudsim ]
+  standard_name = index_of_longwave_band_for_COSP
+  units = index
+  type = integer
+  dimensions = ()
+  intent = out
+[ gaslist ]
+  standard_name = list_of_active_gases_for_RRTMGP
+  units = none
+  type = character | kind = len=*
+  dimensions = (number_of_active_gases_for_RRTMGP)
+  intent = in
+[ nswgpts ]
+  standard_name = number_of_shortwave_g_point_intervals
+  units = count
+  type = integer
+  dimensions = ()
+  intent = out
+[ nlwgpts ]
+  standard_name = number_of_longwave_g_point_intervals
+  units = count
+  type = integer
+  dimensions = ()
+  intent = out
+[ nlayp ]
+  standard_name = enter_standard_name_24
+  units = enter_units
+  type = integer
+  dimensions = ()
+  intent = out
+[ nextsw_cday ]
+  standard_name = next_calendar_day_to_perform_shortwave_radiation_for_surface_models
+  units = days
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = out
+[ current_cal_day ]
+  standard_name = current_calendar_day
+  units = days
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ band2gpt_sw ]
+  standard_name = shortwave_start_and_end_gpoint_for_each_band
+  units = index
+  type = integer
+  dimensions = (ccpp_constant_two,number_of_bands_for_shortwave_radiation)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = rrtmgp_inputs_run
+  type  = scheme
+[ dosw ]
+  standard_name = do_shortwave_radiation
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ dolw ]
+  standard_name = do_longwave_radiation
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ snow_associated ]
+  standard_name = include_snow_absorption_optical_depth
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ graupel_associated ]
+  standard_name = include_graupel_absorption_optical_depth
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ pmid ]
+  standard_name = air_pressure
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ pint ]
+  standard_name = air_pressure_at_interface
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ t ]
+  standard_name = air_temperature
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ nday ]
+  standard_name = daytime_points_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ idxday ]
+  standard_name = daytime_points
+  units = index
+  type = integer
+  dimensions = (vertical_layer_dimension)
+  intent = in
+[ cldfprime ]
+  standard_name = modified_cloud_area_fraction_for_RRTMGP
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ coszrs ]
+  standard_name = cosine_of_solar_zenith_angle
+  units = rad
+  type = real | kind = kind_phys
+  dimensions = (vertical_layer_dimension)
+  intent = in
+[ kdist_sw ]
+  standard_name = shortwave_gas_optics_object_for_RRTMGP
+  units = none
+  type = ty_gas_optics_rrtmgp_ccpp
+  dimensions = ()
+  intent = in
+[ t_sfc ]
+  standard_name = ground_temperature_at_surface_for_radiation
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ emis_sfc ]
+  standard_name = longwave_emissivity_at_surface
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (number_of_bands_for_longwave_radiation,horizontal_loop_extent)
+  intent = out
+[ t_rad ]
+  standard_name = air_temperature_for_RRTMGP
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ pmid_rad ]
+  standard_name = air_pressure_for_RRTMGP
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ pint_rad ]
+  standard_name = air_pressure_at_interface_for_RRTMGP
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ t_day ]
+  standard_name = air_temperature_for_daytime_points_for_RRTMGP
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ pmid_day ]
+  standard_name = air_pressure_for_daytime_points_for_RRTMGP
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ pint_day ]
+  standard_name = air_pressure_at_interface_for_daytime_points_for_RRTMGP
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ coszrs_day ]
+  standard_name = cosine_of_solar_zenith_angle_for_daytime_points_on_radiation_timestep
+  units = rad
+  type = real | kind = kind_phys
+  dimensions = (daytime_points_dimension)
+  intent = out
+[ alb_dir ]
+  standard_name = albedo_direct_at_surface
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (number_of_bands_for_shortwave_radiation,daytime_points_dimension)
+  intent = out
+[ alb_dif ]
+  standard_name = albedo_diffused_at_surface
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (number_of_bands_for_shortwave_radiation,daytime_points_dimension)
+  intent = out
+[ lwup ]
+  standard_name = longwave_upward_radiative_flux_at_surface
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ stebol ]
+  standard_name = stefan_boltzmanns_constant
+  units = W m-2 K-4
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ ncol ]
+  standard_name = horizontal_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ ktopcam ]
+  standard_name = vertical_index_at_top_level_where_RRTMGP_is_active
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
+[ ktoprad ]
+  standard_name = RRTMGP_vertical_index_at_top_level_where_RRTMGP_is_active
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
+[ nswbands ]
+  standard_name = number_of_bands_for_shortwave_radiation
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ asdir ]
+  standard_name = albedo_at_surface_due_to_UV_and_VIS_direct
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ asdif ]
+  standard_name = albedo_due_to_UV_and_VIS_diffused_at_surface
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ sw_low_bounds ]
+  standard_name = min_shortwave_wavenumber_per_band
+  units = cm-1
+  type = real | kind = kind_phys
+  dimensions = (number_of_bands_for_shortwave_radiation)
+  intent = in
+[ sw_high_bounds ]
+  standard_name = max_shortwave_wavenumber_per_band
+  units = cm-1
+  type = real | kind = kind_phys
+  dimensions = (number_of_bands_for_shortwave_radiation)
+  intent = in
+[ aldir ]
+  standard_name = albedo_due_to_near_IR_direct_at_surface
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ aldif ]
+  standard_name = albedo_due_to_near_IR_diffused_at_surface
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ nlay ]
+  standard_name = enter_standard_name_46
+  units = enter_units
+  type = integer
+  dimensions = ()
+  intent = in
+[ pverp ]
+  standard_name = vertical_interface_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ cld ]
+  standard_name = cloud_area_fraction
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ cldfsnow ]
+  standard_name = liquid_plus_snow_stratiform_cloud_area_fraction
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ cldfgrau ]
+  standard_name = liquid_plus_graupel_stratiform_cloud_area_fraction
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ graupel_in_rad ]
+  standard_name = do_calculate_radiative_effect_of_graupel
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ gasnamelength ]
+  standard_name = character_length_of_list_of_active_gases_for_RRTMGP
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ gaslist ]
+  standard_name = list_of_active_gases_for_RRTMGP
+  units = none
+  type = character | kind = len=*
+  dimensions = (number_of_active_gases_for_RRTMGP)
+  intent = in
+[ gas_concs_lw ]
+  standard_name = longwave_gas_volume_mixing_ratios_object_for_RRTMGP
+  units = none
+  type = ty_gas_concs_ccpp
+  dimensions = ()
+  intent = out
+[ aer_lw ]
+  standard_name = longwave_aerosol_optical_properties_object_for_RRTMGP
+  units = none
+  type = ty_optical_props_1scl_ccpp
+  dimensions = ()
+  intent = out
+[ atm_optics_lw ]
+  standard_name = longwave_atmosphere_optical_properties_object_for_RRTMGP
+  units = none
+  type = ty_optical_props_1scl_ccpp
+  dimensions = ()
+  intent = out
+[ kdist_lw ]
+  standard_name = longwave_gas_optics_object_for_RRTMGP
+  units = none
+  type = ty_gas_optics_rrtmgp_ccpp
+  dimensions = ()
+  intent = in
+[ sources_lw ]
+  standard_name = longwave_planck_sources_object_for_RRTMGP
+  units = none
+  type = ty_source_func_lw_ccpp
+  dimensions = ()
+  intent = out
+[ aer_sw ]
+  standard_name = shortwave_aerosol_optical_properties_object_for_RRTMGP
+  units = none
+  type = ty_optical_props_2str_ccpp
+  dimensions = ()
+  intent = out
+[ atm_optics_sw ]
+  standard_name = shortwave_atmosphere_optical_properties_object_for_RRTMGP
+  units = none
+  type = ty_optical_props_2str_ccpp
+  dimensions = ()
+  intent = out
+[ gas_concs_sw ]
+  standard_name = shortwave_gas_volume_mixing_ratios_object_for_RRTMGP
+  units = none
+  type = ty_gas_concs_ccpp
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
