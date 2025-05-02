@@ -165,10 +165,13 @@ contains
         errmsg = ''
         errflg = 0
 
-        call history_add_field('bl_gwdo_dtaux3d', 'tendency_of_x_wind_due_to_orographic_gwd', 'lev', 'avg', 'm s-2')
-        call history_add_field('bl_gwdo_dtauy3d', 'tendency_of_y_wind_due_to_orographic_gwd', 'lev', 'avg', 'm s-2')
-        call history_add_field('bl_gwdo_dusfcg', 'atmosphere_x_stress_due_to_orographic_gwd', horiz_only, 'avg', 'Pa')
-        call history_add_field('bl_gwdo_dvsfcg', 'atmosphere_y_stress_due_to_orographic_gwd', horiz_only, 'avg', 'Pa')
+        ! The "bl_gwdo" physics scheme makes a distinction between X/Y winds and eastward/northward winds. See
+        ! the "bl_gwdo_compat_pre" interstitial scheme for details. However, here we just refer to its diagnostics as
+        ! eastward/northward to make them more familiar to CAM-SIMA users.
+        call history_add_field('bl_gwdo_dtaux3d', 'tendency_of_eastward_wind_due_to_orographic_gwd', 'lev', 'avg', 'm s-2')
+        call history_add_field('bl_gwdo_dtauy3d', 'tendency_of_northward_wind_due_to_orographic_gwd', 'lev', 'avg', 'm s-2')
+        call history_add_field('bl_gwdo_dusfcg', 'atmosphere_eastward_stress_due_to_orographic_gwd', horiz_only, 'avg', 'Pa')
+        call history_add_field('bl_gwdo_dvsfcg', 'atmosphere_northward_stress_due_to_orographic_gwd', horiz_only, 'avg', 'Pa')
     end subroutine bl_gwdo_diagnostics_init
 
     !> \section arg_table_bl_gwdo_diagnostics_run Argument Table
