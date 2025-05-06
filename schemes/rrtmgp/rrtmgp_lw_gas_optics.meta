@@ -33,25 +33,25 @@
   standard_name = air_pressure_for_RRTMGP
   units = Pa
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_17:enter_standard_name_18,enter_standard_name_19:enter_standard_name_20)
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ p_lev ]
   standard_name = air_pressure_at_interface_for_RRTMGP
   units = Pa
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_21:enter_standard_name_22,enter_standard_name_23:enter_standard_name_24)
+  dimensions = (ihorizontal_loop_extent,vertical_interface_dimension)
   intent = in
 [ t_lay ]
-  standard_name = enter_standard_name_8
-  units = enter_units
+  standard_name = air_temperature_for_RRTMGP
+  units = K
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_25:enter_standard_name_26,enter_standard_name_27:enter_standard_name_28)
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ tsfg ]
   standard_name = ground_temperature_at_surface_for_radiation
   units = K
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_29:enter_standard_name_30)
+  dimensions = (horizontal_loop_extent)
   intent = in
 [ gas_concs ]
   standard_name = longwave_gas_volume_mixing_ratios_object_for_RRTMGP
@@ -72,10 +72,10 @@
   dimensions = ()
   intent = inout
 [ t_lev ]
-  standard_name = enter_standard_name_10
-  units = enter_units
+  standard_name = air_temperature_at_interfaces_for_RRTMGP
+  units = K
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_31:enter_standard_name_32,enter_standard_name_33:enter_standard_name_34)
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ include_interface_temp ]
   standard_name = include_air_temperature_at_interfaces_in_gas_optics_calculation

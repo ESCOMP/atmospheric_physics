@@ -9,23 +9,23 @@
   standard_name = radiatively_active_gas_mass_mixing_ratios_wrt_dry_air
   units = kg kg-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_16:enter_standard_name_17,enter_standard_name_18:enter_standard_name_19,enter_standard_name_20:enter_standard_name_21)
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension,number_of_active_gases_for_RRTMGP)
   intent = in
 [ pmid ]
   standard_name = air_pressure_for_RRTMGP
   units = Pa
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_22:enter_standard_name_23,enter_standard_name_24:enter_standard_name_25)
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ pint ]
   standard_name = air_pressure_at_interface_for_RRTMGP
   units = Pa
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_26:enter_standard_name_27,enter_standard_name_28:enter_standard_name_29)
+  dimensions = (horizontal_loop_extent,vertical_interface_dimension
   intent = in
 [ nlay ]
-  standard_name = enter_standard_name_2
-  units = enter_units
+  standard_name = number_of_vertical_layers_in_RRTMGP
+  units = count
   type = integer
   dimensions = ()
   intent = in
@@ -39,13 +39,13 @@
   standard_name = list_of_active_gases_for_RRTMGP
   units = none
   type = character | kind = len=*
-  dimensions = (enter_standard_name_30:enter_standard_name_31)
+  dimensions = (number_of_active_gases_for_RRTMGP)
   intent = in
 [ idxday ]
   standard_name = daytime_points
   units = index
   type = integer
-  dimensions = (enter_standard_name_32:enter_standard_name_33)
+  dimensions = (horizontal_loop_extent)
   intent = in
 [ pverp ]
   standard_name = vertical_interface_dimension

@@ -31,7 +31,7 @@
   intent = in
 [ ngpt ]
   standard_name = number_of_longwave_g_point_intervals
-  units = enter_units
+  units = count
   type = integer
   dimensions = ()
   intent = in
@@ -48,8 +48,8 @@
   dimensions = ()
   intent = in
 [ nver ]
-  standard_name = enter_standard_name_8
-  units = enter_units
+  standard_name = number_of_vertical_layers_in_RRTMGP_coinciding_with_CAM_levels
+  units = count
   type = integer
   dimensions = ()
   intent = in
@@ -63,19 +63,20 @@
   standard_name = air_pressure_for_RRTMGP
   units = Pa
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_16:enter_standard_name_17,enter_standard_name_18:enter_standard_name_19)
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ cldfrac ]
   standard_name = cloud_area_fraction
   units = fraction
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_20:enter_standard_name_21,enter_standard_name_22:enter_standard_name_23)
+  dimensions = (horizontal_loop_extent,number_of_vertical_layers_in_RRTMGP_coinciding_with_CAM_levels)
   intent = in
 [ tauc ]
   standard_name = cloud_optical_depth
   units = 1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_24:enter_standard_name_25,enter_standard_name_26:enter_standard_name_27,enter_standard_name_28:enter_standard_name_29)
+  dimensions =
+(enter_standard_name_24:enter_standard_name_25,horizontal_loop_extent,number_of_vertical_layers_in_RRTMGP_coinciding_with_CAM_levels)
   intent = in
 [ cloud_lw ]
   standard_name = longwave_cloud_optical_properties_object_for_RRTMGP

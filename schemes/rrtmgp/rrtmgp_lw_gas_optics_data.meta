@@ -27,7 +27,7 @@
   standard_name = longwave_key_species_pair_for_each_band
   units = none
   type = integer
-  dimensions = (enter_standard_name_39:enter_standard_name_40,enter_standard_name_41:enter_standard_name_42,enter_standard_name_43:enter_standard_name_44)
+  dimensions = (ccpp_constant_two,enter_standard_name_41:enter_standard_name_42,enter_standard_name_43:enter_standard_name_44)
   intent = in
 [ band2gpt ]
   standard_name = longwave_start_and_end_gpoint_for_each_band

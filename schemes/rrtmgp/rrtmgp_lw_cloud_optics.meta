@@ -25,7 +25,7 @@
   intent = in
 [ abs_lw_liq_in ]
   standard_name = longwave_mass_specific_absorption_for_in_cloud_liquid_water_path
-  units = enter_units
+  units = m2 kg-1
   type = real | kind = kind_phys
   dimensions = (number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid, number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid, number_of_bands_for_longwave_radiation)
   intent = in
@@ -97,14 +97,14 @@
   dimensions = ()
   intent = in
 [ nlay ]
-  standard_name = enter_standard_name_14
-  units = enter_units
+  standard_name = number_of_vertical_layers_in_RRTMGP_plus_one
+  units = count
   type = integer
   dimensions = ()
   intent = in
 [ nlaycam ]
-  standard_name = enter_standard_name_15
-  units = enter_units
+  standard_name = number_of_vertical_layers_in_RRTMGP_plus_one
+  units = count
   type = integer
   dimensions = ()
   intent = in

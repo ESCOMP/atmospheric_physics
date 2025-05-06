@@ -18,8 +18,8 @@
   dimensions = ()
   intent = out
 [ nlaycam ]
-  standard_name = enter_standard_name_22
-  units = enter_units
+  standard_name = number_of_vertical_layers_in_RRTMGP_coinciding_with_CAM_levels
+  units = count
   type = integer
   dimensions = ()
   intent = out
@@ -48,8 +48,8 @@
   dimensions = (vertical_interface_dimension)
   intent = in
 [ nlay ]
-  standard_name = enter_standard_name_23
-  units = enter_units
+  standard_name = number_of_vertical_layers_in_RRTMGP
+  units = count
   type = integer
   dimensions = ()
   intent = out
@@ -216,8 +216,8 @@
   dimensions = ()
   intent = out
 [ nlayp ]
-  standard_name = enter_standard_name_24
-  units = enter_units
+  standard_name = number_of_vertical_layers_in_RRTMGP_plus_one
+  units = count
   type = integer
   dimensions = ()
   intent = out
@@ -468,8 +468,8 @@
   dimensions = (horizontal_loop_extent)
   intent = in
 [ nlay ]
-  standard_name = enter_standard_name_46
-  units = enter_units
+  standard_name = number_of_vertical_layers_in_RRTMGP
+  units = count
   type = integer
   dimensions = ()
   intent = in

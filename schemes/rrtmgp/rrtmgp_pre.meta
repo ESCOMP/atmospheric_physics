@@ -15,7 +15,7 @@
   standard_name = number_of_active_gases_for_RRTMGP
   units = count
   type = character | kind = len=*
-  dimensions = (enter_standard_name_39:enter_standard_name_40)
+  dimensions = (number_of_active_gases_for_RRTMGP)
   intent = in
 [ available_gases ]
   standard_name = gas_concentrations_rrtmgp_object_for_RRTMGP
@@ -27,7 +27,7 @@
   standard_name = lowercase_list_of_active_gases_for_RRTMGP
   units = none
   type = character | kind = len=*
-  dimensions = (enter_standard_name_41:enter_standard_name_42)
+  dimensions = (number_of_active_gases_for_RRTMGP)
   intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
@@ -100,7 +100,7 @@
   standard_name = cosine_of_solar_zenith_angle
   units = rad
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_43:enter_standard_name_44)
+  dimensions = (horizontal_loop_extent)
   intent = in
 [ nstep ]
   standard_name = current_timestep_number
@@ -148,7 +148,7 @@
   standard_name = daytime_points
   units = index
   type = integer
-  dimensions = (enter_standard_name_45:enter_standard_name_46)
+  dimensions = (horizontal_loop_extent)
   intent = out
 [ nday ]
   standard_name = daytime_points_dimension
@@ -160,7 +160,7 @@
   standard_name = nighttime_points
   units = index
   type = integer
-  dimensions = (enter_standard_name_47:enter_standard_name_48)
+  dimensions =  (horizontal_loop_extent)
   intent = out
 [ nnite ]
   standard_name = nighttime_points_dimension
@@ -181,8 +181,8 @@
   dimensions = ()
   intent = out
 [ nlay ]
-  standard_name = enter_standard_name_22
-  units = enter_units
+  standard_name = number_of_vertical_layers_in_RRTMGP
+  units = count
   type = integer
   dimensions = ()
   intent = in

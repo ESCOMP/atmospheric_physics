@@ -12,8 +12,8 @@
   dimensions = ()
   intent = in
 [ nlay ]
-  standard_name = enter_standard_name_2
-  units = enter_units
+  standard_name = number_of_vertical_layers_in_RRTMGP
+  units = count
   type = integer
   dimensions = ()
   intent = in
@@ -27,47 +27,47 @@
   standard_name = shortwave_radiative_heating_rate
   units = K s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_22:enter_standard_name_23,enter_standard_name_24:enter_standard_name_25)
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = inout
 [ qrl ]
   standard_name = longwave_radiative_heating_rate
   units = K s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_26:enter_standard_name_27,enter_standard_name_28:enter_standard_name_29)
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = inout
 [ fsns ]
   standard_name = shortwave_net_absorbed_solar_flux_at_surface
   units = W m-2
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_30:enter_standard_name_31)
+  dimensions = (horizontal_loop_extent)
   intent = in
 [ pdel ]
   standard_name = air_pressure_thickness
   units = Pa
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_32:enter_standard_name_33,enter_standard_name_34:enter_standard_name_35)
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ atm_optics_sw ]
-  standard_name = enter_standard_name_8
-  units = enter_units
+  standard_name = shortwave_atmosphere_optical_properties_object_for_RRTMGP
+  units = 1
   type = ty_optical_props_2str_ccpp
   dimensions = ()
   intent = inout
 [ cloud_sw ]
-  standard_name = enter_standard_name_12
-  units = enter_units
+  standard_name = shortwave_cloud_optical_properties_object_for_RRTMGP
+  units = none
   type = ty_optical_props_2str_ccpp
   dimensions = ()
   intent = inout
 [ aer_sw ]
-  standard_name = enter_standard_name_10
-  units = enter_units
+  standard_name = shortwave_aerosol_optical_properties_object_for_RRTMGP
+  units = none
   type = ty_optical_props_2str_ccpp
   dimensions = ()
   intent = inout
 [ fsw ]
-  standard_name = enter_standard_name_15
-  units = enter_units
+  standard_name = shortwave_all_sky_flux_object_for_RRTMGP
+  units = none
   type = ty_fluxes_byband_ccpp
   dimensions = ()
   intent = inout
@@ -111,13 +111,13 @@
   standard_name = net_shortwave_flux_at_surface
   units = W m-2
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_36:enter_standard_name_37)
+  dimensions = (horizontal_loop_extent)
   intent = out
 [ flwds ]
   standard_name = longwave_downward_radiative_flux_at_surface
   units = W m-2
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_38:enter_standard_name_39)
+  dimensions = (horizontal_loop_extent)
   intent = out
 [ errmsg ]
   standard_name = ccpp_error_message

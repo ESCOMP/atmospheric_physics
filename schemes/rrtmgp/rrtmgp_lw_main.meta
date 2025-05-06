@@ -25,7 +25,7 @@
   intent = in
 [ use_LW_jacobian ]
   standard_name = calculate_longwave_jacobian_for_RRTMGP
-  units = enter_units
+  units = flag
   type = logical
   dimensions = ()
   intent = in
@@ -42,8 +42,8 @@
   dimensions = ()
   intent = in
 [ nCol ]
-  standard_name = enter_standard_name_8
-  units = enter_units
+  standard_name = horizontal_loop_extent
+  units = count
   type = integer
   dimensions = ()
   intent = in
@@ -87,7 +87,7 @@
   standard_name = longwave_emissivity_at_surface
   units = fraction
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_23:enter_standard_name_24,enter_standard_name_25:enter_standard_name_26)
+  dimensions = (enter_standard_name_23:enter_standard_name_24,horizontal_loop_extent)
   intent = in
 [ lw_gas_props ]
   standard_name = longwave_gas_optics_object_for_RRTMGP
