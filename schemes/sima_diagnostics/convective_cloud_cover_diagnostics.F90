@@ -27,8 +27,8 @@ contains
       errflg = 0
 
       ! History add field calls
-      call history_add_field('SH_CLD', 'shallow_convective_cloud_area_fraction_tbd', 'lev', 'avg', 'fraction')
-      call history_add_field('DP_CLD', 'deep_convective_cloud_area_fraction_tbd', 'lev', 'avg', 'fraction')
+      call history_add_field('SH_CLD', 'shallow_convective_cloud_area_fraction', 'lev', 'avg', 'fraction')
+      call history_add_field('DP_CLD', 'deep_convective_cloud_area_fraction', 'lev', 'avg', 'fraction')
       call history_add_field('CONCLD', 'convective_cloud_area_fraction', 'lev', 'avg', 'fraction')
 
    end subroutine convective_cloud_cover_diagnostics_init

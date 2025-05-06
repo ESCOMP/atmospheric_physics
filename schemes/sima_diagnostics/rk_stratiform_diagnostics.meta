@@ -70,7 +70,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ repartht ]
-  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_precipitation_repartitioning_tbd
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_cloud_ice_and_cloud_liquid_repartitioning
   units = J kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -134,31 +134,31 @@
   intent = in
   advected = true
 [ fwaut ]
-  standard_name = relative_importance_of_liquid_autoconversion_tbd
+  standard_name = relative_importance_of_liquid_autoconversion
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ fsaut ]
-  standard_name = relative_importance_of_ice_autoconversion_tbd
+  standard_name = relative_importance_of_ice_autoconversion
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ fracw ]
-  standard_name = relative_importance_of_rain_accreting_liquid_tbd
+  standard_name = relative_importance_of_rain_accreting_liquid
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ fsacw ]
-  standard_name = relative_importance_of_snow_accreting_liquid_tbd
+  standard_name = relative_importance_of_snow_accreting_liquid
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ fsaci ]
-  standard_name = relative_importance_of_snow_accreting_ice_tbd
+  standard_name = relative_importance_of_snow_accreting_ice
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -176,25 +176,25 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ cmeice ]
-  standard_name = rate_of_condensation_evaporation_of_cloud_ice_within_stratiform_cloud_tbd
+  standard_name = rate_of_condensation_minus_evaporation_of_cloud_ice
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ cmeliq ]
-  standard_name = rate_of_condensation_evaporation_of_cloud_liquid_water_within_stratiform_cloud_tbd
+  standard_name = rate_of_condensation_minus_evaporation_of_cloud_liquid_water
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ ice2pr ]
-  standard_name = tendency_of_cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_microphysics_tbd
+  standard_name = cloud_ice_to_snow_autoconversion
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ liq2pr ]
-  standard_name = tendency_of_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_microphysics_tbd
+  standard_name = cloud_liquid_to_rain_autoconversion
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -206,25 +206,25 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ evapheat ]
-  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_precipitation_evaporation_tbd
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_evaporation_of_precipitation
   units = J kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ meltheat ]
-  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_precipitation_phase_change_tbd
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_snow_melt
   units = J kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ cmeheat ]
-  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_condensation_evaporation_within_stratiform_cloud_tbd
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_condensation_minus_evaporation
   units = J kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ prfzheat ]
-  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_precipitation_freezing_tbd
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_freezing_of_precipitation
   units = J kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -242,7 +242,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ evapsnow ]
-  standard_name = rate_of_evaporation_of_falling_snow_due_to_microphysics_tbd
+  standard_name = rate_of_evaporation_of_falling_snow_due_to_microphysics
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -260,19 +260,19 @@
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ pracwo ]
-  standard_name = accretion_of_cloud_liquid_water_by_rain_tbd
+  standard_name = accretion_of_cloud_liquid_water_by_rain
   units = s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ psacwo ]
-  standard_name = accretion_of_cloud_liquid_water_by_snow_tbd
+  standard_name = accretion_of_cloud_liquid_water_by_snow
   units = s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ psacio ]
-  standard_name = accretion_of_cloud_ice_by_snow_tbd
+  standard_name = accretion_of_cloud_ice_by_snow
   units = s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -309,6 +309,12 @@
   type = integer
   dimensions = ()
   intent = in
+[ rair ]
+  standard_name = gas_constant_of_dry_air
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
 [ pmid ]
   standard_name = air_pressure
   units = Pa
@@ -334,7 +340,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ rhcloud ]
-  standard_name = cloud_area_fraction_from_relative_humidity_method_tbd
+  standard_name = cloud_area_fraction_from_relative_humidity_method
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

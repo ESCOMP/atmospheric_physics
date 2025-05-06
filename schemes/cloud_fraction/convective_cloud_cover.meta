@@ -82,7 +82,7 @@
   dimensions = ()
   intent = in
 [ shfrc ]
-  standard_name = shallow_convective_cloud_area_fraction
+  standard_name = shallow_convective_cloud_area_fraction_from_shallow_convection
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -100,13 +100,13 @@
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ shallowcu ]
-  standard_name = shallow_convective_cloud_area_fraction_tbd
+  standard_name = shallow_convective_cloud_area_fraction
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ deepcu ]
-  standard_name = deep_convective_cloud_area_fraction_tbd
+  standard_name = deep_convective_cloud_area_fraction
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
