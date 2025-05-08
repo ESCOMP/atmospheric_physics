@@ -23,7 +23,7 @@
 
     <!-- RK1: cloud sedimentation (pcwsediment) -->
     <scheme>cloud_particle_sedimentation</scheme>
-    <!-- <scheme>cloud_particle_sedimentation_diagnostics</scheme> -->
+    <scheme>cloud_particle_sedimentation_diagnostics</scheme>
     <scheme>apply_constituent_tendencies</scheme>
     <scheme>apply_heating_rate</scheme>
     <scheme>qneg</scheme>
