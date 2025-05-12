@@ -10,11 +10,8 @@ module calculate_net_heating
 ! Original version: B.A. Boville
 !-----------------------------------------------------------------------
 
-use ccpp_kinds,    only: kind_phys
-
 implicit none
 private
-save
 
 ! Public interfaces
 public :: calculate_net_heating_run
@@ -26,24 +23,25 @@ contains
 !> \section arg_table_calculate_net_heating_run Argument Table
 !! \htmlinclude calculate_net_heating_run.html
 !!
-subroutine calculate_net_heating_run(ncol, rad_heat, qrl, qrs, fsns, fsnt, flns, flnt, &
-                is_offline_dyn, net_flx, errmsg, errflg)
+subroutine calculate_net_heating_run(ncol, rad_heat, qrl_prime, qrs_prime, fsns, fsnt, &
+                flns, flnt, is_offline_dyn, net_flx, errmsg, errflg)
 !-----------------------------------------------------------------------
 ! Compute net radiative heating from qrs and qrl, and the associated net
 ! boundary flux.
 !-----------------------------------------------------------------------
+   use ccpp_kinds,    only: kind_phys
 
     ! Arguments
-   integer,                    intent(in)  :: ncol           ! horizontal dimension
-   real(kind_phys),            intent(in)  :: qrl(:,:)       ! longwave heating [J kg-1 s-1]
-   real(kind_phys),            intent(in)  :: qrs(:,:)       ! shortwave heating [J kg-1 s-1]
-   real(kind_phys),            intent(in)  :: fsns(:)        ! Surface solar absorbed flux [W m-2]
-   real(kind_phys),            intent(in)  :: fsnt(:)        ! Net column abs solar flux at model top [W m-2]
-   real(kind_phys),            intent(in)  :: flns(:)        ! Srf longwave cooling (up-down) flux [W m-2]
-   real(kind_phys),            intent(in)  :: flnt(:)        ! Net outgoing lw flux at model top [W m-2]
-   logical,                    intent(in)  :: is_offline_dyn ! is offline dycore
-   real(kind_phys),            intent(out) :: rad_heat(:,:)  ! radiative heating [J kg-1 s-1]
-   real(kind_phys),            intent(out) :: net_flx(:)     ! net boundary flux [W m-2]
+   integer,                    intent(in)  :: ncol             ! horizontal dimension
+   real(kind_phys),            intent(in)  :: qrl_prime(:,:)   ! longwave heating [J kg-1 s-1]
+   real(kind_phys),            intent(in)  :: qrs_prime(:,:)   ! shortwave heating [J kg-1 s-1]
+   real(kind_phys),            intent(in)  :: fsns(:)          ! Surface solar absorbed flux [W m-2]
+   real(kind_phys),            intent(in)  :: fsnt(:)          ! Net column abs solar flux at model top [W m-2]
+   real(kind_phys),            intent(in)  :: flns(:)          ! Srf longwave cooling (up-down) flux [W m-2]
+   real(kind_phys),            intent(in)  :: flnt(:)          ! Net outgoing lw flux at model top [W m-2]
+   logical,                    intent(in)  :: is_offline_dyn   ! is offline dycore
+   real(kind_phys),            intent(inout) :: rad_heat(:,:)  ! radiative heating [J kg-1 s-1]
+   real(kind_phys),            intent(out) :: net_flx(:)       ! net boundary flux [W m-2]
    character(len=*),           intent(out) :: errmsg
    integer,                    intent(out) :: errflg
 
@@ -55,7 +53,7 @@ subroutine calculate_net_heating_run(ncol, rad_heat, qrl, qrs, fsns, fsnt, flns,
    errmsg = ''
    errflg = 0
    if (.not. is_offline_dyn) then
-      rad_heat(:,:) = (qrs(:,:) + qrl(:,:))
+      rad_heat(:,:) = (qrs_prime(:,:) + qrl_prime(:,:))
    end if
 
    do idx = 1, ncol

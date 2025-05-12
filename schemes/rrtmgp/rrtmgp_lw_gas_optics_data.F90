@@ -4,12 +4,10 @@
 !> This module contains an init routine to initialize the gas optics object
 !>  with data read in from file on the host side
 module rrtmgp_lw_gas_optics_data
-  use machine,                 only: kind_phys
-  use ccpp_gas_optics_rrtmgp,  only: ty_gas_optics_rrtmgp_ccpp
-  use ccpp_gas_concentrations, only: ty_gas_concs_ccpp
-  use radiation_tools,         only: check_error_msg
 
   implicit none
+  private
+  public :: rrtmgp_lw_gas_optics_data_init
 
 
 contains
@@ -26,6 +24,10 @@ contains
                   scale_by_complement_upper, kminor_start_lower, kminor_start_upper,   &
                   totplnk, planck_frac, rayl_lower, rayl_upper, optimal_angle_fit,     &
                   errmsg, errflg)
+    use machine,                 only: kind_phys
+    use ccpp_gas_optics_rrtmgp,  only: ty_gas_optics_rrtmgp_ccpp
+    use ccpp_gas_concentrations, only: ty_gas_concs_ccpp
+    use radiation_tools,         only: check_error_msg
 
     ! Inputs
     class(ty_gas_concs_ccpp),            intent(in) :: available_gases                    ! Gas concentrations object

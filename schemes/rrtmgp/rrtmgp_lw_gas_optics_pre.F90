@@ -1,10 +1,10 @@
 module rrtmgp_lw_gas_optics_pre
-  use machine,                 only: kind_phys
-  use ccpp_gas_concentrations, only: ty_gas_concs_ccpp
 
   implicit none
+  private
 
   public :: rrtmgp_lw_gas_optics_pre_run
+
 contains
 
 !> \section arg_table_rrtmgp_lw_gas_optics_pre_run Argument Table
@@ -12,6 +12,8 @@ contains
 !!
   subroutine rrtmgp_lw_gas_optics_pre_run(rad_const_array, pmid, pint, nlay, ncol, gaslist, idxday, &
                   pverp, ktoprad, ktopcam, dolw, nradgas, gas_concs, errmsg, errflg)
+    use ccpp_kinds,              only: kind_phys
+    use ccpp_gas_concentrations, only: ty_gas_concs_ccpp
 
     ! Set gas vmr for the gases in the radconstants module's gaslist.
 
@@ -127,6 +129,7 @@ contains
 !=========================================================================================
 
   subroutine get_molar_mass_ratio(gas_name, massratio, errmsg, errflg)
+    use ccpp_kinds,              only: kind_phys
 
     ! return the molar mass ratio of dry air to gas based on gas_name
 

@@ -10,6 +10,7 @@ module atmos_phys_string_utils
 contains
 
     pure function to_lower(input_string) result(lowercase_string)
+       ! Return 'input_string' in all lower case
        character(len=*), intent(in)     :: input_string
        character(len=len(input_string)) :: lowercase_string
        ! Local variables
@@ -35,6 +36,7 @@ contains
 !---------------------------------------------------------------------------
 
     pure function to_upper(input_string) result(uppercase_string)
+       ! Return 'input_string' in all upper case
        character(len=*), intent(in)     :: input_string
        character(len=len(input_string)) :: uppercase_string
 
