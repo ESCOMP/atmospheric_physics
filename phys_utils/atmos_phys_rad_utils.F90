@@ -9,6 +9,7 @@ module atmos_phys_rad_utils
 contains
 
    pure logical function is_visible(wavenumber)
+     ! Returns true if the provided wavenumber is above the visible threshold
      use ccpp_kinds, only: kind_phys
 
      ! Wavenumber is in the visible if it is above the visible threshold
