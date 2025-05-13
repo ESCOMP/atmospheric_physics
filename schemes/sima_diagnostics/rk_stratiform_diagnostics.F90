@@ -39,17 +39,17 @@ contains
       call history_add_field('HREPART', 'tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_cloud_ice_and_cloud_liquid_repartitioning', 'lev', 'avg', 'J kg-1 s-1')
 
       ! rk_stratiform_prognostic_cloud_water_tendencies_diagnostics
-      call history_add_field('FWAUT', 'relative_importance_of_liquid_autoconversion', 'lev', 'avg', 'fraction')
-      call history_add_field('FSAUT', 'relative_importance_of_ice_autoconversion', 'lev', 'avg', 'fraction')
-      call history_add_field('FRACW', 'relative_importance_of_rain_accreting_liquid', 'lev', 'avg', 'fraction')
-      call history_add_field('FSACW', 'relative_importance_of_snow_accreting_liquid', 'lev', 'avg', 'fraction')
-      call history_add_field('FSACI', 'relative_importance_of_snow_accreting_ice', 'lev', 'avg', 'fraction')
+      call history_add_field('FWAUT', 'relative_importance_of_cloud_liquid_water_autoconversion', 'lev', 'avg', 'fraction')
+      call history_add_field('FSAUT', 'relative_importance_of_cloud_ice_autoconversion', 'lev', 'avg', 'fraction')
+      call history_add_field('FRACW', 'relative_importance_of_rain_accreting_cloud_liquid_water', 'lev', 'avg', 'fraction')
+      call history_add_field('FSACW', 'relative_importance_of_snow_accreting_cloud_liquid_water', 'lev', 'avg', 'fraction')
+      call history_add_field('FSACI', 'relative_importance_of_snow_accreting_cloud_ice', 'lev', 'avg', 'fraction')
       call history_add_field('PCSNOW', 'lwe_snow_precipitation_rate_at_surface_due_to_microphysics', horiz_only, 'avg', 'fraction')
       call history_add_field('CME', 'net_condensation_rate_due_to_microphysics', 'lev', 'avg', 'kg kg-1 s-1') ! qme.
-      call history_add_field('CMEICE', 'rate_of_condensation_minus_evaporation_of_cloud_ice', 'lev', 'avg', 'kg kg-1 s-1')
-      call history_add_field('CMELIQ', 'rate_of_condensation_minus_evaporation_of_cloud_liquid_water', 'lev', 'avg', 'kg kg-1 s-1')
-      call history_add_field('ICE2PR', 'cloud_ice_to_snow_autoconversion', 'lev', 'avg', 'kg kg-1 s-1')
-      call history_add_field('LIQ2PR', 'cloud_liquid_to_rain_autoconversion', 'lev', 'avg', 'kg kg-1 s-1')
+      call history_add_field('CMEICE', 'rate_of_condensation_minus_evaporation_for_cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water', 'lev', 'avg', 'kg kg-1 s-1')
+      call history_add_field('CMELIQ', 'rate_of_condensation_minus_evaporation_for_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water', 'lev', 'avg', 'kg kg-1 s-1')
+      call history_add_field('ICE2PR', 'tendency_of_cloud_ice_mixing_ratio_wrt_to_moist_air_and_condensed_water_due_to_ice_to_snow_autoconversion', 'lev', 'avg', 'kg kg-1 s-1')
+      call history_add_field('LIQ2PR', 'tendency_of_cloud_liquid_water_mixing_ratio_wrt_to_moist_air_and_condensed_water_due_to_liquid_to_rain_autoconversion', 'lev', 'avg', 'kg kg-1 s-1')
 
       call history_add_field('HPROGCLD', 'tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_microphysics', 'lev', 'avg', 'J kg-1 s-1')
       call history_add_field('HEVAP', 'tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_evaporation_of_precipitation', 'lev', 'avg', 'J kg-1 s-1')

@@ -346,19 +346,19 @@
   dimensions = (horizontal_loop_extent)
   intent = out
 [ ice2pr ]
-  standard_name = cloud_ice_to_snow_autoconversion
+  standard_name = tendency_of_cloud_ice_mixing_ratio_wrt_to_moist_air_and_condensed_water_due_to_ice_to_snow_autoconversion
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ liq2pr ]
-  standard_name = cloud_liquid_to_rain_autoconversion
+  standard_name = tendency_of_cloud_liquid_water_mixing_ratio_wrt_to_moist_air_and_condensed_water_due_to_liquid_to_rain_autoconversion
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ liq2snow ]
-  standard_name = cloud_liquid_to_snow_autoconversion
+  standard_name = tendency_of_cloud_liquid_water_mixing_ratio_wrt_to_moist_air_and_condensed_water_due_to_liquid_to_snow_autoconversion
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -394,31 +394,31 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ fwaut ]
-  standard_name = relative_importance_of_liquid_autoconversion
+  standard_name = relative_importance_of_cloud_liquid_water_autoconversion
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ fsaut ]
-  standard_name = relative_importance_of_ice_autoconversion
+  standard_name = relative_importance_of_cloud_ice_autoconversion
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ fracw ]
-  standard_name = relative_importance_of_rain_accreting_liquid
+  standard_name = relative_importance_of_rain_accreting_cloud_liquid_water
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ fsacw ]
-  standard_name = relative_importance_of_snow_accreting_liquid
+  standard_name = relative_importance_of_snow_accreting_cloud_liquid_water
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ fsaci ]
-  standard_name = relative_importance_of_snow_accreting_ice
+  standard_name = relative_importance_of_snow_accreting_cloud_ice
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

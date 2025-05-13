@@ -61,10 +61,11 @@ contains
       character(len=512), intent(out) :: errmsg
       integer,            intent(out) :: errflg
 
+      real(kind_phys),    parameter   :: rhofw = 1000._kind_phys  ! density of fresh water [kg m-3]
       real(kind_phys) :: prec_sed(ncol)
 
       ! repeat computation of prec_sed here for diagnostics [m s-1]
-      prec_sed(:ncol) = sfliq(:ncol)/1000._kind_phys + snow_sed(:ncol)
+      prec_sed(:ncol) = sfliq(:ncol)/rhofw + snow_sed(:ncol)
 
       errmsg = ''
       errflg = 0
@@ -77,7 +78,7 @@ contains
 
       call history_out_field('PRECSED', prec_sed) ! calculated as m s-1
       call history_out_field('SNOWSED', snow_sed) ! already in m s-1
-      call history_out_field('RAINSED', sfliq/1000._kind_phys) ! convert from kg m-2 s-1 to m s-1 (precip units) for output
+      call history_out_field('RAINSED', sfliq/rhofw) ! convert from kg m-2 s-1 to m s-1 (precip units) for output
 
    end subroutine cloud_particle_sedimentation_diagnostics_run
 

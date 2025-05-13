@@ -26,7 +26,6 @@ module prognostic_cloud_water
   real(kind_phys) :: rhonot         ! air density at surface [g cm-3]
   real(kind_phys) :: rhos           ! assumed snow density [g cm-3]
   real(kind_phys) :: rhow           ! water density [g cm-3]
-  real(kind_phys) :: rhoi           ! ice density [g cm-3]
   real(kind_phys) :: esi            ! Collection efficiency for ice by snow [1]
   real(kind_phys) :: esw            ! Collection efficiency for water by snow [1]
   real(kind_phys) :: t0             ! Approx. freezing temperature [K]
@@ -120,10 +119,9 @@ contains
 
     rhonot = rhodair/1000.0_kind_phys     ! convert from kg m-3 to g cm-3
 
-    ! assumed densities of snow, water, ice [g cm-3]
+    ! assumed densities of snow, water [g cm-3]
     rhos   = 0.1_kind_phys
     rhow   = 1._kind_phys
-    rhoi   = 1._kind_phys ! unused.
 
     esi    = 1._kind_phys
     esw    = 0.1_kind_phys
@@ -320,6 +318,7 @@ contains
     integer,            intent(out)   :: errflg         ! error flag
 
     ! Local variables
+    real(kind_phys),    parameter     :: rhofw = 1000._kind_phys  ! density of fresh water [kg m-3]
     integer :: i, k, l                                  ! Iteration index [1]
     integer :: iter                                     ! # of iterations for precipitation calculation [1]
     logical :: error_found                              ! Flag for error detection [flag]
@@ -842,8 +841,8 @@ contains
     !
     ! If this conversion is removed in the future, the metadata needs to
     ! be updated.
-    precip(:ncol) = precip(:ncol)/1000._kind_phys
-    snowab(:ncol) = snowab(:ncol)/1000._kind_phys
+    precip(:ncol) = precip(:ncol)/rhofw
+    snowab(:ncol) = snowab(:ncol)/rhofw
   end subroutine prognostic_cloud_water_run
 
   ! Calculate the conversion of condensate to precipitate
