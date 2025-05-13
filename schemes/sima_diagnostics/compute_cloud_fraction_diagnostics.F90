@@ -1,6 +1,3 @@
-! Copyright (C) 2025 University Corporation for Atmospheric Research
-! SPDX-License-Identifier: Apache-2.0
-!
 ! Diagnostics for cloud fraction
 ! Haipeng Lin, April 2025
 module compute_cloud_fraction_diagnostics
