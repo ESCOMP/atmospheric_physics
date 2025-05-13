@@ -3,16 +3,8 @@
 
 !> This module contains the call to the RRTMGP-LW radiation routine
 module rrtmgp_lw_main
-  use machine,                  only: kind_phys
-  use mo_rte_lw,                only: rte_lw
-  use ccpp_fluxes_byband,       only: ty_fluxes_byband_ccpp
-  use ccpp_optical_props,       only: ty_optical_props_1scl_ccpp
-  use ccpp_fluxes_byband,       only: ty_fluxes_byband_ccpp
-  use ccpp_fluxes,              only: ty_fluxes_broadband_ccpp
-  use ccpp_gas_optics_rrtmgp,   only: ty_gas_optics_rrtmgp_ccpp
-  use ccpp_source_functions,    only: ty_source_func_lw_ccpp
-  use radiation_tools,          only: check_error_msg
   implicit none
+  private
 
   public rrtmgp_lw_main_run
 contains
@@ -24,6 +16,15 @@ contains
                                  nGauss_angles,  nCol, iter_num, rrtmgp_phys_blksz, lw_optical_props_clrsky, &
                                  lw_optical_props_clouds, top_at_1, sources, sfc_emiss_byband, lw_gas_props, &
                                  aerlw, fluxlwUP_jac, lw_Ds, flux_clrsky, flux_allsky, errmsg, errflg)
+    use machine,                  only: kind_phys
+    use mo_rte_lw,                only: rte_lw
+    use ccpp_fluxes_byband,       only: ty_fluxes_byband_ccpp
+    use ccpp_optical_props,       only: ty_optical_props_1scl_ccpp
+    use ccpp_fluxes_byband,       only: ty_fluxes_byband_ccpp
+    use ccpp_fluxes,              only: ty_fluxes_broadband_ccpp
+    use ccpp_gas_optics_rrtmgp,   only: ty_gas_optics_rrtmgp_ccpp
+    use ccpp_source_functions,    only: ty_source_func_lw_ccpp
+    use radiation_tools,          only: check_error_msg
 
     ! Inputs
     logical, intent(in) :: doLWrad               !< Flag to perform longwave calculation
