@@ -31,7 +31,6 @@ contains
     use ccpp_constituent_prop_mod,     only: ccpp_constituent_prop_ptr_t
     use ccpp_constituent_prop_mod,     only: ccpp_constituent_properties_t
     use ccpp_const_utils,              only: ccpp_const_get_idx
-    use musica_ccpp_micm,              only: micm
     use musica_ccpp_namelist,          only: filename_of_micm_configuration, &
                                              filename_of_tuvx_configuration, &
                                              filename_of_tuvx_micm_mapping_configuration
@@ -280,7 +279,6 @@ contains
     use ccpp_constituent_prop_mod,     only: ccpp_constituent_prop_ptr_t
     use ccpp_constituent_prop_mod,     only: ccpp_constituent_properties_t
     use ccpp_const_utils,              only: ccpp_const_get_idx
-    use musica_ccpp_micm,              only: micm
     use musica_ccpp_namelist,          only: filename_of_micm_configuration, &
                                              filename_of_tuvx_configuration, &
                                              filename_of_tuvx_micm_mapping_configuration

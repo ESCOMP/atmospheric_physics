@@ -1,4 +1,4 @@
-add_executable(test_micm_util test_micm_util.F90)
+add_executable(test_micm_util test_micm_util.F90 test_micm_mock_mods.F90)
 
 target_sources(test_micm_util
   PUBLIC
@@ -8,7 +8,7 @@ target_sources(test_micm_util
 
 target_link_libraries(test_micm_util
   PRIVATE
-    musica-fortran musica yaml-cpp stdc++ netcdff
+    musica-fortran musica mechanism_configuration yaml-cpp stdc++ netcdff
 )
 
 add_test(

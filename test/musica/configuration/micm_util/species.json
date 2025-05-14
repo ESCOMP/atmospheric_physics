@@ -1,0 +1,20 @@
+{
+  "camp-data": [
+    {
+      "name": "A",
+      "type": "CHEM_SPEC"
+    },
+    {
+      "name": "B",
+      "type": "CHEM_SPEC"
+    },
+    {
+      "name": "C",
+      "type": "CHEM_SPEC"
+    },
+    {
+      "name": "D",
+      "type": "CHEM_SPEC"
+    }
+  ]
+}

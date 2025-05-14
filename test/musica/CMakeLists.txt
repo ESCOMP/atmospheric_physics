@@ -25,6 +25,12 @@ endif()
 
 find_package(Python REQUIRED)
 
+# Copy configuration files to the build directory
+add_custom_target(copy_musica_test_data ALL ${CMAKE_COMMAND} -E copy_directory
+  ${CMAKE_CURRENT_SOURCE_DIR}/configuration
+  ${CMAKE_BINARY_DIR}/test/musica/configuration
+)
+
 # Test metadata against the source code
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/metadata_test)
 add_custom_target(
@@ -76,7 +82,7 @@ target_sources(test_musica_api
 
 target_link_libraries(test_musica_api
   PRIVATE
-    musica-fortran musica yaml-cpp stdc++ netcdff
+    musica-fortran musica mechanism_configuration yaml-cpp stdc++ netcdff
 )
 
 add_test(
@@ -103,7 +109,7 @@ target_sources(test_musica_species
 
 target_link_libraries(test_musica_species
   PRIVATE
-    musica-fortran musica yaml-cpp stdc++ netcdff
+    musica-fortran musica mechanism_configuration yaml-cpp stdc++ netcdff
 )
 
 add_test(

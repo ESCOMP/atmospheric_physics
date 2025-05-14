@@ -15,7 +15,7 @@ target_sources(test_musica_aerosol_model_mock_host
 
 target_link_libraries(test_musica_aerosol_model_mock_host
   PRIVATE
-    musica-fortran musica yaml-cpp stdc++ netcdff
+    musica-fortran musica mechanism_configuration yaml-cpp stdc++ netcdff
 )
 
 set_target_properties(test_musica_aerosol_model_mock_host
