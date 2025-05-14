@@ -32,7 +32,7 @@ contains
       call history_add_field('DLSED', 'tendency_of_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_sedimentation', 'lev', 'avg', 'kg kg-1 s-1')
       call history_add_field('HSED', 'tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_sedimentation', 'lev', 'avg', 'J kg-1 s-1')
       call history_add_field('PRECSED', 'stratiform_cloud_water_surface_flux_due_to_sedimentation', horiz_only, 'inst', 'm s-1')
-      call history_add_field('SNOWSED', 'lwe_cloud_ice_sedimentation_rate_at_surface_due_to_microphysics', horiz_only, 'inst', 'm s-1')
+      call history_add_field('SNOWSED', 'stratiform_lwe_cloud_ice_surface_flux_due_to_sedimentation', horiz_only, 'inst', 'm s-1')
       call history_add_field('RAINSED', 'stratiform_rain_flux_at_surface_due_to_sedimentation', horiz_only, 'inst', 'm s-1')
 
    end subroutine cloud_particle_sedimentation_diagnostics_init
@@ -54,7 +54,7 @@ contains
       real(kind_phys),    intent(in)  :: liqtend(:,:)   ! liquid condensate tendency -- to apply cldliq tendency
       real(kind_phys),    intent(in)  :: htend(:,:)     ! heating rate [J kg-1 s-1] -- to apply s tendency
 
-      real(kind_phys),    intent(in)  :: snow_sed(:)    ! lwe_cloud_ice_sedimentation_rate_at_surface_due_to_microphysics [m s-1]
+      real(kind_phys),    intent(in)  :: snow_sed(:)    ! stratiform_lwe_cloud_ice_surface_flux_due_to_sedimentation [m s-1]
       real(kind_phys),    intent(in)  :: sfliq(:)       ! stratiform_rain_flux_at_surface_due_to_sedimentation [kg m-2 s-1]
 
       ! CCPP error handling variables

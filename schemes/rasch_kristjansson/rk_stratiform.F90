@@ -89,7 +89,7 @@ contains
     ! Input arguments
     integer,            intent(in)    :: ncol
     real(kind_phys),    intent(in)    :: sfliq(:)        ! stratiform_rain_flux_at_surface_due_to_sedimentation [kg m-2 s-1]
-    real(kind_phys),    intent(in)    :: snow_sed(:)     ! sfice = lwe_cloud_ice_sedimentation_rate_at_surface_due_to_microphysics [m s-1]
+    real(kind_phys),    intent(in)    :: snow_sed(:)     ! sfice = stratiform_lwe_cloud_ice_surface_flux_due_to_sedimentation [m s-1]
 
     ! Output arguments
     real(kind_phys),    intent(out)   :: prec_sed(:)     ! stratiform_cloud_water_surface_flux_due_to_sedimentation [m s-1]

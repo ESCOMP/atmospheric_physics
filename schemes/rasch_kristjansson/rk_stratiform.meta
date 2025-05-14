@@ -99,7 +99,7 @@
   dimensions = (horizontal_loop_extent)
   intent = in
 [ snow_sed ]
-  standard_name = lwe_cloud_ice_sedimentation_rate_at_surface_due_to_microphysics
+  standard_name = stratiform_lwe_cloud_ice_surface_flux_due_to_sedimentation
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
