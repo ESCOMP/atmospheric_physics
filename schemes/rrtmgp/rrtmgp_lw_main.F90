@@ -116,6 +116,7 @@ contains
             sources%sources,                       & ! IN  - source function
             sfc_emiss_byband,                      & ! IN  - surface emissivity in each LW band
             flux_clrsky%fluxes,                    & ! OUT - Fluxes
+            n_gauss_angles = nGauss_angles,        & ! IN  - Number of angles in Gaussian quadrature
             lw_Ds = lw_Ds_opt)                       ! IN  - 1/cos of transport angle per column and g-point
        call check_error_msg('rrtmgp_lw_main_lw_rte_clrsky', errmsg)
        if (len_trim(errmsg) /= 0) then
