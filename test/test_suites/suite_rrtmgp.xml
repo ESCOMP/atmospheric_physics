@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<suite name="rrtmgp" version="1.0">
+  <group name="physics_after_coupler">
+    <scheme>rrtmgp_lw_gas_optics_data</scheme>
+    <scheme>rrtmgp_pre</scheme>
+    <!-- Find tropopause -->
+    <scheme>tropopause_find</scheme>
+    <scheme>rrtmgp_inputs</scheme>
+    <scheme>rrtmgp_lw_cloud_optics</scheme>
+    <scheme>rrtmgp_lw_mcica_subcol_gen</scheme>
+    <!-- Longwave subcycle -->
+    <subcycle>
+      <scheme>rrtmgp_lw_gas_optics_pre</scheme>
+      <scheme>rrtmgp_lw_gas_optics</scheme>
+      <scheme>rrtmgp_lw_main</scheme>
+      <scheme>rrtmgp_lw_diagnostics</scheme>
+    </subcycle>
+    <scheme>rrtmgp_dry_static_energy_tendency</scheme>
+    <scheme>calculate_net_heating</scheme>
+    <scheme>rrtmgp_post</scheme>
+    <!-- Set net flux and then some sort of physics update -->
+  </group>
+</suite>
