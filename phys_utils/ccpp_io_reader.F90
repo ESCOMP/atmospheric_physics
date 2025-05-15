@@ -9,11 +9,28 @@ module ccpp_io_reader
     contains
         procedure(open_file),    deferred :: open_file
         procedure(close_file),   deferred :: close_file
-        procedure(get_var_int),  deferred :: get_var_int
-        procedure(get_var_real), deferred :: get_var_real
-        procedure(get_var_char), deferred :: get_var_char
+        procedure(get_var_int_0d),  deferred :: get_var_int_0d
+        procedure(get_var_int_1d),  deferred :: get_var_int_1d
+        procedure(get_var_int_2d),  deferred :: get_var_int_2d
+        procedure(get_var_int_3d),  deferred :: get_var_int_3d
+        procedure(get_var_int_4d),  deferred :: get_var_int_4d
+        procedure(get_var_int_5d),  deferred :: get_var_int_5d
+        procedure(get_var_real_0d), deferred :: get_var_real_0d
+        procedure(get_var_real_1d), deferred :: get_var_real_1d
+        procedure(get_var_real_2d), deferred :: get_var_real_2d
+        procedure(get_var_real_3d), deferred :: get_var_real_3d
+        procedure(get_var_real_4d), deferred :: get_var_real_4d
+        procedure(get_var_real_5d), deferred :: get_var_real_5d
+        procedure(get_var_char_0d), deferred :: get_var_char_0d
+        procedure(get_var_char_1d), deferred :: get_var_char_1d
+        procedure(get_var_char_2d), deferred :: get_var_char_2d
+        procedure(get_var_char_3d), deferred :: get_var_char_3d
+        procedure(get_var_char_4d), deferred :: get_var_char_4d
+        procedure(get_var_char_5d), deferred :: get_var_char_5d
 
-        generic :: get_var => get_var_int, get_var_real, get_var_char
+        generic :: get_var => get_var_int_0d, get_var_int_1d, get_var_int_2d, get_var_int_3d, get_var_int_4d, get_var_int_5d, &
+                get_var_real_0d, get_var_real_1d, get_var_real_2d, get_var_real_3d, get_var_real_4d, get_var_real_5d,         &
+                get_var_char_0d, get_var_char_1d, get_var_char_2d, get_var_char_3d, get_var_char_4d, get_var_char_5d
     end type abstract_netcdf_reader_t
 
     interface
@@ -38,37 +55,204 @@ module ccpp_io_reader
             integer,                         intent(out)   :: errcode !Error code
         end subroutine close_file
 
-        subroutine get_var_int(this, varname, var, errmsg, errcode)
+        ! ------------------------------------------------------------------
+        ! Integer interfaces
+        ! ------------------------------------------------------------------
+
+        subroutine get_var_int_0d(this, varname, var, errmsg, errcode)
             import abstract_netcdf_reader_t
 
             class(abstract_netcdf_reader_t), intent(in)  :: this
             character(len=*),                intent(in)  :: varname
-            integer, pointer,                intent(out) :: var(..) !Integer variable that file data will be read to.
+            integer, pointer,                intent(out) :: var     !Integer variable that file data will be read to.
             character(len=*),                intent(out) :: errmsg  !Error message
             integer,                         intent(out) :: errcode !Error code
-        end subroutine get_var_int
+        end subroutine get_var_int_0d
 
-        subroutine get_var_real(this, varname, var, errmsg, errcode)
+        subroutine get_var_int_1d(this, varname, var, errmsg, errcode)
+            import abstract_netcdf_reader_t
+
+            class(abstract_netcdf_reader_t), intent(in)  :: this
+            character(len=*),                intent(in)  :: varname
+            integer, pointer,                intent(out) :: var(:)  !Integer variable that file data will be read to.
+            character(len=*),                intent(out) :: errmsg  !Error message
+            integer,                         intent(out) :: errcode !Error code
+        end subroutine get_var_int_1d
+
+        subroutine get_var_int_2d(this, varname, var, errmsg, errcode)
+            import abstract_netcdf_reader_t
+
+            class(abstract_netcdf_reader_t), intent(in)  :: this
+            character(len=*),                intent(in)  :: varname
+            integer, pointer,                intent(out) :: var(:,:)!Integer variable that file data will be read to.
+            character(len=*),                intent(out) :: errmsg  !Error message
+            integer,                         intent(out) :: errcode !Error code
+        end subroutine get_var_int_2d
+
+        subroutine get_var_int_3d(this, varname, var, errmsg, errcode)
+            import abstract_netcdf_reader_t
+
+            class(abstract_netcdf_reader_t), intent(in)  :: this
+            character(len=*),                intent(in)  :: varname
+            integer, pointer,                intent(out) :: var(:,:,:) !Integer variable that file data will be read to.
+            character(len=*),                intent(out) :: errmsg     !Error message
+            integer,                         intent(out) :: errcode    !Error code
+        end subroutine get_var_int_3d
+
+        subroutine get_var_int_4d(this, varname, var, errmsg, errcode)
+            import abstract_netcdf_reader_t
+
+            class(abstract_netcdf_reader_t), intent(in)  :: this
+            character(len=*),                intent(in)  :: varname
+            integer, pointer,                intent(out) :: var(:,:,:,:) !Integer variable that file data will be read to.
+            character(len=*),                intent(out) :: errmsg       !Error message
+            integer,                         intent(out) :: errcode      !Error code
+        end subroutine get_var_int_4d
+
+        subroutine get_var_int_5d(this, varname, var, errmsg, errcode)
+            import abstract_netcdf_reader_t
+
+            class(abstract_netcdf_reader_t), intent(in)  :: this
+            character(len=*),                intent(in)  :: varname
+            integer, pointer,                intent(out) :: var(:,:,:,:,:) !Integer variable that file data will be read to.
+            character(len=*),                intent(out) :: errmsg         !Error message
+            integer,                         intent(out) :: errcode        !Error code
+        end subroutine get_var_int_5d
+
+        ! ------------------------------------------------------------------
+        ! Real interfaces
+        ! ------------------------------------------------------------------
+
+        subroutine get_var_real_0d(this, varname, var, errmsg, errcode)
             use ccpp_kinds, only: kind_phys
             import abstract_netcdf_reader_t
 
             class(abstract_netcdf_reader_t), intent(in)  :: this
             character(len=*),                intent(in)  :: varname
-            real(kind_phys), pointer,        intent(out) :: var(..) !Floating-point variable that file data will be read to.
+            real(kind_phys), pointer,        intent(out) :: var     !Floating-point variable that file data will be read to.
             character(len=*),                intent(out) :: errmsg  !Error message
             integer,                         intent(out) :: errcode !Error code
-        end subroutine get_var_real
+        end subroutine get_var_real_0d
 
-        subroutine get_var_char(this, varname, var, errmsg, errcode)
+        subroutine get_var_real_1d(this, varname, var, errmsg, errcode)
+            use ccpp_kinds, only: kind_phys
             import abstract_netcdf_reader_t
 
             class(abstract_netcdf_reader_t), intent(in)  :: this
             character(len=*),                intent(in)  :: varname
-            character(len=:), pointer,       intent(out) :: var(..) !Character variable that file data will be read to.
+            real(kind_phys), pointer,        intent(out) :: var(:)  !Floating-point variable that file data will be read to.
             character(len=*),                intent(out) :: errmsg  !Error message
             integer,                         intent(out) :: errcode !Error code
-        end subroutine get_var_char
-        
+        end subroutine get_var_real_1d
+
+        subroutine get_var_real_2d(this, varname, var, errmsg, errcode)
+            use ccpp_kinds, only: kind_phys
+            import abstract_netcdf_reader_t
+
+            class(abstract_netcdf_reader_t), intent(in)  :: this
+            character(len=*),                intent(in)  :: varname
+            real(kind_phys), pointer,        intent(out) :: var(:,:)!Floating-point variable that file data will be read to.
+            character(len=*),                intent(out) :: errmsg  !Error message
+            integer,                         intent(out) :: errcode !Error code
+        end subroutine get_var_real_2d
+
+        subroutine get_var_real_3d(this, varname, var, errmsg, errcode)
+            use ccpp_kinds, only: kind_phys
+            import abstract_netcdf_reader_t
+
+            class(abstract_netcdf_reader_t), intent(in)  :: this
+            character(len=*),                intent(in)  :: varname
+            real(kind_phys), pointer,        intent(out) :: var(:,:,:) !Floating-point variable that file data will be read to.
+            character(len=*),                intent(out) :: errmsg     !Error message
+            integer,                         intent(out) :: errcode    !Error code
+        end subroutine get_var_real_3d
+
+        subroutine get_var_real_4d(this, varname, var, errmsg, errcode)
+            use ccpp_kinds, only: kind_phys
+            import abstract_netcdf_reader_t
+
+            class(abstract_netcdf_reader_t), intent(in)  :: this
+            character(len=*),                intent(in)  :: varname
+            real(kind_phys), pointer,        intent(out) :: var(:,:,:,:) !Floating-point variable that file data will be read to.
+            character(len=*),                intent(out) :: errmsg       !Error message
+            integer,                         intent(out) :: errcode      !Error code
+        end subroutine get_var_real_4d
+
+        subroutine get_var_real_5d(this, varname, var, errmsg, errcode)
+            use ccpp_kinds, only: kind_phys
+            import abstract_netcdf_reader_t
+
+            class(abstract_netcdf_reader_t), intent(in)  :: this
+            character(len=*),                intent(in)  :: varname
+            real(kind_phys), pointer,        intent(out) :: var(:,:,:,:,:) !Floating-point variable that file data will be read to.
+            character(len=*),                intent(out) :: errmsg         !Error message
+            integer,                         intent(out) :: errcode        !Error code
+        end subroutine get_var_real_5d
+
+        ! ------------------------------------------------------------------
+        ! Character interfaces
+        ! ------------------------------------------------------------------
+
+        subroutine get_var_char_0d(this, varname, var, errmsg, errcode)
+            import abstract_netcdf_reader_t
+
+            class(abstract_netcdf_reader_t), intent(in)  :: this
+            character(len=*),                intent(in)  :: varname
+            character(len=:), pointer,       intent(out) :: var     !Character variable that file data will be read to.
+            character(len=*),                intent(out) :: errmsg  !Error message
+            integer,                         intent(out) :: errcode !Error code
+        end subroutine get_var_char_0d
+
+        subroutine get_var_char_1d(this, varname, var, errmsg, errcode)
+            import abstract_netcdf_reader_t
+
+            class(abstract_netcdf_reader_t), intent(in)  :: this
+            character(len=*),                intent(in)  :: varname
+            character(len=:), pointer,       intent(out) :: var(:)  !Character variable that file data will be read to.
+            character(len=*),                intent(out) :: errmsg  !Error message
+            integer,                         intent(out) :: errcode !Error code
+        end subroutine get_var_char_1d
+
+        subroutine get_var_char_2d(this, varname, var, errmsg, errcode)
+            import abstract_netcdf_reader_t
+
+            class(abstract_netcdf_reader_t), intent(in)  :: this
+            character(len=*),                intent(in)  :: varname
+            character(len=:), pointer,       intent(out) :: var(:,:)!Character variable that file data will be read to.
+            character(len=*),                intent(out) :: errmsg  !Error message
+            integer,                         intent(out) :: errcode !Error code
+        end subroutine get_var_char_2d
+
+        subroutine get_var_char_3d(this, varname, var, errmsg, errcode)
+            import abstract_netcdf_reader_t
+
+            class(abstract_netcdf_reader_t), intent(in)  :: this
+            character(len=*),                intent(in)  :: varname
+            character(len=:), pointer,       intent(out) :: var(:,:,:) !Character variable that file data will be read to.
+            character(len=*),                intent(out) :: errmsg     !Error message
+            integer,                         intent(out) :: errcode    !Error code
+        end subroutine get_var_char_3d
+
+        subroutine get_var_char_4d(this, varname, var, errmsg, errcode)
+            import abstract_netcdf_reader_t
+
+            class(abstract_netcdf_reader_t), intent(in)  :: this
+            character(len=*),                intent(in)  :: varname
+            character(len=:), pointer,       intent(out) :: var(:,:,:,:) !Character variable that file data will be read to.
+            character(len=*),                intent(out) :: errmsg       !Error message
+            integer,                         intent(out) :: errcode      !Error code
+        end subroutine get_var_char_4d
+
+        subroutine get_var_char_5d(this, varname, var, errmsg, errcode)
+            import abstract_netcdf_reader_t
+
+            class(abstract_netcdf_reader_t), intent(in)  :: this
+            character(len=*),                intent(in)  :: varname
+            character(len=:), pointer,       intent(out) :: var(:,:,:,:,:) !Character variable that file data will be read to.
+            character(len=*),                intent(out) :: errmsg         !Error message
+            integer,                         intent(out) :: errcode        !Error code
+        end subroutine get_var_char_5d
+
     end interface
 
 end module ccpp_io_reader
