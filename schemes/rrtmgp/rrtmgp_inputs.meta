@@ -139,8 +139,8 @@
   intent = in
 [ nlwbands ]
   standard_name = number_of_bands_for_longwave_radiation
-  units = number_of_bands_for_longwave_radiation
-  type = count
+  units = count
+  type = integer
   dimensions = ()
   intent = in
 [ nradgas ]

@@ -50,8 +50,8 @@ contains
     real(kind_phys),                   intent(in) :: tiny_in          ! Definition of what "tiny" means
 
     ! Outputs
-    character(len=*), intent(out) :: errmsg
-    integer,          intent(out) :: errflg
+    character(len=512), intent(out) :: errmsg
+    integer,            intent(out) :: errflg
 
     ! Local variables
     character(len=256) :: alloc_errmsg
@@ -149,7 +149,7 @@ contains
     real(kind_phys), dimension(:,:,:), intent(out) :: snow_lw_abs     ! Snow absorption optics depth (LW)
     real(kind_phys), dimension(:,:,:), intent(out) :: grau_lw_abs     ! Graupel absorption optics depth (LW)
     real(kind_phys), dimension(:,:,:), intent(out) :: tauc            ! Cloud optical depth
-    character(len=*),                  intent(out) :: errmsg
+    character(len=512),                intent(out) :: errmsg
     integer,                           intent(out) :: errflg
 
     ! Local variables

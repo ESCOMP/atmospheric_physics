@@ -10,7 +10,7 @@ contains
 !! \htmlinclude rrtmgp_post_run.html
 !!
 subroutine rrtmgp_post_run(nlay, dolw, qrs_prime, qrl_prime, fsns, pdel, atm_optics_sw, cloud_sw, aer_sw, &
-                  fsw, fswc, sources_lw, cloud_lw, aer_lw, flw, flwc, qrs, qrl, netsw, errmsg, errflg)
+                  fsw, fswc, sources_lw, cloud_lw, aer_lw, flw, flwc, qrs, qrl, netsw, flwds, errmsg, errflg)
    use ccpp_kinds,             only: kind_phys
    use ccpp_optical_props,     only: ty_optical_props_1scl_ccpp, ty_optical_props_2str_ccpp
    use ccpp_source_functions,  only: ty_source_func_lw_ccpp
@@ -36,7 +36,7 @@ subroutine rrtmgp_post_run(nlay, dolw, qrs_prime, qrl_prime, fsns, pdel, atm_opt
    real(kind_phys), dimension(:,:),  intent(out)   :: qrl            ! Longwave heating rate adjusted by air pressure thickness [J Pa kg-1 s-1]
    real(kind_phys), dimension(:),    intent(out)   :: netsw          ! Net shortwave flux to be sent to coupler [W m-2]
    real(kind_phys), dimension(:),    intent(out)   :: flwds          ! Down longwave flux at surface [W m-2]
-   character(len=*),                 intent(out)   :: errmsg
+   character(len=512),               intent(out)   :: errmsg
    integer,                          intent(out)   :: errflg
 
    ! Set error varaibles

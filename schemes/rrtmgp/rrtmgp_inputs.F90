@@ -63,7 +63,7 @@ module rrtmgp_inputs
      real(kind_phys), dimension(:),   intent(out) :: sw_low_bounds         ! Lower bounds of shortwave bands
      real(kind_phys), dimension(:),   intent(out) :: sw_high_bounds        ! Upper bounds of shortwave bands
      real(kind_phys), dimension(:,:), intent(out) :: qrl                   ! Longwave radiative heating
-     character(len=*),                intent(out) :: errmsg
+     character(len=512),              intent(out) :: errmsg
      integer,                         intent(out) :: errflg
      integer,                         intent(inout) :: irad_always         ! Number of time steps to execute radiation continuously
      real(kind_phys),                 intent(inout) :: dt_avg              ! averaging time interval for zenith angle
@@ -231,7 +231,7 @@ module rrtmgp_inputs
      type(ty_gas_concs_ccpp),              intent(out) :: gas_concs_sw         ! Gas concentrations object for shortwave radiation
      type(ty_optical_props_2str_ccpp),     intent(out) :: atm_optics_sw        ! Atmosphere optical properties object for shortwave radiation
      type(ty_optical_props_2str_ccpp),     intent(out) :: aer_sw               ! Aerosol optical properties object for shortwave radiation
-     character(len=*),                     intent(out) :: errmsg
+     character(len=512),                   intent(out) :: errmsg
      integer,                              intent(out) :: errflg
 
      ! Local variables

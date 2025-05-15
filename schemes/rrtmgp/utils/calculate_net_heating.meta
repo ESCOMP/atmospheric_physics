@@ -6,74 +6,74 @@
   name  = calculate_net_heating_run
   type  = scheme
 [ ncol ]
-  standard_name = enter_standard_name_1
-  units = enter_units
+  standard_name = horizontal_loop_extent
+  units = count
   type = integer
   dimensions = ()
   intent = in
 [ rad_heat ]
-  standard_name = enter_standard_name_9
-  units = enter_units
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure
+  units = K s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_13:enter_standard_name_14,enter_standard_name_15:enter_standard_name_16)
-  intent = out
-[ qrl ]
-  standard_name = enter_standard_name_2
-  units = enter_units
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ qrl_prime ]
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_longwave_radiation
+  units = J kg-1 s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_17:enter_standard_name_18,enter_standard_name_19:enter_standard_name_20)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
-[ qrs ]
-  standard_name = enter_standard_name_3
-  units = enter_units
+[ qrs_prime ]
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_shortwave_radiation
+  units = J kg-1 s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_21:enter_standard_name_22,enter_standard_name_23:enter_standard_name_24)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ fsns ]
-  standard_name = enter_standard_name_4
-  units = enter_units
+  standard_name = shortwave_net_absorbed_solar_flux_at_surface
+  units = W m-2
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_25:enter_standard_name_26)
+  dimensions = (horizontal_loop_extent)
   intent = in
 [ fsnt ]
-  standard_name = enter_standard_name_5
-  units = enter_units
+  standard_name = shortwave_net_column_absorbed_solar_flux_at_model_top
+  units = W m-2
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_27:enter_standard_name_28)
+  dimensions = (horizontal_loop_extent)
   intent = in
 [ flns ]
-  standard_name = enter_standard_name_6
-  units = enter_units
+  standard_name = longwave_net_upward_flux_at_surface
+  units = W m-2
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_29:enter_standard_name_30)
+  dimensions = (horizontal_loop_extent)
   intent = in
 [ flnt ]
-  standard_name = enter_standard_name_7
-  units = enter_units
+  standard_name = longwave_net_outgoing_flux_at_model_top
+  units = W m-2
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_31:enter_standard_name_32)
+  dimensions = (horizontal_loop_extent)
   intent = in
 [ is_offline_dyn ]
-  standard_name = enter_standard_name_8
-  units = enter_units
+  standard_name = is_offline_dynamical_core
+  units = flag
   type = logical
   dimensions = ()
   intent = in
 [ net_flx ]
-  standard_name = enter_standard_name_10
-  units = enter_units
+  standard_name = total_column_radiative_flux
+  units = W m-2
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_33:enter_standard_name_34)
+  dimensions = (horizontal_loop_extent)
   intent = out
 [ errmsg ]
-  standard_name = enter_standard_name_11
-  units = enter_units
+  standard_name = ccpp_error_message
+  units = none
   type = character | kind = len=*
   dimensions = ()
   intent = out
 [ errflg ]
-  standard_name = enter_standard_name_12
-  units = enter_units
+  standard_name = ccpp_error_code
+  units = 1
   type = integer
   dimensions = ()
   intent = out

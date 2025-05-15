@@ -162,7 +162,7 @@
   dimensions = (enter_standard_name_107:enter_standard_name_108)
   intent = in
 [ scale_by_complement_upper ]
-  standard_name = do_longwave_complement_concentration_scaling_in_lower_atmosphere
+  standard_name = do_longwave_complement_concentration_scaling_in_upper_atmosphere
   units = flag
   type = logical
   dimensions = (enter_standard_name_109:enter_standard_name_110)

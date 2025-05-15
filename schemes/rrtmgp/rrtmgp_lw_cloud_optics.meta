@@ -12,7 +12,7 @@
   dimensions = ()
   intent = in
 [ nlambda_in ]
-  standard_name = number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid
+  standard_name = number_of_gamma_distribution_slope_parameters_on_liquid_optics_grid
   units = count
   type = integer
   dimensions = ()
@@ -51,8 +51,7 @@
   standard_name = gamma_distribution_slope_parameter_on_liquid_optics_grid
   units = m-1
   type = real | kind = kind_phys
-  dimensions =
-((number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid,number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid)
+  dimensions = (number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid,number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid)
   intent = in
 [ g_d_eff_in ]
   standard_name = radiative_effective_diameter_samples_on_ice_optics_grid
@@ -97,13 +96,13 @@
   dimensions = ()
   intent = in
 [ nlay ]
-  standard_name = number_of_vertical_layers_in_RRTMGP_plus_one
+  standard_name = number_of_vertical_layers_in_RRTMGP
   units = count
   type = integer
   dimensions = ()
   intent = in
 [ nlaycam ]
-  standard_name = number_of_vertical_layers_in_RRTMGP_plus_one
+  standard_name = number_of_vertical_layers_in_RRTMGP_coinciding_with_CAM_levels
   units = count
   type = integer
   dimensions = ()
@@ -232,13 +231,13 @@
   standard_name = cloud_optical_depth
   units = 1
   type = real | kind = kind_phys
-  dimensions = (number_of_bands_for_longwave_radiation,horizontal_loop_extent,<<nlaycam_standard_name>>)
+  dimensions = (number_of_bands_for_longwave_radiation,horizontal_loop_extent,number_of_vertical_layers_in_RRTMGP_coinciding_with_CAM_levels)
   intent = out
 [ cldf ]
-  standard_name = cloud_area_fraction
+  standard_name = cloud_area_fraction_on_RRTMGP_layers
   units = fraction
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent,<<nlaycam_standard_name>>)
+  dimensions = (horizontal_loop_extent,number_of_vertical_layers_in_RRTMGP_coinciding_with_CAM_levels)
   intent = out
 [ cld_lw_abs ]
   standard_name = in_cloud_longwave_liquid_plus_ice_optical_depth

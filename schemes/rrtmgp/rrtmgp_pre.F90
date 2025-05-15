@@ -48,13 +48,13 @@ CONTAINS
 !! \htmlinclude rrtmgp_pre_timestep_init.html
 !!
   subroutine rrtmgp_pre_timestep_init(nstep, dtime, iradsw, irad_always, offset, errmsg, errflg)
-     integer,          intent(in)  :: nstep          ! Current timestep number
-     integer,          intent(in)  :: dtime          ! Timestep size
-     integer,          intent(in)  :: iradsw         ! Freq. of shortwave radiation calc in time steps (positive) or hours (negative)
-     integer,          intent(in)  :: irad_always    ! Number of time steps to execute radiation continuously
-     integer,          intent(out) :: offset         ! Offset for next SW radiation timestep
-     integer,          intent(out) :: errflg
-     character(len=*), intent(out) :: errmsg
+     integer,            intent(in)  :: nstep          ! Current timestep number
+     integer,            intent(in)  :: dtime          ! Timestep size
+     integer,            intent(in)  :: iradsw         ! Freq. of shortwave radiation calc in time steps (positive) or hours (negative)
+     integer,            intent(in)  :: irad_always    ! Number of time steps to execute radiation continuously
+     integer,            intent(out) :: offset         ! Offset for next SW radiation timestep
+     integer,            intent(out) :: errflg
+     character(len=512), intent(out) :: errmsg
 
      logical :: dosw_next
      integer :: nstepsw_next
@@ -108,7 +108,7 @@ CONTAINS
      integer, dimension(:),           intent(out) :: idxnite       ! Indices of nighttime columns
      logical,                         intent(out) :: dosw          ! Flag to do shortwave calculation
      logical,                         intent(out) :: dolw          ! Flag to do longwave calculation
-     character(len=*),                intent(out) :: errmsg
+     character(len=512),              intent(out) :: errmsg
      integer,                         intent(out) :: errflg
 
      ! Local variables

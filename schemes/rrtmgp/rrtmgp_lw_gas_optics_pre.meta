@@ -21,7 +21,7 @@
   standard_name = air_pressure_at_interface_for_RRTMGP
   units = Pa
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent,vertical_interface_dimension
+  dimensions = (horizontal_loop_extent,vertical_interface_dimension)
   intent = in
 [ nlay ]
   standard_name = number_of_vertical_layers_in_RRTMGP

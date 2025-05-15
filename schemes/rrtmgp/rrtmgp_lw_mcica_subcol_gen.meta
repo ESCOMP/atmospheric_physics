@@ -66,7 +66,7 @@
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ cldfrac ]
-  standard_name = cloud_area_fraction
+  standard_name = cloud_area_fraction_on_RRTMGP_layers
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,number_of_vertical_layers_in_RRTMGP_coinciding_with_CAM_levels)
@@ -75,8 +75,7 @@
   standard_name = cloud_optical_depth
   units = 1
   type = real | kind = kind_phys
-  dimensions =
-(enter_standard_name_24:enter_standard_name_25,horizontal_loop_extent,number_of_vertical_layers_in_RRTMGP_coinciding_with_CAM_levels)
+  dimensions = (number_of_bands_for_longwave_radiation,horizontal_loop_extent,number_of_vertical_layers_in_RRTMGP_coinciding_with_CAM_levels)
   intent = in
 [ cloud_lw ]
   standard_name = longwave_cloud_optical_properties_object_for_RRTMGP

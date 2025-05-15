@@ -32,7 +32,7 @@ contains
                                                                       !  last index corresponds to index in gaslist
 
     type(ty_gas_concs_ccpp),     intent(inout) :: gas_concs           ! the result is VMR inside gas_concs
-    character(len=*),            intent(out)   :: errmsg
+    character(len=512),          intent(out)   :: errmsg
     integer,                     intent(out)   :: errflg
 
     ! Local variables

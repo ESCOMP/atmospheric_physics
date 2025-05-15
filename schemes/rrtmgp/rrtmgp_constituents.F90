@@ -4,13 +4,13 @@ module rrtmgp_constituents
 
 contains
 
-!> \section arg_table_rrtmgp_constituents_run Argument Table
-!! \htmlinclude rrtmgp_constituents_run.html
+!> \section arg_table_rrtmgp_constituents_register Argument Table
+!! \htmlinclude rrtmgp_constituents_register.html
 !!
    subroutine rrtmgp_constituents_register(rad_climate, rrtmgp_dyn_consts, errmsg, errcode)
       use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
       type(ccpp_constituent_properties_t), allocatable, intent(out) :: rrtmgp_dyn_consts(:)
-      character(len=*),   intent(in)  :: rad_climate(:)
+      character(len=256), intent(in)  :: rad_climate(:)
       character(len=512), intent(out) :: errmsg
       integer,            intent(out) :: errcode
 
@@ -108,6 +108,19 @@ contains
 
    end subroutine rrtmgp_constituents_register
 
+!> \section arg_table_rrtmgp_constituents_init Argument Table
+!! \htmlinclude rrtmgp_constituents_init.html
+!!
+   subroutine rrtmgp_constituents_init(gaslist, errmsg, errcode)
+      character(len=5),   intent(out) :: gaslist(:)
+      integer,            intent(out) :: errcode
+      character(len=512), intent(out) :: errmsg
 
+      errcode = 0
+      errmsg = ''
+
+      gaslist =  (/'H2O  ','O3   ', 'O2   ', 'CO2  ', 'N2O  ', 'CH4  ', 'CFC11', 'CFC12'/)
+
+   end subroutine rrtmgp_constituents_init
 
 end module rrtmgp_constituents

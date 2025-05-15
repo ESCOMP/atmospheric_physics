@@ -2,8 +2,9 @@
 
 <suite name="rrtmgp" version="1.0">
   <group name="physics_after_coupler">
+    <scheme>rrtmgp_constituents</scheme>
     <scheme>rrtmgp_lw_gas_optics_data</scheme>
-    <scheme>rrtmgp_pre</scheme>
+    <scheme>rrtmgp_pre</scheme> <!--Separate out so gas_optics can go after it?-->
     <!-- Find tropopause -->
     <scheme>tropopause_find</scheme>
     <scheme>rrtmgp_inputs</scheme>
@@ -16,9 +17,10 @@
       <scheme>rrtmgp_lw_main</scheme>
       <scheme>rrtmgp_lw_diagnostics</scheme>
     </subcycle>
+    <!-- End longwave subcycle -->
     <scheme>rrtmgp_dry_static_energy_tendency</scheme>
     <scheme>calculate_net_heating</scheme>
     <scheme>rrtmgp_post</scheme>
-    <!-- Set net flux and then some sort of physics update -->
+    <!-- Set net flux (now in post?) and then some sort of physics update -->
   </group>
 </suite>

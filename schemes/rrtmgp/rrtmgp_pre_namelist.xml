@@ -196,4 +196,56 @@
       <value>.false.</value>
     </values>
   </entry>
+  <entry id="nswbands">
+    <type>count</type>
+    <category>rrtmgp</category>
+    <group>rrtmgp</group>
+    <standard_name>number_of_bands_for_shortwave_radiation</standard_name>
+    <units>count</units>
+    <desc>
+       Number of shortwave bands
+    </desc>
+    <values>
+      <value>14</value>
+    </values>
+  </entry>
+  <entry id="nlwbands">
+    <type>count</type>
+    <category>rrtmgp</category>
+    <group>rrtmgp</group>
+    <standard_name>number_of_bands_for_longwave_radiation</standard_name>
+    <units>count</units>
+    <desc>
+       Number of longwave bands
+    </desc>
+    <values>
+      <value>16</value>
+    </values>
+  </entry>
+  <entry id="nradgas">
+    <type>integer</type>
+    <category>rrtmgp</category>
+    <group>rrtmgp</group>
+    <standard_name>number_of_active_gases_for_RRTMGP</standard_name>
+    <units>count</units>
+    <desc>
+       Dimension of the list of radiatively active gases.
+    </desc>
+    <values>
+      <value>8</value>
+    </values>
+  </entry>
+  <entry id="gasnamelength">
+    <type>integer</type>
+    <category>rrtmgp</category>
+    <group>rrtmgp</group>
+    <standard_name>character_length_of_list_of_active_gases_for_RRTMGP</standard_name>
+    <units>count</units>
+    <desc>
+       Character length for each element of the list of radiatively active gases.
+    </desc>
+    <values>
+      <value>5</value>
+    </values>
+  </entry>
 </entry_id_pg>

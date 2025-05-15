@@ -73,7 +73,7 @@ subroutine rrtmgp_lw_mcica_subcol_gen_run( &
    real(kind_phys), dimension(:,:),   intent(in)  :: cldfrac    ! Layer cloud fraction
    real(kind_phys), dimension(:,:,:), intent(in)  :: tauc       ! Cloud optical depth
    type(ty_optical_props_1scl_ccpp),  intent(inout) :: cloud_lw ! Cloud optics object
-   character(len=*),                  intent(out)   :: errmsg
+   character(len=512),                intent(out)   :: errmsg
    integer,                           intent(out)   :: errflg
 
    ! Local variables

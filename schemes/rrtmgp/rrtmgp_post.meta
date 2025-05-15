@@ -5,12 +5,6 @@
 [ccpp-arg-table]
   name  = rrtmgp_post_run
   type  = scheme
-[ ncol ]
-  standard_name = horizontal_loop_extent
-  units = count
-  type = integer
-  dimensions = ()
-  intent = in
 [ nlay ]
   standard_name = number_of_vertical_layers_in_RRTMGP
   units = count
@@ -23,18 +17,18 @@
   type = logical
   dimensions = ()
   intent = in
-[ qrs ]
-  standard_name = shortwave_radiative_heating_rate
-  units = K s-1
+[ qrs_prime ]
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_shortwave_radiation
+  units = J kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
-  intent = inout
-[ qrl ]
-  standard_name = longwave_radiative_heating_rate
-  units = K s-1
+  intent = in
+[ qrl_prime ]
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_longwave_radiation
+  units = J kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
-  intent = inout
+  intent = in
 [ fsns ]
   standard_name = shortwave_net_absorbed_solar_flux_at_surface
   units = W m-2
@@ -72,7 +66,7 @@
   dimensions = ()
   intent = inout
 [ fswc ]
-  standard_name = shortwave_atmosphere_optical_properties_object_for_RRTMGP
+  standard_name = shortwave_clear_sky_flux_object_for_RRTMGP
   units = none
   type = ty_fluxes_broadband_ccpp
   dimensions = ()
@@ -107,6 +101,18 @@
   type = ty_fluxes_broadband_ccpp
   dimensions = ()
   intent = inout
+[ qrs ]
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_shortwave_radiation_adjusted_by_air_pressure_thickness
+  units = J Pa kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+[ qrl ]
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_longwave_radiation_adjusted_by_air_pressure_thickness
+  units = J Pa kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
 [ netsw ]
   standard_name = net_shortwave_flux_at_surface
   units = W m-2

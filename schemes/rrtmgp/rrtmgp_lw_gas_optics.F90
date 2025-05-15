@@ -40,7 +40,7 @@ contains
    type(ty_optical_props_1scl_ccpp),  intent(inout) :: lw_optical_props_clrsky  !< Clearsky optical properties
    type(ty_gas_optics_rrtmgp_ccpp),   intent(inout) :: lw_gas_props             !< RRTMGP gas optics object
    type(ty_source_func_lw_ccpp),      intent(inout) :: sources                  !< Longwave sources object
-   character(len=*),                  intent(out)   :: errmsg
+   character(len=512),                intent(out)   :: errmsg
    integer,                           intent(out)   :: errflg
 
    ! Local variables
