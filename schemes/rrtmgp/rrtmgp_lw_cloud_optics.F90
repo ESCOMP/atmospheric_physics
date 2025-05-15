@@ -3,20 +3,16 @@
 !!
 
 !> This module contains two routines: The first initializes data and functions
-!! needed to compute the longwave cloud radiative properteis in RRTMGP. The second routine
+!! needed to compute the longwave cloud radiative properties in RRTMGP. The second routine
 !! is a ccpp scheme within the "radiation loop", where the shortwave optical properties
 !! (optical-depth, single-scattering albedo, asymmetry parameter) are computed for ALL
 !! cloud types visible to RRTMGP.
 module rrtmgp_lw_cloud_optics
-  use machine,                  only: kind_phys
-  use interpolate_data,         only: interp_type, lininterp_init, &
-                                      lininterp, extrap_method_bndry, &
-                                      lininterp_finish
-  use radiation_utils,          only: get_mu_lambda_weights_ccpp
-  use ccpp_gas_optics_rrtmgp,   only: ty_gas_optics_rrtmgp_ccpp
-  use ccpp_optical_props,       only: ty_optical_props_1scl_ccpp
+  use ccpp_kinds, only: kind_phys
 
   implicit none
+  private
+  public :: rrtmgp_lw_cloud_optics_init
   public :: rrtmgp_lw_cloud_optics_run
 
   real(kind_phys), allocatable :: abs_lw_liq(:,:,:)
@@ -115,6 +111,8 @@ contains
              cldfprime, kdist_lw, cloud_lw, lamc, pgam, iclwpth, iciwpth,   &
              dei, icswpth, des, icgrauwpth, degrau, nlwbands, do_snow, do_graupel, pver,    &
              ktopcam, tauc, cldf, cld_lw_abs, snow_lw_abs, grau_lw_abs, errmsg, errflg)
+    use ccpp_gas_optics_rrtmgp,   only: ty_gas_optics_rrtmgp_ccpp
+    use ccpp_optical_props,       only: ty_optical_props_1scl_ccpp
     ! Compute combined cloud optical properties
     ! Create MCICA stochastic arrays for cloud LW optical properties
     ! Initialize optical properties object (cloud_lw) and load with MCICA columns
@@ -183,18 +181,18 @@ contains
        return
     end if
     ! Mitchell ice optics
-    call ice_cloud_get_rad_props_lw(ncol, pver, nlwbands, iciwpth, dei, n_g_d, g_d_eff, abs_lw_ice, ice_lw_abs, &
-            errmsg, errflg)
+    call interpolate_ice_optics_lw(ncol, pver, nlwbands, iciwpth, dei, &
+            n_g_d, g_d_eff, abs_lw_ice, ice_lw_abs, errmsg, errflg)
     if (errflg /= 0) then
        return
     end if
 
     cld_lw_abs(:,:,:) = liq_lw_abs(:,:,:) + ice_lw_abs(:,:,:)
 
+    ! add in snow
     if (do_snow) then
-       ! add in snow
-       call snow_cloud_get_rad_props_lw(ncol, pver, nlwbands, icswpth, des, n_g_d, g_d_eff, abs_lw_ice, &
-               snow_lw_abs, errmsg, errflg)
+       call interpolate_ice_optics_lw(ncol, pver, nlwbands, icswpth, des, &
+               n_g_d, g_d_eff, abs_lw_ice, snow_lw_abs, errmsg, errflg)
        if (errflg /= 0) then
           return
        end if
@@ -214,8 +212,8 @@ contains
 
     ! add in graupel
     if (do_graupel) then
-       call grau_cloud_get_rad_props_lw(ncol, pver, nlwbands, icgrauwpth, degrau, n_g_d, g_d_eff, abs_lw_ice, &
-               grau_lw_abs, errmsg, errflg)
+       call interpolate_ice_optics_lw(ncol, pver, nlwbands, icgrauwpth, degrau, n_g_d, &
+               g_d_eff, abs_lw_ice, grau_lw_abs, errmsg, errflg)
        if (errflg /= 0) then
           return
        end if
@@ -294,6 +292,8 @@ contains
 !==============================================================================
 
   subroutine gam_liquid_lw(nlwbands, nmu, nlambda, clwptn, lamc, pgam, abs_lw_liq, g_mu, g_lambda, abs_od, errmsg, errflg)
+    use interpolate_data,         only: interp_type, lininterp, lininterp_finish
+    use radiation_utils,          only: get_mu_lambda_weights_ccpp
     ! Inputs
     integer,         intent(in) :: nlwbands
     integer,         intent(in) :: nmu
@@ -338,80 +338,10 @@ contains
 
 !==============================================================================
 
- subroutine ice_cloud_get_rad_props_lw(ncol, pver, nlwbands, iciwpth, dei, &
-                 n_g_d, g_d_eff, abs_lw_ice, abs_od, errmsg, errflg)
-    integer,                           intent(in)  :: ncol
-    integer,                           intent(in)  :: pver
-    integer,                           intent(in)  :: n_g_d
-    integer,                           intent(in)  :: nlwbands
-    real(kind_phys), dimension(:),     intent(in)  :: g_d_eff
-    real(kind_phys), dimension(:,:),   intent(in)  :: iciwpth
-    real(kind_phys), dimension(:,:),   intent(in)  :: dei
-    real(kind_phys), dimension(:,:),   intent(in)  :: abs_lw_ice
-    real(kind_phys), dimension(:,:,:), intent(out) :: abs_od
-    character(len=*),                  intent(out) :: errmsg
-    integer,                           intent(out) :: errflg
-
-    ! Set error variables
-    errflg = 0
-    errmsg = ''
-
-    call interpolate_ice_optics_lw(ncol, pver, nlwbands, iciwpth, dei, &
-            n_g_d, g_d_eff, abs_lw_ice, abs_od, errmsg, errflg)
-
- end subroutine ice_cloud_get_rad_props_lw
-
-!==============================================================================
-
- subroutine snow_cloud_get_rad_props_lw(ncol, pver, nlwbands, icswpth, des,  &
-                 n_g_d, g_d_eff, abs_lw_ice, abs_od, errmsg, errflg)
-    integer,                           intent(in)  :: ncol
-    integer,                           intent(in)  :: pver
-    integer,                           intent(in)  :: n_g_d
-    integer,                           intent(in)  :: nlwbands
-    real(kind_phys), dimension(:),     intent(in)  :: g_d_eff
-    real(kind_phys), dimension(:,:),   intent(in)  :: icswpth
-    real(kind_phys), dimension(:,:),   intent(in)  :: des
-    real(kind_phys), dimension(:,:),   intent(in)  :: abs_lw_ice
-    real(kind_phys), dimension(:,:,:), intent(out) :: abs_od
-    character(len=*),                  intent(out) :: errmsg
-    integer,                           intent(out) :: errflg
-
-    errflg = 0
-    errmsg = ''
-
-    call interpolate_ice_optics_lw(ncol, pver, nlwbands, icswpth, des, &
-            n_g_d, g_d_eff, abs_lw_ice, abs_od, errmsg, errflg)
-
- end subroutine snow_cloud_get_rad_props_lw
-
-!==============================================================================
-
- subroutine grau_cloud_get_rad_props_lw(ncol, pver, nlwbands, icgrauwpth, degrau, &
-                 n_g_d, g_d_eff, abs_lw_ice, abs_od, errmsg, errflg)
-    integer,                           intent(in)  :: ncol
-    integer,                           intent(in)  :: pver
-    integer,                           intent(in)  :: n_g_d
-    integer,                           intent(in)  :: nlwbands
-    real(kind_phys), dimension(:),     intent(in)  :: g_d_eff
-    real(kind_phys), dimension(:,:),   intent(in)  :: icgrauwpth
-    real(kind_phys), dimension(:,:),   intent(in)  :: degrau
-    real(kind_phys), dimension(:,:),   intent(in)  :: abs_lw_ice
-    real(kind_phys), dimension(:,:,:), intent(out) :: abs_od
-    character(len=*),                  intent(out) :: errmsg
-    integer,                           intent(out) :: errflg
-
-    ! This does the same thing as ice_cloud_get_rad_props_lw, except with a
-    ! different water path and effective diameter.
-    call interpolate_ice_optics_lw(ncol, pver, nlwbands, icgrauwpth, degrau, n_g_d, &
-            g_d_eff, abs_lw_ice, abs_od, errmsg, errflg)
- 
- end subroutine grau_cloud_get_rad_props_lw
-
-!==============================================================================
-
   subroutine interpolate_ice_optics_lw(ncol, pver, nlwbands, iciwpth, dei, &
                   n_g_d, g_d_eff, abs_lw_ice, abs_od, errmsg, errflg)
+    use interpolate_data,         only: interp_type, lininterp, lininterp_init, &
+                                        lininterp_finish, extrap_method_bndry
 
     integer,           intent(in)                  :: ncol
     integer,           intent(in)                  :: n_g_d

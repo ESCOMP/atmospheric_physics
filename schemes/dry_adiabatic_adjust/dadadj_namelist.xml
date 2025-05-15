@@ -67,7 +67,7 @@
           to this variable when the namelist generator is run. If the
           tag has no attributes, it is a default value. In general,
           the namelist generator attempts to find a value with the
-          maximium number of attribute matches (and no non-matches).
+          maximum number of attribute matches (and no non-matches).
 
      standard_name
           This is the CCPP Standard Name of the variable

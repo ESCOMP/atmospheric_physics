@@ -6,7 +6,7 @@
 FROM ubuntu:22.04
 
 ARG MUSICA_GIT_TAG=cc39bb00d2220fc81c85b22d3ceea4a39bd2bacf
-ARG CAM_SIMA_CHEMISTRY_DATA_TAG=ea3539f1d7b71162e8a78d900ecbe265ba870e3d
+ARG CAM_SIMA_CHEMISTRY_DATA_TAG=71ed143c54b0d5d6e3e70f3d05d413fddcf8d59e
 ARG USE_INSTALLED_MUSICA_LIB=ON
 ARG BUILD_TYPE=Debug
 
@@ -85,7 +85,7 @@ RUN cd atmospheric_physics/test \
 ENV CCPP_SRC_PATH="lib/ccpp-framework/src"
 ENV CCPP_FORTRAN_TOOLS_PATH="lib/ccpp-framework/scripts/fortran_tools"
 
-# Make the CCPPStandardNames available
+# Make the ESMStandardNames available
 RUN cd atmospheric_physics/test/lib \
     && git clone --depth 1 https://github.com/ESCOMP/ESMStandardNames.git
 ENV CCPP_STD_NAMES_PATH="lib/ESMStandardNames"

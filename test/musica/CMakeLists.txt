@@ -49,17 +49,22 @@ add_test(
 )
 
 # MUSICA CCPP API test
-add_executable(test_musica_api test_musica_api.F90 musica_ccpp_namelist.F90)
+add_executable(test_musica_api test_musica_api.F90)
 
 file(GLOB MUSICA_CCPP_SOURCES
   ${MUSICA_SRC_PATH}/*.F90
   ${MUSICA_SRC_PATH}/micm/*.F90
   ${MUSICA_SRC_PATH}/tuvx/*.F90
+  ${MUSICA_SRC_PATH}/util/*.F90
+  ${MUSICA_SRC_PATH}/aerosol/*.F90
+  ${MUSICA_SRC_PATH}/aerosol_stub/*.F90
 )
 
 target_sources(test_musica_api
   PUBLIC
     ${MUSICA_CCPP_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/musica_ccpp_namelist.F90
+    ${CMAKE_CURRENT_SOURCE_DIR}/musica_test_data.F90
     ${TO_BE_CCPPIZED_SRC_PATH}/ccpp_tuvx_utils.F90
     ${TO_BE_CCPPIZED_SRC_PATH}/ccpp_const_utils.F90
     ${CCPP_SRC_PATH}/ccpp_constituent_prop_mod.F90
@@ -109,5 +114,8 @@ add_test(
 
 add_memory_check_test(test_musica_species $<TARGET_FILE:test_musica_species> "" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
+add_subdirectory(aerosol)
+add_subdirectory(aerosol_stub)
 add_subdirectory(micm)
 add_subdirectory(tuvx)
+add_subdirectory(util)

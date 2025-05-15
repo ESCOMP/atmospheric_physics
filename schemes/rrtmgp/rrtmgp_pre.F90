@@ -1,13 +1,12 @@
 module rrtmgp_pre
- use ccpp_kinds,              only: kind_phys
- use ccpp_fluxes,             only: ty_fluxes_broadband_ccpp
- use ccpp_fluxes_byband,      only: ty_fluxes_byband_ccpp
- use ccpp_gas_concentrations, only: ty_gas_concs_ccpp
- use atmos_phys_string_utils, only: to_lower
+
+ implicit none
+ private
 
  public :: rrtmgp_pre_init
+ public :: rrtmgp_pre_timestep_init
  public :: rrtmgp_pre_run
- public :: radiation_do_ccpp
+ public :: radiation_do_ccpp ! Public because it needs to be accessed elsewhere in CAM
 
 CONTAINS
 
@@ -15,12 +14,17 @@ CONTAINS
 !! \htmlinclude rrtmgp_pre_init.html
 !!
   subroutine rrtmgp_pre_init(nradgas, gaslist, available_gases, gaslist_lc, errmsg, errflg)
+     use ccpp_gas_concentrations, only: ty_gas_concs_ccpp
+     use atmos_phys_string_utils, only: to_lower
      integer,                    intent(in) :: nradgas          ! Number of radiatively active gases
      character(len=*),           intent(in) :: gaslist(:)       ! List of radiatively active gases
      type(ty_gas_concs_ccpp), intent(inout) :: available_gases  ! Gas concentrations object
      character(len=*),          intent(out) :: gaslist_lc(:)    ! Lowercase verison of radiatively active gas list
      character(len=512),        intent(out) :: errmsg
      integer,                   intent(out) :: errflg
+
+     ! Local variables
+     integer :: idx
 
      ! Set error variables
      errmsg = ''
@@ -29,8 +33,8 @@ CONTAINS
      ! Create lowercase version of the gaslist for RRTMGP.  The ty_gas_concs_ccpp objects
      ! work with CAM's uppercase names, but other objects that get input from the gas
      ! concs objects don't work.
-     do i = 1, nradgas
-        gaslist_lc(i) = to_lower(gaslist(i))
+     do idx = 1, nradgas
+        gaslist_lc(idx) = to_lower(gaslist(idx))
      end do
 
      errmsg = available_gases%gas_concs%init(gaslist_lc)
@@ -76,6 +80,9 @@ CONTAINS
   subroutine rrtmgp_pre_run(coszrs, nstep, dtime, iradsw, iradlw, irad_always, ncol, &
                   next_cday, idxday, nday, idxnite, nnite, dosw, dolw, nlay, nlwbands, &
                   nswbands, spectralflux, nextsw_cday, fsw, fswc, flw, flwc, errmsg, errflg)
+     use ccpp_kinds,              only: kind_phys
+     use ccpp_fluxes,             only: ty_fluxes_broadband_ccpp
+     use ccpp_fluxes_byband,      only: ty_fluxes_byband_ccpp
      ! Inputs
      real(kind_phys), dimension(:),    intent(in) :: coszrs        ! Cosine solar zenith angle
      real(kind_phys),                  intent(in) :: next_cday     ! The calendar day of the next timestep
@@ -198,6 +205,7 @@ end subroutine radiation_do_ccpp
 !=========================================================================================
 
 subroutine initialize_rrtmgp_fluxes_broadband(ncol, nlevels, nbands, nswbands, spectralflux, fluxes, errmsg, errflg, do_direct)
+   use ccpp_fluxes,             only: ty_fluxes_broadband_ccpp
 
    ! Allocate flux arrays and set values to zero.
 
@@ -257,13 +265,14 @@ end subroutine initialize_rrtmgp_fluxes_broadband
 !=========================================================================================
 
 subroutine initialize_rrtmgp_fluxes_byband(ncol, nlevels, nbands, nswbands, spectralflux, fluxes, errmsg, errflg, do_direct)
+   use ccpp_fluxes_byband,      only: ty_fluxes_byband_ccpp
 
    ! Allocate flux arrays and set values to zero.
 
    ! Arguments
    integer,                    intent(in)    :: ncol, nlevels, nbands, nswbands
    logical,                    intent(in)    :: spectralflux
-   class(ty_fluxes_byband_ccpp),    intent(inout) :: fluxes
+   class(ty_fluxes_byband_ccpp), intent(inout) :: fluxes
    logical, optional,          intent(in)    :: do_direct
    character(len=*),           intent(out)   :: errmsg
    integer,                    intent(out)   :: errflg
@@ -347,6 +356,8 @@ end subroutine initialize_rrtmgp_fluxes_byband
 !=========================================================================================
 
 subroutine reset_fluxes_broadband(fluxes)
+   use ccpp_kinds,              only: kind_phys
+   use ccpp_fluxes,             only: ty_fluxes_broadband_ccpp
 
    ! Reset flux arrays to zero.
 
@@ -364,6 +375,8 @@ end subroutine reset_fluxes_broadband
 !=========================================================================================
 
 subroutine reset_fluxes_byband(fluxes)
+   use ccpp_kinds,              only: kind_phys
+   use ccpp_fluxes_byband,      only: ty_fluxes_byband_ccpp
 
    ! Reset flux arrays to zero.
 

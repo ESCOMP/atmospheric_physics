@@ -1,7 +1,8 @@
 module radiation_utils
   use ccpp_kinds,       only: kind_phys
-  use interpolate_data, only: interp_type, lininterp_init, lininterp, &
-                              extrap_method_bndry
+
+  implicit none
+  private
 
   public :: radiation_utils_init
   public :: get_sw_spectral_boundaries_ccpp
@@ -71,9 +72,9 @@ contains
 
    ! provide spectral boundaries of each shortwave band in the units requested
 
+   character(len=*),                intent(in) :: units               ! requested units
    real(kind_phys),  dimension(:), intent(out) :: low_boundaries      ! low range bounds for shortwave bands in requested units
    real(kind_phys),  dimension(:), intent(out) :: high_boundaries     ! high range bounds for shortwave bands in requested units
-   character(*),                    intent(in) :: units               ! requested units
    character(len=*),               intent(out) :: errmsg
    integer,                        intent(out) :: errflg
 
@@ -117,9 +118,9 @@ subroutine get_lw_spectral_boundaries_ccpp(low_boundaries, high_boundaries, unit
 
    ! provide spectral boundaries of each longwave band in the units requested
 
+   character(len=*),  intent(in) :: units                       ! requested units
    real(kind_phys),  intent(out) :: low_boundaries(nlwbands)    ! low range bounds for longwave bands in requested units
    real(kind_phys),  intent(out) :: high_boundaries(nlwbands)   ! high range bounds for longwave bands in requested units
-   character(*),      intent(in) :: units                       ! requested units
    character(len=*), intent(out) :: errmsg
    integer,          intent(out) :: errflg
 
@@ -161,6 +162,8 @@ end subroutine get_lw_spectral_boundaries_ccpp
 
 subroutine get_mu_lambda_weights_ccpp(nmu, nlambda, g_mu, g_lambda, lamc, pgam, &
                 mu_wgts, lambda_wgts, errmsg, errflg)
+  use interpolate_data, only: interp_type, lininterp_init, lininterp, &
+                              extrap_method_bndry
   ! Get mu and lambda interpolation weights
   integer,            intent(in) :: nmu            ! number of mu values
   integer,            intent(in) :: nlambda        ! number of lambda values

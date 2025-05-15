@@ -39,7 +39,6 @@
   <desc>The number of negative buoyancy regions that are allowed before the convection top and CAPE calculations are completed.</desc>
   <values>
      <value>5</value>
-     <value phys_suite="cam6">1</value>
      <value phys_suite="cam7">1</value>
   </values>
 </entry>

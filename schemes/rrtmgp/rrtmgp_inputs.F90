@@ -1,11 +1,4 @@
 module rrtmgp_inputs
- use machine, only: kind_phys
- use ccpp_gas_optics_rrtmgp, only: ty_gas_optics_rrtmgp_ccpp
- use ccpp_optical_props,     only: ty_optical_props_1scl_ccpp, ty_optical_props_2str_ccpp
- use ccpp_gas_concentrations, only: ty_gas_concs_ccpp
- use ccpp_source_functions,   only: ty_source_func_lw_ccpp
- use string_utils,          only: to_lower
- use radiation_utils,       only: radiation_utils_init, get_sw_spectral_boundaries_ccpp
 
  implicit none
  private
@@ -23,6 +16,9 @@ module rrtmgp_inputs
                    nlwbands, nradgas, gasnamelength, iulog, idx_sw_diag, idx_nir_diag, idx_uv_diag,      &
                    idx_sw_cloudsim, idx_lw_diag, idx_lw_cloudsim, gaslist, nswgpts, nlwgpts, nlayp,      &
                    nextsw_cday, current_cal_day, band2gpt_sw, errmsg, errflg)
+     use ccpp_kinds,             only: kind_phys
+     use ccpp_gas_optics_rrtmgp, only: ty_gas_optics_rrtmgp_ccpp
+     use radiation_utils,        only: radiation_utils_init, get_sw_spectral_boundaries_ccpp
 
      ! Inputs
      integer,                         intent(in) :: nswbands
@@ -173,6 +169,13 @@ module rrtmgp_inputs
                   gas_concs_lw, aer_lw, atm_optics_lw, kdist_lw,          &
                   sources_lw, aer_sw, atm_optics_sw, gas_concs_sw,        &
                   errmsg, errflg)
+     use ccpp_kinds,              only: kind_phys
+     use ccpp_gas_optics_rrtmgp,  only: ty_gas_optics_rrtmgp_ccpp
+     use ccpp_optical_props,      only: ty_optical_props_1scl_ccpp, ty_optical_props_2str_ccpp
+     use ccpp_gas_concentrations, only: ty_gas_concs_ccpp
+     use ccpp_source_functions,   only: ty_source_func_lw_ccpp
+     use atmos_phys_string_utils, only: to_lower
+     use atmos_phys_rad_utils,    only: is_visible
      ! Inputs
      logical,                              intent(in) :: graupel_in_rad        ! Flag to include graupel in radiation calculation
      integer,                              intent(in) :: ncol                  ! Number of columns
@@ -442,6 +445,7 @@ module rrtmgp_inputs
                   idx_uv_diag, idx_sw_cloudsim, idx_lw_diag, idx_lw_cloudsim, nswgpts, nlwgpts,      &
                   wavenumber_low_shortwave, wavenumber_high_shortwave, wavenumber_low_longwave,      &
                   wavenumber_high_longwave, band2gpt_sw, errmsg, errflg)
+   use ccpp_gas_optics_rrtmgp, only: ty_gas_optics_rrtmgp_ccpp
    ! Set the low and high limits of the wavenumber grid for sw and lw.
    ! Values come from RRTMGP coefficients datasets, and are stored in the
    ! kdist objects.
@@ -473,6 +477,7 @@ module rrtmgp_inputs
    ! Local variables
    integer :: istat
    real(kind_phys), allocatable :: values(:,:)
+   character(len=256) :: alloc_errmsg
 
    character(len=*), parameter :: sub = 'set_wavenumber_bands'
    !----------------------------------------------------------------------------
@@ -498,9 +503,9 @@ module rrtmgp_inputs
    nlwgpts = kdist_lw%gas_props%get_ngpt()
 
    ! SW band bounds in cm^-1
-   allocate( values(2,nswbands), stat=istat )
+   allocate( values(2,nswbands), stat=istat, errmsg=alloc_errmsg )
    if (istat/=0) then
-      write(errmsg, '(a,a)') sub, ': ERROR allocating array: values(2,nswbands)'
+      write(errmsg, '(a,a,a)') sub, ': ERROR allocating array: values(2,nswbands); message - ', alloc_errmsg
       errflg = 1
       return
    end if
@@ -536,9 +541,9 @@ module rrtmgp_inputs
    deallocate(values)
 
    ! LW band bounds in cm^-1
-   allocate( values(2,nlwbands), stat=istat )
+   allocate( values(2,nlwbands), stat=istat, errmsg=alloc_errmsg )
    if (istat/=0) then
-      write(errmsg, '(a,a)') sub, ': ERROR allocating array: values(2,nlwbands)'
+      write(errmsg, '(a,a,a)') sub, ': ERROR allocating array: values(2,nlwbands); message - ', alloc_errmsg
       errflg = 1
       return
    end if
@@ -571,14 +576,13 @@ module rrtmgp_inputs
    real(kind_phys),                       intent(in) :: targetvalue  
    character(len=*),                      intent(in) :: units       ! units of targetvalue
    integer,                               intent(in) :: nbnds
-   real(kind_phys), target, dimension(:), intent(in) :: wavenumber_low
-   real(kind_phys), target, dimension(:), intent(in) :: wavenumber_high
+   real(kind_phys),  dimension(:),        intent(in) :: wavenumber_low
+   real(kind_phys),  dimension(:),        intent(in) :: wavenumber_high
    character(len=*),                     intent(out) :: errmsg
    integer,                              intent(out) :: errflg
    integer,                              intent(out) :: ans
 
    ! local
-   real(kind_phys), pointer, dimension(:) :: lowboundaries, highboundaries
    real(kind_phys) :: tgt
    integer  :: idx
 
@@ -588,8 +592,6 @@ module rrtmgp_inputs
    ! Initialize error variables
    errflg = 0
    errmsg = ''
-   lowboundaries => wavenumber_low
-   highboundaries => wavenumber_high
    if (trim(swlw) /= 'sw' .and. trim(swlw) /= 'lw') then
       write(errmsg,'(a,a)') 'rrtmgp_inputs: get_band_index_by_value: type of bands not recognized: ', swlw
       errflg = 1
@@ -617,7 +619,7 @@ module rrtmgp_inputs
    ! now just loop through the array
    ans = 0
    do idx = 1,nbnds
-      if ((tgt > lowboundaries(idx)) .and. (tgt <= highboundaries(idx))) then
+      if ((tgt > wavenumber_low(idx)) .and. (tgt <= wavenumber_high(idx))) then
          ans = idx
          exit
       end if
@@ -629,27 +631,5 @@ module rrtmgp_inputs
    end if
    
  end subroutine get_band_index_by_value
-
- !=========================================================================================
-
- pure logical function is_visible(wavenumber)
-
-   ! Wavenumber is in the visible if it is above the visible threshold
-   ! wavenumber, and in the infrared if it is below the threshold
-   ! This function doesn't distinquish between visible and UV.
-
-   ! wavenumber in inverse cm (cm^-1)
-   real(kind_phys), intent(in) :: wavenumber
-
-   ! Set threshold between visible and infrared to 0.7 micron, or 14286 cm^-1
-   real(kind_phys), parameter :: visible_wavenumber_threshold = 14286._kind_phys  ! cm^-1
-
-   if (wavenumber > visible_wavenumber_threshold) then
-      is_visible = .true.
-   else
-      is_visible = .false.
-   end if
-
- end function is_visible
 
 end module rrtmgp_inputs

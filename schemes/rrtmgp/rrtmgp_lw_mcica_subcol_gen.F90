@@ -28,11 +28,6 @@ module rrtmgp_lw_mcica_subcol_gen
 ! 
 !----------------------------------------------------------------------------------------
 
-use machine,                only: kind_phys
-use shr_RandNum_mod,        only: ShrKissRandGen
-use ccpp_gas_optics_rrtmgp, only: ty_gas_optics_rrtmgp_ccpp
-use ccpp_optical_props,     only: ty_optical_props_1scl_ccpp
-
 implicit none
 private
 save
@@ -50,6 +45,10 @@ subroutine rrtmgp_lw_mcica_subcol_gen_run( &
    dolw, ktoprad, kdist, nbnd, ngpt, ncol, pver, nver, &
    changeseed, pmid, cldfrac, tauc, cloud_lw,     &
    errmsg, errflg )
+   use ccpp_kinds,             only: kind_phys
+   use shr_RandNum_mod,        only: ShrKissRandGen
+   use ccpp_gas_optics_rrtmgp, only: ty_gas_optics_rrtmgp_ccpp
+   use ccpp_optical_props,     only: ty_optical_props_1scl_ccpp
 
    ! Arrays use CAM vertical index convention: index increases from top to bottom.
    ! This index ordering is assumed in the maximum-random overlap algorithm which starts

@@ -3,16 +3,12 @@
 
 !> This module contains a run routine to compute gas optics during the radiation subcycle
 module rrtmgp_lw_gas_optics
-  use machine,                 only: kind_phys
-  use ccpp_gas_optics_rrtmgp,  only: ty_gas_optics_rrtmgp_ccpp
-  use ccpp_gas_concentrations, only: ty_gas_concs_ccpp
-  use ccpp_optical_props,      only: ty_optical_props_1scl_ccpp
-  use ccpp_source_functions,   only: ty_source_func_lw_ccpp
-  use radiation_tools,         only: check_error_msg
 
   implicit none
+  private
 
   public :: rrtmgp_lw_gas_optics_run
+
 contains
 
 !> \section arg_table_rrtmgp_lw_gas_optics_run Argument Table
@@ -21,6 +17,12 @@ contains
   subroutine rrtmgp_lw_gas_optics_run(dolw, iter_num, ncol, rrtmgp_phys_blksz, p_lay, p_lev, t_lay, tsfg, &
              gas_concs, lw_optical_props_clrsky, sources, t_lev, include_interface_temp, lw_gas_props,    &
              errmsg, errflg)
+   use machine,                 only: kind_phys
+   use ccpp_gas_optics_rrtmgp,  only: ty_gas_optics_rrtmgp_ccpp
+   use ccpp_gas_concentrations, only: ty_gas_concs_ccpp
+   use ccpp_optical_props,      only: ty_optical_props_1scl_ccpp
+   use ccpp_source_functions,   only: ty_source_func_lw_ccpp
+   use radiation_tools,         only: check_error_msg
    ! Inputs
    logical,                           intent(in) :: dolw                        !< Flag for whether to perform longwave calculation
    logical,                           intent(in) :: include_interface_temp      !< Flag for whether to include interface temperature in calculation
