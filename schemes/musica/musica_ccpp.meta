@@ -1,12 +1,12 @@
 [ccpp-table-properties]
   name = musica_ccpp
   type = scheme
-  dependencies = musica_ccpp.F90,musica_ccpp_util.F90,musica_ccpp_species.F90
-  dependencies = micm/musica_ccpp_micm.F90,micm/musica_ccpp_micm_util.F90
+  dependencies = micm/musica_ccpp_micm_util.F90,micm/musica_ccpp_micm.F90
   dependencies = tuvx/musica_ccpp_tuvx_aerosol_optics.F90,tuvx/musica_ccpp_tuvx_cloud_optics.F90,tuvx/musica_ccpp_tuvx_extraterrestrial_flux.F90
   dependencies = tuvx/musica_ccpp_tuvx_gas_species.F90,tuvx/musica_ccpp_tuvx_height_grid.F90,tuvx/musica_ccpp_tuvx_load_species.F90
   dependencies = tuvx/musica_ccpp_tuvx_surface_albedo.F90,tuvx/musica_ccpp_tuvx_temperature.F90,tuvx/musica_ccpp_tuvx_wavelength_grid.F90
   dependencies = tuvx/musica_ccpp_tuvx.F90
+  dependencies = util/musica_ccpp_grid.F90,util/musica_ccpp_species.F90,util/musica_ccpp_util.F90
 
 [ccpp-arg-table]
   name  = musica_ccpp_register

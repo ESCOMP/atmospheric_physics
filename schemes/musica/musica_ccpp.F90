@@ -34,13 +34,7 @@ contains
     type(ccpp_constituent_properties_t), allocatable :: constituent_props_subset(:)
     type(musica_species_t),              allocatable :: micm_species(:)
     type(musica_species_t),              allocatable :: tuvx_species(:)
-    integer :: number_of_grid_cells
 
-    ! Temporary fix until the number of grid cells is only needed to create a MICM state
-    ! instead of when the solver is created.
-    ! The number of grid cells is not known at this point, so we set it to 1 and recreate
-    ! the solver when the number of grid cells is known at the init stage.
-    number_of_grid_cells = 1
     call micm_register(micm_solver_type, constituent_props_subset, micm_species, &
                        errmsg, errcode)
     if (errcode /= 0) return
@@ -98,7 +92,13 @@ contains
       return
     end if
 
-    photolysis_wavelength_grid_interfaces_nm(:) = photolysis_wavelength_grid_interfaces(:) * m_to_nm
+    if (size(photolysis_wavelength_grid_interfaces) < 2) then
+      errmsg = "MUSICA: Internal error: invalid photolysis_wavelength_grid_interfaces size."
+      errcode = 1
+      return
+    end if
+    photolysis_wavelength_grid_interfaces_nm(:) = &
+        photolysis_wavelength_grid_interfaces(:) * m_to_nm
     call tuvx_init(vertical_layer_dimension, vertical_interface_dimension, &
                    photolysis_wavelength_grid_interfaces_nm,               &
                    rate_parameters_ordering, errmsg, errcode)

@@ -167,7 +167,7 @@ contains
     integer,                 intent(out)   :: errcode
 
     ! local variables
-    integer                :: max_cells, i_state, state_size, state_1_size
+    integer                :: max_cells, i_state, state_size, state_1_size, offset
     type(state_t), pointer :: state
     type(string_t)         :: solver_state
     type(solver_stats_t)   :: solver_stats
@@ -186,10 +186,16 @@ contains
           errcode = 1
           return
         end if
+        if (state%number_of_grid_cells /= state_size) then
+          errmsg = "[MUSICA Error] Internal error. MICM residual state size mismatch."
+          errcode = 1
+          return
+        end if
       end if
+      offset = ( i_state - 1 ) * state_1_size ! number of grid cells already updated
 
       ! Update MICM state with the current conditions and mixing ratios
-      call update_micm_state( state, i_state - 1, temperature, pressure, dry_air_density, &
+      call update_micm_state( state, offset, temperature, pressure, dry_air_density, &
           mixing_ratios, rate_parameters )
       
       ! Solve the system
@@ -197,7 +203,7 @@ contains
       if (has_error_occurred(error, errmsg, errcode)) return
 
       ! Update the mixing ratios with the results
-      call extract_mixing_ratios_from_state( state, i_state - 1, mixing_ratios)
+      call extract_mixing_ratios_from_state( state, offset, mixing_ratios)
 
     end do
 
