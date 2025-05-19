@@ -1,0 +1,114 @@
+@test
+subroutine test_mmm_physics_accumulate_tendencies_timestep_init()
+    use ccpp_kinds, only: kind_phys
+    use funit
+    use mmm_physics_compat, only: mmm_physics_accumulate_tendencies_timestep_init
+
+    integer, parameter :: ncol = 100, pver = 10
+    real(kind_phys) :: dudt(ncol, pver), dvdt(ncol, pver)
+    real(kind_phys) :: rublten(ncol, pver), rvblten(ncol, pver)
+    character(100) :: errmsg
+    integer :: errflg
+
+    dudt(:, :) = huge(0.0_kind_phys)
+    dvdt(:, :) = huge(0.0_kind_phys)
+    rublten(:, :) = huge(0.0_kind_phys)
+    rvblten(:, :) = huge(0.0_kind_phys)
+
+    call mmm_physics_accumulate_tendencies_timestep_init( &
+        dudt, dvdt, &
+        rublten, rvblten, &
+        errmsg, errflg)
+
+    ! Everything should be zeroed out.
+    @assertEqual(0.0_kind_phys, dudt)
+    @assertEqual(0.0_kind_phys, dvdt)
+    @assertEqual(0.0_kind_phys, rublten)
+    @assertEqual(0.0_kind_phys, rvblten)
+end subroutine test_mmm_physics_accumulate_tendencies_timestep_init
+
+@test
+subroutine test_mmm_physics_accumulate_tendencies_run()
+    use ccpp_kinds, only: kind_phys
+    use funit
+    use mmm_physics_compat, only: mmm_physics_accumulate_tendencies_run
+
+    integer, parameter :: ncol = 100, pver = 10
+    real(kind_phys) :: dudt(ncol, pver), dvdt(ncol, pver)
+    real(kind_phys) :: rublten(ncol, pver), rvblten(ncol, pver)
+    character(100) :: errmsg
+    integer :: errflg
+
+    dudt(:, :) = 0.0_kind_phys
+    dvdt(:, :) = 0.0_kind_phys
+    rublten(:, :) = 1.0_kind_phys
+    rvblten(:, :) = 1.0_kind_phys
+
+    call mmm_physics_accumulate_tendencies_run( &
+        dudt, dvdt, &
+        rublten, rvblten, &
+        errmsg, errflg)
+
+    ! Should accumulate MMM tendencies into CAM-SIMA ones.
+    @assertEqual(1.0_kind_phys, dudt)
+    @assertEqual(1.0_kind_phys, dvdt)
+    @assertEqual(0.0_kind_phys, rublten)
+    @assertEqual(0.0_kind_phys, rvblten)
+
+    rublten(:, :) = 2.0_kind_phys
+    rvblten(:, :) = 2.0_kind_phys
+
+    call mmm_physics_accumulate_tendencies_run( &
+        dudt, dvdt, &
+        rublten, rvblten, &
+        errmsg, errflg)
+
+    ! Should accumulate MMM tendencies into CAM-SIMA ones.
+    @assertEqual(3.0_kind_phys, dudt)
+    @assertEqual(3.0_kind_phys, dvdt)
+    @assertEqual(0.0_kind_phys, rublten)
+    @assertEqual(0.0_kind_phys, rvblten)
+
+    call mmm_physics_accumulate_tendencies_run( &
+        dudt, dvdt, &
+        rublten, rvblten, &
+        errmsg, errflg)
+
+    call mmm_physics_accumulate_tendencies_run( &
+        dudt, dvdt, &
+        rublten, rvblten, &
+        errmsg, errflg)
+
+    ! Consecutive calls should be idempotent.
+    @assertEqual(3.0_kind_phys, dudt)
+    @assertEqual(3.0_kind_phys, dvdt)
+    @assertEqual(0.0_kind_phys, rublten)
+    @assertEqual(0.0_kind_phys, rvblten)
+end subroutine test_mmm_physics_accumulate_tendencies_run
+
+@test
+subroutine test_geopotential_height_wrt_sfc_to_msl_run()
+    use ccpp_kinds, only: kind_phys
+    use funit
+    use mmm_physics_compat, only: geopotential_height_wrt_sfc_to_msl_run
+
+    integer, parameter :: ncol = 100, pver = 10
+    real(kind_phys) :: gravit, phis(ncol), zmsfc(ncol, pver)
+    real(kind_phys) :: zmmsl(ncol, pver)
+    character(100) :: errmsg
+    integer :: errflg
+
+    gravit = 9.8_kind_phys
+    phis(:) = 98.0_kind_phys
+    zmsfc(:, :) = 10.0_kind_phys
+    zmmsl(:, :) = huge(0.0_kind_phys)
+
+    call geopotential_height_wrt_sfc_to_msl_run( &
+        ncol, &
+        gravit, phis, zmsfc, &
+        zmmsl, &
+        errmsg, errflg)
+
+    ! Should compute geopotential height wrt mean sea level correctly.
+    @assertEqual(20.0_kind_phys, zmmsl)
+end subroutine test_geopotential_height_wrt_sfc_to_msl_run
