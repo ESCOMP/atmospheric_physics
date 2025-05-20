@@ -28,6 +28,7 @@ contains
     use ccpp_gas_optics_rrtmgp,  only: ty_gas_optics_rrtmgp_ccpp
     use ccpp_gas_concentrations, only: ty_gas_concs_ccpp
     use radiation_tools,         only: check_error_msg
+    use mo_rte_kind,             only: wl
 
     ! Inputs
     class(ty_gas_concs_ccpp),            intent(in) :: available_gases                    ! Gas concentrations object
@@ -44,10 +45,10 @@ contains
     integer,             dimension(:,:), intent(in) :: minor_limits_gpt_upper             ! Beginning and ending gpoint for each minor interval in upper atmosphere
     integer,               dimension(:), intent(in) :: kminor_start_lower                 ! Starting index in the [1,nContributors] vector for a contributor given by "minor_gases_lower"
     integer,               dimension(:), intent(in) :: kminor_start_upper                 ! Starting index in the [1,nContributors] vector for a contributor given by "minor_gases_upper"
-    logical,               dimension(:), intent(in) :: minor_scales_with_density_lower    ! Density scaling is applied to minor absorption coefficients in the lower atmosphere
-    logical,               dimension(:), intent(in) :: scale_by_complement_lower          ! Absorption is scaled by concentration of scaling_gas (F) or its complement (T) in the lower atmosphere
-    logical,               dimension(:), intent(in) :: minor_scales_with_density_upper    ! Density scaling is applied to minor absorption coefficients in the upper atmosphere
-    logical,               dimension(:), intent(in) :: scale_by_complement_upper          ! Absorption is scaled by concentration of scaling_gas (F) or its complement (T) in the upper atmosphere
+    logical(wl),           dimension(:), intent(in) :: minor_scales_with_density_lower    ! Density scaling is applied to minor absorption coefficients in the lower atmosphere
+    logical(wl),           dimension(:), intent(in) :: scale_by_complement_lower          ! Absorption is scaled by concentration of scaling_gas (F) or its complement (T) in the lower atmosphere
+    logical(wl),           dimension(:), intent(in) :: minor_scales_with_density_upper    ! Density scaling is applied to minor absorption coefficients in the upper atmosphere
+    logical(wl),           dimension(:), intent(in) :: scale_by_complement_upper          ! Absorption is scaled by concentration of scaling_gas (F) or its complement (T) in the upper atmosphere
     real(kind_phys), dimension(:,:,:,:), intent(in) :: kmajor                             ! Stored absorption coefficients due to major absorbing gases
     real(kind_phys), dimension(:,:,:,:), intent(in) :: planck_frac                        ! Fraction of band-integrated Planck energy associated with each g-point
     real(kind_phys),   dimension(:,:,:), intent(in) :: kminor_lower                       ! Transformed from [nTemp x nEta x nGpt x nAbsorbers] array to [nTemp x nEta x nContributors] array
