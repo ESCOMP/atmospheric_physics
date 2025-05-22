@@ -36,7 +36,7 @@
   dimensions = (vertical_layer_dimension)
   intent = in
 [ is_hbr_pbl_scheme ]
-  standard_name = enter_standard_name_6
+  standard_name = flag_for_hbr_configuration_of_holtslag_boville_mixing_scheme_tbd
   units = flag
   type = logical
   dimensions = ()
@@ -397,8 +397,8 @@
   dimensions = (enter_standard_name_193:enter_standard_name_194,enter_standard_name_195:enter_standard_name_196)
   intent = in
 [ is_hbr_pbl_scheme ]
-  standard_name = enter_standard_name_62
-  units = enter_units
+  standard_name = flag_for_hbr_configuration_of_holtslag_boville_mixing_scheme_tbd
+  units = flag
   type = logical
   dimensions = ()
   intent = in
