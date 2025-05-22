@@ -83,7 +83,7 @@
     <standard_name>micm_solver_type</standard_name>
     <units>none</units>
     <desc>
-      The type of MICM solver to use. Options are "Rosenbock" and "Backward Euler".
+      The type of MICM solver to use. Options are "Rosenbrock" and "Backward Euler".
     </desc>
     <values>
       <value>Rosenbrock</value>
