@@ -86,7 +86,7 @@
       The type of MICM solver to use. Options are "Rosenbock" and "Backward Euler".
     </desc>
     <values>
-      <value>Rosenbock</value>
+      <value>Rosenbrock</value>
     </values>
   </entry>
   <entry id="filename_of_micm_configuration">
