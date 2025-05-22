@@ -2,19 +2,23 @@
   "camp-data": [
     {
       "name": "A",
-      "type": "CHEM_SPEC"
+      "type": "CHEM_SPEC",
+      "__is advected": true
     },
     {
       "name": "B",
-      "type": "CHEM_SPEC"
+      "type": "CHEM_SPEC",
+      "__is advected": true
     },
     {
       "name": "C",
-      "type": "CHEM_SPEC"
+      "type": "CHEM_SPEC",
+      "__is advected": true
     },
     {
       "name": "D",
-      "type": "CHEM_SPEC"
+      "type": "CHEM_SPEC",
+      "__is advected": true
     }
   ]
 }

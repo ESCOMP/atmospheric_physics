@@ -16,13 +16,15 @@ module musica_ccpp
 
   integer :: number_of_micm_rate_parameters = -1
 
+  logical, public, protected :: do_tuvx = .false.
+
 contains
 
   !> \section arg_table_musica_ccpp_register Argument Table
   !! \htmlinclude musica_ccpp_register.html
   subroutine musica_ccpp_register(constituent_props, errmsg, errcode)
     use ccpp_constituent_prop_mod,     only: ccpp_constituent_properties_t
-    use musica_ccpp_namelist,          only: micm_solver_type
+    use musica_ccpp_namelist,          only: micm_solver_type, filename_of_tuvx_configuration
     use musica_ccpp_species,           only: musica_species_t, register_musica_species
     use musica_ccpp_tuvx_load_species, only: check_tuvx_species_initialization
 
@@ -41,10 +43,16 @@ contains
     constituent_props = constituent_props_subset
     deallocate(constituent_props_subset)
 
-    call tuvx_register(micm_species, tuvx_species, constituent_props_subset, &
-                       errmsg, errcode)
-    if (errcode /= 0) return
-    constituent_props = [ constituent_props, constituent_props_subset ]
+    if (trim(filename_of_tuvx_configuration) /= "none") then
+      do_tuvx = .true.
+      call tuvx_register(micm_species, tuvx_species, constituent_props_subset, &
+                         errmsg, errcode)
+      if (errcode /= 0) return
+      constituent_props = [ constituent_props, constituent_props_subset ]
+    else
+      do_tuvx = .false.
+      allocate(tuvx_species(0))
+    end if
 
     call register_musica_species(micm_species, tuvx_species)
     call check_tuvx_species_initialization(errmsg, errcode)
@@ -57,12 +65,12 @@ contains
   subroutine musica_ccpp_init(horizontal_dimension, vertical_layer_dimension, &
                               vertical_interface_dimension, &
                               photolysis_wavelength_grid_interfaces, &
-                              constituent_props_ptr, errmsg, errcode)
+                              constituent_props_ptr, molar_mass_dry_air__g_mol, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t, ccpp_constituent_properties_t
     use ccpp_kinds,                only: kind_phys
     use musica_ccpp_micm,          only: rate_parameters_ordering
     use musica_ccpp_namelist,      only: micm_solver_type
-    use musica_ccpp_util,          only: has_error_occurred, m_to_nm
+    use musica_ccpp_util,          only: has_error_occurred, m_to_nm, set_constants
     use musica_ccpp_species,       only: initialize_musica_species_indices, initialize_molar_mass_array, &
                                          check_initialization, musica_species_t
 
@@ -71,6 +79,7 @@ contains
     integer,                           intent(in)  :: vertical_interface_dimension             ! (count)
     real(kind_phys),                   intent(in)  :: photolysis_wavelength_grid_interfaces(:) ! m
     type(ccpp_constituent_prop_ptr_t), intent(in)  :: constituent_props_ptr(:)
+    real(kind_phys),                   intent(in)  :: molar_mass_dry_air__g_mol                ! g mol-1
     character(len=512),                intent(out) :: errmsg
     integer,                           intent(out) :: errcode
 
@@ -83,6 +92,8 @@ contains
 
     number_of_grid_cells = horizontal_dimension * vertical_layer_dimension
 
+    call set_constants(molar_mass_dry_air__g_mol * 1.0e-3_kind_phys) ! kg mol-1
+
     call micm_init(number_of_grid_cells, errmsg, errcode)
     if (errcode /= 0) return
     number_of_micm_rate_parameters = rate_parameters_ordering%size()
@@ -92,17 +103,19 @@ contains
       return
     end if
 
-    if (size(photolysis_wavelength_grid_interfaces) < 2) then
-      errmsg = "MUSICA: Internal error: invalid photolysis_wavelength_grid_interfaces size."
-      errcode = 1
-      return
+    if (do_tuvx) then
+      if (size(photolysis_wavelength_grid_interfaces) < 2) then
+        errmsg = "MUSICA: Internal error: invalid photolysis_wavelength_grid_interfaces size."
+        errcode = 1
+        return
+      end if
+      photolysis_wavelength_grid_interfaces_nm(:) = &
+          photolysis_wavelength_grid_interfaces(:) * m_to_nm
+      call tuvx_init(vertical_layer_dimension, vertical_interface_dimension, &
+                     photolysis_wavelength_grid_interfaces_nm,               &
+                     rate_parameters_ordering, errmsg, errcode)
+      if (errcode /= 0) return
     end if
-    photolysis_wavelength_grid_interfaces_nm(:) = &
-        photolysis_wavelength_grid_interfaces(:) * m_to_nm
-    call tuvx_init(vertical_layer_dimension, vertical_interface_dimension, &
-                   photolysis_wavelength_grid_interfaces_nm,               &
-                   rate_parameters_ordering, errmsg, errcode)
-    if (errcode /= 0) return
 
     call initialize_musica_species_indices(constituent_props_ptr, errmsg, errcode)
     if (errcode /= 0) return
@@ -167,21 +180,23 @@ contains
     if (errcode /= 0) return
 
     ! Calculate photolysis rate constants using TUV-x
-    call tuvx_run(temperature, dry_air_density,                 &
-                  constituents_tuvx_species,                    &
-                  geopotential_height_wrt_surface_at_midpoint,  &
-                  geopotential_height_wrt_surface_at_interface, &
-                  surface_geopotential, surface_temperature,    &
-                  surface_albedo,                               &
-                  extraterrestrial_flux,                        &
-                  standard_gravitational_acceleration,          &
-                  cloud_area_fraction,                          &
-                  air_pressure_thickness,                       &
-                  solar_zenith_angle,                           &
-                  earth_sun_distance,                           &
-                  rate_parameters,                              &
-                  errmsg, errcode)
-    if (errcode /= 0) return
+    if (do_tuvx) then
+      call tuvx_run(temperature, dry_air_density,                 &
+                    constituents_tuvx_species,                    &
+                    geopotential_height_wrt_surface_at_midpoint,  &
+                    geopotential_height_wrt_surface_at_interface, &
+                    surface_geopotential, surface_temperature,    &
+                    surface_albedo,                               &
+                    extraterrestrial_flux,                        &
+                    standard_gravitational_acceleration,          &
+                    cloud_area_fraction,                          &
+                    air_pressure_thickness,                       &
+                    solar_zenith_angle,                           &
+                    earth_sun_distance,                           &
+                    rate_parameters,                              &
+                    errmsg, errcode)
+      if (errcode /= 0) return
+    end if
 
     ! Solve chemistry at the current time step
     call micm_run(time_step, temperature, pressure, dry_air_density, rate_parameters, &

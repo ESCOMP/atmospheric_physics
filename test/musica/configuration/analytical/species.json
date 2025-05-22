@@ -1,0 +1,40 @@
+{
+  "camp-data": [
+    {
+      "name": "A",
+      "type": "CHEM_SPEC",
+      "molecular weight [kg mol-1]": 0.01802,
+      "__is advected": true
+    },
+    {
+      "name": "B",
+      "type": "CHEM_SPEC",
+      "molecular weight [kg mol-1]": 0.02897,
+      "__is advected": true
+    },
+    {
+      "name": "C",
+      "type": "CHEM_SPEC",
+      "molecular weight [kg mol-1]": 0.0319988,
+      "__is advected": true
+    },
+    {
+      "name": "D",
+      "type": "CHEM_SPEC",
+      "molecular weight [kg mol-1]": 0.0479982,
+      "__is advected": true
+    },
+    {
+      "name": "E",
+      "type": "CHEM_SPEC",
+      "molecular weight [kg mol-1]": 0.07254,
+      "__is advected": true
+    },
+    {
+      "name": "F",
+      "type": "CHEM_SPEC",
+      "molecular weight [kg mol-1]": 0.082356,
+      "__is advected": true
+    }
+  ]
+}

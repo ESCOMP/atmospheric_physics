@@ -77,16 +77,16 @@
                                                                         -->
 <!-- MUSICA configuration options -->
   <entry id="micm_solver_type">
-    <type>integer</type>
+    <type>char*512</type>
     <category>musica_ccpp</category>
     <group>musica_ccpp</group>
     <standard_name>micm_solver_type</standard_name>
     <units>none</units>
     <desc>
-      The type of MICM solver to use.
+      The type of MICM solver to use. Options are "Rosenbock" and "Backward Euler".
     </desc>
     <values>
-      <value>1</value>
+      <value>Rosenbock</value>
     </values>
   </entry>
   <entry id="filename_of_micm_configuration">

@@ -64,6 +64,12 @@
   type = ccpp_constituent_prop_ptr_t
   dimensions = (number_of_ccpp_constituents)
   intent = in
+[ molar_mass_dry_air__g_mol ]
+  standard_name = molecular_weight_of_dry_air
+  units = g mol-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none

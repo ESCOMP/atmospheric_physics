@@ -10,5 +10,5 @@ module musica_ccpp_species
 
   integer, parameter :: micm_indices_constituent_props(4) = (/ 1, 2, 3, 4 /)
   real(kind_phys), parameter :: micm_molar_mass_array(4) = &
-      (/ 200._kind_phys, 200._kind_phys, 200._kind_phys, 200._kind_phys /)
+      (/ 200._kind_phys, 100._kind_phys, 150._kind_phys, 250._kind_phys /)
 end module musica_ccpp_species

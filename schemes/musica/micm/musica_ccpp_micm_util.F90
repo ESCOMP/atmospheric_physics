@@ -19,18 +19,19 @@ contains
   !! are converted to number density (mol m-3) using the dry air density and
   !! molecular weights of the species.
   subroutine update_micm_state(state, state_data_offset, temperature, pressure, &
-                               dry_air_density, mixing_ratios, rate_parameters)
+                               dry_air_mass_density, mixing_ratios, rate_parameters)
 
     use musica_ccpp_species, only: micm_indices_constituent_props, micm_molar_mass_array
+    use musica_ccpp_util,    only: MOLAR_MASS_DRY_AIR
     use musica_state,        only: state_t
 
     type(state_t),                       intent(inout) :: state
-    integer,                             intent(in)    :: state_data_offset      ! number of grid cells already updated
-    real(kind_phys), target, contiguous, intent(in)    :: temperature(:,:)       ! K (column, layer)
-    real(kind_phys), target, contiguous, intent(in)    :: pressure(:,:)          ! Pa (column, layer)
-    real(kind_phys), target, contiguous, intent(in)    :: dry_air_density(:,:)   ! kg m-3 (column, layer)
-    real(kind_phys), target, contiguous, intent(in)    :: mixing_ratios(:,:,:)   ! kg kg-1 (column, layer, species)
-    real(kind_phys), target, contiguous, intent(in)    :: rate_parameters(:,:,:) ! various units (column, layer, parameter)
+    integer,                             intent(in)    :: state_data_offset         ! number of grid cells already updated
+    real(kind_phys), target, contiguous, intent(in)    :: temperature(:,:)          ! K (column, layer)
+    real(kind_phys), target, contiguous, intent(in)    :: pressure(:,:)             ! Pa (column, layer)
+    real(kind_phys), target, contiguous, intent(in)    :: dry_air_mass_density(:,:) ! kg m-3 (column, layer)
+    real(kind_phys), target, contiguous, intent(in)    :: mixing_ratios(:,:,:)      ! kg kg-1 (column, layer, species)
+    real(kind_phys), target, contiguous, intent(in)    :: rate_parameters(:,:,:)    ! various units (column, layer, parameter)
 
     integer :: i_cell, i_var, state_offset, n_cells, n_cells_total
     real(kind_phys), pointer :: temperature_1D(:), pressure_1D(:), air_density_1D(:), &
@@ -45,11 +46,11 @@ contains
     ! (column, layer) -> (column*layer)
     temperature_1D(1:n_cells_total) => temperature(:,:)
     pressure_1D(1:n_cells_total) => pressure(:,:)
-    air_density_1D(1:n_cells_total) => dry_air_density(:,:)
+    air_density_1D(1:n_cells_total) => dry_air_mass_density(:,:)
     do i_cell = 1, n_cells
       state%conditions(i_cell)%temperature = temperature_1D(i_cell + state_data_offset)
       state%conditions(i_cell)%pressure    = pressure_1D(i_cell + state_data_offset)
-      state%conditions(i_cell)%air_density = air_density_1D(i_cell + state_data_offset)
+      state%conditions(i_cell)%air_density = air_density_1D(i_cell + state_data_offset) / MOLAR_MASS_DRY_AIR
     end do
 
     ! Update species concentrations

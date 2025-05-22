@@ -34,7 +34,7 @@ contains
     use musica_util,               only: error_t
     use iso_c_binding,             only: c_int
 
-    integer(c_int),                                   intent(in)  :: solver_type
+    character(len=*),                                 intent(in)  :: solver_type
     type(ccpp_constituent_properties_t), allocatable, intent(out) :: constituent_props(:)
     type(musica_species_t),              allocatable, intent(out) :: micm_species(:)
     character(len=512),                               intent(out) :: errmsg
@@ -46,14 +46,24 @@ contains
     character(len=:), allocatable :: species_name
     logical                       :: is_advected
     integer                       :: number_of_species
-    integer                       :: i, species_index
+    integer                       :: i, species_index, solver_type_int
     type(state_t), pointer        :: state
 
     if (associated( micm )) then
       deallocate( micm )
       micm => null()
     end if
-    micm => micm_t(trim(filename_of_micm_configuration), solver_type, error)
+    if (trim(solver_type) == 'Rosenbrock') then
+      solver_type_int = 1
+    else if (trim(solver_type) == 'Backward Euler') then
+      solver_type_int = 3
+    else
+      errmsg = "[MUSICA Error] Invalid solver type. Supported types: 'Rosenbrock', 'Backward Euler'." // &
+               " Got: '" // trim(solver_type) // "'."
+      errcode = 1
+      return
+    end if
+    micm => micm_t(trim(filename_of_micm_configuration), solver_type_int, error)
     if (has_error_occurred(error, errmsg, errcode)) return
     state => micm%get_state(1, error)
     if (has_error_occurred(error, errmsg, errcode)) return
