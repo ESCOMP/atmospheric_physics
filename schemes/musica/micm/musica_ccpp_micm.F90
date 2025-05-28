@@ -17,13 +17,26 @@ module musica_ccpp_micm
 
   public :: micm_register, micm_init, micm_run, micm_final
 
+  !> MICM solver. The solver will be configured for a specific chemical mechanism.
+  !! It then can be used to create and solve MICM states for the mechanism and a
+  !! given number of grid cells.
   type(micm_t),  pointer :: micm => null( )
-  type(state_t), pointer :: state_1 => null( )
-  type(state_t), pointer :: state_2 => null( )
+  !> For optimal performance, the grid cells assigned to any particular MPI rank
+  !! are solved in sets of a fixed size specified at build time. If the total number
+  !! of grid cells is not evenly divisible by the set size, an additional state
+  !! is created to handle the residual grid cells.
+  !! If the number of grid cells is less than the optimal set size, only the first
+  !! state is created and used.
+  type(state_t), pointer :: state_1 => null( ) ! state for the optimal set of grid cells
+  type(state_t), pointer :: state_2 => null( ) ! state for the residual grid cells
   integer                :: number_of_grid_cells = 0
 
   type(mappings_t), public, protected :: species_ordering
   type(mappings_t), public, protected :: rate_parameters_ordering
+
+  integer, parameter :: SOLVER_TYPE_ROSENBROCK = 1
+  integer, parameter :: SOLVER_TYPE_BACKWARD_EULER = 3
+  integer, parameter :: ONE_GRID_CELL = 1
 
 contains
 
@@ -54,9 +67,9 @@ contains
       micm => null()
     end if
     if (trim(solver_type) == 'Rosenbrock') then
-      solver_type_int = 1
+      solver_type_int = SOLVER_TYPE_ROSENBROCK
     else if (trim(solver_type) == 'Backward Euler') then
-      solver_type_int = 3
+      solver_type_int = SOLVER_TYPE_BACKWARD_EULER
     else
       errmsg = "[MUSICA Error] Invalid solver type. Supported types: 'Rosenbrock', 'Backward Euler'." // &
                " Got: '" // trim(solver_type) // "'."
@@ -65,7 +78,7 @@ contains
     end if
     micm => micm_t(trim(filename_of_micm_configuration), solver_type_int, error)
     if (has_error_occurred(error, errmsg, errcode)) return
-    state => micm%get_state(1, error)
+    state => micm%get_state(ONE_GRID_CELL, error)
     if (has_error_occurred(error, errmsg, errcode)) return
 
     number_of_species = state%species_ordering%size()
@@ -185,12 +198,14 @@ contains
 
     state_1_size = state_1%number_of_grid_cells
     do i_state = 1, ceiling( real( number_of_grid_cells ) / state_1_size )
+
+      ! Determine which state to use for the current iteration
       state_size = min( number_of_grid_cells - ( i_state - 1 ) * state_1_size, &
                         state_1_size )
       if ( state_size == state_1_size ) then
-        state => state_1
+        state => state_1 ! use the main state for the optimal number of grid cells
       else
-        state => state_2
+        state => state_2 ! use the residual state for the remaining grid cells
         if (.not. associated( state )) then
           errmsg = "[MUSICA Error] Internal error. MICM residual state not initialized."
           errcode = 1
