@@ -188,6 +188,8 @@ contains
   end subroutine vertical_diffusion_interpolate_to_interfaces_run
 
   ! Add turbulent surface stress to total surface drag coefficient, if implicit
+!> \section arg_table_implicit_surface_stress_add_drag_coefficient_run Argument Table
+!! \htmlinclude arg_table_implicit_surface_stress_add_drag_coefficient_run.html
   subroutine implicit_surface_stress_add_drag_coefficient_run( &
              ncol, pver, &
              taux, tauy, &
@@ -240,6 +242,8 @@ contains
 
   ! Computes rate at which wind is exponentially damped by surface stress
   ! based on total surface stress (after all surface stress is added)
+!> \section arg_table_vertical_diffusion_wind_damping_rate_run Argument Table
+!! \htmlinclude arg_table_vertical_diffusion_wind_damping_rate_run.html
   subroutine vertical_diffusion_wind_damping_rate_run( &
     ncol, pver, &
     gravit, &
@@ -348,6 +352,8 @@ contains
 
     ! Output Arguments
     real(kind_phys), intent(out)      :: dtk(:, :)        ! T tendency from KE dissipation [J kg-1]
+
+    ! Recomputed TMS stresses using provisionally updated winds:
     real(kind_phys), intent(out)      :: tautmsx(:)       ! Implicit zonal turbulent mountain surface stress [N m-2]
     real(kind_phys), intent(out)      :: tautmsy(:)       ! Implicit meridional turbulent mountain surface stress [N m-2]
 
@@ -366,6 +372,8 @@ contains
     real(kind_phys) :: tmp1(ncol)                ! Temporary storage
     real(kind_phys) :: tmpi1(ncol, pverp)        ! Interface KE dissipation
     real(kind_phys) :: tmpi2(ncol, pverp)        ! dt*(g*rho)**2/dp at interfaces
+    real(kind_phys) :: ramda                     ! dt/timeres [unitless]
+
     real(kind_phys) :: keg_in(ncol, pver)        ! KE on entry to subroutine
     real(kind_phys) :: keg_out(ncol, pver)       ! KE after U and V dissipation/diffusion
     real(kind_phys) :: rrho(ncol)                ! 1./bottom level density
@@ -378,22 +386,15 @@ contains
     real(kind_phys) :: dout_u                    ! Vertical difference at interfaces, output u
     real(kind_phys) :: dout_v                    ! Vertical difference at interfaces, output v
 
-    real(kind_phys) :: ws(ncol)                  ! Lowest-level wind speed [m s-1]
-    real(kind_phys) :: tau(ncol)                 ! Turbulent surface stress (not including mountain stress)
-    real(kind_phys) :: ksrfturb(ncol)            ! Surface drag coefficient of 'normal' stress. > 0.
-                                                 ! Virtual mass input per unit time per unit area [kg m-2 s-1]
-    real(kind_phys) :: ksrf(ncol)                ! Surface drag coefficient of 'normal' stress +
-                                                 ! Surface drag coefficient of 'tms' stress.  > 0. [kg m-2 s-1]
     real(kind_phys) :: usum_in(ncol)             ! Vertical integral of input u-momentum. Total zonal
                                                  ! momentum per unit area in column (sum of u*dp/g) [kg m s-1 m-2]
     real(kind_phys) :: vsum_in(ncol)             ! Vertical integral of input v-momentum. Total meridional
                                                  ! momentum per unit area in column (sum of v*dp/g) [kg m s-1 m-2]
     real(kind_phys) :: usum_out(ncol)            ! Vertical integral of u-momentum after doing implicit diffusion
     real(kind_phys) :: vsum_out(ncol)            ! Vertical integral of v-momentum after doing implicit diffusion
+
     real(kind_phys) :: tauimpx(ncol)             ! Actual net stress added at the current step other than mountain stress
     real(kind_phys) :: tauimpy(ncol)             ! Actual net stress added at the current step other than mountain stress
-    real(kind_phys) :: ramda                     ! dt/timeres [unitless]
-
     real(kind_phys) :: taubljx(ncol)             ! recomputed explicit/residual beljaars stress
     real(kind_phys) :: taubljy(ncol)             ! recomputed explicit/residual beljaars stress
 
@@ -441,16 +442,6 @@ contains
     ! in the lowest model layer.                                     !
     ! -------------------------------------------------------------- !
     if (do_iss) then
-      ! Compute surface drag coefficient for implicit diffusion
-      ! including turbulent mountain stress.
-
-      do i = 1, ncol
-        ws(i) = max(sqrt(u(i, pver)**2._kind_phys + v(i, pver)**2._kind_phys), wsmin)
-        tau(i) = sqrt(taux(i)**2._kind_phys + tauy(i)**2._kind_phys)
-        ksrfturb(i) = max(tau(i)/ws(i), ksrfmin)
-      end do
-      ksrf(:ncol) = ksrfturb(:ncol) + ksrftms(:ncol)  ! Do all surface stress ( normal + tms ) implicitly
-
       ! Vertical integration of input momentum.
       ! This is total horizontal momentum per unit area [ kg*m/s/m2 ] in each column.
       ! Note (u,v) are the raw input to the PBL scheme, not the
@@ -484,10 +475,7 @@ contains
       ! In this case, there is no 'residual stress' as long as 'tms' is
       ! treated in a fully implicit way, which is true.
 
-      ! 1. Do 'tms' implicitly
-      ksrf(:ncol) = ksrftms(:ncol)
-
-      ! 2. Do 'normal stress' explicitly
+      ! Do 'normal stress' explicitly
       u(:ncol, pver) = u(:ncol, pver) + tmp1(:ncol)*taux(:ncol)
       v(:ncol, pver) = v(:ncol, pver) + tmp1(:ncol)*tauy(:ncol)
     end if  ! End of 'do iss' (implicit surface stress)
@@ -635,6 +623,8 @@ contains
   ! after tendencies are applied.
   ! Turbulent diffusivities and boundary layer nonlocal transport terms are
   ! obtained from the turbulence module.
+!> \section arg_table_vertical_diffusion_diffuse_dry_static_energy_run Argument Table
+!! \htmlinclude arg_table_vertical_diffusion_diffuse_dry_static_energy_run.html
   subroutine vertical_diffusion_diffuse_dry_static_energy_run( &
     ncol, pver, &
     ztodt, &
@@ -656,7 +646,7 @@ contains
     ! Input Arguments
     integer,         intent(in)       :: ncol             ! Number of atmospheric columns
     integer,         intent(in)       :: pver
-    real(kind_phys), intent(in)       :: ztodt            ! 2 delta-t [ s ]
+    real(kind_phys), intent(in)       :: ztodt            ! 2 delta-t [s]
 
     real(kind_phys), intent(in)       :: gravit
     type(Coords1D),  intent(in)       :: p                ! Pressure coordinates [Pa]
@@ -715,6 +705,8 @@ contains
 
 
   ! Diffuse tracers (no molecular diffusion)
+!> \section arg_table_vertical_diffusion_diffuse_tracers_run Argument Table
+!! \htmlinclude arg_table_vertical_diffusion_diffuse_tracers_run.html
   subroutine vertical_diffusion_diffuse_tracers_run( &
     ncol, pver, &
     ncnst, &
@@ -744,7 +736,7 @@ contains
     integer,         intent(in)       :: ncol             ! Number of atmospheric columns
     integer,         intent(in)       :: pver
     integer,         intent(in)       :: ncnst            ! # of constituents to diffuse. In eddy_diff, only wv. Others, pcnst.
-    real(kind_phys), intent(in)       :: ztodt            ! 2 delta-t [ s ]
+    real(kind_phys), intent(in)       :: ztodt            ! 2 delta-t [s]
     real(kind_phys), intent(in)       :: rair
     real(kind_phys), intent(in)       :: gravit
     logical,         intent(in)       :: do_diffusion_const(:) ! diffuse constituents (size ncnst) [flag]
