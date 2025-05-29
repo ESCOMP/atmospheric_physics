@@ -51,3 +51,35 @@
   type = integer
   dimensions = ()
   intent = out
+[ccpp-arg-table]
+  name  = rrtmgp_constituents_run
+  type  = scheme
+[ gaslist ]
+  standard_name = list_of_active_gases_for_RRTMGP
+  units = none
+  type = character | kind = len=5
+  dimensions = (number_of_active_gases_for_RRTMGP)
+  intent = out
+[ const_array ]
+  standard_name = ccpp_constituents
+  units = none
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension,number_of_ccpp_constituents)
+  intent = in
+[ rad_const_array ]
+  standard_name = radiatively_active_gas_mass_mixing_ratios_wrt_dry_air
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension,number_of_active_gases_for_RRTMGP)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errcode ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()

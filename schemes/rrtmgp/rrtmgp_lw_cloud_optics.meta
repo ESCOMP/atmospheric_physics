@@ -3,84 +3,6 @@
   type = scheme
 
 [ccpp-arg-table]
-  name  = rrtmgp_lw_cloud_optics_init
-  type  = scheme
-[ nmu_in ]
-  standard_name = number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid
-  units = count
-  type = integer
-  dimensions = ()
-  intent = in
-[ nlambda_in ]
-  standard_name = number_of_gamma_distribution_slope_parameters_on_liquid_optics_grid
-  units = count
-  type = integer
-  dimensions = ()
-  intent = in
-[ n_g_d_in ]
-  standard_name = number_of_radiative_effective_diameter_samples_on_ice_optics_grid
-  units = count
-  type = integer
-  dimensions = ()
-  intent = in
-[ abs_lw_liq_in ]
-  standard_name = longwave_mass_specific_absorption_for_in_cloud_liquid_water_path
-  units = m2 kg-1
-  type = real | kind = kind_phys
-  dimensions = (number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid, number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid, number_of_bands_for_longwave_radiation)
-  intent = in
-[ abs_lw_ice_in ]
-  standard_name = longwave_mass_specific_absorption_for_in_cloud_ice_water_path
-  units = m2 kg-1
-  type = real | kind = kind_phys
-  dimensions = (number_of_radiative_effective_diameter_samples_on_ice_optics_grid,number_of_bands_for_longwave_radiation)
-  intent = in
-[ nlwbands ]
-  standard_name = number_of_bands_for_longwave_radiation
-  units = count
-  type = integer
-  dimensions = ()
-  intent = in
-[ g_mu_in ]
-  standard_name = gamma_distribution_shape_parameter_on_liquid_optics_grid
-  units = index
-  type = real | kind = kind_phys
-  dimensions = (number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid)
-  intent = in
-[ g_lambda_in ]
-  standard_name = gamma_distribution_slope_parameter_on_liquid_optics_grid
-  units = m-1
-  type = real | kind = kind_phys
-  dimensions = (number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid,number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid)
-  intent = in
-[ g_d_eff_in ]
-  standard_name = radiative_effective_diameter_samples_on_ice_optics_grid
-  units = microns
-  type = real | kind = kind_phys
-  dimensions = (number_of_radiative_effective_diameter_samples_on_ice_optics_grid)
-  intent = in
-[ tiny_in ]
-  standard_name = definition_of_tiny_for_RRTMGP
-  units = 1
-  type = real | kind = kind_phys
-  dimensions = ()
-  intent = in
-[ errmsg ]
-  standard_name = ccpp_error_message
-  long_name = Error message for error handling in CCPP
-  units = none
-  type = character | kind = len=512
-  dimensions = ()
-  intent = out
-[ errflg ]
-  standard_name = ccpp_error_code
-  long_name = Error flag for error handling in CCPP
-  units = 1
-  type = integer
-  dimensions = ()
-  intent = out
-
-[ccpp-arg-table]
   name  = rrtmgp_lw_cloud_optics_run
   type  = scheme
 [ dolw ]
@@ -166,6 +88,42 @@
   units = kg m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ abs_lw_liq ]
+  standard_name = longwave_mass_specific_absorption_for_in_cloud_liquid_water_path
+  units = m2 kg-1
+  type = real | kind = kind_phys
+  dimensions = (number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid, number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid, number_of_bands_for_longwave_radiation)
+  intent = in
+[ abs_lw_ice ]
+  standard_name = longwave_mass_specific_absorption_for_in_cloud_ice_water_path
+  units = m2 kg-1
+  type = real | kind = kind_phys
+  dimensions = (number_of_radiative_effective_diameter_samples_on_ice_optics_grid, number_of_bands_for_longwave_radiation)
+  intent = in
+[ g_mu ]
+  standard_name = gamma_distribution_shape_parameter_on_liquid_optics_grid
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid)
+  intent = in
+[ g_lambda ]
+  standard_name = gamma_distribution_slope_parameter_on_liquid_optics_grid
+  units = m-1
+  type = real | kind = kind_phys
+  dimensions = (number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid,number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid)
+  intent = in
+[ g_d_eff ]
+  standard_name = radiative_effective_diameter_samples_on_ice_optics_grid
+  units = microns
+  type = real | kind = kind_phys
+  dimensions = (number_of_radiative_effective_diameter_samples_on_ice_optics_grid)
+  intent = in
+[ tiny_in ]
+  standard_name = definition_of_tiny_for_RRTMGP
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
   intent = in
 [ dei ]
   standard_name = effective_diameter_of_stratiform_cloud_ice_particle_for_radiation

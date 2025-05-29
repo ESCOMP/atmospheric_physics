@@ -123,4 +123,38 @@ contains
 
    end subroutine rrtmgp_constituents_init
 
+!> \section arg_table_rrtmgp_constituents_run Argument Table
+!! \htmlinclude rrtmgp_constituents_run.html
+!!
+   subroutine rrtmgp_constituents_run(gaslist, const_array, rad_const_array, errmsg, errcode)
+       use ccpp_constituent_prop_mod, only: int_unassigned
+       use ccpp_scheme_utils,         only: ccpp_constituent_index
+       character(len=5),          intent(in) :: gaslist(:)
+       real(kind_phys),           intent(in) :: const_array(:,:,:)
+       real(kind_phys),          intent(out) :: rad_const_array(:,:,:)
+       integer,                  intent(out) :: errcode
+       character(len=512),       intent(out) :: errmsg
+
+       ! Local variables
+       integer :: gas_idx
+       integer :: const_idx
+
+       errcode = 0
+       errmsg = ''
+
+       rad_const_array = 0._kind_phys
+
+       do gas_idx = 1, size(gaslist)
+          ! Find the index of the current gas in the constituents array
+          call ccpp_constituent_index(trim(gaslist(gas_idx)), const_idx, errcode, errmsg)
+          if (errcode /= 0) then
+             return
+          end if
+          if (const_idx /= int_unassigned) then
+             rad_const_array(:,:,gas_idx) = const_array(:,:,const_idx)
+          end if
+       end do
+
+   end subroutine rrtmgp_constituents_run
+
 end module rrtmgp_constituents

@@ -79,7 +79,7 @@
     <type>char*512</type>
     <category>rrtmgp_lw_gas_optics</category>
     <group>rrtmgp_lw_gas_optics</group>
-    <standard_name>filename_of_rrtmgp_longwave_coefficients_file</standard_name>
+    <standard_name>filename_of_rrtmgp_longwave_k_distribution</standard_name>
     <units>none</units>
     <desc>
      The filename of the longwave coefficients file for RRTMGP

@@ -1,0 +1,108 @@
+[ccpp-table-properties]
+  name = rrtmgp_cloud_optics_setup
+  type = scheme
+
+[ccpp-arg-table]
+  name  = rrtmgp_cloud_optics_setup_init
+  type  = scheme
+[ liq_filename ]
+  standard_name = filename_of_rrtmgp_liquid_cloud_optics_coefficients
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ ice_filename ]
+  standard_name = filename_of_rrtmgp_ice_cloud_optics_coefficients
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ abs_lw_liq_out ]
+  standard_name = longwave_mass_specific_absorption_for_in_cloud_liquid_water_path
+  units = m2 kg-1
+  type = real | kind = kind_phys
+  dimensions = (number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid, number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid, number_of_bands_for_longwave_radiation)
+  allocatable = True
+  intent = out
+[ abs_lw_ice_out ]
+  standard_name = longwave_mass_specific_absorption_for_in_cloud_ice_water_path
+  units = m2 kg-1
+  type = real | kind = kind_phys
+  dimensions = (number_of_radiative_effective_diameter_samples_on_ice_optics_grid,number_of_bands_for_longwave_radiation)
+  allocatable = True
+  intent = out
+[ ext_sw_liq_out ]
+  standard_name = shortwave_liquid_extinction
+  units = m2 kg-1
+  type = real | kind = kind_phys
+  dimensions = (number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid, number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid, number_of_bands_for_shortwave_radiation)
+  allocatable = True
+  intent = out
+[ ext_sw_ice_out ]
+  standard_name = shortwave_ice_extinction
+  units = m2 kg-1
+  type = real | kind = kind_phys
+  dimensions = (number_of_radiative_effective_diameter_samples_on_ice_optics_grid,number_of_bands_for_shortwave_radiation)
+  allocatable = True
+  intent = out
+[ ssa_sw_liq_out ]
+  standard_name = shortwave_liquid_single_scattering_albedo
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid, number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid, number_of_bands_for_shortwave_radiation)
+  allocatable = True
+  intent = out
+[ ssa_sw_ice_out ]
+  standard_name = shortwave_ice_single_scattering_albedo
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (number_of_radiative_effective_diameter_samples_on_ice_optics_grid,number_of_bands_for_shortwave_radiation)
+  allocatable = True
+  intent = out
+[ asm_sw_liq_out ]
+  standard_name = shortwave_liquid_asymmetry_parameter
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid, number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid, number_of_bands_for_shortwave_radiation)
+  allocatable = True
+  intent = out
+[ asm_sw_ice_out ]
+  standard_name = shortwave_ice_asymmetry_parameter
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (number_of_radiative_effective_diameter_samples_on_ice_optics_grid,number_of_bands_for_shortwave_radiation)
+  allocatable = True
+  intent = out
+[ g_lambda_out ]
+  standard_name = gamma_distribution_slope_parameter_on_liquid_optics_grid
+  units = m-1
+  type = real | kind = kind_phys
+  dimensions = (number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid,number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid)
+  allocatable = True
+  intent = out
+[ g_mu_out ]
+  standard_name = gamma_distribution_shape_parameter_on_liquid_optics_grid
+  units = index
+  type = real | kind = kind_phys
+  dimensions = (number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid)
+  allocatable = True
+  intent = out
+[ g_d_eff_out ]
+  standard_name = radiative_effective_diameter_samples_on_ice_optics_grid
+  units = microns
+  type = real | kind = kind_phys
+  dimensions = (number_of_radiative_effective_diameter_samples_on_ice_optics_grid)
+  allocatable = True
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
