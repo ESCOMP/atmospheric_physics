@@ -446,6 +446,7 @@ module rrtmgp_inputs
                   wavenumber_low_shortwave, wavenumber_high_shortwave, wavenumber_low_longwave,      &
                   wavenumber_high_longwave, band2gpt_sw, errmsg, errflg)
    use ccpp_gas_optics_rrtmgp, only: ty_gas_optics_rrtmgp_ccpp
+   use ccpp_kinds,             only: kind_phys
    ! Set the low and high limits of the wavenumber grid for sw and lw.
    ! Values come from RRTMGP coefficients datasets, and are stored in the
    ! kdist objects.
@@ -569,6 +570,7 @@ module rrtmgp_inputs
 
  subroutine get_band_index_by_value(swlw, targetvalue, units, nbnds, wavenumber_low, &
                 wavenumber_high, ans, errmsg, errflg)
+   use ccpp_kinds, only: kind_phys
 
    ! Find band index for requested wavelength/wavenumber.
 
