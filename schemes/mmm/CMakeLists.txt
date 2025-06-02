@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.20)
 
+# `mmm_physics_compat` has not been integrated into the CMake build of any top level projects yet,
+# and this CMakeLists.txt file is currently for unit testing purposes only.
+# Making a change to this CMakeLists.txt file will not impact the build of a parent project at this time.
 project(mmm_physics_compat
     VERSION
         0.1.0
