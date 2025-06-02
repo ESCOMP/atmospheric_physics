@@ -25,6 +25,8 @@ subroutine test_mmm_physics_accumulate_tendencies_timestep_init()
     @assertEqual(0.0_kind_phys, dvdt)
     @assertEqual(0.0_kind_phys, rublten)
     @assertEqual(0.0_kind_phys, rvblten)
+    @assertEqual('', errmsg)
+    @assertEqual(0, errflg)
 end subroutine test_mmm_physics_accumulate_tendencies_timestep_init
 
 @test
@@ -54,6 +56,8 @@ subroutine test_mmm_physics_accumulate_tendencies_run()
     @assertEqual(1.0_kind_phys, dvdt)
     @assertEqual(0.0_kind_phys, rublten)
     @assertEqual(0.0_kind_phys, rvblten)
+    @assertEqual('', errmsg)
+    @assertEqual(0, errflg)
 
     rublten(:, :) = 2.0_kind_phys
     rvblten(:, :) = 2.0_kind_phys
@@ -68,6 +72,8 @@ subroutine test_mmm_physics_accumulate_tendencies_run()
     @assertEqual(3.0_kind_phys, dvdt)
     @assertEqual(0.0_kind_phys, rublten)
     @assertEqual(0.0_kind_phys, rvblten)
+    @assertEqual('', errmsg)
+    @assertEqual(0, errflg)
 
     call mmm_physics_accumulate_tendencies_run( &
         dudt, dvdt, &
@@ -84,6 +90,8 @@ subroutine test_mmm_physics_accumulate_tendencies_run()
     @assertEqual(3.0_kind_phys, dvdt)
     @assertEqual(0.0_kind_phys, rublten)
     @assertEqual(0.0_kind_phys, rvblten)
+    @assertEqual('', errmsg)
+    @assertEqual(0, errflg)
 end subroutine test_mmm_physics_accumulate_tendencies_run
 
 @test
@@ -111,4 +119,6 @@ subroutine test_geopotential_height_wrt_sfc_to_msl_run()
 
     ! Should compute geopotential height wrt mean sea level correctly.
     @assertEqual(20.0_kind_phys, zmmsl)
+    @assertEqual('', errmsg)
+    @assertEqual(0, errflg)
 end subroutine test_geopotential_height_wrt_sfc_to_msl_run
