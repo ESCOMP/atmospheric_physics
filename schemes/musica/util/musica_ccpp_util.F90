@@ -7,15 +7,25 @@ module musica_ccpp_util
   implicit none
 
   private
-  public :: has_error_occurred
+  public :: has_error_occurred, set_constants
 
   real(kind_phys), parameter, public :: PI = 3.14159265358979323846_kind_phys
   real(kind_phys), parameter, public :: DEGREE_TO_RADIAN = PI / 180.0_kind_phys
+  real(kind_phys), public, protected :: MOLAR_MASS_DRY_AIR = -HUGE(1.0_kind_phys) ! kg mol-1
 
   !> Conversion factor for wavelength interfaces from meters (CAM-SIMA) to nanometers (TUV-x)
   real(kind_phys), parameter, public :: m_to_nm = 1.0e9_kind_phys
 
 contains
+
+  !> @brief Set constants used for MUSICA components
+  !> @param[in] molar_mass_dry_air_in The molar mass of dry air (kg mol-1).
+  subroutine set_constants(molar_mass_dry_air_in)
+
+    real(kind_phys), intent(in) :: molar_mass_dry_air_in
+
+    MOLAR_MASS_DRY_AIR = molar_mass_dry_air_in
+  end subroutine set_constants
 
   !> @brief Evaluate a MUSICA error for failure and convert to CCPP error data
   !> @param[in] error The error code to evaluate and convert.
