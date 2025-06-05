@@ -13,8 +13,8 @@ module rrtmgp_inputs_setup
                    pref_edge, nlay, pver, pverp, kdist_sw, kdist_lw, qrl, is_first_step, use_rad_dt_cosz,   &
                    timestep_size, nstep, iradsw, dt_avg, irad_always, is_first_restart_step, is_root,       &
                    nlwbands, nradgas, gasnamelength, iulog, idx_sw_diag, idx_nir_diag, idx_uv_diag,      &
-                   idx_sw_cloudsim, idx_lw_diag, idx_lw_cloudsim, gaslist, nswgpts, nlwgpts, nlayp,      &
-                   nextsw_cday, current_cal_day, band2gpt_sw, errmsg, errflg)
+                   idx_sw_cloudsim, idx_lw_diag, idx_lw_cloudsim, gaslist, nswgpts, nlwgpts, changeseed, &
+                   nlayp, nextsw_cday, current_cal_day, band2gpt_sw, errmsg, errflg)
      use ccpp_kinds,             only: kind_phys
      use ccpp_gas_optics_rrtmgp, only: ty_gas_optics_rrtmgp_ccpp
      use radiation_utils,        only: radiation_utils_init, get_sw_spectral_boundaries_ccpp
@@ -44,7 +44,8 @@ module rrtmgp_inputs_setup
      integer,                         intent(out) :: ktopcam               ! Index in CAM arrays of top level (layer or interface) at which RRTMGP is active
      integer,                         intent(out) :: ktoprad               ! Index in RRTMGP array corresponding to top layer or interface of CAM arrays
      integer,                         intent(out) :: nlaycam               ! Number of vertical layers in CAM. Is either equal to nlay
-                                                                           !  or is 1 less than nlay if "extra layer" is used in the radiation calculations
+                                                                           !  or is 1 less than nlay if "extra layer" is used in the
+                                                                           !  radiation calculations
      integer,                         intent(out) :: nlay                  ! Number of vertical layers in radiation calculation
      integer,                         intent(out) :: nlayp                 ! Number of vertical interfaces in radiation calculations (nlay + 1)
      ! Indices to specific bands for diagnostic output and COSP input
@@ -57,6 +58,7 @@ module rrtmgp_inputs_setup
 
      integer,                         intent(out) :: nswgpts               ! Number of shortwave g-points
      integer,                         intent(out) :: nlwgpts               ! Number of longwave g-points
+     integer,                         intent(out) :: changeseed            ! Random number seed for mcica longwave
      integer, dimension(:,:),         intent(out) :: band2gpt_sw           ! Array for converting shortwave band limits to g-points
      real(kind_phys),                 intent(out) :: nextsw_cday           ! The next calendar day during which the shortwave radiation calculation will be performed
      real(kind_phys), dimension(:),   intent(out) :: sw_low_bounds         ! Lower bounds of shortwave bands
@@ -65,7 +67,7 @@ module rrtmgp_inputs_setup
      character(len=512),              intent(out) :: errmsg
      integer,                         intent(out) :: errflg
      integer,                         intent(inout) :: irad_always         ! Number of time steps to execute radiation continuously
-     real(kind_phys),                 intent(inout) :: dt_avg              ! averaging time interval for zenith angle
+     real(kind_phys),                 intent(out)   :: dt_avg              ! averaging time interval for zenith angle
 
      ! Local variables
      real(kind_phys), target :: wavenumber_low_shortwave(nswbands)
@@ -139,6 +141,8 @@ module rrtmgp_inputs_setup
      ! the adjusted iradsw value from radiation
      if (use_rad_dt_cosz)  then
         dt_avg = iradsw*timestep_size
+     else
+        dt_avg = 0._kind_phys
      end if
 
      ! "irad_always" is number of time steps to execute radiation continuously from
@@ -152,6 +156,8 @@ module rrtmgp_inputs_setup
         nextsw_cday = current_cal_day
      end if
 
+     changeseed = nlwgpts
+
   end subroutine rrtmgp_inputs_setup_init
 
 !=========================================================================================
@@ -162,6 +168,7 @@ module rrtmgp_inputs_setup
                   wavenumber_low_shortwave, wavenumber_high_shortwave, wavenumber_low_longwave,      &
                   wavenumber_high_longwave, band2gpt_sw, errmsg, errflg)
    use ccpp_gas_optics_rrtmgp, only: ty_gas_optics_rrtmgp_ccpp
+   use ccpp_kinds,             only: kind_phys
    ! Set the low and high limits of the wavenumber grid for sw and lw.
    ! Values come from RRTMGP coefficients datasets, and are stored in the
    ! kdist objects.
@@ -285,6 +292,7 @@ module rrtmgp_inputs_setup
 
  subroutine get_band_index_by_value(swlw, targetvalue, units, nbnds, wavenumber_low, &
                 wavenumber_high, ans, errmsg, errflg)
+   use ccpp_kinds, only: kind_phys
 
    ! Find band index for requested wavelength/wavenumber.
 

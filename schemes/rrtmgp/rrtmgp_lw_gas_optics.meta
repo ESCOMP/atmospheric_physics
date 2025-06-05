@@ -10,7 +10,7 @@
   units = none
   type = ty_gas_optics_rrtmgp_ccpp
   dimensions = ()
-  intent = inout
+  intent = out
 [ lw_filename ]
   standard_name = filename_of_rrtmgp_longwave_k_distribution
   units = none
@@ -47,7 +47,7 @@
   intent = in
 [ iter_num ]
   standard_name = iteration_number_for_radiation_subcycle
-  units = 1
+  units = count
   type = integer
   dimensions = ()
   intent = in
@@ -73,7 +73,7 @@
   standard_name = air_pressure_at_interface_for_RRTMGP
   units = Pa
   type = real | kind = kind_phys
-  dimensions = (ihorizontal_loop_extent,vertical_interface_dimension)
+  dimensions = (horizontal_loop_extent,vertical_interface_dimension)
   intent = in
 [ t_lay ]
   standard_name = air_temperature_for_RRTMGP
@@ -106,10 +106,10 @@
   dimensions = ()
   intent = inout
 [ t_lev ]
-  standard_name = air_temperature_at_interfaces_for_RRTMGP
+  standard_name = air_temperature_at_interface_for_RRTMGP
   units = K
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent,vertical_interface_dimension)
   intent = in
 [ include_interface_temp ]
   standard_name = include_air_temperature_at_interfaces_in_gas_optics_calculation

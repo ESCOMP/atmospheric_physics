@@ -49,7 +49,7 @@
   intent = in
 [ iter_num ]
   standard_name = iteration_number_for_radiation_subcycle
-  units = 1
+  units = count
   type = integer
   dimensions = ()
   intent = in
@@ -87,7 +87,7 @@
   standard_name = longwave_emissivity_at_surface
   units = fraction
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_23:enter_standard_name_24,horizontal_loop_extent)
+  dimensions = (number_of_bands_for_longwave_radiation,horizontal_loop_extent)
   intent = in
 [ lw_gas_props ]
   standard_name = longwave_gas_optics_object_for_RRTMGP
@@ -105,13 +105,20 @@
   standard_name = jacobian_of_longwave_upward_flux_for_RRTMGP
   units = W m-2 K-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_27:enter_standard_name_28,enter_standard_name_29:enter_standard_name_30)
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = inout
+[ nlwgpts ]
+  standard_name = number_of_longwave_g_point_intervals
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
 [ lw_Ds ]
   standard_name = inverse_cosine_of_radiation_transport_angle_per_column_and_g_point
   units = 1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_31:enter_standard_name_32,enter_standard_name_33:enter_standard_name_34)
+  dimensions = (horizontal_loop_extent,number_of_longwave_g_point_intervals)
+  allocatable = True
   intent = out
 [ flux_clrsky ]
   standard_name = longwave_clear_sky_flux_object_for_RRTMGP

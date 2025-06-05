@@ -18,13 +18,13 @@
   dimensions = ()
   intent = in
 [ snow_associated ]
-  standard_name = include_snow_absorption_optical_depth
+  standard_name = include_snow_in_radiation_calculation
   units = flag
   type = logical
   dimensions = ()
   intent = in
 [ graupel_associated ]
-  standard_name = include_graupel_absorption_optical_depth
+  standard_name = include_graupel_in_radiation_calculation
   units = flag
   type = logical
   dimensions = ()
@@ -66,10 +66,10 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ coszrs ]
-  standard_name = cosine_of_solar_zenith_angle
+  standard_name = cosine_of_solar_zenith_angle_for_radiation
   units = rad
   type = real | kind = kind_phys
-  dimensions = (vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent)
   intent = in
 [ kdist_sw ]
   standard_name = shortwave_gas_optics_object_for_RRTMGP
@@ -144,7 +144,7 @@
   dimensions = (number_of_bands_for_shortwave_radiation,daytime_points_dimension)
   intent = out
 [ lwup ]
-  standard_name = longwave_upward_radiative_flux_at_surface
+  standard_name = longwave_upward_radiative_flux_at_surface_from_coupler
   units = W m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
@@ -180,13 +180,13 @@
   dimensions = ()
   intent = in
 [ asdir ]
-  standard_name = albedo_at_surface_due_to_UV_and_VIS_direct
+  standard_name = surface_albedo_due_to_uv_and_vis_direct_from_coupler
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
 [ asdif ]
-  standard_name = albedo_due_to_UV_and_VIS_diffused_at_surface
+  standard_name = surface_albedo_due_to_uv_and_vis_diffuse_from_coupler
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
@@ -204,13 +204,13 @@
   dimensions = (number_of_bands_for_shortwave_radiation)
   intent = in
 [ aldir ]
-  standard_name = albedo_due_to_near_IR_direct_at_surface
+  standard_name = surface_albedo_due_to_near_ir_direct_from_coupler
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
 [ aldif ]
-  standard_name = albedo_due_to_near_IR_diffused_at_surface
+  standard_name = surface_albedo_due_to_near_ir_diffuse_from_coupler
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)

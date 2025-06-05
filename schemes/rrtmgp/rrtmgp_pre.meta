@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = rrtmgp_pre
   type = scheme
+  dependencies = ./objects/ccpp_fluxes_byband.F90
 
 [ccpp-arg-table]
   name  = rrtmgp_pre_init
@@ -11,22 +12,22 @@
   type = integer
   dimensions = ()
   intent = in
-[ gaslist ]
-  standard_name = list_of_active_gases_for_RRTMGP
-  units = count
-  type = character | kind = len=*
-  dimensions = (number_of_active_gases_for_RRTMGP)
-  intent = in
 [ available_gases ]
   standard_name = gas_concentrations_rrtmgp_object_for_RRTMGP
   units = none
   type = ty_gas_concs_ccpp
   dimensions = ()
-  intent = inout
+  intent = out
+[ gaslist ]
+  standard_name = list_of_active_gases_for_RRTMGP
+  units = none
+  type = character | kind = len=5
+  dimensions = (number_of_active_gases_for_rrtmgp)
+  intent = out
 [ gaslist_lc ]
   standard_name = lowercase_list_of_active_gases_for_RRTMGP
   units = none
-  type = character | kind = len=*
+  type = character | kind = len=5
   dimensions = (number_of_active_gases_for_RRTMGP)
   intent = out
 [ errmsg ]
@@ -97,7 +98,7 @@
   name  = rrtmgp_pre_run
   type  = scheme
 [ coszrs ]
-  standard_name = cosine_of_solar_zenith_angle
+  standard_name = cosine_of_solar_zenith_angle_for_radiation
   units = rad
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
@@ -139,8 +140,8 @@
   dimensions = ()
   intent = in
 [ next_cday ]
-  standard_name = calendar_day_of_next_timestep
-  units = days
+  standard_name = fractional_calendar_days_on_end_of_next_timestep
+  units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
@@ -176,6 +177,18 @@
   intent = out
 [ dolw ]
   standard_name = do_longwave_radiation
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ dosw_heat ]
+  standard_name = calculate_net_shortwave_heating
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ dolw_heat ]
+  standard_name = calculate_net_longwave_heating
   units = flag
   type = logical
   dimensions = ()

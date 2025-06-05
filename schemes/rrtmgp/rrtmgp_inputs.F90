@@ -6,6 +6,7 @@ module rrtmgp_inputs
  public :: rrtmgp_inputs_run
 
  contains
+
 !> \section arg_table_rrtmgp_inputs_run Argument Table
 !! \htmlinclude rrtmgp_inputs_run.html
 !!

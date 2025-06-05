@@ -17,11 +17,29 @@
   type = character | kind = len=*
   dimensions = ()
   intent = in
+[ nmu ]
+  standard_name = number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid
+  units = count
+  type = integer
+  dimensions = ()
+  intent = out
+[ nlambda ]
+  standard_name = number_of_gamma_distribution_slope_parameters_on_liquid_optics_grid
+  units = count
+  type = integer
+  dimensions = ()
+  intent = out
+[ n_g_d ]
+  standard_name = number_of_radiative_effective_diameter_samples_on_ice_optics_grid
+  units = count
+  type = integer
+  dimensions = ()
+  intent = out
 [ abs_lw_liq_out ]
   standard_name = longwave_mass_specific_absorption_for_in_cloud_liquid_water_path
   units = m2 kg-1
   type = real | kind = kind_phys
-  dimensions = (number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid, number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid, number_of_bands_for_longwave_radiation)
+  dimensions = (number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid, number_of_gamma_distribution_slope_parameters_on_liquid_optics_grid, number_of_bands_for_longwave_radiation)
   allocatable = True
   intent = out
 [ abs_lw_ice_out ]
@@ -82,7 +100,7 @@
   intent = out
 [ g_mu_out ]
   standard_name = gamma_distribution_shape_parameter_on_liquid_optics_grid
-  units = index
+  units = 1
   type = real | kind = kind_phys
   dimensions = (number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid)
   allocatable = True

@@ -75,31 +75,17 @@
      units
           This is the CCPP unit specification of the variable (e.g., m s-1).
                                                                         -->
-  <entry id="rad_climate">
-    <type>char*256</type>
-    <category>rrtmgp_constituents</category>
-    <group>rrtmgp_constituents</group>
-    <standard_name>sources_of_radiatively_active_gases_for_climate_calcluation</standard_name>
+  <entry id="rrtmgp_coefs_sw_file">
+    <type>char*512</type>
+    <category>rrtmgp_sw_gas_optics</category>
+    <group>rrtmgp_sw_gas_optics</group>
+    <standard_name>filename_of_rrtmgp_shortwave_k_distribution</standard_name>
     <units>none</units>
     <desc>
-       List of radiatively active gases and whether they are advected or not for the climate
-       calculation in RRTMGP.
+     The filename of the shortwave coefficients file for RRTMGP
     </desc>
     <values>
-      <value>'A:Q:H2O', 'N:O2:O2', 'A:CO2:CO2', 'N:ozone:O3', 'A:N2O:N2O', 'A:CH4:CH4', 'N:CFC11STAR:CFC11', 'A:CFC12:CFC12'</value>
-    </values>
-  </entry>
-  <entry id="ndiags">
-    <type>integer</type>
-    <category>rrtmgp_constituents</category>
-    <group>rrtmgp_constituents</group>
-    <standard_name>number_of_diagnostic_subcycles</standard_name>
-    <units>count</units>
-    <desc>
-       Number of diagnostic subcycle iterations to perform for radiation.
-    </desc>
-    <values>
-      <value>1</value>
+      <value>src/physics/ncar_ccpp/schemes/rrtmgp/data/rrtmgp-gas-sw-g128.nc</value>
     </values>
   </entry>
 </entry_id_pg>

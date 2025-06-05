@@ -7,10 +7,11 @@ contains
 !> \section arg_table_rrtmgp_constituents_register Argument Table
 !! \htmlinclude rrtmgp_constituents_register.html
 !!
-   subroutine rrtmgp_constituents_register(rad_climate, rrtmgp_dyn_consts, errmsg, errcode)
+   subroutine rrtmgp_constituents_register(nradgas, rad_climate, rrtmgp_dyn_consts, errmsg, errcode)
       use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
+      integer,            intent(in)  :: nradgas
       type(ccpp_constituent_properties_t), allocatable, intent(out) :: rrtmgp_dyn_consts(:)
-      character(len=256), intent(in)  :: rad_climate(:)
+      character(len=256), intent(in)  :: rad_climate
       character(len=512), intent(out) :: errmsg
       integer,            intent(out) :: errcode
 
@@ -25,7 +26,7 @@ contains
       errcode = 0
 
       ! Allocate the dynamic constituents array
-      allocate(rrtmgp_dyn_consts(size(rad_climate)), stat=ierr, errmsg=alloc_errmsg)
+      allocate(rrtmgp_dyn_consts(nradgas), stat=ierr, errmsg=alloc_errmsg)
       if (ierr /= 0) then
          write(errmsg, *) 'rrtmgp_constituents_register: Unable to allocate rrtmgp_dyn_consts - message: ', alloc_errmsg
          errcode = 1
@@ -109,20 +110,39 @@ contains
    end subroutine rrtmgp_constituents_register
 
 !> \section arg_table_rrtmgp_constituents_init Argument Table
-!! \htmlinclude rrtmgp_constituents_init.html
+!! \htmlinclude rrtmgp_constituents_int.html
 !!
-   subroutine rrtmgp_constituents_init(gaslist, errmsg, errcode)
-      character(len=5),   intent(out) :: gaslist(:)
-      integer,            intent(out) :: errcode
+   subroutine rrtmgp_constituents_init(ndiag, ncol, unset_real, diag_cur, active_call_array, &
+      rrtmgp_phys_blksz, tlev, fluxlwup_Jac, is_first_restart_step, use_tlev, top_at_one, errmsg, errcode)
+      integer,             intent(in) :: ndiag
+      integer,             intent(in) :: ncol
+      real(kind_phys),     intent(in) :: unset_real
+      integer,            intent(out) :: diag_cur
+      logical,            intent(out) :: active_call_array(:)
+      integer,            intent(out) :: rrtmgp_phys_blksz
+      real(kind_phys),    intent(out) :: tlev(:,:)
+      real(kind_phys),    intent(out) :: fluxlwup_Jac(:,:)
+      logical,            intent(out) :: is_first_restart_step
+      logical,            intent(out) :: use_tlev
+      logical,            intent(out) :: top_at_one
       character(len=512), intent(out) :: errmsg
+      integer,            intent(out) :: errcode
 
-      errcode = 0
+      errcode = 1
       errmsg = ''
 
-      gaslist =  (/'H2O  ','O3   ', 'O2   ', 'CO2  ', 'N2O  ', 'CH4  ', 'CFC11', 'CFC12'/)
+      active_call_array = .true.
+      is_first_restart_step = .false.
+      top_at_one = .true.
+
+      diag_cur = 1
+      rrtmgp_phys_blksz = ncol
+      ! Set tlev & fluxlwup_Jac to unset values; not used by default in CAM-SIMA
+      use_tlev = .false.
+      tlev = unset_real
+      fluxlwup_Jac = unset_real
 
    end subroutine rrtmgp_constituents_init
-
 !> \section arg_table_rrtmgp_constituents_run Argument Table
 !! \htmlinclude rrtmgp_constituents_run.html
 !!

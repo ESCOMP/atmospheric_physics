@@ -42,8 +42,8 @@ contains
 !> \section arg_table_rrtmgp_lw_mcica_subcol_gen_run Argument Table
 !! \htmlinclude rrtmgp_lw_mcica_subcol_gen_run.html
 subroutine rrtmgp_lw_mcica_subcol_gen_run( &
-   dolw, ktoprad, kdist, nbnd, ngpt, ncol, pver, nver, &
-   changeseed, pmid, cldfrac, tauc, cloud_lw,     &
+   dolw, ktoprad, ktopcam, kdist, nbnd, ngpt, ncol, pver, nver, &
+   cldfprime, c_cld_lw_abs, changeseed, pmid, cloud_lw,     &
    errmsg, errflg )
    use ccpp_kinds,             only: kind_phys
    use shr_RandNum_mod,        only: ShrKissRandGen
@@ -62,6 +62,7 @@ subroutine rrtmgp_lw_mcica_subcol_gen_run( &
    class(ty_gas_optics_rrtmgp_ccpp), intent(in) :: kdist        ! Gas optics object
    logical,                          intent(in) :: dolw         ! Flag for whether to perform longwave calculation
    integer,                          intent(in) :: ktoprad      ! Index in RRTMGP array corresponding to top layer or interface of CAM arrays
+   integer,                          intent(in) :: ktopcam
    integer,                          intent(in) :: nbnd         ! Number of spectral bands
    integer,                          intent(in) :: ngpt         ! Number of subcolumns (g-point intervals)
    integer,                          intent(in) :: ncol         ! Number of columns
@@ -70,8 +71,8 @@ subroutine rrtmgp_lw_mcica_subcol_gen_run( &
    integer,                          intent(in) :: changeseed   ! If the subcolumn generator is called multiple times, 
                                                                 ! permute the seed between each call.
    real(kind_phys), dimension(:,:),   intent(in)  :: pmid       ! Layer pressures at midpoints (Pa)
-   real(kind_phys), dimension(:,:),   intent(in)  :: cldfrac    ! Layer cloud fraction
-   real(kind_phys), dimension(:,:,:), intent(in)  :: tauc       ! Cloud optical depth
+   real(kind_phys), dimension(:,:),   intent(in)  :: cldfprime
+   real(kind_phys), dimension(:,:,:), intent(in)  :: c_cld_lw_abs
    type(ty_optical_props_1scl_ccpp),  intent(inout) :: cloud_lw ! Cloud optics object
    character(len=512),                intent(out)   :: errmsg
    integer,                           intent(out)   :: errflg
@@ -88,8 +89,10 @@ subroutine rrtmgp_lw_mcica_subcol_gen_run( &
    real(kind_phys) :: rand_num_1d(ncol,1)   ! random number (kissvec)
    real(kind_phys) :: rand_num(ncol,nver)   ! random number (kissvec)
 
+   real(kind_phys) :: cldf(ncol,nver)
    real(kind_phys) :: cdf(ngpt,ncol,nver)   ! random numbers
    logical  :: iscloudy(ngpt,ncol,nver)   ! flag that says whether a gridbox is cloudy
+   real(kind_phys) :: tauc(nlwbands,ncol,nver)
    real(kind_phys) :: taucmcl(ngpt,ncol,nver)
    !------------------------------------------------------------------------------------------ 
 
@@ -101,6 +104,15 @@ subroutine rrtmgp_lw_mcica_subcol_gen_run( &
    if (.not. dolw) then
       return
    end if
+
+   ! Subset "chunk" data so just the number of CAM layers in the
+   ! radiation calculation are used by MCICA to produce subcolumns
+   cldf = cldfprime(:, ktopcam:)
+
+   tauc = c_cld_lw_abs(:, :, ktopcam:)
+
+   ! Enforce tauc >= 0.
+   tauc = merge(tauc, 0.0_kind_phys, tauc > 0.0_kind_phys)
 
    ! clip cloud fraction
    cldf(:,:) = cldfrac(:,:)

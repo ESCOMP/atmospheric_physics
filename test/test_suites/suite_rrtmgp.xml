@@ -5,9 +5,11 @@
     <scheme>rrtmgp_pre</scheme>
     <scheme>rrtmgp_cloud_optics_setup</scheme>
     <scheme>tropopause_find</scheme>
+    <scheme>rrtmgp_variables</scheme>
     <scheme>rrtmgp_inputs</scheme>
     <scheme>rrtmgp_lw_cloud_optics</scheme>
     <scheme>rrtmgp_lw_mcica_subcol_gen</scheme>
+    <scheme>rrtmgp_sw_gas_optics</scheme>
     <!-- Longwave subcycle -->
     <subcycle>
       <scheme>rrtmgp_constituents</scheme>

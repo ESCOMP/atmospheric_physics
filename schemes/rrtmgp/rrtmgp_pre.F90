@@ -13,13 +13,13 @@ CONTAINS
 !> \section arg_table_rrtmgp_pre_init Argument Table
 !! \htmlinclude rrtmgp_pre_init.html
 !!
-  subroutine rrtmgp_pre_init(nradgas, gaslist, available_gases, gaslist_lc, errmsg, errflg)
+  subroutine rrtmgp_pre_init(nradgas, available_gases, gaslist, gaslist_lc, errmsg, errflg)
      use ccpp_gas_concentrations, only: ty_gas_concs_ccpp
      use atmos_phys_string_utils, only: to_lower
      integer,                    intent(in) :: nradgas          ! Number of radiatively active gases
-     character(len=*),           intent(in) :: gaslist(:)       ! List of radiatively active gases
-     type(ty_gas_concs_ccpp), intent(inout) :: available_gases  ! Gas concentrations object
-     character(len=*),          intent(out) :: gaslist_lc(:)    ! Lowercase verison of radiatively active gas list
+     type(ty_gas_concs_ccpp),   intent(out) :: available_gases  ! Gas concentrations object
+     character(len=5),          intent(out) :: gaslist(:)       ! Radiatively active gas list
+     character(len=5),          intent(out) :: gaslist_lc(:)    ! Lowercase verison of radiatively active gas list
      character(len=512),        intent(out) :: errmsg
      integer,                   intent(out) :: errflg
 
@@ -29,6 +29,9 @@ CONTAINS
      ! Set error variables
      errmsg = ''
      errflg = 0
+
+     ! Initialize gas list
+     gaslist =  (/'H2O  ','O3   ', 'O2   ', 'CO2  ', 'N2O  ', 'CH4  ', 'CFC11', 'CFC12'/)
 
      ! Create lowercase version of the gaslist for RRTMGP.  The ty_gas_concs_ccpp objects
      ! work with CAM's uppercase names, but other objects that get input from the gas
@@ -78,8 +81,9 @@ CONTAINS
 !! \htmlinclude rrtmgp_pre_run.html
 !!
   subroutine rrtmgp_pre_run(coszrs, nstep, dtime, iradsw, iradlw, irad_always, ncol, &
-                  next_cday, idxday, nday, idxnite, nnite, dosw, dolw, nlay, nlwbands, &
-                  nswbands, spectralflux, nextsw_cday, fsw, fswc, flw, flwc, errmsg, errflg)
+                  next_cday, idxday, nday, idxnite, nnite, dosw, dolw, dosw_heat, dolw_heat, &
+                  nlay, nlwbands, nswbands, spectralflux, nextsw_cday, fsw, fswc, flw, flwc, &
+                  errmsg, errflg)
      use ccpp_kinds,              only: kind_phys
      use ccpp_fluxes,             only: ty_fluxes_broadband_ccpp
      use ccpp_fluxes_byband,      only: ty_fluxes_byband_ccpp
@@ -108,6 +112,8 @@ CONTAINS
      integer, dimension(:),           intent(out) :: idxnite       ! Indices of nighttime columns
      logical,                         intent(out) :: dosw          ! Flag to do shortwave calculation
      logical,                         intent(out) :: dolw          ! Flag to do longwave calculation
+     logical,                         intent(out) :: dosw_heat     ! Flag to calculate net shortwave heating
+     logical,                         intent(out) :: dolw_heat     ! Flag to calculate net longwave heating
      character(len=512),              intent(out) :: errmsg
      integer,                         intent(out) :: errflg
 
@@ -140,6 +146,9 @@ CONTAINS
      if (errflg /= 0) then
         return
      end if
+
+     dosw_heat = (.not. dosw)
+     dolw_heat = (.not. dolw)
 
      ! determine if next radiation time-step not equal to next time-step
      if (nstep >= 1) then

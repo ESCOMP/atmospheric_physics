@@ -15,7 +15,7 @@ contains
    subroutine rrtmgp_lw_main_run(doLWrad, doLWclrsky, doGP_lwscat, use_LW_jacobian, use_LW_optimal_angles,   &
                                  nGauss_angles,  nCol, iter_num, rrtmgp_phys_blksz, lw_optical_props_clrsky, &
                                  lw_optical_props_clouds, top_at_1, sources, sfc_emiss_byband, lw_gas_props, &
-                                 aerlw, fluxlwUP_jac, lw_Ds, flux_clrsky, flux_allsky, errmsg, errflg)
+                                 aerlw, fluxlwUP_jac, nlwgpts, lw_Ds, flux_clrsky, flux_allsky, errmsg, errflg)
     use machine,                  only: kind_phys
     use mo_rte_lw,                only: rte_lw
     use ccpp_fluxes_byband,       only: ty_fluxes_byband_ccpp
@@ -38,6 +38,7 @@ contains
     integer, intent(in) :: nCol                  !< Number of horizontal points
     integer, intent(in) :: iter_num              !< Radiation subcycle iteration number
     integer, intent(in) :: rrtmgp_phys_blksz     !< Number of horizontal points to process at once
+    integer, intent(in) :: nlwgpts
 
     real(kind_phys), dimension(:,:),   intent(in) :: sfc_emiss_byband           !< Surface emissivity by band
     class(ty_source_func_lw_ccpp),     intent(in) :: sources                    !< Longwave sources object
@@ -52,7 +53,7 @@ contains
 
     class(ty_gas_optics_rrtmgp_ccpp),  intent(inout) :: lw_gas_props            !< Gas optical properties object
 
-    real(kind_phys), dimension(:,:), target, intent(out) :: lw_Ds               !< 1/cos of transport angle per column, g-point
+    real(kind_phys), dimension(:,:), allocatable, target, intent(out) :: lw_Ds               !< 1/cos of transport angle per column, g-point
     character(len=512), intent(out) :: errmsg                                     !< CCPP error message
     integer,            intent(out) :: errflg                                     !< CCPP error flag
 

@@ -78,10 +78,10 @@
   dimensions = ()
   intent = in
 [ qrl ]
-  standard_name = longwave_radiative_heating_rate
-  units = K s-1
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_shortwave_radiation_adjusted_by_air_pressure_thickness
+  units = J Pa kg-1 s-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = out
 [ is_first_step ]
   standard_name = is_first_timestep
@@ -118,7 +118,7 @@
   units = s
   type = real | kind = kind_phys
   dimensions = ()
-  intent = inout
+  intent = out
 [ irad_always ]
   standard_name = number_of_timesteps_to_force_radiation_calculation_after_initialization
   units = count
@@ -215,6 +215,12 @@
   type = integer
   dimensions = ()
   intent = out
+[ changeseed ]
+  standard_name = random_number_seed_for_mcica_longwave
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
 [ nlayp ]
   standard_name = number_of_vertical_layers_in_RRTMGP_plus_one
   units = count
@@ -228,8 +234,8 @@
   dimensions = ()
   intent = out
 [ current_cal_day ]
-  standard_name = current_calendar_day
-  units = days
+  standard_name = fractional_calendar_days_on_end_of_current_timestep
+  units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
@@ -237,7 +243,7 @@
   standard_name = shortwave_start_and_end_gpoint_for_each_band
   units = index
   type = integer
-  dimensions = (ccpp_constant_two,number_of_bands_for_shortwave_radiation)
+  dimensions = (2,number_of_bands_for_shortwave_radiation)
   intent = out
 [ errmsg ]
   standard_name = ccpp_error_message

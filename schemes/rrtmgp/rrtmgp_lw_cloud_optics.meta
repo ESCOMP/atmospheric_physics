@@ -138,7 +138,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ des ]
-  standard_name = effective_diameter_of_stratiform_snow_particle
+  standard_name = effective_diameter_of_stratiform_snow_particle_for_radiation
   units = micron
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -162,13 +162,13 @@
   dimensions = ()
   intent = in
 [ do_snow ]
-  standard_name = include_snow_absorption_optical_depth
+  standard_name = include_snow_in_radiation_calculation
   units = flag
   type = logical
   dimensions = ()
   intent = in
 [ do_graupel ]
-  standard_name = include_graupel_absorption_optical_depth
+  standard_name = include_graupel_in_radiation_calculation
   units = flag
   type = logical
   dimensions = ()
@@ -185,18 +185,6 @@
   type = integer
   dimensions = ()
   intent = in
-[ tauc ]
-  standard_name = cloud_optical_depth
-  units = 1
-  type = real | kind = kind_phys
-  dimensions = (number_of_bands_for_longwave_radiation,horizontal_loop_extent,number_of_vertical_layers_in_RRTMGP_coinciding_with_CAM_levels)
-  intent = out
-[ cldf ]
-  standard_name = cloud_area_fraction_on_RRTMGP_layers
-  units = fraction
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent,number_of_vertical_layers_in_RRTMGP_coinciding_with_CAM_levels)
-  intent = out
 [ cld_lw_abs ]
   standard_name = in_cloud_longwave_liquid_plus_ice_optical_depth
   units = 1
@@ -214,6 +202,12 @@
   units = 1
   type = real | kind = kind_phys
   dimensions = (number_of_bands_for_longwave_radiation,horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ c_cld_lw_abs ]
+  standard_name = combined_longwave_cloud_absorption_optical_depth
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (number_of_bands_for_longwave_radiation,horizontal_loop_extent,vertical_layer_dimension)
   intent = out
 [ errmsg ]
   standard_name = ccpp_error_message

@@ -17,6 +17,12 @@
   type = integer
   dimensions = ()
   intent = in
+[ ktopcam ]
+  standard_name = vertical_index_at_top_level_where_RRTMGP_is_active
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
 [ kdist ]
   standard_name = longwave_gas_optics_object_for_RRTMGP
   units = none
@@ -24,7 +30,7 @@
   dimensions = ()
   intent = in
 [ nbnd ]
-  standard_name = number_of_spectral_bands
+  standard_name = number_of_bands_for_longwave_radiation
   units = count
   type = integer
   dimensions = ()
@@ -53,6 +59,18 @@
   type = integer
   dimensions = ()
   intent = in
+[ cldfprime ]
+  standard_name = modified_cloud_area_fraction_for_RRTMGP
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ c_cld_lw_abs ]
+  standard_name = combined_longwave_cloud_absorption_optical_depth
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (number_of_bands_for_longwave_radiation,horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
 [ changeseed ]
   standard_name = random_number_seed_for_mcica_longwave
   units = 1
@@ -64,18 +82,6 @@
   units = Pa
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
-  intent = in
-[ cldfrac ]
-  standard_name = cloud_area_fraction_on_RRTMGP_layers
-  units = fraction
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent,number_of_vertical_layers_in_RRTMGP_coinciding_with_CAM_levels)
-  intent = in
-[ tauc ]
-  standard_name = cloud_optical_depth
-  units = 1
-  type = real | kind = kind_phys
-  dimensions = (number_of_bands_for_longwave_radiation,horizontal_loop_extent,number_of_vertical_layers_in_RRTMGP_coinciding_with_CAM_levels)
   intent = in
 [ cloud_lw ]
   standard_name = longwave_cloud_optical_properties_object_for_RRTMGP

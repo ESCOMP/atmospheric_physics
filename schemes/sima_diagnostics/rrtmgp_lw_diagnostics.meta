@@ -1,0 +1,143 @@
+[ccpp-table-properties]
+  name = rrtmgp_lw_diagnostics
+  type = scheme
+
+[ccpp-arg-table]
+  name  = rrtmgp_lw_diagnostics_init
+  type  = scheme
+[ num_diag_subcycles ]
+  standard_name = number_of_diagnostic_subcycles
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ active_calls ]
+  standard_name = is_active_diagnostic_call_array
+  units = flag
+  type = logical
+  dimensions = (number_of_diagnostic_subcycles)
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = rrtmgp_lw_diagnostics_run
+  type  = scheme
+[ num_diag_subcycles ]
+  standard_name = number_of_diagnostic_subcycles
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ icall ]
+  standard_name = iteration_number_for_radiation_subcycle
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ active_calls ]
+  standard_name = is_active_diagnostic_call_array
+  units = flag
+  type = logical
+  dimensions = (number_of_diagnostic_subcycles)
+  intent = in
+[ flw ]
+  standard_name = longwave_all_sky_flux_object_for_RRTMGP
+  units = none
+  type = ty_fluxes_byband_ccpp
+  dimensions = ()
+  intent = in
+[ flwc ]
+  standard_name = longwave_clear_sky_flux_object_for_RRTMGP
+  units = none
+  type = ty_fluxes_broadband_ccpp
+  dimensions = ()
+  intent = in
+[ rpdel ]
+  standard_name = reciprocal_of_air_pressure_thickness
+  units = Pa-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ nlay ]
+  standard_name = number_of_vertical_layers_in_RRTMGP
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pverp ]
+  standard_name = vertical_interface_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pint ]
+  standard_name = air_pressure_at_interface
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_interface_dimension)
+  intent = in
+[ gravit ]
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ p_trop ]
+  standard_name = tropopause_air_pressure
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ ktopcam ]
+  standard_name = vertical_index_at_top_level_where_RRTMGP_is_active
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
+[ ktoprad ]
+  standard_name = RRTMGP_vertical_index_at_top_level_where_RRTMGP_is_active
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
+[ write_output ]
+  standard_name = write_RRTMGP_diagnostics
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

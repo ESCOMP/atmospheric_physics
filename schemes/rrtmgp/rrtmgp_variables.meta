@@ -1,0 +1,79 @@
+[ccpp-table-properties]
+  name = rrtmgp_variables
+  type = scheme
+
+[ccpp-arg-table]
+  name  = rrtmgp_variables_run
+  type  = scheme
+[ cldfsnow ]
+  standard_name = liquid_plus_snow_stratiform_cloud_area_fraction
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ cldfgrau ]
+  standard_name = liquid_plus_graupel_stratiform_cloud_area_fraction
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ degrau ]
+  standard_name = effective_diameter_of_stratiform_cloud_graupel_particle_for_radiation
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ icgrauwp ]
+  standard_name = stratiform_in_cloud_graupel_water_path
+  units = kg m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ unset_real ]
+  standard_name = definition_of_unset_for_real_variables
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ graupel_in_rad ]
+  standard_name = do_calculate_radiative_effect_of_graupel
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ do_snow ]
+  standard_name = include_snow_in_radiation_calculation
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ do_grau ]
+  standard_name = include_graupel_in_radiation_calculation
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ grau_associated ]
+  standard_name = include_liquid_plus_graupel_stratiform_cloud_area_fraction
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ tiny_rad ]
+  standard_name = definition_of_tiny_for_rrtmgp
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

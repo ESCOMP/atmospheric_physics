@@ -21,7 +21,7 @@ contains
 !!
 !  subroutine rrtmgp_cloud_optics_setup_init(liq_filename, abs_lw_liq_out, &
 !                  ext_sw_liq_out, ssa_sw_liq_out, asm_sw_liq_out, g_lambda_out, g_mu_out, errmsg, errflg)
-  subroutine rrtmgp_cloud_optics_setup_init(liq_filename, ice_filename, abs_lw_liq_out, abs_lw_ice_out, &
+  subroutine rrtmgp_cloud_optics_setup_init(liq_filename, ice_filename, nmu, nlambda, n_g_d, abs_lw_liq_out, abs_lw_ice_out, &
                   ext_sw_liq_out, ext_sw_ice_out, ssa_sw_liq_out, ssa_sw_ice_out, asm_sw_liq_out,       &
                   asm_sw_ice_out, g_lambda_out, g_mu_out, g_d_eff_out, errmsg, errflg)
     use ccpp_kinds,     only: kind_phys
@@ -30,6 +30,9 @@ contains
     character(len=*),                   intent(in) :: liq_filename     ! Full file path for liquid optics file
     character(len=*),                   intent(in) :: ice_filename     ! Full file path for ice optics file
     ! Outputs
+    integer,                                        intent(out) :: nmu
+    integer,                                        intent(out) :: nlambda
+    integer,                                        intent(out) :: n_g_d
     real(kind_phys), dimension(:,:,:), allocatable, intent(out) :: abs_lw_liq_out    ! Longwave mass specific absorption for in-cloud liquid water path
     real(kind_phys), dimension(:,:,:), allocatable, intent(out) :: ext_sw_liq_out
     real(kind_phys), dimension(:,:,:), allocatable, intent(out) :: ssa_sw_liq_out
@@ -199,6 +202,10 @@ contains
        write(errmsg, '(a,a,a)') sub, ': ERROR allocating abs_lw_ice_out, message: ', alloc_errmsg
        return
     end if
+
+    nmu = size(abs_lw_liq_out,1)
+    nlambda = size(abs_lw_liq_out,2)
+    n_g_d = size(abs_lw_ice_out,1)
 
     ext_sw_liq_out = ext_sw_liq
     ext_sw_ice_out = ext_sw_ice
