@@ -270,10 +270,11 @@ contains
     use musica_ccpp_namelist,          only: filename_of_micm_configuration, &
                                              filename_of_tuvx_configuration, &
                                              filename_of_tuvx_micm_mapping_configuration
-    use musica_ccpp_tuvx_load_species, only: index_dry_air, index_O2, index_O3
+    use musica_ccpp_tuvx_load_species, only: index_dry_air, index_O2, index_O3, MOLAR_MASS_DRY_AIR
     use musica_ccpp_species,           only: tuvx_species_set, MUSICA_INT_UNASSIGNED
     use musica_test_data,              only: get_wavelength_edges
 
+    real(kind_phys), parameter                       :: MOLAR_MASS_DRY_AIR__G_MOL = MOLAR_MASS_DRY_AIR * 1.0e3_kind_phys ! g mol-1
     integer,         parameter                       :: NUM_COLUMNS = 2
     integer,         parameter                       :: NUM_LAYERS = 2
     integer,         parameter                       :: NUM_WAVELENGTH_BINS = 102
@@ -322,7 +323,7 @@ contains
     end do
 
     call musica_ccpp_init( NUM_COLUMNS, NUM_LAYERS, NUM_LAYERS+1, photolysis_wavelength_grid_interfaces, &
-                          constituent_props_ptr, errmsg, errcode )
+                          constituent_props_ptr, MOLAR_MASS_DRY_AIR__G_MOL, errmsg, errcode )
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
