@@ -8,14 +8,12 @@ module rrtmgp_lw_calculate_fluxes
 
    public :: rrtmgp_lw_calculate_fluxes_run  ! main routine
 
-   character(len=4) :: diag(0:N_DIAG) =(/'    ','_d1 ','_d2 ','_d3 ','_d4 ','_d5 ',&
-                                      '_d6 ','_d7 ','_d8 ','_d9 ','_d10'/)
 
 CONTAINS
 
    !> \section arg_table_rrtmgp_lw_calculate_fluxes_run  Argument Table
    !! \htmlinclude rrtmgp_lw_calculate_fluxes_run.html
-   subroutine rrtmgp_lw_calculate_fluxes_run(num_diag_subcycles, icall, pverp, nlay, ktopcam, ktoprad, &
+   subroutine rrtmgp_lw_calculate_fluxes_run(num_diag_subcycles, icall, ncol, pverp, nlay, ktopcam, ktoprad, &
       active_calls, flw, flwc, flns, flnt, flwds, errmsg, errflg)
 
       use ccpp_fluxes,        only: ty_fluxes_broadband_ccpp
@@ -26,6 +24,7 @@ CONTAINS
       integer,                        intent(in) :: num_diag_subcycles  ! Number of diagnostics subcycles
       integer,                        intent(in) :: icall               ! Current diagnostic subcycle
       integer,                        intent(in) :: pverp               ! Number of vertical layer interfaces
+      integer,                        intent(in) :: ncol
       integer,                        intent(in) :: nlay
       integer,                        intent(in) :: ktopcam             ! Index in CAM arrays of top level (layer or interface) at which RRTMGP is active
       integer,                        intent(in) :: ktoprad             ! Index in RRTMGP array corresponding to top layer or interface of CAM arrays
@@ -53,7 +52,7 @@ CONTAINS
       diag_index = num_diag_subcycles - icall
 
       ! Don't do anything if this subcycle is inactive or we're not configured to write radiation output
-      if ((.not. active_calls(diag_index)) .or. (.not. write_output)) then
+      if (.not. active_calls(diag_index)) then
          return
       end if
 
@@ -66,7 +65,7 @@ CONTAINS
 
       flns(:ncol) = fnl(:ncol, pverp)
       flnt(:ncol) = fnl(:ncol, ktopcam)
-      cam_out%flwds(:ncol) = flw%fluxes%flux_dn(:, nlay+1)
+      flwds(:ncol) = flw%fluxes%flux_dn(:, nlay+1)
 
    end subroutine rrtmgp_lw_calculate_fluxes_run
 

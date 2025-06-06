@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = rrtmgp_lw_cloud_optics
   type = scheme
+  dependencies = ext/rte-kernels/mo_optical_props_kernels.F90
 
 [ccpp-arg-table]
   name  = rrtmgp_lw_cloud_optics_run

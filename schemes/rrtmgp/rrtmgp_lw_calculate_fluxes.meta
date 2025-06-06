@@ -17,6 +17,12 @@
   type = integer
   dimensions = ()
   intent = in
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
 [ pverp ]
   standard_name = vertical_interface_dimension
   units = count

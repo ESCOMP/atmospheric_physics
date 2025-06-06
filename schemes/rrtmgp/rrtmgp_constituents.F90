@@ -9,6 +9,7 @@ contains
 !!
    subroutine rrtmgp_constituents_register(nradgas, rad_climate, rrtmgp_dyn_consts, errmsg, errcode)
       use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
+      use ccpp_kinds,                only: kind_phys
       integer,            intent(in)  :: nradgas
       type(ccpp_constituent_properties_t), allocatable, intent(out) :: rrtmgp_dyn_consts(:)
       character(len=256), intent(in)  :: rad_climate
@@ -115,6 +116,7 @@ contains
    subroutine rrtmgp_constituents_init(ndiag, ncol, unset_real, diag_cur, active_call_array, &
       rrtmgp_phys_blksz, tlev, fluxlwup_Jac, rad_heat, fsnt, fsns, is_first_restart_step,    &
       use_tlev, top_at_one, errmsg, errcode)
+      use ccpp_kinds, only: kind_phys
       integer,             intent(in) :: ndiag
       integer,             intent(in) :: ncol
       real(kind_phys),     intent(in) :: unset_real
@@ -158,6 +160,7 @@ contains
    subroutine rrtmgp_constituents_run(gaslist, const_array, rad_const_array, errmsg, errcode)
        use ccpp_constituent_prop_mod, only: int_unassigned
        use ccpp_scheme_utils,         only: ccpp_constituent_index
+       use ccpp_kinds,                only: kind_phys
        character(len=5),          intent(in) :: gaslist(:)
        real(kind_phys),           intent(in) :: const_array(:,:,:)
        real(kind_phys),          intent(out) :: rad_const_array(:,:,:)

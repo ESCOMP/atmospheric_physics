@@ -42,19 +42,20 @@ CONTAINS
      grau_associated = .false.
 
      ! Determine if the snow cloud fraction variable is set to something
-     if (cldfsnow /= unset_real) then
+     if (cldfsnow(1,1) /= unset_real) then
         do_snow = .true.
      end if
 
      ! Determine if the graupel cloud fraction variable is set to something
-     if (cldfgrau /= unset_real) then
+     if (cldfgrau(1,1) /= unset_real) then
         grau_associated = .true.
      end if
 
      ! Determine if we should include graupel in the radiation calculation
-     if (graupel_in_rad .and. ((cldfgrau /= unset_real) .and. (degrau /= unset_real) .and. (icgrauwp /= unset_real)) then
-        do_graup = .true.
+     if (graupel_in_rad .and. ((cldfgrau(1,1) /= unset_real) .and. (degrau(1,1) /= unset_real) .and. (icgrauwp(1,1) /= unset_real))) then
+        do_grau = .true.
      end if
 
 
   end subroutine rrtmgp_variables_run
+end module rrtmgp_variables
