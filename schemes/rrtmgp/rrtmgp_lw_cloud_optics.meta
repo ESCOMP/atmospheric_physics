@@ -93,7 +93,7 @@
   standard_name = longwave_mass_specific_absorption_for_in_cloud_liquid_water_path
   units = m2 kg-1
   type = real | kind = kind_phys
-  dimensions = (number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid, number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid, number_of_bands_for_longwave_radiation)
+  dimensions = (number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid, number_of_gamma_distribution_slope_parameters_on_liquid_optics_grid, number_of_bands_for_longwave_radiation)
   intent = in
 [ abs_lw_ice ]
   standard_name = longwave_mass_specific_absorption_for_in_cloud_ice_water_path
@@ -157,6 +157,24 @@
   intent = in
 [ nlwbands ]
   standard_name = number_of_bands_for_longwave_radiation
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ nmu ]
+  standard_name = number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ nlambda ]
+  standard_name = number_of_gamma_distribution_slope_parameters_on_liquid_optics_grid
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ n_g_d ]
+  standard_name = number_of_radiative_effective_diameter_samples_on_ice_optics_grid
   units = count
   type = integer
   dimensions = ()

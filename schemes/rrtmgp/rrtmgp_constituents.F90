@@ -113,7 +113,8 @@ contains
 !! \htmlinclude rrtmgp_constituents_int.html
 !!
    subroutine rrtmgp_constituents_init(ndiag, ncol, unset_real, diag_cur, active_call_array, &
-      rrtmgp_phys_blksz, tlev, fluxlwup_Jac, is_first_restart_step, use_tlev, top_at_one, errmsg, errcode)
+      rrtmgp_phys_blksz, tlev, fluxlwup_Jac, rad_heat, fsnt, fsns, is_first_restart_step,    &
+      use_tlev, top_at_one, errmsg, errcode)
       integer,             intent(in) :: ndiag
       integer,             intent(in) :: ncol
       real(kind_phys),     intent(in) :: unset_real
@@ -122,6 +123,9 @@ contains
       integer,            intent(out) :: rrtmgp_phys_blksz
       real(kind_phys),    intent(out) :: tlev(:,:)
       real(kind_phys),    intent(out) :: fluxlwup_Jac(:,:)
+      real(kind_phys),    intent(out) :: rad_heat(:,:)
+      real(kind_phys),    intent(out) :: fsnt(:)
+      real(kind_phys),    intent(out) :: fsns(:)
       logical,            intent(out) :: is_first_restart_step
       logical,            intent(out) :: use_tlev
       logical,            intent(out) :: top_at_one
@@ -141,6 +145,11 @@ contains
       use_tlev = .false.
       tlev = unset_real
       fluxlwup_Jac = unset_real
+      rad_heat = unset_real
+
+      ! PEVERWHEE - remove when shortwave is done
+      fsnt = 0.0_kind_phys
+      fsns = 0.0_kind_phys
 
    end subroutine rrtmgp_constituents_init
 !> \section arg_table_rrtmgp_constituents_run Argument Table

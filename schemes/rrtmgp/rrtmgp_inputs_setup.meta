@@ -243,7 +243,7 @@
   standard_name = shortwave_start_and_end_gpoint_for_each_band
   units = index
   type = integer
-  dimensions = (2,number_of_bands_for_shortwave_radiation)
+  dimensions = (ccpp_constant_two,number_of_bands_for_shortwave_radiation)
   intent = out
 [ errmsg ]
   standard_name = ccpp_error_message

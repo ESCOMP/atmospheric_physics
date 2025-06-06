@@ -166,6 +166,19 @@
       <value>.true.</value>
     </values>
   </entry>
+  <entry id="is_offline_dyn">
+    <type>logical</type>
+    <category>rrtmgp</category>
+    <group>rrtmgp</group>
+    <standard_name>is_offline_dynamical_core</standard_name>
+    <units>flag</units>
+    <desc>
+      If true, we are using the offline dynamical core / specified dynamics
+    </desc>
+    <values>
+      <value>.false.</value>
+    </values>
+  </entry>
   <entry id="spectralflux">
     <type>logical</type>
     <category>rrtmgp</category>

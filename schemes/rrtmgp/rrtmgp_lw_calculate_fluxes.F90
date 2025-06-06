@@ -1,0 +1,73 @@
+module rrtmgp_lw_calculate_fluxes
+
+   use ccpp_kinds, only:  kind_phys
+
+   implicit none
+   private
+   save
+
+   public :: rrtmgp_lw_calculate_fluxes_run  ! main routine
+
+   character(len=4) :: diag(0:N_DIAG) =(/'    ','_d1 ','_d2 ','_d3 ','_d4 ','_d5 ',&
+                                      '_d6 ','_d7 ','_d8 ','_d9 ','_d10'/)
+
+CONTAINS
+
+   !> \section arg_table_rrtmgp_lw_calculate_fluxes_run  Argument Table
+   !! \htmlinclude rrtmgp_lw_calculate_fluxes_run.html
+   subroutine rrtmgp_lw_calculate_fluxes_run(num_diag_subcycles, icall, pverp, nlay, ktopcam, ktoprad, &
+      active_calls, flw, flwc, flns, flnt, flwds, errmsg, errflg)
+
+      use ccpp_fluxes,        only: ty_fluxes_broadband_ccpp
+      use ccpp_fluxes_byband, only: ty_fluxes_byband_ccpp
+      !------------------------------------------------
+      !   Input / output parameters
+      !------------------------------------------------
+      integer,                        intent(in) :: num_diag_subcycles  ! Number of diagnostics subcycles
+      integer,                        intent(in) :: icall               ! Current diagnostic subcycle
+      integer,                        intent(in) :: pverp               ! Number of vertical layer interfaces
+      integer,                        intent(in) :: nlay
+      integer,                        intent(in) :: ktopcam             ! Index in CAM arrays of top level (layer or interface) at which RRTMGP is active
+      integer,                        intent(in) :: ktoprad             ! Index in RRTMGP array corresponding to top layer or interface of CAM arrays
+      logical,                        intent(in) :: active_calls(:)     ! Logical array of flags for whether a specified subcycle is active
+      type(ty_fluxes_byband_ccpp),    intent(in) :: flw                 ! Longwave all-sky flux object
+      type(ty_fluxes_broadband_ccpp), intent(in) :: flwc                ! Longwave clear-sky flux object
+      ! Output variables
+      real(kind_phys),               intent(out) :: flns(:)
+      real(kind_phys),               intent(out) :: flnt(:)
+      real(kind_phys),               intent(out) :: flwds(:)
+
+      
+      ! CCPP error handling variables
+      character(len=512), intent(out) :: errmsg
+      integer,            intent(out) :: errflg
+
+      ! Local variables
+      integer :: diag_index, idx
+      real(kind_phys) :: fnl(ncol, pverp)
+      real(kind_phys) :: fcnl(ncol, pverp)
+
+      errmsg = ''
+      errflg = 0
+
+      diag_index = num_diag_subcycles - icall
+
+      ! Don't do anything if this subcycle is inactive or we're not configured to write radiation output
+      if ((.not. active_calls(diag_index)) .or. (.not. write_output)) then
+         return
+      end if
+
+      fnl = 0.0_kind_phys
+      fcnl = 0.0_kind_phys
+
+      ! RTE-RRTMGP convention for net is (down - up) **CAM assumes (up - down) !!
+      fnl( :,ktopcam:) = -1._kind_phys * flw%fluxes%flux_net(    :, ktoprad:)
+      fcnl(:,ktopcam:) = -1._kind_phys * flwc%fluxes%flux_net(   :, ktoprad:)
+
+      flns(:ncol) = fnl(:ncol, pverp)
+      flnt(:ncol) = fnl(:ncol, ktopcam)
+      cam_out%flwds(:ncol) = flw%fluxes%flux_dn(:, nlay+1)
+
+   end subroutine rrtmgp_lw_calculate_fluxes_run
+
+end module rrtmgp_lw_calculate_fluxes

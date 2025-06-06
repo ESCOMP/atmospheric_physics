@@ -10,12 +10,14 @@
     <scheme>rrtmgp_lw_cloud_optics</scheme>
     <scheme>rrtmgp_lw_mcica_subcol_gen</scheme>
     <scheme>rrtmgp_sw_gas_optics</scheme>
+    <scheme>rrtmgp_sw_cloud_optics</scheme>
     <!-- Longwave subcycle -->
     <subcycle>
       <scheme>rrtmgp_constituents</scheme>
       <scheme>rrtmgp_lw_gas_optics_pre</scheme>
       <scheme>rrtmgp_lw_gas_optics</scheme>
       <scheme>rrtmgp_lw_main</scheme>
+      <scheme>rrtmgp_lw_calculate_fluxes</scheme>
       <scheme>rrtmgp_lw_diagnostics</scheme>
     </subcycle>
     <!-- End longwave subcycle -->
