@@ -1,3 +1,4 @@
 .gitmodules
 physics/tools
+physics/hooks
 physics/Radiation/RRTMGP
