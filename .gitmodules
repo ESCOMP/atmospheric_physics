@@ -1,6 +1,7 @@
 [submodule "ccpp-physics"]
         path          = schemes/ccpp-physics
         url           = https://github.com/peverwhee/ccpp-physics
+        fxsparse      = ../.ccpp_physics_sparse_checkout
         fxtag         = 6d02eea1115c8319127d9f1eacba34c4ad40166b
         fxrequired    = AlwaysRequired
         fxDONOTUSEurl = https://github.com/NCAR/ccpp-physics
