@@ -1,7 +1,8 @@
 [ccpp-table-properties]
   name = rrtmgp_sw_gas_optics
   type = scheme
-  dependencies = ext/rte-frontend/mo_rte_kind.F90
+  relative_path = ../ccpp-physics/physics/Radiation/RRTMGP/rte-rrtmgp
+  dependencies = rte-frontend/mo_rte_kind.F90
 
 [ccpp-arg-table]
   name  = rrtmgp_sw_gas_optics_init

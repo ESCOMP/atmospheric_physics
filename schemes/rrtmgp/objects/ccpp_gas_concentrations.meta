@@ -1,7 +1,8 @@
 [ccpp-table-properties]
   name = ty_gas_concs_ccpp
   type = ddt
-  dependencies = ../ext/gas-optics/mo_gas_concentrations.F90
+  relative_path = ../../ccpp-physics/physics/Radiation/RRTMGP/rte-rrtmgp
+  dependencies = gas-optics/mo_gas_concentrations.F90
 
 [ccpp-arg-table]
   name = ty_gas_concs_ccpp
