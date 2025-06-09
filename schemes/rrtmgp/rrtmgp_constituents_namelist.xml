@@ -76,7 +76,7 @@
           This is the CCPP unit specification of the variable (e.g., m s-1).
                                                                         -->
   <entry id="rad_climate">
-    <type>char*256</type>
+    <type>char*256(8)</type>
     <category>rrtmgp_constituents</category>
     <group>rrtmgp_constituents</group>
     <standard_name>sources_of_radiatively_active_gases_for_climate_calcluation</standard_name>

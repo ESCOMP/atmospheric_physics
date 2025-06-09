@@ -2,7 +2,7 @@
   name = ty_optical_props_1scl_ccpp
   type = ddt
   relative_path = ../../ccpp-physics/physics/Radiation/RRTMGP/rte-rrtmgp
-  dependencies = ext/rte-frontend/mo_optical_props.F90
+  dependencies = rte-frontend/mo_optical_props.F90
 
 [ccpp-arg-table]
   name = ty_optical_props_1scl_ccpp

@@ -2,7 +2,7 @@
   name = rrtmgp_lw_gas_optics
   type = scheme
   dependencies = ../ccpp-physics/physics/Radiation/RRTMGP/rte-rrtmgp/rte-frontend/mo_rte_kind.F90
-  dependencies = objects/ccpp_gas_concentrations
+  dependencies = objects/ccpp_gas_concentrations.F90
 
 [ccpp-arg-table]
   name  = rrtmgp_lw_gas_optics_init

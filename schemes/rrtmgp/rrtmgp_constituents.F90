@@ -12,7 +12,7 @@ contains
       use ccpp_kinds,                only: kind_phys
       integer,            intent(in)  :: nradgas
       type(ccpp_constituent_properties_t), allocatable, intent(out) :: rrtmgp_dyn_consts(:)
-      character(len=256), intent(in)  :: rad_climate
+      character(len=256), intent(in)  :: rad_climate(:)
       character(len=512), intent(out) :: errmsg
       integer,            intent(out) :: errcode
 

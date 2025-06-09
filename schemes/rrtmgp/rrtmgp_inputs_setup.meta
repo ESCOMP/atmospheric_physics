@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = rrtmgp_inputs_setup
   type = scheme
+  dependencies = ./utils/radiation_utils.F90
 
 [ccpp-arg-table]
   name  = rrtmgp_inputs_setup_init

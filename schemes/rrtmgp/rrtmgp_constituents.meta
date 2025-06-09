@@ -15,7 +15,7 @@
   standard_name = sources_of_radiatively_active_gases_for_climate_calcluation
   units = none
   type = character | kind = len=256
-  dimensions = ()
+  dimensions = (cam_nl_autogen1_dimension)
   intent = in
 [ rrtmgp_dyn_consts ]
   standard_name = rrtmgp_constituents_dyn_consts

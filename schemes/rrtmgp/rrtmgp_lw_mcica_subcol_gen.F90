@@ -89,7 +89,6 @@ subroutine rrtmgp_lw_mcica_subcol_gen_run( &
    real(kind_phys) :: rand_num_1d(ncol,1)   ! random number (kissvec)
    real(kind_phys) :: rand_num(ncol,nver)   ! random number (kissvec)
 
-   real(kind_phys) :: cldf(ncol,nver)
    real(kind_phys) :: cdf(ngpt,ncol,nver)   ! random numbers
    logical  :: iscloudy(ngpt,ncol,nver)   ! flag that says whether a gridbox is cloudy
    real(kind_phys) :: tauc(nlwbands,ncol,nver)
@@ -115,7 +114,6 @@ subroutine rrtmgp_lw_mcica_subcol_gen_run( &
    tauc = merge(tauc, 0.0_kind_phys, tauc > 0.0_kind_phys)
 
    ! clip cloud fraction
-   cldf(:,:) = cldfrac(:,:)
    where (cldf(:,:) < cldmin)
       cldf(:,:) = 0._kind_phys
    end where
