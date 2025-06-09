@@ -616,6 +616,7 @@ module rrtmgp_inputs
    case default
       write(errmsg,'(a,a)') 'rrtmgp_inputs: get_band_index_by_value: units not recognized: ', units
       errflg = 1
+      return
    end select
 
    ! now just loop through the array

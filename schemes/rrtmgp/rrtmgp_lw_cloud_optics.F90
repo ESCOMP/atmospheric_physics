@@ -172,6 +172,9 @@ contains
        return
     end if
 
+    cldf = 0._kind_phys
+    tauc = 0._kind_phys
+
     ! Combine the cloud optical properties.
 
     ! gammadist liquid optics
