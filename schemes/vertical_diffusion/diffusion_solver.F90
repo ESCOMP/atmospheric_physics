@@ -551,6 +551,7 @@ contains
           tauresy(i) = tauy(i) + tautmsy(i) + taubljy(i) + tauresy(i) - tauimpy(i)
         end if
       else
+        ! .not. do_iss
         tautotx(i) = tautmsx(i) + taux(i)
         tautoty(i) = tautmsy(i) + tauy(i)
         tauresx(i) = 0._kind_phys

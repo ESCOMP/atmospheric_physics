@@ -42,7 +42,7 @@
   dimensions = ()
   intent = in
 [ ntop_turb_in ]
-  standard_name = enter_standard_name_7
+  standard_name = vertical_layer_index_of_vertical_diffusion_top_tbd
   units = index
   type = integer
   dimensions = ()
@@ -119,7 +119,7 @@
   standard_name = air_temperature
   units = K
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ q_wv ]
   standard_name = water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
@@ -131,7 +131,7 @@
   standard_name = geopotential_height_wrt_surface
   units = m
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ pmid ]
   standard_name = air_pressure
@@ -143,25 +143,25 @@
   standard_name = eastward_wind
   units = m s-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ v ]
   standard_name = northward_wind
   units = m s-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ taux ]
-  standard_name = enter_standard_name_23
-  units = enter_units
+  standard_name = eastward_total_stress_at_surface_for_boundary_layer_scheme_tbd
+  units = N m-2
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_127:enter_standard_name_128)
+  dimensions = (horizontal_loop_extent)
   intent = in
 [ tauy ]
-  standard_name = enter_standard_name_24
-  units = enter_units
+  standard_name = northward_total_stress_at_surface_for_boundary_layer_scheme_tbd
+  units = N m-2
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_129:enter_standard_name_130)
+  dimensions = (horizontal_loop_extent)
   intent = in
 [ shflx ]
   standard_name = surface_upward_sensible_heat_flux
@@ -180,49 +180,50 @@
   standard_name = virtual_potential_temperature_tbd
   units = K
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_135:enter_standard_name_136,enter_standard_name_137:enter_standard_name_138)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ ustar ]
-  standard_name = enter_standard_name_29
+  standard_name = surface_friction_velocity_from_boundary_layer_scheme_tbd
   units = m s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_139:enter_standard_name_140)
+  dimensions = (horizontal_loop_extent)
   intent = out
 [ khfs ]
-  standard_name = enter_standard_name_30
-  units = enter_units
+  standard_name = kinematic_sensible_heat_flux_at_surface_tbd
+  units = K m s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_141:enter_standard_name_142)
+  dimensions = (horizontal_loop_extent)
   intent = out
 [ kqfs ]
-  standard_name = enter_standard_name_31
-  units = enter_units
+  standard_name = kinematic_constituent_flux_at_surface_tbd
+  units = kg kg-1 m s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_143:enter_standard_name_144)
+  dimensions = (horizontal_loop_extent)
   intent = out
 [ kbfs ]
-  standard_name = enter_standard_name_32
-  units = enter_units
+  standard_name = kinematic_buoyancy_flux_at_surface_tbd
+  # m s-2 m s-1
+  units = m2 s-3
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_145:enter_standard_name_146)
+  dimensions = (horizontal_loop_extent)
   intent = out
 [ obklen ]
-  standard_name = enter_standard_name_33
-  units = enter_units
+  standard_name = obukhov_length
+  units = m
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_147:enter_standard_name_148)
+  dimensions = (horizontal_loop_extent)
   intent = out
 [ s2 ]
-  standard_name = enter_standard_name_34
-  units = enter_units
+  standard_name = square_of_wind_shear_tbd
+  units = s-2
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_149:enter_standard_name_150,enter_standard_name_151:enter_standard_name_152)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ ri ]
-  standard_name = enter_standard_name_35
-  units = enter_units
+  standard_name = richardson_number_tbd
+  units = 1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_153:enter_standard_name_154,enter_standard_name_155:enter_standard_name_156)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
@@ -272,7 +273,7 @@
   standard_name = geopotential_height_wrt_surface
   units = m
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ zi ]
   standard_name = geopotential_height_wrt_surface_at_interface
@@ -284,13 +285,13 @@
   standard_name = eastward_wind
   units = m s-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ v ]
   standard_name = northward_wind
   units = m s-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ cldn ]
   standard_name = stratiform_cloud_area_fraction
@@ -299,22 +300,23 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ thv ]
-  standard_name = enter_standard_name_47
-  units = enter_units
+  standard_name = virtual_potential_temperature_tbd
+  units = K
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_177:enter_standard_name_178,enter_standard_name_179:enter_standard_name_180)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ ustar ]
-  standard_name = enter_standard_name_48
-  units = enter_units
+  standard_name = surface_friction_velocity_from_boundary_layer_scheme_tbd
+  units = m s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_181:enter_standard_name_182)
+  dimensions = (horizontal_loop_extent)
   intent = in
 [ kbfs ]
-  standard_name = enter_standard_name_49
-  units = enter_units
+  standard_name = kinematic_buoyancy_flux_at_surface_tbd
+  # m s-2 m s-1
+  units = m2 s-3
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_183:enter_standard_name_184)
+  dimensions = (horizontal_loop_extent)
   intent = in
 [ obklen ]
   standard_name = obukhov_length
@@ -329,16 +331,16 @@
   dimensions = (horizontal_loop_extent)
   intent = out
 [ wstar ]
-  standard_name = enter_standard_name_52
-  units = enter_units
+  standard_name = atmosphere_boundary_layer_convective_velocity_scale_tbd
+  units = m s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_189:enter_standard_name_190)
+  dimensions = (horizontal_loop_extent)
   intent = out
 [ bge ]
-  standard_name = enter_standard_name_53
-  units = enter_units
+  standard_name = atmosphere_boundary_layer_buoyancy_gradient_enhancement_tbd
+  units = m s-2
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_191:enter_standard_name_192)
+  dimensions = (horizontal_loop_extent)
   intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
@@ -391,10 +393,10 @@
   dimensions = ()
   intent = in
 [ z ]
-  standard_name = enter_standard_name_61
-  units = enter_units
+  standard_name = geopotential_height_wrt_surface
+  units = m
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_193:enter_standard_name_194,enter_standard_name_195:enter_standard_name_196)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ is_hbr_pbl_scheme ]
   standard_name = flag_for_hbr_configuration_of_holtslag_boville_mixing_scheme_tbd
@@ -403,28 +405,29 @@
   dimensions = ()
   intent = in
 [ kqfs ]
-  standard_name = enter_standard_name_64
-  units = enter_units
+  standard_name = kinematic_constituent_flux_at_surface_tbd
+  units = kg kg-1 m s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_197:enter_standard_name_198)
+  dimensions = (horizontal_loop_extent)
   intent = in
 [ khfs ]
-  standard_name = enter_standard_name_63
-  units = enter_units
+  standard_name = kinematic_sensible_heat_flux_at_surface_tbd
+  units = K m s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_199:enter_standard_name_200)
+  dimensions = (horizontal_loop_extent)
   intent = in
 [ kbfs ]
-  standard_name = enter_standard_name_65
-  units = enter_units
+  standard_name = kinematic_buoyancy_flux_at_surface_tbd
+  # m s-2 m s-1
+  units = m2 s-3
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_201:enter_standard_name_202)
+  dimensions = (horizontal_loop_extent)
   intent = in
 [ ustar ]
-  standard_name = enter_standard_name_66
-  units = enter_units
+  standard_name = surface_friction_velocity_from_boundary_layer_scheme_tbd
+  units = m s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_203:enter_standard_name_204)
+  dimensions = (horizontal_loop_extent)
   intent = in
 [ obklen ]
   standard_name = obukhov_length
@@ -433,16 +436,16 @@
   dimensions = (horizontal_loop_extent)
   intent = in
 [ s2 ]
-  standard_name = enter_standard_name_68
-  units = enter_units
+  standard_name = square_of_wind_shear_tbd
+  units = s-2
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_207:enter_standard_name_208,enter_standard_name_209:enter_standard_name_210)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ ri ]
-  standard_name = enter_standard_name_69
-  units = enter_units
+  standard_name = richardson_number_tbd
+  units = 1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_211:enter_standard_name_212,enter_standard_name_213:enter_standard_name_214)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ pblh ]
   standard_name = atmosphere_boundary_layer_thickness
@@ -451,16 +454,16 @@
   dimensions = (horizontal_loop_extent)
   intent = in
 [ wstar ]
-  standard_name = enter_standard_name_71
-  units = enter_units
+  standard_name = atmosphere_boundary_layer_convective_velocity_scale_tbd
+  units = m s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_217:enter_standard_name_218)
+  dimensions = (horizontal_loop_extent)
   intent = in
 [ bge ]
-  standard_name = enter_standard_name_72
-  units = enter_units
+  standard_name = atmosphere_boundary_layer_buoyancy_gradient_enhancement_tbd
+  units = m s-2
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_219:enter_standard_name_220)
+  dimensions = (horizontal_loop_extent)
   intent = in
 [ kvm ]
   standard_name = eddy_momentum_diffusivity_at_interfaces
@@ -481,16 +484,16 @@
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ cgh ]
-  standard_name = enter_standard_name_76
-  units = enter_units
+  standard_name = counter_gradient_heat_at_interfaces_tbd
+  units = J kg-1 m-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_233:enter_standard_name_234,enter_standard_name_235:enter_standard_name_236)
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ cgs ]
-  standard_name = enter_standard_name_77
-  units = enter_units
+  standard_name = counter_gradient_star_at_interfaces_tbd
+  units = s m-2
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_237:enter_standard_name_238,enter_standard_name_239:enter_standard_name_240)
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ tpert ]
   standard_name = convective_temperature_perturbation_due_to_pbl_eddies
@@ -549,16 +552,16 @@
   dimensions = ()
   intent = in
 [ s2 ]
-  standard_name = enter_standard_name_86
-  units = enter_units
+  standard_name = square_of_wind_shear_tbd
+  units = s-2
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_249:enter_standard_name_250,enter_standard_name_251:enter_standard_name_252)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ ri ]
-  standard_name = enter_standard_name_87
-  units = enter_units
+  standard_name = richardson_number_tbd
+  units = 1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_253:enter_standard_name_254,enter_standard_name_255:enter_standard_name_256)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ kvm ]
   standard_name = eddy_momentum_diffusivity_at_interfaces
@@ -579,16 +582,16 @@
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ cgh ]
-  standard_name = enter_standard_name_91
-  units = enter_units
+  standard_name = counter_gradient_heat_at_interfaces_tbd
+  units = J kg-1 m-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_269:enter_standard_name_270,enter_standard_name_271:enter_standard_name_272)
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ cgs ]
-  standard_name = enter_standard_name_92
-  units = enter_units
+  standard_name = counter_gradient_star_at_interfaces_tbd
+  units = s m-2
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_273:enter_standard_name_274,enter_standard_name_275:enter_standard_name_276)
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ errmsg ]
   standard_name = ccpp_error_message

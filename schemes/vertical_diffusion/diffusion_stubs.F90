@@ -12,16 +12,50 @@ module diffusion_stubs
   save
 
   ! CCPP-compliant subroutines
+  public :: tms_beljaars_zero_stub_run
   public :: turbulent_mountain_stress_add_drag_coefficient_run
   public :: beljaars_add_wind_damping_rate_run
 
-  public :: beljaars_add_residual_stress_run
-  public :: turbulent_mountain_stress_add_surface_stress_run
+  public :: beljaars_add_updated_residual_stress_run
+  public :: turbulent_mountain_stress_add_updated_surface_stress_run
 
 contains
 
 
+  ! Stub for TMS/Beljaars to be set to zero while they are not implemented.
+!> \section arg_table_tms_beljaars_zero_stub_run Argument Table
+!! \htmlinclude tms_beljaars_zero_stub_run.html
+  subroutine tms_beljaars_zero_stub_run( &
+    ncol, &
+    tautmsx, tautmsy, &
+    taubljx, taubljy, &
+    errmsg, errflg)
+
+    ! Input arguments
+    integer,            intent(in)  :: ncol
+
+    ! Output arguments
+    real(kind_phys),    intent(out) :: tautmsx(:)               ! Eastward turbulent mountain surface stress [Pa]
+    real(kind_phys),    intent(out) :: tautmsy(:)               ! Northward turbulent mountain surface stress [Pa]
+    real(kind_phys),    intent(out) :: taubljx(:)               ! Eastward Beljaars surface stress [Pa]
+    real(kind_phys),    intent(out) :: taubljy(:)               ! Northward Beljaars surface stress [Pa]
+    character(len=512), intent(out) :: errmsg                   ! Error message
+    integer,            intent(out) :: errflg                   ! Error flag
+
+    errmsg = ''
+    errflg = 0
+
+    ! Set all TMS and Beljaars stresses to zero (stub implementation)
+    tautmsx(:ncol) = 0._kind_phys
+    tautmsy(:ncol) = 0._kind_phys
+    taubljx(:ncol) = 0._kind_phys
+    taubljy(:ncol) = 0._kind_phys
+
+  end subroutine tms_beljaars_zero_stub_run
+
   ! Add turbulent mountain stress to the total surface drag coefficient
+!> \section arg_table_turbulent_mountain_stress_add_drag_coefficient_run Argument Table
+!! \htmlinclude arg_table_turbulent_mountain_stress_add_drag_coefficient_run.html
   subroutine turbulent_mountain_stress_add_drag_coefficient_run( &
     ncol, pver, &
     ksrftms, &
@@ -49,6 +83,8 @@ contains
 
   ! Add Beljaars drag to the wind damping rate for vertical diffusion.
   ! Has to run after vertical_diffusion_wind_damping_rate
+!> \section arg_table_beljaars_add_wind_damping_rate_run Argument Table
+!! \htmlinclude arg_table_beljaars_add_wind_damping_rate_run.html
   subroutine beljaars_add_wind_damping_rate_run( &
     ncol, pver, &
     dragblj, &
@@ -76,8 +112,11 @@ contains
 
   end subroutine beljaars_add_wind_damping_rate_run
 
-  !
-  subroutine beljaars_add_residual_stress_run( &
+  ! Add Beljaars stress using updated provisional winds to surface stresses used
+  ! for horizontal momentum diffusion - kinetic energy dissipation.
+!> \section arg_table_beljaars_add_updated_residual_stress_run Argument Table
+!! \htmlinclude arg_table_beljaars_add_updated_residual_stress_run.html
+  subroutine beljaars_add_updated_residual_stress_run( &
     ncol, pver, &
     gravit, &
     p, &
@@ -142,9 +181,13 @@ contains
     tauresx(:ncol) = tauresx(:ncol) + taubljx(:ncol)
     tauresy(:ncol) = tauresy(:ncol) + taubljy(:ncol)
 
-  end subroutine beljaars_add_residual_stress_run
+  end subroutine beljaars_add_updated_residual_stress_run
 
-  subroutine turbulent_mountain_stress_add_surface_stress_run( &
+  ! Add TMS using updated provisional winds to total surface stress in
+  ! horizontal momentum diffusion - kinetic energy dissipation.
+!> \section arg_table_turbulent_mountain_stress_add_updated_surface_stress_run Argument Table
+!! \htmlinclude arg_table_turbulent_mountain_stress_add_updated_surface_stress_run.html
+  subroutine turbulent_mountain_stress_add_updated_surface_stress_run( &
     ncol, pver, &
     do_iss, itaures, &
     ksrftms, &
@@ -203,6 +246,6 @@ contains
       tautotx(:ncol) = tautotx(:ncol) + tautmsx(:ncol)
       tautoty(:ncol) = tautoty(:ncol) + tautmsy(:ncol)
     endif
-  end subroutine turbulent_mountain_stress_add_surface_stress_run
+  end subroutine turbulent_mountain_stress_add_updated_surface_stress_run
 
 end module diffusion_stubs
