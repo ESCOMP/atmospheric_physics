@@ -188,6 +188,12 @@
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
+[ log_output_unit ]
+  standard_name = log_output_unit
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none

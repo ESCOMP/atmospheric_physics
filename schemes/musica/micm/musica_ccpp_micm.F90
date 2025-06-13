@@ -174,7 +174,7 @@ contains
 
   !> Solves chemistry at the current time step
   subroutine micm_run(time_step, temperature, pressure, dry_air_density, &
-                      rate_parameters, mixing_ratios, errmsg, errcode)
+                      rate_parameters, mixing_ratios, log_output_unit, errmsg, errcode)
     use musica_ccpp_micm_util, only: update_micm_state, extract_mixing_ratios_from_state
     use musica_micm,           only: solver_stats_t
     use musica_util,           only: string_t, error_t
@@ -186,6 +186,7 @@ contains
     real(kind_phys), target, intent(in)    :: dry_air_density(:,:)   ! kg m-3
     real(kind_phys), target, intent(in)    :: rate_parameters(:,:,:) ! various units
     real(kind_phys), target, intent(inout) :: mixing_ratios(:,:,:)   ! kg kg-1
+    integer,                 intent(in)    :: log_output_unit        ! file unit for logging output
     character(len=512),      intent(out)   :: errmsg
     integer,                 intent(out)   :: errcode
 
@@ -226,6 +227,13 @@ contains
       ! Solve the system
       call micm%solve( time_step, state, solver_state, solver_stats, error )
       if (has_error_occurred(error, errmsg, errcode)) return
+      if (solver_state%get_char_array() /= "Converged") then
+        write(log_output_unit,*) &
+          "[MUSICA Warning] MICM solver failure: '" // &
+          trim(solver_state%get_char_array()) // "'. For grid cells ", &
+          (i_state - 1) * state_1_size + 1, " to ", i_state * state_1_size, &
+          " of ", number_of_grid_cells
+      end if
 
       ! Update the mixing ratios with the results
       call extract_mixing_ratios_from_state( state, offset, mixing_ratios)
