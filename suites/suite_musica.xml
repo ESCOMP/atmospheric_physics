@@ -5,7 +5,7 @@
     <scheme>calc_dry_air_ideal_gas_density</scheme>
     <scheme>musica_ccpp</scheme>
 
-    <!-- State diagnostis -->
+    <!-- State diagnostics -->
     <scheme>sima_state_diagnostics</scheme>
   </group>
 </suite>
