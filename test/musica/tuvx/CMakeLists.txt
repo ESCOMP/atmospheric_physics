@@ -10,7 +10,7 @@ target_sources(test_tuvx_height_grid
 
 target_link_libraries(test_tuvx_height_grid
   PRIVATE
-    musica-fortran musica yaml-cpp stdc++ netcdff
+    musica-fortran musica mechanism_configuration yaml-cpp stdc++ netcdff
 )
 
 add_test(
@@ -33,7 +33,7 @@ target_sources(test_tuvx_wavelength_grid
 
 target_link_libraries(test_tuvx_wavelength_grid
   PRIVATE
-    musica-fortran musica yaml-cpp stdc++ netcdff
+    musica-fortran musica mechanism_configuration yaml-cpp stdc++ netcdff
 )
 
 add_test(
@@ -57,7 +57,7 @@ target_sources(test_tuvx_temperature
 
 target_link_libraries(test_tuvx_temperature
   PRIVATE
-    musica-fortran musica yaml-cpp stdc++ netcdff
+    musica-fortran musica mechanism_configuration yaml-cpp stdc++ netcdff
 )
 
 add_test(
@@ -81,7 +81,7 @@ target_sources(test_tuvx_surface_albedo
 
 target_link_libraries(test_tuvx_surface_albedo
   PRIVATE
-    musica-fortran musica yaml-cpp stdc++ netcdff
+    musica-fortran musica mechanism_configuration yaml-cpp stdc++ netcdff
 )
 
 add_test(
@@ -106,7 +106,7 @@ target_sources(test_tuvx_extraterrestrial_flux
 
 target_link_libraries(test_tuvx_extraterrestrial_flux
   PRIVATE
-    musica-fortran musica yaml-cpp stdc++ netcdff
+    musica-fortran musica mechanism_configuration yaml-cpp stdc++ netcdff
 )
 
 add_test(
@@ -132,7 +132,7 @@ target_sources(test_tuvx_cloud_optics
 
 target_link_libraries(test_tuvx_cloud_optics
   PRIVATE
-    musica-fortran musica yaml-cpp stdc++ netcdff
+    musica-fortran musica mechanism_configuration yaml-cpp stdc++ netcdff
 )
 
 add_test(
@@ -157,7 +157,7 @@ target_sources(test_tuvx_aerosol_optics
 
 target_link_libraries(test_tuvx_aerosol_optics
   PRIVATE
-    musica-fortran musica yaml-cpp stdc++ netcdff
+    musica-fortran musica mechanism_configuration yaml-cpp stdc++ netcdff
 )
 
 add_test(
@@ -186,7 +186,7 @@ target_sources(test_tuvx_gas_species
 
 target_link_libraries(test_tuvx_gas_species
   PRIVATE
-    musica-fortran musica yaml-cpp stdc++ netcdff
+    musica-fortran musica mechanism_configuration yaml-cpp stdc++ netcdff
 )
 
 add_test(
@@ -215,7 +215,7 @@ target_sources(test_tuvx_load_species
 
 target_link_libraries(test_tuvx_load_species
   PRIVATE
-    musica-fortran musica yaml-cpp stdc++ netcdff
+    musica-fortran musica mechanism_configuration yaml-cpp stdc++ netcdff
 )
 
 add_test(
