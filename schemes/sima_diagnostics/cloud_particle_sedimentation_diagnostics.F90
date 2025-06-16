@@ -1,5 +1,4 @@
 ! Diagnostics for RK stratiform - cloud particle sedimentation
-! Haipeng Lin, March 2025
 module cloud_particle_sedimentation_diagnostics
    use ccpp_kinds, only: kind_phys
 

@@ -1,5 +1,4 @@
 ! Diagnostics for shallow convection and merged deep + shallow convection
-! Haipeng Lin, December 2024
 module convect_shallow_diagnostics
   use ccpp_kinds, only: kind_phys
 

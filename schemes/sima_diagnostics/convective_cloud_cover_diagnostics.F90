@@ -1,5 +1,4 @@
 ! Diagnostics for cloud fraction - convective cloud cover
-! Haipeng Lin, March 2025
 module convective_cloud_cover_diagnostics
    use ccpp_kinds, only: kind_phys
 

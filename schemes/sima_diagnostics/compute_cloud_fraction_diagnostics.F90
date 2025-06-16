@@ -1,5 +1,4 @@
 ! Diagnostics for cloud fraction
-! Haipeng Lin, April 2025
 module compute_cloud_fraction_diagnostics
    use ccpp_kinds, only: kind_phys
 

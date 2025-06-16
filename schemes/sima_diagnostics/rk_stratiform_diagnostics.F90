@@ -1,5 +1,4 @@
 ! Diagnostics for RK stratiform - miscellaneous interstitial schemes
-! Haipeng Lin, March 2025
 module rk_stratiform_diagnostics
    use ccpp_kinds, only: kind_phys
 
@@ -24,7 +23,9 @@ contains
       character(len=512), intent(out) :: errmsg
       integer,            intent(out) :: errflg
 
-      ! Local variables:
+      ! There is one initialization scheme for all RK diagnostics
+      ! but there are separate run phases for diagnostics
+      ! pertaining to each interstitial scheme. See RK SDF file.
 
       errmsg = ''
       errflg = 0
