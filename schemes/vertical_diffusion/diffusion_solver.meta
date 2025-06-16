@@ -194,46 +194,46 @@
   name  = implicit_surface_stress_add_drag_coefficient_run
   type  = scheme
 [ ncol ]
-  standard_name = enter_standard_name_29
-  units = enter_units
+  standard_name = horizontal_loop_extent
+  units = count
   type = integer
   dimensions = ()
   intent = in
 [ pver ]
-  standard_name = enter_standard_name_30
-  units = enter_units
+  standard_name = vertical_layer_dimension
+  units = count
   type = integer
   dimensions = ()
   intent = in
 [ taux ]
-  standard_name = enter_standard_name_31
-  units = enter_units
+  standard_name = eastward_stress_at_surface_for_vertical_diffusion_tbd
+  units = N m-2
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_181:enter_standard_name_182)
+  dimensions = (horizontal_loop_extent)
   intent = in
 [ tauy ]
-  standard_name = enter_standard_name_32
-  units = enter_units
+  standard_name = northward_stress_at_surface_for_vertical_diffusion_tbd
+  units = N m-2
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_183:enter_standard_name_184)
+  dimensions = (horizontal_loop_extent)
   intent = in
 [ u0 ]
-  standard_name = enter_standard_name_33
-  units = enter_units
+  standard_name = eastward_wind
+  units = m s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_185:enter_standard_name_186,enter_standard_name_187:enter_standard_name_188)
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = in
 [ v0 ]
-  standard_name = enter_standard_name_34
-  units = enter_units
+  standard_name = northward_wind
+  units = m s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_189:enter_standard_name_190,enter_standard_name_191:enter_standard_name_192)
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = in
 [ ksrf ]
-  standard_name = enter_standard_name_35
-  units = enter_units
+  standard_name = drag_coefficient_at_surface_tbd
+  units = kg m-2 s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_193:enter_standard_name_194)
+  dimensions = (horizontal_loop_extent)
   intent = inout
 [ errmsg ]
   standard_name = ccpp_error_message
@@ -256,20 +256,20 @@
   name  = vertical_diffusion_wind_damping_rate_run
   type  = scheme
 [ ncol ]
-  standard_name = enter_standard_name_38
-  units = enter_units
+  standard_name = horizontal_loop_extent
+  units = count
   type = integer
   dimensions = ()
   intent = in
 [ pver ]
-  standard_name = enter_standard_name_39
-  units = enter_units
+  standard_name = vertical_layer_dimension
+  units = count
   type = integer
   dimensions = ()
   intent = in
 [ gravit ]
-  standard_name = enter_standard_name_40
-  units = enter_units
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
@@ -280,16 +280,16 @@
   dimensions = ()
   intent = in
 [ ksrf ]
-  standard_name = enter_standard_name_42
-  units = enter_units
+  standard_name = drag_coefficient_at_surface_tbd
+  units = kg m-2 s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_195:enter_standard_name_196)
+  dimensions = (horizontal_loop_extent)
   intent = in
 [ tau_damp_rate ]
-  standard_name = enter_standard_name_43
-  units = enter_units
+  standard_name = wind_damping_rate_due_to_surface_stress_tbd
+  units = s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_197:enter_standard_name_198,enter_standard_name_199:enter_standard_name_200)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
@@ -312,196 +312,196 @@
   name  = vertical_diffusion_diffuse_horizontal_momentum_run
   type  = scheme
 [ ncol ]
-  standard_name = enter_standard_name_46
-  units = enter_units
+  standard_name = horizontal_loop_extent
+  units = count
   type = integer
   dimensions = ()
   intent = in
 [ pver ]
-  standard_name = enter_standard_name_47
-  units = enter_units
+  standard_name = vertical_layer_dimension
+  units = count
   type = integer
   dimensions = ()
   intent = in
 [ pverp ]
-  standard_name = enter_standard_name_48
-  units = enter_units
+  standard_name = vertical_interface_dimension
+  units = count
   type = integer
   dimensions = ()
   intent = in
 [ ztodt ]
-  standard_name = enter_standard_name_49
-  units = enter_units
+  standard_name = timestep_for_physics
+  units = s
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ rair ]
-  standard_name = enter_standard_name_50
-  units = enter_units
+  standard_name = gas_constant_of_dry_air
+  units = J kg-1 K-1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ gravit ]
-  standard_name = enter_standard_name_51
-  units = enter_units
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ do_diffusion_uvs ]
-  standard_name = enter_standard_name_52
-  units = enter_units
+  standard_name = flag_for_horizontal_momentum_vertical_diffusion_tbd
+  units = flag
   type = logical
   dimensions = ()
   intent = in
 [ itaures ]
-  standard_name = enter_standard_name_53
-  units = enter_units
+  standard_name = flag_for_updating_residual_stress_at_surface_in_vertical_diffusion_tbd
+  units = flag
   type = logical
   dimensions = ()
   intent = in
 [ do_beljaars ]
-  standard_name = enter_standard_name_54
-  units = enter_units
+  standard_name = flag_for_beljaars_drag_in_vertical_diffusion_tbd
+  units = flag
   type = logical
   dimensions = ()
   intent = in
 [ p ]
-  standard_name = enter_standard_name_55
-  units = enter_units
-  type = integer
+  standard_name = vertical_pressure_coordinates_for_vertical_diffusion_tbd
+  units = none
+  type = Coords1D
   dimensions = ()
   intent = in
 [ t ]
-  standard_name = enter_standard_name_56
-  units = enter_units
+  standard_name = air_temperature
+  units = K
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_201:enter_standard_name_202,enter_standard_name_203:enter_standard_name_204)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ rhoi ]
-  standard_name = enter_standard_name_57
-  units = enter_units
+  standard_name = air_density_at_interface_for_vertical_diffusion_tbd
+  units = kg m-3
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_205:enter_standard_name_206,enter_standard_name_207:enter_standard_name_208)
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ taux ]
-  standard_name = enter_standard_name_58
-  units = enter_units
+  standard_name = eastward_stress_at_surface_for_vertical_diffusion_tbd
+  units = N m-2
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_209:enter_standard_name_210)
+  dimensions = (horizontal_loop_extent)
   intent = in
 [ tauy ]
-  standard_name = enter_standard_name_59
-  units = enter_units
+  standard_name = northward_stress_at_surface_for_vertical_diffusion_tbd
+  units = N m-2
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_211:enter_standard_name_212)
+  dimensions = (horizontal_loop_extent)
   intent = in
 [ tau_damp_rate ]
-  standard_name = enter_standard_name_60
-  units = enter_units
+  standard_name = wind_damping_rate_due_to_surface_stress_tbd
+  units = s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_213:enter_standard_name_214,enter_standard_name_215:enter_standard_name_216)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ ksrftms ]
   standard_name = turbulent_orographic_form_drag_coefficent_at_surface
   units = kg s-1 m-2
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_217:enter_standard_name_218)
+  dimensions = (horizontal_loop_extent)
   intent = in
 [ dragblj ]
-  standard_name = enter_standard_name_62
-  units = enter_units
+  standard_name = turbulent_orographic_form_drag_coefficent
+  units = s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_219:enter_standard_name_220,enter_standard_name_221:enter_standard_name_222)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ kvm ]
-  standard_name = enter_standard_name_63
-  units = enter_units
+  standard_name = eddy_momentum_diffusivity_at_interfaces
+  units = m2 s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_223:enter_standard_name_224,enter_standard_name_225:enter_standard_name_226)
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ cgs ]
-  standard_name = enter_standard_name_64
-  units = enter_units
+  standard_name = counter_gradient_star_at_interfaces_tbd
+  units = s m-2
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_227:enter_standard_name_228,enter_standard_name_229:enter_standard_name_230)
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ cgh ]
-  standard_name = enter_standard_name_65
-  units = enter_units
+  standard_name = counter_gradient_heat_at_interfaces_tbd
+  units = J kg-1 m-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_231:enter_standard_name_232,enter_standard_name_233:enter_standard_name_234)
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ dpidz_sq ]
-  standard_name = enter_standard_name_66
-  units = enter_units
+  standard_name = square_of_derivative_of_pressure_with_height_at_interfaces_tbd
+  units = kg2 m-4 s-4
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ u0 ]
-  standard_name = enter_standard_name_67
-  units = enter_units
+  standard_name = eastward_wind
+  units = m s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_239:enter_standard_name_240,enter_standard_name_241:enter_standard_name_242)
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = in
 [ v0 ]
-  standard_name = enter_standard_name_68
-  units = enter_units
+  standard_name = northward_wind
+  units = m s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_243:enter_standard_name_244,enter_standard_name_245:enter_standard_name_246)
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = in
 [ dse0 ]
-  standard_name = enter_standard_name_69
-  units = enter_units
+  standard_name = dry_static_energy
+  units = J kg-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_247:enter_standard_name_248,enter_standard_name_249:enter_standard_name_250)
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = in
 [ tauresx ]
-  standard_name = enter_standard_name_70
-  units = enter_units
+  standard_name = eastward_reserved_stress_at_surface_on_previous_timestep
+  units = Pa
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_251:enter_standard_name_252)
+  dimensions = (horizontal_loop_extent)
   intent = inout
 [ tauresy ]
-  standard_name = enter_standard_name_71
-  units = enter_units
+  standard_name = northward_reserved_stress_at_surface_on_previous_timestep
+  units = Pa
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_253:enter_standard_name_254)
+  dimensions = (horizontal_loop_extent)
   intent = inout
 [ dtk ]
-  standard_name = enter_standard_name_72
-  units = enter_units
+  standard_name = kinetic_energy_dissipation_in_atmosphere_boundary_layer_tbd
+  units = J kg-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_255:enter_standard_name_256,enter_standard_name_257:enter_standard_name_258)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ tautmsx ]
-  standard_name = enter_standard_name_73
-  units = enter_units
+  standard_name = eastward_turbulent_mountain_surface_stress_tbd
+  units = N m-2
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_259:enter_standard_name_260)
+  dimensions = (horizontal_loop_extent)
   intent = out
 [ tautmsy ]
-  standard_name = enter_standard_name_74
-  units = enter_units
+  standard_name = northward_turbulent_mountain_surface_stress_tbd
+  units = N m-2
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_261:enter_standard_name_262)
+  dimensions = (horizontal_loop_extent)
   intent = out
 [ u ]
-  standard_name = enter_standard_name_75
-  units = enter_units
+  standard_name = eastward_wind_after_vertical_diffusion_tbd
+  units = m s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_263:enter_standard_name_264,enter_standard_name_265:enter_standard_name_266)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ v ]
-  standard_name = enter_standard_name_76
-  units = enter_units
+  standard_name = northward_wind_after_vertical_diffusion_tbd
+  units = m s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_267:enter_standard_name_268,enter_standard_name_269:enter_standard_name_270)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ dse ]
-  standard_name = enter_standard_name_77
-  units = enter_units
+  standard_name = dry_static_energy_after_vertical_diffusion_tbd
+  units = J kg-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_271:enter_standard_name_272,enter_standard_name_273:enter_standard_name_274)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
@@ -756,20 +756,20 @@
   name  = vertical_diffusion_tendencies_run
   type  = scheme
 [ ncol ]
-  standard_name = enter_standard_name_116
-  units = enter_units
+  standard_name = horizontal_loop_extent
+  units = count
   type = integer
   dimensions = ()
   intent = in
 [ pver ]
-  standard_name = enter_standard_name_117
-  units = enter_units
+  standard_name = vertical_layer_dimension
+  units = count
   type = integer
   dimensions = ()
   intent = in
 [ pcnst ]
-  standard_name = enter_standard_name_118
-  units = enter_units
+  standard_name = number_of_ccpp_constituents
+  units = count
   type = integer
   dimensions = ()
   intent = in
@@ -780,104 +780,104 @@
   dimensions = (number_of_ccpp_constituents)
   intent = in
 [ dt ]
-  standard_name = enter_standard_name_120
-  units = enter_units
+  standard_name = timestep_for_physics
+  units = s
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ pdel ]
-  standard_name = enter_standard_name_121
-  units = enter_units
+  standard_name = air_pressure_thickness
+  units = Pa
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_351:enter_standard_name_352,enter_standard_name_353:enter_standard_name_354)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ pdeldry ]
-  standard_name = enter_standard_name_122
-  units = enter_units
+  standard_name = air_pressure_thickness_of_dry_air
+  units = Pa
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_355:enter_standard_name_356,enter_standard_name_357:enter_standard_name_358)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ u0 ]
-  standard_name = enter_standard_name_123
-  units = enter_units
+  standard_name = eastward_wind
+  units = m s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_359:enter_standard_name_360,enter_standard_name_361:enter_standard_name_362)
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = in
 [ v0 ]
-  standard_name = enter_standard_name_124
-  units = enter_units
+  standard_name = northward_wind
+  units = m s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_363:enter_standard_name_364,enter_standard_name_365:enter_standard_name_366)
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = in
 [ s0 ]
-  standard_name = enter_standard_name_125
-  units = enter_units
+  standard_name = dry_static_energy
+  units = J kg-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_367:enter_standard_name_368,enter_standard_name_369:enter_standard_name_370)
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = in
 [ q0 ]
-  standard_name = enter_standard_name_126
-  units = enter_units
+  standard_name = ccpp_constituents
+  units = none
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_371:enter_standard_name_372,enter_standard_name_373:enter_standard_name_374,enter_standard_name_375:enter_standard_name_376)
+  dimensions = (horizontal_dimension, vertical_layer_dimension, number_of_ccpp_constituents)
   intent = in
 [ u ]
-  standard_name = enter_standard_name_127
-  units = enter_units
+  standard_name = eastward_wind_after_vertical_diffusion_tbd
+  units = m s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_377:enter_standard_name_378,enter_standard_name_379:enter_standard_name_380)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ v ]
-  standard_name = enter_standard_name_128
-  units = enter_units
+  standard_name = northward_wind_after_vertical_diffusion_tbd
+  units = m s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_381:enter_standard_name_382,enter_standard_name_383:enter_standard_name_384)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ s ]
-  standard_name = enter_standard_name_129
-  units = enter_units
+  standard_name = dry_static_energy_after_vertical_diffusion_tbd
+  units = J kg-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_385:enter_standard_name_386,enter_standard_name_387:enter_standard_name_388)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ q ]
-  standard_name = enter_standard_name_130
-  units = enter_units
+  standard_name = ccpp_constituents_mass_mixing_ratio_wrt_moist_air_and_condensed_water_after_vertical_diffusion_tbd
+  units = kg kg-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_389:enter_standard_name_390,enter_standard_name_391:enter_standard_name_392,enter_standard_name_393:enter_standard_name_394)
+  dimensions = (horizontal_dimension, vertical_layer_dimension, number_of_ccpp_constituents)
   intent = in
 [ tend_s ]
-  standard_name = enter_standard_name_131
-  units = enter_units
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure
+  units = J kg-1 s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_395:enter_standard_name_396,enter_standard_name_397:enter_standard_name_398)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ tend_u ]
-  standard_name = enter_standard_name_132
-  units = enter_units
+  standard_name = tendency_of_eastward_wind
+  units = m s-2
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_399:enter_standard_name_400,enter_standard_name_401:enter_standard_name_402)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ tend_v ]
-  standard_name = enter_standard_name_133
-  units = enter_units
+  standard_name = tendency_of_northward_wind
+  units = m s-2
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_403:enter_standard_name_404,enter_standard_name_405:enter_standard_name_406)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ tend_q ]
-  standard_name = enter_standard_name_134
-  units = enter_units
+  standard_name = ccpp_constituent_tendencies
+  units = none
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_407:enter_standard_name_408,enter_standard_name_409:enter_standard_name_410,enter_standard_name_411:enter_standard_name_412)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
   intent = out
 [ errmsg ]
-  standard_name = enter_standard_name_135
-  units = enter_units
+  standard_name = ccpp_error_message
+  units = none
   type = character | kind = len=512
   dimensions = ()
   intent = out
 [ errflg ]
-  standard_name = enter_standard_name_136
-  units = enter_units
+  standard_name = ccpp_error_code
+  units = 1
   type = integer
   dimensions = ()
   intent = out
