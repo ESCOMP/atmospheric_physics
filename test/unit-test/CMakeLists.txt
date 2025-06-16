@@ -41,8 +41,9 @@ add_library(phys_utils ${PHYS_UTILS_SRC})
 target_compile_options(phys_utils PRIVATE -ffree-line-length-none)
 target_include_directories(phys_utils PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
+add_subdirectory(../../schemes/mmm mmm)
+
 if(ATMOSPHERIC_PHYSICS_ENABLE_TESTS OR ATMOSPHERIC_PHYSICS_ENABLE_CODE_COVERAGE)
   enable_testing()
   add_subdirectory(tests)
 endif()
-

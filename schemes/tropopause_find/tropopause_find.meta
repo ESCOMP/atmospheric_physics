@@ -115,7 +115,7 @@
   standard_name = tropopause_air_pressure_from_tropopause_climatology_dataset
   units = Pa
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension, number_of_time_slices_in_tropopause_climatology_dataset)
+  dimensions = (horizontal_loop_extent, number_of_time_slices_in_tropopause_climatology_dataset)
   intent = in
 [ tropp_days ]
   standard_name = tropopause_calendar_days_from_tropopause_climatology
