@@ -290,7 +290,7 @@ contains
     real(kind_phys),    intent(out)   :: qme(:,:)       ! Rate of condensation-evaporation of condensate (net_condensation_rate_due_to_microphysics) [kg kg-1 s-1]
     real(kind_phys),    intent(out)   :: prodprec(:,:)  ! Conversion rate of condensate to precip (precipitation_production_due_to_microphysics) [kg kg-1 s-1]
     real(kind_phys),    intent(out)   :: prodsnow(:,:)  ! Snow production rate (ignored in RK?) [kg kg-1 s-1]
-    real(kind_phys),    intent(out)   :: evapprec(:,:)  ! Falling precipitation evaporation rate (precipitation_evaporation_due_to_microphysics) [kg kg-1 s-1] -- & combined to apply q(wv) tendency
+    real(kind_phys),    intent(out)   :: evapprec(:,:)  ! Falling precipitation evaporation rate (rate_of_evaporation_of_precipitation_due_to_microphysics) [kg kg-1 s-1] -- & combined to apply q(wv) tendency
     real(kind_phys),    intent(out)   :: evapsnow(:,:)  ! Falling snow evaporation rate [kg kg-1 s-1]
     real(kind_phys),    intent(out)   :: evapheat(:,:)  ! heating rate due to evaporation of precipitation [J kg-1 s-1]
     real(kind_phys),    intent(out)   :: prfzheat(:,:)  ! heating rate due to freezing of precipitation [J kg-1 s-1]

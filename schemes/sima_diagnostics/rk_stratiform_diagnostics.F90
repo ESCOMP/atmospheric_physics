@@ -58,7 +58,7 @@ contains
       call history_add_field('HFREEZ', 'tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_freezing_of_precipitation', 'lev', 'avg', 'J kg-1 s-1')
 
       call history_add_field('PRODPREC', 'precipitation_production_due_to_microphysics', 'lev', 'avg', 'kg kg-1 s-1')
-      call history_add_field('EVAPPREC', 'precipitation_evaporation_due_to_microphysics', 'lev', 'avg', 'kg kg-1 s-1')
+      call history_add_field('EVAPPREC', 'rate_of_evaporation_of_precipitation_due_to_microphysics', 'lev', 'avg', 'kg kg-1 s-1')
       call history_add_field('EVAPSNOW', 'rate_of_evaporation_of_falling_snow_due_to_microphysics', 'lev', 'avg', 'kg kg-1 s-1')
 
       ! ... for COSP/CFMIP

@@ -616,7 +616,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ evapprec ]
-  standard_name = precipitation_evaporation_due_to_microphysics
+  standard_name = rate_of_evaporation_of_precipitation_due_to_microphysics
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
