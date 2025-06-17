@@ -6,19 +6,19 @@
   name  = vertical_diffusion_sponge_layer_init
   type  = scheme
 [ amIRoot ]
-  standard_name = flag_for_mpi_root_process
+  standard_name = flag_for_mpi_root
   units = flag
   dimensions = ()
   type = logical
   intent = in
 [ iulog ]
   standard_name = log_output_unit
-  units = count
+  units = 1
   dimensions = ()
   type = integer
   intent = in
 [ ptop_ref ]
-  standard_name = reference_pressure_at_top_of_atmosphere
+  standard_name = air_pressure_at_top_of_atmosphere_model
   units = Pa
   dimensions = ()
   type = real | kind = kind_phys
@@ -53,7 +53,7 @@
   intent = in
 [ kvm ]
   standard_name = eddy_momentum_diffusivity_at_interfaces
-  units = m^2 s-1
+  units = m2 s-1
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   type = real | kind = kind_phys
   intent = inout

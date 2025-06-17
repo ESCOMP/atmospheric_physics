@@ -17,8 +17,8 @@ module holtslag_boville_diff_interstitials
 contains
 
   ! Interstitial for non-WACCM-X configurations where vertical diffusion top is top of model.
-!> \section arg_table_hb_diff_set_vertical_diffusion_top Argument Table
-!! \htmlinclude hb_diff_set_vertical_diffusion_top.html
+!> \section arg_table_hb_diff_set_vertical_diffusion_top_init Argument Table
+!! \htmlinclude hb_diff_set_vertical_diffusion_top_init.html
   subroutine hb_diff_set_vertical_diffusion_top_init( &
     ntop_eddy, &
     errmsg, errflg)
@@ -38,8 +38,8 @@ contains
 
   ! Interstitial (with host model dependency) for WACCM-X configurations where vertical diffusion top
   ! is dependent on a hardcoded parameter.
-!> \section arg_table_hb_diff_set_vertical_diffusion_top_waccmx Argument Table
-!! \htmlinclude hb_diff_set_vertical_diffusion_top_waccmx.html
+!> \section arg_table_hb_diff_set_vertical_diffusion_top_waccmx_init Argument Table
+!! \htmlinclude hb_diff_set_vertical_diffusion_top_waccmx_init.html
   subroutine hb_diff_set_vertical_diffusion_top_waccmx_init( &
     ntop_eddy, &
     errmsg, errflg)

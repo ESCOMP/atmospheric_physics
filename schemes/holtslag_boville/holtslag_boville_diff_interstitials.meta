@@ -242,6 +242,11 @@
   type = integer
   intent = out
 
+[ccpp-table-properties]
+  name = hb_free_atm_diff_prepare_vertical_diffusion_inputs
+  type = scheme
+  dependencies = ../../to_be_ccppized/coords_1d.F90
+
 [ccpp-arg-table]
   name  = hb_free_atm_diff_prepare_vertical_diffusion_inputs_run
   type  = scheme

@@ -60,6 +60,23 @@
   dimensions = ()
   intent = out
 
+[ccpp-arg-table]
+  name  = holtslag_boville_diff_finalize
+  type  = scheme
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+
 [ccpp-table-properties]
   name = hb_pbl_independent_coefficients
   type = scheme
@@ -269,7 +286,7 @@
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
-[ zm ]
+[ z ]
   standard_name = geopotential_height_wrt_surface
   units = m
   type = real | kind = kind_phys
@@ -593,26 +610,6 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
-[ errmsg ]
-  standard_name = ccpp_error_message
-  units = none
-  type = character | kind = len=512
-  dimensions = ()
-  intent = out
-[ errflg ]
-  standard_name = ccpp_error_code
-  units = 1
-  type = integer
-  dimensions = ()
-  intent = out
-
-[ccpp-table-properties]
-  name = holtslag_boville_diff
-  type = scheme
-
-[ccpp-arg-table]
-  name  = holtslag_boville_diff_finalize
-  type  = scheme
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
