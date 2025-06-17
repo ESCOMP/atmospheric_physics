@@ -120,6 +120,7 @@ contains
 !! \htmlinclude hb_diff_prepare_vertical_diffusion_inputs_run.html
   subroutine hb_diff_prepare_vertical_diffusion_inputs_run( &
     ncol, pverp, pcnst, &
+    const_props, &
     wsx_from_coupler, wsy_from_coupler, &
     shf_from_coupler, &
     cflx_from_coupler, &
@@ -130,14 +131,23 @@ contains
     cflux, &
     itaures, &
     p, &
+    q_wv_cflx, &
     errmsg, errflg)
 
     use coords_1d,  only: Coords1D
+
+    ! framework dependency for const_props
+    use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
+
+    ! dependency to get constituent index
+    use ccpp_const_utils,          only: ccpp_const_get_idx
 
     ! Input arguments
     integer,            intent(in)  :: ncol       ! Number of atmospheric columns [count]
     integer,            intent(in)  :: pverp      ! Number of vertical interfaces [count]
     integer,            intent(in)  :: pcnst      ! Number of CCPP constituents [count]
+    type(ccpp_constituent_prop_ptr_t), &
+                        intent(in)  :: const_props(:)          ! CCPP constituent properties pointer
     real(kind_phys),    intent(in)  :: wsx_from_coupler(:)     ! Surface eastward wind stress from coupler [Pa]
     real(kind_phys),    intent(in)  :: wsy_from_coupler(:)     ! Surface northward wind stress from coupler [Pa]
     real(kind_phys),    intent(in)  :: shf_from_coupler(:)     ! Surface upward sensible heat flux from coupler [W m-2]
@@ -151,8 +161,12 @@ contains
     real(kind_phys),    intent(out) :: cflux(:,:)              ! Surface upward constituent fluxes for vertical diffusion [kg m-2 s-1]
     logical,            intent(out) :: itaures                 ! Flag for updating residual stress at surface in vertical diffusion [flag]
     type(Coords1D),     intent(out) :: p                       ! Vertical moist pressure coordinates for vertical diffusion [Pa]
+    real(kind_phys),    intent(out) :: q_wv_cflx(:)            ! Surface upward water vapor flux [kg kg-1 s-1]
     character(len=512), intent(out) :: errmsg                  ! Error message
     integer,            intent(out) :: errflg                  ! Error flag
+
+    ! Local variables
+    integer :: const_wv_idx                                     ! Water vapor constituent index
 
     errmsg = ''
     errflg = 0
@@ -168,6 +182,15 @@ contains
 
     ! Initialize pressure coordinate object for vertical diffusion solver
     p = Coords1D(pint(:ncol,:pverp))
+
+    ! Get water vapor constituent index
+    call ccpp_const_get_idx(const_props, &
+         'water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water', &
+         const_wv_idx, errmsg, errflg)
+    if (errflg /= 0) return
+
+    ! Extract water vapor flux for use in HB.
+    q_wv_cflx(:ncol) = cflx_from_coupler(:ncol, const_wv_idx)
 
   end subroutine hb_diff_prepare_vertical_diffusion_inputs_run
 
@@ -188,6 +211,7 @@ contains
     cflux, &
     itaures, &
     p, &
+    q_wv_cflx, &
     errmsg, errflg)
 
     use coords_1d,  only: Coords1D
@@ -215,6 +239,7 @@ contains
     real(kind_phys),    intent(out) :: cflux(:,:)               ! Surface upward constituent fluxes for vertical diffusion [kg m-2 s-1]
     logical,            intent(out) :: itaures                  ! Flag for updating residual stress at surface in vertical diffusion [flag]
     type(Coords1D),     intent(out) :: p                        ! Vertical moist pressure coordinates for vertical diffusion [Pa]
+    real(kind_phys),    intent(out) :: q_wv_cflx(:)             ! Surface upward water vapor flux [kg kg-1 s-1]
     character(len=512), intent(out) :: errmsg                   ! Error message
     integer,            intent(out) :: errflg                   ! Error flag
 
@@ -255,6 +280,12 @@ contains
 
     ! Initialize pressure coordinate object for vertical diffusion solver
     p = Coords1D(pint(:ncol,:pverp))
+
+    ! Extract water vapor flux for use in the HB scheme to calculate
+    ! kinematic water vapor fluxes.
+    ! This is separate from the cflux above, which is provided to the diffusion
+    ! solver for flux application.
+    q_wv_cflx(:ncol) = cflx_from_coupler(:ncol, const_wv_idx)
 
   end subroutine hb_free_atm_diff_prepare_vertical_diffusion_inputs_run
 

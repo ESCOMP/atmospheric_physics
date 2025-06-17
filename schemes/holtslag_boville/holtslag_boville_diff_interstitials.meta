@@ -151,6 +151,12 @@
   dimensions = ()
   type = integer
   intent = in
+[ const_props ]
+  standard_name = ccpp_constituent_properties
+  units = none
+  type = ccpp_constituent_prop_ptr_t
+  dimensions = (number_of_ccpp_constituents)
+  intent = in
 [ wsx_from_coupler ]
   standard_name = surface_eastward_wind_stress_from_coupler
   units = Pa
@@ -216,6 +222,12 @@
   units = Pa
   dimensions = ()
   type = Coords1D
+  intent = out
+[ q_wv_cflx ]
+  standard_name = surface_upward_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_flux_tbd
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
   intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
@@ -310,6 +322,12 @@
   units = Pa
   dimensions = ()
   type = Coords1D
+  intent = out
+[ q_wv_cflx ]
+  standard_name = surface_upward_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_flux_tbd
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
   intent = out
 [ errmsg ]
   standard_name = ccpp_error_message

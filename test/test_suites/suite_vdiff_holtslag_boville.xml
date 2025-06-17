@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Holtslag and Boville (HB) boundary layer scheme and vertical diffusion.
+  The first part of this file is for HB to compute the exchange coefficients.
+  The second part is the vertical diffusion solver
+  with stubs for future interstitials for integration with TMS, Beljaars, etc.
+  which were formerly embedded into the vertical diffusion solver.
+-->
+<suite name="holtslag_boville" version="1.0">
+  <group name="physics_before_coupler">
+    <scheme>initialize_constituents</scheme>
+
+    <!-- stub: zero UBC -->
+    <scheme>zero_upper_boundary_condition</scheme>
+
+    <!-- init phase only: for setting vertical diffusion top -->
+    <scheme>hb_diff_set_vertical_diffusion_top</scheme>
+
+    <!-- hb pre-interstitial: tautotx/y -->
+    <scheme>tms_beljaars_zero_stub</scheme> <!-- stub as TMS/Beljaars not implemented -->
+    <scheme>hb_diff_set_total_surface_stress</scheme>
+
+    <!-- vdiff pre-interstitial 0: create p coords1d, copy surface fluxes from coupler (cam_in) incl. wv fluxes for hb kinematic wv flx. -->
+    <scheme>hb_diff_prepare_vertical_diffusion_inputs</scheme>
+
+    <!-- Holtslag-Boville boundary layer scheme -->
+    <scheme>hb_pbl_independent_coefficients</scheme>
+    <scheme>hb_pbl_dependent_coefficients</scheme>
+    <scheme>hb_diff_exchange_coefficients</scheme>
+
+    <!-- sponge layer vertical diffusion (mutate kvm) -->
+    <scheme>vertical_diffusion_sponge_layer</scheme>
+
+    <!-- vdiff pre-interstitial 1: interpolate t, rho, p to interfaces -->
+    <scheme>vertical_diffusion_interpolate_to_interfaces</scheme>
+
+    <!-- vdiff pre-interstitial 2: calculate drag coefficient -->
+    <scheme>implicit_surface_stress_add_drag_coefficient</scheme>
+    <!--<scheme>turbulent_mountain_stress_add_drag_coefficient</scheme>-->
+
+    <!-- vdiff pre-interstitial 3: calculate damping rate from drag coef. -->
+    <scheme>vertical_diffusion_wind_damping_rate</scheme>
+    <!--<scheme>beljaars_add_wind_damping_rate</scheme>-->
+
+    <!-- vdiff compute 1: horizontal momentum diffusion; dissipate KE -->
+    <!-- note: vdiff compute schemes calculate "provisional" updates,
+         but these updates are not applied as physics tendencies until the end. -->
+    <scheme>vertical_diffusion_diffuse_horizontal_momentum</scheme>
+
+    <!-- // wip // vdiff mid-interstitial 1? 2? 3?: update surface stresses from horiz. momentum -->
+    <!--<scheme>vertical_diffusion_update_surface_stress</scheme>-->
+    <!--<scheme>turbulent_mountain_stress_add_updated_surface_stress</scheme>-->
+    <!--<scheme>beljaars_add_updated_residual_stress</scheme>-->
+
+    <!-- vdiff compute 2: dry static energy diffusion -->
+    <scheme>vertical_diffusion_diffuse_dry_static_energy</scheme>
+
+    <!-- vdiff compute 3: tracer diffusion -->
+    <scheme>vertical_diffusion_diffuse_tracers</scheme>
+
+    <!-- vdiff post-interstitial 1: convert provisional updates to tendencies -->
+    <scheme>vertical_diffusion_tendencies</scheme>
+    <scheme>apply_tendency_of_northward_wind</scheme>
+    <scheme>apply_tendency_of_eastward_wind</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+  </group>
+</suite>

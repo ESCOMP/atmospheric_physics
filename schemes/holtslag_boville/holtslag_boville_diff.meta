@@ -170,8 +170,8 @@
   dimensions = (horizontal_loop_extent)
   intent = in
 [ q_wv_flx ]
-  standard_name = surface_upward_??
-  # surface_upward_ccpp_constituent_fluxes but only for ixq (TBD)
+  standard_name = surface_upward_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_flux_tbd
+  # surface_upward_ccpp_constituent_fluxes but only for water vapor.
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
@@ -478,7 +478,7 @@
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ kvq ]
-  standard_name = eddy_constituent_diffusivity_at_interfaces?
+  standard_name = eddy_constituent_diffusivity_at_interfaces_tbd
   units = m2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
@@ -576,7 +576,7 @@
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ kvq ]
-  standard_name = eddy_constituent_diffusivity_at_interfaces?
+  standard_name = eddy_constituent_diffusivity_at_interfaces_tbd
   units = m2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)

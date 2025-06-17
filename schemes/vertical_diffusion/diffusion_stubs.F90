@@ -12,6 +12,8 @@ module diffusion_stubs
   save
 
   ! CCPP-compliant subroutines
+  public :: zero_upper_boundary_condition_init
+
   public :: tms_beljaars_zero_stub_run
   public :: turbulent_mountain_stress_add_drag_coefficient_run
   public :: beljaars_add_wind_damping_rate_run
@@ -21,6 +23,36 @@ module diffusion_stubs
 
 contains
 
+  ! Stub for zero upper boundary conditions before UBC module is CCPPized
+!> \section arg_table_zero_upper_boundary_condition_init Argument Table
+!! \htmlinclude zero_upper_boundary_condition_init.html
+  subroutine zero_upper_boundary_condition_init( &
+    ncol, pcnst, &
+    ! below output
+    ubc_mmr, &
+    cnst_fixed_ubc, &
+    errmsg, errflg)
+
+    ! Input arguments
+    integer,            intent(in)  :: ncol
+    integer,            intent(in)  :: pcnst
+
+    ! Output arguments
+    real(kind_phys),    intent(out) :: ubc_mmr(:,:)             ! Upper boundary condition mass mixing ratios [kg kg-1]
+    logical,            intent(out) :: cnst_fixed_ubc(:)         ! Flag for fixed upper boundary condition of constituents [flag]
+    character(len=512), intent(out) :: errmsg                   ! Error message
+    integer,            intent(out) :: errflg                   ! Error flag
+
+    errmsg = ''
+    errflg = 0
+
+    ! Set all upper boundary condition mixing ratios to zero
+    ubc_mmr(:ncol, :pcnst) = 0._kind_phys
+
+    ! Set all fixed upper boundary condition flags to false
+    cnst_fixed_ubc(:pcnst) = .false.
+
+  end subroutine zero_upper_boundary_condition_init
 
   ! Stub for TMS/Beljaars to be set to zero while they are not implemented.
 !> \section arg_table_tms_beljaars_zero_stub_run Argument Table

@@ -524,76 +524,78 @@
   name  = vertical_diffusion_diffuse_dry_static_energy_run
   type  = scheme
 [ ncol ]
-  standard_name = enter_standard_name_80
-  units = enter_units
+  standard_name = horizontal_loop_extent
+  units = count
   type = integer
   dimensions = ()
   intent = in
 [ pver ]
-  standard_name = enter_standard_name_81
-  units = enter_units
+  standard_name = vertical_layer_dimension
+  units = count
   type = integer
   dimensions = ()
   intent = in
 [ ztodt ]
-  standard_name = enter_standard_name_82
-  units = enter_units
+  standard_name = timestep_for_physics
+  units = s
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ gravit ]
-  standard_name = enter_standard_name_83
-  units = enter_units
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ p ]
-  standard_name = enter_standard_name_84
-  units = enter_units
-  type = integer
+  standard_name = vertical_pressure_coordinates_for_vertical_diffusion_tbd
+  units = none
+  type = Coords1D
   dimensions = ()
   intent = in
 [ rhoi ]
-  standard_name = enter_standard_name_85
-  units = enter_units
+  standard_name = air_density_at_interface_for_vertical_diffusion_tbd
+  units = kg m-3
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_275:enter_standard_name_276,enter_standard_name_277:enter_standard_name_278)
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ shflx ]
-  standard_name = enter_standard_name_86
-  units = enter_units
+  standard_name = surface_upward_sensible_heat_flux_for_vertical_diffusion_tbd
+  units = W m-2
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_279:enter_standard_name_280)
+  dimensions = (horizontal_loop_extent)
   intent = in
 [ dse_top ]
-  standard_name = enter_standard_name_87
-  units = enter_units
+  standard_name = dry_static_energy_at_top_of_atmosphere_tbd
+  units = J kg-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_281:enter_standard_name_282)
+  dimensions = (horizontal_loop_extent)
   intent = in
 [ kvh ]
-  standard_name = enter_standard_name_88
-  units = enter_units
+  standard_name = eddy_heat_diffusivity_at_interfaces
+  units = m2 s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_283:enter_standard_name_284,enter_standard_name_285:enter_standard_name_286)
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ cgh ]
-  standard_name = enter_standard_name_89
-  units = enter_units
+  standard_name = counter_gradient_heat_at_interfaces_tbd
+  units = J kg-1 m-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_287:enter_standard_name_288,enter_standard_name_289:enter_standard_name_290)
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ dpidz_sq ]
-  standard_name = enter_standard_name_90
-  units = enter_units
+  standard_name = square_of_derivative_of_pressure_with_height_at_interfaces_tbd
+  units = kg2 m-4 s-4
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ dse ]
-  standard_name = enter_standard_name_91
-  units = enter_units
+  # this is inout as previously horizontal momentum diffusion already
+  # modified the provisional after-vdiff dse.
+  standard_name = dry_static_energy_after_vertical_diffusion_tbd
+  units = J kg-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_295:enter_standard_name_296,enter_standard_name_297:enter_standard_name_298)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ errmsg ]
   standard_name = ccpp_error_message
@@ -616,124 +618,142 @@
   name  = vertical_diffusion_diffuse_tracers_run
   type  = scheme
 [ ncol ]
-  standard_name = enter_standard_name_94
-  units = enter_units
+  standard_name = horizontal_loop_extent
+  units = count
   type = integer
   dimensions = ()
   intent = in
 [ pver ]
-  standard_name = enter_standard_name_95
-  units = enter_units
+  standard_name = vertical_layer_dimension
+  units = count
   type = integer
   dimensions = ()
   intent = in
 [ ncnst ]
-  standard_name = enter_standard_name_96
-  units = enter_units
+  # note: this is set to ccpp_constituents for now because
+  # q is sized number_of_ccpp_constituents as well, and cannot
+  # yet be a custom dimension. when CAM5 is ported, ncnst = 1,
+  # and q would have to have a custom dimension of, e.g.,
+  # number_of_ccpp_constituents_for_vertical_diffusion_solver.
+  # but this is not yet supported, so ncnst is all constituents for now.
+  standard_name = number_of_ccpp_constituents
+  units = count
   type = integer
   dimensions = ()
   intent = in
 [ ztodt ]
-  standard_name = enter_standard_name_97
-  units = enter_units
+  standard_name = timestep_for_physics
+  units = s
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ rair ]
-  standard_name = enter_standard_name_98
-  units = enter_units
+  standard_name = gas_constant_of_dry_air
+  units = J kg-1 K-1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ gravit ]
-  standard_name = enter_standard_name_99
-  units = enter_units
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ do_diffusion_const ]
-  standard_name = enter_standard_name_100
-  units = enter_units
+  # only dimension should be ncnst, not pcnst.
+  standard_name = flag_for_ccpp_constituent_vertical_diffusion_tbd
+  units = flag
   type = logical
-  dimensions = (enter_standard_name_299:enter_standard_name_300)
+  dimensions = (number_of_ccpp_constituents)
   intent = in
 [ p ]
-  standard_name = enter_standard_name_101
-  units = enter_units
-  type = integer
+  standard_name = vertical_pressure_coordinates_for_vertical_diffusion_tbd
+  units = none
+  type = Coords1D
   dimensions = ()
   intent = in
 [ t ]
-  standard_name = enter_standard_name_102
-  units = enter_units
+  standard_name = air_temperature
+  units = K
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_301:enter_standard_name_302,enter_standard_name_303:enter_standard_name_304)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ rhoi ]
-  standard_name = enter_standard_name_103
-  units = enter_units
+  standard_name = air_density_at_interface_for_vertical_diffusion_tbd
+  units = kg m-3
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_305:enter_standard_name_306,enter_standard_name_307:enter_standard_name_308)
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ cflx ]
-  standard_name = enter_standard_name_104
-  units = enter_units
+  # same note applies for the ncnst argument above that the second dimension
+  # is actually ncnst, not pcnst.
+  #
+  # when this is made ncnst, the standard name could be changed to
+  # surface_upward_ccpp_constituent_fluxes_for_vertical_diffusion_tbd
+  standard_name = surface_upward_ccpp_constituent_fluxes_tbd
+  units = kg m-2 s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_309:enter_standard_name_310,enter_standard_name_311:enter_standard_name_312)
+  dimensions = (horizontal_loop_extent, number_of_ccpp_constituents)
   intent = in
 [ kvh ]
-  standard_name = enter_standard_name_105
-  units = enter_units
+  standard_name = eddy_heat_diffusivity_at_interfaces
+  units = m2 s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_313:enter_standard_name_314,enter_standard_name_315:enter_standard_name_316)
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ kvq ]
-  standard_name = enter_standard_name_106
-  units = enter_units
+  standard_name = eddy_constituent_diffusivity_at_interfaces_tbd
+  units = m2 s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_317:enter_standard_name_318,enter_standard_name_319:enter_standard_name_320)
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ cgs ]
-  standard_name = enter_standard_name_107
-  units = enter_units
+  standard_name = counter_gradient_star_at_interfaces_tbd
+  units = s m-2
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_321:enter_standard_name_322,enter_standard_name_323:enter_standard_name_324)
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ qmincg ]
-  standard_name = enter_standard_name_108
-  units = enter_units
+  # same note applies for the ncnst argument above that the only dimension
+  # is actually ncnst, not pcnst.
+  standard_name = minimum_mass_mixing_ratio_wrt_moist_air_and_condensed_water_after_counter_gradient_fluxes_tbd
+  units = kg kg-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_325:enter_standard_name_326)
+  dimensions = (number_of_ccpp_constituents)
   intent = in
 [ dpidz_sq ]
-  standard_name = enter_standard_name_109
-  units = enter_units
+  standard_name = square_of_derivative_of_pressure_with_height_at_interfaces_tbd
+  units = kg2 m-4 s-4
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ ubc_mmr ]
-  standard_name = enter_standard_name_110
-  units = enter_units
+  # same note applies for the ncnst argument above that the second dimension
+  # is actually ncnst, not pcnst.
+  standard_name = upper_boundary_condition_of_ccpp_constituents_mass_mixing_ratio_wrt_moist_air_and_condensed_water_tbd
+  units = kg kg-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_331:enter_standard_name_332,enter_standard_name_333:enter_standard_name_334)
+  dimensions = (horizontal_loop_extent, number_of_ccpp_constituents)
   intent = in
 [ cnst_fixed_ubc ]
-  standard_name = enter_standard_name_111
-  units = enter_units
+  # same note applies for the ncnst argument above that the only dimension
+  # is actually ncnst, not pcnst.
+  standard_name = flag_for_fixed_upper_boundary_condition_of_ccpp_constituents_tbd
+  units = flag
   type = logical
-  dimensions = (enter_standard_name_335:enter_standard_name_336)
+  dimensions = (number_of_ccpp_constituents)
   intent = in
 [ q0 ]
-  standard_name = enter_standard_name_112
-  units = enter_units
+  standard_name = ccpp_constituents
+  units = none
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_337:enter_standard_name_338,enter_standard_name_339:enter_standard_name_340,enter_standard_name_341:enter_standard_name_342)
+  dimensions = (horizontal_dimension, vertical_layer_dimension, number_of_ccpp_constituents)
   intent = in
 [ q ]
-  standard_name = enter_standard_name_113
-  units = enter_units
+  standard_name = ccpp_constituents_mass_mixing_ratio_wrt_moist_air_and_condensed_water_after_vertical_diffusion_tbd
+  units = kg kg-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_343:enter_standard_name_344,enter_standard_name_345:enter_standard_name_346,enter_standard_name_347:enter_standard_name_348)
+  dimensions = (horizontal_dimension, vertical_layer_dimension, number_of_ccpp_constituents)
   intent = out
 [ errmsg ]
   standard_name = ccpp_error_message

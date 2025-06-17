@@ -1,4 +1,48 @@
 [ccpp-table-properties]
+  name = zero_upper_boundary_condition
+  type = scheme
+
+[ccpp-arg-table]
+  name  = zero_upper_boundary_condition_init
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_dimension
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[ pcnst ]
+  standard_name = number_of_ccpp_constituents
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[ ubc_mmr ]
+  standard_name = upper_boundary_condition_of_ccpp_constituents_mass_mixing_ratio_wrt_moist_air_and_condensed_water_tbd
+  units = kg kg-1
+  dimensions = (horizontal_dimension, number_of_ccpp_constituents)
+  type = real | kind = kind_phys
+  intent = out
+[ cnst_fixed_ubc ]
+  standard_name = flag_for_fixed_upper_boundary_condition_of_ccpp_constituents_tbd
+  units = flag
+  dimensions = (number_of_ccpp_constituents)
+  type = logical
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  dimensions = ()
+  type = character | kind = len=512
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  dimensions = ()
+  type = integer
+  intent = out
+
+[ccpp-table-properties]
   name = tms_beljaars_zero_stub
   type = scheme
 
