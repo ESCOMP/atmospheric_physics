@@ -4,5 +4,8 @@
   <group name="physics_after_coupler">
     <scheme>calc_dry_air_ideal_gas_density</scheme>
     <scheme>musica_ccpp</scheme>
+
+    <!-- State diagnostics -->
+    <scheme>sima_state_diagnostics</scheme>
   </group>
 </suite>

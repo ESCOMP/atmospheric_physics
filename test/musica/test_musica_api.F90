@@ -20,6 +20,8 @@ program run_test_musica_ccpp
   real(kind_phys), parameter :: MOLAR_MASS_DRY_AIR = 0.0289644_kind_phys  ! kg mol-1
   real(kind_phys), parameter :: MOLAR_MASS_DRY_AIR__G_MOL = MOLAR_MASS_DRY_AIR * 1.0e3_kind_phys ! g mol-1
 
+  integer, parameter :: STDOUT = 6
+
   type :: ArrheniusReaction
     real(kind_phys) :: A_ = 1.0
     real(kind_phys) :: B_ = 0.0
@@ -255,8 +257,8 @@ contains
                           geopotential_height_wrt_surface_at_interface, surface_geopotential,       &
                           surface_temperature, surface_albedo, extraterrestrial_radiation_flux,     &
                           standard_gravitational_acceleration, cloud_area_fraction,                 &
-                          air_pressure_thickness, solar_zenith_angle, earth_sun_distance, errmsg,   &
-                          errcode )
+                          air_pressure_thickness, solar_zenith_angle, earth_sun_distance, STDOUT,   &
+                          errmsg, errcode )
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
@@ -496,8 +498,8 @@ contains
                           geopotential_height_wrt_surface_at_interface, surface_geopotential,       &
                           surface_temperature, surface_albedo, extraterrestrial_radiation_flux,     &
                           standard_gravitational_acceleration, cloud_area_fraction,                 &
-                          air_pressure_thickness, solar_zenith_angle, earth_sun_distance, errmsg,   &
-                          errcode )
+                          air_pressure_thickness, solar_zenith_angle, earth_sun_distance, STDOUT,   &
+                          errmsg, errcode )
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
@@ -689,7 +691,7 @@ contains
     call musica_ccpp_run( time_step, temperature, pressure, dry_air_mass_density, constituent_props_ptr, &
                           constituents, dummy_array_2D, dummy_array_2D, dummy_array_1D, dummy_array_1D, &
                           dummy_array_1D, dummy_array_1D, -HUGE(0.0_kind_phys), dummy_array_2D, &
-                          dummy_array_2D, dummy_array_1D, -HUGE(0.0_kind_phys), errmsg, errcode )
+                          dummy_array_2D, dummy_array_1D, -HUGE(0.0_kind_phys), STDOUT, errmsg, errcode )
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
