@@ -140,7 +140,7 @@ contains
                              surface_temperature, surface_albedo, extraterrestrial_flux,           &
                              standard_gravitational_acceleration, cloud_area_fraction,             &
                              air_pressure_thickness, solar_zenith_angle, earth_sun_distance,       &
-                             errmsg, errcode)
+                             log_output_unit, errmsg, errcode)
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
     use ccpp_kinds,                only: kind_phys
     use musica_ccpp_species,       only: number_of_tuvx_species, tuvx_indices_constituent_props, &
@@ -164,6 +164,7 @@ contains
     real(kind_phys),         intent(in)    :: air_pressure_thickness(:,:)                       ! Pa (column, layer)
     real(kind_phys),         intent(in)    :: solar_zenith_angle(:)                             ! radians (column)
     real(kind_phys),         intent(in)    :: earth_sun_distance                                ! AU
+    integer,                 intent(in)    :: log_output_unit                                   ! file unit number for logging
     character(len=512),      intent(out)   :: errmsg
     integer,                 intent(out)   :: errcode
 
@@ -200,7 +201,7 @@ contains
 
     ! Solve chemistry at the current time step
     call micm_run(time_step, temperature, pressure, dry_air_density, rate_parameters, &
-                  constituents, errmsg, errcode)
+                  constituents, log_output_unit, errmsg, errcode)
     if (errcode /= 0) return
   
   end subroutine musica_ccpp_run
