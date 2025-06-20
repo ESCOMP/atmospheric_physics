@@ -66,13 +66,13 @@
   intent = in
 [ wsx_from_coupler ]
   standard_name = surface_eastward_wind_stress_from_coupler
-  units = Pa
+  units = N m-2
   dimensions = (horizontal_loop_extent)
   type = real | kind = kind_phys
   intent = in
 [ wsy_from_coupler ]
   standard_name = surface_northward_wind_stress_from_coupler
-  units = Pa
+  units = N m-2
   dimensions = (horizontal_loop_extent)
   type = real | kind = kind_phys
   intent = in
@@ -102,13 +102,13 @@
   intent = in
 [ tautotx ]
   standard_name = eastward_total_stress_at_surface_for_boundary_layer_scheme_tbd
-  units = Pa
+  units = N m-2
   dimensions = (horizontal_loop_extent)
   type = real | kind = kind_phys
   intent = out
 [ tautoty ]
   standard_name = northward_total_stress_at_surface_for_boundary_layer_scheme_tbd
-  units = Pa
+  units = N m-2
   dimensions = (horizontal_loop_extent)
   type = real | kind = kind_phys
   intent = out
@@ -159,13 +159,13 @@
   intent = in
 [ wsx_from_coupler ]
   standard_name = surface_eastward_wind_stress_from_coupler
-  units = Pa
+  units = N m-2
   dimensions = (horizontal_loop_extent)
   type = real | kind = kind_phys
   intent = in
 [ wsy_from_coupler ]
   standard_name = surface_northward_wind_stress_from_coupler
-  units = Pa
+  units = N m-2
   dimensions = (horizontal_loop_extent)
   type = real | kind = kind_phys
   intent = in
@@ -182,7 +182,7 @@
   type = real | kind = kind_phys
   intent = in
 [ pint ]
-  standard_name = air_pressure_at_interfaces
+  standard_name = air_pressure_at_interface
   units = Pa
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   type = real | kind = kind_phys
@@ -287,7 +287,7 @@
   type = real | kind = kind_phys
   intent = in
 [ pint ]
-  standard_name = air_pressure_at_interfaces
+  standard_name = air_pressure_at_interface
   units = Pa
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   type = real | kind = kind_phys
