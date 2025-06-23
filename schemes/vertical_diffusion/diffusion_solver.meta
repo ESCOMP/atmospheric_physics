@@ -1,4 +1,48 @@
 [ccpp-table-properties]
+  name = vertical_diffusion_set_temperature_at_toa_default
+  type = scheme
+
+[ccpp-arg-table]
+  name  = vertical_diffusion_set_temperature_at_toa_default_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ t ]
+  standard_name = air_temperature
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ t_toai ]
+  standard_name = air_temperature_at_interface_above_top_of_atmosphere_for_vertical_diffusion_tbd
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-table-properties]
   name = vertical_diffusion_interpolate_to_interfaces
   type = scheme
 
@@ -443,13 +487,13 @@
   intent = in
 [ tauresx ]
   standard_name = eastward_reserved_stress_at_surface_on_previous_timestep
-  units = Pa
+  units = N m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = inout
 [ tauresy ]
   standard_name = northward_reserved_stress_at_surface_on_previous_timestep
-  units = Pa
+  units = N m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = inout

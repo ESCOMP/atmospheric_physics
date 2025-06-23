@@ -57,25 +57,25 @@
   intent = in
 [ tautmsx ]
   standard_name = eastward_turbulent_mountain_surface_stress_tbd
-  units = Pa
+  units = N m-2
   dimensions = (horizontal_loop_extent)
   type = real | kind = kind_phys
   intent = out
 [ tautmsy ]
   standard_name = northward_turbulent_mountain_surface_stress_tbd
-  units = Pa
+  units = N m-2
   dimensions = (horizontal_loop_extent)
   type = real | kind = kind_phys
   intent = out
 [ taubljx ]
   standard_name = eastward_beljaars_surface_stress_tbd
-  units = Pa
+  units = N m-2
   dimensions = (horizontal_loop_extent)
   type = real | kind = kind_phys
   intent = out
 [ taubljy ]
   standard_name = northward_beljaars_surface_stress_tbd
-  units = Pa
+  units = N m-2
   dimensions = (horizontal_loop_extent)
   type = real | kind = kind_phys
   intent = out
@@ -243,13 +243,13 @@
   intent = in
 [ tauresx ]
   standard_name = eastward_reserved_stress_at_surface_on_previous_timestep
-  units = Pa
+  units = N m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = inout
 [ tauresy ]
   standard_name = northward_reserved_stress_at_surface_on_previous_timestep
-  units = Pa
+  units = N m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = inout
@@ -317,7 +317,7 @@
   intent = in
 [ tauresx ]
   standard_name = eastward_reserved_stress_at_surface_on_previous_timestep
-  units = Pa
+  units = N m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = inout

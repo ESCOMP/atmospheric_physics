@@ -20,6 +20,7 @@ module diffusion_solver
 
   ! CCPP-compliant public interfaces
   public :: vertical_diffusion_diffuse_horizontal_momentum_timestep_init
+  public :: vertical_diffusion_interpolate_to_interfaces_timestep_init
   public :: vertical_diffusion_interpolate_to_interfaces_run   ! Interpolate t, rho, rair to interfaces
   public :: implicit_surface_stress_add_drag_coefficient_run   ! Add implicit turbulent surface stress (if do_iss)
   public :: vertical_diffusion_wind_damping_rate_run           ! Compute wind damping rate from drag coeff
@@ -36,6 +37,49 @@ module diffusion_solver
   real(kind_phys), parameter :: timeres = 7200._kind_phys    ! Relaxation time scale of residual stress (>= dt) [s]
 
 contains
+
+  ! Set (default) temperature used at top of atmosphere for interpolation.
+  ! In the future, this can use the upper boundary condition provided for temperature,
+  ! or a different extrapolation in WACCM-X mode.
+!> \section arg_table_vertical_diffusion_set_temperature_at_toa_default_run Argument Table
+!! \htmlinclude arg_table_vertical_diffusion_set_temperature_at_toa_default_run.html
+  subroutine vertical_diffusion_set_temperature_at_toa_default_run( &
+    ncol, pver, &
+    t, &
+    t_toai, &
+    errmsg, errflg)
+
+    ! Input arguments
+    integer,            intent(in)  :: ncol
+    integer,            intent(in)  :: pver
+    real(kind_phys),    intent(in)  :: t(:, :)     ! Temperature [K]
+
+    ! Output arguments
+    real(kind_phys),    intent(out) :: t_toai(:)   ! Temperature at interface above TOA for vertical diffusion [K]
+    character(len=512), intent(out) :: errmsg
+    integer,            intent(out) :: errflg
+
+    errmsg = ''
+    errflg = 0
+
+    ! Default
+    t_toai(:ncol) = t(:ncol, 1)  ! Use temperature at top model level [K]
+
+    ! Eventually, if ubc_fixed_temp is available, use ubc_t.
+
+    ! Eventually, in WACCM-X, use extrapolated version:
+    ! if (waccmx_mode) then
+    !    ! For WACCM-X, set ubc temperature to extrapolate from next two lower interface level temperatures
+    !    ! the original formulation is:
+    !    ! t_toai(:ncol) = 1.5_r8*tint(:ncol,2)-.5_r8*tint(:ncol,3)
+    !    ! this appears to be:
+    !    !               = tint(:ncol,2) + 0.5_r8*(tint(:ncol,2) - tint(:ncol,3))
+    !    ! assuming that the extrapolated gradient is 1/2 of the temperature gradient between the lower interfaces
+    !    ! because the interpolation will be done later in the CCPP-ized scheme, formulate this in terms of
+    !    ! the temperature (at midpoints):
+    !    t_toai(:ncol) = 1.5_r8*(state%t(:ncol,2)+state%t(:ncol,1))/2._r8-.5_r8*(state%t(:ncol,3)+state%t(:ncol,2))/2._r8
+
+  end subroutine vertical_diffusion_set_temperature_at_toa_default_run
 
   ! Interpolates temperature, air density (moist and dry),
   ! and sets gas constant (not constituent dependent in non-WACCM-X mode)

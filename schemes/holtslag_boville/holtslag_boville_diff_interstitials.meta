@@ -78,25 +78,25 @@
   intent = in
 [ tautmsx ]
   standard_name = eastward_turbulent_mountain_surface_stress_tbd
-  units = Pa
+  units = N m-2
   dimensions = (horizontal_loop_extent)
   type = real | kind = kind_phys
   intent = in
 [ tautmsy ]
   standard_name = northward_turbulent_mountain_surface_stress_tbd
-  units = Pa
+  units = N m-2
   dimensions = (horizontal_loop_extent)
   type = real | kind = kind_phys
   intent = in
 [ taubljx ]
   standard_name = eastward_beljaars_surface_stress_tbd
-  units = Pa
+  units = N m-2
   dimensions = (horizontal_loop_extent)
   type = real | kind = kind_phys
   intent = in
 [ taubljy ]
   standard_name = northward_beljaars_surface_stress_tbd
-  units = Pa
+  units = N m-2
   dimensions = (horizontal_loop_extent)
   type = real | kind = kind_phys
   intent = in
@@ -189,13 +189,13 @@
   intent = in
 [ taux ]
   standard_name = eastward_stress_at_surface_for_vertical_diffusion_tbd
-  units = Pa
+  units = N m-2
   dimensions = (horizontal_loop_extent)
   type = real | kind = kind_phys
   intent = out
 [ tauy ]
   standard_name = northward_stress_at_surface_for_vertical_diffusion_tbd
-  units = Pa
+  units = N m-2
   dimensions = (horizontal_loop_extent)
   type = real | kind = kind_phys
   intent = out
@@ -294,13 +294,13 @@
   intent = in
 [ taux ]
   standard_name = eastward_stress_at_surface_for_vertical_diffusion_tbd
-  units = Pa
+  units = N m-2
   dimensions = (horizontal_loop_extent)
   type = real | kind = kind_phys
   intent = out
 [ tauy ]
   standard_name = northward_stress_at_surface_for_vertical_diffusion_tbd
-  units = Pa
+  units = N m-2
   dimensions = (horizontal_loop_extent)
   type = real | kind = kind_phys
   intent = out
