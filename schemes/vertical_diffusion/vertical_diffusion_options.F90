@@ -12,8 +12,8 @@ module vertical_diffusion_options
 
 contains
 
-!> \section arg_table_vertical_diffusion_compute_init Argument Table
-!! \htmlinclude arg_table_vertical_diffusion_compute_init.html
+!> \section arg_table_vertical_diffusion_options_init Argument Table
+!! \htmlinclude arg_table_vertical_diffusion_options_init.html
   subroutine vertical_diffusion_options_init( &
     amIRoot, iulog, &
     do_iss_in, &

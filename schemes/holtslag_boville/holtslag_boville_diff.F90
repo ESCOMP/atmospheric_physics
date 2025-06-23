@@ -64,6 +64,7 @@ contains
     is_hbr_pbl_scheme, &
     ntop_turb_in, &
     errmsg, errflg)
+
     ! Input arguments
     logical,            intent(in)    :: amIRoot           ! are we on the MPI root task?
     integer,            intent(in)    :: iulog             ! log output unit
@@ -123,14 +124,8 @@ contains
     npbl = max(npbl, 1)
 
     if(amIRoot) then
-      write(iulog,*) 'hb_diff_init: PBL height will be limited to bottom ', npbl, &
+      write(iulog,*) 'Holtslag-Boville PBL: PBL height will be limited to bottom ', npbl, &
                      ' model levels. Top is ', pref_mid(pver+1-npbl), ' pascals'
-
-      if(is_hbr_pbl_scheme) then
-        write(iulog,*) 'hb_diff_init: initializing as HBR PBL scheme.'
-      else
-        write(iulog,*) 'hb_diff_init: initializing as HB PBL scheme.'
-      endif
     end if
 
   end subroutine holtslag_boville_diff_init

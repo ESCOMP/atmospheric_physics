@@ -11,6 +11,8 @@ module holtslag_boville_diff_options
 
 contains
 
+!> \section arg_table_holtslag_boville_diff_options_init Argument Table
+!! \htmlinclude arg_table_holtslag_boville_diff_options_init.html
   subroutine holtslag_boville_diff_options_init( &
     amIRoot, iulog, &
     is_hbr_pbl_scheme, &
