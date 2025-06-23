@@ -1,14 +1,34 @@
+! Copyright (C) 2024-2025 University Corporation for Atmospheric Research
+! SPDX-License-Identifier: Apache-2.0
 program run_test_musica_ccpp
 
-  use ccpp_kinds, only: kind_phys
   use musica_ccpp
+  use musica_test_data, only: get_wavelength_edges, get_extrarterrestrial_fluxes
+  use ccpp_kinds,       only: kind_phys
 
   implicit none
 
 #define ASSERT(x) if (.not.(x)) then; write(*,*) "Assertion failed[", __FILE__, ":", __LINE__, "]: x"; stop 1; endif
-#define ASSERT_NEAR( a, b, abs_error ) if( (abs(a - b) >= abs_error) .and. (abs(a - b) /= 0.0) ) then; write(*,*) "Assertion failed[", __FILE__, ":", __LINE__, "]: a, b"; stop 1; endif
+#define ASSERT_NEAR( a, b, abs_error ) \
+  if ( (abs(a - b) > abs_error) .and. (abs(a - b) /= 0.0) .and. (a /= 0.0) .and. (b /= 0.0) ) then; \
+    write(*,*) "Assertion failed[", __FILE__, ":", __LINE__, "]: a = ", a, ", b = ", b; stop 1; \
+  endif
 
   real(kind_phys), parameter :: DEGREE_TO_RADIAN = 3.14159265358979323846_kind_phys / 180.0_kind_phys
+  real(kind_phys), parameter :: AVOGADRO = 6.02214179e23_kind_phys        ! mol-1
+  real(kind_phys), parameter :: GAS_CONSTANT = 8.31446261815324_kind_phys ! J K-1 mol-1
+  real(kind_phys), parameter :: MOLAR_MASS_DRY_AIR = 0.0289644_kind_phys  ! kg mol-1
+  real(kind_phys), parameter :: MOLAR_MASS_DRY_AIR__G_MOL = MOLAR_MASS_DRY_AIR * 1.0e3_kind_phys ! g mol-1
+
+  integer, parameter :: STDOUT = 6
+
+  type :: ArrheniusReaction
+    real(kind_phys) :: A_ = 1.0
+    real(kind_phys) :: B_ = 0.0
+    real(kind_phys) :: C_ = 0.0
+    real(kind_phys) :: D_ = 300.0
+    real(kind_phys) :: E_ = 0.0
+  end type ArrheniusReaction
 
   write(*,*) "[MUSICA Test] Running the Chapman test"
   call test_chapman()
@@ -18,132 +38,32 @@ program run_test_musica_ccpp
   call test_terminator()
   write(*,*) "[MUSICA Test] Ends the Terminator test"
 
+  write(*,*) "[MUSICA Test] Running the Analytical test with Rosenbrock solver"
+  call test_rosenbrock()
+  write(*,*) "[MUSICA Test] Ends the Analytical test with Rosenbrock solver"
+
+  write(*,*) "[MUSICA Test] Running the Analytical test with Backward Euler solver"
+  call test_backward_euler()
+  write(*,*) "[MUSICA Test] Ends the Analytical test with Backward Euler solver"
+
 contains
 
-  !> Returns the wavelength edges used in the CAM-Chem photolysis rate constant lookup table
-  !! These are the values that will be used in CAM-SIMA and correspond to the wavelength
-  !! bins used in the CAM-Chem photolysis rate constant lookup table.
-  !!
-  !! We're using the actual values here because several of the TS1/TSMLT photolysis
-  !! rate constant configurations are sensitive to the wavelength grid.
-  subroutine get_wavelength_edges(edges)
-    use ccpp_kinds, only: kind_phys
-
-    real(kind_phys), dimension(:), intent(out) :: edges
-
-    edges = (/ &
-      120.0e-9_kind_phys, &
-      121.4e-9_kind_phys, &
-      121.9e-9_kind_phys, &
-      123.5e-9_kind_phys, &
-      124.3e-9_kind_phys, &
-      125.5e-9_kind_phys, &
-      126.3e-9_kind_phys, &
-      127.1e-9_kind_phys, &
-      130.1e-9_kind_phys, &
-      131.1e-9_kind_phys, &
-      135.0e-9_kind_phys, &
-      140.0e-9_kind_phys, &
-      145.0e-9_kind_phys, &
-      150.0e-9_kind_phys, &
-      155.0e-9_kind_phys, &
-      160.0e-9_kind_phys, &
-      165.0e-9_kind_phys, &
-      168.0e-9_kind_phys, &
-      171.0e-9_kind_phys, &
-      173.0e-9_kind_phys, &
-      174.4e-9_kind_phys, &
-      175.4e-9_kind_phys, &
-      177.0e-9_kind_phys, &
-      178.6e-9_kind_phys, &
-      180.2e-9_kind_phys, &
-      181.8e-9_kind_phys, &
-      183.5e-9_kind_phys, &
-      185.2e-9_kind_phys, &
-      186.9e-9_kind_phys, &
-      188.7e-9_kind_phys, &
-      190.5e-9_kind_phys, &
-      192.3e-9_kind_phys, &
-      194.2e-9_kind_phys, &
-      196.1e-9_kind_phys, &
-      198.0e-9_kind_phys, &
-      200.0e-9_kind_phys, &
-      202.0e-9_kind_phys, &
-      204.1e-9_kind_phys, &
-      206.2e-9_kind_phys, &
-      208.0e-9_kind_phys, &
-      211.0e-9_kind_phys, &
-      214.0e-9_kind_phys, &
-      217.0e-9_kind_phys, &
-      220.0e-9_kind_phys, &
-      223.0e-9_kind_phys, &
-      226.0e-9_kind_phys, &
-      229.0e-9_kind_phys, &
-      232.0e-9_kind_phys, &
-      235.0e-9_kind_phys, &
-      238.0e-9_kind_phys, &
-      241.0e-9_kind_phys, &
-      244.0e-9_kind_phys, &
-      247.0e-9_kind_phys, &
-      250.0e-9_kind_phys, &
-      253.0e-9_kind_phys, &
-      256.0e-9_kind_phys, &
-      259.0e-9_kind_phys, &
-      263.0e-9_kind_phys, &
-      267.0e-9_kind_phys, &
-      271.0e-9_kind_phys, &
-      275.0e-9_kind_phys, &
-      279.0e-9_kind_phys, &
-      283.0e-9_kind_phys, &
-      287.0e-9_kind_phys, &
-      291.0e-9_kind_phys, &
-      295.0e-9_kind_phys, &
-      298.5e-9_kind_phys, &
-      302.5e-9_kind_phys, &
-      305.5e-9_kind_phys, &
-      308.5e-9_kind_phys, &
-      311.5e-9_kind_phys, &
-      314.5e-9_kind_phys, &
-      317.5e-9_kind_phys, &
-      322.5e-9_kind_phys, &
-      327.5e-9_kind_phys, &
-      332.5e-9_kind_phys, &
-      337.5e-9_kind_phys, &
-      342.5e-9_kind_phys, &
-      347.5e-9_kind_phys, &
-      350.0e-9_kind_phys, &
-      355.0e-9_kind_phys, &
-      360.0e-9_kind_phys, &
-      365.0e-9_kind_phys, &
-      370.0e-9_kind_phys, &
-      375.0e-9_kind_phys, &
-      380.0e-9_kind_phys, &
-      385.0e-9_kind_phys, &
-      390.0e-9_kind_phys, &
-      395.0e-9_kind_phys, &
-      400.0e-9_kind_phys, &
-      405.0e-9_kind_phys, &
-      410.0e-9_kind_phys, &
-      415.0e-9_kind_phys, &
-      420.0e-9_kind_phys, &
-      430.0e-9_kind_phys, &
-      440.0e-9_kind_phys, &
-      450.0e-9_kind_phys, &
-      500.0e-9_kind_phys, &
-      550.0e-9_kind_phys, &
-      600.0e-9_kind_phys, &
-      650.0e-9_kind_phys, &
-      700.0e-9_kind_phys, &
-      750.0e-9_kind_phys &
-    /)
- 
-  end subroutine get_wavelength_edges
+  !> Calculate the rate constant for an Arrhenius reaction
+  function calculate_arrhenius( reaction, temperature, pressure ) result( rate )
+    type(ArrheniusReaction), intent(in) :: reaction
+    real(kind_phys), intent(in) :: temperature
+    real(kind_phys), intent(in) :: pressure
+    real(kind_phys) :: rate
+    rate = reaction%A_ * exp( reaction%C_ / temperature ) &
+           * (temperature / reaction%D_) ** reaction%B_ &
+           * (1.0 + reaction%E_ * pressure)
+  end function calculate_arrhenius
 
   !> Tests the Chapman chemistry scheme
   subroutine test_chapman()
     use ccpp_constituent_prop_mod,     only: ccpp_constituent_prop_ptr_t
     use ccpp_constituent_prop_mod,     only: ccpp_constituent_properties_t
-    use musica_ccpp_micm,              only: micm
+    use ccpp_const_utils,              only: ccpp_const_get_idx
     use musica_ccpp_namelist,          only: filename_of_micm_configuration, &
                                              filename_of_tuvx_configuration, &
                                              filename_of_tuvx_micm_mapping_configuration
@@ -151,53 +71,51 @@ contains
 
     implicit none
 
-    integer, parameter                                                    :: NUM_SPECIES = 5
-    integer, parameter                                                    :: NUM_TUVX_CONSTITUENTS = 1
-    integer, parameter                                                    :: NUM_TUVX_ONLY_GAS_SPECIES = 1
     ! This test requires that the number of grid cells = 4, which is the default
     ! vector dimension for MICM. This restriction will be removed once
     ! https://github.com/NCAR/musica/issues/217 is finished.
-    integer, parameter                                                    :: NUM_COLUMNS = 2
-    integer, parameter                                                    :: NUM_LAYERS = 2
-    integer, parameter                                                    :: NUM_WAVELENGTH_BINS = 102
-    integer                                                               :: NUM_GRID_CELLS = NUM_COLUMNS * NUM_LAYERS
-    integer                                                               :: errcode
-    character(len=512)                                                    :: errmsg
-    real(kind_phys)                                                       :: time_step = 60._kind_phys                    ! s
-    real(kind_phys), dimension(NUM_WAVELENGTH_BINS+1)                     :: photolysis_wavelength_grid_interfaces        ! m
-    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)                    :: geopotential_height_wrt_surface_at_midpoint  ! m
-    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS+1)                  :: geopotential_height_wrt_surface_at_interface ! m
-    real(kind_phys), dimension(NUM_COLUMNS)                               :: surface_geopotential                         ! m2 s-2
-    real(kind_phys), dimension(NUM_COLUMNS)                               :: surface_temperature                          ! K
-    real(kind_phys), dimension(NUM_COLUMNS)                               :: surface_albedo                               ! fraction
-    integer, parameter                                                    :: num_photolysis_wavelength_grid_sections = 8  ! (count)
-    real(kind_phys), dimension(num_photolysis_wavelength_grid_sections+1) :: flux_data_photolysis_wavelength_interfaces   ! nm
-    real(kind_phys), dimension(num_photolysis_wavelength_grid_sections)   :: extraterrestrial_flux                        ! photons cm-2 s-1 nm-1
-    real(kind_phys)                                                       :: standard_gravitational_acceleration          ! s2 m-1
-    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)                    :: temperature                                  ! K
-    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)                    :: pressure                                     ! Pa
-    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)                    :: dry_air_density                              ! kg m-3
-    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)                    :: cloud_area_fraction                          ! fraction
-    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)                    :: air_pressure_thickness                       ! Pa
+    integer, parameter                                               :: NUM_COLUMNS = 2
+    integer, parameter                                               :: NUM_LAYERS = 2
+    integer, parameter                                               :: NUM_WAVELENGTH_BINS = 102
+    integer                                                          :: NUM_GRID_CELLS = NUM_COLUMNS * NUM_LAYERS
+    integer, parameter                                               :: NUM_SPECIES = 5
+    integer, parameter                                               :: NUM_TUVX_CONSTITUENTS = 1
+    integer, parameter                                               :: NUM_TUVX_ONLY_GAS_SPECIES = 1
+    integer                                                          :: errcode
+    character(len=512)                                               :: errmsg
+    real(kind_phys)                                                  :: time_step = 60._kind_phys                    ! s
+    real(kind_phys), dimension(NUM_WAVELENGTH_BINS+1)                :: photolysis_wavelength_grid_interfaces        ! m
+    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)               :: geopotential_height_wrt_surface_at_midpoint  ! m
+    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS+1)             :: geopotential_height_wrt_surface_at_interface ! m
+    real(kind_phys), dimension(NUM_COLUMNS)                          :: surface_geopotential                         ! m2 s-2
+    real(kind_phys), dimension(NUM_COLUMNS)                          :: surface_temperature                          ! K
+    real(kind_phys), dimension(NUM_COLUMNS)                          :: surface_albedo                               ! fraction
+    real(kind_phys), dimension(NUM_WAVELENGTH_BINS)                  :: extraterrestrial_radiation_flux              ! photons cm-2 s-1 nm-1
+    real(kind_phys)                                                  :: standard_gravitational_acceleration          ! s2 m-1
+    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)               :: temperature                                  ! K
+    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)               :: pressure                                     ! Pa
+    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)               :: dry_air_density                              ! kg m-3
+    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)               :: cloud_area_fraction                          ! fraction
+    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)               :: air_pressure_thickness                       ! Pa
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS, &
-      NUM_SPECIES+NUM_TUVX_CONSTITUENTS+NUM_TUVX_ONLY_GAS_SPECIES)        :: constituents                                 ! kg kg-1
+      NUM_SPECIES+NUM_TUVX_CONSTITUENTS+NUM_TUVX_ONLY_GAS_SPECIES)   :: constituents                                 ! kg kg-1
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS, &
-        NUM_SPECIES+NUM_TUVX_CONSTITUENTS+NUM_TUVX_ONLY_GAS_SPECIES)      :: initial_constituents                         ! kg kg-1
-    real(kind_phys), dimension(NUM_COLUMNS)                               :: solar_zenith_angle                           ! radians
-    real(kind_phys)                                                       :: earth_sun_distance                           ! AU
-    type(ccpp_constituent_prop_ptr_t),   allocatable                      :: constituent_props_ptr(:)
-    type(ccpp_constituent_properties_t), allocatable, target              :: constituent_props(:)
-    type(ccpp_constituent_properties_t), pointer                          :: const_prop
-    real(kind_phys)                                                       :: molar_mass, base_conc
-    character(len=512)                                                    :: species_name, units
-    character(len=:), allocatable                                         :: micm_species_name
-    logical                                                               :: tmp_bool, is_advected
-    integer                                                               :: i, j, k
-    integer                                                               :: N2_index, O2_index, O_index, O1D_index, O3_index
-    real(kind_phys)                                                       :: total_O, total_O_init
+        NUM_SPECIES+NUM_TUVX_CONSTITUENTS+NUM_TUVX_ONLY_GAS_SPECIES) :: initial_constituents                         ! kg kg-1
+    real(kind_phys), dimension(NUM_COLUMNS)                          :: solar_zenith_angle                           ! radians
+    real(kind_phys)                                                  :: earth_sun_distance                           ! AU
+    type(ccpp_constituent_prop_ptr_t),   allocatable                 :: constituent_props_ptr(:)
+    type(ccpp_constituent_properties_t), allocatable, target         :: constituent_props(:)
+    type(ccpp_constituent_properties_t), pointer                     :: const_prop
+    real(kind_phys)                                                  :: molar_mass, base_conc
+    character(len=512)                                               :: species_name, units
+    character(len=:), allocatable                                    :: micm_species_name
+    logical                                                          :: tmp_bool, is_advected
+    integer                                                          :: i, j
+    integer                                                          :: N2_index, O_index, O1D_index, O2_index, O3_index
+    integer                                                          :: cloud_index, air_index
+    real(kind_phys)                                                  :: total_O, total_O_init
 
     call get_wavelength_edges(photolysis_wavelength_grid_interfaces)
-    time_step = 60._kind_phys
     geopotential_height_wrt_surface_at_midpoint(1,:) = (/ 2000.0_kind_phys, 500.0_kind_phys /)
     geopotential_height_wrt_surface_at_midpoint(2,:) = (/ 2000.0_kind_phys, -500.0_kind_phys /)
     geopotential_height_wrt_surface_at_interface(1,:) = (/ 3000.0_kind_phys, 1000.0_kind_phys, 0.0_kind_phys /)
@@ -205,6 +123,7 @@ contains
     surface_temperature = (/ 300.0_kind_phys, 300.0_kind_phys /)
     surface_geopotential = (/ 100.0_kind_phys, 200.0_kind_phys /)
     surface_albedo(:) = 0.10_kind_phys
+    call get_extrarterrestrial_fluxes(extraterrestrial_radiation_flux)
     standard_gravitational_acceleration = 10.0_kind_phys
     temperature(:,1) = (/ 100._kind_phys, 200._kind_phys /)
     temperature(:,2) = (/ 300._kind_phys, 400._kind_phys /)
@@ -212,12 +131,6 @@ contains
     pressure(:,2) = (/ 8000.04_kind_phys, 9000.04_kind_phys /)
     dry_air_density(:,1) = (/ 3.5_kind_phys, 4.5_kind_phys /)
     dry_air_density(:,2) = (/ 5.5_kind_phys, 6.5_kind_phys /)
-    flux_data_photolysis_wavelength_interfaces(:) = &
-      (/ 200.0_kind_phys, 210.0_kind_phys, 220.0_kind_phys, 230.0_kind_phys, &
-        240.0_kind_phys, 250.0_kind_phys, 260.0_kind_phys, 270.0_kind_phys, 280.0_kind_phys /)
-    extraterrestrial_flux(:) = &
-      (/ 1.5e13_kind_phys, 1.5e13_kind_phys, 1.4e13_kind_phys, 1.4e13_kind_phys, &
-        1.3e13_kind_phys, 1.2e13_kind_phys, 1.1e13_kind_phys, 1.0e13_kind_phys /)
     cloud_area_fraction(:,1) = (/ 0.1_kind_phys, 0.2_kind_phys /)
     cloud_area_fraction(:,2) = (/ 0.3_kind_phys, 0.4_kind_phys /)
     air_pressure_thickness(:,1) = (/ 900.0_kind_phys, 905.0_kind_phys /)
@@ -273,50 +186,61 @@ contains
     end do
 
     call musica_ccpp_init(NUM_COLUMNS, NUM_LAYERS, NUM_LAYERS+1, photolysis_wavelength_grid_interfaces, &
-                          constituent_props_ptr, errmsg, errcode)
+                          constituent_props_ptr, MOLAR_MASS_DRY_AIR__G_MOL, errmsg, errcode)
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
     endif
 
-    do i = 1, micm%species_ordering%size()
-      micm_species_name = micm%species_ordering%name(i)
-      if (micm_species_name == "O2") then
-        O2_index = i
-        base_conc = 0.21_kind_phys
-      else if (micm_species_name == "O") then
-        O_index = i
-        base_conc = 1.0e-9_kind_phys
-      else if (micm_species_name == "O1D") then
-        O1D_index = i
-        base_conc = 1.0e-9_kind_phys
-      else if (micm_species_name == "O3") then
-        O3_index = i
-        base_conc = 1.0e-4_kind_phys
-      else if (micm_species_name == "N2") then
-        N2_index = i
-        base_conc = 0.79_kind_phys
-      else
-        write(*,*) "Unknown species: ", micm_species_name
-        stop 3
-      endif
-      do j = 1, NUM_COLUMNS
-        do k = 1, NUM_LAYERS
-          constituents(j,k,i) = base_conc * (1.0 + 0.1 * (j-1) + 0.01 * (k-1))
-        end do
+    call ccpp_const_get_idx( constituent_props_ptr, "N2", N2_index, errmsg, errcode )
+    if (errcode /= 0) then
+      write(*,*) trim(errmsg)
+      stop 3
+    endif
+    call ccpp_const_get_idx( constituent_props_ptr, "O", O_index, errmsg, errcode )
+    if (errcode /= 0) then
+      write(*,*) trim(errmsg)
+      stop 3
+    endif
+    call ccpp_const_get_idx( constituent_props_ptr, "O1D", O1D_index, errmsg, errcode )
+    if (errcode /= 0) then
+      write(*,*) trim(errmsg)
+      stop 3
+    endif
+    call ccpp_const_get_idx( constituent_props_ptr, "O2", O2_index, errmsg, errcode )
+    if (errcode /= 0) then
+      write(*,*) trim(errmsg)
+      stop 3
+    endif
+    call ccpp_const_get_idx( constituent_props_ptr, "O3", O3_index, errmsg, errcode )
+    if (errcode /= 0) then
+      write(*,*) trim(errmsg)
+      stop 3
+    endif
+    call ccpp_const_get_idx( constituent_props_ptr, "cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water", &
+                             cloud_index, errmsg, errcode )
+    if (errcode /= 0) then
+      write(*,*) trim(errmsg)
+      stop 3
+    endif
+    call ccpp_const_get_idx( constituent_props_ptr, "air", air_index, errmsg, errcode )
+    if (errcode /= 0) then
+      write(*,*) trim(errmsg)
+      stop 3
+    endif
+
+    do i = 1, NUM_COLUMNS
+      do j = 1, NUM_LAYERS
+        constituents(i,j,N2_index) = 0.79_kind_phys * (1.0 + 0.1 * (i-1) + 0.01 * (j-1))
+        constituents(i,j,O_index) = 1.0e-9_kind_phys * (1.0 + 0.1 * (i-1) + 0.01 * (j-1))
+        constituents(i,j,O1D_index) = 1.0e-9_kind_phys * (1.0 + 0.1 * (i-1) + 0.01 * (j-1))
+        constituents(i,j,O2_index) = 0.21_kind_phys * (1.0 + 0.1 * (i-1) + 0.01 * (j-1))
+        constituents(i,j,O3_index) = 1.0e-4_kind_phys * (1.0 + 0.1 * (i-1) + 0.01 * (j-1))
+        constituents(i,j,cloud_index) = 1.0e-3_kind_phys * (1.0 + 0.1 * (i-1) + 0.01 * (j-1))
+        constituents(i,j,air_index) = 1.0e-3_kind_phys * (1.0 + 0.1 * (i-1) + 0.01 * (j-1))
       end do
     end do
-    ! set initial cloud liquid water mixing ratio to ~1e-3 kg kg-1
-    do j = 1, NUM_COLUMNS
-      do k = 1, NUM_LAYERS
-        constituents(j,k,NUM_SPECIES+1) = 1.0e-3_kind_phys * (1.0 + 0.1 * (j-1) + 0.01 * (k-1))
-      end do
-    end do
-    do j = 1, NUM_COLUMNS
-      do k = 1, NUM_LAYERS
-        constituents(j,k,NUM_SPECIES+index_dry_air) = 1.0e-3_kind_phys * (1.0 + 0.1 * (j-1) + 0.01 * (k-1))
-      end do
-    end do
+
     initial_constituents(:,:,:) = constituents(:,:,:)
 
     write(*,*) "[MUSICA INFO] Initial Time Step"
@@ -328,14 +252,13 @@ contains
     write(*,*) "[MUSICA INFO] Initial Concentrations"
     write(*,fmt="(4(3x,e13.6))") constituents
 
-    call musica_ccpp_run( time_step, temperature, pressure, dry_air_density, constituent_props_ptr,     &
-                          constituents, geopotential_height_wrt_surface_at_midpoint,                    &
-                          geopotential_height_wrt_surface_at_interface, surface_geopotential,           &
-                          surface_temperature, surface_albedo,                                          &
-                          flux_data_photolysis_wavelength_interfaces, extraterrestrial_flux,            &
-                          standard_gravitational_acceleration, cloud_area_fraction,                     &
-                          air_pressure_thickness, solar_zenith_angle, earth_sun_distance, errmsg,       &
-                          errcode )
+    call musica_ccpp_run( time_step, temperature, pressure, dry_air_density, constituent_props_ptr, &
+                          constituents, geopotential_height_wrt_surface_at_midpoint,                &
+                          geopotential_height_wrt_surface_at_interface, surface_geopotential,       &
+                          surface_temperature, surface_albedo, extraterrestrial_radiation_flux,     &
+                          standard_gravitational_acceleration, cloud_area_fraction,                 &
+                          air_pressure_thickness, solar_zenith_angle, earth_sun_distance, STDOUT,   &
+                          errmsg, errcode )
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
@@ -355,21 +278,23 @@ contains
     do i = 1, NUM_COLUMNS
       do j = 1, NUM_LAYERS
         ! N2 should be unchanged
-        ASSERT_NEAR(constituents(i,j,N2_index), initial_constituents(i,j,N2_index), 1.0e-13)
-        ! O3 and O2 should be relatively unchanged
-        ASSERT_NEAR(constituents(i,j,O3_index), initial_constituents(i,j,O3_index), 1.0e-4)
-        ASSERT_NEAR(constituents(i,j,O2_index), initial_constituents(i,j,O2_index), 1.0e-4)
-        ! O and O1D should be < 1e-10 kg kg-1
-        ASSERT(constituents(i,j,O_index) < 1.0e-10)
-        ASSERT(constituents(i,j,O1D_index) < 1.0e-10)
+        ASSERT_NEAR(constituents(i,j,N2_index), initial_constituents(i,j,N2_index), 1.0e-13_kind_phys)
+        ! O, O1D, O2, and O3 should be changed
+        ASSERT(constituents(i,j,O_index) .ne. initial_constituents(i,j,O_index))
+        ASSERT(constituents(i,j,O1D_index) .ne. initial_constituents(i,j,O1D_index))
+        ASSERT(constituents(i,j,O2_index) .ne. initial_constituents(i,j,O2_index))
+        ASSERT(constituents(i,j,O3_index) .ne. initial_constituents(i,j,O3_index))
         ! total O mass should be conserved
         total_O = constituents(i,j,O_index) + constituents(i,j,O1D_index) + &
                   constituents(i,j,O2_index) + constituents(i,j,O3_index)
         total_O_init = initial_constituents(i,j,O_index) + initial_constituents(i,j,O1D_index) + &
                        initial_constituents(i,j,O2_index) + initial_constituents(i,j,O3_index)
+        ASSERT_NEAR(total_O, total_O_init, 1.0e-13_kind_phys)
         ! cloud liquid water mixing ratio should be unchanged
-        ASSERT_NEAR(constituents(i,j,NUM_SPECIES+1), initial_constituents(i,j,NUM_SPECIES+1), 1.0e-13)
-        ASSERT_NEAR(total_O, total_O_init, 1.0e-13)
+        ASSERT_NEAR(constituents(i,j,cloud_index), initial_constituents(i,j,cloud_index), 1.0e-13_kind_phys)
+        ! air should be unchanged
+        ASSERT_NEAR(constituents(i,j,air_index), initial_constituents(i,j,air_index), 1.0e-13_kind_phys)
+
       end do
     end do
     do j = 1, NUM_LAYERS
@@ -386,60 +311,59 @@ contains
   subroutine test_terminator()
     use ccpp_constituent_prop_mod,     only: ccpp_constituent_prop_ptr_t
     use ccpp_constituent_prop_mod,     only: ccpp_constituent_properties_t
-    use musica_ccpp_micm,              only: micm
+    use ccpp_const_utils,              only: ccpp_const_get_idx
     use musica_ccpp_namelist,          only: filename_of_micm_configuration, &
                                              filename_of_tuvx_configuration, &
                                              filename_of_tuvx_micm_mapping_configuration
     use musica_ccpp_tuvx_load_species, only: index_dry_air, index_O2, index_O3
+
     implicit none
 
-    integer, parameter                                                    :: NUM_SPECIES = 2
-    integer, parameter                                                    :: NUM_TUVX_CONSTITUENTS = 1
-    integer, parameter                                                    :: NUM_TUVX_ONLY_GAS_SPECIES = 3
     ! This test requires that the number of grid cells = 4, which is the default
     ! vector dimension for MICM. This restriction will be removed once
     ! https://github.com/NCAR/musica/issues/217 is finished.
-    integer, parameter                                                    :: NUM_COLUMNS = 2
-    integer, parameter                                                    :: NUM_LAYERS = 2
-    integer, parameter                                                    :: NUM_WAVELENGTH_BINS = 102
-    integer                                                               :: NUM_GRID_CELLS = NUM_COLUMNS * NUM_LAYERS
-    integer                                                               :: errcode
-    character(len=512)                                                    :: errmsg
-    real(kind_phys)                                                       :: time_step = 60._kind_phys                    ! s
-    real(kind_phys), dimension(NUM_WAVELENGTH_BINS+1)                     :: photolysis_wavelength_grid_interfaces        ! m
-    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)                    :: geopotential_height_wrt_surface_at_midpoint  ! m
-    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS+1)                  :: geopotential_height_wrt_surface_at_interface ! m
-    real(kind_phys), dimension(NUM_COLUMNS)                               :: surface_geopotential                         ! m2 s-2
-    real(kind_phys), dimension(NUM_COLUMNS)                               :: surface_temperature                          ! K
-    real(kind_phys), dimension(NUM_COLUMNS)                               :: surface_albedo                               ! fraction
-    integer, parameter                                                    :: num_photolysis_wavelength_grid_sections = 8  ! (count)
-    real(kind_phys), dimension(num_photolysis_wavelength_grid_sections+1) :: flux_data_photolysis_wavelength_interfaces   ! nm
-    real(kind_phys), dimension(num_photolysis_wavelength_grid_sections)   :: extraterrestrial_flux                        ! photons cm-2 s-1 nm-1
-    real(kind_phys)                                                       :: standard_gravitational_acceleration          ! s2 m-1
-    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)                    :: temperature                                  ! K
-    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)                    :: pressure                                     ! Pa
-    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)                    :: dry_air_density                              ! kg m-3
-    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)                    :: cloud_area_fraction                          ! fraction
-    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)                    :: air_pressure_thickness                       ! Pa
+    integer, parameter                                             :: NUM_COLUMNS = 2
+    integer, parameter                                             :: NUM_LAYERS = 2
+    integer, parameter                                             :: NUM_WAVELENGTH_BINS = 102
+    integer                                                        :: NUM_GRID_CELLS = NUM_COLUMNS * NUM_LAYERS
+    integer, parameter                                             :: NUM_SPECIES = 2
+    integer, parameter                                             :: NUM_TUVX_CONSTITUENTS = 1
+    integer, parameter                                             :: NUM_TUVX_ONLY_GAS_SPECIES = 3
+    integer                                                        :: errcode
+    character(len=512)                                             :: errmsg
+    real(kind_phys)                                                :: time_step = 60._kind_phys                    ! s
+    real(kind_phys), dimension(NUM_WAVELENGTH_BINS+1)              :: photolysis_wavelength_grid_interfaces        ! m
+    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)             :: geopotential_height_wrt_surface_at_midpoint  ! m
+    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS+1)           :: geopotential_height_wrt_surface_at_interface ! m
+    real(kind_phys), dimension(NUM_COLUMNS)                        :: surface_geopotential                         ! m2 s-2
+    real(kind_phys), dimension(NUM_COLUMNS)                        :: surface_temperature                          ! K
+    real(kind_phys), dimension(NUM_COLUMNS)                        :: surface_albedo                               ! fraction
+    real(kind_phys), dimension(NUM_WAVELENGTH_BINS)                :: extraterrestrial_radiation_flux              ! photons cm-2 s-1 nm-1
+    real(kind_phys)                                                :: standard_gravitational_acceleration          ! s2 m-1
+    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)             :: temperature                                  ! K
+    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)             :: pressure                                     ! Pa
+    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)             :: dry_air_density                              ! kg m-3
+    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)             :: cloud_area_fraction                          ! fraction
+    real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS)             :: air_pressure_thickness                       ! Pa
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS, &
-      NUM_SPECIES+NUM_TUVX_CONSTITUENTS+NUM_TUVX_ONLY_GAS_SPECIES)        :: constituents                                 ! kg kg-1
+      NUM_SPECIES+NUM_TUVX_CONSTITUENTS+NUM_TUVX_ONLY_GAS_SPECIES) :: constituents                                 ! kg kg-1
     real(kind_phys), dimension(NUM_COLUMNS,NUM_LAYERS, &
-      NUM_SPECIES+NUM_TUVX_CONSTITUENTS+NUM_TUVX_ONLY_GAS_SPECIES)        :: initial_constituents                         ! kg kg-1
-    real(kind_phys), dimension(NUM_COLUMNS)                               :: solar_zenith_angle                           ! radians
-    real(kind_phys)                                                       :: earth_sun_distance                           ! AU
-    type(ccpp_constituent_prop_ptr_t),   allocatable                      :: constituent_props_ptr(:)
-    type(ccpp_constituent_properties_t), allocatable, target              :: constituent_props(:)
-    type(ccpp_constituent_properties_t), pointer                          :: const_prop
-    real(kind_phys)                                                       :: molar_mass, base_conc
-    character(len=512)                                                    :: species_name, units
-    character(len=:), allocatable                                         :: micm_species_name
-    logical                                                               :: tmp_bool, is_advected
-    integer                                                               :: i, j, k
-    integer                                                               :: Cl_index, Cl2_index
-    real(kind_phys)                                                       :: total_Cl, total_Cl_init
+      NUM_SPECIES+NUM_TUVX_CONSTITUENTS+NUM_TUVX_ONLY_GAS_SPECIES) :: initial_constituents                         ! kg kg-1
+    real(kind_phys), dimension(NUM_COLUMNS)                        :: solar_zenith_angle                           ! radians
+    real(kind_phys)                                                :: earth_sun_distance                           ! AU
+    type(ccpp_constituent_prop_ptr_t),   allocatable               :: constituent_props_ptr(:)
+    type(ccpp_constituent_properties_t), allocatable, target       :: constituent_props(:)
+    type(ccpp_constituent_properties_t), pointer                   :: const_prop
+    real(kind_phys)                                                :: molar_mass, base_conc
+    character(len=512)                                             :: species_name, units
+    character(len=:), allocatable                                  :: micm_species_name
+    logical                                                        :: tmp_bool, is_advected
+    integer                                                        :: i, j
+    integer                                                        :: Cl_index, Cl2_index
+    integer                                                        :: cloud_index, air_index, O2_index, O3_index
+    real(kind_phys)                                                :: total_Cl, total_Cl_init
 
     call get_wavelength_edges(photolysis_wavelength_grid_interfaces)
-    time_step = 60._kind_phys
     geopotential_height_wrt_surface_at_midpoint(1,:) = (/ 2000.0_kind_phys, 500.0_kind_phys /)
     geopotential_height_wrt_surface_at_midpoint(2,:) = (/ 2000.0_kind_phys, -500.0_kind_phys /)
     geopotential_height_wrt_surface_at_interface(1,:) = (/ 3000.0_kind_phys, 1000.0_kind_phys, 0.0_kind_phys /)
@@ -447,6 +371,7 @@ contains
     surface_temperature = (/ 300.0_kind_phys, 300.0_kind_phys /)
     surface_geopotential = (/ 100.0_kind_phys, 200.0_kind_phys /)
     surface_albedo(:) = 0.10_kind_phys
+    call get_extrarterrestrial_fluxes(extraterrestrial_radiation_flux)
     standard_gravitational_acceleration = 10.0_kind_phys
     temperature(:,1) = (/ 100._kind_phys, 200._kind_phys /)
     temperature(:,2) = (/ 300._kind_phys, 400._kind_phys /)
@@ -454,12 +379,6 @@ contains
     pressure(:,2) = (/ 8000.04_kind_phys, 9000.04_kind_phys /)
     dry_air_density(:,1) = (/ 3.5_kind_phys, 4.5_kind_phys /)
     dry_air_density(:,2) = (/ 5.5_kind_phys, 6.5_kind_phys /)
-    flux_data_photolysis_wavelength_interfaces(:) = &
-      (/ 200.0_kind_phys, 210.0_kind_phys, 220.0_kind_phys, 230.0_kind_phys, &
-        240.0_kind_phys, 250.0_kind_phys, 260.0_kind_phys, 270.0_kind_phys, 280.0_kind_phys /)
-    extraterrestrial_flux(:) = &
-      (/ 1.5e13_kind_phys, 1.5e13_kind_phys, 1.4e13_kind_phys, 1.4e13_kind_phys, &
-        1.3e13_kind_phys, 1.2e13_kind_phys, 1.1e13_kind_phys, 1.0e13_kind_phys /)
     cloud_area_fraction(:,1) = (/ 0.1_kind_phys, 0.2_kind_phys /)
     cloud_area_fraction(:,2) = (/ 0.3_kind_phys, 0.4_kind_phys /)
     air_pressure_thickness(:,1) = (/ 900.0_kind_phys, 905.0_kind_phys /)
@@ -514,44 +433,55 @@ contains
     end do
 
     call musica_ccpp_init(NUM_COLUMNS, NUM_LAYERS, NUM_LAYERS+1, photolysis_wavelength_grid_interfaces, &
-                          constituent_props_ptr, errmsg, errcode)
+                          constituent_props_ptr, MOLAR_MASS_DRY_AIR__G_MOL, errmsg, errcode)
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
     endif
 
-    do i = 1, micm%species_ordering%size()
-      micm_species_name = micm%species_ordering%name(i)
-      if (micm_species_name == "Cl") then
-        Cl_index = i
-        base_conc = 1.0e-10_kind_phys
-      else if (micm_species_name == "Cl2") then
-        Cl2_index = i
-        base_conc = 1.0e-6_kind_phys
-      else
-        write(*,*) "Unknown species: ", micm_species_name
-        stop 3
-      endif
-      do j = 1, NUM_COLUMNS
-        do k = 1, NUM_LAYERS
-          constituents(j,k,i) = base_conc * (1.0 + 0.1 * (j-1) + 0.01 * (k-1))
-        end do
+    call ccpp_const_get_idx( constituent_props_ptr, "Cl", Cl_index, errmsg, errcode )
+    if (errcode /= 0) then
+      write(*,*) trim(errmsg)
+      stop 3
+    endif
+    call ccpp_const_get_idx( constituent_props_ptr, "Cl2", Cl2_index, errmsg, errcode )
+    if (errcode /= 0) then
+      write(*,*) trim(errmsg)
+      stop 3
+    endif
+    call ccpp_const_get_idx( constituent_props_ptr, "cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water", &
+                             cloud_index, errmsg, errcode )
+    if (errcode /= 0) then
+      write(*,*) trim(errmsg)
+      stop 3
+    endif
+    call ccpp_const_get_idx( constituent_props_ptr, "air", air_index, errmsg, errcode )
+    if (errcode /= 0) then
+      write(*,*) trim(errmsg)
+      stop 3
+    endif
+    call ccpp_const_get_idx( constituent_props_ptr, "O2", O2_index, errmsg, errcode )
+    if (errcode /= 0) then
+      write(*,*) trim(errmsg)
+      stop 3
+    endif
+    call ccpp_const_get_idx( constituent_props_ptr, "O3", O3_index, errmsg, errcode )
+    if (errcode /= 0) then
+      write(*,*) trim(errmsg)
+      stop 3
+    endif
+
+    do i = 1, NUM_COLUMNS
+      do j = 1, NUM_LAYERS
+        constituents(i,j,Cl_index) =  1.0e-10_kind_phys * (1.0 + 0.1 * (i-1) + 0.01 * (j-1))
+        constituents(i,j,Cl2_index) = 1.0e-6_kind_phys * (1.0 + 0.1 * (i-1) + 0.01 * (j-1))
+        constituents(i,j,cloud_index) = 1.0e-3_kind_phys * (1.0 + 0.1 * (i-1) + 0.01 * (j-1))
+        constituents(i,j,air_index) = 1.0e-3_kind_phys * (1.0 + 0.1 * (i-1) + 0.01 * (j-1))
+        constituents(i,j,O2_index) = 0.21_kind_phys * (1.0 + 0.1 * (i-1) + 0.01 * (j-1))
+        constituents(i,j,O3_index) = 1.0e-4_kind_phys * (1.0 + 0.1 * (i-1) + 0.01 * (j-1))
       end do
     end do
-    ! set initial cloud liquid water mixing ratio to ~1e-3 kg kg-1
-    do j = 1, NUM_COLUMNS
-      do k = 1, NUM_LAYERS
-        constituents(j,k,NUM_SPECIES+1) = 1.0e-3_kind_phys * (1.0 + 0.1 * (j-1) + 0.01 * (k-1))
-      end do
-    end do
-    ! set concentrations for TUV-x gas species
-    do j = 1, NUM_COLUMNS
-      do k = 1, NUM_LAYERS
-        constituents(j,k,NUM_SPECIES+index_dry_air) = 1.0e-3_kind_phys * (1.0 + 0.1 * (j-1) + 0.01 * (k-1))
-        constituents(j,k,NUM_SPECIES+index_O2) = 1.0e-3_kind_phys * (1.0 + 0.1 * (j-1) + 0.01 * (k-1))
-        constituents(j,k,NUM_SPECIES+index_O3) = 1.0e-3_kind_phys * (1.0 + 0.1 * (j-1) + 0.01 * (k-1))
-      end do
-    end do
+
     initial_constituents(:,:,:) = constituents(:,:,:)
 
     write(*,*) "[MUSICA INFO] Initial Time Step"
@@ -563,14 +493,13 @@ contains
     write(*,*) "[MUSICA INFO] Initial Concentrations"
     write(*,fmt="(4(3x,e13.6))") constituents
 
-    call musica_ccpp_run( time_step, temperature, pressure, dry_air_density, constituent_props_ptr,     &
-                          constituents, geopotential_height_wrt_surface_at_midpoint,                    &
-                          geopotential_height_wrt_surface_at_interface, surface_geopotential,           &
-                          surface_temperature, surface_albedo,                                          &
-                          flux_data_photolysis_wavelength_interfaces, extraterrestrial_flux,            &
-                          standard_gravitational_acceleration, cloud_area_fraction,                     &
-                          air_pressure_thickness, solar_zenith_angle, earth_sun_distance, errmsg,       &
-                          errcode )
+    call musica_ccpp_run( time_step, temperature, pressure, dry_air_density, constituent_props_ptr, &
+                          constituents, geopotential_height_wrt_surface_at_midpoint,                &
+                          geopotential_height_wrt_surface_at_interface, surface_geopotential,       &
+                          surface_temperature, surface_albedo, extraterrestrial_radiation_flux,     &
+                          standard_gravitational_acceleration, cloud_area_fraction,                 &
+                          air_pressure_thickness, solar_zenith_angle, earth_sun_distance, STDOUT,   &
+                          errmsg, errcode )
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
@@ -596,9 +525,15 @@ contains
         ! total Cl mass should be conserved
         total_Cl = constituents(i,j,Cl_index) + constituents(i,j,Cl2_index)
         total_Cl_init = initial_constituents(i,j,Cl_index) + initial_constituents(i,j,Cl2_index)
-        ASSERT_NEAR(total_Cl, total_Cl_init, 1.0e-13)
+        ASSERT_NEAR(total_Cl, total_Cl_init, 1.0e-13_kind_phys)
         ! cloud liquid water should be unchanged
-        ASSERT_NEAR(constituents(i,j,NUM_SPECIES+1), initial_constituents(i,j,NUM_SPECIES+1), 1.0e-13)
+        ASSERT_NEAR(constituents(i,j,cloud_index), initial_constituents(i,j,cloud_index), 1.0e-13_kind_phys)
+        ! dry air should be unchanged
+        ASSERT_NEAR(constituents(i,j,air_index), initial_constituents(i,j,air_index), 1.0e-13_kind_phys)
+        ! O2 should be unchanged
+        ASSERT_NEAR(constituents(i,j,O2_index), initial_constituents(i,j,O2_index), 1.0e-13_kind_phys)
+        ! O3 should be unchanged
+        ASSERT_NEAR(constituents(i,j,O3_index), initial_constituents(i,j,O3_index), 1.0e-13_kind_phys)
       end do
     end do
     do j = 1, NUM_LAYERS
@@ -611,5 +546,246 @@ contains
     deallocate(constituent_props_ptr)
 
   end subroutine test_terminator
+
+  subroutine get_index_and_molar_mass(constituent_props, species_name, index, molar_mass)
+    use ccpp_constituent_prop_mod,     only: ccpp_constituent_prop_ptr_t
+    use ccpp_constituent_prop_mod,     only: ccpp_constituent_properties_t
+    use ccpp_const_utils,              only: ccpp_const_get_idx
+
+    type(ccpp_constituent_prop_ptr_t), intent(in)  :: constituent_props(:)
+    character(len=*),                  intent(in)  :: species_name
+    integer,                           intent(out) :: index
+    real(kind_phys),                   intent(out) :: molar_mass
+
+    character(len=512) :: errmsg
+    integer            :: errcode
+
+    call ccpp_const_get_idx( constituent_props, species_name, index, errmsg, errcode )
+    if (errcode /= 0) then
+      write(*,*) trim(errmsg)
+      stop 3
+    endif
+    call constituent_props(index)%molar_mass(molar_mass, errcode, errmsg)
+    if (errcode /= 0) then
+      write(*,*) trim(errmsg)
+      stop 3
+    endif
+
+  end subroutine get_index_and_molar_mass
+
+  subroutine test_analytical(number_of_columns, number_of_layers, test_accuracy)
+    use ccpp_constituent_prop_mod,     only: ccpp_constituent_prop_ptr_t, &
+                                             ccpp_constituent_properties_t
+    use ccpp_const_utils,              only: ccpp_const_get_idx
+    use musica_ccpp_namelist,          only: filename_of_micm_configuration, &
+                                             filename_of_tuvx_configuration, &
+                                             filename_of_tuvx_micm_mapping_configuration
+    use musica_ccpp_tuvx_load_species, only: index_dry_air, index_O2, index_O3
+
+    integer,         intent(in) :: number_of_columns
+    integer,         intent(in) :: number_of_layers
+    real(kind_phys), intent(in) :: test_accuracy     ! Relative tolrance for checking results
+
+    integer, parameter                                             :: NUM_SPECIES = 6
+    integer                                                        :: NUM_GRID_CELLS
+
+    integer                                                        :: errcode
+    character(len=512)                                             :: errmsg
+    real(kind_phys)                                                :: time_step = 60._kind_phys ! s
+    real(kind_phys), dimension(number_of_columns,number_of_layers) :: temperature               ! K
+    real(kind_phys), dimension(number_of_columns,number_of_layers) :: pressure                  ! Pa
+    real(kind_phys), dimension(number_of_columns,number_of_layers) :: air_density               ! mol m-3
+    real(kind_phys), dimension(number_of_columns,number_of_layers) :: dry_air_mass_density      ! kg m-3
+    real(kind_phys), dimension(number_of_columns,number_of_layers,NUM_SPECIES) :: constituents         ! kg kg-1
+    real(kind_phys), dimension(number_of_columns,number_of_layers,NUM_SPECIES) :: initial_constituents ! kg kg-1
+    type(ccpp_constituent_prop_ptr_t),   allocatable               :: constituent_props_ptr(:)
+    type(ccpp_constituent_properties_t), allocatable, target       :: constituent_props(:)
+    type(ccpp_constituent_properties_t), pointer                   :: const_prop
+    character(len=512)                                             :: species_name, units
+    character(len=:), allocatable                                  :: micm_species_name
+    integer                                                        :: i, j
+    integer                                                        :: A_index, B_index, C_index, D_index, E_index, F_index
+    real(kind_phys)                                                :: A_MW, B_MW, C_MW, D_MW, E_MW, F_MW
+    type(ArrheniusReaction)                                        :: arr1, arr2, arr3, arr4
+    real(kind_phys)                                                :: initial_A, initial_C, initial_D, initial_F
+    real(kind_phys)                                                :: A, B, C, D, E, F
+    real(kind_phys)                                                :: k1, k2, k3, k4
+    real(kind_phys)                                                :: dummy_array_1D(1), dummy_array_2D(1,1)
+
+    NUM_GRID_CELLS = number_of_columns * number_of_layers
+    dummy_array_1D = -HUGE(0.0_kind_phys)
+    dummy_array_2D = -HUGE(0.0_kind_phys)
+
+    filename_of_micm_configuration = 'test/musica/configuration/analytical/config.json'
+    filename_of_tuvx_configuration = 'none'
+    filename_of_tuvx_micm_mapping_configuration = 'none'
+
+    ! MUSICA registration
+    call musica_ccpp_register(constituent_props, errmsg, errcode)
+    if (errcode /= 0) then
+      write(*,*) trim(errmsg)
+      stop 3
+    endif
+    ASSERT(allocated(constituent_props))
+    ASSERT(size(constituent_props) == NUM_SPECIES)
+    allocate(constituent_props_ptr(size(constituent_props)))
+    do i = 1, size(constituent_props)
+      const_prop => constituent_props(i)
+      call constituent_props_ptr(i)%set(const_prop, errcode, errmsg)
+    end do
+
+    ! Get indices and molar masses for chemical species
+    call get_index_and_molar_mass(constituent_props_ptr, "A", A_index, A_MW)
+    call get_index_and_molar_mass(constituent_props_ptr, "B", B_index, B_MW)
+    call get_index_and_molar_mass(constituent_props_ptr, "C", C_index, C_MW)
+    call get_index_and_molar_mass(constituent_props_ptr, "D", D_index, D_MW)
+    call get_index_and_molar_mass(constituent_props_ptr, "E", E_index, E_MW)
+    call get_index_and_molar_mass(constituent_props_ptr, "F", F_index, F_MW)
+
+    ! Check that the molar masses are correct
+    ASSERT_NEAR(A_MW, 0.01802_kind_phys,   1.0e-5_kind_phys)
+    ASSERT_NEAR(B_MW, 0.02897_kind_phys,   1.0e-5_kind_phys)
+    ASSERT_NEAR(C_MW, 0.0319988_kind_phys, 1.0e-5_kind_phys)
+    ASSERT_NEAR(D_MW, 0.0479982_kind_phys, 1.0e-5_kind_phys)
+    ASSERT_NEAR(E_MW, 0.07254_kind_phys,   1.0e-5_kind_phys)
+    ASSERT_NEAR(F_MW, 0.082356_kind_phys,  1.0e-5_kind_phys)
+
+    ! MUSICA initialization
+    call musica_ccpp_init(number_of_columns, number_of_layers, number_of_layers+1, &
+                          dummy_array_1D, constituent_props_ptr, MOLAR_MASS_DRY_AIR__G_MOL, &
+                          errmsg, errcode)
+    if (errcode /= 0) then
+      write(*,*) trim(errmsg)
+      stop 3
+    endif
+
+    do i = 1, number_of_layers
+      do j = 1, number_of_columns
+        temperature(j,i) = 250.0_kind_phys + 100.0_kind_phys * (i-1) / number_of_columns + 10.0_kind_phys * (j-1) / number_of_layers
+        pressure(j,i) = 10000.0_kind_phys + 100000.0_kind_phys * (i-1) / number_of_columns + 10000.0_kind_phys * (j-1) / number_of_layers
+        air_density(j,i) = pressure(j,i) / (GAS_CONSTANT * temperature(j,i))
+        dry_air_mass_density(j,i) = air_density(j,i) * MOLAR_MASS_DRY_AIR
+        constituents(j,i,A_index) = 0.75 + 0.1_kind_phys * (i-1) / number_of_columns + 0.01_kind_phys * (j-1) / number_of_layers - 0.05
+        constituents(j,i,B_index) = 0.0_kind_phys
+        constituents(j,i,C_index) = 0.4_kind_phys + 0.1_kind_phys * (i-1) / number_of_columns + 0.01_kind_phys * (j-1) / number_of_layers - 0.05
+        constituents(j,i,D_index) = 0.8_kind_phys + 0.1_kind_phys * (i-1) / number_of_columns + 0.01_kind_phys * (j-1) / number_of_layers - 0.05
+        constituents(j,i,E_index) = 0.0_kind_phys
+        constituents(j,i,F_index) = 0.1_kind_phys + 0.1_kind_phys * (i-1) / number_of_columns + 0.01_kind_phys * (j-1) / number_of_layers - 0.05
+      end do
+    end do
+    initial_constituents(:,:,:) = constituents(:,:,:)
+
+    ! Convert to kg kg-1 for CAM-SIMA
+    do i = 1, number_of_columns
+      do j = 1, number_of_layers
+        constituents(i,j,A_index) = constituents(i,j,A_index) / dry_air_mass_density(i,j) * A_MW
+        constituents(i,j,B_index) = constituents(i,j,B_index) / dry_air_mass_density(i,j) * B_MW
+        constituents(i,j,C_index) = constituents(i,j,C_index) / dry_air_mass_density(i,j) * C_MW
+        constituents(i,j,D_index) = constituents(i,j,D_index) / dry_air_mass_density(i,j) * D_MW
+        constituents(i,j,E_index) = constituents(i,j,E_index) / dry_air_mass_density(i,j) * E_MW
+        constituents(i,j,F_index) = constituents(i,j,F_index) / dry_air_mass_density(i,j) * F_MW
+      end do
+    end do
+
+    ! MUSICA run for one time step
+    call musica_ccpp_run( time_step, temperature, pressure, dry_air_mass_density, constituent_props_ptr, &
+                          constituents, dummy_array_2D, dummy_array_2D, dummy_array_1D, dummy_array_1D, &
+                          dummy_array_1D, dummy_array_1D, -HUGE(0.0_kind_phys), dummy_array_2D, &
+                          dummy_array_2D, dummy_array_1D, -HUGE(0.0_kind_phys), STDOUT, errmsg, errcode )
+    if (errcode /= 0) then
+      write(*,*) trim(errmsg)
+      stop 3
+    endif
+
+    ! Convert back to mol m-3 for analytical check
+    do i = 1, number_of_columns
+      do j = 1, number_of_layers
+        constituents(i,j,A_index) = constituents(i,j,A_index) * dry_air_mass_density(i,j) / A_MW
+        constituents(i,j,B_index) = constituents(i,j,B_index) * dry_air_mass_density(i,j) / B_MW
+        constituents(i,j,C_index) = constituents(i,j,C_index) * dry_air_mass_density(i,j) / C_MW
+        constituents(i,j,D_index) = constituents(i,j,D_index) * dry_air_mass_density(i,j) / D_MW
+        constituents(i,j,E_index) = constituents(i,j,E_index) * dry_air_mass_density(i,j) / E_MW
+        constituents(i,j,F_index) = constituents(i,j,F_index) * dry_air_mass_density(i,j) / F_MW
+      end do
+    end do
+
+    ! Check the results
+    arr1%A_ = 0.004_kind_phys
+    arr1%C_ = 50.0_kind_phys
+    arr2%A_ = 0.012_kind_phys
+    arr2%B_ = -2.0_kind_phys
+    arr2%C_ = 75.0_kind_phys
+    arr2%D_ = 50.0_kind_phys
+    arr2%E_ = 1.0e-6_kind_phys
+    arr3%A_ = 0.001_kind_phys
+    arr4%A_ = 0.002_kind_phys
+
+    do i = 1, number_of_columns
+      do j = 1, number_of_layers
+        initial_A = initial_constituents(i,j,A_index)
+        initial_C = initial_constituents(i,j,C_index)
+        initial_D = initial_constituents(i,j,D_index)
+        initial_F = initial_constituents(i,j,F_index)
+        k1 = calculate_arrhenius( arr1, temperature(i,j), pressure(i,j) )
+        k2 = calculate_arrhenius( arr2, temperature(i,j), pressure(i,j) )
+        k3 = calculate_arrhenius( arr3, temperature(i,j), pressure(i,j) )
+        k4 = calculate_arrhenius( arr4, temperature(i,j), pressure(i,j) )
+        A = initial_A * exp( -k1 * time_step )
+        B = initial_A * (k1 / (k2 - k1)) * &
+            (exp( -k1 * time_step ) - exp( -k2 * time_step ))
+        C = initial_C + initial_A * &
+            (1.0 + (k1 * exp(-k2 * time_step) - k2 * exp(-k1 * time_step)) / (k2 - k1))
+        D = initial_D * exp( -k3 * time_step )
+        E = initial_D * (k3 / (k4 - k3)) * &
+            (exp( -k3 * time_step ) - exp(-k4 * time_step ))
+        F = initial_F + initial_D * &
+            (1.0 + (k3 * exp(-k4 * time_step) - k4 * exp(-k3 * time_step)) / (k4 - k3))
+        
+        ! Check that the results are correct
+        ASSERT_NEAR(constituents(i,j,A_index), A, test_accuracy)
+        ASSERT_NEAR(constituents(i,j,B_index), B, test_accuracy)
+        ASSERT_NEAR(constituents(i,j,C_index), C, test_accuracy)
+        ASSERT_NEAR(constituents(i,j,D_index), D, test_accuracy)
+        ASSERT_NEAR(constituents(i,j,E_index), E, test_accuracy)
+        ASSERT_NEAR(constituents(i,j,F_index), F, test_accuracy)
+      end do
+    end do
+
+    ! Clean up
+    call musica_ccpp_final(errmsg, errcode)
+    if (errcode /= 0) then
+      write(*,*) trim(errmsg)
+      stop 3
+    endif
+
+  end subroutine test_analytical
+
+  !> Check with Rosenbrock Solver
+  subroutine test_rosenbrock()
+    use musica_ccpp_namelist, only : micm_solver_type
+
+    real(kind_phys) :: test_accuracy = 5.0e-3_kind_phys
+
+    micm_solver_type = "Rosenbrock"
+    call test_analytical(1, 1, test_accuracy)
+    call test_analytical(2, 5, test_accuracy)
+    call test_analytical(5, 2, test_accuracy)
+    call test_analytical(128, 128, test_accuracy)
+    call test_analytical(160, 200, test_accuracy)
+  end subroutine test_rosenbrock
+
+  !> Check with Backward Euler Solver
+  subroutine test_backward_euler()
+    use musica_ccpp_namelist, only : micm_solver_type
+
+    real(kind_phys) :: test_accuracy = 0.1_kind_phys
+
+    micm_solver_type = "Backward Euler"
+    call test_analytical(1, 1, test_accuracy)
+    call test_analytical(2, 5, test_accuracy)
+    call test_analytical(5, 2, test_accuracy)
+    call test_analytical(128, 128, test_accuracy)
+    call test_analytical(160, 200, test_accuracy)
+  end subroutine test_backward_euler
 
 end program run_test_musica_ccpp

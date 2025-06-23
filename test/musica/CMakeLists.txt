@@ -25,6 +25,12 @@ endif()
 
 find_package(Python REQUIRED)
 
+# Copy configuration files to the build directory
+add_custom_target(copy_musica_test_data ALL ${CMAKE_COMMAND} -E copy_directory
+  ${CMAKE_CURRENT_SOURCE_DIR}/configuration
+  ${CMAKE_BINARY_DIR}/test/musica/configuration
+)
+
 # Test metadata against the source code
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/metadata_test)
 add_custom_target(
@@ -49,17 +55,22 @@ add_test(
 )
 
 # MUSICA CCPP API test
-add_executable(test_musica_api test_musica_api.F90 musica_ccpp_namelist.F90)
+add_executable(test_musica_api test_musica_api.F90)
 
 file(GLOB MUSICA_CCPP_SOURCES
   ${MUSICA_SRC_PATH}/*.F90
   ${MUSICA_SRC_PATH}/micm/*.F90
   ${MUSICA_SRC_PATH}/tuvx/*.F90
+  ${MUSICA_SRC_PATH}/util/*.F90
+  ${MUSICA_SRC_PATH}/aerosol/*.F90
+  ${MUSICA_SRC_PATH}/aerosol_stub/*.F90
 )
 
 target_sources(test_musica_api
   PUBLIC
     ${MUSICA_CCPP_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/musica_ccpp_namelist.F90
+    ${CMAKE_CURRENT_SOURCE_DIR}/musica_test_data.F90
     ${TO_BE_CCPPIZED_SRC_PATH}/ccpp_tuvx_utils.F90
     ${TO_BE_CCPPIZED_SRC_PATH}/ccpp_const_utils.F90
     ${CCPP_SRC_PATH}/ccpp_constituent_prop_mod.F90
@@ -71,7 +82,7 @@ target_sources(test_musica_api
 
 target_link_libraries(test_musica_api
   PRIVATE
-    musica-fortran musica yaml-cpp stdc++ netcdff
+    musica-fortran musica mechanism_configuration yaml-cpp stdc++ netcdff
 )
 
 add_test(
@@ -98,7 +109,7 @@ target_sources(test_musica_species
 
 target_link_libraries(test_musica_species
   PRIVATE
-    musica-fortran musica yaml-cpp stdc++ netcdff
+    musica-fortran musica mechanism_configuration yaml-cpp stdc++ netcdff
 )
 
 add_test(
@@ -109,5 +120,8 @@ add_test(
 
 add_memory_check_test(test_musica_species $<TARGET_FILE:test_musica_species> "" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
+add_subdirectory(aerosol)
+add_subdirectory(aerosol_stub)
 add_subdirectory(micm)
 add_subdirectory(tuvx)
+add_subdirectory(util)

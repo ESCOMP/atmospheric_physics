@@ -1,3 +1,6 @@
+! Copyright (C) 2024-2025 University Corporation for Atmospheric Research
+! SPDX-License-Identifier: Apache-2.0
+!
 ! Stub scheme to set top of cloud physics to below top cloud level.
 ! Used for all macrophysical schemes except RK.
 module set_cloud_fraction_top

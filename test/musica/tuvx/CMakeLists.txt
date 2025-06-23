@@ -4,13 +4,13 @@ add_executable(test_tuvx_height_grid test_tuvx_height_grid.F90)
 target_sources(test_tuvx_height_grid
   PUBLIC
     ${MUSICA_SRC_PATH}/tuvx/musica_ccpp_tuvx_height_grid.F90
-    ${MUSICA_SRC_PATH}/musica_ccpp_util.F90
+    ${MUSICA_SRC_PATH}/util/musica_ccpp_util.F90
     ${CCPP_TEST_SRC_PATH}/ccpp_kinds.F90
 )
 
 target_link_libraries(test_tuvx_height_grid
   PRIVATE
-    musica-fortran musica yaml-cpp stdc++ netcdff
+    musica-fortran musica mechanism_configuration yaml-cpp stdc++ netcdff
 )
 
 add_test(
@@ -27,13 +27,13 @@ add_executable(test_tuvx_wavelength_grid test_tuvx_wavelength_grid.F90)
 target_sources(test_tuvx_wavelength_grid
   PUBLIC
     ${MUSICA_SRC_PATH}/tuvx/musica_ccpp_tuvx_wavelength_grid.F90
-    ${MUSICA_SRC_PATH}/musica_ccpp_util.F90
+    ${MUSICA_SRC_PATH}/util/musica_ccpp_util.F90
     ${CCPP_TEST_SRC_PATH}/ccpp_kinds.F90
 )
 
 target_link_libraries(test_tuvx_wavelength_grid
   PRIVATE
-    musica-fortran musica yaml-cpp stdc++ netcdff
+    musica-fortran musica mechanism_configuration yaml-cpp stdc++ netcdff
 )
 
 add_test(
@@ -51,13 +51,13 @@ target_sources(test_tuvx_temperature
   PUBLIC
     ${MUSICA_SRC_PATH}/tuvx/musica_ccpp_tuvx_height_grid.F90
     ${MUSICA_SRC_PATH}/tuvx/musica_ccpp_tuvx_temperature.F90
-    ${MUSICA_SRC_PATH}/musica_ccpp_util.F90
+    ${MUSICA_SRC_PATH}/util/musica_ccpp_util.F90
     ${CCPP_TEST_SRC_PATH}/ccpp_kinds.F90
 )
 
 target_link_libraries(test_tuvx_temperature
   PRIVATE
-    musica-fortran musica yaml-cpp stdc++ netcdff
+    musica-fortran musica mechanism_configuration yaml-cpp stdc++ netcdff
 )
 
 add_test(
@@ -75,13 +75,13 @@ target_sources(test_tuvx_surface_albedo
   PUBLIC
     ${MUSICA_SRC_PATH}/tuvx/musica_ccpp_tuvx_wavelength_grid.F90
     ${MUSICA_SRC_PATH}/tuvx/musica_ccpp_tuvx_surface_albedo.F90
-    ${MUSICA_SRC_PATH}/musica_ccpp_util.F90
+    ${MUSICA_SRC_PATH}/util/musica_ccpp_util.F90
     ${CCPP_TEST_SRC_PATH}/ccpp_kinds.F90
 )
 
 target_link_libraries(test_tuvx_surface_albedo
   PRIVATE
-    musica-fortran musica yaml-cpp stdc++ netcdff
+    musica-fortran musica mechanism_configuration yaml-cpp stdc++ netcdff
 )
 
 add_test(
@@ -99,14 +99,14 @@ target_sources(test_tuvx_extraterrestrial_flux
   PUBLIC
     ${MUSICA_SRC_PATH}/tuvx/musica_ccpp_tuvx_wavelength_grid.F90
     ${MUSICA_SRC_PATH}/tuvx/musica_ccpp_tuvx_extraterrestrial_flux.F90
-    ${MUSICA_SRC_PATH}/musica_ccpp_util.F90
+    ${MUSICA_SRC_PATH}/util/musica_ccpp_util.F90
     ${TO_BE_CCPPIZED_SRC_PATH}/ccpp_tuvx_utils.F90
     ${CCPP_TEST_SRC_PATH}/ccpp_kinds.F90
 )
 
 target_link_libraries(test_tuvx_extraterrestrial_flux
   PRIVATE
-    musica-fortran musica yaml-cpp stdc++ netcdff
+    musica-fortran musica mechanism_configuration yaml-cpp stdc++ netcdff
 )
 
 add_test(
@@ -125,14 +125,14 @@ target_sources(test_tuvx_cloud_optics
     ${MUSICA_SRC_PATH}/tuvx/musica_ccpp_tuvx_height_grid.F90
     ${MUSICA_SRC_PATH}/tuvx/musica_ccpp_tuvx_wavelength_grid.F90
     ${MUSICA_SRC_PATH}/tuvx/musica_ccpp_tuvx_cloud_optics.F90
-    ${MUSICA_SRC_PATH}/musica_ccpp_util.F90
+    ${MUSICA_SRC_PATH}/util/musica_ccpp_util.F90
     ${TO_BE_CCPPIZED_SRC_PATH}/ccpp_tuvx_utils.F90
     ${CCPP_TEST_SRC_PATH}/ccpp_kinds.F90
 )
 
 target_link_libraries(test_tuvx_cloud_optics
   PRIVATE
-    musica-fortran musica yaml-cpp stdc++ netcdff
+    musica-fortran musica mechanism_configuration yaml-cpp stdc++ netcdff
 )
 
 add_test(
@@ -151,13 +151,13 @@ target_sources(test_tuvx_aerosol_optics
     ${MUSICA_SRC_PATH}/tuvx/musica_ccpp_tuvx_height_grid.F90
     ${MUSICA_SRC_PATH}/tuvx/musica_ccpp_tuvx_wavelength_grid.F90
     ${MUSICA_SRC_PATH}/tuvx/musica_ccpp_tuvx_aerosol_optics.F90
-    ${MUSICA_SRC_PATH}/musica_ccpp_util.F90
+    ${MUSICA_SRC_PATH}/util/musica_ccpp_util.F90
     ${CCPP_TEST_SRC_PATH}/ccpp_kinds.F90
 )
 
 target_link_libraries(test_tuvx_aerosol_optics
   PRIVATE
-    musica-fortran musica yaml-cpp stdc++ netcdff
+    musica-fortran musica mechanism_configuration yaml-cpp stdc++ netcdff
 )
 
 add_test(
@@ -181,11 +181,12 @@ target_sources(test_tuvx_gas_species
     ${CCPP_SRC_PATH}/ccpp_hashable.F90
     ${CCPP_TEST_SRC_PATH}/ccpp_kinds.F90
     ${CMAKE_CURRENT_SOURCE_DIR}/../musica_ccpp_namelist.F90
+    ${CMAKE_CURRENT_SOURCE_DIR}/../musica_test_data.F90
 )
 
 target_link_libraries(test_tuvx_gas_species
   PRIVATE
-    musica-fortran musica yaml-cpp stdc++ netcdff
+    musica-fortran musica mechanism_configuration yaml-cpp stdc++ netcdff
 )
 
 add_test(
@@ -203,8 +204,8 @@ target_sources(test_tuvx_load_species
   PUBLIC
     ${MUSICA_SRC_PATH}/tuvx/musica_ccpp_tuvx_load_species.F90
     ${MUSICA_SRC_PATH}/tuvx/musica_ccpp_tuvx_gas_species.F90
-    ${MUSICA_SRC_PATH}/musica_ccpp_species.F90
-    ${MUSICA_SRC_PATH}/musica_ccpp_util.F90
+    ${MUSICA_SRC_PATH}/util/musica_ccpp_species.F90
+    ${MUSICA_SRC_PATH}/util/musica_ccpp_util.F90
     ${TO_BE_CCPPIZED_SRC_PATH}/ccpp_const_utils.F90
     ${CCPP_SRC_PATH}/ccpp_constituent_prop_mod.F90
     ${CCPP_SRC_PATH}/ccpp_hash_table.F90
@@ -214,7 +215,7 @@ target_sources(test_tuvx_load_species
 
 target_link_libraries(test_tuvx_load_species
   PRIVATE
-    musica-fortran musica yaml-cpp stdc++ netcdff
+    musica-fortran musica mechanism_configuration yaml-cpp stdc++ netcdff
 )
 
 add_test(
