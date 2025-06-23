@@ -21,6 +21,8 @@ module diffusion_stubs
   public :: beljaars_add_updated_residual_stress_run
   public :: turbulent_mountain_stress_add_updated_surface_stress_run
 
+
+
 contains
 
   ! Stub for zero upper boundary conditions before UBC module is CCPPized
@@ -279,5 +281,28 @@ contains
       tautoty(:ncol) = tautoty(:ncol) + tautmsy(:ncol)
     endif
   end subroutine turbulent_mountain_stress_add_updated_surface_stress_run
+
+  ! Set rairv use flag for vertical_diffusion_interpolate_to_interfaces
+  ! to be false since we are not in WACCM-X mode.
+!> \section arg_table_vertical_diffusion_not_use_rairv_init Argument Table
+!! \htmlinclude vertical_diffusion_not_use_rairv_init.html
+  subroutine vertical_diffusion_not_use_rairv_init( &
+    flag_for_constituent_dependent_gas_constant, &
+    errmsg, errflg)
+
+    ! Output arguments
+    logical,            intent(out) :: flag_for_constituent_dependent_gas_constant ! Flag for constituent-dependent gas constant [flag]
+    character(len=512), intent(out) :: errmsg
+    integer,            intent(out) :: errflg
+
+    errmsg = ''
+    errflg = 0
+
+    ! Set to .false. since we are not in WACCM-X mode
+    ! Only use constituent-dependent gas constant when in WACCM-X mode
+    flag_for_constituent_dependent_gas_constant = .false.
+
+  end subroutine vertical_diffusion_not_use_rairv_init
+
 
 end module diffusion_stubs

@@ -36,6 +36,8 @@
     <scheme>vertical_diffusion_sponge_layer</scheme>
 
     <!-- vdiff pre-interstitial 1: interpolate t, rho, p to interfaces -->
+    <!-- not in WACCM-X mode so do not use rairv in vdiff. -->
+    <scheme>vertical_diffusion_not_use_rairv</scheme>
     <scheme>vertical_diffusion_interpolate_to_interfaces</scheme>
 
     <!-- vdiff pre-interstitial 2: calculate drag coefficient -->

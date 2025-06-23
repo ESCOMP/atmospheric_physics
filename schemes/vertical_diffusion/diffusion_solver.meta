@@ -246,7 +246,7 @@
   name  = vertical_diffusion_diffuse_horizontal_momentum_timestep_init
   type  = scheme
 [ ncol ]
-  standard_name = horizontal_loop_extent
+  standard_name = horizontal_dimension
   units = count
   type = integer
   dimensions = ()
@@ -261,13 +261,13 @@
   standard_name = drag_coefficient_at_surface_tbd
   units = kg m-2 s-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent)
+  dimensions = (horizontal_dimension)
   intent = out
 [ tau_damp_rate ]
   standard_name = wind_damping_rate_due_to_surface_stress_tbd
   units = s-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
