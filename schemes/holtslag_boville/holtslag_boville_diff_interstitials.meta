@@ -219,7 +219,7 @@
   intent = out
 [ p ]
   standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion_tbd
-  units = Pa
+  units = none
   dimensions = ()
   type = Coords1D
   intent = out
@@ -324,7 +324,7 @@
   intent = out
 [ p ]
   standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion_tbd
-  units = Pa
+  units = none
   dimensions = ()
   type = Coords1D
   intent = out

@@ -60,30 +60,46 @@ contains
 !> \section arg_table_tms_beljaars_zero_stub_run Argument Table
 !! \htmlinclude tms_beljaars_zero_stub_run.html
   subroutine tms_beljaars_zero_stub_run( &
-    ncol, &
+    ncol, pver, &
+    ksrftms, &
     tautmsx, tautmsy, &
+    do_beljaars, &
+    dragblj, &
     taubljx, taubljy, &
     errmsg, errflg)
 
     ! Input arguments
     integer,            intent(in)  :: ncol
+    integer,            intent(in)  :: pver
 
     ! Output arguments
-    real(kind_phys),    intent(out) :: tautmsx(:)               ! Eastward turbulent mountain surface stress [Pa]
-    real(kind_phys),    intent(out) :: tautmsy(:)               ! Northward turbulent mountain surface stress [Pa]
-    real(kind_phys),    intent(out) :: taubljx(:)               ! Eastward Beljaars surface stress [Pa]
-    real(kind_phys),    intent(out) :: taubljy(:)               ! Northward Beljaars surface stress [Pa]
-    character(len=512), intent(out) :: errmsg                   ! Error message
-    integer,            intent(out) :: errflg                   ! Error flag
+    real(kind_phys),    intent(out) :: ksrftms(:)  ! Surface drag coefficient for turbulent mountain stress. > 0. [kg m-2 s-1]
+    real(kind_phys),    intent(out) :: tautmsx(:)  ! Eastward turbulent mountain surface stress [N m-2]
+    real(kind_phys),    intent(out) :: tautmsy(:)  ! Northward turbulent mountain surface stress [N m-2]
+    logical,            intent(out) :: do_beljaars
+    real(kind_phys),    intent(out) :: dragblj(:,:)! Drag profile from Beljaars SGO form drag > 0. [s-1]
+    real(kind_phys),    intent(out) :: taubljx(:)  ! Eastward Beljaars surface stress [N m-2]
+    real(kind_phys),    intent(out) :: taubljy(:)  ! Northward Beljaars surface stress [N m-2]
+    character(len=512), intent(out) :: errmsg      ! Error message
+    integer,            intent(out) :: errflg      ! Error flag
 
     errmsg = ''
     errflg = 0
+
+    ! Set TMS drag coefficient to zero (stub implementation)
+    ksrftms(:ncol) = 0._kind_phys
 
     ! Set all TMS and Beljaars stresses to zero (stub implementation)
     tautmsx(:ncol) = 0._kind_phys
     tautmsy(:ncol) = 0._kind_phys
     taubljx(:ncol) = 0._kind_phys
     taubljy(:ncol) = 0._kind_phys
+
+    ! Set Beljaars 3-D drag profile to zero (stub implementation)
+    dragblj(:ncol,:pver) = 0._kind_phys
+
+    ! Set do_beljaars flag to false
+    do_beljaars = .false.
 
   end subroutine tms_beljaars_zero_stub_run
 

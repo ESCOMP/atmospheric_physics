@@ -19,15 +19,24 @@ module diffusion_solver
   save
 
   ! CCPP-compliant public interfaces
-  public :: vertical_diffusion_diffuse_horizontal_momentum_timestep_init
+
+  public :: vertical_diffusion_set_temperature_at_toa_default_run
   public :: vertical_diffusion_interpolate_to_interfaces_timestep_init
   public :: vertical_diffusion_interpolate_to_interfaces_run   ! Interpolate t, rho, rair to interfaces
   public :: implicit_surface_stress_add_drag_coefficient_run   ! Add implicit turbulent surface stress (if do_iss)
   public :: vertical_diffusion_wind_damping_rate_run           ! Compute wind damping rate from drag coeff
   ! Beljaars will add wind damping rates at this point
+
+  public :: vertical_diffusion_diffuse_horizontal_momentum_timestep_init
   public :: vertical_diffusion_diffuse_horizontal_momentum_run ! Vertical diffusion solver (horizontal momentum)
+
+  public :: vertical_diffusion_set_dry_static_energy_at_toa_zero_run
+  public :: vertical_diffusion_set_dry_static_energy_at_toa_molecdiff_run
   public :: vertical_diffusion_diffuse_dry_static_energy_run   ! Vertical diffusion solver (dry static energy)
+
+  public :: vertical_diffusion_diffuse_tracers_init
   public :: vertical_diffusion_diffuse_tracers_run             ! Vertical diffusion solver (tracers)
+
   public :: vertical_diffusion_tendencies_run                  ! Using output from solver compute phys. tend
 
   ! Parameters for implicit surface stress treatment
@@ -317,7 +326,6 @@ contains
              ncol, pver, pverp, &
              ztodt, &
              rair, gravit, &
-             do_diffusion_uvs, &
              do_iss, &
              am_correction, &
              itaures, &
@@ -346,7 +354,6 @@ contains
     real(kind_phys), intent(in)       :: ztodt            ! 2 delta-t [ s ]
     real(kind_phys), intent(in)       :: rair
     real(kind_phys), intent(in)       :: gravit
-    logical,         intent(in)       :: do_diffusion_uvs ! diffuse horizontal momentum and dry static energy [flag]
     logical,         intent(in)       :: do_iss           ! Use implicit turbulent surface stress computation
     logical,         intent(in)       :: am_correction    ! Do angular momentum conservation correction
     logical,         intent(in)       :: itaures          ! Flag for updating tauresx tauresy in this subroutine.
@@ -644,6 +651,61 @@ contains
     ! End of kinetic energy dissipation due to horizontal momentum diffusion
   end subroutine vertical_diffusion_diffuse_horizontal_momentum_run
 
+  ! Set dry static energy top boundary condition - zero
+  ! used when (1) no molecular diffusion is active, or (2) molecular diffusion is active and not WACCM-X.
+!> \section arg_table_vertical_diffusion_set_dry_static_energy_at_toa_zero_run Argument Table
+!! \htmlinclude arg_table_vertical_diffusion_set_dry_static_energy_at_toa_zero_run.html
+  subroutine vertical_diffusion_set_dry_static_energy_at_toa_zero_run( &
+    ncol, &
+    dse_top, &
+    errmsg, errflg)
+
+    ! Input arguments
+    integer,         intent(in)       :: ncol
+
+    ! Output arguments
+    real(kind_phys),    intent(out)   :: dse_top(:)       ! Dry static energy top boundary condition.
+    character(len=512), intent(out)   :: errmsg  ! error message
+    integer,            intent(out)   :: errflg  ! error flag
+
+    errmsg = ''
+    errflg = 0
+
+    dse_top(:ncol) = 0._kind_phys
+
+  end subroutine vertical_diffusion_set_dry_static_energy_at_toa_zero_run
+
+  ! Set dry static energy top boundary condition - molecular diffusion non-WACCM-X version
+!> \section arg_table_vertical_diffusion_set_dry_static_energy_at_toa_molecdiff_run Argument Table
+!! \htmlinclude arg_table_vertical_diffusion_set_dry_static_energy_at_toa_molecdiff_run.html
+  subroutine vertical_diffusion_set_dry_static_energy_at_toa_molecdiff_run( &
+    ncol, &
+    gravit, &
+    cpairv, &
+    zi, &
+    tint, &
+    dse_top, &
+    errmsg, errflg)
+
+    ! Input arguments
+    integer,         intent(in)       :: ncol
+    real(kind_phys), intent(in)       :: gravit
+    real(kind_phys), intent(in)       :: cpairv(:,:)    ! specific heat of dry air at constant pressure [J kg-1 K-1]
+    real(kind_phys), intent(in)       :: zi(:,:)        ! geopotential_height_wrt_surface_at_interface [m]
+    real(kind_phys), intent(in)       :: tint(:,:)      ! Air temperature at interfaces [K]
+
+    ! Output arguments
+    real(kind_phys),    intent(out)   :: dse_top(:)     ! Dry static energy top boundary condition.
+    character(len=512), intent(out)   :: errmsg  ! error message
+    integer,            intent(out)   :: errflg  ! error flag
+
+    errmsg = ''
+    errflg = 0
+
+    dse_top(:ncol) = cpairv(:ncol,1) * tint(:ncol,1) + gravit * zi(:ncol,1)
+
+  end subroutine vertical_diffusion_set_dry_static_energy_at_toa_molecdiff_run
+
   ! Driver routine to compute vertical diffusion of dry static energy.
   ! The new temperature is computed from the diffused dry static energy
   ! after tendencies are applied.
@@ -670,7 +732,7 @@ contains
     use vertical_diffusion_solver, only: fin_vol_solve
 
     ! Input Arguments
-    integer,         intent(in)       :: ncol             ! Number of atmospheric columns
+    integer,         intent(in)       :: ncol
     integer,         intent(in)       :: pver
     real(kind_phys), intent(in)       :: ztodt            ! 2 delta-t [s]
 
@@ -729,6 +791,41 @@ contains
 
   end subroutine vertical_diffusion_diffuse_dry_static_energy_run
 
+  ! Set tracers to diffuse using vertical diffusion.
+!> \section arg_table_vertical_diffusion_diffuse_tracers_init Argument Table
+!! \htmlinclude arg_table_vertical_diffusion_diffuse_tracers_init.html
+  subroutine vertical_diffusion_diffuse_tracers_init( &
+    ncnst, &
+    do_diffusion_const, &
+    errmsg, errflg)
+
+    ! Input arguments
+    integer,            intent(in)    :: ncnst                 ! # of constituents to diffuse. In eddy_diff, only wv. Others, pcnst.
+
+    ! Output arguments
+    logical,            intent(out)   :: do_diffusion_const(:) ! diffuse constituents (size ncnst) [flag]
+    character(len=512), intent(out)   :: errmsg  ! error message
+    integer,            intent(out)   :: errflg  ! error flag
+
+    errmsg = ''
+    errflg = 0
+
+    ! Check if logical array is of the expected size
+    if (size(do_diffusion_const) .ne. ncnst) then
+      write(errmsg, *) 'compute_vdiff: do_diffusion_const size ', &
+        size(do_diffusion_const), ' is not equal to ncnst ', ncnst
+      return
+    end if
+
+    ! Diffuse all constituents using moist coordinates.
+    do_diffusion_const(:ncnst) = .true.
+
+    ! TODO: in the future (when dropmixnuc is implemented),
+    ! handle that if constituent is treated in dropmixnuc
+    ! (vertically mixed by ndrop activation process) then
+    ! do not handle vertical diffusion in this module.
+
+  end subroutine vertical_diffusion_diffuse_tracers_init
 
   ! Diffuse tracers (no molecular diffusion)
 !> \section arg_table_vertical_diffusion_diffuse_tracers_run Argument Table
@@ -872,6 +969,7 @@ contains
     u, v, s, q, &      ! provisional values after vdiff, not actual
     ! below output
     tend_s, tend_u, tend_v, tend_q, &
+    scheme_name, &
     errmsg, errflg)
 
     ! framework dependency for const_props
@@ -900,6 +998,7 @@ contains
     real(kind_phys), intent(out)    :: tend_u(:,:)     ! Eastward wind tendency [m s-2]
     real(kind_phys), intent(out)    :: tend_v(:,:)     ! Northward wind tendency [m s-2]
     real(kind_phys), intent(out)    :: tend_q(:,:,:)   ! Constituent mixing ratio tendencies [kg kg-1 s-1]
+    character(len=64),  intent(out) :: scheme_name    ! scheme name
     character(len=512), intent(out) :: errmsg     ! Error message
     integer,            intent(out) :: errflg     ! Error flag
 
@@ -908,6 +1007,8 @@ contains
 
     ! for bit-to-bitness
     real(kind_phys) :: rztodt
+
+    scheme_name = "vertical_diffusion_tendencies"
 
     rztodt = 1._kind_phys/dt
 

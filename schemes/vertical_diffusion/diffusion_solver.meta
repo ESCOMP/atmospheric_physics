@@ -252,7 +252,7 @@
   dimensions = ()
   intent = in
 [ p ]
-  standard_name = vertical_pressure_coordinates_for_vertical_diffusion_tbd
+  standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion_tbd
   units = none
   type = Coords1D
   dimensions = ()
@@ -365,12 +365,6 @@
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
-[ do_diffusion_uvs ]
-  standard_name = flag_for_horizontal_momentum_vertical_diffusion_tbd
-  units = flag
-  type = logical
-  dimensions = ()
-  intent = in
 [ do_iss ]
   standard_name = flag_for_implicit_turbulent_surface_stress_in_vertical_diffusion_tbd
   units = flag
@@ -396,7 +390,7 @@
   dimensions = ()
   intent = in
 [ p ]
-  standard_name = vertical_pressure_coordinates_for_vertical_diffusion_tbd
+  standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion_tbd
   units = none
   type = Coords1D
   dimensions = ()
@@ -547,6 +541,94 @@
   intent = out
 
 [ccpp-table-properties]
+  name = vertical_diffusion_set_dry_static_energy_at_toa_zero
+  type = scheme
+
+[ccpp-arg-table]
+  name  = vertical_diffusion_set_dry_static_energy_at_toa_zero_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ dse_top ]
+  standard_name = dry_static_energy_at_top_of_atmosphere_tbd
+  units = J kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-table-properties]
+  name = vertical_diffusion_set_dry_static_energy_at_toa_molecdiff
+  type = scheme
+
+[ccpp-arg-table]
+  name  = vertical_diffusion_set_dry_static_energy_at_toa_molecdiff_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ gravit ]
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ cpairv ]
+  standard_name = composition_dependent_specific_heat_of_dry_air_at_constant_pressure
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ zi ]
+  standard_name = geopotential_height_wrt_surface_at_interface
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ tint ]
+  standard_name = air_temperature_at_interface_for_vertical_diffusion_tbd
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ dse_top ]
+  standard_name = dry_static_energy_at_top_of_atmosphere_tbd
+  units = J kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-table-properties]
   name = vertical_diffusion_diffuse_dry_static_energy
   type = scheme
 
@@ -578,7 +660,7 @@
   dimensions = ()
   intent = in
 [ p ]
-  standard_name = vertical_pressure_coordinates_for_vertical_diffusion_tbd
+  standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion_tbd
   units = none
   type = Coords1D
   dimensions = ()
@@ -644,6 +726,42 @@
   name = vertical_diffusion_diffuse_tracers
   type = scheme
 
+
+[ccpp-arg-table]
+  name  = vertical_diffusion_diffuse_tracers_init
+  type  = scheme
+[ ncnst ]
+  # note: this is set to ccpp_constituents for now because
+  # q is sized number_of_ccpp_constituents as well, and cannot
+  # yet be a custom dimension. when CAM5 is ported, ncnst = 1,
+  # and q would have to have a custom dimension of, e.g.,
+  # number_of_ccpp_constituents_for_vertical_diffusion_solver.
+  # but this is not yet supported, so ncnst is all constituents for now.
+  standard_name = number_of_ccpp_constituents
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ do_diffusion_const ]
+  # only dimension should be ncnst, not pcnst.
+  standard_name = flag_for_ccpp_constituent_vertical_diffusion_tbd
+  units = flag
+  type = logical
+  dimensions = (number_of_ccpp_constituents)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
 [ccpp-arg-table]
   name  = vertical_diffusion_diffuse_tracers_run
   type  = scheme
@@ -697,7 +815,7 @@
   dimensions = (number_of_ccpp_constituents)
   intent = in
 [ p ]
-  standard_name = vertical_pressure_coordinates_for_vertical_diffusion_tbd
+  standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion_tbd
   units = none
   type = Coords1D
   dimensions = ()
@@ -720,7 +838,7 @@
   #
   # when this is made ncnst, the standard name could be changed to
   # surface_upward_ccpp_constituent_fluxes_for_vertical_diffusion_tbd
-  standard_name = surface_upward_ccpp_constituent_fluxes_tbd
+  standard_name = surface_upward_ccpp_constituent_fluxes_from_coupler
   units = kg m-2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, number_of_ccpp_constituents)
@@ -746,7 +864,9 @@
 [ qmincg ]
   # same note applies for the ncnst argument above that the only dimension
   # is actually ncnst, not pcnst.
-  standard_name = minimum_mass_mixing_ratio_wrt_moist_air_and_condensed_water_after_counter_gradient_fluxes_tbd
+  #
+  # minimum_mass_mixing_ratio_wrt_moist_air_and_condensed_water_after_counter_gradient_fluxes_tbd
+  standard_name = ccpp_constituent_minimum_values
   units = kg kg-1
   type = real | kind = kind_phys
   dimensions = (number_of_ccpp_constituents)
@@ -918,6 +1038,12 @@
   units = none
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
+  intent = out
+[ scheme_name ]
+  standard_name = scheme_name
+  units = none
+  type = character | kind = len=64
+  dimensions = ()
   intent = out
 [ errmsg ]
   standard_name = ccpp_error_message

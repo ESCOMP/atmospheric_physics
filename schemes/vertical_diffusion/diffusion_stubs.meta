@@ -55,6 +55,18 @@
   dimensions = ()
   type = integer
   intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ ksrftms ]
+  standard_name = turbulent_orographic_form_drag_coefficent_at_surface
+  units = kg s-1 m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
 [ tautmsx ]
   standard_name = eastward_turbulent_mountain_surface_stress_tbd
   units = N m-2
@@ -66,6 +78,18 @@
   units = N m-2
   dimensions = (horizontal_loop_extent)
   type = real | kind = kind_phys
+  intent = out
+[ do_beljaars ]
+  standard_name = flag_for_beljaars_drag_in_vertical_diffusion_tbd
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ dragblj ]
+  standard_name = turbulent_orographic_form_drag_coefficent
+  units = s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ taubljx ]
   standard_name = eastward_beljaars_surface_stress_tbd
@@ -206,7 +230,7 @@
   dimensions = ()
   intent = in
 [ p ]
-  standard_name = vertical_pressure_coordinates_for_vertical_diffusion_tbd
+  standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion_tbd
   units = none
   type = Coords1D
   dimensions = ()

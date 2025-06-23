@@ -59,6 +59,11 @@
     <!--<scheme>turbulent_mountain_stress_add_updated_surface_stress</scheme>-->
     <!--<scheme>beljaars_add_updated_residual_stress</scheme>-->
 
+    <!-- set dry static energy top boundary condition to zero.
+         zero is used for: no molecular diffusion, or molecular diffusion + WACCM-X is active.
+         otherwise, use vertical_diffusion_set_dry_static_energy_at_toa_molecdiff -->
+    <scheme>vertical_diffusion_set_dry_static_energy_at_toa_zero</scheme>
+
     <!-- vdiff compute 2: dry static energy diffusion -->
     <scheme>vertical_diffusion_diffuse_dry_static_energy</scheme>
 
