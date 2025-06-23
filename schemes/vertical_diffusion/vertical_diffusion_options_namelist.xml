@@ -78,7 +78,7 @@
   <entry id="do_iss">
     <type>logical</type>
     <category>pbl</category>
-    <group>diffusion_solver_nl</group>
+    <group>vertical_diffusion_nl</group>
     <standard_name>flag_for_implicit_turbulent_surface_stress_in_vertical_diffusion_tbd</standard_name>
     <units>flag</units>
     <desc>
@@ -94,7 +94,7 @@
   <entry id="am_correction">
     <type>logical</type>
     <category>pbl</category>
-    <group>diffusion_solver_nl</group>
+    <group>vertical_diffusion_nl</group>
     <standard_name>flag_for_angular_momentum_correction_in_vertical_diffusion_tbd</standard_name>
     <units>flag</units>
     <desc>

@@ -1,76 +1,4 @@
 [ccpp-table-properties]
-  name = vertical_diffusion_compute
-  type = scheme
-
-[ccpp-arg-table]
-  name  = vertical_diffusion_compute_init
-  type  = scheme
-[ do_iss_in ]
-  standard_name = flag_for_implicit_turbulent_surface_stress_in_vertical_diffusion_tbd
-  units = flag
-  type = logical
-  dimensions = ()
-  intent = in
-[ am_correction_in ]
-  standard_name = flag_for_angular_momentum_correction_in_vertical_diffusion_tbd
-  units = flag
-  type = logical
-  dimensions = ()
-  intent = in
-[ errmsg ]
-  standard_name = ccpp_error_message
-  units = none
-  type = character | kind = len=512
-  dimensions = ()
-  intent = out
-[ errflg ]
-  standard_name = ccpp_error_code
-  units = 1
-  type = integer
-  dimensions = ()
-  intent = out
-
-[ccpp-arg-table]
-  name  = vertical_diffusion_compute_timestep_init
-  type  = scheme
-[ ncol ]
-  standard_name = horizontal_loop_extent
-  units = count
-  type = integer
-  dimensions = ()
-  intent = in
-[ pver ]
-  standard_name = vertical_layer_dimension
-  units = count
-  type = integer
-  dimensions = ()
-  intent = in
-[ ksrf ]
-  standard_name = drag_coefficient_at_surface_tbd
-  units = kg m-2 s-1
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent)
-  intent = out
-[ tau_damp_rate ]
-  standard_name = wind_damping_rate_due_to_surface_stress_tbd
-  units = s-1
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = out
-[ errmsg ]
-  standard_name = ccpp_error_message
-  units = none
-  type = character | kind = len=512
-  dimensions = ()
-  intent = out
-[ errflg ]
-  standard_name = ccpp_error_code
-  units = 1
-  type = integer
-  dimensions = ()
-  intent = out
-
-[ccpp-table-properties]
   name = vertical_diffusion_interpolate_to_interfaces
   type = scheme
 
@@ -205,6 +133,12 @@
   type = integer
   dimensions = ()
   intent = in
+[ do_iss ]
+  standard_name = flag_for_implicit_turbulent_surface_stress_in_vertical_diffusion_tbd
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
 [ taux ]
   standard_name = eastward_stress_at_surface_for_vertical_diffusion_tbd
   units = N m-2
@@ -309,6 +243,46 @@
   type = scheme
 
 [ccpp-arg-table]
+  name  = vertical_diffusion_diffuse_horizontal_momentum_timestep_init
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ ksrf ]
+  standard_name = drag_coefficient_at_surface_tbd
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tau_damp_rate ]
+  standard_name = wind_damping_rate_due_to_surface_stress_tbd
+  units = s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
   name  = vertical_diffusion_diffuse_horizontal_momentum_run
   type  = scheme
 [ ncol ]
@@ -349,6 +323,18 @@
   intent = in
 [ do_diffusion_uvs ]
   standard_name = flag_for_horizontal_momentum_vertical_diffusion_tbd
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ do_iss ]
+  standard_name = flag_for_implicit_turbulent_surface_stress_in_vertical_diffusion_tbd
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ am_correction ]
+  standard_name = flag_for_angular_momentum_correction_in_vertical_diffusion_tbd
   units = flag
   type = logical
   dimensions = ()

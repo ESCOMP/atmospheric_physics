@@ -19,8 +19,7 @@ module diffusion_solver
   save
 
   ! CCPP-compliant public interfaces
-  public :: vertical_diffusion_compute_init
-  public :: vertical_diffusion_compute_timestep_init
+  public :: vertical_diffusion_diffuse_horizontal_momentum_timestep_init
   public :: vertical_diffusion_interpolate_to_interfaces_run   ! Interpolate t, rho, rair to interfaces
   public :: implicit_surface_stress_add_drag_coefficient_run   ! Add implicit turbulent surface stress (if do_iss)
   public :: vertical_diffusion_wind_damping_rate_run           ! Compute wind damping rate from drag coeff
@@ -30,10 +29,6 @@ module diffusion_solver
   public :: vertical_diffusion_diffuse_tracers_run             ! Vertical diffusion solver (tracers)
   public :: vertical_diffusion_tendencies_run                  ! Using output from solver compute phys. tend
 
-  ! Module private variables
-  logical :: do_iss                  ! Use implicit turbulent surface stress computation
-  logical :: am_correction           ! Do angular momentum conservation correction
-
   ! Parameters for implicit surface stress treatment
   real(kind_phys), parameter :: wsmin = 1._kind_phys         ! Minimum sfc wind speed for estimating frictional
                                                              ! transfer velocity ksrf. [m s-1]
@@ -41,57 +36,6 @@ module diffusion_solver
   real(kind_phys), parameter :: timeres = 7200._kind_phys    ! Relaxation time scale of residual stress (>= dt) [s]
 
 contains
-!> \section arg_table_vertical_diffusion_compute_init Argument Table
-!! \htmlinclude arg_table_vertical_diffusion_compute_init.html
-  subroutine vertical_diffusion_compute_init( &
-    do_iss_in, &
-    am_correction_in, &
-    errmsg, errflg)
-
-    logical,         intent(in)  :: do_iss_in       ! Input ISS flag
-    logical,         intent(in)  :: am_correction_in! for angular momentum conservation
-
-    character(len=512), intent(out)   :: errmsg  ! error message
-    integer,            intent(out)   :: errflg  ! error flag
-
-    errmsg = ''
-    errflg = 0
-
-    do_iss = do_iss_in
-    am_correction = am_correction_in
-
-  end subroutine vertical_diffusion_compute_init
-
-  ! Zero surface stresses at timestep initialization
-  ! Any surface stresses, e.g., Turbulent Mountain Stress
-  ! will be added to this later as they are computed.
-!> \section arg_table_vertical_diffusion_compute_timestep_init Argument Table
-!! \htmlinclude arg_table_vertical_diffusion_compute_timestep_init.html
-  subroutine vertical_diffusion_compute_timestep_init( &
-    ncol, pver, &
-    ksrf, &
-    tau_damp_rate, &
-    errmsg, errflg)
-
-    integer,         intent(in)       :: ncol
-    integer,         intent(in)       :: pver
-
-    ! Output (initial zeroed) arguments
-    real(kind_phys),    intent(out)   :: ksrf(:)            ! total surface drag coefficient [kg m-2 s-1]
-    real(kind_phys),    intent(out)   :: tau_damp_rate(:,:) ! Rate at which external (surface) stress damps wind speeds [s-1]
-
-    character(len=512), intent(out)   :: errmsg  ! error message
-    integer,            intent(out)   :: errflg  ! error flag
-
-    errmsg = ''
-    errflg = 0
-
-    ksrf(:ncol) = 0._kind_phys
-
-    ! In most layers, no damping at all.
-    tau_damp_rate(:ncol,:pver) = 0._kind_phys
-
-  end subroutine vertical_diffusion_compute_timestep_init
 
   ! Interpolates temperature, air density (moist and dry),
   ! and sets gas constant (not constituent dependent in non-WACCM-X mode)
@@ -192,6 +136,7 @@ contains
 !! \htmlinclude arg_table_implicit_surface_stress_add_drag_coefficient_run.html
   subroutine implicit_surface_stress_add_drag_coefficient_run( &
              ncol, pver, &
+             do_iss, &
              taux, tauy, &
              u0, v0, &
              ! below output
@@ -201,6 +146,7 @@ contains
     ! Input arguments
     integer,         intent(in)       :: ncol
     integer,         intent(in)       :: pver
+    logical,         intent(in)       :: do_iss             ! Use implicit turbulent surface stress computation
     real(kind_phys), intent(in)       :: taux(:)            ! Surface zonal stress [N m-2]
                                                             ! Input u-momentum per unit time per unit area into the   atmosphere.
     real(kind_phys), intent(in)       :: tauy(:)            ! Surface meridional stress [N m-2]
@@ -285,6 +231,37 @@ contains
 
   end subroutine vertical_diffusion_wind_damping_rate_run
 
+  ! Zero surface stresses at timestep initialization
+  ! Any surface stresses, e.g., Turbulent Mountain Stress
+  ! will be added to this later as they are computed.
+!> \section arg_table_vertical_diffusion_diffuse_horizontal_momentum_timestep_init Argument Table
+!! \htmlinclude arg_table_vertical_diffusion_diffuse_horizontal_momentum_timestep_init.html
+  subroutine vertical_diffusion_diffuse_horizontal_momentum_timestep_init( &
+    ncol, pver, &
+    ksrf, &
+    tau_damp_rate, &
+    errmsg, errflg)
+
+    integer,         intent(in)       :: ncol
+    integer,         intent(in)       :: pver
+
+    ! Output (initial zeroed) arguments
+    real(kind_phys),    intent(out)   :: ksrf(:)            ! total surface drag coefficient [kg m-2 s-1]
+    real(kind_phys),    intent(out)   :: tau_damp_rate(:,:) ! Rate at which external (surface) stress damps wind speeds [s-1]
+
+    character(len=512), intent(out)   :: errmsg  ! error message
+    integer,            intent(out)   :: errflg  ! error flag
+
+    errmsg = ''
+    errflg = 0
+
+    ksrf(:ncol) = 0._kind_phys
+
+    ! In most layers, no damping at all.
+    tau_damp_rate(:ncol,:pver) = 0._kind_phys
+
+  end subroutine vertical_diffusion_diffuse_horizontal_momentum_timestep_init
+
   ! Driver routine to compute vertical diffusion of momentum, moisture, trace
   ! constituents and dry static energy. The new temperature is computed from
   ! the diffused dry static energy.
@@ -297,6 +274,8 @@ contains
              ztodt, &
              rair, gravit, &
              do_diffusion_uvs, &
+             do_iss, &
+             am_correction, &
              itaures, &
              do_beljaars, &
              p, t, rhoi, &
@@ -323,7 +302,9 @@ contains
     real(kind_phys), intent(in)       :: ztodt            ! 2 delta-t [ s ]
     real(kind_phys), intent(in)       :: rair
     real(kind_phys), intent(in)       :: gravit
-    logical,         intent(in)       :: do_diffusion_uvs      ! diffuse horizontal momentum and dry static energy [flag]
+    logical,         intent(in)       :: do_diffusion_uvs ! diffuse horizontal momentum and dry static energy [flag]
+    logical,         intent(in)       :: do_iss           ! Use implicit turbulent surface stress computation
+    logical,         intent(in)       :: am_correction    ! Do angular momentum conservation correction
     logical,         intent(in)       :: itaures          ! Flag for updating tauresx tauresy in this subroutine.
     logical,         intent(in)       :: do_beljaars      ! Flag indicating Beljaars drag
     type(Coords1D),  intent(in)       :: p                ! Pressure coordinates [Pa]
