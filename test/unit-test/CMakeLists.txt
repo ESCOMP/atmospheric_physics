@@ -34,6 +34,8 @@ target_include_directories(utilities PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
 set(PHYS_UTILS_SRC
     ../../phys_utils/atmos_phys_pbl_utils.F90
+    ../../phys_utils/atmos_phys_string_utils.F90
+    ../../phys_utils/atmos_phys_rad_utils.F90
     include/ccpp_kinds.F90
 )
 

@@ -1,0 +1,103 @@
+@test
+subroutine mixed_case_to_lower_case()
+    use funit
+    use atmos_phys_string_utils, only : to_lower
+
+    character(len=*), parameter :: test_string = 'Mixed Case StrinG'
+    character(len=17)           :: output_string
+
+    output_string = to_lower(test_string)
+
+    @assertEqual('mixed case string', output_string)
+end subroutine mixed_case_to_lower_case
+
+@test
+subroutine lower_case_to_lower_case()
+    use funit
+    use atmos_phys_string_utils, only : to_lower
+
+    character(len=*), parameter :: test_string = ' lower case string'
+    character(len=18)           :: output_string
+
+    output_string = to_lower(test_string)
+
+    @assertEqual(' lower case string', output_string)
+end subroutine lower_case_to_lower_case
+
+@test
+subroutine upper_case_to_lower_case()
+    use funit
+    use atmos_phys_string_utils, only : to_lower
+
+    character(len=*), parameter :: test_string = 'UPPER CASE STRING'
+    character(len=17)           :: output_string
+
+    output_string = to_lower(test_string)
+
+    @assertEqual('upper case string', output_string)
+end subroutine upper_case_to_lower_case
+
+@test
+subroutine non_letters_to_lower_case()
+    use funit
+    use atmos_phys_string_utils, only : to_lower
+
+    character(len=*), parameter :: test_string = 'string with 3 NON-letters!'
+    character(len=26)           :: output_string
+
+    output_string = to_lower(test_string)
+
+    @assertEqual('string with 3 non-letters!', output_string)
+end subroutine non_letters_to_lower_case
+
+@test
+subroutine mixed_case_to_upper_case()
+    use funit
+    use atmos_phys_string_utils, only : to_upper
+
+    character(len=*), parameter :: test_string = 'Mixed Case StrinG'
+    character(len=17)           :: output_string
+
+    output_string = to_upper(test_string)
+
+    @assertEqual('MIXED CASE STRING', output_string)
+end subroutine mixed_case_to_upper_case
+
+@test
+subroutine lower_case_to_upper_case()
+    use funit
+    use atmos_phys_string_utils, only : to_upper
+
+    character(len=*), parameter :: test_string = ' lower case string'
+    character(len=18)           :: output_string
+
+    output_string = to_upper(test_string)
+
+    @assertEqual(' LOWER CASE STRING', output_string)
+end subroutine lower_case_to_upper_case
+
+@test
+subroutine upper_case_to_upper_case()
+    use funit
+    use atmos_phys_string_utils, only : to_upper
+
+    character(len=*), parameter :: test_string = 'UPPER CASE STRING'
+    character(len=17)           :: output_string
+
+    output_string = to_upper(test_string)
+
+    @assertEqual('UPPER CASE STRING', output_string)
+end subroutine upper_case_to_upper_case
+
+@test
+subroutine non_letters_to_upper_case()
+    use funit
+    use atmos_phys_string_utils, only : to_upper
+
+    character(len=*), parameter :: test_string = 'string with 3 NON-letters!'
+    character(len=26)           :: output_string
+
+    output_string = to_upper(test_string)
+
+    @assertEqual('STRING WITH 3 NON-LETTERS!', output_string)
+end subroutine non_letters_to_upper_case
