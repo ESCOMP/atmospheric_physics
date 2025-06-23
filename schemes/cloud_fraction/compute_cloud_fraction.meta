@@ -225,13 +225,13 @@
   dimensions = (horizontal_loop_extent)
   intent = in
 [ shallowcu ]
-  standard_name = shallow_convective_cloud_area_fraction_tbd
+  standard_name = shallow_convective_cloud_area_fraction
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ deepcu ]
-  standard_name = deep_convective_cloud_area_fraction_tbd
+  standard_name = deep_convective_cloud_area_fraction
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -273,7 +273,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ rhcloud ]
-  standard_name = cloud_area_fraction_from_relative_humidity_method_tbd
+  standard_name = cloud_area_fraction_from_relative_humidity_method
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -285,7 +285,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ rhu00 ]
-  standard_name = relative_humidity_threshold_for_prognostic_cloud_water_tbd
+  standard_name = relative_humidity_threshold_for_cloud_formation
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -303,7 +303,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ relhum ]
-  standard_name = relative_humidity_for_prognostic_cloud_water_tbd
+  standard_name = relative_humidity
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

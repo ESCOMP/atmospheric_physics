@@ -15,7 +15,7 @@ target_sources(test_stub_aerosol_model
 
 target_link_libraries(test_stub_aerosol_model
   PRIVATE
-    musica-fortran musica yaml-cpp stdc++ netcdff
+    musica-fortran musica mechanism_configuration yaml-cpp stdc++ netcdff
 )
 
 set_target_properties(test_stub_aerosol_model

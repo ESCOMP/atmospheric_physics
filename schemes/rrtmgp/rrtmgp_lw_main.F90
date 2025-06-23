@@ -58,31 +58,12 @@ contains
 
     ! Local variables
     integer :: iCol, iCol2 
-    integer, pointer :: nGauss_angles_opt
-    real(kind_phys), dimension(:,:), pointer :: fluxlwUP_jac_opt
-    real(kind_phys), dimension(:,:), pointer :: lw_Ds_opt
 
     ! Initialize CCPP error handling variables
     errmsg = ''
     errflg = 0
 
     if (.not. doLWrad) return
-
-    nullify(nGauss_angles_opt)
-    nullify(fluxlwUP_jac_opt)
-    nullify(lw_Ds_opt)
-
-    if (nGauss_angles > 1) then
-       nGauss_angles_opt => nGauss_angles ! Turn on the use of Gaussian quadrature angles
-    end if
-
-    if (use_LW_jacobian) then
-       fluxlwUP_jac_opt => fluxlwUP_jac   ! Turn on surface temperature flux Jacobian calculations
-    end if
-
-    if (use_LW_optimal_angles) then
-       lw_Ds_opt => lw_Ds                 ! Compute optimal angles for use in LW RTE solver
-    end if
 
     iCol = ((iter_num - 1) * rrtmgp_phys_blksz) + 1
     iCol2 = min(iCol + rrtmgp_phys_blksz - 1, nCol)
@@ -103,21 +84,48 @@ contains
     ! Call RTE solver
     if (doLWclrsky) then
        if (use_lw_optimal_angles) then
-          errmsg = lw_gas_props%gas_props%compute_optimal_angles(lw_optical_props_clrsky%optical_props,lw_Ds_opt)
+          errmsg = lw_gas_props%gas_props%compute_optimal_angles(lw_optical_props_clrsky%optical_props,lw_Ds)
           call check_error_msg('rrtmgp_lw_main_opt_angle', errmsg)
           if (len_trim(errmsg) /= 0) then
              errflg = 1
              return
           end if
+          if (nGauss_angles > 1) then
+             errmsg = rte_lw(           &
+                  lw_optical_props_clrsky%optical_props, & ! IN  - optical-properties
+                  top_at_1,                              & ! IN  - vertical ordering flag
+                  sources%sources,                       & ! IN  - source function
+                  sfc_emiss_byband,                      & ! IN  - surface emissivity in each LW band
+                  flux_clrsky%fluxes,                    & ! OUT - Fluxes
+                  n_gauss_angles = nGauss_angles,        & ! IN  - Number of angles in Gaussian quadrature
+                  lw_Ds = lw_Ds)                           ! IN  - 1/cos of transport angle per column and g-point
+          else
+             errmsg = rte_lw(           &
+                  lw_optical_props_clrsky%optical_props, & ! IN  - optical-properties
+                  top_at_1,                              & ! IN  - vertical ordering flag
+                  sources%sources,                       & ! IN  - source function
+                  sfc_emiss_byband,                      & ! IN  - surface emissivity in each LW band
+                  flux_clrsky%fluxes,                    & ! OUT - Fluxes
+                  lw_Ds = lw_Ds)                           ! IN  - 1/cos of transport angle per column and g-point
+          end if
+       else
+          if (nGauss_angles > 1) then
+             errmsg = rte_lw(           &
+                  lw_optical_props_clrsky%optical_props, & ! IN  - optical-properties
+                  top_at_1,                              & ! IN  - vertical ordering flag
+                  sources%sources,                       & ! IN  - source function
+                  sfc_emiss_byband,                      & ! IN  - surface emissivity in each LW band
+                  flux_clrsky%fluxes,                    & ! OUT - Fluxes
+                  n_gauss_angles = nGauss_angles)          ! IN  - Number of angles in Gaussian quadrature
+          else
+             errmsg = rte_lw(           &
+                  lw_optical_props_clrsky%optical_props, & ! IN  - optical-properties
+                  top_at_1,                              & ! IN  - vertical ordering flag
+                  sources%sources,                       & ! IN  - source function
+                  sfc_emiss_byband,                      & ! IN  - surface emissivity in each LW band
+                  flux_clrsky%fluxes)                      ! OUT - Fluxes
+          end if
        end if
-       errmsg = rte_lw(           &
-            lw_optical_props_clrsky%optical_props, & ! IN  - optical-properties
-            top_at_1,                              & ! IN  - vertical ordering flag
-            sources%sources,                       & ! IN  - source function
-            sfc_emiss_byband,                      & ! IN  - surface emissivity in each LW band
-            flux_clrsky%fluxes,                    & ! OUT - Fluxes
-            n_gauss_angles = nGauss_angles_opt,    & ! IN  - Number of angles in Gaussian quadrature
-            lw_Ds = lw_Ds_opt)                       ! IN  - 1/cos of transport angle per column and g-point
        call check_error_msg('rrtmgp_lw_main_lw_rte_clrsky', errmsg)
        if (len_trim(errmsg) /= 0) then
           errflg = 1
@@ -149,18 +157,42 @@ contains
            errflg = 1
            return
        end if
-          
-       errmsg = rte_lw(           &
-            lw_optical_props_clouds%optical_props, & ! IN  - optical-properties
-            top_at_1,                              & ! IN  - vertical ordering flag
-            sources%sources,                       & ! IN  - source function
-            sfc_emiss_byband,                      & ! IN  - surface emissivity in each LW band
-            flux_allsky%fluxes,                    & ! OUT - Fluxes
-            n_gauss_angles = nGauss_angles_opt,    & ! IN  - Number of angles in Gaussian quadrature
-            flux_up_Jac    = fluxlwUP_jac_opt)       ! OUT - surface temperature flux (upward) Jacobian (W m-2 K-1)
-       call check_error_msg('rrtmgp_lw_main_lw_rte_allsky', errmsg)
-       if (len_trim(errmsg) /= 0) then
-          errflg = 1
+       if (use_LW_jacobian) then
+          if (nGauss_angles > 1) then
+             errmsg = rte_lw(           &
+                  lw_optical_props_clouds%optical_props, & ! IN  - optical-properties
+                  top_at_1,                              & ! IN  - vertical ordering flag
+                  sources%sources,                       & ! IN  - source function
+                  sfc_emiss_byband,                      & ! IN  - surface emissivity in each LW band
+                  flux_allsky%fluxes,                    & ! OUT - Fluxes
+                  n_gauss_angles = nGauss_angles,        & ! IN  - Number of angles in Gaussian quadrature
+                  flux_up_Jac    = fluxlwUP_jac)           ! OUT - surface temperature flux (upward) Jacobian (W m-2 K-1)
+          else
+             errmsg = rte_lw(           &
+                  lw_optical_props_clouds%optical_props, & ! IN  - optical-properties
+                  top_at_1,                              & ! IN  - vertical ordering flag
+                  sources%sources,                       & ! IN  - source function
+                  sfc_emiss_byband,                      & ! IN  - surface emissivity in each LW band
+                  flux_allsky%fluxes,                    & ! OUT - Fluxes
+                  flux_up_Jac    = fluxlwUP_jac)           ! OUT - surface temperature flux (upward) Jacobian (W m-2 K-1)
+          end if
+       else
+          if (nGauss_angles > 1) then
+             errmsg = rte_lw(           &
+                  lw_optical_props_clouds%optical_props, & ! IN  - optical-properties
+                  top_at_1,                              & ! IN  - vertical ordering flag
+                  sources%sources,                       & ! IN  - source function
+                  sfc_emiss_byband,                      & ! IN  - surface emissivity in each LW band
+                  flux_allsky%fluxes,                    & ! OUT - Fluxes
+                  n_gauss_angles = nGauss_angles)          ! IN  - Number of angles in Gaussian quadrature
+          else
+             errmsg = rte_lw(           &
+                  lw_optical_props_clouds%optical_props, & ! IN  - optical-properties
+                  top_at_1,                              & ! IN  - vertical ordering flag
+                  sources%sources,                       & ! IN  - source function
+                  sfc_emiss_byband,                      & ! IN  - surface emissivity in each LW band
+                  flux_allsky%fluxes)                      ! OUT - Fluxes
+          end if
        end if
     ! No scattering in LW clouds.   
     else
@@ -171,20 +203,49 @@ contains
            errflg = 1
            return
        end if
-          
-       errmsg = rte_lw(           &
-            lw_optical_props_clrsky%optical_props, & ! IN  - optical-properties
-            top_at_1,                              & ! IN  - vertical ordering flag
-            sources%sources,                       & ! IN  - source function
-            sfc_emiss_byband,                      & ! IN  - surface emissivity in each LW band
-            flux_allsky%fluxes,                    & ! OUT - Fluxes
-            n_gauss_angles = nGauss_angles_opt,    & ! IN  - Number of angles in Gaussian quadrature
-            flux_up_Jac    = fluxlwUP_jac_opt)       ! OUT - surface temperature flux (upward) Jacobian (W m-2 K-1)
-       call check_error_msg('rrtmgp_lw_main_lw_rte_allsky', errmsg)
-       if (len_trim(errmsg) /= 0) then
-          errflg = 1
+ 
+       if (use_LW_jacobian) then
+          if (nGauss_angles > 1) then
+             errmsg = rte_lw(           &
+                  lw_optical_props_clrsky%optical_props, & ! IN  - optical-properties
+                  top_at_1,                              & ! IN  - vertical ordering flag
+                  sources%sources,                       & ! IN  - source function
+                  sfc_emiss_byband,                      & ! IN  - surface emissivity in each LW band
+                  flux_allsky%fluxes,                    & ! OUT - Fluxes
+                  n_gauss_angles = nGauss_angles,        & ! IN  - Number of angles in Gaussian quadrature
+                  flux_up_Jac    = fluxlwUP_jac)           ! OUT - surface temperature flux (upward) Jacobian (W m-2 K-1)
+          else
+             errmsg = rte_lw(           &
+                  lw_optical_props_clrsky%optical_props, & ! IN  - optical-properties
+                  top_at_1,                              & ! IN  - vertical ordering flag
+                  sources%sources,                       & ! IN  - source function
+                  sfc_emiss_byband,                      & ! IN  - surface emissivity in each LW band
+                  flux_allsky%fluxes,                    & ! OUT - Fluxes
+                  flux_up_Jac    = fluxlwUP_jac)           ! OUT - surface temperature flux (upward) Jacobian (W m-2 K-1)
+          end if
+       else
+          if (nGauss_angles > 1) then
+             errmsg = rte_lw(           &
+                  lw_optical_props_clrsky%optical_props, & ! IN  - optical-properties
+                  top_at_1,                              & ! IN  - vertical ordering flag
+                  sources%sources,                       & ! IN  - source function
+                  sfc_emiss_byband,                      & ! IN  - surface emissivity in each LW band
+                  flux_allsky%fluxes,                    & ! OUT - Fluxes
+                  n_gauss_angles = nGauss_angles)          ! IN  - Number of angles in Gaussian quadrature
+          else
+             errmsg = rte_lw(           &
+                  lw_optical_props_clrsky%optical_props, & ! IN  - optical-properties
+                  top_at_1,                              & ! IN  - vertical ordering flag
+                  sources%sources,                       & ! IN  - source function
+                  sfc_emiss_byband,                      & ! IN  - surface emissivity in each LW band
+                  flux_allsky%fluxes)                      ! OUT - Fluxes
+          end if
        end if
-     end if
+    end if
+    call check_error_msg('rrtmgp_lw_main_lw_rte_allsky', errmsg)
+    if (len_trim(errmsg) /= 0) then
+       errflg = 1
+    end if
 
   end subroutine rrtmgp_lw_main_run
 end module rrtmgp_lw_main

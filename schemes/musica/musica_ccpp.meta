@@ -1,12 +1,12 @@
 [ccpp-table-properties]
   name = musica_ccpp
   type = scheme
-  dependencies = musica_ccpp.F90,musica_ccpp_util.F90,musica_ccpp_species.F90
-  dependencies = micm/musica_ccpp_micm.F90,micm/musica_ccpp_micm_util.F90
+  dependencies = micm/musica_ccpp_micm_util.F90,micm/musica_ccpp_micm.F90
   dependencies = tuvx/musica_ccpp_tuvx_aerosol_optics.F90,tuvx/musica_ccpp_tuvx_cloud_optics.F90,tuvx/musica_ccpp_tuvx_extraterrestrial_flux.F90
   dependencies = tuvx/musica_ccpp_tuvx_gas_species.F90,tuvx/musica_ccpp_tuvx_height_grid.F90,tuvx/musica_ccpp_tuvx_load_species.F90
   dependencies = tuvx/musica_ccpp_tuvx_surface_albedo.F90,tuvx/musica_ccpp_tuvx_temperature.F90,tuvx/musica_ccpp_tuvx_wavelength_grid.F90
   dependencies = tuvx/musica_ccpp_tuvx.F90
+  dependencies = util/musica_ccpp_grid.F90,util/musica_ccpp_species.F90,util/musica_ccpp_util.F90
 
 [ccpp-arg-table]
   name  = musica_ccpp_register
@@ -63,6 +63,12 @@
   units = None
   type = ccpp_constituent_prop_ptr_t
   dimensions = (number_of_ccpp_constituents)
+  intent = in
+[ molar_mass_dry_air__g_mol ]
+  standard_name = molecular_weight_of_dry_air
+  units = g mol-1
+  type = real | kind = kind_phys
+  dimensions = ()
   intent = in
 [ errmsg ]
   standard_name = ccpp_error_message
@@ -180,6 +186,12 @@
   standard_name = earth_sun_distance
   units = AU
   type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ log_output_unit ]
+  standard_name = log_output_unit
+  units = 1
+  type = integer
   dimensions = ()
   intent = in
 [ errmsg ]
