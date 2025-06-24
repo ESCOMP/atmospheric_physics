@@ -21,7 +21,7 @@ subroutine rrtmgp_post_run(qrs_prime, qrl_prime, fsns, pdel, atm_optics_sw, clou
    real(kind_phys), dimension(:),    intent(in)    :: fsns           ! Surface net shortwave flux [W m-2]
    real(kind_phys), dimension(:,:),  intent(in)    :: qrs_prime      ! Shortwave heating rate [J kg-1 s-1]
    real(kind_phys), dimension(:,:),  intent(in)    :: qrl_prime      ! Longwave heating rate [J kg-1 s-1]
-   type(ty_optical_props_2str_ccpp), intent(inout) :: atm_optics_lw  ! Atmosphere optical properties object (longwave)
+   type(ty_optical_props_1scl_ccpp), intent(inout) :: atm_optics_lw  ! Atmosphere optical properties object (longwave)
    type(ty_optical_props_2str_ccpp), intent(inout) :: atm_optics_sw  ! Atmosphere optical properties object (shortwave)
    type(ty_optical_props_1scl_ccpp), intent(inout) :: aer_lw         ! Aerosol optical properties object (longwave)
    type(ty_optical_props_2str_ccpp), intent(inout) :: aer_sw         ! Aerosol optical properties object (shortwave)
