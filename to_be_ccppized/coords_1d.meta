@@ -1,0 +1,7 @@
+[ccpp-table-properties]
+  name = Coords1D
+  type = ddt
+
+[ccpp-arg-table]
+  name = Coords1D
+  type = ddt

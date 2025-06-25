@@ -11,7 +11,9 @@ module coords_1d
     save
     
     public :: Coords1D
-    
+
+!! \section arg_table_Coords1D
+!! \htmlinclude Coords1D.html
     type :: Coords1D
        ! Number of sets of coordinates in the object.
        integer :: n = 0

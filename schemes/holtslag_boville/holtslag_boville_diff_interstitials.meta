@@ -221,7 +221,7 @@
   standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion_tbd
   units = none
   dimensions = ()
-  type = Coords1D
+  type = coords1d
   intent = out
 [ q_wv_cflx ]
   standard_name = surface_upward_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_flux_tbd
@@ -326,7 +326,7 @@
   standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion_tbd
   units = none
   dimensions = ()
-  type = Coords1D
+  type = coords1d
   intent = out
 [ q_wv_cflx ]
   standard_name = surface_upward_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_flux_tbd

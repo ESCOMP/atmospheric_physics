@@ -199,13 +199,13 @@
   standard_name = eastward_wind
   units = m s-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ v0 ]
   standard_name = northward_wind
   units = m s-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ ksrf ]
   standard_name = drag_coefficient_at_surface_tbd
@@ -254,7 +254,7 @@
 [ p ]
   standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion_tbd
   units = none
-  type = Coords1D
+  type = coords1d
   dimensions = ()
   intent = in
 [ ksrf ]
@@ -392,7 +392,7 @@
 [ p ]
   standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion_tbd
   units = none
-  type = Coords1D
+  type = coords1d
   dimensions = ()
   intent = in
 [ t ]
@@ -465,19 +465,19 @@
   standard_name = eastward_wind
   units = m s-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ v0 ]
   standard_name = northward_wind
   units = m s-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ dse0 ]
   standard_name = dry_static_energy
   units = J kg-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ tauresx ]
   standard_name = eastward_reserved_stress_at_surface_on_previous_timestep
@@ -662,7 +662,7 @@
 [ p ]
   standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion_tbd
   units = none
-  type = Coords1D
+  type = coords1d
   dimensions = ()
   intent = in
 [ rhoi ]
@@ -817,7 +817,7 @@
 [ p ]
   standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion_tbd
   units = none
-  type = Coords1D
+  type = coords1d
   dimensions = ()
   intent = in
 [ t ]
@@ -971,25 +971,25 @@
   standard_name = eastward_wind
   units = m s-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ v0 ]
   standard_name = northward_wind
   units = m s-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ s0 ]
   standard_name = dry_static_energy
   units = J kg-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ q0 ]
   standard_name = ccpp_constituents
   units = none
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension, vertical_layer_dimension, number_of_ccpp_constituents)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
   intent = in
 [ u ]
   standard_name = eastward_wind_after_vertical_diffusion_tbd

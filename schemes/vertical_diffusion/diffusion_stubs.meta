@@ -232,7 +232,7 @@
 [ p ]
   standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion_tbd
   units = none
-  type = Coords1D
+  type = coords1d
   dimensions = ()
   intent = in
 [ do_iss ]
