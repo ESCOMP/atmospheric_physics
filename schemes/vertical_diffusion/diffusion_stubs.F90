@@ -184,7 +184,7 @@ contains
     integer,         intent(in)       :: ncol
     integer,         intent(in)       :: pver
     real(kind_phys), intent(in)       :: gravit
-    type(Coords1D),  intent(in)       :: p                ! Pressure coordinates [Pa]
+    type(coords1d),  intent(in)       :: p                ! Pressure coordinates [Pa]
     logical,         intent(in)       :: do_iss           ! Flag for implicit surface stress (namelist from vdiff)
     logical,         intent(in)       :: itaures          ! Flag for updating tauresx tauresy in this subroutine.
     real(kind_phys), intent(in)       :: dragblj(:, :)    ! Drag profile from Beljaars SGO form drag > 0. [s-1]

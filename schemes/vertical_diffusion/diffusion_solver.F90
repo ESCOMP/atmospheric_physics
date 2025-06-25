@@ -256,7 +256,7 @@ contains
     integer,            intent(in)    :: ncol
     integer,            intent(in)    :: pver
     real(kind_phys),    intent(in)    :: gravit
-    type(Coords1D),     intent(in)    :: p                  ! Pressure coordinates [Pa]
+    type(coords1d),     intent(in)    :: p                  ! Pressure coordinates [Pa]
     real(kind_phys),    intent(in)    :: ksrf(:)            ! total surface drag coefficient [kg m-2 s-1]
 
     ! Output arguments
@@ -357,7 +357,7 @@ contains
     logical,         intent(in)       :: am_correction    ! Do angular momentum conservation correction
     logical,         intent(in)       :: itaures          ! Flag for updating tauresx tauresy in this subroutine.
     logical,         intent(in)       :: do_beljaars      ! Flag indicating Beljaars drag
-    type(Coords1D),  intent(in)       :: p                ! Pressure coordinates [Pa]
+    type(coords1d),  intent(in)       :: p                ! Pressure coordinates [Pa]
     real(kind_phys), intent(in)       :: t(:, :)          ! Temperature [K]
     real(kind_phys), intent(in)       :: rhoi(:, :)       ! Density of air at interfaces [kg m-3]
     real(kind_phys), intent(in)       :: taux(:)          ! Surface zonal stress [N m-2]
@@ -736,7 +736,7 @@ contains
     real(kind_phys), intent(in)       :: ztodt            ! 2 delta-t [s]
 
     real(kind_phys), intent(in)       :: gravit
-    type(Coords1D),  intent(in)       :: p                ! Pressure coordinates [Pa]
+    type(coords1d),  intent(in)       :: p                ! Pressure coordinates [Pa]
     real(kind_phys), intent(in)       :: rhoi(:, :)       ! Density of air at interfaces [kg m-3]
     real(kind_phys), intent(in)       :: shflx(:)         ! Surface sensible heat flux [W m-2]
     real(kind_phys), intent(in)       :: dse_top(:)       ! Dry static energy top boundary condition.
@@ -863,7 +863,7 @@ contains
     real(kind_phys), intent(in)       :: gravit
     logical,         intent(in)       :: do_diffusion_const(:) ! diffuse constituents (size ncnst) [flag]
 
-    type(Coords1D),  intent(in)       :: p                ! Pressure coordinates [Pa]
+    type(coords1d),  intent(in)       :: p                ! Pressure coordinates [Pa]
     real(kind_phys), intent(in)       :: t(:, :)          ! Temperature [K]
     real(kind_phys), intent(in)       :: rhoi(:, :)       ! Density of air at interfaces [kg m-3]
 

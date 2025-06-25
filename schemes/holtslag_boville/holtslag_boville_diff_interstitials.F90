@@ -160,7 +160,7 @@ contains
     real(kind_phys),    intent(out) :: shflux(:)               ! Surface upward sensible heat flux for vertical diffusion [W m-2]
     real(kind_phys),    intent(out) :: cflux(:,:)              ! Surface upward constituent fluxes for vertical diffusion [kg m-2 s-1]
     logical,            intent(out) :: itaures                 ! Flag for updating residual stress at surface in vertical diffusion [flag]
-    type(Coords1D),     intent(out) :: p                       ! Vertical moist pressure coordinates for vertical diffusion [Pa]
+    type(coords1d),     intent(out) :: p                       ! Vertical moist pressure coordinates for vertical diffusion [Pa]
     real(kind_phys),    intent(out) :: q_wv_cflx(:)            ! Surface upward water vapor flux [kg kg-1 s-1]
     character(len=512), intent(out) :: errmsg                  ! Error message
     integer,            intent(out) :: errflg                  ! Error flag
@@ -238,7 +238,7 @@ contains
     real(kind_phys),    intent(out) :: shflux(:)                ! Surface upward sensible heat flux for vertical diffusion [W m-2]
     real(kind_phys),    intent(out) :: cflux(:,:)               ! Surface upward constituent fluxes for vertical diffusion [kg m-2 s-1]
     logical,            intent(out) :: itaures                  ! Flag for updating residual stress at surface in vertical diffusion [flag]
-    type(Coords1D),     intent(out) :: p                        ! Vertical moist pressure coordinates for vertical diffusion [Pa]
+    type(coords1d),     intent(out) :: p                        ! Vertical moist pressure coordinates for vertical diffusion [Pa]
     real(kind_phys),    intent(out) :: q_wv_cflx(:)             ! Surface upward water vapor flux [kg kg-1 s-1]
     character(len=512), intent(out) :: errmsg                   ! Error message
     integer,            intent(out) :: errflg                   ! Error flag
