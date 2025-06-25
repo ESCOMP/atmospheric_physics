@@ -21,7 +21,6 @@ module diffusion_solver
   ! CCPP-compliant public interfaces
 
   public :: vertical_diffusion_set_temperature_at_toa_default_run
-  public :: vertical_diffusion_interpolate_to_interfaces_timestep_init
   public :: vertical_diffusion_interpolate_to_interfaces_run   ! Interpolate t, rho, rair to interfaces
   public :: implicit_surface_stress_add_drag_coefficient_run   ! Add implicit turbulent surface stress (if do_iss)
   public :: vertical_diffusion_wind_damping_rate_run           ! Compute wind damping rate from drag coeff

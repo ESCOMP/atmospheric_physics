@@ -21,7 +21,7 @@ module diffusion_stubs
   public :: beljaars_add_updated_residual_stress_run
   public :: turbulent_mountain_stress_add_updated_surface_stress_run
 
-
+  public :: vertical_diffusion_not_use_rairv_init
 
 contains
 
