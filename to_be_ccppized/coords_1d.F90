@@ -58,12 +58,12 @@ module coords_1d
     
       coords = allocate_coords(size(ifc, 1), size(ifc, 2) - 1)
     
-      coords%ifc = ifc
-      coords%mid = mid
-      coords%del = del
-      coords%dst = dst
-      coords%rdel = rdel
-      coords%rdst = rdst
+      coords%ifc(:,:) = ifc(:,:)
+      coords%mid(:,:) = mid(:,:)
+      coords%del(:,:) = del(:,:)
+      coords%dst(:,:) = dst(:,:)
+      coords%rdel(:,:) = rdel(:,:)
+      coords%rdst(:,:) = rdst(:,:)
     
     end function new_Coords1D_from_fields
     
@@ -75,12 +75,12 @@ module coords_1d
     
       coords = allocate_coords(size(ifc, 1), size(ifc, 2) - 1)
     
-      coords%ifc = ifc
-      coords%mid = 0.5_r8 * (ifc(:,:coords%d)+ifc(:,2:))
-      coords%del = coords%ifc(:,2:) - coords%ifc(:,:coords%d)
-      coords%dst = coords%mid(:,2:) - coords%mid(:,:coords%d-1)
-      coords%rdel = 1._r8/coords%del
-      coords%rdst = 1._r8/coords%dst
+      coords%ifc(:,:) = ifc(:,:)
+      coords%mid(:,:) = 0.5_r8 * (ifc(:,:coords%d)+ifc(:,2:))
+      coords%del(:,:) = coords%ifc(:,2:) - coords%ifc(:,:coords%d)
+      coords%dst(:,:) = coords%mid(:,2:) - coords%mid(:,:coords%d-1)
+      coords%rdel(:,:) = 1._r8/coords%del(:,:)
+      coords%rdst(:,:) = 1._r8/coords%dst(:,:)
     
     end function new_Coords1D_from_int
     
@@ -97,12 +97,12 @@ module coords_1d
     
       section = allocate_coords(n_bnds(2)-n_bnds(1)+1, d_bnds(2)-d_bnds(1)+1)
     
-      section%ifc = self%ifc(n_bnds(1):n_bnds(2),d_bnds(1):d_bnds(2)+1)
-      section%mid = self%mid(n_bnds(1):n_bnds(2),d_bnds(1):d_bnds(2))
-      section%del = self%del(n_bnds(1):n_bnds(2),d_bnds(1):d_bnds(2))
-      section%dst = self%dst(n_bnds(1):n_bnds(2),d_bnds(1):d_bnds(2)-1)
-      section%rdel = self%rdel(n_bnds(1):n_bnds(2),d_bnds(1):d_bnds(2))
-      section%rdst = self%rdst(n_bnds(1):n_bnds(2),d_bnds(1):d_bnds(2)-1)
+      section%ifc(:,:) = self%ifc(n_bnds(1):n_bnds(2),d_bnds(1):d_bnds(2)+1)
+      section%mid(:,:) = self%mid(n_bnds(1):n_bnds(2),d_bnds(1):d_bnds(2))
+      section%del(:,:) = self%del(n_bnds(1):n_bnds(2),d_bnds(1):d_bnds(2))
+      section%dst(:,:) = self%dst(n_bnds(1):n_bnds(2),d_bnds(1):d_bnds(2)-1)
+      section%rdel(:,:) = self%rdel(n_bnds(1):n_bnds(2),d_bnds(1):d_bnds(2))
+      section%rdst(:,:) = self%rdst(n_bnds(1):n_bnds(2),d_bnds(1):d_bnds(2)-1)
     
     end function section
     
