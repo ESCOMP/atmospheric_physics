@@ -9,8 +9,9 @@ contains
 !> \section arg_table_rrtmgp_post_run Argument Table
 !! \htmlinclude rrtmgp_post_run.html
 !!
-subroutine rrtmgp_post_run(qrs_prime, qrl_prime, fsns, pdel, atm_optics_sw, cloud_sw, aer_sw, &
-                  fsw, fswc, sources_lw, cloud_lw, aer_lw, flw, flwc, qrs, qrl, netsw, errmsg, errflg)
+subroutine rrtmgp_post_run(qrs_prime, qrl_prime, fsns, pdel, atm_optics_sw, cloud_sw, aer_sw,  &
+                  fsw, fswc, atm_optics_lw, sources_lw, cloud_lw, aer_lw, flw, flwc, qrs, qrl, &
+                  netsw, errmsg, errflg)
    use ccpp_kinds,             only: kind_phys
    use ccpp_optical_props,     only: ty_optical_props_1scl_ccpp, ty_optical_props_2str_ccpp
    use ccpp_source_functions,  only: ty_source_func_lw_ccpp
@@ -20,6 +21,7 @@ subroutine rrtmgp_post_run(qrs_prime, qrl_prime, fsns, pdel, atm_optics_sw, clou
    real(kind_phys), dimension(:),    intent(in)    :: fsns           ! Surface net shortwave flux [W m-2]
    real(kind_phys), dimension(:,:),  intent(in)    :: qrs_prime      ! Shortwave heating rate [J kg-1 s-1]
    real(kind_phys), dimension(:,:),  intent(in)    :: qrl_prime      ! Longwave heating rate [J kg-1 s-1]
+   type(ty_optical_props_1scl_ccpp), intent(inout) :: atm_optics_lw  ! Atmosphere optical properties object (longwave)
    type(ty_optical_props_2str_ccpp), intent(inout) :: atm_optics_sw  ! Atmosphere optical properties object (shortwave)
    type(ty_optical_props_1scl_ccpp), intent(inout) :: aer_lw         ! Aerosol optical properties object (longwave)
    type(ty_optical_props_2str_ccpp), intent(inout) :: aer_sw         ! Aerosol optical properties object (shortwave)
@@ -63,6 +65,10 @@ subroutine rrtmgp_post_run(qrs_prime, qrl_prime, fsns, pdel, atm_optics_sw, clou
    call free_fluxes_broadband(fswc)
 
    call sources_lw%sources%finalize()
+   call free_optics_lw(atm_optics_lw, errmsg, errflg)
+   if (errflg /= 0) then
+      return
+   end if
    call free_optics_lw(cloud_lw, errmsg, errflg)
    if (errflg /= 0) then
       return
