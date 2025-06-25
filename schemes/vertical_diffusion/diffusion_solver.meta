@@ -509,19 +509,19 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
-[ u ]
+[ u1 ]
   standard_name = eastward_wind_after_vertical_diffusion_tbd
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
-[ v ]
+[ v1 ]
   standard_name = northward_wind_after_vertical_diffusion_tbd
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
-[ dse ]
+[ dse1 ]
   standard_name = dry_static_energy_after_vertical_diffusion_tbd
   units = J kg-1
   type = real | kind = kind_phys
@@ -897,13 +897,13 @@
   standard_name = ccpp_constituents
   units = none
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension, vertical_layer_dimension, number_of_ccpp_constituents)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
   intent = in
 [ q ]
   standard_name = ccpp_constituents_mass_mixing_ratio_wrt_moist_air_and_condensed_water_after_vertical_diffusion_tbd
   units = kg kg-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension, vertical_layer_dimension, number_of_ccpp_constituents)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
   intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
@@ -991,29 +991,29 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
   intent = in
-[ u ]
+[ u1 ]
   standard_name = eastward_wind_after_vertical_diffusion_tbd
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
-[ v ]
+[ v1 ]
   standard_name = northward_wind_after_vertical_diffusion_tbd
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
-[ s ]
+[ s1 ]
   standard_name = dry_static_energy_after_vertical_diffusion_tbd
   units = J kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
-[ q ]
+[ q1 ]
   standard_name = ccpp_constituents_mass_mixing_ratio_wrt_moist_air_and_condensed_water_after_vertical_diffusion_tbd
   units = kg kg-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension, vertical_layer_dimension, number_of_ccpp_constituents)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
   intent = in
 [ tend_s ]
   standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure

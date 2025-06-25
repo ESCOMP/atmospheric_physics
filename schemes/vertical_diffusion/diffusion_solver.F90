@@ -340,7 +340,7 @@ contains
              tauresx, tauresy, &
              dtk, &
              tautmsx, tautmsy, &
-             u, v, dse, &
+             u1, v1, dse1, &
              errmsg, errflg)
 
     use coords_1d, only: Coords1D
@@ -390,9 +390,9 @@ contains
 
     ! Outputs from vertical diffusion will be converted to physics tendencies in separate scheme
     ! These provisional outputs are used to compute diagnostics, and thus need to be kept in non-tend form
-    real(kind_phys), intent(out)      :: u(:,:)           ! After vertical diffusion u-wind [m s-1]
-    real(kind_phys), intent(out)      :: v(:,:)           ! After vertical diffusion v-wind [m s-1]
-    real(kind_phys), intent(out)      :: dse(:,:)         ! After vertical diffusion Dry static energy [J kg-1]
+    real(kind_phys), intent(out)      :: u1(:,:)          ! After vertical diffusion u-wind [m s-1]
+    real(kind_phys), intent(out)      :: v1(:,:)          ! After vertical diffusion v-wind [m s-1]
+    real(kind_phys), intent(out)      :: dse1(:,:)        ! After vertical diffusion Dry static energy [J kg-1]
 
     character(len=512), intent(out)   :: errmsg  ! error message
     integer,            intent(out)   :: errflg  ! error flag
@@ -433,9 +433,9 @@ contains
     errflg = 0
 
     ! Set initial iterative outputs to input values
-    u(:ncol,:pver) = u0(:ncol,:pver)
-    v(:ncol,:pver) = v0(:ncol,:pver)
-    dse(:ncol,:pver) = dse0(:ncol,:pver)
+    u1(:ncol,:pver) = u0(:ncol,:pver)
+    v1(:ncol,:pver) = v0(:ncol,:pver)
+    dse1(:ncol,:pver) = dse0(:ncol,:pver)
 
     ! necessary temporaries used in computation
     rrho(:ncol) = rair*t(:ncol, pver)/p%mid(:, pver)
@@ -458,13 +458,13 @@ contains
     do i = 1, ncol
       dinp_u(i, 1) = 0._kind_phys
       dinp_v(i, 1) = 0._kind_phys
-      dinp_u(i, pver + 1) = -u(i, pver)
-      dinp_v(i, pver + 1) = -v(i, pver)
+      dinp_u(i, pver + 1) = -u0(i, pver)
+      dinp_v(i, pver + 1) = -v0(i, pver)
     end do
     do k = 2, pver
       do i = 1, ncol
-        dinp_u(i, k) = u(i, k) - u(i, k - 1)
-        dinp_v(i, k) = v(i, k) - v(i, k - 1)
+        dinp_u(i, k) = u0(i, k) - u0(i, k - 1)
+        dinp_v(i, k) = v0(i, k) - v0(i, k - 1)
       end do
     end do
 
@@ -482,8 +482,8 @@ contains
         usum_in(i) = 0._kind_phys
         vsum_in(i) = 0._kind_phys
         do k = 1, pver
-          usum_in(i) = usum_in(i) + (1._kind_phys/gravit)*u(i, k)*p%del(i, k)
-          vsum_in(i) = vsum_in(i) + (1._kind_phys/gravit)*v(i, k)*p%del(i, k)
+          usum_in(i) = usum_in(i) + (1._kind_phys/gravit)*u0(i, k)*p%del(i, k)
+          vsum_in(i) = vsum_in(i) + (1._kind_phys/gravit)*v0(i, k)*p%del(i, k)
         end do
       end do
 
@@ -497,8 +497,8 @@ contains
         ramda = ztodt/timeres
       end if
 
-      u(:ncol, pver) = u(:ncol, pver) + tmp1(:ncol)*tauresx(:ncol)*ramda
-      v(:ncol, pver) = v(:ncol, pver) + tmp1(:ncol)*tauresy(:ncol)*ramda
+      u1(:ncol, pver) = u1(:ncol, pver) + tmp1(:ncol)*tauresx(:ncol)*ramda
+      v1(:ncol, pver) = v1(:ncol, pver) + tmp1(:ncol)*tauresy(:ncol)*ramda
 
     else ! .not. do_iss
       ! In this case, do 'turbulent mountain stress' implicitly,
@@ -507,8 +507,8 @@ contains
       ! treated in a fully implicit way, which is true.
 
       ! Do 'normal stress' explicitly
-      u(:ncol, pver) = u(:ncol, pver) + tmp1(:ncol)*taux(:ncol)
-      v(:ncol, pver) = v(:ncol, pver) + tmp1(:ncol)*tauy(:ncol)
+      u1(:ncol, pver) = u1(:ncol, pver) + tmp1(:ncol)*taux(:ncol)
+      v1(:ncol, pver) = v1(:ncol, pver) + tmp1(:ncol)*tauy(:ncol)
     end if  ! End of 'do iss' (implicit surface stress)
 
     ! --------------------------------------------------------------------------------------- !
@@ -521,11 +521,11 @@ contains
     ! Note that in all the two cases above, 'tms' is fully implicitly treated.                !
     ! --------------------------------------------------------------------------------------- !
 
-    v(:ncol, :) = fin_vol_solve(ztodt, p, v(:ncol, :), ncol, pver, &
+    v1(:ncol, :) = fin_vol_solve(ztodt, p, v1(:ncol, :), ncol, pver, &
                                 coef_q=tau_damp_rate(:ncol,:pver), &
                                 coef_q_diff=kvm(:ncol, :)*dpidz_sq(:ncol, :))
 
-    u(:ncol, :) = fin_vol_solve(ztodt, p, u(:ncol, :), ncol, pver, &
+    u1(:ncol, :) = fin_vol_solve(ztodt, p, u1(:ncol, :), ncol, pver, &
                                 coef_q=tau_damp_rate(:ncol,:pver), &
                                 coef_q_diff=kvm(:ncol, :)*dpidz_sq(:ncol, :))
 
@@ -541,8 +541,8 @@ contains
       ! that has been actually added into the atmosphere both for explicit
       ! and implicit approach.
 
-      tautmsx(i) = -ksrftms(i)*u(i, pver)
-      tautmsy(i) = -ksrftms(i)*v(i, pver)
+      tautmsx(i) = -ksrftms(i)*u1(i, pver)
+      tautmsy(i) = -ksrftms(i)*v1(i, pver)
 
       ! We want to add vertically-integrated Beljaars drag to residual stress.
       ! So this has to be calculated locally.
@@ -550,8 +550,8 @@ contains
       taubljx(i) = 0._kind_phys
       taubljy(i) = 0._kind_phys
       do k = 1, pver
-        taubljx(i) = taubljx(i) + (1._kind_phys/gravit)*dragblj(i, k)*u(i, k)*p%del(i, k)
-        taubljy(i) = taubljy(i) + (1._kind_phys/gravit)*dragblj(i, k)*v(i, k)*p%del(i, k)
+        taubljx(i) = taubljx(i) + (1._kind_phys/gravit)*dragblj(i, k)*u1(i, k)*p%del(i, k)
+        taubljy(i) = taubljy(i) + (1._kind_phys/gravit)*dragblj(i, k)*v1(i, k)*p%del(i, k)
       end do
 
       if (do_iss) then
@@ -559,8 +559,8 @@ contains
         usum_out(i) = 0._kind_phys
         vsum_out(i) = 0._kind_phys
         do k = 1, pver
-          usum_out(i) = usum_out(i) + (1._kind_phys/gravit)*u(i, k)*p%del(i, k)
-          vsum_out(i) = vsum_out(i) + (1._kind_phys/gravit)*v(i, k)*p%del(i, k)
+          usum_out(i) = usum_out(i) + (1._kind_phys/gravit)*u1(i, k)*p%del(i, k)
+          vsum_out(i) = vsum_out(i) + (1._kind_phys/gravit)*v1(i, k)*p%del(i, k)
         end do
 
         ! Compute net stress added into the atmosphere at the current time step.
@@ -602,14 +602,14 @@ contains
       do k = 1, pver
         do i = 1, ncol
           keg_in(i, k) = 0.5_kind_phys*(u0(i, k)*u0(i, k) + v0(i, k)*v0(i, k))
-          keg_out(i, k) = 0.5_kind_phys*(u(i, k)*u(i, k) + v(i, k)*v(i, k))
+          keg_out(i, k) = 0.5_kind_phys*(u1(i, k)*u1(i, k) + v1(i, k)*v1(i, k))
         end do
       end do
 
       do k = 1, pver
         do i = 1, ncol
           dtk(i, k) = keg_in(i, k) - keg_out(i, k)
-          dse(i, k) = dse(i, k) + dtk(i, k) ! + dkeblj(i,k)
+          dse1(i, k) = dse1(i, k) + dtk(i, k) ! + dkeblj(i,k)
         end do
       end do
     else
@@ -626,13 +626,13 @@ contains
       do i = 1, ncol
         tmpi1(i, 1) = 0._kind_phys
         tmpi1(i, k) = 0.5_kind_phys*ztodt*gravit* &
-                      ((-u(i, k - 1) + dinp_u(i, k))*tautotx(i) + (-v(i, k - 1) + dinp_v(i, k))*tautoty(i))
+                      ((-u1(i, k - 1) + dinp_u(i, k))*tautotx(i) + (-v1(i, k - 1) + dinp_v(i, k))*tautoty(i))
       end do
 
       do k = 2, pver
         do i = 1, ncol
-          dout_u = u(i, k) - u(i, k - 1)
-          dout_v = v(i, k) - v(i, k - 1)
+          dout_u = u1(i, k) - u1(i, k - 1)
+          dout_v = v1(i, k) - v1(i, k - 1)
           tmpi1(i, k) = 0.25_kind_phys*tmpi2(i, k)*kvm(i, k)* &
                         (dout_u**2 + dout_v**2 + dout_u*dinp_u(i, k) + dout_v*dinp_v(i, k))
         end do
@@ -642,7 +642,7 @@ contains
       do k = 1, pver
         do i = 1, ncol
           dtk(i, k) = (tmpi1(i, k + 1) + tmpi1(i, k))*p%rdel(i, k)
-          dse(i, k) = dse(i, k) + dtk(i, k)
+          dse1(i, k) = dse1(i, k) + dtk(i, k)
         end do
       end do
     end if
@@ -965,7 +965,7 @@ contains
     dt, &
     pdel, pdeldry, &
     u0, v0, s0, q0, &  ! actual values at beginning of vdiff
-    u, v, s, q, &      ! provisional values after vdiff, not actual
+    u1, v1, s1, q1, &  ! provisional values after vdiff, not actual
     ! below output
     tend_s, tend_u, tend_v, tend_q, &
     scheme_name, &
@@ -987,10 +987,10 @@ contains
     real(kind_phys), intent(in)     :: v0(:,:)         ! Initial northward wind [m s-1]
     real(kind_phys), intent(in)     :: s0(:,:)         ! Initial dry static energy [J kg-1]
     real(kind_phys), intent(in)     :: q0(:,:,:)       ! Initial constituent mixing ratios [kg kg-1]
-    real(kind_phys), intent(in)     :: u(:,:)          ! Provisional eastward wind after diffusion [m s-1]
-    real(kind_phys), intent(in)     :: v(:,:)          ! Provisional northward wind after diffusion [m s-1]
-    real(kind_phys), intent(in)     :: s(:,:)          ! Provisional dry static energy after diffusion [J kg-1]
-    real(kind_phys), intent(in)     :: q(:,:,:)        ! Provisional constituent mixing ratios after diffusion [kg kg-1]
+    real(kind_phys), intent(in)     :: u1(:,:)          ! Provisional eastward wind after diffusion [m s-1]
+    real(kind_phys), intent(in)     :: v1(:,:)          ! Provisional northward wind after diffusion [m s-1]
+    real(kind_phys), intent(in)     :: s1(:,:)          ! Provisional dry static energy after diffusion [J kg-1]
+    real(kind_phys), intent(in)     :: q1(:,:,:)        ! Provisional constituent mixing ratios after diffusion [kg kg-1]
 
     ! Output arguments
     real(kind_phys), intent(out)    :: tend_s(:,:)     ! Dry static energy tendency [J kg-1 s-1]
@@ -1015,10 +1015,10 @@ contains
     errflg = 0
 
     ! calculate physics tendencies
-    tend_s(:ncol,:)       = (s(:ncol,:) - s0(:ncol,:)) * rztodt
-    tend_u(:ncol,:)       = (u(:ncol,:) - u0(:ncol,:)) * rztodt
-    tend_v(:ncol,:)       = (v(:ncol,:) - v0(:ncol,:)) * rztodt
-    tend_q(:ncol,:pver,:) = (q(:ncol,:pver,:) - q0(:ncol,:pver,:)) * rztodt
+    tend_s(:ncol,:)       = (s1(:ncol,:) - s0(:ncol,:)) * rztodt
+    tend_u(:ncol,:)       = (u1(:ncol,:) - u0(:ncol,:)) * rztodt
+    tend_v(:ncol,:)       = (v1(:ncol,:) - v0(:ncol,:)) * rztodt
+    tend_q(:ncol,:pver,:) = (q1(:ncol,:pver,:) - q0(:ncol,:pver,:)) * rztodt
 
     ! convert tendencies of dry constituents to dry basis
     do m = 1, pcnst

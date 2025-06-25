@@ -253,14 +253,14 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
-[ u ]
-  standard_name = eastward_wind
+[ u1 ]
+  standard_name = eastward_wind_after_vertical_diffusion_tbd
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
-[ v ]
-  standard_name = northward_wind
+[ v1 ]
+  standard_name = northward_wind_after_vertical_diffusion_tbd
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -327,14 +327,14 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
-[ u ]
-  standard_name = eastward_wind
+[ u1 ]
+  standard_name = eastward_wind_after_vertical_diffusion_tbd
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
-[ v ]
-  standard_name = northward_wind
+[ v1 ]
+  standard_name = northward_wind_after_vertical_diffusion_tbd
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -395,7 +395,7 @@
 [ccpp-arg-table]
   name  = vertical_diffusion_not_use_rairv_init
   type  = scheme
-[ flag_for_constituent_dependent_gas_constant ]
+[ use_rairv ]
   standard_name = flag_for_using_composition_dependent_gas_constant_in_vertical_diffusion_tbd
   units = flag
   type = logical

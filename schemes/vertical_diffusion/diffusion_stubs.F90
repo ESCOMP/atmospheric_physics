@@ -173,7 +173,7 @@ contains
     do_iss, &
     itaures, &
     dragblj, &
-    u, v, & ! provisionally updated winds
+    u1, v1, & ! provisionally updated winds
     ! input/output
     tauresx, tauresy, &
     errmsg, errflg)
@@ -188,8 +188,8 @@ contains
     logical,         intent(in)       :: do_iss           ! Flag for implicit surface stress (namelist from vdiff)
     logical,         intent(in)       :: itaures          ! Flag for updating tauresx tauresy in this subroutine.
     real(kind_phys), intent(in)       :: dragblj(:, :)    ! Drag profile from Beljaars SGO form drag > 0. [s-1]
-    real(kind_phys), intent(in)       :: u(:,:)           ! After vertical diffusion u-wind [m s-1]
-    real(kind_phys), intent(in)       :: v(:,:)           ! After vertical diffusion v-wind [m s-1]
+    real(kind_phys), intent(in)       :: u1(:,:)          ! After vertical diffusion u-wind [m s-1]
+    real(kind_phys), intent(in)       :: v1(:,:)          ! After vertical diffusion v-wind [m s-1]
 
     ! Input/output arguments
     real(kind_phys), intent(inout)    :: tauresx(:)       ! Partially updated residual surface stress
@@ -223,8 +223,8 @@ contains
       taubljx(i) = 0._kind_phys
       taubljy(i) = 0._kind_phys
       do k = 1, pver
-        taubljx(i) = taubljx(i) + (1._kind_phys/gravit)*dragblj(i, k)*u(i, k)*p%del(i, k)
-        taubljy(i) = taubljy(i) + (1._kind_phys/gravit)*dragblj(i, k)*v(i, k)*p%del(i, k)
+        taubljx(i) = taubljx(i) + (1._kind_phys/gravit)*dragblj(i, k)*u1(i, k)*p%del(i, k)
+        taubljy(i) = taubljy(i) + (1._kind_phys/gravit)*dragblj(i, k)*v1(i, k)*p%del(i, k)
       end do
     enddo
 
@@ -241,7 +241,7 @@ contains
     ncol, pver, &
     do_iss, itaures, &
     ksrftms, &
-    u, v, & ! provisionally updated winds
+    u1, v1, & ! provisionally updated winds
     ! input/output
     tauresx, tauresy, &
     tautotx, tautoty, &
@@ -255,8 +255,8 @@ contains
     logical,         intent(in)       :: do_iss           ! Flag for implicit surface stress (namelist from vdiff)
     logical,         intent(in)       :: itaures          ! Flag for updating tauresx tauresy in this subroutine.
     real(kind_phys), intent(in)       :: ksrftms(:)       ! Surface drag coefficient for turbulent mountain stress. > 0. [kg m-2 s-1]
-    real(kind_phys), intent(in)       :: u(:,:)           ! After vertical diffusion u-wind [m s-1]
-    real(kind_phys), intent(in)       :: v(:,:)           ! After vertical diffusion v-wind [m s-1]
+    real(kind_phys), intent(in)       :: u1(:,:)          ! After vertical diffusion u-wind [m s-1]
+    real(kind_phys), intent(in)       :: v1(:,:)          ! After vertical diffusion v-wind [m s-1]
 
     ! Input/output arguments
     real(kind_phys), intent(inout)    :: tauresx(:)       ! Partially updated residual surface stress
@@ -277,8 +277,8 @@ contains
     ! Below 'tautmsx(i),tautmsy(i)' are pure implicit mountain stresses
     ! that has been actually added into the atmosphere both for explicit
     ! and implicit approach.
-    tautmsx(:ncol) = -ksrftms(:ncol)*u(:ncol, pver)
-    tautmsy(:ncol) = -ksrftms(:ncol)*v(:ncol, pver)
+    tautmsx(:ncol) = -ksrftms(:ncol)*u1(:ncol, pver)
+    tautmsy(:ncol) = -ksrftms(:ncol)*v1(:ncol, pver)
 
     if(do_iss) then
       ! Implicit surface stress:
@@ -303,11 +303,11 @@ contains
 !> \section arg_table_vertical_diffusion_not_use_rairv_init Argument Table
 !! \htmlinclude vertical_diffusion_not_use_rairv_init.html
   subroutine vertical_diffusion_not_use_rairv_init( &
-    flag_for_constituent_dependent_gas_constant, &
+    use_rairv, &
     errmsg, errflg)
 
     ! Output arguments
-    logical,            intent(out) :: flag_for_constituent_dependent_gas_constant ! Flag for constituent-dependent gas constant [flag]
+    logical,            intent(out) :: use_rairv ! Flag for constituent-dependent gas constant [flag]
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
@@ -316,7 +316,7 @@ contains
 
     ! Set to .false. since we are not in WACCM-X mode
     ! Only use constituent-dependent gas constant when in WACCM-X mode
-    flag_for_constituent_dependent_gas_constant = .false.
+    use_rairv = .false.
 
   end subroutine vertical_diffusion_not_use_rairv_init
 

@@ -10,11 +10,11 @@ module coords_1d
     private
     save
     
-    public :: Coords1D
+    public :: coords1d
 
-!! \section arg_table_Coords1D
-!! \htmlinclude Coords1D.html
-    type :: Coords1D
+!! \section arg_table_coords1d
+!! \htmlinclude coords1d.html
+    type :: coords1d
        ! Number of sets of coordinates in the object.
        integer :: n = 0
        ! Number of coordinates in each set.
@@ -38,7 +38,7 @@ module coords_1d
      contains
        procedure :: section
        procedure :: finalize
-    end type Coords1D
+    end type coords1d
     
     interface Coords1D
        module procedure new_Coords1D_from_fields
