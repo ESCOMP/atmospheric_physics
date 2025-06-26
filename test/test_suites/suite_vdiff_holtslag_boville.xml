@@ -27,6 +27,9 @@
     <!-- vdiff pre-interstitial 0: create p coords1d, copy surface fluxes from coupler (cam_in) incl. wv fluxes for hb kinematic wv flx. -->
     <scheme>hb_diff_prepare_vertical_diffusion_inputs</scheme>
 
+    <!-- Initialize Holtslag-Boville boundary layer scheme (no run phase) -->
+    <scheme>holtslag_boville_diff</scheme>
+
     <!-- Holtslag-Boville boundary layer scheme -->
     <scheme>hb_pbl_independent_coefficients</scheme>
     <scheme>hb_pbl_dependent_coefficients</scheme>
