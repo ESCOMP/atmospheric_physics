@@ -81,5 +81,6 @@
     <scheme>apply_heating_rate</scheme>
     <scheme>qneg</scheme>
     <scheme>geopotential_temp</scheme>
+    <scheme>update_dry_static_energy</scheme>
   </group>
 </suite>
