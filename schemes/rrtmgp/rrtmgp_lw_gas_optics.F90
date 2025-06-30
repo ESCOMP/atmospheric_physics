@@ -31,7 +31,7 @@ contains
     ! Outputs
     class(ty_gas_optics_rrtmgp_ccpp),  intent(inout) :: kdist                             ! RRTMGP gas optics object
     character(len=*),                    intent(out) :: errmsg                            ! CCPP error message
-    integer,                             intent(out) :: errcode                            ! CCPP error code
+    integer,                             intent(out) :: errcode                           ! CCPP error code
 
     ! Local variables
     class(abstract_netcdf_reader_t), allocatable :: pio_reader

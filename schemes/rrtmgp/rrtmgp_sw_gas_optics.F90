@@ -21,7 +21,7 @@ contains
     use ccpp_gas_concentrations, only: ty_gas_concs_ccpp
     use radiation_tools,         only: check_error_msg
     use ccpp_io_reader,          only: abstract_netcdf_reader_t, create_netcdf_reader_t
-    use mo_rte_kind, only: wl
+    use mo_rte_kind,             only: wl
 
     ! Inputs
     character(len=*),                    intent(in) :: sw_filename                        ! Full path to RRTMGP longwave coefficients file
