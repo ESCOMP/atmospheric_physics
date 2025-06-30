@@ -334,7 +334,7 @@ contains
              tau_damp_rate, &
              ksrftms, &
              dragblj, &
-             kvm, cgs, cgh, &
+             kvm, &
              dpidz_sq, &
              u0, v0, dse0, &
              tauresx, tauresy, &
@@ -368,8 +368,6 @@ contains
     real(kind_phys), intent(in)       :: ksrftms(:)       ! Surface drag coefficient for turbulent mountain stress. > 0. [kg m-2 s-1]
     real(kind_phys), intent(in)       :: dragblj(:, :)    ! Drag profile from Beljaars SGO form drag > 0. [s-1]
     real(kind_phys), intent(in)       :: kvm(:, :)        ! Eddy viscosity (Eddy diffusivity for momentum) [m^2 s-1], interfaces
-    real(kind_phys), intent(in)       :: cgs(:, :)        ! Counter-gradient star [cg/flux] [s m-2], interfaces
-    real(kind_phys), intent(in)       :: cgh(:, :)        ! Counter-gradient term for heat [], interfaces
     real(kind_phys), intent(in)       :: dpidz_sq(:,:)    ! Square of derivative of pressure with height (moist) [kg2 m-4 s-4], interfaces
 
     real(kind_phys), intent(in)       :: u0(:,:)          ! Input u-wind [m s-1]
@@ -398,7 +396,7 @@ contains
     integer,            intent(out)   :: errflg  ! error flag
 
     ! Local variables
-    integer  :: i, k, m
+    integer  :: i, k
 
     real(kind_phys) :: tmp1(ncol)                ! Temporary storage
     real(kind_phys) :: tmpi1(ncol, pverp)        ! Interface KE dissipation
@@ -407,7 +405,6 @@ contains
 
     real(kind_phys) :: keg_in(ncol, pver)        ! KE on entry to subroutine
     real(kind_phys) :: keg_out(ncol, pver)       ! KE after U and V dissipation/diffusion
-    real(kind_phys) :: rrho(ncol)                ! 1./bottom level density
 
     real(kind_phys) :: tautotx(ncol)             ! Total surface stress (zonal)
     real(kind_phys) :: tautoty(ncol)             ! Total surface stress (meridional)
@@ -438,7 +435,6 @@ contains
     dse1(:ncol,:pver) = dse0(:ncol,:pver)
 
     ! necessary temporaries used in computation
-    rrho(:ncol) = rair*t(:ncol, pver)/p%mid(:, pver)
     tmp1(:ncol) = ztodt*gravit*p%rdel(:, pver)
 
     ! second term here uses dpidz_sq(:,1) as defined because
