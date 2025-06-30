@@ -64,11 +64,6 @@ subroutine rrtmgp_post_run(qrs_prime, qrl_prime, fsns, pdel, atm_optics_sw, clou
    call free_fluxes_byband(fsw)
    call free_fluxes_broadband(fswc)
 
-   call free_optics_lw(atm_optics_lw, errmsg, errflg)
-   if (errflg /= 0) then
-      return
-   end if
-
    call sources_lw%sources%finalize()
    call free_optics_lw(atm_optics_lw, errmsg, errflg)
    if (errflg /= 0) then
