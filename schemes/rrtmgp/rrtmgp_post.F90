@@ -9,8 +9,9 @@ contains
 !> \section arg_table_rrtmgp_post_run Argument Table
 !! \htmlinclude rrtmgp_post_run.html
 !!
-subroutine rrtmgp_post_run(qrs_prime, qrl_prime, fsns, pdel, atm_optics_sw, atm_optics_lw, cloud_sw, aer_sw, &
-                  fsw, fswc, sources_lw, cloud_lw, aer_lw, flw, flwc, qrs, qrl, netsw, errmsg, errflg)
+subroutine rrtmgp_post_run(qrs_prime, qrl_prime, fsns, pdel, atm_optics_sw, cloud_sw, aer_sw,  &
+                  fsw, fswc, atm_optics_lw, sources_lw, cloud_lw, aer_lw, flw, flwc, qrs, qrl, &
+                  netsw, errmsg, errflg)
    use ccpp_kinds,             only: kind_phys
    use ccpp_optical_props,     only: ty_optical_props_1scl_ccpp, ty_optical_props_2str_ccpp
    use ccpp_source_functions,  only: ty_source_func_lw_ccpp
@@ -69,6 +70,10 @@ subroutine rrtmgp_post_run(qrs_prime, qrl_prime, fsns, pdel, atm_optics_sw, atm_
    end if
 
    call sources_lw%sources%finalize()
+   call free_optics_lw(atm_optics_lw, errmsg, errflg)
+   if (errflg /= 0) then
+      return
+   end if
    call free_optics_lw(cloud_lw, errmsg, errflg)
    if (errflg /= 0) then
       return
