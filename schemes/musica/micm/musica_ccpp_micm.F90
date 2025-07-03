@@ -61,6 +61,7 @@ contains
     real(kind=kind_phys)          :: default_value
     integer                       :: number_of_species
     integer                       :: i, species_index, solver_type_int
+    integer                       :: index_property_not_found
     type(state_t), pointer        :: state
     character(len=:), allocatable :: error_message
     character(len=*), parameter   :: PROPERTY_NOT_FOUND_SUFFIX = 'Property not found'
@@ -115,14 +116,9 @@ contains
                                                        error)
       if (.not. error%is_success( )) then
         error_message = error%message( )
-        if (len(error_message) >= len(PROPERTY_NOT_FOUND_SUFFIX)) then
-          if (error_message(len(error_message)-len(PROPERTY_NOT_FOUND_SUFFIX)+1:len(error_message)) &
-              == PROPERTY_NOT_FOUND_SUFFIX) then
-            ! If the default mixing ratio is not defined, use zero
-            default_value = 0.0_kind_phys
-          else
-            if (has_error_occurred(error, errmsg, errcode)) return
-          end if
+        index_property_not_found = index(error_message, PROPERTY_NOT_FOUND_SUFFIX)
+        if (index_property_not_found > 0) then
+          default_value = 0.0_kind_phys
         else
           if (has_error_occurred(error, errmsg, errcode)) return
         end if
