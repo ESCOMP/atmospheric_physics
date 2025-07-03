@@ -63,6 +63,7 @@ contains
     integer                       :: i, species_index, solver_type_int
     type(state_t), pointer        :: state
     character(len=:), allocatable :: error_message
+    character(len=*), parameter   :: PROPERTY_NOT_FOUND_SUFFIX = 'Property not found'
 
     if (associated( micm )) then
       deallocate( micm )
@@ -114,9 +115,14 @@ contains
                                                        error)
       if (.not. error%is_success( )) then
         error_message = error%message( )
-        if (error_message(len(error_message)-17:len(error_message)) == 'Property not found') then
-          ! If the default mixing ratio is not defined, use zero
-          default_value = 0.0_kind_phys
+        if (len(error_message) >= len(PROPERTY_NOT_FOUND_SUFFIX)) then
+          if (error_message(len(error_message)-len(PROPERTY_NOT_FOUND_SUFFIX)+1:len(error_message)) &
+              == PROPERTY_NOT_FOUND_SUFFIX) then
+            ! If the default mixing ratio is not defined, use zero
+            default_value = 0.0_kind_phys
+          else
+            if (has_error_occurred(error, errmsg, errcode)) return
+          end if
         else
           if (has_error_occurred(error, errmsg, errcode)) return
         end if
