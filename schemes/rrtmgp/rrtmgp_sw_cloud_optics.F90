@@ -28,16 +28,14 @@ contains
 !==================================================================================================
 
 subroutine rrtmgp_sw_cloud_optics_run(dosw, ncol, pver, ktopcam, ktoprad, nlay, nswgpts, nday, idxday, fillvalue, &
-   nswbands, iulog, pgam, lamc, nnite, idxnite, cld, cldfsnow, cldfgrau, cldfprime, cld_tau, grau_tau,  &
-   snow_tau, degrau, dei, des, iclwpth, icswpth, icgrauwpth, tiny_in, ext_sw_liq, ssa_sw_liq, &
-   asm_sw_liq, ext_sw_ice, asm_sw_ice, ssa_sw_ice, g_mu, g_d_eff, g_lambda, idx_sw_diag, do_graupel, do_snow, kdist_sw, cloud_sw, c_cld_tau, c_cld_tau_w, c_cld_tau_w_g, &
+   nswbands, iulog, pgam, lamc, nnite, idxnite, cld, cldfsnow, cldfgrau, cldfprime, cld_tau, grau_tau, &
+   snow_tau, degrau, dei, des, iclwpth, iciwpth, icswpth, icgrauwpth, tiny_in, ext_sw_liq, ssa_sw_liq, &
+   asm_sw_liq, ext_sw_ice, asm_sw_ice, ssa_sw_ice, g_mu, g_d_eff, g_lambda, idx_sw_diag, do_graupel, do_snow, kdist_sw, c_cld_tau, c_cld_tau_w, c_cld_tau_w_g, &
    tot_cld_vistau, tot_icld_vistau, liq_icld_vistau, ice_icld_vistau, snow_icld_vistau, grau_icld_vistau, errmsg, errflg)
    use ccpp_gas_optics_rrtmgp,   only: ty_gas_optics_rrtmgp_ccpp
    use ccpp_optical_props,       only: ty_optical_props_2str_ccpp
 
    ! Compute combined cloud optical properties.
-   ! Create MCICA stochastic arrays for cloud SW optical properties.
-   ! Initialize optical properties object (cloud_sw) and load with MCICA columns.
 
    ! arguments
    integer,  intent(in) :: nlay           ! number of layers in radiation calculation (may include "extra layer")
@@ -69,6 +67,7 @@ subroutine rrtmgp_sw_cloud_optics_run(dosw, ncol, pver, ktopcam, ktoprad, nlay, 
    real(kind_phys), intent(in) :: des(:,:)
    real(kind_phys), intent(in) :: degrau(:,:)
    real(kind_phys), intent(in) :: iclwpth(:,:)
+   real(kind_phys), intent(in) :: iciwpth(:,:)
    real(kind_phys), intent(in) :: icswpth(:,:)
    real(kind_phys), intent(in) :: icgrauwpth(:,:)
    real(kind_phys), intent(in) :: cld(:,:)      ! cloud fraction (liq+ice)
@@ -83,13 +82,12 @@ subroutine rrtmgp_sw_cloud_optics_run(dosw, ncol, pver, ktopcam, ktoprad, nlay, 
    real(kind_phys), intent(in) :: ssa_sw_ice(:,:)
 
    class(ty_gas_optics_rrtmgp_ccpp), intent(in)  :: kdist_sw  ! shortwave gas optics object
-   real(kind_phys),                  intent(out) :: cld_tau(:,:,:)       ! snow extinction optical depth
+   real(kind_phys),                  intent(out) :: cld_tau(:,:,:)       !
    real(kind_phys),                  intent(out) :: snow_tau(:,:,:)      ! snow extinction optical depth
-   real(kind_phys),                  intent(out) :: grau_tau(:,:,:)      ! snow extinction optical depth
+   real(kind_phys),                  intent(out) :: grau_tau(:,:,:)      !
    real(kind_phys),                  intent(out) :: c_cld_tau(:,:,:)     ! combined cloud extinction optical depth
    real(kind_phys),                  intent(out) :: c_cld_tau_w  (:,:,:) ! combined cloud single scattering albedo * tau
    real(kind_phys),                  intent(out) :: c_cld_tau_w_g(:,:,:) ! combined cloud asymmetry parameter * w * tau
-   type(ty_optical_props_2str_ccpp), intent(out) :: cloud_sw  ! SW cloud optical properties object
 
    ! Diagnostic outputs
    real(kind_phys), intent(out) :: tot_cld_vistau(:,:)   ! gbx total cloud optical depth
@@ -111,14 +109,14 @@ subroutine rrtmgp_sw_cloud_optics_run(dosw, ncol, pver, ktopcam, ktoprad, nlay, 
    integer, parameter :: changeseed = 1
 
    ! cloud radiative parameters are "in cloud" not "in cell"
+   real(kind_phys) :: liq_tau    (nswbands,ncol,pver)  ! liquid extinction optical depth
+   real(kind_phys) :: liq_tau_w  (nswbands,ncol,pver)  ! liquid single scattering albedo * tau
+   real(kind_phys) :: liq_tau_w_g(nswbands,ncol,pver)  ! liquid asymmetry parameter * tau * w
    real(kind_phys) :: ice_tau    (nswbands,ncol,pver)  ! ice extinction optical depth
    real(kind_phys) :: ice_tau_w  (nswbands,ncol,pver)  ! ice single scattering albedo * tau
    real(kind_phys) :: ice_tau_w_g(nswbands,ncol,pver)  ! ice asymmetry parameter * tau * w
    real(kind_phys) :: snow_tau_w (nswbands,ncol,pver)  ! snow single scattering albedo * tau
    real(kind_phys) :: snow_tau_w_g(nswbands,ncol,pver) ! snow asymmetry parameter * tau * w
-   real(kind_phys) :: liq_tau    (nswbands,ncol,pver)  ! liquid optical depth
-   real(kind_phys) :: liq_tau_w  (nswbands,ncol,pver)  ! liquid single scattering albedo * tau
-   real(kind_phys) :: liq_tau_w_g(nswbands,ncol,pver)  ! liquid asymmetry parameter * tau * w
    real(kind_phys) :: cld_tau_w  (nswbands,ncol,pver)  ! cloud single scattering albedo * tau
    real(kind_phys) :: cld_tau_w_g(nswbands,ncol,pver)  ! cloud asymmetry parameter * w * tau
    real(kind_phys) :: grau_tau_w  (nswbands,ncol,pver) ! graupel single scattering albedo * tau
@@ -156,7 +154,7 @@ subroutine rrtmgp_sw_cloud_optics_run(dosw, ncol, pver, ktopcam, ktoprad, nlay, 
       return
    end if
    ! Mitchell ice optics
-   call interpolate_ice_optics_sw(ncol, pver, nswbands, ext_sw_ice, asm_sw_ice, ssa_sw_ice, icswpth, dei, g_d_eff, ice_tau, ice_tau_w, ice_tau_w_g, sw_tau_w_f)
+   call interpolate_ice_optics_sw(ncol, pver, nswbands, ext_sw_ice, asm_sw_ice, ssa_sw_ice, iciwpth, dei, g_d_eff, ice_tau, ice_tau_w, ice_tau_w_g, sw_tau_w_f)
 
    cld_tau(:,:ncol,:)     =  liq_tau(:,:ncol,:)     + ice_tau(:,:ncol,:)
    cld_tau_w(:,:ncol,:)   =  liq_tau_w(:,:ncol,:)   + ice_tau_w(:,:ncol,:)
@@ -251,20 +249,6 @@ subroutine rrtmgp_sw_cloud_optics_run(dosw, ncol, pver, ktopcam, ktoprad, nlay, 
       end if
    end do
 
-   ! if no daylight columns the cloud_sw object isn't initialized
-   if (nday > 0) then
-
-      ! number of CAM's layers in radiation calculation.  Does not include the "extra layer".
-      nver = pver - ktopcam + 1
-
-      ! Initialize object for SW cloud optical properties.
-      errmsg = cloud_sw%optical_props%alloc_2str(nday, nlay, kdist_sw%gas_props)
-      if (len_trim(errmsg) > 0) then
-         call endrun(trim(sub)//': ERROR: cloud_sw%optical_props%alloc_2str: '//trim(errmsg))
-      end if
-
-   end if
-
 end subroutine rrtmgp_sw_cloud_optics_run
 
 !==============================================================================
@@ -333,7 +317,7 @@ subroutine get_liquid_optics_sw(ncol, pver, nswbands, ext_sw_liq, asm_sw_liq, ss
 
    do k = 1,pver
       do i = 1,ncol
-         if(g_lambda(i,k) > 0._kind_phys) then ! This seems to be clue from microphysics of no cloud
+         if(lamc(i,k) > 0._kind_phys) then ! This seems to be clue from microphysics of no cloud
             call gam_liquid_sw(nswbands, g_lambda, g_mu, ext_sw_liq, asm_sw_liq, ssa_sw_liq, iclwpth(i,k), lamc(i,k), pgam(i,k), tau(1:nswbands,i,k), &
                  tau_w(1:nswbands,i,k), tau_w_g(1:nswbands,i,k), tau_w_f(1:nswbands,i,k), errmsg, errflg)
          else
@@ -351,7 +335,7 @@ end subroutine get_liquid_optics_sw
 
 subroutine interpolate_ice_optics_sw(ncol, pver, nswbands, ext_sw_ice, asm_sw_ice, ssa_sw_ice, &
      iciwpth, dei, g_d_eff, tau, tau_w, tau_w_g, tau_w_f)
-  use interpolate_data, only: interp_type, lininterp, lininterp_finish, extrap_method_bndry
+  use interpolate_data, only: interp_type, lininterp, lininterp_init, lininterp_finish, extrap_method_bndry
 
   integer, intent(in) :: ncol
   integer, intent(in) :: pver
