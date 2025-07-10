@@ -81,20 +81,21 @@ contains
 !-------------------------------------------------------------------------------
 
   subroutine rrtmgp_sw_solar_var_run(toa_flux, band2gpt_sw, nswbands, sol_irrad, we, nbins, sol_tsi, do_spctrl_scaling, &
-                                     sfac, errmsg, errflg)
+                                     sfac, eccf, errmsg, errflg)
 
      ! Arguments 
-     real(kind_phys), intent(in)  :: toa_flux(:,:) ! TOA flux to be scaled (columns,gpts)
-     real(kind_phys), intent(in)  :: sol_tsi
-     real(kind_phys), intent(in)  :: sol_irrad(:)
-     real(kind_phys), intent(in)  :: we(:)
-     integer,  intent(in)  :: nbins
-     integer,  intent(in)  :: band2gpt_sw(:,:)
-     integer,  intent(in)  :: nswbands
-     logical,  intent(in)  :: do_spctrl_scaling
-     real(kind_phys),    intent(out) :: sfac(:,:)     ! scaling factors (columns,gpts)
-     character(len=512), intent(out) :: errmsg
-     integer,            intent(out) :: errflg
+     real(kind_phys),    intent(inout) :: toa_flux(:,:) ! TOA flux to be scaled (columns,gpts)
+     real(kind_phys),    intent(in)    :: sol_tsi
+     real(kind_phys),    intent(in)    :: sol_irrad(:)
+     real(kind_phys),    intent(in)    :: we(:)
+     integer,            intent(in)    :: nbins
+     integer,            intent(in)    :: band2gpt_sw(:,:)
+     integer,            intent(in)    :: nswbands
+     logical,            intent(in)    :: do_spctrl_scaling
+     real(kind_phys),    intent(in)    :: eccf
+     real(kind_phys),    intent(out)   :: sfac(:,:)     ! scaling factors (columns,gpts)
+     character(len=512), intent(out)   :: errmsg
+     integer,            intent(out)   :: errflg
 
      ! Local variables 
      integer :: i, j, gpt_start, gpt_end, ncols
@@ -131,6 +132,9 @@ contains
      else 
         sfac(:,:) = sol_tsi / spread(sum(toa_flux, 2), 2, size(toa_flux, 2))
      end if
+
+     toa_flux = toa_flux * sfac * eccf
+
   end subroutine rrtmgp_sw_solar_var_run
 
 
