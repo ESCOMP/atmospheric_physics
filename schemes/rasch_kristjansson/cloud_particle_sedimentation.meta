@@ -149,19 +149,19 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ icefrac ]
-  standard_name = sea_ice_area_fraction_from_coupler
+  standard_name = sea_ice_area_fraction
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
 [ landfrac ]
-  standard_name = land_area_fraction_from_coupler
+  standard_name = land_area_fraction
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
 [ ocnfrac ]
-  standard_name = ocean_area_fraction_from_coupler
+  standard_name = ocean_area_fraction
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
@@ -181,7 +181,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ snowh ]
-  standard_name = lwe_surface_snow_depth_over_land_from_coupler
+  standard_name = lwe_surface_snow_depth_over_land
   units = m
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)

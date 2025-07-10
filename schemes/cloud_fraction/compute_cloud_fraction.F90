@@ -155,16 +155,16 @@ contains
     real(kind_phys), intent(in) :: pmid(:, :)        ! air_pressure [Pa]
     real(kind_phys), intent(in) :: ps(:)             ! surface_air_pressure [Pa]
     real(kind_phys), intent(in) :: temp(:, :)        ! air_temperature [K]
-    real(kind_phys), intent(in) :: sst(:)            ! sea_surface_temperature_from_coupler [K]
+    real(kind_phys), intent(in) :: sst(:)            ! sea_surface_temperature [K]
     real(kind_phys), intent(in) :: q(:, :)           ! water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water [kg kg-1]
     real(kind_phys), intent(in) :: cldice(:, :)      ! cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water [kg kg-1]
     real(kind_phys), intent(in) :: phis(:)           ! surface_geopotential [m2 s-2]
     real(kind_phys), intent(in) :: shallowcu(:, :)   ! shallow convective cloud fraction [fraction]
     real(kind_phys), intent(in) :: deepcu(:, :)      ! deep convective cloud fraction [fraction]
     real(kind_phys), intent(in) :: concld(:, :)      ! convective_cloud_area_fraction [fraction]
-    real(kind_phys), intent(in) :: landfrac(:)       ! land_area_fraction_from_coupler [fraction]
-    real(kind_phys), intent(in) :: ocnfrac(:)        ! ocean_area_fraction_from_coupler [fraction]
-    real(kind_phys), intent(in) :: snowh(:)          ! lwe_surface_snow_depth_over_land_from_coupler [m]
+    real(kind_phys), intent(in) :: landfrac(:)       ! land_area_fraction [fraction]
+    real(kind_phys), intent(in) :: ocnfrac(:)        ! ocean_area_fraction [fraction]
+    real(kind_phys), intent(in) :: snowh(:)          ! lwe_surface_snow_depth_over_land [m]
     logical,         intent(in) :: rhpert_flag       ! 0 or 1 to perturb rh
 
     ! Output arguments

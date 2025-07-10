@@ -128,12 +128,12 @@ contains
     real(kind_phys),    intent(in)    :: pdel(:,:)      ! air_pressure_thickness [Pa]
     real(kind_phys),    intent(in)    :: t(:,:)         ! air_temperature [K]
     real(kind_phys),    intent(in)    :: cloud(:,:)     ! cloud_area_fraction [fraction]
-    real(kind_phys),    intent(in)    :: icefrac(:)     ! sea_ice_area_fraction_from_coupler [fraction]
-    real(kind_phys),    intent(in)    :: landfrac(:)    ! land_area_fraction_from_coupler [fraction]
+    real(kind_phys),    intent(in)    :: icefrac(:)     ! sea_ice_area_fraction [fraction]
+    real(kind_phys),    intent(in)    :: landfrac(:)    ! land_area_fraction [fraction]
     real(kind_phys),    intent(in)    :: ocnfrac(:)     ! ocean_area_fraction [fraction]
     real(kind_phys),    intent(in)    :: cldliq(:,:)    ! adv: cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water [kg kg-1]
     real(kind_phys),    intent(in)    :: cldice(:,:)    ! adv: cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water [kg kg-1]
-    real(kind_phys),    intent(in)    :: snowh(:)       ! lwe_surface_snow_depth_over_land_from_coupler [m]
+    real(kind_phys),    intent(in)    :: snowh(:)       ! lwe_surface_snow_depth_over_land [m]
     real(kind_phys),    intent(in)    :: landm(:)       ! smoothed_land_area_fraction [fraction]
 
     ! Output arguments

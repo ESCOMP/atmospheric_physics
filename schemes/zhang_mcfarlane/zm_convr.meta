@@ -435,7 +435,7 @@
   dimensions = (horizontal_loop_extent)
   intent = out
 [ landfrac ]
-  standard_name = land_area_fraction_from_coupler
+  standard_name = land_area_fraction
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
