@@ -153,7 +153,7 @@ contains
     end if
     call file_reader%get_var('rayl_lower', rayl_lower, errmsg, errcode)
     ! OK if variable is not on file
-    if (errcode /= 0 .and. errcode /= 3) then
+    if (errcode /= 0 .and. errcode /= missing_variable_error_code) then
        return
     end if
     if (errcode /= missing_variable_error_code) then
