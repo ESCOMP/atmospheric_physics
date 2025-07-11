@@ -37,7 +37,7 @@ module rrtmgp_inputs_setup
      logical,                         intent(in) :: is_first_step          ! Flag for whether this is the first timestep (.true. = yes)
      logical,                         intent(in) :: is_first_restart_step  ! Flag for whether this is the first restart step (.true. = yes)
      logical,                         intent(in) :: use_rad_dt_cosz        ! Use adjusted radiation timestep for cosz calculation
-     logical,                         intent(in) :: is_root                ! Flag for whether this is the root task
+     logical,                         intent(in) :: is_root                ! Flag for whether this is the root MPI task
 
      ! Outputs
      integer,                         intent(out) :: ktopcam               ! Index in CAM arrays of top level (layer or interface) at which RRTMGP is active
@@ -96,8 +96,8 @@ module rrtmgp_inputs_setup
         nlaycam = pver
         nlay = nlay+1 ! reassign the value so later code understands to treat this case like nlay==pverp
         if (is_root) then
-           write(iulog,*) 'RADIATION_INIT: Special case of 1 model interface at p < 1Pa. Top layer will be INCLUDED in radiation calculation.'
-           write(iulog,*) 'RADIATION_INIT: nlay = ',nlay, ' same as pverp: ',nlay==pverp
+           write(iulog,*) 'RADIATION: rrtmgp_inputs_setup_init: Special case of 1 model interface at p < 1Pa. Top layer will be INCLUDED in radiation calculation.'
+           write(iulog,*) 'RADIATION: rrtmgp_inputs_setup_init: nlay = ',nlay, ' same as pverp: ',nlay==pverp
         end if
      else
         ! nlay < pverp.  nlay layers are used in radiation calcs, and they are
@@ -124,7 +124,7 @@ module rrtmgp_inputs_setup
      end if
 
      ! Initialize the SW band boundaries
-     call get_sw_spectral_boundaries_ccpp(sw_low_bounds, sw_high_bounds, 'cm^-1', errmsg, errflg)
+     call get_sw_spectral_boundaries_ccpp(sw_low_bounds, sw_high_bounds, 'cm-1', errmsg, errflg)
      if (errflg /= 0) then
         return
      end if
@@ -342,7 +342,7 @@ module rrtmgp_inputs_setup
    end do
 
    if (ans == 0) then
-      write(errmsg,'(f10.3,a,a)') targetvalue, ' ', trim(units)
+      write(errmsg,'(a,f10.3,a,a)') 'rrtmgp_inputs_setup: get_band_index_by_value: no index found for wavelength ', targetvalue, ' ', trim(units)
       errflg = 1
    end if
    
