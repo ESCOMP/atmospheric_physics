@@ -234,7 +234,7 @@ contains
        return
     end if
     do idx = 1, size(int2log)
-       if (int2log(idx) .eq. 0) then
+       if (int2log(idx) == 0) then
            scale_by_complement_lower(idx) = .false.
        else
            scale_by_complement_lower(idx) = .true.
@@ -252,7 +252,7 @@ contains
        return
     end if
     do idx = 1, size(int2log)
-       if (int2log(idx) .eq. 0) then
+       if (int2log(idx) == 0) then
            minor_scales_with_density_upper(idx) = .false.
        else
            minor_scales_with_density_upper(idx) = .true.
@@ -270,7 +270,7 @@ contains
        return
     end if
     do idx = 1, size(int2log)
-       if (int2log(idx) .eq. 0) then
+       if (int2log(idx) == 0) then
            scale_by_complement_upper(idx) = .false.
        else
            scale_by_complement_upper(idx) = .true.
