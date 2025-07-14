@@ -34,7 +34,7 @@ contains
     integer,                             intent(out) :: errcode                           ! CCPP error code
 
     ! Local variables
-    class(abstract_netcdf_reader_t), allocatable :: pio_reader
+    class(abstract_netcdf_reader_t), allocatable :: file_reader
     character(len=:),  dimension(:),     pointer :: gas_names                          ! Names of absorbing gases
     character(len=:),  dimension(:),     pointer :: gas_minor                          ! Name of absorbing minor gas
     character(len=:),  dimension(:),     pointer :: identifier_minor                   ! Unique string identifying minor gas
@@ -70,6 +70,7 @@ contains
     integer,             dimension(:),   pointer :: int2log                       ! use this to convert integer-to-logical.
     real(kind_phys), dimension(:,:,:), allocatable :: rayl_lower_allocatable
     real(kind_phys), dimension(:,:,:), allocatable :: rayl_upper_allocatable
+    integer,                           parameter :: missing_variable_error_code = 3
     character(len=256)                           :: alloc_errmsg
     integer                                      :: idx
 
@@ -77,122 +78,122 @@ contains
     errmsg = ''
     errcode = 0
 
-    pio_reader = create_netcdf_reader_t()
+    file_reader = create_netcdf_reader_t()
 
     ! Open the longwave coefficients file
-    call pio_reader%open_file(lw_filename, errmsg, errcode)
+    call file_reader%open_file(lw_filename, errmsg, errcode)
     if (errcode /= 0) then
        return
     end if
 
     ! Read the coefficients from the file
-    call pio_reader%get_var('gas_names', gas_names, errmsg, errcode)
+    call file_reader%get_var('gas_names', gas_names, errmsg, errcode)
     if (errcode /= 0) then
        return
     end if
-    call pio_reader%get_var('key_species', key_species, errmsg, errcode)
+    call file_reader%get_var('key_species', key_species, errmsg, errcode)
     if (errcode /= 0) then
        return
     end if
-    call pio_reader%get_var('bnd_limits_gpt', band2gpt, errmsg, errcode)
+    call file_reader%get_var('bnd_limits_gpt', band2gpt, errmsg, errcode)
     if (errcode /= 0) then
        return
     end if
-    call pio_reader%get_var('bnd_limits_wavenumber', band_lims_wavenum, errmsg, errcode)
+    call file_reader%get_var('bnd_limits_wavenumber', band_lims_wavenum, errmsg, errcode)
     if (errcode /= 0) then
        return
     end if
-    call pio_reader%get_var('press_ref', press_ref, errmsg, errcode)
+    call file_reader%get_var('press_ref', press_ref, errmsg, errcode)
     if (errcode /= 0) then
        return
     end if
-    call pio_reader%get_var('press_ref_trop', press_ref_trop, errmsg, errcode)
+    call file_reader%get_var('press_ref_trop', press_ref_trop, errmsg, errcode)
     if (errcode /= 0) then
        return
     end if
-    call pio_reader%get_var('temp_ref', temp_ref, errmsg, errcode)
+    call file_reader%get_var('temp_ref', temp_ref, errmsg, errcode)
     if (errcode /= 0) then
        return
     end if
-    call pio_reader%get_var('absorption_coefficient_ref_T', temp_ref_t, errmsg, errcode)
+    call file_reader%get_var('absorption_coefficient_ref_T', temp_ref_t, errmsg, errcode)
     if (errcode /= 0) then
        return
     end if
-    call pio_reader%get_var('absorption_coefficient_ref_P', temp_ref_p, errmsg, errcode)
+    call file_reader%get_var('absorption_coefficient_ref_P', temp_ref_p, errmsg, errcode)
     if (errcode /= 0) then
        return
     end if
-    call pio_reader%get_var('vmr_ref', vmr_ref, errmsg, errcode)
+    call file_reader%get_var('vmr_ref', vmr_ref, errmsg, errcode)
     if (errcode /= 0) then
        return
     end if
-    call pio_reader%get_var('kmajor', kmajor, errmsg, errcode)
+    call file_reader%get_var('kmajor', kmajor, errmsg, errcode)
     if (errcode /= 0) then
        return
     end if
-    call pio_reader%get_var('kminor_lower', kminor_lower, errmsg, errcode)
+    call file_reader%get_var('kminor_lower', kminor_lower, errmsg, errcode)
     if (errcode /= 0) then
        return
     end if
-    call pio_reader%get_var('kminor_upper', kminor_upper, errmsg, errcode)
+    call file_reader%get_var('kminor_upper', kminor_upper, errmsg, errcode)
     if (errcode /= 0) then
        return
     end if
-    call pio_reader%get_var('totplnk', totplnk, errmsg, errcode)
+    call file_reader%get_var('totplnk', totplnk, errmsg, errcode)
     if (errcode /= 0) then
        return
     end if
-    call pio_reader%get_var('plank_fraction', planck_frac, errmsg, errcode)
+    call file_reader%get_var('plank_fraction', planck_frac, errmsg, errcode)
     if (errcode /= 0) then
        return
     end if
-    call pio_reader%get_var('optimal_angle_fit', optimal_angle_fit, errmsg, errcode)
+    call file_reader%get_var('optimal_angle_fit', optimal_angle_fit, errmsg, errcode)
     if (errcode /= 0) then
        return
     end if
-    call pio_reader%get_var('rayl_lower', rayl_lower, errmsg, errcode)
+    call file_reader%get_var('rayl_lower', rayl_lower, errmsg, errcode)
     ! OK if variable is not on file
-    if (errcode /= 0 .and. errcode /= 3) then
+    if (errcode /= 0 .and. errcode /= missing_variable_error_code) then
        return
     end if
-    if (errcode /= 3) then
+    if (errcode /= missing_variable_error_code) then
        allocate(rayl_lower_allocatable(size(rayl_lower,1), size(rayl_lower,2), size(rayl_lower,3)))
        rayl_lower_allocatable = rayl_lower
     end if
-    call pio_reader%get_var('rayl_upper', rayl_upper, errmsg, errcode)
+    call file_reader%get_var('rayl_upper', rayl_upper, errmsg, errcode)
     ! OK if variable is not on file
-    if (errcode /= 0 .and. errcode /= 3) then
+    if (errcode /= 0 .and. errcode /= missing_variable_error_code) then
        return
     end if
-    if (errcode /= 3) then
+    if (errcode /= missing_variable_error_code) then
        allocate(rayl_upper_allocatable(size(rayl_upper,1), size(rayl_upper,2), size(rayl_upper,3)))
        rayl_upper_allocatable = rayl_upper
     end if
-    call pio_reader%get_var('gas_minor', gas_minor, errmsg, errcode)
+    call file_reader%get_var('gas_minor', gas_minor, errmsg, errcode)
     if (errcode /= 0) then
        return
     end if
-    call pio_reader%get_var('identifier_minor', identifier_minor, errmsg, errcode)
+    call file_reader%get_var('identifier_minor', identifier_minor, errmsg, errcode)
     if (errcode /= 0) then
        return
     end if
-    call pio_reader%get_var('minor_gases_lower', minor_gases_lower, errmsg, errcode)
+    call file_reader%get_var('minor_gases_lower', minor_gases_lower, errmsg, errcode)
     if (errcode /= 0) then
        return
     end if
-    call pio_reader%get_var('minor_gases_upper', minor_gases_upper, errmsg, errcode)
+    call file_reader%get_var('minor_gases_upper', minor_gases_upper, errmsg, errcode)
     if (errcode /= 0) then
        return
     end if
-    call pio_reader%get_var('minor_limits_gpt_lower', minor_limits_gpt_lower, errmsg, errcode)
+    call file_reader%get_var('minor_limits_gpt_lower', minor_limits_gpt_lower, errmsg, errcode)
     if (errcode /= 0) then
        return
     end if
-    call pio_reader%get_var('minor_limits_gpt_upper', minor_limits_gpt_upper, errmsg, errcode)
+    call file_reader%get_var('minor_limits_gpt_upper', minor_limits_gpt_upper, errmsg, errcode)
     if (errcode /= 0) then
        return
     end if
-    call pio_reader%get_var('minor_scales_with_density_lower', int2log, errmsg, errcode)
+    call file_reader%get_var('minor_scales_with_density_lower', int2log, errmsg, errcode)
     if (errcode /= 0) then
        return
     end if
@@ -202,14 +203,15 @@ contains
        return
     end if
     do idx = 1, size(int2log)
-       if (int2log(idx) .eq. 0) then
+       if (int2log(idx) == 0) then
            minor_scales_with_density_lower(idx) = .false.
        else
            minor_scales_with_density_lower(idx) = .true.
        end if
     end do
     deallocate(int2log)
-    call pio_reader%get_var('scale_by_complement_lower', int2log, errmsg, errcode)
+    nullify(int2log)
+    call file_reader%get_var('scale_by_complement_lower', int2log, errmsg, errcode)
     if (errcode /= 0) then
        return
     end if
@@ -219,14 +221,15 @@ contains
        return
     end if
     do idx = 1, size(int2log)
-       if (int2log(idx) .eq. 0) then
+       if (int2log(idx) == 0) then
            scale_by_complement_lower(idx) = .false.
        else
            scale_by_complement_lower(idx) = .true.
        end if
     end do
     deallocate(int2log)
-    call pio_reader%get_var('minor_scales_with_density_upper', int2log, errmsg, errcode)
+    nullify(int2log)
+    call file_reader%get_var('minor_scales_with_density_upper', int2log, errmsg, errcode)
     if (errcode /= 0) then
        return
     end if
@@ -236,14 +239,15 @@ contains
        return
     end if
     do idx = 1, size(int2log)
-       if (int2log(idx) .eq. 0) then
+       if (int2log(idx) == 0) then
            minor_scales_with_density_upper(idx) = .false.
        else
            minor_scales_with_density_upper(idx) = .true.
        end if
     end do
     deallocate(int2log)
-    call pio_reader%get_var('scale_by_complement_upper', int2log, errmsg, errcode)
+    nullify(int2log)
+    call file_reader%get_var('scale_by_complement_upper', int2log, errmsg, errcode)
     if (errcode /= 0) then
        return
     end if
@@ -253,32 +257,33 @@ contains
        return
     end if
     do idx = 1, size(int2log)
-       if (int2log(idx) .eq. 0) then
+       if (int2log(idx) == 0) then
            scale_by_complement_upper(idx) = .false.
        else
            scale_by_complement_upper(idx) = .true.
        end if
     end do
     deallocate(int2log)
-    call pio_reader%get_var('scaling_gas_lower', scaling_gas_lower, errmsg, errcode)
+    nullify(int2log)
+    call file_reader%get_var('scaling_gas_lower', scaling_gas_lower, errmsg, errcode)
     if (errcode /= 0) then
        return
     end if
-    call pio_reader%get_var('scaling_gas_upper', scaling_gas_upper, errmsg, errcode)
+    call file_reader%get_var('scaling_gas_upper', scaling_gas_upper, errmsg, errcode)
     if (errcode /= 0) then
        return
     end if
-    call pio_reader%get_var('kminor_start_lower', kminor_start_lower, errmsg, errcode)
+    call file_reader%get_var('kminor_start_lower', kminor_start_lower, errmsg, errcode)
     if (errcode /= 0) then
        return
     end if
-    call pio_reader%get_var('kminor_start_upper', kminor_start_upper, errmsg, errcode)
+    call file_reader%get_var('kminor_start_upper', kminor_start_upper, errmsg, errcode)
     if (errcode /= 0) then
        return
     end if
 
     ! Close the longwave coefficients file
-    call pio_reader%close_file(errmsg, errcode)
+    call file_reader%close_file(errmsg, errcode)
     if (errcode /= 0) then
        return
     end if
@@ -305,6 +310,52 @@ contains
        errcode = 1
     end if
     call check_error_msg('rrtmgp_lw_gas_optics_init_load', errmsg)
+
+    ! Deallocate pointer variables
+    deallocate(gas_names, gas_minor, identifier_minor, minor_gases_lower, minor_gases_upper, &
+            scaling_gas_lower, scaling_gas_upper, key_species, band2gpt, minor_limits_gpt_lower, &
+            minor_limits_gpt_upper, kminor_start_lower, kminor_start_upper, minor_scales_with_density_lower, &
+            minor_scales_with_density_upper, scale_by_complement_lower, scale_by_complement_upper, &
+            kmajor, planck_frac, kminor_lower, kminor_upper, vmr_ref, band_lims_wavenum, totplnk, &
+            optimal_angle_fit, press_ref, temp_ref, press_ref_trop, temp_ref_p, temp_ref_t)
+    nullify(gas_names)
+    nullify(gas_minor)
+    nullify(identifier_minor)
+    nullify(minor_gases_lower)
+    nullify(minor_gases_upper)
+    nullify(scaling_gas_lower)
+    nullify(scaling_gas_upper)
+    nullify(key_species)
+    nullify(band2gpt)
+    nullify(minor_limits_gpt_lower)
+    nullify(minor_limits_gpt_upper)
+    nullify(kminor_start_lower)
+    nullify(kminor_start_upper)
+    nullify(minor_scales_with_density_lower)
+    nullify(minor_scales_with_density_upper)
+    nullify(scale_by_complement_lower)
+    nullify(scale_by_complement_upper)
+    nullify(kmajor)
+    nullify(planck_frac)
+    nullify(kminor_lower)
+    nullify(kminor_upper)
+    nullify(vmr_ref)
+    nullify(band_lims_wavenum)
+    nullify(totplnk)
+    nullify(optimal_angle_fit)
+    nullify(press_ref)
+    nullify(temp_ref)
+    nullify(press_ref_trop)
+    nullify(temp_ref_p)
+    nullify(temp_ref_t)
+    if (associated(rayl_lower)) then
+       deallocate(rayl_lower)
+       nullify(rayl_lower)
+    end if
+    if (associated(rayl_upper)) then
+       deallocate(rayl_upper)
+       nullify(rayl_upper)
+    end if
 
   end subroutine rrtmgp_lw_gas_optics_init
 

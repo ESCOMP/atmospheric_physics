@@ -46,7 +46,7 @@ contains
     integer,          intent(out) :: errflg
 
     ! Local variables
-    class(abstract_netcdf_reader_t), allocatable :: pio_reader
+    class(abstract_netcdf_reader_t), allocatable :: file_reader
     real(kind_phys), dimension(:),     pointer :: g_mu
     real(kind_phys), dimension(:),     pointer :: g_d_eff
     real(kind_phys), dimension(:,:),   pointer :: g_lambda
@@ -65,42 +65,42 @@ contains
     errmsg = ''
     errflg = 0
 
-    pio_reader = create_netcdf_reader_t()
+    file_reader = create_netcdf_reader_t()
 
     ! Open liquid optics file
-    call pio_reader%open_file(liq_filename, errmsg, errflg)
+    call file_reader%open_file(liq_filename, errmsg, errflg)
     if (errflg /= 0) then
        return
     end if
 
     ! Read in variables
-    call pio_reader%get_var('mu', g_mu, errmsg, errflg)
+    call file_reader%get_var('mu', g_mu, errmsg, errflg)
     if (errflg /= 0) then
        return
     end if
-    call pio_reader%get_var('lambda', g_lambda, errmsg, errflg)
+    call file_reader%get_var('lambda', g_lambda, errmsg, errflg)
     if (errflg /= 0) then
        return
     end if
-    call pio_reader%get_var('k_ext_sw', ext_sw_liq, errmsg, errflg)
+    call file_reader%get_var('k_ext_sw', ext_sw_liq, errmsg, errflg)
     if (errflg /= 0) then
        return
     end if
-    call pio_reader%get_var('ssa_sw', ssa_sw_liq, errmsg, errflg)
+    call file_reader%get_var('ssa_sw', ssa_sw_liq, errmsg, errflg)
     if (errflg /= 0) then
        return
     end if
-    call pio_reader%get_var('asm_sw', asm_sw_liq, errmsg, errflg)
+    call file_reader%get_var('asm_sw', asm_sw_liq, errmsg, errflg)
     if (errflg /= 0) then
        return
     end if
-    call pio_reader%get_var('k_abs_lw', abs_lw_liq, errmsg, errflg)
+    call file_reader%get_var('k_abs_lw', abs_lw_liq, errmsg, errflg)
     if (errflg /= 0) then
        return
     end if
 
     ! Close the liquid optics file
-    call pio_reader%close_file(errmsg, errflg)
+    call file_reader%close_file(errmsg, errflg)
     if (errflg /= 0) then
        return
     end if
@@ -110,35 +110,35 @@ contains
     abs_lw_liq = abs_lw_liq / 0.9970449e3_kind_phys
 
     ! Open the ice optics file
-    call pio_reader%open_file(ice_filename, errmsg, errflg)
+    call file_reader%open_file(ice_filename, errmsg, errflg)
     if (errflg /= 0) then
        return
     end if
 
     ! Read in variables
-    call pio_reader%get_var('d_eff', g_d_eff, errmsg, errflg)
+    call file_reader%get_var('d_eff', g_d_eff, errmsg, errflg)
     if (errflg /= 0) then
        return
     end if
-    call pio_reader%get_var('sw_ext', ext_sw_ice, errmsg, errflg)
+    call file_reader%get_var('sw_ext', ext_sw_ice, errmsg, errflg)
     if (errflg /= 0) then
        return
     end if
-    call pio_reader%get_var('sw_ssa', ssa_sw_ice, errmsg, errflg)
+    call file_reader%get_var('sw_ssa', ssa_sw_ice, errmsg, errflg)
     if (errflg /= 0) then
        return
     end if
-    call pio_reader%get_var('sw_asm', asm_sw_ice, errmsg, errflg)
+    call file_reader%get_var('sw_asm', asm_sw_ice, errmsg, errflg)
     if (errflg /= 0) then
        return
     end if
-    call pio_reader%get_var('lw_abs', abs_lw_ice, errmsg, errflg)
+    call file_reader%get_var('lw_abs', abs_lw_ice, errmsg, errflg)
     if (errflg /= 0) then
        return
     end if
 
     ! Close the ice optics file
-    call pio_reader%close_file(errmsg, errflg)
+    call file_reader%close_file(errmsg, errflg)
     if (errflg /= 0) then
        return
     end if
@@ -211,6 +211,21 @@ contains
     g_mu_out       = g_mu
     g_lambda_out   = g_lambda
     g_d_eff_out    = g_d_eff
+
+    ! Deallocate pointer variables
+    deallocate(g_mu, g_d_eff, g_lambda, ext_sw_ice, ssa_sw_ice, asm_sw_ice, abs_lw_ice, ext_sw_liq, &
+            ssa_sw_liq, asm_sw_liq, abs_lw_liq)
+    nullify(g_mu)
+    nullify(g_d_eff)
+    nullify(g_lambda)
+    nullify(ext_sw_ice)
+    nullify(ssa_sw_ice)
+    nullify(asm_sw_ice)
+    nullify(abs_lw_ice)
+    nullify(ext_sw_liq)
+    nullify(ssa_sw_liq)
+    nullify(asm_sw_liq)
+    nullify(abs_lw_liq)
 
   end subroutine rrtmgp_cloud_optics_setup_init
 
