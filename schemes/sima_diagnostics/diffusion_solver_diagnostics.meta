@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = vertical_diffusion_tendencies_diagnostics
   type = scheme
+  dependencies = ../vertical_diffusion/vertical_diffusion_diagnostic_utils.F90
 
 [ccpp-arg-table]
   name  = vertical_diffusion_tendencies_diagnostics_init
@@ -141,30 +142,6 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
-[ tke ]
-  standard_name = specific_turbulent_kinetic_energy_at_interfaces
-  units = m2 s-2
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
-  intent = in
-[ pblh ]
-  standard_name = atmosphere_boundary_layer_thickness
-  units = m
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent)
-  intent = in
-[ tpert ]
-  standard_name = convective_temperature_perturbation_due_to_pbl_eddies
-  units = K
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent)
-  intent = in
-[ qpert ]
-  standard_name = convective_water_vapor_wrt_moist_air_and_condensed_water_perturbation_due_to_pbl_eddies
-  units = kg kg-1
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent)
-  intent = in
 [ cam_in_shf ]
   standard_name = surface_upward_sensible_heat_flux_from_coupler
   units = W m-2
@@ -267,23 +244,11 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
-[ tend_q_wv ]
-  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
-  units = kg kg-1 s-1
+[ tend_q ]
+  standard_name = ccpp_constituent_tendencies
+  units = none
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = in
-[ tend_q_cldliq ]
-  standard_name = tendency_of_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water
-  units = kg kg-1 s-1
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = in
-[ tend_q_cldice ]
-  standard_name = tendency_of_cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water
-  units = kg kg-1 s-1
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
   intent = in
 [ errmsg ]
   standard_name = ccpp_error_message

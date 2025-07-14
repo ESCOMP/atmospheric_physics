@@ -23,7 +23,7 @@ contains
              cam_in_cflx_wv, cam_in_cflx_cldliq, cam_in_cflx_cldice, &
              tautotx, tautoty, &
              t0, q0_wv, q0_cldliq, q0_cldice, s0, u0, v0, &
-                 q1_wv, q1_cldliq, q1_cldice, s1, u1, v1, &
+                        q1_cldliq, q1_cldice, s1, u1, v1, &
              tend_s, tend_u, tend_v, tend_q_wv, tend_q_cldliq, tend_q_cldice, &
              qt_pre_PBL, sl_pre_PBL, slv_pre_PBL, ftem_pre_PBL, &
              qt_aft_PBL, sl_aft_PBL, slv_aft_PBL, &
@@ -82,7 +82,6 @@ contains
     real(kind_phys),  intent(in)  :: v0(:, :)                ! Meridional wind before diffusion [m s-1]
 
     ! Final state (after vertical diffusion)
-    real(kind_phys),  intent(in)  :: q1_wv(:, :)             ! Water vapor mixing ratio after diffusion [kg kg-1]
     real(kind_phys),  intent(in)  :: q1_cldliq(:, :)         ! Cloud liquid water mixing ratio after diffusion [kg kg-1]
     real(kind_phys),  intent(in)  :: q1_cldice(:, :)         ! Cloud ice water mixing ratio after diffusion [kg kg-1]
     real(kind_phys),  intent(in)  :: s1(:, :)                ! Dry static energy after diffusion [J kg-1]

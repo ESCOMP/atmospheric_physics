@@ -40,10 +40,6 @@ contains
       call history_add_field('QTFLX',       'Total water flux',                                   'ilev',  'inst', 'kg/m2/s')
       call history_add_field('UFLX',        'Zonal momentum flux',                                'ilev',  'inst', 'N/m2')
       call history_add_field('VFLX',        'Meridional momentum flux',                           'ilev',  'inst', 'N/m2')
-      call history_add_field('TKE',         'Turbulent Kinetic Energy',                           'ilev',  'inst', 'm2/s2')
-      call history_add_field('PBLH',        'PBL height',                                     horiz_only,  'inst', 'm')
-      call history_add_field('TPERT',       'Perturbation temperature (eddies in PBL)',       horiz_only,  'inst', 'K')
-      call history_add_field('QPERT',       'Perturbation specific humidity (eddies in PBL)', horiz_only,  'inst', 'kg/kg')
 
       ! Pre-PBL profiles
       call history_add_field('qt_pre_PBL',  'Total water mixing ratio before PBL',                'lev',   'inst', 'kg/kg')
@@ -112,14 +108,14 @@ contains
              const_props, &
              latvap, latice, zvir, cpair, gravit, rair, &
              pmid, pint, zi, zm, &
-             kvh, kvm, cgh, cgs, tke, pblh, tpert, qpert, &
+             kvh, kvm, cgh, cgs, &
              cam_in_shf, cam_in_cflx, &
              tautotx, tautoty, &
              t0, &
              q0, s0, u0, v0, &
              q1, s1, u1, v1, &
              dtk, &
-             tend_s, tend_u, tend_v, tend_q_wv, tend_q_cldliq, tend_q_cldice, &
+             tend_s, tend_u, tend_v, tend_q, &
              errmsg, errflg)
 
       use cam_history, only: history_out_field
@@ -157,10 +153,6 @@ contains
       real(kind_phys),  intent(in) :: kvm(:, :)               ! Eddy diffusivity for momentum at interfaces [m2 s-1]
       real(kind_phys),  intent(in) :: cgh(:, :)               ! Counter-gradient term for heat [K m s-1]
       real(kind_phys),  intent(in) :: cgs(:, :)               ! Counter-gradient star [s m-2]
-      real(kind_phys),  intent(in) :: tke(:, :)               ! Turbulent kinetic energy at interfaces [m2 s-2]
-      real(kind_phys),  intent(in) :: pblh(:)                 ! PBL height [m]
-      real(kind_phys),  intent(in) :: tpert(:)                ! Temperature perturbation [K]
-      real(kind_phys),  intent(in) :: qpert(:)                ! Moisture perturbation [kg kg-1]
 
       ! Surface fluxes from coupler
       real(kind_phys),  intent(in) :: cam_in_shf(:)           ! Surface sensible heat flux [W m-2]
@@ -191,9 +183,7 @@ contains
       real(kind_phys),  intent(in) :: tend_s(:, :)            ! Dry static energy tendency [J kg-1 s-1]
       real(kind_phys),  intent(in) :: tend_u(:, :)            ! Zonal wind tendency [m s-2]
       real(kind_phys),  intent(in) :: tend_v(:, :)            ! Meridional wind tendency [m s-2]
-      real(kind_phys),  intent(in) :: tend_q_wv(:, :)         ! Water vapor tendency [kg kg-1 s-1]
-      real(kind_phys),  intent(in) :: tend_q_cldliq(:, :)     ! Cloud liquid water tendency [kg kg-1 s-1]
-      real(kind_phys),  intent(in) :: tend_q_cldice(:, :)     ! Cloud ice water tendency [kg kg-1 s-1]
+      real(kind_phys),  intent(in) :: tend_q(:, :, :)         ! Constituent tendency from vertical diffusion [kg kg-1 s-1]
 
       ! Error handling
       character(len=512), intent(out) :: errmsg
@@ -237,6 +227,16 @@ contains
       real(kind_phys) :: cam_in_cflx_cldliq(ncol)
       real(kind_phys) :: cam_in_cflx_cldice(ncol)
 
+      ! Subset q0, q1, tendencies for constituents from coupler
+      real(kind_phys) :: q0_wv(ncol, pver)
+      real(kind_phys) :: q0_cldliq(ncol, pver)
+      real(kind_phys) :: q0_cldice(ncol, pver)
+      real(kind_phys) :: q1_cldliq(ncol, pver)
+      real(kind_phys) :: q1_cldice(ncol, pver)
+      real(kind_phys) :: tend_q_wv(ncol, pver)
+      real(kind_phys) :: tend_q_cldliq(ncol, pver)
+      real(kind_phys) :: tend_q_cldice(ncol, pver)
+
       errmsg = ''
       errflg = 0
 
@@ -259,21 +259,36 @@ contains
       ! Extract constituent fluxes from coupler upward constituent fluxes
       if(const_wv_idx > 0) then
         cam_in_cflx_wv(:ncol)     = cam_in_cflx(:ncol, const_wv_idx)
+        q0_wv(:ncol, :)           = q0(:ncol, :, const_wv_idx)
+        tend_q_wv(:ncol, :)       = tend_q(:ncol, :, const_wv_idx)
       else
         cam_in_cflx_wv(:ncol)     = 0._kind_phys
+        q0_wv(:ncol, :) = 0._kind_phys
+        tend_q_wv(:ncol, :) = 0._kind_phys
       endif
 
       if(const_cldliq_idx > 0) then
         cam_in_cflx_cldliq(:ncol) = cam_in_cflx(:ncol, const_cldliq_idx)
+        q0_cldliq(:ncol, :)       = q0(:ncol, :, const_cldliq_idx)
+        q1_cldliq(:ncol, :)       = q1(:ncol, :, const_cldliq_idx)
+        tend_q_cldliq(:ncol, :)   = tend_q(:ncol, :, const_cldliq_idx)
       else
         cam_in_cflx_cldliq(:ncol) = 0._kind_phys
-
+        q0_cldliq(:ncol, :) = 0._kind_phys
+        q1_cldliq(:ncol, :) = 0._kind_phys
+        tend_q_cldliq(:ncol, :) = 0._kind_phys
       endif
 
       if(const_cldice_idx > 0) then
         cam_in_cflx_cldice(:ncol) = cam_in_cflx(:ncol, const_cldice_idx)
+        q0_cldice(:ncol, :)       = q0(:ncol, :, const_cldice_idx)
+        q1_cldice(:ncol, :)       = q1(:ncol, :, const_cldice_idx)
+        tend_q_cldice(:ncol, :)   = tend_q(:ncol, :, const_cldice_idx)
       else
         cam_in_cflx_cldice(:ncol) = 0._kind_phys
+        q0_cldice(:ncol, :) = 0._kind_phys
+        q1_cldice(:ncol, :) = 0._kind_phys
+        tend_q_cldice(:ncol, :) = 0._kind_phys
       endif
 
       ! Call the diagnostic profile calculation subroutine
@@ -303,15 +318,14 @@ contains
            tautotx              = tautotx(:ncol), & ! total surface stresses to PBL coefficient scheme, not from provisional
            tautoty              = tautoty(:ncol), & ! total surface stresses to PBL coefficient scheme, not from provisional
            t0                   = t0(:ncol, :pver), &
-           q0_wv                = q0_wv(:ncol, :pver), & ! xxx
-           q0_cldliq            = q0_cldliq(:ncol, :pver), & ! xxx
-           q0_cldice            = q0_cldice(:ncol, :pver), & ! xxx
+           q0_wv                = q0_wv(:ncol, :pver), &
+           q0_cldliq            = q0_cldliq(:ncol, :pver), &
+           q0_cldice            = q0_cldice(:ncol, :pver), &
            s0                   = s0(:ncol, :pver), &
            u0                   = u0(:ncol, :pver), &
            v0                   = v0(:ncol, :pver), &
-           q1_wv                = q1_wv(:ncol, :pver), & ! xxx
-           q1_cldliq            = q1_cldliq(:ncol, :pver), & ! xxx
-           q1_cldice            = q1_cldice(:ncol, :pver), & ! xxx
+           q1_cldliq            = q1_cldliq(:ncol, :pver), &
+           q1_cldice            = q1_cldice(:ncol, :pver), &
            s1                   = s1(:ncol, :pver), &
            u1                   = u1(:ncol, :pver), &
            v1                   = v1(:ncol, :pver), &
@@ -347,9 +361,7 @@ contains
            slten                = slten(:ncol, :pver), &
            qtten                = qtten(:ncol, :pver), &
            tten                 = tten(:ncol, :pver), &
-           rhten                = rhten(:ncol, :pver), &
-           errmsg               = errmsg, &
-           errflg               = errflg)
+           rhten                = rhten(:ncol, :pver))
 
       ! Standard output variables
       call history_out_field('QT',          qt_aft_PBL)
@@ -359,10 +371,6 @@ contains
       call history_out_field('QTFLX',       qtflx)
       call history_out_field('UFLX',        uflx)
       call history_out_field('VFLX',        vflx)
-      call history_out_field('TKE',         tke)
-      call history_out_field('PBLH',        pblh)
-      call history_out_field('TPERT',       tpert)
-      call history_out_field('QPERT',       qpert)
 
       ! Post-PBL profiles
       call history_out_field('sl_aft_PBL',  sl_aft_PBL)
