@@ -120,7 +120,6 @@ subroutine rrtmgp_sw_mcica_subcol_gen_run(dosw, kdist_sw, nswbands, nswgpts, nda
       ! set asymmetry to zero when tauc = 0
       asmc = merge(asmc, 0.0_kind_phys, tauc > 0.0_kind_phys)
 
-      m number of CAM's layers in radiation calculation.  Does not include the "extra layer".
       nver = pver - ktopcam + 1
 
       ! clip cloud fraction

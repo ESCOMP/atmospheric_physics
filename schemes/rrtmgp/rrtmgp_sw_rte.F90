@@ -1,18 +1,18 @@
-!> \file rrtmgp_sw_main.F90
+!> \file rrtmgp_sw_rte.F90
 !!
 
 !> This module contains the call to the RRTMGP-sw radiation routine
-module rrtmgp_sw_main
+module rrtmgp_sw_rte
   implicit none
   private
 
-  public rrtmgp_sw_main_run
+  public rrtmgp_sw_rte_run
 contains
 
-!> \section arg_table_rrtmgp_sw_main_run Argument Table
-!! \htmlinclude rrtmgp_sw_main_run.html
+!> \section arg_table_rrtmgp_sw_rte_run Argument Table
+!! \htmlinclude rrtmgp_sw_rte_run.html
 !!
-   subroutine rrtmgp_sw_main_run(doswrad, doswclrsky, doswallsky, nday, iter_num, rrtmgp_phys_blksz, sw_optical_props, &
+   subroutine rrtmgp_sw_rte_run(doswrad, doswclrsky, doswallsky, nday, iter_num, rrtmgp_phys_blksz, sw_optical_props, &
                                  sw_optical_props_clouds, top_at_1, aersw, coszen, toa_src_sw,      &
                                  sfc_alb_dir, sfc_alb_dif, flux_clrsky, flux_allsky, errmsg, errflg)
     use machine,                  only: kind_phys
@@ -66,7 +66,7 @@ contains
     ! ###################################################################################
     ! Increment optics (always)
     errmsg = aersw%optical_props%increment(sw_optical_props%optical_props)
-    call check_error_msg('rrtmgp_sw_main_increment_aerosol_to_clrsky', errmsg)
+    call check_error_msg('rrtmgp_sw_rte_increment_aerosol_to_clrsky', errmsg)
     if (len_trim(errmsg) /= 0) then
         errflg = 1
         return
@@ -74,7 +74,7 @@ contains
 
     ! Optionally compute clear-sky fluxes
     if (doswclrsky) then
-       call check_error_msg('rrtmgp_sw_main_rte_sw_clrsky',rte_sw(     &
+       call check_error_msg('rrtmgp_sw_rte_rte_sw_clrsky',rte_sw(     &
                   sw_optical_props%optical_props,    & ! IN  - optical-properties
                   top_at_1,                          & ! IN  - veritcal ordering flag
                   coszen(iCol:iCol2),                      & ! IN  - Cosine of solar zenith angle
@@ -96,14 +96,14 @@ contains
 
     if (doswallsky) then
        ! Delta scale
-       !call check_error_msg('rrtmgp_sw_main_delta_scale',sw_optical_props_clouds%delta_scale())
+       !call check_error_msg('rrtmgp_sw_rte_delta_scale',sw_optical_props_clouds%delta_scale())
 
        ! Increment
-       call check_error_msg('rrtmgp_sw_main_increment_clouds_to_clrsky', &
+       call check_error_msg('rrtmgp_sw_rte_increment_clouds_to_clrsky', &
             sw_optical_props_clouds%optical_props%increment(sw_optical_props%optical_props))
 
        ! Compute fluxes
-       call check_error_msg('rrtmgp_sw_main_rte_sw_allsky',rte_sw(     &
+       call check_error_msg('rrtmgp_sw_rte_rte_sw_allsky',rte_sw(     &
             sw_optical_props%optical_props,  & ! IN  - optical-properties
             top_at_1,                        & ! IN  - veritcal ordering flag
             coszen(iCol:iCol2),              & ! IN  - Cosine of solar zenith angle
@@ -117,5 +117,5 @@ contains
        end if
     end if
 
-  end subroutine rrtmgp_sw_main_run
-end module rrtmgp_sw_main
+  end subroutine rrtmgp_sw_rte_run
+end module rrtmgp_sw_rte
