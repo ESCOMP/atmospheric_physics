@@ -14,6 +14,7 @@ contains
                   pverp, ktoprad, ktopcam, dolw, nradgas, gas_concs, errmsg, errflg)
     use ccpp_kinds,              only: kind_phys
     use ccpp_gas_concentrations, only: ty_gas_concs_ccpp
+    use radiation_utils,         only: get_molar_mass_ratio
 
     ! Set gas vmr for the gases in the radconstants module's gaslist.
 
@@ -124,58 +125,5 @@ contains
     end do
 
   end subroutine rrtmgp_lw_gas_optics_pre_run
-
-!=========================================================================================
-
-  subroutine get_molar_mass_ratio(gas_name, massratio, errmsg, errflg)
-    use ccpp_kinds,              only: kind_phys
-
-    ! return the molar mass ratio of dry air to gas based on gas_name
-
-    character(len=*), intent(in)  :: gas_name
-    real(kind_phys),  intent(out) :: massratio
-    character(len=*), intent(out) :: errmsg
-    integer,          intent(out) :: errflg
-
-    ! local variables
-    real(kind_phys), parameter :: amdw = 1.607793_kind_phys    ! Molecular weight of dry air / water vapor
-    real(kind_phys), parameter :: amdc = 0.658114_kind_phys    ! Molecular weight of dry air / carbon dioxide
-    real(kind_phys), parameter :: amdo = 0.603428_kind_phys    ! Molecular weight of dry air / ozone
-    real(kind_phys), parameter :: amdm = 1.805423_kind_phys    ! Molecular weight of dry air / methane
-    real(kind_phys), parameter :: amdn = 0.658090_kind_phys    ! Molecular weight of dry air / nitrous oxide
-    real(kind_phys), parameter :: amdo2 = 0.905140_kind_phys   ! Molecular weight of dry air / oxygen
-    real(kind_phys), parameter :: amdc1 = 0.210852_kind_phys   ! Molecular weight of dry air / CFC11
-    real(kind_phys), parameter :: amdc2 = 0.239546_kind_phys   ! Molecular weight of dry air / CFC12
-
-    character(len=*), parameter :: sub='get_molar_mass_ratio'
-    !----------------------------------------------------------------------------
-    ! Set error variables
-    errmsg = ''
-    errflg = 0
-
-    select case (trim(gas_name)) 
-       case ('H2O') 
-          massratio = amdw
-       case ('CO2')
-          massratio = amdc
-       case ('O3')
-          massratio = amdo
-       case ('CH4')
-          massratio = amdm
-       case ('N2O')
-          massratio = amdn
-       case ('O2')
-          massratio = amdo2
-       case ('CFC11')
-          massratio = amdc1
-       case ('CFC12')
-          massratio = amdc2
-       case default
-          write(errmsg, '(a,a,a)') sub, ': Invalid gas: ', trim(gas_name)
-          errflg = 1
-    end select
-
-end subroutine get_molar_mass_ratio
-
 
 end module rrtmgp_lw_gas_optics_pre

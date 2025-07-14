@@ -23,19 +23,19 @@ contains
     use radiation_tools,          only: check_error_msg
 
     ! Inputs
-    logical, intent(in) :: doswrad               !< Flag to perform longwave calculation
-    logical, intent(in) :: doswclrsky            !< Flag to compute clear-sky fluxes
-    logical, intent(in) :: doswallsky            !< Flag to compute all-sky fluxes
-    logical, intent(in) :: top_at_1              !< Flag for vertical ordering convention
+    logical, intent(in) :: doswrad                                              !< Flag to perform shortwave calculation
+    logical, intent(in) :: doswclrsky                                           !< Flag to compute clear-sky fluxes
+    logical, intent(in) :: doswallsky                                           !< Flag to compute all-sky fluxes
+    logical, intent(in) :: top_at_1                                             !< Flag for vertical ordering convention
 
-    integer, intent(in) :: nday                  !< Number of horizontal daylight points
-    integer, intent(in) :: iter_num              !< Radiation subcycle iteration number
-    integer, intent(in) :: rrtmgp_phys_blksz     !< Number of horizontal points to process at once
+    integer, intent(in) :: nday                                                 !< Number of horizontal daylight points
+    integer, intent(in) :: iter_num                                             !< Radiation subcycle iteration number
+    integer, intent(in) :: rrtmgp_phys_blksz                                    !< Number of horizontal points to process at once
 
-    real(kind_phys), dimension(:,:),   intent(in) :: toa_src_sw
-    real(kind_phys), dimension(:,:),   intent(in) :: sfc_alb_dir
-    real(kind_phys), dimension(:,:),   intent(in) :: sfc_alb_dif
-    real(kind_phys), dimension(:),     intent(in) :: coszen
+    real(kind_phys), dimension(:,:),   intent(in) :: toa_src_sw                 !< Top-of-atmosphere flux on g-points [W m-2]
+    real(kind_phys), dimension(:,:),   intent(in) :: sfc_alb_dir                !< Albedo direct at surface [fraction]
+    real(kind_phys), dimension(:,:),   intent(in) :: sfc_alb_dif                !< Albedo diffuse at surface [fraction]
+    real(kind_phys), dimension(:),     intent(in) :: coszen                     !< Cosine of solar zenith angle for daytime points
 
     ! Outputs
     class(ty_fluxes_byband_ccpp),      intent(inout) :: flux_allsky             !< All-sky flux [W m-2]

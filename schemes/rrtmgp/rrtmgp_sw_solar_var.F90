@@ -27,9 +27,9 @@ contains
 
   subroutine rrtmgp_sw_solar_var_init(nswbands, do_spctrl_scaling, has_spectrum, errmsg, errflg)
     use radiation_utils,   only : get_sw_spectral_boundaries_ccpp
-    integer, intent(in) :: nswbands
-    logical, intent(in) :: do_spctrl_scaling
-    logical, intent(in) :: has_spectrum
+    integer, intent(in) :: nswbands            ! number of shortwave bands
+    logical, intent(in) :: do_spctrl_scaling   ! flag to do spectral scaling
+    logical, intent(in) :: has_spectrum        ! flag for whether solar input file has irradiance spectrum
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
@@ -84,16 +84,16 @@ contains
                                      sfac, eccf, errmsg, errflg)
 
      ! Arguments 
-     real(kind_phys),    intent(inout) :: toa_flux(:,:) ! TOA flux to be scaled (columns,gpts)
-     real(kind_phys),    intent(in)    :: sol_tsi
-     real(kind_phys),    intent(in)    :: sol_irrad(:)
-     real(kind_phys),    intent(in)    :: we(:)
-     integer,            intent(in)    :: nbins
-     integer,            intent(in)    :: band2gpt_sw(:,:)
-     integer,            intent(in)    :: nswbands
-     logical,            intent(in)    :: do_spctrl_scaling
-     real(kind_phys),    intent(in)    :: eccf
-     real(kind_phys),    intent(out)   :: sfac(:,:)     ! scaling factors (columns,gpts)
+     real(kind_phys),    intent(inout) :: toa_flux(:,:)         ! top-of-atmosphere flux to be scaled (columns,gpts)
+     real(kind_phys),    intent(in)    :: sol_tsi               ! total solar irradiance
+     real(kind_phys),    intent(in)    :: sol_irrad(:)          ! solar irradiance
+     real(kind_phys),    intent(in)    :: we(:)                 ! wavelength endpoints
+     integer,            intent(in)    :: nbins                 ! number of bins
+     integer,            intent(in)    :: band2gpt_sw(:,:)      ! array for converting shortwave band limits to g-points
+     integer,            intent(in)    :: nswbands              ! number of shortwave bands
+     logical,            intent(in)    :: do_spctrl_scaling     ! flag to do spectral scaling
+     real(kind_phys),    intent(in)    :: eccf                  ! eccentricity factor
+     real(kind_phys),    intent(out)   :: sfac(:,:)             ! scaling factors (columns,gpts)
      character(len=512), intent(out)   :: errmsg
      integer,            intent(out)   :: errflg
 

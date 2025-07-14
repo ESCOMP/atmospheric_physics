@@ -30,61 +30,62 @@ contains
 subroutine rrtmgp_sw_cloud_optics_run(dosw, ncol, pver, ktopcam, ktoprad, nlay, nswgpts, nday, idxday, fillvalue, &
    nswbands, iulog, pgam, lamc, nnite, idxnite, cld, cldfsnow, cldfgrau, cldfprime, cld_tau, grau_tau, &
    snow_tau, degrau, dei, des, iclwpth, iciwpth, icswpth, icgrauwpth, tiny_in, ext_sw_liq, ssa_sw_liq, &
-   asm_sw_liq, ext_sw_ice, asm_sw_ice, ssa_sw_ice, g_mu, g_d_eff, g_lambda, idx_sw_diag, do_graupel, do_snow, kdist_sw, c_cld_tau, c_cld_tau_w, c_cld_tau_w_g, &
-   tot_cld_vistau, tot_icld_vistau, liq_icld_vistau, ice_icld_vistau, snow_icld_vistau, grau_icld_vistau, errmsg, errflg)
+   asm_sw_liq, ext_sw_ice, asm_sw_ice, ssa_sw_ice, g_mu, g_d_eff, g_lambda, idx_sw_diag, do_graupel,   &
+   do_snow, kdist_sw, c_cld_tau, c_cld_tau_w, c_cld_tau_w_g, tot_cld_vistau, tot_icld_vistau,          &
+   liq_icld_vistau, ice_icld_vistau, snow_icld_vistau, grau_icld_vistau, errmsg, errflg)
    use ccpp_gas_optics_rrtmgp,   only: ty_gas_optics_rrtmgp_ccpp
    use ccpp_optical_props,       only: ty_optical_props_2str_ccpp
 
    ! Compute combined cloud optical properties.
 
    ! arguments
-   integer,  intent(in) :: nlay           ! number of layers in radiation calculation (may include "extra layer")
-   integer,  intent(in) :: nday           ! number of daylight columns
-   integer,  intent(in) :: idxday(:)  ! indices of daylight columns in the chunk
-   integer,  intent(in) :: nswgpts
-   integer,  intent(in) :: pver
-   integer,  intent(in) :: ktopcam
-   integer,  intent(in) :: ktoprad
-   integer,  intent(in) :: nswbands
-   integer,  intent(in) :: nnite          ! number of night columns
-   integer,  intent(in) :: idxnite(:) ! indices of night columns in the chunk
-   integer,  intent(in) :: iulog
-   integer,  intent(in) :: idx_sw_diag
+   integer,  intent(in) :: nlay                      ! Number of layers in radiation calculation (may include "extra layer")
+   integer,  intent(in) :: nday                      ! Number of daylight columns
+   integer,  intent(in) :: idxday(:)                 ! Indices of daylight columns
+   integer,  intent(in) :: nswgpts                   ! Number of shortwave g-points
+   integer,  intent(in) :: pver                      ! Number of vertical layers
+   integer,  intent(in) :: ktopcam                   ! Index in CAM arrays of top level (layer or interface) at which RRTMGP is active
+   integer,  intent(in) :: ktoprad                   ! Index in RRTMGP array corresponding to top layer or interface of CAM arrays
+   integer,  intent(in) :: nswbands                  ! Number of shortwve bands
+   integer,  intent(in) :: nnite                     ! Number of night columns
+   integer,  intent(in) :: idxnite(:)                ! Indices of night columns in the chunk
+   integer,  intent(in) :: iulog                     ! Logging unit
+   integer,  intent(in) :: idx_sw_diag               ! Index for band that contains 500-nm wave
 
-   logical,  intent(in) :: do_snow
-   logical,  intent(in) :: do_graupel
-   logical,  intent(in) :: dosw
+   logical,  intent(in) :: do_snow                   ! Flag to include snow in radiation calculation
+   logical,  intent(in) :: do_graupel                ! Flag to include graupel in radiation calculation
+   logical,  intent(in) :: dosw                      ! Flag to do shortwave radiation this timestep
 
-   real(kind_phys), intent(in) :: fillvalue
-   real(kind_phys), intent(in) :: tiny_in
+   real(kind_phys), intent(in) :: fillvalue          ! Fill value for night columns
+   real(kind_phys), intent(in) :: tiny_in            ! Definition of tiny for RRTMGP
 
-   real(kind_phys), intent(in) :: g_mu(:)
-   real(kind_phys), intent(in) :: g_d_eff(:)
-   real(kind_phys), intent(in) :: g_lambda(:,:)
-   real(kind_phys), intent(in) :: lamc(:,:)
-   real(kind_phys), intent(in) :: pgam(:,:)
-   real(kind_phys), intent(in) :: dei(:,:)
-   real(kind_phys), intent(in) :: des(:,:)
-   real(kind_phys), intent(in) :: degrau(:,:)
-   real(kind_phys), intent(in) :: iclwpth(:,:)
-   real(kind_phys), intent(in) :: iciwpth(:,:)
-   real(kind_phys), intent(in) :: icswpth(:,:)
-   real(kind_phys), intent(in) :: icgrauwpth(:,:)
-   real(kind_phys), intent(in) :: cld(:,:)      ! cloud fraction (liq+ice)
-   real(kind_phys), intent(in) :: cldfsnow(:,:) ! cloud fraction of just "snow clouds"
-   real(kind_phys), intent(in) :: cldfgrau(:,:) ! cloud fraction of just "graupel clouds"
-   real(kind_phys), intent(in) :: cldfprime(:,:) ! combined cloud fraction
-   real(kind_phys), intent(in) :: ext_sw_liq(:,:,:)
-   real(kind_phys), intent(in) :: asm_sw_liq(:,:,:)
-   real(kind_phys), intent(in) :: ssa_sw_liq(:,:,:)
-   real(kind_phys), intent(in) :: ext_sw_ice(:,:)
-   real(kind_phys), intent(in) :: asm_sw_ice(:,:)
-   real(kind_phys), intent(in) :: ssa_sw_ice(:,:)
+   real(kind_phys), intent(in) :: g_mu(:)            ! Gamma distribution shape parameter on liquid optics grid [unitless]
+   real(kind_phys), intent(in) :: g_d_eff(:)         ! Radiative effective diameter samples on ice optics grid [microns]
+   real(kind_phys), intent(in) :: g_lambda(:,:)      ! Gamma distribution slope parameter on liquid optics grid [m-1]
+   real(kind_phys), intent(in) :: lamc(:,:)          ! Prognosed value of lambda for cloud [unitless]
+   real(kind_phys), intent(in) :: pgam(:,:)          ! Prognosed value of mu for cloud [unitless]
+   real(kind_phys), intent(in) :: dei(:,:)           ! Mean effective radius for ice cloud [micron]
+   real(kind_phys), intent(in) :: des(:,:)           ! Mean effective radius for snow [micron]
+   real(kind_phys), intent(in) :: degrau(:,:)        ! Mean effective radius for graupel [micron]
+   real(kind_phys), intent(in) :: iclwpth(:,:)       ! In-cloud liquid water path [kg m-2]
+   real(kind_phys), intent(in) :: iciwpth(:,:)       ! In-cloud ice water path [kg m-2]
+   real(kind_phys), intent(in) :: icswpth(:,:)       ! In-cloud snow water path [kg m-2]
+   real(kind_phys), intent(in) :: icgrauwpth(:,:)    ! In-cloud graupel water path [kg m-2]
+   real(kind_phys), intent(in) :: cld(:,:)           ! Cloud fraction (liq+ice) [fraction]
+   real(kind_phys), intent(in) :: cldfsnow(:,:)      ! Cloud fraction of just "snow clouds" [fraction]
+   real(kind_phys), intent(in) :: cldfgrau(:,:)      ! Cloud fraction of just "graupel clouds" [fraction]
+   real(kind_phys), intent(in) :: cldfprime(:,:)     ! Combined cloud fraction [fraction]
+   real(kind_phys), intent(in) :: ext_sw_liq(:,:,:)  ! Shortwave liquid extinction [m2 kg-1]
+   real(kind_phys), intent(in) :: asm_sw_liq(:,:,:)  ! Shortwave liquid asymmetry parameter [fraction]
+   real(kind_phys), intent(in) :: ssa_sw_liq(:,:,:)  ! Shortwave liquid single scattering albedo [fraction]
+   real(kind_phys), intent(in) :: ext_sw_ice(:,:)    ! Shortwave ice extinction [m2 kg-1]
+   real(kind_phys), intent(in) :: asm_sw_ice(:,:)    ! Shortwave ice asymmetry parameter [fraction]
+   real(kind_phys), intent(in) :: ssa_sw_ice(:,:)    ! Shortwave ice single scattering albedo [fraction]
 
-   class(ty_gas_optics_rrtmgp_ccpp), intent(in)  :: kdist_sw  ! shortwave gas optics object
-   real(kind_phys),                  intent(out) :: cld_tau(:,:,:)       !
-   real(kind_phys),                  intent(out) :: snow_tau(:,:,:)      ! snow extinction optical depth
-   real(kind_phys),                  intent(out) :: grau_tau(:,:,:)      !
+   class(ty_gas_optics_rrtmgp_ccpp), intent(in)  :: kdist_sw             ! shortwave gas optics object
+   real(kind_phys),                  intent(out) :: cld_tau(:,:,:)       ! liquid + ice optical depth
+   real(kind_phys),                  intent(out) :: snow_tau(:,:,:)      ! snow optical depth
+   real(kind_phys),                  intent(out) :: grau_tau(:,:,:)      ! graupel optical depth
    real(kind_phys),                  intent(out) :: c_cld_tau(:,:,:)     ! combined cloud extinction optical depth
    real(kind_phys),                  intent(out) :: c_cld_tau_w  (:,:,:) ! combined cloud single scattering albedo * tau
    real(kind_phys),                  intent(out) :: c_cld_tau_w_g(:,:,:) ! combined cloud asymmetry parameter * w * tau

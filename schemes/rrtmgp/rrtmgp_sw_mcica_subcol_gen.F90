@@ -1,5 +1,4 @@
 module rrtmgp_sw_mcica_subcol_gen
-use cam_logfile, only: iulog
 
 implicit none
 private
@@ -27,23 +26,23 @@ subroutine rrtmgp_sw_mcica_subcol_gen_run(dosw, kdist_sw, nswbands, nswgpts, nda
 
    ! arguments
    class(ty_gas_optics_rrtmgp_ccpp), intent(in)  :: kdist_sw             ! shortwave gas optics object
-   integer,                          intent(in)  :: nswbands
-   integer,                          intent(in)  :: nswgpts
+   integer,                          intent(in)  :: nswbands             ! number of shortwave bands
+   integer,                          intent(in)  :: nswgpts              ! number of shortwave g-points
    integer,                          intent(in)  :: nlay                 ! number of layers in radiation calculation (may include "extra layer")
    integer,                          intent(in)  :: nday                 ! number of daylight columns
-   integer,                          intent(in)  :: pver
-   integer,                          intent(in)  :: ktopcam
-   integer,                          intent(in)  :: ktoprad
+   integer,                          intent(in)  :: pver                 ! total number of vertical layers
+   integer,                          intent(in)  :: ktopcam              ! index in CAM arrays of top level (layer or interface) at which RRTMGP is active
+   integer,                          intent(in)  :: ktoprad              ! index in RRTMGP array corresponding to top layer or interface of CAM arrays
    integer,                          intent(in)  :: idxday(:)            ! indices of daylight columns in the chunk
-   real(kind_phys),                  intent(in)  :: tiny
-   real(kind_phys),                  intent(in)  :: c_cld_tau(:,:,:)
-   real(kind_phys),                  intent(in)  :: c_cld_tau_w(:,:,:)
-   real(kind_phys),                  intent(in)  :: c_cld_tau_w_g(:,:,:)
+   real(kind_phys),                  intent(in)  :: tiny                 ! definition of tiny in RRTMGP
+   real(kind_phys),                  intent(in)  :: c_cld_tau(:,:,:)     ! combined cloud extinction optical depth
+   real(kind_phys),                  intent(in)  :: c_cld_tau_w(:,:,:)   ! combined cloud single scattering albedo * tau
+   real(kind_phys),                  intent(in)  :: c_cld_tau_w_g(:,:,:) ! combined cloud asymmetry parameter * w * tau
    real(kind_phys),                  intent(in)  :: cldfprime(:,:)       ! combined cloud fraction
-   real(kind_phys),                  intent(in)  :: pmid(:,:)
-   logical,                          intent(in)  :: dosw
+   real(kind_phys),                  intent(in)  :: pmid(:,:)            ! air ressure at mid-points [Pa]
+   logical,                          intent(in)  :: dosw                 ! Flag to do shortwave radiation this timestep
 
-   type(ty_optical_props_2str_ccpp), intent(inout) :: cloud_sw  ! SW cloud optical properties object
+   type(ty_optical_props_2str_ccpp), intent(inout) :: cloud_sw           ! SW cloud optical properties object
    character(len=512),               intent(out)   :: errmsg
    integer,                          intent(out)   :: errflg
 
@@ -121,7 +120,7 @@ subroutine rrtmgp_sw_mcica_subcol_gen_run(dosw, kdist_sw, nswbands, nswgpts, nda
       ! set asymmetry to zero when tauc = 0
       asmc = merge(asmc, 0.0_kind_phys, tauc > 0.0_kind_phys)
 
-      ! number of CAM's layers in radiation calculation.  Does not include the "extra layer".
+      m number of CAM's layers in radiation calculation.  Does not include the "extra layer".
       nver = pver - ktopcam + 1
 
       ! clip cloud fraction

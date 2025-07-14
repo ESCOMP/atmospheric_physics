@@ -25,13 +25,13 @@ contains
     use mo_rte_kind,             only: wl
 
     ! Inputs
-    character(len=*),                    intent(in) :: sw_filename                        ! Full path to RRTMGP longwave coefficients file
-    class(ty_gas_concs_ccpp),            intent(in) :: available_gases                    ! Gas concentrations object
+    character(len=*),                    intent(in) :: sw_filename                   ! Full path to RRTMGP longwave coefficients file
+    class(ty_gas_concs_ccpp),            intent(in) :: available_gases               ! Gas concentrations object
  
     ! Outputs
-    class(ty_gas_optics_rrtmgp_ccpp),  intent(inout) :: kdist                             ! RRTMGP gas optics object
-    character(len=*),                    intent(out) :: errmsg                            ! CCPP error message
-    integer,                             intent(out) :: errcode                            ! CCPP error code
+    class(ty_gas_optics_rrtmgp_ccpp),  intent(inout) :: kdist                        ! RRTMGP gas optics object
+    character(len=*),                    intent(out) :: errmsg                       ! CCPP error message
+    integer,                             intent(out) :: errcode                      ! CCPP error code
 
     ! Local variables
     class(abstract_netcdf_reader_t),   allocatable :: pio_reader
@@ -52,27 +52,27 @@ contains
     logical(wl),     dimension(:),     pointer :: scale_by_complement_lower          ! Absorption is scaled by concentration of scaling_gas (F) or its complement (T) in the lower atmosphere
     logical(wl),     dimension(:),     pointer :: minor_scales_with_density_upper    ! Density scaling is applied to minor absorption coefficients in the upper atmosphere
     logical(wl),     dimension(:),     pointer :: scale_by_complement_upper          ! Absorption is scaled by concentration of scaling_gas (F) or its complement (T) in the upper atmosphere
-    real(kind_phys), dimension(:,:,:,:), pointer :: kmajor                      ! Stored absorption coefficients due to major absorbing gases
-    real(kind_phys), dimension(:,:,:), pointer :: kminor_lower                  ! Transformed from [nTemp x nEta x nGpt x nAbsorbers] array to [nTemp x nEta x nContributors] array
-    real(kind_phys), dimension(:,:,:), pointer :: kminor_upper                  ! Transformed from [nTemp x nEta x nGpt x nAbsorbers] array to [nTemp x nEta x nContributors] array
-    real(kind_phys), dimension(:,:,:), pointer :: vmr_ref                       ! Volume mixing ratios for reference atmosphere
-    real(kind_phys), dimension(:,:),   pointer :: band_lims_wavenum             ! Beginning and ending wavenumber for each band [cm-1]
-    real(kind_phys), dimension(:),     pointer :: press_ref                     ! Pressures for reference atmosphere [Pa]
-    real(kind_phys), dimension(:),     pointer :: temp_ref                      ! Temperatures for reference atmosphere [K]
-    real(kind_phys), dimension(:),     pointer :: solar_src_quiet               ! Quiet sun term of incoming solar irradiance [W m-2]
-    real(kind_phys), dimension(:),     pointer :: solar_src_facular             ! Facular brightening term of incoming solar irradiance [W m-2]
-    real(kind_phys), dimension(:),     pointer :: solar_src_sunspot             ! Sunspot dimming term of incoming solar irradiance [W m-2]
-    real(kind_phys),                   pointer :: mg_default                    ! Mean value of Mg2 solar activity index [1]
-    real(kind_phys),                   pointer :: sb_default                    ! Mean value of sunspot index [1]
-    real(kind_phys),                   pointer :: tsi_default                   ! Default total solar irradiance [W m-2]
-    real(kind_phys),                   pointer :: press_ref_trop                ! Reference pressure separating the lower and upper atmosphere [Pa]
-    real(kind_phys),                   pointer :: temp_ref_p                    ! Standard spectroscopic reference pressure [Pa]
-    real(kind_phys),                   pointer :: temp_ref_t                    ! Standard spectroscopic reference temperature [K]
-    real(kind_phys), dimension(:,:,:), pointer :: rayl_lower                    ! Stored coefficients due to rayleigh scattering contribution in lower part of atmosphere
-    real(kind_phys), dimension(:,:,:), pointer :: rayl_upper                    ! Stored coefficients due to rayleigh scattering contribution in upper part of atmosphere
-    real(kind_phys), dimension(:,:,:), allocatable :: rayl_lower_allocatable    ! Stored coefficients due to rayleigh scattering contribution in lower part of atmosphere
-    real(kind_phys), dimension(:,:,:), allocatable :: rayl_upper_allocatable    ! Stored coefficients due to rayleigh scattering contribution in upper part of atmosphere
-    integer,             dimension(:), pointer :: int2log                       ! use this to convert integer-to-logical.
+    real(kind_phys), dimension(:,:,:,:), pointer :: kmajor                           ! Stored absorption coefficients due to major absorbing gases
+    real(kind_phys), dimension(:,:,:), pointer :: kminor_lower                       ! Transformed from [nTemp x nEta x nGpt x nAbsorbers] array to [nTemp x nEta x nContributors] array
+    real(kind_phys), dimension(:,:,:), pointer :: kminor_upper                       ! Transformed from [nTemp x nEta x nGpt x nAbsorbers] array to [nTemp x nEta x nContributors] array
+    real(kind_phys), dimension(:,:,:), pointer :: vmr_ref                            ! Volume mixing ratios for reference atmosphere
+    real(kind_phys), dimension(:,:),   pointer :: band_lims_wavenum                  ! Beginning and ending wavenumber for each band [cm-1]
+    real(kind_phys), dimension(:),     pointer :: press_ref                          ! Pressures for reference atmosphere [Pa]
+    real(kind_phys), dimension(:),     pointer :: temp_ref                           ! Temperatures for reference atmosphere [K]
+    real(kind_phys), dimension(:),     pointer :: solar_src_quiet                    ! Quiet sun term of incoming solar irradiance [W m-2]
+    real(kind_phys), dimension(:),     pointer :: solar_src_facular                  ! Facular brightening term of incoming solar irradiance [W m-2]
+    real(kind_phys), dimension(:),     pointer :: solar_src_sunspot                  ! Sunspot dimming term of incoming solar irradiance [W m-2]
+    real(kind_phys),                   pointer :: mg_default                         ! Mean value of Mg2 solar activity index [1]
+    real(kind_phys),                   pointer :: sb_default                         ! Mean value of sunspot index [1]
+    real(kind_phys),                   pointer :: tsi_default                        ! Default total solar irradiance [W m-2]
+    real(kind_phys),                   pointer :: press_ref_trop                     ! Reference pressure separating the lower and upper atmosphere [Pa]
+    real(kind_phys),                   pointer :: temp_ref_p                         ! Standard spectroscopic reference pressure [Pa]
+    real(kind_phys),                   pointer :: temp_ref_t                         ! Standard spectroscopic reference temperature [K]
+    real(kind_phys), dimension(:,:,:), pointer :: rayl_lower                         ! Stored coefficients due to rayleigh scattering contribution in lower part of atmosphere
+    real(kind_phys), dimension(:,:,:), pointer :: rayl_upper                         ! Stored coefficients due to rayleigh scattering contribution in upper part of atmosphere
+    real(kind_phys), dimension(:,:,:), allocatable :: rayl_lower_allocatable         ! Stored coefficients due to rayleigh scattering contribution in lower part of atmosphere
+    real(kind_phys), dimension(:,:,:), allocatable :: rayl_upper_allocatable         ! Stored coefficients due to rayleigh scattering contribution in upper part of atmosphere
+    integer,             dimension(:), pointer :: int2log                            ! use this to convert integer-to-logical.
     character(len=256)                         :: alloc_errmsg
     integer                                    :: idx
 
