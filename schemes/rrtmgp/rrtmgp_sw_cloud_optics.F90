@@ -59,11 +59,11 @@ subroutine rrtmgp_sw_cloud_optics_run(dosw, ncol, pver, ktopcam, ktoprad, nlay, 
    real(kind_phys), intent(in) :: fillvalue          ! Fill value for night columns
    real(kind_phys), intent(in) :: tiny_in            ! Definition of tiny for RRTMGP
 
-   real(kind_phys), intent(in) :: g_mu(:)            ! Gamma distribution shape parameter on liquid optics grid [unitless]
+   real(kind_phys), intent(in) :: g_mu(:)            ! Gamma distribution shape parameter on liquid optics grid [1]
    real(kind_phys), intent(in) :: g_d_eff(:)         ! Radiative effective diameter samples on ice optics grid [microns]
    real(kind_phys), intent(in) :: g_lambda(:,:)      ! Gamma distribution slope parameter on liquid optics grid [m-1]
-   real(kind_phys), intent(in) :: lamc(:,:)          ! Prognosed value of lambda for cloud [unitless]
-   real(kind_phys), intent(in) :: pgam(:,:)          ! Prognosed value of mu for cloud [unitless]
+   real(kind_phys), intent(in) :: lamc(:,:)          ! Prognosed value of lambda for cloud [1]
+   real(kind_phys), intent(in) :: pgam(:,:)          ! Prognosed value of mu for cloud [1]
    real(kind_phys), intent(in) :: dei(:,:)           ! Mean effective radius for ice cloud [micron]
    real(kind_phys), intent(in) :: des(:,:)           ! Mean effective radius for snow [micron]
    real(kind_phys), intent(in) :: degrau(:,:)        ! Mean effective radius for graupel [micron]

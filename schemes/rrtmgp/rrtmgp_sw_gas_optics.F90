@@ -54,7 +54,7 @@ contains
     real(kind_phys), dimension(:,:,:,:), pointer :: kmajor                           ! Stored absorption coefficients due to major absorbing gases
     real(kind_phys), dimension(:,:,:), pointer :: kminor_lower                       ! Transformed from [nTemp x nEta x nGpt x nAbsorbers] array to [nTemp x nEta x nContributors] array
     real(kind_phys), dimension(:,:,:), pointer :: kminor_upper                       ! Transformed from [nTemp x nEta x nGpt x nAbsorbers] array to [nTemp x nEta x nContributors] array
-    real(kind_phys), dimension(:,:,:), pointer :: vmr_ref                            ! Volume mixing ratios for reference atmosphere
+    real(kind_phys), dimension(:,:,:), pointer :: vmr_ref                            ! Volume mixing ratios for reference atmosphere [mol mol-1]
     real(kind_phys), dimension(:,:),   pointer :: band_lims_wavenum                  ! Beginning and ending wavenumber for each band [cm-1]
     real(kind_phys), dimension(:),     pointer :: press_ref                          ! Pressures for reference atmosphere [Pa]
     real(kind_phys), dimension(:),     pointer :: temp_ref                           ! Temperatures for reference atmosphere [K]
