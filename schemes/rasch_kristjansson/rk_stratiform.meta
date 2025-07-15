@@ -49,19 +49,19 @@
   intent = in
   advected = true
 [ qcwat ]
-  standard_name = water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_at_end_of_microphysics
+  standard_name = water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_on_previous_timestep
   units = kg kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ tcwat ]
-  standard_name = air_temperature_at_end_of_microphysics
+  standard_name = air_temperature_on_previous_timestep
   units = K
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ lcwat ]
-  standard_name = cloud_water_mixing_ratio_wrt_moist_air_and_condensed_water_at_end_of_microphysics
+  standard_name = cloud_water_mixing_ratio_wrt_moist_air_and_condensed_water_on_previous_timestep
   units = kg kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -99,7 +99,7 @@
   dimensions = (horizontal_loop_extent)
   intent = in
 [ snow_sed ]
-  standard_name = lwe_cloud_ice_sedimentation_rate_at_surface_due_to_microphysics
+  standard_name = stratiform_lwe_cloud_ice_surface_flux_due_to_sedimentation
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
@@ -290,13 +290,13 @@
   dimensions = (horizontal_loop_extent)
   intent = in
 [ shallowcu ]
-  standard_name = shallow_convective_cloud_area_fraction_tbd
+  standard_name = shallow_convective_cloud_area_fraction
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ deepcu ]
-  standard_name = deep_convective_cloud_area_fraction_tbd
+  standard_name = deep_convective_cloud_area_fraction
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -332,19 +332,19 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ relhum ]
-  standard_name = relative_humidity_for_prognostic_cloud_water_tbd
+  standard_name = relative_humidity
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ rhu00 ]
-  standard_name = relative_humidity_threshold_for_prognostic_cloud_water_tbd
+  standard_name = relative_humidity_threshold_for_cloud_formation
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rhdfda ]
-  standard_name = derivative_of_relative_humidity_wrt_cloud_fraction_tbd
+  standard_name = relative_humidity_divided_by_cloud_area_fraction_perturbation
   units = percent
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -412,37 +412,37 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ qcwat ]
-  standard_name = water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_at_end_of_microphysics
+  standard_name = water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_on_previous_timestep
   units = kg kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ tcwat ]
-  standard_name = air_temperature_at_end_of_microphysics
+  standard_name = air_temperature_on_previous_timestep
   units = K
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ lcwat ]
-  standard_name = cloud_water_mixing_ratio_wrt_moist_air_and_condensed_water_at_end_of_microphysics
+  standard_name = cloud_water_mixing_ratio_wrt_moist_air_and_condensed_water_on_previous_timestep
   units = kg kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ qtend ]
-  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_not_due_to_microphysics_tbd
+  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_not_due_to_microphysics
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ ttend ]
-  standard_name = tendency_of_air_temperature_not_due_to_microphysics_tbd
+  standard_name = tendency_of_air_temperature_not_due_to_microphysics
   units = K s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ ltend ]
-  standard_name = tendency_of_cloud_water_mixing_ratio_wrt_moist_air_and_condensed_water_not_due_to_microphysics_tbd
+  standard_name = tendency_of_cloud_water_mixing_ratio_wrt_moist_air_and_condensed_water_not_due_to_microphysics
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -510,7 +510,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ repartht ]
-  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_precipitation_repartitioning_tbd
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_cloud_ice_and_cloud_liquid_repartitioning
   units = J kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -592,43 +592,43 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ evapheat ]
-  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_precipitation_evaporation_tbd
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_evaporation_of_precipitation
   units = J kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ prfzheat ]
-  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_precipitation_freezing_tbd
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_freezing_of_precipitation
   units = J kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ meltheat ]
-  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_precipitation_phase_change_tbd
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_snow_melt
   units = J kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ repartht ]
-  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_precipitation_repartitioning_tbd
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_cloud_ice_and_cloud_liquid_repartitioning
   units = J kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ evapprec ]
-  standard_name = precipitation_evaporation_due_to_microphysics
+  standard_name = rate_of_evaporation_of_precipitation_due_to_microphysics
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ ice2pr ]
-  standard_name = tendency_of_cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_microphysics_tbd
+  standard_name = tendency_of_cloud_ice_mixing_ratio_wrt_to_moist_air_and_condensed_water_due_to_ice_to_snow_autoconversion
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ liq2pr ]
-  standard_name = tendency_of_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_microphysics_tbd
+  standard_name = tendency_of_cloud_liquid_water_mixing_ratio_wrt_to_moist_air_and_condensed_water_due_to_liquid_to_rain_autoconversion
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -658,19 +658,19 @@
   dimensions = (horizontal_loop_extent)
   intent = inout
 [ cmeheat ]
-  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_condensation_evaporation_within_stratiform_cloud_tbd
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_condensation_minus_evaporation
   units = J kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ cmeice ]
-  standard_name = rate_of_condensation_evaporation_of_cloud_ice_within_stratiform_cloud_tbd
+  standard_name = rate_of_condensation_minus_evaporation_for_cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ cmeliq ]
-  standard_name = rate_of_condensation_evaporation_of_cloud_liquid_water_within_stratiform_cloud_tbd
+  standard_name = rate_of_condensation_minus_evaporation_for_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -759,19 +759,19 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ qcwat ]
-  standard_name = water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_at_end_of_microphysics
+  standard_name = water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_on_previous_timestep
   units = kg kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ tcwat ]
-  standard_name = air_temperature_at_end_of_microphysics
+  standard_name = air_temperature_on_previous_timestep
   units = K
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ lcwat ]
-  standard_name = cloud_water_mixing_ratio_wrt_moist_air_and_condensed_water_at_end_of_microphysics
+  standard_name = cloud_water_mixing_ratio_wrt_moist_air_and_condensed_water_on_previous_timestep
   units = kg kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

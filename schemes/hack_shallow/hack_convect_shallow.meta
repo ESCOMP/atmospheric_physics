@@ -79,7 +79,7 @@
   dimensions = ()
   intent = out
 [ shfrc ]
-  standard_name = shallow_convective_cloud_area_fraction
+  standard_name = shallow_convective_cloud_area_fraction_from_shallow_convection
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_dimension, vertical_layer_dimension)

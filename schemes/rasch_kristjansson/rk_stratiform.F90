@@ -89,21 +89,23 @@ contains
     ! Input arguments
     integer,            intent(in)    :: ncol
     real(kind_phys),    intent(in)    :: sfliq(:)        ! stratiform_rain_flux_at_surface_due_to_sedimentation [kg m-2 s-1]
-    real(kind_phys),    intent(in)    :: snow_sed(:)     ! sfice = lwe_cloud_ice_sedimentation_rate_at_surface_due_to_microphysics [m s-1]
+    real(kind_phys),    intent(in)    :: snow_sed(:)     ! sfice = stratiform_lwe_cloud_ice_surface_flux_due_to_sedimentation [m s-1]
 
     ! Output arguments
     real(kind_phys),    intent(out)   :: prec_sed(:)     ! stratiform_cloud_water_surface_flux_due_to_sedimentation [m s-1]
     real(kind_phys),    intent(out)   :: prec_str(:)     ! lwe_large_scale_precipitation_rate_at_surface [m s-1]
     real(kind_phys),    intent(out)   :: snow_str(:)     ! lwe_snow_and_cloud_ice_precipitation_rate_at_surface_due_to_microphysics [m s-1]
-    character(len=512), intent(out)   :: errmsg         ! error message
-    integer,            intent(out)   :: errflg         ! error flag
+    character(len=512), intent(out)   :: errmsg          ! error message
+    integer,            intent(out)   :: errflg          ! error flag
+
+    real(kind_phys),    parameter     :: rhofw = 1000._kind_phys  ! density of fresh water [kg m-3]
 
     errmsg = ''
     errflg = 0
 
     ! Convert rain flux to precip units from mass units
     ! and create cloud water surface flux (rain + snow)
-    prec_sed(:ncol) = sfliq(:ncol)/1000._kind_phys + snow_sed(:ncol)
+    prec_sed(:ncol) = sfliq(:ncol)/rhofw + snow_sed(:ncol)
 
     ! Start accumulation of precipitation and snow flux [m s-1]
     prec_str(:ncol) = 0._kind_phys + prec_sed(:ncol)

@@ -1,5 +1,5 @@
 [ccpp-table-properties]
-  name = rrtmgp_lw_main
+  name = rrtmgp_lw_rte
   type = scheme
   dependencies = ../ccpp-physics/physics/Radiation/RRTMGP/rte-rrtmgp/rte-frontend/mo_rte_lw.F90
   dependencies = ../ccpp-physics/physics/Radiation/RRTMGP/rte-rrtmgp/rte-frontend/mo_rte_config.F90
@@ -14,7 +14,7 @@
   dependencies = ./objects/ccpp_fluxes.F90,./objects/ccpp_fluxes_byband.F90
 
 [ccpp-arg-table]
-  name  = rrtmgp_lw_main_run
+  name  = rrtmgp_lw_rte_run
   type  = scheme
 [ doLWrad ]
   standard_name = do_longwave_radiation
@@ -48,24 +48,6 @@
   intent = in
 [ nGauss_angles ]
   standard_name = number_of_gaussian_quadrature_angles_for_radiation
-  units = count
-  type = integer
-  dimensions = ()
-  intent = in
-[ nCol ]
-  standard_name = horizontal_loop_extent
-  units = count
-  type = integer
-  dimensions = ()
-  intent = in
-[ iter_num ]
-  standard_name = iteration_number_for_radiation_subcycle
-  units = count
-  type = integer
-  dimensions = ()
-  intent = in
-[ rrtmgp_phys_blksz ]
-  standard_name = number_of_columns_per_longwave_block_for_RRTMGP
   units = count
   type = integer
   dimensions = ()

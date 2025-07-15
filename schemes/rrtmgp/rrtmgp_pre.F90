@@ -179,7 +179,7 @@ CONTAINS
 
 subroutine radiation_do_ccpp(op, nstep, irad, irad_always, radiation_do, errmsg, errflg)
 
-   ! Return true if the specified operation is done this timestep.
+   ! Return radiation_do set to .true. if the specified operation is done this timestep.
 
    character(len=*),  intent(in) :: op             ! name of operation
    integer,           intent(in) :: nstep

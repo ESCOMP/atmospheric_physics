@@ -17,7 +17,7 @@ module rrtmgp_inputs
                   alb_dir, alb_dif, lwup, stebol, ncol, ktopcam, ktoprad, &
                   nswbands, asdir, asdif, sw_low_bounds, sw_high_bounds,  &
                   aldir, aldif, nlay, pverp, pver, cld, cldfsnow,         &
-                  cldfgrau, graupel_in_rad, gasnamelength, gaslist,       &
+                  cldfgrau, graupel_in_rad, gasnamelength, gaslist_lc,    &
                   gas_concs_lw, aer_lw, atm_optics_lw, kdist_lw,          &
                   sources_lw, aer_sw, atm_optics_sw, gas_concs_sw,        &
                   errmsg, errflg)
@@ -26,7 +26,6 @@ module rrtmgp_inputs
      use ccpp_optical_props,      only: ty_optical_props_1scl_ccpp, ty_optical_props_2str_ccpp
      use ccpp_gas_concentrations, only: ty_gas_concs_ccpp
      use ccpp_source_functions,   only: ty_source_func_lw_ccpp
-     use atmos_phys_string_utils, only: to_lower
      use atmos_phys_rad_utils,    only: is_visible
      ! Inputs
      logical,                              intent(in) :: graupel_in_rad        ! Flag to include graupel in radiation calculation
@@ -61,7 +60,7 @@ module rrtmgp_inputs
      real(kind_phys),                      intent(in) :: stebol                ! Stefan-Boltzmann constant (W m-2 K-4)
      type(ty_gas_optics_rrtmgp_ccpp),      intent(in) :: kdist_sw              ! Shortwave gas optics object
      type(ty_gas_optics_rrtmgp_ccpp),      intent(in) :: kdist_lw              ! Longwave gas optics object
-     character(len=*), dimension(:),       intent(in) :: gaslist               ! Radiatively active gases
+     character(len=*), dimension(:),       intent(in) :: gaslist_lc            ! Radiatively active gases
      ! Outputs
      real(kind_phys), dimension(:,:),      intent(out) :: t_rad                ! Air temperature with radiation indexing (K)
      real(kind_phys), dimension(:,:),      intent(out) :: pmid_rad             ! Midpoint pressure with radiation indexing (Pa)
@@ -90,7 +89,6 @@ module rrtmgp_inputs
      real(kind_phys) :: tref_min
      real(kind_phys) :: tref_max
      integer :: idx, kdx, iband
-     character(len=gasnamelength) :: gaslist_lc(size(gaslist))
 
      ! Set error variables
      errmsg = ''
@@ -224,13 +222,6 @@ module rrtmgp_inputs
            end do
         end do
      end if
-
-     ! Create lowercase version of the gaslist for RRTMGP.  The ty_gas_concs_ccpp objects
-     ! work with CAM's uppercase names, but other objects that get input from the gas
-     ! concs objects don't work.
-     do idx = 1, size(gaslist)
-        gaslist_lc(idx) = to_lower(gaslist(idx))
-     end do
 
      ! If no daylight columns, can't create empty RRTMGP objects
      if (dosw .and. nday > 0) then

@@ -1,7 +1,12 @@
-[submodule "ccpp-physics"]
-        path          = schemes/ccpp-physics
-        url           = https://github.com/peverwhee/ccpp-physics
-        fxsparse      = ../.ccpp_physics_sparse_checkout
-        fxtag         = 6d02eea1115c8319127d9f1eacba34c4ad40166b
-        fxrequired    = AlwaysRequired
-        fxDONOTUSEurl = https://github.com/NCAR/ccpp-physics
+[submodule "mmm-physics"]
+	path = schemes/mmm/mmm_physics
+	url = https://github.com/NCAR/MMM-physics.git
+	fxtag = 20240626-MPASv8.2
+	fxrequired = AlwaysRequired
+	fxDONOTUSEurl = https://github.com/NCAR/MMM-physics.git
+[submodule "rte-rrtmgp"]
+	path = schemes/rrtmgp/ext
+	url = https://github.com/earth-system-radiation/rte-rrtmgp.git
+        fxrequired = AlwaysRequired
+        fxtag = v1.7
+        fxDONOTUSEurl = https://github.com/earth-system-radiation/rte-rrtmgp.git

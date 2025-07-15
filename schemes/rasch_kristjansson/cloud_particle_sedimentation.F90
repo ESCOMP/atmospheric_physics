@@ -146,7 +146,7 @@ contains
     real(kind_phys),    intent(out)   :: wvtend(:,:)    ! water vapor tendency [kg kg-1 s-1] -- to apply wv tendency
     real(kind_phys),    intent(out)   :: htend(:,:)     ! heating rate [J kg-1 s-1] -- to apply s tendency
     real(kind_phys),    intent(out)   :: sfliq(:)       ! surface flux of liquid (rain) [kg m-2 s-1]
-    real(kind_phys),    intent(out)   :: sfice(:)       ! lwe_cloud_ice_sedimentation_rate_at_surface_due_to_microphysics [m s-1]
+    real(kind_phys),    intent(out)   :: sfice(:)       ! stratiform_lwe_cloud_ice_surface_flux_due_to_sedimentation [m s-1]
     character(len=512), intent(out)   :: errmsg         ! error message
     integer,            intent(out)   :: errflg         ! error flag
 
@@ -361,7 +361,7 @@ contains
     sfliq(:ncol) = fxliq(:ncol, pverp)/(dtime*gravit)
     sfice(:ncol) = fxice(:ncol, pverp)/(dtime*gravit)
 
-    ! Convert lwe_cloud_ice_sedimentation_rate_at_surface_due_to_microphysics from kg m-2 s-1 to precip units m s-1
+    ! Convert stratiform_lwe_cloud_ice_surface_flux_due_to_sedimentation from kg m-2 s-1 to precip units m s-1
     sfice(:ncol) = sfice(:ncol)/1000._kind_phys
 
   end subroutine cloud_particle_sedimentation_run
@@ -390,7 +390,6 @@ contains
     integer         :: i, k
     real(kind_phys) :: psi(ncol, pverp)
     real(kind_phys) :: fdot(ncol, pverp)
-    real(kind_phys) :: xx(ncol)
     real(kind_phys) :: fxdot(ncol)
     real(kind_phys) :: fxdd(ncol)
     real(kind_phys) :: psistar(ncol)
@@ -457,7 +456,6 @@ contains
     real(kind_phys) :: c2
     real(kind_phys) :: c3
     real(kind_phys) :: xx
-    real(kind_phys) :: xinf
     real(kind_phys) :: psi1, psi2, psi3, psim
     real(kind_phys) :: cfint
     real(kind_phys) :: cfnew
@@ -551,7 +549,6 @@ contains
     real(kind_phys), intent(out) :: fdot(ncol, pverp)       ! derivative at nodes
 
     integer :: i, k
-    real(kind_phys) :: a, b, c                 ! work var
     real(kind_phys) :: s(ncol, pverp)         ! first divided differences at nodes
     real(kind_phys) :: sh(ncol, pverp)        ! first divided differences between nodes
     real(kind_phys) :: d(ncol, pverp)         ! second divided differences at nodes
