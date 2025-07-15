@@ -105,7 +105,7 @@ subroutine rrtmgp_sw_cloud_optics_run(dosw, ncol, pver, ktopcam, ktoprad, nlay, 
 
    ! Local variables
 
-   integer :: i, k, ncol
+   integer :: i, k
    integer :: igpt, nver
    integer :: istat
    integer, parameter :: changeseed = 1
