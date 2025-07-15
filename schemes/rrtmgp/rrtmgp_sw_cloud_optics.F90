@@ -40,6 +40,7 @@ subroutine rrtmgp_sw_cloud_optics_run(dosw, ncol, pver, ktopcam, ktoprad, nlay, 
 
    ! arguments
    integer,  intent(in) :: nlay                      ! Number of layers in radiation calculation (may include "extra layer")
+   integer,  intent(in) :: ncol                      ! Total number of columns
    integer,  intent(in) :: nday                      ! Number of daylight columns
    integer,  intent(in) :: idxday(:)                 ! Indices of daylight columns
    integer,  intent(in) :: nswgpts                   ! Number of shortwave g-points
