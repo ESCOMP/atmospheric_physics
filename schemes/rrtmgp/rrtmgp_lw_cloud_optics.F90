@@ -75,6 +75,7 @@ contains
 
     ! Local variables
     integer :: idx, kdx
+    integer :: ngd, nlambda, nmu
 
     ! cloud radiative parameters are "in cloud" not "in cell"
     real(kind_phys) :: liq_lw_abs(nlwbands, ncol, pver)   ! liquid absorption optics depth (LW)
@@ -95,18 +96,21 @@ contains
 
     cldf = 0._kind_phys
     tauc = 0._kind_phys
+    nmu = size(g_mu)
+    nlambda = size(g_lambda, 2)
+    ngd = size(g_d_eff)
 
     ! Combine the cloud optical properties.
 
     ! gammadist liquid optics
-    call liquid_cloud_get_rad_props_lw(ncol, pver, size(g_mu), size(g_lambda,2), nlwbands, lamc, pgam, g_mu, g_lambda, iclwpth, &
+    call liquid_cloud_get_rad_props_lw(ncol, pver, nmu, nlambda, nlwbands, lamc, pgam, g_mu, g_lambda, iclwpth, &
             abs_lw_liq, tiny_in, liq_lw_abs, errmsg, errflg)
     if (errflg /= 0) then
        return
     end if
     ! Mitchell ice optics
     call interpolate_ice_optics_lw(ncol, pver, nlwbands, iciwpth, dei, &
-            size(g_d_eff), g_d_eff, abs_lw_ice, tiny_in, ice_lw_abs, errmsg, errflg)
+            ngd, g_d_eff, abs_lw_ice, tiny_in, ice_lw_abs, errmsg, errflg)
     if (errflg /= 0) then
        return
     end if
@@ -116,7 +120,7 @@ contains
     ! add in snow
     if (do_snow) then
        call interpolate_ice_optics_lw(ncol, pver, nlwbands, icswpth, des, &
-               size(g_d_eff), g_d_eff, abs_lw_ice, tiny_in, snow_lw_abs, errmsg, errflg)
+               ngd, g_d_eff, abs_lw_ice, tiny_in, snow_lw_abs, errmsg, errflg)
        if (errflg /= 0) then
           return
        end if
@@ -136,7 +140,7 @@ contains
 
     ! add in graupel
     if (do_graupel) then
-       call interpolate_ice_optics_lw(ncol, pver, nlwbands, icgrauwpth, degrau, size(g_d_eff), &
+       call interpolate_ice_optics_lw(ncol, pver, nlwbands, icgrauwpth, degrau, ngd, &
                g_d_eff, abs_lw_ice, tiny_in, grau_lw_abs, errmsg, errflg)
        if (errflg /= 0) then
           return
