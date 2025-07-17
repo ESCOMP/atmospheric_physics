@@ -32,9 +32,9 @@ module ccpp_io_reader
         procedure(get_var_real_2d),   deferred :: get_var_real_2d
         procedure(reset_var_real_2d), deferred :: reset_var_real_2d
         procedure(get_var_real_3d),   deferred :: get_var_real_3d
-        procedure(reset_var_real_3d), deferred :: reset_var_real_3d 
+        procedure(reset_var_real_3d), deferred :: reset_var_real_3d
         procedure(get_var_real_4d),   deferred :: get_var_real_4d
-        procedure(reset_var_real_4d), deferred :: reset_var_real_4d 
+        procedure(reset_var_real_4d), deferred :: reset_var_real_4d
         procedure(get_var_real_5d),   deferred :: get_var_real_5d
         procedure(reset_var_real_5d), deferred :: reset_var_real_5d
 
@@ -57,11 +57,11 @@ module ccpp_io_reader
         generic :: get_var => get_var_int_0d, get_var_int_1d, get_var_int_2d, get_var_int_3d, get_var_int_4d, get_var_int_5d, &
                 get_var_real_0d, get_var_real_1d, get_var_real_2d, get_var_real_3d, get_var_real_4d, get_var_real_5d,         &
                 get_var_char_0d, get_var_char_1d, get_var_char_2d, get_var_char_3d, get_var_char_4d, get_var_char_5d
- 
+
         !Generic interface to routines that "reset", i.e. deallocate and/or nullify, a pointer variable used by "get_var".
         generic :: reset_var => reset_var_int_0d, reset_var_int_1d, reset_var_int_2d, reset_var_int_3d, reset_var_int_4d,    &
             reset_var_int_5d, reset_var_real_0d, reset_var_real_1d, reset_var_real_2d, reset_var_real_3d, reset_var_real_4d, &
-            reset_var_real_5d, reset_var_char_0d, reset_var_char_1d, reset_var_char_2d, reset_var_char_3d, reset_var_char_4d, & 
+            reset_var_real_5d, reset_var_char_0d, reset_var_char_1d, reset_var_char_2d, reset_var_char_3d, reset_var_char_4d, &
             reset_var_char_5d
     end type abstract_netcdf_reader_t
 
@@ -91,7 +91,7 @@ module ccpp_io_reader
         ! Integer interfaces
         ! ------------------------------------------------------------------
 
-        subroutine get_var_int_0d(this, varname, var, errmsg, errcode, start, count)
+        subroutine get_var_int_0d(this, varname, var, errmsg, errcode, start, count, local_alloc)
             import abstract_netcdf_reader_t
 
             class(abstract_netcdf_reader_t), intent(in)  :: this
@@ -103,6 +103,10 @@ module ccpp_io_reader
             !Optional arguments for reading a subset of the variable
             integer, optional,               intent(in)  :: start(:) !Start indices for each dimension
             integer, optional,               intent(in)  :: count(:) !Number of elements to read for each dimension
+
+            !Optional argument to control local allocation of the variable
+            logical, optional,               intent(in)  :: local_alloc !If true, the variable will be allocated locally,
+                                                                        !using Fortran's intrinsic "allocate" procedure.
         end subroutine get_var_int_0d
 
         subroutine reset_var_int_0d(this, var, errmsg, errcode)
@@ -114,7 +118,7 @@ module ccpp_io_reader
             integer,                         intent(out) :: errcode !Error code
         end subroutine reset_var_int_0d
 
-        subroutine get_var_int_1d(this, varname, var, errmsg, errcode, start, count)
+        subroutine get_var_int_1d(this, varname, var, errmsg, errcode, start, count, local_alloc)
             import abstract_netcdf_reader_t
 
             class(abstract_netcdf_reader_t), intent(in)  :: this
@@ -126,6 +130,10 @@ module ccpp_io_reader
             !Optional arguments for reading a subset of the variable
             integer, optional,               intent(in)  :: start(:) !Start indices for each dimension
             integer, optional,               intent(in)  :: count(:) !Number of elements to read for each dimension
+
+            !Optional argument to control local allocation of the variable
+            logical, optional,               intent(in)  :: local_alloc !If true, the variable will be allocated locally,
+                                                                        !using Fortran's intrinsic "allocate" procedure
         end subroutine get_var_int_1d
 
         subroutine reset_var_int_1d(this, var, errmsg, errcode)
@@ -137,7 +145,7 @@ module ccpp_io_reader
             integer,                         intent(out) :: errcode  !Error code
         end subroutine reset_var_int_1d
 
-        subroutine get_var_int_2d(this, varname, var, errmsg, errcode, start, count)
+        subroutine get_var_int_2d(this, varname, var, errmsg, errcode, start, count, local_alloc)
             import abstract_netcdf_reader_t
 
             class(abstract_netcdf_reader_t), intent(in)  :: this
@@ -149,6 +157,10 @@ module ccpp_io_reader
             !Optional arguments for reading a subset of the variable
             integer, optional,               intent(in)  :: start(:) !Start indices for each dimension
             integer, optional,               intent(in)  :: count(:) !Number of elements to read for each dimension
+
+            !Optional argument to control local allocation of the variable
+            logical, optional,               intent(in)  :: local_alloc !If true, the variable will be allocated locally,
+                                                                        !using Fortran's intrinsic "allocate" procedure
         end subroutine get_var_int_2d
 
         subroutine reset_var_int_2d(this, var, errmsg, errcode)
@@ -160,7 +172,7 @@ module ccpp_io_reader
             integer,                         intent(out) :: errcode    !Error code
         end subroutine reset_var_int_2d
 
-        subroutine get_var_int_3d(this, varname, var, errmsg, errcode, start, count)
+        subroutine get_var_int_3d(this, varname, var, errmsg, errcode, start, count, local_alloc)
             import abstract_netcdf_reader_t
 
             class(abstract_netcdf_reader_t), intent(in)  :: this
@@ -172,6 +184,10 @@ module ccpp_io_reader
             !Optional arguments for reading a subset of the variable
             integer, optional,               intent(in)  :: start(:) !Start indices for each dimension
             integer, optional,               intent(in)  :: count(:) !Number of elements to read for each dimension
+
+            !Optional argument to control local allocation of the variable
+            logical, optional,               intent(in)  :: local_alloc !If true, the variable will be allocated locally,
+                                                                        !using Fortran's intrinsic "allocate" procedure
         end subroutine get_var_int_3d
 
         subroutine reset_var_int_3d(this, var, errmsg, errcode)
@@ -183,7 +199,7 @@ module ccpp_io_reader
             integer,                         intent(out) :: errcode      !Error code
         end subroutine reset_var_int_3d
 
-        subroutine get_var_int_4d(this, varname, var, errmsg, errcode, start, count)
+        subroutine get_var_int_4d(this, varname, var, errmsg, errcode, start, count, local_alloc)
             import abstract_netcdf_reader_t
 
             class(abstract_netcdf_reader_t), intent(in)  :: this
@@ -195,6 +211,10 @@ module ccpp_io_reader
             !Optional arguments for reading a subset of the variable
             integer, optional,               intent(in)  :: start(:) !Start indices for each dimension
             integer, optional,               intent(in)  :: count(:) !Number of elements to read for each dimension
+
+            !Optional argument to control local allocation of the variable
+            logical, optional,               intent(in)  :: local_alloc !If true, the variable will be allocated locally,
+                                                                        !using Fortran's intrinsic "allocate" procedure
         end subroutine get_var_int_4d
 
         subroutine reset_var_int_4d(this, var, errmsg, errcode)
@@ -206,7 +226,7 @@ module ccpp_io_reader
             integer,                         intent(out) :: errcode      !Error code
         end subroutine reset_var_int_4d
 
-        subroutine get_var_int_5d(this, varname, var, errmsg, errcode, start, count)
+        subroutine get_var_int_5d(this, varname, var, errmsg, errcode, start, count, local_alloc)
             import abstract_netcdf_reader_t
 
             class(abstract_netcdf_reader_t), intent(in)  :: this
@@ -218,6 +238,10 @@ module ccpp_io_reader
             !Optional arguments for reading a subset of the variable
             integer, optional,               intent(in)  :: start(:) !Start indices for each dimension
             integer, optional,               intent(in)  :: count(:) !Number of elements to read for each dimension
+
+            !Optional argument to control local allocation of the variable
+            logical, optional,               intent(in)  :: local_alloc !If true, the variable will be allocated locally,
+                                                                        !using Fortran's intrinsic "allocate" procedure
         end subroutine get_var_int_5d
 
         subroutine reset_var_int_5d(this, var, errmsg, errcode)
@@ -233,7 +257,7 @@ module ccpp_io_reader
         ! Real interfaces
         ! ------------------------------------------------------------------
 
-        subroutine get_var_real_0d(this, varname, var, errmsg, errcode, start, count)
+        subroutine get_var_real_0d(this, varname, var, errmsg, errcode, start, count, local_alloc)
             use ccpp_kinds, only: kind_phys
             import abstract_netcdf_reader_t
 
@@ -246,6 +270,10 @@ module ccpp_io_reader
             !Optional arguments for reading a subset of the variable
             integer, optional,               intent(in)  :: start(:) !Start indices for each dimension
             integer, optional,               intent(in)  :: count(:) !Number of elements to read for each dimension
+
+            !Optional argument to control local allocation of the variable
+            logical, optional,               intent(in)  :: local_alloc !If true, the variable will be allocated locally,
+                                                                        !using Fortran's intrinsic "allocate" procedure
         end subroutine get_var_real_0d
 
         subroutine reset_var_real_0d(this, var, errmsg, errcode)
@@ -258,7 +286,7 @@ module ccpp_io_reader
             integer,                         intent(out) :: errcode !Error code
         end subroutine reset_var_real_0d
 
-        subroutine get_var_real_1d(this, varname, var, errmsg, errcode, start, count)
+        subroutine get_var_real_1d(this, varname, var, errmsg, errcode, start, count, local_alloc)
             use ccpp_kinds, only: kind_phys
             import abstract_netcdf_reader_t
 
@@ -271,6 +299,10 @@ module ccpp_io_reader
             !Optional arguments for reading a subset of the variable
             integer, optional,               intent(in)  :: start(:) !Start indices for each dimension
             integer, optional,               intent(in)  :: count(:) !Number of elements to read for each dimension
+
+            !Optional argument to control local allocation of the variable
+            logical, optional,               intent(in)  :: local_alloc !If true, the variable will be allocated locally,
+                                                                        !using Fortran's intrinsic "allocate" procedure
         end subroutine get_var_real_1d
 
         subroutine reset_var_real_1d(this, var, errmsg, errcode)
@@ -283,7 +315,7 @@ module ccpp_io_reader
             integer,                         intent(out) :: errcode  !Error code
         end subroutine reset_var_real_1d
 
-        subroutine get_var_real_2d(this, varname, var, errmsg, errcode, start, count)
+        subroutine get_var_real_2d(this, varname, var, errmsg, errcode, start, count, local_alloc)
             use ccpp_kinds, only: kind_phys
             import abstract_netcdf_reader_t
 
@@ -296,6 +328,10 @@ module ccpp_io_reader
             !Optional arguments for reading a subset of the variable
             integer, optional,               intent(in)  :: start(:) !Start indices for each dimension
             integer, optional,               intent(in)  :: count(:) !Number of elements to read for each dimension
+
+            !Optional argument to control local allocation of the variable
+            logical, optional,               intent(in)  :: local_alloc !If true, the variable will be allocated locally,
+                                                                        !using Fortran's intrinsic "allocate" procedure
         end subroutine get_var_real_2d
 
         subroutine reset_var_real_2d(this, var, errmsg, errcode)
@@ -308,7 +344,7 @@ module ccpp_io_reader
             integer,                         intent(out) :: errcode    !Error code
         end subroutine reset_var_real_2d
 
-        subroutine get_var_real_3d(this, varname, var, errmsg, errcode, start, count)
+        subroutine get_var_real_3d(this, varname, var, errmsg, errcode, start, count, local_alloc)
             use ccpp_kinds, only: kind_phys
             import abstract_netcdf_reader_t
 
@@ -321,6 +357,10 @@ module ccpp_io_reader
             !Optional arguments for reading a subset of the variable
             integer, optional,               intent(in)  :: start(:) !Start indices for each dimension
             integer, optional,               intent(in)  :: count(:) !Number of elements to read for each dimension
+
+            !Optional argument to control local allocation of the variable
+            logical, optional,               intent(in)  :: local_alloc !If true, the variable will be allocated locally,
+                                                                        !using Fortran's intrinsic "allocate" procedure
         end subroutine get_var_real_3d
 
         subroutine reset_var_real_3d(this, var, errmsg, errcode)
@@ -333,7 +373,7 @@ module ccpp_io_reader
             integer,                         intent(out) :: errcode      !Error code
         end subroutine reset_var_real_3d
 
-        subroutine get_var_real_4d(this, varname, var, errmsg, errcode, start, count)
+        subroutine get_var_real_4d(this, varname, var, errmsg, errcode, start, count, local_alloc)
             use ccpp_kinds, only: kind_phys
             import abstract_netcdf_reader_t
 
@@ -346,6 +386,10 @@ module ccpp_io_reader
             !Optional arguments for reading a subset of the variable
             integer, optional,               intent(in)  :: start(:) !Start indices for each dimension
             integer, optional,               intent(in)  :: count(:) !Number of elements to read for each dimension
+
+            !Optional argument to control local allocation of the variable
+            logical, optional,               intent(in)  :: local_alloc !If true, the variable will be allocated locally,
+                                                                        !using Fortran's intrinsic "allocate" procedure
         end subroutine get_var_real_4d
 
         subroutine reset_var_real_4d(this, var, errmsg, errcode)
@@ -358,7 +402,7 @@ module ccpp_io_reader
             integer,                         intent(out) :: errcode        !Error code
         end subroutine reset_var_real_4d
 
-        subroutine get_var_real_5d(this, varname, var, errmsg, errcode, start, count)
+        subroutine get_var_real_5d(this, varname, var, errmsg, errcode, start, count, local_alloc)
             use ccpp_kinds, only: kind_phys
             import abstract_netcdf_reader_t
 
@@ -371,6 +415,10 @@ module ccpp_io_reader
             !Optional arguments for reading a subset of the variable
             integer, optional,               intent(in)  :: start(:) !Start indices for each dimension
             integer, optional,               intent(in)  :: count(:) !Number of elements to read for each dimension
+
+            !Optional argument to control local allocation of the variable
+            logical, optional,               intent(in)  :: local_alloc !If true, the variable will be allocated locally,
+                                                                        !using Fortran's intrinsic "allocate" procedure
         end subroutine get_var_real_5d
 
         subroutine reset_var_real_5d(this, var, errmsg, errcode)
@@ -387,7 +435,7 @@ module ccpp_io_reader
         ! Character interfaces
         ! ------------------------------------------------------------------
 
-        subroutine get_var_char_0d(this, varname, var, errmsg, errcode, start, count)
+        subroutine get_var_char_0d(this, varname, var, errmsg, errcode, start, count, local_alloc)
             import abstract_netcdf_reader_t
 
             class(abstract_netcdf_reader_t), intent(in)  :: this
@@ -399,6 +447,10 @@ module ccpp_io_reader
             !Optional arguments for reading a subset of the variable
             integer, optional,               intent(in)  :: start(:) !Start indices for each dimension
             integer, optional,               intent(in)  :: count(:) !Number of elements to read for each dimension
+
+            !Optional argument to control local allocation of the variable
+            logical, optional,               intent(in)  :: local_alloc !If true, the variable will be allocated locally,
+                                                                        !using Fortran's intrinsic "allocate" procedure
         end subroutine get_var_char_0d
 
         subroutine reset_var_char_0d(this, var, errmsg, errcode)
@@ -410,7 +462,7 @@ module ccpp_io_reader
             integer,                         intent(out) :: errcode !Error code
         end subroutine reset_var_char_0d
 
-        subroutine get_var_char_1d(this, varname, var, errmsg, errcode, start, count)
+        subroutine get_var_char_1d(this, varname, var, errmsg, errcode, start, count, local_alloc)
             import abstract_netcdf_reader_t
 
             class(abstract_netcdf_reader_t), intent(in)  :: this
@@ -422,6 +474,10 @@ module ccpp_io_reader
             !Optional arguments for reading a subset of the variable
             integer, optional,               intent(in)  :: start(:) !Start indices for each dimension
             integer, optional,               intent(in)  :: count(:) !Number of elements to read for each dimension
+
+            !Optional argument to control local allocation of the variable
+            logical, optional,               intent(in)  :: local_alloc !If true, the variable will be allocated locally,
+                                                                        !using Fortran's intrinsic "allocate" procedure
         end subroutine get_var_char_1d
 
         subroutine reset_var_char_1d(this, var, errmsg, errcode)
@@ -433,7 +489,7 @@ module ccpp_io_reader
             integer,                         intent(out) :: errcode  !Error code
         end subroutine reset_var_char_1d
 
-        subroutine get_var_char_2d(this, varname, var, errmsg, errcode, start, count)
+        subroutine get_var_char_2d(this, varname, var, errmsg, errcode, start, count, local_alloc)
             import abstract_netcdf_reader_t
 
             class(abstract_netcdf_reader_t), intent(in)  :: this
@@ -445,6 +501,10 @@ module ccpp_io_reader
             !Optional arguments for reading a subset of the variable
             integer, optional,               intent(in)  :: start(:) !Start indices for each dimension
             integer, optional,               intent(in)  :: count(:) !Number of elements to read for each dimension
+
+            !Optional argument to control local allocation of the variable
+            logical, optional,               intent(in)  :: local_alloc !If true, the variable will be allocated locally,
+                                                                        !using Fortran's intrinsic "allocate" procedure
         end subroutine get_var_char_2d
 
         subroutine reset_var_char_2d(this, var, errmsg, errcode)
@@ -456,7 +516,7 @@ module ccpp_io_reader
             integer,                         intent(out) :: errcode    !Error code
         end subroutine reset_var_char_2d
 
-        subroutine get_var_char_3d(this, varname, var, errmsg, errcode, start, count)
+        subroutine get_var_char_3d(this, varname, var, errmsg, errcode, start, count, local_alloc)
             import abstract_netcdf_reader_t
 
             class(abstract_netcdf_reader_t), intent(in)  :: this
@@ -468,6 +528,10 @@ module ccpp_io_reader
             !Optional arguments for reading a subset of the variable
             integer, optional,               intent(in)  :: start(:) !Start indices for each dimension
             integer, optional,               intent(in)  :: count(:) !Number of elements to read for each dimension
+
+            !Optional argument to control local allocation of the variable
+            logical, optional,               intent(in)  :: local_alloc !If true, the variable will be allocated locally,
+                                                                        !using Fortran's intrinsic "allocate" procedure
         end subroutine get_var_char_3d
 
         subroutine reset_var_char_3d(this, var, errmsg, errcode)
@@ -479,7 +543,7 @@ module ccpp_io_reader
             integer,                         intent(out) :: errcode      !Error code
         end subroutine reset_var_char_3d
 
-        subroutine get_var_char_4d(this, varname, var, errmsg, errcode, start, count)
+        subroutine get_var_char_4d(this, varname, var, errmsg, errcode, start, count, local_alloc)
             import abstract_netcdf_reader_t
 
             class(abstract_netcdf_reader_t), intent(in)  :: this
@@ -491,6 +555,10 @@ module ccpp_io_reader
             !Optional arguments for reading a subset of the variable
             integer, optional,               intent(in)  :: start(:) !Start indices for each dimension
             integer, optional,               intent(in)  :: count(:) !Number of elements to read for each dimension
+
+            !Optional argument to control local allocation of the variable
+            logical, optional,               intent(in)  :: local_alloc !If true, the variable will be allocated locally,
+                                                                        !using Fortran's intrinsic "allocate" procedure
         end subroutine get_var_char_4d
 
         subroutine reset_var_char_4d(this, var, errmsg, errcode)
@@ -502,7 +570,7 @@ module ccpp_io_reader
             integer,                         intent(out) :: errcode        !Error code
         end subroutine reset_var_char_4d
 
-        subroutine get_var_char_5d(this, varname, var, errmsg, errcode, start, count)
+        subroutine get_var_char_5d(this, varname, var, errmsg, errcode, start, count, local_alloc)
             import abstract_netcdf_reader_t
 
             class(abstract_netcdf_reader_t), intent(in)  :: this
@@ -514,6 +582,10 @@ module ccpp_io_reader
             !Optional arguments for reading a subset of the variable
             integer, optional,               intent(in)  :: start(:) !Start indices for each dimension
             integer, optional,               intent(in)  :: count(:) !Number of elements to read for each dimension
+
+            !Optional argument to control local allocation of the variable
+            logical, optional,               intent(in)  :: local_alloc !If true, the variable will be allocated locally,
+                                                                        !using Fortran's intrinsic "allocate" procedure
         end subroutine get_var_char_5d
 
         subroutine reset_var_char_5d(this, var, errmsg, errcode)
