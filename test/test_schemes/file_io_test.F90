@@ -32,9 +32,9 @@ contains
 
      !Variables read from file:
      character(len=:), allocatable :: gas_names(:)
-     integer, allocatable          :: band2gpt(:,:)
-     real(kind_phys), allocatable  :: press_ref(:)
-     real(kind_phys), allocatable  :: band_lims_wavenum(:,:)
+     integer,          allocatable :: band2gpt(:,:)
+     real(kind_phys),  allocatable :: press_ref(:)
+     real(kind_phys),  allocatable :: band_lims_wavenum(:,:)
 
      class(abstract_netcdf_reader_t), allocatable :: reader
 

@@ -72,7 +72,7 @@ module ccpp_io_reader
 
             class(abstract_netcdf_reader_t), intent(in)  :: this
             character(len=*),                intent(in)  :: varname
-            integer, allocatable,                intent(out) :: var     !Integer variable that file data will be read to.
+            integer, allocatable,            intent(out) :: var     !Integer variable that file data will be read to.
             character(len=*),                intent(out) :: errmsg  !Error message
             integer,                         intent(out) :: errcode !Error code
 
@@ -86,7 +86,7 @@ module ccpp_io_reader
 
             class(abstract_netcdf_reader_t), intent(in)  :: this
             character(len=*),                intent(in)  :: varname
-            integer, allocatable,                intent(out) :: var(:)  !Integer variable that file data will be read to.
+            integer, allocatable,            intent(out) :: var(:)  !Integer variable that file data will be read to.
             character(len=*),                intent(out) :: errmsg  !Error message
             integer,                         intent(out) :: errcode !Error code
 
@@ -100,7 +100,7 @@ module ccpp_io_reader
 
             class(abstract_netcdf_reader_t), intent(in)  :: this
             character(len=*),                intent(in)  :: varname
-            integer, allocatable,                intent(out) :: var(:,:)!Integer variable that file data will be read to.
+            integer, allocatable,            intent(out) :: var(:,:)!Integer variable that file data will be read to.
             character(len=*),                intent(out) :: errmsg  !Error message
             integer,                         intent(out) :: errcode !Error code
 
@@ -114,7 +114,7 @@ module ccpp_io_reader
 
             class(abstract_netcdf_reader_t), intent(in)  :: this
             character(len=*),                intent(in)  :: varname
-            integer, allocatable,                intent(out) :: var(:,:,:) !Integer variable that file data will be read to.
+            integer, allocatable,            intent(out) :: var(:,:,:) !Integer variable that file data will be read to.
             character(len=*),                intent(out) :: errmsg     !Error message
             integer,                         intent(out) :: errcode    !Error code
 
@@ -128,7 +128,7 @@ module ccpp_io_reader
 
             class(abstract_netcdf_reader_t), intent(in)  :: this
             character(len=*),                intent(in)  :: varname
-            integer, allocatable,                intent(out) :: var(:,:,:,:) !Integer variable that file data will be read to.
+            integer, allocatable,            intent(out) :: var(:,:,:,:) !Integer variable that file data will be read to.
             character(len=*),                intent(out) :: errmsg       !Error message
             integer,                         intent(out) :: errcode      !Error code
 
@@ -142,7 +142,7 @@ module ccpp_io_reader
 
             class(abstract_netcdf_reader_t), intent(in)  :: this
             character(len=*),                intent(in)  :: varname
-            integer, allocatable,                intent(out) :: var(:,:,:,:,:) !Integer variable that file data will be read to.
+            integer, allocatable,            intent(out) :: var(:,:,:,:,:) !Integer variable that file data will be read to.
             character(len=*),                intent(out) :: errmsg         !Error message
             integer,                         intent(out) :: errcode        !Error code
 
@@ -161,7 +161,7 @@ module ccpp_io_reader
 
             class(abstract_netcdf_reader_t), intent(in)  :: this
             character(len=*),                intent(in)  :: varname
-            real(kind_phys), allocatable,        intent(out) :: var     !Floating-point variable that file data will be read to.
+            real(kind_phys), allocatable,    intent(out) :: var     !Floating-point variable that file data will be read to.
             character(len=*),                intent(out) :: errmsg  !Error message
             integer,                         intent(out) :: errcode !Error code
 
@@ -176,7 +176,7 @@ module ccpp_io_reader
 
             class(abstract_netcdf_reader_t), intent(in)  :: this
             character(len=*),                intent(in)  :: varname
-            real(kind_phys), allocatable,        intent(out) :: var(:)  !Floating-point variable that file data will be read to.
+            real(kind_phys), allocatable,    intent(out) :: var(:)  !Floating-point variable that file data will be read to.
             character(len=*),                intent(out) :: errmsg  !Error message
             integer,                         intent(out) :: errcode !Error code
 
@@ -191,7 +191,7 @@ module ccpp_io_reader
 
             class(abstract_netcdf_reader_t), intent(in)  :: this
             character(len=*),                intent(in)  :: varname
-            real(kind_phys), allocatable,        intent(out) :: var(:,:)!Floating-point variable that file data will be read to.
+            real(kind_phys), allocatable,    intent(out) :: var(:,:)!Floating-point variable that file data will be read to.
             character(len=*),                intent(out) :: errmsg  !Error message
             integer,                         intent(out) :: errcode !Error code
 
@@ -206,7 +206,7 @@ module ccpp_io_reader
 
             class(abstract_netcdf_reader_t), intent(in)  :: this
             character(len=*),                intent(in)  :: varname
-            real(kind_phys), allocatable,        intent(out) :: var(:,:,:) !Floating-point variable that file data will be read to.
+            real(kind_phys), allocatable,    intent(out) :: var(:,:,:) !Floating-point variable that file data will be read to.
             character(len=*),                intent(out) :: errmsg     !Error message
             integer,                         intent(out) :: errcode    !Error code
 
@@ -221,7 +221,7 @@ module ccpp_io_reader
 
             class(abstract_netcdf_reader_t), intent(in)  :: this
             character(len=*),                intent(in)  :: varname
-            real(kind_phys), allocatable,        intent(out) :: var(:,:,:,:) !Floating-point variable that file data will be read to.
+            real(kind_phys), allocatable,    intent(out) :: var(:,:,:,:) !Floating-point variable that file data will be read to.
             character(len=*),                intent(out) :: errmsg       !Error message
             integer,                         intent(out) :: errcode      !Error code
 
@@ -236,7 +236,7 @@ module ccpp_io_reader
 
             class(abstract_netcdf_reader_t), intent(in)  :: this
             character(len=*),                intent(in)  :: varname
-            real(kind_phys), allocatable,        intent(out) :: var(:,:,:,:,:) !Floating-point variable that file data will be read to.
+            real(kind_phys), allocatable,    intent(out) :: var(:,:,:,:,:) !Floating-point variable that file data will be read to.
             character(len=*),                intent(out) :: errmsg         !Error message
             integer,                         intent(out) :: errcode        !Error code
 
@@ -254,7 +254,7 @@ module ccpp_io_reader
 
             class(abstract_netcdf_reader_t), intent(in)  :: this
             character(len=*),                intent(in)  :: varname
-            character(len=:), allocatable,       intent(out) :: var     !Character variable that file data will be read to.
+            character(len=:), allocatable,   intent(out) :: var     !Character variable that file data will be read to.
             character(len=*),                intent(out) :: errmsg  !Error message
             integer,                         intent(out) :: errcode !Error code
 
@@ -268,7 +268,7 @@ module ccpp_io_reader
 
             class(abstract_netcdf_reader_t), intent(in)  :: this
             character(len=*),                intent(in)  :: varname
-            character(len=:), allocatable,       intent(out) :: var(:)  !Character variable that file data will be read to.
+            character(len=:), allocatable,   intent(out) :: var(:)  !Character variable that file data will be read to.
             character(len=*),                intent(out) :: errmsg  !Error message
             integer,                         intent(out) :: errcode !Error code
 
@@ -282,7 +282,7 @@ module ccpp_io_reader
 
             class(abstract_netcdf_reader_t), intent(in)  :: this
             character(len=*),                intent(in)  :: varname
-            character(len=:), allocatable,       intent(out) :: var(:,:)!Character variable that file data will be read to.
+            character(len=:), allocatable,   intent(out) :: var(:,:)!Character variable that file data will be read to.
             character(len=*),                intent(out) :: errmsg  !Error message
             integer,                         intent(out) :: errcode !Error code
 
@@ -296,7 +296,7 @@ module ccpp_io_reader
 
             class(abstract_netcdf_reader_t), intent(in)  :: this
             character(len=*),                intent(in)  :: varname
-            character(len=:), allocatable,       intent(out) :: var(:,:,:) !Character variable that file data will be read to.
+            character(len=:), allocatable,   intent(out) :: var(:,:,:) !Character variable that file data will be read to.
             character(len=*),                intent(out) :: errmsg     !Error message
             integer,                         intent(out) :: errcode    !Error code
 
@@ -310,7 +310,7 @@ module ccpp_io_reader
 
             class(abstract_netcdf_reader_t), intent(in)  :: this
             character(len=*),                intent(in)  :: varname
-            character(len=:), allocatable,       intent(out) :: var(:,:,:,:) !Character variable that file data will be read to.
+            character(len=:), allocatable,   intent(out) :: var(:,:,:,:) !Character variable that file data will be read to.
             character(len=*),                intent(out) :: errmsg       !Error message
             integer,                         intent(out) :: errcode      !Error code
 
@@ -324,7 +324,7 @@ module ccpp_io_reader
 
             class(abstract_netcdf_reader_t), intent(in)  :: this
             character(len=*),                intent(in)  :: varname
-            character(len=:), allocatable,       intent(out) :: var(:,:,:,:,:) !Character variable that file data will be read to.
+            character(len=:), allocatable,   intent(out) :: var(:,:,:,:,:) !Character variable that file data will be read to.
             character(len=*),                intent(out) :: errmsg         !Error message
             integer,                         intent(out) :: errcode        !Error code
 
