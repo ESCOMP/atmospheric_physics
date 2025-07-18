@@ -31,10 +31,10 @@ contains
      integer,            intent(out) :: errcode
 
      !Variables read from file:
-     character(len=:), pointer :: gas_names(:)
-     integer, pointer          :: band2gpt(:,:)
-     real(kind_phys), pointer  :: press_ref(:)
-     real(kind_phys), pointer  :: band_lims_wavenum(:,:)
+     character(len=:), allocatable :: gas_names(:)
+     integer, allocatable          :: band2gpt(:,:)
+     real(kind_phys), allocatable  :: press_ref(:)
+     real(kind_phys), allocatable  :: band_lims_wavenum(:,:)
 
      class(abstract_netcdf_reader_t), allocatable :: reader
 
