@@ -11,6 +11,20 @@ module rrtmgp_cloud_optics_setup
   private
   public :: rrtmgp_cloud_optics_setup_init
 
+  integer,         public          :: nmu, nlambda
+  real(kind_phys), public, pointer :: g_mu(:)
+  real(kind_phys), public, pointer :: g_lambda(:,:)
+  real(kind_phys), public, pointer :: abs_lw_liq(:,:,:)
+  real(kind_phys), public, pointer :: ext_sw_liq(:,:,:)
+  real(kind_phys), public, pointer :: asm_sw_liq(:,:,:)
+  real(kind_phys), public, pointer :: ssa_sw_liq(:,:,:)
+  integer,         public          :: n_g_d
+  real(kind_phys), public, pointer :: g_d_eff(:)
+  real(kind_phys), public, pointer :: abs_lw_ice(:,:)
+  real(kind_phys), public, pointer :: ext_sw_ice(:,:)
+  real(kind_phys), public, pointer :: asm_sw_ice(:,:)
+  real(kind_phys), public, pointer :: ssa_sw_ice(:,:)
+
 contains
 
   ! ######################################################################################
@@ -19,29 +33,14 @@ contains
 !> \section arg_table_rrtmgp_cloud_optics_setup_init Argument Table
 !! \htmlinclude rrtmgp_cloud_optics_setup_init.html
 !!
-  subroutine rrtmgp_cloud_optics_setup_init(liq_filename, ice_filename, abs_lw_liq, abs_lw_ice,     &
-                  ext_sw_liq, ext_sw_ice, ssa_sw_liq, ssa_sw_ice, asm_sw_liq, asm_sw_ice, g_lambda, &
-                  g_mu, g_d_eff, errmsg, errflg)
-    use ccpp_kinds,     only: kind_phys
+  subroutine rrtmgp_cloud_optics_setup_init(liq_filename, ice_filename, errmsg, errflg)
     use ccpp_io_reader, only: abstract_netcdf_reader_t, create_netcdf_reader_t
     ! Inputs
     character(len=*),                   intent(in) :: liq_filename     ! Full file path for liquid optics file
     character(len=*),                   intent(in) :: ice_filename     ! Full file path for ice optics file
     ! Outputs
-    real(kind_phys), dimension(:,:,:), allocatable, intent(out) :: abs_lw_liq    ! Longwave mass specific absorption for in-cloud liquid water path
-    real(kind_phys), dimension(:,:,:), allocatable, intent(out) :: ext_sw_liq
-    real(kind_phys), dimension(:,:,:), allocatable, intent(out) :: ssa_sw_liq
-    real(kind_phys), dimension(:,:,:), allocatable, intent(out) :: asm_sw_liq
-    real(kind_phys), dimension(:,:),   allocatable, intent(out) :: abs_lw_ice    ! Longwave mass specific absorption for in-cloud ice water path
-    real(kind_phys), dimension(:,:),   allocatable, intent(out) :: ext_sw_ice
-    real(kind_phys), dimension(:,:),   allocatable, intent(out) :: ssa_sw_ice
-    real(kind_phys), dimension(:,:),   allocatable, intent(out) :: asm_sw_ice
-    real(kind_phys), dimension(:,:),   allocatable, intent(out) :: g_lambda      ! lambda scale samples on grid
-    real(kind_phys), dimension(:),     allocatable, intent(out) :: g_mu          ! Mu samples on grid
-    real(kind_phys), dimension(:),     allocatable, intent(out) :: g_d_eff       ! Radiative effective diameter samples on grid
-
-    character(len=*), intent(out) :: errmsg
-    integer,          intent(out) :: errflg
+    character(len=*),                  intent(out) :: errmsg
+    integer,                           intent(out) :: errflg
 
     ! Local variables
     real(kind_phys), parameter :: liquid_water_density = 0.9970449e3_kind_phys
@@ -130,6 +129,11 @@ contains
     if (errflg /= 0) then
        return
     end if
+
+    ! Set size module variables
+    nmu = size(g_mu)
+    nlambda = size(g_lambda, 2)
+    n_g_d = size(g_d_eff)
 
   end subroutine rrtmgp_cloud_optics_setup_init
 

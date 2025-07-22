@@ -8,7 +8,6 @@
 !! (optical-depth, single-scattering albedo, asymmetry parameter) are computed for ALL
 !! cloud types visible to RRTMGP.
 module rrtmgp_lw_cloud_optics
-  use ccpp_kinds, only: kind_phys
 
   implicit none
   private
@@ -21,13 +20,15 @@ contains
 !> \section arg_table_rrtmgp_lw_cloud_optics_run Argument Table
 !! \htmlinclude rrtmgp_lw_cloud_optics_run.html
 !!
-  subroutine rrtmgp_lw_cloud_optics_run(dolw, ncol, nlay, nlaycam, cld, cldfsnow, cldfgrau, &
-             cldfprime, kdist_lw, cloud_lw, lamc, pgam, iclwpth, iciwpth, abs_lw_liq, abs_lw_ice,  &
-             g_mu, g_lambda, g_d_eff, tiny_in, dei, icswpth, des, icgrauwpth, degrau, nlwbands,    &
-             do_snow, do_graupel, pver, ktopcam, tauc, cldf, cld_lw_abs, snow_lw_abs, grau_lw_abs, &
-             errmsg, errflg)
-    use ccpp_gas_optics_rrtmgp,   only: ty_gas_optics_rrtmgp_ccpp
-    use ccpp_optical_props,       only: ty_optical_props_1scl_ccpp
+  subroutine rrtmgp_lw_cloud_optics_run(dolw, ncol, nlay, nlaycam, cld, cldfsnow, cldfgrau,      &
+             cldfprime, kdist_lw, cloud_lw, lamc, pgam, iclwpth, iciwpth, tiny_in, dei, icswpth, &
+             des, icgrauwpth, degrau, nlwbands, do_snow, do_graupel, pver, ktopcam, tauc, cldf,  &
+             cld_lw_abs, snow_lw_abs, grau_lw_abs, errmsg, errflg)
+    use ccpp_gas_optics_rrtmgp,    only: ty_gas_optics_rrtmgp_ccpp
+    use ccpp_optical_props,        only: ty_optical_props_1scl_ccpp
+    use ccpp_kinds,                only: kind_phys
+    use rrtmgp_cloud_optics_setup, only: g_mu, g_lambda, nmu, nlambda, g_d_eff, n_g_d
+    use rrtmgp_cloud_optics_setup, only: abs_lw_liq, abs_lw_ice
     ! Compute combined cloud optical properties
     ! Create MCICA stochastic arrays for cloud LW optical properties
     ! Initialize optical properties object (cloud_lw) and load with MCICA columns
@@ -75,7 +76,6 @@ contains
 
     ! Local variables
     integer :: idx, kdx
-    integer :: ngd, nlambda, nmu
 
     ! cloud radiative parameters are "in cloud" not "in cell"
     real(kind_phys) :: liq_lw_abs(nlwbands, ncol, pver)   ! liquid absorption optics depth (LW)
@@ -96,9 +96,6 @@ contains
 
     cldf = 0._kind_phys
     tauc = 0._kind_phys
-    nmu = size(g_mu)
-    nlambda = size(g_lambda, 2)
-    ngd = size(g_d_eff)
 
     ! Combine the cloud optical properties.
 
