@@ -53,11 +53,6 @@ contains
     real(kind_phys), dimension(:,:),   intent(in) :: dei              ! Mean effective radius for ice cloud
     real(kind_phys), dimension(:,:),   intent(in) :: des              ! Mean effective radius for snow
     real(kind_phys), dimension(:,:),   intent(in) :: degrau           ! Mean effective radius for graupel
-    real(kind_phys), dimension(:,:,:), intent(in) :: abs_lw_liq
-    real(kind_phys), dimension(:,:),   intent(in) :: abs_lw_ice
-    real(kind_phys), dimension(:,:),   intent(in) :: g_lambda
-    real(kind_phys), dimension(:),     intent(in) :: g_mu
-    real(kind_phys), dimension(:),     intent(in) :: g_d_eff
     real(kind_phys),                   intent(in) :: tiny_in
     logical,                           intent(in) :: do_snow          ! Flag for whether cldfsnow is present
     logical,                           intent(in) :: do_graupel       ! Flag for whether cldfgrau is present
@@ -107,7 +102,7 @@ contains
     end if
     ! Mitchell ice optics
     call interpolate_ice_optics_lw(ncol, pver, nlwbands, iciwpth, dei, &
-            ngd, g_d_eff, abs_lw_ice, tiny_in, ice_lw_abs, errmsg, errflg)
+            n_g_d, g_d_eff, abs_lw_ice, tiny_in, ice_lw_abs, errmsg, errflg)
     if (errflg /= 0) then
        return
     end if
@@ -117,7 +112,7 @@ contains
     ! add in snow
     if (do_snow) then
        call interpolate_ice_optics_lw(ncol, pver, nlwbands, icswpth, des, &
-               ngd, g_d_eff, abs_lw_ice, tiny_in, snow_lw_abs, errmsg, errflg)
+               n_g_d, g_d_eff, abs_lw_ice, tiny_in, snow_lw_abs, errmsg, errflg)
        if (errflg /= 0) then
           return
        end if
@@ -137,7 +132,7 @@ contains
 
     ! add in graupel
     if (do_graupel) then
-       call interpolate_ice_optics_lw(ncol, pver, nlwbands, icgrauwpth, degrau, ngd, &
+       call interpolate_ice_optics_lw(ncol, pver, nlwbands, icgrauwpth, degrau, n_g_d, &
                g_d_eff, abs_lw_ice, tiny_in, grau_lw_abs, errmsg, errflg)
        if (errflg /= 0) then
           return
@@ -176,6 +171,7 @@ contains
 
   subroutine liquid_cloud_get_rad_props_lw(ncol, pver, nmu, nlambda, nlwbands, lamc, pgam, &
                   g_mu, g_lambda, iclwpth, abs_lw_liq, tiny, abs_od, errmsg, errflg)
+    use ccpp_kinds, only: kind_phys
     ! Inputs
     integer,                           intent(in) :: ncol
     integer,                           intent(in) :: pver
@@ -220,6 +216,7 @@ contains
   subroutine gam_liquid_lw(nlwbands, nmu, nlambda, clwptn, lamc, pgam, abs_lw_liq, g_mu, g_lambda, tiny, abs_od, errmsg, errflg)
     use interpolate_data,         only: interp_type, lininterp, lininterp_finish
     use radiation_utils,          only: get_mu_lambda_weights_ccpp
+    use ccpp_kinds,               only: kind_phys
     ! Inputs
     integer,         intent(in) :: nlwbands
     integer,         intent(in) :: nmu
@@ -269,6 +266,7 @@ contains
                   n_g_d, g_d_eff, abs_lw_ice, tiny, abs_od, errmsg, errflg)
     use interpolate_data,         only: interp_type, lininterp, lininterp_init, &
                                         lininterp_finish, extrap_method_bndry
+    use ccpp_kinds,               only: kind_phys
 
     integer,           intent(in)                  :: ncol
     integer,           intent(in)                  :: n_g_d
