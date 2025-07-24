@@ -32,7 +32,7 @@ contains
     integer,                             intent(out) :: errcode                            ! CCPP error code
 
     ! Local variables
-    class(abstract_netcdf_reader_t),   allocatable :: file_reader
+    class(abstract_netcdf_reader_t),   pointer :: file_reader
     character(len=:),  dimension(:),   pointer :: gas_names                          ! Names of absorbing gases
     character(len=:),  dimension(:),   pointer :: gas_minor                          ! Name of absorbing minor gas
     character(len=:),  dimension(:),   pointer :: identifier_minor                   ! Unique string identifying minor gas
@@ -79,7 +79,7 @@ contains
     errmsg = ''
     errcode = 0
 
-    file_reader = create_netcdf_reader_t()
+    file_reader => create_netcdf_reader_t()
 
     ! Open the shortwave coefficients file
     call file_reader%open_file(sw_filename, errmsg, errcode)
@@ -300,6 +300,9 @@ contains
     if (errcode /= 0) then
        return
     end if
+
+    deallocate(file_reader)
+    nullify(file_reader)
 
     ! Initialize the gas optics object with data.
     errmsg = kdist%gas_props%load( &

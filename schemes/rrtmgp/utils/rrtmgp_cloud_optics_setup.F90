@@ -44,7 +44,7 @@ contains
 
     ! Local variables
     real(kind_phys), parameter :: liquid_water_density = 0.9970449e3_kind_phys
-    class(abstract_netcdf_reader_t), allocatable :: file_reader
+    class(abstract_netcdf_reader_t), pointer :: file_reader
     character(len=256) :: alloc_errmsg
     character(len=*), parameter :: sub = 'rrtmgp_cloud_optics_setup_init'
 
@@ -52,7 +52,7 @@ contains
     errmsg = ''
     errflg = 0
 
-    file_reader = create_netcdf_reader_t()
+    file_reader => create_netcdf_reader_t()
 
     ! Open liquid optics file
     call file_reader%open_file(liq_filename, errmsg, errflg)
@@ -129,6 +129,8 @@ contains
     if (errflg /= 0) then
        return
     end if
+    deallocate(file_reader)
+    nullify(file_reader)
 
     ! Set size module variables
     nmu = size(g_mu)

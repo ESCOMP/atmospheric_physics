@@ -35,7 +35,7 @@ module ccpp_io_reader
 
     interface
         module function create_netcdf_reader_t() result(r)
-            class(abstract_netcdf_reader_t), allocatable :: r
+            class(abstract_netcdf_reader_t), pointer :: r
         end function create_netcdf_reader_t
 
         subroutine open_file(this, file_path, errmsg, errcode)
