@@ -79,7 +79,7 @@
     <type>char*256</type>
     <category>rrtmgp_cloud_optics</category>
     <group>radconst</group>
-    <standard_name>filename_of_rrtmgp_liquid_cloud_optics_coefficients</standard_name>
+    <standard_name>filename_of_rrtmgp_ice_cloud_optics_coefficients</standard_name>
     <units>none</units>
     <desc>
       filepath and name for ice optics data for rrtmgp
@@ -92,7 +92,7 @@
     <type>char*256</type>
     <category>rrtmgp_cloud_optics</category>
     <group>radconst</group>
-    <standard_name>filename_of_rrtmgp_ice_cloud_optics_coefficients</standard_name>
+    <standard_name>filename_of_rrtmgp_liquid_cloud_optics_coefficients</standard_name>
     <units>none</units>
     <desc>
       filepath and name for liquid optics data for rrtmgp

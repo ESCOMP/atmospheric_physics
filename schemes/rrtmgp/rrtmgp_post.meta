@@ -71,6 +71,12 @@
   type = ty_fluxes_broadband_ccpp
   dimensions = ()
   intent = inout
+[ atm_optics_lw ]
+  standard_name = longwave_atmosphere_optical_properties_object_for_RRTMGP
+  units = none
+  type = ty_optical_props_1scl_ccpp
+  dimensions = ()
+  intent = inout
 [ sources_lw ]
   standard_name = longwave_planck_sources_object_for_RRTMGP
   units = none
@@ -101,6 +107,12 @@
   type = ty_fluxes_broadband_ccpp
   dimensions = ()
   intent = inout
+[ flwds ]
+  standard_name = longwave_downward_radiative_flux_at_surface
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
 [ qrs ]
   standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_shortwave_radiation_adjusted_by_air_pressure_thickness
   units = J Pa kg-1 s-1
@@ -115,12 +127,6 @@
   intent = out
 [ netsw ]
   standard_name = net_shortwave_flux_at_surface
-  units = W m-2
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent)
-  intent = out
-[ flwds ]
-  standard_name = longwave_downward_radiative_flux_at_surface
   units = W m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)

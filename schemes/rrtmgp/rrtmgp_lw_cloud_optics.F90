@@ -9,6 +9,9 @@
 !! cloud types visible to RRTMGP.
 module rrtmgp_lw_cloud_optics
   use ccpp_kinds, only: kind_phys
+  use rrtmgp_cloud_optics_setup, only: abs_lw_liq, abs_lw_ice
+  use rrtmgp_cloud_optics_setup, only: g_lambda, g_mu, nmu, nlambda
+  use rrtmgp_cloud_optics_setup, only: g_d_eff, n_g_d
 
   implicit none
   private
@@ -22,9 +25,9 @@ contains
 !! \htmlinclude rrtmgp_lw_cloud_optics_run.html
 !!
   subroutine rrtmgp_lw_cloud_optics_run(dolw, ncol, nlay, nlaycam, cld, cldfsnow, cldfgrau, &
-             cldfprime, kdist_lw, cloud_lw, lamc, pgam, iclwpth, iciwpth, abs_lw_liq, abs_lw_ice,  &
-             g_mu, g_lambda, g_d_eff, tiny_in, dei, icswpth, des, icgrauwpth, degrau, nlwbands,    &
-             nmu, nlambda, n_g_d, do_snow, do_graupel, pver, ktopcam, cld_lw_abs, snow_lw_abs,     &
+             cldfprime, kdist_lw, cloud_lw, lamc, pgam, iclwpth, iciwpth, & 
+             tiny_in, dei, icswpth, des, icgrauwpth, degrau, nlwbands,    &
+             do_snow, do_graupel, pver, ktopcam, cld_lw_abs, snow_lw_abs,     &
              grau_lw_abs, c_cld_lw_abs, errmsg, errflg)
     use ccpp_gas_optics_rrtmgp,   only: ty_gas_optics_rrtmgp_ccpp
     use ccpp_optical_props,       only: ty_optical_props_1scl_ccpp
@@ -37,9 +40,6 @@ contains
     integer,                           intent(in) :: nlay             ! Number of vertical layers in radiation
     integer,                           intent(in) :: nlaycam          ! Number of model layers in radiation
     integer,                           intent(in) :: nlwbands         ! Number of longwave bands
-    integer,                           intent(in) :: nlambda
-    integer,                           intent(in) :: n_g_d
-    integer,                           intent(in) :: nmu
     integer,                           intent(in) :: pver             ! Total number of vertical layers
     integer,                           intent(in) :: ktopcam          ! Index in CAM arrays of top level (layer or interface) at which RRTMGP is active
     real(kind_phys), dimension(:,:),   intent(in) :: cld              ! Cloud fraction (liq + ice)
@@ -55,11 +55,6 @@ contains
     real(kind_phys), dimension(:,:),   intent(in) :: dei              ! Mean effective radius for ice cloud
     real(kind_phys), dimension(:,:),   intent(in) :: des              ! Mean effective radius for snow
     real(kind_phys), dimension(:,:),   intent(in) :: degrau           ! Mean effective radius for graupel
-    real(kind_phys), dimension(:,:,:), intent(in) :: abs_lw_liq       ! Longwave mass specific absorption for in cloud liquid water path
-    real(kind_phys), dimension(:,:),   intent(in) :: abs_lw_ice       ! Longwave mass specific absorption for in cloud ice water path
-    real(kind_phys), dimension(:,:),   intent(in) :: g_lambda         ! Gamma distribution slope parameter on liquid optics grid
-    real(kind_phys), dimension(:),     intent(in) :: g_mu             ! Gamma distribution shape parameter on liquid optics grid
-    real(kind_phys), dimension(:),     intent(in) :: g_d_eff          ! Radiative effective diameter samples on ice optics grid
     real(kind_phys),                   intent(in) :: tiny_in          ! Definition of tiny for RRTMGP
     logical,                           intent(in) :: do_snow          ! Flag for whether cldfsnow is present
     logical,                           intent(in) :: do_graupel       ! Flag for whether cldfgrau is present
@@ -95,8 +90,8 @@ contains
        return
     end if
 
-    cldf = 0._kind_phys
-    tauc = 0._kind_phys
+!    cldf = 0._kind_phys
+!    tauc = 0._kind_phys
 
     ! Combine the cloud optical properties.
 

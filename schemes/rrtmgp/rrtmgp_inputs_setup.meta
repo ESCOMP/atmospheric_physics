@@ -83,7 +83,7 @@
   units = J Pa kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_dimension, vertical_layer_dimension)
-  intent = out
+  intent = inout
 [ is_first_step ]
   standard_name = is_first_timestep
   units = flag
@@ -99,7 +99,7 @@
 [ timestep_size ]
   standard_name = timestep_for_physics
   units = s
-  type = integer
+  type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ nstep ]
@@ -121,11 +121,11 @@
   dimensions = ()
   intent = out
 [ irad_always ]
-  standard_name = number_of_timesteps_to_force_radiation_calculation_after_initialization
+  standard_name = number_of_timesteps_to_force_radiation_calculation_after_initialization_namelist_parameter
   units = count
   type = integer
   dimensions = ()
-  intent = inout
+  intent = in
 [ is_first_restart_step ]
   standard_name = is_first_restart_timestep
   units = flag
@@ -198,12 +198,6 @@
   type = integer
   dimensions = ()
   intent = out
-[ gaslist ]
-  standard_name = list_of_active_gases_for_RRTMGP
-  units = none
-  type = character | kind = len=*
-  dimensions = (number_of_active_gases_for_RRTMGP)
-  intent = in
 [ nswgpts ]
   standard_name = number_of_shortwave_g_point_intervals
   units = count
@@ -245,6 +239,12 @@
   units = index
   type = integer
   dimensions = (ccpp_constant_two,number_of_bands_for_shortwave_radiation)
+  intent = out
+[ irad_always_out ]
+  standard_name = number_of_timesteps_to_force_radiation_calculation_after_initialization
+  units = count
+  type = integer
+  dimensions = ()
   intent = out
 [ errmsg ]
   standard_name = ccpp_error_message

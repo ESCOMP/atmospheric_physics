@@ -1,13 +1,13 @@
 [ccpp-table-properties]
   name = rrtmgp_lw_rte
   type = scheme
-  dependencies = ../ccpp-physics/physics/Radiation/RRTMGP/rte-rrtmgp/rte-frontend/mo_rte_lw.F90
-  dependencies = ../ccpp-physics/physics/Radiation/RRTMGP/rte-rrtmgp/rte-frontend/mo_rte_config.F90
-  dependencies = ../ccpp-physics/physics/Radiation/RRTMGP/rte-rrtmgp/rte-kernels/mo_rte_util_array.F90
-  dependencies = ../ccpp-physics/physics/Radiation/RRTMGP/rte-rrtmgp/rte-frontend/mo_rte_util_array_validation.F90
-  dependencies = ../ccpp-physics/physics/Radiation/RRTMGP/rte-rrtmgp/rte-kernels/mo_rte_solver_kernels.F90
-  dependencies = ../ccpp-physics/physics/Radiation/RRTMGP/rte-rrtmgp/rte-kernels/mo_fluxes_broadband_kernels.F90
-  dependencies = ../ccpp-physics/physics/hooks/machine.F
+  dependencies = ext/rte-frontend/mo_rte_lw.F90
+  dependencies = ext/rte-frontend/mo_rte_config.F90
+  dependencies = ext/rte-kernels/mo_rte_util_array.F90
+  dependencies = ext/rte-frontend/mo_rte_util_array_validation.F90
+  dependencies = ext/rte-kernels/mo_rte_solver_kernels.F90
+  dependencies = ext/rte-kernels/mo_fluxes_broadband_kernels.F90
+  dependencies = ../../../../utils/machine.F90
   dependencies = ./utils/radiation_tools.F90
   dependencies = ./objects/ccpp_source_functions.F90,./objects/ccpp_gas_optics_rrtmgp.F90
   dependencies = ./objects/ccpp_optical_props.F90
@@ -100,12 +100,6 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = inout
-[ nlwgpts ]
-  standard_name = number_of_longwave_g_point_intervals
-  units = count
-  type = integer
-  dimensions = ()
-  intent = in
 [ lw_Ds ]
   standard_name = inverse_cosine_of_radiation_transport_angle_per_column_and_g_point
   units = 1

@@ -85,7 +85,7 @@
      The filename of the longwave coefficients file for RRTMGP
     </desc>
     <values>
-      <value>src/physics/ncar_ccpp/schemes/rrtmgp/data/rrtmgp-gas-lw-g128.nc</value>
+      <value>${SRCROOT}/src/physics/utils/rrtmgp-data/rrtmgp-gas-lw-g128.nc</value>
     </values>
   </entry>
 </entry_id_pg>

@@ -10,7 +10,7 @@ contains
 !! \htmlinclude rrtmgp_post_run.html
 !!
 subroutine rrtmgp_post_run(nlay, dolw, qrs_prime, qrl_prime, fsns, pdel, atm_optics_sw, cloud_sw, aer_sw,  &
-                  fsw, fswc, atm_optics_lw, sources_lw, cloud_lw, aer_lw, flw, flwc, qrs, qrl, &
+                  fsw, fswc, atm_optics_lw, sources_lw, cloud_lw, aer_lw, flw, flwc, flwds, qrs, qrl, &
                   netsw, errmsg, errflg)
    use ccpp_kinds,             only: kind_phys
    use ccpp_optical_props,     only: ty_optical_props_1scl_ccpp, ty_optical_props_2str_ccpp

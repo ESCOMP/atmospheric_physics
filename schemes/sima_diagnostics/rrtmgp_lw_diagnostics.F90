@@ -26,6 +26,7 @@ module rrtmgp_lw_diagnostics
    public :: rrtmgp_lw_diagnostics_init ! init routine
    public :: rrtmgp_lw_diagnostics_run  ! main routine
 
+   integer, parameter :: N_DIAG=10
    character(len=4) :: diag(0:N_DIAG) =(/'    ','_d1 ','_d2 ','_d3 ','_d4 ','_d5 ',&
                                       '_d6 ','_d7 ','_d8 ','_d9 ','_d10'/)
 
@@ -161,8 +162,8 @@ CONTAINS
       call history_out_field('LWCF'//diag(icall),    ftem)
 
       ! Output fluxes at 200 mb
-      call vertinterp(ncol, ncol, pverp, pint, 20000._r8, fnl,  fln200)
-      call vertinterp(ncol, ncol, pverp, pint, 20000._r8, fcnl, fln200c)
+      call vertinterp(ncol, ncol, pverp, pint, 20000._kind_phys, fnl,  fln200)
+      call vertinterp(ncol, ncol, pverp, pint, 20000._kind_phys, fcnl, fln200c)
       call history_out_field('FLN200'//diag(icall),  fln200)
       call history_out_field('FLN200C'//diag(icall), fln200c)
 

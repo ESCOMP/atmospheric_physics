@@ -51,8 +51,9 @@ CONTAINS
 !! \htmlinclude rrtmgp_pre_timestep_init.html
 !!
   subroutine rrtmgp_pre_timestep_init(nstep, dtime, iradsw, irad_always, offset, errmsg, errflg)
+     use ccpp_kinds, only: kind_phys
      integer,            intent(in)  :: nstep          ! Current timestep number
-     integer,            intent(in)  :: dtime          ! Timestep size
+     real(kind_phys),    intent(in)  :: dtime          ! Timestep size
      integer,            intent(in)  :: iradsw         ! Freq. of shortwave radiation calc in time steps (positive) or hours (negative)
      integer,            intent(in)  :: irad_always    ! Number of time steps to execute radiation continuously
      integer,            intent(out) :: offset         ! Offset for next SW radiation timestep
@@ -90,7 +91,7 @@ CONTAINS
      ! Inputs
      real(kind_phys), dimension(:),    intent(in) :: coszrs        ! Cosine solar zenith angle
      real(kind_phys),                  intent(in) :: next_cday     ! The calendar day of the next timestep
-     integer,                          intent(in) :: dtime         ! Timestep size [s]
+     real(kind_phys),                  intent(in) :: dtime         ! Timestep size [s]
      integer,                          intent(in) :: nstep         ! Timestep number
      integer,                          intent(in) :: iradsw        ! Freq. of shortwave radiation calc in time steps (positive) or hours (negative)
      integer,                          intent(in) :: iradlw        ! Freq. of longwave radiation calc in time steps (positive) or hours (negative)
@@ -146,6 +147,9 @@ CONTAINS
      if (errflg /= 0) then
         return
      end if
+
+     ! PEVERWHEE - TEMPORARILY OVERRIDE TO FALSE
+     dosw = .false.
 
      dosw_heat = (.not. dosw)
      dolw_heat = (.not. dolw)

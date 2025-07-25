@@ -57,7 +57,7 @@
 [ dtime ]
   standard_name = timestep_for_physics
   units = s
-  type = integer
+  type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ iradsw ]
@@ -112,7 +112,7 @@
 [ dtime ]
   standard_name = timestep_for_physics
   units = s
-  type = integer
+  type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ iradsw ]

@@ -93,19 +93,19 @@
   standard_name = air_temperature_for_RRTMGP
   units = K
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, number_of_vertical_layers_in_RRTMGP)
   intent = out
 [ pmid_rad ]
   standard_name = air_pressure_for_RRTMGP
   units = Pa
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, number_of_vertical_layers_in_RRTMGP)
   intent = out
 [ pint_rad ]
   standard_name = air_pressure_at_interface_for_RRTMGP
   units = Pa
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  dimensions = (horizontal_loop_extent, number_of_vertical_layers_in_RRTMGP_plus_one)
   intent = out
 [ t_day ]
   standard_name = air_temperature_for_daytime_points_for_RRTMGP
@@ -156,7 +156,7 @@
   dimensions = ()
   intent = in
 [ ncol ]
-  standard_name = horizontal_dimension
+  standard_name = horizontal_loop_extent
   units = count
   type = integer
   dimensions = ()
@@ -263,8 +263,8 @@
   type = integer
   dimensions = ()
   intent = in
-[ gaslist ]
-  standard_name = list_of_active_gases_for_RRTMGP
+[ gaslist_lc ]
+  standard_name = lowercase_list_of_active_gases_for_RRTMGP
   units = none
   type = character | kind = len=*
   dimensions = (number_of_active_gases_for_RRTMGP)

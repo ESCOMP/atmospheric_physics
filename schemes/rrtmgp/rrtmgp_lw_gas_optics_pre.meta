@@ -41,12 +41,6 @@
   type = character | kind = len=*
   dimensions = (number_of_active_gases_for_RRTMGP)
   intent = in
-[ idxday ]
-  standard_name = daytime_points
-  units = index
-  type = integer
-  dimensions = (horizontal_loop_extent)
-  intent = in
 [ pverp ]
   standard_name = vertical_interface_dimension
   units = count

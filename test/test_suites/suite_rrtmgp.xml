@@ -10,21 +10,23 @@
     <scheme>rrtmgp_lw_cloud_optics</scheme>
     <scheme>rrtmgp_lw_mcica_subcol_gen</scheme>
     <scheme>rrtmgp_sw_gas_optics</scheme>
-    <scheme>rrtmgp_sw_cloud_optics</scheme>
+    <!--    <scheme>rrtmgp_sw_cloud_optics</scheme>-->
+    <scheme>rrtmgp_sw_cloud_temp</scheme>
     <!-- Longwave subcycle -->
     <subcycle>
       <scheme>rrtmgp_constituents</scheme>
       <scheme>rrtmgp_lw_gas_optics_pre</scheme>
       <scheme>rrtmgp_lw_gas_optics</scheme>
-      <scheme>rrtmgp_lw_main</scheme>
+      <scheme>rrtmgp_lw_rte</scheme>
       <scheme>rrtmgp_lw_calculate_fluxes</scheme>
-      <scheme>rrtmgp_lw_diagnostics</scheme>
+      <!--      <scheme>rrtmgp_lw_diagnostics</scheme>-->
     </subcycle>
     <!-- End longwave subcycle -->
     <scheme>rrtmgp_inputs_setup</scheme><!-- Inputs init routine must go after gas_optics_init-->
     <scheme>rrtmgp_dry_static_energy_tendency</scheme>
     <scheme>calculate_net_heating</scheme>
     <scheme>rrtmgp_post</scheme>
+    <scheme>geopotential_temp</scheme>
     <!-- Update state! -->
   </group>
 </suite>

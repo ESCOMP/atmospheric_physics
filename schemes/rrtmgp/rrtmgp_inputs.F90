@@ -270,6 +270,8 @@ module rrtmgp_inputs
            errflg = 1
            return
         end if
+        ! PEVERWHEE - ZERO AEROSOLS FOR TESTING!
+        aer_lw%optical_props%tau = 0.0_kind_phys
 
         ! Initialize object for Planck sources.
         errmsg = sources_lw%sources%alloc(ncol, nlay, kdist_lw%gas_props)

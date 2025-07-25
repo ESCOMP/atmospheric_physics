@@ -91,7 +91,7 @@ subroutine rrtmgp_lw_mcica_subcol_gen_run( &
 
    real(kind_phys) :: cdf(ngpt,ncol,nver)   ! random numbers
    logical  :: iscloudy(ngpt,ncol,nver)   ! flag that says whether a gridbox is cloudy
-   real(kind_phys) :: tauc(nlwbands,ncol,nver)
+   real(kind_phys) :: tauc(nbnd,ncol,nver)
    real(kind_phys) :: taucmcl(ngpt,ncol,nver)
    !------------------------------------------------------------------------------------------ 
 

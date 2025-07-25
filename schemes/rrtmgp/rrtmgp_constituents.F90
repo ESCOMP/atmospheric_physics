@@ -1,4 +1,5 @@
 module rrtmgp_constituents
+   use cam_logfile, only: iulog
 
    public :: rrtmgp_constituents_register
 
@@ -21,7 +22,7 @@ contains
       character(len=32) :: long_name
       character(len=32) :: stdname
       character(len=256) :: tmpstr, alloc_errmsg
-      integer            :: gas_idx, strlen, ipos, ierr
+      integer            :: gas_idx, strlen, ipos, ierr, idx
 
       errmsg = ''
       errcode = 0
@@ -52,14 +53,14 @@ contains
 
       ! Locate the ':' separating source from long name.
       idx = index(tmpstr, ':')
-      source = tmpstr(:jdx-1)
-      tmpstr = tmpstr(jdx+1:)
+      source = tmpstr(:idx-1)
+      tmpstr = tmpstr(idx+1:)
 
       ! locate the ':' separating long name from rad gas ("standard") name
       idx = scan(tmpstr, ':')
 
-      long_name = tmpstr(:jdx-1)
-      stdname = tmpstr(jdx+1:)
+      long_name = tmpstr(:idx-1)
+      stdname = tmpstr(idx+1:)
 
       ! Register the constituent based on the source
       if (source == 'A') then
@@ -134,7 +135,8 @@ contains
       character(len=512), intent(out) :: errmsg
       integer,            intent(out) :: errcode
 
-      errcode = 1
+      ! Initialize error variables
+      errcode = 0
       errmsg = ''
 
       active_call_array = .true.
