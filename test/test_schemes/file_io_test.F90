@@ -36,13 +36,13 @@ contains
      real(kind_phys),  allocatable :: press_ref(:)
      real(kind_phys),  allocatable :: band_lims_wavenum(:,:)
 
-     class(abstract_netcdf_reader_t), allocatable :: reader
+     class(abstract_netcdf_reader_t), pointer :: reader
 
      !NetCDF dimensions:
      integer :: bnd
      integer :: absorber
 
-     reader = create_netcdf_reader_t()
+     reader => create_netcdf_reader_t()
 
      !Initialize output variables:
      errcode = 0
@@ -100,6 +100,10 @@ contains
      write(*,*) 'Max RRTMGP reference pressure value = ', maxval(press_ref)
      write(*,*) 'Max RRTMGP band starting wave idx   = ', maxval(band2gpt(1,:))
      write(*,*) 'Max RRTMGP band starting wavenumber = ', maxval(band_lims_wavenum(1,:))
+
+     !Reset file reader:
+     deallocate(reader)
+     nullify(reader)
 
   end subroutine file_io_test_init
 
