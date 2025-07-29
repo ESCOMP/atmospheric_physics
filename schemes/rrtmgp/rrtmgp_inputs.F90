@@ -13,7 +13,7 @@ module rrtmgp_inputs
   subroutine rrtmgp_inputs_init(ktopcam, ktoprad, nlaycam, sw_low_bounds, sw_high_bounds, nswbands,         &
                    pref_edge, nlay, pver, pverp, kdist_sw, kdist_lw, qrl, is_first_step, use_rad_dt_cosz,   &
                    timestep_size, nstep, iradsw, dt_avg, irad_always, is_first_restart_step, is_root,       &
-                   nlwbands, nradgas, gasnamelength, iulog, idx_sw_diag, idx_nir_diag, idx_uv_diag,         &
+                   nlwbands, nradgas, gasnamelength, idx_sw_diag, idx_nir_diag, idx_uv_diag,                &
                    idx_sw_cloudsim, idx_lw_diag, idx_lw_cloudsim, nswgpts, nlwgpts, nlayp,                  &
                    nextsw_cday, current_cal_day, band2gpt_sw, errmsg, errflg)
      use ccpp_kinds,             only: kind_phys
@@ -29,7 +29,6 @@ module rrtmgp_inputs
      integer,                         intent(in) :: iradsw                 ! Freq. of shortwave radiation calc in time steps (positive) or hours (negative).
      integer,                         intent(in) :: timestep_size          ! Timestep size (s)
      integer,                         intent(in) :: nstep                  ! Current timestep number
-     integer,                         intent(in) :: iulog                  ! Logging unit
      integer,                         intent(in) :: gasnamelength          ! Length of all of the gas_list entries
      real(kind_phys),                 intent(in) :: current_cal_day        ! Current calendar day
      real(kind_phys), dimension(:),   intent(in) :: pref_edge              ! Reference pressures (interfaces) (Pa)
@@ -81,7 +80,7 @@ module rrtmgp_inputs
      ! pressure interfaces below 1 Pa.  When the entire model atmosphere is
      ! below 1 Pa then an extra layer is added to the top of the model for
      ! the purpose of the radiation calculation.
-     nlay = count( pref_edge(:) > 1._kind_phys ) ! pascals (0.01 mbar)
+     nlay = count( pref_edge(:) > 10._kind_phys ) ! pascals (0.1 mbar)
      nlayp = nlay + 1
 
      if (nlay == pverp) then
@@ -90,16 +89,6 @@ module rrtmgp_inputs
         ktopcam = 1
         ktoprad = 2
         nlaycam = pver
-     else if (nlay == (pverp-1)) then
-        ! Special case nlay == (pverp-1) -- topmost interface outside bounds (CAM MT config), treat as if it is ok.
-        ktopcam = 1
-        ktoprad = 2
-        nlaycam = pver
-        nlay = nlay+1 ! reassign the value so later code understands to treat this case like nlay==pverp
-        if (is_root) then
-           write(iulog,*) 'RADIATION_INIT: Special case of 1 model interface at p < 1Pa. Top layer will be INCLUDED in radiation calculation.'
-           write(iulog,*) 'RADIATION_INIT: nlay = ',nlay, ' same as pverp: ',nlay==pverp
-        end if
      else
         ! nlay < pverp.  nlay layers are used in radiation calcs, and they are
         ! all CAM layers.
@@ -261,20 +250,11 @@ module rrtmgp_inputs
 
      ! Add extra layer values if needed.
      if (nlay == pverp) then
-        t_rad(:,1) = t(:,1)
+        t_rad(:,1)      = %t(:ncol,1)
+        pmid_rad(:,1)   = 0.5_kind_phys * pint(:ncol,1)
         ! The top reference pressure from the RRTMGP coefficients datasets is 1.005183574463 Pa
         ! Set the top of the extra layer just below that.
         pint_rad(:,1) = 1.01_kind_phys
-
-        ! next interface down in LT will always be > 1Pa
-        ! but in MT we apply adjustment to have it be 1.02 Pa if it was too high
-        where (pint_rad(:,2) <= pint_rad(:,1)) pint_rad(:,2) = pint_rad(:,1)+0.01_kind_phys
-
-        ! set the highest pmid (in the "extra layer") to the midpoint (guarantees > 1Pa)
-        pmid_rad(:,1)   = pint_rad(:,1) + 0.5_kind_phys * (pint_rad(:,2) - pint_rad(:,1))
-
-        ! For case of CAM MT, also ensure pint_rad(:,2) > pint_rad(:,1) & pmid_rad(:,2) > max(pmid_rad(:,1), min_pressure)
-        where (pmid_rad(:,2) <= kdist_sw%gas_props%get_press_min()) pmid_rad(:,2) = pint_rad(:,2) + 0.01_kind_phys
      else
         ! nlay < pverp, thus the 1 Pa level is within a CAM layer.  Assuming the top interface of
         ! this layer is at a pressure < 1 Pa, we need to adjust the top of this layer so that it
