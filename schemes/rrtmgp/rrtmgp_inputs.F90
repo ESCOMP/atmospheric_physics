@@ -250,7 +250,7 @@ module rrtmgp_inputs
 
      ! Add extra layer values if needed.
      if (nlay == pverp) then
-        t_rad(:,1)      = %t(:ncol,1)
+        t_rad(:,1)      = t(:ncol,1)
         pmid_rad(:,1)   = 0.5_kind_phys * pint(:ncol,1)
         ! The top reference pressure from the RRTMGP coefficients datasets is 1.005183574463 Pa
         ! Set the top of the extra layer just below that.
