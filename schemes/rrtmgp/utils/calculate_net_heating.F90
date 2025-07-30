@@ -33,6 +33,7 @@ subroutine calculate_net_heating_run(ncol, pver, rad_heat, qrl_prime, qrs_prime,
 
     ! Arguments
    integer,                    intent(in)  :: ncol             ! horizontal dimension
+   integer,                    intent(in)  :: pver             ! vertical dimension
    real(kind_phys),            intent(in)  :: qrl_prime(:,:)   ! longwave heating [J kg-1 s-1]
    real(kind_phys),            intent(in)  :: qrs_prime(:,:)   ! shortwave heating [J kg-1 s-1]
    real(kind_phys),            intent(in)  :: gravit           ! Standard gravitational acceleration [m s-2]
@@ -44,7 +45,7 @@ subroutine calculate_net_heating_run(ncol, pver, rad_heat, qrl_prime, qrs_prime,
 
 
    ! Local variables
-   integer :: idx
+   integer :: idx, kdx
    !-----------------------------------------------------------------------
    ! Set error variables
    errmsg = ''
