@@ -678,7 +678,7 @@
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ cgh ]
-  standard_name = counter_gradient_heat_at_interfaces_tbd
+  standard_name = counter_gradient_coefficient_for_vertical_diffusion_of_heat_at_interface
   units = J kg-1 m-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
@@ -838,13 +838,13 @@
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ kvq ]
-  standard_name = eddy_constituent_diffusivity_at_interfaces_tbd
+  standard_name = eddy_constituent_diffusivity_at_interface
   units = m2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ cgs ]
-  standard_name = counter_gradient_star_at_interfaces_tbd
+  standard_name = counter_gradient_coefficient_for_vertical_diffusion_of_constituents_at_interface
   units = s m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)

@@ -6,7 +6,7 @@
   name  = hb_diff_set_vertical_diffusion_top_init
   type  = scheme
 [ ntop_eddy ]
-  standard_name = vertical_layer_index_of_vertical_diffusion_top_tbd
+  standard_name = vertical_layer_index_of_eddy_vertical_diffusion_top
   units = index
   dimensions = ()
   type = integer
@@ -33,7 +33,7 @@
   name  = hb_diff_set_vertical_diffusion_top_waccmx_init
   type  = scheme
 [ ntop_eddy ]
-  standard_name = vertical_layer_index_of_vertical_diffusion_top_tbd
+  standard_name = vertical_layer_index_of_eddy_vertical_diffusion_top
   units = index
   dimensions = ()
   type = integer
@@ -224,7 +224,7 @@
   type = coords1d
   intent = out
 [ q_wv_cflx ]
-  standard_name = surface_upward_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_flux_tbd
+  standard_name = surface_upward_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_flux
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
@@ -329,7 +329,7 @@
   type = coords1d
   intent = out
 [ q_wv_cflx ]
-  standard_name = surface_upward_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_flux_tbd
+  standard_name = surface_upward_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_flux
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
