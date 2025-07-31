@@ -5,24 +5,6 @@
 [ccpp-arg-table]
   name = bl_gwdo_compat_pre_init
   type = scheme
-[ omega ]
-  standard_name = cell_angular_area
-  units = sr
-  type = real | kind = kind_phys
-  dimensions = (horizontal_dimension)
-  intent = in
-[ rearth ]
-  standard_name = radius_of_earth
-  units = m
-  type = real | kind = kind_phys
-  dimensions = ()
-  intent = in
-[ dxmeter ]
-  standard_name = characteristic_grid_lengthscale
-  units = m
-  type = real | kind = kind_phys
-  dimensions = (horizontal_dimension)
-  intent = out
 [ sina ]
   standard_name = sine_of_angle_of_rotation_from_east_to_x
   units = 1

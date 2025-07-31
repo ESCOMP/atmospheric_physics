@@ -5,6 +5,7 @@ module mmm_physics_compat
     private
     public :: mmm_physics_accumulate_tendencies_timestep_init
     public :: mmm_physics_accumulate_tendencies_run
+    public :: compute_characteristic_grid_length_scale_init
     public :: geopotential_height_wrt_sfc_to_msl_run
 contains
     !> \section arg_table_mmm_physics_accumulate_tendencies_timestep_init Argument Table
@@ -58,6 +59,28 @@ contains
         rublten(:, :) = 0.0_kind_phys
         rvblten(:, :) = 0.0_kind_phys
     end subroutine mmm_physics_accumulate_tendencies_run
+
+    !> \section arg_table_compute_characteristic_grid_length_scale_init Argument Table
+    !! \htmlinclude compute_characteristic_grid_length_scale_init.html
+    pure subroutine compute_characteristic_grid_length_scale_init( &
+            omega, rearth, dx, &
+            errmsg, errflg)
+        use ccpp_kinds, only: kind_phys
+
+        real(kind_phys), intent(in) :: omega(:), rearth
+        real(kind_phys), intent(out) :: dx(:)
+        character(*), intent(out) :: errmsg
+        integer, intent(out) :: errflg
+
+        errmsg = ''
+        errflg = 0
+
+        ! Grid sizes do not change with time. Set them just once at model initialization for better performance.
+
+        ! Compute grid sizes in meters. This is trivial for models with regular grids like WRF,
+        ! but not so straightforward for models with unstructured grids like CAM-SIMA. Here, the square root of cell area is used.
+        dx(:) = sqrt(omega(:) * (rearth ** 2))
+    end subroutine compute_characteristic_grid_length_scale_init
 
     !> \section arg_table_geopotential_height_wrt_sfc_to_msl_run Argument Table
     !! \htmlinclude geopotential_height_wrt_sfc_to_msl_run.html

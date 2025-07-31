@@ -89,6 +89,48 @@
 # ----------
 
 [ccpp-table-properties]
+  name = compute_characteristic_grid_length_scale
+  type = scheme
+
+[ccpp-arg-table]
+  name = compute_characteristic_grid_length_scale_init
+  type = scheme
+[ omega ]
+  standard_name = cell_angular_area
+  units = sr
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension)
+  intent = in
+[ rearth ]
+  standard_name = radius_of_earth
+  units = m
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ dx ]
+  standard_name = characteristic_grid_lengthscale
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+# ----------
+
+[ccpp-table-properties]
   name = geopotential_height_wrt_sfc_to_msl
   type = scheme
 
