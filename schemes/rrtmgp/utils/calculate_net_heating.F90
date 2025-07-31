@@ -24,7 +24,7 @@ contains
 !! \htmlinclude calculate_net_heating_run.html
 !!
 subroutine calculate_net_heating_run(ncol, pver, rad_heat, qrl_prime, qrs_prime, &
-                gravit, pdel, net_flx, errmsg, errflg)
+                is_offline_dyn, gravit, pdel, net_flx, errmsg, errflg)
 !-----------------------------------------------------------------------
 ! Compute net radiative heating from qrs and qrl, and the associated net
 ! boundary flux.
@@ -38,7 +38,8 @@ subroutine calculate_net_heating_run(ncol, pver, rad_heat, qrl_prime, qrs_prime,
    real(kind_phys),            intent(in)  :: qrs_prime(:,:)   ! shortwave heating [J kg-1 s-1]
    real(kind_phys),            intent(in)  :: gravit           ! Standard gravitational acceleration [m s-2]
    real(kind_phys),            intent(in)  :: pdel(:,:)        ! Air pressure thickness [Pa]
-   real(kind_phys),            intent(out) :: rad_heat(:,:)    ! radiative heating [J kg-1 s-1]
+   logical,                    intent(in)  :: is_offline_dyn   ! is offline dycore
+   real(kind_phys),            intent(inout) :: rad_heat(:,:)    ! radiative heating [J kg-1 s-1]
    real(kind_phys),            intent(out) :: net_flx(:)       ! net boundary flux [W m-2]
    character(len=*),           intent(out) :: errmsg
    integer,                    intent(out) :: errflg
@@ -51,7 +52,9 @@ subroutine calculate_net_heating_run(ncol, pver, rad_heat, qrl_prime, qrs_prime,
    errmsg = ''
    errflg = 0
 
-   rad_heat(:,:) = (qrs_prime(:,:) + qrl_prime(:,:))
+   if (.not. is_offline_dyn) then
+      rad_heat(:,:) = (qrs_prime(:,:) + qrl_prime(:,:))
+   end if
 
 !   do idx = 1, ncol
 !      net_flx(idx) = fsnt(idx) - fsns(idx) - flnt(idx) + flns(idx)
@@ -64,5 +67,4 @@ subroutine calculate_net_heating_run(ncol, pver, rad_heat, qrl_prime, qrs_prime,
 
 end subroutine calculate_net_heating_run
 
-!================================================================================================
 end module calculate_net_heating
