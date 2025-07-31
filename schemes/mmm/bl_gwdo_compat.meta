@@ -115,13 +115,13 @@
   dimensions = (horizontal_loop_extent)
   intent = in
 [ rublten ]
-  standard_name = tendency_of_x_wind_due_to_pbl_processes
+  standard_name = tendency_of_eastward_wind_due_to_pbl_processes
   units = m s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rvblten ]
-  standard_name = tendency_of_y_wind_due_to_pbl_processes
+  standard_name = tendency_of_northward_wind_due_to_pbl_processes
   units = m s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -169,12 +169,11 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ q1 ]
-  standard_name = water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
+  standard_name = water_vapor_mixing_ratio_wrt_dry_air
   units = kg kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
-  advected = true
 [ prsi ]
   standard_name = air_pressure_at_interface
   units = Pa
