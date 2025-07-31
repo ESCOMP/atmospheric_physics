@@ -19,9 +19,11 @@ module state_converters
   ! Convert between wet and dry
   public :: wet_to_dry_water_vapor_run
   public :: wet_to_dry_cloud_liquid_water_run
+  public :: wet_to_dry_cloud_ice_run
   public :: wet_to_dry_rain_run
   public :: dry_to_wet_water_vapor_run
   public :: dry_to_wet_cloud_liquid_water_run
+  public :: dry_to_wet_cloud_ice_run
   public :: dry_to_wet_rain_run
 
 CONTAINS
@@ -167,6 +169,31 @@ CONTAINS
 
   end subroutine wet_to_dry_cloud_liquid_water_run
 
+!> \section arg_table_wet_to_dry_cloud_ice_run Argument Table
+!! \htmlinclude wet_to_dry_cloud_ice_run.html
+  subroutine wet_to_dry_cloud_ice_run(ncol, nz, pdel, pdeldry, &
+       qi, qi_dry, errmsg, errflg)
+
+     integer,          intent(in)  :: ncol
+     integer,          intent(in)  :: nz
+     real(kind_phys),  intent(in)  :: pdel(:,:)    ! pressure thickness of layer (Pa)
+     real(kind_phys),  intent(in)  :: pdeldry(:,:) ! dry air pressure thickness of layer (Pa)
+     real(kind_phys),  intent(in)  :: qi(:,:)      ! cloud ice mixing ratio wrt moist air (kg/kg)
+     real(kind_phys),  intent(out) :: qi_dry(:,:)  ! cloud ice mixing ratio wrt dry air (kg/kg)
+     character(len=*), intent(out) :: errmsg
+     integer,          intent(out) :: errflg
+
+     integer :: k
+
+     errflg = 0
+     errmsg = ''
+
+     do k = 1, nz
+       qi_dry(:ncol,k) = qi(:ncol,k) * (pdel(:ncol,k) / pdeldry(:ncol,k))
+     end do
+
+  end subroutine wet_to_dry_cloud_ice_run
+
 !> \section arg_table_wet_to_dry_rain_run  Argument Table
 !! \htmlinclude wet_to_dry_rain_run.html
   subroutine wet_to_dry_rain_run(ncol, nz, pdel, pdeldry, qr, qr_dry,         &
@@ -241,6 +268,31 @@ CONTAINS
      end do
 
   end subroutine dry_to_wet_cloud_liquid_water_run
+
+!> \section arg_table_dry_to_wet_cloud_ice_run Argument Table
+!! \htmlinclude dry_to_wet_cloud_ice_run.html
+  subroutine dry_to_wet_cloud_ice_run(ncol, nz, pdel, pdeldry, &
+       qi_dry, qi, errmsg, errflg)
+
+     integer,          intent(in)  :: ncol
+     integer,          intent(in)  :: nz
+     real(kind_phys),  intent(in)  :: pdel(:,:)    ! pressure thickness of layer (Pa)
+     real(kind_phys),  intent(in)  :: pdeldry(:,:) ! dry air pressure thickness of layer (Pa)
+     real(kind_phys),  intent(in)  :: qi_dry(:,:)  ! cloud ice mixing ratio wrt dry air (kg/kg)
+     real(kind_phys),  intent(out) :: qi(:,:)      ! cloud ice mixing ratio wrt moist air (kg/kg)
+     character(len=*), intent(out) :: errmsg
+     integer,          intent(out) :: errflg
+
+     integer :: k
+
+     errflg = 0
+     errmsg = ''
+
+     do k = 1, nz
+       qi(:ncol,k) = qi_dry(:ncol,k) * (pdeldry(:ncol,k) / pdel(:ncol,k))
+     end do
+
+  end subroutine dry_to_wet_cloud_ice_run
 
 !> \section arg_table_dry_to_wet_rain_run  Argument Table
 !! \htmlinclude dry_to_wet_rain_run.html
