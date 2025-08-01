@@ -11,19 +11,19 @@ module rrtmgp_cloud_optics_setup
   private
   public :: rrtmgp_cloud_optics_setup_init
 
-  integer,         public          :: nmu, nlambda
-  real(kind_phys), public, pointer :: g_mu(:)
-  real(kind_phys), public, pointer :: g_lambda(:,:)
-  real(kind_phys), public, pointer :: abs_lw_liq(:,:,:)
-  real(kind_phys), public, pointer :: ext_sw_liq(:,:,:)
-  real(kind_phys), public, pointer :: asm_sw_liq(:,:,:)
-  real(kind_phys), public, pointer :: ssa_sw_liq(:,:,:)
-  integer,         public          :: n_g_d
-  real(kind_phys), public, pointer :: g_d_eff(:)
-  real(kind_phys), public, pointer :: abs_lw_ice(:,:)
-  real(kind_phys), public, pointer :: ext_sw_ice(:,:)
-  real(kind_phys), public, pointer :: asm_sw_ice(:,:)
-  real(kind_phys), public, pointer :: ssa_sw_ice(:,:)
+  integer,         public              :: nmu, nlambda
+  real(kind_phys), public, allocatable :: g_mu(:)
+  real(kind_phys), public, allocatable :: g_lambda(:,:)
+  real(kind_phys), public, allocatable :: abs_lw_liq(:,:,:)
+  real(kind_phys), public, allocatable :: ext_sw_liq(:,:,:)
+  real(kind_phys), public, allocatable :: asm_sw_liq(:,:,:)
+  real(kind_phys), public, allocatable :: ssa_sw_liq(:,:,:)
+  integer,         public              :: n_g_d
+  real(kind_phys), public, allocatable :: g_d_eff(:)
+  real(kind_phys), public, allocatable :: abs_lw_ice(:,:)
+  real(kind_phys), public, allocatable :: ext_sw_ice(:,:)
+  real(kind_phys), public, allocatable :: asm_sw_ice(:,:)
+  real(kind_phys), public, allocatable :: ssa_sw_ice(:,:)
 
 contains
 

@@ -34,45 +34,45 @@ contains
     integer,                             intent(out) :: errcode                           ! CCPP error code
 
     ! Local variables
-    class(abstract_netcdf_reader_t),     pointer :: file_reader
-    character(len=:),  dimension(:),     pointer :: gas_names                          ! Names of absorbing gases
-    character(len=:),  dimension(:),     pointer :: gas_minor                          ! Name of absorbing minor gas
-    character(len=:),  dimension(:),     pointer :: identifier_minor                   ! Unique string identifying minor gas
-    character(len=:),  dimension(:),     pointer :: minor_gases_lower                  ! Names of minor absorbing gases in lower atmosphere
-    character(len=:),  dimension(:),     pointer :: minor_gases_upper                  ! Names of minor absorbing gases in upper atmosphere
-    character(len=:),  dimension(:),     pointer :: scaling_gas_lower                  ! Absorption also depends on the concentration of this gas in the lower atmosphere
-    character(len=:),  dimension(:),     pointer :: scaling_gas_upper                  ! Absorption also depends on the concentration of this gas in the upper atmosphere
-    integer,        dimension(:,:,:),    pointer :: key_species                        ! Key species pair for each band
-    integer,        dimension(:,:),      pointer :: band2gpt                           ! Array for converting shortwave band limits to g-points
-    integer,        dimension(:,:),      pointer :: minor_limits_gpt_lower             ! Beginning and ending gpoint for each minor interval in lower atmosphere
-    integer,        dimension(:,:),      pointer :: minor_limits_gpt_upper             ! Beginning and ending gpoint for each minor interval in upper atmosphere
-    integer,        dimension(:),        pointer :: kminor_start_lower                 ! Starting index in the [1,nContributors] vector for a contributor given by "minor_gases_lower"
-    integer,        dimension(:),        pointer :: kminor_start_upper                 ! Starting index in the [1,nContributors] vector for a contributor given by "minor_gases_upper"
-    logical(wl),     dimension(:),       pointer :: minor_scales_with_density_lower    ! Density scaling is applied to minor absorption coefficients in the lower atmosphere
-    logical(wl),     dimension(:),       pointer :: scale_by_complement_lower          ! Absorption is scaled by concentration of scaling_gas (F) or its complement (T) in the lower atmosphere
-    logical(wl),     dimension(:),       pointer :: minor_scales_with_density_upper    ! Density scaling is applied to minor absorption coefficients in the upper atmosphere
-    logical(wl),     dimension(:),       pointer :: scale_by_complement_upper          ! Absorption is scaled by concentration of scaling_gas (F) or its complement (T) in the upper atmosphere
-    real(kind_phys), dimension(:,:,:,:), pointer :: kmajor                      ! Stored absorption coefficients due to major absorbing gases
-    real(kind_phys), dimension(:,:,:,:), pointer :: planck_frac                 ! Fraction of band-integrated Planck energy associated with each g-point
-    real(kind_phys), dimension(:,:,:),   pointer :: kminor_lower                  ! Transformed from [nTemp x nEta x nGpt x nAbsorbers] array to [nTemp x nEta x nContributors] array
-    real(kind_phys), dimension(:,:,:),   pointer :: kminor_upper                  ! Transformed from [nTemp x nEta x nGpt x nAbsorbers] array to [nTemp x nEta x nContributors] array
-    real(kind_phys), dimension(:,:,:),   pointer :: vmr_ref                       ! Volume mixing ratios for reference atmosphere
-    real(kind_phys), dimension(:,:),     pointer :: band_lims_wavenum             ! Beginning and ending wavenumber for each band [cm-1]
-    real(kind_phys), dimension(:,:),     pointer :: totplnk                       ! Integrated Planck function by band
-    real(kind_phys), dimension(:,:),     pointer :: optimal_angle_fit             ! Coefficients for linear fit used in longwave optimal angle RT calculation
-    real(kind_phys), dimension(:),       pointer :: press_ref                     ! Pressures for reference atmosphere [Pa]
-    real(kind_phys), dimension(:),       pointer :: temp_ref                      ! Temperatures for reference atmosphere [K]
-    real(kind_phys),                     pointer :: press_ref_trop                ! Reference pressure separating the lower and upper atmosphere [Pa]
-    real(kind_phys),                     pointer :: temp_ref_p                    ! Standard spectroscopic reference pressure [Pa]
-    real(kind_phys),                     pointer :: temp_ref_t                    ! Standard spectroscopic reference temperature [K]
-    real(kind_phys), dimension(:,:,:),   pointer :: rayl_lower                    ! Stored coefficients due to rayleigh scattering contribution in lower part of atmosphere
-    real(kind_phys), dimension(:,:,:),   pointer :: rayl_upper                    ! Stored coefficients due to rayleigh scattering contribution in upper part of atmosphere
-    integer,             dimension(:),   pointer :: int2log                       ! use this to convert integer-to-logical.
-    real(kind_phys), dimension(:,:,:), allocatable :: rayl_lower_allocatable
-    real(kind_phys), dimension(:,:,:), allocatable :: rayl_upper_allocatable
-    integer,                           parameter :: missing_variable_error_code = 3
-    character(len=256)                           :: alloc_errmsg
-    integer                                      :: idx
+    class(abstract_netcdf_reader_t),     pointer     :: file_reader
+    character(len=:),  dimension(:),     allocatable :: gas_names                          ! Names of absorbing gases
+    character(len=:),  dimension(:),     allocatable :: gas_minor                          ! Name of absorbing minor gas
+    character(len=:),  dimension(:),     allocatable :: identifier_minor                   ! Unique string identifying minor gas
+    character(len=:),  dimension(:),     allocatable :: minor_gases_lower                  ! Names of minor absorbing gases in lower atmosphere
+    character(len=:),  dimension(:),     allocatable :: minor_gases_upper                  ! Names of minor absorbing gases in upper atmosphere
+    character(len=:),  dimension(:),     allocatable :: scaling_gas_lower                  ! Absorption also depends on the concentration of this gas in the lower atmosphere
+    character(len=:),  dimension(:),     allocatable :: scaling_gas_upper                  ! Absorption also depends on the concentration of this gas in the upper atmosphere
+    integer,        dimension(:,:,:),    allocatable :: key_species                        ! Key species pair for each band
+    integer,        dimension(:,:),      allocatable :: band2gpt                           ! Array for converting shortwave band limits to g-points
+    integer,        dimension(:,:),      allocatable :: minor_limits_gpt_lower             ! Beginning and ending gpoint for each minor interval in lower atmosphere
+    integer,        dimension(:,:),      allocatable :: minor_limits_gpt_upper             ! Beginning and ending gpoint for each minor interval in upper atmosphere
+    integer,        dimension(:),        allocatable :: kminor_start_lower                 ! Starting index in the [1,nContributors] vector for a contributor given by "minor_gases_lower"
+    integer,        dimension(:),        allocatable :: kminor_start_upper                 ! Starting index in the [1,nContributors] vector for a contributor given by "minor_gases_upper"
+    logical(wl),     dimension(:),       allocatable :: minor_scales_with_density_lower    ! Density scaling is applied to minor absorption coefficients in the lower atmosphere
+    logical(wl),     dimension(:),       allocatable :: scale_by_complement_lower          ! Absorption is scaled by concentration of scaling_gas (F) or its complement (T) in the lower atmosphere
+    logical(wl),     dimension(:),       allocatable :: minor_scales_with_density_upper    ! Density scaling is applied to minor absorption coefficients in the upper atmosphere
+    logical(wl),     dimension(:),       allocatable :: scale_by_complement_upper          ! Absorption is scaled by concentration of scaling_gas (F) or its complement (T) in the upper atmosphere
+    real(kind_phys), dimension(:,:,:,:), allocatable :: kmajor                      ! Stored absorption coefficients due to major absorbing gases
+    real(kind_phys), dimension(:,:,:,:), allocatable :: planck_frac                 ! Fraction of band-integrated Planck energy associated with each g-point
+    real(kind_phys), dimension(:,:,:),   allocatable :: kminor_lower                  ! Transformed from [nTemp x nEta x nGpt x nAbsorbers] array to [nTemp x nEta x nContributors] array
+    real(kind_phys), dimension(:,:,:),   allocatable :: kminor_upper                  ! Transformed from [nTemp x nEta x nGpt x nAbsorbers] array to [nTemp x nEta x nContributors] array
+    real(kind_phys), dimension(:,:,:),   allocatable :: vmr_ref                       ! Volume mixing ratios for reference atmosphere
+    real(kind_phys), dimension(:,:),     allocatable :: band_lims_wavenum             ! Beginning and ending wavenumber for each band [cm-1]
+    real(kind_phys), dimension(:,:),     allocatable :: totplnk                       ! Integrated Planck function by band
+    real(kind_phys), dimension(:,:),     allocatable :: optimal_angle_fit             ! Coefficients for linear fit used in longwave optimal angle RT calculation
+    real(kind_phys), dimension(:),       allocatable :: press_ref                     ! Pressures for reference atmosphere [Pa]
+    real(kind_phys), dimension(:),       allocatable :: temp_ref                      ! Temperatures for reference atmosphere [K]
+    real(kind_phys),                     allocatable :: press_ref_trop                ! Reference pressure separating the lower and upper atmosphere [Pa]
+    real(kind_phys),                     allocatable :: temp_ref_p                    ! Standard spectroscopic reference pressure [Pa]
+    real(kind_phys),                     allocatable :: temp_ref_t                    ! Standard spectroscopic reference temperature [K]
+    real(kind_phys), dimension(:,:,:),   allocatable :: rayl_lower                    ! Stored coefficients due to rayleigh scattering contribution in lower part of atmosphere
+    real(kind_phys), dimension(:,:,:),   allocatable :: rayl_upper                    ! Stored coefficients due to rayleigh scattering contribution in upper part of atmosphere
+    integer,             dimension(:),   allocatable :: int2log                       ! use this to convert integer-to-logical.
+    real(kind_phys), dimension(:,:,:), allocatable   :: rayl_lower_allocatable
+    real(kind_phys), dimension(:,:,:), allocatable   :: rayl_upper_allocatable
+    integer,                           parameter     :: missing_variable_error_code = 3
+    character(len=256)                               :: alloc_errmsg
+    integer                                          :: idx
 
     ! Initialize error variables
     errmsg = ''
@@ -210,7 +210,6 @@ contains
        end if
     end do
     deallocate(int2log)
-    nullify(int2log)
     call file_reader%get_var('scale_by_complement_lower', int2log, errmsg, errcode)
     if (errcode /= 0) then
        return
@@ -228,7 +227,6 @@ contains
        end if
     end do
     deallocate(int2log)
-    nullify(int2log)
     call file_reader%get_var('minor_scales_with_density_upper', int2log, errmsg, errcode)
     if (errcode /= 0) then
        return
@@ -246,7 +244,6 @@ contains
        end if
     end do
     deallocate(int2log)
-    nullify(int2log)
     call file_reader%get_var('scale_by_complement_upper', int2log, errmsg, errcode)
     if (errcode /= 0) then
        return
@@ -264,7 +261,6 @@ contains
        end if
     end do
     deallocate(int2log)
-    nullify(int2log)
     call file_reader%get_var('scaling_gas_lower', scaling_gas_lower, errmsg, errcode)
     if (errcode /= 0) then
        return
@@ -312,52 +308,6 @@ contains
        errcode = 1
     end if
     call check_error_msg('rrtmgp_lw_gas_optics_init_load', errmsg)
-
-    ! Deallocate pointer variables
-    deallocate(gas_names, gas_minor, identifier_minor, minor_gases_lower, minor_gases_upper, &
-            scaling_gas_lower, scaling_gas_upper, key_species, band2gpt, minor_limits_gpt_lower, &
-            minor_limits_gpt_upper, kminor_start_lower, kminor_start_upper, minor_scales_with_density_lower, &
-            minor_scales_with_density_upper, scale_by_complement_lower, scale_by_complement_upper, &
-            kmajor, planck_frac, kminor_lower, kminor_upper, vmr_ref, band_lims_wavenum, totplnk, &
-            optimal_angle_fit, press_ref, temp_ref, press_ref_trop, temp_ref_p, temp_ref_t)
-    nullify(gas_names)
-    nullify(gas_minor)
-    nullify(identifier_minor)
-    nullify(minor_gases_lower)
-    nullify(minor_gases_upper)
-    nullify(scaling_gas_lower)
-    nullify(scaling_gas_upper)
-    nullify(key_species)
-    nullify(band2gpt)
-    nullify(minor_limits_gpt_lower)
-    nullify(minor_limits_gpt_upper)
-    nullify(kminor_start_lower)
-    nullify(kminor_start_upper)
-    nullify(minor_scales_with_density_lower)
-    nullify(minor_scales_with_density_upper)
-    nullify(scale_by_complement_lower)
-    nullify(scale_by_complement_upper)
-    nullify(kmajor)
-    nullify(planck_frac)
-    nullify(kminor_lower)
-    nullify(kminor_upper)
-    nullify(vmr_ref)
-    nullify(band_lims_wavenum)
-    nullify(totplnk)
-    nullify(optimal_angle_fit)
-    nullify(press_ref)
-    nullify(temp_ref)
-    nullify(press_ref_trop)
-    nullify(temp_ref_p)
-    nullify(temp_ref_t)
-    if (associated(rayl_lower)) then
-       deallocate(rayl_lower)
-       nullify(rayl_lower)
-    end if
-    if (associated(rayl_upper)) then
-       deallocate(rayl_upper)
-       nullify(rayl_upper)
-    end if
 
   end subroutine rrtmgp_lw_gas_optics_init
 
