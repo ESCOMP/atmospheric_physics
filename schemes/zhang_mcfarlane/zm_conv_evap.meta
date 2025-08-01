@@ -91,7 +91,7 @@
   intent = in
   advected = true
 [ landfrac ]
-  standard_name = land_area_fraction
+  standard_name = land_area_fraction_from_coupler
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
