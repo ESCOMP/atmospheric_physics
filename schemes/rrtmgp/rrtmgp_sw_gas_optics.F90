@@ -70,7 +70,7 @@ contains
     real(kind_phys), dimension(:,:,:), allocatable :: rayl_upper                    ! Stored coefficients due to rayleigh scattering contribution in upper part of atmosphere
     real(kind_phys), dimension(:,:,:), allocatable :: rayl_lower_allocatable    ! Stored coefficients due to rayleigh scattering contribution in lower part of atmosphere
     real(kind_phys), dimension(:,:,:), allocatable :: rayl_upper_allocatable    ! Stored coefficients due to rayleigh scattering contribution in upper part of atmosphere
-    integer,             dimension(:), pointer     :: int2log                       ! use this to convert integer-to-logical.
+    integer,             dimension(:), allocatable :: int2log                       ! use this to convert integer-to-logical.
     integer,                         parameter     :: missing_variable_error_code = 3
     character(len=256)                             :: alloc_errmsg
     integer                                        :: idx
