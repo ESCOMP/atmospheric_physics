@@ -78,7 +78,7 @@ contains
   if (use_gw_front .or. use_gw_front_igw) then
 
      ! Check that deep gw file is set in namelist
-     if (unset_kind_phys /= frontgfc) then
+     if (frontgfc == unset_kind_phys) then
         write(errmsg,'(a, a)') sub, &
           " Frontogenesis enabled, but frontgfc was not set!"
         errflg = 1
@@ -113,7 +113,7 @@ contains
 
   if (use_gw_front) then
      ! Check that deep gw file is set in namelist
-     if (all(unset_kind_phys /= [ effgw_cm, taubgnd ])) then
+     if (taubgnd == unset_kind_phys .or. effgw_cm == unset_kind_phys) then
         write(errmsg,'(a, a)') sub, &
              " Frontogenesis mid-scale waves enabled, but not all required namelist variables were set!"
         errflg = 1
@@ -138,7 +138,7 @@ contains
   if (use_gw_front_igw) then
 
      ! Check that deep gw file is set in namelist
-     if (all(unset_kind_phys /= [ effgw_cm_igw, taubgnd_igw ])) then
+     if(effgw_cm_igw == unset_kind_phys .or. taubgnd_igw == unset_kind_phys) then
         write(errmsg,'(a, a)') sub, &
              " Frontogenesis inertial waves enabled, but not all required namelist variables were set!"
         errflg = 1

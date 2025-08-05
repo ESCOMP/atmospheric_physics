@@ -17,8 +17,6 @@ public :: gw_movmtn_run
 public :: gw_movmtn_init
 public :: MovMtnSourceDesc
 
-!jtreal(kind_phys), parameter :: unset_kind_phys = huge(1._kind_phys)
-
 type :: MovMtnSourceDesc
    ! Whether wind speeds are shifted to be relative to storm cells.
    logical :: storm_shift
@@ -84,7 +82,7 @@ contains
     integer, intent(out)                          :: errflg
 
     integer :: stat
-    real(kind_phys), pointer                      :: file_mfcc(:,:,:) !is the lookup table from the file f(depth, wind, phase speed)
+    real(kind_phys), pointer                      :: file_mfcc(:,:) !is the lookup table from the file f(depth, wind, phase speed)
 
     ! Number of wavenumbers in the input file.
     integer :: ngwv_file, k
@@ -95,7 +93,7 @@ contains
     class(abstract_netcdf_reader_t), allocatable :: reader
 
     !----------------------------------------------------------------------
-    source_type=movmtn_source_nl
+    source_type = movmtn_source_nl
 
     do k = 0, pver
        ! 950 hPa index
@@ -106,7 +104,7 @@ contains
     desc%min_hdepth = 1._kind_phys
 
     if (masterproc) then
-       write (iulog,*) 'Moving mountain deep level =',desc%k
+       write (iulog,*) 'gw_movmtn_init: Moving mountain deep level =',desc%k
     end if
 
     ! Find steering level
@@ -154,7 +152,7 @@ contains
   ! Number in each direction is half of total (and minus phase speed of 0).
   desc%maxuh = (desc%maxuh-1)/2
   ngwv_file = (ngwv_file-1)/2
-  if (ngwv_file >= band%ngwv) &
+  if (ngwv_file < band%ngwv) &
        call handle_err( stat,errflg,sub//"PhaseSpeed in lookup table inconsistent with moving mountain scheme", errmsg )
 
   ! Allocate hd and get data.
@@ -176,7 +174,7 @@ contains
   allocate(desc%uh(desc%maxuh), stat=stat, errmsg=msg)
   call handle_err( stat,errflg,sub//': Allocate of desc%uh failed', errmsg )
 
-  call reader%get_var('UARR',desc%uh , errmsg, errflg)
+  call reader%get_var('UARR', desc%uh, errmsg, errflg)
   if (errflg /= 0) then
      return !Error has occurred reading UARR, so exit scheme
   end if
@@ -189,12 +187,14 @@ contains
   call handle_err( stat,errflg,sub//': Error allocating desc%mfcc', errmsg )
 
   ! Get mfcc data.
-  call reader%get_var('NEWMF',file_mfcc , errmsg, errflg)
+  call reader%get_var('NEWMF', file_mfcc, errmsg, errflg)
   if (errflg /= 0) then
      return !Error has occurred reading NEWMF, so exit scheme
   end if
 
-  desc%mfcc(:,-desc%maxuh:desc%maxuh,-band%ngwv:band%ngwv)= file_mfcc(:,:,ngwv_file-band%ngwv+1:)
+  !desc%mfcc(:,-desc%maxuh:desc%maxuh,-band%ngwv:band%ngwv) = file_mfcc(:,:,ngwv_file-band%ngwv+1:)
+  ! band%ngwv = 0
+  desc%mfcc(:,-desc%maxuh:desc%maxuh,0) = file_mfcc(:,:)
 
   ! Close file
   call reader%close_file(errmsg, errflg)
@@ -203,7 +203,7 @@ contains
   end if
 
   if (masterproc) then
-     write(iulog,*) "Read in Mov Mountain source file."
+     write(iulog,*) "gw_movmtn_init: Read in Mov Mountain source file."
   endif
 
 end subroutine gw_movmtn_init
@@ -452,8 +452,6 @@ subroutine gw_movmtn_src(ncol, &
   real(kind_phys) :: xpwp_src(ncol)
   ! Manual steering level set
   integer :: Steer_k(ncol), Launch_k(ncol)
-  ! Set source (1=vorticity, 2=PBL mom fluxes)
-  integer :: source_type
 
   errmsg =''
   errflg = 0

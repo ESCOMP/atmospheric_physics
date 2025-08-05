@@ -96,11 +96,13 @@ real(kind_phys), pointer, dimension(:) :: &
 
   real(kind_phys)  :: rearth
   type(GWBand)     :: band_oro
-  integer, public  :: prdg
   logical, public  :: &
        do_smooth_regimes, &
        do_adjust_tauoro, &
        do_backward_compat
+
+  ! anisotropic ridge fields
+  integer, parameter :: prdg = 16
 
 !!$  real(kind_phys), public :: C_BetaMax_DS, C_GammaMax, &
 !!$              Frx0, Frx1, C_BetaMax_SM, Fr_c, &
@@ -111,8 +113,8 @@ real(kind_phys), pointer, dimension(:) :: &
 !==========================================================================
 contains
 !==========================================================================
-  subroutine gw_rdg_init( band, &
-       prdg_in, &
+  subroutine gw_rdg_init(ncol, &
+       band, &
        rearth_c, &
        effgw_rdg_beta, &
        effgw_rdg_gamma, &
@@ -132,9 +134,8 @@ contains
     type(GWBand), intent(in)     :: band
 
     integer,  intent(in) :: &
-!jt         ncol, &
-         iulog, &
-         prdg_in
+         ncol, &
+         iulog
 
     logical, intent(in) ::  gw_rdg_do_divstream_nl, &
          gw_rdg_do_smooth_regimes_nl, &
@@ -162,33 +163,33 @@ contains
     class(abstract_netcdf_reader_t), allocatable :: reader
     character(len=*), parameter :: sub = 'gw_rdg_init'
 
-       ! Set the local variables
-       band_oro            = band
-       bnd_topo_file       = bnd_topo_file_in
-       bnd_rdg_file        = bnd_rdg_file_in
-       prdg                = prdg_in
-       rearth              = rearth_c
-       do_divstream = gw_rdg_do_divstream_nl
-       C_BetaMax_DS = gw_rdg_C_BetaMax_DS_nl
-       C_GammaMax   = gw_rdg_C_GammaMax_nl
-       Frx0         = gw_rdg_Frx0_nl
-       Frx1         = gw_rdg_Frx1_nl
-       C_BetaMax_SM = gw_rdg_C_BetaMax_SM_nl
-       Fr_c         = gw_rdg_Fr_c_nl
-       do_smooth_regimes  = gw_rdg_do_smooth_regimes_nl
-       do_adjust_tauoro   = gw_rdg_do_adjust_tauoro_nl
-       do_backward_compat = gw_rdg_do_backward_compat_nl
-       orohmin      = gw_rdg_orohmin_nl
-       orovmin      = gw_rdg_orovmin_nl
-       orostratmin  = gw_rdg_orostratmin_nl
-       orom2min     = gw_rdg_orom2min_nl
-       gw_rdg_do_vdiff     = gw_rdg_do_vdiff_nl
-       use_gw_rdg_beta     = use_gw_rdg_beta_in
-       use_gw_rdg_gamma    = use_gw_rdg_gamma_in
+    ! Set the local variables
+    band_oro            = band
+    bnd_topo_file       = bnd_topo_file_in
+    bnd_rdg_file        = bnd_rdg_file_in
+    rearth              = rearth_c
+    do_divstream = gw_rdg_do_divstream_nl
+    C_BetaMax_DS = gw_rdg_C_BetaMax_DS_nl
+    C_GammaMax   = gw_rdg_C_GammaMax_nl
+    Frx0         = gw_rdg_Frx0_nl
+    Frx1         = gw_rdg_Frx1_nl
+    C_BetaMax_SM = gw_rdg_C_BetaMax_SM_nl
+    Fr_c         = gw_rdg_Fr_c_nl
+    do_smooth_regimes  = gw_rdg_do_smooth_regimes_nl
+    do_adjust_tauoro   = gw_rdg_do_adjust_tauoro_nl
+    do_backward_compat = gw_rdg_do_backward_compat_nl
+    orohmin      = gw_rdg_orohmin_nl
+    orovmin      = gw_rdg_orovmin_nl
+    orostratmin  = gw_rdg_orostratmin_nl
+    orom2min     = gw_rdg_orom2min_nl
+    gw_rdg_do_vdiff     = gw_rdg_do_vdiff_nl
+    use_gw_rdg_beta     = use_gw_rdg_beta_in
+    use_gw_rdg_gamma    = use_gw_rdg_gamma_in
 
     ! create reader if used below
-    if (use_gw_rdg_beta .or. use_gw_rdg_gamma) &
+    if (use_gw_rdg_beta .or. use_gw_rdg_gamma) then
          reader = create_netcdf_reader_t()
+    endif
 
     if (use_gw_rdg_beta) then
        if (effgw_rdg_beta == unset_kind_phys) then
@@ -224,15 +225,19 @@ contains
        call reader%get_var('ISOVAR', rdg_isovar, errmsg, errflg)
        if (errflg /= 0) then
           ! ++jtb - Temporary fix until topo files contain this variable
+          allocate(rdg_isovar(ncol))  ! Must allocate first
           rdg_isovar(:) = 0._kind_phys
-          !       return
+          errflg = 0  ! Reset error flag
+          errmsg = ''
        end if
 
        call reader%get_var('ISOWGT', rdg_isowgt, errmsg, errflg)
        if (errflg /= 0) then
           ! ++jtb - Temporary fix until topo files contain this variable
+          allocate(rdg_isowgt(ncol))  ! Must allocate first
           rdg_isowgt(:) = 0._kind_phys
-          !       return
+          errflg = 0  ! Reset error flag
+          errmsg = ''
        end if
 
        call reader%get_var('HWDTH', rdg_hwdth, errmsg, errflg)
@@ -272,6 +277,7 @@ contains
           endif
        end if
     end if
+
     if (use_gw_rdg_gamma) then
 
        if (effgw_rdg_gamma == unset_kind_phys) then
@@ -571,7 +577,7 @@ end subroutine gw_rdg_resid_src
      src_level, tend_level, bwv_level ,tlb_level , tau, ubm, ubi, xv, yv,  &
      ubmsrc, usrc, vsrc, nsrc, rsrc, m2src, tlb, bwv, Fr1, Fr2, Frx, c)
   use gw_common, only: rair, GWBand
-  use gw_utils, only:  dot_2d, midpoint_interp
+  use gw_utils,  only: dot_2d, midpoint_interp
   !-----------------------------------------------------------------------
   ! Orographic source for multiple gravity wave drag parameterization.
   !
@@ -588,7 +594,6 @@ end subroutine gw_rdg_resid_src
   type(GWBand), intent(in) :: band
   ! Pressure coordinates.
   type(Coords1D), intent(in) :: p
-
 
   ! Midpoint zonal/meridional winds. ( m s-1)
   real(kind_phys), intent(in) :: u(:,:), v(:,:)

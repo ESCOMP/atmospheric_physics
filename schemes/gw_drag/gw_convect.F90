@@ -96,8 +96,6 @@ subroutine gw_beres_init(pver, pi, gw_drag_file_sh, gw_drag_file_dp, pref_edge, 
        band_mid = GWBand(pgwv, gw_dc, 1.0_kind_phys, wavelength)
 
   if (use_gw_convect_dp) then
-!jt     ttend_dp_idx    = pbuf_get_index('TTEND_DP')
-
      ! Set the deep scheme specification components.
      beres_dp_desc%storm_shift = .false.
 
@@ -107,7 +105,7 @@ subroutine gw_beres_init(pver, pi, gw_drag_file_sh, gw_drag_file_dp, pref_edge, 
      end do
 
      if (masterproc) then
-        write (iulog,*) 'Beres deep level =',beres_dp_desc%k
+        write (iulog,*) 'gw_beres_init: Beres deep level =',beres_dp_desc%k
      end if
 
      ! Don't use deep convection heating depths below this limit.
@@ -127,9 +125,6 @@ subroutine gw_beres_init(pver, pi, gw_drag_file_sh, gw_drag_file_dp, pref_edge, 
   end if
 
   if (use_gw_convect_sh) then
-
-!jt     ttend_sh_idx    = pbuf_get_index('TTEND_SH')
-
      ! Set the shallow scheme specification components.
      beres_sh_desc%storm_shift = .false.
 
@@ -139,7 +134,7 @@ subroutine gw_beres_init(pver, pi, gw_drag_file_sh, gw_drag_file_dp, pref_edge, 
      end do
 
      if (masterproc) then
-        write (iulog,*) 'Beres shallow level =',beres_sh_desc%k
+        write (iulog,*) 'gw_beres_init: Beres shallow level =',beres_sh_desc%k
      end if
 
      ! Use all heating depths for shallow convection.
@@ -234,12 +229,12 @@ subroutine gw_beres_init(pver, pi, gw_drag_file_sh, gw_drag_file_dp, pref_edge, 
        end if
 
        ! Get mfcc data.
-       call reader%get_var('mfcc',file_mfcc , errmsg, errflg)
+       call reader%get_var('mfcc', file_mfcc, errmsg, errflg)
        if (errflg /= 0) then
-          return !Error has occurred reading NEWMF, so exit scheme
+          return !Error has occurred reading MFCC, so exit scheme
        end if
 
-       desc%mfcc(:,-desc%maxuh:desc%maxuh,-band%ngwv:band%ngwv)= file_mfcc(:,:,ngwv_file-band%ngwv+1:)
+       desc%mfcc(:,-desc%maxuh:desc%maxuh,-band%ngwv:band%ngwv) = file_mfcc(:,:,ngwv_file-band%ngwv+1:)
 
        ! Close file
        call reader%close_file(errmsg, errflg)

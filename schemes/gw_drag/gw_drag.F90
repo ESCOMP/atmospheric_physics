@@ -19,7 +19,6 @@ module gw_drag
 !--------------------------------------------------------------------------
   use ccpp_kinds, only:  kind_phys
   use gw_common,  only: GWBand,handle_err
-  use gw_rdg,     only: gw_rdg_do_vdiff
   use interpolate_data, only: lininterp
 
   implicit none
@@ -161,28 +160,6 @@ module gw_drag
   ! Whether or not to apply tendency max
   logical :: gw_apply_tndmax = .true.
 
-  real(kind_phys), allocatable, dimension(:), target :: &
-     rdg_gbxar
-
-     ! Meso Beta
-  real(kind_phys), allocatable, dimension(:,:), target :: &
-     rdg_hwdth,  &
-     rdg_clngt,  &
-     rdg_mxdis,  &
-     rdg_anixy,  &
-     rdg_angll
-
-  real(kind_phys), allocatable, dimension(:), target :: &
-     rdg_gbxarg
-
-  ! Meso Gamma
-  real(kind_phys), allocatable, dimension(:,:), target :: &
-     rdg_hwdthg, &
-     rdg_clngtg, &
-     rdg_mxdisg, &
-     rdg_anixyg, &
-     rdg_angllg
-
   ! Water constituent indices for budget
   integer :: ixcldliq = -1
   integer :: ixcldice = -1
@@ -208,6 +185,7 @@ contains
        iulog_in,  &
        ktop_in,  &
        masterproc_in, &
+       ncol, &
        pver,  &
        gravit_in,  &
        rair_in,  &
@@ -264,6 +242,12 @@ contains
        movmtn_psteer_in, &
        movmtn_plaunch_in, &
 
+       gw_rdg_do_divstream_nl, gw_rdg_C_BetaMax_DS_nl, gw_rdg_C_GammaMax_nl, &
+       gw_rdg_Frx0_nl, gw_rdg_Frx1_nl, gw_rdg_C_BetaMax_SM_nl, gw_rdg_Fr_c_nl, &
+       gw_rdg_do_smooth_regimes_nl, gw_rdg_do_adjust_tauoro_nl, &
+       gw_rdg_do_backward_compat_nl, gw_rdg_orohmin_nl, gw_rdg_orovmin_nl, &
+       gw_rdg_orostratmin_nl, gw_rdg_orom2min_nl, gw_rdg_do_vdiff_nl, &
+
        use_gw_oro_in,  &
        use_gw_front_in,  &
        use_gw_front_igw_in,  &
@@ -278,22 +262,19 @@ contains
        errmsg,  &
        errflg )
 
-    use gw_common,  only: gw_common_init, gw_prof
-    use gw_rdg,  only: gw_rdg_do_vdiff, do_divstream, &
-         C_BetaMax_DS, C_GammaMax, &
-         Frx0, Frx1, C_BetaMax_SM, Fr_c, &
-         do_smooth_regimes, do_adjust_tauoro, &
-         do_backward_compat, orohmin, orovmin, &
-         orostratmin, orom2min, gw_rdg_do_vdiff, &
-         bnd_rdg_file, bnd_topo_file, prdg, gw_rdg_init
+    use ref_pres, only: press_lim_idx
 
-    use gw_front,  only: gw_front_init
+    use gw_common,  only: gw_common_init, gw_prof
+    use gw_rdg,     only: gw_rdg_init
+    use gw_front,   only: gw_front_init
     use gw_movmtn,  only: gw_movmtn_init
+    use gw_convect, only: gw_beres_init
   !-----------------------------------------------------------------------
   ! Time independent initialization for multiple gravity wave
   ! parameterization.
   !-----------------------------------------------------------------------
 
+  integer, intent(in)             :: ncol
   integer, intent(in)             :: pver
   real(kind_phys), intent(in)     :: gravit_in          ! gravitational acceleration (m s-2)
   real(kind_phys), intent(in)     :: rair_in            ! Dry air gas constant     (J K-1 kg-1)
@@ -371,6 +352,16 @@ contains
   integer, intent(in)                     :: movmtn_source_in
   real(kind_phys), intent(in)             :: movmtn_psteer_in
   real(kind_phys), intent(in)             :: movmtn_plaunch_in
+
+  logical, intent(in) :: gw_rdg_do_divstream_nl, &
+         gw_rdg_do_smooth_regimes_nl, &
+         gw_rdg_do_adjust_tauoro_nl, &
+         gw_rdg_do_backward_compat_nl, &
+         gw_rdg_do_vdiff_nl
+  real(kind_phys), intent(in) :: &
+         gw_rdg_C_BetaMax_DS_nl, gw_rdg_C_GammaMax_nl, &
+         gw_rdg_Frx0_nl, gw_rdg_Frx1_nl, gw_rdg_C_BetaMax_SM_nl, gw_rdg_Fr_c_nl, &
+         gw_rdg_orohmin_nl, gw_rdg_orovmin_nl, gw_rdg_orostratmin_nl, gw_rdg_orom2min_nl
 
   logical, intent(in)             ::  use_gw_oro_in
   logical, intent(in)             ::  use_gw_front_in
@@ -576,9 +567,8 @@ contains
      end do
   end if
 
-
   if (masterproc) then
-     write(iulog,*) 'KTOP        =',ktop
+     write(iulog,*) 'gw_init: ktop = ',ktop
   end if
 
   ! Initialize subordinate modules.
@@ -586,38 +576,59 @@ contains
        tau_0_ubc, ktop, gravit, rair, alpha, gw_prndl, &
        gw_qbo_hdepth_scaling, errstring )
 
-  ! Initialize subordinate modules.
-  call gw_rdg_init( band_oro, &
-       prdg, &
-       rearth, &
-       effgw_rdg_beta, &
-       effgw_rdg_gamma, &
-       use_gw_rdg_beta, &
-       use_gw_rdg_gamma, &
-       bnd_topo_file, &
-       bnd_rdg_file, &
-       do_divstream, C_BetaMax_DS, C_GammaMax, &
-       Frx0, Frx1, C_BetaMax_SM, Fr_c, &
-       do_smooth_regimes, do_adjust_tauoro, &
-       do_backward_compat, orohmin, orovmin, &
-       orostratmin, orom2min, gw_rdg_do_vdiff, &
-       masterproc, iulog, errmsg, errflg)
+  call gw_rdg_init( &
+     ncol                           = ncol, &
+     band                           = band_oro, &
+     rearth_c                       = rearth, &
+     effgw_rdg_beta                 = effgw_rdg_beta, &
+     effgw_rdg_gamma                = effgw_rdg_gamma, &
+     use_gw_rdg_beta_in             = use_gw_rdg_beta, &
+     use_gw_rdg_gamma_in            = use_gw_rdg_gamma, &
+     bnd_topo_file_in               = bnd_topo, &
+     bnd_rdg_file_in                = bnd_rdggm, &
+     gw_rdg_do_divstream_nl         = gw_rdg_do_divstream_nl, &
+     gw_rdg_C_BetaMax_DS_nl         = gw_rdg_C_BetaMax_DS_nl, &
+     gw_rdg_C_GammaMax_nl           = gw_rdg_C_GammaMax_nl, &
+     gw_rdg_Frx0_nl                 = gw_rdg_Frx0_nl, &
+     gw_rdg_Frx1_nl                 = gw_rdg_Frx1_nl, &
+     gw_rdg_C_BetaMax_SM_nl         = gw_rdg_C_BetaMax_SM_nl, &
+     gw_rdg_Fr_c_nl                 = gw_rdg_Fr_c_nl, &
+     gw_rdg_do_smooth_regimes_nl    = gw_rdg_do_smooth_regimes_nl, &
+     gw_rdg_do_adjust_tauoro_nl     = gw_rdg_do_adjust_tauoro_nl, &
+     gw_rdg_do_backward_compat_nl   = gw_rdg_do_backward_compat_nl, &
+     gw_rdg_orohmin_nl              = gw_rdg_orohmin_nl, &
+     gw_rdg_orovmin_nl              = gw_rdg_orovmin_nl, &
+     gw_rdg_orostratmin_nl          = gw_rdg_orostratmin_nl, &
+     gw_rdg_orom2min_nl             = gw_rdg_orom2min_nl, &
+     gw_rdg_do_vdiff_nl             = gw_rdg_do_vdiff_nl, &
+     masterproc                     = masterproc, &
+     iulog                          = iulog, &
+     errmsg                         = errmsg, &
+     errflg                         = errflg)
+  if(errflg /= 0) return
 
   call gw_front_init( pver, pref_edge, frontgfc, band_mid, band_long, &
        taubgnd, taubgnd_igw, &
        effgw_cm, effgw_cm_igw, use_gw_front, use_gw_front_igw, &
        front_gaussian_width, masterproc, iulog, errmsg, errflg )
+  if(errflg /= 0) return
 
   call gw_movmtn_init( pver, gw_drag_file_mm, &
        band_movmtn, &
        pref_edge, movmtn_psteer, movmtn_plaunch, movmtn_source_in, masterproc, iulog, errmsg, errflg )
+  if(errflg /= 0) return
 
+  if(use_gw_convect_dp .or. use_gw_convect_sh) then
+    call gw_beres_init(pver, pi, gw_drag_file_sh, gw_drag_file, pref_edge, gw_dc, wavelength_mid, pgwv, &
+       use_gw_convect_dp,use_gw_convect_sh, masterproc, iulog, errmsg, errflg )
+  endif
+  if(errflg /= 0) return
 
   if (gw_top_taper) then
      allocate(vramp(pver))
      vramp(:) = 1._kind_phys
      topndx = 1
-     botndx = press_lim_idx( 0.6E-02_kind_phys, pref_mid, top=.true. )
+     botndx = press_lim_idx( 0.6E-02_kind_phys, top=.true. )
      if (botndx>1) then
         do k=botndx,topndx,-1
            vramp(k) = vramp(k+1)/(pref_edge(k+1)/pref_edge(k))
@@ -630,36 +641,6 @@ contains
         endif
      endif
   end if
-contains
-  ! Convert pressure limiters to the appropriate level.
-pure function press_lim_idx(p, pref_mid, top) result(k_lim)
-  ! Pressure
-  real(kind_phys), intent(in) :: p
-  real(kind_phys), intent(in) :: pref_mid(:)
-  ! Is this a top or bottom limit?
-  logical,  intent(in) :: top
-  integer :: k_lim, k
-
-  if (top) then
-     k_lim = pver+1
-     do k = 1, pver
-        if (pref_mid(k) > p) then
-           k_lim = k
-           exit
-        end if
-     end do
-  else
-     k_lim = 0
-     do k = pver, 1, -1
-        if (pref_mid(k) < p) then
-           k_lim = k
-           exit
-        end if
-     end do
-  end if
-
-end function press_lim_idx
-
 end subroutine gw_drag_init
 
 !==========================================================================
@@ -1416,11 +1397,6 @@ subroutine gw_drag_run( &
   end if
 
   if (use_gw_rdg_beta .or. use_gw_rdg_gamma ) then
-
-     where(rdg_mxdisg < 0._kind_phys)
-        rdg_mxdisg = 0._kind_phys
-     end where
-
 !!$     ! Save state at top of routine
 !!$     ! Useful for unit testing checks
 !!$     call outfld('UEGW', state_u ,  ncol, lchnk)
@@ -1429,7 +1405,7 @@ subroutine gw_drag_run( &
 !!$     call outfld('ZEGW', zi , ncol, lchnk)
 !!$     call outfld('ZMGW', zm , ncol, lchnk)
 
-     call gw_rdg_run(&
+     call gw_rdg_run( &
           use_gw_rdg_beta, &
           use_gw_rdg_gamma, &
           vramp, &
