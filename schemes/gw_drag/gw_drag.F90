@@ -858,9 +858,6 @@ contains
     ! Which constituents are being affected by diffusion.
     logical  :: lq(pcnst)
 
-    ! Contiguous copies of state arrays.
-    real(kind_phys) :: flx_heat_curr(ncol)
-
     !------------------------------------------------------------------------
     p = Coords1D(pint(:ncol, :))
 
@@ -903,26 +900,65 @@ contains
     egwdffi_tot = 0._kind_phys
     flx_heat = 0._kind_phys
 
+    !------------------------------------------------------------------
+    ! Convective moving mountain gravity waves (Beres scheme).
+    !------------------------------------------------------------------
     if (use_gw_movmtn_pbl) then
-      !------------------------------------------------------------------
-      !Convective moving mountain gravity waves (Beres scheme).
-      !------------------------------------------------------------------
-      flx_heat_curr = flx_heat
       effgw = effgw_movmtn_pbl
 
-      call gw_movmtn_run(ncol, &
-                         band_movmtn, &
-                         state_t, pcnst, &
-                         state_u, state_v, p, ttend_dp, ttend_clubb, &
-                         upwp_clubb_gw, vpwp_clubb_gw, vorticity, &
-                         zm, alpha_gw_movmtn, &
-                         src_level, tend_level, &
-                         ubm, ubi, xv, yv, hdepth, dt, &
-                         vramp, pint, piln, rhoi, nm, ni, &
-                         effgw, kvtt, state_q, dse, utgw, vtgw, &
-                         ttgw, qtgw, egwdffi, dttdf, dttke, gw_apply_tndmax, &
-                         flx_heat_curr, use_gw_movmtn_pbl, &
-                         rair, gravit, q_tend, u_tend, v_tend, s_tend, errmsg, errflg)
+      call gw_movmtn_run( &
+        ncol                = ncol, &
+        band                = band_movmtn, &
+        state_t             = state_t(:ncol,:), &
+        pcnst               = pcnst, &
+        state_u             = state_u(:ncol,:), &
+        state_v             = state_v(:ncol,:), &
+        p                   = p, &
+        ttend_dp            = ttend_dp(:ncol,:), &
+        ttend_clubb         = ttend_clubb(:ncol,:), &
+        upwp_clubb          = upwp_clubb_gw(:ncol,:), &
+        vpwp_clubb          = vpwp_clubb_gw(:ncol,:), &
+        vorticity           = vorticity(:ncol,:), &
+        zm                  = zm(:ncol,:), &
+        alpha_gw_movmtn     = alpha_gw_movmtn, &
+        dt                  = dt, &
+        vramp               = vramp, &
+        pint                = pint(:ncol,:), &
+        piln                = piln(:ncol,:), &
+        rhoi                = rhoi(:ncol,:), &
+        nm                  = nm(:ncol,:), &
+        ni                  = ni(:ncol,:), &
+        effgw               = effgw(:ncol), &
+        kvtt                = kvtt(:ncol,:), &
+        state_q             = state_q(:ncol,:,:), &
+        dse                 = dse(:ncol,:), &
+        gw_apply_tndmax     = gw_apply_tndmax, &
+        use_gw_movmtn_pbl   = use_gw_movmtn_pbl, &
+        gravit              = gravit, &
+        rair                = rair, &
+        ! Input/output arguments
+        src_level           = src_level(:ncol), &
+        tend_level          = tend_level(:ncol), &
+        ubm                 = ubm(:ncol,:pver), &
+        ubi                 = ubi(:ncol,:pver+1), &
+        xv                  = xv(:ncol), &
+        yv                  = yv(:ncol), &
+        hdepth              = hdepth(:ncol), &
+        q_tend              = q_tend(:ncol,:pver,:pcnst), &
+        u_tend              = u_tend(:ncol,:pver), &
+        v_tend              = v_tend(:ncol,:pver), &
+        s_tend              = s_tend(:ncol,:pver), &
+        ! Output arguments
+        utgw                = utgw(:ncol,:pver), &
+        vtgw                = vtgw(:ncol,:pver), &
+        ttgw                = ttgw(:ncol,:pver), &
+        qtgw                = qtgw(:ncol,:pver,:pcnst), &
+        egwdffi             = egwdffi(:ncol,:pver+1), &
+        dttdf               = dttdf(:ncol,:pver), &
+        dttke               = dttke(:ncol,:pver), &
+        flx_heat            = flx_heat(:ncol), &
+        errmsg              = errmsg, &
+        errflg              = errflg)
 
       !  add the diffusion coefficients
       do k = 1, pver + 1
@@ -930,6 +966,9 @@ contains
       end do
     end if
 
+    !------------------------------------------------------------------
+    ! Convective gravity waves (Beres scheme, deep).
+    !------------------------------------------------------------------
     if (use_gw_convect_dp) then
 
 !!$     call gw_beres_run(ncol, band_mid, beres_dp_desc, &
@@ -946,10 +985,6 @@ contains
 !!$     do k = 1, pver+1
 !!$        egwdffi_tot(:,k) = egwdffi_tot(:,k) + egwdffi(:,k)
 !!$     end do
-
-      !------------------------------------------------------------------
-      ! Convective gravity waves (Beres scheme, deep).
-      !------------------------------------------------------------------
 
       ! Allocate wavenumber fields.
       allocate (tau(ncol, -band_mid%ngwv:band_mid%ngwv, pver + 1), stat=stat)
@@ -968,18 +1003,60 @@ contains
       end where
 
       ! Determine wave sources for Beres deep scheme
-      call gw_beres_src(ncol, &
-                        beres_dp_desc, &
-                        state_u, state_v, ttend_dp(:ncol, :), zm, src_level, tend_level, tau, &
-                        ubm, ubi, xv, yv, phase_speeds, hdepth, maxq0)
+      call gw_beres_src( &
+        ncol        = ncol, &
+        desc        = beres_dp_desc, &
+        u           = state_u(:ncol,:), &
+        v           = state_v(:ncol,:), &
+        netdt       = ttend_dp(:ncol,:), &
+        zm          = zm(:ncol,:), &
+        ! Output arguments
+        src_level   = src_level(:ncol), &
+        tend_level  = tend_level(:ncol), &
+        tau         = tau(:ncol,-band_mid%ngwv:band_mid%ngwv,:pver+1), &
+        ubm         = ubm(:ncol,:pver), &
+        ubi         = ubi(:ncol,:pver+1), &
+        xv          = xv(:ncol), &
+        yv          = yv(:ncol), &
+        c           = phase_speeds(:ncol,-band_mid%ngwv:band_mid%ngwv), &
+        hdepth      = hdepth(:ncol), &
+        maxq0       = maxq0(:ncol))
 
       ! Solve for the drag profile with Beres source spectrum.
-      call gw_drag_prof(ncol, band_mid, p, src_level, tend_level, dt, &
-                        state_t, vramp, &
-                        piln, rhoi, nm, ni, ubm, ubi, xv, yv, &
-                        effgw, phase_speeds, kvtt, state_q, dse, tau, utgw, vtgw, &
-                        ttgw, qtgw, egwdffi, gwut, dttdf, dttke, &
-                        lapply_effgw_in=gw_apply_tndmax)
+      call gw_drag_prof( &
+        ncol                = ncol, &
+        band                = band_mid, &
+        p                   = p, &
+        src_level           = src_level, &
+        tend_level          = tend_level, &
+        dt                  = dt, &
+        t                   = state_t(:ncol,:), &
+        vramp               = vramp, &
+        piln                = piln(:ncol,:), &
+        rhoi                = rhoi(:ncol,:), &
+        nm                  = nm(:ncol,:), &
+        ni                  = ni(:ncol,:), &
+        ubm                 = ubm(:ncol,:), &
+        ubi                 = ubi(:ncol,:), &
+        xv                  = xv(:ncol), &
+        yv                  = yv(:ncol), &
+        effgw               = effgw(:ncol), &
+        c                   = phase_speeds(:ncol,-band_mid%ngwv:band_mid%ngwv), &
+        kvtt                = kvtt(:ncol,:), &
+        q                   = state_q(:ncol,:,:), &
+        dse                 = dse(:ncol,:), &
+        lapply_effgw_in     = gw_apply_tndmax, &
+        ! Input/output arguments
+        tau                 = tau(:ncol,-band_mid%ngwv:band_mid%ngwv,:pver+1), &
+        ! Output arguments
+        utgw                = utgw(:ncol,:pver), &
+        vtgw                = vtgw(:ncol,:pver), &
+        ttgw                = ttgw(:ncol,:pver), &
+        qtgw                = qtgw(:ncol,:pver,:pcnst), &
+        egwdffi             = egwdffi(:ncol,:pver+1), &
+        gwut                = gwut(:ncol,:pver,-band_mid%ngwv:band_mid%ngwv), &
+        dttdf               = dttdf(:ncol,:pver), &
+        dttke               = dttke(:ncol,:pver))
 
       ! Project stress into directional components.
       taucd = calc_taucd(ncol, band_mid%ngwv, tend_level, tau, phase_speeds, xv, yv, ubi)
@@ -1032,10 +1109,10 @@ contains
 
     end if
 
+    !------------------------------------------------------------------
+    ! Convective gravity waves (Beres scheme, shallow).
+    !------------------------------------------------------------------
     if (use_gw_convect_sh) then
-!!$     !------------------------------------------------------------------
-!!$     ! Convective gravity waves (Beres scheme, shallow).
-!!$     !------------------------------------------------------------------
 !!$
 !!$     call gw_beres_run(ncol, band_mid, beres_sh_desc, state_u, state_v, &
 !!$     ttend_sh, zm, src_level, tend_level, tau, ubm, ubi, xv, yv, &
@@ -1123,10 +1200,10 @@ contains
 
     end if
 
+    !------------------------------------------------------------------
+    ! Frontally generated gravity waves
+    !------------------------------------------------------------------
     if (use_gw_front) then
-      !------------------------------------------------------------------
-      ! Frontally generated gravity waves
-      !------------------------------------------------------------------
       ! Allocate wavenumber fields.
       allocate (tau(ncol, -band_mid%ngwv:band_mid%ngwv, pver + 1), stat=stat)
       call handle_err(stat, errflg, sub//': Allocate of tau failed', errmsg)
@@ -1157,12 +1234,12 @@ contains
       ! Project stress into directional components.
       taucd = calc_taucd(ncol, band_mid%ngwv, tend_level, tau, phase_speeds, xv, yv, ubi)
 
-      !  add the diffusion coefficients
+      ! Add the diffusion coefficients
       do k = 1, pver + 1
         egwdffi_tot(:, k) = egwdffi_tot(:, k) + egwdffi(:, k)
       end do
 
-      !Add the constituent tendencies
+      ! Add the constituent tendencies
       do m = 1, pcnst
         do k = 1, pver
           q_tend(:ncol, k, m) = q_tend(:ncol, k, m) + qtgw(:, k, m)
@@ -1200,10 +1277,10 @@ contains
 
     end if
 
+    !------------------------------------------------------------------
+    ! Frontally generated inertial gravity waves
+    !------------------------------------------------------------------
     if (use_gw_front_igw) then
-      !------------------------------------------------------------------
-      ! Frontally generated inertial gravity waves
-      !------------------------------------------------------------------
       ! Allocate wavenumber fields.
       allocate (tau(ncol, -band_long%ngwv:band_long%ngwv, pver + 1), stat=stat)
       call handle_err(stat, errflg, sub//': Allocate of tau failed', errmsg)
@@ -1291,10 +1368,10 @@ contains
 
     end if
 
+    !---------------------------------------------------------------------
+    ! Orographic stationary gravity waves
+    !---------------------------------------------------------------------
     if (use_gw_oro) then
-      !---------------------------------------------------------------------
-      ! Orographic stationary gravity waves
-      !---------------------------------------------------------------------
 
       ! Allocate wavenumber fields.
       allocate (tau(ncol, band_oro%ngwv:band_oro%ngwv, pver + 1), stat=stat)
