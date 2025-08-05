@@ -5,51 +5,50 @@ module gw_movmtn
 ! boundary layer turbulence for convection.
 !
 
-use ccpp_kinds, only:  kind_phys
-use gw_common, only: pver, GWBand, gw_prof, gw_drag_prof, calc_taucd, handle_err, unset_kind_phys
-use coords_1d,  only: Coords1D
+  use ccpp_kinds, only: kind_phys
+  use gw_common, only: pver, GWBand, gw_prof, gw_drag_prof, calc_taucd, handle_err, unset_kind_phys
+  use coords_1d, only: Coords1D
 
-implicit none
-private
-save
+  implicit none
+  private
+  save
 
-public :: gw_movmtn_run
-public :: gw_movmtn_init
-public :: MovMtnSourceDesc
+  public :: gw_movmtn_run
+  public :: gw_movmtn_init
+  public :: MovMtnSourceDesc
 
-type :: MovMtnSourceDesc
-   ! Whether wind speeds are shifted to be relative to storm cells.
-   logical :: storm_shift
-   ! Index for level where wind speed is used as the source speed.
-   integer :: k
-   ! Heating depths below this value [m] will be ignored.
-   real(kind_phys) :: min_hdepth
-   ! Table bounds, for convenience. (Could be inferred from shape(mfcc).)
-   integer :: maxh !-bounds of the lookup table heating depths
-   integer :: maxuh ! bounds of the lookup table wind
-   ! Heating depths [m].
+  type :: MovMtnSourceDesc
+    ! Whether wind speeds are shifted to be relative to storm cells.
+    logical :: storm_shift
+    ! Index for level where wind speed is used as the source speed.
+    integer :: k
+    ! Heating depths below this value [m] will be ignored.
+    real(kind_phys) :: min_hdepth
+    ! Table bounds, for convenience. (Could be inferred from shape(mfcc).)
+    integer :: maxh !-bounds of the lookup table heating depths
+    integer :: maxuh ! bounds of the lookup table wind
+    ! Heating depths [m].
 !jt   real(kind_phys), allocatable :: hd(:), uh(:)
-   real(kind_phys), pointer :: hd(:), uh(:)
-   ! Table of source spectra.
-   real(kind_phys), pointer :: mfcc(:,:,:)  !is the lookup table f(depth, wind, phase speed)
-end type MovMtnSourceDesc
-
+    real(kind_phys), pointer :: hd(:), uh(:)
+    ! Table of source spectra.
+    real(kind_phys), pointer :: mfcc(:, :, :)  !is the lookup table f(depth, wind, phase speed)
+  end type MovMtnSourceDesc
 
   ! Wave Reynolds stress.
-  real(kind_phys), allocatable :: tau(:,:,:) !tau = momentum flux (m2/s2) at interface level ngwv = band of phase speeds
-     ! gravity wave wind tendency for each wave
-  real(kind_phys), allocatable :: gwut(:,:,:)
-   ! Wave phase speeds for each column
-  real(kind_phys), allocatable :: phase_speeds(:,:)
+  real(kind_phys), allocatable :: tau(:, :, :) !tau = momentum flux (m2/s2) at interface level ngwv = band of phase speeds
+  ! gravity wave wind tendency for each wave
+  real(kind_phys), allocatable :: gwut(:, :, :)
+  ! Wave phase speeds for each column
+  real(kind_phys), allocatable :: phase_speeds(:, :)
 
   ! Projection of wind at midpoints and interfaces.
-  real(kind_phys), allocatable :: ubm(:,:), ubi(:,:)
+  real(kind_phys), allocatable :: ubm(:, :), ubi(:, :)
   ! Unit vectors of source wind (zonal and meridional components).
   real(kind_phys), allocatable :: xv(:), yv(:) !determined by vector direction of wind at source
   ! Phase speeds.
-  real(kind_phys), allocatable :: c(:,:)
-  integer  :: movmtn_source  = -1
-  integer  :: movmtn_ksteer  = -1
+  real(kind_phys), allocatable :: c(:, :)
+  integer  :: movmtn_source = -1
+  integer  :: movmtn_ksteer = -1
   integer  :: movmtn_klaunch = -1
 !jt  real(kind_phys) :: psteer  = unset_kind_phys
 !jt  real(kind_phys) :: plaunch = unset_kind_phys
@@ -63,9 +62,9 @@ contains
   !==========================================================================
   !> \section arg_table_gw_movmtn_init Argument Table
   !! \htmlinclude gw_movmtn_init.html
-  subroutine gw_movmtn_init( pver, file_path, &
-       band, &
-       pref_edge, movmtn_psteer, movmtn_plaunch, movmtn_source_nl, masterproc, iulog, errmsg, errflg )
+  subroutine gw_movmtn_init(pver, file_path, &
+                            band, &
+                            pref_edge, movmtn_psteer, movmtn_plaunch, movmtn_source_nl, masterproc, iulog, errmsg, errflg)
 
     use ccpp_io_reader, only: abstract_netcdf_reader_t, create_netcdf_reader_t
 
@@ -82,7 +81,7 @@ contains
     integer, intent(out)                          :: errflg
 
     integer :: stat
-    real(kind_phys), pointer                      :: file_mfcc(:,:) !is the lookup table from the file f(depth, wind, phase speed)
+    real(kind_phys), pointer                      :: file_mfcc(:, :) !is the lookup table from the file f(depth, wind, phase speed)
 
     ! Number of wavenumbers in the input file.
     integer :: ngwv_file, k
@@ -96,533 +95,529 @@ contains
     source_type = movmtn_source_nl
 
     do k = 0, pver
-       ! 950 hPa index
-       if (pref_edge(k+1) < 95000._kind_phys) desc%k = k+1
+      ! 950 hPa index
+      if (pref_edge(k + 1) < 95000._kind_phys) desc%k = k + 1
     end do
 
     ! Don't use deep convection heating depths below this limit.
     desc%min_hdepth = 1._kind_phys
 
     if (masterproc) then
-       write (iulog,*) 'gw_movmtn_init: Moving mountain deep level =',desc%k
+      write (iulog, *) 'gw_movmtn_init: Moving mountain deep level =', desc%k
     end if
 
     ! Find steering level
     do k = 1, pver
-       if ( (pref_edge(k+1) >= movmtn_psteer).and.(pref_edge(k) < movmtn_psteer) ) then
-          movmtn_ksteer = k
-     end if
-  end do
-  do k = 1, pver
-     ! Find launch level
-     if ( (pref_edge(k+1) >= movmtn_plaunch).and.(pref_edge(k) < movmtn_plaunch ) ) then
+      if ((pref_edge(k + 1) >= movmtn_psteer) .and. (pref_edge(k) < movmtn_psteer)) then
+        movmtn_ksteer = k
+      end if
+    end do
+    do k = 1, pver
+      ! Find launch level
+      if ((pref_edge(k + 1) >= movmtn_plaunch) .and. (pref_edge(k) < movmtn_plaunch)) then
         movmtn_klaunch = k
-     end if
-  end do
+      end if
+    end do
 
 !jt  band = GWBand(0, gw_dc, 1.0_kind_phys, wavelength)
 
-  !----------------------------------------------------------------------
-  ! read in look-up table for source spectra
-  !-----------------------------------------------------------------------
+    !----------------------------------------------------------------------
+    ! read in look-up table for source spectra
+    !-----------------------------------------------------------------------
 
-  reader = create_netcdf_reader_t()
+    reader = create_netcdf_reader_t()
 
-  ! Open file
-  call reader%open_file(file_path, errmsg, errflg)
-  if (errflg /= 0) then
-     return !Error has occurred, so exit scheme
-  end if
+    ! Open file
+    call reader%open_file(file_path, errmsg, errflg)
+    if (errflg /= 0) then
+      return !Error has occurred, so exit scheme
+    end if
 
+    !Read variables from NetCDF file:
+    !-----------------------
+    ! Get HD (heating depth) dimension.
 
-  !Read variables from NetCDF file:
-  !-----------------------
-  ! Get HD (heating depth) dimension.
+    desc%maxh = 15
 
-  desc%maxh = 15
+    ! Get MW (mean wind) dimension.
 
-  ! Get MW (mean wind) dimension.
+    desc%maxuh = 241
 
-  desc%maxuh = 241
+    ! Get PS (phase speed) dimension.
 
-  ! Get PS (phase speed) dimension.
+    ngwv_file = 0
 
-  ngwv_file = 0
+    ! Number in each direction is half of total (and minus phase speed of 0).
+    desc%maxuh = (desc%maxuh - 1)/2
+    ngwv_file = (ngwv_file - 1)/2
+    if (ngwv_file < band%ngwv) &
+      call handle_err(stat, errflg, sub//"PhaseSpeed in lookup table inconsistent with moving mountain scheme", errmsg)
 
-  ! Number in each direction is half of total (and minus phase speed of 0).
-  desc%maxuh = (desc%maxuh-1)/2
-  ngwv_file = (ngwv_file-1)/2
-  if (ngwv_file < band%ngwv) &
-       call handle_err( stat,errflg,sub//"PhaseSpeed in lookup table inconsistent with moving mountain scheme", errmsg )
+    ! Allocate hd and get data.
+    allocate (desc%hd(desc%maxh), stat=stat, errmsg=msg)
+    call handle_err(stat, errflg, sub//': Allocate of desc%hd failed', errmsg)
 
-  ! Allocate hd and get data.
-  allocate(desc%hd(desc%maxh), stat=stat, errmsg=msg)
-  call handle_err( stat,errflg,sub//': Allocate of desc%hd failed', errmsg )
+    !Attempt to get heating depth from file:
+    call reader%get_var('HDEPTH', desc%hd, errmsg, errflg)
+    if (errflg /= 0) then
+      return !Error has occurred reading HDEPTH, so exit scheme
+    end if
 
-  !Attempt to get heating depth from file:
-  call reader%get_var('HDEPTH',desc%hd , errmsg, errflg)
-  if (errflg /= 0) then
-     return !Error has occurred reading HDEPTH, so exit scheme
-  end if
+    ! While not currently documented in the file, it uses kilometers. Convert
+    ! to meters.
+    desc%hd = desc%hd*1000._kind_phys
 
-  ! While not currently documented in the file, it uses kilometers. Convert
-  ! to meters.
-  desc%hd = desc%hd*1000._kind_phys
+    ! Allocate wind and get data.
 
-  ! Allocate wind and get data.
+    allocate (desc%uh(desc%maxuh), stat=stat, errmsg=msg)
+    call handle_err(stat, errflg, sub//': Allocate of desc%uh failed', errmsg)
 
-  allocate(desc%uh(desc%maxuh), stat=stat, errmsg=msg)
-  call handle_err( stat,errflg,sub//': Allocate of desc%uh failed', errmsg )
+    call reader%get_var('UARR', desc%uh, errmsg, errflg)
+    if (errflg /= 0) then
+      return !Error has occurred reading UARR, so exit scheme
+    end if
 
-  call reader%get_var('UARR', desc%uh, errmsg, errflg)
-  if (errflg /= 0) then
-     return !Error has occurred reading UARR, so exit scheme
-  end if
+    ! Allocate mfcc. "desc%maxh" and "desc%maxuh" are from the file, but the
+    ! model determines wavenumber dimension.
 
-  ! Allocate mfcc. "desc%maxh" and "desc%maxuh" are from the file, but the
-  ! model determines wavenumber dimension.
+    allocate (desc%mfcc(desc%maxh, -desc%maxuh:desc%maxuh, &
+                        -band%ngwv:band%ngwv), stat=stat, errmsg=msg)
+    call handle_err(stat, errflg, sub//': Error allocating desc%mfcc', errmsg)
 
-  allocate(desc%mfcc(desc%maxh,-desc%maxuh:desc%maxuh,&
-       -band%ngwv:band%ngwv), stat=stat, errmsg=msg)
-  call handle_err( stat,errflg,sub//': Error allocating desc%mfcc', errmsg )
+    ! Get mfcc data.
+    call reader%get_var('NEWMF', file_mfcc, errmsg, errflg)
+    if (errflg /= 0) then
+      return !Error has occurred reading NEWMF, so exit scheme
+    end if
 
-  ! Get mfcc data.
-  call reader%get_var('NEWMF', file_mfcc, errmsg, errflg)
-  if (errflg /= 0) then
-     return !Error has occurred reading NEWMF, so exit scheme
-  end if
+    !desc%mfcc(:,-desc%maxuh:desc%maxuh,-band%ngwv:band%ngwv) = file_mfcc(:,:,ngwv_file-band%ngwv+1:)
+    ! band%ngwv = 0
+    desc%mfcc(:, -desc%maxuh:desc%maxuh, 0) = file_mfcc(:, :)
 
-  !desc%mfcc(:,-desc%maxuh:desc%maxuh,-band%ngwv:band%ngwv) = file_mfcc(:,:,ngwv_file-band%ngwv+1:)
-  ! band%ngwv = 0
-  desc%mfcc(:,-desc%maxuh:desc%maxuh,0) = file_mfcc(:,:)
+    ! Close file
+    call reader%close_file(errmsg, errflg)
+    if (errflg /= 0) then
+      return !Error has occurred while closing file, so exit scheme
+    end if
 
-  ! Close file
-  call reader%close_file(errmsg, errflg)
-  if (errflg /= 0) then
-     return !Error has occurred while closing file, so exit scheme
-  end if
+    if (masterproc) then
+      write (iulog, *) "gw_movmtn_init: Read in Mov Mountain source file."
+    end if
 
-  if (masterproc) then
-     write(iulog,*) "gw_movmtn_init: Read in Mov Mountain source file."
-  endif
-
-end subroutine gw_movmtn_init
+  end subroutine gw_movmtn_init
 !==========================================================================
 !> \section arg_table_gw_movmtn_run Argument Table
 !! \htmlinclude gw_movmtn_run.html
-subroutine gw_movmtn_run(ncol, &
-     band, &
-     state_t, pcnst, &
-     state_u, state_v, p, ttend_dp, ttend_clubb,  &
-     upwp_clubb, vpwp_clubb, vorticity, &
-     zm, alpha_gw_movmtn,  &
-     src_level, tend_level, &
-     ubm, ubi, xv, yv, hdepth,dt, &
-     vramp, pint, piln, rhoi, nm,   ni, &
-     effgw,  kvtt, state_q,  dse, utgw,  vtgw, &
-     ttgw, qtgw, egwdffi, dttdf, dttke,gw_apply_tndmax, &
-     flx_heat, use_gw_movmtn_pbl, &
-     rair,gravit,q_tend,u_tend,v_tend,s_tend, errmsg,errflg)
+  subroutine gw_movmtn_run(ncol, &
+                           band, &
+                           state_t, pcnst, &
+                           state_u, state_v, p, ttend_dp, ttend_clubb, &
+                           upwp_clubb, vpwp_clubb, vorticity, &
+                           zm, alpha_gw_movmtn, &
+                           src_level, tend_level, &
+                           ubm, ubi, xv, yv, hdepth, dt, &
+                           vramp, pint, piln, rhoi, nm, ni, &
+                           effgw, kvtt, state_q, dse, utgw, vtgw, &
+                           ttgw, qtgw, egwdffi, dttdf, dttke, gw_apply_tndmax, &
+                           flx_heat, use_gw_movmtn_pbl, &
+                           rair, gravit, q_tend, u_tend, v_tend, s_tend, errmsg, errflg)
 
-  integer,  intent(in)        :: ncol  ! number of atmospheric columns
-  type(GWBand) :: band
-  real(kind_phys), intent(in) :: state_t(:,:)   ! temperature (K)
-  integer,  intent(in)        :: pcnst ! chunk number
-  real(kind_phys), intent(in) :: state_u(:,:)   ! meridional wind
-  real(kind_phys), intent(in) :: state_v(:,:)   ! zonal wind
-  type(Coords1D),  intent(in) :: p              ! Pressure coordinates.
-  real(kind_phys), intent(in) :: ttend_dp(:,:)  ! Temperature change due to deep convection.
-  real(kind_phys), intent(in) :: ttend_clubb(:,:)
-  real(kind_phys), intent(in) :: upwp_clubb(:,:)
-  real(kind_phys), intent(in) :: vpwp_clubb(:,:)
-  real(kind_phys), intent(in) :: vorticity(:,:)   ! vorticity
-  real(kind_phys), intent(in) :: zm(:,:)
-  real(kind_phys), intent(in) :: alpha_gw_movmtn
-  ! Indices of gravity wave source and lowest level where wind tendencies
-  ! are allowed.
-  ! code for source of gw: 1=vorticity, 2=upwp
-  ! Steering level and launch level inputs
-  integer, intent(inout)  :: src_level(:)
-  integer, intent(inout)  :: tend_level(:)
-  real(kind_phys), intent(inout) :: ubi(:,:)! projection of wind at interfaces
-  real(kind_phys), intent(inout) :: ubm(:,:)  ! projection of wind at midpoints
-  real(kind_phys), intent(inout) :: xv(:)        ! unit vector of source wind (x)
-  real(kind_phys), intent(inout) :: yv(:)        ! unit vector of source wind (y)
-  real(kind_phys), intent(inout) :: hdepth(:)
-  real(kind_phys), intent(in) :: dt          ! physics timestep
-  real(kind_phys), pointer, intent(in) :: vramp(:)
-  real(kind_phys), intent(in) :: pint(:,:)   ! pressure at model interfaces
-  real(kind_phys), intent(in) :: piln(:,:)   ! ln pressure at model interfaces
-  real(kind_phys), intent(in) :: rhoi(:,:) ! Interface density (kg m-3).
-  real(kind_phys), intent(in) :: nm(:,:)   ! Midpoint Brunt-Vaisalla frequencies (s-1).
-  real(kind_phys), intent(in) :: ni(:,:)   ! Interface Brunt-Vaisalla frequencies (s-1).
-  real(kind_phys), intent(in) :: effgw(:)  ! Tendency efficiency.
-  real(kind_phys), intent(in) :: kvtt(:,:) ! Molecular thermal diffusivity.
-  real(kind_phys), intent(in) :: state_q(:,:,:)        ! Constituent array.
-  real(kind_phys), intent(in) :: dse(:,:)  ! Dry static energy.
-  real(kind_phys), intent(out) :: utgw(:,:)
-  real(kind_phys), intent(out) :: vtgw(:,:)
-  real(kind_phys), intent(out) :: ttgw(:,:)
-  real(kind_phys), intent(out) :: qtgw(:,:,:) ! constituents tendencies
-  real(kind_phys), intent(out) :: egwdffi(:,:)
-  real(kind_phys), intent(out) :: dttdf(:,:)
-  real(kind_phys), intent(out) :: dttke(:,:)
-  logical, intent(in)            :: gw_apply_tndmax
-  real(kind_phys), intent(out)   :: flx_heat(:)
-  logical, intent(in)            ::  use_gw_movmtn_pbl
-  real(kind_phys), intent(in)    :: gravit      ! = gravit
-  real(kind_phys), intent(in)    :: rair        ! = rair
-  ! sum from the two types of spectral GW
-  real(kind_phys), intent(inout) :: q_tend(:,:,:),u_tend(:,:),v_tend(:,:),s_tend(:,:)
-  character(len=512), intent(out):: errmsg
-  integer, intent(out)           :: errflg
+    integer, intent(in)        :: ncol  ! number of atmospheric columns
+    type(GWBand) :: band
+    real(kind_phys), intent(in) :: state_t(:, :)   ! temperature (K)
+    integer, intent(in)        :: pcnst ! chunk number
+    real(kind_phys), intent(in) :: state_u(:, :)   ! meridional wind
+    real(kind_phys), intent(in) :: state_v(:, :)   ! zonal wind
+    type(Coords1D), intent(in) :: p              ! Pressure coordinates.
+    real(kind_phys), intent(in) :: ttend_dp(:, :)  ! Temperature change due to deep convection.
+    real(kind_phys), intent(in) :: ttend_clubb(:, :)
+    real(kind_phys), intent(in) :: upwp_clubb(:, :)
+    real(kind_phys), intent(in) :: vpwp_clubb(:, :)
+    real(kind_phys), intent(in) :: vorticity(:, :)   ! vorticity
+    real(kind_phys), intent(in) :: zm(:, :)
+    real(kind_phys), intent(in) :: alpha_gw_movmtn
+    ! Indices of gravity wave source and lowest level where wind tendencies
+    ! are allowed.
+    ! code for source of gw: 1=vorticity, 2=upwp
+    ! Steering level and launch level inputs
+    integer, intent(inout)  :: src_level(:)
+    integer, intent(inout)  :: tend_level(:)
+    real(kind_phys), intent(inout) :: ubi(:, :)! projection of wind at interfaces
+    real(kind_phys), intent(inout) :: ubm(:, :)  ! projection of wind at midpoints
+    real(kind_phys), intent(inout) :: xv(:)        ! unit vector of source wind (x)
+    real(kind_phys), intent(inout) :: yv(:)        ! unit vector of source wind (y)
+    real(kind_phys), intent(inout) :: hdepth(:)
+    real(kind_phys), intent(in) :: dt          ! physics timestep
+    real(kind_phys), pointer, intent(in) :: vramp(:)
+    real(kind_phys), intent(in) :: pint(:, :)   ! pressure at model interfaces
+    real(kind_phys), intent(in) :: piln(:, :)   ! ln pressure at model interfaces
+    real(kind_phys), intent(in) :: rhoi(:, :) ! Interface density (kg m-3).
+    real(kind_phys), intent(in) :: nm(:, :)   ! Midpoint Brunt-Vaisalla frequencies (s-1).
+    real(kind_phys), intent(in) :: ni(:, :)   ! Interface Brunt-Vaisalla frequencies (s-1).
+    real(kind_phys), intent(in) :: effgw(:)  ! Tendency efficiency.
+    real(kind_phys), intent(in) :: kvtt(:, :) ! Molecular thermal diffusivity.
+    real(kind_phys), intent(in) :: state_q(:, :, :)        ! Constituent array.
+    real(kind_phys), intent(in) :: dse(:, :)  ! Dry static energy.
+    real(kind_phys), intent(out) :: utgw(:, :)
+    real(kind_phys), intent(out) :: vtgw(:, :)
+    real(kind_phys), intent(out) :: ttgw(:, :)
+    real(kind_phys), intent(out) :: qtgw(:, :, :) ! constituents tendencies
+    real(kind_phys), intent(out) :: egwdffi(:, :)
+    real(kind_phys), intent(out) :: dttdf(:, :)
+    real(kind_phys), intent(out) :: dttke(:, :)
+    logical, intent(in)            :: gw_apply_tndmax
+    real(kind_phys), intent(out)   :: flx_heat(:)
+    logical, intent(in)            ::  use_gw_movmtn_pbl
+    real(kind_phys), intent(in)    :: gravit      ! = gravit
+    real(kind_phys), intent(in)    :: rair        ! = rair
+    ! sum from the two types of spectral GW
+    real(kind_phys), intent(inout) :: q_tend(:, :, :), u_tend(:, :), v_tend(:, :), s_tend(:, :)
+    character(len=512), intent(out):: errmsg
+    integer, intent(out)           :: errflg
 
 !---------------------------Local Storage-------------------------------
-  integer                     :: stat,k,m
-  real(kind_phys)             :: xpwp_clubb(ncol,pver+1)
-  ! Reynolds stress for waves propagating in each cardinal direction.
-  real(kind_phys) :: taucd(ncol,pver+1,4)
-  character(len=*), parameter :: sub = 'gw_movmtn_run'
+    integer                     :: stat, k, m
+    real(kind_phys)             :: xpwp_clubb(ncol, pver + 1)
+    ! Reynolds stress for waves propagating in each cardinal direction.
+    real(kind_phys) :: taucd(ncol, pver + 1, 4)
+    character(len=*), parameter :: sub = 'gw_movmtn_run'
 
-  errmsg =''
-  errflg = 0
+    errmsg = ''
+    errflg = 0
 
+    ! Allocate wavenumber fields.
+    allocate (tau(ncol, -band%ngwv:band%ngwv, pver + 1), stat=stat)
+    call handle_err(stat, errflg, sub//': Allocate of tau failed', errmsg)
+    allocate (gwut(ncol, pver, -band%ngwv:band%ngwv), stat=stat)
+    call handle_err(stat, errflg, sub//': Allocate of gwut failed', errmsg)
+    allocate (phase_speeds(ncol, -band%ngwv:band%ngwv), stat=stat)
+    call handle_err(stat, errflg, sub//': Allocate of phase_speeds failed', errmsg)
 
-  ! Allocate wavenumber fields.
-  allocate(tau(ncol,-band%ngwv:band%ngwv,pver+1),stat=stat)
-  call handle_err( stat,errflg,sub//': Allocate of tau failed', errmsg )
-  allocate(gwut(ncol,pver,-band%ngwv:band%ngwv),stat=stat)
-  call handle_err( stat,errflg,sub//': Allocate of gwut failed', errmsg )
-  allocate(phase_speeds(ncol,-band%ngwv:band%ngwv),stat=stat)
-  call handle_err( stat,errflg,sub//': Allocate of phase_speeds failed', errmsg )
+    tau = 0._kind_phys
+    gwut = 0._kind_phys
+    phase_speeds = 0._kind_phys
 
-  tau=0._kind_phys
-  gwut=0._kind_phys
-  phase_speeds=0._kind_phys
+    xpwp_clubb(:ncol, :) = sqrt(upwp_clubb(:ncol, :)**2 + vpwp_clubb(:ncol, :)**2)
 
-  xpwp_clubb(:ncol,:) = sqrt( upwp_clubb(:ncol,:)**2 + vpwp_clubb(:ncol,:)**2 )
+    call gw_movmtn_src(ncol, &
+                       state_u, state_v, ttend_dp(:ncol, :), ttend_clubb(:ncol, :), xpwp_clubb(:ncol, :), &
+                       vorticity(:ncol, :), zm, alpha_gw_movmtn, &
+                       src_level, tend_level, &
+                       tau, ubm, ubi, xv, yv, &
+                       phase_speeds, hdepth, use_gw_movmtn_pbl, rair, gravit, errmsg, errflg)
 
-  call gw_movmtn_src(ncol, &
-       state_u, state_v, ttend_dp(:ncol,:), ttend_clubb(:ncol,:), xpwp_clubb(:ncol,:)  , &
-       vorticity(:ncol,:), zm, alpha_gw_movmtn, &
-       src_level, tend_level, &
-       tau, ubm, ubi, xv, yv, &
-       phase_speeds, hdepth, use_gw_movmtn_pbl,rair, gravit,errmsg, errflg)
+    !-------------------------------------------------------------
+    ! gw_movmtn_src returns wave-relative wind profiles ubm,ubi
+    ! and unit vector components describing direction of wavevector
+    ! and application of wave-drag force. I believe correct setting
+    ! for c is c=0, since it is incorporated in ubm and (xv,yv)
+    !--------------------------------------------------------------
+    call gw_drag_prof(ncol, band, p, src_level, tend_level, dt, &
+                      state_t, vramp, &
+                      piln, rhoi, nm, ni, ubm, ubi, xv, yv, &
+                      effgw, phase_speeds, kvtt, state_q, dse, tau, utgw, vtgw, &
+                      ttgw, qtgw, egwdffi, gwut, dttdf, dttke, &
+                      lapply_effgw_in=gw_apply_tndmax)
 
-     !-------------------------------------------------------------
-     ! gw_movmtn_src returns wave-relative wind profiles ubm,ubi
-     ! and unit vector components describing direction of wavevector
-     ! and application of wave-drag force. I believe correct setting
-     ! for c is c=0, since it is incorporated in ubm and (xv,yv)
-     !--------------------------------------------------------------
-  call gw_drag_prof(ncol, band, p, src_level, tend_level, dt, &
-       state_t, vramp,    &
-       piln, rhoi,       nm,   ni, ubm,  ubi,  xv,    yv,   &
-       effgw,   phase_speeds,       kvtt, state_q,  dse,  tau,  utgw,  vtgw, &
-       ttgw, qtgw, egwdffi,  gwut, dttdf, dttke,            &
-       lapply_effgw_in=gw_apply_tndmax )
+    ! Project stress into directional components.
+    taucd = calc_taucd(ncol, band%ngwv, tend_level, tau, phase_speeds, xv, yv, ubi)
 
-  ! Project stress into directional components.
-     taucd = calc_taucd(ncol, band%ngwv, tend_level, tau, phase_speeds, xv, yv, ubi)
+    ! Store constituents tendencies
+    do m = 1, pcnst
+      do k = 1, pver
+        q_tend(:ncol, k, m) = q_tend(:ncol, k, m) + qtgw(:, k, m)
+      end do
+    end do
 
-     ! Store constituents tendencies
-     do m=1, pcnst
-        do k = 1, pver
-           q_tend(:ncol,k,m) = q_tend(:ncol,k,m) + qtgw(:,k,m)
-        end do
-     end do
+    ! Add the momentum tendencies to the output tendency arrays.
+    do k = 1, pver
+      u_tend(:ncol, k) = u_tend(:ncol, k) + utgw(:, k)
+      v_tend(:ncol, k) = v_tend(:ncol, k) + vtgw(:, k)
+    end do
 
-      ! Add the momentum tendencies to the output tendency arrays.
-     do k = 1, pver
-        u_tend(:ncol,k) = u_tend(:ncol,k) + utgw(:,k)
-        v_tend(:ncol,k) = v_tend(:ncol,k) + vtgw(:,k)
-     end do
+    do k = 1, pver
+      s_tend(:ncol, k) = s_tend(:ncol, k) + ttgw(:, k)
+    end do
 
-     do k = 1, pver
-        s_tend(:ncol,k) = s_tend(:ncol,k) + ttgw(:,k)
-     end do
+    deallocate (tau, gwut, phase_speeds)
 
-     deallocate(tau, gwut, phase_speeds)
-
-
-end subroutine gw_movmtn_run
+  end subroutine gw_movmtn_run
 !==========================================================================
 
-subroutine gw_movmtn_src(ncol, &
-     u, v, netdt, netdt_shcu, xpwp_shcu, &
-     vorticity, zm, alpha_gw_movmtn, &
-     src_level, tend_level, tau, ubm, ubi, xv, yv, &
-     c, hdepth, use_gw_movmtn_pbl,rair, gravit,errmsg, errflg)
+  subroutine gw_movmtn_src(ncol, &
+                           u, v, netdt, netdt_shcu, xpwp_shcu, &
+                           vorticity, zm, alpha_gw_movmtn, &
+                           src_level, tend_level, tau, ubm, ubi, xv, yv, &
+                           c, hdepth, use_gw_movmtn_pbl, rair, gravit, errmsg, errflg)
 !-----------------------------------------------------------------------
 ! Flexible driver for gravity wave source from obstacle effects produced
 ! by internal circulations
 !-----------------------------------------------------------------------
-  use gw_utils, only: get_unit_vector, dot_2d, midpoint_interp
+    use gw_utils, only: get_unit_vector, dot_2d, midpoint_interp
 !!$  use cam_history, only: outfld
 
 !------------------------------Arguments--------------------------------
-  ! Column dimension.
-  integer, intent(in) :: ncol
+    ! Column dimension.
+    integer, intent(in) :: ncol
 
-  ! Midpoint zonal/meridional winds.
-  real(kind_phys), intent(in) :: u(:,:), v(:,:), vorticity(:,:)
-  ! Heating rate due to convection.
-  real(kind_phys), intent(in) :: netdt(:,:)  !from deep scheme
-  ! Heating rate due to shallow convection and PBL turbulence.
-  real(kind_phys), intent(in) :: netdt_shcu(:,:)
-  ! Higher order flux from ShCu/PBL.
-  real(kind_phys), intent(in) :: xpwp_shcu(:,:)
-  ! Midpoint altitudes.
-  real(kind_phys), intent(in) :: zm(:,:)
-  ! tunable parameter controlling proportion of PBL momentum flux emitted as GW
-  real(kind_phys), intent(in) :: alpha_gw_movmtn
+    ! Midpoint zonal/meridional winds.
+    real(kind_phys), intent(in) :: u(:, :), v(:, :), vorticity(:, :)
+    ! Heating rate due to convection.
+    real(kind_phys), intent(in) :: netdt(:, :)  !from deep scheme
+    ! Heating rate due to shallow convection and PBL turbulence.
+    real(kind_phys), intent(in) :: netdt_shcu(:, :)
+    ! Higher order flux from ShCu/PBL.
+    real(kind_phys), intent(in) :: xpwp_shcu(:, :)
+    ! Midpoint altitudes.
+    real(kind_phys), intent(in) :: zm(:, :)
+    ! tunable parameter controlling proportion of PBL momentum flux emitted as GW
+    real(kind_phys), intent(in) :: alpha_gw_movmtn
 
-  ! Indices of top gravity wave source level and lowest level where wind
-  ! tendencies are allowed.
-  integer, intent(out) :: src_level(:)
-  integer, intent(out) :: tend_level(:)
+    ! Indices of top gravity wave source level and lowest level where wind
+    ! tendencies are allowed.
+    integer, intent(out) :: src_level(:)
+    integer, intent(out) :: tend_level(:)
 
-  ! Wave Reynolds stress.
-  real(kind_phys), intent(out) :: tau(ncol,-band%ngwv:band%ngwv,pver+1) !tau = momentum flux (m2/s2) at interface level ngwv = band of phase speeds
-  ! Projection of wind at midpoints and interfaces.
-  real(kind_phys), intent(out) :: ubm(:,:), ubi(:,:)
-  ! Unit vectors of source wind (zonal and meridional components).
-  real(kind_phys), intent(out) :: xv(:), yv(:) !determined by vector direction of wind at source
-  ! Phase speeds.
-  real(kind_phys), intent(out) :: c(ncol,-band%ngwv:band%ngwv)
+    ! Wave Reynolds stress.
+    real(kind_phys), intent(out) :: tau(ncol, -band%ngwv:band%ngwv, pver + 1) !tau = momentum flux (m2/s2) at interface level ngwv = band of phase speeds
+    ! Projection of wind at midpoints and interfaces.
+    real(kind_phys), intent(out) :: ubm(:, :), ubi(:, :)
+    ! Unit vectors of source wind (zonal and meridional components).
+    real(kind_phys), intent(out) :: xv(:), yv(:) !determined by vector direction of wind at source
+    ! Phase speeds.
+    real(kind_phys), intent(out) :: c(ncol, -band%ngwv:band%ngwv)
 
-  ! Heating depth [m] and maximum heating in each column.
-  real(kind_phys), intent(out) :: hdepth(:)    !calculated here in this code
-  logical, intent(in)          ::  use_gw_movmtn_pbl
-  real(kind_phys), intent(in) :: gravit
-  real(kind_phys), intent(in) :: rair
-  character(len=512), intent(out) :: errmsg
-  integer, intent(out)            :: errflg
+    ! Heating depth [m] and maximum heating in each column.
+    real(kind_phys), intent(out) :: hdepth(:)    !calculated here in this code
+    logical, intent(in)          ::  use_gw_movmtn_pbl
+    real(kind_phys), intent(in) :: gravit
+    real(kind_phys), intent(in) :: rair
+    character(len=512), intent(out) :: errmsg
+    integer, intent(out)            :: errflg
 
 !---------------------------Local Storage-------------------------------
-  ! Column and (vertical) level indices.
-  integer :: i, k
+    ! Column and (vertical) level indices.
+    integer :: i, k
 
-  ! Zonal/meridional wind at steering level, i.e., 'cell speed'.
-  ! May be later modified by retrograde motion ....
-  real(kind_phys) :: usteer(ncol), vsteer(ncol)
-  real(kind_phys) :: uwavef(ncol,pver),vwavef(ncol,pver)
-  ! Steering level (integer converted to real*8)
-  real(kind_phys) :: steer_level(ncol)
-  ! Retrograde motion of Cell
-  real(kind_phys) :: Cell_Retro_Speed(ncol)
+    ! Zonal/meridional wind at steering level, i.e., 'cell speed'.
+    ! May be later modified by retrograde motion ....
+    real(kind_phys) :: usteer(ncol), vsteer(ncol)
+    real(kind_phys) :: uwavef(ncol, pver), vwavef(ncol, pver)
+    ! Steering level (integer converted to real*8)
+    real(kind_phys) :: steer_level(ncol)
+    ! Retrograde motion of Cell
+    real(kind_phys) :: Cell_Retro_Speed(ncol)
 
-  ! Maximum heating rate.
-  real(kind_phys) :: q0(ncol), qj(ncol)
-  ! unit vector components at steering level and mag
-  real(kind_phys) :: xv_steer(ncol), yv_steer(ncol), umag_steer(ncol)
-  ! Bottom/top heating range index.
-  integer  :: boti(ncol), topi(ncol)
-  ! Index for looking up heating depth dimension in the table.
-  integer  :: hd_idx(ncol)
-  ! Mean wind in heating region.
-  real(kind_phys) :: uh(ncol)
-  ! Min/max wavenumber for critical level filtering.
-  integer :: Umini(ncol), Umaxi(ncol)
-  ! Source level tau for a column.
-  real(kind_phys) :: tau0(-band%ngwv:band%ngwv)
-  ! Speed of convective cells relative to storm.
-  real(kind_phys) :: CS(ncol),CS1(ncol)
-  ! Wind speeds in wave direction
-  real(kind_phys) :: udiff(ncol),vdiff(ncol)
-  ! "on-crest" source level wind
-  real(kind_phys) :: ubmsrc(ncol),ubisrc(ncol)
+    ! Maximum heating rate.
+    real(kind_phys) :: q0(ncol), qj(ncol)
+    ! unit vector components at steering level and mag
+    real(kind_phys) :: xv_steer(ncol), yv_steer(ncol), umag_steer(ncol)
+    ! Bottom/top heating range index.
+    integer  :: boti(ncol), topi(ncol)
+    ! Index for looking up heating depth dimension in the table.
+    integer  :: hd_idx(ncol)
+    ! Mean wind in heating region.
+    real(kind_phys) :: uh(ncol)
+    ! Min/max wavenumber for critical level filtering.
+    integer :: Umini(ncol), Umaxi(ncol)
+    ! Source level tau for a column.
+    real(kind_phys) :: tau0(-band%ngwv:band%ngwv)
+    ! Speed of convective cells relative to storm.
+    real(kind_phys) :: CS(ncol), CS1(ncol)
+    ! Wind speeds in wave direction
+    real(kind_phys) :: udiff(ncol), vdiff(ncol)
+    ! "on-crest" source level wind
+    real(kind_phys) :: ubmsrc(ncol), ubisrc(ncol)
 
-  ! Index to shift spectra relative to ground.
-  integer :: shift
-  ! Other wind quantities
-  real(kind_phys) :: ut(ncol),uc(ncol),umm(ncol)
-  ! Tau from moving mountain lookup table
-  real(kind_phys) :: taumm(ncol)
-  ! Heating rate conversion factor.  -> tuning factors
-  real(kind_phys), parameter :: CF = 20._kind_phys  !(1/ (5%))  -> 5% of grid cell is covered with convection
-  ! Averaging length.
-  real(kind_phys), parameter :: AL = 1.0e5_kind_phys
-  ! Index for moving mountain lookuptable
-  integer :: hdmm_idx(ncol), uhmm_idx(ncol)
-  ! Index for ground based phase speed bin
-  real(kind_phys) :: c0(ncol,-band%ngwv:band%ngwv)
-  integer :: c_idx(ncol,-band%ngwv:band%ngwv)
-  ! GW Flux source
-  real(kind_phys) :: xpwp_src(ncol)
-  ! Manual steering level set
-  integer :: Steer_k(ncol), Launch_k(ncol)
+    ! Index to shift spectra relative to ground.
+    integer :: shift
+    ! Other wind quantities
+    real(kind_phys) :: ut(ncol), uc(ncol), umm(ncol)
+    ! Tau from moving mountain lookup table
+    real(kind_phys) :: taumm(ncol)
+    ! Heating rate conversion factor.  -> tuning factors
+    real(kind_phys), parameter :: CF = 20._kind_phys  !(1/ (5%))  -> 5% of grid cell is covered with convection
+    ! Averaging length.
+    real(kind_phys), parameter :: AL = 1.0e5_kind_phys
+    ! Index for moving mountain lookuptable
+    integer :: hdmm_idx(ncol), uhmm_idx(ncol)
+    ! Index for ground based phase speed bin
+    real(kind_phys) :: c0(ncol, -band%ngwv:band%ngwv)
+    integer :: c_idx(ncol, -band%ngwv:band%ngwv)
+    ! GW Flux source
+    real(kind_phys) :: xpwp_src(ncol)
+    ! Manual steering level set
+    integer :: Steer_k(ncol), Launch_k(ncol)
 
-  errmsg =''
-  errflg = 0
-  !----------------------------------------------------------------------
-  ! Initialize tau array
-  !----------------------------------------------------------------------
-  tau = 0.0_kind_phys
-  hdepth = 0.0_kind_phys
-  q0 = 0.0_kind_phys
-  tau0 = 0.0_kind_phys
+    errmsg = ''
+    errflg = 0
+    !----------------------------------------------------------------------
+    ! Initialize tau array
+    !----------------------------------------------------------------------
+    tau = 0.0_kind_phys
+    hdepth = 0.0_kind_phys
+    q0 = 0.0_kind_phys
+    tau0 = 0.0_kind_phys
 
-  if ( source_type==1 ) then
-     !----------------------------------------------------------------------
-     ! Calculate flux source from vorticity
-     !----------------------------------------------------------------------
-     call vorticity_flux_src( vorticity, ncol, pver , alpha_gw_movmtn, xpwp_src, Steer_k, Launch_k )
-  else if ( source_type==2 ) then
-     !----------------------------------------------------------------------
-     ! Calculate flux source from ShCu/PBL and set Steering level
-     !----------------------------------------------------------------------
-     call shcu_flux_src( xpwp_shcu, ncol, pver+1, alpha_gw_movmtn, xpwp_src, Steer_k, Launch_k )
-  end if
+    if (source_type == 1) then
+      !----------------------------------------------------------------------
+      ! Calculate flux source from vorticity
+      !----------------------------------------------------------------------
+      call vorticity_flux_src(vorticity, ncol, pver, alpha_gw_movmtn, xpwp_src, Steer_k, Launch_k)
+    else if (source_type == 2) then
+      !----------------------------------------------------------------------
+      ! Calculate flux source from ShCu/PBL and set Steering level
+      !----------------------------------------------------------------------
+      call shcu_flux_src(xpwp_shcu, ncol, pver + 1, alpha_gw_movmtn, xpwp_src, Steer_k, Launch_k)
+    end if
 
-  !-------------------------------------------------
-  ! Override steering and launch levels if inputs>0
-  !-------------------------------------------------
-  if (movmtn_klaunch > 0) then
-     Launch_k(:ncol) = movmtn_klaunch
-  end if
-  if (movmtn_ksteer > 0) then
-     Steer_k(:ncol) = movmtn_ksteer
-  end if
+    !-------------------------------------------------
+    ! Override steering and launch levels if inputs>0
+    !-------------------------------------------------
+    if (movmtn_klaunch > 0) then
+      Launch_k(:ncol) = movmtn_klaunch
+    end if
+    if (movmtn_ksteer > 0) then
+      Steer_k(:ncol) = movmtn_ksteer
+    end if
 
-  !------------------------------------------------------------------------
-  ! Determine wind and unit vectors at the steering level) then
-  ! project winds.
-  !------------------------------------------------------------------------
-  do i=1,ncol
-     usteer(i) = u(i, Steer_k(i) )
-     vsteer(i) = v(i, Steer_k(i) )
-     steer_level(i) = real(Steer_k(i),kind_phys)
-  end do
-  ! all GW calculations on a plane, which in our case is the wind at source level -> ubi is wind in this plane
-  ! Get the unit vector components and magnitude at the source level.
-  call get_unit_vector(usteer, vsteer, xv_steer, yv_steer, umag_steer)
-
-  !-------------------------------------------------------------------------
-  ! If we want to account for some retorgrade cell motion,
-  ! it should be done by vector subtraction from (usteer,vsteer).
-  ! We assume the retrograde motion is in the same direction as
-  ! (usteer,vsteer) or the unit vector (xv_steer,yv_steer). Then, the
-  ! vector retrograde motion is just:
-  !      = -Cell_Retrograde_Speed * (xv_steer,yv_steer)
-  ! and we would modify usteer and vsteer
-  !     usteer = usteer - Cell_Retrograde_Speed * xv_steer
-  !     vsteer = vsteer - Cell_Retrograde_Speed * yv_steer
-  !-----------------------------------------------------------------------
-  ! Cell_Retro_Speed is always =0 for now
-  !-----------------------------------------------------------------------
-  do i=1,ncol
-     Cell_Retro_Speed(i) = min( sqrt(usteer(i)**2 + vsteer(i)**2), 0._kind_phys)
-  end do
-  do i=1,ncol
-     usteer(i) = usteer(i) - xv_steer(i)*Cell_Retro_Speed(i)
-     vsteer(i) = vsteer(i) - yv_steer(i)*Cell_Retro_Speed(i)
-  end do
-  !-------------------------------------------------------------------------
-  ! At this point (usteer,vsteer) is the cell-speed, or equivalently, the 2D
-  ! ground based wave phase speed for moving mountain GW
-  !-------------------------------------------------------------------------
-
-
-  ! Calculate heating depth.
-  !
-  ! Heating depth is defined as the first height range from the bottom in
-  ! which heating rate is continuously positive.
-  !-----------------------------------------------------------------------
-
-  ! First find the indices for the top and bottom of the heating range.
-  !nedt is heating profile from Zhang McFarlane (it's pressure coordinates, therefore k=0 is the top)
-
-  boti = 0 !bottom
-  topi = 0  !top
-
-  if (use_gw_movmtn_pbl) then
-     boti=pver
-     topi=Launch_k ! set in source subr
-  else
-    do k = pver, 1, -1 !start at surface
-       do i = 1, ncol
-          if (boti(i) == 0) then
-             ! Detect if we are outside the maximum range (where z = 20 km).
-             if (zm(i,k) >= 20000._kind_phys) then
-                boti(i) = k
-                topi(i) = k
-             else
-                ! First spot where heating rate is positive.
-                if (netdt(i,k) > 0.0_kind_phys) boti(i) = k
-             end if
-          else if (topi(i) == 0) then
-             ! Detect if we are outside the maximum range (z = 20 km).
-             if (zm(i,k) >= 20000._kind_phys) then
-                topi(i) = k
-             else
-                ! First spot where heating rate is no longer positive.
-                if (.not. (netdt(i,k) > 0.0_kind_phys)) topi(i) = k
-             end if
-          end if
-       end do
-       ! When all done, exit.
-       if (all(topi /= 0)) exit
+    !------------------------------------------------------------------------
+    ! Determine wind and unit vectors at the steering level) then
+    ! project winds.
+    !------------------------------------------------------------------------
+    do i = 1, ncol
+      usteer(i) = u(i, Steer_k(i))
+      vsteer(i) = v(i, Steer_k(i))
+      steer_level(i) = real(Steer_k(i), kind_phys)
     end do
-  end if
-  ! Heating depth in m.  (top-bottom altitudes)
-  hdepth = [ ( (zm(i,topi(i))-zm(i,boti(i))), i = 1, ncol ) ]
-  hd_idx = index_of_nearest(hdepth, desc%hd)
+    ! all GW calculations on a plane, which in our case is the wind at source level -> ubi is wind in this plane
+    ! Get the unit vector components and magnitude at the source level.
+    call get_unit_vector(usteer, vsteer, xv_steer, yv_steer, umag_steer)
 
-  ! hd_idx=0 signals that a heating depth is too shallow, i.e. that it is
-  ! either not big enough for the lowest table entry, or it is below the
-  ! minimum allowed for this convection type.
-  ! Values above the max in the table still get the highest value, though.
+    !-------------------------------------------------------------------------
+    ! If we want to account for some retorgrade cell motion,
+    ! it should be done by vector subtraction from (usteer,vsteer).
+    ! We assume the retrograde motion is in the same direction as
+    ! (usteer,vsteer) or the unit vector (xv_steer,yv_steer). Then, the
+    ! vector retrograde motion is just:
+    !      = -Cell_Retrograde_Speed * (xv_steer,yv_steer)
+    ! and we would modify usteer and vsteer
+    !     usteer = usteer - Cell_Retrograde_Speed * xv_steer
+    !     vsteer = vsteer - Cell_Retrograde_Speed * yv_steer
+    !-----------------------------------------------------------------------
+    ! Cell_Retro_Speed is always =0 for now
+    !-----------------------------------------------------------------------
+    do i = 1, ncol
+      Cell_Retro_Speed(i) = min(sqrt(usteer(i)**2 + vsteer(i)**2), 0._kind_phys)
+    end do
+    do i = 1, ncol
+      usteer(i) = usteer(i) - xv_steer(i)*Cell_Retro_Speed(i)
+      vsteer(i) = vsteer(i) - yv_steer(i)*Cell_Retro_Speed(i)
+    end do
+    !-------------------------------------------------------------------------
+    ! At this point (usteer,vsteer) is the cell-speed, or equivalently, the 2D
+    ! ground based wave phase speed for moving mountain GW
+    !-------------------------------------------------------------------------
 
-  where (hdepth < max(desc%min_hdepth, desc%hd(1))) hd_idx = 0
+    ! Calculate heating depth.
+    !
+    ! Heating depth is defined as the first height range from the bottom in
+    ! which heating rate is continuously positive.
+    !-----------------------------------------------------------------------
 
-  ! Maximum heating rate.
-  do k = minval(topi), maxval(boti)
-     where (k >= topi .and. k <= boti)
-        q0 = max(q0, netdt(:,k))
-     end where
-  end do
+    ! First find the indices for the top and bottom of the heating range.
+    !nedt is heating profile from Zhang McFarlane (it's pressure coordinates, therefore k=0 is the top)
 
-  ! Multiply by conversion factor
-  ! (now 20* larger than what Zhang McFarlane said as they try to describe heating over 100km grid cell)
-  q0 = q0 * CF
-  qj = gravit/rair*q0 ! unit conversion to m/s3
+    boti = 0 !bottom
+    topi = 0  !top
 
-  !-------------------------------------------------
-  ! CS1 and CS should be equal in current implemen-
-  ! tation.
-  !-------------------------------------------------
-  CS1 = sqrt( usteer**2._kind_phys + vsteer**2._kind_phys )
-  CS = CS1*xv_steer + CS1*yv_steer
+    if (use_gw_movmtn_pbl) then
+      boti = pver
+      topi = Launch_k ! set in source subr
+    else
+      do k = pver, 1, -1 !start at surface
+        do i = 1, ncol
+          if (boti(i) == 0) then
+            ! Detect if we are outside the maximum range (where z = 20 km).
+            if (zm(i, k) >= 20000._kind_phys) then
+              boti(i) = k
+              topi(i) = k
+            else
+              ! First spot where heating rate is positive.
+              if (netdt(i, k) > 0.0_kind_phys) boti(i) = k
+            end if
+          else if (topi(i) == 0) then
+            ! Detect if we are outside the maximum range (z = 20 km).
+            if (zm(i, k) >= 20000._kind_phys) then
+              topi(i) = k
+            else
+              ! First spot where heating rate is no longer positive.
+              if (.not. (netdt(i, k) > 0.0_kind_phys)) topi(i) = k
+            end if
+          end if
+        end do
+        ! When all done, exit.
+        if (all(topi /= 0)) exit
+      end do
+    end if
+    ! Heating depth in m.  (top-bottom altitudes)
+    hdepth = [((zm(i, topi(i)) - zm(i, boti(i))), i=1, ncol)]
+    hd_idx = index_of_nearest(hdepth, desc%hd)
 
-  ! -----------------------------------------------------------
-  ! Calculate winds in reference frame of wave (uwavef,vwavef).
-  ! This is like "(U-c)" in GW literature, where U and c are in
-  ! ground-based speeds in a plane perpendicular to wave fronts.
-  !------------------------------------------------------------
-  do i=1,ncol
-     udiff(i) = u(i,topi(i)) - usteer(i)
-     vdiff(i) = v(i,topi(i)) - vsteer(i)
-     do k=1,pver
-        uwavef(i, k ) = u(i, k ) - usteer(i)
-        vwavef(i, k ) = v(i, k ) - vsteer(i)
-     end do
-  end do
-  !----------------------------------------------------------
-  ! Wave relative wind at source level. This determines
-  ! orientation of wave in the XY plane, and therefore the
-  ! direction in which force from dissipating GW will be
-  ! applied.
-  !----------------------------------------------------------
-  do i=1,ncol
-     udiff(i) = uwavef( i, topi(i) )
-     vdiff(i) = vwavef( i, topi(i) )
-  end do
-  !-----------------------------------------------------------
-  ! Unit vector components (xv,yv) in direction of wavevector
-  ! i.e., in which force will be applied
-  !-----------------------------------------------------------
-  call get_unit_vector(udiff , vdiff , xv, yv, ubisrc )
+    ! hd_idx=0 signals that a heating depth is too shallow, i.e. that it is
+    ! either not big enough for the lowest table entry, or it is below the
+    ! minimum allowed for this convection type.
+    ! Values above the max in the table still get the highest value, though.
+
+    where (hdepth < max(desc%min_hdepth, desc%hd(1))) hd_idx = 0
+
+    ! Maximum heating rate.
+    do k = minval(topi), maxval(boti)
+      where (k >= topi .and. k <= boti)
+        q0 = max(q0, netdt(:, k))
+      end where
+    end do
+
+    ! Multiply by conversion factor
+    ! (now 20* larger than what Zhang McFarlane said as they try to describe heating over 100km grid cell)
+    q0 = q0*CF
+    qj = gravit/rair*q0 ! unit conversion to m/s3
+
+    !-------------------------------------------------
+    ! CS1 and CS should be equal in current implemen-
+    ! tation.
+    !-------------------------------------------------
+    CS1 = sqrt(usteer**2._kind_phys + vsteer**2._kind_phys)
+    CS = CS1*xv_steer + CS1*yv_steer
+
+    ! -----------------------------------------------------------
+    ! Calculate winds in reference frame of wave (uwavef,vwavef).
+    ! This is like "(U-c)" in GW literature, where U and c are in
+    ! ground-based speeds in a plane perpendicular to wave fronts.
+    !------------------------------------------------------------
+    do i = 1, ncol
+      udiff(i) = u(i, topi(i)) - usteer(i)
+      vdiff(i) = v(i, topi(i)) - vsteer(i)
+      do k = 1, pver
+        uwavef(i, k) = u(i, k) - usteer(i)
+        vwavef(i, k) = v(i, k) - vsteer(i)
+      end do
+    end do
+    !----------------------------------------------------------
+    ! Wave relative wind at source level. This determines
+    ! orientation of wave in the XY plane, and therefore the
+    ! direction in which force from dissipating GW will be
+    ! applied.
+    !----------------------------------------------------------
+    do i = 1, ncol
+      udiff(i) = uwavef(i, topi(i))
+      vdiff(i) = vwavef(i, topi(i))
+    end do
+    !-----------------------------------------------------------
+    ! Unit vector components (xv,yv) in direction of wavevector
+    ! i.e., in which force will be applied
+    !-----------------------------------------------------------
+    call get_unit_vector(udiff, vdiff, xv, yv, ubisrc)
 
 !!$  call outfld('UCELL_MOVMTN', usteer, ncol, lchnk)
 !!$  call outfld('VCELL_MOVMTN', vsteer, ncol, lchnk)
@@ -630,177 +625,174 @@ subroutine gw_movmtn_src(ncol, &
 !!$  call outfld('STEER_LEVEL_MOVMTN',steer_level, ncol, lchnk )
 !!$  call outfld('XPWP_SRC_MOVMTN', xpwp_src , ncol, lchnk )
 
-  !----------------------------------------------------------
-  ! Project the local wave relative wind at midpoints onto the
-  !  direction of the wavevector.
-  !----------------------------------------------------------
-  do k = 1, pver
-     ubm(:,k) = dot_2d(uwavef(:,k), vwavef(:,k), xv, yv)
-  end do
-  ! Source level on-crest wind
-  do i=1,ncol
-     ubmsrc(i) = ubm(i,topi(i))
-  end do
+    !----------------------------------------------------------
+    ! Project the local wave relative wind at midpoints onto the
+    !  direction of the wavevector.
+    !----------------------------------------------------------
+    do k = 1, pver
+      ubm(:, k) = dot_2d(uwavef(:, k), vwavef(:, k), xv, yv)
+    end do
+    ! Source level on-crest wind
+    do i = 1, ncol
+      ubmsrc(i) = ubm(i, topi(i))
+    end do
 
-  !---------------------------------------------------------------
-  ! adjust everything so that source level wave relative on-crest
-  ! wind is always positive. Also adjust unit vector comps xv,yv
-  !--------------------------------------------------------------
-  do k=1,pver
-     do i=1,ncol
-        ubm(i,k) = sign( 1._kind_phys , ubmsrc(i) )* ubm(i,k)
-     end do
-  end do
-  !
-  do i=1,ncol
-     xv(i) = sign( 1._kind_phys , ubmsrc(i) ) * xv(i)
-     yv(i) = sign( 1._kind_phys , ubmsrc(i) ) * yv(i)
-  end do
+    !---------------------------------------------------------------
+    ! adjust everything so that source level wave relative on-crest
+    ! wind is always positive. Also adjust unit vector comps xv,yv
+    !--------------------------------------------------------------
+    do k = 1, pver
+      do i = 1, ncol
+        ubm(i, k) = sign(1._kind_phys, ubmsrc(i))*ubm(i, k)
+      end do
+    end do
+    !
+    do i = 1, ncol
+      xv(i) = sign(1._kind_phys, ubmsrc(i))*xv(i)
+      yv(i) = sign(1._kind_phys, ubmsrc(i))*yv(i)
+    end do
 
+    ! Compute the interface wind projection by averaging the midpoint winds. (both same wind profile,
+    ! just at different points of the grid)
 
+    ! Use the top level wind at the top interface.
+    ubi(:, 1) = ubm(:, 1)
 
-  ! Compute the interface wind projection by averaging the midpoint winds. (both same wind profile,
-  ! just at different points of the grid)
+    ubi(:, 2:pver) = midpoint_interp(ubm)
 
-  ! Use the top level wind at the top interface.
-  ubi(:,1) = ubm(:,1)
+    !-----------------------------------------------------------------------
+    ! determine wind for lookup table
+    ! need wind speed at the top of the convecitve cell and at the steering level
+    uh = 0._kind_phys
+    do i = 1, ncol
+      ut(i) = ubm(i, topi(i))
+      uh(i) = ut(i) - CS(i) ! wind at top in the frame moving with the cell
+    end do
 
-  ubi(:,2:pver) = midpoint_interp(ubm)
+    ! Set phase speeds; just use reference speeds.
+    c(:, 0) = 0._kind_phys
 
-  !-----------------------------------------------------------------------
-  ! determine wind for lookup table
-  ! need wind speed at the top of the convecitve cell and at the steering level
-  uh = 0._kind_phys
-  do i=1,ncol
-     ut(i) = ubm(i,topi(i))
-     uh(i) = ut(i) - CS(i) ! wind at top in the frame moving with the cell
-  end do
+    !-----------------------------------------------------------------------
+    ! Gravity wave sources
+    !-----------------------------------------------------------------------
+    ! Start loop over all columns.
+    !-----------------------------------------------------------------------
+    do i = 1, ncol
 
-  ! Set phase speeds; just use reference speeds.
-  c(:,0) = 0._kind_phys
-
-  !-----------------------------------------------------------------------
-  ! Gravity wave sources
-  !-----------------------------------------------------------------------
-  ! Start loop over all columns.
-  !-----------------------------------------------------------------------
-  do i=1,ncol
-
-     !---------------------------------------------------------------------
-     ! Look up spectrum only if the heating depth is large enough, else leave
-     ! tau = 0.
-     !---------------------------------------------------------------------
-     if (.not. use_gw_movmtn_pbl) then
+      !---------------------------------------------------------------------
+      ! Look up spectrum only if the heating depth is large enough, else leave
+      ! tau = 0.
+      !---------------------------------------------------------------------
+      if (.not. use_gw_movmtn_pbl) then
         if (hd_idx(i) > 0) then
-           !------------------------------------------------------------------
-           ! Look up the spectrum using depth and uh.
-           !------------------------------------------------------------------
-           !hdmm_idx = index_of_nearest(hdepth, desc%hd)
-           uhmm_idx = index_of_nearest(uh, desc%uh)
-           taumm(i) = abs(desc%mfcc(uhmm_idx(i),hd_idx(i),0))
-           taumm(i) = taumm(i)*qj(i)*qj(i)/AL/1000._kind_phys
-           ! assign sign to MF based on the ground based phase speed, ground based phase speed = CS
-           taumm(i) = -1._kind_phys*sign(taumm(i),CS(i))
-           !find the right phase speed bin
-           c0(i,:) = CS(i)
-           c_idx(i,:) = index_of_nearest(c0(i,:),c(i,:))
+          !------------------------------------------------------------------
+          ! Look up the spectrum using depth and uh.
+          !------------------------------------------------------------------
+          !hdmm_idx = index_of_nearest(hdepth, desc%hd)
+          uhmm_idx = index_of_nearest(uh, desc%uh)
+          taumm(i) = abs(desc%mfcc(uhmm_idx(i), hd_idx(i), 0))
+          taumm(i) = taumm(i)*qj(i)*qj(i)/AL/1000._kind_phys
+          ! assign sign to MF based on the ground based phase speed, ground based phase speed = CS
+          taumm(i) = -1._kind_phys*sign(taumm(i), CS(i))
+          !find the right phase speed bin
+          c0(i, :) = CS(i)
+          c_idx(i, :) = index_of_nearest(c0(i, :), c(i, :))
 
-           !input tau to top +1 level, interface level just below top of heating, remember it's in pressure
-           ! everything is upside down (source level of GWs, level where GWs are launched)
-           tau(i,c_idx(i,:),topi(i):topi(i)+1) = taumm(i)
+          !input tau to top +1 level, interface level just below top of heating, remember it's in pressure
+          ! everything is upside down (source level of GWs, level where GWs are launched)
+          tau(i, c_idx(i, :), topi(i):topi(i) + 1) = taumm(i)
 
         end if ! heating depth above min and not at the pole
-     else
-        tau(i,0,topi(i):pver+1 ) = xpwp_src(i) ! 0.1_kind_phys/10000._kind_phys
-     endif
+      else
+        tau(i, 0, topi(i):pver + 1) = xpwp_src(i) ! 0.1_kind_phys/10000._kind_phys
+      end if
 
-  enddo
-  !-----------------------------------------------------------------------
-  ! End loop over all columns.
-  !-----------------------------------------------------------------------
+    end do
+    !-----------------------------------------------------------------------
+    ! End loop over all columns.
+    !-----------------------------------------------------------------------
 
-  ! Output the source level.
-  src_level = topi
-  tend_level = topi
+    ! Output the source level.
+    src_level = topi
+    tend_level = topi
 
-
-end subroutine gw_movmtn_src
+  end subroutine gw_movmtn_src
 
 ! Short routine to get the indices of a set of values rounded to their
 ! nearest points on a grid.
-pure function index_of_nearest(x, grid) result(idx)
-  real(kind_phys), intent(in) :: x(:)
-  real(kind_phys), intent(in) :: grid(:)
+  pure function index_of_nearest(x, grid) result(idx)
+    real(kind_phys), intent(in) :: x(:)
+    real(kind_phys), intent(in) :: grid(:)
 
-  integer :: idx(size(x))
+    integer :: idx(size(x))
 
-  real(kind_phys) :: interfaces(size(grid)-1)
-  integer :: i, n
+    real(kind_phys) :: interfaces(size(grid) - 1)
+    integer :: i, n
 
-  n = size(grid)
-  interfaces = (grid(:n-1) + grid(2:))/2._kind_phys
+    n = size(grid)
+    interfaces = (grid(:n - 1) + grid(2:))/2._kind_phys
 
-  idx = 1
-  do i = 1, n-1
-     where (x > interfaces(i)) idx = i + 1
-  end do
+    idx = 1
+    do i = 1, n - 1
+      where (x > interfaces(i)) idx = i + 1
+    end do
 
-end function index_of_nearest
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!
-subroutine shcu_flux_src (xpwp_shcu , ncol, pverx, alpha_gw_movmtn, xpwp_src, steering_level, launch_level )
-  integer, intent(in) :: ncol,pverx
-  real(kind_phys), intent(in) :: xpwp_shcu (:,:)
-  real(kind_phys), intent(in) :: alpha_gw_movmtn
-
-  real(kind_phys), intent(out) :: xpwp_src(ncol)
-  integer,  intent(out) :: steering_level(ncol), launch_level(ncol)
-
-  integer :: k, nlayers
-
-  steering_level(:ncol) = (pverx-1) - 5 !++ tuning test 12/30/24
-  launch_level(:ncol)   = steering_level -10 !++ tuning test 01/05/25
-
-  !-----------------------------------
-  ! Simple average over layers.
-  ! Probably can do better
-  !-----------------------------------
-  nlayers=5
-  xpwp_src(:) =0._kind_phys
-  do k = 0, nlayers-1
-     xpwp_src(:) = xpwp_src(:) + xpwp_shcu(:,pverx-k)
-  end do
-  xpwp_src(:) = alpha_gw_movmtn * xpwp_src(:)/(1.0_kind_phys*nlayers)
-
-end subroutine shcu_flux_src
+  end function index_of_nearest
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!
-subroutine vorticity_flux_src (vorticity , ncol, pverx, alpha_gw_movmtn, vort_src, steering_level, launch_level )
-  integer, intent(in) :: ncol,pverx
-  real(kind_phys), intent(in) :: vorticity (ncol,pverx)
-  real(kind_phys), intent(in) :: alpha_gw_movmtn
+  subroutine shcu_flux_src(xpwp_shcu, ncol, pverx, alpha_gw_movmtn, xpwp_src, steering_level, launch_level)
+    integer, intent(in) :: ncol, pverx
+    real(kind_phys), intent(in) :: xpwp_shcu(:, :)
+    real(kind_phys), intent(in) :: alpha_gw_movmtn
 
-  real(kind_phys), intent(out) :: vort_src(ncol)
-  integer,  intent(out) :: steering_level(ncol), launch_level(ncol)
+    real(kind_phys), intent(out) :: xpwp_src(ncol)
+    integer, intent(out) :: steering_level(ncol), launch_level(ncol)
 
-  real(kind_phys) :: scale_factor
-  integer  :: k, nlayers
+    integer :: k, nlayers
 
-  steering_level(:ncol) = pverx - 20
-  launch_level(:ncol)   = steering_level -10
+    steering_level(:ncol) = (pverx - 1) - 5 !++ tuning test 12/30/24
+    launch_level(:ncol) = steering_level - 10 !++ tuning test 01/05/25
 
-  scale_factor   = 1.e4 ! scales vorticity amp to u'w' in CLUBB
-  !-----------------------------------
-  ! Simple average over layers.
-  ! Probably can do better
-  !-----------------------------------
-  nlayers=10
-  vort_src(:) =0._kind_phys
-  do k = 0, nlayers-1
-     vort_src(:) = vort_src(:) + scale_factor * abs( vorticity(:,pverx-k) )
-  end do
-  vort_src(:) = alpha_gw_movmtn * vort_src(:)/nlayers
+    !-----------------------------------
+    ! Simple average over layers.
+    ! Probably can do better
+    !-----------------------------------
+    nlayers = 5
+    xpwp_src(:) = 0._kind_phys
+    do k = 0, nlayers - 1
+      xpwp_src(:) = xpwp_src(:) + xpwp_shcu(:, pverx - k)
+    end do
+    xpwp_src(:) = alpha_gw_movmtn*xpwp_src(:)/(1.0_kind_phys*nlayers)
 
-end subroutine vorticity_flux_src
+  end subroutine shcu_flux_src
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  subroutine vorticity_flux_src(vorticity, ncol, pverx, alpha_gw_movmtn, vort_src, steering_level, launch_level)
+    integer, intent(in) :: ncol, pverx
+    real(kind_phys), intent(in) :: vorticity(ncol, pverx)
+    real(kind_phys), intent(in) :: alpha_gw_movmtn
+
+    real(kind_phys), intent(out) :: vort_src(ncol)
+    integer, intent(out) :: steering_level(ncol), launch_level(ncol)
+
+    real(kind_phys) :: scale_factor
+    integer  :: k, nlayers
+
+    steering_level(:ncol) = pverx - 20
+    launch_level(:ncol) = steering_level - 10
+
+    scale_factor = 1.e4 ! scales vorticity amp to u'w' in CLUBB
+    !-----------------------------------
+    ! Simple average over layers.
+    ! Probably can do better
+    !-----------------------------------
+    nlayers = 10
+    vort_src(:) = 0._kind_phys
+    do k = 0, nlayers - 1
+      vort_src(:) = vort_src(:) + scale_factor*abs(vorticity(:, pverx - k))
+    end do
+    vort_src(:) = alpha_gw_movmtn*vort_src(:)/nlayers
+
+  end subroutine vorticity_flux_src
 
 end module gw_movmtn
