@@ -572,8 +572,9 @@ contains
 
     call gw_rdg_init( &
       ncol=ncol, &
-      band=band_oro, &
-      rearth_c=rearth, &
+      wavelength = wavelength_mid, &
+      gw_delta_c = gw_dc_nl, &
+      rearth=rearth, &
       effgw_rdg_beta=effgw_rdg_beta, &
       effgw_rdg_gamma=effgw_rdg_gamma, &
       use_gw_rdg_beta_in=use_gw_rdg_beta, &
@@ -1475,18 +1476,48 @@ contains
 !!$     call outfld('ZMGW', zm , ncol, lchnk)
 
       call gw_rdg_run( &
-        use_gw_rdg_beta, &
-        use_gw_rdg_gamma, &
-        vramp, &
-        pcnst, pver, ncol, n_rdg_beta, n_rdg_gamma, dt, &
-        state_u, state_v, state_t, p, piln, zm, zi, &
-        nm, ni, rhoi, kvtt, state_q, dse, &
-        effgw_rdg_resid, use_gw_rdg_resid, &
-        effgw_rdg_beta, effgw_rdg_beta_max, &
-        effgw_rdg_gamma, effgw_rdg_gamma_max, &
-        rdg_beta_cd_llb, trpd_leewv_rdg_beta, &
-        rdg_gamma_cd_llb, trpd_leewv_rdg_gamma, &
-        q_tend, s_tend, u_tend, v_tend, flx_heat, errmsg, errflg)
+        ncol                    = ncol, &
+        pver                    = pver, &
+        pcnst                   = pcnst, &
+        dt                      = dt, &
+        pi                      = pi, &
+        use_gw_rdg_beta         = use_gw_rdg_beta, &
+        use_gw_rdg_gamma        = use_gw_rdg_gamma, &
+        vramp                   = vramp, &
+        n_rdg_beta              = n_rdg_beta, &
+        n_rdg_gamma             = n_rdg_gamma, &
+        u                       = state_u(:ncol,:), &
+        v                       = state_v(:ncol,:), &
+        t                       = state_t(:ncol,:), &
+        p                       = p, &
+        piln                    = piln(:ncol,:), &
+        zm                      = zm(:ncol,:), &
+        zi                      = zi(:ncol,:), &
+        nm                      = nm(:ncol,:), &
+        ni                      = ni(:ncol,:), &
+        rhoi                    = rhoi(:ncol,:), &
+        kvtt                    = kvtt(:ncol,:), &
+        q                       = state_q(:ncol,:,:), &
+        dse                     = dse(:ncol,:), &
+        effgw_rdg_resid         = effgw_rdg_resid, &
+        use_gw_rdg_resid        = use_gw_rdg_resid, &
+        effgw_rdg_beta          = effgw_rdg_beta, &
+        effgw_rdg_beta_max      = effgw_rdg_beta_max, &
+        effgw_rdg_gamma         = effgw_rdg_gamma, &
+        effgw_rdg_gamma_max     = effgw_rdg_gamma_max, &
+        rdg_beta_cd_llb         = rdg_beta_cd_llb, &
+        trpd_leewv_rdg_beta     = trpd_leewv_rdg_beta, &
+        rdg_gamma_cd_llb        = rdg_gamma_cd_llb, &
+        trpd_leewv_rdg_gamma    = trpd_leewv_rdg_gamma, &
+        ! Input/output arguments
+        s_tend                  = s_tend(:ncol,:pver), &
+        q_tend                  = q_tend(:ncol,:pver,:pcnst), &
+        u_tend                  = u_tend(:ncol,:pver), &
+        v_tend                  = v_tend(:ncol,:pver), &
+        ! Output arguments
+        flx_heat                = flx_heat(:ncol), &
+        errmsg                  = errmsg, &
+        errflg                  = errflg)
 
     end if
 
