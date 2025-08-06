@@ -22,9 +22,8 @@ module gw_drag
   use interpolate_data, only: lininterp
 
   implicit none
-
-  save
   private
+  save
 
   !
   ! PUBLIC: interfaces
@@ -127,10 +126,7 @@ module gw_drag
   real(kind_phys)   :: gravit          ! gravitational acceleration (m s-2)
   real(kind_phys)   :: rair            ! Dry air gas constant     (J K-1 kg-1)
   real(kind_phys)   :: pi
-  real(kind_phys)   :: al0
-  real(kind_phys)   :: dlat0
-  real(kind_phys), allocatable   :: pref_edge(:), pref_mid(:)
-  real(kind_phys)   :: degree2radian
+  real(kind_phys), allocatable   :: pref_edge(:)
   integer           :: ncid_topo
   logical           :: masterproc
 
@@ -158,20 +154,16 @@ module gw_drag
   ! Whether or not to apply tendency max
   logical :: gw_apply_tndmax = .true.
 
-  ! Water constituent indices for budget
-  integer :: ixcldliq = -1
-  integer :: ixcldice = -1
-
   ! Prefixes for history field names
   character(len=1), parameter :: cm_pf = " "
   character(len=1), parameter :: cm_igw_pf = "I"
   character(len=1), parameter :: beres_dp_pf = "B"
   character(len=1), parameter :: beres_sh_pf = "S"
 
-  ! namelist
-  logical          :: history_amwg                   ! output the variables used by the AMWG diag package
-
-  real(kind_phys), pointer :: vramp(:) => null()
+  ! Parameters for the IGW polar taper.
+  real(kind_phys) :: degree2radian
+  real(kind_phys) :: al0
+  real(kind_phys) :: dlat0
 
 !==========================================================================
 contains
@@ -190,8 +182,7 @@ contains
     pi_in, &
     fcrit2_in, &
     rearth_in, &
-    pref_edge_in, &
-    pref_mid_in, &
+    pref_edge, &
     pgwv_nl, &
     gw_dc_nl, &
     pgwv_long_nl, &
@@ -257,9 +248,7 @@ contains
     errmsg, &
     errflg)
 
-    use ref_pres, only: press_lim_idx
-
-    use gw_common, only: gw_common_init, gw_prof
+    use gw_common, only: gw_common_init
     use gw_rdg, only: gw_rdg_init
     use gw_front, only: gw_front_init
     use gw_movmtn, only: gw_movmtn_init
@@ -284,8 +273,7 @@ contains
     ! the readnl phase and the init phase of the CAM physics; only gw_common
     ! should actually use it.)
     logical, intent(in)             :: tau_0_ubc_nl
-    real(kind_phys), intent(in)     :: pref_edge_in(:)
-    real(kind_phys), intent(in)     :: pref_mid_in(:)
+    real(kind_phys), intent(in)     :: pref_edge(:)
     ! Beres (deep convection).
     real(kind_phys), intent(in)     :: effgw_beres_dp_nl
     ! Beres (shallow convection).
@@ -442,13 +430,14 @@ contains
     errmsg = ''
     errflg = 0
 
+    ! Parameters for the IGW polar taper.
+    degree2radian = pi_in/180._kind_phys
+    al0 = 82.5_kind_phys * degree2radian
+    dlat0 = 5.0_kind_phys * degree2radian
+
     gravit = gravit_in
     rair = rair_in
     pi = pi_in
-    allocate (pref_edge(pver + 1))
-    pref_edge = pref_edge_in
-    allocate (pref_mid(pver))
-    pref_mid = pref_mid_in
     masterproc = masterproc_in
     iulog = iulog_in
     pgwv = pgwv_nl
@@ -618,24 +607,6 @@ contains
                          use_gw_convect_dp, use_gw_convect_sh, masterproc, iulog, errmsg, errflg)
     end if
     if (errflg /= 0) return
-
-    if (gw_top_taper) then
-      allocate (vramp(pver))
-      vramp(:) = 1._kind_phys
-      topndx = 1
-      botndx = press_lim_idx(0.6E-02_kind_phys, top=.true.)
-      if (botndx > 1) then
-        do k = botndx, topndx, -1
-          vramp(k) = vramp(k + 1)/(pref_edge(k + 1)/pref_edge(k))
-        end do
-        if (masterproc) then
-          write (iulog, '(A)') 'GW taper coef (vramp):'
-          do k = 1, pver
-            write (iulog, "('k: ',I4,' taper coef,press(Pa): ',F12.8,E12.4)") k, vramp(k), pref_mid(k)
-          end do
-        end if
-      end if
-    end if
   end subroutine gw_drag_init
 
 !==========================================================================
@@ -646,16 +617,11 @@ contains
     ncol, &
     pcnst, &
     pver, &
-    cnst_type, &
     dt, &
-    cpair, &
-    cpairv, &
-    pi, &
+    cpair, cpairv, pi, &
+    vramp, &
     frontgf, &
     frontga, &
-    degree2radian, &
-    al0, &
-    dlat0, &
     pint, &
     piln, &
     pdel, &
@@ -671,6 +637,9 @@ contains
     state_q, &
     vorticity, &
     sgh, &
+    p, &
+    rhoi, &
+    nm, ni, &
     kvtt, &
     ttend_dp, &
     ttend_sh, &
@@ -693,7 +662,7 @@ contains
     !-----------------------------------------------------------------------
 
     use coords_1d, only: Coords1D
-    use gw_common, only: gw_prof, gw_drag_prof, calc_taucd
+    use gw_common, only: gw_drag_prof, calc_taucd
     use gw_common, only: momentum_flux, momentum_fixer, energy_change
     use gw_common, only: energy_fixer, coriolis_speed, adjust_inertial
     use gw_oro, only: gw_oro_src
@@ -705,14 +674,14 @@ contains
     integer, intent(in)        :: ncol  ! number of atmospheric columns
     integer, intent(in)        :: pcnst ! chunk number
     integer, intent(in)        :: pver  ! number of atmospheric levels
-    character*3, intent(in)     :: cnst_type(pcnst) ! wet or dry mixing ratio
     real(kind_phys), intent(in) :: dt          ! physics timestep
     real(kind_phys), intent(in) :: cpair       ! heat capacity of air
     real(kind_phys), intent(in) :: cpairv(:, :) ! location dependent heat capacity of air
     real(kind_phys), intent(in) :: pi          ! pi
-    real(kind_phys), intent(in) :: degree2radian
-    real(kind_phys), intent(in) :: al0
-    real(kind_phys), intent(in) :: dlat0
+    real(kind_phys), intent(in), pointer :: vramp(:)
+    ! Frontogenesis
+    real(kind_phys), intent(in), pointer :: frontgf(:, :)
+    real(kind_phys), intent(in), pointer :: frontga(:, :)
     real(kind_phys), intent(in) :: pint(:, :)   ! pressure at model interfaces
     real(kind_phys), intent(in) :: piln(:, :)   ! ln pressure at model interfaces
     real(kind_phys), intent(in) :: pdel(:, :)   ! vertical delta-p
@@ -728,6 +697,12 @@ contains
     real(kind_phys), intent(in) :: state_q(:, :, :) ! constituent array
     real(kind_phys), intent(in) :: vorticity(:, :) ! vorticity
     real(kind_phys), intent(in) :: sgh(:)         !
+
+    type(Coords1D),  intent(in) :: p               ! Pressure coordinates, Coords1D
+    real(kind_phys), intent(in) :: rhoi(:, :)     ! density at interfaces [kg m-3]
+    real(kind_phys), intent(in) :: nm(:, :)       ! midpoint Brunt-Vaisalla frequency
+    real(kind_phys), intent(in) :: ni(:, :)       ! interface Brunt-Vaisalla frequency
+
     real(kind_phys), intent(inout) :: kvtt(:, :)       !
     real(kind_phys), intent(in) :: ttend_dp(:, :)  ! Temperature change due to deep convection.
     real(kind_phys), intent(in) :: ttend_sh(:, :)  ! Temperature change due to shallow convection.
@@ -753,18 +728,12 @@ contains
     character(len=*), parameter :: sub = 'gw_drag_run'
 
     integer :: stat
-
     integer :: i, k                   ! loop indices
-
-    type(Coords1D) :: p               ! Pressure coordinates
 
     real(kind_phys) :: ttgw(ncol, pver) ! temperature tendency
     real(kind_phys) :: utgw(ncol, pver) ! zonal wind tendency
     real(kind_phys) :: vtgw(ncol, pver) ! meridional wind tendency
 
-    real(kind_phys) :: ni(ncol, pver + 1) ! interface Brunt-Vaisalla frequency
-    real(kind_phys) :: nm(ncol, pver)   ! midpoint Brunt-Vaisalla frequency
-    real(kind_phys) :: rhoi(ncol, pver + 1)     ! interface density
     real(kind_phys), allocatable :: tau(:, :, :)  ! wave Reynolds stress
     real(kind_phys) :: tau0x(ncol)     ! c=0 sfc. stress (zonal)
     real(kind_phys) :: tau0y(ncol)     ! c=0 sfc. stress (meridional)
@@ -798,37 +767,6 @@ contains
     ! Adjustment for inertial gravity waves.
     real(kind_phys), allocatable :: ro_adjust(:, :, :)
 
-    ! Frontogenesis
-    real(kind_phys), pointer :: frontgf(:, :)
-    real(kind_phys), pointer :: frontga(:, :)
-
-    ! gridbox area
-    real(kind_phys), pointer :: gbxar(:)
-
-    ! Beta ridges
-    ! width of ridges.
-    real(kind_phys), pointer :: hwdth(:, :)
-    ! length of ridges.
-    real(kind_phys), pointer :: clngt(:, :)
-    ! Maximum deviations of ridges.
-    real(kind_phys), pointer :: mxdis(:, :)
-    ! orientation of ridges.
-    real(kind_phys), pointer :: angll(:, :)
-    ! anisotropy of ridges.
-    real(kind_phys), pointer :: anixy(:, :)
-
-    ! Gamma ridges
-    ! width of ridges.
-    real(kind_phys), pointer :: hwdthg(:, :)
-    ! length of ridges.
-    real(kind_phys), pointer :: clngtg(:, :)
-    ! Maximum deviations of ridges.
-    real(kind_phys), pointer :: mxdisg(:, :)
-    ! orientation of ridges.
-    real(kind_phys), pointer :: angllg(:, :)
-    ! anisotropy of ridges.
-    real(kind_phys), pointer :: anixyg(:, :)
-
     ! Indices of gravity wave source and lowest level where wind tendencies
     ! are allowed.
     integer :: src_level(ncol)
@@ -843,11 +781,6 @@ contains
     ! Scale sgh to account for landfrac.
     real(kind_phys) :: sgh_scaled(ncol)
 
-    ! Parameters for the IGW polar taper.
-!!$  real(kind_phys), parameter :: degree2radian = pi/180._kind_phys
-!!$  real(kind_phys), parameter :: al0 = 82.5_kind_phys * degree2radian
-!!$  real(kind_phys), parameter :: dlat0 = 5.0_kind_phys * degree2radian
-
     ! effective gw diffusivity at interfaces needed for output
     real(kind_phys) :: egwdffi(ncol, pver + 1)
 
@@ -856,26 +789,10 @@ contains
     ! Energy change used by fixer.
     real(kind_phys) :: de(ncol)
 
-    ! Which constituents are being affected by diffusion.
-    logical  :: lq(pcnst)
-
-    !------------------------------------------------------------------------
-    p = Coords1D(pint(:ncol, :))
-
-    ! Profiles of background state variables
-    call gw_prof(ncol, p, cpair, state_t, rhoi, nm, ni)
-
     if (do_molec_diff) then
       !--------------------------------------------------------
       ! Initialize and calculate local molecular diffusivity
       !--------------------------------------------------------
-
-!jt     kvt_in passed in here as kvtt
-!!$     call pbuf_get_field(pbuf, kvt_idx, kvt_in)  ! kvt_in(1:pcols,1:pver+1)
-
-!!$     ! Set kvtt from pbuf field; kvtt still needs a factor of 1/cpairv.
-!!$     kvtt = kvt_in(:ncol,:)
-
       ! Use linear extrapolation of cpairv to top interface.
       kvtt(:, 1) = kvtt(:, 1)/ &
                    (1.5_kind_phys*cpairv(:ncol, 1) - &
@@ -1465,86 +1382,6 @@ contains
       deallocate (tau, gwut, phase_speeds)
 
     end if
-
-    if (use_gw_rdg_beta .or. use_gw_rdg_gamma) then
-!!$     ! Save state at top of routine
-!!$     ! Useful for unit testing checks
-!!$     call outfld('UEGW', state_u ,  ncol, lchnk)
-!!$     call outfld('VEGW', state_v ,  ncol, lchnk)
-!!$     call outfld('TEGW', state_t ,  ncol, lchnk)
-!!$     call outfld('ZEGW', zi , ncol, lchnk)
-!!$     call outfld('ZMGW', zm , ncol, lchnk)
-
-      call gw_rdg_run( &
-        ncol                    = ncol, &
-        pver                    = pver, &
-        pcnst                   = pcnst, &
-        dt                      = dt, &
-        pi                      = pi, &
-        use_gw_rdg_beta         = use_gw_rdg_beta, &
-        use_gw_rdg_gamma        = use_gw_rdg_gamma, &
-        vramp                   = vramp, &
-        n_rdg_beta              = n_rdg_beta, &
-        n_rdg_gamma             = n_rdg_gamma, &
-        u                       = state_u(:ncol,:), &
-        v                       = state_v(:ncol,:), &
-        t                       = state_t(:ncol,:), &
-        p                       = p, &
-        piln                    = piln(:ncol,:), &
-        zm                      = zm(:ncol,:), &
-        zi                      = zi(:ncol,:), &
-        nm                      = nm(:ncol,:), &
-        ni                      = ni(:ncol,:), &
-        rhoi                    = rhoi(:ncol,:), &
-        kvtt                    = kvtt(:ncol,:), &
-        q                       = state_q(:ncol,:,:), &
-        dse                     = dse(:ncol,:), &
-        effgw_rdg_resid         = effgw_rdg_resid, &
-        use_gw_rdg_resid        = use_gw_rdg_resid, &
-        effgw_rdg_beta          = effgw_rdg_beta, &
-        effgw_rdg_beta_max      = effgw_rdg_beta_max, &
-        effgw_rdg_gamma         = effgw_rdg_gamma, &
-        effgw_rdg_gamma_max     = effgw_rdg_gamma_max, &
-        rdg_beta_cd_llb         = rdg_beta_cd_llb, &
-        trpd_leewv_rdg_beta     = trpd_leewv_rdg_beta, &
-        rdg_gamma_cd_llb        = rdg_gamma_cd_llb, &
-        trpd_leewv_rdg_gamma    = trpd_leewv_rdg_gamma, &
-        ! Input/output arguments
-        s_tend                  = s_tend(:ncol,:pver), &
-        q_tend                  = q_tend(:ncol,:pver,:pcnst), &
-        u_tend                  = u_tend(:ncol,:pver), &
-        v_tend                  = v_tend(:ncol,:pver), &
-        ! Output arguments
-        flx_heat                = flx_heat(:ncol), &
-        errmsg                  = errmsg, &
-        errflg                  = errflg)
-
-    end if
-
-!!$  ! Convert the tendencies for the dry constituents to dry air basis.
-!!$  do m = 1, pcnst
-!!$     if (cnst_type(m).eq.'dry') then
-!!$        do k = 1, pver
-!!$           do i = 1, ncol
-!!$              q_tend(i,k,m) = q_tend(i,k,m)*pdel(i,k)/pdeldry(i,k)
-!!$           end do
-!!$        end do
-!!$     end if
-!!$  end do
-
-!!$  ! Write totals to history file.
-!!$  call outfld('EKGW', egwdffi_tot , ncol, lchnk)
-!!$  call outfld('TTGW', ptend%s/cpairv(:,:),  pcols, lchnk)
-!!$
-!!$  call outfld('UTGW_TOTAL', ptend%u, pcols, lchnk)
-!!$  call outfld('VTGW_TOTAL', ptend%v, pcols, lchnk)
-!!$
-!!$  call outfld('QTGW', ptend%q(:,:,1), pcols, lchnk)
-!!$  call outfld('CLDLIQTGW', ptend%q(:,:,ixcldliq), pcols, lchnk)
-!!$  call outfld('CLDICETGW', ptend%q(:,:,ixcldice), pcols, lchnk)
-
-    ! Destroy objects.
-    call p%finalize()
 
   end subroutine gw_drag_run
 

@@ -6,7 +6,7 @@ module gw_movmtn
 !
 
   use ccpp_kinds, only: kind_phys
-  use gw_common, only: pver, GWBand, gw_prof, gw_drag_prof, calc_taucd, handle_err, unset_kind_phys
+  use gw_common, only: pver, GWBand, gw_drag_prof, calc_taucd, handle_err, unset_kind_phys
   use coords_1d, only: Coords1D
 
   implicit none

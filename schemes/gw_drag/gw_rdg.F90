@@ -1,7 +1,6 @@
 ! This module handles gravity waves from orographic sources, and was
 ! extracted from gw_drag in May 2013.
 module gw_rdg
-  use shr_const_mod, only: pii => shr_const_pi
   use ccpp_kinds,    only: kind_phys
   use gw_common,     only: unset_kind_phys, gwband, handle_err
   use coords_1d,     only: Coords1D
@@ -365,10 +364,10 @@ contains
     ncol, pver, pcnst, dt, pi, &
     use_gw_rdg_beta, &
     use_gw_rdg_gamma, &
-    vramp, &
+    vramp, p, &
     n_rdg_beta, n_rdg_gamma, &
     u, v, t, q, dse, &
-    p, piln, zm, zi, &
+    piln, zm, zi, &
     nm, ni, rhoi, kvtt, &
     effgw_rdg_resid, use_gw_rdg_resid, &
     effgw_rdg_beta, effgw_rdg_beta_max, &
@@ -391,6 +390,7 @@ contains
     logical, intent(in)              :: use_gw_rdg_gamma       ! Enable gamma ridge scheme [flag]
 
     real(kind_phys), pointer, intent(in) :: vramp(:)           ! Vertical tapering function [1]
+    type(Coords1D),  intent(in) :: p               ! Pressure coordinates, Coords1D
 
     integer, intent(in)              :: n_rdg_beta             ! Number of beta ridges [count]
     integer, intent(in)              :: n_rdg_gamma            ! Number of gamma ridges [count]
@@ -401,7 +401,6 @@ contains
     real(kind_phys), intent(in)      :: q(:, :, :)             ! Constituent array [kg kg-1]
     real(kind_phys), intent(in)      :: dse(:, :)              ! Dry static energy [J kg-1]
 
-    type(Coords1D),  intent(in)      :: p                      ! Pressure coordinates [Pa] Coords1D
     real(kind_phys), intent(in)      :: piln(:, :)             ! Log of interface pressures [ln(Pa)]
     real(kind_phys), intent(in)      :: zm(:, :)               ! Midpoint altitudes above ground [m]
     real(kind_phys), intent(in)      :: zi(:, :)               ! Interface altitudes above ground [m]
@@ -436,6 +435,7 @@ contains
 
     ! Local variables
     character(len=*), parameter :: sub = 'gw_rdg_run'
+
     integer :: k, m, nn, stat
 
     real(kind_phys), allocatable :: tau(:, :, :)  ! wave Reynolds stress
@@ -544,7 +544,6 @@ contains
 
     character(len=1) :: cn
     character(len=9) :: fname(4)
-    !----------------------------------------------------------------------------
 
     errmsg = ''
     errflg = 0
@@ -562,7 +561,7 @@ contains
 
       call gw_rdg_calc(band_oro, &
                        vramp, &
-                       'BETA ', pver, ncol, pcnst, prdg, n_rdg_beta, dt, &
+                       'BETA ', pver, ncol, pcnst, prdg, n_rdg_beta, dt, pi, &
                        u, v, t, p, piln, zm, zi, &
                        nm, ni, rhoi, kvtt, q, dse, &
                        effgw_rdg_beta, effgw_rdg_beta_max, &
@@ -590,7 +589,7 @@ contains
 
       call gw_rdg_calc(band_oro, &
                        vramp, &
-                       'GAMMA', pver, ncol, pcnst, prdg, n_rdg_gamma, dt, &
+                       'GAMMA', pver, ncol, pcnst, prdg, n_rdg_gamma, dt, pi, &
                        u, v, t, p, piln, zm, zi, &
                        nm, ni, rhoi, kvtt, q, dse, &
                        effgw_rdg_gamma, effgw_rdg_gamma_max, &
@@ -804,7 +803,7 @@ contains
 
   end subroutine gw_rdg_resid_src
 
-  subroutine gw_rdg_src(ncol, pver, band, p, &
+  subroutine gw_rdg_src(ncol, pver, pi, band, p, &
                         u, v, t, mxdis, angxy, anixy, kwvrdg, iso, zi, nm, &
                         src_level, tend_level, bwv_level, tlb_level, tau, ubm, ubi, xv, yv, &
                         ubmsrc, usrc, vsrc, nsrc, rsrc, m2src, tlb, bwv, Fr1, Fr2, Frx, c, &
@@ -822,6 +821,7 @@ contains
     ! Column dimension.
     integer, intent(in) :: ncol
     integer, intent(in) :: pver
+    real(kind_phys), intent(in) :: pi
 
     ! Band to emit orographic waves in.
     ! Regardless, we will only ever emit into l = 0.
@@ -963,7 +963,7 @@ contains
     ! Get the unit vector components
     ! Want agl=0 with U>0 to give xv=1
 
-    ragl = angxy*pii/180._kind_phys
+    ragl = angxy*pi/180._kind_phys
 
     ! protect from wierd "bad" angles
     ! that may occur if hdsp is zero
@@ -1403,21 +1403,19 @@ contains
 
   end subroutine gw_rdg_belowpeak
 
-!==========================================================================
-  subroutine gw_rdg_break_trap(ncol, pver, band, &
+  ! Parameterization of high-drag regimes and trapped lee-waves for CAM
+  subroutine gw_rdg_break_trap(ncol, pver, pi, band, &
                                zi, nm, ni, ubm, ubi, rhoi, kwvrdg, bwv, tlb, wbr, &
                                src_level, tlb_level, &
                                hdspwv, hdspdw, mxdis, &
                                tauoro, taudsw, tau, &
                                ldo_trapped_waves, wdth_kwv_scale_in)
     use gw_common, only: GWBand
-    !-----------------------------------------------------------------------
-    ! Parameterization of high-drag regimes and trapped lee-waves for CAM
-    !
-    !------------------------------Arguments--------------------------------
-    ! Column dimension.
+
+    ! Input arguments
     integer, intent(in) :: ncol
     integer, intent(in) :: pver
+    real(kind_phys), intent(in) :: pi
     ! Band to emit orographic waves in.
     ! Regardless, we will only ever emit into l = 0.
     type(GWBand), intent(in) :: band
@@ -1527,19 +1525,19 @@ contains
     wbrx(:) = 0._kind_phys
     if (do_smooth_regimes) then
       do k = pver, 1, -1
-        where ((phswkb(:, k + 1) < 1.5_kind_phys*pii) .and. (phswkb(:, k) >= 1.5_kind_phys*pii) &
+        where ((phswkb(:, k + 1) < 1.5_kind_phys*pi) .and. (phswkb(:, k) >= 1.5_kind_phys*pi) &
                .and. (hdspdw(:) > hdspwv(:)))
           wbr(:) = zi(:, k)
           ! Extrapolation to make regime
           ! transitions smoother
-          wbrx(:) = zi(:, k) - (phswkb(:, k) - 1.5_kind_phys*pii) &
+          wbrx(:) = zi(:, k) - (phswkb(:, k) - 1.5_kind_phys*pi) &
                     /(m2(:, k) + 1.e-6_kind_phys)
           src_level(:) = k - 1
         end where
       end do
     else
       do k = pver, 1, -1
-        where ((phswkb(:, k + 1) < 1.5_kind_phys*pii) .and. (phswkb(:, k) >= 1.5_kind_phys*pii) &
+        where ((phswkb(:, k + 1) < 1.5_kind_phys*pi) .and. (phswkb(:, k) >= 1.5_kind_phys*pi) &
                .and. (hdspdw(:) > hdspwv(:)))
           wbr(:) = zi(:, k)
           src_level(:) = k
@@ -1659,7 +1657,7 @@ contains
 
   subroutine gw_rdg_calc(band_oro, &
                          vramp, &
-                         type, pver, ncol, pcnst, prdg, n_rdg, dt, &
+                         type, pver, ncol, pcnst, prdg, n_rdg, dt, pi, &
                          u, v, t, p, piln, zm, zi, &
                          nm, ni, rhoi, kvtt, q, dse, &
                          effgw_rdg, effgw_rdg_max, &
@@ -1683,6 +1681,7 @@ contains
     integer, intent(in) :: prdg         !
     integer, intent(in) :: n_rdg
     real(kind_phys), intent(in) :: dt           ! Time step.
+    real(kind_phys), intent(in) :: pi
 
     real(kind_phys), intent(in) :: u(:, :)    ! Midpoint zonal winds. ( m s-1)
     real(kind_phys), intent(in) :: v(:, :)    ! Midpoint meridional winds. ( m s-1)
@@ -1853,7 +1852,7 @@ contains
       effgw = effgw_rdg*(hwdth(1:ncol, nn)*clngt(1:ncol, nn))/gbxar(1:ncol)
       effgw = min(effgw_rdg_max, effgw)
 
-      call gw_rdg_src(ncol, pver, band_oro, p, &
+      call gw_rdg_src(ncol, pver, pi, band_oro, p, &
                       u, v, t, mxdis(:, nn), angll(:, nn), anixy(:, nn), kwvrdg, isoflag, zi, nm, &
                       src_level, tend_level, bwv_level, tlb_level, tau, ubm, ubi, xv, yv, &
                       ubmsrc, usrc, vsrc, nsrc, rsrc, m2src, tlb, bwv, Fr1, Fr2, Frx, phase_speeds, &
@@ -1868,7 +1867,7 @@ contains
                             ubmsrc, nsrc, rsrc, m2src, tlb, bwv, Fr1, Fr2, Frx, &
                             tauoro, taudsw, hdspwv, hdspdw)
 
-      call gw_rdg_break_trap(ncol, pver, band_oro, &
+      call gw_rdg_break_trap(ncol, pver, pi, band_oro, &
                              zi, nm, ni, ubm, ubi, rhoi, kwvrdg, bwv, tlb, wbr, &
                              src_level, tlb_level, hdspwv, hdspdw, mxdis(:, nn), &
                              tauoro, taudsw, tau, &

@@ -16,7 +16,6 @@ module gw_common
 
   public :: handle_err
   public :: gw_common_init
-  public :: gw_prof
   public :: gw_drag_prof
   public :: qbo_hdepth_scaling
   public :: calc_taucd, momentum_flux, momentum_fixer
@@ -31,28 +30,28 @@ module gw_common
 
   real(kind_phys), public, parameter :: unset_kind_phys = huge(1._kind_phys)
 
-! Number of levels in the atmosphere.
+  ! Number of levels in the atmosphere.
   integer, protected :: pver = 0
 
-! Whether or not to enforce an upper boundary condition of tau = 0.
+  ! Whether or not to enforce an upper boundary condition of tau = 0.
   logical :: tau_0_ubc = .false.
 
-! Index the cardinal directions.
+  ! Index the cardinal directions.
   integer, parameter :: west = 1
   integer, parameter :: east = 2
   integer, parameter :: south = 3
   integer, parameter :: north = 4
 
-! Scaling factor for generating QBO
+  ! Scaling factor for generating QBO
   real(kind_phys), protected :: qbo_hdepth_scaling
 
-! 3.14159...
+  ! 3.14159...
   real(kind_phys), parameter :: pi = acos(-1._kind_phys)
 
-! Acceleration due to gravity.
+  ! Acceleration due to gravity.
   real(kind_phys), protected :: gravit = huge(1._kind_phys)
 
-! Gas constant for dry air.
+  ! Gas constant for dry air.
   real(kind_phys), protected :: rair = huge(1._kind_phys)
   ! Horzontal wavelengths [m].
   real(kind_phys), parameter :: wavelength_mid = 1.e5_kind_phys
@@ -183,88 +182,6 @@ contains
     rog = rair/gravit
 
   end subroutine gw_common_init
-
-!==========================================================================
-
-  subroutine gw_prof(ncol, p, cpair, t, rhoi, nm, ni)
-    !-----------------------------------------------------------------------
-    ! Compute profiles of background state quantities for the multiple
-    ! gravity wave drag parameterization.
-    !
-    ! The parameterization is assumed to operate only where water vapor
-    ! concentrations are negligible in determining the density.
-    !-----------------------------------------------------------------------
-    use gw_utils, only: midpoint_interp
-    !------------------------------Arguments--------------------------------
-    ! Column dimension.
-    integer, intent(in) :: ncol
-    ! Pressure coordinates.
-    type(Coords1D), intent(in) :: p
-
-    ! Specific heat of dry air, constant pressure.
-    real(kind_phys), intent(in) :: cpair
-    ! Midpoint temperatures.
-    real(kind_phys), intent(in) :: t(:, :)
-
-    ! Interface density.
-    real(kind_phys), intent(out) :: rhoi(:, :)
-    ! Midpoint and interface Brunt-Vaisalla frequencies.
-    real(kind_phys), intent(out) :: nm(:, :), ni(:, :)
-
-    !---------------------------Local Storage-------------------------------
-    ! Column and level indices.
-    integer :: i, k
-
-    ! dt/dp
-    real(kind_phys) :: dtdp
-    ! Brunt-Vaisalla frequency squared.
-    real(kind_phys) :: n2
-
-    ! Interface temperature.
-    real(kind_phys) :: ti(ncol, pver + 1)
-
-    ! Minimum value of Brunt-Vaisalla frequency squared.
-    real(kind_phys), parameter :: n2min = 5.e-5_kind_phys
-
-    !------------------------------------------------------------------------
-    ! Determine the interface densities and Brunt-Vaisala frequencies.
-    !------------------------------------------------------------------------
-
-    ! The top interface values are calculated assuming an isothermal
-    ! atmosphere above the top level.
-    k = 1
-    do i = 1, ncol
-      ti(i, k) = t(i, k)
-      rhoi(i, k) = p%ifc(i, k)/(rair*ti(i, k))
-      ni(i, k) = sqrt(gravit*gravit/(cpair*ti(i, k)))
-    end do
-
-    ! Interior points use centered differences.
-    ti(:, 2:pver) = midpoint_interp(t)
-    do k = 2, pver
-      do i = 1, ncol
-        rhoi(i, k) = p%ifc(i, k)/(rair*ti(i, k))
-        dtdp = (t(i, k) - t(i, k - 1))*p%rdst(i, k - 1)
-        n2 = gravit*gravit/ti(i, k)*(1._kind_phys/cpair - rhoi(i, k)*dtdp)
-        ni(i, k) = sqrt(max(n2min, n2))
-      end do
-    end do
-
-    ! Bottom interface uses bottom level temperature, density; next interface
-    ! B-V frequency.
-    k = pver + 1
-    do i = 1, ncol
-      ti(i, k) = t(i, k - 1)
-      rhoi(i, k) = p%ifc(i, k)/(rair*ti(i, k))
-      ni(i, k) = ni(i, k - 1)
-    end do
-
-    !------------------------------------------------------------------------
-    ! Determine the midpoint Brunt-Vaisala frequencies.
-    !------------------------------------------------------------------------
-    nm = midpoint_interp(ni)
-
-  end subroutine gw_prof
 
 !==========================================================================
 
