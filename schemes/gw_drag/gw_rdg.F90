@@ -10,7 +10,9 @@ module gw_rdg
   save
 
   ! Public interfaces
-  public :: gw_rdg_init
+  public :: gravity_wave_drag_ridge_init        ! CCPP I/O read Ridge data into state.
+  public :: gw_rdg_init                         ! Init routine (public only for current CAM compat.)
+
   public :: gw_rdg_run
 
   ! Tunable Parameters
@@ -54,33 +56,6 @@ module gw_rdg
   ! min stratification allowing wave behavior
   real(kind_phys) :: orom2min
 
-  real(kind_phys), pointer, dimension(:) :: &
-    rdg_gbxar, &
-    rdg_isovar, &
-    rdg_isowgt, &
-    rdg_gbxarg, &
-    rdg_isovarg, &
-    rdg_isowgtg
-
-  ! Meso Beta
-  real(kind_phys), pointer, dimension(:, :) :: &
-    rdg_hwdth, &
-    rdg_clngt, &
-    rdg_mxdis, &
-    rdg_anixy, &
-    rdg_angll
-
-  ! Meso Gamma
-  real(kind_phys), pointer, dimension(:, :) :: &
-    rdg_hwdthg, &
-    rdg_clngtg, &
-    rdg_mxdisg, &
-    rdg_anixyg, &
-    rdg_angllg
-
-  character(len=256) :: bnd_rdg_file   ! filepath of topo file
-  character(len=256) :: bnd_topo_file  ! filepath of ridge file
-
   logical            :: do_smooth_regimes
   logical            :: do_adjust_tauoro
   logical            :: do_backward_compat
@@ -104,16 +79,12 @@ contains
                          effgw_rdg_gamma, &
                          use_gw_rdg_beta_in, &
                          use_gw_rdg_gamma_in, &
-                         bnd_topo_file_in, &
-                         bnd_rdg_file_in, &
                          gw_rdg_do_divstream_nl, gw_rdg_C_BetaMax_DS_nl, gw_rdg_C_GammaMax_nl, &
                          gw_rdg_Frx0_nl, gw_rdg_Frx1_nl, gw_rdg_C_BetaMax_SM_nl, gw_rdg_Fr_c_nl, &
                          gw_rdg_do_smooth_regimes_nl, gw_rdg_do_adjust_tauoro_nl, &
                          gw_rdg_do_backward_compat_nl, gw_rdg_orohmin_nl, gw_rdg_orovmin_nl, &
                          gw_rdg_orostratmin_nl, gw_rdg_orom2min_nl, gw_rdg_do_vdiff_nl, &
                          errmsg, errflg)
-
-    use ccpp_io_reader, only: abstract_netcdf_reader_t, create_netcdf_reader_t
 
     integer, intent(in)              :: ncol
     logical, intent(in)              :: masterproc
@@ -133,10 +104,6 @@ contains
     ! Ridge scheme control flags
     logical, intent(in)              :: use_gw_rdg_beta_in            ! Enable beta ridge scheme [flag]
     logical, intent(in)              :: use_gw_rdg_gamma_in           ! Enable gamma ridge scheme [flag]
-
-    ! Ridge data file paths
-    character(len=256), intent(in)   :: bnd_topo_file_in              ! Filepath of topo file on local disk [none]
-    character(len=256), intent(in)   :: bnd_rdg_file_in               ! Filepath of ridge file on local disk [none]
 
     ! Dividing streamline (DS2017) parameters
     logical, intent(in)              :: gw_rdg_do_divstream_nl        ! Enable dividing streamline parameterization [flag]
@@ -164,15 +131,12 @@ contains
     character(len=512), intent(out)  :: errmsg
     integer, intent(out)             :: errflg
 
-    class(abstract_netcdf_reader_t), allocatable :: reader
     character(len=*), parameter :: sub = 'gw_rdg_init'
 
     ! Initialize gravity wave band based on wavelength
     band_oro = GWBand(0, gw_delta_c, 1.0_kind_phys, wavelength)
 
     ! Set the local variables from namelist read
-    bnd_topo_file = bnd_topo_file_in
-    bnd_rdg_file = bnd_rdg_file_in
     do_divstream = gw_rdg_do_divstream_nl
     C_BetaMax_DS = gw_rdg_C_BetaMax_DS_nl
     C_GammaMax = gw_rdg_C_GammaMax_nl
@@ -191,174 +155,233 @@ contains
     use_gw_rdg_beta = use_gw_rdg_beta_in
     use_gw_rdg_gamma = use_gw_rdg_gamma_in
 
-    ! create reader if used below
-    if (use_gw_rdg_beta .or. use_gw_rdg_gamma) then
-      reader = create_netcdf_reader_t()
-    end if
-
     if (use_gw_rdg_beta) then
       if (effgw_rdg_beta == unset_kind_phys) then
-        errmsg = sub//": ERROR: Anisotropic OGW enabled, &
-             &but effgw_rdg_beta was not set."
+        errmsg = sub//": ERROR: Anisotropic OGW enabled, but effgw_rdg_beta was not set."
         return
-      end if
-
-!!$       ! Get beta ridge data
-!!$       allocate( &
-!!$            rdg_gbxar(ncol),      &
-!!$            rdg_isovar(ncol),     &
-!!$            rdg_isowgt(ncol),     &
-!!$            rdg_hwdth(ncol, prdg), &
-!!$            rdg_clngt(ncol, prdg), &
-!!$            rdg_mxdis(ncol, prdg), &
-!!$            rdg_anixy(ncol, prdg), &
-!!$            rdg_angll(ncol, prdg)  )
-
-      ! Open file
-      call reader%open_file(bnd_topo_file, errmsg, errflg)
-      if (errflg /= 0) then
-        return !Error has occurred, so exit scheme
-      end if
-
-      call reader%get_var('GBXAR', rdg_gbxar, errmsg, errflg)
-      if (errflg /= 0) then
-        return
-      end if
-      rdg_gbxar = rdg_gbxar*(rearth/1000._kind_phys)*(rearth/1000._kind_phys) ! transform to km^2
-
-      call reader%get_var('ISOVAR', rdg_isovar, errmsg, errflg)
-      if (errflg /= 0) then
-        ! ++jtb - Temporary fix until topo files contain this variable
-        allocate (rdg_isovar(ncol))  ! Must allocate first
-        rdg_isovar(:) = 0._kind_phys
-        errflg = 0  ! Reset error flag
-        errmsg = ''
-      end if
-
-      call reader%get_var('ISOWGT', rdg_isowgt, errmsg, errflg)
-      if (errflg /= 0) then
-        ! ++jtb - Temporary fix until topo files contain this variable
-        allocate (rdg_isowgt(ncol))  ! Must allocate first
-        rdg_isowgt(:) = 0._kind_phys
-        errflg = 0  ! Reset error flag
-        errmsg = ''
-      end if
-
-      call reader%get_var('HWDTH', rdg_hwdth, errmsg, errflg)
-      if (errflg /= 0) then
-        return
-      end if
-
-      call reader%get_var('CLNGT', rdg_clngt, errmsg, errflg)
-      if (errflg /= 0) then
-        return
-      end if
-
-      call reader%get_var('MXDIS', rdg_mxdis, errmsg, errflg)
-      if (errflg /= 0) then
-        return
-      end if
-
-      call reader%get_var('ANIXY', rdg_anixy, errmsg, errflg)
-      if (errflg /= 0) then
-        return
-      end if
-
-      call reader%get_var('ANGLL', rdg_angll, errmsg, errflg)
-      if (errflg /= 0) then
-        return
-      end if
-
-      ! close topo file only if it was opened here
-      if (len_trim(bnd_topo_file) > 0) then
-        call reader%close_file(errmsg, errflg)
-        if (errflg /= 0) then
-          return !Error has occurred while closing file, so exit scheme
-        end if
-
-        if (masterproc) then
-          write (iulog, *) "Read in rdg beta source file."
-        end if
       end if
     end if
 
     if (use_gw_rdg_gamma) then
-
       if (effgw_rdg_gamma == unset_kind_phys) then
         errmsg = sub//": ERROR: Anisotropic OGW enabled, but effgw_rdg_gamma was not set."
         return
       end if
+    end if
+  end subroutine gw_rdg_init
 
-      ! Get gamma ridge data
-!!$       allocate( &
-!!$            rdg_isovarg(ncol),     &
-!!$            rdg_isowgtg(ncol),     &
-!!$            rdg_hwdthg(ncol, prdg), &
-!!$            rdg_clngtg(ncol, prdg), &
-!!$            rdg_mxdisg(ncol, prdg), &
-!!$            rdg_anixyg(ncol, prdg), &
-!!$            rdg_angllg(ncol, prdg)  )
+  subroutine gravity_wave_drag_ridge_init( &
+    ncol, prdg, &
+    amIRoot, iulog, &
+    rearth, &
+    use_gw_rdg_beta, &
+    use_gw_rdg_gamma, &
+    bnd_topo_file, &
+    bnd_rdggm_file, &
+    gbxar, isovar, isowgt, &
+    hwdth, clngt, mxdis, anixy, angll, &
+    gbxarg, &
+    hwdthg, clngtg, mxdisg, anixyg, angllg, &
+    errmsg, errflg)
 
-      ! Open file
-      call reader%open_file(bnd_rdg_file, errmsg, errflg)
+    use ccpp_io_reader, only: abstract_netcdf_reader_t, create_netcdf_reader_t
+
+    ! Input arguments
+    integer, intent(in)              :: ncol
+    integer, intent(in)              :: prdg                ! second dimension of the 2-D outs below.
+    logical, intent(in)              :: amIRoot
+    integer, intent(in)              :: iulog
+    real(kind_phys), intent(in)      :: rearth              ! Earth radius [m]
+
+    logical, intent(in)              :: use_gw_rdg_beta     ! Enable Meso-beta ridges [flag]
+    character(len=256), intent(in)   :: bnd_topo_file       ! Filepath of topo file
+    logical, intent(in)              :: use_gw_rdg_gamma    ! Enable Meso-gamma ridges [flag]
+    character(len=256), intent(in)   :: bnd_rdggm_file      ! Filepath of ridge (gamma) file
+
+    ! Output arguments
+    real(kind_phys),    intent(out), pointer :: gbxar (:)
+    real(kind_phys),    intent(out), pointer :: isovar(:)
+    real(kind_phys),    intent(out), pointer :: isowgt(:)
+    real(kind_phys),    intent(out), pointer :: hwdth (:,:)
+    real(kind_phys),    intent(out), pointer :: clngt (:,:)
+    real(kind_phys),    intent(out), pointer :: mxdis (:,:)
+    real(kind_phys),    intent(out), pointer :: anixy (:,:)
+    real(kind_phys),    intent(out), pointer :: angll (:,:)
+
+    real(kind_phys),    intent(out), pointer :: gbxarg (:)
+    real(kind_phys),    intent(out), pointer :: hwdthg (:,:)
+    real(kind_phys),    intent(out), pointer :: clngtg (:,:)
+    real(kind_phys),    intent(out), pointer :: mxdisg (:,:)
+    real(kind_phys),    intent(out), pointer :: anixyg (:,:)
+    real(kind_phys),    intent(out), pointer :: angllg (:,:)
+
+    character(len=512), intent(out)  :: errmsg
+    integer, intent(out)             :: errflg
+
+    ! Local variables
+    logical :: has_gbxar_from_topo
+
+    ! Temporaries for providing to the I/O reader; data will be copied to the
+    ! respective pointer variables.
+    !
+    ! FIXME: when I/O reader is updated from ptr to allocatable, change below to allocatable.
+    real(kind_phys), pointer :: alloc1D(:)    ! 1-D temporary for I/O reader
+    real(kind_phys), pointer :: alloc2D(:,:)  ! 2-D temporary for I/O reader
+
+    class(abstract_netcdf_reader_t), allocatable :: reader
+
+    errmsg = ''
+    errflg = 0
+
+    has_gbxar_from_topo = .false.
+
+    reader = create_netcdf_reader_t()
+
+    if(use_gw_rdg_beta) then
+      call reader%open_file(bnd_topo_file, errmsg, errflg)
+      if (errflg /= 0) return
+
+      call reader%get_var('GBXAR', alloc1D, errmsg, errflg)
+      if (errflg /= 0) return
+      gbxar(:) = alloc1D(:)*(rearth/1000._kind_phys)*(rearth/1000._kind_phys) ! transform to km^2
+      deallocate(alloc1D, stat=errflg)
+      has_gbxar_from_topo = .true.
+
+      call reader%get_var('ISOVAR', alloc1D, errmsg, errflg)
       if (errflg /= 0) then
-        return ! Error has occurred, so exit scheme
-      end if
+        ! topo files do not currently contain ISOVAR
+        isovar(:) = 0._kind_phys
+        errflg = 0
+        errmsg = ''
+      else
+        isovar(:) = alloc1D(:)
+        deallocate(alloc1D, stat=errflg)
+      endif
 
-      call reader%get_var('GBXAR', rdg_gbxar, errmsg, errflg)
+      call reader%get_var('ISOWGT', alloc1D, errmsg, errflg)
       if (errflg /= 0) then
-        return
-      end if
-      rdg_gbxar = rdg_gbxar*(rearth/1000._kind_phys)*(rearth/1000._kind_phys) ! transform to km^2
+        ! topo files do not currently contain ISOWGT
+        isowgt(:) = 0._kind_phys
+        errflg = 0
+        errmsg = ''
+      else
+        isowgt(:) = alloc1D(:)
+        deallocate(alloc1D, stat=errflg)
+      endif
 
-      call reader%get_var('ISOVAR', rdg_isovar, errmsg, errflg)
-      if (errflg /= 0) then
-        return
-      end if
+      call reader%get_var('HWDTH', alloc2D, errmsg, errflg)
+      if (errflg /= 0) return
+      hwdth(:,:) = alloc2D(:,:)
+      deallocate(alloc2D, stat=errflg)
 
-      call reader%get_var('ISOWGT', rdg_isowgt, errmsg, errflg)
-      if (errflg /= 0) then
-        return
-      end if
+      call reader%get_var('CLNGT', alloc2D, errmsg, errflg)
+      if (errflg /= 0) return
+      clngt(:,:) = alloc2D(:,:)
+      deallocate(alloc2D, stat=errflg)
 
-      call reader%get_var('HWDTH', rdg_hwdthg, errmsg, errflg)
-      if (errflg /= 0) then
-        return
-      end if
+      call reader%get_var('MXDIS', alloc2D, errmsg, errflg)
+      if (errflg /= 0) return
+      mxdis(:,:) = alloc2D(:,:)
+      deallocate(alloc2D, stat=errflg)
 
-      call reader%get_var('CLNGT', rdg_clngtg, errmsg, errflg)
-      if (errflg /= 0) then
-        return
-      end if
+      call reader%get_var('ANIXY', alloc2D, errmsg, errflg)
+      if (errflg /= 0) return
+      anixy(:,:) = alloc2D(:,:)
+      deallocate(alloc2D, stat=errflg)
 
-      call reader%get_var('MXDIS', rdg_mxdisg, errmsg, errflg)
-      if (errflg /= 0) then
-        return
-      end if
-
-      call reader%get_var('ANIXY', rdg_anixyg, errmsg, errflg)
-      if (errflg /= 0) then
-        return
-      end if
-
-      call reader%get_var('ANGLL', rdg_angllg, errmsg, errflg)
-      if (errflg /= 0) then
-        return
-      end if
+      call reader%get_var('ANGLL', alloc2D, errmsg, errflg)
+      if (errflg /= 0) return
+      angll(:,:) = alloc2D(:,:)
+      deallocate(alloc2D, stat=errflg)
 
       ! close topo file only if it was opened here
       if (len_trim(bnd_topo_file) > 0) then
         call reader%close_file(errmsg, errflg)
         if (errflg /= 0) then
-          return !Error has occurred while closing file, so exit scheme
+          return
         end if
 
-        if (masterproc) then
-          write (iulog, *) "Read in rdg source file."
+        if (amIRoot) then
+          write(iulog, *) "gravity_wave_drag_ridge_init: Read in ridge beta source file (topo)."
         end if
       end if
     end if
-  end subroutine gw_rdg_init
+
+    if(use_gw_rdg_gamma) then
+      call reader%open_file(bnd_rdggm_file, errmsg, errflg)
+      if (errflg /= 0) return
+
+      ! Note (hplin 8/6/25): the behavior, based on the original gw_drag, for GBXAR, ISOVAR, ISOWGT
+      ! are very strange.
+      !
+      ! If GBXAR is available from topo file, then GBXAR from topo is used;
+      ! otherwise, GBXAR is read from rdggm.
+      !
+      ! ISOVAR and ISOWGT are not populated at all from the rdggm file; the only files
+      ! available as of writing were fv files that did not contain these variables.
+      ! It appears that the gw_drag.F90 code simply uses dangling pointers for those,
+      ! which we have replaced with actual isovar/isowgt from the "topo file" (actually still zeroes)
+      ! as they are also not in the topo file, which I believe is closest to the original intent
+      ! of the code.
+      if(.not. has_gbxar_from_topo) then
+        call reader%get_var('GBXAR', alloc1D, errmsg, errflg)
+        if (errflg /= 0) return
+        gbxarg(:) = alloc1D(:)*(rearth/1000._kind_phys)*(rearth/1000._kind_phys) ! transform to km^2
+        deallocate(alloc1D, stat=errflg)
+      endif
+
+      ! call reader%get_var('ISOVAR', alloc1D, errmsg, errflg)
+      ! if (errflg /= 0) return
+      ! isovarg(:) = alloc1D(:)
+      ! deallocate(alloc1D, stat=errflg)
+
+      ! call reader%get_var('ISOWGT', alloc1D, errmsg, errflg)
+      ! if (errflg /= 0) return
+      ! isowgtg(:) = alloc1D(:)
+      ! deallocate(alloc1D, stat=errflg)
+
+      call reader%get_var('HWDTH', alloc2D, errmsg, errflg)
+      if (errflg /= 0) return
+      hwdthg(:,:) = alloc2D(:,:)
+      deallocate(alloc2D, stat=errflg)
+
+      call reader%get_var('CLNGT', alloc2D, errmsg, errflg)
+      if (errflg /= 0) return
+      clngtg(:,:) = alloc2D(:,:)
+      deallocate(alloc2D, stat=errflg)
+
+      call reader%get_var('MXDIS', alloc2D, errmsg, errflg)
+      if (errflg /= 0) return
+      mxdisg(:,:) = alloc2D(:,:)
+      deallocate(alloc2D, stat=errflg)
+
+      call reader%get_var('ANIXY', alloc2D, errmsg, errflg)
+      if (errflg /= 0) return
+      anixyg(:,:) = alloc2D(:,:)
+      deallocate(alloc2D, stat=errflg)
+
+      call reader%get_var('ANGLL', alloc2D, errmsg, errflg)
+      if (errflg /= 0) return
+      angllg(:,:) = alloc2D(:,:)
+      deallocate(alloc2D, stat=errflg)
+
+      ! close topo file only if it was opened here
+      if (len_trim(bnd_rdggm_file) > 0) then
+        call reader%close_file(errmsg, errflg)
+        if (errflg /= 0) then
+          return
+        end if
+
+        if (amIRoot) then
+          write(iulog, *) "gravity_wave_drag_gamma_ridge_init: Read in ridge gamma source file."
+        end if
+      end if
+    end if
+
+    ! Call underlying initialization subroutine to populate namelist variables
+    ! ...
+
+  end subroutine gravity_wave_drag_ridge_init
 
   subroutine gw_rdg_run( &
     ncol, pver, pcnst, dt, pi, &
@@ -374,6 +397,10 @@ contains
     effgw_rdg_gamma, effgw_rdg_gamma_max, &
     rdg_beta_cd_llb, trpd_leewv_rdg_beta, &
     rdg_gamma_cd_llb, trpd_leewv_rdg_gamma, &
+    gbxar, isovar, isowgt, &
+    hwdth, clngt, mxdis, anixy, angll, &
+    gbxarg, &
+    hwdthg, clngtg, mxdisg, anixyg, angllg, &
     q_tend, s_tend, u_tend, v_tend, flx_heat, errmsg, errflg)
 
     use coords_1d, only: Coords1D
@@ -421,6 +448,23 @@ contains
     logical, intent(in)              :: trpd_leewv_rdg_beta    ! Enable beta ridge trapped lee waves [flag]
     real(kind_phys), intent(in)      :: rdg_gamma_cd_llb       ! Gamma ridge low-level drag coefficient [1]
     logical, intent(in)              :: trpd_leewv_rdg_gamma   ! Enable gamma ridge trapped lee waves [flag]
+
+    ! Ridge input data
+    real(kind_phys),    intent(in), pointer :: gbxar (:)
+    real(kind_phys),    intent(in), pointer :: isovar(:)
+    real(kind_phys),    intent(in), pointer :: isowgt(:)
+    real(kind_phys),    intent(in), pointer :: hwdth (:,:)
+    real(kind_phys),    intent(in), pointer :: clngt (:,:)
+    real(kind_phys),    intent(in), pointer :: mxdis (:,:)
+    real(kind_phys),    intent(in), pointer :: anixy (:,:)
+    real(kind_phys),    intent(in), pointer :: angll (:,:)
+
+    real(kind_phys),    intent(in), pointer :: gbxarg (:)
+    real(kind_phys),    intent(in), pointer :: hwdthg (:,:)
+    real(kind_phys),    intent(in), pointer :: clngtg (:,:)
+    real(kind_phys),    intent(in), pointer :: mxdisg (:,:)
+    real(kind_phys),    intent(in), pointer :: anixyg (:,:)
+    real(kind_phys),    intent(in), pointer :: angllg (:,:)
 
     ! Output tendencies
     real(kind_phys), intent(inout)   :: q_tend(:, :, :)        ! Constituent tendencies [kg kg-1 s-1]
@@ -527,18 +571,6 @@ contains
     real(kind_phys) :: vtrdg(ncol, pver)
     real(kind_phys) :: ttrdg(ncol, pver)
 
-!!$   real(kind_phys), pointer, dimension(:) :: &
-!!$        gbxar, &
-!!$        isovar, &
-!!$        isowgt
-!!$
-!!$   real(kind_phys), pointer, dimension(:,:) :: &
-!!$        hwdth,  &
-!!$        clngt,  &
-!!$        mxdis,  &
-!!$        anixy,  &
-!!$        angll
-
     ! Energy change used by fixer.
     real(kind_phys) :: de(ncol)
 
@@ -549,55 +581,101 @@ contains
     errflg = 0
 
     if (use_gw_rdg_beta) then
-
-!!$      hwdth => rdg_hwdth(:ncol,:)
-!!$      clngt => rdg_clngt(:ncol,:)
-!!$      gbxar => rdg_gbxar(:ncol)
-!!$      mxdis => rdg_mxdis(:ncol,:)
-!!$      angll => rdg_angll(:ncol,:)
-!!$      anixy => rdg_anixy(:ncol,:)
-!!$      isovar => rdg_isovar(:ncol)
-!!$      isowgt => rdg_isowgt(:ncol)
-
-      call gw_rdg_calc(band_oro, &
-                       vramp, &
-                       'BETA ', pver, ncol, pcnst, prdg, n_rdg_beta, dt, pi, &
-                       u, v, t, p, piln, zm, zi, &
-                       nm, ni, rhoi, kvtt, q, dse, &
-                       effgw_rdg_beta, effgw_rdg_beta_max, &
-                       effgw_rdg_resid, use_gw_rdg_resid, &
-                       rdg_hwdth, rdg_clngt, rdg_gbxar, rdg_mxdis, rdg_angll, rdg_anixy, &
-                       rdg_isovar, rdg_isowgt, &
-                       rdg_beta_cd_llb, trpd_leewv_rdg_beta, &
-                       u_tend, v_tend, s_tend, q_tend, flx_heat, errmsg, errflg)
-
+      call gw_rdg_calc(band_oro          = band_oro, &
+                       vramp             = vramp(:), &
+                       type              = 'BETA ', &
+                       pver              = pver, &
+                       ncol              = ncol, &
+                       pcnst             = pcnst, &
+                       prdg              = prdg, &
+                       n_rdg             = n_rdg_beta, &
+                       dt                = dt, &
+                       pi                = pi, &
+                       u                 = u(:, :), &
+                       v                 = v(:, :), &
+                       t                 = t(:, :), &
+                       p                 = p, &
+                       piln              = piln(:, :), &
+                       zm                = zm(:, :), &
+                       zi                = zi(:, :), &
+                       nm                = nm(:, :), &
+                       ni                = ni(:, :), &
+                       rhoi              = rhoi(:, :), &
+                       kvtt              = kvtt(:, :), &
+                       q                 = q(:, :, :), &
+                       dse               = dse(:, :), &
+                       effgw_rdg         = effgw_rdg_beta, &
+                       effgw_rdg_max     = effgw_rdg_beta_max, &
+                       effgw_rdg_resid   = effgw_rdg_resid, &
+                       luse_gw_rdg_resid = use_gw_rdg_resid, &
+                       hwdth             = hwdth(:, :), &
+                       clngt             = clngt(:, :), &
+                       gbxar             = gbxar(:), &
+                       mxdis             = mxdis(:, :), &
+                       angll             = angll(:, :), &
+                       anixy             = anixy(:, :), &
+                       isovar            = isovar(:), &
+                       isowgt            = isowgt(:), &
+                       rdg_cd_llb        = rdg_beta_cd_llb, &
+                       trpd_leewv        = trpd_leewv_rdg_beta, &
+                       u_tend            = u_tend(:, :), &
+                       v_tend            = v_tend(:, :), &
+                       s_tend            = s_tend(:, :), &
+                       q_tend            = q_tend(:, :, :), &
+                       flx_heat          = flx_heat(:), &
+                       errmsg            = errmsg, &
+                       errflg            = errflg)
     end if
 
     if (use_gw_rdg_gamma) then
-!!$      hwdth => rdg_hwdthg(:ncol,:)
-!!$      clngt => rdg_clngtg(:ncol,:)
-!!$      gbxar => rdg_gbxarg(:ncol)
-!!$      mxdis => rdg_mxdisg(:ncol,:)
-!!$      angll => rdg_angllg(:ncol,:)
-!!$      anixy => rdg_anixyg(:ncol,:)
-!!$      isovar => rdg_isovarg(:ncol)
-!!$      isowgt => rdg_isowgtg(:ncol)
-
-      where (rdg_mxdisg < 0._kind_phys)
-        rdg_mxdisg = 0._kind_phys
+      where (mxdisg(:, :) < 0._kind_phys)
+        mxdisg(:, :) = 0._kind_phys
       end where
 
-      call gw_rdg_calc(band_oro, &
-                       vramp, &
-                       'GAMMA', pver, ncol, pcnst, prdg, n_rdg_gamma, dt, pi, &
-                       u, v, t, p, piln, zm, zi, &
-                       nm, ni, rhoi, kvtt, q, dse, &
-                       effgw_rdg_gamma, effgw_rdg_gamma_max, &
-                       effgw_rdg_resid, use_gw_rdg_resid, &
-                       rdg_hwdthg, rdg_clngtg, rdg_gbxarg, rdg_mxdisg, rdg_angllg, rdg_anixyg, &
-                       rdg_isovarg, rdg_isowgtg, &
-                       rdg_gamma_cd_llb, trpd_leewv_rdg_gamma, &
-                       u_tend, v_tend, s_tend, q_tend, flx_heat, errmsg, errflg)
+      call gw_rdg_calc(band_oro          = band_oro, &
+                       vramp             = vramp(:), &
+                       type              = 'GAMMA', &
+                       pver              = pver, &
+                       ncol              = ncol, &
+                       pcnst             = pcnst, &
+                       prdg              = prdg, &
+                       n_rdg             = n_rdg_gamma, &
+                       dt                = dt, &
+                       pi                = pi, &
+                       u                 = u(:, :), &
+                       v                 = v(:, :), &
+                       t                 = t(:, :), &
+                       p                 = p, &
+                       piln              = piln(:, :), &
+                       zm                = zm(:, :), &
+                       zi                = zi(:, :), &
+                       nm                = nm(:, :), &
+                       ni                = ni(:, :), &
+                       rhoi              = rhoi(:, :), &
+                       kvtt              = kvtt(:, :), &
+                       q                 = q(:, :, :), &
+                       dse               = dse(:, :), &
+                       effgw_rdg         = effgw_rdg_gamma, &
+                       effgw_rdg_max     = effgw_rdg_gamma_max, &
+                       effgw_rdg_resid   = effgw_rdg_resid, &
+                       luse_gw_rdg_resid = use_gw_rdg_resid, &
+                       hwdth             = hwdthg(:, :), &
+                       clngt             = clngtg(:, :), &
+                       gbxar             = gbxarg(:), &
+                       mxdis             = mxdisg(:, :), &
+                       angll             = angllg(:, :), &
+                       anixy             = anixyg(:, :), &
+                       isovar            = isovar(:), &       ! fixme: check inconsistency in gw. hplin 8/7/25
+                       isowgt            = isowgt(:), &       ! fixme: check inconsistency in gw. hplin 8/7/25
+                       rdg_cd_llb        = rdg_gamma_cd_llb, &
+                       trpd_leewv        = trpd_leewv_rdg_gamma, &
+                       u_tend            = u_tend(:, :), &
+                       v_tend            = v_tend(:, :), &
+                       s_tend            = s_tend(:, :), &
+                       q_tend            = q_tend(:, :, :), &
+                       flx_heat          = flx_heat(:), &
+                       errmsg            = errmsg, &
+                       errflg            = errflg)
     end if
 
   end subroutine gw_rdg_run
@@ -2019,6 +2097,7 @@ contains
       fname(4) = 'VTRDGGM'
     else
       errmsg = 'gw_rdg_calc: FATAL: type must be either BETA or GAMMA'//' type= '//type
+      errflg = 1
       return
     end if
 

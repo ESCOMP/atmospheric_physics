@@ -78,8 +78,6 @@ module gw_drag
   real(kind_phys)                      :: rdg_gamma_cd_llb
   logical                              :: trpd_leewv_rdg_gamma
 
-  character(len=256)                   :: bnd_rdggm ! full pathname for meso-Gamma ridge dataset
-  character(len=256)                   :: bnd_topo  ! full pathname for topo dataset
   ! Whether or not to limit tau *before* applying any efficiency factors.
   logical                              :: gw_limit_tau_without_eff = .false.
   logical                              :: gw_lndscl_sgh = .true. ! scale SGH by land frac
@@ -212,8 +210,6 @@ contains
     effgw_rdg_gamma_max_nl, &
     rdg_gamma_cd_llb_nl, &
     trpd_leewv_rdg_gamma_nl, &
-    bnd_topo_nl, &
-    bnd_rdggm_nl, &
     gw_oro_south_fac_nl, &
     gw_limit_tau_without_eff_nl, &
     gw_lndscl_sgh_nl, &
@@ -313,8 +309,6 @@ contains
     real(kind_phys), intent(in)             :: effgw_rdg_gamma_max_nl
     real(kind_phys), intent(in)             :: rdg_gamma_cd_llb_nl
     logical, intent(in)             :: trpd_leewv_rdg_gamma_nl
-    character(len=256), intent(in)    :: bnd_topo_nl ! full pathname for topo file
-    character(len=256), intent(in)    :: bnd_rdggm_nl ! full pathname for meso-Gamma ridge dataset
     ! Factor for SH orographic waves.
     real(kind_phys), intent(in)             :: gw_oro_south_fac_nl
     ! Whether or not to limit tau *before* applying any efficiency factors.
@@ -471,8 +465,6 @@ contains
     effgw_rdg_gamma_max = effgw_rdg_gamma_max_nl
     rdg_gamma_cd_llb = rdg_gamma_cd_llb_nl
     trpd_leewv_rdg_gamma = trpd_leewv_rdg_gamma_nl
-    bnd_topo = trim(bnd_topo_nl)
-    bnd_rdggm = trim(bnd_rdggm_nl)
     gw_oro_south_fac = gw_oro_south_fac_nl
     gw_limit_tau_without_eff = gw_limit_tau_without_eff_nl
     gw_lndscl_sgh = gw_lndscl_sgh_nl
@@ -568,8 +560,6 @@ contains
       effgw_rdg_gamma=effgw_rdg_gamma, &
       use_gw_rdg_beta_in=use_gw_rdg_beta, &
       use_gw_rdg_gamma_in=use_gw_rdg_gamma, &
-      bnd_topo_file_in=bnd_topo, &
-      bnd_rdg_file_in=bnd_rdggm, &
       gw_rdg_do_divstream_nl=gw_rdg_do_divstream_nl, &
       gw_rdg_C_BetaMax_DS_nl=gw_rdg_C_BetaMax_DS_nl, &
       gw_rdg_C_GammaMax_nl=gw_rdg_C_GammaMax_nl, &
