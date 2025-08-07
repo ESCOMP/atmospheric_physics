@@ -180,7 +180,11 @@ contains
 
        do gas_idx = 1, size(gaslist)
           ! Find the index of the current gas in the constituents array
-          call ccpp_constituent_index(trim(gaslist(gas_idx)), const_idx, errcode, errmsg)
+          if (trim(gaslist(gas_idx)) == 'H2O') then
+             call ccpp_constituent_index('water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water', const_idx, errcode, errmsg)
+          else
+             call ccpp_constituent_index(trim(gaslist(gas_idx)), const_idx, errcode, errmsg)
+          end if
           if (errcode /= 0) then
              return
           end if

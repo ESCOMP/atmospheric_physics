@@ -12,13 +12,13 @@
   dimensions = (horizontal_loop_extent,vertical_layer_dimension,number_of_active_gases_for_RRTMGP)
   intent = in
 [ pmid ]
-  standard_name = air_pressure_for_RRTMGP
+  standard_name = air_pressure
   units = Pa
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ pint ]
-  standard_name = air_pressure_at_interface_for_RRTMGP
+  standard_name = air_pressure_at_interface
   units = Pa
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_interface_dimension)

@@ -150,7 +150,7 @@
        The number of Gaussian quadrature angles for use in radiation - if less than zero, unused
     </desc>
     <values>
-      <value>-1</value>
+      <value>0</value>
     </values>
   </entry>
   <entry id="write_diag">

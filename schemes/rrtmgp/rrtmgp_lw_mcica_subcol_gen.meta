@@ -78,7 +78,7 @@
   dimensions = ()
   intent = in
 [ pmid ]
-  standard_name = air_pressure_for_RRTMGP
+  standard_name = air_pressure
   units = Pa
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)

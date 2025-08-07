@@ -22,7 +22,7 @@
   standard_name = list_of_active_gases_for_RRTMGP
   units = none
   type = character | kind = len=5
-  dimensions = (number_of_active_gases_for_rrtmgp)
+  dimensions = (number_of_active_gases_for_RRTMGP)
   intent = out
 [ gaslist_lc ]
   standard_name = lowercase_list_of_active_gases_for_RRTMGP
@@ -48,6 +48,18 @@
 [ccpp-arg-table]
   name  = rrtmgp_pre_timestep_init
   type  = scheme
+[ ncol ]
+  standard_name = horizontal_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ coszrs ]
+  standard_name = cosine_of_solar_zenith_angle_for_radiation
+  units = rad
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension)
+  intent = in
 [ nstep ]
   standard_name = current_timestep_number
   units = count
@@ -78,6 +90,31 @@
   type = integer
   dimensions = ()
   intent = out
+[ idxday ]
+  standard_name = daytime_points
+  units = index
+  type = integer
+  dimensions = (horizontal_dimension)
+  intent = out
+[ nday ]
+  standard_name = daytime_points_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = out
+[ idxnite ]
+  standard_name = nighttime_points
+  units = index
+  type = integer
+  dimensions =  (horizontal_dimension)
+  intent = out
+[ nnite ]
+  standard_name = nighttime_points_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = out
+  dimensions = ()
 [ errmsg ]
   standard_name = ccpp_error_message
   long_name = Error message for error handling in CCPP
@@ -150,25 +187,25 @@
   units = index
   type = integer
   dimensions = (horizontal_loop_extent)
-  intent = out
+  intent = in
 [ nday ]
   standard_name = daytime_points_dimension
   units = count
   type = integer
   dimensions = ()
-  intent = out
+  intent = in
 [ idxnite ]
   standard_name = nighttime_points
   units = index
   type = integer
   dimensions =  (horizontal_loop_extent)
-  intent = out
+  intent = in
 [ nnite ]
   standard_name = nighttime_points_dimension
   units = count
   type = integer
   dimensions = ()
-  intent = out
+  intent = in
 [ dosw ]
   standard_name = do_shortwave_radiation
   units = flag

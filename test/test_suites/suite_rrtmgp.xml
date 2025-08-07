@@ -4,7 +4,7 @@
   <group name="physics_after_coupler">
     <scheme>rrtmgp_pre</scheme>
     <scheme>rrtmgp_cloud_optics_setup</scheme>
-    <scheme>tropopause_find</scheme>
+    <!--    <scheme>tropopause_find</scheme>-->
     <scheme>rrtmgp_variables</scheme>
     <scheme>rrtmgp_inputs</scheme>
     <scheme>rrtmgp_lw_cloud_optics</scheme>
@@ -19,6 +19,7 @@
       <scheme>rrtmgp_lw_gas_optics</scheme>
       <scheme>rrtmgp_lw_rte</scheme>
       <scheme>rrtmgp_lw_calculate_fluxes</scheme>
+      <scheme>rrtmgp_lw_calculate_heating_rate</scheme>
       <!--      <scheme>rrtmgp_lw_diagnostics</scheme>-->
     </subcycle>
     <!-- End longwave subcycle -->
@@ -26,7 +27,8 @@
     <scheme>rrtmgp_dry_static_energy_tendency</scheme>
     <scheme>calculate_net_heating</scheme>
     <scheme>rrtmgp_post</scheme>
+    <!-- State updaters -->
+    <scheme>apply_heating_rate</scheme>
     <scheme>geopotential_temp</scheme>
-    <!-- Update state! -->
   </group>
 </suite>

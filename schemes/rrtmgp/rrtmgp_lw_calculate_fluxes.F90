@@ -1,7 +1,6 @@
 module rrtmgp_lw_calculate_fluxes
 
    use ccpp_kinds, only:  kind_phys
-
    implicit none
    private
    save
@@ -14,7 +13,7 @@ CONTAINS
    !> \section arg_table_rrtmgp_lw_calculate_fluxes_run  Argument Table
    !! \htmlinclude rrtmgp_lw_calculate_fluxes_run.html
    subroutine rrtmgp_lw_calculate_fluxes_run(num_diag_subcycles, icall, ncol, pverp, nlay, ktopcam, ktoprad, &
-      active_calls, flw, flwc, flns, flnt, flwds, errmsg, errflg)
+      active_calls, flw, flwc, flns, flnt, flwds, fnl, errmsg, errflg)
 
       use ccpp_fluxes,        only: ty_fluxes_broadband_ccpp
       use ccpp_fluxes_byband, only: ty_fluxes_byband_ccpp
@@ -32,6 +31,7 @@ CONTAINS
       type(ty_fluxes_byband_ccpp),    intent(in) :: flw                 ! Longwave all-sky flux object
       type(ty_fluxes_broadband_ccpp), intent(in) :: flwc                ! Longwave clear-sky flux object
       ! Output variables
+      real(kind_phys),               intent(out) :: fnl(:,:)
       real(kind_phys),               intent(out) :: flns(:)
       real(kind_phys),               intent(out) :: flnt(:)
       real(kind_phys),               intent(out) :: flwds(:)
@@ -43,13 +43,12 @@ CONTAINS
 
       ! Local variables
       integer :: diag_index, idx
-      real(kind_phys) :: fnl(ncol, pverp)
       real(kind_phys) :: fcnl(ncol, pverp)
 
       errmsg = ''
       errflg = 0
 
-      diag_index = num_diag_subcycles - icall
+      diag_index = num_diag_subcycles - icall + 1
 
       ! Don't do anything if this subcycle is inactive or we're not configured to write radiation output
       if (.not. active_calls(diag_index)) then

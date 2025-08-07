@@ -69,19 +69,19 @@
   standard_name = air_pressure_for_RRTMGP
   units = Pa
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent,number_of_vertical_layers_in_RRTMGP)
   intent = in
 [ p_lev ]
   standard_name = air_pressure_at_interface_for_RRTMGP
   units = Pa
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent,vertical_interface_dimension)
+  dimensions = (horizontal_loop_extent,number_of_vertical_layers_in_RRTMGP_plus_one)
   intent = in
 [ t_lay ]
   standard_name = air_temperature_for_RRTMGP
   units = K
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent,number_of_vertical_layers_in_RRTMGP)
   intent = in
 [ tsfg ]
   standard_name = ground_temperature_at_surface_for_radiation

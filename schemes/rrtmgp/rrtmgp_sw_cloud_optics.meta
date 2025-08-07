@@ -57,7 +57,7 @@
   standard_name = daytime_points
   units = index
   type = integer
-  dimensions = (daytime_points_dimension)
+  dimensions = (horizontal_loop_extent)
   intent = in
 [ fillvalue ]
   standard_name = fill_value_for_diagnostic_output
@@ -99,7 +99,7 @@
   standard_name = nighttime_points
   units = index
   type = integer
-  dimensions = (nighttime_points_dimension)
+  dimensions = (horizontal_loop_extent)
   intent = in
 [ cld ]
   standard_name = cloud_area_fraction

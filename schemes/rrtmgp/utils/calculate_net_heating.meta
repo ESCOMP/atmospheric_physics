@@ -13,7 +13,7 @@
   intent = in
 [ rad_heat ]
   standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure
-  units = K s-1
+  units = J kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout

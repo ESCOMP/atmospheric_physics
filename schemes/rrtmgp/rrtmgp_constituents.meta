@@ -89,9 +89,9 @@
   intent = out
 [ rad_heat ]
   standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure
-  units = K s-1
+  units = J kg-1 s-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension,vertical_interface_dimension)
+  dimensions = (horizontal_dimension,vertical_layer_dimension)
   intent = out
 [ fsnt ]
   standard_name = shortwave_net_column_absorbed_solar_flux_at_model_top

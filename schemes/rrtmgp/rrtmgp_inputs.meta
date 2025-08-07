@@ -57,7 +57,7 @@
   standard_name = daytime_points
   units = index
   type = integer
-  dimensions = (vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent)
   intent = in
 [ cldfprime ]
   standard_name = modified_cloud_area_fraction_for_RRTMGP
@@ -111,19 +111,19 @@
   standard_name = air_temperature_for_daytime_points_for_RRTMGP
   units = K
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (daytime_points_dimension, vertical_layer_dimension)
   intent = out
 [ pmid_day ]
   standard_name = air_pressure_for_daytime_points_for_RRTMGP
   units = Pa
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (daytime_points_dimension, vertical_layer_dimension)
   intent = out
 [ pint_day ]
   standard_name = air_pressure_at_interface_for_daytime_points_for_RRTMGP
   units = Pa
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  dimensions = (daytime_points_dimension, vertical_interface_dimension)
   intent = out
 [ coszrs_day ]
   standard_name = cosine_of_solar_zenith_angle_for_daytime_points_on_radiation_timestep

@@ -37,7 +37,7 @@ subroutine rrtmgp_post_run(nlay, dolw, qrs_prime, qrl_prime, fsns, pdel, atm_opt
    real(kind_phys), dimension(:,:),  intent(out)   :: qrs            ! Shortwave heating rate adjusted by air pressure thickness [J Pa kg-1 s-1]
    real(kind_phys), dimension(:,:),  intent(out)   :: qrl            ! Longwave heating rate adjusted by air pressure thickness [J Pa kg-1 s-1]
    real(kind_phys), dimension(:),    intent(out)   :: netsw          ! Net shortwave flux to be sent to coupler [W m-2]
-   real(kind_phys), dimension(:),    intent(out)   :: flwds          ! Down longwave flux at surface [W m-2]
+   real(kind_phys), dimension(:),    intent(inout)   :: flwds          ! Down longwave flux at surface [W m-2]
    character(len=512),               intent(out)   :: errmsg
    integer,                          intent(out)   :: errflg
 
