@@ -8,10 +8,6 @@
 !! (optical-depth, single-scattering albedo, asymmetry parameter) are computed for ALL
 !! cloud types visible to RRTMGP.
 module rrtmgp_lw_cloud_optics
-  use ccpp_kinds, only: kind_phys
-  use rrtmgp_cloud_optics_setup, only: abs_lw_liq, abs_lw_ice
-  use rrtmgp_cloud_optics_setup, only: g_lambda, g_mu, nmu, nlambda
-  use rrtmgp_cloud_optics_setup, only: g_d_eff, n_g_d
 
   implicit none
   private
@@ -24,13 +20,15 @@ contains
 !> \section arg_table_rrtmgp_lw_cloud_optics_run Argument Table
 !! \htmlinclude rrtmgp_lw_cloud_optics_run.html
 !!
-  subroutine rrtmgp_lw_cloud_optics_run(dolw, ncol, nlay, nlaycam, cld, cldfsnow, cldfgrau, &
-             cldfprime, kdist_lw, cloud_lw, lamc, pgam, iclwpth, iciwpth, & 
-             tiny_in, dei, icswpth, des, icgrauwpth, degrau, nlwbands,    &
-             do_snow, do_graupel, pver, ktopcam, cld_lw_abs, snow_lw_abs,     &
-             grau_lw_abs, c_cld_lw_abs, errmsg, errflg)
-    use ccpp_gas_optics_rrtmgp,   only: ty_gas_optics_rrtmgp_ccpp
-    use ccpp_optical_props,       only: ty_optical_props_1scl_ccpp
+  subroutine rrtmgp_lw_cloud_optics_run(dolw, ncol, nlay, nlaycam, cld, cldfsnow, cldfgrau,      &
+             cldfprime, kdist_lw, cloud_lw, lamc, pgam, iclwpth, iciwpth, tiny_in, dei, icswpth, &
+             des, icgrauwpth, degrau, nlwbands, do_snow, do_graupel, pver, ktopcam, cld_lw_abs,  &
+             snow_lw_abs, grau_lw_abs, c_cld_lw_abs, errmsg, errflg)
+    use ccpp_gas_optics_rrtmgp,    only: ty_gas_optics_rrtmgp_ccpp
+    use ccpp_optical_props,        only: ty_optical_props_1scl_ccpp
+    use ccpp_kinds,                only: kind_phys
+    use rrtmgp_cloud_optics_setup, only: g_mu, g_lambda, nmu, nlambda, g_d_eff, n_g_d
+    use rrtmgp_cloud_optics_setup, only: abs_lw_liq, abs_lw_ice
     ! Compute combined cloud optical properties
     ! Create MCICA stochastic arrays for cloud LW optical properties
     ! Initialize optical properties object (cloud_lw) and load with MCICA columns
@@ -90,20 +88,17 @@ contains
        return
     end if
 
-!    cldf = 0._kind_phys
-!    tauc = 0._kind_phys
-
     ! Combine the cloud optical properties.
 
     ! gammadist liquid optics
-    call liquid_cloud_get_rad_props_lw(ncol, pver, size(g_mu), size(g_lambda,2), nlwbands, lamc, pgam, g_mu, g_lambda, iclwpth, &
+    call liquid_cloud_get_rad_props_lw(ncol, pver, nmu, nlambda, nlwbands, lamc, pgam, g_mu, g_lambda, iclwpth, &
             abs_lw_liq, tiny_in, liq_lw_abs, errmsg, errflg)
     if (errflg /= 0) then
        return
     end if
     ! Mitchell ice optics
     call interpolate_ice_optics_lw(ncol, pver, nlwbands, iciwpth, dei, &
-            size(g_d_eff), g_d_eff, abs_lw_ice, tiny_in, ice_lw_abs, errmsg, errflg)
+            n_g_d, g_d_eff, abs_lw_ice, tiny_in, ice_lw_abs, errmsg, errflg)
     if (errflg /= 0) then
        return
     end if
@@ -113,7 +108,7 @@ contains
     ! add in snow
     if (do_snow) then
        call interpolate_ice_optics_lw(ncol, pver, nlwbands, icswpth, des, &
-               size(g_d_eff), g_d_eff, abs_lw_ice, tiny_in, snow_lw_abs, errmsg, errflg)
+               n_g_d, g_d_eff, abs_lw_ice, tiny_in, snow_lw_abs, errmsg, errflg)
        if (errflg /= 0) then
           return
        end if
@@ -133,7 +128,7 @@ contains
 
     ! add in graupel
     if (do_graupel) then
-       call interpolate_ice_optics_lw(ncol, pver, nlwbands, icgrauwpth, degrau, size(g_d_eff), &
+       call interpolate_ice_optics_lw(ncol, pver, nlwbands, icgrauwpth, degrau, n_g_d, &
                g_d_eff, abs_lw_ice, tiny_in, grau_lw_abs, errmsg, errflg)
        if (errflg /= 0) then
           return
@@ -162,6 +157,7 @@ contains
 
   subroutine liquid_cloud_get_rad_props_lw(ncol, pver, nmu, nlambda, nlwbands, lamc, pgam, &
                   g_mu, g_lambda, iclwpth, abs_lw_liq, tiny, abs_od, errmsg, errflg)
+    use ccpp_kinds, only: kind_phys
     ! Inputs
     integer,                           intent(in) :: ncol
     integer,                           intent(in) :: pver
@@ -206,6 +202,7 @@ contains
   subroutine gam_liquid_lw(nlwbands, nmu, nlambda, clwptn, lamc, pgam, abs_lw_liq, g_mu, g_lambda, tiny, abs_od, errmsg, errflg)
     use interpolate_data,         only: interp_type, lininterp, lininterp_finish
     use radiation_utils,          only: get_mu_lambda_weights_ccpp
+    use ccpp_kinds,               only: kind_phys
     ! Inputs
     integer,         intent(in) :: nlwbands
     integer,         intent(in) :: nmu
@@ -255,6 +252,7 @@ contains
                   n_g_d, g_d_eff, abs_lw_ice, tiny, abs_od, errmsg, errflg)
     use interpolate_data,         only: interp_type, lininterp, lininterp_init, &
                                         lininterp_finish, extrap_method_bndry
+    use ccpp_kinds,               only: kind_phys
 
     integer,           intent(in)                  :: ncol
     integer,           intent(in)                  :: n_g_d
