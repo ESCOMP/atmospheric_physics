@@ -13,6 +13,7 @@ module rrtmgp_inputs
   subroutine rrtmgp_inputs_init(ktopcam, ktoprad, nlaycam, sw_low_bounds, sw_high_bounds, nswbands,         &
                    pref_edge, nlay, pver, pverp, kdist_sw, kdist_lw, qrl, is_first_step, use_rad_dt_cosz,   &
                    timestep_size, nstep, iradsw, dt_avg, irad_always, is_first_restart_step, is_root,       &
+                   p_top_for_rrtmgp,                                                                        &
                    nlwbands, nradgas, gasnamelength, idx_sw_diag, idx_nir_diag, idx_uv_diag,                &
                    idx_sw_cloudsim, idx_lw_diag, idx_lw_cloudsim, nswgpts, nlwgpts, nlayp,                  &
                    nextsw_cday, current_cal_day, band2gpt_sw, errmsg, errflg)
@@ -38,6 +39,7 @@ module rrtmgp_inputs
      logical,                         intent(in) :: is_first_restart_step  ! Flag for whether this is the first restart step (.true. = yes)
      logical,                         intent(in) :: use_rad_dt_cosz        ! Use adjusted radiation timestep for cosz calculation
      logical,                         intent(in) :: is_root                ! Flag for whether this is the root task
+     real(kind_phys),                 intent(in) :: p_top_for_rrtmgp       ! Top pressure to use for RRTMGP
 
      ! Outputs
      integer,                         intent(out) :: ktopcam               ! Index in CAM arrays of top level (layer or interface) at which RRTMGP is active
@@ -80,7 +82,7 @@ module rrtmgp_inputs
      ! pressure interfaces below 1 Pa.  When the entire model atmosphere is
      ! below 1 Pa then an extra layer is added to the top of the model for
      ! the purpose of the radiation calculation.
-     nlay = count( pref_edge(:) > 10._kind_phys ) ! pascals (0.1 mbar)
+     nlay = count( pref_edge(:) > p_top_for_rrtmgp ) ! pascals (0.1 mbar)
      nlayp = nlay + 1
 
      if (nlay == pverp) then
