@@ -66,11 +66,6 @@ module gw_drag
 
   ! Width of gaussian used to create frontogenesis tau profile [m s-1].
   real(kind_phys)                      :: front_gaussian_width = -huge(1._kind_phys)
-  real(kind_phys)                      :: alpha_gw_movmtn
-  real(kind_phys)                      :: effgw_movmtn_pbl
-  integer                              :: movmtn_source
-  real(kind_phys)                      :: movmtn_psteer
-  real(kind_phys)                      :: movmtn_plaunch
 
   real(kind_phys), parameter :: unset_kind_phys = huge(1._kind_phys)
 
@@ -80,8 +75,6 @@ module gw_drag
   type(GWBand) :: band_mid
   ! Long scale waves for IGWs.
   type(GWBand) :: band_long
-  ! Medium scale waves for moving mountain
-  type(GWBand) :: band_movmtn
 
   ! Bottom level for frontal waves.
   integer :: kbot_front
@@ -95,7 +88,6 @@ module gw_drag
   ! Files to read Beres source spectra from.
   character(len=256) :: gw_drag_file
   character(len=256) :: gw_drag_file_sh
-  character(len=256) :: gw_drag_file_mm
   real(kind_phys)   :: gravit          ! gravitational acceleration (m s-2)
   real(kind_phys)   :: rair            ! Dry air gas constant     (J K-1 kg-1)
   real(kind_phys)   :: pi
@@ -107,7 +99,6 @@ module gw_drag
   logical         ::  use_gw_convect_dp
   logical         ::  use_gw_convect_sh
   logical         ::  use_simple_phys
-  logical         ::  use_gw_movmtn_pbl
   logical         ::  do_molec_diff
   integer         ::  nbot_molec
 
@@ -159,7 +150,6 @@ contains
     frontgfc_nl, &
     gw_drag_file_nl, &
     gw_drag_file_sh_nl, &
-    gw_drag_file_mm_nl, &
     taubgnd_nl, &
     taubgnd_igw_nl, &
     gw_polar_taper_nl, &
@@ -171,18 +161,12 @@ contains
     gw_qbo_hdepth_scaling_nl, &
     gw_top_taper_nl, &
     front_gaussian_width_nl, &
-    alpha_gw_movmtn_nl, &
-    effgw_movmtn_pbl_in, &
-    movmtn_source_in, &
-    movmtn_psteer_in, &
-    movmtn_plaunch_in, &
     use_gw_oro_in, &
     use_gw_front_in, &
     use_gw_front_igw_in, &
     use_gw_convect_dp_in, &
     use_gw_convect_sh_in, &
     use_simple_phys_in, &
-    use_gw_movmtn_pbl_in, &
     do_molec_diff_in, &
     nbot_molec_in, &
     errmsg, &
@@ -194,7 +178,6 @@ contains
     ! Underlying init subroutines
     use gw_common, only: gw_common_init
     use gw_front, only: gw_front_init
-    use gw_movmtn, only: gw_movmtn_init
     use gw_convect, only: gw_beres_init
 
     integer, intent(in)             :: iulog
@@ -236,7 +219,6 @@ contains
     ! Files to read Beres source spectra from.
     character(len=256), intent(in)             :: gw_drag_file_nl
     character(len=256), intent(in)             :: gw_drag_file_sh_nl
-    character(len=256), intent(in)             :: gw_drag_file_mm_nl
     ! Background stress source strengths.
     real(kind_phys), intent(in)             :: taubgnd_nl
     real(kind_phys), intent(in)             :: taubgnd_igw_nl
@@ -254,11 +236,6 @@ contains
     logical, intent(in)             :: gw_top_taper_nl
     ! Width of gaussian used to create frontogenesis tau profile [m s-1].
     real(kind_phys), intent(in)             :: front_gaussian_width_nl
-    real(kind_phys), intent(in)             :: alpha_gw_movmtn_nl
-    real(kind_phys), intent(in)             :: effgw_movmtn_pbl_in
-    integer, intent(in)                     :: movmtn_source_in
-    real(kind_phys), intent(in)             :: movmtn_psteer_in
-    real(kind_phys), intent(in)             :: movmtn_plaunch_in
 
     logical, intent(in)             ::  use_gw_oro_in
     logical, intent(in)             ::  use_gw_front_in
@@ -266,7 +243,6 @@ contains
     logical, intent(in)             ::  use_gw_convect_dp_in
     logical, intent(in)             ::  use_gw_convect_sh_in
     logical, intent(in)             ::  use_simple_phys_in
-    logical, intent(in)             ::  use_gw_movmtn_pbl_in
     integer, intent(in)             :: nbot_molec_in
     logical, intent(in)             :: do_molec_diff_in
 
@@ -361,7 +337,6 @@ contains
     frontgfc = frontgfc_nl
     gw_drag_file = trim(gw_drag_file_nl)
     gw_drag_file_sh = trim(gw_drag_file_sh_nl)
-    gw_drag_file_mm = trim(gw_drag_file_mm_nl)
     taubgnd = taubgnd_nl
     taubgnd_igw = taubgnd_igw_nl
     gw_polar_taper = gw_polar_taper_nl
@@ -373,12 +348,6 @@ contains
     gw_qbo_hdepth_scaling = gw_qbo_hdepth_scaling_nl
     gw_top_taper = gw_top_taper_nl
     front_gaussian_width = front_gaussian_width_nl
-    alpha_gw_movmtn = alpha_gw_movmtn_nl
-
-    effgw_movmtn_pbl = effgw_movmtn_pbl_in
-    movmtn_source = movmtn_source_in
-    movmtn_psteer = movmtn_psteer_in
-    movmtn_plaunch = movmtn_plaunch_in
 
     use_gw_oro = use_gw_oro_in
     use_gw_front = use_gw_front_in
@@ -386,14 +355,12 @@ contains
     use_gw_convect_dp = use_gw_convect_dp_in
     use_gw_convect_sh = use_gw_convect_sh_in
     use_simple_phys = use_simple_phys_in
-    use_gw_movmtn_pbl = use_gw_movmtn_pbl_in
     do_molec_diff = do_molec_diff_in
     nbot_molec = nbot_molec_in
 
     band_oro    = GWBand(0,         gw_dc,      1.0_kind_phys, wavelength_mid)
     band_mid    = GWBand(pgwv,      gw_dc,      1.0_kind_phys, wavelength_mid)
     band_long   = GWBand(pgwv_long, gw_dc_long, 1.0_kind_phys, wavelength_long)
-    band_movmtn = GWBand(0,         gw_dc,      1.0_kind_phys, wavelength_mid)
 
     if (masterproc) then
       write (iulog, *) ' '
@@ -454,13 +421,6 @@ contains
       if (errflg /= 0) return
     endif
 
-    if(use_gw_movmtn_pbl) then
-      call gw_movmtn_init(pver, gw_drag_file_mm, &
-                          band_movmtn, &
-                          pref_edge, movmtn_psteer, movmtn_plaunch, movmtn_source_in, masterproc, iulog, errmsg, errflg)
-      if (errflg /= 0) return
-    endif
-
     if(use_gw_convect_dp .or. use_gw_convect_sh) then
       call gw_beres_init(pver, pi, gw_drag_file_sh, gw_drag_file, pref_edge, gw_dc, wavelength_mid, pgwv, &
                          use_gw_convect_dp, use_gw_convect_sh, masterproc, iulog, errmsg, errflg)
@@ -492,7 +452,6 @@ contains
     state_u, &
     state_v, &
     state_q, &
-    vorticity, &
     sgh, &
     p, &
     rhoi, &
@@ -500,16 +459,10 @@ contains
     kvtt, &
     ttend_dp, &
     ttend_sh, &
-    ttend_clubb, &
-    thlp2_clubb_gw, &
-    wpthlp_clubb_gw, &
-    upwp_clubb_gw, &
-    vpwp_clubb_gw, &
     s_tend, &
     q_tend, &
     u_tend, &
     v_tend, &
-    scheme_name, &
     nbot_molec, &
     egwdffi_tot, &
     flx_heat, &
@@ -525,7 +478,6 @@ contains
     use gw_oro, only: gw_oro_src
     use gw_front, only: gw_cm_src, cm_desc, cm_igw_desc
     use gw_convect, only: gw_beres_src, beres_dp_desc, beres_sh_desc
-    use gw_movmtn, only: gw_movmtn_run
 
     integer, intent(in)        :: ncol  ! number of atmospheric columns
     integer, intent(in)        :: pcnst ! chunk number
@@ -551,7 +503,6 @@ contains
     real(kind_phys), intent(in) :: state_u(:, :)   ! meridional wind
     real(kind_phys), intent(in) :: state_v(:, :)   ! zonal wind
     real(kind_phys), intent(in) :: state_q(:, :, :) ! constituent array
-    real(kind_phys), intent(in) :: vorticity(:, :) ! vorticity
     real(kind_phys), intent(in) :: sgh(:)         !
 
     type(Coords1D),  intent(in) :: p               ! Pressure coordinates, Coords1D
@@ -562,16 +513,10 @@ contains
     real(kind_phys), intent(inout) :: kvtt(:, :)       !
     real(kind_phys), intent(in) :: ttend_dp(:, :)  ! Temperature change due to deep convection.
     real(kind_phys), intent(in) :: ttend_sh(:, :)  ! Temperature change due to shallow convection.
-    real(kind_phys), intent(in) :: ttend_clubb(:, :)
-    real(kind_phys), intent(in) :: thlp2_clubb_gw(:, :)
-    real(kind_phys), intent(in) :: wpthlp_clubb_gw(:, :)
-    real(kind_phys), intent(in) :: upwp_clubb_gw(:, :)
-    real(kind_phys), intent(in) :: vpwp_clubb_gw(:, :)
     real(kind_phys), intent(inout):: s_tend(:, :)   ! dry air enthalpy tendency
     real(kind_phys), intent(inout):: q_tend(:, :, :)
     real(kind_phys), intent(inout):: u_tend(:, :)
     real(kind_phys), intent(inout):: v_tend(:, :)
-    character(len=64), intent(out) :: scheme_name
     integer, intent(in)             :: nbot_molec
     ! Parameterization net tendencies.
     ! sum from the two types of spectral GW
@@ -645,99 +590,8 @@ contains
     ! Energy change used by fixer.
     real(kind_phys) :: de(ncol)
 
-    if (do_molec_diff) then
-      !--------------------------------------------------------
-      ! Initialize and calculate local molecular diffusivity
-      !--------------------------------------------------------
-      ! Use linear extrapolation of cpairv to top interface.
-      kvtt(:, 1) = kvtt(:, 1)/ &
-                   (1.5_kind_phys*cpairv(:ncol, 1) - &
-                    0.5_kind_phys*cpairv(:ncol, 2))
-
-      ! Interpolate cpairv to other interfaces.
-      do k = 2, nbot_molec
-        kvtt(:, k) = kvtt(:, k)/ &
-                     (cpairv(:ncol, k + 1) + cpairv(:ncol, k))*2._kind_phys
-      end do
-
-    else
-
-      kvtt = 0._kind_phys
-
-    end if
-
     if (use_gw_front_igw) then
       u_coriolis = coriolis_speed(band_long, lat(:ncol))
-    end if
-
-    ! Totals that accumulate over different sources.
-    egwdffi_tot = 0._kind_phys
-    flx_heat = 0._kind_phys
-
-    !------------------------------------------------------------------
-    ! Convective moving mountain gravity waves (Beres scheme).
-    !------------------------------------------------------------------
-    if (use_gw_movmtn_pbl) then
-      effgw = effgw_movmtn_pbl
-
-      call gw_movmtn_run( &
-        ncol                = ncol, &
-        band                = band_movmtn, &
-        state_t             = state_t(:ncol,:), &
-        pcnst               = pcnst, &
-        state_u             = state_u(:ncol,:), &
-        state_v             = state_v(:ncol,:), &
-        p                   = p, &
-        ttend_dp            = ttend_dp(:ncol,:), &
-        ttend_clubb         = ttend_clubb(:ncol,:), &
-        upwp_clubb          = upwp_clubb_gw(:ncol,:), &
-        vpwp_clubb          = vpwp_clubb_gw(:ncol,:), &
-        vorticity           = vorticity(:ncol,:), &
-        zm                  = zm(:ncol,:), &
-        alpha_gw_movmtn     = alpha_gw_movmtn, &
-        dt                  = dt, &
-        vramp               = vramp, &
-        pint                = pint(:ncol,:), &
-        piln                = piln(:ncol,:), &
-        rhoi                = rhoi(:ncol,:), &
-        nm                  = nm(:ncol,:), &
-        ni                  = ni(:ncol,:), &
-        effgw               = effgw(:ncol), &
-        kvtt                = kvtt(:ncol,:), &
-        state_q             = state_q(:ncol,:,:), &
-        dse                 = dse(:ncol,:), &
-        gw_apply_tndmax     = gw_apply_tndmax, &
-        use_gw_movmtn_pbl   = use_gw_movmtn_pbl, &
-        gravit              = gravit, &
-        rair                = rair, &
-        ! Input/output arguments
-        src_level           = src_level(:ncol), &
-        tend_level          = tend_level(:ncol), &
-        ubm                 = ubm(:ncol,:pver), &
-        ubi                 = ubi(:ncol,:pver+1), &
-        xv                  = xv(:ncol), &
-        yv                  = yv(:ncol), &
-        hdepth              = hdepth(:ncol), &
-        q_tend              = q_tend(:ncol,:pver,:pcnst), &
-        u_tend              = u_tend(:ncol,:pver), &
-        v_tend              = v_tend(:ncol,:pver), &
-        s_tend              = s_tend(:ncol,:pver), &
-        ! Output arguments
-        utgw                = utgw(:ncol,:pver), &
-        vtgw                = vtgw(:ncol,:pver), &
-        ttgw                = ttgw(:ncol,:pver), &
-        qtgw                = qtgw(:ncol,:pver,:pcnst), &
-        egwdffi             = egwdffi(:ncol,:pver+1), &
-        dttdf               = dttdf(:ncol,:pver), &
-        dttke               = dttke(:ncol,:pver), &
-        flx_heat            = flx_heat(:ncol), &
-        errmsg              = errmsg, &
-        errflg              = errflg)
-
-      !  add the diffusion coefficients
-      do k = 1, pver + 1
-        egwdffi_tot(:, k) = egwdffi_tot(:, k) + egwdffi(:, k)
-      end do
     end if
 
     !------------------------------------------------------------------

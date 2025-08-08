@@ -1,9 +1,7 @@
+! Gravity waves from orographic sources
+! Extracted: May 2013
 module gw_oro
 
-!
-! This module handles gravity waves from orographic sources, and was
-! extracted from gw_drag in May 2013.
-!
   use ccpp_kinds, only: kind_phys
   use coords_1d, only: Coords1D
 
