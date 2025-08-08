@@ -79,8 +79,7 @@ contains
 
       ! Check that deep gw file is set in namelist
       if (frontgfc == unset_kind_phys) then
-        write (errmsg, '(a, a)') sub, &
-          " Frontogenesis enabled, but frontgfc was not set!"
+        errmsg = "Frontogenesis enabled, but frontgfc was not set!"
         errflg = 1
         return
       end if
@@ -98,40 +97,22 @@ contains
         write (iulog, *) 'KBOT_FRONT  =', kbot_front
         write (iulog, *) ' '
       end if
-!!$
-!!$     call addfld ('FRONTGF', (/ 'lev' /), 'A', 'K^2/M^2/S', &
-!!$          'Frontogenesis function at gws src level')
-!!$     call addfld ('FRONTGFA', (/ 'lev' /), 'A', 'K^2/M^2/S', &
-!!$          'Frontogenesis function at gws src level')
-!!$
-!!$     if (history_waccm) then
-!!$        call add_default('FRONTGF', 1, ' ')
-!!$        call add_default('FRONTGFA', 1, ' ')
-!!$     end if
-
     end if
 
     if (use_gw_front) then
       ! Check that deep gw file is set in namelist
       if (taubgnd == unset_kind_phys .or. effgw_cm == unset_kind_phys) then
-        write (errmsg, '(a, a)') sub, &
-          " Frontogenesis mid-scale waves enabled, but not all required namelist variables were set!"
+        errmsg = "Frontogenesis mid-scale waves enabled, but not all required namelist variables were set!"
         errflg = 1
         return
       end if
 
       if (masterproc) then
-        write (iulog, *) 'gw_init: gw spectrum taubgnd, ', &
-          'effgw_cm = ', taubgnd, effgw_cm
-        write (iulog, *) ' '
+        write (iulog, *) 'gw_init: gw spectrum taubgnd, effgw_cm = ', taubgnd, effgw_cm
       end if
 
       cm_desc = gaussian_cm_desc(band_mid, kbot_front, kfront, frontgfc, &
                                  taubgnd, front_gaussian_width)
-
-!!$     ! Output for gravity waves from frontogenesis.
-!!$     call gw_spec_addflds(prefix=cm_pf, scheme="C&M", band=band_mid, &
-!!$          history_defaults=history_waccm)
 
     end if
 
@@ -146,17 +127,11 @@ contains
       end if
 
       if (masterproc) then
-        write (iulog, *) 'gw_init: gw spectrum taubgnd_igw, ', &
-          'effgw_cm_igw = ', taubgnd_igw, effgw_cm_igw
-        write (iulog, *) ' '
+        write (iulog, *) 'gw_init: gw spectrum taubgnd_igw, effgw_cm_igw = ', taubgnd_igw, effgw_cm_igw
       end if
 
       cm_igw_desc = gaussian_cm_desc(band_long, kbot_front, kfront, frontgfc, &
                                      taubgnd_igw, front_gaussian_width)
-
-!!$     ! Output for gravity waves from frontogenesis.
-!!$     call gw_spec_addflds(prefix=cm_igw_pf, scheme="C&M IGW", &
-!!$          band=band_long, history_defaults=history_waccm)
 
     end if
   end subroutine gw_front_init

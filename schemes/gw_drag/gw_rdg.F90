@@ -15,6 +15,9 @@ module gw_rdg
 
   public :: gw_rdg_run
 
+  ! Horizontal wavelength
+  real(kind_phys), parameter :: wavelength_mid = 1.e5_kind_phys
+
   ! Tunable Parameters
   logical, public            :: do_divstream
 
@@ -70,9 +73,7 @@ module gw_rdg
   logical            :: use_gw_rdg_beta
 
 contains
-  subroutine gw_rdg_init(ncol, &
-                         masterproc, iulog, &
-                         wavelength, &
+  subroutine gw_rdg_init(&
                          gw_delta_c, &
                          rearth, &
                          effgw_rdg_beta, &
@@ -86,12 +87,7 @@ contains
                          gw_rdg_orostratmin_nl, gw_rdg_orom2min_nl, gw_rdg_do_vdiff_nl, &
                          errmsg, errflg)
 
-    integer, intent(in)              :: ncol
-    logical, intent(in)              :: masterproc
-    integer, intent(in)              :: iulog
-
     ! Gravity wave band parameters
-    real(kind_phys), intent(in)      :: wavelength                    ! Horizontal wavelength for orographic waves [m]
     real(kind_phys), intent(in)      :: gw_delta_c                    ! Width of speed bins (delta c) for gravity wave spectrum [m s-1]
 
     ! Physical constants
@@ -134,7 +130,7 @@ contains
     character(len=*), parameter :: sub = 'gw_rdg_init'
 
     ! Initialize gravity wave band based on wavelength
-    band_oro = GWBand(0, gw_delta_c, 1.0_kind_phys, wavelength)
+    band_oro = GWBand(0, gw_delta_c, 1.0_kind_phys, wavelength_mid)
 
     ! Set the local variables from namelist read
     do_divstream = gw_rdg_do_divstream_nl
@@ -158,6 +154,7 @@ contains
     if (use_gw_rdg_beta) then
       if (effgw_rdg_beta == unset_kind_phys) then
         errmsg = sub//": ERROR: Anisotropic OGW enabled, but effgw_rdg_beta was not set."
+        errflg = 1
         return
       end if
     end if
@@ -165,6 +162,7 @@ contains
     if (use_gw_rdg_gamma) then
       if (effgw_rdg_gamma == unset_kind_phys) then
         errmsg = sub//": ERROR: Anisotropic OGW enabled, but effgw_rdg_gamma was not set."
+        errflg = 1
         return
       end if
     end if
@@ -770,6 +768,7 @@ contains
     !--------------------------------------------------------------------------
     if (band%ngwv /= 0) then
       errmsg = 'gw_rdg_src :: ERROR - band%ngwv must be zero and it is not'
+      errflg = 1
       return
     end if
 

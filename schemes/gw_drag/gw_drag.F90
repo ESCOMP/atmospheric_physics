@@ -19,24 +19,16 @@ module gw_drag
 !--------------------------------------------------------------------------
   use ccpp_kinds, only: kind_phys
   use gw_common, only: GWBand, handle_err
-  use interpolate_data, only: lininterp
 
   implicit none
   private
   save
 
-  !
-  ! PUBLIC: interfaces
-  !
+  ! Public CCPP-compliant interfaces.
   public :: gw_drag_init                  ! Initialization
   public :: gw_drag_run                   ! interface to actual parameterization
 
-  !
-  ! PRIVATE: Rest of the data and interfaces are private to this module
-  !
-
   ! Maximum wave number and width of spectrum bins.
-  integer                              :: iulog
   integer                              :: pgwv
   real(kind_phys)                      :: gw_dc
   integer                              :: pgwv_long
@@ -63,32 +55,18 @@ module gw_drag
   real(kind_phys)                      :: rearth   ! earth radius
   real(kind_phys)                      :: fcrit2   ! critical froude number squared
 
-  ! Ridge scheme.
-  logical                              :: use_gw_rdg_beta
-  integer                              :: n_rdg_beta
-  real(kind_phys)                      :: effgw_rdg_beta
-  real(kind_phys)                      :: effgw_rdg_beta_max
-  real(kind_phys)                      :: rdg_beta_cd_llb  ! Low-level obstacle drag coefficient Ridge scheme.
-  logical                              :: trpd_leewv_rdg_beta
-
-  logical                              :: use_gw_rdg_gamma
-  integer                              :: n_rdg_gamma
-  real(kind_phys)                      :: effgw_rdg_gamma
-  real(kind_phys)                      :: effgw_rdg_gamma_max
-  real(kind_phys)                      :: rdg_gamma_cd_llb
-  logical                              :: trpd_leewv_rdg_gamma
-
   ! Whether or not to limit tau *before* applying any efficiency factors.
   logical                              :: gw_limit_tau_without_eff = .false.
   logical                              :: gw_lndscl_sgh = .true. ! scale SGH by land frac
   real(kind_phys)                      :: gw_prndl = 0.25_kind_phys
+
   ! Whether or not to apply tendency max
   real(kind_phys)                      :: gw_qbo_hdepth_scaling = 1._kind_phys ! heating depth scaling factor
   logical                              :: gw_top_taper = .false.
+
   ! Width of gaussian used to create frontogenesis tau profile [m s-1].
   real(kind_phys)                      :: front_gaussian_width = -huge(1._kind_phys)
   real(kind_phys)                      :: alpha_gw_movmtn
-  real(kind_phys)                      :: effgw_rdg_resid
   real(kind_phys)                      :: effgw_movmtn_pbl
   integer                              :: movmtn_source
   real(kind_phys)                      :: movmtn_psteer
@@ -104,9 +82,6 @@ module gw_drag
   type(GWBand) :: band_long
   ! Medium scale waves for moving mountain
   type(GWBand) :: band_movmtn
-
-  ! Top level for gravity waves.
-  integer :: ktop = 1
 
   ! Bottom level for frontal waves.
   integer :: kbot_front
@@ -125,12 +100,9 @@ module gw_drag
   real(kind_phys)   :: rair            ! Dry air gas constant     (J K-1 kg-1)
   real(kind_phys)   :: pi
   real(kind_phys), allocatable   :: pref_edge(:)
-  integer           :: ncid_topo
-  logical           :: masterproc
 
   logical         ::  use_gw_oro
   logical         ::  use_gw_front
-  logical         ::  use_gw_rdg_resid
   logical         ::  use_gw_front_igw
   logical         ::  use_gw_convect_dp
   logical         ::  use_gw_convect_sh
@@ -138,9 +110,10 @@ module gw_drag
   logical         ::  use_gw_movmtn_pbl
   logical         ::  do_molec_diff
   integer         ::  nbot_molec
-  ! Horzontal wavelengths [m].
-  real(kind_phys) :: wavelength_mid
-  real(kind_phys) :: wavelength_long
+
+  ! Horizontal wavelengths [m].
+  real(kind_phys), parameter :: wavelength_mid = 1.e5_kind_phys
+  real(kind_phys), parameter :: wavelength_long = 3.e5_kind_phys
 
   ! Background stress source strengths.
   real(kind_phys) :: taubgnd = unset_kind_phys
@@ -152,28 +125,20 @@ module gw_drag
   ! Whether or not to apply tendency max
   logical :: gw_apply_tndmax = .true.
 
-  ! Prefixes for history field names
-  character(len=1), parameter :: cm_pf = " "
-  character(len=1), parameter :: cm_igw_pf = "I"
-  character(len=1), parameter :: beres_dp_pf = "B"
-  character(len=1), parameter :: beres_sh_pf = "S"
-
   ! Parameters for the IGW polar taper.
   real(kind_phys) :: degree2radian
   real(kind_phys) :: al0
   real(kind_phys) :: dlat0
 
-!==========================================================================
 contains
-!==========================================================================
 
+  ! Time independent initialization for multiple gravity wave parameterizations.
 !> \section arg_table_gw_drag_init Argument Table
 !! \htmlinclude gw_drag_init.html
   subroutine gw_drag_init( &
-    iulog_in, &
-    ktop_in, &
-    masterproc_in, &
-    ncol, &
+    iulog, &
+    masterproc, &
+    ktop, &
     pver, &
     gravit_in, &
     rair_in, &
@@ -198,18 +163,6 @@ contains
     taubgnd_nl, &
     taubgnd_igw_nl, &
     gw_polar_taper_nl, &
-    use_gw_rdg_beta_nl, &
-    n_rdg_beta_nl, &
-    effgw_rdg_beta_nl, &
-    effgw_rdg_beta_max_nl, &
-    rdg_beta_cd_llb_nl, &
-    trpd_leewv_rdg_beta_nl, &
-    use_gw_rdg_gamma_nl, &
-    n_rdg_gamma_nl, &
-    effgw_rdg_gamma_nl, &
-    effgw_rdg_gamma_max_nl, &
-    rdg_gamma_cd_llb_nl, &
-    trpd_leewv_rdg_gamma_nl, &
     gw_oro_south_fac_nl, &
     gw_limit_tau_without_eff_nl, &
     gw_lndscl_sgh_nl, &
@@ -219,17 +172,10 @@ contains
     gw_top_taper_nl, &
     front_gaussian_width_nl, &
     alpha_gw_movmtn_nl, &
-    use_gw_rdg_resid_in, &
-    effgw_rdg_resid_in, &
     effgw_movmtn_pbl_in, &
     movmtn_source_in, &
     movmtn_psteer_in, &
     movmtn_plaunch_in, &
-    gw_rdg_do_divstream_nl, gw_rdg_C_BetaMax_DS_nl, gw_rdg_C_GammaMax_nl, &
-    gw_rdg_Frx0_nl, gw_rdg_Frx1_nl, gw_rdg_C_BetaMax_SM_nl, gw_rdg_Fr_c_nl, &
-    gw_rdg_do_smooth_regimes_nl, gw_rdg_do_adjust_tauoro_nl, &
-    gw_rdg_do_backward_compat_nl, gw_rdg_orohmin_nl, gw_rdg_orovmin_nl, &
-    gw_rdg_orostratmin_nl, gw_rdg_orom2min_nl, gw_rdg_do_vdiff_nl, &
     use_gw_oro_in, &
     use_gw_front_in, &
     use_gw_front_igw_in, &
@@ -239,22 +185,22 @@ contains
     use_gw_movmtn_pbl_in, &
     do_molec_diff_in, &
     nbot_molec_in, &
-    wavelength_mid_in, &
-    wavelength_long_in, &
     errmsg, &
     errflg)
 
+    ! Host model dependency for interpolation.
+    use interpolate_data, only: lininterp
+
+    ! Underlying init subroutines
     use gw_common, only: gw_common_init
-    use gw_rdg, only: gw_rdg_init
     use gw_front, only: gw_front_init
     use gw_movmtn, only: gw_movmtn_init
     use gw_convect, only: gw_beres_init
-    !-----------------------------------------------------------------------
-    ! Time independent initialization for multiple gravity wave
-    ! parameterization.
-    !-----------------------------------------------------------------------
 
-    integer, intent(in)             :: ncol
+    integer, intent(in)             :: iulog
+    logical, intent(in)             :: masterproc
+    integer, intent(in)             :: ktop
+
     integer, intent(in)             :: pver
     real(kind_phys), intent(in)     :: gravit_in          ! gravitational acceleration (m s-2)
     real(kind_phys), intent(in)     :: rair_in            ! Dry air gas constant     (J K-1 kg-1)
@@ -296,19 +242,6 @@ contains
     real(kind_phys), intent(in)             :: taubgnd_igw_nl
     ! Whether or not to use a polar taper for frontally generated waves.
     logical, intent(in)             :: gw_polar_taper_nl
-    ! Ridge scheme.
-    logical, intent(in)              :: use_gw_rdg_beta_nl
-    integer, intent(in)             :: n_rdg_beta_nl
-    real(kind_phys), intent(in)             :: effgw_rdg_beta_nl
-    real(kind_phys), intent(in)             :: effgw_rdg_beta_max_nl
-    real(kind_phys), intent(in)             :: rdg_beta_cd_llb_nl  ! Low-level obstacle drag coefficient Ridge scheme.
-    logical, intent(in)             :: trpd_leewv_rdg_beta_nl
-    logical, intent(in)             :: use_gw_rdg_gamma_nl
-    integer, intent(in)             :: n_rdg_gamma_nl
-    real(kind_phys), intent(in)             :: effgw_rdg_gamma_nl
-    real(kind_phys), intent(in)             :: effgw_rdg_gamma_max_nl
-    real(kind_phys), intent(in)             :: rdg_gamma_cd_llb_nl
-    logical, intent(in)             :: trpd_leewv_rdg_gamma_nl
     ! Factor for SH orographic waves.
     real(kind_phys), intent(in)             :: gw_oro_south_fac_nl
     ! Whether or not to limit tau *before* applying any efficiency factors.
@@ -322,23 +255,10 @@ contains
     ! Width of gaussian used to create frontogenesis tau profile [m s-1].
     real(kind_phys), intent(in)             :: front_gaussian_width_nl
     real(kind_phys), intent(in)             :: alpha_gw_movmtn_nl
-    logical, intent(in)                     :: use_gw_rdg_resid_in
-
-    real(kind_phys), intent(in)             :: effgw_rdg_resid_in
     real(kind_phys), intent(in)             :: effgw_movmtn_pbl_in
     integer, intent(in)                     :: movmtn_source_in
     real(kind_phys), intent(in)             :: movmtn_psteer_in
     real(kind_phys), intent(in)             :: movmtn_plaunch_in
-
-    logical, intent(in) :: gw_rdg_do_divstream_nl, &
-                           gw_rdg_do_smooth_regimes_nl, &
-                           gw_rdg_do_adjust_tauoro_nl, &
-                           gw_rdg_do_backward_compat_nl, &
-                           gw_rdg_do_vdiff_nl
-    real(kind_phys), intent(in) :: &
-      gw_rdg_C_BetaMax_DS_nl, gw_rdg_C_GammaMax_nl, &
-      gw_rdg_Frx0_nl, gw_rdg_Frx1_nl, gw_rdg_C_BetaMax_SM_nl, gw_rdg_Fr_c_nl, &
-      gw_rdg_orohmin_nl, gw_rdg_orovmin_nl, gw_rdg_orostratmin_nl, gw_rdg_orom2min_nl
 
     logical, intent(in)             ::  use_gw_oro_in
     logical, intent(in)             ::  use_gw_front_in
@@ -347,13 +267,8 @@ contains
     logical, intent(in)             ::  use_gw_convect_sh_in
     logical, intent(in)             ::  use_simple_phys_in
     logical, intent(in)             ::  use_gw_movmtn_pbl_in
-    integer, intent(in)             :: iulog_in
-    integer, intent(in)             :: ktop_in
-    logical, intent(in)             :: masterproc_in
     integer, intent(in)             :: nbot_molec_in
     logical, intent(in)             :: do_molec_diff_in
-    real(kind_phys), intent(in)     :: wavelength_mid_in
-    real(kind_phys), intent(in)     :: wavelength_long_in
 
     character(len=512), intent(out) :: errmsg
     integer, intent(out)            :: errflg
@@ -420,7 +335,6 @@ contains
                        564.718_kind_phys, 751.477_kind_phys, 1000._kind_phys &
                        ]
 
-    !-----------------------------------------------------------------------
     errmsg = ''
     errflg = 0
 
@@ -432,8 +346,6 @@ contains
     gravit = gravit_in
     rair = rair_in
     pi = pi_in
-    masterproc = masterproc_in
-    iulog = iulog_in
     pgwv = pgwv_nl
     gw_dc = gw_dc_nl
     pgwv_long = pgwv_long_nl
@@ -453,18 +365,6 @@ contains
     taubgnd = taubgnd_nl
     taubgnd_igw = taubgnd_igw_nl
     gw_polar_taper = gw_polar_taper_nl
-    use_gw_rdg_beta = use_gw_rdg_beta_nl
-    n_rdg_beta = n_rdg_beta_nl
-    effgw_rdg_beta = effgw_rdg_beta_nl
-    effgw_rdg_beta_max = effgw_rdg_beta_max_nl
-    rdg_beta_cd_llb = rdg_beta_cd_llb_nl
-    trpd_leewv_rdg_beta = trpd_leewv_rdg_beta_nl
-    use_gw_rdg_gamma = use_gw_rdg_gamma_nl
-    n_rdg_gamma = n_rdg_gamma_nl
-    effgw_rdg_gamma = effgw_rdg_gamma_nl
-    effgw_rdg_gamma_max = effgw_rdg_gamma_max_nl
-    rdg_gamma_cd_llb = rdg_gamma_cd_llb_nl
-    trpd_leewv_rdg_gamma = trpd_leewv_rdg_gamma_nl
     gw_oro_south_fac = gw_oro_south_fac_nl
     gw_limit_tau_without_eff = gw_limit_tau_without_eff_nl
     gw_lndscl_sgh = gw_lndscl_sgh_nl
@@ -475,8 +375,6 @@ contains
     front_gaussian_width = front_gaussian_width_nl
     alpha_gw_movmtn = alpha_gw_movmtn_nl
 
-    use_gw_rdg_resid = use_gw_rdg_resid_in
-    effgw_rdg_resid = effgw_rdg_resid_in
     effgw_movmtn_pbl = effgw_movmtn_pbl_in
     movmtn_source = movmtn_source_in
     movmtn_psteer = movmtn_psteer_in
@@ -491,14 +389,11 @@ contains
     use_gw_movmtn_pbl = use_gw_movmtn_pbl_in
     do_molec_diff = do_molec_diff_in
     nbot_molec = nbot_molec_in
-    wavelength_mid = wavelength_mid_in
-    wavelength_long = wavelength_long_in
-    ktop = ktop_in
 
-    band_oro = GWBand(0, gw_dc, 1.0_kind_phys, wavelength_mid)
-    band_mid = GWBand(pgwv, gw_dc, 1.0_kind_phys, wavelength_mid)
-    band_long = GWBand(pgwv_long, gw_dc_long, 1.0_kind_phys, wavelength_long)
-    band_movmtn = GWBand(0, gw_dc, 1.0_kind_phys, wavelength_mid)
+    band_oro    = GWBand(0,         gw_dc,      1.0_kind_phys, wavelength_mid)
+    band_mid    = GWBand(pgwv,      gw_dc,      1.0_kind_phys, wavelength_mid)
+    band_long   = GWBand(pgwv_long, gw_dc_long, 1.0_kind_phys, wavelength_long)
+    band_movmtn = GWBand(0,         gw_dc,      1.0_kind_phys, wavelength_mid)
 
     if (masterproc) then
       write (iulog, *) ' '
@@ -551,52 +446,26 @@ contains
                         tau_0_ubc, ktop, gravit, rair, alpha, gw_prndl, &
                         gw_qbo_hdepth_scaling, errstring)
 
-    call gw_rdg_init( &
-      ncol=ncol, &
-      wavelength = wavelength_mid, &
-      gw_delta_c = gw_dc_nl, &
-      rearth=rearth, &
-      effgw_rdg_beta=effgw_rdg_beta, &
-      effgw_rdg_gamma=effgw_rdg_gamma, &
-      use_gw_rdg_beta_in=use_gw_rdg_beta, &
-      use_gw_rdg_gamma_in=use_gw_rdg_gamma, &
-      gw_rdg_do_divstream_nl=gw_rdg_do_divstream_nl, &
-      gw_rdg_C_BetaMax_DS_nl=gw_rdg_C_BetaMax_DS_nl, &
-      gw_rdg_C_GammaMax_nl=gw_rdg_C_GammaMax_nl, &
-      gw_rdg_Frx0_nl=gw_rdg_Frx0_nl, &
-      gw_rdg_Frx1_nl=gw_rdg_Frx1_nl, &
-      gw_rdg_C_BetaMax_SM_nl=gw_rdg_C_BetaMax_SM_nl, &
-      gw_rdg_Fr_c_nl=gw_rdg_Fr_c_nl, &
-      gw_rdg_do_smooth_regimes_nl=gw_rdg_do_smooth_regimes_nl, &
-      gw_rdg_do_adjust_tauoro_nl=gw_rdg_do_adjust_tauoro_nl, &
-      gw_rdg_do_backward_compat_nl=gw_rdg_do_backward_compat_nl, &
-      gw_rdg_orohmin_nl=gw_rdg_orohmin_nl, &
-      gw_rdg_orovmin_nl=gw_rdg_orovmin_nl, &
-      gw_rdg_orostratmin_nl=gw_rdg_orostratmin_nl, &
-      gw_rdg_orom2min_nl=gw_rdg_orom2min_nl, &
-      gw_rdg_do_vdiff_nl=gw_rdg_do_vdiff_nl, &
-      masterproc=masterproc, &
-      iulog=iulog, &
-      errmsg=errmsg, &
-      errflg=errflg)
-    if (errflg /= 0) return
+    if(use_gw_front .or. use_gw_front_igw) then
+      call gw_front_init(pver, pref_edge, frontgfc, band_mid, band_long, &
+                         taubgnd, taubgnd_igw, &
+                         effgw_cm, effgw_cm_igw, use_gw_front, use_gw_front_igw, &
+                         front_gaussian_width, masterproc, iulog, errmsg, errflg)
+      if (errflg /= 0) return
+    endif
 
-    call gw_front_init(pver, pref_edge, frontgfc, band_mid, band_long, &
-                       taubgnd, taubgnd_igw, &
-                       effgw_cm, effgw_cm_igw, use_gw_front, use_gw_front_igw, &
-                       front_gaussian_width, masterproc, iulog, errmsg, errflg)
-    if (errflg /= 0) return
+    if(use_gw_movmtn_pbl) then
+      call gw_movmtn_init(pver, gw_drag_file_mm, &
+                          band_movmtn, &
+                          pref_edge, movmtn_psteer, movmtn_plaunch, movmtn_source_in, masterproc, iulog, errmsg, errflg)
+      if (errflg /= 0) return
+    endif
 
-    call gw_movmtn_init(pver, gw_drag_file_mm, &
-                        band_movmtn, &
-                        pref_edge, movmtn_psteer, movmtn_plaunch, movmtn_source_in, masterproc, iulog, errmsg, errflg)
-    if (errflg /= 0) return
-
-    if (use_gw_convect_dp .or. use_gw_convect_sh) then
+    if(use_gw_convect_dp .or. use_gw_convect_sh) then
       call gw_beres_init(pver, pi, gw_drag_file_sh, gw_drag_file, pref_edge, gw_dc, wavelength_mid, pgwv, &
                          use_gw_convect_dp, use_gw_convect_sh, masterproc, iulog, errmsg, errflg)
+      if (errflg /= 0) return
     end if
-    if (errflg /= 0) return
   end subroutine gw_drag_init
 
 !==========================================================================
@@ -614,10 +483,8 @@ contains
     frontga, &
     pint, &
     piln, &
-    pdel, &
-    pdeldry, &
-    zm, &
-    zi, &
+    pdel, pdeldry, &
+    zm, zi, &
     lat, &
     landfrac, &
     dse, &
@@ -659,7 +526,6 @@ contains
     use gw_front, only: gw_cm_src, cm_desc, cm_igw_desc
     use gw_convect, only: gw_beres_src, beres_dp_desc, beres_sh_desc
     use gw_movmtn, only: gw_movmtn_run
-    use gw_rdg, only: gw_rdg_run
 
     integer, intent(in)        :: ncol  ! number of atmospheric columns
     integer, intent(in)        :: pcnst ! chunk number

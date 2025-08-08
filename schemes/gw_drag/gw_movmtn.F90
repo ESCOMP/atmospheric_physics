@@ -6,7 +6,7 @@ module gw_movmtn
 !
 
   use ccpp_kinds, only: kind_phys
-  use gw_common, only: pver, GWBand, gw_drag_prof, calc_taucd, handle_err, unset_kind_phys
+  use gw_common, only: GWBand, gw_drag_prof, calc_taucd, handle_err, unset_kind_phys
   use coords_1d, only: Coords1D
 
   implicit none
@@ -15,7 +15,6 @@ module gw_movmtn
 
   public :: gw_movmtn_run
   public :: gw_movmtn_init
-  public :: MovMtnSourceDesc
 
   type :: MovMtnSourceDesc
     ! Whether wind speeds are shifted to be relative to storm cells.
@@ -205,10 +204,11 @@ contains
     end if
 
   end subroutine gw_movmtn_init
+
 !==========================================================================
 !> \section arg_table_gw_movmtn_run Argument Table
 !! \htmlinclude gw_movmtn_run.html
-  subroutine gw_movmtn_run(ncol, &
+  subroutine gw_movmtn_run(ncol, pver, &
                            band, &
                            state_t, pcnst, &
                            state_u, state_v, p, ttend_dp, ttend_clubb, &
@@ -222,7 +222,8 @@ contains
                            flx_heat, use_gw_movmtn_pbl, &
                            rair, gravit, q_tend, u_tend, v_tend, s_tend, errmsg, errflg)
 
-    integer, intent(in)        :: ncol  ! number of atmospheric columns
+    integer, intent(in)        :: ncol
+    integer, intent(in)        :: pver
     type(GWBand) :: band
     real(kind_phys), intent(in) :: state_t(:, :)   ! temperature (K)
     integer, intent(in)        :: pcnst ! chunk number
@@ -299,7 +300,7 @@ contains
 
     xpwp_clubb(:ncol, :) = sqrt(upwp_clubb(:ncol, :)**2 + vpwp_clubb(:ncol, :)**2)
 
-    call gw_movmtn_src(ncol, &
+    call gw_movmtn_src(ncol, pver, &
                        state_u, state_v, ttend_dp(:ncol, :), ttend_clubb(:ncol, :), xpwp_clubb(:ncol, :), &
                        vorticity(:ncol, :), zm, alpha_gw_movmtn, &
                        src_level, tend_level, &
@@ -344,21 +345,19 @@ contains
   end subroutine gw_movmtn_run
 !==========================================================================
 
-  subroutine gw_movmtn_src(ncol, &
+
+  ! Flexible driver for gravity wave source from obstacle effects produced
+  ! by internal circulations
+  subroutine gw_movmtn_src(ncol, pver, &
                            u, v, netdt, netdt_shcu, xpwp_shcu, &
                            vorticity, zm, alpha_gw_movmtn, &
                            src_level, tend_level, tau, ubm, ubi, xv, yv, &
                            c, hdepth, use_gw_movmtn_pbl, rair, gravit, errmsg, errflg)
-!-----------------------------------------------------------------------
-! Flexible driver for gravity wave source from obstacle effects produced
-! by internal circulations
-!-----------------------------------------------------------------------
-    use gw_utils, only: get_unit_vector, dot_2d, midpoint_interp
-!!$  use cam_history, only: outfld
 
-!------------------------------Arguments--------------------------------
-    ! Column dimension.
+    use gw_utils, only: get_unit_vector, dot_2d, midpoint_interp
+
     integer, intent(in) :: ncol
+    integer, intent(in) :: pver
 
     ! Midpoint zonal/meridional winds.
     real(kind_phys), intent(in) :: u(:, :), v(:, :), vorticity(:, :)
@@ -718,8 +717,8 @@ contains
 
   end subroutine gw_movmtn_src
 
-! Short routine to get the indices of a set of values rounded to their
-! nearest points on a grid.
+  ! Short routine to get the indices of a set of values rounded to their
+  ! nearest points on a grid.
   pure function index_of_nearest(x, grid) result(idx)
     real(kind_phys), intent(in) :: x(:)
     real(kind_phys), intent(in) :: grid(:)
@@ -739,7 +738,6 @@ contains
 
   end function index_of_nearest
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!
   subroutine shcu_flux_src(xpwp_shcu, ncol, pverx, alpha_gw_movmtn, xpwp_src, steering_level, launch_level)
     integer, intent(in) :: ncol, pverx
     real(kind_phys), intent(in) :: xpwp_shcu(:, :)
@@ -766,7 +764,6 @@ contains
 
   end subroutine shcu_flux_src
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!
   subroutine vorticity_flux_src(vorticity, ncol, pverx, alpha_gw_movmtn, vort_src, steering_level, launch_level)
     integer, intent(in) :: ncol, pverx
     real(kind_phys), intent(in) :: vorticity(ncol, pverx)
