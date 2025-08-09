@@ -105,8 +105,14 @@
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
+[ cpair ]
+  standard_name = specific_heat_of_dry_air_at_constant_pressure
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
 [ p_trop ]
-  standard_name = tropopause_air_pressure
+  standard_name = tropopause_air_pressure_from_hybrid_stobie_linoz_with_climatological_backup_method
   units = Pa
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)

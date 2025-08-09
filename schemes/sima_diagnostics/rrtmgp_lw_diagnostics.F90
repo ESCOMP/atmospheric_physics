@@ -77,17 +77,12 @@ CONTAINS
          end if
       end do
 
-      call history_add_field('EMIS', 'Cloud longwave emissivity',                       'lev', 'avg', '1')
-
-      ! Heating rate needed for d(theta)/dt computation
-      call history_add_field('HR',   'Heating rate needed for d(theat)/dt computation', 'lev', 'avg', 'K s-1')
-
    end subroutine rrtmgp_lw_diagnostics_init
 
    !> \section arg_table_rrtmgp_lw_diagnostics_run  Argument Table
    !! \htmlinclude rrtmgp_lw_diagnostics_run.html
    subroutine rrtmgp_lw_diagnostics_run(num_diag_subcycles, icall, active_calls, flw, flwc, rpdel, ncol, &
-                  nlay, pver, pverp, pint, gravit, p_trop, ktopcam, ktoprad, write_output, errmsg, errflg)
+                  nlay, pver, pverp, pint, gravit, cpair, p_trop, ktopcam, ktoprad, write_output, errmsg, errflg)
 
       use cam_history,        only: history_out_field
       use ccpp_fluxes,        only: ty_fluxes_broadband_ccpp
@@ -107,6 +102,7 @@ CONTAINS
       logical,                        intent(in) :: active_calls(:)     ! Logical array of flags for whether a specified subcycle is active
       logical,                        intent(in) :: write_output        ! Flag to write output for radiation
       real(kind_phys),                intent(in) :: gravit              ! Standard gravitiational acceleration
+      real(kind_phys),                intent(in) :: cpair
       real(kind_phys),                intent(in) :: pint(:,:)           ! Air pressure at layer interfaces [Pa]
       real(kind_phys),                intent(in) :: p_trop(:)           ! Tropopause air pressure [Pa]
       real(kind_phys),                intent(in) :: rpdel(:,:)          ! Reciprocal of layer thickness [Pa-1]
@@ -126,6 +122,7 @@ CONTAINS
       real(kind_phys) :: fln200(ncol)
       real(kind_phys) :: fln200c(ncol)
       real(kind_phys) :: flnr(ncol)
+      real(kind_phys) :: ftem(ncol)
 
       errmsg = ''
       errflg = 0
@@ -134,7 +131,7 @@ CONTAINS
       diag_index = num_diag_subcycles - icall
 
       ! Don't do anything if this subcycle is inactive or we're not configured to write radiation output
-      if ((.not. active_calls(diag_index)) .or. (.not. write_output)) then
+      if ((.not. active_calls(diag_index+1)) .or. (.not. write_output)) then
          return
       end if
 
@@ -145,44 +142,44 @@ CONTAINS
       fnl( :,ktopcam:) = -1._kind_phys * flw%fluxes%flux_net(    :, ktoprad:)
       fcnl(:,ktopcam:) = -1._kind_phys * flwc%fluxes%flux_net(   :, ktoprad:)
 
-      call heating_rate(ncol, ktopcam, pver, fnl, gravit, rpdel, qrl)
-      call heating_rate(ncol, ktopcam, pver, fcnl, gravit, rpdel, qrlc)
+      call lw_heating_rate(ncol, ktopcam, pver, fnl, gravit, rpdel, qrl)
+      call lw_heating_rate(ncol, ktopcam, pver, fcnl, gravit, rpdel, qrlc)
 
       ! History out field calls
-      call history_out_field('QRL'//diag(icall),     qrl(:ncol,:)/cpair)
-      call history_out_field('QRLC'//diag(icall),    qrlc(:ncol,:)/cpair)
+      call history_out_field('QRL'//diag(diag_index),     qrl(:,:)/cpair)
+      call history_out_field('QRLC'//diag(diag_index),    qrlc(:,:)/cpair)
 
-      call history_out_field('FLNT'//diag(icall),    fnl(:,ktopcam))
-      call history_out_field('FLNTC'//diag(icall),   fcnl(:,ktopcam))
+      call history_out_field('FLNT'//diag(diag_index),    fnl(:,ktopcam))
+      call history_out_field('FLNTC'//diag(diag_index),   fcnl(:,ktopcam))
 
-      call history_out_field('FLUT'//diag(icall),    flw%fluxes%flux_up(:, ktoprad))
-      call history_out_field('FLUTC'//diag(icall),   flwc%fluxes%flux_up(:, ktoprad))
+      call history_out_field('FLUT'//diag(diag_index),    flw%fluxes%flux_up(:, ktoprad))
+      call history_out_field('FLUTC'//diag(diag_index),   flwc%fluxes%flux_up(:, ktoprad))
 
       ftem(:) = flwc%fluxes%flux_up(:, ktoprad) - flw%fluxes%flux_up(:, ktoprad)
-      call history_out_field('LWCF'//diag(icall),    ftem)
+      call history_out_field('LWCF'//diag(diag_index),    ftem)
 
       ! Output fluxes at 200 mb
       call vertinterp(ncol, ncol, pverp, pint, 20000._kind_phys, fnl,  fln200)
       call vertinterp(ncol, ncol, pverp, pint, 20000._kind_phys, fcnl, fln200c)
-      call history_out_field('FLN200'//diag(icall),  fln200)
-      call history_out_field('FLN200C'//diag(icall), fln200c)
+      call history_out_field('FLN200'//diag(diag_index),  fln200)
+      call history_out_field('FLN200C'//diag(diag_index), fln200c)
 
       do idx = 1,ncol
          call vertinterp(1, 1, pverp, pint(idx,:), p_trop(idx), fnl(idx,:), flnr(idx))
       end do
-      call history_out_field('FLNR'//diag(icall),    flnr)
+      call history_out_field('FLNR'//diag(diag_index),    flnr)
 
-      call history_out_field('FLNS'//diag(icall),    fnl(:,pverp))
-      call history_out_field('FLNSC'//diag(icall),   fcnl(:,pverp))
+      call history_out_field('FLNS'//diag(diag_index),    fnl(:,pverp))
+      call history_out_field('FLNSC'//diag(diag_index),   fcnl(:,pverp))
 
-      call history_out_field('FLDS'//diag(icall),    flw%fluxes%flux_dn(:, nlay+1))
-      call history_out_field('FLDSC'//diag(icall),   flwc%fluxes%flux_dn(:, nlay+1))
+      call history_out_field('FLDS'//diag(diag_index),    flw%fluxes%flux_dn(:, nlay+1))
+      call history_out_field('FLDSC'//diag(diag_index),   flwc%fluxes%flux_dn(:, nlay+1))
 
       ! Fluxes on the CAM grid
-      call history_out_field('FDL'//diag(icall),     flw%fluxes%flux_dn( :, ktoprad:))
-      call history_out_field('FDLC'//diag(icall),    flwc%fluxes%flux_dn(:, ktoprad:))
-      call history_out_field('FUL'//diag(icall),     flw%fluxes%flux_up( :, ktoprad:))
-      call history_out_field('FULC'//diag(icall),    flwc%fluxes%flux_up(:, ktoprad:))
+      call history_out_field('FDL'//diag(diag_index),     flw%fluxes%flux_dn( :, ktoprad:))
+      call history_out_field('FDLC'//diag(diag_index),    flwc%fluxes%flux_dn(:, ktoprad:))
+      call history_out_field('FUL'//diag(diag_index),     flw%fluxes%flux_up( :, ktoprad:))
+      call history_out_field('FULC'//diag(diag_index),    flwc%fluxes%flux_up(:, ktoprad:))
 
    end subroutine rrtmgp_lw_diagnostics_run
 
@@ -193,6 +190,8 @@ CONTAINS
 
       ! arguments
       integer,          intent(in) :: ncol
+      integer,          intent(in) :: ktopcam
+      integer,          intent(in) :: pver
       real(kind_phys),  intent(in) :: flux_net(:,:)   ! W m-2
       real(kind_phys),  intent(in) :: gravit          ! m s-2
       real(kind_phys),  intent(in) :: rpdel(:,:)      ! Pa
@@ -204,7 +203,7 @@ CONTAINS
       do kdx = ktopcam, pver
          ! (flux divergence as bottom-MINUS-top) * g/dp
          hrate(:,kdx) = (flux_net(:,kdx+1) - flux_net(:,kdx)) * &
-                       gravit * state%rpdel(:,kdx)
+                       gravit * rpdel(:,kdx)
       end do
    end subroutine lw_heating_rate
 

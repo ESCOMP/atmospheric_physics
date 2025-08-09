@@ -29,13 +29,16 @@ CONTAINS
 
    !> \section arg_table_rrtmgp_diagnostics_run  Argument Table
    !! \htmlinclude rrtmgp_diagnostics_run.html
-   subroutine rrtmgp_diagnostics_run(write_output, ncol, pver, cappa, cpair, pmid, qrs, qrl, errmsg, errflg)
+   subroutine rrtmgp_diagnostics_run(write_output, active_calls, num_diag_subcycles, icall, ncol, pver, cappa, cpair, pmid, qrs, qrl, errmsg, errflg)
 
       use cam_history,        only: history_out_field
       !------------------------------------------------
       !   Input / output parameters
       !------------------------------------------------
       logical,                        intent(in) :: write_output ! Flag to write output for radiation
+      logical,                        intent(in) :: active_calls(:)
+      integer,                        intent(in) :: icall
+      integer,                        intent(in) :: num_diag_subcycles
       integer,                        intent(in) :: ncol         ! Number of horizontal points
       integer,                        intent(in) :: pver         ! Number of vertical layers
       real(kind_phys),                intent(in) :: cappa        ! Ratio of dry air gas constant to specific heat of dry air at constant pressure
@@ -50,13 +53,17 @@ CONTAINS
 
       ! Local variables
       integer :: idx, kdx
+      integer :: diag_index
       real(kind_phys) :: ftem(ncol, pver)
 
       errmsg = ''
       errflg = 0
 
+      ! Diagnostic indices are reversed
+      diag_index = num_diag_subcycles - icall
+
       ! Don't do anything if this subcycle is inactive or we're not configured to write radiation output
-      if ((.not. active_calls(diag_index)) .or. (.not. write_output)) then
+      if ((.not. active_calls(diag_index+1)) .or. (.not. write_output)) then
          return
       end if
 

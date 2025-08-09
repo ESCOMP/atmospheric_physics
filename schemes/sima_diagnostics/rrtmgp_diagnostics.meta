@@ -27,6 +27,24 @@
   type = logical
   dimensions = ()
   intent = in
+[ active_calls ]
+  standard_name = is_active_diagnostic_call_array
+  units = flag
+  type = logical
+  dimensions = (number_of_diagnostic_subcycles)
+  intent = in
+[ num_diag_subcycles ]
+  standard_name = number_of_diagnostic_subcycles
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ icall ]
+  standard_name = iteration_number_for_radiation_subcycle
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
 [ ncol ]
   standard_name = horizontal_loop_extent
   units = count
@@ -40,7 +58,7 @@
   dimensions = ()
   intent = in
 [ cappa ]
-  standard_name = ratio_of_dry_air_to_water_vapor_gas_constants
+  standard_name = ratio_of_dry_air_gas_constant_to_specific_heat_of_dry_air_at_constant_pressure
   units = 1
   type = real | kind = kind_phys
   dimensions = ()
@@ -58,14 +76,14 @@
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ qrs ]
-  standard_name = shortwave_diagnostic_radiative_heating_rate
-  units = K s-1
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_shortwave_radiation
+  units = J kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ qrl ]
-  standard_name = longwave_diagnostic_radiative_heating_rate
-  units = K s-1
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_longwave_radiation
+  units = J kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
