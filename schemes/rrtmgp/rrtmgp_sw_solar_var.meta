@@ -1,0 +1,113 @@
+[ccpp-table-properties]
+  name = rrtmgp_sw_solar_var
+  type = scheme
+
+[ccpp-arg-table]
+  name  = rrtmgp_sw_solar_var_init
+  type  = scheme
+[ nswbands ]
+  standard_name = number_of_bands_for_shortwave_radiation
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ do_spctrl_scaling ]
+  standard_name = do_spectral_scaling 
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ has_spectrum ]
+  standard_name = solar_irradiance_file_has_spectrum_information
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = rrtmgp_sw_solar_var_run
+  type  = scheme
+[ toa_flux ]
+  standard_name = enter_standard_name_6
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = (enter_standard_name_18:enter_standard_name_19,enter_standard_name_20:enter_standard_name_21)
+  intent = inout
+[ band2gpt_sw ]
+  standard_name = enter_standard_name_11
+  units = enter_units
+  type = integer
+  dimensions = (enter_standard_name_22:enter_standard_name_23,enter_standard_name_24:enter_standard_name_25)
+  intent = in
+[ nswbands ]
+  standard_name = enter_standard_name_12
+  units = enter_units
+  type = integer
+  dimensions = ()
+  intent = in
+[ sol_irrad ]
+  standard_name = enter_standard_name_8
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = (enter_standard_name_26:enter_standard_name_27)
+  intent = in
+[ we ]
+  standard_name = enter_standard_name_9
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = (enter_standard_name_28:enter_standard_name_29)
+  intent = in
+[ nbins ]
+  standard_name = enter_standard_name_10
+  units = enter_units
+  type = integer
+  dimensions = ()
+  intent = in
+[ sol_tsi ]
+  standard_name = enter_standard_name_7
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ do_spctrl_scaling ]
+  standard_name = enter_standard_name_13
+  units = enter_units
+  type = logical
+  dimensions = ()
+  intent = in
+[ sfac ]
+  standard_name = enter_standard_name_15
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = (enter_standard_name_30:enter_standard_name_31,enter_standard_name_32:enter_standard_name_33)
+  intent = out
+[ eccf ]
+  standard_name = enter_standard_name_14
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ errmsg ]
+  standard_name = enter_standard_name_16
+  units = enter_units
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = enter_standard_name_17
+  units = enter_units
+  type = integer
+  dimensions = ()
+  intent = out

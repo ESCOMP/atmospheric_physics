@@ -25,6 +25,9 @@ module rrtmgp_sw_solar_var
 contains
 !-------------------------------------------------------------------------------
 
+!> \section arg_table_rrtmgp_sw_solar_var_init Argument Table
+!! \htmlinclude rrtmgp_sw_solar_var_init.html
+!!
   subroutine rrtmgp_sw_solar_var_init(nswbands, do_spctrl_scaling, has_spectrum, errmsg, errflg)
     use radiation_utils,   only : get_sw_spectral_boundaries_ccpp
     integer, intent(in) :: nswbands            ! number of shortwave bands
@@ -80,6 +83,9 @@ contains
 !-------------------------------------------------------------------------------
 !-------------------------------------------------------------------------------
 
+!> \section arg_table_rrtmgp_sw_solar_var_run Argument Table
+!! \htmlinclude rrtmgp_sw_solar_var_run.html
+!!
   subroutine rrtmgp_sw_solar_var_run(toa_flux, band2gpt_sw, nswbands, sol_irrad, we, nbins, sol_tsi, do_spctrl_scaling, &
                                      sfac, eccf, errmsg, errflg)
 
