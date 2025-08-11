@@ -1,0 +1,170 @@
+[ccpp-table-properties]
+  name = rrtmgp_constituents
+  type = scheme
+
+[ccpp-arg-table]
+  name  = rrtmgp_constituents_register
+  type  = scheme
+[ nradgas ]
+  standard_name = number_of_active_gases_for_RRTMGP
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ rad_climate ]
+  standard_name = sources_of_radiatively_active_gases_for_climate_calcluation
+  units = none
+  type = character | kind = len=256
+  dimensions = (cam_nl_autogen1_dimension)
+  intent = in
+[ rrtmgp_dyn_consts ]
+  standard_name = rrtmgp_constituents_dyn_consts
+  units = none
+  type = ccpp_constituent_properties_t
+  allocatable = True
+  dimensions = (:)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errcode ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+[ccpp-arg-table]
+  name  = rrtmgp_constituents_init
+  type  = scheme
+[ ndiag ]
+  standard_name = number_of_diagnostic_subcycles
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ ncol ]
+  standard_name = horizontal_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ unset_real ]
+  standard_name = definition_of_unset_for_real_variables
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ diag_cur ]
+  standard_name = iteration_number_for_radiation_subcycle
+  units = count
+  type = integer
+  dimensions = ()
+  intent = out
+[ active_call_array ]
+  standard_name = is_active_diagnostic_call_array
+  units = flag
+  type = logical
+  dimensions = (number_of_diagnostic_subcycles)
+  intent = out
+[ rrtmgp_phys_blksz ]
+  standard_name = number_of_columns_per_longwave_block_for_RRTMGP
+  units = count
+  type = integer
+  dimensions = ()
+  intent = out
+[ tlev ]
+  standard_name = air_temperature_at_interface_for_RRTMGP
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension,vertical_interface_dimension)
+  intent = out
+[ fluxlwup_Jac ]
+  standard_name = jacobian_of_longwave_upward_flux_for_RRTMGP
+  units = W m-2 K-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension,vertical_interface_dimension)
+  intent = out
+[ rad_heat ]
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure
+  units = J kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension,vertical_layer_dimension)
+  intent = out
+[ fsnt ]
+  standard_name = shortwave_net_column_absorbed_solar_flux_at_model_top
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension)
+  intent = out
+[ fsns ]
+  standard_name = shortwave_net_absorbed_solar_flux_at_surface
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension)
+  intent = out
+[ is_first_restart_step ]
+  standard_name = is_first_restart_timestep
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ use_tlev ]
+  standard_name = include_air_temperature_at_interfaces_in_gas_optics_calculation
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ top_at_one ]
+  standard_name = do_top_at_one_vertical_ordering_in_radiation
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errcode ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+[ccpp-arg-table]
+  name  = rrtmgp_constituents_run
+  type  = scheme
+[ gaslist ]
+  standard_name = list_of_active_gases_for_RRTMGP
+  units = none
+  type = character | kind = len=5
+  dimensions = (number_of_active_gases_for_RRTMGP)
+  intent = in
+[ const_array ]
+  standard_name = ccpp_constituents
+  units = none
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension,number_of_ccpp_constituents)
+  intent = in
+[ rad_const_array ]
+  standard_name = radiatively_active_gas_mass_mixing_ratios_wrt_dry_air
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension,number_of_active_gases_for_RRTMGP)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errcode ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

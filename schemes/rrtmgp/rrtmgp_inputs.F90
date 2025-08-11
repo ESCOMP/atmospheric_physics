@@ -82,7 +82,7 @@ module rrtmgp_inputs
      type(ty_gas_concs_ccpp),              intent(out) :: gas_concs_sw         ! Gas concentrations object for shortwave radiation
      type(ty_optical_props_2str_ccpp),     intent(out) :: atm_optics_sw        ! Atmosphere optical properties object for shortwave radiation
      type(ty_optical_props_2str_ccpp),     intent(out) :: aer_sw               ! Aerosol optical properties object for shortwave radiation
-     character(len=*),                     intent(out) :: errmsg
+     character(len=512),                   intent(out) :: errmsg
      integer,                              intent(out) :: errflg
 
      ! Local variables
@@ -270,6 +270,8 @@ module rrtmgp_inputs
            errflg = 1
            return
         end if
+        ! PEVERWHEE - ZERO AEROSOLS FOR TESTING!
+        aer_lw%optical_props%tau = 0.0_kind_phys
 
         ! Initialize object for Planck sources.
         errmsg = sources_lw%sources%alloc(ncol, nlay, kdist_lw%gas_props)

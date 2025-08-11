@@ -1,5 +1,13 @@
+! PEVERWHEE - dependencies = interpolate_data
+!> \file rrtmgp_sw_cloud_optics.F90
+!!
 module rrtmgp_sw_cloud_optics
-use ccpp_kinds, only: kind_phys
+  use ccpp_kinds, only: kind_phys
+  use rrtmgp_cloud_optics_setup, only: g_lambda, g_mu, nmu, nlambda
+  use rrtmgp_cloud_optics_setup, only: g_d_eff, n_g_d
+  use rrtmgp_cloud_optics_setup, only: ext_sw_liq, ext_sw_ice
+  use rrtmgp_cloud_optics_setup, only: asm_sw_liq, asm_sw_ice
+  use rrtmgp_cloud_optics_setup, only: ssa_sw_liq, ssa_sw_ice
 
 !--------------------------------------------------------------------------------
 ! Transform data for inputs from CAM's data structures to those used by
@@ -27,6 +35,9 @@ real(kind_phys) :: tiny
 contains
 !==================================================================================================
 
+!> \section arg_table_rrtmgp_sw_cloud_optics_run Argument Table
+!! \htmlinclude rrtmgp_sw_cloud_optics_run.html
+!!
 subroutine rrtmgp_sw_cloud_optics_run(dosw, ncol, pver, ktopcam, ktoprad, nlay, nswgpts, nday, idxday, fillvalue, &
    nswbands, iulog, pgam, lamc, nnite, idxnite, cld, cldfsnow, cldfgrau, cldfprime, cld_tau, grau_tau, &
    snow_tau, degrau, dei, des, iclwpth, iciwpth, icswpth, icgrauwpth, tiny_in, ext_sw_liq, ssa_sw_liq, &
@@ -42,6 +53,7 @@ subroutine rrtmgp_sw_cloud_optics_run(dosw, ncol, pver, ktopcam, ktoprad, nlay, 
    integer,  intent(in) :: nlay                      ! Number of layers in radiation calculation (may include "extra layer")
    integer,  intent(in) :: ncol                      ! Total number of columns
    integer,  intent(in) :: nday                      ! Number of daylight columns
+   integer,  intent(in) :: ncol                      ! Total number of columns
    integer,  intent(in) :: idxday(:)                 ! Indices of daylight columns
    integer,  intent(in) :: nswgpts                   ! Number of shortwave g-points
    integer,  intent(in) :: pver                      ! Number of vertical layers

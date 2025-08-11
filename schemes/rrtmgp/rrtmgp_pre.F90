@@ -1,5 +1,4 @@
 module rrtmgp_pre
-
  implicit none
  private
 
@@ -13,13 +12,13 @@ CONTAINS
 !> \section arg_table_rrtmgp_pre_init Argument Table
 !! \htmlinclude rrtmgp_pre_init.html
 !!
-  subroutine rrtmgp_pre_init(nradgas, gaslist, available_gases, gaslist_lc, errmsg, errflg)
+  subroutine rrtmgp_pre_init(nradgas, available_gases, gaslist, gaslist_lc, errmsg, errflg)
      use ccpp_gas_concentrations, only: ty_gas_concs_ccpp
      use atmos_phys_string_utils, only: to_lower
      integer,                    intent(in) :: nradgas          ! Number of radiatively active gases
-     character(len=*),           intent(in) :: gaslist(:)       ! List of radiatively active gases
-     type(ty_gas_concs_ccpp), intent(inout) :: available_gases  ! Gas concentrations object
-     character(len=*),          intent(out) :: gaslist_lc(:)    ! Lowercase verison of radiatively active gas list
+     type(ty_gas_concs_ccpp),   intent(out) :: available_gases  ! Gas concentrations object
+     character(len=5),          intent(out) :: gaslist(:)       ! Radiatively active gas list
+     character(len=5),          intent(out) :: gaslist_lc(:)    ! Lowercase verison of radiatively active gas list
      character(len=512),        intent(out) :: errmsg
      integer,                   intent(out) :: errflg
 
@@ -29,6 +28,9 @@ CONTAINS
      ! Set error variables
      errmsg = ''
      errflg = 0
+
+     ! Initialize gas list
+     gaslist =  (/'H2O  ','O3   ', 'O2   ', 'CO2  ', 'N2O  ', 'CH4  ', 'CFC11', 'CFC12'/)
 
      ! Create lowercase version of the gaslist for RRTMGP.  The ty_gas_concs_ccpp objects
      ! work with CAM's uppercase names, but other objects that get input from the gas
@@ -47,17 +49,25 @@ CONTAINS
 !> \section arg_table_rrtmgp_pre_timestep_init Argument Table
 !! \htmlinclude rrtmgp_pre_timestep_init.html
 !!
-  subroutine rrtmgp_pre_timestep_init(nstep, dtime, iradsw, irad_always, offset, errmsg, errflg)
-     integer,          intent(in)  :: nstep          ! Current timestep number
-     integer,          intent(in)  :: dtime          ! Timestep size
-     integer,          intent(in)  :: iradsw         ! Freq. of shortwave radiation calc in time steps (positive) or hours (negative)
-     integer,          intent(in)  :: irad_always    ! Number of time steps to execute radiation continuously
-     integer,          intent(out) :: offset         ! Offset for next SW radiation timestep
-     integer,          intent(out) :: errflg
-     character(len=*), intent(out) :: errmsg
+  subroutine rrtmgp_pre_timestep_init(ncol, coszrs, nstep, dtime, iradsw, irad_always, offset, &
+                  idxday, nday, idxnite, nnite, errmsg, errflg)
+     use ccpp_kinds, only: kind_phys
+     real(kind_phys), dimension(:),    intent(in) :: coszrs        ! Cosine solar zenith angle
+     integer,            intent(in)  :: nstep          ! Current timestep number
+     integer,            intent(in)  :: ncol           ! Number of horizontal columns
+     real(kind_phys),    intent(in)  :: dtime          ! Timestep size
+     integer,            intent(in)  :: iradsw         ! Freq. of shortwave radiation calc in time steps (positive) or hours (negative)
+     integer,            intent(in)  :: irad_always    ! Number of time steps to execute radiation continuously
+     integer,                         intent(out) :: nday          ! Number of daylight columns
+     integer,                         intent(out) :: nnite         ! Number of nighttime columns
+     integer, dimension(:),           intent(out) :: idxday        ! Indices of daylight columns
+     integer, dimension(:),           intent(out) :: idxnite       ! Indices of nighttime columns
+     integer,            intent(out) :: offset         ! Offset for next SW radiation timestep
+     integer,            intent(out) :: errflg
+     character(len=512), intent(out) :: errmsg
 
      logical :: dosw_next
-     integer :: nstepsw_next
+     integer :: nstepsw_next, idx
 
      ! Get timestep of next radiation calculation
      dosw_next = .false.
@@ -71,6 +81,20 @@ CONTAINS
            return
         end if
      end do
+     ! Gather night/day column indices.
+     nday = 0
+     nnite = 0
+     idxday = 0
+     idxnite = 0
+     do idx = 1, ncol
+        if ( coszrs(idx) > 0.0_kind_phys ) then
+           nday = nday + 1
+           idxday(nday) = idx
+        else
+           nnite = nnite + 1
+           idxnite(nnite) = idx
+        end if
+     end do
 
   end subroutine rrtmgp_pre_timestep_init
 
@@ -78,15 +102,16 @@ CONTAINS
 !! \htmlinclude rrtmgp_pre_run.html
 !!
   subroutine rrtmgp_pre_run(coszrs, nstep, dtime, iradsw, iradlw, irad_always, ncol, &
-                  next_cday, idxday, nday, idxnite, nnite, dosw, dolw, nlay, nlwbands, &
-                  nswbands, spectralflux, nextsw_cday, fsw, fswc, flw, flwc, errmsg, errflg)
+                  next_cday, idxday, nday, idxnite, nnite, dosw, dolw, dosw_heat, dolw_heat, &
+                  nlay, nlwbands, nswbands, spectralflux, nextsw_cday, fsw, fswc, flw, flwc, &
+                  errmsg, errflg)
      use ccpp_kinds,              only: kind_phys
      use ccpp_fluxes,             only: ty_fluxes_broadband_ccpp
      use ccpp_fluxes_byband,      only: ty_fluxes_byband_ccpp
      ! Inputs
      real(kind_phys), dimension(:),    intent(in) :: coszrs        ! Cosine solar zenith angle
      real(kind_phys),                  intent(in) :: next_cday     ! The calendar day of the next timestep
-     integer,                          intent(in) :: dtime         ! Timestep size [s]
+     real(kind_phys),                  intent(in) :: dtime         ! Timestep size [s]
      integer,                          intent(in) :: nstep         ! Timestep number
      integer,                          intent(in) :: iradsw        ! Freq. of shortwave radiation calc in time steps (positive) or hours (negative)
      integer,                          intent(in) :: iradlw        ! Freq. of longwave radiation calc in time steps (positive) or hours (negative)
@@ -102,13 +127,15 @@ CONTAINS
      class(ty_fluxes_byband_ccpp),    intent(out) :: fsw           ! All-sky shortwave flux object
      class(ty_fluxes_broadband_ccpp), intent(out) :: flwc          ! Clear-sky longwave flux object
      class(ty_fluxes_byband_ccpp),    intent(out) :: flw           ! All-sky longwave flux object
-     integer,                         intent(out) :: nday          ! Number of daylight columns
-     integer,                         intent(out) :: nnite         ! Number of nighttime columns
-     integer, dimension(:),           intent(out) :: idxday        ! Indices of daylight columns
-     integer, dimension(:),           intent(out) :: idxnite       ! Indices of nighttime columns
+     integer,                         intent(in) :: nday          ! Number of daylight columns
+     integer,                         intent(in) :: nnite         ! Number of nighttime columns
+     integer, dimension(:),           intent(in) :: idxday        ! Indices of daylight columns
+     integer, dimension(:),           intent(in) :: idxnite       ! Indices of nighttime columns
      logical,                         intent(out) :: dosw          ! Flag to do shortwave calculation
      logical,                         intent(out) :: dolw          ! Flag to do longwave calculation
-     character(len=*),                intent(out) :: errmsg
+     logical,                         intent(out) :: dosw_heat     ! Flag to calculate net shortwave heating
+     logical,                         intent(out) :: dolw_heat     ! Flag to calculate net longwave heating
+     character(len=512),              intent(out) :: errmsg
      integer,                         intent(out) :: errflg
 
      ! Local variables
@@ -117,19 +144,6 @@ CONTAINS
      ! Set error variables
      errflg = 0
      errmsg = ''
-
-     ! Gather night/day column indices.
-     nday = 0
-     nnite = 0
-     do idx = 1, ncol
-        if ( coszrs(idx) > 0.0_kind_phys ) then
-           nday = nday + 1
-           idxday(nday) = idx
-        else
-           nnite = nnite + 1
-           idxnite(nnite) = idx
-        end if
-     end do
 
      ! Determine if we're going to do longwave and/or shortwave this timestep
      call radiation_do_ccpp('sw', nstep, iradsw, irad_always, dosw, errmsg, errflg)
@@ -140,6 +154,12 @@ CONTAINS
      if (errflg /= 0) then
         return
      end if
+
+     ! PEVERWHEE - TEMPORARILY OVERRIDE TO FALSE
+     dosw = .false.
+
+     dosw_heat = (.not. dosw)
+     dolw_heat = (.not. dolw)
 
      ! determine if next radiation time-step not equal to next time-step
      if (nstep >= 1) then

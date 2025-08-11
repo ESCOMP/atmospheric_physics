@@ -1,0 +1,337 @@
+[ccpp-table-properties]
+  name = rrtmgp_sw_cloud_optics
+  type = scheme
+
+[ccpp-arg-table]
+  name  = rrtmgp_sw_cloud_optics_run
+  type  = scheme
+[ dosw ]
+  standard_name = do_shortwave_radiation
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ ktopcam ]
+  standard_name = vertical_index_at_top_level_where_RRTMGP_is_active
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
+[ ktoprad ]
+  standard_name = RRTMGP_vertical_index_at_top_level_where_RRTMGP_is_active
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
+[ nlay ]
+  standard_name = number_of_vertical_layers_in_RRTMGP
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ nswgpts ]
+  standard_name = number_of_shortwave_g_point_intervals
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ nday ]
+  standard_name = daytime_points_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ idxday ]
+  standard_name = daytime_points
+  units = index
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ fillvalue ]
+  standard_name = fill_value_for_diagnostic_output
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ nswbands ]
+  standard_name = number_of_bands_for_shortwave_radiation
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ iulog ]
+  standard_name = log_output_unit
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ pgam ]
+  standard_name = size_distribution_shape_parameter_for_microphysics
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ lamc ]
+  standard_name = slope_of_droplet_distribution_for_optics
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ nnite ]
+  standard_name = nighttime_points_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ idxnite ]
+  standard_name = nighttime_points
+  units = index
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ cld ]
+  standard_name = cloud_area_fraction
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ cldfsnow ]
+  standard_name = liquid_plus_snow_stratiform_cloud_area_fraction 
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ cldfgrau ]
+  standard_name = liquid_plus_graupel_stratiform_cloud_area_fraction
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ cldfprime ]
+  standard_name = modified_cloud_area_fraction_for_RRTMGP
+  units = fraction
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  type = real | kind = kind_phys
+  intent = in
+[ cld_tau ]
+  standard_name = liquid_plus_ice_optical_depth
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (number_of_bands_for_shortwave_radiation,horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+[ grau_tau ]
+  standard_name = graupel_optical_depth
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (number_of_bands_for_shortwave_radiation,horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+[ snow_tau ]
+  standard_name = snow_optical_depth
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = (number_of_bands_for_shortwave_radiation,horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+[ degrau ]
+  standard_name = effective_diameter_of_stratiform_cloud_graupel_particle_for_radiation
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ dei ]
+  standard_name = effective_diameter_of_stratiform_cloud_ice_particle_for_radiation
+  units = micron
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ des ]
+  standard_name = effective_diameter_of_stratiform_snow_particle_for_radiation
+  units = micron
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ iclwpth ]
+  standard_name = in_cloud_liquid_water_path_for_radiation
+  units = kg m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ iciwpth ]
+  standard_name = cloud_ice_water_path
+  units = kg m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ icswpth ]
+  standard_name = cloud_snow_water_path
+  units = kg m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ icgrauwpth ]
+  standard_name = stratiform_in_cloud_graupel_water_path
+  units = kg m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ tiny_in ]
+  standard_name = definition_of_tiny_for_RRTMGP
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ ext_sw_liq ]
+  standard_name = shortwave_liquid_extinction
+  units = m2 kg-1
+  type = real | kind = kind_phys
+  dimensions = (number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid,number_of_gamma_distribution_slope_parameters_on_liquid_optics_grid,number_of_bands_for_shortwave_radiation)
+  intent = in
+[ ssa_sw_liq ]
+  standard_name = shortwave_liquid_single_scattering_albedo
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid,number_of_gamma_distribution_slope_parameters_on_liquid_optics_grid,number_of_bands_for_shortwave_radiation)
+  intent = in
+[ asm_sw_liq ]
+  standard_name = shortwave_liquid_asymmetry_parameter
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid,number_of_gamma_distribution_slope_parameters_on_liquid_optics_grid,number_of_bands_for_shortwave_radiation)
+  intent = in
+[ ext_sw_ice ]
+  standard_name = shortwave_ice_extinction
+  units = m2 kg-1
+  type = real | kind = kind_phys
+  dimensions = (number_of_radiative_effective_diameter_samples_on_ice_optics_grid,number_of_bands_for_shortwave_radiation)
+  intent = in
+[ asm_sw_ice ]
+  standard_name = shortwave_ice_asymmetry_parameter
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (number_of_radiative_effective_diameter_samples_on_ice_optics_grid,number_of_bands_for_shortwave_radiation)
+  intent = in
+[ ssa_sw_ice ]
+  standard_name = shortwave_ice_single_scattering_albedo
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (number_of_radiative_effective_diameter_samples_on_ice_optics_grid,number_of_bands_for_shortwave_radiation)
+  intent = in
+[ g_mu ]
+  standard_name = gamma_distribution_shape_parameter_on_liquid_optics_grid
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid)
+  intent = in
+[ g_d_eff ]
+  standard_name = radiative_effective_diameter_samples_on_ice_optics_grid
+  units = microns
+  type = real | kind = kind_phys
+  dimensions = (number_of_radiative_effective_diameter_samples_on_ice_optics_grid)
+  intent = in
+[ g_lambda ]
+  standard_name = gamma_distribution_slope_parameter_on_liquid_optics_grid
+  units = m-1
+  type = real | kind = kind_phys
+  dimensions = (number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid,number_of_gamma_distribution_slope_parameters_on_liquid_optics_grid)
+  intent = in
+[ idx_sw_diag ]
+  standard_name = index_of_shortwave_band
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
+[ do_graupel ]
+  standard_name = include_graupel_in_radiation_calculation
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ do_snow ]
+  standard_name = include_snow_in_radiation_calculation
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ kdist_sw ]
+  standard_name = shortwave_gas_optics_object_for_RRTMGP
+  units = none
+  type = ty_gas_optics_rrtmgp_ccpp
+  dimensions = ()
+  intent = in
+[ c_cld_tau ]
+  standard_name = combined_cloud_optical_depth
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (number_of_bands_for_shortwave_radiation,horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+[ c_cld_tau_w ]
+  standard_name = combined_cloud_single_scattering_albedo_times_tau
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (number_of_bands_for_shortwave_radiation,horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+[ c_cld_tau_w_g ]
+  standard_name = combined_cloud_asymmetry_parameter_times_w_times_tau
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (number_of_bands_for_shortwave_radiation,horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+[ tot_cld_vistau ]
+  standard_name = total_cloud_optical_depth_for_visible_band_times_cloud_fraction
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+[ tot_icld_vistau ]
+  standard_name = total_cloud_optical_depth_for_visible_band
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+[ liq_icld_vistau ]
+  standard_name = cloud_liquid_optical_depth_for_visible_band
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+[ ice_icld_vistau ]
+  standard_name = cloud_ice_optical_depth_for_visible_band
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+[ snow_icld_vistau ]
+  standard_name = snow_optical_depth_for_visible_band
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+[ grau_icld_vistau ]
+  standard_name = graupel_optical_depth_for_visible_band
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

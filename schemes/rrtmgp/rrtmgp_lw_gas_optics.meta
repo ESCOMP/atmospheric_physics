@@ -1,0 +1,141 @@
+[ccpp-table-properties]
+  name = rrtmgp_lw_gas_optics
+  type = scheme
+  dependencies = ext/rte-frontend/mo_rte_kind.F90
+  dependencies = objects/ccpp_gas_concentrations.F90
+
+[ccpp-arg-table]
+  name  = rrtmgp_lw_gas_optics_init
+  type  = scheme
+[ kdist ]
+  standard_name = longwave_gas_optics_object_for_RRTMGP
+  units = none
+  type = ty_gas_optics_rrtmgp_ccpp
+  dimensions = ()
+  intent = out
+[ lw_filename ]
+  standard_name = filename_of_rrtmgp_longwave_k_distribution
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ available_gases ]
+  standard_name = gas_concentrations_rrtmgp_object_for_RRTMGP
+  units = none
+  type = ty_gas_concs_ccpp
+  dimensions = ()
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errcode ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = rrtmgp_lw_gas_optics_run
+  type  = scheme
+[ dolw ]
+  standard_name = do_longwave_radiation
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ iter_num ]
+  standard_name = iteration_number_for_radiation_subcycle
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ ncol ]
+  standard_name =  horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ rrtmgp_phys_blksz ]
+  standard_name = number_of_columns_per_longwave_block_for_RRTMGP
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ p_lay ]
+  standard_name = air_pressure_for_RRTMGP
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,number_of_vertical_layers_in_RRTMGP)
+  intent = in
+[ p_lev ]
+  standard_name = air_pressure_at_interface_for_RRTMGP
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,number_of_vertical_layers_in_RRTMGP_plus_one)
+  intent = in
+[ t_lay ]
+  standard_name = air_temperature_for_RRTMGP
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,number_of_vertical_layers_in_RRTMGP)
+  intent = in
+[ tsfg ]
+  standard_name = ground_temperature_at_surface_for_radiation
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ gas_concs ]
+  standard_name = longwave_gas_volume_mixing_ratios_object_for_RRTMGP
+  units = none
+  type = ty_gas_concs_ccpp
+  dimensions = ()
+  intent = in
+[ lw_optical_props_clrsky ]
+  standard_name = longwave_atmosphere_optical_properties_object_for_RRTMGP
+  units = none
+  type = ty_optical_props_1scl_ccpp
+  dimensions = ()
+  intent = inout
+[ sources ]
+  standard_name = longwave_planck_sources_object_for_RRTMGP
+  units = none
+  type = ty_source_func_lw_ccpp
+  dimensions = ()
+  intent = inout
+[ t_lev ]
+  standard_name = air_temperature_at_interface_for_RRTMGP
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_interface_dimension)
+  intent = in
+[ include_interface_temp ]
+  standard_name = include_air_temperature_at_interfaces_in_gas_optics_calculation
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ lw_gas_props ]
+  standard_name = longwave_gas_optics_object_for_RRTMGP
+  units = none
+  type = ty_gas_optics_rrtmgp_ccpp
+  dimensions = ()
+  intent = inout
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

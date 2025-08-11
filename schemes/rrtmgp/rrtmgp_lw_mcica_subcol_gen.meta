@@ -1,0 +1,106 @@
+[ccpp-table-properties]
+  name = rrtmgp_lw_mcica_subcol_gen
+  type = scheme
+
+[ccpp-arg-table]
+  name  = rrtmgp_lw_mcica_subcol_gen_run
+  type  = scheme
+[ dolw ]
+  standard_name = do_longwave_radiation
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ ktoprad ]
+  standard_name = RRTMGP_vertical_index_at_top_level_where_RRTMGP_is_active
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
+[ ktopcam ]
+  standard_name = vertical_index_at_top_level_where_RRTMGP_is_active
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
+[ kdist ]
+  standard_name = longwave_gas_optics_object_for_RRTMGP
+  units = none
+  type = ty_gas_optics_rrtmgp_ccpp
+  dimensions = ()
+  intent = in
+[ nbnd ]
+  standard_name = number_of_bands_for_longwave_radiation
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ ngpt ]
+  standard_name = number_of_longwave_g_point_intervals
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ nver ]
+  standard_name = number_of_vertical_layers_in_RRTMGP_coinciding_with_CAM_levels
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ cldfprime ]
+  standard_name = modified_cloud_area_fraction_for_RRTMGP
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ c_cld_lw_abs ]
+  standard_name = combined_longwave_cloud_absorption_optical_depth
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (number_of_bands_for_longwave_radiation,horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ changeseed ]
+  standard_name = random_number_seed_for_mcica_longwave
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ pmid ]
+  standard_name = air_pressure
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ cloud_lw ]
+  standard_name = longwave_cloud_optical_properties_object_for_RRTMGP
+  units = none
+  type = ty_optical_props_1scl_ccpp
+  dimensions = ()
+  intent = inout
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+

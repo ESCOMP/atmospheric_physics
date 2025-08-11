@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<suite name="rrtmgp" version="1.0">
+  <group name="physics_after_coupler">
+    <scheme>initialize_constituents</scheme>
+    <scheme>rrtmgp_pre</scheme>
+    <scheme>rrtmgp_cloud_optics_setup</scheme>
+    <scheme>tropopause_find</scheme>
+    <scheme>rrtmgp_variables</scheme>
+    <scheme>rrtmgp_inputs</scheme>
+    <scheme>rrtmgp_lw_cloud_optics</scheme>
+    <scheme>rrtmgp_lw_mcica_subcol_gen</scheme>
+    <scheme>rrtmgp_sw_gas_optics</scheme>
+    <!--    <scheme>rrtmgp_sw_cloud_optics</scheme>-->
+    <scheme>rrtmgp_sw_cloud_temp</scheme>
+    <!-- Longwave subcycle -->
+    <subcycle>
+      <scheme>rrtmgp_constituents</scheme>
+      <scheme>rrtmgp_lw_gas_optics_pre</scheme>
+      <scheme>rrtmgp_lw_gas_optics</scheme>
+      <scheme>rrtmgp_lw_rte</scheme>
+      <scheme>rrtmgp_lw_calculate_fluxes</scheme>
+      <scheme>rrtmgp_lw_calculate_heating_rate</scheme>
+      <scheme>rrtmgp_lw_diagnostics</scheme>
+    </subcycle>
+    <!-- End longwave subcycle -->
+    <scheme>rrtmgp_inputs_setup</scheme><!-- Inputs init routine must go after gas_optics_init-->
+    <scheme>rrtmgp_dry_static_energy_tendency</scheme>
+    <scheme>calculate_net_heating</scheme>
+    <scheme>rrtmgp_post</scheme>
+    <scheme>rrtmgp_diagnostics</scheme>
+    <!-- State updaters -->
+    <scheme>apply_heating_rate</scheme>
+    <scheme>geopotential_temp</scheme>
+  </group>
+</suite>

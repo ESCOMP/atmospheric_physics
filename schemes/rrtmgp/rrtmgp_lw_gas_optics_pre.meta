@@ -1,0 +1,94 @@
+[ccpp-table-properties]
+  name = rrtmgp_lw_gas_optics_pre
+  type = scheme
+
+[ccpp-arg-table]
+  name  = rrtmgp_lw_gas_optics_pre_run
+  type  = scheme
+[ rad_const_array ]
+  standard_name = radiatively_active_gas_mass_mixing_ratios_wrt_dry_air
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension,number_of_active_gases_for_RRTMGP)
+  intent = in
+[ pmid ]
+  standard_name = air_pressure
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ pint ]
+  standard_name = air_pressure_at_interface
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_interface_dimension)
+  intent = in
+[ nlay ]
+  standard_name = number_of_vertical_layers_in_RRTMGP
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ gaslist ]
+  standard_name = list_of_active_gases_for_RRTMGP
+  units = none
+  type = character | kind = len=*
+  dimensions = (number_of_active_gases_for_RRTMGP)
+  intent = in
+[ pverp ]
+  standard_name = vertical_interface_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ ktoprad ]
+  standard_name = RRTMGP_vertical_index_at_top_level_where_RRTMGP_is_active
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
+[ ktopcam ]
+  standard_name = vertical_index_at_top_level_where_RRTMGP_is_active
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
+[ dolw ]
+  standard_name = do_longwave_radiation
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ nradgas ]
+  standard_name = number_of_active_gases_for_RRTMGP
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ gas_concs ]
+  standard_name = longwave_gas_volume_mixing_ratios_object_for_RRTMGP
+  units = none
+  type = ty_gas_concs_ccpp
+  dimensions = ()
+  intent = inout
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
