@@ -27,7 +27,7 @@ module rrtmgp_inputs
      integer,                         intent(in) :: nradgas                ! Number of radiatively active gases
      integer,                         intent(in) :: pverp                  ! Number of vertical interfaces
      integer,                         intent(in) :: pver                   ! Number of vertical layers
-     integer,                         intent(in) :: iradsw                 ! Freq. of shortwave radiation calc in time steps (positive) or hours (negative).
+     integer,                         intent(in) :: iradsw                 ! Freq. of shortwave radiation calc in time steps                                                                             ! (positive) or hours (negative).
      integer,                         intent(in) :: timestep_size          ! Timestep size (s)
      integer,                         intent(in) :: nstep                  ! Current timestep number
      integer,                         intent(in) :: gasnamelength          ! Length of all of the gas_list entries
@@ -274,7 +274,7 @@ module rrtmgp_inputs
      if (nlay == pverp) then
         ! This case is the CAM7 LT situation, i.e., all model layers are
         ! within RRTMGP's range of valid pressures - (Case 1 above)
-        t_rad(:,1)      = t(:ncol,1)
+        t_rad(:,1)      = t(:,1)
         ! The top reference pressure from the RRTMGP coefficients datasets is 1.005183574463 Pa
         ! Set the top of the extra layer just below that.
         pint_rad(:,1) = 1.01_kind_phys
