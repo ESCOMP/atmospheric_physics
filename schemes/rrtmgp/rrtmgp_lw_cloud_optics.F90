@@ -8,111 +8,27 @@
 !! (optical-depth, single-scattering albedo, asymmetry parameter) are computed for ALL
 !! cloud types visible to RRTMGP.
 module rrtmgp_lw_cloud_optics
-  use ccpp_kinds, only: kind_phys
 
   implicit none
   private
-  public :: rrtmgp_lw_cloud_optics_init
   public :: rrtmgp_lw_cloud_optics_run
-
-  real(kind_phys), allocatable :: abs_lw_liq(:,:,:)
-  real(kind_phys), allocatable :: abs_lw_ice(:,:)
-  real(kind_phys), allocatable :: g_mu(:)
-  real(kind_phys), allocatable :: g_d_eff(:)
-  real(kind_phys), allocatable :: g_lambda(:,:)
-  real(kind_phys) :: tiny
-  integer :: nmu
-  integer :: nlambda
-  integer :: n_g_d
-
 
 contains
 
-  ! ######################################################################################
-  ! SUBROUTINE rrtmgp_lw_cloud_optics_init()
-  ! ######################################################################################
-!> \section arg_table_rrtmgp_lw_cloud_optics_init Argument Table
-!! \htmlinclude rrtmgp_lw_cloud_optics_init.html
-!!
-  subroutine rrtmgp_lw_cloud_optics_init(nmu_in, nlambda_in, n_g_d_in, &
-                  abs_lw_liq_in, abs_lw_ice_in, nlwbands, g_mu_in, g_lambda_in,  &
-                  g_d_eff_in, tiny_in, errmsg, errflg)
-    ! Inputs
-    integer,                           intent(in) :: nmu_in           ! Number of mu samples on grid
-    integer,                           intent(in) :: nlambda_in       ! Number of lambda scale samples on grid
-    integer,                           intent(in) :: n_g_d_in         ! Number of radiative effective diameter samples on grid
-    integer,                           intent(in) :: nlwbands         ! Number of longwave bands
-    real(kind_phys), dimension(:,:,:), intent(in) :: abs_lw_liq_in    ! Longwave mass specific absorption for in-cloud liquid water path
-    real(kind_phys), dimension(:,:),   intent(in) :: abs_lw_ice_in    ! Longwave mass specific absorption for in-cloud ice water path
-    real(kind_phys), dimension(:,:),   intent(in) :: g_lambda_in      ! lambda scale samples on grid
-    real(kind_phys), dimension(:),     intent(in) :: g_mu_in          ! Mu samples on grid
-    real(kind_phys), dimension(:),     intent(in) :: g_d_eff_in       ! Radiative effective diameter samples on grid
-    real(kind_phys),                   intent(in) :: tiny_in          ! Definition of what "tiny" means
-
-    ! Outputs
-    character(len=*), intent(out) :: errmsg
-    integer,          intent(out) :: errflg
-
-    ! Local variables
-    character(len=256) :: alloc_errmsg
-    character(len=*), parameter :: sub = 'rrtmgp_lw_cloud_optics_init'
-
-    ! Set error variables
-    errmsg = ''
-    errflg = 0
-
-    ! Set module-level variables
-    nmu = nmu_in
-    nlambda = nlambda_in
-    n_g_d = n_g_d_in
-    tiny = tiny_in
-    ! Allocate module-level-variables
-    allocate(abs_lw_liq(nmu,nlambda,nlwbands), stat=errflg, errmsg=alloc_errmsg)
-    if (errflg /= 0) then
-       write(errmsg, '(a,a,a)') sub, ': ERROR allocating abs_lw_liq, message: ', alloc_errmsg
-       return
-    end if
-    allocate(abs_lw_ice(n_g_d,nlwbands), stat=errflg, errmsg=alloc_errmsg)
-    if (errflg /= 0) then
-       write(errmsg, '(a,a,a)') sub, ': ERROR allocating abs_lw_ice, message: ', alloc_errmsg
-       return
-    end if
-    allocate(g_mu(nmu), stat=errflg, errmsg=alloc_errmsg)
-    if (errflg /= 0) then
-       write(errmsg, '(a,a,a)') sub, ': ERROR allocating g_mu, message: ', alloc_errmsg
-       return
-    end if
-    allocate(g_lambda(nmu,nlambda), stat=errflg, errmsg=alloc_errmsg)
-    if (errflg /= 0) then
-       write(errmsg, '(a,a,a)') sub, ': ERROR allocating g_lambda, message: ', alloc_errmsg
-       return
-    end if
-    allocate(g_d_eff(n_g_d), stat=errflg, errmsg=alloc_errmsg)
-    if (errflg /= 0) then
-       write(errmsg, '(a,a,a)') sub, ': ERROR allocating g_d_eff, message: ', alloc_errmsg
-       return
-    end if
-
-    abs_lw_liq = abs_lw_liq_in
-    abs_lw_ice = abs_lw_ice_in
-    g_mu       = g_mu_in
-    g_lambda   = g_lambda_in
-    g_d_eff    = g_d_eff_in
-
-  end subroutine rrtmgp_lw_cloud_optics_init
-
-  ! ######################################################################################
   ! SUBROUTINE rrtmgp_lw_cloud_optics_run()
   ! ######################################################################################
 !> \section arg_table_rrtmgp_lw_cloud_optics_run Argument Table
 !! \htmlinclude rrtmgp_lw_cloud_optics_run.html
 !!
-  subroutine rrtmgp_lw_cloud_optics_run(dolw, ncol, nlay, nlaycam, cld, cldfsnow, cldfgrau, &
-             cldfprime, kdist_lw, cloud_lw, lamc, pgam, iclwpth, iciwpth,   &
-             dei, icswpth, des, icgrauwpth, degrau, nlwbands, do_snow, do_graupel, pver,    &
-             ktopcam, tauc, cldf, cld_lw_abs, snow_lw_abs, grau_lw_abs, errmsg, errflg)
-    use ccpp_gas_optics_rrtmgp,   only: ty_gas_optics_rrtmgp_ccpp
-    use ccpp_optical_props,       only: ty_optical_props_1scl_ccpp
+  subroutine rrtmgp_lw_cloud_optics_run(dolw, ncol, nlay, nlaycam, cld, cldfsnow, cldfgrau,      &
+             cldfprime, kdist_lw, cloud_lw, lamc, pgam, iclwpth, iciwpth, tiny_in, dei, icswpth, &
+             des, icgrauwpth, degrau, nlwbands, do_snow, do_graupel, pver, ktopcam, tauc, cldf,  &
+             cld_lw_abs, snow_lw_abs, grau_lw_abs, errmsg, errflg)
+    use ccpp_gas_optics_rrtmgp,    only: ty_gas_optics_rrtmgp_ccpp
+    use ccpp_optical_props,        only: ty_optical_props_1scl_ccpp
+    use ccpp_kinds,                only: kind_phys
+    use rrtmgp_cloud_optics_setup, only: g_mu, g_lambda, nmu, nlambda, g_d_eff, n_g_d
+    use rrtmgp_cloud_optics_setup, only: abs_lw_liq, abs_lw_ice
     ! Compute combined cloud optical properties
     ! Create MCICA stochastic arrays for cloud LW optical properties
     ! Initialize optical properties object (cloud_lw) and load with MCICA columns
@@ -137,6 +53,7 @@ contains
     real(kind_phys), dimension(:,:),   intent(in) :: dei              ! Mean effective radius for ice cloud
     real(kind_phys), dimension(:,:),   intent(in) :: des              ! Mean effective radius for snow
     real(kind_phys), dimension(:,:),   intent(in) :: degrau           ! Mean effective radius for graupel
+    real(kind_phys),                   intent(in) :: tiny_in          ! Definition of tiny for RRTMGP
     logical,                           intent(in) :: do_snow          ! Flag for whether cldfsnow is present
     logical,                           intent(in) :: do_graupel       ! Flag for whether cldfgrau is present
     logical,                           intent(in) :: dolw             ! Flag for whether to perform longwave calculation
@@ -179,13 +96,13 @@ contains
 
     ! gammadist liquid optics
     call liquid_cloud_get_rad_props_lw(ncol, pver, nmu, nlambda, nlwbands, lamc, pgam, g_mu, g_lambda, iclwpth, &
-            abs_lw_liq, liq_lw_abs, errmsg, errflg)
+            abs_lw_liq, tiny_in, liq_lw_abs, errmsg, errflg)
     if (errflg /= 0) then
        return
     end if
     ! Mitchell ice optics
     call interpolate_ice_optics_lw(ncol, pver, nlwbands, iciwpth, dei, &
-            n_g_d, g_d_eff, abs_lw_ice, ice_lw_abs, errmsg, errflg)
+            n_g_d, g_d_eff, abs_lw_ice, tiny_in, ice_lw_abs, errmsg, errflg)
     if (errflg /= 0) then
        return
     end if
@@ -195,7 +112,7 @@ contains
     ! add in snow
     if (do_snow) then
        call interpolate_ice_optics_lw(ncol, pver, nlwbands, icswpth, des, &
-               n_g_d, g_d_eff, abs_lw_ice, snow_lw_abs, errmsg, errflg)
+               n_g_d, g_d_eff, abs_lw_ice, tiny_in, snow_lw_abs, errmsg, errflg)
        if (errflg /= 0) then
           return
        end if
@@ -216,7 +133,7 @@ contains
     ! add in graupel
     if (do_graupel) then
        call interpolate_ice_optics_lw(ncol, pver, nlwbands, icgrauwpth, degrau, n_g_d, &
-               g_d_eff, abs_lw_ice, grau_lw_abs, errmsg, errflg)
+               g_d_eff, abs_lw_ice, tiny_in, grau_lw_abs, errmsg, errflg)
        if (errflg /= 0) then
           return
        end if
@@ -253,7 +170,8 @@ contains
 !==============================================================================
 
   subroutine liquid_cloud_get_rad_props_lw(ncol, pver, nmu, nlambda, nlwbands, lamc, pgam, &
-                  g_mu, g_lambda, iclwpth, abs_lw_liq, abs_od, errmsg, errflg)
+                  g_mu, g_lambda, iclwpth, abs_lw_liq, tiny, abs_od, errmsg, errflg)
+    use ccpp_kinds, only: kind_phys
     ! Inputs
     integer,                           intent(in) :: ncol
     integer,                           intent(in) :: pver
@@ -266,6 +184,7 @@ contains
     real(kind_phys), dimension(:),     intent(in) :: g_mu
     real(kind_phys), dimension(:,:),   intent(in) :: g_lambda
     real(kind_phys), dimension(:,:),   intent(in) :: iclwpth
+    real(kind_phys),                   intent(in) :: tiny
     ! Outputs
     real(kind_phys), dimension(:,:,:), intent(out) :: abs_od
     character(len=*),                  intent(out) :: errmsg
@@ -283,7 +202,7 @@ contains
        do idx = 1,ncol
           if(lamc(idx,kdx) > 0._kind_phys) then ! This seems to be the clue for no cloud from microphysics formulation
              call gam_liquid_lw(nlwbands, nmu, nlambda, iclwpth(idx,kdx), lamc(idx,kdx), pgam(idx,kdx), abs_lw_liq, &
-                     g_mu, g_lambda, abs_od(1:nlwbands,idx,kdx), errmsg, errflg)
+                     g_mu, g_lambda, tiny, abs_od(1:nlwbands,idx,kdx), errmsg, errflg)
           else
              abs_od(1:nlwbands,idx,kdx) = 0._kind_phys
           endif
@@ -294,9 +213,10 @@ contains
 
 !==============================================================================
 
-  subroutine gam_liquid_lw(nlwbands, nmu, nlambda, clwptn, lamc, pgam, abs_lw_liq, g_mu, g_lambda, abs_od, errmsg, errflg)
+  subroutine gam_liquid_lw(nlwbands, nmu, nlambda, clwptn, lamc, pgam, abs_lw_liq, g_mu, g_lambda, tiny, abs_od, errmsg, errflg)
     use interpolate_data,         only: interp_type, lininterp, lininterp_finish
     use radiation_utils,          only: get_mu_lambda_weights_ccpp
+    use ccpp_kinds,               only: kind_phys
     ! Inputs
     integer,         intent(in) :: nlwbands
     integer,         intent(in) :: nmu
@@ -307,6 +227,7 @@ contains
     real(kind_phys), dimension(:,:,:), intent(in) :: abs_lw_liq
     real(kind_phys), dimension(:),     intent(in) :: g_mu
     real(kind_phys), dimension(:,:)  , intent(in) :: g_lambda
+    real(kind_phys),                   intent(in) :: tiny
     ! Outputs
     real(kind_phys), dimension(:), intent(out) :: abs_od
     integer,                       intent(out) :: errflg
@@ -342,9 +263,10 @@ contains
 !==============================================================================
 
   subroutine interpolate_ice_optics_lw(ncol, pver, nlwbands, iciwpth, dei, &
-                  n_g_d, g_d_eff, abs_lw_ice, abs_od, errmsg, errflg)
+                  n_g_d, g_d_eff, abs_lw_ice, tiny, abs_od, errmsg, errflg)
     use interpolate_data,         only: interp_type, lininterp, lininterp_init, &
                                         lininterp_finish, extrap_method_bndry
+    use ccpp_kinds,               only: kind_phys
 
     integer,           intent(in)                  :: ncol
     integer,           intent(in)                  :: n_g_d
@@ -354,6 +276,7 @@ contains
     real(kind_phys), dimension(:,:),   intent(in)  :: iciwpth
     real(kind_phys), dimension(:,:),   intent(in)  :: dei
     real(kind_phys), dimension(:,:),   intent(in)  :: abs_lw_ice
+    real(kind_phys),                   intent(in)  :: tiny
     real(kind_phys), dimension(:,:,:), intent(out) :: abs_od
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
