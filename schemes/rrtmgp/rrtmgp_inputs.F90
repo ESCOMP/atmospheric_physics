@@ -27,7 +27,8 @@ module rrtmgp_inputs
      integer,                         intent(in) :: nradgas                ! Number of radiatively active gases
      integer,                         intent(in) :: pverp                  ! Number of vertical interfaces
      integer,                         intent(in) :: pver                   ! Number of vertical layers
-     integer,                         intent(in) :: iradsw                 ! Freq. of shortwave radiation calc in time steps                                                                             ! (positive) or hours (negative).
+     integer,                         intent(in) :: iradsw                 ! Freq. of shortwave radiation calc in time steps
+                                                                           ! (positive) or hours (negative).
      integer,                         intent(in) :: timestep_size          ! Timestep size (s)
      integer,                         intent(in) :: nstep                  ! Current timestep number
      integer,                         intent(in) :: gasnamelength          ! Length of all of the gas_list entries
@@ -250,7 +251,6 @@ module rrtmgp_inputs
      ! In radiation.F90 we count layers based on P_ref > 10 Pa to safely account
      ! for possible situations in MPAS (z-based vert. coordinate) in which
      ! full 3D pressure could be significanlty below min(P_ref).
-     ! (we really shoud have a variable called 'p_top_for_rrtmgp')
      !
      ! If 
      ! 1) entire vertical domain has P_ref> 10Pa (e.g. CAM7 LT) then
@@ -264,7 +264,6 @@ module rrtmgp_inputs
      !
      ! Level ordering is the same for both CAM and RRTMGP (top to bottom)
      ! Note in Case 2, tops of {t,pint,pmid}_rad start at a 'valid' level,
-     ! i.e. pref > p_top_for_rrtmgp, given by ktopcam ...
      !-------------------------------------------------------
      t_rad(:,ktoprad:) = t(:,ktopcam:)
      pmid_rad(:,ktoprad:) = pmid(:,ktopcam:)
