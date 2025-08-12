@@ -415,7 +415,7 @@ contains
     logical, intent(in)              :: use_gw_rdg_gamma       ! Enable gamma ridge scheme [flag]
 
     real(kind_phys), pointer, intent(in) :: vramp(:)           ! Vertical tapering function [1]
-    type(Coords1D),  intent(in) :: p               ! Pressure coordinates, Coords1D
+    type(Coords1D),           intent(in) :: p                  ! Pressure coordinates, Coords1D
 
     integer, intent(in)              :: n_rdg_beta             ! Number of beta ridges [count]
     integer, intent(in)              :: n_rdg_gamma            ! Number of gamma ridges [count]

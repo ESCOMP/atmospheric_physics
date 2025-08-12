@@ -43,8 +43,6 @@ module gw_drag
   real(kind_phys)                      :: effgw_cm
   ! C&M scheme (inertial waves).
   real(kind_phys)                      :: effgw_cm_igw
-  ! Orography.
-  real(kind_phys)                      :: effgw_oro
   ! fcrit2 for the mid-scale waves has been made a namelist variable to
   ! facilitate backwards compatibility with the CAM3 version of this
   ! parameterization.  In CAM3, fcrit2=0.5.
@@ -53,7 +51,6 @@ module gw_drag
 
   ! Whether or not to limit tau *before* applying any efficiency factors.
   logical                              :: gw_limit_tau_without_eff = .false.
-  logical                              :: gw_lndscl_sgh = .true. ! scale SGH by land frac
   real(kind_phys)                      :: gw_prndl = 0.25_kind_phys
 
   ! Whether or not to apply tendency max
@@ -75,9 +72,6 @@ module gw_drag
   ! Bottom level for frontal waves.
   integer :: kbot_front
 
-  ! Factor for SH orographic waves.
-  real(kind_phys) :: gw_oro_south_fac = 1._kind_phys
-
   ! Frontogenesis function critical threshold.
   real(kind_phys) :: frontgfc = unset_kind_phys
 
@@ -86,7 +80,6 @@ module gw_drag
   real(kind_phys)   :: pi
   real(kind_phys), allocatable   :: pref_edge(:)
 
-  logical         ::  use_gw_oro
   logical         ::  use_gw_front
   logical         ::  use_gw_front_igw
   logical         ::  use_simple_phys
@@ -131,20 +124,16 @@ contains
     tau_0_ubc_nl, &
     effgw_cm_nl, &
     effgw_cm_igw_nl, &
-    effgw_oro_nl, &
     frontgfc_nl, &
     taubgnd_nl, &
     taubgnd_igw_nl, &
     gw_polar_taper_nl, &
-    gw_oro_south_fac_nl, &
     gw_limit_tau_without_eff_nl, &
-    gw_lndscl_sgh_nl, &
     gw_prndl_nl, &
     gw_apply_tndmax_nl, &
     gw_qbo_hdepth_scaling_nl, &
     gw_top_taper_nl, &
     front_gaussian_width_nl, &
-    use_gw_oro_in, &
     use_gw_front_in, &
     use_gw_front_igw_in, &
     use_simple_phys_in, &
@@ -185,8 +174,6 @@ contains
     real(kind_phys), intent(in)     :: effgw_cm_nl
     ! C&M scheme (inertial waves).
     real(kind_phys), intent(in)     :: effgw_cm_igw_nl
-    ! Orography.
-    real(kind_phys), intent(in)     :: effgw_oro_nl
     ! fcrit2 for the mid-scale waves has been made a namelist variable to
     ! facilitate backwards compatibility with the CAM3 version of this
     ! parameterization.  In CAM3, fcrit2=0.5.
@@ -199,11 +186,8 @@ contains
     real(kind_phys), intent(in)             :: taubgnd_igw_nl
     ! Whether or not to use a polar taper for frontally generated waves.
     logical, intent(in)             :: gw_polar_taper_nl
-    ! Factor for SH orographic waves.
-    real(kind_phys), intent(in)             :: gw_oro_south_fac_nl
     ! Whether or not to limit tau *before* applying any efficiency factors.
     logical, intent(in)             :: gw_limit_tau_without_eff_nl
-    logical, intent(in)              :: gw_lndscl_sgh_nl
     real(kind_phys), intent(in)             :: gw_prndl_nl
     ! Whether or not to apply tendency max
     logical, intent(in)             :: gw_apply_tndmax_nl
@@ -212,7 +196,6 @@ contains
     ! Width of gaussian used to create frontogenesis tau profile [m s-1].
     real(kind_phys), intent(in)             :: front_gaussian_width_nl
 
-    logical, intent(in)             ::  use_gw_oro_in
     logical, intent(in)             ::  use_gw_front_in
     logical, intent(in)             ::  use_gw_front_igw_in
     logical, intent(in)             ::  use_simple_phys_in
@@ -302,30 +285,25 @@ contains
     tau_0_ubc = tau_0_ubc_nl
     effgw_cm = effgw_cm_nl
     effgw_cm_igw = effgw_cm_igw_nl
-    effgw_oro = effgw_oro_nl
     fcrit2 = fcrit2_in
     rearth = rearth_in
     frontgfc = frontgfc_nl
     taubgnd = taubgnd_nl
     taubgnd_igw = taubgnd_igw_nl
     gw_polar_taper = gw_polar_taper_nl
-    gw_oro_south_fac = gw_oro_south_fac_nl
     gw_limit_tau_without_eff = gw_limit_tau_without_eff_nl
-    gw_lndscl_sgh = gw_lndscl_sgh_nl
     gw_prndl = gw_prndl_nl
     gw_apply_tndmax = gw_apply_tndmax_nl
     gw_qbo_hdepth_scaling = gw_qbo_hdepth_scaling_nl
     gw_top_taper = gw_top_taper_nl
     front_gaussian_width = front_gaussian_width_nl
 
-    use_gw_oro = use_gw_oro_in
     use_gw_front = use_gw_front_in
     use_gw_front_igw = use_gw_front_igw_in
     use_simple_phys = use_simple_phys_in
     do_molec_diff = do_molec_diff_in
     nbot_molec = nbot_molec_in
 
-    band_oro    = GWBand(0,         gw_dc,      1.0_kind_phys, wavelength_mid)
     band_mid    = GWBand(pgwv,      gw_dc,      1.0_kind_phys, wavelength_mid)
     band_long   = GWBand(pgwv_long, gw_dc_long, 1.0_kind_phys, wavelength_long)
 
@@ -436,7 +414,6 @@ contains
     use gw_common, only: gw_drag_prof, calc_taucd
     use gw_common, only: momentum_flux, momentum_fixer, energy_change
     use gw_common, only: energy_fixer, coriolis_speed, adjust_inertial
-    use gw_oro, only: gw_oro_src
     use gw_front, only: gw_cm_src, cm_desc, cm_igw_desc
 
     integer, intent(in)        :: ncol  ! number of atmospheric columns
@@ -480,7 +457,7 @@ contains
     integer, intent(in)             :: nbot_molec
     ! Parameterization net tendencies.
     ! sum from the two types of spectral GW
-    real(kind_phys), intent(out) :: egwdffi_tot(:, :)
+    real(kind_phys), intent(inout) :: egwdffi_tot(:, :)
     real(kind_phys), intent(inout) :: flx_heat(:)
     character(len=512), intent(out) :: errmsg
     integer, intent(out) :: errflg
@@ -719,103 +696,6 @@ contains
 !!$          taucd)
 
       deallocate (tau, gwut, phase_speeds, ro_adjust)
-
-    end if
-
-    !---------------------------------------------------------------------
-    ! Orographic stationary gravity waves
-    !---------------------------------------------------------------------
-    if (use_gw_oro) then
-
-      ! Allocate wavenumber fields.
-      allocate (tau(ncol, band_oro%ngwv:band_oro%ngwv, pver + 1), stat=stat)
-      call handle_err(stat, errflg, sub//': Allocate of tau failed', errmsg)
-      allocate (gwut(ncol, pver, band_oro%ngwv:band_oro%ngwv), stat=stat)
-      call handle_err(stat, errflg, sub//': Allocate of gwut failed', errmsg)
-      allocate (phase_speeds(ncol, band_oro%ngwv:band_oro%ngwv), stat=stat)
-      call handle_err(stat, errflg, sub//': Allocate of phase_speeds failed', errmsg)
-
-      if (gw_lndscl_sgh) then
-        where (landfrac(:ncol) >= epsilon(1._kind_phys))
-          effgw = effgw_oro*landfrac(:ncol)
-          sgh_scaled = sgh(:ncol)/sqrt(landfrac(:ncol))
-        elsewhere
-          effgw = 0._kind_phys
-          sgh_scaled = 0._kind_phys
-        end where
-
-        ! Determine the orographic wave source
-        call gw_oro_src(ncol, band_oro, p, &
-                        state_u, state_v, state_t, sgh_scaled, zm, nm, &
-                        src_level, tend_level, tau, ubm, ubi, xv, yv, phase_speeds)
-      else
-        effgw = effgw_oro
-
-        ! Determine the orographic wave source
-        call gw_oro_src(ncol, band_oro, p, &
-                        state_u, state_v, state_t, sgh(:ncol), zm, nm, &
-                        src_level, tend_level, tau, ubm, ubi, xv, yv, phase_speeds)
-      end if
-      do i = 1, ncol
-        if (lat(i) < 0._kind_phys) then
-          tau(i, :, :) = tau(i, :, :)*gw_oro_south_fac
-        end if
-      end do
-
-      ! Solve for the drag profile with orographic sources.
-      call gw_drag_prof(ncol, band_oro, p, src_level, tend_level, dt, &
-                        state_t, vramp, &
-                        piln, rhoi, nm, ni, ubm, ubi, xv, yv, &
-                        effgw, phase_speeds, kvtt, state_q, dse, tau, utgw, vtgw, &
-                        ttgw, qtgw, egwdffi, gwut, dttdf, dttke, &
-                        lapply_effgw_in=gw_apply_tndmax)
-
-      ! For orographic waves, don't bother with taucd, since there are no
-      ! momentum conservation routines or directional diagnostics.
-
-      !  add the diffusion coefficients
-      do k = 1, pver + 1
-        egwdffi_tot(:, k) = egwdffi_tot(:, k) + egwdffi(:, k)
-      end do
-
-      ! Add the orographic tendencies to the spectrum tendencies.
-      ! Don't calculate fixers, since we are too close to the ground to
-      ! spread momentum/energy differences across low layers.
-      do k = 1, pver
-        u_tend(:ncol, k) = u_tend(:ncol, k) + utgw(:, k)
-        v_tend(:ncol, k) = v_tend(:ncol, k) + vtgw(:, k)
-        s_tend(:ncol, k) = s_tend(:ncol, k) + ttgw(:, k)
-        ! Convert to temperature tendency for output.
-        ttgw(:, k) = ttgw(:, k)/cpairv(:ncol, k)
-      end do
-
-      ! Calculate energy change for output to CAM's energy checker.
-      ! This is sort of cheating; we don't have a good a priori idea of the
-      ! energy coming from surface stress, so we just integrate what we and
-      ! actually have so far and overwrite flx_heat with that.
-      call energy_change(dt, p, state_u, state_v, u_tend(:ncol, :), &
-                         v_tend(:ncol, :), s_tend(:ncol, :), de)
-      flx_heat(:ncol) = de
-
-      do m = 1, pcnst
-        do k = 1, pver
-          q_tend(:ncol, k, m) = q_tend(:ncol, k, m) + qtgw(:, k, m)
-        end do
-      end do
-
-!!$     ! Write output fields to history file
-!!$     call outfld('TAUAORO', tau(:,0,:),  ncol, lchnk)
-!!$     call outfld('UTGWORO', utgw,  ncol, lchnk)
-!!$     call outfld('VTGWORO', vtgw,  ncol, lchnk)
-!!$     call outfld('TTGWORO', ttgw,  ncol, lchnk)
-!!$     call outfld('TTGWSDFORO', dttdf / cpair,  ncol, lchnk)
-!!$     call outfld('TTGWSKEORO', dttke / cpair,  ncol, lchnk)
-!!$     tau0x = tau(:,0,pver+1) * xv
-!!$     tau0y = tau(:,0,pver+1) * yv
-!!$     call outfld('TAUGWX', tau0x, ncol, lchnk)
-!!$     call outfld('TAUGWY', tau0y, ncol, lchnk)
-
-      deallocate (tau, gwut, phase_speeds)
 
     end if
 
