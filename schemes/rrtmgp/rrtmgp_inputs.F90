@@ -264,6 +264,7 @@ module rrtmgp_inputs
      !
      ! Level ordering is the same for both CAM and RRTMGP (top to bottom)
      ! Note in Case 2, tops of {t,pint,pmid}_rad start at a 'valid' level,
+     ! i.e. pref > p_top_for_rrtmgp
      !-------------------------------------------------------
      t_rad(:,ktoprad:) = t(:,ktopcam:)
      pmid_rad(:,ktoprad:) = pmid(:,ktopcam:)
