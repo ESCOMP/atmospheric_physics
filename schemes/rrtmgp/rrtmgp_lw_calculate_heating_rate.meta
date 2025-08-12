@@ -35,8 +35,20 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
+[ flux_net_clrsky ]
+  standard_name = longwave_net_radiative_clear_sky_flux
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
 [ hrate ]
-  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_longwave_radiation 
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_longwave_radiation
+  units = J kg-1 s-1 
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ hrate_clrsky ]
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_clear_sky_longwave_radiation
   units = J kg-1 s-1 
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

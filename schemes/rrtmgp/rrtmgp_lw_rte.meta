@@ -98,7 +98,7 @@
   standard_name = jacobian_of_longwave_upward_flux_for_RRTMGP
   units = W m-2 K-1
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent,vertical_interface_dimension)
   intent = inout
 [ lw_Ds ]
   standard_name = inverse_cosine_of_radiation_transport_angle_per_column_and_g_point

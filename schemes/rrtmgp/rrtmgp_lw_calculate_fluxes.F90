@@ -13,7 +13,7 @@ CONTAINS
    !> \section arg_table_rrtmgp_lw_calculate_fluxes_run  Argument Table
    !! \htmlinclude rrtmgp_lw_calculate_fluxes_run.html
    subroutine rrtmgp_lw_calculate_fluxes_run(num_diag_subcycles, icall, ncol, pverp, nlay, ktopcam, ktoprad, &
-      active_calls, flw, flwc, flns, flnt, flwds, fnl, errmsg, errflg)
+      active_calls, flw, flwc, flns, flnt, flwds, fnl, fcnl, errmsg, errflg)
 
       use ccpp_fluxes,        only: ty_fluxes_broadband_ccpp
       use ccpp_fluxes_byband, only: ty_fluxes_byband_ccpp
@@ -32,6 +32,7 @@ CONTAINS
       type(ty_fluxes_broadband_ccpp), intent(in) :: flwc                ! Longwave clear-sky flux object
       ! Output variables
       real(kind_phys),               intent(out) :: fnl(:,:)
+      real(kind_phys),               intent(out) :: fcnl(:,:)
       real(kind_phys),               intent(out) :: flns(:)
       real(kind_phys),               intent(out) :: flnt(:)
       real(kind_phys),               intent(out) :: flwds(:)
@@ -43,7 +44,6 @@ CONTAINS
 
       ! Local variables
       integer :: diag_index, idx
-      real(kind_phys) :: fcnl(ncol, pverp)
 
       errmsg = ''
       errflg = 0
