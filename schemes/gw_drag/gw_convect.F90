@@ -1,9 +1,6 @@
-module gw_convect
-
-!
 ! This module handles gravity waves from convection, and was extracted from
 ! gw_drag in May 2013.
-!
+module gw_convect
 
   use ccpp_kinds, only: kind_phys
   use gw_common, only: GWBand
@@ -12,9 +9,10 @@ module gw_convect
   private
   save
 
-!jtpublic :: gw_beres_run
   public :: gw_beres_init
-  public :: gw_beres_src
+
+  public :: gw_beres_deep_run
+  public :: gw_beres_shallow_run
 
   type :: BeresSourceDesc
     ! Whether wind speeds are shifted to be relative to storm cells.
@@ -32,50 +30,54 @@ module gw_convect
     real(kind_phys), pointer :: mfcc(:, :, :)
   end type BeresSourceDesc
 
-! Beres settings and table.
+  ! Beres settings and table.
   type(BeresSourceDesc), public :: beres_dp_desc
   type(BeresSourceDesc), public :: beres_sh_desc
   type(GWBand)          :: band_mid
 
   real(kind_phys), allocatable :: tau(:, :, :)  ! wave Reynolds stress
 
-! gravity wave wind tendency for each wave
+  ! gravity wave wind tendency for each wave
   real(kind_phys), allocatable :: gwut(:, :, :)
-
-!!$! Temperature tendencies from diffusion and kinetic energy.
-!!$real(kind_phys), :: dttdf(state%ncol,pver)
-!!$real(kind_phys), :: dttke(state%ncol,pver)
 
 ! Wave phase speeds for each column
   real(kind_phys), allocatable :: phase_speeds(:, :)
 
 contains
 
-!==========================================================================
-  subroutine gw_beres_init(pver, pi, gw_drag_file_sh, gw_drag_file_dp, pref_edge, gw_dc, wavelength, pgwv, &
-                           use_gw_convect_dp, use_gw_convect_sh, masterproc, iulog, errmsg, errflg)
+  ! Initialize gravity waves from convection and read in source spectra.
+  subroutine gw_beres_init(&
+             pver, pi, &
+             masterproc, iulog, &
+             gw_drag_file_sh, &
+             gw_drag_file_dp, &
+             pref_edge, &
+             gw_delta_c, &
+             pgwv, &
+             use_gw_convect_dp, &
+             use_gw_convect_sh, &
+             errmsg, errflg)
 
+    use gw_common, only: wavelength_mid
     use ccpp_io_reader, only: abstract_netcdf_reader_t, create_netcdf_reader_t
 
     integer, intent(in)                           :: pver
     real(kind_phys), intent(in)                   :: pi
-    character(len=*), intent(in) :: gw_drag_file_sh, gw_drag_file_dp
-    real(kind_phys), intent(in)                   :: pref_edge(:)
-    real(kind_phys), intent(in)                   :: gw_dc
-    real(kind_phys), intent(in)                   :: wavelength
-    integer, intent(in)                           :: pgwv
-    logical, intent(in)                           :: use_gw_convect_dp, use_gw_convect_sh
-
     logical, intent(in)                           :: masterproc
     integer, intent(in)                           :: iulog
+    character(len=*),   intent(in)                :: gw_drag_file_sh
+    character(len=*),   intent(in)                :: gw_drag_file_dp
+    real(kind_phys),    intent(in)                :: pref_edge(:)
+    real(kind_phys),    intent(in)                :: gw_delta_c
+    integer, intent(in)                           :: pgwv
+    logical, intent(in)                           :: use_gw_convect_dp
+    logical, intent(in)                           :: use_gw_convect_sh
+
     character(len=512), intent(out)               :: errmsg
     integer, intent(out)                          :: errflg
 
     ! Number of wavenumbers in the input file.
     integer :: ngwv_file
-
-    ! Full path to gw_drag_file.
-
     class(abstract_netcdf_reader_t), allocatable :: reader
     type(BeresSourceDesc), pointer :: desc
 
@@ -83,16 +85,13 @@ contains
 
     character(len=*), parameter :: sub = 'gw_beres_init'
 
-    !----------------------------------------------------------------------
-    ! read in look-up table for source spectra
-    !-----------------------------------------------------------------------
-
     ! Initialize error variables
     errmsg = ''
     errflg = 0
 
-    if (use_gw_convect_dp .or. use_gw_convect_sh) &
-      band_mid = GWBand(pgwv, gw_dc, 1.0_kind_phys, wavelength)
+    if (use_gw_convect_dp .or. use_gw_convect_sh) then
+      band_mid = GWBand(pgwv, gw_delta_c, 1.0_kind_phys, wavelength_mid)
+    endif
 
     if (use_gw_convect_dp) then
       ! Set the deep scheme specification components.
@@ -163,20 +162,19 @@ contains
       real(kind_phys), pointer                 :: file_mfcc(:, :, :) !is the lookup table from the file f(depth, wind, phase speed)
 
       ! Read Beres file.
-
       reader = create_netcdf_reader_t()
 
       ! Open file
       call reader%open_file(file_path, errmsg, errflg)
       if (errflg /= 0) then
-        return !Error has occurred, so exit scheme
+        return
       end if
 
       ! Get HD (heating depth) dimension.
 
       call reader%get_var('HD', desc%hd, errmsg, errflg)
       if (errflg /= 0) then
-        return !Error has occurred reading HD, so exit scheme
+        return
       end if
       desc%maxh = size(desc%hd)
 
@@ -184,16 +182,15 @@ contains
 
       call reader%get_var('MW', tmp_var1d, errmsg, errflg)
       if (errflg /= 0) then
-        return !Error has occurred reading MW, so exit scheme
+        return
       end if
       desc%maxuh = size(tmp_var1d)
       nullify (tmp_var1d)
 
       ! Get PS (phase speed) dimension.
-
       call reader%get_var('PS', tmp_var1d, errmsg, errflg)
       if (errflg /= 0) then
-        return !Error has occurred reading PS, so exit scheme
+        return
       end if
       ngwv_file = size(tmp_var1d)
       nullify (tmp_var1d)
@@ -250,82 +247,440 @@ contains
 
     end subroutine gw_init_beres_desc
   end subroutine gw_beres_init
-!!$!==========================================================================
-!!$subroutine gw_beres_run(ncol, band, desc, u, v, &
-!!$     netdt, zm, src_level, tend_level, tau, ubm, ubi, xv, yv, &
-!!$     c, hdepth, maxq0, ptend_u, ptend_v, ptend_s, ptend_q )
-!!$
-!!$
-!!$  !------------------------------------------------------------------
-!!$  ! Convective gravity waves (Beres scheme, deep).
-!!$  !------------------------------------------------------------------
-!!$
-!!$  tau=0._kind_phys
-!!$  gwut=0._kind_phys
-!!$  phase_speeds=0._kind_phys
-!!$
-!!$  ! Determine wave sources for Beres deep scheme
-!!$  call gw_beres_src(ncol, band, desc, &
-!!$       u, v, netdt(:ncol,:), zm, src_level, tend_level, tau, &
-!!$       ubm, ubi, xv, yv, phase_speeds, hdepth, maxq0)
-!!$
-!!$  ! Solve for the drag profile with Beres source spectrum.
-!!$  call gw_drag_prof(ncol, band, p, src_level, tend_level, dt, &
-!!$          t, vramp,    &
-!!$          piln, rhoi,       nm,   ni, ubm,  ubi,  xv,    yv,   &
-!!$          effgw,   phase_speeds,       kvtt, q,  dse,  tau,  utgw,  vtgw, &
-!!$          ttgw, qtgw, egwdffi,  gwut, dttdf, dttke,            &
-!!$          lapply_effgw_in=gw_apply_tndmax)
-!!$
-!!$     ! Project stress into directional components.
-!!$     taucd = calc_taucd(ncol, band%ngwv, tend_level, tau, phase_speeds, xv, yv, ubi)
-!!$
-!!$     !  add the diffusion coefficients
-!!$     do k = 1, pver+1
-!!$        egwdffi_tot(:,k) = egwdffi_tot(:,k) + egwdffi(:,k)
-!!$     end do
-!!$
-!!$     ! Store constituents tendencies
-!!$     do m=1, pcnst
-!!$        do k = 1, pver
-!!$           ptend%q(:ncol,k,m) = ptend%q(:ncol,k,m) + qtgw(:,k,m)
-!!$        end do
-!!$     end do
-!!$
-!!$     ! Find momentum flux, and use it to fix the wind tendencies below
-!!$     ! the gravity wave region.
-!!$     call momentum_flux(tend_level, taucd, um_flux, vm_flux)
-!!$     call momentum_fixer(tend_level, p, um_flux, vm_flux, utgw, vtgw)
-!!$
-!!$     ! Add the momentum tendencies to the output tendency arrays.
-!!$     do k = 1, pver
-!!$        ptend%u(:ncol,k) = ptend%u(:ncol,k) + utgw(:,k)
-!!$        ptend%v(:ncol,k) = ptend%v(:ncol,k) + vtgw(:,k)
-!!$     end do
-!!$
-!!$     ! Find energy change in the current state, and use fixer to apply
-!!$     ! the difference in lower levels.
-!!$     call energy_change(dt, p, u, v, ptend%u(:ncol,:), &
-!!$          ptend%v(:ncol,:), ptend%s(:ncol,:)+ttgw, de)
-!!$     call energy_fixer(tend_level, p, de-flx_heat(:ncol), ttgw)
-!!$
-!!$     do k = 1, pver
-!!$        ptend%s(:ncol,k) = ptend%s(:ncol,k) + ttgw(:,k)
-!!$     end do
-!!$
-!!$     ! Change ttgw to a temperature tendency before outputing it.
-!!$     ttgw = ttgw / cpair
-!!$     call gw_spec_outflds(beres_dp_pf, lchnk, ncol, band, phase_speeds, u, v, &
-!!$          xv, yv, gwut, dttdf, dttke, tau(:,:,2:), utgw, vtgw, ttgw, &
-!!$          taucd)
-!!$
-!!$     ! Diagnostic outputs (convert hdepth to km).
-!!$     call outfld('NETDT', ttend, pcols, lchnk)
-!!$     call outfld('HDEPTH', hdepth/1000._kind_phys, ncol, lchnk)
-!!$     call outfld('MAXQ0', maxq0, ncol, lchnk)
-!!$
-!!$end subroutine gw_beres_run
-!!$!==========================================================================
+
+  ! Convective gravity waves (Beres scheme, deep).
+  subroutine gw_beres_deep_run(&
+             ncol, pver, pcnst, &
+             dt, &
+             p, vramp, &
+             pi, cpair, &
+             effgw_beres_dp, &
+             gw_apply_tndmax, &
+             !use_gw_convect_dp, &
+             u, v, t, q, dse, &
+             piln, &
+             rhoi, nm, ni, &
+             kvt_gw, &
+             ttend_dp, &
+             zm, &
+             lat, &
+             tend_q, tend_u, tend_v, tend_s, &
+             flx_heat, &
+             src_level, tend_level, ubm, ubi, xv, yv, &
+             hdepth, maxq0, &
+             utgw, vtgw, ttgw, qtgw, &
+             egwdffi_tot, dttdf, dttke, &
+             errmsg, errflg)
+
+    use coords_1d, only: Coords1D
+    use gw_common, only: energy_change, energy_fixer
+    use gw_common, only: momentum_flux, momentum_fixer
+    use gw_common, only: gw_drag_prof
+    use gw_common, only: calc_taucd
+
+    integer,            intent(in)                :: ncol
+    integer,            intent(in)                :: pver
+    integer,            intent(in)                :: pcnst
+    real(kind_phys),    intent(in)                :: dt
+    type(Coords1D),     intent(in)                :: p                        ! Pressure coordinates [Pa]
+    real(kind_phys),    pointer, intent(in)       :: vramp(:)                 ! Ramping profile for gravity wave drag [1]
+    real(kind_phys),    intent(in)                :: pi                       ! Mathematical constant pi [1]
+    real(kind_phys),    intent(in)                :: cpair                    ! Specific heat of dry air at constant pressure [J kg-1 K-1]
+    real(kind_phys),    intent(in)                :: effgw_beres_dp           ! Efficiency factor for deep convective gravity waves [1]
+    logical,            intent(in)                :: gw_apply_tndmax          ! Whether or not to apply tendency max [flag]
+    real(kind_phys),    intent(in)                :: u(:,:)                   ! Zonal wind at midpoints [m s-1]
+    real(kind_phys),    intent(in)                :: v(:,:)                   ! Meridional wind at midpoints [m s-1]
+    real(kind_phys),    intent(in)                :: t(:,:)                   ! Temperature at midpoints [K]
+    real(kind_phys),    intent(in)                :: q(:,:,:)                 ! Constituent mixing ratios [kg kg-1]
+    real(kind_phys),    intent(in)                :: dse(:,:)                 ! Dry static energy [J kg-1]
+    real(kind_phys),    intent(in)                :: piln(:, :)               ! Natural logarithm of pressure at interfaces [ln(Pa)]
+    real(kind_phys),    intent(in)                :: rhoi(:, :)               ! Density at interfaces [kg m-3]
+    real(kind_phys),    intent(in)                :: nm(:, :)                 ! Brunt-Vaisalla frequency at midpoints [s-1]
+    real(kind_phys),    intent(in)                :: ni(:, :)                 ! Brunt-Vaisalla frequency at interfaces [s-1]
+    real(kind_phys),    intent(in)                :: kvt_gw(:, :)             ! Molecular thermal diffusivity at interfaces [m2 s-1]
+    real(kind_phys),    intent(in)                :: ttend_dp(:,:)            ! Temperature tendency from deep convection [K s-1]
+    real(kind_phys),    intent(in)                :: zm(:,:)                  ! Geopotential height at midpoints [m]
+    real(kind_phys),    intent(in)                :: lat(:)                   ! Latitude [rad]
+
+    real(kind_phys),    intent(inout)             :: tend_q(:, :, :)          ! Constituent tendencies [kg kg-1 s-1]
+    real(kind_phys),    intent(inout)             :: tend_u(:, :)             ! Zonal wind tendency [m s-2]
+    real(kind_phys),    intent(inout)             :: tend_v(:, :)             ! Meridional wind tendency [m s-2]
+    real(kind_phys),    intent(inout)             :: tend_s(:, :)             ! Dry static energy tendency [J kg-1 s-1]
+    real(kind_phys),    intent(inout)             :: flx_heat(:)              ! Surface heat flux for energy conservation check [W m-2]
+
+    integer,            intent(out)               :: src_level(:)             ! Vertical level index of gravity wave source [index]
+    integer,            intent(out)               :: tend_level(:)            ! Lowest vertical level index where tendencies are applied [index]
+    real(kind_phys),    intent(out)               :: ubm(:, :)                ! Wind projection at midpoints along source wind direction [m s-1]
+    real(kind_phys),    intent(out)               :: ubi(:, :)                ! Wind projection at interfaces along source wind direction [m s-1]
+    real(kind_phys),    intent(out)               :: xv(:)                    ! Zonal component of source wind unit vector [1]
+    real(kind_phys),    intent(out)               :: yv(:)                    ! Meridional component of source wind unit vector [1]
+    real(kind_phys),    intent(out)               :: hdepth(:)                ! Convective heating depth [m]
+    real(kind_phys),    intent(out)               :: maxq0(:)                 ! Maximum daily heating rate [K day-1]
+    real(kind_phys),    intent(out)               :: utgw(:, :)               ! Zonal wind tendency from gravity waves [m s-2]
+    real(kind_phys),    intent(out)               :: vtgw(:, :)               ! Meridional wind tendency from gravity waves [m s-2]
+    real(kind_phys),    intent(out)               :: ttgw(:, :)               ! Temperature tendency from gravity waves [K s-1]
+    real(kind_phys),    intent(out)               :: qtgw(:, :, :)            ! Constituent tendencies from gravity waves [kg kg-1 s-1]
+    real(kind_phys),    intent(out)               :: egwdffi_tot(:, :)        ! Total eddy diffusion coefficient from gravity waves [m2 s-1]
+    real(kind_phys),    intent(out)               :: dttdf(:, :)              ! Temperature tendency from diffusion [K s-1]
+    real(kind_phys),    intent(out)               :: dttke(:, :)              ! Temperature tendency from kinetic energy dissipation [K s-1]
+
+    character(len=512), intent(out)               :: errmsg
+    integer, intent(out)                          :: errflg
+
+    integer :: i, k, m
+
+    ! Wavenumber fields
+    real(kind_phys) :: tau(ncol, -band_mid%ngwv:band_mid%ngwv, pver+1)
+    real(kind_phys) :: gwut(ncol, pver, -band_mid%ngwv:band_mid%ngwv)
+    real(kind_phys) :: phase_speeds(ncol, -band_mid%ngwv:band_mid%ngwv)
+
+    ! Reynolds stress for waves propagating in each cardinal direction.
+    real(kind_phys) :: taucd(ncol, pver + 1, 4)
+
+    ! Momentum fluxes used by fixer.
+    real(kind_phys) :: um_flux(ncol), vm_flux(ncol)
+
+    ! Energy change used by fixer.
+    real(kind_phys) :: de(ncol)
+
+    real(kind_phys) :: effgw(ncol)
+
+    real(kind_phys) :: egwdffi(ncol, pver+1)
+
+
+    tau  = 0._kind_phys
+    gwut = 0._kind_phys
+    phase_speeds = 0._kind_phys
+
+    egwdffi(:,:) = 0._kind_phys
+
+    ! Efficiency of gravity wave momentum transfer.
+    ! This is really only to remove the pole points.
+    where (pi/2._kind_phys - abs(lat(:ncol)) >= 4*epsilon(1._kind_phys))
+      effgw(:) = effgw_beres_dp
+    elsewhere
+      effgw(:) = 0._kind_phys
+    end where
+
+    ! Determine wave sources for Beres deep scheme
+    call gw_beres_src( &
+      ncol        = ncol, &
+      desc        = beres_dp_desc, &
+      u           = u(:ncol,:), &
+      v           = v(:ncol,:), &
+      netdt       = ttend_dp(:ncol,:), &
+      zm          = zm(:ncol,:), &
+      ! Output arguments
+      src_level   = src_level(:ncol), &
+      tend_level  = tend_level(:ncol), &
+      tau         = tau(:ncol,-band_mid%ngwv:band_mid%ngwv,:pver+1), &
+      ubm         = ubm(:ncol,:pver), &
+      ubi         = ubi(:ncol,:pver+1), &
+      xv          = xv(:ncol), &
+      yv          = yv(:ncol), &
+      c           = phase_speeds(:ncol,-band_mid%ngwv:band_mid%ngwv), &
+      hdepth      = hdepth(:ncol), &
+      maxq0       = maxq0(:ncol))
+
+    ! Solve for the drag profile with Beres source spectrum.
+    call gw_drag_prof( &
+      ncol                = ncol, &
+      band                = band_mid, &
+      p                   = p, &
+      src_level           = src_level, &
+      tend_level          = tend_level, &
+      dt                  = dt, &
+      t                   = t(:ncol,:), &
+      vramp               = vramp, &
+      piln                = piln(:ncol,:), &
+      rhoi                = rhoi(:ncol,:), &
+      nm                  = nm(:ncol,:), &
+      ni                  = ni(:ncol,:), &
+      ubm                 = ubm(:ncol,:), &
+      ubi                 = ubi(:ncol,:), &
+      xv                  = xv(:ncol), &
+      yv                  = yv(:ncol), &
+      effgw               = effgw(:ncol), &
+      c                   = phase_speeds(:ncol,-band_mid%ngwv:band_mid%ngwv), &
+      kvtt                = kvt_gw(:ncol,:), &
+      q                   = q(:ncol,:,:), &
+      dse                 = dse(:ncol,:), &
+      lapply_effgw_in     = gw_apply_tndmax, &
+      ! Input/output arguments
+      tau                 = tau(:ncol,-band_mid%ngwv:band_mid%ngwv,:pver+1), &
+      ! Output arguments
+      utgw                = utgw(:ncol,:pver), &
+      vtgw                = vtgw(:ncol,:pver), &
+      ttgw                = ttgw(:ncol,:pver), &
+      qtgw                = qtgw(:ncol,:pver,:pcnst), &
+      egwdffi             = egwdffi(:ncol,:pver+1), &
+      gwut                = gwut(:ncol,:pver,-band_mid%ngwv:band_mid%ngwv), &
+      dttdf               = dttdf(:ncol,:pver), &
+      dttke               = dttke(:ncol,:pver))
+
+    ! Project stress into directional components.
+    taucd = calc_taucd(ncol, band_mid%ngwv, tend_level, tau, phase_speeds, xv, yv, ubi)
+
+    ! Add the diffusion coefficients
+    do k = 1, pver+1
+      egwdffi_tot(:,k) = egwdffi_tot(:,k) + egwdffi(:,k)
+    end do
+
+    ! Store constituents tendencies
+    do m = 1, pcnst
+      do k = 1, pver
+         tend_q(:ncol,k,m) = tend_q(:ncol,k,m) + qtgw(:,k,m)
+      end do
+    end do
+
+    ! Find momentum flux, and use it to fix the wind tendencies below
+    ! the gravity wave region.
+    call momentum_flux(tend_level, taucd, um_flux, vm_flux)
+    call momentum_fixer(tend_level, p, um_flux, vm_flux, utgw, vtgw)
+
+    ! Add the momentum tendencies to the output tendency arrays.
+    do k = 1, pver
+      tend_u(:ncol,k) = tend_u(:ncol,k) + utgw(:,k)
+      tend_v(:ncol,k) = tend_v(:ncol,k) + vtgw(:,k)
+    end do
+
+    ! Find energy change in the current state, and use fixer to apply
+    ! the difference in lower levels.
+    call energy_change(dt, p, u, v, tend_u(:ncol,:), &
+        tend_v(:ncol,:), tend_s(:ncol,:)+ttgw, de)
+    call energy_fixer(tend_level, p, de-flx_heat(:ncol), ttgw)
+
+    do k = 1, pver
+      tend_s(:ncol,k) = tend_s(:ncol,k) + ttgw(:,k)
+    end do
+
+    ! Change ttgw to a temperature tendency before outputing it.
+    ttgw = ttgw / cpair
+    !call gw_spec_outflds(beres_dp_pf, lchnk, ncol, band_mid, phase_speeds, u, v, &
+    !     xv, yv, gwut, dttdf, dttke, tau(:,:,2:), utgw, vtgw, ttgw, &
+    !     taucd)
+
+    ! Diagnostic outputs (convert hdepth to km).
+    !call outfld('NETDT', ttend, pcols, lchnk)
+    !call outfld('HDEPTH', hdepth/1000._kind_phys, ncol, lchnk)
+    !call outfld('MAXQ0', maxq0, ncol, lchnk)
+
+  end subroutine gw_beres_deep_run
+
+  ! Convective gravity waves (Beres scheme, shallow).
+  subroutine gw_beres_shallow_run(&
+             ncol, pver, pcnst, &
+             dt, &
+             p, vramp, &
+             pi, cpair, &
+             effgw_beres_sh, &
+             gw_apply_tndmax, &
+             u, v, t, q, dse, &
+             piln, &
+             rhoi, nm, ni, &
+             kvt_gw, &
+             ttend_sh, &
+             zm, &
+             lat, &
+             tend_q, tend_u, tend_v, tend_s, &
+             flx_heat, &
+             src_level, tend_level, ubm, ubi, xv, yv, &
+             hdepth, maxq0, &
+             utgw, vtgw, ttgw, qtgw, &
+             egwdffi_tot, dttdf, dttke, &
+             errmsg, errflg)
+
+    use coords_1d, only: Coords1D
+    use gw_common, only: energy_change, energy_fixer
+    use gw_common, only: momentum_flux, momentum_fixer
+    use gw_common, only: gw_drag_prof
+    use gw_common, only: calc_taucd
+
+    integer,            intent(in)                :: ncol
+    integer,            intent(in)                :: pver
+    integer,            intent(in)                :: pcnst
+    real(kind_phys),    intent(in)                :: dt
+    type(Coords1D),     intent(in)                :: p                        ! Pressure coordinates [Pa]
+    real(kind_phys),    pointer, intent(in)       :: vramp(:)                 ! Ramping profile for gravity wave drag [1]
+    real(kind_phys),    intent(in)                :: pi                       ! Mathematical constant pi [1]
+    real(kind_phys),    intent(in)                :: cpair                    ! Specific heat of dry air at constant pressure [J kg-1 K-1]
+    real(kind_phys),    intent(in)                :: effgw_beres_sh           ! Efficiency factor for shallow convective gravity waves [1]
+    logical,            intent(in)                :: gw_apply_tndmax          ! Whether or not to apply tendency max [flag]
+    real(kind_phys),    intent(in)                :: u(:,:)                   ! Zonal wind at midpoints [m s-1]
+    real(kind_phys),    intent(in)                :: v(:,:)                   ! Meridional wind at midpoints [m s-1]
+    real(kind_phys),    intent(in)                :: t(:,:)                   ! Temperature at midpoints [K]
+    real(kind_phys),    intent(in)                :: q(:,:,:)                 ! Constituent mixing ratios [kg kg-1]
+    real(kind_phys),    intent(in)                :: dse(:,:)                 ! Dry static energy [J kg-1]
+    real(kind_phys),    intent(in)                :: piln(:, :)               ! Natural logarithm of pressure at interfaces [ln(Pa)]
+    real(kind_phys),    intent(in)                :: rhoi(:, :)               ! Density at interfaces [kg m-3]
+    real(kind_phys),    intent(in)                :: nm(:, :)                 ! Brunt-Vaisalla frequency at midpoints [s-1]
+    real(kind_phys),    intent(in)                :: ni(:, :)                 ! Brunt-Vaisalla frequency at interfaces [s-1]
+    real(kind_phys),    intent(in)                :: kvt_gw(:, :)             ! Molecular thermal diffusivity at interfaces [m2 s-1]
+    real(kind_phys),    intent(in)                :: ttend_sh(:,:)            ! Temperature tendency from shallow convection [K s-1]
+    real(kind_phys),    intent(in)                :: zm(:,:)                  ! Geopotential height at midpoints [m]
+    real(kind_phys),    intent(in)                :: lat(:)                   ! Latitude [rad]
+
+    real(kind_phys),    intent(inout)             :: tend_q(:, :, :)          ! Constituent tendencies [kg kg-1 s-1]
+    real(kind_phys),    intent(inout)             :: tend_u(:, :)             ! Zonal wind tendency [m s-2]
+    real(kind_phys),    intent(inout)             :: tend_v(:, :)             ! Meridional wind tendency [m s-2]
+    real(kind_phys),    intent(inout)             :: tend_s(:, :)             ! Dry static energy tendency [J kg-1 s-1]
+    real(kind_phys),    intent(inout)             :: flx_heat(:)              ! Surface heat flux for energy conservation check [W m-2]
+
+    integer,            intent(out)               :: src_level(:)             ! Vertical level index of gravity wave source [index]
+    integer,            intent(out)               :: tend_level(:)            ! Lowest vertical level index where tendencies are applied [index]
+    real(kind_phys),    intent(out)               :: ubm(:, :)                ! Wind projection at midpoints along source wind direction [m s-1]
+    real(kind_phys),    intent(out)               :: ubi(:, :)                ! Wind projection at interfaces along source wind direction [m s-1]
+    real(kind_phys),    intent(out)               :: xv(:)                    ! Zonal component of source wind unit vector [1]
+    real(kind_phys),    intent(out)               :: yv(:)                    ! Meridional component of source wind unit vector [1]
+    real(kind_phys),    intent(out)               :: hdepth(:)                ! Convective heating depth [m]
+    real(kind_phys),    intent(out)               :: maxq0(:)                 ! Maximum daily heating rate [K day-1]
+    real(kind_phys),    intent(out)               :: utgw(:, :)               ! Zonal wind tendency from gravity waves [m s-2]
+    real(kind_phys),    intent(out)               :: vtgw(:, :)               ! Meridional wind tendency from gravity waves [m s-2]
+    real(kind_phys),    intent(out)               :: ttgw(:, :)               ! Temperature tendency from gravity waves [K s-1]
+    real(kind_phys),    intent(out)               :: qtgw(:, :, :)            ! Constituent tendencies from gravity waves [kg kg-1 s-1]
+    real(kind_phys),    intent(out)               :: egwdffi_tot(:, :)        ! Total eddy diffusion coefficient from gravity waves [m2 s-1]
+    real(kind_phys),    intent(out)               :: dttdf(:, :)              ! Temperature tendency from diffusion [K s-1]
+    real(kind_phys),    intent(out)               :: dttke(:, :)              ! Temperature tendency from kinetic energy dissipation [K s-1]
+
+    character(len=512), intent(out)               :: errmsg
+    integer, intent(out)                          :: errflg
+
+    integer :: i, k, m
+
+    ! Wavenumber fields
+    real(kind_phys) :: tau(ncol, -band_mid%ngwv:band_mid%ngwv, pver+1)
+    real(kind_phys) :: gwut(ncol, pver, -band_mid%ngwv:band_mid%ngwv)
+    real(kind_phys) :: phase_speeds(ncol, -band_mid%ngwv:band_mid%ngwv)
+
+    ! Reynolds stress for waves propagating in each cardinal direction.
+    real(kind_phys) :: taucd(ncol, pver + 1, 4)
+
+    ! Momentum fluxes used by fixer.
+    real(kind_phys) :: um_flux(ncol), vm_flux(ncol)
+
+    ! Energy change used by fixer.
+    real(kind_phys) :: de(ncol)
+
+    real(kind_phys) :: effgw(ncol)
+
+    real(kind_phys) :: egwdffi(ncol, pver+1)
+
+
+    tau  = 0._kind_phys
+    gwut = 0._kind_phys
+    phase_speeds = 0._kind_phys
+
+    egwdffi(:,:) = 0._kind_phys
+
+    ! Efficiency of gravity wave momentum transfer.
+    ! This is really only to remove the pole points.
+    where (pi/2._kind_phys - abs(lat(:ncol)) >= 4*epsilon(1._kind_phys))
+      effgw(:) = effgw_beres_sh
+    elsewhere
+      effgw(:) = 0._kind_phys
+    end where
+
+    ! Determine wave sources for Beres deep scheme
+    call gw_beres_src( &
+      ncol        = ncol, &
+      desc        = beres_sh_desc, &
+      u           = u(:ncol,:), &
+      v           = v(:ncol,:), &
+      netdt       = ttend_sh(:ncol,:), &
+      zm          = zm(:ncol,:), &
+      ! Output arguments
+      src_level   = src_level(:ncol), &
+      tend_level  = tend_level(:ncol), &
+      tau         = tau(:ncol,-band_mid%ngwv:band_mid%ngwv,:pver+1), &
+      ubm         = ubm(:ncol,:pver), &
+      ubi         = ubi(:ncol,:pver+1), &
+      xv          = xv(:ncol), &
+      yv          = yv(:ncol), &
+      c           = phase_speeds(:ncol,-band_mid%ngwv:band_mid%ngwv), &
+      hdepth      = hdepth(:ncol), &
+      maxq0       = maxq0(:ncol))
+
+    ! Solve for the drag profile with Beres source spectrum.
+    call gw_drag_prof( &
+      ncol                = ncol, &
+      band                = band_mid, &
+      p                   = p, &
+      src_level           = src_level, &
+      tend_level          = tend_level, &
+      dt                  = dt, &
+      t                   = t(:ncol,:), &
+      vramp               = vramp, &
+      piln                = piln(:ncol,:), &
+      rhoi                = rhoi(:ncol,:), &
+      nm                  = nm(:ncol,:), &
+      ni                  = ni(:ncol,:), &
+      ubm                 = ubm(:ncol,:), &
+      ubi                 = ubi(:ncol,:), &
+      xv                  = xv(:ncol), &
+      yv                  = yv(:ncol), &
+      effgw               = effgw(:ncol), &
+      c                   = phase_speeds(:ncol,-band_mid%ngwv:band_mid%ngwv), &
+      kvtt                = kvt_gw(:ncol,:), &
+      q                   = q(:ncol,:,:), &
+      dse                 = dse(:ncol,:), &
+      lapply_effgw_in     = gw_apply_tndmax, &
+      ! Input/output arguments
+      tau                 = tau(:ncol,-band_mid%ngwv:band_mid%ngwv,:pver+1), &
+      ! Output arguments
+      utgw                = utgw(:ncol,:pver), &
+      vtgw                = vtgw(:ncol,:pver), &
+      ttgw                = ttgw(:ncol,:pver), &
+      qtgw                = qtgw(:ncol,:pver,:pcnst), &
+      egwdffi             = egwdffi(:ncol,:pver+1), &
+      gwut                = gwut(:ncol,:pver,-band_mid%ngwv:band_mid%ngwv), &
+      dttdf               = dttdf(:ncol,:pver), &
+      dttke               = dttke(:ncol,:pver))
+
+    ! Project stress into directional components.
+    taucd = calc_taucd(ncol, band_mid%ngwv, tend_level, tau, phase_speeds, xv, yv, ubi)
+
+    ! Add the diffusion coefficients
+    do k = 1, pver+1
+      egwdffi_tot(:,k) = egwdffi_tot(:,k) + egwdffi(:,k)
+    end do
+
+    ! Store constituents tendencies
+    do m = 1, pcnst
+      do k = 1, pver
+         tend_q(:ncol,k,m) = tend_q(:ncol,k,m) + qtgw(:,k,m)
+      end do
+    end do
+
+    ! Find momentum flux, and use it to fix the wind tendencies below
+    ! the gravity wave region.
+    call momentum_flux(tend_level, taucd, um_flux, vm_flux)
+    call momentum_fixer(tend_level, p, um_flux, vm_flux, utgw, vtgw)
+
+    ! Add the momentum tendencies to the output tendency arrays.
+    do k = 1, pver
+      tend_u(:ncol,k) = tend_u(:ncol,k) + utgw(:,k)
+      tend_v(:ncol,k) = tend_v(:ncol,k) + vtgw(:,k)
+    end do
+
+    ! Find energy change in the current state, and use fixer to apply
+    ! the difference in lower levels.
+    call energy_change(dt, p, u, v, tend_u(:ncol,:), &
+        tend_v(:ncol,:), tend_s(:ncol,:)+ttgw, de)
+    call energy_fixer(tend_level, p, de-flx_heat(:ncol), ttgw)
+
+    do k = 1, pver
+      tend_s(:ncol,k) = tend_s(:ncol,k) + ttgw(:,k)
+    end do
+
+    ! Change ttgw to a temperature tendency before outputing it.
+    ttgw = ttgw / cpair
+    !call gw_spec_outflds(beres_dp_pf, lchnk, ncol, band_mid, phase_speeds, u, v, &
+    !     xv, yv, gwut, dttdf, dttke, tau(:,:,2:), utgw, vtgw, ttgw, &
+    !     taucd)
+
+  end subroutine gw_beres_shallow_run
+
+!==========================================================================
 
   subroutine gw_beres_src(ncol, &
                           desc, &

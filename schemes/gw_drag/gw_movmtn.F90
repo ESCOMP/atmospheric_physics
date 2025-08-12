@@ -2,7 +2,7 @@
 ! boundary layer turbulence for convection.
 module gw_movmtn
   use ccpp_kinds, only: kind_phys
-  use gw_common, only: GWBand, gw_drag_prof, calc_taucd, handle_err, unset_kind_phys
+  use gw_common, only: GWBand
 
   implicit none
   private
@@ -28,12 +28,11 @@ module gw_movmtn
     real(kind_phys), pointer :: mfcc(:, :, :)  !is the lookup table f(depth, wind, phase speed)
   end type MovMtnSourceDesc
 
-  ! Horizontal wavelength and band for moving mountain gravity waves.
-  real(kind_phys), parameter :: wavelength_mid = 1.e5_kind_phys
+  ! Band for moving mountain gravity waves.
   type(GWBand)               :: band
 
   ! Wave Reynolds stress.
-  real(kind_phys), allocatable :: tau(:, :, :) !tau = momentum flux (m2/s2) at interface level ngwv = band of phase speeds
+  real(kind_phys), allocatable :: tau(:, :, :) ! tau = momentum flux (m2/s2) at interface level ngwv = band of phase speeds
   ! gravity wave wind tendency for each wave
   real(kind_phys), allocatable :: gwut(:, :, :)
   ! Wave phase speeds for each column
@@ -63,6 +62,7 @@ contains
                             pref_edge, movmtn_psteer, movmtn_plaunch, movmtn_source_nl, &
                             errmsg, errflg)
 
+    use gw_common, only: wavelength_mid
     use ccpp_io_reader, only: abstract_netcdf_reader_t, create_netcdf_reader_t
 
     integer, intent(in)                           :: pver
@@ -146,12 +146,17 @@ contains
     ! Number in each direction is half of total (and minus phase speed of 0).
     desc%maxuh = (desc%maxuh - 1)/2
     ngwv_file = (ngwv_file - 1)/2
-    if (ngwv_file < band%ngwv) &
-      call handle_err(stat, errflg, sub//"PhaseSpeed in lookup table inconsistent with moving mountain scheme", errmsg)
+    if (ngwv_file < band%ngwv) then
+      errflg = 1
+      errmsg = sub//"PhaseSpeed in lookup table inconsistent with moving mountain scheme"
+      return
+    endif
 
     ! Allocate hd and get data.
-    allocate (desc%hd(desc%maxh), stat=stat, errmsg=msg)
-    call handle_err(stat, errflg, sub//': Allocate of desc%hd failed', errmsg)
+    allocate (desc%hd(desc%maxh), stat=errflg, errmsg=errmsg)
+    if(errflg /= 0) then
+      return
+    endif
 
     !Attempt to get heating depth from file:
     call reader%get_var('HDEPTH', desc%hd, errmsg, errflg)
@@ -165,8 +170,10 @@ contains
 
     ! Allocate wind and get data.
 
-    allocate (desc%uh(desc%maxuh), stat=stat, errmsg=msg)
-    call handle_err(stat, errflg, sub//': Allocate of desc%uh failed', errmsg)
+    allocate (desc%uh(desc%maxuh), stat=errflg, errmsg=errmsg)
+    if(errflg /= 0) then
+      return
+    endif
 
     call reader%get_var('UARR', desc%uh, errmsg, errflg)
     if (errflg /= 0) then
@@ -177,8 +184,10 @@ contains
     ! model determines wavenumber dimension.
 
     allocate (desc%mfcc(desc%maxh, -desc%maxuh:desc%maxuh, &
-                        -band%ngwv:band%ngwv), stat=stat, errmsg=msg)
-    call handle_err(stat, errflg, sub//': Error allocating desc%mfcc', errmsg)
+                        -band%ngwv:band%ngwv), stat=errflg, errmsg=errmsg)
+    if(errflg /= 0) then
+      return
+    endif
 
     ! Get mfcc data.
     call reader%get_var('NEWMF', file_mfcc, errmsg, errflg)
@@ -228,6 +237,7 @@ contains
                            errmsg, errflg)
 
     use coords_1d, only: Coords1D
+    use gw_common, only: gw_drag_prof, calc_taucd
 
     integer,         intent(in)    :: ncol
     integer,         intent(in)    :: pver
@@ -302,12 +312,12 @@ contains
     effgw(:ncol) = effgw_movmtn_pbl
 
     ! Allocate wavenumber fields.
-    allocate (tau(ncol, -band%ngwv:band%ngwv, pver + 1), stat=stat)
-    call handle_err(stat, errflg, sub//': Allocate of tau failed', errmsg)
-    allocate (gwut(ncol, pver, -band%ngwv:band%ngwv), stat=stat)
-    call handle_err(stat, errflg, sub//': Allocate of gwut failed', errmsg)
-    allocate (phase_speeds(ncol, -band%ngwv:band%ngwv), stat=stat)
-    call handle_err(stat, errflg, sub//': Allocate of phase_speeds failed', errmsg)
+    allocate (tau(ncol, -band%ngwv:band%ngwv, pver + 1), stat=errflg, errmsg=errmsg)
+    if(errflg /= 0) return
+    allocate (gwut(ncol, pver, -band%ngwv:band%ngwv), stat=errflg, errmsg=errmsg)
+    if(errflg /= 0) return
+    allocate (phase_speeds(ncol, -band%ngwv:band%ngwv), stat=errflg, errmsg=errmsg)
+    if(errflg /= 0) return
 
     tau = 0._kind_phys
     gwut = 0._kind_phys

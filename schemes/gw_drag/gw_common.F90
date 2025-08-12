@@ -27,6 +27,7 @@ module gw_common
   public :: pi
   public :: gravit
   public :: rair
+  public :: wavelength_mid, wavelength_long
 
   real(kind_phys), public, parameter :: unset_kind_phys = huge(1._kind_phys)
 
@@ -53,8 +54,10 @@ module gw_common
 
   ! Gas constant for dry air.
   real(kind_phys), protected :: rair = huge(1._kind_phys)
-  ! Horzontal wavelengths [m].
+
+  ! Horizontal wavelengths [m].
   real(kind_phys), parameter :: wavelength_mid = 1.e5_kind_phys
+  real(kind_phys), parameter :: wavelength_long = 3.e5_kind_phys
 
 !
 ! Private variables

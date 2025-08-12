@@ -39,10 +39,6 @@ module gw_drag
   ! the readnl phase and the init phase of the CAM physics; only gw_common
   ! should actually use it.)
   logical                              :: tau_0_ubc = .false.
-  ! Beres (deep convection).
-  real(kind_phys)                      :: effgw_beres_dp
-  ! Beres (shallow convection).
-  real(kind_phys)                      :: effgw_beres_sh
   ! C&M scheme.
   real(kind_phys)                      :: effgw_cm
   ! C&M scheme (inertial waves).
@@ -85,9 +81,6 @@ module gw_drag
   ! Frontogenesis function critical threshold.
   real(kind_phys) :: frontgfc = unset_kind_phys
 
-  ! Files to read Beres source spectra from.
-  character(len=256) :: gw_drag_file
-  character(len=256) :: gw_drag_file_sh
   real(kind_phys)   :: gravit          ! gravitational acceleration (m s-2)
   real(kind_phys)   :: rair            ! Dry air gas constant     (J K-1 kg-1)
   real(kind_phys)   :: pi
@@ -96,15 +89,9 @@ module gw_drag
   logical         ::  use_gw_oro
   logical         ::  use_gw_front
   logical         ::  use_gw_front_igw
-  logical         ::  use_gw_convect_dp
-  logical         ::  use_gw_convect_sh
   logical         ::  use_simple_phys
   logical         ::  do_molec_diff
   integer         ::  nbot_molec
-
-  ! Horizontal wavelengths [m].
-  real(kind_phys), parameter :: wavelength_mid = 1.e5_kind_phys
-  real(kind_phys), parameter :: wavelength_long = 3.e5_kind_phys
 
   ! Background stress source strengths.
   real(kind_phys) :: taubgnd = unset_kind_phys
@@ -142,14 +129,10 @@ contains
     pgwv_long_nl, &
     gw_dc_long_nl, &
     tau_0_ubc_nl, &
-    effgw_beres_dp_nl, &
-    effgw_beres_sh_nl, &
     effgw_cm_nl, &
     effgw_cm_igw_nl, &
     effgw_oro_nl, &
     frontgfc_nl, &
-    gw_drag_file_nl, &
-    gw_drag_file_sh_nl, &
     taubgnd_nl, &
     taubgnd_igw_nl, &
     gw_polar_taper_nl, &
@@ -164,8 +147,6 @@ contains
     use_gw_oro_in, &
     use_gw_front_in, &
     use_gw_front_igw_in, &
-    use_gw_convect_dp_in, &
-    use_gw_convect_sh_in, &
     use_simple_phys_in, &
     do_molec_diff_in, &
     nbot_molec_in, &
@@ -178,7 +159,8 @@ contains
     ! Underlying init subroutines
     use gw_common, only: gw_common_init
     use gw_front, only: gw_front_init
-    use gw_convect, only: gw_beres_init
+
+    use gw_common, only: wavelength_mid, wavelength_long
 
     integer, intent(in)             :: iulog
     logical, intent(in)             :: masterproc
@@ -199,10 +181,6 @@ contains
     ! should actually use it.)
     logical, intent(in)             :: tau_0_ubc_nl
     real(kind_phys), intent(in)     :: pref_edge(:)
-    ! Beres (deep convection).
-    real(kind_phys), intent(in)     :: effgw_beres_dp_nl
-    ! Beres (shallow convection).
-    real(kind_phys), intent(in)     :: effgw_beres_sh_nl
     ! C&M scheme.
     real(kind_phys), intent(in)     :: effgw_cm_nl
     ! C&M scheme (inertial waves).
@@ -216,9 +194,6 @@ contains
     real(kind_phys), intent(in)             :: rearth_in   ! earth radius
     ! Frontogenesis function critical threshold.
     real(kind_phys), intent(in)             :: frontgfc_nl
-    ! Files to read Beres source spectra from.
-    character(len=256), intent(in)             :: gw_drag_file_nl
-    character(len=256), intent(in)             :: gw_drag_file_sh_nl
     ! Background stress source strengths.
     real(kind_phys), intent(in)             :: taubgnd_nl
     real(kind_phys), intent(in)             :: taubgnd_igw_nl
@@ -240,8 +215,6 @@ contains
     logical, intent(in)             ::  use_gw_oro_in
     logical, intent(in)             ::  use_gw_front_in
     logical, intent(in)             ::  use_gw_front_igw_in
-    logical, intent(in)             ::  use_gw_convect_dp_in
-    logical, intent(in)             ::  use_gw_convect_sh_in
     logical, intent(in)             ::  use_simple_phys_in
     integer, intent(in)             :: nbot_molec_in
     logical, intent(in)             :: do_molec_diff_in
@@ -327,16 +300,12 @@ contains
     pgwv_long = pgwv_long_nl
     gw_dc_long = gw_dc_long_nl
     tau_0_ubc = tau_0_ubc_nl
-    effgw_beres_dp = effgw_beres_dp_nl
-    effgw_beres_sh = effgw_beres_sh_nl
     effgw_cm = effgw_cm_nl
     effgw_cm_igw = effgw_cm_igw_nl
     effgw_oro = effgw_oro_nl
     fcrit2 = fcrit2_in
     rearth = rearth_in
     frontgfc = frontgfc_nl
-    gw_drag_file = trim(gw_drag_file_nl)
-    gw_drag_file_sh = trim(gw_drag_file_sh_nl)
     taubgnd = taubgnd_nl
     taubgnd_igw = taubgnd_igw_nl
     gw_polar_taper = gw_polar_taper_nl
@@ -352,8 +321,6 @@ contains
     use_gw_oro = use_gw_oro_in
     use_gw_front = use_gw_front_in
     use_gw_front_igw = use_gw_front_igw_in
-    use_gw_convect_dp = use_gw_convect_dp_in
-    use_gw_convect_sh = use_gw_convect_sh_in
     use_simple_phys = use_simple_phys_in
     do_molec_diff = do_molec_diff_in
     nbot_molec = nbot_molec_in
@@ -420,12 +387,6 @@ contains
                          front_gaussian_width, masterproc, iulog, errmsg, errflg)
       if (errflg /= 0) return
     endif
-
-    if(use_gw_convect_dp .or. use_gw_convect_sh) then
-      call gw_beres_init(pver, pi, gw_drag_file_sh, gw_drag_file, pref_edge, gw_dc, wavelength_mid, pgwv, &
-                         use_gw_convect_dp, use_gw_convect_sh, masterproc, iulog, errmsg, errflg)
-      if (errflg /= 0) return
-    end if
   end subroutine gw_drag_init
 
 !==========================================================================
@@ -477,7 +438,6 @@ contains
     use gw_common, only: energy_fixer, coriolis_speed, adjust_inertial
     use gw_oro, only: gw_oro_src
     use gw_front, only: gw_cm_src, cm_desc, cm_igw_desc
-    use gw_convect, only: gw_beres_src, beres_dp_desc, beres_sh_desc
 
     integer, intent(in)        :: ncol  ! number of atmospheric columns
     integer, intent(in)        :: pcnst ! chunk number
@@ -521,7 +481,7 @@ contains
     ! Parameterization net tendencies.
     ! sum from the two types of spectral GW
     real(kind_phys), intent(out) :: egwdffi_tot(:, :)
-    real(kind_phys), intent(out) :: flx_heat(:)
+    real(kind_phys), intent(inout) :: flx_heat(:)
     character(len=512), intent(out) :: errmsg
     integer, intent(out) :: errflg
 
@@ -592,240 +552,6 @@ contains
 
     if (use_gw_front_igw) then
       u_coriolis = coriolis_speed(band_long, lat(:ncol))
-    end if
-
-    !------------------------------------------------------------------
-    ! Convective gravity waves (Beres scheme, deep).
-    !------------------------------------------------------------------
-    if (use_gw_convect_dp) then
-
-!!$     call gw_beres_run(ncol, band_mid, beres_dp_desc, &
-!!$          state_u, state_v, ttend_dp(:ncol,:), zm, src_level, tend_level, tau, &
-!!$          ubm, ubi, xv, yv, phase_speeds, hdepth, maxq0, &
-!!$          p, dt, frontgf, frontga, &
-!!$          state_t, vramp,    &
-!!$          piln, rhoi,       nm,   ni,   &
-!!$          effgw_dp,  kvtt, state_q,  dse,  utgw,  vtgw, &
-!!$          ttgw, qtgw, egwdffi,  gwut, dttdf, dttke,            &
-!!$          lapply_effgw_in=gw_apply_tndmax, flx_heat_curr)
-!!$
-!!$     !  add the diffusion coefficients
-!!$     do k = 1, pver+1
-!!$        egwdffi_tot(:,k) = egwdffi_tot(:,k) + egwdffi(:,k)
-!!$     end do
-
-      ! Allocate wavenumber fields.
-      allocate (tau(ncol, -band_mid%ngwv:band_mid%ngwv, pver + 1), stat=stat)
-      call handle_err(stat, errflg, sub//': Allocate of tau failed', errmsg)
-      allocate (gwut(ncol, pver, -band_mid%ngwv:band_mid%ngwv), stat=stat)
-      call handle_err(stat, errflg, sub//': Allocate of gwut failed', errmsg)
-      allocate (phase_speeds(ncol, -band_mid%ngwv:band_mid%ngwv), stat=stat)
-      call handle_err(stat, errflg, sub//': Allocate of phase_speeds failed', errmsg)
-
-      ! Efficiency of gravity wave momentum transfer.
-      ! This is really only to remove the pole points.
-      where (pi/2._kind_phys - abs(lat(:ncol)) >= 4*epsilon(1._kind_phys))
-        effgw = effgw_beres_dp
-      elsewhere
-        effgw = 0._kind_phys
-      end where
-
-      ! Determine wave sources for Beres deep scheme
-      call gw_beres_src( &
-        ncol        = ncol, &
-        desc        = beres_dp_desc, &
-        u           = state_u(:ncol,:), &
-        v           = state_v(:ncol,:), &
-        netdt       = ttend_dp(:ncol,:), &
-        zm          = zm(:ncol,:), &
-        ! Output arguments
-        src_level   = src_level(:ncol), &
-        tend_level  = tend_level(:ncol), &
-        tau         = tau(:ncol,-band_mid%ngwv:band_mid%ngwv,:pver+1), &
-        ubm         = ubm(:ncol,:pver), &
-        ubi         = ubi(:ncol,:pver+1), &
-        xv          = xv(:ncol), &
-        yv          = yv(:ncol), &
-        c           = phase_speeds(:ncol,-band_mid%ngwv:band_mid%ngwv), &
-        hdepth      = hdepth(:ncol), &
-        maxq0       = maxq0(:ncol))
-
-      ! Solve for the drag profile with Beres source spectrum.
-      call gw_drag_prof( &
-        ncol                = ncol, &
-        band                = band_mid, &
-        p                   = p, &
-        src_level           = src_level, &
-        tend_level          = tend_level, &
-        dt                  = dt, &
-        t                   = state_t(:ncol,:), &
-        vramp               = vramp, &
-        piln                = piln(:ncol,:), &
-        rhoi                = rhoi(:ncol,:), &
-        nm                  = nm(:ncol,:), &
-        ni                  = ni(:ncol,:), &
-        ubm                 = ubm(:ncol,:), &
-        ubi                 = ubi(:ncol,:), &
-        xv                  = xv(:ncol), &
-        yv                  = yv(:ncol), &
-        effgw               = effgw(:ncol), &
-        c                   = phase_speeds(:ncol,-band_mid%ngwv:band_mid%ngwv), &
-        kvtt                = kvtt(:ncol,:), &
-        q                   = state_q(:ncol,:,:), &
-        dse                 = dse(:ncol,:), &
-        lapply_effgw_in     = gw_apply_tndmax, &
-        ! Input/output arguments
-        tau                 = tau(:ncol,-band_mid%ngwv:band_mid%ngwv,:pver+1), &
-        ! Output arguments
-        utgw                = utgw(:ncol,:pver), &
-        vtgw                = vtgw(:ncol,:pver), &
-        ttgw                = ttgw(:ncol,:pver), &
-        qtgw                = qtgw(:ncol,:pver,:pcnst), &
-        egwdffi             = egwdffi(:ncol,:pver+1), &
-        gwut                = gwut(:ncol,:pver,-band_mid%ngwv:band_mid%ngwv), &
-        dttdf               = dttdf(:ncol,:pver), &
-        dttke               = dttke(:ncol,:pver))
-
-      ! Project stress into directional components.
-      taucd = calc_taucd(ncol, band_mid%ngwv, tend_level, tau, phase_speeds, xv, yv, ubi)
-
-      !  add the diffusion coefficients
-      do k = 1, pver + 1
-        egwdffi_tot(:, k) = egwdffi_tot(:, k) + egwdffi(:, k)
-      end do
-
-      ! Store constituents tendencies
-      do m = 1, pcnst
-        do k = 1, pver
-          q_tend(:ncol, k, m) = q_tend(:ncol, k, m) + qtgw(:, k, m)
-        end do
-      end do
-
-      ! Find momentum flux, and use it to fix the wind tendencies below
-      ! the gravity wave region.
-      call momentum_flux(tend_level, taucd, um_flux, vm_flux)
-      call momentum_fixer(tend_level, p, um_flux, vm_flux, utgw, vtgw)
-
-      ! Add the momentum tendencies to the output tendency arrays.
-      do k = 1, pver
-        u_tend(:ncol, k) = u_tend(:ncol, k) + utgw(:, k)
-        v_tend(:ncol, k) = v_tend(:ncol, k) + vtgw(:, k)
-      end do
-
-      ! Find energy change in the current state, and use fixer to apply
-      ! the difference in lower levels.
-      call energy_change(dt, p, state_u, state_v, u_tend(:ncol, :), &
-                         v_tend(:ncol, :), s_tend(:ncol, :) + ttgw, de)
-      call energy_fixer(tend_level, p, de - flx_heat(:ncol), ttgw)
-
-      do k = 1, pver
-        s_tend(:ncol, k) = s_tend(:ncol, k) + ttgw(:, k)
-      end do
-
-      ! Change ttgw to a temperature tendency before outputing it.
-!!$     ttgw = ttgw / cpair
-!!$     call gw_spec_outflds(beres_dp_pf, ncol, pver, band_mid, phase_speeds, u, v, &
-!!$          xv, yv, gwut, dttdf, dttke, tau(:,:,2:), utgw, vtgw, ttgw, &
-!!$          taucd)
-
-!!$     ! Diagnostic outputs (convert hdepth to km).
-!!$     call outfld('NETDT', ttend_dp, pcols, lchnk)
-!!$     call outfld('HDEPTH', hdepth/1000._kind_phys, ncol, lchnk)
-!!$     call outfld('MAXQ0', maxq0, ncol, lchnk)
-
-      deallocate (tau, gwut, phase_speeds)
-
-    end if
-
-    !------------------------------------------------------------------
-    ! Convective gravity waves (Beres scheme, shallow).
-    !------------------------------------------------------------------
-    if (use_gw_convect_sh) then
-!!$
-!!$     call gw_beres_run(ncol, band_mid, beres_sh_desc, state_u, state_v, &
-!!$     ttend_sh, zm, src_level, tend_level, tau, ubm, ubi, xv, yv, &
-!!$     c, hdepth, maxq0 ,effgw_sh)
-!!$
-!!$     !  add the diffusion coefficients
-!!$     do k = 1, pver+1
-!!$        egwdffi_tot(:,k) = egwdffi_tot(:,k) + egwdffi(:,k)
-!!$     end do
-
-      ! Allocate wavenumber fields.
-      allocate (tau(ncol, -band_mid%ngwv:band_mid%ngwv, pver + 1), stat=stat)
-      call handle_err(stat, errflg, sub//': Allocate of tau failed', errmsg)
-      allocate (gwut(ncol, pver, -band_mid%ngwv:band_mid%ngwv), stat=stat)
-      call handle_err(stat, errflg, sub//': Allocate of gwut failed', errmsg)
-      allocate (phase_speeds(ncol, -band_mid%ngwv:band_mid%ngwv), stat=stat)
-      call handle_err(stat, errflg, sub//': Allocate of phase_speeds failed', errmsg)
-
-      ! Efficiency of gravity wave momentum transfer.
-      ! This is really only to remove the pole points.
-      where (pi/2._kind_phys - abs(lat(:ncol)) >= 4*epsilon(1._kind_phys))
-        effgw = effgw_beres_sh
-      elsewhere
-        effgw = 0._kind_phys
-      end where
-
-      ! Determine wave sources for Beres shallow scheme
-      call gw_beres_src(ncol, &
-                        beres_sh_desc, &
-                        state_u, state_v, ttend_sh(:ncol, :), zm, src_level, tend_level, tau, &
-                        ubm, ubi, xv, yv, phase_speeds, hdepth, maxq0)
-
-      ! Solve for the drag profile with Beres source spectrum.
-      call gw_drag_prof(ncol, band_mid, p, src_level, tend_level, dt, &
-                        state_t, vramp, &
-                        piln, rhoi, nm, ni, ubm, ubi, xv, yv, &
-                        effgw, phase_speeds, kvtt, state_q, dse, tau, utgw, vtgw, &
-                        ttgw, qtgw, egwdffi, gwut, dttdf, dttke, &
-                        lapply_effgw_in=gw_apply_tndmax)
-
-      ! Project stress into directional components.
-      taucd = calc_taucd(ncol, band_mid%ngwv, tend_level, tau, phase_speeds, xv, yv, ubi)
-
-      !  add the diffusion coefficients
-      do k = 1, pver + 1
-        egwdffi_tot(:, k) = egwdffi_tot(:, k) + egwdffi(:, k)
-      end do
-
-      ! Store constituents tendencies
-      do m = 1, pcnst
-        do k = 1, pver
-          q_tend(:ncol, k, m) = q_tend(:ncol, k, m) + qtgw(:, k, m)
-        end do
-      end do
-
-      ! Add the momentum tendencies to the output tendency arrays.
-      ! Don't calculate fixers, since we are too close to the ground to
-      ! spread momentum/energy differences across low layers.
-      do k = 1, pver
-        u_tend(:ncol, k) = u_tend(:ncol, k) + utgw(:, k)
-        v_tend(:ncol, k) = v_tend(:ncol, k) + vtgw(:, k)
-        s_tend(:ncol, k) = s_tend(:ncol, k) + ttgw(:, k)
-      end do
-
-      ! Calculate energy change for output to CAM's energy checker.
-      ! This is sort of cheating; we don't have a good a priori idea of the
-      ! energy coming from surface stress, so we just integrate what we and
-      ! actually have so far and overwrite flx_heat with that.
-      call energy_change(dt, p, state_u, state_v, u_tend(:ncol, :), &
-                         v_tend(:ncol, :), s_tend(:ncol, :), de)
-      flx_heat(:ncol) = de
-
-      ! Change ttgw to a temperature tendency before outputing it.
-!!$     ttgw = ttgw / cpair
-!!$     call gw_spec_outflds(beres_sh_pf, ncol, pver, band_mid, phase_speeds, u, v, &
-!!$          xv, yv, gwut, dttdf, dttke, tau(:,:,2:), utgw, vtgw, ttgw, &
-!!$          taucd)
-
-!!$     ! Diagnostic outputs (convert SHDEPTH to km).
-!!$     call outfld ('SNETDT', ttend_sh, pcols, lchnk)
-!!$     call outfld ('SHDEPTH', hdepth/1000._kind_phys, ncol, lchnk)
-!!$     call outfld ('SMAXQ0', maxq0, ncol, lchnk)
-
-      deallocate (tau, gwut, phase_speeds)
-
     end if
 
     !------------------------------------------------------------------

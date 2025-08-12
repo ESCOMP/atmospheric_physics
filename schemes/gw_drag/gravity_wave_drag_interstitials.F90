@@ -8,7 +8,7 @@ module gravity_wave_drag_interstitials
 
   ! public CCPP-compliant subroutines
   public :: gravity_wave_drag_prepare_profiles_run
-  public :: gravity_wave_drag_prepare_profiles_timestep_finalize
+  public :: gravity_wave_drag_prepare_profiles_timestep_final
 
 contains
 
@@ -157,9 +157,9 @@ contains
 
   end subroutine gravity_wave_drag_prepare_profiles_run
 
-!> \section arg_table_gravity_wave_drag_prepare_profiles_timestep_finalize Argument Table
-!! \htmlinclude gravity_wave_drag_prepare_profiles_timestep_finalize.html
-  subroutine gravity_wave_drag_prepare_profiles_timestep_finalize(p, errmsg, errflg)
+!> \section arg_table_gravity_wave_drag_prepare_profiles_timestep_final Argument Table
+!! \htmlinclude gravity_wave_drag_prepare_profiles_timestep_final.html
+  subroutine gravity_wave_drag_prepare_profiles_timestep_final(p, errmsg, errflg)
 
     use coords_1d, only: Coords1D
 
@@ -172,6 +172,6 @@ contains
 
     call p%finalize()
 
-  end subroutine gravity_wave_drag_prepare_profiles_timestep_finalize
+  end subroutine gravity_wave_drag_prepare_profiles_timestep_final
 
 end module gravity_wave_drag_interstitials
