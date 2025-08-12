@@ -280,7 +280,7 @@ module rrtmgp_inputs
         ! set the highest pmid (in the "extra layer") to the midpoint (guarantees > 1Pa) 
         pmid_rad(:,1)   = pint_rad(:,1) + 0.5_kind_phys * (pint_rad(:,2) - pint_rad(:,1))
      else
-        ! nlay < pverp : model min(pref) < p_top_for_rrtmgp (10Pa)  (Case 2 above)
+        ! nlay < pverp : model min(pref) < p_top_for_rrtmgp  (Case 2 above)
         ! min(pref) could be 9.999 or 0.0999  
         ! Assuming the top interface of this layer is at a pressure < 1 Pa, we need to adjust
         ! so that it is within the valid pressure range of RRTMGP (otherwise RRTMGP issues
