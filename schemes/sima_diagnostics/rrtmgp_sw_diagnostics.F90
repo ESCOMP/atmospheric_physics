@@ -54,20 +54,29 @@ CONTAINS
       !  and add the relevant fields for each cycle if it's active
       do icall = 1, num_diag_subcycles
          if (active_calls(icall)) then
-            call history_add_field('QRS'//diag(icall-1),     'Shortwave heating rate',                            'lev',      'avg',  'K s-1')
-            call history_add_field('QRSC'//diag(icall-1),    'Clearsky shortwave heating rate',                   'lev',      'avg',  'K s-1')
-            call history_add_field('FSNT'//diag(icall-1),    'Net shortwave flux at top of model',                horiz_only, 'avg',  'W m-2')
-            call history_add_field('FSNTC'//diag(icall-1),   'Clearky net shortwave flux at top of model',        horiz_only, 'avg',  'W m-2')
-            call history_add_field('FSUT'//diag(icall-1),    'Upwelling shortwave flux at top of model',          horiz_only, 'avg',  'W m-2')
-            call history_add_field('FSUTC'//diag(icall-1),   'Clearsky upwelling shortwave flux at top of model', horiz_only, 'avg',  'W m-2')
+            call history_add_field('SOLIN'//diag(icall-1),   'Solar isolation',                                   horiz_only, 'avg',  'W m-2')
+            call history_add_field('QRS'//diag(icall-1),     'Solar heating rate',                                'lev',      'avg',  'K s-1')
+            call history_add_field('QRSC'//diag(icall-1),    'Clearsky solar heating rate',                       'lev',      'avg',  'K s-1')
+            call history_add_field('FSNT'//diag(icall-1),    'Net solar flux at top of model',                    horiz_only, 'avg',  'W m-2')
+            call history_add_field('FSNTC'//diag(icall-1),   'Clearky net solar flux at top of model',            horiz_only, 'avg',  'W m-2')
+            call history_add_field('FSNTOA'//diag(icall-1),  'Net solar flux at top of atmosphere',               horiz_only, 'avg',  'W m-2')
+            call history_add_field('FSNTOAC'//diag(icall-1), 'Clearsky net solar flux at top of atmosphere',      horiz_only, 'avg',  'W m-2')
             call history_add_field('SWCF'//diag(icall-1),    'Shortwave cloud forcing',                           horiz_only, 'avg',  'W m-2')
+            call history_add_field('FSUTOA'//diag(icall-1),  'Upwelling solar flux at top of atmospehre',         horiz_only, 'avg',  'W m-2')
             call history_add_field('FSN200'//diag(icall-1),  'Net shortwave flux at 200 mb',                      horiz_only, 'avg',  'W m-2')
             call history_add_field('FSN200C'//diag(icall-1), 'Clearsky net shortwave flux at 200 mb',             horiz_only, 'avg',  'W m-2')
-            call history_add_field('FSNR'//diag(icall-1),    'Net shortwave flux at tropopause',                  horiz_only, 'avg',  'W m-2')
-            call history_add_field('FSNS'//diag(icall-1),    'Net shortwave flux at surface',                     horiz_only, 'avg',  'W m-2')
-            call history_add_field('FSNSC'//diag(icall-1),   'Clearsky net shortwave flux at surface',            horiz_only, 'avg',  'W m-2')
-            call history_add_field('FSDS'//diag(icall-1),    'Downwelling shortwave flux at surface',             horiz_only, 'avg',  'W m-2')
-            call history_add_field('FSDSC'//diag(icall-1),   'Clearky Downwelling shortwave flux at surface',     horiz_only, 'avg',  'W m-2')
+            call history_add_field('FSNR'//diag(icall-1),    'Net solar flux at tropopause',                      horiz_only, 'avg',  'W m-2')
+            call history_add_field('SOLL'//diag(icall-1),    'Solar downward near infrared direct to surface',    horiz_only, 'avg',  'W m-2')
+            call history_add_field('SOLS'//diag(icall-1),    'Solar downward visible direct to surface',          horiz_only, 'avg',  'W m-2')
+            call history_add_field('SOLLD'//diag(icall-1),   'Solar downward near infrared diffuse to surface',   horiz_only, 'avg',  'W m-2')
+            call history_add_field('SOLSD'//diag(icall-1),   'Solar downward visible diffuse to surface',         horiz_only, 'avg',  'W m-2')
+            call history_add_field('FSNS'//diag(icall-1),    'Net solar flux at surface',                         horiz_only, 'avg',  'W m-2')
+            call history_add_field('FSNSC'//diag(icall-1),   'Clearsky net solar flux at surface',                horiz_only, 'avg',  'W m-2')
+            call history_add_field('FSDS'//diag(icall-1),    'Downwelling solar flux at surface',                 horiz_only, 'avg',  'W m-2')
+            call history_add_field('FSDSC'//diag(icall-1),   'Clearky downwelling solar flux at surface',         horiz_only, 'avg',  'W m-2')
+            call history_add_field('FSNIRTOA'//diag(icall-1),'Net near-infrared flux (Nimbus-7 WFOV at top of atmosphere',          horiz_only, 'avg', 'W m-2')
+            call history_add_field('FSNRTOAC'//diag(icall-1),'Clearsky net near-infrared flux (Nimbus-7 WFOV at top of atmosphere', horiz_only, 'avg', 'W m-2')
+            call history_add_field('FSNRTOAS'//diag(icall-1),'Net near-infrared flux (>= 0.7 microns) at top of atmosphere',        horiz_only, 'avg', 'W m-2')
 
             ! Fluxes on CAM grid
             call history_add_field('FUS'//diag(icall-1),     'Shortwave upward flux',                             'ilev',     'inst', 'W m-2')
@@ -81,8 +90,9 @@ CONTAINS
 
    !> \section arg_table_rrtmgp_sw_diagnostics_run  Argument Table
    !! \htmlinclude rrtmgp_sw_diagnostics_run.html
-   subroutine rrtmgp_sw_diagnostics_run(num_diag_subcycles, icall, active_calls, fsw, fswc, rpdel, ncol, &
-                  nlay, pver, pverp, pint, gravit, cpair, p_trop, ktopcam, ktoprad, write_output, errmsg, errflg)
+   subroutine rrtmgp_sw_diagnostics_run(num_diag_subcycles, icall, active_calls, fsw, fswc, rpdel, ncol, nday, idxday, &
+                  nlay, pver, pverp, pint, gravit, cpair, p_trop, fns, fcns, qrs, qrsc, fsnt, fsns, sols, soll, solsd, &
+                  solld, ktopcam, ktoprad, write_output, errmsg, errflg)
 
       use cam_history,        only: history_out_field
       use ccpp_fluxes,        only: ty_fluxes_broadband_ccpp
@@ -94,6 +104,8 @@ CONTAINS
       integer,                        intent(in) :: num_diag_subcycles  ! Number of diagnostics subcycles
       integer,                        intent(in) :: icall               ! Current diagnostic subcycle
       integer,                        intent(in) :: ncol                ! Number of horizontal points
+      integer,                        intent(in) :: nday                ! Number of daytime points
+      integer,                        intent(in) :: idxday              ! Daytime points
       integer,                        intent(in) :: nlay                ! Number of vertical layers used in radiation calcluation
       integer,                        intent(in) :: pver                ! Number of vertical layers
       integer,                        intent(in) :: pverp               ! Number of vertical layer interfaces
@@ -106,6 +118,16 @@ CONTAINS
       real(kind_phys),                intent(in) :: pint(:,:)           ! Air pressure at layer interfaces [Pa]
       real(kind_phys),                intent(in) :: p_trop(:)           ! Tropopause air pressure [Pa]
       real(kind_phys),                intent(in) :: rpdel(:,:)          ! Reciprocal of layer thickness [Pa-1]
+      real(kind_phys),                intent(in) :: fns(:,:)            ! Net shortwave all-sky flux [W m-2]
+      real(kind_phys),                intent(in) :: fcns(:,:)           ! Net shortwave clear-sky flux [W m-2]
+      real(kind_phys),                intent(in) :: qrs(:,:)            ! Heating rate (all-sky, shortwave) [J kg-1 s-1]
+      real(kind_phys),                intent(in) :: qrsc(:,:)           ! Heating rate (clear-sky, shortwave) [J kg-1 s-1]
+      real(kind_phys),                intent(in) :: fsnt(:)             ! Shortwave outgoing flux at model top [W m-2]
+      real(kind_phys),                intent(in) :: fsns(:)             ! Shortwave upward flux at surface [W m-2]
+      real(kind_phys),                intent(in) :: sols(:)
+      real(kind_phys),                intent(in) :: soll(:)
+      real(kind_phys),                intent(in) :: solsd(:)
+      real(kind_phys),                intent(in) :: solld(:)
       type(ty_fluxes_byband_ccpp),    intent(in) :: fsw                 ! Shortwave all-sky flux object
       type(ty_fluxes_broadband_ccpp), intent(in) :: fswc                ! Shortwave clear-sky flux object
       
@@ -115,14 +137,18 @@ CONTAINS
 
       ! Local variables
       integer :: diag_index, idx
-      real(kind_phys) :: fnl(ncol, pverp)
-      real(kind_phys) :: fcnl(ncol, pverp)
-      real(kind_phys) :: qrl(ncol, pver)
-      real(kind_phys) :: qrlc(ncol, pver)
-      real(kind_phys) :: fln200(ncol)
-      real(kind_phys) :: fln200c(ncol)
-      real(kind_phys) :: flnr(ncol)
-      real(kind_phys) :: ftem(ncol)
+      real(kind_phys) :: solin(ncol)
+      real(kind_phys) :: fcns(ncol)
+      real(kind_phys) :: fsntoa(ncol)
+      real(kind_phys) :: fsntoac(ncol)
+      real(kind_phys) :: fsutoa(ncol)
+      real(kind_phys) :: fsdsc(ncol)
+      real(kind_phys) :: flux_sw_up(ncol,pver)
+      real(kind_phys) :: flux_sw_dn(ncol,pver)
+      real(kind_phys) :: flux_sw_clr_up(ncol,pver)
+      real(kind_phys) :: flux_sw_clr_dn(ncol,pver)
+      real(kind_phys) :: fsntc(ncol)
+      real(kind_phys) :: fsnsc(ncol)
 
       errmsg = ''
       errflg = 0
@@ -135,76 +161,76 @@ CONTAINS
          return
       end if
 
-      fnl = 0.0_kind_phys
-      fcnl = 0.0_kind_phys
+      ! Initialize to provide 0.0 values for night columns.
+      solin = 0.0_kind_phys
+      fcns = 0.0_kind_phys
+      fsntoa = 0.0_kind_phys
+      fsntoac = 0.0_kind_phys
+      fsutoa = 0.0_kind_phys
+      fsdsc = 0.0_kind_phys
+      flux_sw_up = 0.0_kind_phys
+      flux_sw_dn = 0.0_kind_phys
+      flux_sw_clr_up = 0.0_kind_phys
+      flux_sw_clr_dn = 0.0_kind_phys
 
-      ! RTE-RRTMGP convention for net is (down - up) **CAM assumes (up - down) !!
-      fnl( :,ktopcam:) = -1._kind_phys * fsw%fluxes%flux_net(    :, ktoprad:)
-      fcnl(:,ktopcam:) = -1._kind_phys * fswc%fluxes%flux_net(   :, ktoprad:)
+      ! Load up diagnostic arrays
+      do idx = 1, nday
+         solin(idxday(idx) = fswc%fluxes%flux_dn(idx, 1)
+         fsntoa(idxday(idx)) = fsw%fluxes%flux_net(idx, 1)
+         fsntoac(idxday(idx)) = fswc%fluxes%flux_net(idx, 1)
+         fsutoa(idxday(idx)) = fsw%fluxes%flux_up(idx, 1)
+         fsdsc(idxday(idx))  = fswc%fluxes%flux_dn(idx, nlay+1)
+         flux_sw_up(idxday(idx),ktopcam:) = fsw%fluxes%flux_up(idx,ktoprad:)
+         flux_sw_dn(idxday(idx),ktopcam:) = fsw%fluxes%flux_dn(idx,ktoprad:)
+         flux_sw_clr_up(idxday(idx),ktopcam:) = fswc%fluxes%flux_up(idx,ktoprad:)
+         flux_sw_clr_dn(idxday(idx),ktopcam:) = fswc%fluxes%flux_dn(idx,ktoprad:)
+      end do
 
-      call sw_heating_rate(ncol, ktopcam, pver, fnl, gravit, rpdel, qrl)
-      call sw_heating_rate(ncol, ktopcam, pver, fcnl, gravit, rpdel, qrlc)
+      fsntc(:) = fcns(:, pverp)   ! net sw clearsky flux at top
+      fsnsc(:) = fcns(:, pverp)   ! net sw clearsky flux at surface
 
       ! History out field calls
-      call history_out_field('QRS'//diag(diag_index),     qrl(:,:)/cpair)
-      call history_out_field('QRSC'//diag(diag_index),    qrlc(:,:)/cpair)
+      call history_out_field('SOLIN'//diag(diag_index),   solin)
+      call history_out_field('QRS'//diag(diag_index),     qrs(:,:)/cpair)
+      call history_out_field('QRSC'//diag(diag_index),    qrsc(:,:)/cpair)
 
-      call history_out_field('FSNT'//diag(diag_index),    fnl(:,ktopcam))
-      call history_out_field('FSNTC'//diag(diag_index),   fcnl(:,ktopcam))
+      call history_out_field('FSNT'//diag(diag_index),    fsnt)
+      call history_out_field('FSNTC'//diag(diag_index),   fsntc)
+      call history_out_field('FSNTOA'//diag(diag_index),  fsntoa)
+      call history_out_field('FSNTOAC'//diag(diag_index), fsntoac)
 
-      call history_out_field('FSUT'//diag(diag_index),    fsw%fluxes%flux_up(:, ktoprad))
-      call history_out_field('FSUTC'//diag(diag_index),   fswc%fluxes%flux_up(:, ktoprad))
+      call history_out_field('SWCF'//diag(diag_index),    fsntoa - fsntoac)
 
-      ftem(:) = fswc%fluxes%flux_up(:, ktoprad) - fsw%fluxes%flux_up(:, ktoprad)
-      call history_out_field('SWCF'//diag(diag_index),    ftem)
+      call history_out_field('FSUTOA'//diag(diag_index),  fsutoa)
 
       ! Output fluxes at 200 mb
-      call vertinterp(ncol, ncol, pverp, pint, 20000._kind_phys, fnl,  fln200)
-      call vertinterp(ncol, ncol, pverp, pint, 20000._kind_phys, fcnl, fln200c)
-      call history_out_field('FSN200'//diag(diag_index),  fln200)
-      call history_out_field('FSN200C'//diag(diag_index), fln200c)
+      call vertinterp(ncol, ncol, pverp, pint, 20000._kind_phys, fns,  fsn200)
+      call vertinterp(ncol, ncol, pverp, pint, 20000._kind_phys, fcns, fsn200c)
+      call history_out_field('FSN200'//diag(diag_index),  fsn200)
+      call history_out_field('FSN200C'//diag(diag_index), fsn200c)
 
       do idx = 1,ncol
-         call vertinterp(1, 1, pverp, pint(idx,:), p_trop(idx), fnl(idx,:), flnr(idx))
+         call vertinterp(1, 1, pverp, pint(idx,:), p_trop(idx), fns(idx,:), fsnr(idx))
       end do
-      call history_out_field('FSNR'//diag(diag_index),    flnr)
+      call history_out_field('FSNR'//diag(diag_index),    fsnr)
 
-      call history_out_field('FSNS'//diag(diag_index),    fnl(:,pverp))
-      call history_out_field('FSNSC'//diag(diag_index),   fcnl(:,pverp))
+      call history_out_field('SOLS'//diag(diag_index),    sols)
+      call history_out_field('SOLL'//diag(diag_index),    soll)
+      call history_out_field('SOLSD'//diag(diag_index),   solsd)
+      call history_out_field('SOLLD'//diag(diag_index),   solld)
 
-      call history_out_field('FSDS'//diag(diag_index),    fsw%fluxes%flux_dn(:, nlay+1))
-      call history_out_field('FSDSC'//diag(diag_index),   fswc%fluxes%flux_dn(:, nlay+1))
+      call history_out_field('FSNS'//diag(diag_index),    fsns)
+      call history_out_field('FSNSC'//diag(diag_index),   fsnsc)
+
+      call history_out_field('FSDS'//diag(diag_index),    fsds)
+      call history_out_field('FSDSC'//diag(diag_index),   fsdsc)
 
       ! Fluxes on the CAM grid
-      call history_out_field('FDS'//diag(diag_index),     fsw%fluxes%flux_dn( :, ktoprad:))
-      call history_out_field('FDSC'//diag(diag_index),    fswc%fluxes%flux_dn(:, ktoprad:))
-      call history_out_field('FUS'//diag(diag_index),     fsw%fluxes%flux_up( :, ktoprad:))
-      call history_out_field('FUSC'//diag(diag_index),    fswc%fluxes%flux_up(:, ktoprad:))
+      call history_out_field('FDS'//diag(diag_index),     flux_sw_dn)
+      call history_out_field('FDSC'//diag(diag_index),    flux_sw_clr_dn)
+      call history_out_field('FUS'//diag(diag_index),     flux_sw_up)
+      call history_out_field('FUSC'//diag(diag_index),    flux_sw_clr_up)
 
    end subroutine rrtmgp_sw_diagnostics_run
-
-   !=======================================================================
-
-   subroutine sw_heating_rate(ncol, ktopcam, pver, flux_net, gravit, rpdel, hrate)
-      ! Compute heating rate as a dry static energy tendency
-
-      ! arguments
-      integer,          intent(in) :: ncol
-      integer,          intent(in) :: ktopcam
-      integer,          intent(in) :: pver
-      real(kind_phys),  intent(in) :: flux_net(:,:)   ! W m-2
-      real(kind_phys),  intent(in) :: gravit          ! m s-2
-      real(kind_phys),  intent(in) :: rpdel(:,:)      ! Pa
-      real(kind_phys), intent(out) :: hrate(:,:)      ! J kg-1 s-1
-
-      ! local vars
-      integer :: kdx
-
-      do kdx = ktopcam, pver
-         ! (flux divergence as bottom-MINUS-top) * g/dp
-         hrate(:,kdx) = (flux_net(:,kdx+1) - flux_net(:,kdx)) * &
-                       gravit * rpdel(:,kdx)
-      end do
-   end subroutine sw_heating_rate
 
 end module rrtmgp_sw_diagnostics

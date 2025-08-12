@@ -89,12 +89,6 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
-[ fsds ]
-  standard_name = shortwave_downward_solar_flux_at_surface
-  units = W m-2
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent)
-  intent = out
 [ fsns ]
   standard_name = shortwave_net_upward_flux_at_surface
   units = W m-2

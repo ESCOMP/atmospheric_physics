@@ -13,7 +13,7 @@ CONTAINS
    !> \section arg_table_rrtmgp_sw_calculate_fluxes_run  Argument Table
    !! \htmlinclude rrtmgp_sw_calculate_fluxes_run.html
    subroutine rrtmgp_sw_calculate_fluxes_run(num_diag_subcycles, icall, ncol, pverp, nlay, nday, idxday, ktopcam, ktoprad, &
-      active_calls, fsw, fswc, fns, fcns, fsds, fsns, fsnt, soll, sols, solld, solsd, errmsg, errflg)
+      active_calls, fsw, fswc, fns, fcns, fsns, fsnt, soll, sols, solld, solsd, errmsg, errflg)
 
       use ccpp_fluxes,        only: ty_fluxes_broadband_ccpp
       use ccpp_fluxes_byband, only: ty_fluxes_byband_ccpp
@@ -35,7 +35,6 @@ CONTAINS
       ! Output variables
       real(kind_phys),               intent(out) :: fns(:,:)
       real(kind_phys),               intent(out) :: fcns(:,:)
-      real(kind_phys),               intent(out) :: fsds(:)
       real(kind_phys),               intent(out) :: fsns(:)
       real(kind_phys),               intent(out) :: fsnt(:)
       real(kind_phys),               intent(out) :: soll(:)
@@ -67,7 +66,6 @@ CONTAINS
       ! Initialize to provide 0.0 values for night columns.
       fns = 0.0_kind_phys
       fcns = 0.0_kind_phys
-      fsds = 0.0_kind_phys
       fsns = 0.0_kind_phys
       fsnt = 0.0_kind_phys
       soll = 0.0_kind_phys
@@ -78,7 +76,6 @@ CONTAINS
       do idx = 1, nday
          fns(idxday(idx), ktopcam:) = fsw%fluxes%flux_net(idx, ktoprad:)
          fcns(idxday(idx), ktopcam:) = fswc%fluxes%flux_net(idx, ktoprad:)
-         fsds(idxday(idx)) = fsw%fluxes%flux_dn(idx, nlay+1)
       end do
 
       fsns(:) = fns(:, pverp)
