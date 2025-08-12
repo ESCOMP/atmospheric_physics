@@ -82,7 +82,7 @@ module rrtmgp_inputs
      ! pressure interfaces below 1 Pa.  When the entire model atmosphere is
      ! below 1 Pa then an extra layer is added to the top of the model for
      ! the purpose of the radiation calculation.
-     nlay = count( pref_edge(:) > p_top_for_rrtmgp ) ! pascals (0.1 mbar)
+     nlay = count( pref_edge(:) > p_top_for_rrtmgp )
      nlayp = nlay + 1
 
      if (nlay == pverp) then
