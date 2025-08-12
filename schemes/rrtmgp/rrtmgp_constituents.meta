@@ -57,12 +57,6 @@
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
-[ diag_cur ]
-  standard_name = iteration_number_for_radiation_subcycle
-  units = count
-  type = integer
-  dimensions = ()
-  intent = out
 [ active_call_array ]
   standard_name = is_active_diagnostic_call_array
   units = flag

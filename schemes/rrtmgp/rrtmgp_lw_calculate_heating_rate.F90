@@ -15,6 +15,8 @@ CONTAINS
       character(len=512), intent(out) :: errmsg
       integer,            intent(out) :: errflg
 
+      integer :: k
+
       ! Set error variables
       errmsg = ''
       errflg = 0

@@ -114,14 +114,13 @@ contains
 !> \section arg_table_rrtmgp_constituents_init Argument Table
 !! \htmlinclude rrtmgp_constituents_int.html
 !!
-   subroutine rrtmgp_constituents_init(ndiag, ncol, unset_real, diag_cur, active_call_array, &
+   subroutine rrtmgp_constituents_init(ndiag, ncol, unset_real, active_call_array, &
       rrtmgp_phys_blksz, tlev, fluxlwup_Jac, rad_heat, fsnt, fsns, is_first_restart_step,    &
       use_tlev, top_at_one, errmsg, errcode)
       use ccpp_kinds, only: kind_phys
       integer,             intent(in) :: ndiag
       integer,             intent(in) :: ncol
       real(kind_phys),     intent(in) :: unset_real
-      integer,            intent(out) :: diag_cur
       logical,            intent(out) :: active_call_array(:)
       integer,            intent(out) :: rrtmgp_phys_blksz
       real(kind_phys),    intent(out) :: tlev(:,:)
@@ -143,7 +142,6 @@ contains
       is_first_restart_step = .false.
       top_at_one = .true.
 
-      diag_cur = 1
       rrtmgp_phys_blksz = ncol
       ! Set tlev & fluxlwup_Jac to unset values; not used by default in CAM-SIMA
       use_tlev = .false.

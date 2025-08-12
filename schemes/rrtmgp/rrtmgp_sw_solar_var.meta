@@ -40,74 +40,74 @@
   name  = rrtmgp_sw_solar_var_run
   type  = scheme
 [ toa_flux ]
-  standard_name = enter_standard_name_6
-  units = enter_units
+  standard_name = top_of_atmosphere_solar_radiation_flux_on_g_points
+  units = W m-2
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_18:enter_standard_name_19,enter_standard_name_20:enter_standard_name_21)
+  dimensions = (daytime_points_dimension,number_of_shortwave_g_point_intervals)
   intent = inout
 [ band2gpt_sw ]
-  standard_name = enter_standard_name_11
+  standard_name = shortwave_start_and_end_gpoint_for_each_band
   units = enter_units
   type = integer
-  dimensions = (enter_standard_name_22:enter_standard_name_23,enter_standard_name_24:enter_standard_name_25)
+  dimensions = (ccpp_constant_two,number_of_bands_for_shortwave_radiation)
   intent = in
 [ nswbands ]
-  standard_name = enter_standard_name_12
-  units = enter_units
+  standard_name = number_of_bands_for_shortwave_radiation
+  units = count
   type = integer
   dimensions = ()
   intent = in
 [ sol_irrad ]
-  standard_name = enter_standard_name_8
-  units = enter_units
+  standard_name = solar_irradiance
+  units = W m-2 nm-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_26:enter_standard_name_27)
+  dimensions = (number_of_wavelength_samples_of_spectrum)
   intent = in
 [ we ]
-  standard_name = enter_standard_name_9
-  units = enter_units
+  standard_name = wavelength_endpoints
+  units = 1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_28:enter_standard_name_29)
+  dimensions = (number_of_wavelength_samples_of_spectrum_plus_one)
   intent = in
 [ nbins ]
-  standard_name = enter_standard_name_10
-  units = enter_units
+  standard_name = number_of_wavelength_samples_of_spectrum
+  units = count
   type = integer
   dimensions = ()
   intent = in
 [ sol_tsi ]
-  standard_name = enter_standard_name_7
-  units = enter_units
+  standard_name = total_solar_irradiance
+  units = W m-2
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ do_spctrl_scaling ]
-  standard_name = enter_standard_name_13
-  units = enter_units
+  standard_name = do_spectral_scaling
+  units = flag
   type = logical
   dimensions = ()
   intent = in
 [ sfac ]
-  standard_name = enter_standard_name_15
-  units = enter_units
+  standard_name = scaling_factors_for_top_of_atmosphere_solar_radiation_flux
+  units = 1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_30:enter_standard_name_31,enter_standard_name_32:enter_standard_name_33)
+  dimensions = (daytime_points_dimension,number_of_shortwave_g_point_intervals)
   intent = out
 [ eccf ]
-  standard_name = enter_standard_name_14
-  units = enter_units
+  standard_name = planet_orbital_eccentricity_factor 
+  units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ errmsg ]
-  standard_name = enter_standard_name_16
-  units = enter_units
+  standard_name = ccpp_error_message
+  units = none
   type = character | kind = len=512
   dimensions = ()
   intent = out
 [ errflg ]
-  standard_name = enter_standard_name_17
-  units = enter_units
+  standard_name = ccpp_error_code
+  units = 1
   type = integer
   dimensions = ()
   intent = out
