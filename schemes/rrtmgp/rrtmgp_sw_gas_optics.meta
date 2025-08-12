@@ -67,7 +67,7 @@
   standard_name = air_pressure_for_daytime_points_for_RRTMGP
   units = Pa
   type = real | kind = kind_phys
-  dimensions = (daytime_points_dimensions, vertical_layer_dimension)
+  dimensions = (daytime_points_dimension, vertical_layer_dimension)
   intent = in
 [ p_lev ]
   standard_name = air_pressure_at_interface_for_daytime_points_for_RRTMGP
@@ -79,7 +79,7 @@
   standard_name = air_temperature_for_daytime_points_for_RRTMGP
   units = K
   type = real | kind = kind_phys
-  dimensions = (daytime_points_dimensions, vertical_layer_dimension)
+  dimensions = (daytime_points_dimension, vertical_layer_dimension)
   intent = in
 [ gas_concs ]
   standard_name = shortwave_gas_volume_mixing_ratios_object_for_RRTMGP

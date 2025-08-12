@@ -89,6 +89,12 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
+[ fcnl ]
+  standard_name = longwave_net_radiative_clear_sky_flux
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none

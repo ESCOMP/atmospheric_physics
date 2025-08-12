@@ -82,7 +82,8 @@ CONTAINS
    !> \section arg_table_rrtmgp_lw_diagnostics_run  Argument Table
    !! \htmlinclude rrtmgp_lw_diagnostics_run.html
    subroutine rrtmgp_lw_diagnostics_run(num_diag_subcycles, icall, active_calls, flw, flwc, rpdel, ncol, &
-                  nlay, pver, pverp, pint, gravit, cpair, p_trop, ktopcam, ktoprad, write_output, errmsg, errflg)
+                  nlay, pver, pverp, pint, gravit, cpair, p_trop, fnl, fcnl, qrl, qrlc, ktopcam, ktoprad, &
+                  write_output, errmsg, errflg)
 
       use cam_history,        only: history_out_field
       use ccpp_fluxes,        only: ty_fluxes_broadband_ccpp
@@ -106,6 +107,10 @@ CONTAINS
       real(kind_phys),                intent(in) :: pint(:,:)           ! Air pressure at layer interfaces [Pa]
       real(kind_phys),                intent(in) :: p_trop(:)           ! Tropopause air pressure [Pa]
       real(kind_phys),                intent(in) :: rpdel(:,:)          ! Reciprocal of layer thickness [Pa-1]
+      real(kind_phys),                intent(in) :: fnl(:,:)            ! Net allsky longwave flux [W m-2]
+      real(kind_phys),                intent(in) :: fcnl(:,:)           ! Net clearsky longwave flux [W m-2]
+      real(kind_phys),                intent(in) :: qrl(:,:)            ! Heating rate (longwave, all-sky) [J kg-1 s-1]
+      real(kind_phys),                intent(in) :: qrlc(:,:)           ! Heating rate (longwave, clear-sky) [J kg-2 s-1]
       type(ty_fluxes_byband_ccpp),    intent(in) :: flw                 ! Longwave all-sky flux object
       type(ty_fluxes_broadband_ccpp), intent(in) :: flwc                ! Longwave clear-sky flux object
       
@@ -115,10 +120,6 @@ CONTAINS
 
       ! Local variables
       integer :: diag_index, idx
-      real(kind_phys) :: fnl(ncol, pverp)
-      real(kind_phys) :: fcnl(ncol, pverp)
-      real(kind_phys) :: qrl(ncol, pver)
-      real(kind_phys) :: qrlc(ncol, pver)
       real(kind_phys) :: fln200(ncol)
       real(kind_phys) :: fln200c(ncol)
       real(kind_phys) :: flnr(ncol)
@@ -134,16 +135,6 @@ CONTAINS
       if ((.not. active_calls(diag_index+1)) .or. (.not. write_output)) then
          return
       end if
-
-      fnl = 0.0_kind_phys
-      fcnl = 0.0_kind_phys
-
-      ! RTE-RRTMGP convention for net is (down - up) **CAM assumes (up - down) !!
-      fnl( :,ktopcam:) = -1._kind_phys * flw%fluxes%flux_net(    :, ktoprad:)
-      fcnl(:,ktopcam:) = -1._kind_phys * flwc%fluxes%flux_net(   :, ktoprad:)
-
-      call lw_heating_rate(ncol, ktopcam, pver, fnl, gravit, rpdel, qrl)
-      call lw_heating_rate(ncol, ktopcam, pver, fcnl, gravit, rpdel, qrlc)
 
       ! History out field calls
       call history_out_field('QRL'//diag(diag_index),     qrl(:,:)/cpair)
@@ -182,29 +173,5 @@ CONTAINS
       call history_out_field('FULC'//diag(diag_index),    flwc%fluxes%flux_up(:, ktoprad:))
 
    end subroutine rrtmgp_lw_diagnostics_run
-
-   !=======================================================================
-
-   subroutine lw_heating_rate(ncol, ktopcam, pver, flux_net, gravit, rpdel, hrate)
-      ! Compute heating rate as a dry static energy tendency
-
-      ! arguments
-      integer,          intent(in) :: ncol
-      integer,          intent(in) :: ktopcam
-      integer,          intent(in) :: pver
-      real(kind_phys),  intent(in) :: flux_net(:,:)   ! W m-2
-      real(kind_phys),  intent(in) :: gravit          ! m s-2
-      real(kind_phys),  intent(in) :: rpdel(:,:)      ! Pa
-      real(kind_phys), intent(out) :: hrate(:,:)      ! J kg-1 s-1
-
-      ! local vars
-      integer :: kdx
-
-      do kdx = ktopcam, pver
-         ! (flux divergence as bottom-MINUS-top) * g/dp
-         hrate(:,kdx) = (flux_net(:,kdx+1) - flux_net(:,kdx)) * &
-                       gravit * rpdel(:,kdx)
-      end do
-   end subroutine lw_heating_rate
 
 end module rrtmgp_lw_diagnostics
