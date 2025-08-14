@@ -132,15 +132,12 @@ contains
     !Read variables from NetCDF file:
     !-----------------------
     ! Get HD (heating depth) dimension.
-
     desc%maxh = 15
 
     ! Get MW (mean wind) dimension.
-
     desc%maxuh = 241
 
     ! Get PS (phase speed) dimension.
-
     ngwv_file = 0
 
     ! Number in each direction is half of total (and minus phase speed of 0).
@@ -233,7 +230,8 @@ contains
                            src_level, tend_level, &
                            ubm, ubi, xv, yv, hdepth, &
                            utgw, vtgw, &
-                           ttgw, qtgw, egwdffi, dttdf, dttke, &
+                           ttgw, qtgw, egwdffi_tot, dttdf, dttke, &
+                           tau0, gwut0, &
                            errmsg, errflg)
 
     use coords_1d, only: Coords1D
@@ -290,9 +288,11 @@ contains
     real(kind_phys), intent(out)   :: vtgw(:, :)
     real(kind_phys), intent(out)   :: ttgw(:, :)
     real(kind_phys), intent(out)   :: qtgw(:, :, :) ! constituents tendencies
-    real(kind_phys), intent(out)   :: egwdffi(:, :)
+    real(kind_phys), intent(out)   :: egwdffi_tot(:, :)
     real(kind_phys), intent(out)   :: dttdf(:, :)
     real(kind_phys), intent(out)   :: dttke(:, :)
+    real(kind_phys), intent(out)   :: tau0(:, :)   ! Moving mountain momentum flux profile [N m-2]
+    real(kind_phys), intent(out)   :: gwut0(:, :)  ! Moving mountain drag force - UBM component [m s-2]
     character(len=512), intent(out):: errmsg
     integer, intent(out)           :: errflg
 
@@ -304,20 +304,19 @@ contains
     ! Vector tendency efficiency
     real(kind_phys) :: effgw(ncol)        ! Tendency efficiency.
 
+    real(kind_phys) :: egwdffi(ncol, pver+1)
+
+    ! Wavenumber fields
+    real(kind_phys) :: tau(ncol, -band%ngwv:band%ngwv, pver+1)
+    real(kind_phys) :: gwut(ncol, pver, -band%ngwv:band%ngwv)
+    real(kind_phys) :: phase_speeds(ncol, -band%ngwv:band%ngwv)
+
     character(len=*), parameter :: sub = 'gw_movmtn_run'
 
     errmsg = ''
     errflg = 0
 
     effgw(:ncol) = effgw_movmtn_pbl
-
-    ! Allocate wavenumber fields.
-    allocate (tau(ncol, -band%ngwv:band%ngwv, pver + 1), stat=errflg, errmsg=errmsg)
-    if(errflg /= 0) return
-    allocate (gwut(ncol, pver, -band%ngwv:band%ngwv), stat=errflg, errmsg=errmsg)
-    if(errflg /= 0) return
-    allocate (phase_speeds(ncol, -band%ngwv:band%ngwv), stat=errflg, errmsg=errmsg)
-    if(errflg /= 0) return
 
     tau = 0._kind_phys
     gwut = 0._kind_phys
@@ -365,7 +364,14 @@ contains
       s_tend(:ncol, k) = s_tend(:ncol, k) + ttgw(:, k)
     end do
 
-    deallocate (tau, gwut, phase_speeds)
+    ! Add the diffusion coefficients
+    do k = 1, pver + 1
+      egwdffi_tot(:ncol, k) = egwdffi_tot(:ncol, k) + egwdffi(:ncol, k)
+    end do
+
+    ! For diagnostics
+    tau0(:ncol, :pver+1) = tau(:ncol, 0, :pver+1)
+    gwut0(:ncol, :pver)  = gwut(:ncol, :pver, 0)
 
   end subroutine gw_movmtn_run
 !==========================================================================

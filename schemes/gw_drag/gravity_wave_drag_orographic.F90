@@ -73,7 +73,7 @@ contains
              utgw, vtgw, ttgw, qtgw, &
              dttdf, dttke, egwdffi_tot, &
              flx_heat, &
-             tau0x, tau0y, &
+             tau0x, tau0y, taua, &
              errmsg, errflg)
 
     use coords_1d, only: Coords1D
@@ -128,6 +128,7 @@ contains
     real(kind_phys),    intent(out)               :: flx_heat(:)              ! Surface heat flux for energy conservation check [W m-2]
     real(kind_phys),    intent(out)               :: tau0x(:)                 ! Zonal gravity wave surface stress [N m-2]
     real(kind_phys),    intent(out)               :: tau0y(:)                 ! Meridional gravity wave surface stress [N m-2]
+    real(kind_phys),    intent(out)               :: taua(:,:)                ! Total stress from orographic scheme [N m-2]
     character(len=512), intent(out)               :: errmsg
     integer,            intent(out)               :: errflg
 
@@ -315,6 +316,7 @@ contains
     ! Compute surface stresses for diagnostic
     tau0x(:ncol) = tau(:ncol,0,pver+1) * xv(:ncol)
     tau0y(:ncol) = tau(:ncol,0,pver+1) * yv(:ncol)
+    taua(:ncol, :pver+1) = tau(:ncol,0,:pver+1)
 
   end subroutine gravity_wave_drag_orographic_run
 

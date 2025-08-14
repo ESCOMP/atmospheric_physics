@@ -26,28 +26,14 @@ module gw_drag
 
   ! Public CCPP-compliant interfaces.
   public :: gw_drag_init                  ! Initialization
-  public :: gw_drag_run                   ! interface to actual parameterization
-
-  ! Maximum wave number and width of spectrum bins.
-  integer                              :: pgwv
-  real(kind_phys)                      :: gw_dc
-  integer                              :: pgwv_long
-  real(kind_phys)                      :: gw_dc_long
 
   ! Whether or not to enforce an upper boundary condition of tau = 0.
   ! (Like many variables, this is only here to hold the value between
   ! the readnl phase and the init phase of the CAM physics; only gw_common
   ! should actually use it.)
   logical                              :: tau_0_ubc = .false.
-  ! C&M scheme.
-  real(kind_phys)                      :: effgw_cm
-  ! C&M scheme (inertial waves).
-  real(kind_phys)                      :: effgw_cm_igw
-  ! fcrit2 for the mid-scale waves has been made a namelist variable to
-  ! facilitate backwards compatibility with the CAM3 version of this
-  ! parameterization.  In CAM3, fcrit2=0.5.
+
   real(kind_phys)                      :: rearth   ! earth radius
-  real(kind_phys)                      :: fcrit2   ! critical froude number squared
 
   ! Whether or not to limit tau *before* applying any efficiency factors.
   logical                              :: gw_limit_tau_without_eff = .false.
@@ -55,51 +41,15 @@ module gw_drag
 
   ! Whether or not to apply tendency max
   real(kind_phys)                      :: gw_qbo_hdepth_scaling = 1._kind_phys ! heating depth scaling factor
-  logical                              :: gw_top_taper = .false.
-
-  ! Width of gaussian used to create frontogenesis tau profile [m s-1].
-  real(kind_phys)                      :: front_gaussian_width = -huge(1._kind_phys)
 
   real(kind_phys), parameter :: unset_kind_phys = huge(1._kind_phys)
-
-  ! A mid-scale "band" with only stationary waves (l = 0).
-  type(GWBand) :: band_oro
-  ! Medium scale waves.
-  type(GWBand) :: band_mid
-  ! Long scale waves for IGWs.
-  type(GWBand) :: band_long
 
   ! Bottom level for frontal waves.
   integer :: kbot_front
 
-  ! Frontogenesis function critical threshold.
-  real(kind_phys) :: frontgfc = unset_kind_phys
-
   real(kind_phys)   :: gravit          ! gravitational acceleration (m s-2)
   real(kind_phys)   :: rair            ! Dry air gas constant     (J K-1 kg-1)
   real(kind_phys)   :: pi
-  real(kind_phys), allocatable   :: pref_edge(:)
-
-  logical         ::  use_gw_front
-  logical         ::  use_gw_front_igw
-  logical         ::  use_simple_phys
-  logical         ::  do_molec_diff
-  integer         ::  nbot_molec
-
-  ! Background stress source strengths.
-  real(kind_phys) :: taubgnd = unset_kind_phys
-  real(kind_phys) :: taubgnd_igw = unset_kind_phys
-
-  ! Whether or not to use a polar taper for frontally generated waves.
-  logical :: gw_polar_taper = .false.
-
-  ! Whether or not to apply tendency max
-  logical :: gw_apply_tndmax = .true.
-
-  ! Parameters for the IGW polar taper.
-  real(kind_phys) :: degree2radian
-  real(kind_phys) :: al0
-  real(kind_phys) :: dlat0
 
 contains
 
@@ -114,31 +64,12 @@ contains
     gravit_in, &
     rair_in, &
     pi_in, &
-    fcrit2_in, &
     rearth_in, &
     pref_edge, &
-    pgwv_nl, &
-    gw_dc_nl, &
-    pgwv_long_nl, &
-    gw_dc_long_nl, &
     tau_0_ubc_nl, &
-    effgw_cm_nl, &
-    effgw_cm_igw_nl, &
-    frontgfc_nl, &
-    taubgnd_nl, &
-    taubgnd_igw_nl, &
-    gw_polar_taper_nl, &
     gw_limit_tau_without_eff_nl, &
     gw_prndl_nl, &
-    gw_apply_tndmax_nl, &
     gw_qbo_hdepth_scaling_nl, &
-    gw_top_taper_nl, &
-    front_gaussian_width_nl, &
-    use_gw_front_in, &
-    use_gw_front_igw_in, &
-    use_simple_phys_in, &
-    do_molec_diff_in, &
-    nbot_molec_in, &
     errmsg, &
     errflg)
 
@@ -147,7 +78,6 @@ contains
 
     ! Underlying init subroutines
     use gw_common, only: gw_common_init
-    use gw_front, only: gw_front_init
 
     use gw_common, only: wavelength_mid, wavelength_long
 
@@ -159,48 +89,18 @@ contains
     real(kind_phys), intent(in)     :: gravit_in          ! gravitational acceleration (m s-2)
     real(kind_phys), intent(in)     :: rair_in            ! Dry air gas constant     (J K-1 kg-1)
     real(kind_phys), intent(in)     :: pi_in
-    ! Maximum wave number and width of spectrum bins.
-    integer, intent(in)             :: pgwv_nl
-    real(kind_phys), intent(in)     :: gw_dc_nl
-    integer, intent(in)             :: pgwv_long_nl
-    real(kind_phys), intent(in)     :: gw_dc_long_nl
+
     ! Whether or not to enforce an upper boundary condition of tau = 0.
     ! (Like many variables, this is only here to hold the value between
     ! the readnl phase and the init phase of the CAM physics; only gw_common
     ! should actually use it.)
     logical, intent(in)             :: tau_0_ubc_nl
     real(kind_phys), intent(in)     :: pref_edge(:)
-    ! C&M scheme.
-    real(kind_phys), intent(in)     :: effgw_cm_nl
-    ! C&M scheme (inertial waves).
-    real(kind_phys), intent(in)     :: effgw_cm_igw_nl
-    ! fcrit2 for the mid-scale waves has been made a namelist variable to
-    ! facilitate backwards compatibility with the CAM3 version of this
-    ! parameterization.  In CAM3, fcrit2=0.5.
-    real(kind_phys), intent(in)             :: fcrit2_in   ! critical froude number squared
     real(kind_phys), intent(in)             :: rearth_in   ! earth radius
-    ! Frontogenesis function critical threshold.
-    real(kind_phys), intent(in)             :: frontgfc_nl
-    ! Background stress source strengths.
-    real(kind_phys), intent(in)             :: taubgnd_nl
-    real(kind_phys), intent(in)             :: taubgnd_igw_nl
-    ! Whether or not to use a polar taper for frontally generated waves.
-    logical, intent(in)             :: gw_polar_taper_nl
     ! Whether or not to limit tau *before* applying any efficiency factors.
     logical, intent(in)             :: gw_limit_tau_without_eff_nl
     real(kind_phys), intent(in)             :: gw_prndl_nl
-    ! Whether or not to apply tendency max
-    logical, intent(in)             :: gw_apply_tndmax_nl
     real(kind_phys), intent(in)             :: gw_qbo_hdepth_scaling_nl
-    logical, intent(in)             :: gw_top_taper_nl
-    ! Width of gaussian used to create frontogenesis tau profile [m s-1].
-    real(kind_phys), intent(in)             :: front_gaussian_width_nl
-
-    logical, intent(in)             ::  use_gw_front_in
-    logical, intent(in)             ::  use_gw_front_igw_in
-    logical, intent(in)             ::  use_simple_phys_in
-    integer, intent(in)             :: nbot_molec_in
-    logical, intent(in)             :: do_molec_diff_in
 
     character(len=512), intent(out) :: errmsg
     integer, intent(out)            :: errflg
@@ -270,62 +170,14 @@ contains
     errmsg = ''
     errflg = 0
 
-    ! Parameters for the IGW polar taper.
-    degree2radian = pi_in/180._kind_phys
-    al0 = 82.5_kind_phys * degree2radian
-    dlat0 = 5.0_kind_phys * degree2radian
-
     gravit = gravit_in
     rair = rair_in
     pi = pi_in
-    pgwv = pgwv_nl
-    gw_dc = gw_dc_nl
-    pgwv_long = pgwv_long_nl
-    gw_dc_long = gw_dc_long_nl
     tau_0_ubc = tau_0_ubc_nl
-    effgw_cm = effgw_cm_nl
-    effgw_cm_igw = effgw_cm_igw_nl
-    fcrit2 = fcrit2_in
     rearth = rearth_in
-    frontgfc = frontgfc_nl
-    taubgnd = taubgnd_nl
-    taubgnd_igw = taubgnd_igw_nl
-    gw_polar_taper = gw_polar_taper_nl
     gw_limit_tau_without_eff = gw_limit_tau_without_eff_nl
     gw_prndl = gw_prndl_nl
-    gw_apply_tndmax = gw_apply_tndmax_nl
     gw_qbo_hdepth_scaling = gw_qbo_hdepth_scaling_nl
-    gw_top_taper = gw_top_taper_nl
-    front_gaussian_width = front_gaussian_width_nl
-
-    use_gw_front = use_gw_front_in
-    use_gw_front_igw = use_gw_front_igw_in
-    use_simple_phys = use_simple_phys_in
-    do_molec_diff = do_molec_diff_in
-    nbot_molec = nbot_molec_in
-
-    band_mid    = GWBand(pgwv,      gw_dc,      1.0_kind_phys, wavelength_mid)
-    band_long   = GWBand(pgwv_long, gw_dc_long, 1.0_kind_phys, wavelength_long)
-
-    if (masterproc) then
-      write (iulog, *) ' '
-      write (iulog, *) "GW_DRAG: band_mid%ngwv = ", band_mid%ngwv
-      do l = -band_mid%ngwv, band_mid%ngwv
-        write (iulog, '(A,I0,A,F7.2)') &
-          "GW_DRAG: band_mid%cref(", l, ") = ", band_mid%cref(l)
-      end do
-      write (iulog, *) 'GW_DRAG: band_mid%kwv = ', band_mid%kwv
-      write (iulog, *) 'GW_DRAG: band_mid%fcrit2 = ', band_mid%fcrit2
-      write (iulog, *) ' '
-      write (iulog, *) "GW_DRAG: band_long%ngwv = ", band_long%ngwv
-      do l = -band_long%ngwv, band_long%ngwv
-        write (iulog, '(A,I2,A,F7.2)') &
-          "GW_DRAG: band_long%cref(", l, ") = ", band_long%cref(l)
-      end do
-      write (iulog, *) 'GW_DRAG: band_long%kwv = ', band_long%kwv
-      write (iulog, *) 'GW_DRAG: band_long%fcrit2 = ', band_long%fcrit2
-      write (iulog, *) ' '
-    end if
 
     ! pre-calculated newtonian damping:
     !     * convert to s-1
@@ -357,349 +209,7 @@ contains
     call gw_common_init(pver, &
                         tau_0_ubc, ktop, gravit, rair, alpha, gw_prndl, &
                         gw_qbo_hdepth_scaling, errstring)
-
-    if(use_gw_front .or. use_gw_front_igw) then
-      call gw_front_init(pver, pref_edge, frontgfc, band_mid, band_long, &
-                         taubgnd, taubgnd_igw, &
-                         effgw_cm, effgw_cm_igw, use_gw_front, use_gw_front_igw, &
-                         front_gaussian_width, masterproc, iulog, errmsg, errflg)
-      if (errflg /= 0) return
-    endif
   end subroutine gw_drag_init
-
-!==========================================================================
-
-!> \section arg_table_gw_drag_run Argument Table
-!! \htmlinclude gw_drag_run.html
-  subroutine gw_drag_run( &
-    ncol, &
-    pcnst, &
-    pver, &
-    dt, &
-    cpair, cpairv, pi, &
-    vramp, &
-    frontgf, &
-    frontga, &
-    pint, &
-    piln, &
-    pdel, pdeldry, &
-    zm, zi, &
-    lat, &
-    landfrac, &
-    dse, &
-    state_t, &
-    state_u, &
-    state_v, &
-    state_q, &
-    sgh, &
-    p, &
-    rhoi, &
-    nm, ni, &
-    kvtt, &
-    ttend_dp, &
-    ttend_sh, &
-    s_tend, &
-    q_tend, &
-    u_tend, &
-    v_tend, &
-    nbot_molec, &
-    egwdffi_tot, &
-    flx_heat, &
-    errmsg, errflg)
-    !-----------------------------------------------------------------------
-    ! Interface for multiple gravity wave drag parameterization.
-    !-----------------------------------------------------------------------
-
-    use coords_1d, only: Coords1D
-    use gw_common, only: gw_drag_prof, calc_taucd
-    use gw_common, only: momentum_flux, momentum_fixer, energy_change
-    use gw_common, only: energy_fixer, coriolis_speed, adjust_inertial
-    use gw_front, only: gw_cm_src, cm_desc, cm_igw_desc
-
-    integer, intent(in)        :: ncol  ! number of atmospheric columns
-    integer, intent(in)        :: pcnst ! chunk number
-    integer, intent(in)        :: pver  ! number of atmospheric levels
-    real(kind_phys), intent(in) :: dt          ! physics timestep
-    real(kind_phys), intent(in) :: cpair       ! heat capacity of air
-    real(kind_phys), intent(in) :: cpairv(:, :) ! location dependent heat capacity of air
-    real(kind_phys), intent(in) :: pi          ! pi
-    real(kind_phys), intent(in), pointer :: vramp(:)
-    ! Frontogenesis
-    real(kind_phys), intent(in), pointer :: frontgf(:, :)
-    real(kind_phys), intent(in), pointer :: frontga(:, :)
-    real(kind_phys), intent(in) :: pint(:, :)   ! pressure at model interfaces
-    real(kind_phys), intent(in) :: piln(:, :)   ! ln pressure at model interfaces
-    real(kind_phys), intent(in) :: pdel(:, :)   ! vertical delta-p
-    real(kind_phys), intent(in) :: pdeldry(:, :)   ! vertical delta-p
-    real(kind_phys), intent(in) :: zm(:, :)
-    real(kind_phys), intent(in) :: zi(:, :)
-    real(kind_phys), intent(in) :: lat(:)
-    real(kind_phys), intent(in) :: landfrac(:)
-    real(kind_phys), intent(in) :: dse(:, :)       ! dry static energy
-    real(kind_phys), intent(in) :: state_t(:, :)   ! temperature (K)
-    real(kind_phys), intent(in) :: state_u(:, :)   ! meridional wind
-    real(kind_phys), intent(in) :: state_v(:, :)   ! zonal wind
-    real(kind_phys), intent(in) :: state_q(:, :, :) ! constituent array
-    real(kind_phys), intent(in) :: sgh(:)         !
-
-    type(Coords1D),  intent(in) :: p               ! Pressure coordinates, Coords1D
-    real(kind_phys), intent(in) :: rhoi(:, :)     ! density at interfaces [kg m-3]
-    real(kind_phys), intent(in) :: nm(:, :)       ! midpoint Brunt-Vaisalla frequency
-    real(kind_phys), intent(in) :: ni(:, :)       ! interface Brunt-Vaisalla frequency
-
-    real(kind_phys), intent(inout) :: kvtt(:, :)       !
-    real(kind_phys), intent(in) :: ttend_dp(:, :)  ! Temperature change due to deep convection.
-    real(kind_phys), intent(in) :: ttend_sh(:, :)  ! Temperature change due to shallow convection.
-    real(kind_phys), intent(inout):: s_tend(:, :)   ! dry air enthalpy tendency
-    real(kind_phys), intent(inout):: q_tend(:, :, :)
-    real(kind_phys), intent(inout):: u_tend(:, :)
-    real(kind_phys), intent(inout):: v_tend(:, :)
-    integer, intent(in)             :: nbot_molec
-    ! Parameterization net tendencies.
-    ! sum from the two types of spectral GW
-    real(kind_phys), intent(inout) :: egwdffi_tot(:, :)
-    real(kind_phys), intent(inout) :: flx_heat(:)
-    character(len=512), intent(out) :: errmsg
-    integer, intent(out) :: errflg
-
-    !---------------------------Local storage-------------------------------
-    character(len=*), parameter :: sub = 'gw_drag_run'
-
-    integer :: stat
-    integer :: i, k                   ! loop indices
-
-    real(kind_phys) :: ttgw(ncol, pver) ! temperature tendency
-    real(kind_phys) :: utgw(ncol, pver) ! zonal wind tendency
-    real(kind_phys) :: vtgw(ncol, pver) ! meridional wind tendency
-
-    real(kind_phys), allocatable :: tau(:, :, :)  ! wave Reynolds stress
-    real(kind_phys) :: tau0x(ncol)     ! c=0 sfc. stress (zonal)
-    real(kind_phys) :: tau0y(ncol)     ! c=0 sfc. stress (meridional)
-    real(kind_phys) :: ubi(ncol, pver + 1)! projection of wind at interfaces
-    real(kind_phys) :: ubm(ncol, pver)  ! projection of wind at midpoints
-    real(kind_phys) :: xv(ncol)        ! unit vector of source wind (x)
-    real(kind_phys) :: yv(ncol)        ! unit vector of source wind (y)
-
-    integer :: m                      ! dummy integers
-    real(kind_phys) :: qtgw(ncol, pver, pcnst) ! constituents tendencies
-
-    ! Reynolds stress for waves propagating in each cardinal direction.
-    real(kind_phys) :: taucd(ncol, pver + 1, 4)
-
-    ! gravity wave wind tendency for each wave
-    real(kind_phys), allocatable :: gwut(:, :, :)
-
-    ! Temperature tendencies from diffusion and kinetic energy.
-    real(kind_phys) :: dttdf(ncol, pver)
-    real(kind_phys) :: dttke(ncol, pver)
-
-    ! Wave phase speeds for each column
-    real(kind_phys), allocatable :: phase_speeds(:, :)
-
-    ! Efficiency for a gravity wave source.
-    real(kind_phys) :: effgw(ncol)
-
-    ! Coriolis characteristic speed.
-    real(kind_phys) :: u_coriolis(ncol)
-
-    ! Adjustment for inertial gravity waves.
-    real(kind_phys), allocatable :: ro_adjust(:, :, :)
-
-    ! Indices of gravity wave source and lowest level where wind tendencies
-    ! are allowed.
-    integer :: src_level(ncol)
-    integer :: tend_level(ncol)
-
-    ! Convective source heating depth.
-    ! heating depth
-    real(kind_phys) :: hdepth(ncol)
-    ! maximum heating rate
-    real(kind_phys) :: maxq0(ncol)
-
-    ! Scale sgh to account for landfrac.
-    real(kind_phys) :: sgh_scaled(ncol)
-
-    ! effective gw diffusivity at interfaces needed for output
-    real(kind_phys) :: egwdffi(ncol, pver + 1)
-
-    ! Momentum fluxes used by fixer.
-    real(kind_phys) :: um_flux(ncol), vm_flux(ncol)
-    ! Energy change used by fixer.
-    real(kind_phys) :: de(ncol)
-
-    if (use_gw_front_igw) then
-      u_coriolis = coriolis_speed(band_long, lat(:ncol))
-    end if
-
-    !------------------------------------------------------------------
-    ! Frontally generated gravity waves
-    !------------------------------------------------------------------
-    if (use_gw_front) then
-      ! Allocate wavenumber fields.
-      allocate (tau(ncol, -band_mid%ngwv:band_mid%ngwv, pver + 1), stat=stat)
-      call handle_err(stat, errflg, sub//': Allocate of tau failed', errmsg)
-      allocate (gwut(ncol, pver, -band_mid%ngwv:band_mid%ngwv), stat=stat)
-      call handle_err(stat, errflg, sub//': Allocate of gwut failed', errmsg)
-      allocate (phase_speeds(ncol, -band_mid%ngwv:band_mid%ngwv), stat=stat)
-      call handle_err(stat, errflg, sub//': Allocate of phase_speeds failed', errmsg)
-
-      ! Efficiency of gravity wave momentum transfer.
-      effgw = effgw_cm
-      ! Frontogenesis is too high at the poles (at least for the FV
-      ! dycore), so introduce a polar taper.
-      if (gw_polar_taper) effgw = effgw*cos(lat(:ncol))
-
-      call gw_cm_src(ncol, band_mid, &
-                     cm_desc, &
-                     state_u, state_v, frontgf(:ncol, :), &
-                     src_level, tend_level, tau, ubm, ubi, xv, yv, phase_speeds)
-
-      ! Solve for the drag profile with C&M source spectrum.
-      call gw_drag_prof(ncol, band_mid, p, src_level, tend_level, dt, &
-                        state_t, vramp, &
-                        piln, rhoi, nm, ni, ubm, ubi, xv, yv, &
-                        effgw, phase_speeds, kvtt, state_q, dse, tau, utgw, vtgw, &
-                        ttgw, qtgw, egwdffi, gwut, dttdf, dttke, &
-                        lapply_effgw_in=gw_apply_tndmax)
-
-      ! Project stress into directional components.
-      taucd = calc_taucd(ncol, band_mid%ngwv, tend_level, tau, phase_speeds, xv, yv, ubi)
-
-      ! Add the diffusion coefficients
-      do k = 1, pver + 1
-        egwdffi_tot(:, k) = egwdffi_tot(:, k) + egwdffi(:, k)
-      end do
-
-      ! Add the constituent tendencies
-      do m = 1, pcnst
-        do k = 1, pver
-          q_tend(:ncol, k, m) = q_tend(:ncol, k, m) + qtgw(:, k, m)
-        end do
-      end do
-
-      ! Find momentum flux, and use it to fix the wind tendencies below
-      ! the gravity wave region.
-      call momentum_flux(tend_level, taucd, um_flux, vm_flux)
-      call momentum_fixer(tend_level, p, um_flux, vm_flux, utgw, vtgw)
-
-      ! add the momentum tendencies to the output tendency arrays
-      do k = 1, pver
-        u_tend(:ncol, k) = u_tend(:ncol, k) + utgw(:, k)
-        v_tend(:ncol, k) = v_tend(:ncol, k) + vtgw(:, k)
-      end do
-
-      ! Find energy change in the current state, and use fixer to apply
-      ! the difference in lower levels.
-      call energy_change(dt, p, state_u, state_v, u_tend(:ncol, :), &
-                         v_tend(:ncol, :), s_tend(:ncol, :) + ttgw, de)
-      call energy_fixer(tend_level, p, de - flx_heat(:ncol), ttgw)
-
-      do k = 1, pver
-        s_tend(:ncol, k) = s_tend(:ncol, k) + ttgw(:, k)
-      end do
-
-      ! Change ttgw to a temperature tendency before outputing it.
-!!$     ttgw = ttgw / cpair
-!!$     call gw_spec_outflds(cm_pf, ncol, pver, band_mid, phase_speeds, u, v, &
-!!$          xv, yv, gwut, dttdf, dttke, tau(:,:,2:), utgw, vtgw, ttgw, &
-!!$          taucd)
-!!$
-!!$     deallocate(tau, gwut, phase_speeds)
-
-    end if
-
-    !------------------------------------------------------------------
-    ! Frontally generated inertial gravity waves
-    !------------------------------------------------------------------
-    if (use_gw_front_igw) then
-      ! Allocate wavenumber fields.
-      allocate (tau(ncol, -band_long%ngwv:band_long%ngwv, pver + 1), stat=stat)
-      call handle_err(stat, errflg, sub//': Allocate of tau failed', errmsg)
-      allocate (gwut(ncol, pver, -band_long%ngwv:band_long%ngwv), stat=stat)
-      call handle_err(stat, errflg, sub//': Allocate of gwut failed', errmsg)
-      allocate (phase_speeds(ncol, -band_long%ngwv:band_long%ngwv), stat=stat)
-      call handle_err(stat, errflg, sub//': Allocate of phase_speeds failed', errmsg)
-      allocate (ro_adjust(ncol, -band_long%ngwv:band_long%ngwv, pver + 1), stat=stat)
-      call handle_err(stat, errflg, sub//': Allocate of ro_adjust failed', errmsg)
-
-      ! Efficiency of gravity wave momentum transfer.
-      effgw = effgw_cm_igw
-
-      ! Frontogenesis is too high at the poles (at least for the FV
-      ! dycore), so introduce a polar taper.
-      if (gw_polar_taper) then
-        where (abs(lat(:ncol)) <= 89._kind_phys*degree2radian)
-          effgw = effgw*0.25_kind_phys* &
-                  (1._kind_phys + tanh((lat(:ncol) + al0)/dlat0))* &
-                  (1._kind_phys - tanh((lat(:ncol) - al0)/dlat0))
-        elsewhere
-          effgw = 0._kind_phys
-        end where
-      end if
-
-      call gw_cm_src(ncol, band_long, &
-                     cm_igw_desc, &
-                     state_u, state_v, frontgf(:ncol, :), &
-                     src_level, tend_level, tau, ubm, ubi, xv, yv, phase_speeds)
-
-      call adjust_inertial(band_long, tend_level, u_coriolis, phase_speeds, ubi, &
-                           tau, ro_adjust)
-
-      ! Solve for the drag profile with C&M source spectrum.
-      call gw_drag_prof(ncol, band_long, p, src_level, tend_level, dt, &
-                        state_t, vramp, &
-                        piln, rhoi, nm, ni, ubm, ubi, xv, yv, &
-                        effgw, phase_speeds, kvtt, state_q, dse, tau, utgw, vtgw, &
-                        ttgw, qtgw, egwdffi, gwut, dttdf, dttke, &
-                        ro_adjust=ro_adjust, lapply_effgw_in=gw_apply_tndmax)
-
-      ! Project stress into directional components.
-      taucd = calc_taucd(ncol, band_long%ngwv, tend_level, tau, phase_speeds, xv, yv, ubi)
-
-      !  add the diffusion coefficients
-      do k = 1, pver + 1
-        egwdffi_tot(:, k) = egwdffi_tot(:, k) + egwdffi(:, k)
-      end do
-
-      !Add the constituent tendencies
-      do m = 1, pcnst
-        do k = 1, pver
-          q_tend(:ncol, k, m) = q_tend(:ncol, k, m) + qtgw(:, k, m)
-        end do
-      end do
-
-      ! Find momentum flux, and use it to fix the wind tendencies below
-      ! the gravity wave region.
-      call momentum_flux(tend_level, taucd, um_flux, vm_flux)
-      call momentum_fixer(tend_level, p, um_flux, vm_flux, utgw, vtgw)
-
-      ! add the momentum tendencies to the output tendency arrays
-      do k = 1, pver
-        u_tend(:ncol, k) = u_tend(:ncol, k) + utgw(:, k)
-        v_tend(:ncol, k) = v_tend(:ncol, k) + vtgw(:, k)
-      end do
-
-      ! Find energy change in the current state, and use fixer to apply
-      ! the difference in lower levels.
-      call energy_change(dt, p, state_u, state_v, u_tend(:ncol, :), &
-                         v_tend(:ncol, :), s_tend(:ncol, :) + ttgw, de)
-      call energy_fixer(tend_level, p, de - flx_heat(:ncol), ttgw)
-
-      do k = 1, pver
-        s_tend(:ncol, k) = s_tend(:ncol, k) + ttgw(:, k)
-      end do
-
-      ! Change ttgw to a temperature tendency before outputing it.
-!!$     ttgw = ttgw / cpair
-!!$     call gw_spec_outflds(cm_igw_pf, ncol, pver, band_long, phase_speeds, state_u, state_v, &
-!!$          xv, yv, gwut, dttdf, dttke, tau(:,:,2:), utgw, vtgw, ttgw, &
-!!$          taucd)
-
-      deallocate (tau, gwut, phase_speeds, ro_adjust)
-
-    end if
-
-  end subroutine gw_drag_run
 
 !==========================================================================
 
@@ -991,22 +501,6 @@ contains
 !!$       ncol, lchnk)
 
   contains
-
-    ! Given a value, finds which bin marked by "bounds" the value falls
-    ! into.
-    elemental function find_bin(val) result(idx)
-      real(kind_phys), intent(in) :: val
-
-      integer :: idx
-
-      ! We just have to count how many bounds are exceeded.
-      if (val >= 0._kind_phys) then
-        idx = count(val > bounds) + 1
-      else
-        idx = count(val >= bounds) + 1
-      end if
-
-    end function find_bin
 
     ! Convert a speed to a wavenumber between -ngwv and ngwv.
     elemental function c_to_l(c) result(l)

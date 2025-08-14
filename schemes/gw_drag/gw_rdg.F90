@@ -1,5 +1,6 @@
 ! This module handles gravity waves from orographic sources, and was
-! extracted from gw_drag in May 2013.
+! extracted from gw_drag in May 2013,
+! and subsequently CCPPized in August 2025.
 module gw_rdg
   use ccpp_kinds,    only: kind_phys
   use gw_common,     only: unset_kind_phys, gwband, handle_err
@@ -13,10 +14,8 @@ module gw_rdg
   public :: gravity_wave_drag_ridge_init        ! CCPP I/O read Ridge data into state.
   public :: gw_rdg_init                         ! Init routine (public only for current CAM compat.)
 
-  public :: gw_rdg_run
-
-  ! Horizontal wavelength
-  real(kind_phys), parameter :: wavelength_mid = 1.e5_kind_phys
+  public :: gravity_wave_drag_ridge_beta_run
+  public :: gravity_wave_drag_ridge_gamma_run
 
   ! Tunable Parameters
   logical, public            :: do_divstream
@@ -31,7 +30,7 @@ module gw_rdg
   ! Max Ratio Fr2:Fr1 - 1.0
   real(kind_phys) :: C_GammaMax
 
-  ! Normalized limits  for Fr2(Frx) function
+  ! Normalized limits for Fr2(Frx) function
   real(kind_phys) :: Frx0
   real(kind_phys) :: Frx1
 
@@ -75,7 +74,6 @@ module gw_rdg
 contains
   subroutine gw_rdg_init(&
                          gw_delta_c, &
-                         rearth, &
                          effgw_rdg_beta, &
                          effgw_rdg_gamma, &
                          use_gw_rdg_beta_in, &
@@ -87,11 +85,10 @@ contains
                          gw_rdg_orostratmin_nl, gw_rdg_orom2min_nl, gw_rdg_do_vdiff_nl, &
                          errmsg, errflg)
 
+    use gw_common, only: wavelength_mid
+
     ! Gravity wave band parameters
     real(kind_phys), intent(in)      :: gw_delta_c                    ! Width of speed bins (delta c) for gravity wave spectrum [m s-1]
-
-    ! Physical constants
-    real(kind_phys), intent(in)      :: rearth                        ! Earth radius [m]
 
     ! Ridge efficiency parameters
     real(kind_phys), intent(in)      :: effgw_rdg_beta                ! Beta ridge efficiency factor [1]
@@ -381,302 +378,305 @@ contains
 
   end subroutine gravity_wave_drag_ridge_init
 
-  subroutine gw_rdg_run( &
-    ncol, pver, pcnst, dt, pi, &
-    use_gw_rdg_beta, &
-    use_gw_rdg_gamma, &
+  subroutine gravity_wave_drag_ridge_beta_run( &
+    ncol, pver, pcnst, dt, pi, cpair, &
     vramp, p, &
-    n_rdg_beta, n_rdg_gamma, &
+    n_rdg_beta, &
     u, v, t, q, dse, &
     piln, zm, zi, &
-    nm, ni, rhoi, kvtt, &
-    effgw_rdg_resid, use_gw_rdg_resid, &
+    nm, ni, rhoi, kvt_gw, &
+    use_gw_rdg_resid, effgw_rdg_resid, &
     effgw_rdg_beta, effgw_rdg_beta_max, &
-    effgw_rdg_gamma, effgw_rdg_gamma_max, &
     rdg_beta_cd_llb, trpd_leewv_rdg_beta, &
-    rdg_gamma_cd_llb, trpd_leewv_rdg_gamma, &
     gbxar, isovar, isowgt, &
     hwdth, clngt, mxdis, anixy, angll, &
-    gbxarg, &
-    hwdthg, clngtg, mxdisg, anixyg, angllg, &
+    taurx, taury, &
+    tauardgx, tauardgy, &
+    utrdg, vtrdg, ttrdg, &
     q_tend, s_tend, u_tend, v_tend, flx_heat, errmsg, errflg)
 
     use coords_1d, only: Coords1D
 
     ! Input arguments
-    integer, intent(in)              :: pver
-    integer, intent(in)              :: ncol
-    integer, intent(in)              :: pcnst
-    real(kind_phys), intent(in)      :: dt                     ! Physics timestep [s]
+    integer,             intent(in)    :: pver
+    integer,             intent(in)    :: ncol
+    integer,             intent(in)    :: pcnst
+    real(kind_phys),     intent(in)    :: dt                           ! Physics timestep [s]
+    real(kind_phys),     intent(in)    :: pi                           ! pi_constant [1]
+    real(kind_phys),     intent(in)    :: cpair                        ! specific_heat_of_dry_air_at_constant_pressure [J kg-1 K-1]
 
-    real(kind_phys), intent(in)      :: pi                     ! pi_constant [1]
+    real(kind_phys),     pointer, intent(in) :: vramp(:)               ! Vertical tapering function [1]
+    type(Coords1D),      intent(in)    :: p                            ! Pressure coordinates, Coords1D
 
-    logical, intent(in)              :: use_gw_rdg_beta        ! Enable beta ridge scheme [flag]
-    logical, intent(in)              :: use_gw_rdg_gamma       ! Enable gamma ridge scheme [flag]
+    integer,             intent(in)    :: n_rdg_beta                   ! Number of meso-Beta ridges (per gridbox) to invoke [count]
 
-    real(kind_phys), pointer, intent(in) :: vramp(:)           ! Vertical tapering function [1]
-    type(Coords1D),           intent(in) :: p                  ! Pressure coordinates, Coords1D
+    real(kind_phys),     intent(in)    :: u(:, :)                      ! Midpoint zonal winds [m s-1]
+    real(kind_phys),     intent(in)    :: v(:, :)                      ! Midpoint meridional winds [m s-1]
+    real(kind_phys),     intent(in)    :: t(:, :)                      ! Midpoint temperatures [K]
+    real(kind_phys),     intent(in)    :: q(:, :, :)                   ! Constituent array [kg kg-1]
+    real(kind_phys),     intent(in)    :: dse(:, :)                    ! Dry static energy [J kg-1]
 
-    integer, intent(in)              :: n_rdg_beta             ! Number of beta ridges [count]
-    integer, intent(in)              :: n_rdg_gamma            ! Number of gamma ridges [count]
+    real(kind_phys),     intent(in)    :: piln(:, :)                   ! Log of interface pressures [ln(Pa)]
+    real(kind_phys),     intent(in)    :: zm(:, :)                     ! Midpoint altitudes above ground [m]
+    real(kind_phys),     intent(in)    :: zi(:, :)                     ! Interface altitudes above ground [m]
 
-    real(kind_phys), intent(in)      :: u(:, :)                ! Midpoint zonal winds [m s-1]
-    real(kind_phys), intent(in)      :: v(:, :)                ! Midpoint meridional winds [m s-1]
-    real(kind_phys), intent(in)      :: t(:, :)                ! Midpoint temperatures [K]
-    real(kind_phys), intent(in)      :: q(:, :, :)             ! Constituent array [kg kg-1]
-    real(kind_phys), intent(in)      :: dse(:, :)              ! Dry static energy [J kg-1]
-
-    real(kind_phys), intent(in)      :: piln(:, :)             ! Log of interface pressures [ln(Pa)]
-    real(kind_phys), intent(in)      :: zm(:, :)               ! Midpoint altitudes above ground [m]
-    real(kind_phys), intent(in)      :: zi(:, :)               ! Interface altitudes above ground [m]
-
-    real(kind_phys), intent(in)      :: nm(:, :)               ! Midpoint Brunt-Vaisalla frequencies [s-1]
-    real(kind_phys), intent(in)      :: ni(:, :)               ! Interface Brunt-Vaisalla frequencies [s-1]
-    real(kind_phys), intent(in)      :: rhoi(:, :)             ! Interface density [kg m-3]
-    real(kind_phys), intent(in)      :: kvtt(:, :)             ! Molecular thermal diffusivity [m2 s-1]
+    real(kind_phys),     intent(in)    :: nm(:, :)                     ! Midpoint Brunt-Vaisalla frequencies [s-1]
+    real(kind_phys),     intent(in)    :: ni(:, :)                     ! Interface Brunt-Vaisalla frequencies [s-1]
+    real(kind_phys),     intent(in)    :: rhoi(:, :)                   ! Interface density [kg m-3]
+    real(kind_phys),     intent(in)    :: kvt_gw(:, :)                 ! Molecular thermal diffusivity [m2 s-1]
 
     ! Ridge scheme parameters
-    real(kind_phys), intent(in)      :: effgw_rdg_resid        ! Residual ridge efficiency factor [1]
-    logical, intent(in)              :: use_gw_rdg_resid       ! Enable residual ridge parameterization [flag]
-    real(kind_phys), intent(in)      :: effgw_rdg_beta         ! Beta ridge efficiency factor [1]
-    real(kind_phys), intent(in)      :: effgw_rdg_beta_max     ! Maximum beta ridge efficiency [1]
-    real(kind_phys), intent(in)      :: effgw_rdg_gamma        ! Gamma ridge efficiency factor [1]
-    real(kind_phys), intent(in)      :: effgw_rdg_gamma_max    ! Maximum gamma ridge efficiency [1]
-    real(kind_phys), intent(in)      :: rdg_beta_cd_llb        ! Beta ridge low-level drag coefficient [1]
-    logical, intent(in)              :: trpd_leewv_rdg_beta    ! Enable beta ridge trapped lee waves [flag]
-    real(kind_phys), intent(in)      :: rdg_gamma_cd_llb       ! Gamma ridge low-level drag coefficient [1]
-    logical, intent(in)              :: trpd_leewv_rdg_gamma   ! Enable gamma ridge trapped lee waves [flag]
+    logical,             intent(in)    :: use_gw_rdg_resid             ! Enable residual (non-ridge) orography GW. [flag]
+    real(kind_phys),     intent(in)    :: effgw_rdg_resid              ! Efficiency scaling factor associated with residual non-ridge topo. [1]
+    real(kind_phys),     intent(in)    :: effgw_rdg_beta               ! Efficiency scaling factor associated with anisotropic OGW. [1]
+    real(kind_phys),     intent(in)    :: effgw_rdg_beta_max           ! Max efficiency associated with anisotropic OGW. [1]
+    real(kind_phys),     intent(in)    :: rdg_beta_cd_llb              ! Drag coefficient for obstacles in low-level flow. [1]
+    logical,             intent(in)    :: trpd_leewv_rdg_beta          ! Allow trapping for meso-Beta Ridges? [flag]
 
-    ! Ridge input data
-    real(kind_phys),    intent(in), pointer :: gbxar (:)
-    real(kind_phys),    intent(in), pointer :: isovar(:)
-    real(kind_phys),    intent(in), pointer :: isowgt(:)
-    real(kind_phys),    intent(in), pointer :: hwdth (:,:)
-    real(kind_phys),    intent(in), pointer :: clngt (:,:)
-    real(kind_phys),    intent(in), pointer :: mxdis (:,:)
-    real(kind_phys),    intent(in), pointer :: anixy (:,:)
-    real(kind_phys),    intent(in), pointer :: angll (:,:)
-
-    real(kind_phys),    intent(in), pointer :: gbxarg (:)
-    real(kind_phys),    intent(in), pointer :: hwdthg (:,:)
-    real(kind_phys),    intent(in), pointer :: clngtg (:,:)
-    real(kind_phys),    intent(in), pointer :: mxdisg (:,:)
-    real(kind_phys),    intent(in), pointer :: anixyg (:,:)
-    real(kind_phys),    intent(in), pointer :: angllg (:,:)
+    ! Beta ridge input data
+    real(kind_phys),     intent(in), pointer :: gbxar (:)              ! Grid box area [km2]
+    real(kind_phys),     intent(in), pointer :: isovar(:)              ! Isotropic variance [m]
+    real(kind_phys),     intent(in), pointer :: isowgt(:)              ! Isotropic weight [1]
+    real(kind_phys),     intent(in), pointer :: hwdth (:,:)            ! Ridge half-width [km]
+    real(kind_phys),     intent(in), pointer :: clngt (:,:)            ! Ridge length [km]
+    real(kind_phys),     intent(in), pointer :: mxdis (:,:)            ! Ridge/obstacle height [m]
+    real(kind_phys),     intent(in), pointer :: anixy (:,:)            ! Ridge anisotropy [1]
+    real(kind_phys),     intent(in), pointer :: angll (:,:)            ! Ridge clockwise angle wrt north-south [degrees]
 
     ! Output tendencies
-    real(kind_phys), intent(inout)   :: q_tend(:, :, :)        ! Constituent tendencies [kg kg-1 s-1]
-    real(kind_phys), intent(inout)   :: s_tend(:, :)           ! Dry static energy tendency [J kg-1 s-1]
-    real(kind_phys), intent(inout)   :: u_tend(:, :)           ! Zonal wind tendency [m s-2]
-    real(kind_phys), intent(inout)   :: v_tend(:, :)           ! Meridional wind tendency [m s-2]
-    real(kind_phys), intent(out)     :: flx_heat(:)            ! Surface heat flux for check energy [W m-2]
+    real(kind_phys),     intent(inout) :: q_tend(:, :, :)              ! Constituent tendencies [kg kg-1 s-1]
+    real(kind_phys),     intent(inout) :: s_tend(:, :)                 ! Dry static energy tendency [J kg-1 s-1]
+    real(kind_phys),     intent(inout) :: u_tend(:, :)                 ! Zonal wind tendency [m s-2]
+    real(kind_phys),     intent(inout) :: v_tend(:, :)                 ! Meridional wind tendency [m s-2]
+    real(kind_phys),     intent(out)   :: flx_heat(:)                  ! Surface heat flux for check energy [W m-2]
+
+    ! Diagnostic outputs
+    real(kind_phys),     intent(out)   :: taurx(:,:)                   ! wave stress in zonal direction, interfaces [N m-2]
+    real(kind_phys),     intent(out)   :: taury(:,:)                   ! wave stress in meridional direction, interfaces [N m-2]
+    real(kind_phys),     intent(out)   :: tauardgx(:,:)                ! ridge based momentum flux profile, zonal, interfaces [N m-2]
+    real(kind_phys),     intent(out)   :: tauardgy(:,:)                ! ridge based momentum flux profile, meridional, interfaces [N m-2]
+    real(kind_phys),     intent(out)   :: utrdg(:,:)                   ! U tendency accummulator [m s-1]
+    real(kind_phys),     intent(out)   :: vtrdg(:,:)                   ! V tendency accummulator [m s-1]
+    real(kind_phys),     intent(out)   :: ttrdg(:,:)                   ! T tendency from orographic gravity wave drag [K s-1]
 
     ! Error handling
-    character(len=512), intent(out)  :: errmsg
-    integer, intent(out)             :: errflg
-
-    ! Local variables
-    character(len=*), parameter :: sub = 'gw_rdg_run'
-
-    integer :: k, m, nn, stat
-
-    real(kind_phys), allocatable :: tau(:, :, :)  ! wave Reynolds stress
-    ! gravity wave wind tendency for each wave
-    real(kind_phys), allocatable :: gwut(:, :, :)
-    ! Wave phase speeds for each column
-    real(kind_phys), allocatable :: phase_speeds(:, :)
-
-    ! Isotropic source flag [anisotropic orography].
-    integer  :: isoflag(ncol)
-
-    ! horiz wavenumber [anisotropic orography].
-    real(kind_phys) :: kwvrdg(ncol)
-
-    ! Efficiency for a gravity wave source.
-    real(kind_phys) :: effgw(ncol)
-
-    ! Indices of top gravity wave source level and lowest level where wind
-    ! tendencies are allowed.
-    integer :: src_level(ncol)
-    integer :: tend_level(ncol)
-    integer :: bwv_level(ncol)
-    integer :: tlb_level(ncol)
-
-    ! Projection of wind at midpoints and interfaces.
-    real(kind_phys) :: ubm(ncol, pver)
-    real(kind_phys) :: ubi(ncol, pver + 1)
-
-    ! Unit vectors of source wind (zonal and meridional components).
-    real(kind_phys) :: xv(ncol)
-    real(kind_phys) :: yv(ncol)
-
-    ! Averages over source region.
-    real(kind_phys) :: ubmsrc(ncol) ! On-ridge wind.
-    real(kind_phys) :: usrc(ncol)   ! Zonal wind.
-    real(kind_phys) :: vsrc(ncol)   ! Meridional wind.
-    real(kind_phys) :: nsrc(ncol)   ! B-V frequency.
-    real(kind_phys) :: rsrc(ncol)   ! Density.
-
-    ! normalized wavenumber
-    real(kind_phys) :: m2src(ncol)
-
-    ! Top of low-level flow layer.
-    real(kind_phys) :: tlb(ncol)
-
-    ! Bottom of linear wave region.
-    real(kind_phys) :: bwv(ncol)
-
-    ! Froude numbers for flow/drag regimes
-    real(kind_phys) :: Fr1(ncol)
-    real(kind_phys) :: Fr2(ncol)
-    real(kind_phys) :: Frx(ncol)
-
-    ! Wave Reynolds stresses at source level
-    real(kind_phys) :: tauoro(ncol)
-    real(kind_phys) :: taudsw(ncol)
-
-    ! Surface streamline displacement height for linear waves.
-    real(kind_phys) :: hdspwv(ncol)
-
-    ! Surface streamline displacement height for downslope wind regime.
-    real(kind_phys) :: hdspdw(ncol)
-
-    ! Wave breaking level
-    real(kind_phys) :: wbr(ncol)
-
-    real(kind_phys) :: utgw(ncol, pver)       ! zonal wind tendency
-    real(kind_phys) :: vtgw(ncol, pver)       ! meridional wind tendency
-    real(kind_phys) :: ttgw(ncol, pver)       ! temperature tendency
-    real(kind_phys) :: qtgw(ncol, pver, pcnst) ! constituents tendencies
-
-    ! Effective gravity wave diffusivity at interfaces.
-    real(kind_phys) :: egwdffi(ncol, pver + 1)
-
-    ! Temperature tendencies from diffusion and kinetic energy.
-    real(kind_phys) :: dttdf(ncol, pver)
-    real(kind_phys) :: dttke(ncol, pver)
-
-    ! Wave stress in zonal/meridional direction
-    real(kind_phys) :: taurx(ncol, pver + 1)
-    real(kind_phys) :: taurx0(ncol, pver + 1)
-    real(kind_phys) :: taury(ncol, pver + 1)
-    real(kind_phys) :: taury0(ncol, pver + 1)
-    ! Provisional absolute wave stress from gw_drag_prof
-    real(kind_phys) :: tau_diag(ncol, pver + 1)
-
-    ! U,V tendency accumulators
-    real(kind_phys) :: utrdg(ncol, pver)
-    real(kind_phys) :: vtrdg(ncol, pver)
-    real(kind_phys) :: ttrdg(ncol, pver)
-
-    ! Energy change used by fixer.
-    real(kind_phys) :: de(ncol)
-
-    character(len=1) :: cn
-    character(len=9) :: fname(4)
+    character(len=512),  intent(out)   :: errmsg
+    integer,             intent(out)   :: errflg
 
     errmsg = ''
     errflg = 0
 
-    if (use_gw_rdg_beta) then
-      call gw_rdg_calc(band_oro          = band_oro, &
-                       vramp             = vramp(:), &
-                       type              = 'BETA ', &
-                       pver              = pver, &
-                       ncol              = ncol, &
-                       pcnst             = pcnst, &
-                       prdg              = prdg, &
-                       n_rdg             = n_rdg_beta, &
-                       dt                = dt, &
-                       pi                = pi, &
-                       u                 = u(:, :), &
-                       v                 = v(:, :), &
-                       t                 = t(:, :), &
-                       p                 = p, &
-                       piln              = piln(:, :), &
-                       zm                = zm(:, :), &
-                       zi                = zi(:, :), &
-                       nm                = nm(:, :), &
-                       ni                = ni(:, :), &
-                       rhoi              = rhoi(:, :), &
-                       kvtt              = kvtt(:, :), &
-                       q                 = q(:, :, :), &
-                       dse               = dse(:, :), &
-                       effgw_rdg         = effgw_rdg_beta, &
-                       effgw_rdg_max     = effgw_rdg_beta_max, &
-                       effgw_rdg_resid   = effgw_rdg_resid, &
-                       luse_gw_rdg_resid = use_gw_rdg_resid, &
-                       hwdth             = hwdth(:, :), &
-                       clngt             = clngt(:, :), &
-                       gbxar             = gbxar(:), &
-                       mxdis             = mxdis(:, :), &
-                       angll             = angll(:, :), &
-                       anixy             = anixy(:, :), &
-                       isovar            = isovar(:), &
-                       isowgt            = isowgt(:), &
-                       rdg_cd_llb        = rdg_beta_cd_llb, &
-                       trpd_leewv        = trpd_leewv_rdg_beta, &
-                       u_tend            = u_tend(:, :), &
-                       v_tend            = v_tend(:, :), &
-                       s_tend            = s_tend(:, :), &
-                       q_tend            = q_tend(:, :, :), &
-                       flx_heat          = flx_heat(:), &
-                       errmsg            = errmsg, &
-                       errflg            = errflg)
-    end if
+    call gw_rdg_calc(band_oro          = band_oro, &
+                     vramp             = vramp(:), &
+                     type              = 'BETA ', &
+                     pver              = pver, &
+                     ncol              = ncol, &
+                     pcnst             = pcnst, &
+                     prdg              = prdg, &
+                     n_rdg             = n_rdg_beta, &
+                     dt                = dt, &
+                     pi                = pi, &
+                     cpair             = cpair, &
+                     u                 = u(:, :), &
+                     v                 = v(:, :), &
+                     t                 = t(:, :), &
+                     p                 = p, &
+                     piln              = piln(:, :), &
+                     zm                = zm(:, :), &
+                     zi                = zi(:, :), &
+                     nm                = nm(:, :), &
+                     ni                = ni(:, :), &
+                     rhoi              = rhoi(:, :), &
+                     kvtt              = kvt_gw(:, :), &
+                     q                 = q(:, :, :), &
+                     dse               = dse(:, :), &
+                     effgw_rdg         = effgw_rdg_beta, &
+                     effgw_rdg_max     = effgw_rdg_beta_max, &
+                     effgw_rdg_resid   = effgw_rdg_resid, &
+                     luse_gw_rdg_resid = use_gw_rdg_resid, &
+                     hwdth             = hwdth(:, :), &
+                     clngt             = clngt(:, :), &
+                     gbxar             = gbxar(:), &
+                     mxdis             = mxdis(:, :), &
+                     angll             = angll(:, :), &
+                     anixy             = anixy(:, :), &
+                     isovar            = isovar(:), &
+                     isowgt            = isowgt(:), &
+                     rdg_cd_llb        = rdg_beta_cd_llb, &
+                     trpd_leewv        = trpd_leewv_rdg_beta, &
+                     u_tend            = u_tend(:, :), &
+                     v_tend            = v_tend(:, :), &
+                     s_tend            = s_tend(:, :), &
+                     q_tend            = q_tend(:, :, :), &
+                     flx_heat          = flx_heat(:), &
+                     taurx             = taurx(:,:), &
+                     taury             = taury(:,:), &
+                     tauardgx          = tauardgx(:,:), &
+                     tauardgy          = tauardgy(:,:), &
+                     utrdg             = utrdg(:,:), &
+                     vtrdg             = vtrdg(:,:), &
+                     ttrdg             = ttrdg(:,:), &
+                     errmsg            = errmsg, &
+                     errflg            = errflg)
 
-    if (use_gw_rdg_gamma) then
-      where (mxdisg(:, :) < 0._kind_phys)
-        mxdisg(:, :) = 0._kind_phys
-      end where
+  end subroutine gravity_wave_drag_ridge_beta_run
 
-      call gw_rdg_calc(band_oro          = band_oro, &
-                       vramp             = vramp(:), &
-                       type              = 'GAMMA', &
-                       pver              = pver, &
-                       ncol              = ncol, &
-                       pcnst             = pcnst, &
-                       prdg              = prdg, &
-                       n_rdg             = n_rdg_gamma, &
-                       dt                = dt, &
-                       pi                = pi, &
-                       u                 = u(:, :), &
-                       v                 = v(:, :), &
-                       t                 = t(:, :), &
-                       p                 = p, &
-                       piln              = piln(:, :), &
-                       zm                = zm(:, :), &
-                       zi                = zi(:, :), &
-                       nm                = nm(:, :), &
-                       ni                = ni(:, :), &
-                       rhoi              = rhoi(:, :), &
-                       kvtt              = kvtt(:, :), &
-                       q                 = q(:, :, :), &
-                       dse               = dse(:, :), &
-                       effgw_rdg         = effgw_rdg_gamma, &
-                       effgw_rdg_max     = effgw_rdg_gamma_max, &
-                       effgw_rdg_resid   = effgw_rdg_resid, &
-                       luse_gw_rdg_resid = use_gw_rdg_resid, &
-                       hwdth             = hwdthg(:, :), &
-                       clngt             = clngtg(:, :), &
-                       gbxar             = gbxarg(:), &
-                       mxdis             = mxdisg(:, :), &
-                       angll             = angllg(:, :), &
-                       anixy             = anixyg(:, :), &
-                       isovar            = isovar(:), &       ! fixme: check inconsistency in gw. hplin 8/7/25
-                       isowgt            = isowgt(:), &       ! fixme: check inconsistency in gw. hplin 8/7/25
-                       rdg_cd_llb        = rdg_gamma_cd_llb, &
-                       trpd_leewv        = trpd_leewv_rdg_gamma, &
-                       u_tend            = u_tend(:, :), &
-                       v_tend            = v_tend(:, :), &
-                       s_tend            = s_tend(:, :), &
-                       q_tend            = q_tend(:, :, :), &
-                       flx_heat          = flx_heat(:), &
-                       errmsg            = errmsg, &
-                       errflg            = errflg)
-    end if
+  subroutine gravity_wave_drag_ridge_gamma_run( &
+    ncol, pver, pcnst, dt, pi, cpair, &
+    vramp, p, &
+    n_rdg_gamma, &
+    u, v, t, q, dse, &
+    piln, zm, zi, &
+    nm, ni, rhoi, kvt_gw, &
+    use_gw_rdg_resid, effgw_rdg_resid, &
+    effgw_rdg_gamma, effgw_rdg_gamma_max, &
+    rdg_gamma_cd_llb, trpd_leewv_rdg_gamma, &
+    gbxarg, &
+    hwdthg, clngtg, mxdisg, anixyg, angllg, &
+    q_tend, s_tend, u_tend, v_tend, flx_heat, &
+    taurx, taury, &
+    tauardgx, tauardgy, &
+    utrdg, vtrdg, ttrdg, &
+    errmsg, errflg)
 
-  end subroutine gw_rdg_run
+    use coords_1d, only: Coords1D
+
+    ! Input arguments
+    integer,             intent(in)    :: pver                         ! Number of vertical layers [count]
+    integer,             intent(in)    :: ncol                         ! Number of columns [count]
+    integer,             intent(in)    :: pcnst                        ! Number of constituents [count]
+    real(kind_phys),     intent(in)    :: dt                           ! Physics timestep [s]
+    real(kind_phys),     intent(in)    :: pi                           ! pi_constant [1]
+    real(kind_phys),     intent(in)    :: cpair                        ! specific_heat_of_dry_air_at_constant_pressure [J kg-1 K-1]
+
+    real(kind_phys),     intent(in), pointer :: vramp(:)               ! Vertical tapering function [1]
+    type(Coords1D),      intent(in)    :: p                            ! Pressure coordinates, Coords1D
+
+    integer,             intent(in)    :: n_rdg_gamma                  ! Number of meso-gamma ridges (per gridbox) to invoke.
+
+    real(kind_phys),     intent(in)    :: u(:, :)                      ! Midpoint zonal winds [m s-1]
+    real(kind_phys),     intent(in)    :: v(:, :)                      ! Midpoint meridional winds [m s-1]
+    real(kind_phys),     intent(in)    :: t(:, :)                      ! Midpoint temperatures [K]
+    real(kind_phys),     intent(in)    :: q(:, :, :)                   ! Constituent array [kg kg-1]
+    real(kind_phys),     intent(in)    :: dse(:, :)                    ! Dry static energy [J kg-1]
+
+    real(kind_phys),     intent(in)    :: piln(:, :)                   ! Log of interface pressures [ln(Pa)]
+    real(kind_phys),     intent(in)    :: zm(:, :)                     ! Midpoint altitudes above ground [m]
+    real(kind_phys),     intent(in)    :: zi(:, :)                     ! Interface altitudes above ground [m]
+
+    real(kind_phys),     intent(in)    :: nm(:, :)                     ! Midpoint Brunt-Vaisalla frequencies [s-1]
+    real(kind_phys),     intent(in)    :: ni(:, :)                     ! Interface Brunt-Vaisalla frequencies [s-1]
+    real(kind_phys),     intent(in)    :: rhoi(:, :)                   ! Density at interfaces [kg m-3]
+    real(kind_phys),     intent(in)    :: kvt_gw(:, :)                 ! Molecular thermal diffusivity [m2 s-1]
+
+    ! Ridge scheme parameters
+    logical,             intent(in)    :: use_gw_rdg_resid             ! Enable residual (non-ridge) orography GW. [flag]
+    real(kind_phys),     intent(in)    :: effgw_rdg_resid              ! Efficiency scaling factor associated with residual non-ridge topo. [1]
+    real(kind_phys),     intent(in)    :: effgw_rdg_gamma              ! Efficiency scaling factor associated iwth anisotropic OGW [1]
+    real(kind_phys),     intent(in)    :: effgw_rdg_gamma_max          ! Max efficiency associated with anisotropic OGW [1]
+    real(kind_phys),     intent(in)    :: rdg_gamma_cd_llb             ! Drag coefficient for obstacles in low-level flow [1]
+    logical,             intent(in)    :: trpd_leewv_rdg_gamma         ! Allow trapping for meso-gamma Ridges? [flag]
+
+    ! Gamma ridge input data
+    real(kind_phys),     intent(in), pointer :: gbxarg (:)             ! Grid box area for gamma ridges [km2]
+    real(kind_phys),     intent(in), pointer :: hwdthg (:,:)           ! Gamma ridge half-width [km]
+    real(kind_phys),     intent(in), pointer :: clngtg (:,:)           ! Gamma ridge length [km]
+    real(kind_phys),     intent(in), pointer :: mxdisg (:,:)           ! Gamma ridge/obstacle height [m]
+    real(kind_phys),     intent(in), pointer :: anixyg (:,:)           ! Gamma ridge anisotropy [1]
+    real(kind_phys),     intent(in), pointer :: angllg (:,:)           ! Gamma ridge clockwise angle wrt north-south [degrees]
+
+    ! Output tendencies
+    real(kind_phys),     intent(inout) :: q_tend(:, :, :)              ! Constituent tendencies [kg kg-1 s-1]
+    real(kind_phys),     intent(inout) :: s_tend(:, :)                 ! Dry static energy tendency [J kg-1 s-1]
+    real(kind_phys),     intent(inout) :: u_tend(:, :)                 ! Zonal wind tendency [m s-2]
+    real(kind_phys),     intent(inout) :: v_tend(:, :)                 ! Meridional wind tendency [m s-2]
+    real(kind_phys),     intent(out)   :: flx_heat(:)                  ! Surface heat flux for check energy [W m-2]
+
+    ! Diagnostic outputs
+    real(kind_phys),     intent(out)   :: taurx(:,:)                   ! wave stress in zonal direction, interfaces [N m-2]
+    real(kind_phys),     intent(out)   :: taury(:,:)                   ! wave stress in meridional direction, interfaces [N m-2]
+    real(kind_phys),     intent(out)   :: tauardgx(:,:)                ! ridge based momentum flux profile, zonal, interfaces [N m-2]
+    real(kind_phys),     intent(out)   :: tauardgy(:,:)                ! ridge based momentum flux profile, meridional, interfaces [N m-2]
+    real(kind_phys),     intent(out)   :: utrdg(:,:)                   ! U tendency accummulator [m s-1]
+    real(kind_phys),     intent(out)   :: vtrdg(:,:)                   ! V tendency accummulator [m s-1]
+    real(kind_phys),     intent(out)   :: ttrdg(:,:)                   ! T tendency from orographic gravity wave drag [K s-1]
+
+    ! Error handling
+    character(len=512),  intent(out)   :: errmsg
+    integer,             intent(out)   :: errflg
+
+    ! Local variables
+    real(kind_phys) :: isovar_zero(ncol)                               ! Zero (dummy) isotropic variance for gamma [m]
+    real(kind_phys) :: isowgt_zero(ncol)                               ! Zero (dummy) isotropic weight for gamma [1]
+
+    errmsg = ''
+    errflg = 0
+
+    ! Allocate and initialize zero arrays for gamma ridge scheme
+    ! FIXME: only beta has isovar/isowgt support; in gamma this was omitted in the
+    ! original code.
+    isovar_zero(:) = 0._kind_phys
+    isowgt_zero(:) = 0._kind_phys
+
+    ! Apply negative value correction for gamma ridge maximum displacement
+    where (mxdisg(:, :) < 0._kind_phys)
+      mxdisg(:, :) = 0._kind_phys
+    end where
+
+    call gw_rdg_calc(band_oro          = band_oro, &
+                     vramp             = vramp(:), &
+                     type              = 'GAMMA', &
+                     pver              = pver, &
+                     ncol              = ncol, &
+                     pcnst             = pcnst, &
+                     prdg              = prdg, &
+                     n_rdg             = n_rdg_gamma, &
+                     dt                = dt, &
+                     pi                = pi, &
+                     cpair             = cpair, &
+                     u                 = u(:, :), &
+                     v                 = v(:, :), &
+                     t                 = t(:, :), &
+                     p                 = p, &
+                     piln              = piln(:, :), &
+                     zm                = zm(:, :), &
+                     zi                = zi(:, :), &
+                     nm                = nm(:, :), &
+                     ni                = ni(:, :), &
+                     rhoi              = rhoi(:, :), &
+                     kvtt              = kvt_gw(:, :), &
+                     q                 = q(:, :, :), &
+                     dse               = dse(:, :), &
+                     effgw_rdg         = effgw_rdg_gamma, &
+                     effgw_rdg_max     = effgw_rdg_gamma_max, &
+                     effgw_rdg_resid   = effgw_rdg_resid, &
+                     luse_gw_rdg_resid = use_gw_rdg_resid, &
+                     hwdth             = hwdthg(:, :), &
+                     clngt             = clngtg(:, :), &
+                     gbxar             = gbxarg(:), &
+                     mxdis             = mxdisg(:, :), &
+                     angll             = angllg(:, :), &
+                     anixy             = anixyg(:, :), &
+                     isovar            = isovar_zero(:), &    ! FIXME: check inconsistency in gw. hplin 8/7/25
+                     isowgt            = isowgt_zero(:), &    ! FIXME: check inconsistency in gw. hplin 8/7/25
+                     rdg_cd_llb        = rdg_gamma_cd_llb, &
+                     trpd_leewv        = trpd_leewv_rdg_gamma, &
+                     u_tend            = u_tend(:, :), &
+                     v_tend            = v_tend(:, :), &
+                     s_tend            = s_tend(:, :), &
+                     q_tend            = q_tend(:, :, :), &
+                     flx_heat          = flx_heat(:), &
+                     taurx             = taurx(:,:), &
+                     taury             = taury(:,:), &
+                     tauardgx          = tauardgx(:,:), &
+                     tauardgy          = tauardgy(:,:), &
+                     utrdg             = utrdg(:,:), &
+                     vtrdg             = vtrdg(:,:), &
+                     ttrdg             = ttrdg(:,:), &
+                     errmsg            = errmsg, &
+                     errflg            = errflg)
+
+  end subroutine gravity_wave_drag_ridge_gamma_run
 
   subroutine gw_rdg_resid_src(ncol, pver, band, p, &
                               u, v, t, mxdis, kwvrdg, zi, nm, &
@@ -1734,7 +1734,7 @@ contains
 
   subroutine gw_rdg_calc(band_oro, &
                          vramp, &
-                         type, pver, ncol, pcnst, prdg, n_rdg, dt, pi, &
+                         type, pver, ncol, pcnst, prdg, n_rdg, dt, pi, cpair, &
                          u, v, t, p, piln, zm, zi, &
                          nm, ni, rhoi, kvtt, q, dse, &
                          effgw_rdg, effgw_rdg_max, &
@@ -1743,7 +1743,11 @@ contains
                          mxdis, angll, anixy, &
                          isovar, isowgt, &
                          rdg_cd_llb, trpd_leewv, &
-                         u_tend, v_tend, s_tend, q_tend, flx_heat, errmsg, errflg)
+                         u_tend, v_tend, s_tend, q_tend, flx_heat, &
+                         taurx, taury, &
+                         tauardgx, tauardgy, &
+                         utrdg, vtrdg, ttrdg, &
+                         errmsg, errflg)
 
     use coords_1d, only: Coords1D
     use gw_common, only: GWBand, gw_drag_prof, energy_change
@@ -1759,6 +1763,7 @@ contains
     integer, intent(in) :: n_rdg
     real(kind_phys), intent(in) :: dt           ! Time step.
     real(kind_phys), intent(in) :: pi
+    real(kind_phys), intent(in) :: cpair
 
     real(kind_phys), intent(in) :: u(:, :)    ! Midpoint zonal winds. ( m s-1)
     real(kind_phys), intent(in) :: v(:, :)    ! Midpoint meridional winds. ( m s-1)
@@ -1798,6 +1803,16 @@ contains
     real(kind_phys), intent(inout) :: q_tend(:, :, :) ! constituent array
 
     real(kind_phys), intent(out) :: flx_heat(:)
+
+    ! for diagnostic output
+    real(kind_phys), intent(out) :: taurx(ncol, pver + 1) ! wave stress in zonal direction [N m-2]
+    real(kind_phys), intent(out) :: taury(ncol, pver + 1) ! wave stress in meridional direction [N m-2]
+    real(kind_phys), intent(out) :: tauardgx(ncol, pver + 1) ! ridge based momentum flux profile, zonal, interfaces [N m-2]
+    real(kind_phys), intent(out) :: tauardgy(ncol, pver + 1) ! ridge based momentum flux profile, meridional, interfaces [N m-2]
+    real(kind_phys), intent(out) :: utrdg(ncol, pver) ! tendency accummulators
+    real(kind_phys), intent(out) :: vtrdg(ncol, pver)
+    real(kind_phys), intent(out) :: ttrdg(ncol, pver)
+
     character(len=512), intent(out)               :: errmsg
     integer, intent(out)                          :: errflg
     character(len=*), parameter :: sub = 'gw_rdg_calc'
@@ -1805,12 +1820,6 @@ contains
     !---------------------------Local storage-------------------------------
 
     integer :: k, m, nn, istat
-
-    real(kind_phys), allocatable :: tau(:, :, :)  ! wave Reynolds stress
-    ! gravity wave wind tendency for each wave
-    real(kind_phys), allocatable :: gwut(:, :, :)
-    ! Wave phase speeds for each column
-    real(kind_phys), allocatable :: phase_speeds(:, :)
 
     ! Isotropic source flag [anisotropic orography].
     integer  :: isoflag(ncol)
@@ -1883,17 +1892,10 @@ contains
     real(kind_phys) :: dttke(ncol, pver)
 
     ! Wave stress in zonal/meridional direction
-    real(kind_phys) :: taurx(ncol, pver + 1)
     real(kind_phys) :: taurx0(ncol, pver + 1)
-    real(kind_phys) :: taury(ncol, pver + 1)
     real(kind_phys) :: taury0(ncol, pver + 1)
     ! Provisional absolute wave stress from gw_drag_prof
     real(kind_phys) :: tau_diag(ncol, pver + 1)
-
-    ! U,V tendency accumulators
-    real(kind_phys) :: utrdg(ncol, pver)
-    real(kind_phys) :: vtrdg(ncol, pver)
-    real(kind_phys) :: ttrdg(ncol, pver)
 
     ! Energy change used by fixer.
     real(kind_phys) :: de(ncol)
@@ -1901,19 +1903,13 @@ contains
     character(len=1) :: cn
     character(len=9) :: fname(4)
 
+    ! Wavenumber fields
+    real(kind_phys) :: tau(ncol, -band_oro%ngwv:band_oro%ngwv, pver+1) ! wave Reynolds stress
+    real(kind_phys) :: gwut(ncol, pver, -band_oro%ngwv:band_oro%ngwv)  ! gravity wave wind tendency for each wave
+    real(kind_phys) :: phase_speeds(ncol, -band_oro%ngwv:band_oro%ngwv)! Wave phase speeds for each column
+
     errmsg = ''
     errflg = 0
-
-    ! Allocate wavenumber fields.
-    allocate (tau(ncol, -band_oro%ngwv:band_oro%ngwv, pver + 1), stat=istat)
-    call handle_err(istat, errflg, sub//': Allocate of tau failed', errmsg)
-!jt   call alloc_err(istat,'gw_rdg_calc','tau',ncol*(band_oro%ngwv**2+1)*(pver+1))
-    allocate (gwut(ncol, pver, band_oro%ngwv:band_oro%ngwv), stat=istat)
-    call handle_err(istat, errflg, sub//': Allocate of gwut failed', errmsg)
-!jt   call alloc_err(istat,'rdg_calc','gwut',ncol*pver*(band_oro%ngwv**2+1))
-    allocate (phase_speeds(ncol, band_oro%ngwv:band_oro%ngwv), stat=istat)
-    call handle_err(istat, errflg, sub//': Allocate of phase_speeds failed', errmsg)
-!   call alloc_err(istat,'rdg_calc','phase_speeds',ncol*(band_oro%ngwv**2+1))
 
     ! initialize accumulated momentum fluxes and tendencies
     taurx = 0._kind_phys
@@ -1983,45 +1979,11 @@ contains
         taury(:, k) = taury(:, k) + taury0(:, k)
       end do
 
-!!$      if (nn == 1) then
-!!$         call outfld('BWV_HT1', bwv,     ncol, lchnk)
-!!$         call outfld('TLB_HT1', tlb,     ncol, lchnk)
-!!$         call outfld('WBR_HT1', wbr,     ncol, lchnk)
-!!$         call outfld('TAUDSW1', taudsw,  ncol, lchnk)
-!!$         call outfld('TAUORO1', tauoro,  ncol, lchnk)
-!!$         call outfld('UBMSRC1', ubmsrc,  ncol, lchnk)
-!!$         call outfld('USRC1',   usrc,    ncol, lchnk)
-!!$         call outfld('VSRC1',   vsrc,    ncol, lchnk)
-!!$         call outfld('NSRC1'  , nsrc,    ncol, lchnk)
-!!$         ! Froude numbers
-!!$         call outfld('Fr1_DIAG' , Fr1,    ncol, lchnk)
-!!$         call outfld('Fr2_DIAG' , Fr2,    ncol, lchnk)
-!!$         call outfld('Frx_DIAG' , Frx,    ncol, lchnk)
-!!$         ! Ridge quantities - don't change.  Written for convenience
-!!$         call outfld('MXDIS1' , mxdis(:,nn) ,  ncol, lchnk)
-!!$         call outfld('ANGLL1' , angll(:,nn) ,  ncol, lchnk)
-!!$         call outfld('ANIXY1' , anixy(:,nn) ,  ncol, lchnk)
-!!$         call outfld('HWDTH1' , hwdth(:,nn) ,  ncol, lchnk)
-!!$         call outfld('CLNGT1' , clngt(:,nn) ,  ncol, lchnk)
-!!$         call outfld('GBXAR1' , gbxar ,        ncol, lchnk)
-!!$         call outfld('TAUM1_DIAG' , tau_diag ,  ncol, lchnk)
-!!$         call outfld('TAU1RDG'//trim(type)//'M', tau(:,0,:),  ncol, lchnk)
-!!$         call outfld('UBM1'//trim(type),         ubm,         ncol, lchnk)
-!!$         call outfld('UBT1RDG'//trim(type),      gwut,        ncol, lchnk)
-!!$      end if
-!!$
-!!$      if (nn <= 6) then
-!!$         write(cn, '(i1)') nn
-!!$         call outfld('TAU'//cn//'RDG'//trim(type)//'X', taurx0,  ncol, lchnk)
-!!$         call outfld('TAU'//cn//'RDG'//trim(type)//'Y', taury0,  ncol, lchnk)
-!!$         call outfld('UT'//cn//'RDG'//trim(type),       utgw,    ncol, lchnk)
-!!$         call outfld('VT'//cn//'RDG'//trim(type),       vtgw,    ncol, lchnk)
-!!$      end if
-
     end do ! end of loop over multiple ridges
 
-!!$   call outfld('TAUARDG'//trim(type)//'X', taurx,  ncol, lchnk)
-!!$   call outfld('TAUARDG'//trim(type)//'Y', taury,  ncol, lchnk)
+    ! Save ridge-based momentum profile before residual is applied, for diagnostics.
+    tauardgx = taurx
+    tauardgy = taury
 
     if (luse_gw_rdg_resid) then
       ! Add additional GW from residual variance. Assumed isotropic
@@ -2066,50 +2028,17 @@ contains
         taurx(:, k) = taurx(:, k) + taurx0(:, k)
         taury(:, k) = taury(:, k) + taury0(:, k)
       end do
-
-!!$      call outfld('TAUDIAG_RESID', tau_diag,  ncol, lchnk)
-!!$      call outfld('TAUORO_RESID', tauoro ,  ncol, lchnk)
-!!$      call outfld('TAURESID'//trim(type)//'M', tau(:,0,:),  ncol, lchnk)
-!!$      call outfld('TAURESID'//trim(type)//'X', taurx,  ncol, lchnk)
-!!$      call outfld('TAURESID'//trim(type)//'Y', taury,  ncol, lchnk)
-!!$
-!!$      call outfld('UBMRESID'//trim(type),      ubm,         ncol, lchnk)
-!!$      call outfld('UBIRESID'//trim(type),      ubi,         ncol, lchnk)
-!!$      call outfld('SRC_LEVEL_RESID'//trim(type),      real(src_level, kind_phys) ,         ncol, lchnk)
-      ! end of residual variance calc
-    end if
+    end if ! end of residual variance calc
 
     ! Calculate energy change for output to CAM's energy checker.
     call energy_change(dt, p, u, v, u_tend(:ncol, :), &
                        v_tend(:ncol, :), s_tend(:ncol, :), de)
     flx_heat(:ncol) = de
 
-    if (trim(type) == 'BETA') then
-      fname(1) = 'TAUGWX'
-      fname(2) = 'TAUGWY'
-      fname(3) = 'UTGWORO'
-      fname(4) = 'VTGWORO'
-    else if (trim(type) == 'GAMMA') then
-      fname(1) = 'TAURDGGMX'
-      fname(2) = 'TAURDGGMY'
-      fname(3) = 'UTRDGGM'
-      fname(4) = 'VTRDGGM'
-    else
-      errmsg = 'gw_rdg_calc: FATAL: type must be either BETA or GAMMA'//' type= '//type
-      errflg = 1
-      return
-    end if
-
-!!$   call outfld(fname(1), taurx(:,pver+1), ncol, lchnk)
-!!$   call outfld(fname(2), taury(:,pver+1), ncol, lchnk)
-!!$   call outfld(fname(3), utrdg,  ncol, lchnk)
-!!$   call outfld(fname(4), vtrdg,  ncol, lchnk)
-!!$   call outfld('TTGWORO', ttrdg / cpair,  ncol, lchnk)
-
-    deallocate (tau, gwut, phase_speeds)
+    ! Convert T tendency to K s-1
+    ! FIXME: some places use cpairv (e.g., orographic) but cpair is used here. hplin 8/14/25
+    ttrdg = ttrdg / cpair
 
   end subroutine gw_rdg_calc
-
-!==========================================================================
 
 end module gw_rdg

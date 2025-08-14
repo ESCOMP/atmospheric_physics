@@ -1,7 +1,10 @@
 ! This module handles gravity waves from convection, and was extracted from
-! gw_drag in May 2013.
+! gw_drag in May 2013 and CCPPized in August 2025.
+!
+! Beres, J. H., M. J. Alexander, and J. R. Holton, 2004:
+! A Method of Specifying the Gravity Wave Spectrum above Convection Based on Latent Heating Properties and Background Wind
+! J. Atmos. Sci., 61, 324–337, https://doi.org/10.1175/1520-0469(2004)061<0324:AMOSTG>2.0.CO;2.
 module gw_convect
-
   use ccpp_kinds, only: kind_phys
   use gw_common, only: GWBand
 
@@ -34,14 +37,6 @@ module gw_convect
   type(BeresSourceDesc), public :: beres_dp_desc
   type(BeresSourceDesc), public :: beres_sh_desc
   type(GWBand)          :: band_mid
-
-  real(kind_phys), allocatable :: tau(:, :, :)  ! wave Reynolds stress
-
-  ! gravity wave wind tendency for each wave
-  real(kind_phys), allocatable :: gwut(:, :, :)
-
-! Wave phase speeds for each column
-  real(kind_phys), allocatable :: phase_speeds(:, :)
 
 contains
 
@@ -256,7 +251,6 @@ contains
              pi, cpair, &
              effgw_beres_dp, &
              gw_apply_tndmax, &
-             !use_gw_convect_dp, &
              u, v, t, q, dse, &
              piln, &
              rhoi, nm, ni, &
@@ -270,6 +264,7 @@ contains
              hdepth, maxq0, &
              utgw, vtgw, ttgw, qtgw, &
              egwdffi_tot, dttdf, dttke, &
+             taucd_west, taucd_east, taucd_south, taucd_north, &
              errmsg, errflg)
 
     use coords_1d, only: Coords1D
@@ -277,6 +272,7 @@ contains
     use gw_common, only: momentum_flux, momentum_fixer
     use gw_common, only: gw_drag_prof
     use gw_common, only: calc_taucd
+    use gw_common, only: west, east, south, north
 
     integer,            intent(in)                :: ncol
     integer,            intent(in)                :: pver
@@ -324,6 +320,12 @@ contains
     real(kind_phys),    intent(out)               :: dttdf(:, :)              ! Temperature tendency from diffusion [K s-1]
     real(kind_phys),    intent(out)               :: dttke(:, :)              ! Temperature tendency from kinetic energy dissipation [K s-1]
 
+    ! Copies of taucd in each direction for diagnostic.
+    real(kind_phys),    intent(out)               :: taucd_west(:, :)         ! Reynolds stress for waves in W direction, interfaces [N m-2]
+    real(kind_phys),    intent(out)               :: taucd_east(:, :)         ! Reynolds stress for waves in E direction, interfaces [N m-2]
+    real(kind_phys),    intent(out)               :: taucd_south(:, :)        ! Reynolds stress for waves in S direction, interfaces [N m-2]
+    real(kind_phys),    intent(out)               :: taucd_north(:, :)        ! Reynolds stress for waves in N direction, interfaces [N m-2]
+
     character(len=512), intent(out)               :: errmsg
     integer, intent(out)                          :: errflg
 
@@ -347,7 +349,6 @@ contains
 
     real(kind_phys) :: egwdffi(ncol, pver+1)
 
-
     tau  = 0._kind_phys
     gwut = 0._kind_phys
     phase_speeds = 0._kind_phys
@@ -365,6 +366,7 @@ contains
     ! Determine wave sources for Beres deep scheme
     call gw_beres_src( &
       ncol        = ncol, &
+      pver        = pver, &
       desc        = beres_dp_desc, &
       u           = u(:ncol,:), &
       v           = v(:ncol,:), &
@@ -421,6 +423,12 @@ contains
     ! Project stress into directional components.
     taucd = calc_taucd(ncol, band_mid%ngwv, tend_level, tau, phase_speeds, xv, yv, ubi)
 
+    ! Make copies for diagnostics.
+    taucd_west(:ncol,:pver+1)  = taucd(:ncol,:pver+1,west)
+    taucd_east(:ncol,:pver+1)  = taucd(:ncol,:pver+1,east)
+    taucd_south(:ncol,:pver+1) = taucd(:ncol,:pver+1,south)
+    taucd_north(:ncol,:pver+1) = taucd(:ncol,:pver+1,north)
+
     ! Add the diffusion coefficients
     do k = 1, pver+1
       egwdffi_tot(:,k) = egwdffi_tot(:,k) + egwdffi(:,k)
@@ -455,15 +463,8 @@ contains
     end do
 
     ! Change ttgw to a temperature tendency before outputing it.
+    ! FIXME: some places use cpairv (e.g., orographic) but cpair is used here. hplin 8/14/25
     ttgw = ttgw / cpair
-    !call gw_spec_outflds(beres_dp_pf, lchnk, ncol, band_mid, phase_speeds, u, v, &
-    !     xv, yv, gwut, dttdf, dttke, tau(:,:,2:), utgw, vtgw, ttgw, &
-    !     taucd)
-
-    ! Diagnostic outputs (convert hdepth to km).
-    !call outfld('NETDT', ttend, pcols, lchnk)
-    !call outfld('HDEPTH', hdepth/1000._kind_phys, ncol, lchnk)
-    !call outfld('MAXQ0', maxq0, ncol, lchnk)
 
   end subroutine gw_beres_deep_run
 
@@ -583,6 +584,7 @@ contains
     ! Determine wave sources for Beres deep scheme
     call gw_beres_src( &
       ncol        = ncol, &
+      pver        = pver, &
       desc        = beres_sh_desc, &
       u           = u(:ncol,:), &
       v           = v(:ncol,:), &
@@ -682,29 +684,22 @@ contains
 
 !==========================================================================
 
-  subroutine gw_beres_src(ncol, &
+  ! Driver for multiple gravity wave drag parameterization.
+  !
+  ! The parameterization is assumed to operate only where water vapor
+  ! concentrations are negligible in determining the density.
+  subroutine gw_beres_src(ncol, pver, &
                           desc, &
                           u, v, &
                           netdt, zm, src_level, tend_level, tau, ubm, ubi, xv, yv, &
                           c, hdepth, maxq0)
-!-----------------------------------------------------------------------
-! Driver for multiple gravity wave drag parameterization.
-!
-! The parameterization is assumed to operate only where water vapor
-! concentrations are negligible in determining the density.
-!
-! Beres, J.H., M.J. Alexander, and J.R. Holton, 2004: "A method of
-! specifying the gravity wave spectrum above convection based on latent
-! heating properties and background wind". J. Atmos. Sci., Vol 61, No. 3,
-! pp. 324-337.
-!
-!-----------------------------------------------------------------------
     use gw_utils, only: get_unit_vector, dot_2d, midpoint_interp
-    use gw_common, only: pver, qbo_hdepth_scaling
+    use gw_common, only: qbo_hdepth_scaling
 
 !------------------------------Arguments--------------------------------
     ! Column dimension.
     integer, intent(in) :: ncol
+    integer, intent(in) :: pver
     type(BeresSourceDesc) :: desc
 
     ! Midpoint zonal/meridional winds.
@@ -953,8 +948,8 @@ contains
 
   end subroutine gw_beres_src
 
-! Short routine to get the indices of a set of values rounded to their
-! nearest points on a grid.
+  ! Short routine to get the indices of a set of values rounded to their
+  ! nearest points on a grid.
   function index_of_nearest(x, grid) result(idx)
     real(kind_phys), intent(in) :: x(:)
     real(kind_phys), intent(in) :: grid(:)

@@ -21,8 +21,8 @@ module gw_common
   public :: calc_taucd, momentum_flux, momentum_fixer
   public :: energy_change, energy_fixer
   public :: coriolis_speed, adjust_inertial
+  public :: find_bin
 
-  public :: pver
   public :: west, east, north, south
   public :: pi
   public :: gravit
@@ -58,6 +58,10 @@ module gw_common
   ! Horizontal wavelengths [m].
   real(kind_phys), parameter :: wavelength_mid = 1.e5_kind_phys
   real(kind_phys), parameter :: wavelength_long = 3.e5_kind_phys
+
+  ! Definition of the bin boundaries.
+  real(kind_phys), parameter :: bounds(4) = (/ -40._kind_phys, -15._kind_phys, &
+       15._kind_phys, 40._kind_phys /)
 
 !
 ! Private variables
@@ -648,21 +652,20 @@ contains
 ! Calculate Reynolds stress for waves propagating in each cardinal
 ! direction.
 
-  function calc_taucd(ncol, ngwv, tend_level, tau, c, xv, yv, ubi) &
-    result(taucd)
+  function calc_taucd(ncol, ngwv, tend_level, tau, c, xv, yv, ubi) result(taucd)
 
-    ! Column and gravity wave wavenumber dimensions.
+    ! Column, level, and gravity wave wavenumber dimensions.
     integer, intent(in) :: ncol, ngwv
     ! Lowest level where wind tendencies are calculated.
-    integer, intent(in) :: tend_level(:)
+    integer, intent(in) :: tend_level(ncol)
     ! Wave Reynolds stress.
-    real(kind_phys), intent(in) :: tau(:, -ngwv:, :)
+    real(kind_phys), intent(in) :: tau(ncol, -ngwv:ngwv, pver+1)
     ! Wave phase speeds for each column.
-    real(kind_phys), intent(in) :: c(:, -ngwv:)
+    real(kind_phys), intent(in) :: c(ncol, -ngwv:ngwv)
     ! Unit vectors of source wind (zonal and meridional components).
-    real(kind_phys), intent(in) :: xv(:), yv(:)
+    real(kind_phys), intent(in) :: xv(ncol), yv(ncol)
     ! Projection of wind at interfaces.
-    real(kind_phys), intent(in) :: ubi(:, :)
+    real(kind_phys), intent(in) :: ubi(ncol, pver+1)
 
     real(kind_phys) :: taucd(ncol, pver + 1, 4)
 
@@ -937,7 +940,6 @@ contains
     !-----------------------------------------------------------------------
     ! Purpose:
     ! Issue error message after non-zero return from anything.
-    !
     !-----------------------------------------------------------------------
     integer, intent(in)    :: stat     ! zero = "no error"
     integer, intent(inout) :: errflg    ! zero = "no error"
@@ -953,5 +955,21 @@ contains
     return
 
   end subroutine handle_err
+
+  ! Given a value, finds which bin marked by "bounds" the value falls
+  ! into.
+  elemental function find_bin(val) result(idx)
+    real(kind_phys), intent(in) :: val
+
+    integer :: idx
+
+    ! We just have to count how many bounds are exceeded.
+    if (val >= 0._kind_phys) then
+      idx = count(val > bounds) + 1
+    else
+      idx = count(val >= bounds) + 1
+    end if
+
+  end function find_bin
 
 end module gw_common
