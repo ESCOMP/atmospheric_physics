@@ -58,9 +58,13 @@ contains
     real(kind=kind_phys)          :: molar_mass
     character(len=:), allocatable :: species_name
     logical                       :: is_advected
+    real(kind=kind_phys)          :: default_value
     integer                       :: number_of_species
     integer                       :: i, species_index, solver_type_int
+    integer                       :: index_property_not_found
     type(state_t), pointer        :: state
+    character(len=:), allocatable :: error_message
+    character(len=*), parameter   :: PROPERTY_NOT_FOUND_SUFFIX = 'Property not found'
 
     if (associated( micm )) then
       deallocate( micm )
@@ -107,13 +111,25 @@ contains
                                                    "__is advected", &
                                                    error)
       if (has_error_occurred(error, errmsg, errcode)) return
+      default_value = micm%get_species_property_double(species_name, &
+                                                       "__default mixing ratio [kg kg-1]", &
+                                                       error)
+      if (.not. error%is_success( )) then
+        error_message = error%message( )
+        index_property_not_found = index(error_message, PROPERTY_NOT_FOUND_SUFFIX)
+        if (index_property_not_found > 0) then
+          default_value = 0.0_kind_phys
+        else
+          if (has_error_occurred(error, errmsg, errcode)) return
+        end if
+      end if
 
       call constituent_props(species_index)%instantiate( &
         std_name = species_name, &
         long_name = species_name, &
         units = 'kg kg-1', &
         vertical_dim = 'vertical_layer_dimension', &
-        default_value = 0.0_kind_phys, &
+        default_value = default_value, &
         min_value = 0.0_kind_phys, &
         molar_mass = molar_mass, &
         advected = is_advected, &
