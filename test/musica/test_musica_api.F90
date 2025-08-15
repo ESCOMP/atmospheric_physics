@@ -106,7 +106,7 @@ contains
     type(ccpp_constituent_prop_ptr_t),   allocatable                 :: constituent_props_ptr(:)
     type(ccpp_constituent_properties_t), allocatable, target         :: constituent_props(:)
     type(ccpp_constituent_properties_t), pointer                     :: const_prop
-    real(kind_phys)                                                  :: molar_mass, base_conc
+    real(kind_phys)                                                  :: molar_mass, base_conc, default_mixing_ratio
     character(len=512)                                               :: species_name, units
     character(len=:), allocatable                                    :: micm_species_name
     logical                                                          :: tmp_bool, is_advected
@@ -158,14 +158,16 @@ contains
       ASSERT(errcode == 0)
       call constituent_props(i)%is_advected(is_advected, errcode, errmsg)
       ASSERT(errcode == 0)
-      tmp_bool = (trim(species_name) == "O2" .and. molar_mass == 0.0319988_kind_phys .and. is_advected) .or.  &
-                (trim(species_name) == "O" .and. molar_mass == 0.0159994_kind_phys .and. .not. is_advected) .or.   &
-                (trim(species_name) == "O1D" .and. molar_mass == 0.0159994_kind_phys .and. .not. is_advected) .or. &
-                (trim(species_name) == "O3" .and. molar_mass == 0.0479982_kind_phys .and. is_advected) .or. &
-                (trim(species_name) == "N2" .and. molar_mass == 0.0280134_kind_phys .and. is_advected) .or. &
+      call constituent_props(i)%default_value(default_mixing_ratio, errcode, errmsg)
+      ASSERT(errcode == 0)
+      tmp_bool = (trim(species_name) == "O2" .and. molar_mass == 0.0319988_kind_phys .and. default_mixing_ratio == 0.22474_kind_phys .and. is_advected) .or.  &
+                (trim(species_name) == "O" .and. molar_mass == 0.0159994_kind_phys .and. default_mixing_ratio == 5.3509e-10_kind_phys .and. .not. is_advected) .or.   &
+                (trim(species_name) == "O1D" .and. molar_mass == 0.0159994_kind_phys .and. default_mixing_ratio == 5.3509e-10_kind_phys .and. .not. is_advected) .or. &
+                (trim(species_name) == "O3" .and. molar_mass == 0.0479982_kind_phys .and. default_mixing_ratio == 0.00016_kind_phys .and. is_advected) .or. &
+                (trim(species_name) == "N2" .and. molar_mass == 0.0280134_kind_phys .and. default_mixing_ratio == 0.74015_kind_phys .and. is_advected) .or. &
                 (trim(species_name) == "cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water" .and. &
                  molar_mass == 0.018_kind_phys .and. is_advected) .or. &
-                (trim(species_name) == "air" .and. molar_mass == 0.0289644_kind_phys .and. .not. is_advected)
+                (trim(species_name) == "air" .and. molar_mass == 0.0289644_kind_phys .and. default_mixing_ratio == 0.0_kind_phys .and. .not. is_advected)
       ASSERT(tmp_bool)
       call constituent_props(i)%units(units, errcode, errmsg)
       if (errcode /= 0) then

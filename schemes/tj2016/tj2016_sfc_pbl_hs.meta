@@ -253,7 +253,7 @@
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ Tsurf ]
-  standard_name = sea_surface_temperature
+  standard_name = sea_surface_temperature_from_coupler
   units = K
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
