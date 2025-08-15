@@ -23,6 +23,8 @@ module gravity_wave_drag_orographic
 
 contains
 
+!> \section arg_table_gravity_wave_drag_orographic_init Argument Table
+!! \htmlinclude arg_table_gravity_wave_drag_orographic_init.html
   subroutine gravity_wave_drag_orographic_init(&
              gw_delta_c, &
              effgw_oro, &
@@ -55,6 +57,8 @@ contains
   ! The stress is returned for a single wave with c=0, over orography.
   ! For points where the orographic variance is small (including ocean),
   ! the returned stress is zero.
+!> \section arg_table_gravity_wave_drag_orographic_run Argument Table
+!! \htmlinclude arg_table_gravity_wave_drag_orographic_run.html
   subroutine gravity_wave_drag_orographic_run( &
              ncol, pver, pcnst, &
              dt, &

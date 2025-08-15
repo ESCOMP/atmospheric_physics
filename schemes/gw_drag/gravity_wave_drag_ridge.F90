@@ -19,7 +19,8 @@ module gravity_wave_drag_ridge
   ! For CAM compatibility only.
   public :: gw_rdg_init                         ! Init routine (public only for current CAM compat.)
 
-  ! Tunable Parameters
+  ! use separate dividing streamlines for downslope wind and flow splitting regimes ("DS" configuration)?
+  ! or use single dividing streamline as in Scinocca and McFarlane 2000 ("SM" configuration).
   logical         :: do_divstream
 
   !===========================================
@@ -38,14 +39,16 @@ module gravity_wave_drag_ridge
 
   !===========================================
   ! Parameters for SM2000
+  ! Scinocca, J.F. and McFarlane, N.A. (2000),
+  ! The parametrization of drag induced by stratified flow over anisotropic orography.
+  ! Q.J.R. Meteorol. Soc., 126: 2353-2393. https://doi.org/10.1002/qj.49712656802
   !===========================================
   ! Amplification factor - 1.0 for
   ! high-drag/windstorm regime
   real(kind_phys) :: C_BetaMax_SM
 
   ! NOTE: Critical inverse Froude number Fr_c is
-  ! 1./(SQRT(2.)~0.707 in SM2000
-  ! (should be <= 1)
+  ! 1./(SQRT(2.)~0.707 in SM2000 (should be <= 1), pp. 2388.
   real(kind_phys) :: Fr_c
 
   logical :: gw_rdg_do_vdiff = .true.
@@ -102,26 +105,26 @@ contains
 
     ! Dividing streamline (DS2017) parameters
     logical, intent(in)              :: gw_rdg_do_divstream_nl        ! Enable dividing streamline parameterization [flag]
-    real(kind_phys), intent(in)      :: gw_rdg_C_BetaMax_DS_nl        ! Amplification factor for high-drag regime (DS) [1]
-    real(kind_phys), intent(in)      :: gw_rdg_C_GammaMax_nl          ! Maximum ratio Fr2:Fr1 for dividing streamline [1]
-    real(kind_phys), intent(in)      :: gw_rdg_Frx0_nl                ! Normalized limit for Fr2(Frx) function - lower bound [1]
-    real(kind_phys), intent(in)      :: gw_rdg_Frx1_nl                ! Normalized limit for Fr2(Frx) function - upper bound [1]
+    real(kind_phys), intent(in)      :: gw_rdg_C_BetaMax_DS_nl        ! Enhancement factor for downslope wind stress in DS [1]
+    real(kind_phys), intent(in)      :: gw_rdg_C_GammaMax_nl          ! Enhancement factor for depth of downslope wind regime in DS configuration [1]
+    real(kind_phys), intent(in)      :: gw_rdg_Frx0_nl                ! Lower inverse Froude number limits on linear ramp terminating downslope wind regime for high mountains in DS configuration [1]
+    real(kind_phys), intent(in)      :: gw_rdg_Frx1_nl                ! Upper inverse Froude number limits on linear ramp terminating downslope wind regime for high mountains in DS configuration [1]
 
     ! Scinocca & McFarlane (SM2000) parameters
-    real(kind_phys), intent(in)      :: gw_rdg_C_BetaMax_SM_nl        ! Amplification factor for high-drag regime (SM) [1]
+    real(kind_phys), intent(in)      :: gw_rdg_C_BetaMax_SM_nl        ! Enhancement factor for downslope wind stress in SM configuration. [1]
     real(kind_phys), intent(in)      :: gw_rdg_Fr_c_nl                ! Critical inverse Froude number [1]
 
     ! Ridge scheme behavior flags
     logical, intent(in)              :: gw_rdg_do_smooth_regimes_nl   ! Enable smooth regime transitions [flag]
     logical, intent(in)              :: gw_rdg_do_adjust_tauoro_nl    ! Enable orographic stress adjustment [flag]
-    logical, intent(in)              :: gw_rdg_do_backward_compat_nl  ! Enable backward compatibility mode [flag]
+    logical, intent(in)              :: gw_rdg_do_backward_compat_nl  ! Adjust for bit-for-bit answers with the ("N5") configuration [flag]
 
     ! Ridge scheme physical limits
     real(kind_phys), intent(in)      :: gw_rdg_orohmin_nl             ! Minimum surface displacement height for orographic waves [m]
     real(kind_phys), intent(in)      :: gw_rdg_orovmin_nl             ! Minimum wind speed for orographic waves [m s-1]
     real(kind_phys), intent(in)      :: gw_rdg_orostratmin_nl         ! Minimum stratification allowing wave behavior [s-1]
     real(kind_phys), intent(in)      :: gw_rdg_orom2min_nl            ! Minimum normalized vertical wavenumber squared [1]
-    logical, intent(in)              :: gw_rdg_do_vdiff_nl            ! Enable vertical diffusion in ridge scheme [flag]
+    logical, intent(in)              :: gw_rdg_do_vdiff_nl            ! Ridge scheme contribute to vdiff tendencies? [flag]
 
     character(len=512), intent(out)  :: errmsg
     integer, intent(out)             :: errflg
@@ -171,29 +174,71 @@ contains
     ncol, prdg, &
     amIRoot, iulog, &
     rearth, &
-    use_gw_rdg_beta, &
-    use_gw_rdg_gamma, &
+    use_gw_rdg_beta_in, &
+    use_gw_rdg_gamma_in, &
     bnd_topo_file, &
     bnd_rdggm_file, &
     gbxar, isovar, isowgt, &
     hwdth, clngt, mxdis, anixy, angll, &
     gbxarg, &
     hwdthg, clngtg, mxdisg, anixyg, angllg, &
+    gw_delta_c, &
+    effgw_rdg_beta, &
+    effgw_rdg_gamma, &
+    gw_rdg_do_divstream_nl, gw_rdg_C_BetaMax_DS_nl, gw_rdg_C_GammaMax_nl, &
+    gw_rdg_Frx0_nl, gw_rdg_Frx1_nl, gw_rdg_C_BetaMax_SM_nl, gw_rdg_Fr_c_nl, &
+    gw_rdg_do_smooth_regimes_nl, gw_rdg_do_adjust_tauoro_nl, &
+    gw_rdg_do_backward_compat_nl, gw_rdg_orohmin_nl, gw_rdg_orovmin_nl, &
+    gw_rdg_orostratmin_nl, gw_rdg_orom2min_nl, gw_rdg_do_vdiff_nl, &
     errmsg, errflg)
 
     use ccpp_io_reader, only: abstract_netcdf_reader_t, create_netcdf_reader_t
 
     ! Input arguments
     integer, intent(in)              :: ncol
-    integer, intent(in)              :: prdg                ! second dimension of the 2-D outs below.
+    integer, intent(in)              :: prdg                          ! second dimension of the 2-D outs below.
     logical, intent(in)              :: amIRoot
     integer, intent(in)              :: iulog
-    real(kind_phys), intent(in)      :: rearth              ! Earth radius [m]
+    real(kind_phys), intent(in)      :: rearth                        ! Earth radius [m]
 
-    logical, intent(in)              :: use_gw_rdg_beta     ! Enable Meso-beta ridges [flag]
-    character(len=256), intent(in)   :: bnd_topo_file       ! Filepath of topo file
-    logical, intent(in)              :: use_gw_rdg_gamma    ! Enable Meso-gamma ridges [flag]
-    character(len=256), intent(in)   :: bnd_rdggm_file      ! Filepath of ridge (gamma) file
+    logical, intent(in)              :: use_gw_rdg_beta_in            ! Enable Meso-beta ridges [flag]
+    character(len=256), intent(in)   :: bnd_topo_file                 ! Filepath of topo file
+    logical, intent(in)              :: use_gw_rdg_gamma_in           ! Enable Meso-gamma ridges [flag]
+    character(len=256), intent(in)   :: bnd_rdggm_file                ! Filepath of ridge (gamma) file
+
+    ! Gravity wave band parameters
+    real(kind_phys), intent(in)      :: gw_delta_c                    ! Width of speed bins (delta c) for gravity wave spectrum [m s-1]
+
+    ! Ridge efficiency parameters
+    real(kind_phys), intent(in)      :: effgw_rdg_beta                ! Beta ridge efficiency factor [1]
+    real(kind_phys), intent(in)      :: effgw_rdg_gamma               ! Gamma ridge efficiency factor [1]
+
+    ! Ridge scheme control flags
+    logical, intent(in)              :: use_gw_rdg_beta_in            ! Enable beta ridge scheme [flag]
+    logical, intent(in)              :: use_gw_rdg_gamma_in           ! Enable gamma ridge scheme [flag]
+
+    ! Dividing streamline (DS2017) parameters
+    logical, intent(in)              :: gw_rdg_do_divstream_nl        ! Enable dividing streamline parameterization [flag]
+    real(kind_phys), intent(in)      :: gw_rdg_C_BetaMax_DS_nl        ! Enhancement factor for downslope wind stress in DS [1]
+    real(kind_phys), intent(in)      :: gw_rdg_C_GammaMax_nl          ! Enhancement factor for depth of downslope wind regime in DS configuration [1]
+    real(kind_phys), intent(in)      :: gw_rdg_Frx0_nl                ! Lower inverse Froude number limits on linear ramp terminating downslope wind regime for high mountains in DS configuration [1]
+    real(kind_phys), intent(in)      :: gw_rdg_Frx1_nl                ! Upper inverse Froude number limits on linear ramp terminating downslope wind regime for high mountains in DS configuration [1]
+
+    ! Scinocca & McFarlane (SM2000) parameters
+    real(kind_phys), intent(in)      :: gw_rdg_C_BetaMax_SM_nl        ! Enhancement factor for downslope wind stress in SM configuration. [1]
+    real(kind_phys), intent(in)      :: gw_rdg_Fr_c_nl                ! Critical inverse Froude number [1]
+
+    ! Ridge scheme behavior flags
+    logical, intent(in)              :: gw_rdg_do_smooth_regimes_nl   ! Enable smooth regime transitions [flag]
+    logical, intent(in)              :: gw_rdg_do_adjust_tauoro_nl    ! Enable orographic stress adjustment [flag]
+    logical, intent(in)              :: gw_rdg_do_backward_compat_nl  ! Adjust for bit-for-bit answers with the ("N5") configuration [flag]
+
+    ! Ridge scheme physical limits
+    real(kind_phys), intent(in)      :: gw_rdg_orohmin_nl             ! Minimum surface displacement height for orographic waves [m]
+    real(kind_phys), intent(in)      :: gw_rdg_orovmin_nl             ! Minimum wind speed for orographic waves [m s-1]
+    real(kind_phys), intent(in)      :: gw_rdg_orostratmin_nl         ! Minimum stratification allowing wave behavior [s-1]
+    real(kind_phys), intent(in)      :: gw_rdg_orom2min_nl            ! Minimum normalized vertical wavenumber squared [1]
+    logical, intent(in)              :: gw_rdg_do_vdiff_nl            ! Ridge scheme contribute to vdiff tendencies? [flag]
 
     ! Output arguments
     real(kind_phys),    intent(out), pointer :: gbxar (:)
@@ -376,7 +421,31 @@ contains
     end if
 
     ! Call underlying initialization subroutine to populate namelist variables
-    ! ...
+    !REMOVECAM: once CAM is retired, gw_rdg_init can be collapsed into this subroutine.
+    call gw_rdg_init( &
+      gw_delta_c                   = gw_dc, &
+      effgw_rdg_beta               = effgw_rdg_beta, &
+      effgw_rdg_gamma              = effgw_rdg_gamma, &
+      use_gw_rdg_beta_in           = use_gw_rdg_beta_in, &
+      use_gw_rdg_gamma_in          = use_gw_rdg_gamma_in, &
+      gw_rdg_do_divstream_nl       = gw_rdg_do_divstream, &
+      gw_rdg_C_BetaMax_DS_nl       = gw_rdg_C_BetaMax_DS, &
+      gw_rdg_C_GammaMax_nl         = gw_rdg_C_GammaMax, &
+      gw_rdg_Frx0_nl               = gw_rdg_Frx0, &
+      gw_rdg_Frx1_nl               = gw_rdg_Frx1, &
+      gw_rdg_C_BetaMax_SM_nl       = gw_rdg_C_BetaMax_SM, &
+      gw_rdg_Fr_c_nl               = gw_rdg_Fr_c, &
+      gw_rdg_do_smooth_regimes_nl  = gw_rdg_do_smooth_regimes, &
+      gw_rdg_do_adjust_tauoro_nl   = gw_rdg_do_adjust_tauoro, &
+      gw_rdg_do_backward_compat_nl = gw_rdg_do_backward_compat, &
+      gw_rdg_orohmin_nl            = gw_rdg_orohmin, &
+      gw_rdg_orovmin_nl            = gw_rdg_orovmin, &
+      gw_rdg_orostratmin_nl        = gw_rdg_orostratmin, &
+      gw_rdg_orom2min_nl           = gw_rdg_orom2min, &
+      gw_rdg_do_vdiff_nl           = gw_rdg_do_vdiff, &
+      errmsg = errmsg, &
+      errflg = errflg)
+    if (errflg /= 0) return
 
   end subroutine gravity_wave_drag_ridge_init
 
@@ -905,6 +974,7 @@ contains
     integer, intent(in) :: ncol
     integer, intent(in) :: pver
     real(kind_phys), intent(in) :: pi
+    real(kind_phys), intent(in) :: rair
 
     ! Band to emit orographic waves in.
     ! Regardless, we will only ever emit into l = 0.

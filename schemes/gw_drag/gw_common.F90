@@ -10,12 +10,15 @@ module gw_common
   private
   save
 
-! Public interface.
+  ! Public CCPP-compliant initialization interface.
+  ! This scheme also reads in all namelist parameters for all gravity wave
+  ! parameterizations.
+  public :: gravity_wave_drag_common_init
 
+  ! Public interfaces for use by multiple gravity wave parameterizations.
   public :: GWBand
 
   public :: handle_err
-  public :: gw_common_init
   public :: gw_drag_prof
   public :: qbo_hdepth_scaling
   public :: calc_taucd, momentum_flux, momentum_fixer
@@ -63,43 +66,39 @@ module gw_common
   real(kind_phys), parameter :: bounds(4) = (/ -40._kind_phys, -15._kind_phys, &
        15._kind_phys, 40._kind_phys /)
 
-!
-! Private variables
-!
+  ! Private variables
 
-! Interface levels for gravity wave sources.
+  ! Interface levels for gravity wave sources.
   integer :: ktop = huge(1)
 
-! Background diffusivity.
+  ! Background diffusivity.
   real(kind_phys), parameter :: dback = 0.05_kind_phys
 
-! rair/gravit
+  ! rair/gravit
   real(kind_phys) :: rog = huge(1._kind_phys)
 
-! Newtonian cooling coefficients.
+  ! Newtonian cooling coefficients.
   real(kind_phys), allocatable :: alpha(:)
 
-! Inverse Prandtl number.
+  ! Inverse Prandtl number.
   real(kind_phys) :: prndl
 
-!
-! Limits to keep values reasonable.
-!
+  !
+  ! Limits to keep values reasonable.
+  !
 
-! Minimum non-zero stress.
+  ! Minimum non-zero stress.
   real(kind_phys), parameter :: taumin = 1.e-10_kind_phys
-! Maximum wind tendency from stress divergence (before efficiency applied).
-! 400 m/s/day
+  ! Maximum wind tendency from stress divergence (before efficiency applied).
+  ! 400 m/s/day
   real(kind_phys), parameter :: tndmax = 400._kind_phys/86400._kind_phys
-! Maximum allowed change in u-c (before efficiency applied).
+  ! Maximum allowed change in u-c (before efficiency applied).
   real(kind_phys), parameter :: umcfac = 0.5_kind_phys
-! Minimum value of (u-c)**2.
+  ! Minimum value of (u-c)**2.
   real(kind_phys), parameter :: ubmc2mn = 0.01_kind_phys
 
-! Type describing a band of wavelengths into which gravity waves can be
-! emitted.
-! Currently this has to have uniform spacing (i.e. adjacent elements of
-! cref are exactly dc apart).
+  ! Type describing a band of wavelengths into which gravity waves can be emitted.
+  ! Currently this has to have uniform spacing (i.e. adjacent elements of cref are exactly dc apart).
   type :: GWBand
     ! Dimension of the spectrum.
     integer :: ngwv
@@ -123,7 +122,7 @@ contains
 
 !==========================================================================
 
-! Constructor for a GWBand that calculates derived components.
+  ! Constructor for a GWBand that calculates derived components.
   function new_GWBand(ngwv, dc, fcrit2, wavelength) result(band)
     ! Used directly to set the type's components.
     integer, intent(in) :: ngwv
@@ -154,41 +153,121 @@ contains
 
   end function new_GWBand
 
-!==========================================================================
+  ! Common initialization.
+  subroutine gravity_wave_drag_common_init( &
+             pver_in, &
+             amIRoot, iulog, &
+             tau_0_ubc_in, ktop_in, gravit_in, rair_in, &
+             prndl_in, qbo_hdepth_scaling_in, &
+             errmsg, errflg)
 
-  subroutine gw_common_init(pver_in, &
-                            tau_0_ubc_in, ktop_in, gravit_in, rair_in, alpha_in, &
-                            prndl_in, qbo_hdepth_scaling_in, errstring)
+    ! Host model dependency for interpolation.
+    use interpolate_data, only: lininterp
 
-    integer, intent(in) :: pver_in
-    logical, intent(in) :: tau_0_ubc_in
-    integer, intent(in) :: ktop_in
-    real(kind_phys), intent(in) :: gravit_in
-    real(kind_phys), intent(in) :: rair_in
-    real(kind_phys), intent(in) :: alpha_in(:)
-    real(kind_phys), intent(in) :: prndl_in
-    real(kind_phys), intent(in) :: qbo_hdepth_scaling_in
-    ! Report any errors from this routine.
-    character(len=*), intent(out) :: errstring
+    integer,          intent(in)  :: pver_in
+    integer,          intent(in)  :: amIRoot
+    integer,          intent(in)  :: iulog
+    logical,          intent(in)  :: tau_0_ubc_in
+    integer,          intent(in)  :: ktop_in
+    real(kind_phys),  intent(in)  :: gravit_in
+    real(kind_phys),  intent(in)  :: rair_in
+    real(kind_phys),  intent(in)  :: prndl_in
+    real(kind_phys),  intent(in)  :: qbo_hdepth_scaling_in
+
+    character(len=512), intent(out) :: errmsg
+    integer, intent(out)            :: errflg
 
     integer :: ierr
 
-    errstring = ""
+    ! Levels of pre-calculated Newtonian cooling (1/day).
+    ! The following profile is digitized from:
+    ! Wehrbein and Leovy (JAS, 39, 1532-1544, 1982) Figure 5
+    ! https://doi.org/10.1175/1520-0469(1982)039<1532:AARHAC>2.0.CO;2
+    integer, parameter :: nalph = 71
+    real(kind_phys) :: alpha0(nalph) = [ &
+                       0.1_kind_phys, 0.1_kind_phys, 0.1_kind_phys, 0.1_kind_phys, &
+                       0.1_kind_phys, 0.1_kind_phys, 0.1_kind_phys, 0.1_kind_phys, &
+                       0.1_kind_phys, 0.1_kind_phys, 0.10133333_kind_phys, 0.104_kind_phys, &
+                       0.108_kind_phys, 0.112_kind_phys, 0.116_kind_phys, 0.12066667_kind_phys, &
+                       0.126_kind_phys, 0.132_kind_phys, 0.138_kind_phys, 0.144_kind_phys, &
+                       0.15133333_kind_phys, 0.16_kind_phys, 0.17_kind_phys, 0.18_kind_phys, &
+                       0.19_kind_phys, 0.19933333_kind_phys, 0.208_kind_phys, 0.216_kind_phys, &
+                       0.224_kind_phys, 0.232_kind_phys, 0.23466667_kind_phys, 0.232_kind_phys, &
+                       0.224_kind_phys, 0.216_kind_phys, 0.208_kind_phys, 0.20133333_kind_phys, &
+                       0.196_kind_phys, 0.192_kind_phys, 0.188_kind_phys, 0.184_kind_phys, &
+                       0.18266667_kind_phys, 0.184_kind_phys, 0.188_kind_phys, 0.192_kind_phys, &
+                       0.196_kind_phys, 0.19333333_kind_phys, 0.184_kind_phys, 0.168_kind_phys, &
+                       0.152_kind_phys, 0.136_kind_phys, 0.12133333_kind_phys, 0.108_kind_phys, &
+                       0.096_kind_phys, 0.084_kind_phys, 0.072_kind_phys, 0.061_kind_phys, &
+                       0.051_kind_phys, 0.042_kind_phys, 0.033_kind_phys, 0.024_kind_phys, &
+                       0.017666667_kind_phys, 0.014_kind_phys, 0.013_kind_phys, 0.012_kind_phys, &
+                       0.011_kind_phys, 0.010333333_kind_phys, 0.01_kind_phys, 0.01_kind_phys, &
+                       0.01_kind_phys, 0.01_kind_phys, 0.01_kind_phys]
+
+    ! Pressure levels that were used to calculate alpha0 (hPa).
+    real(kind_phys) :: palph(nalph) = [ &
+                       2.06115E-06_kind_phys, 2.74280E-06_kind_phys, 3.64988E-06_kind_phys, 4.85694E-06_kind_phys, &
+                       6.46319E-06_kind_phys, 8.60065E-06_kind_phys, 1.14450E-05_kind_phys, 1.52300E-05_kind_phys, &
+                       2.02667E-05_kind_phys, 2.69692E-05_kind_phys, 3.58882E-05_kind_phys, 4.77568E-05_kind_phys, &
+                       6.35507E-05_kind_phys, 8.45676E-05_kind_phys, 0.000112535_kind_phys, 0.000149752_kind_phys, &
+                       0.000199277_kind_phys, 0.000265180_kind_phys, 0.000352878_kind_phys, 0.000469579_kind_phys, &
+                       0.000624875_kind_phys, 0.000831529_kind_phys, 0.00110653_kind_phys, 0.00147247_kind_phys, &
+                       0.00195943_kind_phys, 0.00260744_kind_phys, 0.00346975_kind_phys, 0.00461724_kind_phys, &
+                       0.00614421_kind_phys, 0.00817618_kind_phys, 0.0108801_kind_phys, 0.0144783_kind_phys, &
+                       0.0192665_kind_phys, 0.0256382_kind_phys, 0.0341170_kind_phys, 0.0453999_kind_phys, &
+                       0.0604142_kind_phys, 0.0803939_kind_phys, 0.106981_kind_phys, 0.142361_kind_phys, &
+                       0.189442_kind_phys, 0.252093_kind_phys, 0.335463_kind_phys, 0.446404_kind_phys, &
+                       0.594036_kind_phys, 0.790490_kind_phys, 1.05192_kind_phys, 1.39980_kind_phys, &
+                       1.86273_kind_phys, 2.47875_kind_phys, 3.29851_kind_phys, 4.38936_kind_phys, &
+                       5.84098_kind_phys, 7.77266_kind_phys, 10.3432_kind_phys, 13.7638_kind_phys, &
+                       18.3156_kind_phys, 24.3728_kind_phys, 32.4332_kind_phys, 43.1593_kind_phys, &
+                       57.4326_kind_phys, 76.4263_kind_phys, 101.701_kind_phys, 135.335_kind_phys, &
+                       180.092_kind_phys, 239.651_kind_phys, 318.907_kind_phys, 424.373_kind_phys, &
+                       564.718_kind_phys, 751.477_kind_phys, 1000._kind_phys]
+
+    errmsg = ''
+    errflg = 0
 
     pver = pver_in
     tau_0_ubc = tau_0_ubc_in
     ktop = ktop_in
     gravit = gravit_in
     rair = rair_in
-    allocate (alpha(pver + 1), stat=ierr, errmsg=errstring)
-    if (ierr /= 0) return
-    alpha = alpha_in
+
+    ! Interpolate Newtonian cooling to model interface levels
+    allocate (alpha(pver + 1), stat=errflg, errmsg=errmsg)
+    if (errflg /= 0) return
+
+    ! pre-calculated newtonian damping:
+    !     * convert to s-1
+    !     * ensure it is not smaller than 1e-6
+    !     * convert palph from hpa to pa
+
+    do k = 1, nalph
+      alpha0(k) = alpha0(k)/86400._kind_phys
+      alpha0(k) = max(alpha0(k), 1.e-6_kind_phys)
+      palph(k) = palph(k)*1.e2_kind_phys
+    end do
+
+    call lininterp(alpha0, palph, nalph, alpha, pref_edge, pver + 1)
+
+    if (amIRoot) then
+      write (iulog, *) 'gravity_wave_drag_common_init: newtonian damping (1/day):'
+      write (iulog, fmt='(a4,a12,a10)') ' k  ', '  pref_edge      ', '  alpha   '
+      do k = 1, pver + 1
+        write (iulog, fmt='(i4,1e12.5,1f10.2)') k, pref_edge(k), &
+          alpha(k)*86400._kind_phys
+      end do
+
+      write (iulog, *) 'gravity_wave_drag_common_init: ktop = ', ktop
+    end if
+
     prndl = prndl_in
     qbo_hdepth_scaling = qbo_hdepth_scaling_in
 
     rog = rair/gravit
 
-  end subroutine gw_common_init
+  end subroutine gravity_wave_drag_common_init
 
 !==========================================================================
 
