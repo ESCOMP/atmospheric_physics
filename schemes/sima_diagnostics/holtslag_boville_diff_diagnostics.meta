@@ -22,13 +22,13 @@
   name  = holtslag_boville_diff_diagnostics_run
   type  = scheme
 [ ri ]
-  standard_name = richardson_number_tbd
+  standard_name = richardson_number
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ ustar ]
-  standard_name = surface_friction_velocity_from_boundary_layer_scheme_tbd
+  standard_name = surface_friction_velocity
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
@@ -58,7 +58,7 @@
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ cgs ]
-  standard_name = counter_gradient_star_at_interfaces_tbd
+  standard_name = counter_gradient_coefficient_for_vertical_diffusion_of_constituents_at_interface
   units = s m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
