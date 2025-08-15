@@ -9,6 +9,7 @@
 <suite name="vdiff_holtslag_boville" version="1.0">
   <group name="physics_before_coupler">
     <scheme>initialize_constituents</scheme>
+    <scheme>to_be_ccppized_temporary</scheme>
 
     <!-- read namelist options -->
     <scheme>holtslag_boville_diff_options</scheme>
@@ -37,6 +38,9 @@
 
     <!-- sponge layer vertical diffusion (mutate kvm) -->
     <scheme>vertical_diffusion_sponge_layer</scheme>
+
+    <!-- HB scheme diagnostics (after KVM changed by sponge layer scheme) -->
+    <scheme>holtslag_boville_diff_diagnostics</scheme>
 
     <!-- vdiff pre-interstitial 1: interpolate t, rho, p to interfaces -->
     <!-- not in WACCM-X mode so do not use rairv in vdiff. -->
@@ -75,6 +79,11 @@
 
     <!-- vdiff post-interstitial 1: convert provisional updates to tendencies -->
     <scheme>vertical_diffusion_tendencies</scheme>
+
+    <!-- diagnostics need to be outputted before tendencies are applied. -->
+    <scheme>vertical_diffusion_tendencies_diagnostics</scheme>
+
+    <!-- apply tendencies from vdiff -->
     <scheme>apply_tendency_of_northward_wind</scheme>
     <scheme>apply_tendency_of_eastward_wind</scheme>
     <scheme>apply_constituent_tendencies</scheme>
