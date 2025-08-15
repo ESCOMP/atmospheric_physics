@@ -1,26 +1,20 @@
-module gw_utils
-
-!
 ! This module contains utility code for the gravity wave modules.
-!
+module gw_utils
   use ccpp_kinds, only: kind_phys
 
   implicit none
   private
   save
 
-!!$! Real kind for gravity wave parameterization.
-!!$integer, public, parameter :: r8 = selected_real_kind(12)
-
-! Public interface
   public :: get_unit_vector
   public :: dot_2d
   public :: midpoint_interp
+  public :: index_of_nearest
 
 contains
 
-! Take two components of a vector, and find the unit vector components and
-! total magnitude.
+  ! Take two components of a vector, and find the unit vector components and
+  ! total magnitude.
   subroutine get_unit_vector(u, v, u_n, v_n, mag)
     real(kind_phys), intent(in) :: u(:)
     real(kind_phys), intent(in) :: v(:)
@@ -47,8 +41,8 @@ contains
 
   end subroutine get_unit_vector
 
-! Vectorized version of a 2D dot product (since the intrinsic dot_product
-! is more suitable for arrays of contiguous vectors).
+  ! Vectorized version of a 2D dot product (since the intrinsic dot_product
+  ! is more suitable for arrays of contiguous vectors).
   function dot_2d(u1, v1, u2, v2)
     real(kind_phys), intent(in) :: u1(:), v1(:)
     real(kind_phys), intent(in) :: u2(:), v2(:)
@@ -59,10 +53,10 @@ contains
 
   end function dot_2d
 
-! Pure function that interpolates the values of the input array along
-! dimension 2. This is obviously not a very generic routine, unlike, say,
-! CAM's lininterp. But it's used often enough that it seems worth providing
-! here.
+  ! Pure function that interpolates the values of the input array along
+  ! dimension 2. This is obviously not a very generic routine, unlike, say,
+  ! CAM's lininterp. But it's used often enough that it seems worth providing
+  ! here.
   pure function midpoint_interp(arr) result(interp)
     real(kind_phys), intent(in) :: arr(:, :)
     real(kind_phys) :: interp(size(arr, 1), size(arr, 2) - 1)
@@ -74,5 +68,26 @@ contains
     end do
 
   end function midpoint_interp
+
+  ! Short routine to get the indices of a set of values rounded to their
+  ! nearest points on a grid.
+  pure function index_of_nearest(x, grid) result(idx)
+    real(kind_phys), intent(in) :: x(:)
+    real(kind_phys), intent(in) :: grid(:)
+
+    integer :: idx(size(x))
+
+    real(kind_phys) :: interfaces(size(grid) - 1)
+    integer :: i, n
+
+    n = size(grid)
+    interfaces = (grid(:n - 1) + grid(2:))/2._kind_phys
+
+    idx = 1
+    do i = 1, n - 1
+      where (x > interfaces(i)) idx = i + 1
+    end do
+
+  end function index_of_nearest
 
 end module gw_utils

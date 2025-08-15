@@ -1,24 +1,26 @@
 ! This module handles gravity waves from orographic sources, and was
 ! extracted from gw_drag in May 2013,
 ! and subsequently CCPPized in August 2025.
-module gw_rdg
+module gravity_wave_drag_ridge
   use ccpp_kinds,    only: kind_phys
-  use gw_common,     only: unset_kind_phys, gwband, handle_err
+  use gw_common,     only: unset_kind_phys, gwband
   use coords_1d,     only: Coords1D
 
   implicit none
   private
   save
 
-  ! Public interfaces
-  public :: gravity_wave_drag_ridge_init        ! CCPP I/O read Ridge data into state.
+  ! Public CCPP-compliant interfaces.
+  public :: gravity_wave_drag_ridge_init        ! CCPP I/O read Ridge data into state and initialize.
+
+  public :: gravity_wave_drag_ridge_beta_run    ! Meso-Beta.
+  public :: gravity_wave_drag_ridge_gamma_run   ! Meso-Gamma.
+
+  ! For CAM compatibility only.
   public :: gw_rdg_init                         ! Init routine (public only for current CAM compat.)
 
-  public :: gravity_wave_drag_ridge_beta_run
-  public :: gravity_wave_drag_ridge_gamma_run
-
   ! Tunable Parameters
-  logical, public            :: do_divstream
+  logical         :: do_divstream
 
   !===========================================
   ! Parameters for DS2017 (do_divstream=.T.)
@@ -379,7 +381,7 @@ contains
   end subroutine gravity_wave_drag_ridge_init
 
   subroutine gravity_wave_drag_ridge_beta_run( &
-    ncol, pver, pcnst, dt, pi, cpair, &
+    ncol, pver, pcnst, dt, pi, cpair, rair, &
     vramp, p, &
     n_rdg_beta, &
     u, v, t, q, dse, &
@@ -404,6 +406,7 @@ contains
     real(kind_phys),     intent(in)    :: dt                           ! Physics timestep [s]
     real(kind_phys),     intent(in)    :: pi                           ! pi_constant [1]
     real(kind_phys),     intent(in)    :: cpair                        ! specific_heat_of_dry_air_at_constant_pressure [J kg-1 K-1]
+    real(kind_phys),     intent(in)    :: rair                         ! gas_constant_of_dry_air [J kg-1 K-1]
 
     real(kind_phys),     pointer, intent(in) :: vramp(:)               ! Vertical tapering function [1]
     type(Coords1D),      intent(in)    :: p                            ! Pressure coordinates, Coords1D
@@ -477,6 +480,7 @@ contains
                      dt                = dt, &
                      pi                = pi, &
                      cpair             = cpair, &
+                     rair              = rair, &
                      u                 = u(:, :), &
                      v                 = v(:, :), &
                      t                 = t(:, :), &
@@ -522,7 +526,7 @@ contains
   end subroutine gravity_wave_drag_ridge_beta_run
 
   subroutine gravity_wave_drag_ridge_gamma_run( &
-    ncol, pver, pcnst, dt, pi, cpair, &
+    ncol, pver, pcnst, dt, pi, cpair, rair, &
     vramp, p, &
     n_rdg_gamma, &
     u, v, t, q, dse, &
@@ -548,6 +552,7 @@ contains
     real(kind_phys),     intent(in)    :: dt                           ! Physics timestep [s]
     real(kind_phys),     intent(in)    :: pi                           ! pi_constant [1]
     real(kind_phys),     intent(in)    :: cpair                        ! specific_heat_of_dry_air_at_constant_pressure [J kg-1 K-1]
+    real(kind_phys),     intent(in)    :: rair                         ! gas_constant_of_dry_air [J kg-1 K-1]
 
     real(kind_phys),     intent(in), pointer :: vramp(:)               ! Vertical tapering function [1]
     type(Coords1D),      intent(in)    :: p                            ! Pressure coordinates, Coords1D
@@ -634,6 +639,7 @@ contains
                      dt                = dt, &
                      pi                = pi, &
                      cpair             = cpair, &
+                     rair              = rair, &
                      u                 = u(:, :), &
                      v                 = v(:, :), &
                      t                 = t(:, :), &
@@ -880,13 +886,13 @@ contains
 
   end subroutine gw_rdg_resid_src
 
-  subroutine gw_rdg_src(ncol, pver, pi, band, p, &
+  subroutine gw_rdg_src(ncol, pver, pi, rair, band, p, &
                         u, v, t, mxdis, angxy, anixy, kwvrdg, iso, zi, nm, &
                         src_level, tend_level, bwv_level, tlb_level, tau, ubm, ubi, xv, yv, &
                         ubmsrc, usrc, vsrc, nsrc, rsrc, m2src, tlb, bwv, Fr1, Fr2, Frx, c, &
                         errmsg, errflg)
 
-    use gw_common, only: rair, GWBand
+    use gw_common, only: GWBand
     use gw_utils, only: dot_2d, midpoint_interp
     !-----------------------------------------------------------------------
     ! Orographic source for multiple gravity wave drag parameterization.
@@ -1734,7 +1740,7 @@ contains
 
   subroutine gw_rdg_calc(band_oro, &
                          vramp, &
-                         type, pver, ncol, pcnst, prdg, n_rdg, dt, pi, cpair, &
+                         type, pver, ncol, pcnst, prdg, n_rdg, dt, pi, cpair, rair, &
                          u, v, t, p, piln, zm, zi, &
                          nm, ni, rhoi, kvtt, q, dse, &
                          effgw_rdg, effgw_rdg_max, &
@@ -1764,6 +1770,7 @@ contains
     real(kind_phys), intent(in) :: dt           ! Time step.
     real(kind_phys), intent(in) :: pi
     real(kind_phys), intent(in) :: cpair
+    real(kind_phys), intent(in) :: rair
 
     real(kind_phys), intent(in) :: u(:, :)    ! Midpoint zonal winds. ( m s-1)
     real(kind_phys), intent(in) :: v(:, :)    ! Midpoint meridional winds. ( m s-1)
@@ -1925,7 +1932,7 @@ contains
       effgw = effgw_rdg*(hwdth(1:ncol, nn)*clngt(1:ncol, nn))/gbxar(1:ncol)
       effgw = min(effgw_rdg_max, effgw)
 
-      call gw_rdg_src(ncol, pver, pi, band_oro, p, &
+      call gw_rdg_src(ncol, pver, pi, rair, band_oro, p, &
                       u, v, t, mxdis(:, nn), angll(:, nn), anixy(:, nn), kwvrdg, isoflag, zi, nm, &
                       src_level, tend_level, bwv_level, tlb_level, tau, ubm, ubi, xv, yv, &
                       ubmsrc, usrc, vsrc, nsrc, rsrc, m2src, tlb, bwv, Fr1, Fr2, Frx, phase_speeds, &
@@ -2041,4 +2048,4 @@ contains
 
   end subroutine gw_rdg_calc
 
-end module gw_rdg
+end module gravity_wave_drag_ridge

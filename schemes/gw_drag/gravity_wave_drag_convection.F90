@@ -4,7 +4,7 @@
 ! Beres, J. H., M. J. Alexander, and J. R. Holton, 2004:
 ! A Method of Specifying the Gravity Wave Spectrum above Convection Based on Latent Heating Properties and Background Wind
 ! J. Atmos. Sci., 61, 324–337, https://doi.org/10.1175/1520-0469(2004)061<0324:AMOSTG>2.0.CO;2.
-module gw_convect
+module gravity_wave_drag_convection
   use ccpp_kinds, only: kind_phys
   use gw_common, only: GWBand
 
@@ -12,10 +12,10 @@ module gw_convect
   private
   save
 
-  public :: gw_beres_init
-
-  public :: gw_beres_deep_run
-  public :: gw_beres_shallow_run
+  ! Public CCPP-compliant interfaces.
+  public :: gravity_wave_drag_convection_init
+  public :: gravity_wave_drag_convection_deep_run
+  public :: gravity_wave_drag_convection_shallow_run
 
   type :: BeresSourceDesc
     ! Whether wind speeds are shifted to be relative to storm cells.
@@ -41,7 +41,7 @@ module gw_convect
 contains
 
   ! Initialize gravity waves from convection and read in source spectra.
-  subroutine gw_beres_init(&
+  subroutine gravity_wave_drag_convection_init(&
              pver, pi, &
              masterproc, iulog, &
              gw_drag_file_sh, &
@@ -241,10 +241,10 @@ contains
       end if
 
     end subroutine gw_init_beres_desc
-  end subroutine gw_beres_init
+  end subroutine gravity_wave_drag_convection_init
 
   ! Convective gravity waves (Beres scheme, deep).
-  subroutine gw_beres_deep_run(&
+  subroutine gravity_wave_drag_convection_deep_run(&
              ncol, pver, pcnst, &
              dt, &
              p, vramp, &
@@ -466,10 +466,10 @@ contains
     ! FIXME: some places use cpairv (e.g., orographic) but cpair is used here. hplin 8/14/25
     ttgw = ttgw / cpair
 
-  end subroutine gw_beres_deep_run
+  end subroutine gravity_wave_drag_convection_deep_run
 
   ! Convective gravity waves (Beres scheme, shallow).
-  subroutine gw_beres_shallow_run(&
+  subroutine gravity_wave_drag_convection_shallow_run(&
              ncol, pver, pcnst, &
              dt, &
              p, vramp, &
@@ -675,12 +675,10 @@ contains
     end do
 
     ! Change ttgw to a temperature tendency before outputing it.
+    ! FIXME: some places use cpairv (e.g., orographic) but cpair is used here. hplin 8/14/25
     ttgw = ttgw / cpair
-    !call gw_spec_outflds(beres_dp_pf, lchnk, ncol, band_mid, phase_speeds, u, v, &
-    !     xv, yv, gwut, dttdf, dttke, tau(:,:,2:), utgw, vtgw, ttgw, &
-    !     taucd)
 
-  end subroutine gw_beres_shallow_run
+  end subroutine gravity_wave_drag_convection_shallow_run
 
 !==========================================================================
 
@@ -693,7 +691,7 @@ contains
                           u, v, &
                           netdt, zm, src_level, tend_level, tau, ubm, ubi, xv, yv, &
                           c, hdepth, maxq0)
-    use gw_utils, only: get_unit_vector, dot_2d, midpoint_interp
+    use gw_utils, only: get_unit_vector, dot_2d, midpoint_interp, index_of_nearest
     use gw_common, only: qbo_hdepth_scaling
 
 !------------------------------Arguments--------------------------------
@@ -948,25 +946,4 @@ contains
 
   end subroutine gw_beres_src
 
-  ! Short routine to get the indices of a set of values rounded to their
-  ! nearest points on a grid.
-  function index_of_nearest(x, grid) result(idx)
-    real(kind_phys), intent(in) :: x(:)
-    real(kind_phys), intent(in) :: grid(:)
-
-    integer :: idx(size(x))
-
-    real(kind_phys) :: interfaces(size(grid) - 1)
-    integer :: i, n
-
-    n = size(grid)
-    interfaces = (grid(:n - 1) + grid(2:))/2._kind_phys
-
-    idx = 1
-    do i = 1, n - 1
-      where (x > interfaces(i)) idx = i + 1
-    end do
-
-  end function index_of_nearest
-
-end module gw_convect
+end module gravity_wave_drag_convection

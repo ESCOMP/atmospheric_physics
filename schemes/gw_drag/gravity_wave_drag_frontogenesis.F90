@@ -1,6 +1,6 @@
 ! This module handles gravity waves from frontal sources, and was extracted
 ! from gw_drag in May 2013.
-module gw_front
+module gravity_wave_drag_frontogenesis
   use ccpp_kinds, only: kind_phys
   use gw_common, only: GWBand, unset_kind_phys
 
@@ -8,9 +8,9 @@ module gw_front
   private
   save
 
-  public :: gravity_wave_frontogenesis_init
-  public :: gravity_wave_frontogenesis_run
-  public :: gravity_wave_frontogenesis_inertial_run
+  public :: gravity_wave_drag_frontogenesis_init
+  public :: gravity_wave_drag_frontogenesis_run
+  public :: gravity_wave_drag_frontogenesis_inertial_run
 
   ! Tuneable settings.
   type CMSourceDesc
@@ -39,7 +39,7 @@ module gw_front
 
 contains
 
-  subroutine gravity_wave_frontogenesis_init(&
+  subroutine gravity_wave_drag_frontogenesis_init(&
              pver, pi, &
              masterproc, iulog, &
              pref_edge, frontgfc, &
@@ -78,7 +78,7 @@ contains
     ! Index for levels at specific pressures.
     integer :: kfront
 
-    character(len=*), parameter :: sub = 'gravity_wave_frontogenesis_init'
+    character(len=*), parameter :: sub = 'gravity_wave_drag_frontogenesis_init'
 
     ! Initialize error variables
     errmsg = ''
@@ -112,13 +112,13 @@ contains
       band_mid = GWBand(pgwv, gw_delta_c, 1.0_kind_phys, wavelength_mid)
       if (masterproc) then
         write (iulog, *) ' '
-        write (iulog, *) "gravity_wave_frontogenesis_init: band_mid%ngwv = ", band_mid%ngwv
+        write (iulog, *) "gravity_wave_drag_frontogenesis_init: band_mid%ngwv = ", band_mid%ngwv
         do l = -band_mid%ngwv, band_mid%ngwv
           write (iulog, '(A,I0,A,F7.2)') &
-            "gravity_wave_frontogenesis_init: band_mid%cref(", l, ") = ", band_mid%cref(l)
+            "gravity_wave_drag_frontogenesis_init: band_mid%cref(", l, ") = ", band_mid%cref(l)
         end do
-        write (iulog, *) 'gravity_wave_frontogenesis_init: band_mid%kwv = ', band_mid%kwv
-        write (iulog, *) 'gravity_wave_frontogenesis_init: band_mid%fcrit2 = ', band_mid%fcrit2
+        write (iulog, *) 'gravity_wave_drag_frontogenesis_init: band_mid%kwv = ', band_mid%kwv
+        write (iulog, *) 'gravity_wave_drag_frontogenesis_init: band_mid%fcrit2 = ', band_mid%fcrit2
       end if
     end if
 
@@ -126,13 +126,13 @@ contains
       band_long = GWBand(pgwv_long, gw_delta_c, 1.0_kind_phys, wavelength_long)
       if (masterproc) then
         write (iulog, *) ' '
-        write (iulog, *) "gravity_wave_frontogenesis_init: band_long%ngwv = ", band_long%ngwv
+        write (iulog, *) "gravity_wave_drag_frontogenesis_init: band_long%ngwv = ", band_long%ngwv
         do l = -band_long%ngwv, band_long%ngwv
           write (iulog, '(A,I2,A,F7.2)') &
-            "gravity_wave_frontogenesis_init: band_long%cref(", l, ") = ", band_long%cref(l)
+            "gravity_wave_drag_frontogenesis_init: band_long%cref(", l, ") = ", band_long%cref(l)
         end do
-        write (iulog, *) 'gravity_wave_frontogenesis_init: band_long%kwv = ', band_long%kwv
-        write (iulog, *) 'gravity_wave_frontogenesis_init: band_long%fcrit2 = ', band_long%fcrit2
+        write (iulog, *) 'gravity_wave_drag_frontogenesis_init: band_long%kwv = ', band_long%kwv
+        write (iulog, *) 'gravity_wave_drag_frontogenesis_init: band_long%fcrit2 = ', band_long%fcrit2
         write (iulog, *) ' '
       end if
     end if
@@ -176,12 +176,12 @@ contains
       dlat0 = 5.0_kind_phys * degree2radian
 
     end if
-  end subroutine gravity_wave_frontogenesis_init
+  end subroutine gravity_wave_drag_frontogenesis_init
 
   ! Frontally generated gravity waves
-!> \section arg_table_gravity_wave_frontogenesis_run Argument Table
-!! \htmlinclude gravity_wave_frontogenesis_run.html
-  subroutine gravity_wave_frontogenesis_run( &
+!> \section arg_table_gravity_wave_drag_frontogenesis_run Argument Table
+!! \htmlinclude gravity_wave_drag_frontogenesis_run.html
+  subroutine gravity_wave_drag_frontogenesis_run( &
              ncol, pver, pcnst, &
              dt, &
              cpair, &
@@ -381,12 +381,12 @@ contains
     ! FIXME: some places use cpairv (e.g., orographic) but cpair is used here. hplin 8/14/25
     ttgw = ttgw / cpair
 
-  end subroutine gravity_wave_frontogenesis_run
+  end subroutine gravity_wave_drag_frontogenesis_run
 
   ! Frontaly generated intertial gravity waves
-!> \section arg_table_gravity_wave_frontogenesis_inertial_run Argument Table
-!! \htmlinclude gravity_wave_frontogenesis_inertial_run.html
-  subroutine gravity_wave_frontogenesis_inertial_run( &
+!> \section arg_table_gravity_wave_drag_frontogenesis_inertial_run Argument Table
+!! \htmlinclude gravity_wave_drag_frontogenesis_inertial_run.html
+  subroutine gravity_wave_drag_frontogenesis_inertial_run( &
              ncol, pver, pcnst, &
              dt, &
              cpair, &
@@ -477,7 +477,7 @@ contains
     real(kind_phys) :: de(ncol)
     real(kind_phys) :: al0, dlat0
 
-    character(len=*), parameter :: sub = 'gravity_wave_frontogenesis_inertial_run'
+    character(len=*), parameter :: sub = 'gravity_wave_drag_frontogenesis_inertial_run'
 
     errmsg = ''
     errflg = 0
@@ -557,7 +557,7 @@ contains
     ! FIXME: some places use cpairv (e.g., orographic) but cpair is used here. hplin 8/14/25
     ttgw = ttgw / cpair
 
-  end subroutine gravity_wave_frontogenesis_inertial_run
+  end subroutine gravity_wave_drag_frontogenesis_inertial_run
 
 
 !==========================================================================
@@ -737,4 +737,4 @@ contains
 
   end subroutine gw_cm_src
 
-end module gw_front
+end module gravity_wave_drag_frontogenesis
