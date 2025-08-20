@@ -175,8 +175,8 @@ contains
     amIRoot, iulog, &
     rearth, &
     use_gw_rdg_beta_in, &
-    use_gw_rdg_gamma_in, &
     bnd_topo_file, &
+    use_gw_rdg_gamma_in, &
     bnd_rdggm_file, &
     gbxar, isovar, isowgt, &
     hwdth, clngt, mxdis, anixy, angll, &
@@ -212,10 +212,6 @@ contains
     ! Ridge efficiency parameters
     real(kind_phys), intent(in)      :: effgw_rdg_beta                ! Beta ridge efficiency factor [1]
     real(kind_phys), intent(in)      :: effgw_rdg_gamma               ! Gamma ridge efficiency factor [1]
-
-    ! Ridge scheme control flags
-    logical, intent(in)              :: use_gw_rdg_beta_in            ! Enable beta ridge scheme [flag]
-    logical, intent(in)              :: use_gw_rdg_gamma_in           ! Enable gamma ridge scheme [flag]
 
     ! Dividing streamline (DS2017) parameters
     logical, intent(in)              :: gw_rdg_do_divstream_nl        ! Enable dividing streamline parameterization [flag]
@@ -265,10 +261,8 @@ contains
 
     ! Temporaries for providing to the I/O reader; data will be copied to the
     ! respective pointer variables.
-    !
-    ! FIXME: when I/O reader is updated from ptr to allocatable, change below to allocatable.
-    real(kind_phys), pointer :: alloc1D(:)    ! 1-D temporary for I/O reader
-    real(kind_phys), pointer :: alloc2D(:,:)  ! 2-D temporary for I/O reader
+    real(kind_phys), allocatable :: alloc1D(:)    ! 1-D temporary for I/O reader
+    real(kind_phys), allocatable :: alloc2D(:,:)  ! 2-D temporary for I/O reader
 
     class(abstract_netcdf_reader_t), allocatable :: reader
 
@@ -423,26 +417,26 @@ contains
     ! Call underlying initialization subroutine to populate namelist variables
     !REMOVECAM: once CAM is retired, gw_rdg_init can be collapsed into this subroutine.
     call gw_rdg_init( &
-      gw_delta_c                   = gw_dc, &
+      gw_delta_c                   = gw_delta_c, &
       effgw_rdg_beta               = effgw_rdg_beta, &
       effgw_rdg_gamma              = effgw_rdg_gamma, &
       use_gw_rdg_beta_in           = use_gw_rdg_beta_in, &
       use_gw_rdg_gamma_in          = use_gw_rdg_gamma_in, &
-      gw_rdg_do_divstream_nl       = gw_rdg_do_divstream, &
-      gw_rdg_C_BetaMax_DS_nl       = gw_rdg_C_BetaMax_DS, &
-      gw_rdg_C_GammaMax_nl         = gw_rdg_C_GammaMax, &
-      gw_rdg_Frx0_nl               = gw_rdg_Frx0, &
-      gw_rdg_Frx1_nl               = gw_rdg_Frx1, &
-      gw_rdg_C_BetaMax_SM_nl       = gw_rdg_C_BetaMax_SM, &
-      gw_rdg_Fr_c_nl               = gw_rdg_Fr_c, &
-      gw_rdg_do_smooth_regimes_nl  = gw_rdg_do_smooth_regimes, &
-      gw_rdg_do_adjust_tauoro_nl   = gw_rdg_do_adjust_tauoro, &
-      gw_rdg_do_backward_compat_nl = gw_rdg_do_backward_compat, &
-      gw_rdg_orohmin_nl            = gw_rdg_orohmin, &
-      gw_rdg_orovmin_nl            = gw_rdg_orovmin, &
-      gw_rdg_orostratmin_nl        = gw_rdg_orostratmin, &
-      gw_rdg_orom2min_nl           = gw_rdg_orom2min, &
-      gw_rdg_do_vdiff_nl           = gw_rdg_do_vdiff, &
+      gw_rdg_do_divstream_nl       = gw_rdg_do_divstream_nl, &
+      gw_rdg_C_BetaMax_DS_nl       = gw_rdg_C_BetaMax_DS_nl, &
+      gw_rdg_C_GammaMax_nl         = gw_rdg_C_GammaMax_nl, &
+      gw_rdg_Frx0_nl               = gw_rdg_Frx0_nl, &
+      gw_rdg_Frx1_nl               = gw_rdg_Frx1_nl, &
+      gw_rdg_C_BetaMax_SM_nl       = gw_rdg_C_BetaMax_SM_nl, &
+      gw_rdg_Fr_c_nl               = gw_rdg_Fr_c_nl, &
+      gw_rdg_do_smooth_regimes_nl  = gw_rdg_do_smooth_regimes_nl, &
+      gw_rdg_do_adjust_tauoro_nl   = gw_rdg_do_adjust_tauoro_nl, &
+      gw_rdg_do_backward_compat_nl = gw_rdg_do_backward_compat_nl, &
+      gw_rdg_orohmin_nl            = gw_rdg_orohmin_nl, &
+      gw_rdg_orovmin_nl            = gw_rdg_orovmin_nl, &
+      gw_rdg_orostratmin_nl        = gw_rdg_orostratmin_nl, &
+      gw_rdg_orom2min_nl           = gw_rdg_orom2min_nl, &
+      gw_rdg_do_vdiff_nl           = gw_rdg_do_vdiff_nl, &
       errmsg = errmsg, &
       errflg = errflg)
     if (errflg /= 0) return

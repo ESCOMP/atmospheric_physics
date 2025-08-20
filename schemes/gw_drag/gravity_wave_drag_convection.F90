@@ -28,9 +28,9 @@ module gravity_wave_drag_convection
     integer :: maxh
     integer :: maxuh
     ! Heating depths [m].
-    real(kind_phys), pointer :: hd(:)
+    real(kind_phys), allocatable :: hd(:)
     ! Table of source spectra.
-    real(kind_phys), pointer :: mfcc(:, :, :)
+    real(kind_phys), allocatable :: mfcc(:, :, :)
   end type BeresSourceDesc
 
   ! Beres settings and table.
@@ -76,9 +76,9 @@ contains
     class(abstract_netcdf_reader_t), allocatable :: reader
     type(BeresSourceDesc), pointer :: desc
 
-    integer :: istat, k
+    integer :: k
 
-    character(len=*), parameter :: sub = 'gw_beres_init'
+    character(len=*), parameter :: sub = 'gravity_wave_drag_convection_init'
 
     ! Initialize error variables
     errmsg = ''
@@ -98,7 +98,7 @@ contains
       end do
 
       if (masterproc) then
-        write (iulog, *) 'gw_beres_init: Beres deep level =', beres_dp_desc%k
+        write (iulog, *) 'gravity_wave_drag_convection_init: Beres deep level =', beres_dp_desc%k
       end if
 
       ! Don't use deep convection heating depths below this limit.
@@ -150,11 +150,9 @@ contains
       character(len=512), intent(out)          :: errmsg
       integer, intent(out)                     :: errflg
 
-      integer                                  :: istat
-      character(len=512)                       :: alloc_errmsg
-      character(len=*), parameter :: sub = 'gw_init_beres_desc'
-      real(kind_phys), pointer                 :: tmp_var1d(:)
-      real(kind_phys), pointer                 :: file_mfcc(:, :, :) !is the lookup table from the file f(depth, wind, phase speed)
+      character(len=*), parameter              :: sub = 'gw_init_beres_desc'
+      real(kind_phys),  allocatable            :: tmp_var1d(:)
+      real(kind_phys),  allocatable            :: file_mfcc(:, :, :) !is the lookup table from the file f(depth, wind, phase speed)
 
       ! Read Beres file.
       reader = create_netcdf_reader_t()
@@ -166,7 +164,6 @@ contains
       end if
 
       ! Get HD (heating depth) dimension.
-
       call reader%get_var('HD', desc%hd, errmsg, errflg)
       if (errflg /= 0) then
         return
@@ -174,13 +171,12 @@ contains
       desc%maxh = size(desc%hd)
 
       ! Get MW (mean wind) dimension.
-
       call reader%get_var('MW', tmp_var1d, errmsg, errflg)
       if (errflg /= 0) then
         return
       end if
       desc%maxuh = size(tmp_var1d)
-      nullify (tmp_var1d)
+      deallocate(tmp_var1d, stat=errflg)
 
       ! Get PS (phase speed) dimension.
       call reader%get_var('PS', tmp_var1d, errmsg, errflg)
@@ -188,7 +184,7 @@ contains
         return
       end if
       ngwv_file = size(tmp_var1d)
-      nullify (tmp_var1d)
+      deallocate(tmp_var1d, stat=errflg)
 
       ! Number in each direction is half of total (and minus phase speed of 0).
       desc%maxuh = (desc%maxuh - 1)/2
@@ -208,20 +204,14 @@ contains
 
       ! Allocate mfcc. "desc%maxh" and "desc%maxuh" are from the file, but the
       ! model determines wavenumber dimension.
-
       allocate (desc%mfcc(desc%maxh, -desc%maxuh:desc%maxuh, &
-                          -band%ngwv:band%ngwv), stat=istat, errmsg=alloc_errmsg)
-
-      if (istat /= 0) then
-          write(errmsg, '(a,a,a)') sub, ': ERROR allocating array: desc%mfcc(desc%maxh,-desc%maxuh:desc%maxuh, -band%ngwv:band%ngwv); message - ', trim(alloc_errmsg)
-        errflg = 1
-        return
-      end if
+                          -band%ngwv:band%ngwv), stat=errflg, errmsg=errmsg)
+      if(errflg /= 0) return
 
       ! Get mfcc data.
       call reader%get_var('mfcc', file_mfcc, errmsg, errflg)
       if (errflg /= 0) then
-        return !Error has occurred reading MFCC, so exit scheme
+        return
       end if
 
       desc%mfcc(:, -desc%maxuh:desc%maxuh, -band%ngwv:band%ngwv) = file_mfcc(:, :, ngwv_file - band%ngwv + 1:)
@@ -229,15 +219,13 @@ contains
       ! Close file
       call reader%close_file(errmsg, errflg)
       if (errflg /= 0) then
-        return !Error has occurred while closing file, so exit scheme
+        return
       end if
 
       if (masterproc) then
-
-        write (iulog, *) "Read in source spectra from file."
-        write (iulog, *) "mfcc max, min = ", &
+        write (iulog, *) "gravity_wave_drag_convection: Read in source spectra from file."
+        write (iulog, *) "gravity_wave_drag_convection: mfcc max, min = ", &
           maxval(desc%mfcc), ", ", minval(desc%mfcc)
-
       end if
 
     end subroutine gw_init_beres_desc

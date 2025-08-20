@@ -23,10 +23,9 @@ module gravity_wave_drag_moving_mountain
     integer :: maxh !-bounds of the lookup table heating depths
     integer :: maxuh ! bounds of the lookup table wind
     ! Heating depths [m].
-!jt   real(kind_phys), allocatable :: hd(:), uh(:)
-    real(kind_phys), pointer :: hd(:), uh(:)
-    ! Table of source spectra.
-    real(kind_phys), pointer :: mfcc(:, :, :)  !is the lookup table f(depth, wind, phase speed)
+    real(kind_phys), allocatable :: hd(:), uh(:)
+    ! Table of source spectra. Lookup table f(depth, wind, phase speed)
+    real(kind_phys), allocatable :: mfcc(:, :, :)
   end type MovMtnSourceDesc
 
   ! Band for moving mountain gravity waves.
@@ -79,7 +78,7 @@ contains
     integer, intent(out)                          :: errflg
 
     integer :: stat
-    real(kind_phys), pointer                      :: file_mfcc(:, :) !is the lookup table from the file f(depth, wind, phase speed)
+    real(kind_phys), allocatable                  :: file_mfcc(:, :) !is the lookup table from the file f(depth, wind, phase speed)
 
     ! Number of wavenumbers in the input file.
     integer :: ngwv_file, k
@@ -167,7 +166,6 @@ contains
     desc%hd = desc%hd*1000._kind_phys
 
     ! Allocate wind and get data.
-
     allocate (desc%uh(desc%maxuh), stat=errflg, errmsg=errmsg)
     if(errflg /= 0) then
       return
@@ -180,7 +178,6 @@ contains
 
     ! Allocate mfcc. "desc%maxh" and "desc%maxuh" are from the file, but the
     ! model determines wavenumber dimension.
-
     allocate (desc%mfcc(desc%maxh, -desc%maxuh:desc%maxuh, &
                         -band%ngwv:band%ngwv), stat=errflg, errmsg=errmsg)
     if(errflg /= 0) then
@@ -193,8 +190,10 @@ contains
       return
     end if
 
-    !desc%mfcc(:,-desc%maxuh:desc%maxuh,-band%ngwv:band%ngwv) = file_mfcc(:,:,ngwv_file-band%ngwv+1:)
-    ! band%ngwv = 0
+    ! original formulation is
+    ! desc%mfcc(:,-desc%maxuh:desc%maxuh,-band%ngwv:band%ngwv) = file_mfcc(:,:,ngwv_file-band%ngwv+1:)
+    ! where band%ngwv = 0 -- this cannot be handled directly by the
+    ! ccpp i/o reader, so copy it in from the temporary array.
     desc%mfcc(:, -desc%maxuh:desc%maxuh, 0) = file_mfcc(:, :)
 
     ! Close file

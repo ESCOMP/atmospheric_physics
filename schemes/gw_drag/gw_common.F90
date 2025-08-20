@@ -157,6 +157,7 @@ contains
   subroutine gravity_wave_drag_common_init( &
              pver_in, &
              amIRoot, iulog, &
+             pref_edge, &
              tau_0_ubc_in, ktop_in, gravit_in, rair_in, &
              prndl_in, qbo_hdepth_scaling_in, &
              errmsg, errflg)
@@ -165,8 +166,9 @@ contains
     use interpolate_data, only: lininterp
 
     integer,          intent(in)  :: pver_in
-    integer,          intent(in)  :: amIRoot
+    logical,          intent(in)  :: amIRoot
     integer,          intent(in)  :: iulog
+    real(kind_phys),  intent(in)  :: pref_edge(:)
     logical,          intent(in)  :: tau_0_ubc_in
     integer,          intent(in)  :: ktop_in
     real(kind_phys),  intent(in)  :: gravit_in
@@ -177,7 +179,7 @@ contains
     character(len=512), intent(out) :: errmsg
     integer, intent(out)            :: errflg
 
-    integer :: ierr
+    integer :: k
 
     ! Levels of pre-calculated Newtonian cooling (1/day).
     ! The following profile is digitized from:
