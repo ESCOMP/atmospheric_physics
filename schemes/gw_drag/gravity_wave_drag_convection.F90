@@ -74,7 +74,6 @@ contains
     ! Number of wavenumbers in the input file.
     integer :: ngwv_file
     class(abstract_netcdf_reader_t), allocatable :: reader
-    type(BeresSourceDesc), pointer :: desc
 
     integer :: k
 
@@ -214,7 +213,9 @@ contains
         return
       end if
 
-      desc%mfcc(:, -desc%maxuh:desc%maxuh, -band%ngwv:band%ngwv) = file_mfcc(:, :, ngwv_file - band%ngwv + 1:)
+      desc%mfcc(:, -desc%maxuh:desc%maxuh, -band%ngwv:band%ngwv) = file_mfcc(:, :, ngwv_file-band%ngwv+1:ngwv_file+band%ngwv+1)
+      ! 2*band%ngwv = (ngwv_file+band%ngwv+1-ngwv_file+band%ngwv-1)
+      ! the file may cover more than what is requested of ngwv, so the bounds (lower and upper) to be specified explicitly.
 
       ! Close file
       call reader%close_file(errmsg, errflg)
@@ -317,7 +318,7 @@ contains
     character(len=512), intent(out)               :: errmsg
     integer, intent(out)                          :: errflg
 
-    integer :: i, k, m
+    integer :: k, m
 
     ! Wavenumber fields
     real(kind_phys) :: tau(ncol, -band_mid%ngwv:band_mid%ngwv, pver+1)
@@ -336,6 +337,9 @@ contains
     real(kind_phys) :: effgw(ncol)
 
     real(kind_phys) :: egwdffi(ncol, pver+1)
+
+    errmsg = ''
+    errflg = 0
 
     tau  = 0._kind_phys
     gwut = 0._kind_phys
@@ -534,7 +538,7 @@ contains
     character(len=512), intent(out)               :: errmsg
     integer, intent(out)                          :: errflg
 
-    integer :: i, k, m
+    integer :: k, m
 
     ! Wavenumber fields
     real(kind_phys) :: tau(ncol, -band_mid%ngwv:band_mid%ngwv, pver+1)
@@ -554,6 +558,8 @@ contains
 
     real(kind_phys) :: egwdffi(ncol, pver+1)
 
+    errmsg = ''
+    errflg = 0
 
     tau  = 0._kind_phys
     gwut = 0._kind_phys

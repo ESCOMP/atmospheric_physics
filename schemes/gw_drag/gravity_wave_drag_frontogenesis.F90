@@ -193,12 +193,12 @@ contains
              frontgf, &
              kvt_gw, &
              tend_q, tend_u, tend_v, tend_s, egwdffi_tot, &
+             flx_heat, &
              src_level, tend_level, ubm, ubi, xv, yv, &
              utgw, vtgw, ttgw, qtgw, &
              dttdf, dttke, &
              taucd_west, taucd_east, taucd_south, taucd_north, &
              utend1, utend2, utend3, utend4, utend5, &
-             flx_heat, &
              errmsg, errflg)
 
     use coords_1d, only: Coords1D
@@ -237,6 +237,7 @@ contains
     real(kind_phys),    intent(inout)             :: tend_v(:, :)             ! Meridional wind tendency [m s-2]
     real(kind_phys),    intent(inout)             :: tend_s(:, :)             ! Dry static energy tendency [J kg-1 s-1]
     real(kind_phys),    intent(inout)             :: egwdffi_tot(:, :)        ! Total eddy diffusion coefficient from gravity waves [m2 s-1]
+    real(kind_phys),    intent(inout)             :: flx_heat(:)              ! Surface heat flux for energy conservation check [W m-2]
 
     integer,            intent(out)               :: src_level(:)             ! Vertical level index of gravity wave source [index]
     integer,            intent(out)               :: tend_level(:)            ! Lowest vertical level index where tendencies are applied [index]
@@ -250,7 +251,6 @@ contains
     real(kind_phys),    intent(out)               :: qtgw(:, :, :)            ! Constituent tendencies from gravity waves [kg kg-1 s-1]
     real(kind_phys),    intent(out)               :: dttdf(:, :)              ! Temperature tendency from diffusion [K s-1]
     real(kind_phys),    intent(out)               :: dttke(:, :)              ! Temperature tendency from kinetic energy dissipation [K s-1]
-    real(kind_phys),    intent(out)               :: flx_heat(:)              ! Surface heat flux for energy conservation check [W m-2]
 
     ! Copies of taucd in each direction for diagnostic.
     real(kind_phys),    intent(out)               :: taucd_west(:, :)         ! Reynolds stress for waves in W direction, interfaces [N m-2]
@@ -269,7 +269,7 @@ contains
     integer,            intent(out)               :: errflg
 
     ! Local variables
-    integer :: i, k, m, l, stat
+    integer :: i, k, m, l
 
     ! Wavenumber fields
     real(kind_phys) :: tau(ncol, -band_mid%ngwv:band_mid%ngwv, pver + 1)
@@ -277,8 +277,7 @@ contains
     real(kind_phys) :: phase_speeds(ncol, -band_mid%ngwv:band_mid%ngwv)
 
     real(kind_phys) :: utend(ncol, pver, 5)
-    real(kind_phys) :: ix(ncol, -band_mid%ngwv:band_mid%ngwv)
-    real(kind_phys) :: iy(ncol, -band_mid%ngwv:band_mid%ngwv)
+    integer         :: ix(ncol, -band_mid%ngwv:band_mid%ngwv)
 
     real(kind_phys) :: egwdffi(ncol, pver+1)
     real(kind_phys) :: effgw(ncol)
@@ -344,6 +343,7 @@ contains
     end do
 
     ! Diagnostic: accumulate wind tendencies binned according to phase speed.
+    utend(:,:,:) = 0._kind_phys
     ix = find_bin(phase_speeds)
     do l = -band_mid%ngwv, band_mid%ngwv
       do k = 1, pver
@@ -475,7 +475,6 @@ contains
     real(kind_phys) :: um_flux(ncol)
     real(kind_phys) :: vm_flux(ncol)
     real(kind_phys) :: de(ncol)
-    real(kind_phys) :: al0, dlat0
 
     character(len=*), parameter :: sub = 'gravity_wave_drag_frontogenesis_inertial_run'
 
@@ -487,10 +486,6 @@ contains
 
     ! Frontogenesis is too high at the poles (at least for the FV dycore), so introduce a polar taper
     if (gw_polar_taper) then
-      ! Polar taper parameters
-      al0 = 70._kind_phys * degree2radian
-      dlat0 = 10._kind_phys * degree2radian
-
       where (abs(lat(:ncol)) <= 89._kind_phys * degree2radian)
         effgw = effgw * 0.25_kind_phys * &
                 (1._kind_phys + tanh((lat(:ncol) + al0) / dlat0)) * &

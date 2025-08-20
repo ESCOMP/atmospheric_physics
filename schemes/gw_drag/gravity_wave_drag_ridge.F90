@@ -171,7 +171,7 @@ contains
   end subroutine gw_rdg_init
 
   subroutine gravity_wave_drag_ridge_init( &
-    ncol, prdg, &
+    ncol, &
     amIRoot, iulog, &
     rearth, &
     use_gw_rdg_beta_in, &
@@ -196,7 +196,7 @@ contains
 
     ! Input arguments
     integer, intent(in)              :: ncol
-    integer, intent(in)              :: prdg                          ! second dimension of the 2-D outs below.
+    !integer, intent(in)              :: prdg                          ! second dimension of the 2-D outs below.
     logical, intent(in)              :: amIRoot
     integer, intent(in)              :: iulog
     real(kind_phys), intent(in)      :: rearth                        ! Earth radius [m]
@@ -819,14 +819,9 @@ contains
 
     ! Difference in interface pressure across source region.
     real(kind_phys) :: dpsrc(ncol)
-    ! Thickness of downslope wind region.
-    real(kind_phys) :: ddw(ncol)
-    ! Thickness of linear wave region.
-    real(kind_phys) :: dwv(ncol)
     ! Wind speed in source region.
     real(kind_phys) :: wmsrc(ncol)
 
-    real(kind_phys) :: ragl(ncol)
     real(kind_phys) :: Fcrit_res, sghmax
 
     errmsg = ''
@@ -1890,7 +1885,7 @@ contains
 
     !---------------------------Local storage-------------------------------
 
-    integer :: k, m, nn, istat
+    integer :: k, m, nn
 
     ! Isotropic source flag [anisotropic orography].
     integer  :: isoflag(ncol)
@@ -1970,9 +1965,6 @@ contains
 
     ! Energy change used by fixer.
     real(kind_phys) :: de(ncol)
-
-    character(len=1) :: cn
-    character(len=9) :: fname(4)
 
     ! Wavenumber fields
     real(kind_phys) :: tau(ncol, -band_oro%ngwv:band_oro%ngwv, pver+1) ! wave Reynolds stress

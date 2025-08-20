@@ -171,6 +171,9 @@ contains
     ! Energy change used by fixer.
     real(kind_phys) :: de(ncol)
 
+    errmsg = ''
+    errflg = 0
+
     ! Scale sgh by land fraction?
     if (gw_lndscl_sgh) then
       where (landfrac(:ncol) >= epsilon(1._kind_phys))
