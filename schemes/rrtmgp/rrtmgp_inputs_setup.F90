@@ -9,12 +9,12 @@ module rrtmgp_inputs_setup
 !> \section arg_table_rrtmgp_inputs_setup_init Argument Table
 !! \htmlinclude rrtmgp_inputs_setup_init.html
 !!
-  subroutine rrtmgp_inputs_setup_init(ktopcam, ktoprad, nlaycam, sw_low_bounds, sw_high_bounds, nswbands,         &
-                   pref_edge, nlay, pver, pverp, kdist_sw, kdist_lw, qrl, is_first_step, use_rad_dt_cosz,   &
-                   timestep_size, nstep, iradsw, dt_avg, irad_always, is_first_restart_step, p_top_for_rrtmgp, &
-                   nlwbands, nradgas, gasnamelength, iulog, idx_sw_diag, idx_nir_diag, idx_uv_diag,      &
-                   idx_sw_cloudsim, idx_lw_diag, idx_lw_cloudsim, nswgpts, nlwgpts, nlayp,      &
-                   nextsw_cday, current_cal_day, band2gpt_sw, errmsg, errflg)
+  subroutine rrtmgp_inputs_setup_init(ktopcam, ktoprad, nlaycam, sw_low_bounds, sw_high_bounds, nswbands,      &
+                   pref_edge, nlay, pver, pverp, kdist_sw, kdist_lw, qrl, is_first_step, use_rad_dt_cosz,      &
+                   timestep_size, nstep, iradsw, dt_avg, irad_always, is_first_restart_step,                   &
+                   p_top_for_rrtmgp, nlwbands, nradgas, gasnamelength, idx_sw_diag, idx_nir_diag, idx_uv_diag, &
+                   idx_sw_cloudsim, idx_lw_diag, idx_lw_cloudsim, nswgpts, nlwgpts, nlayp, nextsw_cday,        &
+                   current_cal_day, band2gpt_sw, errmsg, errflg)
      use ccpp_kinds,             only: kind_phys
      use ccpp_gas_optics_rrtmgp, only: ty_gas_optics_rrtmgp_ccpp
      use radiation_utils,        only: radiation_utils_init, get_sw_spectral_boundaries_ccpp
