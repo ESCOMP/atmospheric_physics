@@ -305,7 +305,7 @@ contains
     real(kind_phys),    intent(out)               :: vtgw(:, :)               ! Meridional wind tendency from gravity waves [m s-2]
     real(kind_phys),    intent(out)               :: ttgw(:, :)               ! Temperature tendency from gravity waves [K s-1]
     real(kind_phys),    intent(out)               :: qtgw(:, :, :)            ! Constituent tendencies from gravity waves [kg kg-1 s-1]
-    real(kind_phys),    intent(out)               :: egwdffi_tot(:, :)        ! Total eddy diffusion coefficient from gravity waves [m2 s-1]
+    real(kind_phys),    intent(out)               :: egwdffi_tot(:, :)        ! Effective diffusivity coefficient from gravity waves, interfaces [m2 s-1]
     real(kind_phys),    intent(out)               :: dttdf(:, :)              ! Temperature tendency from diffusion [K s-1]
     real(kind_phys),    intent(out)               :: dttke(:, :)              ! Temperature tendency from kinetic energy dissipation [K s-1]
 
@@ -531,7 +531,7 @@ contains
     real(kind_phys),    intent(out)               :: vtgw(:, :)               ! Meridional wind tendency from gravity waves [m s-2]
     real(kind_phys),    intent(out)               :: ttgw(:, :)               ! Temperature tendency from gravity waves [K s-1]
     real(kind_phys),    intent(out)               :: qtgw(:, :, :)            ! Constituent tendencies from gravity waves [kg kg-1 s-1]
-    real(kind_phys),    intent(out)               :: egwdffi_tot(:, :)        ! Total eddy diffusion coefficient from gravity waves [m2 s-1]
+    real(kind_phys),    intent(out)               :: egwdffi_tot(:, :)        ! Effective diffusivity coefficient from gravity waves, interfaces [m2 s-1]
     real(kind_phys),    intent(out)               :: dttdf(:, :)              ! Temperature tendency from diffusion [K s-1]
     real(kind_phys),    intent(out)               :: dttke(:, :)              ! Temperature tendency from kinetic energy dissipation [K s-1]
 

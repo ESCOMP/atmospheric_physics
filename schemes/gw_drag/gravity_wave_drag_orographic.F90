@@ -80,7 +80,7 @@ contains
              tau0x, tau0y, taua, &
              errmsg, errflg)
 
-    use coords_1d, only: Coords1D
+    use coords_1d, only: coords1d
     use gw_utils, only: get_unit_vector, dot_2d, midpoint_interp
     use gw_common, only: gw_drag_prof, energy_change
 
@@ -90,7 +90,7 @@ contains
     real(kind_phys),    intent(in)                :: dt                       ! Physics timestep [s]
     real(kind_phys),    intent(in)                :: rair                     ! Gas constant for dry air [J kg-1 K-1]
     real(kind_phys),    intent(in)                :: cpairv(:,:)              ! Specific heat of dry air at constant pressure [J kg-1 K-1]
-    type(Coords1D),     intent(in)                :: p                        ! Pressure coordinates [Pa]
+    type(coords1d),     intent(in)                :: p                        ! Pressure coordinates [Pa]
     real(kind_phys),    pointer, intent(in)       :: vramp(:)                 ! Gravity wave drag tapering coefficients [1]
     real(kind_phys),    intent(in)                :: piln(:, :)               ! Natural log of pressure at interfaces [ln(Pa)]
     real(kind_phys),    intent(in)                :: rhoi(:, :)               ! Density at interfaces [kg m-3]
@@ -128,7 +128,7 @@ contains
     real(kind_phys),    intent(out)               :: qtgw(:, :, :)            ! Constituent tendencies from gravity waves [kg kg-1 s-1]
     real(kind_phys),    intent(out)               :: dttdf(:, :)              ! Temperature tendency from diffusion [K s-1]
     real(kind_phys),    intent(out)               :: dttke(:, :)              ! Temperature tendency from kinetic energy dissipation [K s-1]
-    real(kind_phys),    intent(out)               :: egwdffi_tot(:, :)        ! Total eddy diffusion coefficient from gravity waves [m2 s-1]
+    real(kind_phys),    intent(out)               :: egwdffi_tot(:, :)        ! Effective diffusivity coefficient from gravity waves, interfaces [m2 s-1]
     real(kind_phys),    intent(out)               :: flx_heat(:)              ! Surface heat flux for energy conservation check [W m-2]
     real(kind_phys),    intent(out)               :: tau0x(:)                 ! Zonal gravity wave surface stress [N m-2]
     real(kind_phys),    intent(out)               :: tau0y(:)                 ! Meridional gravity wave surface stress [N m-2]

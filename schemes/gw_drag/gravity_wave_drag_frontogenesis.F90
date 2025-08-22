@@ -43,7 +43,8 @@ contains
              pver, pi, &
              masterproc, iulog, &
              pref_edge, frontgfc, &
-             gw_delta_c, pgwv, pgwv_long, &
+             gw_delta_c, gw_delta_c_long, &
+             pgwv, pgwv_long, &
              taubgnd, taubgnd_igw, &
              effgw_cm, effgw_cm_igw, use_gw_front, use_gw_front_igw, &
              front_gaussian_width, &
@@ -57,7 +58,8 @@ contains
     integer,            intent(in)                :: iulog
     real(kind_phys),    intent(in)                :: pref_edge(:)             ! Reference pressure at interfaces [Pa]
     real(kind_phys),    intent(in)                :: frontgfc                 ! Frontogenesis function critical threshold [1]
-    real(kind_phys),    intent(in)                :: gw_delta_c               ! Gravity wave phase speed interval [m s-1]
+    real(kind_phys),    intent(in)                :: gw_delta_c               ! Gravity wave phase speed interval (mid)  [m s-1]
+    real(kind_phys),    intent(in)                :: gw_delta_c_long          ! Gravity wave phase speed interval (long) [m s-1]
     integer,            intent(in)                :: pgwv                     ! Gravity wave spectrum dimension (wave numbers are from -pgwv to pgwv).
     integer,            intent(in)                :: pgwv_long
     real(kind_phys),    intent(in)                :: taubgnd                  ! Background source strength (used for waves from frontogenesis). waves [N m-2]
@@ -123,7 +125,7 @@ contains
     end if
 
     if (use_gw_front_igw) then
-      band_long = GWBand(pgwv_long, gw_delta_c, 1.0_kind_phys, wavelength_long)
+      band_long = GWBand(pgwv_long, gw_delta_c_long, 1.0_kind_phys, wavelength_long)
       if (masterproc) then
         write (iulog, *) ' '
         write (iulog, *) "gravity_wave_drag_frontogenesis_init: band_long%ngwv = ", band_long%ngwv
@@ -236,7 +238,7 @@ contains
     real(kind_phys),    intent(inout)             :: tend_u(:, :)             ! Zonal wind tendency [m s-2]
     real(kind_phys),    intent(inout)             :: tend_v(:, :)             ! Meridional wind tendency [m s-2]
     real(kind_phys),    intent(inout)             :: tend_s(:, :)             ! Dry static energy tendency [J kg-1 s-1]
-    real(kind_phys),    intent(inout)             :: egwdffi_tot(:, :)        ! Total eddy diffusion coefficient from gravity waves [m2 s-1]
+    real(kind_phys),    intent(inout)             :: egwdffi_tot(:, :)        ! Effective diffusivity coefficient from gravity waves, interfaces [m2 s-1]
     real(kind_phys),    intent(inout)             :: flx_heat(:)              ! Surface heat flux for energy conservation check [W m-2]
 
     integer,            intent(out)               :: src_level(:)             ! Vertical level index of gravity wave source [index]
@@ -439,7 +441,7 @@ contains
     real(kind_phys),    intent(inout)             :: tend_u(:, :)             ! Zonal wind tendency [m s-2]
     real(kind_phys),    intent(inout)             :: tend_v(:, :)             ! Meridional wind tendency [m s-2]
     real(kind_phys),    intent(inout)             :: tend_s(:, :)             ! Dry static energy tendency [J kg-1 s-1]
-    real(kind_phys),    intent(inout)             :: egwdffi_tot(:, :)        ! Total eddy diffusion coefficient from gravity waves [m2 s-1]
+    real(kind_phys),    intent(inout)             :: egwdffi_tot(:, :)        ! Effective diffusivity coefficient from gravity waves, interfaces [m2 s-1]
 
     integer,            intent(out)               :: src_level(:)             ! Vertical level index of gravity wave source [index]
     integer,            intent(out)               :: tend_level(:)            ! Lowest vertical level index where tendencies are applied [index]

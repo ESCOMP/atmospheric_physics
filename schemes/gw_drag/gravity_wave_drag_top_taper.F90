@@ -61,7 +61,6 @@ contains
           vramp(k) = vramp(k + 1) / (pref_edge(k + 1) / pref_edge(k))
         end do
         
-        ! Output tapering information if master processor
         if (amIRoot) then
           write(iulog, '(A)') 'gravity_wave_drag_top_taper_init: GW taper coef (vramp):'
           do k = 1, pver
