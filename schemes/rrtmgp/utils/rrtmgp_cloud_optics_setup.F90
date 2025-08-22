@@ -5,7 +5,7 @@
 !! (optical-depth, single-scattering albedo, asymmetry parameter) are computed for ALL
 !! cloud types visible to RRTMGP.
 module rrtmgp_cloud_optics_setup
-  use ccpp_kinds,     only: kind_phys
+  use ccpp_kinds, only: kind_phys
 
   implicit none
   private
