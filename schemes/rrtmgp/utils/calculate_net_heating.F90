@@ -23,8 +23,9 @@ contains
 !> \section arg_table_calculate_net_heating_run Argument Table
 !! \htmlinclude calculate_net_heating_run.html
 !!
-subroutine calculate_net_heating_run(ncol, rad_heat, qrl_prime, qrs_prime, fsns, fsnt, &
-                flns, flnt, is_offline_dyn, net_flx, errmsg, errflg)
+subroutine calculate_net_heating_run(ncol, rad_heat, qrl_prime, qrs_prime,     &
+                is_offline_dyn, fsns, fsnt, flns, flnt, net_flx, &
+                errmsg, errflg)
 !-----------------------------------------------------------------------
 ! Compute net radiative heating from qrs and qrl, and the associated net
 ! boundary flux.
@@ -52,6 +53,7 @@ subroutine calculate_net_heating_run(ncol, rad_heat, qrl_prime, qrs_prime, fsns,
    ! Set error variables
    errmsg = ''
    errflg = 0
+
    if (.not. is_offline_dyn) then
       rad_heat(:,:) = (qrs_prime(:,:) + qrl_prime(:,:))
    end if
@@ -62,5 +64,4 @@ subroutine calculate_net_heating_run(ncol, rad_heat, qrl_prime, qrs_prime, fsns,
 
 end subroutine calculate_net_heating_run
 
-!================================================================================================
 end module calculate_net_heating
