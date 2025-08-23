@@ -108,33 +108,49 @@ module rrtmgp_inputs
      ! to be consistent with t_sfc.
      emis_sfc(:,:) = 1._kind_phys
 
+     !-------------------------------------------------------------------------
+     ! RRTMGP enforces  P > 1 Pa for validity.
+     ! In radiation.F90 we count layers based on P_ref > 10 Pa to safely account
+     ! for possible situations in MPAS (z-based vert. coordinate) in which
+     ! full 3D pressure could be significanlty below min(P_ref).
+     !
+     ! If 
+     ! 1) entire vertical domain has P_ref> 10Pa (e.g. CAM7 LT) then
+     !    nlay = pverp
+     !    ktoprad = 2
+     !    ktopcam = 1
+     ! 2) min(P_ref) < 10Pa (e.g. CAM7 MT) then
+     !    nlay < pverp
+     !    ktoprad = 1
+     !    ktopcam = pver - nlay + 1
+     !
      ! Level ordering is the same for both CAM and RRTMGP (top to bottom)
+     ! Note in Case 2, tops of {t,pint,pmid}_rad start at a 'valid' level,
+     ! i.e. pref > p_top_for_rrtmgp
+     !-------------------------------------------------------
      t_rad(:,ktoprad:) = t(:,ktopcam:)
      pmid_rad(:,ktoprad:) = pmid(:,ktopcam:)
      pint_rad(:,ktoprad:) = pint(:,ktopcam:)
 
-     ! Add extra layer values if needed.
+     ! Deal with vertical grid for RRTMGP 
      if (nlay == pverp) then
-        t_rad(:,1) = t(:,1)
+        ! This case is the CAM7 LT situation, i.e., all model layers are
+        ! within RRTMGP's range of valid pressures - (Case 1 above)
+        t_rad(:,1)      = t(:,1)
         ! The top reference pressure from the RRTMGP coefficients datasets is 1.005183574463 Pa
         ! Set the top of the extra layer just below that.
         pint_rad(:,1) = 1.01_kind_phys
-
-        ! next interface down in LT will always be > 1Pa
-        ! but in MT we apply adjustment to have it be 1.02 Pa if it was too high
-        where (pint_rad(:,2) <= pint_rad(:,1)) pint_rad(:,2) = pint_rad(:,1)+0.01_kind_phys
-
-        ! set the highest pmid (in the "extra layer") to the midpoint (guarantees > 1Pa)
+        ! set the highest pmid (in the "extra layer") to the midpoint (guarantees > 1Pa) 
         pmid_rad(:,1)   = pint_rad(:,1) + 0.5_kind_phys * (pint_rad(:,2) - pint_rad(:,1))
-
-        ! For case of CAM MT, also ensure pint_rad(:,2) > pint_rad(:,1) & pmid_rad(:,2) > max(pmid_rad(:,1), min_pressure)
-        where (pmid_rad(:,2) <= kdist_sw%gas_props%get_press_min()) pmid_rad(:,2) = pint_rad(:,2) + 0.01_kind_phys
      else
-        ! nlay < pverp, thus the 1 Pa level is within a CAM layer.  Assuming the top interface of
-        ! this layer is at a pressure < 1 Pa, we need to adjust the top of this layer so that it
-        ! is within the valid pressure range of RRTMGP (otherwise RRTMGP issues an error).  Then
-        ! set the midpoint pressure halfway between the interfaces.
+        ! nlay < pverp : model min(pref) < p_top_for_rrtmgp  (Case 2 above)
+        ! min(pref) could be 9.999 or 0.0999  
+        ! Assuming the top interface of this layer is at a pressure < 1 Pa, we need to adjust
+        ! so that it is within the valid pressure range of RRTMGP (otherwise RRTMGP issues
+        ! an error).  Then we set the midpoint pressure halfway between the interfaces.
         pint_rad(:,1) = 1.01_kind_phys
+        ! The following *should* work since pint_rad is all in valid range.
+        ! Need to think about possible edge cases ... (jtb 07/31/25)
         pmid_rad(:,1) = 0.5_kind_phys * (pint_rad(:,1) + pint_rad(:,2))
      end if
 
