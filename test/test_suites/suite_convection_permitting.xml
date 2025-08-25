@@ -28,6 +28,8 @@
     <scheme>dry_to_wet_water_vapor</scheme>
     <scheme>dry_to_wet_cloud_liquid_water</scheme>
     <scheme>dry_to_wet_cloud_ice</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
 
     <scheme>mmm_physics_persist_states</scheme>
 
