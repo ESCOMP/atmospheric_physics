@@ -92,7 +92,7 @@
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ cmflq ]
-  standard_name = total_water_flux_due_to_shallow_convection
+  standard_name = latent_heat_of_vaporization_times_sum_of_water_vapor_and_cloud_liquid_flux_due_to_shallow_convection
   units = W m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
