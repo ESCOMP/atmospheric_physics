@@ -37,7 +37,7 @@ module rrtmgp_inputs_setup
      logical,                         intent(in) :: is_first_step          ! Flag for whether this is the first timestep (.true. = yes)
      logical,                         intent(in) :: is_first_restart_step  ! Flag for whether this is the first restart step (.true. = yes)
      logical,                         intent(in) :: use_rad_dt_cosz        ! Use adjusted radiation timestep for cosz calculation
-     real(kind_phys),                 intent(in) :: p_top_for_rrtmgp       ! Top pressure to use for RRTMGP
+     real(kind_phys),                 intent(in) :: p_top_for_rrtmgp       ! Top pressure to use for RRTMGP (Pa)
 
      ! Outputs
      integer,                         intent(out) :: ktopcam               ! Index in CAM arrays of top level (layer or interface) at which RRTMGP is active
@@ -78,7 +78,7 @@ module rrtmgp_inputs_setup
      errmsg = ''
 
      ! Number of layers in radiation calculation is capped by the number of
-     ! pressure interfaces below p_top_fo_rrtmgp.  When the entire model atmosphere is
+     ! pressure interfaces below p_top_for_rrtmgp.  When the entire model atmosphere is
      ! below p_top_for_rrtmgp then an extra layer is added to the top of the model for
      ! the purpose of the radiation calculation.
      nlay = count( pref_edge(:) > p_top_for_rrtmgp )

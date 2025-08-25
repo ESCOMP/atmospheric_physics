@@ -40,12 +40,14 @@ contains
 !!
 subroutine rrtmgp_sw_cloud_optics_run(dosw, ncol, pver, ktopcam, ktoprad, nlay, nswgpts, nday, idxday, fillvalue, &
    nswbands, iulog, pgam, lamc, nnite, idxnite, cld, cldfsnow, cldfgrau, cldfprime, cld_tau, grau_tau, &
-   snow_tau, degrau, dei, des, iclwpth, iciwpth, icswpth, icgrauwpth, tiny_in, ext_sw_liq, ssa_sw_liq, &
-   asm_sw_liq, ext_sw_ice, asm_sw_ice, ssa_sw_ice, g_mu, g_d_eff, g_lambda, idx_sw_diag, do_graupel,   &
+   snow_tau, degrau, dei, des, iclwpth, iciwpth, icswpth, icgrauwpth, tiny_in, idx_sw_diag, do_graupel, &
    do_snow, kdist_sw, c_cld_tau, c_cld_tau_w, c_cld_tau_w_g, tot_cld_vistau, tot_icld_vistau,          &
    liq_icld_vistau, ice_icld_vistau, snow_icld_vistau, grau_icld_vistau, errmsg, errflg)
-   use ccpp_gas_optics_rrtmgp,   only: ty_gas_optics_rrtmgp_ccpp
-   use ccpp_optical_props,       only: ty_optical_props_2str_ccpp
+   use ccpp_gas_optics_rrtmgp,    only: ty_gas_optics_rrtmgp_ccpp
+   use ccpp_optical_props,        only: ty_optical_props_2str_ccpp
+   use rrtmgp_cloud_optics_setup, only: g_mu, g_lambda, nmu, nlambda, g_d_eff, n_g_d
+   use rrtmgp_cloud_optics_setup, only: ext_sw_liq, asm_sw_liq, ssa_sw_liq
+   use rrtmgp_cloud_optics_setup, only: ext_sw_ice, asm_sw_ice, ssa_sw_ice
 
    ! Compute combined cloud optical properties.
 
@@ -72,9 +74,6 @@ subroutine rrtmgp_sw_cloud_optics_run(dosw, ncol, pver, ktopcam, ktoprad, nlay, 
    real(kind_phys), intent(in) :: fillvalue          ! Fill value for night columns
    real(kind_phys), intent(in) :: tiny_in            ! Definition of tiny for RRTMGP
 
-   real(kind_phys), intent(in) :: g_mu(:)            ! Gamma distribution shape parameter on liquid optics grid [1]
-   real(kind_phys), intent(in) :: g_d_eff(:)         ! Radiative effective diameter samples on ice optics grid [microns]
-   real(kind_phys), intent(in) :: g_lambda(:,:)      ! Gamma distribution slope parameter on liquid optics grid [m-1]
    real(kind_phys), intent(in) :: lamc(:,:)          ! Prognosed value of lambda for cloud [1]
    real(kind_phys), intent(in) :: pgam(:,:)          ! Prognosed value of mu for cloud [1]
    real(kind_phys), intent(in) :: dei(:,:)           ! Mean effective radius for ice cloud [micron]
@@ -88,12 +87,6 @@ subroutine rrtmgp_sw_cloud_optics_run(dosw, ncol, pver, ktopcam, ktoprad, nlay, 
    real(kind_phys), intent(in) :: cldfsnow(:,:)      ! Cloud fraction of just "snow clouds" [fraction]
    real(kind_phys), intent(in) :: cldfgrau(:,:)      ! Cloud fraction of just "graupel clouds" [fraction]
    real(kind_phys), intent(in) :: cldfprime(:,:)     ! Combined cloud fraction [fraction]
-   real(kind_phys), intent(in) :: ext_sw_liq(:,:,:)  ! Shortwave liquid extinction [m2 kg-1]
-   real(kind_phys), intent(in) :: asm_sw_liq(:,:,:)  ! Shortwave liquid asymmetry parameter [fraction]
-   real(kind_phys), intent(in) :: ssa_sw_liq(:,:,:)  ! Shortwave liquid single scattering albedo [fraction]
-   real(kind_phys), intent(in) :: ext_sw_ice(:,:)    ! Shortwave ice extinction [m2 kg-1]
-   real(kind_phys), intent(in) :: asm_sw_ice(:,:)    ! Shortwave ice asymmetry parameter [fraction]
-   real(kind_phys), intent(in) :: ssa_sw_ice(:,:)    ! Shortwave ice single scattering albedo [fraction]
 
    class(ty_gas_optics_rrtmgp_ccpp), intent(in)  :: kdist_sw             ! shortwave gas optics object
    real(kind_phys),                  intent(out) :: cld_tau(:,:,:)       ! liquid + ice optical depth
@@ -411,6 +404,7 @@ end subroutine interpolate_ice_optics_sw
 subroutine gam_liquid_sw(nswbands, g_lambda, g_mu, ext_sw_liq, asm_sw_liq, ssa_sw_liq, clwptn, lamc, pgam, tau, tau_w, tau_w_g, tau_w_f, errmsg, errflg)
   use interpolate_data,         only: interp_type, lininterp, lininterp_finish
   use radiation_utils,          only: get_mu_lambda_weights_ccpp
+  use rrtmgp_cloud_optics_setup, only: nmu, nlambda
 
   integer,         intent(in)  :: nswbands
   real(kind_phys), intent(in)  :: ext_sw_liq(:,:,:)
@@ -432,11 +426,6 @@ subroutine gam_liquid_sw(nswbands, g_lambda, g_mu, ext_sw_liq, asm_sw_liq, ssa_s
 
   type(interp_type) :: mu_wgts
   type(interp_type) :: lambda_wgts
-
-  integer :: nmu, nlambda
-
-  nmu = size(g_mu)
-  nlambda = size(g_lambda,2)
 
   ! Set error variables
   errmsg = ''
