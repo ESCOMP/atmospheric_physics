@@ -41,6 +41,12 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
+[ scheme_name ]
+  standard_name = scheme_name
+  units = none
+  type = character | kind = len=256
+  dimensions = ()
+  intent = out
 [ rthdynten ]
   standard_name = tendency_of_air_potential_temperature_due_to_dynamics
   units = K s-1

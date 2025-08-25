@@ -8,6 +8,7 @@ subroutine test_mmm_physics_compat_run()
     integer :: nstep
     real(kind_phys) :: dt
     real(kind_phys) :: theta_curr(ncol, pver), theta_prev(ncol, pver), qv_curr(ncol, pver), qv_prev(ncol, pver)
+    character(256) :: scheme_name
     real(kind_phys) :: rthdynten(ncol, pver), rqvdynten(ncol, pver)
     character(100) :: errmsg
     integer :: errflg
@@ -26,10 +27,12 @@ subroutine test_mmm_physics_compat_run()
         nstep, &
         dt, &
         theta_curr, theta_prev, qv_curr, qv_prev, &
+        scheme_name, &
         rthdynten, rqvdynten, &
         errmsg, errflg)
 
     ! Tendencies should be zero at start (nstep = 0).
+    @assertEqual('mmm_physics_compat_run', scheme_name)
     @assertEqual(0.0_kind_phys, rthdynten)
     @assertEqual(0.0_kind_phys, rqvdynten)
     @assertEqual('', errmsg)
@@ -44,10 +47,12 @@ subroutine test_mmm_physics_compat_run()
         nstep, &
         dt, &
         theta_curr, theta_prev, qv_curr, qv_prev, &
+        scheme_name, &
         rthdynten, rqvdynten, &
         errmsg, errflg)
 
     ! Should compute tendencies correctly afterwards (nstep > 0).
+    @assertEqual('mmm_physics_compat_run', scheme_name)
     @assertEqual(1.0_kind_phys, rthdynten, epsilon(0.0_kind_phys))
     @assertEqual(0.001_kind_phys, rqvdynten, epsilon(0.0_kind_phys))
     @assertEqual('', errmsg)

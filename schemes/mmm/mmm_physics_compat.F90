@@ -18,6 +18,7 @@ contains
             nstep, &
             dt, &
             theta_curr, theta_prev, qv_curr, qv_prev, &
+            scheme_name, &
             rthdynten, rqvdynten, &
             errmsg, errflg)
         use ccpp_kinds, only: kind_phys
@@ -25,12 +26,15 @@ contains
         integer, intent(in) :: nstep
         real(kind_phys), intent(in) :: dt, &
                                        theta_curr(:, :), theta_prev(:, :), qv_curr(:, :), qv_prev(:, :)
+        character(256), intent(out) :: scheme_name
         real(kind_phys), intent(out) :: rthdynten(:, :), rqvdynten(:, :)
         character(*), intent(out) :: errmsg
         integer, intent(out) :: errflg
 
         errmsg = ''
         errflg = 0
+
+        scheme_name = 'mmm_physics_compat_run'
 
         if (nstep == 0) then
             rthdynten(:, :) = 0.0_kind_phys
