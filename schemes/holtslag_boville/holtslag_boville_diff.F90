@@ -628,6 +628,8 @@ contains
     ncol, pver, pverp, &
     ! input from hb_pbl_independent_coefficients
     s2, ri, &
+    ! top of CLUBB (or layer above where HB applies)
+    bottom_boundary, &
     ! below output
     kvm, kvh, kvq, &
     cgh, cgs, &
@@ -642,6 +644,9 @@ contains
     real(kind_phys), intent(in)  :: s2(:,:)      ! shear squared [s-2]
     real(kind_phys), intent(in)  :: ri(:,:)      ! richardson number: n2/s2 [1]
 
+    !REMOVECAM: change to integer once CAM snapshots are no longer used.
+    real(kind_phys), intent(in)  :: bottom_boundary(:)  ! level above which HB runs [index]
+
     ! Output variables
     real(kind_phys), intent(out) :: kvm(:,:)     ! eddy diffusivity for momentum [m^2 s-1], interfaces
     real(kind_phys), intent(out) :: kvh(:,:)     ! eddy diffusivity for heat [m^2 s-1], interfaces
@@ -654,6 +659,7 @@ contains
     ! Local variables
     integer :: i, k
     real(kind_phys) :: kvf(ncol,pverp)           ! free atmospheric eddy diffusivity [m^2 s-1]
+    integer :: bottom_boundary_int(ncol)
 
     errmsg = ''
     errflg = 0
@@ -671,6 +677,25 @@ contains
     kvh(:ncol,:) = kvf(:ncol,:)
     cgh(:ncol,:) = 0._kind_phys
     cgs(:ncol,:) = 0._kind_phys
+
+    ! HB coefficients will be zeroed out in the layers below
+    ! the bottom_boundary, which is the topmost layer where CLUBB is active.
+    !   1     --- TOA ---
+    !   2  .. HB (free atm) ..
+    !   3
+    !  ...
+    !    --- bottom_boundary ---    | levels here
+    !  ...     .. CLUBB ..          | have HB coefficients
+    !  ...                          | zeroed out as CLUBB is active.
+    ! pverp  --- surface ---
+    bottom_boundary_int(:ncol) = int(bottom_boundary(:ncol))
+    do i = 1, ncol
+    do k = bottom_boundary_int(i), pverp
+      kvm(i,k) = 0._kind_phys
+      kvh(i,k) = 0._kind_phys
+      kvq(i,k) = 0._kind_phys
+    enddo
+    enddo
   end subroutine hb_diff_free_atm_exchange_coefficients_run
 
 !> \section arg_table_holtslag_boville_diff_finalize Argument Table

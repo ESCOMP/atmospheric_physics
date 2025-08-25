@@ -581,6 +581,13 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
+[ bottom_boundary ]
+  standard_name = vertical_layer_index_of_clubb_top_tbd
+  units = index
+  #REMOVECAM: change to integer after CAM snapshots are no longer used
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
 [ kvm ]
   standard_name = eddy_momentum_diffusivity_at_interfaces
   units = m2 s-1
