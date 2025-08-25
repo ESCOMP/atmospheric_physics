@@ -36,7 +36,7 @@
   dimensions = (horizontal_loop_extent)
   intent = in
 [ rthdynten ]
-  standard_name = tendency_of_air_potential_temperature_due_to_advection
+  standard_name = tendency_of_air_potential_temperature_due_to_dynamics
   units = K s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -60,7 +60,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ rqvdynten ]
-  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_dry_air_due_to_advection
+  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_dry_air_due_to_dynamics
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -84,13 +84,13 @@
   dimensions = (horizontal_loop_extent)
   intent = out
 [ ptf ]
-  standard_name = tendency_of_air_temperature_due_to_advection_and_pbl_processes_and_radiative_heating
+  standard_name = tendency_of_air_temperature_due_to_dynamics_and_pbl_processes_and_radiative_heating
   units = K s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ pqvf ]
-  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_dry_air_due_to_advection_and_pbl_processes
+  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_dry_air_due_to_dynamics_and_pbl_processes
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -229,13 +229,13 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ pqvf ]
-  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_dry_air_due_to_advection_and_pbl_processes
+  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_dry_air_due_to_dynamics_and_pbl_processes
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ ptf ]
-  standard_name = tendency_of_air_temperature_due_to_advection_and_pbl_processes_and_radiative_heating
+  standard_name = tendency_of_air_temperature_due_to_dynamics_and_pbl_processes_and_radiative_heating
   units = K s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

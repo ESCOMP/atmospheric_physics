@@ -42,13 +42,13 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ rthdynten ]
-  standard_name = tendency_of_air_potential_temperature_due_to_advection
+  standard_name = tendency_of_air_potential_temperature_due_to_dynamics
   units = K s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ rqvdynten ]
-  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_dry_air_due_to_advection
+  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_dry_air_due_to_dynamics
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
