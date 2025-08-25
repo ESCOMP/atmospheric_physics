@@ -1,0 +1,139 @@
+[ccpp-table-properties]
+  name = rrtmgp_sw_calculate_fluxes
+  type = scheme
+
+[ccpp-arg-table]
+  name  = rrtmgp_sw_calculate_fluxes_run
+  type  = scheme
+[ num_diag_subcycles ]
+  standard_name = number_of_diagnostic_subcycles
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ icall ]
+  standard_name = iteration_number_for_radiation_subcycle
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pverp ]
+  standard_name = vertical_interface_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ nlay ]
+  standard_name = number_of_vertical_layers_in_RRTMGP
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ nday ]
+  standard_name = daytime_points_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ idxday ]
+  standard_name = daytime_points
+  units = index
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ ktopcam ]
+  standard_name = vertical_index_at_top_level_where_RRTMGP_is_active
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
+[ ktoprad ]
+  standard_name = RRTMGP_vertical_index_at_top_level_where_RRTMGP_is_active
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
+[ active_calls ]
+  standard_name = is_active_diagnostic_call_array
+  units = flag
+  type = logical
+  dimensions = (number_of_diagnostic_subcycles)
+  intent = in
+[ fsw ]
+  standard_name = shortwave_all_sky_flux_object_for_RRTMGP
+  units = none
+  type = ty_fluxes_byband_ccpp
+  dimensions = ()
+  intent = in
+[ fswc ]
+  standard_name = shortwave_clear_sky_flux_object_for_RRTMGP
+  units = none
+  type = ty_fluxes_broadband_ccpp
+  dimensions = ()
+  intent = in
+[ fns ]
+  standard_name = shortwave_net_radiative_flux
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ fcns ]
+  standard_name = shortwave_net_clear_sky_radiative_flux
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ fsns ]
+  standard_name = shortwave_net_upward_flux_at_surface
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ fsnt ]
+  standard_name = shortwave_net_outgoing_flux_at_model_top
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ soll ]
+  standard_name = direct_solar_radiative_flux_at_surface_ge_700nm_to_coupler
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ sols ]
+  standard_name = direct_solar_radative_flux_at_surface_lt_700nm_to_coupler
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ solld ]
+  standard_name = diffuse_solar_radiative_flux_at_surface_ge_700nm_to_coupler
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ solsd ]
+  standard_name = diffuse_solar_radative_flux_at_surface_lt_700nm_to_coupler
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

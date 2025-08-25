@@ -26,10 +26,10 @@ module rrtmgp_inputs_setup
      integer,                         intent(in) :: pverp                  ! Number of vertical interfaces
      integer,                         intent(in) :: pver                   ! Number of vertical layers
      integer,                         intent(in) :: iradsw                 ! Freq. of shortwave radiation calc in time steps (positive) or hours (negative).
-     real(kind_phys),                 intent(in) :: timestep_size          ! Timestep size (s)
      integer,                         intent(in) :: nstep                  ! Current timestep number
      integer,                         intent(in) :: gasnamelength          ! Length of all of the gas_list entries
      integer,                         intent(in) :: irad_always            ! Number of time steps to execute radiation continuously
+     real(kind_phys),                 intent(in) :: timestep_size          ! Timestep size (s)
      real(kind_phys),                 intent(in) :: current_cal_day        ! Current calendar day
      real(kind_phys), dimension(:),   intent(in) :: pref_edge              ! Reference pressures (interfaces) (Pa)
      type(ty_gas_optics_rrtmgp_ccpp), intent(in) :: kdist_sw               ! Shortwave gas optics object
@@ -43,8 +43,7 @@ module rrtmgp_inputs_setup
      integer,                         intent(out) :: ktopcam               ! Index in CAM arrays of top level (layer or interface) at which RRTMGP is active
      integer,                         intent(out) :: ktoprad               ! Index in RRTMGP array corresponding to top layer or interface of CAM arrays
      integer,                         intent(out) :: nlaycam               ! Number of vertical layers in CAM. Is either equal to nlay
-                                                                           !  or is 1 less than nlay if "extra layer" is used in the
-                                                                           !  radiation calculations
+                                                                           !  or is 1 less than nlay if "extra layer" is used in the radiation calculations
      integer,                         intent(out) :: nlay                  ! Number of vertical layers in radiation calculation
      integer,                         intent(out) :: nlayp                 ! Number of vertical interfaces in radiation calculations (nlay + 1)
      ! Indices to specific bands for diagnostic output and COSP input
@@ -62,7 +61,7 @@ module rrtmgp_inputs_setup
      real(kind_phys),                 intent(out) :: nextsw_cday           ! The next calendar day during which the shortwave radiation calculation will be performed
      real(kind_phys), dimension(:),   intent(out) :: sw_low_bounds         ! Lower bounds of shortwave bands
      real(kind_phys), dimension(:),   intent(out) :: sw_high_bounds        ! Upper bounds of shortwave bands
-     real(kind_phys), dimension(:,:), intent(inout) :: qrl                   ! Longwave radiative heating
+     real(kind_phys), dimension(:,:), intent(inout) :: qrl                 ! Longwave radiative heating
      character(len=512),              intent(out) :: errmsg
      integer,                         intent(out) :: errflg
      integer,                         intent(out) :: irad_always_out       ! Number of time steps to execute radiation continuously
@@ -86,8 +85,8 @@ module rrtmgp_inputs_setup
      nlayp = nlay + 1
 
      if (nlay == pverp) then
-        ! Top model interface is below p_top_for_rrtmgp.  RRTMGP is active in all model layers plus
-        ! 1 extra layer between model top and p_top_for_rrtmgp.
+        ! Top model interface is below p_top_for_rrtmgp.  RRTMGP is active in all model
+        ! layers plus 1 extra layer between model top and p_top_for_rrtmgp.
         ktopcam = 1
         ktoprad = 2
         nlaycam = pver

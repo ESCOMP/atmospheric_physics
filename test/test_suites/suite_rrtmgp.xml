@@ -13,15 +13,30 @@
     <scheme>rrtmgp_sw_gas_optics</scheme>
     <!--    <scheme>rrtmgp_sw_cloud_optics</scheme>-->
     <scheme>rrtmgp_sw_cloud_temp</scheme>
-    <!-- Longwave subcycle -->
+    <!-- Shortwave subcycle - last iteration is climate calculation -->
+    <subcycle>
+      <scheme>rrtmgp_constituents</scheme> <!-- ifnday-->
+      <scheme>rrtmgp_sw_gas_optics_pre</scheme> <!-- ifnday-->
+      <scheme>rrtmgp_sw_gas_optics</scheme><!--ifnday-->
+      <scheme>rrtmgp_sw_solar_var</scheme><!--ifnday-->
+      <!--<scheme>rrtmgp_sw_aer</scheme>-->
+      <scheme>rrtmgp_sw_rte</scheme> <!--ifnday-->
+      <scheme>rrtmgp_sw_calculate_fluxes</scheme>
+      <scheme>rrtmgp_sw_calculate_heating_rate</scheme>
+      <scheme>rrtmgp_sw_diagnostics</scheme>
+      <scheme>rrtmgp_subcycle</scheme>
+    </subcycle>
+    <!-- Longwave subcycle - last iteration is climate calculation-->
     <subcycle>
       <scheme>rrtmgp_constituents</scheme>
       <scheme>rrtmgp_lw_gas_optics_pre</scheme>
       <scheme>rrtmgp_lw_gas_optics</scheme>
+      <!--<scheme>rrtmgp_lw_aer</scheme>-->
       <scheme>rrtmgp_lw_rte</scheme>
       <scheme>rrtmgp_lw_calculate_fluxes</scheme>
       <scheme>rrtmgp_lw_calculate_heating_rate</scheme>
       <scheme>rrtmgp_lw_diagnostics</scheme>
+      <scheme>rrtmgp_subcycle</scheme>
     </subcycle>
     <!-- End longwave subcycle -->
     <scheme>rrtmgp_inputs_setup</scheme><!-- Inputs init routine must go after gas_optics_init-->

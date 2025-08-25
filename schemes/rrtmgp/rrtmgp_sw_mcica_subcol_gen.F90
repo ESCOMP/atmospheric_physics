@@ -10,6 +10,9 @@ public :: rrtmgp_sw_mcica_subcol_gen_run
 contains
 !==================================================================================================
 
+!>
+!> \section arg_table_rrtmgp_sw_mcica_subcol_gen_run Argument Table
+!! \htmlinclude rrtmgp_sw_mcica_subcol_gen_run.html
 subroutine rrtmgp_sw_mcica_subcol_gen_run(dosw, kdist_sw, nswbands, nswgpts, nday, nlay, &
               pver, tiny, idxday, ktopcam, ktoprad, cldfprime, c_cld_tau,       &
               c_cld_tau_w, c_cld_tau_w_g, cloud_sw, pmid, errmsg, errflg)

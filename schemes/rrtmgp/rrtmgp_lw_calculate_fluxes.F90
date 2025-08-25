@@ -50,7 +50,7 @@ CONTAINS
 
       diag_index = num_diag_subcycles - icall + 1
 
-      ! Don't do anything if this subcycle is inactive or we're not configured to write radiation output
+      ! Don't do anything if this subcycle is inactive
       if (.not. active_calls(diag_index)) then
          return
       end if
