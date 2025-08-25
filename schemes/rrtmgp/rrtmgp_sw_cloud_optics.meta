@@ -191,60 +191,6 @@
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
-[ ext_sw_liq ]
-  standard_name = shortwave_liquid_extinction
-  units = m2 kg-1
-  type = real | kind = kind_phys
-  dimensions = (number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid,number_of_gamma_distribution_slope_parameters_on_liquid_optics_grid,number_of_bands_for_shortwave_radiation)
-  intent = in
-[ ssa_sw_liq ]
-  standard_name = shortwave_liquid_single_scattering_albedo
-  units = fraction
-  type = real | kind = kind_phys
-  dimensions = (number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid,number_of_gamma_distribution_slope_parameters_on_liquid_optics_grid,number_of_bands_for_shortwave_radiation)
-  intent = in
-[ asm_sw_liq ]
-  standard_name = shortwave_liquid_asymmetry_parameter
-  units = fraction
-  type = real | kind = kind_phys
-  dimensions = (number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid,number_of_gamma_distribution_slope_parameters_on_liquid_optics_grid,number_of_bands_for_shortwave_radiation)
-  intent = in
-[ ext_sw_ice ]
-  standard_name = shortwave_ice_extinction
-  units = m2 kg-1
-  type = real | kind = kind_phys
-  dimensions = (number_of_radiative_effective_diameter_samples_on_ice_optics_grid,number_of_bands_for_shortwave_radiation)
-  intent = in
-[ asm_sw_ice ]
-  standard_name = shortwave_ice_asymmetry_parameter
-  units = fraction
-  type = real | kind = kind_phys
-  dimensions = (number_of_radiative_effective_diameter_samples_on_ice_optics_grid,number_of_bands_for_shortwave_radiation)
-  intent = in
-[ ssa_sw_ice ]
-  standard_name = shortwave_ice_single_scattering_albedo
-  units = fraction
-  type = real | kind = kind_phys
-  dimensions = (number_of_radiative_effective_diameter_samples_on_ice_optics_grid,number_of_bands_for_shortwave_radiation)
-  intent = in
-[ g_mu ]
-  standard_name = gamma_distribution_shape_parameter_on_liquid_optics_grid
-  units = 1
-  type = real | kind = kind_phys
-  dimensions = (number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid)
-  intent = in
-[ g_d_eff ]
-  standard_name = radiative_effective_diameter_samples_on_ice_optics_grid
-  units = microns
-  type = real | kind = kind_phys
-  dimensions = (number_of_radiative_effective_diameter_samples_on_ice_optics_grid)
-  intent = in
-[ g_lambda ]
-  standard_name = gamma_distribution_slope_parameter_on_liquid_optics_grid
-  units = m-1
-  type = real | kind = kind_phys
-  dimensions = (number_of_gamma_distribution_shape_parameters_on_liquid_optics_grid,number_of_gamma_distribution_slope_parameters_on_liquid_optics_grid)
-  intent = in
 [ idx_sw_diag ]
   standard_name = index_of_shortwave_band
   units = index

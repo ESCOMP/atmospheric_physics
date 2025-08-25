@@ -155,9 +155,6 @@ CONTAINS
         return
      end if
 
-     ! PEVERWHEE - TEMPORARILY OVERRIDE TO FALSE
-     dosw = .false.
-
      dosw_heat = (.not. dosw)
      dolw_heat = (.not. dolw)
 

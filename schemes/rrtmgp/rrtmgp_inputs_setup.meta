@@ -132,10 +132,10 @@
   type = logical
   dimensions = ()
   intent = in
-[ is_root ]
-  standard_name = flag_for_mpi_root
-  units = flag
-  type = logical
+[ p_top_for_rrtmgp ]
+  standard_name = air_pressure_cutoff_for_rrtmgp
+  units = Pa
+  type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ nlwbands ]
@@ -153,12 +153,6 @@
 [ gasnamelength ]
   standard_name = character_length_of_list_of_active_gases_for_RRTMGP
   units = count
-  type = integer
-  dimensions = ()
-  intent = in
-[ iulog ]
-  standard_name = log_output_unit
-  units = 1
   type = integer
   dimensions = ()
   intent = in

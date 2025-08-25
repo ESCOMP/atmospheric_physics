@@ -257,4 +257,20 @@
       <value>5</value>
     </values>
   </entry>
+  <entry id="p_top_for_rrtmgp">
+    <type>real</type>
+    <kind>kind_phys</kind>
+    <category>rrtmgp</category>
+    <group>rrtmgp</group>
+    <standard_name>air_pressure_cutoff_for_rrtmgp</standard_name>
+    <units>Pa</units>
+    <desc>
+      Top pressure level for RRTMGP
+         Default: 1.0 for WACCM/WACCMX
+         10. for all other CAM runs
+    </desc>
+    <values>
+      <value>10.0D0</value>
+    </values>
+  </entry>
 </entry_id_pg>
