@@ -7,7 +7,7 @@ module mmm_physics_compat
     public :: mmm_physics_accumulate_tendencies_timestep_init
     public :: mmm_physics_accumulate_tendencies_run
     public :: mmm_physics_persist_states_init
-    public :: mmm_physics_persist_states_timestep_finalize
+    public :: mmm_physics_persist_states_timestep_final
     public :: compute_characteristic_grid_length_scale_init
     public :: geopotential_height_wrt_sfc_at_if_to_msl_run
     public :: geopotential_height_wrt_sfc_to_msl_run
@@ -168,9 +168,9 @@ contains
         qv_prev(:, :) = 0.0_kind_phys
     end subroutine mmm_physics_persist_states_init
 
-    !> \section arg_table_mmm_physics_persist_states_timestep_finalize Argument Table
-    !! \htmlinclude mmm_physics_persist_states_timestep_finalize.html
-    pure subroutine mmm_physics_persist_states_timestep_finalize( &
+    !> \section arg_table_mmm_physics_persist_states_timestep_final Argument Table
+    !! \htmlinclude mmm_physics_persist_states_timestep_final.html
+    pure subroutine mmm_physics_persist_states_timestep_final( &
             theta_curr, theta_prev, qv_curr, qv_prev, &
             errmsg, errflg)
         use ccpp_kinds, only: kind_phys
@@ -187,7 +187,7 @@ contains
         ! the model states from the previous one.
         theta_prev(:, :) = theta_curr(:, :)
         qv_prev(:, :) = qv_curr(:, :)
-    end subroutine mmm_physics_persist_states_timestep_finalize
+    end subroutine mmm_physics_persist_states_timestep_final
 
     !> \section arg_table_compute_characteristic_grid_length_scale_init Argument Table
     !! \htmlinclude compute_characteristic_grid_length_scale_init.html

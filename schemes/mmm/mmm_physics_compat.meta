@@ -363,7 +363,7 @@
   intent = out
 
 [ccpp-arg-table]
-  name = mmm_physics_persist_states_timestep_finalize
+  name = mmm_physics_persist_states_timestep_final
   type = scheme
 [ theta_curr ]
   standard_name = air_potential_temperature

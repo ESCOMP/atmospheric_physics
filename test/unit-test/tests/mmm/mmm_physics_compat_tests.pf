@@ -353,10 +353,10 @@ subroutine test_mmm_physics_persist_states_init()
 end subroutine test_mmm_physics_persist_states_init
 
 @test
-subroutine test_mmm_physics_persist_states_timestep_finalize()
+subroutine test_mmm_physics_persist_states_timestep_final()
     use ccpp_kinds, only: kind_phys
     use funit
-    use mmm_physics_compat, only: mmm_physics_persist_states_timestep_finalize
+    use mmm_physics_compat, only: mmm_physics_persist_states_timestep_final
 
     integer, parameter :: ncol = 100, pver = 10
     real(kind_phys) :: theta_curr(ncol, pver), theta_prev(ncol, pver), qv_curr(ncol, pver), qv_prev(ncol, pver)
@@ -368,7 +368,7 @@ subroutine test_mmm_physics_persist_states_timestep_finalize()
     qv_curr(:, :) = 0.01_kind_phys
     qv_prev(:, :) = huge(0.0_kind_phys)
 
-    call mmm_physics_persist_states_timestep_finalize( &
+    call mmm_physics_persist_states_timestep_final( &
         theta_curr, theta_prev, qv_curr, qv_prev, &
         errmsg, errflg)
 
@@ -382,7 +382,7 @@ subroutine test_mmm_physics_persist_states_timestep_finalize()
 
     @assertEqual('', errmsg)
     @assertEqual(0, errflg)
-end subroutine test_mmm_physics_persist_states_timestep_finalize
+end subroutine test_mmm_physics_persist_states_timestep_final
 
 @test
 subroutine test_compute_characteristic_grid_length_scale_init()
