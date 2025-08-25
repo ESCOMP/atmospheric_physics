@@ -366,6 +366,68 @@
 
 #########################################################
 [ccpp-table-properties]
+  name = wet_to_dry_cloud_ice
+  type = scheme
+[ccpp-arg-table]
+  name = wet_to_dry_cloud_ice_run
+  type = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[ nz ]
+  standard_name = vertical_layer_dimension
+  long_name = number of vertical layers
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[ pdel ]
+  standard_name = air_pressure_thickness
+  type = real | kind = kind_phys
+  units = Pa
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ pdeldry ]
+  standard_name = air_pressure_thickness_of_dry_air
+  type = real | kind = kind_phys
+  units = Pa
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ qi ]
+  standard_name = cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water
+  long_name = Mass mixing ratio of cloud ice / moist_air + condensed water
+  advected = True
+  type = real | kind = kind_phys
+  units = kg kg-1
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ qi_dry ]
+  standard_name = cloud_ice_mixing_ratio_wrt_dry_air
+  long_name = Mass mixing ratio of cloud ice / dry air
+  type = real | kind = kind_phys
+  units = kg kg-1
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ errmsg ]
+   standard_name = ccpp_error_message
+   long_name = Error message for error handling in CCPP
+   units = none
+   dimensions = ()
+   type = character | kind = len=*
+   intent = out
+[ errflg ]
+   standard_name = ccpp_error_code
+   long_name = Error flag for error handling in CCPP
+   units = 1
+   dimensions = ()
+   type = integer
+   intent = out
+
+#########################################################
+[ccpp-table-properties]
   name = wet_to_dry_rain
   type = scheme
 [ccpp-arg-table]
@@ -529,6 +591,68 @@
 [ qc ]
   standard_name = cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water
   long_name = Mass mixing ratio of cloud liquid water / moist air
+  advected = True
+  type = real | kind = kind_phys
+  units = kg kg-1
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ errmsg ]
+   standard_name = ccpp_error_message
+   long_name = Error message for error handling in CCPP
+   units = none
+   dimensions = ()
+   type = character | kind = len=*
+   intent = out
+[ errflg ]
+   standard_name = ccpp_error_code
+   long_name = Error flag for error handling in CCPP
+   units = 1
+   dimensions = ()
+   type = integer
+   intent = out
+
+#########################################################
+[ccpp-table-properties]
+  name = dry_to_wet_cloud_ice
+  type = scheme
+[ccpp-arg-table]
+  name = dry_to_wet_cloud_ice_run
+  type = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[ nz ]
+  standard_name = vertical_layer_dimension
+  long_name = number of vertical layers
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[ pdel ]
+  standard_name = air_pressure_thickness
+  type = real | kind = kind_phys
+  units = Pa
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ pdeldry ]
+  standard_name = air_pressure_thickness_of_dry_air
+  type = real | kind = kind_phys
+  units = Pa
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ qi_dry ]
+  standard_name = cloud_ice_mixing_ratio_wrt_dry_air
+  long_name = Mass mixing ratio of cloud ice / dry air
+  type = real | kind = kind_phys
+  units = kg kg-1
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ qi ]
+  standard_name = cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water
+  long_name = Mass mixing ratio of cloud ice / moist air + condensed water
   advected = True
   type = real | kind = kind_phys
   units = kg kg-1
