@@ -39,7 +39,7 @@
     <type>logical</type>
     <category>gw_drag</category>
     <group>gw_drag_nl</group>
-    <standard_name>flag_for_scaling_standard_deviation_of_subgrid_orography_for_orographic_gravity_wave_drag_by_land_area_fraction_tbd</standard_name>
+    <standard_name>flag_for_zero_stress_at_top_of_atmosphere_due_to_gravity_wave_drag_tbd</standard_name>
     <units>flag</units>
     <desc>
       Force the stress due to gravity waves to be zero at the top of the model.
