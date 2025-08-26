@@ -6,14 +6,16 @@ on:
       - reopened
       - synchronize
       - edited
+  pull_request:
+    branches:
+      - main
 jobs:
   check-branches:
     runs-on: ubuntu-latest
     steps:
       - name: Check branches
         run: |
-          if [ ${{ github.head_ref }} != "development" ] && [ ${{ github.base_ref }} == "main" ]; then
+          if [ ${{ github.head_ref }} != "development" ]; then
             echo "Merge requests to main branch are only allowed from the development branch."
             exit 1
           fi
-
