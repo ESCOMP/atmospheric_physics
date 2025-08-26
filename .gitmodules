@@ -10,3 +10,9 @@
         fxrequired = AlwaysRequired
         fxtag = v1.7
         fxDONOTUSEurl = https://github.com/earth-system-radiation/rte-rrtmgp.git
+[submodule "pumas"]
+	path = schemes/pumas/pumas
+	url = https://github.com/ESCOMP/PUMAS
+        fxrequired = AlwaysRequired
+        fxtag = pumas_cam-release_v1.39
+        fxDONOTUSEurl = https://github.com/ESCOMP/PUMAS
