@@ -1,0 +1,161 @@
+[ccpp-table-properties]
+  name = solar_irradiance_data
+  type = scheme
+
+[ccpp-arg-table]
+  name  = solar_irradiance_data_init
+  type  = scheme
+[ irrad_file_path ]
+  standard_name = filename_of_solar_irradiance_data
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ solar_data_type ]
+  standard_name = type_of_solar_irradiance_data
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ solar_data_ymd ]
+  standard_name = year_month_date_for_solar_irradiance_data
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ solar_data_tod ]
+  standard_name = seconds_of_day_for_solar_irradiance_data
+  units = s
+  type = integer
+  dimensions = ()
+  intent = in
+[ solar_const ]
+  standard_name = constant_total_solar_irradiance
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ solar_heating_spectral_scl ]
+  standard_name = do_radiation_heating_spectral_scaling
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ speed_of_light ]
+  standard_name = speed_of_light_in_vacuum
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ planck_const ]
+  standard_name = plancks_constant
+  units = J s
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ do_spectral_scaling ]
+  standard_name = do_spectral_scaling_of_solar_irradiance_data
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ has_spectrum ]
+  standard_name = solar_irradiance_file_has_spectrum_information
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ sol_tsi ]
+  standard_name = total_solar_irradiance
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = out
+[ we ]
+  standard_name = wavelength_endpoints
+  units = nm
+  type = real | kind = kind_phys
+  dimensions = (number_of_wavelength_samples_of_spectrum_plus_one)
+  intent = out
+[ nbins ]
+  standard_name = number_of_wavelength_samples_of_spectrum
+  units = count
+  type = integer
+  dimensions = ()
+  intent = out
+[ nbinsp ]
+  standard_name = number_of_wavelength_samples_of_spectrum_plus_one
+  units = count
+  type = integer
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_messag
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = solar_irradiance_data_run
+  type  = scheme
+[ irrad_file_path ]
+  standard_name = filename_of_solar_irradiance_data
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ nbins ]
+  standard_name = number_of_wavelength_samples_of_spectrum
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ has_spectrum ]
+  standard_name = solar_irradiance_file_has_spectrum_information
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ do_spectral_scaling ]
+  standard_name = do_spectral_scaling_of_solar_irradiance_data
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ sol_irrad ]
+  standard_name = solar_irradiance
+  units = W m-2 nm-1
+  type = real | kind = kind_phys
+  dimensions = (number_of_wavelength_samples_of_spectrum)
+  intent = out
+[ we ]
+  standard_name = wavelength_endpoints
+  units = nm
+  type = real | kind = kind_phys
+  dimensions = (number_of_wavelength_samples_of_spectrum_plus_one)
+  intent = in
+[ sol_tsi ]
+  standard_name = total_solar_irradiance
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

@@ -105,7 +105,7 @@ CONTAINS
       integer,                        intent(in) :: icall               ! Current diagnostic subcycle
       integer,                        intent(in) :: ncol                ! Number of horizontal points
       integer,                        intent(in) :: nday                ! Number of daytime points
-      integer,                        intent(in) :: idxday              ! Daytime points
+      integer,                        intent(in) :: idxday(:)           ! Daytime points
       integer,                        intent(in) :: nlay                ! Number of vertical layers used in radiation calcluation
       integer,                        intent(in) :: pver                ! Number of vertical layers
       integer,                        intent(in) :: pverp               ! Number of vertical layer interfaces

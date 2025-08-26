@@ -65,7 +65,7 @@
   intent = in
 [ we ]
   standard_name = wavelength_endpoints
-  units = 1
+  units = nm
   type = real | kind = kind_phys
   dimensions = (number_of_wavelength_samples_of_spectrum_plus_one)
   intent = in
