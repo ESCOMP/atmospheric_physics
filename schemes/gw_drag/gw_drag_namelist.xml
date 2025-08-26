@@ -507,31 +507,6 @@
   </desc>
 </entry>
 
-<entry id="gw_prndl">
-  <type>real</type>
-  <category>gw_drag</category>
-  <standard_name>inverse_prandtl_number_used_in_gravity_wave_diffusion</standard_name>
-  <group>gw_drag_nl</group>
-  <values>
-    <value></value>
-  </values>
-  <desc>
-    Inverse Prandtl number used in gravity wave diffusion
-  </desc>
-</entry>
-
-<entry id="gw_qbo_hdepth_scaling">
-  <type>real</type>
-  <category>gw_drag</category>  
-  <standard_name>scaling_factor_for_heating_depth_in_gravity_waves_from_convection</standard_name>
-  <group>gw_drag_nl</group>
-  <values>
-    <value></value>
-  </values>
-  <desc>
-    Scaling factor for heating depth in gravity waves from convection.  If less than 1.0 this acts as an effective reduction of the gravity wave phase speeds needed to drive the QBO.
-  </desc>
-</entry>
 
 <entry id="gw_lndscl_sgh">
   <type>logical</type>

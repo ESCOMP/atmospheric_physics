@@ -1,0 +1,73 @@
+[ccpp-table-properties]
+  name = gravity_wave_drag_common
+  type = scheme
+
+[ccpp-arg-table]
+  name  = gravity_wave_drag_common_init
+  type  = scheme
+[ pver_in ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ amIRoot ]
+  standard_name = flag_for_mpi_root
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ iulog ]
+  standard_name = log_output_unit
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ pref_edge ]
+  standard_name = reference_pressure_at_interface
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (vertical_interface_dimension)
+  intent = in
+[ tau_0_ubc_in ]
+  standard_name = flag_for_scaling_standard_deviation_of_subgrid_orography_for_orographic_gravity_wave_drag_by_land_area_fraction_tbd
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ gravit_in ]
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ rair_in ]
+  standard_name = gas_constant_of_dry_air
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ prndl_in ]
+  standard_name = inverse_prandtl_number_for_diffusion_in_gravity_wave_drag_tbd
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ qbo_hdepth_scaling_in ]
+  standard_name = scaling_factor_for_heating_depth_in_gravity_waves_from_convection_tbd
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

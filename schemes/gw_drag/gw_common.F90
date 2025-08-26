@@ -68,8 +68,8 @@ module gw_common
 
   ! Private variables
 
-  ! Interface levels for gravity wave sources.
-  integer :: ktop = huge(1)
+  ! Top level for gravity wave sources.
+  integer,         parameter :: ktop = 1
 
   ! Background diffusivity.
   real(kind_phys), parameter :: dback = 0.05_kind_phys
@@ -154,11 +154,13 @@ contains
   end function new_GWBand
 
   ! Common initialization.
+!> \section arg_table_gravity_wave_drag_common_init Argument Table
+!! \htmlinclude arg_table_gravity_wave_drag_common_init.html
   subroutine gravity_wave_drag_common_init( &
              pver_in, &
              amIRoot, iulog, &
              pref_edge, &
-             tau_0_ubc_in, ktop_in, gravit_in, rair_in, &
+             tau_0_ubc_in, gravit_in, rair_in, &
              prndl_in, qbo_hdepth_scaling_in, &
              errmsg, errflg)
 
@@ -170,7 +172,6 @@ contains
     integer,          intent(in)  :: iulog
     real(kind_phys),  intent(in)  :: pref_edge(:)
     logical,          intent(in)  :: tau_0_ubc_in
-    integer,          intent(in)  :: ktop_in
     real(kind_phys),  intent(in)  :: gravit_in
     real(kind_phys),  intent(in)  :: rair_in
     real(kind_phys),  intent(in)  :: prndl_in
@@ -232,7 +233,6 @@ contains
 
     pver = pver_in
     tau_0_ubc = tau_0_ubc_in
-    ktop = ktop_in
     gravit = gravit_in
     rair = rair_in
 

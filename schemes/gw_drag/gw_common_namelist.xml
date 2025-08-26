@@ -4,6 +4,7 @@
 
 <entry_id_pg version="2.0">
 
+  <!-- common namelist settings for gravity wave schemes -->
   <entry id="pgwv">
     <type>integer</type>
     <category>gw_drag</category>
@@ -31,6 +32,51 @@
     </desc>
     <values>
       <value>2.5D0</value>
+    </values>
+  </entry>
+
+  <entry id="tau_0_ubc">
+    <type>logical</type>
+    <category>gw_drag</category>
+    <group>gw_drag_nl</group>
+    <standard_name>flag_for_scaling_standard_deviation_of_subgrid_orography_for_orographic_gravity_wave_drag_by_land_area_fraction_tbd</standard_name>
+    <units>flag</units>
+    <desc>
+      Force the stress due to gravity waves to be zero at the top of the model.
+      In the low-top model, this helps to conserve momentum and produce a QBO.
+    </desc>
+    <values>
+      <value>.true.</value>
+    </values>
+  </entry>
+
+  <entry id="gw_prndl">
+    <type>real</type>
+    <category>gw_drag</category>
+    <group>gw_drag_nl</group>
+    <standard_name>inverse_prandtl_number_for_diffusion_in_gravity_wave_drag_tbd</standard_name>
+    <units>1</units>
+    <desc>
+      Inverse Prandtl number used in gravity wave diffusion.
+    </desc>
+    <values>
+      <value>0.25D0</value>
+    </values>
+  </entry>
+
+  <entry id="gw_qbo_hdepth_scaling">
+    <type>real</type>
+    <category>gw_drag</category>
+    <group>gw_drag_nl</group>
+    <standard_name>scaling_factor_for_heating_depth_in_gravity_waves_from_convection_tbd</standard_name>
+    <units>1</units>
+    <desc>
+      Scaling factor for heating depth in gravity waves from convection.  If less than 1.0
+      this acts as an effective reduction of the gravity wave phase speeds needed to drive
+      the QBO.
+    </desc>
+    <values>
+      <value>1.0D0</value>
     </values>
   </entry>
 
