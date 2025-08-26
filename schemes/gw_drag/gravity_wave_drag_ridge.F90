@@ -471,7 +471,7 @@ contains
     real(kind_phys),     intent(in)    :: cpair                        ! specific_heat_of_dry_air_at_constant_pressure [J kg-1 K-1]
     real(kind_phys),     intent(in)    :: rair                         ! gas_constant_of_dry_air [J kg-1 K-1]
 
-    real(kind_phys),     pointer, intent(in) :: vramp(:)               ! Vertical tapering function [1]
+    real(kind_phys),     intent(in)    :: vramp(:)                     ! Vertical tapering function [1]
     type(coords1d),      intent(in)    :: p                            ! Pressure coordinates, Coords1D
 
     integer,             intent(in)    :: n_rdg_beta                   ! Number of meso-Beta ridges (per gridbox) to invoke [count]
@@ -617,7 +617,7 @@ contains
     real(kind_phys),     intent(in)    :: cpair                        ! specific_heat_of_dry_air_at_constant_pressure [J kg-1 K-1]
     real(kind_phys),     intent(in)    :: rair                         ! gas_constant_of_dry_air [J kg-1 K-1]
 
-    real(kind_phys),     intent(in), pointer :: vramp(:)               ! Vertical tapering function [1]
+    real(kind_phys),     intent(in)    :: vramp(:)                     ! Vertical tapering function [1]
     type(coords1d),      intent(in)    :: p                            ! Pressure coordinates, Coords1D
 
     integer,             intent(in)    :: n_rdg_gamma                  ! Number of meso-gamma ridges (per gridbox) to invoke.
@@ -1818,7 +1818,7 @@ contains
     use gw_common, only: GWBand, gw_drag_prof, energy_change
 
     type(GWBand), intent(in) :: band_oro
-    real(kind_phys), pointer, intent(in) :: vramp(:)
+    real(kind_phys), intent(in) :: vramp(:)
     ! A mid-scale "band" with only stationary waves (l = 0).
     character(len=5), intent(in) :: type         ! BETA or GAMMA
     integer, intent(in) :: pver

@@ -211,64 +211,64 @@ contains
     use gw_common, only: west, east, south, north
     use gw_common, only: find_bin
 
-    integer,            intent(in)                :: ncol
-    integer,            intent(in)                :: pver
-    integer,            intent(in)                :: pcnst
-    real(kind_phys),    intent(in)                :: dt                       ! Physics timestep [s]
-    real(kind_phys),    intent(in)                :: cpair                    ! Specific heat of dry air at constant pressure [J kg-1 K-1]
-    type(Coords1D),     intent(in)                :: p                        ! Pressure coordinates [Pa]
-    real(kind_phys),    pointer, intent(in)       :: vramp(:)                 ! Gravity wave drag tapering coefficients [1]
-    real(kind_phys),    intent(in)                :: piln(:, :)               ! Natural log of pressure at interfaces [ln(Pa)]
-    real(kind_phys),    intent(in)                :: rhoi(:, :)               ! Density at interfaces [kg m-3]
-    real(kind_phys),    intent(in)                :: nm(:, :)                 ! Brunt-Vaisalla frequency at midpoints [s-1]
-    real(kind_phys),    intent(in)                :: ni(:, :)                 ! Brunt-Vaisalla frequency at interfaces [s-1]
-    real(kind_phys),    intent(in)                :: effgw_cm                 ! Efficiency factor for frontogenesis gravity waves [1]
-    logical,            intent(in)                :: gw_polar_taper           ! Apply polar tapering to frontogenesis efficiency [flag]
-    logical,            intent(in)                :: gw_apply_tndmax          ! Maximum wind tendency limiter from stress divergence [flag]
-    real(kind_phys),    intent(in)                :: lat(:)                   ! Latitude [rad]
-    real(kind_phys),    intent(in)                :: u(:,:)                   ! Zonal wind at midpoints [m s-1]
-    real(kind_phys),    intent(in)                :: v(:,:)                   ! Meridional wind at midpoints [m s-1]
-    real(kind_phys),    intent(in)                :: t(:,:)                   ! Temperature at midpoints [K]
-    real(kind_phys),    intent(in)                :: q(:,:,:)                 ! Constituent mixing ratios [kg kg-1]
-    real(kind_phys),    intent(in)                :: dse(:,:)                 ! Dry static energy [J kg-1]
-    real(kind_phys),    intent(in)                :: frontgf(:, :)            ! Frontogenesis function [1]
-    real(kind_phys),    intent(in)                :: kvt_gw(:,:)              ! Eddy diffusion coefficient for heat [m2 s-1]
+    integer,            intent(in)    :: ncol
+    integer,            intent(in)    :: pver
+    integer,            intent(in)    :: pcnst
+    real(kind_phys),    intent(in)    :: dt                       ! Physics timestep [s]
+    real(kind_phys),    intent(in)    :: cpair                    ! Specific heat of dry air at constant pressure [J kg-1 K-1]
+    type(Coords1D),     intent(in)    :: p                        ! Pressure coordinates [Pa]
+    real(kind_phys),    intent(in)    :: vramp(:)                 ! Gravity wave drag tapering coefficients [1]
+    real(kind_phys),    intent(in)    :: piln(:, :)               ! Natural log of pressure at interfaces [ln(Pa)]
+    real(kind_phys),    intent(in)    :: rhoi(:, :)               ! Density at interfaces [kg m-3]
+    real(kind_phys),    intent(in)    :: nm(:, :)                 ! Brunt-Vaisalla frequency at midpoints [s-1]
+    real(kind_phys),    intent(in)    :: ni(:, :)                 ! Brunt-Vaisalla frequency at interfaces [s-1]
+    real(kind_phys),    intent(in)    :: effgw_cm                 ! Efficiency factor for frontogenesis gravity waves [1]
+    logical,            intent(in)    :: gw_polar_taper           ! Apply polar tapering to frontogenesis efficiency [flag]
+    logical,            intent(in)    :: gw_apply_tndmax          ! Maximum wind tendency limiter from stress divergence [flag]
+    real(kind_phys),    intent(in)    :: lat(:)                   ! Latitude [rad]
+    real(kind_phys),    intent(in)    :: u(:,:)                   ! Zonal wind at midpoints [m s-1]
+    real(kind_phys),    intent(in)    :: v(:,:)                   ! Meridional wind at midpoints [m s-1]
+    real(kind_phys),    intent(in)    :: t(:,:)                   ! Temperature at midpoints [K]
+    real(kind_phys),    intent(in)    :: q(:,:,:)                 ! Constituent mixing ratios [kg kg-1]
+    real(kind_phys),    intent(in)    :: dse(:,:)                 ! Dry static energy [J kg-1]
+    real(kind_phys),    intent(in)    :: frontgf(:, :)            ! Frontogenesis function [1]
+    real(kind_phys),    intent(in)    :: kvt_gw(:,:)              ! Eddy diffusion coefficient for heat [m2 s-1]
 
-    real(kind_phys),    intent(inout)             :: tend_q(:, :, :)          ! Constituent tendencies [kg kg-1 s-1]
-    real(kind_phys),    intent(inout)             :: tend_u(:, :)             ! Zonal wind tendency [m s-2]
-    real(kind_phys),    intent(inout)             :: tend_v(:, :)             ! Meridional wind tendency [m s-2]
-    real(kind_phys),    intent(inout)             :: tend_s(:, :)             ! Dry static energy tendency [J kg-1 s-1]
-    real(kind_phys),    intent(inout)             :: egwdffi_tot(:, :)        ! Effective diffusivity coefficient from gravity waves, interfaces [m2 s-1]
-    real(kind_phys),    intent(inout)             :: flx_heat(:)              ! Surface heat flux for energy conservation check [W m-2]
+    real(kind_phys),    intent(inout) :: tend_q(:, :, :)          ! Constituent tendencies [kg kg-1 s-1]
+    real(kind_phys),    intent(inout) :: tend_u(:, :)             ! Zonal wind tendency [m s-2]
+    real(kind_phys),    intent(inout) :: tend_v(:, :)             ! Meridional wind tendency [m s-2]
+    real(kind_phys),    intent(inout) :: tend_s(:, :)             ! Dry static energy tendency [J kg-1 s-1]
+    real(kind_phys),    intent(inout) :: egwdffi_tot(:, :)        ! Effective diffusivity coefficient from gravity waves, interfaces [m2 s-1]
+    real(kind_phys),    intent(inout) :: flx_heat(:)              ! Surface heat flux for energy conservation check [W m-2]
 
-    integer,            intent(out)               :: src_level(:)             ! Vertical level index of gravity wave source [index]
-    integer,            intent(out)               :: tend_level(:)            ! Lowest vertical level index where tendencies are applied [index]
-    real(kind_phys),    intent(out)               :: ubm(:, :)                ! Wind projection at midpoints along source wind direction [m s-1]
-    real(kind_phys),    intent(out)               :: ubi(:, :)                ! Wind projection at interfaces along source wind direction [m s-1]
-    real(kind_phys),    intent(out)               :: xv(:)                    ! Zonal component of source wind unit vector [1]
-    real(kind_phys),    intent(out)               :: yv(:)                    ! Meridional component of source wind unit vector [1]
-    real(kind_phys),    intent(out)               :: utgw(:, :)               ! Zonal wind tendency from gravity waves [m s-2]
-    real(kind_phys),    intent(out)               :: vtgw(:, :)               ! Meridional wind tendency from gravity waves [m s-2]
-    real(kind_phys),    intent(out)               :: ttgw(:, :)               ! Temperature tendency from gravity waves [K s-1]
-    real(kind_phys),    intent(out)               :: qtgw(:, :, :)            ! Constituent tendencies from gravity waves [kg kg-1 s-1]
-    real(kind_phys),    intent(out)               :: dttdf(:, :)              ! Temperature tendency from diffusion [K s-1]
-    real(kind_phys),    intent(out)               :: dttke(:, :)              ! Temperature tendency from kinetic energy dissipation [K s-1]
+    integer,            intent(out)   :: src_level(:)             ! Vertical level index of gravity wave source [index]
+    integer,            intent(out)   :: tend_level(:)            ! Lowest vertical level index where tendencies are applied [index]
+    real(kind_phys),    intent(out)   :: ubm(:, :)                ! Wind projection at midpoints along source wind direction [m s-1]
+    real(kind_phys),    intent(out)   :: ubi(:, :)                ! Wind projection at interfaces along source wind direction [m s-1]
+    real(kind_phys),    intent(out)   :: xv(:)                    ! Zonal component of source wind unit vector [1]
+    real(kind_phys),    intent(out)   :: yv(:)                    ! Meridional component of source wind unit vector [1]
+    real(kind_phys),    intent(out)   :: utgw(:, :)               ! Zonal wind tendency from gravity waves [m s-2]
+    real(kind_phys),    intent(out)   :: vtgw(:, :)               ! Meridional wind tendency from gravity waves [m s-2]
+    real(kind_phys),    intent(out)   :: ttgw(:, :)               ! Temperature tendency from gravity waves [K s-1]
+    real(kind_phys),    intent(out)   :: qtgw(:, :, :)            ! Constituent tendencies from gravity waves [kg kg-1 s-1]
+    real(kind_phys),    intent(out)   :: dttdf(:, :)              ! Temperature tendency from diffusion [K s-1]
+    real(kind_phys),    intent(out)   :: dttke(:, :)              ! Temperature tendency from kinetic energy dissipation [K s-1]
 
     ! Copies of taucd in each direction for diagnostic.
-    real(kind_phys),    intent(out)               :: taucd_west(:, :)         ! Reynolds stress for waves in W direction, interfaces [N m-2]
-    real(kind_phys),    intent(out)               :: taucd_east(:, :)         ! Reynolds stress for waves in E direction, interfaces [N m-2]
-    real(kind_phys),    intent(out)               :: taucd_south(:, :)        ! Reynolds stress for waves in S direction, interfaces [N m-2]
-    real(kind_phys),    intent(out)               :: taucd_north(:, :)        ! Reynolds stress for waves in N direction, interfaces [N m-2]
+    real(kind_phys),    intent(out)   :: taucd_west(:, :)         ! Reynolds stress for waves in W direction, interfaces [N m-2]
+    real(kind_phys),    intent(out)   :: taucd_east(:, :)         ! Reynolds stress for waves in E direction, interfaces [N m-2]
+    real(kind_phys),    intent(out)   :: taucd_south(:, :)        ! Reynolds stress for waves in S direction, interfaces [N m-2]
+    real(kind_phys),    intent(out)   :: taucd_north(:, :)        ! Reynolds stress for waves in N direction, interfaces [N m-2]
 
     ! Wind tendencies broken across five spectral bins for diagnostic.
-    real(kind_phys),    intent(out)               :: utend1(:, :)             ! U tendency c < -40 [m s-2]
-    real(kind_phys),    intent(out)               :: utend2(:, :)             ! U tendency -40 < c < -15 [m s-2]
-    real(kind_phys),    intent(out)               :: utend3(:, :)             ! U tendency -15 < c < 15 [m s-2]
-    real(kind_phys),    intent(out)               :: utend4(:, :)             ! U tendency 15 < c < 40 [m s-2]
-    real(kind_phys),    intent(out)               :: utend5(:, :)             ! U tendency c > 40 [m s-2]
+    real(kind_phys),    intent(out)   :: utend1(:, :)             ! U tendency c < -40 [m s-2]
+    real(kind_phys),    intent(out)   :: utend2(:, :)             ! U tendency -40 < c < -15 [m s-2]
+    real(kind_phys),    intent(out)   :: utend3(:, :)             ! U tendency -15 < c < 15 [m s-2]
+    real(kind_phys),    intent(out)   :: utend4(:, :)             ! U tendency 15 < c < 40 [m s-2]
+    real(kind_phys),    intent(out)   :: utend5(:, :)             ! U tendency c > 40 [m s-2]
 
-    character(len=512), intent(out)               :: errmsg
-    integer,            intent(out)               :: errflg
+    character(len=512), intent(out)   :: errmsg
+    integer,            intent(out)   :: errflg
 
     ! Local variables
     integer :: i, k, m, l
@@ -413,51 +413,51 @@ contains
     use gw_common, only: calc_taucd
     use gw_common, only: coriolis_speed, adjust_inertial
 
-    integer,            intent(in)                :: ncol
-    integer,            intent(in)                :: pver
-    integer,            intent(in)                :: pcnst
-    real(kind_phys),    intent(in)                :: dt                       ! Physics timestep [s]
-    real(kind_phys),    intent(in)                :: cpair                    ! Specific heat of dry air at constant pressure [J kg-1 K-1]
-    type(Coords1D),     intent(in)                :: p                        ! Pressure coordinates [Pa]
-    real(kind_phys),    pointer, intent(in)       :: vramp(:)                 ! Gravity wave drag tapering coefficients [1]
-    real(kind_phys),    intent(in)                :: piln(:, :)               ! Natural log of pressure at interfaces [ln(Pa)]
-    real(kind_phys),    intent(in)                :: rhoi(:, :)               ! Density at interfaces [kg m-3]
-    real(kind_phys),    intent(in)                :: nm(:, :)                 ! Brunt-Vaisalla frequency at midpoints [s-1]
-    real(kind_phys),    intent(in)                :: ni(:, :)                 ! Brunt-Vaisalla frequency at interfaces [s-1]
-    real(kind_phys),    intent(in)                :: effgw_cm_igw             ! Efficiency factor for inertial frontogenesis gravity waves [1]
-    logical,            intent(in)                :: gw_polar_taper           ! Apply polar tapering to frontogenesis efficiency [flag]
-    logical,            intent(in)                :: gw_apply_tndmax          ! Maximum wind tendency limiter from stress divergence [flag]
+    integer,            intent(in)    :: ncol
+    integer,            intent(in)    :: pver
+    integer,            intent(in)    :: pcnst
+    real(kind_phys),    intent(in)    :: dt                       ! Physics timestep [s]
+    real(kind_phys),    intent(in)    :: cpair                    ! Specific heat of dry air at constant pressure [J kg-1 K-1]
+    type(Coords1D),     intent(in)    :: p                        ! Pressure coordinates [Pa]
+    real(kind_phys),    intent(in)    :: vramp(:)                 ! Gravity wave drag tapering coefficients [1]
+    real(kind_phys),    intent(in)    :: piln(:, :)               ! Natural log of pressure at interfaces [ln(Pa)]
+    real(kind_phys),    intent(in)    :: rhoi(:, :)               ! Density at interfaces [kg m-3]
+    real(kind_phys),    intent(in)    :: nm(:, :)                 ! Brunt-Vaisalla frequency at midpoints [s-1]
+    real(kind_phys),    intent(in)    :: ni(:, :)                 ! Brunt-Vaisalla frequency at interfaces [s-1]
+    real(kind_phys),    intent(in)    :: effgw_cm_igw             ! Efficiency factor for inertial frontogenesis gravity waves [1]
+    logical,            intent(in)    :: gw_polar_taper           ! Apply polar tapering to frontogenesis efficiency [flag]
+    logical,            intent(in)    :: gw_apply_tndmax          ! Maximum wind tendency limiter from stress divergence [flag]
 
-    real(kind_phys),    intent(in)                :: lat(:)                   ! Latitude [rad]
-    real(kind_phys),    intent(in)                :: u(:,:)                   ! Zonal wind at midpoints [m s-1]
-    real(kind_phys),    intent(in)                :: v(:,:)                   ! Meridional wind at midpoints [m s-1]
-    real(kind_phys),    intent(in)                :: t(:,:)                   ! Temperature at midpoints [K]
-    real(kind_phys),    intent(in)                :: q(:,:,:)                 ! Constituent mixing ratios [kg kg-1]
-    real(kind_phys),    intent(in)                :: dse(:,:)                 ! Dry static energy [J kg-1]
-    real(kind_phys),    intent(in)                :: frontgf(:, :)            ! Frontogenesis function [1]
-    real(kind_phys),    intent(in)                :: kvt_gw(:,:)              ! Eddy diffusion coefficient for heat [m2 s-1]
+    real(kind_phys),    intent(in)    :: lat(:)                   ! Latitude [rad]
+    real(kind_phys),    intent(in)    :: u(:,:)                   ! Zonal wind at midpoints [m s-1]
+    real(kind_phys),    intent(in)    :: v(:,:)                   ! Meridional wind at midpoints [m s-1]
+    real(kind_phys),    intent(in)    :: t(:,:)                   ! Temperature at midpoints [K]
+    real(kind_phys),    intent(in)    :: q(:,:,:)                 ! Constituent mixing ratios [kg kg-1]
+    real(kind_phys),    intent(in)    :: dse(:,:)                 ! Dry static energy [J kg-1]
+    real(kind_phys),    intent(in)    :: frontgf(:, :)            ! Frontogenesis function [1]
+    real(kind_phys),    intent(in)    :: kvt_gw(:,:)              ! Eddy diffusion coefficient for heat [m2 s-1]
 
-    real(kind_phys),    intent(inout)             :: tend_q(:, :, :)          ! Constituent tendencies [kg kg-1 s-1]
-    real(kind_phys),    intent(inout)             :: tend_u(:, :)             ! Zonal wind tendency [m s-2]
-    real(kind_phys),    intent(inout)             :: tend_v(:, :)             ! Meridional wind tendency [m s-2]
-    real(kind_phys),    intent(inout)             :: tend_s(:, :)             ! Dry static energy tendency [J kg-1 s-1]
-    real(kind_phys),    intent(inout)             :: egwdffi_tot(:, :)        ! Effective diffusivity coefficient from gravity waves, interfaces [m2 s-1]
+    real(kind_phys),    intent(inout) :: tend_q(:, :, :)          ! Constituent tendencies [kg kg-1 s-1]
+    real(kind_phys),    intent(inout) :: tend_u(:, :)             ! Zonal wind tendency [m s-2]
+    real(kind_phys),    intent(inout) :: tend_v(:, :)             ! Meridional wind tendency [m s-2]
+    real(kind_phys),    intent(inout) :: tend_s(:, :)             ! Dry static energy tendency [J kg-1 s-1]
+    real(kind_phys),    intent(inout) :: egwdffi_tot(:, :)        ! Effective diffusivity coefficient from gravity waves, interfaces [m2 s-1]
 
-    integer,            intent(out)               :: src_level(:)             ! Vertical level index of gravity wave source [index]
-    integer,            intent(out)               :: tend_level(:)            ! Lowest vertical level index where tendencies are applied [index]
-    real(kind_phys),    intent(out)               :: ubm(:, :)                ! Wind projection at midpoints along source wind direction [m s-1]
-    real(kind_phys),    intent(out)               :: ubi(:, :)                ! Wind projection at interfaces along source wind direction [m s-1]
-    real(kind_phys),    intent(out)               :: xv(:)                    ! Zonal component of source wind unit vector [1]
-    real(kind_phys),    intent(out)               :: yv(:)                    ! Meridional component of source wind unit vector [1]
-    real(kind_phys),    intent(out)               :: utgw(:, :)               ! Zonal wind tendency from gravity waves [m s-2]
-    real(kind_phys),    intent(out)               :: vtgw(:, :)               ! Meridional wind tendency from gravity waves [m s-2]
-    real(kind_phys),    intent(out)               :: ttgw(:, :)               ! Temperature tendency from gravity waves [K s-1]
-    real(kind_phys),    intent(out)               :: qtgw(:, :, :)            ! Constituent tendencies from gravity waves [kg kg-1 s-1]
-    real(kind_phys),    intent(out)               :: dttdf(:, :)              ! Temperature tendency from diffusion [K s-1]
-    real(kind_phys),    intent(out)               :: dttke(:, :)              ! Temperature tendency from kinetic energy dissipation [K s-1]
-    real(kind_phys),    intent(out)               :: flx_heat(:)              ! Surface heat flux for energy conservation check [W m-2]
-    character(len=512), intent(out)               :: errmsg
-    integer,            intent(out)               :: errflg
+    integer,            intent(out)   :: src_level(:)             ! Vertical level index of gravity wave source [index]
+    integer,            intent(out)   :: tend_level(:)            ! Lowest vertical level index where tendencies are applied [index]
+    real(kind_phys),    intent(out)   :: ubm(:, :)                ! Wind projection at midpoints along source wind direction [m s-1]
+    real(kind_phys),    intent(out)   :: ubi(:, :)                ! Wind projection at interfaces along source wind direction [m s-1]
+    real(kind_phys),    intent(out)   :: xv(:)                    ! Zonal component of source wind unit vector [1]
+    real(kind_phys),    intent(out)   :: yv(:)                    ! Meridional component of source wind unit vector [1]
+    real(kind_phys),    intent(out)   :: utgw(:, :)               ! Zonal wind tendency from gravity waves [m s-2]
+    real(kind_phys),    intent(out)   :: vtgw(:, :)               ! Meridional wind tendency from gravity waves [m s-2]
+    real(kind_phys),    intent(out)   :: ttgw(:, :)               ! Temperature tendency from gravity waves [K s-1]
+    real(kind_phys),    intent(out)   :: qtgw(:, :, :)            ! Constituent tendencies from gravity waves [kg kg-1 s-1]
+    real(kind_phys),    intent(out)   :: dttdf(:, :)              ! Temperature tendency from diffusion [K s-1]
+    real(kind_phys),    intent(out)   :: dttke(:, :)              ! Temperature tendency from kinetic energy dissipation [K s-1]
+    real(kind_phys),    intent(out)   :: flx_heat(:)              ! Surface heat flux for energy conservation check [W m-2]
+    character(len=512), intent(out)   :: errmsg
+    integer,            intent(out)   :: errflg
 
     ! Local variables
     integer :: k, m, stat
