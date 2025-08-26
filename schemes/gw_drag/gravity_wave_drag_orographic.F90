@@ -91,7 +91,7 @@ contains
     real(kind_phys),    intent(in)                :: rair                     ! Gas constant for dry air [J kg-1 K-1]
     real(kind_phys),    intent(in)                :: cpairv(:,:)              ! Specific heat of dry air at constant pressure [J kg-1 K-1]
     type(coords1d),     intent(in)                :: p                        ! Pressure coordinates [Pa]
-    real(kind_phys),    pointer, intent(in)       :: vramp(:)                 ! Gravity wave drag tapering coefficients [1]
+    real(kind_phys),    intent(in)                :: vramp(:)                 ! Gravity wave drag tapering coefficients [1]
     real(kind_phys),    intent(in)                :: piln(:, :)               ! Natural log of pressure at interfaces [ln(Pa)]
     real(kind_phys),    intent(in)                :: rhoi(:, :)               ! Density at interfaces [kg m-3]
     real(kind_phys),    intent(in)                :: nm(:, :)                 ! Brunt-Vaisalla frequency at midpoints [s-1]

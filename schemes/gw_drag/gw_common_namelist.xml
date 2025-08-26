@@ -35,6 +35,22 @@
     </values>
   </entry>
 
+  <entry id="gw_top_taper">
+    <type>logical</type>
+    <category>gw_drag</category>
+    <group>gw_drag_nl</group>
+    <standard_name>flag_for_gravity_wave_drag_tapering_at_model_top_tbd</standard_name>
+    <units>flag</units>
+    <desc>
+      Whether or not to apply tapering at the top of the model (above 0.6E-02 Pa)
+      to reduce undesired effects of gravity waves in the thermosphere/ionosphere.
+    </desc>
+    <values>
+      <value>.false.</value>
+      <!-- true for WACCM-X. -->
+    </values>
+  </entry>
+
   <entry id="tau_0_ubc">
     <type>logical</type>
     <category>gw_drag</category>

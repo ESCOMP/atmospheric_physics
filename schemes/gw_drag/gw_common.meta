@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = gravity_wave_drag_common
   type = scheme
+  dependencies = ../../to_be_ccppized/linear_1d_operators.F90,../../to_be_ccppized/vdiff_lu_solver.F90,gw_diffusion.F90
 
 [ccpp-arg-table]
   name  = gravity_wave_drag_common_init

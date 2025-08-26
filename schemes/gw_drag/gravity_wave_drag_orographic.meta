@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = gravity_wave_drag_orographic
   type = scheme
+  dependencies = gw_utils.F90
 
 [ccpp-arg-table]
   name  = gravity_wave_drag_orographic_init
@@ -79,7 +80,7 @@
   standard_name = gravity_wave_drag_tapering_coefficients_tbd
   units = 1
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent)
+  dimensions = (vertical_layer_dimension)
   intent = in
 [ piln ]
   standard_name = ln_air_pressure_at_interface
@@ -190,8 +191,8 @@
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ tend_q ]
-  standard_name = tendency_of_ccpp_constituents
-  units = kg kg-1 s-1
+  standard_name = ccpp_constituent_tendencies
+  units = none
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
   intent = inout
@@ -269,7 +270,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ qtgw ]
-  standard_name = tendency_of_ccpp_constituents_due_to_orographic_gravity_wave_drag_tbd
+  standard_name = ccpp_constituent_tendencies_due_to_orographic_gravity_wave_drag_tbd
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)

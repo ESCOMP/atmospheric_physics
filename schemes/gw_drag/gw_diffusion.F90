@@ -60,7 +60,7 @@ contains
     real(kind_phys), intent(in) :: c(ncol, -ngwv:ngwv)
 
     ! Coefficient to ramp down diffusion coeff.
-    real(kind_phys), pointer, intent(in) :: vramp(:)
+    real(kind_phys), intent(in) :: vramp(:)
 
     ! Adjustment parameter for IGWs.
     real(kind_phys), intent(in), optional :: &
@@ -108,11 +108,9 @@ contains
       end do
     end do
 
-    if (associated(vramp)) then
-      do k = ktop, kbot
-        egwdffm(:, k) = egwdffm(:, k)*vramp(k)
-      end do
-    end if
+    do k = ktop, kbot
+      egwdffm(:, k) = egwdffm(:, k)*vramp(k)
+    end do
 
     ! Interpolate effective diffusivity to interfaces.
     ! Assume zero at top and bottom interfaces.

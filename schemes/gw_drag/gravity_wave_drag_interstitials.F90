@@ -32,6 +32,7 @@ contains
     rhoi, &
     nm, ni, &
     egwdffi, &
+    tend_q, tend_u, tend_v, tend_s, &
     kvt_gw, &
     flx_heat, &
     scheme_name, &
@@ -62,6 +63,13 @@ contains
     real(kind_phys), intent(out) :: nm(:, :)   ! Midpoint Brunt-Vaisalla frequencies [s-1]
     real(kind_phys), intent(out) :: ni(:, :)   ! Interface Brunt-Vaisalla frequencies [s-1]
     real(kind_phys), intent(out) :: egwdffi(:, :)   ! Effective diffusion coefficient from gravity waves [m2 s-1]
+
+    ! Initialize tendency accumulators to make framework happy about intent(inout) in the individual gw schemes.
+    real(kind_phys), intent(out) :: tend_q(:, :, :) ! Constituent tendencies [kg kg-1 s-1]
+    real(kind_phys), intent(out) :: tend_u(:, :)    ! Zonal wind tendency [m s-2]
+    real(kind_phys), intent(out) :: tend_v(:, :)    ! Meridional wind tendency [m s-2]
+    real(kind_phys), intent(out) :: tend_s(:, :)    ! Dry static energy tendency [J kg-1 s-1]
+
     real(kind_phys), intent(out) :: kvt_gw(:,:)! scaled_molecular_kinematic_temperature_conductivity_at_interfaces_for_gravity_wave_drag [m2 s-1]
 
     ! for energy checker:
@@ -90,11 +98,17 @@ contains
 
     !------------------------------------------------------------------------
     ! Initialization of effective diffusion coefficients,
+    ! accummulated tendencies from all gravity wave schemes,
     ! and quantities for energy checker.
     !------------------------------------------------------------------------
     egwdffi(:, :) = 0._kind_phys
     flx_heat(:) = 0._kind_phys
     scheme_name = 'gravity_wave_drag'
+
+    tend_q(:,:,:) = 0._kind_phys
+    tend_u(:,:)   = 0._kind_phys
+    tend_v(:,:)   = 0._kind_phys
+    tend_s(:,:)   = 0._kind_phys
 
     !------------------------------------------------------------------------
     ! Calculate local molecular diffusivity

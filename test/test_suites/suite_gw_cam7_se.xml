@@ -22,7 +22,8 @@
     <!-- INITIALIZE ALL GRAVITY WAVE PARAMETERIZATIONS, READ NAMELIST -->
     <scheme>gravity_wave_drag_common</scheme>
 
-    <!-- Interstitial: Prepare vertical profiles -->
+    <!-- Interstitial: Prepare vertical profiles and accumulated quantities. -->
+    <scheme>check_energy_zero_fluxes</scheme>
     <scheme>gravity_wave_drag_prepare_profiles</scheme>
 
     <!-- Prepare vertical ramp coefficients to taper drag at top of model -->

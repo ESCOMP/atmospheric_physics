@@ -45,7 +45,7 @@
   standard_name = gravity_wave_drag_tapering_coefficients_tbd
   units = 1
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension)
+  dimensions = (vertical_layer_dimension)
   intent = out
 [ errmsg ]
   standard_name = ccpp_error_message

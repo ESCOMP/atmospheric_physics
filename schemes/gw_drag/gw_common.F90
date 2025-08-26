@@ -336,7 +336,7 @@ contains
     ! Dry static energy.
     real(kind_phys), intent(in) :: dse(:, :)
     ! Coefficient to ramp down diffusion coeff.
-    real(kind_phys), pointer, intent(in) :: vramp(:)
+    real(kind_phys), intent(in) :: vramp(:)
 
     ! Wave Reynolds stress.
     real(kind_phys), intent(inout) :: tau(ncol, -band%ngwv:band%ngwv, pver + 1)
@@ -656,10 +656,8 @@ contains
         vtgw(:, k) = ubt(:, k)*yv
       end where
 
-      if (associated(vramp)) then
-        utgw(:, k) = utgw(:, k)*vramp(k)
-        vtgw(:, k) = vtgw(:, k)*vramp(k)
-      end if
+      utgw(:, k) = utgw(:, k)*vramp(k)
+      vtgw(:, k) = vtgw(:, k)*vramp(k)
 
       ! End of level loop.
     end do
@@ -717,11 +715,9 @@ contains
 
     ttgw = dttke + dttdf
 
-    if (associated(vramp)) then
-      do k = ktop, kbot_tend
-        ttgw(:, k) = ttgw(:, k)*vramp(k)
-      end do
-    end if
+    do k = ktop, kbot_tend
+      ttgw(:, k) = ttgw(:, k)*vramp(k)
+    end do
 
     ! Deallocate decomp.
     call decomp%finalize()
