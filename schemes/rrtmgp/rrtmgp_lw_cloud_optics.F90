@@ -53,7 +53,7 @@ contains
     real(kind_phys), dimension(:,:),   intent(in) :: dei              ! Mean effective radius for ice cloud
     real(kind_phys), dimension(:,:),   intent(in) :: des              ! Mean effective radius for snow
     real(kind_phys), dimension(:,:),   intent(in) :: degrau           ! Mean effective radius for graupel
-    real(kind_phys),                   intent(in) :: tiny_in
+    real(kind_phys),                   intent(in) :: tiny_in          ! Definition of tiny for RRTMGP
     logical,                           intent(in) :: do_snow          ! Flag for whether cldfsnow is present
     logical,                           intent(in) :: do_graupel       ! Flag for whether cldfgrau is present
     logical,                           intent(in) :: dolw             ! Flag for whether to perform longwave calculation
