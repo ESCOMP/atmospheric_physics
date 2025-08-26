@@ -132,7 +132,7 @@ contains
     real(kind_phys),    intent(out)               :: flx_heat(:)              ! Surface heat flux for energy conservation check [W m-2]
     real(kind_phys),    intent(out)               :: tau0x(:)                 ! Zonal gravity wave surface stress [N m-2]
     real(kind_phys),    intent(out)               :: tau0y(:)                 ! Meridional gravity wave surface stress [N m-2]
-    real(kind_phys),    intent(out)               :: taua(:,:)                ! Total stress from orographic scheme [N m-2]
+    real(kind_phys),    intent(out)               :: taua(:,:)                ! Total stress from orographic scheme, interface [N m-2]
     character(len=512), intent(out)               :: errmsg
     integer,            intent(out)               :: errflg
 
@@ -311,7 +311,7 @@ contains
     ! actually have so far and OVERWRITE flx_heat with that.
     call energy_change(dt, p, u, v, tend_u(:ncol, :), &
                        tend_v(:ncol, :), tend_s(:ncol, :), de)
-    flx_heat(:ncol) = de
+    flx_heat(:ncol) = de            ! this is the only gw scheme that has flx_heat as out and overwritten directly.
 
     ! Store constituents tendencies
     do m = 1, pcnst

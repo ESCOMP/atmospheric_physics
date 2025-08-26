@@ -259,18 +259,7 @@
   </values>
 </entry>
 
-<entry id="effgw_oro">
-  <type>real</type>
-  <category>gw_drag</category>
-  <standard_name>orographic_scheme_efficiency_of_gravity_wave_momentum_transfer</standard_name>
-  <group>gw_drag_nl</group>
-  <values>
-    <value></value>
-  </values>
-  <desc>
-    Efficiency associated with orographic gravity waves.
-  </desc>
-</entry>
+
 
 <entry id="use_gw_rdg_beta">
   <type>logical</type>

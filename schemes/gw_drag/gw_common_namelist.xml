@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet type="text/xsl"?>
+
+<entry_id_pg version="2.0">
+
+  <entry id="pgwv">
+    <type>integer</type>
+    <category>gw_drag</category>
+    <group>gw_drag_nl</group>
+    <standard_name>mid_gravity_wave_band_spectrum_dimension_tbd</standard_name>
+    <units>1</units>
+    <desc>
+      Gravity wave spectrum dimension (wave numbers are from -pgwv to pgwv).
+    </desc>
+    <values>
+      <value>32</value>
+      <!-- waccm: 18 -->
+    </values>
+  </entry>
+
+  <entry id="gw_dc">
+    <type>real</type>
+    <category>gw_drag</category>
+    <group>gw_drag_nl</group>
+    <standard_name>delta_between_nearest_phase_speeds_in_the_mid_gravity_wave_band_tbd</standard_name>
+    <units>m s-1</units>
+    <desc>
+      Width of speed bins (delta c) for gravity wave spectrum (reference wave
+      speeds are from -pgwv*dc to pgwv*dc).
+    </desc>
+    <values>
+      <value>2.5D0</value>
+    </values>
+  </entry>
+
+  <!-- orographic gravity waves -->
+  <entry id="effgw_oro">
+    <type>real</type>
+    <category>gw_drag</category>
+    <group>gw_drag_nl</group>
+    <standard_name>orographic_scheme_efficiency_of_gravity_wave_momentum_transfer_tbd</standard_name>
+    <units>1</units>
+    <desc>
+      Efficiency associated with orographic gravity waves.
+    </desc>
+    <values>
+      <value>0.125D0</value>
+    </values>
+  </entry>
+
+  <entry id="gw_lndscl_sgh">
+    <type>logical</type>
+    <category>gw_drag</category>
+    <group>gw_drag_nl</group>
+    <standard_name>flag_for_scaling_standard_deviation_of_subgrid_orography_for_orographic_gravity_wave_drag_by_land_area_fraction_tbd</standard_name>
+    <units>flag</units>
+    <desc>
+      Scale SGH by land fraction in gravity wave drag
+    </desc>
+    <values>
+      <value>.true.</value>
+    </values>
+  </entry>
+
+  <entry id="gw_oro_south_fac">
+    <type>real</type>
+    <category>gw_drag</category>
+    <group>gw_drag_nl</group>
+    <standard_name>factor_to_multiply_tau_by_for_orographic_waves_in_the_southern_hemisphere_tbd</standard_name>
+    <units>1</units>
+    <desc>
+      Factor to multiply tau by, for orographic waves in the southern hemisphere.
+    </desc>
+    <values>
+      <value>1.0D0</value>
+    </values>
+  </entry>
+
+  <entry id="gw_apply_tndmax">
+    <type>logical</type>
+    <category>gw_drag</category>
+    <group>gw_drag_nl</group>
+    <standard_name>flag_for_limiter_on_maximum_wind_tendency_from_stress_divergence_in_gravity_wave_drag_scheme_tbd</standard_name>
+    <units>flag</units>
+    <desc>
+      Apply limiter on maximum wind tendency from stress divergence in gravity wave drag scheme.
+    </desc>
+    <values>
+      <value>.true.</value>
+      <value phys_suite="cam7">.false.</value>
+    </values>
+  </entry>
+
+  <!-- -->
+
+
+</entry_id_pg>
