@@ -1,0 +1,142 @@
+! Vertical diffusion sponge layer scheme
+! Adds artificial sponge layer vertical diffusion at the top of the atmosphere
+!
+! CCPP-ized: Haipeng Lin, June 2025
+module vertical_diffusion_sponge_layer
+  use ccpp_kinds, only: kind_phys
+
+  implicit none
+  private
+  save
+
+  ! CCPP-compliant public interfaces
+  public :: vertical_diffusion_sponge_layer_init
+  public :: vertical_diffusion_sponge_layer_run
+  public :: vertical_diffusion_sponge_layer_finalize
+
+  ! Module variables for sponge layer parameters
+  real(kind_phys), allocatable :: kvm_sponge(:)  ! sponge layer diffusion coefficients [m^2 s-1]
+
+contains
+
+!> \section arg_table_vertical_diffusion_sponge_layer_init Argument Table
+!! \htmlinclude vertical_diffusion_sponge_layer_init.html
+  subroutine vertical_diffusion_sponge_layer_init( &
+    amIRoot, iulog, &
+    ptop_ref, &
+    errmsg, errflg)
+
+    ! Input arguments
+    logical,            intent(in)  :: amIRoot           ! are we on the MPI root task?
+    integer,            intent(in)  :: iulog             ! log output unit
+    real(kind_phys),    intent(in)  :: ptop_ref          ! reference top pressure [Pa]
+
+    ! Output arguments
+    character(len=512), intent(out) :: errmsg            ! error message
+    integer,            intent(out) :: errflg            ! error flag
+
+    ! Local variables
+    integer :: k, ierr
+
+    errmsg = ''
+    errflg = 0
+
+    ! Add sponge layer vertical diffusion based on model top pressure
+    if (ptop_ref > 1.e-1_kind_phys .and. ptop_ref < 100.0_kind_phys) then
+      !
+      ! CAM7 FMT (but not CAM6 top (~225 Pa) or CAM7 low top or lower)
+      !
+      allocate(kvm_sponge(4), stat=ierr)
+      if (ierr /= 0) then
+        write(errmsg, *) 'vertical_diffusion_sponge_layer_init: kvm_sponge allocation error = ', ierr
+        errflg = ierr
+        return
+      end if
+      kvm_sponge(1) = 2.e6_kind_phys
+      kvm_sponge(2) = 2.e6_kind_phys
+      kvm_sponge(3) = 0.5e6_kind_phys
+      kvm_sponge(4) = 0.1e6_kind_phys
+    else if (ptop_ref > 1.e-4_kind_phys) then
+      !
+      ! WACCM and WACCM-X
+      !
+      allocate(kvm_sponge(6), stat=ierr)
+      if (ierr /= 0) then
+        write(errmsg, *) 'vertical_diffusion_sponge_layer_init: kvm_sponge allocation error = ', ierr
+        errflg = ierr
+        return
+      end if
+      kvm_sponge(1) = 2.e6_kind_phys
+      kvm_sponge(2) = 2.e6_kind_phys
+      kvm_sponge(3) = 1.5e6_kind_phys
+      kvm_sponge(4) = 1.0e6_kind_phys
+      kvm_sponge(5) = 0.5e6_kind_phys
+      kvm_sponge(6) = 0.1e6_kind_phys
+    end if
+
+    if (amIRoot) then
+      if (allocated(kvm_sponge)) then
+        write(iulog, *) 'Artificial sponge layer vertical diffusion added:'
+        do k = 1, size(kvm_sponge(:), 1)
+          write(iulog, '(a44,i2,a17,e7.2,a8)') 'vertical diffusion coefficient at interface ', k, &
+                                              ' is increased by ', kvm_sponge(k), ' m2 s-2'
+        end do
+      else
+        write(iulog, *) 'No sponge layer vertical diffusion applied (ptop_ref = ', ptop_ref, ' Pa)'
+      end if
+    end if
+
+  end subroutine vertical_diffusion_sponge_layer_init
+
+!> \section arg_table_vertical_diffusion_sponge_layer_run Argument Table
+!! \htmlinclude vertical_diffusion_sponge_layer_run.html
+  subroutine vertical_diffusion_sponge_layer_run( &
+    ncol, pverp, &
+    kvm, &
+    errmsg, errflg)
+
+    ! Input arguments
+    integer,            intent(in)    :: ncol
+    integer,            intent(in)    :: pverp
+
+    ! Input/output arguments
+    real(kind_phys),    intent(inout) :: kvm(:,:)         ! Eddy diffusivity for momentum [m^2 s-1], interfaces
+
+    ! Output arguments
+    character(len=512), intent(out)   :: errmsg           ! error message
+    integer,            intent(out)   :: errflg           ! error flag
+
+    ! Local variables
+    integer :: k
+
+    errmsg = ''
+    errflg = 0
+
+    ! Add sponge layer vertical diffusion
+    if (allocated(kvm_sponge)) then
+      do k = 1, size(kvm_sponge(:), 1)
+        kvm(:ncol, 1) = kvm(:ncol, 1) + kvm_sponge(k)
+      end do
+    end if
+
+  end subroutine vertical_diffusion_sponge_layer_run
+
+!> \section arg_table_vertical_diffusion_sponge_layer_finalize Argument Table
+!! \htmlinclude vertical_diffusion_sponge_layer_finalize.html
+  subroutine vertical_diffusion_sponge_layer_finalize( &
+    errmsg, errflg)
+
+    ! Output arguments
+    character(len=512), intent(out) :: errmsg            ! error message
+    integer,            intent(out) :: errflg            ! error flag
+
+    errmsg = ''
+    errflg = 0
+
+    if (allocated(kvm_sponge)) then
+      deallocate(kvm_sponge)
+    end if
+
+  end subroutine vertical_diffusion_sponge_layer_finalize
+
+end module vertical_diffusion_sponge_layer
