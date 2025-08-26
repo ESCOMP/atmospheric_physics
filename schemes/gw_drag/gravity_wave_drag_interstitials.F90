@@ -56,7 +56,7 @@ contains
     real(kind_phys), intent(in)  :: kvt(:,:)   ! molecular_kinematic_temperature_conductivity_at_interfaces
 
     ! Output arguments
-    type(Coords1D),  intent(out) :: p          ! Vertical coordinate for gravity waves [Coords1D, Pa]
+    type(coords1d),  intent(out) :: p          ! Vertical coordinate for gravity waves [Coords1D, Pa]
 
     real(kind_phys), intent(out) :: rhoi(:, :) ! Density at layer interfaces [kg m-3]
     real(kind_phys), intent(out) :: nm(:, :)   ! Midpoint Brunt-Vaisalla frequencies [s-1]
@@ -163,7 +163,7 @@ contains
 
     use coords_1d, only: Coords1D
 
-    type(Coords1D),     intent(inout)  :: p          ! Vertical coordinate for gravity waves [Coords1D, Pa]
+    type(coords1d),     intent(inout)  :: p          ! Vertical coordinate for gravity waves [Coords1D, Pa]
     character(len=512), intent(out)    :: errmsg
     integer, intent(out)               :: errflg
 

@@ -267,7 +267,7 @@ contains
     integer,            intent(in)                :: pver
     integer,            intent(in)                :: pcnst
     real(kind_phys),    intent(in)                :: dt
-    type(Coords1D),     intent(in)                :: p                        ! Pressure coordinates [Pa]
+    type(coords1d),     intent(in)                :: p                        ! Pressure coordinates [Pa]
     real(kind_phys),    pointer, intent(in)       :: vramp(:)                 ! Ramping profile for gravity wave drag [1]
     real(kind_phys),    intent(in)                :: pi                       ! Mathematical constant pi [1]
     real(kind_phys),    intent(in)                :: cpair                    ! Specific heat of dry air at constant pressure [J kg-1 K-1]
@@ -493,7 +493,7 @@ contains
     integer,            intent(in)                :: pver
     integer,            intent(in)                :: pcnst
     real(kind_phys),    intent(in)                :: dt
-    type(Coords1D),     intent(in)                :: p                        ! Pressure coordinates [Pa]
+    type(coords1d),     intent(in)                :: p                        ! Pressure coordinates [Pa]
     real(kind_phys),    pointer, intent(in)       :: vramp(:)                 ! Ramping profile for gravity wave drag [1]
     real(kind_phys),    intent(in)                :: pi                       ! Mathematical constant pi [1]
     real(kind_phys),    intent(in)                :: cpair                    ! Specific heat of dry air at constant pressure [J kg-1 K-1]

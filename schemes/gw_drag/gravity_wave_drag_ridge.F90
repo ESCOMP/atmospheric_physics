@@ -472,7 +472,7 @@ contains
     real(kind_phys),     intent(in)    :: rair                         ! gas_constant_of_dry_air [J kg-1 K-1]
 
     real(kind_phys),     pointer, intent(in) :: vramp(:)               ! Vertical tapering function [1]
-    type(Coords1D),      intent(in)    :: p                            ! Pressure coordinates, Coords1D
+    type(coords1d),      intent(in)    :: p                            ! Pressure coordinates, Coords1D
 
     integer,             intent(in)    :: n_rdg_beta                   ! Number of meso-Beta ridges (per gridbox) to invoke [count]
 
@@ -618,7 +618,7 @@ contains
     real(kind_phys),     intent(in)    :: rair                         ! gas_constant_of_dry_air [J kg-1 K-1]
 
     real(kind_phys),     intent(in), pointer :: vramp(:)               ! Vertical tapering function [1]
-    type(Coords1D),      intent(in)    :: p                            ! Pressure coordinates, Coords1D
+    type(coords1d),      intent(in)    :: p                            ! Pressure coordinates, Coords1D
 
     integer,             intent(in)    :: n_rdg_gamma                  ! Number of meso-gamma ridges (per gridbox) to invoke.
 
@@ -768,7 +768,7 @@ contains
     ! Regardless, we will only ever emit into l = 0.
     type(GWBand), intent(in) :: band
     ! Pressure coordinates.
-    type(Coords1D), intent(in) :: p
+    type(coords1d), intent(in) :: p
 
     ! Midpoint zonal/meridional winds. ( m s-1)
     real(kind_phys), intent(in) :: u(ncol, pver), v(ncol, pver)
@@ -969,7 +969,7 @@ contains
     ! Regardless, we will only ever emit into l = 0.
     type(GWBand), intent(in) :: band
     ! Pressure coordinates.
-    type(Coords1D), intent(in) :: p
+    type(coords1d), intent(in) :: p
 
     ! Midpoint zonal/meridional winds. ( m s-1)
     real(kind_phys), intent(in) :: u(:, :), v(:, :)
@@ -1834,7 +1834,7 @@ contains
     real(kind_phys), intent(in) :: u(:, :)    ! Midpoint zonal winds. ( m s-1)
     real(kind_phys), intent(in) :: v(:, :)    ! Midpoint meridional winds. ( m s-1)
     real(kind_phys), intent(in) :: t(:, :)    ! Midpoint temperatures. (K)
-    type(Coords1D), intent(in) :: p               ! Pressure coordinates.
+    type(coords1d), intent(in) :: p               ! Pressure coordinates.
     real(kind_phys), intent(in) :: piln(:, :)  ! Log of interface pressures.
     real(kind_phys), intent(in) :: zm(:, :)   ! Midpoint altitudes above ground (m).
     real(kind_phys), intent(in) :: zi(:, :) ! Interface altitudes above ground (m).

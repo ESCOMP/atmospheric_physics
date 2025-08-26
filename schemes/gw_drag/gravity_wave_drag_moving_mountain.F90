@@ -243,7 +243,7 @@ contains
     real(kind_phys), intent(in)    :: gravit
     real(kind_phys), intent(in)    :: rair
     real(kind_phys), intent(in)    :: dt              ! physics timestep
-    type(Coords1D),  intent(in)    :: p               ! Pressure coordinates.
+    type(coords1d),  intent(in)    :: p               ! Pressure coordinates.
     real(kind_phys), pointer, intent(in) :: vramp(:)
     real(kind_phys), intent(in)    :: state_u(:, :)   ! meridional wind
     real(kind_phys), intent(in)    :: state_v(:, :)   ! zonal wind
