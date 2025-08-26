@@ -13,13 +13,11 @@ contains
     !> \section arg_table_bl_gwdo_compat_pre_init Argument Table
     !! \htmlinclude bl_gwdo_compat_pre_init.html
     pure subroutine bl_gwdo_compat_pre_init( &
-            omega, rearth, &
-            dxmeter, sina, cosa, &
+            sina, cosa, &
             errmsg, errflg)
         use ccpp_kinds, only: kind_phys
 
-        real(kind_phys), intent(in) :: omega(:), rearth
-        real(kind_phys), intent(out) :: dxmeter(:), sina(:), cosa(:)
+        real(kind_phys), intent(out) :: sina(:), cosa(:)
         character(*), intent(out) :: errmsg
         integer, intent(out) :: errflg
 
@@ -27,10 +25,6 @@ contains
         errflg = 0
 
         ! These variables do not change with time. Set them just once at model initialization for better performance.
-
-        ! The "bl_gwdo" physics scheme needs grid sizes in meters. This is trivial for models with regular grids like WRF,
-        ! but not so straightforward for models with unstructured grids like CAM-SIMA. Here, the square root of cell area is used.
-        dxmeter(:) = sqrt(omega(:) * (rearth ** 2))
 
         ! The "bl_gwdo" physics scheme was originally designed to be used with regional models like WRF, where the positive X and
         ! Y directions may not always point to the east and north, respectively. This is no longer the case for global models like
