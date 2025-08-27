@@ -1,0 +1,20 @@
+name: PRs to main must be from development branch
+on:
+  pull_request_target:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - edited
+    branches:
+      - main
+jobs:
+  check-branches:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check branches
+        run: |
+          if [ ${{ github.head_ref }} != "development" ]; then
+            echo "Merge requests to main branch are only allowed from the development branch."
+            exit 1
+          fi
