@@ -6,7 +6,6 @@ on:
       - reopened
       - synchronize
       - edited
-  pull_request:
     branches:
       - main
 jobs:
