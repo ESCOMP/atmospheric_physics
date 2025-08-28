@@ -466,64 +466,64 @@ contains
     integer,             intent(in)    :: pver
     integer,             intent(in)    :: ncol
     integer,             intent(in)    :: pcnst
-    real(kind_phys),     intent(in)    :: dt                           ! Physics timestep [s]
-    real(kind_phys),     intent(in)    :: pi                           ! pi_constant [1]
-    real(kind_phys),     intent(in)    :: cpair                        ! specific_heat_of_dry_air_at_constant_pressure [J kg-1 K-1]
-    real(kind_phys),     intent(in)    :: rair                         ! gas_constant_of_dry_air [J kg-1 K-1]
+    real(kind_phys),     intent(in)    :: dt                  ! Physics timestep [s]
+    real(kind_phys),     intent(in)    :: pi                  ! pi_constant [1]
+    real(kind_phys),     intent(in)    :: cpair               ! specific_heat_of_dry_air_at_constant_pressure [J kg-1 K-1]
+    real(kind_phys),     intent(in)    :: rair                ! gas_constant_of_dry_air [J kg-1 K-1]
 
-    real(kind_phys),     intent(in)    :: vramp(:)                     ! Vertical tapering function [1]
-    type(coords1d),      intent(in)    :: p                            ! Pressure coordinates, Coords1D
+    real(kind_phys),     intent(in)    :: vramp(:)            ! Vertical tapering function [1]
+    type(coords1d),      intent(in)    :: p                   ! Pressure coordinates, Coords1D
 
-    integer,             intent(in)    :: n_rdg_beta                   ! Number of meso-Beta ridges (per gridbox) to invoke [count]
+    integer,             intent(in)    :: n_rdg_beta          ! Number of meso-Beta ridges (per gridbox) to invoke [count]
 
-    real(kind_phys),     intent(in)    :: u(:, :)                      ! Midpoint zonal winds [m s-1]
-    real(kind_phys),     intent(in)    :: v(:, :)                      ! Midpoint meridional winds [m s-1]
-    real(kind_phys),     intent(in)    :: t(:, :)                      ! Midpoint temperatures [K]
-    real(kind_phys),     intent(in)    :: q(:, :, :)                   ! Constituent array [kg kg-1]
-    real(kind_phys),     intent(in)    :: dse(:, :)                    ! Dry static energy [J kg-1]
+    real(kind_phys),     intent(in)    :: u(:, :)             ! Midpoint zonal winds [m s-1]
+    real(kind_phys),     intent(in)    :: v(:, :)             ! Midpoint meridional winds [m s-1]
+    real(kind_phys),     intent(in)    :: t(:, :)             ! Midpoint temperatures [K]
+    real(kind_phys),     intent(in)    :: q(:, :, :)          ! Constituent array [kg kg-1]
+    real(kind_phys),     intent(in)    :: dse(:, :)           ! Dry static energy [J kg-1]
 
-    real(kind_phys),     intent(in)    :: piln(:, :)                   ! Log of interface pressures [ln(Pa)]
-    real(kind_phys),     intent(in)    :: zm(:, :)                     ! Midpoint altitudes above ground [m]
-    real(kind_phys),     intent(in)    :: zi(:, :)                     ! Interface altitudes above ground [m]
+    real(kind_phys),     intent(in)    :: piln(:, :)          ! Log of interface pressures [ln(Pa)]
+    real(kind_phys),     intent(in)    :: zm(:, :)            ! Midpoint altitudes above ground [m]
+    real(kind_phys),     intent(in)    :: zi(:, :)            ! Interface altitudes above ground [m]
 
-    real(kind_phys),     intent(in)    :: nm(:, :)                     ! Midpoint Brunt-Vaisalla frequencies [s-1]
-    real(kind_phys),     intent(in)    :: ni(:, :)                     ! Interface Brunt-Vaisalla frequencies [s-1]
-    real(kind_phys),     intent(in)    :: rhoi(:, :)                   ! Interface density [kg m-3]
-    real(kind_phys),     intent(in)    :: kvt_gw(:, :)                 ! Molecular thermal diffusivity [m2 s-1]
+    real(kind_phys),     intent(in)    :: nm(:, :)            ! Midpoint Brunt-Vaisalla frequencies [s-1]
+    real(kind_phys),     intent(in)    :: ni(:, :)            ! Interface Brunt-Vaisalla frequencies [s-1]
+    real(kind_phys),     intent(in)    :: rhoi(:, :)          ! Interface density [kg m-3]
+    real(kind_phys),     intent(in)    :: kvt_gw(:, :)        ! Molecular thermal diffusivity [m2 s-1]
 
     ! Ridge scheme parameters
-    logical,             intent(in)    :: use_gw_rdg_resid             ! Enable residual (non-ridge) orography GW. [flag]
-    real(kind_phys),     intent(in)    :: effgw_rdg_resid              ! Efficiency scaling factor associated with residual non-ridge topo. [1]
-    real(kind_phys),     intent(in)    :: effgw_rdg_beta               ! Efficiency scaling factor associated with anisotropic OGW. [1]
-    real(kind_phys),     intent(in)    :: effgw_rdg_beta_max           ! Max efficiency associated with anisotropic OGW. [1]
-    real(kind_phys),     intent(in)    :: rdg_beta_cd_llb              ! Drag coefficient for obstacles in low-level flow. [1]
-    logical,             intent(in)    :: trpd_leewv_rdg_beta          ! Allow trapping for meso-Beta Ridges? [flag]
+    logical,             intent(in)    :: use_gw_rdg_resid    ! Enable residual (non-ridge) orography GW. [flag]
+    real(kind_phys),     intent(in)    :: effgw_rdg_resid     ! Efficiency scaling factor associated with residual non-ridge topo. [1]
+    real(kind_phys),     intent(in)    :: effgw_rdg_beta      ! Efficiency scaling factor associated with anisotropic OGW. [1]
+    real(kind_phys),     intent(in)    :: effgw_rdg_beta_max  ! Max efficiency associated with anisotropic OGW. [1]
+    real(kind_phys),     intent(in)    :: rdg_beta_cd_llb     ! Drag coefficient for obstacles in low-level flow. [1]
+    logical,             intent(in)    :: trpd_leewv_rdg_beta ! Allow trapping for meso-Beta Ridges? [flag]
 
     ! Beta ridge input data
-    real(kind_phys),     intent(in), pointer :: gbxar (:)              ! Grid box area [km2]
-    real(kind_phys),     intent(in), pointer :: isovar(:)              ! Isotropic variance [m]
-    real(kind_phys),     intent(in), pointer :: isowgt(:)              ! Isotropic weight [1]
-    real(kind_phys),     intent(in), pointer :: hwdth (:,:)            ! Ridge half-width [km]
-    real(kind_phys),     intent(in), pointer :: clngt (:,:)            ! Ridge length [km]
-    real(kind_phys),     intent(in), pointer :: mxdis (:,:)            ! Ridge/obstacle height [m]
-    real(kind_phys),     intent(in), pointer :: anixy (:,:)            ! Ridge anisotropy [1]
-    real(kind_phys),     intent(in), pointer :: angll (:,:)            ! Ridge clockwise angle wrt north-south [degrees]
+    real(kind_phys),     intent(in)    :: gbxar (:)           ! Grid box area [km2]
+    real(kind_phys),     intent(in)    :: isovar(:)           ! Isotropic variance [m]
+    real(kind_phys),     intent(in)    :: isowgt(:)           ! Isotropic weight [1]
+    real(kind_phys),     intent(in)    :: hwdth (:,:)         ! Ridge half-width [km]
+    real(kind_phys),     intent(in)    :: clngt (:,:)         ! Ridge length [km]
+    real(kind_phys),     intent(in)    :: mxdis (:,:)         ! Ridge/obstacle height [m]
+    real(kind_phys),     intent(in)    :: anixy (:,:)         ! Ridge anisotropy [1]
+    real(kind_phys),     intent(in)    :: angll (:,:)         ! Ridge clockwise angle wrt north-south [degrees]
 
     ! Output tendencies
-    real(kind_phys),     intent(inout) :: q_tend(:, :, :)              ! Constituent tendencies [kg kg-1 s-1]
-    real(kind_phys),     intent(inout) :: s_tend(:, :)                 ! Dry static energy tendency [J kg-1 s-1]
-    real(kind_phys),     intent(inout) :: u_tend(:, :)                 ! Zonal wind tendency [m s-2]
-    real(kind_phys),     intent(inout) :: v_tend(:, :)                 ! Meridional wind tendency [m s-2]
-    real(kind_phys),     intent(out)   :: flx_heat(:)                  ! Surface heat flux for check energy [W m-2]
+    real(kind_phys),     intent(inout) :: q_tend(:, :, :)     ! Constituent tendencies [kg kg-1 s-1]
+    real(kind_phys),     intent(inout) :: s_tend(:, :)        ! Dry static energy tendency [J kg-1 s-1]
+    real(kind_phys),     intent(inout) :: u_tend(:, :)        ! Zonal wind tendency [m s-2]
+    real(kind_phys),     intent(inout) :: v_tend(:, :)        ! Meridional wind tendency [m s-2]
+    real(kind_phys),     intent(out)   :: flx_heat(:)         ! Surface heat flux for check energy [W m-2]
 
     ! Diagnostic outputs
-    real(kind_phys),     intent(out)   :: taurx(:,:)                   ! wave stress in zonal direction, interfaces [N m-2]
-    real(kind_phys),     intent(out)   :: taury(:,:)                   ! wave stress in meridional direction, interfaces [N m-2]
-    real(kind_phys),     intent(out)   :: tauardgx(:,:)                ! ridge based momentum flux profile, zonal, interfaces [N m-2]
-    real(kind_phys),     intent(out)   :: tauardgy(:,:)                ! ridge based momentum flux profile, meridional, interfaces [N m-2]
-    real(kind_phys),     intent(out)   :: utrdg(:,:)                   ! U tendency accummulator [m s-1]
-    real(kind_phys),     intent(out)   :: vtrdg(:,:)                   ! V tendency accummulator [m s-1]
-    real(kind_phys),     intent(out)   :: ttrdg(:,:)                   ! T tendency from orographic gravity wave drag [K s-1]
+    real(kind_phys),     intent(out)   :: taurx(:,:)          ! wave stress in zonal direction, interfaces [N m-2]
+    real(kind_phys),     intent(out)   :: taury(:,:)          ! wave stress in meridional direction, interfaces [N m-2]
+    real(kind_phys),     intent(out)   :: tauardgx(:,:)       ! ridge based momentum flux profile, zonal, interfaces [N m-2]
+    real(kind_phys),     intent(out)   :: tauardgy(:,:)       ! ridge based momentum flux profile, meridional, interfaces [N m-2]
+    real(kind_phys),     intent(out)   :: utgw(:,:)           ! U tendency from orographic gravity wave drag [m s-1]
+    real(kind_phys),     intent(out)   :: vtgw(:,:)           ! V tendency from orographic gravity wave drag [m s-1]
+    real(kind_phys),     intent(out)   :: ttgw(:,:)           ! T tendency from orographic gravity wave drag [K s-1]
 
     ! Error handling
     character(len=512),  intent(out)   :: errmsg
@@ -580,9 +580,9 @@ contains
                      taury             = taury(:,:), &
                      tauardgx          = tauardgx(:,:), &
                      tauardgy          = tauardgy(:,:), &
-                     utrdg             = utrdg(:,:), &
-                     vtrdg             = vtrdg(:,:), &
-                     ttrdg             = ttrdg(:,:), &
+                     utrdg             = utgw(:,:), &
+                     vtrdg             = vtgw(:,:), &
+                     ttrdg             = ttgw(:,:), &
                      errmsg            = errmsg, &
                      errflg            = errflg)
 
@@ -609,65 +609,65 @@ contains
     use coords_1d, only: Coords1D
 
     ! Input arguments
-    integer,             intent(in)    :: pver                         ! Number of vertical layers [count]
-    integer,             intent(in)    :: ncol                         ! Number of columns [count]
-    integer,             intent(in)    :: pcnst                        ! Number of constituents [count]
-    real(kind_phys),     intent(in)    :: dt                           ! Physics timestep [s]
-    real(kind_phys),     intent(in)    :: pi                           ! pi_constant [1]
-    real(kind_phys),     intent(in)    :: cpair                        ! specific_heat_of_dry_air_at_constant_pressure [J kg-1 K-1]
-    real(kind_phys),     intent(in)    :: rair                         ! gas_constant_of_dry_air [J kg-1 K-1]
+    integer,             intent(in)    :: pver
+    integer,             intent(in)    :: ncol
+    integer,             intent(in)    :: pcnst
+    real(kind_phys),     intent(in)    :: dt                   ! Physics timestep [s]
+    real(kind_phys),     intent(in)    :: pi                   ! pi_constant [1]
+    real(kind_phys),     intent(in)    :: cpair                ! specific_heat_of_dry_air_at_constant_pressure [J kg-1 K-1]
+    real(kind_phys),     intent(in)    :: rair                 ! gas_constant_of_dry_air [J kg-1 K-1]
 
-    real(kind_phys),     intent(in)    :: vramp(:)                     ! Vertical tapering function [1]
-    type(coords1d),      intent(in)    :: p                            ! Pressure coordinates, Coords1D
+    real(kind_phys),     intent(in)    :: vramp(:)             ! Vertical tapering function [1]
+    type(coords1d),      intent(in)    :: p                    ! Pressure coordinates, Coords1D
 
-    integer,             intent(in)    :: n_rdg_gamma                  ! Number of meso-gamma ridges (per gridbox) to invoke.
+    integer,             intent(in)    :: n_rdg_gamma          ! Number of meso-gamma ridges (per gridbox) to invoke.
 
-    real(kind_phys),     intent(in)    :: u(:, :)                      ! Midpoint zonal winds [m s-1]
-    real(kind_phys),     intent(in)    :: v(:, :)                      ! Midpoint meridional winds [m s-1]
-    real(kind_phys),     intent(in)    :: t(:, :)                      ! Midpoint temperatures [K]
-    real(kind_phys),     intent(in)    :: q(:, :, :)                   ! Constituent array [kg kg-1]
-    real(kind_phys),     intent(in)    :: dse(:, :)                    ! Dry static energy [J kg-1]
+    real(kind_phys),     intent(in)    :: u(:, :)              ! Midpoint zonal winds [m s-1]
+    real(kind_phys),     intent(in)    :: v(:, :)              ! Midpoint meridional winds [m s-1]
+    real(kind_phys),     intent(in)    :: t(:, :)              ! Midpoint temperatures [K]
+    real(kind_phys),     intent(in)    :: q(:, :, :)           ! Constituent array [kg kg-1]
+    real(kind_phys),     intent(in)    :: dse(:, :)            ! Dry static energy [J kg-1]
 
-    real(kind_phys),     intent(in)    :: piln(:, :)                   ! Log of interface pressures [ln(Pa)]
-    real(kind_phys),     intent(in)    :: zm(:, :)                     ! Midpoint altitudes above ground [m]
-    real(kind_phys),     intent(in)    :: zi(:, :)                     ! Interface altitudes above ground [m]
+    real(kind_phys),     intent(in)    :: piln(:, :)           ! Log of interface pressures [ln(Pa)]
+    real(kind_phys),     intent(in)    :: zm(:, :)             ! Midpoint altitudes above ground [m]
+    real(kind_phys),     intent(in)    :: zi(:, :)             ! Interface altitudes above ground [m]
 
-    real(kind_phys),     intent(in)    :: nm(:, :)                     ! Midpoint Brunt-Vaisalla frequencies [s-1]
-    real(kind_phys),     intent(in)    :: ni(:, :)                     ! Interface Brunt-Vaisalla frequencies [s-1]
-    real(kind_phys),     intent(in)    :: rhoi(:, :)                   ! Density at interfaces [kg m-3]
-    real(kind_phys),     intent(in)    :: kvt_gw(:, :)                 ! Molecular thermal diffusivity [m2 s-1]
+    real(kind_phys),     intent(in)    :: nm(:, :)             ! Midpoint Brunt-Vaisalla frequencies [s-1]
+    real(kind_phys),     intent(in)    :: ni(:, :)             ! Interface Brunt-Vaisalla frequencies [s-1]
+    real(kind_phys),     intent(in)    :: rhoi(:, :)           ! Density at interfaces [kg m-3]
+    real(kind_phys),     intent(in)    :: kvt_gw(:, :)         ! Molecular thermal diffusivity [m2 s-1]
 
     ! Ridge scheme parameters
-    logical,             intent(in)    :: use_gw_rdg_resid             ! Enable residual (non-ridge) orography GW. [flag]
-    real(kind_phys),     intent(in)    :: effgw_rdg_resid              ! Efficiency scaling factor associated with residual non-ridge topo. [1]
-    real(kind_phys),     intent(in)    :: effgw_rdg_gamma              ! Efficiency scaling factor associated iwth anisotropic OGW [1]
-    real(kind_phys),     intent(in)    :: effgw_rdg_gamma_max          ! Max efficiency associated with anisotropic OGW [1]
-    real(kind_phys),     intent(in)    :: rdg_gamma_cd_llb             ! Drag coefficient for obstacles in low-level flow [1]
-    logical,             intent(in)    :: trpd_leewv_rdg_gamma         ! Allow trapping for meso-gamma Ridges? [flag]
+    logical,             intent(in)    :: use_gw_rdg_resid     ! Enable residual (non-ridge) orography GW. [flag]
+    real(kind_phys),     intent(in)    :: effgw_rdg_resid      ! Efficiency scaling factor associated with residual non-ridge topo. [1]
+    real(kind_phys),     intent(in)    :: effgw_rdg_gamma      ! Efficiency scaling factor associated iwth anisotropic OGW [1]
+    real(kind_phys),     intent(in)    :: effgw_rdg_gamma_max  ! Max efficiency associated with anisotropic OGW [1]
+    real(kind_phys),     intent(in)    :: rdg_gamma_cd_llb     ! Drag coefficient for obstacles in low-level flow [1]
+    logical,             intent(in)    :: trpd_leewv_rdg_gamma ! Allow trapping for meso-gamma Ridges? [flag]
 
     ! Gamma ridge input data
-    real(kind_phys),     intent(in), pointer :: gbxarg (:)             ! Grid box area for gamma ridges [km2]
-    real(kind_phys),     intent(in), pointer :: hwdthg (:,:)           ! Gamma ridge half-width [km]
-    real(kind_phys),     intent(in), pointer :: clngtg (:,:)           ! Gamma ridge length [km]
-    real(kind_phys),     intent(in), pointer :: mxdisg (:,:)           ! Gamma ridge/obstacle height [m]
-    real(kind_phys),     intent(in), pointer :: anixyg (:,:)           ! Gamma ridge anisotropy [1]
-    real(kind_phys),     intent(in), pointer :: angllg (:,:)           ! Gamma ridge clockwise angle wrt north-south [degrees]
+    real(kind_phys),     intent(in)    :: gbxarg (:)           ! Grid box area for gamma ridges [km2]
+    real(kind_phys),     intent(in)    :: hwdthg (:,:)         ! Gamma ridge half-width [km]
+    real(kind_phys),     intent(in)    :: clngtg (:,:)         ! Gamma ridge length [km]
+    real(kind_phys),     intent(in)    :: mxdisg (:,:)         ! Gamma ridge/obstacle height [m]
+    real(kind_phys),     intent(in)    :: anixyg (:,:)         ! Gamma ridge anisotropy [1]
+    real(kind_phys),     intent(in)    :: angllg (:,:)         ! Gamma ridge clockwise angle wrt north-south [degrees]
 
     ! Output tendencies
-    real(kind_phys),     intent(inout) :: q_tend(:, :, :)              ! Constituent tendencies [kg kg-1 s-1]
-    real(kind_phys),     intent(inout) :: s_tend(:, :)                 ! Dry static energy tendency [J kg-1 s-1]
-    real(kind_phys),     intent(inout) :: u_tend(:, :)                 ! Zonal wind tendency [m s-2]
-    real(kind_phys),     intent(inout) :: v_tend(:, :)                 ! Meridional wind tendency [m s-2]
-    real(kind_phys),     intent(out)   :: flx_heat(:)                  ! Surface heat flux for check energy [W m-2]
+    real(kind_phys),     intent(inout) :: q_tend(:, :, :)      ! Constituent tendencies [kg kg-1 s-1]
+    real(kind_phys),     intent(inout) :: s_tend(:, :)         ! Dry static energy tendency [J kg-1 s-1]
+    real(kind_phys),     intent(inout) :: u_tend(:, :)         ! Zonal wind tendency [m s-2]
+    real(kind_phys),     intent(inout) :: v_tend(:, :)         ! Meridional wind tendency [m s-2]
+    real(kind_phys),     intent(out)   :: flx_heat(:)          ! Surface heat flux for check energy [W m-2]
 
     ! Diagnostic outputs
-    real(kind_phys),     intent(out)   :: taurx(:,:)                   ! wave stress in zonal direction, interfaces [N m-2]
-    real(kind_phys),     intent(out)   :: taury(:,:)                   ! wave stress in meridional direction, interfaces [N m-2]
-    real(kind_phys),     intent(out)   :: tauardgx(:,:)                ! ridge based momentum flux profile, zonal, interfaces [N m-2]
-    real(kind_phys),     intent(out)   :: tauardgy(:,:)                ! ridge based momentum flux profile, meridional, interfaces [N m-2]
-    real(kind_phys),     intent(out)   :: utrdg(:,:)                   ! U tendency accummulator [m s-1]
-    real(kind_phys),     intent(out)   :: vtrdg(:,:)                   ! V tendency accummulator [m s-1]
-    real(kind_phys),     intent(out)   :: ttrdg(:,:)                   ! T tendency from orographic gravity wave drag [K s-1]
+    real(kind_phys),     intent(out)   :: taurx(:,:)           ! wave stress in zonal direction, interfaces [N m-2]
+    real(kind_phys),     intent(out)   :: taury(:,:)           ! wave stress in meridional direction, interfaces [N m-2]
+    real(kind_phys),     intent(out)   :: tauardgx(:,:)        ! ridge based momentum flux profile, zonal, interfaces [N m-2]
+    real(kind_phys),     intent(out)   :: tauardgy(:,:)        ! ridge based momentum flux profile, meridional, interfaces [N m-2]
+    real(kind_phys),     intent(out)   :: utgw(:,:)            ! U tendency from orographic gravity wave drag [m s-1]
+    real(kind_phys),     intent(out)   :: vtgw(:,:)            ! V tendency from orographic gravity wave drag [m s-1]
+    real(kind_phys),     intent(out)   :: ttgw(:,:)            ! T tendency from orographic gravity wave drag [K s-1]
 
     ! Error handling
     character(len=512),  intent(out)   :: errmsg
@@ -739,9 +739,9 @@ contains
                      taury             = taury(:,:), &
                      tauardgx          = tauardgx(:,:), &
                      tauardgy          = tauardgy(:,:), &
-                     utrdg             = utrdg(:,:), &
-                     vtrdg             = vtrdg(:,:), &
-                     ttrdg             = ttrdg(:,:), &
+                     utrdg             = utgw(:,:), &
+                     vtrdg             = vtgw(:,:), &
+                     ttrdg             = ttgw(:,:), &
                      errmsg            = errmsg, &
                      errflg            = errflg)
 

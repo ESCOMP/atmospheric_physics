@@ -31,19 +31,6 @@ module gravity_wave_drag_moving_mountain
   ! Band for moving mountain gravity waves.
   type(GWBand)               :: band
 
-  ! Wave Reynolds stress.
-  real(kind_phys), allocatable :: tau(:, :, :) ! tau = momentum flux (m2/s2) at interface level ngwv = band of phase speeds
-  ! gravity wave wind tendency for each wave
-  real(kind_phys), allocatable :: gwut(:, :, :)
-  ! Wave phase speeds for each column
-  real(kind_phys), allocatable :: phase_speeds(:, :)
-
-  ! Projection of wind at midpoints and interfaces.
-  real(kind_phys), allocatable :: ubm(:, :), ubi(:, :)
-  ! Unit vectors of source wind (zonal and meridional components).
-  real(kind_phys), allocatable :: xv(:), yv(:) !determined by vector direction of wind at source
-  ! Phase speeds.
-  real(kind_phys), allocatable :: c(:, :)
   integer  :: movmtn_source = -1
   integer  :: movmtn_ksteer = -1
   integer  :: movmtn_klaunch = -1
@@ -77,13 +64,11 @@ contains
     character(len=512), intent(out)               :: errmsg
     integer, intent(out)                          :: errflg
 
-    integer :: stat
     real(kind_phys), allocatable                  :: file_mfcc(:, :) !is the lookup table from the file f(depth, wind, phase speed)
 
     ! Number of wavenumbers in the input file.
     integer :: ngwv_file, k
 
-    character(len=512) :: msg
     character(len=*), parameter :: sub = 'gravity_wave_drag_moving_mountain_init:'
 
     class(abstract_netcdf_reader_t), allocatable :: reader
@@ -232,6 +217,7 @@ contains
                            utgw, vtgw, &
                            ttgw, qtgw, egwdffi_tot, dttdf, dttke, &
                            tau0, gwut0, &
+                           usteer, vsteer, CS, steer_level, xpwp_src, &
                            errmsg, errflg)
 
     use coords_1d, only: Coords1D
@@ -242,28 +228,28 @@ contains
     integer,         intent(in)    :: pcnst
     real(kind_phys), intent(in)    :: gravit
     real(kind_phys), intent(in)    :: rair
-    real(kind_phys), intent(in)    :: dt              ! physics timestep
-    type(coords1d),  intent(in)    :: p               ! Pressure coordinates.
+    real(kind_phys), intent(in)    :: dt                ! physics timestep
+    type(coords1d),  intent(in)    :: p                 ! Pressure coordinates.
     real(kind_phys), intent(in)    :: vramp(:)
-    real(kind_phys), intent(in)    :: state_u(:, :)   ! meridional wind
-    real(kind_phys), intent(in)    :: state_v(:, :)   ! zonal wind
-    real(kind_phys), intent(in)    :: state_t(:, :)   ! temperature (K)
-    real(kind_phys), intent(in)    :: state_q(:, :, :)        ! Constituent array.
-    real(kind_phys), intent(in)    :: dse(:, :)       ! Dry static energy.
-    real(kind_phys), intent(in)    :: pint(:, :)      ! pressure at model interfaces
-    real(kind_phys), intent(in)    :: piln(:, :)      ! ln pressure at model interfaces
-    real(kind_phys), intent(in)    :: rhoi(:, :)      ! Interface density (kg m-3).
-    real(kind_phys), intent(in)    :: nm(:, :)        ! Midpoint Brunt-Vaisalla frequencies (s-1).
-    real(kind_phys), intent(in)    :: ni(:, :)        ! Interface Brunt-Vaisalla frequencies (s-1).
-    real(kind_phys), intent(in)    :: kvt_gw(:, :)     ! Molecular thermal diffusivity.
-    real(kind_phys), intent(in)    :: ttend_dp(:, :)  ! Temperature change due to deep convection.
-    real(kind_phys), intent(in)    :: ttend_clubb(:, :)
-    real(kind_phys), intent(in)    :: upwp_clubb(:, :)
-    real(kind_phys), intent(in)    :: vpwp_clubb(:, :)
-    real(kind_phys), intent(in)    :: vorticity(:, :)   ! vorticity
+    real(kind_phys), intent(in)    :: state_u(:, :)     ! meridional wind
+    real(kind_phys), intent(in)    :: state_v(:, :)     ! zonal wind
+    real(kind_phys), intent(in)    :: state_t(:, :)     ! temperature (K)
+    real(kind_phys), intent(in)    :: state_q(:, :, :)  ! Constituent array.
+    real(kind_phys), intent(in)    :: dse(:, :)         ! Dry static energy.
+    real(kind_phys), intent(in)    :: pint(:, :)        ! pressure at model interfaces
+    real(kind_phys), intent(in)    :: piln(:, :)        ! ln pressure at model interfaces
+    real(kind_phys), intent(in)    :: rhoi(:, :)        ! Interface density (kg m-3).
+    real(kind_phys), intent(in)    :: nm(:, :)          ! Midpoint Brunt-Vaisalla frequencies (s-1).
+    real(kind_phys), intent(in)    :: ni(:, :)          ! Interface Brunt-Vaisalla frequencies (s-1).
+    real(kind_phys), intent(in)    :: kvt_gw(:, :)      ! Molecular thermal diffusivity.
+    real(kind_phys), intent(in)    :: ttend_dp(:, :)    ! Temperature change due to deep convection.
+    real(kind_phys), intent(in)    :: ttend_clubb(:, :) ! CLUBB Net heating rate [K s-1]
+    real(kind_phys), intent(in)    :: upwp_clubb(:, :)  ! X-momentum flux from CLUBB to GW [m2 s-2]
+    real(kind_phys), intent(in)    :: vpwp_clubb(:, :)  ! Y-momentum flux from CLUBB to GW [m2 s-2]
+    real(kind_phys), intent(in)    :: vorticity(:, :)   ! vorticity from (SE) dycore for GW [s-1]
     real(kind_phys), intent(in)    :: zm(:, :)
     real(kind_phys), intent(in)    :: alpha_gw_movmtn
-    real(kind_phys), intent(in)    :: effgw_movmtn_pbl ! Tendency efficiency scaling factor for moving mountain source.
+    real(kind_phys), intent(in)    :: effgw_movmtn_pbl  ! Tendency efficiency scaling factor for moving mountain source.
     logical, intent(in)            :: gw_apply_tndmax
     logical, intent(in)            :: use_gw_movmtn_pbl
 
@@ -293,14 +279,24 @@ contains
     real(kind_phys), intent(out)   :: dttke(:, :)
     real(kind_phys), intent(out)   :: tau0(:, :)   ! Moving mountain momentum flux profile [N m-2]
     real(kind_phys), intent(out)   :: gwut0(:, :)  ! Moving mountain drag force - UBM component [m s-2]
+
+    ! For diagnostics:
+    real(kind_phys), intent(out)   :: usteer(:)      ! Source-level X-wind [m s-1]
+    real(kind_phys), intent(out)   :: vsteer(:)      ! Source-level Y-wind [m s-1]
+    real(kind_phys), intent(out)   :: steer_level(:) ! Steering level (integer converted to real*8) [index]
+    real(kind_phys), intent(out)   :: CS(:)          ! Phase speed in direction of wave [m s-1]
+    real(kind_phys), intent(out)   :: xpwp_src(:)    ! flux source for moving mountain [m2 s-2]
+
     character(len=512), intent(out):: errmsg
     integer, intent(out)           :: errflg
 
     ! Local variables
     integer                     :: stat, k, m
     real(kind_phys)             :: xpwp_clubb(ncol, pver + 1)
+
     ! Reynolds stress for waves propagating in each cardinal direction.
     real(kind_phys) :: taucd(ncol, pver + 1, 4)
+
     ! Vector tendency efficiency
     real(kind_phys) :: effgw(ncol)        ! Tendency efficiency.
 
@@ -382,7 +378,9 @@ contains
                            u, v, netdt, netdt_shcu, xpwp_shcu, &
                            vorticity, zm, alpha_gw_movmtn, &
                            src_level, tend_level, tau, ubm, ubi, xv, yv, &
-                           c, hdepth, use_gw_movmtn_pbl, rair, gravit, errmsg, errflg)
+                           c, hdepth, use_gw_movmtn_pbl, rair, gravit, &
+                           usteer, vsteer, CS, steer_level, xpwp_src, &
+                           errmsg, errflg)
 
     use gw_utils, only: get_unit_vector, dot_2d, midpoint_interp, index_of_nearest
 
@@ -421,6 +419,22 @@ contains
     logical, intent(in)          ::  use_gw_movmtn_pbl
     real(kind_phys), intent(in) :: gravit
     real(kind_phys), intent(in) :: rair
+
+    ! For diagnostics:
+    ! Zonal/meridional wind at steering level, i.e., 'cell speed'.
+    ! May be later modified by retrograde motion ....
+    real(kind_phys), intent(out) :: usteer(:)
+    real(kind_phys), intent(out) :: vsteer(:)
+
+    ! Steering level (integer converted to real*8)
+    real(kind_phys), intent(out) :: steer_level(:)
+
+    ! Speed of convective cells relative to storm.
+    real(kind_phys), intent(out) :: CS(:)
+
+    ! GW Flux source
+    real(kind_phys), intent(out) :: xpwp_src(:)
+
     character(len=512), intent(out) :: errmsg
     integer, intent(out)            :: errflg
 
@@ -428,12 +442,7 @@ contains
     ! Column and (vertical) level indices.
     integer :: i, k
 
-    ! Zonal/meridional wind at steering level, i.e., 'cell speed'.
-    ! May be later modified by retrograde motion ....
-    real(kind_phys) :: usteer(ncol), vsteer(ncol)
     real(kind_phys) :: uwavef(ncol, pver), vwavef(ncol, pver)
-    ! Steering level (integer converted to real*8)
-    real(kind_phys) :: steer_level(ncol)
     ! Retrograde motion of Cell
     real(kind_phys) :: Cell_Retro_Speed(ncol)
 
@@ -447,12 +456,10 @@ contains
     integer  :: hd_idx(ncol)
     ! Mean wind in heating region.
     real(kind_phys) :: uh(ncol)
-    ! Min/max wavenumber for critical level filtering.
-    integer :: Umini(ncol), Umaxi(ncol)
     ! Source level tau for a column.
     real(kind_phys) :: tau0(-band%ngwv:band%ngwv)
     ! Speed of convective cells relative to storm.
-    real(kind_phys) :: CS(ncol), CS1(ncol)
+    real(kind_phys) :: CS1(ncol)
     ! Wind speeds in wave direction
     real(kind_phys) :: udiff(ncol), vdiff(ncol)
     ! "on-crest" source level wind
@@ -461,7 +468,7 @@ contains
     ! Index to shift spectra relative to ground.
     integer :: shift
     ! Other wind quantities
-    real(kind_phys) :: ut(ncol), uc(ncol), umm(ncol)
+    real(kind_phys) :: ut(ncol)
     ! Tau from moving mountain lookup table
     real(kind_phys) :: taumm(ncol)
     ! Heating rate conversion factor.  -> tuning factors
@@ -473,8 +480,6 @@ contains
     ! Index for ground based phase speed bin
     real(kind_phys) :: c0(ncol, -band%ngwv:band%ngwv)
     integer :: c_idx(ncol, -band%ngwv:band%ngwv)
-    ! GW Flux source
-    real(kind_phys) :: xpwp_src(ncol)
     ! Manual steering level set
     integer :: Steer_k(ncol), Launch_k(ncol)
 
@@ -589,6 +594,7 @@ contains
         if (all(topi /= 0)) exit
       end do
     end if
+
     ! Heating depth in m.  (top-bottom altitudes)
     hdepth = [((zm(i, topi(i)) - zm(i, boti(i))), i=1, ncol)]
     hd_idx = index_of_nearest(hdepth, desc%hd)
@@ -647,12 +653,6 @@ contains
     ! i.e., in which force will be applied
     !-----------------------------------------------------------
     call get_unit_vector(udiff, vdiff, xv, yv, ubisrc)
-
-!!$  call outfld('UCELL_MOVMTN', usteer, ncol, lchnk)
-!!$  call outfld('VCELL_MOVMTN', vsteer, ncol, lchnk)
-!!$  call outfld('CS_MOVMTN', CS, ncol, lchnk)
-!!$  call outfld('STEER_LEVEL_MOVMTN',steer_level, ncol, lchnk )
-!!$  call outfld('XPWP_SRC_MOVMTN', xpwp_src , ncol, lchnk )
 
     !----------------------------------------------------------
     ! Project the local wave relative wind at midpoints onto the

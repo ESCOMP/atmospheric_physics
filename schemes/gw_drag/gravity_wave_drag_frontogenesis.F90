@@ -400,10 +400,10 @@ contains
              frontgf, &
              kvt_gw, &
              tend_q, tend_u, tend_v, tend_s, egwdffi_tot, &
+             flx_heat, &
              src_level, tend_level, ubm, ubi, xv, yv, &
              utgw, vtgw, ttgw, qtgw, &
              dttdf, dttke, &
-             flx_heat, &
              errmsg, errflg)
 
     use coords_1d, only: Coords1D
@@ -442,6 +442,7 @@ contains
     real(kind_phys),    intent(inout) :: tend_v(:, :)             ! Meridional wind tendency [m s-2]
     real(kind_phys),    intent(inout) :: tend_s(:, :)             ! Dry static energy tendency [J kg-1 s-1]
     real(kind_phys),    intent(inout) :: egwdffi_tot(:, :)        ! Effective diffusivity coefficient from gravity waves, interfaces [m2 s-1]
+    real(kind_phys),    intent(inout) :: flx_heat(:)              ! Surface heat flux for energy conservation check [W m-2]
 
     integer,            intent(out)   :: src_level(:)             ! Vertical level index of gravity wave source [index]
     integer,            intent(out)   :: tend_level(:)            ! Lowest vertical level index where tendencies are applied [index]
@@ -455,12 +456,11 @@ contains
     real(kind_phys),    intent(out)   :: qtgw(:, :, :)            ! Constituent tendencies from gravity waves [kg kg-1 s-1]
     real(kind_phys),    intent(out)   :: dttdf(:, :)              ! Temperature tendency from diffusion [K s-1]
     real(kind_phys),    intent(out)   :: dttke(:, :)              ! Temperature tendency from kinetic energy dissipation [K s-1]
-    real(kind_phys),    intent(out)   :: flx_heat(:)              ! Surface heat flux for energy conservation check [W m-2]
     character(len=512), intent(out)   :: errmsg
     integer,            intent(out)   :: errflg
 
     ! Local variables
-    integer :: k, m, stat
+    integer :: k, m
 
     ! Wavenumber fields
     real(kind_phys) :: tau(ncol, -band_long%ngwv:band_long%ngwv, pver + 1)
