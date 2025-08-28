@@ -237,21 +237,21 @@ contains
     logical, intent(in)              :: gw_rdg_do_vdiff_nl            ! Ridge scheme contribute to vdiff tendencies? [flag]
 
     ! Output arguments
-    real(kind_phys),    intent(out), pointer :: gbxar (:)
-    real(kind_phys),    intent(out), pointer :: isovar(:)
-    real(kind_phys),    intent(out), pointer :: isowgt(:)
-    real(kind_phys),    intent(out), pointer :: hwdth (:,:)
-    real(kind_phys),    intent(out), pointer :: clngt (:,:)
-    real(kind_phys),    intent(out), pointer :: mxdis (:,:)
-    real(kind_phys),    intent(out), pointer :: anixy (:,:)
-    real(kind_phys),    intent(out), pointer :: angll (:,:)
+    real(kind_phys),    intent(out) :: gbxar (:)
+    real(kind_phys),    intent(out) :: isovar(:)
+    real(kind_phys),    intent(out) :: isowgt(:)
+    real(kind_phys),    intent(out) :: hwdth (:,:)
+    real(kind_phys),    intent(out) :: clngt (:,:)
+    real(kind_phys),    intent(out) :: mxdis (:,:)
+    real(kind_phys),    intent(out) :: anixy (:,:)
+    real(kind_phys),    intent(out) :: angll (:,:)
 
-    real(kind_phys),    intent(out), pointer :: gbxarg (:)
-    real(kind_phys),    intent(out), pointer :: hwdthg (:,:)
-    real(kind_phys),    intent(out), pointer :: clngtg (:,:)
-    real(kind_phys),    intent(out), pointer :: mxdisg (:,:)
-    real(kind_phys),    intent(out), pointer :: anixyg (:,:)
-    real(kind_phys),    intent(out), pointer :: angllg (:,:)
+    real(kind_phys),    intent(out) :: gbxarg (:)
+    real(kind_phys),    intent(out) :: hwdthg (:,:)
+    real(kind_phys),    intent(out) :: clngtg (:,:)
+    real(kind_phys),    intent(out) :: mxdisg (:,:)
+    real(kind_phys),    intent(out) :: anixyg (:,:)
+    real(kind_phys),    intent(out) :: angllg (:,:)
 
     character(len=512), intent(out)  :: errmsg
     integer, intent(out)             :: errflg
@@ -391,6 +391,11 @@ contains
       mxdisg(:,:) = alloc2D(:,:)
       deallocate(alloc2D, stat=errflg)
 
+      ! Apply negative value correction for gamma ridge maximum displacement
+      where (mxdisg < 0._kind_phys)
+        mxdisg = 0._kind_phys
+      end where
+
       call reader%get_var('ANIXY', alloc2D, errmsg, errflg)
       if (errflg /= 0) return
       anixyg(:,:) = alloc2D(:,:)
@@ -457,7 +462,7 @@ contains
     hwdth, clngt, mxdis, anixy, angll, &
     taurx, taury, &
     tauardgx, tauardgy, &
-    utrdg, vtrdg, ttrdg, &
+    utgw, vtgw, ttgw, &
     q_tend, s_tend, u_tend, v_tend, flx_heat, errmsg, errflg)
 
     use coords_1d, only: Coords1D
@@ -603,7 +608,7 @@ contains
     q_tend, s_tend, u_tend, v_tend, flx_heat, &
     taurx, taury, &
     tauardgx, tauardgy, &
-    utrdg, vtrdg, ttrdg, &
+    utgw, vtgw, ttgw, &
     errmsg, errflg)
 
     use coords_1d, only: Coords1D
@@ -685,11 +690,6 @@ contains
     ! original code.
     isovar_zero(:) = 0._kind_phys
     isowgt_zero(:) = 0._kind_phys
-
-    ! Apply negative value correction for gamma ridge maximum displacement
-    where (mxdisg(:, :) < 0._kind_phys)
-      mxdisg(:, :) = 0._kind_phys
-    end where
 
     call gw_rdg_calc(band_oro          = band_oro, &
                      vramp             = vramp(:), &

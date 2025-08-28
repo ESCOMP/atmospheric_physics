@@ -325,7 +325,9 @@ contains
                        vorticity(:ncol, :), zm, alpha_gw_movmtn, &
                        src_level, tend_level, &
                        tau, ubm, ubi, xv, yv, &
-                       phase_speeds, hdepth, use_gw_movmtn_pbl, rair, gravit, errmsg, errflg)
+                       phase_speeds, hdepth, use_gw_movmtn_pbl, rair, gravit, &
+                       usteer, vsteer, CS, steer_level, xpwp_src, &
+                       errmsg, errflg)
 
     !-------------------------------------------------------------
     ! gw_movmtn_src returns wave-relative wind profiles ubm,ubi
