@@ -16,9 +16,6 @@ module gravity_wave_drag_ridge
   public :: gravity_wave_drag_ridge_beta_run    ! Meso-Beta.
   public :: gravity_wave_drag_ridge_gamma_run   ! Meso-Gamma.
 
-  ! For CAM compatibility only.
-  public :: gw_rdg_init                         ! Init routine (public only for current CAM compat.)
-
   ! use separate dividing streamlines for downslope wind and flow splitting regimes ("DS" configuration)?
   ! or use single dividing streamline as in Scinocca and McFarlane 2000 ("SM" configuration).
   logical         :: do_divstream
@@ -77,20 +74,25 @@ module gravity_wave_drag_ridge
   logical            :: use_gw_rdg_beta
 
 contains
-  subroutine gw_rdg_init(&
-                         gw_delta_c, &
-                         effgw_rdg_beta, &
-                         effgw_rdg_gamma, &
-                         use_gw_rdg_beta_in, &
-                         use_gw_rdg_gamma_in, &
-                         gw_rdg_do_divstream_nl, gw_rdg_C_BetaMax_DS_nl, gw_rdg_C_GammaMax_nl, &
-                         gw_rdg_Frx0_nl, gw_rdg_Frx1_nl, gw_rdg_C_BetaMax_SM_nl, gw_rdg_Fr_c_nl, &
-                         gw_rdg_do_smooth_regimes_nl, gw_rdg_do_adjust_tauoro_nl, &
-                         gw_rdg_do_backward_compat_nl, gw_rdg_orohmin_nl, gw_rdg_orovmin_nl, &
-                         gw_rdg_orostratmin_nl, gw_rdg_orom2min_nl, gw_rdg_do_vdiff_nl, &
-                         errmsg, errflg)
+  subroutine gravity_wave_drag_ridge_init( &
+    ncol, &
+    use_gw_rdg_beta_in, &
+    use_gw_rdg_gamma_in, &
+    gw_delta_c, &
+    effgw_rdg_beta, &
+    effgw_rdg_gamma, &
+    gw_rdg_do_divstream_nl, gw_rdg_C_BetaMax_DS_nl, gw_rdg_C_GammaMax_nl, &
+    gw_rdg_Frx0_nl, gw_rdg_Frx1_nl, gw_rdg_C_BetaMax_SM_nl, gw_rdg_Fr_c_nl, &
+    gw_rdg_do_smooth_regimes_nl, gw_rdg_do_adjust_tauoro_nl, &
+    gw_rdg_do_backward_compat_nl, gw_rdg_orohmin_nl, gw_rdg_orovmin_nl, &
+    gw_rdg_orostratmin_nl, gw_rdg_orom2min_nl, gw_rdg_do_vdiff_nl, &
+    errmsg, errflg)
 
-    use gw_common, only: wavelength_mid
+    ! Input arguments
+    integer, intent(in)              :: ncol
+
+    logical, intent(in)              :: use_gw_rdg_beta_in            ! Enable Meso-beta ridges [flag]
+    logical, intent(in)              :: use_gw_rdg_gamma_in           ! Enable Meso-gamma ridges [flag]
 
     ! Gravity wave band parameters
     real(kind_phys), intent(in)      :: gw_delta_c                    ! Width of speed bins (delta c) for gravity wave spectrum [m s-1]
@@ -98,10 +100,6 @@ contains
     ! Ridge efficiency parameters
     real(kind_phys), intent(in)      :: effgw_rdg_beta                ! Beta ridge efficiency factor [1]
     real(kind_phys), intent(in)      :: effgw_rdg_gamma               ! Gamma ridge efficiency factor [1]
-
-    ! Ridge scheme control flags
-    logical, intent(in)              :: use_gw_rdg_beta_in            ! Enable beta ridge scheme [flag]
-    logical, intent(in)              :: use_gw_rdg_gamma_in           ! Enable gamma ridge scheme [flag]
 
     ! Dividing streamline (DS2017) parameters
     logical, intent(in)              :: gw_rdg_do_divstream_nl        ! Enable dividing streamline parameterization [flag]
@@ -126,10 +124,12 @@ contains
     real(kind_phys), intent(in)      :: gw_rdg_orom2min_nl            ! Minimum normalized vertical wavenumber squared [1]
     logical, intent(in)              :: gw_rdg_do_vdiff_nl            ! Ridge scheme contribute to vdiff tendencies? [flag]
 
+    ! Output arguments
     character(len=512), intent(out)  :: errmsg
     integer, intent(out)             :: errflg
 
-    character(len=*), parameter :: sub = 'gw_rdg_init'
+    errmsg = ''
+    errflg = 0
 
     ! Initialize gravity wave band based on wavelength
     band_oro = GWBand(0, gw_delta_c, 1.0_kind_phys, wavelength_mid)
@@ -168,288 +168,13 @@ contains
         return
       end if
     end if
-  end subroutine gw_rdg_init
-
-  subroutine gravity_wave_drag_ridge_init( &
-    ncol, &
-    amIRoot, iulog, &
-    rearth, &
-    use_gw_rdg_beta_in, &
-    bnd_topo_file, &
-    use_gw_rdg_gamma_in, &
-    bnd_rdggm_file, &
-    gbxar, isovar, isowgt, &
-    hwdth, clngt, mxdis, anixy, angll, &
-    gbxarg, &
-    hwdthg, clngtg, mxdisg, anixyg, angllg, &
-    gw_delta_c, &
-    effgw_rdg_beta, &
-    effgw_rdg_gamma, &
-    gw_rdg_do_divstream_nl, gw_rdg_C_BetaMax_DS_nl, gw_rdg_C_GammaMax_nl, &
-    gw_rdg_Frx0_nl, gw_rdg_Frx1_nl, gw_rdg_C_BetaMax_SM_nl, gw_rdg_Fr_c_nl, &
-    gw_rdg_do_smooth_regimes_nl, gw_rdg_do_adjust_tauoro_nl, &
-    gw_rdg_do_backward_compat_nl, gw_rdg_orohmin_nl, gw_rdg_orovmin_nl, &
-    gw_rdg_orostratmin_nl, gw_rdg_orom2min_nl, gw_rdg_do_vdiff_nl, &
-    errmsg, errflg)
-
-    use ccpp_io_reader, only: abstract_netcdf_reader_t, create_netcdf_reader_t
-
-    ! Input arguments
-    integer, intent(in)              :: ncol
-    !integer, intent(in)              :: prdg                          ! second dimension of the 2-D outs below.
-    logical, intent(in)              :: amIRoot
-    integer, intent(in)              :: iulog
-    real(kind_phys), intent(in)      :: rearth                        ! Earth radius [m]
-
-    logical, intent(in)              :: use_gw_rdg_beta_in            ! Enable Meso-beta ridges [flag]
-    character(len=256), intent(in)   :: bnd_topo_file                 ! Filepath of topo file
-    logical, intent(in)              :: use_gw_rdg_gamma_in           ! Enable Meso-gamma ridges [flag]
-    character(len=256), intent(in)   :: bnd_rdggm_file                ! Filepath of ridge (gamma) file
-
-    ! Gravity wave band parameters
-    real(kind_phys), intent(in)      :: gw_delta_c                    ! Width of speed bins (delta c) for gravity wave spectrum [m s-1]
-
-    ! Ridge efficiency parameters
-    real(kind_phys), intent(in)      :: effgw_rdg_beta                ! Beta ridge efficiency factor [1]
-    real(kind_phys), intent(in)      :: effgw_rdg_gamma               ! Gamma ridge efficiency factor [1]
-
-    ! Dividing streamline (DS2017) parameters
-    logical, intent(in)              :: gw_rdg_do_divstream_nl        ! Enable dividing streamline parameterization [flag]
-    real(kind_phys), intent(in)      :: gw_rdg_C_BetaMax_DS_nl        ! Enhancement factor for downslope wind stress in DS [1]
-    real(kind_phys), intent(in)      :: gw_rdg_C_GammaMax_nl          ! Enhancement factor for depth of downslope wind regime in DS configuration [1]
-    real(kind_phys), intent(in)      :: gw_rdg_Frx0_nl                ! Lower inverse Froude number limits on linear ramp terminating downslope wind regime for high mountains in DS configuration [1]
-    real(kind_phys), intent(in)      :: gw_rdg_Frx1_nl                ! Upper inverse Froude number limits on linear ramp terminating downslope wind regime for high mountains in DS configuration [1]
-
-    ! Scinocca & McFarlane (SM2000) parameters
-    real(kind_phys), intent(in)      :: gw_rdg_C_BetaMax_SM_nl        ! Enhancement factor for downslope wind stress in SM configuration. [1]
-    real(kind_phys), intent(in)      :: gw_rdg_Fr_c_nl                ! Critical inverse Froude number [1]
-
-    ! Ridge scheme behavior flags
-    logical, intent(in)              :: gw_rdg_do_smooth_regimes_nl   ! Enable smooth regime transitions [flag]
-    logical, intent(in)              :: gw_rdg_do_adjust_tauoro_nl    ! Enable orographic stress adjustment [flag]
-    logical, intent(in)              :: gw_rdg_do_backward_compat_nl  ! Adjust for bit-for-bit answers with the ("N5") configuration [flag]
-
-    ! Ridge scheme physical limits
-    real(kind_phys), intent(in)      :: gw_rdg_orohmin_nl             ! Minimum surface displacement height for orographic waves [m]
-    real(kind_phys), intent(in)      :: gw_rdg_orovmin_nl             ! Minimum wind speed for orographic waves [m s-1]
-    real(kind_phys), intent(in)      :: gw_rdg_orostratmin_nl         ! Minimum stratification allowing wave behavior [s-1]
-    real(kind_phys), intent(in)      :: gw_rdg_orom2min_nl            ! Minimum normalized vertical wavenumber squared [1]
-    logical, intent(in)              :: gw_rdg_do_vdiff_nl            ! Ridge scheme contribute to vdiff tendencies? [flag]
-
-    ! Output arguments
-    real(kind_phys),    intent(out) :: gbxar (:)
-    real(kind_phys),    intent(out) :: isovar(:)
-    real(kind_phys),    intent(out) :: isowgt(:)
-    real(kind_phys),    intent(out) :: hwdth (:,:)
-    real(kind_phys),    intent(out) :: clngt (:,:)
-    real(kind_phys),    intent(out) :: mxdis (:,:)
-    real(kind_phys),    intent(out) :: anixy (:,:)
-    real(kind_phys),    intent(out) :: angll (:,:)
-
-    real(kind_phys),    intent(out) :: gbxarg (:)
-    real(kind_phys),    intent(out) :: hwdthg (:,:)
-    real(kind_phys),    intent(out) :: clngtg (:,:)
-    real(kind_phys),    intent(out) :: mxdisg (:,:)
-    real(kind_phys),    intent(out) :: anixyg (:,:)
-    real(kind_phys),    intent(out) :: angllg (:,:)
-
-    character(len=512), intent(out)  :: errmsg
-    integer, intent(out)             :: errflg
-
-    ! Local variables
-    logical :: has_gbxar_from_topo
-
-    ! Temporaries for providing to the I/O reader; data will be copied to the
-    ! respective pointer variables.
-    real(kind_phys), allocatable :: alloc1D(:)    ! 1-D temporary for I/O reader
-    real(kind_phys), allocatable :: alloc2D(:,:)  ! 2-D temporary for I/O reader
-
-    class(abstract_netcdf_reader_t), allocatable :: reader
-
-    errmsg = ''
-    errflg = 0
-
-    has_gbxar_from_topo = .false.
-
-    reader = create_netcdf_reader_t()
-
-    if(use_gw_rdg_beta) then
-      call reader%open_file(bnd_topo_file, errmsg, errflg)
-      if (errflg /= 0) return
-
-      call reader%get_var('GBXAR', alloc1D, errmsg, errflg)
-      if (errflg /= 0) return
-      gbxar(:) = alloc1D(:)*(rearth/1000._kind_phys)*(rearth/1000._kind_phys) ! transform to km^2
-      deallocate(alloc1D, stat=errflg)
-      has_gbxar_from_topo = .true.
-
-      call reader%get_var('ISOVAR', alloc1D, errmsg, errflg)
-      if (errflg /= 0) then
-        ! topo files do not currently contain ISOVAR
-        isovar(:) = 0._kind_phys
-        errflg = 0
-        errmsg = ''
-      else
-        isovar(:) = alloc1D(:)
-        deallocate(alloc1D, stat=errflg)
-      endif
-
-      call reader%get_var('ISOWGT', alloc1D, errmsg, errflg)
-      if (errflg /= 0) then
-        ! topo files do not currently contain ISOWGT
-        isowgt(:) = 0._kind_phys
-        errflg = 0
-        errmsg = ''
-      else
-        isowgt(:) = alloc1D(:)
-        deallocate(alloc1D, stat=errflg)
-      endif
-
-      call reader%get_var('HWDTH', alloc2D, errmsg, errflg)
-      if (errflg /= 0) return
-      hwdth(:,:) = alloc2D(:,:)
-      deallocate(alloc2D, stat=errflg)
-
-      call reader%get_var('CLNGT', alloc2D, errmsg, errflg)
-      if (errflg /= 0) return
-      clngt(:,:) = alloc2D(:,:)
-      deallocate(alloc2D, stat=errflg)
-
-      call reader%get_var('MXDIS', alloc2D, errmsg, errflg)
-      if (errflg /= 0) return
-      mxdis(:,:) = alloc2D(:,:)
-      deallocate(alloc2D, stat=errflg)
-
-      call reader%get_var('ANIXY', alloc2D, errmsg, errflg)
-      if (errflg /= 0) return
-      anixy(:,:) = alloc2D(:,:)
-      deallocate(alloc2D, stat=errflg)
-
-      call reader%get_var('ANGLL', alloc2D, errmsg, errflg)
-      if (errflg /= 0) return
-      angll(:,:) = alloc2D(:,:)
-      deallocate(alloc2D, stat=errflg)
-
-      ! close topo file only if it was opened here
-      if (len_trim(bnd_topo_file) > 0) then
-        call reader%close_file(errmsg, errflg)
-        if (errflg /= 0) then
-          return
-        end if
-
-        if (amIRoot) then
-          write(iulog, *) "gravity_wave_drag_ridge_init: Read in ridge beta source file (topo)."
-        end if
-      end if
-    end if
-
-    if(use_gw_rdg_gamma) then
-      call reader%open_file(bnd_rdggm_file, errmsg, errflg)
-      if (errflg /= 0) return
-
-      ! Note (hplin 8/6/25): the behavior, based on the original gw_drag, for GBXAR, ISOVAR, ISOWGT
-      ! are very strange.
-      !
-      ! If GBXAR is available from topo file, then GBXAR from topo is used;
-      ! otherwise, GBXAR is read from rdggm.
-      !
-      ! ISOVAR and ISOWGT are not populated at all from the rdggm file; the only files
-      ! available as of writing were fv files that did not contain these variables.
-      ! It appears that the gw_drag.F90 code simply uses dangling pointers for those,
-      ! which we have replaced with actual isovar/isowgt from the "topo file" (actually still zeroes)
-      ! as they are also not in the topo file, which I believe is closest to the original intent
-      ! of the code.
-      if(.not. has_gbxar_from_topo) then
-        call reader%get_var('GBXAR', alloc1D, errmsg, errflg)
-        if (errflg /= 0) return
-        gbxarg(:) = alloc1D(:)*(rearth/1000._kind_phys)*(rearth/1000._kind_phys) ! transform to km^2
-        deallocate(alloc1D, stat=errflg)
-      endif
-
-      ! call reader%get_var('ISOVAR', alloc1D, errmsg, errflg)
-      ! if (errflg /= 0) return
-      ! isovarg(:) = alloc1D(:)
-      ! deallocate(alloc1D, stat=errflg)
-
-      ! call reader%get_var('ISOWGT', alloc1D, errmsg, errflg)
-      ! if (errflg /= 0) return
-      ! isowgtg(:) = alloc1D(:)
-      ! deallocate(alloc1D, stat=errflg)
-
-      call reader%get_var('HWDTH', alloc2D, errmsg, errflg)
-      if (errflg /= 0) return
-      hwdthg(:,:) = alloc2D(:,:)
-      deallocate(alloc2D, stat=errflg)
-
-      call reader%get_var('CLNGT', alloc2D, errmsg, errflg)
-      if (errflg /= 0) return
-      clngtg(:,:) = alloc2D(:,:)
-      deallocate(alloc2D, stat=errflg)
-
-      call reader%get_var('MXDIS', alloc2D, errmsg, errflg)
-      if (errflg /= 0) return
-      mxdisg(:,:) = alloc2D(:,:)
-      deallocate(alloc2D, stat=errflg)
-
-      ! Apply negative value correction for gamma ridge maximum displacement
-      where (mxdisg < 0._kind_phys)
-        mxdisg = 0._kind_phys
-      end where
-
-      call reader%get_var('ANIXY', alloc2D, errmsg, errflg)
-      if (errflg /= 0) return
-      anixyg(:,:) = alloc2D(:,:)
-      deallocate(alloc2D, stat=errflg)
-
-      call reader%get_var('ANGLL', alloc2D, errmsg, errflg)
-      if (errflg /= 0) return
-      angllg(:,:) = alloc2D(:,:)
-      deallocate(alloc2D, stat=errflg)
-
-      ! close topo file only if it was opened here
-      if (len_trim(bnd_rdggm_file) > 0) then
-        call reader%close_file(errmsg, errflg)
-        if (errflg /= 0) then
-          return
-        end if
-
-        if (amIRoot) then
-          write(iulog, *) "gravity_wave_drag_gamma_ridge_init: Read in ridge gamma source file."
-        end if
-      end if
-    end if
-
-    ! Call underlying initialization subroutine to populate namelist variables
-    !REMOVECAM: once CAM is retired, gw_rdg_init can be collapsed into this subroutine.
-    call gw_rdg_init( &
-      gw_delta_c                   = gw_delta_c, &
-      effgw_rdg_beta               = effgw_rdg_beta, &
-      effgw_rdg_gamma              = effgw_rdg_gamma, &
-      use_gw_rdg_beta_in           = use_gw_rdg_beta_in, &
-      use_gw_rdg_gamma_in          = use_gw_rdg_gamma_in, &
-      gw_rdg_do_divstream_nl       = gw_rdg_do_divstream_nl, &
-      gw_rdg_C_BetaMax_DS_nl       = gw_rdg_C_BetaMax_DS_nl, &
-      gw_rdg_C_GammaMax_nl         = gw_rdg_C_GammaMax_nl, &
-      gw_rdg_Frx0_nl               = gw_rdg_Frx0_nl, &
-      gw_rdg_Frx1_nl               = gw_rdg_Frx1_nl, &
-      gw_rdg_C_BetaMax_SM_nl       = gw_rdg_C_BetaMax_SM_nl, &
-      gw_rdg_Fr_c_nl               = gw_rdg_Fr_c_nl, &
-      gw_rdg_do_smooth_regimes_nl  = gw_rdg_do_smooth_regimes_nl, &
-      gw_rdg_do_adjust_tauoro_nl   = gw_rdg_do_adjust_tauoro_nl, &
-      gw_rdg_do_backward_compat_nl = gw_rdg_do_backward_compat_nl, &
-      gw_rdg_orohmin_nl            = gw_rdg_orohmin_nl, &
-      gw_rdg_orovmin_nl            = gw_rdg_orovmin_nl, &
-      gw_rdg_orostratmin_nl        = gw_rdg_orostratmin_nl, &
-      gw_rdg_orom2min_nl           = gw_rdg_orom2min_nl, &
-      gw_rdg_do_vdiff_nl           = gw_rdg_do_vdiff_nl, &
-      errmsg = errmsg, &
-      errflg = errflg)
-    if (errflg /= 0) return
 
   end subroutine gravity_wave_drag_ridge_init
 
   subroutine gravity_wave_drag_ridge_beta_run( &
-    ncol, pver, pcnst, dt, pi, cpair, rair, &
+    ncol, pver, pcnst, &
+    nrdg, &
+    dt, pi, cpair, rair, &
     vramp, p, &
     n_rdg_beta, &
     u, v, t, q, dse, &
@@ -471,6 +196,7 @@ contains
     integer,             intent(in)    :: pver
     integer,             intent(in)    :: ncol
     integer,             intent(in)    :: pcnst
+    integer,             intent(in)    :: nrdg                ! # of ridges. Dummy for dimension of input params. [count]
     real(kind_phys),     intent(in)    :: dt                  ! Physics timestep [s]
     real(kind_phys),     intent(in)    :: pi                  ! pi_constant [1]
     real(kind_phys),     intent(in)    :: cpair               ! specific_heat_of_dry_air_at_constant_pressure [J kg-1 K-1]
@@ -594,7 +320,9 @@ contains
   end subroutine gravity_wave_drag_ridge_beta_run
 
   subroutine gravity_wave_drag_ridge_gamma_run( &
-    ncol, pver, pcnst, dt, pi, cpair, rair, &
+    ncol, pver, pcnst, &
+    nrdg, &
+    dt, pi, cpair, rair, &
     vramp, p, &
     n_rdg_gamma, &
     u, v, t, q, dse, &
@@ -617,6 +345,7 @@ contains
     integer,             intent(in)    :: pver
     integer,             intent(in)    :: ncol
     integer,             intent(in)    :: pcnst
+    integer,             intent(in)    :: nrdg                ! # of ridges. Dummy for dimension of input params. [count]
     real(kind_phys),     intent(in)    :: dt                   ! Physics timestep [s]
     real(kind_phys),     intent(in)    :: pi                   ! pi_constant [1]
     real(kind_phys),     intent(in)    :: cpair                ! specific_heat_of_dry_air_at_constant_pressure [J kg-1 K-1]
