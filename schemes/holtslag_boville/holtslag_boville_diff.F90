@@ -86,14 +86,14 @@ contains
 
     ccon = fak * sffrac * karman
 
-    ! ntop_turb must be 1 or <= nbot_molec
-    ! in WACCM-X, when waccmx_mode is ionosphere or neutral, this should be set to
+    ! ntop_turb must be 1 or <= nbot_molec (lowest vertical level with molecular diffusion)
+    ! In WACCM-X, when 'waccmx_mode' is 'ionosphere' or 'neutral', this should be set to
     ! press_lim_idx(ntop_eddy_pres, top=.true.) where ntop_eddy_pres = 1.e-7_kind_phys [Pa]
     !
     ! FIXME: this is not as clean as I would like it to be
     ! but I want to avoid depending on host model press_lim_idx; so the index is passed
-    ! into this initialization subroutine. This also avoids having to query something
-    ! waccmx_is or waccmx_mode that is host model specific inside this scheme
+    ! into this initialization subroutine. This also avoids having to query something like
+    ! 'waccmx_is' or 'waccmx_mode' that is host model specific inside this scheme
     ! to make it portable, but this means the flow on the host model side has to
     ! specify this top turbulence index. (hplin, 5/8/25)
     ntop_turb = ntop_turb_in
