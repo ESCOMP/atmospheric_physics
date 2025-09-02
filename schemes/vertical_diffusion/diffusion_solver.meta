@@ -844,7 +844,7 @@
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ cgs ]
-  standard_name = counter_gradient_coefficient_for_vertical_diffusion_of_constituents_at_interface
+  standard_name = counter_gradient_coefficient_for_vertical_diffusion_of_constituents_at_interfaces
   units = s m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
