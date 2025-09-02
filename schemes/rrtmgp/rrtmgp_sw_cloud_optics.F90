@@ -29,8 +29,6 @@ public :: rrtmgp_sw_cloud_optics_run
 integer, parameter, dimension(14) :: rrtmg_to_rrtmgp_swbands = &
    [ 14, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ]
 
-real(kind_phys) :: tiny
-
 !==================================================================================================
 contains
 !==================================================================================================
@@ -150,17 +148,15 @@ subroutine rrtmgp_sw_cloud_optics_run(dosw, ncol, pver, ktopcam, ktoprad, nlay, 
       return
    end if
 
-   tiny = tiny_in
-
    ! Combine the cloud optical properties.
 
    ! gammadist liquid optics
-   call get_liquid_optics_sw(ncol, pver, nswbands, ext_sw_liq, asm_sw_liq, ssa_sw_liq, lamc, pgam, g_lambda, g_mu, iclwpth, liq_tau, liq_tau_w, liq_tau_w_g, sw_tau_w_f, errmsg, errflg)
+   call get_liquid_optics_sw(ncol, pver, nswbands, tiny_in, ext_sw_liq, asm_sw_liq, ssa_sw_liq, lamc, pgam, g_lambda, g_mu, iclwpth, liq_tau, liq_tau_w, liq_tau_w_g, sw_tau_w_f, errmsg, errflg)
    if (errflg /= 0) then
       return
    end if
    ! Mitchell ice optics
-   call interpolate_ice_optics_sw(ncol, pver, nswbands, ext_sw_ice, asm_sw_ice, ssa_sw_ice, iciwpth, dei, g_d_eff, ice_tau, ice_tau_w, ice_tau_w_g, sw_tau_w_f)
+   call interpolate_ice_optics_sw(ncol, pver, nswbands, tiny_in, ext_sw_ice, asm_sw_ice, ssa_sw_ice, iciwpth, dei, g_d_eff, ice_tau, ice_tau_w, ice_tau_w_g, sw_tau_w_f)
 
    cld_tau(:,:ncol,:)     =  liq_tau(:,:ncol,:)     + ice_tau(:,:ncol,:)
    cld_tau_w(:,:ncol,:)   =  liq_tau_w(:,:ncol,:)   + ice_tau_w(:,:ncol,:)
@@ -168,7 +164,7 @@ subroutine rrtmgp_sw_cloud_optics_run(dosw, ncol, pver, ktopcam, ktoprad, nlay, 
 
    ! add in snow
    if (do_snow) then
-      call interpolate_ice_optics_sw(ncol, pver, nswbands, ext_sw_ice, asm_sw_ice, ssa_sw_ice, icswpth, des, g_d_eff, snow_tau, snow_tau_w, snow_tau_w_g, sw_tau_w_f)
+      call interpolate_ice_optics_sw(ncol, pver, nswbands, tiny_in, ext_sw_ice, asm_sw_ice, ssa_sw_ice, icswpth, des, g_d_eff, snow_tau, snow_tau_w, snow_tau_w_g, sw_tau_w_f)
       do i = 1, ncol
          do k = 1, pver
             if (cldfprime(i,k) > 0._kind_phys) then
@@ -193,7 +189,7 @@ subroutine rrtmgp_sw_cloud_optics_run(dosw, ncol, pver, ktopcam, ktoprad, nlay, 
 
    ! add in graupel
    if (do_graupel) then
-      call get_grau_optics_sw(ncol, pver, nswbands, g_d_eff, ext_sw_ice, asm_sw_ice, ssa_sw_ice, iulog, icgrauwpth, degrau, idx_sw_diag, grau_tau, grau_tau_w, grau_tau_w_g, sw_tau_w_f)
+      call get_grau_optics_sw(ncol, pver, nswbands, tiny_in, g_d_eff, ext_sw_ice, asm_sw_ice, ssa_sw_ice, iulog, icgrauwpth, degrau, idx_sw_diag, grau_tau, grau_tau_w, grau_tau_w_g, sw_tau_w_f)
       do i = 1, ncol
          do k = 1, pver
             if (cldfprime(i,k) > 0._kind_phys) then
@@ -221,9 +217,13 @@ subroutine rrtmgp_sw_cloud_optics_run(dosw, ncol, pver, ktopcam, ktoprad, nlay, 
    c_cld_tau_w_g(:,:ncol,:) = c_cld_tau_w_g(rrtmg_to_rrtmgp_swbands,:ncol,:)
    if (do_snow) then
       snow_tau(:,:ncol,:)   = snow_tau(rrtmg_to_rrtmgp_swbands,:ncol,:)
+   else
+      snow_tau(:,:ncol,:)   = 0._kind_phys
    end if
    if (do_graupel) then
       grau_tau(:,:ncol,:)   = grau_tau(rrtmg_to_rrtmgp_swbands,:ncol,:)
+   else
+      grau_tau(:,:ncol,:)   = 0._kind_phys
    end if
 
    ! Set arrays for diagnostic output.
@@ -233,9 +233,13 @@ subroutine rrtmgp_sw_cloud_optics_run(dosw, ncol, pver, ktopcam, ktoprad, nlay, 
    ice_icld_vistau(:ncol,:) = ice_tau(idx_sw_diag,:ncol,:)
    if (do_snow) then
       snow_icld_vistau(:ncol,:) = snow_tau(idx_sw_diag,:ncol,:)
+   else
+      snow_icld_vistau(:ncol,:) = 0._kind_phys
    endif
    if (do_graupel) then
       grau_icld_vistau(:ncol,:) = grau_tau(idx_sw_diag,:ncol,:)
+   else
+      grau_icld_vistau(:ncol,:) = 0._kind_phys
    endif
 
    ! multiply by total cloud fraction to get gridbox value
@@ -247,25 +251,23 @@ subroutine rrtmgp_sw_cloud_optics_run(dosw, ncol, pver, ktopcam, ktoprad, nlay, 
       tot_icld_vistau(idxnite(i),:)  = fillvalue
       liq_icld_vistau(idxnite(i),:)  = fillvalue
       ice_icld_vistau(idxnite(i),:)  = fillvalue
-      if (do_snow) then
-         snow_icld_vistau(idxnite(i),:) = fillvalue
-      end if
-      if (do_graupel) then
-         grau_icld_vistau(idxnite(i),:) = fillvalue
-      end if
+      snow_icld_vistau(idxnite(i),:) = fillvalue
+      grau_icld_vistau(idxnite(i),:) = fillvalue
    end do
 
 end subroutine rrtmgp_sw_cloud_optics_run
 
 !==============================================================================
 
-subroutine get_grau_optics_sw(ncol, pver, nswbands, g_d_eff, ext_sw_ice, asm_sw_ice, ssa_sw_ice, iulog, icgrauwpth, degrau, idx_sw_diag, tau, tau_w, tau_w_g, tau_w_f)
+subroutine get_grau_optics_sw(ncol, pver, nswbands, tiny_in, g_d_eff, ext_sw_ice, asm_sw_ice, ssa_sw_ice, &
+                iulog, icgrauwpth, degrau, idx_sw_diag, tau, tau_w, tau_w_g, tau_w_f)
 
    integer, intent(in)  :: ncol
    integer, intent(in)  :: pver
    integer, intent(in)  :: nswbands
    integer, intent(in)  :: iulog
    integer, intent(in)  :: idx_sw_diag
+   real(kind_phys), intent(in) :: tiny_in
    real(kind_phys), intent(in) :: ext_sw_ice(:,:)
    real(kind_phys), intent(in) :: asm_sw_ice(:,:)
    real(kind_phys), intent(in) :: ssa_sw_ice(:,:)
@@ -282,7 +284,7 @@ subroutine get_grau_optics_sw(ncol, pver, nswbands, g_d_eff, ext_sw_ice, asm_sw_
 
    ! This does the same thing as get_ice_optics_sw, except with a different
    ! water path and effective diameter.
-   call interpolate_ice_optics_sw(ncol, pver, nswbands, ext_sw_ice, asm_sw_ice, ssa_sw_ice, icgrauwpth, degrau, g_d_eff, tau, tau_w, &
+   call interpolate_ice_optics_sw(ncol, pver, nswbands, tiny_in, ext_sw_ice, asm_sw_ice, ssa_sw_ice, icgrauwpth, degrau, g_d_eff, tau, tau_w, &
         tau_w_g, tau_w_f)
    do i = 1, ncol
       do k = 1, pver
@@ -297,24 +299,25 @@ end subroutine get_grau_optics_sw
 
 !==============================================================================
 
-subroutine get_liquid_optics_sw(ncol, pver, nswbands, ext_sw_liq, asm_sw_liq, ssa_sw_liq, lamc, pgam, g_lambda, &
+subroutine get_liquid_optics_sw(ncol, pver, nswbands, tiny_in, ext_sw_liq, asm_sw_liq, ssa_sw_liq, lamc, pgam, g_lambda, &
     g_mu, iclwpth, tau, tau_w, tau_w_g, tau_w_f, errmsg, errflg)
    integer, intent(in)  :: ncol
    integer, intent(in)  :: pver
    integer, intent(in)  :: nswbands
-   real(kind_phys),intent(in)  :: g_lambda(:,:)
-   real(kind_phys),intent(in)  :: g_mu(:)
-   real(kind_phys), intent(in) :: ext_sw_liq(:,:,:)
-   real(kind_phys), intent(in) :: asm_sw_liq(:,:,:)
-   real(kind_phys), intent(in) :: ssa_sw_liq(:,:,:)
-   real(kind_phys),intent(in)  :: iclwpth(:,:)
-   real(kind_phys),intent(in)  :: lamc(:,:)
-   real(kind_phys),intent(in)  :: pgam(:,:)
+   real(kind_phys), intent(in)  :: tiny_in
+   real(kind_phys), intent(in)  :: g_lambda(:,:)
+   real(kind_phys), intent(in)  :: g_mu(:)
+   real(kind_phys), intent(in)  :: ext_sw_liq(:,:,:)
+   real(kind_phys), intent(in)  :: asm_sw_liq(:,:,:)
+   real(kind_phys), intent(in)  :: ssa_sw_liq(:,:,:)
+   real(kind_phys), intent(in)  :: iclwpth(:,:)
+   real(kind_phys), intent(in)  :: lamc(:,:)
+   real(kind_phys), intent(in)  :: pgam(:,:)
 
-   real(kind_phys),intent(out) :: tau    (:,:,:) ! extinction optical depth
-   real(kind_phys),intent(out) :: tau_w  (:,:,:) ! single scattering albedo * tau
-   real(kind_phys),intent(out) :: tau_w_g(:,:,:) ! asymmetry parameter * tau * w
-   real(kind_phys),intent(out) :: tau_w_f(:,:,:) ! forward scattered fraction * tau * w
+   real(kind_phys), intent(out) :: tau    (:,:,:) ! extinction optical depth
+   real(kind_phys), intent(out) :: tau_w  (:,:,:) ! single scattering albedo * tau
+   real(kind_phys), intent(out) :: tau_w_g(:,:,:) ! asymmetry parameter * tau * w
+   real(kind_phys), intent(out) :: tau_w_f(:,:,:) ! forward scattered fraction * tau * w
    character(len=512), intent(out) :: errmsg
    integer,            intent(out) :: errflg
 
@@ -324,8 +327,9 @@ subroutine get_liquid_optics_sw(ncol, pver, nswbands, ext_sw_liq, asm_sw_liq, ss
    do k = 1,pver
       do i = 1,ncol
          if(lamc(i,k) > 0._kind_phys) then ! This seems to be clue from microphysics of no cloud
-            call gam_liquid_sw(nswbands, g_lambda, g_mu, ext_sw_liq, asm_sw_liq, ssa_sw_liq, iclwpth(i,k), lamc(i,k), pgam(i,k), tau(1:nswbands,i,k), &
-                 tau_w(1:nswbands,i,k), tau_w_g(1:nswbands,i,k), tau_w_f(1:nswbands,i,k), errmsg, errflg)
+            call gam_liquid_sw(nswbands, tiny_in, g_lambda, g_mu, ext_sw_liq, asm_sw_liq, ssa_sw_liq, iclwpth(i,k), &
+                 lamc(i,k), pgam(i,k), tau(1:nswbands,i,k), tau_w(1:nswbands,i,k), tau_w_g(1:nswbands,i,k),         &
+                 tau_w_f(1:nswbands,i,k), errmsg, errflg)
          else
             tau(1:nswbands,i,k) = 0._kind_phys
             tau_w(1:nswbands,i,k) = 0._kind_phys
@@ -339,13 +343,15 @@ end subroutine get_liquid_optics_sw
 
 !==============================================================================
 
-subroutine interpolate_ice_optics_sw(ncol, pver, nswbands, ext_sw_ice, asm_sw_ice, ssa_sw_ice, &
+subroutine interpolate_ice_optics_sw(ncol, pver, nswbands, tiny_in, ext_sw_ice, asm_sw_ice, ssa_sw_ice, &
      iciwpth, dei, g_d_eff, tau, tau_w, tau_w_g, tau_w_f)
+  ! SIMA-specific interpolation routines
   use interpolate_data, only: interp_type, lininterp, lininterp_init, lininterp_finish, extrap_method_bndry
 
   integer, intent(in) :: ncol
   integer, intent(in) :: pver
   integer, intent(in) :: nswbands
+  real(kind_phys), intent(in) :: tiny_in
   real(kind_phys), intent(in) :: iciwpth(:,:)
   real(kind_phys), intent(in) :: dei(:,:)
   real(kind_phys), intent(in) :: g_d_eff(:)
@@ -368,7 +374,7 @@ subroutine interpolate_ice_optics_sw(ncol, pver, nswbands, ext_sw_ice, asm_sw_ic
 
   do k = 1,pver
      do i = 1,ncol
-        if( iciwpth(i,k) < tiny .or. dei(i,k) == 0._kind_phys) then
+        if( iciwpth(i,k) < tiny_in .or. dei(i,k) == 0._kind_phys) then
            ! if ice water path is too small, OD := 0
            tau    (:,i,k) = 0._kind_phys
            tau_w  (:,i,k) = 0._kind_phys
@@ -400,12 +406,14 @@ end subroutine interpolate_ice_optics_sw
 
 !==============================================================================
 
-subroutine gam_liquid_sw(nswbands, g_lambda, g_mu, ext_sw_liq, asm_sw_liq, ssa_sw_liq, clwptn, lamc, pgam, tau, tau_w, tau_w_g, tau_w_f, errmsg, errflg)
+subroutine gam_liquid_sw(nswbands, tiny_in, g_lambda, g_mu, ext_sw_liq, asm_sw_liq, ssa_sw_liq, clwptn, lamc, pgam, tau, tau_w, tau_w_g, tau_w_f, errmsg, errflg)
+  ! SIMA-specific interpolation routines
   use interpolate_data,         only: interp_type, lininterp, lininterp_finish
   use radiation_utils,          only: get_mu_lambda_weights_ccpp
   use rrtmgp_cloud_optics_setup, only: nmu, nlambda
 
   integer,         intent(in)  :: nswbands
+  real(kind_phys), intent(in)  :: tiny_in
   real(kind_phys), intent(in)  :: ext_sw_liq(:,:,:)
   real(kind_phys), intent(in)  :: asm_sw_liq(:,:,:)
   real(kind_phys), intent(in)  :: ssa_sw_liq(:,:,:)
@@ -413,7 +421,7 @@ subroutine gam_liquid_sw(nswbands, g_lambda, g_mu, ext_sw_liq, asm_sw_liq, ssa_s
   real(kind_phys), intent(in)  :: g_lambda(:,:)
   real(kind_phys), intent(in)  :: lamc
   real(kind_phys), intent(in)  :: pgam
-  real(kind_phys), intent(in)  :: clwptn ! cloud water liquid path new (in cloud) (in g/m^2)?
+  real(kind_phys), intent(in)  :: clwptn ! cloud water liquid path new (in cloud) [kg m-2]
   real(kind_phys), intent(out) :: tau(:), tau_w(:), tau_w_f(:), tau_w_g(:)
 
   character(len=512), intent(out) :: errmsg
@@ -430,7 +438,7 @@ subroutine gam_liquid_sw(nswbands, g_lambda, g_mu, ext_sw_liq, asm_sw_liq, ssa_s
   errmsg = ''
   errflg = 0
 
-  if (clwptn < tiny) then
+  if (clwptn < tiny_in) then
     tau = 0._kind_phys
     tau_w = 0._kind_phys
     tau_w_g = 0._kind_phys

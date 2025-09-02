@@ -63,7 +63,7 @@
   type = real | kind = kind_phys
   dimensions = (number_of_wavelength_samples_of_spectrum)
   intent = in
-[ we ]
+[ wave_end ]
   standard_name = wavelength_endpoints
   units = nm
   type = real | kind = kind_phys

@@ -14,10 +14,11 @@
     <!--    <scheme>rrtmgp_sw_cloud_optics</scheme>-->
     <scheme>rrtmgp_sw_cloud_temp</scheme>
     <!-- Shortwave subcycle - last iteration is climate calculation -->
-    <subcycle>
+    <subcycle loop="number_of_diagnostic_subcycles">
       <scheme>rrtmgp_constituents</scheme> <!-- ifnday-->
       <scheme>rrtmgp_sw_gas_optics_pre</scheme> <!-- ifnday-->
       <scheme>rrtmgp_sw_gas_optics</scheme><!--ifnday-->
+      <scheme>solar_irradiance_data</scheme><!--ifnday-->
       <scheme>rrtmgp_sw_solar_var</scheme><!--ifnday-->
       <!--<scheme>rrtmgp_sw_aer</scheme>-->
       <scheme>rrtmgp_sw_rte</scheme> <!--ifnday-->
@@ -27,7 +28,7 @@
       <scheme>rrtmgp_subcycle</scheme>
     </subcycle>
     <!-- Longwave subcycle - last iteration is climate calculation-->
-    <subcycle>
+    <subcycle loop="number_of_diagnostic_subcycles">
       <scheme>rrtmgp_constituents</scheme>
       <scheme>rrtmgp_lw_gas_optics_pre</scheme>
       <scheme>rrtmgp_lw_gas_optics</scheme>

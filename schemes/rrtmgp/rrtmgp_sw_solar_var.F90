@@ -42,7 +42,7 @@ contains
     if ( do_spctrl_scaling ) then
 
        if ( .not.has_spectrum ) then
-          write(errmsg, *) 'rrtmgp_sw_solar_var_init: solar input fil must have irradiance spectrum'
+          write(errmsg, *) 'rrtmgp_sw_solar_var_init: solar input file must have irradiance spectrum'
           errflg = 1
           return
        endif
@@ -86,14 +86,14 @@ contains
 !> \section arg_table_rrtmgp_sw_solar_var_run Argument Table
 !! \htmlinclude rrtmgp_sw_solar_var_run.html
 !!
-  subroutine rrtmgp_sw_solar_var_run(toa_flux, band2gpt_sw, nswbands, sol_irrad, we, nbins, sol_tsi, do_spctrl_scaling, &
+  subroutine rrtmgp_sw_solar_var_run(toa_flux, band2gpt_sw, nswbands, sol_irrad, wave_end, nbins, sol_tsi, do_spctrl_scaling, &
                                      sfac, eccf, errmsg, errflg)
 
      ! Arguments 
      real(kind_phys),    intent(inout) :: toa_flux(:,:)         ! top-of-atmosphere flux to be scaled (columns,gpts)
      real(kind_phys),    intent(in)    :: sol_tsi               ! total solar irradiance
      real(kind_phys),    intent(in)    :: sol_irrad(:)          ! solar irradiance
-     real(kind_phys),    intent(in)    :: we(:)                 ! wavelength endpoints
+     real(kind_phys),    intent(in)    :: wave_end(:)           ! wavelength endpoints
      integer,            intent(in)    :: nbins                 ! number of bins
      integer,            intent(in)    :: band2gpt_sw(:,:)      ! array for converting shortwave band limits to g-points
      integer,            intent(in)    :: nswbands              ! number of shortwave bands
@@ -116,7 +116,7 @@ contains
      if (do_spctrl_scaling) then 
 
         ! Determine target irradiance for each band
-        call integrate_spectrum(nbins, nswbands, we, radbinmin, radbinmax, sol_irrad, irrad)
+        call integrate_spectrum(nbins, nswbands, wave_end, radbinmin, radbinmax, sol_irrad, irrad)
 
         ncols = size(toa_flux, 1)
         allocate(scale(ncols), stat=errflg, errmsg=alloc_errmsg)
@@ -177,11 +177,10 @@ contains
        trg_x(2) = max_trg(i)
 
        call rebin( nsrc, 1, src_x, trg_x, src(1:nsrc), targ(:) )
-       ! W/m2/nm --> W/m2
+       ! W m-2 nm-1 --> W m-2
        trg( i ) = targ(1)*(trg_x(2)-trg_x(1))
 
-    enddo
-
+    end do
 
   end subroutine integrate_spectrum
 

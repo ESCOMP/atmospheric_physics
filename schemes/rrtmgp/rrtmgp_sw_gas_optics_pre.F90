@@ -37,7 +37,7 @@ contains
     integer,                     intent(out)   :: errflg
 
     ! Local variables
-    integer :: i, gas_idx, idx(nday)
+    integer :: i, gas_idx
     integer :: istat
     real(kind_phys), allocatable :: gas_mmr(:,:)
     real(kind_phys), allocatable :: gas_vmr(:,:)
@@ -59,14 +59,17 @@ contains
        return
     end if
 
-    allocate(gas_mmr(nday, pverp-1))
-    allocate(gas_vmr(nday, nlay))
+    allocate(gas_mmr(nday, pverp-1), stat=errflg, errmsg=alloc_errmsg)
+    if (errflg /= 0) then
+       write(errmsg,*) sub//": failed to allocate 'gas_mmr' - message: "//alloc_errmsg
+       return
+    end if
+    allocate(gas_vmr(nday, nlay), stat=errflg, errmsg=alloc_errmsg)
+    if (errflg /= 0) then
+       write(errmsg,*) sub//": failed to allocate 'gas_vmr' - message: "//alloc_errmsg
+       return
+    end if
     ! Check allocate
-
-    ! set the column indices
-    do i = 1, nday
-       idx(i) = idxday(i)
-    end do
 
     do gas_idx = 1, nradgas
 
@@ -74,7 +77,7 @@ contains
        gas_mmr = rad_const_array(:,:,gas_idx)
 
        do i = 1, nday
-          mmr(i,ktoprad:) = gas_mmr(idx(i),ktopcam:)
+          mmr(i,ktoprad:) = gas_mmr(idxday(i),ktopcam:)
        end do
 
        ! If an extra layer is being used, copy mmr from the top layer of CAM to the extra layer.
@@ -104,8 +107,8 @@ contains
        if ((gaslist(gas_idx) == 'O3') .and. (nlay == pverp)) then
           P_top = 50.0_kind_phys
           do i = 1, nday
-             P_int = pint(idx(i),1) ! pressure (Pa) at upper interface of CAM
-             P_mid = pmid(idx(i),1) ! pressure (Pa) at midpoint of top layer of CAM
+             P_int = pint(idxday(i),1) ! pressure (Pa) at upper interface of CAM
+             P_mid = pmid(idxday(i),1) ! pressure (Pa) at midpoint of top layer of CAM
              alpha = log(P_int/P_top)
              beta =  log(P_mid/P_int)/log(P_mid/P_top)
 
