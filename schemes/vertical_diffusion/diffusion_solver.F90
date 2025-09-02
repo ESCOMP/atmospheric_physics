@@ -323,7 +323,7 @@ contains
   ! obtained from the turbulence module.
 !> \section arg_table_vertical_diffusion_diffuse_horizontal_momentum_run Argument Table
 !! \htmlinclude arg_table_vertical_diffusion_diffuse_horizontal_momentum_run.html
-  pure subroutine vertical_diffusion_diffuse_horizontal_momentum_run( &
+  subroutine vertical_diffusion_diffuse_horizontal_momentum_run( &
              ncol, pver, pverp, &
              dt, &
              rair, gravit, &
@@ -713,7 +713,7 @@ contains
   ! obtained from the turbulence module.
 !> \section arg_table_vertical_diffusion_diffuse_dry_static_energy_run Argument Table
 !! \htmlinclude arg_table_vertical_diffusion_diffuse_dry_static_energy_run.html
-  pure subroutine vertical_diffusion_diffuse_dry_static_energy_run( &
+  subroutine vertical_diffusion_diffuse_dry_static_energy_run( &
     ncol, pver, &
     dt, &
     gravit, &
@@ -831,7 +831,7 @@ contains
   ! Diffuse tracers (no molecular diffusion)
 !> \section arg_table_vertical_diffusion_diffuse_tracers_run Argument Table
 !! \htmlinclude arg_table_vertical_diffusion_diffuse_tracers_run.html
-  pure subroutine vertical_diffusion_diffuse_tracers_run( &
+  subroutine vertical_diffusion_diffuse_tracers_run( &
     ncol, pver, &
     ncnst, &
     dt, &
@@ -849,7 +849,7 @@ contains
     cnst_fixed_ubc, &
     q0, &
     ! below output
-    q, &
+    q1, &
     errmsg, errflg)
 
     use coords_1d, only: Coords1D
@@ -930,7 +930,7 @@ contains
         end do
         lqtst(:ncol) = all(q1(:ncol, 1:pver, m) >= qmincg(m), 2)
         do k = 1, pver
-          q1(:ncol, k, m) = merge(q(:ncol, k, m), qtm(:ncol, k), lqtst(:ncol))
+          q1(:ncol, k, m) = merge(q1(:ncol, k, m), qtm(:ncol, k), lqtst(:ncol))
         end do
 
         ! Add the explicit surface fluxes to the lowest layer
@@ -954,7 +954,7 @@ contains
   ! calculate final physics tendencies to be applied by the tendency updater.
 !> \section arg_table_vertical_diffusion_tendencies_run Argument Table
 !! \htmlinclude arg_table_vertical_diffusion_tendencies_run.html
-  pure subroutine vertical_diffusion_tendencies_run( &
+  subroutine vertical_diffusion_tendencies_run( &
     ncol, pver, pcnst, &
     const_props, &
     dt, &
