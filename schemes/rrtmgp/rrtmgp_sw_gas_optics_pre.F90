@@ -47,7 +47,6 @@ contains
 
     ! For ozone profile above model
     real(kind_phys) :: P_top, P_int, P_mid, alpha, beta, a, b, chi_mid, chi_0, chi_eff
-    character(len=256) :: alloc_errmsg
 
     character(len=*), parameter :: sub = 'rrtmgp_sw_gas_optics_pre_run'
     !----------------------------------------------------------------------------
