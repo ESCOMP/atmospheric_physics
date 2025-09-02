@@ -16,7 +16,7 @@ contains
 !! \htmlinclude rrtmgp_lw_gas_optics_init.html
 !!
   subroutine rrtmgp_lw_gas_optics_init(kdist, lw_filename, available_gases, &
-                  errmsg, errcode)
+                  errmsg, errflg)
     use machine,                 only: kind_phys
     use ccpp_gas_optics_rrtmgp,  only: ty_gas_optics_rrtmgp_ccpp
     use ccpp_gas_concentrations, only: ty_gas_concs_ccpp
@@ -31,7 +31,7 @@ contains
     ! Outputs
     class(ty_gas_optics_rrtmgp_ccpp),    intent(out) :: kdist                             ! RRTMGP gas optics object
     character(len=512),                  intent(out) :: errmsg                            ! CCPP error message
-    integer,                             intent(out) :: errcode                           ! CCPP error code
+    integer,                             intent(out) :: errflg                           ! CCPP error code
 
     ! Local variables
     class(abstract_netcdf_reader_t),     pointer     :: file_reader
@@ -76,129 +76,129 @@ contains
 
     ! Initialize error variables
     errmsg = ''
-    errcode = 0
+    errflg = 0
 
     file_reader => create_netcdf_reader_t()
 
     ! Open the longwave coefficients file
-    call file_reader%open_file(lw_filename, errmsg, errcode)
-    if (errcode /= 0) then
+    call file_reader%open_file(lw_filename, errmsg, errflg)
+    if (errflg /= 0) then
        return
     end if
 
     ! Read the coefficients from the file
-    call file_reader%get_var('gas_names', gas_names, errmsg, errcode)
-    if (errcode /= 0) then
+    call file_reader%get_var('gas_names', gas_names, errmsg, errflg)
+    if (errflg /= 0) then
        return
     end if
-    call file_reader%get_var('key_species', key_species, errmsg, errcode)
-    if (errcode /= 0) then
+    call file_reader%get_var('key_species', key_species, errmsg, errflg)
+    if (errflg /= 0) then
        return
     end if
-    call file_reader%get_var('bnd_limits_gpt', band2gpt, errmsg, errcode)
-    if (errcode /= 0) then
+    call file_reader%get_var('bnd_limits_gpt', band2gpt, errmsg, errflg)
+    if (errflg /= 0) then
        return
     end if
-    call file_reader%get_var('bnd_limits_wavenumber', band_lims_wavenum, errmsg, errcode)
-    if (errcode /= 0) then
+    call file_reader%get_var('bnd_limits_wavenumber', band_lims_wavenum, errmsg, errflg)
+    if (errflg /= 0) then
        return
     end if
-    call file_reader%get_var('press_ref', press_ref, errmsg, errcode)
-    if (errcode /= 0) then
+    call file_reader%get_var('press_ref', press_ref, errmsg, errflg)
+    if (errflg /= 0) then
        return
     end if
-    call file_reader%get_var('press_ref_trop', press_ref_trop, errmsg, errcode)
-    if (errcode /= 0) then
+    call file_reader%get_var('press_ref_trop', press_ref_trop, errmsg, errflg)
+    if (errflg /= 0) then
        return
     end if
-    call file_reader%get_var('temp_ref', temp_ref, errmsg, errcode)
-    if (errcode /= 0) then
+    call file_reader%get_var('temp_ref', temp_ref, errmsg, errflg)
+    if (errflg /= 0) then
        return
     end if
-    call file_reader%get_var('absorption_coefficient_ref_T', temp_ref_t, errmsg, errcode)
-    if (errcode /= 0) then
+    call file_reader%get_var('absorption_coefficient_ref_T', temp_ref_t, errmsg, errflg)
+    if (errflg /= 0) then
        return
     end if
-    call file_reader%get_var('absorption_coefficient_ref_P', temp_ref_p, errmsg, errcode)
-    if (errcode /= 0) then
+    call file_reader%get_var('absorption_coefficient_ref_P', temp_ref_p, errmsg, errflg)
+    if (errflg /= 0) then
        return
     end if
-    call file_reader%get_var('vmr_ref', vmr_ref, errmsg, errcode)
-    if (errcode /= 0) then
+    call file_reader%get_var('vmr_ref', vmr_ref, errmsg, errflg)
+    if (errflg /= 0) then
        return
     end if
-    call file_reader%get_var('kmajor', kmajor, errmsg, errcode)
-    if (errcode /= 0) then
+    call file_reader%get_var('kmajor', kmajor, errmsg, errflg)
+    if (errflg /= 0) then
        return
     end if
-    call file_reader%get_var('kminor_lower', kminor_lower, errmsg, errcode)
-    if (errcode /= 0) then
+    call file_reader%get_var('kminor_lower', kminor_lower, errmsg, errflg)
+    if (errflg /= 0) then
        return
     end if
-    call file_reader%get_var('kminor_upper', kminor_upper, errmsg, errcode)
-    if (errcode /= 0) then
+    call file_reader%get_var('kminor_upper', kminor_upper, errmsg, errflg)
+    if (errflg /= 0) then
        return
     end if
-    call file_reader%get_var('totplnk', totplnk, errmsg, errcode)
-    if (errcode /= 0) then
+    call file_reader%get_var('totplnk', totplnk, errmsg, errflg)
+    if (errflg /= 0) then
        return
     end if
-    call file_reader%get_var('plank_fraction', planck_frac, errmsg, errcode)
-    if (errcode /= 0) then
+    call file_reader%get_var('plank_fraction', planck_frac, errmsg, errflg)
+    if (errflg /= 0) then
        return
     end if
-    call file_reader%get_var('optimal_angle_fit', optimal_angle_fit, errmsg, errcode)
-    if (errcode /= 0) then
+    call file_reader%get_var('optimal_angle_fit', optimal_angle_fit, errmsg, errflg)
+    if (errflg /= 0) then
        return
     end if
-    call file_reader%get_var('rayl_lower', rayl_lower, errmsg, errcode)
+    call file_reader%get_var('rayl_lower', rayl_lower, errmsg, errflg)
     ! OK if variable is not on file
-    if (errcode /= 0 .and. errcode /= missing_variable_error_code) then
+    if (errflg /= 0 .and. errflg /= missing_variable_error_code) then
        return
     end if
-    if (errcode /= missing_variable_error_code) then
+    if (errflg /= missing_variable_error_code) then
        allocate(rayl_lower_allocatable(size(rayl_lower,1), size(rayl_lower,2), size(rayl_lower,3)))
        rayl_lower_allocatable = rayl_lower
     end if
-    call file_reader%get_var('rayl_upper', rayl_upper, errmsg, errcode)
+    call file_reader%get_var('rayl_upper', rayl_upper, errmsg, errflg)
     ! OK if variable is not on file
-    if (errcode /= 0 .and. errcode /= missing_variable_error_code) then
+    if (errflg /= 0 .and. errflg /= missing_variable_error_code) then
        return
     end if
-    if (errcode /= missing_variable_error_code) then
+    if (errflg /= missing_variable_error_code) then
        allocate(rayl_upper_allocatable(size(rayl_upper,1), size(rayl_upper,2), size(rayl_upper,3)))
        rayl_upper_allocatable = rayl_upper
     end if
-    call file_reader%get_var('gas_minor', gas_minor, errmsg, errcode)
-    if (errcode /= 0) then
+    call file_reader%get_var('gas_minor', gas_minor, errmsg, errflg)
+    if (errflg /= 0) then
        return
     end if
-    call file_reader%get_var('identifier_minor', identifier_minor, errmsg, errcode)
-    if (errcode /= 0) then
+    call file_reader%get_var('identifier_minor', identifier_minor, errmsg, errflg)
+    if (errflg /= 0) then
        return
     end if
-    call file_reader%get_var('minor_gases_lower', minor_gases_lower, errmsg, errcode)
-    if (errcode /= 0) then
+    call file_reader%get_var('minor_gases_lower', minor_gases_lower, errmsg, errflg)
+    if (errflg /= 0) then
        return
     end if
-    call file_reader%get_var('minor_gases_upper', minor_gases_upper, errmsg, errcode)
-    if (errcode /= 0) then
+    call file_reader%get_var('minor_gases_upper', minor_gases_upper, errmsg, errflg)
+    if (errflg /= 0) then
        return
     end if
-    call file_reader%get_var('minor_limits_gpt_lower', minor_limits_gpt_lower, errmsg, errcode)
-    if (errcode /= 0) then
+    call file_reader%get_var('minor_limits_gpt_lower', minor_limits_gpt_lower, errmsg, errflg)
+    if (errflg /= 0) then
        return
     end if
-    call file_reader%get_var('minor_limits_gpt_upper', minor_limits_gpt_upper, errmsg, errcode)
-    if (errcode /= 0) then
+    call file_reader%get_var('minor_limits_gpt_upper', minor_limits_gpt_upper, errmsg, errflg)
+    if (errflg /= 0) then
        return
     end if
-    call file_reader%get_var('minor_scales_with_density_lower', int2log, errmsg, errcode)
-    if (errcode /= 0) then
+    call file_reader%get_var('minor_scales_with_density_lower', int2log, errmsg, errflg)
+    if (errflg /= 0) then
        return
     end if
-    allocate(minor_scales_with_density_lower(size(int2log)), stat=errcode, errmsg=alloc_errmsg)
-    if (errcode /= 0) then
+    allocate(minor_scales_with_density_lower(size(int2log)), stat=errflg, errmsg=alloc_errmsg)
+    if (errflg /= 0) then
        write(errmsg, '(a,a)') 'Error allocating "minor_scales_with_density_lower" - message: ', alloc_errmsg
        return
     end if
@@ -210,12 +210,12 @@ contains
        end if
     end do
     deallocate(int2log)
-    call file_reader%get_var('scale_by_complement_lower', int2log, errmsg, errcode)
-    if (errcode /= 0) then
+    call file_reader%get_var('scale_by_complement_lower', int2log, errmsg, errflg)
+    if (errflg /= 0) then
        return
     end if
-    allocate(scale_by_complement_lower(size(int2log)), stat=errcode, errmsg=alloc_errmsg)
-    if (errcode /= 0) then
+    allocate(scale_by_complement_lower(size(int2log)), stat=errflg, errmsg=alloc_errmsg)
+    if (errflg /= 0) then
        write(errmsg, '(a,a)') 'Error allocating "scale_by_complement_lower" - message: ', alloc_errmsg
        return
     end if
@@ -227,12 +227,12 @@ contains
        end if
     end do
     deallocate(int2log)
-    call file_reader%get_var('minor_scales_with_density_upper', int2log, errmsg, errcode)
-    if (errcode /= 0) then
+    call file_reader%get_var('minor_scales_with_density_upper', int2log, errmsg, errflg)
+    if (errflg /= 0) then
        return
     end if
-    allocate(minor_scales_with_density_upper(size(int2log)), stat=errcode, errmsg=alloc_errmsg)
-    if (errcode /= 0) then
+    allocate(minor_scales_with_density_upper(size(int2log)), stat=errflg, errmsg=alloc_errmsg)
+    if (errflg /= 0) then
        write(errmsg, '(a,a)') 'Error allocating "minor_scales_with_density_upper" - message: ', alloc_errmsg
        return
     end if
@@ -244,12 +244,12 @@ contains
        end if
     end do
     deallocate(int2log)
-    call file_reader%get_var('scale_by_complement_upper', int2log, errmsg, errcode)
-    if (errcode /= 0) then
+    call file_reader%get_var('scale_by_complement_upper', int2log, errmsg, errflg)
+    if (errflg /= 0) then
        return
     end if
-    allocate(scale_by_complement_upper(size(int2log)), stat=errcode, errmsg=alloc_errmsg)
-    if (errcode /= 0) then
+    allocate(scale_by_complement_upper(size(int2log)), stat=errflg, errmsg=alloc_errmsg)
+    if (errflg /= 0) then
        write(errmsg, '(a,a)') 'Error allocating "scale_by_complement_upper" - message: ', alloc_errmsg
        return
     end if
@@ -261,26 +261,26 @@ contains
        end if
     end do
     deallocate(int2log)
-    call file_reader%get_var('scaling_gas_lower', scaling_gas_lower, errmsg, errcode)
-    if (errcode /= 0) then
+    call file_reader%get_var('scaling_gas_lower', scaling_gas_lower, errmsg, errflg)
+    if (errflg /= 0) then
        return
     end if
-    call file_reader%get_var('scaling_gas_upper', scaling_gas_upper, errmsg, errcode)
-    if (errcode /= 0) then
+    call file_reader%get_var('scaling_gas_upper', scaling_gas_upper, errmsg, errflg)
+    if (errflg /= 0) then
        return
     end if
-    call file_reader%get_var('kminor_start_lower', kminor_start_lower, errmsg, errcode)
-    if (errcode /= 0) then
+    call file_reader%get_var('kminor_start_lower', kminor_start_lower, errmsg, errflg)
+    if (errflg /= 0) then
        return
     end if
-    call file_reader%get_var('kminor_start_upper', kminor_start_upper, errmsg, errcode)
-    if (errcode /= 0) then
+    call file_reader%get_var('kminor_start_upper', kminor_start_upper, errmsg, errflg)
+    if (errflg /= 0) then
        return
     end if
 
     ! Close the longwave coefficients file
-    call file_reader%close_file(errmsg, errcode)
-    if (errcode /= 0) then
+    call file_reader%close_file(errmsg, errflg)
+    if (errflg /= 0) then
        return
     end if
     deallocate(file_reader)
@@ -305,7 +305,7 @@ contains
          optimal_angle_fit)
 
     if (len_trim(errmsg) > 0) then
-       errcode = 1
+       errflg = 1
     end if
     call check_error_msg('rrtmgp_lw_gas_optics_init_load', errmsg)
 

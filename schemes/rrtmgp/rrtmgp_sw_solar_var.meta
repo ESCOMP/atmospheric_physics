@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = rrtmgp_sw_solar_var
   type = scheme
+  dependencies = ../radiation_utils/mo_util.F90
 
 [ccpp-arg-table]
   name  = rrtmgp_sw_solar_var_init
@@ -11,7 +12,7 @@
   type = integer
   dimensions = ()
   intent = in
-[ do_spctrl_scaling ]
+[ do_spectral_scaling ]
   standard_name = do_spectral_scaling_of_solar_irradiance_data
   units = flag
   type = logical
@@ -45,9 +46,15 @@
   type = real | kind = kind_phys
   dimensions = (daytime_points_dimension,number_of_shortwave_g_point_intervals)
   intent = inout
+[ ccpp_constant_two ]
+  standard_name = ccpp_constant_two
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
 [ band2gpt_sw ]
   standard_name = shortwave_start_and_end_gpoint_for_each_band
-  units = enter_units
+  units = index
   type = integer
   dimensions = (ccpp_constant_two,number_of_bands_for_shortwave_radiation)
   intent = in
@@ -63,7 +70,7 @@
   type = real | kind = kind_phys
   dimensions = (number_of_wavelength_samples_of_spectrum)
   intent = in
-[ wave_end ]
+[ we ]
   standard_name = wavelength_endpoints
   units = nm
   type = real | kind = kind_phys
@@ -81,8 +88,8 @@
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
-[ do_spctrl_scaling ]
-  standard_name = do_spectral_scaling
+[ do_spectral_scaling ]
+  standard_name = do_spectral_scaling_of_solar_irradiance_data
   units = flag
   type = logical
   dimensions = ()

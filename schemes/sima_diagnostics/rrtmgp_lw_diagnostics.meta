@@ -121,13 +121,13 @@
   standard_name = longwave_net_radiative_flux
   units = W m-2
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent,vertical_interface_dimension)
   intent = in
 [ fcnl ]
   standard_name = longwave_net_radiative_clear_sky_flux
   units = W m-2
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent,vertical_interface_dimension)
   intent = in
 [ qrl ]
   standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_longwave_radiation

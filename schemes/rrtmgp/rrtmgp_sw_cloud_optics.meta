@@ -139,7 +139,7 @@
   intent = out
 [ snow_tau ]
   standard_name = snow_optical_depth
-  units = enter_units
+  units = 1
   type = real | kind = kind_phys
   dimensions = (number_of_bands_for_shortwave_radiation,horizontal_loop_extent,vertical_layer_dimension)
   intent = out
@@ -265,7 +265,7 @@
   intent = out
 [ grau_icld_vistau ]
   standard_name = graupel_optical_depth_for_visible_band
-  units = enter_units
+  units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = out

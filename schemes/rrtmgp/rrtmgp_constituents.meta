@@ -30,7 +30,7 @@
   type = character | kind = len=512
   dimensions = ()
   intent = out
-[ errcode ]
+[ errflg ]
   standard_name = ccpp_error_code
   units = 1
   type = integer
@@ -63,8 +63,14 @@
   type = logical
   dimensions = (number_of_diagnostic_subcycles)
   intent = out
-[ rrtmgp_phys_blksz ]
+[ rrtmgp_phys_blksz_lw ]
   standard_name = number_of_columns_per_longwave_block_for_RRTMGP
+  units = count
+  type = integer
+  dimensions = ()
+  intent = out
+[ rrtmgp_phys_blksz_sw ]
+  standard_name = number_of_columns_per_shortwave_block_for_RRTMGP
   units = count
   type = integer
   dimensions = ()
@@ -123,7 +129,7 @@
   type = character | kind = len=512
   dimensions = ()
   intent = out
-[ errcode ]
+[ errflg ]
   standard_name = ccpp_error_code
   units = 1
   type = integer
@@ -156,7 +162,7 @@
   type = character | kind = len=512
   dimensions = ()
   intent = out
-[ errcode ]
+[ errflg ]
   standard_name = ccpp_error_code
   units = 1
   type = integer

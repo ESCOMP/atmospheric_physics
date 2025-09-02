@@ -8,14 +8,14 @@ contains
 !> \section arg_table_rrtmgp_constituents_register Argument Table
 !! \htmlinclude rrtmgp_constituents_register.html
 !!
-   subroutine rrtmgp_constituents_register(nradgas, rad_climate, rrtmgp_dyn_consts, errmsg, errcode)
+   subroutine rrtmgp_constituents_register(nradgas, rad_climate, rrtmgp_dyn_consts, errmsg, errflg)
       use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
       use ccpp_kinds,                only: kind_phys
       integer,            intent(in)  :: nradgas
       type(ccpp_constituent_properties_t), allocatable, intent(out) :: rrtmgp_dyn_consts(:)
       character(len=256), intent(in)  :: rad_climate(:)
       character(len=512), intent(out) :: errmsg
-      integer,            intent(out) :: errcode
+      integer,            intent(out) :: errflg
 
       ! Local variables
       character(len=1)  :: source
@@ -25,13 +25,13 @@ contains
       integer            :: gas_idx, strlen, ipos, ierr, idx
 
       errmsg = ''
-      errcode = 0
+      errflg = 0
 
       ! Allocate the dynamic constituents array
       allocate(rrtmgp_dyn_consts(nradgas), stat=ierr, errmsg=alloc_errmsg)
       if (ierr /= 0) then
          write(errmsg, *) 'rrtmgp_constituents_register: Unable to allocate rrtmgp_dyn_consts - message: ', alloc_errmsg
-         errcode = 1
+         errflg = 1
          return
       end if
 
@@ -73,7 +73,7 @@ contains
              advected = .true.,                         &
              water_species = .false.,                    &
              mixing_ratio_type = 'dry',                 &
-             errcode = errcode,                         &
+             errcode = errflg,                         &
              errmsg = errmsg)
       else if (source == 'N') then
           call rrtmgp_dyn_consts(gas_idx)%instantiate(     &
@@ -85,7 +85,7 @@ contains
              advected = .false.,                         &
              water_species = .false.,                    &
              mixing_ratio_type = 'dry',                 &
-             errcode = errcode,                         &
+             errcode = errflg,                         &
              errmsg = errmsg)
       else if (source == 'Z') then
           call rrtmgp_dyn_consts(gas_idx)%instantiate(     &
@@ -98,12 +98,12 @@ contains
              advected = .false.,                         &
              water_species = .false.,                    &
              mixing_ratio_type = 'dry',                 &
-             errcode = errcode,                         &
+             errcode = errflg,                         &
              errmsg = errmsg)
       else
          write(errmsg,*) 'rrtmgp_constituent_register: invalid gas source "', source, '" for radiation', &
             ' constituent "', stdname, '"'
-         errcode = 1
+         errflg = 1
          return
       end if
 
@@ -115,14 +115,15 @@ contains
 !! \htmlinclude rrtmgp_constituents_int.html
 !!
    subroutine rrtmgp_constituents_init(ndiag, ncol, unset_real, active_call_array, &
-      rrtmgp_phys_blksz, tlev, fluxlwup_Jac, rad_heat, fsnt, fsns, is_first_restart_step,    &
-      use_tlev, top_at_one, errmsg, errcode)
+      rrtmgp_phys_blksz_lw, rrtmgp_phys_blksz_sw, tlev, fluxlwup_Jac, rad_heat, fsnt, fsns, is_first_restart_step,    &
+      use_tlev, top_at_one, errmsg, errflg)
       use ccpp_kinds, only: kind_phys
       integer,             intent(in) :: ndiag
       integer,             intent(in) :: ncol
       real(kind_phys),     intent(in) :: unset_real
       logical,            intent(out) :: active_call_array(:)
-      integer,            intent(out) :: rrtmgp_phys_blksz
+      integer,            intent(out) :: rrtmgp_phys_blksz_lw
+      integer,            intent(out) :: rrtmgp_phys_blksz_sw
       real(kind_phys),    intent(out) :: tlev(:,:)
       real(kind_phys),    intent(out) :: fluxlwup_Jac(:,:)
       real(kind_phys),    intent(out) :: rad_heat(:,:)
@@ -132,17 +133,18 @@ contains
       logical,            intent(out) :: use_tlev
       logical,            intent(out) :: top_at_one
       character(len=512), intent(out) :: errmsg
-      integer,            intent(out) :: errcode
+      integer,            intent(out) :: errflg
 
       ! Initialize error variables
-      errcode = 0
+      errflg = 0
       errmsg = ''
 
       active_call_array = .true.
       is_first_restart_step = .false.
       top_at_one = .true.
 
-      rrtmgp_phys_blksz = ncol
+      rrtmgp_phys_blksz_lw = ncol
+      rrtmgp_phys_blksz_sw = ncol
       ! Set tlev & fluxlwup_Jac to unset values; not used by default in CAM-SIMA
       use_tlev = .false.
       tlev = unset_real
@@ -157,21 +159,21 @@ contains
 !> \section arg_table_rrtmgp_constituents_run Argument Table
 !! \htmlinclude rrtmgp_constituents_run.html
 !!
-   subroutine rrtmgp_constituents_run(gaslist, const_array, rad_const_array, errmsg, errcode)
+   subroutine rrtmgp_constituents_run(gaslist, const_array, rad_const_array, errmsg, errflg)
        use ccpp_constituent_prop_mod, only: int_unassigned
        use ccpp_scheme_utils,         only: ccpp_constituent_index
        use ccpp_kinds,                only: kind_phys
        character(len=5),          intent(in) :: gaslist(:)
        real(kind_phys),           intent(in) :: const_array(:,:,:)
        real(kind_phys),          intent(out) :: rad_const_array(:,:,:)
-       integer,                  intent(out) :: errcode
+       integer,                  intent(out) :: errflg
        character(len=512),       intent(out) :: errmsg
 
        ! Local variables
        integer :: gas_idx
        integer :: const_idx
 
-       errcode = 0
+       errflg = 0
        errmsg = ''
 
        rad_const_array = 0._kind_phys
@@ -179,11 +181,11 @@ contains
        do gas_idx = 1, size(gaslist)
           ! Find the index of the current gas in the constituents array
           if (trim(gaslist(gas_idx)) == 'H2O') then
-             call ccpp_constituent_index('water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water', const_idx, errcode, errmsg)
+             call ccpp_constituent_index('water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water', const_idx, errflg, errmsg)
           else
-             call ccpp_constituent_index(trim(gaslist(gas_idx)), const_idx, errcode, errmsg)
+             call ccpp_constituent_index(trim(gaslist(gas_idx)), const_idx, errflg, errmsg)
           end if
-          if (errcode /= 0) then
+          if (errflg /= 0) then
              return
           end if
           if (const_idx /= int_unassigned) then

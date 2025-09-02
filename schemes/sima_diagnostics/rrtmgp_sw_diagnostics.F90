@@ -137,8 +137,8 @@ CONTAINS
 
       ! Local variables
       integer :: diag_index, idx
+      real(kind_phys) :: fsds(ncol)
       real(kind_phys) :: solin(ncol)
-      real(kind_phys) :: fcns(ncol)
       real(kind_phys) :: fsntoa(ncol)
       real(kind_phys) :: fsntoac(ncol)
       real(kind_phys) :: fsutoa(ncol)
@@ -149,6 +149,9 @@ CONTAINS
       real(kind_phys) :: flux_sw_clr_dn(ncol,pver)
       real(kind_phys) :: fsntc(ncol)
       real(kind_phys) :: fsnsc(ncol)
+      real(kind_phys) :: fsn200(ncol)
+      real(kind_phys) :: fsn200c(ncol)
+      real(kind_phys) :: fsnr(ncol)
 
       errmsg = ''
       errflg = 0
@@ -163,7 +166,6 @@ CONTAINS
 
       ! Initialize to provide 0.0 values for night columns.
       solin = 0.0_kind_phys
-      fcns = 0.0_kind_phys
       fsntoa = 0.0_kind_phys
       fsntoac = 0.0_kind_phys
       fsutoa = 0.0_kind_phys
@@ -175,7 +177,8 @@ CONTAINS
 
       ! Load up diagnostic arrays
       do idx = 1, nday
-         solin(idxday(idx) = fswc%fluxes%flux_dn(idx, 1)
+         fsds(idxday(idx)) = fsw%fluxes%flux_dn(idx, nlay+1)
+         solin(idxday(idx)) = fswc%fluxes%flux_dn(idx, 1)
          fsntoa(idxday(idx)) = fsw%fluxes%flux_net(idx, 1)
          fsntoac(idxday(idx)) = fswc%fluxes%flux_net(idx, 1)
          fsutoa(idxday(idx)) = fsw%fluxes%flux_up(idx, 1)

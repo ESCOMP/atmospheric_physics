@@ -4,16 +4,17 @@ module rrtmgp_subcycle
   implicit none
   private
 
+  public rrtmgp_subcycle_init
   public rrtmgp_subcycle_run
 contains
 
 !> \section arg_table_rrtmgp_subcycle_init Argument Table
 !! \htmlinclude rrtmgp_subcycle_init
 !!
-   subroutine rrtmgp_subcycle_init(diag_cur, errmsg, errcode)
+   subroutine rrtmgp_subcycle_init(diag_cur, errmsg, errflg)
       integer,            intent(out) :: diag_cur
       character(len=512), intent(out) :: errmsg
-      integer,            intent(out) :: errcode
+      integer,            intent(out) :: errflg
 
       errmsg = ''
       errflg = 0
@@ -23,11 +24,11 @@ contains
 !> \section arg_table_rrtmgp_subcycle_run Argument Table
 !! \htmlinclude rrtmgp_subcycle_run.html
 !!
-   subroutine rrtmgp_subcycle_run(diag_cur, num_diag_cycles, errmsg, errcode)
+   subroutine rrtmgp_subcycle_run(diag_cur, num_diag_cycles, errmsg, errflg)
       integer,             intent(in) :: num_diag_cycles
       integer,          intent(inout) :: diag_cur
       character(len=512), intent(out) :: errmsg
-      integer,            intent(out) :: errcode
+      integer,            intent(out) :: errflg
 
       errmsg = ''
       errflg = 0

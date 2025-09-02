@@ -84,7 +84,7 @@
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ fcns ]
-  standard_name = shortwave_net_clear_sky_radiative_flux
+  standard_name = shortwave_net_radiative_clear_sky_flux
   units = W m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)

@@ -28,10 +28,10 @@ contains
 !> \section arg_table_rrtmgp_sw_solar_var_init Argument Table
 !! \htmlinclude rrtmgp_sw_solar_var_init.html
 !!
-  subroutine rrtmgp_sw_solar_var_init(nswbands, do_spctrl_scaling, has_spectrum, errmsg, errflg)
+  subroutine rrtmgp_sw_solar_var_init(nswbands, do_spectral_scaling, has_spectrum, errmsg, errflg)
     use radiation_utils,   only : get_sw_spectral_boundaries_ccpp
     integer, intent(in) :: nswbands            ! number of shortwave bands
-    logical, intent(in) :: do_spctrl_scaling   ! flag to do spectral scaling
+    logical, intent(in) :: do_spectral_scaling ! flag to do spectral scaling
     logical, intent(in) :: has_spectrum        ! flag for whether solar input file has irradiance spectrum
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errflg
@@ -39,7 +39,7 @@ contains
     integer :: radmax_loc
     character(len=256) :: alloc_errmsg
 
-    if ( do_spctrl_scaling ) then
+    if ( do_spectral_scaling ) then
 
        if ( .not.has_spectrum ) then
           write(errmsg, *) 'rrtmgp_sw_solar_var_init: solar input file must have irradiance spectrum'
@@ -86,7 +86,7 @@ contains
 !> \section arg_table_rrtmgp_sw_solar_var_run Argument Table
 !! \htmlinclude rrtmgp_sw_solar_var_run.html
 !!
-  subroutine rrtmgp_sw_solar_var_run(toa_flux, band2gpt_sw, nswbands, sol_irrad, wave_end, nbins, sol_tsi, do_spctrl_scaling, &
+  subroutine rrtmgp_sw_solar_var_run(toa_flux, ccpp_constant_two, band2gpt_sw, nswbands, sol_irrad, wave_end, nbins, sol_tsi, do_spectral_scaling, &
                                      sfac, eccf, errmsg, errflg)
 
      ! Arguments 
@@ -95,9 +95,10 @@ contains
      real(kind_phys),    intent(in)    :: sol_irrad(:)          ! solar irradiance
      real(kind_phys),    intent(in)    :: wave_end(:)           ! wavelength endpoints
      integer,            intent(in)    :: nbins                 ! number of bins
+     integer,            intent(in)    :: ccpp_constant_two
      integer,            intent(in)    :: band2gpt_sw(:,:)      ! array for converting shortwave band limits to g-points
      integer,            intent(in)    :: nswbands              ! number of shortwave bands
-     logical,            intent(in)    :: do_spctrl_scaling     ! flag to do spectral scaling
+     logical,            intent(in)    :: do_spectral_scaling   ! flag to do spectral scaling
      real(kind_phys),    intent(in)    :: eccf                  ! eccentricity factor
      real(kind_phys),    intent(out)   :: sfac(:,:)             ! scaling factors (columns,gpts)
      character(len=512), intent(out)   :: errmsg
@@ -113,7 +114,7 @@ contains
      errflg = 0
      errmsg = ''
     
-     if (do_spctrl_scaling) then 
+     if (do_spectral_scaling) then
 
         ! Determine target irradiance for each band
         call integrate_spectrum(nbins, nswbands, wave_end, radbinmin, radbinmax, sol_irrad, irrad)
@@ -181,6 +182,7 @@ contains
        trg( i ) = targ(1)*(trg_x(2)-trg_x(1))
 
     end do
+
 
   end subroutine integrate_spectrum
 
