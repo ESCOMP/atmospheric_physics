@@ -17,7 +17,7 @@ subroutine rrtmgp_sw_mcica_subcol_gen_run(dosw, kdist_sw, nswbands, nswgpts, nda
    use ccpp_gas_concentrations, only: ty_gas_concs_ccpp
    use ccpp_gas_optics_rrtmgp,  only: ty_gas_optics_rrtmgp_ccpp
    use ccpp_optical_props,      only: ty_optical_props_2str_ccpp
-   use shr_RandNum_mod,         only: ShrKissRandGen
+   use shr_RandNum_mod,         only: ShrKissRandGen ! SIMA-specific randum number generator
    use mo_gas_optics_rrtmgp,    only: ty_gas_optics_rrtmgp
 
    ! Compute combined cloud optical properties.
@@ -39,7 +39,7 @@ subroutine rrtmgp_sw_mcica_subcol_gen_run(dosw, kdist_sw, nswbands, nswgpts, nda
    real(kind_phys),                  intent(in)  :: c_cld_tau_w(:,:,:)   ! combined cloud single scattering albedo * tau
    real(kind_phys),                  intent(in)  :: c_cld_tau_w_g(:,:,:) ! combined cloud asymmetry parameter * w * tau
    real(kind_phys),                  intent(in)  :: cldfprime(:,:)       ! combined cloud fraction
-   real(kind_phys),                  intent(in)  :: pmid(:,:)            ! air ressure at mid-points [Pa]
+   real(kind_phys),                  intent(in)  :: pmid(:,:)            ! air pressure at mid-points [Pa]
    logical,                          intent(in)  :: dosw                 ! Flag to do shortwave radiation this timestep
 
    type(ty_optical_props_2str_ccpp), intent(inout) :: cloud_sw           ! SW cloud optical properties object
@@ -82,6 +82,7 @@ subroutine rrtmgp_sw_mcica_subcol_gen_run(dosw, kdist_sw, nswbands, nswgpts, nda
       errmsg = cloud_sw%optical_props%alloc_2str(nday, nlay, kdist_sw%gas_props)
       if (len_trim(errmsg) > 0) then
          errflg = 1
+         return
       end if
 
       ! number of CAM's layers in radiation calculation.  Does not include the "extra layer".
@@ -101,7 +102,7 @@ subroutine rrtmgp_sw_mcica_subcol_gen_run(dosw, kdist_sw, nswbands, nswgpts, nda
          return
       end if
 
-      ! Subset "chunk" data so just the daylight columns, and the number of CAM layers in the
+      ! Subset data so just the daylight columns, and the number of CAM layers in the
       ! radiation calculation are used by MCICA to produce subcolumns.
       cldf            = cldfprime(       idxday(1:nday), ktopcam:)
       day_cld_tau     = c_cld_tau(    :, idxday(1:nday), ktopcam:)
@@ -119,8 +120,6 @@ subroutine rrtmgp_sw_mcica_subcol_gen_run(dosw, kdist_sw, nswbands, nswgpts, nda
       ssac = merge(max(day_cld_tau_w, tiny) / max(tauc, tiny), 1.0_kind_phys , tauc > 0.0_kind_phys)
       ! set asymmetry to zero when tauc = 0
       asmc = merge(asmc, 0.0_kind_phys, tauc > 0.0_kind_phys)
-
-      nver = pver - ktopcam + 1
 
       ! clip cloud fraction
       cldfrac(:,:) = cldf(:nday,:)
