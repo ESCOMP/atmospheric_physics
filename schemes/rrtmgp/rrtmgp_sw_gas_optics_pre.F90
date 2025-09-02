@@ -63,6 +63,7 @@ contains
     if (errflg /= 0) then
        write(errmsg,*) sub//": failed to allocate 'gas_mmr' - message: "//alloc_errmsg
        return
+    end if
     allocate(gas_vmr(nday, nlay), stat=errflg, errmsg=alloc_errmsg)
     if (errflg /= 0) then
        write(errmsg,*) sub//": failed to allocate 'gas_vmr' - message: "//alloc_errmsg
