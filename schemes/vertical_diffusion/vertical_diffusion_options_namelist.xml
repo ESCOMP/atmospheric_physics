@@ -79,7 +79,7 @@
     <type>logical</type>
     <category>pbl</category>
     <group>vertical_diffusion_nl</group>
-    <standard_name>flag_for_implicit_turbulent_surface_stress_in_vertical_diffusion_tbd</standard_name>
+    <standard_name>do_implicit_total_surface_stress_in_vertical_diffusion</standard_name>
     <units>flag</units>
     <desc>
       Logical switch to turn on implicit turbulent surface stress calculation in
@@ -95,7 +95,7 @@
     <type>logical</type>
     <category>pbl</category>
     <group>vertical_diffusion_nl</group>
-    <standard_name>flag_for_angular_momentum_correction_in_vertical_diffusion_tbd</standard_name>
+    <standard_name>do_angular_momentum_correction_in_vertical_diffusion</standard_name>
     <units>flag</units>
     <desc>
       Flag to turn on corrections that improve angular momentum conservation.

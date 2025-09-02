@@ -51,7 +51,7 @@ contains
   ! or a different extrapolation in WACCM-X mode.
 !> \section arg_table_vertical_diffusion_set_temperature_at_toa_default_run Argument Table
 !! \htmlinclude arg_table_vertical_diffusion_set_temperature_at_toa_default_run.html
-  subroutine vertical_diffusion_set_temperature_at_toa_default_run( &
+  pure subroutine vertical_diffusion_set_temperature_at_toa_default_run( &
     ncol, pver, &
     t, &
     t_toai, &
@@ -94,7 +94,7 @@ contains
   ! at interfaces for vertical diffusion
 !> \section arg_table_vertical_diffusion_interpolate_to_interfaces_run Argument Table
 !! \htmlinclude arg_table_vertical_diffusion_interpolate_to_interfaces_run.html
-  subroutine vertical_diffusion_interpolate_to_interfaces_run( &
+  pure subroutine vertical_diffusion_interpolate_to_interfaces_run( &
     ncol, pver, pverp, &
     gravit, &
     rair, rairv, &
@@ -142,6 +142,7 @@ contains
           ti(i,k) = 0.5_kind_phys * (t(i,k) + t(i,k-1))
        end do
     end do
+    ! Assume temperature at surface interface is the same as the midpoint value in the lowest layer:
     ti(:ncol,pverp) = t(:ncol,pver)
 
     ! Set gas constant at interfaces
@@ -152,7 +153,9 @@ contains
           rairi(i,k) = 0.5_kind_phys * (rairv(i,k)+rairv(i,k-1))
         end do
       end do
-      rairi(:ncol,pver+1) = rairv(:ncol,pver)
+
+      ! Assumes gas constant at surface interface is the same as the midpoint value in the lowest layer:
+      rairi(:ncol,pverp) = rairv(:ncol,pver)
     else
       rairi(:ncol,:pverp) = rair
     endif
@@ -172,7 +175,7 @@ contains
     end do
 
     ! Compute square of derivative of pressure with height at interfaces.
-    ! Note that the *derivative* dp/dz is g*rho
+    ! Note that this equation assumes hydrostatic balance, i.e. the *derivative* dp/dz is g*rho
     dpidz_sq = gravit*rhoi(:ncol, :)
     dpidz_sq = dpidz_sq*dpidz_sq
 
@@ -186,7 +189,7 @@ contains
   ! Add turbulent surface stress to total surface drag coefficient, if implicit
 !> \section arg_table_implicit_surface_stress_add_drag_coefficient_run Argument Table
 !! \htmlinclude arg_table_implicit_surface_stress_add_drag_coefficient_run.html
-  subroutine implicit_surface_stress_add_drag_coefficient_run( &
+  pure subroutine implicit_surface_stress_add_drag_coefficient_run( &
              ncol, pver, &
              do_iss, &
              taux, tauy, &
@@ -200,9 +203,9 @@ contains
     integer,         intent(in)       :: pver
     logical,         intent(in)       :: do_iss             ! Use implicit turbulent surface stress computation
     real(kind_phys), intent(in)       :: taux(:)            ! Surface zonal stress [N m-2]
-                                                            ! Input u-momentum per unit time per unit area into the   atmosphere.
+                                                            ! Input u-momentum per unit time per unit area into the atmosphere.
     real(kind_phys), intent(in)       :: tauy(:)            ! Surface meridional stress [N m-2]
-                                                            ! Input v-momentum per unit time per unit area into the   atmosphere.
+                                                            ! Input v-momentum per unit time per unit area into the atmosphere.
 
     real(kind_phys), intent(in)       :: u0(:,:)            ! Input u-wind [m s-1]
     real(kind_phys), intent(in)       :: v0(:,:)            ! Input v-wind [m s-1]
@@ -242,7 +245,7 @@ contains
   ! based on total surface stress (after all surface stress is added)
 !> \section arg_table_vertical_diffusion_wind_damping_rate_run Argument Table
 !! \htmlinclude arg_table_vertical_diffusion_wind_damping_rate_run.html
-  subroutine vertical_diffusion_wind_damping_rate_run( &
+  pure subroutine vertical_diffusion_wind_damping_rate_run( &
     ncol, pver, &
     gravit, &
     p, &
@@ -288,7 +291,7 @@ contains
   ! will be added to this later as they are computed.
 !> \section arg_table_vertical_diffusion_diffuse_horizontal_momentum_timestep_init Argument Table
 !! \htmlinclude arg_table_vertical_diffusion_diffuse_horizontal_momentum_timestep_init.html
-  subroutine vertical_diffusion_diffuse_horizontal_momentum_timestep_init( &
+  pure subroutine vertical_diffusion_diffuse_horizontal_momentum_timestep_init( &
     ncol, pver, &
     ksrf, &
     tau_damp_rate, &
@@ -314,16 +317,15 @@ contains
 
   end subroutine vertical_diffusion_diffuse_horizontal_momentum_timestep_init
 
-  ! Driver routine to compute vertical diffusion of momentum, moisture, trace
-  ! constituents and dry static energy. The new temperature is computed from
-  ! the diffused dry static energy.
+  ! Driver routine to compute vertical diffusion of horizontal momentum,
+  ! including the loss of momentum due to frictional (KE to heat) dissipation.
   ! Turbulent diffusivities and boundary layer nonlocal transport terms are
   ! obtained from the turbulence module.
 !> \section arg_table_vertical_diffusion_diffuse_horizontal_momentum_run Argument Table
 !! \htmlinclude arg_table_vertical_diffusion_diffuse_horizontal_momentum_run.html
-  subroutine vertical_diffusion_diffuse_horizontal_momentum_run( &
+  pure subroutine vertical_diffusion_diffuse_horizontal_momentum_run( &
              ncol, pver, pverp, &
-             ztodt, &
+             dt, &
              rair, gravit, &
              do_iss, &
              am_correction, &
@@ -347,10 +349,10 @@ contains
     use vertical_diffusion_solver, only: fin_vol_solve
 
     ! Input Arguments
-    integer,         intent(in)       :: ncol             ! Number of atmospheric columns
+    integer,         intent(in)       :: ncol
     integer,         intent(in)       :: pver
     integer,         intent(in)       :: pverp
-    real(kind_phys), intent(in)       :: ztodt            ! 2 delta-t [ s ]
+    real(kind_phys), intent(in)       :: dt               ! physics timestep [s]
     real(kind_phys), intent(in)       :: rair
     real(kind_phys), intent(in)       :: gravit
     logical,         intent(in)       :: do_iss           ! Use implicit turbulent surface stress computation
@@ -435,13 +437,13 @@ contains
     dse1(:ncol,:pver) = dse0(:ncol,:pver)
 
     ! necessary temporaries used in computation
-    tmp1(:ncol) = ztodt*gravit*p%rdel(:, pver)
+    tmp1(:ncol) = dt*gravit*p%rdel(:, pver)
 
     ! second term here uses dpidz_sq(:,1) as defined because
     ! the actual dpidz_sq term is "kept in only to preserve answers"
     ! but it is actually not used here ...
-    tmpi2(:ncol, 1) = ztodt*(gravit*rhoi(:ncol,1)*gravit*rhoi(:ncol,1))/(p%mid(:, 1) - p%ifc(:, 1))
-    tmpi2(:ncol, 2:pver) = ztodt*dpidz_sq(:, 2:pver)*p%rdst
+    tmpi2(:ncol, 1) = dt*(gravit*rhoi(:ncol,1)*gravit*rhoi(:ncol,1))/(p%mid(:, 1) - p%ifc(:, 1))
+    tmpi2(:ncol, 2:pver) = dt*dpidz_sq(:, 2:pver)*p%rdst
 
     !---------------------------- !
     ! Diffuse Horizontal Momentum !
@@ -490,7 +492,7 @@ contains
         ! preserve time-mean torque
         ramda = 1._kind_phys
       else
-        ramda = ztodt/timeres
+        ramda = dt/timeres
       end if
 
       u1(:ncol, pver) = u1(:ncol, pver) + tmp1(:ncol)*tauresx(:ncol)*ramda
@@ -517,13 +519,13 @@ contains
     ! Note that in all the two cases above, 'tms' is fully implicitly treated.                !
     ! --------------------------------------------------------------------------------------- !
 
-    v1(:ncol, :) = fin_vol_solve(ztodt, p, v1(:ncol, :), ncol, pver, &
-                                coef_q=tau_damp_rate(:ncol,:pver), &
-                                coef_q_diff=kvm(:ncol, :)*dpidz_sq(:ncol, :))
+    v1(:ncol, :) = fin_vol_solve(dt, p, v1(:ncol, :), ncol, pver, &
+                                 coef_q=tau_damp_rate(:ncol,:pver), &
+                                 coef_q_diff=kvm(:ncol, :)*dpidz_sq(:ncol, :))
 
-    u1(:ncol, :) = fin_vol_solve(ztodt, p, u1(:ncol, :), ncol, pver, &
-                                coef_q=tau_damp_rate(:ncol,:pver), &
-                                coef_q_diff=kvm(:ncol, :)*dpidz_sq(:ncol, :))
+    u1(:ncol, :) = fin_vol_solve(dt, p, u1(:ncol, :), ncol, pver, &
+                                 coef_q=tau_damp_rate(:ncol,:pver), &
+                                 coef_q_diff=kvm(:ncol, :)*dpidz_sq(:ncol, :))
 
     ! ---------------------------------------------------------------------- !
     ! Calculate 'total' ( tautotx ) and 'tms' ( tautmsx ) stresses that      !
@@ -564,8 +566,8 @@ contains
         ! by 'explicit residual stress + implicit total stress' for implicit case, while
         ! by 'explicit normal   stress + implicit tms   stress' for explicit case.
         ! Here, 'tautotx(i)' is net stress added into the air at the current time step.
-        tauimpx(i) = (usum_out(i) - usum_in(i))/ztodt
-        tauimpy(i) = (vsum_out(i) - vsum_in(i))/ztodt
+        tauimpx(i) = (usum_out(i) - usum_in(i))/dt
+        tauimpy(i) = (vsum_out(i) - vsum_in(i))/dt
 
         tautotx(i) = tauimpx(i)
         tautoty(i) = tauimpy(i)
@@ -621,7 +623,7 @@ contains
       k = pver + 1
       do i = 1, ncol
         tmpi1(i, 1) = 0._kind_phys
-        tmpi1(i, k) = 0.5_kind_phys*ztodt*gravit* &
+        tmpi1(i, k) = 0.5_kind_phys*dt*gravit* &
                       ((-u1(i, k - 1) + dinp_u(i, k))*tautotx(i) + (-v1(i, k - 1) + dinp_v(i, k))*tautoty(i))
       end do
 
@@ -648,9 +650,12 @@ contains
 
   ! Set dry static energy top boundary condition - zero
   ! used when (1) no molecular diffusion is active, or (2) molecular diffusion is active and not WACCM-X.
+  !
+  ! Note: this is an artifact to the way the vertical diffusion calculations are done;
+  ! it does not represent physical reality.
 !> \section arg_table_vertical_diffusion_set_dry_static_energy_at_toa_zero_run Argument Table
 !! \htmlinclude arg_table_vertical_diffusion_set_dry_static_energy_at_toa_zero_run.html
-  subroutine vertical_diffusion_set_dry_static_energy_at_toa_zero_run( &
+  pure subroutine vertical_diffusion_set_dry_static_energy_at_toa_zero_run( &
     ncol, &
     dse_top, &
     errmsg, errflg)
@@ -673,7 +678,7 @@ contains
   ! Set dry static energy top boundary condition - molecular diffusion non-WACCM-X version
 !> \section arg_table_vertical_diffusion_set_dry_static_energy_at_toa_molecdiff_run Argument Table
 !! \htmlinclude arg_table_vertical_diffusion_set_dry_static_energy_at_toa_molecdiff_run.html
-  subroutine vertical_diffusion_set_dry_static_energy_at_toa_molecdiff_run( &
+  pure subroutine vertical_diffusion_set_dry_static_energy_at_toa_molecdiff_run( &
     ncol, &
     gravit, &
     cpairv, &
@@ -708,9 +713,9 @@ contains
   ! obtained from the turbulence module.
 !> \section arg_table_vertical_diffusion_diffuse_dry_static_energy_run Argument Table
 !! \htmlinclude arg_table_vertical_diffusion_diffuse_dry_static_energy_run.html
-  subroutine vertical_diffusion_diffuse_dry_static_energy_run( &
+  pure subroutine vertical_diffusion_diffuse_dry_static_energy_run( &
     ncol, pver, &
-    ztodt, &
+    dt, &
     gravit, &
     p, rhoi, &
     shflx, &
@@ -729,7 +734,7 @@ contains
     ! Input Arguments
     integer,         intent(in)       :: ncol
     integer,         intent(in)       :: pver
-    real(kind_phys), intent(in)       :: ztodt            ! 2 delta-t [s]
+    real(kind_phys), intent(in)       :: dt               ! physics timestep [s]
 
     real(kind_phys), intent(in)       :: gravit
     type(coords1d),  intent(in)       :: p                ! Pressure coordinates [Pa]
@@ -758,14 +763,14 @@ contains
     ! interface (i.e. a boundary layer of size 0).
     interface_boundary = BoundaryFixedLayer(spread(0._kind_phys, 1, ncol))
 
-    tmp1(:ncol) = ztodt*gravit*p%rdel(:, pver)
+    tmp1(:ncol) = dt*gravit*p%rdel(:, pver)
 
     ! Modification : In future, we should diffuse the fully conservative
     !                moist static energy, not the dry static energy.
 
     ! Add counter-gradient to input static energy profiles
     do k = 1, pver
-      dse(:ncol, k) = dse(:ncol, k) + ztodt*p%rdel(:, k)*gravit* &
+      dse(:ncol, k) = dse(:ncol, k) + dt*p%rdel(:, k)*gravit* &
                       (rhoi(:ncol, k + 1)*kvh(:ncol, k + 1)*cgh(:ncol, k + 1) &
                        - rhoi(:ncol, k)*kvh(:ncol, k)*cgh(:ncol, k))
     end do
@@ -779,7 +784,7 @@ contains
 
     ! Boundary layer thickness of "0._kind_phys" signifies that the boundary
     ! condition is defined directly on the top interface.
-    dse(:ncol, :) = fin_vol_solve(ztodt, p, dse(:ncol, :), ncol, pver, &
+    dse(:ncol, :) = fin_vol_solve(dt, p, dse(:ncol, :), ncol, pver, &
                                   coef_q_diff=kvh(:ncol, :)*dpidz_sq(:ncol, :), &
                                   upper_bndry=interface_boundary, &
                                   l_cond=BoundaryData(dse_top(:ncol)))
@@ -789,13 +794,13 @@ contains
   ! Set tracers to diffuse using vertical diffusion.
 !> \section arg_table_vertical_diffusion_diffuse_tracers_init Argument Table
 !! \htmlinclude arg_table_vertical_diffusion_diffuse_tracers_init.html
-  subroutine vertical_diffusion_diffuse_tracers_init( &
+  pure subroutine vertical_diffusion_diffuse_tracers_init( &
     ncnst, &
     do_diffusion_const, &
     errmsg, errflg)
 
     ! Input arguments
-    integer,            intent(in)    :: ncnst                 ! # of constituents to diffuse. In eddy_diff, only wv. Others, pcnst.
+    integer,            intent(in)    :: ncnst                 ! # of constituents to diffuse. In eddy_diff, only wv. Others, all advected CCPP constituents.
 
     ! Output arguments
     logical,            intent(out)   :: do_diffusion_const(:) ! diffuse constituents (size ncnst) [flag]
@@ -807,6 +812,7 @@ contains
 
     ! Check if logical array is of the expected size
     if (size(do_diffusion_const) .ne. ncnst) then
+      errflg = 1
       write(errmsg, *) 'compute_vdiff: do_diffusion_const size ', &
         size(do_diffusion_const), ' is not equal to ncnst ', ncnst
       return
@@ -825,10 +831,10 @@ contains
   ! Diffuse tracers (no molecular diffusion)
 !> \section arg_table_vertical_diffusion_diffuse_tracers_run Argument Table
 !! \htmlinclude arg_table_vertical_diffusion_diffuse_tracers_run.html
-  subroutine vertical_diffusion_diffuse_tracers_run( &
+  pure subroutine vertical_diffusion_diffuse_tracers_run( &
     ncol, pver, &
     ncnst, &
-    ztodt, &
+    dt, &
     rair, &
     gravit, &
     do_diffusion_const, &
@@ -853,8 +859,8 @@ contains
     ! Input arguments
     integer,         intent(in)       :: ncol             ! Number of atmospheric columns
     integer,         intent(in)       :: pver
-    integer,         intent(in)       :: ncnst            ! # of constituents to diffuse. In eddy_diff, only wv. Others, pcnst.
-    real(kind_phys), intent(in)       :: ztodt            ! 2 delta-t [s]
+    integer,         intent(in)       :: ncnst            ! # of constituents to diffuse. In eddy_diff, only wv. Others, all advected CCPP constituents.
+    real(kind_phys), intent(in)       :: dt               ! physics timestep [s]
     real(kind_phys), intent(in)       :: rair
     real(kind_phys), intent(in)       :: gravit
     logical,         intent(in)       :: do_diffusion_const(:) ! diffuse constituents (size ncnst) [flag]
@@ -873,14 +879,13 @@ contains
     real(kind_phys), intent(in)       :: dpidz_sq(:,:)    ! Square of derivative of pressure with height (moist) [kg2 m-4 s-4]
 
     ! Upper boundary properties (for when molecular diffusion is off)
-    ! hplin: check if needed?? might not be for non-WACCMX molec diff off scenarios
-    real(kind_phys), intent(in)       :: ubc_mmr(:, :) ! Upper boundary mixing ratios [kg kg-1]
-    logical,         intent(in)       :: cnst_fixed_ubc(:)   ! Whether upper boundary condition is fixed
+    real(kind_phys), intent(in)       :: ubc_mmr(:, :)    ! Upper boundary mixing ratios [kg kg-1]
+    logical,         intent(in)       :: cnst_fixed_ubc(:)! Whether upper boundary condition is fixed
 
     real(kind_phys), intent(in)       :: q0(:,:,:)        ! Input Constituents [kg kg-1]
 
     ! Output arguments
-    real(kind_phys), intent(out)      :: q(:,:,:)         ! After vertical diffusion Constituents [kg kg-1]
+    real(kind_phys), intent(out)      :: q1(:,:,:)        ! After vertical diffusion Constituents [kg kg-1]
 
 
     character(len=512), intent(out)   :: errmsg  ! error message
@@ -897,22 +902,15 @@ contains
     errmsg = ''
     errflg = 0
 
-    ! Check if logical array is of the expected size
-    if (size(do_diffusion_const) .ne. ncnst) then
-      write(errmsg, *) 'compute_vdiff: do_diffusion_const size ', &
-        size(do_diffusion_const), ' is not equal to ncnst ', ncnst
-      return
-    end if
-
     ! Set initial iterative outputs to input values
-    q(:ncol,:pver,:ncnst) = q0(:ncol,:pver,:ncnst)
+    q1(:ncol,:pver,:ncnst) = q0(:ncol,:pver,:ncnst)
 
     ! necessary temporaries used in computation
     rrho(:ncol) = rair*t(:ncol, pver)/p%mid(:, pver)
-    tmp1(:ncol) = ztodt*gravit*p%rdel(:, pver)
+    tmp1(:ncol) = dt*gravit*p%rdel(:, pver)
 
     ! Loop through constituents
-    no_molec_decomp = fin_vol_lu_decomp(ztodt, p, &
+    no_molec_decomp = fin_vol_lu_decomp(dt, p, &
                                         coef_q_diff=kvq(:ncol, :)*dpidz_sq(:ncol, :))
 
     do m = 1, ncnst
@@ -922,28 +920,29 @@ contains
         ! profile back if a neg value is found. A neg value implies that the
         ! quasi-equilibrium conditions assumed for the countergradient term are
         ! strongly violated.
-        qtm(:ncol, :pver) = q(:ncol, :pver, m)
+        qtm(:ncol, :pver) = q1(:ncol, :pver, m)
 
         do k = 1, pver
-          q(:ncol, k, m) = q(:ncol, k, m) + &
-                           ztodt*p%rdel(:, k)*gravit*(cflx(:ncol, m)*rrho(:ncol))* &
-                           (rhoi(:ncol, k + 1)*kvh(:ncol, k + 1)*cgs(:ncol, k + 1) &
-                            - rhoi(:ncol, k)*kvh(:ncol, k)*cgs(:ncol, k))
+          q1(:ncol, k, m) = q1(:ncol, k, m) + &
+                            dt*p%rdel(:, k)*gravit*(cflx(:ncol, m)*rrho(:ncol))* &
+                            (rhoi(:ncol, k + 1)*kvh(:ncol, k + 1)*cgs(:ncol, k + 1) &
+                             - rhoi(:ncol, k)*kvh(:ncol, k)*cgs(:ncol, k))
         end do
-        lqtst(:ncol) = all(q(:ncol, 1:pver, m) >= qmincg(m), 2)
+        lqtst(:ncol) = all(q1(:ncol, 1:pver, m) >= qmincg(m), 2)
         do k = 1, pver
-          q(:ncol, k, m) = merge(q(:ncol, k, m), qtm(:ncol, k), lqtst(:ncol))
+          q1(:ncol, k, m) = merge(q(:ncol, k, m), qtm(:ncol, k), lqtst(:ncol))
         end do
 
         ! Add the explicit surface fluxes to the lowest layer
-        q(:ncol, pver, m) = q(:ncol, pver, m) + tmp1(:ncol)*cflx(:ncol, m)
+        q1(:ncol, pver, m) = q1(:ncol, pver, m) + tmp1(:ncol)*cflx(:ncol, m)
 
         ! not doing molecular diffusion
         ! explicitly set mmr in top layer for cases where molecular diffusion is not active
         if (cnst_fixed_ubc(m)) then
-          q(:ncol, 1, m) = ubc_mmr(:ncol, m)
+          ! assumes TOA is at vertical level 1 here.
+          q1(:ncol, 1, m) = ubc_mmr(:ncol, m)
         end if
-        call no_molec_decomp%left_div(q(:ncol, :, m))
+        call no_molec_decomp%left_div(q1(:ncol, :, m))
       end if
     end do
 
@@ -955,7 +954,7 @@ contains
   ! calculate final physics tendencies to be applied by the tendency updater.
 !> \section arg_table_vertical_diffusion_tendencies_run Argument Table
 !! \htmlinclude arg_table_vertical_diffusion_tendencies_run.html
-  subroutine vertical_diffusion_tendencies_run( &
+  pure subroutine vertical_diffusion_tendencies_run( &
     ncol, pver, pcnst, &
     const_props, &
     dt, &
@@ -989,7 +988,7 @@ contains
     real(kind_phys), intent(in)     :: q1(:,:,:)        ! Provisional constituent mixing ratios after diffusion [kg kg-1]
 
     ! Output arguments
-    real(kind_phys), intent(out)    :: tend_s(:,:)     ! Dry static energy tendency [J kg-1 s-1]
+    real(kind_phys), intent(out)    :: tend_s(:,:)     ! Tendency of dry air enthalpy at constant pressure [J kg-1 s-1]
     real(kind_phys), intent(out)    :: tend_u(:,:)     ! Eastward wind tendency [m s-2]
     real(kind_phys), intent(out)    :: tend_v(:,:)     ! Northward wind tendency [m s-2]
     real(kind_phys), intent(out)    :: tend_q(:,:,:)   ! Constituent mixing ratio tendencies [kg kg-1 s-1]
@@ -1000,21 +999,21 @@ contains
     integer :: m
     logical :: const_is_dry
 
-    ! for bit-to-bitness
-    real(kind_phys) :: rztodt
+    ! for bit-to-bitness with CAM.
+    real(kind_phys) :: rdt
 
     scheme_name = "vertical_diffusion_tendencies"
 
-    rztodt = 1._kind_phys/dt
+    rdt = 1._kind_phys/dt
 
     errmsg = ''
     errflg = 0
 
     ! calculate physics tendencies
-    tend_s(:ncol,:)       = (s1(:ncol,:) - s0(:ncol,:)) * rztodt
-    tend_u(:ncol,:)       = (u1(:ncol,:) - u0(:ncol,:)) * rztodt
-    tend_v(:ncol,:)       = (v1(:ncol,:) - v0(:ncol,:)) * rztodt
-    tend_q(:ncol,:pver,:) = (q1(:ncol,:pver,:) - q0(:ncol,:pver,:)) * rztodt
+    tend_s(:ncol,:)       = (s1(:ncol,:) - s0(:ncol,:)) * rdt
+    tend_u(:ncol,:)       = (u1(:ncol,:) - u0(:ncol,:)) * rdt
+    tend_v(:ncol,:)       = (v1(:ncol,:) - v0(:ncol,:)) * rdt
+    tend_q(:ncol,:pver,:) = (q1(:ncol,:pver,:) - q0(:ncol,:pver,:)) * rdt
 
     ! convert tendencies of dry constituents to dry basis
     do m = 1, pcnst

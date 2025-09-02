@@ -18,13 +18,13 @@
   dimensions = ()
   intent = in
 [ do_iss_in ]
-  standard_name = flag_for_implicit_turbulent_surface_stress_in_vertical_diffusion_tbd
+  standard_name = do_implicit_total_surface_stress_in_vertical_diffusion
   units = flag
   type = logical
   dimensions = ()
   intent = in
 [ am_correction_in ]
-  standard_name = flag_for_angular_momentum_correction_in_vertical_diffusion_tbd
+  standard_name = do_angular_momentum_correction_in_vertical_diffusion
   units = flag
   type = logical
   dimensions = ()

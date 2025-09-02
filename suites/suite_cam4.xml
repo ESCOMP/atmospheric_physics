@@ -7,9 +7,10 @@
       Shallow convection      Hack
       Macrophysics            RK
       Microphysics            RK
-      Radiation               RRTMGP (not implemented)
-      Chemistry               None   (not implemented)
+      Radiation               RRTMGP     (not implemented)
+      Chemistry               None       (not implemented)
       Vertical Diffusion      HB
+      Gravity Wave Drag       Orographic (not implemented)
   -->
   <group name="physics_before_coupler">
     <!-- Helper to read all possible constituents from file -->
@@ -310,6 +311,13 @@
     <scheme>geopotential_temp</scheme>
     <scheme>update_dry_static_energy</scheme>
 
+    <!--
+      Gravity wave drag.
+    -->
+
+    <!--
+      Energy conservation/budget checks.
+    -->
     <!-- Save current total energy from dycore for energy fixer in time step. Total energy in current state is updated by the last check_energy_chng call. -->
     <scheme>check_energy_save_teout</scheme>
 

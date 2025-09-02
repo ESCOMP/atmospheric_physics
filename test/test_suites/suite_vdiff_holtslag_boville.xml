@@ -61,11 +61,6 @@
          but these updates are not applied as physics tendencies until the end. -->
     <scheme>vertical_diffusion_diffuse_horizontal_momentum</scheme>
 
-    <!-- // wip // vdiff mid-interstitial 1? 2? 3?: update surface stresses from horiz. momentum -->
-    <!--<scheme>vertical_diffusion_update_surface_stress</scheme>-->
-    <!--<scheme>turbulent_mountain_stress_add_updated_surface_stress</scheme>-->
-    <!--<scheme>beljaars_add_updated_residual_stress</scheme>-->
-
     <!-- set dry static energy top boundary condition to zero.
          zero is used for: no molecular diffusion, or molecular diffusion + WACCM-X is active.
          otherwise, use vertical_diffusion_set_dry_static_energy_at_toa_molecdiff -->

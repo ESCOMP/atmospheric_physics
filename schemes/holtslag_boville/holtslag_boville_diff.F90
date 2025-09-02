@@ -58,7 +58,7 @@ contains
 !! \htmlinclude arg_table_holtslag_boville_diff_init.html
   subroutine holtslag_boville_diff_init( &
     amIRoot, iulog, &
-    pver, &
+    pver, pverp, &
     karman, &
     pref_mid, &
     is_hbr_pbl_scheme, &
@@ -69,6 +69,7 @@ contains
     logical,            intent(in)    :: amIRoot           ! are we on the MPI root task?
     integer,            intent(in)    :: iulog             ! log output unit
     integer,            intent(in)    :: pver
+    integer,            intent(in)    :: pverp
     real(kind_phys),    intent(in)    :: karman            ! von_karman_constant [1]
     real(kind_phys),    intent(in)    :: pref_mid(:)       ! reference_pressure_in_atmosphere_layer [Pa]
     logical,            intent(in)    :: is_hbr_pbl_scheme ! is HBR = true; is HB = false [flag]
@@ -101,7 +102,7 @@ contains
     nbot_turb = pver
 
     ! allocate and populate mixing lengths squared to grid vertical interfaces
-    allocate(ml2(pver+1), stat=errflg)
+    allocate(ml2(pverp), stat=errflg, errmsg=errmsg)
     if(errflg /= 0) return
 
     ml2(ntop_turb) = 0._kind_phys
@@ -134,7 +135,7 @@ contains
   ! Original author: B. Stevens, rewrite August 2000
 !> \section arg_table_hb_pbl_independent_coefficients_run Argument Table
 !! \htmlinclude arg_table_hb_pbl_independent_coefficients_run.html
-  subroutine hb_pbl_independent_coefficients_run( &
+  pure subroutine hb_pbl_independent_coefficients_run( &
     ncol, pver, &
     zvir, rair, cpair, gravit, karman, &
     exner, t, &
@@ -171,14 +172,14 @@ contains
     real(kind_phys), intent(in)  :: taux (:)                 ! zonal stress [N m-2]
     real(kind_phys), intent(in)  :: tauy (:)                 ! meridional stress [N m-2]
     real(kind_phys), intent(in)  :: shflx(:)                 ! sensible heat flux [W m-2]
-    real(kind_phys), intent(in)  :: q_wv_flx(:)              ! upward water vapor flux at surface [kg kg-1 s-1]
+    real(kind_phys), intent(in)  :: q_wv_flx(:)              ! upward water vapor flux at surface [kg m-2 s-1]
     real(kind_phys), intent(in)  :: pmid(:,:)                ! midpoint pressures
 
     ! Output arguments
     real(kind_phys), intent(out) :: thv(:,:)                 ! virtual potential temperature [K]
     real(kind_phys), intent(out) :: ustar(:)                 ! surface friction velocity [m s-1]
     real(kind_phys), intent(out) :: khfs(:)                  ! kinematic surface heat flux [K m s-1]
-    real(kind_phys), intent(out) :: kqfs(:)                  ! kinematic surface constituent flux [kg kg-1 m s-1]
+    real(kind_phys), intent(out) :: kqfs(:)                  ! kinematic surface water vapor flux [kg kg-1 m s-1]
     real(kind_phys), intent(out) :: kbfs(:)                  ! surface kinematic buoyancy flux [m^2 s-3]
     real(kind_phys), intent(out) :: obklen(:)                ! Obukhov length [m]
     real(kind_phys), intent(out) :: s2(:,:)                  ! shear squared [s-2]
@@ -244,7 +245,7 @@ contains
   ! Original author: B. Stevens, August 2000, extracted from pbldiff
 !> \section arg_table_hb_pbl_dependent_coefficients_run Argument Table
 !! \htmlinclude arg_table_hb_pbl_dependent_coefficients_run.html
-  subroutine hb_pbl_dependent_coefficients_run( &
+  pure subroutine hb_pbl_dependent_coefficients_run( &
     ncol, pver, pverp, &
     gravit, &
     z, zi, &
@@ -266,7 +267,7 @@ contains
     real(kind_phys), intent(in)  :: zi  (:,:)                ! height above surface [m], interfaces
     real(kind_phys), intent(in)  :: u   (:,:)                ! zonal velocity [m s-1]
     real(kind_phys), intent(in)  :: v   (:,:)                ! meridional velocity [m s-1]
-    real(kind_phys), intent(in)  :: cldn(:,:)                ! new(?) cloud fraction [fraction]
+    real(kind_phys), intent(in)  :: cldn(:,:)                ! stratiform cloud fraction [fraction]
 
     ! Input arguments (output from hb_pbl_independent_coefficients)
     real(kind_phys), intent(in)  :: thv (:,:)                ! virtual potential temperature [K]
@@ -368,7 +369,8 @@ contains
     ! The scaling arguments that give rise to this relationship most often
     ! represent the coefficient c as some constant over the local coriolis
     ! parameter.  Here we make use of the experimental results of Koracin
-    ! and Berkowicz (1988) [BLM, Vol 43] for wich they recommend 0.07/f
+    ! and Berkowicz (1988) [BLM, Vol 43]: https://doi.org/10.1007/BF00153969
+    ! for wich they recommend 0.07/f
     ! where f was evaluated at 39.5 N and 52 N.  Thus we use a typical mid
     ! latitude value for f so that c = 0.07/f = 700. Also, do not allow
     ! PBL to exceed some maximum (npbl) number of allowable points
@@ -420,7 +422,7 @@ contains
   ! Original authors: B. Boville, B. Stevens, rewrite August 2000
 !> \section arg_table_hb_diff_exchange_coefficients_run Argument Table
 !! \htmlinclude arg_table_hb_diff_exchange_coefficients_run.html
-  subroutine hb_diff_exchange_coefficients_run( &
+  pure subroutine hb_diff_exchange_coefficients_run( &
     ncol, pver, pverp, &
     karman, cpair, &
     z, &
@@ -624,7 +626,7 @@ contains
   !                   Thomas Toniazzo, Peter H. Lauritzen, June 2023
 !> \section arg_table_hb_diff_free_atm_exchange_coefficients_run Argument Table
 !! \htmlinclude arg_table_hb_diff_free_atm_exchange_coefficients_run.html
-  subroutine hb_diff_free_atm_exchange_coefficients_run( &
+  pure subroutine hb_diff_free_atm_exchange_coefficients_run( &
     ncol, pver, pverp, &
     ! input from hb_pbl_independent_coefficients
     s2, ri, &
@@ -690,12 +692,12 @@ contains
     ! pverp  --- surface ---
     bottom_boundary_int(:ncol) = int(bottom_boundary(:ncol))
     do i = 1, ncol
-    do k = bottom_boundary_int(i), pverp
-      kvm(i,k) = 0._kind_phys
-      kvh(i,k) = 0._kind_phys
-      kvq(i,k) = 0._kind_phys
-    enddo
-    enddo
+       do k = bottom_boundary_int(i), pverp
+         kvm(i,k) = 0._kind_phys
+         kvh(i,k) = 0._kind_phys
+         kvq(i,k) = 0._kind_phys
+       end do
+    end do
   end subroutine hb_diff_free_atm_exchange_coefficients_run
 
 !> \section arg_table_holtslag_boville_diff_finalize Argument Table

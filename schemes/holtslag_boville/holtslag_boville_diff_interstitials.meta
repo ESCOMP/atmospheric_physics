@@ -101,13 +101,13 @@
   type = real | kind = kind_phys
   intent = in
 [ tautotx ]
-  standard_name = eastward_total_stress_at_surface_for_boundary_layer_scheme_tbd
+  standard_name = eastward_total_stress_at_surface_for_holtslag_boville_boundary_layer_scheme
   units = N m-2
   dimensions = (horizontal_loop_extent)
   type = real | kind = kind_phys
   intent = out
 [ tautoty ]
-  standard_name = northward_total_stress_at_surface_for_boundary_layer_scheme_tbd
+  standard_name = northward_total_stress_at_surface_for_holtslag_boville_boundary_layer_scheme
   units = N m-2
   dimensions = (horizontal_loop_extent)
   type = real | kind = kind_phys
@@ -212,7 +212,7 @@
   type = real | kind = kind_phys
   intent = out
 [ itaures ]
-  standard_name = flag_for_updating_residual_stress_at_surface_in_vertical_diffusion_tbd
+  standard_name = update_residual_stress_at_surface_in_vertical_diffusion
   units = flag
   dimensions = ()
   type = logical
@@ -224,11 +224,33 @@
   type = coords1d
   intent = out
 [ q_wv_cflx ]
-  standard_name = surface_upward_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_flux
-  units = kg kg-1 s-1
+  standard_name = surface_upward_water_vapor_flux
+  units = kg m-2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  dimensions = ()
+  type = character | kind = len=512
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  dimensions = ()
+  type = integer
+  intent = out
+
+[ccpp-arg-table]
+  name  = hb_diff_prepare_vertical_diffusion_inputs_timestep_final
+  type  = scheme
+[ p ]
+  standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion_tbd
+  units = none
+  dimensions = ()
+  type = coords1d
+  intent = inout
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
@@ -317,7 +339,7 @@
   type = real | kind = kind_phys
   intent = out
 [ itaures ]
-  standard_name = flag_for_updating_residual_stress_at_surface_in_vertical_diffusion_tbd
+  standard_name = update_residual_stress_at_surface_in_vertical_diffusion
   units = flag
   dimensions = ()
   type = logical
@@ -329,8 +351,8 @@
   type = coords1d
   intent = out
 [ q_wv_cflx ]
-  standard_name = surface_upward_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_flux
-  units = kg kg-1 s-1
+  standard_name = surface_upward_water_vapor_flux
+  units = kg m-2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out

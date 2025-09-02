@@ -94,17 +94,20 @@ contains
       call history_add_field('DUV',         'Zonal wind vertical diffusion',                      'lev',   'inst', 'm s-2')
       call history_add_field('DVV',         'Meridional wind vertical diffusion',                 'lev',   'inst', 'm s-2')
 
-      ! These are constituent dependent and should maybe be initialized using the const props.
-      ! call history_add_field('VD01',        'Vertical diffusion of water vapor',                  'lev',   'inst', 'kg/kg/s')
-      ! call history_add_field('VDCLDLIQ',    'Vertical diffusion of cloud liquid water',           'lev',   'inst', 'kg/kg/s')
-      ! call history_add_field('VDCLDICE',    'Vertical diffusion of cloud ice water',              'lev',   'inst', 'kg/kg/s')
+      ! These fields are constituent dependent.
+      ! TODO: use the constituent properties pointer to initialize these
+      ! diagnostics for all constituents. The "short name" of the constituents
+      ! is not currently available, so we initialize some manually here.
+      call history_add_field('VD01',        'Vertical diffusion of water vapor',                  'lev',   'inst', 'kg/kg/s')
+      call history_add_field('VDCLDLIQ',    'Vertical diffusion of cloud liquid water',           'lev',   'inst', 'kg/kg/s')
+      call history_add_field('VDCLDICE',    'Vertical diffusion of cloud ice water',              'lev',   'inst', 'kg/kg/s')
 
   end subroutine vertical_diffusion_tendencies_diagnostics_init
 
 !> \section arg_table_vertical_diffusion_tendencies_diagnostics_run Argument Table
 !! \htmlinclude vertical_diffusion_tendencies_diagnostics_run.html
   subroutine vertical_diffusion_tendencies_diagnostics_run( &
-             ncol, pver, pverp, ztodt, &
+             ncol, pver, pverp, dt, &
              const_props, &
              latvap, latice, zvir, cpair, gravit, rair, &
              pmid, pint, zi, zm, &
@@ -135,7 +138,7 @@ contains
       integer,          intent(in) :: ncol
       integer,          intent(in) :: pver
       integer,          intent(in) :: pverp
-      real(kind_phys),  intent(in) :: ztodt
+      real(kind_phys),  intent(in) :: dt
       type(ccpp_constituent_prop_ptr_t), intent(in) :: const_props(:)
       real(kind_phys),  intent(in) :: latvap                  ! Latent heat of vaporization [J kg-1]
       real(kind_phys),  intent(in) :: latice                  ! Latent heat of fusion [J kg-1]
@@ -196,7 +199,7 @@ contains
       real(kind_phys) :: qt_pre_PBL(ncol, pver)        ! Total water mixing ratio before PBL [kg kg-1]
       real(kind_phys) :: sl_pre_PBL(ncol, pver)        ! Liquid water static energy before PBL [J kg-1]
       real(kind_phys) :: slv_pre_PBL(ncol, pver)       ! Virtual liquid water static energy before PBL [J kg-1]
-      real(kind_phys) :: ftem_pre_PBL(ncol, pver)      ! Relative humidity before PBL [%]
+      real(kind_phys) :: rh_pre_PBL(ncol, pver)      ! Relative humidity before PBL [%]
       real(kind_phys) :: qt_aft_PBL(ncol, pver)        ! Total water mixing ratio after PBL [kg kg-1]
       real(kind_phys) :: sl_aft_PBL(ncol, pver)        ! Liquid water static energy after PBL [J kg-1]
       real(kind_phys) :: slv_aft_PBL(ncol, pver)       ! Virtual liquid water static energy after PBL [J kg-1]
@@ -204,7 +207,7 @@ contains
       real(kind_phys) :: ql_aft_PBL(ncol, pver)        ! Cloud liquid water mixing ratio after PBL [kg kg-1]
       real(kind_phys) :: qi_aft_PBL(ncol, pver)        ! Cloud ice water mixing ratio after PBL [kg kg-1]
       real(kind_phys) :: t_aft_PBL(ncol, pver)         ! Temperature after PBL [K]
-      real(kind_phys) :: ftem_aft_PBL(ncol, pver)      ! Relative humidity after PBL [%]
+      real(kind_phys) :: rh_aft_PBL(ncol, pver)      ! Relative humidity after PBL [%]
       real(kind_phys) :: u_aft_PBL(ncol, pver)         ! Zonal wind after PBL [m s-1]
       real(kind_phys) :: v_aft_PBL(ncol, pver)         ! Meridional wind after PBL [m s-1]
       real(kind_phys) :: slflx(ncol, pverp)            ! Liquid static energy flux at interfaces [W m-2]
@@ -296,7 +299,7 @@ contains
            ncol                 = ncol, &
            pver                 = pver, &
            pverp                = pverp, &
-           ztodt                = ztodt, &
+           dt                   = dt, &
            latvap               = latvap, &
            latice               = latice, &
            zvir                 = zvir, &
@@ -324,8 +327,6 @@ contains
            s0                   = s0(:ncol, :pver), &
            u0                   = u0(:ncol, :pver), &
            v0                   = v0(:ncol, :pver), &
-           q1_cldliq            = q1_cldliq(:ncol, :pver), &
-           q1_cldice            = q1_cldice(:ncol, :pver), &
            s1                   = s1(:ncol, :pver), &
            u1                   = u1(:ncol, :pver), &
            v1                   = v1(:ncol, :pver), &
@@ -339,7 +340,7 @@ contains
            qt_pre_PBL           = qt_pre_PBL(:ncol, :pver), &
            sl_pre_PBL           = sl_pre_PBL(:ncol, :pver), &
            slv_pre_PBL          = slv_pre_PBL(:ncol, :pver), &
-           ftem_pre_PBL         = ftem_pre_PBL(:ncol, :pver), &
+           rh_pre_PBL           = rh_pre_PBL(:ncol, :pver), &
            qt_aft_PBL           = qt_aft_PBL(:ncol, :pver), &
            sl_aft_PBL           = sl_aft_PBL(:ncol, :pver), &
            slv_aft_PBL          = slv_aft_PBL(:ncol, :pver), &
@@ -347,7 +348,7 @@ contains
            ql_aft_PBL           = ql_aft_PBL(:ncol, :pver), &
            qi_aft_PBL           = qi_aft_PBL(:ncol, :pver), &
            t_aft_PBL            = t_aft_PBL(:ncol, :pver), &
-           ftem_aft_PBL         = ftem_aft_PBL(:ncol, :pver), &
+           rh_aft_PBL           = rh_aft_PBL(:ncol, :pver), &
            u_aft_PBL            = u_aft_PBL(:ncol, :pver), &
            v_aft_PBL            = v_aft_PBL(:ncol, :pver), &
            slflx                = slflx(:ncol, :pverp), &
@@ -382,7 +383,7 @@ contains
       call history_out_field('ql_aft_PBL',  ql_aft_PBL)
       call history_out_field('qi_aft_PBL',  qi_aft_PBL)
       call history_out_field('t_aft_PBL',   t_aft_PBL)
-      call history_out_field('rh_aft_PBL',  ftem_aft_PBL)
+      call history_out_field('rh_aft_PBL',  rh_aft_PBL)
 
       ! PBL fluxes
       call history_out_field('slflx_PBL',   slflx)
@@ -417,7 +418,7 @@ contains
       call history_out_field('ql_pre_PBL',  q0_cldliq)
       call history_out_field('qi_pre_PBL',  q0_cldice)
       call history_out_field('t_pre_PBL',   t0)
-      call history_out_field('rh_pre_PBL',  ftem_pre_PBL)
+      call history_out_field('rh_pre_PBL',  rh_pre_PBL)
 
       ! Vertical diffusion tendencies
       call history_out_field('DUV',         tend_u)
@@ -428,7 +429,7 @@ contains
 
       ! Normalize kinetic energy dissipation heating for history output
       ! Convert from [J kg-1] to [K s-1]
-      dtvke(:ncol, :pver) = dtk(:ncol, :pver) / cpair / ztodt
+      dtvke(:ncol, :pver) = dtk(:ncol, :pver) / cpair / dt
 
       ! Normalize dry static energy tendency for history output
       ! Convert from [J kg-1 s-1] to [K s-1]

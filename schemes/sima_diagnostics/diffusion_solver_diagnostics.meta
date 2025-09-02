@@ -46,7 +46,7 @@
   type = integer
   dimensions = ()
   intent = in
-[ ztodt ]
+[ dt ]
   standard_name = timestep_for_physics
   units = s
   type = real | kind = kind_phys
@@ -131,13 +131,13 @@
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ cgh ]
-  standard_name = counter_gradient_coefficient_for_vertical_diffusion_of_heat_at_interface
+  standard_name = counter_gradient_coefficient_for_vertical_diffusion_of_heat_at_interfaces
   units = J kg-1 m-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ cgs ]
-  standard_name = counter_gradient_coefficient_for_vertical_diffusion_of_constituents_at_interface
+  standard_name = counter_gradient_coefficient_for_vertical_diffusion_of_constituents_at_interfaces
   units = s m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
@@ -155,13 +155,17 @@
   dimensions = (horizontal_loop_extent, number_of_ccpp_constituents)
   intent = in
 [ tautotx ]
-  standard_name = eastward_total_stress_at_surface_for_boundary_layer_scheme_tbd
+  # these are the taux input to the underlying boundary layer scheme providing the inputs
+  # to the diffusion solver.
+  standard_name = eastward_total_stress_at_surface_for_holtslag_boville_boundary_layer_scheme
   units = N m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
 [ tautoty ]
-  standard_name = northward_total_stress_at_surface_for_boundary_layer_scheme_tbd
+  # these are the tauy input to the underlying boundary layer scheme providing the inputs
+  # to the diffusion solver.
+  standard_name = northward_total_stress_at_surface_for_holtslag_boville_boundary_layer_scheme
   units = N m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
@@ -197,25 +201,25 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ q1 ]
-  standard_name = ccpp_constituents_mass_mixing_ratio_wrt_moist_air_and_condensed_water_after_vertical_diffusion_tbd
-  units = kg kg-1
+  standard_name = ccpp_constituents_after_vertical_diffusion
+  units = none
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
   intent = in
 [ s1 ]
-  standard_name = dry_static_energy_after_vertical_diffusion_tbd
+  standard_name = dry_static_energy_after_vertical_diffusion
   units = J kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ u1 ]
-  standard_name = eastward_wind_after_vertical_diffusion_tbd
+  standard_name = eastward_wind_after_vertical_diffusion
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ v1 ]
-  standard_name = northward_wind_after_vertical_diffusion_tbd
+  standard_name = northward_wind_after_vertical_diffusion
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

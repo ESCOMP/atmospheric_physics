@@ -12,6 +12,7 @@ module holtslag_boville_diff_interstitials
   public :: hb_diff_set_vertical_diffusion_top_waccmx_init
   public :: hb_diff_set_total_surface_stress_run
   public :: hb_diff_prepare_vertical_diffusion_inputs_run
+  public :: hb_diff_prepare_vertical_diffusion_inputs_timestep_final
   public :: hb_free_atm_diff_prepare_vertical_diffusion_inputs_run
 
 contains
@@ -161,7 +162,7 @@ contains
     real(kind_phys),    intent(out) :: cflux(:,:)              ! Surface upward constituent fluxes for vertical diffusion [kg m-2 s-1]
     logical,            intent(out) :: itaures                 ! Flag for updating residual stress at surface in vertical diffusion [flag]
     type(coords1d),     intent(out) :: p                       ! Vertical moist pressure coordinates for vertical diffusion [Pa]
-    real(kind_phys),    intent(out) :: q_wv_cflx(:)            ! Surface upward water vapor flux [kg kg-1 s-1]
+    real(kind_phys),    intent(out) :: q_wv_cflx(:)            ! Surface upward water vapor flux [kg m-2 s-1]
     character(len=512), intent(out) :: errmsg                  ! Error message
     integer,            intent(out) :: errflg                  ! Error flag
 
@@ -193,6 +194,22 @@ contains
     q_wv_cflx(:ncol) = cflx_from_coupler(:ncol, const_wv_idx)
 
   end subroutine hb_diff_prepare_vertical_diffusion_inputs_run
+
+  ! Interstitial to clean up vertical coordinate after use.
+!> \section arg_table_hb_diff_prepare_vertical_diffusion_inputs_timestep_final Argument Table
+!! \htmlinclude hb_diff_prepare_vertical_diffusion_inputs_timestep_final.html
+  subroutine hb_diff_prepare_vertical_diffusion_inputs_timestep_final(p, errmsg, errflg)
+    use coords_1d,  only: Coords1D
+
+    type(coords1d),     intent(inout) :: p                       ! Vertical moist pressure coordinates for vertical diffusion [Pa]
+    character(len=512), intent(out)   :: errmsg                  ! Error message
+    integer,            intent(out)   :: errflg                  ! Error flag
+
+    errmsg = ''
+    errflg = 0
+
+    call p%finalize()
+  end subroutine hb_diff_prepare_vertical_diffusion_inputs_timestep_final
 
   ! Interstitial for free atmosphere version of HB used above CLUBB which will allow
   ! the diffusion solver to handle non-water vapor surface fluxes (CAM6)
@@ -239,7 +256,7 @@ contains
     real(kind_phys),    intent(out) :: cflux(:,:)               ! Surface upward constituent fluxes for vertical diffusion [kg m-2 s-1]
     logical,            intent(out) :: itaures                  ! Flag for updating residual stress at surface in vertical diffusion [flag]
     type(coords1d),     intent(out) :: p                        ! Vertical moist pressure coordinates for vertical diffusion [Pa]
-    real(kind_phys),    intent(out) :: q_wv_cflx(:)             ! Surface upward water vapor flux [kg kg-1 s-1]
+    real(kind_phys),    intent(out) :: q_wv_cflx(:)             ! Surface upward water vapor flux (for PBL scheme) [kg m-2 s-1]
     character(len=512), intent(out) :: errmsg                   ! Error message
     integer,            intent(out) :: errflg                   ! Error flag
 
@@ -261,9 +278,6 @@ contains
     taux(:ncol)   = 0._kind_phys
     tauy(:ncol)   = 0._kind_phys
     shflux(:ncol) = 0._kind_phys
-
-    ! Zero out water vapor flux
-    cflux(:ncol, const_wv_idx) = 0._kind_phys
 
     if (flag_for_cflux) then
       ! Surface fluxes applied in CLUBB emissions module

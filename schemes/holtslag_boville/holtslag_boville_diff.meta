@@ -23,6 +23,12 @@
   type = integer
   dimensions = ()
   intent = in
+[ pverp ]
+  standard_name = vertical_interface_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
 [ karman ]
   standard_name = von_karman_constant
   units = 1
@@ -170,13 +176,13 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ taux ]
-  standard_name = eastward_total_stress_at_surface_for_boundary_layer_scheme_tbd
+  standard_name = eastward_total_stress_at_surface_for_holtslag_boville_boundary_layer_scheme
   units = N m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
 [ tauy ]
-  standard_name = northward_total_stress_at_surface_for_boundary_layer_scheme_tbd
+  standard_name = northward_total_stress_at_surface_for_holtslag_boville_boundary_layer_scheme
   units = N m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
@@ -188,9 +194,9 @@
   dimensions = (horizontal_loop_extent)
   intent = in
 [ q_wv_flx ]
-  standard_name = surface_upward_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_flux
+  standard_name = surface_upward_water_vapor_flux
   # surface_upward_ccpp_constituent_fluxes but only for water vapor.
-  units = kg kg-1 s-1
+  units = kg m-2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
@@ -213,7 +219,7 @@
   dimensions = (horizontal_loop_extent)
   intent = out
 [ kqfs ]
-  standard_name = kinematic_constituent_flux_at_surface
+  standard_name = kinematic_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_flux_at_surface
   units = kg kg-1 m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
@@ -238,7 +244,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ ri ]
-  standard_name = richardson_number
+  standard_name = gradient_richardson_number
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -423,7 +429,7 @@
   dimensions = ()
   intent = in
 [ kqfs ]
-  standard_name = kinematic_constituent_flux_at_surface
+  standard_name = kinematic_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_flux_at_surface
   units = kg kg-1 m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
@@ -460,7 +466,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ ri ]
-  standard_name = richardson_number
+  standard_name = gradient_richardson_number
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -496,19 +502,19 @@
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ kvq ]
-  standard_name = eddy_constituent_diffusivity_at_interface
+  standard_name = eddy_constituent_diffusivity_at_interfaces
   units = m2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ cgh ]
-  standard_name = counter_gradient_coefficient_for_vertical_diffusion_of_heat_at_interface
+  standard_name = counter_gradient_coefficient_for_vertical_diffusion_of_heat_at_interfaces
   units = J kg-1 m-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ cgs ]
-  standard_name = counter_gradient_coefficient_for_vertical_diffusion_of_constituents_at_interface
+  standard_name = counter_gradient_coefficient_for_vertical_diffusion_of_constituents_at_interfaces
   units = s m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
@@ -520,7 +526,7 @@
   dimensions = (horizontal_loop_extent)
   intent = out
 [ qpert ]
-  standard_name = convective_water_vapor_wrt_moist_air_and_condensed_water_perturbation_due_to_pbl_eddies
+  standard_name = convective_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_perturbation_due_to_pbl_eddies
   units = kg kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
@@ -576,7 +582,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ ri ]
-  standard_name = richardson_number
+  standard_name = gradient_richardson_number
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -601,19 +607,19 @@
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ kvq ]
-  standard_name = eddy_constituent_diffusivity_at_interface
+  standard_name = eddy_constituent_diffusivity_at_interfaces
   units = m2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ cgh ]
-  standard_name = counter_gradient_coefficient_for_vertical_diffusion_of_heat_at_interface
+  standard_name = counter_gradient_coefficient_for_vertical_diffusion_of_heat_at_interfaces
   units = J kg-1 m-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ cgs ]
-  standard_name = counter_gradient_coefficient_for_vertical_diffusion_of_constituents_at_interface
+  standard_name = counter_gradient_coefficient_for_vertical_diffusion_of_constituents_at_interfaces
   units = s m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)

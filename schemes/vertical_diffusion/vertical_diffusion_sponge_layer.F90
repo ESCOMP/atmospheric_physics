@@ -12,7 +12,7 @@ module vertical_diffusion_sponge_layer
   ! CCPP-compliant public interfaces
   public :: vertical_diffusion_sponge_layer_init
   public :: vertical_diffusion_sponge_layer_run
-  public :: vertical_diffusion_sponge_layer_finalize
+  public :: vertical_diffusion_sponge_layer_final
 
   ! Module variables for sponge layer parameters
   real(kind_phys), allocatable :: kvm_sponge(:)  ! sponge layer diffusion coefficients [m^2 s-1]
@@ -36,7 +36,7 @@ contains
     integer,            intent(out) :: errflg            ! error flag
 
     ! Local variables
-    integer :: k, ierr
+    integer :: k
 
     errmsg = ''
     errflg = 0
@@ -46,10 +46,8 @@ contains
       !
       ! CAM7 FMT (but not CAM6 top (~225 Pa) or CAM7 low top or lower)
       !
-      allocate(kvm_sponge(4), stat=ierr)
-      if (ierr /= 0) then
-        write(errmsg, *) 'vertical_diffusion_sponge_layer_init: kvm_sponge allocation error = ', ierr
-        errflg = ierr
+      allocate(kvm_sponge(4), stat=errflg, errmsg=errmsg)
+      if (errflg /= 0) then
         return
       end if
       kvm_sponge(1) = 2.e6_kind_phys
@@ -60,10 +58,8 @@ contains
       !
       ! WACCM and WACCM-X
       !
-      allocate(kvm_sponge(6), stat=ierr)
-      if (ierr /= 0) then
-        write(errmsg, *) 'vertical_diffusion_sponge_layer_init: kvm_sponge allocation error = ', ierr
-        errflg = ierr
+      allocate(kvm_sponge(6), stat=errflg, errmsg=errmsg)
+      if (errflg /= 0) then
         return
       end if
       kvm_sponge(1) = 2.e6_kind_phys
@@ -77,9 +73,9 @@ contains
     if (amIRoot) then
       if (allocated(kvm_sponge)) then
         write(iulog, *) 'Artificial sponge layer vertical diffusion added:'
-        do k = 1, size(kvm_sponge(:), 1)
+        do k = 1, size(kvm_sponge(:))
           write(iulog, '(a44,i2,a17,e7.2,a8)') 'vertical diffusion coefficient at interface ', k, &
-                                              ' is increased by ', kvm_sponge(k), ' m2 s-2'
+                                              ' is increased by ', kvm_sponge(k), ' m2 s-1'
         end do
       else
         write(iulog, *) 'No sponge layer vertical diffusion applied (ptop_ref = ', ptop_ref, ' Pa)'
@@ -121,9 +117,9 @@ contains
 
   end subroutine vertical_diffusion_sponge_layer_run
 
-!> \section arg_table_vertical_diffusion_sponge_layer_finalize Argument Table
-!! \htmlinclude vertical_diffusion_sponge_layer_finalize.html
-  subroutine vertical_diffusion_sponge_layer_finalize( &
+!> \section arg_table_vertical_diffusion_sponge_layer_final Argument Table
+!! \htmlinclude vertical_diffusion_sponge_layer_final.html
+  subroutine vertical_diffusion_sponge_layer_final( &
     errmsg, errflg)
 
     ! Output arguments
@@ -137,6 +133,6 @@ contains
       deallocate(kvm_sponge)
     end if
 
-  end subroutine vertical_diffusion_sponge_layer_finalize
+  end subroutine vertical_diffusion_sponge_layer_final
 
 end module vertical_diffusion_sponge_layer

@@ -22,7 +22,7 @@
   name  = holtslag_boville_diff_diagnostics_run
   type  = scheme
 [ ri ]
-  standard_name = richardson_number
+  standard_name = gradient_richardson_number
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -58,7 +58,7 @@
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ cgs ]
-  standard_name = counter_gradient_coefficient_for_vertical_diffusion_of_constituents_at_interface
+  standard_name = counter_gradient_coefficient_for_vertical_diffusion_of_constituents_at_interfaces
   units = s m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
@@ -76,7 +76,7 @@
   dimensions = (horizontal_loop_extent)
   intent = in
 [ qpert ]
-  standard_name = convective_water_vapor_wrt_moist_air_and_condensed_water_perturbation_due_to_pbl_eddies
+  standard_name = convective_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_perturbation_due_to_pbl_eddies
   units = kg kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
