@@ -9,7 +9,6 @@ module holtslag_boville_diff_interstitials
 
   ! CCPP-compliant public interfaces
   public :: hb_diff_set_vertical_diffusion_top_init
-  public :: hb_diff_set_vertical_diffusion_top_waccmx_init
   public :: hb_diff_set_total_surface_stress_run
   public :: hb_diff_prepare_vertical_diffusion_inputs_run
   public :: hb_diff_prepare_vertical_diffusion_inputs_timestep_final
@@ -17,34 +16,16 @@ module holtslag_boville_diff_interstitials
 
 contains
 
-  ! Interstitial for non-WACCM-X configurations where vertical diffusion top is top of model.
+  ! Interstitial to set top of vertical diffusion.
 !> \section arg_table_hb_diff_set_vertical_diffusion_top_init Argument Table
 !! \htmlinclude hb_diff_set_vertical_diffusion_top_init.html
   subroutine hb_diff_set_vertical_diffusion_top_init( &
     ntop_eddy, &
     errmsg, errflg)
 
-    ! Output arguments
-    integer,            intent(out) :: ntop_eddy          ! Vertical layer index of vertical diffusion top [index]
-    character(len=512), intent(out) :: errmsg             ! Error message
-    integer,            intent(out) :: errflg             ! Error flag
-
-    errmsg = ''
-    errflg = 0
-
-    ! Set top level for vertical diffusion (standard case)
-    ntop_eddy = 1
-
-  end subroutine hb_diff_set_vertical_diffusion_top_init
-
-  ! Interstitial (with host model dependency) for WACCM-X configurations where vertical diffusion top
-  ! is dependent on a hardcoded parameter.
-!> \section arg_table_hb_diff_set_vertical_diffusion_top_waccmx_init Argument Table
-!! \htmlinclude hb_diff_set_vertical_diffusion_top_waccmx_init.html
-  subroutine hb_diff_set_vertical_diffusion_top_waccmx_init( &
-    ntop_eddy, &
-    errmsg, errflg)
-
+    ! Host model dependency
+    ! See note below. If removal of this dependency is desired in a low-top
+    ! model configuration, this call can simply be replaced with ntop_eddy = 1.
     use ref_pres, only: press_lim_idx
 
     ! Output arguments
@@ -58,10 +39,14 @@ contains
     errmsg = ''
     errflg = 0
 
-    ! Set top level for vertical diffusion (WACCM-X case)
+    ! Set top level for vertical diffusion.
+    ! When WACCM-X is active, the top of the model is sufficiently high that
+    ! ntop_eddy is not at level 1 (top-of-atmosphere).
+    ! In other configurations, the top of the model pressure is larger than
+    ! ntop_eddy_pres, thus ntop_eddy computes to 1.
     ntop_eddy = press_lim_idx(ntop_eddy_pres, top=.true.)
 
-  end subroutine hb_diff_set_vertical_diffusion_top_waccmx_init
+  end subroutine hb_diff_set_vertical_diffusion_top_init
 
   ! Set total surface stresses for input into the HB PBL scheme.
   !
