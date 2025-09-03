@@ -1,11 +1,11 @@
 [ccpp-table-properties]
   name = hb_diff_set_vertical_diffusion_top
   type = scheme
+  dependencies = ../../../../data/ref_pres.F90
 
 [ccpp-arg-table]
   name  = hb_diff_set_vertical_diffusion_top_init
   type  = scheme
-  dependencies = ../../../../data/ref_pres.F90
 [ ntop_eddy ]
   standard_name = vertical_layer_index_of_eddy_vertical_diffusion_top
   units = index
