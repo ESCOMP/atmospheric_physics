@@ -127,6 +127,8 @@ contains
     if(amIRoot) then
       write(iulog,*) 'Holtslag-Boville PBL: PBL height will be limited to bottom ', npbl, &
                      ' model levels. Top is ', pref_mid(pver+1-npbl), ' pascals'
+      write(iulog,*) 'Holtslag-Boville PBL: top level of turbulence is ', ntop_turb, &
+                     ' and bottom is ', nbot_turb
     end if
 
   end subroutine holtslag_boville_diff_init
