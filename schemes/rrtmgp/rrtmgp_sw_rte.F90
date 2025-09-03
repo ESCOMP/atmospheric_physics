@@ -112,7 +112,7 @@ contains
             toa_src_sw,                      & ! IN  - incident solar flux at TOA
             sfc_alb_dir,                     & ! IN  - Shortwave surface albedo (direct)
             sfc_alb_dif,                     & ! IN  - Shortwave surface albedo (diffuse)
-            flux_allsky%fluxes)                ! OUT - Fluxes, clear-sky, 3D (1,nLay,nBand)
+            flux_allsky%fluxes)                ! OUT - Fluxes, all-sky, 3D (1,nLay,nBand)
        call check_error_msg('rrtmgp_sw_rte_rte_sw_allskky', errmsg)
        if (len_trim(errmsg) /= 0) then
           errflg = 1
