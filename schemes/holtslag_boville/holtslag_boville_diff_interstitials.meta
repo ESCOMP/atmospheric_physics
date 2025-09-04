@@ -270,8 +270,8 @@
   type = ccpp_constituent_prop_ptr_t
   dimensions = (number_of_ccpp_constituents)
   intent = in
-[ flag_for_cflux ]
-  standard_name = flag_for_vertical_diffusion_apply_ccpp_constituent_fluxes_excluding_water_vapor
+[ apply_nonwv_cflx ]
+  standard_name = do_apply_ccpp_constituent_fluxes_excluding_water_vapor_in_vertical_diffusion
   units = flag
   dimensions = ()
   type = logical

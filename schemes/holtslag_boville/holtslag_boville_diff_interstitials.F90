@@ -204,7 +204,7 @@ contains
   subroutine hb_free_atm_diff_prepare_vertical_diffusion_inputs_run( &
     ncol, pverp, pcnst, &
     const_props, &
-    flag_for_cflux, &
+    apply_nonwv_cflx, &
     cflx_from_coupler, &
     pint, &
     ! below output
@@ -230,7 +230,7 @@ contains
     integer,            intent(in)  :: pcnst      ! Number of CCPP constituents [count]
     type(ccpp_constituent_prop_ptr_t), &
                         intent(in)  :: const_props(:)           ! CCPP constituent properties pointer
-    logical,            intent(in)  :: flag_for_cflux           ! Flag for applying constituent fluxes excluding water vapor [flag]
+    logical,            intent(in)  :: apply_nonwv_cflx         ! Flag for applying constituent fluxes excluding water vapor [flag]
     real(kind_phys),    intent(in)  :: cflx_from_coupler(:,:)   ! Surface upward constituent fluxes from coupler [kg m-2 s-1]
     real(kind_phys),    intent(in)  :: pint(:,:)                ! Air pressure at interfaces [Pa]
 
@@ -264,14 +264,17 @@ contains
     tauy(:ncol)   = 0._kind_phys
     shflux(:ncol) = 0._kind_phys
 
-    if (flag_for_cflux) then
-      ! Surface fluxes applied in CLUBB emissions module
-      cflux(:ncol, :) = 0._kind_phys
-    else
+    ! If apply_nonwv_cflx is on, then non-water vapor constituent fluxes from the coupler
+    ! are applied using vertical diffusion.
+    if (apply_nonwv_cflx) then
       ! Copy non-water vapor constituent fluxes from coupler
       cflux(:ncol, :) = cflx_from_coupler(:ncol, :)
       ! But still zero out water vapor flux
       cflux(:ncol, const_wv_idx) = 0._kind_phys
+    else
+      ! Surface fluxes applied in CLUBB emissions module (CAM7)
+      ! so vertical diffusion applies no fluxes.
+      cflux(:ncol, :) = 0._kind_phys
     end if
 
     ! Set flag for updating residual stress to true
