@@ -121,7 +121,7 @@ contains
     real(kind_phys), intent(in)      :: gw_rdg_orohmin_nl             ! Minimum surface displacement height for orographic waves [m]
     real(kind_phys), intent(in)      :: gw_rdg_orovmin_nl             ! Minimum wind speed for orographic waves [m s-1]
     real(kind_phys), intent(in)      :: gw_rdg_orostratmin_nl         ! Minimum stratification allowing wave behavior [s-1]
-    real(kind_phys), intent(in)      :: gw_rdg_orom2min_nl            ! Minimum normalized vertical wavenumber squared [1]
+    real(kind_phys), intent(in)      :: gw_rdg_orom2min_nl            ! Minimum stratification allowing wave behavior [1]
     logical, intent(in)              :: gw_rdg_do_vdiff_nl            ! Ridge scheme contribute to vdiff tendencies? [flag]
 
     ! Output arguments
@@ -1220,7 +1220,7 @@ contains
         end where
 
         if (do_smooth_regimes) then
-          ! This blocks accounts for case where both mxdis and tlb fall
+          ! This block accounts for case where both mxdis and tlb fall
           ! between adjacent edges
           do k = 1, pver
             if ((zi(i, k) >= tlb(i)) .and. (zi(i, k + 1) < tlb(i)) .and. &
