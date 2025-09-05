@@ -31,7 +31,7 @@
   dimensions = (vertical_interface_dimension)
   intent = in
 [ tau_0_ubc_in ]
-  standard_name = flag_for_zero_stress_at_top_of_atmosphere_due_to_gravity_wave_drag_tbd
+  standard_name = force_zero_stress_at_top_of_atmosphere_due_to_gravity_wave_drag_tbd
   units = flag
   type = logical
   dimensions = ()

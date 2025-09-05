@@ -90,13 +90,13 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ ni ]
-  standard_name = brunt_vaisalla_frequencies_at_interface_tbd
+  standard_name = brunt_vaisalla_frequencies_at_interfaces_tbd
   units = s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ egwdffi ]
-  standard_name = effective_diffusivity_coefficient_at_interface_due_to_gravity_wave_drag_tbd
+  standard_name = effective_diffusivity_coefficient_at_interfaces_due_to_gravity_wave_drag_tbd
   units = m2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)

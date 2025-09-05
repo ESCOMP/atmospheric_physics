@@ -39,7 +39,7 @@
     <type>logical</type>
     <category>gw_drag</category>
     <group>gw_drag_nl</group>
-    <standard_name>flag_for_gravity_wave_drag_tapering_at_model_top_tbd</standard_name>
+    <standard_name>taper_gravity_wave_drag_at_model_top</standard_name>
     <units>flag</units>
     <desc>
       Whether or not to apply tapering at the top of the model (above 0.6E-02 Pa)
@@ -55,7 +55,7 @@
     <type>logical</type>
     <category>gw_drag</category>
     <group>gw_drag_nl</group>
-    <standard_name>flag_for_zero_stress_at_top_of_atmosphere_due_to_gravity_wave_drag_tbd</standard_name>
+    <standard_name>force_zero_stress_at_top_of_atmosphere_due_to_gravity_wave_drag_tbd</standard_name>
     <units>flag</units>
     <desc>
       Force the stress due to gravity waves to be zero at the top of the model.

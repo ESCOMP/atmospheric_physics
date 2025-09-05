@@ -74,8 +74,10 @@ module gravity_wave_drag_ridge
   logical            :: use_gw_rdg_beta
 
 contains
+
+!> \section arg_table_gravity_wave_drag_ridge_init Argument Table
+!! \htmlinclude gravity_wave_drag_ridge_init.html
   subroutine gravity_wave_drag_ridge_init( &
-    ncol, &
     use_gw_rdg_beta_in, &
     use_gw_rdg_gamma_in, &
     gw_delta_c, &
@@ -155,7 +157,7 @@ contains
 
     if (use_gw_rdg_beta) then
       if (effgw_rdg_beta == unset_kind_phys) then
-        errmsg = sub//": ERROR: Anisotropic OGW enabled, but effgw_rdg_beta was not set."
+        errmsg = sub//": ERROR: Anisotropic OGW (Beta) enabled, but effgw_rdg_beta was not set."
         errflg = 1
         return
       end if
@@ -163,7 +165,7 @@ contains
 
     if (use_gw_rdg_gamma) then
       if (effgw_rdg_gamma == unset_kind_phys) then
-        errmsg = sub//": ERROR: Anisotropic OGW enabled, but effgw_rdg_gamma was not set."
+        errmsg = sub//": ERROR: Anisotropic OGW (Gamma) enabled, but effgw_rdg_gamma was not set."
         errflg = 1
         return
       end if
@@ -171,6 +173,8 @@ contains
 
   end subroutine gravity_wave_drag_ridge_init
 
+!> \section arg_table_gravity_wave_drag_ridge_beta_run Argument Table
+!! \htmlinclude gravity_wave_drag_ridge_beta_run.html
   subroutine gravity_wave_drag_ridge_beta_run( &
     ncol, pver, pcnst, &
     nrdg, &
@@ -319,6 +323,8 @@ contains
 
   end subroutine gravity_wave_drag_ridge_beta_run
 
+!> \section arg_table_gravity_wave_drag_ridge_gamma_run Argument Table
+!! \htmlinclude gravity_wave_drag_ridge_gamma_run.html
   subroutine gravity_wave_drag_ridge_gamma_run( &
     ncol, pver, pcnst, &
     nrdg, &

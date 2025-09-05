@@ -24,7 +24,7 @@
   dimensions = ()
   intent = in
 [ gw_top_taper ]
-  standard_name = flag_for_gravity_wave_drag_tapering_at_model_top_tbd
+  standard_name = taper_gravity_wave_drag_at_model_top
   units = flag
   type = logical
   dimensions = ()
