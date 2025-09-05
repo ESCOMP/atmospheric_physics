@@ -225,7 +225,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ dtk ]
-  standard_name = kinetic_energy_dissipation_in_atmosphere_boundary_layer_tbd
+  standard_name = kinetic_energy_dissipation_in_atmosphere_boundary_layer
   units = J kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

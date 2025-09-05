@@ -26,6 +26,14 @@ module diffusion_stubs
 contains
 
   ! Stub for zero upper boundary conditions before UBC module is CCPPized
+  !
+  ! NOTE: when UBC is CCPPized, the units for ubc_mmr will depend on the units of the
+  ! ccpp constituents (host model dependent) and not necessarily kg kg-1 mass mixing ratio;
+  ! the upper boundary condition is applied directly by overwriting the post-diffusion value
+  ! of the constituents array at the upper boundary of the model, q1(:ncol,1,m), with the value
+  ! in ubc_mmr. Thus care needs to be taken to make sure the units match; at the CCPP level,
+  ! the units specified here for ubc_mmr are "none", same as the units in the ccpp_constituents
+  ! array.
 !> \section arg_table_zero_upper_boundary_condition_init Argument Table
 !! \htmlinclude zero_upper_boundary_condition_init.html
   subroutine zero_upper_boundary_condition_init( &
@@ -40,8 +48,8 @@ contains
     integer,            intent(in)  :: pcnst
 
     ! Output arguments
-    real(kind_phys),    intent(out) :: ubc_mmr(:,:)             ! Upper boundary condition mass mixing ratios [kg kg-1]
-    logical,            intent(out) :: cnst_fixed_ubc(:)         ! Flag for fixed upper boundary condition of constituents [flag]
+    real(kind_phys),    intent(out) :: ubc_mmr(:,:)             ! Upper boundary condition mass mixing ratios [none]
+    logical,            intent(out) :: cnst_fixed_ubc(:)        ! Flag for fixed upper boundary condition of constituents [flag]
     character(len=512), intent(out) :: errmsg                   ! Error message
     integer,            intent(out) :: errflg                   ! Error flag
 

@@ -18,7 +18,7 @@
   type = integer
   intent = in
 [ ubc_mmr ]
-  standard_name = upper_boundary_condition_of_ccpp_constituents_mass_mixing_ratio_wrt_moist_air_and_condensed_water_tbd
+  standard_name = upper_boundary_condition_of_ccpp_constituents
   units = kg kg-1
   dimensions = (horizontal_dimension, number_of_ccpp_constituents)
   type = real | kind = kind_phys
@@ -230,7 +230,7 @@
   dimensions = ()
   intent = in
 [ p ]
-  standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion_tbd
+  standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion
   units = none
   type = coords1d
   dimensions = ()

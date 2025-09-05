@@ -174,13 +174,13 @@
   type = real | kind = kind_phys
   intent = out
 [ shflux ]
-  standard_name = surface_upward_sensible_heat_flux_for_vertical_diffusion_tbd
+  standard_name = surface_upward_sensible_heat_flux_for_vertical_diffusion
   units = W m-2
   dimensions = (horizontal_loop_extent)
   type = real | kind = kind_phys
   intent = out
 [ cflux ]
-  standard_name = surface_upward_ccpp_constituent_fluxes_for_vertical_diffusion_tbd
+  standard_name = surface_upward_ccpp_constituent_fluxes_for_vertical_diffusion
   units = kg m-2 s-1
   dimensions = (horizontal_loop_extent, number_of_ccpp_constituents)
   type = real | kind = kind_phys
@@ -192,7 +192,7 @@
   type = logical
   intent = out
 [ p ]
-  standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion_tbd
+  standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion
   units = none
   dimensions = ()
   type = coords1d
@@ -220,7 +220,7 @@
   name  = hb_diff_prepare_vertical_diffusion_inputs_timestep_final
   type  = scheme
 [ p ]
-  standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion_tbd
+  standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion
   units = none
   dimensions = ()
   type = coords1d
@@ -301,13 +301,13 @@
   type = real | kind = kind_phys
   intent = out
 [ shflux ]
-  standard_name = surface_upward_sensible_heat_flux_for_vertical_diffusion_tbd
+  standard_name = surface_upward_sensible_heat_flux_for_vertical_diffusion
   units = W m-2
   dimensions = (horizontal_loop_extent)
   type = real | kind = kind_phys
   intent = out
 [ cflux ]
-  standard_name = surface_upward_ccpp_constituent_fluxes_for_vertical_diffusion_tbd
+  standard_name = surface_upward_ccpp_constituent_fluxes_for_vertical_diffusion
   units = kg m-2 s-1
   dimensions = (horizontal_loop_extent, number_of_ccpp_constituents)
   type = real | kind = kind_phys
@@ -319,7 +319,7 @@
   type = logical
   intent = out
 [ p ]
-  standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion_tbd
+  standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion
   units = none
   dimensions = ()
   type = coords1d

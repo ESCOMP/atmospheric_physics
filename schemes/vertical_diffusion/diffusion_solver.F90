@@ -400,7 +400,7 @@ contains
     ! Local variables
     integer  :: i, k
 
-    real(kind_phys) :: tmp1(ncol)                ! Temporary storage
+    real(kind_phys) :: flux_to_state_conversion_factor(ncol)
     real(kind_phys) :: tmpi1(ncol, pverp)        ! Interface KE dissipation
     real(kind_phys) :: tmpi2(ncol, pverp)        ! dt*(g*rho)**2/dp at interfaces
     real(kind_phys) :: ramda                     ! dt/timeres [unitless]
@@ -437,7 +437,7 @@ contains
     dse1(:ncol,:pver) = dse0(:ncol,:pver)
 
     ! necessary temporaries used in computation
-    tmp1(:ncol) = dt*gravit*p%rdel(:, pver)
+    flux_to_state_conversion_factor(:ncol) = dt*gravit*p%rdel(:, pver)
 
     ! second term here uses dpidz_sq(:,1) as defined because
     ! the actual dpidz_sq term is "kept in only to preserve answers"
@@ -495,8 +495,8 @@ contains
         ramda = dt/timeres
       end if
 
-      u1(:ncol, pver) = u1(:ncol, pver) + tmp1(:ncol)*tauresx(:ncol)*ramda
-      v1(:ncol, pver) = v1(:ncol, pver) + tmp1(:ncol)*tauresy(:ncol)*ramda
+      u1(:ncol, pver) = u1(:ncol, pver) + flux_to_state_conversion_factor(:ncol)*tauresx(:ncol)*ramda
+      v1(:ncol, pver) = v1(:ncol, pver) + flux_to_state_conversion_factor(:ncol)*tauresy(:ncol)*ramda
 
     else ! .not. do_iss
       ! In this case, do 'turbulent mountain stress' implicitly,
@@ -505,8 +505,8 @@ contains
       ! treated in a fully implicit way, which is true.
 
       ! Do 'normal stress' explicitly
-      u1(:ncol, pver) = u1(:ncol, pver) + tmp1(:ncol)*taux(:ncol)
-      v1(:ncol, pver) = v1(:ncol, pver) + tmp1(:ncol)*tauy(:ncol)
+      u1(:ncol, pver) = u1(:ncol, pver) + flux_to_state_conversion_factor(:ncol)*taux(:ncol)
+      v1(:ncol, pver) = v1(:ncol, pver) + flux_to_state_conversion_factor(:ncol)*tauy(:ncol)
     end if  ! End of 'do iss' (implicit surface stress)
 
     ! --------------------------------------------------------------------------------------- !
@@ -754,7 +754,7 @@ contains
     integer :: k
     type(BoundaryType) :: interface_boundary     ! Boundary layer objects
 
-    real(kind_phys) :: tmp1(ncol)                ! Temporary storage
+    real(kind_phys) :: flux_to_state_conversion_factor(ncol)
 
     errmsg = ''
     errflg = 0
@@ -763,7 +763,7 @@ contains
     ! interface (i.e. a boundary layer of size 0).
     interface_boundary = BoundaryFixedLayer(spread(0._kind_phys, 1, ncol))
 
-    tmp1(:ncol) = dt*gravit*p%rdel(:, pver)
+    flux_to_state_conversion_factor(:ncol) = dt*gravit*p%rdel(:, pver)
 
     ! Modification : In future, we should diffuse the fully conservative
     !                moist static energy, not the dry static energy.
@@ -776,7 +776,7 @@ contains
     end do
 
     ! Add the explicit surface fluxes to the lowest layer
-    dse(:ncol, pver) = dse(:ncol, pver) + tmp1(:ncol)*shflx(:ncol)
+    dse(:ncol, pver) = dse(:ncol, pver) + flux_to_state_conversion_factor(:ncol)*shflx(:ncol)
 
     !---------------------------------------------------
     ! Solve for temperature using thermal conductivity
@@ -879,7 +879,7 @@ contains
     real(kind_phys), intent(in)       :: dpidz_sq(:,:)    ! Square of derivative of pressure with height (moist) [kg2 m-4 s-4]
 
     ! Upper boundary properties (for when molecular diffusion is off)
-    real(kind_phys), intent(in)       :: ubc_mmr(:, :)    ! Upper boundary mixing ratios [kg kg-1]
+    real(kind_phys), intent(in)       :: ubc_mmr(:, :)    ! Upper boundary condition of constituents [none]
     logical,         intent(in)       :: cnst_fixed_ubc(:)! Whether upper boundary condition is fixed
 
     real(kind_phys), intent(in)       :: q0(:,:,:)        ! Input Constituents [kg kg-1]
@@ -894,7 +894,7 @@ contains
     ! Local variables
     integer :: m, k
     type(TriDiagDecomp) :: no_molec_decomp       ! LU decomposition information.
-    real(kind_phys) :: tmp1(ncol)                ! Temporary storage
+    real(kind_phys) :: flux_to_state_conversion_factor(ncol)
     logical  :: lqtst(ncol)                      ! Adjust vertical profiles
     real(kind_phys) :: qtm(ncol, pver)           ! Temporary copy of q
     real(kind_phys) :: rrho(ncol)                ! 1./bottom level density
@@ -907,7 +907,7 @@ contains
 
     ! necessary temporaries used in computation
     rrho(:ncol) = rair*t(:ncol, pver)/p%mid(:, pver)
-    tmp1(:ncol) = dt*gravit*p%rdel(:, pver)
+    flux_to_state_conversion_factor(:ncol) = dt*gravit*p%rdel(:, pver)
 
     ! Loop through constituents
     no_molec_decomp = fin_vol_lu_decomp(dt, p, &
@@ -934,7 +934,7 @@ contains
         end do
 
         ! Add the explicit surface fluxes to the lowest layer
-        q1(:ncol, pver, m) = q1(:ncol, pver, m) + tmp1(:ncol)*cflx(:ncol, m)
+        q1(:ncol, pver, m) = q1(:ncol, pver, m) + flux_to_state_conversion_factor(:ncol)*cflx(:ncol, m)
 
         ! not doing molecular diffusion
         ! explicitly set mmr in top layer for cases where molecular diffusion is not active

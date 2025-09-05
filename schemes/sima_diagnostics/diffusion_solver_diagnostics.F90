@@ -98,9 +98,9 @@ contains
       ! TODO: use the constituent properties pointer to initialize these
       ! diagnostics for all constituents. The "short name" of the constituents
       ! is not currently available, so we initialize some manually here.
-      call history_add_field('VD01',        'Vertical diffusion of water vapor',                  'lev',   'inst', 'kg/kg/s')
-      call history_add_field('VDCLDLIQ',    'Vertical diffusion of cloud liquid water',           'lev',   'inst', 'kg/kg/s')
-      call history_add_field('VDCLDICE',    'Vertical diffusion of cloud ice water',              'lev',   'inst', 'kg/kg/s')
+      call history_add_field('VERT_DIFF_Q',      'Vertical diffusion of water vapor',             'lev',   'inst', 'kg/kg/s')
+      call history_add_field('VERT_DIFF_CLDLIQ', 'Vertical diffusion of cloud liquid water',      'lev',   'inst', 'kg/kg/s')
+      call history_add_field('VERT_DIFF_CLDICE', 'Vertical diffusion of cloud ice water',         'lev',   'inst', 'kg/kg/s')
 
   end subroutine vertical_diffusion_tendencies_diagnostics_init
 
@@ -423,9 +423,9 @@ contains
       ! Vertical diffusion tendencies
       call history_out_field('DUV',         tend_u)
       call history_out_field('DVV',         tend_v)
-      call history_out_field('VD01',        tend_q_wv)
-      call history_out_field('VDCLDLIQ',    tend_q_cldliq)
-      call history_out_field('VDCLDICE',    tend_q_cldice)
+      call history_out_field('VERT_DIFF_Q',      tend_q_wv)
+      call history_out_field('VERT_DIFF_CLDLIQ', tend_q_cldliq)
+      call history_out_field('VERT_DIFF_CLDICE', tend_q_cldice)
 
       ! Normalize kinetic energy dissipation heating for history output
       ! Convert from [J kg-1] to [K s-1]

@@ -252,7 +252,7 @@
   dimensions = ()
   intent = in
 [ p ]
-  standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion_tbd
+  standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion
   units = none
   type = coords1d
   dimensions = ()
@@ -390,7 +390,7 @@
   dimensions = ()
   intent = in
 [ p ]
-  standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion_tbd
+  standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion
   units = none
   type = coords1d
   dimensions = ()
@@ -480,7 +480,7 @@
   dimensions = (horizontal_loop_extent)
   intent = inout
 [ dtk ]
-  standard_name = kinetic_energy_dissipation_in_atmosphere_boundary_layer_tbd
+  standard_name = kinetic_energy_dissipation_in_atmosphere_boundary_layer
   units = J kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -648,7 +648,7 @@
   dimensions = ()
   intent = in
 [ p ]
-  standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion_tbd
+  standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion
   units = none
   type = coords1d
   dimensions = ()
@@ -660,7 +660,7 @@
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ shflx ]
-  standard_name = surface_upward_sensible_heat_flux_for_vertical_diffusion_tbd
+  standard_name = surface_upward_sensible_heat_flux_for_vertical_diffusion
   units = W m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
@@ -732,7 +732,7 @@
   intent = in
 [ do_diffusion_const ]
   # only dimension should be ncnst, not pcnst.
-  standard_name = flag_for_ccpp_constituent_vertical_diffusion_tbd
+  standard_name = flag_for_ccpp_constituent_vertical_diffusion
   units = flag
   type = logical
   dimensions = (number_of_ccpp_constituents)
@@ -797,13 +797,13 @@
   intent = in
 [ do_diffusion_const ]
   # only dimension should be ncnst, not pcnst.
-  standard_name = flag_for_ccpp_constituent_vertical_diffusion_tbd
+  standard_name = flag_for_ccpp_constituent_vertical_diffusion
   units = flag
   type = logical
   dimensions = (number_of_ccpp_constituents)
   intent = in
 [ p ]
-  standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion_tbd
+  standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion
   units = none
   type = coords1d
   dimensions = ()
@@ -825,7 +825,7 @@
   # is actually ncnst, not pcnst.
   #
   # when this is made ncnst, the standard name could be changed to
-  # surface_upward_ccpp_constituent_fluxes_for_vertical_diffusion_tbd
+  # surface_upward_ccpp_constituent_fluxes_for_vertical_diffusion
   standard_name = surface_upward_ccpp_constituent_fluxes_from_coupler
   units = kg m-2 s-1
   type = real | kind = kind_phys
@@ -852,8 +852,6 @@
 [ qmincg ]
   # same note applies for the ncnst argument above that the only dimension
   # is actually ncnst, not pcnst.
-  #
-  # minimum_mass_mixing_ratio_wrt_moist_air_and_condensed_water_after_counter_gradient_fluxes_tbd
   standard_name = ccpp_constituent_minimum_values
   units = kg kg-1
   type = real | kind = kind_phys
@@ -868,8 +866,8 @@
 [ ubc_mmr ]
   # same note applies for the ncnst argument above that the second dimension
   # is actually ncnst, not pcnst.
-  standard_name = upper_boundary_condition_of_ccpp_constituents_mass_mixing_ratio_wrt_moist_air_and_condensed_water_tbd
-  units = kg kg-1
+  standard_name = upper_boundary_condition_of_ccpp_constituents
+  units = none
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, number_of_ccpp_constituents)
   intent = in
