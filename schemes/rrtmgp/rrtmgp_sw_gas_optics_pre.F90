@@ -1,17 +1,17 @@
-module rrtmgp_lw_gas_optics_pre
+module rrtmgp_sw_gas_optics_pre
 
   implicit none
   private
 
-  public :: rrtmgp_lw_gas_optics_pre_run
+  public :: rrtmgp_sw_gas_optics_pre_run
 
 contains
 
-!> \section arg_table_rrtmgp_lw_gas_optics_pre_run Argument Table
-!! \htmlinclude rrtmgp_lw_gas_optics_pre_run.html
+!> \section arg_table_rrtmgp_sw_gas_optics_pre_run Argument Table
+!! \htmlinclude rrtmgp_sw_gas_optics_pre_run.html
 !!
-  subroutine rrtmgp_lw_gas_optics_pre_run(rad_const_array, pmid, pint, nlay, ncol, gaslist, &
-                  pverp, ktoprad, ktopcam, dolw, nradgas, gas_concs, errmsg, errflg)
+  subroutine rrtmgp_sw_gas_optics_pre_run(rad_const_array, pmid, pint, nlay, nday, gaslist, idxday, &
+                  pverp, ktoprad, ktopcam, dosw, nradgas, gas_concs, errmsg, errflg)
     use ccpp_kinds,              only: kind_phys
     use ccpp_gas_concentrations, only: ty_gas_concs_ccpp
     use radiation_utils,         only: get_molar_mass_ratio
@@ -20,12 +20,13 @@ contains
 
     character(len=*),            intent(in) :: gaslist(:)             ! Radiatively active gases
     integer,                     intent(in) :: nlay                   ! Number of layers in radiation calculation
-    integer,                     intent(in) :: ncol                   ! Total number of columns
+    integer,                     intent(in) :: nday                   ! Total number of daylight columns
     integer,                     intent(in) :: pverp                  ! Total number of layer interfaces
+    integer,                     intent(in) :: idxday(:)              ! Indices of daylight columns
     integer,                     intent(in) :: ktoprad                ! Index in RRTMGP array corresponding to top layer or interface of CAM arrays
     integer,                     intent(in) :: ktopcam                ! Index in CAM arrays of top level (layer or interface) at which RRTMGP is active
     integer,                     intent(in) :: nradgas                ! Number of radiatively active gases
-    logical,                     intent(in) :: dolw                   ! Flag for whether to perform longwave calculaion
+    logical,                     intent(in) :: dosw                   ! Flag for whether to perform longwave calculaion
     real(kind_phys),             intent(in) :: pmid(:,:)              ! Air pressure at midpoints [Pa]
     real(kind_phys),             intent(in) :: pint(:,:)              ! Air pressure at interfaces [Pa]
     real(kind_phys),             intent(in) :: rad_const_array(:,:,:) ! array of radiatively-active constituent vmrs
@@ -36,40 +37,47 @@ contains
     integer,                     intent(out)   :: errflg
 
     ! Local variables
-    integer :: i, gas_idx, idx(ncol)
+    integer :: i, gas_idx
     integer :: istat
-    real(kind_phys)              :: gas_mmr(ncol, pverp-1)
-    real(kind_phys)              :: gas_vmr(ncol, nlay)
-    real(kind_phys)              :: mmr(ncol, nlay)
+    real(kind_phys), allocatable :: gas_mmr(:,:)
+    real(kind_phys), allocatable :: gas_vmr(:,:)
+    real(kind_phys)              :: mmr(nday, nlay)
     real(kind_phys) :: massratio
     character(len=256) :: alloc_errmsg
 
     ! For ozone profile above model
     real(kind_phys) :: P_top, P_int, P_mid, alpha, beta, a, b, chi_mid, chi_0, chi_eff
 
-    character(len=*), parameter :: sub = 'rrtmgp_lw_gas_optics_pre_run'
+    character(len=*), parameter :: sub = 'rrtmgp_sw_gas_optics_pre_run'
     !----------------------------------------------------------------------------
 
     ! Set error variables
     errmsg = ''
     errflg = 0
 
-    if (.not. dolw) then
+    if (.not. dosw) then
        return
     end if
 
-    ! set the column indices; just count for longwave
-    do i = 1, ncol
-       idx(i) = i
-    end do
+    allocate(gas_mmr(nday, pverp-1), stat=errflg, errmsg=alloc_errmsg)
+    if (errflg /= 0) then
+       write(errmsg,*) sub//": failed to allocate 'gas_mmr' - message: "//alloc_errmsg
+       return
+    end if
+    allocate(gas_vmr(nday, nlay), stat=errflg, errmsg=alloc_errmsg)
+    if (errflg /= 0) then
+       write(errmsg,*) sub//": failed to allocate 'gas_vmr' - message: "//alloc_errmsg
+       return
+    end if
+    ! Check allocate
 
     do gas_idx = 1, nradgas
 
        ! grab mass mixing ratio of gas
        gas_mmr = rad_const_array(:,:,gas_idx)
 
-       do i = 1, ncol
-          mmr(i,ktoprad:) = gas_mmr(idx(i),ktopcam:)
+       do i = 1, nday
+          mmr(i,ktoprad:) = gas_mmr(idxday(i),ktopcam:)
        end do
 
        ! If an extra layer is being used, copy mmr from the top layer of CAM to the extra layer.
@@ -98,9 +106,9 @@ contains
 
        if ((gaslist(gas_idx) == 'O3') .and. (nlay == pverp)) then
           P_top = 50.0_kind_phys
-          do i = 1, ncol
-             P_int = pint(idx(i),1) ! pressure (Pa) at upper interface of CAM
-             P_mid = pmid(idx(i),1) ! pressure (Pa) at midpoint of top layer of CAM
+          do i = 1, nday
+             P_int = pint(idxday(i),1) ! pressure (Pa) at upper interface of CAM
+             P_mid = pmid(idxday(i),1) ! pressure (Pa) at midpoint of top layer of CAM
              alpha = log(P_int/P_top)
              beta =  log(P_mid/P_int)/log(P_mid/P_top)
 
@@ -124,6 +132,6 @@ contains
 
     end do
 
-  end subroutine rrtmgp_lw_gas_optics_pre_run
+  end subroutine rrtmgp_sw_gas_optics_pre_run
 
-end module rrtmgp_lw_gas_optics_pre
+end module rrtmgp_sw_gas_optics_pre
