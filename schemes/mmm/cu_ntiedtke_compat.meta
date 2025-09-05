@@ -1,0 +1,460 @@
+[ccpp-table-properties]
+  name = cu_ntiedtke_compat_pre
+  type = scheme
+
+[ccpp-arg-table]
+  name = cu_ntiedtke_compat_pre_run
+  type = scheme
+[ cflx ]
+  standard_name = surface_upward_ccpp_constituent_fluxes_from_coupler
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, number_of_ccpp_constituents)
+  intent = in
+[ exner ]
+  standard_name = dimensionless_exner_function
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ landfrac ]
+  standard_name = land_area_fraction_from_coupler
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ lhf ]
+  standard_name = surface_upward_latent_heat_flux_from_coupler
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ shf ]
+  standard_name = surface_upward_sensible_heat_flux_from_coupler
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ rthdynten ]
+  standard_name = tendency_of_air_potential_temperature_due_to_dynamics
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ rthblten ]
+  standard_name = tendency_of_air_potential_temperature_due_to_pbl_processes
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ rthratenlw ]
+  standard_name = tendency_of_air_potential_temperature_due_to_longwave_heating
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ rthratensw ]
+  standard_name = tendency_of_air_potential_temperature_due_to_shortwave_heating
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ rqvdynten ]
+  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_dry_air_due_to_dynamics
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ rqvblten ]
+  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_dry_air_due_to_pbl_processes
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ lndj ]
+  standard_name = land_binary_mask
+  units = 1
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ ptf ]
+  standard_name = tendency_of_air_temperature_due_to_dynamics_and_pbl_processes_and_radiative_heating
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ pqvf ]
+  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_dry_air_due_to_dynamics_and_pbl_processes
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ hfx ]
+  standard_name = surface_upward_heat_flux
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ evap ]
+  standard_name = surface_upward_water_vapor_flux
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+# ----------
+
+[ccpp-table-properties]
+  name = cu_ntiedtke_compat
+  type = scheme
+  dependencies = ccpp_kind_types.F90, mmm_physics/cu_ntiedtke.F90
+
+[ccpp-arg-table]
+  name = cu_ntiedtke_compat_init
+  type = scheme
+[ con_cp ]
+  standard_name = specific_heat_of_dry_air_at_constant_pressure
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ con_rd ]
+  standard_name = gas_constant_of_dry_air
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ con_rv ]
+  standard_name = gas_constant_of_water_vapor
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ con_xlv ]
+  standard_name = latent_heat_of_vaporization_of_water_at_0c
+  units = J kg-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ con_xls ]
+  standard_name = latent_heat_of_sublimation_of_water_at_0c
+  units = J kg-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ con_xlf ]
+  standard_name = latent_heat_of_fusion_of_water_at_0c
+  units = J kg-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ con_grav ]
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name = cu_ntiedtke_compat_run
+  type = scheme
+[ pu ]
+  standard_name = eastward_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ pv ]
+  standard_name = northward_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ pt ]
+  standard_name = air_temperature
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ pqv ]
+  standard_name = water_vapor_mixing_ratio_wrt_dry_air
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ pqc ]
+  standard_name = cloud_liquid_water_mixing_ratio_wrt_dry_air
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ pqi ]
+  standard_name = cloud_ice_mixing_ratio_wrt_dry_air
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ pqvf ]
+  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_dry_air_due_to_dynamics_and_pbl_processes
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ ptf ]
+  standard_name = tendency_of_air_temperature_due_to_dynamics_and_pbl_processes_and_radiative_heating
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ poz ]
+  standard_name = geopotential_height
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ pzz ]
+  standard_name = geopotential_height_at_interface
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ pomg ]
+  standard_name = lagrangian_tendency_of_air_pressure
+  units = Pa s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ pap ]
+  standard_name = air_pressure
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ paph ]
+  standard_name = air_pressure_at_interface
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ evap ]
+  standard_name = surface_upward_water_vapor_flux
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ hfx ]
+  standard_name = surface_upward_heat_flux
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ zprecc ]
+  standard_name = lwe_thickness_of_convective_precipitation_amount
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ lndj ]
+  standard_name = land_binary_mask
+  units = 1
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ lq ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ km ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ km1 ]
+  standard_name = vertical_interface_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ dt ]
+  standard_name = timestep_for_physics
+  units = s
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ dx ]
+  standard_name = characteristic_grid_lengthscale
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ exner ]
+  standard_name = dimensionless_exner_function
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ rucuten ]
+  standard_name = tendency_of_eastward_wind_due_to_convection
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ rvcuten ]
+  standard_name = tendency_of_northward_wind_due_to_convection
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ rthcuten ]
+  standard_name = tendency_of_air_potential_temperature_due_to_convection
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ rqvcuten ]
+  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_dry_air_due_to_convection
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ rqccuten ]
+  standard_name = tendency_of_cloud_liquid_water_mixing_ratio_wrt_dry_air_due_to_convection
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ rqicuten ]
+  standard_name = tendency_of_cloud_ice_mixing_ratio_wrt_dry_air_due_to_convection
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+# ----------
+
+[ccpp-table-properties]
+  name = cu_ntiedtke_diagnostics
+  type = scheme
+
+[ccpp-arg-table]
+  name = cu_ntiedtke_diagnostics_init
+  type = scheme
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name = cu_ntiedtke_diagnostics_run
+  type = scheme
+[ zprecc ]
+  standard_name = lwe_thickness_of_convective_precipitation_amount
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ rucuten ]
+  standard_name = tendency_of_eastward_wind_due_to_convection
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ rvcuten ]
+  standard_name = tendency_of_northward_wind_due_to_convection
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ rthcuten ]
+  standard_name = tendency_of_air_potential_temperature_due_to_convection
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ rqvcuten ]
+  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_dry_air_due_to_convection
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ rqccuten ]
+  standard_name = tendency_of_cloud_liquid_water_mixing_ratio_wrt_dry_air_due_to_convection
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ rqicuten ]
+  standard_name = tendency_of_cloud_ice_mixing_ratio_wrt_dry_air_due_to_convection
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

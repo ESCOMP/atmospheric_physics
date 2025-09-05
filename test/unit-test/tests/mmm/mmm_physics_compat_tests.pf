@@ -1,30 +1,132 @@
 @test
+subroutine test_mmm_physics_compat_run()
+    use ccpp_kinds, only: kind_phys
+    use funit
+    use mmm_physics_compat, only: mmm_physics_compat_run
+
+    integer, parameter :: ncol = 100, pver = 10
+    integer :: nstep
+    real(kind_phys) :: dt
+    real(kind_phys) :: theta_curr(ncol, pver), theta_prev(ncol, pver), qv_curr(ncol, pver), qv_prev(ncol, pver)
+    character(256) :: scheme_name
+    real(kind_phys) :: rthdynten(ncol, pver), rqvdynten(ncol, pver)
+    character(100) :: errmsg
+    integer :: errflg
+
+    nstep = 0
+    dt = 20.0_kind_phys
+
+    theta_curr(:, :) = 293.15_kind_phys
+    theta_prev(:, :) = 273.15_kind_phys
+    qv_curr(:, :) = 0.03_kind_phys
+    qv_prev(:, :) = 0.01_kind_phys
+    rthdynten(:, :) = huge(0.0_kind_phys)
+    rqvdynten(:, :) = huge(0.0_kind_phys)
+
+    call mmm_physics_compat_run( &
+        nstep, &
+        dt, &
+        theta_curr, theta_prev, qv_curr, qv_prev, &
+        scheme_name, &
+        rthdynten, rqvdynten, &
+        errmsg, errflg)
+
+    ! Tendencies should be zero at start (nstep = 0).
+    @assertEqual('mmm_physics_compat_run', scheme_name)
+    @assertEqual(0.0_kind_phys, rthdynten)
+    @assertEqual(0.0_kind_phys, rqvdynten)
+    @assertEqual('', errmsg)
+    @assertEqual(0, errflg)
+
+    nstep = 1
+
+    rthdynten(:, :) = huge(0.0_kind_phys)
+    rqvdynten(:, :) = huge(0.0_kind_phys)
+
+    call mmm_physics_compat_run( &
+        nstep, &
+        dt, &
+        theta_curr, theta_prev, qv_curr, qv_prev, &
+        scheme_name, &
+        rthdynten, rqvdynten, &
+        errmsg, errflg)
+
+    ! Should compute tendencies correctly afterwards (nstep > 0).
+    @assertEqual('mmm_physics_compat_run', scheme_name)
+    @assertEqual(1.0_kind_phys, rthdynten, epsilon(0.0_kind_phys))
+    @assertEqual(0.001_kind_phys, rqvdynten, epsilon(0.0_kind_phys))
+    @assertEqual('', errmsg)
+    @assertEqual(0, errflg)
+end subroutine test_mmm_physics_compat_run
+
+@test
 subroutine test_mmm_physics_accumulate_tendencies_timestep_init()
     use ccpp_kinds, only: kind_phys
     use funit
     use mmm_physics_compat, only: mmm_physics_accumulate_tendencies_timestep_init
 
     integer, parameter :: ncol = 100, pver = 10
-    real(kind_phys) :: dudt(ncol, pver), dvdt(ncol, pver)
-    real(kind_phys) :: rublten(ncol, pver), rvblten(ncol, pver)
+    real(kind_phys) :: dudt(ncol, pver), dvdt(ncol, pver), dtdt(ncol, pver)
+    real(kind_phys) :: rublten(ncol, pver), rucuten(ncol, pver), rvblten(ncol, pver), rvcuten(ncol, pver)
+    real(kind_phys) :: rthblten(ncol, pver), rthcuten(ncol, pver), rthratenlw(ncol, pver), rthratensw(ncol, pver)
+    real(kind_phys) :: rqvblten(ncol, pver), rqvcuten(ncol, pver)
+    real(kind_phys) :: rqccuten(ncol, pver)
+    real(kind_phys) :: rqicuten(ncol, pver)
     character(100) :: errmsg
     integer :: errflg
 
     dudt(:, :) = huge(0.0_kind_phys)
     dvdt(:, :) = huge(0.0_kind_phys)
+    dtdt(:, :) = huge(0.0_kind_phys)
+
     rublten(:, :) = huge(0.0_kind_phys)
+    rucuten(:, :) = huge(0.0_kind_phys)
     rvblten(:, :) = huge(0.0_kind_phys)
+    rvcuten(:, :) = huge(0.0_kind_phys)
+
+    rthblten(:, :) = huge(0.0_kind_phys)
+    rthcuten(:, :) = huge(0.0_kind_phys)
+    rthratenlw(:, :) = huge(0.0_kind_phys)
+    rthratensw(:, :) = huge(0.0_kind_phys)
+
+    rqvblten(:, :) = huge(0.0_kind_phys)
+    rqvcuten(:, :) = huge(0.0_kind_phys)
+
+    rqccuten(:, :) = huge(0.0_kind_phys)
+
+    rqicuten(:, :) = huge(0.0_kind_phys)
 
     call mmm_physics_accumulate_tendencies_timestep_init( &
-        dudt, dvdt, &
-        rublten, rvblten, &
+        dudt, dvdt, dtdt, &
+        rublten, rucuten, rvblten, rvcuten, &
+        rthblten, rthcuten, rthratenlw, rthratensw, &
+        rqvblten, rqvcuten, &
+        rqccuten, &
+        rqicuten, &
         errmsg, errflg)
 
     ! Everything should be zeroed out.
     @assertEqual(0.0_kind_phys, dudt)
     @assertEqual(0.0_kind_phys, dvdt)
+    @assertEqual(0.0_kind_phys, dtdt)
+
     @assertEqual(0.0_kind_phys, rublten)
+    @assertEqual(0.0_kind_phys, rucuten)
     @assertEqual(0.0_kind_phys, rvblten)
+    @assertEqual(0.0_kind_phys, rvcuten)
+
+    @assertEqual(0.0_kind_phys, rthblten)
+    @assertEqual(0.0_kind_phys, rthcuten)
+    @assertEqual(0.0_kind_phys, rthratenlw)
+    @assertEqual(0.0_kind_phys, rthratensw)
+
+    @assertEqual(0.0_kind_phys, rqvblten)
+    @assertEqual(0.0_kind_phys, rqvcuten)
+
+    @assertEqual(0.0_kind_phys, rqccuten)
+
+    @assertEqual(0.0_kind_phys, rqicuten)
+
     @assertEqual('', errmsg)
     @assertEqual(0, errflg)
 end subroutine test_mmm_physics_accumulate_tendencies_timestep_init
@@ -36,63 +138,310 @@ subroutine test_mmm_physics_accumulate_tendencies_run()
     use mmm_physics_compat, only: mmm_physics_accumulate_tendencies_run
 
     integer, parameter :: ncol = 100, pver = 10
-    real(kind_phys) :: dudt(ncol, pver), dvdt(ncol, pver)
-    real(kind_phys) :: rublten(ncol, pver), rvblten(ncol, pver)
+    real(kind_phys) :: dt, exner(ncol, pver)
+    real(kind_phys) :: dudt(ncol, pver), dvdt(ncol, pver), dtdt(ncol, pver)
+    real(kind_phys) :: theta(ncol, pver), qv(ncol, pver), qc(ncol, pver), qi(ncol, pver)
+    real(kind_phys) :: rublten(ncol, pver), rucuten(ncol, pver), rvblten(ncol, pver), rvcuten(ncol, pver)
+    real(kind_phys) :: rthblten(ncol, pver), rthcuten(ncol, pver), rthratenlw(ncol, pver), rthratensw(ncol, pver)
+    real(kind_phys) :: rqvblten(ncol, pver), rqvcuten(ncol, pver)
+    real(kind_phys) :: rqccuten(ncol, pver)
+    real(kind_phys) :: rqicuten(ncol, pver)
     character(100) :: errmsg
     integer :: errflg
 
+    dt = 20.0_kind_phys
+    exner(:, :) = 1.0_kind_phys
+
     dudt(:, :) = 0.0_kind_phys
     dvdt(:, :) = 0.0_kind_phys
-    rublten(:, :) = 1.0_kind_phys
-    rvblten(:, :) = 1.0_kind_phys
+    dtdt(:, :) = 0.0_kind_phys
+
+    theta(:, :) = 273.15_kind_phys
+    qv(:, :) = 0.01_kind_phys
+    qc(:, :) = 0.01_kind_phys
+    qi(:, :) = 0.01_kind_phys
+
+    rublten(:, :) = 0.1_kind_phys
+    rucuten(:, :) = 0.1_kind_phys
+    rvblten(:, :) = 0.1_kind_phys
+    rvcuten(:, :) = 0.1_kind_phys
+
+    rthblten(:, :) = 0.1_kind_phys
+    rthcuten(:, :) = 0.1_kind_phys
+    rthratenlw(:, :) = 0.1_kind_phys
+    rthratensw(:, :) = 0.1_kind_phys
+
+    rqvblten(:, :) = 0.00025_kind_phys
+    rqvcuten(:, :) = 0.00025_kind_phys
+
+    rqccuten(:, :) = 0.00025_kind_phys
+
+    rqicuten(:, :) = 0.00025_kind_phys
 
     call mmm_physics_accumulate_tendencies_run( &
-        dudt, dvdt, &
-        rublten, rvblten, &
+        dt, exner, &
+        dudt, dvdt, dtdt, &
+        theta, qv, qc, qi, &
+        rublten, rucuten, rvblten, rvcuten, &
+        rthblten, rthcuten, rthratenlw, rthratensw, &
+        rqvblten, rqvcuten, &
+        rqccuten, &
+        rqicuten, &
         errmsg, errflg)
 
     ! Should accumulate MMM tendencies into CAM-SIMA ones.
-    @assertEqual(1.0_kind_phys, dudt)
-    @assertEqual(1.0_kind_phys, dvdt)
+    @assertEqual(0.2_kind_phys, dudt, epsilon(0.0_kind_phys))
+    @assertEqual(0.2_kind_phys, dvdt, epsilon(0.0_kind_phys))
+    @assertEqual(0.4_kind_phys, dtdt, epsilon(0.0_kind_phys))
+
+    @assertEqual(281.15_kind_phys, theta, epsilon(0.0_kind_phys))
+    @assertEqual(0.02_kind_phys, qv, epsilon(0.0_kind_phys))
+    @assertEqual(0.015_kind_phys, qc, epsilon(0.0_kind_phys))
+    @assertEqual(0.015_kind_phys, qi, epsilon(0.0_kind_phys))
+
+    ! After the accumulation, tendencies should be zeroed out.
     @assertEqual(0.0_kind_phys, rublten)
+    @assertEqual(0.0_kind_phys, rucuten)
     @assertEqual(0.0_kind_phys, rvblten)
+    @assertEqual(0.0_kind_phys, rvcuten)
+
+    @assertEqual(0.0_kind_phys, rthblten)
+    @assertEqual(0.0_kind_phys, rthcuten)
+    @assertEqual(0.0_kind_phys, rthratenlw)
+    @assertEqual(0.0_kind_phys, rthratensw)
+
+    @assertEqual(0.0_kind_phys, rqvblten)
+    @assertEqual(0.0_kind_phys, rqvcuten)
+
+    @assertEqual(0.0_kind_phys, rqccuten)
+
+    @assertEqual(0.0_kind_phys, rqicuten)
+
     @assertEqual('', errmsg)
     @assertEqual(0, errflg)
 
-    rublten(:, :) = 2.0_kind_phys
-    rvblten(:, :) = 2.0_kind_phys
+    rublten(:, :) = 0.1_kind_phys
+    rucuten(:, :) = 0.1_kind_phys
+    rvblten(:, :) = 0.1_kind_phys
+    rvcuten(:, :) = 0.1_kind_phys
+
+    rthblten(:, :) = 0.1_kind_phys
+    rthcuten(:, :) = 0.1_kind_phys
+    rthratenlw(:, :) = 0.1_kind_phys
+    rthratensw(:, :) = 0.1_kind_phys
+
+    rqvblten(:, :) = 0.00025_kind_phys
+    rqvcuten(:, :) = 0.00025_kind_phys
+
+    rqccuten(:, :) = 0.00025_kind_phys
+
+    rqicuten(:, :) = 0.00025_kind_phys
 
     call mmm_physics_accumulate_tendencies_run( &
-        dudt, dvdt, &
-        rublten, rvblten, &
+        dt, exner, &
+        dudt, dvdt, dtdt, &
+        theta, qv, qc, qi, &
+        rublten, rucuten, rvblten, rvcuten, &
+        rthblten, rthcuten, rthratenlw, rthratensw, &
+        rqvblten, rqvcuten, &
+        rqccuten, &
+        rqicuten, &
         errmsg, errflg)
 
     ! Should accumulate MMM tendencies into CAM-SIMA ones.
-    @assertEqual(3.0_kind_phys, dudt)
-    @assertEqual(3.0_kind_phys, dvdt)
+    @assertEqual(0.4_kind_phys, dudt, epsilon(0.0_kind_phys))
+    @assertEqual(0.4_kind_phys, dvdt, epsilon(0.0_kind_phys))
+    @assertEqual(0.8_kind_phys, dtdt, epsilon(0.0_kind_phys))
+
+    @assertEqual(289.15_kind_phys, theta, epsilon(0.0_kind_phys))
+    @assertEqual(0.03_kind_phys, qv, epsilon(0.0_kind_phys))
+    @assertEqual(0.02_kind_phys, qc, epsilon(0.0_kind_phys))
+    @assertEqual(0.02_kind_phys, qi, epsilon(0.0_kind_phys))
+
+    ! After the accumulation, tendencies should be zeroed out.
     @assertEqual(0.0_kind_phys, rublten)
+    @assertEqual(0.0_kind_phys, rucuten)
     @assertEqual(0.0_kind_phys, rvblten)
+    @assertEqual(0.0_kind_phys, rvcuten)
+
+    @assertEqual(0.0_kind_phys, rthblten)
+    @assertEqual(0.0_kind_phys, rthcuten)
+    @assertEqual(0.0_kind_phys, rthratenlw)
+    @assertEqual(0.0_kind_phys, rthratensw)
+
+    @assertEqual(0.0_kind_phys, rqvblten)
+    @assertEqual(0.0_kind_phys, rqvcuten)
+
+    @assertEqual(0.0_kind_phys, rqccuten)
+
+    @assertEqual(0.0_kind_phys, rqicuten)
+
     @assertEqual('', errmsg)
     @assertEqual(0, errflg)
 
     call mmm_physics_accumulate_tendencies_run( &
-        dudt, dvdt, &
-        rublten, rvblten, &
+        dt, exner, &
+        dudt, dvdt, dtdt, &
+        theta, qv, qc, qi, &
+        rublten, rucuten, rvblten, rvcuten, &
+        rthblten, rthcuten, rthratenlw, rthratensw, &
+        rqvblten, rqvcuten, &
+        rqccuten, &
+        rqicuten, &
         errmsg, errflg)
 
     call mmm_physics_accumulate_tendencies_run( &
-        dudt, dvdt, &
-        rublten, rvblten, &
+        dt, exner, &
+        dudt, dvdt, dtdt, &
+        theta, qv, qc, qi, &
+        rublten, rucuten, rvblten, rvcuten, &
+        rthblten, rthcuten, rthratenlw, rthratensw, &
+        rqvblten, rqvcuten, &
+        rqccuten, &
+        rqicuten, &
         errmsg, errflg)
 
     ! Consecutive calls should be idempotent.
-    @assertEqual(3.0_kind_phys, dudt)
-    @assertEqual(3.0_kind_phys, dvdt)
+    @assertEqual(0.4_kind_phys, dudt, epsilon(0.0_kind_phys))
+    @assertEqual(0.4_kind_phys, dvdt, epsilon(0.0_kind_phys))
+    @assertEqual(0.8_kind_phys, dtdt, epsilon(0.0_kind_phys))
+
+    @assertEqual(289.15_kind_phys, theta, epsilon(0.0_kind_phys))
+    @assertEqual(0.03_kind_phys, qv, epsilon(0.0_kind_phys))
+    @assertEqual(0.02_kind_phys, qc, epsilon(0.0_kind_phys))
+    @assertEqual(0.02_kind_phys, qi, epsilon(0.0_kind_phys))
+
     @assertEqual(0.0_kind_phys, rublten)
+    @assertEqual(0.0_kind_phys, rucuten)
     @assertEqual(0.0_kind_phys, rvblten)
+    @assertEqual(0.0_kind_phys, rvcuten)
+
+    @assertEqual(0.0_kind_phys, rthblten)
+    @assertEqual(0.0_kind_phys, rthcuten)
+    @assertEqual(0.0_kind_phys, rthratenlw)
+    @assertEqual(0.0_kind_phys, rthratensw)
+
+    @assertEqual(0.0_kind_phys, rqvblten)
+    @assertEqual(0.0_kind_phys, rqvcuten)
+
+    @assertEqual(0.0_kind_phys, rqccuten)
+
+    @assertEqual(0.0_kind_phys, rqicuten)
+
     @assertEqual('', errmsg)
     @assertEqual(0, errflg)
 end subroutine test_mmm_physics_accumulate_tendencies_run
+
+@test
+subroutine test_mmm_physics_persist_states_init()
+    use ccpp_kinds, only: kind_phys
+    use funit
+    use mmm_physics_compat, only: mmm_physics_persist_states_init
+
+    integer, parameter :: ncol = 100, pver = 10
+    real(kind_phys) :: theta_prev(ncol, pver), qv_prev(ncol, pver)
+    character(100) :: errmsg
+    integer :: errflg
+
+    theta_prev(:, :) = huge(0.0_kind_phys)
+    qv_prev(:, :) = huge(0.0_kind_phys)
+
+    call mmm_physics_persist_states_init( &
+        theta_prev, qv_prev, &
+        errmsg, errflg)
+
+    ! Previous states should be initialized to zero.
+    @assertEqual(0.0_kind_phys, theta_prev)
+    @assertEqual(0.0_kind_phys, qv_prev)
+    @assertEqual('', errmsg)
+    @assertEqual(0, errflg)
+end subroutine test_mmm_physics_persist_states_init
+
+@test
+subroutine test_mmm_physics_persist_states_timestep_final()
+    use ccpp_kinds, only: kind_phys
+    use funit
+    use mmm_physics_compat, only: mmm_physics_persist_states_timestep_final
+
+    integer, parameter :: ncol = 100, pver = 10
+    real(kind_phys) :: theta_curr(ncol, pver), theta_prev(ncol, pver), qv_curr(ncol, pver), qv_prev(ncol, pver)
+    character(100) :: errmsg
+    integer :: errflg
+
+    theta_curr(:, :) = 273.15_kind_phys
+    theta_prev(:, :) = huge(0.0_kind_phys)
+    qv_curr(:, :) = 0.01_kind_phys
+    qv_prev(:, :) = huge(0.0_kind_phys)
+
+    call mmm_physics_persist_states_timestep_final( &
+        theta_curr, theta_prev, qv_curr, qv_prev, &
+        errmsg, errflg)
+
+    ! Current states should not be modified.
+    @assertEqual(273.15_kind_phys, theta_curr)
+    @assertEqual(0.01_kind_phys, qv_curr)
+
+    ! Previous states should be remembered.
+    @assertEqual(273.15_kind_phys, theta_prev)
+    @assertEqual(0.01_kind_phys, qv_prev)
+
+    @assertEqual('', errmsg)
+    @assertEqual(0, errflg)
+end subroutine test_mmm_physics_persist_states_timestep_final
+
+@test
+subroutine test_compute_characteristic_grid_length_scale_init()
+    use ccpp_kinds, only: kind_phys
+    use funit
+    use mmm_physics_compat, only: compute_characteristic_grid_length_scale_init
+
+    integer, parameter :: ncol = 100
+    real(kind_phys) :: omega(ncol), rearth, dx(ncol)
+    character(100) :: errmsg
+    integer :: errflg
+
+    omega(:) = 0.0001_kind_phys
+    rearth = 6.371E6_kind_phys
+    dx(:) = huge(0.0_kind_phys)
+
+    call compute_characteristic_grid_length_scale_init( &
+        omega, rearth, dx, &
+        errmsg, errflg)
+
+    ! Should compute characteristic grid length scale correctly.
+    @assertEqual(6.371E4_kind_phys, dx, epsilon(0.0_kind_phys))
+    @assertEqual('', errmsg)
+    @assertEqual(0, errflg)
+end subroutine test_compute_characteristic_grid_length_scale_init
+
+@test
+subroutine test_geopotential_height_wrt_sfc_at_if_to_msl_run()
+    use ccpp_kinds, only: kind_phys
+    use funit
+    use mmm_physics_compat, only: geopotential_height_wrt_sfc_at_if_to_msl_run
+
+    integer, parameter :: ncol = 100, pverp = 11
+    real(kind_phys) :: gravit, phis(ncol), zisfc(ncol, pverp)
+    real(kind_phys) :: zimsl(ncol, pverp)
+    character(100) :: errmsg
+    integer :: errflg
+
+    gravit = 9.8_kind_phys
+    phis(:) = 98.0_kind_phys
+    zisfc(:, :) = 10.0_kind_phys
+    zimsl(:, :) = huge(0.0_kind_phys)
+
+    call geopotential_height_wrt_sfc_at_if_to_msl_run( &
+        ncol, &
+        gravit, phis, zisfc, &
+        zimsl, &
+        errmsg, errflg)
+
+    ! Should compute geopotential height wrt mean sea level at interface correctly.
+    @assertEqual(20.0_kind_phys, zimsl, epsilon(0.0_kind_phys))
+    @assertEqual('', errmsg)
+    @assertEqual(0, errflg)
+end subroutine test_geopotential_height_wrt_sfc_at_if_to_msl_run
 
 @test
 subroutine test_geopotential_height_wrt_sfc_to_msl_run()
@@ -118,7 +467,7 @@ subroutine test_geopotential_height_wrt_sfc_to_msl_run()
         errmsg, errflg)
 
     ! Should compute geopotential height wrt mean sea level correctly.
-    @assertEqual(20.0_kind_phys, zmmsl)
+    @assertEqual(20.0_kind_phys, zmmsl, epsilon(0.0_kind_phys))
     @assertEqual('', errmsg)
     @assertEqual(0, errflg)
 end subroutine test_geopotential_height_wrt_sfc_to_msl_run

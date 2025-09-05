@@ -3,13 +3,36 @@
 <suite name="convection_permitting" version="1.0">
   <group name="physics_before_coupler">
     <scheme>calc_exner</scheme>
+    <scheme>compute_characteristic_grid_length_scale</scheme>
+    <scheme>geopotential_height_wrt_sfc_at_if_to_msl</scheme>
     <scheme>geopotential_height_wrt_sfc_to_msl</scheme>
+    <scheme>temp_to_potential_temp</scheme>
+    <scheme>wet_to_dry_water_vapor</scheme>
+    <scheme>wet_to_dry_cloud_liquid_water</scheme>
+    <scheme>wet_to_dry_cloud_ice</scheme>
+
+    <scheme>mmm_physics_compat</scheme>
+
     <scheme>bl_gwdo_compat_pre</scheme>
     <scheme>bl_gwdo_compat</scheme>
     <scheme>bl_gwdo_diagnostics</scheme>
+
+    <scheme>cu_ntiedtke_compat_pre</scheme>
+    <scheme>cu_ntiedtke_compat</scheme>
+    <scheme>cu_ntiedtke_diagnostics</scheme>
+
     <scheme>mmm_physics_accumulate_tendencies</scheme>
     <scheme>apply_tendency_of_eastward_wind</scheme>
     <scheme>apply_tendency_of_northward_wind</scheme>
+    <scheme>apply_tendency_of_air_temperature</scheme>
+    <scheme>dry_to_wet_water_vapor</scheme>
+    <scheme>dry_to_wet_cloud_liquid_water</scheme>
+    <scheme>dry_to_wet_cloud_ice</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+
+    <scheme>mmm_physics_persist_states</scheme>
+
     <scheme>sima_state_diagnostics</scheme>
   </group>
   <group name="physics_after_coupler">
