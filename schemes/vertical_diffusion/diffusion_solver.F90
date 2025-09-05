@@ -154,7 +154,7 @@ contains
         end do
       end do
 
-      ! Assumes gas constant at surface interface is the same as the midpoint value in the lowest layer:
+      ! Assume gas constant at surface interface is the same as the midpoint value in the lowest layer:
       rairi(:ncol,pverp) = rairv(:ncol,pver)
     else
       rairi(:ncol,:pverp) = rair
