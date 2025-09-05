@@ -7,9 +7,10 @@
       Shallow convection      Hack
       Macrophysics            RK
       Microphysics            RK
-      Radiation               RRTMGP (not implemented)
-      Chemistry               None   (not implemented)
-      Vertical Diffusion      HB     (not implemented)
+      Radiation               RRTMGP     (not implemented)
+      Chemistry               None       (not implemented)
+      Vertical Diffusion      HB
+      Gravity Wave Drag       Orographic (not implemented)
   -->
   <group name="physics_before_coupler">
     <!-- Helper to read all possible constituents from file -->
@@ -228,9 +229,95 @@
   <group name="physics_after_coupler">
 
     <!--
-      Vertical diffusion
+      Chemistry and aerosols
     -->
 
+    <!--
+      Vertical diffusion
+    -->
+    <!-- read namelist options -->
+    <scheme>holtslag_boville_diff_options</scheme>
+    <scheme>vertical_diffusion_options</scheme>
+
+    <!-- stub: zero UBC -->
+    <scheme>zero_upper_boundary_condition</scheme>
+
+    <!-- init phase only: for setting vertical diffusion top -->
+    <scheme>hb_diff_set_vertical_diffusion_top</scheme>
+
+    <!-- hb pre-interstitial: tautotx/y -->
+    <scheme>tms_beljaars_zero_stub</scheme> <!-- stub as TMS/Beljaars not implemented -->
+    <scheme>hb_diff_set_total_surface_stress</scheme>
+
+    <!-- vdiff pre-interstitial 0: create p coords1d, copy surface fluxes from coupler (cam_in) incl. wv fluxes for hb kinematic wv flx. -->
+    <scheme>hb_diff_prepare_vertical_diffusion_inputs</scheme>
+
+    <!-- Initialize Holtslag-Boville boundary layer scheme (no run phase) -->
+    <scheme>holtslag_boville_diff</scheme>
+
+    <!-- Holtslag-Boville boundary layer scheme -->
+    <scheme>hb_pbl_independent_coefficients</scheme>
+    <scheme>hb_pbl_dependent_coefficients</scheme>
+    <scheme>hb_diff_exchange_coefficients</scheme>
+
+    <!-- sponge layer vertical diffusion (mutate kvm) -->
+    <scheme>vertical_diffusion_sponge_layer</scheme>
+
+    <!-- HB scheme diagnostics (after KVM changed by sponge layer scheme) -->
+    <scheme>holtslag_boville_diff_diagnostics</scheme>
+
+    <!-- vdiff pre-interstitial 1: interpolate t, rho, p to interfaces -->
+    <!-- not in WACCM-X mode so do not use rairv in vdiff. -->
+    <scheme>vertical_diffusion_not_use_rairv</scheme>
+    <scheme>vertical_diffusion_set_temperature_at_toa_default</scheme>
+    <scheme>vertical_diffusion_interpolate_to_interfaces</scheme>
+
+    <!-- vdiff pre-interstitial 2: calculate drag coefficient -->
+    <scheme>implicit_surface_stress_add_drag_coefficient</scheme>
+    <!--<scheme>turbulent_mountain_stress_add_drag_coefficient</scheme>-->
+
+    <!-- vdiff pre-interstitial 3: calculate damping rate from drag coef. -->
+    <scheme>vertical_diffusion_wind_damping_rate</scheme>
+    <!--<scheme>beljaars_add_wind_damping_rate</scheme>-->
+
+    <!-- vdiff compute 1: horizontal momentum diffusion; dissipate KE -->
+    <!-- note: vdiff compute schemes calculate "provisional" updates,
+         but these updates are not applied as physics tendencies until the end. -->
+    <scheme>vertical_diffusion_diffuse_horizontal_momentum</scheme>
+
+    <!-- set dry static energy top boundary condition to zero.
+         zero is used for: no molecular diffusion, or molecular diffusion + WACCM-X is active.
+         otherwise, use vertical_diffusion_set_dry_static_energy_at_toa_molecdiff -->
+    <scheme>vertical_diffusion_set_dry_static_energy_at_toa_zero</scheme>
+
+    <!-- vdiff compute 2: dry static energy diffusion -->
+    <scheme>vertical_diffusion_diffuse_dry_static_energy</scheme>
+
+    <!-- vdiff compute 3: tracer diffusion -->
+    <scheme>vertical_diffusion_diffuse_tracers</scheme>
+
+    <!-- vdiff post-interstitial 1: convert provisional updates to tendencies -->
+    <scheme>vertical_diffusion_tendencies</scheme>
+
+    <!-- diagnostics need to be outputted before tendencies are applied. -->
+    <scheme>vertical_diffusion_tendencies_diagnostics</scheme>
+
+    <!-- apply tendencies from vdiff -->
+    <scheme>apply_tendency_of_northward_wind</scheme>
+    <scheme>apply_tendency_of_eastward_wind</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+    <scheme>update_dry_static_energy</scheme>
+
+    <!--
+      Gravity wave drag.
+    -->
+
+    <!--
+      Energy conservation/budget checks.
+    -->
     <!-- Save current total energy from dycore for energy fixer in time step. Total energy in current state is updated by the last check_energy_chng call. -->
     <scheme>check_energy_save_teout</scheme>
 
