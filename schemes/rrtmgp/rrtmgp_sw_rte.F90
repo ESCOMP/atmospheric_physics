@@ -13,8 +13,8 @@ contains
 !! \htmlinclude rrtmgp_sw_rte_run.html
 !!
    subroutine rrtmgp_sw_rte_run(doswrad, doswclrsky, doswallsky, nday, iter_num, rrtmgp_phys_blksz, sw_optical_props, &
-                                 sw_optical_props_clouds, top_at_1, aersw, coszen, toa_src_sw,      &
-                                 sfc_alb_dir, sfc_alb_dif, flux_clrsky, flux_allsky, errmsg, errflg)
+                                 sw_optical_props_clouds, aersw, coszen, toa_src_sw, sfc_alb_dir, sfc_alb_dif,        &
+                                 flux_clrsky, flux_allsky, errmsg, errflg)
     use machine,                  only: kind_phys
     use mo_rte_sw,                only: rte_sw
     use ccpp_optical_props,       only: ty_optical_props_2str_ccpp
@@ -26,7 +26,6 @@ contains
     logical, intent(in) :: doswrad                                              !< Flag to perform shortwave calculation
     logical, intent(in) :: doswclrsky                                           !< Flag to compute clear-sky fluxes
     logical, intent(in) :: doswallsky                                           !< Flag to compute all-sky fluxes
-    logical, intent(in) :: top_at_1                                             !< Flag for vertical ordering convention
 
     integer, intent(in) :: nday                                                 !< Number of horizontal daylight points
     integer, intent(in) :: iter_num                                             !< Radiation subcycle iteration number
@@ -76,7 +75,6 @@ contains
     if (doswclrsky) then
        errmsg = rte_sw(     &
                   sw_optical_props%optical_props,    & ! IN  - optical-properties
-                  top_at_1,                          & ! IN  - veritcal ordering flag
                   coszen(iCol:iCol2),                      & ! IN  - Cosine of solar zenith angle
                   toa_src_sw,                              & ! IN  - incident solar flux at TOA
                   sfc_alb_dir,                             & ! IN  - Shortwave surface albedo (direct)
@@ -107,7 +105,6 @@ contains
        ! Compute fluxes
        errmsg = rte_sw(     &
             sw_optical_props%optical_props,  & ! IN  - optical-properties
-            top_at_1,                        & ! IN  - veritcal ordering flag
             coszen(iCol:iCol2),              & ! IN  - Cosine of solar zenith angle
             toa_src_sw,                      & ! IN  - incident solar flux at TOA
             sfc_alb_dir,                     & ! IN  - Shortwave surface albedo (direct)
