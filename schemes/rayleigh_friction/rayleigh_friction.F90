@@ -135,8 +135,13 @@ contains
     errmsg = ''
     errflg = 0
 
-    if (raytau0 .eq. 0._kind_phys) return
-
+    if (raytau0 .eq. 0._kind_phys) then
+       dudt = 0._kind_phys
+       dvdt = 0._kind_phys
+       dsdt = 0._kind_phys
+       return
+    end if
+    
     rztodt = 1._kind_phys/ztodt
 
     ! u, v and s are modified by rayleigh friction
