@@ -31,12 +31,13 @@ module gravity_wave_drag_moving_mountain
   ! Band for moving mountain gravity waves.
   type(GWBand)               :: band
 
-  integer  :: movmtn_source = -1
   integer  :: movmtn_ksteer = -1
   integer  :: movmtn_klaunch = -1
   type(MovMtnSourceDesc) :: desc
+
   ! Set source (1=vorticity, 2=PBL mom fluxes)
   integer :: source_type
+  integer  :: movmtn_source = -1
 
 contains
 

@@ -13,8 +13,10 @@ module gravity_wave_drag_ridge
   ! Public CCPP-compliant interfaces.
   public :: gravity_wave_drag_ridge_init        ! CCPP I/O read Ridge data into state and initialize.
 
-  public :: gravity_wave_drag_ridge_beta_run    ! Meso-Beta.
-  public :: gravity_wave_drag_ridge_gamma_run   ! Meso-Gamma.
+  public :: gravity_wave_drag_ridge_beta_init   ! Meso-Beta.
+  public :: gravity_wave_drag_ridge_beta_run
+  public :: gravity_wave_drag_ridge_gamma_init  ! Meso-Gamma.
+  public :: gravity_wave_drag_ridge_gamma_run
 
   ! use separate dividing streamlines for downslope wind and flow splitting regimes ("DS" configuration)?
   ! or use single dividing streamline as in Scinocca and McFarlane 2000 ("SM" configuration).
@@ -70,19 +72,12 @@ module gravity_wave_drag_ridge
   ! anisotropic ridge fields
   integer, parameter :: prdg = 16
 
-  logical            :: use_gw_rdg_gamma
-  logical            :: use_gw_rdg_beta
-
 contains
 
 !> \section arg_table_gravity_wave_drag_ridge_init Argument Table
 !! \htmlinclude gravity_wave_drag_ridge_init.html
   subroutine gravity_wave_drag_ridge_init( &
-    use_gw_rdg_beta_in, &
-    use_gw_rdg_gamma_in, &
     gw_delta_c, &
-    effgw_rdg_beta, &
-    effgw_rdg_gamma, &
     gw_rdg_do_divstream_nl, gw_rdg_C_BetaMax_DS_nl, gw_rdg_C_GammaMax_nl, &
     gw_rdg_Frx0_nl, gw_rdg_Frx1_nl, gw_rdg_C_BetaMax_SM_nl, gw_rdg_Fr_c_nl, &
     gw_rdg_do_smooth_regimes_nl, gw_rdg_do_adjust_tauoro_nl, &
@@ -93,15 +88,8 @@ contains
     ! Input arguments
     integer, intent(in)              :: ncol
 
-    logical, intent(in)              :: use_gw_rdg_beta_in            ! Enable Meso-beta ridges [flag]
-    logical, intent(in)              :: use_gw_rdg_gamma_in           ! Enable Meso-gamma ridges [flag]
-
     ! Gravity wave band parameters
     real(kind_phys), intent(in)      :: gw_delta_c                    ! Width of speed bins (delta c) for gravity wave spectrum [m s-1]
-
-    ! Ridge efficiency parameters
-    real(kind_phys), intent(in)      :: effgw_rdg_beta                ! Beta ridge efficiency factor [1]
-    real(kind_phys), intent(in)      :: effgw_rdg_gamma               ! Gamma ridge efficiency factor [1]
 
     ! Dividing streamline (DS2017) parameters
     logical, intent(in)              :: gw_rdg_do_divstream_nl        ! Enable dividing streamline parameterization [flag]
@@ -152,26 +140,32 @@ contains
     orostratmin = gw_rdg_orostratmin_nl
     orom2min = gw_rdg_orom2min_nl
     gw_rdg_do_vdiff = gw_rdg_do_vdiff_nl
-    use_gw_rdg_beta = use_gw_rdg_beta_in
-    use_gw_rdg_gamma = use_gw_rdg_gamma_in
-
-    if (use_gw_rdg_beta) then
-      if (effgw_rdg_beta == unset_kind_phys) then
-        errmsg = sub//": ERROR: Anisotropic OGW (Beta) enabled, but effgw_rdg_beta was not set."
-        errflg = 1
-        return
-      end if
-    end if
-
-    if (use_gw_rdg_gamma) then
-      if (effgw_rdg_gamma == unset_kind_phys) then
-        errmsg = sub//": ERROR: Anisotropic OGW (Gamma) enabled, but effgw_rdg_gamma was not set."
-        errflg = 1
-        return
-      end if
-    end if
 
   end subroutine gravity_wave_drag_ridge_init
+
+!> \section arg_table_gravity_wave_drag_ridge_beta_init Argument Table
+!! \htmlinclude gravity_wave_drag_ridge_beta_init.html
+  subroutine gravity_wave_drag_ridge_beta_init( &
+    effgw_rdg_beta, &
+    errmsg, errflg)
+
+    ! Input arguments
+    real(kind_phys),    intent(in)   :: effgw_rdg_beta                ! Beta ridge efficiency factor [1]
+
+    ! Output arguments
+    character(len=512), intent(out)  :: errmsg
+    integer, intent(out)             :: errflg
+
+    errmsg = ''
+    errflg = 0
+
+    if (effgw_rdg_beta == unset_kind_phys) then
+      errmsg = sub//": ERROR: Anisotropic OGW (Beta) enabled, but effgw_rdg_beta was not set."
+      errflg = 1
+      return
+    end if
+
+  end subroutine gravity_wave_drag_ridge_beta_init
 
 !> \section arg_table_gravity_wave_drag_ridge_beta_run Argument Table
 !! \htmlinclude gravity_wave_drag_ridge_beta_run.html
@@ -323,6 +317,30 @@ contains
 
   end subroutine gravity_wave_drag_ridge_beta_run
 
+!> \section arg_table_gravity_wave_drag_ridge_gamma_init Argument Table
+!! \htmlinclude gravity_wave_drag_ridge_gamma_init.html
+  subroutine gravity_wave_drag_ridge_gamma_init( &
+    effgw_rdg_gamma, &
+    errmsg, errflg)
+
+    ! Input arguments
+    real(kind_phys),    intent(in)   :: effgw_rdg_gamma               ! Gamma ridge efficiency factor [1]
+
+    ! Output arguments
+    character(len=512), intent(out)  :: errmsg
+    integer, intent(out)             :: errflg
+
+    errmsg = ''
+    errflg = 0
+
+    if (effgw_rdg_gamma == unset_kind_phys) then
+      errmsg = sub//": ERROR: Anisotropic OGW (Gamma) enabled, but effgw_rdg_gamma was not set."
+      errflg = 1
+      return
+    end if
+
+  end subroutine gravity_wave_drag_ridge_gamma_init
+
 !> \section arg_table_gravity_wave_drag_ridge_gamma_run Argument Table
 !! \htmlinclude gravity_wave_drag_ridge_gamma_run.html
   subroutine gravity_wave_drag_ridge_gamma_run( &
@@ -339,11 +357,10 @@ contains
     rdg_gamma_cd_llb, trpd_leewv_rdg_gamma, &
     gbxarg, &
     hwdthg, clngtg, mxdisg, anixyg, angllg, &
-    q_tend, s_tend, u_tend, v_tend, flx_heat, &
     taurx, taury, &
     tauardgx, tauardgy, &
     utgw, vtgw, ttgw, &
-    errmsg, errflg)
+    q_tend, s_tend, u_tend, v_tend, flx_heat, errmsg, errflg)
 
     use coords_1d, only: Coords1D
 
@@ -393,13 +410,6 @@ contains
     real(kind_phys),     intent(in)    :: anixyg (:,:)         ! Gamma ridge anisotropy [1]
     real(kind_phys),     intent(in)    :: angllg (:,:)         ! Gamma ridge clockwise angle wrt north-south [degrees]
 
-    ! Output tendencies
-    real(kind_phys),     intent(inout) :: q_tend(:, :, :)      ! Constituent tendencies [kg kg-1 s-1]
-    real(kind_phys),     intent(inout) :: s_tend(:, :)         ! Dry static energy tendency [J kg-1 s-1]
-    real(kind_phys),     intent(inout) :: u_tend(:, :)         ! Zonal wind tendency [m s-2]
-    real(kind_phys),     intent(inout) :: v_tend(:, :)         ! Meridional wind tendency [m s-2]
-    real(kind_phys),     intent(out)   :: flx_heat(:)          ! Surface heat flux for check energy [W m-2]
-
     ! Diagnostic outputs
     real(kind_phys),     intent(out)   :: taurx(:,:)           ! wave stress in zonal direction, interfaces [N m-2]
     real(kind_phys),     intent(out)   :: taury(:,:)           ! wave stress in meridional direction, interfaces [N m-2]
@@ -408,6 +418,13 @@ contains
     real(kind_phys),     intent(out)   :: utgw(:,:)            ! U tendency from orographic gravity wave drag [m s-1]
     real(kind_phys),     intent(out)   :: vtgw(:,:)            ! V tendency from orographic gravity wave drag [m s-1]
     real(kind_phys),     intent(out)   :: ttgw(:,:)            ! T tendency from orographic gravity wave drag [K s-1]
+
+    ! Output tendencies
+    real(kind_phys),     intent(inout) :: q_tend(:, :, :)      ! Constituent tendencies [kg kg-1 s-1]
+    real(kind_phys),     intent(inout) :: s_tend(:, :)         ! Dry static energy tendency [J kg-1 s-1]
+    real(kind_phys),     intent(inout) :: u_tend(:, :)         ! Zonal wind tendency [m s-2]
+    real(kind_phys),     intent(inout) :: v_tend(:, :)         ! Meridional wind tendency [m s-2]
+    real(kind_phys),     intent(out)   :: flx_heat(:)          ! Surface heat flux for check energy [W m-2]
 
     ! Error handling
     character(len=512),  intent(out)   :: errmsg

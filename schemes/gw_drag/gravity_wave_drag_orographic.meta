@@ -71,7 +71,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ p ]
-  standard_name = vertical_moist_pressure_coordinates_for_gravity_wave_drag_tbd
+  standard_name = vertical_moist_pressure_coordinates_for_gravity_wave_drag
   units = Pa
   type = coords1d
   dimensions = ()
@@ -125,7 +125,7 @@
   dimensions = ()
   intent = in
 [ gw_apply_tndmax ]
-  standard_name = flag_for_limiter_on_maximum_wind_tendency_from_stress_divergence_in_gravity_wave_drag_scheme_tbd
+  standard_name = limit_maximum_wind_tendency_from_stress_divergence_in_gravity_wave_drag_scheme_tbd
   units = flag
   type = logical
   dimensions = ()
@@ -251,38 +251,38 @@
   dimensions = (horizontal_loop_extent)
   intent = out
 [ utgw ]
-  standard_name = tendency_of_eastward_wind_due_to_orographic_gravity_wave_drag_tbd
+  standard_name = tendency_of_eastward_wind_due_to_orographic_gravity_wave_drag
   units = m s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ vtgw ]
-  standard_name = tendency_of_northward_wind_due_to_orographic_gravity_wave_drag_tbd
+  standard_name = tendency_of_northward_wind_due_to_orographic_gravity_wave_drag
   units = m s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ ttgw ]
-  standard_name = tendency_of_air_temperature_due_to_orographic_gravity_wave_drag_tbd
+  standard_name = tendency_of_air_temperature_due_to_orographic_gravity_wave_drag
   # J kg-1 s-1 / [cpairv = J kg-1 K-1] = K s-1 ... converted by /cpairv to K tendency before out from subroutine.
   units = K s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ qtgw ]
-  standard_name = ccpp_constituent_tendencies_due_to_orographic_gravity_wave_drag_tbd
+  standard_name = ccpp_constituent_tendencies_due_to_orographic_gravity_wave_drag
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
   intent = out
 [ dttdf ]
-  standard_name = tendency_of_air_temperature_due_to_diffusion_due_to_orographic_gravity_wave_drag_tbd
+  standard_name = tendency_of_air_temperature_due_to_diffusion_due_to_orographic_gravity_wave_drag
   units = J kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ dttke ]
-  standard_name = tendency_of_air_temperature_due_to_kinetic_energy_dissipation_due_to_orographic_gravity_wave_drag_tbd
+  standard_name = tendency_of_air_temperature_due_to_kinetic_energy_dissipation_due_to_orographic_gravity_wave_drag
   units = J kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -300,19 +300,19 @@
   dimensions = (horizontal_loop_extent)
   intent = out
 [ tau0x ]
-  standard_name = eastward_stress_at_surface_due_to_orographic_gravity_wave_drag_tbd
+  standard_name = eastward_stress_at_surface_due_to_orographic_gravity_wave_drag
   units = N m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
 [ tau0y ]
-  standard_name = northward_stress_at_surface_due_to_orographic_gravity_wave_drag_tbd
+  standard_name = northward_stress_at_surface_due_to_orographic_gravity_wave_drag
   units = N m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
 [ taua ]
-  standard_name = total_stress_at_interfaces_due_to_orographic_gravity_wave_drag_tbd
+  standard_name = total_stress_at_interfaces_due_to_orographic_gravity_wave_drag
   units = N m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
