@@ -5,6 +5,10 @@
        <scheme>initialize_constituents</scheme>
        <scheme>to_be_ccppized_temporary</scheme>
        <scheme>set_cloud_fraction_top</scheme>
+
+       <!-- initialize energy checker -->
+       <scheme>check_energy_zero_fluxes</scheme>
+
        <scheme>zm_conv_options</scheme>
        <scheme>zm_convr</scheme>
        <scheme>zm_convr_tendency_diagnostics</scheme>
@@ -34,6 +38,11 @@
        <scheme>qneg</scheme>
        <scheme>geopotential_temp</scheme>
        <scheme>zm_diagnostics</scheme>
+
+       <!-- Check that energy and water change matches the boundary fluxes -->
+       <scheme>zm_prepare_flux_for_check_energy</scheme>
+       <scheme>check_energy_scaling</scheme>
+       <scheme>check_energy_chng</scheme>
    </group>
 </suite>
 
