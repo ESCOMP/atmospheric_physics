@@ -85,9 +85,9 @@ contains
     gw_rdg_orostratmin_nl, gw_rdg_orom2min_nl, gw_rdg_do_vdiff_nl, &
     errmsg, errflg)
 
-    ! Input arguments
-    integer, intent(in)              :: ncol
+    use gw_common, only: wavelength_mid
 
+    ! Input arguments
     ! Gravity wave band parameters
     real(kind_phys), intent(in)      :: gw_delta_c                    ! Width of speed bins (delta c) for gravity wave spectrum [m s-1]
 
@@ -160,7 +160,7 @@ contains
     errflg = 0
 
     if (effgw_rdg_beta == unset_kind_phys) then
-      errmsg = sub//": ERROR: Anisotropic OGW (Beta) enabled, but effgw_rdg_beta was not set."
+      errmsg = "gravity_wave_drag_ridge_beta_init: Anisotropic OGW (Beta) enabled, but effgw_rdg_beta was not set."
       errflg = 1
       return
     end if
@@ -334,7 +334,7 @@ contains
     errflg = 0
 
     if (effgw_rdg_gamma == unset_kind_phys) then
-      errmsg = sub//": ERROR: Anisotropic OGW (Gamma) enabled, but effgw_rdg_gamma was not set."
+      errmsg = "gravity_wave_drag_ridge_gamma_init: Anisotropic OGW (Gamma) enabled, but effgw_rdg_gamma was not set."
       errflg = 1
       return
     end if
