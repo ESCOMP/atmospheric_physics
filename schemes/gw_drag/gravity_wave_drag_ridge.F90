@@ -499,11 +499,11 @@ contains
 
   end subroutine gravity_wave_drag_ridge_gamma_run
 
-  subroutine gw_rdg_resid_src(ncol, pver, band, p, &
+  subroutine gw_rdg_resid_src(ncol, pver, rair, band, p, &
                               u, v, t, mxdis, kwvrdg, zi, nm, &
                               src_level, tend_level, tau, ubm, ubi, xv, yv, &
                               ubmsrc, usrc, vsrc, nsrc, rsrc, m2src, c, tauoro, errmsg, errflg)
-    use gw_common, only: rair, GWBand
+    use gw_common, only: GWBand
     use gw_utils, only: dot_2d, midpoint_interp, get_unit_vector
     !-----------------------------------------------------------------------
     ! Orographic source for multiple gravity wave drag parameterization.
@@ -516,13 +516,15 @@ contains
     integer, intent(in) :: ncol
     integer, intent(in) :: pver
 
+    real(kind_phys), intent(in) :: rair
+
     ! Band to emit orographic waves in.
     ! Regardless, we will only ever emit into l = 0.
     type(GWBand), intent(in) :: band
     ! Pressure coordinates.
     type(coords1d), intent(in) :: p
 
-    ! Midpoint zonal/meridional winds. ( m s-1)
+    ! Midpoint zonal/meridional winds. (m s-1)
     real(kind_phys), intent(in) :: u(ncol, pver), v(ncol, pver)
     ! Midpoint temperatures. (K)
     real(kind_phys), intent(in) :: t(ncol, pver)
@@ -1806,7 +1808,7 @@ contains
       effgw = effgw_rdg_resid*isowgt
       tauoro = 0._kind_phys
 
-      call gw_rdg_resid_src(ncol, pver, band_oro, p, &
+      call gw_rdg_resid_src(ncol, pver, rair, band_oro, p, &
                             u, v, t, isovar, kwvrdg, zi, nm, &
                             src_level, tend_level, tau, ubm, ubi, xv, yv, &
                             ubmsrc, usrc, vsrc, nsrc, rsrc, m2src, phase_speeds, tauoro, errmsg, errflg)

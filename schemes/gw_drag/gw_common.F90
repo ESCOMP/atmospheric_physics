@@ -18,7 +18,6 @@ module gw_common
   ! Public interfaces for use by multiple gravity wave parameterizations.
   public :: GWBand
 
-  public :: handle_err
   public :: gw_drag_prof
   public :: qbo_hdepth_scaling
   public :: calc_taucd, momentum_flux, momentum_fixer
@@ -27,9 +26,6 @@ module gw_common
   public :: find_bin
 
   public :: west, east, north, south
-  public :: pi
-  public :: gravit
-  public :: rair
   public :: wavelength_mid, wavelength_long
 
   real(kind_phys), public, parameter :: unset_kind_phys = huge(1._kind_phys)
@@ -1011,27 +1007,6 @@ contains
     end do
 
   end subroutine adjust_inertial
-
-  subroutine handle_err(stat, errflg, errstr, errmsg)
-
-    !-----------------------------------------------------------------------
-    ! Purpose:
-    ! Issue error message after non-zero return from anything.
-    !-----------------------------------------------------------------------
-    integer, intent(in)    :: stat     ! zero = "no error"
-    integer, intent(inout) :: errflg    ! zero = "no error"
-    character(len=*), intent(in)    :: errstr    ! curr error message
-    character(len=*), intent(inout) :: errmsg    ! errmsg variable
-    !-----------------------------------------------------------------------
-    ! if errflg is not already set then set it and errmsg
-    if (stat /= 0 .and. errflg /= 0) then
-      errflg = stat
-      errmsg = trim(errstr)
-    end if
-
-    return
-
-  end subroutine handle_err
 
   ! Given a value, finds which bin marked by "bounds" the value falls
   ! into.
