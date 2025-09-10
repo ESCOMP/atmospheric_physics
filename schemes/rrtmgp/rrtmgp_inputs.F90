@@ -11,7 +11,7 @@ module rrtmgp_inputs
 !! \htmlinclude rrtmgp_inputs_run.html
 !!
   subroutine rrtmgp_inputs_run(dosw, dolw, snow_associated, graupel_associated, &
-                  is_root, iulog, dycore, pmid, pint, t, nday, idxday,          &
+                  is_root, iulog, is_mpas, pmid, pint, t, nday, idxday,          &
                   cldfprime, coszrs, kdist_sw, t_sfc, emis_sfc, t_rad,          &
                   pmid_rad, pint_rad, t_day, pmid_day, pint_day, coszrs_day,    &
                   alb_dir, alb_dif, lwup, stebol, ncol, ktopcam, ktoprad, &
@@ -45,7 +45,7 @@ module rrtmgp_inputs
      logical,                              intent(in) :: graupel_associated    ! Flag for whether the cloud graupel fraction argument should be used
      logical,                              intent(in) :: is_root
      integer,                              intent(in) :: iulog
-     character(len=*),                     intent(in) :: dycore
+     character(len=*),                     intent(in) :: is_mpas
      integer,         dimension(:),        intent(in) :: idxday                ! Indices of daylight columns
      real(kind_phys), dimension(:,:),      intent(in) :: pmid                  ! Air pressure at midpoint (Pa)
      real(kind_phys), dimension(:,:),      intent(in) :: pint                  ! Air pressure at interface (Pa)
@@ -115,7 +115,7 @@ module rrtmgp_inputs
      !
      ! These conditions are generally only satisfied in a non-MPAS MT configuration
      !------------------------------------------------------------------------------
-     if ( (trim(dycore) /= 'MPAS') .and. &
+     if ( .not. is_mpas ) .and. &
           (nlay==pverp) .and. &
           (minval(pint(:,1)) < 1._kind_phys) .and. &
           (minval(pint(:,2)) > 1._kind_phys) ) then
