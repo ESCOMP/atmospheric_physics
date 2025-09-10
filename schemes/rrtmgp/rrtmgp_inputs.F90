@@ -44,8 +44,8 @@ module rrtmgp_inputs
      logical,                              intent(in) :: snow_associated       ! Flag for whether the cloud snow fraction argument should be used
      logical,                              intent(in) :: graupel_associated    ! Flag for whether the cloud graupel fraction argument should be used
      logical,                              intent(in) :: is_root
+     logical,                              intent(in) :: is_mpas
      integer,                              intent(in) :: iulog
-     character(len=*),                     intent(in) :: is_mpas
      integer,         dimension(:),        intent(in) :: idxday                ! Indices of daylight columns
      real(kind_phys), dimension(:,:),      intent(in) :: pmid                  ! Air pressure at midpoint (Pa)
      real(kind_phys), dimension(:,:),      intent(in) :: pint                  ! Air pressure at interface (Pa)
@@ -115,7 +115,7 @@ module rrtmgp_inputs
      !
      ! These conditions are generally only satisfied in a non-MPAS MT configuration
      !------------------------------------------------------------------------------
-     if ( .not. is_mpas ) .and. &
+     if (( .not. is_mpas ) .and. &
           (nlay==pverp) .and. &
           (minval(pint(:,1)) < 1._kind_phys) .and. &
           (minval(pint(:,2)) > 1._kind_phys) ) then
