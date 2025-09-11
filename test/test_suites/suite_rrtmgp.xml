@@ -10,15 +10,14 @@
     <scheme>rrtmgp_inputs</scheme>
     <scheme>rrtmgp_lw_cloud_optics</scheme>
     <scheme>rrtmgp_lw_mcica_subcol_gen</scheme>
-    <scheme>rrtmgp_sw_gas_optics</scheme>
-    <!--    <scheme>rrtmgp_sw_cloud_optics</scheme>-->
-    <scheme>rrtmgp_sw_cloud_temp</scheme>
+    <scheme>rrtmgp_sw_cloud_optics</scheme>
+    <scheme>rrtmgp_sw_mcica_subcol_gen</scheme>
     <!-- Shortwave subcycle - last iteration is climate calculation -->
-    <subcycle loop="number_of_diagnostic_subcycles">
+    <subcycle>
       <scheme>rrtmgp_constituents</scheme> <!-- ifnday-->
       <scheme>rrtmgp_sw_gas_optics_pre</scheme> <!-- ifnday-->
       <scheme>rrtmgp_sw_gas_optics</scheme><!--ifnday-->
-      <scheme>solar_irradiance_data</scheme><!--ifnday-->
+      <scheme>solar_irradiance_data</scheme><!--ifnay-->
       <scheme>rrtmgp_sw_solar_var</scheme><!--ifnday-->
       <!--<scheme>rrtmgp_sw_aer</scheme>-->
       <scheme>rrtmgp_sw_rte</scheme> <!--ifnday-->
@@ -28,7 +27,7 @@
       <scheme>rrtmgp_subcycle</scheme>
     </subcycle>
     <!-- Longwave subcycle - last iteration is climate calculation-->
-    <subcycle loop="number_of_diagnostic_subcycles">
+    <subcycle>
       <scheme>rrtmgp_constituents</scheme>
       <scheme>rrtmgp_lw_gas_optics_pre</scheme>
       <scheme>rrtmgp_lw_gas_optics</scheme>
@@ -40,7 +39,8 @@
       <scheme>rrtmgp_subcycle</scheme>
     </subcycle>
     <!-- End longwave subcycle -->
-    <scheme>rrtmgp_inputs_setup</scheme><!-- Inputs init routine must go after gas_optics_init-->
+    <scheme>rrtmgp_inputs_setup</scheme> <!-- must come after both gas optics schemes-->
+    <scheme>rrtmgp_sw_solar_var_setup</scheme>
     <scheme>rrtmgp_dry_static_energy_tendency</scheme>
     <scheme>calculate_net_heating</scheme>
     <scheme>rrtmgp_post</scheme>

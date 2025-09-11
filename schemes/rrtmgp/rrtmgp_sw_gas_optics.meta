@@ -52,7 +52,7 @@
   dimensions = ()
   intent = in
 [ ncol ]
-  standard_name = horizontal_loop_extent
+  standard_name = daytime_points_dimension
   units = count
   type = integer
   dimensions = ()
@@ -67,19 +67,19 @@
   standard_name = air_pressure_for_daytime_points_for_RRTMGP
   units = Pa
   type = real | kind = kind_phys
-  dimensions = (daytime_points_dimension, vertical_layer_dimension)
+  dimensions = (daytime_points_dimension, number_of_vertical_layers_in_RRTMGP)
   intent = in
 [ p_lev ]
   standard_name = air_pressure_at_interface_for_daytime_points_for_RRTMGP
   units = Pa
   type = real | kind = kind_phys
-  dimensions = (daytime_points_dimension, vertical_interface_dimension)
+  dimensions = (daytime_points_dimension, number_of_vertical_layers_in_RRTMGP_plus_one)
   intent = in
 [ t_lay ]
   standard_name = air_temperature_for_daytime_points_for_RRTMGP
   units = K
   type = real | kind = kind_phys
-  dimensions = (daytime_points_dimension, vertical_layer_dimension)
+  dimensions = (daytime_points_dimension, number_of_vertical_layers_in_RRTMGP)
   intent = in
 [ gas_concs ]
   standard_name = shortwave_gas_volume_mixing_ratios_object_for_RRTMGP

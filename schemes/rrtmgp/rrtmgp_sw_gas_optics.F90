@@ -4,6 +4,7 @@
 !> This module contains an init routine to initialize the shortwave gas optics object
 !>  with data read in from file on the host side
 module rrtmgp_sw_gas_optics
+  use cam_logfile, only: iulog
 
   implicit none
   private
@@ -338,7 +339,7 @@ contains
    use ccpp_optical_props,      only: ty_optical_props_2str_ccpp
    use radiation_tools,         only: check_error_msg
    ! Inputs
-   logical,                           intent(in) :: dosw                        !< Flag for whether to perform shortwave calculation
+   logical,                           intent(in) :: dosw                        !< Flag for whether to perform longwave calculation
    integer,                           intent(in) :: iter_num                    !< Subcycle iteration number
    integer,                           intent(in) :: ncol                        !< Total number of columns
    integer,                           intent(in) :: rrtmgp_phys_blksz           !< Number of horizontal points to process at once
@@ -365,6 +366,8 @@ contains
       return
    end if
 
+   write(iulog,*) 'peverwhee - in sw gas optics'
+   write(iulog,*) size(p_lay,2)
    iCol = ((iter_num - 1) * rrtmgp_phys_blksz) + 1
    iCol2= min(iCol + rrtmgp_phys_blksz - 1, ncol)
 
@@ -372,7 +375,7 @@ contains
          p_lay(iCol:iCol2,:),             & ! IN  - Pressure @ layer-centers (Pa)
          p_lev(iCol:iCol2,:),             & ! IN  - Pressure @ layer-interfaces (Pa)
          t_lay(iCol:iCol2,:),             & ! IN  - Temperature @ layer-centers (K)
-         gas_concs%gas_concs,             & ! IN  - RRTMGP DDT: trace gas volume mixing-ratios
+         gas_concs%gas_concs,             & ! IN  - RRTMGP DDT: trace gas volumne mixing-ratios
          sw_optical_props%optical_props,  & ! OUT - RRTMGP DDT: Shortwave optical properties, by
                                             !                   spectral point (tau,ssa,g)
          toa_src_sw)                        ! OUT - TOA incident shortwave radiation (spectral)

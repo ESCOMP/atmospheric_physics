@@ -42,7 +42,7 @@ contains
 !> \section arg_table_rrtmgp_lw_mcica_subcol_gen_run Argument Table
 !! \htmlinclude rrtmgp_lw_mcica_subcol_gen_run.html
 subroutine rrtmgp_lw_mcica_subcol_gen_run( &
-   dolw, ktoprad, ktopcam, kdist, nbnd, ngpt, ncol, pver, nver, &
+   dolw, ktoprad, ktopcam, kdist, nbnd, ngpt, ncol, pver, nlay, &
    cldfprime, c_cld_lw_abs, changeseed, pmid, cloud_lw,     &
    errmsg, errflg )
    use ccpp_kinds,             only: kind_phys
@@ -67,7 +67,7 @@ subroutine rrtmgp_lw_mcica_subcol_gen_run( &
    integer,                          intent(in) :: ngpt         ! Number of subcolumns (g-point intervals)
    integer,                          intent(in) :: ncol         ! Number of columns
    integer,                          intent(in) :: pver         ! Number of model layers
-   integer,                          intent(in) :: nver         ! Number of layers in radiation calculation
+   integer,                          intent(in) :: nlay         ! Number of layers in radiation calculation
    integer,                          intent(in) :: changeseed   ! If the subcolumn generator is called multiple times, 
                                                                 ! permute the seed between each call.
    real(kind_phys), dimension(:,:),   intent(in)  :: pmid       ! Layer pressures at midpoints (Pa)
@@ -82,17 +82,17 @@ subroutine rrtmgp_lw_mcica_subcol_gen_run( &
    integer :: idx, isubcol, kdx, ndx
 
    real(kind_phys), parameter :: cldmin = 1.0e-80_kind_phys  ! min cloud fraction
-   real(kind_phys) :: cldf(ncol,nver)      ! cloud fraction clipped to cldmin
+   real(kind_phys) :: cldf(ncol,nlay)      ! cloud fraction clipped to cldmin
 
    type(ShrKissRandGen) :: kiss_gen  ! KISS RNG object
    integer  :: kiss_seed(ncol,4)
    real(kind_phys) :: rand_num_1d(ncol,1)   ! random number (kissvec)
-   real(kind_phys) :: rand_num(ncol,nver)   ! random number (kissvec)
+   real(kind_phys) :: rand_num(ncol,nlay)   ! random number (kissvec)
 
-   real(kind_phys) :: cdf(ngpt,ncol,nver)   ! random numbers
-   logical  :: iscloudy(ngpt,ncol,nver)   ! flag that says whether a gridbox is cloudy
-   real(kind_phys) :: tauc(nbnd,ncol,nver)
-   real(kind_phys) :: taucmcl(ngpt,ncol,nver)
+   real(kind_phys) :: cdf(ngpt,ncol,nlay)   ! random numbers
+   logical  :: iscloudy(ngpt,ncol,nlay)   ! flag that says whether a gridbox is cloudy
+   real(kind_phys) :: tauc(nbnd,ncol,nlay)
+   real(kind_phys) :: taucmcl(ngpt,ncol,nlay)
    !------------------------------------------------------------------------------------------ 
 
    ! Set error variables
@@ -147,7 +147,7 @@ subroutine rrtmgp_lw_mcica_subcol_gen_run( &
    !    - if the layer above is cloudy, use the same random number as in the layer above
    !    - if the layer above is clear, use a new random number 
 
-   do kdx = 2, nver
+   do kdx = 2, nlay
       do idx = 1, ncol
          do isubcol = 1, ngpt
             if (cdf(isubcol,idx,kdx-1) > 1._kind_phys - cldf(idx,kdx-1) ) then
@@ -159,14 +159,14 @@ subroutine rrtmgp_lw_mcica_subcol_gen_run( &
       end do
    end do
  
-   do kdx = 1, nver
+   do kdx = 1, nlay
       iscloudy(:,:,kdx) = (cdf(:,:,kdx) >= 1._kind_phys - spread(cldf(:,kdx), dim=1, nCopies=ngpt) )
    end do
 
    ! -- generate subcolumns for homogeneous clouds -----
    ! where there is a cloud, set the subcolumn cloud properties;
    ! incoming tauc should be in-cloud quantites and not grid-averaged quantities
-   do kdx = 1,nver
+   do kdx = 1,nlay
       do idx = 1,ncol
          do isubcol = 1,ngpt
             if (iscloudy(isubcol,idx,kdx) .and. (cldf(idx,kdx) > 0._kind_phys) ) then

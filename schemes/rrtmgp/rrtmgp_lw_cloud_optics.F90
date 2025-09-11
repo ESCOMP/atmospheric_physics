@@ -20,7 +20,7 @@ contains
 !> \section arg_table_rrtmgp_lw_cloud_optics_run Argument Table
 !! \htmlinclude rrtmgp_lw_cloud_optics_run.html
 !!
-  subroutine rrtmgp_lw_cloud_optics_run(dolw, ncol, nlay, nlaycam, cld, cldfsnow, cldfgrau,      &
+  subroutine rrtmgp_lw_cloud_optics_run(dolw, ncol, nlay, cld, cldfsnow, cldfgrau,      &
              cldfprime, kdist_lw, cloud_lw, lamc, pgam, iclwpth, iciwpth, tiny_in, dei, icswpth, &
              des, icgrauwpth, degrau, nlwbands, do_snow, do_graupel, pver, ktopcam, cld_lw_abs,  &
              snow_lw_abs, grau_lw_abs, c_cld_lw_abs, errmsg, errflg)
@@ -36,7 +36,6 @@ contains
     ! Inputs
     integer,                           intent(in) :: ncol             ! Number of columns
     integer,                           intent(in) :: nlay             ! Number of vertical layers in radiation
-    integer,                           intent(in) :: nlaycam          ! Number of model layers in radiation
     integer,                           intent(in) :: nlwbands         ! Number of longwave bands
     integer,                           intent(in) :: pver             ! Total number of vertical layers
     integer,                           intent(in) :: ktopcam          ! Index in CAM arrays of top level (layer or interface) at which RRTMGP is active

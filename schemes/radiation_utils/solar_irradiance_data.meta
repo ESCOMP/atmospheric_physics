@@ -117,7 +117,7 @@
   type = real | kind = kind_phys
   dimensions = ()
   intent = out
-[ wave_end ]
+[ we ]
   standard_name = wavelength_endpoints
   units = nm
   type = real | kind = kind_phys
@@ -181,6 +181,12 @@
   type = real | kind = kind_phys
   dimensions = (number_of_wavelength_samples_of_spectrum)
   intent = out
+[ we ]
+  standard_name = wavelength_endpoints
+  units = nm
+  type = real | kind = kind_phys
+  dimensions = (number_of_wavelength_samples_of_spectrum_plus_one)
+  intent = in
 [ sol_tsi ]
   standard_name = total_solar_irradiance
   units = W m-2

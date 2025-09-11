@@ -85,7 +85,7 @@
      The filename of the solar irradiance data.
     </desc>
     <values>
-      <value>${DIN_LOC_ROOT}/atm/cam/solar/SolarForcing1995-2005avg_c160929.nc</value>
+      <value>${DIN_LOC_ROOT}/atm/cam/solar/SolarForcingCMIP7piControl_c20250103.nc</value>
     </values>
   </entry>
   <entry id="solar_data_type">

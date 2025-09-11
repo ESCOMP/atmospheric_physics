@@ -1,4 +1,5 @@
 module rrtmgp_inputs
+ use cam_logfile, only: iulog
 
  implicit none
  private
@@ -60,7 +61,7 @@ module rrtmgp_inputs
      real(kind_phys),                      intent(in) :: stebol                ! Stefan-Boltzmann constant (W m-2 K-4)
      type(ty_gas_optics_rrtmgp_ccpp),      intent(in) :: kdist_sw              ! Shortwave gas optics object
      type(ty_gas_optics_rrtmgp_ccpp),      intent(in) :: kdist_lw              ! Longwave gas optics object
-     character(len=*), dimension(:),       intent(in) :: gaslist_lc            ! Radiatively active gases
+     character(len=5), dimension(:),       intent(in) :: gaslist_lc            ! Radiatively active gases
      ! Outputs
      real(kind_phys), dimension(:,:),      intent(out) :: t_rad                ! Air temperature with radiation indexing (K)
      real(kind_phys), dimension(:,:),      intent(out) :: pmid_rad             ! Midpoint pressure with radiation indexing (Pa)
@@ -247,6 +248,9 @@ module rrtmgp_inputs
            errflg = 1
            return
         end if
+
+        write(iulog,*) 'peverwhee - nlay before alloc'
+        write(iulog,*) nlay
 
         ! Initialize object for combined gas + aerosol + cloud optics.
         ! Allocates arrays for properties represented on g-points.

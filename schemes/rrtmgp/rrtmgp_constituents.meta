@@ -12,7 +12,7 @@
   dimensions = ()
   intent = in
 [ rad_climate ]
-  standard_name = sources_of_radiatively_active_gases_for_climate_calcluation
+  standard_name = sources_of_radiatively_active_gases_for_climate_calculation
   units = none
   type = character | kind = len=256
   dimensions = (cam_nl_autogen1_dimension)

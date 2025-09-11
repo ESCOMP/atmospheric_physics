@@ -53,7 +53,7 @@
   type = integer
   dimensions = ()
   intent = in
-[ nver ]
+[ nlay ]
   standard_name = number_of_vertical_layers_in_RRTMGP_coinciding_with_CAM_levels
   units = count
   type = integer

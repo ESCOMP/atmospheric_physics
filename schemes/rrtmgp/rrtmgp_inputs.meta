@@ -111,19 +111,19 @@
   standard_name = air_temperature_for_daytime_points_for_RRTMGP
   units = K
   type = real | kind = kind_phys
-  dimensions = (daytime_points_dimension, vertical_layer_dimension)
+  dimensions = (daytime_points_dimension, number_of_vertical_layers_in_RRTMGP)
   intent = out
 [ pmid_day ]
   standard_name = air_pressure_for_daytime_points_for_RRTMGP
   units = Pa
   type = real | kind = kind_phys
-  dimensions = (daytime_points_dimension, vertical_layer_dimension)
+  dimensions = (daytime_points_dimension, number_of_vertical_layers_in_RRTMGP)
   intent = out
 [ pint_day ]
   standard_name = air_pressure_at_interface_for_daytime_points_for_RRTMGP
   units = Pa
   type = real | kind = kind_phys
-  dimensions = (daytime_points_dimension, vertical_interface_dimension)
+  dimensions = (daytime_points_dimension, number_of_vertical_layers_in_RRTMGP_plus_one)
   intent = out
 [ coszrs_day ]
   standard_name = cosine_of_solar_zenith_angle_for_daytime_points_on_radiation_timestep
@@ -266,7 +266,7 @@
 [ gaslist_lc ]
   standard_name = lowercase_list_of_active_gases_for_RRTMGP
   units = none
-  type = character | kind = len=*
+  type = character | kind = len=5
   dimensions = (number_of_active_gases_for_RRTMGP)
   intent = in
 [ gas_concs_lw ]

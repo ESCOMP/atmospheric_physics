@@ -79,7 +79,7 @@
     <type>char*256(8)</type>
     <category>rrtmgp_constituents</category>
     <group>rrtmgp_constituents</group>
-    <standard_name>sources_of_radiatively_active_gases_for_climate_calcluation</standard_name>
+    <standard_name>sources_of_radiatively_active_gases_for_climate_calculation</standard_name>
     <units>none</units>
     <desc>
        List of radiatively active gases and whether they are advected or not for the climate

@@ -8,6 +8,7 @@
 module solar_irradiance_data
   use cam_time_coord, only: time_coordinate
   use ccpp_kinds,     only: kind_phys
+  use cam_logfile, only: iulog
 
   implicit none
   save
@@ -98,7 +99,7 @@ contains
 !!
   subroutine solar_irradiance_data_init(irrad_file_path, solar_data_type, solar_data_ymd, solar_data_tod, solar_const, &
                   solar_heating_spectral_scl, speed_of_light, planck_const, nbins, nbinsp, do_spectral_scaling, has_spectrum, sol_tsi, &
-                  wave_end, sol_irrad, errmsg, errflg)
+                  we, sol_irrad, errmsg, errflg)
     use ccpp_io_reader,   only: abstract_netcdf_reader_t, create_netcdf_reader_t
     ! Arguments
     character(len=*), intent(in) :: irrad_file_path
@@ -112,8 +113,8 @@ contains
     logical, intent(out) :: do_spectral_scaling   ! flag to do spectral scaling
     logical, intent(out) :: has_spectrum        ! flag for whether solar input file has irradiance spectrum
     real(kind_phys), intent(out) :: sol_tsi
-    real(kind_phys), allocatable, intent(out) :: wave_end(:)
-    real(kind_phys), allocatable, intent(out) :: sol_irrad(:)
+    real(kind_phys), allocatable, intent(out) :: we(:)
+    real(kind_phys), intent(out) :: sol_irrad(:)
     integer, intent(in) :: nbins
     integer, intent(in) :: nbinsp
     character(len=512), intent(out) :: errmsg
@@ -237,9 +238,9 @@ contains
 
     ! Calculate wavelength ends and convert units
     if ( has_spectrum ) then
-       allocate(wave_end(nbins+1), stat=errflg, errmsg=alloc_errmsg)
+       allocate(we(nbins+1), stat=errflg, errmsg=alloc_errmsg)
        if( errflg /= 0 ) then
-          write(errmsg,*) 'solar_data_init: failed to allocate wave_end; error = ', alloc_errmsg
+          write(errmsg,*) 'solar_data_init: failed to allocate we; error = ', alloc_errmsg
           return
        end if
        allocate(sol_etf(nbins), stat=errflg, errmsg=alloc_errmsg)
@@ -248,8 +249,8 @@ contains
           return
        end if
 
-       wave_end(:nbins)  = lambda(:nbins) - 0.5_kind_phys*dellam(:nbins)
-       wave_end(nbins+1) = lambda(nbins)  + 0.5_kind_phys*dellam(nbins)
+       we(:nbins)  = lambda(:nbins) - 0.5_kind_phys*dellam(:nbins)
+       we(nbins+1) = lambda(nbins)  + 0.5_kind_phys*dellam(nbins)
        do idx = 1,nbins
           irrad_fac(idx) = 1.e-3_kind_phys                  ! mW/m2/nm --> W/m2/nm
           etf_fac(idx)   = 1.e-16_kind_phys*lambda(idx)*fac ! mW/m2/nm --> photons/cm2/sec/nm
@@ -265,7 +266,7 @@ contains
     ! need to force data loading when the model starts at a time =/ 00:00:00.000
     ! -- may occur in restarts also
     call solar_irradiance_data_run(irrad_file_path, nbins, nbinsp, has_spectrum, do_spectral_scaling, &
-            sol_irrad, wave_end, sol_tsi, errmsg, errflg)
+            sol_irrad, we, sol_tsi, errmsg, errflg)
     if (errflg /= 0) then
        return
     end if
@@ -280,10 +281,11 @@ contains
 !! \htmlinclude solar_irradiance_data_run.html
 !!
   subroutine solar_irradiance_data_run(irrad_file_path, nbins, nbinsp, has_spectrum, do_spectral_scaling, &
-                sol_irrad, sol_tsi, errmsg, errflg)
+                sol_irrad, we, sol_tsi, errmsg, errflg)
      use ccpp_io_reader,   only: abstract_netcdf_reader_t, create_netcdf_reader_t
      ! Arguments 
      character(len=*),   intent(in)    :: irrad_file_path
+     real(kind_phys),    intent(in)    :: we(:)                 ! wavelength endpoints
      integer,            intent(in)    :: nbins                 ! number of bins
      integer,            intent(in)    :: nbinsp                ! number of bins plus one
      logical,            intent(in)    :: has_spectrum
@@ -360,6 +362,7 @@ contains
 
      if (has_spectrum) then
         data(:) = irradi(:,1) + delt*( irradi(:,2) - irradi(:,1) )
+        sol_irrad(1) = 0.0_kind_phys
 
         do idx = 1,nbins
            sol_irrad(idx) = data(idx)*irrad_fac(idx) ! W/m2/nm

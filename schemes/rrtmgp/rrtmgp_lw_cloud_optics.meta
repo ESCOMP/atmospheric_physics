@@ -24,12 +24,6 @@
   type = integer
   dimensions = ()
   intent = in
-[ nlaycam ]
-  standard_name = number_of_vertical_layers_in_RRTMGP_coinciding_with_CAM_levels
-  units = count
-  type = integer
-  dimensions = ()
-  intent = in
 [ cld ]
   standard_name = cloud_area_fraction
   units = fraction

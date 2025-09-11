@@ -35,12 +35,6 @@
   type = integer
   dimensions = ()
   intent = in
-[ nlay ]
-  standard_name = number_of_vertical_layers_in_RRTMGP
-  units = count
-  type = integer
-  dimensions = ()
-  intent = in
 [ nswgpts ]
   standard_name = number_of_shortwave_g_point_intervals
   units = count
@@ -216,19 +210,19 @@
   dimensions = ()
   intent = in
 [ c_cld_tau ]
-  standard_name = combined_cloud_optical_depth
+  standard_name = combined_shortwave_cloud_extinction_optical_depth
   units = 1
   type = real | kind = kind_phys
   dimensions = (number_of_bands_for_shortwave_radiation,horizontal_loop_extent,vertical_layer_dimension)
   intent = out
 [ c_cld_tau_w ]
-  standard_name = combined_cloud_single_scattering_albedo_times_tau
+  standard_name = combined_shortwave_cloud_single_scattering_albedo
   units = 1
   type = real | kind = kind_phys
   dimensions = (number_of_bands_for_shortwave_radiation,horizontal_loop_extent,vertical_layer_dimension)
   intent = out
 [ c_cld_tau_w_g ]
-  standard_name = combined_cloud_asymmetry_parameter_times_w_times_tau
+  standard_name = combined_shortwave_cloud_asymmetry_parameter
   units = 1
   type = real | kind = kind_phys
   dimensions = (number_of_bands_for_shortwave_radiation,horizontal_loop_extent,vertical_layer_dimension)

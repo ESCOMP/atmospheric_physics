@@ -18,7 +18,7 @@ contains
 
     ! Set gas vmr for the gases in the radconstants module's gaslist.
 
-    character(len=*),            intent(in) :: gaslist(:)             ! Radiatively active gases
+    character(len=5),            intent(in) :: gaslist(:)             ! Radiatively active gases
     integer,                     intent(in) :: nlay                   ! Number of layers in radiation calculation
     integer,                     intent(in) :: ncol                   ! Total number of columns
     integer,                     intent(in) :: pverp                  ! Total number of layer interfaces
