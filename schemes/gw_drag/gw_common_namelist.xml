@@ -96,7 +96,10 @@
     </values>
   </entry>
 
-  <!-- orographic gravity waves -->
+  <!--
+    GRAVITY_WAVE_DRAG_OROGRAPHIC
+    orographic gravity waves
+  -->
   <entry id="effgw_oro">
     <type>real</type>
     <category>gw_drag</category>
@@ -154,7 +157,10 @@
     </values>
   </entry>
 
-  <!-- ridge meso-beta/meso-gamma gravity waves -->
+  <!--
+    GRAVITY_WAVE_DRAG_RIDGE
+    ridge meso-beta/meso-gamma gravity waves
+  -->
   <entry id="gw_rdg_beta_nrdg">
     <type>integer</type>
     <category>gw_drag</category>
@@ -504,6 +510,106 @@
     <units>1</units>
     <desc>
       Efficiency scaling factor associated with residual non-ridge topo.
+    </desc>
+    <values>
+      <value>1.0D0</value>
+    </values>
+  </entry>
+
+  <!--
+    GRAVITY_WAVE_DRAG_MOVING_MOUNTAIN
+    moving mountain gravity waves
+  -->
+  <entry id="gw_movmtn_drag_file">
+    <type>char*256</type>
+    <category>gw_drag</category>
+    <group>gw_drag_nl</group>
+    <standard_name>filename_of_lookup_table_of_source_spectra_for_moving_mountain_gravity_wave_drag</standard_name>
+    <units>none</units>
+    <desc>
+      Relative pathname of lookup table for deep convective moving mountain GW source.
+    </desc>
+  </entry>
+
+  <entry id="gw_movmtn_psteer">
+    <type>real</type>
+    <category>gw_drag</category>
+    <group>gw_drag_nl</group>
+    <standard_name>pressure_level_for_steering_in_moving_mountain_gravity_wave_drag_tbd</standard_name>
+    <units>Pa</units>
+    <desc>
+      Global steering level (Pa) for moving mtns. If negative steering level, it will be provided by future code
+    </desc>
+    <values>
+      <value>65000.0D0</value>
+    </values>
+  </entry>
+
+  <entry id="gw_movmtn_plaunch">
+    <type>real</type>
+    <category>gw_drag</category>
+    <group>gw_drag_nl</group>
+    <standard_name>pressure_level_for_launch_in_moving_mountain_gravity_wave_drag_tbd</standard_name>
+    <units>Pa</units>
+    <desc>
+      Global launch level (Pa) for moving mtns. If negative launch level, it will be provided by future code.
+    </desc>
+    <values>
+      <value>32500.0D0</value>
+    </values>
+  </entry>
+
+  <entry id="gw_movmtn_source">
+    <type>integer</type>
+    <category>gw_drag</category>
+    <group>gw_drag_nl</group>
+    <standard_name>source_type_for_moving_mountain_gravity_wave_drag_tbd</standard_name>
+    <units>none</units>
+    <desc>
+      Integer code for movmtn source: 1=vorticity, 2=upwp
+    </desc>
+    <values>
+      <value>1</value>
+    </values>
+  </entry>
+
+  <entry id="gw_movmtn_alpha">
+    <type>real</type>
+    <category>gw_drag</category>
+    <group>gw_drag_nl</group>
+    <standard_name>tunable_parameter_for_amplitude_of_moving_mountain_gravity_wave_drag_tbd</standard_name>
+    <units>1</units>
+    <desc>
+      Tunable parameter controlling proportion of boundary layer momentum flux escaping as GW momentum flux
+    </desc>
+    <values>
+      <value>0.01d0</value>
+    </values>
+  </entry>
+
+  <entry id="gw_movmtn_use_pbl_source">
+    <type>logical</type>
+    <category>gw_drag</category>
+    <group>gw_drag_nl</group>
+    <standard_name>do_pbl_moving_mountain_gravity_wave_drag_tbd</standard_name>
+    <units>flag</units>
+    <desc>
+      Whether or not to enable gravity waves from PBL moving mountains source.
+      Default: .false.
+    </desc>
+    <values>
+      <value>.false.</value>
+    </values>
+  </entry>
+
+  <entry id="effgw_movmtn_pbl">
+    <type>real</type>
+    <category>gw_drag</category>
+    <group>gw_drag_nl</group>
+    <standard_name>moving_mountain_scheme_efficiency_of_gravity_wave_momentum_transfer_tbd</standard_name>
+    <units>1</units>
+    <desc>
+      Efficiency scaling factor for moving mountain source.
     </desc>
     <values>
       <value>1.0D0</value>

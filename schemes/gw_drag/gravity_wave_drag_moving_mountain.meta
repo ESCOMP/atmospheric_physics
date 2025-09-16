@@ -24,8 +24,8 @@
   dimensions = ()
   intent = in
 [ file_path ]
-  # gw_drag_file_mm_loc
-  standard_name = enter_standard_name_10
+  # gw_drag_file_mm
+  standard_name = filename_of_lookup_table_of_source_spectra_for_moving_mountain_gravity_wave_drag
   units = none
   type = character | kind = len=*
   dimensions = ()
@@ -227,26 +227,26 @@
   dimensions = (enter_standard_name_146:enter_standard_name_147,enter_standard_name_148:enter_standard_name_149)
   intent = in
 [ alpha_gw_movmtn ]
-  standard_name = enter_standard_name_45
-  units = enter_units
+  standard_name = tunable_parameter_for_amplitude_of_moving_mountain_gravity_wave_drag_tbd
+  units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ effgw_movmtn_pbl ]
-  standard_name = enter_standard_name_46
-  units = enter_units
+  standard_name = moving_mountain_scheme_efficiency_of_gravity_wave_momentum_transfer_tbd
+  units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ gw_apply_tndmax ]
   standard_name = enter_standard_name_47
-  units = enter_units
+  units = flag
   type = logical
   dimensions = ()
   intent = in
 [ use_gw_movmtn_pbl ]
-  standard_name = enter_standard_name_48
-  units = enter_units
+  standard_name = do_pbl_moving_mountain_gravity_wave_drag_tbd
+  units = flag
   type = logical
   dimensions = ()
   intent = in
