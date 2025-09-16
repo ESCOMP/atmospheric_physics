@@ -2,7 +2,7 @@
 ! Has to run after both zm_convr (provides reserved liquid and reserved ice)
 ! and zm_conv_evap+interstitial to deep (provides snow_dp and prec_dp) have
 ! been ran.
-! The resulting net liquid (lwe) and ice fluxes are combined and provided to
+! The resulting net liquid and (lwe) ice fluxes are combined and provided to
 ! the check_energy_chng CCPPized scheme.
 module zm_prepare_flux_for_check_energy
   use ccpp_kinds, only: kind_phys
