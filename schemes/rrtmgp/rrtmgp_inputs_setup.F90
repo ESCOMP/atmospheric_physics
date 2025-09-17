@@ -9,11 +9,11 @@ module rrtmgp_inputs_setup
 !> \section arg_table_rrtmgp_inputs_setup_init Argument Table
 !! \htmlinclude rrtmgp_inputs_setup_init.html
 !!
-  subroutine rrtmgp_inputs_setup_init(ktopcam, ktoprad, nlaycam, sw_low_bounds, sw_high_bounds, nswbands,    &
-                   pref_edge, nlay, pver, pverp, kdist_sw, kdist_lw, qrl, is_first_step, use_rad_dt_cosz,    &
-                   timestep_size, nstep, iradsw, dt_avg, irad_always, is_first_restart_step,                 &
+  subroutine rrtmgp_inputs_setup_init(ktopcam, ktoprad, nlaycam, sw_low_bounds, sw_high_bounds, nswbands,      &
+                   pref_edge, nlay, pver, pverp, kdist_sw, kdist_lw, qrl, is_first_step, use_rad_dt_cosz,      &
+                   timestep_size, nstep, iradsw, dt_avg, irad_always, is_first_restart_step,                   &
                    p_top_for_rrtmgp, nlwbands, nradgas, gasnamelength, idx_sw_diag, idx_nir_diag, idx_uv_diag, &
-                   idx_sw_cloudsim, idx_lw_diag, idx_lw_cloudsim, nswgpts, nlwgpts, nlayp, nextsw_cday,      &
+                   idx_sw_cloudsim, idx_lw_diag, idx_lw_cloudsim, nswgpts, nlwgpts, nlayp, nextsw_cday,        &
                    current_cal_day, band2gpt_sw, errmsg, errflg)
      use ccpp_kinds,             only: kind_phys
      use ccpp_gas_optics_rrtmgp, only: ty_gas_optics_rrtmgp_ccpp
@@ -36,7 +36,7 @@ module rrtmgp_inputs_setup
      logical,                         intent(in) :: is_first_step          ! Flag for whether this is the first timestep (.true. = yes)
      logical,                         intent(in) :: is_first_restart_step  ! Flag for whether this is the first restart step (.true. = yes)
      logical,                         intent(in) :: use_rad_dt_cosz        ! Use adjusted radiation timestep for cosz calculation
-     real(kind_phys),                 intent(in) :: p_top_for_rrtmgp       ! Top pressure to use for RRTMGP
+     real(kind_phys),                 intent(in) :: p_top_for_rrtmgp       ! Top pressure to use for RRTMGP (Pa)
 
      ! Outputs
      integer,                         intent(out) :: ktopcam               ! Index in CAM arrays of top level (layer or interface) at which RRTMGP is active
@@ -76,15 +76,15 @@ module rrtmgp_inputs_setup
      errmsg = ''
 
      ! Number of layers in radiation calculation is capped by the number of
-     ! pressure interfaces below 1 Pa.  When the entire model atmosphere is
-     ! below 1 Pa then an extra layer is added to the top of the model for
+     ! pressure interfaces below p_top_for_rrtmgp.  When the entire model atmosphere is
+     ! below p_top_for_rrtmgp then an extra layer is added to the top of the model for
      ! the purpose of the radiation calculation.
      nlay = count( pref_edge(:) > p_top_for_rrtmgp )
      nlayp = nlay + 1
 
      if (nlay == pverp) then
-        ! Top model interface is below 1 Pa.  RRTMGP is active in all model layers plus
-        ! 1 extra layer between model top and 1 Pa.
+        ! Top model interface is below p_top_for_rrtmgp.  RRTMGP is active in all model layers plus
+        ! 1 extra layer between model top and p_top_for_rrtmgp.
         ktopcam = 1
         ktoprad = 2
         nlaycam = pver

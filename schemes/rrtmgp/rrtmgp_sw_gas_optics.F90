@@ -8,6 +8,7 @@ module rrtmgp_sw_gas_optics
   implicit none
   private
   public :: rrtmgp_sw_gas_optics_init
+  public :: rrtmgp_sw_gas_optics_run
 
 contains
 !> \section arg_table_rrtmgp_sw_gas_optics_init Argument Table
@@ -23,13 +24,13 @@ contains
     use mo_rte_kind,             only: wl
 
     ! Inputs
-    character(len=*),                    intent(in) :: sw_filename                        ! Full path to RRTMGP shortwave coefficients file
-    class(ty_gas_concs_ccpp),            intent(in) :: available_gases                    ! Gas concentrations object
+    character(len=*),                    intent(in) :: sw_filename                   ! Full path to RRTMGP shortwave coefficients file
+    class(ty_gas_concs_ccpp),            intent(in) :: available_gases               ! Gas concentrations object
  
     ! Outputs
-    class(ty_gas_optics_rrtmgp_ccpp),  intent(inout) :: kdist                             ! RRTMGP gas optics object
-    character(len=*),                    intent(out) :: errmsg                            ! CCPP error message
-    integer,                             intent(out) :: errcode                            ! CCPP error code
+    class(ty_gas_optics_rrtmgp_ccpp),  intent(inout) :: kdist                        ! RRTMGP gas optics object
+    character(len=*),                    intent(out) :: errmsg                       ! CCPP error message
+    integer,                             intent(out) :: errcode                      ! CCPP error code
 
     ! Local variables
     class(abstract_netcdf_reader_t),   pointer     :: file_reader
@@ -325,5 +326,61 @@ contains
     call check_error_msg('rrtmgp_sw_gas_optics_init_load', errmsg)
 
   end subroutine rrtmgp_sw_gas_optics_init
+
+!> \section arg_table_rrtmgp_sw_gas_optics_run Argument Table
+!! \htmlinclude rrtmgp_sw_gas_optics_run.html
+!!
+  subroutine rrtmgp_sw_gas_optics_run(dosw, iter_num, ncol, rrtmgp_phys_blksz, p_lay, p_lev, t_lay,  &
+             gas_concs, sw_optical_props, sw_gas_props, toa_src_sw, errmsg, errflg)
+   use machine,                 only: kind_phys
+   use ccpp_gas_optics_rrtmgp,  only: ty_gas_optics_rrtmgp_ccpp
+   use ccpp_gas_concentrations, only: ty_gas_concs_ccpp
+   use ccpp_optical_props,      only: ty_optical_props_2str_ccpp
+   use radiation_tools,         only: check_error_msg
+   ! Inputs
+   logical,                           intent(in) :: dosw                        !< Flag for whether to perform shortwave calculation
+   integer,                           intent(in) :: iter_num                    !< Subcycle iteration number
+   integer,                           intent(in) :: ncol                        !< Total number of columns
+   integer,                           intent(in) :: rrtmgp_phys_blksz           !< Number of horizontal points to process at once
+   real(kind_phys), dimension(:,:),   intent(in) :: p_lay                       !< Air pressure at midpoints [Pa]
+   real(kind_phys), dimension(:,:),   intent(in) :: p_lev                       !< Air pressure at interfaces [Pa]
+   real(kind_phys), dimension(:,:),   intent(in) :: t_lay                       !< Air temperature at midpoints [K]
+   type(ty_gas_concs_ccpp),           intent(in) :: gas_concs                   !< RRTMGP gas concentrations object
+
+   ! Outputs
+   type(ty_optical_props_2str_ccpp),  intent(inout) :: sw_optical_props         !< Clearsky optical properties
+   type(ty_gas_optics_rrtmgp_ccpp),   intent(inout) :: sw_gas_props             !< RRTMGP gas optics object
+   real(kind_phys),                   intent(out)   :: toa_src_sw(:,:)
+   character(len=*),                  intent(out)   :: errmsg
+   integer,                           intent(out)   :: errflg
+
+   ! Local variables
+   integer :: iCol, iCol2
+
+   ! Set error variables
+   errmsg = ''
+   errflg = 0
+
+   if (.not. dosw) then
+      return
+   end if
+
+   iCol = ((iter_num - 1) * rrtmgp_phys_blksz) + 1
+   iCol2= min(iCol + rrtmgp_phys_blksz - 1, ncol)
+
+   errmsg = sw_gas_props%gas_props%gas_optics(&
+         p_lay(iCol:iCol2,:),             & ! IN  - Pressure @ layer-centers (Pa)
+         p_lev(iCol:iCol2,:),             & ! IN  - Pressure @ layer-interfaces (Pa)
+         t_lay(iCol:iCol2,:),             & ! IN  - Temperature @ layer-centers (K)
+         gas_concs%gas_concs,             & ! IN  - RRTMGP DDT: trace gas volume mixing-ratios
+         sw_optical_props%optical_props,  & ! OUT - RRTMGP DDT: Shortwave optical properties, by
+                                            !                   spectral point (tau,ssa,g)
+         toa_src_sw)                        ! OUT - TOA incident shortwave radiation (spectral)
+
+   if (len_trim(errmsg) /= 0) then
+      errflg = 1
+   end if
+
+  end subroutine rrtmgp_sw_gas_optics_run
 
 end module rrtmgp_sw_gas_optics
