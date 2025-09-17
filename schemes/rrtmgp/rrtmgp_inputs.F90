@@ -146,7 +146,7 @@ module rrtmgp_inputs
 
      !-------------------------------------------------------------------------
      ! RRTMGP enforces  P > 1 Pa for validity.
-     ! Actual range of RRTMGP in CAM is set with nmlvar p_top_for_equil_rad.
+     ! Actual range of RRTMGP in CAM is set with namelist variable p_top_for_equil_rad.
      ! In rrtmg_inputs_setup.F90, active layers for RRTMGP are counted based on
      ! the logical P_ref > p_top_for_equil_rad. Returned as nlay.
      !
@@ -190,9 +190,9 @@ module rrtmgp_inputs
         end if
      else
         ! nlay < pverp : model min(pref) < p_top_for_rrtmgp  (Case 2 above)
-        ! Not sure why this needed since pint_rad should have been specified
+        ! Not sure why is this needed since pint_rad should have been specified
         ! at RRTMGP valid values above. But this is the way it was done in
-        ! original RRTMP implentation.
+        ! original RRTMG implementation.
         pint_rad(:,1) = 1.01_kind_phys
         ! The following *should* work since pint_rad is all in valid range.
         pmid_rad(:,1) = 0.5_kind_phys * (pint_rad(:,1) + pint_rad(:,2))
