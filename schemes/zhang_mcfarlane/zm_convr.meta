@@ -441,7 +441,7 @@
   dimensions = (horizontal_loop_extent)
   intent = in
 [ rice ]
-  standard_name = vertically_integrated_cloud_ice_tendency_due_to_all_convection_to_be_applied_later_in_time_loop
+  standard_name = vertically_integrated_lwe_cloud_ice_tendency_due_to_all_convection_to_be_applied_later_in_time_loop
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)

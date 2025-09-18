@@ -73,6 +73,7 @@
     <scheme>zm_diagnostics</scheme>
 
     <!-- Check that energy and water change matches the boundary fluxes -->
+    <scheme>zm_prepare_flux_for_check_energy</scheme>
     <scheme>check_energy_scaling</scheme>
     <scheme>check_energy_chng</scheme>
 

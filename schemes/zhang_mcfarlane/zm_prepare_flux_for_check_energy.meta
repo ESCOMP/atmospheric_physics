@@ -1,0 +1,67 @@
+[ccpp-table-properties]
+  name = zm_prepare_flux_for_check_energy
+  type = scheme
+
+[ccpp-arg-table]
+  name  = zm_prepare_flux_for_check_energy_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ prec_dp ]
+  standard_name = lwe_precipitation_rate_at_surface_due_to_deep_convection
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ rliq ]
+  standard_name = vertically_integrated_cloud_liquid_water_tendency_due_to_all_convection_to_be_applied_later_in_time_loop
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ snow_dp ]
+  standard_name = lwe_frozen_precipitation_rate_at_surface_due_to_deep_convection
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ rice ]
+  standard_name = vertically_integrated_lwe_cloud_ice_tendency_due_to_all_convection_to_be_applied_later_in_time_loop
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ scheme_name ]
+  standard_name = scheme_name
+  units = none
+  type = character | kind = len=16
+  dimensions = ()
+  intent = out
+[ flx_cnd ]
+  standard_name = net_liquid_and_lwe_ice_fluxes_through_top_and_bottom_of_atmosphere_column
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ flx_ice ]
+  standard_name = net_lwe_ice_fluxes_through_top_and_bottom_of_atmosphere_column
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
