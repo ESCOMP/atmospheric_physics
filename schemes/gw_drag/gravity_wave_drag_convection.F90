@@ -13,8 +13,10 @@ module gravity_wave_drag_convection
   save
 
   ! Public CCPP-compliant interfaces.
-  public :: gravity_wave_drag_convection_init
+  public :: gravity_wave_drag_convection_deep_init
   public :: gravity_wave_drag_convection_deep_run
+
+  public :: gravity_wave_drag_convection_shallow_init
   public :: gravity_wave_drag_convection_shallow_run
 
   type :: BeresSourceDesc
@@ -37,200 +39,136 @@ module gravity_wave_drag_convection
   type(BeresSourceDesc), public :: beres_dp_desc
   type(BeresSourceDesc), public :: beres_sh_desc
   type(GWBand)          :: band_mid
+  logical               :: is_band_initialized = .false.
 
 contains
 
   ! Initialize gravity waves from convection and read in source spectra.
-  subroutine gravity_wave_drag_convection_init(&
+  subroutine gravity_wave_drag_convection_deep_init(&
              pver, pi, &
              masterproc, iulog, &
-             gw_drag_file_sh, &
              gw_drag_file_dp, &
              pref_edge, &
              gw_delta_c, &
              pgwv, &
-             use_gw_convect_dp, &
-             use_gw_convect_sh, &
              errmsg, errflg)
 
     use gw_common, only: wavelength_mid
-    use ccpp_io_reader, only: abstract_netcdf_reader_t, create_netcdf_reader_t
+
+    integer, intent(in)                           :: pver
+    real(kind_phys), intent(in)                   :: pi
+    logical, intent(in)                           :: masterproc
+    integer, intent(in)                           :: iulog
+    character(len=*),   intent(in)                :: gw_drag_file_dp
+    real(kind_phys),    intent(in)                :: pref_edge(:)
+    real(kind_phys),    intent(in)                :: gw_delta_c
+    integer, intent(in)                           :: pgwv
+
+    character(len=512), intent(out)               :: errmsg
+    integer, intent(out)                          :: errflg
+
+    integer :: k
+
+    character(len=*), parameter :: sub = 'gravity_wave_drag_convection_deep_init'
+
+    ! Initialize error variables
+    errmsg = ''
+    errflg = 0
+
+    if (.not. is_band_initialized) then
+      band_mid = GWBand(pgwv, gw_delta_c, 1.0_kind_phys, wavelength_mid)
+      is_band_initialized = .true.
+    endif
+
+    ! Set the deep scheme specification components.
+    beres_dp_desc%storm_shift = .false.
+
+    do k = 0, pver
+      ! 700 hPa index
+      if (pref_edge(k + 1) < 70000._kind_phys) beres_dp_desc%k = k + 1
+    end do
+
+    if (masterproc) then
+      write (iulog, *) sub // ': Beres deep level =', beres_dp_desc%k
+    end if
+
+    ! Don't use deep convection heating depths below this limit.
+    ! This is important for QBO. Bad result if left at 2.5 km.
+    beres_dp_desc%min_hdepth = 1000._kind_phys
+
+    ! Check that deep gw file is set in namelist
+    if (trim(gw_drag_file_dp) == "" .or. trim(gw_drag_file_dp) == "UNSET_PATH") then
+      write (errmsg, '(a, a)') sub, "No gw_drag_file provided for Beres deep ", &
+        "scheme. Set this via namelist."
+      errflg = 1
+      return
+    end if
+
+    call gw_init_beres_desc(gw_drag_file_dp, band_mid, beres_dp_desc, errmsg, errflg)
+  end subroutine gravity_wave_drag_convection_deep_init
+
+  ! Initialize gravity waves from convection and read in source spectra.
+  subroutine gravity_wave_drag_convection_shallow_init(&
+             pver, pi, &
+             masterproc, iulog, &
+             gw_drag_file_sh, &
+             pref_edge, &
+             gw_delta_c, &
+             pgwv, &
+             errmsg, errflg)
+
+    use gw_common, only: wavelength_mid
 
     integer, intent(in)                           :: pver
     real(kind_phys), intent(in)                   :: pi
     logical, intent(in)                           :: masterproc
     integer, intent(in)                           :: iulog
     character(len=*),   intent(in)                :: gw_drag_file_sh
-    character(len=*),   intent(in)                :: gw_drag_file_dp
     real(kind_phys),    intent(in)                :: pref_edge(:)
     real(kind_phys),    intent(in)                :: gw_delta_c
     integer, intent(in)                           :: pgwv
-    logical, intent(in)                           :: use_gw_convect_dp
-    logical, intent(in)                           :: use_gw_convect_sh
 
     character(len=512), intent(out)               :: errmsg
     integer, intent(out)                          :: errflg
 
-    ! Number of wavenumbers in the input file.
-    integer :: ngwv_file
-    class(abstract_netcdf_reader_t), allocatable :: reader
-
     integer :: k
 
-    character(len=*), parameter :: sub = 'gravity_wave_drag_convection_init'
+    character(len=*), parameter :: sub = 'gravity_wave_drag_convection_shallow_init'
 
     ! Initialize error variables
     errmsg = ''
     errflg = 0
 
-    if (use_gw_convect_dp .or. use_gw_convect_sh) then
+    if (.not. is_band_initialized) then
       band_mid = GWBand(pgwv, gw_delta_c, 1.0_kind_phys, wavelength_mid)
+      is_band_initialized = .true.
     endif
 
-    if (use_gw_convect_dp) then
-      ! Set the deep scheme specification components.
-      beres_dp_desc%storm_shift = .false.
+    ! Set the shallow scheme specification components.
+    beres_sh_desc%storm_shift = .false.
 
-      do k = 0, pver
-        ! 700 hPa index
-        if (pref_edge(k + 1) < 70000._kind_phys) beres_dp_desc%k = k + 1
-      end do
+    do k = 0, pver
+      ! 900 hPa index
+      if (pref_edge(k + 1) < 90000._kind_phys) beres_sh_desc%k = k + 1
+    end do
 
-      if (masterproc) then
-        write (iulog, *) 'gravity_wave_drag_convection_init: Beres deep level =', beres_dp_desc%k
-      end if
-
-      ! Don't use deep convection heating depths below this limit.
-      ! This is important for QBO. Bad result if left at 2.5 km.
-      beres_dp_desc%min_hdepth = 1000._kind_phys
-
-      ! Check that deep gw file is set in namelist
-      if (trim(gw_drag_file_dp) == "") then
-        write (errmsg, '(a, a)') sub, "No gw_drag_file provided for Beres deep ", &
-          "scheme. Set this via namelist."
-        errflg = 1
-        return
-      end if
-
-      call gw_init_beres_desc(gw_drag_file_dp, band_mid, beres_dp_desc, errmsg, errflg)
+    if (masterproc) then
+      write (iulog, *) sub //': Beres shallow level =', beres_sh_desc%k
     end if
 
-    if (use_gw_convect_sh) then
-      ! Set the shallow scheme specification components.
-      beres_sh_desc%storm_shift = .false.
+    ! Use all heating depths for shallow convection.
+    beres_sh_desc%min_hdepth = 0._kind_phys
 
-      do k = 0, pver
-        ! 900 hPa index
-        if (pref_edge(k + 1) < 90000._kind_phys) beres_sh_desc%k = k + 1
-      end do
-
-      if (masterproc) then
-        write (iulog, *) 'gw_beres_init: Beres shallow level =', beres_sh_desc%k
-      end if
-
-      ! Use all heating depths for shallow convection.
-      beres_sh_desc%min_hdepth = 0._kind_phys
-
-      ! Check that shallow gw file is set in namelist
-      if (trim(gw_drag_file_sh) == "") then
-        write (errmsg, '(a, a)') sub, "No gw_drag_file provided for Beres shallow ", &
-          "scheme. Set this via namelist."
-        errflg = 1
-        return
-      end if
-
-      call gw_init_beres_desc(gw_drag_file_sh, band_mid, beres_sh_desc, errmsg, errflg)
+    ! Check that shallow gw file is set in namelist
+    if (trim(gw_drag_file_sh) == "" .or. trim(gw_drag_file_sh) == "UNSET_PATH") then
+      write (errmsg, '(a, a)') sub, "No gw_drag_file provided for Beres shallow ", &
+        "scheme. Set this via namelist."
+      errflg = 1
+      return
     end if
-  contains
-    subroutine gw_init_beres_desc(file_path, band, desc, errmsg, errflg)
-      type(GWBand), intent(in)                 :: band
-      type(BeresSourceDesc), intent(inout)     :: desc
-      character(len=*), intent(in)             :: file_path
-      character(len=512), intent(out)          :: errmsg
-      integer, intent(out)                     :: errflg
 
-      character(len=*), parameter              :: sub = 'gw_init_beres_desc'
-      real(kind_phys),  allocatable            :: tmp_var1d(:)
-      real(kind_phys),  allocatable            :: file_mfcc(:, :, :) !is the lookup table from the file f(depth, wind, phase speed)
-
-      ! Read Beres file.
-      reader = create_netcdf_reader_t()
-
-      ! Open file
-      call reader%open_file(file_path, errmsg, errflg)
-      if (errflg /= 0) then
-        return
-      end if
-
-      ! Get HD (heating depth) dimension.
-      call reader%get_var('HD', desc%hd, errmsg, errflg)
-      if (errflg /= 0) then
-        return
-      end if
-      desc%maxh = size(desc%hd)
-
-      ! Get MW (mean wind) dimension.
-      call reader%get_var('MW', tmp_var1d, errmsg, errflg)
-      if (errflg /= 0) then
-        return
-      end if
-      desc%maxuh = size(tmp_var1d)
-      deallocate(tmp_var1d, stat=errflg)
-
-      ! Get PS (phase speed) dimension.
-      call reader%get_var('PS', tmp_var1d, errmsg, errflg)
-      if (errflg /= 0) then
-        return
-      end if
-      ngwv_file = size(tmp_var1d)
-      deallocate(tmp_var1d, stat=errflg)
-
-      ! Number in each direction is half of total (and minus phase speed of 0).
-      desc%maxuh = (desc%maxuh - 1)/2
-      ngwv_file = (ngwv_file - 1)/2
-
-      ! Check for inconsistency between file and model variable
-      if (ngwv_file < band%ngwv) then
-        write (errmsg, '(a, a, i4, a, i4)') sub, "PhaseSpeed in lookup table file ", &
-          ngwv_file, "does not cover the whole spectrum implied by the model ngwv. ", band%ngwv
-        errflg = 1
-        return
-      end if
-
-      ! While not currently documented in the file, it uses kilometers. Convert
-      ! to meters.
-      desc%hd = desc%hd*1000._kind_phys
-
-      ! Allocate mfcc. "desc%maxh" and "desc%maxuh" are from the file, but the
-      ! model determines wavenumber dimension.
-      allocate (desc%mfcc(desc%maxh, -desc%maxuh:desc%maxuh, &
-                          -band%ngwv:band%ngwv), stat=errflg, errmsg=errmsg)
-      if(errflg /= 0) return
-
-      ! Get mfcc data.
-      call reader%get_var('mfcc', file_mfcc, errmsg, errflg)
-      if (errflg /= 0) then
-        return
-      end if
-
-      desc%mfcc(:, -desc%maxuh:desc%maxuh, -band%ngwv:band%ngwv) = file_mfcc(:, :, ngwv_file-band%ngwv+1:ngwv_file+band%ngwv+1)
-      ! 2*band%ngwv = (ngwv_file+band%ngwv+1-ngwv_file+band%ngwv-1)
-      ! the file may cover more than what is requested of ngwv, so the bounds (lower and upper) to be specified explicitly.
-
-      ! Close file
-      call reader%close_file(errmsg, errflg)
-      if (errflg /= 0) then
-        return
-      end if
-
-      if (masterproc) then
-        write (iulog, *) "gravity_wave_drag_convection: Read in source spectra from file."
-        write (iulog, *) "gravity_wave_drag_convection: mfcc max, min = ", &
-          maxval(desc%mfcc), ", ", minval(desc%mfcc)
-      end if
-
-    end subroutine gw_init_beres_desc
-  end subroutine gravity_wave_drag_convection_init
+    call gw_init_beres_desc(gw_drag_file_sh, band_mid, beres_sh_desc, errmsg, errflg)
+  end subroutine gravity_wave_drag_convection_shallow_init
 
   ! Convective gravity waves (Beres scheme, deep).
   subroutine gravity_wave_drag_convection_deep_run(&
@@ -675,6 +613,102 @@ contains
   end subroutine gravity_wave_drag_convection_shallow_run
 
 !==========================================================================
+
+  ! Initialization / IO routine used by the two init routines.
+  subroutine gw_init_beres_desc(file_path, band, desc, errmsg, errflg)
+    use ccpp_io_reader, only: abstract_netcdf_reader_t, create_netcdf_reader_t
+
+    type(GWBand),          intent(in)        :: band
+    type(BeresSourceDesc), intent(inout)     :: desc
+    character(len=*),      intent(in)        :: file_path
+    character(len=512),    intent(out)       :: errmsg
+    integer,               intent(out)       :: errflg
+
+    character(len=*), parameter              :: sub = 'gw_init_beres_desc'
+    real(kind_phys),  allocatable            :: tmp_var1d(:)
+    real(kind_phys),  allocatable            :: file_mfcc(:, :, :) ! lookup table from the file f(depth, wind, phase speed)
+    class(abstract_netcdf_reader_t), allocatable :: reader
+
+    ! Number of wavenumbers in the input file.
+    integer :: ngwv_file
+
+    ! Read Beres file.
+    reader = create_netcdf_reader_t()
+
+    ! Open file
+    call reader%open_file(file_path, errmsg, errflg)
+    if (errflg /= 0) then
+      return
+    end if
+
+    ! Get HD (heating depth) dimension.
+    call reader%get_var('HD', desc%hd, errmsg, errflg)
+    if (errflg /= 0) then
+      return
+    end if
+    desc%maxh = size(desc%hd)
+
+    ! Get MW (mean wind) dimension.
+    call reader%get_var('MW', tmp_var1d, errmsg, errflg)
+    if (errflg /= 0) then
+      return
+    end if
+    desc%maxuh = size(tmp_var1d)
+    deallocate(tmp_var1d, stat=errflg)
+
+    ! Get PS (phase speed) dimension.
+    call reader%get_var('PS', tmp_var1d, errmsg, errflg)
+    if (errflg /= 0) then
+      return
+    end if
+    ngwv_file = size(tmp_var1d)
+    deallocate(tmp_var1d, stat=errflg)
+
+    ! Number in each direction is half of total (and minus phase speed of 0).
+    desc%maxuh = (desc%maxuh - 1)/2
+    ngwv_file = (ngwv_file - 1)/2
+
+    ! Check for inconsistency between file and model variable
+    if (ngwv_file < band%ngwv) then
+      write (errmsg, '(a, a, i4, a, i4)') sub, "PhaseSpeed in lookup table file ", &
+        ngwv_file, "does not cover the whole spectrum implied by the model ngwv. ", band%ngwv
+      errflg = 1
+      return
+    end if
+
+    ! While not currently documented in the file, it uses kilometers. Convert
+    ! to meters.
+    desc%hd = desc%hd*1000._kind_phys
+
+    ! Allocate mfcc. "desc%maxh" and "desc%maxuh" are from the file, but the
+    ! model determines wavenumber dimension.
+    allocate (desc%mfcc(desc%maxh, -desc%maxuh:desc%maxuh, &
+                        -band%ngwv:band%ngwv), stat=errflg, errmsg=errmsg)
+    if(errflg /= 0) return
+
+    ! Get mfcc data.
+    call reader%get_var('mfcc', file_mfcc, errmsg, errflg)
+    if (errflg /= 0) then
+      return
+    end if
+
+    desc%mfcc(:, -desc%maxuh:desc%maxuh, -band%ngwv:band%ngwv) = file_mfcc(:, :, ngwv_file-band%ngwv+1:ngwv_file+band%ngwv+1)
+    ! 2*band%ngwv = (ngwv_file+band%ngwv+1-ngwv_file+band%ngwv-1)
+    ! the file may cover more than what is requested of ngwv, so the bounds (lower and upper) to be specified explicitly.
+
+    ! Close file
+    call reader%close_file(errmsg, errflg)
+    if (errflg /= 0) then
+      return
+    end if
+
+    if (masterproc) then
+      write (iulog, *) "gravity_wave_drag_convection: Read in source spectra from file."
+      write (iulog, *) "gravity_wave_drag_convection: mfcc max, min = ", &
+        maxval(desc%mfcc), ", ", minval(desc%mfcc)
+    end if
+
+  end subroutine gw_init_beres_desc
 
   ! Driver for multiple gravity wave drag parameterization.
   !
