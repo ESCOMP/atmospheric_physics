@@ -38,7 +38,7 @@ jobs:
           path: $GITHUB_WORKSPACE/.lib/git-fleximod
 
       - name: create git-fleximod script
-        run:
+        run: |
           echo
           echo "Creating git-fleximod python srcript..."
 
