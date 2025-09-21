@@ -34,8 +34,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ESMCI/git-fleximod
+          fetch-depth: 1
           ref: main
           path: .lib/git-fleximod  #Must use relative path here.
+
+      # This action is needed to prevent fleximod
+      # from tripping over itself:
+      - name: Remove git info from fleximod checkout
+        run: rm -rf .lib/git-fleximod/.git
 
       - name: create git-fleximod script
         run: |
