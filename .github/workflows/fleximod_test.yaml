@@ -35,7 +35,7 @@ jobs:
         with:
           repository: ESMCI/git-fleximod
           ref: main
-          path: $GITHUB_WORKSPACE/.lib/git-fleximod
+          path: .lib/git-fleximod  #Must use relative path here.
 
       - name: create git-fleximod script
         run: |
