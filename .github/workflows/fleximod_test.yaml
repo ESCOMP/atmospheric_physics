@@ -42,6 +42,8 @@ jobs:
           echo
           echo "Creating git-fleximod python srcript..."
 
+          ls $GITHUB_WORKSPACE/.lib/git-fleximod #DEBUG-JN
+
           #Create new directory:
           mkdir $GITHUB_WORKSPACE/bin
 
@@ -51,6 +53,7 @@ jobs:
           import sys
           import os
           sys.path.insert(0,os.path.abspath(os.path.join(os.path.dirname(__file__),"..",".lib","git-fleximod")))
+          print(os.path.abspath(os.path.join(os.path.dirname(__file__),"..",".lib","git-fleximod")) #DEBUG-JN
           from git_fleximod.git_fleximod import main
 
           if __name__ == '__main__':
