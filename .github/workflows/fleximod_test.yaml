@@ -55,7 +55,7 @@ jobs:
           import sys
           import os
           sys.path.insert(0,os.path.abspath(os.path.join(os.path.dirname(__file__),"..",".lib","git-fleximod")))
-          print(os.path.abspath(os.path.join(os.path.dirname(__file__),"..",".lib","git-fleximod")) #DEBUG-JN
+          print(os.path.abspath(os.path.join(os.path.dirname(__file__),"..",".lib","git-fleximod"))) #DEBUG-JN
           from git_fleximod.git_fleximod import main
 
           if __name__ == '__main__':
