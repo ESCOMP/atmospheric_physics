@@ -40,8 +40,8 @@ jobs:
 
       # This action is needed to prevent fleximod
       # from tripping over itself:
-      - name: Remove git info from fleximod checkout
-        run: rm -rf .lib/git-fleximod/.git
+      #- name: Remove git info from fleximod checkout
+      #  run: rm -rf .lib/git-fleximod/.git
 
       - name: create git-fleximod script
         run: |
@@ -72,14 +72,6 @@ jobs:
           chmod a+x $GITHUB_WORKSPACE/bin/git-fleximod
 
           echo "...git-fleximod python script generated."
-
-      # Need to commit the new code locally
-      # in order to avoid a git diff failure.
-      #- name: commit fleximod code
-      #  run: |
-      #    git add .lib
-      #    git add bin
-      #    git commit -m "Committing git-fleximod to avoid false diff"
 
       - name: run git-fleximod
         run: |
