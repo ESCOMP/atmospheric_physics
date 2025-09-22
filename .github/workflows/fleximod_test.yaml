@@ -75,11 +75,11 @@ jobs:
 
       # Need to commit the new code locally
       # in order to avoid a git diff failure.
-      - name: commit fleximod code
-        run: |
-          git add .lib
-          git add bin
-          git commit -m "Committing git-fleximod to avoid false diff"
+      #- name: commit fleximod code
+      #  run: |
+      #    git add .lib
+      #    git add bin
+      #    git commit -m "Committing git-fleximod to avoid false diff"
 
       - name: run git-fleximod
         run: |
@@ -93,4 +93,6 @@ jobs:
           echo
           echo "Checking if git fleximod matches expected externals"
           echo
-          git add . && git diff --exit-code && git diff --cached --exit-code
+          git add .
+          git diff --exit-code -- . ':(exclude).lib' ':(exclude)bin'
+          git diff --cached --exit-code -- . ':(exclude).lib' ':(exclude)bin'
