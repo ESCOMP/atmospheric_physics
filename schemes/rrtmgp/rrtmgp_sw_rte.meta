@@ -64,12 +64,6 @@
   type = ty_optical_props_2str_ccpp
   dimensions = ()
   intent = inout
-[ top_at_1 ]
-  standard_name = do_top_at_one_vertical_ordering_in_radiation
-  units = flag
-  type = logical
-  dimensions = ()
-  intent = in
 [ aersw ]
   standard_name = shortwave_aerosol_optical_properties_object_for_RRTMGP
   units = none

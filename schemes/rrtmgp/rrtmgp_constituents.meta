@@ -117,8 +117,8 @@
   type = logical
   dimensions = ()
   intent = out
-[ top_at_one ]
-  standard_name = do_top_at_one_vertical_ordering_in_radiation
+[ is_mpas ]
+  standard_name = is_mpas_dynamical_core
   units = flag
   type = logical
   dimensions = ()

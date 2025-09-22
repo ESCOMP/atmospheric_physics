@@ -116,7 +116,7 @@ contains
 !!
    subroutine rrtmgp_constituents_init(ndiag, ncol, unset_real, active_call_array, &
       rrtmgp_phys_blksz_lw, rrtmgp_phys_blksz_sw, tlev, fluxlwup_Jac, rad_heat, fsnt, fsns, is_first_restart_step,    &
-      use_tlev, top_at_one, errmsg, errflg)
+      use_tlev, is_mpas, errmsg, errflg)
       use ccpp_kinds, only: kind_phys
       integer,             intent(in) :: ndiag
       integer,             intent(in) :: ncol
@@ -131,7 +131,7 @@ contains
       real(kind_phys),    intent(out) :: fsns(:)
       logical,            intent(out) :: is_first_restart_step
       logical,            intent(out) :: use_tlev
-      logical,            intent(out) :: top_at_one
+      logical,            intent(out) :: is_mpas
       character(len=512), intent(out) :: errmsg
       integer,            intent(out) :: errflg
 
@@ -141,7 +141,7 @@ contains
 
       active_call_array = .true.
       is_first_restart_step = .false.
-      top_at_one = .true.
+      is_mpas = .false.
 
       rrtmgp_phys_blksz_lw = ncol
       rrtmgp_phys_blksz_sw = ncol

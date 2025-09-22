@@ -64,12 +64,6 @@
   type = ty_optical_props_1scl_ccpp
   dimensions = ()
   intent = inout
-[ top_at_1 ]
-  standard_name = do_top_at_one_vertical_ordering_in_radiation
-  units = flag
-  type = logical
-  dimensions = ()
-  intent = in
 [ sources ]
   standard_name = longwave_planck_sources_object_for_RRTMGP
   units = none
