@@ -38,10 +38,6 @@ jobs:
           echo
           echo "Creating git-fleximod python srcript..."
 
-          ls -a $GITHUB_WORKSPACE
-          ls -a ..
-          ls $GITHUB_WORKSPACE/.lib/git-fleximod #DEBUG-JN
-
           #Create new directory:
           mkdir $GITHUB_WORKSPACE/bin
 
