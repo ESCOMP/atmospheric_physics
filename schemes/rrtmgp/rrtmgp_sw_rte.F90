@@ -13,8 +13,8 @@ contains
 !! \htmlinclude rrtmgp_sw_rte_run.html
 !!
    subroutine rrtmgp_sw_rte_run(doswrad, doswclrsky, doswallsky, nday, iter_num, rrtmgp_phys_blksz, sw_optical_props, &
-                                 sw_optical_props_clouds, top_at_1, aersw, coszen, toa_src_sw,      &
-                                 sfc_alb_dir, sfc_alb_dif, flux_clrsky, flux_allsky, errmsg, errflg)
+                                 sw_optical_props_clouds, aersw, coszen, toa_src_sw, sfc_alb_dir, sfc_alb_dif,        &
+                                 flux_clrsky, flux_allsky, errmsg, errflg)
     use machine,                  only: kind_phys
     use mo_rte_sw,                only: rte_sw
     use ccpp_optical_props,       only: ty_optical_props_2str_ccpp
@@ -26,7 +26,6 @@ contains
     logical, intent(in) :: doswrad                                              !< Flag to perform shortwave calculation
     logical, intent(in) :: doswclrsky                                           !< Flag to compute clear-sky fluxes
     logical, intent(in) :: doswallsky                                           !< Flag to compute all-sky fluxes
-    logical, intent(in) :: top_at_1                                             !< Flag for vertical ordering convention
 
     integer, intent(in) :: nday                                                 !< Number of horizontal daylight points
     integer, intent(in) :: iter_num                                             !< Radiation subcycle iteration number
@@ -74,14 +73,14 @@ contains
 
     ! Optionally compute clear-sky fluxes
     if (doswclrsky) then
-       call check_error_msg('rrtmgp_sw_rte_rte_sw_clrsky',rte_sw(     &
+       errmsg = rte_sw(     &
                   sw_optical_props%optical_props,    & ! IN  - optical-properties
-                  top_at_1,                          & ! IN  - veritcal ordering flag
                   coszen(iCol:iCol2),                      & ! IN  - Cosine of solar zenith angle
                   toa_src_sw,                              & ! IN  - incident solar flux at TOA
                   sfc_alb_dir,                             & ! IN  - Shortwave surface albedo (direct)
                   sfc_alb_dif,                             & ! IN  - Shortwave surface albedo (diffuse)
-                  flux_clrsky%fluxes))                       ! OUT - Fluxes, clear-sky, 3D (1,nLay,nBand)
+                  flux_clrsky%fluxes)                        ! OUT - Fluxes, clear-sky, 3D (1,nLay,nBand)
+       call check_error_msg('rrtmgp_sw_rte_rte_sw_clrsky', errmsg)
        if (len_trim(errmsg) /= 0) then
            errflg = 1
            return
@@ -95,23 +94,23 @@ contains
     ! ###################################################################################
 
     if (doswallsky) then
-       ! Delta scale
-       !call check_error_msg('rrtmgp_sw_rte_delta_scale',sw_optical_props_clouds%delta_scale())
-
        ! Increment
-       call check_error_msg('rrtmgp_sw_rte_increment_clouds_to_clrsky', &
-            sw_optical_props_clouds%optical_props%increment(sw_optical_props%optical_props))
+       errmsg = sw_optical_props_clouds%optical_props%increment(sw_optical_props%optical_props)
+       call check_error_msg('rrtmgp_sw_rte_increment_clouds_to_clrsky', errmsg)
+       if (len_trim(errmsg) /= 0) then
+          errflg = 1
+          return
+       end if
 
        ! Compute fluxes
-       call check_error_msg('rrtmgp_sw_rte_rte_sw_allsky',rte_sw(     &
+       errmsg = rte_sw(     &
             sw_optical_props%optical_props,  & ! IN  - optical-properties
-            top_at_1,                        & ! IN  - veritcal ordering flag
             coszen(iCol:iCol2),              & ! IN  - Cosine of solar zenith angle
             toa_src_sw,                      & ! IN  - incident solar flux at TOA
             sfc_alb_dir,                     & ! IN  - Shortwave surface albedo (direct)
             sfc_alb_dif,                     & ! IN  - Shortwave surface albedo (diffuse)
-            flux_allsky%fluxes))               ! OUT - Fluxes, clear-sky, 3D (1,nLay,nBand)
-
+            flux_allsky%fluxes)                ! OUT - Fluxes, all-sky, 3D (1,nLay,nBand)
+       call check_error_msg('rrtmgp_sw_rte_rte_sw_allskky', errmsg)
        if (len_trim(errmsg) /= 0) then
           errflg = 1
        end if

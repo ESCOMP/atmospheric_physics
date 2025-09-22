@@ -4,7 +4,6 @@
 ! to approximate the spectral distribution of irradiance
 ! when the radiation scheme might use a different solar source function
 !-------------------------------------------------------------------------------
-! peverwhee - dependencies = radiation_utils, mo_util
 module rrtmgp_sw_solar_var
 
   use ccpp_kinds,        only : kind_phys

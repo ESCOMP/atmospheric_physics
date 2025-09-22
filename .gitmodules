@@ -1,7 +1,7 @@
 [submodule "mmm-physics"]
 	path = schemes/mmm/mmm_physics
 	url = https://github.com/NCAR/MMM-physics.git
-	fxtag = 20240626-MPASv8.2
+	fxtag = 20250616-MPASv8.3
 	fxrequired = AlwaysRequired
 	fxDONOTUSEurl = https://github.com/NCAR/MMM-physics.git
 [submodule "pumas"]
@@ -14,5 +14,5 @@
 	path = schemes/rrtmgp/ext
 	url = https://github.com/earth-system-radiation/rte-rrtmgp.git
         fxrequired = AlwaysRequired
-        fxtag = v1.7
+        fxtag = v1.9.2
         fxDONOTUSEurl = https://github.com/earth-system-radiation/rte-rrtmgp.git

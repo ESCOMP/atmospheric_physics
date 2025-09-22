@@ -12,9 +12,9 @@ module rrtmgp_inputs
 !! \htmlinclude rrtmgp_inputs_run.html
 !!
   subroutine rrtmgp_inputs_run(dosw, dolw, snow_associated, graupel_associated, &
-                  pmid, pint, t, nday, idxday, cldfprime, &
-                  coszrs, kdist_sw, t_sfc, emis_sfc, t_rad, pmid_rad,     &
-                  pint_rad, t_day, pmid_day, pint_day, coszrs_day,        &
+                  is_root, iulog, is_mpas, pmid, pint, t, nday, idxday,          &
+                  cldfprime, coszrs, kdist_sw, t_sfc, emis_sfc, t_rad,          &
+                  pmid_rad, pint_rad, t_day, pmid_day, pint_day, coszrs_day,    &
                   alb_dir, alb_dif, lwup, stebol, ncol, ktopcam, ktoprad, &
                   nswbands, asdir, asdif, sw_low_bounds, sw_high_bounds,  &
                   aldir, aldif, nlay, pverp, pver, cld, cldfsnow,         &
@@ -28,6 +28,7 @@ module rrtmgp_inputs
      use ccpp_gas_concentrations, only: ty_gas_concs_ccpp
      use ccpp_source_functions,   only: ty_source_func_lw_ccpp
      use atmos_phys_rad_utils,    only: is_visible
+
      ! Inputs
      logical,                              intent(in) :: graupel_in_rad        ! Flag to include graupel in radiation calculation
      integer,                              intent(in) :: ncol                  ! Number of columns
@@ -43,6 +44,9 @@ module rrtmgp_inputs
      logical,                              intent(in) :: dolw                  ! Flag for performing the longwave calculation
      logical,                              intent(in) :: snow_associated       ! Flag for whether the cloud snow fraction argument should be used
      logical,                              intent(in) :: graupel_associated    ! Flag for whether the cloud graupel fraction argument should be used
+     logical,                              intent(in) :: is_root
+     logical,                              intent(in) :: is_mpas
+     integer,                              intent(in) :: iulog
      integer,         dimension(:),        intent(in) :: idxday                ! Indices of daylight columns
      real(kind_phys), dimension(:,:),      intent(in) :: pmid                  ! Air pressure at midpoint (Pa)
      real(kind_phys), dimension(:,:),      intent(in) :: pint                  ! Air pressure at interface (Pa)
@@ -90,6 +94,7 @@ module rrtmgp_inputs
      real(kind_phys) :: tref_min
      real(kind_phys) :: tref_max
      integer :: idx, kdx, iband
+     logical :: ltrick_rrtmgp
 
      ! Set error variables
      errmsg = ''
@@ -97,6 +102,37 @@ module rrtmgp_inputs
 
      if (.not. dosw .and. .not. dolw) then
         return
+     end if
+
+     !------------------------------------------------------------------------------
+     ! Compile logic to determine whether it is necessary AND possible to 'trick'
+     ! rrtmgp to violate its own validity limits by hacking its vertical grid.
+     ! Conditions:
+     !   1) top CAM interface (k=1) is above 1 Pa
+     !   2) next interface (k=2) is below 1 Pa
+     !   3) RRTMGP is asked to active over ALL CAM layers
+     !      (nlay=pverp, e.g., set by spec p_top_for_equil_rad=0.)
+     !   4) dycore is NOT MPAS
+     !
+     ! These conditions are generally only satisfied in a non-MPAS MT configuration
+     !------------------------------------------------------------------------------
+     if (( .not. is_mpas ) .and. &
+          (nlay==pverp) .and. &
+          (minval(pint(:,1)) < 1._kind_phys) .and. &
+          (minval(pint(:,2)) > 1._kind_phys) ) then
+        ! we can and need to trick rrtmgp
+        ltrick_rrtmgp = .true.
+     else
+        ! we cannot or don't need to trick rrtmgp
+        ltrick_rrtmgp = .false.
+     end if
+
+     if (is_root) then
+        if (ltrick_rrtmgp) then
+           write(iulog,*) ' *** TRICKING RRTMGP INTO GOING AN EXTRA LEVEL  ',nlay,pverp
+        else
+           write(iulog,*) ' *** CANT or WONT trick RRTMGP ',nlay,pverp
+        end if
      end if
 
      ! RRTMGP set state
@@ -111,16 +147,16 @@ module rrtmgp_inputs
 
      !-------------------------------------------------------------------------
      ! RRTMGP enforces  P > 1 Pa for validity.
-     ! In radiation.F90 we count layers based on P_ref > 10 Pa to safely account
-     ! for possible situations in MPAS (z-based vert. coordinate) in which
-     ! full 3D pressure could be significanlty below min(P_ref).
+     ! Actual range of RRTMGP in CAM is set with namelist variable p_top_for_equil_rad.
+     ! In rrtmg_inputs_setup.F90, active layers for RRTMGP are counted based on
+     ! the logical P_ref > p_top_for_equil_rad. Returned as nlay.
      !
      ! If 
-     ! 1) entire vertical domain has P_ref> 10Pa (e.g. CAM7 LT) then
+     ! 1) entire vertical domain has P_ref> p_top_for_equil_rad then
      !    nlay = pverp
      !    ktoprad = 2
      !    ktopcam = 1
-     ! 2) min(P_ref) < 10Pa (e.g. CAM7 MT) then
+     ! 2) min(P_ref) < p_top_for_equil_rad (e.g. MPAS MT) then
      !    nlay < pverp
      !    ktoprad = 1
      !    ktopcam = pver - nlay + 1
@@ -135,23 +171,31 @@ module rrtmgp_inputs
 
      ! Deal with vertical grid for RRTMGP 
      if (nlay == pverp) then
-        ! This case is the CAM7 LT situation, i.e., all model layers are
-        ! within RRTMGP's range of valid pressures - (Case 1 above)
+        ! All model layers are within RRTMGP's range of valid pressures
+        ! as specified by p_top_for_equil_rad - (Case 1 above)
         t_rad(:,1)      = t(:,1)
-        ! The top reference pressure from the RRTMGP coefficients datasets is 1.005183574463 Pa
-        ! Set the top of the extra layer just below that.
-        pint_rad(:,1) = 1.01_kind_phys
-        ! set the highest pmid (in the "extra layer") to the midpoint (guarantees > 1Pa) 
-        pmid_rad(:,1)   = pint_rad(:,1) + 0.5_kind_phys * (pint_rad(:,2) - pint_rad(:,1))
+        if (ltrick_rrtmgp) then
+           ! The top reference pressure from the RRTMGP coefficients datasets is 1.005183574463 Pa
+           ! Set the top of the extra layer just below that.
+           pint_rad(:,1) = 1.01_kind_phys
+           pint_rad(:,2) = 1.02_kind_phys
+           ! set the highest pmid (in the "extra layer") to the midpoint (guarantees > 1Pa)
+           pmid_rad(:,1)   = 1.015_kind_phys ! pint_rad(:,1) + 0.5_kind_phys * (pint_rad(:,2) - pint_rad(:,1))
+           pmid_rad(:,2)   = 0.5*(pint_rad(:,2) + pint_rad(:,3))
+        else
+           ! The top reference pressure from the RRTMGP coefficients datasets is 1.005183574463 Pa
+           ! Set the top of the extra layer just below that.
+           pint_rad(:,1) = 1.01_kind_phys
+           ! set the highest pmid (in the "extra layer") to the midpoint (guarantees > 1Pa)
+           pmid_rad(:,1)   = pint_rad(:,1) + 0.5_kind_phys * (pint_rad(:,2) - pint_rad(:,1))
+        end if
      else
         ! nlay < pverp : model min(pref) < p_top_for_rrtmgp  (Case 2 above)
-        ! min(pref) could be 9.999 or 0.0999  
-        ! Assuming the top interface of this layer is at a pressure < 1 Pa, we need to adjust
-        ! so that it is within the valid pressure range of RRTMGP (otherwise RRTMGP issues
-        ! an error).  Then we set the midpoint pressure halfway between the interfaces.
+        ! Not sure why is this needed since pint_rad should have been specified
+        ! at RRTMGP valid values above. But this is the way it was done in
+        ! original RRTMG implementation.
         pint_rad(:,1) = 1.01_kind_phys
         ! The following *should* work since pint_rad is all in valid range.
-        ! Need to think about possible edge cases ... (jtb 07/31/25)
         pmid_rad(:,1) = 0.5_kind_phys * (pint_rad(:,1) + pint_rad(:,2))
      end if
 

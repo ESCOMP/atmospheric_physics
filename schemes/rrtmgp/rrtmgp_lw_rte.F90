@@ -13,8 +13,8 @@ contains
 !! \htmlinclude rrtmgp_lw_rte_run.html
 !!
    subroutine rrtmgp_lw_rte_run(doLWrad, doLWclrsky, doGP_lwscat, use_LW_jacobian, use_LW_optimal_angles,   &
-                                 nGauss_angles, lw_optical_props_clrsky, lw_optical_props_clouds, top_at_1,  &
-                                 sources, sfc_emiss_byband, lw_gas_props, aerlw, fluxlwUP_jac, lw_Ds,        &
+                                 nGauss_angles, lw_optical_props_clrsky, lw_optical_props_clouds,           &
+                                 sources, sfc_emiss_byband, lw_gas_props, aerlw, fluxlwUP_jac, lw_Ds,       &
                                  flux_clrsky, flux_allsky, errmsg, errflg)
     use machine,                  only: kind_phys
     use mo_rte_lw,                only: rte_lw
@@ -31,7 +31,6 @@ contains
     logical, intent(in) :: doGP_lwscat           !< Flag to include scattering in clouds
     logical, intent(in) :: use_LW_jacobian       !< Flag to compute Jacobian
     logical, intent(in) :: use_LW_optimal_angles !< Flag to compute and use optimal angles
-    logical, intent(in) :: top_at_1              !< Flag for vertical ordering convention
 
     integer, target, intent(in) :: nGauss_angles !< Number of gaussian quadrature angles used
 
@@ -83,7 +82,6 @@ contains
           if (nGauss_angles > 1) then
              errmsg = rte_lw(           &
                   lw_optical_props_clrsky%optical_props, & ! IN  - optical-properties
-                  top_at_1,                              & ! IN  - vertical ordering flag
                   sources%sources,                       & ! IN  - source function
                   sfc_emiss_byband,                      & ! IN  - surface emissivity in each LW band
                   flux_clrsky%fluxes,                    & ! OUT - Fluxes
@@ -92,7 +90,6 @@ contains
           else
              errmsg = rte_lw(           &
                   lw_optical_props_clrsky%optical_props, & ! IN  - optical-properties
-                  top_at_1,                              & ! IN  - vertical ordering flag
                   sources%sources,                       & ! IN  - source function
                   sfc_emiss_byband,                      & ! IN  - surface emissivity in each LW band
                   flux_clrsky%fluxes,                    & ! OUT - Fluxes
@@ -102,7 +99,6 @@ contains
           if (nGauss_angles > 1) then
              errmsg = rte_lw(           &
                   lw_optical_props_clrsky%optical_props, & ! IN  - optical-properties
-                  top_at_1,                              & ! IN  - vertical ordering flag
                   sources%sources,                       & ! IN  - source function
                   sfc_emiss_byband,                      & ! IN  - surface emissivity in each LW band
                   flux_clrsky%fluxes,                    & ! OUT - Fluxes
@@ -110,7 +106,6 @@ contains
           else
              errmsg = rte_lw(           &
                   lw_optical_props_clrsky%optical_props, & ! IN  - optical-properties
-                  top_at_1,                              & ! IN  - vertical ordering flag
                   sources%sources,                       & ! IN  - source function
                   sfc_emiss_byband,                      & ! IN  - surface emissivity in each LW band
                   flux_clrsky%fluxes)                      ! OUT - Fluxes
@@ -151,7 +146,6 @@ contains
           if (nGauss_angles > 1) then
              errmsg = rte_lw(           &
                   lw_optical_props_clouds%optical_props, & ! IN  - optical-properties
-                  top_at_1,                              & ! IN  - vertical ordering flag
                   sources%sources,                       & ! IN  - source function
                   sfc_emiss_byband,                      & ! IN  - surface emissivity in each LW band
                   flux_allsky%fluxes,                    & ! OUT - Fluxes
@@ -160,7 +154,6 @@ contains
           else
              errmsg = rte_lw(           &
                   lw_optical_props_clouds%optical_props, & ! IN  - optical-properties
-                  top_at_1,                              & ! IN  - vertical ordering flag
                   sources%sources,                       & ! IN  - source function
                   sfc_emiss_byband,                      & ! IN  - surface emissivity in each LW band
                   flux_allsky%fluxes,                    & ! OUT - Fluxes
@@ -170,7 +163,6 @@ contains
           if (nGauss_angles > 1) then
              errmsg = rte_lw(           &
                   lw_optical_props_clouds%optical_props, & ! IN  - optical-properties
-                  top_at_1,                              & ! IN  - vertical ordering flag
                   sources%sources,                       & ! IN  - source function
                   sfc_emiss_byband,                      & ! IN  - surface emissivity in each LW band
                   flux_allsky%fluxes,                    & ! OUT - Fluxes
@@ -178,7 +170,6 @@ contains
           else
              errmsg = rte_lw(           &
                   lw_optical_props_clouds%optical_props, & ! IN  - optical-properties
-                  top_at_1,                              & ! IN  - vertical ordering flag
                   sources%sources,                       & ! IN  - source function
                   sfc_emiss_byband,                      & ! IN  - surface emissivity in each LW band
                   flux_allsky%fluxes)                      ! OUT - Fluxes
@@ -198,7 +189,6 @@ contains
           if (nGauss_angles > 1) then
              errmsg = rte_lw(           &
                   lw_optical_props_clrsky%optical_props, & ! IN  - optical-properties
-                  top_at_1,                              & ! IN  - vertical ordering flag
                   sources%sources,                       & ! IN  - source function
                   sfc_emiss_byband,                      & ! IN  - surface emissivity in each LW band
                   flux_allsky%fluxes,                    & ! OUT - Fluxes
@@ -207,7 +197,6 @@ contains
           else
              errmsg = rte_lw(           &
                   lw_optical_props_clrsky%optical_props, & ! IN  - optical-properties
-                  top_at_1,                              & ! IN  - vertical ordering flag
                   sources%sources,                       & ! IN  - source function
                   sfc_emiss_byband,                      & ! IN  - surface emissivity in each LW band
                   flux_allsky%fluxes,                    & ! OUT - Fluxes
@@ -217,7 +206,6 @@ contains
           if (nGauss_angles > 1) then
              errmsg = rte_lw(           &
                   lw_optical_props_clrsky%optical_props, & ! IN  - optical-properties
-                  top_at_1,                              & ! IN  - vertical ordering flag
                   sources%sources,                       & ! IN  - source function
                   sfc_emiss_byband,                      & ! IN  - surface emissivity in each LW band
                   flux_allsky%fluxes,                    & ! OUT - Fluxes
@@ -225,7 +213,6 @@ contains
           else
              errmsg = rte_lw(           &
                   lw_optical_props_clrsky%optical_props, & ! IN  - optical-properties
-                  top_at_1,                              & ! IN  - vertical ordering flag
                   sources%sources,                       & ! IN  - source function
                   sfc_emiss_byband,                      & ! IN  - surface emissivity in each LW band
                   flux_allsky%fluxes)                      ! OUT - Fluxes
