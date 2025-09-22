@@ -314,7 +314,7 @@ module rrtmgp_inputs
         ! PEVERWHEE - ZERO AEROSOLS FOR TESTING
         aer_sw%optical_props%tau = 0.0_kind_phys
         aer_sw%optical_props%g = 0.0_kind_phys
-        aer_sw%optical_props%ssa = 0.0_kind_phys
+        aer_sw%optical_props%ssa = 1.0_kind_phys
      end if
 
      if (dolw) then
