@@ -11,12 +11,7 @@
 #here to run the test described
 #above.
 
-#on: pull_request
-on:
-  push:
-    branches:
-      - fleximod_test
-  pull_request:
+on: pull_request
 
 jobs:
   fleximod-test:
