@@ -4,7 +4,7 @@
 # match the hashes or tags that
 # are committed for the git submodules
 # in this repository.
- 
+
 # If this test is failing, verify that
 # the commit hash or tag in the failing
 # submodule folder is an exact match of
@@ -30,16 +30,16 @@ jobs:
       - name: checkout atmospheric_physics
         uses: actions/checkout@v4
 
-      - name: checkout python v3.12
+      - name: checkout latest python version
         uses: actions/setup-python@v4
         with:
-          python-version: "3.12"
+          python-version: "3.x"
 
         #Note:  We are using the head of main for git-fleximod
         # below for two reasons:
         # 1.  We will automatically get any git-fleximod bug fixes or updates
         # 2.  We will automatically test with those updates, which could
-        #     allow us to catch any issues before updating the host models. 
+        #     allow us to catch any issues before updating the host models.
       - name: checkout git-fleximod
         uses: actions/checkout@v4
         with:
