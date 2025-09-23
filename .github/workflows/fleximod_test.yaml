@@ -1,15 +1,25 @@
-#Github Action to ensure that
-#the "fxtag" and "url" values
-#in the ".gitmodules" file
-#match what is actually
-#stored in the committed
-#git submodule entries.
+# Github Action to ensure that
+# the "fxtag" and "url" values
+# in the ".gitmodules" file
+# match the hashes or tags that
+# are committed for the git submodules
+# in this repository.
+ 
+# If this test is failing, verify that
+# the commit hash or tag in the failing
+# submodule folder is an exact match of
+# the values specified for the corresponding
+# submodule in the ".gitmodules" file.
+# Both the submodule itself (referenced by Git),
+# and the fxtag and url entires in the
+# ".gitmodules" file, must be updated if
+# a submodule is updated in this repository.
 
-#Please note that 'git-fleximod'
-#is not actually needed for this
-#repo, it is simply being used
-#here to run the test described
-#above.
+# Finally, please note that 'git-fleximod'
+# is not actually needed for this
+# repo, it is simply being used
+# here to run the test described
+# above.
 
 on: pull_request
 
@@ -25,6 +35,11 @@ jobs:
         with:
           python-version: "3.12"
 
+        #Note:  We are using the head of main for git-fleximod
+        # below for two reasons:
+        # 1.  We will automatically get any git-fleximod bug fixes or updates
+        # 2.  We will automatically test with those updates, which could
+        #     allow us to catch any issues before updating the host models. 
       - name: checkout git-fleximod
         uses: actions/checkout@v4
         with:
@@ -36,7 +51,7 @@ jobs:
       - name: create git-fleximod script
         run: |
           echo
-          echo "Creating git-fleximod python srcript..."
+          echo "Creating git-fleximod python script..."
 
           #Create new directory:
           mkdir $GITHUB_WORKSPACE/bin
@@ -47,7 +62,6 @@ jobs:
           import sys
           import os
           sys.path.insert(0,os.path.abspath(os.path.join(os.path.dirname(__file__),"..",".lib","git-fleximod")))
-          print(os.path.abspath(os.path.join(os.path.dirname(__file__),"..",".lib","git-fleximod"))) #DEBUG-JN
           from git_fleximod.git_fleximod import main
 
           if __name__ == '__main__':
