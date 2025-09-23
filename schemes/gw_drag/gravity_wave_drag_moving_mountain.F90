@@ -199,9 +199,9 @@ contains
   subroutine gravity_wave_drag_moving_mountain_run(ncol, pver, pcnst, &
                            gravit, rair, dt, &
                            p, vramp, &
-                           state_u, state_v, &
-                           state_t, &
-                           state_q, &
+                           u, v, &
+                           t, &
+                           q, &
                            dse, &
                            pint, piln, rhoi, nm, ni, &
                            kvt_gw, &
@@ -232,10 +232,10 @@ contains
     real(kind_phys), intent(in)    :: dt                ! physics timestep
     type(coords1d),  intent(in)    :: p                 ! Pressure coordinates.
     real(kind_phys), intent(in)    :: vramp(:)
-    real(kind_phys), intent(in)    :: state_u(:, :)     ! meridional wind
-    real(kind_phys), intent(in)    :: state_v(:, :)     ! zonal wind
-    real(kind_phys), intent(in)    :: state_t(:, :)     ! temperature (K)
-    real(kind_phys), intent(in)    :: state_q(:, :, :)  ! Constituent array.
+    real(kind_phys), intent(in)    :: u(:, :)           ! meridional wind
+    real(kind_phys), intent(in)    :: v(:, :)           ! zonal wind
+    real(kind_phys), intent(in)    :: t(:, :)           ! temperature (K)
+    real(kind_phys), intent(in)    :: q(:, :, :)        ! Constituent array.
     real(kind_phys), intent(in)    :: dse(:, :)         ! Dry static energy.
     real(kind_phys), intent(in)    :: pint(:, :)        ! pressure at model interfaces
     real(kind_phys), intent(in)    :: piln(:, :)        ! ln pressure at model interfaces
@@ -275,7 +275,7 @@ contains
     real(kind_phys), intent(out)   :: vtgw(:, :)
     real(kind_phys), intent(out)   :: ttgw(:, :)
     real(kind_phys), intent(out)   :: qtgw(:, :, :) ! constituents tendencies
-    real(kind_phys), intent(out)   :: egwdffi_tot(:, :)
+    real(kind_phys), intent(inout) :: egwdffi_tot(:, :)
     real(kind_phys), intent(out)   :: dttdf(:, :)
     real(kind_phys), intent(out)   :: dttke(:, :)
     real(kind_phys), intent(out)   :: tau0(:, :)   ! Moving mountain momentum flux profile [N m-2]
@@ -322,7 +322,7 @@ contains
     xpwp_clubb(:ncol, :) = sqrt(upwp_clubb(:ncol, :)**2 + vpwp_clubb(:ncol, :)**2)
 
     call gw_movmtn_src(ncol, pver, &
-                       state_u, state_v, ttend_dp(:ncol, :), ttend_clubb(:ncol, :), xpwp_clubb(:ncol, :), &
+                       u, v, ttend_dp(:ncol, :), ttend_clubb(:ncol, :), xpwp_clubb(:ncol, :), &
                        vorticity(:ncol, :), zm, alpha_gw_movmtn, &
                        src_level, tend_level, &
                        tau, ubm, ubi, xv, yv, &
@@ -337,9 +337,9 @@ contains
     ! for c is c=0, since it is incorporated in ubm and (xv,yv)
     !--------------------------------------------------------------
     call gw_drag_prof(ncol, band, p, src_level, tend_level, dt, &
-                      state_t, vramp, &
+                      t, vramp, &
                       piln, rhoi, nm, ni, ubm, ubi, xv, yv, &
-                      effgw(:ncol), phase_speeds, kvt_gw, state_q, dse, tau, utgw, vtgw, &
+                      effgw(:ncol), phase_speeds, kvt_gw, q, dse, tau, utgw, vtgw, &
                       ttgw, qtgw, egwdffi, gwut, dttdf, dttke, &
                       lapply_effgw_in=gw_apply_tndmax)
 

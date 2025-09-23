@@ -35,6 +35,37 @@
     </values>
   </entry>
 
+  <entry id="pgwv_long">
+    <type>integer</type>
+    <category>gw_drag</category>
+    <group>gw_drag_nl</group>
+    <standard_name>long_gravity_wave_band_spectrum_dimension_tbd</standard_name>
+    <units>1</units>
+    <desc>
+      Gravity wave spectrum dimension, long wavelength (wave numbers are from -pgwv to pgwv).
+    </desc>
+    <values>
+      <value>10</value>
+      <!-- 0 for simple physics -->
+    </values>
+  </entry>
+
+  <entry id="gw_dc_long">
+    <type>real</type>
+    <category>gw_drag</category>
+    <group>gw_drag_nl</group>
+    <standard_name>delta_between_nearest_phase_speeds_in_the_long_gravity_wave_band_tbd</standard_name>
+    <units>m s-1</units>
+    <desc>
+      Width of speed bins (delta c) for gravity wave spectrum
+      (reference wave speeds are from -pgwv_long*dc_long to pgwv_long*dc_long).
+    </desc>
+    <values>
+      <value>2.0D0</value>
+      <!-- 0 for simple physics -->
+    </values>
+  </entry>
+
   <entry id="gw_top_taper">
     <type>logical</type>
     <category>gw_drag</category>
@@ -615,5 +646,114 @@
       <value>1.0D0</value>
     </values>
   </entry>
+
+  <!--
+      GRAVITY_WAVE_DRAG_FRONTOGENESIS
+  -->
+
+  <entry id="gw_frontgfc">
+    <type>real</type>
+    <category>gw_drag</category>
+    <group>gw_drag_nl</group>
+    <standard_name>critical_threshold_for_frontogenesis_function_for_frontogenesis_gravity_wave_drag_tbd</standard_name>
+    <units>K2 m-2 s-1</units>
+    <desc>
+      Frontogenesis function critical threshold.
+    </desc>
+    <values>
+      <value>1.25D-15</value>
+      <value hgrid="ne30np4">3.00D-15</value>
+    </values>
+  </entry>
+
+  <entry id="gw_front_taubgnd">
+    <type>real</type>
+    <category>gw_drag</category>
+    <group>gw_drag_nl</group>
+    <standard_name>background_source_strength_for_frontogenesis_gravity_wave_drag_tbd</standard_name>
+    <units>N m-2</units>
+    <desc>
+      Background source strength (used for waves from frontogenesis).
+    </desc>
+    <values>
+      <value>1.5D-3</value>
+      <value hgrid="ne30np4">1.25D-3</value>
+    </values>
+  </entry>
+
+  <entry id="gw_front_taubgnd_igw">
+    <type>real</type>
+    <category>gw_drag</category>
+    <group>gw_drag_nl</group>
+    <standard_name>background_source_strength_for_frontogenesis_inertial_gravity_wave_drag_tbd</standard_name>
+    <units>N m-2</units>
+    <desc>
+      Background source strength (used for inertial waves from frontogenesis).
+    </desc>
+    <values>
+      <value>12.0D-3</value>
+    </values>
+  </entry>
+
+  <entry id="effgw_cm">
+    <type>real</type>
+    <category>gw_drag</category>
+    <group>gw_drag_nl</group>
+    <standard_name>frontogenesis_scheme_efficiency_of_gravity_wave_momentum_transfer_tbd</standard_name>
+    <units>1</units>
+    <desc>
+      Efficiency associated with gravity waves from frontogenesis.
+    </desc>
+    <values>
+      <value>1.0D0</value>
+    </values>
+  </entry>
+
+  <entry id="effgw_cm_igw">
+    <type>real</type>
+    <category>gw_drag</category>
+    <group>gw_drag_nl</group>
+    <standard_name>frontogenesis_inertial_scheme_efficiency_of_gravity_wave_momentum_transfer_tbd</standard_name>
+    <units>1</units>
+    <desc>
+      Efficiency associated with inertial gravity waves from frontogenesis.
+    </desc>
+    <values>
+      <value>0.1D0</value>
+    </values>
+  </entry>
+
+  <entry id="front_gaussian_width">
+    <type>real</type>
+    <category>gw_drag</category>
+    <group>gw_drag_nl</group>
+    <standard_name>width_of_gaussian_of_stress_profile_for_frontogenesis_gravity_wave_drag_tbd</standard_name>
+    <units>m s-1</units>
+    <desc>
+      Width of gaussian used to create frontogenesis tau profile.
+    </desc>
+    <values>
+      <value>30.0D0</value>
+    </values>
+  </entry>
+
+  <entry id="gw_polar_taper">
+    <type>logical</type>
+    <category>gw_drag</category>
+    <group>gw_drag_nl</group>
+    <standard_name>taper_frontogenesis_gravity_wave_drag_at_poles_tbd</standard_name>
+    <units>flag</units>
+    <desc>
+      Whether or not to use tapering at the poles to reduce the effects of mid-scale gravity waves from frontogenesis.
+    </desc>
+    <values>
+      <value>.false.</value>
+    </values>
+  </entry>
+
+  <!--
+      GRAVITY_WAVE_DRAG_CONVECTION
+      Convective gravity wave drag (Beres et al.)
+  -->
 
 </entry_id_pg>

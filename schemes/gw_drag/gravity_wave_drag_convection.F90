@@ -44,6 +44,8 @@ module gravity_wave_drag_convection
 contains
 
   ! Initialize gravity waves from convection and read in source spectra.
+!> \section arg_table_gravity_wave_drag_convection_deep_init Argument Table
+!! \htmlinclude gravity_wave_drag_convection_deep_init.html
   subroutine gravity_wave_drag_convection_deep_init(&
              pver, pi, &
              masterproc, iulog, &
@@ -108,6 +110,8 @@ contains
   end subroutine gravity_wave_drag_convection_deep_init
 
   ! Initialize gravity waves from convection and read in source spectra.
+!> \section arg_table_gravity_wave_drag_convection_shallow_init Argument Table
+!! \htmlinclude gravity_wave_drag_convection_shallow_init.html
   subroutine gravity_wave_drag_convection_shallow_init(&
              pver, pi, &
              masterproc, iulog, &
@@ -171,6 +175,8 @@ contains
   end subroutine gravity_wave_drag_convection_shallow_init
 
   ! Convective gravity waves (Beres scheme, deep).
+!> \section arg_table_gravity_wave_drag_convection_deep_run Argument Table
+!! \htmlinclude gravity_wave_drag_convection_deep_run.html
   subroutine gravity_wave_drag_convection_deep_run(&
              ncol, pver, pcnst, &
              dt, &
@@ -243,7 +249,7 @@ contains
     real(kind_phys),    intent(out)   :: vtgw(:, :)               ! Meridional wind tendency from gravity waves [m s-2]
     real(kind_phys),    intent(out)   :: ttgw(:, :)               ! Temperature tendency from gravity waves [K s-1]
     real(kind_phys),    intent(out)   :: qtgw(:, :, :)            ! Constituent tendencies from gravity waves [kg kg-1 s-1]
-    real(kind_phys),    intent(out)   :: egwdffi_tot(:, :)        ! Effective diffusivity coefficient from gravity waves, interfaces [m2 s-1]
+    real(kind_phys),    intent(inout) :: egwdffi_tot(:, :)        ! Effective diffusivity coefficient from gravity waves, interfaces [m2 s-1]
     real(kind_phys),    intent(out)   :: dttdf(:, :)              ! Temperature tendency from diffusion [K s-1]
     real(kind_phys),    intent(out)   :: dttke(:, :)              ! Temperature tendency from kinetic energy dissipation [K s-1]
 
@@ -399,6 +405,8 @@ contains
   end subroutine gravity_wave_drag_convection_deep_run
 
   ! Convective gravity waves (Beres scheme, shallow).
+!> \section arg_table_gravity_wave_drag_convection_shallow_run Argument Table
+!! \htmlinclude gravity_wave_drag_convection_shallow_run.html
   subroutine gravity_wave_drag_convection_shallow_run(&
              ncol, pver, pcnst, &
              dt, &
@@ -469,7 +477,7 @@ contains
     real(kind_phys),    intent(out)   :: vtgw(:, :)               ! Meridional wind tendency from gravity waves [m s-2]
     real(kind_phys),    intent(out)   :: ttgw(:, :)               ! Temperature tendency from gravity waves [K s-1]
     real(kind_phys),    intent(out)   :: qtgw(:, :, :)            ! Constituent tendencies from gravity waves [kg kg-1 s-1]
-    real(kind_phys),    intent(out)   :: egwdffi_tot(:, :)        ! Effective diffusivity coefficient from gravity waves, interfaces [m2 s-1]
+    real(kind_phys),    intent(inout) :: egwdffi_tot(:, :)        ! Effective diffusivity coefficient from gravity waves, interfaces [m2 s-1]
     real(kind_phys),    intent(out)   :: dttdf(:, :)              ! Temperature tendency from diffusion [K s-1]
     real(kind_phys),    intent(out)   :: dttke(:, :)              ! Temperature tendency from kinetic energy dissipation [K s-1]
 

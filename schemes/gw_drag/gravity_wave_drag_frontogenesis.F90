@@ -39,35 +39,31 @@ module gravity_wave_drag_frontogenesis
 
 contains
 
+!> \section arg_table_gravity_wave_drag_frontogenesis_init Argument Table
+!! \htmlinclude gravity_wave_drag_frontogenesis_init.html
   subroutine gravity_wave_drag_frontogenesis_init(&
              pver, pi, &
              masterproc, iulog, &
              pref_edge, frontgfc, &
-             gw_delta_c, gw_delta_c_long, &
-             pgwv, pgwv_long, &
-             taubgnd, taubgnd_igw, &
-             effgw_cm, effgw_cm_igw, use_gw_front, use_gw_front_igw, &
+             gw_delta_c, &
+             pgwv, &
+             taubgnd, &
+             effgw_cm, &
              front_gaussian_width, &
              errmsg, errflg)
 
-    use gw_common, only: wavelength_mid, wavelength_long
+    use gw_common, only: wavelength_mid
 
     integer,            intent(in)                :: pver
     real(kind_phys),    intent(in)                :: pi                       ! pi_constant [1]
     logical,            intent(in)                :: masterproc
     integer,            intent(in)                :: iulog
     real(kind_phys),    intent(in)                :: pref_edge(:)             ! Reference pressure at interfaces [Pa]
-    real(kind_phys),    intent(in)                :: frontgfc                 ! Frontogenesis function critical threshold [1]
+    real(kind_phys),    intent(in)                :: frontgfc                 ! Frontogenesis function critical threshold [K2 m-2 s-1]
     real(kind_phys),    intent(in)                :: gw_delta_c               ! Gravity wave phase speed interval (mid)  [m s-1]
-    real(kind_phys),    intent(in)                :: gw_delta_c_long          ! Gravity wave phase speed interval (long) [m s-1]
     integer,            intent(in)                :: pgwv                     ! Gravity wave spectrum dimension (wave numbers are from -pgwv to pgwv).
-    integer,            intent(in)                :: pgwv_long
     real(kind_phys),    intent(in)                :: taubgnd                  ! Background source strength (used for waves from frontogenesis). waves [N m-2]
-    real(kind_phys),    intent(in)                :: taubgnd_igw              ! Background source strength (used for inertial waves from frontogenesis). [N m-2]
     real(kind_phys),    intent(in)                :: effgw_cm                 ! Efficiency associated with gravity waves from frontogenesis. [1]
-    real(kind_phys),    intent(in)                :: effgw_cm_igw             ! Efficiency associated with inertial gravity waves from frontogenesis. [1]
-    logical,            intent(in)                :: use_gw_front             ! Use frontogenesis gravity waves [flag]
-    logical,            intent(in)                :: use_gw_front_igw         ! Use inertial frontogenesis gravity waves [flag]
     real(kind_phys),    intent(in)                :: front_gaussian_width     ! Width of gaussian used to create frontogenesis tau profile [m s-1]
     character(len=512), intent(out)               :: errmsg
     integer,            intent(out)               :: errflg
@@ -86,99 +82,151 @@ contains
     errmsg = ''
     errflg = 0
 
-    if (use_gw_front .or. use_gw_front_igw) then
+    if (frontgfc == unset_kind_phys) then
+      errmsg = "Frontogenesis enabled, but frontgfc was not set!"
+      errflg = 1
+      return
+    end if
 
-      ! Check that deep gw file is set in namelist
-      if (frontgfc == unset_kind_phys) then
-        errmsg = "Frontogenesis enabled, but frontgfc was not set!"
-        errflg = 1
-        return
-      end if
+    do k = 0, pver
+      ! Check frontogenesis at 600 hPa.
+      if (pref_edge(k + 1) < 60000._kind_phys) kfront = k + 1
+    end do
 
-      do k = 0, pver
-        ! Check frontogenesis at 600 hPa.
-        if (pref_edge(k + 1) < 60000._kind_phys) kfront = k + 1
+    ! Source waves from 500 hPa.
+    kbot_front = maxloc(pref_edge, 1, (pref_edge < 50000._kind_phys)) - 1
+
+    if (masterproc) then
+      write (iulog, *) 'KFRONT      =', kfront
+      write (iulog, *) 'KBOT_FRONT  =', kbot_front
+      write (iulog, *) ' '
+    end if
+
+    band_mid = GWBand(pgwv, gw_delta_c, 1.0_kind_phys, wavelength_mid)
+    if (masterproc) then
+      write (iulog, *) ' '
+      write (iulog, *) sub // ": band_mid%ngwv = ", band_mid%ngwv
+      do l = -band_mid%ngwv, band_mid%ngwv
+        write (iulog, '(A,I0,A,F7.2)') &
+          sub // ": band_mid%cref(", l, ") = ", band_mid%cref(l)
       end do
-
-      ! Source waves from 500 hPa.
-      kbot_front = maxloc(pref_edge, 1, (pref_edge < 50000._kind_phys)) - 1
-
-      if (masterproc) then
-        write (iulog, *) 'KFRONT      =', kfront
-        write (iulog, *) 'KBOT_FRONT  =', kbot_front
-        write (iulog, *) ' '
-      end if
+      write (iulog, *) sub // ': band_mid%kwv = ', band_mid%kwv
+      write (iulog, *) sub // ': band_mid%fcrit2 = ', band_mid%fcrit2
     end if
 
-    if (use_gw_front) then
-      band_mid = GWBand(pgwv, gw_delta_c, 1.0_kind_phys, wavelength_mid)
-      if (masterproc) then
-        write (iulog, *) ' '
-        write (iulog, *) "gravity_wave_drag_frontogenesis_init: band_mid%ngwv = ", band_mid%ngwv
-        do l = -band_mid%ngwv, band_mid%ngwv
-          write (iulog, '(A,I0,A,F7.2)') &
-            "gravity_wave_drag_frontogenesis_init: band_mid%cref(", l, ") = ", band_mid%cref(l)
-        end do
-        write (iulog, *) 'gravity_wave_drag_frontogenesis_init: band_mid%kwv = ', band_mid%kwv
-        write (iulog, *) 'gravity_wave_drag_frontogenesis_init: band_mid%fcrit2 = ', band_mid%fcrit2
-      end if
+    ! Check that deep gw file is set in namelist
+    if (taubgnd == unset_kind_phys .or. effgw_cm == unset_kind_phys) then
+      errmsg = "Frontogenesis mid-scale waves enabled, but not all required namelist variables were set!"
+      errflg = 1
+      return
     end if
 
-    if (use_gw_front_igw) then
-      band_long = GWBand(pgwv_long, gw_delta_c_long, 1.0_kind_phys, wavelength_long)
-      if (masterproc) then
-        write (iulog, *) ' '
-        write (iulog, *) "gravity_wave_drag_frontogenesis_init: band_long%ngwv = ", band_long%ngwv
-        do l = -band_long%ngwv, band_long%ngwv
-          write (iulog, '(A,I2,A,F7.2)') &
-            "gravity_wave_drag_frontogenesis_init: band_long%cref(", l, ") = ", band_long%cref(l)
-        end do
-        write (iulog, *) 'gravity_wave_drag_frontogenesis_init: band_long%kwv = ', band_long%kwv
-        write (iulog, *) 'gravity_wave_drag_frontogenesis_init: band_long%fcrit2 = ', band_long%fcrit2
-        write (iulog, *) ' '
-      end if
+    if (masterproc) then
+      write (iulog, *) sub // ': gw spectrum taubgnd, effgw_cm = ', taubgnd, effgw_cm
     end if
 
-    if (use_gw_front) then
-      ! Check that deep gw file is set in namelist
-      if (taubgnd == unset_kind_phys .or. effgw_cm == unset_kind_phys) then
-        errmsg = "Frontogenesis mid-scale waves enabled, but not all required namelist variables were set!"
-        errflg = 1
-        return
-      end if
+    cm_desc = gaussian_cm_desc(band_mid, pi, kbot_front, kfront, frontgfc, &
+                               taubgnd, front_gaussian_width)
 
-      if (masterproc) then
-        write (iulog, *) 'gw_init: gw spectrum taubgnd, effgw_cm = ', taubgnd, effgw_cm
-      end if
-
-      cm_desc = gaussian_cm_desc(band_mid, pi, kbot_front, kfront, frontgfc, &
-                                 taubgnd, front_gaussian_width)
-
-    end if
-
-    if (use_gw_front_igw) then
-      ! Check that deep gw file is set in namelist
-      if (effgw_cm_igw == unset_kind_phys .or. taubgnd_igw == unset_kind_phys) then
-        write (errmsg, '(a, a)') sub, &
-          " Frontogenesis inertial waves enabled, but not all required namelist variables were set!"
-        errflg = 1
-        return
-      end if
-
-      if (masterproc) then
-        write (iulog, *) 'gw_init: gw spectrum taubgnd_igw, effgw_cm_igw = ', taubgnd_igw, effgw_cm_igw
-      end if
-
-      cm_igw_desc = gaussian_cm_desc(band_long, pi, kbot_front, kfront, frontgfc, &
-                                     taubgnd_igw, front_gaussian_width)
-
-      ! Parameters for the IGW polar taper.
-      degree2radian = pi/180._kind_phys
-      al0 = 82.5_kind_phys * degree2radian
-      dlat0 = 5.0_kind_phys * degree2radian
-
-    end if
   end subroutine gravity_wave_drag_frontogenesis_init
+
+!> \section arg_table_gravity_wave_drag_frontogenesis_inertial_init Argument Table
+!! \htmlinclude gravity_wave_drag_frontogenesis_inertial_init.html
+  subroutine gravity_wave_drag_frontogenesis_inertial_init(&
+             pver, pi, &
+             masterproc, iulog, &
+             pref_edge, frontgfc, &
+             gw_delta_c_long, &
+             pgwv_long, &
+             taubgnd_igw, &
+             effgw_cm_igw, &
+             front_gaussian_width, &
+             errmsg, errflg)
+
+    use gw_common, only: wavelength_mid, wavelength_long
+
+    integer,            intent(in)                :: pver
+    real(kind_phys),    intent(in)                :: pi                       ! pi_constant [1]
+    logical,            intent(in)                :: masterproc
+    integer,            intent(in)                :: iulog
+    real(kind_phys),    intent(in)                :: pref_edge(:)             ! Reference pressure at interfaces [Pa]
+    real(kind_phys),    intent(in)                :: frontgfc                 ! Frontogenesis function critical threshold [K2 m-2 s-1]
+    real(kind_phys),    intent(in)                :: gw_delta_c_long          ! Gravity wave phase speed interval (long) [m s-1]
+    integer,            intent(in)                :: pgwv_long                ! Gravity wave spectrum dimension (wave numbers are from -pgwv to pgwv).
+    real(kind_phys),    intent(in)                :: taubgnd_igw              ! Background source strength (used for inertial waves from frontogenesis). [N m-2]
+    real(kind_phys),    intent(in)                :: effgw_cm_igw             ! Efficiency associated with inertial gravity waves from frontogenesis. [1]
+    real(kind_phys),    intent(in)                :: front_gaussian_width     ! Width of gaussian used to create frontogenesis tau profile [m s-1]
+    character(len=512), intent(out)               :: errmsg
+    integer,            intent(out)               :: errflg
+
+    integer :: k, l
+
+    ! Bottom level for frontal waves.
+    integer :: kbot_front
+
+    ! Index for levels at specific pressures.
+    integer :: kfront
+
+    character(len=*), parameter :: sub = 'gravity_wave_drag_frontogenesis_inertial_init'
+
+    ! Initialize error variables
+    errmsg = ''
+    errflg = 0
+
+    if (frontgfc == unset_kind_phys) then
+      errmsg = "Frontogenesis enabled, but frontgfc was not set!"
+      errflg = 1
+      return
+    end if
+
+    do k = 0, pver
+      ! Check frontogenesis at 600 hPa.
+      if (pref_edge(k + 1) < 60000._kind_phys) kfront = k + 1
+    end do
+
+    ! Source waves from 500 hPa.
+    kbot_front = maxloc(pref_edge, 1, (pref_edge < 50000._kind_phys)) - 1
+
+    if (masterproc) then
+      write (iulog, *) 'KFRONT      =', kfront
+      write (iulog, *) 'KBOT_FRONT  =', kbot_front
+      write (iulog, *) ' '
+    end if
+
+    band_long = GWBand(pgwv_long, gw_delta_c_long, 1.0_kind_phys, wavelength_long)
+    if (masterproc) then
+      write (iulog, *) ' '
+      write (iulog, *) sub // ": band_long%ngwv = ", band_long%ngwv
+      do l = -band_long%ngwv, band_long%ngwv
+        write (iulog, '(A,I2,A,F7.2)') &
+          sub // ": band_long%cref(", l, ") = ", band_long%cref(l)
+      end do
+      write (iulog, *) sub // ': band_long%kwv = ', band_long%kwv
+      write (iulog, *) sub // ': band_long%fcrit2 = ', band_long%fcrit2
+      write (iulog, *) ' '
+    end if
+
+    ! Check that deep gw file is set in namelist
+    if (effgw_cm_igw == unset_kind_phys .or. taubgnd_igw == unset_kind_phys) then
+      write (errmsg, '(a, a)') sub, &
+        " Frontogenesis inertial waves enabled, but not all required namelist variables were set!"
+      errflg = 1
+      return
+    end if
+
+    if (masterproc) then
+      write (iulog, *) sub // ': gw spectrum taubgnd_igw, effgw_cm_igw = ', taubgnd_igw, effgw_cm_igw
+    end if
+
+    cm_igw_desc = gaussian_cm_desc(band_long, pi, kbot_front, kfront, frontgfc, &
+                                   taubgnd_igw, front_gaussian_width)
+
+    ! Parameters for the IGW polar taper.
+    degree2radian = pi/180._kind_phys
+    al0 = 82.5_kind_phys * degree2radian
+    dlat0 = 5.0_kind_phys * degree2radian
+
+  end subroutine gravity_wave_drag_frontogenesis_inertial_init
 
   ! Frontally generated gravity waves
 !> \section arg_table_gravity_wave_drag_frontogenesis_run Argument Table
@@ -216,7 +264,7 @@ contains
     integer,            intent(in)    :: pcnst
     real(kind_phys),    intent(in)    :: dt                       ! Physics timestep [s]
     real(kind_phys),    intent(in)    :: cpair                    ! Specific heat of dry air at constant pressure [J kg-1 K-1]
-    type(Coords1D),     intent(in)    :: p                        ! Pressure coordinates [Pa]
+    type(coords1d),     intent(in)    :: p                        ! Pressure coordinates [Pa]
     real(kind_phys),    intent(in)    :: vramp(:)                 ! Gravity wave drag tapering coefficients [1]
     real(kind_phys),    intent(in)    :: piln(:, :)               ! Natural log of pressure at interfaces [ln(Pa)]
     real(kind_phys),    intent(in)    :: rhoi(:, :)               ! Density at interfaces [kg m-3]
@@ -231,7 +279,7 @@ contains
     real(kind_phys),    intent(in)    :: t(:,:)                   ! Temperature at midpoints [K]
     real(kind_phys),    intent(in)    :: q(:,:,:)                 ! Constituent mixing ratios [kg kg-1]
     real(kind_phys),    intent(in)    :: dse(:,:)                 ! Dry static energy [J kg-1]
-    real(kind_phys),    intent(in)    :: frontgf(:, :)            ! Frontogenesis function [1]
+    real(kind_phys),    intent(in)    :: frontgf(:, :)            ! Frontogenesis function [K2 m-2 s-1]
     real(kind_phys),    intent(in)    :: kvt_gw(:,:)              ! Eddy diffusion coefficient for heat [m2 s-1]
 
     real(kind_phys),    intent(inout) :: tend_q(:, :, :)          ! Constituent tendencies [kg kg-1 s-1]
@@ -418,7 +466,7 @@ contains
     integer,            intent(in)    :: pcnst
     real(kind_phys),    intent(in)    :: dt                       ! Physics timestep [s]
     real(kind_phys),    intent(in)    :: cpair                    ! Specific heat of dry air at constant pressure [J kg-1 K-1]
-    type(Coords1D),     intent(in)    :: p                        ! Pressure coordinates [Pa]
+    type(coords1d),     intent(in)    :: p                        ! Pressure coordinates [Pa]
     real(kind_phys),    intent(in)    :: vramp(:)                 ! Gravity wave drag tapering coefficients [1]
     real(kind_phys),    intent(in)    :: piln(:, :)               ! Natural log of pressure at interfaces [ln(Pa)]
     real(kind_phys),    intent(in)    :: rhoi(:, :)               ! Density at interfaces [kg m-3]

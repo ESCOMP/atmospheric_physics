@@ -292,7 +292,7 @@
   units = m2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
-  intent = out
+  intent = inout
 [ flx_heat ]
   standard_name = net_sensible_heat_flux_through_top_and_bottom_of_atmosphere_column
   units = W m-2
@@ -312,7 +312,7 @@
   dimensions = (horizontal_loop_extent)
   intent = out
 [ taua ]
-  standard_name = total_stress_at_interfaces_due_to_orographic_gravity_wave_drag
+  standard_name = total_stress_at_interface_from_reference_wavenumber_due_to_orographic_gravity_wave_drag
   units = N m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
