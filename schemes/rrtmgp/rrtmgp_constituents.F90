@@ -2,6 +2,9 @@ module rrtmgp_constituents
    use cam_logfile, only: iulog
 
    public :: rrtmgp_constituents_register
+   public :: rrtmgp_constituents_init
+   public :: rrtmgp_constituents_timestep_init
+   public :: rrtmgp_constituents_run
 
 contains
 
@@ -112,23 +115,18 @@ contains
    end subroutine rrtmgp_constituents_register
 
 !> \section arg_table_rrtmgp_constituents_init Argument Table
-!! \htmlinclude rrtmgp_constituents_int.html
+!! \htmlinclude rrtmgp_constituents_init.html
 !!
-   subroutine rrtmgp_constituents_init(ndiag, ncol, unset_real, active_call_array, &
-      rrtmgp_phys_blksz_lw, rrtmgp_phys_blksz_sw, tlev, fluxlwup_Jac, rad_heat, fsnt, fsns, is_first_restart_step,    &
+   subroutine rrtmgp_constituents_init(ndiag, unset_real, active_call_array, &
+      tlev, fluxlwup_Jac, rad_heat, is_first_restart_step,    &
       use_tlev, is_mpas, errmsg, errflg)
       use ccpp_kinds, only: kind_phys
       integer,             intent(in) :: ndiag
-      integer,             intent(in) :: ncol
       real(kind_phys),     intent(in) :: unset_real
       logical,            intent(out) :: active_call_array(:)
-      integer,            intent(out) :: rrtmgp_phys_blksz_lw
-      integer,            intent(out) :: rrtmgp_phys_blksz_sw
       real(kind_phys),    intent(out) :: tlev(:,:)
       real(kind_phys),    intent(out) :: fluxlwup_Jac(:,:)
       real(kind_phys),    intent(out) :: rad_heat(:,:)
-      real(kind_phys),    intent(out) :: fsnt(:)
-      real(kind_phys),    intent(out) :: fsns(:)
       logical,            intent(out) :: is_first_restart_step
       logical,            intent(out) :: use_tlev
       logical,            intent(out) :: is_mpas
@@ -143,19 +141,34 @@ contains
       is_first_restart_step = .false.
       is_mpas = .false.
 
-      rrtmgp_phys_blksz_lw = ncol
-      rrtmgp_phys_blksz_sw = ncol
       ! Set tlev & fluxlwup_Jac to unset values; not used by default in CAM-SIMA
       use_tlev = .false.
       tlev = unset_real
       fluxlwup_Jac = unset_real
       rad_heat = unset_real
 
-      ! PEVERWHEE - remove when shortwave is done
-      fsnt = 0.0_kind_phys
-      fsns = 0.0_kind_phys
-
    end subroutine rrtmgp_constituents_init
+
+!> \section arg_table_rrtmgp_constituents_timestep_init Argument Table
+!! \htmlinclude rrtmgp_constituents_timestep_init.html
+!!
+   subroutine rrtmgp_constituents_timestep_init(ncol, nday, rrtmgp_phys_blksz_lw, &
+      rrtmgp_phys_blksz_sw, errmsg, errflg)
+      integer, intent(in) :: nday
+      integer, intent(in) :: ncol
+      integer, intent(out) :: rrtmgp_phys_blksz_lw
+      integer, intent(out) :: rrtmgp_phys_blksz_sw
+      character(len=512), intent(out) :: errmsg
+      integer,            intent(out) :: errflg
+
+      errflg = 0
+      errmsg = ''
+
+      rrtmgp_phys_blksz_lw = ncol
+      rrtmgp_phys_blksz_sw = nday
+
+   end subroutine rrtmgp_constituents_timestep_init
+
 !> \section arg_table_rrtmgp_constituents_run Argument Table
 !! \htmlinclude rrtmgp_constituents_run.html
 !!

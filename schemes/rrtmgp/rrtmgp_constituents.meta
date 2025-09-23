@@ -45,12 +45,6 @@
   type = integer
   dimensions = ()
   intent = in
-[ ncol ]
-  standard_name = horizontal_dimension
-  units = count
-  type = integer
-  dimensions = ()
-  intent = in
 [ unset_real ]
   standard_name = definition_of_unset_for_real_variables
   units = 1
@@ -62,18 +56,6 @@
   units = flag
   type = logical
   dimensions = (number_of_diagnostic_subcycles)
-  intent = out
-[ rrtmgp_phys_blksz_lw ]
-  standard_name = number_of_columns_per_longwave_block_for_RRTMGP
-  units = count
-  type = integer
-  dimensions = ()
-  intent = out
-[ rrtmgp_phys_blksz_sw ]
-  standard_name = number_of_columns_per_shortwave_block_for_RRTMGP
-  units = count
-  type = integer
-  dimensions = ()
   intent = out
 [ tlev ]
   standard_name = air_temperature_at_interface_for_RRTMGP
@@ -93,18 +75,6 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_dimension,vertical_layer_dimension)
   intent = out
-[ fsnt ]
-  standard_name = shortwave_net_column_absorbed_solar_flux_at_model_top
-  units = W m-2
-  type = real | kind = kind_phys
-  dimensions = (horizontal_dimension)
-  intent = out
-[ fsns ]
-  standard_name = shortwave_net_absorbed_solar_flux_at_surface
-  units = W m-2
-  type = real | kind = kind_phys
-  dimensions = (horizontal_dimension)
-  intent = out
 [ is_first_restart_step ]
   standard_name = is_first_restart_timestep
   units = flag
@@ -121,6 +91,45 @@
   standard_name = is_mpas_dynamical_core
   units = flag
   type = logical
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+[ccpp-arg-table]
+  name  = rrtmgp_constituents_timestep_init
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ nday ]
+  standard_name = daytime_points_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ rrtmgp_phys_blksz_lw ]
+  standard_name = number_of_columns_per_longwave_block_for_RRTMGP
+  units = count
+  type = integer
+  dimensions = ()
+  intent = out
+[ rrtmgp_phys_blksz_sw ]
+  standard_name = number_of_columns_per_shortwave_block_for_RRTMGP
+  units = count
+  type = integer
   dimensions = ()
   intent = out
 [ errmsg ]

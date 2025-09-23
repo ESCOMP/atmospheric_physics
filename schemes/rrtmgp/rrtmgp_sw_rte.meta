@@ -70,11 +70,11 @@
   type = ty_optical_props_2str_ccpp
   dimensions = ()
   intent = inout
-[ coszen ]
-  standard_name = cosine_of_solar_zenith_angle_for_radiation
+[ coszen_day ]
+  standard_name = cosine_of_solar_zenith_angle_for_daytime_points_on_radiation_timestep
   units = rad
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent)
+  dimensions = (daytime_points_dimension)
   intent = in
 [ toa_src_sw ]
   standard_name = top_of_atmosphere_solar_radiation_flux_on_g_points

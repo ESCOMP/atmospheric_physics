@@ -30,7 +30,7 @@
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ fsns ]
-  standard_name = shortwave_net_absorbed_solar_flux_at_surface
+  standard_name = shortwave_net_upward_flux_at_surface
   units = W m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
