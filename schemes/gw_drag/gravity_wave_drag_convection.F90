@@ -109,71 +109,6 @@ contains
     call gw_init_beres_desc(gw_drag_file_dp, band_mid, beres_dp_desc, errmsg, errflg)
   end subroutine gravity_wave_drag_convection_deep_init
 
-  ! Initialize gravity waves from convection and read in source spectra.
-!> \section arg_table_gravity_wave_drag_convection_shallow_init Argument Table
-!! \htmlinclude gravity_wave_drag_convection_shallow_init.html
-  subroutine gravity_wave_drag_convection_shallow_init(&
-             pver, pi, &
-             masterproc, iulog, &
-             gw_drag_file_sh, &
-             pref_edge, &
-             gw_delta_c, &
-             pgwv, &
-             errmsg, errflg)
-
-    use gw_common, only: wavelength_mid
-
-    integer, intent(in)                           :: pver
-    real(kind_phys), intent(in)                   :: pi
-    logical, intent(in)                           :: masterproc
-    integer, intent(in)                           :: iulog
-    character(len=*),   intent(in)                :: gw_drag_file_sh
-    real(kind_phys),    intent(in)                :: pref_edge(:)
-    real(kind_phys),    intent(in)                :: gw_delta_c
-    integer, intent(in)                           :: pgwv
-
-    character(len=512), intent(out)               :: errmsg
-    integer, intent(out)                          :: errflg
-
-    integer :: k
-
-    character(len=*), parameter :: sub = 'gravity_wave_drag_convection_shallow_init'
-
-    ! Initialize error variables
-    errmsg = ''
-    errflg = 0
-
-    if (.not. is_band_initialized) then
-      band_mid = GWBand(pgwv, gw_delta_c, 1.0_kind_phys, wavelength_mid)
-      is_band_initialized = .true.
-    endif
-
-    ! Set the shallow scheme specification components.
-    beres_sh_desc%storm_shift = .false.
-
-    do k = 0, pver
-      ! 900 hPa index
-      if (pref_edge(k + 1) < 90000._kind_phys) beres_sh_desc%k = k + 1
-    end do
-
-    if (masterproc) then
-      write (iulog, *) sub //': Beres shallow level =', beres_sh_desc%k
-    end if
-
-    ! Use all heating depths for shallow convection.
-    beres_sh_desc%min_hdepth = 0._kind_phys
-
-    ! Check that shallow gw file is set in namelist
-    if (trim(gw_drag_file_sh) == "" .or. trim(gw_drag_file_sh) == "UNSET_PATH") then
-      write (errmsg, '(a, a)') sub, "No gw_drag_file provided for Beres shallow ", &
-        "scheme. Set this via namelist."
-      errflg = 1
-      return
-    end if
-
-    call gw_init_beres_desc(gw_drag_file_sh, band_mid, beres_sh_desc, errmsg, errflg)
-  end subroutine gravity_wave_drag_convection_shallow_init
-
   ! Convective gravity waves (Beres scheme, deep).
 !> \section arg_table_gravity_wave_drag_convection_deep_run Argument Table
 !! \htmlinclude gravity_wave_drag_convection_deep_run.html
@@ -200,7 +135,7 @@ contains
              taucd_west, taucd_east, taucd_south, taucd_north, &
              errmsg, errflg)
 
-    use coords_1d, only: Coords1D
+    use coords_1d, only: coords1d
     use gw_common, only: energy_change, energy_fixer
     use gw_common, only: momentum_flux, momentum_fixer
     use gw_common, only: gw_drag_prof
@@ -211,7 +146,7 @@ contains
     integer,            intent(in)    :: pver
     integer,            intent(in)    :: pcnst
     real(kind_phys),    intent(in)    :: dt
-    type(coords1d),     intent(in)    :: p                        ! Pressure coordinates [Pa]
+    integer,     intent(in)    :: p                        ! Pressure coordinates [Pa]
     real(kind_phys),    intent(in)    :: vramp(:)                 ! Ramping profile for gravity wave drag [1]
     real(kind_phys),    intent(in)    :: pi                       ! Mathematical constant pi [1]
     real(kind_phys),    intent(in)    :: cpair                    ! Specific heat of dry air at constant pressure [J kg-1 K-1]
@@ -404,6 +339,72 @@ contains
 
   end subroutine gravity_wave_drag_convection_deep_run
 
+
+  ! Initialize gravity waves from convection and read in source spectra.
+!> \section arg_table_gravity_wave_drag_convection_shallow_init Argument Table
+!! \htmlinclude gravity_wave_drag_convection_shallow_init.html
+  subroutine gravity_wave_drag_convection_shallow_init(&
+             pver, pi, &
+             masterproc, iulog, &
+             gw_drag_file_sh, &
+             pref_edge, &
+             gw_delta_c, &
+             pgwv, &
+             errmsg, errflg)
+
+    use gw_common, only: wavelength_mid
+
+    integer, intent(in)                           :: pver
+    real(kind_phys), intent(in)                   :: pi
+    logical, intent(in)                           :: masterproc
+    integer, intent(in)                           :: iulog
+    character(len=*),   intent(in)                :: gw_drag_file_sh
+    real(kind_phys),    intent(in)                :: pref_edge(:)
+    real(kind_phys),    intent(in)                :: gw_delta_c
+    integer, intent(in)                           :: pgwv
+
+    character(len=512), intent(out)               :: errmsg
+    integer, intent(out)                          :: errflg
+
+    integer :: k
+
+    character(len=*), parameter :: sub = 'gravity_wave_drag_convection_shallow_init'
+
+    ! Initialize error variables
+    errmsg = ''
+    errflg = 0
+
+    if (.not. is_band_initialized) then
+      band_mid = GWBand(pgwv, gw_delta_c, 1.0_kind_phys, wavelength_mid)
+      is_band_initialized = .true.
+    endif
+
+    ! Set the shallow scheme specification components.
+    beres_sh_desc%storm_shift = .false.
+
+    do k = 0, pver
+      ! 900 hPa index
+      if (pref_edge(k + 1) < 90000._kind_phys) beres_sh_desc%k = k + 1
+    end do
+
+    if (masterproc) then
+      write (iulog, *) sub //': Beres shallow level =', beres_sh_desc%k
+    end if
+
+    ! Use all heating depths for shallow convection.
+    beres_sh_desc%min_hdepth = 0._kind_phys
+
+    ! Check that shallow gw file is set in namelist
+    if (trim(gw_drag_file_sh) == "" .or. trim(gw_drag_file_sh) == "UNSET_PATH") then
+      write (errmsg, '(a, a)') sub, "No gw_drag_file provided for Beres shallow ", &
+        "scheme. Set this via namelist."
+      errflg = 1
+      return
+    end if
+
+    call gw_init_beres_desc(gw_drag_file_sh, band_mid, beres_sh_desc, errmsg, errflg)
+  end subroutine gravity_wave_drag_convection_shallow_init
+
   ! Convective gravity waves (Beres scheme, shallow).
 !> \section arg_table_gravity_wave_drag_convection_shallow_run Argument Table
 !! \htmlinclude gravity_wave_drag_convection_shallow_run.html
@@ -429,7 +430,7 @@ contains
              egwdffi_tot, dttdf, dttke, &
              errmsg, errflg)
 
-    use coords_1d, only: Coords1D
+    use coords_1d, only: coords1d
     use gw_common, only: energy_change, energy_fixer
     use gw_common, only: momentum_flux, momentum_fixer
     use gw_common, only: gw_drag_prof
@@ -439,7 +440,7 @@ contains
     integer,            intent(in)    :: pver
     integer,            intent(in)    :: pcnst
     real(kind_phys),    intent(in)    :: dt
-    type(coords1d),     intent(in)    :: p                        ! Pressure coordinates [Pa]
+    integer,     intent(in)    :: p                        ! Pressure coordinates [Pa]
     real(kind_phys),    intent(in)    :: vramp(:)                 ! Ramping profile for gravity wave drag [1]
     real(kind_phys),    intent(in)    :: pi                       ! Mathematical constant pi [1]
     real(kind_phys),    intent(in)    :: cpair                    ! Specific heat of dry air at constant pressure [J kg-1 K-1]

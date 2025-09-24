@@ -755,5 +755,21 @@
       GRAVITY_WAVE_DRAG_CONVECTION
       Convective gravity wave drag (Beres et al.)
   -->
+  gw_drag_file_dp
+  gw_drag_file_sh
+
+  <entry id="effgw_beres_dp">
+    <type>real</type>
+    <category>gw_drag</category>
+    <group>gw_drag_nl</group>
+    <standard_name>deep_convective_scheme_maximum_efficiency_of_gravity_wave_momentum_transfer_tbd</standard_name>
+    <units>1</units>
+    <desc>
+      Efficiency associated with inertial gravity waves from frontogenesis.
+    </desc>
+    <values>
+      <value>0.1D0</value>
+    </values>
+  </entry>
 
 </entry_id_pg>

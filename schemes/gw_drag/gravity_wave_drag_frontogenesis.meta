@@ -487,244 +487,245 @@
   name  = gravity_wave_drag_frontogenesis_inertial_run
   type  = scheme
 [ ncol ]
-  standard_name = enter_standard_name_75
-  units = enter_units
+  standard_name = horizontal_loop_extent
+  units = count
   type = integer
   dimensions = ()
   intent = in
 [ pver ]
-  standard_name = enter_standard_name_76
-  units = enter_units
+  standard_name = vertical_layer_dimension
+  units = count
   type = integer
   dimensions = ()
   intent = in
 [ pcnst ]
-  standard_name = enter_standard_name_77
-  units = enter_units
+  standard_name = number_of_ccpp_constituents
+  units = count
   type = integer
   dimensions = ()
   intent = in
 [ dt ]
-  standard_name = enter_standard_name_78
-  units = enter_units
+  standard_name = timestep_for_physics
+  units = s
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ cpair ]
-  standard_name = enter_standard_name_79
-  units = enter_units
+  standard_name = specific_heat_of_dry_air_at_constant_pressure
+  units = J kg-1 K-1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ p ]
-  standard_name = enter_standard_name_80
-  units = enter_units
-  type = integer
+  standard_name = vertical_moist_pressure_coordinates_for_gravity_wave_drag
+  units = Pa
+  type = coords1d
   dimensions = ()
   intent = in
 [ vramp ]
-  standard_name = enter_standard_name_81
-  units = enter_units
+  standard_name = gravity_wave_drag_tapering_coefficients_tbd
+  units = 1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_271:enter_standard_name_272)
+  dimensions = (vertical_layer_dimension)
   intent = in
 [ piln ]
-  standard_name = enter_standard_name_82
-  units = enter_units
+  standard_name = ln_air_pressure_at_interface
+  units = 1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_273:enter_standard_name_274,enter_standard_name_275:enter_standard_name_276)
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ rhoi ]
-  standard_name = enter_standard_name_83
-  units = enter_units
+  standard_name = air_density_at_interface_for_gravity_wave_drag_tbd
+  units = kg m-3
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_277:enter_standard_name_278,enter_standard_name_279:enter_standard_name_280)
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ nm ]
-  standard_name = enter_standard_name_84
-  units = enter_units
+  standard_name = brunt_vaisalla_frequencies_tbd
+  units = s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_281:enter_standard_name_282,enter_standard_name_283:enter_standard_name_284)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ ni ]
-  standard_name = enter_standard_name_85
-  units = enter_units
+  standard_name = brunt_vaisalla_frequencies_at_interfaces_tbd
+  units = s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_285:enter_standard_name_286,enter_standard_name_287:enter_standard_name_288)
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ effgw_cm_igw ]
-  standard_name = enter_standard_name_86
-  units = enter_units
+  standard_name = frontogenesis_inertial_scheme_efficiency_of_gravity_wave_momentum_transfer_tbd
+  units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ gw_polar_taper ]
-  standard_name = enter_standard_name_87
-  units = enter_units
+  standard_name = taper_frontogenesis_gravity_wave_drag_at_poles_tbd
+  units = flag
   type = logical
   dimensions = ()
   intent = in
 [ gw_apply_tndmax ]
-  standard_name = enter_standard_name_88
-  units = enter_units
+  standard_name = limit_maximum_wind_tendency_from_stress_divergence_in_gravity_wave_drag_scheme_tbd
+  units = flag
   type = logical
   dimensions = ()
   intent = in
 [ lat ]
-  standard_name = enter_standard_name_89
-  units = enter_units
+  standard_name = latitude
+  units = rad
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_289:enter_standard_name_290)
+  dimensions = (horizontal_loop_extent)
   intent = in
 [ u ]
-  standard_name = enter_standard_name_90
-  units = enter_units
+  standard_name = eastward_wind
+  units = m s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_291:enter_standard_name_292,enter_standard_name_293:enter_standard_name_294)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ v ]
-  standard_name = enter_standard_name_91
-  units = enter_units
+  standard_name = northward_wind
+  units = m s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_295:enter_standard_name_296,enter_standard_name_297:enter_standard_name_298)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ t ]
-  standard_name = enter_standard_name_92
-  units = enter_units
+  standard_name = air_temperature
+  units = K
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_299:enter_standard_name_300,enter_standard_name_301:enter_standard_name_302)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ q ]
-  standard_name = enter_standard_name_93
-  units = enter_units
+  standard_name = ccpp_constituents
+  units = none
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_303:enter_standard_name_304,enter_standard_name_305:enter_standard_name_306,enter_standard_name_307:enter_standard_name_308)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
   intent = in
 [ dse ]
-  standard_name = enter_standard_name_94
-  units = enter_units
+  standard_name = dry_static_energy
+  units = J kg-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_309:enter_standard_name_310,enter_standard_name_311:enter_standard_name_312)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ frontgf ]
-  standard_name = enter_standard_name_95
-  units = enter_units
+  standard_name = frontogenesis_function
+  units = K2 m-2 s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_313:enter_standard_name_314,enter_standard_name_315:enter_standard_name_316)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ kvt_gw ]
-  standard_name = enter_standard_name_96
-  units = enter_units
+  standard_name = scaled_molecular_kinematic_temperature_conductivity_at_interfaces_for_gravity_wave_drag_tbd
+  units = m2 s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_317:enter_standard_name_318,enter_standard_name_319:enter_standard_name_320)
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ tend_q ]
-  standard_name = enter_standard_name_97
-  units = enter_units
+  standard_name = ccpp_constituent_tendencies
+  units = none
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_321:enter_standard_name_322,enter_standard_name_323:enter_standard_name_324,enter_standard_name_325:enter_standard_name_326)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
   intent = inout
 [ tend_u ]
-  standard_name = enter_standard_name_98
-  units = enter_units
+  standard_name = tendency_of_eastward_wind
+  units = m s-2
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_327:enter_standard_name_328,enter_standard_name_329:enter_standard_name_330)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ tend_v ]
-  standard_name = enter_standard_name_99
-  units = enter_units
+  standard_name = tendency_of_northward_wind
+  units = m s-2
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_331:enter_standard_name_332,enter_standard_name_333:enter_standard_name_334)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ tend_s ]
-  standard_name = enter_standard_name_100
-  units = enter_units
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure
+  units = J kg-1 s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_335:enter_standard_name_336,enter_standard_name_337:enter_standard_name_338)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ egwdffi_tot ]
-  standard_name = enter_standard_name_101
-  units = enter_units
+  standard_name = effective_diffusivity_coefficient_at_interfaces_due_to_gravity_wave_drag_tbd
+  units = m2 s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_339:enter_standard_name_340,enter_standard_name_341:enter_standard_name_342)
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = inout
 [ flx_heat ]
-  standard_name = enter_standard_name_102
-  units = enter_units
+  standard_name = net_sensible_heat_flux_through_top_and_bottom_of_atmosphere_column
+  units = W m-2
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_343:enter_standard_name_344)
+  dimensions = (horizontal_loop_extent)
   intent = inout
 [ src_level ]
-  standard_name = enter_standard_name_103
-  units = enter_units
+  standard_name = vertical_index_of_gravity_wave_source_level_tbd
+  units = index
   type = integer
-  dimensions = (enter_standard_name_345:enter_standard_name_346)
+  dimensions = (horizontal_loop_extent)
   intent = out
 [ tend_level ]
-  standard_name = enter_standard_name_104
-  units = enter_units
+  standard_name = vertical_index_of_lowest_gravity_wave_tendency_level_tbd
+  units = index
   type = integer
-  dimensions = (enter_standard_name_347:enter_standard_name_348)
+  dimensions = (horizontal_loop_extent)
   intent = out
 [ ubm ]
-  standard_name = enter_standard_name_105
-  units = enter_units
+  standard_name = wind_speed_along_gravity_wave_source_direction_tbd
+  units = m s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_349:enter_standard_name_350,enter_standard_name_351:enter_standard_name_352)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ ubi ]
-  standard_name = enter_standard_name_106
-  units = enter_units
+  standard_name = wind_speed_along_gravity_wave_source_direction_at_interface_tbd
+  units = m s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_353:enter_standard_name_354,enter_standard_name_355:enter_standard_name_356)
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ xv ]
-  standard_name = enter_standard_name_107
-  units = enter_units
+  standard_name = eastward_component_of_gravity_wave_source_wind_unit_vector_tbd
+  units = 1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_357:enter_standard_name_358)
+  dimensions = (horizontal_loop_extent)
   intent = out
 [ yv ]
-  standard_name = enter_standard_name_108
-  units = enter_units
+  standard_name = northward_component_of_gravity_wave_source_wind_unit_vector_tbd
+  units = 1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_359:enter_standard_name_360)
+  dimensions = (horizontal_loop_extent)
   intent = out
 [ utgw ]
-  standard_name = enter_standard_name_109
-  units = enter_units
+  standard_name = tendency_of_eastward_wind_due_to_frontogenesis_inertial_gravity_wave_drag
+  units = m s-2
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_361:enter_standard_name_362,enter_standard_name_363:enter_standard_name_364)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ vtgw ]
-  standard_name = enter_standard_name_110
-  units = enter_units
+  standard_name = tendency_of_northward_wind_due_to_frontogenesis_inertial_gravity_wave_drag
+  units = m s-2
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_365:enter_standard_name_366,enter_standard_name_367:enter_standard_name_368)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ ttgw ]
-  standard_name = enter_standard_name_111
-  units = enter_units
+  standard_name = tendency_of_air_temperature_due_to_frontogenesis_inertial_gravity_wave_drag
+  # J kg-1 s-1 / [cpairv = J kg-1 K-1] = K s-1 ... converted by /cpairv to K tendency before out from subroutine.
+  units = K s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_369:enter_standard_name_370,enter_standard_name_371:enter_standard_name_372)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ qtgw ]
-  standard_name = enter_standard_name_112
-  units = enter_units
+  standard_name = ccpp_constituent_tendencies_due_to_frontogenesis_inertial_gravity_wave_drag
+  units = kg kg-1 s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_373:enter_standard_name_374,enter_standard_name_375:enter_standard_name_376,enter_standard_name_377:enter_standard_name_378)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
   intent = out
 [ dttdf ]
-  standard_name = enter_standard_name_113
-  units = enter_units
+  standard_name = tendency_of_air_temperature_due_to_diffusion_due_to_frontogenesis__inertialgravity_wave_drag
+  units = J kg-1 s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_379:enter_standard_name_380,enter_standard_name_381:enter_standard_name_382)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ dttke ]
-  standard_name = enter_standard_name_114
-  units = enter_units
+  standard_name = tendency_of_air_temperature_due_to_kinetic_energy_dissipation_due_to_frontogenesis_inertial_gravity_wave_drag
+  units = J kg-1 s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_383:enter_standard_name_384,enter_standard_name_385:enter_standard_name_386)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
