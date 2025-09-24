@@ -184,13 +184,13 @@
   dimensions = ()
   intent = in
 [ taux ]
-  standard_name = eastward_stress_at_surface_for_vertical_diffusion_tbd
+  standard_name = eastward_stress_at_surface_for_vertical_diffusion
   units = N m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
 [ tauy ]
-  standard_name = northward_stress_at_surface_for_vertical_diffusion_tbd
+  standard_name = northward_stress_at_surface_for_vertical_diffusion
   units = N m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
@@ -408,13 +408,13 @@
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ taux ]
-  standard_name = eastward_stress_at_surface_for_vertical_diffusion_tbd
+  standard_name = eastward_stress_at_surface_for_vertical_diffusion
   units = N m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
 [ tauy ]
-  standard_name = northward_stress_at_surface_for_vertical_diffusion_tbd
+  standard_name = northward_stress_at_surface_for_vertical_diffusion
   units = N m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)

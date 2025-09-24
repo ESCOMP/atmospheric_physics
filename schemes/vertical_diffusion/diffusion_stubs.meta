@@ -352,13 +352,13 @@
   dimensions = (horizontal_loop_extent)
   intent = inout
 [ tautotx ]
-  standard_name = eastward_stress_at_surface_for_vertical_diffusion_tbd
+  standard_name = eastward_stress_at_surface_for_vertical_diffusion
   units = N m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = inout
 [ tautoty ]
-  standard_name = northward_stress_at_surface_for_vertical_diffusion_tbd
+  standard_name = northward_stress_at_surface_for_vertical_diffusion
   units = N m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)

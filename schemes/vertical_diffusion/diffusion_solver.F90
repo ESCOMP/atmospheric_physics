@@ -232,8 +232,8 @@ contains
     if (do_iss) then
       ! Add surface drag coefficient for implicit diffusion
       do i = 1, ncol
-        ws(i) = max(sqrt(u0(i, pver)**2._kind_phys + v0(i, pver)**2._kind_phys), wsmin)
-        tau(i) = sqrt(taux(i)**2._kind_phys + tauy(i)**2._kind_phys)
+        ws(i) = max(sqrt(u0(i, pver)**2 + v0(i, pver)**2), wsmin)
+        tau(i) = sqrt(taux(i)**2 + tauy(i)**2)
         ksrfturb(i) = max(tau(i)/ws(i), ksrfmin)
       end do
       ksrf(:ncol) = ksrf(:ncol) + ksrfturb(:ncol)  ! Do all surface stress implicitly

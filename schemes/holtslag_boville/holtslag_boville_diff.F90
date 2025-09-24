@@ -291,7 +291,6 @@ contains
     real(kind_phys) :: tlv(ncol)       ! ref. level potential tmp + tmp excess
     real(kind_phys) :: vvk             ! velocity magnitude squared
 
-    !logical  :: unstable(ncol)         ! points with unstable pbl (positive virtual heat flux)
     logical  :: check(ncol)            ! false if Richardson number > critical
     logical  :: ocncldcheck(ncol)      ! true if ocean surface (not implemented) and cloud in lowest layer
 
@@ -331,7 +330,6 @@ contains
     ! Estimate an effective surface temperature to account for surface fluctuations
     do i=1,ncol
        if (check(i)) pblh(i) = z(i,pverp-npbl)
-       !unstable(i) = (kbfs(i) > 0._kind_phys)
        check(i)  = (kbfs(i) > 0._kind_phys)
        if (check(i)) then
           phiminv(i)   = (1._kind_phys - binm*pblh(i)/obklen(i))**onet
