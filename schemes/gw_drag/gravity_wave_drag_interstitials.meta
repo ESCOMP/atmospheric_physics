@@ -78,19 +78,19 @@
   dimensions = ()
   intent = out
 [ rhoi ]
-  standard_name = air_density_at_interface_for_gravity_wave_drag_tbd
+  standard_name = air_density_at_interfaces_for_gravity_wave_drag
   units = kg m-3
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ nm ]
-  standard_name = brunt_vaisalla_frequencies_tbd
+  standard_name = brunt_vaisalla_frequencies
   units = s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ ni ]
-  standard_name = brunt_vaisalla_frequencies_at_interfaces_tbd
+  standard_name = brunt_vaisalla_frequencies_at_interfaces
   units = s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)

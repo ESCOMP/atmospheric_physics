@@ -42,7 +42,7 @@
   dimensions = (vertical_layer_dimension)
   intent = in
 [ vramp ]
-  standard_name = gravity_wave_drag_tapering_coefficients_tbd
+  standard_name = gravity_wave_drag_tapering_coefficients
   units = 1
   type = real | kind = kind_phys
   dimensions = (vertical_layer_dimension)
