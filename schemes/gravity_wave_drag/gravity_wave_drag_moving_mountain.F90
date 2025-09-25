@@ -721,7 +721,7 @@ contains
           !------------------------------------------------------------------
           !hdmm_idx = index_of_nearest(hdepth, desc%hd)
           uhmm_idx = index_of_nearest(uh, desc%uh)
-          taumm(i) = abs(desc%mfcc(uhmm_idx(i), hd_idx(i), 0))
+          taumm(i) = abs(desc%mfcc(hd_idx(i), uhmm_idx(i), 0))
           taumm(i) = taumm(i)*qj(i)*qj(i)/AL/1000._kind_phys
           ! assign sign to MF based on the ground based phase speed, ground based phase speed = CS
           taumm(i) = -1._kind_phys*sign(taumm(i), CS(i))

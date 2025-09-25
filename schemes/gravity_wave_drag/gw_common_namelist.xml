@@ -489,7 +489,7 @@
     </values>
   </entry>
 
-  <entry id="gw_effgw_rdg_beta">
+  <entry id="effgw_rdg_beta">
     <type>real</type>
     <category>gw_drag</category>
     <group>gw_drag_nl</group>
@@ -504,7 +504,7 @@
     </values>
   </entry>
 
-  <entry id="gw_effgw_rdg_beta_max">
+  <entry id="effgw_rdg_beta_max">
     <type>real</type>
     <category>gw_drag</category>
     <group>gw_drag_nl</group>
@@ -551,7 +551,7 @@
     GRAVITY_WAVE_DRAG_MOVING_MOUNTAIN
     moving mountain gravity waves
   -->
-  <entry id="gw_movmtn_drag_file">
+  <entry id="gw_drag_file_movmtn">
     <type>char*256</type>
     <category>gw_drag</category>
     <group>gw_drag_nl</group>
@@ -629,10 +629,12 @@
     <units>flag</units>
     <desc>
       Whether or not to enable gravity waves from PBL moving mountains source.
-      Default: .false.
+      Default: true for SE, MPAS dycore; otherwise false.
     </desc>
     <values>
       <value>.false.</value>
+      <value dyn="se">.true.</value>
+      <value dyn="mpas">.true.</value>
     </values>
   </entry>
 

@@ -59,9 +59,5 @@
     <scheme>qneg</scheme>
     <scheme>geopotential_temp</scheme>
     <scheme>update_dry_static_energy</scheme>
-
-    <!-- CHECK ENERGY -->
-    <scheme>check_energy_scaling</scheme>
-    <scheme>check_energy_chng</scheme>
   </group>
 </suite>
