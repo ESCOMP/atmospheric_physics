@@ -755,8 +755,27 @@
       GRAVITY_WAVE_DRAG_CONVECTION
       Convective gravity wave drag (Beres et al.)
   -->
-  gw_drag_file_dp
-  gw_drag_file_sh
+  <entry id="gw_drag_file_dp">
+    <type>char*256</type>
+    <category>gw_drag</category>
+    <group>gw_drag_nl</group>
+    <standard_name>filename_of_lookup_table_of_source_spectra_for_deep_convective_gravity_wave_drag</standard_name>
+    <units>none</units>
+    <desc>
+      Full pathname of Beres lookup table data file for gravity waves sourced from deep convection.
+    </desc>
+  </entry>
+
+  <entry id="gw_drag_file_sh">
+    <type>char*256</type>
+    <category>gw_drag</category>
+    <group>gw_drag_nl</group>
+    <standard_name>filename_of_lookup_table_of_source_spectra_for_shallow_convective_gravity_wave_drag</standard_name>
+    <units>none</units>
+    <desc>
+      Full pathname of Beres lookup table data file for gravity waves sourced from shallow convection.
+    </desc>
+  </entry>
 
   <entry id="effgw_beres_dp">
     <type>real</type>
@@ -765,10 +784,24 @@
     <standard_name>deep_convective_scheme_maximum_efficiency_of_gravity_wave_momentum_transfer_tbd</standard_name>
     <units>1</units>
     <desc>
-      Efficiency associated with inertial gravity waves from frontogenesis.
+      Efficiency associated with convective gravity waves from the Beres scheme (deep convection).
     </desc>
     <values>
-      <value>0.1D0</value>
+      <value>0.7D0</value>
+    </values>
+  </entry>
+
+  <entry id="effgw_beres_sh">
+    <type>real</type>
+    <category>gw_drag</category>
+    <group>gw_drag_nl</group>
+    <standard_name>shallow_convective_scheme_maximum_efficiency_of_gravity_wave_momentum_transfer_tbd</standard_name>
+    <units>1</units>
+    <desc>
+      Efficiency associated with convective gravity waves from the Beres scheme (shallow convection).
+    </desc>
+    <values>
+      <value>0.03D0</value>
     </values>
   </entry>
 
