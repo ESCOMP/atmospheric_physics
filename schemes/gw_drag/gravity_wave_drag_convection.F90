@@ -106,7 +106,7 @@ contains
       return
     end if
 
-    call gw_init_beres_desc(gw_drag_file_dp, band_mid, beres_dp_desc, errmsg, errflg)
+    call gw_init_beres_desc(masterproc, iulog, gw_drag_file_dp, band_mid, beres_dp_desc, errmsg, errflg)
   end subroutine gravity_wave_drag_convection_deep_init
 
   ! Convective gravity waves (Beres scheme, deep).
@@ -146,7 +146,7 @@ contains
     integer,            intent(in)    :: pver
     integer,            intent(in)    :: pcnst
     real(kind_phys),    intent(in)    :: dt
-    integer,     intent(in)    :: p                        ! Pressure coordinates [Pa]
+    type(coords1d),     intent(in)    :: p                        ! Pressure coordinates [Pa]
     real(kind_phys),    intent(in)    :: vramp(:)                 ! Ramping profile for gravity wave drag [1]
     real(kind_phys),    intent(in)    :: pi                       ! Mathematical constant pi [1]
     real(kind_phys),    intent(in)    :: cpair                    ! Specific heat of dry air at constant pressure [J kg-1 K-1]
@@ -402,7 +402,7 @@ contains
       return
     end if
 
-    call gw_init_beres_desc(gw_drag_file_sh, band_mid, beres_sh_desc, errmsg, errflg)
+    call gw_init_beres_desc(masterproc, iulog, gw_drag_file_sh, band_mid, beres_sh_desc, errmsg, errflg)
   end subroutine gravity_wave_drag_convection_shallow_init
 
   ! Convective gravity waves (Beres scheme, shallow).
@@ -440,7 +440,7 @@ contains
     integer,            intent(in)    :: pver
     integer,            intent(in)    :: pcnst
     real(kind_phys),    intent(in)    :: dt
-    integer,     intent(in)    :: p                        ! Pressure coordinates [Pa]
+    type(coords1d),     intent(in)    :: p                        ! Pressure coordinates [Pa]
     real(kind_phys),    intent(in)    :: vramp(:)                 ! Ramping profile for gravity wave drag [1]
     real(kind_phys),    intent(in)    :: pi                       ! Mathematical constant pi [1]
     real(kind_phys),    intent(in)    :: cpair                    ! Specific heat of dry air at constant pressure [J kg-1 K-1]
@@ -624,9 +624,11 @@ contains
 !==========================================================================
 
   ! Initialization / IO routine used by the two init routines.
-  subroutine gw_init_beres_desc(file_path, band, desc, errmsg, errflg)
+  subroutine gw_init_beres_desc(amIRoot, iulog, file_path, band, desc, errmsg, errflg)
     use ccpp_io_reader, only: abstract_netcdf_reader_t, create_netcdf_reader_t
 
+    logical,               intent(in)        :: amIRoot
+    integer,               intent(in)        :: iulog
     type(GWBand),          intent(in)        :: band
     type(BeresSourceDesc), intent(inout)     :: desc
     character(len=*),      intent(in)        :: file_path
@@ -711,7 +713,7 @@ contains
       return
     end if
 
-    if (masterproc) then
+    if (amIRoot) then
       write (iulog, *) "gravity_wave_drag_convection: Read in source spectra from file."
       write (iulog, *) "gravity_wave_drag_convection: mfcc max, min = ", &
         maxval(desc%mfcc), ", ", minval(desc%mfcc)

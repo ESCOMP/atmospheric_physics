@@ -39,7 +39,6 @@
     <scheme>gravity_wave_drag_moving_mountain</scheme>
 
     <!-- CONVECTIVE GRAVITY WAVE DRAG (Beres et al.) - DEEP CONVECTION -->
-    <scheme>gravity_wave_drag_convection</scheme>
     <scheme>gravity_wave_drag_convection_deep</scheme>
 
     <!-- FRONTALLY GENERATED GRAVITY WAVE DRAG -->

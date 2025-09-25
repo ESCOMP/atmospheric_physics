@@ -5,33 +5,9 @@
 [ccpp-arg-table]
   name  = gravity_wave_drag_ridge_init
   type  = scheme
-[ use_gw_rdg_beta_in ]
-  standard_name = do_meso_beta_ridge_gravity_wave_drag
-  units = flag
-  type = logical
-  dimensions = ()
-  intent = in
-[ use_gw_rdg_gamma_in ]
-  standard_name = do_meso_gamma_ridge_gravity_wave_drag
-  units = flag
-  type = logical
-  dimensions = ()
-  intent = in
 [ gw_delta_c ]
   standard_name = delta_between_nearest_phase_speeds_in_the_mid_gravity_wave_band_tbd
   units = m s-1
-  type = real | kind = kind_phys
-  dimensions = ()
-  intent = in
-[ effgw_rdg_beta ]
-  standard_name = meso_beta_scheme_efficiency_of_gravity_wave_momentum_transfer_tbd
-  units = 1
-  type = real | kind = kind_phys
-  dimensions = ()
-  intent = in
-[ effgw_rdg_gamma ]
-  standard_name = meso_gamma_scheme_efficiency_of_gravity_wave_momentum_transfer_tbd
-  units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
@@ -143,6 +119,28 @@
   type = scheme
 
 [ccpp-arg-table]
+  name  = gravity_wave_drag_ridge_beta_init
+  type  = scheme
+[ effgw_rdg_beta ]
+  standard_name = meso_beta_scheme_efficiency_of_gravity_wave_momentum_transfer_tbd
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
   name  = gravity_wave_drag_ridge_beta_run
   type  = scheme
 [ ncol ]
@@ -164,7 +162,7 @@
   dimensions = ()
   intent = in
 [ nrdg ]
-  standard_name = number_of_ridges_in_beta_ridge_gravity_wave_drag_tbd
+  standard_name = number_of_ridges_in_ridge_gravity_wave_drag_tbd
   units = count
   type = integer
   dimensions = ()
@@ -455,6 +453,28 @@
 [ccpp-table-properties]
   name = gravity_wave_drag_ridge_gamma
   type = scheme
+
+[ccpp-arg-table]
+  name  = gravity_wave_drag_ridge_gamma_init
+  type  = scheme
+[ effgw_rdg_gamma ]
+  standard_name = meso_gamma_scheme_efficiency_of_gravity_wave_momentum_transfer_tbd
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
 
 [ccpp-arg-table]
   name  = gravity_wave_drag_ridge_gamma_run

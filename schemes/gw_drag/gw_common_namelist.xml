@@ -310,7 +310,7 @@
     <type>logical</type>
     <category>gw_drag</category>
     <group>gw_drag_nl</group>
-    <standard_name>allow_trapping_in_ridge_gravity_wave_drag_tbd</standard_name>
+    <standard_name>allow_trapping_in_beta_ridge_gravity_wave_drag_tbd</standard_name>
     <units>flag</units>
     <desc>
       Whether or not to allow trapping for meso-Beta Ridges.
@@ -324,10 +324,10 @@
     <type>logical</type>
     <category>gw_drag</category>
     <group>gw_drag_nl</group>
-    <standard_name>allow_trapping_in_ridge_gravity_wave_drag_tbd</standard_name>
+    <standard_name>allow_trapping_in_gamma_ridge_gravity_wave_drag_tbd</standard_name>
     <units>flag</units>
     <desc>
-      Whether or not to allow trapping for meso-Beta Ridges.
+      Whether or not to allow trapping for meso-Gamma Ridges.
     </desc>
     <values>
       <value>.false.</value>
@@ -560,6 +560,9 @@
     <desc>
       Relative pathname of lookup table for deep convective moving mountain GW source.
     </desc>
+    <values>
+      <value>UNSET_PATH</value>
+    </values>
   </entry>
 
   <entry id="gw_movmtn_psteer">
@@ -764,6 +767,9 @@
     <desc>
       Full pathname of Beres lookup table data file for gravity waves sourced from deep convection.
     </desc>
+    <values>
+      <value>UNSET_PATH</value>
+    </values>
   </entry>
 
   <entry id="gw_drag_file_sh">
@@ -775,6 +781,9 @@
     <desc>
       Full pathname of Beres lookup table data file for gravity waves sourced from shallow convection.
     </desc>
+    <values>
+      <value>UNSET_PATH</value>
+    </values>
   </entry>
 
   <entry id="effgw_beres_dp">

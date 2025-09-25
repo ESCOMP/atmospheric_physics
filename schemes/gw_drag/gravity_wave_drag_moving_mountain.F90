@@ -203,7 +203,7 @@ contains
                            t, &
                            q, &
                            dse, &
-                           pint, piln, rhoi, nm, ni, &
+                           piln, rhoi, nm, ni, &
                            kvt_gw, &
                            ttend_dp, ttend_clubb, &
                            upwp_clubb, vpwp_clubb, vorticity, &
@@ -237,7 +237,6 @@ contains
     real(kind_phys), intent(in)    :: t(:, :)           ! temperature (K)
     real(kind_phys), intent(in)    :: q(:, :, :)        ! Constituent array.
     real(kind_phys), intent(in)    :: dse(:, :)         ! Dry static energy.
-    real(kind_phys), intent(in)    :: pint(:, :)        ! pressure at model interfaces
     real(kind_phys), intent(in)    :: piln(:, :)        ! ln pressure at model interfaces
     real(kind_phys), intent(in)    :: rhoi(:, :)        ! Interface density (kg m-3).
     real(kind_phys), intent(in)    :: nm(:, :)          ! Midpoint Brunt-Vaisalla frequencies (s-1).
