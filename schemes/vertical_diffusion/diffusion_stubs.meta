@@ -19,7 +19,7 @@
   intent = in
 [ ubc_mmr ]
   standard_name = upper_boundary_condition_of_ccpp_constituents
-  units = kg kg-1
+  units = none
   dimensions = (horizontal_dimension, number_of_ccpp_constituents)
   type = real | kind = kind_phys
   intent = out
