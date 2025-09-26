@@ -1,0 +1,43 @@
+[ccpp-table-properties]
+  name = vertical_diffusion_options
+  type = scheme
+
+[ccpp-arg-table]
+  name  = vertical_diffusion_options_init
+  type  = scheme
+[ amIRoot ]
+  standard_name = flag_for_mpi_root
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ iulog ]
+  standard_name = log_output_unit
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ do_iss_in ]
+  standard_name = do_implicit_total_surface_stress_in_vertical_diffusion
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ am_correction_in ]
+  standard_name = do_angular_momentum_correction_in_vertical_diffusion
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
