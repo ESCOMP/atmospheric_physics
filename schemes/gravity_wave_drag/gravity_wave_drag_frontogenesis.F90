@@ -10,6 +10,7 @@ module gravity_wave_drag_frontogenesis
 
   public :: gravity_wave_drag_frontogenesis_init
   public :: gravity_wave_drag_frontogenesis_run
+  public :: gravity_wave_drag_frontogenesis_inertial_init
   public :: gravity_wave_drag_frontogenesis_inertial_run
 
   ! Tuneable settings.
