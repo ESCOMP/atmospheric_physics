@@ -6,9 +6,9 @@
 	fxDONOTUSEurl = https://github.com/NCAR/MMM-physics.git
 [submodule "pumas"]
 	path = schemes/pumas/pumas
-	url = https://github.com/ESCOMP/PUMAS
+	url = https://github.com/nusbaume/PUMAS
         fxrequired = AlwaysRequired
-        fxtag = pumas_cam-release_v1.39
+        fxtag = 81d173b21981913ab94b1eb1d403f7c98a8d23f3
         fxDONOTUSEurl = https://github.com/ESCOMP/PUMAS
 [submodule "rte-rrtmgp"]
 	path = schemes/rrtmgp/ext

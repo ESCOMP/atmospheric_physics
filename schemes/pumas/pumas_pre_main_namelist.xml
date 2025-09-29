@@ -8,7 +8,7 @@
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>relative_humidity_threshold_for_ice_nucleation</standard_name>
-  <units>frac</units>
+  <units>fraction</units>
   <type>real</type>
   <kind>kind_phys</kind>
   <desc> relative humidity threshold parameter for nucleating ice for MG microphysics </desc>
@@ -374,7 +374,7 @@
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>bergeron_findeisen_process_efficiency_factor</standard_name>
-  <units>frac</units>
+  <units>1</units>
   <type>real</type>
   <kind>kind_phys</kind>
   <desc>bergeron efficiency factor for MG microphysics</desc>
@@ -388,7 +388,7 @@
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>accretion_enhancement_factor</standard_name>
-  <units>none</units>
+  <units>1</units>
   <type>real</type>
   <kind>kind_phys</kind>
   <desc>KK2000 accretion enhancement factor for MG microphysics</desc>
@@ -402,7 +402,7 @@
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>autconversion_enhancement_factor</standard_name>
-  <units>none</units>
+  <units>1</units>
   <type>real</type>
   <kind>kind_phys</kind>
   <desc>KK2000 autonconverion enhancement factor for MG microphysics</desc>
@@ -416,7 +416,7 @@
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>autconversion_nd_exponent</standard_name>
-  <units>none</units>
+  <units>1</units>
   <type>real</type>
   <kind>kind_phys</kind>
   <desc>KK2000 autonconverion nd exponent in MG microphysics</desc>
@@ -430,7 +430,7 @@
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>autconversion_lwp_exponent</standard_name>
-  <units>none</units>
+  <units>1</units>
   <type>real</type>
   <kind>kind_phys</kind>
   <desc>KK2000 autonconverion lwp (qc) exponent in MG microphysics</desc>
