@@ -4,6 +4,39 @@ module micro_pumas_ccpp_dimensions_pre
 
 contains
 
+  !> \section arg_table_micro_pumas_ccpp_dimensions_pre_init Argument Table
+  !! \htmlinclude micro_pumas_ccpp_dimensions_pre_init.html
+  subroutine micro_pumas_ccpp_dimensions_pre_init( ncol, nlev, nlevp1,              &
+                             trop_cloud_top_lev, micro_ncol, micro_nlev,            &
+                             micro_nlevp1, errmsg, errcode)
+
+    !Host model dimensions/parameters:
+    integer,         intent(in) :: ncol
+    integer,         intent(in) :: nlev
+    integer,         intent(in) :: nlevp1
+    integer,         intent(in) :: trop_cloud_top_lev  !Index of the top model level for which
+                                                       !cloud physics is applied (1 to nlev)
+
+    !PUMAS dimensions/parameters:
+    integer,         intent(out) :: micro_ncol         !Number of horizontal microphysics columns (count)
+    integer,         intent(out) :: micro_nlev         !Number of microphysics vertical layers (count)
+    integer,         intent(out) :: micro_nlevp1       !Number of microphysics vertical interfaces (count)
+
+    !CCPP error handling:
+    character(len=512), intent(out) :: errmsg
+    integer,            intent(out) :: errcode
+
+    !Initialize error message and error code:
+    errmsg  = ''
+    errcode = 0
+
+    !Set PUMAS (cloud microphysics) dimensions:
+    micro_ncol   = ncol
+    micro_nlev   = nlev-trop_cloud_top_lev+1
+    micro_nlevp1 = micro_nlev + 1
+
+  end subroutine micro_pumas_ccpp_dimensions_pre_init
+
   !> \section arg_table_micro_pumas_ccpp_dimensions_pre_run Argument Table
   !! \htmlinclude micro_pumas_ccpp_dimensions_pre_run.html
   subroutine micro_pumas_ccpp_dimensions_pre_run(ncol, nlev, nlevp1,                &
@@ -26,7 +59,7 @@ contains
                              pint_in, micro_pint,                                   &
                              strat_cldfrc_in, micro_strat_cldfrc,                   &
                              strat_liq_cldfrc_in, micro_strat_liq_cldfrc,           &
-                             strat_ice_cldfrc_in, micro_strat_ice_cldfrc,           & 
+                             strat_ice_cldfrc_in, micro_strat_ice_cldfrc,           &
                              qsatfac_in, micro_qsatfac,                             &
                              naai_in, micro_naai,                                   &
                              npccn_in, micro_npccn,                                 &
@@ -47,9 +80,11 @@ contains
     integer,         intent(in) :: ncol
     integer,         intent(in) :: nlev
     integer,         intent(in) :: nlevp1
-    integer,         intent(in) :: micro_ncol         !Number of horizontal microphysics columns (count)
-    integer,         intent(in) :: micro_nlev         !Number of microphysics vertical layers (count)
-    integer,         intent(in) :: micro_nlevp1       !Number of microphysics vertical interfaces (count)
+
+    !PUMAS dimensions/parameters:
+    integer,         intent(in) :: micro_ncol          !Number of horizontal microphysics columns (count)
+    integer,         intent(in) :: micro_nlev          !Number of microphysics vertical layers (count)
+    integer,         intent(in) :: micro_nlevp1        !Number of microphysics vertical interfaces (count)
 
     ! Air temperature (K)
     real(kind_phys), intent(in)  :: airT_in(:, :)
@@ -152,8 +187,8 @@ contains
     errmsg  = ''
     errcode = 0
 
-!+ IH 
-! For now we just use nocls = micro_ncol, but we need to constrain the vertical extent for the microphysical fields.
+!+ IH
+! For now we just use ncols = micro_ncol, but we need to constrain the vertical extent for the microphysical fields.
 ! Therefore micro_xxx(:ncol,:) = xxx(:,::)
 !- IH
     micro_airT(:ncol,:) = airT_in(:,::)

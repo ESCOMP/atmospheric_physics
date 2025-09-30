@@ -2,9 +2,13 @@
 
 <suite name="pumas" version="1.0">
   <group name="physics_before_coupler">
-    <!-- pre-PUMAS interstitial -->
+    <!-- Read in PUMAS namelist variables (init only) -->
     <scheme>pumas_pre_main</scheme>
+    <!-- Convert variables from host grid to PUMAS grid -->
+    <scheme>micro_pumas_ccpp_dimensions_pre</scheme>
     <!-- core PUMAS (cloud microphysics) scheme -->
     <scheme>micro_pumas_ccpp</scheme>
+    <!-- Convert variables from PUMAS grid to host grid -->
+    <scheme>micro_pumas_ccpp_dimensions_post</scheme>
   </group>
 </suite>

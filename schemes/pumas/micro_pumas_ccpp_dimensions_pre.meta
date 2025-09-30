@@ -3,14 +3,87 @@
   type = scheme
 
 ########################################################################
+
 [ccpp-arg-table]
-  name = micro_pumas_ccpp_dimensions_pre_run
+  name = micro_pumas_ccpp_dimensions_pre_init
   type = scheme
-[ncol] 
+[ncol]
   standard_name = horizontal_dimension
   long_name = horizontal dimension
   units = count
-  dimensions = () 
+  dimensions = ()
+  type = integer
+  intent = in
+[nlev]
+  standard_name = vertical_layer_dimension
+  long_name = number of vertical levels
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[nlevp1]
+  standard_name = vertical_interface_dimension
+  long_name = number of vertical levels plus one
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[trop_cloud_top_lev]
+  standard_name = vertical_layer_index_of_troposphere_cloud_physics_top
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
+[micro_ncol]
+  #Equivalent to "horizontal_loop_extent" unless subcolumns is enabled
+  standard_name = microphysics_horizontal_loop_extent
+  long_name = number of horizontal columns used by microphysics
+  units = count
+  dimensions = ()
+  type = integer
+  intent = out
+[micro_nlev]
+  #Vertical levels from surface to highest level with tropospheric clouds
+  standard_name = microphysics_vertical_layer_dimension
+  long_name = vertical layer dimension used by microphysics
+  units = count
+  dimensions = ()
+  type = integer
+  intent = out
+[micro_nlevp1]
+  #Vertical interfaces from surface to highest level with tropospheric clouds
+  standard_name = microphysics_vertical_interface_dimension
+  long_name = vertical interface dimension used by microphysics
+  units = count
+  dimensions = ()
+  type = integer
+  intent = out
+[errmsg]
+  standard_name = ccpp_error_message
+  long_name = error message for error handling in CCPP
+  units = none
+  dimensions = ()
+  type = character
+  kind = len=512
+  intent = out
+[errcode]
+  standard_name = ccpp_error_code
+  long_name = error code for error handling in CCPP
+  units = 1
+  dimensions = ()
+  type = integer
+  intent = out
+
+########################################################################
+
+[ccpp-arg-table]
+  name = micro_pumas_ccpp_dimensions_pre_run
+  type = scheme
+[ncol]
+  standard_name = horizontal_dimension
+  long_name = horizontal dimension
+  units = count
+  dimensions = ()
   type = integer
   intent = in
 [nlev]
@@ -579,4 +652,3 @@
 #####################
 #End of metadata file
 #####################
-
