@@ -214,6 +214,10 @@ contains
     kbfs(:ncol)   = calc_kinematic_buoyancy_flux(khfs(:ncol), zvir, th(:ncol,pver), kqfs(:ncol))
     obklen(:ncol) = calc_obukhov_length(thv(:ncol,pver), ustar(:ncol), gravit, karman, kbfs(:ncol))
 
+    ! Initialize output arrays outside of turbulence region to zeroes
+    s2(:,:) = 0._kind_phys
+    ri(:,:) = 0._kind_phys
+
     ! Compute s^2 (shear squared), n^2 (brunt vaisaila frequency), and ri (Richardson number = n^2/s^2)
     ! using virtual temperature
     ! (formerly trbintd)
