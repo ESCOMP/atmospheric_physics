@@ -1,0 +1,344 @@
+[ccpp-table-properties]
+  name = hb_diff_set_vertical_diffusion_top
+  type = scheme
+  dependencies = ../../../../data/ref_pres.F90
+
+[ccpp-arg-table]
+  name  = hb_diff_set_vertical_diffusion_top_init
+  type  = scheme
+[ ntop_eddy ]
+  standard_name = vertical_layer_index_of_eddy_vertical_diffusion_top
+  units = index
+  dimensions = ()
+  type = integer
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  dimensions = ()
+  type = character | kind = len=512
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  dimensions = ()
+  type = integer
+  intent = out
+
+[ccpp-table-properties]
+  name = hb_diff_set_total_surface_stress
+  type = scheme
+
+[ccpp-arg-table]
+  name  = hb_diff_set_total_surface_stress_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[ wsx_from_coupler ]
+  standard_name = surface_eastward_wind_stress_from_coupler
+  units = N m-2
+  dimensions = (horizontal_loop_extent)
+  type = real | kind = kind_phys
+  intent = in
+[ wsy_from_coupler ]
+  standard_name = surface_northward_wind_stress_from_coupler
+  units = N m-2
+  dimensions = (horizontal_loop_extent)
+  type = real | kind = kind_phys
+  intent = in
+[ tautmsx ]
+  standard_name = eastward_turbulent_mountain_surface_stress_tbd
+  units = N m-2
+  dimensions = (horizontal_loop_extent)
+  type = real | kind = kind_phys
+  intent = in
+[ tautmsy ]
+  standard_name = northward_turbulent_mountain_surface_stress_tbd
+  units = N m-2
+  dimensions = (horizontal_loop_extent)
+  type = real | kind = kind_phys
+  intent = in
+[ taubljx ]
+  standard_name = eastward_beljaars_surface_stress_tbd
+  units = N m-2
+  dimensions = (horizontal_loop_extent)
+  type = real | kind = kind_phys
+  intent = in
+[ taubljy ]
+  standard_name = northward_beljaars_surface_stress_tbd
+  units = N m-2
+  dimensions = (horizontal_loop_extent)
+  type = real | kind = kind_phys
+  intent = in
+[ tautotx ]
+  standard_name = eastward_total_stress_at_surface_for_holtslag_boville_boundary_layer_scheme
+  units = N m-2
+  dimensions = (horizontal_loop_extent)
+  type = real | kind = kind_phys
+  intent = out
+[ tautoty ]
+  standard_name = northward_total_stress_at_surface_for_holtslag_boville_boundary_layer_scheme
+  units = N m-2
+  dimensions = (horizontal_loop_extent)
+  type = real | kind = kind_phys
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  dimensions = ()
+  type = character | kind = len=512
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  dimensions = ()
+  type = integer
+  intent = out
+
+[ccpp-table-properties]
+  name = hb_diff_prepare_vertical_diffusion_inputs
+  type = scheme
+  dependencies = ../../to_be_ccppized/coords_1d.F90
+
+[ccpp-arg-table]
+  name  = hb_diff_prepare_vertical_diffusion_inputs_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[ pverp ]
+  standard_name = vertical_interface_dimension
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[ pcnst ]
+  standard_name = number_of_ccpp_constituents
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[ const_props ]
+  standard_name = ccpp_constituent_properties
+  units = none
+  type = ccpp_constituent_prop_ptr_t
+  dimensions = (number_of_ccpp_constituents)
+  intent = in
+[ wsx_from_coupler ]
+  standard_name = surface_eastward_wind_stress_from_coupler
+  units = N m-2
+  dimensions = (horizontal_loop_extent)
+  type = real | kind = kind_phys
+  intent = in
+[ wsy_from_coupler ]
+  standard_name = surface_northward_wind_stress_from_coupler
+  units = N m-2
+  dimensions = (horizontal_loop_extent)
+  type = real | kind = kind_phys
+  intent = in
+[ shf_from_coupler ]
+  standard_name = surface_upward_sensible_heat_flux_from_coupler
+  units = W m-2
+  dimensions = (horizontal_loop_extent)
+  type = real | kind = kind_phys
+  intent = in
+[ cflx_from_coupler ]
+  standard_name = surface_upward_ccpp_constituent_fluxes_from_coupler
+  units = kg m-2 s-1
+  dimensions = (horizontal_loop_extent, number_of_ccpp_constituents)
+  type = real | kind = kind_phys
+  intent = in
+[ pint ]
+  standard_name = air_pressure_at_interface
+  units = Pa
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  type = real | kind = kind_phys
+  intent = in
+[ taux ]
+  standard_name = eastward_stress_at_surface_for_vertical_diffusion
+  units = N m-2
+  dimensions = (horizontal_loop_extent)
+  type = real | kind = kind_phys
+  intent = out
+[ tauy ]
+  standard_name = northward_stress_at_surface_for_vertical_diffusion
+  units = N m-2
+  dimensions = (horizontal_loop_extent)
+  type = real | kind = kind_phys
+  intent = out
+[ shflux ]
+  standard_name = surface_upward_sensible_heat_flux_for_vertical_diffusion
+  units = W m-2
+  dimensions = (horizontal_loop_extent)
+  type = real | kind = kind_phys
+  intent = out
+[ cflux ]
+  standard_name = surface_upward_ccpp_constituent_fluxes_for_vertical_diffusion
+  units = kg m-2 s-1
+  dimensions = (horizontal_loop_extent, number_of_ccpp_constituents)
+  type = real | kind = kind_phys
+  intent = out
+[ itaures ]
+  standard_name = update_residual_stress_at_surface_in_vertical_diffusion
+  units = flag
+  dimensions = ()
+  type = logical
+  intent = out
+[ p ]
+  standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion
+  units = none
+  dimensions = ()
+  type = coords1d
+  intent = out
+[ q_wv_cflx ]
+  standard_name = surface_upward_water_vapor_flux
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  dimensions = ()
+  type = character | kind = len=512
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  dimensions = ()
+  type = integer
+  intent = out
+
+[ccpp-arg-table]
+  name  = hb_diff_prepare_vertical_diffusion_inputs_timestep_final
+  type  = scheme
+[ p ]
+  standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion
+  units = none
+  dimensions = ()
+  type = coords1d
+  intent = inout
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  dimensions = ()
+  type = character | kind = len=512
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  dimensions = ()
+  type = integer
+  intent = out
+
+[ccpp-table-properties]
+  name = hb_free_atm_diff_prepare_vertical_diffusion_inputs
+  type = scheme
+  dependencies = ../../to_be_ccppized/coords_1d.F90
+
+[ccpp-arg-table]
+  name  = hb_free_atm_diff_prepare_vertical_diffusion_inputs_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[ pverp ]
+  standard_name = vertical_interface_dimension
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[ pcnst ]
+  standard_name = number_of_ccpp_constituents
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[ const_props ]
+  standard_name = ccpp_constituent_properties
+  units = none
+  type = ccpp_constituent_prop_ptr_t
+  dimensions = (number_of_ccpp_constituents)
+  intent = in
+[ apply_nonwv_cflx ]
+  standard_name = do_apply_ccpp_constituent_fluxes_excluding_water_vapor_in_vertical_diffusion
+  units = flag
+  dimensions = ()
+  type = logical
+  intent = in
+[ cflx_from_coupler ]
+  standard_name = surface_upward_ccpp_constituent_fluxes_from_coupler
+  units = kg m-2 s-1
+  dimensions = (horizontal_loop_extent, number_of_ccpp_constituents)
+  type = real | kind = kind_phys
+  intent = in
+[ pint ]
+  standard_name = air_pressure_at_interface
+  units = Pa
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  type = real | kind = kind_phys
+  intent = in
+[ taux ]
+  standard_name = eastward_stress_at_surface_for_vertical_diffusion
+  units = N m-2
+  dimensions = (horizontal_loop_extent)
+  type = real | kind = kind_phys
+  intent = out
+[ tauy ]
+  standard_name = northward_stress_at_surface_for_vertical_diffusion
+  units = N m-2
+  dimensions = (horizontal_loop_extent)
+  type = real | kind = kind_phys
+  intent = out
+[ shflux ]
+  standard_name = surface_upward_sensible_heat_flux_for_vertical_diffusion
+  units = W m-2
+  dimensions = (horizontal_loop_extent)
+  type = real | kind = kind_phys
+  intent = out
+[ cflux ]
+  standard_name = surface_upward_ccpp_constituent_fluxes_for_vertical_diffusion
+  units = kg m-2 s-1
+  dimensions = (horizontal_loop_extent, number_of_ccpp_constituents)
+  type = real | kind = kind_phys
+  intent = out
+[ itaures ]
+  standard_name = update_residual_stress_at_surface_in_vertical_diffusion
+  units = flag
+  dimensions = ()
+  type = logical
+  intent = out
+[ p ]
+  standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion
+  units = none
+  dimensions = ()
+  type = coords1d
+  intent = out
+[ q_wv_cflx ]
+  standard_name = surface_upward_water_vapor_flux
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  dimensions = ()
+  type = character | kind = len=512
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  dimensions = ()
+  type = integer
+  intent = out
