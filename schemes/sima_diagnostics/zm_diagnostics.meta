@@ -57,7 +57,7 @@
   standard_name = lwe_precipitation_rate_at_surface_due_to_deep_convection
   units = m s-1
   type = real | kind = kind_phys
-  dimensions = (1:horizontal_loop_extent)
+  dimensions = (horizontal_loop_extent)
   intent = in
 [ cape ]
   standard_name = zhang_mcfarlane_convective_available_potential_energy
