@@ -52,9 +52,6 @@ contains
     character(len=*), parameter :: sub = 'rrtmgp_sw_gas_optics_pre_run'
     !----------------------------------------------------------------------------
 
-    write(iulog,*) 'peverwhee - nradgas'
-    write(iulog,*) nradgas
-
     ! Set error variables
     errmsg = ''
     errflg = 0
@@ -124,9 +121,6 @@ contains
              end if
           end do
        end if
-
-       write(iulog,*) 'peverwhee - setting concs for gas'
-       write(iulog,*) gaslist(gas_idx)
 
        errmsg = gas_concs%gas_concs%set_vmr(gaslist(gas_idx), gas_vmr)
        if (len_trim(errmsg) > 0) then

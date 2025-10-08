@@ -8,8 +8,6 @@
     <scheme>tropopause_find</scheme>
     <scheme>rrtmgp_variables</scheme>
     <scheme>rrtmgp_inputs</scheme>
-    <scheme>rrtmgp_lw_cloud_optics</scheme>
-    <scheme>rrtmgp_lw_mcica_subcol_gen</scheme>
     <scheme>rrtmgp_sw_cloud_optics</scheme>
     <scheme>rrtmgp_sw_mcica_subcol_gen</scheme>
     <!-- Shortwave subcycle - last iteration is climate calculation -->
@@ -26,6 +24,8 @@
       <scheme>rrtmgp_sw_diagnostics</scheme>
       <scheme>rrtmgp_subcycle</scheme>
     </subcycle>
+    <scheme>rrtmgp_lw_cloud_optics</scheme>
+    <scheme>rrtmgp_lw_mcica_subcol_gen</scheme>
     <!-- Longwave subcycle - last iteration is climate calculation-->
     <subcycle>
       <scheme>rrtmgp_constituents</scheme>

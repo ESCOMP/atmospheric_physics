@@ -166,7 +166,7 @@
   dimensions = (horizontal_loop_extent)
   intent = in
 [ sols ]
-  standard_name = direct_solar_radative_flux_at_surface_lt_700nm_to_coupler
+  standard_name = direct_solar_radiative_flux_at_surface_lt_700nm_to_coupler
   units = W m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
@@ -178,7 +178,7 @@
   dimensions = (horizontal_loop_extent)
   intent = in
 [ solsd ]
-  standard_name = diffuse_solar_radative_flux_at_surface_lt_700nm_to_coupler
+  standard_name = diffuse_solar_radiative_flux_at_surface_lt_700nm_to_coupler
   units = W m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)

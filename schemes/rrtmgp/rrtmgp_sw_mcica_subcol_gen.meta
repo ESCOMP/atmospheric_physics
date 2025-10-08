@@ -101,11 +101,11 @@
   type = ty_optical_props_2str_ccpp
   dimensions = ()
   intent = out
-[ pmid ]
-  standard_name = air_pressure
+[ pmid_day ]
+  standard_name = air_pressure_for_daytime_points_for_RRTMGP
   units = Pa
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (daytime_points_dimension, number_of_vertical_layers_in_RRTMGP)
   intent = in
 [ errmsg ]
   standard_name = ccpp_error_message

@@ -1,5 +1,4 @@
 module rrtmgp_inputs
- use cam_logfile, only: iulog
 
  implicit none
  private
@@ -12,7 +11,7 @@ module rrtmgp_inputs
 !! \htmlinclude rrtmgp_inputs_run.html
 !!
   subroutine rrtmgp_inputs_run(dosw, dolw, snow_associated, graupel_associated, &
-                  is_root, iulog, is_mpas, pmid, pint, t, nday, idxday,          &
+                  is_mpas, pmid, pint, t, nday, idxday,          &
                   cldfprime, coszrs, kdist_sw, t_sfc, emis_sfc, t_rad,          &
                   pmid_rad, pint_rad, t_day, pmid_day, pint_day, coszrs_day,    &
                   alb_dir, alb_dif, lwup, stebol, ncol, ktopcam, ktoprad, &
@@ -44,9 +43,7 @@ module rrtmgp_inputs
      logical,                              intent(in) :: dolw                  ! Flag for performing the longwave calculation
      logical,                              intent(in) :: snow_associated       ! Flag for whether the cloud snow fraction argument should be used
      logical,                              intent(in) :: graupel_associated    ! Flag for whether the cloud graupel fraction argument should be used
-     logical,                              intent(in) :: is_root
      logical,                              intent(in) :: is_mpas
-     integer,                              intent(in) :: iulog
      integer,         dimension(:),        intent(in) :: idxday                ! Indices of daylight columns
      real(kind_phys), dimension(:,:),      intent(in) :: pmid                  ! Air pressure at midpoint (Pa)
      real(kind_phys), dimension(:,:),      intent(in) :: pint                  ! Air pressure at interface (Pa)
@@ -127,14 +124,6 @@ module rrtmgp_inputs
         ltrick_rrtmgp = .false.
      end if
 
-     if (is_root) then
-        if (ltrick_rrtmgp) then
-           write(iulog,*) ' *** TRICKING RRTMGP INTO GOING AN EXTRA LEVEL  ',nlay,pverp
-        else
-           write(iulog,*) ' *** CANT or WONT trick RRTMGP ',nlay,pverp
-        end if
-     end if
-
      ! RRTMGP set state
      t_sfc = sqrt(sqrt(lwup(:)/stebol))  ! Surface temp set based on longwave up flux.
 
@@ -212,6 +201,7 @@ module rrtmgp_inputs
         pint_day(idx,:) = pint_rad(idxday(idx),:)
         coszrs_day(idx) = coszrs(idxday(idx))
      end do
+
      ! Assign albedos to the daylight columns (from E3SM implementation)
      ! Albedos are imported from the surface models as broadband (visible, and near-IR),
      ! and we need to map these to appropriate narrower bands used in RRTMGP. Bands
@@ -292,9 +282,6 @@ module rrtmgp_inputs
            errflg = 1
            return
         end if
-
-        write(iulog,*) 'peverwhee - nlay before alloc'
-        write(iulog,*) nlay
 
         ! Initialize object for combined gas + aerosol + cloud optics.
         ! Allocates arrays for properties represented on g-points.

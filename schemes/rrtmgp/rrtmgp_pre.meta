@@ -56,7 +56,7 @@
   intent = in
 [ coszrs ]
   standard_name = cosine_of_solar_zenith_angle_for_radiation
-  units = rad
+  units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_dimension)
   intent = in
@@ -136,7 +136,7 @@
   type  = scheme
 [ coszrs ]
   standard_name = cosine_of_solar_zenith_angle_for_radiation
-  units = rad
+  units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in

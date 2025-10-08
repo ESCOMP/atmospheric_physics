@@ -366,8 +366,6 @@ contains
       return
    end if
 
-   write(iulog,*) 'peverwhee - in sw gas optics'
-   write(iulog,*) size(p_lay,2)
    iCol = ((iter_num - 1) * rrtmgp_phys_blksz) + 1
    iCol2= min(iCol + rrtmgp_phys_blksz - 1, ncol)
 

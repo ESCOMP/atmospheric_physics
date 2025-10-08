@@ -67,8 +67,8 @@
   dimensions = (daytime_points_dimension,number_of_shortwave_g_point_intervals)
   intent = out
 [ eccf ]
-  standard_name = planet_orbital_eccentricity_factor 
-  units = 1
+  standard_name = earth_sun_distance
+  units = AU
   type = real | kind = kind_phys
   dimensions = ()
   intent = in

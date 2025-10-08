@@ -29,18 +29,6 @@
   type = logical
   dimensions = ()
   intent = in
-[ is_root ]
-  standard_name = flag_for_mpi_root
-  units = flag
-  type = logical
-  dimensions = ()
-  intent = in
-[ iulog ]
-  standard_name = log_output_unit
-  units = 1
-  type = integer
-  dimensions = ()
-  intent = in
 [ is_mpas ]
   standard_name = is_mpas_dynamical_core
   units = flag
@@ -85,7 +73,7 @@
   intent = out
 [ coszrs ]
   standard_name = cosine_of_solar_zenith_angle_for_radiation
-  units = rad
+  units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in

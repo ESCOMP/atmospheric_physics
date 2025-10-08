@@ -1,5 +1,4 @@
 module rrtmgp_lw_gas_optics_pre
-
   implicit none
   private
 

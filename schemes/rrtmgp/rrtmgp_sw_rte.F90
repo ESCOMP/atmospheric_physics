@@ -3,7 +3,6 @@
 
 !> This module contains the call to the RRTMGP-sw radiation routine
 module rrtmgp_sw_rte
-  use cam_logfile, only: iulog
   implicit none
   private
 
@@ -53,8 +52,6 @@ contains
     ! Initialize CCPP error handling variables
     errmsg = ''
     errflg = 0
-    write(iulog,*) 'peverwhee - rte-sw'
-    write(iulog,*) coszen_day
 
     ! ###################################################################################
 
@@ -79,8 +76,8 @@ contains
     ! Optionally compute clear-sky fluxes
     if (doswclrsky) then
        errmsg = rte_sw(     &
-                  sw_optical_props%optical_props,    & ! IN  - optical-properties
-                  coszen_day(iCol:iCol2),                      & ! IN  - Cosine of solar zenith angle
+                  sw_optical_props%optical_props,          & ! IN  - optical-properties
+                  coszen_day(iCol:iCol2),                  & ! IN  - Cosine of solar zenith angle
                   toa_src_sw,                              & ! IN  - incident solar flux at TOA
                   sfc_alb_dir,                             & ! IN  - Shortwave surface albedo (direct)
                   sfc_alb_dif,                             & ! IN  - Shortwave surface albedo (diffuse)
@@ -110,12 +107,12 @@ contains
        ! Compute fluxes
        errmsg = rte_sw(     &
             sw_optical_props%optical_props,  & ! IN  - optical-properties
-            coszen_day(iCol:iCol2),              & ! IN  - Cosine of solar zenith angle
+            coszen_day(iCol:iCol2),          & ! IN  - Cosine of solar zenith angle
             toa_src_sw,                      & ! IN  - incident solar flux at TOA
             sfc_alb_dir,                     & ! IN  - Shortwave surface albedo (direct)
             sfc_alb_dif,                     & ! IN  - Shortwave surface albedo (diffuse)
             flux_allsky%fluxes)                ! OUT - Fluxes, all-sky, 3D (1,nLay,nBand)
-       call check_error_msg('rrtmgp_sw_rte_rte_sw_allskky', errmsg)
+       call check_error_msg('rrtmgp_sw_rte_rte_sw_allsky', errmsg)
        if (len_trim(errmsg) /= 0) then
           errflg = 1
        end if
