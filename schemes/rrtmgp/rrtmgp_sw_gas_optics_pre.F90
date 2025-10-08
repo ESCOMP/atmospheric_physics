@@ -39,7 +39,6 @@ contains
     ! Local variables
     integer :: i, gas_idx
     integer :: istat
-    real(kind_phys), allocatable :: gas_mmr(:,:)
     real(kind_phys), allocatable :: gas_vmr(:,:)
     real(kind_phys)              :: mmr(nday, nlay)
     real(kind_phys) :: massratio
@@ -59,11 +58,6 @@ contains
        return
     end if
 
-    allocate(gas_mmr(nday, pverp-1), stat=errflg, errmsg=alloc_errmsg)
-    if (errflg /= 0) then
-       write(errmsg,*) sub//": failed to allocate 'gas_mmr' - message: "//alloc_errmsg
-       return
-    end if
     allocate(gas_vmr(nday, nlay), stat=errflg, errmsg=alloc_errmsg)
     if (errflg /= 0) then
        write(errmsg,*) sub//": failed to allocate 'gas_vmr' - message: "//alloc_errmsg
@@ -73,11 +67,8 @@ contains
 
     do gas_idx = 1, nradgas
 
-       ! grab mass mixing ratio of gas
-       gas_mmr = rad_const_array(:,:,gas_idx)
-
        do i = 1, nday
-          mmr(i,ktoprad:) = gas_mmr(idxday(i),ktopcam:)
+          mmr(i,ktoprad:) = rad_const_array(idxday(i),ktopcam:,gas_idx)
        end do
 
        ! If an extra layer is being used, copy mmr from the top layer of CAM to the extra layer.
