@@ -228,12 +228,6 @@
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
-[ ccpp_constant_two ]
-  standard_name = ccpp_constant_two
-  units = count
-  type = integer
-  dimensions = ()
-  intent = in
 [ band2gpt_sw ]
   standard_name = shortwave_start_and_end_gpoint_for_each_band
   units = index

@@ -13,7 +13,7 @@ contains
 !! \htmlinclude rrtmgp_sw_rte_run.html
 !!
    subroutine rrtmgp_sw_rte_run(doswrad, doswclrsky, doswallsky, nday, iter_num, rrtmgp_phys_blksz, sw_optical_props, &
-                                 sw_optical_props_clouds, aersw, coszen_day, toa_src_sw, sfc_alb_dir, sfc_alb_dif,        &
+                                 sw_optical_props_clouds, aersw, coszen_day, toa_src_sw, sfc_alb_dir, sfc_alb_dif,    &
                                  flux_clrsky, flux_allsky, errmsg, errflg)
     use machine,                  only: kind_phys
     use mo_rte_sw,                only: rte_sw
@@ -52,8 +52,6 @@ contains
     ! Initialize CCPP error handling variables
     errmsg = ''
     errflg = 0
-
-    ! ###################################################################################
 
     if (.not. doswrad) return
 
