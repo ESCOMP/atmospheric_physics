@@ -8,7 +8,6 @@
 module solar_irradiance_data
   use cam_time_coord, only: time_coordinate
   use ccpp_kinds,     only: kind_phys
-  use cam_logfile, only: iulog
 
   implicit none
   save

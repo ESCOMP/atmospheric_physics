@@ -5,7 +5,6 @@
 ! when the radiation scheme might use a different solar source function
 !-------------------------------------------------------------------------------
 module rrtmgp_sw_solar_var
-
   use ccpp_kinds,        only : kind_phys
 
   implicit none
@@ -49,7 +48,7 @@ contains
      ! Initialize error variables
      errflg = 0
      errmsg = ''
-    
+
      if (do_spectral_scaling) then 
 
         ! Determine target irradiance for each band

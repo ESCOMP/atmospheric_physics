@@ -1,5 +1,4 @@
 module rrtmgp_constituents
-   use cam_logfile, only: iulog
 
    public :: rrtmgp_constituents_register
    public :: rrtmgp_constituents_init
@@ -119,7 +118,7 @@ contains
 !!
    subroutine rrtmgp_constituents_init(ndiag, unset_real, active_call_array, &
       tlev, fluxlwup_Jac, rad_heat, is_first_restart_step,    &
-      use_tlev, is_mpas, errmsg, errflg)
+      use_tlev, errmsg, errflg)
       use ccpp_kinds, only: kind_phys
       integer,             intent(in) :: ndiag
       real(kind_phys),     intent(in) :: unset_real
@@ -129,7 +128,6 @@ contains
       real(kind_phys),    intent(out) :: rad_heat(:,:)
       logical,            intent(out) :: is_first_restart_step
       logical,            intent(out) :: use_tlev
-      logical,            intent(out) :: is_mpas
       character(len=512), intent(out) :: errmsg
       integer,            intent(out) :: errflg
 
@@ -139,7 +137,6 @@ contains
 
       active_call_array = .true.
       is_first_restart_step = .false.
-      is_mpas = .false.
 
       ! Set tlev & fluxlwup_Jac to unset values; not used by default in CAM-SIMA
       use_tlev = .false.

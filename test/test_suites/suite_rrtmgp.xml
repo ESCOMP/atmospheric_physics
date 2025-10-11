@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <suite name="rrtmgp" version="1.0">
-  <group name="physics_after_coupler">
+  <group name="physics_before_coupler">
     <scheme>initialize_constituents</scheme>
     <scheme>rrtmgp_pre</scheme>
     <scheme>rrtmgp_cloud_optics_setup</scheme>
@@ -17,7 +17,7 @@
       <scheme>rrtmgp_sw_gas_optics</scheme><!--ifnday-->
       <scheme>solar_irradiance_data</scheme><!--ifnay-->
       <scheme>rrtmgp_sw_solar_var</scheme><!--ifnday-->
-      <!--<scheme>rrtmgp_sw_aer</scheme>-->
+      <scheme>rrtmgp_sw_aerosols</scheme>
       <scheme>rrtmgp_sw_rte</scheme> <!--ifnday-->
       <scheme>rrtmgp_sw_calculate_fluxes</scheme>
       <scheme>rrtmgp_sw_calculate_heating_rate</scheme>
@@ -31,7 +31,7 @@
       <scheme>rrtmgp_constituents</scheme>
       <scheme>rrtmgp_lw_gas_optics_pre</scheme>
       <scheme>rrtmgp_lw_gas_optics</scheme>
-      <!--<scheme>rrtmgp_lw_aer</scheme>-->
+      <scheme>rrtmgp_lw_aerosols</scheme>
       <scheme>rrtmgp_lw_rte</scheme>
       <scheme>rrtmgp_lw_calculate_fluxes</scheme>
       <scheme>rrtmgp_lw_calculate_heating_rate</scheme>

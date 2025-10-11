@@ -29,8 +29,8 @@
   type = logical
   dimensions = ()
   intent = in
-[ is_mpas ]
-  standard_name = is_mpas_dynamical_core
+[ trick_rrtmgp ]
+  standard_name = do_trick_rrtmgp
   units = flag
   type = logical
   dimensions = ()

@@ -1,5 +1,4 @@
 module rrtmgp_inputs
-
  implicit none
  private
 
@@ -11,7 +10,7 @@ module rrtmgp_inputs
 !! \htmlinclude rrtmgp_inputs_run.html
 !!
   subroutine rrtmgp_inputs_run(dosw, dolw, snow_associated, graupel_associated, &
-                  is_mpas, pmid, pint, t, nday, idxday,          &
+                  trick_rrtmgp, pmid, pint, t, nday, idxday,                    &
                   cldfprime, coszrs, kdist_sw, t_sfc, emis_sfc, t_rad,          &
                   pmid_rad, pint_rad, t_day, pmid_day, pint_day, coszrs_day,    &
                   alb_dir, alb_dif, lwup, stebol, ncol, ktopcam, ktoprad, &
@@ -43,7 +42,7 @@ module rrtmgp_inputs
      logical,                              intent(in) :: dolw                  ! Flag for performing the longwave calculation
      logical,                              intent(in) :: snow_associated       ! Flag for whether the cloud snow fraction argument should be used
      logical,                              intent(in) :: graupel_associated    ! Flag for whether the cloud graupel fraction argument should be used
-     logical,                              intent(in) :: is_mpas
+     logical,                              intent(in) :: trick_rrtmgp          ! Flag for whether to trick RRTMGP levels
      integer,         dimension(:),        intent(in) :: idxday                ! Indices of daylight columns
      real(kind_phys), dimension(:,:),      intent(in) :: pmid                  ! Air pressure at midpoint (Pa)
      real(kind_phys), dimension(:,:),      intent(in) :: pint                  ! Air pressure at interface (Pa)
@@ -113,7 +112,7 @@ module rrtmgp_inputs
      !
      ! These conditions are generally only satisfied in a non-MPAS MT configuration
      !------------------------------------------------------------------------------
-     if (( .not. is_mpas ) .and. &
+     if (( trick_rrtmgp ) .and. &
           (nlay==pverp) .and. &
           (minval(pint(:,1)) < 1._kind_phys) .and. &
           (minval(pint(:,2)) > 1._kind_phys) ) then
@@ -298,10 +297,6 @@ module rrtmgp_inputs
            errflg = 1
            return
         end if
-        ! PEVERWHEE - ZERO AEROSOLS FOR TESTING
-        aer_sw%optical_props%tau = 0.0_kind_phys
-        aer_sw%optical_props%g = 0.0_kind_phys
-        aer_sw%optical_props%ssa = 1.0_kind_phys
      end if
 
      if (dolw) then
@@ -325,8 +320,6 @@ module rrtmgp_inputs
            errflg = 1
            return
         end if
-        ! PEVERWHEE - ZERO AEROSOLS FOR TESTING!
-        aer_lw%optical_props%tau = 0.0_kind_phys
 
         ! Initialize object for Planck sources.
         errmsg = sources_lw%sources%alloc(ncol, nlay, kdist_lw%gas_props)

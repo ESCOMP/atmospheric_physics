@@ -4,7 +4,6 @@
 !> This module contains an init routine to initialize the shortwave gas optics object
 !>  with data read in from file on the host side
 module rrtmgp_sw_gas_optics
-  use cam_logfile, only: iulog
 
   implicit none
   private

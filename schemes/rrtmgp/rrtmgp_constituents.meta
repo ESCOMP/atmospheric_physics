@@ -87,12 +87,6 @@
   type = logical
   dimensions = ()
   intent = out
-[ is_mpas ]
-  standard_name = is_mpas_dynamical_core
-  units = flag
-  type = logical
-  dimensions = ()
-  intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
