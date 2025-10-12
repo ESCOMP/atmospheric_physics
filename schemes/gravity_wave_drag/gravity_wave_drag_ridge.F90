@@ -1804,7 +1804,8 @@ contains
 
     if (luse_gw_rdg_resid) then
       ! Add additional GW from residual variance. Assumed isotropic
-      kwvrdg = 0.001_kind_phys/(100._kind_phys)
+      !kwvrdg = 0.001_kind_phys/(100._kind_phys)
+      kwvrdg = 1e-5_kind_phys
       effgw = effgw_rdg_resid*isowgt
       tauoro = 0._kind_phys
 

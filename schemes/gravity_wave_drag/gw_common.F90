@@ -6,6 +6,7 @@ module gw_common
 !
   use ccpp_kinds, only: kind_phys
   use coords_1d, only: Coords1D
+
   implicit none
   private
   save
