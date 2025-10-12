@@ -3,14 +3,14 @@ module rrtmgp_variables
  implicit none
  private
 
- public :: rrtmgp_variables_run
+ public :: rrtmgp_variables_init
 
 CONTAINS
 
-!> \section arg_table_rrtmgp_variables_run Argument Table
-!! \htmlinclude rrtmgp_variables_run.html
+!> \section arg_table_rrtmgp_variables_init Argument Table
+!! \htmlinclude rrtmgp_variables_init.html
 !!
-  subroutine rrtmgp_variables_run(cldfsnow, cldfgrau, degrau, icgrauwp, unset_real, graupel_in_rad, do_snow, &
+  subroutine rrtmgp_variables_init(cldfsnow, cldfgrau, degrau, icgrauwp, unset_real, graupel_in_rad, do_snow, &
       do_grau, grau_associated, tiny_rad, errmsg, errflg)
      use ccpp_kinds,              only: kind_phys
      ! Inputs
@@ -57,5 +57,5 @@ CONTAINS
      end if
 
 
-  end subroutine rrtmgp_variables_run
+  end subroutine rrtmgp_variables_init
 end module rrtmgp_variables
