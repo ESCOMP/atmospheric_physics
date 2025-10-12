@@ -125,10 +125,10 @@ CONTAINS
       real(kind_phys) :: fsntoac(ncol)
       real(kind_phys) :: fsutoa(ncol)
       real(kind_phys) :: fsdsc(ncol)
-      real(kind_phys) :: flux_sw_up(ncol,pver)
-      real(kind_phys) :: flux_sw_dn(ncol,pver)
-      real(kind_phys) :: flux_sw_clr_up(ncol,pver)
-      real(kind_phys) :: flux_sw_clr_dn(ncol,pver)
+      real(kind_phys) :: flux_sw_up(ncol,pverp)
+      real(kind_phys) :: flux_sw_dn(ncol,pverp)
+      real(kind_phys) :: flux_sw_clr_up(ncol,pverp)
+      real(kind_phys) :: flux_sw_clr_dn(ncol,pverp)
       real(kind_phys) :: fsntc(ncol)
       real(kind_phys) :: fsnsc(ncol)
       real(kind_phys) :: fsn200(ncol)
@@ -152,6 +152,7 @@ CONTAINS
       fsntoac = 0.0_kind_phys
       fsutoa = 0.0_kind_phys
       fsdsc = 0.0_kind_phys
+      fsds = 0.0_kind_phys
       flux_sw_up = 0.0_kind_phys
       flux_sw_dn = 0.0_kind_phys
       flux_sw_clr_up = 0.0_kind_phys
@@ -171,7 +172,7 @@ CONTAINS
          flux_sw_clr_dn(idxday(idx),ktopcam:) = fswc%fluxes%flux_dn(idx,ktoprad:)
       end do
 
-      fsntc(:) = fcns(:, pverp)   ! net sw clearsky flux at top
+      fsntc(:) = fcns(:, ktopcam)   ! net sw clearsky flux at top
       fsnsc(:) = fcns(:, pverp)   ! net sw clearsky flux at surface
 
       ! History out field calls
