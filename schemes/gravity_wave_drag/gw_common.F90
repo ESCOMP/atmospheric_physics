@@ -43,17 +43,18 @@ module gw_common
   integer, parameter :: south = 3
   integer, parameter :: north = 4
 
+  ! Number of seconds per day [s]
+  real(kind_phys), parameter :: seconds_per_day = 86400._kind_phys
+
   ! Scaling factor for generating QBO
   real(kind_phys), protected :: qbo_hdepth_scaling
 
-  ! 3.14159...
-  real(kind_phys), parameter :: pi = acos(-1._kind_phys)
-
-  ! Acceleration due to gravity.
+  ! Physical constants from host model.
+  real(kind_phys), protected :: pi     = huge(1._kind_phys)
   real(kind_phys), protected :: gravit = huge(1._kind_phys)
+  real(kind_phys), protected :: rair   = huge(1._kind_phys)
 
-  ! Gas constant for dry air.
-  real(kind_phys), protected :: rair = huge(1._kind_phys)
+  real(kind_phys), protected :: omega_earth = huge(1._kind_phys)
 
   ! Horizontal wavelengths [m].
   real(kind_phys), parameter :: wavelength_mid = 1.e5_kind_phys
@@ -88,7 +89,7 @@ module gw_common
   real(kind_phys), parameter :: taumin = 1.e-10_kind_phys
   ! Maximum wind tendency from stress divergence (before efficiency applied).
   ! 400 m/s/day
-  real(kind_phys), parameter :: tndmax = 400._kind_phys/86400._kind_phys
+  real(kind_phys), parameter :: tndmax = 400._kind_phys/seconds_per_day
   ! Maximum allowed change in u-c (before efficiency applied).
   real(kind_phys), parameter :: umcfac = 0.5_kind_phys
   ! Minimum value of (u-c)**2.
@@ -157,7 +158,8 @@ contains
              pver_in, &
              amIRoot, iulog, &
              pref_edge, &
-             tau_0_ubc_in, gravit_in, rair_in, &
+             tau_0_ubc_in, &
+             pi_in, gravit_in, rair_in, &
              prndl_in, qbo_hdepth_scaling_in, &
              errmsg, errflg)
 
@@ -169,6 +171,7 @@ contains
     integer,          intent(in)  :: iulog
     real(kind_phys),  intent(in)  :: pref_edge(:)
     logical,          intent(in)  :: tau_0_ubc_in
+    real(kind_phys),  intent(in)  :: pi_in
     real(kind_phys),  intent(in)  :: gravit_in
     real(kind_phys),  intent(in)  :: rair_in
     real(kind_phys),  intent(in)  :: prndl_in
@@ -230,8 +233,12 @@ contains
 
     pver = pver_in
     tau_0_ubc = tau_0_ubc_in
+
+    pi = pi_in
     gravit = gravit_in
     rair = rair_in
+
+    omega_earth = 2._kind_phys*pi/seconds_per_day
 
     ! Interpolate Newtonian cooling to model interface levels
     allocate (alpha(pver + 1), stat=errflg, errmsg=errmsg)
@@ -243,7 +250,7 @@ contains
     !     * convert palph from hpa to pa
 
     do k = 1, nalph
-      alpha0(k) = alpha0(k)/86400._kind_phys
+      alpha0(k) = alpha0(k)/seconds_per_day
       alpha0(k) = max(alpha0(k), 1.e-6_kind_phys)
       palph(k) = palph(k)*1.e2_kind_phys
     end do
@@ -255,7 +262,7 @@ contains
       write (iulog, fmt='(a4,a12,a10)') ' k  ', '  pref_edge      ', '  alpha   '
       do k = 1, pver + 1
         write (iulog, fmt='(i4,1e12.5,1f10.2)') k, pref_edge(k), &
-          alpha(k)*86400._kind_phys
+          alpha(k)*seconds_per_day
       end do
 
       write (iulog, *) 'gravity_wave_drag_common_init: ktop = ', ktop
@@ -934,8 +941,8 @@ contains
 
 !==========================================================================
 
-! Calculates absolute value of the local Coriolis frequency divided by the
-! spatial frequency kwv, which gives a characteristic speed in m/s.
+  ! Calculates absolute value of the local Coriolis frequency divided by the
+  ! spatial frequency kwv, which gives a characteristic speed in m/s.
   function coriolis_speed(band, lat)
     ! Inertial gravity wave lengths.
     type(GWBand), intent(in) :: band
@@ -943,9 +950,6 @@ contains
     real(kind_phys), intent(in) :: lat(:)
 
     real(kind_phys) :: coriolis_speed(size(lat))
-
-    ! 24*3600 = 86400 seconds in a day.
-    real(kind_phys), parameter :: omega_earth = 2._kind_phys*pi/86400._kind_phys
 
     coriolis_speed = abs(sin(lat)*2._kind_phys*omega_earth/band%kwv)
 

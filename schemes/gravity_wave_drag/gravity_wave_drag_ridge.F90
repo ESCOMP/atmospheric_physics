@@ -884,13 +884,11 @@ contains
 
     ! Ensure on-ridge wind is positive at source level
     do k = 1, pver
-      ubm(:, k) = sign(ubmsrc*0._kind_phys + 1._kind_phys, ubmsrc)*ubm(:, k)
+      ubm(:, k) = sign(1._kind_phys, ubmsrc)*ubm(:, k)
     end do
 
-    ! Sean says just use 1._kind_phys as
-    ! first argument
-    xv = sign(ubmsrc*0._kind_phys + 1._kind_phys, ubmsrc)*xv
-    yv = sign(ubmsrc*0._kind_phys + 1._kind_phys, ubmsrc)*yv
+    xv = sign(1._kind_phys, ubmsrc)*xv
+    yv = sign(1._kind_phys, ubmsrc)*yv
 
     ! Now make ubmsrc positive and protect
     ! against zero
