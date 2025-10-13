@@ -29,6 +29,12 @@
   type = logical
   dimensions = ()
   intent = in
+[ nbot_gravity_wave_top_taper ]
+  standard_name = vertical_index_of_bottom_limit_for_tapering_gravity_wave_drag_at_model_top
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
 [ pref_edge ]
   standard_name = reference_pressure_at_interface
   units = Pa

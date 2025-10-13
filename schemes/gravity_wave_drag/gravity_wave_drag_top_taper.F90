@@ -16,12 +16,10 @@ contains
     pver, &
     amIRoot, iulog, &
     gw_top_taper, &
+    nbot_gravity_wave_top_taper, &
     pref_edge, pref_mid, &
     vramp, &
     errmsg, errflg)
-
-    ! Host model dependency
-    use ref_pres, only: press_lim_idx
 
     ! Input arguments
     integer,          intent(in)  :: pver
@@ -29,6 +27,7 @@ contains
     integer,          intent(in)  :: iulog
 
     logical,          intent(in)  :: gw_top_taper                           ! Apply gravity wave top tapering [flag]
+    integer,          intent(in)  :: nbot_gravity_wave_top_taper            ! Bottom level to taper gravity waves at top of model [index]
     real(kind_phys),  intent(in)  :: pref_edge(:)                           ! Reference pressure at layer interfaces [Pa]
     real(kind_phys),  intent(in)  :: pref_mid(:)                            ! Reference pressure at layer midpoints [Pa]
 
@@ -41,8 +40,6 @@ contains
     integer :: k                                                            ! Vertical level index
     integer :: topndx                                                       ! Top level index for tapering [index]
     integer :: botndx                                                       ! Bottom level index for tapering [index]
-    
-    real(kind_phys), parameter :: p_limit = 0.6E-02_kind_phys           ! Pressure limit for tapering [Pa]
 
     errmsg = ''
     errflg = 0
@@ -52,7 +49,7 @@ contains
 
     if (gw_top_taper) then
       topndx = 1
-      botndx = press_lim_idx(p_limit, top=.true.)
+      botndx = nbot_gravity_wave_top_taper
       
       if (botndx > 1) then
         ! Compute tapering coefficients from bottom index to top
