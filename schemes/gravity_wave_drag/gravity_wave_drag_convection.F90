@@ -681,8 +681,8 @@ contains
 
     ! Check for inconsistency between file and model variable
     if (ngwv_file < band%ngwv) then
-      write (errmsg, '(a, a, i4, a, i4)') sub, "PhaseSpeed in lookup table file ", &
-        ngwv_file, "does not cover the whole spectrum implied by the model ngwv. ", band%ngwv
+      write (errmsg, '(a, a, i4, a, i4)') sub, ": PhaseSpeed in lookup table file, ", &
+        ngwv_file, ", does not cover the whole spectrum implied by the model ngwv, ", band%ngwv
       errflg = 1
       return
     end if
