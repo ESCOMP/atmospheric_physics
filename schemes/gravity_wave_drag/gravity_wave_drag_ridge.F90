@@ -1,4 +1,4 @@
-! This module handles gravity waves from orographic sources, and was
+! This module handles non-stationary gravity waves from orographic sources, and was
 ! extracted from gw_drag in May 2013,
 ! and subsequently CCPPized in August 2025.
 module gravity_wave_drag_ridge
