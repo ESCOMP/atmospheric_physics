@@ -7,97 +7,97 @@
   name  = gravity_wave_drag_ridge_init
   type  = scheme
 [ gw_delta_c ]
-  standard_name = delta_between_nearest_phase_speeds_in_the_mid_gravity_wave_band_tbd
+  standard_name = delta_between_nearest_phase_speeds_in_the_mid_gravity_wave_band
   units = m s-1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ gw_rdg_do_divstream_nl ]
-  standard_name = use_separate_dividing_streamlines_in_ridge_gravity_wave_drag_tbd
+  standard_name = use_separate_dividing_streamlines_in_ridge_gravity_wave_drag
   units = flag
   type = logical
   dimensions = ()
   intent = in
 [ gw_rdg_C_BetaMax_DS_nl ]
-  standard_name = tunable_parameter_for_downslope_wind_stress_enhancement_in_dividing_streamlines_for_ridge_gravity_wave_drag_tbd
+  standard_name = tunable_parameter_for_downslope_wind_stress_enhancement_in_dividing_streamlines_for_ridge_gravity_wave_drag
   units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ gw_rdg_C_GammaMax_nl ]
-  standard_name = tunable_parameter_for_downslope_wind_depth_enhancement_in_dividing_streamlines_for_ridge_gravity_wave_drag_tbd
+  standard_name = tunable_parameter_for_downslope_wind_depth_enhancement_in_dividing_streamlines_for_ridge_gravity_wave_drag
   units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ gw_rdg_Frx0_nl ]
-  standard_name = tunable_parameter_for_lower_bound_of_inverse_froude_number_for_downslope_wind_for_ridge_gravity_wave_drag_tbd
+  standard_name = tunable_parameter_for_lower_bound_of_inverse_froude_number_for_downslope_wind_for_ridge_gravity_wave_drag
   units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ gw_rdg_Frx1_nl ]
-  standard_name = tunable_parameter_for_upper_bound_of_inverse_froude_number_for_downslope_wind_for_ridge_gravity_wave_drag_tbd
+  standard_name = tunable_parameter_for_upper_bound_of_inverse_froude_number_for_downslope_wind_for_ridge_gravity_wave_drag
   units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ gw_rdg_C_BetaMax_SM_nl ]
-  standard_name = tunable_parameter_for_downslope_wind_stress_enhancement_in_scinocca_mcfarlane_for_ridge_gravity_wave_drag_tbd
+  standard_name = tunable_parameter_for_downslope_wind_stress_enhancement_in_scinocca_mcfarlane_for_ridge_gravity_wave_drag
   units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ gw_rdg_Fr_c_nl ]
-  standard_name = critical_inverse_froude_number_for_ridge_gravity_wave_drag_tbd
+  standard_name = critical_inverse_froude_number_for_ridge_gravity_wave_drag
   units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ gw_rdg_do_smooth_regimes_nl ]
-  standard_name = smooth_regime_transitions_in_ridge_gravity_wave_drag_tbd
+  standard_name = smooth_regime_transitions_in_ridge_gravity_wave_drag
   units = flag
   type = logical
   dimensions = ()
   intent = in
 [ gw_rdg_do_adjust_tauoro_nl ]
-  standard_name = adjust_orographic_stress_in_new_source_levels_in_ridge_gravity_wave_drag_tbd
+  standard_name = adjust_orographic_stress_in_new_source_levels_in_ridge_gravity_wave_drag
   units = flag
   type = logical
   dimensions = ()
   intent = in
 [ gw_rdg_do_backward_compat_nl ]
-  standard_name = do_backward_compatibility_in_ridge_gravity_wave_drag_tbd
+  standard_name = do_backward_compatibility_in_ridge_gravity_wave_drag
   units = flag
   type = logical
   dimensions = ()
   intent = in
 [ gw_rdg_orohmin_nl ]
-  standard_name = minimum_surface_displacement_height_for_ridge_gravity_wave_drag_tbd
+  standard_name = minimum_surface_displacement_height_for_ridge_gravity_wave_drag
   units = m
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ gw_rdg_orovmin_nl ]
-  standard_name = minimum_wind_speed_for_ridge_gravity_wave_drag_tbd
+  standard_name = minimum_wind_speed_for_ridge_gravity_wave_drag
   units = m s-1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ gw_rdg_orostratmin_nl ]
-  standard_name = minimum_brunt_vaisalla_frequency_for_ridge_gravity_wave_drag_tbd
+  standard_name = minimum_brunt_vaisalla_frequency_for_ridge_gravity_wave_drag
   units = s-1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ gw_rdg_orom2min_nl ]
-  standard_name = minimum_normalized_vertical_wavenumber_squared_for_ridge_gravity_wave_drag_tbd
+  standard_name = minimum_normalized_vertical_wavenumber_squared_for_ridge_gravity_wave_drag
   units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ gw_rdg_do_vdiff_nl ]
-  standard_name = do_vertical_diffusion_tendencies_in_ridge_gravity_wave_drag_tbd
+  standard_name = do_vertical_diffusion_tendencies_in_ridge_gravity_wave_drag
   units = flag
   type = logical
   dimensions = ()
@@ -123,7 +123,7 @@
   name  = gravity_wave_drag_ridge_beta_init
   type  = scheme
 [ effgw_rdg_beta ]
-  standard_name = meso_beta_scheme_efficiency_of_gravity_wave_momentum_transfer_tbd
+  standard_name = meso_beta_scheme_efficiency_of_gravity_wave_momentum_transfer
   units = 1
   type = real | kind = kind_phys
   dimensions = ()
@@ -163,7 +163,7 @@
   dimensions = ()
   intent = in
 [ nrdg ]
-  standard_name = number_of_ridges_in_ridge_gravity_wave_drag_tbd
+  standard_name = number_of_ridges_in_ridge_gravity_wave_drag
   units = count
   type = integer
   dimensions = ()
@@ -205,7 +205,7 @@
   dimensions = ()
   intent = in
 [ n_rdg_beta ]
-  standard_name = number_of_ridges_in_beta_ridge_gravity_wave_drag_tbd
+  standard_name = number_of_ridges_in_beta_ridge_gravity_wave_drag
   units = count
   type = integer
   dimensions = ()
@@ -277,94 +277,94 @@
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ kvt_gw ]
-  standard_name = scaled_molecular_kinematic_temperature_conductivity_at_interfaces_for_gravity_wave_drag_tbd
+  standard_name = scaled_molecular_kinematic_temperature_conductivity_at_interfaces_for_gravity_wave_drag
   units = m2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ use_gw_rdg_resid ]
-  standard_name = do_residual_orographic_waves_in_ridge_gravity_wave_drag_tbd
+  standard_name = do_residual_orographic_waves_in_ridge_gravity_wave_drag
   units = flag
   type = logical
   dimensions = ()
   intent = in
 [ effgw_rdg_resid ]
-  standard_name = ridge_residual_scheme_efficiency_of_gravity_wave_momentum_transfer_tbd
+  standard_name = ridge_residual_scheme_efficiency_of_gravity_wave_momentum_transfer
   units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ effgw_rdg_beta ]
-  standard_name = meso_beta_scheme_efficiency_of_gravity_wave_momentum_transfer_tbd
+  standard_name = meso_beta_scheme_efficiency_of_gravity_wave_momentum_transfer
   units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ effgw_rdg_beta_max ]
-  standard_name = meso_beta_scheme_maximum_efficiency_of_gravity_wave_momentum_transfer_tbd
+  standard_name = meso_beta_scheme_maximum_efficiency_of_gravity_wave_momentum_transfer
   units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ rdg_beta_cd_llb ]
-  standard_name = drag_coefficient_for_low_level_flow_obstacles_in_beta_ridge_gravity_wave_drag_tbd
+  standard_name = drag_coefficient_for_low_level_flow_obstacles_in_beta_ridge_gravity_wave_drag
   units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ trpd_leewv_rdg_beta ]
-  standard_name = allow_trapping_in_beta_ridge_gravity_wave_drag_tbd
+  standard_name = allow_trapping_in_beta_ridge_gravity_wave_drag
   units = flag
   type = logical
   dimensions = ()
   intent = in
 [ gbxar ]
-  standard_name = grid_box_area_for_beta_ridge_gravity_wave_drag_tbd
+  standard_name = grid_box_area_for_beta_ridge_gravity_wave_drag
   units = km2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
 [ isovar ]
-  standard_name = isotropic_variance_for_beta_ridge_gravity_wave_drag_tbd
+  standard_name = isotropic_variance_for_beta_ridge_gravity_wave_drag
   units = m
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
 [ isowgt ]
-  standard_name = isotropic_weight_for_beta_ridge_gravity_wave_drag_tbd
+  standard_name = isotropic_weight_for_beta_ridge_gravity_wave_drag
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
 [ hwdth ]
-  standard_name = ridge_half_width_for_beta_ridge_gravity_wave_drag_tbd
+  standard_name = ridge_half_width_for_beta_ridge_gravity_wave_drag
   units = km
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, number_of_ridges_in_ridge_gravity_wave_drag_tbd)
+  dimensions = (horizontal_loop_extent, number_of_ridges_in_ridge_gravity_wave_drag)
   intent = in
 [ clngt ]
-  standard_name = ridge_length_for_beta_ridge_gravity_wave_drag_tbd
+  standard_name = ridge_length_for_beta_ridge_gravity_wave_drag
   units = km
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, number_of_ridges_in_ridge_gravity_wave_drag_tbd)
+  dimensions = (horizontal_loop_extent, number_of_ridges_in_ridge_gravity_wave_drag)
   intent = in
 [ mxdis ]
-  standard_name = ridge_obstacle_height_for_beta_ridge_gravity_wave_drag_tbd
+  standard_name = ridge_obstacle_height_for_beta_ridge_gravity_wave_drag
   units = m
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, number_of_ridges_in_ridge_gravity_wave_drag_tbd)
+  dimensions = (horizontal_loop_extent, number_of_ridges_in_ridge_gravity_wave_drag)
   intent = in
 [ anixy ]
-  standard_name = ridge_anisotropy_for_beta_ridge_gravity_wave_drag_tbd
+  standard_name = ridge_anisotropy_for_beta_ridge_gravity_wave_drag
   units = 1
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, number_of_ridges_in_ridge_gravity_wave_drag_tbd)
+  dimensions = (horizontal_loop_extent, number_of_ridges_in_ridge_gravity_wave_drag)
   intent = in
 [ angll ]
-  standard_name = ridge_clockwise_angle_from_north_for_beta_ridge_gravity_wave_drag_tbd
+  standard_name = ridge_clockwise_angle_from_north_for_beta_ridge_gravity_wave_drag
   units = degree
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, number_of_ridges_in_ridge_gravity_wave_drag_tbd)
+  dimensions = (horizontal_loop_extent, number_of_ridges_in_ridge_gravity_wave_drag)
   intent = in
 [ taurx ]
   standard_name = eastward_stress_at_interfaces_due_to_beta_ridge_gravity_wave_drag
@@ -459,7 +459,7 @@
   name  = gravity_wave_drag_ridge_gamma_init
   type  = scheme
 [ effgw_rdg_gamma ]
-  standard_name = meso_gamma_scheme_efficiency_of_gravity_wave_momentum_transfer_tbd
+  standard_name = meso_gamma_scheme_efficiency_of_gravity_wave_momentum_transfer
   units = 1
   type = real | kind = kind_phys
   dimensions = ()
@@ -499,7 +499,7 @@
   dimensions = ()
   intent = in
 [ nrdg ]
-  standard_name = number_of_ridges_in_ridge_gravity_wave_drag_tbd
+  standard_name = number_of_ridges_in_ridge_gravity_wave_drag
   units = count
   type = integer
   dimensions = ()
@@ -541,7 +541,7 @@
   dimensions = ()
   intent = in
 [ n_rdg_gamma ]
-  standard_name = number_of_ridges_in_gamma_ridge_gravity_wave_drag_tbd
+  standard_name = number_of_ridges_in_gamma_ridge_gravity_wave_drag
   units = count
   type = integer
   dimensions = ()
@@ -613,82 +613,82 @@
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ kvt_gw ]
-  standard_name = scaled_molecular_kinematic_temperature_conductivity_at_interfaces_for_gravity_wave_drag_tbd
+  standard_name = scaled_molecular_kinematic_temperature_conductivity_at_interfaces_for_gravity_wave_drag
   units = m2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ use_gw_rdg_resid ]
-  standard_name = do_residual_orographic_waves_in_ridge_gravity_wave_drag_tbd
+  standard_name = do_residual_orographic_waves_in_ridge_gravity_wave_drag
   units = flag
   type = logical
   dimensions = ()
   intent = in
 [ effgw_rdg_resid ]
-  standard_name = ridge_residual_scheme_efficiency_of_gravity_wave_momentum_transfer_tbd
+  standard_name = ridge_residual_scheme_efficiency_of_gravity_wave_momentum_transfer
   units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ effgw_rdg_gamma ]
-  standard_name = meso_gamma_scheme_efficiency_of_gravity_wave_momentum_transfer_tbd
+  standard_name = meso_gamma_scheme_efficiency_of_gravity_wave_momentum_transfer
   units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ effgw_rdg_gamma_max ]
-  standard_name = meso_gamma_scheme_maximum_efficiency_of_gravity_wave_momentum_transfer_tbd
+  standard_name = meso_gamma_scheme_maximum_efficiency_of_gravity_wave_momentum_transfer
   units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ rdg_gamma_cd_llb ]
-  standard_name = drag_coefficient_for_low_level_flow_obstacles_in_gamma_ridge_gravity_wave_drag_tbd
+  standard_name = drag_coefficient_for_low_level_flow_obstacles_in_gamma_ridge_gravity_wave_drag
   units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ trpd_leewv_rdg_gamma ]
-  standard_name = allow_trapping_in_gamma_ridge_gravity_wave_drag_tbd
+  standard_name = allow_trapping_in_gamma_ridge_gravity_wave_drag
   units = flag
   type = logical
   dimensions = ()
   intent = in
 [ gbxarg ]
-  standard_name = grid_box_area_for_gamma_ridge_gravity_wave_drag_tbd
+  standard_name = grid_box_area_for_gamma_ridge_gravity_wave_drag
   units = km2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
 [ hwdthg ]
-  standard_name = ridge_half_width_for_gamma_ridge_gravity_wave_drag_tbd
+  standard_name = ridge_half_width_for_gamma_ridge_gravity_wave_drag
   units = km
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, number_of_ridges_in_ridge_gravity_wave_drag_tbd)
+  dimensions = (horizontal_loop_extent, number_of_ridges_in_ridge_gravity_wave_drag)
   intent = in
 [ clngtg ]
-  standard_name = ridge_length_for_gamma_ridge_gravity_wave_drag_tbd
+  standard_name = ridge_length_for_gamma_ridge_gravity_wave_drag
   units = km
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, number_of_ridges_in_ridge_gravity_wave_drag_tbd)
+  dimensions = (horizontal_loop_extent, number_of_ridges_in_ridge_gravity_wave_drag)
   intent = in
 [ mxdisg ]
-  standard_name = ridge_obstacle_height_for_gamma_ridge_gravity_wave_drag_tbd
+  standard_name = ridge_obstacle_height_for_gamma_ridge_gravity_wave_drag
   units = m
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, number_of_ridges_in_ridge_gravity_wave_drag_tbd)
+  dimensions = (horizontal_loop_extent, number_of_ridges_in_ridge_gravity_wave_drag)
   intent = in
 [ anixyg ]
-  standard_name = ridge_anisotropy_for_gamma_ridge_gravity_wave_drag_tbd
+  standard_name = ridge_anisotropy_for_gamma_ridge_gravity_wave_drag
   units = 1
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, number_of_ridges_in_ridge_gravity_wave_drag_tbd)
+  dimensions = (horizontal_loop_extent, number_of_ridges_in_ridge_gravity_wave_drag)
   intent = in
 [ angllg ]
-  standard_name = ridge_clockwise_angle_from_north_for_gamma_ridge_gravity_wave_drag_tbd
+  standard_name = ridge_clockwise_angle_from_north_for_gamma_ridge_gravity_wave_drag
   units = degree
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, number_of_ridges_in_ridge_gravity_wave_drag_tbd)
+  dimensions = (horizontal_loop_extent, number_of_ridges_in_ridge_gravity_wave_drag)
   intent = in
 [ taurx ]
   standard_name = eastward_stress_at_interfaces_due_to_gamma_ridge_gravity_wave_drag

@@ -97,7 +97,7 @@
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ egwdffi ]
-  standard_name = effective_diffusivity_coefficient_at_interfaces_due_to_gravity_wave_drag_tbd
+  standard_name = effective_diffusivity_coefficient_at_interfaces_due_to_gravity_wave_drag
   units = m2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
@@ -127,7 +127,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ kvt_gw ]
-  standard_name = scaled_molecular_kinematic_temperature_conductivity_at_interfaces_for_gravity_wave_drag_tbd
+  standard_name = scaled_molecular_kinematic_temperature_conductivity_at_interfaces_for_gravity_wave_drag
   units = m2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)

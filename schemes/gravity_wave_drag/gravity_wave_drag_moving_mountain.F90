@@ -312,6 +312,11 @@ contains
     errmsg = ''
     errflg = 0
 
+    if(.not. use_gw_movmtn_pbl) then
+      ! if moving mountain gravity source is off, do not run this scheme.
+      return
+    endif
+
     effgw(:ncol) = effgw_movmtn_pbl
 
     tau = 0._kind_phys

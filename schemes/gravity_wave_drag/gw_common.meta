@@ -31,7 +31,7 @@
   dimensions = (vertical_interface_dimension)
   intent = in
 [ tau_0_ubc_in ]
-  standard_name = force_zero_stress_at_top_of_atmosphere_due_to_gravity_wave_drag_tbd
+  standard_name = force_zero_stress_at_top_of_atmosphere_due_to_gravity_wave_drag
   units = flag
   type = logical
   dimensions = ()
@@ -55,13 +55,13 @@
   dimensions = ()
   intent = in
 [ prndl_in ]
-  standard_name = inverse_prandtl_number_for_diffusion_in_gravity_wave_drag_tbd
+  standard_name = inverse_prandtl_number_for_diffusion_in_gravity_wave_drag
   units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ qbo_hdepth_scaling_in ]
-  standard_name = scaling_factor_for_heating_depth_in_gravity_waves_from_convection_tbd
+  standard_name = scaling_factor_for_heating_depth_in_gravity_waves_from_convection
   units = 1
   type = real | kind = kind_phys
   dimensions = ()

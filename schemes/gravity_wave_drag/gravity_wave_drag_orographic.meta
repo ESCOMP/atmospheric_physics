@@ -7,13 +7,13 @@
   name  = gravity_wave_drag_orographic_init
   type  = scheme
 [ gw_delta_c ]
-  standard_name = delta_between_nearest_phase_speeds_in_the_mid_gravity_wave_band_tbd
+  standard_name = delta_between_nearest_phase_speeds_in_the_mid_gravity_wave_band
   units = m s-1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ effgw_oro ]
-  standard_name = orographic_scheme_efficiency_of_gravity_wave_momentum_transfer_tbd
+  standard_name = orographic_scheme_efficiency_of_gravity_wave_momentum_transfer
   units = 1
   type = real | kind = kind_phys
   dimensions = ()
@@ -107,25 +107,25 @@
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ effgw_oro ]
-  standard_name = orographic_scheme_efficiency_of_gravity_wave_momentum_transfer_tbd
+  standard_name = orographic_scheme_efficiency_of_gravity_wave_momentum_transfer
   units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ gw_lndscl_sgh ]
-  standard_name = flag_for_scaling_standard_deviation_of_subgrid_orography_for_orographic_gravity_wave_drag_by_land_area_fraction_tbd
+  standard_name = scale_standard_deviation_of_subgrid_orography_for_orographic_gravity_wave_drag_by_land_area_fraction
   units = flag
   type = logical
   dimensions = ()
   intent = in
 [ gw_oro_south_fac ]
-  standard_name = factor_to_multiply_tau_by_for_orographic_waves_in_the_southern_hemisphere_tbd
+  standard_name = factor_to_multiply_tau_by_for_orographic_waves_in_the_southern_hemisphere
   units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ gw_apply_tndmax ]
-  standard_name = limit_maximum_wind_tendency_from_stress_divergence_in_gravity_wave_drag_scheme_tbd
+  standard_name = limit_maximum_wind_tendency_from_stress_divergence_in_gravity_wave_drag_scheme
   units = flag
   type = logical
   dimensions = ()
@@ -185,7 +185,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ kvt_gw ]
-  standard_name = scaled_molecular_kinematic_temperature_conductivity_at_interfaces_for_gravity_wave_drag_tbd
+  standard_name = scaled_molecular_kinematic_temperature_conductivity_at_interfaces_for_gravity_wave_drag
   units = m2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
@@ -215,37 +215,37 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ src_level ]
-  standard_name = vertical_index_of_gravity_wave_source_level_tbd
+  standard_name = vertical_index_of_gravity_wave_source_level
   units = index
   type = integer
   dimensions = (horizontal_loop_extent)
   intent = out
 [ tend_level ]
-  standard_name = vertical_index_of_lowest_gravity_wave_tendency_level_tbd
+  standard_name = vertical_index_of_lowest_gravity_wave_tendency_level
   units = index
   type = integer
   dimensions = (horizontal_loop_extent)
   intent = out
 [ ubm ]
-  standard_name = wind_speed_along_gravity_wave_source_direction_tbd
+  standard_name = wind_speed_along_gravity_wave_source_direction
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ ubi ]
-  standard_name = wind_speed_along_gravity_wave_source_direction_at_interface_tbd
+  standard_name = wind_speed_along_gravity_wave_source_direction_at_interfaces
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ xv ]
-  standard_name = eastward_component_of_gravity_wave_source_wind_unit_vector_tbd
+  standard_name = eastward_component_of_gravity_wave_source_wind_unit_vector
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
 [ yv ]
-  standard_name = northward_component_of_gravity_wave_source_wind_unit_vector_tbd
+  standard_name = northward_component_of_gravity_wave_source_wind_unit_vector
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
@@ -288,7 +288,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ egwdffi_tot ]
-  standard_name = effective_diffusivity_coefficient_at_interfaces_due_to_gravity_wave_drag_tbd
+  standard_name = effective_diffusivity_coefficient_at_interfaces_due_to_gravity_wave_drag
   units = m2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)

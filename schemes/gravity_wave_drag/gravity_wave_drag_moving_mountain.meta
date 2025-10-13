@@ -32,7 +32,7 @@
   dimensions = ()
   intent = in
 [ gw_delta_c ]
-  standard_name = delta_between_nearest_phase_speeds_in_the_mid_gravity_wave_band_tbd
+  standard_name = delta_between_nearest_phase_speeds_in_the_mid_gravity_wave_band
   units = m s-1
   type = real | kind = kind_phys
   dimensions = ()
@@ -44,19 +44,19 @@
   dimensions = (vertical_interface_dimension)
   intent = in
 [ movmtn_psteer ]
-  standard_name = pressure_level_for_steering_in_moving_mountain_gravity_wave_drag_tbd
+  standard_name = pressure_level_for_steering_in_moving_mountain_gravity_wave_drag
   units = Pa
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ movmtn_plaunch ]
-  standard_name = pressure_level_for_launch_in_moving_mountain_gravity_wave_drag_tbd
+  standard_name = pressure_level_for_launch_in_moving_mountain_gravity_wave_drag
   units = Pa
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ movmtn_source_nl ]
-  standard_name = source_type_for_moving_mountain_gravity_wave_drag_tbd
+  standard_name = source_type_for_moving_mountain_gravity_wave_drag
   units = 1
   type = integer
   dimensions = ()
@@ -180,7 +180,7 @@
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ kvt_gw ]
-  standard_name = scaled_molecular_kinematic_temperature_conductivity_at_interfaces_for_gravity_wave_drag_tbd
+  standard_name = scaled_molecular_kinematic_temperature_conductivity_at_interfaces_for_gravity_wave_drag
   units = m2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
@@ -222,25 +222,25 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ alpha_gw_movmtn ]
-  standard_name = tunable_parameter_for_amplitude_of_moving_mountain_gravity_wave_drag_tbd
+  standard_name = tunable_parameter_for_amplitude_of_moving_mountain_gravity_wave_drag
   units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ effgw_movmtn_pbl ]
-  standard_name = moving_mountain_scheme_efficiency_of_gravity_wave_momentum_transfer_tbd
+  standard_name = moving_mountain_scheme_efficiency_of_gravity_wave_momentum_transfer
   units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ gw_apply_tndmax ]
-  standard_name = limit_maximum_wind_tendency_from_stress_divergence_in_gravity_wave_drag_scheme_tbd
+  standard_name = limit_maximum_wind_tendency_from_stress_divergence_in_gravity_wave_drag_scheme
   units = flag
   type = logical
   dimensions = ()
   intent = in
 [ use_gw_movmtn_pbl ]
-  standard_name = do_pbl_moving_mountain_gravity_wave_drag_tbd
+  standard_name = do_pbl_moving_mountain_gravity_wave_drag
   units = flag
   type = logical
   dimensions = ()
@@ -270,43 +270,43 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ src_level ]
-  standard_name = vertical_index_of_gravity_wave_source_level_tbd
+  standard_name = vertical_index_of_gravity_wave_source_level
   units = index
   type = integer
   dimensions = (horizontal_loop_extent)
   intent = out
 [ tend_level ]
-  standard_name = vertical_index_of_lowest_gravity_wave_tendency_level_tbd
+  standard_name = vertical_index_of_lowest_gravity_wave_tendency_level
   units = index
   type = integer
   dimensions = (horizontal_loop_extent)
   intent = out
 [ ubm ]
-  standard_name = wind_speed_along_gravity_wave_source_direction_tbd
+  standard_name = wind_speed_along_gravity_wave_source_direction
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ ubi ]
-  standard_name = wind_speed_along_gravity_wave_source_direction_at_interface_tbd
+  standard_name = wind_speed_along_gravity_wave_source_direction_at_interfaces
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ xv ]
-  standard_name = eastward_component_of_gravity_wave_source_wind_unit_vector_tbd
+  standard_name = eastward_component_of_gravity_wave_source_wind_unit_vector
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
 [ yv ]
-  standard_name = northward_component_of_gravity_wave_source_wind_unit_vector_tbd
+  standard_name = northward_component_of_gravity_wave_source_wind_unit_vector
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
 [ hdepth ]
-  standard_name = convective_heating_depth_due_to_moving_mountain_gravity_wave_drag_tbd
+  standard_name = convective_heating_depth_due_to_moving_mountain_gravity_wave_drag
   units = km
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
@@ -336,7 +336,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
   intent = out
 [ egwdffi_tot ]
-  standard_name = effective_diffusivity_coefficient_at_interfaces_due_to_gravity_wave_drag_tbd
+  standard_name = effective_diffusivity_coefficient_at_interfaces_due_to_gravity_wave_drag
   units = m2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
@@ -354,43 +354,43 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ tau0 ]
-  standard_name = total_stress_at_interface_from_reference_wavenumber_due_to_moving_mountain_gravity_wave_drag_tbd
+  standard_name = total_stress_at_interface_from_reference_wavenumber_due_to_moving_mountain_gravity_wave_drag
   units = N m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ gwut0 ]
-  standard_name = wind_tendency_in_source_direction_due_to_moving_mountain_gravity_wave_drag_tbd
+  standard_name = wind_tendency_in_source_direction_due_to_moving_mountain_gravity_wave_drag
   units = m s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ usteer ]
-  standard_name = eastward_wind_at_steering_level_due_to_moving_mountain_gravity_wave_drag_tbd
+  standard_name = eastward_wind_at_steering_level_due_to_moving_mountain_gravity_wave_drag
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
 [ vsteer ]
-  standard_name = northward_wind_at_steering_level_due_to_moving_mountain_gravity_wave_drag_tbd
+  standard_name = northward_wind_at_steering_level_due_to_moving_mountain_gravity_wave_drag
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
 [ CS ]
-  standard_name = gravity_wave_phase_speed_in_source_direction_due_to_moving_mountain_gravity_wave_drag_tbd
+  standard_name = gravity_wave_phase_speed_in_source_direction_due_to_moving_mountain_gravity_wave_drag
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
 [ steer_level ]
-  standard_name = index_of_steering_level_due_to_moving_mountain_gravity_wave_drag_tbd
+  standard_name = index_of_steering_level_due_to_moving_mountain_gravity_wave_drag
   units = index
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
 [ xpwp_src ]
-  standard_name = momentum_flux_source_due_to_moving_mountain_gravity_wave_drag_tbd
+  standard_name = momentum_flux_source_due_to_moving_mountain_gravity_wave_drag
   units = m2 s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)

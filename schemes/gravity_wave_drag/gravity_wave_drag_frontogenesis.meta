@@ -37,37 +37,37 @@
   dimensions = (vertical_interface_dimension)
   intent = in
 [ frontgfc ]
-  standard_name = critical_threshold_for_frontogenesis_function_for_frontogenesis_gravity_wave_drag_tbd
+  standard_name = critical_threshold_for_frontogenesis_function_for_frontogenesis_gravity_wave_drag
   units = K2 m-2 s-1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ gw_delta_c ]
-  standard_name = delta_between_nearest_phase_speeds_in_the_mid_gravity_wave_band_tbd
+  standard_name = delta_between_nearest_phase_speeds_in_the_mid_gravity_wave_band
   units = m s-1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ pgwv ]
-  standard_name = mid_gravity_wave_band_spectrum_dimension_tbd
+  standard_name = mid_gravity_wave_band_spectrum_dimension
   units = 1
   type = integer
   dimensions = ()
   intent = in
 [ taubgnd ]
-  standard_name = background_source_strength_for_frontogenesis_gravity_wave_drag_tbd
+  standard_name = background_source_strength_for_frontogenesis_gravity_wave_drag
   units = N m-2
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ effgw_cm ]
-  standard_name = frontogenesis_scheme_efficiency_of_gravity_wave_momentum_transfer_tbd
+  standard_name = frontogenesis_scheme_efficiency_of_gravity_wave_momentum_transfer
   units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ front_gaussian_width ]
-  standard_name = width_of_gaussian_of_stress_profile_for_frontogenesis_gravity_wave_drag_tbd
+  standard_name = width_of_gaussian_of_stress_profile_for_frontogenesis_gravity_wave_drag
   units = m s-1
   type = real | kind = kind_phys
   dimensions = ()
@@ -155,19 +155,19 @@
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ effgw_cm ]
-  standard_name = frontogenesis_scheme_efficiency_of_gravity_wave_momentum_transfer_tbd
+  standard_name = frontogenesis_scheme_efficiency_of_gravity_wave_momentum_transfer
   units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ gw_polar_taper ]
-  standard_name = taper_frontogenesis_gravity_wave_drag_at_poles_tbd
+  standard_name = taper_frontogenesis_gravity_wave_drag_at_poles
   units = flag
   type = logical
   dimensions = ()
   intent = in
 [ gw_apply_tndmax ]
-  standard_name = limit_maximum_wind_tendency_from_stress_divergence_in_gravity_wave_drag_scheme_tbd
+  standard_name = limit_maximum_wind_tendency_from_stress_divergence_in_gravity_wave_drag_scheme
   units = flag
   type = logical
   dimensions = ()
@@ -215,7 +215,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ kvt_gw ]
-  standard_name = scaled_molecular_kinematic_temperature_conductivity_at_interfaces_for_gravity_wave_drag_tbd
+  standard_name = scaled_molecular_kinematic_temperature_conductivity_at_interfaces_for_gravity_wave_drag
   units = m2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
@@ -245,7 +245,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ egwdffi_tot ]
-  standard_name = effective_diffusivity_coefficient_at_interfaces_due_to_gravity_wave_drag_tbd
+  standard_name = effective_diffusivity_coefficient_at_interfaces_due_to_gravity_wave_drag
   units = m2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
@@ -257,37 +257,37 @@
   dimensions = (horizontal_loop_extent)
   intent = inout
 [ src_level ]
-  standard_name = vertical_index_of_gravity_wave_source_level_tbd
+  standard_name = vertical_index_of_gravity_wave_source_level
   units = index
   type = integer
   dimensions = (horizontal_loop_extent)
   intent = out
 [ tend_level ]
-  standard_name = vertical_index_of_lowest_gravity_wave_tendency_level_tbd
+  standard_name = vertical_index_of_lowest_gravity_wave_tendency_level
   units = index
   type = integer
   dimensions = (horizontal_loop_extent)
   intent = out
 [ ubm ]
-  standard_name = wind_speed_along_gravity_wave_source_direction_tbd
+  standard_name = wind_speed_along_gravity_wave_source_direction
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ ubi ]
-  standard_name = wind_speed_along_gravity_wave_source_direction_at_interface_tbd
+  standard_name = wind_speed_along_gravity_wave_source_direction_at_interfaces
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ xv ]
-  standard_name = eastward_component_of_gravity_wave_source_wind_unit_vector_tbd
+  standard_name = eastward_component_of_gravity_wave_source_wind_unit_vector
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
 [ yv ]
-  standard_name = northward_component_of_gravity_wave_source_wind_unit_vector_tbd
+  standard_name = northward_component_of_gravity_wave_source_wind_unit_vector
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
@@ -329,55 +329,55 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ taucd_west ]
-  standard_name = westward_reynolds_stress_due_to_frontogenesis_gravity_wave_drag_tbd
+  standard_name = westward_reynolds_stress_due_to_frontogenesis_gravity_wave_drag
   units = N m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ taucd_east ]
-  standard_name = eastward_reynolds_stress_due_to_frontogenesis_gravity_wave_drag_tbd
+  standard_name = eastward_reynolds_stress_due_to_frontogenesis_gravity_wave_drag
   units = N m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ taucd_south ]
-  standard_name = southward_reynolds_stress_due_to_frontogenesis_gravity_wave_drag_tbd
+  standard_name = southward_reynolds_stress_due_to_frontogenesis_gravity_wave_drag
   units = N m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ taucd_north ]
-  standard_name = northward_reynolds_stress_due_to_frontogenesis_gravity_wave_drag_tbd
+  standard_name = northward_reynolds_stress_due_to_frontogenesis_gravity_wave_drag
   units = N m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ utend1 ]
-  standard_name = wind_tendency_in_first_speed_bin_due_to_frontogenesis_gravity_wave_drag_tbd
+  standard_name = wind_tendency_in_first_speed_bin_due_to_frontogenesis_gravity_wave_drag
   units = m s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ utend2 ]
-  standard_name = wind_tendency_in_second_speed_bin_due_to_frontogenesis_gravity_wave_drag_tbd
+  standard_name = wind_tendency_in_second_speed_bin_due_to_frontogenesis_gravity_wave_drag
   units = m s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ utend3 ]
-  standard_name = wind_tendency_in_third_speed_bin_due_to_frontogenesis_gravity_wave_drag_tbd
+  standard_name = wind_tendency_in_third_speed_bin_due_to_frontogenesis_gravity_wave_drag
   units = m s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ utend4 ]
-  standard_name = wind_tendency_in_fourth_speed_bin_due_to_frontogenesis_gravity_wave_drag_tbd
+  standard_name = wind_tendency_in_fourth_speed_bin_due_to_frontogenesis_gravity_wave_drag
   units = m s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ utend5 ]
-  standard_name = wind_tendency_in_fifth_speed_bin_due_to_frontogenesis_gravity_wave_drag_tbd
+  standard_name = wind_tendency_in_fifth_speed_bin_due_to_frontogenesis_gravity_wave_drag
   units = m s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -434,37 +434,37 @@
   dimensions = (vertical_interface_dimension)
   intent = in
 [ frontgfc ]
-  standard_name = critical_threshold_for_frontogenesis_function_for_frontogenesis_gravity_wave_drag_tbd
+  standard_name = critical_threshold_for_frontogenesis_function_for_frontogenesis_gravity_wave_drag
   units = K2 m-2 s-1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ gw_delta_c_long ]
-  standard_name = delta_between_nearest_phase_speeds_in_the_long_gravity_wave_band_tbd
+  standard_name = delta_between_nearest_phase_speeds_in_the_long_gravity_wave_band
   units = m s-1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ pgwv_long ]
-  standard_name = long_gravity_wave_band_spectrum_dimension_tbd
+  standard_name = long_gravity_wave_band_spectrum_dimension
   units = 1
   type = integer
   dimensions = ()
   intent = in
 [ taubgnd_igw ]
-  standard_name = background_source_strength_for_frontogenesis_inertial_gravity_wave_drag_tbd
+  standard_name = background_source_strength_for_frontogenesis_inertial_gravity_wave_drag
   units = N m-2
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ effgw_cm_igw ]
-  standard_name = frontogenesis_inertial_scheme_efficiency_of_gravity_wave_momentum_transfer_tbd
+  standard_name = frontogenesis_inertial_scheme_efficiency_of_gravity_wave_momentum_transfer
   units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ front_gaussian_width ]
-  standard_name = width_of_gaussian_of_stress_profile_for_frontogenesis_gravity_wave_drag_tbd
+  standard_name = width_of_gaussian_of_stress_profile_for_frontogenesis_gravity_wave_drag
   units = m s-1
   type = real | kind = kind_phys
   dimensions = ()
@@ -552,19 +552,19 @@
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ effgw_cm_igw ]
-  standard_name = frontogenesis_inertial_scheme_efficiency_of_gravity_wave_momentum_transfer_tbd
+  standard_name = frontogenesis_inertial_scheme_efficiency_of_gravity_wave_momentum_transfer
   units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ gw_polar_taper ]
-  standard_name = taper_frontogenesis_gravity_wave_drag_at_poles_tbd
+  standard_name = taper_frontogenesis_gravity_wave_drag_at_poles
   units = flag
   type = logical
   dimensions = ()
   intent = in
 [ gw_apply_tndmax ]
-  standard_name = limit_maximum_wind_tendency_from_stress_divergence_in_gravity_wave_drag_scheme_tbd
+  standard_name = limit_maximum_wind_tendency_from_stress_divergence_in_gravity_wave_drag_scheme
   units = flag
   type = logical
   dimensions = ()
@@ -612,7 +612,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ kvt_gw ]
-  standard_name = scaled_molecular_kinematic_temperature_conductivity_at_interfaces_for_gravity_wave_drag_tbd
+  standard_name = scaled_molecular_kinematic_temperature_conductivity_at_interfaces_for_gravity_wave_drag
   units = m2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
@@ -642,7 +642,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ egwdffi_tot ]
-  standard_name = effective_diffusivity_coefficient_at_interfaces_due_to_gravity_wave_drag_tbd
+  standard_name = effective_diffusivity_coefficient_at_interfaces_due_to_gravity_wave_drag
   units = m2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
@@ -654,37 +654,37 @@
   dimensions = (horizontal_loop_extent)
   intent = inout
 [ src_level ]
-  standard_name = vertical_index_of_gravity_wave_source_level_tbd
+  standard_name = vertical_index_of_gravity_wave_source_level
   units = index
   type = integer
   dimensions = (horizontal_loop_extent)
   intent = out
 [ tend_level ]
-  standard_name = vertical_index_of_lowest_gravity_wave_tendency_level_tbd
+  standard_name = vertical_index_of_lowest_gravity_wave_tendency_level
   units = index
   type = integer
   dimensions = (horizontal_loop_extent)
   intent = out
 [ ubm ]
-  standard_name = wind_speed_along_gravity_wave_source_direction_tbd
+  standard_name = wind_speed_along_gravity_wave_source_direction
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ ubi ]
-  standard_name = wind_speed_along_gravity_wave_source_direction_at_interface_tbd
+  standard_name = wind_speed_along_gravity_wave_source_direction_at_interfaces
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ xv ]
-  standard_name = eastward_component_of_gravity_wave_source_wind_unit_vector_tbd
+  standard_name = eastward_component_of_gravity_wave_source_wind_unit_vector
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
 [ yv ]
-  standard_name = northward_component_of_gravity_wave_source_wind_unit_vector_tbd
+  standard_name = northward_component_of_gravity_wave_source_wind_unit_vector
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
