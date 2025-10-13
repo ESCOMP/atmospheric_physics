@@ -16,9 +16,9 @@ module gravity_wave_drag_orographic
   type(GWBand) :: band_oro
 
   ! Limiters (min/max values)
-  ! min surface displacement height for orographic waves
+  ! min surface displacement height for orographic waves [m]
   real(kind_phys), parameter :: orohmin = 10._kind_phys
-  ! min wind speed for orographic waves
+  ! min wind speed for orographic waves [m s-1]
   real(kind_phys), parameter :: orovmin = 2._kind_phys
 
 contains
