@@ -3,8 +3,7 @@
 ! and subsequently CCPPized in August 2025.
 module gravity_wave_drag_ridge
   use ccpp_kinds,    only: kind_phys
-  use gw_common,     only: unset_kind_phys, gwband
-  use coords_1d,     only: Coords1D
+  use gw_common,     only: gwband
 
   implicit none
   private
@@ -149,6 +148,8 @@ contains
     effgw_rdg_beta, &
     errmsg, errflg)
 
+    use gw_common, only: unset_kind_phys
+
     ! Input arguments
     real(kind_phys),    intent(in)   :: effgw_rdg_beta                ! Beta ridge efficiency factor [1]
 
@@ -188,7 +189,7 @@ contains
     utgw, vtgw, ttgw, &
     q_tend, s_tend, u_tend, v_tend, flx_heat, errmsg, errflg)
 
-    use coords_1d, only: Coords1D
+    use coords_1d, only: coords1d
 
     ! Input arguments
     integer,             intent(in)    :: pver
@@ -201,7 +202,7 @@ contains
     real(kind_phys),     intent(in)    :: rair                ! gas_constant_of_dry_air [J kg-1 K-1]
 
     real(kind_phys),     intent(in)    :: vramp(:)            ! Vertical tapering function [1]
-    type(coords1d),      intent(in)    :: p                   ! Pressure coordinates, Coords1D
+    type(coords1d),      intent(in)    :: p                   ! Pressure coordinates, coords1d
 
     integer,             intent(in)    :: n_rdg_beta          ! Number of meso-Beta ridges (per gridbox) to invoke [count]
 
@@ -323,6 +324,8 @@ contains
     effgw_rdg_gamma, &
     errmsg, errflg)
 
+    use gw_common, only: unset_kind_phys
+
     ! Input arguments
     real(kind_phys),    intent(in)   :: effgw_rdg_gamma               ! Gamma ridge efficiency factor [1]
 
@@ -362,7 +365,7 @@ contains
     utgw, vtgw, ttgw, &
     q_tend, s_tend, u_tend, v_tend, flx_heat, errmsg, errflg)
 
-    use coords_1d, only: Coords1D
+    use coords_1d, only: coords1d
 
     ! Input arguments
     integer,             intent(in)    :: pver
@@ -375,7 +378,7 @@ contains
     real(kind_phys),     intent(in)    :: rair                 ! gas_constant_of_dry_air [J kg-1 K-1]
 
     real(kind_phys),     intent(in)    :: vramp(:)             ! Vertical tapering function [1]
-    type(coords1d),      intent(in)    :: p                    ! Pressure coordinates, Coords1D
+    type(coords1d),      intent(in)    :: p                    ! Pressure coordinates, coords1d
 
     integer,             intent(in)    :: n_rdg_gamma          ! Number of meso-gamma ridges (per gridbox) to invoke.
 
@@ -504,7 +507,9 @@ contains
                               src_level, tend_level, tau, ubm, ubi, xv, yv, &
                               ubmsrc, usrc, vsrc, nsrc, rsrc, m2src, c, tauoro, errmsg, errflg)
     use gw_common, only: GWBand
-    use gw_utils, only: dot_2d, midpoint_interp, get_unit_vector
+    use coords_1d, only: coords1d
+    use gw_utils,  only: dot_2d, midpoint_interp, get_unit_vector
+
     !-----------------------------------------------------------------------
     ! Orographic source for multiple gravity wave drag parameterization.
     !
@@ -705,7 +710,8 @@ contains
                         errmsg, errflg)
 
     use gw_common, only: GWBand
-    use gw_utils, only: dot_2d, midpoint_interp
+    use coords_1d, only: coords1d
+    use gw_utils,  only: dot_2d, midpoint_interp
     !-----------------------------------------------------------------------
     ! Orographic source for multiple gravity wave drag parameterization.
     !
@@ -1101,8 +1107,6 @@ contains
     real(kind_phys), intent(in) :: nsrc(ncol)  ! B-V frequency.
     real(kind_phys), intent(in) :: rsrc(ncol)  ! Density.
     real(kind_phys), intent(in) :: ubmsrc(ncol) ! On-ridge wind.
-
-    !logical, intent(in), optional :: forcetlb
 
     !---------------------------Local Storage-------------------------------
     ! Column and level indices.
@@ -1566,7 +1570,7 @@ contains
                          utrdg, vtrdg, ttrdg, &
                          errmsg, errflg)
 
-    use coords_1d, only: Coords1D
+    use coords_1d, only: coords1d
     use gw_common, only: GWBand, gw_drag_prof, energy_change
 
     type(GWBand), intent(in) :: band_oro
@@ -1735,7 +1739,7 @@ contains
     tau_diag = -9999._kind_phys
 
     do nn = 1, n_rdg
-      kwvrdg = 0.001_kind_phys/(hwdth(:, nn) + 0.001_kind_phys) ! this cant be done every time step !!!
+      kwvrdg = 0.001_kind_phys/(hwdth(:, nn) + 0.001_kind_phys)
       isoflag = 0
       effgw = effgw_rdg*(hwdth(1:ncol, nn)*clngt(1:ncol, nn))/gbxar(1:ncol)
       effgw = min(effgw_rdg_max, effgw)

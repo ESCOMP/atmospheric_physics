@@ -57,7 +57,7 @@
   intent = in
 [ movmtn_source_nl ]
   standard_name = source_type_for_moving_mountain_gravity_wave_drag_tbd
-  units = none
+  units = 1
   type = integer
   dimensions = ()
   intent = in
@@ -210,7 +210,7 @@
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ vorticity ]
-  standard_name = vort4gw_tbd
+  standard_name = relative_vorticity
   units = s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

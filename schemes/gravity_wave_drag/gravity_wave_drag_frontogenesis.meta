@@ -306,7 +306,6 @@
   intent = out
 [ ttgw ]
   standard_name = tendency_of_air_temperature_due_to_frontogenesis_gravity_wave_drag
-  # J kg-1 s-1 / [cpairv = J kg-1 K-1] = K s-1 ... converted by /cpairv to K tendency before out from subroutine.
   units = K s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -716,7 +715,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
   intent = out
 [ dttdf ]
-  standard_name = tendency_of_air_temperature_due_to_diffusion_due_to_frontogenesis__inertialgravity_wave_drag
+  standard_name = tendency_of_air_temperature_due_to_diffusion_due_to_frontogenesis_inertial_gravity_wave_drag
   units = J kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

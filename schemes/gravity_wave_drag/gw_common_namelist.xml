@@ -561,7 +561,7 @@
       Relative pathname of lookup table for deep convective moving mountain GW source.
     </desc>
     <values>
-      <value>UNSET_PATH</value>
+      <value>${DIN_LOC_ROOT}/atm/waccm/gw/mfc0lookup_mm.nc</value>
     </values>
   </entry>
 
@@ -598,7 +598,7 @@
     <category>gw_drag</category>
     <group>gw_drag_nl</group>
     <standard_name>source_type_for_moving_mountain_gravity_wave_drag_tbd</standard_name>
-    <units>none</units>
+    <units>1</units>
     <desc>
       Integer code for movmtn source: 1=vorticity, 2=upwp
     </desc>
@@ -770,7 +770,7 @@
       Full pathname of Beres lookup table data file for gravity waves sourced from deep convection.
     </desc>
     <values>
-      <value>UNSET_PATH</value>
+      <value>${DIN_LOC_ROOT}/atm/waccm/gw/newmfspectra40_dc25.nc</value>
     </values>
   </entry>
 
@@ -784,7 +784,7 @@
       Full pathname of Beres lookup table data file for gravity waves sourced from shallow convection.
     </desc>
     <values>
-      <value>UNSET_PATH</value>
+      <value>${DIN_LOC_ROOT}/atm/waccm/gw/mfspectra_shallow_c140530.nc</value>
     </values>
   </entry>
 

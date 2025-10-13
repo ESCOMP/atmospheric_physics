@@ -22,23 +22,23 @@
     <!-- Helper to read all possible constituents from file -->
     <scheme>initialize_constituents</scheme>
 
-    <!-- INITIALIZE ALL GRAVITY WAVE PARAMETERIZATIONS, READ NAMELIST -->
+    <!-- Initialize all gravity wave parameterizations and read namelist -->
     <scheme>gravity_wave_drag_common</scheme>
 
-    <!-- Interstitial: Prepare vertical profiles and accumulated quantities. -->
+    <!-- Interstitial: Prepare vertical profiles and accumulated quantities -->
     <scheme>check_energy_zero_fluxes</scheme>
     <scheme>gravity_wave_drag_prepare_profiles</scheme>
 
     <!-- Prepare vertical ramp coefficients to taper drag at top of model -->
     <scheme>gravity_wave_drag_top_taper</scheme>
 
-    <!-- OROGRAPHIC GRAVITY WAVE DRAG -->
+    <!-- Orographic gravity wave drag -->
     <scheme>gravity_wave_drag_orographic</scheme>
 
-    <!-- Interstitial: Convert tendencies for dry constituents to dry air basis. -->
+    <!-- Interstitial: Convert tendencies for dry constituents to dry air basis -->
     <scheme>convert_dry_constituent_tendencies_to_dry_air_basis</scheme>
 
-    <!-- APPLY GRAVITY WAVE TENDENCIES -->
+    <!-- Apply tendencies from gravity wave parameterizations -->
     <scheme>apply_tendency_of_eastward_wind</scheme>
     <scheme>apply_tendency_of_northward_wind</scheme>
     <scheme>apply_constituent_tendencies</scheme>
@@ -47,7 +47,7 @@
     <scheme>geopotential_temp</scheme>
     <scheme>update_dry_static_energy</scheme>
 
-    <!-- CHECK ENERGY -->
+    <!-- Check energy -->
     <scheme>check_energy_scaling</scheme>
     <scheme>check_energy_chng</scheme>
   </group>

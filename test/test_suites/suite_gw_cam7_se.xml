@@ -25,33 +25,33 @@
     <!-- Helper to read all possible constituents from file -->
     <scheme>initialize_constituents</scheme>
 
-    <!-- INITIALIZE ALL GRAVITY WAVE PARAMETERIZATIONS, READ NAMELIST -->
+    <!-- Initialize all gravity wave parameterizations and read namelist -->
     <scheme>gravity_wave_drag_common</scheme>
 
-    <!-- Interstitial: Prepare vertical profiles and accumulated quantities. -->
+    <!-- Interstitial: Prepare vertical profiles and accumulated quantities -->
     <scheme>check_energy_zero_fluxes</scheme>
     <scheme>gravity_wave_drag_prepare_profiles</scheme>
 
     <!-- Prepare vertical ramp coefficients to taper drag at top of model -->
     <scheme>gravity_wave_drag_top_taper</scheme>
 
-    <!-- MOVING MOUNTAIN GRAVITY WAVE DRAG (SE dycore only) -->
+    <!-- Moving mountain gravity wave drag (SE dycore only) -->
     <scheme>gravity_wave_drag_moving_mountain</scheme>
 
-    <!-- CONVECTIVE GRAVITY WAVE DRAG (Beres et al.) - DEEP CONVECTION -->
+    <!-- Convective gravity wave drag (Beres et al.) - deep convection -->
     <scheme>gravity_wave_drag_convection_deep</scheme>
 
-    <!-- FRONTALLY GENERATED GRAVITY WAVE DRAG -->
+    <!-- Frontally generated gravity wave drag -->
     <scheme>gravity_wave_drag_frontogenesis</scheme>
 
-    <!-- RIDGE GRAVITY WAVE DRAG -->
+    <!-- Ridge gravity wave drag -->
     <scheme>gravity_wave_drag_ridge</scheme>
     <scheme>gravity_wave_drag_ridge_beta</scheme>
 
-    <!-- Interstitial: Convert tendencies for dry constituents to dry air basis. -->
+    <!-- Interstitial: Convert tendencies for dry constituents to dry air basis -->
     <scheme>convert_dry_constituent_tendencies_to_dry_air_basis</scheme>
 
-    <!-- APPLY GRAVITY WAVE TENDENCIES -->
+    <!-- Apply tendencies from gravity wave parameterizations -->
     <scheme>apply_tendency_of_eastward_wind</scheme>
     <scheme>apply_tendency_of_northward_wind</scheme>
     <scheme>apply_constituent_tendencies</scheme>

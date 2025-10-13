@@ -80,11 +80,54 @@
     <!-- State diagnostics -->
     <scheme>sima_state_diagnostics</scheme>
 
+    <!-- Radiation -->
+
     <!-- Find tropopause -->
     <!-- Tropopause find has to make history output at the end of convective adjustment -->
     <!-- so supersaturated cells are not written to the tape. -->
     <scheme>tropopause_find</scheme>
     <scheme>tropopause_diagnostics</scheme>
+
+    <!-- Vertical diffusion -->
+
+
+    <!--
+      Gravity wave drag.
+    -->
+    <!-- Initialize all gravity wave parameterizations and read namelist -->
+    <scheme>gravity_wave_drag_common</scheme>
+
+    <!-- Interstitial: Prepare vertical profiles and accumulated quantities -->
+    <scheme>check_energy_zero_fluxes</scheme>
+    <scheme>gravity_wave_drag_prepare_profiles</scheme>
+
+    <!-- Prepare vertical ramp coefficients to taper drag at top of model -->
+    <scheme>gravity_wave_drag_top_taper</scheme>
+
+    <!-- Moving mountain gravity wave drag (SE dycore only) -->
+    <scheme>gravity_wave_drag_moving_mountain</scheme>
+
+    <!-- Convective gravity wave drag (Beres et al.) - deep convection -->
+    <scheme>gravity_wave_drag_convection_deep</scheme>
+
+    <!-- Frontally generated gravity wave drag -->
+    <scheme>gravity_wave_drag_frontogenesis</scheme>
+
+    <!-- Ridge gravity wave drag -->
+    <scheme>gravity_wave_drag_ridge</scheme>
+    <scheme>gravity_wave_drag_ridge_beta</scheme>
+
+    <!-- Interstitial: Convert tendencies for dry constituents to dry air basis -->
+    <scheme>convert_dry_constituent_tendencies_to_dry_air_basis</scheme>
+
+    <!-- Apply tendencies from gravity wave parameterizations -->
+    <scheme>apply_tendency_of_eastward_wind</scheme>
+    <scheme>apply_tendency_of_northward_wind</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+    <scheme>update_dry_static_energy</scheme>
 
     <!-- Save current total energy from dycore for energy fixer in time step. Total energy in current state is updated by the last check_energy_chng call. -->
     <scheme>check_energy_save_teout</scheme>

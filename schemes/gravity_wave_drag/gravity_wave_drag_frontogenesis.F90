@@ -2,7 +2,7 @@
 ! from gw_drag in May 2013.
 module gravity_wave_drag_frontogenesis
   use ccpp_kinds, only: kind_phys
-  use gw_common, only: GWBand, unset_kind_phys
+  use gw_common, only: GWBand
 
   implicit none
   private
@@ -54,6 +54,7 @@ contains
              errmsg, errflg)
 
     use gw_common, only: wavelength_mid
+    use gw_common, only: unset_kind_phys
 
     integer,            intent(in)                :: pver
     real(kind_phys),    intent(in)                :: pi                       ! pi_constant [1]
@@ -144,7 +145,8 @@ contains
              front_gaussian_width, &
              errmsg, errflg)
 
-    use gw_common, only: wavelength_mid, wavelength_long
+    use gw_common, only: wavelength_long
+    use gw_common, only: unset_kind_phys
 
     integer,            intent(in)                :: pver
     real(kind_phys),    intent(in)                :: pi                       ! pi_constant [1]
@@ -607,32 +609,6 @@ contains
 
 
 !==========================================================================
-
-  ! Create a flat profile to be launched (all wavenumbers have the same
-  ! source strength, except that l=0 is excluded).
-  function flat_cm_desc(band, ksrc, kfront, frontgfc, taubgnd) result(desc)
-    ! Wavelengths triggered by frontogenesis.
-    type(GWBand), intent(in) :: band
-    ! The following are used to set the corresponding object components.
-    integer, intent(in) :: ksrc
-    integer, intent(in) :: kfront
-    real(kind_phys), intent(in) :: frontgfc
-    ! Amount of stress to launch from each wavelength.
-    real(kind_phys), intent(in) :: taubgnd
-
-    type(CMSourceDesc) :: desc
-
-    desc%ksrc = ksrc
-    desc%kfront = kfront
-    desc%frontgfc = frontgfc
-
-    allocate (desc%src_tau(-band%ngwv:band%ngwv))
-    desc%src_tau = taubgnd
-
-    ! Prohibit wavenumber 0.
-    desc%src_tau(0) = 0._kind_phys
-
-  end function flat_cm_desc
 
   ! Create a source tau profile that is a gaussian over wavenumbers (l=0 is
   ! excluded).

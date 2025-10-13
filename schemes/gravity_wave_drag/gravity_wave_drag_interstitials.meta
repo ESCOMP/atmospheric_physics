@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = gravity_wave_drag_prepare_profiles
   type = scheme
+  dependencies = gw_utils.F90,../../to_be_ccppized/coords_1d.F90
 
 [ccpp-arg-table]
   name  = gravity_wave_drag_prepare_profiles_run
@@ -48,7 +49,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ do_molec_diff ]
-  standard_name = flag_for_molecular_diffusion
+  standard_name = do_molecular_diffusion
   units = flag
   type = logical
   dimensions = ()

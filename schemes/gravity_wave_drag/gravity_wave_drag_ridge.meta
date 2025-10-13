@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = gravity_wave_drag_ridge
   type = scheme
+  dependencies = gw_utils.F90,gw_common.F90,../../to_be_ccppized/coords_1d.F90
 
 [ccpp-arg-table]
   name  = gravity_wave_drag_ridge_init

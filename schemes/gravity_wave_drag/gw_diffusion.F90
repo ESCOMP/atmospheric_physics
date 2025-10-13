@@ -1,37 +1,24 @@
-module gw_diffusion
-
-!
 ! This module contains code computing the effective diffusion of
 ! constituents and dry static energy due to gravity wave breaking.
-!
-
-  use ccpp_kinds, only: kind_phys
-  use linear_1d_operators, only: TriDiagDecomp
-
+module gw_diffusion
   implicit none
   private
-  save
 
   public :: gw_ediff
   public :: gw_diff_tend
 
 contains
 
-!==========================================================================
-
+  ! Calculate effective diffusivity associated with GW forcing.
+  ! Author: F. Sassi, Jan 31, 2001
   subroutine gw_ediff(ncol, pver, ngwv, kbot, ktop, tend_level, &
                       gwut, ubm, nm, rho, dt, prndl, gravit, p, c, vramp, &
                       egwdffi, decomp, ro_adjust)
-!
-! Calculate effective diffusivity associated with GW forcing.
-!
-! Author: F. Sassi, Jan 31, 2001
-!
+    use ccpp_kinds, only: kind_phys
     use gw_utils, only: midpoint_interp
     use coords_1d, only: Coords1D
     use vdiff_lu_solver, only: fin_vol_lu_decomp
-
-!-------------------------------Input Arguments----------------------------
+    use linear_1d_operators, only: TriDiagDecomp
 
     ! Column, level, and gravity wave spectrum dimensions.
     integer, intent(in) :: ncol, pver, ngwv
@@ -63,16 +50,13 @@ contains
     real(kind_phys), intent(in) :: vramp(:)
 
     ! Adjustment parameter for IGWs.
-    real(kind_phys), intent(in), optional :: &
-      ro_adjust(ncol, -ngwv:ngwv, pver + 1)
+    real(kind_phys), intent(in), optional :: ro_adjust(ncol, -ngwv:ngwv, pver + 1)
 
-!-----------------------------Output Arguments-----------------------------
     ! Effective gw diffusivity at interfaces.
     real(kind_phys), intent(out) :: egwdffi(ncol, pver + 1)
+
     ! LU decomposition.
     type(TriDiagDecomp), intent(out) :: decomp
-
-!-----------------------------Local Workspace------------------------------
 
     ! Effective gw diffusivity at midpoints.
     real(kind_phys) :: egwdffm(ncol, pver)
@@ -85,8 +69,6 @@ contains
 
     ! Density scale height.
     real(kind_phys), parameter :: dscale = 7000._kind_phys
-
-!--------------------------------------------------------------------------
 
     egwdffi = 0._kind_phys
     egwdffm = 0._kind_phys
@@ -132,33 +114,28 @@ contains
 
   end subroutine gw_ediff
 
-!==========================================================================
-
+  ! Calculates tendencies from effective diffusion due to gravity wave
+  ! breaking.
+  !
+  ! Method:
+  ! A constituent flux on interfaces is given by:
+  !
+  !              rho * (w'q') = rho * Deff qz
+  !
+  ! where (all evaluated on interfaces):
+  !
+  !        rho   = density
+  !        qz    = constituent vertical gradient
+  !        Deff  = effective diffusivity
+  !
+  ! An effective diffusivity is calculated by adding up the diffusivities
+  ! from all waves (see gw_ediff). The tendency is calculated by invoking LU
+  ! decomposition and solving as for a regular diffusion equation.
+  !
+  ! Author: Sassi - Jan 2001
   subroutine gw_diff_tend(ncol, pver, kbot, ktop, q, dt, decomp, dq)
-
-!
-! Calculates tendencies from effective diffusion due to gravity wave
-! breaking.
-!
-! Method:
-! A constituent flux on interfaces is given by:
-!
-!              rho * (w'q') = rho * Deff qz
-!
-! where (all evaluated on interfaces):
-!
-!        rho   = density
-!        qz    = constituent vertical gradient
-!        Deff  = effective diffusivity
-!
-! An effective diffusivity is calculated by adding up the diffusivities
-! from all waves (see gw_ediff). The tendency is calculated by invoking LU
-! decomposition and solving as for a regular diffusion equation.
-!
-! Author: Sassi - Jan 2001
-!--------------------------------------------------------------------------
-
-!---------------------------Input Arguments--------------------------------
+    use ccpp_kinds, only: kind_phys
+    use linear_1d_operators, only: TriDiagDecomp
 
     ! Column and level dimensions.
     integer, intent(in) :: ncol, pver
@@ -173,17 +150,11 @@ contains
     ! LU decomposition.
     type(TriDiagDecomp), intent(in) :: decomp
 
-!--------------------------Output Arguments--------------------------------
-
     ! Constituent tendencies.
     real(kind_phys), intent(out) :: dq(ncol, pver)
 
-!--------------------------Local Workspace---------------------------------
-
     ! Temporary storage for constituent.
     real(kind_phys) :: qnew(ncol, pver)
-
-!--------------------------------------------------------------------------
 
     dq = 0.0_kind_phys
     qnew = q

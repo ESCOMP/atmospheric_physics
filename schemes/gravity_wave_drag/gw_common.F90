@@ -1,11 +1,8 @@
-module gw_common
-
-!
 ! This module contains code common to different gravity wave
 ! parameterizations.
-!
+module gw_common
+
   use ccpp_kinds, only: kind_phys
-  use coords_1d, only: Coords1D
 
   implicit none
   private
@@ -61,8 +58,8 @@ module gw_common
   real(kind_phys), parameter :: wavelength_long = 3.e5_kind_phys
 
   ! Definition of the bin boundaries.
-  real(kind_phys), parameter :: bounds(4) = (/ -40._kind_phys, -15._kind_phys, &
-       15._kind_phys, 40._kind_phys /)
+  real(kind_phys), parameter :: bounds(4) = [-40._kind_phys, -15._kind_phys, &
+       15._kind_phys, 40._kind_phys]
 
   ! Private variables
 
@@ -296,6 +293,7 @@ contains
     !        tendency
     !-----------------------------------------------------------------------
 
+    use coords_1d, only: coords1d
     use gw_diffusion, only: gw_ediff, gw_diff_tend
     use linear_1d_operators, only: TriDiagDecomp
 
@@ -305,7 +303,7 @@ contains
     ! Wavelengths.
     type(GWBand), intent(in) :: band
     ! Pressure coordinates.
-    type(Coords1D), intent(in) :: p
+    type(coords1d), intent(in) :: p
     ! Level from which gravity waves are propagated upward.
     integer, intent(in) :: src_level(:)
     ! Lowest level where wind tendencies are calculated.
@@ -766,7 +764,7 @@ contains
     taucd = 0._kind_phys
     tausg = 0._kind_phys
 
-    ubi_tend = (/(ubi(i, tend_level(i) + 1), i=1, ncol)/)
+    ubi_tend = [(ubi(i, tend_level(i) + 1), i=1, ncol)]
 
     do k = ktop, maxval(tend_level) + 1
 
@@ -834,16 +832,16 @@ contains
 
   end subroutine momentum_flux
 
-!==========================================================================
-
-! Subtracts a change in momentum in the gravity wave levels from wind
-! tendencies in lower levels, ensuring momentum conservation.
+  ! Subtracts a change in momentum in the gravity wave levels from wind
+  ! tendencies in lower levels, ensuring momentum conservation.
   subroutine momentum_fixer(tend_level, p, um_flux, vm_flux, utgw, vtgw)
+
+    use coords_1d, only: coords1d
 
     ! Bottom stress level.
     integer, intent(in) :: tend_level(:)
     ! Pressure coordinates.
-    type(Coords1D), intent(in) :: p
+    type(coords1d), intent(in) :: p
     ! Components of momentum change sourced from the bottom.
     real(kind_phys), intent(in) :: um_flux(:), vm_flux(:)
     ! Wind tendencies.
@@ -875,15 +873,15 @@ contains
 
   end subroutine momentum_fixer
 
-!==========================================================================
-
-! Calculate the change in total energy from tendencies up to this point.
+  ! Calculate the change in total energy from tendencies up to this point.
   subroutine energy_change(dt, p, u, v, dudt, dvdt, dsdt, de)
+
+    use coords_1d, only: coords1d
 
     ! Time step.
     real(kind_phys), intent(in) :: dt
     ! Pressure coordinates.
-    type(Coords1D), intent(in) :: p
+    type(coords1d), intent(in) :: p
     ! Winds at start of time step.
     real(kind_phys), intent(in) :: u(:, :), v(:, :)
     ! Wind tendencies.
@@ -906,16 +904,16 @@ contains
 
   end subroutine energy_change
 
-!==========================================================================
-
-! Subtract change in energy from the heating tendency in the levels below
-! the gravity wave region.
+  ! Subtract change in energy from the heating tendency in the levels below
+  ! the gravity wave region.
   subroutine energy_fixer(tend_level, p, de, ttgw)
+
+    use coords_1d, only: coords1d
 
     ! Bottom stress level.
     integer, intent(in) :: tend_level(:)
     ! Pressure coordinates.
-    type(Coords1D), intent(in) :: p
+    type(coords1d), intent(in) :: p
     ! Change in energy.
     real(kind_phys), intent(in) :: de(:)
     ! Heating tendency.
@@ -943,7 +941,7 @@ contains
 
   ! Calculates absolute value of the local Coriolis frequency divided by the
   ! spatial frequency kwv, which gives a characteristic speed in m/s.
-  function coriolis_speed(band, lat)
+  pure function coriolis_speed(band, lat)
     ! Inertial gravity wave lengths.
     type(GWBand), intent(in) :: band
     ! Latitude in radians.
@@ -1015,7 +1013,7 @@ contains
 
   ! Given a value, finds which bin marked by "bounds" the value falls
   ! into.
-  elemental function find_bin(val) result(idx)
+  pure elemental function find_bin(val) result(idx)
     real(kind_phys), intent(in) :: val
 
     integer :: idx

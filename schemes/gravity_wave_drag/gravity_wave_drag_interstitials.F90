@@ -4,7 +4,6 @@ module gravity_wave_drag_interstitials
 
   implicit none
   private
-  save
 
   ! public CCPP-compliant subroutines
   public :: gravity_wave_drag_prepare_profiles_run
@@ -51,7 +50,7 @@ contains
     real(kind_phys), intent(in)  :: pint(:, :) ! Interface pressures [Pa]
     real(kind_phys), intent(in)  :: t(:, :)    ! Midpoint temperatures [K]
 
-    logical,         intent(in)  :: do_molec_diff ! flag_for_molecular_diffusion [flag]
+    logical,         intent(in)  :: do_molec_diff ! do_molecular_diffusion [flag]
     integer,         intent(in)  :: nbot_molec ! index_of_pressure_at_bottom_of_molecular_diffusion [index]
     real(kind_phys), intent(in)  :: cpairv(:,:)! composition_dependent_specific_heat_of_dry_air_at_constant_pressure [J kg-1 K-1]
     real(kind_phys), intent(in)  :: kvt(:,:)   ! molecular_kinematic_temperature_conductivity_at_interfaces

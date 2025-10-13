@@ -3,7 +3,6 @@ module gravity_wave_drag_top_taper
 
   implicit none
   private
-  save
 
   public :: gravity_wave_drag_top_taper_init
 
