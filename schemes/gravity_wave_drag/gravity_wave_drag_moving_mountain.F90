@@ -135,12 +135,6 @@ contains
       return
     endif
 
-    ! Allocate hd and get data.
-    allocate (desc%hd(desc%maxh), stat=errflg, errmsg=errmsg)
-    if(errflg /= 0) then
-      return
-    endif
-
     !Attempt to get heating depth from file:
     call reader%get_var('HDEPTH', desc%hd, errmsg, errflg)
     if (errflg /= 0) then
