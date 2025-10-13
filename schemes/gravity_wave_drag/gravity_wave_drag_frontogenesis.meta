@@ -1,7 +1,7 @@
 [ccpp-table-properties]
   name = gravity_wave_drag_frontogenesis
   type = scheme
-  dependencies = gw_utils.F90
+  dependencies = gw_utils.F90,gw_common.F90,../../to_be_ccppized/coords_1d.F90
 
 [ccpp-arg-table]
   name  = gravity_wave_drag_frontogenesis_init
@@ -703,7 +703,6 @@
   intent = out
 [ ttgw ]
   standard_name = tendency_of_air_temperature_due_to_frontogenesis_inertial_gravity_wave_drag
-  # J kg-1 s-1 / [cpairv = J kg-1 K-1] = K s-1 ... converted by /cpairv to K tendency before out from subroutine.
   units = K s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

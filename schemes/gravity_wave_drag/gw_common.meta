@@ -36,6 +36,12 @@
   type = logical
   dimensions = ()
   intent = in
+[ pi_in ]
+  standard_name = pi_constant
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
 [ gravit_in ]
   standard_name = standard_gravitational_acceleration
   units = m s-2
