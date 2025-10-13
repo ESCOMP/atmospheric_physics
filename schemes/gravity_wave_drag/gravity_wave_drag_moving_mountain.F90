@@ -145,12 +145,6 @@ contains
     ! to meters.
     desc%hd = desc%hd*1000._kind_phys
 
-    ! Allocate wind and get data.
-    allocate (desc%uh(desc%maxuh), stat=errflg, errmsg=errmsg)
-    if(errflg /= 0) then
-      return
-    endif
-
     call reader%get_var('UARR', desc%uh, errmsg, errflg)
     if (errflg /= 0) then
       return
