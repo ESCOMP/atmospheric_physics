@@ -2,6 +2,7 @@
   name = ty_fluxes_broadband_ccpp
   type = ddt
   dependencies = ../ext/rte-frontend/mo_fluxes.F90
+  dependencies = ../ext/rte-kernels/mo_fluxes_broadband_kernels.F90
 
 [ccpp-arg-table]
   name = ty_fluxes_broadband_ccpp
