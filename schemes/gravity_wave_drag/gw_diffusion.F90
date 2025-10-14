@@ -11,7 +11,7 @@ contains
 
   ! Calculate effective diffusivity associated with GW forcing.
   ! Author: F. Sassi, Jan 31, 2001
-  subroutine gw_ediff(ncol, pver, ngwv, kbot, ktop, tend_level, &
+  subroutine gw_ediff(ncol, pver, pverp, ngwv, kbot, ktop, tend_level, &
                       gwut, ubm, nm, rho, dt, prndl, gravit, p, c, vramp, &
                       egwdffi, decomp, ro_adjust)
     use ccpp_kinds, only: kind_phys
@@ -21,7 +21,7 @@ contains
     use linear_1d_operators, only: TriDiagDecomp
 
     ! Column, level, and gravity wave spectrum dimensions.
-    integer, intent(in) :: ncol, pver, ngwv
+    integer, intent(in) :: ncol, pver, pverp, ngwv
     ! Bottom and top levels to operate on.
     integer, intent(in) :: kbot, ktop
     ! Per-column bottom index where tendencies are applied.
@@ -34,7 +34,7 @@ contains
     real(kind_phys), intent(in) :: nm(ncol, pver)
 
     ! Density at interfaces.
-    real(kind_phys), intent(in) :: rho(ncol, pver + 1)
+    real(kind_phys), intent(in) :: rho(ncol, pverp)
     ! Time step.
     real(kind_phys), intent(in) :: dt
     ! Inverse Prandtl number.
@@ -50,10 +50,10 @@ contains
     real(kind_phys), intent(in) :: vramp(:)
 
     ! Adjustment parameter for IGWs.
-    real(kind_phys), intent(in), optional :: ro_adjust(ncol, -ngwv:ngwv, pver + 1)
+    real(kind_phys), intent(in), optional :: ro_adjust(ncol, -ngwv:ngwv, pverp)
 
     ! Effective gw diffusivity at interfaces.
-    real(kind_phys), intent(out) :: egwdffi(ncol, pver + 1)
+    real(kind_phys), intent(out) :: egwdffi(ncol, pverp)
 
     ! LU decomposition.
     type(TriDiagDecomp), intent(out) :: decomp
@@ -63,7 +63,7 @@ contains
     ! Temporary used to hold gw_diffusivity for one level and wavenumber.
     real(kind_phys) :: egwdff_lev(ncol)
     ! (dp/dz)^2 == (gravit*rho)^2
-    real(kind_phys) :: dpidz_sq(ncol, pver + 1)
+    real(kind_phys) :: dpidz_sq(ncol, pverp)
     ! Level and wave indices.
     integer :: k, l
 

@@ -28,8 +28,9 @@ module gw_common
 
   real(kind_phys), public, parameter :: unset_kind_phys = huge(1._kind_phys)
 
-  ! Number of levels in the atmosphere.
+  ! Number of levels and interfaces in the atmosphere.
   integer, protected :: pver = 0
+  integer, protected :: pverp = 0
 
   ! Whether or not to enforce an upper boundary condition of tau = 0.
   logical :: tau_0_ubc = .false.
@@ -153,6 +154,7 @@ contains
 !! \htmlinclude arg_table_gravity_wave_drag_common_init.html
   subroutine gravity_wave_drag_common_init( &
              pver_in, &
+             pverp_in, &
              amIRoot, iulog, &
              pref_edge, &
              tau_0_ubc_in, &
@@ -164,6 +166,7 @@ contains
     use interpolate_data, only: lininterp
 
     integer,          intent(in)  :: pver_in
+    integer,          intent(in)  :: pverp_in
     logical,          intent(in)  :: amIRoot
     integer,          intent(in)  :: iulog
     real(kind_phys),  intent(in)  :: pref_edge(:)
@@ -229,6 +232,7 @@ contains
     errflg = 0
 
     pver = pver_in
+    pverp = pverp_in
     tau_0_ubc = tau_0_ubc_in
 
     pi = pi_in
@@ -690,7 +694,7 @@ contains
 
       ! Calculate effective diffusivity and LU decomposition for the
       ! vertical diffusion solver.
-      call gw_ediff(ncol, pver, band%ngwv, kbot_tend, ktop, tend_level, &
+      call gw_ediff(ncol, pver, pverp, band%ngwv, kbot_tend, ktop, tend_level, &
                     gwut, ubm, nm, rhoi, dt, prndl, gravit, p, c, vramp, &
                     egwdffi, decomp, ro_adjust=ro_adjust)
 

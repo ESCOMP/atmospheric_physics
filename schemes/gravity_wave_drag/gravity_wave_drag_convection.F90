@@ -113,7 +113,7 @@ contains
 !> \section arg_table_gravity_wave_drag_convection_deep_run Argument Table
 !! \htmlinclude gravity_wave_drag_convection_deep_run.html
   subroutine gravity_wave_drag_convection_deep_run(&
-             ncol, pver, pcnst, &
+             ncol, pver, pverp, pcnst, &
              dt, &
              p, vramp, &
              pi, cpair, &
@@ -144,6 +144,7 @@ contains
 
     integer,            intent(in)    :: ncol
     integer,            intent(in)    :: pver
+    integer,            intent(in)    :: pverp
     integer,            intent(in)    :: pcnst
     real(kind_phys),    intent(in)    :: dt
     type(coords1d),     intent(in)    :: p                        ! Pressure coordinates [Pa]
@@ -200,12 +201,12 @@ contains
     integer :: k, m
 
     ! Wavenumber fields
-    real(kind_phys) :: tau(ncol, -band_mid%ngwv:band_mid%ngwv, pver+1)
+    real(kind_phys) :: tau(ncol, -band_mid%ngwv:band_mid%ngwv, pverp)
     real(kind_phys) :: gwut(ncol, pver, -band_mid%ngwv:band_mid%ngwv)
     real(kind_phys) :: phase_speeds(ncol, -band_mid%ngwv:band_mid%ngwv)
 
     ! Reynolds stress for waves propagating in each cardinal direction.
-    real(kind_phys) :: taucd(ncol, pver + 1, 4)
+    real(kind_phys) :: taucd(ncol, pverp, 4)
 
     ! Momentum fluxes used by fixer.
     real(kind_phys) :: um_flux(ncol), vm_flux(ncol)
@@ -215,7 +216,7 @@ contains
 
     real(kind_phys) :: effgw(ncol)
 
-    real(kind_phys) :: egwdffi(ncol, pver+1)
+    real(kind_phys) :: egwdffi(ncol, pverp)
 
     errmsg = ''
     errflg = 0
@@ -246,9 +247,9 @@ contains
       ! Output arguments
       src_level   = src_level(:ncol), &
       tend_level  = tend_level(:ncol), &
-      tau         = tau(:ncol,-band_mid%ngwv:band_mid%ngwv,:pver+1), &
+      tau         = tau(:ncol,-band_mid%ngwv:band_mid%ngwv,:pverp), &
       ubm         = ubm(:ncol,:pver), &
-      ubi         = ubi(:ncol,:pver+1), &
+      ubi         = ubi(:ncol,:pverp), &
       xv          = xv(:ncol), &
       yv          = yv(:ncol), &
       c           = phase_speeds(:ncol,-band_mid%ngwv:band_mid%ngwv), &
@@ -280,13 +281,13 @@ contains
       dse                 = dse(:ncol,:), &
       lapply_effgw_in     = gw_apply_tndmax, &
       ! Input/output arguments
-      tau                 = tau(:ncol,-band_mid%ngwv:band_mid%ngwv,:pver+1), &
+      tau                 = tau(:ncol,-band_mid%ngwv:band_mid%ngwv,:pverp), &
       ! Output arguments
       utgw                = utgw(:ncol,:pver), &
       vtgw                = vtgw(:ncol,:pver), &
       ttgw                = ttgw(:ncol,:pver), &
       qtgw                = qtgw(:ncol,:pver,:pcnst), &
-      egwdffi             = egwdffi(:ncol,:pver+1), &
+      egwdffi             = egwdffi(:ncol,:pverp), &
       gwut                = gwut(:ncol,:pver,-band_mid%ngwv:band_mid%ngwv), &
       dttdf               = dttdf(:ncol,:pver), &
       dttke               = dttke(:ncol,:pver))
@@ -295,13 +296,13 @@ contains
     taucd = calc_taucd(ncol, band_mid%ngwv, tend_level, tau, phase_speeds, xv, yv, ubi)
 
     ! Make copies for diagnostics.
-    taucd_west(:ncol,:pver+1)  = taucd(:ncol,:pver+1,west)
-    taucd_east(:ncol,:pver+1)  = taucd(:ncol,:pver+1,east)
-    taucd_south(:ncol,:pver+1) = taucd(:ncol,:pver+1,south)
-    taucd_north(:ncol,:pver+1) = taucd(:ncol,:pver+1,north)
+    taucd_west(:ncol,:pverp)  = taucd(:ncol,:pverp,west)
+    taucd_east(:ncol,:pverp)  = taucd(:ncol,:pverp,east)
+    taucd_south(:ncol,:pverp) = taucd(:ncol,:pverp,south)
+    taucd_north(:ncol,:pverp) = taucd(:ncol,:pverp,north)
 
     ! Add the diffusion coefficients
-    do k = 1, pver+1
+    do k = 1, pverp
       egwdffi_tot(:,k) = egwdffi_tot(:,k) + egwdffi(:,k)
     end do
 
@@ -409,7 +410,7 @@ contains
 !> \section arg_table_gravity_wave_drag_convection_shallow_run Argument Table
 !! \htmlinclude gravity_wave_drag_convection_shallow_run.html
   subroutine gravity_wave_drag_convection_shallow_run(&
-             ncol, pver, pcnst, &
+             ncol, pver, pverp, pcnst, &
              dt, &
              p, vramp, &
              pi, cpair, &
@@ -438,6 +439,7 @@ contains
 
     integer,            intent(in)    :: ncol
     integer,            intent(in)    :: pver
+    integer,            intent(in)    :: pverp
     integer,            intent(in)    :: pcnst
     real(kind_phys),    intent(in)    :: dt
     type(coords1d),     intent(in)    :: p                        ! Pressure coordinates [Pa]
@@ -488,12 +490,12 @@ contains
     integer :: k, m
 
     ! Wavenumber fields
-    real(kind_phys) :: tau(ncol, -band_mid%ngwv:band_mid%ngwv, pver+1)
+    real(kind_phys) :: tau(ncol, -band_mid%ngwv:band_mid%ngwv, pverp)
     real(kind_phys) :: gwut(ncol, pver, -band_mid%ngwv:band_mid%ngwv)
     real(kind_phys) :: phase_speeds(ncol, -band_mid%ngwv:band_mid%ngwv)
 
     ! Reynolds stress for waves propagating in each cardinal direction.
-    real(kind_phys) :: taucd(ncol, pver + 1, 4)
+    real(kind_phys) :: taucd(ncol, pverp, 4)
 
     ! Momentum fluxes used by fixer.
     real(kind_phys) :: um_flux(ncol), vm_flux(ncol)
@@ -503,7 +505,7 @@ contains
 
     real(kind_phys) :: effgw(ncol)
 
-    real(kind_phys) :: egwdffi(ncol, pver+1)
+    real(kind_phys) :: egwdffi(ncol, pverp)
 
     errmsg = ''
     errflg = 0
@@ -534,9 +536,9 @@ contains
       ! Output arguments
       src_level   = src_level(:ncol), &
       tend_level  = tend_level(:ncol), &
-      tau         = tau(:ncol,-band_mid%ngwv:band_mid%ngwv,:pver+1), &
+      tau         = tau(:ncol,-band_mid%ngwv:band_mid%ngwv,:pverp), &
       ubm         = ubm(:ncol,:pver), &
-      ubi         = ubi(:ncol,:pver+1), &
+      ubi         = ubi(:ncol,:pverp), &
       xv          = xv(:ncol), &
       yv          = yv(:ncol), &
       c           = phase_speeds(:ncol,-band_mid%ngwv:band_mid%ngwv), &
@@ -568,13 +570,13 @@ contains
       dse                 = dse(:ncol,:), &
       lapply_effgw_in     = gw_apply_tndmax, &
       ! Input/output arguments
-      tau                 = tau(:ncol,-band_mid%ngwv:band_mid%ngwv,:pver+1), &
+      tau                 = tau(:ncol,-band_mid%ngwv:band_mid%ngwv,:pverp), &
       ! Output arguments
       utgw                = utgw(:ncol,:pver), &
       vtgw                = vtgw(:ncol,:pver), &
       ttgw                = ttgw(:ncol,:pver), &
       qtgw                = qtgw(:ncol,:pver,:pcnst), &
-      egwdffi             = egwdffi(:ncol,:pver+1), &
+      egwdffi             = egwdffi(:ncol,:pverp), &
       gwut                = gwut(:ncol,:pver,-band_mid%ngwv:band_mid%ngwv), &
       dttdf               = dttdf(:ncol,:pver), &
       dttke               = dttke(:ncol,:pver))
@@ -583,7 +585,7 @@ contains
     taucd = calc_taucd(ncol, band_mid%ngwv, tend_level, tau, phase_speeds, xv, yv, ubi)
 
     ! Add the diffusion coefficients
-    do k = 1, pver+1
+    do k = 1, pverp
       egwdffi_tot(:,k) = egwdffi_tot(:,k) + egwdffi(:,k)
     end do
 

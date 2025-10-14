@@ -12,6 +12,12 @@
   type = integer
   dimensions = ()
   intent = in
+[ pverp_in ]
+  standard_name = vertical_interface_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
 [ amIRoot ]
   standard_name = flag_for_mpi_root
   units = flag

@@ -82,6 +82,12 @@
   type = integer
   dimensions = ()
   intent = in
+[ pverp ]
+  standard_name = vertical_interface_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
 [ pcnst ]
   standard_name = number_of_ccpp_constituents
   units = count
@@ -445,6 +451,12 @@
   intent = in
 [ pver ]
   standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pverp ]
+  standard_name = vertical_interface_dimension
   units = count
   type = integer
   dimensions = ()
