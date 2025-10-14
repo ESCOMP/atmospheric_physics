@@ -26,6 +26,9 @@ contains
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
+    errmsg = ''
+    errflg = 0
+
     ttend_dp(:,:) = 0._kind_phys
 
   end subroutine save_ttend_from_convect_deep_timestep_init
