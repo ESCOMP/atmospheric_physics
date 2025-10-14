@@ -41,6 +41,7 @@
     <scheme>zm_conv_options</scheme>
     <scheme>zm_convr</scheme>
     <scheme>zm_convr_tendency_diagnostics</scheme>
+    <scheme>save_ttend_from_convect_deep</scheme>
     <scheme>apply_heating_rate</scheme>
     <scheme>apply_constituent_tendencies</scheme>
     <scheme>qneg</scheme>
@@ -50,6 +51,7 @@
     <scheme>zm_conv_evap</scheme>
     <scheme>set_general_conv_fluxes_to_deep</scheme>
     <scheme>zm_evap_tendency_diagnostics</scheme>
+    <scheme>save_ttend_from_convect_deep</scheme>
     <scheme>apply_heating_rate</scheme>
     <scheme>apply_constituent_tendencies</scheme>
     <scheme>qneg</scheme>
@@ -57,6 +59,7 @@
     <scheme>cloud_fraction_fice</scheme>
     <scheme>zm_conv_momtran</scheme>
     <scheme>zm_momtran_tendency_diagnostics</scheme>
+    <scheme>save_ttend_from_convect_deep</scheme>
     <scheme>apply_heating_rate</scheme>
     <scheme>apply_tendency_of_eastward_wind</scheme>
     <scheme>apply_tendency_of_northward_wind</scheme>
