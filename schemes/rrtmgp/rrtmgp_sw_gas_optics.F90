@@ -361,7 +361,7 @@ contains
    errmsg = ''
    errflg = 0
 
-   if (.not. dosw) then
+   if (.not. dosw .or. ncol == 0) then
       return
    end if
 

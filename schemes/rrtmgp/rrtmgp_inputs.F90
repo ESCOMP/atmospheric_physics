@@ -276,7 +276,7 @@ module rrtmgp_inputs
      ! If no daylight columns, can't create empty RRTMGP objects
      if (dosw .and. nday > 0) then
         ! Initialize object for gas concentrations.
-         errmsg = gas_concs_sw%gas_concs%init(gaslist_lc)
+        errmsg = gas_concs_sw%gas_concs%init(gaslist_lc)
         if (len_trim(errmsg) > 0) then
            errflg = 1
            return

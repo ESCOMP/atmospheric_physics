@@ -21,7 +21,7 @@ contains
 !! \htmlinclude rrtmgp_sw_solar_var_run.html
 !!
   subroutine rrtmgp_sw_solar_var_run(toa_flux, ccpp_constant_two, band2gpt_sw, nswbands, sol_irrad, wave_end, nbins, sol_tsi, &
-                                     do_spectral_scaling, sfac, eccf, errmsg, errflg)
+                                     nday, dosw, do_spectral_scaling, sfac, eccf, errmsg, errflg)
      use rrtmgp_sw_solar_var_setup, only: irrad, radbinmax, radbinmin
 
      ! Arguments 
@@ -29,11 +29,13 @@ contains
      real(kind_phys),    intent(in)    :: sol_tsi               ! total solar irradiance
      real(kind_phys),    intent(in)    :: sol_irrad(:)          ! solar irradiance
      real(kind_phys),    intent(in)    :: wave_end(:)           ! wavelength endpoints
+     integer,            intent(in)    :: nday                  ! number of daytime points
      integer,            intent(in)    :: nbins                 ! number of bins
      integer,            intent(in)    :: ccpp_constant_two
      integer,            intent(in)    :: band2gpt_sw(:,:)      ! array for converting shortwave band limits to g-points
      integer,            intent(in)    :: nswbands              ! number of shortwave bands
      logical,            intent(in)    :: do_spectral_scaling   ! flag to do spectral scaling
+     logical,            intent(in)    :: dosw
      real(kind_phys),    intent(in)    :: eccf                  ! eccentricity factor
      real(kind_phys),    intent(out)   :: sfac(:,:)             ! scaling factors (columns,gpts)
      character(len=512), intent(out)   :: errmsg
@@ -48,6 +50,10 @@ contains
      ! Initialize error variables
      errflg = 0
      errmsg = ''
+
+     if (.not. dosw .or. nday == 0) then
+        return
+     end if
 
      if (do_spectral_scaling) then 
 
