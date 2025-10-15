@@ -3,31 +3,31 @@
   type = scheme
 
 [ccpp-arg-table]
-  name  = rrtmgp_variables_init
+  name  = rrtmgp_variables_run
   type  = scheme
 [ cldfsnow ]
   standard_name = liquid_plus_snow_stratiform_cloud_area_fraction
   units = fraction
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension,vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ cldfgrau ]
   standard_name = liquid_plus_graupel_stratiform_cloud_area_fraction
   units = fraction
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension,vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ degrau ]
   standard_name = effective_diameter_of_stratiform_cloud_graupel_particle_for_radiation
   units = m
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension,vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ icgrauwp ]
   standard_name = stratiform_in_cloud_graupel_water_path
   units = kg m-2
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension,vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ unset_real ]
   standard_name = definition_of_unset_for_real_variables

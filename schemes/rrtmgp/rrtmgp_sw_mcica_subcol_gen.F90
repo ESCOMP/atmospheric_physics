@@ -46,8 +46,8 @@ subroutine rrtmgp_sw_mcica_subcol_gen_run(dosw, kdist_sw, nswbands, nswgpts, nda
    logical,                          intent(in)  :: dosw                 ! Flag to do shortwave radiation this timestep
 
    type(ty_optical_props_2str_ccpp), intent(out) :: cloud_sw             ! SW cloud optical properties object
-   character(len=512),               intent(out)   :: errmsg
-   integer,                          intent(out)   :: errflg
+   character(len=512),               intent(out) :: errmsg
+   integer,                          intent(out) :: errflg
 
    ! Local variables
 
