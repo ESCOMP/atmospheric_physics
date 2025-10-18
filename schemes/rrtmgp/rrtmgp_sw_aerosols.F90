@@ -12,12 +12,13 @@ contains
 !> \section arg_table_rrtmgp_sw_aerosols_run Argument Table
 !! \htmlinclude rrtmgp_sw_aerosols_run.html
 !!
-   subroutine rrtmgp_sw_aerosols_run(doswrad, aer_sw, errmsg, errflg)
+   subroutine rrtmgp_sw_aerosols_run(doswrad, nday, aer_sw, errmsg, errflg)
     use ccpp_optical_props, only: ty_optical_props_2str_ccpp
     use ccpp_kinds,         only: kind_phys
 
     ! Inputs
     logical, intent(in) :: doswrad                                              !< Flag to perform shortwave calculation
+    integer, intent(in) :: nday                                                 !< daytime points dimension
 
     ! Outputs
     class(ty_optical_props_2str_ccpp), intent(inout) :: aer_sw                  !< Aerosol optical properties object
@@ -29,7 +30,7 @@ contains
     errmsg = ''
     errflg = 0
 
-    if (.not. doswrad) return
+    if (.not. doswrad .or. nday == 0) return
 
     aer_sw%optical_props%tau = 0.0_kind_phys
     aer_sw%optical_props%g = 0.0_kind_phys

@@ -11,6 +11,12 @@
   type = logical
   dimensions = ()
   intent = in
+[ nday ]
+  standard_name = daytime_points_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
 [ aer_sw ]
   standard_name = shortwave_aerosol_optical_properties_object_for_RRTMGP
   units = none

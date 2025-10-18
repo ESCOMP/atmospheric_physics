@@ -53,7 +53,7 @@ contains
     errmsg = ''
     errflg = 0
 
-    if (.not. doswrad .or. nday == 0) return
+    if (.not. doswrad .or. rrtmgp_phys_blksz == 0) return
 
     iCol = ((iter_num - 1) * rrtmgp_phys_blksz) + 1
     iCol2 = min(iCol + rrtmgp_phys_blksz - 1, nday)
