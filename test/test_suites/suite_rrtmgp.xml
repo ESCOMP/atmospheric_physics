@@ -12,7 +12,7 @@
     <scheme>rrtmgp_sw_mcica_subcol_gen</scheme>
     <!--    <scheme>rrtmgp_cloud_diagnostics</scheme>-->
     <!-- Shortwave subcycle - last iteration is climate calculation -->
-    <subcycle>
+    <subcycle loop="number_of_diagnostic_subcycles">
       <scheme>rrtmgp_constituents</scheme> <!-- ifnday-->
       <scheme>rrtmgp_sw_gas_optics_pre</scheme> <!-- ifnday-->
       <scheme>rrtmgp_sw_gas_optics</scheme><!--ifnday-->
@@ -28,7 +28,7 @@
     <scheme>rrtmgp_lw_cloud_optics</scheme>
     <scheme>rrtmgp_lw_mcica_subcol_gen</scheme>
     <!-- Longwave subcycle - last iteration is climate calculation-->
-    <subcycle>
+    <subcycle loop="number_of_diagnostic_subcycles">
       <scheme>rrtmgp_constituents</scheme>
       <scheme>rrtmgp_lw_gas_optics_pre</scheme>
       <scheme>rrtmgp_lw_gas_optics</scheme>
