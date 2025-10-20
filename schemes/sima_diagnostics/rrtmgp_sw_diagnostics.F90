@@ -55,10 +55,7 @@ CONTAINS
             call history_add_field('FSNS'//diag(icall-1),    'Net solar flux at surface',                         horiz_only, 'avg',  'W m-2')
             call history_add_field('FSNSC'//diag(icall-1),   'Clearsky net solar flux at surface',                horiz_only, 'avg',  'W m-2')
             call history_add_field('FSDS'//diag(icall-1),    'Downwelling solar flux at surface',                 horiz_only, 'avg',  'W m-2')
-            call history_add_field('FSDSC'//diag(icall-1),   'Clearky downwelling solar flux at surface',         horiz_only, 'avg',  'W m-2')
-            call history_add_field('FSNIRTOA'//diag(icall-1),'Net near-infrared flux (Nimbus-7 WFOV at top of atmosphere',          horiz_only, 'avg', 'W m-2')
-            call history_add_field('FSNRTOAC'//diag(icall-1),'Clearsky net near-infrared flux (Nimbus-7 WFOV at top of atmosphere', horiz_only, 'avg', 'W m-2')
-            call history_add_field('FSNRTOAS'//diag(icall-1),'Net near-infrared flux (>= 0.7 microns) at top of atmosphere',        horiz_only, 'avg', 'W m-2')
+            call history_add_field('FSDSC'//diag(icall-1),   'Clearsky downwelling solar flux at surface',        horiz_only, 'avg',  'W m-2')
 
             ! Fluxes on CAM grid
             call history_add_field('FUS'//diag(icall-1),     'Shortwave upward flux',                             'ilev',     'inst', 'W m-2')
