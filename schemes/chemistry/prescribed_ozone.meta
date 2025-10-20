@@ -1,0 +1,138 @@
+[ccpp-table-properties]
+  name = prescribed_ozone
+  type = scheme
+  dependencies = ../../../../utils/cam_history.F90,../../../../utils/tracer_data.F90
+
+[ccpp-arg-table]
+  name  = prescribed_ozone_init
+  type  = scheme
+[ amIRoot ]
+  standard_name = flag_for_mpi_root
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ iulog ]
+  standard_name = log_output_unit
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
+[ fld_name_nl ]
+  standard_name = variable_name_of_ozone_in_prescribed_forcing_file
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ filename_nl ]
+  standard_name = filename_of_prescribed_ozone_forcing
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ filelist_nl ]
+  standard_name = filename_of_prescribed_ozone_forcing_file_list
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ datapath_nl ]
+  standard_name = datapath_for_prescribed_ozone_forcing
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ data_type_nl ]
+  standard_name = time_interpolation_method_for_prescribed_ozone_forcing
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ cycle_yr_nl ]
+  standard_name = cycle_year_for_prescribed_ozone_forcing
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ fixed_ymd_nl ]
+  standard_name = fixed_date_for_prescribed_ozone_forcing
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ fixed_tod_nl ]
+  standard_name = fixed_time_of_day_for_prescribed_ozone_forcing
+  units = s
+  type = integer
+  dimensions = ()
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = prescribed_ozone_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ mwdry ]
+  standard_name = molecular_weight_of_dry_air
+  units = g mol-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ boltz ]
+  standard_name = boltzmann_constant
+  units = J K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ t ]
+  standard_name = air_temperature
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ pmiddry ]
+  standard_name = air_pressure_of_dry_air
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ prescribed_ozone ]
+  standard_name = prescribed_ozone_tbd
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
