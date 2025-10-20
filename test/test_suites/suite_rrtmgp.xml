@@ -10,7 +10,7 @@
     <scheme>rrtmgp_inputs</scheme>
     <scheme>rrtmgp_sw_cloud_optics</scheme>
     <scheme>rrtmgp_sw_mcica_subcol_gen</scheme>
-    <!--    <scheme>rrtmgp_cloud_diagnostics</scheme>-->
+    <scheme>rrtmgp_cloud_diagnostics</scheme>
     <!-- Shortwave subcycle - last iteration is climate calculation -->
     <subcycle loop="number_of_diagnostic_subcycles">
       <scheme>rrtmgp_constituents</scheme> <!-- ifnday-->

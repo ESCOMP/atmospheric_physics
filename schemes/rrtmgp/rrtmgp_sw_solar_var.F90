@@ -36,7 +36,7 @@ contains
      integer,            intent(in)    :: nswbands              ! number of shortwave bands
      logical,            intent(in)    :: do_spectral_scaling   ! flag to do spectral scaling
      logical,            intent(in)    :: dosw
-     real(kind_phys),    intent(in)    :: eccf                  ! eccentricity factor
+     real(kind_phys),    intent(in)    :: eccf                  ! Earth-Sun distance factor
      real(kind_phys),    intent(out)   :: sfac(:,:)             ! scaling factors (columns,gpts)
      character(len=512), intent(out)   :: errmsg
      integer,            intent(out)   :: errflg

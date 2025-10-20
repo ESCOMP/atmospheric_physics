@@ -17,13 +17,13 @@
   type = logical
   dimensions = ()
   intent = in
-[ snow_associated ]
+[ do_snow ]
   standard_name = include_snow_in_radiation_calculation
   units = flag
   type = logical
   dimensions = ()
   intent = in
-[ graupel_associated ]
+[ do_graupel ]
   standard_name = include_graupel_in_radiation_calculation
   units = flag
   type = logical

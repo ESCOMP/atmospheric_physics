@@ -6,13 +6,13 @@
   name  = rrtmgp_cloud_diagnostics_init
   type  = scheme
 [ has_snow ]
-  standard_name = include_snow_in_radiation_calculation
+  standard_name = include_liquid_plus_snow_stratiform_cloud_area_fraction
   units = flag
   type = logical
   dimensions = ()
   intent = in
 [ has_graupel ]
-  standard_name = include_graupel_in_radiation_calculation
+  standard_name = include_liquid_plus_graupel_stratiform_cloud_area_fraction
   units = flag
   type = logical
   dimensions = ()

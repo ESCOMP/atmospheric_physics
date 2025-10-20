@@ -9,7 +9,7 @@ module rrtmgp_inputs
 !> \section arg_table_rrtmgp_inputs_run Argument Table
 !! \htmlinclude rrtmgp_inputs_run.html
 !!
-  subroutine rrtmgp_inputs_run(dosw, dolw, snow_associated, graupel_associated, &
+subroutine rrtmgp_inputs_run(dosw, dolw, do_snow, do_graupel,                   &
                   trick_rrtmgp, pmid, pint, t, nday, idxday,                    &
                   cldfprime, coszrs, kdist_sw, t_sfc, emis_sfc, t_rad,          &
                   pmid_rad, pint_rad, t_day, pmid_day, pint_day, coszrs_day,    &
@@ -40,8 +40,8 @@ module rrtmgp_inputs
      integer,                              intent(in) :: nday                  ! Number of daylight columns
      logical,                              intent(in) :: dosw                  ! Flag for performing the shortwave calculation
      logical,                              intent(in) :: dolw                  ! Flag for performing the longwave calculation
-     logical,                              intent(in) :: snow_associated       ! Flag for whether the cloud snow fraction argument should be used
-     logical,                              intent(in) :: graupel_associated    ! Flag for whether the cloud graupel fraction argument should be used
+     logical,                              intent(in) :: do_snow               ! Flag for whether the cloud snow fraction argument should be used
+     logical,                              intent(in) :: do_graupel            ! Flag for whether the cloud graupel fraction argument should be used
      logical,                              intent(in) :: trick_rrtmgp          ! Flag for whether to trick RRTMGP levels
      integer,         dimension(:),        intent(in) :: idxday                ! Indices of daylight columns
      real(kind_phys), dimension(:,:),      intent(in) :: pmid                  ! Air pressure at midpoint (Pa)
@@ -255,7 +255,7 @@ module rrtmgp_inputs
      ! 2. modify for snow. use max(cld, cldfsnow)
      ! 3. modify for graupel if graupel_in_rad is true.
      !    use max(cldfprime, cldfgrau)
-     if (snow_associated) then
+     if (do_snow) then
         do kdx = 1, pver
            do idx = 1, ncol
               cldfprime(idx,kdx) = max(cld(idx,kdx), cldfsnow(idx,kdx))
@@ -265,7 +265,7 @@ module rrtmgp_inputs
         cldfprime(:,:) = cld(:,:)
      end if
 
-     if (graupel_associated .and. graupel_in_rad) then
+     if (do_graupel .and. graupel_in_rad) then
         do kdx = 1, pver
            do idx = 1, ncol
               cldfprime(idx,kdx) = max(cldfprime(idx,kdx), cldfgrau(idx,kdx))

@@ -1,8 +1,6 @@
 module rrtmgp_constituents
 
    public :: rrtmgp_constituents_register
-   public :: rrtmgp_constituents_init
-   public :: rrtmgp_constituents_timestep_init
    public :: rrtmgp_constituents_run
 
 contains
@@ -112,59 +110,6 @@ contains
       end do parse_loop
 
    end subroutine rrtmgp_constituents_register
-
-!> \section arg_table_rrtmgp_constituents_init Argument Table
-!! \htmlinclude rrtmgp_constituents_init.html
-!!
-   subroutine rrtmgp_constituents_init(ndiag, unset_real, active_call_array, &
-      tlev, fluxlwup_Jac, rad_heat, is_first_restart_step,    &
-      use_tlev, errmsg, errflg)
-      use ccpp_kinds, only: kind_phys
-      integer,             intent(in) :: ndiag
-      real(kind_phys),     intent(in) :: unset_real
-      logical,            intent(out) :: active_call_array(:)
-      real(kind_phys),    intent(out) :: tlev(:,:)
-      real(kind_phys),    intent(out) :: fluxlwup_Jac(:,:)
-      real(kind_phys),    intent(out) :: rad_heat(:,:)
-      logical,            intent(out) :: is_first_restart_step
-      logical,            intent(out) :: use_tlev
-      character(len=512), intent(out) :: errmsg
-      integer,            intent(out) :: errflg
-
-      ! Initialize error variables
-      errflg = 0
-      errmsg = ''
-
-      active_call_array = .true.
-      is_first_restart_step = .false.
-
-      ! Set tlev & fluxlwup_Jac to unset values; not used by default in CAM-SIMA
-      use_tlev = .false.
-      tlev = unset_real
-      fluxlwup_Jac = unset_real
-      rad_heat = unset_real
-
-   end subroutine rrtmgp_constituents_init
-
-!> \section arg_table_rrtmgp_constituents_timestep_init Argument Table
-!! \htmlinclude rrtmgp_constituents_timestep_init.html
-!!
-   subroutine rrtmgp_constituents_timestep_init(ncol, nday, rrtmgp_phys_blksz_lw, &
-      rrtmgp_phys_blksz_sw, errmsg, errflg)
-      integer, intent(in) :: nday
-      integer, intent(in) :: ncol
-      integer, intent(out) :: rrtmgp_phys_blksz_lw
-      integer, intent(out) :: rrtmgp_phys_blksz_sw
-      character(len=512), intent(out) :: errmsg
-      integer,            intent(out) :: errflg
-
-      errflg = 0
-      errmsg = ''
-
-      rrtmgp_phys_blksz_lw = ncol
-      rrtmgp_phys_blksz_sw = nday
-
-   end subroutine rrtmgp_constituents_timestep_init
 
 !> \section arg_table_rrtmgp_constituents_run Argument Table
 !! \htmlinclude rrtmgp_constituents_run.html
