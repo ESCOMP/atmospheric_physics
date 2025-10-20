@@ -12,7 +12,7 @@ contains
 !! \htmlinclude rrtmgp_subcycle_init
 !!
    subroutine rrtmgp_subcycle_init(diag_cur, errmsg, errflg)
-      integer,            intent(out) :: diag_cur
+      integer,            intent(out) :: diag_cur        ! Current diagnostic subcycle
       character(len=512), intent(out) :: errmsg
       integer,            intent(out) :: errflg
 
@@ -25,8 +25,8 @@ contains
 !! \htmlinclude rrtmgp_subcycle_run.html
 !!
    subroutine rrtmgp_subcycle_run(diag_cur, num_diag_cycles, errmsg, errflg)
-      integer,             intent(in) :: num_diag_cycles
-      integer,          intent(inout) :: diag_cur
+      integer,             intent(in) :: num_diag_cycles ! Number of diagnostic subcycles
+      integer,          intent(inout) :: diag_cur        ! Current diagnostic subcycle
       character(len=512), intent(out) :: errmsg
       integer,            intent(out) :: errflg
 

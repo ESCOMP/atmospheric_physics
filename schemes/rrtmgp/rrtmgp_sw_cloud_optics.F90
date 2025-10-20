@@ -1,4 +1,3 @@
-! PEVERWHEE - dependencies = interpolate_data
 !> \file rrtmgp_sw_cloud_optics.F90
 !!
 module rrtmgp_sw_cloud_optics

@@ -23,19 +23,19 @@ CONTAINS
       integer,                        intent(in) :: num_diag_subcycles  ! Number of diagnostics subcycles
       integer,                        intent(in) :: icall               ! Current diagnostic subcycle
       integer,                        intent(in) :: pverp               ! Number of vertical layer interfaces
-      integer,                        intent(in) :: ncol
-      integer,                        intent(in) :: nlay
+      integer,                        intent(in) :: ncol                ! Number of horizontal grid points
+      integer,                        intent(in) :: nlay                ! Number of vertical layers in RRTMGP
       integer,                        intent(in) :: ktopcam             ! Index in CAM arrays of top level (layer or interface) at which RRTMGP is active
       integer,                        intent(in) :: ktoprad             ! Index in RRTMGP array corresponding to top layer or interface of CAM arrays
       logical,                        intent(in) :: active_calls(:)     ! Logical array of flags for whether a specified subcycle is active
       type(ty_fluxes_byband_ccpp),    intent(in) :: flw                 ! Longwave all-sky flux object
       type(ty_fluxes_broadband_ccpp), intent(in) :: flwc                ! Longwave clear-sky flux object
       ! Output variables
-      real(kind_phys),               intent(out) :: fnl(:,:)
-      real(kind_phys),               intent(out) :: fcnl(:,:)
-      real(kind_phys),               intent(out) :: flns(:)
-      real(kind_phys),               intent(out) :: flnt(:)
-      real(kind_phys),               intent(out) :: flwds(:)
+      real(kind_phys),               intent(out) :: fnl(:,:)            ! Longwave net radiative flux [W m-2]
+      real(kind_phys),               intent(out) :: fcnl(:,:)           ! Longwave net radiative clear-sky flux [W m-2]
+      real(kind_phys),               intent(out) :: flns(:)             ! Longwave net upward flux at surface [W m-2]
+      real(kind_phys),               intent(out) :: flnt(:)             ! Longwave net outgoing flux at model top [W m-2]
+      real(kind_phys),               intent(out) :: flwds(:)            ! Longwave downward radiative flux at surface [W m-2]
 
       
       ! CCPP error handling variables

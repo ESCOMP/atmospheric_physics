@@ -7,14 +7,14 @@ CONTAINS
    subroutine rrtmgp_lw_calculate_heating_rate_run(ktopcam, pver, gravit, rpdel, flux_net, &
                    flux_net_clrsky, hrate, hrate_clrsky, errmsg, errflg)
       use ccpp_kinds, only: kind_phys
-      integer,          intent(in) :: ktopcam
-      integer,          intent(in) :: pver
-      real(kind_phys),  intent(in) :: gravit
-      real(kind_phys),  intent(in) :: rpdel(:,:)
-      real(kind_phys),  intent(in) :: flux_net(:,:)
-      real(kind_phys),  intent(in) :: flux_net_clrsky(:,:)
-      real(kind_phys), intent(out) :: hrate(:,:)
-      real(kind_phys), intent(out) :: hrate_clrsky(:,:)
+      integer,          intent(in) :: ktopcam              ! Index in CAM arrays of top level (layer or interface) at which RRTMGP is active
+      integer,          intent(in) :: pver                 ! Number of vertical levels
+      real(kind_phys),  intent(in) :: gravit               ! Standard gravitational acceleration [m s-2]
+      real(kind_phys),  intent(in) :: rpdel(:,:)           ! Reciprocal of air pressure thickness [Pa-1] 
+      real(kind_phys),  intent(in) :: flux_net(:,:)        ! Longwave net radiative flux [W m-2]
+      real(kind_phys),  intent(in) :: flux_net_clrsky(:,:) ! Longwave net radiative clear-sky flux [W m-2]
+      real(kind_phys), intent(out) :: hrate(:,:)           ! Tendency of dry air enthalpy due to LW radiation [J kg-1 s-1]
+      real(kind_phys), intent(out) :: hrate_clrsky(:,:)    ! Tendency of dry air enthalpy due to clear-sky LW radiation [J kg-1 s-1]
       character(len=512), intent(out) :: errmsg
       integer,            intent(out) :: errflg
 

@@ -4,7 +4,6 @@
 ! to approximate the spectral distribution of irradiance
 ! when the radiation scheme might use a different solar source function
 !-------------------------------------------------------------------------------
-! peverwhee - dependencies = time_coordinate
 module solar_irradiance_data
   use cam_time_coord, only: time_coordinate
   use ccpp_kinds,     only: kind_phys

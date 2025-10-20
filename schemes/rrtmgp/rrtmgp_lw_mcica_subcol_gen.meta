@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = rrtmgp_lw_mcica_subcol_gen
   type = scheme
+  dependencies = ../../../../../share/RandNum/src/shr_RandNum_mod.F90
 
 [ccpp-arg-table]
   name  = rrtmgp_lw_mcica_subcol_gen_run

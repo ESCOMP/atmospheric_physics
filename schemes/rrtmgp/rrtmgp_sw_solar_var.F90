@@ -31,11 +31,11 @@ contains
      real(kind_phys),    intent(in)    :: wave_end(:)           ! wavelength endpoints
      integer,            intent(in)    :: nday                  ! number of daytime points
      integer,            intent(in)    :: nbins                 ! number of bins
-     integer,            intent(in)    :: ccpp_constant_two
+     integer,            intent(in)    :: ccpp_constant_two     ! dimension for band2gpt_sw
      integer,            intent(in)    :: band2gpt_sw(:,:)      ! array for converting shortwave band limits to g-points
      integer,            intent(in)    :: nswbands              ! number of shortwave bands
      logical,            intent(in)    :: do_spectral_scaling   ! flag to do spectral scaling
-     logical,            intent(in)    :: dosw
+     logical,            intent(in)    :: dosw                  ! flag to do shortwave radiation
      real(kind_phys),    intent(in)    :: eccf                  ! Earth-Sun distance factor
      real(kind_phys),    intent(out)   :: sfac(:,:)             ! scaling factors (columns,gpts)
      character(len=512), intent(out)   :: errmsg

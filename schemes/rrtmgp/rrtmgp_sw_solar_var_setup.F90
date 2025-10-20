@@ -28,9 +28,9 @@ contains
 !!
   subroutine rrtmgp_sw_solar_var_setup_init(nswbands, do_spectral_scaling, has_spectrum, errmsg, errflg)
     use radiation_utils,   only : get_sw_spectral_boundaries_ccpp
-    integer, intent(in) :: nswbands            ! number of shortwave bands
+    integer, intent(in) :: nswbands              ! number of shortwave bands
     logical, intent(in) :: do_spectral_scaling   ! flag to do spectral scaling
-    logical, intent(in) :: has_spectrum        ! flag for whether solar input file has irradiance spectrum
+    logical, intent(in) :: has_spectrum          ! flag for whether solar input file has irradiance spectrum
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errflg
 

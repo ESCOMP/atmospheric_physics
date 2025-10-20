@@ -34,7 +34,7 @@ contains
     real(kind_phys), dimension(:,:),   intent(in) :: toa_src_sw                 !< Top-of-atmosphere flux on g-points [W m-2]
     real(kind_phys), dimension(:,:),   intent(in) :: sfc_alb_dir                !< Albedo direct at surface [fraction]
     real(kind_phys), dimension(:,:),   intent(in) :: sfc_alb_dif                !< Albedo diffuse at surface [fraction]
-    real(kind_phys), dimension(:),     intent(in) :: coszen_day                     !< Cosine of solar zenith angle for daytime points
+    real(kind_phys), dimension(:),     intent(in) :: coszen_day                 !< Cosine of solar zenith angle for daytime points
 
     ! Outputs
     class(ty_fluxes_byband_ccpp),      intent(inout) :: flux_allsky             !< All-sky flux [W m-2]

@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = solar_irradiance_data
   type = scheme
+  dependencies = ../../../../utils/cam_time_coord.F90
 
 [ccpp-arg-table]
   name  = solar_irradiance_data_register

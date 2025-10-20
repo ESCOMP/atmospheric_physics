@@ -30,7 +30,7 @@ contains
     ! Outputs
     class(ty_gas_optics_rrtmgp_ccpp),    intent(out) :: kdist                        ! RRTMGP gas optics object
     character(len=512),                  intent(out) :: errmsg                       ! CCPP error message
-    integer,                             intent(out) :: errflg                      ! CCPP error code
+    integer,                             intent(out) :: errflg                       ! CCPP error code
 
     ! Local variables
     class(abstract_netcdf_reader_t),   pointer     :: file_reader
@@ -340,7 +340,7 @@ contains
    ! Inputs
    logical,                           intent(in) :: dosw                        !< Flag for whether to perform shortwave calculation
    integer,                           intent(in) :: iter_num                    !< Subcycle iteration number
-   integer,                           intent(in) :: ncol                        !< Total number of columns
+   integer,                           intent(in) :: ncol                        !< Daytime points dimension
    integer,                           intent(in) :: rrtmgp_phys_blksz           !< Number of horizontal points to process at once
    real(kind_phys), dimension(:,:),   intent(in) :: p_lay                       !< Air pressure at midpoints [Pa]
    real(kind_phys), dimension(:,:),   intent(in) :: p_lev                       !< Air pressure at interfaces [Pa]
@@ -350,7 +350,7 @@ contains
    ! Outputs
    type(ty_optical_props_2str_ccpp),  intent(inout) :: sw_optical_props         !< Clearsky optical properties
    type(ty_gas_optics_rrtmgp_ccpp),   intent(inout) :: sw_gas_props             !< RRTMGP gas optics object
-   real(kind_phys),                   intent(out)   :: toa_src_sw(:,:)
+   real(kind_phys),                   intent(out)   :: toa_src_sw(:,:)          !< Top of atmosphere solar radiation flux on g points [W m-2]
    character(len=512),                intent(out)   :: errmsg
    integer,                           intent(out)   :: errflg
 
