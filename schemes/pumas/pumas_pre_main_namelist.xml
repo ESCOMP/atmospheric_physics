@@ -18,7 +18,7 @@
   </values>
 </entry>
 
-<entry id="micro_mg_do_hail">
+<entry id="do_hail">
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>do_hail_instead_of_graupel</standard_name>
@@ -31,7 +31,7 @@
   </values>
 </entry>
 
-<entry id="micro_mg_do_graupel">
+<entry id="do_graupel">
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>do_graupel_instead_of_hail</standard_name>
@@ -96,7 +96,7 @@
   </values>
 </entry>
 
-<entry id="micro_mg_evap_sed_off">
+<entry id="evap_sed_off">
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>turn_off_evaporation_of_precipitation</standard_name>
@@ -109,7 +109,7 @@
   </values>
 </entry>
 
-<entry id="micro_mg_icenuc_rh_off">
+<entry id="icenuc_rh_off">
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>remove_relative_humidity_threshold_for_ice_nucleation</standard_name>
@@ -122,7 +122,7 @@
   </values>
 </entry>
 
-<entry id="micro_mg_icenuc_use_meyers">
+<entry id="icenuc_use_meyers">
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>use_meyers_ice_nucleation</standard_name>
@@ -135,7 +135,7 @@
   </values>
 </entry>
 
-<entry id="micro_mg_evap_scl_ifs">
+<entry id="evap_scl_ifs">
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>scale_evaporation_like_ecmwf_integrated_forecast_system</standard_name>
@@ -148,7 +148,7 @@
   </values>
 </entry>
 
-<entry id="micro_mg_evap_rhthrsh_ifs">
+<entry id="evap_rhthrsh_ifs">
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>use_ecmwf_integrated_forecasting_system_relative_humidity_evaporation_threshold</standard_name>
@@ -161,7 +161,7 @@
   </values>
 </entry>
 
-<entry id="micro_mg_rainfreeze_ifs">
+<entry id="rainfreeze_ifs">
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>freeze_rain_at_0C</standard_name>
@@ -174,7 +174,7 @@
   </values>
 </entry>
 
-<entry id="micro_mg_ifs_sed">
+<entry id="ifs_sed">
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>do_constant_sedimentation_fall_speed</standard_name>
@@ -187,7 +187,7 @@
   </values>
 </entry>
 
-<entry id="micro_mg_precip_fall_corr">
+<entry id="precip_fall_corr">
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>do_precipitation_fall_speed_correction</standard_name>
@@ -200,7 +200,7 @@
   </values>
 </entry>
 
-<entry id="micro_mg_accre_sees_auto">
+<entry id="accre_sees_auto">
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>accretion_sees_autoconverted_condensate</standard_name>
@@ -213,7 +213,7 @@
   </values>
 </entry>
 
-<entry id="micro_mg_implicit_fall">
+<entry id="implicit_fall">
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>do_implicit_fall_speed_calc</standard_name>
@@ -226,7 +226,7 @@
   </values>
 </entry>
 
-<entry id="micro_mg_nccons">
+<entry id="nccons">
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>use_prescribed_cloud_droplet_number_concentration</standard_name>
@@ -239,7 +239,7 @@
   </values>
 </entry>
 
-<entry id="micro_mg_nicons">
+<entry id="nicons">
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>use_prescribed_cloud_ice_number_concentration</standard_name>
@@ -252,7 +252,7 @@
   </values>
 </entry>
 
-<entry id="micro_mg_ngcons">
+<entry id="ngcons">
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>use_prescribed_graupel_number_concentration</standard_name>
@@ -265,7 +265,7 @@
   </values>
 </entry>
 
-<entry id="micro_mg_nrcons">
+<entry id="nrcons">
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>use_prescribed_rain_number_concentration</standard_name>
@@ -278,7 +278,7 @@
   </values>
 </entry>
 
-<entry id="micro_mg_nscons">
+<entry id="nscons">
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>use_prescribed_snow_number_concentration</standard_name>
@@ -291,7 +291,7 @@
   </values>
 </entry>
 
-<entry id="micro_mg_precip_frac_method">
+<entry id="precip_frac_method">
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>control_for_precipitation_area_fraction_method</standard_name>
@@ -304,7 +304,7 @@
   </values>
 </entry>
 
-<entry id="micro_mg_warm_rain">
+<entry id="warm_rain">
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>control_for_warm_rain_method</standard_name>
@@ -356,7 +356,7 @@
   </values>
 </entry>
 
-<entry id="micro_mg_dcs_in">
+<entry id="dcs_in">
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>autoconverion_to_snow_size_threshold</standard_name>
@@ -370,7 +370,7 @@
   </values>
 </entry>
 
-<entry id="micro_mg_berg_eff_factor_in">
+<entry id="berg_eff_factor_in">
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>bergeron_findeisen_process_efficiency_factor</standard_name>
@@ -384,7 +384,7 @@
   </values>
 </entry>
 
-<entry id="micro_mg_accre_enhan_fact_in">
+<entry id="accre_enhan_fact_in">
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>accretion_enhancement_factor</standard_name>
@@ -398,7 +398,7 @@
   </values>
 </entry>
 
-<entry id="micro_mg_autocon_fact_in">
+<entry id="autocon_fact_in">
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>autconversion_enhancement_factor</standard_name>
@@ -412,7 +412,7 @@
   </values>
 </entry>
 
-<entry id="micro_mg_autocon_nd_exp_in">
+<entry id="autocon_nd_exp_in">
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>autconversion_nd_exponent</standard_name>
@@ -426,7 +426,7 @@
   </values>
 </entry>
 
-<entry id="micro_mg_autocon_lwp_exp_in">
+<entry id="autocon_lwp_exp_in">
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>autconversion_lwp_exponent</standard_name>
@@ -440,7 +440,7 @@
   </values>
 </entry>
 
-<entry id="micro_mg_homog_size_in">
+<entry id="homog_size_in">
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>homogeneous_freezing_radius</standard_name>
@@ -454,7 +454,7 @@
   </values>
 </entry>
 
-<entry id="micro_mg_vtrmi_factor_in">
+<entry id="vtrmi_factor_in">
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>scaling_factor_for_ice_fall_speed</standard_name>
@@ -468,7 +468,7 @@
   </values>
 </entry>
 
-<entry id="micro_mg_vtrms_factor_in">
+<entry id="vtrms_factor_in">
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>scaling_factor_for_snow_fall_speed</standard_name>
@@ -482,7 +482,7 @@
   </values>
 </entry>
 
-<entry id="micro_mg_effi_factor_in">
+<entry id="effi_factor_in">
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>scaling_factor_for_ice_in_radiation</standard_name>
@@ -496,7 +496,7 @@
   </values>
 </entry>
 
-<entry id="micro_mg_iaccr_factor_in">
+<entry id="iaccr_factor_in">
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>scaling_factor_for_ice_accretion</standard_name>
@@ -510,7 +510,7 @@
   </values>
 </entry>
 
-<entry id="micro_mg_max_nicons_in">
+<entry id="max_nicons_in">
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>maximum_ice_number_concentration</standard_name>
@@ -524,7 +524,7 @@
   </values>
 </entry>
 
-<entry id="micro_mg_ncnst_in">
+<entry id="ncnst_in">
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>prescribed_cloud_droplet_number_concentration</standard_name>
@@ -538,7 +538,7 @@
   </values>
 </entry>
 
-<entry id="micro_mg_ninst_in">
+<entry id="ninst_in">
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>prescribed_cloud_ice_number_concentration</standard_name>
@@ -552,7 +552,7 @@
   </values>
 </entry>
 
-<entry id="micro_mg_ngnst_in">
+<entry id="ngnst_in">
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>prescribed_graupel_number_concentration</standard_name>
@@ -566,7 +566,7 @@
   </values>
 </entry>
 
-<entry id="micro_mg_nrnst_in">
+<entry id="nrnst_in">
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>prescribed_rain_number_concentration</standard_name>
@@ -580,7 +580,7 @@
   </values>
 </entry>
 
-<entry id="micro_mg_nsnst_in">
+<entry id="nsnst_in">
   <category>microphys</category>
   <group>micro_mg_nl</group>
   <standard_name>prescribed_snow_number_concentration</standard_name>

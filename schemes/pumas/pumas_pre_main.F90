@@ -20,10 +20,18 @@ module pumas_pre_main
 
   !> \section arg_table_pumas_pre_main_init Argument Table
   !! \htmlinclude pumas_pre_main_init.html
-   subroutine pumas_pre_main_init(errmsg, errcode)
+   subroutine pumas_pre_main_init(spat_vary_accre_enhan_in, errmsg, errcode)
 
+
+     real(kind_phys), dimension (:,:) , intent(out) :: spat_vary_accre_enhan_in
      character(len=512), intent(out) :: errmsg
      integer,            intent(out) :: errcode
+
+     errmsg = ' '
+     errcode = 0
+
+     ! Inside CAM, the pbuf accre_enhan variable is hardwired to 1.
+     spat_vary_accre_enhan_in(:,:) = 1._kind_phys
 
    end subroutine pumas_pre_main_init
 

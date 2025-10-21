@@ -40,7 +40,7 @@ contains
   !> \section arg_table_micro_pumas_ccpp_dimensions_pre_run Argument Table
   !! \htmlinclude micro_pumas_ccpp_dimensions_pre_run.html
   subroutine micro_pumas_ccpp_dimensions_pre_run(ncol, nlev, nlevp1,                &
-                             micro_ncol, micro_nlev, micro_nlevp1,                  &
+                             micro_ncol, micro_nlev, micro_nlevp1, micro_dust_nbins,&
                              airT_in, micro_airT, airq_in, micro_airq,              &
                              cldliq_in, micro_cldliq,                               &
                              cldice_in, micro_cldice,                               &
@@ -53,7 +53,7 @@ contains
                              graupice_in, micro_graupice,                           &
                              numgraup_in, micro_numgraup,                           &
                              relvar_in, micro_relvar,                               &
-                             accre_enhan_in, micro_accre_enhan,                     &
+                             spat_vary_accre_enhan_in, micro_spat_vary_accre_enhan, &
                              pmid_in, micro_pmid,                                   &
                              pdel_in, micro_pdel,                                   &
                              pint_in, micro_pint,                                   &
@@ -85,6 +85,7 @@ contains
     integer,         intent(in) :: micro_ncol          !Number of horizontal microphysics columns (count)
     integer,         intent(in) :: micro_nlev          !Number of microphysics vertical layers (count)
     integer,         intent(in) :: micro_nlevp1        !Number of microphysics vertical interfaces (count)
+    integer,         intent(in) :: micro_dust_nbins    !Number of dust bins
 
     ! Air temperature (K)
     real(kind_phys), intent(in)  :: airT_in(:, :)
@@ -126,8 +127,8 @@ contains
     real(kind_phys), intent(in)  :: relvar_in(:, :)
     real(kind_phys), intent(out) :: micro_relvar(:, :)
     ! Accretion enhancement factor (1)
-    real(kind_phys), intent(in)  :: accre_enhan_in(:, :)
-    real(kind_phys), intent(out) :: micro_accre_enhan(:, :)
+    real(kind_phys), intent(in)  :: spat_vary_accre_enhan_in(:, :)
+    real(kind_phys), intent(out) :: micro_spat_vary_accre_enhan(:, :)
     ! Air pressure (Pa)
     real(kind_phys), intent(in)  :: pmid_in(:, :)
     real(kind_phys), intent(out) :: micro_pmid(:, :)
@@ -204,7 +205,7 @@ contains
     micro_graupice(:ncol,:) = graupice_in(:,::)
     micro_numgraup(:ncol,:) = numgraup_in(:,::)
     micro_relvar(:ncol,:) = relvar_in(:,::)
-    micro_accre_enhan(:ncol,:) = accre_enhan_in(:,::)
+    micro_spat_vary_accre_enhan(:ncol,:) = spat_vary_accre_enhan_in(:,::)
     micro_pmid(:ncol,:) = pmid_in(:,::)
     micro_pdel(:ncol,:) = pdel_in(:,::)
     micro_pint(:ncol,:) = pint_in(:,:micro_nlevp1)

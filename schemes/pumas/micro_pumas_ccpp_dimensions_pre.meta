@@ -80,8 +80,8 @@
   name = micro_pumas_ccpp_dimensions_pre_run
   type = scheme
 [ncol]
-  standard_name = horizontal_dimension
-  long_name = horizontal dimension
+  standard_name = horizontal_loop_extent
+  long_name = horizontal_loop_extent
   units = count
   dimensions = ()
   type = integer
@@ -120,6 +120,13 @@
   #Vertical interfaces from surface to highest level with tropospheric clouds
   standard_name = microphysics_vertical_interface_dimension
   long_name = vertical interface dimension used by microphysics
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[micro_dust_nbins]
+  standard_name = dust_size_bins_dimension
+  long_name = number of dust bins
   units = count
   dimensions = ()
   type = integer
@@ -328,7 +335,7 @@
   kind = kind_phys
   intent = out
 [relvar_in]
-  standard_name = relative_variance_of_cloud_water
+  standard_name = relative_variance_of_subgrid_cloud_condensate_distribution
   long_name = relative variance of cloud water
   units = 1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -343,17 +350,17 @@
   type = real
   kind = kind_phys
   intent = out
-[accre_enhan_in]
-  standard_name = accretion_enhancement_factor
-  long_name = accretion enhancement factor
+[spat_vary_accre_enhan_in]
+  standard_name = spatial_varying_accretion_enhancement_factor
+  long_name = spatial varying accretion enhancement factor
   units = 1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real
   kind = kind_phys
   intent = in
-[micro_accre_enhan]
-  standard_name = microphysics_accretion_enhancement_factor
-  long_name = microphysics accretion enhancement factor
+[micro_spat_vary_accre_enhan]
+  standard_name = microphysics_spatial_varying_accretion_enhancement_factor
+  long_name = microphysics spatial varying accretion enhancement factor
   units = 1
   dimensions = (microphysics_horizontal_loop_extent, microphysics_vertical_layer_dimension)
   type = real
@@ -392,16 +399,16 @@
   kind = kind_phys
   intent = out
 [pint_in]
-  standard_name = air_pressure_at_interfaces
-  long_name = air pressure at interfaces
+  standard_name = air_pressure_at_interface
+  long_name = air pressure at interface
   units = Pa
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   type = real
   kind = kind_phys
   intent = in
 [micro_pint]
-  standard_name = microphysics_air_pressure_at_interfaces
-  long_name = microphysics air pressure at interfaces
+  standard_name = microphysics_air_pressure_at_interface
+  long_name = microphysics air pressure at interface
   units = Pa
   dimensions = (microphysics_horizontal_loop_extent, microphysics_vertical_interface_dimension)
   type = real
@@ -456,7 +463,7 @@
   kind = kind_phys
   intent = out
 [qsatfac_in]
-  standard_name = subgrid_cloud_water_saturation_scaling_factor
+  standard_name = subgrid_cloud_water_saturation_scaling_factor_for_microphysics
   long_name = subgrid cloud water saturation scaling factor
   units = 1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -520,7 +527,7 @@
   kind = kind_phys
   intent = out
 [nacon_in]
-  standard_name = dust_number_concentration_by_size_bin
+  standard_name = dust_number_concentration_by_size_bin_for_contact_freezing
   long_name = dust number concentration by size bin
   units = m-3
   dimensions = (horizontal_loop_extent, vertical_layer_dimension, dust_size_bins_dimension)
@@ -573,7 +580,7 @@
 [effi_external_in]
   standard_name = effective_radius_of_stratiform_cloud_ice_particle_from_external_microphysics
   long_name = effective radius of stratiform cloud ice particle from external microphysics
-  units = m
+  units = micron
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real
   kind = kind_phys
@@ -627,7 +634,7 @@
   kind = kind_phys
   intent = in
 [micro_frzdep]
-  standard_name = microphysics_tendency_of_cloud_ice_number_concentration_due_to_deposition_nucleation
+  standard_name = microphysics_
   long_name = microphysics tendency of cloud ice number concentration due to deposition nucleation
   units = cm-3
   dimensions = (microphysics_horizontal_loop_extent, microphysics_vertical_layer_dimension)

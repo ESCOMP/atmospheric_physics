@@ -5,6 +5,14 @@
 [ccpp-arg-table]
   name = pumas_pre_main_init
   type = scheme
+[spat_vary_accre_enhan_in]
+  standard_name = spatial_varying_accretion_enhancement_factor
+  long_name = spatial varying accretion enhancement factor
+  units = 1
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  type = real
+  kind = kind_phys
+  intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
   long_name = Error message for error handling in CCPP
