@@ -29,9 +29,6 @@ CONTAINS
      errmsg = ''
      errflg = 0
 
-     ! Initialize gas list
-!     gaslist =  (/'H2O  ','O3   ', 'O2   ', 'CO2  ', 'N2O  ', 'CH4  ', 'CFC11', 'CFC12'/)
-
      ! Create lowercase version of the gaslist for RRTMGP.  The ty_gas_concs_ccpp objects
      ! work with CAM's uppercase names, but other objects that get input from the gas
      ! concs objects don't work.
