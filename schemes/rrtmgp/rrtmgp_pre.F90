@@ -49,19 +49,19 @@ CONTAINS
   subroutine rrtmgp_pre_timestep_init(ncol, coszrs, nstep, dtime, iradsw, irad_always, offset, &
                   idxday, nday, idxnite, nnite, errmsg, errflg)
      use ccpp_kinds, only: kind_phys
-     real(kind_phys), dimension(:),    intent(in) :: coszrs        ! Cosine solar zenith angle
-     integer,            intent(in)  :: nstep          ! Current timestep number
-     integer,            intent(in)  :: ncol           ! Number of horizontal columns
-     real(kind_phys),    intent(in)  :: dtime          ! Timestep size
-     integer,            intent(in)  :: iradsw         ! Freq. of shortwave radiation calc in time steps (positive) or hours (negative)
-     integer,            intent(in)  :: irad_always    ! Number of time steps to execute radiation continuously
-     integer,                         intent(out) :: nday          ! Number of daylight columns
-     integer,                         intent(out) :: nnite         ! Number of nighttime columns
-     integer, dimension(:),           intent(out) :: idxday        ! Indices of daylight columns
-     integer, dimension(:),           intent(out) :: idxnite       ! Indices of nighttime columns
-     integer,            intent(out) :: offset         ! Offset for next SW radiation timestep
-     integer,            intent(out) :: errflg
-     character(len=512), intent(out) :: errmsg
+     real(kind_phys),       intent(in)  :: coszrs(:)     ! Cosine solar zenith angle
+     integer,               intent(in)  :: nstep        ! Current timestep number
+     integer,               intent(in)  :: ncol         ! Number of horizontal columns
+     real(kind_phys),       intent(in)  :: dtime        ! Timestep size
+     integer,               intent(in)  :: iradsw       ! Freq. of shortwave radiation calc in time steps (positive) or hours (negative)
+     integer,               intent(in)  :: irad_always  ! Number of time steps to execute radiation continuously
+     integer,               intent(out) :: nday         ! Number of daylight columns
+     integer,               intent(out) :: nnite        ! Number of nighttime columns
+     integer,               intent(out) :: idxday(:)    ! Indices of daylight columns
+     integer,               intent(out) :: idxnite(:)   ! Indices of nighttime columns
+     integer,               intent(out) :: offset       ! Offset for next SW radiation timestep
+     integer,               intent(out) :: errflg
+     character(len=512),    intent(out) :: errmsg
 
      logical :: dosw_next
      integer :: nstepsw_next, idx
