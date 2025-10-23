@@ -41,7 +41,7 @@
       Filename of file that contains a sequence of filenames for prescribed ozone. The filenames in this file are relative to the directory specified by prescribed_ozone_datapath.
     </desc>
     <values>
-      <value></value>
+      <value>UNSET</value>
     </values>
   </entry>
 

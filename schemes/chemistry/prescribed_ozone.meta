@@ -1,7 +1,7 @@
 [ccpp-table-properties]
   name = prescribed_ozone
   type = scheme
-  dependencies = ../../../../utils/cam_history.F90,../../../../utils/tracer_data.F90
+  dependencies = ../../../../history/cam_history.F90,../../../../utils/tracer_data.F90
 
 [ccpp-arg-table]
   name  = prescribed_ozone_init
@@ -14,7 +14,7 @@
   intent = in
 [ iulog ]
   standard_name = log_output_unit
-  units = index
+  units = 1
   type = integer
   dimensions = ()
   intent = in
@@ -119,7 +119,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ prescribed_ozone ]
-  standard_name = prescribed_ozone_tbd
+  standard_name = O3
   units = kg kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

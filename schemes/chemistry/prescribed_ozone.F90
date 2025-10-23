@@ -100,10 +100,9 @@ contains
       filename       = filename, &
       filelist       = filelist, &
       datapath       = datapath, &
-      fields         = tracer_data_fields(:), &
+      flds           = tracer_data_fields, & ! ptr
       file           = tracer_data_file, &
-      rmv_file       = .false., &
-      cycle_yr       = cycle_yr, &
+      data_cycle_yr  = cycle_yr, &
       data_fixed_ymd = fixed_ymd, &
       data_fixed_tod = fixed_tod, &
       data_type      = data_type)

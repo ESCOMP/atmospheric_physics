@@ -4,5 +4,8 @@
   <group name="physics_before_coupler">
     <!-- tracer_data test scheme via prescribed_ozone -->
     <scheme>prescribed_ozone</scheme>
+
+    <!-- more advanced tracer_data test scheme via prescribed_aerosols -->
+    <scheme>prescribed_aerosols</scheme>
   </group>
 </suite>
