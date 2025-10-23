@@ -17,7 +17,7 @@ CONTAINS
      use atmos_phys_string_utils, only: to_lower
      integer,                    intent(in) :: nradgas          ! Number of radiatively active gases
      type(ty_gas_concs_ccpp),   intent(out) :: available_gases  ! Gas concentrations object
-     character(len=5),          intent(out) :: gaslist(:)       ! Radiatively active gas list
+     character(len=5),           intent(in) :: gaslist(:)       ! Radiatively active gas list
      character(len=5),          intent(out) :: gaslist_lc(:)    ! Lowercase verison of radiatively active gas list
      character(len=512),        intent(out) :: errmsg
      integer,                   intent(out) :: errflg
@@ -30,7 +30,7 @@ CONTAINS
      errflg = 0
 
      ! Initialize gas list
-     gaslist =  (/'H2O  ','O3   ', 'O2   ', 'CO2  ', 'N2O  ', 'CH4  ', 'CFC11', 'CFC12'/)
+!     gaslist =  (/'H2O  ','O3   ', 'O2   ', 'CO2  ', 'N2O  ', 'CH4  ', 'CFC11', 'CFC12'/)
 
      ! Create lowercase version of the gaslist for RRTMGP.  The ty_gas_concs_ccpp objects
      ! work with CAM's uppercase names, but other objects that get input from the gas

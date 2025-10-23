@@ -313,4 +313,17 @@
       <value dyn="mpas">.false.</value>
     </values>
   </entry>
+  <entry id="gaslist">
+    <type>char*5(8)</type>
+    <category>rrtmgp</category>
+    <group>rrtmgp</group>
+    <standard_name>list_of_active_gases_for_RRTMGP</standard_name>
+    <units>none</units>
+    <desc>
+       List of radiatively active gases used in RRTMGP
+    </desc>
+    <values>
+      <value>'H2O  ','O3   ', 'O2   ', 'CO2  ', 'N2O  ', 'CH4  ', 'CFC11', 'CFC12'</value>
+    </values>
+  </entry>
 </entry_id_pg>

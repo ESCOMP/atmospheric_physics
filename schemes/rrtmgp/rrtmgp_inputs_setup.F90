@@ -134,7 +134,6 @@ module rrtmgp_inputs_setup
 
      ! "irad_always" is number of time steps to execute radiation continuously from
      ! start of initial OR restart run
-     irad_always_out = irad_always
      if (irad_always > 0) then
         irad_always_out = irad_always + nstep
      end if

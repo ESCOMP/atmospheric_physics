@@ -39,7 +39,7 @@
   standard_name = list_of_active_gases_for_RRTMGP
   units = none
   type = character | kind = len=5
-  dimensions = (number_of_active_gases_for_RRTMGP) 
+  dimensions = (cam_nl_autogen1_dimension)
   intent = in
 [ idxday ]
   standard_name = daytime_points

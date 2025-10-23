@@ -8,10 +8,9 @@ contains
 !> \section arg_table_rrtmgp_constituents_register Argument Table
 !! \htmlinclude rrtmgp_constituents_register.html
 !!
-   subroutine rrtmgp_constituents_register(nradgas, rad_climate, rrtmgp_dyn_consts, errmsg, errflg)
+   subroutine rrtmgp_constituents_register(rad_climate, rrtmgp_dyn_consts, errmsg, errflg)
       use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
       use ccpp_kinds,                only: kind_phys
-      integer,            intent(in)  :: nradgas         ! Number of radiatively active gases
       type(ccpp_constituent_properties_t), allocatable, intent(out) :: rrtmgp_dyn_consts(:) ! Runtime constituent properties
       character(len=256), intent(in)  :: rad_climate(:)  ! (namelist) list of radiatively active gases and sources
       character(len=512), intent(out) :: errmsg
@@ -28,7 +27,7 @@ contains
       errflg = 0
 
       ! Allocate the dynamic constituents array
-      allocate(rrtmgp_dyn_consts(nradgas), stat=ierr, errmsg=alloc_errmsg)
+      allocate(rrtmgp_dyn_consts(size(rad_climate)), stat=ierr, errmsg=alloc_errmsg)
       if (ierr /= 0) then
          write(errmsg, *) 'rrtmgp_constituents_register: Unable to allocate rrtmgp_dyn_consts - message: ', alloc_errmsg
          errflg = 1
