@@ -1,0 +1,721 @@
+[ccpp-table-properties]
+  name = gravity_wave_drag_convection_deep
+  type = scheme
+  dependencies = gw_utils.F90,gw_common.F90,../../to_be_ccppized/coords_1d.F90
+
+[ccpp-arg-table]
+  name  = gravity_wave_drag_convection_deep_init
+  type  = scheme
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pi ]
+  standard_name = pi_constant
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ masterproc ]
+  standard_name = flag_for_mpi_root
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ iulog ]
+  standard_name = log_output_unit
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ gw_drag_file_dp ]
+  standard_name = filename_of_lookup_table_of_source_spectra_for_deep_convective_gravity_wave_drag
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ pref_edge ]
+  standard_name = reference_pressure_at_interface
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (vertical_interface_dimension)
+  intent = in
+[ gw_delta_c ]
+  standard_name = delta_between_nearest_phase_speeds_in_the_mid_gravity_wave_band
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ pgwv ]
+  standard_name = mid_gravity_wave_band_spectrum_dimension
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = gravity_wave_drag_convection_deep_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pverp ]
+  standard_name = vertical_interface_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pcnst ]
+  standard_name = number_of_ccpp_constituents
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ dt ]
+  standard_name = timestep_for_physics
+  units = s
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ p ]
+  standard_name = vertical_moist_pressure_coordinates_for_gravity_wave_drag
+  units = Pa
+  type = coords1d
+  dimensions = ()
+  intent = in
+[ vramp ]
+  standard_name = gravity_wave_drag_tapering_coefficients
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (vertical_layer_dimension)
+  intent = in
+[ pi ]
+  standard_name = pi_constant
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ cpair ]
+  standard_name = specific_heat_of_dry_air_at_constant_pressure
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ effgw_beres_dp ]
+  standard_name = deep_convective_scheme_maximum_efficiency_of_gravity_wave_momentum_transfer
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ gw_apply_tndmax ]
+  standard_name = limit_maximum_wind_tendency_from_stress_divergence_in_gravity_wave_drag_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ u ]
+  standard_name = eastward_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ v ]
+  standard_name = northward_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ t ]
+  standard_name = air_temperature
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ q ]
+  standard_name = ccpp_constituents
+  units = none
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
+  intent = in
+[ dse ]
+  standard_name = dry_static_energy
+  units = J kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ piln ]
+  standard_name = ln_air_pressure_at_interface
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ rhoi ]
+  standard_name = air_density_at_interfaces_for_gravity_wave_drag
+  units = kg m-3
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ nm ]
+  standard_name = brunt_vaisalla_frequencies
+  units = s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ ni ]
+  standard_name = brunt_vaisalla_frequencies_at_interfaces
+  units = s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ kvt_gw ]
+  standard_name = scaled_molecular_kinematic_temperature_conductivity_at_interfaces_for_gravity_wave_drag
+  units = m2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ ttend_dp ]
+  standard_name = tendency_of_air_temperature_due_to_deep_convection
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ zm ]
+  standard_name = geopotential_height_wrt_surface
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ lat ]
+  standard_name = latitude
+  units = rad
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ tend_q ]
+  standard_name = ccpp_constituent_tendencies
+  units = none
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
+  intent = inout
+[ tend_u ]
+  standard_name = tendency_of_eastward_wind
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ tend_v ]
+  standard_name = tendency_of_northward_wind
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ tend_s ]
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure
+  units = J kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ flx_heat ]
+  standard_name = net_sensible_heat_flux_through_top_and_bottom_of_atmosphere_column
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = inout
+[ src_level ]
+  standard_name = vertical_index_of_gravity_wave_source_level
+  units = index
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tend_level ]
+  standard_name = vertical_index_of_lowest_gravity_wave_tendency_level
+  units = index
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ ubm ]
+  standard_name = wind_speed_along_gravity_wave_source_direction
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ ubi ]
+  standard_name = wind_speed_along_gravity_wave_source_direction_at_interfaces
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ xv ]
+  standard_name = eastward_component_of_gravity_wave_source_wind_unit_vector
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ yv ]
+  standard_name = northward_component_of_gravity_wave_source_wind_unit_vector
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ hdepth ]
+  standard_name = convective_heating_depth_due_to_deep_convective_gravity_wave_drag
+  units = km
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ maxq0 ]
+  standard_name = maximum_column_heating_rate_due_to_deep_convective_gravity_wave_drag
+  units = K day-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ utgw ]
+  standard_name = tendency_of_eastward_wind_due_to_deep_convective_gravity_wave_drag
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ vtgw ]
+  standard_name = tendency_of_northward_wind_due_to_deep_convective_gravity_wave_drag
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ ttgw ]
+  standard_name = tendency_of_air_temperature_due_to_deep_convective_gravity_wave_drag
+  units = J kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ qtgw ]
+  standard_name = ccpp_constituent_tendencies_due_to_deep_convective_gravity_wave_drag
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
+  intent = out
+[ egwdffi_tot ]
+  standard_name = effective_diffusivity_coefficient_at_interfaces_due_to_gravity_wave_drag
+  units = m2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = inout
+[ dttdf ]
+  standard_name = tendency_of_air_temperature_due_to_diffusion_due_to_deep_convective_gravity_wave_drag
+  units = J kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ dttke ]
+  standard_name = tendency_of_air_temperature_due_to_kinetic_energy_dissipation_due_to_deep_convective_gravity_wave_drag
+  units = J kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ taucd_west ]
+  standard_name = westward_reynolds_stress_due_to_deep_convective_gravity_wave_drag
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ taucd_east ]
+  standard_name = eastward_reynolds_stress_due_to_deep_convective_gravity_wave_drag
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ taucd_south ]
+  standard_name = southward_reynolds_stress_due_to_deep_convective_gravity_wave_drag
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ taucd_north ]
+  standard_name = northward_reynolds_stress_due_to_deep_convective_gravity_wave_drag
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-table-properties]
+  name = gravity_wave_drag_convection_shallow
+  type = scheme
+  dependencies = gw_utils.F90,gw_common.F90,../../to_be_ccppized/coords_1d.F90
+
+[ccpp-arg-table]
+  name  = gravity_wave_drag_convection_shallow_init
+  type  = scheme
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pi ]
+  standard_name = pi_constant
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ masterproc ]
+  standard_name = flag_for_mpi_root
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ iulog ]
+  standard_name = log_output_unit
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ gw_drag_file_sh ]
+  standard_name = filename_of_lookup_table_of_source_spectra_for_shallow_convective_gravity_wave_drag
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ pref_edge ]
+  standard_name = reference_pressure_at_interface
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (vertical_interface_dimension)
+  intent = in
+[ gw_delta_c ]
+  standard_name = delta_between_nearest_phase_speeds_in_the_mid_gravity_wave_band
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ pgwv ]
+  standard_name = mid_gravity_wave_band_spectrum_dimension
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = gravity_wave_drag_convection_shallow_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pverp ]
+  standard_name = vertical_interface_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pcnst ]
+  standard_name = number_of_ccpp_constituents
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ dt ]
+  standard_name = timestep_for_physics
+  units = s
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ p ]
+  standard_name = vertical_moist_pressure_coordinates_for_gravity_wave_drag
+  units = Pa
+  type = coords1d
+  dimensions = ()
+  intent = in
+[ vramp ]
+  standard_name = gravity_wave_drag_tapering_coefficients
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (vertical_layer_dimension)
+  intent = in
+[ pi ]
+  standard_name = pi_constant
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ cpair ]
+  standard_name = specific_heat_of_dry_air_at_constant_pressure
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ effgw_beres_sh ]
+  standard_name = shallow_convective_scheme_maximum_efficiency_of_gravity_wave_momentum_transfer
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ gw_apply_tndmax ]
+  standard_name = limit_maximum_wind_tendency_from_stress_divergence_in_gravity_wave_drag_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ u ]
+  standard_name = eastward_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ v ]
+  standard_name = northward_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ t ]
+  standard_name = air_temperature
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ q ]
+  standard_name = ccpp_constituents
+  units = none
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
+  intent = in
+[ dse ]
+  standard_name = dry_static_energy
+  units = J kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ piln ]
+  standard_name = ln_air_pressure_at_interface
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ rhoi ]
+  standard_name = air_density_at_interfaces_for_gravity_wave_drag
+  units = kg m-3
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ nm ]
+  standard_name = brunt_vaisalla_frequencies
+  units = s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ ni ]
+  standard_name = brunt_vaisalla_frequencies_at_interfaces
+  units = s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ kvt_gw ]
+  standard_name = scaled_molecular_kinematic_temperature_conductivity_at_interfaces_for_gravity_wave_drag
+  units = m2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ ttend_sh ]
+  standard_name = tendency_of_air_temperature_due_to_shallow_convection
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ zm ]
+  standard_name = geopotential_height_wrt_surface
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ lat ]
+  standard_name = latitude
+  units = rad
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ tend_q ]
+  standard_name = ccpp_constituent_tendencies
+  units = none
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
+  intent = inout
+[ tend_u ]
+  standard_name = tendency_of_eastward_wind
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ tend_v ]
+  standard_name = tendency_of_northward_wind
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ tend_s ]
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure
+  units = J kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ flx_heat ]
+  standard_name = net_sensible_heat_flux_through_top_and_bottom_of_atmosphere_column
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = inout
+[ src_level ]
+  standard_name = vertical_index_of_gravity_wave_source_level
+  units = index
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tend_level ]
+  standard_name = vertical_index_of_lowest_gravity_wave_tendency_level
+  units = index
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ ubm ]
+  standard_name = wind_speed_along_gravity_wave_source_direction
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ ubi ]
+  standard_name = wind_speed_along_gravity_wave_source_direction_at_interfaces
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ xv ]
+  standard_name = eastward_component_of_gravity_wave_source_wind_unit_vector
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ yv ]
+  standard_name = northward_component_of_gravity_wave_source_wind_unit_vector
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ hdepth ]
+  standard_name = convective_heating_depth_due_to_shallow_convective_gravity_wave_drag
+  units = km
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ maxq0 ]
+  standard_name = maximum_column_heating_rate_due_to_shallow_convective_gravity_wave_drag
+  units = K day-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ utgw ]
+  standard_name = tendency_of_eastward_wind_due_to_shallow_convective_gravity_wave_drag
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ vtgw ]
+  standard_name = tendency_of_northward_wind_due_to_shallow_convective_gravity_wave_drag
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ ttgw ]
+  standard_name = tendency_of_air_temperature_due_to_shallow_convective_gravity_wave_drag
+  units = J kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ qtgw ]
+  standard_name = ccpp_constituent_tendencies_due_to_shallow_convective_gravity_wave_drag
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
+  intent = out
+[ egwdffi_tot ]
+  standard_name = effective_diffusivity_coefficient_at_interfaces_due_to_gravity_wave_drag
+  units = m2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = inout
+[ dttdf ]
+  standard_name = tendency_of_air_temperature_due_to_diffusion_due_to_shallow_convective_gravity_wave_drag
+  units = J kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ dttke ]
+  standard_name = tendency_of_air_temperature_due_to_kinetic_energy_dissipation_due_to_shallow_convective_gravity_wave_drag
+  units = J kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
