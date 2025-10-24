@@ -1,0 +1,157 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet type="text/xsl"?>
+
+<entry_id_pg version="2.0">
+  <entry id="prescribed_aero_datapath">
+    <type>char*256</type>
+    <category>chemistry</category>
+    <group>prescribed_aero_nl</group>
+    <standard_name>datapath_for_prescribed_aerosols</standard_name>
+    <units>none</units>
+    <desc>
+      Full pathname of the directory that contains the files specified in prescribed_aero_filelist.
+    </desc>
+    <values>
+      <!-- bam: atm/cam/chem/trop_mozart_aero/aero -->
+      <!-- mam: atm/cam/chem/trop_mam/aero -->
+      <value>atm/cam/chem/trop_mozart_aero/aero</value>
+    </values>
+  </entry>
+
+  <!-- TODO this was used in build-namelist for setting aerodep_flx_specifier
+       and prescribed_aero_specifier.
+       But namelist options cannot depend on other namelist options in SIMA, I think?
+       How this can be well used needs to be studied -->
+  <entry id="prescribed_aero_model">
+    <type>char*5</type>
+    <category>chemistry</category>
+    <group>prescribed_aero_nl</group>
+    <standard_name>representation_type_for_prescribed_aerosols</standard_name>
+    <units>none</units>
+    <valid_values>bulk,modal</valid_values>
+    <desc>
+      Switch used to indicate which type of aerosols are prescribed -- bulk or modal.
+
+      TODO: This is used to set the default prescribed_aero_specifier and aerodep_flx_specifier namelist variables.
+    </desc>
+    <values>
+      <value>bulk</value>
+    </values>
+  </entry>
+
+  <entry id="prescribed_aero_file">
+    <type>char*256</type>
+    <category>chemistry</category>
+    <group>prescribed_aero_nl</group>
+    <standard_name>filename_for_prescribed_aerosols</standard_name>
+    <units>none</units>
+    <desc>
+      Filename of dataset for prescribed aerosols.
+    </desc>
+    <values>
+      <value>aero_1.9x2.5_L26_2000clim_c091112.nc</value>
+      <!-- mam: mam3_1.9x2.5_L30_2000clim_c130319.nc -->
+    </values>
+  </entry>
+
+  <entry id="prescribed_aero_filelist">
+    <type>char*256</type>
+    <category>chemistry</category>
+    <group>prescribed_aero_nl</group>
+    <standard_name>filename_of_file_list_for_prescribed_aerosols</standard_name>
+    <units>none</units>
+    <desc>
+      Filename of file that contains a sequence of filenames for prescribed aerosols.  The filenames in this file are relative to the directory specified by prescribed_aero_datapath.
+    </desc>
+    <values>
+      <value>aero_1.9x2.5_L26_list_c070514.txt</value>
+      <!-- mam: aero_1.9x2.5_L26_list_c070514.txt -->
+    </values>
+  </entry>
+
+  <entry id="prescribed_aero_specifier">
+    <type>char*32(50)</type>
+    <category>chemistry</category>
+    <group>prescribed_aero_nl</group>
+    <standard_name>specifier_for_prescribed_aerosols</standard_name>
+    <units>none</units>
+    <desc>
+       A list of variable names of the concentration fields in the prescribed aerosol datasets and corresponding standard name stored in the constituents properties object and constituent value array seperated by colons.  For example:
+
+      prescribed_aero_specifier = 'pconstituent_standard_name1:ncdf_fld_name1','constituent_standard_name2:ncdf_fld_name2', ...
+
+      If there is no colon separator then the specified name is used as both the constituent_standard_name and ncdf_fld_name.
+    </desc>
+    <values>
+      <value>'sulf:SO4','bcar1:CB1','bcar2:CB2','ocar1:OC1','ocar2:OC2','sslt1:SSLT01','sslt2:SSLT02','sslt3:SSLT03','sslt4:SSLT04','dust1:DST01','dust2:DST02','dust3:DST03','dust4:DST04'</value>
+      <!-- mam:
+      <value>'num_c1','bc_c1','dst_c1','ncl_c1','pom_c1','so4_c1','soa_c1','num_c2','ncl_c2','so4_c2','soa_c2','num_c3','dst_c3','ncl_c3','so4_c3','num_a1_logm','bc_a1_logm', 'dst_a1_logm','ncl_a1_logm','pom_a1_logm','so4_a1_logm','soa_a1_logm','num_a2_logm','ncl_a2_logm','so4_a2_logm','soa_a2_logm','num_a3_logm','dst_a3_logm','ncl_a3_logm','so4_a3_logm','num_a1_logv','bc_a1_logv', 'dst_a1_logv','ncl_a1_logv','pom_a1_logv','so4_a1_logv','soa_a1_logv','num_a2_logv','ncl_a2_logv','so4_a2_logv','soa_a2_logv','num_a3_logv','dst_a3_logv','ncl_a3_logv','so4_a3_logv'</value>
+      -->
+    </values>
+  </entry>
+
+  <entry id="prescribed_aero_type">
+    <type>char*32</type>
+    <category>chemistry</category>
+    <group>prescribed_aero_nl</group>
+    <standard_name>time_interpolation_method_for_prescribed_aerosols</standard_name>
+    <units>none</units>
+    <valid_values>CYCLICAL,SERIAL,INTERP_MISSING_MONTHS,FIXED</valid_values>
+    <desc>
+      Type of time interpolation for data in prescribed_aero files.
+      Can be set to 'CYCLICAL', 'SERIAL', 'INTERP_MISSING_MONTHS', or 'FIXED'.
+      Default: 'CYCLICAL'
+    </desc>
+    <values>
+      <value>CYCLICAL</value>
+    </values>
+  </entry>
+
+  <entry id="prescribed_aero_cycle_yr">
+    <type>integer</type>
+    <category>chemistry</category>
+    <group>prescribed_aero_nl</group>
+    <standard_name>cycle_year_for_prescribed_aerosols</standard_name>
+    <units>1</units>
+    <desc>
+      The cycle year of the prescribed ozone data if prescribed_aero_type is 'CYCLICAL'.
+      Format: YYYY
+      Default: 0
+    </desc>
+    <values>
+      <value>0</value>
+    </values>
+  </entry>
+
+  <entry id="prescribed_aero_fixed_ymd">
+    <type>integer</type>
+    <category>chemistry</category>
+    <group>prescribed_aero_nl</group>
+    <standard_name>fixed_date_for_prescribed_aerosols</standard_name>
+    <units>1</units>
+    <desc>
+      The date at which the prescribed ozone data is fixed if prescribed_ozone_type is 'FIXED'.
+      Format: YYYYMMDD
+      Default: 0
+    </desc>
+    <values>
+      <value>0</value>
+    </values>
+  </entry>
+
+  <entry id="prescribed_aero_fixed_tod">
+    <type>integer</type>
+    <category>chemistry</category>
+    <group>prescribed_aero_nl</group>
+    <standard_name>fixed_time_of_day_for_prescribed_aerosols</standard_name>
+    <units>s</units>
+    <desc>
+      The time of day (seconds) corresponding to prescribed_aero_fixed_ymd at which the prescribed ozone data is fixed if prescribed_aero_type is 'FIXED'.
+      Default: 0 seconds
+    </desc>
+    <values>
+      <value>0</value>
+    </values>
+  </entry>
+</entry_id_pg>

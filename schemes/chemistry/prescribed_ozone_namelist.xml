@@ -7,7 +7,7 @@
     <type>char*256</type>
     <category>chemistry</category>
     <group>prescribed_ozone_nl</group>
-    <standard_name>datapath_for_prescribed_ozone_forcing</standard_name>
+    <standard_name>datapath_for_prescribed_ozone</standard_name>
     <units>none</units>
     <desc>
       Full pathname of the directory that contains the files specified in prescribed_ozone_filelist.
@@ -21,7 +21,7 @@
     <type>char*256</type>
     <category>chemistry</category>
     <group>prescribed_ozone_nl</group>
-    <standard_name>filename_of_prescribed_ozone_forcing</standard_name>
+    <standard_name>filename_of_prescribed_ozone</standard_name>
     <units>none</units>
     <desc>
       Filename of dataset for prescribed ozone.
@@ -35,7 +35,7 @@
     <type>char*256</type>
     <category>chemistry</category>
     <group>prescribed_ozone_nl</group>
-    <standard_name>filename_of_prescribed_ozone_forcing_file_list</standard_name>
+    <standard_name>filename_of_file_list_for_prescribed_ozone</standard_name>
     <units>none</units>
     <desc>
       Filename of file that contains a sequence of filenames for prescribed ozone. The filenames in this file are relative to the directory specified by prescribed_ozone_datapath.
@@ -49,7 +49,7 @@
     <type>char*16</type>
     <category>chemistry</category>
     <group>prescribed_ozone_nl</group>
-    <standard_name>variable_name_of_ozone_in_prescribed_forcing_file</standard_name>
+    <standard_name>variable_name_of_ozone_in_file_for_prescribed_ozone</standard_name>
     <units>none</units>
     <desc>
       Name of variable containing ozone data in the prescribed ozone datasets. Default: 'O3'
@@ -63,7 +63,7 @@
     <type>char*32</type>
     <category>chemistry</category>
     <group>prescribed_ozone_nl</group>
-    <standard_name>time_interpolation_method_for_prescribed_ozone_forcing</standard_name>
+    <standard_name>time_interpolation_method_for_prescribed_ozone</standard_name>
     <units>none</units>
     <valid_values>CYCLICAL,SERIAL,INTERP_MISSING_MONTHS,FIXED</valid_values>
     <desc>
@@ -78,8 +78,8 @@
     <type>integer</type>
     <category>chemistry</category>
     <group>prescribed_ozone_nl</group>
-    <standard_name>cycle_year_for_prescribed_ozone_forcing</standard_name>
-    <units>count</units>
+    <standard_name>cycle_year_for_prescribed_ozone</standard_name>
+    <units>1</units>
     <desc>
       The cycle year of the prescribed ozone data if prescribed_ozone_type is 'CYCLICAL'. Format: YYYY Default: 2000
     </desc>
@@ -92,8 +92,8 @@
     <type>integer</type>
     <category>chemistry</category>
     <group>prescribed_ozone_nl</group>
-    <standard_name>fixed_date_for_prescribed_ozone_forcing</standard_name>
-    <units>count</units>
+    <standard_name>fixed_date_for_prescribed_ozone</standard_name>
+    <units>1</units>
     <desc>
       The date at which the prescribed ozone data is fixed if prescribed_ozone_type is 'FIXED'. Format: YYYYMMDD Default: 0
     </desc>
@@ -106,7 +106,7 @@
     <type>integer</type>
     <category>chemistry</category>
     <group>prescribed_ozone_nl</group>
-    <standard_name>fixed_time_of_day_for_prescribed_ozone_forcing</standard_name>
+    <standard_name>fixed_time_of_day_for_prescribed_ozone</standard_name>
     <units>s</units>
     <desc>
       The time of day (seconds) corresponding to prescribed_ozone_fixed_ymd at which the prescribed ozone data is fixed if prescribed_ozone_type is 'FIXED'. Default: 0 seconds

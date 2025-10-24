@@ -19,49 +19,49 @@
   dimensions = ()
   intent = in
 [ fld_name_nl ]
-  standard_name = variable_name_of_ozone_in_prescribed_forcing_file
+  standard_name = variable_name_of_ozone_in_file_for_prescribed_ozone
   units = none
   type = character | kind = len=*
   dimensions = ()
   intent = in
 [ filename_nl ]
-  standard_name = filename_of_prescribed_ozone_forcing
+  standard_name = filename_of_prescribed_ozone
   units = none
   type = character | kind = len=*
   dimensions = ()
   intent = in
 [ filelist_nl ]
-  standard_name = filename_of_prescribed_ozone_forcing_file_list
+  standard_name = filename_of_file_list_for_prescribed_ozone
   units = none
   type = character | kind = len=*
   dimensions = ()
   intent = in
 [ datapath_nl ]
-  standard_name = datapath_for_prescribed_ozone_forcing
+  standard_name = datapath_for_prescribed_ozone
   units = none
   type = character | kind = len=*
   dimensions = ()
   intent = in
 [ data_type_nl ]
-  standard_name = time_interpolation_method_for_prescribed_ozone_forcing
+  standard_name = time_interpolation_method_for_prescribed_ozone
   units = none
   type = character | kind = len=*
   dimensions = ()
   intent = in
 [ cycle_yr_nl ]
-  standard_name = cycle_year_for_prescribed_ozone_forcing
-  units = count
+  standard_name = cycle_year_for_prescribed_ozone
+  units = 1
   type = integer
   dimensions = ()
   intent = in
 [ fixed_ymd_nl ]
-  standard_name = fixed_date_for_prescribed_ozone_forcing
-  units = count
+  standard_name = fixed_date_for_prescribed_ozone
+  units = 1
   type = integer
   dimensions = ()
   intent = in
 [ fixed_tod_nl ]
-  standard_name = fixed_time_of_day_for_prescribed_ozone_forcing
+  standard_name = fixed_time_of_day_for_prescribed_ozone
   units = s
   type = integer
   dimensions = ()

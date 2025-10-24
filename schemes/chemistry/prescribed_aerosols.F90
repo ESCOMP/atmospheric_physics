@@ -87,11 +87,10 @@ contains
     prescribed_aero_filelist, &
     prescribed_aero_datapath, &
     prescribed_aero_type, &
-    prescribed_aero_rmfile, &
     prescribed_aero_cycle_yr, &
     prescribed_aero_fixed_ymd, &
     prescribed_aero_fixed_tod, &
-    clim_modal_aero_in, &
+    prescribed_aero_model, &
     aerosol_constituents, &
     errmsg, errflg)
 
@@ -108,10 +107,10 @@ contains
     integer,            intent(in)  :: prescribed_aero_cycle_yr         ! cycle year from namelist [1]
     integer,            intent(in)  :: prescribed_aero_fixed_ymd        ! fixed year-month-day from namelist (YYYYMMDD) [1]
     integer,            intent(in)  :: prescribed_aero_fixed_tod        ! fixed time of day from namelist [s]
-    logical,            intent(in)  :: clim_modal_aero_in               ! flag for modal aerosol simulation [flag]
+    character(len=*),   intent(in)  :: prescribed_aero_model            ! type of aerosol representation [none]
 
     ! Output arguments:
-    type(ccpp_constituent_properties_t), allocatable, intent(out) :: aerosol_constituents(:) ! prescribed aero CCPP constituents
+    type(ccpp_constituent_properties_t), allocatable, intent(out) :: aerosol_constituents(:) ! prescribed aero runtime CCPP constituents
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
@@ -133,10 +132,7 @@ contains
     errflg = 0
 
     ! Store module-level settings
-    ! TODO: this matches the CAM implementation but maybe I want this to distinguish
-    ! between none|bulk|modal|sectional. To revisit when the aerosol abstract interface
-    ! is implemented in CAM-SIMA. (hplin, 10/22/25)
-    clim_modal_aero = clim_modal_aero_in
+    clim_modal_aero = (trim(prescribed_aero_model) == "modal")
 
     ! Check if prescribed aerosols are enabled
     if (prescribed_aero_file == 'UNSET' .or. &
