@@ -1,0 +1,329 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet type="text/xsl"?>
+
+<entry_id_pg version="2.0">
+
+<!-- Each namelist variable is defined in an <entry> element.  The
+     content of the element is the documentation of how the variable is
+     used.  Other aspects of the variable's definition are expressed as
+     attributes of the <entry> element.  Note that it is an XML requirement
+     that the attribute values are enclosed in quotes.  The attributes are:
+
+     id
+          The variable's name.  *** N.B. *** The name must be lower case.
+          The module convert all namelist variable names to lower case
+          since Fortran is case insensitive.
+
+     type
+          An abbreviation of the fortran declaration for the variable.
+	  Valid declarations are:
+
+          char*n
+	  integer
+	  logical
+	  real
+
+	  Any of these types may be followed by a comma separated list of
+	  integers enclosed in parenthesis to indicate an array.
+
+	  The current namelist validation code only distinquishes between
+	  string and non-string types.
+
+     input_pathname
+          Only include this attribute to indicate that the variable
+          contains the pathname of an input dataset that resides in the
+          CESM inputdata directory tree.  Note that the variables
+          containing the names of restart files that are used in branch
+          runs don't reside in the inputdata tree and should not be given
+          this attribute.
+
+	  The recognized values are "abs" to indicate that an absolute
+          pathname is required, or "rel:var_name" to indicate that the
+          pathname is relative and that the namelist variable "var_name"
+          contains the absolute root directory.
+
+     category
+          A category assigned for organizing the documentation.
+
+     group
+          The namelist group that the variable is declared in.
+
+     valid_values
+          This is an optional attribute that is mainly useful for variables
+          that have only a small number of allowed values. It is a
+          comma-separated list of valid values for the variable.
+
+     desc
+          This is a text description of the variable including its
+          purpose and use.
+
+     values
+          This is a grouping of all the cases where a value can be
+          assigned with the namelist generator has been run.
+
+     value
+          Each <value> tag specifies a case where a value is assigned
+          to this variable when the namelist generator is run. If the
+          tag has no attributes, it is a default value. In general,
+          the namelist generator attempts to find a value with the
+          maximium number of attribute matches (and no non-matches).
+
+     standard_name
+          This is the CCPP Standard Name of the variable
+
+     units
+          This is the CCPP unit specification of the variable (e.g., m s-1).
+                                                                        -->
+  <entry id="use_rad_dt_cosz">
+    <type>logical</type>
+    <category>rrtmgp</category>
+    <group>rrtmgp</group>
+    <standard_name>use_adjusted_radiation_timestep_for_solar_zenith_angle_calculation</standard_name>
+    <units>flag</units>
+    <desc>
+       If true, use the radiation timestep size for the solar zenith angle calculation
+    </desc>
+    <values>
+      <value>.false.</value>
+    </values>
+  </entry>
+  <entry id="doLWclrsky">
+    <type>logical</type>
+    <category>rrtmgp</category>
+    <group>rrtmgp</group>
+    <standard_name>do_output_of_tendency_of_air_temperature_due_to_longwave_heating_on_radiation_timestep_assuming_clear_sky</standard_name>
+    <units>flag</units>
+    <desc>
+       If true, compute the clear sky tendency of air temperature for LW heating.
+    </desc>
+    <values>
+      <value>.true.</value>
+    </values>
+  </entry>
+  <entry id="doSWclrsky">
+    <type>logical</type>
+    <category>rrtmgp</category>
+    <group>rrtmgp</group>
+    <standard_name>do_output_of_tendency_of_air_temperature_due_to_shortwave_heating_on_radiation_timestep_assuming_clear_sky</standard_name>
+    <units>flag</units>
+    <desc>
+       If true, compute the clear sky tendency of air temperature for SW heating.
+    </desc>
+    <values>
+      <value>.true.</value>
+    </values>
+  </entry>
+  <entry id="doSWallsky">
+    <type>logical</type>
+    <category>rrtmgp</category>
+    <group>rrtmgp</group>
+    <standard_name>do_output_of_tendency_of_air_temperature_due_to_shortwave_heating_on_radiation_timestep_assuming_all_sky</standard_name>
+    <units>flag</units>
+    <desc>
+       If true, compute the all sky tendency of air temperature for SW heating.
+    </desc>
+    <values>
+      <value>.true.</value>
+    </values>
+  </entry>
+  <entry id="doGP_lwscat">
+    <type>logical</type>
+    <category>rrtmgp</category>
+    <group>rrtmgp</group>
+    <standard_name>include_longwave_scattering_in_cloud_optics</standard_name>
+    <units>flag</units>
+    <desc>
+       If true, include longwave scattering in cloud optics
+    </desc>
+    <values>
+      <value>.false.</value>
+    </values>
+  </entry>
+  <entry id="use_LW_jacobian">
+    <type>logical</type>
+    <category>rrtmgp</category>
+    <group>rrtmgp</group>
+    <standard_name>calculate_longwave_jacobian_for_RRTMGP</standard_name>
+    <units>flag</units>
+    <desc>
+       If true, calculate the jacobian for RRTMGP longwave
+    </desc>
+    <values>
+      <value>.false.</value>
+    </values>
+  </entry>
+  <entry id="use_LW_optimal_angles">
+    <type>logical</type>
+    <category>rrtmgp</category>
+    <group>rrtmgp</group>
+    <standard_name>compute_optimal_angles_for_use_in_RRTMGP_longwave_calculation</standard_name>
+    <units>flag</units>
+    <desc>
+       If true, use compute and use optimal angles for RRTMGP longwave
+    </desc>
+    <values>
+      <value>.false.</value>
+    </values>
+  </entry>
+  <entry id="nGauss_angles">
+    <type>integer</type>
+    <category>rrtmgp</category>
+    <group>rrtmgp</group>
+    <standard_name>number_of_gaussian_quadrature_angles_for_radiation</standard_name>
+    <units>count</units>
+    <desc>
+       The number of Gaussian quadrature angles for use in radiation - if less than zero, unused
+    </desc>
+    <values>
+      <value>0</value>
+    </values>
+  </entry>
+  <entry id="write_diag">
+    <type>logical</type>
+    <category>rrtmgp</category>
+    <group>rrtmgp</group>
+    <standard_name>write_rrtmgp_diagnostics</standard_name>
+    <units>flag</units>
+    <desc>
+      If true, write out the RRTMGP diagnostics
+    </desc>
+    <values>
+      <value>.true.</value>
+    </values>
+  </entry>
+  <entry id="is_offline_dyn">
+    <type>logical</type>
+    <category>rrtmgp</category>
+    <group>rrtmgp</group>
+    <standard_name>is_offline_dynamical_core</standard_name>
+    <units>flag</units>
+    <desc>
+      If true, we are using the offline dynamical core / specified dynamics
+    </desc>
+    <values>
+      <value>.false.</value>
+    </values>
+  </entry>
+  <entry id="spectralflux">
+    <type>logical</type>
+    <category>rrtmgp</category>
+    <group>rrtmgp</group>
+    <standard_name>do_up_down_flux_per_band_diagnostic</standard_name>
+    <units>flag</units>
+    <desc>
+       If true, calculate the up and down fluxes per band; used by CARMA
+    </desc>
+    <values>
+      <value>.false.</value>
+    </values>
+  </entry>
+  <entry id="graupel_in_rad">
+    <type>logical</type>
+    <category>rrtmgp</category>
+    <group>rrtmgp</group>
+    <standard_name>do_calculate_radiative_effect_of_graupel</standard_name>
+    <units>flag</units>
+    <desc>
+       Flag to use graupel cloud fraction in radiation
+    </desc>
+    <values>
+      <value>.false.</value>
+    </values>
+  </entry>
+  <entry id="nswbands">
+    <type>integer</type>
+    <category>rrtmgp</category>
+    <group>rrtmgp</group>
+    <standard_name>number_of_bands_for_shortwave_radiation</standard_name>
+    <units>count</units>
+    <desc>
+       Number of shortwave bands
+    </desc>
+    <values>
+      <value>14</value>
+    </values>
+  </entry>
+  <entry id="nlwbands">
+    <type>integer</type>
+    <category>rrtmgp</category>
+    <group>rrtmgp</group>
+    <standard_name>number_of_bands_for_longwave_radiation</standard_name>
+    <units>count</units>
+    <desc>
+       Number of longwave bands
+    </desc>
+    <values>
+      <value>16</value>
+    </values>
+  </entry>
+  <entry id="nradgas">
+    <type>integer</type>
+    <category>rrtmgp</category>
+    <group>rrtmgp</group>
+    <standard_name>number_of_active_gases_for_RRTMGP</standard_name>
+    <units>count</units>
+    <desc>
+       Number of radiatively active gases for RRTMGP
+    </desc>
+    <values>
+      <value>8</value>
+    </values>
+  </entry>
+  <entry id="gasnamelength">
+    <type>integer</type>
+    <category>rrtmgp</category>
+    <group>rrtmgp</group>
+    <standard_name>character_length_of_list_of_active_gases_for_RRTMGP</standard_name>
+    <units>count</units>
+    <desc>
+       Character length for each element of the list of radiatively active gases.
+    </desc>
+    <values>
+      <value>5</value>
+    </values>
+  </entry>
+  <entry id="p_top_for_rrtmgp">
+    <type>real</type>
+    <kind>kind_phys</kind>
+    <category>rrtmgp</category>
+    <group>rrtmgp</group>
+    <standard_name>air_pressure_cutoff_for_rrtmgp</standard_name>
+    <units>Pa</units>
+    <desc>
+      Top pressure level for RRTMGP
+         Default: 1.0 for WACCM/WACCMX
+         10. for all other CAM runs
+    </desc>
+    <values>
+      <value>2.0D0</value>
+    </values>
+  </entry>
+  <entry id="trick_rrtmgp">
+    <type>logical</type>
+    <category>rrtmgp</category>
+    <group>rrtmgp</group>
+    <standard_name>do_trick_rrtmgp</standard_name>
+    <units>flag</units>
+    <desc>
+       Flag to do RRTMGP level trickery
+    </desc>
+    <values>
+      <value>.true.</value>
+      <value dyn="mpas">.false.</value>
+    </values>
+  </entry>
+  <entry id="gaslist">
+    <type>char*5(8)</type>
+    <category>rrtmgp</category>
+    <group>rrtmgp</group>
+    <standard_name>list_of_active_gases_for_RRTMGP</standard_name>
+    <units>none</units>
+    <desc>
+       List of radiatively active gases used in RRTMGP
+    </desc>
+    <values>
+      <value>'H2O  ','O3   ', 'O2   ', 'CO2  ', 'N2O  ', 'CH4  ', 'CFC11', 'CFC12'</value>
+    </values>
+  </entry>
+</entry_id_pg>

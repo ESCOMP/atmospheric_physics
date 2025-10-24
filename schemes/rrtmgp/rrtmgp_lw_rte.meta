@@ -1,0 +1,130 @@
+[ccpp-table-properties]
+  name = rrtmgp_lw_rte
+  type = scheme
+  dependencies = ext/rte-frontend/mo_rte_lw.F90
+  dependencies = ext/rte-frontend/mo_rte_config.F90
+  dependencies = ext/rte-kernels/mo_rte_util_array.F90
+  dependencies = ext/rte-frontend/mo_rte_util_array_validation.F90
+  dependencies = ext/rte-kernels/mo_rte_solver_kernels.F90
+  dependencies = ext/rte-kernels/mo_fluxes_broadband_kernels.F90
+  dependencies = ../../../../utils/machine.F90
+  dependencies = ./utils/radiation_tools.F90
+  dependencies = ./objects/ccpp_source_functions.F90,./objects/ccpp_gas_optics_rrtmgp.F90
+  dependencies = ./objects/ccpp_optical_props.F90
+  dependencies = ./objects/ccpp_fluxes.F90,./objects/ccpp_fluxes_byband.F90
+
+[ccpp-arg-table]
+  name  = rrtmgp_lw_rte_run
+  type  = scheme
+[ doLWrad ]
+  standard_name = do_longwave_radiation
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ doLWclrsky ]
+  standard_name = do_output_of_tendency_of_air_temperature_due_to_longwave_heating_on_radiation_timestep_assuming_clear_sky
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ doGP_lwscat ]
+  standard_name = include_longwave_scattering_in_cloud_optics
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ use_LW_jacobian ]
+  standard_name = calculate_longwave_jacobian_for_RRTMGP
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ use_LW_optimal_angles ]
+  standard_name = compute_optimal_angles_for_use_in_RRTMGP_longwave_calculation
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ nGauss_angles ]
+  standard_name = number_of_gaussian_quadrature_angles_for_radiation
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ lw_optical_props_clrsky ]
+  standard_name = longwave_atmosphere_optical_properties_object_for_RRTMGP
+  units = none
+  type = ty_optical_props_1scl_ccpp
+  dimensions = ()
+  intent = inout
+[ lw_optical_props_clouds ]
+  standard_name = longwave_cloud_optical_properties_object_for_RRTMGP
+  units = none
+  type = ty_optical_props_1scl_ccpp
+  dimensions = ()
+  intent = inout
+[ sources ]
+  standard_name = longwave_planck_sources_object_for_RRTMGP
+  units = none
+  type = ty_source_func_lw_ccpp
+  dimensions = ()
+  intent = in
+[ sfc_emiss_byband ]
+  standard_name = longwave_emissivity_at_surface
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (number_of_bands_for_longwave_radiation,horizontal_loop_extent)
+  intent = in
+[ lw_gas_props ]
+  standard_name = longwave_gas_optics_object_for_RRTMGP
+  units = none
+  type = ty_gas_optics_rrtmgp_ccpp
+  dimensions = ()
+  intent = inout
+[ aerlw ]
+  standard_name = longwave_aerosol_optical_properties_object_for_RRTMGP
+  units = none
+  type = ty_optical_props_1scl_ccpp
+  dimensions = ()
+  intent = inout
+[ fluxlwUP_jac ]
+  standard_name = jacobian_of_longwave_upward_flux_for_RRTMGP
+  units = W m-2 K-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_interface_dimension)
+  intent = inout
+[ lw_Ds ]
+  standard_name = inverse_cosine_of_radiation_transport_angle_per_column_and_g_point
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,number_of_longwave_g_point_intervals)
+  allocatable = True
+  intent = out
+[ flux_clrsky ]
+  standard_name = longwave_clear_sky_flux_object_for_RRTMGP
+  units = none
+  type = ty_fluxes_broadband_ccpp
+  dimensions = ()
+  intent = inout
+[ flux_allsky ]
+  standard_name = longwave_all_sky_flux_object_for_RRTMGP
+  units = none
+  type = ty_fluxes_byband_ccpp
+  dimensions = ()
+  intent = inout
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+

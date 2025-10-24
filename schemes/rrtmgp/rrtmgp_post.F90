@@ -9,14 +9,16 @@ contains
 !> \section arg_table_rrtmgp_post_run Argument Table
 !! \htmlinclude rrtmgp_post_run.html
 !!
-subroutine rrtmgp_post_run(qrs_prime, qrl_prime, fsns, pdel, atm_optics_sw, cloud_sw, aer_sw,  &
-                  fsw, fswc, atm_optics_lw, sources_lw, cloud_lw, aer_lw, flw, flwc, qrs, qrl, &
+subroutine rrtmgp_post_run(nlay, dolw, qrs_prime, qrl_prime, fsns, pdel, atm_optics_sw, cloud_sw, aer_sw,  &
+                  fsw, fswc, atm_optics_lw, sources_lw, cloud_lw, aer_lw, flw, flwc, flwds, qrs, qrl, &
                   netsw, errmsg, errflg)
    use ccpp_kinds,             only: kind_phys
    use ccpp_optical_props,     only: ty_optical_props_1scl_ccpp, ty_optical_props_2str_ccpp
    use ccpp_source_functions,  only: ty_source_func_lw_ccpp
    use ccpp_fluxes,            only: ty_fluxes_broadband_ccpp
    use ccpp_fluxes_byband,     only: ty_fluxes_byband_ccpp
+   integer,                          intent(in)    :: nlay           ! Number of layers in radiation calculation
+   logical,                          intent(in)    :: dolw           ! Flag for whether to perform longwave calculation
    real(kind_phys), dimension(:,:),  intent(in)    :: pdel           ! Layer thickness [Pa]
    real(kind_phys), dimension(:),    intent(in)    :: fsns           ! Surface net shortwave flux [W m-2]
    real(kind_phys), dimension(:,:),  intent(in)    :: qrs_prime      ! Shortwave heating rate [J kg-1 s-1]
@@ -35,7 +37,8 @@ subroutine rrtmgp_post_run(qrs_prime, qrl_prime, fsns, pdel, atm_optics_sw, clou
    real(kind_phys), dimension(:,:),  intent(out)   :: qrs            ! Shortwave heating rate adjusted by air pressure thickness [J Pa kg-1 s-1]
    real(kind_phys), dimension(:,:),  intent(out)   :: qrl            ! Longwave heating rate adjusted by air pressure thickness [J Pa kg-1 s-1]
    real(kind_phys), dimension(:),    intent(out)   :: netsw          ! Net shortwave flux to be sent to coupler [W m-2]
-   character(len=*),                 intent(out)   :: errmsg
+   real(kind_phys), dimension(:),    intent(inout) :: flwds          ! Down longwave flux at surface [W m-2]
+   character(len=512),               intent(out)   :: errmsg
    integer,                          intent(out)   :: errflg
 
    ! Set error varaibles
@@ -48,6 +51,10 @@ subroutine rrtmgp_post_run(qrs_prime, qrl_prime, fsns, pdel, atm_optics_sw, clou
 
    ! Set the netsw to be sent to the coupler
    netsw(:) = fsns(:)
+
+   if (dolw) then
+      flwds(:) = flw%fluxes%flux_dn(:, nlay+1)
+   end if
 
    call free_optics_sw(atm_optics_sw, errmsg, errflg)
    if (errflg /= 0) then

@@ -48,8 +48,8 @@ contains
     class(ty_gas_optics_rrtmgp_ccpp),  intent(inout) :: lw_gas_props            !< Gas optical properties object
 
     real(kind_phys), dimension(:,:), target, intent(out) :: lw_Ds               !< 1/cos of transport angle per column, g-point
-    character(len=*), intent(out) :: errmsg                                     !< CCPP error message
-    integer,          intent(out) :: errflg                                     !< CCPP error flag
+    character(len=512),intent(out) :: errmsg                                    !< CCPP error message
+    integer,           intent(out) :: errflg                                    !< CCPP error flag
 
     ! Initialize CCPP error handling variables
     errmsg = ''

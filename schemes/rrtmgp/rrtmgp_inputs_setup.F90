@@ -13,8 +13,8 @@ module rrtmgp_inputs_setup
                    pref_edge, nlay, pver, pverp, kdist_sw, kdist_lw, qrl, is_first_step, use_rad_dt_cosz,      &
                    timestep_size, nstep, iradsw, dt_avg, irad_always, is_first_restart_step,                   &
                    p_top_for_rrtmgp, nlwbands, nradgas, gasnamelength, idx_sw_diag, idx_nir_diag, idx_uv_diag, &
-                   idx_sw_cloudsim, idx_lw_diag, idx_lw_cloudsim, nswgpts, nlwgpts, nlayp, nextsw_cday,        &
-                   current_cal_day, band2gpt_sw, errmsg, errflg)
+                   idx_sw_cloudsim, idx_lw_diag, idx_lw_cloudsim, nswgpts, nlwgpts, changeseed, nlayp,         &
+                   nextsw_cday, current_cal_day, band2gpt_sw, irad_always_out, errmsg, errflg)
      use ccpp_kinds,             only: kind_phys
      use ccpp_gas_optics_rrtmgp, only: ty_gas_optics_rrtmgp_ccpp
      use radiation_utils,        only: radiation_utils_init, get_sw_spectral_boundaries_ccpp
@@ -26,9 +26,10 @@ module rrtmgp_inputs_setup
      integer,                         intent(in) :: pverp                  ! Number of vertical interfaces
      integer,                         intent(in) :: pver                   ! Number of vertical layers
      integer,                         intent(in) :: iradsw                 ! Freq. of shortwave radiation calc in time steps (positive) or hours (negative).
-     integer,                         intent(in) :: timestep_size          ! Timestep size (s)
      integer,                         intent(in) :: nstep                  ! Current timestep number
      integer,                         intent(in) :: gasnamelength          ! Length of all of the gas_list entries
+     integer,                         intent(in) :: irad_always            ! Number of time steps to execute radiation continuously
+     real(kind_phys),                 intent(in) :: timestep_size          ! Timestep size (s)
      real(kind_phys),                 intent(in) :: current_cal_day        ! Current calendar day
      real(kind_phys), dimension(:),   intent(in) :: pref_edge              ! Reference pressures (interfaces) (Pa)
      type(ty_gas_optics_rrtmgp_ccpp), intent(in) :: kdist_sw               ! Shortwave gas optics object
@@ -55,15 +56,16 @@ module rrtmgp_inputs_setup
 
      integer,                         intent(out) :: nswgpts               ! Number of shortwave g-points
      integer,                         intent(out) :: nlwgpts               ! Number of longwave g-points
+     integer,                         intent(out) :: changeseed            ! Random number seed for mcica longwave
      integer, dimension(:,:),         intent(out) :: band2gpt_sw           ! Array for converting shortwave band limits to g-points
      real(kind_phys),                 intent(out) :: nextsw_cday           ! The next calendar day during which the shortwave radiation calculation will be performed
      real(kind_phys), dimension(:),   intent(out) :: sw_low_bounds         ! Lower bounds of shortwave bands
      real(kind_phys), dimension(:),   intent(out) :: sw_high_bounds        ! Upper bounds of shortwave bands
-     real(kind_phys), dimension(:,:), intent(out) :: qrl                   ! Longwave radiative heating
-     character(len=*),                intent(out) :: errmsg
+     real(kind_phys), dimension(:,:), intent(inout) :: qrl                 ! Longwave radiative heating
+     character(len=512),              intent(out) :: errmsg
      integer,                         intent(out) :: errflg
-     integer,                         intent(inout) :: irad_always         ! Number of time steps to execute radiation continuously
-     real(kind_phys),                 intent(inout) :: dt_avg              ! averaging time interval for zenith angle
+     integer,                         intent(out) :: irad_always_out       ! Number of time steps to execute radiation continuously
+     real(kind_phys),                 intent(out) :: dt_avg                ! averaging time interval for zenith angle
 
      ! Local variables
      real(kind_phys), target :: wavenumber_low_shortwave(nswbands)
@@ -83,8 +85,8 @@ module rrtmgp_inputs_setup
      nlayp = nlay + 1
 
      if (nlay == pverp) then
-        ! Top model interface is below p_top_for_rrtmgp.  RRTMGP is active in all model layers plus
-        ! 1 extra layer between model top and p_top_for_rrtmgp.
+        ! Top model interface is below p_top_for_rrtmgp.  RRTMGP is active in all model
+        ! layers plus 1 extra layer between model top and p_top_for_rrtmgp.
         ktopcam = 1
         ktoprad = 2
         nlaycam = pver
@@ -126,18 +128,23 @@ module rrtmgp_inputs_setup
      ! the adjusted iradsw value from radiation
      if (use_rad_dt_cosz)  then
         dt_avg = iradsw*timestep_size
+     else
+        dt_avg = 0._kind_phys
      end if
 
      ! "irad_always" is number of time steps to execute radiation continuously from
      ! start of initial OR restart run
+     irad_always_out = irad_always
      if (irad_always > 0) then
-        irad_always = irad_always + nstep
+        irad_always_out = irad_always + nstep
      end if
 
      ! Surface components to get radiation computed today
      if (.not. is_first_restart_step) then
         nextsw_cday = current_cal_day
      end if
+
+     changeseed = nlwgpts
 
   end subroutine rrtmgp_inputs_setup_init
 

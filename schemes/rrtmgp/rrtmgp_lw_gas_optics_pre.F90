@@ -1,5 +1,4 @@
 module rrtmgp_lw_gas_optics_pre
-
   implicit none
   private
 
@@ -18,7 +17,7 @@ contains
 
     ! Set gas vmr for the gases in the radconstants module's gaslist.
 
-    character(len=*),            intent(in) :: gaslist(:)             ! Radiatively active gases
+    character(len=5),            intent(in) :: gaslist(:)             ! Radiatively active gases
     integer,                     intent(in) :: nlay                   ! Number of layers in radiation calculation
     integer,                     intent(in) :: ncol                   ! Total number of columns
     integer,                     intent(in) :: pverp                  ! Total number of layer interfaces
@@ -32,7 +31,7 @@ contains
                                                                       !  last index corresponds to index in gaslist
 
     type(ty_gas_concs_ccpp),     intent(inout) :: gas_concs           ! the result is VMR inside gas_concs
-    character(len=*),            intent(out)   :: errmsg
+    character(len=512),          intent(out)   :: errmsg
     integer,                     intent(out)   :: errflg
 
     ! Local variables

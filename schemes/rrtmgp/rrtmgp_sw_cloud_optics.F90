@@ -1,5 +1,12 @@
+!> \file rrtmgp_sw_cloud_optics.F90
+!!
 module rrtmgp_sw_cloud_optics
-use ccpp_kinds, only: kind_phys
+  use ccpp_kinds, only: kind_phys
+  use rrtmgp_cloud_optics_setup, only: g_lambda, g_mu, nmu, nlambda
+  use rrtmgp_cloud_optics_setup, only: g_d_eff, n_g_d
+  use rrtmgp_cloud_optics_setup, only: ext_sw_liq, ext_sw_ice
+  use rrtmgp_cloud_optics_setup, only: asm_sw_liq, asm_sw_ice
+  use rrtmgp_cloud_optics_setup, only: ssa_sw_liq, ssa_sw_ice
 
 !--------------------------------------------------------------------------------
 ! Transform data for inputs from CAM's data structures to those used by
@@ -25,7 +32,10 @@ integer, parameter, dimension(14) :: rrtmg_to_rrtmgp_swbands = &
 contains
 !==================================================================================================
 
-subroutine rrtmgp_sw_cloud_optics_run(dosw, ncol, pver, ktopcam, ktoprad, nlay, nswgpts, nday, idxday, fillvalue, &
+!> \section arg_table_rrtmgp_sw_cloud_optics_run Argument Table
+!! \htmlinclude rrtmgp_sw_cloud_optics_run.html
+!!
+subroutine rrtmgp_sw_cloud_optics_run(dosw, ncol, pver, ktopcam, ktoprad,  nswgpts, nday, idxday, fillvalue, &
    nswbands, iulog, pgam, lamc, nnite, idxnite, cld, cldfsnow, cldfgrau, cldfprime, cld_tau, grau_tau, &
    snow_tau, degrau, dei, des, iclwpth, iciwpth, icswpth, icgrauwpth, tiny_in, idx_sw_diag, do_graupel, &
    do_snow, kdist_sw, c_cld_tau, c_cld_tau_w, c_cld_tau_w_g, tot_cld_vistau, tot_icld_vistau,          &
@@ -39,7 +49,6 @@ subroutine rrtmgp_sw_cloud_optics_run(dosw, ncol, pver, ktopcam, ktoprad, nlay, 
    ! Compute combined cloud optical properties.
 
    ! arguments
-   integer,  intent(in) :: nlay                      ! Number of layers in radiation calculation (may include "extra layer")
    integer,  intent(in) :: ncol                      ! Total number of columns
    integer,  intent(in) :: nday                      ! Number of daylight columns
    integer,  intent(in) :: idxday(:)                 ! Indices of daylight columns

@@ -13,7 +13,7 @@ contains
 !! \htmlinclude rrtmgp_sw_rte_run.html
 !!
    subroutine rrtmgp_sw_rte_run(doswrad, doswclrsky, doswallsky, nday, iter_num, rrtmgp_phys_blksz, sw_optical_props, &
-                                 sw_optical_props_clouds, aersw, coszen, toa_src_sw, sfc_alb_dir, sfc_alb_dif,        &
+                                 sw_optical_props_clouds, aersw, coszen_day, toa_src_sw, sfc_alb_dir, sfc_alb_dif,    &
                                  flux_clrsky, flux_allsky, errmsg, errflg)
     use machine,                  only: kind_phys
     use mo_rte_sw,                only: rte_sw
@@ -34,7 +34,7 @@ contains
     real(kind_phys), dimension(:,:),   intent(in) :: toa_src_sw                 !< Top-of-atmosphere flux on g-points [W m-2]
     real(kind_phys), dimension(:,:),   intent(in) :: sfc_alb_dir                !< Albedo direct at surface [fraction]
     real(kind_phys), dimension(:,:),   intent(in) :: sfc_alb_dif                !< Albedo diffuse at surface [fraction]
-    real(kind_phys), dimension(:),     intent(in) :: coszen                     !< Cosine of solar zenith angle for daytime points
+    real(kind_phys), dimension(:),     intent(in) :: coszen_day                 !< Cosine of solar zenith angle for daytime points
 
     ! Outputs
     class(ty_fluxes_byband_ccpp),      intent(inout) :: flux_allsky             !< All-sky flux [W m-2]
@@ -53,7 +53,7 @@ contains
     errmsg = ''
     errflg = 0
 
-    if (.not. doswrad) return
+    if (.not. doswrad .or. rrtmgp_phys_blksz == 0) return
 
     iCol = ((iter_num - 1) * rrtmgp_phys_blksz) + 1
     iCol2 = min(iCol + rrtmgp_phys_blksz - 1, nday)
@@ -74,8 +74,8 @@ contains
     ! Optionally compute clear-sky fluxes
     if (doswclrsky) then
        errmsg = rte_sw(     &
-                  sw_optical_props%optical_props,    & ! IN  - optical-properties
-                  coszen(iCol:iCol2),                      & ! IN  - Cosine of solar zenith angle
+                  sw_optical_props%optical_props,          & ! IN  - optical-properties
+                  coszen_day(iCol:iCol2),                  & ! IN  - Cosine of solar zenith angle
                   toa_src_sw,                              & ! IN  - incident solar flux at TOA
                   sfc_alb_dir,                             & ! IN  - Shortwave surface albedo (direct)
                   sfc_alb_dif,                             & ! IN  - Shortwave surface albedo (diffuse)
@@ -105,12 +105,12 @@ contains
        ! Compute fluxes
        errmsg = rte_sw(     &
             sw_optical_props%optical_props,  & ! IN  - optical-properties
-            coszen(iCol:iCol2),              & ! IN  - Cosine of solar zenith angle
+            coszen_day(iCol:iCol2),          & ! IN  - Cosine of solar zenith angle
             toa_src_sw,                      & ! IN  - incident solar flux at TOA
             sfc_alb_dir,                     & ! IN  - Shortwave surface albedo (direct)
             sfc_alb_dif,                     & ! IN  - Shortwave surface albedo (diffuse)
             flux_allsky%fluxes)                ! OUT - Fluxes, all-sky, 3D (1,nLay,nBand)
-       call check_error_msg('rrtmgp_sw_rte_rte_sw_allskky', errmsg)
+       call check_error_msg('rrtmgp_sw_rte_rte_sw_allsky', errmsg)
        if (len_trim(errmsg) /= 0) then
           errflg = 1
        end if

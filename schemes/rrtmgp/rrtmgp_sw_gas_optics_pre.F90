@@ -1,5 +1,4 @@
 module rrtmgp_sw_gas_optics_pre
-
   implicit none
   private
 
@@ -18,7 +17,7 @@ contains
 
     ! Set gas vmr for the gases in the radconstants module's gaslist.
 
-    character(len=*),            intent(in) :: gaslist(:)             ! Radiatively active gases
+    character(len=5),            intent(in) :: gaslist(:)             ! Radiatively active gases
     integer,                     intent(in) :: nlay                   ! Number of layers in radiation calculation
     integer,                     intent(in) :: nday                   ! Total number of daylight columns
     integer,                     intent(in) :: pverp                  ! Total number of layer interfaces
@@ -54,7 +53,7 @@ contains
     errmsg = ''
     errflg = 0
 
-    if (.not. dosw) then
+    if (.not. dosw .or. nday == 0) then
        return
     end if
 
