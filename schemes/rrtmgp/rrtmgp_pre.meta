@@ -22,7 +22,7 @@
   standard_name = list_of_active_gases_for_RRTMGP
   units = none
   type = character | kind = len=5
-  dimensions = (cam_nl_autogen1_dimension)
+  dimensions = (gaslist_dimension)
   intent = in
 [ gaslist_lc ]
   standard_name = lowercase_list_of_active_gases_for_RRTMGP
