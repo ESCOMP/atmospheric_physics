@@ -50,11 +50,11 @@ module prescribed_aerosols
     ! in this case, field_index is used for log-mean, and a separate field for variance
     ! is stored here.
     logical            :: is_modal_aero_interstitial
-    character(len=64)  :: ncdf_field_name_logv   ! netCDF variable name in input file (log-variance)
+    character(len=64)  :: trcdata_field_name_logv! tracer_data field name (fldnam, not netCDF variable name) (log-variance)
     integer            :: field_index_logv       ! index into tracer_data_fields array (log-variance)
 
     ! all other cases, including modal log-mean:
-    character(len=64)  :: ncdf_field_name        ! netCDF variable name in input file
+    character(len=64)  :: trcdata_field_name     ! tracer_data field name (fldnam, not netCDF variable name)
     integer            :: field_index            ! index into tracer_data_fields array
   end type aero_constituent_map
 
@@ -150,7 +150,9 @@ contains
     aero_cnt   = 0
     aero_cnt_c = 0 ! cloud borne species count
     cnt_loop: do i = 1, N_AERO_MAX
-      if(len_trim(prescribed_aero_specifier(i)) == 0) exit cnt_loop
+      ! FIXME: should I be responsible for handling this? I feel like I should not handle this
+      if(prescribed_aero_specifier(i) == 'UNSET' .or. &
+         len_trim(prescribed_aero_specifier(i)) == 0) exit cnt_loop
 
       skip_spec = .false.
       if(clim_modal_aero) then
@@ -170,6 +172,7 @@ contains
         if(index(prescribed_aero_specifier(i),'_c') >= 1)    aero_cnt_c = aero_cnt_c + 1
         if(index(prescribed_aero_specifier(i),'_logv') >= 1) skip_spec = .true.
       endif
+
       if(.not. skip_spec) aero_cnt = aero_cnt + 1
     end do cnt_loop
 
@@ -191,10 +194,14 @@ contains
     ! In CAM modal aerosols, the interstitial species (_a) are added at the end of the cloud borne (_c) species.
     ! TODO hplin 10/22/25 We might not need this? Fields were identified by their pbuf name anyway
 
-    aero_idx = 0 ! pointer for current aero_map_list index.
-    reg_loop: do i = 1, N_AERO_MAX
+    aero_idx = 1 ! pointer for current aero_map_list index.
+    ddt_loop: do i = 1, N_AERO_MAX
       ! Parse specifier
       tmpstr = trim(adjustl(prescribed_aero_specifier(i)))
+
+      ! FIXME: should I be responsible for handling this? I feel like I should not handle this
+      if(tmpstr == 'UNSET' .or. len_trim(tmpstr) == 0) exit ddt_loop
+
       idx = index(tmpstr, ':')
       if(idx > 0) then
         ! format as constituent_name:ncdf_name
@@ -212,7 +219,7 @@ contains
       ! skip the _logv species; remove the _logm suffix to directly get the interstitial (_a) name
       ! e.g. in loop: num_c1, num_a1_logm, num_a1_logv, ... --> num_c1, num_a1, (skip), ...
       if(clim_modal_aero) then
-        if(index(constituent_name,'_logv') >= 1) exit reg_loop
+        if(index(constituent_name,'_logv') >= 1) cycle ddt_loop
         idx = index(constituent_name,'_logm')
         if(idx > 0) then
           ! use this as the proxy for interstitial species and initialize it here
@@ -220,17 +227,10 @@ contains
           aero_map_list(aero_idx)%is_modal_aero_interstitial = .true.
 
           aero_map_list(aero_idx)%constituent_name           = constituent_name(:idx-1) ! removed _logm
-          aero_map_list(aero_idx)%ncdf_field_name            = ncdf_fld_name  ! log-mean specifier name
+          aero_map_list(aero_idx)%trcdata_field_name         = constituent_name  ! log-mean specifier name
 
-          idx2 = index(ncdf_fld_name,'_logm')
-          if(idx2 == 0) then
-            ! the netcdf name does not have logm; error out for now
-            ! if this becomes a problem, we can rescan prescribed_aero_specifier for the actual logv entry.
-            errflg = 1
-            errmsg = subname//': cannot construct ncdf_field_name for interstitial species based on '//ncdf_fld_name
-          endif
-          ! for now construct log-variance specifier name by changing _logm with _logv
-          aero_map_list(aero_idx)%ncdf_field_name_logv = ncdf_fld_name(:idx2) // '_logv'
+          ! construct log-variance specifier name by changing _logm with _logv
+          aero_map_list(aero_idx)%trcdata_field_name_logv    = constituent_name(:idx-1) // '_logv'
 
           ! The tracer data specifier index will be rescanned once tracer_data_fields is initialized
           ! at the init phase.
@@ -243,7 +243,7 @@ contains
         aero_map_list(aero_idx)%is_modal_aero_interstitial = .false.
 
         aero_map_list(aero_idx)%constituent_name = constituent_name
-        aero_map_list(aero_idx)%ncdf_field_name  = ncdf_fld_name
+        aero_map_list(aero_idx)%trcdata_field_name = constituent_name
 
         ! The tracer data specifier index will be rescanned once tracer_data_fields is initialized
         ! at the init phase.
@@ -252,12 +252,12 @@ contains
 
       ! We added a new aero_map_list entry, so advance the pointer.
       aero_idx = aero_idx + 1
-    end do
+    end do ddt_loop
 
     ! Sanity check
-    if(aero_idx /= aero_cnt) then
+    if(aero_idx /= aero_cnt+1) then
       errflg = 1
-      write(errmsg,*) subname//': consistency check 1 failure; at the end of ddt allocation, aero_idx is not aero_cnt', aero_idx, aero_cnt
+      write(errmsg,*) subname//': consistency check 1 failure; at the end of ddt allocation, aero_idx is not aero_cnt+1', aero_idx, aero_cnt
       return
     end if
 
@@ -266,32 +266,32 @@ contains
     if (errflg /= 0) return
 
     ! Now register constituents in the CCPP constituent properties object.
-    do i = 1, aero_cnt
+    reg_loop: do i = 1, aero_cnt
       ! check units. at this point, we do not know the units from file
       ! because tracer_data has not read any data yet.
       ! number concentrations are units of 1 kg-1; all others are kg kg-1
-      if(index(aero_map_list(aero_idx)%constituent_name, 'num_') == 1) then
+      if(index(aero_map_list(i)%constituent_name, 'num_') == 1) then
         unit_name = '1 kg-1'
       else
         unit_name = 'kg kg-1'
       end if
 
       call aerosol_constituents(i)%instantiate( &
-           std_name          = trim(aero_map_list(aero_idx)%constituent_name), &
-           long_name         = 'prescribed aerosol '//trim(aero_map_list(aero_idx)%constituent_name), &
+           std_name          = trim(aero_map_list(i)%constituent_name), &
+           long_name         = 'prescribed aerosol '//trim(aero_map_list(i)%constituent_name), &
            units             = unit_name, &
            vertical_dim      = 'vertical_layer_dimension', &
            min_value         = 0.0_kind_phys, &
            advected          = .false., &
            water_species     = .false., &
            mixing_ratio_type = 'dry', &
-           errflg            = errflg, &
+           errcode           = errflg, &
            errmsg            = errmsg)
       if(errflg /= 0) return
 
       ! TODO: add history field here.
       ! name is ncdf_field_name // '_D'
-    end do
+    end do reg_loop
 
     if (amIRoot) then
       write(iulog,*) trim(subname)//': Registered ', aero_cnt, ' prescribed aerosol constituents'
@@ -352,7 +352,7 @@ contains
 
     ! Initialize tracer_data module with file and field information
     call trcdata_init( &
-      specifier      = prescribed_aero_specifier(:), &
+      specifier      = prescribed_aero_specifier(:aero_cnt), &
       filename       = prescribed_aero_file, &
       filelist       = prescribed_aero_filelist, &
       datapath       = prescribed_aero_datapath, &
@@ -378,7 +378,7 @@ contains
     do i = 1, aero_cnt
       ! Find the matching field in tracer_data_fields for the primary field
       do idx = 1, size(tracer_data_fields)
-        if (trim(tracer_data_fields(idx)%fldnam) == trim(aero_map_list(i)%ncdf_field_name)) then
+        if (trim(tracer_data_fields(idx)%fldnam) == trim(aero_map_list(i)%trcdata_field_name)) then
           aero_map_list(i)%field_index = idx
           exit
         end if
@@ -387,7 +387,7 @@ contains
       ! For modal aerosol interstitial species, also find the logv field
       if (aero_map_list(i)%is_modal_aero_interstitial) then
         do idx = 1, size(tracer_data_fields)
-          if (trim(tracer_data_fields(idx)%fldnam) == trim(aero_map_list(i)%ncdf_field_name_logv)) then
+          if (trim(tracer_data_fields(idx)%fldnam) == trim(aero_map_list(i)%trcdata_field_name_logv)) then
             aero_map_list(i)%field_index_logv = idx
             exit
           end if
@@ -415,13 +415,13 @@ contains
           end if
 
           write(iulog, '(a,i3,2a)') '  ', i, ': ', trim(aero_map_list(i)%constituent_name)
-          write(iulog, '(3a,i3)') ' log-mean field: ', trim(aero_map_list(i)%ncdf_field_name), &
+          write(iulog, '(3a,i3)') ' log-mean field: ', trim(aero_map_list(i)%trcdata_field_name), &
                ' (trcdata index ', aero_map_list(i)%field_index, ')'
-          write(iulog, '(3a,i3)') ' log-variance field: ', trim(aero_map_list(i)%ncdf_field_name_logv), &
+          write(iulog, '(3a,i3)') ' log-variance field: ', trim(aero_map_list(i)%trcdata_field_name_logv), &
                ' (trcdata index ', aero_map_list(i)%field_index_logv, ')'
         else
           write(iulog, '(a,i3,5a,i3,a)') '  ', i, ': ', trim(aero_map_list(i)%constituent_name), &
-               ' from ', trim(aero_map_list(i)%ncdf_field_name), ' (trcdata index ', aero_map_list(i)%field_index, ')'
+               ' from ', trim(aero_map_list(i)%trcdata_field_name), ' (trcdata index ', aero_map_list(i)%field_index, ')'
         end if
       end if
     end do
@@ -498,15 +498,15 @@ contains
         ! For non-interstitial species (cloud-borne or bulk aerosols),
         ! directly copy field data from tracer_data container
         constituents(:ncol, :pver, const_idx) = &
-             tracer_data_fields(aero_map_list(i)%field_index)%data(:ncol, :pver, 1)
+             tracer_data_fields(aero_map_list(i)%field_index)%data(:ncol,:pver)
       else
         ! For modal aerosol interstitial species (_a), compute from log-normal distribution
         ! using log-mean (logm) and log-variance (logv)
         call compute_modal_aero_interstitial( &
              ncol, pver, &
              pi, &
-             tracer_data_fields(aero_map_list(i)%field_index)%data(:ncol, :pver, 1), &
-             tracer_data_fields(aero_map_list(i)%field_index_logv)%data(:ncol, :pver, 1), &
+             tracer_data_fields(aero_map_list(i)%field_index)%data(:ncol,:pver), &
+             tracer_data_fields(aero_map_list(i)%field_index_logv)%data(:ncol,:pver), &
              constituents(:ncol, :pver, const_idx))
       end if
     end do
@@ -589,7 +589,6 @@ contains
     integer, parameter         :: rconst1_2 = 50
     integer, parameter         :: rconst2_1 = 10000000
     integer, parameter         :: rconst2_2 = 10
-    real(kind_phys), parameter :: pi2 = 2.0_kind_phys * pi
 
     ! Use same random number for the entire day; generate new one at start of new day
     if (is_first_step() .or. is_end_curr_day()) then
@@ -614,7 +613,7 @@ contains
 
       ! Box-Muller method: convert uniform to normal distribution (mean=0, std=1)
       ur    = sqrt(-2.0_kind_phys * log(randu1))
-      theta = pi2 * randu2
+      theta = 2.0_kind_phys * pi * randu2
       randn = ur * cos(theta)
 
       ! Store for use throughout the day

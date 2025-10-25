@@ -69,7 +69,7 @@
 [ prescribed_aero_model ]
   standard_name = representation_type_for_prescribed_aerosols
   units = none
-  type = character | kind = len=5
+  type = character | kind = len=*
   dimensions = ()
   intent = in
 [ aerosol_constituents ]
@@ -81,14 +81,14 @@
   dimensions = (:)
   intent = out
 [ errmsg ]
-  standard_name = enter_standard_name_19
-  units = enter_units
+  standard_name = ccpp_error_message
+  units = none
   type = character | kind = len=512
   dimensions = ()
   intent = out
 [ errflg ]
-  standard_name = enter_standard_name_20
-  units = enter_units
+  standard_name = ccpp_error_code
+  units = 1
   type = integer
   dimensions = ()
   intent = out
@@ -206,7 +206,7 @@
   standard_name = ccpp_constituents
   units = none
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension, vertical_layer_dimension, number_of_ccpp_constituents)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
   intent = inout
 [ errmsg ]
   standard_name = ccpp_error_message

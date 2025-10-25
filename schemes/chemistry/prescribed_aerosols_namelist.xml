@@ -13,9 +13,9 @@
       Full pathname of the directory that contains the files specified in prescribed_aero_filelist.
     </desc>
     <values>
-      <!-- bam: atm/cam/chem/trop_mozart_aero/aero -->
-      <!-- mam: atm/cam/chem/trop_mam/aero -->
-      <value>atm/cam/chem/trop_mozart_aero/aero</value>
+      <!-- bam: ${DIN_LOC_ROOT}/atm/cam/chem/trop_mozart_aero/aero -->
+      <!-- mam: ${DIN_LOC_ROOT}/atm/cam/chem/trop_mam/aero -->
+      <value>${DIN_LOC_ROOT}/atm/cam/chem/trop_mozart_aero/aero</value>
     </values>
   </entry>
 
@@ -120,7 +120,7 @@
       Default: 0
     </desc>
     <values>
-      <value>0</value>
+      <value>2000</value>
     </values>
   </entry>
 
