@@ -333,7 +333,7 @@ contains
       tend_s(:ncol,k) = tend_s(:ncol,k) + ttgw(:,k)
     end do
 
-    ! Change ttgw to a temperature tendency before outputing it.
+    ! Change ttgw to a temperature tendency before outputting it.
     ! FIXME: some places use cpairv (e.g., orographic) but cpair is used here. hplin 8/14/25
     ttgw = ttgw / cpair
 
