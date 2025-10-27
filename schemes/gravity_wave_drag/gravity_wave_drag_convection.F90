@@ -722,7 +722,7 @@ contains
 
   end subroutine gw_init_beres_desc
 
-  ! Driver for multiple gravity wave drag parameterization.
+  ! Driver for multiple gravity wave drag parameterizations.
   !
   ! The parameterization is assumed to operate only where water vapor
   ! concentrations are negligible in determining the density.
