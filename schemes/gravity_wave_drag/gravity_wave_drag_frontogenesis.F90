@@ -6,7 +6,6 @@ module gravity_wave_drag_frontogenesis
 
   implicit none
   private
-  save
 
   public :: gravity_wave_drag_frontogenesis_init
   public :: gravity_wave_drag_frontogenesis_run

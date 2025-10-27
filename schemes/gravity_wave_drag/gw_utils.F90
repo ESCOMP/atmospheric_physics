@@ -4,7 +4,6 @@ module gw_utils
 
   implicit none
   private
-  save
 
   public :: get_unit_vector
   public :: dot_2d

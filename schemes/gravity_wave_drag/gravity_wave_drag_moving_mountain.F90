@@ -6,7 +6,6 @@ module gravity_wave_drag_moving_mountain
 
   implicit none
   private
-  save
 
   ! Public CCPP-compliant interfaces
   public :: gravity_wave_drag_moving_mountain_run

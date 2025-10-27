@@ -10,7 +10,6 @@ module gravity_wave_drag_convection
 
   implicit none
   private
-  save
 
   ! Public CCPP-compliant interfaces.
   public :: gravity_wave_drag_convection_deep_init
