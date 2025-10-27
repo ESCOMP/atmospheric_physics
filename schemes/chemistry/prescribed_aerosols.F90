@@ -288,9 +288,6 @@ contains
            errcode           = errflg, &
            errmsg            = errmsg)
       if(errflg /= 0) return
-
-      ! TODO: add history field here.
-      ! name is ncdf_field_name // '_D'
     end do reg_loop
 
     if (amIRoot) then
@@ -314,8 +311,11 @@ contains
     prescribed_aero_fixed_tod, &
     errmsg, errflg)
 
-    !
+    ! host model dependency for tracer_data read utility
     use tracer_data, only: trcdata_init
+
+    ! host model dependency for history output
+    use cam_history, only: history_add_field
 
     ! Input arguments:
     logical,            intent(in)  :: amIRoot
@@ -336,6 +336,7 @@ contains
     ! Local variables:
     integer            :: i
     integer            :: idx
+    character(len=64)  :: unit_name
 
     ! Local parameters:
     character(len=*), parameter :: subname = 'prescribed_aerosols_init'
@@ -395,7 +396,8 @@ contains
       end if
     end do
 
-    ! Check aero_map_list for any unpopulated field indices (consistency check)
+    ! Check aero_map_list for any unpopulated field indices (consistency check),
+    ! Register history field, and
     ! Print out each aero_map_list field information
     do i = 1, aero_cnt
       if (aero_map_list(i)%field_index <= 0) then
@@ -405,6 +407,20 @@ contains
         return
       end if
 
+      ! Add history field
+      ! Check units. at this point, we do not know the units from file
+      ! because tracer_data has not read any data yet.
+      ! number concentrations are units of 1 kg-1; all others are kg kg-1
+      if(index(aero_map_list(i)%constituent_name, 'num_') == 1) then
+        unit_name = '1 kg-1'
+      else
+        unit_name = 'kg kg-1'
+      end if
+      call history_add_field(trim(aero_map_list(i)%constituent_name) // '_D', &
+            'prescribed aero ' // trim(aero_map_list(i)%constituent_name), &
+            'lev', 'avg', unit_name)
+
+      ! Informational printout
       if (amIRoot) then
         if (aero_map_list(i)%is_modal_aero_interstitial) then
           if (aero_map_list(i)%field_index_logv <= 0) then
@@ -449,6 +465,9 @@ contains
 
     ! dependency to get constituent index
     use ccpp_const_utils,          only: ccpp_const_get_idx
+
+    ! host model dependency for history output
+    use cam_history,               only: history_out_field
 
     ! Input arguments:
     integer,            intent(in)    :: ncol
@@ -509,6 +528,10 @@ contains
              tracer_data_fields(aero_map_list(i)%field_index_logv)%data(:ncol,:pver), &
              constituents(:ncol, :pver, const_idx))
       end if
+
+      ! History output
+      call history_out_field(trim(aero_map_list(i)%constituent_name) // '_D', &
+                             constituents(:ncol, :pver, const_idx))
     end do
 
   end subroutine prescribed_aerosols_run
