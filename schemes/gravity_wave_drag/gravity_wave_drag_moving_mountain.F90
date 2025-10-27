@@ -554,7 +554,7 @@ contains
     !-----------------------------------------------------------------------
 
     ! First find the indices for the top and bottom of the heating range.
-    !nedt is heating profile from Zhang McFarlane (it's pressure coordinates, therefore k=0 is the top)
+    !netdt is heating profile from Zhang McFarlane (it's pressure coordinates, therefore k=0 is the top)
 
     boti = 0 !bottom
     topi = 0  !top
