@@ -9,7 +9,7 @@ module gravity_wave_drag_ridge
   private
 
   ! Public CCPP-compliant interfaces.
-  public :: gravity_wave_drag_ridge_init        ! CCPP I/O read Ridge data into state and initialize.
+  public :: gravity_wave_drag_ridge_init        ! Initialize common namelist params.
 
   public :: gravity_wave_drag_ridge_beta_init   ! Meso-Beta.
   public :: gravity_wave_drag_ridge_beta_run

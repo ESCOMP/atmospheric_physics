@@ -46,7 +46,7 @@ contains
 !> \section arg_table_gravity_wave_drag_convection_deep_init Argument Table
 !! \htmlinclude gravity_wave_drag_convection_deep_init.html
   subroutine gravity_wave_drag_convection_deep_init(&
-             pver, pi, &
+             pver, &
              masterproc, iulog, &
              gw_drag_file_dp, &
              pref_edge, &
@@ -57,7 +57,6 @@ contains
     use gw_common, only: wavelength_mid
 
     integer, intent(in)                           :: pver
-    real(kind_phys), intent(in)                   :: pi
     logical, intent(in)                           :: masterproc
     integer, intent(in)                           :: iulog
     character(len=*),   intent(in)                :: gw_drag_file_dp
@@ -228,7 +227,7 @@ contains
 
     ! Efficiency of gravity wave momentum transfer.
     ! This is really only to remove the pole points.
-    where (pi/2._kind_phys - abs(lat(:ncol)) >= 4*epsilon(1._kind_phys))
+    where (pi/2._kind_phys - abs(lat(:)) >= 4*epsilon(1._kind_phys))
       effgw(:) = effgw_beres_dp
     elsewhere
       effgw(:) = 0._kind_phys
@@ -239,21 +238,21 @@ contains
       ncol        = ncol, &
       pver        = pver, &
       desc        = beres_dp_desc, &
-      u           = u(:ncol,:), &
-      v           = v(:ncol,:), &
-      netdt       = ttend_dp(:ncol,:), &
-      zm          = zm(:ncol,:), &
+      u           = u(:,:), &
+      v           = v(:,:), &
+      netdt       = ttend_dp(:,:), &
+      zm          = zm(:,:), &
       ! Output arguments
-      src_level   = src_level(:ncol), &
-      tend_level  = tend_level(:ncol), &
-      tau         = tau(:ncol,-band_mid%ngwv:band_mid%ngwv,:pverp), &
-      ubm         = ubm(:ncol,:pver), &
-      ubi         = ubi(:ncol,:pverp), &
-      xv          = xv(:ncol), &
-      yv          = yv(:ncol), &
-      c           = phase_speeds(:ncol,-band_mid%ngwv:band_mid%ngwv), &
-      hdepth      = hdepth(:ncol), &
-      maxq0       = maxq0(:ncol))
+      src_level   = src_level(:), &
+      tend_level  = tend_level(:), &
+      tau         = tau(:,-band_mid%ngwv:band_mid%ngwv,:pverp), &
+      ubm         = ubm(:,:pver), &
+      ubi         = ubi(:,:pverp), &
+      xv          = xv(:), &
+      yv          = yv(:), &
+      c           = phase_speeds(:,-band_mid%ngwv:band_mid%ngwv), &
+      hdepth      = hdepth(:), &
+      maxq0       = maxq0(:))
 
     ! Solve for the drag profile with Beres source spectrum.
     call gw_drag_prof( &
@@ -263,42 +262,42 @@ contains
       src_level           = src_level, &
       tend_level          = tend_level, &
       dt                  = dt, &
-      t                   = t(:ncol,:), &
+      t                   = t(:,:), &
       vramp               = vramp, &
-      piln                = piln(:ncol,:), &
-      rhoi                = rhoi(:ncol,:), &
-      nm                  = nm(:ncol,:), &
-      ni                  = ni(:ncol,:), &
-      ubm                 = ubm(:ncol,:), &
-      ubi                 = ubi(:ncol,:), &
-      xv                  = xv(:ncol), &
-      yv                  = yv(:ncol), &
-      effgw               = effgw(:ncol), &
-      c                   = phase_speeds(:ncol,-band_mid%ngwv:band_mid%ngwv), &
-      kvtt                = kvt_gw(:ncol,:), &
-      q                   = q(:ncol,:,:), &
-      dse                 = dse(:ncol,:), &
+      piln                = piln(:,:), &
+      rhoi                = rhoi(:,:), &
+      nm                  = nm(:,:), &
+      ni                  = ni(:,:), &
+      ubm                 = ubm(:,:), &
+      ubi                 = ubi(:,:), &
+      xv                  = xv(:), &
+      yv                  = yv(:), &
+      effgw               = effgw(:), &
+      c                   = phase_speeds(:,-band_mid%ngwv:band_mid%ngwv), &
+      kvtt                = kvt_gw(:,:), &
+      q                   = q(:,:,:), &
+      dse                 = dse(:,:), &
       lapply_effgw_in     = gw_apply_tndmax, &
       ! Input/output arguments
-      tau                 = tau(:ncol,-band_mid%ngwv:band_mid%ngwv,:pverp), &
+      tau                 = tau(:,-band_mid%ngwv:band_mid%ngwv,:pverp), &
       ! Output arguments
-      utgw                = utgw(:ncol,:pver), &
-      vtgw                = vtgw(:ncol,:pver), &
-      ttgw                = ttgw(:ncol,:pver), &
-      qtgw                = qtgw(:ncol,:pver,:pcnst), &
-      egwdffi             = egwdffi(:ncol,:pverp), &
-      gwut                = gwut(:ncol,:pver,-band_mid%ngwv:band_mid%ngwv), &
-      dttdf               = dttdf(:ncol,:pver), &
-      dttke               = dttke(:ncol,:pver))
+      utgw                = utgw(:,:pver), &
+      vtgw                = vtgw(:,:pver), &
+      ttgw                = ttgw(:,:pver), &
+      qtgw                = qtgw(:,:pver,:pcnst), &
+      egwdffi             = egwdffi(:,:pverp), &
+      gwut                = gwut(:,:pver,-band_mid%ngwv:band_mid%ngwv), &
+      dttdf               = dttdf(:,:pver), &
+      dttke               = dttke(:,:pver))
 
     ! Project stress into directional components.
     taucd = calc_taucd(ncol, band_mid%ngwv, tend_level, tau, phase_speeds, xv, yv, ubi)
 
     ! Make copies for diagnostics.
-    taucd_west(:ncol,:pverp)  = taucd(:ncol,:pverp,west)
-    taucd_east(:ncol,:pverp)  = taucd(:ncol,:pverp,east)
-    taucd_south(:ncol,:pverp) = taucd(:ncol,:pverp,south)
-    taucd_north(:ncol,:pverp) = taucd(:ncol,:pverp,north)
+    taucd_west(:,:pverp)  = taucd(:,:pverp,west)
+    taucd_east(:,:pverp)  = taucd(:,:pverp,east)
+    taucd_south(:,:pverp) = taucd(:,:pverp,south)
+    taucd_north(:,:pverp) = taucd(:,:pverp,north)
 
     ! Add the diffusion coefficients
     do k = 1, pverp
@@ -308,7 +307,7 @@ contains
     ! Store constituents tendencies
     do m = 1, pcnst
       do k = 1, pver
-         tend_q(:ncol,k,m) = tend_q(:ncol,k,m) + qtgw(:,k,m)
+         tend_q(:,k,m) = tend_q(:,k,m) + qtgw(:,k,m)
       end do
     end do
 
@@ -319,18 +318,18 @@ contains
 
     ! Add the momentum tendencies to the output tendency arrays.
     do k = 1, pver
-      tend_u(:ncol,k) = tend_u(:ncol,k) + utgw(:,k)
-      tend_v(:ncol,k) = tend_v(:ncol,k) + vtgw(:,k)
+      tend_u(:,k) = tend_u(:,k) + utgw(:,k)
+      tend_v(:,k) = tend_v(:,k) + vtgw(:,k)
     end do
 
     ! Find energy change in the current state, and use fixer to apply
     ! the difference in lower levels.
-    call energy_change(dt, p, u, v, tend_u(:ncol,:), &
-        tend_v(:ncol,:), tend_s(:ncol,:)+ttgw, de)
-    call energy_fixer(tend_level, p, de-flx_heat(:ncol), ttgw)
+    call energy_change(dt, p, u, v, tend_u(:,:), &
+        tend_v(:,:), tend_s(:,:)+ttgw, de)
+    call energy_fixer(tend_level, p, de-flx_heat(:), ttgw)
 
     do k = 1, pver
-      tend_s(:ncol,k) = tend_s(:ncol,k) + ttgw(:,k)
+      tend_s(:,k) = tend_s(:,k) + ttgw(:,k)
     end do
 
     ! Change ttgw to a temperature tendency before outputting it.
@@ -344,7 +343,7 @@ contains
 !> \section arg_table_gravity_wave_drag_convection_shallow_init Argument Table
 !! \htmlinclude gravity_wave_drag_convection_shallow_init.html
   subroutine gravity_wave_drag_convection_shallow_init(&
-             pver, pi, &
+             pver, &
              masterproc, iulog, &
              gw_drag_file_sh, &
              pref_edge, &
@@ -355,7 +354,6 @@ contains
     use gw_common, only: wavelength_mid
 
     integer, intent(in)                           :: pver
-    real(kind_phys), intent(in)                   :: pi
     logical, intent(in)                           :: masterproc
     integer, intent(in)                           :: iulog
     character(len=*),   intent(in)                :: gw_drag_file_sh
@@ -517,7 +515,7 @@ contains
 
     ! Efficiency of gravity wave momentum transfer.
     ! This is really only to remove the pole points.
-    where (pi/2._kind_phys - abs(lat(:ncol)) >= 4*epsilon(1._kind_phys))
+    where (pi/2._kind_phys - abs(lat(:)) >= 4*epsilon(1._kind_phys))
       effgw(:) = effgw_beres_sh
     elsewhere
       effgw(:) = 0._kind_phys
@@ -528,21 +526,21 @@ contains
       ncol        = ncol, &
       pver        = pver, &
       desc        = beres_sh_desc, &
-      u           = u(:ncol,:), &
-      v           = v(:ncol,:), &
-      netdt       = ttend_sh(:ncol,:), &
-      zm          = zm(:ncol,:), &
+      u           = u(:,:), &
+      v           = v(:,:), &
+      netdt       = ttend_sh(:,:), &
+      zm          = zm(:,:), &
       ! Output arguments
-      src_level   = src_level(:ncol), &
-      tend_level  = tend_level(:ncol), &
-      tau         = tau(:ncol,-band_mid%ngwv:band_mid%ngwv,:pverp), &
-      ubm         = ubm(:ncol,:pver), &
-      ubi         = ubi(:ncol,:pverp), &
-      xv          = xv(:ncol), &
-      yv          = yv(:ncol), &
-      c           = phase_speeds(:ncol,-band_mid%ngwv:band_mid%ngwv), &
-      hdepth      = hdepth(:ncol), &
-      maxq0       = maxq0(:ncol))
+      src_level   = src_level(:), &
+      tend_level  = tend_level(:), &
+      tau         = tau(:,-band_mid%ngwv:band_mid%ngwv,:pverp), &
+      ubm         = ubm(:,:pver), &
+      ubi         = ubi(:,:pverp), &
+      xv          = xv(:), &
+      yv          = yv(:), &
+      c           = phase_speeds(:,-band_mid%ngwv:band_mid%ngwv), &
+      hdepth      = hdepth(:), &
+      maxq0       = maxq0(:))
 
     ! Solve for the drag profile with Beres source spectrum.
     call gw_drag_prof( &
@@ -552,33 +550,33 @@ contains
       src_level           = src_level, &
       tend_level          = tend_level, &
       dt                  = dt, &
-      t                   = t(:ncol,:), &
+      t                   = t(:,:), &
       vramp               = vramp, &
-      piln                = piln(:ncol,:), &
-      rhoi                = rhoi(:ncol,:), &
-      nm                  = nm(:ncol,:), &
-      ni                  = ni(:ncol,:), &
-      ubm                 = ubm(:ncol,:), &
-      ubi                 = ubi(:ncol,:), &
-      xv                  = xv(:ncol), &
-      yv                  = yv(:ncol), &
-      effgw               = effgw(:ncol), &
-      c                   = phase_speeds(:ncol,-band_mid%ngwv:band_mid%ngwv), &
-      kvtt                = kvt_gw(:ncol,:), &
-      q                   = q(:ncol,:,:), &
-      dse                 = dse(:ncol,:), &
+      piln                = piln(:,:), &
+      rhoi                = rhoi(:,:), &
+      nm                  = nm(:,:), &
+      ni                  = ni(:,:), &
+      ubm                 = ubm(:,:), &
+      ubi                 = ubi(:,:), &
+      xv                  = xv(:), &
+      yv                  = yv(:), &
+      effgw               = effgw(:), &
+      c                   = phase_speeds(:,-band_mid%ngwv:band_mid%ngwv), &
+      kvtt                = kvt_gw(:,:), &
+      q                   = q(:,:,:), &
+      dse                 = dse(:,:), &
       lapply_effgw_in     = gw_apply_tndmax, &
       ! Input/output arguments
-      tau                 = tau(:ncol,-band_mid%ngwv:band_mid%ngwv,:pverp), &
+      tau                 = tau(:,-band_mid%ngwv:band_mid%ngwv,:pverp), &
       ! Output arguments
-      utgw                = utgw(:ncol,:pver), &
-      vtgw                = vtgw(:ncol,:pver), &
-      ttgw                = ttgw(:ncol,:pver), &
-      qtgw                = qtgw(:ncol,:pver,:pcnst), &
-      egwdffi             = egwdffi(:ncol,:pverp), &
-      gwut                = gwut(:ncol,:pver,-band_mid%ngwv:band_mid%ngwv), &
-      dttdf               = dttdf(:ncol,:pver), &
-      dttke               = dttke(:ncol,:pver))
+      utgw                = utgw(:,:pver), &
+      vtgw                = vtgw(:,:pver), &
+      ttgw                = ttgw(:,:pver), &
+      qtgw                = qtgw(:,:pver,:pcnst), &
+      egwdffi             = egwdffi(:,:pverp), &
+      gwut                = gwut(:,:pver,-band_mid%ngwv:band_mid%ngwv), &
+      dttdf               = dttdf(:,:pver), &
+      dttke               = dttke(:,:pver))
 
     ! Project stress into directional components.
     taucd = calc_taucd(ncol, band_mid%ngwv, tend_level, tau, phase_speeds, xv, yv, ubi)
@@ -591,7 +589,7 @@ contains
     ! Store constituents tendencies
     do m = 1, pcnst
       do k = 1, pver
-         tend_q(:ncol,k,m) = tend_q(:ncol,k,m) + qtgw(:,k,m)
+         tend_q(:,k,m) = tend_q(:,k,m) + qtgw(:,k,m)
       end do
     end do
 
@@ -602,18 +600,18 @@ contains
 
     ! Add the momentum tendencies to the output tendency arrays.
     do k = 1, pver
-      tend_u(:ncol,k) = tend_u(:ncol,k) + utgw(:,k)
-      tend_v(:ncol,k) = tend_v(:ncol,k) + vtgw(:,k)
+      tend_u(:,k) = tend_u(:,k) + utgw(:,k)
+      tend_v(:,k) = tend_v(:,k) + vtgw(:,k)
     end do
 
     ! Find energy change in the current state, and use fixer to apply
     ! the difference in lower levels.
-    call energy_change(dt, p, u, v, tend_u(:ncol,:), &
-        tend_v(:ncol,:), tend_s(:ncol,:)+ttgw, de)
-    call energy_fixer(tend_level, p, de-flx_heat(:ncol), ttgw)
+    call energy_change(dt, p, u, v, tend_u(:,:), &
+        tend_v(:,:), tend_s(:,:)+ttgw, de)
+    call energy_fixer(tend_level, p, de-flx_heat(:), ttgw)
 
     do k = 1, pver
-      tend_s(:ncol,k) = tend_s(:ncol,k) + ttgw(:,k)
+      tend_s(:,k) = tend_s(:,k) + ttgw(:,k)
     end do
 
     ! Change ttgw to a temperature tendency before outputting it.

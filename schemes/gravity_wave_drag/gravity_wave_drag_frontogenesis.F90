@@ -127,7 +127,8 @@ contains
     end if
 
     cm_desc = gaussian_cm_desc(band_mid, pi, kbot_front, kfront, frontgfc, &
-                               taubgnd, front_gaussian_width)
+                               taubgnd, front_gaussian_width, errmsg, errflg)
+    if(errflg /= 0) return
 
   end subroutine gravity_wave_drag_frontogenesis_init
 
@@ -220,7 +221,8 @@ contains
     end if
 
     cm_igw_desc = gaussian_cm_desc(band_long, pi, kbot_front, kfront, frontgfc, &
-                                   taubgnd_igw, front_gaussian_width)
+                                   taubgnd_igw, front_gaussian_width, errmsg, errflg)
+    if(errflg /= 0) return
 
     ! Parameters for the IGW polar taper.
     degree2radian = pi/180._kind_phys
@@ -345,12 +347,12 @@ contains
 
     ! Frontogenesis is too high at the poles (at least for the FV dycore), so introduce a polar taper
     if (gw_polar_taper) then
-      effgw = effgw*cos(lat(:ncol))
+      effgw = effgw*cos(lat(:))
     endif
 
     call gw_cm_src(ncol, pver, band_mid, &
                    cm_desc, &
-                   u, v, frontgf(:ncol, :), &
+                   u, v, frontgf(:, :), &
                    src_level, tend_level, tau, ubm, ubi, xv, yv, phase_speeds)
 
     ! Solve for the drag profile with C&M source spectrum
@@ -378,7 +380,7 @@ contains
     ! Add the constituent tendencies
     do m = 1, pcnst
       do k = 1, pver
-        tend_q(:ncol, k, m) = tend_q(:ncol, k, m) + qtgw(:, k, m)
+        tend_q(:, k, m) = tend_q(:, k, m) + qtgw(:, k, m)
       end do
     end do
 
@@ -389,8 +391,8 @@ contains
 
     ! Add the momentum tendencies to the output tendency arrays
     do k = 1, pver
-      tend_u(:ncol, k) = tend_u(:ncol, k) + utgw(:, k)
-      tend_v(:ncol, k) = tend_v(:ncol, k) + vtgw(:, k)
+      tend_u(:, k) = tend_u(:, k) + utgw(:, k)
+      tend_v(:, k) = tend_v(:, k) + vtgw(:, k)
     end do
 
     ! Diagnostic: accumulate wind tendencies binned according to phase speed.
@@ -407,25 +409,25 @@ contains
     ! Get the zonal part
     do l = 1, 5
       do k = 1, pver
-        utend(:ncol, k, l) = utend(:ncol, k, l) * xv(:ncol)
+        utend(:, k, l) = utend(:, k, l) * xv(:)
       enddo
     enddo
 
     ! Copy into sub-tendency arrays for export
-    utend1(:ncol,:pver) = utend(:ncol, :pver, 1)
-    utend2(:ncol,:pver) = utend(:ncol, :pver, 2)
-    utend3(:ncol,:pver) = utend(:ncol, :pver, 3)
-    utend4(:ncol,:pver) = utend(:ncol, :pver, 4)
-    utend5(:ncol,:pver) = utend(:ncol, :pver, 5)
+    utend1(:,:pver) = utend(:, :pver, 1)
+    utend2(:,:pver) = utend(:, :pver, 2)
+    utend3(:,:pver) = utend(:, :pver, 3)
+    utend4(:,:pver) = utend(:, :pver, 4)
+    utend5(:,:pver) = utend(:, :pver, 5)
 
     ! Find energy change in the current state, and use fixer to apply
     ! the difference in lower levels
-    call energy_change(dt, p, u, v, tend_u(:ncol, :), &
-                       tend_v(:ncol, :), tend_s(:ncol, :) + ttgw, de)
-    call energy_fixer(tend_level, p, de - flx_heat(:ncol), ttgw)
+    call energy_change(dt, p, u, v, tend_u(:, :), &
+                       tend_v(:, :), tend_s(:, :) + ttgw, de)
+    call energy_fixer(tend_level, p, de - flx_heat(:), ttgw)
 
     do k = 1, pver
-      tend_s(:ncol, k) = tend_s(:ncol, k) + ttgw(:, k)
+      tend_s(:, k) = tend_s(:, k) + ttgw(:, k)
     end do
 
     ! Convert dry static energy tendency to temperature tendency for output
@@ -548,10 +550,10 @@ contains
 
     call gw_cm_src(ncol, pver, band_long, &
                    cm_igw_desc, &
-                   u, v, frontgf(:ncol, :), &
+                   u, v, frontgf(:, :), &
                    src_level, tend_level, tau, ubm, ubi, xv, yv, phase_speeds)
 
-    u_coriolis = coriolis_speed(band_long, lat(:ncol))
+    u_coriolis = coriolis_speed(band_long, lat(:))
     call adjust_inertial(band_long, tend_level, u_coriolis, phase_speeds, ubi, &
                          tau, ro_adjust)
 
@@ -574,7 +576,7 @@ contains
     ! Add the constituent tendencies
     do m = 1, pcnst
       do k = 1, pver
-        tend_q(:ncol, k, m) = tend_q(:ncol, k, m) + qtgw(:, k, m)
+        tend_q(:, k, m) = tend_q(:, k, m) + qtgw(:, k, m)
       end do
     end do
 
@@ -585,18 +587,18 @@ contains
 
     ! Add the momentum tendencies to the output tendency arrays
     do k = 1, pver
-      tend_u(:ncol, k) = tend_u(:ncol, k) + utgw(:, k)
-      tend_v(:ncol, k) = tend_v(:ncol, k) + vtgw(:, k)
+      tend_u(:, k) = tend_u(:, k) + utgw(:, k)
+      tend_v(:, k) = tend_v(:, k) + vtgw(:, k)
     end do
 
     ! Find energy change in the current state, and use fixer to apply
     ! the difference in lower levels
-    call energy_change(dt, p, u, v, tend_u(:ncol, :), &
-                       tend_v(:ncol, :), tend_s(:ncol, :) + ttgw, de)
-    call energy_fixer(tend_level, p, de - flx_heat(:ncol), ttgw)
+    call energy_change(dt, p, u, v, tend_u(:, :), &
+                       tend_v(:, :), tend_s(:, :) + ttgw, de)
+    call energy_fixer(tend_level, p, de - flx_heat(:), ttgw)
 
     do k = 1, pver
-      tend_s(:ncol, k) = tend_s(:ncol, k) + ttgw(:, k)
+      tend_s(:, k) = tend_s(:, k) + ttgw(:, k)
     end do
 
     ! Convert dry static energy tendency to temperature tendency for output
@@ -610,21 +612,24 @@ contains
 
   ! Create a source tau profile that is a gaussian over wavenumbers (l=0 is
   ! excluded).
-  function gaussian_cm_desc(band, pi, ksrc, kfront, frontgfc, height, width) &
+  function gaussian_cm_desc(band, pi, ksrc, kfront, frontgfc, height, width, errmsg, errflg) &
     result(desc)
 
     use shr_spfn_mod, only: erfc => shr_spfn_erfc
 
     ! Wavelengths triggered by frontogenesis.
-    type(GWBand), intent(in) :: band
-    real(kind_phys), intent(in) :: pi
+    type(GWBand),       intent(in)  :: band
+    real(kind_phys),    intent(in)  :: pi
     ! The following are used to set the corresponding object components.
-    integer, intent(in) :: ksrc
-    integer, intent(in) :: kfront
-    real(kind_phys), intent(in) :: frontgfc
+    integer,            intent(in)  :: ksrc
+    integer,            intent(in)  :: kfront
+    real(kind_phys),    intent(in)  :: frontgfc
     ! Parameters of gaussian.
-    real(kind_phys), intent(in) :: height
-    real(kind_phys), intent(in) :: width
+    real(kind_phys),    intent(in)  :: height
+    real(kind_phys),    intent(in)  :: width
+
+    character(len=512), intent(out) :: errmsg
+    integer,            intent(out) :: errflg
 
     type(CMSourceDesc) :: desc
 
@@ -638,7 +643,8 @@ contains
     desc%kfront = kfront
     desc%frontgfc = frontgfc
 
-    allocate (desc%src_tau(-band%ngwv:band%ngwv))
+    allocate (desc%src_tau(-band%ngwv:band%ngwv), stat=errflg, errmsg=errmsg)
+    if(errflg /= 0) return
 
     ! Find the boundaries of each bin.
     gaussian_bounds(:2*band%ngwv + 1) = band%cref - 0.5_kind_phys*band%dc
@@ -663,13 +669,10 @@ contains
                        desc, &
                        u, v, frontgf, &
                        src_level, tend_level, tau, ubm, ubi, xv, yv, c)
-    use gw_utils, only: get_unit_vector, dot_2d, midpoint_interp
-    !-----------------------------------------------------------------------
-    ! Driver for multiple gravity wave drag parameterization.
-    !
     ! The parameterization is assumed to operate only where water vapor
     ! concentrations are negligible in determining the density.
-    !-----------------------------------------------------------------------
+
+    use gw_utils, only: get_unit_vector, dot_2d, midpoint_interp
 
     !------------------------------Arguments--------------------------------
     ! Column dimension.
