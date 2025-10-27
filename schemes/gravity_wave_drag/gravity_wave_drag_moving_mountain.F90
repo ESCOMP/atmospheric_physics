@@ -510,7 +510,7 @@ contains
     end if
 
     !------------------------------------------------------------------------
-    ! Determine wind and unit vectors at the steering level) then
+    ! Determine wind and unit vectors at the steering level then
     ! project winds.
     !------------------------------------------------------------------------
     do i = 1, ncol
