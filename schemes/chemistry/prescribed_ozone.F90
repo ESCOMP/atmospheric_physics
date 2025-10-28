@@ -118,6 +118,7 @@ contains
     ncol, pver, &
     mwdry, boltz, &
     t, pmiddry, &
+    pmid, pint, phis, zi, & ! necessary fields for trcdata read.
     prescribed_ozone, &
     errmsg, errflg)
 
@@ -130,6 +131,10 @@ contains
     real(kind_phys),    intent(in)  :: boltz                     ! boltzmann_constant [J K-1]
     real(kind_phys),    intent(in)  :: t(:,:)                    ! temperature [K]
     real(kind_phys),    intent(in)  :: pmiddry(:,:)              ! dry air pressure [Pa]
+    real(kind_phys),    intent(in)  :: pmid(:,:)                 ! air pressure [Pa]
+    real(kind_phys),    intent(in)  :: pint(:,:)                 ! air pressure at interfaces [Pa]
+    real(kind_phys),    intent(in)  :: phis(:)                   ! surface geopotential [m2 s-2]
+    real(kind_phys),    intent(in)  :: zi(:,:)                   ! height above surface, interfaces [m]
     real(kind_phys),    intent(out) :: prescribed_ozone(:,:)     ! prescribed ozone mass mixing ratio [kg kg-1 dry]
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errflg
@@ -148,7 +153,8 @@ contains
     endif
 
     ! advance data in tracer_data to current time.
-    call advance_trcdata(tracer_data_fields, tracer_data_file)
+    call advance_trcdata(tracer_data_fields, tracer_data_file, &
+                         pmid, pint, phis, zi)
     units_str = trim(tracer_data_fields(1)%units)
 
     ! copy field from tracer_data container.
@@ -167,6 +173,9 @@ contains
         errflg = 1
         errmsg = 'prescribed_ozone_run: unit' // units_str //' are not recognized'
     end select
+
+    ! convert to kg kg-1 (dry)
+    prescribed_ozone = to_mmr * prescribed_ozone
 
     ! convert to mol mol-1 (dry) only for diagnostic output
     call history_out_field('ozone', prescribed_ozone(:ncol,:pver)*(mwdry/ozone_mw))

@@ -454,6 +454,7 @@ contains
     ncol, pver, pcnst, &
     const_props, &
     pi, &
+    pmid, pint, phis, zi, & ! necessary fields for trcdata read.
     constituents, &
     errmsg, errflg)
 
@@ -472,10 +473,14 @@ contains
     ! Input arguments:
     integer,            intent(in)    :: ncol
     integer,            intent(in)    :: pver
-    integer,            intent(in)    :: pcnst            ! Number of CCPP constituents [count]
+    integer,            intent(in)    :: pcnst            ! # of CCPP constituents [count]
     type(ccpp_constituent_prop_ptr_t), &
                         intent(in)    :: const_props(:)   ! CCPP constituent properties pointer
     real(kind_phys),    intent(in)    :: pi
+    real(kind_phys),    intent(in)    :: pmid(:,:)        ! air pressure [Pa]
+    real(kind_phys),    intent(in)    :: pint(:,:)        ! air pressure at interfaces [Pa]
+    real(kind_phys),    intent(in)    :: phis(:)          ! surface geopotential [m2 s-2]
+    real(kind_phys),    intent(in)    :: zi(:,:)          ! height above surface, interfaces [m]
 
     ! Input/Output arguments:
     real(kind_phys),    intent(inout) :: constituents(:,:,:) ! constituent array (ncol, pver, pcnst) [kg kg-1 dry]
@@ -499,7 +504,8 @@ contains
     if (.not. has_prescribed_aerosols) return
 
     ! Advance tracer_data to current time
-    call advance_trcdata(tracer_data_fields, tracer_data_file)
+    call advance_trcdata(tracer_data_fields, tracer_data_file, &
+                         pmid, pint, phis, zi)
 
     ! Copy the prescribed aerosol data to constituent array
     ! Loop over aero_map_list to retrieve data from tracer_data_fields.
