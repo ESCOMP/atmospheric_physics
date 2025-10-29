@@ -86,6 +86,7 @@
     </desc>
     <values>
       <value>${DIN_LOC_ROOT}/atm/cam/solar/SolarForcingCMIP7piControl_c20250103.nc</value>
+      <value aquaplanet="1" phys_suite="cam4">NONE</value>
     </values>
   </entry>
   <entry id="solar_data_type">
