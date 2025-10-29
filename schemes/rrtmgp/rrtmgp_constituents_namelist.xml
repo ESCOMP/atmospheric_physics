@@ -86,7 +86,25 @@
        calculation in RRTMGP (H2O not included because it is assumed to be advected if present).
     </desc>
     <values>
-      <value>'N:O2:O2', 'A:CO2:CO2', 'N:ozone:O3', 'A:N2O:N2O', 'A:CH4:CH4', 'N:CFC11STAR:CFC11', 'A:CFC12:CFC12'</value>
+      <value>
+        'N:O2:O2',
+        'A:CO2:CO2',
+        'N:ozone:O3',
+        'A:N2O:N2O',
+        'A:CH4:CH4',
+        'N:CFC11STAR:CFC11',
+        'A:CFC12:CFC12'
+      </value>
+      <value aquaplanet="1" phys_suite="cam4">
+        'A:Q:H2O',
+        'N:O2:O2',
+        'N:CO2:CO2',
+        'N:ozone:O3',
+        'N:N2O:N2O',
+        'N:CH4:CH4',
+        'N:CFC11:CFC11',
+        'N:CFC12:CFC12'
+      </value>
     </values>
   </entry>
   <entry id="ndiags">

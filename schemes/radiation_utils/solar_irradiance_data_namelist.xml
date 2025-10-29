@@ -112,6 +112,7 @@
     </desc>
     <values>
       <value>.true.</value>
+      <value phys_suite="cam4">.false.</value>
     </values>
   </entry>
   <entry id="solar_data_ymd">
@@ -152,6 +153,7 @@
     </desc>
     <values>
       <value>-9999D0</value>
+      <value aquaplanet="1" phys_suite="cam4">1365.0</value>
     </values>
   </entry>
 </entry_id_pg>
