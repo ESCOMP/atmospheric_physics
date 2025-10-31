@@ -7,5 +7,8 @@
 
     <!-- more advanced tracer_data test scheme via prescribed_aerosols -->
     <scheme>prescribed_aerosols</scheme>
+
+    <!-- prescribed aerosol deposition flux (requires prescribed_aerosols) -->
+    <scheme>prescribed_aerosol_deposition_flux</scheme>
   </group>
 </suite>

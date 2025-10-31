@@ -24,7 +24,6 @@ module prescribed_aerosols
 
   implicit none
   private
-  save
 
   ! public CCPP-compliant subroutines
   public :: prescribed_aerosols_register
@@ -490,9 +489,8 @@ contains
     integer,            intent(out)   :: errflg
 
     ! Local variables:
-    integer            :: i, idx
+    integer            :: i
     integer            :: const_idx
-    real(kind_phys)    :: field_data(ncol, pver)
 
     ! Local parameters:
     character(len=*), parameter :: subname = 'prescribed_aerosols_run'

@@ -117,7 +117,7 @@
     <desc>
       The cycle year of the prescribed ozone data if prescribed_aero_type is 'CYCLICAL'.
       Format: YYYY
-      Default: 0
+      Default: 2000
     </desc>
     <values>
       <value>2000</value>

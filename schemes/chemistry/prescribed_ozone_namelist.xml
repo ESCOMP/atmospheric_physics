@@ -81,7 +81,8 @@
     <standard_name>cycle_year_for_prescribed_ozone</standard_name>
     <units>1</units>
     <desc>
-      The cycle year of the prescribed ozone data if prescribed_ozone_type is 'CYCLICAL'. Format: YYYY Default: 2000
+      The cycle year of the prescribed ozone data if prescribed_ozone_type is 'CYCLICAL'. Format: YYYY
+      Default: 2000
     </desc>
     <values>
       <value>2000</value>
@@ -95,7 +96,8 @@
     <standard_name>fixed_date_for_prescribed_ozone</standard_name>
     <units>1</units>
     <desc>
-      The date at which the prescribed ozone data is fixed if prescribed_ozone_type is 'FIXED'. Format: YYYYMMDD Default: 0
+      The date at which the prescribed ozone data is fixed if prescribed_ozone_type is 'FIXED'. Format: YYYYMMDD
+      Default: 0
     </desc>
     <values>
       <value>0</value>

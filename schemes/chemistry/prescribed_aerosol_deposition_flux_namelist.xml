@@ -1,0 +1,130 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet type="text/xsl"?>
+
+<entry_id_pg version="2.0">
+  <entry id="aerodep_flx_datapath">
+    <type>char*256</type>
+    <category>chemistry</category>
+    <group>aerodep_flx_nl</group>
+    <standard_name>datapath_for_prescribed_aerosol_deposition_fluxes</standard_name>
+    <units>none</units>
+    <desc>
+      Full pathname of the directory that contains the files specified in aerodep_flx_filelist.
+    </desc>
+    <values>
+      <value>${DIN_LOC_ROOT}/atm/cam/chem/trop_mozart_aero/aero</value>
+    </values>
+  </entry>
+
+  <entry id="aerodep_flx_file">
+    <type>char*256</type>
+    <category>chemistry</category>
+    <group>aerodep_flx_nl</group>
+    <standard_name>filename_for_prescribed_aerosol_deposition_fluxes</standard_name>
+    <units>none</units>
+    <desc>
+      Filename of dataset for prescribed aerosol deposition fluxes.
+    </desc>
+    <values>
+      <value>aerosoldep_monthly_1849-2006_1.9x2.5_c090803.nc</value>
+    </values>
+  </entry>
+
+  <entry id="aerodep_flx_filelist">
+    <type>char*256</type>
+    <category>chemistry</category>
+    <group>aerodep_flx_nl</group>
+    <standard_name>filename_of_file_list_for_prescribed_aerosol_deposition_fluxes</standard_name>
+    <units>none</units>
+    <desc>
+      Filename of file that contains a sequence of filenames for prescribed aerosol deposition fluxes. The filenames in this file are relative to the directory specified by aerodep_flx_datapath.
+    </desc>
+    <values>
+      <value>UNSET</value>
+    </values>
+  </entry>
+
+  <entry id="aerodep_flx_specifier">
+    <type>char*32(22)</type>
+    <category>chemistry</category>
+    <group>aerodep_flx_nl</group>
+    <standard_name>specifier_for_prescribed_aerosol_deposition_fluxes</standard_name>
+    <units>none</units>
+    <desc>
+      A list of variable names of the aerosol deposition flux fields in the prescribed datasets and corresponding internal name separated by colons. For example:
+
+      aerodep_flx_specifier = 'internal_name1:ncdf_fld_name1','internal_name2:ncdf_fld_name2', ...
+
+      If there is no colon separator then the specified name is used as both the internal_name and ncdf_fld_name.
+    </desc>
+    <values>
+      <value>'BCDEPWET','BCPHODRY','BCPHIDRY','OCDEPWET','OCPHODRY', 'OCPHIDRY','DSTX01DD','DSTX02DD','DSTX03DD','DSTX04DD','DSTX01WD','DSTX02WD','DSTX03WD','DSTX04WD'</value>
+    </values>
+  </entry>
+
+  <entry id="aerodep_flx_type">
+    <type>char*32</type>
+    <category>chemistry</category>
+    <group>aerodep_flx_nl</group>
+    <standard_name>time_interpolation_method_for_prescribed_aerosol_deposition_fluxes</standard_name>
+    <units>none</units>
+    <valid_values>CYCLICAL,SERIAL,INTERP_MISSING_MONTHS,FIXED</valid_values>
+    <desc>
+      Type of time interpolation for data in aerodep_flx files.
+      Can be set to 'CYCLICAL', 'SERIAL', 'INTERP_MISSING_MONTHS', or 'FIXED'.
+      Default: 'SERIAL'
+    </desc>
+    <values>
+      <value>SERIAL</value>
+    </values>
+  </entry>
+
+  <entry id="aerodep_flx_cycle_yr">
+    <type>integer</type>
+    <category>chemistry</category>
+    <group>aerodep_flx_nl</group>
+    <standard_name>cycle_year_for_prescribed_aerosol_deposition_fluxes</standard_name>
+    <units>1</units>
+    <desc>
+      The cycle year of the prescribed aerosol deposition flux data if aerodep_flx_type is 'CYCLICAL'.
+      Format: YYYY
+      Default: 2000
+    </desc>
+    <values>
+      <value>2000</value>
+    </values>
+  </entry>
+
+  <entry id="aerodep_flx_fixed_ymd">
+    <type>integer</type>
+    <category>chemistry</category>
+    <group>aerodep_flx_nl</group>
+    <standard_name>fixed_date_for_prescribed_aerosol_deposition_fluxes</standard_name>
+    <units>1</units>
+    <desc>
+      The date at which the prescribed aerosol deposition flux data is fixed if aerodep_flx_type is 'FIXED'.
+      Format: YYYYMMDD
+      Default: 0
+    </desc>
+    <values>
+      <value>0</value>
+    </values>
+  </entry>
+
+  <entry id="aerodep_flx_fixed_tod">
+    <type>integer</type>
+    <category>chemistry</category>
+    <group>aerodep_flx_nl</group>
+    <standard_name>fixed_time_of_day_for_prescribed_aerosol_deposition_fluxes</standard_name>
+    <units>s</units>
+    <desc>
+      The time of day (seconds) corresponding to aerodep_flx_fixed_ymd at which the prescribed aerosol deposition flux data is fixed if aerodep_flx_type is 'FIXED'.
+      Default: 0 seconds
+    </desc>
+    <values>
+      <value>0</value>
+    </values>
+  </entry>
+
+</entry_id_pg>

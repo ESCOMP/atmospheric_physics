@@ -10,7 +10,6 @@ module prescribed_ozone
 
   implicit none
   private
-  save
 
   ! public CCPP-compliant subroutines
   public :: prescribed_ozone_init
@@ -172,6 +171,7 @@ contains
       case default
         errflg = 1
         errmsg = 'prescribed_ozone_run: unit' // units_str //' are not recognized'
+        return
     end select
 
     ! convert to kg kg-1 (dry)
