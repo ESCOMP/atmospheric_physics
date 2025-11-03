@@ -1,0 +1,157 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet type="text/xsl"?>
+
+<entry_id_pg version="2.0">
+
+<!-- Each namelist variable is defined in an <entry> element.  The
+     content of the element is the documentation of how the variable is
+     used.  Other aspects of the variable's definition are expressed as
+     attributes of the <entry> element.  Note that it is an XML requirement
+     that the attribute values are enclosed in quotes.  The attributes are:
+
+     id
+          The variable's name.  *** N.B. *** The name must be lower case.
+          The module convert all namelist variable names to lower case
+          since Fortran is case insensitive.
+
+     type
+          An abbreviation of the fortran declaration for the variable.
+	  Valid declarations are:
+
+          char*n
+	  integer
+	  logical
+	  real
+
+	  Any of these types may be followed by a comma separated list of
+	  integers enclosed in parenthesis to indicate an array.
+
+	  The current namelist validation code only distinquishes between
+	  string and non-string types.
+
+     input_pathname
+          Only include this attribute to indicate that the variable
+          contains the pathname of an input dataset that resides in the
+          CESM inputdata directory tree.  Note that the variables
+          containing the names of restart files that are used in branch
+          runs don't reside in the inputdata tree and should not be given
+          this attribute.
+
+	  The recognized values are "abs" to indicate that an absolute
+          pathname is required, or "rel:var_name" to indicate that the
+          pathname is relative and that the namelist variable "var_name"
+          contains the absolute root directory.
+
+     category
+          A category assigned for organizing the documentation.
+
+     group
+          The namelist group that the variable is declared in.
+
+     valid_values
+          This is an optional attribute that is mainly useful for variables
+          that have only a small number of allowed values. It is a
+          comma-separated list of valid values for the variable.
+
+     desc
+          This is a text description of the variable including its
+          purpose and use.
+
+     values
+          This is a grouping of all the cases where a value can be
+          assigned with the namelist generator has been run.
+
+     value
+          Each <value> tag specifies a case where a value is assigned
+          to this variable when the namelist generator is run. If the
+          tag has no attributes, it is a default value. In general,
+          the namelist generator attempts to find a value with the
+          maximium number of attribute matches (and no non-matches).
+
+     standard_name
+          This is the CCPP Standard Name of the variable
+
+     units
+          This is the CCPP unit specification of the variable (e.g., m s-1).
+                                                                        -->
+  <entry id="prescribed_ch4_vmr">
+    <type>real</type>
+    <kind>kind_phys</kind>
+    <category>ghg_cam</category>
+    <group>chem_surfvals</group>
+    <standard_name>prescribed_volume_mixing_ratio_of_ch4</standard_name>
+    <units>mol mol-1</units>
+    <desc>
+      CH4 volume mixing ratio.  This is used as the time invariant value
+      of CH4 if no time varying values are specified.
+    </desc>
+    <values>
+      <value>1760.0e-9</value>
+      <value aquaplanet="1" phys_suite="cam4">1650.0e-9</value>
+    </values>
+  </entry>
+  <entry id="prescribed_co2_vmr">
+    <type>real</type>
+    <kind>kind_phys</kind>
+    <category>ghg_cam</category>
+    <group>chem_surfvals</group>
+    <standard_name>prescribed_volume_mixing_ratio_of_co2</standard_name>
+    <units>mol mol-1</units>
+    <desc>
+      CO2 volume mixing ratio.  This is used as the time invariant value
+      of CO2 if no time varying values are specified.
+    </desc>
+    <values>
+      <value>367.0e-6</value>
+      <value aquaplanet="1" phys_suite="cam4">348.0e-6</value>
+    </values>
+  </entry>
+  <entry id="prescribed_cfc11_vmr">
+    <type>real</type>
+    <kind>kind_phys</kind>
+    <category>ghg_cam</category>
+    <group>chem_surfvals</group>
+    <standard_name>prescribed_volume_mixing_ratio_of_cfc11</standard_name>
+    <units>mol mol-1</units>
+    <desc>
+      CFC-11 volume mixing ratio.  This is used as the time invariant value
+      of CFC-11 if no time varying values are specified.
+    </desc>
+    <values>
+      <value>653.45e-12</value>
+    </values>
+  </entry>
+  <entry id="prescribed_cfc12_vmr">
+    <type>real</type>
+    <kind>kind_phys</kind>
+    <category>ghg_cam</category>
+    <group>chem_surfvals</group>
+    <standard_name>prescribed_volume_mixing_ratio_of_cfc12</standard_name>
+    <units>mol mol-1</units>
+    <desc>
+      CFC-12 volume mixing ratio.  This is used as the time invariant value
+      of CFC-12 if no time varying values are specified.
+    </desc>
+    <values>
+      <value>535.0e-12</value>
+    </values>
+  </entry>
+  <entry id="prescribed_n2o_vmr">
+    <type>real</type>
+    <kind>kind_phys</kind>
+    <category>ghg_cam</category>
+    <group>chem_surfvals</group>
+    <standard_name>prescribed_volume_mixing_ratio_of_n2o</standard_name>
+    <units>mol mol-1</units>
+    <desc>
+      N2O volume mixing ratio.  This is used as the time invariant value
+      of N2O if no time varying values are specified.
+    </desc>
+    <values>
+      <value>316.0e-9</value>
+      <value aquaplanet="1" phys_suite="cam4">306.0e-9</value>
+    </values>
+  </entry>
+
+</entry_id_pg>
