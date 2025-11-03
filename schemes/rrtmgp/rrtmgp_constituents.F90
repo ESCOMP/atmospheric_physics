@@ -66,7 +66,7 @@ contains
           call rrtmgp_dyn_consts(gas_idx)%instantiate(     &
              std_name = stdname,   &
              long_name = long_name,  &
-             units = 'kg-1',                            &
+             units = 'kg kg-1',                            &
              vertical_dim = 'vertical_layer_dimension', &
              min_value = 0.0_kind_phys,                 &
              advected = .true.,                         &
@@ -78,7 +78,7 @@ contains
           call rrtmgp_dyn_consts(gas_idx)%instantiate(     &
              std_name = stdname,   &
              long_name = long_name,  &
-             units = 'kg-1',                            &
+             units = 'kg kg-1',                            &
              vertical_dim = 'vertical_layer_dimension', &
              min_value = 0.0_kind_phys,                 &
              advected = .false.,                         &
@@ -90,7 +90,7 @@ contains
           call rrtmgp_dyn_consts(gas_idx)%instantiate(     &
              std_name = stdname,   &
              long_name = long_name,  &
-             units = 'kg-1',                            &
+             units = 'kg kg-1',                            &
              vertical_dim = 'vertical_layer_dimension', &
              min_value = 0.0_kind_phys,                 &
              default_value = 0.0_kind_phys,             &
