@@ -21,9 +21,9 @@ contains
 !> \section arg_table_radiative_gas_concentrations_init Argument Table
 !! \htmlinclude radiative_gas_concentrations_init.html
 !!
-  subroutine radiative_gas_concentrations_init(ch4_vmr, co2_vmr, cfc11_vmr, &
-                                               cfc12_vmr, n2o_vmr,          &
-                                               const_array, errmsg, errcode)
+  subroutine radiative_gas_concentrations_init(ch4_vmr,   co2_vmr, cfc11_vmr,   &
+                                               cfc12_vmr, n2o_vmr, const_array, &
+                                               errmsg, errcode)
 
     ! Use statements
     use ccpp_constituent_prop_mod, only: int_unassigned
