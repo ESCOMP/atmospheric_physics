@@ -52,36 +52,34 @@ contains
     integer,            intent(out) :: errcode
 
     ! Local variables
-    integer :: cnst_idx !Constituents object index
+    integer         :: const_idx                         !Constituents object index
     real(kind_phys) :: dry_air_to_const_molar_mass_ratio !Ratio of dry air molar mass to constituent molar mass
-    real(kind_phys) :: gas_mmr                           !Mass mixing ratio wrt dry air for specified gas
 
-    ! Convert number/mole fraction into mass mixing ratio wrt dry air:
+    !+++++++++++++++++++++++++++++++++++
+    ! Convert number/mole fraction into
+    ! mass mixing ratio w.r.t dry air
+    !+++++++++++++++++++++++++++++++++++
 
     !----
     ! CH4:
     !----
 
     ! Check if CH4 is present in constituents object:
-    call ccpp_constituent_index('CH4', const_idx, errflg, errmsg)
-    if (errflg /= 0) then
+    call ccpp_constituent_index('CH4', const_idx, errcode, errmsg)
+    if (errcode /= 0) then
       return
     else if (const_idx /= int_unassigned) then
 
       ! Get ratio of molar mass of dry air / constituent molar mass
-      call get_molar_mass_ratio('CH4', dry_air_to_const_molar_mass_ratio, errmsg, errflg)
-      if (errflg /= 0) then
+      call get_molar_mass_ratio('CH4', dry_air_to_const_molar_mass_ratio, errmsg, errcode)
+      if (errcode /= 0) then
         return
       end if
-
-      ! If so, then convert namelist-provided number/mole fraction to
-      !mass mixing ratio w.r.t. dry air:
-      gas_mmr = chv_vmr*dry_air_to_const_molar_mass_ratio
 
       ! Convert namelist-provided number/mole fraction to
       ! mass mixing ratio w.r.t. dry air, and set constituents
       ! array to new coonverted value:
-      const_array(:,: cnst_idx) = chv_vmr*dry_air_to_const_molar_mass_ratio
+      const_array(:,:,const_idx) = ch4_vmr*dry_air_to_const_molar_mass_ratio
 
     end if
 
@@ -90,25 +88,21 @@ contains
     !----
 
     ! Check if CO2 is present in constituents object:
-    call ccpp_constituent_index('CO2', const_idx, errflg, errmsg)
-    if (errflg /= 0) then
+    call ccpp_constituent_index('CO2', const_idx, errcode, errmsg)
+    if (errcode /= 0) then
       return
     else if (const_idx /= int_unassigned) then
 
       ! Get ratio of molar mass of dry air / constituent molar mass
-      call get_molar_mass_ratio('CO2', dry_air_to_const_molar_mass_ratio, errmsg, errflg)
-      if (errflg /= 0) then
+      call get_molar_mass_ratio('CO2', dry_air_to_const_molar_mass_ratio, errmsg, errcode)
+      if (errcode /= 0) then
         return
       end if
-
-      ! If so, then convert namelist-provided number/mole fraction to
-      !mass mixing ratio w.r.t. dry air:
-      gas_mmr = chv_vmr*dry_air_to_const_molar_mass_ratio
 
       ! Convert namelist-provided number/mole fraction to
       ! mass mixing ratio w.r.t. dry air, and set constituents
       ! array to new coonverted value:
-      const_array(:,: cnst_idx) = chv_vmr*dry_air_to_const_molar_mass_ratio
+      const_array(:,:,const_idx) = co2_vmr*dry_air_to_const_molar_mass_ratio
 
     end if
 
@@ -117,25 +111,21 @@ contains
     !------
 
     ! Check if CFC-11 is present in constituents object:
-    call ccpp_constituent_index('CFC11', const_idx, errflg, errmsg)
-    if (errflg /= 0) then
+    call ccpp_constituent_index('CFC11', const_idx, errcode, errmsg)
+    if (errcode /= 0) then
       return
     else if (const_idx /= int_unassigned) then
 
       ! Get ratio of molar mass of dry air / constituent molar mass
-      call get_molar_mass_ratio('CFC11', dry_air_to_const_molar_mass_ratio, errmsg, errflg)
-      if (errflg /= 0) then
+      call get_molar_mass_ratio('CFC11', dry_air_to_const_molar_mass_ratio, errmsg, errcode)
+      if (errcode /= 0) then
         return
       end if
-
-      ! If so, then convert namelist-provided number/mole fraction to
-      !mass mixing ratio w.r.t. dry air:
-      gas_mmr = chv_vmr*dry_air_to_const_molar_mass_ratio
 
       ! Convert namelist-provided number/mole fraction to
       ! mass mixing ratio w.r.t. dry air, and set constituents
       ! array to new coonverted value:
-      const_array(:,: cnst_idx) = chv_vmr*dry_air_to_const_molar_mass_ratio
+      const_array(:,:,const_idx) = cfc11_vmr*dry_air_to_const_molar_mass_ratio
 
     end if
 
@@ -144,25 +134,21 @@ contains
     !------
 
     ! Check if CFC-12 is present in constituents object:
-    call ccpp_constituent_index('CFC12', const_idx, errflg, errmsg)
-    if (errflg /= 0) then
+    call ccpp_constituent_index('CFC12', const_idx, errcode, errmsg)
+    if (errcode /= 0) then
       return
     else if (const_idx /= int_unassigned) then
 
       ! Get ratio of molar mass of dry air / constituent molar mass
-      call get_molar_mass_ratio('CFC12', dry_air_to_const_molar_mass_ratio, errmsg, errflg)
-      if (errflg /= 0) then
+      call get_molar_mass_ratio('CFC12', dry_air_to_const_molar_mass_ratio, errmsg, errcode)
+      if (errcode /= 0) then
         return
       end if
-
-      ! If so, then convert namelist-provided number/mole fraction to
-      !mass mixing ratio w.r.t. dry air:
-      gas_mmr = chv_vmr*dry_air_to_const_molar_mass_ratio
 
       ! Convert namelist-provided number/mole fraction to
       ! mass mixing ratio w.r.t. dry air, and set constituents
       ! array to new coonverted value:
-      const_array(:,: cnst_idx) = chv_vmr*dry_air_to_const_molar_mass_ratio
+      const_array(:,:,const_idx) = cfc12_vmr*dry_air_to_const_molar_mass_ratio
 
     end if
 
@@ -171,31 +157,27 @@ contains
     !----
 
     ! Check if N2O is present in constituents object:
-    call ccpp_constituent_index('N2O', const_idx, errflg, errmsg)
-    if (errflg /= 0) then
+    call ccpp_constituent_index('N2O', const_idx, errcode, errmsg)
+    if (errcode /= 0) then
       return
     else if (const_idx /= int_unassigned) then
 
       ! Get ratio of molar mass of dry air / constituent molar mass
-      call get_molar_mass_ratio('N2O', dry_air_to_const_molar_mass_ratio, errmsg, errflg)
-      if (errflg /= 0) then
+      call get_molar_mass_ratio('N2O', dry_air_to_const_molar_mass_ratio, errmsg, errcode)
+      if (errcode /= 0) then
         return
       end if
-
-      ! If so, then convert namelist-provided number/mole fraction to
-      !mass mixing ratio w.r.t. dry air:
-      gas_mmr = chv_vmr*dry_air_to_const_molar_mass_ratio
 
       ! Convert namelist-provided number/mole fraction to
       ! mass mixing ratio w.r.t. dry air, and set constituents
       ! array to new coonverted value:
-      const_array(:,: cnst_idx) = chv_vmr*dry_air_to_const_molar_mass_ratio
+      const_array(:,:,const_idx) = n2o_vmr*dry_air_to_const_molar_mass_ratio
 
     end if
 
     ! Set error variables
     errmsg = ''
-    errflg = 0
+    errcode = 0
 
   end subroutine radiative_gas_concentrations_init
 
