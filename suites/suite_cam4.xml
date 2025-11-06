@@ -13,9 +13,10 @@
       Gravity Wave Drag       Orographic
   -->
   <group name="physics_before_coupler">
-    <!-- Helper to read all possible constituents from file -->
+    <!-- Helper to read all possible constituents from file and/or namelist -->
     <scheme>initialize_constituents</scheme>
     <scheme>to_be_ccppized_temporary</scheme>
+    <scheme>radiative_gas_concentrations</scheme>
 
     <!-- INITIALIZE ZM NAMELIST (init phase only) -->
     <scheme>zm_conv_options</scheme>
