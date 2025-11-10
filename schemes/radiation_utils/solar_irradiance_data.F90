@@ -1,5 +1,5 @@
 !-------------------------------------------------------------------------------
-! This module uses the solar irradiance data 
+! This module uses the solar irradiance data
 ! to provide a spectral scaling factor
 ! to approximate the spectral distribution of irradiance
 ! when the radiation scheme might use a different solar source function
@@ -49,6 +49,8 @@ contains
     class(abstract_netcdf_reader_t), pointer :: file_reader
     integer, parameter :: missing_variable_error_code = 3
 
+    character(len=*), parameter :: subname = 'solar_irradiance_data_register: '
+
     ! Set error variables
     errmsg = ''
     errflg = 0
@@ -56,17 +58,27 @@ contains
     nbins = 0
     nbinsp = 0
 
+    ! Check if irradiance file path is set.
+    ! If not then assume that a constant
+    ! solar flux will be set:
+    if (trim(irrad_file_path) == 'NONE') then
+       fixed_scon = .true.
+       return !Nothing else to do in the register phase.
+    end if
+
     file_reader => create_netcdf_reader_t()
 
     ! Open the solar irradiance data file
     call file_reader%open_file(irrad_file_path, errmsg, errflg)
     if (errflg /= 0) then
+       errmsg = subname // errmsg
        return
     end if
 
     ! Read the wavelengths variable
     call file_reader%get_var('wavelength', lambda, errmsg, errflg)
     if (errflg /= 0 .and. errflg /= missing_variable_error_code) then
+       errmsg = subname // errmsg
        return
     else if (errflg == missing_variable_error_code) then
        ! Check old name (for backward compatibility
@@ -76,6 +88,7 @@ contains
     ! Close the solar irradiance file
     call file_reader%close_file(errmsg, errflg)
     if (errflg /= 0) then
+       errmsg = subname // errmsg
        return
     end if
     deallocate(file_reader)
@@ -132,6 +145,8 @@ contains
     character(len=256) :: alloc_errmsg
     real(kind_phys) :: fac
 
+    character(len=*), parameter :: subname = 'solar_irradiance_data_init: '
+
     ! Set error variables
     errmsg = ''
     errflg = 0
@@ -140,12 +155,6 @@ contains
     fac = 1._kind_phys/(planck_const*speed_of_light)
 
     has_spectrum = .false.
-
-    if (irrad_file_path /= 'NONE') then
-       fixed_scon = .false.
-    else
-       fixed_scon = .true.
-    end if
 
     if (solar_const>0._kind_phys) then
        sol_tsi = solar_const
@@ -163,12 +172,14 @@ contains
     ! Open the solar irradiance data file
     call file_reader%open_file(irrad_file_path, errmsg, errflg)
     if (errflg /= 0) then
+       errmsg = subname // errmsg
        return
     end if
 
     ! Check what the file contains
     call file_reader%get_var('ssi', ssi, errmsg, errflg)
     if (errflg /= 0 .and. errflg /= missing_variable_error_code) then
+       errmsg = subname // errmsg
        return
     else if (errflg /= missing_variable_error_code) then
        has_spectrum = .true.
@@ -176,6 +187,7 @@ contains
 
     call file_reader%get_var('tsi', tsi, errmsg, errflg)
     if (errflg /= 0 .and. errflg /= missing_variable_error_code) then
+       errmsg = subname // errmsg
        return
     else if (errflg /= missing_variable_error_code .and. solar_const < 0._kind_phys) then
        has_tsi = .true.
@@ -183,6 +195,7 @@ contains
 
     call file_reader%get_var('ssi_ref', ssi_ref, errmsg, errflg)
     if (errflg /= 0 .and. errflg /= missing_variable_error_code) then
+       errmsg = subname // errmsg
        return
     else if (errflg /= missing_variable_error_code) then
        has_ref_spectrum = .true.
@@ -191,6 +204,7 @@ contains
     if (has_ref_spectrum) then
        call file_reader%get_var('tsi_ref', ref_tsi, errmsg, errflg)
        if (errflg /= 0) then
+          errmsg = subname // errmsg
           return
        end if
     end if
@@ -201,16 +215,19 @@ contains
     if (has_spectrum) then
        call file_reader%get_var('wavelength', lambda, errmsg, errflg)
        if (errflg /= 0 .and. errflg /= missing_variable_error_code) then
+          errmsg = subname // errmsg
           return
        else if (errflg == missing_variable_error_code) then
           ! Check old name (for backward compatibility
           call file_reader%get_var('wvl', lambda, errmsg, errflg)
           if (errflg /= 0) then
+             errmsg = subname // errmsg
              return
           end if
        end if
        call file_reader%get_var('band_width', dellam, errmsg, errflg)
        if (errflg /= 0) then
+          errmsg = subname // errmsg
           return
        end if
     end if
@@ -218,6 +235,7 @@ contains
     ! Close the solar irradiance file
     call file_reader%close_file(errmsg, errflg)
     if (errflg /= 0) then
+       errmsg = subname // errmsg
        return
     end if
     deallocate(file_reader)
@@ -225,12 +243,12 @@ contains
 
     allocate(irrad_fac(nbins), stat=errflg, errmsg=alloc_errmsg)
     if( errflg /= 0 ) then
-       write(errmsg,*) 'solar_data_init: failed to allocate irrad_fac; error = ', alloc_errmsg
+       write(errmsg,*) subname // 'failed to allocate irrad_fac; error = ', alloc_errmsg
        return
     end if
     allocate(etf_fac(nbins), stat=errflg, errmsg=alloc_errmsg)
     if( errflg /= 0 ) then
-       write(errmsg,*) 'solar_data_init: failed to allocate etf_fac; error = ', alloc_errmsg
+       write(errmsg,*) subname // 'failed to allocate etf_fac; error = ', alloc_errmsg
        return
     end if
 
@@ -238,12 +256,12 @@ contains
     if ( has_spectrum ) then
        allocate(we(nbins+1), stat=errflg, errmsg=alloc_errmsg)
        if( errflg /= 0 ) then
-          write(errmsg,*) 'solar_data_init: failed to allocate we; error = ', alloc_errmsg
+          write(errmsg,*) subname // 'failed to allocate we; error = ', alloc_errmsg
           return
        end if
        allocate(sol_etf(nbins), stat=errflg, errmsg=alloc_errmsg)
        if( errflg /= 0 ) then
-          write(errmsg,*) 'solar_data_init: failed to allocate sol_etf; error = ', alloc_errmsg
+          write(errmsg,*) subname // 'failed to allocate sol_etf; error = ', alloc_errmsg
           return
        end if
 
@@ -281,7 +299,7 @@ contains
   subroutine solar_irradiance_data_run(irrad_file_path, nbins, nbinsp, has_spectrum, do_spectral_scaling, &
                 sol_irrad, we, sol_tsi, errmsg, errflg)
      use ccpp_io_reader,   only: abstract_netcdf_reader_t, create_netcdf_reader_t
-     ! Arguments 
+     ! Arguments
      character(len=*),   intent(in)    :: irrad_file_path
      real(kind_phys),    intent(in)    :: we(:)                 ! wavelength endpoints
      integer,            intent(in)    :: nbins                 ! number of bins
@@ -293,7 +311,7 @@ contains
      character(len=512), intent(out)   :: errmsg
      integer,            intent(out)   :: errflg
 
-     ! Local variables 
+     ! Local variables
      integer  :: idx, index, nt
      integer  :: offset(2), count(2)
      integer, allocatable :: itsi(:)
@@ -301,7 +319,9 @@ contains
      real(kind_phys) :: data(nbins)
      integer  :: ierr
      real(kind_phys) :: delt
-    class(abstract_netcdf_reader_t), pointer :: file_reader
+     class(abstract_netcdf_reader_t), pointer :: file_reader
+
+     character(len=*), parameter :: subname = 'solar_irradiance_data_run: '
 
      ! Initialize error variables
      errflg = 0
@@ -321,6 +341,7 @@ contains
         ! Open the solar irradiance data file
         call file_reader%open_file(irrad_file_path, errmsg, errflg)
         if (errflg /= 0) then
+           errmsg = subname // errmsg
            return
         end if
         nt = 2
@@ -333,12 +354,14 @@ contains
         if (has_spectrum) then
            call file_reader%get_var('ssi', irradi, errmsg, errflg, offset, count)
            if (errflg /= 0) then
+              errmsg = subname // errmsg
               return
            end if
         end if
         if (has_tsi .and. (.not. do_spectral_scaling)) then
            call file_reader%get_var('tsi', itsi, errmsg, errflg, (/index/), (/nt/))
            if (errflg /= 0) then
+              errmsg = subname // errmsg
               return
            end if
            if ( any(itsi(:nt) < 0._kind_phys) ) then
@@ -350,6 +373,7 @@ contains
         ! Close the solar irradiance file
         call file_reader%close_file(errmsg, errflg)
         if (errflg /= 0) then
+           errmsg = subname // errmsg
            return
         end if
         deallocate(file_reader)
@@ -374,7 +398,7 @@ contains
      if (has_spectrum) then
         deallocate(irradi)
      end if
-    
+
   end subroutine solar_irradiance_data_run
 
 end module solar_irradiance_data
