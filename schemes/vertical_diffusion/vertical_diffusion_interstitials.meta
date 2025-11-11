@@ -1,0 +1,219 @@
+[ccpp-table-properties]
+  name = vertical_diffusion_prepare_inputs
+  type = scheme
+
+[ccpp-arg-table]
+  name  = vertical_diffusion_prepare_inputs_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[ pverp ]
+  standard_name = vertical_interface_dimension
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[ pint ]
+  standard_name = air_pressure_at_interface
+  units = Pa
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  type = real | kind = kind_phys
+  intent = in
+[ t ]
+  standard_name = air_temperature
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ exner ]
+  standard_name = reciprocal_of_dimensionless_exner_function_wrt_surface_air_pressure
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ p ]
+  standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion
+  units = none
+  dimensions = ()
+  type = coords1d
+  intent = out
+[ th ]
+  standard_name = potential_temperature_wrt_surface_pressure_at_bottom_layer
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  dimensions = ()
+  type = character | kind = len=512
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  dimensions = ()
+  type = integer
+  intent = out
+
+[ccpp-arg-table]
+  name  = vertical_diffusion_prepare_inputs_timestep_final
+  type  = scheme
+[ p ]
+  standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion
+  units = none
+  dimensions = ()
+  type = coords1d
+  intent = inout
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  dimensions = ()
+  type = character | kind = len=512
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  dimensions = ()
+  type = integer
+  intent = out
+
+[ccpp-table-properties]
+  name = compute_kinematic_fluxes_and_obklen
+  type = scheme
+
+[ccpp-arg-table]
+  name  = compute_kinematic_fluxes_and_obklen_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[ pcnst ]
+  standard_name = number_of_ccpp_constituents
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[ const_props ]
+  standard_name = ccpp_constituent_properties
+  units = none
+  type = ccpp_constituent_prop_ptr_t
+  dimensions = (number_of_ccpp_constituents)
+  intent = in
+[ zvir ]
+  standard_name = ratio_of_water_vapor_to_dry_air_gas_constants_minus_one
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ cpair ]
+  standard_name = specific_heat_of_dry_air_at_constant_pressure
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ gravit ]
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ karman ]
+  standard_name = von_karman_constant
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ shf_from_coupler ]
+  standard_name = surface_upward_sensible_heat_flux_from_coupler
+  units = W m-2
+  dimensions = (horizontal_loop_extent)
+  type = real | kind = kind_phys
+  intent = in
+[ cflx_from_coupler ]
+  standard_name = surface_upward_ccpp_constituent_fluxes_from_coupler
+  units = kg m-2 s-1
+  dimensions = (horizontal_loop_extent, number_of_ccpp_constituents)
+  type = real | kind = kind_phys
+  intent = in
+[ q_wv ]
+  standard_name = water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
+  units = kg kg-1
+  advected = True
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ th ]
+  standard_name = potential_temperature_wrt_surface_pressure_at_bottom_layer
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ rrho ]
+  standard_name = reciprocal_of_density_of_bottom_layer
+  units = m3 kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ ustar ]
+  standard_name = surface_friction_velocity
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ khfs ]
+  standard_name = kinematic_sensible_heat_flux_at_surface
+  units = K m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ kqfs ]
+  standard_name = kinematic_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_flux_at_surface
+  units = kg kg-1 m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ kbfs ]
+  standard_name = kinematic_buoyancy_flux_at_surface
+  # m s-2 m s-1
+  units = m2 s-3
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ obklen ]
+  standard_name = obukhov_length
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

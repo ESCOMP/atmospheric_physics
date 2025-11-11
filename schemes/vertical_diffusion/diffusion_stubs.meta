@@ -116,6 +116,63 @@
   type = integer
   intent = out
 
+
+[ccpp-table-properties]
+  name = beljaars_zero_stub
+  type = scheme
+
+[ccpp-arg-table]
+  name  = beljaars_zero_stub_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ do_beljaars ]
+  standard_name = do_beljaars_drag_in_vertical_diffusion_tbd
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ dragblj ]
+  standard_name = turbulent_orographic_form_drag_coefficent
+  units = s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ taubljx ]
+  standard_name = eastward_beljaars_surface_stress_tbd
+  units = N m-2
+  dimensions = (horizontal_loop_extent)
+  type = real | kind = kind_phys
+  intent = out
+[ taubljy ]
+  standard_name = northward_beljaars_surface_stress_tbd
+  units = N m-2
+  dimensions = (horizontal_loop_extent)
+  type = real | kind = kind_phys
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  dimensions = ()
+  type = character | kind = len=512
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  dimensions = ()
+  type = integer
+  intent = out
+
 [ccpp-table-properties]
   name = turbulent_mountain_stress_add_drag_coefficient
   type = scheme

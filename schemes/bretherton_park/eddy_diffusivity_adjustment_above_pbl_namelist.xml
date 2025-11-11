@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet type="text/xsl"?>
+
+<entry_id_pg version="2.0">
+  <entry id="kv_top_pressure">
+    <type>real</type>
+    <kind>kind_phys</kind>
+    <category>pbl</category>
+    <group>eddy_diff_adj_nl</group>
+    <standard_name>air_pressure_threshold_for_eddy_diffusivity_adjustment</standard_name>
+    <units>Pa</units>
+    <desc>
+      Pressure (Pa) that defined the upper atmosphere for adjustment of eddy diffusivities from diag_TKE using kv_top_scale.
+      Default: 0
+    </desc>
+    <values>
+      <value>0.0</value>
+    </values>
+  </entry>
+  <entry id="kv_top_scale">
+    <type>real</type>
+    <kind>kind_phys</kind>
+    <category>pbl</category>
+    <group>eddy_diff_adj_nl</group>
+    <standard_name>upper_atmosphere_eddy_diffusivity_scaling_factor_for_eddy_diffusivity_adjustment</standard_name>
+    <units>1</units>
+    <desc>
+      Scaling factor that is applied (multiplied) to the eddy diffusivities in the upper atmosphere (see kv_top_pressure).
+      Default: 1.0
+    </desc>
+    <values>
+      <value>1.0</value>
+      <!-- waccm: 0.0 -->
+    </values>
+  </entry>
+  <entry id="kv_freetrop_scale">
+    <type>real</type>
+    <kind>kind_phys</kind>
+    <category>pbl</category>
+    <group>eddy_diff_adj_nl</group>
+    <standard_name>free_troposphere_eddy_diffusivity_scaling_factor_for_eddy_diffusivity_adjustment</standard_name>
+    <units>1</units>
+    <desc>
+      Scaling factor that is applied (multiplied) to the eddy diffusivities in the free troposphere (boundary layer to kv_top_pressure)
+      Default: 1.0
+    </desc>
+    <values>
+      <value>1.0</value>
+    </values>
+  </entry>
+</entry_id_pg>

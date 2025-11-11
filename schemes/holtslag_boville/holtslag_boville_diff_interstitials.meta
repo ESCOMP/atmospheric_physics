@@ -125,12 +125,6 @@
   dimensions = ()
   type = integer
   intent = in
-[ const_props ]
-  standard_name = ccpp_constituent_properties
-  units = none
-  type = ccpp_constituent_prop_ptr_t
-  dimensions = (number_of_ccpp_constituents)
-  intent = in
 [ wsx_from_coupler ]
   standard_name = surface_eastward_wind_stress_from_coupler
   units = N m-2
@@ -153,12 +147,6 @@
   standard_name = surface_upward_ccpp_constituent_fluxes_from_coupler
   units = kg m-2 s-1
   dimensions = (horizontal_loop_extent, number_of_ccpp_constituents)
-  type = real | kind = kind_phys
-  intent = in
-[ pint ]
-  standard_name = air_pressure_at_interface
-  units = Pa
-  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   type = real | kind = kind_phys
   intent = in
 [ taux ]
@@ -191,40 +179,6 @@
   dimensions = ()
   type = logical
   intent = out
-[ p ]
-  standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion
-  units = none
-  dimensions = ()
-  type = coords1d
-  intent = out
-[ q_wv_cflx ]
-  standard_name = surface_upward_water_vapor_flux
-  units = kg m-2 s-1
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent)
-  intent = out
-[ errmsg ]
-  standard_name = ccpp_error_message
-  units = none
-  dimensions = ()
-  type = character | kind = len=512
-  intent = out
-[ errflg ]
-  standard_name = ccpp_error_code
-  units = 1
-  dimensions = ()
-  type = integer
-  intent = out
-
-[ccpp-arg-table]
-  name  = hb_diff_prepare_vertical_diffusion_inputs_timestep_final
-  type  = scheme
-[ p ]
-  standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion
-  units = none
-  dimensions = ()
-  type = coords1d
-  intent = inout
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
@@ -282,12 +236,6 @@
   dimensions = (horizontal_loop_extent, number_of_ccpp_constituents)
   type = real | kind = kind_phys
   intent = in
-[ pint ]
-  standard_name = air_pressure_at_interface
-  units = Pa
-  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
-  type = real | kind = kind_phys
-  intent = in
 [ taux ]
   standard_name = eastward_stress_at_surface_for_vertical_diffusion
   units = N m-2
@@ -317,18 +265,6 @@
   units = flag
   dimensions = ()
   type = logical
-  intent = out
-[ p ]
-  standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion
-  units = none
-  dimensions = ()
-  type = coords1d
-  intent = out
-[ q_wv_cflx ]
-  standard_name = surface_upward_water_vapor_flux
-  units = kg m-2 s-1
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent)
   intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
