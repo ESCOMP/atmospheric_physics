@@ -12,8 +12,7 @@
 ! If there is no ":" then the specified name is used as both the
 ! constituent_name and ncdf_fld_name
 !
-! Original Author: Francis Vitt
-! CCPP version: Haipeng Lin, October 2025
+! Based on original CAM version from: Francis Vitt
 module prescribed_aerosols
 
   use ccpp_kinds, only: kind_phys

@@ -1,6 +1,7 @@
 ! read and provide prescribed ozone for radiation
-! Original Author: Francis Vitt
-! CCPP version: Haipeng Lin, October 2025
+! this is a simple example of a CCPP scheme using the CAM-SIMA tracer_data utility.
+!
+! Based on original CAM version from: Francis Vitt
 module prescribed_ozone
   use ccpp_kinds,  only: kind_phys
 
@@ -27,39 +28,32 @@ module prescribed_ozone
   logical                     :: has_prescribed_ozone = .false.
   character(len=8), parameter :: ozone_name = 'ozone' ! name of the output field
 
-  character(len=16)    :: fld_name = 'ozone'
-  character(len=256)   :: filename = ' '
-  character(len=256)   :: filelist = ' '
-  character(len=256)   :: datapath = ' '
-  character(len=32)    :: data_type = 'SERIAL'
-  integer              :: cycle_yr  = 0
-  integer              :: fixed_ymd = 0
-  integer              :: fixed_tod = 0
-
 contains
 
 !> \section arg_table_prescribed_ozone_init  Argument Table
 !! \htmlinclude prescribed_ozone_init.html
   subroutine prescribed_ozone_init( &
     amIRoot, iulog, &
-    fld_name_nl, filename_nl, filelist_nl, datapath_nl, &
-    data_type_nl, &
-    cycle_yr_nl, fixed_ymd_nl, fixed_tod_nl, &
+    fld_name, filename, filelist, datapath, &
+    data_type, &
+    cycle_yr, fixed_ymd, fixed_tod, &
     errmsg, errflg)
 
     use cam_history, only: history_add_field
     use tracer_data, only: trcdata_init
 
-    logical,            intent(in)  :: amIRoot                   ! MPI root flag
-    integer,            intent(in)  :: iulog                     ! log output unit
-    character(len=*),   intent(in)  :: fld_name_nl               ! field name from namelist
-    character(len=*),   intent(in)  :: filename_nl               ! input filename from namelist
-    character(len=*),   intent(in)  :: filelist_nl               ! input filelist from namelist
-    character(len=*),   intent(in)  :: datapath_nl               ! input datapath from namelist
-    character(len=*),   intent(in)  :: data_type_nl               ! data type from namelist
-    integer,            intent(in)  :: cycle_yr_nl               ! cycle year from namelist
-    integer,            intent(in)  :: fixed_ymd_nl              ! fixed year-month-day from namelist (YYYYMMDD) [1]
-    integer,            intent(in)  :: fixed_tod_nl              ! fixed time of day from namelist [s]
+    logical,            intent(in)  :: amIRoot
+    integer,            intent(in)  :: iulog
+
+    ! input fields from namelist to initialize tracer_data
+    character(len=*),   intent(in)  :: fld_name   ! field name
+    character(len=*),   intent(in)  :: filename   ! input filename
+    character(len=*),   intent(in)  :: filelist   ! input filelist
+    character(len=*),   intent(in)  :: datapath   ! input datapath
+    character(len=*),   intent(in)  :: data_type  ! data type
+    integer,            intent(in)  :: cycle_yr   ! cycle year
+    integer,            intent(in)  :: fixed_ymd  ! fixed year-month-day (YYYYMMDD) [1]
+    integer,            intent(in)  :: fixed_tod  ! fixed time of day [s]
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
@@ -67,15 +61,6 @@ contains
 
     errmsg = ''
     errflg = 0
-
-    fld_name = fld_name_nl
-    filename = filename_nl
-    filelist = filelist_nl
-    datapath = datapath_nl
-    data_type = data_type_nl
-    cycle_yr  = cycle_yr_nl
-    fixed_ymd = fixed_ymd_nl
-    fixed_tod = fixed_tod_nl
 
     ! check if user has specified an input dataset
     if(filename /= 'UNSET' .and. len_trim(filename) > 0) then

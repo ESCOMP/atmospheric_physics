@@ -17,49 +17,49 @@
   type = integer
   dimensions = ()
   intent = in
-[ specifier_nl ]
+[ specifier ]
   standard_name = specifier_for_prescribed_aerosol_deposition_fluxes
   units = none
   type = character | kind = len=*
   dimensions = (aerodep_flx_specifier_dimension)
   intent = in
-[ filename_nl ]
+[ filename ]
   standard_name = filename_for_prescribed_aerosol_deposition_fluxes
   units = none
   type = character | kind = len=*
   dimensions = ()
   intent = in
-[ filelist_nl ]
+[ filelist ]
   standard_name = filename_of_file_list_for_prescribed_aerosol_deposition_fluxes
   units = none
   type = character | kind = len=*
   dimensions = ()
   intent = in
-[ datapath_nl ]
+[ datapath ]
   standard_name = datapath_for_prescribed_aerosol_deposition_fluxes
   units = none
   type = character | kind = len=*
   dimensions = ()
   intent = in
-[ data_type_nl ]
+[ data_type ]
   standard_name = time_interpolation_method_for_prescribed_aerosol_deposition_fluxes
   units = none
   type = character | kind = len=*
   dimensions = ()
   intent = in
-[ cycle_yr_nl ]
+[ cycle_yr ]
   standard_name = cycle_year_for_prescribed_aerosol_deposition_fluxes
   units = 1
   type = integer
   dimensions = ()
   intent = in
-[ fixed_ymd_nl ]
+[ fixed_ymd ]
   standard_name = fixed_date_for_prescribed_aerosol_deposition_fluxes
   units = 1
   type = integer
   dimensions = ()
   intent = in
-[ fixed_tod_nl ]
+[ fixed_tod ]
   standard_name = fixed_time_of_day_for_prescribed_aerosol_deposition_fluxes
   units = s
   type = integer

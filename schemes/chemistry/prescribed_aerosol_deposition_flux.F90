@@ -6,8 +6,7 @@
 ! This scheme requires the concurrent use of prescribed_aerosols scheme
 ! to provide prescribed aerosol concentrations.
 !
-! Original author: Francis Vitt
-! CCPP version: Haipeng Lin, November 2025
+! Based on original CAM version from: Francis Vitt
 module prescribed_aerosol_deposition_flux
   use ccpp_kinds, only: kind_phys
 
@@ -52,24 +51,15 @@ module prescribed_aerosol_deposition_flux
   integer, parameter :: N_MODAL = 22
   logical :: is_modal = .false.
 
-  ! namelist options
-  character(len=256) :: filename = ' '
-  character(len=256) :: filelist = ' '
-  character(len=256) :: datapath = ' '
-  character(len=32)  :: data_type = 'SERIAL'
-  integer            :: cycle_yr = 0
-  integer            :: fixed_ymd = 0
-  integer            :: fixed_tod = 0
-
 contains
 !> \section arg_table_prescribed_aerosol_deposition_flux_init  Argument Table
 !! \htmlinclude prescribed_aerosol_deposition_flux_init.html
   subroutine prescribed_aerosol_deposition_flux_init( &
     amIRoot, iulog, &
-    specifier_nl, &
-    filename_nl, filelist_nl, datapath_nl, &
-    data_type_nl, &
-    cycle_yr_nl, fixed_ymd_nl, fixed_tod_nl, &
+    specifier, &
+    filename, filelist, datapath, &
+    data_type, &
+    cycle_yr, fixed_ymd, fixed_tod, &
     prescribed_aero_model, &
     errmsg, errflg)
 
@@ -82,14 +72,14 @@ contains
 
     logical,            intent(in)  :: amIRoot
     integer,            intent(in)  :: iulog
-    character(len=*),   intent(in)  :: specifier_nl(:)           ! field specifiers from namelist
-    character(len=*),   intent(in)  :: filename_nl               ! input filename from namelist
-    character(len=*),   intent(in)  :: filelist_nl               ! input filelist from namelist
-    character(len=*),   intent(in)  :: datapath_nl               ! input datapath from namelist
-    character(len=*),   intent(in)  :: data_type_nl              ! data type from namelist
-    integer,            intent(in)  :: cycle_yr_nl               ! cycle year from namelist
-    integer,            intent(in)  :: fixed_ymd_nl              ! fixed year-month-day from namelist (YYYYMMDD) [1]
-    integer,            intent(in)  :: fixed_tod_nl              ! fixed time of day from namelist [s]
+    character(len=*),   intent(in)  :: specifier(:)              ! field specifiers for tracer data
+    character(len=*),   intent(in)  :: filename                  ! input filename
+    character(len=*),   intent(in)  :: filelist                  ! input filelist
+    character(len=*),   intent(in)  :: datapath                  ! input datapath
+    character(len=*),   intent(in)  :: data_type                 ! data type
+    integer,            intent(in)  :: cycle_yr                  ! cycle year
+    integer,            intent(in)  :: fixed_ymd                 ! fixed year-month-day (YYYYMMDD) [1]
+    integer,            intent(in)  :: fixed_tod                 ! fixed time of day [s]
     character(len=*),   intent(in)  :: prescribed_aero_model     ! type of aerosol representation
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errflg
@@ -99,14 +89,6 @@ contains
 
     errmsg = ''
     errflg = 0
-
-    filename = filename_nl
-    filelist = filelist_nl
-    datapath = datapath_nl
-    data_type = data_type_nl
-    cycle_yr = cycle_yr_nl
-    fixed_ymd = fixed_ymd_nl
-    fixed_tod = fixed_tod_nl
 
     ! check if user has specified an input dataset
     if (filename /= 'UNSET' .and. len_trim(filename) > 0 .and. filename /= 'NONE') then
@@ -135,15 +117,16 @@ contains
 
     ! count number of specifiers
     number_flds = 0
-    do i = 1, size(specifier_nl)
-      if(len_trim(specifier_nl(i)) > 0 .and. trim(specifier_nl(i)) /= 'UNSET') then
+    do i = 1, size(specifier)
+      ! remove empty or unset specifiers
+      if(len_trim(specifier(i)) > 0 .and. trim(specifier(i)) /= 'UNSET') then
         number_flds = number_flds + 1
       endif
     end do
 
     ! initialize dataset in tracer_data module.
     call trcdata_init( &
-         specifier      = specifier_nl(:number_flds), &
+         specifier      = specifier(:number_flds), &
          filename       = filename, &
          filelist       = filelist, &
          datapath       = datapath, &
@@ -301,6 +284,7 @@ contains
 
   end subroutine prescribed_aerosol_deposition_flux_run
 
+  ! helper subroutine to set fluxes based on target (hardcoded) array and tracer data index
   subroutine set_fluxes(fluxes, fld_idx)
     ! host model dependency for history output
     use cam_history, only: history_out_field
