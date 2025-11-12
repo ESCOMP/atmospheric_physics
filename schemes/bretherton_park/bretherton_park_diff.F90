@@ -65,9 +65,8 @@ contains
     real(kind_phys), intent(in)  :: latvap
     real(kind_phys), intent(in)  :: latice
     real(kind_phys), intent(in)  :: karman
-    integer,         intent(in)  :: ntop_eddy_in
-    real(kind_phys), intent(in)  :: pref_mid(:)            ! reference_pressure [Pa]
     integer,         intent(in)  :: ntop_eddy_in           ! Top interface level to which eddy vertical diffusivity is applied [index]
+    real(kind_phys), intent(in)  :: pref_mid(:)            ! reference_pressure [Pa]
     real(kind_phys), intent(in)  :: eddy_lbulk_max         ! Maximum master length [m]
     real(kind_phys), intent(in)  :: eddy_leng_max          ! Maximum dissipation length [m]
     real(kind_phys), intent(in)  :: eddy_max_bot_pressure  ! Bottom pressure level for eddy_leng_max [hPa]
@@ -134,10 +133,12 @@ contains
   ! Original author: Sungsu Park, August 2006, May 2008.
   subroutine bretherton_park_diff_run( &
              ncol, pver, pverp, pcnst, ncvmax, &
+             iulog, &
              ztodt, &
              const_props, &
              do_iss, am_correction, do_beljaars, &
              is_first_timestep, &
+             gravit, cpair, rair, latvap, latice, &
              t, tint, &
              qv, ql, qi, &
              s, &
@@ -207,16 +208,22 @@ contains
     integer,         intent(in)    :: pverp
     integer,         intent(in)    :: pcnst
     integer,         intent(in)    :: ncvmax              ! max # of CLs (can set to pver) [count]
+    integer,         intent(in)    :: iulog
+    real(kind_phys), intent(in)    :: ztodt               ! Physics integration time step 2 delta-t [s]
     type(ccpp_constituent_prop_ptr_t), &
                      intent(in)    :: const_props(:)      ! CCPP constituent properties pointer
     logical,         intent(in)    :: do_iss              ! Use implicit turbulent surface stress computation [flag]
     logical,         intent(in)    :: am_correction       ! Do angular momentum conservation correction [flag]
     logical,         intent(in)    :: do_beljaars         ! Do Beljaars drag in vertical diffusion? [flag]
     logical,         intent(in)    :: is_first_timestep   ! is_first_timestep [flag]
+    real(kind_phys), intent(in)    :: gravit
+    real(kind_phys), intent(in)    :: cpair
+    real(kind_phys), intent(in)    :: rair
+    real(kind_phys), intent(in)    :: latvap
+    real(kind_phys), intent(in)    :: latice
     real(kind_phys), intent(in)    :: t(:, :)             ! Temperature [K]
     real(kind_phys), intent(in)    :: tint(:, :)          ! Temperature defined on interfaces [K]
     real(kind_phys), intent(in)    :: qv(:, :)            ! Water vapor specific humidity [kg kg-1]
-    real(kind_phys), intent(in)    :: ztodt               ! Physics integration time step 2 delta-t [s]
     real(kind_phys), intent(in)    :: ql(:, :)            ! Liquid water specific humidity [kg kg-1]
     real(kind_phys), intent(in)    :: qi(:, :)            ! Ice specific humidity [kg kg-1]
     real(kind_phys), intent(in)    :: s(:, :)             ! Dry static energy [J kg-1]

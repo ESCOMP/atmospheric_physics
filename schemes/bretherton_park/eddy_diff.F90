@@ -233,6 +233,8 @@ contains
     !          used to compute buoyancy coefficients in'trbintd' & 'caleddy'.!  
     !----------------------------------------------------------------------- !
 
+    use wv_saturation,    only: qsat
+
     ! --------------- !
     ! Input arguments !
     ! --------------- !
