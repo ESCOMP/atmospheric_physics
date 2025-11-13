@@ -38,6 +38,8 @@ module bretherton_park_diff
 
 contains
 
+!> \section arg_table_bretherton_park_diff_init Argument Table
+!! \htmlinclude bretherton_park_diff_init.html
   subroutine bretherton_park_diff_init( &
              amIRoot, iulog, &
              pver, pverp, &
@@ -131,6 +133,8 @@ contains
   ! CL = convective layers; STL = stable turbulent layers.
   !
   ! Original author: Sungsu Park, August 2006, May 2008.
+!> \section arg_table_bretherton_park_diff_run Argument Table
+!! \htmlinclude bretherton_park_diff_run.html
   subroutine bretherton_park_diff_run( &
              ncol, pver, pverp, pcnst, ncvmax, &
              iulog, &
@@ -182,7 +186,7 @@ contains
     use atmos_phys_pbl_utils, only: calc_eddy_flux_coefficient, calc_ideal_gas_rrho, calc_friction_velocity
 
     ! to-be-ccppized dependency:
-    use coords_1d, only: Coords1D
+    use coords_1d, only: coords1d
     use wv_saturation, only: qsat
 
     ! Driver routines for UW PBL scheme.
@@ -223,11 +227,11 @@ contains
     real(kind_phys), intent(in)    :: latice
     real(kind_phys), intent(in)    :: t(:, :)             ! Temperature [K]
     real(kind_phys), intent(in)    :: tint(:, :)          ! Temperature defined on interfaces [K]
-    real(kind_phys), intent(in)    :: qv(:, :)            ! Water vapor specific humidity [kg kg-1]
-    real(kind_phys), intent(in)    :: ql(:, :)            ! Liquid water specific humidity [kg kg-1]
-    real(kind_phys), intent(in)    :: qi(:, :)            ! Ice specific humidity [kg kg-1]
+    real(kind_phys), intent(in)    :: qv(:, :)            ! Water vapor mixing ratio [kg kg-1]
+    real(kind_phys), intent(in)    :: ql(:, :)            ! Liquid water mixing ratio [kg kg-1]
+    real(kind_phys), intent(in)    :: qi(:, :)            ! Ice mixing ratio [kg kg-1]
     real(kind_phys), intent(in)    :: s(:, :)             ! Dry static energy [J kg-1]
-    type(Coords1D),  intent(in)    :: p                   ! Pressure coordinates for solver [Pa]
+    type(coords1d),  intent(in)    :: p                   ! Pressure coordinates for solver [Pa]
     real(kind_phys), intent(in)    :: rhoi(:, :)          ! Density at interfaces [kg m-3]
     real(kind_phys), intent(in)    :: dpidz_sq(:, :)      ! Square of derivative of pressure with height (moist) [kg2 m-4 s-4], interfaces
     real(kind_phys), intent(in)    :: cldn(:, :)          ! Stratiform cloud fraction [fraction]
@@ -240,7 +244,7 @@ contains
     real(kind_phys), intent(in)    :: taux(:)             ! Zonal wind stress at surface [N m-2]
     real(kind_phys), intent(in)    :: tauy(:)             ! Meridional wind stress at surface [N m-2]
     real(kind_phys), intent(in)    :: shflx(:)            ! Sensible heat flux at surface [W m-2]
-    real(kind_phys), intent(in)    :: qflx(:, :)          ! Water vapor flux at surface [kg m-2 s-1]
+    real(kind_phys), intent(in)    :: qflx(:, :)          ! Constituent fluxes at surface [kg m-2 s-1]
     logical,         intent(in)    :: wstarent            ! .true. means use the 'wstar' entrainment closure [flag]
     real(kind_phys), intent(in)    :: ksrftms(:)          ! Surface drag coefficient of turbulent mountain stress [kg m-2 s-1]
     real(kind_phys), intent(in)    :: dragblj(:, :)       ! Drag profile from Beljaars SGO form drag [s-1]
@@ -331,6 +335,7 @@ contains
 
     ! Local variables
     integer :: i, k, iturb
+    integer :: const_wv_idx
     integer :: ipbl(ncol)     ! If 1, PBL is CL, while if 0, PBL is STL.
     integer :: kpblh(ncol)    ! Layer index containing PBL top within or at the base interface (NOT USED)
 
@@ -378,6 +383,13 @@ contains
 
     errmsg = ''
     errflg = 0
+
+    ! Check constituents list and locate water vapor index
+    ! (not assumed to be 1)
+    call ccpp_const_get_idx(const_props, &
+         'water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water', &
+         const_wv_idx, errmsg, errflg)
+    if (errflg /= 0) return
 
     ! Initialize dummy variables to pass into diffusion solver.
     zero(:) = 0._kind_phys
@@ -651,34 +663,36 @@ contains
         if (errflg /= 0) return
 
         ! Diffuse tracers
+        ! Only water vapor is actually diffused here; all constituent indices are subset to just water vapor,
+        ! or sized 1, in order to be compatible with the underlying CCPPized subroutine.
         ubc_mmr_dummy(:ncol, :1) = 0._kind_phys
         cnst_fixed_ubc(:1) = .false.
 
         qtfd_out(:, :, :) = 0._kind_phys
         call vertical_diffusion_diffuse_tracers_run( &
-          ncol=ncol, &
-          pver=pver, &
-          ncnst=1, & ! only water vapor is diffused here.
-          dt=ztodt, &
-          rair=rair, &
-          gravit=gravit, &
-          do_diffusion_const=do_diffusion_const_wet, & ! moist constituents to diffuse
-          p=p, & ! Coords1D, pressure coordinates [Pa]
-          t=t(:ncol, :pver), &
-          rhoi=rhoi(:ncol, :pverp), &
-          cflx=qflx(:ncol, :1), & ! wv only. WARN: assumes wv at 1
-          kvh=kvh(:ncol, :pverp), &
-          kvq=kvh(:ncol, :pverp), & ! [sic] kvh used for kvq here.
-          cgs=cgs(:ncol, :pverp), &
-          qmincg=zero(:ncol), &
-          dpidz_sq=dpidz_sq(:ncol, :pverp), & ! moist TODO
+          ncol = ncol, &
+          pver = pver, &
+          ncnst = 1, & ! only water vapor is diffused here.
+          dt = ztodt, &
+          rair = rair, &
+          gravit = gravit, &
+          do_diffusion_const = do_diffusion_const_wet, & ! moist constituents to diffuse
+          p = p, & ! Coords1D, pressure coordinates [Pa]
+          t = t(:ncol, :pver), &
+          rhoi = rhoi(:ncol, :pverp), &
+          cflx = qflx(:ncol, const_wv_idx:const_wv_idx), & ! subset to water vapor only.
+          kvh = kvh(:ncol, :pverp), &
+          kvq = kvh(:ncol, :pverp), & ! [sic] kvh used for kvq here.
+          cgs = cgs(:ncol, :pverp), &
+          qmincg = zero(:ncol), &
+          dpidz_sq = dpidz_sq(:ncol, :pverp), & ! moist
           ! upper boundary conditions from ubc module
-          ubc_mmr=ubc_mmr_dummy(:ncol, :1), &
-          cnst_fixed_ubc=cnst_fixed_ubc(:1), & ! = .false.
-          q0=qtfd(:ncol, :pver, :1), &
-          q1=qtfd_out(:ncol, :pver, :1), &
-          errmsg=errmsg, &
-          errflg=errflg)
+          ubc_mmr = ubc_mmr_dummy(:ncol, :1), &
+          cnst_fixed_ubc = cnst_fixed_ubc(:1), & ! = .false.
+          q0 = qtfd(:ncol, :pver, :1), &
+          q1 = qtfd_out(:ncol, :pver, :1), &
+          errmsg = errmsg, &
+          errflg = errflg)
 
         if (errflg /= 0) return
 

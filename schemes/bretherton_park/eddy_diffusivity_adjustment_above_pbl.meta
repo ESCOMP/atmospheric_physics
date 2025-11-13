@@ -1,0 +1,86 @@
+[ccpp-table-properties]
+  name = eddy_diffusivity_adjustment_above_pbl
+  type = scheme
+
+[ccpp-arg-table]
+  name  = eddy_diffusivity_adjustment_above_pbl_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pverp ]
+  standard_name = vertical_interface_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ kv_top_pressure ]
+  standard_name = air_pressure_threshold_for_eddy_diffusivity_adjustment
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ kv_freetrop_scale ]
+  standard_name = free_troposphere_eddy_diffusivity_scaling_factor_for_eddy_diffusivity_adjustment
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ kv_top_scale ]
+  standard_name = upper_atmosphere_eddy_diffusivity_scaling_factor_for_eddy_diffusivity_adjustment
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ zi ]
+  standard_name = geopotential_height_wrt_surface_at_interface
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ pint ]
+  standard_name = air_pressure_at_interface
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ pblh ]
+  standard_name = atmosphere_boundary_layer_thickness
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ kvh ]
+  standard_name = eddy_heat_diffusivity_at_interfaces
+  units = m2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = inout
+[ kvm ]
+  standard_name = eddy_momentum_diffusivity_at_interfaces
+  units = m2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = inout
+[ kvq ]
+  standard_name = eddy_constituent_diffusivity_at_interfaces
+  units = m2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = inout
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+

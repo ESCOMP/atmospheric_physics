@@ -155,12 +155,6 @@
   dimensions = (horizontal_loop_extent, number_of_ccpp_constituents)
   type = real | kind = kind_phys
   intent = in
-[ pint ]
-  standard_name = air_pressure_at_interface
-  units = Pa
-  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
-  type = real | kind = kind_phys
-  intent = in
 [ taux ]
   standard_name = eastward_stress_at_surface_for_vertical_diffusion
   units = N m-2
@@ -190,12 +184,6 @@
   units = flag
   dimensions = ()
   type = logical
-  intent = out
-[ p ]
-  standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion
-  units = none
-  dimensions = ()
-  type = coords1d
   intent = out
 [ q_wv_cflx ]
   standard_name = surface_upward_water_vapor_flux
@@ -282,12 +270,6 @@
   dimensions = (horizontal_loop_extent, number_of_ccpp_constituents)
   type = real | kind = kind_phys
   intent = in
-[ pint ]
-  standard_name = air_pressure_at_interface
-  units = Pa
-  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
-  type = real | kind = kind_phys
-  intent = in
 [ taux ]
   standard_name = eastward_stress_at_surface_for_vertical_diffusion
   units = N m-2
@@ -317,12 +299,6 @@
   units = flag
   dimensions = ()
   type = logical
-  intent = out
-[ p ]
-  standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion
-  units = none
-  dimensions = ()
-  type = coords1d
   intent = out
 [ q_wv_cflx ]
   standard_name = surface_upward_water_vapor_flux
