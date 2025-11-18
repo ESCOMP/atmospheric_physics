@@ -138,7 +138,7 @@ contains
   subroutine bretherton_park_diff_run( &
              ncol, pver, pverp, pcnst, ncvmax, &
              iulog, &
-             ztodt, &
+             dt, &
              const_props, &
              do_iss, am_correction, do_beljaars, &
              is_first_timestep, &
@@ -213,7 +213,7 @@ contains
     integer,         intent(in)    :: pcnst
     integer,         intent(in)    :: ncvmax              ! max # of CLs (can set to pver) [count]
     integer,         intent(in)    :: iulog
-    real(kind_phys), intent(in)    :: ztodt               ! Physics integration time step 2 delta-t [s]
+    real(kind_phys), intent(in)    :: dt                  ! Physics timestep [s]
     type(ccpp_constituent_prop_ptr_t), &
                      intent(in)    :: const_props(:)      ! CCPP constituent properties pointer
     logical,         intent(in)    :: do_iss              ! Use implicit turbulent surface stress computation [flag]
@@ -276,7 +276,7 @@ contains
     real(kind_phys), intent(out)   :: wpert(:)            ! Turbulent velocity excess [m s-1]
     real(kind_phys), intent(out)   :: tke(:, :)           ! Turbulent kinetic energy [m2 s-2]
     real(kind_phys), intent(out)   :: tkes(:)             ! TKE at surface interface [m2 s-2]
-    real(kind_phys), intent(out)   :: wcap(:, :)          ! Normalized TKE at all interfaces [ m2/s2 ]
+    real(kind_phys), intent(out)   :: wcap(:, :)          ! Normalized TKE at all interfaces [m2 s-2]
     real(kind_phys), intent(out)   :: wsed(:, :)          ! Sedimentation velocity at the top of each CL (for sedimentation-entrainment feedback) [m s-1]
     integer,         intent(out)   :: turbtype(:, :)      ! Turbulence type identifier at all interfaces [1]
     real(kind_phys), intent(out)   :: bprod(:, :)         ! Buoyancy production of tke (interfaces) [m2 s-3]
@@ -286,24 +286,24 @@ contains
     real(kind_phys), intent(out)   :: sflh(:, :)          ! Saturation fraction in lower half-layer [fraction]
     real(kind_phys), intent(out)   :: qlfd(:, :)          ! Liquid water specific humidity for diffusion [kg kg-1]
     ! Buoyancy coefficients : w'b' = ch * w'sl' + cm * w'qt'
-    real(kind_phys), intent(out)   :: chu(:, :)           ! Heat buoyancy coef for dry states, interfaces [1]
-    real(kind_phys), intent(out)   :: chs(:, :)           ! Heat buoyancy coef for sat states, interfaces [1]
-    real(kind_phys), intent(out)   :: cmu(:, :)           ! Moisture buoyancy coef for dry states,  interfaces [1]
-    real(kind_phys), intent(out)   :: cms(:, :)           ! Moisture buoyancy coef for sat states, interfaces [1]
-    real(kind_phys), intent(out)   :: kbase_o(:, :)       ! Original external base interface index of CL from 'exacol', ncvmax [1]
-    real(kind_phys), intent(out)   :: ktop_o(:, :)        ! Original external top  interface index of CL from 'exacol', ncvmax [1]
-    real(kind_phys), intent(out)   :: ncvfin_o(:)         ! Original number of CLs from 'exacol' [1]
-    real(kind_phys), intent(out)   :: kbase_mg(:, :)      ! 'kbase' after extending-merging from 'zisocl', ncvmax [1]
-    real(kind_phys), intent(out)   :: ktop_mg(:, :)       ! 'ktop' after extending-merging from 'zisocl', ncvmax [1]
-    real(kind_phys), intent(out)   :: ncvfin_mg(:)        ! 'ncvfin' after extending-merging from 'zisocl' [1]
-    real(kind_phys), intent(out)   :: kbase_f(:, :)       ! Final 'kbase' after extending-merging & including SRCL, ncvmax [1]
-    real(kind_phys), intent(out)   :: ktop_f(:, :)        ! Final 'ktop' after extending-merging & including SRCL, ncvmax [1]
-    real(kind_phys), intent(out)   :: ncvfin_f(:)         ! Final 'ncvfin' after extending-merging & including SRCL [1]
+    real(kind_phys), intent(out)   :: chu(:, :)           ! Heat buoyancy coef for dry states, interfaces [m s-2 kg J-1]
+    real(kind_phys), intent(out)   :: chs(:, :)           ! Heat buoyancy coef for sat states, interfaces [m s-2 kg J-1]
+    real(kind_phys), intent(out)   :: cmu(:, :)           ! Moisture buoyancy coef for dry states,  interfaces [m s-2 kg-1 kg]
+    real(kind_phys), intent(out)   :: cms(:, :)           ! Moisture buoyancy coef for sat states, interfaces [m s-2 kg-1 kg]
+    real(kind_phys), intent(out)   :: kbase_o(:, :)       ! Original external base interface index of CL from 'exacol', ncvmax [index]
+    real(kind_phys), intent(out)   :: ktop_o(:, :)        ! Original external top  interface index of CL from 'exacol', ncvmax [index]
+    real(kind_phys), intent(out)   :: ncvfin_o(:)         ! Original number of CLs from 'exacol' [count]
+    real(kind_phys), intent(out)   :: kbase_mg(:, :)      ! 'kbase' after extending-merging from 'zisocl', ncvmax [index]
+    real(kind_phys), intent(out)   :: ktop_mg(:, :)       ! 'ktop' after extending-merging from 'zisocl', ncvmax [index]
+    real(kind_phys), intent(out)   :: ncvfin_mg(:)        ! 'ncvfin' after extending-merging from 'zisocl' [count]
+    real(kind_phys), intent(out)   :: kbase_f(:, :)       ! Final 'kbase' after extending-merging & including SRCL, ncvmax [index]
+    real(kind_phys), intent(out)   :: ktop_f(:, :)        ! Final 'ktop' after extending-merging & including SRCL, ncvmax [index]
+    real(kind_phys), intent(out)   :: ncvfin_f(:)         ! Final 'ncvfin' after extending-merging & including SRCL [count]
     real(kind_phys), intent(out)   :: wet(:, :)           ! Entrainment rate at the CL top, ncvmax  [m s-1]
     real(kind_phys), intent(out)   :: web(:, :)           ! Entrainment rate at the CL base, ncvmax [m s-1] (Set to zero if CL is based at surface)
     real(kind_phys), intent(out)   :: jtbu(:, :)          ! Buoyancy jump across the CL top, ncvmax  [m s-2]
     real(kind_phys), intent(out)   :: jbbu(:, :)          ! Buoyancy jump across the CL base, ncvmax [m s-2]
-    real(kind_phys), intent(out)   :: evhc(:, :)          ! Evaporative enhancement factor at the CL top, ncvmax
+    real(kind_phys), intent(out)   :: evhc(:, :)          ! Evaporative enhancement factor at the CL top, ncvmax [1]
     real(kind_phys), intent(out)   :: jt2slv(:, :)        ! Jump of slv (liquid water virtual static energy) (across two layers)
                                                           ! at CL top used only for evhc (evaporative enhancement factor at CL top), ncvmax [J kg-1]
     real(kind_phys), intent(out)   :: n2ht(:, :)          ! n2 defined at the CL top  interface but using
@@ -601,7 +601,7 @@ contains
           ncol=ncol, &
           pver=pver, &
           pverp=pverp, &
-          dt=ztodt, &
+          dt=dt, &
           rair=rair, &
           gravit=gravit, &
           do_iss=do_iss, &
@@ -646,7 +646,7 @@ contains
         call vertical_diffusion_diffuse_dry_static_energy_run( &
           ncol=ncol, &
           pver=pver, &
-          dt=ztodt, &
+          dt=dt, &
           gravit=gravit, &
           p=p, & ! Coords1D, pressure coordinates [Pa]
           rhoi=rhoi(:ncol, :pverp), &
@@ -673,7 +673,7 @@ contains
           ncol = ncol, &
           pver = pver, &
           ncnst = 1, & ! only water vapor is diffused here.
-          dt = ztodt, &
+          dt = dt, &
           rair = rair, &
           gravit = gravit, &
           do_diffusion_const = do_diffusion_const_wet, & ! moist constituents to diffuse

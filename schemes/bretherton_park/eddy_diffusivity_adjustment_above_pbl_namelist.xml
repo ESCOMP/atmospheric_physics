@@ -5,6 +5,7 @@
 <entry_id_pg version="2.0">
   <entry id="kv_top_pressure">
     <type>real</type>
+    <kind>kind_phys</kind>
     <category>pbl</category>
     <group>eddy_diff_adj_nl</group>
     <standard_name>air_pressure_threshold_for_eddy_diffusivity_adjustment</standard_name>
@@ -19,6 +20,7 @@
   </entry>
   <entry id="kv_top_scale">
     <type>real</type>
+    <kind>kind_phys</kind>
     <category>pbl</category>
     <group>eddy_diff_adj_nl</group>
     <standard_name>upper_atmosphere_eddy_diffusivity_scaling_factor_for_eddy_diffusivity_adjustment</standard_name>
@@ -34,6 +36,7 @@
   </entry>
   <entry id="kv_freetrop_scale">
     <type>real</type>
+    <kind>kind_phys</kind>
     <category>pbl</category>
     <group>eddy_diff_adj_nl</group>
     <standard_name>free_troposphere_eddy_diffusivity_scaling_factor_for_eddy_diffusivity_adjustment</standard_name>

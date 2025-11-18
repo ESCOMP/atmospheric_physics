@@ -462,14 +462,10 @@ contains
     real(kind_phys), intent(out) :: sl(ncol,pver)                   ! Liquid water static energy [ J/kg ]
     real(kind_phys), intent(out) :: slv(ncol,pver)                  ! Liquid water virtual static energy [ J/kg ]
    
-    real(kind_phys), intent(out) :: chu(ncol,pver+1)                ! Heat buoyancy coef for dry states at all interfaces, finally.
-                                                              ! [ unit ? ]
-    real(kind_phys), intent(out) :: chs(ncol,pver+1)                ! heat buoyancy coef for sat states at all interfaces, finally.
-                                                              ! [ unit ? ]
-    real(kind_phys), intent(out) :: cmu(ncol,pver+1)                ! Moisture buoyancy coef for dry states at all interfaces, finally.
-                                                              ! [ unit ? ]
-    real(kind_phys), intent(out) :: cms(ncol,pver+1)                ! Moisture buoyancy coef for sat states at all interfaces, finally.
-                                                              ! [ unit ? ]
+    real(kind_phys), intent(out) :: chu(ncol,pver+1)                ! Heat buoyancy coef for dry states at all interfaces, finally. [m s-2 kg J-1]
+    real(kind_phys), intent(out) :: chs(ncol,pver+1)                ! heat buoyancy coef for sat states at all interfaces, finally. [m s-2 kg J-1]
+    real(kind_phys), intent(out) :: cmu(ncol,pver+1)                ! Moisture buoyancy coef for dry states at all interfaces, finally. [m s-2 kg-1 kg]
+    real(kind_phys), intent(out) :: cms(ncol,pver+1)                ! Moisture buoyancy coef for sat states at all interfaces, finally. [m s-2 kg-1 kg]
     real(kind_phys), intent(out) :: slslope(ncol,pver)              ! Slope of 'sl' in each layer
     real(kind_phys), intent(out) :: qtslope(ncol,pver)              ! Slope of 'qt' in each layer
  
@@ -773,9 +769,9 @@ contains
     real(kind_phys) :: evhc_CL(ncol,ncvmax)                 ! Evaporative enhancement factor at the CL top
     real(kind_phys) :: jt2slv_CL(ncol,ncvmax)               ! Jump of slv ( across two layers ) at CL top for use only in evhc [ J/kg ]
     real(kind_phys) :: n2ht_CL(ncol,ncvmax)                 ! n2 defined at the CL top  interface
-                                                      ! but using sfuh(kt)   instead of sfi(kt) [ s-2 ]
+                                                            ! but using sfuh(kt)   instead of sfi(kt) [ s-2 ]
     real(kind_phys) :: n2hb_CL(ncol,ncvmax)                 ! n2 defined at the CL base interface
-                                                      ! but using sflh(kb-1) instead of sfi(kb) [ s-2 ]
+                                                            ! but using sflh(kb-1) instead of sfi(kb) [ s-2 ]
     real(kind_phys) :: lwp_CL(ncol,ncvmax)                  ! LWP in the CL top layer [ kg/m2 ]
     real(kind_phys) :: opt_depth_CL(ncol,ncvmax)            ! Optical depth of the CL top layer
     real(kind_phys) :: radinvfrac_CL(ncol,ncvmax)           ! Fraction of LW radiative cooling confined in the top portion of CL
