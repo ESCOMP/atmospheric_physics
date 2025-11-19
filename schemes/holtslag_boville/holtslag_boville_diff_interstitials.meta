@@ -204,28 +204,6 @@
   type = integer
   intent = out
 
-[ccpp-arg-table]
-  name  = hb_diff_prepare_vertical_diffusion_inputs_timestep_final
-  type  = scheme
-[ p ]
-  standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion
-  units = none
-  dimensions = ()
-  type = coords1d
-  intent = inout
-[ errmsg ]
-  standard_name = ccpp_error_message
-  units = none
-  dimensions = ()
-  type = character | kind = len=512
-  intent = out
-[ errflg ]
-  standard_name = ccpp_error_code
-  units = 1
-  dimensions = ()
-  type = integer
-  intent = out
-
 [ccpp-table-properties]
   name = hb_free_atm_diff_prepare_vertical_diffusion_inputs
   type = scheme
