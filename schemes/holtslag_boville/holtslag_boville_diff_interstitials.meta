@@ -125,12 +125,6 @@
   dimensions = ()
   type = integer
   intent = in
-[ const_props ]
-  standard_name = ccpp_constituent_properties
-  units = none
-  type = ccpp_constituent_prop_ptr_t
-  dimensions = (number_of_ccpp_constituents)
-  intent = in
 [ wsx_from_coupler ]
   standard_name = surface_eastward_wind_stress_from_coupler
   units = N m-2
@@ -184,12 +178,6 @@
   units = flag
   dimensions = ()
   type = logical
-  intent = out
-[ q_wv_cflx ]
-  standard_name = surface_upward_water_vapor_flux
-  units = kg m-2 s-1
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent)
   intent = out
 [ errmsg ]
   standard_name = ccpp_error_message

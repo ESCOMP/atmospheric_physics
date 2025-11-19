@@ -114,12 +114,6 @@ contains
     itaures, &
     errmsg, errflg)
 
-    ! framework dependency for const_props
-    use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
-
-    ! dependency to get constituent index
-    use ccpp_const_utils,          only: ccpp_const_get_idx
-
     ! Input arguments
     integer,            intent(in)  :: ncol       ! Number of atmospheric columns [count]
     integer,            intent(in)  :: pverp      ! Number of vertical interfaces [count]
