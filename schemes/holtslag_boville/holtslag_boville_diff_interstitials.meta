@@ -266,12 +266,6 @@
   dimensions = ()
   type = logical
   intent = out
-[ q_wv_cflx ]
-  standard_name = surface_upward_water_vapor_flux
-  units = kg m-2 s-1
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent)
-  intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
