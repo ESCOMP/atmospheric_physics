@@ -67,4 +67,22 @@
       <value>30.D0</value>
     </values>
   </entry>
+
+  <entry id="eddy_wstarent">
+    <type>logical</type>
+    <category>pbl</category>
+    <group>eddy_diff_nl</group>
+    <standard_name>use_wstar_entrainment_closure_formulation_for_eddy_diffusion_scheme</standard_name>
+    <units>flag</units>
+    <desc>
+      Use wstar (.true.) or TKE (.false.) entrainment closure in UW eddy diffusion scheme.
+      Default: TRUE
+    </desc>
+    <values>
+      <value>.true.</value>
+    </values>
+  </entry>
+
+
+
 </entry_id_pg>

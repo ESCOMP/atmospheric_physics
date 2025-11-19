@@ -15,6 +15,7 @@ module diffusion_stubs
   public :: zero_upper_boundary_condition_init
 
   public :: tms_beljaars_zero_stub_run
+  public :: beljaars_zero_stub_run
   public :: turbulent_mountain_stress_add_drag_coefficient_run
   public :: beljaars_add_wind_damping_rate_run
 
@@ -107,9 +108,54 @@ contains
     dragblj(:ncol,:pver) = 0._kind_phys
 
     ! Set do_beljaars flag to false
+    ! note: this is actually a namelist variable in the Beljaars scheme.
+    ! eventually, we want to remove this when Beljaars is CCPPized and we
+    ! can just read the namelist parameter. Both stubs can be removed
+    ! at that point.
     do_beljaars = .false.
 
   end subroutine tms_beljaars_zero_stub_run
+
+  ! Stub for Beljaars to be set to zero while they are not implemented.
+!> \section arg_table_beljaars_zero_stub_run Argument Table
+!! \htmlinclude beljaars_zero_stub_run.html
+  subroutine beljaars_zero_stub_run( &
+    ncol, pver, &
+    do_beljaars, &
+    dragblj, &
+    taubljx, taubljy, &
+    errmsg, errflg)
+
+    ! Input arguments
+    integer,            intent(in)  :: ncol
+    integer,            intent(in)  :: pver
+
+    ! Output arguments
+    logical,            intent(out) :: do_beljaars
+    real(kind_phys),    intent(out) :: dragblj(:,:)! Drag profile from Beljaars SGO form drag > 0. [s-1]
+    real(kind_phys),    intent(out) :: taubljx(:)  ! Eastward Beljaars surface stress [N m-2]
+    real(kind_phys),    intent(out) :: taubljy(:)  ! Northward Beljaars surface stress [N m-2]
+    character(len=512), intent(out) :: errmsg      ! Error message
+    integer,            intent(out) :: errflg      ! Error flag
+
+    errmsg = ''
+    errflg = 0
+
+    ! Set all Beljaars stresses to zero (stub implementation)
+    taubljx(:ncol) = 0._kind_phys
+    taubljy(:ncol) = 0._kind_phys
+
+    ! Set Beljaars 3-D drag profile to zero (stub implementation)
+    dragblj(:ncol,:pver) = 0._kind_phys
+
+    ! Set do_beljaars flag to false
+    ! note: this is actually a namelist variable in the Beljaars scheme.
+    ! eventually, we want to remove this when Beljaars is CCPPized and we
+    ! can just read the namelist parameter. Both stubs can be removed
+    ! at that point.
+    do_beljaars = .false.
+
+  end subroutine beljaars_zero_stub_run
 
   ! Add turbulent mountain stress to the total surface drag coefficient
 !> \section arg_table_turbulent_mountain_stress_add_drag_coefficient_run Argument Table

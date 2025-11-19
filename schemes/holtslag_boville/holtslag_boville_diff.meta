@@ -114,21 +114,9 @@
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
-[ cpair ]
-  standard_name = specific_heat_of_dry_air_at_constant_pressure
-  units = J kg-1 K-1
-  type = real | kind = kind_phys
-  dimensions = ()
-  intent = in
 [ gravit ]
   standard_name = standard_gravitational_acceleration
   units = m s-2
-  type = real | kind = kind_phys
-  dimensions = ()
-  intent = in
-[ karman ]
-  standard_name = von_karman_constant
-  units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in

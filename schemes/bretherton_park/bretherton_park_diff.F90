@@ -414,28 +414,28 @@ contains
     ! Calculate surface drag rate
     ksrf(:ncol) = 0._kind_phys
     call implicit_surface_stress_add_drag_coefficient_run( &
-      ncol=ncol, &
-      pver=pver, &
-      do_iss=do_iss, &
-      taux=taux(:ncol), &
-      tauy=tauy(:ncol), &
-      u0=u(:ncol, :pver), & ! use original state.
-      v0=v(:ncol, :pver), & ! use original state.
+      ncol   = ncol, &
+      pver   = pver, &
+      do_iss = do_iss, &
+      taux   = taux(:ncol), &
+      tauy   = tauy(:ncol), &
+      u0     = u(:ncol, :pver), & ! use original state.
+      v0     = v(:ncol, :pver), & ! use original state.
       ! below input/output:
-      ksrf=ksrf(:ncol), &
-      errmsg=errmsg, &
-      errflg=errflg)
+      ksrf   = ksrf(:ncol), &
+      errmsg = errmsg, &
+      errflg = errflg)
     if (errflg /= 0) return
 
     ! Add TMS surface drag rate
     call turbulent_mountain_stress_add_drag_coefficient_run( &
-      ncol=ncol, &
-      pver=pver, &
-      ksrftms=ksrftms(:ncol), &
+      ncol = ncol, &
+      pver = pver, &
+      ksrftms = ksrftms(:ncol), &
       ! below input/output:
-      ksrf=ksrf(:ncol), &
-      errmsg=errmsg, &
-      errflg=errflg)
+      ksrf = ksrf(:ncol), &
+      errmsg = errmsg, &
+      errflg = errflg)
     if (errflg /= 0) return
 
     ! Based on the drag coefficients, calculate wind damping rates
@@ -523,7 +523,7 @@ contains
       call caleddy(ncol, pver, &
                    slfd, qtfd, qlfd, slv, ufd, &
                    vfd, pint, z, zi, &
-                   qflx, shflx, slslope, qtslope, &
+                   qflx(:,const_wv_idx), shflx, slslope, qtslope, &
                    chu, chs, cmu, cms, sfuh, &
                    sflh, n2, s2, ri, rrho, &
                    pblh, ustar, &
@@ -621,6 +621,7 @@ contains
           v0=vfd(:ncol, :pver), &
           dse0=slfd(:ncol, :pver), &
           ! input/output
+          ! (not actually updated since itaures = .false. in this internal call.)
           tauresx=tauresx(:ncol), &
           tauresy=tauresy(:ncol), &
           ! below output

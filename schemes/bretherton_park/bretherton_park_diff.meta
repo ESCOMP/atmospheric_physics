@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = bretherton_park_diff
   type = scheme
+  dependencies = eddy_diff.F90
 
 [ccpp-arg-table]
   name  = bretherton_park_diff_init
@@ -253,12 +254,14 @@
 [ ql ]
   standard_name = cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water
   units = kg kg-1
+  advected = True
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ qi ]
   standard_name = cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water
   units = kg kg-1
+  advected = True
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
@@ -371,7 +374,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ qrl ]
-  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_longwave_radiation_adjusted_by_air_pressure_thickness_tbd
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_longwave_radiation_adjusted_by_air_pressure_thickness
   units = K s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -798,6 +801,20 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
+# these are for the diffusion solver to compute implicit surface stress.
+# for UW PBL, this is taux = wsx; tauy = wsy
+#[ taux ]
+#  standard_name = eastward_stress_at_surface_for_vertical_diffusion
+#  units = N m-2
+#  type = real | kind = kind_phys
+#  dimensions = (horizontal_loop_extent)
+#  intent = out
+#[ tauy ]
+#  standard_name = northward_stress_at_surface_for_vertical_diffusion
+#  units = N m-2
+#  type = real | kind = kind_phys
+#  dimensions = (horizontal_loop_extent)
+#  intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none

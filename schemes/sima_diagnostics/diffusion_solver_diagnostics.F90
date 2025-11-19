@@ -161,7 +161,7 @@ contains
       real(kind_phys),  intent(in) :: cam_in_shf(:)           ! Surface sensible heat flux [W m-2]
       real(kind_phys),  intent(in) :: cam_in_cflx(:,:)        ! Surface constituent fluxes [kg m-2 s-1]
 
-      ! Surface stresses
+      ! Surface stresses passed to underlying boundary layer scheme
       real(kind_phys),  intent(in) :: tautotx(:)              ! Total zonal surface stress [N m-2]
       real(kind_phys),  intent(in) :: tautoty(:)              ! Total meridional surface stress [N m-2]
 
