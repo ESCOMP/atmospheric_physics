@@ -9,7 +9,6 @@ module diffusion_stubs
 
   implicit none
   private
-  save
 
   ! CCPP-compliant subroutines
   public :: zero_upper_boundary_condition_init
@@ -23,6 +22,8 @@ module diffusion_stubs
   public :: turbulent_mountain_stress_add_updated_surface_stress_run
 
   public :: vertical_diffusion_not_use_rairv_init
+
+  public :: dropmixnuc_apply_surface_fluxes_run
 
 contains
 
@@ -374,5 +375,60 @@ contains
 
   end subroutine vertical_diffusion_not_use_rairv_init
 
+  ! For constituents not handled by vertical diffusion
+  ! i.e., vertically mixed by ndrop activation process (dropmixnuc = true)
+  ! the explicit surface fluxes in the lowest layer are added directly here.
+  !
+  ! This changes q1 (constituents after vertical diffusion) rather than q
+  ! directly because even if this change is not via vertical mixing, it is
+  ! still accounted for as part of the vertical diffusion tendencies scheme.
+  ! NOTE: this code assumes wet mass mixing ratio.
+!> \section arg_table_dropmixnuc_apply_surface_fluxes_run Argument Table
+!! \htmlinclude dropmixnuc_apply_surface_fluxes_run.html
+  subroutine dropmixnuc_apply_surface_fluxes_run( &
+    ncol, pver, ncnst, &
+    dt, gravit, &
+    do_diffusion_const, &
+    cflux, &
+    rpdel, &
+    q1, &
+    errmsg, errflg)
+
+    ! Input arguments
+    integer,            intent(in)    :: ncol
+    integer,            intent(in)    :: pver
+    integer,            intent(in)    :: ncnst
+    real(kind_phys),    intent(in)    :: dt                        ! Physics timestep [s]
+    real(kind_phys),    intent(in)    :: gravit                    ! Gravitational acceleration [m s-2]
+    logical,            intent(in)    :: do_diffusion_const(:)     ! Flag for constituent vertical diffusion [flag]
+    real(kind_phys),    intent(in)    :: cflux(:, :)               ! Surface flux for vdiff [kg m-2 s-1]
+    real(kind_phys),    intent(in)    :: rpdel(:, :)               ! Reciprocal of pressure layer thickness [Pa-1]
+
+    ! Input/output arguments
+    real(kind_phys),    intent(inout) :: q1(:, :, :)               ! Constituent array after "vertical diffusion" [kg kg-1]
+
+    ! Output arguments
+    character(len=512), intent(out)   :: errmsg
+    integer,            intent(out)   :: errflg
+
+    ! Local variables
+    real(kind_phys) :: flux_to_state_conversion_factor(ncol)
+    integer         :: m
+
+    errmsg = ''
+    errflg = 0
+
+    flux_to_state_conversion_factor(:ncol) = dt*gravit*rpdel(:ncol, pver)
+
+    ! Apply surface fluxes only to constituents not handled by vertical diffusion
+    do m = 1, ncnst
+       if (.not. do_diffusion_const(m)) then
+          ! Add surface flux contribution to constituent array at lowest model layer
+          q1(:ncol, pver, m) = q1(:ncol, pver, m) + &
+                                         flux_to_state_conversion_factor(:ncol) * cflux(:ncol, m)
+       end if
+    end do
+
+  end subroutine dropmixnuc_apply_surface_fluxes_run
 
 end module diffusion_stubs
