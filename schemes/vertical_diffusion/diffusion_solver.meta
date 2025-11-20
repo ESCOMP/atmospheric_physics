@@ -719,19 +719,21 @@
   name  = vertical_diffusion_diffuse_tracers_init
   type  = scheme
 [ ncnst ]
-  # note: this is set to ccpp_constituents for now because
-  # q is sized number_of_ccpp_constituents as well, and cannot
-  # yet be a custom dimension. when CAM5 is ported, ncnst = 1,
-  # and q would have to have a custom dimension of, e.g.,
-  # number_of_ccpp_constituents_for_vertical_diffusion_solver.
-  # but this is not yet supported, so ncnst is all constituents for now.
   standard_name = number_of_ccpp_constituents
   units = count
   type = integer
   dimensions = ()
   intent = in
+[ const_props ]
+  standard_name = ccpp_constituent_properties
+  units = none
+  type = ccpp_constituent_prop_ptr_t
+  dimensions = (number_of_ccpp_constituents)
+  intent = in
 [ do_diffusion_const ]
-  # only dimension should be ncnst, not pcnst.
+  # this is for all CCPP constituents.
+  # if a subset call is desired (i.e., in iterative calls from UW PBL)
+  # the CCPPized subroutine should be called directly.
   standard_name = flag_for_ccpp_constituent_vertical_diffusion
   units = flag
   type = logical
@@ -766,12 +768,10 @@
   dimensions = ()
   intent = in
 [ ncnst ]
-  # note: this is set to ccpp_constituents for now because
-  # q is sized number_of_ccpp_constituents as well, and cannot
-  # yet be a custom dimension. when CAM5 is ported, ncnst = 1,
-  # and q would have to have a custom dimension of, e.g.,
-  # number_of_ccpp_constituents_for_vertical_diffusion_solver.
-  # but this is not yet supported, so ncnst is all constituents for now.
+  # note: this is set to ccpp_constituents because the constituent array
+  # has this dimension.
+  # If a subset call is desired (i.e., in iterative calls in CAM5 for wv only)
+  # the CCPPized subroutine should be called directly.
   standard_name = number_of_ccpp_constituents
   units = count
   type = integer
@@ -821,12 +821,11 @@
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ cflx ]
-  # same note applies for the ncnst argument above that the second dimension
-  # is actually ncnst, not pcnst.
+  # see note above on ncnst dimension.
   #
-  # when this is made ncnst, the standard name could be changed to
-  # surface_upward_ccpp_constituent_fluxes_for_vertical_diffusion
-  standard_name = surface_upward_ccpp_constituent_fluxes_from_coupler
+  # when CLUBB is active, this variant of cflx (provided by the interstitials of the PBL scheme) will be zero;
+  # otherwise, it is a copy of the cflx from coupler.
+  standard_name = surface_upward_ccpp_constituent_fluxes_for_vertical_diffusion
   units = kg m-2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, number_of_ccpp_constituents)
@@ -850,8 +849,7 @@
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ qmincg ]
-  # same note applies for the ncnst argument above that the only dimension
-  # is actually ncnst, not pcnst.
+  # see note above on ncnst dimension.
   standard_name = ccpp_constituent_minimum_values
   units = kg kg-1
   type = real | kind = kind_phys
@@ -864,28 +862,28 @@
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ ubc_mmr ]
-  # same note applies for the ncnst argument above that the second dimension
-  # is actually ncnst, not pcnst.
+  # see note above on ncnst dimension.
   standard_name = upper_boundary_condition_of_ccpp_constituents
   units = none
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, number_of_ccpp_constituents)
   intent = in
 [ cnst_fixed_ubc ]
-  # same note applies for the ncnst argument above that the only dimension
-  # is actually ncnst, not pcnst.
+  # see note above on ncnst dimension.
   standard_name = use_fixed_upper_boundary_condition_of_ccpp_constituents_tbd
   units = flag
   type = logical
   dimensions = (number_of_ccpp_constituents)
   intent = in
 [ q0 ]
+  # see note above on ncnst dimension.
   standard_name = ccpp_constituents
   units = none
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
   intent = in
 [ q1 ]
+  # see note above on ncnst dimension.
   standard_name = ccpp_constituents_after_vertical_diffusion
   units = none
   type = real | kind = kind_phys

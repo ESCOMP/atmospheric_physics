@@ -71,6 +71,11 @@
     <!-- vdiff compute 3: tracer diffusion -->
     <scheme>vertical_diffusion_diffuse_tracers</scheme>
 
+    <!-- vdiff post-interstitial 0: for non-diffused tracers, apply constituent flux.
+         this is necessary for tracers handled by ndrop activation vertical mixing,
+         i.e., modal aerosol species. -->
+    <scheme>dropmixnuc_apply_surface_fluxes</scheme>
+
     <!-- vdiff post-interstitial 1: convert provisional updates to tendencies -->
     <scheme>vertical_diffusion_tendencies</scheme>
 
