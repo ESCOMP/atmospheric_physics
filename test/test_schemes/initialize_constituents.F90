@@ -28,6 +28,8 @@ subroutine initialize_constituents_register(constituents, errmsg, errcode)
     integer :: known_const_index
     integer :: found_const_count
     logical :: known_constituent
+    real(kind_phys) :: qmin_value
+    character(len=256) :: cnst_stdname
     character(len=256) :: variable_name
     character(len=512) :: alloc_err_msg
     character(len=256), allocatable :: constituent_names(:)
@@ -126,12 +128,37 @@ subroutine initialize_constituents_register(constituents, errmsg, errcode)
              errcode = errcode,                         &
              errmsg = errmsg)
        else
+          ! For chemistry species some special handling is necessary for qmin_value;
+          ! this logic is replicated from chem_register in src/chemistry/mozart.
+          qmin_value = 0.0_kind_phys
+          cnst_stdname = trim(constituent_names(var_index))
+          ! Special handling for specific chemical species
+          ! Aerosol number density species
+          if (index(cnst_stdname, 'num_a') > 0) then
+             qmin_value = 1.e-5_kind_phys
+          else if (index(cnst_stdname, 'O3') > 0) then
+             qmin_value = 1.e-12_kind_phys
+          else if (index(cnst_stdname, 'CH4') > 0) then
+             qmin_value = 1.e-12_kind_phys
+          else if (index(cnst_stdname, 'N2O') > 0) then
+             qmin_value = 1.e-15_kind_phys
+          ! CFCs
+          else if (index(cnst_stdname, 'CFC11') > 0 .or. &
+                   index(cnst_stdname, 'CFC12') > 0 .or. &
+                   index(cnst_stdname, 'cfc11') > 0 .or. &
+                   index(cnst_stdname, 'cfc12') > 0) then
+             qmin_value = 1.e-20_kind_phys
+          end if
+          ! Note: other chemistry species should be 1e-36 but we have no way
+          ! of currently distinguishing between these and other non-chem
+          ! constituents, so leaving as 0.0_kind_phys for now. (hplin, 11/20/25)
+
           call constituents(var_index)%instantiate(     &
              std_name = constituent_names(var_index),   &
              long_name = constituent_names(var_index),  &
              units = 'kg kg-1',                         &
              vertical_dim = 'vertical_layer_dimension', &
-             min_value = 0.0_kind_phys,                 &
+             min_value = qmin_value,                    &
              advected = .true.,                         &
              errcode = errcode,                         &
              errmsg = errmsg)
