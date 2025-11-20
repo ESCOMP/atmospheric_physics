@@ -55,8 +55,10 @@ contains
     errmsg = ''
     errflg = 0
 
-    nbins = 0
-    nbinsp = 0
+    ! Initialize to one to avoid
+    ! automatic CCPP subsetting errors
+    nbins = 1
+    nbinsp = 1
 
     ! Check if irradiance file path is set.
     ! If not then assume that a constant
@@ -160,7 +162,21 @@ contains
        sol_tsi = solar_const
     end if
 
-    if ( fixed_scon ) return
+    if ( fixed_scon ) then
+       ! Allocate wavelength ends,
+       ! which depend on the number
+       ! of wavelength bins, in
+       ! order to avoid CCPP
+       ! subsetting errors:
+       !------------------
+       allocate(we(nbinsp), stat=errflg, errmsg=errmsg)
+       if (errflg /= 0) then
+          errmsg = subname // errmsg
+       end if
+       !------------------
+
+       return !Nothing more to do, so exit subroutine.
+    end if
 
     fixed = trim(solar_data_type) == 'FIXED'
 
