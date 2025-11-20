@@ -7,7 +7,7 @@
       Shallow convection      Hack
       Macrophysics            RK
       Microphysics            RK
-      Radiation               RRTMGP     (not implemented)
+      Radiation               RRTMGP     (commented out)
       Chemistry               None       (not implemented)
       Vertical Diffusion      HB
       Gravity Wave Drag       Orographic (not implemented)
@@ -214,9 +214,54 @@
     <!-- State diagnostics -->
     <scheme>sima_state_diagnostics</scheme>
 
-    <!--
-      Radiation
-    -->
+    <!-- Radiation (RRTMGP) -->
+    <!--<scheme>rrtmgp_pre</scheme>
+    <scheme>rrtmgp_cloud_optics_setup</scheme>
+    <scheme>tropopause_find</scheme>
+    <scheme>rrtmgp_variables</scheme>
+    <scheme>rrtmgp_inputs</scheme>
+    <scheme>rrtmgp_sw_cloud_optics</scheme>
+    <scheme>rrtmgp_sw_mcica_subcol_gen</scheme>
+    <scheme>rrtmgp_cloud_diagnostics</scheme>-->
+    <!-- Shortwave subcycle - last iteration is climate calculation -->
+    <!--<subcycle loop="number_of_diagnostic_subcycles">
+      <scheme>rrtmgp_constituents</scheme>
+      <scheme>rrtmgp_sw_gas_optics_pre</scheme>
+      <scheme>rrtmgp_sw_gas_optics</scheme>
+      <scheme>solar_irradiance_data</scheme>
+      <scheme>rrtmgp_sw_solar_var</scheme>
+      <scheme>rrtmgp_sw_aerosols</scheme>
+      <scheme>rrtmgp_sw_rte</scheme>
+      <scheme>rrtmgp_sw_calculate_fluxes</scheme>
+      <scheme>rrtmgp_sw_calculate_heating_rate</scheme>
+      <scheme>rrtmgp_sw_diagnostics</scheme>
+      <scheme>rrtmgp_subcycle</scheme>
+    </subcycle>
+    <scheme>rrtmgp_lw_cloud_optics</scheme>
+    <scheme>rrtmgp_lw_mcica_subcol_gen</scheme>-->
+    <!-- Longwave subcycle - last iteration is climate calculation-->
+    <!--<subcycle loop="number_of_diagnostic_subcycles">
+      <scheme>rrtmgp_constituents</scheme>
+      <scheme>rrtmgp_lw_gas_optics_pre</scheme>
+      <scheme>rrtmgp_lw_gas_optics</scheme>
+      <scheme>rrtmgp_lw_aerosols</scheme>
+      <scheme>rrtmgp_lw_rte</scheme>
+      <scheme>rrtmgp_lw_calculate_fluxes</scheme>
+      <scheme>rrtmgp_lw_calculate_heating_rate</scheme>
+      <scheme>rrtmgp_lw_diagnostics</scheme>
+      <scheme>rrtmgp_subcycle</scheme>
+    </subcycle>-->
+    <!-- End longwave subcycle -->
+    <!--<scheme>rrtmgp_inputs_setup</scheme>
+    <scheme>rrtmgp_sw_solar_var_setup</scheme>
+    <scheme>rrtmgp_dry_static_energy_tendency</scheme>
+    <scheme>calculate_net_heating</scheme>
+    <scheme>rrtmgp_post</scheme>
+    <scheme>rrtmgp_diagnostics</scheme>-->
+    <!-- State updaters -->
+    <!--<scheme>apply_heating_rate</scheme>
+    <scheme>geopotential_temp</scheme>-->
+    <!-- end Radiation (RRTMGP) -->
 
     <!-- Find tropopause -->
     <!-- Tropopause find has to make history output at the end of convective adjustment -->

@@ -1,0 +1,113 @@
+[ccpp-table-properties]
+  name = rrtmgp_cloud_diagnostics
+  type = scheme
+
+[ccpp-arg-table]
+  name  = rrtmgp_cloud_diagnostics_init
+  type  = scheme
+[ has_snow ]
+  standard_name = include_liquid_plus_snow_stratiform_cloud_area_fraction
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ has_graupel ]
+  standard_name = include_liquid_plus_graupel_stratiform_cloud_area_fraction
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ graupel_in_rad ]
+  standard_name = do_calculate_radiative_effect_of_graupel
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = rrtmgp_cloud_diagnostics_run
+  type  = scheme
+[ write_output ]
+  standard_name = write_RRTMGP_diagnostics
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ has_snow ]
+  standard_name = include_snow_in_radiation_calculation
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ has_graupel ]
+  standard_name = include_graupel_in_radiation_calculation
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ graupel_in_rad ]
+  standard_name = do_calculate_radiative_effect_of_graupel
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ tot_cld_vistau ]
+  standard_name = total_cloud_optical_depth_for_visible_band_times_cloud_fraction
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ tot_icld_vistau ]
+  standard_name = total_cloud_optical_depth_for_visible_band
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ liq_icld_vistau ]
+  standard_name = cloud_liquid_optical_depth_for_visible_band
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ ice_icld_vistau ]
+  standard_name = cloud_ice_optical_depth_for_visible_band
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ snow_icld_vistau ]
+  standard_name = snow_optical_depth_for_visible_band
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ grau_icld_vistau ]
+  standard_name = graupel_optical_depth_for_visible_band
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

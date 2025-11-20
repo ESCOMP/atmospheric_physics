@@ -1,0 +1,157 @@
+[ccpp-table-properties]
+  name = rrtmgp_variables
+  type = scheme
+
+[ccpp-arg-table]
+  name  = rrtmgp_variables_init
+  type  = scheme
+[ unset_real ]
+  standard_name = definition_of_unset_for_real_variables
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ active_call_array ]
+  standard_name = is_active_diagnostic_call_array
+  units = flag
+  type = logical
+  dimensions = (number_of_diagnostic_subcycles)
+  intent = out
+[ tlev ]
+  standard_name = air_temperature_at_interface_for_RRTMGP
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension,vertical_interface_dimension)
+  intent = out
+[ fluxlwup_Jac ]
+  standard_name = jacobian_of_longwave_upward_flux_for_RRTMGP
+  units = W m-2 K-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension,vertical_interface_dimension)
+  intent = out
+[ rad_heat ]
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure
+  units = J kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension,vertical_layer_dimension)
+  intent = out
+[ use_tlev ]
+  standard_name = include_air_temperature_at_interfaces_in_gas_optics_calculation
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ grau_exists ]
+  standard_name = include_liquid_plus_graupel_stratiform_cloud_area_fraction
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ snow_exists ]
+  standard_name = include_liquid_plus_snow_stratiform_cloud_area_fraction
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+[ccpp-arg-table]
+  name  = rrtmgp_variables_timestep_init
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ nday ]
+  standard_name = daytime_points_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ rrtmgp_phys_blksz_lw ]
+  standard_name = number_of_columns_per_longwave_block_for_RRTMGP
+  units = count
+  type = integer
+  dimensions = ()
+  intent = out
+[ rrtmgp_phys_blksz_sw ]
+  standard_name = number_of_columns_per_shortwave_block_for_RRTMGP
+  units = count
+  type = integer
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+[ccpp-arg-table]
+  name  = rrtmgp_variables_run
+  type  = scheme
+[ graupel_in_rad ]
+  standard_name = do_calculate_radiative_effect_of_graupel
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ grau_exists ]
+  standard_name = include_liquid_plus_graupel_stratiform_cloud_area_fraction
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ snow_exists ]
+  standard_name = include_liquid_plus_snow_stratiform_cloud_area_fraction
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ do_grau ]
+  standard_name = include_graupel_in_radiation_calculation
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ do_snow ]
+  standard_name = include_snow_in_radiation_calculation
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ tiny_rad ]
+  standard_name = definition_of_tiny_for_rrtmgp
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

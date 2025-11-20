@@ -10,9 +10,12 @@ public :: rrtmgp_sw_mcica_subcol_gen_run
 contains
 !==================================================================================================
 
+!>
+!> \section arg_table_rrtmgp_sw_mcica_subcol_gen_run Argument Table
+!! \htmlinclude rrtmgp_sw_mcica_subcol_gen_run.html
 subroutine rrtmgp_sw_mcica_subcol_gen_run(dosw, kdist_sw, nswbands, nswgpts, nday, nlay, &
               pver, tiny, idxday, ktopcam, ktoprad, cldfprime, c_cld_tau,       &
-              c_cld_tau_w, c_cld_tau_w_g, cloud_sw, pmid, errmsg, errflg)
+              c_cld_tau_w, c_cld_tau_w_g, cloud_sw, pmid_day, errmsg, errflg)
    use ccpp_kinds,              only: kind_phys
    use ccpp_gas_concentrations, only: ty_gas_concs_ccpp
    use ccpp_gas_optics_rrtmgp,  only: ty_gas_optics_rrtmgp_ccpp
@@ -39,12 +42,12 @@ subroutine rrtmgp_sw_mcica_subcol_gen_run(dosw, kdist_sw, nswbands, nswgpts, nda
    real(kind_phys),                  intent(in)  :: c_cld_tau_w(:,:,:)   ! combined cloud single scattering albedo * tau
    real(kind_phys),                  intent(in)  :: c_cld_tau_w_g(:,:,:) ! combined cloud asymmetry parameter * w * tau
    real(kind_phys),                  intent(in)  :: cldfprime(:,:)       ! combined cloud fraction
-   real(kind_phys),                  intent(in)  :: pmid(:,:)            ! air pressure at mid-points [Pa]
+   real(kind_phys),                  intent(in)  :: pmid_day(:,:)        ! air ressure at mid-points [Pa]
    logical,                          intent(in)  :: dosw                 ! Flag to do shortwave radiation this timestep
 
-   type(ty_optical_props_2str_ccpp), intent(inout) :: cloud_sw           ! SW cloud optical properties object
-   character(len=512),               intent(out)   :: errmsg
-   integer,                          intent(out)   :: errflg
+   type(ty_optical_props_2str_ccpp), intent(out) :: cloud_sw             ! SW cloud optical properties object
+   character(len=512),               intent(out) :: errmsg
+   integer,                          intent(out) :: errflg
 
    ! Local variables
 
@@ -128,12 +131,12 @@ subroutine rrtmgp_sw_mcica_subcol_gen_run(dosw, kdist_sw, nswbands, nswgpts, nda
       end where
 
       ! Create a seed that depends on the state of the columns.
-      ! Use pmid from bottom four layers.
+      ! Use pmid_day from bottom four layers.
       do i = 1, nday
-         kiss_seed(i,1) = (pmid(i,nlay)   - int(pmid(i,nlay)))    * 1000000000
-         kiss_seed(i,2) = (pmid(i,nlay-1) - int(pmid(i,nlay-1)))  * 1000000000
-         kiss_seed(i,3) = (pmid(i,nlay-2) - int(pmid(i,nlay-2)))  * 1000000000
-         kiss_seed(i,4) = (pmid(i,nlay-3) - int(pmid(i,nlay-3)))  * 1000000000
+         kiss_seed(i,1) = (pmid_day(i,nlay)   - int(pmid_day(i,nlay)))    * 1000000000
+         kiss_seed(i,2) = (pmid_day(i,nlay-1) - int(pmid_day(i,nlay-1)))  * 1000000000
+         kiss_seed(i,3) = (pmid_day(i,nlay-2) - int(pmid_day(i,nlay-2)))  * 1000000000
+         kiss_seed(i,4) = (pmid_day(i,nlay-3) - int(pmid_day(i,nlay-3)))  * 1000000000
       end do
 
       ! create the RNG object

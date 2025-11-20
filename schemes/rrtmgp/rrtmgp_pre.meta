@@ -1,0 +1,301 @@
+[ccpp-table-properties]
+  name = rrtmgp_pre
+  type = scheme
+  dependencies = ./objects/ccpp_fluxes_byband.F90
+
+[ccpp-arg-table]
+  name  = rrtmgp_pre_init
+  type  = scheme
+[ nradgas ]
+  standard_name = number_of_active_gases_for_RRTMGP
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ available_gases ]
+  standard_name = gas_concentrations_rrtmgp_object_for_RRTMGP
+  units = none
+  type = ty_gas_concs_ccpp
+  dimensions = ()
+  intent = out
+[ gaslist ]
+  standard_name = list_of_active_gases_for_RRTMGP
+  units = none
+  type = character | kind = len=5
+  dimensions = (gaslist_dimension)
+  intent = in
+[ gaslist_lc ]
+  standard_name = lowercase_list_of_active_gases_for_RRTMGP
+  units = none
+  type = character | kind = len=5
+  dimensions = (number_of_active_gases_for_RRTMGP)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = rrtmgp_pre_timestep_init
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ coszrs ]
+  standard_name = cosine_of_solar_zenith_angle_for_radiation
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension)
+  intent = in
+[ nstep ]
+  standard_name = current_timestep_number
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ dtime ]
+  standard_name = timestep_for_physics
+  units = s
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ iradsw ]
+  standard_name = frequency_of_shortwave_radiation_calculation
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ irad_always ]
+  standard_name = number_of_timesteps_to_force_radiation_calculation_after_initialization
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ offset ]
+  standard_name = number_of_seconds_until_next_shortwave_radiation_timestep
+  units = s
+  type = integer
+  dimensions = ()
+  intent = out
+[ idxday ]
+  standard_name = daytime_points
+  units = index
+  type = integer
+  dimensions = (horizontal_dimension)
+  intent = out
+[ nday ]
+  standard_name = daytime_points_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = out
+[ idxnite ]
+  standard_name = nighttime_points
+  units = index
+  type = integer
+  dimensions =  (horizontal_dimension)
+  intent = out
+[ nnite ]
+  standard_name = nighttime_points_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = out
+  dimensions = ()
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+
+[ccpp-arg-table]
+  name  = rrtmgp_pre_run
+  type  = scheme
+[ coszrs ]
+  standard_name = cosine_of_solar_zenith_angle_for_radiation
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ nstep ]
+  standard_name = current_timestep_number
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ dtime ]
+  standard_name = timestep_for_physics
+  units = s
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ iradsw ]
+  standard_name = frequency_of_shortwave_radiation_calculation
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ iradlw ]
+  standard_name = frequency_of_longwave_radiation_calculation
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ irad_always ]
+  standard_name = number_of_timesteps_to_force_radiation_calculation_after_initialization
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ next_cday ]
+  standard_name = fractional_calendar_days_on_end_of_next_timestep
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ idxday ]
+  standard_name = daytime_points
+  units = index
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ nday ]
+  standard_name = daytime_points_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ idxnite ]
+  standard_name = nighttime_points
+  units = index
+  type = integer
+  dimensions =  (horizontal_loop_extent)
+  intent = in
+[ nnite ]
+  standard_name = nighttime_points_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ dosw ]
+  standard_name = do_shortwave_radiation
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ dolw ]
+  standard_name = do_longwave_radiation
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ dosw_heat ]
+  standard_name = calculate_net_shortwave_heating
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ dolw_heat ]
+  standard_name = calculate_net_longwave_heating
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ nlay ]
+  standard_name = number_of_vertical_layers_in_RRTMGP
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ nlwbands ]
+  standard_name = number_of_bands_for_longwave_radiation
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ nswbands ]
+  standard_name = number_of_bands_for_shortwave_radiation
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ spectralflux ]
+  standard_name = do_up_down_flux_per_band_diagnostic
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ nextsw_cday ]
+  standard_name = next_calendar_day_to_perform_shortwave_radiation_for_surface_models
+  units = days
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = inout
+[ fsw ]
+  standard_name = shortwave_all_sky_flux_object_for_RRTMGP
+  units = none
+  type = ty_fluxes_byband_ccpp
+  dimensions = ()
+  intent = out
+[ fswc ]
+  standard_name = shortwave_clear_sky_flux_object_for_RRTMGP
+  units = none
+  type = ty_fluxes_broadband_ccpp
+  dimensions = ()
+  intent = out
+[ flw ]
+  standard_name = longwave_all_sky_flux_object_for_RRTMGP
+  units = none
+  type = ty_fluxes_byband_ccpp
+  dimensions = ()
+  intent = out
+[ flwc ]
+  standard_name = longwave_clear_sky_flux_object_for_RRTMGP
+  units = none
+  type = ty_fluxes_broadband_ccpp
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
