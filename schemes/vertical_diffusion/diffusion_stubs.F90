@@ -385,7 +385,7 @@ contains
     ncol, pver, ncnst, &
     dt, gravit, &
     do_diffusion_const, &
-    cflux_from_coupler, &
+    cflux, &
     rpdel, &
     const_array, &
     errmsg, errflg)
@@ -397,7 +397,7 @@ contains
     real(kind_phys),    intent(in)    :: dt                        ! Physics timestep [s]
     real(kind_phys),    intent(in)    :: gravit                    ! Gravitational acceleration [m s-2]
     logical,            intent(in)    :: do_diffusion_const(:)     ! Flag for constituent vertical diffusion [flag]
-    real(kind_phys),    intent(in)    :: cflux_from_coupler(:, :)  ! Surface flux from coupler [kg m-2 s-1]
+    real(kind_phys),    intent(in)    :: cflux(:, :)               ! Surface flux for vdiff [kg m-2 s-1]
     real(kind_phys),    intent(in)    :: rpdel(:, :)               ! Reciprocal of pressure layer thickness [Pa-1]
 
     ! Input/output arguments
@@ -421,7 +421,7 @@ contains
        if (.not. do_diffusion_const(m)) then
           ! Add surface flux contribution to constituent array at lowest model layer
           const_array(:ncol, pver, m) = const_array(:ncol, pver, m) + &
-                                         flux_to_state_conversion_factor(:ncol) * cflux_from_coupler(:ncol, m)
+                                         flux_to_state_conversion_factor(:ncol) * cflux(:ncol, m)
        end if
     end do
 

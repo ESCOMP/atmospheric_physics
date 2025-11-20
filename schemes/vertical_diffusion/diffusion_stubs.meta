@@ -514,8 +514,10 @@
   type = logical
   dimensions = (number_of_ccpp_constituents)
   intent = in
-[ cflux_from_coupler ]
-  standard_name = surface_upward_ccpp_constituent_fluxes_from_coupler
+[ cflux ]
+  # when CLUBB is active, this variant of cflx (provided by the interstitials of the PBL scheme) will be zero;
+  # otherwise, it is a copy of the cflx from coupler.
+  standard_name = surface_upward_ccpp_constituent_fluxes_for_vertical_diffusion
   units = kg m-2 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, number_of_ccpp_constituents)
