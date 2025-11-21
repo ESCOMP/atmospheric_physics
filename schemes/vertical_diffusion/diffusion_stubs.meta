@@ -528,8 +528,8 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
-[ const_array ]
-  standard_name = ccpp_constituents
+[ q1 ]
+  standard_name = ccpp_constituents_after_vertical_diffusion
   units = none
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)

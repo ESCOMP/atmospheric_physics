@@ -378,6 +378,10 @@ contains
   ! For constituents not handled by vertical diffusion
   ! i.e., vertically mixed by ndrop activation process (dropmixnuc = true)
   ! the explicit surface fluxes in the lowest layer are added directly here.
+  !
+  ! This changes q1 (constituents after vertical diffusion) rather than q
+  ! directly because even if this change is not via vertical mixing, it is
+  ! still accounted for as part of the vertical diffusion tendencies scheme.
   ! NOTE: this code assumes wet mass mixing ratio.
 !> \section arg_table_dropmixnuc_apply_surface_fluxes_run Argument Table
 !! \htmlinclude dropmixnuc_apply_surface_fluxes_run.html
@@ -387,7 +391,7 @@ contains
     do_diffusion_const, &
     cflux, &
     rpdel, &
-    const_array, &
+    q1, &
     errmsg, errflg)
 
     ! Input arguments
@@ -401,7 +405,7 @@ contains
     real(kind_phys),    intent(in)    :: rpdel(:, :)               ! Reciprocal of pressure layer thickness [Pa-1]
 
     ! Input/output arguments
-    real(kind_phys),    intent(inout) :: const_array(:, :, :)      ! Constituent array [kg kg-1]
+    real(kind_phys),    intent(inout) :: q1(:, :, :)               ! Constituent array after "vertical diffusion" [kg kg-1]
 
     ! Output arguments
     character(len=512), intent(out)   :: errmsg
@@ -420,7 +424,7 @@ contains
     do m = 1, ncnst
        if (.not. do_diffusion_const(m)) then
           ! Add surface flux contribution to constituent array at lowest model layer
-          const_array(:ncol, pver, m) = const_array(:ncol, pver, m) + &
+          q1(:ncol, pver, m) = q1(:ncol, pver, m) + &
                                          flux_to_state_conversion_factor(:ncol) * cflux(:ncol, m)
        end if
     end do
