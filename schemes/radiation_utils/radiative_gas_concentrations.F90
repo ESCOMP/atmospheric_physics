@@ -47,7 +47,7 @@ contains
     ! Input/output arguments
     real(kind_phys), intent(inout) :: const_array(:,:,:) ! Constituents array
 
-    ! Output arguments:
+    ! Output arguments
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errcode
 
