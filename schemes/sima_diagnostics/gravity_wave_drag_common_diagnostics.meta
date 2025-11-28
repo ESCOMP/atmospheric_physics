@@ -1,0 +1,41 @@
+[ccpp-table-properties]
+  name = gravity_wave_drag_common_diagnostics
+  type = scheme
+
+[ccpp-arg-table]
+  name  = gravity_wave_drag_common_diagnostics_init
+  type  = scheme
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = gravity_wave_drag_common_diagnostics_run
+  type  = scheme
+[ egwdffi_tot ]
+  standard_name = effective_diffusivity_coefficient_at_interfaces_due_to_gravity_wave_drag
+  units = m2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
