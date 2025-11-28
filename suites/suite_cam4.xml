@@ -10,7 +10,7 @@
       Radiation               RRTMGP     (not implemented)
       Chemistry               None       (not implemented)
       Vertical Diffusion      HB
-      Gravity Wave Drag       Orographic (not implemented)
+      Gravity Wave Drag       Orographic
   -->
   <group name="physics_before_coupler">
     <!-- Helper to read all possible constituents from file -->
@@ -314,6 +314,37 @@
     <!--
       Gravity wave drag.
     -->
+    <!-- Initialize all gravity wave parameterizations and read namelist -->
+    <scheme>gravity_wave_drag_common</scheme>
+
+    <!-- Interstitial: Prepare vertical profiles and accumulated quantities -->
+    <scheme>check_energy_zero_fluxes</scheme>
+    <scheme>gravity_wave_drag_prepare_profiles</scheme>
+
+    <!-- Prepare vertical ramp coefficients to taper drag at top of model -->
+    <scheme>gravity_wave_drag_top_taper</scheme>
+
+    <!-- Orographic gravity wave drag -->
+    <scheme>gravity_wave_drag_orographic</scheme>
+
+    <!-- Interstitial: Convert tendencies for dry constituents to dry air basis -->
+    <scheme>convert_dry_constituent_tendencies_to_dry_air_basis</scheme>
+
+    <!-- Diagnostic output for common gravity wave drag -->
+    <scheme>gravity_wave_drag_common_diagnostics</scheme>
+
+    <!-- Apply tendencies from gravity wave parameterizations -->
+    <scheme>apply_tendency_of_eastward_wind</scheme>
+    <scheme>apply_tendency_of_northward_wind</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+    <scheme>update_dry_static_energy</scheme>
+
+    <!-- Check energy -->
+    <scheme>check_energy_scaling</scheme>
+    <scheme>check_energy_chng</scheme>
 
     <!--
       Energy conservation/budget checks.

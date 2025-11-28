@@ -1,0 +1,67 @@
+[ccpp-table-properties]
+  name = gravity_wave_drag_top_taper
+  type = scheme
+
+[ccpp-arg-table]
+  name  = gravity_wave_drag_top_taper_init
+  type  = scheme
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ amIRoot ]
+  standard_name = flag_for_mpi_root
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ iulog ]
+  standard_name = log_output_unit
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ gw_top_taper ]
+  standard_name = taper_gravity_wave_drag_at_model_top
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ nbot_gravity_wave_top_taper ]
+  standard_name = vertical_index_of_bottom_limit_for_tapering_gravity_wave_drag_at_model_top
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
+[ pref_edge ]
+  standard_name = reference_pressure_at_interface
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (vertical_interface_dimension)
+  intent = in
+[ pref_mid ]
+  standard_name = reference_pressure_in_atmosphere_layer
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (vertical_layer_dimension)
+  intent = in
+[ vramp ]
+  standard_name = gravity_wave_drag_tapering_coefficients
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (vertical_layer_dimension)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
