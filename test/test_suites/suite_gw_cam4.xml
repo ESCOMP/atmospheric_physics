@@ -38,6 +38,9 @@
     <!-- Interstitial: Convert tendencies for dry constituents to dry air basis -->
     <scheme>convert_dry_constituent_tendencies_to_dry_air_basis</scheme>
 
+    <!-- Diagnostic output for common gravity wave drag -->
+    <scheme>gravity_wave_drag_common_diagnostics</scheme>
+
     <!-- Apply tendencies from gravity wave parameterizations -->
     <scheme>apply_tendency_of_eastward_wind</scheme>
     <scheme>apply_tendency_of_northward_wind</scheme>
