@@ -366,6 +366,7 @@
     <!--
       Gravity wave drag.
     -->
+
     <!-- Initialize all gravity wave parameterizations and read namelist -->
     <scheme>gravity_wave_drag_common</scheme>
 
@@ -398,6 +399,7 @@
     <!--
       Energy conservation/budget checks.
     -->
+
     <!-- Save current total energy from dycore for energy fixer in time step. Total energy in current state is updated by the last check_energy_chng call. -->
     <scheme>check_energy_save_teout</scheme>
 

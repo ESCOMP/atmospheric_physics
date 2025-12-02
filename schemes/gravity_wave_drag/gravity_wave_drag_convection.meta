@@ -12,12 +12,6 @@
   type = integer
   dimensions = ()
   intent = in
-[ pi ]
-  standard_name = pi_constant
-  units = 1
-  type = real | kind = kind_phys
-  dimensions = ()
-  intent = in
 [ masterproc ]
   standard_name = flag_for_mpi_root
   units = flag
@@ -383,12 +377,6 @@
   standard_name = vertical_layer_dimension
   units = count
   type = integer
-  dimensions = ()
-  intent = in
-[ pi ]
-  standard_name = pi_constant
-  units = 1
-  type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ masterproc ]

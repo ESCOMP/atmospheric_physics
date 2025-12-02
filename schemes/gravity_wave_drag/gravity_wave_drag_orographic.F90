@@ -8,7 +8,6 @@ module gravity_wave_drag_orographic
 
   implicit none
   private
-  save
 
   public :: gravity_wave_drag_orographic_init
   public :: gravity_wave_drag_orographic_run

@@ -1,4 +1,5 @@
 module rrtmgp_inputs
+
  implicit none
  private
 
@@ -9,15 +10,17 @@ module rrtmgp_inputs
 !> \section arg_table_rrtmgp_inputs_run Argument Table
 !! \htmlinclude rrtmgp_inputs_run.html
 !!
-subroutine rrtmgp_inputs_run(dosw, dolw, do_snow, do_graupel, trick_rrtmgp,    &
-                  pmid, pint, t, nday, idxday, cldfprime, coszrs, kdist_sw,    &
-                  t_sfc, emis_sfc, t_rad, pmid_rad, pint_rad, t_day, pmid_day, &
-                  pint_day, coszrs_day, alb_dir, alb_dif, lwup, stebol, ncol,  &
-                  ktopcam, ktoprad, nswbands, asdir, asdif, sw_low_bounds,     &
-                  sw_high_bounds, aldir, aldif, nlay, pverp, pver, cld,        &
-                  cldfsnow, cldfgrau, graupel_in_rad, gasnamelength,           &
-                  gaslist_lc, gas_concs_lw, aer_lw, atm_optics_lw, kdist_lw,   &
-                  sources_lw, aer_sw, atm_optics_sw, gas_concs_sw, errmsg, errflg)
+  subroutine rrtmgp_inputs_run(dosw, dolw, snow_associated, graupel_associated, &
+                  is_mpas, pmid, pint, t, nday, idxday,                         &
+                  cldfprime, coszrs, kdist_sw, t_sfc, emis_sfc, t_rad,          &
+                  pmid_rad, pint_rad, t_day, pmid_day, pint_day, coszrs_day,    &
+                  alb_dir, alb_dif, lwup, stebol, ncol, ktopcam, ktoprad, &
+                  nswbands, asdir, asdif, sw_low_bounds, sw_high_bounds,  &
+                  aldir, aldif, nlay, pverp, pver, cld, cldfsnow,         &
+                  cldfgrau, graupel_in_rad, gasnamelength, gaslist_lc,    &
+                  gas_concs_lw, aer_lw, atm_optics_lw, kdist_lw,          &
+                  sources_lw, aer_sw, atm_optics_sw, gas_concs_sw,        &
+                  errmsg, errflg)
      use ccpp_kinds,              only: kind_phys
      use ccpp_gas_optics_rrtmgp,  only: ty_gas_optics_rrtmgp_ccpp
      use ccpp_optical_props,      only: ty_optical_props_1scl_ccpp, ty_optical_props_2str_ccpp
@@ -38,9 +41,9 @@ subroutine rrtmgp_inputs_run(dosw, dolw, do_snow, do_graupel, trick_rrtmgp,    &
      integer,                              intent(in) :: nday                  ! Number of daylight columns
      logical,                              intent(in) :: dosw                  ! Flag for performing the shortwave calculation
      logical,                              intent(in) :: dolw                  ! Flag for performing the longwave calculation
-     logical,                              intent(in) :: do_snow               ! Flag for whether the cloud snow fraction argument should be used
-     logical,                              intent(in) :: do_graupel            ! Flag for whether the cloud graupel fraction argument should be used
-     logical,                              intent(in) :: trick_rrtmgp          ! Flag for whether to trick RRTMGP levels
+     logical,                              intent(in) :: snow_associated       ! Flag for whether the cloud snow fraction argument should be used
+     logical,                              intent(in) :: graupel_associated    ! Flag for whether the cloud graupel fraction argument should be used
+     logical,                              intent(in) :: is_mpas
      integer,         dimension(:),        intent(in) :: idxday                ! Indices of daylight columns
      real(kind_phys), dimension(:,:),      intent(in) :: pmid                  ! Air pressure at midpoint (Pa)
      real(kind_phys), dimension(:,:),      intent(in) :: pint                  ! Air pressure at interface (Pa)
@@ -59,7 +62,7 @@ subroutine rrtmgp_inputs_run(dosw, dolw, do_snow, do_graupel, trick_rrtmgp,    &
      real(kind_phys),                      intent(in) :: stebol                ! Stefan-Boltzmann constant (W m-2 K-4)
      type(ty_gas_optics_rrtmgp_ccpp),      intent(in) :: kdist_sw              ! Shortwave gas optics object
      type(ty_gas_optics_rrtmgp_ccpp),      intent(in) :: kdist_lw              ! Longwave gas optics object
-     character(len=5), dimension(:),       intent(in) :: gaslist_lc            ! Radiatively active gases
+     character(len=*), dimension(:),       intent(in) :: gaslist_lc            ! Radiatively active gases
      ! Outputs
      real(kind_phys), dimension(:,:),      intent(out) :: t_rad                ! Air temperature with radiation indexing (K)
      real(kind_phys), dimension(:,:),      intent(out) :: pmid_rad             ! Midpoint pressure with radiation indexing (Pa)
@@ -81,7 +84,7 @@ subroutine rrtmgp_inputs_run(dosw, dolw, do_snow, do_graupel, trick_rrtmgp,    &
      type(ty_gas_concs_ccpp),              intent(out) :: gas_concs_sw         ! Gas concentrations object for shortwave radiation
      type(ty_optical_props_2str_ccpp),     intent(out) :: atm_optics_sw        ! Atmosphere optical properties object for shortwave radiation
      type(ty_optical_props_2str_ccpp),     intent(out) :: aer_sw               ! Aerosol optical properties object for shortwave radiation
-     character(len=512),                   intent(out) :: errmsg
+     character(len=*),                     intent(out) :: errmsg
      integer,                              intent(out) :: errflg
 
      ! Local variables
@@ -110,7 +113,7 @@ subroutine rrtmgp_inputs_run(dosw, dolw, do_snow, do_graupel, trick_rrtmgp,    &
      !
      ! These conditions are generally only satisfied in a non-MPAS MT configuration
      !------------------------------------------------------------------------------
-     if (( trick_rrtmgp ) .and. &
+     if (( .not. is_mpas ) .and. &
           (nlay==pverp) .and. &
           (minval(pint(:,1)) < 1._kind_phys) .and. &
           (minval(pint(:,2)) > 1._kind_phys) ) then
@@ -198,7 +201,6 @@ subroutine rrtmgp_inputs_run(dosw, dolw, do_snow, do_graupel, trick_rrtmgp,    &
         pint_day(idx,:) = pint_rad(idxday(idx),:)
         coszrs_day(idx) = coszrs(idxday(idx))
      end do
-
      ! Assign albedos to the daylight columns (from E3SM implementation)
      ! Albedos are imported from the surface models as broadband (visible, and near-IR),
      ! and we need to map these to appropriate narrower bands used in RRTMGP. Bands
@@ -253,7 +255,7 @@ subroutine rrtmgp_inputs_run(dosw, dolw, do_snow, do_graupel, trick_rrtmgp,    &
      ! 2. modify for snow. use max(cld, cldfsnow)
      ! 3. modify for graupel if graupel_in_rad is true.
      !    use max(cldfprime, cldfgrau)
-     if (do_snow) then
+     if (snow_associated) then
         do kdx = 1, pver
            do idx = 1, ncol
               cldfprime(idx,kdx) = max(cld(idx,kdx), cldfsnow(idx,kdx))
@@ -263,7 +265,7 @@ subroutine rrtmgp_inputs_run(dosw, dolw, do_snow, do_graupel, trick_rrtmgp,    &
         cldfprime(:,:) = cld(:,:)
      end if
 
-     if (do_graupel .and. graupel_in_rad) then
+     if (graupel_associated .and. graupel_in_rad) then
         do kdx = 1, pver
            do idx = 1, ncol
               cldfprime(idx,kdx) = max(cldfprime(idx,kdx), cldfgrau(idx,kdx))
@@ -274,7 +276,7 @@ subroutine rrtmgp_inputs_run(dosw, dolw, do_snow, do_graupel, trick_rrtmgp,    &
      ! If no daylight columns, can't create empty RRTMGP objects
      if (dosw .and. nday > 0) then
         ! Initialize object for gas concentrations.
-        errmsg = gas_concs_sw%gas_concs%init(gaslist_lc)
+         errmsg = gas_concs_sw%gas_concs%init(gaslist_lc)
         if (len_trim(errmsg) > 0) then
            errflg = 1
            return

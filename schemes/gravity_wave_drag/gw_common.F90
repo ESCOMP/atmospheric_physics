@@ -6,7 +6,6 @@ module gw_common
 
   implicit none
   private
-  save
 
   ! Public CCPP-compliant initialization interface.
   ! This scheme also reads in all namelist parameters for all gravity wave

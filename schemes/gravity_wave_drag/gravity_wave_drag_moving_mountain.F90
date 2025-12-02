@@ -6,7 +6,6 @@ module gravity_wave_drag_moving_mountain
 
   implicit none
   private
-  save
 
   ! Public CCPP-compliant interfaces
   public :: gravity_wave_drag_moving_mountain_run
@@ -314,7 +313,7 @@ contains
     xpwp_clubb(:ncol, :) = sqrt(upwp_clubb(:ncol, :)**2 + vpwp_clubb(:ncol, :)**2)
 
     call gw_movmtn_src(ncol, pver, &
-                       u, v, ttend_dp(:ncol, :), ttend_clubb(:ncol, :), xpwp_clubb(:ncol, :), &
+                       u, v, ttend_dp(:ncol, :), xpwp_clubb(:ncol, :), &
                        vorticity(:ncol, :), zm, alpha_gw_movmtn, &
                        src_level, tend_level, &
                        tau, ubm, ubi, xv, yv, &
@@ -370,7 +369,7 @@ contains
   ! Flexible driver for gravity wave source from obstacle effects produced
   ! by internal circulations
   subroutine gw_movmtn_src(ncol, pver, &
-                           u, v, netdt, netdt_shcu, xpwp_shcu, &
+                           u, v, netdt, xpwp_shcu, &
                            vorticity, zm, alpha_gw_movmtn, &
                            src_level, tend_level, tau, ubm, ubi, xv, yv, &
                            c, hdepth, use_gw_movmtn_pbl, rair, gravit, &
@@ -386,8 +385,6 @@ contains
     real(kind_phys), intent(in) :: u(:, :), v(:, :), vorticity(:, :)
     ! Heating rate due to convection.
     real(kind_phys), intent(in) :: netdt(:, :)  !from deep scheme
-    ! Heating rate due to shallow convection and PBL turbulence.
-    real(kind_phys), intent(in) :: netdt_shcu(:, :)
     ! Higher order flux from ShCu/PBL.
     real(kind_phys), intent(in) :: xpwp_shcu(:, :)
     ! Midpoint altitudes.
@@ -466,10 +463,14 @@ contains
     real(kind_phys) :: ut(ncol)
     ! Tau from moving mountain lookup table
     real(kind_phys) :: taumm(ncol)
+
     ! Heating rate conversion factor.  -> tuning factors
+    ! (now 20* larger than what Zhang McFarlane said as they try to describe heating over 100km grid cell)
     real(kind_phys), parameter :: CF = 20._kind_phys  !(1/ (5%))  -> 5% of grid cell is covered with convection
+
     ! Averaging length.
     real(kind_phys), parameter :: AL = 1.0e5_kind_phys
+
     ! Index for moving mountain lookuptable
     integer :: hdmm_idx(ncol), uhmm_idx(ncol)
     ! Index for ground based phase speed bin
@@ -511,7 +512,7 @@ contains
     end if
 
     !------------------------------------------------------------------------
-    ! Determine wind and unit vectors at the steering level) then
+    ! Determine wind and unit vectors at the steering level then
     ! project winds.
     !------------------------------------------------------------------------
     do i = 1, ncol
@@ -555,7 +556,7 @@ contains
     !-----------------------------------------------------------------------
 
     ! First find the indices for the top and bottom of the heating range.
-    !nedt is heating profile from Zhang McFarlane (it's pressure coordinates, therefore k=0 is the top)
+    ! netdt is heating profile from Zhang McFarlane (it is pressure coordinates, therefore k=0 is the top)
 
     boti = 0 !bottom
     topi = 0  !top
@@ -608,8 +609,7 @@ contains
       end where
     end do
 
-    ! Multiply by conversion factor
-    ! (now 20* larger than what Zhang McFarlane said as they try to describe heating over 100km grid cell)
+    ! Multiply by conversion factor (see definition of CF)
     q0 = q0*CF
     qj = gravit/rair*q0 ! unit conversion to m/s3
 
@@ -728,7 +728,7 @@ contains
 
         end if ! heating depth above min and not at the pole
       else
-        tau(i, 0, topi(i):pver + 1) = xpwp_src(i) ! 0.1_kind_phys/10000._kind_phys
+        tau(i, 0, topi(i):pver + 1) = xpwp_src(i)
       end if
 
     end do

@@ -7,10 +7,9 @@ module gravity_wave_drag_ridge
 
   implicit none
   private
-  save
 
   ! Public CCPP-compliant interfaces.
-  public :: gravity_wave_drag_ridge_init        ! CCPP I/O read Ridge data into state and initialize.
+  public :: gravity_wave_drag_ridge_init        ! Initialize common namelist params.
 
   public :: gravity_wave_drag_ridge_beta_init   ! Meso-Beta.
   public :: gravity_wave_drag_ridge_beta_run
@@ -1806,7 +1805,6 @@ contains
 
     if (luse_gw_rdg_resid) then
       ! Add additional GW from residual variance. Assumed isotropic
-      !kwvrdg = 0.001_kind_phys/(100._kind_phys)
       kwvrdg = 1e-5_kind_phys
       effgw = effgw_rdg_resid*isowgt
       tauoro = 0._kind_phys
