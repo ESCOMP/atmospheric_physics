@@ -1,0 +1,161 @@
+[ccpp-table-properties]
+  name = gravity_wave_drag_moving_mountain_diagnostics
+  type = scheme
+
+[ccpp-arg-table]
+  name  = gravity_wave_drag_moving_mountain_diagnostics_init
+  type  = scheme
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = gravity_wave_drag_moving_mountain_diagnostics_run
+  type  = scheme
+[ u ]
+  standard_name = eastward_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ v ]
+  standard_name = northward_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ src_level ]
+  standard_name = vertical_index_of_gravity_wave_source_level
+  units = index
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ tend_level ]
+  standard_name = vertical_index_of_lowest_gravity_wave_tendency_level
+  units = index
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ steer_level ]
+  standard_name = index_of_steering_level_due_to_moving_mountain_gravity_wave_drag
+  units = index
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ ubi ]
+  standard_name = wind_speed_along_gravity_wave_source_direction_at_interfaces
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ ubm ]
+  standard_name = wind_speed_along_gravity_wave_source_direction
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ tau0 ]
+  standard_name = total_stress_at_interface_from_reference_wavenumber_due_to_moving_mountain_gravity_wave_drag
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ gwut0 ]
+  standard_name = wind_tendency_in_source_direction_due_to_moving_mountain_gravity_wave_drag
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ utgw ]
+  standard_name = tendency_of_eastward_wind_due_to_moving_mountain_gravity_wave_drag
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ vtgw ]
+  standard_name = tendency_of_northward_wind_due_to_moving_mountain_gravity_wave_drag
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ hdepth ]
+  standard_name = convective_heating_depth_due_to_moving_mountain_gravity_wave_drag
+  units = km
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ ttend_dp ]
+  standard_name = tendency_of_air_temperature_due_to_deep_convection
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ ttend_clubb ]
+  standard_name = tendency_of_air_temperature_due_to_clubb
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ upwp_clubb ]
+  standard_name = upwp_clubb_gw_tbd
+  units = m2 s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ vpwp_clubb ]
+  standard_name = vpwp_clubb_gw_tbd
+  units = m2 s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ vorticity ]
+  standard_name = relative_vorticity
+  units = s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ usteer ]
+  standard_name = eastward_wind_at_steering_level_due_to_moving_mountain_gravity_wave_drag
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ vsteer ]
+  standard_name = northward_wind_at_steering_level_due_to_moving_mountain_gravity_wave_drag
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ CS ]
+  standard_name = gravity_wave_phase_speed_in_source_direction_due_to_moving_mountain_gravity_wave_drag
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ xpwp_src ]
+  standard_name = momentum_flux_source_due_to_moving_mountain_gravity_wave_drag
+  units = m2 s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
