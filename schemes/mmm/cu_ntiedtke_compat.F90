@@ -14,21 +14,19 @@ contains
     !! \htmlinclude cu_ntiedtke_compat_pre_run.html
     subroutine cu_ntiedtke_compat_pre_run( &
             cflx, exner, landfrac, &
-            lhf, shf, &
             rthdynten, rthblten, rthratenlw, rthratensw, &
             rqvdynten, rqvblten, &
             lndj, &
-            ptf, pqvf, hfx, evap, &
+            ptf, pqvf, evap, &
             errmsg, errflg)
         use ccpp_kinds, only: kind_phys
         use ccpp_scheme_utils, only: ccpp_constituent_index
 
         real(kind_phys), intent(in) :: cflx(:, :), exner(:, :), landfrac(:), &
-                                       lhf(:), shf(:), &
                                        rthdynten(:, :), rthblten(:, :), rthratenlw(:, :), rthratensw(:, :), &
                                        rqvdynten(:, :), rqvblten(:, :)
         integer, intent(out) :: lndj(:)
-        real(kind_phys), intent(out) :: ptf(:, :), pqvf(:, :), hfx(:), evap(:)
+        real(kind_phys), intent(out) :: ptf(:, :), pqvf(:, :), evap(:)
         character(*), intent(out) :: errmsg
         integer, intent(out) :: errflg
 
@@ -42,7 +40,6 @@ contains
 
         ptf(:, :) = (rthdynten(:, :) + rthblten(:, :) + rthratenlw(:, :) + rthratensw(:, :)) * exner(:, :)
         pqvf(:, :) = rqvdynten(:, :) + rqvblten(:, :)
-        hfx(:) = lhf(:) + shf(:)
         evap(:) = 0.0_kind_phys
 
         call ccpp_constituent_index( &
