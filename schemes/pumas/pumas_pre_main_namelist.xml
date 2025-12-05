@@ -70,6 +70,19 @@
   </values>
 </entry>
 
+<entry id="micro_mg_num_steps">
+  <category>microphys</category>
+  <group>micro_mg_nl</group>
+  <standard_name>number_of_microphysics_substeps</standard_name>
+  <units>count</units>
+  <type>integer</type>
+  <desc>number of substeps for the microphysics</desc>
+  <!-- FIXME: Fix default value(s) -->
+  <values>
+    <value>1</value>
+  </values>
+</entry>
+
 <entry id="use_hetfrz_classnuc">
   <category>microphys</category>
   <group>micro_mg_nl</group>
@@ -387,7 +400,7 @@
 <entry id="accre_enhan_fact_in">
   <category>microphys</category>
   <group>micro_mg_nl</group>
-  <standard_name>accretion_enhancement_factor</standard_name>
+  <standard_name>microphysics_accretion_enhancement_factor</standard_name>
   <units>1</units>
   <type>real</type>
   <kind>kind_phys</kind>

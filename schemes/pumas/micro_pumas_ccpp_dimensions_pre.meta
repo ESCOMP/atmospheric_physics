@@ -198,6 +198,26 @@
   type = real
   kind = kind_phys
   intent = out
+[micro_mg_num_steps]
+  standard_name = number_of_microphysics_substeps
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[ dtime ]
+  standard_name = timestep_for_physics
+  units = s
+  type = real
+  kind = kind_phys
+  dimensions = ()
+  intent = in
+[micro_timestep]
+  standard_name = timestep_for_microphysics
+  units = s
+  dimensions = ()
+  type = real
+  kind = kind_phys
+  intent = out
 [numliq_in]
   standard_name = mass_number_concentration_of_cloud_liquid_water_wrt_moist_air_and_condensed_water
   long_name = mass number concentration of cloud liquid wrt moist air and condensed water of new state
@@ -358,13 +378,13 @@
   type = real
   kind = kind_phys
   intent = in
-[micro_spat_vary_accre_enhan]
-  standard_name = microphysics_spatial_varying_accretion_enhancement_factor
+[pumas_accre_enhan]
+  standard_name = pumas_spatially_variable_microphysics_accretion_enhancement_factor
   long_name = microphysics spatial varying accretion enhancement factor
   units = 1
   dimensions = (microphysics_horizontal_loop_extent, microphysics_vertical_layer_dimension)
   type = real
-  kind = kind_phys
+  kind = pumas_r8
   intent = out
 [pmid_in]
   standard_name = air_pressure
