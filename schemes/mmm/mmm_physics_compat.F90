@@ -3,31 +3,61 @@ module mmm_physics_compat
     implicit none
 
     private
+    public :: mmm_physics_compat_init
     public :: mmm_physics_compat_run
     public :: mmm_physics_accumulate_tendencies_timestep_init
     public :: mmm_physics_accumulate_tendencies_run
     public :: mmm_physics_persist_states_init
     public :: mmm_physics_persist_states_timestep_final
+    public :: compute_air_density_run
+    public :: compute_atmosphere_layer_thickness_run
     public :: compute_characteristic_grid_length_scale_init
     public :: geopotential_height_wrt_sfc_at_if_to_msl_run
     public :: geopotential_height_wrt_sfc_to_msl_run
 contains
+    !> \section arg_table_mmm_physics_compat_init Argument Table
+    !! \htmlinclude mmm_physics_compat_init.html
+    pure subroutine mmm_physics_compat_init( &
+            isfflx, isftcflx, iz0tlnd, &
+            errmsg, errflg)
+
+        integer, intent(out) :: isfflx, isftcflx, iz0tlnd
+        character(*), intent(out) :: errmsg
+        integer, intent(out) :: errflg
+
+        errmsg = ''
+        errflg = 0
+
+        ! Set options that are specific to MMM physics at model initialization.
+        isfflx = 1
+        isftcflx = 0
+        iz0tlnd = 0
+    end subroutine mmm_physics_compat_init
+
     !> \section arg_table_mmm_physics_compat_run Argument Table
     !! \htmlinclude mmm_physics_compat_run.html
     pure subroutine mmm_physics_compat_run( &
             nstep, &
             dt, &
             theta_curr, theta_prev, qv_curr, qv_prev, &
+            icefrac, landfrac, &
             scheme_name, &
             rthdynten, rqvdynten, &
+            xland, &
             errmsg, errflg)
         use ccpp_kinds, only: kind_phys
 
+        ! This threshold is hardcoded to the same value as in MMM physics.
+        ! It is named `xice_threshold` there.
+        real(kind_phys), parameter :: sea_ice_area_fraction_threshold = 0.02_kind_phys
+
         integer, intent(in) :: nstep
         real(kind_phys), intent(in) :: dt, &
-                                       theta_curr(:, :), theta_prev(:, :), qv_curr(:, :), qv_prev(:, :)
+                                       theta_curr(:, :), theta_prev(:, :), qv_curr(:, :), qv_prev(:, :), &
+                                       icefrac(:), landfrac(:)
         character(256), intent(out) :: scheme_name
-        real(kind_phys), intent(out) :: rthdynten(:, :), rqvdynten(:, :)
+        real(kind_phys), intent(out) :: rthdynten(:, :), rqvdynten(:, :), &
+                                        xland(:)
         character(*), intent(out) :: errmsg
         integer, intent(out) :: errflg
 
@@ -43,6 +73,16 @@ contains
             rthdynten(:, :) = (theta_curr(:, :) - theta_prev(:, :)) / dt
             rqvdynten(:, :) = (qv_curr(:, :) - qv_prev(:, :)) / dt
         end if
+
+        ! For MMM physics, land mask (`xland`) is defined as
+        ! * xland = 1.0 for land cells, including sea ice cells.
+        ! * xland = 2.0 for water cells.
+        where (landfrac >= 0.5_kind_phys .or. &
+               icefrac >= sea_ice_area_fraction_threshold)
+            xland = 1.0_kind_phys
+        elsewhere
+            xland = 2.0_kind_phys
+        end where
     end subroutine mmm_physics_compat_run
 
     !> \section arg_table_mmm_physics_accumulate_tendencies_timestep_init Argument Table
@@ -193,10 +233,58 @@ contains
         qv_prev(:, :) = qv_curr(:, :)
     end subroutine mmm_physics_persist_states_timestep_final
 
+    !> \section arg_table_compute_air_density_run Argument Table
+    !! \htmlinclude compute_air_density_run.html
+    pure subroutine compute_air_density_run( &
+            pdel, gravit, dz, &
+            rho, &
+            errmsg, errflg)
+        use ccpp_kinds, only: kind_phys
+
+        real(kind_phys), intent(in) :: pdel(:, :), gravit, dz(:, :)
+        real(kind_phys), intent(out) :: rho(:, :)
+        character(*), intent(out) :: errmsg
+        integer, intent(out) :: errflg
+
+        errmsg = ''
+        errflg = 0
+
+        ! Compute air density by hydrostatic equation.
+        rho(:, :) = pdel(:, :) / (gravit * dz(:, :))
+    end subroutine compute_air_density_run
+
+    !> \section arg_table_compute_atmosphere_layer_thickness_run Argument Table
+    !! \htmlinclude compute_atmosphere_layer_thickness_run.html
+    pure subroutine compute_atmosphere_layer_thickness_run( &
+            ncol, &
+            zisfc, &
+            dz, &
+            errmsg, errflg)
+        use ccpp_kinds, only: kind_phys
+
+        integer, intent(in) :: ncol
+        real(kind_phys), intent(in) :: zisfc(:, :)
+        real(kind_phys), intent(out) :: dz(:, :)
+        character(*), intent(out) :: errmsg
+        integer, intent(out) :: errflg
+
+        integer :: i
+
+        errmsg = ''
+        errflg = 0
+
+        ! In CAM-SIMA, the first vertical index is at top of atmosphere.
+        ! The last one is at bottom of atmosphere. The resulting `dz` is positive.
+        do i = 1, ncol
+            dz(i, :) = zisfc(i, 1:size(zisfc, 2) - 1) - zisfc(i, 2:size(zisfc, 2))
+        end do
+    end subroutine compute_atmosphere_layer_thickness_run
+
     !> \section arg_table_compute_characteristic_grid_length_scale_init Argument Table
     !! \htmlinclude compute_characteristic_grid_length_scale_init.html
     pure subroutine compute_characteristic_grid_length_scale_init( &
-            omega, rearth, dx, &
+            omega, rearth, &
+            dx, &
             errmsg, errflg)
         use ccpp_kinds, only: kind_phys
 

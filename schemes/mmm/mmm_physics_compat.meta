@@ -3,6 +3,42 @@
   type = scheme
 
 [ccpp-arg-table]
+  name = mmm_physics_compat_init
+  type = scheme
+[ isfflx ]
+  standard_name = control_for_surface_flux_for_mmm_scheme
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+[ isftcflx ]
+  standard_name = control_for_surface_roughness_length_over_water_for_mmm_scheme
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+[ iz0tlnd ]
+  standard_name = control_for_surface_roughness_length_over_land_for_mmm_scheme
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
   name = mmm_physics_compat_run
   type = scheme
 [ nstep ]
@@ -41,6 +77,18 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
+[ icefrac ]
+  standard_name = sea_ice_area_fraction_from_coupler
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ landfrac ]
+  standard_name = land_area_fraction_from_coupler
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
 [ scheme_name ]
   standard_name = scheme_name
   units = none
@@ -58,6 +106,12 @@
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ xland ]
+  standard_name = land_binary_mask_for_mmm_scheme
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
   intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
@@ -394,6 +448,96 @@
   units = kg kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_dimension, vertical_layer_dimension)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+# ----------
+
+[ccpp-table-properties]
+  name = compute_air_density
+  type = scheme
+
+[ccpp-arg-table]
+  name = compute_air_density_run
+  type = scheme
+[ pdel ]
+  standard_name = air_pressure_thickness
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ gravit ]
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ dz ]
+  standard_name = atmosphere_layer_thickness
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ rho ]
+  standard_name = air_density
+  units = kg m-3
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+# ----------
+
+[ccpp-table-properties]
+  name = compute_atmosphere_layer_thickness
+  type = scheme
+
+[ccpp-arg-table]
+  name = compute_atmosphere_layer_thickness_run
+  type = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ zisfc ]
+  standard_name = geopotential_height_wrt_surface_at_interface
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ dz ]
+  standard_name = atmosphere_layer_thickness
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
