@@ -1,4 +1,29 @@
 @test
+subroutine test_mmm_physics_compat_init()
+    use funit
+    use mmm_physics_compat, only: mmm_physics_compat_init
+
+    integer :: isfflx, isftcflx, iz0tlnd
+    character(100) :: errmsg
+    integer :: errflg
+
+    isfflx = huge(0)
+    isftcflx = huge(0)
+    iz0tlnd = huge(0)
+
+    call mmm_physics_compat_init( &
+        isfflx, isftcflx, iz0tlnd, &
+        errmsg, errflg)
+
+    ! Should set options that are specific to MMM physics.
+    @assertEqual(1, isfflx)
+    @assertEqual(0, isftcflx)
+    @assertEqual(0, iz0tlnd)
+    @assertEqual('', errmsg)
+    @assertEqual(0, errflg)
+end subroutine test_mmm_physics_compat_init
+
+@test
 subroutine test_mmm_physics_compat_run()
     use ccpp_kinds, only: kind_phys
     use funit
@@ -8,10 +33,14 @@ subroutine test_mmm_physics_compat_run()
     integer :: nstep
     real(kind_phys) :: dt
     real(kind_phys) :: theta_curr(ncol, pver), theta_prev(ncol, pver), qv_curr(ncol, pver), qv_prev(ncol, pver)
+    real(kind_phys) :: icefrac(ncol), landfrac(ncol)
     character(256) :: scheme_name
     real(kind_phys) :: rthdynten(ncol, pver), rqvdynten(ncol, pver)
+    real(kind_phys) :: xland(ncol)
     character(100) :: errmsg
     integer :: errflg
+
+    integer :: i
 
     nstep = 0
     dt = 20.0_kind_phys
@@ -20,41 +49,65 @@ subroutine test_mmm_physics_compat_run()
     theta_prev(:, :) = 273.15_kind_phys
     qv_curr(:, :) = 0.03_kind_phys
     qv_prev(:, :) = 0.01_kind_phys
+    icefrac(1:50) = 0.0_kind_phys
+    icefrac(51:100) = [(0.01_kind_phys + real(i - 1, kind_phys) * 0.02_kind_phys, i = 1, 50)]
+    landfrac(1:50) = [(0.01_kind_phys + real(i - 1, kind_phys) * 0.02_kind_phys, i = 1, 50)]
+    landfrac(51:100) = 0.0_kind_phys
+    scheme_name = ''
     rthdynten(:, :) = huge(0.0_kind_phys)
     rqvdynten(:, :) = huge(0.0_kind_phys)
+    xland(:) = huge(0.0_kind_phys)
 
     call mmm_physics_compat_run( &
         nstep, &
         dt, &
         theta_curr, theta_prev, qv_curr, qv_prev, &
+        icefrac, landfrac, &
         scheme_name, &
         rthdynten, rqvdynten, &
+        xland, &
         errmsg, errflg)
 
-    ! Tendencies should be zero at start (nstep = 0).
+    ! Should set scheme name.
     @assertEqual('mmm_physics_compat_run', scheme_name)
+    ! Tendencies should be zero at start (nstep = 0).
     @assertEqual(0.0_kind_phys, rthdynten)
     @assertEqual(0.0_kind_phys, rqvdynten)
+    ! Should set land mask according to ice and land fractions.
+    @assertEqual(2.0_kind_phys, xland(1:25))
+    @assertEqual(1.0_kind_phys, xland(26:50))
+    @assertEqual(2.0_kind_phys, xland(51))
+    @assertEqual(1.0_kind_phys, xland(52:100))
     @assertEqual('', errmsg)
     @assertEqual(0, errflg)
 
     nstep = 1
 
+    scheme_name = ''
     rthdynten(:, :) = huge(0.0_kind_phys)
     rqvdynten(:, :) = huge(0.0_kind_phys)
+    xland(:) = huge(0.0_kind_phys)
 
     call mmm_physics_compat_run( &
         nstep, &
         dt, &
         theta_curr, theta_prev, qv_curr, qv_prev, &
+        icefrac, landfrac, &
         scheme_name, &
         rthdynten, rqvdynten, &
+        xland, &
         errmsg, errflg)
 
-    ! Should compute tendencies correctly afterwards (nstep > 0).
+    ! Should set scheme name.
     @assertEqual('mmm_physics_compat_run', scheme_name)
+    ! Should compute tendencies correctly afterwards (nstep > 0).
     @assertEqual(1.0_kind_phys, rthdynten, epsilon(0.0_kind_phys))
     @assertEqual(0.001_kind_phys, rqvdynten, epsilon(0.0_kind_phys))
+    ! Should set land mask according to ice and land fractions.
+    @assertEqual(2.0_kind_phys, xland(1:25))
+    @assertEqual(1.0_kind_phys, xland(26:50))
+    @assertEqual(2.0_kind_phys, xland(51))
+    @assertEqual(1.0_kind_phys, xland(52:100))
     @assertEqual('', errmsg)
     @assertEqual(0, errflg)
 end subroutine test_mmm_physics_compat_run
@@ -388,6 +441,66 @@ subroutine test_mmm_physics_persist_states_timestep_final()
     @assertEqual('', errmsg)
     @assertEqual(0, errflg)
 end subroutine test_mmm_physics_persist_states_timestep_final
+
+@test
+subroutine test_compute_air_density_run()
+    use ccpp_kinds, only: kind_phys
+    use funit
+    use mmm_physics_compat, only: compute_air_density_run
+
+    integer, parameter :: ncol = 100, pver = 10
+    real(kind_phys) :: pdel(ncol, pver), gravit, dz(ncol, pver)
+    real(kind_phys) :: rho(ncol, pver)
+    character(100) :: errmsg
+    integer :: errflg
+
+    pdel(:, :) = 98.0_kind_phys
+    gravit = 9.8_kind_phys
+    dz(:, :) = 10.0_kind_phys
+    rho(:, :) = huge(0.0_kind_phys)
+
+    call compute_air_density_run( &
+        pdel, gravit, dz, &
+        rho, &
+        errmsg, errflg)
+
+    ! Should compute air density correctly.
+    @assertEqual(1.0_kind_phys, rho, epsilon(0.0_kind_phys))
+    @assertEqual('', errmsg)
+    @assertEqual(0, errflg)
+end subroutine test_compute_air_density_run
+
+@test
+subroutine test_compute_atmosphere_layer_thickness_run()
+    use ccpp_kinds, only: kind_phys
+    use funit
+    use mmm_physics_compat, only: compute_atmosphere_layer_thickness_run
+
+    integer, parameter :: ncol = 100, pver = 10, pverp = 11
+    real(kind_phys) :: zisfc(ncol, pverp)
+    real(kind_phys) :: dz(ncol, pver)
+    character(100) :: errmsg
+    integer :: errflg
+
+    integer :: i
+
+    do i = 1, pverp
+        zisfc(:, i) = 10000.0_kind_phys - real(i - 1, kind_phys) * 1000.0_kind_phys
+    end do
+
+    dz(:, :) = huge(0.0_kind_phys)
+
+    call compute_atmosphere_layer_thickness_run( &
+        ncol, &
+        zisfc, &
+        dz, &
+        errmsg, errflg)
+
+    ! Should compute atmosphere layer thickness correctly.
+    @assertEqual(1000.0_kind_phys, dz, epsilon(0.0_kind_phys))
+    @assertEqual('', errmsg)
+    @assertEqual(0, errflg)
+end subroutine test_compute_atmosphere_layer_thickness_run
 
 @test
 subroutine test_compute_characteristic_grid_length_scale_init()
