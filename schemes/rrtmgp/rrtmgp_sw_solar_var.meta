@@ -1,7 +1,7 @@
 [ccpp-table-properties]
   name = rrtmgp_sw_solar_var
   type = scheme
-  dependencies = ../radiation_utils/mo_util.F90
+  dependencies = ../../to_be_ccppized/ccpp_tuvx_utils.F90
 
 [ccpp-arg-table]
   name  = rrtmgp_sw_solar_var_run

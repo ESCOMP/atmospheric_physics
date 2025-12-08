@@ -92,7 +92,7 @@ contains
 
   subroutine integrate_spectrum( nsrc, ntrg, src_x, min_trg, max_trg, src, trg )
 
-    use mo_util, only : rebin
+    use ccpp_tuvx_utils, only : rebin
 
     implicit none
 
