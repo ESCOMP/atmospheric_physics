@@ -21,7 +21,6 @@ subroutine rrtmgp_sw_mcica_subcol_gen_run(dosw, kdist_sw, nswbands, nswgpts, nda
    use ccpp_gas_optics_rrtmgp,  only: ty_gas_optics_rrtmgp_ccpp
    use ccpp_optical_props,      only: ty_optical_props_2str_ccpp
    use shr_RandNum_mod,         only: ShrKissRandGen ! SIMA-specific randum number generator
-   use mo_gas_optics_rrtmgp,    only: ty_gas_optics_rrtmgp
 
    ! Compute combined cloud optical properties.
    ! Create MCICA stochastic arrays for cloud SW optical properties.

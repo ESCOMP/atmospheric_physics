@@ -72,7 +72,6 @@ contains
     ! cloud radiative parameters are "in cloud" not "in cell"
     real(kind_phys) :: liq_lw_abs(nlwbands, ncol, pver)   ! liquid absorption optics depth (LW)
     real(kind_phys) :: ice_lw_abs(nlwbands, ncol, pver)   ! ice absorption optics depth (LW)
-    !real(kind_phys) :: c_cld_lw_abs(nlwbands, ncol, pver) ! combined cloud absorption optics depth (LW)
 
     character(len=*), parameter :: sub = 'rrtmgp_lw_cloud_optics_run'
     !--------------------------------------------------------------------------------

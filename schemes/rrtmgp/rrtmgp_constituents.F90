@@ -36,75 +36,76 @@ contains
 
       ! Parse gases, long names, and sources from rad_climate
       parse_loop: do gas_idx = 1, size(rad_climate)
-      if ( len_trim(rad_climate(gas_idx)) == 0 ) then
-         exit parse_loop
-      endif
 
-      ! There are no fields in the input strings in which a blank character is allowed.
-      ! To simplify the parsing go through the input strings and remove blanks.
-      tmpstr = adjustl(rad_climate(gas_idx))
-      do
-         strlen = len_trim(tmpstr)
-         ipos = index(tmpstr, ' ')
-         if (ipos == 0 .or. ipos > strlen) exit
-         tmpstr = tmpstr(:ipos-1) // tmpstr(ipos+1:strlen)
-      end do
+         if ( len_trim(rad_climate(gas_idx)) == 0 ) then
+            exit parse_loop
+         endif
 
-      ! Locate the ':' separating source from long name.
-      idx = index(tmpstr, ':')
-      source = tmpstr(:idx-1)
-      tmpstr = tmpstr(idx+1:)
+         ! There are no fields in the input strings in which a blank character is allowed.
+         ! To simplify the parsing go through the input strings and remove blanks.
+         tmpstr = adjustl(rad_climate(gas_idx))
+         do
+            strlen = len_trim(tmpstr)
+            ipos = index(tmpstr, ' ')
+            if (ipos == 0 .or. ipos > strlen) exit
+            tmpstr = tmpstr(:ipos-1) // tmpstr(ipos+1:strlen)
+         end do
 
-      ! locate the ':' separating long name from rad gas ("standard") name
-      idx = scan(tmpstr, ':')
+         ! Locate the ':' separating source from long name.
+         idx = index(tmpstr, ':')
+         source = tmpstr(:idx-1)
+         tmpstr = tmpstr(idx+1:)
 
-      long_name = tmpstr(:idx-1)
-      stdname = tmpstr(idx+1:)
+         ! locate the ':' separating long name from rad gas ("standard") name
+         idx = scan(tmpstr, ':')
 
-      ! Register the constituent based on the source
-      if (source == 'A') then
-          call rrtmgp_dyn_consts(gas_idx)%instantiate(     &
-             std_name = stdname,   &
-             long_name = long_name,  &
-             units = 'kg kg-1',                            &
-             vertical_dim = 'vertical_layer_dimension', &
-             min_value = 0.0_kind_phys,                 &
-             advected = .true.,                         &
-             water_species = .false.,                    &
-             mixing_ratio_type = 'dry',                 &
-             errcode = errflg,                         &
-             errmsg = errmsg)
-      else if (source == 'N') then
-          call rrtmgp_dyn_consts(gas_idx)%instantiate(     &
-             std_name = stdname,   &
-             long_name = long_name,  &
-             units = 'kg kg-1',                            &
-             vertical_dim = 'vertical_layer_dimension', &
-             min_value = 0.0_kind_phys,                 &
-             advected = .false.,                         &
-             water_species = .false.,                    &
-             mixing_ratio_type = 'dry',                 &
-             errcode = errflg,                         &
-             errmsg = errmsg)
-      else if (source == 'Z') then
-          call rrtmgp_dyn_consts(gas_idx)%instantiate(     &
-             std_name = stdname,   &
-             long_name = long_name,  &
-             units = 'kg kg-1',                            &
-             vertical_dim = 'vertical_layer_dimension', &
-             min_value = 0.0_kind_phys,                 &
-             default_value = 0.0_kind_phys,             &
-             advected = .false.,                         &
-             water_species = .false.,                    &
-             mixing_ratio_type = 'dry',                 &
-             errcode = errflg,                         &
-             errmsg = errmsg)
-      else
-         write(errmsg,*) 'rrtmgp_constituent_register: invalid gas source "', source, '" for radiation', &
-            ' constituent "', stdname, '"'
-         errflg = 1
-         return
-      end if
+         long_name = tmpstr(:idx-1)
+         stdname = tmpstr(idx+1:)
+
+         ! Register the constituent based on the source
+         if (source == 'A') then
+             call rrtmgp_dyn_consts(gas_idx)%instantiate(     &
+                std_name = stdname,   &
+                long_name = long_name,  &
+                units = 'kg kg-1',                            &
+                vertical_dim = 'vertical_layer_dimension', &
+                min_value = 0.0_kind_phys,                 &
+                advected = .true.,                         &
+                water_species = .false.,                    &
+                mixing_ratio_type = 'dry',                 &
+                errcode = errflg,                         &
+                errmsg = errmsg)
+         else if (source == 'N') then
+             call rrtmgp_dyn_consts(gas_idx)%instantiate(     &
+                std_name = stdname,   &
+                long_name = long_name,  &
+                units = 'kg kg-1',                            &
+                vertical_dim = 'vertical_layer_dimension', &
+                min_value = 0.0_kind_phys,                 &
+                advected = .false.,                         &
+                water_species = .false.,                    &
+                mixing_ratio_type = 'dry',                 &
+                errcode = errflg,                         &
+                errmsg = errmsg)
+         else if (source == 'Z') then
+             call rrtmgp_dyn_consts(gas_idx)%instantiate(     &
+                std_name = stdname,   &
+                long_name = long_name,  &
+                units = 'kg kg-1',                            &
+                vertical_dim = 'vertical_layer_dimension', &
+                min_value = 0.0_kind_phys,                 &
+                default_value = 0.0_kind_phys,             &
+                advected = .false.,                         &
+                water_species = .false.,                    &
+                mixing_ratio_type = 'dry',                 &
+                errcode = errflg,                         &
+                errmsg = errmsg)
+         else
+            write(errmsg,*) 'rrtmgp_constituent_register: invalid gas source "', source, '" for radiation', &
+               ' constituent "', stdname, '"'
+            errflg = 1
+            return
+         end if
 
       end do parse_loop
 

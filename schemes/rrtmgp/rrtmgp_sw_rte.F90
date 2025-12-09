@@ -113,6 +113,7 @@ contains
        call check_error_msg('rrtmgp_sw_rte_rte_sw_allsky', errmsg)
        if (len_trim(errmsg) /= 0) then
           errflg = 1
+          return
        end if
     end if
 

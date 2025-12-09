@@ -32,6 +32,8 @@ contains
 
     if (.not. doswrad .or. nday == 0) return
 
+    ! REMOVECAM: scheme is just a stub for now
+    ! Set the optical properties to constants for snapshot testing
     aer_sw%optical_props%tau = 0.0_kind_phys
     aer_sw%optical_props%g = 0.0_kind_phys
     aer_sw%optical_props%ssa = 1.0_kind_phys

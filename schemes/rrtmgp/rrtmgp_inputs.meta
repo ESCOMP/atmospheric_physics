@@ -272,7 +272,7 @@
 [ gaslist_lc ]
   standard_name = lowercase_list_of_active_gases_for_RRTMGP
   units = none
-  type = character | kind = len=5
+  type = character | kind = len=*
   dimensions = (number_of_active_gases_for_RRTMGP)
   intent = in
 [ gas_concs_lw ]

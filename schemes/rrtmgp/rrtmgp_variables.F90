@@ -22,8 +22,6 @@ CONTAINS
       real(kind_phys),    intent(out) :: fluxlwup_Jac(:,:)    ! Surface temperature flux Jacobian [W m-2 K-1]
       real(kind_phys),    intent(out) :: rad_heat(:,:)        ! Tendency of dry air enthalpy [J kg-1 s-1]
       logical,            intent(out) :: use_tlev             ! Flag to use temperature at interfaces in radiation calculation
-      logical,            intent(out) :: snow_exists          ! Flag to include snow cloud area fraction
-      logical,            intent(out) :: grau_exists          ! Flag to include graupel cloud area fraction
       character(len=512), intent(out) :: errmsg
       integer,            intent(out) :: errflg
 
@@ -41,12 +39,6 @@ CONTAINS
 
       ! Initialize rad_heat
       rad_heat = unset_real
-
-      ! REMOVECAM: The grau_exists and snow_exists flags should be set to .true. by
-      ! schemes that introduce graupel and/or snow
-      ! Set the snow and graupel flags to the values needed for the snapshot test
-      snow_exists = .true.
-      grau_exists = .false.
 
    end subroutine rrtmgp_variables_init
 

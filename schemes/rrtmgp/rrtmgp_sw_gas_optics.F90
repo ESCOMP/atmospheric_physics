@@ -320,10 +320,11 @@ contains
          tsi_default, mg_default, sb_default,                   &
          rayl_lower_allocatable, rayl_upper_allocatable)
 
+    call check_error_msg('rrtmgp_sw_gas_optics_init_load', errmsg)
     if (len_trim(errmsg) > 0) then
        errflg = 1
+       return
     end if
-    call check_error_msg('rrtmgp_sw_gas_optics_init_load', errmsg)
 
   end subroutine rrtmgp_sw_gas_optics_init
 

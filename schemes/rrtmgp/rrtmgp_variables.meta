@@ -41,18 +41,6 @@
   type = logical
   dimensions = ()
   intent = out
-[ grau_exists ]
-  standard_name = include_liquid_plus_graupel_stratiform_cloud_area_fraction
-  units = flag
-  type = logical
-  dimensions = ()
-  intent = out
-[ snow_exists ]
-  standard_name = include_liquid_plus_snow_stratiform_cloud_area_fraction
-  units = flag
-  type = logical
-  dimensions = ()
-  intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
