@@ -370,8 +370,8 @@
   type = real
   kind = kind_phys
   intent = out
-[spat_vary_accre_enhan_in]
-  standard_name = spatial_varying_accretion_enhancement_factor
+[accre_enhan_in]
+  standard_name = accretion_enhancement_factor
   long_name = spatial varying accretion enhancement factor
   units = 1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -379,7 +379,7 @@
   kind = kind_phys
   intent = in
 [pumas_accre_enhan]
-  standard_name = pumas_spatially_variable_microphysics_accretion_enhancement_factor
+  standard_name = pumas_accretion_enhancement_factor
   long_name = microphysics spatial varying accretion enhancement factor
   units = 1
   dimensions = (microphysics_horizontal_loop_extent, microphysics_vertical_layer_dimension)

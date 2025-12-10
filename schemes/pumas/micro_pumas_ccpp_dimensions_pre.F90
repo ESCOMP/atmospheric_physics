@@ -56,7 +56,7 @@ contains
                              graupice_in, micro_graupice,                           &
                              numgraup_in, micro_numgraup,                           &
                              relvar_in, micro_relvar,                               &
-                             spat_vary_accre_enhan_in, pumas_accre_enhan,           &
+                             accre_enhan_in, pumas_accre_enhan,           &
                              pmid_in, micro_pmid,                                   &
                              pdel_in, micro_pdel,                                   &
                              pint_in, micro_pint,                                   &
@@ -134,7 +134,7 @@ contains
     real(kind_phys), intent(in)  :: relvar_in(:, :)
     real(kind_phys), intent(out) :: micro_relvar(:, :)
     ! Accretion enhancement factor (1)
-    real(kind_phys), intent(in)  :: spat_vary_accre_enhan_in(:, :)
+    real(kind_phys), intent(in)  :: accre_enhan_in(:, :)
     real(pumas_r8),  intent(out) :: pumas_accre_enhan(:, :)
     ! Air pressure (Pa)
     real(kind_phys), intent(in)  :: pmid_in(:, :)
@@ -214,7 +214,7 @@ contains
     micro_graupice(:ncol,:) = graupice_in(:,::)
     micro_numgraup(:ncol,:) = numgraup_in(:,::)
     micro_relvar(:ncol,:) = relvar_in(:,::)
-    pumas_accre_enhan(:ncol,:) = real(spat_vary_accre_enhan_in(:,::), pumas_r8)
+    pumas_accre_enhan(:ncol,:) = real(accre_enhan_in(:,::), pumas_r8)
     micro_pmid(:ncol,:) = pmid_in(:,::)
     micro_pdel(:ncol,:) = pdel_in(:,::)
     micro_pint(:ncol,:) = pint_in(:,:micro_nlevp1)
