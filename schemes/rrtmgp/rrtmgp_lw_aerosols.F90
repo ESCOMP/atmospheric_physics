@@ -1,7 +1,7 @@
 !> \file rrtmgp_lw_aerosols.F90
 !!
 
-!> This module contains the call to the RRTMGP-lw radiation routine
+!> This module sets the RRTMGP aerosol longwave optical depth
 module rrtmgp_lw_aerosols
   implicit none
   private

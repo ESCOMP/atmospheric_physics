@@ -13,7 +13,7 @@
   dimensions = ()
   intent = in
 [ available_gases ]
-  standard_name = gas_concentrations_rrtmgp_object_for_RRTMGP
+  standard_name = gas_volume_mixing_ratios_object_for_RRTMGP
   units = none
   type = ty_gas_concs_ccpp
   dimensions = ()
@@ -34,7 +34,7 @@
   standard_name = ccpp_error_message
   long_name = Error message for error handling in CCPP
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = out
 [ errflg ]
@@ -91,25 +91,25 @@
   dimensions = ()
   intent = out
 [ idxday ]
-  standard_name = daytime_points
+  standard_name = daytime_columns
   units = index
   type = integer
   dimensions = (horizontal_dimension)
   intent = out
 [ nday ]
-  standard_name = daytime_points_dimension
+  standard_name = daytime_columns_dimension
   units = count
   type = integer
   dimensions = ()
   intent = out
 [ idxnite ]
-  standard_name = nighttime_points
+  standard_name = nighttime_columns
   units = index
   type = integer
   dimensions =  (horizontal_dimension)
   intent = out
 [ nnite ]
-  standard_name = nighttime_points_dimension
+  standard_name = nighttime_columns_dimension
   units = count
   type = integer
   dimensions = ()
@@ -119,7 +119,7 @@
   standard_name = ccpp_error_message
   long_name = Error message for error handling in CCPP
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = out
 [ errflg ]
@@ -183,53 +183,29 @@
   dimensions = ()
   intent = in
 [ idxday ]
-  standard_name = daytime_points
+  standard_name = daytime_columns
   units = index
   type = integer
   dimensions = (horizontal_loop_extent)
   intent = in
 [ nday ]
-  standard_name = daytime_points_dimension
+  standard_name = daytime_columns_dimension
   units = count
   type = integer
   dimensions = ()
   intent = in
 [ idxnite ]
-  standard_name = nighttime_points
+  standard_name = nighttime_columns
   units = index
   type = integer
   dimensions =  (horizontal_loop_extent)
   intent = in
 [ nnite ]
-  standard_name = nighttime_points_dimension
+  standard_name = nighttime_columns_dimension
   units = count
   type = integer
   dimensions = ()
   intent = in
-[ dosw ]
-  standard_name = do_shortwave_radiation
-  units = flag
-  type = logical
-  dimensions = ()
-  intent = out
-[ dolw ]
-  standard_name = do_longwave_radiation
-  units = flag
-  type = logical
-  dimensions = ()
-  intent = out
-[ dosw_heat ]
-  standard_name = calculate_net_shortwave_heating
-  units = flag
-  type = logical
-  dimensions = ()
-  intent = out
-[ dolw_heat ]
-  standard_name = calculate_net_longwave_heating
-  units = flag
-  type = logical
-  dimensions = ()
-  intent = out
 [ nlay ]
   standard_name = number_of_vertical_layers_in_RRTMGP
   units = count
@@ -260,6 +236,30 @@
   type = real | kind = kind_phys
   dimensions = ()
   intent = inout
+[ dosw ]
+  standard_name = do_shortwave_radiation
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ dolw ]
+  standard_name = do_longwave_radiation
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ dosw_heat ]
+  standard_name = calculate_net_shortwave_heating
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ dolw_heat ]
+  standard_name = calculate_net_longwave_heating
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
 [ fsw ]
   standard_name = shortwave_all_sky_flux_object_for_RRTMGP
   units = none
@@ -288,7 +288,7 @@
   standard_name = ccpp_error_message
   long_name = Error message for error handling in CCPP
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = out
 [ errflg ]

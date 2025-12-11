@@ -29,12 +29,6 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_dimension,vertical_interface_dimension)
   intent = out
-[ rad_heat ]
-  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure
-  units = J kg-1 s-1
-  type = real | kind = kind_phys
-  dimensions = (horizontal_dimension,vertical_layer_dimension)
-  intent = out
 [ use_tlev ]
   standard_name = include_air_temperature_at_interfaces_in_gas_optics_calculation
   units = flag
@@ -44,7 +38,7 @@
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = out
 [ errflg ]
@@ -63,7 +57,7 @@
   dimensions = ()
   intent = in
 [ nday ]
-  standard_name = daytime_points_dimension
+  standard_name = daytime_columns_dimension
   units = count
   type = integer
   dimensions = ()
@@ -83,7 +77,7 @@
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = out
 [ errflg ]
@@ -134,7 +128,7 @@
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = out
 [ errflg ]

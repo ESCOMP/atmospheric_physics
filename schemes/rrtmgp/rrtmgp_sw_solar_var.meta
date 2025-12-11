@@ -10,7 +10,7 @@
   standard_name = top_of_atmosphere_solar_radiation_flux_on_g_points
   units = W m-2
   type = real | kind = kind_phys
-  dimensions = (daytime_points_dimension,number_of_shortwave_g_point_intervals)
+  dimensions = (daytime_columns_dimension,number_of_shortwave_g_point_intervals)
   intent = inout
 [ ccpp_constant_two ]
   standard_name = ccpp_constant_two
@@ -55,7 +55,7 @@
   dimensions = ()
   intent = in
 [ nday ]
-  standard_name = daytime_points_dimension
+  standard_name = daytime_columns_dimension
   units = count
   type = integer
   dimensions = ()
@@ -76,7 +76,7 @@
   standard_name = scaling_factors_for_top_of_atmosphere_solar_radiation_flux
   units = 1
   type = real | kind = kind_phys
-  dimensions = (daytime_points_dimension,number_of_shortwave_g_point_intervals)
+  dimensions = (daytime_columns_dimension,number_of_shortwave_g_point_intervals)
   intent = out
 [ eccf ]
   standard_name = earth_sun_distance
@@ -87,7 +87,7 @@
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = out
 [ errflg ]

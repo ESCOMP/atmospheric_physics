@@ -12,17 +12,16 @@ CONTAINS
 !> \section arg_table_rrtmgp_variables_init Argument Table
 !! \htmlinclude rrtmgp_variables_init.html
 !!
-   subroutine rrtmgp_variables_init(unset_real, active_call_array, tlev,       &
-                   fluxlwup_Jac, rad_heat, use_tlev, snow_exists, grau_exists, &
+   subroutine rrtmgp_variables_init(unset_real, active_call_array, tlev, &
+                   fluxlwup_Jac, use_tlev, snow_exists, grau_exists,     &
                    errmsg, errflg)
       use ccpp_kinds, only: kind_phys
       real(kind_phys),     intent(in) :: unset_real           ! Definition of "unset"
       logical,            intent(out) :: active_call_array(:) ! Diagnostic subcycles
       real(kind_phys),    intent(out) :: tlev(:,:)            ! Air temperature at interfaces [K]
       real(kind_phys),    intent(out) :: fluxlwup_Jac(:,:)    ! Surface temperature flux Jacobian [W m-2 K-1]
-      real(kind_phys),    intent(out) :: rad_heat(:,:)        ! Tendency of dry air enthalpy [J kg-1 s-1]
       logical,            intent(out) :: use_tlev             ! Flag to use temperature at interfaces in radiation calculation
-      character(len=512), intent(out) :: errmsg
+      character(len=*),   intent(out) :: errmsg
       integer,            intent(out) :: errflg
 
       ! Initialize error variables
@@ -37,9 +36,6 @@ CONTAINS
       tlev = unset_real
       fluxlwup_Jac = unset_real
 
-      ! Initialize rad_heat
-      rad_heat = unset_real
-
    end subroutine rrtmgp_variables_init
 
 !> \section arg_table_rrtmgp_variables_timestep_init Argument Table
@@ -51,7 +47,7 @@ CONTAINS
       integer,             intent(in) :: ncol                 ! Total horizontal gridpoints
       integer,            intent(out) :: rrtmgp_phys_blksz_lw ! Number of LW columns to process at once
       integer,            intent(out) :: rrtmgp_phys_blksz_sw ! Number of SW columns to process at once
-      character(len=512), intent(out) :: errmsg
+      character(len=*),   intent(out) :: errmsg
       integer,            intent(out) :: errflg
 
       errflg = 0
@@ -77,7 +73,7 @@ CONTAINS
      logical,                         intent(out) :: do_grau         ! Flag to use graupel in radiation calcuation
      logical,                         intent(out) :: do_snow         ! Flag to use snow in radiation calculation
      real(kind_phys),                 intent(out) :: tiny_rad        ! Definition of tiny for RRTMGP
-     character(len=512),              intent(out) :: errmsg
+     character(len=*),                intent(out) :: errmsg
      integer,                         intent(out) :: errflg
 
      ! Set error variables

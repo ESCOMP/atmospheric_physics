@@ -9,7 +9,6 @@ module rrtmgp_sw_solar_var_setup
   use ccpp_kinds,        only : kind_phys
 
   implicit none
-  save
 
   private
   public :: rrtmgp_sw_solar_var_setup_init
@@ -31,7 +30,7 @@ contains
     integer, intent(in) :: nswbands              ! number of shortwave bands
     logical, intent(in) :: do_spectral_scaling   ! flag to do spectral scaling
     logical, intent(in) :: has_spectrum          ! flag for whether solar input file has irradiance spectrum
-    character(len=512), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     integer :: radmax_loc
@@ -43,7 +42,7 @@ contains
           write(errmsg, *) 'rrtmgp_sw_solar_var_setup_init: solar input fil must have irradiance spectrum'
           errflg = 1
           return
-       endif
+       end if
 
        allocate (radbinmax(nswbands),stat=errflg,errmsg=alloc_errmsg)
        if (errflg /= 0) then
@@ -74,7 +73,7 @@ contains
        radmax_loc = maxloc(radbinmax,1)
        radbinmax(radmax_loc) = max(100000._kind_phys,radbinmax(radmax_loc))
 
-    endif
+    end if
 
   end subroutine rrtmgp_sw_solar_var_setup_init
 

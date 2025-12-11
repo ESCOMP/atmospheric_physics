@@ -6,38 +6,14 @@
 [ccpp-arg-table]
   name  = rrtmgp_inputs_setup_init
   type  = scheme
-[ ktopcam ]
-  standard_name = vertical_index_at_top_level_where_RRTMGP_is_active
-  units = index
-  type = integer
-  dimensions = ()
-  intent = out
-[ ktoprad ]
-  standard_name = RRTMGP_vertical_index_at_top_level_where_RRTMGP_is_active
-  units = index
-  type = integer
-  dimensions = ()
-  intent = out
-[ nlaycam ]
-  standard_name = number_of_vertical_layers_in_RRTMGP_coinciding_with_CAM_levels
+[ nswbands ]
+  standard_name = number_of_bands_for_shortwave_radiation
   units = count
   type = integer
   dimensions = ()
-  intent = out
-[ sw_low_bounds ]
-  standard_name = min_shortwave_wavenumber_per_band
-  units = cm-1
-  type = real | kind = kind_phys
-  dimensions = (number_of_bands_for_shortwave_radiation)
-  intent = out
-[ sw_high_bounds ]
-  standard_name = max_shortwave_wavenumber_per_band
-  units = cm-1
-  type = real | kind = kind_phys
-  dimensions = (number_of_bands_for_shortwave_radiation)
-  intent = out
-[ nswbands ]
-  standard_name = number_of_bands_for_shortwave_radiation
+  intent = in
+[ nlwbands ]
+  standard_name = number_of_bands_for_longwave_radiation
   units = count
   type = integer
   dimensions = ()
@@ -48,12 +24,6 @@
   type = real | kind = kind_phys
   dimensions = (vertical_interface_dimension)
   intent = in
-[ nlay ]
-  standard_name = number_of_vertical_layers_in_RRTMGP
-  units = count
-  type = integer
-  dimensions = ()
-  intent = out
 [ pver ]
   standard_name = vertical_layer_dimension
   units = count
@@ -138,12 +108,6 @@
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
-[ nlwbands ]
-  standard_name = number_of_bands_for_longwave_radiation
-  units = count
-  type = integer
-  dimensions = ()
-  intent = in
 [ nradgas ]
   standard_name = number_of_active_gases_for_RRTMGP
   units = count
@@ -156,6 +120,42 @@
   type = integer
   dimensions = ()
   intent = in
+[ current_cal_day ]
+  standard_name = fractional_calendar_days_on_end_of_current_timestep
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ ktopcam ]
+  standard_name = vertical_index_at_top_level_where_RRTMGP_is_active
+  units = index
+  type = integer
+  dimensions = ()
+  intent = out
+[ ktoprad ]
+  standard_name = RRTMGP_vertical_index_at_top_level_where_RRTMGP_is_active
+  units = index
+  type = integer
+  dimensions = ()
+  intent = out
+[ nlaycam ]
+  standard_name = number_of_vertical_layers_in_RRTMGP_coinciding_with_CAM_levels
+  units = count
+  type = integer
+  dimensions = ()
+  intent = out
+[ sw_low_bounds ]
+  standard_name = min_shortwave_wavenumber_per_band
+  units = cm-1
+  type = real | kind = kind_phys
+  dimensions = (number_of_bands_for_shortwave_radiation)
+  intent = out
+[ sw_high_bounds ]
+  standard_name = max_shortwave_wavenumber_per_band
+  units = cm-1
+  type = real | kind = kind_phys
+  dimensions = (number_of_bands_for_shortwave_radiation)
+  intent = out
 [ idx_sw_diag ]
   standard_name = index_of_shortwave_band
   units = index
@@ -210,8 +210,14 @@
   type = integer
   dimensions = ()
   intent = out
+[ nlay ]
+  standard_name = number_of_vertical_layers_in_RRTMGP
+  units = count
+  type = integer
+  dimensions = ()
+  intent = out
 [ nlayp ]
-  standard_name = number_of_vertical_layers_in_RRTMGP_plus_one
+  standard_name = number_of_vertical_interfaces_in_RRTMGP
   units = count
   type = integer
   dimensions = ()
@@ -222,12 +228,6 @@
   type = real | kind = kind_phys
   dimensions = ()
   intent = out
-[ current_cal_day ]
-  standard_name = fractional_calendar_days_on_end_of_current_timestep
-  units = 1
-  type = real | kind = kind_phys
-  dimensions = ()
-  intent = in
 [ band2gpt_sw ]
   standard_name = shortwave_start_and_end_gpoint_for_each_band
   units = index
@@ -244,7 +244,7 @@
   standard_name = ccpp_error_message
   long_name = Error message for error handling in CCPP
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = out
 [ errflg ]

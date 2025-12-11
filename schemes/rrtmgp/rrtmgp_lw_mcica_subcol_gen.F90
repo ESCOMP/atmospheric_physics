@@ -73,7 +73,7 @@ subroutine rrtmgp_lw_mcica_subcol_gen_run( &
    real(kind_phys), dimension(:,:),   intent(in)  :: cldfprime
    real(kind_phys), dimension(:,:,:), intent(in)  :: c_cld_lw_abs
    type(ty_optical_props_1scl_ccpp),  intent(inout) :: cloud_lw ! Cloud optics object
-   character(len=512),                intent(out)   :: errmsg
+   character(len=*),                  intent(out)   :: errmsg
    integer,                           intent(out)   :: errflg
 
    ! Local variables

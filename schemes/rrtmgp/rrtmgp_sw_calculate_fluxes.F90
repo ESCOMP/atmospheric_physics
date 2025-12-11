@@ -3,7 +3,6 @@ module rrtmgp_sw_calculate_fluxes
    use ccpp_kinds, only:  kind_phys
    implicit none
    private
-   save
 
    public :: rrtmgp_sw_calculate_fluxes_run  ! main routine
 
@@ -44,7 +43,7 @@ CONTAINS
 
       
       ! CCPP error handling variables
-      character(len=512), intent(out) :: errmsg
+      character(len=*),   intent(out) :: errmsg
       integer,            intent(out) :: errflg
 
       ! Local variables
@@ -91,6 +90,8 @@ CONTAINS
       ! Calculate diffuse flux from total and direct
       flux_dn_diffuse = fsw%fluxes%bnd_flux_dn - fsw%fluxes%bnd_flux_dn_dir
 
+      ! The following calculations are hard-coded and will need to be modified
+      ! if the RRTMGP flux bands type/array ever changes
       do idx = 1, nday
          soll(idxday(idx)) = sum(fsw%fluxes%bnd_flux_dn_dir(idx,nlay+1,1:9)) &
                              + 0.5_kind_phys * fsw%fluxes%bnd_flux_dn_dir(idx,nlay+1,10)
@@ -104,6 +105,7 @@ CONTAINS
          solsd(idxday(idx)) = 0.5_kind_phys * flux_dn_diffuse(idx, nlay+1, 10)    &
                               + sum(flux_dn_diffuse(idx,nlay+1,11:14))
       end do
+
    end subroutine rrtmgp_sw_calculate_fluxes_run
 
 end module rrtmgp_sw_calculate_fluxes

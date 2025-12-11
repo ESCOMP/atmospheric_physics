@@ -10,14 +10,14 @@ module rrtmgp_inputs
 !! \htmlinclude rrtmgp_inputs_run.html
 !!
 subroutine rrtmgp_inputs_run(dosw, dolw, do_snow, do_graupel, trick_rrtmgp,    &
-                  pmid, pint, t, nday, idxday, cldfprime, coszrs, kdist_sw,    &
-                  t_sfc, emis_sfc, t_rad, pmid_rad, pint_rad, t_day, pmid_day, &
-                  pint_day, coszrs_day, alb_dir, alb_dif, lwup, stebol, ncol,  &
-                  ktopcam, ktoprad, nswbands, asdir, asdif, sw_low_bounds,     &
-                  sw_high_bounds, aldir, aldif, nlay, pverp, pver, cld,        &
-                  cldfsnow, cldfgrau, graupel_in_rad, gasnamelength,           &
-                  gaslist_lc, gas_concs_lw, aer_lw, atm_optics_lw, kdist_lw,   &
-                  sources_lw, aer_sw, atm_optics_sw, gas_concs_sw, errmsg, errflg)
+                  pmid, pint, t, nday, idxday, coszrs, kdist_sw, kdist_lw,     &
+                  lwup, stebol, ncol, ktopcam, ktoprad, nswbands, asdir, asdif,&
+                  sw_low_bounds, sw_high_bounds, aldir, aldif, nlay, pverp,    &
+                  pver, cld, cldfsnow, cldfgrau, graupel_in_rad, gaslist_lc,   &
+                  cldfprime, t_sfc, emis_sfc, t_rad, pmid_rad, pint_rad, t_day,&
+                  pmid_day, pint_day, coszrs_day, alb_dir, alb_dif, gas_concs_lw, &
+                  aer_lw, atm_optics_lw, sources_lw, aer_sw, atm_optics_sw,       &
+                  gas_concs_sw, errmsg, errflg)
      use ccpp_kinds,              only: kind_phys
      use ccpp_gas_optics_rrtmgp,  only: ty_gas_optics_rrtmgp_ccpp
      use ccpp_optical_props,      only: ty_optical_props_1scl_ccpp, ty_optical_props_2str_ccpp
@@ -34,7 +34,6 @@ subroutine rrtmgp_inputs_run(dosw, dolw, do_snow, do_graupel, trick_rrtmgp,    &
      integer,                              intent(in) :: nswbands              ! Number of shortwave bands
      integer,                              intent(in) :: ktopcam               ! Index in CAM arrays of top level (layer or interface) at which RRTMGP is active
      integer,                              intent(in) :: ktoprad               ! Index in RRTMGP array corresponding to top layer or interface of CAM arrays
-     integer,                              intent(in) :: gasnamelength         ! Length of gases in gas_list
      integer,                              intent(in) :: nday                  ! Number of daylight columns
      logical,                              intent(in) :: dosw                  ! Flag for performing the shortwave calculation
      logical,                              intent(in) :: dolw                  ! Flag for performing the longwave calculation
@@ -81,7 +80,7 @@ subroutine rrtmgp_inputs_run(dosw, dolw, do_snow, do_graupel, trick_rrtmgp,    &
      type(ty_gas_concs_ccpp),              intent(out) :: gas_concs_sw         ! Gas concentrations object for shortwave radiation
      type(ty_optical_props_2str_ccpp),     intent(out) :: atm_optics_sw        ! Atmosphere optical properties object for shortwave radiation
      type(ty_optical_props_2str_ccpp),     intent(out) :: aer_sw               ! Aerosol optical properties object for shortwave radiation
-     character(len=512),                   intent(out) :: errmsg
+     character(len=*),                     intent(out) :: errmsg
      integer,                              intent(out) :: errflg
 
      ! Local variables

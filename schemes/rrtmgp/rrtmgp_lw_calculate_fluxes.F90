@@ -3,7 +3,6 @@ module rrtmgp_lw_calculate_fluxes
    use ccpp_kinds, only:  kind_phys
    implicit none
    private
-   save
 
    public :: rrtmgp_lw_calculate_fluxes_run  ! main routine
 
@@ -39,7 +38,7 @@ CONTAINS
 
       
       ! CCPP error handling variables
-      character(len=512), intent(out) :: errmsg
+      character(len=*),   intent(out) :: errmsg
       integer,            intent(out) :: errflg
 
       ! Local variables

@@ -15,7 +15,7 @@ contains
 !! \htmlinclude rrtmgp_sw_mcica_subcol_gen_run.html
 subroutine rrtmgp_sw_mcica_subcol_gen_run(dosw, kdist_sw, nswbands, nswgpts, nday, nlay, &
               pver, tiny, idxday, ktopcam, ktoprad, cldfprime, c_cld_tau,       &
-              c_cld_tau_w, c_cld_tau_w_g, cloud_sw, pmid_day, errmsg, errflg)
+              c_cld_tau_w, c_cld_tau_w_g, pmid_day, cloud_sw, errmsg, errflg)
    use ccpp_kinds,              only: kind_phys
    use ccpp_gas_concentrations, only: ty_gas_concs_ccpp
    use ccpp_gas_optics_rrtmgp,  only: ty_gas_optics_rrtmgp_ccpp
@@ -41,11 +41,11 @@ subroutine rrtmgp_sw_mcica_subcol_gen_run(dosw, kdist_sw, nswbands, nswgpts, nda
    real(kind_phys),                  intent(in)  :: c_cld_tau_w(:,:,:)   ! combined cloud single scattering albedo * tau
    real(kind_phys),                  intent(in)  :: c_cld_tau_w_g(:,:,:) ! combined cloud asymmetry parameter * w * tau
    real(kind_phys),                  intent(in)  :: cldfprime(:,:)       ! combined cloud fraction
-   real(kind_phys),                  intent(in)  :: pmid_day(:,:)        ! air ressure at mid-points [Pa]
+   real(kind_phys),                  intent(in)  :: pmid_day(:,:)        ! air pressure at mid-points [Pa]
    logical,                          intent(in)  :: dosw                 ! Flag to do shortwave radiation this timestep
 
    type(ty_optical_props_2str_ccpp), intent(out) :: cloud_sw             ! SW cloud optical properties object
-   character(len=512),               intent(out) :: errmsg
+   character(len=*),                 intent(out) :: errmsg
    integer,                          intent(out) :: errflg
 
    ! Local variables

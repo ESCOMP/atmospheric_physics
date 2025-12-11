@@ -13,7 +13,7 @@ contains
       use ccpp_kinds,                only: kind_phys
       type(ccpp_constituent_properties_t), allocatable, intent(out) :: rrtmgp_dyn_consts(:) ! Runtime constituent properties
       character(len=256), intent(in)  :: rad_climate(:)  ! (namelist) list of radiatively active gases and sources
-      character(len=512), intent(out) :: errmsg
+      character(len=*),   intent(out) :: errmsg
       integer,            intent(out) :: errflg
 
       ! Local variables
@@ -53,17 +53,26 @@ contains
 
          ! Locate the ':' separating source from long name.
          idx = index(tmpstr, ':')
+         if (idx == 0) then
+            errmsg = 'rad_climate namelist variable error: all entries must be of the format "flag:long_name:gas_name". Failed to parse "'//trim(tmpstr)//'"'
+            errflg = 1
+         end if
          source = tmpstr(:idx-1)
          tmpstr = tmpstr(idx+1:)
 
          ! locate the ':' separating long name from rad gas ("standard") name
          idx = scan(tmpstr, ':')
+         if (idx == 0) then
+            errmsg = 'rad_climate namelist variable error: all entries must be of the format "flag:long_name:gas_name". Failed to parse "'//trim(tmpstr)//'"'
+            errflg = 1
+         end if
 
          long_name = tmpstr(:idx-1)
          stdname = tmpstr(idx+1:)
 
          ! Register the constituent based on the source
          if (source == 'A') then
+             ! Add advected constituent
              call rrtmgp_dyn_consts(gas_idx)%instantiate(     &
                 std_name = stdname,   &
                 long_name = long_name,  &
@@ -76,6 +85,7 @@ contains
                 errcode = errflg,                         &
                 errmsg = errmsg)
          else if (source == 'N') then
+             ! Add non-advected constituent
              call rrtmgp_dyn_consts(gas_idx)%instantiate(     &
                 std_name = stdname,   &
                 long_name = long_name,  &
@@ -88,6 +98,7 @@ contains
                 errcode = errflg,                         &
                 errmsg = errmsg)
          else if (source == 'Z') then
+             ! Add non-advected constituent set to 0.0
              call rrtmgp_dyn_consts(gas_idx)%instantiate(     &
                 std_name = stdname,   &
                 long_name = long_name,  &
@@ -118,11 +129,11 @@ contains
        use ccpp_constituent_prop_mod, only: int_unassigned
        use ccpp_scheme_utils,         only: ccpp_constituent_index
        use ccpp_kinds,                only: kind_phys
-       character(len=5),          intent(in) :: gaslist(:)             ! Radiatively active gas list
+       character(len=*),          intent(in) :: gaslist(:)             ! Radiatively active gas list
        real(kind_phys),           intent(in) :: const_array(:,:,:)     ! Constituents array
        real(kind_phys),          intent(out) :: rad_const_array(:,:,:) ! Radiatively active constituent mixing ratios
        integer,                  intent(out) :: errflg
-       character(len=512),       intent(out) :: errmsg
+       character(len=*),         intent(out) :: errmsg
 
        ! Local variables
        integer :: gas_idx

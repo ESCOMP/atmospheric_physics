@@ -20,9 +20,9 @@ contains
 !! \htmlinclude rrtmgp_lw_cloud_optics_run.html
 !!
   subroutine rrtmgp_lw_cloud_optics_run(dolw, ncol, nlay, cld, cldfsnow, cldfgrau,      &
-             cldfprime, kdist_lw, cloud_lw, lamc, pgam, iclwpth, iciwpth, tiny_in, dei, icswpth, &
-             des, icgrauwpth, degrau, nlwbands, do_snow, do_graupel, pver, ktopcam, cld_lw_abs,  &
-             snow_lw_abs, grau_lw_abs, c_cld_lw_abs, errmsg, errflg)
+             cldfprime, kdist_lw, lamc, pgam, iclwpth, iciwpth, tiny_in, dei, icswpth,  &
+             des, icgrauwpth, degrau, nlwbands, do_snow, do_graupel, pver, ktopcam,     &
+             cloud_lw, cld_lw_abs, snow_lw_abs, grau_lw_abs, c_cld_lw_abs, errmsg, errflg)
     use ccpp_gas_optics_rrtmgp,    only: ty_gas_optics_rrtmgp_ccpp
     use ccpp_optical_props,        only: ty_optical_props_1scl_ccpp
     use ccpp_kinds,                only: kind_phys
@@ -63,7 +63,7 @@ contains
     real(kind_phys), dimension(:,:,:), intent(out) :: snow_lw_abs     ! Snow absorption optics depth (LW)
     real(kind_phys), dimension(:,:,:), intent(out) :: grau_lw_abs     ! Graupel absorption optics depth (LW)
     real(kind_phys), dimension(:,:,:), intent(out) :: c_cld_lw_abs
-    character(len=512),                intent(out) :: errmsg
+    character(len=*),                  intent(out) :: errmsg
     integer,                           intent(out) :: errflg
 
     ! Local variables

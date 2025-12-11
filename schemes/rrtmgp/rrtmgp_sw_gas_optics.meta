@@ -5,12 +5,6 @@
 [ccpp-arg-table]
   name  = rrtmgp_sw_gas_optics_init
   type  = scheme
-[ kdist ]
-  standard_name = shortwave_gas_optics_object_for_RRTMGP
-  units = none
-  type = ty_gas_optics_rrtmgp_ccpp
-  dimensions = ()
-  intent = out
 [ sw_filename ]
   standard_name = filename_of_rrtmgp_shortwave_k_distribution
   units = none
@@ -18,15 +12,21 @@
   dimensions = ()
   intent = in
 [ available_gases ]
-  standard_name = gas_concentrations_rrtmgp_object_for_RRTMGP
+  standard_name = gas_volume_mixing_ratios_object_for_RRTMGP
   units = none
   type = ty_gas_concs_ccpp
   dimensions = ()
   intent = in
+[ kdist ]
+  standard_name = shortwave_gas_optics_object_for_RRTMGP
+  units = none
+  type = ty_gas_optics_rrtmgp_ccpp
+  dimensions = ()
+  intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = out
 [ errflg ]
@@ -52,34 +52,34 @@
   dimensions = ()
   intent = in
 [ ncol ]
-  standard_name = daytime_points_dimension
+  standard_name = daytime_columns_dimension
   units = count
   type = integer
   dimensions = ()
   intent = in
 [ rrtmgp_phys_blksz ]
-  standard_name = number_of_columns_per_longwave_block_for_RRTMGP
+  standard_name = number_of_columns_per_shortwave_block_for_RRTMGP
   units = count
   type = integer
   dimensions = ()
   intent = in
 [ p_lay ]
-  standard_name = air_pressure_for_daytime_points_for_RRTMGP
+  standard_name = air_pressure_for_daytime_columns_for_RRTMGP
   units = Pa
   type = real | kind = kind_phys
-  dimensions = (daytime_points_dimension, number_of_vertical_layers_in_RRTMGP)
+  dimensions = (daytime_columns_dimension, number_of_vertical_layers_in_RRTMGP)
   intent = in
 [ p_lev ]
-  standard_name = air_pressure_at_interface_for_daytime_points_for_RRTMGP
+  standard_name = air_pressure_at_interface_for_daytime_columns_for_RRTMGP
   units = Pa
   type = real | kind = kind_phys
-  dimensions = (daytime_points_dimension, number_of_vertical_layers_in_RRTMGP_plus_one)
+  dimensions = (daytime_columns_dimension, number_of_vertical_interfaces_in_RRTMGP)
   intent = in
 [ t_lay ]
-  standard_name = air_temperature_for_daytime_points_for_RRTMGP
+  standard_name = air_temperature_for_daytime_columns_for_RRTMGP
   units = K
   type = real | kind = kind_phys
-  dimensions = (daytime_points_dimension, number_of_vertical_layers_in_RRTMGP)
+  dimensions = (daytime_columns_dimension, number_of_vertical_layers_in_RRTMGP)
   intent = in
 [ gas_concs ]
   standard_name = shortwave_gas_volume_mixing_ratios_object_for_RRTMGP
@@ -103,12 +103,12 @@
   standard_name = top_of_atmosphere_solar_radiation_flux_on_g_points
   units = W m-2
   type = real | kind = kind_phys
-  dimensions = (daytime_points_dimension, number_of_shortwave_g_point_intervals)
+  dimensions = (daytime_columns_dimension, number_of_shortwave_g_point_intervals)
   intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = out
 [ errflg ]

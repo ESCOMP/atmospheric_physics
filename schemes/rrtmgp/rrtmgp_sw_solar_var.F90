@@ -5,10 +5,8 @@
 ! when the radiation scheme might use a different solar source function
 !-------------------------------------------------------------------------------
 module rrtmgp_sw_solar_var
-  use ccpp_kinds,        only : kind_phys
 
   implicit none
-  save
 
   private
   public :: rrtmgp_sw_solar_var_run
@@ -23,6 +21,7 @@ contains
   subroutine rrtmgp_sw_solar_var_run(toa_flux, ccpp_constant_two, band2gpt_sw, nswbands, sol_irrad, wave_end, nbins, sol_tsi, &
                                      nday, dosw, do_spectral_scaling, sfac, eccf, errmsg, errflg)
      use rrtmgp_sw_solar_var_setup, only: irrad, radbinmax, radbinmin
+     use ccpp_kinds,                only : kind_phys
 
      ! Arguments 
      real(kind_phys),    intent(inout) :: toa_flux(:,:)         ! top-of-atmosphere flux to be scaled (columns,gpts)
@@ -38,7 +37,7 @@ contains
      logical,            intent(in)    :: dosw                  ! flag to do shortwave radiation
      real(kind_phys),    intent(in)    :: eccf                  ! Earth-Sun distance factor
      real(kind_phys),    intent(out)   :: sfac(:,:)             ! scaling factors (columns,gpts)
-     character(len=512), intent(out)   :: errmsg
+     character(len=*),   intent(out)   :: errmsg
      integer,            intent(out)   :: errflg
 
      ! Local variables 
@@ -93,6 +92,7 @@ contains
   subroutine integrate_spectrum( nsrc, ntrg, src_x, min_trg, max_trg, src, trg )
 
     use ccpp_tuvx_utils, only : rebin
+    use ccpp_kinds,      only : kind_phys
 
     implicit none
 

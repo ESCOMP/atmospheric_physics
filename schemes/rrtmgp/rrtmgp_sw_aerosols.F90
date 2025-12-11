@@ -1,7 +1,7 @@
 !> \file rrtmgp_sw_aerosols.F90
 !!
 
-!> This module contains the call to the RRTMGP-sw radiation routine
+!> This module sets the RRTMGP aerosol shortwave optical properties
 module rrtmgp_sw_aerosols
   implicit none
   private

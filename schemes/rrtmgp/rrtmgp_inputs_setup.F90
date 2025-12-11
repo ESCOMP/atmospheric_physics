@@ -9,12 +9,12 @@ module rrtmgp_inputs_setup
 !> \section arg_table_rrtmgp_inputs_setup_init Argument Table
 !! \htmlinclude rrtmgp_inputs_setup_init.html
 !!
-  subroutine rrtmgp_inputs_setup_init(ktopcam, ktoprad, nlaycam, sw_low_bounds, sw_high_bounds, nswbands,      &
-                   pref_edge, nlay, pver, pverp, kdist_sw, kdist_lw, qrl, is_first_step, use_rad_dt_cosz,      &
-                   timestep_size, nstep, iradsw, dt_avg, irad_always, is_first_restart_step,                   &
-                   p_top_for_rrtmgp, nlwbands, nradgas, gasnamelength, idx_sw_diag, idx_nir_diag, idx_uv_diag, &
-                   idx_sw_cloudsim, idx_lw_diag, idx_lw_cloudsim, nswgpts, nlwgpts, changeseed, nlayp,         &
-                   nextsw_cday, current_cal_day, band2gpt_sw, irad_always_out, errmsg, errflg)
+  subroutine rrtmgp_inputs_setup_init(nswbands, nlwbands, pref_edge, pver, pverp, pver, pverp, kdist_sw, &
+                   kdist_lw, qrl, is_first_step, use_rad_dt_cosz, timestep_size, nstep, iradsw, dt_avg,  &
+                   irad_always, is_first_restar_step, p_top_for_rrtmgp, nradgas, gasnamelength, current_cal_day,  &
+                   ktopcam, ktoprad, nlaycam, sw_low_bounds, sw_high_bounds, idx_sw_diag, idx_nir_diag,        &
+                   idx_uv_diag, idx_sw_cloudsim, idx_lw_diag, idx_lw_cloudsim, nswgpts, nlwgpts, changeseed,   &
+                   nlay, nlayp, nextsw_cday, band2gpt_sw, irad_always_out, errmsg, errflg)
      use ccpp_kinds,             only: kind_phys
      use ccpp_gas_optics_rrtmgp, only: ty_gas_optics_rrtmgp_ccpp
      use radiation_utils,        only: radiation_utils_init, get_sw_spectral_boundaries_ccpp
@@ -62,7 +62,7 @@ module rrtmgp_inputs_setup
      real(kind_phys), dimension(:),   intent(out) :: sw_low_bounds         ! Lower bounds of shortwave bands
      real(kind_phys), dimension(:),   intent(out) :: sw_high_bounds        ! Upper bounds of shortwave bands
      real(kind_phys), dimension(:,:), intent(inout) :: qrl                 ! Longwave radiative heating
-     character(len=512),              intent(out) :: errmsg
+     character(len=*),                intent(out) :: errmsg
      integer,                         intent(out) :: errflg
      integer,                         intent(out) :: irad_always_out       ! Number of time steps to execute radiation continuously
      real(kind_phys),                 intent(out) :: dt_avg                ! averaging time interval for zenith angle
