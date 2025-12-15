@@ -9,9 +9,9 @@ module rrtmgp_inputs_setup
 !> \section arg_table_rrtmgp_inputs_setup_init Argument Table
 !! \htmlinclude rrtmgp_inputs_setup_init.html
 !!
-  subroutine rrtmgp_inputs_setup_init(nswbands, nlwbands, pref_edge, pver, pverp, pver, pverp, kdist_sw, &
+  subroutine rrtmgp_inputs_setup_init(nswbands, nlwbands, pref_edge, pver, pverp, kdist_sw, &
                    kdist_lw, qrl, is_first_step, use_rad_dt_cosz, timestep_size, nstep, iradsw, dt_avg,  &
-                   irad_always, is_first_restar_step, p_top_for_rrtmgp, nradgas, gasnamelength, current_cal_day,  &
+                   irad_always, is_first_restart_step, p_top_for_rrtmgp, nradgas, gasnamelength, current_cal_day,  &
                    ktopcam, ktoprad, nlaycam, sw_low_bounds, sw_high_bounds, idx_sw_diag, idx_nir_diag,        &
                    idx_uv_diag, idx_sw_cloudsim, idx_lw_diag, idx_lw_cloudsim, nswgpts, nlwgpts, changeseed,   &
                    nlay, nlayp, nextsw_cday, band2gpt_sw, irad_always_out, errmsg, errflg)

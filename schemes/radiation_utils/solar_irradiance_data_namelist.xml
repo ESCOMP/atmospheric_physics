@@ -105,7 +105,7 @@
     <type>logical</type>
     <category>solar_data</category>
     <group>solar_data</group>
-    <standard_name>do_radiation_heating_spectral_scaling</standard_name>
+    <standard_name>do_solar_radiation_heating_spectral_scaling</standard_name>
     <units>flag</units>
     <desc>
      Flag for whether to do radiation heating spectral scaling

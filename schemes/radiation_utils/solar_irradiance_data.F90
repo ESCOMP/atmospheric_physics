@@ -16,6 +16,7 @@ module solar_irradiance_data
   public :: solar_irradiance_data_register
   public :: solar_irradiance_data_init
   public :: solar_irradiance_data_run
+  public :: solar_irradiance_data_final
 
   type(time_coordinate) :: time_coord
   class(abstract_netcdf_reader_t), pointer :: file_reader
@@ -392,6 +393,9 @@ contains
 
   end subroutine solar_irradiance_data_run
 
+!> \section arg_table_solar_irradiance_data_final Argument Table
+!! \htmlinclude solar_irradiance_data_final.html
+!!
   subroutine solar_irradiance_data_final(errmsg, errflg)
      character(len=*),   intent(out)   :: errmsg
      integer,            intent(out)   :: errflg

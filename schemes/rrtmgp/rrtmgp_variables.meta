@@ -23,6 +23,12 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_dimension,vertical_interface_dimension)
   intent = out
+[ rad_heat ]
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure
+  units = J kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  intent = out
 [ fluxlwup_Jac ]
   standard_name = jacobian_of_longwave_upward_flux_for_RRTMGP
   units = W m-2 K-1
