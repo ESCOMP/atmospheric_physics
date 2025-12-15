@@ -4,7 +4,6 @@ module rrtmgp_diagnostics
 
    implicit none
    private
-   save
 
    public :: rrtmgp_diagnostics_init ! init routine
    public :: rrtmgp_diagnostics_run  ! main routine
