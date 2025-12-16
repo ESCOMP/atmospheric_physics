@@ -210,6 +210,7 @@ contains
 
     use coords_1d, only: Coords1D
     use gw_common, only: gw_drag_prof, calc_taucd
+    use gw_common, only: momentum_flux, momentum_fixer
 
     integer,         intent(in)    :: ncol
     integer,         intent(in)    :: pver
