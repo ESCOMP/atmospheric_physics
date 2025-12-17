@@ -326,6 +326,7 @@
 
     <!-- Orographic gravity wave drag -->
     <scheme>gravity_wave_drag_orographic</scheme>
+    <scheme>gravity_wave_drag_orographic_diagnostics</scheme>
 
     <!-- Interstitial: Convert tendencies for dry constituents to dry air basis -->
     <scheme>convert_dry_constituent_tendencies_to_dry_air_basis</scheme>
