@@ -49,8 +49,8 @@ subroutine rrtmgp_sw_cloud_optics_run(dosw, ncol, pver, ktopcam, ktoprad,  nswgp
    integer,  intent(in) :: idxday(:)                 ! Indices of daylight columns
    integer,  intent(in) :: nswgpts                   ! Number of shortwave g-points
    integer,  intent(in) :: pver                      ! Number of vertical layers
-   integer,  intent(in) :: ktopcam                   ! Index in CAM arrays of top level (layer or interface) at which RRTMGP is active
-   integer,  intent(in) :: ktoprad                   ! Index in RRTMGP array corresponding to top layer or interface of CAM arrays
+   integer,  intent(in) :: ktopcam                   ! Index in host model arrays of top level (layer or interface) at which RRTMGP is active
+   integer,  intent(in) :: ktoprad                   ! Index in RRTMGP array corresponding to top layer or interface of host model arrays
    integer,  intent(in) :: nswbands                  ! Number of shortwve bands
    integer,  intent(in) :: nnite                     ! Number of night columns
    integer,  intent(in) :: idxnite(:)                ! Indices of night columns in the chunk

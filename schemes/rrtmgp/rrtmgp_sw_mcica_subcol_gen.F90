@@ -33,8 +33,8 @@ subroutine rrtmgp_sw_mcica_subcol_gen_run(dosw, kdist_sw, nswbands, nswgpts, nda
    integer,                          intent(in)  :: nlay                 ! number of layers in radiation calculation (may include "extra layer")
    integer,                          intent(in)  :: nday                 ! number of daylight columns
    integer,                          intent(in)  :: pver                 ! total number of vertical layers
-   integer,                          intent(in)  :: ktopcam              ! index in CAM arrays of top level (layer or interface) at which RRTMGP is active
-   integer,                          intent(in)  :: ktoprad              ! index in RRTMGP array corresponding to top layer or interface of CAM arrays
+   integer,                          intent(in)  :: ktopcam              ! index in host model arrays of top level (layer or interface) at which RRTMGP is active
+   integer,                          intent(in)  :: ktoprad              ! index in RRTMGP array corresponding to top layer or interface of host model arrays
    integer,                          intent(in)  :: idxday(:)            ! indices of daylight columns in the chunk
    real(kind_phys),                  intent(in)  :: tiny                 ! definition of tiny in RRTMGP
    real(kind_phys),                  intent(in)  :: c_cld_tau(:,:,:)     ! combined cloud extinction optical depth

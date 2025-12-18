@@ -56,6 +56,7 @@ contains
          if (idx == 0) then
             errmsg = 'rad_climate namelist variable error: all entries must be of the format "flag:long_name:gas_name". Failed to parse "'//trim(tmpstr)//'"'
             errflg = 1
+            return
          end if
          source = tmpstr(:idx-1)
          tmpstr = tmpstr(idx+1:)
@@ -65,6 +66,7 @@ contains
          if (idx == 0) then
             errmsg = 'rad_climate namelist variable error: all entries must be of the format "flag:long_name:gas_name". Failed to parse "'//trim(tmpstr)//'"'
             errflg = 1
+            return
          end if
 
          long_name = tmpstr(:idx-1)

@@ -40,8 +40,8 @@ module rrtmgp_inputs_setup
      real(kind_phys),                 intent(in) :: p_top_for_rrtmgp       ! Top pressure to use for RRTMGP (Pa)
 
      ! Outputs
-     integer,                         intent(out) :: ktopcam               ! Index in CAM arrays of top level (layer or interface) at which RRTMGP is active
-     integer,                         intent(out) :: ktoprad               ! Index in RRTMGP array corresponding to top layer or interface of CAM arrays
+     integer,                         intent(out) :: ktopcam               ! Index in host model arrays of top level (layer or interface) at which RRTMGP is active
+     integer,                         intent(out) :: ktoprad               ! Index in RRTMGP array corresponding to top layer or interface of host model arrays
      integer,                         intent(out) :: nlaycam               ! Number of vertical layers in CAM. Is either equal to nlay
                                                                            !  or is 1 less than nlay if "extra layer" is used in the radiation calculations
      integer,                         intent(out) :: nlay                  ! Number of vertical layers in radiation calculation
@@ -127,6 +127,11 @@ module rrtmgp_inputs_setup
      ! Set the radiation timestep for cosz calculations if requested using
      ! the adjusted iradsw value from radiation
      if (use_rad_dt_cosz)  then
+        if (iradsw < 0) then
+           errflg = 1
+           write(errmsg,*) 'iradsw is negative; has not been properly adjusted'
+           return
+        end if
         dt_avg = iradsw*timestep_size
      else
         dt_avg = 0._kind_phys

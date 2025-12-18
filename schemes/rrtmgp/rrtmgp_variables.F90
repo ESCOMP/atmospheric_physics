@@ -12,14 +12,13 @@ CONTAINS
 !> \section arg_table_rrtmgp_variables_init Argument Table
 !! \htmlinclude rrtmgp_variables_init.html
 !!
-   subroutine rrtmgp_variables_init(unset_real, active_call_array, tlev, rad_heat, &
+   subroutine rrtmgp_variables_init(unset_real, active_call_array, tlev, &
                    fluxlwup_Jac, use_tlev, errmsg, errflg)
       use ccpp_kinds, only: kind_phys
       real(kind_phys),     intent(in) :: unset_real           ! Definition of "unset"
       logical,            intent(out) :: active_call_array(:) ! Diagnostic subcycles
       real(kind_phys),    intent(out) :: tlev(:,:)            ! Air temperature at interfaces [K]
       real(kind_phys),    intent(out) :: fluxlwup_Jac(:,:)    ! Surface temperature flux Jacobian [W m-2 K-1]
-      real(kind_phys),    intent(out) :: rad_heat(:,:)        ! Tendency of dry air enthalpy at constant pressure [J kg-1 s-1]
       logical,            intent(out) :: use_tlev             ! Flag to use temperature at interfaces in radiation calculation
       character(len=*),   intent(out) :: errmsg
       integer,            intent(out) :: errflg
@@ -35,9 +34,6 @@ CONTAINS
       use_tlev = .false.
       tlev = unset_real
       fluxlwup_Jac = unset_real
-
-      ! Initialize rad_heat
-      rad_heat = unset_real
 
    end subroutine rrtmgp_variables_init
 

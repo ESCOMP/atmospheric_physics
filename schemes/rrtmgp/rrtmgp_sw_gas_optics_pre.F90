@@ -22,8 +22,8 @@ contains
     integer,                     intent(in) :: nday                   ! Total number of daylight columns
     integer,                     intent(in) :: pverp                  ! Total number of layer interfaces
     integer,                     intent(in) :: idxday(:)              ! Indices of daylight columns
-    integer,                     intent(in) :: ktoprad                ! Index in RRTMGP array corresponding to top layer or interface of CAM arrays
-    integer,                     intent(in) :: ktopcam                ! Index in CAM arrays of top level (layer or interface) at which RRTMGP is active
+    integer,                     intent(in) :: ktoprad                ! Index in RRTMGP array corresponding to top layer or interface of host model arrays
+    integer,                     intent(in) :: ktopcam                ! Index in host model arrays of top level (layer or interface) at which RRTMGP is active
     integer,                     intent(in) :: nradgas                ! Number of radiatively active gases
     logical,                     intent(in) :: dosw                   ! Flag for whether to perform longwave calculaion
     real(kind_phys),             intent(in) :: pmid(:,:)              ! Air pressure at midpoints [Pa]

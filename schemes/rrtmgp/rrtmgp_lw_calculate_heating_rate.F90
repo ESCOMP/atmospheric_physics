@@ -7,7 +7,7 @@ CONTAINS
    subroutine rrtmgp_lw_calculate_heating_rate_run(ktopcam, pver, gravit, rpdel, flux_net, &
                    flux_net_clrsky, hrate, hrate_clrsky, errmsg, errflg)
       use ccpp_kinds, only: kind_phys
-      integer,          intent(in) :: ktopcam              ! Index in CAM arrays of top level (layer or interface) at which RRTMGP is active
+      integer,          intent(in) :: ktopcam              ! Index in host model arrays of top level (layer or interface) at which RRTMGP is active
       integer,          intent(in) :: pver                 ! Number of vertical levels
       real(kind_phys),  intent(in) :: gravit               ! Standard gravitational acceleration [m s-2]
       real(kind_phys),  intent(in) :: rpdel(:,:)           ! Reciprocal of air pressure thickness [Pa-1] 

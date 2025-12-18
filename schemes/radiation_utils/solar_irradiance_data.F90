@@ -15,7 +15,7 @@ module solar_irradiance_data
   private
   public :: solar_irradiance_data_register
   public :: solar_irradiance_data_init
-  public :: solar_irradiance_data_run
+  public :: solar_irradiance_data_timestep_init
   public :: solar_irradiance_data_final
 
   type(time_coordinate) :: time_coord
@@ -282,7 +282,7 @@ contains
 
     ! need to force data loading when the host model starts at a time =/ 00:00:00.000
     ! -- may occur in restarts also
-    call solar_irradiance_data_run(irrad_file_path, nbins, nbinsp, has_spectrum, do_spectral_scaling, &
+    call solar_irradiance_data_timestep_init(irrad_file_path, nbins, nbinsp, has_spectrum, do_spectral_scaling, &
             sol_irrad, wavelength_endpoints, sol_tsi, errmsg, errflg)
     if (errflg /= 0) then
        return
@@ -294,10 +294,10 @@ contains
 !-------------------------------------------------------------------------------
 !-------------------------------------------------------------------------------
 
-!> \section arg_table_solar_irradiance_data_run Argument Table
-!! \htmlinclude solar_irradiance_data_run.html
+!> \section arg_table_solar_irradiance_data_timestep_init Argument Table
+!! \htmlinclude solar_irradiance_data_timestep_init.html
 !!
-  subroutine solar_irradiance_data_run(irrad_file_path, nbins, nbinsp, has_spectrum, do_spectral_scaling, &
+  subroutine solar_irradiance_data_timestep_init(irrad_file_path, nbins, nbinsp, has_spectrum, do_spectral_scaling, &
                 sol_irrad, wavelength_endpoints, sol_tsi, errmsg, errflg)
      ! Arguments
      character(len=*),   intent(in)    :: irrad_file_path
@@ -321,7 +321,7 @@ contains
      integer  :: ierr
      real(kind_phys) :: delt
 
-     character(len=*), parameter :: subname = 'solar_irradiance_data_run: '
+     character(len=*), parameter :: subname = 'solar_irradiance_data_timestep_init: '
 
      ! Initialize error variables
      errflg = 0
@@ -391,7 +391,7 @@ contains
         sol_tsi = itsi(1) + delt*( itsi(2) - itsi(1) )
      end if
 
-  end subroutine solar_irradiance_data_run
+  end subroutine solar_irradiance_data_timestep_init
 
 !> \section arg_table_solar_irradiance_data_final Argument Table
 !! \htmlinclude solar_irradiance_data_final.html

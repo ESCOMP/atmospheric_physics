@@ -32,8 +32,8 @@ subroutine rrtmgp_inputs_run(dosw, dolw, do_snow, do_graupel, trick_rrtmgp,    &
      integer,                              intent(in) :: pverp                 ! Number of vertical interfaces
      integer,                              intent(in) :: nlay                  ! Number of vertical layers used in radiation calculation
      integer,                              intent(in) :: nswbands              ! Number of shortwave bands
-     integer,                              intent(in) :: ktopcam               ! Index in CAM arrays of top level (layer or interface) at which RRTMGP is active
-     integer,                              intent(in) :: ktoprad               ! Index in RRTMGP array corresponding to top layer or interface of CAM arrays
+     integer,                              intent(in) :: ktopcam               ! Index in host model arrays of top level (layer or interface) at which RRTMGP is active
+     integer,                              intent(in) :: ktoprad               ! Index in RRTMGP array corresponding to top layer or interface of host model arrays
      integer,                              intent(in) :: nday                  ! Number of daylight columns
      logical,                              intent(in) :: dosw                  ! Flag for performing the shortwave calculation
      logical,                              intent(in) :: dolw                  ! Flag for performing the longwave calculation

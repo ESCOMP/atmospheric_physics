@@ -37,7 +37,7 @@ contains
     integer,                           intent(in) :: nlay             ! Number of vertical layers in radiation
     integer,                           intent(in) :: nlwbands         ! Number of longwave bands
     integer,                           intent(in) :: pver             ! Total number of vertical layers
-    integer,                           intent(in) :: ktopcam          ! Index in CAM arrays of top level (layer or interface) at which RRTMGP is active
+    integer,                           intent(in) :: ktopcam          ! Index in host model arrays of top level (layer or interface) at which RRTMGP is active
     real(kind_phys), dimension(:,:),   intent(in) :: cld              ! Cloud fraction (liq + ice)
     real(kind_phys), dimension(:,:),   intent(in) :: cldfsnow         ! Cloud fraction of just "snow clouds"
     real(kind_phys), dimension(:,:),   intent(in) :: cldfgrau         ! Cloud fraction of just "graupel clouds"
