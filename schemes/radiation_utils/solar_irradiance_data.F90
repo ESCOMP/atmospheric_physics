@@ -289,6 +289,13 @@ contains
     end if
     initialized = .true.
 
+    ! If solar forcing is fixed, then the file reader is
+    ! no longer needed beyond this point:
+    if (fixed) then
+       deallocate(file_reader)
+       nullify(file_reader)
+    end if
+
   end subroutine solar_irradiance_data_init
 
 !-------------------------------------------------------------------------------
@@ -404,8 +411,10 @@ contains
      errflg = 0
 
      ! Deallocate the module-level file reader object
-     deallocate(file_reader)
-     nullify(file_reader)
+     if (associated(file_reader)) then
+        deallocate(file_reader)
+        nullify(file_reader)
+     end if
 
   end subroutine solar_irradiance_data_final
 
