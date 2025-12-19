@@ -210,6 +210,7 @@ contains
 
     use coords_1d, only: Coords1D
     use gw_common, only: gw_drag_prof, calc_taucd
+    use gw_common, only: momentum_flux, momentum_fixer
 
     integer,         intent(in)    :: ncol
     integer,         intent(in)    :: pver
@@ -284,6 +285,9 @@ contains
     ! Reynolds stress for waves propagating in each cardinal direction.
     real(kind_phys) :: taucd(ncol, pver + 1, 4)
 
+    ! Momentum fluxes used by fixer.
+    real(kind_phys) :: um_flux(ncol), vm_flux(ncol)
+
     ! Vector tendency efficiency
     real(kind_phys) :: effgw(ncol)        ! Tendency efficiency.
 
@@ -343,6 +347,12 @@ contains
         q_tend(:ncol, k, m) = q_tend(:ncol, k, m) + qtgw(:, k, m)
       end do
     end do
+
+    ! Find momentum flux, and use it to fix the wind tendencies below
+    ! the gravity wave region.
+    call momentum_flux(tend_level, taucd, um_flux, vm_flux)
+    call momentum_fixer(tend_level, p, um_flux, vm_flux, utgw, vtgw)
+
 
     ! Add the momentum tendencies to the output tendency arrays.
     do k = 1, pver
@@ -728,7 +738,8 @@ contains
 
         end if ! heating depth above min and not at the pole
       else
-        tau(i, 0, topi(i):pver + 1) = xpwp_src(i)
+        !  ----  Assign source momentum flux for gw_drag_prof.
+        tau(i,0,topi(i)+1 ) = xpwp_src(i) 
       end if
 
     end do
