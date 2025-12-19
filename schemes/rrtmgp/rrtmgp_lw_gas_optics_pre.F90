@@ -1,5 +1,4 @@
 module rrtmgp_lw_gas_optics_pre
-
   implicit none
   private
 
@@ -18,12 +17,12 @@ contains
 
     ! Set gas vmr for the gases in the radconstants module's gaslist.
 
-    character(len=*),            intent(in) :: gaslist(:)             ! Radiatively active gases
+    character(len=5),            intent(in) :: gaslist(:)             ! Radiatively active gases
     integer,                     intent(in) :: nlay                   ! Number of layers in radiation calculation
     integer,                     intent(in) :: ncol                   ! Total number of columns
     integer,                     intent(in) :: pverp                  ! Total number of layer interfaces
-    integer,                     intent(in) :: ktoprad                ! Index in RRTMGP array corresponding to top layer or interface of CAM arrays
-    integer,                     intent(in) :: ktopcam                ! Index in CAM arrays of top level (layer or interface) at which RRTMGP is active
+    integer,                     intent(in) :: ktoprad                ! Index in RRTMGP array corresponding to top layer or interface of host model arrays
+    integer,                     intent(in) :: ktopcam                ! Index in host model arrays of top level (layer or interface) at which RRTMGP is active
     integer,                     intent(in) :: nradgas                ! Number of radiatively active gases
     logical,                     intent(in) :: dolw                   ! Flag for whether to perform longwave calculaion
     real(kind_phys),             intent(in) :: pmid(:,:)              ! Air pressure at midpoints [Pa]
