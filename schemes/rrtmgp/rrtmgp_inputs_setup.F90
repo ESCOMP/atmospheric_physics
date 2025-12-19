@@ -129,7 +129,7 @@ module rrtmgp_inputs_setup
      if (use_rad_dt_cosz)  then
         if (iradsw < 0) then
            errflg = 1
-           write(errmsg,*) 'iradsw is negative; has not been properly adjusted'
+           write(errmsg,*) 'rrtmgp_inputs_setup_init: iradsw is negative; has not been properly adjusted'
            return
         end if
         dt_avg = iradsw*timestep_size
