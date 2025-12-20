@@ -1,0 +1,98 @@
+[ccpp-table-properties]
+  name = rrtmgp_sw_solar_var
+  type = scheme
+  dependencies = ../../to_be_ccppized/ccpp_tuvx_utils.F90
+
+[ccpp-arg-table]
+  name  = rrtmgp_sw_solar_var_run
+  type  = scheme
+[ toa_flux ]
+  standard_name = top_of_atmosphere_solar_radiation_flux_on_g_points
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = (daytime_columns_dimension,number_of_shortwave_g_point_intervals)
+  intent = inout
+[ ccpp_constant_two ]
+  standard_name = ccpp_constant_two
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ band2gpt_sw ]
+  standard_name = shortwave_start_and_end_gpoint_for_each_band
+  units = index
+  type = integer
+  dimensions = (ccpp_constant_two,number_of_bands_for_shortwave_radiation)
+  intent = in
+[ nswbands ]
+  standard_name = number_of_bands_for_shortwave_radiation
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ sol_irrad ]
+  standard_name = solar_irradiance
+  units = W m-2 nm-1
+  type = real | kind = kind_phys
+  dimensions = (number_of_wavelength_samples_of_spectrum)
+  intent = in
+[ wave_end ]
+  standard_name = wavelength_endpoints
+  units = nm
+  type = real | kind = kind_phys
+  dimensions = (number_of_wavelength_samples_of_spectrum_plus_one)
+  intent = in
+[ nbins ]
+  standard_name = number_of_wavelength_samples_of_spectrum
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ sol_tsi ]
+  standard_name = total_solar_irradiance
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ nday ]
+  standard_name = daytime_columns_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ dosw ]
+  standard_name = do_shortwave_radiation
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ do_spectral_scaling ]
+  standard_name = do_spectral_scaling_of_solar_irradiance_data
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ sfac ]
+  standard_name = scaling_factors_for_top_of_atmosphere_solar_radiation_flux
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (daytime_columns_dimension,number_of_shortwave_g_point_intervals)
+  intent = out
+[ eccf ]
+  standard_name = earth_sun_distance
+  units = AU
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
