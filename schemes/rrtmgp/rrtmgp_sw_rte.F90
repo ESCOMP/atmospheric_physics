@@ -63,6 +63,14 @@ contains
     ! Compute clear-sky fluxes (gaseous+aerosol)
     !
     ! ###################################################################################
+    !$acc data copyin(coszen_day, toa_src_sw, sfc_alb_dir, sfc_alb_dif, &
+    !$acc             sw_optical_props%optical_props, sw_optical_props%optical_props%tau, sw_optical_props%optical_props%ssa, &
+    !$acc             sw_optical_props%optical_props%g, aersw%optical_props%tau,          &
+    !$acc             aersw%optical_props, aersw%optical_props%ssa, aersw%optical_props%g,                 &
+    !$acc             sw_optical_props_clouds%optical_props, sw_optical_props_clouds%optical_props%tau, sw_optical_props_clouds%optical_props%ssa,           &
+    !$acc             sw_optical_props_clouds%optical_props%g)                                         &
+    !$acc        copy(flux_clrsky%fluxes, flux_clrsky%fluxes%flux_net,flux_clrsky%fluxes%flux_up,flux_clrsky%fluxes%flux_dn, &
+    !$acc             flux_allsky%fluxes, flux_allsky%fluxes%flux_net,flux_allsky%fluxes%flux_up,flux_allsky%fluxes%flux_dn)
     ! Increment optics (always)
     errmsg = aersw%optical_props%increment(sw_optical_props%optical_props)
     call check_error_msg('rrtmgp_sw_rte_increment_aerosol_to_clrsky', errmsg)
@@ -115,6 +123,7 @@ contains
           errflg = 1
        end if
     end if
+    !$acc end data
 
   end subroutine rrtmgp_sw_rte_run
 end module rrtmgp_sw_rte
