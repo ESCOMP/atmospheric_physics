@@ -57,6 +57,19 @@ contains
 
     if (.not. doLWrad) return
 
+    !$acc data copyin(lw_optical_props_clrsky%optical_props,lw_optical_props_clrsky%optical_props%tau,   &
+    !$acc             aerlw%optical_props,aerlw%optical_props%tau,          &
+    !$acc             lw_optical_props_clouds%optical_props, lw_optical_props_clouds%optical_props%tau,        &
+    !$acc             sources%sources,sources%sources%lay_source,     &
+    !$acc             sources%sources%sfc_source,     &
+    !$acc             sources%sources%lev_source,     &
+    !$acc             sources%sources%sfc_source_jac, &
+    !$acc             sfc_emiss_byband)                          &
+    !$acc        copy(flux_clrsky%fluxes, flux_clrsky%fluxes%flux_net, flux_clrsky%fluxes%flux_up, &
+    !$acc             flux_clrsky%fluxes%flux_dn, flux_allsky%fluxes, flux_allsky%fluxes%flux_net,  &
+    !$acc             flux_allsky%fluxes%flux_up, flux_allsky%fluxes%flux_dn,    &
+    !$acc             lw_Ds)
+
     ! ###################################################################################
     !
     ! Compute clear-sky fluxes (gaseous+aerosol) (optional)
@@ -223,6 +236,7 @@ contains
     if (len_trim(errmsg) /= 0) then
        errflg = 1
     end if
+    !$acc end data
 
   end subroutine rrtmgp_lw_rte_run
 end module rrtmgp_lw_rte
