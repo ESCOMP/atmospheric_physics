@@ -11,12 +11,6 @@
   type = integer
   dimensions = ()
   intent = in
-[ rad_heat ]
-  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure
-  units = J kg-1 s-1
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = inout
 [ qrl_prime ]
   standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_longwave_radiation
   units = J kg-1 s-1
@@ -59,6 +53,12 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
+[ rad_heat ]
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure
+  units = J kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
 [ net_flx ]
   standard_name = total_column_radiative_flux
   units = W m-2

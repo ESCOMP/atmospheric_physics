@@ -1,7 +1,6 @@
 [ccpp-table-properties]
   name = rrtmgp_lw_mcica_subcol_gen
   type = scheme
-  dependencies = ../../../../../share/RandNum/src/shr_RandNum_mod.F90
 
 [ccpp-arg-table]
   name  = rrtmgp_lw_mcica_subcol_gen_run
@@ -94,7 +93,7 @@
   standard_name = ccpp_error_message
   long_name = Error message for error handling in CCPP
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = out
 [ errflg ]

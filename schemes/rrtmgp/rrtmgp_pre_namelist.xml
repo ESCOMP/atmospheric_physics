@@ -160,7 +160,7 @@
     <standard_name>compute_optimal_angles_for_use_in_RRTMGP_longwave_calculation</standard_name>
     <units>flag</units>
     <desc>
-       If true, use compute and use optimal angles for RRTMGP longwave
+       If true, compute and use optimal angles for RRTMGP longwave
     </desc>
     <values>
       <value>.false.</value>
@@ -173,7 +173,7 @@
     <standard_name>number_of_gaussian_quadrature_angles_for_radiation</standard_name>
     <units>count</units>
     <desc>
-       The number of Gaussian quadrature angles for use in radiation - if less than zero, unused
+       The number of Gaussian quadrature angles for use in radiation - if less than one, unused
     </desc>
     <values>
       <value>0</value>
@@ -225,7 +225,7 @@
     <standard_name>do_calculate_radiative_effect_of_graupel</standard_name>
     <units>flag</units>
     <desc>
-       Flag to use graupel cloud fraction in radiation
+       If true, use graupel cloud fraction in radiation
     </desc>
     <values>
       <value>.false.</value>
@@ -293,10 +293,10 @@
     <desc>
       Top pressure level for RRTMGP
          Default: 1.0 for WACCM/WACCMX
-         10. for all other CAM runs
+	 5. for all other CAM runs
     </desc>
     <values>
-      <value>2.0D0</value>
+      <value>5.0D0</value>
     </values>
   </entry>
   <entry id="trick_rrtmgp">
@@ -306,11 +306,24 @@
     <standard_name>do_trick_rrtmgp</standard_name>
     <units>flag</units>
     <desc>
-       Flag to do RRTMGP level trickery
+       If true, trick RRTMGP into using top pressure levels below the standard default.
     </desc>
     <values>
       <value>.true.</value>
       <value dyn="mpas">.false.</value>
+    </values>
+  </entry>
+  <entry id="gaslist">
+    <type>char*5(8)</type>
+    <category>rrtmgp</category>
+    <group>rrtmgp</group>
+    <standard_name>list_of_active_gases_for_RRTMGP</standard_name>
+    <units>none</units>
+    <desc>
+       List of radiatively active gases used in RRTMGP
+    </desc>
+    <values>
+      <value>'H2O  ','O3   ', 'O2   ', 'CO2  ', 'N2O  ', 'CH4  ', 'CFC11', 'CFC12'</value>
     </values>
   </entry>
 </entry_id_pg>

@@ -15,13 +15,12 @@ contains
 !! \htmlinclude rrtmgp_sw_mcica_subcol_gen_run.html
 subroutine rrtmgp_sw_mcica_subcol_gen_run(dosw, kdist_sw, nswbands, nswgpts, nday, nlay, &
               pver, tiny, idxday, ktopcam, ktoprad, cldfprime, c_cld_tau,       &
-              c_cld_tau_w, c_cld_tau_w_g, cloud_sw, pmid_day, errmsg, errflg)
+              c_cld_tau_w, c_cld_tau_w_g, pmid_day, cloud_sw, errmsg, errflg)
    use ccpp_kinds,              only: kind_phys
    use ccpp_gas_concentrations, only: ty_gas_concs_ccpp
    use ccpp_gas_optics_rrtmgp,  only: ty_gas_optics_rrtmgp_ccpp
    use ccpp_optical_props,      only: ty_optical_props_2str_ccpp
    use shr_RandNum_mod,         only: ShrKissRandGen ! SIMA-specific randum number generator
-   use mo_gas_optics_rrtmgp,    only: ty_gas_optics_rrtmgp
 
    ! Compute combined cloud optical properties.
    ! Create MCICA stochastic arrays for cloud SW optical properties.
@@ -34,19 +33,19 @@ subroutine rrtmgp_sw_mcica_subcol_gen_run(dosw, kdist_sw, nswbands, nswgpts, nda
    integer,                          intent(in)  :: nlay                 ! number of layers in radiation calculation (may include "extra layer")
    integer,                          intent(in)  :: nday                 ! number of daylight columns
    integer,                          intent(in)  :: pver                 ! total number of vertical layers
-   integer,                          intent(in)  :: ktopcam              ! index in CAM arrays of top level (layer or interface) at which RRTMGP is active
-   integer,                          intent(in)  :: ktoprad              ! index in RRTMGP array corresponding to top layer or interface of CAM arrays
+   integer,                          intent(in)  :: ktopcam              ! index in host model arrays of top level (layer or interface) at which RRTMGP is active
+   integer,                          intent(in)  :: ktoprad              ! index in RRTMGP array corresponding to top layer or interface of host model arrays
    integer,                          intent(in)  :: idxday(:)            ! indices of daylight columns in the chunk
    real(kind_phys),                  intent(in)  :: tiny                 ! definition of tiny in RRTMGP
    real(kind_phys),                  intent(in)  :: c_cld_tau(:,:,:)     ! combined cloud extinction optical depth
    real(kind_phys),                  intent(in)  :: c_cld_tau_w(:,:,:)   ! combined cloud single scattering albedo * tau
    real(kind_phys),                  intent(in)  :: c_cld_tau_w_g(:,:,:) ! combined cloud asymmetry parameter * w * tau
    real(kind_phys),                  intent(in)  :: cldfprime(:,:)       ! combined cloud fraction
-   real(kind_phys),                  intent(in)  :: pmid_day(:,:)        ! air ressure at mid-points [Pa]
+   real(kind_phys),                  intent(in)  :: pmid_day(:,:)        ! air pressure at mid-points [Pa]
    logical,                          intent(in)  :: dosw                 ! Flag to do shortwave radiation this timestep
 
    type(ty_optical_props_2str_ccpp), intent(out) :: cloud_sw             ! SW cloud optical properties object
-   character(len=512),               intent(out) :: errmsg
+   character(len=*),                 intent(out) :: errmsg
    integer,                          intent(out) :: errflg
 
    ! Local variables

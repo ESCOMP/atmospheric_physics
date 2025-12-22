@@ -75,7 +75,7 @@
      units
           This is the CCPP unit specification of the variable (e.g., m s-1).
                                                                         -->
-  <entry id="iceopticsfile">
+  <entry id="ice_optics_file">
     <type>char*256</type>
     <category>rrtmgp_cloud_optics</category>
     <group>radconst</group>
@@ -88,7 +88,7 @@
       <value>${DIN_LOC_ROOT}/atm/cam/physprops/iceoptics_c080917.nc</value>
     </values>
   </entry>
-  <entry id="liqopticsfile">
+  <entry id="liq_optics_file">
     <type>char*256</type>
     <category>rrtmgp_cloud_optics</category>
     <group>radconst</group>
@@ -101,7 +101,7 @@
       <value>${DIN_LOC_ROOT}/atm/cam/physprops/F_nwvl200_mu20_lam50_res64_t298_c080428.nc</value>
     </values>
   </entry>
-  <entry id="icecldoptics">
+  <entry id="ice_cld_optics">
     <type>char*32</type>
     <category>rrtmgp_cloud_optics</category>
     <group>radconst</group>
@@ -114,7 +114,7 @@
       <value>mitchell</value>
     </values>
   </entry>
-  <entry id="liqcldoptics">
+  <entry id="liq_cld_optics">
     <type>char*32</type>
     <category>rrtmgp_cloud_optics</category>
     <group>radconst</group>

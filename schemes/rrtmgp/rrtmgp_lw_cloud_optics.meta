@@ -2,7 +2,6 @@
   name = rrtmgp_lw_cloud_optics
   type = scheme
   dependencies = ext/rte-kernels/mo_optical_props_kernels.F90
-  dependencies = ../../../../utils/interpolate_data.F90
 
 [ccpp-arg-table]
   name  = rrtmgp_lw_cloud_optics_run
@@ -29,25 +28,25 @@
   standard_name = cloud_area_fraction
   units = fraction
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ cldfsnow ]
   standard_name = liquid_plus_snow_stratiform_cloud_area_fraction
   units = fraction
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ cldfgrau ]
   standard_name = liquid_plus_graupel_stratiform_cloud_area_fraction
   units = fraction
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ cldfprime ]
   standard_name = modified_cloud_area_fraction_for_RRTMGP
   units = fraction
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ kdist_lw ]
   standard_name = longwave_gas_optics_object_for_RRTMGP
@@ -55,35 +54,29 @@
   type = ty_gas_optics_rrtmgp_ccpp
   dimensions = ()
   intent = in
-[ cloud_lw ]
-  standard_name = longwave_cloud_optical_properties_object_for_RRTMGP
-  units = none
-  type = ty_optical_props_1scl_ccpp
-  dimensions = ()
-  intent = out
 [ lamc ]
   standard_name = slope_of_droplet_distribution_for_optics
   units = 1
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ pgam ]
   standard_name = size_distribution_shape_parameter_for_microphysics
   units = 1
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ iclwpth ]
   standard_name = in_cloud_liquid_water_path_for_radiation
   units = kg m-2
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ iciwpth ]
-  standard_name = cloud_ice_water_path
+  standard_name = in_cloud_ice_water_path
   units = kg m-2
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ tiny_in ]
   standard_name = definition_of_tiny_for_RRTMGP
@@ -93,33 +86,33 @@
   intent = in
 [ dei ]
   standard_name = effective_diameter_of_stratiform_cloud_ice_particle_for_radiation
-  units = micron
+  units = um
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ icswpth ]
-  standard_name = cloud_snow_water_path
+  standard_name = in_cloud_snow_water_path
   units = kg m-2
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ des ]
   standard_name = effective_diameter_of_stratiform_snow_particle_for_radiation
-  units = micron
+  units = um
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ icgrauwpth ]
   standard_name = stratiform_in_cloud_graupel_water_path
   units = kg m-2
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ degrau ]
   standard_name = effective_diameter_of_stratiform_cloud_graupel_particle_for_radiation
   units = m
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ nlwbands ]
   standard_name = number_of_bands_for_longwave_radiation
@@ -151,23 +144,29 @@
   type = integer
   dimensions = ()
   intent = in
+[ cloud_lw ]
+  standard_name = longwave_cloud_optical_properties_object_for_RRTMGP
+  units = none
+  type = ty_optical_props_1scl_ccpp
+  dimensions = ()
+  intent = out
 [ cld_lw_abs ]
   standard_name = in_cloud_longwave_liquid_plus_ice_optical_depth
   units = 1
   type = real | kind = kind_phys
-  dimensions = (number_of_bands_for_longwave_radiation,horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (number_of_bands_for_longwave_radiation,horizontal_loop_extent,vertical_layer_dimension)
   intent = out
 [ snow_lw_abs ]
   standard_name = in_cloud_longwave_snow_optical_depth
   units = 1
   type = real | kind = kind_phys
-  dimensions = (number_of_bands_for_longwave_radiation,horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (number_of_bands_for_longwave_radiation,horizontal_loop_extent,vertical_layer_dimension)
   intent = out
 [ grau_lw_abs ]
   standard_name = in_cloud_longwave_graupel_optical_depth
   units = 1
   type = real | kind = kind_phys
-  dimensions = (number_of_bands_for_longwave_radiation,horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (number_of_bands_for_longwave_radiation,horizontal_loop_extent,vertical_layer_dimension)
   intent = out
 [ c_cld_lw_abs ]
   standard_name = combined_longwave_cloud_absorption_optical_depth
@@ -179,7 +178,7 @@
   standard_name = ccpp_error_message
   long_name = Error message for error handling in CCPP
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = out
 [ errflg ]

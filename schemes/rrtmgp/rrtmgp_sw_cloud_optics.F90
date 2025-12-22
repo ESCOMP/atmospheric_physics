@@ -1,12 +1,6 @@
 !> \file rrtmgp_sw_cloud_optics.F90
 !!
 module rrtmgp_sw_cloud_optics
-  use ccpp_kinds, only: kind_phys
-  use rrtmgp_cloud_optics_setup, only: g_lambda, g_mu, nmu, nlambda
-  use rrtmgp_cloud_optics_setup, only: g_d_eff, n_g_d
-  use rrtmgp_cloud_optics_setup, only: ext_sw_liq, ext_sw_ice
-  use rrtmgp_cloud_optics_setup, only: asm_sw_liq, asm_sw_ice
-  use rrtmgp_cloud_optics_setup, only: ssa_sw_liq, ssa_sw_ice
 
 !--------------------------------------------------------------------------------
 ! Transform data for inputs from CAM's data structures to those used by
@@ -36,15 +30,16 @@ contains
 !! \htmlinclude rrtmgp_sw_cloud_optics_run.html
 !!
 subroutine rrtmgp_sw_cloud_optics_run(dosw, ncol, pver, ktopcam, ktoprad,  nswgpts, nday, idxday, fillvalue, &
-   nswbands, iulog, pgam, lamc, nnite, idxnite, cld, cldfsnow, cldfgrau, cldfprime, cld_tau, grau_tau, &
-   snow_tau, degrau, dei, des, iclwpth, iciwpth, icswpth, icgrauwpth, tiny_in, idx_sw_diag, do_graupel, &
-   do_snow, kdist_sw, c_cld_tau, c_cld_tau_w, c_cld_tau_w_g, tot_cld_vistau, tot_icld_vistau,          &
-   liq_icld_vistau, ice_icld_vistau, snow_icld_vistau, grau_icld_vistau, errmsg, errflg)
+   nswbands, iulog, pgam, lamc, nnite, idxnite, cld, cldfsnow, cldfgrau, cldfprime, &
+   degrau, dei, des, iclwpth, iciwpth, icswpth, icgrauwpth, tiny_in, idx_sw_diag, do_graupel, &
+   do_snow, kdist_sw, cld_tau, grau_tau, snow_tau, c_cld_tau, c_cld_tau_w, c_cld_tau_w_g, tot_cld_vistau,    &
+   tot_icld_vistau, liq_icld_vistau, ice_icld_vistau, snow_icld_vistau, grau_icld_vistau, errmsg, errflg)
    use ccpp_gas_optics_rrtmgp,    only: ty_gas_optics_rrtmgp_ccpp
    use ccpp_optical_props,        only: ty_optical_props_2str_ccpp
    use rrtmgp_cloud_optics_setup, only: g_mu, g_lambda, nmu, nlambda, g_d_eff, n_g_d
    use rrtmgp_cloud_optics_setup, only: ext_sw_liq, asm_sw_liq, ssa_sw_liq
    use rrtmgp_cloud_optics_setup, only: ext_sw_ice, asm_sw_ice, ssa_sw_ice
+   use ccpp_kinds,                only: kind_phys
 
    ! Compute combined cloud optical properties.
 
@@ -54,8 +49,8 @@ subroutine rrtmgp_sw_cloud_optics_run(dosw, ncol, pver, ktopcam, ktoprad,  nswgp
    integer,  intent(in) :: idxday(:)                 ! Indices of daylight columns
    integer,  intent(in) :: nswgpts                   ! Number of shortwave g-points
    integer,  intent(in) :: pver                      ! Number of vertical layers
-   integer,  intent(in) :: ktopcam                   ! Index in CAM arrays of top level (layer or interface) at which RRTMGP is active
-   integer,  intent(in) :: ktoprad                   ! Index in RRTMGP array corresponding to top layer or interface of CAM arrays
+   integer,  intent(in) :: ktopcam                   ! Index in host model arrays of top level (layer or interface) at which RRTMGP is active
+   integer,  intent(in) :: ktoprad                   ! Index in RRTMGP array corresponding to top layer or interface of host model arrays
    integer,  intent(in) :: nswbands                  ! Number of shortwve bands
    integer,  intent(in) :: nnite                     ! Number of night columns
    integer,  intent(in) :: idxnite(:)                ! Indices of night columns in the chunk
@@ -71,9 +66,9 @@ subroutine rrtmgp_sw_cloud_optics_run(dosw, ncol, pver, ktopcam, ktoprad,  nswgp
 
    real(kind_phys), intent(in) :: lamc(:,:)          ! Prognosed value of lambda for cloud [1]
    real(kind_phys), intent(in) :: pgam(:,:)          ! Prognosed value of mu for cloud [1]
-   real(kind_phys), intent(in) :: dei(:,:)           ! Mean effective radius for ice cloud [micron]
-   real(kind_phys), intent(in) :: des(:,:)           ! Mean effective radius for snow [micron]
-   real(kind_phys), intent(in) :: degrau(:,:)        ! Mean effective radius for graupel [micron]
+   real(kind_phys), intent(in) :: dei(:,:)           ! Mean effective radius for ice cloud [um]
+   real(kind_phys), intent(in) :: des(:,:)           ! Mean effective radius for snow [um]
+   real(kind_phys), intent(in) :: degrau(:,:)        ! Mean effective radius for graupel [um]
    real(kind_phys), intent(in) :: iclwpth(:,:)       ! In-cloud liquid water path [kg m-2]
    real(kind_phys), intent(in) :: iciwpth(:,:)       ! In-cloud ice water path [kg m-2]
    real(kind_phys), intent(in) :: icswpth(:,:)       ! In-cloud snow water path [kg m-2]
@@ -100,7 +95,7 @@ subroutine rrtmgp_sw_cloud_optics_run(dosw, ncol, pver, ktopcam, ktoprad,  nswgp
    real(kind_phys), intent(out) :: grau_icld_vistau(:,:) ! Graupel in-cloud visible sw optical depth
 
    ! Error variables
-   character(len=512), intent(out) :: errmsg
+   character(len=*),   intent(out) :: errmsg
    integer,            intent(out) :: errflg
 
    ! Local variables
@@ -259,6 +254,7 @@ end subroutine rrtmgp_sw_cloud_optics_run
 
 subroutine get_grau_optics_sw(ncol, pver, nswbands, tiny_in, g_d_eff, ext_sw_ice, asm_sw_ice, ssa_sw_ice, &
                 iulog, icgrauwpth, degrau, idx_sw_diag, tau, tau_w, tau_w_g, tau_w_f)
+   use ccpp_kinds,                only: kind_phys
 
    integer, intent(in)  :: ncol
    integer, intent(in)  :: pver
@@ -298,7 +294,9 @@ end subroutine get_grau_optics_sw
 !==============================================================================
 
 subroutine get_liquid_optics_sw(ncol, pver, nswbands, tiny_in, ext_sw_liq, asm_sw_liq, ssa_sw_liq, lamc, pgam, g_lambda, &
-    g_mu, iclwpth, tau, tau_w, tau_w_g, tau_w_f, errmsg, errflg)
+                 g_mu, iclwpth, tau, tau_w, tau_w_g, tau_w_f, errmsg, errflg)
+   use ccpp_kinds,                only: kind_phys
+
    integer, intent(in)  :: ncol
    integer, intent(in)  :: pver
    integer, intent(in)  :: nswbands
@@ -316,7 +314,7 @@ subroutine get_liquid_optics_sw(ncol, pver, nswbands, tiny_in, ext_sw_liq, asm_s
    real(kind_phys), intent(out) :: tau_w  (:,:,:) ! single scattering albedo * tau
    real(kind_phys), intent(out) :: tau_w_g(:,:,:) ! asymmetry parameter * tau * w
    real(kind_phys), intent(out) :: tau_w_f(:,:,:) ! forward scattered fraction * tau * w
-   character(len=512), intent(out) :: errmsg
+   character(len=*),   intent(out) :: errmsg
    integer,            intent(out) :: errflg
 
    real(kind_phys), dimension(ncol,pver) :: kext
@@ -343,6 +341,7 @@ end subroutine get_liquid_optics_sw
 
 subroutine interpolate_ice_optics_sw(ncol, pver, nswbands, tiny_in, ext_sw_ice, asm_sw_ice, ssa_sw_ice, &
      iciwpth, dei, g_d_eff, tau, tau_w, tau_w_g, tau_w_f)
+  use ccpp_kinds,       only: kind_phys
   ! SIMA-specific interpolation routines
   use interpolate_data, only: interp_type, lininterp, lininterp_init, lininterp_finish, extrap_method_bndry
 
@@ -406,9 +405,10 @@ end subroutine interpolate_ice_optics_sw
 
 subroutine gam_liquid_sw(nswbands, tiny_in, g_lambda, g_mu, ext_sw_liq, asm_sw_liq, ssa_sw_liq, clwptn, lamc, pgam, tau, tau_w, tau_w_g, tau_w_f, errmsg, errflg)
   ! SIMA-specific interpolation routines
-  use interpolate_data,         only: interp_type, lininterp, lininterp_finish
-  use radiation_utils,          only: get_mu_lambda_weights_ccpp
+  use interpolate_data,          only: interp_type, lininterp, lininterp_finish
+  use radiation_utils,           only: get_mu_lambda_weights_ccpp
   use rrtmgp_cloud_optics_setup, only: nmu, nlambda
+  use ccpp_kinds,                only: kind_phys
 
   integer,         intent(in)  :: nswbands
   real(kind_phys), intent(in)  :: tiny_in
@@ -422,7 +422,7 @@ subroutine gam_liquid_sw(nswbands, tiny_in, g_lambda, g_mu, ext_sw_liq, asm_sw_l
   real(kind_phys), intent(in)  :: clwptn ! cloud water liquid path new (in cloud) [kg m-2]
   real(kind_phys), intent(out) :: tau(:), tau_w(:), tau_w_f(:), tau_w_g(:)
 
-  character(len=512), intent(out) :: errmsg
+  character(len=*),   intent(out) :: errmsg
   integer,            intent(out) :: errflg
 
   integer :: swband ! sw band index

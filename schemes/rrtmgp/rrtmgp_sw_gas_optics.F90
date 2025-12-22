@@ -14,9 +14,9 @@ contains
 !> \section arg_table_rrtmgp_sw_gas_optics_init Argument Table
 !! \htmlinclude rrtmgp_sw_gas_optics_init.html
 !!
-  subroutine rrtmgp_sw_gas_optics_init(kdist, sw_filename, available_gases, &
+  subroutine rrtmgp_sw_gas_optics_init(sw_filename, available_gases, kdist, &
                   errmsg, errflg)
-    use machine,                 only: kind_phys
+    use ccpp_kinds,              only: kind_phys
     use ccpp_gas_optics_rrtmgp,  only: ty_gas_optics_rrtmgp_ccpp
     use ccpp_gas_concentrations, only: ty_gas_concs_ccpp
     use radiation_tools,         only: check_error_msg
@@ -29,7 +29,7 @@ contains
  
     ! Outputs
     class(ty_gas_optics_rrtmgp_ccpp),    intent(out) :: kdist                        ! RRTMGP gas optics object
-    character(len=512),                  intent(out) :: errmsg                       ! CCPP error message
+    character(len=*),                    intent(out) :: errmsg                       ! CCPP error message
     integer,                             intent(out) :: errflg                       ! CCPP error code
 
     ! Local variables
@@ -320,10 +320,11 @@ contains
          tsi_default, mg_default, sb_default,                   &
          rayl_lower_allocatable, rayl_upper_allocatable)
 
+    call check_error_msg('rrtmgp_sw_gas_optics_init_load', errmsg)
     if (len_trim(errmsg) > 0) then
        errflg = 1
+       return
     end if
-    call check_error_msg('rrtmgp_sw_gas_optics_init_load', errmsg)
 
   end subroutine rrtmgp_sw_gas_optics_init
 
@@ -332,7 +333,7 @@ contains
 !!
   subroutine rrtmgp_sw_gas_optics_run(dosw, iter_num, ncol, rrtmgp_phys_blksz, p_lay, p_lev, t_lay,  &
              gas_concs, sw_optical_props, sw_gas_props, toa_src_sw, errmsg, errflg)
-   use machine,                 only: kind_phys
+   use ccpp_kinds,              only: kind_phys
    use ccpp_gas_optics_rrtmgp,  only: ty_gas_optics_rrtmgp_ccpp
    use ccpp_gas_concentrations, only: ty_gas_concs_ccpp
    use ccpp_optical_props,      only: ty_optical_props_2str_ccpp
@@ -351,7 +352,7 @@ contains
    type(ty_optical_props_2str_ccpp),  intent(inout) :: sw_optical_props         !< Clearsky optical properties
    type(ty_gas_optics_rrtmgp_ccpp),   intent(inout) :: sw_gas_props             !< RRTMGP gas optics object
    real(kind_phys),                   intent(out)   :: toa_src_sw(:,:)          !< Top of atmosphere solar radiation flux on g points [W m-2]
-   character(len=512),                intent(out)   :: errmsg
+   character(len=*),                  intent(out)   :: errmsg
    integer,                           intent(out)   :: errflg
 
    ! Local variables

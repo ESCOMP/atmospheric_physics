@@ -82,7 +82,7 @@
     <standard_name>filename_of_rrtmgp_longwave_k_distribution</standard_name>
     <units>none</units>
     <desc>
-     The filename of the longwave coefficients file for RRTMGP
+     The path and filename of the longwave coefficients file for RRTMGP
     </desc>
     <values>
       <value>${SRCROOT}/src/physics/utils/rrtmgp-data/rrtmgp-gas-lw-g128.nc</value>

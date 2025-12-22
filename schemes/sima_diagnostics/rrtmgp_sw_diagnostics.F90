@@ -3,7 +3,6 @@ module rrtmgp_sw_diagnostics
 
    implicit none
    private
-   save
 
    public :: rrtmgp_sw_diagnostics_init ! init routine
    public :: rrtmgp_sw_diagnostics_run  ! main routine

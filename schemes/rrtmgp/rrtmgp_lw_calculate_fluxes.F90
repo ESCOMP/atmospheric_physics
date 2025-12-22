@@ -3,7 +3,6 @@ module rrtmgp_lw_calculate_fluxes
    use ccpp_kinds, only:  kind_phys
    implicit none
    private
-   save
 
    public :: rrtmgp_lw_calculate_fluxes_run  ! main routine
 
@@ -25,8 +24,8 @@ CONTAINS
       integer,                        intent(in) :: pverp               ! Number of vertical layer interfaces
       integer,                        intent(in) :: ncol                ! Number of horizontal grid points
       integer,                        intent(in) :: nlay                ! Number of vertical layers in RRTMGP
-      integer,                        intent(in) :: ktopcam             ! Index in CAM arrays of top level (layer or interface) at which RRTMGP is active
-      integer,                        intent(in) :: ktoprad             ! Index in RRTMGP array corresponding to top layer or interface of CAM arrays
+      integer,                        intent(in) :: ktopcam             ! Index in host model arrays of top level (layer or interface) at which RRTMGP is active
+      integer,                        intent(in) :: ktoprad             ! Index in RRTMGP array corresponding to top layer or interface of host model arrays
       logical,                        intent(in) :: active_calls(:)     ! Logical array of flags for whether a specified subcycle is active
       type(ty_fluxes_byband_ccpp),    intent(in) :: flw                 ! Longwave all-sky flux object
       type(ty_fluxes_broadband_ccpp), intent(in) :: flwc                ! Longwave clear-sky flux object
@@ -39,7 +38,7 @@ CONTAINS
 
       
       ! CCPP error handling variables
-      character(len=512), intent(out) :: errmsg
+      character(len=*),   intent(out) :: errmsg
       integer,            intent(out) :: errflg
 
       ! Local variables

@@ -1,7 +1,6 @@
 module rrtmgp_cloud_diagnostics
    implicit none
    private
-   save
 
    public :: rrtmgp_cloud_diagnostics_init ! init routine
    public :: rrtmgp_cloud_diagnostics_run  ! main routine
@@ -26,7 +25,7 @@ CONTAINS
       errflg = 0
 
       ! Add diagnostic fields
-      call history_add_field('TOT_CLD_VISTAU',  'Total gbx cloud extinction visible sw optical depth', 'lev', 'avg', '1', &
+      call history_add_field('TOT_CLD_VISTAU',  'Total grid box cloud extinction visible sw optical depth', 'lev', 'avg', '1', &
          flag_xyfill=.true.)
       call history_add_field('TOT_ICLD_VISTAU', 'Total in-cloud extinction visible sw optical depth',  'lev', 'avg', '1', &
          flag_xyfill=.true.)

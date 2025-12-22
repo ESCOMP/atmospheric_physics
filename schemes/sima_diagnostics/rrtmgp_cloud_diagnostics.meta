@@ -64,7 +64,7 @@
   dimensions = ()
   intent = in
 [ tot_cld_vistau ]
-  standard_name = total_cloud_optical_depth_for_visible_band_times_cloud_fraction
+  standard_name = total_cloud_optical_depth_for_visible_band_multiplied_by_cloud_fraction
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

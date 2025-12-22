@@ -39,7 +39,7 @@
   standard_name = list_of_active_gases_for_RRTMGP
   units = none
   type = character | kind = len=5
-  dimensions = (number_of_active_gases_for_RRTMGP)
+  dimensions = (gaslist_dimension)
   intent = in
 [ pverp ]
   standard_name = vertical_interface_dimension
@@ -81,7 +81,7 @@
   standard_name = ccpp_error_message
   long_name = Error message for error handling in CCPP
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = out
 [ errflg ]

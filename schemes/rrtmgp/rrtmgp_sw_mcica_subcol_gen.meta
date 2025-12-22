@@ -1,7 +1,6 @@
 [ccpp-table-properties]
   name = rrtmgp_sw_mcica_subcol_gen
   type = scheme
-  dependencies = ../../../../../share/RandNum/src/shr_RandNum_mod.F90
 
 [ccpp-arg-table]
   name  = rrtmgp_sw_mcica_subcol_gen_run
@@ -31,7 +30,7 @@
   dimensions = ()
   intent = in
 [ nday ]
-  standard_name = daytime_points_dimension
+  standard_name = daytime_columns_dimension
   units = count
   type = integer
   dimensions = ()
@@ -55,7 +54,7 @@
   dimensions = ()
   intent = in
 [ idxday ]
-  standard_name = daytime_points
+  standard_name = daytime_columns
   units = index
   type = integer
   dimensions = (horizontal_loop_extent)
@@ -85,16 +84,22 @@
   dimensions = (number_of_bands_for_shortwave_radiation,horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ c_cld_tau_w ]
-  standard_name = combined_shortwave_cloud_single_scattering_albedo
+  standard_name = combined_shortwave_cloud_single_scattering_albedo_multiplied_by_optical_depth
   units = 1
   type = real | kind = kind_phys
   dimensions = (number_of_bands_for_shortwave_radiation,horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ c_cld_tau_w_g ]
-  standard_name = combined_shortwave_cloud_asymmetry_parameter
+  standard_name = combined_shortwave_cloud_asymmetry_parameter_multiplied_by_single_scattering_albedo_multiplied_by_optical_depth
   units = 1
   type = real | kind = kind_phys
   dimensions = (number_of_bands_for_shortwave_radiation,horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ pmid_day ]
+  standard_name = air_pressure_for_daytime_columns_for_RRTMGP
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (daytime_columns_dimension, number_of_vertical_layers_in_RRTMGP)
   intent = in
 [ cloud_sw ]
   standard_name = shortwave_cloud_optical_properties_object_for_RRTMGP
@@ -102,16 +107,10 @@
   type = ty_optical_props_2str_ccpp
   dimensions = ()
   intent = out
-[ pmid_day ]
-  standard_name = air_pressure_for_daytime_points_for_RRTMGP
-  units = Pa
-  type = real | kind = kind_phys
-  dimensions = (daytime_points_dimension, number_of_vertical_layers_in_RRTMGP)
-  intent = in
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = out
 [ errflg ]

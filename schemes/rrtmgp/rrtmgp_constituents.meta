@@ -5,17 +5,11 @@
 [ccpp-arg-table]
   name  = rrtmgp_constituents_register
   type  = scheme
-[ nradgas ]
-  standard_name = number_of_active_gases_for_RRTMGP
-  units = count
-  type = integer
-  dimensions = ()
-  intent = in
 [ rad_climate ]
   standard_name = sources_of_radiatively_active_gases_for_climate_calculation
   units = none
   type = character | kind = len=256
-  dimensions = (cam_nl_autogen1_dimension)
+  dimensions = (rad_climate_dimension)
   intent = in
 [ rrtmgp_dyn_consts ]
   standard_name = rrtmgp_constituents_dyn_consts
@@ -27,7 +21,7 @@
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = out
 [ errflg ]
@@ -42,8 +36,8 @@
 [ gaslist ]
   standard_name = list_of_active_gases_for_RRTMGP
   units = none
-  type = character | kind = len=5
-  dimensions = (number_of_active_gases_for_RRTMGP)
+  type = character | kind = len=*
+  dimensions = (gaslist_dimension)
   intent = in
 [ const_array ]
   standard_name = ccpp_constituents
@@ -60,7 +54,7 @@
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = out
 [ errflg ]

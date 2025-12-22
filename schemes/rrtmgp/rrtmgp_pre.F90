@@ -16,10 +16,10 @@ CONTAINS
      use ccpp_gas_concentrations, only: ty_gas_concs_ccpp
      use atmos_phys_string_utils, only: to_lower
      integer,                    intent(in) :: nradgas          ! Number of radiatively active gases
+     character(len=5),           intent(in) :: gaslist(:)       ! Radiatively active gas list
      type(ty_gas_concs_ccpp),   intent(out) :: available_gases  ! Gas concentrations object
-     character(len=5),          intent(out) :: gaslist(:)       ! Radiatively active gas list
      character(len=5),          intent(out) :: gaslist_lc(:)    ! Lowercase verison of radiatively active gas list
-     character(len=512),        intent(out) :: errmsg
+     character(len=*),          intent(out) :: errmsg
      integer,                   intent(out) :: errflg
 
      ! Local variables
@@ -28,9 +28,6 @@ CONTAINS
      ! Set error variables
      errmsg = ''
      errflg = 0
-
-     ! Initialize gas list
-     gaslist =  (/'H2O  ','O3   ', 'O2   ', 'CO2  ', 'N2O  ', 'CH4  ', 'CFC11', 'CFC12'/)
 
      ! Create lowercase version of the gaslist for RRTMGP.  The ty_gas_concs_ccpp objects
      ! work with CAM's uppercase names, but other objects that get input from the gas
@@ -52,19 +49,19 @@ CONTAINS
   subroutine rrtmgp_pre_timestep_init(ncol, coszrs, nstep, dtime, iradsw, irad_always, offset, &
                   idxday, nday, idxnite, nnite, errmsg, errflg)
      use ccpp_kinds, only: kind_phys
-     real(kind_phys), dimension(:),    intent(in) :: coszrs        ! Cosine solar zenith angle
-     integer,            intent(in)  :: nstep          ! Current timestep number
-     integer,            intent(in)  :: ncol           ! Number of horizontal columns
-     real(kind_phys),    intent(in)  :: dtime          ! Timestep size
-     integer,            intent(in)  :: iradsw         ! Freq. of shortwave radiation calc in time steps (positive) or hours (negative)
-     integer,            intent(in)  :: irad_always    ! Number of time steps to execute radiation continuously
-     integer,                         intent(out) :: nday          ! Number of daylight columns
-     integer,                         intent(out) :: nnite         ! Number of nighttime columns
-     integer, dimension(:),           intent(out) :: idxday        ! Indices of daylight columns
-     integer, dimension(:),           intent(out) :: idxnite       ! Indices of nighttime columns
-     integer,            intent(out) :: offset         ! Offset for next SW radiation timestep
-     integer,            intent(out) :: errflg
-     character(len=512), intent(out) :: errmsg
+     real(kind_phys),       intent(in)  :: coszrs(:)     ! Cosine solar zenith angle
+     integer,               intent(in)  :: nstep        ! Current timestep number
+     integer,               intent(in)  :: ncol         ! Number of horizontal columns
+     real(kind_phys),       intent(in)  :: dtime        ! Timestep size
+     integer,               intent(in)  :: iradsw       ! Freq. of shortwave radiation calc in time steps (positive) or hours (negative)
+     integer,               intent(in)  :: irad_always  ! Number of time steps to execute radiation continuously
+     integer,               intent(out) :: nday         ! Number of daylight columns
+     integer,               intent(out) :: nnite        ! Number of nighttime columns
+     integer,               intent(out) :: idxday(:)    ! Indices of daylight columns
+     integer,               intent(out) :: idxnite(:)   ! Indices of nighttime columns
+     integer,               intent(out) :: offset       ! Offset for next SW radiation timestep
+     integer,               intent(out) :: errflg
+     character(len=*),      intent(out) :: errmsg
 
      logical :: dosw_next
      integer :: nstepsw_next, idx
@@ -102,9 +99,9 @@ CONTAINS
 !! \htmlinclude rrtmgp_pre_run.html
 !!
   subroutine rrtmgp_pre_run(coszrs, nstep, dtime, iradsw, iradlw, irad_always, ncol, &
-                  next_cday, idxday, nday, idxnite, nnite, dosw, dolw, dosw_heat, dolw_heat, &
-                  nlay, nlwbands, nswbands, spectralflux, nextsw_cday, fsw, fswc, flw, flwc, &
-                  errmsg, errflg)
+                  next_cday, idxday, nday, idxnite, nnite, nlay, nlwbands, nswbands, &
+                  spectralflux, nextsw_cday, dosw, dolw, dosw_heat, dolw_heat, fsw,  &
+                  fswc, flw, flwc, errmsg, errflg)
      use ccpp_kinds,              only: kind_phys
      use ccpp_fluxes,             only: ty_fluxes_broadband_ccpp
      use ccpp_fluxes_byband,      only: ty_fluxes_byband_ccpp
@@ -120,6 +117,10 @@ CONTAINS
      integer,                          intent(in) :: nlay          ! Number of vertical layers
      integer,                          intent(in) :: nlwbands      ! Number of longwave bands
      integer,                          intent(in) :: nswbands      ! Number of shortwave bands
+     integer,                          intent(in) :: nday          ! Number of daylight columns
+     integer,                          intent(in) :: nnite         ! Number of nighttime columns
+     integer, dimension(:),            intent(in) :: idxday        ! Indices of daylight columns
+     integer, dimension(:),            intent(in) :: idxnite       ! Indices of nighttime columns
      logical,                          intent(in) :: spectralflux  ! Flag to calculate fluxes (up and down) per band
      ! Outputs
      real(kind_phys),               intent(inout) :: nextsw_cday   ! The next calendar day during which calculation will be performed
@@ -127,15 +128,11 @@ CONTAINS
      class(ty_fluxes_byband_ccpp),    intent(out) :: fsw           ! All-sky shortwave flux object
      class(ty_fluxes_broadband_ccpp), intent(out) :: flwc          ! Clear-sky longwave flux object
      class(ty_fluxes_byband_ccpp),    intent(out) :: flw           ! All-sky longwave flux object
-     integer,                         intent(in) :: nday          ! Number of daylight columns
-     integer,                         intent(in) :: nnite         ! Number of nighttime columns
-     integer, dimension(:),           intent(in) :: idxday        ! Indices of daylight columns
-     integer, dimension(:),           intent(in) :: idxnite       ! Indices of nighttime columns
      logical,                         intent(out) :: dosw          ! Flag to do shortwave calculation
      logical,                         intent(out) :: dolw          ! Flag to do longwave calculation
      logical,                         intent(out) :: dosw_heat     ! Flag to calculate net shortwave heating
      logical,                         intent(out) :: dolw_heat     ! Flag to calculate net longwave heating
-     character(len=512),              intent(out) :: errmsg
+     character(len=*),                intent(out) :: errmsg
      integer,                         intent(out) :: errflg
 
      ! Local variables

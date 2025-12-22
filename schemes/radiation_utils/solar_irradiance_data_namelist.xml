@@ -95,7 +95,7 @@
     <standard_name>type_of_solar_irradiance_data</standard_name>
     <units>none</units>
     <desc>
-     The type of solar irradiance data.
+     The type of solar irradiance data ('FIXED' or 'SERIAL').
     </desc>
     <values>
       <value>FIXED</value>
@@ -105,7 +105,7 @@
     <type>logical</type>
     <category>solar_data</category>
     <group>solar_data</group>
-    <standard_name>do_radiation_heating_spectral_scaling</standard_name>
+    <standard_name>do_solar_radiation_heating_spectral_scaling</standard_name>
     <units>flag</units>
     <desc>
      Flag for whether to do radiation heating spectral scaling
@@ -118,7 +118,7 @@
     <type>integer</type>
     <category>solar_data</category>
     <group>solar_data</group>
-    <standard_name>year_month_date_for_solar_irradiance_data</standard_name>
+    <standard_name>year_month_day_for_solar_irradiance_data</standard_name>
     <units>1</units>
     <desc>
      YMD for start of fixed solar irradiance data
