@@ -116,13 +116,7 @@ contains
 
     ! Limit pbl height to regions below 400 mb
     ! npbl = max # of levels (from bottom) in pbl
-    npbl = 0
-    do k = nbot_turb,ntop_turb,-1
-       if (pref_mid(k) >= pblmaxp) then
-          npbl = npbl + 1
-       end if
-    end do
-    npbl = max(npbl, 1)
+    npbl = max(count(pref_mid(ntop_turb:nbot_turb) >= pblmaxp), 1)
 
     if(amIRoot) then
       write(iulog,*) 'Holtslag-Boville PBL: PBL height will be limited to bottom ', npbl, &
@@ -189,11 +183,12 @@ contains
     character(len=512), intent(out)   :: errmsg              ! error message
     integer,            intent(out)   :: errflg              ! error flag
 
+    ! Parameters:
+    real(kind_phys), parameter :: minimum_velocity_shear_squared = 1.e-36_kind_phys
+
+    ! Local variables:
     integer :: i, k
-    real(kind_phys) :: dvdz2                                 ! velocity shear squared [m^2 s-2]
-    real(kind_phys) :: dz                                    ! delta z between midpoints [m]
     real(kind_phys) :: rrho(ncol)                            ! 1 / bottom level density [m^3 kg-1]
-    real(kind_phys) :: n2(ncol, pver)                        ! brunt vaisaila frequency [s-2]
     real(kind_phys) :: th(ncol, pver)                        ! potential temperature [K]
 
     errmsg = ''
@@ -214,22 +209,17 @@ contains
     kbfs(:ncol)   = calc_kinematic_buoyancy_flux(khfs(:ncol), zvir, th(:ncol,pver), kqfs(:ncol))
     obklen(:ncol) = calc_obukhov_length(thv(:ncol,pver), ustar(:ncol), gravit, karman, kbfs(:ncol))
 
-    ! Initialize output arrays outside of turbulence region to zeroes
-    s2(:,:) = 0._kind_phys
-    ri(:,:) = 0._kind_phys
-
-    ! Compute s^2 (shear squared), n^2 (brunt vaisaila frequency), and ri (Richardson number = n^2/s^2)
-    ! using virtual temperature
+    ! Compute s^2 (shear squared), n^2 (brunt vaisaila frequency), and ri (Richardson number = n^2/s^2) using virtual temperature
     ! (formerly trbintd)
     do k = ntop_turb,nbot_turb-1
-       do i = 1,ncol
-          dvdz2   = (u(i,k)-u(i,k+1))**2 + (v(i,k)-v(i,k+1))**2
-          dvdz2   = max(dvdz2,1.e-36_kind_phys)
-          dz      = z(i,k) - z(i,k+1)
-          s2(i,k) = dvdz2/(dz**2)
-          n2(i,k) = gravit*2.0_kind_phys*(thv(i,k) - thv(i,k+1))/((thv(i,k) + thv(i,k+1))*dz)
-          ri(i,k) = n2(i,k)/s2(i,k)
-       end do
+      do i = 1,ncol
+        s2(i,k) = calc_shear_squared(u(i,k), u(i,k+1), &
+                                     v(i,k), v(i,k+1), &
+                                     z(i,k), z(i,k+1), minimum_velocity_shear_squared)
+        ri(i,k) = calc_bulk_richardson_number(thv(i,k), thv(i,k+1), &
+                                              z(i,k),   z(i,k+1),   &
+                                              s2(i,k),  gravit)
+      end do
     end do
   end subroutine hb_pbl_independent_coefficients_run
 
@@ -290,13 +280,11 @@ contains
 
     ! Local variables
     integer :: i, k
-    real(kind_phys) :: phiminv(ncol)   ! inverse phi function for momentum
+    real(kind_phys) :: scaled_phiminv  ! inverse phi function for momentum
     real(kind_phys) :: rino(ncol,pver) ! bulk Richardson no. from level to ref lev
     real(kind_phys) :: tlv(ncol)       ! ref. level potential tmp + tmp excess
-    real(kind_phys) :: vvk             ! velocity magnitude squared
 
     logical  :: check(ncol)            ! false if Richardson number > critical
-    logical  :: ocncldcheck(ncol)      ! true if ocean surface (not implemented) and cloud in lowest layer
 
     ! Local parameters
     real(kind_phys), parameter :: tiny = 1.e-36_kind_phys   ! lower bound for wind magnitude
@@ -317,14 +305,14 @@ contains
     do k=pver-1,pver-npbl+1,-1
        do i=1,ncol
           if (check(i)) then
-             vvk = (u(i,k) - u(i,pver))**2 + (v(i,k) - v(i,pver))**2 + fac*ustar(i)**2
-             vvk = max(vvk,tiny)
-             rino(i,k) = gravit*(thv(i,k) - thv(i,pver))*(z(i,k)-z(i,pver))/(thv(i,pver)*vvk)
+             rino(i,k) = calc_richardson_number_at_height(u(i,k), u(i,pver), &
+                                                          v(i,k), v(i,pver), &
+                                                          z(i,k), z(i,pver), &
+                                                          thv(i,k), thv(i,pver), ustar(i), gravit)
              ! Modified for boundary layer height diagnosis: Bert Holtslag, June 1994
              ! >>>>>>>>>  (Use ricr = 0.3 in this formulation)
              if (rino(i,k) >= ricr) then
-                pblh(i) = z(i,k+1) + (ricr - rino(i,k+1))/(rino(i,k) - rino(i,k+1)) * &
-                     (z(i,k) - z(i,k+1))
+                pblh(i) = linear_interpolate_height_wrt_richardson(z(i,k:k+1), rino(i,k:k+1))
                 check(i) = .false.
              end if
           end if
@@ -336,9 +324,9 @@ contains
        if (check(i)) pblh(i) = z(i,pverp-npbl)
        check(i)  = (kbfs(i) > 0._kind_phys)
        if (check(i)) then
-          phiminv(i)   = (1._kind_phys - binm*pblh(i)/obklen(i))**onet
-          rino(i,pver) = 0.0_kind_phys
-          tlv(i)       = thv(i,pver) + kbfs(i)*fak/(ustar(i)*phiminv(i))
+          scaled_phiminv = comp_unstable_scaled_phiminv(pblh(i), obklen(i))
+          rino(i,pver)   = 0.0_kind_phys
+          tlv(i)         = compute_appropriate_temperature_at_z(thv(i,pver), kbfs(i), ustar(i), scaled_phiminv)
        end if
     end do
 
@@ -350,12 +338,14 @@ contains
     do k=pver-1,pver-npbl+1,-1
       do i=1,ncol
         if (check(i)) then
-          vvk = (u(i,k) - u(i,pver))**2 + (v(i,k) - v(i,pver))**2 + fac*ustar(i)**2
-          vvk = max(vvk,tiny)
-          rino(i,k) = gravit*(thv(i,k) - tlv(i))*(z(i,k)-z(i,pver))/(thv(i,pver)*vvk)
+          rino(i,k) = calc_modified_richardson_number_at_height(u(i,k), u(i,pver), &
+                                                                v(i,k), v(i,pver), &
+                                                                z(i,k), z(i,pver), &
+                                                                thv(i,k), thv(i,pver), tlv(i), ustar(i), gravit)
+
           if (rino(i,k) >= ricr) then
-            pblh(i) = z(i,k+1) + (ricr - rino(i,k+1))/(rino(i,k) - rino(i,k+1)) * &
-                 (z(i,k) - z(i,k+1))
+            pblh(i) = linear_interpolate_height_wrt_richardson(z(i,k:k+1), rino(i,k:k+1))
+
             bge(i) = 2._kind_phys*gravit/(thv(i,k)+thv(i,k+1))*(thv(i,k)-thv(i,k+1))/(z(i,k)-z(i,k+1))*pblh(i)
             if (bge(i).lt.0._kind_phys) then
               bge(i) = 1.e-8_kind_phys
@@ -380,8 +370,8 @@ contains
     ! PBL to exceed some maximum (npbl) number of allowable points
     do i=1,ncol
        if (check(i)) pblh(i) = z(i,pverp-npbl)
-       pblh(i) = max(pblh(i),700.0_kind_phys*ustar(i))
-       wstar(i) = (max(0._kind_phys,kbfs(i))*gravit*pblh(i)/thv(i,pver))**onet
+       pblh(i)  = max(pblh(i),700.0_kind_phys*ustar(i))
+       wstar(i) = comp_wstar( max(0._kind_phys, kbfs(i)), pblh(i), thv(i,pver), gravit)
     end do
 
     ! Final requirement on PBL height is that it must be greater than the depth
@@ -396,9 +386,9 @@ contains
     !
     !  jrm This is being applied everywhere (not just ocean)!
     do i=1,ncol
-       ocncldcheck(i) = .false.
-       if (cldn(i,pver).ge.0.0_kind_phys) ocncldcheck(i) = .true.
-       if (ocncldcheck(i)) pblh(i) = max(pblh(i),zi(i,pver) + 50._kind_phys)
+       if (cldn(i,pver) >= 0.0_kind_phys) then
+         pblh(i) = max(pblh(i),zi(i,pver) + 50._kind_phys)
+       end if
     end do
   end subroutine hb_pbl_dependent_coefficients_run
 
@@ -479,29 +469,29 @@ contains
     character(len=512), intent(out)   :: errmsg         ! error message
     integer,            intent(out)   :: errflg         ! error flag
 
+    real(kind_phys), parameter :: minimum_eddy_flux_coefficient = 0.01_kind_phys ! CCM1 2.f.14
+    real(kind_phys), parameter :: a                             =  7.2_kind_phys ! Constant in turbulent prandtl number (CCM2, page 76)
+    real(kind_phys), parameter :: b                             =  8.5_kind_phys ! Constant in surface temperature excess (CCM2, page 76)
+
     ! Local variables
     integer :: i, k
-    real(kind_phys) :: kvf(ncol,pverp) ! free atmospheric eddy diffusivity [m^2 s-1]
-    integer  :: ktopbl(ncol)           ! index of first midpoint inside PBL (diagnostic) [index]
+    real(kind_phys) :: kvf(ncol,pverp)      ! free atmospheric eddy diffusivity [m^2 s-1]
+    integer         :: ktopbl(ncol)         ! index of first midpoint inside PBL (diagnostic) [index]
+    real(kind_phys) :: scaled_phiminv(ncol) ! inverse phi function for momentum
+    real(kind_phys) :: scaled_phihinv(ncol) ! inverse phi function for heat
+    real(kind_phys) :: wm(ncol)             ! turbulent velocity scale for momentum
+    real(kind_phys) :: fak1(ncol)           ! k*ustar*pblh
+    real(kind_phys) :: fak2(ncol)           ! k*wm*pblh
+    real(kind_phys) :: prandtl_factor(ncol) ! a*wstar/wm (Part of CCM2, page 76, equation 4.e.33)
+    real(kind_phys) :: pblk                 ! level eddy diffusivity for momentum
+    real(kind_phys) :: pr                   ! Prandtl number for eddy diffusivities
+    real(kind_phys) :: zh                   ! zmzp / pblh
+    real(kind_phys) :: zzh                  ! (1-(zmzp/pblh))**2
+    real(kind_phys) :: zmzp                 ! level height halfway between zm and zp
+    real(kind_phys) :: phiminv              ! intermediate calculation
+    real(kind_phys) :: kve                  ! diffusivity at entrainment layer in unstable cases [m s-2]
 
-    real(kind_phys) :: phiminv(ncol)   ! inverse phi function for momentum
-    real(kind_phys) :: phihinv(ncol)   ! inverse phi function for heat
-    real(kind_phys) :: wm(ncol)        ! turbulent velocity scale for momentum
-    real(kind_phys) :: zp(ncol)        ! current level height + one level up
-    real(kind_phys) :: fak1(ncol)      ! k*ustar*pblh
-    real(kind_phys) :: fak2(ncol)      ! k*wm*pblh
-    real(kind_phys) :: fak3(ncol)      ! fakn*wstar/wm
-    real(kind_phys) :: pblk(ncol)      ! level eddy diffusivity for momentum
-    real(kind_phys) :: pr(ncol)        ! Prandtl number for eddy diffusivities
-    real(kind_phys) :: zl(ncol)        ! zmzp / Obukhov length
-    real(kind_phys) :: zh(ncol)        ! zmzp / pblh
-    real(kind_phys) :: zzh(ncol)       ! (1-(zmzp/pblh))**2
-    real(kind_phys) :: zmzp            ! level height halfway between zm and zp
-    real(kind_phys) :: term            ! intermediate calculation
-    real(kind_phys) :: kve             ! diffusivity at entrainment layer in unstable cases [m s-2]
-
-    logical  :: unstable(ncol)         ! points with unstable pbl (positive virtual heat flux) [count]
-    logical  :: pblpt(ncol)            ! points within pbl
+    logical         :: unstable(ncol)       ! points with unstable pbl (positive virtual heat flux) [count]
 
     errmsg = ''
     errflg = 0
@@ -510,9 +500,11 @@ contains
     kvf(:ncol,:) = 0.0_kind_phys
     do k = ntop_turb, nbot_turb-1
        do i = 1, ncol
-          kvf(i,k+1) = calc_eddy_flux_coefficient(ml2(k), ri(i, k), s2(i, k))
+          kvf(i,k+1) = max(calc_eddy_flux_coefficient(ml2(k), ri(i, k), s2(i, k)), &
+                           minimum_eddy_flux_coefficient)
        end do
     end do
+    kvf(:ncol,ntop_turb+1) = minimum_eddy_flux_coefficient
 
     ! Compute PBL exchange coefficients (formerly austausch_pbl)
     kvm = 0._kind_phys
@@ -522,82 +514,72 @@ contains
     cgs = 0._kind_phys
     tpert = 0._kind_phys
     qpert = 0._kind_phys
-    ktopbl = 0._kind_phys
     tke = 0._kind_phys
+
+    ! Mark columns with positive virtual heat flux:
+    unstable = (kbfs > 0._kind_phys)
 
     ! Initialize height independent arrays
     do i=1,ncol
-      unstable(i) = (kbfs(i) > 0._kind_phys)
-      pblk(i) = 0.0_kind_phys
       fak1(i) = ustar(i)*pblh(i)*karman
       if (unstable(i)) then
-        phiminv(i) = (1._kind_phys - binm*pblh(i)/obklen(i))**onet
-        phihinv(i) = sqrt(1._kind_phys - binh*pblh(i)/obklen(i))
-        wm(i)      = ustar(i)*phiminv(i)
-        fak2(i)    = wm(i)*pblh(i)*karman
-        fak3(i)    = fakn*wstar(i)/wm(i)
-        tpert(i)   = max(khfs(i)*fak/wm(i),0._kind_phys)
-        qpert(i)   = max(kqfs(i)*fak/wm(i),0._kind_phys)
+        scaled_phiminv(i) = comp_unstable_scaled_phiminv(pblh(i), obklen(i))
+        scaled_phihinv(i) = comp_unstable_scaled_phihinv(pblh(i), obklen(i))
+        wm(i)             = ustar(i)*scaled_phiminv(i)
+        fak2(i)           = wm(i)*pblh(i)*karman
+        prandtl_factor(i) = a*wstar(i)/wm(i)
+        tpert(i)          = max(khfs(i)*b/wm(i),    0._kind_phys)
+        qpert(i)          = max(kqfs(i)*b/wm(i),    0._kind_phys)
       else
-        tpert(i)   = max(khfs(i)*fak/ustar(i),0._kind_phys)
-        qpert(i)   = max(kqfs(i)*fak/ustar(i),0._kind_phys)
+        tpert(i)          = max(khfs(i)*b/ustar(i), 0._kind_phys)
+        qpert(i)          = max(kqfs(i)*b/ustar(i), 0._kind_phys)
       end if
     end do
 
     ! Initialize output arrays with free atmosphere values
-    do k=1,pverp
-       do i=1,ncol
+    do k=1, pverp
+       do i=1, ncol
           kvm(i,k) = kvf(i,k)
           kvh(i,k) = kvf(i,k)
-          cgh(i,k) = 0.0_kind_phys
-          cgs(i,k) = 0.0_kind_phys
        end do
     end do
 
     ! Main level loop to compute the diffusivities and counter-gradient terms. These terms are
-    ! only calculated at points determined to be in the interior of the pbl (pblpt(i)==.true.),
+    ! only calculated at points determined to be in the interior of the pbl (z(i,k) < pblh(i))
     ! and then calculations are directed toward regime: stable vs unstable, surface vs outer
     ! layer.
-    do k=pver,pver-npbl+2,-1
-      do i=1,ncol
-        pblpt(i) = (z(i,k) < pblh(i))
-        if (pblpt(i)) then
+    do k = pver, pver-npbl+2, -1
+      do i = 1, ncol
+        if (z(i,k) < pblh(i)) then
+          zmzp    = 0.5_kind_phys*(z(i,k) + z(i,k-1)) ! we think this is an approximation to the interface height (where KVs are calculated)
+          zh      = zmzp/pblh(i)
+          zzh     = zh*max(0._kind_phys,(1._kind_phys - zh))**2
+
           ktopbl(i) = k
-          zp(i)  = z(i,k-1)
-          if (zkmin == 0.0_kind_phys .and. zp(i) > pblh(i)) then
-            zp(i) = pblh(i)
-          endif
-          zmzp    = 0.5_kind_phys*(z(i,k) + zp(i)) ! we think this is an approximation to the interface height (where KVs are calculated)
-          zh(i)   = zmzp/pblh(i)
-          zl(i)   = zmzp/obklen(i)
-          zzh(i)  = zh(i)*max(0._kind_phys,(1._kind_phys - zh(i)))**2
+
           if (unstable(i)) then
-            if (zh(i) < sffrac) then
-               term     = (1._kind_phys - betam*zl(i))**onet
-               pblk(i)  = fak1(i)*zzh(i)*term
-               pr(i)    = term/sqrt(1._kind_phys - betah*zl(i))
+            if (zh < sffrac) then
+              phiminv = comp_unstable_phiminv(zmzp, obklen(i))
+              pblk    = fak1(i)*zzh*phiminv
+              pr      = phiminv/comp_unstable_phihinv(zmzp, obklen(i))
             else
-               pblk(i)  = fak2(i)*zzh(i)
-               pr(i)    = phiminv(i)/phihinv(i) + ccon*fak3(i)/fak
-               cgs(i,k) = fak3(i)/(pblh(i)*wm(i))
-               cgh(i,k) = khfs(i)*cgs(i,k)*cpair
+              pblk     = fak2(i)*zzh
+              pr       = scaled_phiminv(i)/scaled_phihinv(i) + ccon*prandtl_factor(i)/fak
+              cgs(i,k) = prandtl_factor(i)/(pblh(i)*wm(i))
+              cgh(i,k) = khfs(i)*cgs(i,k)*cpair
             end if
           else
-            if (zl(i) <= 1._kind_phys) then
-              pblk(i) = fak1(i)*zzh(i)/(1._kind_phys + betas*zl(i))
-            else
-              pblk(i) = fak1(i)*zzh(i)/(betas + zl(i))
-            end if
-            pr(i)    = 1._kind_phys
+            pblk = (ustar(i)*pblh(i)*karman)*zzh/comp_stable_phih(zmzp, obklen(i))
+            pr   = 1._kind_phys
           end if
-          kvm(i,k) = max(pblk(i),kvf(i,k))
-          kvh(i,k) = max(pblk(i)/pr(i),kvf(i,k))
+          kvm(i,k) = max(pblk, kvf(i,k))
+          kvh(i,k) = max(pblk/pr, kvf(i,k))
         end if
       end do
     end do
 
+    ! HBR scheme only:
     ! Check whether last allowed midpoint is within PBL
-    ! HBR scheme only
     if(is_hbr_pbl_scheme) then
       ! apply new diffusivity at entrainment zone
       do i = 1,ncol
@@ -718,5 +700,181 @@ contains
       deallocate(ml2)
     endif
   end subroutine holtslag_boville_diff_finalize
+
+  ! Utility pure elemental functions used in computation
+  pure elemental function calc_bulk_richardson_number(thv1, thv2, z1, z2, s2, g) result(ri)
+    real(kind_phys), intent(in) :: thv1
+    real(kind_phys), intent(in) :: thv2
+    real(kind_phys), intent(in) :: z1
+    real(kind_phys), intent(in) :: z2
+    real(kind_phys), intent(in) :: s2
+    real(kind_phys), intent(in) :: g
+    real(kind_phys)             :: ri
+    real(kind_phys)             :: n2
+
+    n2 = calc_brunt_vaisaila_frequency(thv1, thv2, z1, z2, g)
+    ri = n2/s2
+  end function calc_bulk_richardson_number
+
+  pure elemental function calc_brunt_vaisaila_frequency(thv1, thv2, z1, z2, g) result(n2)
+    real(kind_phys), intent(in) :: thv1
+    real(kind_phys), intent(in) :: thv2
+    real(kind_phys), intent(in) :: z1
+    real(kind_phys), intent(in) :: z2
+    real(kind_phys), intent(in) :: g
+    real(kind_phys) :: n2
+
+    n2 = g*2.0_kind_phys*(thv1-thv2)/((thv1+thv2)*(z1-z2))
+  end function calc_brunt_vaisaila_frequency
+
+  pure elemental function calc_shear_squared(u1, u2, v1, v2, z1, z2, minimum_velocity_shear_squared) result(s2)
+    ! Hack, J., Boville, B., Briegleb, B., Kiehl, J., & Williamson, D. (1993).
+    ! Description of the NCAR Community Climate Model (CCM2). University Corporation for Atmospheric Research.
+    ! https://doi.org/10.5065/D6QZ27XV (Original work published 1993)
+    ! Page 71, Equation 4.e.10
+    real(kind_phys), intent(in) :: u1
+    real(kind_phys), intent(in) :: u2
+    real(kind_phys), intent(in) :: v1
+    real(kind_phys), intent(in) :: v2
+    real(kind_phys), intent(in) :: z1
+    real(kind_phys), intent(in) :: z2
+    real(kind_phys), intent(in) :: minimum_velocity_shear_squared
+    real(kind_phys) :: s2
+
+    s2 = max((u1-u2)**2 + (v1-v2)**2, minimum_velocity_shear_squared)/((z1-z2)**2)
+  end function calc_shear_squared
+
+  pure elemental function comp_wstar(kbfs, pblh, thv, gravity) result(wstar)
+    ! Hack, J., Boville, B., Briegleb, B., Kiehl, J., & Williamson, D. (1993).
+    ! Description of the NCAR Community Climate Model (CCM2). University Corporation for Atmospheric Research.
+    ! https://doi.org/10.5065/D6QZ27XV (Original work published 1993)
+    ! Page 75, Equation 4.e.32
+    real(kind_phys), intent(in)  :: kbfs
+    real(kind_phys), intent(in)  :: pblh
+    real(kind_phys), intent(in)  :: thv
+    real(kind_phys), intent(in)  :: gravity
+    real(kind_phys)              :: wstar
+
+    wstar = (kbfs*gravity*pblh/thv)**(1._kind_phys/3._kind_phys)
+  end function comp_wstar
+
+  pure elemental function calc_modified_richardson_number_at_height(uh, us, vh, vs, h, zs, thvh, thvs, tlv, ustar, g) result(rih)
+    ! Modified version of base richardson number equation that incorporates reference level potential temperature
+    real(kind_phys), intent(in) :: uh, us, vh, vs, h, zs, thvh, thvs, tlv, ustar, g
+    real(kind_phys) :: rih
+    real(kind_phys), parameter   :: b  = 100._kind_phys     ! Derivation of b comes from page 253
+    real(kind_phys), parameter   :: tiny = 1.e-36_kind_phys ! Prevents division by 0
+
+    rih = g * (thvh-tlv)*(h-zs) / &
+          (thvs * max((uh-us)**2 + (vh-vs)**2 + b*ustar**2, tiny))
+  end function calc_modified_richardson_number_at_height
+
+  pure elemental function calc_richardson_number_at_height(uh, us, vh, vs, h, zs, thvh, thvs, ustar, g) result(rih)
+    ! Vogelezang, D.H.P., Holtslag, A.A.M. Evaluation and model impacts of alternative
+    ! boundary-layer height formulations. Boundary-Layer Meteorol 81, 245–269 (1996).
+    ! https://doi.org/10.1007/BF02430331
+    ! Equation 3, page 251
+    real(kind_phys), intent(in) :: uh, us, vh, vs, h, zs, thvh, thvs, ustar, g
+    real(kind_phys) :: rih
+    real(kind_phys), parameter   :: b  = 100._kind_phys     ! Derivation of b comes from page 253
+    real(kind_phys), parameter   :: tiny = 1.e-36_kind_phys ! Prevents division by 0
+
+    rih = g * (thvh-thvs)*(h-zs) / &
+          (thvs * max((uh-us)**2 + (vh-vs)**2 + b*ustar**2, tiny))
+  end function calc_richardson_number_at_height
+
+  pure function linear_interpolate_height_wrt_richardson(z, rino) result(pblh)
+    real(kind_phys), intent(in) :: z(2)
+    real(kind_phys), intent(in) :: rino(2)
+    real(kind_phys)             :: pblh
+
+    pblh = z(2) + (ricr - rino(2))/(rino(1) - rino(2)) * (z(1) - z(2))
+  end function linear_interpolate_height_wrt_richardson
+
+  pure elemental function compute_appropriate_temperature_at_z(thv, kbfs, ustar, phiminv) result(tlv)
+    ! Holtslag, A.A.M., Van Meijgaard, E. & De Rooy, W.C. A comparison of boundary layer diffusion
+    ! schemes in unstable conditions over land. Boundary-Layer Meteorol 76, 69–95 (1995).
+    ! https://doi.org/10.1007/BF00710891
+    ! Equation 10, page 72
+    real(kind_phys), intent(in) :: thv
+    real(kind_phys), intent(in) :: kbfs
+    real(kind_phys), intent(in) :: ustar
+    real(kind_phys), intent(in) :: phiminv
+    real(kind_phys)             :: tlv
+    real(kind_phys), parameter  :: b = 8.5_kind_phys
+
+    tlv = thv + kbfs * b /(ustar * phiminv)
+  end function compute_appropriate_temperature_at_z
+
+  pure elemental function comp_stable_phih(z, L) result(phih)
+    ! Hack, J., Boville, B., Briegleb, B., Kiehl, J., & Williamson, D. (1993).
+    ! Description of the NCAR Community Climate Model (CCM2). University Corporation for Atmospheric Research.
+    ! https://doi.org/10.5065/D6QZ27XV (Original work published 1993)
+    ! Page 75, Equation 4.e.23 and 4.e.25
+    real(kind_phys), intent(in) :: z ! height above surface [m]
+    real(kind_phys), intent(in) :: L ! Obukhov length [m]
+    real(kind_phys) :: zL
+    real(kind_phys) :: phih          ! Vertical temperature gradient [1]
+
+    zL = z/L
+    if (zL <= 1._kind_phys) then
+      phih = 1._kind_phys + 5._kind_phys*zL
+    else
+      phih = 5._kind_phys + zL
+    endif
+  end function comp_stable_phih
+
+  pure elemental function comp_unstable_phiminv(z, L) result(phiminv)
+    ! Hack, J., Boville, B., Briegleb, B., Kiehl, J., & Williamson, D. (1993).
+    ! Description of the NCAR Community Climate Model (CCM2). University Corporation for Atmospheric Research.
+    ! https://doi.org/10.5065/D6QZ27XV (Original work published 1993)
+    ! Equation 4.e.28, page 75
+    real(kind_phys), intent(in) :: z       ! height above surface [m]
+    real(kind_phys), intent(in) :: L       ! Obukhov length [m]
+    real(kind_phys)             :: phiminv ! Wind gradient [1]
+
+    phiminv = (1._kind_phys - 15.0_kind_phys*(z/L))**(1._kind_phys/3._kind_phys)
+  end function comp_unstable_phiminv
+
+  pure elemental function comp_unstable_scaled_phiminv(z, L) result(phiminv)
+    ! Modified version of:
+    ! Hack, J., Boville, B., Briegleb, B., Kiehl, J., & Williamson, D. (1993).
+    ! Description of the NCAR Community Climate Model (CCM2). University Corporation for Atmospheric Research.
+    ! https://doi.org/10.5065/D6QZ27XV (Original work published 1993)
+    ! Equation 4.e.28, page 75
+    ! Scales z/L by surface layer fraction of boundary layer.
+    ! Uses power of 1/3 instead of -1/3 for optimized usage.
+    real(kind_phys), intent(in) :: z       ! height above surface [m]
+    real(kind_phys), intent(in) :: L       ! Obukhov length [m]
+    real(kind_phys)             :: phiminv ! Wind gradient [1]
+
+    phiminv = (1._kind_phys - (15.0_kind_phys*sffrac)*z/L)**(1._kind_phys/3._kind_phys)
+  end function comp_unstable_scaled_phiminv
+
+  pure elemental function comp_unstable_phihinv(z, L) result(phiminv)
+    ! Hack, J., Boville, B., Briegleb, B., Kiehl, J., & Williamson, D. (1993).
+    ! Description of the NCAR Community Climate Model (CCM2). University Corporation for Atmospheric Research.
+    ! https://doi.org/10.5065/D6QZ27XV (Original work published 1993)
+    ! Page 75, Equation 4.e.26
+    real(kind_phys), intent(in) :: z ! height above surface [m]
+    real(kind_phys), intent(in) :: L ! Obukhov length [m]
+    real(kind_phys)             :: phiminv
+
+    phiminv = sqrt(1._kind_phys - 15.0_kind_phys*(z/L))
+  end function comp_unstable_phihinv
+
+  pure elemental function comp_unstable_scaled_phihinv(z, L) result(scaled_phihinv)
+    ! Modified version of:
+    ! Hack, J., Boville, B., Briegleb, B., Kiehl, J., & Williamson, D. (1993).
+    ! Description of the NCAR Community Climate Model (CCM2). University Corporation for Atmospheric Research.
+    ! https://doi.org/10.5065/D6QZ27XV (Original work published 1993)
+    ! Page 75, Equation 4.e.26
+    ! Scales z/L by surface layer fraction of boundary layer.
+    real(kind_phys), intent(in) :: z ! height above surface [m]
+    real(kind_phys), intent(in) :: L ! Obukhov length [m]
+    real(kind_phys)             :: scaled_phihinv
+
+    scaled_phihinv = sqrt(1._kind_phys - (15.0_kind_phys*sffrac)*z/L)
+  end function comp_unstable_scaled_phihinv
 
 end module holtslag_boville_diff
