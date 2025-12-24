@@ -679,18 +679,6 @@ contains
     end do
   end subroutine hb_diff_free_atm_exchange_coefficients_run
 
-!> \section arg_table_holtslag_boville_diff_finalize Argument Table
-!! \htmlinclude arg_table_holtslag_boville_diff_finalize.html
-  subroutine holtslag_boville_diff_finalize(errmsg, errflg)
-    ! Output arguments
-    character(len=512), intent(out)   :: errmsg         ! error message
-    integer,            intent(out)   :: errflg         ! error flag
-
-    errmsg = ''
-    errflg = 0
-
-  end subroutine holtslag_boville_diff_finalize
-
   ! Utility pure elemental functions used in computation
   pure elemental function calc_bulk_richardson_number(thv1, thv2, z1, z2, s2, g) result(ri)
     real(kind_phys), intent(in) :: thv1
