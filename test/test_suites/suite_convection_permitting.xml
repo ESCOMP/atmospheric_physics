@@ -4,6 +4,8 @@
   <group name="physics_before_coupler">
     <scheme>calc_exner</scheme>
     <scheme>compute_characteristic_grid_length_scale</scheme>
+    <scheme>compute_atmosphere_layer_thickness</scheme>
+    <scheme>compute_air_density</scheme>
     <scheme>geopotential_height_wrt_sfc_at_if_to_msl</scheme>
     <scheme>geopotential_height_wrt_sfc_to_msl</scheme>
     <scheme>temp_to_potential_temp</scheme>
@@ -12,6 +14,10 @@
     <scheme>wet_to_dry_cloud_ice</scheme>
 
     <scheme>mmm_physics_compat</scheme>
+
+    <scheme>sf_mynn_compat_pre</scheme>
+    <scheme>sf_mynn_compat</scheme>
+    <scheme>sf_mynn_diagnostics</scheme>
 
     <scheme>bl_gwdo_compat_pre</scheme>
     <scheme>bl_gwdo_compat</scheme>
