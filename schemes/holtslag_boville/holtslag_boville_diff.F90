@@ -45,11 +45,11 @@ module holtslag_boville_diff
   real(kind_phys), parameter :: binh    = betah*sffrac              ! betah * sffrac
 
   ! derived parameters from initialization
-  real(kind_phys), allocatable :: ml2(:)      ! mixing lengths squared [m^2] at interfaces
-  real(kind_phys)              :: ccon        ! fak * sffrac * karman
-  integer                      :: npbl        ! maximum # of levels in PBL from surface
-  integer                      :: ntop_turb   ! top    level to which turbulent vertical diffusion is applied
-  integer                      :: nbot_turb   ! bottom level to which turbulent vertical diffusion is applied
+  real(kind_phys)            :: ml2         ! mixing length squared [m2]
+  real(kind_phys)            :: ccon        ! fak * sffrac * karman
+  integer                    :: npbl        ! maximum # of levels in PBL from surface
+  integer                    :: ntop_turb   ! top    level to which turbulent vertical diffusion is applied
+  integer                    :: nbot_turb   ! bottom level to which turbulent vertical diffusion is applied
 
 contains
 
@@ -101,18 +101,11 @@ contains
 
     nbot_turb = pver
 
-    ! allocate and populate mixing lengths squared to grid vertical interfaces
-    allocate(ml2(pverp), stat=errflg, errmsg=errmsg)
-    if(errflg /= 0) return
-
-    ml2(ntop_turb) = 0._kind_phys
-    do k = ntop_turb+1, nbot_turb
-      ml2(k) = 30.0_kind_phys**2                 ! HB scheme:  length scale = 30m
-      if(is_hbr_pbl_scheme) then
-         ml2(k) = 1.0_kind_phys**2               ! HBR scheme: length scale = 1m
-      end if
-    end do
-    ml2(nbot_turb+1) = 0._kind_phys
+    ! mixing lengths squared (valid from [ntop_turb+1, nbot_turb] interfaces)
+    ml2 = 30.0_kind_phys**2                 ! HB scheme:  length scale = 30m
+    if(is_hbr_pbl_scheme) then
+      ml2 = 1.0_kind_phys**2                ! HBR scheme: length scale = 1m
+    end if
 
     ! Limit pbl height to regions below 400 mb
     ! npbl = max # of levels (from bottom) in pbl
@@ -498,9 +491,9 @@ contains
 
     ! Get atmosphere exchange coefficients
     kvf(:ncol,:) = 0.0_kind_phys
-    do k = ntop_turb, nbot_turb-1
+    do k = ntop_turb+1, nbot_turb-1
        do i = 1, ncol
-          kvf(i,k+1) = max(calc_eddy_flux_coefficient(ml2(k), ri(i, k), s2(i, k)), &
+          kvf(i,k+1) = max(calc_eddy_flux_coefficient(ml2, ri(i, k), s2(i, k)), &
                            minimum_eddy_flux_coefficient)
        end do
     end do
@@ -654,9 +647,9 @@ contains
 
     ! Get free atmosphere exchange coefficients
     kvf(:ncol,:) = 0.0_kind_phys
-    do k = ntop_turb, nbot_turb-1
+    do k = ntop_turb+1, nbot_turb-1
        do i = 1, ncol
-          kvf(i,k+1) = calc_free_atm_eddy_flux_coefficient(ml2(k), ri(i, k), s2(i, k))
+          kvf(i,k+1) = calc_free_atm_eddy_flux_coefficient(ml2, ri(i, k), s2(i, k))
        end do
     end do
 
@@ -696,9 +689,6 @@ contains
     errmsg = ''
     errflg = 0
 
-    if(allocated(ml2)) then
-      deallocate(ml2)
-    endif
   end subroutine holtslag_boville_diff_finalize
 
   ! Utility pure elemental functions used in computation
