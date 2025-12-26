@@ -131,7 +131,7 @@
     <standard_name>fixed_date_for_prescribed_aerosols</standard_name>
     <units>1</units>
     <desc>
-      The date at which the prescribed ozone data is fixed if prescribed_ozone_type is 'FIXED'.
+      The date at which the prescribed aerosol data is fixed if prescribed_aero_type is 'FIXED'.
       Format: YYYYMMDD
       Default: 0
     </desc>
