@@ -81,7 +81,7 @@ contains
     integer,            intent(in)  :: fixed_ymd                 ! fixed year-month-day (YYYYMMDD) [1]
     integer,            intent(in)  :: fixed_tod                 ! fixed time of day [s]
     character(len=*),   intent(in)  :: prescribed_aero_model     ! type of aerosol representation
-    character(len=512), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     integer :: i, ndx, number_flds
@@ -91,7 +91,7 @@ contains
     errflg = 0
 
     ! check if user has specified an input dataset
-    if (filename /= 'UNSET' .and. len_trim(filename) > 0 .and. filename /= 'NONE') then
+    if (filename /= 'UNSET' .and. len_trim(filename) > 0) then
       has_aerodep_flx = .true.
 
       if (amIRoot) then
@@ -117,12 +117,15 @@ contains
 
     ! count number of specifiers
     number_flds = 0
-    do i = 1, size(specifier)
+    specifier_count_loop: do i = 1, size(specifier)
       ! remove empty or unset specifiers
       if(len_trim(specifier(i)) > 0 .and. trim(specifier(i)) /= 'UNSET') then
         number_flds = number_flds + 1
-      endif
-    end do
+      else
+        ! Assume all remaining specifier entries are also not set.
+        exit specifier_count_loop
+      end if
+    end do specifier_count_loop
 
     ! initialize dataset in tracer_data module.
     call trcdata_init( &
@@ -229,7 +232,7 @@ contains
     real(kind_phys),    intent(out) :: dst3wet(:)  ! wet deposition of dust bin 3 [kg m-2 s-1]
     real(kind_phys),    intent(out) :: dst4wet(:)  ! wet deposition of dust bin 4 [kg m-2 s-1]
 
-    character(len=512), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     errmsg = ''
@@ -280,7 +283,7 @@ contains
       call set_fluxes(dst2wet,  idst2wet)
       call set_fluxes(dst3wet,  idst3wet)
       call set_fluxes(dst4wet,  idst4wet)
-    endif
+    end if
 
   end subroutine prescribed_aerosol_deposition_flux_run
 

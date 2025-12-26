@@ -54,7 +54,7 @@ contains
     integer,            intent(in)  :: cycle_yr   ! cycle year
     integer,            intent(in)  :: fixed_ymd  ! fixed year-month-day (YYYYMMDD) [1]
     integer,            intent(in)  :: fixed_tod  ! fixed time of day [s]
-    character(len=512), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     character(len=32) :: tracer_data_specifier(1)
@@ -68,10 +68,10 @@ contains
 
       if(amIRoot) then
         write(iulog,*) 'prescribed_ozone_init: ozone is prescribed in: ' // trim(filename)
-      endif
+      end if
     else
       return
-    endif
+    end if
 
     ! initialize dataset in tracer_data module.
     ! construct field specifier - one field
@@ -113,14 +113,14 @@ contains
     integer,            intent(in)  :: pver
     real(kind_phys),    intent(in)  :: mwdry                     ! molecular_weight_of_dry_air [g mol-1]
     real(kind_phys),    intent(in)  :: boltz                     ! boltzmann_constant [J K-1]
-    real(kind_phys),    intent(in)  :: t(:,:)                    ! temperature [K]
+    real(kind_phys),    intent(in)  :: t(:,:)                    ! air temperature [K]
     real(kind_phys),    intent(in)  :: pmiddry(:,:)              ! dry air pressure [Pa]
     real(kind_phys),    intent(in)  :: pmid(:,:)                 ! air pressure [Pa]
     real(kind_phys),    intent(in)  :: pint(:,:)                 ! air pressure at interfaces [Pa]
     real(kind_phys),    intent(in)  :: phis(:)                   ! surface geopotential [m2 s-2]
-    real(kind_phys),    intent(in)  :: zi(:,:)                   ! height above surface, interfaces [m]
+    real(kind_phys),    intent(in)  :: zi(:,:)                   ! geopotential height above surface, interfaces [m]
     real(kind_phys),    intent(out) :: prescribed_ozone(:,:)     ! prescribed ozone mass mixing ratio [kg kg-1 dry]
-    character(len=512), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     ! conversion factor to mass mixing ratio (kg kg-1 dry)
@@ -134,7 +134,7 @@ contains
 
     if(.not. has_prescribed_ozone) then
       return
-    endif
+    end if
 
     ! advance data in tracer_data to current time.
     call advance_trcdata(tracer_data_fields, tracer_data_file, &

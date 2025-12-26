@@ -1,7 +1,6 @@
 [ccpp-table-properties]
   name = prescribed_aerosols
   type = scheme
-  dependencies = ../../../../utils/tracer_data.F90
 
 [ccpp-arg-table]
   name  = prescribed_aerosols_register
@@ -83,7 +82,7 @@
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = out
 [ errflg ]
@@ -159,7 +158,7 @@
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = out
 [ errflg ]
@@ -235,7 +234,7 @@
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = out
 [ errflg ]

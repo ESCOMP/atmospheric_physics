@@ -61,8 +61,8 @@ module prescribed_aerosols
   ! module state variables
   logical :: has_prescribed_aerosols = .false.
   logical :: clim_modal_aero         = .false.
-  integer :: aero_cnt                       ! # of aerosol constituents
-  integer :: aero_cnt_c                     ! # of cloud-borne species (for modal aerosols only)
+  integer :: aero_count                          ! # of aerosol constituents
+  integer :: aero_count_c                        ! # of cloud-borne species (for modal aerosols only)
 
   ! Normal random number which persists from one timestep to the next
   ! (used for modal aerosol sampling)
@@ -109,7 +109,7 @@ contains
 
     ! Output arguments:
     type(ccpp_constituent_properties_t), allocatable, intent(out) :: aerosol_constituents(:) ! prescribed aero runtime CCPP constituents
-    character(len=512), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     ! Local variables:
@@ -145,12 +145,12 @@ contains
     ! Parse the aerosol format specifier from namelist into mapping ddt.
     ! We need two scans. First to determine the count, the second to populate
     ! the information into the ddt.
-    aero_cnt   = 0
-    aero_cnt_c = 0 ! cloud borne species count
-    cnt_loop: do i = 1, N_AERO_MAX
+    aero_count   = 0
+    aero_count_c = 0 ! cloud borne species count
+    count_loop: do i = 1, N_AERO_MAX
       ! FIXME: should I be responsible for handling this? I feel like I should not handle this
       if(prescribed_aero_specifier(i) == 'UNSET' .or. &
-         len_trim(prescribed_aero_specifier(i)) == 0) exit cnt_loop
+         len_trim(prescribed_aero_specifier(i)) == 0) exit count_loop
 
       skip_spec = .false.
       if(clim_modal_aero) then
@@ -159,31 +159,32 @@ contains
         ! soa_a1_logm and soa_a1_logv). Therefore, only *_logm and *_logv and cloud
         ! borne (*_c) species are specified in the build-namelist.
 
-        ! In the following cnt_loop, we will count the cloud borne species and *_logm species
+        ! In the following count_loop, we will count the cloud borne species and *_logm species
         ! (in lieu of *_a species). We will skip *_logv species.
-        ! This will ensure that aero_cnt variable is the sum of cloud borne and
+        ! This will ensure that aero_count variable is the sum of cloud borne and
         ! interstitial species (which we will manually add in the names to the ddt later).
         ! We are also counting cloud borne (*_c) species which will help
         ! adding the same number of interstitial species to the ddt.
         !
         ! For modal aerosols, skip counting species ending with *_logv
-        if(index(prescribed_aero_specifier(i),'_c') >= 1)    aero_cnt_c = aero_cnt_c + 1
+        if(index(prescribed_aero_specifier(i),'_c') >= 1)    aero_count_c = aero_count_c + 1
         if(index(prescribed_aero_specifier(i),'_logv') >= 1) skip_spec = .true.
-      endif
+      end if
 
-      if(.not. skip_spec) aero_cnt = aero_cnt + 1
-    end do cnt_loop
+      if(.not. skip_spec) aero_count = aero_count + 1
+    end do count_loop
 
-    if(aero_cnt == 0) then
+    if(aero_count == 0) then
       has_prescribed_aerosols = .false.
       return
-    endif
+    end if
 
     has_prescribed_aerosols = .true.
 
     ! Allocate mapping list of ddt
-    allocate(aero_map_list(aero_cnt), stat=errflg, errmsg=errmsg)
+    allocate(aero_map_list(aero_count), stat=errflg, errmsg=errmsg)
     if(errflg /= 0) then
+      errmsg = subname // ": " // trim(errmsg)
       return
     end if
 
@@ -253,23 +254,26 @@ contains
     end do ddt_loop
 
     ! Sanity check
-    if(aero_idx /= aero_cnt+1) then
+    if(aero_idx /= aero_count+1) then
       errflg = 1
-      write(errmsg,*) subname//': consistency check 1 failure; at the end of ddt allocation, aero_idx is not aero_cnt+1', aero_idx, aero_cnt
+      write(errmsg,*) subname//': consistency check 1 failure; at the end of ddt allocation, aero_idx is not aero_count+1', aero_idx, aero_count
       return
     end if
 
     ! Allocate CCPP dynamic constituents object for prescribed aerosols.
-    allocate(aerosol_constituents(aero_cnt), stat=errflg, errmsg=errmsg)
-    if (errflg /= 0) return
+    allocate(aerosol_constituents(aero_count), stat=errflg, errmsg=errmsg)
+    if (errflg /= 0) then
+      errmsg = subname // ": " // trim(errmsg)
+      return
+    end if
 
     ! Now register constituents in the CCPP constituent properties object.
-    reg_loop: do i = 1, aero_cnt
+    reg_loop: do i = 1, aero_count
       ! check units. at this point, we do not know the units from file
       ! because tracer_data has not read any data yet.
-      ! number concentrations are units of 1 kg-1; all others are kg kg-1
+      ! number concentrations are units of (1) kg-1; all others are kg kg-1
       if(index(aero_map_list(i)%constituent_name, 'num_') == 1) then
-        unit_name = '1 kg-1'
+        unit_name = 'kg-1'
       else
         unit_name = 'kg kg-1'
       end if
@@ -289,7 +293,7 @@ contains
     end do reg_loop
 
     if (amIRoot) then
-      write(iulog,*) trim(subname)//': Registered ', aero_cnt, ' prescribed aerosol constituents'
+      write(iulog,*) trim(subname)//': Registered ', aero_count, ' prescribed aerosol constituents'
     end if
 
   end subroutine prescribed_aerosols_register
@@ -328,7 +332,7 @@ contains
     integer,            intent(in)  :: prescribed_aero_fixed_tod        ! fixed time of day from namelist [s]
 
     ! Output arguments:
-    character(len=512), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     ! Local variables:
@@ -351,7 +355,7 @@ contains
 
     ! Initialize tracer_data module with file and field information
     call trcdata_init( &
-      specifier      = prescribed_aero_specifier(:aero_cnt), &
+      specifier      = prescribed_aero_specifier(:aero_count), &
       filename       = prescribed_aero_file, &
       filelist       = prescribed_aero_filelist, &
       datapath       = prescribed_aero_datapath, &
@@ -371,10 +375,10 @@ contains
 
     ! Note: because in modal aerosols, interstitial fields are derived from the
     ! log-mean and log-variance (logm, logv) fields, the number of tracer_data
-    ! fields is not equal to aero_cnt(= a + c), but (logm + logv) + c.
+    ! fields is not equal to aero_count(= a + c), but (logm + logv) + c.
 
     ! Based on aero_map_list, scan the tracer data fields to populate correct field_index
-    do i = 1, aero_cnt
+    do i = 1, aero_count
       ! Find the matching field in tracer_data_fields for the primary field
       do idx = 1, size(tracer_data_fields)
         if (trim(tracer_data_fields(idx)%fldnam) == trim(aero_map_list(i)%trcdata_field_name)) then
@@ -397,7 +401,7 @@ contains
     ! Check aero_map_list for any unpopulated field indices (consistency check),
     ! Register history field, and
     ! Print out each aero_map_list field information
-    do i = 1, aero_cnt
+    do i = 1, aero_count
       if (aero_map_list(i)%field_index <= 0) then
         errflg = 1
         write(errmsg, '(3a)') trim(subname), ': Field not found in tracer_data for constituent: ', &
@@ -408,9 +412,9 @@ contains
       ! Add history field
       ! Check units. at this point, we do not know the units from file
       ! because tracer_data has not read any data yet.
-      ! number concentrations are units of 1 kg-1; all others are kg kg-1
+      ! number concentrations are units of (1) kg-1; all others are kg kg-1
       if(index(aero_map_list(i)%constituent_name, 'num_') == 1) then
-        unit_name = '1 kg-1'
+        unit_name = 'kg-1'
       else
         unit_name = 'kg kg-1'
       end if
@@ -441,7 +445,7 @@ contains
     end do
 
     if (amIRoot) then
-      write(iulog,*) trim(subname)//': Initialized ', aero_cnt, ' aerosol fields'
+      write(iulog,*) trim(subname)//': Initialized ', aero_count, ' aerosol fields'
     end if
 
   end subroutine prescribed_aerosols_init
@@ -484,7 +488,7 @@ contains
     real(kind_phys),    intent(inout) :: constituents(:,:,:) ! constituent array (ncol, pver, pcnst) [kg kg-1 dry]
 
     ! Output arguments:
-    character(len=512), intent(out)   :: errmsg
+    character(len=*),   intent(out)   :: errmsg
     integer,            intent(out)   :: errflg
 
     ! Local variables:
@@ -509,7 +513,7 @@ contains
     ! For most species (non-modal; cloud borne) just retrieve data and save to constituent.
     ! For interstitial species (is_modal_aero_interstitial) construct mixing ratio based on
     ! the logv and logm values read from tracer_data (port of rand_sample_prescribed_aero)
-    do i = 1, aero_cnt
+    do i = 1, aero_count
       ! Get constituent index
       call ccpp_const_get_idx(const_props, &
            trim(aero_map_list(i)%constituent_name), &
