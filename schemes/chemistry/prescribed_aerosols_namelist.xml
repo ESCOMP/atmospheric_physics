@@ -115,7 +115,7 @@
     <standard_name>cycle_year_for_prescribed_aerosols</standard_name>
     <units>1</units>
     <desc>
-      The cycle year of the prescribed ozone data if prescribed_aero_type is 'CYCLICAL'.
+      The cycle year of the prescribed aerosol data if prescribed_aero_type is 'CYCLICAL'.
       Format: YYYY
       Default: 2000
     </desc>
