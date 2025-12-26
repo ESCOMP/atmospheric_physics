@@ -147,7 +147,7 @@
     <standard_name>fixed_time_of_day_for_prescribed_aerosols</standard_name>
     <units>s</units>
     <desc>
-      The time of day (seconds) corresponding to prescribed_aero_fixed_ymd at which the prescribed ozone data is fixed if prescribed_aero_type is 'FIXED'.
+      The time of day (seconds) corresponding to prescribed_aero_fixed_ymd at which the prescribed aerosol data is fixed if prescribed_aero_type is 'FIXED'.
       Default: 0 seconds
     </desc>
     <values>
