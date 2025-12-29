@@ -26,7 +26,7 @@ module prescribed_ozone
 
   ! namelist options
   logical                     :: has_prescribed_ozone = .false.
-  character(len=8), parameter :: ozone_name = 'O3' ! standard name of the output field
+  character(len=8), parameter :: ozone_name = 'o3' ! standard name of the output field
 
 contains
 
@@ -141,7 +141,7 @@ contains
     real(kind_phys) :: to_mmr(ncol, pver)
 
     ! prescribed ozone mass mixing ratio [kg kg-1 dry]
-    real(kind_phys) :: prescribed_ozone(:,:)
+    real(kind_phys) :: prescribed_ozone(ncol, pver)
 
     ! units from file
     character(len=32) :: units_str
