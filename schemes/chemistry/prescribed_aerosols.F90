@@ -29,10 +29,6 @@ module prescribed_aerosols
   public :: prescribed_aerosols_init
   public :: prescribed_aerosols_run
 
-  ! maximum of specified aerosol fields
-  ! if need to be expanded, need to change namelist definition as well.
-  integer,   parameter :: N_AERO_MAX = 50
-
   ! fields to store tracer_data state and information
   type(trfld), pointer :: tracer_data_fields(:)
   type(trfile)         :: tracer_data_file
@@ -63,6 +59,9 @@ module prescribed_aerosols
   logical :: clim_modal_aero         = .false.
   integer :: aero_count                          ! # of aerosol constituents
   integer :: aero_count_c                        ! # of cloud-borne species (for modal aerosols only)
+
+  ! maximum of specified aerosol fields (as counted from namelist entries)
+  integer :: n_aero_max = -1
 
   ! Normal random number which persists from one timestep to the next
   ! (used for modal aerosol sampling)
@@ -145,13 +144,14 @@ contains
     ! Parse the aerosol format specifier from namelist into mapping ddt.
     ! We need two scans. First to determine the count, the second to populate
     ! the information into the ddt.
+    !
+    ! Determine number of non-empty/non-UNSET elements in the namelist specifier
+    n_aero_max = count((prescribed_aero_specifier /= 'UNSET') .and. &
+                       (len_trim(prescribed_aero_specifier) > 0))
+
     aero_count   = 0
     aero_count_c = 0 ! cloud borne species count
-    count_loop: do i = 1, N_AERO_MAX
-      ! FIXME: should I be responsible for handling this? I feel like I should not handle this
-      if(prescribed_aero_specifier(i) == 'UNSET' .or. &
-         len_trim(prescribed_aero_specifier(i)) == 0) exit count_loop
-
+    count_loop: do i = 1, n_aero_max
       skip_spec = .false.
       if(clim_modal_aero) then
         ! For modal aerosols, interstitial species (*_a) are diagnosed from
@@ -190,16 +190,12 @@ contains
 
     ! Now populate the information into the ddt.
     !
-    ! In CAM modal aerosols, the interstitial species (_a) are added at the end of the cloud borne (_c) species.
-    ! TODO hplin 10/22/25 We might not need this? Fields were identified by their pbuf name anyway
+    ! In CAM modal aerosols, the interstitial species (_a) are added at the end of the cloud borne (_c) species. This ordering is not needed in SIMA.
 
     aero_idx = 1 ! pointer for current aero_map_list index.
-    ddt_loop: do i = 1, N_AERO_MAX
+    ddt_loop: do i = 1, n_aero_max
       ! Parse specifier
       tmpstr = trim(adjustl(prescribed_aero_specifier(i)))
-
-      ! FIXME: should I be responsible for handling this? I feel like I should not handle this
-      if(tmpstr == 'UNSET' .or. len_trim(tmpstr) == 0) exit ddt_loop
 
       idx = index(tmpstr, ':')
       if(idx > 0) then
@@ -233,6 +229,7 @@ contains
 
           ! The tracer data specifier index will be rescanned once tracer_data_fields is initialized
           ! at the init phase.
+          aero_map_list(aero_idx)%field_index          = -1
           aero_map_list(aero_idx)%field_index_logv     = -1
         end if ! logm
       end if ! clim_modal_aero

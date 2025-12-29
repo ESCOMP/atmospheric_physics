@@ -8,8 +8,6 @@
 !
 ! Based on original CAM version from: Francis Vitt
 module prescribed_aerosol_deposition_flux
-  use ccpp_kinds, only: kind_phys
-
   ! CAM-SIMA host model dependency to read aerosol data.
   use tracer_data, only: trfile      ! data information and file read state.
   use tracer_data, only: trfld       ! tracer data container.
@@ -206,6 +204,8 @@ contains
     dst1wet, dst2wet, dst3wet, dst4wet, &
     errmsg, errflg)
 
+    use ccpp_kinds, only: kind_phys
+
     use tracer_data, only: advance_trcdata
     use cam_history, only: history_out_field
 
@@ -289,6 +289,8 @@ contains
 
   ! helper subroutine to set fluxes based on target (hardcoded) array and tracer data index
   subroutine set_fluxes(fluxes, fld_idx)
+    use ccpp_kinds, only: kind_phys
+
     ! host model dependency for history output
     use cam_history, only: history_out_field
 
