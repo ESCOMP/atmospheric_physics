@@ -1219,26 +1219,30 @@ contains
             c = f0/c0*x1*x2 + f1/c1*x0*x2 + f2/c2*x0*x1
 
             ! Find the altitude of the minimum temperature
-            tZ = 0.5_kind_phys * b / a
-
-            ! The fit should be between the upper and lower points,
-            ! so skip the point if the fit fails.
-            if ((tZ >= x0) .or. (tZ <= x2)) then
-              tropLev(i) = NOTFOUND
+            if (a == 0) then
+               tropLev(i) = NOTFOUND
             else
+               tZ = 0.5_kind_phys * b / a
 
-              ! Return the optional outputs
-              if (present(tropP)) then
-                tropP(i) = tropopause_interpolateP(pver, pmid, zm, i, tropLev(i), tZ)
-              end if
+               ! The fit should be between the upper and lower points,
+               ! so skip the point if the fit fails.
+               if ((tZ >= x0) .or. (tZ <= x2)) then
+                 tropLev(i) = NOTFOUND
+               else
 
-              if (present(tropT)) then
-                tropT(i) = a * tZ*tZ - b*tZ + c
-              end if
+                 ! Return the optional outputs
+                 if (present(tropP)) then
+                   tropP(i) = tropopause_interpolateP(pver, pmid, zm, i, tropLev(i), tZ)
+                 end if
 
-              if (present(tropZ)) then
-                tropZ(i) = tZ
-              end if
+                 if (present(tropT)) then
+                   tropT(i) = a * tZ*tZ - b*tZ + c
+                 end if
+
+                 if (present(tropZ)) then
+                   tropZ(i) = tZ
+                 end if
+               end if
             end if
           end if
         end if
