@@ -460,8 +460,11 @@ contains
     constituents, &
     errmsg, errflg)
 
-    !
+    ! host model dependency for tracer_data
     use tracer_data,               only: advance_trcdata
+
+    ! host model dependency for history output
+    use cam_history,               only: history_out_field
 
     ! framework dependency for const_props
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
@@ -469,10 +472,6 @@ contains
     ! dependency to get constituent index
     use ccpp_const_utils,          only: ccpp_const_get_idx
 
-    ! host model dependency for history output
-    use cam_history,               only: history_out_field
-
-    ! Input arguments:
     integer,            intent(in)    :: ncol
     integer,            intent(in)    :: pver
     integer,            intent(in)    :: pcnst            ! # of CCPP constituents [count]
@@ -484,18 +483,14 @@ contains
     real(kind_phys),    intent(in)    :: phis(:)          ! surface geopotential [m2 s-2]
     real(kind_phys),    intent(in)    :: zi(:,:)          ! height above surface, interfaces [m]
 
-    ! Input/Output arguments:
-    real(kind_phys),    intent(inout) :: constituents(:,:,:) ! constituent array (ncol, pver, pcnst) [kg kg-1 dry]
+    real(kind_phys),    intent(inout) :: constituents(:,:,:) ! constituent array (ncol, pver, pcnst)
 
-    ! Output arguments:
     character(len=*),   intent(out)   :: errmsg
     integer,            intent(out)   :: errflg
 
-    ! Local variables:
     integer            :: i
     integer            :: const_idx
 
-    ! Local parameters:
     character(len=*), parameter :: subname = 'prescribed_aerosols_run'
 
     ! Initialize output arguments:

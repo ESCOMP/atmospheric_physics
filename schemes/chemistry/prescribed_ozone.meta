@@ -93,6 +93,12 @@
   type = integer
   dimensions = ()
   intent = in
+[ const_props ]
+  standard_name = ccpp_constituent_properties
+  units = none
+  type = ccpp_constituent_prop_ptr_t
+  dimensions = (number_of_ccpp_constituents)
+  intent = in
 [ mwdry ]
   standard_name = molecular_weight_of_dry_air
   units = g mol-1
@@ -141,12 +147,12 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
-[ prescribed_ozone ]
-  standard_name = O3
-  units = kg kg-1
+[ constituents ]
+  standard_name = ccpp_constituents
+  units = none
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = out
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
+  intent = inout
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none

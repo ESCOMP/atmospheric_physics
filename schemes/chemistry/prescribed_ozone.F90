@@ -26,7 +26,7 @@ module prescribed_ozone
 
   ! namelist options
   logical                     :: has_prescribed_ozone = .false.
-  character(len=8), parameter :: ozone_name = 'ozone' ! name of the output field
+  character(len=8), parameter :: ozone_name = 'O3' ! standard name of the output field
 
 contains
 
@@ -100,39 +100,70 @@ contains
 !! \htmlinclude prescribed_ozone_run.html
   subroutine prescribed_ozone_run( &
     ncol, pver, &
+    const_props, &
     mwdry, boltz, &
     t, pmiddry, &
     pmid, pint, phis, zi, & ! necessary fields for trcdata read.
-    prescribed_ozone, &
+    constituents, &
     errmsg, errflg)
 
+    ! host model dependency for tracer_data
     use tracer_data, only: advance_trcdata
+
+    ! host model dependency for history output
     use cam_history, only: history_out_field
 
-    integer,            intent(in)  :: ncol
-    integer,            intent(in)  :: pver
-    real(kind_phys),    intent(in)  :: mwdry                     ! molecular_weight_of_dry_air [g mol-1]
-    real(kind_phys),    intent(in)  :: boltz                     ! boltzmann_constant [J K-1]
-    real(kind_phys),    intent(in)  :: t(:,:)                    ! air temperature [K]
-    real(kind_phys),    intent(in)  :: pmiddry(:,:)              ! dry air pressure [Pa]
-    real(kind_phys),    intent(in)  :: pmid(:,:)                 ! air pressure [Pa]
-    real(kind_phys),    intent(in)  :: pint(:,:)                 ! air pressure at interfaces [Pa]
-    real(kind_phys),    intent(in)  :: phis(:)                   ! surface geopotential [m2 s-2]
-    real(kind_phys),    intent(in)  :: zi(:,:)                   ! geopotential height above surface, interfaces [m]
-    real(kind_phys),    intent(out) :: prescribed_ozone(:,:)     ! prescribed ozone mass mixing ratio [kg kg-1 dry]
-    character(len=*),   intent(out) :: errmsg
-    integer,            intent(out) :: errflg
+    ! framework dependency for const_props
+    use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
+
+    ! dependency to get constituent index
+    use ccpp_const_utils,          only: ccpp_const_get_idx
+
+    integer,            intent(in)    :: ncol
+    integer,            intent(in)    :: pver
+    type(ccpp_constituent_prop_ptr_t), &
+                        intent(in)    :: const_props(:)      ! CCPP constituent properties pointer
+    real(kind_phys),    intent(in)    :: mwdry               ! molecular_weight_of_dry_air [g mol-1]
+    real(kind_phys),    intent(in)    :: boltz               ! boltzmann_constant [J K-1]
+    real(kind_phys),    intent(in)    :: t(:,:)              ! air temperature [K]
+    real(kind_phys),    intent(in)    :: pmiddry(:,:)        ! dry air pressure [Pa]
+    real(kind_phys),    intent(in)    :: pmid(:,:)           ! air pressure [Pa]
+    real(kind_phys),    intent(in)    :: pint(:,:)           ! air pressure at interfaces [Pa]
+    real(kind_phys),    intent(in)    :: phis(:)             ! surface geopotential [m2 s-2]
+    real(kind_phys),    intent(in)    :: zi(:,:)             ! geopotential height above surface, interfaces [m]
+
+    real(kind_phys),    intent(inout) :: constituents(:,:,:) ! constituent array (ncol, pver, pcnst)
+
+    character(len=*),   intent(out)   :: errmsg
+    integer,            intent(out)   :: errflg
 
     ! conversion factor to mass mixing ratio (kg kg-1 dry)
     real(kind_phys) :: to_mmr(ncol, pver)
 
+    ! prescribed ozone mass mixing ratio [kg kg-1 dry]
+    real(kind_phys) :: prescribed_ozone(:,:)
+
     ! units from file
     character(len=32) :: units_str
+
+    integer :: id_o3
 
     errmsg = ''
     errflg = 0
 
     if(.not. has_prescribed_ozone) then
+      return
+    end if
+
+    ! check for 'O3' constituent where prescribed ozone will be written to
+    ! which will be read by radiation.
+    call ccpp_const_get_idx(const_props, &
+         trim(ozone_name), &
+         id_o3, errmsg, errflg)
+    if (errflg /= 0) return
+
+    ! could not find the constituent.
+    if (id_o3 < 0) then
       return
     end if
 
@@ -161,6 +192,9 @@ contains
 
     ! convert to kg kg-1 (dry)
     prescribed_ozone = to_mmr * prescribed_ozone
+
+    ! write to constituent array
+    constituents(:ncol, :pver, id_o3) = prescribed_ozone
 
     ! convert to mol mol-1 (dry) only for diagnostic output
     call history_out_field('ozone', prescribed_ozone(:ncol,:pver)*(mwdry/ozone_mw))

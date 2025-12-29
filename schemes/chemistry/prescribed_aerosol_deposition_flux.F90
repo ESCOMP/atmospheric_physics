@@ -112,7 +112,7 @@ contains
         return
       case default
         errflg = 1
-        errmsg = subname//': unknown aerosol representation'
+        errmsg = subname//': ERROR: unknown aerosol representation: "'//trim(prescribed_aero_model)//'"'
     end select
 
     ! count number of specifiers
