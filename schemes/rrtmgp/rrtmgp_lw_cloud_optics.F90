@@ -1,4 +1,3 @@
-! PEVERWHEE - dependencies = interpolate_data
 !> \file rrtmgp_lw_cloud_optics.F90
 !!
 
@@ -20,10 +19,10 @@ contains
 !> \section arg_table_rrtmgp_lw_cloud_optics_run Argument Table
 !! \htmlinclude rrtmgp_lw_cloud_optics_run.html
 !!
-  subroutine rrtmgp_lw_cloud_optics_run(dolw, ncol, nlay, nlaycam, cld, cldfsnow, cldfgrau,      &
-             cldfprime, kdist_lw, cloud_lw, lamc, pgam, iclwpth, iciwpth, tiny_in, dei, icswpth, &
-             des, icgrauwpth, degrau, nlwbands, do_snow, do_graupel, pver, ktopcam, tauc, cldf,  &
-             cld_lw_abs, snow_lw_abs, grau_lw_abs, errmsg, errflg)
+  subroutine rrtmgp_lw_cloud_optics_run(dolw, ncol, nlay, cld, cldfsnow, cldfgrau,      &
+             cldfprime, kdist_lw, lamc, pgam, iclwpth, iciwpth, tiny_in, dei, icswpth,  &
+             des, icgrauwpth, degrau, nlwbands, do_snow, do_graupel, pver, ktopcam,     &
+             cloud_lw, cld_lw_abs, snow_lw_abs, grau_lw_abs, c_cld_lw_abs, errmsg, errflg)
     use ccpp_gas_optics_rrtmgp,    only: ty_gas_optics_rrtmgp_ccpp
     use ccpp_optical_props,        only: ty_optical_props_1scl_ccpp
     use ccpp_kinds,                only: kind_phys
@@ -36,10 +35,9 @@ contains
     ! Inputs
     integer,                           intent(in) :: ncol             ! Number of columns
     integer,                           intent(in) :: nlay             ! Number of vertical layers in radiation
-    integer,                           intent(in) :: nlaycam          ! Number of model layers in radiation
     integer,                           intent(in) :: nlwbands         ! Number of longwave bands
     integer,                           intent(in) :: pver             ! Total number of vertical layers
-    integer,                           intent(in) :: ktopcam          ! Index in CAM arrays of top level (layer or interface) at which RRTMGP is active
+    integer,                           intent(in) :: ktopcam          ! Index in host model arrays of top level (layer or interface) at which RRTMGP is active
     real(kind_phys), dimension(:,:),   intent(in) :: cld              ! Cloud fraction (liq + ice)
     real(kind_phys), dimension(:,:),   intent(in) :: cldfsnow         ! Cloud fraction of just "snow clouds"
     real(kind_phys), dimension(:,:),   intent(in) :: cldfgrau         ! Cloud fraction of just "graupel clouds"
@@ -61,11 +59,10 @@ contains
 
     ! Outputs
     type(ty_optical_props_1scl_ccpp),  intent(out) :: cloud_lw        ! Longwave cloud optics object
-    real(kind_phys), dimension(:,:),   intent(out) :: cldf            ! Subset cloud fraction
     real(kind_phys), dimension(:,:,:), intent(out) :: cld_lw_abs      ! Cloud absorption optics depth (LW)
     real(kind_phys), dimension(:,:,:), intent(out) :: snow_lw_abs     ! Snow absorption optics depth (LW)
     real(kind_phys), dimension(:,:,:), intent(out) :: grau_lw_abs     ! Graupel absorption optics depth (LW)
-    real(kind_phys), dimension(:,:,:), intent(out) :: tauc            ! Cloud optical depth
+    real(kind_phys), dimension(:,:,:), intent(out) :: c_cld_lw_abs
     character(len=*),                  intent(out) :: errmsg
     integer,                           intent(out) :: errflg
 
@@ -75,7 +72,6 @@ contains
     ! cloud radiative parameters are "in cloud" not "in cell"
     real(kind_phys) :: liq_lw_abs(nlwbands, ncol, pver)   ! liquid absorption optics depth (LW)
     real(kind_phys) :: ice_lw_abs(nlwbands, ncol, pver)   ! ice absorption optics depth (LW)
-    real(kind_phys) :: c_cld_lw_abs(nlwbands, ncol, pver) ! combined cloud absorption optics depth (LW)
 
     character(len=*), parameter :: sub = 'rrtmgp_lw_cloud_optics_run'
     !--------------------------------------------------------------------------------
@@ -88,9 +84,6 @@ contains
     if (.not. dolw) then
        return
     end if
-
-    cldf = 0._kind_phys
-    tauc = 0._kind_phys
 
     ! Combine the cloud optical properties.
 
@@ -148,16 +141,6 @@ contains
           end do
        end do
     end if
-
-    ! Extract just the layers of CAM where RRTMGP does calculations
-
-    ! Subset "chunk" data so just the number of CAM layers in the
-    ! radiation calculation are used by MCICA to produce subcolumns
-    cldf = cldfprime(:, ktopcam:)
-    tauc = c_cld_lw_abs(:, :, ktopcam:)
-
-    ! Enforce tauc >= 0.
-    tauc = merge(tauc, 0.0_kind_phys, tauc > 0.0_kind_phys)
 
     errmsg =cloud_lw%optical_props%alloc_1scl(ncol, nlay, kdist_lw%gas_props)
     if (len_trim(errmsg) > 0) then

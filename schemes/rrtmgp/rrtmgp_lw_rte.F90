@@ -16,7 +16,7 @@ contains
                                  nGauss_angles, lw_optical_props_clrsky, lw_optical_props_clouds,           &
                                  sources, sfc_emiss_byband, lw_gas_props, aerlw, fluxlwUP_jac, lw_Ds,       &
                                  flux_clrsky, flux_allsky, errmsg, errflg)
-    use machine,                  only: kind_phys
+    use ccpp_kinds,               only: kind_phys
     use mo_rte_lw,                only: rte_lw
     use ccpp_fluxes_byband,       only: ty_fluxes_byband_ccpp
     use ccpp_optical_props,       only: ty_optical_props_1scl_ccpp
@@ -48,8 +48,8 @@ contains
     class(ty_gas_optics_rrtmgp_ccpp),  intent(inout) :: lw_gas_props            !< Gas optical properties object
 
     real(kind_phys), dimension(:,:), target, intent(out) :: lw_Ds               !< 1/cos of transport angle per column, g-point
-    character(len=*), intent(out) :: errmsg                                     !< CCPP error message
-    integer,          intent(out) :: errflg                                     !< CCPP error flag
+    character(len=*),  intent(out) :: errmsg                                    !< CCPP error message
+    integer,           intent(out) :: errflg                                    !< CCPP error flag
 
     ! Initialize CCPP error handling variables
     errmsg = ''
