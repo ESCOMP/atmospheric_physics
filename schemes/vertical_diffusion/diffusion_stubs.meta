@@ -116,6 +116,63 @@
   type = integer
   intent = out
 
+
+[ccpp-table-properties]
+  name = beljaars_zero_stub
+  type = scheme
+
+[ccpp-arg-table]
+  name  = beljaars_zero_stub_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ do_beljaars ]
+  standard_name = do_beljaars_drag_in_vertical_diffusion_tbd
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ dragblj ]
+  standard_name = turbulent_orographic_form_drag_coefficent
+  units = s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ taubljx ]
+  standard_name = eastward_beljaars_surface_stress_tbd
+  units = N m-2
+  dimensions = (horizontal_loop_extent)
+  type = real | kind = kind_phys
+  intent = out
+[ taubljy ]
+  standard_name = northward_beljaars_surface_stress_tbd
+  units = N m-2
+  dimensions = (horizontal_loop_extent)
+  type = real | kind = kind_phys
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  dimensions = ()
+  type = character | kind = len=512
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  dimensions = ()
+  type = integer
+  intent = out
+
 [ccpp-table-properties]
   name = turbulent_mountain_stress_add_drag_coefficient
   type = scheme
@@ -401,6 +458,82 @@
   type = logical
   dimensions = ()
   intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-table-properties]
+  name = dropmixnuc_apply_surface_fluxes
+  type = scheme
+
+[ccpp-arg-table]
+  name  = dropmixnuc_apply_surface_fluxes_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ ncnst ]
+  standard_name = number_of_ccpp_constituents
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ dt ]
+  standard_name = timestep_for_physics
+  units = s
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ gravit ]
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ do_diffusion_const ]
+  standard_name = flag_for_ccpp_constituent_vertical_diffusion
+  units = flag
+  type = logical
+  dimensions = (number_of_ccpp_constituents)
+  intent = in
+[ cflux ]
+  # when CLUBB is active, this variant of cflx (provided by the interstitials of the PBL scheme) will be zero;
+  # otherwise, it is a copy of the cflx from coupler.
+  standard_name = surface_upward_ccpp_constituent_fluxes_for_vertical_diffusion
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, number_of_ccpp_constituents)
+  intent = in
+[ rpdel ]
+  standard_name = reciprocal_of_air_pressure_thickness
+  units = Pa-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ q1 ]
+  standard_name = ccpp_constituents_after_vertical_diffusion
+  units = none
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
+  intent = inout
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none

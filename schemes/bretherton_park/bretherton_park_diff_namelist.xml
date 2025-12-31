@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet type="text/xsl"?>
+
+<entry_id_pg version="2.0">
+  <entry id="eddy_lbulk_max">
+    <type>real</type>
+    <kind>kind_phys</kind>
+    <category>pbl</category>
+    <group>eddy_diff_nl</group>
+    <standard_name>maximum_master_length_scale_for_eddy_diffusion</standard_name>
+    <units>m</units>
+    <desc>
+      Maximum master length scale designed to address issues in diag_TKE outside the boundary layer. In order not to disturb turbulence characteristics in the lower troposphere, this should be set at least larger than a few km. However, this does not significantly improve the values outside of the boundary layer. Smaller values make some improvement, but it is also noisy. Better results are seen using eddy_leng_max or kv_freetrop_scale.
+      Default: 40000 m
+    </desc>
+    <values>
+      <value>40.D3</value>
+    </values>
+  </entry>
+
+  <entry id="eddy_leng_max">
+    <type>real</type>
+    <kind>kind_phys</kind>
+    <category>pbl</category>
+    <group>eddy_diff_nl</group>
+    <standard_name>maximum_dissipation_length_scale_for_eddy_diffusion</standard_name>
+    <units>m</units>
+    <desc>
+      Maximum dissipation length scale designed to address issues with diag_TKE outside the boundary layer, where the default value generates large diffusivities. A value of 30 m is consistent with the length scales used in the HB scheme; however, this will also reduce value in the boundary layer.
+      Default: 40000 m
+    </desc>
+    <values>
+      <value>40.D3</value>
+      <!-- waccm: 100.D0 -->
+    </values>
+  </entry>
+
+  <entry id="eddy_max_bot_pressure">
+    <type>real</type>
+    <kind>kind_phys</kind>
+    <category>pbl</category>
+    <group>eddy_diff_nl</group>
+    <standard_name>air_pressure_threshold_for_maximum_turbulent_length_scale_application</standard_name>
+    <units>hPa</units>
+    <desc>
+      Bottom pressure level at which namelist values for eddy_leng_max and eddy_lbulk_max are applied. Default values are used at lower levels (i.e. the boundary layer).
+      Default: 100.D3 hPa
+    </desc>
+    <values>
+      <value>100.D3</value>
+      <!-- waccm: 100.D0 -->
+    </values>
+  </entry>
+
+  <entry id="eddy_moist_entrain_a2l">
+    <type>real</type>
+    <kind>kind_phys</kind>
+    <category>pbl</category>
+    <group>eddy_diff_nl</group>
+    <standard_name>tunable_parameter_for_moist_entrainment_enhancement_in_pbl</standard_name>
+    <units>1</units>
+    <desc>
+      Moist entrainment enhancement parameter. Default: 30.D0
+    </desc>
+    <values>
+      <value>30.D0</value>
+    </values>
+  </entry>
+
+  <entry id="eddy_wstarent">
+    <type>logical</type>
+    <category>pbl</category>
+    <group>eddy_diff_nl</group>
+    <standard_name>use_wstar_entrainment_closure_formulation_for_eddy_diffusion_scheme</standard_name>
+    <units>flag</units>
+    <desc>
+      Use wstar (.true.) or TKE (.false.) entrainment closure in UW eddy diffusion scheme.
+      Default: TRUE
+    </desc>
+    <values>
+      <value>.true.</value>
+    </values>
+  </entry>
+
+
+
+</entry_id_pg>
