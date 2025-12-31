@@ -4,6 +4,8 @@
   <group name="physics_before_coupler">
     <!-- Read in PUMAS namelist variables (init only) -->
     <scheme>pumas_pre_main</scheme>
+    <!-- Temporary creation of microphysics_process_rates until finished making it -->
+    <scheme>micro_pumas_tempfix</scheme>
     <!-- Convert variables from host grid to PUMAS grid -->
     <scheme>micro_pumas_ccpp_dimensions_pre</scheme>
     <!-- core PUMAS (cloud microphysics) scheme -->

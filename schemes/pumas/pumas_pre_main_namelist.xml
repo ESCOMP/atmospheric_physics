@@ -372,7 +372,7 @@
 <entry id="dcs_in">
   <category>microphys</category>
   <group>micro_mg_nl</group>
-  <standard_name>autoconverion_to_snow_size_threshold</standard_name>
+  <standard_name>autoconversion_to_snow_size_threshold</standard_name>
   <units>um</units>
   <type>real</type>
   <kind>kind_phys</kind>

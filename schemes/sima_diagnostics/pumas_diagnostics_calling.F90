@@ -27,19 +27,21 @@ CONTAINS
       errmsg = ''
       errflg = 0
 
-      
+
 
    end subroutine pumas_diagnostics_init
 
    !> \section arg_table_pumas_diagnostics_run  Argument Table
    !! \htmlinclude pumas_diagnostics_run.html
-      subroutine pumas_diagnostics_run(proc_rates,qcsinksum_rate1ord,naai,npccn,rndst,nacon,tlat,qvlat,qctend,qitend,nctend,nitend,qrtend,qstend, &
-                                       nrtend,nstend,qgtend,ngtend,effc,effc_fn,effi,sadice,sadsnow,prect,preci,nevapr,am_evp_st,      &
-                                       prain,cmeout,deffi,pgamrad,lamcrad,qsout,dsout,qgout,ngout,dgout,lflx,iflx,gflx,rflx,sflx,      &
-                                       qrout,reff_rain,reff_snow,reff_grau,nrout,nsout,refl,arefl,areflz,frefl,csrfl,acsrfl,fcsrfl,    &
-                                       refl10cm, reflz10cm,rercld,ncai,ncal,qrout2,qsout2,nrout2,nsout2,drout2,dsout2,qgout2,ngout2,dgout2, &
-                                       freqg,freqs,freqr,nfice,qcrat,proc_rates,errstring,tnd_qsnow,tnd_nsnow,re_ice,prer_evap,frzimm, &
-                                       frzcnt,frzdep, errmsg, errflg)
+      subroutine pumas_diagnostics_run(proc_rates,qcsinksum_rate1ord,naai,npccn,rndst,nacon,tlat,qvlat,qctend,qitend,nctend,       &
+                                       nitend,qrtend,qstend,                                                                       &
+                                       nrtend,nstend,qgtend,ngtend,effc,effc_fn,effi,sadice,sadsnow,prect,preci,nevapr,am_evp_st,  &
+                                       prain,cmeout,deffi,pgamrad,lamcrad,qsout,dsout,qgout,ngout,dgout,lflx,iflx,gflx,rflx,sflx,  &
+                                       qrout,reff_rain,reff_snow,reff_grau,nrout,nsout,refl,arefl,areflz,frefl,csrfl,acsrfl,fcsrfl,&
+                                       refl10cm, reflz10cm,rercld,ncai,ncal,qrout2,qsout2,nrout2,nsout2,drout2,dsout2,qgout2,      &
+                                       ngout2,dgout2,                                                                              &
+                                       freqg,freqs,freqr,nfice,qcrat,prer_evap,                                                    &
+                                       errmsg, errflg)
 
       use cam_history, only: history_in_field
 
