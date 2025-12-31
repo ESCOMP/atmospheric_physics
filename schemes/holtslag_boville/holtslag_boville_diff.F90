@@ -25,7 +25,6 @@ module holtslag_boville_diff
   public :: hb_pbl_dependent_coefficients_run          ! formerly pblintd (also used by CLUBB)
   public :: hb_diff_exchange_coefficients_run          ! formerly austausch_pbl and compute_hb_diff logic
   public :: hb_diff_free_atm_exchange_coefficients_run ! formerly compute_hb_free_atm_diff logic
-  public :: holtslag_boville_diff_finalize
 
   ! tuning parameters used by HB and related subroutines
   ! PBL limits
