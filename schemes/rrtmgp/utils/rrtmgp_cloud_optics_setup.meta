@@ -1,0 +1,31 @@
+[ccpp-table-properties]
+  name = rrtmgp_cloud_optics_setup
+  type = scheme
+
+[ccpp-arg-table]
+  name  = rrtmgp_cloud_optics_setup_init
+  type  = scheme
+[ liq_filename ]
+  standard_name = filename_of_rrtmgp_liquid_cloud_optics_coefficients
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ ice_filename ]
+  standard_name = filename_of_rrtmgp_ice_cloud_optics_coefficients
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

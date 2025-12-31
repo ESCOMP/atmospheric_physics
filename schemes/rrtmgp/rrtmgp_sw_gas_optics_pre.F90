@@ -1,5 +1,4 @@
 module rrtmgp_sw_gas_optics_pre
-
   implicit none
   private
 
@@ -18,13 +17,13 @@ contains
 
     ! Set gas vmr for the gases in the radconstants module's gaslist.
 
-    character(len=*),            intent(in) :: gaslist(:)             ! Radiatively active gases
+    character(len=5),            intent(in) :: gaslist(:)             ! Radiatively active gases
     integer,                     intent(in) :: nlay                   ! Number of layers in radiation calculation
     integer,                     intent(in) :: nday                   ! Total number of daylight columns
     integer,                     intent(in) :: pverp                  ! Total number of layer interfaces
     integer,                     intent(in) :: idxday(:)              ! Indices of daylight columns
-    integer,                     intent(in) :: ktoprad                ! Index in RRTMGP array corresponding to top layer or interface of CAM arrays
-    integer,                     intent(in) :: ktopcam                ! Index in CAM arrays of top level (layer or interface) at which RRTMGP is active
+    integer,                     intent(in) :: ktoprad                ! Index in RRTMGP array corresponding to top layer or interface of host model arrays
+    integer,                     intent(in) :: ktopcam                ! Index in host model arrays of top level (layer or interface) at which RRTMGP is active
     integer,                     intent(in) :: nradgas                ! Number of radiatively active gases
     logical,                     intent(in) :: dosw                   ! Flag for whether to perform longwave calculaion
     real(kind_phys),             intent(in) :: pmid(:,:)              ! Air pressure at midpoints [Pa]
@@ -39,7 +38,6 @@ contains
     ! Local variables
     integer :: i, gas_idx
     integer :: istat
-    real(kind_phys), allocatable :: gas_mmr(:,:)
     real(kind_phys), allocatable :: gas_vmr(:,:)
     real(kind_phys)              :: mmr(nday, nlay)
     real(kind_phys) :: massratio
@@ -55,15 +53,10 @@ contains
     errmsg = ''
     errflg = 0
 
-    if (.not. dosw) then
+    if (.not. dosw .or. nday == 0) then
        return
     end if
 
-    allocate(gas_mmr(nday, pverp-1), stat=errflg, errmsg=alloc_errmsg)
-    if (errflg /= 0) then
-       write(errmsg,*) sub//": failed to allocate 'gas_mmr' - message: "//alloc_errmsg
-       return
-    end if
     allocate(gas_vmr(nday, nlay), stat=errflg, errmsg=alloc_errmsg)
     if (errflg /= 0) then
        write(errmsg,*) sub//": failed to allocate 'gas_vmr' - message: "//alloc_errmsg
@@ -73,11 +66,8 @@ contains
 
     do gas_idx = 1, nradgas
 
-       ! grab mass mixing ratio of gas
-       gas_mmr = rad_const_array(:,:,gas_idx)
-
        do i = 1, nday
-          mmr(i,ktoprad:) = gas_mmr(idxday(i),ktopcam:)
+          mmr(i,ktoprad:) = rad_const_array(idxday(i),ktopcam:,gas_idx)
        end do
 
        ! If an extra layer is being used, copy mmr from the top layer of CAM to the extra layer.
