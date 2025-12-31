@@ -424,4 +424,3 @@ contains
     pumas_airT(:ncol,:) = airT(:,:micro_nlev)
 
   end subroutine micro_pumas_ccpp_dimensions_post_run
-module micro_pumas_ccpp_dimensions_post
