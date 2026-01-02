@@ -803,6 +803,7 @@
   intent = out
 # these are for the diffusion solver to compute implicit surface stress.
 # for UW PBL, this is taux = wsx; tauy = wsy
+# currently handled by hb_prepare_vertical_diffusion_inputs run phase.
 #[ taux ]
 #  standard_name = eastward_stress_at_surface_for_vertical_diffusion
 #  units = N m-2

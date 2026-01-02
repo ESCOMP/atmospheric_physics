@@ -16,6 +16,8 @@ module vertical_diffusion_interstitials
 
   public :: compute_kinematic_fluxes_and_obklen_run
 
+  public :: vertical_diffusion_set_total_surface_stress_run
+
 contains
 
   ! Interstitial to prepare moist vertical coordinate for solver,
@@ -145,5 +147,59 @@ contains
     obklen(:ncol) = calc_obukhov_length(thvs(:ncol), ustar(:ncol), gravit, karman, kbfs(:ncol))
 
   end subroutine compute_kinematic_fluxes_and_obklen_run
+
+  ! Set total surface stresses for input
+  ! 1) into the HB PBL scheme, and
+  ! 2) surface zonal/meridional momentum flux diagnostic output (all schemes)
+  !
+  ! NOTE: Temporarily, TMS and Beljaars are "hard-coupled" into this subroutine because
+  ! the current focus is CAM4 and TMS/Beljaars drag have not been CCPPized.
+  ! In the future, after TMS/Beljaars is implemented, this subroutine should only initialize
+  ! surface stresses from the coupler, then TMS and Beljaars can work on adding the respective
+  ! surface stresses to the tautotx/tautoty used by the PBL scheme.
+!> \section arg_table_vertical_diffusion_set_total_surface_stress_run Argument Table
+!! \htmlinclude vertical_diffusion_set_total_surface_stress_run.html
+  subroutine vertical_diffusion_set_total_surface_stress_run( &
+    ncol, &
+    wsx_from_coupler, wsy_from_coupler, &
+    tautmsx, tautmsy, &
+    taubljx, taubljy, &
+    tautotx, tautoty, &
+    errmsg, errflg)
+
+    ! Input arguments
+    integer,            intent(in)  :: ncol
+    real(kind_phys),    intent(in)  :: wsx_from_coupler(:)      ! Surface eastward wind stress from coupler [Pa]
+    real(kind_phys),    intent(in)  :: wsy_from_coupler(:)      ! Surface northward wind stress from coupler [Pa]
+    real(kind_phys),    intent(in)  :: tautmsx(:)               ! Eastward turbulent mountain surface stress [Pa]
+    real(kind_phys),    intent(in)  :: tautmsy(:)               ! Northward turbulent mountain surface stress [Pa]
+    real(kind_phys),    intent(in)  :: taubljx(:)               ! Eastward Beljaars surface stress [Pa]
+    real(kind_phys),    intent(in)  :: taubljy(:)               ! Northward Beljaars surface stress [Pa]
+
+    ! Output arguments
+    real(kind_phys),    intent(out) :: tautotx(:)               ! Eastward total stress at surface for boundary layer scheme [Pa]
+    real(kind_phys),    intent(out) :: tautoty(:)               ! Northward total stress at surface for boundary layer scheme [Pa]
+    character(len=512), intent(out) :: errmsg
+    integer,            intent(out) :: errflg
+
+    errmsg = ''
+    errflg = 0
+
+    ! Initialize total surface stresses from coupler
+    ! These are used for HB diffusion scheme and later PBL diagnostics but
+    ! NOT for the vertical diffusion solver, which uses surface stresses from the coupler only,
+    ! or just zero (in the case of CLUBB)
+    tautotx(:ncol) = wsx_from_coupler(:ncol)
+    tautoty(:ncol) = wsy_from_coupler(:ncol)
+
+    ! Add turbulent mountain stress to total surface stress
+    tautotx(:ncol) = tautotx(:ncol) + tautmsx(:ncol)
+    tautoty(:ncol) = tautoty(:ncol) + tautmsy(:ncol)
+
+    ! Add Beljaars integrated drag to total surface stress
+    tautotx(:ncol) = tautotx(:ncol) + taubljx(:ncol)
+    tautoty(:ncol) = tautoty(:ncol) + taubljy(:ncol)
+
+  end subroutine vertical_diffusion_set_total_surface_stress_run
 
 end module vertical_diffusion_interstitials

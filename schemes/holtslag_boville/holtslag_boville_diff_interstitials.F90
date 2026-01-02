@@ -8,7 +8,6 @@ module holtslag_boville_diff_interstitials
 
   ! CCPP-compliant public interfaces
   public :: hb_diff_set_vertical_diffusion_top_init
-  public :: hb_diff_set_total_surface_stress_run
   public :: hb_diff_prepare_vertical_diffusion_inputs_run
   public :: hb_free_atm_diff_prepare_vertical_diffusion_inputs_run
 
@@ -45,58 +44,6 @@ contains
     ntop_eddy = press_lim_idx(ntop_eddy_pres, top=.true.)
 
   end subroutine hb_diff_set_vertical_diffusion_top_init
-
-  ! Set total surface stresses for input into the HB PBL scheme.
-  !
-  ! NOTE: Temporarily, TMS and Beljaars are "hard-coupled" into this subroutine because
-  ! the current focus is CAM4 and TMS/Beljaars drag have not been CCPPized.
-  ! In the future, after TMS/Beljaars is implemented, this subroutine should only initialize
-  ! surface stresses from the coupler, then TMS and Beljaars can work on adding the respective
-  ! surface stresses to the tautotx/tautoty used by the PBL scheme.
-!> \section arg_table_hb_diff_set_total_surface_stress_run Argument Table
-!! \htmlinclude hb_diff_set_total_surface_stress_run.html
-  subroutine hb_diff_set_total_surface_stress_run( &
-    ncol, &
-    wsx_from_coupler, wsy_from_coupler, &
-    tautmsx, tautmsy, &
-    taubljx, taubljy, &
-    tautotx, tautoty, &
-    errmsg, errflg)
-
-    ! Input arguments
-    integer,            intent(in)  :: ncol
-    real(kind_phys),    intent(in)  :: wsx_from_coupler(:)      ! Surface eastward wind stress from coupler [Pa]
-    real(kind_phys),    intent(in)  :: wsy_from_coupler(:)      ! Surface northward wind stress from coupler [Pa]
-    real(kind_phys),    intent(in)  :: tautmsx(:)               ! Eastward turbulent mountain surface stress [Pa]
-    real(kind_phys),    intent(in)  :: tautmsy(:)               ! Northward turbulent mountain surface stress [Pa]
-    real(kind_phys),    intent(in)  :: taubljx(:)               ! Eastward Beljaars surface stress [Pa]
-    real(kind_phys),    intent(in)  :: taubljy(:)               ! Northward Beljaars surface stress [Pa]
-
-    ! Output arguments
-    real(kind_phys),    intent(out) :: tautotx(:)               ! Eastward total stress at surface for boundary layer scheme [Pa]
-    real(kind_phys),    intent(out) :: tautoty(:)               ! Northward total stress at surface for boundary layer scheme [Pa]
-    character(len=512), intent(out) :: errmsg
-    integer,            intent(out) :: errflg
-
-    errmsg = ''
-    errflg = 0
-
-    ! Initialize total surface stresses from coupler
-    ! These are used for HB diffusion scheme and later PBL diagnostics but
-    ! not for the vertical diffusion solver, which uses surface stresses from the coupler
-    ! or just zero (in the case of CLUBB)
-    tautotx(:ncol) = wsx_from_coupler(:ncol)
-    tautoty(:ncol) = wsy_from_coupler(:ncol)
-
-    ! Add turbulent mountain stress to total surface stress
-    tautotx(:ncol) = tautotx(:ncol) + tautmsx(:ncol)
-    tautoty(:ncol) = tautoty(:ncol) + tautmsy(:ncol)
-
-    ! Add Beljaars integrated drag to total surface stress
-    tautotx(:ncol) = tautotx(:ncol) + taubljx(:ncol)
-    tautoty(:ncol) = tautoty(:ncol) + taubljy(:ncol)
-
-  end subroutine hb_diff_set_total_surface_stress_run
 
   ! Interstitial for full HB (CAM4) to handle inputs from coupler and pass them
   ! to vertical diffusion solver.

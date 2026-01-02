@@ -37,8 +37,14 @@
     <scheme>vertical_diffusion_set_temperature_at_toa_default</scheme>
     <scheme>vertical_diffusion_interpolate_to_interfaces</scheme>
 
+    <!-- vdiff pre-interstitial 3: calculate total surface stresses
+         used for surface momentum flux diagnostic.
+         here, also used for HB. -->
+    <scheme>vertical_diffusion_set_total_surface_stress</scheme>
+
     <!-- UW eddy diffusivity scheme -->
     <scheme>bretherton_park_diff</scheme>
+    <scheme>bretherton_park_diff_diagnostics</scheme>
     <scheme>compute_kinematic_fluxes_and_obklen</scheme>
     <scheme>eddy_diffusivity_adjustment_above_pbl</scheme>
 
@@ -47,11 +53,11 @@
 
     <!-- diagnostics -->
 
-    <!-- vdiff pre-interstitial 3: calculate drag coefficient -->
+    <!-- vdiff pre-interstitial 4: calculate drag coefficient -->
     <scheme>implicit_surface_stress_add_drag_coefficient</scheme>
     <scheme>turbulent_mountain_stress_add_drag_coefficient</scheme>
 
-    <!-- vdiff pre-interstitial 4: calculate damping rate from drag coef. -->
+    <!-- vdiff pre-interstitial 5: calculate damping rate from drag coef. -->
     <scheme>vertical_diffusion_wind_damping_rate</scheme>
     <!--<scheme>beljaars_add_wind_damping_rate</scheme>-->
 
@@ -80,10 +86,7 @@
     <scheme>vertical_diffusion_tendencies</scheme>
 
     <!-- diagnostics need to be outputted before tendencies are applied. -->
-    <!--<scheme>vertical_diffusion_tendencies_diagnostics</scheme>-->
-    <!-- note hplin tautotx/tautoty breaks here i think we should just make a tau
-         for total surface stress (and not name it for hb) so it is explicit what
-         is being used .... -->
+    <scheme>vertical_diffusion_tendencies_diagnostics</scheme>
 
     <!-- apply tendencies from vdiff -->
     <scheme>apply_tendency_of_northward_wind</scheme>

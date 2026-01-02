@@ -164,13 +164,13 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ taux ]
-  standard_name = eastward_total_stress_at_surface_for_holtslag_boville_boundary_layer_scheme
+  standard_name = eastward_total_stress_at_surface_including_turbulent_orographic_form_drag_stress
   units = N m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
 [ tauy ]
-  standard_name = northward_total_stress_at_surface_for_holtslag_boville_boundary_layer_scheme
+  standard_name = northward_total_stress_at_surface_including_turbulent_orographic_form_drag_stress
   units = N m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)

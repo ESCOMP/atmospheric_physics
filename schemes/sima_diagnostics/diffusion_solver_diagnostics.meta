@@ -156,16 +156,16 @@
   intent = in
 [ tautotx ]
   # these are the taux input to the underlying boundary layer scheme providing the inputs
-  # to the diffusion solver.
-  standard_name = eastward_total_stress_at_surface_for_holtslag_boville_boundary_layer_scheme
+  # to the diffusion solver. Here used to output the surface momentum flux diagnostics.
+  standard_name = eastward_total_stress_at_surface_including_turbulent_orographic_form_drag_stress
   units = N m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
 [ tautoty ]
   # these are the tauy input to the underlying boundary layer scheme providing the inputs
-  # to the diffusion solver.
-  standard_name = northward_total_stress_at_surface_for_holtslag_boville_boundary_layer_scheme
+  # to the diffusion solver. Here used to output the surface momentum flux diagnostics.
+  standard_name = northward_total_stress_at_surface_including_turbulent_orographic_form_drag_stress
   units = N m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
