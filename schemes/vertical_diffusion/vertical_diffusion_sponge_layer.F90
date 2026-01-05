@@ -24,12 +24,14 @@ contains
   subroutine vertical_diffusion_sponge_layer_init( &
     amIRoot, iulog, &
     ptop_ref, &
+    diff_sponge_fac, &
     errmsg, errflg)
 
     ! Input arguments
     logical,            intent(in)  :: amIRoot           ! are we on the MPI root task?
     integer,            intent(in)  :: iulog             ! log output unit
     real(kind_phys),    intent(in)  :: ptop_ref          ! reference top pressure [Pa]
+    real(kind_phys),    intent(in)  :: diff_sponge_fac
 
     ! Output arguments
     character(len=512), intent(out) :: errmsg            ! error message
@@ -41,36 +43,39 @@ contains
     errmsg = ''
     errflg = 0
 
-    ! Add sponge layer vertical diffusion based on model top pressure
-    if (ptop_ref > 1.e-1_kind_phys .and. ptop_ref < 100.0_kind_phys) then
-      !
-      ! CAM7 FMT (but not CAM6 top (~225 Pa) or CAM7 low top or lower)
-      !
-      allocate(kvm_sponge(4), stat=errflg, errmsg=errmsg)
-      if (errflg /= 0) then
-        return
+    if (diff_sponge_fac > 0) then
+      ! Add sponge layer vertical diffusion based on model top pressure
+      if (ptop_ref > 1.e-1_kind_phys .and. ptop_ref < 100.0_kind_phys) then
+        !
+        ! CAM7 FMT (but not CAM6 top (~225 Pa) or CAM7 low top or lower)
+        !
+        allocate(kvm_sponge(4), stat=errflg, errmsg=errmsg)
+        if (errflg /= 0) then
+           return
+        end if
+        kvm_sponge(1) = 2.e5_kind_phys
+        kvm_sponge(2) = 2.e5_kind_phys
+        kvm_sponge(3) = 0.5e5_kind_phys
+        kvm_sponge(4) = 0.1e5_kind_phys
+      else if (ptop_ref > 1.e-4_kind_phys) then
+        !
+        ! WACCM and WACCM-X
+        !
+        allocate(kvm_sponge(6), stat=errflg, errmsg=errmsg)
+        if (errflg /= 0) then
+           return
+        end if
+        kvm_sponge(1) = 2.e5_kind_phys
+        kvm_sponge(2) = 2.e5_kind_phys
+        kvm_sponge(3) = 1.5e5_kind_phys
+        kvm_sponge(4) = 1.0e5_kind_phys
+        kvm_sponge(5) = 0.5e5_kind_phys
+        kvm_sponge(6) = 0.1e5_kind_phys
       end if
-      kvm_sponge(1) = 2.e6_kind_phys
-      kvm_sponge(2) = 2.e6_kind_phys
-      kvm_sponge(3) = 0.5e6_kind_phys
-      kvm_sponge(4) = 0.1e6_kind_phys
-    else if (ptop_ref > 1.e-4_kind_phys) then
-      !
-      ! WACCM and WACCM-X
-      !
-      allocate(kvm_sponge(6), stat=errflg, errmsg=errmsg)
-      if (errflg /= 0) then
-        return
-      end if
-      kvm_sponge(1) = 2.e6_kind_phys
-      kvm_sponge(2) = 2.e6_kind_phys
-      kvm_sponge(3) = 1.5e6_kind_phys
-      kvm_sponge(4) = 1.0e6_kind_phys
-      kvm_sponge(5) = 0.5e6_kind_phys
-      kvm_sponge(6) = 0.1e6_kind_phys
     end if
 
     if (amIRoot) then
+      write(iulog, *) 'Sponge layer vertical diffusion factor:', diff_sponge_fac
       if (allocated(kvm_sponge)) then
         write(iulog, *) 'Artificial sponge layer vertical diffusion added:'
         do k = 1, size(kvm_sponge(:))
@@ -88,12 +93,14 @@ contains
 !! \htmlinclude vertical_diffusion_sponge_layer_run.html
   subroutine vertical_diffusion_sponge_layer_run( &
     ncol, pverp, &
+    diff_sponge_fac, &
     kvm, &
     errmsg, errflg)
 
     ! Input arguments
     integer,            intent(in)    :: ncol
     integer,            intent(in)    :: pverp
+    real(kind_phys),    intent(in)    :: diff_sponge_fac
 
     ! Input/output arguments
     real(kind_phys),    intent(inout) :: kvm(:,:)         ! Eddy diffusivity for momentum [m^2 s-1], interfaces
@@ -111,7 +118,7 @@ contains
     ! Add sponge layer vertical diffusion
     if (allocated(kvm_sponge)) then
       do k = 1, size(kvm_sponge(:))
-        kvm(:ncol, 1) = kvm(:ncol, 1) + kvm_sponge(k)
+        kvm(:ncol, 1) = kvm(:ncol, k) + diff_sponge_fac * kvm_sponge(k)
       end do
     end if
 
