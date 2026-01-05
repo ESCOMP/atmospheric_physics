@@ -12,8 +12,8 @@
   type = real | kind = kind_phys
   dimensions = (daytime_columns_dimension,number_of_shortwave_g_point_intervals)
   intent = inout
-[ ccpp_constant_two ]
-  standard_name = ccpp_constant_two
+[ constant_dim_two ]
+  standard_name = constant_dimension_two
   units = count
   type = integer
   dimensions = ()
@@ -22,7 +22,7 @@
   standard_name = shortwave_start_and_end_gpoint_for_each_band
   units = index
   type = integer
-  dimensions = (ccpp_constant_two,number_of_bands_for_shortwave_radiation)
+  dimensions = (constant_dimension_two,number_of_bands_for_shortwave_radiation)
   intent = in
 [ nswbands ]
   standard_name = number_of_bands_for_shortwave_radiation
