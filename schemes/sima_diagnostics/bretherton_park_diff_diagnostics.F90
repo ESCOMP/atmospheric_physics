@@ -111,7 +111,7 @@ contains
 !> \section arg_table_bretherton_park_diff_diagnostics_run  Argument Table
 !! \htmlinclude bretherton_park_diff_diagnostics_run.html
    subroutine bretherton_park_diff_diagnostics_run( &
-      ncol, pver, ncvmax, &
+      ncol, pver, pverp, ncvmax, &
       ! Surface/horizontal-only fields
       errorPBL, pblh, pblhp, &
       tpert, qpert, wpert, &
@@ -147,6 +147,7 @@ contains
 
       integer,            intent(in)  :: ncol
       integer,            intent(in)  :: pver
+      integer,            intent(in)  :: pverp
       integer,            intent(in)  :: ncvmax              ! # of convective layers [count]
 
       real(kind_phys),    intent(in)  :: errorPBL(:)         ! Error function of UW PBL [m2 s-1]
@@ -223,9 +224,11 @@ contains
       integer,            intent(out) :: errflg
 
       ! Local variable for turbtype conversion from integer to real.
-      real(kind_phys) :: turbtype_real(ncol, pver)
+      real(kind_phys) :: turbtype_real(ncol, pverp)
 
       ! Temporary array for ncvmax to pver conversion (reusable)
+      ! Note that ncvmax is up to pver, so the maximum this temp array
+      ! is up to pver (not pverp).
       real(kind_phys) :: tmp_lev(ncol, pver)
 
       errmsg = ''
