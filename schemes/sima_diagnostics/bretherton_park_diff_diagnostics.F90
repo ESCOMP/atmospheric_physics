@@ -150,75 +150,75 @@ contains
       integer,            intent(in)  :: pverp
       integer,            intent(in)  :: ncvmax              ! # of convective layers [count]
 
-      real(kind_phys),    intent(in)  :: errorPBL(:)         ! Error function of UW PBL [m2 s-1]
-      real(kind_phys),    intent(in)  :: pblh(:)             ! PBL height [m]
-      real(kind_phys),    intent(in)  :: pblhp(:)            ! PBL top pressure [Pa]
-      real(kind_phys),    intent(in)  :: tpert(:)            ! Convective temperature excess [K]
-      real(kind_phys),    intent(in)  :: qpert(:)            ! Convective moisture excess [kg kg-1]
-      real(kind_phys),    intent(in)  :: wpert(:)            ! Convective velocity excess [m s-1]
-      real(kind_phys),    intent(in)  :: ustar(:)            ! Surface friction velocity [m s-1]
-      real(kind_phys),    intent(in)  :: tkes(:)             ! Surface TKE [m2 s-2]
-      real(kind_phys),    intent(in)  :: minpblh(:)          ! Minimum PBL height [m]
-      real(kind_phys),    intent(in)  :: ncvfin_o(:)         ! Initial total number of CL regimes [1]
-      real(kind_phys),    intent(in)  :: ncvfin_mg(:)        ! Number of CLs after merging [1]
-      real(kind_phys),    intent(in)  :: ncvfin_f(:)         ! Final number of CLs with SRCL [1]
+      real(kind_phys),    intent(in)  :: errorPBL(:)
+      real(kind_phys),    intent(in)  :: pblh(:)
+      real(kind_phys),    intent(in)  :: pblhp(:)
+      real(kind_phys),    intent(in)  :: tpert(:)
+      real(kind_phys),    intent(in)  :: qpert(:)
+      real(kind_phys),    intent(in)  :: wpert(:)
+      real(kind_phys),    intent(in)  :: ustar(:)
+      real(kind_phys),    intent(in)  :: tkes(:)
+      real(kind_phys),    intent(in)  :: minpblh(:)
+      real(kind_phys),    intent(in)  :: ncvfin_o(:)
+      real(kind_phys),    intent(in)  :: ncvfin_mg(:)
+      real(kind_phys),    intent(in)  :: ncvfin_f(:)
 
-      real(kind_phys),    intent(in)  :: n2(:,:)             ! Buoyancy frequency [s-2]
-      real(kind_phys),    intent(in)  :: s2(:,:)             ! Shear frequency [s-2]
-      real(kind_phys),    intent(in)  :: ri(:,:)             ! Richardson number [1]
-      real(kind_phys),    intent(in)  :: sfuh(:,:)           ! Upper-half saturation fraction [1]
-      real(kind_phys),    intent(in)  :: sflh(:,:)           ! Lower-half saturation fraction [1]
-      real(kind_phys),    intent(in)  :: cldn(:,:)           ! Cloud fraction [1]
-      real(kind_phys),    intent(in)  :: qrl(:,:)            ! LW cooling rate [K s-1]
-      real(kind_phys),    intent(in)  :: qlfd(:,:)           ! Liquid water content [kg kg-1]
+      real(kind_phys),    intent(in)  :: n2(:,:)
+      real(kind_phys),    intent(in)  :: s2(:,:)
+      real(kind_phys),    intent(in)  :: ri(:,:)
+      real(kind_phys),    intent(in)  :: sfuh(:,:)
+      real(kind_phys),    intent(in)  :: sflh(:,:)
+      real(kind_phys),    intent(in)  :: cldn(:,:)
+      real(kind_phys),    intent(in)  :: qrl(:,:)
+      real(kind_phys),    intent(in)  :: qlfd(:,:)
 
-      real(kind_phys),    intent(in)  :: bprod(:,:)          ! Buoyancy production [m2 s-3]
-      real(kind_phys),    intent(in)  :: sprod(:,:)          ! Shear production [m2 s-3]
-      real(kind_phys),    intent(in)  :: sfi(:,:)            ! Interface saturation fraction [1]
-      real(kind_phys),    intent(in)  :: chu(:,:)            ! Heat buoyancy coefficient for dry states [kg J-1]
-      real(kind_phys),    intent(in)  :: chs(:,:)            ! Heat buoyancy coefficient for saturated states [kg J-1]
-      real(kind_phys),    intent(in)  :: cmu(:,:)            ! Moisture buoyancy coefficient for dry states [kg-1 kg]
-      real(kind_phys),    intent(in)  :: cms(:,:)            ! Moisture buoyancy coefficient for saturated states [kg-1 kg]
-      real(kind_phys),    intent(in)  :: tke(:,:)            ! Turbulent kinetic energy [m2 s-2]
-      real(kind_phys),    intent(in)  :: wcap(:,:)           ! Normalized TKE [m2 s-2]
-      real(kind_phys),    intent(in)  :: kvh(:,:)            ! Eddy diffusivity of heat [m2 s-1]
-      real(kind_phys),    intent(in)  :: kvm(:,:)            ! Eddy diffusivity of momentum [m2 s-1]
-      integer,            intent(in)  :: turbtype(:,:)       ! Turbulence type identifier [1]
-      real(kind_phys),    intent(in)  :: ghi(:,:)            ! Normalized buoyancy production at all interfaces [1]
-      real(kind_phys),    intent(in)  :: shi(:,:)            ! Galperin instability function for heat-moisture [1]
-      real(kind_phys),    intent(in)  :: smi(:,:)            ! Galperin instability function for momentum [1]
-      real(kind_phys),    intent(in)  :: rii(:,:)            ! Richardson number at all interfaces [1]
-      real(kind_phys),    intent(in)  :: lengi(:,:)          ! Turbulence length scale [m]
+      real(kind_phys),    intent(in)  :: bprod(:,:)
+      real(kind_phys),    intent(in)  :: sprod(:,:)
+      real(kind_phys),    intent(in)  :: sfi(:,:)
+      real(kind_phys),    intent(in)  :: chu(:,:)
+      real(kind_phys),    intent(in)  :: chs(:,:)
+      real(kind_phys),    intent(in)  :: cmu(:,:)
+      real(kind_phys),    intent(in)  :: cms(:,:)
+      real(kind_phys),    intent(in)  :: tke(:,:)
+      real(kind_phys),    intent(in)  :: wcap(:,:)
+      real(kind_phys),    intent(in)  :: kvh(:,:)
+      real(kind_phys),    intent(in)  :: kvm(:,:)
+      integer,            intent(in)  :: turbtype(:,:)
+      real(kind_phys),    intent(in)  :: ghi(:,:)
+      real(kind_phys),    intent(in)  :: shi(:,:)
+      real(kind_phys),    intent(in)  :: smi(:,:)
+      real(kind_phys),    intent(in)  :: rii(:,:)
+      real(kind_phys),    intent(in)  :: lengi(:,:)
 
       ! Convective layer input parameters (ncvmax dimension)
-      real(kind_phys),    intent(in)  :: kbase_o(:,:)        ! Initial CL base external interface index [1]
-      real(kind_phys),    intent(in)  :: ktop_o(:,:)         ! Initial CL top external interface index [1]
-      real(kind_phys),    intent(in)  :: kbase_mg(:,:)       ! CL base after merging [1]
-      real(kind_phys),    intent(in)  :: ktop_mg(:,:)        ! CL top after merging [1]
-      real(kind_phys),    intent(in)  :: kbase_f(:,:)        ! Final CL base with SRCL [1]
-      real(kind_phys),    intent(in)  :: ktop_f(:,:)         ! Final CL top with SRCL [1]
-      real(kind_phys),    intent(in)  :: wet(:,:)            ! Entrainment rate at CL top [m s-1]
-      real(kind_phys),    intent(in)  :: web(:,:)            ! Entrainment rate at CL base [m s-1]
-      real(kind_phys),    intent(in)  :: jtbu(:,:)           ! Buoyancy jump across CL top [m s-2]
-      real(kind_phys),    intent(in)  :: jbbu(:,:)           ! Buoyancy jump across CL base [m s-2]
-      real(kind_phys),    intent(in)  :: evhc(:,:)           ! Evaporative enhancement factor at CL top [1]
-      real(kind_phys),    intent(in)  :: jt2slv(:,:)         ! Liquid water virtual static energy jump [J kg-1]
-      real(kind_phys),    intent(in)  :: n2ht(:,:)           ! Buoyancy frequency at just below CL top [s-2]
-      real(kind_phys),    intent(in)  :: n2hb(:,:)           ! Buoyancy frequency at just above CL base [s-2]
-      real(kind_phys),    intent(in)  :: lwp(:,:)            ! Liquid water path in CL top layer [kg m-2]
-      real(kind_phys),    intent(in)  :: opt_depth(:,:)      ! Optical depth of CL top layer [1]
-      real(kind_phys),    intent(in)  :: radinvfrac(:,:)     ! Fraction of radiative cooling in CL top [1]
-      real(kind_phys),    intent(in)  :: radf(:,:)           ! Buoyancy production at CL top by radiation [m2 s-3]
-      real(kind_phys),    intent(in)  :: wstar(:,:)          ! Convective velocity in each CL [m s-1]
-      real(kind_phys),    intent(in)  :: wstar3fact(:,:)     ! Enhancement of wstar3 due to entrainment [1]
-      real(kind_phys),    intent(in)  :: ebrk(:,:)           ! Net mean TKE of CL [m2 s-2]
-      real(kind_phys),    intent(in)  :: wbrk(:,:)           ! Net mean normalized TKE of CL [m2 s-2]
-      real(kind_phys),    intent(in)  :: lbrk(:,:)           ! Energetic internal thickness of CL [m]
-      real(kind_phys),    intent(in)  :: ricl(:,:)           ! CL-averaged Richardson number [1]
-      real(kind_phys),    intent(in)  :: ghcl(:,:)           ! CL-averaged normalized buoyancy production [1]
-      real(kind_phys),    intent(in)  :: shcl(:,:)           ! CL-averaged Galperin function for heat-moisture [1]
-      real(kind_phys),    intent(in)  :: smcl(:,:)           ! CL-averaged Galperin function for momentum [1]
-      real(kind_phys),    intent(in)  :: wsed(:,:)           ! Sedimentation velocity at top of each CL [m s-1]
+      real(kind_phys),    intent(in)  :: kbase_o(:,:)
+      real(kind_phys),    intent(in)  :: ktop_o(:,:)
+      real(kind_phys),    intent(in)  :: kbase_mg(:,:)
+      real(kind_phys),    intent(in)  :: ktop_mg(:,:)
+      real(kind_phys),    intent(in)  :: kbase_f(:,:)
+      real(kind_phys),    intent(in)  :: ktop_f(:,:)
+      real(kind_phys),    intent(in)  :: wet(:,:)
+      real(kind_phys),    intent(in)  :: web(:,:)
+      real(kind_phys),    intent(in)  :: jtbu(:,:)
+      real(kind_phys),    intent(in)  :: jbbu(:,:)
+      real(kind_phys),    intent(in)  :: evhc(:,:)
+      real(kind_phys),    intent(in)  :: jt2slv(:,:)
+      real(kind_phys),    intent(in)  :: n2ht(:,:)
+      real(kind_phys),    intent(in)  :: n2hb(:,:)
+      real(kind_phys),    intent(in)  :: lwp(:,:)
+      real(kind_phys),    intent(in)  :: opt_depth(:,:)
+      real(kind_phys),    intent(in)  :: radinvfrac(:,:)
+      real(kind_phys),    intent(in)  :: radf(:,:)
+      real(kind_phys),    intent(in)  :: wstar(:,:)
+      real(kind_phys),    intent(in)  :: wstar3fact(:,:)
+      real(kind_phys),    intent(in)  :: ebrk(:,:)
+      real(kind_phys),    intent(in)  :: wbrk(:,:)
+      real(kind_phys),    intent(in)  :: lbrk(:,:)
+      real(kind_phys),    intent(in)  :: ricl(:,:)
+      real(kind_phys),    intent(in)  :: ghcl(:,:)
+      real(kind_phys),    intent(in)  :: shcl(:,:)
+      real(kind_phys),    intent(in)  :: smcl(:,:)
+      real(kind_phys),    intent(in)  :: wsed(:,:)
 
       character(len=512), intent(out) :: errmsg
       integer,            intent(out) :: errflg
