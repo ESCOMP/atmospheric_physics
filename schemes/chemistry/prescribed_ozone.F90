@@ -26,7 +26,7 @@ module prescribed_ozone
 
   ! namelist options
   logical                     :: has_prescribed_ozone = .false.
-  character(len=8), parameter :: ozone_name = 'o3' ! standard name of the output field
+  character(len=8), parameter :: ozone_name = 'O3' ! standard name of the output field
 
 contains
 
