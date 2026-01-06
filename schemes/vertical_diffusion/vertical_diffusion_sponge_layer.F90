@@ -123,7 +123,7 @@ contains
     ! Add sponge layer vertical diffusion
     if (allocated(kvm_sponge)) then
       do k = 1, size(kvm_sponge(:))
-        kvm(:ncol, 1) = kvm(:ncol, k) + diff_sponge_fac * kvm_sponge(k)
+        kvm(:ncol, k) = kvm(:ncol, k) + diff_sponge_fac * kvm_sponge(k)
       end do
     end if
 
