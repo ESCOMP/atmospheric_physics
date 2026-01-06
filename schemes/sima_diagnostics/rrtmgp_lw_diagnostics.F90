@@ -3,7 +3,6 @@ module rrtmgp_lw_diagnostics
 
    implicit none
    private
-   save
 
    public :: rrtmgp_lw_diagnostics_init ! init routine
    public :: rrtmgp_lw_diagnostics_run  ! main routine
@@ -105,7 +104,7 @@ CONTAINS
       real(kind_phys) :: fln200(ncol)
       real(kind_phys) :: fln200c(ncol)
       real(kind_phys) :: flnr(ncol)
-      real(kind_phys) :: ftem(ncol)
+      real(kind_phys) :: lwcf(ncol)
 
       errmsg = ''
       errflg = 0
@@ -128,8 +127,8 @@ CONTAINS
       call history_out_field('FLUT'//diag(diag_index),    flw%fluxes%flux_up(:, ktoprad))
       call history_out_field('FLUTC'//diag(diag_index),   flwc%fluxes%flux_up(:, ktoprad))
 
-      ftem(:) = flwc%fluxes%flux_up(:, ktoprad) - flw%fluxes%flux_up(:, ktoprad)
-      call history_out_field('LWCF'//diag(diag_index),    ftem)
+      lwcf(:) = flwc%fluxes%flux_up(:, ktoprad) - flw%fluxes%flux_up(:, ktoprad)
+      call history_out_field('LWCF'//diag(diag_index),    lwcf)
 
       ! Output fluxes at 200 mb
       call vertinterp(ncol, ncol, pverp, pint, 20000._kind_phys, fnl,  fln200)

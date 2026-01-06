@@ -1,7 +1,7 @@
 !> \file rrtmgp_lw_aerosols.F90
 !!
 
-!> This module contains the call to the RRTMGP-lw radiation routine
+!> This module sets the RRTMGP aerosol longwave optical depth
 module rrtmgp_lw_aerosols
   implicit none
   private
@@ -31,6 +31,8 @@ contains
 
     if (.not. dolwrad) return
 
+    ! REMOVECAM: scheme is just a stub for now
+    ! Set the optical properties to 0 for snapshot testing
     aer_lw%optical_props%tau = 0.0_kind_phys
 
   end subroutine rrtmgp_lw_aerosols_run

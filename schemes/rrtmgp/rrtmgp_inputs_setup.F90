@@ -9,12 +9,12 @@ module rrtmgp_inputs_setup
 !> \section arg_table_rrtmgp_inputs_setup_init Argument Table
 !! \htmlinclude rrtmgp_inputs_setup_init.html
 !!
-  subroutine rrtmgp_inputs_setup_init(ktopcam, ktoprad, nlaycam, sw_low_bounds, sw_high_bounds, nswbands,      &
-                   pref_edge, nlay, pver, pverp, kdist_sw, kdist_lw, qrl, is_first_step, use_rad_dt_cosz,      &
-                   timestep_size, nstep, iradsw, dt_avg, irad_always, is_first_restart_step,                   &
-                   p_top_for_rrtmgp, nlwbands, nradgas, gasnamelength, idx_sw_diag, idx_nir_diag, idx_uv_diag, &
-                   idx_sw_cloudsim, idx_lw_diag, idx_lw_cloudsim, nswgpts, nlwgpts, changeseed, nlayp,         &
-                   nextsw_cday, current_cal_day, band2gpt_sw, irad_always_out, errmsg, errflg)
+  subroutine rrtmgp_inputs_setup_init(nswbands, nlwbands, pref_edge, pver, pverp, kdist_sw, &
+                   kdist_lw, qrl, is_first_step, use_rad_dt_cosz, timestep_size, nstep, iradsw, dt_avg,  &
+                   irad_always, is_first_restart_step, p_top_for_rrtmgp, nradgas, gasnamelength, current_cal_day,  &
+                   ktopcam, ktoprad, nlaycam, sw_low_bounds, sw_high_bounds, idx_sw_diag, idx_nir_diag,        &
+                   idx_uv_diag, idx_sw_cloudsim, idx_lw_diag, idx_lw_cloudsim, nswgpts, nlwgpts, changeseed,   &
+                   nlay, nlayp, nextsw_cday, band2gpt_sw, irad_always_out, errmsg, errflg)
      use ccpp_kinds,             only: kind_phys
      use ccpp_gas_optics_rrtmgp, only: ty_gas_optics_rrtmgp_ccpp
      use radiation_utils,        only: radiation_utils_init, get_sw_spectral_boundaries_ccpp
@@ -40,8 +40,8 @@ module rrtmgp_inputs_setup
      real(kind_phys),                 intent(in) :: p_top_for_rrtmgp       ! Top pressure to use for RRTMGP (Pa)
 
      ! Outputs
-     integer,                         intent(out) :: ktopcam               ! Index in CAM arrays of top level (layer or interface) at which RRTMGP is active
-     integer,                         intent(out) :: ktoprad               ! Index in RRTMGP array corresponding to top layer or interface of CAM arrays
+     integer,                         intent(out) :: ktopcam               ! Index in host model arrays of top level (layer or interface) at which RRTMGP is active
+     integer,                         intent(out) :: ktoprad               ! Index in RRTMGP array corresponding to top layer or interface of host model arrays
      integer,                         intent(out) :: nlaycam               ! Number of vertical layers in CAM. Is either equal to nlay
                                                                            !  or is 1 less than nlay if "extra layer" is used in the radiation calculations
      integer,                         intent(out) :: nlay                  ! Number of vertical layers in radiation calculation
@@ -62,7 +62,7 @@ module rrtmgp_inputs_setup
      real(kind_phys), dimension(:),   intent(out) :: sw_low_bounds         ! Lower bounds of shortwave bands
      real(kind_phys), dimension(:),   intent(out) :: sw_high_bounds        ! Upper bounds of shortwave bands
      real(kind_phys), dimension(:,:), intent(inout) :: qrl                 ! Longwave radiative heating
-     character(len=512),              intent(out) :: errmsg
+     character(len=*),                intent(out) :: errmsg
      integer,                         intent(out) :: errflg
      integer,                         intent(out) :: irad_always_out       ! Number of time steps to execute radiation continuously
      real(kind_phys),                 intent(out) :: dt_avg                ! averaging time interval for zenith angle
@@ -127,6 +127,11 @@ module rrtmgp_inputs_setup
      ! Set the radiation timestep for cosz calculations if requested using
      ! the adjusted iradsw value from radiation
      if (use_rad_dt_cosz)  then
+        if (iradsw < 0) then
+           errflg = 1
+           write(errmsg,*) 'rrtmgp_inputs_setup_init: iradsw is negative; has not been properly adjusted'
+           return
+        end if
         dt_avg = iradsw*timestep_size
      else
         dt_avg = 0._kind_phys

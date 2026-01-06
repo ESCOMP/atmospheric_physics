@@ -15,7 +15,7 @@ CONTAINS
       real(kind_phys),  intent(in) :: flux_net_clrsky(:,:)  ! Shortwave net radiative clear-sky flux [W m-2]
       real(kind_phys), intent(out) :: hrate(:,:)            ! Tendency of dry air enthalpy due to SW radiation [J kg-1 s-1]
       real(kind_phys), intent(out) :: hrate_clrsky(:,:)     ! Tendency of dry air enthalpy due to SW clear-sky radiation [J kg-1 s-1]
-      character(len=512), intent(out) :: errmsg
+      character(len=*),   intent(out) :: errmsg
       integer,            intent(out) :: errflg
 
       integer :: k

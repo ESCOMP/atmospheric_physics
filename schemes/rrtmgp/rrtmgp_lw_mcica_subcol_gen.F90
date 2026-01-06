@@ -60,8 +60,8 @@ subroutine rrtmgp_lw_mcica_subcol_gen_run( &
    ! arguments
    class(ty_gas_optics_rrtmgp_ccpp), intent(in) :: kdist        ! Gas optics object
    logical,                          intent(in) :: dolw         ! Flag for whether to perform longwave calculation
-   integer,                          intent(in) :: ktoprad      ! Index in RRTMGP array corresponding to top layer or interface of CAM arrays
-   integer,                          intent(in) :: ktopcam      ! Index in CAM arrays of top level (layer or interface) at which RRTMGP is active
+   integer,                          intent(in) :: ktoprad      ! Index in RRTMGP array corresponding to top layer or interface of host model arrays
+   integer,                          intent(in) :: ktopcam      ! Index in host model arrays of top level (layer or interface) at which RRTMGP is active
    integer,                          intent(in) :: nbnd         ! Number of spectral bands
    integer,                          intent(in) :: ngpt         ! Number of subcolumns (g-point intervals)
    integer,                          intent(in) :: ncol         ! Number of columns
@@ -73,7 +73,7 @@ subroutine rrtmgp_lw_mcica_subcol_gen_run( &
    real(kind_phys), dimension(:,:),   intent(in)  :: cldfprime
    real(kind_phys), dimension(:,:,:), intent(in)  :: c_cld_lw_abs
    type(ty_optical_props_1scl_ccpp),  intent(inout) :: cloud_lw ! Cloud optics object
-   character(len=512),                intent(out)   :: errmsg
+   character(len=*),                  intent(out)   :: errmsg
    integer,                           intent(out)   :: errflg
 
    ! Local variables

@@ -15,7 +15,7 @@ contains
    subroutine rrtmgp_sw_rte_run(doswrad, doswclrsky, doswallsky, nday, iter_num, rrtmgp_phys_blksz, sw_optical_props, &
                                  sw_optical_props_clouds, aersw, coszen_day, toa_src_sw, sfc_alb_dir, sfc_alb_dif,    &
                                  flux_clrsky, flux_allsky, errmsg, errflg)
-    use machine,                  only: kind_phys
+    use ccpp_kinds,               only: kind_phys
     use mo_rte_sw,                only: rte_sw
     use ccpp_optical_props,       only: ty_optical_props_2str_ccpp
     use ccpp_fluxes_byband,       only: ty_fluxes_byband_ccpp
@@ -113,6 +113,7 @@ contains
        call check_error_msg('rrtmgp_sw_rte_rte_sw_allsky', errmsg)
        if (len_trim(errmsg) /= 0) then
           errflg = 1
+          return
        end if
     end if
 

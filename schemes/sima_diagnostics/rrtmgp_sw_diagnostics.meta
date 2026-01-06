@@ -76,13 +76,13 @@
   dimensions = ()
   intent = in
 [ nday ]
-  standard_name = daytime_points_dimension
+  standard_name = daytime_columns_dimension
   units = count
   type = integer
   dimensions = ()
   intent = in
 [ idxday ]
-  standard_name = daytime_points
+  standard_name = daytime_columns
   units = index
   type = integer
   dimensions = (horizontal_loop_extent)

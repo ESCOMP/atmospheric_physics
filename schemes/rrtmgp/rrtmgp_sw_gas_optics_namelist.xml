@@ -82,7 +82,7 @@
     <standard_name>filename_of_rrtmgp_shortwave_k_distribution</standard_name>
     <units>none</units>
     <desc>
-     The filename of the shortwave coefficients file for RRTMGP
+     The path and filename of the shortwave coefficients file for RRTMGP
     </desc>
     <values>
       <value>${SRCROOT}/src/physics/utils/rrtmgp-data/rrtmgp-gas-sw-g112.nc</value>

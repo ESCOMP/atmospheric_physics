@@ -20,9 +20,9 @@ contains
 !! \htmlinclude rrtmgp_lw_cloud_optics_run.html
 !!
   subroutine rrtmgp_lw_cloud_optics_run(dolw, ncol, nlay, cld, cldfsnow, cldfgrau,      &
-             cldfprime, kdist_lw, cloud_lw, lamc, pgam, iclwpth, iciwpth, tiny_in, dei, icswpth, &
-             des, icgrauwpth, degrau, nlwbands, do_snow, do_graupel, pver, ktopcam, cld_lw_abs,  &
-             snow_lw_abs, grau_lw_abs, c_cld_lw_abs, errmsg, errflg)
+             cldfprime, kdist_lw, lamc, pgam, iclwpth, iciwpth, tiny_in, dei, icswpth,  &
+             des, icgrauwpth, degrau, nlwbands, do_snow, do_graupel, pver, ktopcam,     &
+             cloud_lw, cld_lw_abs, snow_lw_abs, grau_lw_abs, c_cld_lw_abs, errmsg, errflg)
     use ccpp_gas_optics_rrtmgp,    only: ty_gas_optics_rrtmgp_ccpp
     use ccpp_optical_props,        only: ty_optical_props_1scl_ccpp
     use ccpp_kinds,                only: kind_phys
@@ -37,7 +37,7 @@ contains
     integer,                           intent(in) :: nlay             ! Number of vertical layers in radiation
     integer,                           intent(in) :: nlwbands         ! Number of longwave bands
     integer,                           intent(in) :: pver             ! Total number of vertical layers
-    integer,                           intent(in) :: ktopcam          ! Index in CAM arrays of top level (layer or interface) at which RRTMGP is active
+    integer,                           intent(in) :: ktopcam          ! Index in host model arrays of top level (layer or interface) at which RRTMGP is active
     real(kind_phys), dimension(:,:),   intent(in) :: cld              ! Cloud fraction (liq + ice)
     real(kind_phys), dimension(:,:),   intent(in) :: cldfsnow         ! Cloud fraction of just "snow clouds"
     real(kind_phys), dimension(:,:),   intent(in) :: cldfgrau         ! Cloud fraction of just "graupel clouds"
@@ -63,7 +63,7 @@ contains
     real(kind_phys), dimension(:,:,:), intent(out) :: snow_lw_abs     ! Snow absorption optics depth (LW)
     real(kind_phys), dimension(:,:,:), intent(out) :: grau_lw_abs     ! Graupel absorption optics depth (LW)
     real(kind_phys), dimension(:,:,:), intent(out) :: c_cld_lw_abs
-    character(len=512),                intent(out) :: errmsg
+    character(len=*),                  intent(out) :: errmsg
     integer,                           intent(out) :: errflg
 
     ! Local variables
@@ -72,7 +72,6 @@ contains
     ! cloud radiative parameters are "in cloud" not "in cell"
     real(kind_phys) :: liq_lw_abs(nlwbands, ncol, pver)   ! liquid absorption optics depth (LW)
     real(kind_phys) :: ice_lw_abs(nlwbands, ncol, pver)   ! ice absorption optics depth (LW)
-    !real(kind_phys) :: c_cld_lw_abs(nlwbands, ncol, pver) ! combined cloud absorption optics depth (LW)
 
     character(len=*), parameter :: sub = 'rrtmgp_lw_cloud_optics_run'
     !--------------------------------------------------------------------------------

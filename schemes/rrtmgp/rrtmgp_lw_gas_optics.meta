@@ -7,12 +7,6 @@
 [ccpp-arg-table]
   name  = rrtmgp_lw_gas_optics_init
   type  = scheme
-[ kdist ]
-  standard_name = longwave_gas_optics_object_for_RRTMGP
-  units = none
-  type = ty_gas_optics_rrtmgp_ccpp
-  dimensions = ()
-  intent = out
 [ lw_filename ]
   standard_name = filename_of_rrtmgp_longwave_k_distribution
   units = none
@@ -20,15 +14,21 @@
   dimensions = ()
   intent = in
 [ available_gases ]
-  standard_name = gas_concentrations_rrtmgp_object_for_RRTMGP
+  standard_name = gas_volume_mixing_ratios_object_for_RRTMGP
   units = none
   type = ty_gas_concs_ccpp
   dimensions = ()
   intent = in
+[ kdist ]
+  standard_name = longwave_gas_optics_object_for_RRTMGP
+  units = none
+  type = ty_gas_optics_rrtmgp_ccpp
+  dimensions = ()
+  intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = out
 [ errflg ]
@@ -75,7 +75,7 @@
   standard_name = air_pressure_at_interface_for_RRTMGP
   units = Pa
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent,number_of_vertical_layers_in_RRTMGP_plus_one)
+  dimensions = (horizontal_loop_extent,number_of_vertical_interfaces_in_RRTMGP)
   intent = in
 [ t_lay ]
   standard_name = air_temperature_for_RRTMGP
@@ -129,7 +129,7 @@
   standard_name = ccpp_error_message
   long_name = Error message for error handling in CCPP
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = out
 [ errflg ]

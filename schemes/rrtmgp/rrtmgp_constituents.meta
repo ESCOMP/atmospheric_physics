@@ -21,7 +21,7 @@
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = out
 [ errflg ]
@@ -36,7 +36,7 @@
 [ gaslist ]
   standard_name = list_of_active_gases_for_RRTMGP
   units = none
-  type = character | kind = len=5
+  type = character | kind = len=*
   dimensions = (gaslist_dimension)
   intent = in
 [ const_array ]
@@ -54,7 +54,7 @@
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = out
 [ errflg ]

@@ -15,9 +15,9 @@ contains
 !> \section arg_table_rrtmgp_lw_gas_optics_init Argument Table
 !! \htmlinclude rrtmgp_lw_gas_optics_init.html
 !!
-  subroutine rrtmgp_lw_gas_optics_init(kdist, lw_filename, available_gases, &
+  subroutine rrtmgp_lw_gas_optics_init(lw_filename, available_gases, kdist, &
                   errmsg, errflg)
-    use machine,                 only: kind_phys
+    use ccpp_kinds,              only: kind_phys
     use ccpp_gas_optics_rrtmgp,  only: ty_gas_optics_rrtmgp_ccpp
     use ccpp_gas_concentrations, only: ty_gas_concs_ccpp
     use radiation_tools,         only: check_error_msg
@@ -30,7 +30,7 @@ contains
  
     ! Outputs
     class(ty_gas_optics_rrtmgp_ccpp),    intent(out) :: kdist                             ! RRTMGP gas optics object
-    character(len=512),                  intent(out) :: errmsg                            ! CCPP error message
+    character(len=*),                    intent(out) :: errmsg                            ! CCPP error message
     integer,                             intent(out) :: errflg                           ! CCPP error code
 
     ! Local variables
@@ -304,10 +304,11 @@ contains
          totplnk, planck_frac, rayl_lower_allocatable, rayl_upper_allocatable,         &
          optimal_angle_fit)
 
+    call check_error_msg('rrtmgp_lw_gas_optics_init_load', errmsg)
     if (len_trim(errmsg) > 0) then
        errflg = 1
+       return
     end if
-    call check_error_msg('rrtmgp_lw_gas_optics_init_load', errmsg)
 
   end subroutine rrtmgp_lw_gas_optics_init
 
@@ -317,7 +318,7 @@ contains
   subroutine rrtmgp_lw_gas_optics_run(dolw, iter_num, ncol, rrtmgp_phys_blksz, p_lay, p_lev, t_lay, tsfg, &
              gas_concs, lw_optical_props_clrsky, sources, t_lev, include_interface_temp, lw_gas_props,    &
              errmsg, errflg)
-   use machine,                 only: kind_phys
+   use ccpp_kinds,              only: kind_phys
    use ccpp_gas_optics_rrtmgp,  only: ty_gas_optics_rrtmgp_ccpp
    use ccpp_gas_concentrations, only: ty_gas_concs_ccpp
    use ccpp_optical_props,      only: ty_optical_props_1scl_ccpp
@@ -340,7 +341,7 @@ contains
    type(ty_optical_props_1scl_ccpp),  intent(inout) :: lw_optical_props_clrsky  !< Clearsky optical properties
    type(ty_gas_optics_rrtmgp_ccpp),   intent(inout) :: lw_gas_props             !< RRTMGP gas optics object
    type(ty_source_func_lw_ccpp),      intent(inout) :: sources                  !< Longwave sources object
-   character(len=512),                intent(out)   :: errmsg
+   character(len=*),                  intent(out)   :: errmsg
    integer,                           intent(out)   :: errflg
 
    ! Local variables

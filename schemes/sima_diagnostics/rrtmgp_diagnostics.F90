@@ -4,7 +4,6 @@ module rrtmgp_diagnostics
 
    implicit none
    private
-   save
 
    public :: rrtmgp_diagnostics_init ! init routine
    public :: rrtmgp_diagnostics_run  ! main routine
@@ -23,7 +22,7 @@ CONTAINS
       errflg = 0
 
       ! Heating rate needed for d(theta)/dt computation
-      call history_add_field('HR',   'Heating rate needed for d(theat)/dt computation', 'lev', 'avg', 'K s-1')
+      call history_add_field('HR',   'Heating rate needed for d(theta)/dt computation', 'lev', 'avg', 'K s-1')
 
    end subroutine rrtmgp_diagnostics_init
 
@@ -54,7 +53,7 @@ CONTAINS
       ! Local variables
       integer :: idx, kdx
       integer :: diag_index
-      real(kind_phys) :: ftem(ncol, pver)
+      real(kind_phys) :: net_heating_rate(ncol, pver)
 
       errmsg = ''
       errflg = 0
@@ -70,11 +69,11 @@ CONTAINS
       ! Compute heating rate for dtheta/dt
       do kdx = 1, pver
          do idx = 1, ncol
-            ftem(idx,kdx) = (qrs(idx,kdx) + qrl(idx,kdx))/cpair * (1.e5_kind_phys/pmid(idx,kdx))**cappa
+            net_heating_rate(idx,kdx) = (qrs(idx,kdx) + qrl(idx,kdx))/cpair * (1.e5_kind_phys/pmid(idx,kdx))**cappa
          end do
       end do
 
-      call history_out_field('HR', ftem)
+      call history_out_field('HR', net_heating_rate)
 
    end subroutine rrtmgp_diagnostics_run
 

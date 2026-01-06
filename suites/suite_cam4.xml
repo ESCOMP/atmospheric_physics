@@ -13,7 +13,7 @@
       Gravity Wave Drag       Orographic
   -->
   <group name="physics_before_coupler">
-    <!-- Helper to read all possible constituents from file and/or namelist -->
+    <!-- Helper schemes to read all possible constituents from file and/or namelist -->
     <scheme>initialize_constituents</scheme>
     <scheme>to_be_ccppized_temporary</scheme>
     <scheme>radiative_gas_concentrations</scheme>
