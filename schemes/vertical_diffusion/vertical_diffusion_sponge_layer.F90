@@ -44,46 +44,51 @@ contains
     errflg = 0
 
     if (diff_sponge_fac > 0) then
-      ! Add sponge layer vertical diffusion based on model top pressure
-      if (ptop_ref > 1.e-1_kind_phys .and. ptop_ref < 100.0_kind_phys) then
-        !
-        ! CAM7 FMT (but not CAM6 top (~225 Pa) or CAM7 low top or lower)
-        !
-        allocate(kvm_sponge(4), stat=errflg, errmsg=errmsg)
-        if (errflg /= 0) then
-           return
-        end if
-        kvm_sponge(1) = 2.e5_kind_phys
-        kvm_sponge(2) = 2.e5_kind_phys
-        kvm_sponge(3) = 0.5e5_kind_phys
-        kvm_sponge(4) = 0.1e5_kind_phys
-      else if (ptop_ref > 1.e-4_kind_phys) then
-        !
-        ! WACCM and WACCM-X
-        !
-        allocate(kvm_sponge(6), stat=errflg, errmsg=errmsg)
-        if (errflg /= 0) then
-           return
-        end if
-        kvm_sponge(1) = 2.e5_kind_phys
-        kvm_sponge(2) = 2.e5_kind_phys
-        kvm_sponge(3) = 1.5e5_kind_phys
-        kvm_sponge(4) = 1.0e5_kind_phys
-        kvm_sponge(5) = 0.5e5_kind_phys
-        kvm_sponge(6) = 0.1e5_kind_phys
-      end if
+       !
+       ! Add sponge layer vertical diffusion based on model top pressure
+       !
+       ! This code follows the spectral-element dynamical core that has
+       ! a hardcoded vertical profile for del2 sponge diffusion.
+       !
+       if (ptop_ref < 1.e-3_kind_phys) then
+          !
+          ! WACCM7 (ptop=2.04E-4Pa) or higher top
+          !
+          allocate(kvm_sponge(6), stat=errflg, errmsg=errmsg)
+          if (errflg /= 0) then
+             return
+          end if
+          kvm_sponge(1) = 2.e5_kind_phys
+          kvm_sponge(2) = 2.e5_kind_phys
+          kvm_sponge(3) = 1.5e5_kind_phys
+          kvm_sponge(4) = 1.0e5_kind_phys
+          kvm_sponge(5) = 0.5e5_kind_phys
+          kvm_sponge(6) = 0.1e5_kind_phys
+       else
+          !
+          ! CAM7 MT (ptop 0.42Pa) and LT (205.48Pa)
+          !
+          allocate(kvm_sponge(4), stat=errflg, errmsg=errmsg)
+          if (errflg /= 0) then
+             return
+          end if
+          kvm_sponge(1) = 2.e4_kind_phys
+          kvm_sponge(2) = 2.e4_kind_phys
+          kvm_sponge(3) = 0.5e4_kind_phys
+          kvm_sponge(4) = 0.1e4_kind_phys
+       end if
     end if
-
     if (amIRoot) then
-      write(iulog, *) 'Sponge layer vertical diffusion factor:', diff_sponge_fac
+       write(iulog, *) 'Sponge layer vertical diffusion factor:', diff_sponge_fac
+       write(iulog, *) '(ptop_ref = ', ptop_ref, ' Pa)'
       if (allocated(kvm_sponge)) then
-        write(iulog, *) 'Artificial sponge layer vertical diffusion added:'
+         write(iulog, *) 'Artificial sponge layer vertical diffusion added:'
         do k = 1, size(kvm_sponge(:))
           write(iulog, '(a44,i2,a17,e7.2,a8)') 'vertical diffusion coefficient at interface ', k, &
                                               ' is increased by ', kvm_sponge(k), ' m2 s-1'
         end do
       else
-        write(iulog, *) 'No sponge layer vertical diffusion applied (ptop_ref = ', ptop_ref, ' Pa)'
+        write(iulog, *) 'No sponge layer vertical diffusion applied'
       end if
     end if
 
@@ -118,7 +123,7 @@ contains
     ! Add sponge layer vertical diffusion
     if (allocated(kvm_sponge)) then
       do k = 1, size(kvm_sponge(:))
-        kvm(:ncol, 1) = kvm(:ncol, k) + diff_sponge_fac * kvm_sponge(k)
+        kvm(:ncol, k) = kvm(:ncol, k) + diff_sponge_fac * kvm_sponge(k)
       end do
     end if
 
