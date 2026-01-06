@@ -13,6 +13,7 @@ module prescribed_ozone
   private
 
   ! public CCPP-compliant subroutines
+  public :: prescribed_ozone_register
   public :: prescribed_ozone_init
   public :: prescribed_ozone_run
 
@@ -29,6 +30,66 @@ module prescribed_ozone
   character(len=8), parameter :: ozone_name = 'O3' ! standard name of the output field
 
 contains
+
+  ! Register the prescribed ozone constituent in the CCPP constituent properties object.
+!> \section arg_table_prescribed_ozone_register  Argument Table
+!! \htmlinclude prescribed_ozone_register.html
+  subroutine prescribed_ozone_register( &
+    amIRoot, iulog, &
+    filename, &
+    ozone_constituents, &
+    errmsg, errflg)
+
+    use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
+
+    use ccpp_chem_utils, only: chem_constituent_qmin
+
+    logical,            intent(in)  :: amIRoot
+    integer,            intent(in)  :: iulog
+    character(len=*),   intent(in)  :: filename   ! input filename
+
+    ! prescribed ozone runtime CCPP constituent
+    type(ccpp_constituent_properties_t), allocatable, intent(out) :: ozone_constituents(:)
+
+    character(len=*),   intent(out) :: errmsg
+    integer,            intent(out) :: errflg
+
+    errmsg = ''
+    errflg = 0
+
+    ! check if user has specified an input dataset
+    if(filename /= 'UNSET' .and. len_trim(filename) > 0) then
+      has_prescribed_ozone = .true.
+
+      if(amIRoot) then
+        write(iulog,*) 'prescribed_ozone_init: ozone is prescribed in: ' // trim(filename)
+      end if
+    else
+      return
+    end if
+
+    ! allocate CCPP dynamic constituents object for prescribed ozone.
+    ! if we are prescribing ozone, this module is responsible for registering the constituent.
+    allocate(ozone_constituents(1), stat=errflg, errmsg=errmsg)
+    if (errflg /= 0) then
+      errmsg = "prescribed_ozone_register: " // trim(errmsg)
+      return
+    end if
+
+    call ozone_constituents(i)%instantiate( &
+         std_name          = trim(ozone_name), &
+         long_name         = 'prescribed ozone (O3)', &
+         units             = 'kg kg-1', &
+         vertical_dim      = 'vertical_layer_dimension', &
+         min_value         = chem_constituent_qmin(trim(ozone_name)), &
+         advected          = .false., &
+         water_species     = .false., &
+         mixing_ratio_type = 'dry', &
+         errcode           = errflg, &
+         errmsg            = errmsg)
+    if(errflg /= 0) return
+
+  end subroutine prescribed_ozone_register
 
 !> \section arg_table_prescribed_ozone_init  Argument Table
 !! \htmlinclude prescribed_ozone_init.html
@@ -62,16 +123,7 @@ contains
     errmsg = ''
     errflg = 0
 
-    ! check if user has specified an input dataset
-    if(filename /= 'UNSET' .and. len_trim(filename) > 0) then
-      has_prescribed_ozone = .true.
-
-      if(amIRoot) then
-        write(iulog,*) 'prescribed_ozone_init: ozone is prescribed in: ' // trim(filename)
-      end if
-    else
-      return
-    end if
+    if(.not. has_prescribed_ozone) return
 
     ! initialize dataset in tracer_data module.
     ! construct field specifier - one field
@@ -162,8 +214,11 @@ contains
          id_o3, errmsg, errflg)
     if (errflg /= 0) return
 
-    ! could not find the constituent.
+    ! could not find the constituent, but the specifier is active.
+    ! throw an error.
     if (id_o3 < 0) then
+      errmsg = 'prescribed_ozone: could not find constituent ' // trim(ozone_name)
+      errflg = 1
       return
     end if
 

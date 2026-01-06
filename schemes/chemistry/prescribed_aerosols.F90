@@ -93,6 +93,8 @@ contains
 
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
 
+    use ccpp_chem_utils, only: chem_constituent_qmin
+
     ! Input arguments:
     logical,            intent(in)  :: amIRoot
     integer,            intent(in)  :: iulog
@@ -122,6 +124,7 @@ contains
     integer            :: i, j
     logical            :: is_modal_aero_interstitial
     logical            :: skip_spec
+    real(kind_phys)    :: qmin
 
     character(len=*), parameter :: subname = 'prescribed_aerosols_register'
 
@@ -275,12 +278,14 @@ contains
         unit_name = 'kg kg-1'
       end if
 
+      qmin = chem_constituent_qmin(aero_map_list(i)%constituent_name)
+
       call aerosol_constituents(i)%instantiate( &
            std_name          = trim(aero_map_list(i)%constituent_name), &
            long_name         = 'prescribed aerosol '//trim(aero_map_list(i)%constituent_name), &
            units             = unit_name, &
            vertical_dim      = 'vertical_layer_dimension', &
-           min_value         = 0.0_kind_phys, &
+           min_value         = qmin, &
            advected          = .false., &
            water_species     = .false., &
            mixing_ratio_type = 'dry', &

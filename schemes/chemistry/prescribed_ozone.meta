@@ -1,6 +1,49 @@
 [ccpp-table-properties]
   name = prescribed_ozone
   type = scheme
+  dependencies = ../../to_be_ccppized/ccpp_chem_utils.F90
+
+[ccpp-arg-table]
+  name  = prescribed_ozone_register
+  type  = scheme
+[ amIRoot ]
+  standard_name = flag_for_mpi_root
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ iulog ]
+  standard_name = log_output_unit
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ filename ]
+  standard_name = filename_of_prescribed_ozone
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ ozone_constituents ]
+  # or can this just be the ccpp_constituent_properties?
+  standard_name = prescribed_ozone_constituents
+  units = none
+  type = ccpp_constituent_properties_t
+  allocatable = True
+  dimensions = (:)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
 
 [ccpp-arg-table]
   name  = prescribed_ozone_init
