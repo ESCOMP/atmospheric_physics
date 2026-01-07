@@ -50,6 +50,9 @@ contains
        ! This code follows the spectral-element dynamical core that has
        ! a hardcoded vertical profile for del2 sponge diffusion.
        !
+       ! Note: kvm_sponge values listed below are also listed in namelist_definition.xml
+       !       so if changed please also change in namelist_definition.xml
+       !
        if (ptop_ref < 1.e-3_kind_phys) then
           !
           ! WACCM7 (ptop=2.04E-4Pa) or higher top
