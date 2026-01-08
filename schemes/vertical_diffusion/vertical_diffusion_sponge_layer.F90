@@ -82,7 +82,7 @@ contains
        end if
     end if
     if (amIRoot) then
-       write(iulog, *) 'Sponge layer vertical diffusion factor:', diff_sponge_fac
+       write(iulog, *) 'Sponge layer vertical diffusion factor: ', diff_sponge_fac
        write(iulog, *) '(ptop_ref = ', ptop_ref, ' Pa)'
       if (allocated(kvm_sponge)) then
          write(iulog, *) 'Artificial sponge layer vertical diffusion added:'
