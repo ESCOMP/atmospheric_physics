@@ -95,7 +95,7 @@
 
      Else:
 
-          kvm_sponge(1) = 2.e4*diff_sponge_fac
+             kvm_sponge(1) = 2.e4*diff_sponge_fac
              kvm_sponge(2) = 2.e4*diff_sponge_fac
              kvm_sponge(3) = 0.4e*diff_sponge_fac
              kvm_sponge(4) = 0.1e4*diff_sponge_fac
