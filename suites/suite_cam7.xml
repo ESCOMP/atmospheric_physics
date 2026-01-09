@@ -78,8 +78,9 @@
     <!-- Calculate surface variables -->
     <!-- This must be done at the end
          of the "before_coupler" group. -->
-    <scheme>calc_dry_air_ideal_gas_density</scheme>
-    <scheme>set_surface_coupling_vars</scheme>
+    <!-- UNCOMMENT ONCE ALL OTHER CAM7 SCHEMES ARE PRESENT -->
+    <!-- <scheme>calc_dry_air_ideal_gas_density</scheme>
+    <scheme>set_surface_coupling_vars</scheme> -->
 
   </group>
 
