@@ -119,24 +119,11 @@ subroutine set_surface_coupling_vars_run(ncol, pver, ncnst, gravit, rair, phis, 
    ! Compute total convective and stratiform precipitation and snow rates
    !
    do i=1,ncol
-      !cam_out%precc (i) = 0._r8
-      !cam_out%precl (i) = 0._r8
-      !cam_out%precsc(i) = 0._r8
-      !cam_out%precsl(i) = 0._r8
-
       conv_prec(i)  = prec_dp(i) + prec_sh(i)
       conv_snow(i)  = snow_dp(i) + snow_sh(i)
 
       strat_prec(i) = prec_str(i)  !Might be better to have microphysics set these directly
       strat_snow(i) = snow_str(i)
-
-      ! jrm These checks should not be necessary if they exist in the parameterizations
-      !if (cam_out%precc(i) .lt.0._r8) cam_out%precc(i)=0._r8
-      !if (cam_out%precl(i) .lt.0._r8) cam_out%precl(i)=0._r8
-      !if (cam_out%precsc(i).lt.0._r8) cam_out%precsc(i)=0._r8
-      !if (cam_out%precsl(i).lt.0._r8) cam_out%precsl(i)=0._r8
-      !if (cam_out%precsc(i).gt.cam_out%precc(i)) cam_out%precsc(i)=cam_out%precc(i)
-      !if (cam_out%precsl(i).gt.cam_out%precl(i)) cam_out%precsl(i)=cam_out%precl(i)
    end do
 
 end subroutine set_surface_coupling_vars_run
