@@ -133,6 +133,7 @@
       <value>0.900D0</value>
       <value phys_suite="cam5">0.8975D0</value>
       <value phys_suite="cam7">0.8975D0</value>
+      <value dyn="se" phys_suite="cam4">0.910D0</value>
     </values>
   </entry>
   <entry id="cldfrc_rhminl_adj_land">

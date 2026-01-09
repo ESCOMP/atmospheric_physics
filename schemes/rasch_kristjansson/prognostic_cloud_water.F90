@@ -513,9 +513,13 @@ contains
       ! The cloud microphysics is highly nonlinear and coupled with qme
       ! Both rain processes and qme are calculated iteratively.
       qme_iter_loop: do l = 1, iter
+
+        ! Adjust relative humidity above the tropopause in higher
+        ! latitude regions:
+        call relhum_min_adj(ncol, pver, tropLev, dlat, rhu00, rhu_adj)
+
         qme_update_loop: do i = 1, ncol
           ! calculation of qme has 4 scenarios
-          call relhum_min_adj(ncol, pver, tropLev, dlat, rhu00, rhu_adj)
 
           if(relhum(i) > rhu_adj(i,k)) then
             ! 1. whole grid saturation
