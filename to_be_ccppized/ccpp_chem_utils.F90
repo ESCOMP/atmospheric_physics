@@ -10,7 +10,7 @@ contains
 
   ! Returns the minimum mixing ratio for a given constituent
   ! Used to set appropriate minimum value for various chemical species at register phase.
-  pure function chem_constituent_qmin(constituent_name) result(qmin)
+  function chem_constituent_qmin(constituent_name) result(qmin)
     use ccpp_kinds,   only: kind_phys
 
     use string_utils, only: to_lower
@@ -19,10 +19,9 @@ contains
     real(kind_phys)              :: qmin              ! Minimum mixing ratio
 
     character(len=len(constituent_name)) :: name_lower
-    integer :: i
 
     ! Convert to lowercase for case-insensitive comparison
-    name_lower = to_lower(constituent_name)
+    name_lower = to_lower(constituent_name) ! impure
 
     ! Default minimum mixing ratio for chemistry species.
     qmin = 1.e-36_kind_phys

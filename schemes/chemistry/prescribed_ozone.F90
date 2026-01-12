@@ -76,7 +76,7 @@ contains
       return
     end if
 
-    call ozone_constituents(i)%instantiate( &
+    call ozone_constituents(1)%instantiate( &
          std_name          = trim(ozone_name), &
          long_name         = 'prescribed ozone (O3)', &
          units             = 'kg kg-1', &

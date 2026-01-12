@@ -93,8 +93,9 @@
 
   <!-- TODO this was used in build-namelist for setting aerodep_flx_specifier
        and prescribed_aero_specifier.
-       But namelist options cannot depend on other namelist options in SIMA, I think?
-       How this can be well used needs to be studied -->
+
+       Modifications on the host model side are necessary to set specifier values
+       based on the value in this namelist option. For now they are set manually. -->
   <entry id="prescribed_aero_model">
     <type>char*5</type>
     <category>chemistry</category>

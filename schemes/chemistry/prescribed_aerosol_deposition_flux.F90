@@ -168,8 +168,8 @@ contains
 
         ! if all else fails
         errflg = 1
-        errmsg = 'prescribed_aerosol_deposition_flux_init: aerosol flux name not recognized: ' &
-                 //trim(tracer_data_fields(i)%fldnam)
+        errmsg = 'prescribed_aerosol_deposition_flux_init: aerosol flux name not recognized: "' &
+                 //trim(tracer_data_fields(i)%fldnam)//'"'
         return
       end if
     end do
