@@ -52,6 +52,22 @@
   dimensions = ()
   type = integer
   intent = in
+[pint]
+  standard_name = air_pressure_at_interface
+  long_name = air pressure at interface
+  units = Pa
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  type = real
+  kind = kind_phys
+  intent = out
+[pumas_pint]
+  standard_name = pumas_air_pressure_at_interface
+  long_name = pumas air pressure at interface
+  units = Pa
+  dimensions = (microphysics_horizontal_loop_extent, microphysics_vertical_interface_dimension)
+  type = real
+  kind = pumas_r8
+  intent = in
 [qcsinksum_rate1ord]
   standard_name = direct_conversion_rate_of_stratiform_cloud_water_to_precipitation_for_scavenging
   long_name = direct conversion rate of stratiform cloud water to precipitation

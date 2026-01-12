@@ -1,8 +1,9 @@
 module micro_pumas_ccpp_dimensions_pre
 
-  implicit none
-
   use pumas_kinds,       only: pumas_r8=>kind_r8
+  use ccpp_kinds,        only: kind_phys
+
+  implicit none
 
 contains
 
@@ -75,9 +76,6 @@ contains
                              frzcnt_in, pumas_frzcnt,                               &
                              frzdep_in, pumas_frzdep,                               &
                              errmsg, errcode)
-
-    !External dependencies:
-    use ccpp_kinds,        only: kind_phys
 
     !Host model dimensions/parameters:
     integer,         intent(in) :: ncol
@@ -165,10 +163,10 @@ contains
     real(pumas_r8), intent(out) :: pumas_npccn(:, :)
     ! Dust radii by size bin  (m)
     real(kind_phys), intent(in)  :: rndst_in(:, :, :)
-    real(pumas_r8), intent(out) :: pumas_rndst(:, micro_nlev, :)
+    real(pumas_r8), intent(out) :: pumas_rndst(:, :, :)
     ! Dust number concentration by size bin (m-3)
     real(kind_phys), intent(in)  :: nacon_in(:, :, :)
-    real(pumas_r8), intent(out) :: pumas_nacon(:, micro_nlev, :)
+    real(pumas_r8), intent(out) :: pumas_nacon(:, :, :)
     ! Tendency of snow mixing ratio wrt moist air and condensed water from external microphysics (kg kg-1 s-1)
     real(kind_phys), intent(in)  :: snowice_tend_external_in(:, :)
     real(pumas_r8), intent(out) :: pumas_snowice_tend_external(:, :)
@@ -201,36 +199,36 @@ contains
 ! For now we just use ncols = micro_ncol, but we need to constrain the vertical extent for the microphysical fields.
 ! Therefore micro_xxx(:ncol,:) = xxx(:,::)
 !- IH
-    pumas_airT(:ncol,:) = real(airT_in(:,::), pumas_r8)
-    pumas_airq(:ncol,:) = real(airq_in(:,::), pumas_r8)
-    pumas_cldliq(:ncol,:) = real(cldliq_in(:,::), pumas_r8)
-    pumas_cldice(:ncol,:) = real(cldice_in(:,::), pumas_r8)
-    pumas_numliq(:ncol,:) = real(numliq_in(:,::), pumas_r8)
-    pumas_numice(:ncol,:) = real(numice_in(:,::), pumas_r8)
-    pumas_rainliq(:ncol,:) = real(rainliq_in(:,::), pumas_r8)
-    pumas_snowice(:ncol,:) = real(snowice_in(:,::), pumas_r8)
-    pumas_numrain(:ncol,:) = real(numrain_in(:,::), pumas_r8)
-    pumas_numsnow(:ncol,:) = real(numsnow_in(:,::), pumas_r8)
-    pumas_graupice(:ncol,:) = real(graupice_in(:,::), pumas_r8)
-    pumas_numgraup(:ncol,:) = real(numgraup_in(:,::), pumas_r8)
-    pumas_relvar(:ncol,:) = real(relvar_in(:,::), pumas_r8)
-    pumas_accre_enhan(:ncol,:) = real(accre_enhan_in(:,::), pumas_r8)
-    pumas_pmid(:ncol,:) = real(pmid_in(:,::), pumas_r8)
-    pumas_pdel(:ncol,:) = real(pdel_in(:,::), pumas_r8)
+    pumas_airT(:ncol,:) = real(airT_in(:,:), pumas_r8)
+    pumas_airq(:ncol,:) = real(airq_in(:,:), pumas_r8)
+    pumas_cldliq(:ncol,:) = real(cldliq_in(:,:), pumas_r8)
+    pumas_cldice(:ncol,:) = real(cldice_in(:,:), pumas_r8)
+    pumas_numliq(:ncol,:) = real(numliq_in(:,:), pumas_r8)
+    pumas_numice(:ncol,:) = real(numice_in(:,:), pumas_r8)
+    pumas_rainliq(:ncol,:) = real(rainliq_in(:,:), pumas_r8)
+    pumas_snowice(:ncol,:) = real(snowice_in(:,:), pumas_r8)
+    pumas_numrain(:ncol,:) = real(numrain_in(:,:), pumas_r8)
+    pumas_numsnow(:ncol,:) = real(numsnow_in(:,:), pumas_r8)
+    pumas_graupice(:ncol,:) = real(graupice_in(:,:), pumas_r8)
+    pumas_numgraup(:ncol,:) = real(numgraup_in(:,:), pumas_r8)
+    pumas_relvar(:ncol,:) = real(relvar_in(:,:), pumas_r8)
+    pumas_accre_enhan(:ncol,:) = real(accre_enhan_in(:,:), pumas_r8)
+    pumas_pmid(:ncol,:) = real(pmid_in(:,:), pumas_r8)
+    pumas_pdel(:ncol,:) = real(pdel_in(:,:), pumas_r8)
     pumas_pint(:ncol,:) = real(pint_in(:,:micro_nlevp1), pumas_r8)
-    pumas_strat_cldfrc(:ncol,:) = real(strat_cldfrc_in(:,::), pumas_r8)
-    pumas_strat_liq_cldfrc(:ncol,:) = real(strat_liq_cldfrc_in(:,::), pumas_r8)
-    pumas_strat_ice_cldfrc(:ncol,:) = real(strat_ice_cldfrc_in(:,::), pumas_r8)
-    pumas_qsatfac(:ncol,:) = real(qsatfac_in(:,::), pumas_r8)
-    pumas_naai(:ncol,:) = real(naai_in(:,::), pumas_r8)
-    pumas_npccn(:ncol,:) = real(npccn_in(:,::), pumas_r8)
+    pumas_strat_cldfrc(:ncol,:) = real(strat_cldfrc_in(:,:), pumas_r8)
+    pumas_strat_liq_cldfrc(:ncol,:) = real(strat_liq_cldfrc_in(:,:), pumas_r8)
+    pumas_strat_ice_cldfrc(:ncol,:) = real(strat_ice_cldfrc_in(:,:), pumas_r8)
+    pumas_qsatfac(:ncol,:) = real(qsatfac_in(:,:), pumas_r8)
+    pumas_naai(:ncol,:) = real(naai_in(:,:), pumas_r8)
+    pumas_npccn(:ncol,:) = real(npccn_in(:,:), pumas_r8)
     pumas_rndst(:ncol,:,:) = real(rndst_in(:,:micro_nlev,:), pumas_r8)
     pumas_nacon(:ncol,:,:) = real(nacon_in(:,:micro_nlev,:), pumas_r8)
-    pumas_snowice_tend_external(:ncol,:) = real(snowice_tend_external_in(:,::), pumas_r8)
-    pumas_numsnow_tend_external(:ncol,:) = real(numsnow_tend_external_in(:,::), pumas_r8)
-    pumas_effi_external(:ncol,:) = real(effi_external_in(:,::), pumas_r8)
-    pumas_frzcnt(:ncol,:) = real(frzcnt_in(:,::), pumas_r8)
-    pumas_frzdep(:ncol,:) = real(frzdep_in(:,::), pumas_r8)
+    pumas_snowice_tend_external(:ncol,:) = real(snowice_tend_external_in(:,:), pumas_r8)
+    pumas_numsnow_tend_external(:ncol,:) = real(numsnow_tend_external_in(:,:), pumas_r8)
+    pumas_effi_external(:ncol,:) = real(effi_external_in(:,:), pumas_r8)
+    pumas_frzcnt(:ncol,:) = real(frzcnt_in(:,:), pumas_r8)
+    pumas_frzdep(:ncol,:) = real(frzdep_in(:,:), pumas_r8)
 
 
   end subroutine micro_pumas_ccpp_dimensions_pre_run

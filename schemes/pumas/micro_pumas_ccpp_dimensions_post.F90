@@ -1,5 +1,8 @@
 module micro_pumas_ccpp_dimensions_post
-   use ccpp_kinds, only: kind_phys
+
+  use pumas_kinds,       only: pumas_r8=>kind_r8
+  use ccpp_kinds,        only: kind_phys
+
 ! This will be replaced by subcolumn averaging when subcolumns are enabled
 
    public :: micro_pumas_ccpp_dimensions_post_run
@@ -8,7 +11,7 @@ contains
   !> \section arg_table_micro_pumas_ccpp_dimensions_post_run Argument Table
   !! \htmlinclude micro_pumas_ccpp_dimensions_post_run.html
   subroutine micro_pumas_ccpp_dimensions_post_run(ncol, micro_ncol, nlev, micro_nlev,                   &
-                   nlevp1, micro_nlevp1, qcsinksum_rate1ord, pumas_qcsinksum_rate1ord, airT_tend,       &
+                   nlevp1, micro_nlevp1, pint, pumas_pint, qcsinksum_rate1ord, pumas_qcsinksum_rate1ord, airT_tend,       &
                    pumas_airT_tend, airq_tend, pumas_airq_tend,                                         &
                    cldliq_tend, pumas_cldliq_tend, cldice_tend, pumas_cldice_tend, numliq_tend,         &
                    pumas_numliq_tend, numice_tend, pumas_numice_tend, rainliq_tend, pumas_rainliq_tend, &
@@ -49,6 +52,7 @@ contains
     ! microphysics vertical interface dimension
     integer, intent(in) :: micro_nlevp1
 
+    real(pumas_r8), intent(in) :: pumas_pint(:,:)
     !microphysics direct conversion rate of stratiform cloud water to precipitation (s-1)
     real(pumas_r8), intent(in) :: pumas_qcsinksum_rate1ord(:, :)
     !microphysics tendency of dry air enthalpy at constant pressure (J kg-1 s-1)
@@ -190,6 +194,7 @@ contains
     !microphysics rain evaporation rate wrt moist air and condensed water (kg kg-1 s-1)
     real(pumas_r8), intent(in) :: pumas_rain_evap(:, :)
 
+    real(kind_phys), intent(out ) :: pint(:,:)
     !direct conversion rate of stratiform cloud water to precipitation (s-1)
     real(kind_phys), intent(out) :: qcsinksum_rate1ord(:, :)
     !tendency of dry air enthalpy at constant pressure (J kg-1 s-1)
@@ -338,11 +343,6 @@ contains
     errcode = 0
     errmsg = ''
 
-    ilflx(:,:micro_nlevp1)              = pumas_lflx(:ncol,:)
-    iflx(:,:micro_nlevp1)               = pumas_iflx(:ncol,:)
-    gflx(:,:micro_nlevp1)               = pumas_gflx(:ncol,:)
-    rflx(:,:micro_nlevp1)               = pumas_rflx(:ncol,:)
-    sflx(:,:micro_nlevp1)               = pumas_sflx(:ncol,:)
     pint(:,:micro_nlevp1)               = pumas_pint(:ncol,:)
     qcsinksum_rate1ord(:,:micro_nlev)   = pumas_qcsinksum_rate1ord(:ncol,:)
     airT_tend(:,:micro_nlev)            = pumas_airT_tend(:ncol,:)
@@ -360,7 +360,7 @@ contains
     graupice_tend(:,:micro_nlev)        = pumas_graupice_tend(:ncol,:)
     numgraup_tend(:,:micro_nlev)        = pumas_numgraup_tend(:ncol,:)
     effc(:,:micro_nlev)                 = pumas_effc(:ncol,:)
-    effc_fn(:,:micro_nlev)              = pumas_effc_f(:ncol,:)
+    effc_fn(:,:micro_nlev)              = pumas_effc_fn(:ncol,:)
     effi(:,:micro_nlev)                 = pumas_effi(:ncol,:)
     sadice(:,:micro_nlev)               = pumas_sadice(:ncol,:)
     sadsnow(:,:micro_nlev)              = pumas_sadsnow(:ncol,:)
@@ -381,7 +381,7 @@ contains
     lflx(:,:micro_nlev)                 = pumas_lflx(:ncol,:)
     iflx(:,:micro_nlev)                 = pumas_iflx(:ncol,:)
     gflx(:,:micro_nlev)                 = pumas_gflx(:ncol,:)
-    rlfx(:,:micro_nlev)                 = pumas_rflx(:ncol,:)
+    rflx(:,:micro_nlev)                 = pumas_rflx(:ncol,:)
     sflx(:,:micro_nlev)                 = pumas_sflx(:ncol,:)
     rainliq_in_prec(:,:micro_nlev)      = pumas_rainliq_in_prec(:ncol,:)
     reff_rain(:,:micro_nlev)            = pumas_reff_rain(:ncol,:)
@@ -417,10 +417,6 @@ contains
     frac_cldliq_tend(:,:micro_nlev)     = pumas_frac_cldliq_tend(:ncol,:)
     rain_evap(:,:micro_nlev)            = pumas_rain_evap(:ncol,:)
 
-
-    airT(ncol, nlev)
-    pumas_airT(micro_ncol, micro_nlev)
-
-    pumas_airT(:ncol,:) = airT(:,:micro_nlev)
-
   end subroutine micro_pumas_ccpp_dimensions_post_run
+
+end module micro_pumas_ccpp_dimensions_post

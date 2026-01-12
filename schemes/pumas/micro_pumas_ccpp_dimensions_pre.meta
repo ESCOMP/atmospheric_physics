@@ -583,8 +583,7 @@
   long_name = tendency of mass number concentration of snow wrt moist air and condensed water from external microphysics
   units = kg-1 s-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  type = real
-  kind = kind_phys
+  type = real | kind = kind_phys
   intent = in
 [pumas_numsnow_tend_external]
   standard_name = tendency_of_pumas_mass_number_concentration_of_snow_wrt_moist_air_and_condensed_water_from_external

@@ -9,6 +9,8 @@
 
 module pumas_pre_main
 
+   use ccpp_kinds,        only: kind_phys
+
    implicit none
 
    contains
@@ -17,6 +19,7 @@ module pumas_pre_main
    !for any pre-processing
    !steps needed before the core
    !PUMAS calls.
+
 
   !> \section arg_table_pumas_pre_main_init Argument Table
   !! \htmlinclude pumas_pre_main_init.html
