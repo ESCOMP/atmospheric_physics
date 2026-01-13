@@ -62,7 +62,7 @@ contains
       has_prescribed_ozone = .true.
 
       if(amIRoot) then
-        write(iulog,*) 'prescribed_ozone_init: ozone is prescribed in: ' // trim(filename)
+        write(iulog,*) 'prescribed_ozone_register: ozone is prescribed in: ' // trim(filename)
       end if
     else
       return
