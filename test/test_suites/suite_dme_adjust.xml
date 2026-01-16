@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<suite name="dme_adjust" version="1.0">
+   <group name="physics_after_coupler">
+       <scheme>initialize_constituents</scheme>
+       <scheme>dme_adjust</scheme>
+       <scheme>sima_state_diagnostics</scheme>
+   </group>
+</suite>
+

@@ -1,0 +1,18 @@
+[submodule "mmm-physics"]
+	path = schemes/mmm/mmm_physics
+	url = https://github.com/NCAR/MMM-physics.git
+	fxtag = 20250616-MPASv8.3
+	fxrequired = AlwaysRequired
+	fxDONOTUSEurl = https://github.com/NCAR/MMM-physics.git
+[submodule "pumas"]
+	path = schemes/pumas/pumas
+	url = https://github.com/ESCOMP/PUMAS
+        fxrequired = AlwaysRequired
+        fxtag = pumas_cam-release_v1.39
+        fxDONOTUSEurl = https://github.com/ESCOMP/PUMAS
+[submodule "rte-rrtmgp"]
+	path = schemes/rrtmgp/ext
+	url = https://github.com/earth-system-radiation/rte-rrtmgp.git
+        fxrequired = AlwaysRequired
+        fxtag = v1.9.2
+        fxDONOTUSEurl = https://github.com/earth-system-radiation/rte-rrtmgp.git

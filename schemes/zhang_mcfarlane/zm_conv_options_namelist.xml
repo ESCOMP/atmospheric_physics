@@ -1,0 +1,210 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet type="text/xsl" href="namelist_definition.xsl"?>
+
+<entry_id_pg version="2.0">
+
+<entry id="zmconv_c0_lnd">
+  <category>conv</category>
+  <group>zmconv_nl</group>
+  <standard_name>cloud_condensate_to_precipitation_autoconversion_coefficient_over_land_for_zhang_mcfarlane_deep_convection_scheme</standard_name>
+  <units>m-1</units>
+  <type>real</type>
+  <kind>kind_phys</kind>
+  <desc> Autoconversion coefficient over land in ZM deep convection scheme. </desc>
+  <values>
+     <value>0.0075D0</value>
+  </values>
+</entry>
+
+<entry id="zmconv_c0_ocn">
+  <category>conv</category>
+  <group>zmconv_nl</group>
+  <standard_name>cloud_condensate_to_precipitation_autoconversion_coefficient_over_ocean_for_zhang_mcfarlane_deep_convection_scheme</standard_name>
+  <units>m-1</units>
+  <type>real</type>
+  <kind>kind_phys</kind>
+  <desc>Autoconversion coefficient over ocean in ZM deep convection scheme.</desc>
+  <values>
+     <value>0.0300D0</value>
+  </values>
+</entry>
+
+<entry id="zmconv_num_cin">
+  <category>conv</category>
+  <group>zmconv_nl</group>
+  <standard_name>number_of_negative_buoyancy_layers_allowed_before_convection_top_for_zhang_mcfarlane_deep_convection_scheme</standard_name>
+  <units>count</units>
+  <type>integer</type>
+  <desc>The number of negative buoyancy regions that are allowed before the convection top and CAPE calculations are completed.</desc>
+  <values>
+     <value>5</value>
+     <value phys_suite="cam7">1</value>
+  </values>
+</entry>
+
+<entry id="zmconv_ke">
+  <category>conv</category>
+  <group>zmconv_nl</group>
+  <standard_name>tunable_evaporation_efficiency_over_ocean_for_zhang_mcfarlane_deep_convection_scheme</standard_name>
+  <units>1</units>
+  <type>real</type>
+  <kind>kind_phys</kind>
+  <desc>Tunable evaporation efficiency in ZM deep convection scheme.</desc>
+  <values>
+     <value>5.0E-6</value>
+  </values>
+</entry>
+
+<entry id="zmconv_ke_lnd">
+  <category>conv</category>
+  <group>zmconv_nl</group>
+  <standard_name>tunable_evaporation_efficiency_over_land_for_zhang_mcfarlane_deep_convection_scheme</standard_name>
+  <units>1</units>
+  <type>real</type>
+  <kind>kind_phys</kind>
+  <desc>Tunable evaporation efficiency for land in ZM deep convection scheme.</desc>
+  <values>
+     <value>1.0E-5</value>
+  </values>
+</entry>
+
+<entry id="no_deep_pbl">
+  <category>conv</category>
+  <group>zmconv_nl</group>
+  <standard_name>flag_for_no_deep_convection_in_pbl</standard_name>
+  <units>flag</units>
+  <type>logical</type>
+  <desc>Include organization parameterization in ZM.   This value is set to true automatically
+    if -zmconv_org is set in configure.
+    Default: .false., unless -zmconv_org set in configure
+  </desc>
+  <values>
+     <value>.false.</value>
+  </values>
+</entry>
+
+<entry id="zmconv_momcu">
+  <category>conv</category>
+  <group>zmconv_nl</group>
+  <standard_name>momentum_transport_parameter_for_vertical_pressure_gradient_force_for_updraft_for_zhang_mcfarlane_deep_convection_scheme</standard_name>
+  <units>1</units>
+  <type>real</type>
+  <kind>kind_phys</kind>
+  <desc>
+     Convective momentum transport parameter (upward)
+  </desc>
+  <values>
+     <value                              >0.4000D0</value>
+     <value clubb_sgs="1" microphys="mg3">0.7000D0</value>
+  </values>
+</entry>
+
+
+<entry id="zmconv_momcd">
+  <category>conv</category>
+  <group>zmconv_nl</group>
+  <standard_name>momentum_transport_parameter_for_vertical_pressure_gradient_force_for_downdraft_for_zhang_mcfarlane_deep_convection_scheme</standard_name>
+  <units>1</units>
+  <type>real</type>
+  <kind>kind_phys</kind>
+  <desc>
+     Convective momentum transport parameter (downward)
+  </desc>
+  <values>
+     <value                              >0.4000D0</value>
+     <value clubb_sgs="1" microphys="mg3">0.7000D0</value>
+  </values>
+</entry>
+
+<entry id="zmconv_dmpdz">
+  <category>conv</category>
+  <group>zmconv_nl</group>
+  <standard_name>entrainment_rate_for_cape_for_zhang_mcfarlane_deep_convection_scheme</standard_name>
+  <units>m-1</units>
+  <type>real</type>
+  <kind>kind_phys</kind>
+  <desc>
+     Tunable entrainment rate in ZM deep convection scheme in units of (m-1).
+  </desc>
+  <values>
+     <value>-1.0E-3</value>
+  </values>
+</entry>
+
+<entry id="zmconv_tiedke_add">
+  <category>conv</category>
+  <group>zmconv_nl</group>
+  <standard_name>parcel_temperature_perturbation_for_zhang_mcfarlane_deep_convection_scheme</standard_name>
+  <units>K</units>
+  <type>real</type>
+  <kind>kind_phys</kind>
+  <desc>
+     Tunable parcel temperature perturbation in ZM deep convection scheme in units of (K).
+  </desc>
+  <values>
+     <value>0.5</value>
+  </values>
+</entry>
+
+<entry id="zmconv_capelmt">
+  <category>conv</category>
+  <group>zmconv_nl</group>
+  <standard_name>cape_threshold_for_zhang_mcfarlane_deep_convection_scheme</standard_name>
+  <units>J kg-1</units>
+  <type>real</type>
+  <kind>kind_phys</kind>
+  <desc>
+     Tunable triggering threshold for convection in ZM deep scheme in units of (J kg-1).
+  </desc>
+  <values>
+     <value>70.0</value>
+  </values>
+</entry>
+
+<entry id="zmconv_parcel_pbl">
+  <category>conv</category>
+  <group>zmconv_nl</group>
+  <standard_name>flag_for_well_mixed_pbl_parcel_property_for_zhang_mcfarlane_deep_convection_scheme</standard_name>
+  <units>flag</units>
+  <type>logical</type>
+  <desc>
+     Turn on ZM deep convection initial parcel properties as a function of a well mixed boundary layer
+  </desc>
+  <values>
+     <value>.false.</value>
+  </values>
+</entry>
+
+<entry id="zmconv_parcel_hscale">
+  <category>conv</category>
+  <group>zmconv_nl</group>
+  <standard_name>fraction_of_pbl_depth_mixed_for_initial_zhang_mcfarlane_parcel_properties</standard_name>
+  <units>fraction</units>
+  <type>real</type>
+  <kind>kind_phys</kind>
+  <desc>
+     The fraction of the boundary layer (PBL) depth,
+     over which to mix the initial ZM convective parcel properties (fraction).
+  </desc>
+  <values>
+     <value>0.5</value>
+  </values>
+</entry>
+
+<entry id="zmconv_tau">
+  <category>conv</category>
+  <group>zmconv_nl</group>
+  <standard_name>deep_convective_adjustment_timescale_for_zhang_mcfarlane_deep_convection_scheme</standard_name>
+  <units>s</units>
+  <type>real</type>
+  <kind>kind_phys</kind>
+  <desc>
+     Convective adjustment timescale in units of (s)
+  </desc>
+  <values>
+     <value>3600.0</value>
+  </values>
+</entry>
+
+</entry_id_pg>

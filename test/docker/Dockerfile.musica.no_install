@@ -1,0 +1,85 @@
+# This Dockerfile is designed for testing MUSICA CCPP functionality.
+# It includes:
+# - Unit tests for MUSICA utility functions
+# - Integration tests for MUSICA CCPP APIs
+#
+# No MUSICA library installation is required, as the CMake FetchContent module
+# retrieves the MUSICA library automatically.
+
+FROM ubuntu:22.04
+
+ARG MUSICA_GIT_TAG=25fff7ae42d146bf3f83ad5ac18b3caac8701ddd
+ARG CAM_SIMA_CHEMISTRY_DATA_TAG=1ea9d1b8b04980738894d30a864f9a000daf2e5c
+ARG USE_INSTALLED_MUSICA_LIB=OFF
+ARG BUILD_TYPE=Release
+
+RUN apt update \
+    && apt install -y sudo \
+    && useradd -m test_user \
+    && echo "test_user ALL=(root) NOPASSWD: ALL" >> /etc/sudoers.d/test_user \
+    && chmod 0440 /etc/sudoers.d/test_user
+
+USER test_user
+WORKDIR /home/test_user
+
+RUN sudo apt update \
+    && sudo apt -y install \
+    cmake \
+    cmake-curses-gui \
+    curl \
+    g++ \
+    gcc \
+    gfortran \
+    git \
+    libblas-dev \
+    liblapack-dev \
+    lcov \
+    libcurl4-openssl-dev \
+    libhdf5-dev \
+    libnetcdff-dev \
+    libopenmpi-dev \
+    m4 \
+    make \
+    openmpi-bin \
+    python3 \
+    tree \
+    valgrind \
+    vim \
+    zlib1g-dev \
+    && sudo apt clean
+
+ENV FC=mpif90
+ENV FFLAGS="-I/usr/include/"
+
+COPY . atmospheric_physics
+RUN sudo chown -R test_user:test_user atmospheric_physics
+
+# Clone the MUSICA chemistry data set repository
+RUN git clone https://github.com/NCAR/cam-sima-chemistry-data.git \
+    && cd cam-sima-chemistry-data \
+    && git checkout ${CAM_SIMA_CHEMISTRY_DATA_TAG}
+
+# Make ccpp-framework available before building test
+RUN cd atmospheric_physics/test \
+    && mkdir lib \
+    && cd lib \
+    && git clone -b develop --depth 1 https://github.com/NCAR/ccpp-framework.git
+ENV CCPP_SRC_PATH="lib/ccpp-framework/src"
+ENV CCPP_FORTRAN_TOOLS_PATH="lib/ccpp-framework/scripts/fortran_tools"
+
+# Make the ESMStandardNames available
+RUN cd atmospheric_physics/test/lib \
+    && git clone --depth 1 https://github.com/ESCOMP/ESMStandardNames.git
+ENV CCPP_STD_NAMES_PATH="lib/ESMStandardNames"
+
+RUN cd atmospheric_physics/test \
+    && cmake -S . -B build \
+             -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+             -D CCPP_ENABLE_MUSICA_TESTS=ON \
+             -D CCPP_ENABLE_MEMCHECK=ON \
+    && cmake --build ./build
+
+# Move the MUSICA configuration to the build root to make the data available for testing
+RUN mv /home/test_user/cam-sima-chemistry-data/mechanisms /home/test_user/atmospheric_physics/test/build/musica_configurations
+
+WORKDIR /home/test_user/atmospheric_physics/test/build

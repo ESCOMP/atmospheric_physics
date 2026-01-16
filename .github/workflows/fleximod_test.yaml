@@ -1,0 +1,90 @@
+# Github Action to ensure that
+# the "fxtag" and "url" values
+# in the ".gitmodules" file
+# match the hashes or tags that
+# are committed for the git submodules
+# in this repository.
+
+# If this test is failing, verify that
+# the commit hash or tag in the failing
+# submodule folder is an exact match of
+# the values specified for the corresponding
+# submodule in the ".gitmodules" file.
+# Both the submodule itself (referenced by Git),
+# and the fxtag and url entires in the
+# ".gitmodules" file, must be updated if
+# a submodule is updated in this repository.
+
+# Finally, please note that 'git-fleximod'
+# is not actually needed for this
+# repo, it is simply being used
+# here to run the test described
+# above.
+
+on: pull_request
+
+jobs:
+  fleximod-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout atmospheric_physics
+        uses: actions/checkout@v4
+
+      - name: checkout latest python version
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+
+        #Note:  We are using the head of main for git-fleximod
+        # below for two reasons:
+        # 1.  We will automatically get any git-fleximod bug fixes or updates
+        # 2.  We will automatically test with those updates, which could
+        #     allow us to catch any issues before updating the host models.
+      - name: checkout git-fleximod
+        uses: actions/checkout@v4
+        with:
+          repository: ESMCI/git-fleximod
+          fetch-depth: 1
+          ref: main
+          path: .lib/git-fleximod  #Must use relative path here.
+
+      - name: create git-fleximod script
+        run: |
+          echo
+          echo "Creating git-fleximod python script..."
+
+          #Create new directory:
+          mkdir $GITHUB_WORKSPACE/bin
+
+          #Write python script to expected location:
+          cat <<EOF > $GITHUB_WORKSPACE/bin/git-fleximod
+          #!/usr/bin/env python3
+          import sys
+          import os
+          sys.path.insert(0,os.path.abspath(os.path.join(os.path.dirname(__file__),"..",".lib","git-fleximod")))
+          from git_fleximod.git_fleximod import main
+
+          if __name__ == '__main__':
+              sys.exit(main())
+          EOF
+
+          #Make sure python script is executable:
+          chmod a+x $GITHUB_WORKSPACE/bin/git-fleximod
+
+          echo "...git-fleximod python script generated."
+
+      - name: run git-fleximod
+        run: |
+          $GITHUB_WORKSPACE/bin/git-fleximod update -o
+          echo
+          echo "Update complete, checking status"
+          echo
+          $GITHUB_WORKSPACE/bin/git-fleximod test
+      - name: check cleanliness
+        run: |
+          echo
+          echo "Checking if git fleximod matches expected externals"
+          echo
+          git add .
+          git diff --exit-code -- . ':(exclude).lib' ':(exclude)bin'
+          git diff --cached --exit-code -- . ':(exclude).lib' ':(exclude)bin'

@@ -1,0 +1,417 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<suite name="cam4" version="1.0">
+  <!--
+      CAM4 PHYSICS SUITE
+      Deep convection         ZM
+      Shallow convection      Hack
+      Macrophysics            RK
+      Microphysics            RK
+      Radiation               RRTMGP     (commented out)
+      Chemistry               None       (not implemented)
+      Vertical Diffusion      HB
+      Gravity Wave Drag       Orographic
+  -->
+  <group name="physics_before_coupler">
+    <!-- Helper to read all possible constituents from file -->
+    <scheme>initialize_constituents</scheme>
+    <scheme>to_be_ccppized_temporary</scheme>
+
+    <!-- INITIALIZE ZM NAMELIST (init phase only) -->
+    <scheme>zm_conv_options</scheme>
+
+    <!-- Compute global means of physics input and output total energy -->
+    <scheme>check_energy_gmean</scheme>
+    <!-- After gmean, output global mean energy diagnostics -->
+    <scheme>check_energy_gmean_diagnostics</scheme>
+
+    <!-- Add global mean energy difference as heating (diff between gmean and save_teout) -->
+    <scheme>check_energy_zero_fluxes</scheme>
+    <scheme>check_energy_fix</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>geopotential_temp</scheme>
+
+    <!-- Check that energy and water change matches the boundary fluxes -->
+    <scheme>check_energy_scaling</scheme>
+    <scheme>check_energy_chng</scheme>
+
+    <!-- Dry Adiabatic Adjustment -->
+    <scheme>dadadj</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+
+    <!-- Zhang McFarlane (convect_deep) -->
+    <scheme>check_energy_zero_fluxes</scheme>
+    <scheme>zm_convr</scheme>
+    <scheme>zm_convr_tendency_diagnostics</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+    <scheme>cloud_fraction_fice</scheme>
+    <scheme>set_deep_conv_fluxes_to_general</scheme>
+    <scheme>zm_conv_evap</scheme>
+    <scheme>set_general_conv_fluxes_to_deep</scheme>
+    <scheme>zm_evap_tendency_diagnostics</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+    <scheme>cloud_fraction_fice</scheme>
+    <scheme>zm_conv_momtran</scheme>
+    <scheme>zm_momtran_tendency_diagnostics</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>apply_tendency_of_eastward_wind</scheme>
+    <scheme>apply_tendency_of_northward_wind</scheme>
+    <scheme>geopotential_temp</scheme>
+    <scheme>zm_conv_convtran</scheme>
+    <scheme>zm_tendency_diagnostics</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+    <scheme>zm_diagnostics</scheme>
+
+    <!-- Check that energy and water change matches the boundary fluxes -->
+    <scheme>check_energy_scaling</scheme>
+    <scheme>check_energy_chng</scheme>
+
+    <!--
+      Hack shallow convection.
+      There are several nuances to the convect_shallow calling routine.
+      convect_shallow takes in total (from deep) convective cmfmc, qc, rliq and adds shallow convective tendencies
+      from Hack to them, also computing freqsh.
+      rliq is "reserved" liquid to be later added in macrophysics.
+
+      Tendencies are applied, then zm_conv_evap is ran to evaporate some of the precip directly into the environment to apply another set of tendencies.
+
+      This zm_conv_evap call takes as input some of the shallow convective quantities and adds to them, including
+      - precc -> prec (lwe_precipitation_rate_at_surface_due_to_..._convection)
+
+      Thus, an interstitial scheme to simply "convert" the shallow tendencies to the general tendencies in preparation for the zm_conv_evap call is also needed.
+      (hplin, 10/29/24)
+    -->
+
+    <!-- INITIALIZE DIAGNOSTICS (has init phase only) -->
+    <scheme>convect_shallow_diagnostics</scheme>
+
+    <!-- SHALLOW CONVECTION: HACK SCHEME -->
+    <scheme>check_energy_zero_fluxes</scheme>
+    <scheme>hack_convect_shallow</scheme>
+    <scheme>convect_shallow_diagnostics_after_shallow_scheme</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+
+    <!-- SUBCLOUD EVAPORATION -->
+    <scheme>cloud_fraction_fice</scheme>
+    <!-- prepare state for zm_conv_evap (rename shallow outputs to generic inputs) -->
+    <!-- also zero out quantities going in/out -->
+    <scheme>set_shallow_conv_fluxes_to_general</scheme>
+    <scheme>zm_conv_evap</scheme>
+    <scheme>set_general_conv_fluxes_to_shallow</scheme>
+    <scheme>convect_shallow_diagnostics_after_convective_evaporation</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+
+    <!-- DIAGNOSTIC QUANTITY UPDATES -->
+    <!-- sum deep convective quantities with shallow including total convective rainout -->
+    <scheme>convect_shallow_sum_to_deep</scheme>
+    <scheme>convect_shallow_diagnostics_after_sum_to_deep</scheme>
+
+    <!-- Check that energy and water change matches the boundary fluxes -->
+    <scheme>check_energy_scaling</scheme>
+    <scheme>check_energy_chng</scheme>
+
+    <!--
+      Rasch-Kristjansson Stratiform Microphysics/CAM4 Macrophysics
+    -->
+    <!-- Find tropopause -->
+    <scheme>tropopause_find</scheme>
+
+    <!-- Initialize all RK diagnostics. -->
+    <scheme>rk_stratiform_diagnostics</scheme>
+
+    <!-- Initialize QCWAT, TCWAT, LCWAT if not read from snapshot. -->
+    <scheme>rk_stratiform_check_qtlcwat</scheme>
+
+    <!-- RK1: cloud sedimentation (pcwsediment) -->
+    <scheme>cloud_particle_sedimentation</scheme>
+    <scheme>cloud_particle_sedimentation_diagnostics</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+    <scheme>rk_stratiform_sedimentation</scheme>
+
+    <!-- RK2: detrain reserved liquid (dlf = detrainment_of_cloud_liquid_water_wrt_moist_air_and_condensed_water_due_to_all_convection) into cloud liquid (pcwdetrain) -->
+    <scheme>rk_stratiform_detrain_convective_condensate</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+
+    <!-- RK3a: computation of various cloud fractions (CAM4 version)
+         two calls to compute_cloud_fraction here embedded. the first one has to update cloud_area_fraction;
+         the second is used to compute perturbations of RH to cloud fraction deltas later used in prognostic cloud water.
+
+         for clarity, we call cloud_fraction_run explicitly once here,
+         then call the second compute_cloud_fraction in rk_stratiform_cloud_fraction_perturbation_run, to compute the
+         relative humidity derivative used in the prognostic_cloud_water scheme.
+    -->
+    <scheme>convective_cloud_cover</scheme>
+    <scheme>convective_cloud_cover_diagnostics</scheme>
+    <scheme>compute_cloud_fraction</scheme>
+    <scheme>rk_stratiform_cloud_fraction_perturbation</scheme>
+    <scheme>rk_stratiform_cloud_fraction_perturbation_diagnostics</scheme>
+
+    <!-- RK3b: compute external forcings from non-macro/microphysics
+         for use by prognostic_cloud_water -->
+    <scheme>rk_stratiform_external_forcings</scheme>
+
+    <!-- Compute fractional amount of stratus condensate and precipitation in ice phase. -->
+    <scheme>cloud_fraction_fice</scheme>
+
+    <!-- RK3c1: prognostic cloud water (cldwat) part one:
+         compute prognostic cloud water using pre-repartitioning values (for bit-for-bitness).
+         tendencies from prognostic_cloud_water, as well as heating from condensate repartitioning,
+         are computed later in rk_stratiform_prognostic_cloud_water_tendencies. -->
+    <scheme>prognostic_cloud_water</scheme>
+
+    <!-- RK3d1: stratiform condensate repartitioning (cldwat-repartition).
+          repartition heating from change in cloud ice is determined here,
+          but only the constituent tendencies are applied in the repartitioning step. -->
+    <scheme>rk_stratiform_condensate_repartioning</scheme>
+    <scheme>rk_stratiform_condensate_repartioning_diagnostics</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+
+    <!-- RK3c2 + RK3d2: prognostic cloud water (cldwat) part two:
+          repartition heating determined in condensate_repartitioning scheme is applied here,
+          together with other heating fluxes from prognostic_cloud_water. -->
+    <scheme>rk_stratiform_prognostic_cloud_water_tendencies</scheme>
+    <scheme>rk_stratiform_prognostic_cloud_water_tendencies_diagnostics</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+
+    <!-- RK4: cloud fractions (including third call to cldfrc) -->
+    <scheme>compute_cloud_fraction</scheme>
+    <scheme>compute_cloud_fraction_diagnostics</scheme>
+
+    <!-- RK5: cloud water and ice particle sizes for radiation -->
+    <scheme>rk_stratiform_cloud_optical_properties</scheme>
+    <scheme>rk_stratiform_cloud_optical_properties_diagnostics</scheme>
+
+    <!-- RK6: save non-micro and non-macrophysical external advective forcings -->
+    <scheme>rk_stratiform_save_qtlcwat</scheme>
+
+    <!-- State diagnostics -->
+    <scheme>sima_state_diagnostics</scheme>
+
+    <!-- Radiation (RRTMGP) -->
+    <!--<scheme>rrtmgp_pre</scheme>
+    <scheme>rrtmgp_cloud_optics_setup</scheme>
+    <scheme>tropopause_find</scheme>
+    <scheme>rrtmgp_variables</scheme>
+    <scheme>rrtmgp_inputs</scheme>
+    <scheme>rrtmgp_sw_cloud_optics</scheme>
+    <scheme>rrtmgp_sw_mcica_subcol_gen</scheme>
+    <scheme>rrtmgp_cloud_diagnostics</scheme>-->
+    <!-- Shortwave subcycle - last iteration is climate calculation -->
+    <!--<subcycle loop="number_of_diagnostic_subcycles">
+      <scheme>rrtmgp_constituents</scheme>
+      <scheme>rrtmgp_sw_gas_optics_pre</scheme>
+      <scheme>rrtmgp_sw_gas_optics</scheme>
+      <scheme>solar_irradiance_data</scheme>
+      <scheme>rrtmgp_sw_solar_var</scheme>
+      <scheme>rrtmgp_sw_aerosols</scheme>
+      <scheme>rrtmgp_sw_rte</scheme>
+      <scheme>rrtmgp_sw_calculate_fluxes</scheme>
+      <scheme>rrtmgp_sw_calculate_heating_rate</scheme>
+      <scheme>rrtmgp_sw_diagnostics</scheme>
+      <scheme>rrtmgp_subcycle</scheme>
+    </subcycle>
+    <scheme>rrtmgp_lw_cloud_optics</scheme>
+    <scheme>rrtmgp_lw_mcica_subcol_gen</scheme>-->
+    <!-- Longwave subcycle - last iteration is climate calculation-->
+    <!--<subcycle loop="number_of_diagnostic_subcycles">
+      <scheme>rrtmgp_constituents</scheme>
+      <scheme>rrtmgp_lw_gas_optics_pre</scheme>
+      <scheme>rrtmgp_lw_gas_optics</scheme>
+      <scheme>rrtmgp_lw_aerosols</scheme>
+      <scheme>rrtmgp_lw_rte</scheme>
+      <scheme>rrtmgp_lw_calculate_fluxes</scheme>
+      <scheme>rrtmgp_lw_calculate_heating_rate</scheme>
+      <scheme>rrtmgp_lw_diagnostics</scheme>
+      <scheme>rrtmgp_subcycle</scheme>
+    </subcycle>-->
+    <!-- End longwave subcycle -->
+    <!--<scheme>rrtmgp_inputs_setup</scheme>
+    <scheme>rrtmgp_sw_solar_var_setup</scheme>
+    <scheme>rrtmgp_dry_static_energy_tendency</scheme>
+    <scheme>calculate_net_heating</scheme>
+    <scheme>rrtmgp_post</scheme>
+    <scheme>rrtmgp_diagnostics</scheme>-->
+    <!-- State updaters -->
+    <!--<scheme>apply_heating_rate</scheme>
+    <scheme>geopotential_temp</scheme>-->
+    <!-- end Radiation (RRTMGP) -->
+
+    <!-- Find tropopause -->
+    <!-- Tropopause find has to make history output at the end of convective adjustment -->
+    <!-- so supersaturated cells are not written to the tape. -->
+    <scheme>tropopause_find</scheme>
+    <scheme>tropopause_diagnostics</scheme>
+
+  </group>
+
+  <group name="physics_after_coupler">
+
+    <!--
+      Chemistry and aerosols
+    -->
+
+    <!--
+      Vertical diffusion
+    -->
+    <!-- read namelist options -->
+    <scheme>holtslag_boville_diff_options</scheme>
+    <scheme>vertical_diffusion_options</scheme>
+
+    <!-- stub: zero UBC -->
+    <scheme>zero_upper_boundary_condition</scheme>
+
+    <!-- init phase only: for setting vertical diffusion top -->
+    <scheme>hb_diff_set_vertical_diffusion_top</scheme>
+
+    <!-- hb pre-interstitial: tautotx/y -->
+    <scheme>tms_beljaars_zero_stub</scheme> <!-- stub as TMS/Beljaars not implemented -->
+    <scheme>hb_diff_set_total_surface_stress</scheme>
+
+    <!-- vdiff pre-interstitial 0: create p coords1d, copy surface fluxes from coupler (cam_in) incl. wv fluxes for hb kinematic wv flx. -->
+    <scheme>hb_diff_prepare_vertical_diffusion_inputs</scheme>
+
+    <!-- Initialize Holtslag-Boville boundary layer scheme (no run phase) -->
+    <scheme>holtslag_boville_diff</scheme>
+
+    <!-- Holtslag-Boville boundary layer scheme -->
+    <scheme>hb_pbl_independent_coefficients</scheme>
+    <scheme>hb_pbl_dependent_coefficients</scheme>
+    <scheme>hb_diff_exchange_coefficients</scheme>
+
+    <!-- sponge layer vertical diffusion (mutate kvm) -->
+    <scheme>vertical_diffusion_sponge_layer</scheme>
+
+    <!-- HB scheme diagnostics (after KVM changed by sponge layer scheme) -->
+    <scheme>holtslag_boville_diff_diagnostics</scheme>
+
+    <!-- vdiff pre-interstitial 1: interpolate t, rho, p to interfaces -->
+    <!-- not in WACCM-X mode so do not use rairv in vdiff. -->
+    <scheme>vertical_diffusion_not_use_rairv</scheme>
+    <scheme>vertical_diffusion_set_temperature_at_toa_default</scheme>
+    <scheme>vertical_diffusion_interpolate_to_interfaces</scheme>
+
+    <!-- vdiff pre-interstitial 2: calculate drag coefficient -->
+    <scheme>implicit_surface_stress_add_drag_coefficient</scheme>
+    <!--<scheme>turbulent_mountain_stress_add_drag_coefficient</scheme>-->
+
+    <!-- vdiff pre-interstitial 3: calculate damping rate from drag coef. -->
+    <scheme>vertical_diffusion_wind_damping_rate</scheme>
+    <!--<scheme>beljaars_add_wind_damping_rate</scheme>-->
+
+    <!-- vdiff compute 1: horizontal momentum diffusion; dissipate KE -->
+    <!-- note: vdiff compute schemes calculate "provisional" updates,
+         but these updates are not applied as physics tendencies until the end. -->
+    <scheme>vertical_diffusion_diffuse_horizontal_momentum</scheme>
+
+    <!-- set dry static energy top boundary condition to zero.
+         zero is used for: no molecular diffusion, or molecular diffusion + WACCM-X is active.
+         otherwise, use vertical_diffusion_set_dry_static_energy_at_toa_molecdiff -->
+    <scheme>vertical_diffusion_set_dry_static_energy_at_toa_zero</scheme>
+
+    <!-- vdiff compute 2: dry static energy diffusion -->
+    <scheme>vertical_diffusion_diffuse_dry_static_energy</scheme>
+
+    <!-- vdiff compute 3: tracer diffusion -->
+    <scheme>vertical_diffusion_diffuse_tracers</scheme>
+
+    <!-- vdiff post-interstitial 1: convert provisional updates to tendencies -->
+    <scheme>vertical_diffusion_tendencies</scheme>
+
+    <!-- diagnostics need to be outputted before tendencies are applied. -->
+    <scheme>vertical_diffusion_tendencies_diagnostics</scheme>
+
+    <!-- apply tendencies from vdiff -->
+    <scheme>apply_tendency_of_northward_wind</scheme>
+    <scheme>apply_tendency_of_eastward_wind</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+    <scheme>update_dry_static_energy</scheme>
+
+    <!--
+      Gravity wave drag.
+    -->
+    <!-- Initialize all gravity wave parameterizations and read namelist -->
+    <scheme>gravity_wave_drag_common</scheme>
+
+    <!-- Interstitial: Prepare vertical profiles and accumulated quantities -->
+    <scheme>check_energy_zero_fluxes</scheme>
+    <scheme>gravity_wave_drag_prepare_profiles</scheme>
+
+    <!-- Prepare vertical ramp coefficients to taper drag at top of model -->
+    <scheme>gravity_wave_drag_top_taper</scheme>
+
+    <!-- Orographic gravity wave drag -->
+    <scheme>gravity_wave_drag_orographic</scheme>
+
+    <!-- Interstitial: Convert tendencies for dry constituents to dry air basis -->
+    <scheme>convert_dry_constituent_tendencies_to_dry_air_basis</scheme>
+
+    <!-- Diagnostic output for common gravity wave drag -->
+    <scheme>gravity_wave_drag_common_diagnostics</scheme>
+
+    <!-- Apply tendencies from gravity wave parameterizations -->
+    <scheme>apply_tendency_of_eastward_wind</scheme>
+    <scheme>apply_tendency_of_northward_wind</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+    <scheme>update_dry_static_energy</scheme>
+
+    <!-- Check energy -->
+    <scheme>check_energy_scaling</scheme>
+    <scheme>check_energy_chng</scheme>
+
+    <!--
+      Energy conservation/budget checks.
+    -->
+    <!-- Save current total energy from dycore for energy fixer in time step. Total energy in current state is updated by the last check_energy_chng call. -->
+    <scheme>check_energy_save_teout</scheme>
+
+    <!-- Dry Mass and Energy adjust -->
+    <!-- COMMENTED OUT until qini/liqini/iceini have initialization routines -->
+    <!-- See https://github.com/ESCOMP/atmospheric_physics/issues/222 -->
+    <!-- <scheme>dme_adjust</scheme> -->
+
+    <!-- MPAS and SE specific scaling of temperature for enforcing energy consistency:
+         First, calculate the scaling based off cp_or_cv_dycore (from cam_thermo_water_update)
+         Then, perform the temperature and temperature tendency scaling -->
+    <scheme>check_energy_scaling</scheme>
+    <scheme>dycore_energy_consistency_adjust</scheme>
+    <scheme>apply_tendency_of_air_temperature</scheme>
+
+    <!-- Tendency diagnostics -->
+    <scheme>sima_tend_diagnostics</scheme>
+
+  </group>
+
+</suite>

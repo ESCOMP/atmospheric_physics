@@ -1,0 +1,98 @@
+[ccpp-table-properties]
+  name = check_energy_gmean
+  type = scheme
+  dependencies = ../../../../../../utils/gmean_mod.F90
+
+[ccpp-arg-table]
+  name  = check_energy_gmean_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ dtime ]
+  standard_name = timestep_for_physics
+  units = s
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ gravit ]
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ pint ]
+  standard_name = air_pressure_at_interface
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ te_ini_dyn ]
+  standard_name = vertically_integrated_total_energy_using_dycore_energy_formula_at_start_of_physics_timestep
+  units = J m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ teout ]
+  standard_name = vertically_integrated_total_energy_using_dycore_energy_formula_at_end_of_physics_timestep
+  units = J m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ tedif_glob ]
+  standard_name = global_mean_total_energy_correction_for_energy_conservation
+  units = J m-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = out
+[ heat_glob ]
+  standard_name = global_mean_heating_rate_correction_for_energy_conservation
+  units = J kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = out
+[ teinp_glob ]
+  standard_name = global_mean_vertically_integrated_total_energy_using_dycore_energy_formula_at_start_of_physics_timestep
+  units = J m-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = out
+[ teout_glob ]
+  standard_name = global_mean_vertically_integrated_total_energy_using_dycore_energy_formula_at_end_of_physics_timestep
+  units = J m-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = out
+[ psurf_glob ]
+  standard_name = global_mean_surface_air_pressure
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = out
+[ ptopb_glob ]
+  standard_name = global_mean_air_pressure_at_top_of_atmosphere_model
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

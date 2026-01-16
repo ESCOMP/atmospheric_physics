@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<suite name="musica" version="1.0">
-  <group name="physics_after_coupler">
-    <scheme>calc_dry_air_ideal_gas_density</scheme>
-    <scheme>musica_ccpp</scheme>
-  </group>
-</suite>

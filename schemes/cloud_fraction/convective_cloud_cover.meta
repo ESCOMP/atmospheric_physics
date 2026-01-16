@@ -1,0 +1,131 @@
+[ccpp-table-properties]
+  name = convective_cloud_cover
+  type = scheme
+
+[ccpp-arg-table]
+  name  = convective_cloud_cover_init
+  type  = scheme
+[ amIRoot ]
+  standard_name = flag_for_mpi_root
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ iulog ]
+  standard_name = log_output_unit
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ sh1_in ]
+  standard_name = tunable_parameter_for_shallow_convection_1_for_cloud_fraction
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ sh2_in ]
+  standard_name = tunable_parameter_for_shallow_convection_2_for_cloud_fraction
+  units = s kg-1 m2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ dp1_in ]
+  standard_name = tunable_parameter_for_deep_convection_1_for_cloud_fraction
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ dp2_in ]
+  standard_name = tunable_parameter_for_deep_convection_2_for_cloud_fraction
+  units = s kg-1 m2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = convective_cloud_cover_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ top_lev_cloudphys ]
+  standard_name = vertical_layer_index_of_cloud_fraction_top
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
+[ use_shfrc ]
+  standard_name = flag_for_cloud_area_fraction_to_use_shallow_convection_calculated_cloud_area_fraction
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ shfrc ]
+  standard_name = shallow_convective_cloud_area_fraction_from_shallow_convection
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ cmfmc_total ]
+  standard_name = atmosphere_convective_mass_flux_due_to_all_convection
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ cmfmc_sh ]
+  standard_name = atmosphere_convective_mass_flux_due_to_shallow_convection
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ shallowcu ]
+  standard_name = shallow_convective_cloud_area_fraction
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ deepcu ]
+  standard_name = deep_convective_cloud_area_fraction
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ concld ]
+  standard_name = convective_cloud_area_fraction
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

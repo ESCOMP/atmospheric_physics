@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<suite name="cam7" version="1.0">
+
+  <!-- **********Physics before the coupler************  -->
+  <group name="physics_before_coupler">
+    <!-- (temporary) Initialize all constituents and to_be_ccppized modules -->
+    <scheme>initialize_constituents</scheme>
+    <scheme>to_be_ccppized_temporary</scheme>
+
+    <!-- Set top level for cloud fraction calculations -->
+    <scheme>set_cloud_fraction_top</scheme>
+
+    <!-- Compute global means of physics input and output total energy -->
+    <scheme>check_energy_gmean</scheme>
+    <!-- After gmean, output global mean energy diagnostics -->
+    <scheme>check_energy_gmean_diagnostics</scheme>
+
+    <!--
+      Global energy fixer (check_energy_fix)
+      Add global mean energy difference as heating (diff between gmean and save_teout)
+    -->
+    <scheme>check_energy_zero_fluxes</scheme>
+    <scheme>check_energy_fix</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>geopotential_temp</scheme>
+    <!-- Check that energy and water change matches the boundary fluxes, update global energy -->
+    <scheme>check_energy_scaling</scheme>
+    <scheme>check_energy_chng</scheme>
+    <!-- Global energy fixer diagnostics (must run after check_energy_chng which updates global energies, but before zero_fluxes zeroes out boundary fluxes from energy fixer) -->
+    <scheme>check_energy_fix_diagnostics</scheme>
+
+    <!-- Dry Adiabatic Adjustment -->
+    <scheme>dadadj</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+
+    <!-- Zhang McFarlane (convect_deep) -->
+    <scheme>zm_conv_options</scheme>
+    <scheme>zm_convr</scheme>
+    <scheme>zm_convr_tendency_diagnostics</scheme>
+    <scheme>save_ttend_from_convect_deep</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+    <scheme>cloud_fraction_fice</scheme>
+    <scheme>set_deep_conv_fluxes_to_general</scheme>
+    <scheme>zm_conv_evap</scheme>
+    <scheme>set_general_conv_fluxes_to_deep</scheme>
+    <scheme>zm_evap_tendency_diagnostics</scheme>
+    <scheme>save_ttend_from_convect_deep</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+    <scheme>cloud_fraction_fice</scheme>
+    <scheme>zm_conv_momtran</scheme>
+    <scheme>zm_momtran_tendency_diagnostics</scheme>
+    <scheme>save_ttend_from_convect_deep</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>apply_tendency_of_eastward_wind</scheme>
+    <scheme>apply_tendency_of_northward_wind</scheme>
+    <scheme>geopotential_temp</scheme>
+    <scheme>zm_conv_convtran</scheme>
+    <scheme>zm_tendency_diagnostics</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+    <scheme>zm_diagnostics</scheme>
+
+    <!-- Check that energy and water change matches the boundary fluxes -->
+    <scheme>check_energy_scaling</scheme>
+    <scheme>check_energy_chng</scheme>
+
+  </group>
+
+  <!-- **********Physics after the coupler************  -->
+  <group name="physics_after_coupler">
+
+    <!-- State diagnostics -->
+    <scheme>sima_state_diagnostics</scheme>
+
+    <!-- Radiation -->
+
+    <!-- Find tropopause -->
+    <!-- Tropopause find has to make history output at the end of convective adjustment -->
+    <!-- so supersaturated cells are not written to the tape. -->
+    <scheme>tropopause_find</scheme>
+    <scheme>tropopause_diagnostics</scheme>
+
+    <!-- Vertical diffusion -->
+
+
+    <!--
+      Gravity wave drag.
+    -->
+    <!-- Initialize all gravity wave parameterizations and read namelist -->
+    <scheme>gravity_wave_drag_common</scheme>
+
+    <!-- Interstitial: Prepare vertical profiles and accumulated quantities -->
+    <scheme>check_energy_zero_fluxes</scheme>
+    <scheme>gravity_wave_drag_prepare_profiles</scheme>
+
+    <!-- Prepare vertical ramp coefficients to taper drag at top of model -->
+    <scheme>gravity_wave_drag_top_taper</scheme>
+
+    <!-- Moving mountain gravity wave drag (SE dycore only) -->
+    <scheme>gravity_wave_drag_moving_mountain</scheme>
+
+    <!-- Convective gravity wave drag (Beres et al.) - deep convection -->
+    <scheme>gravity_wave_drag_convection_deep</scheme>
+
+    <!-- Frontally generated gravity wave drag -->
+    <scheme>gravity_wave_drag_frontogenesis</scheme>
+
+    <!-- Ridge gravity wave drag -->
+    <scheme>gravity_wave_drag_ridge</scheme>
+    <scheme>gravity_wave_drag_ridge_beta</scheme>
+
+    <!-- Interstitial: Convert tendencies for dry constituents to dry air basis -->
+    <scheme>convert_dry_constituent_tendencies_to_dry_air_basis</scheme>
+
+    <!-- Apply tendencies from gravity wave parameterizations -->
+    <scheme>apply_tendency_of_eastward_wind</scheme>
+    <scheme>apply_tendency_of_northward_wind</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+    <scheme>update_dry_static_energy</scheme>
+
+    <!-- Save current total energy from dycore for energy fixer in time step. Total energy in current state is updated by the last check_energy_chng call. -->
+    <scheme>check_energy_save_teout</scheme>
+
+    <!-- Update cp/cv for energy computation based in updated water variables -->
+    <scheme>thermo_water_update</scheme>
+
+    <!-- Dry Mass and Energy adjust -->
+    <!-- COMMENTED OUT until qini/liqini/iceini have initialization routines -->
+    <!-- See https://github.com/ESCOMP/atmospheric_physics/issues/222 -->
+    <!-- <scheme>dme_adjust</scheme> -->
+
+    <!-- MPAS and SE specific scaling of temperature for enforcing energy consistency:
+         First, calculate the scaling based off cp_or_cv_dycore (from cam_thermo_water_update)
+         Then, perform the temperature and temperature tendency scaling -->
+    <scheme>check_energy_scaling</scheme>
+    <scheme>dycore_energy_consistency_adjust</scheme>
+    <scheme>apply_tendency_of_air_temperature</scheme>
+
+    <!-- Tendency diagnostics -->
+    <scheme>sima_tend_diagnostics</scheme>
+
+  </group>
+
+</suite>

@@ -1,0 +1,177 @@
+[ccpp-table-properties]
+  name = qneg
+  type = scheme
+
+[ccpp-arg-table]
+  name  = qneg_init
+  type  = scheme
+[ print_qneg_warn ]
+  standard_name = control_for_negative_constituent_warning
+  units = 1
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ num_constituents_in ]
+  standard_name = number_of_ccpp_constituents
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ errcode ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = qneg_run
+  type  = scheme
+[ subnam ]
+  standard_name = scheme_name
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ num_columns ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ lver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ qmin ]
+  standard_name = ccpp_constituent_minimum_values
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (number_of_ccpp_constituents)
+  intent = in
+[ q ]
+  standard_name = ccpp_constituents
+  units = none
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension,number_of_ccpp_constituents)
+  intent = inout
+[ errcode ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = qneg_timestep_final
+  type  = scheme
+[ mpi_communicator ]
+  standard_name = mpi_communicator
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
+[ rootprocid ]
+  standard_name = mpi_root
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
+[ isrootproc ]
+  standard_name = flag_for_mpi_root
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ iulog ]
+  standard_name = log_output_unit
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ qprops ]
+  standard_name = ccpp_constituent_properties
+  units = none
+  type = ccpp_constituent_prop_ptr_t
+  dimensions = (number_of_ccpp_constituents)
+  intent = in
+[ errcode ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = qneg_final
+  type  = scheme
+[ mpi_communicator ]
+  standard_name = mpi_communicator
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
+[ rootprocid ]
+  standard_name = mpi_root
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
+[ isrootproc ]
+  standard_name = flag_for_mpi_root
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ iulog ]
+  standard_name = log_output_unit
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ qprops ]
+  standard_name = ccpp_constituent_properties
+  units = none
+  type = ccpp_constituent_prop_ptr_t
+  dimensions = (number_of_ccpp_constituents)
+  intent = in
+[ errcode ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out

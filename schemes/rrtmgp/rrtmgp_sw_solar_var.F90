@@ -1,0 +1,129 @@
+!-------------------------------------------------------------------------------
+! This module uses the solar irradiance data 
+! to provide a spectral scaling factor
+! to approximate the spectral distribution of irradiance
+! when the radiation scheme might use a different solar source function
+!-------------------------------------------------------------------------------
+module rrtmgp_sw_solar_var
+
+  implicit none
+
+  private
+  public :: rrtmgp_sw_solar_var_run
+
+!-------------------------------------------------------------------------------
+contains
+!-------------------------------------------------------------------------------
+
+!> \section arg_table_rrtmgp_sw_solar_var_run Argument Table
+!! \htmlinclude rrtmgp_sw_solar_var_run.html
+!!
+  subroutine rrtmgp_sw_solar_var_run(toa_flux, ccpp_constant_two, band2gpt_sw, nswbands, sol_irrad, wave_end, nbins, sol_tsi, &
+                                     nday, dosw, do_spectral_scaling, sfac, eccf, errmsg, errflg)
+     use rrtmgp_sw_solar_var_setup, only: irrad, radbinmax, radbinmin
+     use ccpp_kinds,                only : kind_phys
+
+     ! Arguments 
+     real(kind_phys),    intent(inout) :: toa_flux(:,:)         ! top-of-atmosphere flux to be scaled (columns,gpts)
+     real(kind_phys),    intent(in)    :: sol_tsi               ! total solar irradiance
+     real(kind_phys),    intent(in)    :: sol_irrad(:)          ! solar irradiance
+     real(kind_phys),    intent(in)    :: wave_end(:)           ! wavelength endpoints
+     integer,            intent(in)    :: nday                  ! number of daytime points
+     integer,            intent(in)    :: nbins                 ! number of bins
+     integer,            intent(in)    :: ccpp_constant_two     ! dimension for band2gpt_sw
+     integer,            intent(in)    :: band2gpt_sw(:,:)      ! array for converting shortwave band limits to g-points
+     integer,            intent(in)    :: nswbands              ! number of shortwave bands
+     logical,            intent(in)    :: do_spectral_scaling   ! flag to do spectral scaling
+     logical,            intent(in)    :: dosw                  ! flag to do shortwave radiation
+     real(kind_phys),    intent(in)    :: eccf                  ! Earth-Sun distance factor
+     real(kind_phys),    intent(out)   :: sfac(:,:)             ! scaling factors (columns,gpts)
+     character(len=*),   intent(out)   :: errmsg
+     integer,            intent(out)   :: errflg
+
+     ! Local variables 
+     integer :: i, j, gpt_start, gpt_end, ncols
+     real(kind_phys), allocatable :: scale(:)
+     character(len=256)          :: alloc_errmsg
+     character(len=*), parameter :: sub = 'rrtmgp_sw_solar_var_run'
+
+     ! Initialize error variables
+     errflg = 0
+     errmsg = ''
+
+     if (.not. dosw .or. nday == 0) then
+        return
+     end if
+
+     if (do_spectral_scaling) then 
+
+        ! Determine target irradiance for each band
+        call integrate_spectrum(nbins, nswbands, wave_end, radbinmin, radbinmax, sol_irrad, irrad)
+
+        ncols = size(toa_flux, 1)
+        allocate(scale(ncols), stat=errflg, errmsg=alloc_errmsg)
+        if (errflg /= 0) then
+           write(errmsg,*) sub, ': Error allocating "scale", message - ', alloc_errmsg
+           errflg = 1
+           return
+        end if
+
+        do i = 1, nswbands 
+           gpt_start = band2gpt_sw(1,i) 
+           gpt_end   = band2gpt_sw(2,i) 
+           scale = spread(irrad(i), 1, ncols) / sum(toa_flux(:, gpt_start:gpt_end), dim=2)
+           do j = gpt_start, gpt_end
+              sfac(:,j) = scale
+           end do
+        end do
+
+     else 
+        sfac(:,:) = sol_tsi / spread(sum(toa_flux, 2), 2, size(toa_flux, 2))
+     end if
+
+     toa_flux = toa_flux * sfac * eccf
+
+  end subroutine rrtmgp_sw_solar_var_run
+
+
+!-------------------------------------------------------------------------------
+! private method.........
+!-------------------------------------------------------------------------------
+
+  subroutine integrate_spectrum( nsrc, ntrg, src_x, min_trg, max_trg, src, trg )
+
+    use ccpp_tuvx_utils, only : rebin
+    use ccpp_kinds,      only : kind_phys
+
+    implicit none
+
+    !---------------------------------------------------------------
+    !	... dummy arguments
+    !---------------------------------------------------------------
+    integer,  intent(in)  :: nsrc                  ! dimension source array
+    integer,  intent(in)  :: ntrg                  ! dimension target array
+    real(kind_phys), intent(in)  :: src_x(nsrc+1)         ! source coordinates
+    real(kind_phys), intent(in)  :: max_trg(ntrg)         ! target coordinates
+    real(kind_phys), intent(in)  :: min_trg(ntrg)         ! target coordinates
+    real(kind_phys), intent(in)  :: src(nsrc)             ! source array
+    real(kind_phys), intent(out) :: trg(ntrg)             ! target array
+ 
+    !---------------------------------------------------------------
+    !	... local variables
+    !---------------------------------------------------------------
+    real(kind_phys) :: trg_x(2), targ(1)         ! target coordinates
+    integer  :: i
+
+    do i = 1, ntrg
+
+       trg_x(1) = min_trg(i)
+       trg_x(2) = max_trg(i)
+
+       call rebin( nsrc, 1, src_x, trg_x, src(1:nsrc), targ(:) )
+       ! W m-2 nm-1 --> W m-2
+       trg( i ) = targ(1)*(trg_x(2)-trg_x(1))
+
+    end do
+
+  end subroutine integrate_spectrum
+
+end module rrtmgp_sw_solar_var

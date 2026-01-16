@@ -1,6 +1,12 @@
 name: build
 
-on: [pull_request,workflow_dispatch]
+on:
+  push:
+    branches:
+      - main
+      - development
+  workflow_dispatch:
+  pull_request:
 
 jobs:
   test_musica_api:
@@ -13,3 +19,13 @@ jobs:
       run: docker build -t musica -f test/docker/Dockerfile.musica .
     - name: run tests in container
       run: docker run --name test-container -t musica bash -c 'make test ARGS="--rerun-failed --output-on-failure -j8"'
+  test_musica_api_no_install:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    - name: build Docker image
+      run: docker build -t musica-no-install -f test/docker/Dockerfile.musica.no_install .
+    - name: run tests in container
+      run: docker run --name test-container -t musica-no-install bash -c 'make test ARGS="--rerun-failed --output-on-failure -j8"'

@@ -1,0 +1,415 @@
+[ccpp-table-properties]
+  name = zero_upper_boundary_condition
+  type = scheme
+
+[ccpp-arg-table]
+  name  = zero_upper_boundary_condition_init
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_dimension
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[ pcnst ]
+  standard_name = number_of_ccpp_constituents
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[ ubc_mmr ]
+  standard_name = upper_boundary_condition_of_ccpp_constituents
+  units = none
+  dimensions = (horizontal_dimension, number_of_ccpp_constituents)
+  type = real | kind = kind_phys
+  intent = out
+[ cnst_fixed_ubc ]
+  standard_name = use_fixed_upper_boundary_condition_of_ccpp_constituents_tbd
+  units = flag
+  dimensions = (number_of_ccpp_constituents)
+  type = logical
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  dimensions = ()
+  type = character | kind = len=512
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  dimensions = ()
+  type = integer
+  intent = out
+
+[ccpp-table-properties]
+  name = tms_beljaars_zero_stub
+  type = scheme
+
+[ccpp-arg-table]
+  name  = tms_beljaars_zero_stub_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ ksrftms ]
+  standard_name = turbulent_orographic_form_drag_coefficent_at_surface
+  units = kg s-1 m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tautmsx ]
+  standard_name = eastward_turbulent_mountain_surface_stress_tbd
+  units = N m-2
+  dimensions = (horizontal_loop_extent)
+  type = real | kind = kind_phys
+  intent = out
+[ tautmsy ]
+  standard_name = northward_turbulent_mountain_surface_stress_tbd
+  units = N m-2
+  dimensions = (horizontal_loop_extent)
+  type = real | kind = kind_phys
+  intent = out
+[ do_beljaars ]
+  standard_name = do_beljaars_drag_in_vertical_diffusion_tbd
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ dragblj ]
+  standard_name = turbulent_orographic_form_drag_coefficent
+  units = s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ taubljx ]
+  standard_name = eastward_beljaars_surface_stress_tbd
+  units = N m-2
+  dimensions = (horizontal_loop_extent)
+  type = real | kind = kind_phys
+  intent = out
+[ taubljy ]
+  standard_name = northward_beljaars_surface_stress_tbd
+  units = N m-2
+  dimensions = (horizontal_loop_extent)
+  type = real | kind = kind_phys
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  dimensions = ()
+  type = character | kind = len=512
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  dimensions = ()
+  type = integer
+  intent = out
+
+[ccpp-table-properties]
+  name = turbulent_mountain_stress_add_drag_coefficient
+  type = scheme
+
+[ccpp-arg-table]
+  name  = turbulent_mountain_stress_add_drag_coefficient_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ ksrftms ]
+  standard_name = turbulent_orographic_form_drag_coefficent_at_surface
+  units = kg s-1 m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ ksrf ]
+  standard_name = total_drag_coefficient_at_surface
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = inout
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  dimensions = ()
+  type = character | kind = len=512
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  dimensions = ()
+  type = integer
+  intent = out
+
+[ccpp-table-properties]
+  name = beljaars_add_wind_damping_rate
+  type = scheme
+
+[ccpp-arg-table]
+  name  = beljaars_add_wind_damping_rate_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ dragblj ]
+  standard_name = turbulent_orographic_form_drag_coefficent
+  units = s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ tau_damp_rate ]
+  standard_name = horizontal_wind_damping_rate_due_to_total_surface_drag
+  units = s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-table-properties]
+  name = beljaars_add_updated_residual_stress
+  type = scheme
+
+[ccpp-arg-table]
+  name  = beljaars_add_updated_residual_stress_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ gravit ]
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ p ]
+  standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion
+  units = none
+  type = coords1d
+  dimensions = ()
+  intent = in
+[ do_iss ]
+  standard_name = do_implicit_total_surface_stress_in_vertical_diffusion
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ itaures ]
+  standard_name = update_residual_stress_at_surface_in_vertical_diffusion
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ dragblj ]
+  standard_name = turbulent_orographic_form_drag_coefficent
+  units = s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ u1 ]
+  standard_name = eastward_wind_after_vertical_diffusion
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ v1 ]
+  standard_name = northward_wind_after_vertical_diffusion
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ tauresx ]
+  standard_name = eastward_reserved_stress_at_surface_on_previous_timestep
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = inout
+[ tauresy ]
+  standard_name = northward_reserved_stress_at_surface_on_previous_timestep
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = inout
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-table-properties]
+  name = turbulent_mountain_stress_add_updated_surface_stress
+  type = scheme
+
+[ccpp-arg-table]
+  name  = turbulent_mountain_stress_add_updated_surface_stress_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ do_iss ]
+  standard_name = do_implicit_total_surface_stress_in_vertical_diffusion
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ itaures ]
+  standard_name = update_residual_stress_at_surface_in_vertical_diffusion
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ ksrftms ]
+  standard_name = turbulent_orographic_form_drag_coefficent_at_surface
+  units = kg s-1 m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ u1 ]
+  standard_name = eastward_wind_after_vertical_diffusion
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ v1 ]
+  standard_name = northward_wind_after_vertical_diffusion
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ tauresx ]
+  standard_name = eastward_reserved_stress_at_surface_on_previous_timestep
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = inout
+[ tauresy ]
+  standard_name = northward_reserved_stress_at_surface_on_previous_timestep
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = inout
+[ tautotx ]
+  standard_name = eastward_stress_at_surface_for_vertical_diffusion
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = inout
+[ tautoty ]
+  standard_name = northward_stress_at_surface_for_vertical_diffusion
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = inout
+[ tautmsx ]
+  standard_name = eastward_turbulent_mountain_surface_stress_tbd
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tautmsy ]
+  standard_name = northward_turbulent_mountain_surface_stress_tbd
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-table-properties]
+  name = vertical_diffusion_not_use_rairv
+  type = scheme
+
+[ccpp-arg-table]
+  name  = vertical_diffusion_not_use_rairv_init
+  type  = scheme
+[ use_rairv ]
+  standard_name = use_composition_dependent_gas_constant_in_vertical_diffusion
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

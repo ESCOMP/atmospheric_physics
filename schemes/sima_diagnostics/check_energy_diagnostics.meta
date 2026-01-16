@@ -1,0 +1,71 @@
+[ccpp-table-properties]
+  name = check_energy_diagnostics
+  type = scheme
+
+[ccpp-arg-table]
+  name  = check_energy_diagnostics_init
+  type  = scheme
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = check_energy_diagnostics_run
+  type  = scheme
+[ cp_or_cv_dycore ]
+  standard_name = specific_heat_of_air_used_in_dycore
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ scaling_dycore ]
+  standard_name = ratio_of_specific_heat_of_air_used_in_physics_energy_formula_to_specific_heat_of_air_used_in_dycore_energy_formula
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ te_cur_phys ]
+  standard_name = vertically_integrated_total_energy_using_physics_energy_formula
+  units = J m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ tw_cur ]
+  standard_name = vertically_integrated_total_water
+  units = kg m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ tend_te_tnd ]
+  standard_name = cumulative_total_energy_boundary_flux_using_physics_energy_formula
+  units = J m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ tend_tw_tnd ]
+  standard_name = cumulative_total_water_boundary_flux
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

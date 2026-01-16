@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Rasch and Kristjansson (RK) prognostic cloud microphysics and CAM4 macrophysics.
+  RK is split into multiple individual physics schemes that must be run in a particular order
+  Generally, interstitial schemes are in rk_stratiform_* schemes, with most of the
+  computation within the
+  cloud_particle_sedimentation, prognostic_cloud_water, and compute_cloud_fraction schemes.
+
+  The whole list of operations can be cleaned up after nested schemes are supported.
+-->
+<suite name="rasch_kristjansson" version="1.0">
+  <group name="physics_before_coupler">
+    <scheme>to_be_ccppized_temporary</scheme>
+
+    <!-- Find tropopause -->
+    <scheme>tropopause_find</scheme>
+
+    <!-- Initialize all RK diagnostics. -->
+    <scheme>rk_stratiform_diagnostics</scheme>
+
+    <!-- Initialize QCWAT, TCWAT, LCWAT if not read from snapshot. -->
+    <scheme>rk_stratiform_check_qtlcwat</scheme>
+
+    <!-- RK1: cloud sedimentation (pcwsediment) -->
+    <scheme>cloud_particle_sedimentation</scheme>
+    <scheme>cloud_particle_sedimentation_diagnostics</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+    <scheme>rk_stratiform_sedimentation</scheme>
+
+    <!-- RK2: detrain reserved liquid (dlf = detrainment_of_cloud_liquid_water_wrt_moist_air_and_condensed_water_due_to_all_convection) into cloud liquid (pcwdetrain) -->
+    <scheme>rk_stratiform_detrain_convective_condensate</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+
+    <!-- RK3a: computation of various cloud fractions (CAM4 version)
+         two calls to compute_cloud_fraction here embedded. the first one has to update cloud_area_fraction;
+         the second is used to compute perturbations of RH to cloud fraction deltas later used in prognostic cloud water.
+
+         for clarity, we call cloud_fraction_run explicitly once here,
+         then call the second compute_cloud_fraction in rk_stratiform_cloud_fraction_perturbation_run, to compute the
+         relative humidity derivative used in the prognostic_cloud_water scheme.
+    -->
+    <scheme>convective_cloud_cover</scheme>
+    <scheme>convective_cloud_cover_diagnostics</scheme>
+    <scheme>compute_cloud_fraction</scheme>
+    <scheme>rk_stratiform_cloud_fraction_perturbation</scheme>
+    <scheme>rk_stratiform_cloud_fraction_perturbation_diagnostics</scheme>
+
+    <!-- RK3b: compute external forcings from non-macro/microphysics
+         for use by prognostic_cloud_water -->
+    <scheme>rk_stratiform_external_forcings</scheme>
+
+    <!-- Compute fractional amount of stratus condensate and precipitation in ice phase. -->
+    <scheme>cloud_fraction_fice</scheme>
+
+    <!-- RK3c1: prognostic cloud water (cldwat) part one:
+         compute prognostic cloud water using pre-repartitioning values (for bit-for-bitness).
+         tendencies from prognostic_cloud_water, as well as heating from condensate repartitioning,
+         are computed later in rk_stratiform_prognostic_cloud_water_tendencies. -->
+    <scheme>prognostic_cloud_water</scheme>
+
+    <!-- RK3d1: stratiform condensate repartitioning (cldwat-repartition).
+          repartition heating from change in cloud ice is determined here,
+          but only the constituent tendencies are applied in the repartitioning step. -->
+    <scheme>rk_stratiform_condensate_repartioning</scheme>
+    <scheme>rk_stratiform_condensate_repartioning_diagnostics</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+
+    <!-- RK3c2 + RK3d2: prognostic cloud water (cldwat) part two:
+          repartition heating determined in condensate_repartitioning scheme is applied here,
+          together with other heating fluxes from prognostic_cloud_water. -->
+    <scheme>rk_stratiform_prognostic_cloud_water_tendencies</scheme>
+    <scheme>rk_stratiform_prognostic_cloud_water_tendencies_diagnostics</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+
+    <!-- RK4: cloud fractions (including third call to cldfrc) -->
+    <scheme>compute_cloud_fraction</scheme>
+    <scheme>compute_cloud_fraction_diagnostics</scheme>
+
+    <!-- RK5: cloud water and ice particle sizes for radiation -->
+    <scheme>rk_stratiform_cloud_optical_properties</scheme>
+    <scheme>rk_stratiform_cloud_optical_properties_diagnostics</scheme>
+
+    <!-- RK6: save non-micro and non-macrophysical external advective forcings -->
+    <scheme>rk_stratiform_save_qtlcwat</scheme>
+
+  </group>
+</suite>

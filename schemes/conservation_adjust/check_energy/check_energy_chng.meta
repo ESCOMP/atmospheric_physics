@@ -1,0 +1,413 @@
+[ccpp-table-properties]
+  name = check_energy_chng
+  type = scheme
+  dependencies = ../../../../../data/cam_thermo.F90,../../../../../data/cam_thermo_formula.F90
+
+
+[ccpp-arg-table]
+  name  = check_energy_chng_init
+  type  = scheme
+[ print_energy_errors_in ]
+  standard_name = flag_for_energy_conservation_warning
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+
+[ccpp-arg-table]
+  name  = check_energy_chng_timestep_init
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pcnst ]
+  standard_name = number_of_ccpp_constituents
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ is_first_timestep ]
+  standard_name = is_first_timestep
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ q ]
+  standard_name = ccpp_constituents
+  units = none
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension, vertical_layer_dimension, number_of_ccpp_constituents)
+  intent = in
+[ pdel ]
+  standard_name = air_pressure_thickness
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  intent = in
+[ u ]
+  standard_name = eastward_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  intent = in
+[ v ]
+  standard_name = northward_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  intent = in
+[ T ]
+  standard_name = air_temperature
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  intent = in
+[ pintdry ]
+  standard_name = air_pressure_of_dry_air_at_interface
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension, vertical_interface_dimension)
+  intent = in
+[ phis ]
+  standard_name = surface_geopotential
+  units = m2 s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension)
+  intent = in
+[ zm ]
+  standard_name = geopotential_height_wrt_surface
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  intent = in
+[ cp_phys ]
+  standard_name = composition_dependent_specific_heat_of_dry_air_at_constant_pressure
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  intent = in
+[ cp_or_cv_dycore ]
+  standard_name = specific_heat_of_air_used_in_dycore
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  intent = in
+[ te_ini_phys ]
+  standard_name = vertically_integrated_total_energy_using_physics_energy_formula_at_start_of_physics_timestep
+  units = J m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension)
+  intent = inout
+[ te_ini_dyn ]
+  standard_name = vertically_integrated_total_energy_using_dycore_energy_formula_at_start_of_physics_timestep
+  units = J m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension)
+  intent = inout
+[ tw_ini ]
+  standard_name = vertically_integrated_total_water_at_start_of_physics_timestep
+  units = kg m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension)
+  intent = inout
+[ te_cur_phys ]
+  standard_name = vertically_integrated_total_energy_using_physics_energy_formula
+  units = J m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension)
+  intent = inout
+[ te_cur_dyn ]
+  standard_name = vertically_integrated_total_energy_using_dycore_energy_formula
+  units = J m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension)
+  intent = inout
+[ tw_cur ]
+  standard_name = vertically_integrated_total_water
+  units = kg m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension)
+  intent = inout
+[ tend_te_tnd ]
+  standard_name = cumulative_total_energy_boundary_flux_using_physics_energy_formula
+  units = J m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension)
+  intent = out
+[ tend_tw_tnd ]
+  standard_name = cumulative_total_water_boundary_flux
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension)
+  intent = out
+[ temp_ini ]
+  standard_name = air_temperature_at_start_of_physics_timestep
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  intent = out
+[ z_ini ]
+  standard_name = geopotential_height_wrt_surface_at_start_of_physics_timestep
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  intent = out
+[ count ]
+  standard_name = number_of_atmosphere_columns_with_significant_energy_or_water_imbalances
+  units = count
+  type = integer
+  dimensions = ()
+  intent = out
+[ teout ]
+  standard_name = vertically_integrated_total_energy_using_dycore_energy_formula_at_end_of_physics_timestep
+  units = J m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension)
+  intent = out
+[ energy_formula_physics ]
+  standard_name = total_energy_formula_for_physics
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ energy_formula_dycore ]
+  standard_name = total_energy_formula_for_dycore
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = check_energy_chng_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pcnst ]
+  standard_name = number_of_ccpp_constituents
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ iulog ]
+  standard_name = log_output_unit
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ q ]
+  standard_name = ccpp_constituents
+  units = none
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
+  intent = in
+[ pdel ]
+  standard_name = air_pressure_thickness
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ u ]
+  standard_name = eastward_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ v ]
+  standard_name = northward_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ T ]
+  standard_name = air_temperature
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ pintdry ]
+  standard_name = air_pressure_of_dry_air_at_interface
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ phis ]
+  standard_name = surface_geopotential
+  units = m2 s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ zm ]
+  standard_name = geopotential_height_wrt_surface
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ cp_phys ]
+  standard_name = composition_dependent_specific_heat_of_dry_air_at_constant_pressure
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ cp_or_cv_dycore ]
+  standard_name = specific_heat_of_air_used_in_dycore
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ scaling_dycore ]
+  standard_name = ratio_of_specific_heat_of_air_used_in_physics_energy_formula_to_specific_heat_of_air_used_in_dycore_energy_formula
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ te_cur_phys ]
+  standard_name = vertically_integrated_total_energy_using_physics_energy_formula
+  units = J m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = inout
+[ te_cur_dyn ]
+  standard_name = vertically_integrated_total_energy_using_dycore_energy_formula
+  units = J m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = inout
+[ tw_cur ]
+  standard_name = vertically_integrated_total_water
+  units = kg m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = inout
+[ tend_te_tnd ]
+  standard_name = cumulative_total_energy_boundary_flux_using_physics_energy_formula
+  units = J m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = inout
+[ tend_tw_tnd ]
+  standard_name = cumulative_total_water_boundary_flux
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = inout
+[ temp_ini ]
+  standard_name = air_temperature_at_start_of_physics_timestep
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ z_ini ]
+  standard_name = geopotential_height_wrt_surface_at_start_of_physics_timestep
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ count ]
+  standard_name = number_of_atmosphere_columns_with_significant_energy_or_water_imbalances
+  units = count
+  type = integer
+  dimensions = ()
+  intent = inout
+[ ztodt ]
+  standard_name = timestep_for_physics
+  units = s
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ latice ]
+  standard_name = latent_heat_of_fusion_of_water_at_0c
+  units = J kg-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ latvap ]
+  standard_name = latent_heat_of_vaporization_of_water_at_0c
+  units = J kg-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ energy_formula_physics ]
+  standard_name = total_energy_formula_for_physics
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ energy_formula_dycore ]
+  standard_name = total_energy_formula_for_dycore
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ name ]
+  standard_name = scheme_name
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ flx_vap ]
+  standard_name = net_water_vapor_fluxes_through_top_and_bottom_of_atmosphere_column
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ flx_cnd ]
+  standard_name = net_liquid_and_lwe_ice_fluxes_through_top_and_bottom_of_atmosphere_column
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ flx_ice ]
+  standard_name = net_lwe_ice_fluxes_through_top_and_bottom_of_atmosphere_column
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ flx_sen ]
+  standard_name = net_sensible_heat_flux_through_top_and_bottom_of_atmosphere_column
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

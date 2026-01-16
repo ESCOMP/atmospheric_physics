@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<suite name="tj2016_sfc_pbl_hs" version="1.0">
+  <group name="physics_after_coupler">
+    <scheme>tj2016_sfc_pbl_hs</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>apply_tendency_of_eastward_wind</scheme>
+    <scheme>apply_tendency_of_northward_wind</scheme>
+    <scheme>qneg</scheme>
+    <scheme>sima_state_diagnostics</scheme>
+    <scheme>sima_tend_diagnostics</scheme>
+  </group>
+</suite>
+
