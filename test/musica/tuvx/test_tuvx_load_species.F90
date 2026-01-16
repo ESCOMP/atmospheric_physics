@@ -55,6 +55,7 @@ contains
       call micm_constituent_props(i_species)%instantiate( &
       std_name = trim(species_names(i_species)), &
       long_name = trim(species_names(i_species)), &
+      diag_name = trim(species_names(i_species)), &
       units = 'kg kg-1', &
       vertical_dim = 'vertical_layer_dimension', &
       default_value = 0.0_kind_phys, &
@@ -284,6 +285,7 @@ contains
       call micm_constituent_props(i_species)%instantiate( &
       std_name = trim(species_names(i_species)), &
       long_name = trim(species_names(i_species)), &
+      diag_name = trim(species_names(i_species)), &
       units = 'kg kg-1', &
       vertical_dim = 'vertical_layer_dimension', &
       default_value = 0.0_kind_phys, &
