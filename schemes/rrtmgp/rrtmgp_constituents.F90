@@ -81,6 +81,7 @@ contains
                 units = 'kg kg-1',                            &
                 vertical_dim = 'vertical_layer_dimension', &
                 min_value = 0.0_kind_phys,                 &
+                diag_name = stdname, &
                 advected = .true.,                         &
                 water_species = .false.,                    &
                 mixing_ratio_type = 'dry',                 &
@@ -95,6 +96,7 @@ contains
                 vertical_dim = 'vertical_layer_dimension', &
                 min_value = 0.0_kind_phys,                 &
                 advected = .false.,                         &
+                diag_name = stdname, &
                 water_species = .false.,                    &
                 mixing_ratio_type = 'dry',                 &
                 errcode = errflg,                         &
@@ -109,6 +111,7 @@ contains
                 min_value = 0.0_kind_phys,                 &
                 default_value = 0.0_kind_phys,             &
                 advected = .false.,                         &
+                diag_name = stdname, &
                 water_species = .false.,                    &
                 mixing_ratio_type = 'dry',                 &
                 errcode = errflg,                         &
