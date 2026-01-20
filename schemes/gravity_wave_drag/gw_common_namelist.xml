@@ -16,7 +16,6 @@
     </desc>
     <values>
       <value>32</value>
-      <value phys_suite="cam4">0</value>
       <!-- waccm: 18 -->
     </values>
   </entry>

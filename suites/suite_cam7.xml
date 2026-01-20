@@ -5,7 +5,6 @@
   <!-- **********Physics before the coupler************  -->
   <group name="physics_before_coupler">
     <!-- (temporary) Initialize all constituents and to_be_ccppized modules -->
-    <scheme>initialize_constituents</scheme>
     <scheme>to_be_ccppized_temporary</scheme>
 
     <!-- Set top level for cloud fraction calculations -->

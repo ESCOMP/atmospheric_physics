@@ -1,10 +1,10 @@
 [ccpp-table-properties]
-  name = radiative_gas_concentrations
+  name = prescribe_radiative_gas_concentrations
   type = scheme
   dependencies = ../rrtmgp/utils/radiation_utils.F90
 
 [ccpp-arg-table]
-  name  = radiative_gas_concentrations_init
+  name  = prescribe_radiative_gas_concentrations_init
   type  = scheme
 [ ch4_vmr ]
   standard_name = prescribed_volume_mixing_ratio_of_ch4
@@ -54,4 +54,3 @@
   type = integer
   dimensions = ()
   intent = out
-

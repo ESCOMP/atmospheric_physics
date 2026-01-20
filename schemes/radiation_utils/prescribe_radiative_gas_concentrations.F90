@@ -6,22 +6,22 @@
 ! composition/chemistry system, but is fine to use for now when running low-top,
 ! non-exoplanet CAM-SIMA configurations with minimal chemistry.
 !-------------------------------------------------------------------------------
-module radiative_gas_concentrations
+module prescribe_radiative_gas_concentrations
 
   implicit none
 
   private
-  public :: radiative_gas_concentrations_init
+  public :: prescribe_radiative_gas_concentrations_init
 
 
 !-------------------------------------------------------------------------------
 contains
 !-------------------------------------------------------------------------------
 
-!> \section arg_table_radiative_gas_concentrations_init Argument Table
-!! \htmlinclude radiative_gas_concentrations_init.html
+!> \section arg_table_prescribe_radiative_gas_concentrations_init Argument Table
+!! \htmlinclude prescribe_radiative_gas_concentrations_init.html
 !!
-  subroutine radiative_gas_concentrations_init(ch4_vmr,   co2_vmr, cfc11_vmr,   &
+  subroutine prescribe_radiative_gas_concentrations_init(ch4_vmr,   co2_vmr, cfc11_vmr,   &
                                                cfc12_vmr, n2o_vmr, const_array, &
                                                errmsg, errcode)
 
@@ -179,6 +179,6 @@ contains
     errmsg = ''
     errcode = 0
 
-  end subroutine radiative_gas_concentrations_init
+  end subroutine prescribe_radiative_gas_concentrations_init
 
-end module radiative_gas_concentrations
+end module prescribe_radiative_gas_concentrations

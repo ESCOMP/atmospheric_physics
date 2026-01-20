@@ -82,7 +82,9 @@
     <standard_name>filename_of_solar_irradiance_data</standard_name>
     <units>none</units>
     <desc>
-     The filename of the solar irradiance data.
+     The filename of the solar irradiance data. If the file
+     path is set to "NONE" then it is assumed that a
+     constant solar irradiance is being used.
     </desc>
     <values>
       <value>${DIN_LOC_ROOT}/atm/cam/solar/SolarForcingCMIP7piControl_c20250103.nc</value>
