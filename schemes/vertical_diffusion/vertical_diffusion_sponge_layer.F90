@@ -50,6 +50,9 @@ contains
        ! This code follows the spectral-element dynamical core that has
        ! a hardcoded vertical profile for del2 sponge diffusion.
        !
+       ! Note: kvm_sponge values listed below are also listed in CAM's namelist_definition.xml file,
+       !       so if changed here then please also change them in namelist_definition.xml in CAM
+       !
        if (ptop_ref < 1.e-3_kind_phys) then
           !
           ! WACCM7 (ptop=2.04E-4Pa) or higher top
@@ -79,7 +82,7 @@ contains
        end if
     end if
     if (amIRoot) then
-       write(iulog, *) 'Sponge layer vertical diffusion factor:', diff_sponge_fac
+       write(iulog, *) 'Sponge layer vertical diffusion factor: ', diff_sponge_fac
        write(iulog, *) '(ptop_ref = ', ptop_ref, ' Pa)'
       if (allocated(kvm_sponge)) then
          write(iulog, *) 'Artificial sponge layer vertical diffusion added:'
