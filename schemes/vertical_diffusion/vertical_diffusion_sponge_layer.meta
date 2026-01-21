@@ -23,6 +23,12 @@
   dimensions = ()
   type = real | kind = kind_phys
   intent = in
+[ diff_sponge_fac ]
+  standard_name = scale_factor_for_sponge_layer_vertical_diffusion
+  units = 1
+  dimensions = ()
+  type = real | kind = kind_phys
+  intent = in
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
@@ -50,6 +56,12 @@
   units = count
   dimensions = ()
   type = integer
+  intent = in
+[ diff_sponge_fac ]
+  standard_name = scale_factor_for_sponge_layer_vertical_diffusion
+  units = 1
+  dimensions = ()
+  type = real | kind = kind_phys
   intent = in
 [ kvm ]
   standard_name = eddy_momentum_diffusivity_at_interfaces
