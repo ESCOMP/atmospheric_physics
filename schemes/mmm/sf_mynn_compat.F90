@@ -27,7 +27,6 @@ contains
             spp_pbl, rstoch1d, &
             errmsg, errflg)
         use ccpp_kinds, only: kind_phys
-        use ccpp_scheme_utils, only: ccpp_constituent_index
 
         ! This threshold is hardcoded to the same value as in MMM physics.
         ! It is named `xice_threshold` there.
