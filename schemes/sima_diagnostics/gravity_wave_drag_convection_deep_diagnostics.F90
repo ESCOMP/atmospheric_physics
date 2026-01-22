@@ -1,7 +1,5 @@
 ! Diagnostics for gravity wave drag from deep convection (Beres scheme)
 module gravity_wave_drag_convection_deep_diagnostics
-  use ccpp_kinds, only: kind_phys
-
   implicit none
   private
 
@@ -40,7 +38,7 @@ contains
     call history_add_field('BTAUNET', 'net_eastward_reynolds_stress_due_to_deep_convective_gravity_wave_drag', 'ilev', 'avg', 'Pa')
 
     call history_add_field('NETDT', 'tendency_of_air_temperature_due_to_deep_convection', 'lev', 'avg', 'K s-1')
-    call history_add_field('HDEPTH', 'convective_heating_depth_due_to_deep_convective_gravity_wave_drag', horiz_only, 'avg', 'km')
+    call history_add_field('HDEPTH', 'convective_heating_depth_for_deep_convective_gravity_wave_drag', horiz_only, 'avg', 'km')
     call history_add_field('MAXQ0', 'maximum_column_heating_rate_due_to_deep_convective_gravity_wave_drag', horiz_only, 'avg', 'K day-1')
 
   end subroutine gravity_wave_drag_convection_deep_diagnostics_init
@@ -55,6 +53,7 @@ contains
     ttend_dp, hdepth, maxq0, &
     errmsg, errflg)
 
+    use ccpp_kinds, only: kind_phys
     use cam_history, only: history_out_field
 
     real(kind_phys), intent(in) :: cpair
@@ -94,6 +93,7 @@ contains
     call history_out_field('BTAUNET', taucd_east + taucd_west)
 
     call history_out_field('NETDT', ttend_dp)
+
     ! Output heating diagnostics (convert depth to km)
     call history_out_field('HDEPTH', hdepth / 1000.0_kind_phys)
     call history_out_field('MAXQ0', maxq0)

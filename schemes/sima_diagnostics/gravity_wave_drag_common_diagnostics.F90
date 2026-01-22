@@ -1,8 +1,6 @@
 ! Diagnostics for all gravity wave drag parameterizations
 ! (used to output total diagnostics in the end of all gravity wave drag schemes)
 module gravity_wave_drag_common_diagnostics
-   use ccpp_kinds, only: kind_phys
-
    implicit none
    private
 
@@ -45,6 +43,8 @@ contains
       tend_q, & ! all ccpp constituent tendencies
       tend_u, tend_v, tend_s, &
       errmsg, errflg)
+
+      use ccpp_kinds, only: kind_phys
 
       use cam_history, only: history_out_field
 

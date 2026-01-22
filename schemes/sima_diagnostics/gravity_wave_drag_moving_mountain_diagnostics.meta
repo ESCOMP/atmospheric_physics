@@ -88,8 +88,8 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ hdepth ]
-  standard_name = convective_heating_depth_due_to_moving_mountain_gravity_wave_drag
-  units = km
+  standard_name = convective_heating_depth_for_moving_mountain_gravity_wave_drag
+  units = m
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
@@ -142,7 +142,7 @@
   dimensions = (horizontal_loop_extent)
   intent = in
 [ xpwp_src ]
-  standard_name = momentum_flux_source_due_to_moving_mountain_gravity_wave_drag
+  standard_name = momentum_flux_source_for_moving_mountain_gravity_wave_drag
   units = m2 s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)

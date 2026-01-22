@@ -1,7 +1,5 @@
 ! Diagnostics for orographic gravity wave drag
 module gravity_wave_drag_orographic_diagnostics
-  use ccpp_kinds, only: kind_phys
-
   implicit none
   private
 
@@ -46,6 +44,8 @@ contains
     tau0x, tau0y, &
     errmsg, errflg)
 
+    use ccpp_kinds, only: kind_phys
+
     use cam_history, only: history_out_field
 
     ! Thermodynamic constant [J kg-1 K-1]
@@ -58,7 +58,7 @@ contains
     real(kind_phys), intent(in) :: vtgw(:,:)
     real(kind_phys), intent(in) :: ttgw(:,:) ! [K s-1] converted inside gw scheme using cpairv.
 
-    ! Temperature tendency components [J kg-1 s-1] -- unit converted for output.
+    ! Dry air enthalpy tendencies due to diffusion and KE dissipation [J kg-1 s-1] -- unit converted for output.
     real(kind_phys), intent(in) :: dttdf(:,:)
     real(kind_phys), intent(in) :: dttke(:,:)
 
@@ -78,7 +78,7 @@ contains
     call history_out_field('VTGWORO', vtgw)
     call history_out_field('TTGWORO', ttgw)
 
-    ! Output temperature tendency components (convert from J/kg/s to K/s)
+    ! Output temperature tendencies from diffusion (convert from J/kg/s to K/s)
     ! Note: this uses cpair instead of cpairv (inconsistent with ttgw, but consistent with other gw schemes).
     ! Also see atmospheric_physics issue #320.
     call history_out_field('TTGWSDFORO', dttdf / cpair)

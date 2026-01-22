@@ -1,6 +1,5 @@
 ! Diagnostics for gravity wave drag from frontogenesis.
 module gravity_wave_drag_frontogenesis_diagnostics
-  use ccpp_kinds, only: kind_phys
 
   implicit none
   private
@@ -60,6 +59,8 @@ contains
     utgw, vtgw, ttgw, &
     taucd_east, taucd_west, taucd_north, taucd_south, &
     errmsg, errflg)
+
+    use ccpp_kinds, only: kind_phys
 
     use cam_history, only: history_out_field
 

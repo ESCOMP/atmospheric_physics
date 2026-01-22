@@ -1,6 +1,5 @@
 ! Diagnostics for gravity wave drag from moving mountain parameterization
 module gravity_wave_drag_moving_mountain_diagnostics
-  use ccpp_kinds, only: kind_phys
 
   implicit none
   private
@@ -37,7 +36,7 @@ contains
     call history_add_field('UTGW_MOVMTN', 'tendency_of_eastward_wind_due_to_moving_mountain_gravity_wave_drag', 'lev', 'inst', 'm s-2')
     call history_add_field('VTGW_MOVMTN', 'tendency_of_northward_wind_due_to_moving_mountain_gravity_wave_drag', 'lev', 'inst', 'm s-2')
 
-    call history_add_field('HDEPTH_MOVMTN', 'convective_heating_depth_due_to_moving_mountain_gravity_wave_drag', horiz_only, 'inst', 'km')
+    call history_add_field('HDEPTH_MOVMTN', 'convective_heating_depth_for_moving_mountain_gravity_wave_drag', horiz_only, 'inst', 'km')
     call history_add_field('NETDT_MOVMTN', 'tendency_of_air_temperature_due_to_deep_convection', 'lev', 'inst', 'K s-1')
 
     call history_add_field('TTEND_CLUBB', 'tendency_of_air_temperature_due_to_clubb', 'lev', 'avg', 'K s-1')
@@ -48,7 +47,7 @@ contains
     call history_add_field('UCELL_MOVMTN', 'eastward_wind_at_steering_level_due_to_moving_mountain_gravity_wave_drag', horiz_only, 'inst', 'm s-1')
     call history_add_field('VCELL_MOVMTN', 'northward_wind_at_steering_level_due_to_moving_mountain_gravity_wave_drag', horiz_only, 'inst', 'm s-1')
     call history_add_field('CS_MOVMTN', 'gravity_wave_phase_speed_in_source_direction_due_to_moving_mountain_gravity_wave_drag', horiz_only, 'inst', 'm s-1')
-    call history_add_field('XPWP_SRC_MOVMTN', 'momentum_flux_source_due_to_moving_mountain_gravity_wave_drag', horiz_only, 'inst', 'm2 s-2')
+    call history_add_field('XPWP_SRC_MOVMTN', 'momentum_flux_source_for_moving_mountain_gravity_wave_drag', horiz_only, 'inst', 'm2 s-2')
 
   end subroutine gravity_wave_drag_moving_mountain_diagnostics_init
 
@@ -64,6 +63,8 @@ contains
     upwp_clubb, vpwp_clubb, vorticity, &
     usteer, vsteer, CS, xpwp_src, &
     errmsg, errflg)
+
+    use ccpp_kinds, only: kind_phys
 
     use cam_history, only: history_out_field
 

@@ -1,7 +1,5 @@
 ! Diagnostics for ridge-based gravity wave drag (meso-Beta)
 module gravity_wave_drag_ridge_beta_diagnostics
-  use ccpp_kinds, only: kind_phys
-
   implicit none
   private
 
@@ -53,6 +51,8 @@ contains
     tauardgx, tauardgy, &
     utgw, vtgw, ttgw, &
     errmsg, errflg)
+
+    use ccpp_kinds, only: kind_phys
 
     use cam_history, only: history_out_field
 
