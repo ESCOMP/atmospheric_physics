@@ -238,7 +238,7 @@ contains
 
         if (errflg /= 0 .or. &
             water_vapor_mixing_ratio_index < lbound(cflx, 2) .or. water_vapor_mixing_ratio_index > ubound(cflx, 2)) then
-            errmsg = 'Failed to find desired constituent flux from cflx'
+            errmsg = 'sf_mynn_compat_run: Failed to find desired constituent flux from cflx'
             errflg = 1
 
             return
