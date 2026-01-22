@@ -3,10 +3,10 @@
 <suite name="convection_permitting" version="1.0">
   <group name="physics_before_coupler">
     <!-- Prepare input needed by the suite -->
+    <scheme>calc_atmosphere_layer_thickness</scheme>
     <scheme>calc_exner</scheme>
+    <scheme>calc_hydrostatic_air_density</scheme>
     <scheme>compute_characteristic_grid_length_scale</scheme>
-    <scheme>compute_atmosphere_layer_thickness</scheme>
-    <scheme>compute_air_density</scheme>
     <scheme>geopotential_height_wrt_sfc_at_if_to_msl</scheme>
     <scheme>geopotential_height_wrt_sfc_to_msl</scheme>
     <scheme>temp_to_potential_temp</scheme>

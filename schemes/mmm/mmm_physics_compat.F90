@@ -9,8 +9,6 @@ module mmm_physics_compat
     public :: mmm_physics_accumulate_tendencies_run
     public :: mmm_physics_persist_states_init
     public :: mmm_physics_persist_states_timestep_final
-    public :: compute_air_density_run
-    public :: compute_atmosphere_layer_thickness_run
     public :: compute_characteristic_grid_length_scale_init
     public :: geopotential_height_wrt_sfc_at_if_to_msl_run
     public :: geopotential_height_wrt_sfc_to_msl_run
@@ -232,53 +230,6 @@ contains
         theta_prev(:, :) = theta_curr(:, :)
         qv_prev(:, :) = qv_curr(:, :)
     end subroutine mmm_physics_persist_states_timestep_final
-
-    !> \section arg_table_compute_air_density_run Argument Table
-    !! \htmlinclude compute_air_density_run.html
-    pure subroutine compute_air_density_run( &
-            pdel, gravit, dz, &
-            rho, &
-            errmsg, errflg)
-        use ccpp_kinds, only: kind_phys
-
-        real(kind_phys), intent(in) :: pdel(:, :), gravit, dz(:, :)
-        real(kind_phys), intent(out) :: rho(:, :)
-        character(*), intent(out) :: errmsg
-        integer, intent(out) :: errflg
-
-        errmsg = ''
-        errflg = 0
-
-        ! Compute air density by hydrostatic equation.
-        rho(:, :) = pdel(:, :) / (gravit * dz(:, :))
-    end subroutine compute_air_density_run
-
-    !> \section arg_table_compute_atmosphere_layer_thickness_run Argument Table
-    !! \htmlinclude compute_atmosphere_layer_thickness_run.html
-    pure subroutine compute_atmosphere_layer_thickness_run( &
-            ncol, &
-            zisfc, &
-            dz, &
-            errmsg, errflg)
-        use ccpp_kinds, only: kind_phys
-
-        integer, intent(in) :: ncol
-        real(kind_phys), intent(in) :: zisfc(:, :)
-        real(kind_phys), intent(out) :: dz(:, :)
-        character(*), intent(out) :: errmsg
-        integer, intent(out) :: errflg
-
-        integer :: i
-
-        errmsg = ''
-        errflg = 0
-
-        ! In CAM-SIMA, the first vertical index is at top of atmosphere.
-        ! The last one is at bottom of atmosphere. The resulting `dz` is positive.
-        do i = 1, ncol
-            dz(i, :) = zisfc(i, 1:size(zisfc, 2) - 1) - zisfc(i, 2:size(zisfc, 2))
-        end do
-    end subroutine compute_atmosphere_layer_thickness_run
 
     !> \section arg_table_compute_characteristic_grid_length_scale_init Argument Table
     !! \htmlinclude compute_characteristic_grid_length_scale_init.html
