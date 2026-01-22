@@ -83,7 +83,7 @@ subroutine set_surface_coupling_vars_run(ncol, pver, ncnst, gravit, rair, phis, 
 
    ! Local variables
 
-   integer :: i              ! condex
+   integer :: i              ! column index
    integer :: m              ! constituent index
 
    !-----------------------------------------------------------------------
