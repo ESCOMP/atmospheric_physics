@@ -25,3 +25,63 @@ subroutine test_temp_to_potential_temp()
     @assertEqual(0, errflg)
 
 end subroutine test_temp_to_potential_temp
+
+@test
+subroutine test_calc_hydrostatic_air_density_run()
+    use ccpp_kinds, only: kind_phys
+    use funit
+    use state_converters, only: calc_hydrostatic_air_density_run
+
+    integer, parameter :: ncol = 100, pver = 10
+    real(kind_phys) :: pdel(ncol, pver), gravit, dz(ncol, pver)
+    real(kind_phys) :: rho(ncol, pver)
+    character(100) :: errmsg
+    integer :: errflg
+
+    pdel(:, :) = 98.0_kind_phys
+    gravit = 9.8_kind_phys
+    dz(:, :) = 10.0_kind_phys
+    rho(:, :) = huge(0.0_kind_phys)
+
+    call calc_hydrostatic_air_density_run( &
+        pdel, gravit, dz, &
+        rho, &
+        errmsg, errflg)
+
+    ! Should compute air density correctly.
+    @assertEqual(1.0_kind_phys, rho, spacing(1.0_kind_phys))
+    @assertEqual('', errmsg)
+    @assertEqual(0, errflg)
+end subroutine test_calc_hydrostatic_air_density_run
+
+@test
+subroutine test_calc_atmosphere_layer_thickness_run()
+    use ccpp_kinds, only: kind_phys
+    use funit
+    use state_converters, only: calc_atmosphere_layer_thickness_run
+
+    integer, parameter :: ncol = 100, pver = 10, pverp = 11
+    real(kind_phys) :: zisfc(ncol, pverp)
+    real(kind_phys) :: dz(ncol, pver)
+    character(100) :: errmsg
+    integer :: errflg
+
+    integer :: i
+
+    do i = 1, pverp
+        zisfc(:, i) = 10000.0_kind_phys - real(i - 1, kind_phys) * 1000.0_kind_phys
+    end do
+
+    dz(:, :) = huge(0.0_kind_phys)
+
+    call calc_atmosphere_layer_thickness_run( &
+        ncol, &
+        zisfc, &
+        dz, &
+        errmsg, errflg)
+
+    ! Should compute atmosphere layer thickness correctly.
+    @assertEqual(1000.0_kind_phys, dz, spacing(1000.0_kind_phys))
+    @assertEqual('', errmsg)
+    @assertEqual(0, errflg)
+end subroutine test_calc_atmosphere_layer_thickness_run
