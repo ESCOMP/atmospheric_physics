@@ -180,7 +180,7 @@
   dimensions = (horizontal_loop_extent)
   intent = out
 [ zol ]
-  standard_name = ratio_of_height_to_monin_obukhov_length
+  standard_name = ratio_of_height_at_surface_adjacent_layer_to_monin_obukhov_length
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
@@ -541,7 +541,7 @@
   dimensions = (horizontal_loop_extent)
   intent = in
 [ zol ]
-  standard_name = ratio_of_height_to_monin_obukhov_length
+  standard_name = ratio_of_height_at_surface_adjacent_layer_to_monin_obukhov_length
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
