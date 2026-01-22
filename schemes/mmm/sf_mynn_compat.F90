@@ -135,6 +135,10 @@ contains
         ! Precompute lookup tables in MYNN surface layer scheme.
         call sf_mynn_init(errmsg, errflg)
 
+        if (errflg /= 0) then
+            return
+        end if
+
         ! MYNN surface layer scheme takes time averages of these variables internally.
         ! As a result, they must be able to persist across time steps.
         ust(:) = 0.0_kind_phys
@@ -352,6 +356,10 @@ contains
             iz0tlnd, its, ite, &
             errmsg, errflg)
 
+        if (errflg /= 0) then
+            return
+        end if
+
         ! The first pass treated sea ice cells as land cells due to how `xland` is defined.
         ! The second pass treats sea ice cells as water cells instead.
         ! Then, for sea ice cells only, the final results are weighted averages according to their area fractions.
@@ -369,6 +377,10 @@ contains
                 cd_sea, cda_sea, spp_pbl, rstoch1d, isftcflx, &
                 iz0tlnd, its, ite, &
                 errmsg, errflg)
+
+            if (errflg /= 0) then
+                return
+            end if
 
             ! Blend the final results between sea ice and sea water.
             where (mask_sea_ice_cell)
