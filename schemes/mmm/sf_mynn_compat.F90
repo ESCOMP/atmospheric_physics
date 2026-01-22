@@ -1,6 +1,8 @@
 !> This module contains interstitial schemes that are specific to MYNN surface layer scheme,
 !> which is part of MMM physics.
 module sf_mynn_compat
+    use ccpp_kinds, only: kind_phys
+
     implicit none
 
     private
@@ -9,6 +11,10 @@ module sf_mynn_compat
     public :: sf_mynn_compat_run
     public :: sf_mynn_diagnostics_init
     public :: sf_mynn_diagnostics_run
+
+    ! This threshold is hardcoded to the same value as in MMM physics.
+    ! It is named `xice_threshold` there.
+    real(kind_phys), parameter :: sea_ice_area_fraction_threshold = 0.02_kind_phys
 contains
     !> \section arg_table_sf_mynn_compat_pre_run Argument Table
     !! \htmlinclude sf_mynn_compat_pre_run.html
@@ -27,10 +33,6 @@ contains
             spp_pbl, rstoch1d, &
             errmsg, errflg)
         use ccpp_kinds, only: kind_phys
-
-        ! This threshold is hardcoded to the same value as in MMM physics.
-        ! It is named `xice_threshold` there.
-        real(kind_phys), parameter :: sea_ice_area_fraction_threshold = 0.02_kind_phys
 
         integer, intent(in) :: itimestep
         real(kind_phys), intent(in) :: u(:, :), v(:, :), t(:, :), qv(:, :), p(:, :), dz(:, :), rho(:, :), &
@@ -163,9 +165,6 @@ contains
         use ccpp_scheme_utils, only: ccpp_constituent_index
         use sf_mynn, only: sf_mynn_run
 
-        ! This threshold is hardcoded to the same value as in MMM physics.
-        ! It is named `xice_threshold` there.
-        real(kind_phys), parameter :: sea_ice_area_fraction_threshold = 0.02_kind_phys
         ! Typical threshold between sea surface temperature and ice surface temperature. See
         ! Algorithm Theoretical Basis Document (ATBD) for the MODIS Snow and Sea Ice-Mapping Algorithms,
         ! Section 4.4.3 Ice Surface Temperature (IST) Algorithm.
