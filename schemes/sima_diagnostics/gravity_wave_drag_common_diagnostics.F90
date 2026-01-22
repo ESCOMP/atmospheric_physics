@@ -99,11 +99,11 @@ contains
       call history_out_field('QTGW', tend_q(:,:,const_wv_idx))
       if(const_cldliq_idx > 0) then
          call history_out_field('CLDLIQTGW', tend_q(:,:,const_cldliq_idx))
-      endif
+      end if
 
       if(const_cldice_idx > 0) then
          call history_out_field('CLDICETGW', tend_q(:,:,const_cldice_idx))
-      endif
+      end if
 
    end subroutine gravity_wave_drag_common_diagnostics_run
 
