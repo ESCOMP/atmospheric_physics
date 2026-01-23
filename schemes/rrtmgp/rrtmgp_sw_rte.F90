@@ -76,11 +76,10 @@ contains
     call check_error_msg('rrtmgp_sw_rte_increment_aerosol_to_clrsky', errmsg)
     if (len_trim(errmsg) /= 0) then
         errflg = 1
-        return
     end if
 
     ! Optionally compute clear-sky fluxes
-    if (doswclrsky) then
+    if (doswclrsky .and. errflg == 0) then
        errmsg = rte_sw(     &
                   sw_optical_props%optical_props,          & ! IN  - optical-properties
                   coszen_day(iCol:iCol2),                  & ! IN  - Cosine of solar zenith angle
@@ -91,7 +90,6 @@ contains
        call check_error_msg('rrtmgp_sw_rte_rte_sw_clrsky', errmsg)
        if (len_trim(errmsg) /= 0) then
            errflg = 1
-           return
        end if
     end if
 
@@ -101,27 +99,27 @@ contains
     ! 
     ! ###################################################################################
 
-    if (doswallsky) then
+    if (doswallsky .and. errflg == 0) then
        ! Increment
        errmsg = sw_optical_props_clouds%optical_props%increment(sw_optical_props%optical_props)
        call check_error_msg('rrtmgp_sw_rte_increment_clouds_to_clrsky', errmsg)
        if (len_trim(errmsg) /= 0) then
           errflg = 1
-          return
        end if
 
        ! Compute fluxes
-       errmsg = rte_sw(     &
-            sw_optical_props%optical_props,  & ! IN  - optical-properties
-            coszen_day(iCol:iCol2),          & ! IN  - Cosine of solar zenith angle
-            toa_src_sw,                      & ! IN  - incident solar flux at TOA
-            sfc_alb_dir,                     & ! IN  - Shortwave surface albedo (direct)
-            sfc_alb_dif,                     & ! IN  - Shortwave surface albedo (diffuse)
-            flux_allsky%fluxes)                ! OUT - Fluxes, all-sky, 3D (1,nLay,nBand)
-       call check_error_msg('rrtmgp_sw_rte_rte_sw_allsky', errmsg)
-       if (len_trim(errmsg) /= 0) then
-          errflg = 1
-          return
+       if (errflg == 0) then
+          errmsg = rte_sw(     &
+               sw_optical_props%optical_props,  & ! IN  - optical-properties
+               coszen_day(iCol:iCol2),          & ! IN  - Cosine of solar zenith angle
+               toa_src_sw,                      & ! IN  - incident solar flux at TOA
+               sfc_alb_dir,                     & ! IN  - Shortwave surface albedo (direct)
+               sfc_alb_dif,                     & ! IN  - Shortwave surface albedo (diffuse)
+               flux_allsky%fluxes)                ! OUT - Fluxes, all-sky, 3D (1,nLay,nBand)
+          call check_error_msg('rrtmgp_sw_rte_rte_sw_allsky', errmsg)
+          if (len_trim(errmsg) /= 0) then
+             errflg = 1
+          end if
        end if
     end if
     !$acc end data
