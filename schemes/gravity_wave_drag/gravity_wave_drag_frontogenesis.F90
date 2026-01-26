@@ -505,8 +505,8 @@ contains
     real(kind_phys),    intent(out)   :: vtgw(:, :)               ! Meridional wind tendency from gravity waves [m s-2]
     real(kind_phys),    intent(out)   :: ttgw(:, :)               ! Temperature tendency from gravity waves [K s-1]
     real(kind_phys),    intent(out)   :: qtgw(:, :, :)            ! Constituent tendencies from gravity waves [kg kg-1 s-1]
-    real(kind_phys),    intent(out)   :: dttdf(:, :)              ! Temperature tendency from diffusion [K s-1]
-    real(kind_phys),    intent(out)   :: dttke(:, :)              ! Temperature tendency from kinetic energy dissipation [K s-1]
+    real(kind_phys),    intent(out)   :: dttdf(:, :)              ! Dry air enthalpy tendency from diffusion [J kg-1 s-1]
+    real(kind_phys),    intent(out)   :: dttke(:, :)              ! Dry air tendency from kinetic energy dissipation [J kg-1 s-1]
     character(len=512), intent(out)   :: errmsg
     integer,            intent(out)   :: errflg
 
