@@ -359,8 +359,8 @@ contains
    iCol2= min(iCol + rrtmgp_phys_blksz - 1, ncol)
 
    !$acc data copyin(lw_gas_props%gas_props, p_lay, p_lev, t_lay,  &
-   !$acc             tsfg, gas_concs%gas_concs)                  &
-   !$acc        copy(lw_optical_props_clrsky%optical_props, lw_optical_props_clrsky%optical_props%tau, &
+   !$acc             tsfg, gas_concs%gas_concs, lw_optical_props_clrsky%optical_props)  &
+   !$acc        copy(lw_optical_props_clrsky%optical_props%tau, &
    !$acc             sources%sources, sources%sources%lay_source,                  &
    !$acc             sources%sources%sfc_source,                  &
    !$acc             sources%sources%lev_source,                  &

@@ -369,8 +369,8 @@ contains
    iCol = ((iter_num - 1) * rrtmgp_phys_blksz) + 1
    iCol2= min(iCol + rrtmgp_phys_blksz - 1, ncol)
 
-   !$acc data copyin(sw_gas_props%gas_props,p_lay,p_lev,t_lay,gas_concs%gas_concs) &
-   !$acc     copy(sw_optical_props%optical_props) &
+   !$acc data copyin(sw_gas_props%gas_props,p_lay,p_lev,t_lay,gas_concs%gas_concs, &
+   !$acc             sw_optical_props%optical_props) &
    !$acc     copyout(toa_src_sw)
    errmsg = sw_gas_props%gas_props%gas_optics(&
          p_lay(iCol:iCol2,:),             & ! IN  - Pressure @ layer-centers (Pa)
