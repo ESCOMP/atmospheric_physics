@@ -76,6 +76,7 @@ contains
     call check_error_msg('rrtmgp_sw_rte_increment_aerosol_to_clrsky', errmsg)
     if (len_trim(errmsg) /= 0) then
         errflg = 1
+        ! Can't return from within a top-level acc block
     end if
 
     ! Optionally compute clear-sky fluxes
