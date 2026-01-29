@@ -369,6 +369,8 @@ contains
    iCol = ((iter_num - 1) * rrtmgp_phys_blksz) + 1
    iCol2= min(iCol + rrtmgp_phys_blksz - 1, ncol)
 
+   !$acc data copyin(sw_gas_props%gas_props,p_lay,p_lev,t_lay,gas_concs%gas_concs) &
+   !$acc     copyout(toa_src_sw)
    errmsg = sw_gas_props%gas_props%gas_optics(&
          p_lay(iCol:iCol2,:),             & ! IN  - Pressure @ layer-centers (Pa)
          p_lev(iCol:iCol2,:),             & ! IN  - Pressure @ layer-interfaces (Pa)
@@ -381,6 +383,7 @@ contains
    if (len_trim(errmsg) /= 0) then
       errflg = 1
    end if
+   !$acc end data
 
   end subroutine rrtmgp_sw_gas_optics_run
 
