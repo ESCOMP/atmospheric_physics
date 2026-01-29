@@ -98,7 +98,7 @@ contains
                   flux_clrsky%fluxes,                    & ! OUT - Fluxes
                   n_gauss_angles = nGauss_angles,        & ! IN  - Number of angles in Gaussian quadrature
                   lw_Ds = lw_Ds)                           ! IN  - 1/cos of transport angle per column and g-point
-          elseif (errflg == 0) then
+          else if (errflg == 0) then
              errmsg = rte_lw(           &
                   lw_optical_props_clrsky%optical_props, & ! IN  - optical-properties
                   sources%sources,                       & ! IN  - source function
@@ -114,7 +114,7 @@ contains
                   sfc_emiss_byband,                      & ! IN  - surface emissivity in each LW band
                   flux_clrsky%fluxes,                    & ! OUT - Fluxes
                   n_gauss_angles = nGauss_angles)          ! IN  - Number of angles in Gaussian quadrature
-          elseif (errflg == 0) then
+          else if (errflg == 0) then
              errmsg = rte_lw(           &
                   lw_optical_props_clrsky%optical_props, & ! IN  - optical-properties
                   sources%sources,                       & ! IN  - source function
@@ -168,7 +168,7 @@ contains
                   flux_allsky%fluxes,                    & ! OUT - Fluxes
                   flux_up_Jac    = fluxlwUP_jac)           ! OUT - surface temperature flux (upward) Jacobian (W m-2 K-1)
           end if
-       elseif (errflg == 0) then
+       else if (errflg == 0) then
           if (nGauss_angles > 1) then
              errmsg = rte_lw(           &
                   lw_optical_props_clouds%optical_props, & ! IN  - optical-properties
@@ -210,7 +210,7 @@ contains
                   flux_allsky%fluxes,                    & ! OUT - Fluxes
                   flux_up_Jac    = fluxlwUP_jac)           ! OUT - surface temperature flux (upward) Jacobian (W m-2 K-1)
           end if
-       elseif (errflg == 0) then
+       else if (errflg == 0) then
           if (nGauss_angles > 1) then
              errmsg = rte_lw(           &
                   lw_optical_props_clrsky%optical_props, & ! IN  - optical-properties
