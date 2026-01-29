@@ -3,6 +3,8 @@
   type = scheme
   dependencies = ext/rte-kernels/mo_rte_kind.F90
   dependencies = objects/ccpp_gas_concentrations.F90
+  dependencies = ext/rte-kernels/accel/mo_optical_props_kernels.F90
+  dependencies = ext/rrtmgp-kernels/accel/mo_gas_optics_rrtmgp_kernels.F90
 
 [ccpp-arg-table]
   name  = rrtmgp_lw_gas_optics_init
