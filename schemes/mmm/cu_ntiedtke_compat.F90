@@ -123,36 +123,54 @@ contains
         allocate(pu_local, source=pu, errmsg=errmsg, stat=errflg)
 
         if (errflg /= 0) then
+            errmsg = 'cu_ntiedtke_compat_run: Failed to allocate "pu_local"' // new_line('') // &
+                'Allocation returned with error: ' // trim(adjustl(errmsg))
+
             return
         end if
 
         allocate(pv_local, source=pv, errmsg=errmsg, stat=errflg)
 
         if (errflg /= 0) then
+            errmsg = 'cu_ntiedtke_compat_run: Failed to allocate "pv_local"' // new_line('') // &
+                'Allocation returned with error: ' // trim(adjustl(errmsg))
+
             return
         end if
 
         allocate(pt_local, source=pt, errmsg=errmsg, stat=errflg)
 
         if (errflg /= 0) then
+            errmsg = 'cu_ntiedtke_compat_run: Failed to allocate "pt_local"' // new_line('') // &
+                'Allocation returned with error: ' // trim(adjustl(errmsg))
+
             return
         end if
 
         allocate(pqv_local, source=pqv, errmsg=errmsg, stat=errflg)
 
         if (errflg /= 0) then
+            errmsg = 'cu_ntiedtke_compat_run: Failed to allocate "pqv_local"' // new_line('') // &
+                'Allocation returned with error: ' // trim(adjustl(errmsg))
+
             return
         end if
 
         allocate(pqc_local, source=pqc, errmsg=errmsg, stat=errflg)
 
         if (errflg /= 0) then
+            errmsg = 'cu_ntiedtke_compat_run: Failed to allocate "pqc_local"' // new_line('') // &
+                'Allocation returned with error: ' // trim(adjustl(errmsg))
+
             return
         end if
 
         allocate(pqi_local, source=pqi, errmsg=errmsg, stat=errflg)
 
         if (errflg /= 0) then
+            errmsg = 'cu_ntiedtke_compat_run: Failed to allocate "pqi_local"' // new_line('') // &
+                'Allocation returned with error: ' // trim(adjustl(errmsg))
+
             return
         end if
 
