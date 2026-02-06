@@ -1,7 +1,7 @@
 [submodule "mmm-physics"]
 	path = schemes/mmm/mmm_physics
 	url = https://github.com/NCAR/MMM-physics.git
-	fxtag = 6cb29bc8f17bc3efdfaaa8a268ca53e2504aadbd
+	fxtag = 20251208-CAM-SIMA
 	fxrequired = AlwaysRequired
 	fxDONOTUSEurl = https://github.com/NCAR/MMM-physics.git
 [submodule "pumas"]
