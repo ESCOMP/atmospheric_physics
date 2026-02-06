@@ -23,6 +23,18 @@
   type = integer
   dimensions = ()
   intent = out
+[ spp_pbl ]
+  standard_name = flag_for_stochastically_perturbed_parameterization_for_mynn_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ xice_threshold ]
+  standard_name = sea_ice_area_fraction_threshold_for_mmm_scheme
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
   long_name = Error message for error handling in CCPP
@@ -82,6 +94,12 @@
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
+  intent = in
+[ xice_threshold ]
+  standard_name = sea_ice_area_fraction_threshold_for_mmm_scheme
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
   intent = in
 [ landfrac ]
   standard_name = land_area_fraction_from_coupler

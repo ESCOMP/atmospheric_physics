@@ -11,6 +11,12 @@
   type = integer
   dimensions = ()
   intent = in
+[ spp_pbl ]
+  standard_name = flag_for_stochastically_perturbed_parameterization_for_mynn_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
 [ u ]
   standard_name = eastward_wind
   units = m s-1
@@ -58,6 +64,12 @@
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
+  intent = in
+[ xice_threshold ]
+  standard_name = sea_ice_area_fraction_threshold_for_mmm_scheme
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
   intent = in
 [ landfrac ]
   standard_name = land_area_fraction_from_coupler
@@ -293,12 +305,6 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
-[ spp_pbl ]
-  standard_name = flag_for_stochastically_perturbed_parameterization_for_mynn_scheme
-  units = flag
-  type = logical
-  dimensions = ()
-  intent = out
 [ rstoch1d ]
   standard_name = stochastically_perturbed_weights_for_mynn_scheme
   units = 1
@@ -383,6 +389,12 @@
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
+  intent = in
+[ xice_threshold ]
+  standard_name = sea_ice_area_fraction_threshold_for_mmm_scheme
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
   intent = in
 [ sst ]
   standard_name = sea_surface_temperature_from_coupler

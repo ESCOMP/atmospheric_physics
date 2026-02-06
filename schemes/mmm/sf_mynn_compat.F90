@@ -11,17 +11,14 @@ module sf_mynn_compat
     public :: sf_mynn_compat_run
     public :: sf_mynn_diagnostics_init
     public :: sf_mynn_diagnostics_run
-
-    ! This threshold is hardcoded to the same value as in MMM physics.
-    ! It is named `xice_threshold` there.
-    real(kind_phys), parameter :: sea_ice_area_fraction_threshold = 0.02_kind_phys
 contains
     !> \section arg_table_sf_mynn_compat_pre_run Argument Table
     !! \htmlinclude sf_mynn_compat_pre_run.html
     subroutine sf_mynn_compat_pre_run( &
             itimestep, &
+            spp_pbl, &
             u, v, t, qv, p, dz, rho, &
-            icefrac, landfrac, snowhice, snowhland, &
+            icefrac, xice_threshold, landfrac, snowhice, snowhland, &
             u1d, v1d, t1d, qv1d, p1d, dz8w1d, rho1d, &
             u1d2, v1d2, dz2w1d, &
             chs, chs2, cqs2, cpm, rmol, &
@@ -30,14 +27,14 @@ contains
             flhc, flqc, snowh, qgh, qsfc, &
             gz1oz0, wspd, br, svp1, svp2, &
             svp3, svpt0, qcg, &
-            spp_pbl, rstoch1d, &
+            rstoch1d, &
             errmsg, errflg)
         use ccpp_kinds, only: kind_phys
 
         integer, intent(in) :: itimestep
+        logical, intent(in) :: spp_pbl
         real(kind_phys), intent(in) :: u(:, :), v(:, :), t(:, :), qv(:, :), p(:, :), dz(:, :), rho(:, :), &
-                                       icefrac(:), landfrac(:), snowhice(:), snowhland(:)
-        logical, intent(out) :: spp_pbl
+                                       icefrac(:), xice_threshold, landfrac(:), snowhice(:), snowhland(:)
         real(kind_phys), intent(out) :: u1d(:), v1d(:), t1d(:), qv1d(:), p1d(:), dz8w1d(:), rho1d(:), &
                                         u1d2(:), v1d2(:), dz2w1d(:), &
                                         chs(:), chs2(:), cqs2(:), cpm(:), rmol(:), &
@@ -94,7 +91,7 @@ contains
             snowh = snowhland
         end where
 
-        where (icefrac >= sea_ice_area_fraction_threshold)
+        where (icefrac >= xice_threshold)
             snowh = snowhice
         end where
 
@@ -113,8 +110,14 @@ contains
 
         qcg(:) = 0.0_kind_phys ! Not used but still appear in the argument list...
 
-        spp_pbl = .false.
-        rstoch1d(:) = 0.0_kind_phys
+        if (spp_pbl) then
+            errmsg = 'sf_mynn_compat_pre_run: Stochastically perturbed parameterization is not supported'
+            errflg = 1
+
+            return
+        else
+            rstoch1d(:) = 0.0_kind_phys
+        end if
 
         errmsg = ''
         errflg = 0
@@ -152,7 +155,7 @@ contains
     !> \section arg_table_sf_mynn_compat_run Argument Table
     !! \htmlinclude sf_mynn_compat_run.html
     subroutine sf_mynn_compat_run( &
-            ncol, cflx, icefrac, sst, &
+            ncol, cflx, icefrac, xice_threshold, sst, &
             u1d, v1d, t1d, qv1d, p1d, dz8w1d, rho1d, &
             u1d2, v1d2, dz2w1d, cp, g, rovcp, r, xlv, &
             psfcpa, chs, chs2, cqs2, cpm, pblh, rmol, &
@@ -180,7 +183,7 @@ contains
                                isftcflx, &
                                iz0tlnd, its, ite
         logical, intent(in) :: spp_pbl
-        real(kind_phys), intent(in) :: icefrac(:), sst(:), &
+        real(kind_phys), intent(in) :: icefrac(:), xice_threshold, sst(:), &
                                        u1d(:), v1d(:), t1d(:), qv1d(:), p1d(:), dz8w1d(:), rho1d(:), &
                                        u1d2(:), v1d2(:), dz2w1d(:), cp, g, rovcp, r, xlv, &
                                        psfcpa(:), pblh(:), &
@@ -252,7 +255,7 @@ contains
             return
         end if
 
-        mask_sea_ice_cell(:) = (icefrac >= sea_ice_area_fraction_threshold)
+        mask_sea_ice_cell(:) = (icefrac >= xice_threshold)
 
         ! If there are sea ice cells, make local copies of the variables in preparation for the second pass.
         if (any(mask_sea_ice_cell)) then

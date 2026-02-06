@@ -17,19 +17,27 @@ contains
     !! \htmlinclude mmm_physics_compat_init.html
     pure subroutine mmm_physics_compat_init( &
             isfflx, isftcflx, iz0tlnd, &
+            spp_pbl, &
+            xice_threshold, &
             errmsg, errflg)
+        use ccpp_kinds, only: kind_phys
 
         integer, intent(out) :: isfflx, isftcflx, iz0tlnd
+        logical, intent(out) :: spp_pbl
+        real(kind_phys), intent(out) :: xice_threshold
         character(*), intent(out) :: errmsg
         integer, intent(out) :: errflg
 
         errmsg = ''
         errflg = 0
 
-        ! Set options that are specific to MMM physics at model initialization.
+        ! These options are hardcoded to the same values as in the MPAS physics driver.
+        ! There are other possible values for them in WRF, but the following combination is the only supported one in MPAS.
         isfflx = 1
         isftcflx = 0
         iz0tlnd = 0
+        spp_pbl = .false.
+        xice_threshold = 0.02_kind_phys
     end subroutine mmm_physics_compat_init
 
     !> \section arg_table_mmm_physics_compat_run Argument Table
@@ -38,21 +46,17 @@ contains
             nstep, &
             dt, &
             theta_curr, theta_prev, qv_curr, qv_prev, &
-            icefrac, landfrac, &
+            icefrac, xice_threshold, landfrac, &
             scheme_name, &
             rthdynten, rqvdynten, &
             xland, &
             errmsg, errflg)
         use ccpp_kinds, only: kind_phys
 
-        ! This threshold is hardcoded to the same value as in MMM physics.
-        ! It is named `xice_threshold` there.
-        real(kind_phys), parameter :: sea_ice_area_fraction_threshold = 0.02_kind_phys
-
         integer, intent(in) :: nstep
         real(kind_phys), intent(in) :: dt, &
                                        theta_curr(:, :), theta_prev(:, :), qv_curr(:, :), qv_prev(:, :), &
-                                       icefrac(:), landfrac(:)
+                                       icefrac(:), xice_threshold, landfrac(:)
         character(256), intent(out) :: scheme_name
         real(kind_phys), intent(out) :: rthdynten(:, :), rqvdynten(:, :), &
                                         xland(:)
@@ -76,7 +80,7 @@ contains
         ! * xland = 1.0 for land cells, including sea ice cells.
         ! * xland = 2.0 for water cells.
         where (landfrac >= 0.5_kind_phys .or. &
-               icefrac >= sea_ice_area_fraction_threshold)
+               icefrac >= xice_threshold)
             xland = 1.0_kind_phys
         elsewhere
             xland = 2.0_kind_phys
