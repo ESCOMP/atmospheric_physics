@@ -229,6 +229,9 @@ contains
         allocate(ch(ncol), errmsg=errmsg, stat=errflg)
 
         if (errflg /= 0) then
+            errmsg = 'sf_mynn_compat_run: Failed to allocate "ch"' // new_line('') // &
+                'Allocation returned with error: ' // trim(adjustl(errmsg))
+
             return
         end if
 
@@ -252,6 +255,9 @@ contains
         allocate(mask_sea_ice_cell(ncol), errmsg=errmsg, stat=errflg)
 
         if (errflg /= 0) then
+            errmsg = 'sf_mynn_compat_run: Failed to allocate "mask_sea_ice_cell"' // new_line('') // &
+                'Allocation returned with error: ' // trim(adjustl(errmsg))
+
             return
         end if
 
@@ -263,6 +269,9 @@ contains
                 errmsg=errmsg, stat=errflg)
 
             if (errflg /= 0) then
+                errmsg = 'sf_mynn_compat_run: Failed to allocate "mavail_sea", "xland_sea", "tsk_sea"' // new_line('') // &
+                    'Allocation returned with error: ' // trim(adjustl(errmsg))
+
                 return
             end if
 
@@ -279,6 +288,9 @@ contains
                 errmsg=errmsg, stat=errflg)
 
             if (errflg /= 0) then
+                errmsg = 'sf_mynn_compat_run: Failed to allocate "chs_sea", "chs2_sea", "cqs2_sea", ...' // new_line('') // &
+                    'Allocation returned with error: ' // trim(adjustl(errmsg))
+
                 return
             end if
 
@@ -313,6 +325,9 @@ contains
                 errmsg=errmsg, stat=errflg)
 
             if (errflg /= 0) then
+                errmsg = 'sf_mynn_compat_run: Failed to allocate "u10_sea", "v10_sea", "th2_sea", ...' // new_line('') // &
+                    'Allocation returned with error: ' // trim(adjustl(errmsg))
+
                 return
             end if
 
