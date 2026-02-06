@@ -10,8 +10,14 @@ module state_converters
   public :: temp_to_potential_temp_run
   public :: potential_temp_to_temp_run
 
-  ! Calculate density from equation of state/ideal gas law
+  ! Calculate dry air density by equation of state/ideal gas law
   public :: calc_dry_air_ideal_gas_density_run
+
+  ! Calculate air density by hydrostatic equation
+  public :: calc_hydrostatic_air_density_run
+
+  ! Calculate atmosphere layer thickness
+  public :: calc_atmosphere_layer_thickness_run
 
   ! Calculate exner
   public :: calc_exner_run
@@ -75,7 +81,7 @@ CONTAINS
   subroutine calc_dry_air_ideal_gas_density_run(ncol, nz, rair, pmiddry, temp, rho, errmsg, errflg)
     integer,          intent(in)    :: ncol         ! Number of columns
     integer,          intent(in)    :: nz           ! Number of vertical levels
-    real(kind_phys),  intent(in)    :: rair(:,:)   ! gas constant for dry air (J kg-1)
+    real(kind_phys),  intent(in)    :: rair(:,:)    ! Gas constant of dry air (J kg-1 K-1)
     real(kind_phys),  intent(in)    :: pmiddry(:,:) ! Air pressure of dry air (Pa)
     real(kind_phys),  intent(in)    :: temp(:,:)    ! Air temperature (K)
     real(kind_phys),  intent(out)   :: rho(:,:)     ! Dry air density (kg m-3)
@@ -92,6 +98,53 @@ CONTAINS
     errflg = 0
 
   end subroutine calc_dry_air_ideal_gas_density_run
+
+  !> \section arg_table_calc_hydrostatic_air_density_run Argument Table
+  !! \htmlinclude calc_hydrostatic_air_density_run.html
+  pure subroutine calc_hydrostatic_air_density_run( &
+      pdel, gravit, dz, &
+      rho, &
+      errmsg, errflg)
+    use ccpp_kinds, only: kind_phys
+
+    real(kind_phys), intent(in) :: pdel(:, :), gravit, dz(:, :)
+    real(kind_phys), intent(out) :: rho(:, :)
+    character(*), intent(out) :: errmsg
+    integer, intent(out) :: errflg
+
+    ! Calculate air density by hydrostatic equation.
+    rho(:, :) = pdel(:, :) / (gravit * dz(:, :))
+
+    errmsg = ''
+    errflg = 0
+  end subroutine calc_hydrostatic_air_density_run
+
+  !> \section arg_table_calc_atmosphere_layer_thickness_run Argument Table
+  !! \htmlinclude calc_atmosphere_layer_thickness_run.html
+  pure subroutine calc_atmosphere_layer_thickness_run( &
+      ncol, &
+      zisfc, &
+      dz, &
+      errmsg, errflg)
+    use ccpp_kinds, only: kind_phys
+
+    integer, intent(in) :: ncol
+    real(kind_phys), intent(in) :: zisfc(:, :)
+    real(kind_phys), intent(out) :: dz(:, :)
+    character(*), intent(out) :: errmsg
+    integer, intent(out) :: errflg
+
+    integer :: i
+
+    ! In CAM-SIMA, the first vertical index is at top of atmosphere.
+    ! The last one is at bottom of atmosphere. The resulting `dz` is positive.
+    do i = 1, ncol
+        dz(i, :) = zisfc(i, 1:size(zisfc, 2) - 1) - zisfc(i, 2:size(zisfc, 2))
+    end do
+
+    errmsg = ''
+    errflg = 0
+  end subroutine calc_atmosphere_layer_thickness_run
 
 !> \section arg_table_calc_exner_run  Argument Table
 !! \htmlinclude calc_exner_run.html
