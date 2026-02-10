@@ -5,7 +5,6 @@
   <!-- **********Physics before the coupler************  -->
   <group name="physics_before_coupler">
     <!-- (temporary) Initialize all constituents and to_be_ccppized modules -->
-    <scheme>initialize_constituents</scheme>
     <scheme>to_be_ccppized_temporary</scheme>
 
     <!-- Set top level for cloud fraction calculations -->
@@ -74,6 +73,13 @@
     <!-- Check that energy and water change matches the boundary fluxes -->
     <scheme>check_energy_scaling</scheme>
     <scheme>check_energy_chng</scheme>
+
+    <!-- Calculate surface variables -->
+    <!-- This must be done at the end
+         of the "before_coupler" group. -->
+    <!-- UNCOMMENT ONCE ALL OTHER CAM7 SCHEMES ARE PRESENT -->
+    <!-- <scheme>calc_dry_air_ideal_gas_density</scheme>
+    <scheme>set_surface_coupling_vars</scheme> -->
 
   </group>
 
