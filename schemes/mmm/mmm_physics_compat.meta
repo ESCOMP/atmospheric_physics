@@ -31,7 +31,7 @@
   intent = out
 [ xice_threshold ]
   standard_name = sea_ice_area_fraction_threshold_for_mmm_scheme
-  units = 1
+  units = fraction
   type = real | kind = kind_phys
   dimensions = ()
   intent = out
@@ -97,7 +97,7 @@
   intent = in
 [ xice_threshold ]
   standard_name = sea_ice_area_fraction_threshold_for_mmm_scheme
-  units = 1
+  units = fraction
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
