@@ -1,0 +1,113 @@
+[ccpp-table-properties]
+  name = gravity_wave_drag_convection_deep_diagnostics
+  type = scheme
+
+[ccpp-arg-table]
+  name  = gravity_wave_drag_convection_deep_diagnostics_init
+  type  = scheme
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = gravity_wave_drag_convection_deep_diagnostics_run
+  type  = scheme
+[ cpair ]
+  standard_name = specific_heat_of_dry_air_at_constant_pressure
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ dttdf ]
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_diffusion_due_to_deep_convective_gravity_wave_drag
+  units = J kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ dttke ]
+  standard_name = tendency_of_dry_air_enthalpy_due_to_kinetic_energy_dissipation_due_to_deep_convective_gravity_wave_drag
+  units = J kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ utgw ]
+  standard_name = tendency_of_eastward_wind_due_to_deep_convective_gravity_wave_drag
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ vtgw ]
+  standard_name = tendency_of_northward_wind_due_to_deep_convective_gravity_wave_drag
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ ttgw ]
+  standard_name = tendency_of_air_temperature_due_to_deep_convective_gravity_wave_drag
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ taucd_east ]
+  standard_name = eastward_reynolds_stress_due_to_deep_convective_gravity_wave_drag
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ taucd_west ]
+  standard_name = westward_reynolds_stress_due_to_deep_convective_gravity_wave_drag
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ taucd_north ]
+  standard_name = northward_reynolds_stress_due_to_deep_convective_gravity_wave_drag
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ taucd_south ]
+  standard_name = southward_reynolds_stress_due_to_deep_convective_gravity_wave_drag
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ ttend_dp ]
+  standard_name = tendency_of_air_temperature_due_to_deep_convection
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ hdepth ]
+  standard_name = convective_heating_depth_for_deep_convective_gravity_wave_drag
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ maxq0 ]
+  standard_name = maximum_column_heating_rate_due_to_deep_convective_gravity_wave_drag
+  units = K day-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

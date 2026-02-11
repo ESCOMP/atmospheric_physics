@@ -275,8 +275,8 @@
   dimensions = (horizontal_loop_extent)
   intent = out
 [ hdepth ]
-  standard_name = convective_heating_depth_due_to_deep_convective_gravity_wave_drag
-  units = km
+  standard_name = convective_heating_depth_for_deep_convective_gravity_wave_drag
+  units = m
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
@@ -317,13 +317,13 @@
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = inout
 [ dttdf ]
-  standard_name = tendency_of_air_temperature_due_to_diffusion_due_to_deep_convective_gravity_wave_drag
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_diffusion_due_to_deep_convective_gravity_wave_drag
   units = J kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ dttke ]
-  standard_name = tendency_of_air_temperature_due_to_kinetic_energy_dissipation_due_to_deep_convective_gravity_wave_drag
+  standard_name = tendency_of_dry_air_enthalpy_due_to_kinetic_energy_dissipation_due_to_deep_convective_gravity_wave_drag
   units = J kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -642,7 +642,7 @@
   dimensions = (horizontal_loop_extent)
   intent = out
 [ hdepth ]
-  standard_name = convective_heating_depth_due_to_shallow_convective_gravity_wave_drag
+  standard_name = convective_heating_depth_for_shallow_convective_gravity_wave_drag
   units = km
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
@@ -667,7 +667,7 @@
   intent = out
 [ ttgw ]
   standard_name = tendency_of_air_temperature_due_to_shallow_convective_gravity_wave_drag
-  units = J kg-1 s-1
+  units = K s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
@@ -684,13 +684,13 @@
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = inout
 [ dttdf ]
-  standard_name = tendency_of_air_temperature_due_to_diffusion_due_to_shallow_convective_gravity_wave_drag
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_diffusion_due_to_shallow_convective_gravity_wave_drag
   units = J kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ dttke ]
-  standard_name = tendency_of_air_temperature_due_to_kinetic_energy_dissipation_due_to_shallow_convective_gravity_wave_drag
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_kinetic_energy_dissipation_due_to_shallow_convective_gravity_wave_drag
   units = J kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
