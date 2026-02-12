@@ -18,7 +18,7 @@ contains
 !> \section arg_table_rrtmgp_sw_solar_var_run Argument Table
 !! \htmlinclude rrtmgp_sw_solar_var_run.html
 !!
-  subroutine rrtmgp_sw_solar_var_run(toa_flux, ccpp_constant_two, band2gpt_sw, nswbands, sol_irrad, wave_end, nbins, sol_tsi, &
+  subroutine rrtmgp_sw_solar_var_run(toa_flux, constant_dim_two, band2gpt_sw, nswbands, sol_irrad, wave_end, nbins, sol_tsi, &
                                      nday, dosw, do_spectral_scaling, sfac, eccf, errmsg, errflg)
      use rrtmgp_sw_solar_var_setup, only: irrad, radbinmax, radbinmin
      use ccpp_kinds,                only : kind_phys
@@ -30,7 +30,7 @@ contains
      real(kind_phys),    intent(in)    :: wave_end(:)           ! wavelength endpoints
      integer,            intent(in)    :: nday                  ! number of daytime points
      integer,            intent(in)    :: nbins                 ! number of bins
-     integer,            intent(in)    :: ccpp_constant_two     ! dimension for band2gpt_sw
+     integer,            intent(in)    :: constant_dim_two      ! dimension for band2gpt_sw
      integer,            intent(in)    :: band2gpt_sw(:,:)      ! array for converting shortwave band limits to g-points
      integer,            intent(in)    :: nswbands              ! number of shortwave bands
      logical,            intent(in)    :: do_spectral_scaling   ! flag to do spectral scaling

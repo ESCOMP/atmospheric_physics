@@ -122,7 +122,7 @@
   intent = in
 [ current_cal_day ]
   standard_name = fractional_calendar_days_on_end_of_current_timestep
-  units = 1
+  units = days
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
@@ -232,7 +232,7 @@
   standard_name = shortwave_start_and_end_gpoint_for_each_band
   units = index
   type = integer
-  dimensions = (ccpp_constant_two,number_of_bands_for_shortwave_radiation)
+  dimensions = (constant_dimension_two,number_of_bands_for_shortwave_radiation)
   intent = out
 [ irad_always_out ]
   standard_name = number_of_timesteps_to_force_radiation_calculation_after_initialization
