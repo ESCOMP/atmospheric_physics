@@ -24,6 +24,7 @@ subroutine initialize_constituents_register(constituents, errmsg, errcode)
     integer :: num_variables
     integer :: ierr
     integer :: var_index
+    integer :: split_index
     integer :: constituent_index
     integer :: known_const_index
     integer :: found_const_count
@@ -31,6 +32,7 @@ subroutine initialize_constituents_register(constituents, errmsg, errcode)
     character(len=256) :: variable_name
     character(len=512) :: alloc_err_msg
     character(len=256), allocatable :: constituent_names(:)
+    character(len=256), allocatable :: const_diag_names(:)
     character(len=65), parameter :: water_species_std_names(6) = &
       (/'water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water       ', &
         'cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water', &
@@ -66,14 +68,22 @@ subroutine initialize_constituents_register(constituents, errmsg, errcode)
        write(errmsg,*) 'Failed to allocate "constituent_names" in initialize_constituents_register: ', trim(alloc_err_msg)
        return
     end if
+    allocate(const_diag_names(num_variables), stat=ierr, errmsg=alloc_err_msg)
+    if (ierr /= 0) then
+       errcode = 1
+       write(errmsg,*) 'Failed to allocate "const_diag_names" in initialize_constituents_register: ', trim(alloc_err_msg)
+       return
+    end if
 
     ! Loop over all variables in the file and add each constituent to the
     !  dynamic constituent array
     do var_index = 1, num_variables
        ierr = pio_inq_varname(ncdata, var_index, variable_name)
        known_constituent = .false.
-       if (index(variable_name, 'cnst_') > 0) then
+       split_index = index(variable_name, 'cnst_')
+       if (split_index > 0) then
           constituent_index = constituent_index + 1
+          const_diag_names(constituent_index) = variable_name(split_index:)
           ! Replace with standard name if known, to avoid duplicates
           if (found_const_count < size(water_species_std_names)) then
              do known_const_index = 1, size(const_file_names)
@@ -107,6 +117,7 @@ subroutine initialize_constituents_register(constituents, errmsg, errcode)
              vertical_dim = 'vertical_layer_dimension', &
              min_value = 0.0_kind_phys,                 &
              advected = .true.,                         &
+             diag_name = const_diag_names(var_index),   &
              water_species = .true.,                    &
              mixing_ratio_type = 'wet',                 &
              errcode = errcode,                         &
@@ -122,6 +133,7 @@ subroutine initialize_constituents_register(constituents, errmsg, errcode)
              vertical_dim = 'vertical_layer_dimension', &
              min_value = 0.0_kind_phys,                 &
              advected = .true.,                         &
+             diag_name = const_diag_names(var_index),   & 
              mixing_ratio_type = 'wet',                 &
              errcode = errcode,                         &
              errmsg = errmsg)
@@ -133,6 +145,7 @@ subroutine initialize_constituents_register(constituents, errmsg, errcode)
              vertical_dim = 'vertical_layer_dimension', &
              min_value = 0.0_kind_phys,                 &
              advected = .true.,                         &
+             diag_name = const_diag_names(var_index),   &
              errcode = errcode,                         &
              errmsg = errmsg)
        end if
