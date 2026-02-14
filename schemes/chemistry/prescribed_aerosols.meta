@@ -1,0 +1,246 @@
+[ccpp-table-properties]
+  name = prescribed_aerosols
+  type = scheme
+  dependencies = ../../to_be_ccppized/ccpp_chem_utils.F90
+
+[ccpp-arg-table]
+  name  = prescribed_aerosols_register
+  type  = scheme
+[ amIRoot ]
+  standard_name = flag_for_mpi_root
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ iulog ]
+  standard_name = log_output_unit
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ prescribed_aero_specifier ]
+  standard_name = specifier_for_prescribed_aerosols
+  units = none
+  type = character | kind = len=*
+  dimensions = (prescribed_aero_specifier_dimension)
+  intent = in
+[ prescribed_aero_file ]
+  standard_name = filename_for_prescribed_aerosols
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ prescribed_aero_filelist ]
+  standard_name = filename_of_file_list_for_prescribed_aerosols
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ prescribed_aero_datapath ]
+  standard_name = datapath_for_prescribed_aerosols
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ prescribed_aero_type ]
+  standard_name = time_interpolation_method_for_prescribed_aerosols
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ prescribed_aero_cycle_yr ]
+  standard_name = cycle_year_for_prescribed_aerosols
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ prescribed_aero_fixed_ymd ]
+  standard_name = fixed_date_for_prescribed_aerosols
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ prescribed_aero_fixed_tod ]
+  standard_name = fixed_time_of_day_for_prescribed_aerosols
+  units = s
+  type = integer
+  dimensions = ()
+  intent = in
+[ prescribed_aero_model ]
+  standard_name = representation_type_for_prescribed_aerosols
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ aerosol_constituents ]
+  # or can this just be the ccpp_constituent_properties?
+  standard_name = prescribed_aerosols_constituents
+  units = none
+  type = ccpp_constituent_properties_t
+  allocatable = True
+  dimensions = (:)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = prescribed_aerosols_init
+  type  = scheme
+[ amIRoot ]
+  standard_name = flag_for_mpi_root
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ iulog ]
+  standard_name = log_output_unit
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ prescribed_aero_specifier ]
+  standard_name = specifier_for_prescribed_aerosols
+  units = none
+  type = character | kind = len=*
+  dimensions = (prescribed_aero_specifier_dimension)
+  intent = in
+[ prescribed_aero_file ]
+  standard_name = filename_for_prescribed_aerosols
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ prescribed_aero_filelist ]
+  standard_name = filename_of_file_list_for_prescribed_aerosols
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ prescribed_aero_datapath ]
+  standard_name = datapath_for_prescribed_aerosols
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ prescribed_aero_type ]
+  standard_name = time_interpolation_method_for_prescribed_aerosols
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ prescribed_aero_cycle_yr ]
+  standard_name = cycle_year_for_prescribed_aerosols
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ prescribed_aero_fixed_ymd ]
+  standard_name = fixed_date_for_prescribed_aerosols
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ prescribed_aero_fixed_tod ]
+  standard_name = fixed_time_of_day_for_prescribed_aerosols
+  units = s
+  type = integer
+  dimensions = ()
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = prescribed_aerosols_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pcnst ]
+  standard_name = number_of_ccpp_constituents
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ const_props ]
+  standard_name = ccpp_constituent_properties
+  units = none
+  type = ccpp_constituent_prop_ptr_t
+  dimensions = (number_of_ccpp_constituents)
+  intent = in
+[ pi ]
+  standard_name = pi_constant
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ pmid ]
+  standard_name = air_pressure
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ pint ]
+  standard_name = air_pressure_at_interface
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ phis ]
+  standard_name = surface_geopotential
+  units = m2 s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ zi ]
+  standard_name = geopotential_height_wrt_surface_at_interface
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ constituents ]
+  standard_name = ccpp_constituents
+  units = none
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
+  intent = inout
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

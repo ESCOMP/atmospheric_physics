@@ -1,0 +1,202 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet type="text/xsl"?>
+
+<entry_id_pg version="2.0">
+
+<!-- Each namelist variable is defined in an <entry> element.  The
+     content of the element is the documentation of how the variable is
+     used.  Other aspects of the variable's definition are expressed as
+     attributes of the <entry> element.  Note that it is an XML requirement
+     that the attribute values are enclosed in quotes.  The attributes are:
+
+     id
+          The variable's name.  *** N.B. *** The name must be lower case.
+          The module convert all namelist variable names to lower case
+          since Fortran is case insensitive.
+
+     type
+          An abbreviation of the fortran declaration for the variable.
+    Valid declarations are:
+
+          char*n
+    integer
+    logical
+    real
+
+    Any of these types may be followed by a comma separated list of
+    integers enclosed in parenthesis to indicate an array.
+
+    The current namelist validation code only distinquishes between
+    string and non-string types.
+
+     input_pathname
+          Only include this attribute to indicate that the variable
+          contains the pathname of an input dataset that resides in the
+          CESM inputdata directory tree.  Note that the variables
+          containing the names of restart files that are used in branch
+          runs don't reside in the inputdata tree and should not be given
+          this attribute.
+
+    The recognized values are "abs" to indicate that an absolute
+          pathname is required, or "rel:var_name" to indicate that the
+          pathname is relative and that the namelist variable "var_name"
+          contains the absolute root directory.
+
+     category
+          A category assigned for organizing the documentation.
+
+     group
+          The namelist group that the variable is declared in.
+
+     valid_values
+          This is an optional attribute that is mainly useful for variables
+          that have only a small number of allowed values. It is a
+          comma-separated list of valid values for the variable.
+
+     desc
+          This is a text description of the variable including its
+          purpose and use.
+
+     values
+          This is a grouping of all the cases where a value can be
+          assigned with the namelist generator has been run.
+
+     value
+          Each <value> tag specifies a case where a value is assigned
+          to this variable when the namelist generator is run. If the
+          tag has no attributes, it is a default value. In general,
+          the namelist generator attempts to find a value with the
+          maximium number of attribute matches (and no non-matches).
+
+     standard_name
+          This is the CCPP Standard Name of the variable
+
+     units
+          This is the CCPP unit specification of the variable (e.g., m s-1).
+                                                                        -->
+  <entry id="aerodep_flx_datapath">
+    <type>char*256</type>
+    <category>chemistry</category>
+    <group>aerodep_flx_nl</group>
+    <standard_name>datapath_for_prescribed_aerosol_deposition_fluxes</standard_name>
+    <units>none</units>
+    <desc>
+      Full pathname of the directory that contains the files specified in aerodep_flx_filelist.
+    </desc>
+    <values>
+      <value>${DIN_LOC_ROOT}/atm/cam/chem/trop_mozart_aero/aero</value>
+    </values>
+  </entry>
+
+  <entry id="aerodep_flx_file">
+    <type>char*256</type>
+    <category>chemistry</category>
+    <group>aerodep_flx_nl</group>
+    <standard_name>filename_for_prescribed_aerosol_deposition_fluxes</standard_name>
+    <units>none</units>
+    <desc>
+      Filename of dataset for prescribed aerosol deposition fluxes.
+    </desc>
+    <values>
+      <value>aerosoldep_monthly_1849-2006_1.9x2.5_c090803.nc</value>
+    </values>
+  </entry>
+
+  <entry id="aerodep_flx_filelist">
+    <type>char*256</type>
+    <category>chemistry</category>
+    <group>aerodep_flx_nl</group>
+    <standard_name>filename_of_file_list_for_prescribed_aerosol_deposition_fluxes</standard_name>
+    <units>none</units>
+    <desc>
+      Filename of file that contains a sequence of filenames for prescribed aerosol deposition fluxes. The filenames in this file are relative to the directory specified by aerodep_flx_datapath.
+    </desc>
+    <values>
+      <value>UNSET</value>
+    </values>
+  </entry>
+
+  <entry id="aerodep_flx_specifier">
+    <type>char*32(22)</type>
+    <category>chemistry</category>
+    <group>aerodep_flx_nl</group>
+    <standard_name>specifier_for_prescribed_aerosol_deposition_fluxes</standard_name>
+    <units>none</units>
+    <desc>
+      A list of variable names of the aerosol deposition flux fields in the prescribed datasets and corresponding internal name separated by colons. For example:
+
+      aerodep_flx_specifier = 'internal_name1:ncdf_fld_name1','internal_name2:ncdf_fld_name2', ...
+
+      If there is no colon separator then the specified name is used as both the internal_name and ncdf_fld_name.
+    </desc>
+    <values>
+      <value>'BCDEPWET','BCPHODRY','BCPHIDRY','OCDEPWET','OCPHODRY', 'OCPHIDRY','DSTX01DD','DSTX02DD','DSTX03DD','DSTX04DD','DSTX01WD','DSTX02WD','DSTX03WD','DSTX04WD'</value>
+    </values>
+  </entry>
+
+  <entry id="aerodep_flx_type">
+    <type>char*32</type>
+    <category>chemistry</category>
+    <group>aerodep_flx_nl</group>
+    <standard_name>time_interpolation_method_for_prescribed_aerosol_deposition_fluxes</standard_name>
+    <units>none</units>
+    <valid_values>CYCLICAL,SERIAL,INTERP_MISSING_MONTHS,FIXED</valid_values>
+    <desc>
+      Type of time interpolation for data in aerodep_flx files.
+      Can be set to 'CYCLICAL', 'SERIAL', 'INTERP_MISSING_MONTHS', or 'FIXED'.
+      Default: 'SERIAL'
+    </desc>
+    <values>
+      <value>SERIAL</value>
+    </values>
+  </entry>
+
+  <entry id="aerodep_flx_cycle_yr">
+    <type>integer</type>
+    <category>chemistry</category>
+    <group>aerodep_flx_nl</group>
+    <standard_name>cycle_year_for_prescribed_aerosol_deposition_fluxes</standard_name>
+    <units>1</units>
+    <desc>
+      The cycle year of the prescribed aerosol deposition flux data if aerodep_flx_type is 'CYCLICAL'.
+      Format: YYYY
+      Default: 2000
+    </desc>
+    <values>
+      <value>2000</value>
+    </values>
+  </entry>
+
+  <entry id="aerodep_flx_fixed_ymd">
+    <type>integer</type>
+    <category>chemistry</category>
+    <group>aerodep_flx_nl</group>
+    <standard_name>fixed_date_for_prescribed_aerosol_deposition_fluxes</standard_name>
+    <units>1</units>
+    <desc>
+      The date at which the prescribed aerosol deposition flux data is fixed if aerodep_flx_type is 'FIXED'.
+      Format: YYYYMMDD
+      Default: 0
+    </desc>
+    <values>
+      <value>0</value>
+    </values>
+  </entry>
+
+  <entry id="aerodep_flx_fixed_tod">
+    <type>integer</type>
+    <category>chemistry</category>
+    <group>aerodep_flx_nl</group>
+    <standard_name>fixed_time_of_day_for_prescribed_aerosol_deposition_fluxes</standard_name>
+    <units>s</units>
+    <desc>
+      The time of day (seconds) corresponding to aerodep_flx_fixed_ymd at which the prescribed aerosol deposition flux data is fixed if aerodep_flx_type is 'FIXED'.
+      Default: 0 seconds
+    </desc>
+    <values>
+      <value>0</value>
+    </values>
+  </entry>
+
+</entry_id_pg>
