@@ -63,16 +63,24 @@ contains
     ! Compute clear-sky fluxes (gaseous+aerosol)
     !
     ! ###################################################################################
+    !$acc data copyin(coszen_day, toa_src_sw, sfc_alb_dir, sfc_alb_dif, &
+    !$acc             sw_optical_props%optical_props, sw_optical_props%optical_props%tau, sw_optical_props%optical_props%ssa, &
+    !$acc             sw_optical_props%optical_props%g, aersw%optical_props%tau,          &
+    !$acc             aersw%optical_props, aersw%optical_props%ssa, aersw%optical_props%g,                 &
+    !$acc             sw_optical_props_clouds%optical_props, sw_optical_props_clouds%optical_props%tau, sw_optical_props_clouds%optical_props%ssa,           &
+    !$acc             sw_optical_props_clouds%optical_props%g)                                         &
+    !$acc        copy(flux_clrsky%fluxes, flux_clrsky%fluxes%flux_net,flux_clrsky%fluxes%flux_up,flux_clrsky%fluxes%flux_dn, &
+    !$acc             flux_allsky%fluxes, flux_allsky%fluxes%flux_net,flux_allsky%fluxes%flux_up,flux_allsky%fluxes%flux_dn)
     ! Increment optics (always)
     errmsg = aersw%optical_props%increment(sw_optical_props%optical_props)
     call check_error_msg('rrtmgp_sw_rte_increment_aerosol_to_clrsky', errmsg)
     if (len_trim(errmsg) /= 0) then
         errflg = 1
-        return
+        ! Can't return from within a top-level acc block
     end if
 
     ! Optionally compute clear-sky fluxes
-    if (doswclrsky) then
+    if (doswclrsky .and. errflg == 0) then
        errmsg = rte_sw(     &
                   sw_optical_props%optical_props,          & ! IN  - optical-properties
                   coszen_day(iCol:iCol2),                  & ! IN  - Cosine of solar zenith angle
@@ -83,7 +91,6 @@ contains
        call check_error_msg('rrtmgp_sw_rte_rte_sw_clrsky', errmsg)
        if (len_trim(errmsg) /= 0) then
            errflg = 1
-           return
        end if
     end if
 
@@ -93,29 +100,30 @@ contains
     ! 
     ! ###################################################################################
 
-    if (doswallsky) then
+    if (doswallsky .and. errflg == 0) then
        ! Increment
        errmsg = sw_optical_props_clouds%optical_props%increment(sw_optical_props%optical_props)
        call check_error_msg('rrtmgp_sw_rte_increment_clouds_to_clrsky', errmsg)
        if (len_trim(errmsg) /= 0) then
           errflg = 1
-          return
        end if
 
        ! Compute fluxes
-       errmsg = rte_sw(     &
-            sw_optical_props%optical_props,  & ! IN  - optical-properties
-            coszen_day(iCol:iCol2),          & ! IN  - Cosine of solar zenith angle
-            toa_src_sw,                      & ! IN  - incident solar flux at TOA
-            sfc_alb_dir,                     & ! IN  - Shortwave surface albedo (direct)
-            sfc_alb_dif,                     & ! IN  - Shortwave surface albedo (diffuse)
-            flux_allsky%fluxes)                ! OUT - Fluxes, all-sky, 3D (1,nLay,nBand)
-       call check_error_msg('rrtmgp_sw_rte_rte_sw_allsky', errmsg)
-       if (len_trim(errmsg) /= 0) then
-          errflg = 1
-          return
+       if (errflg == 0) then
+          errmsg = rte_sw(     &
+               sw_optical_props%optical_props,  & ! IN  - optical-properties
+               coszen_day(iCol:iCol2),          & ! IN  - Cosine of solar zenith angle
+               toa_src_sw,                      & ! IN  - incident solar flux at TOA
+               sfc_alb_dir,                     & ! IN  - Shortwave surface albedo (direct)
+               sfc_alb_dif,                     & ! IN  - Shortwave surface albedo (diffuse)
+               flux_allsky%fluxes)                ! OUT - Fluxes, all-sky, 3D (1,nLay,nBand)
+          call check_error_msg('rrtmgp_sw_rte_rte_sw_allsky', errmsg)
+          if (len_trim(errmsg) /= 0) then
+             errflg = 1
+          end if
        end if
     end if
+    !$acc end data
 
   end subroutine rrtmgp_sw_rte_run
 end module rrtmgp_sw_rte

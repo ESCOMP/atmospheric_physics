@@ -23,18 +23,6 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
-[ lhf ]
-  standard_name = surface_upward_latent_heat_flux_from_coupler
-  units = W m-2
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent)
-  intent = in
-[ shf ]
-  standard_name = surface_upward_sensible_heat_flux_from_coupler
-  units = W m-2
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent)
-  intent = in
 [ rthdynten ]
   standard_name = tendency_of_air_potential_temperature_due_to_dynamics
   units = K s-1
@@ -88,12 +76,6 @@
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = out
-[ hfx ]
-  standard_name = surface_upward_heat_flux
-  units = W m-2
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent)
   intent = out
 [ evap ]
   standard_name = surface_upward_water_vapor_flux
@@ -271,7 +253,7 @@
   dimensions = (horizontal_loop_extent)
   intent = in
 [ hfx ]
-  standard_name = surface_upward_heat_flux
+  standard_name = surface_upward_sensible_heat_flux_from_coupler
   units = W m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)

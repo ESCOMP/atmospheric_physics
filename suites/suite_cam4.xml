@@ -7,15 +7,15 @@
       Shallow convection      Hack
       Macrophysics            RK
       Microphysics            RK
-      Radiation               RRTMGP     (commented out)
+      Radiation               RRTMGP
       Chemistry               None       (not implemented)
       Vertical Diffusion      HB
       Gravity Wave Drag       Orographic
   -->
   <group name="physics_before_coupler">
-    <!-- Helper to read all possible constituents from file -->
-    <scheme>initialize_constituents</scheme>
+    <!-- Helper schemes to read all possible constituents from file and/or namelist -->
     <scheme>to_be_ccppized_temporary</scheme>
+    <scheme>prescribe_radiative_gas_concentrations</scheme>
 
     <!-- INITIALIZE ZM NAMELIST (init phase only) -->
     <scheme>zm_conv_options</scheme>
@@ -215,16 +215,16 @@
     <scheme>sima_state_diagnostics</scheme>
 
     <!-- Radiation (RRTMGP) -->
-    <!--<scheme>rrtmgp_pre</scheme>
+    <scheme>rrtmgp_pre</scheme>
     <scheme>rrtmgp_cloud_optics_setup</scheme>
     <scheme>tropopause_find</scheme>
     <scheme>rrtmgp_variables</scheme>
     <scheme>rrtmgp_inputs</scheme>
     <scheme>rrtmgp_sw_cloud_optics</scheme>
     <scheme>rrtmgp_sw_mcica_subcol_gen</scheme>
-    <scheme>rrtmgp_cloud_diagnostics</scheme>-->
+    <scheme>rrtmgp_cloud_diagnostics</scheme>
     <!-- Shortwave subcycle - last iteration is climate calculation -->
-    <!--<subcycle loop="number_of_diagnostic_subcycles">
+    <subcycle loop="number_of_diagnostic_subcycles">
       <scheme>rrtmgp_constituents</scheme>
       <scheme>rrtmgp_sw_gas_optics_pre</scheme>
       <scheme>rrtmgp_sw_gas_optics</scheme>
@@ -238,9 +238,9 @@
       <scheme>rrtmgp_subcycle</scheme>
     </subcycle>
     <scheme>rrtmgp_lw_cloud_optics</scheme>
-    <scheme>rrtmgp_lw_mcica_subcol_gen</scheme>-->
+    <scheme>rrtmgp_lw_mcica_subcol_gen</scheme>
     <!-- Longwave subcycle - last iteration is climate calculation-->
-    <!--<subcycle loop="number_of_diagnostic_subcycles">
+    <subcycle loop="number_of_diagnostic_subcycles">
       <scheme>rrtmgp_constituents</scheme>
       <scheme>rrtmgp_lw_gas_optics_pre</scheme>
       <scheme>rrtmgp_lw_gas_optics</scheme>
@@ -250,17 +250,17 @@
       <scheme>rrtmgp_lw_calculate_heating_rate</scheme>
       <scheme>rrtmgp_lw_diagnostics</scheme>
       <scheme>rrtmgp_subcycle</scheme>
-    </subcycle>-->
+    </subcycle>
     <!-- End longwave subcycle -->
-    <!--<scheme>rrtmgp_inputs_setup</scheme>
+    <scheme>rrtmgp_inputs_setup</scheme>
     <scheme>rrtmgp_sw_solar_var_setup</scheme>
     <scheme>rrtmgp_dry_static_energy_tendency</scheme>
     <scheme>calculate_net_heating</scheme>
     <scheme>rrtmgp_post</scheme>
-    <scheme>rrtmgp_diagnostics</scheme>-->
+    <scheme>rrtmgp_diagnostics</scheme>
     <!-- State updaters -->
-    <!--<scheme>apply_heating_rate</scheme>
-    <scheme>geopotential_temp</scheme>-->
+    <scheme>apply_heating_rate</scheme>
+    <scheme>geopotential_temp</scheme>
     <!-- end Radiation (RRTMGP) -->
 
     <!-- Find tropopause -->
@@ -268,6 +268,12 @@
     <!-- so supersaturated cells are not written to the tape. -->
     <scheme>tropopause_find</scheme>
     <scheme>tropopause_diagnostics</scheme>
+
+    <!-- Calculate surface variables -->
+    <!-- This must be done at the end
+         of the "before_coupler" group. -->
+    <scheme>calc_dry_air_ideal_gas_density</scheme>
+    <scheme>set_surface_coupling_vars</scheme>
 
   </group>
 
@@ -359,6 +365,7 @@
     <!--
       Gravity wave drag.
     -->
+
     <!-- Initialize all gravity wave parameterizations and read namelist -->
     <scheme>gravity_wave_drag_common</scheme>
 
@@ -394,6 +401,7 @@
     <!--
       Energy conservation/budget checks.
     -->
+
     <!-- Save current total energy from dycore for energy fixer in time step. Total energy in current state is updated by the last check_energy_chng call. -->
     <scheme>check_energy_save_teout</scheme>
 
