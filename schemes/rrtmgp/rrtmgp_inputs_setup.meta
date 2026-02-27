@@ -94,7 +94,7 @@
   standard_name = shortwave_start_and_end_gpoint_for_each_band
   units = index
   type = integer
-  dimensions = (ccpp_constant_two,number_of_bands_for_shortwave_radiation)
+  dimensions = (constant_dimension_two,number_of_bands_for_shortwave_radiation)
   intent = out
 [ changeseed ]
   standard_name = random_number_seed_for_mcica_longwave
