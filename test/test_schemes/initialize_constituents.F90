@@ -24,15 +24,15 @@ subroutine initialize_constituents_register(constituents, errmsg, errcode)
     integer :: num_variables
     integer :: ierr
     integer :: var_index
-    integer :: split_index
     integer :: constituent_index
     integer :: known_const_index
     integer :: found_const_count
     logical :: known_constituent
+    real(kind_phys) :: qmin_value
+    character(len=256) :: cnst_stdname
     character(len=256) :: variable_name
     character(len=512) :: alloc_err_msg
     character(len=256), allocatable :: constituent_names(:)
-    character(len=256), allocatable :: const_diag_names(:)
     character(len=65), parameter :: water_species_std_names(6) = &
       (/'water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water       ', &
         'cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water', &
@@ -68,22 +68,14 @@ subroutine initialize_constituents_register(constituents, errmsg, errcode)
        write(errmsg,*) 'Failed to allocate "constituent_names" in initialize_constituents_register: ', trim(alloc_err_msg)
        return
     end if
-    allocate(const_diag_names(num_variables), stat=ierr, errmsg=alloc_err_msg)
-    if (ierr /= 0) then
-       errcode = 1
-       write(errmsg,*) 'Failed to allocate "const_diag_names" in initialize_constituents_register: ', trim(alloc_err_msg)
-       return
-    end if
 
     ! Loop over all variables in the file and add each constituent to the
     !  dynamic constituent array
     do var_index = 1, num_variables
        ierr = pio_inq_varname(ncdata, var_index, variable_name)
        known_constituent = .false.
-       split_index = index(variable_name, 'cnst_')
-       if (split_index > 0) then
+       if (index(variable_name, 'cnst_') > 0) then
           constituent_index = constituent_index + 1
-          const_diag_names(constituent_index) = variable_name(split_index:)
           ! Replace with standard name if known, to avoid duplicates
           if (found_const_count < size(water_species_std_names)) then
              do known_const_index = 1, size(const_file_names)
@@ -117,7 +109,6 @@ subroutine initialize_constituents_register(constituents, errmsg, errcode)
              vertical_dim = 'vertical_layer_dimension', &
              min_value = 0.0_kind_phys,                 &
              advected = .true.,                         &
-             diag_name = const_diag_names(var_index),   &
              water_species = .true.,                    &
              mixing_ratio_type = 'wet',                 &
              errcode = errcode,                         &
@@ -133,19 +124,42 @@ subroutine initialize_constituents_register(constituents, errmsg, errcode)
              vertical_dim = 'vertical_layer_dimension', &
              min_value = 0.0_kind_phys,                 &
              advected = .true.,                         &
-             diag_name = const_diag_names(var_index),   & 
              mixing_ratio_type = 'wet',                 &
              errcode = errcode,                         &
              errmsg = errmsg)
        else
+          ! For chemistry species some special handling is necessary for qmin_value;
+          ! this logic is replicated from chem_register in src/chemistry/mozart.
+          qmin_value = 0.0_kind_phys
+          cnst_stdname = trim(constituent_names(var_index))
+          ! Special handling for specific chemical species
+          ! Aerosol number density species
+          if (index(cnst_stdname, 'num_a') > 0) then
+             qmin_value = 1.e-5_kind_phys
+          else if (index(cnst_stdname, 'O3') > 0) then
+             qmin_value = 1.e-12_kind_phys
+          else if (index(cnst_stdname, 'CH4') > 0) then
+             qmin_value = 1.e-12_kind_phys
+          else if (index(cnst_stdname, 'N2O') > 0) then
+             qmin_value = 1.e-15_kind_phys
+          ! CFCs
+          else if (index(cnst_stdname, 'CFC11') > 0 .or. &
+                   index(cnst_stdname, 'CFC12') > 0 .or. &
+                   index(cnst_stdname, 'cfc11') > 0 .or. &
+                   index(cnst_stdname, 'cfc12') > 0) then
+             qmin_value = 1.e-20_kind_phys
+          end if
+          ! Note: other chemistry species should be 1e-36 but we have no way
+          ! of currently distinguishing between these and other non-chem
+          ! constituents, so leaving as 0.0_kind_phys for now. (hplin, 11/20/25)
+
           call constituents(var_index)%instantiate(     &
              std_name = constituent_names(var_index),   &
              long_name = constituent_names(var_index),  &
              units = 'kg kg-1',                         &
              vertical_dim = 'vertical_layer_dimension', &
-             min_value = 0.0_kind_phys,                 &
+             min_value = qmin_value,                    &
              advected = .true.,                         &
-             diag_name = const_diag_names(var_index),   &
              errcode = errcode,                         &
              errmsg = errmsg)
        end if
