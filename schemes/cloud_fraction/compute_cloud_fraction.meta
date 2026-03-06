@@ -158,12 +158,6 @@
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
-[ tmelt ]
-  standard_name = freezing_point_of_water
-  units = K
-  type = real | kind = kind_phys
-  dimensions = ()
-  intent = in
 [ pref ]
   standard_name = surface_reference_pressure
   units = Pa
@@ -223,18 +217,6 @@
   units = m2 s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
-  intent = in
-[ shallowcu ]
-  standard_name = shallow_convective_cloud_area_fraction
-  units = fraction
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = in
-[ deepcu ]
-  standard_name = deep_convective_cloud_area_fraction
-  units = fraction
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ concld ]
   standard_name = convective_cloud_area_fraction

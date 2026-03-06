@@ -160,7 +160,7 @@ contains
     pmid, ps, temp, sst, &
     q_wv, cldice, &
     phis, &
-    shallowcu, deepcu, concld, & ! inputs from convective_cloud_cover
+    concld, & ! inputs from convective_cloud_cover
     landfrac, ocnfrac, snowh, &
     cloud, relhum, rhu00, & ! inputs from unperturbed compute_cloud_fraction
     rhdfda, & ! output for prognostic_cloud_water
@@ -189,8 +189,6 @@ contains
     real(kind_phys), intent(in) :: q_wv(:, :)        ! adv: water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water [kg kg-1]
     real(kind_phys), intent(in) :: cldice(:, :)      ! adv: cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water [kg kg-1]
     real(kind_phys), intent(in) :: phis(:)           ! surface_geopotential [m2 s-2]
-    real(kind_phys), intent(in) :: shallowcu(:, :)   ! shallow convective cloud fraction
-    real(kind_phys), intent(in) :: deepcu(:, :)      ! deep convective cloud fraction
     real(kind_phys), intent(in) :: concld(:, :)      ! convective_cloud_area_fraction [fraction]
     real(kind_phys), intent(in) :: landfrac(:)       ! land_area_fraction_from_coupler [fraction]
     real(kind_phys), intent(in) :: ocnfrac(:)        ! ocean_area_fraction [fraction]
@@ -232,7 +230,6 @@ contains
       cappa             = cappa,                &
       gravit            = gravit,               &
       rair              = rair,                 &
-      tmelt             = tmelt,                &
       pref              = pref,                 &
       lapse_rate        = lapse_rate,           &
       top_lev_cloudphys = top_lev_cloudphys,    & ! CAM4 macrophysics - top lev is 1
@@ -243,8 +240,6 @@ contains
       q                 = q_wv(:ncol,:),        &
       cldice            = cldice(:ncol,:),      &
       phis              = phis(:ncol),          &
-      shallowcu         = shallowcu(:ncol,:),   &
-      deepcu            = deepcu(:ncol,:),      &
       concld            = concld(:ncol,:),      &
       landfrac          = landfrac(:ncol),      &
       ocnfrac           = ocnfrac(:ncol),       &
