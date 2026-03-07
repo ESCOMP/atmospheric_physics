@@ -2,7 +2,10 @@
 
 <suite name="convection_permitting" version="1.0">
   <group name="physics_before_coupler">
+    <!-- Prepare input needed by the suite -->
+    <scheme>calc_atmosphere_layer_thickness</scheme>
     <scheme>calc_exner</scheme>
+    <scheme>calc_hydrostatic_air_density</scheme>
     <scheme>compute_characteristic_grid_length_scale</scheme>
     <scheme>geopotential_height_wrt_sfc_at_if_to_msl</scheme>
     <scheme>geopotential_height_wrt_sfc_to_msl</scheme>
@@ -13,14 +16,22 @@
 
     <scheme>mmm_physics_compat</scheme>
 
+    <!-- MYNN surface layer scheme -->
+    <scheme>sf_mynn_compat_pre</scheme>
+    <scheme>sf_mynn_compat</scheme>
+    <scheme>sf_mynn_diagnostics</scheme>
+
+    <!-- YSU orographic gravity wave drag scheme -->
     <scheme>bl_gwdo_compat_pre</scheme>
     <scheme>bl_gwdo_compat</scheme>
     <scheme>bl_gwdo_diagnostics</scheme>
 
+    <!-- New Tiedtke convection scheme -->
     <scheme>cu_ntiedtke_compat_pre</scheme>
     <scheme>cu_ntiedtke_compat</scheme>
     <scheme>cu_ntiedtke_diagnostics</scheme>
 
+    <!-- Feed modified states back to the model -->
     <scheme>mmm_physics_accumulate_tendencies</scheme>
     <scheme>apply_tendency_of_eastward_wind</scheme>
     <scheme>apply_tendency_of_northward_wind</scheme>

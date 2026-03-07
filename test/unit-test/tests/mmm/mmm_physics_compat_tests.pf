@@ -1,4 +1,38 @@
 @test
+subroutine test_mmm_physics_compat_init()
+    use ccpp_kinds, only: kind_phys
+    use funit
+    use mmm_physics_compat, only: mmm_physics_compat_init
+
+    integer :: isfflx, isftcflx, iz0tlnd
+    logical :: spp_pbl
+    real(kind_phys) :: xice_threshold
+    character(100) :: errmsg
+    integer :: errflg
+
+    isfflx = huge(0)
+    isftcflx = huge(0)
+    iz0tlnd = huge(0)
+    spp_pbl = .false.
+    xice_threshold = huge(0.0_kind_phys)
+
+    call mmm_physics_compat_init( &
+        isfflx, isftcflx, iz0tlnd, &
+        spp_pbl, &
+        xice_threshold, &
+        errmsg, errflg)
+
+    ! Should set options to the same values as in the MPAS physics driver.
+    @assertEqual(1, isfflx)
+    @assertEqual(0, isftcflx)
+    @assertEqual(0, iz0tlnd)
+    @assertEqual(.false., spp_pbl)
+    @assertEqual(0.02_kind_phys, xice_threshold)
+    @assertEqual('', errmsg)
+    @assertEqual(0, errflg)
+end subroutine test_mmm_physics_compat_init
+
+@test
 subroutine test_mmm_physics_compat_run()
     use ccpp_kinds, only: kind_phys
     use funit
@@ -8,10 +42,14 @@ subroutine test_mmm_physics_compat_run()
     integer :: nstep
     real(kind_phys) :: dt
     real(kind_phys) :: theta_curr(ncol, pver), theta_prev(ncol, pver), qv_curr(ncol, pver), qv_prev(ncol, pver)
+    real(kind_phys) :: icefrac(ncol), xice_threshold, landfrac(ncol)
     character(256) :: scheme_name
     real(kind_phys) :: rthdynten(ncol, pver), rqvdynten(ncol, pver)
+    real(kind_phys) :: xland(ncol)
     character(100) :: errmsg
     integer :: errflg
+
+    integer :: i
 
     nstep = 0
     dt = 20.0_kind_phys
@@ -20,41 +58,66 @@ subroutine test_mmm_physics_compat_run()
     theta_prev(:, :) = 273.15_kind_phys
     qv_curr(:, :) = 0.03_kind_phys
     qv_prev(:, :) = 0.01_kind_phys
+    icefrac(1:50) = 0.0_kind_phys
+    icefrac(51:100) = [(0.01_kind_phys + real(i - 1, kind_phys) * 0.02_kind_phys, i = 1, 50)]
+    xice_threshold = 0.02_kind_phys
+    landfrac(1:50) = [(0.01_kind_phys + real(i - 1, kind_phys) * 0.02_kind_phys, i = 1, 50)]
+    landfrac(51:100) = 0.0_kind_phys
+    scheme_name = ''
     rthdynten(:, :) = huge(0.0_kind_phys)
     rqvdynten(:, :) = huge(0.0_kind_phys)
+    xland(:) = huge(0.0_kind_phys)
 
     call mmm_physics_compat_run( &
         nstep, &
         dt, &
         theta_curr, theta_prev, qv_curr, qv_prev, &
+        icefrac, xice_threshold, landfrac, &
         scheme_name, &
         rthdynten, rqvdynten, &
+        xland, &
         errmsg, errflg)
 
-    ! Tendencies should be zero at start (nstep = 0).
+    ! Should set scheme name.
     @assertEqual('mmm_physics_compat_run', scheme_name)
+    ! Tendencies should be zero at start (nstep = 0).
     @assertEqual(0.0_kind_phys, rthdynten)
     @assertEqual(0.0_kind_phys, rqvdynten)
+    ! Should set land mask according to ice and land fractions.
+    @assertEqual(2.0_kind_phys, xland(1:25))
+    @assertEqual(1.0_kind_phys, xland(26:50))
+    @assertEqual(2.0_kind_phys, xland(51))
+    @assertEqual(1.0_kind_phys, xland(52:100))
     @assertEqual('', errmsg)
     @assertEqual(0, errflg)
 
     nstep = 1
 
+    scheme_name = ''
     rthdynten(:, :) = huge(0.0_kind_phys)
     rqvdynten(:, :) = huge(0.0_kind_phys)
+    xland(:) = huge(0.0_kind_phys)
 
     call mmm_physics_compat_run( &
         nstep, &
         dt, &
         theta_curr, theta_prev, qv_curr, qv_prev, &
+        icefrac, xice_threshold, landfrac, &
         scheme_name, &
         rthdynten, rqvdynten, &
+        xland, &
         errmsg, errflg)
 
-    ! Should compute tendencies correctly afterwards (nstep > 0).
+    ! Should set scheme name.
     @assertEqual('mmm_physics_compat_run', scheme_name)
+    ! Should compute tendencies correctly afterwards (nstep > 0).
     @assertEqual(1.0_kind_phys, rthdynten, epsilon(0.0_kind_phys))
     @assertEqual(0.001_kind_phys, rqvdynten, epsilon(0.0_kind_phys))
+    ! Should set land mask according to ice and land fractions.
+    @assertEqual(2.0_kind_phys, xland(1:25))
+    @assertEqual(1.0_kind_phys, xland(26:50))
+    @assertEqual(2.0_kind_phys, xland(51))
+    @assertEqual(1.0_kind_phys, xland(52:100))
     @assertEqual('', errmsg)
     @assertEqual(0, errflg)
 end subroutine test_mmm_physics_compat_run
