@@ -65,3 +65,74 @@ subroutine dry_static_energy_no_sw()
   @assertEqual(100._kind_phys, qrl_prime(2,1))
 
 end subroutine dry_static_energy_no_sw
+
+@test
+subroutine dry_static_energy_no_lw()
+  use funit
+  use rrtmgp_dry_static_energy_tendency, only: rrtmgp_dry_static_energy_tendency_run
+  use ccpp_kinds, only: kind_phys
+
+  real(kind_phys) :: pdel(2,1)
+  real(kind_phys) :: qrs(2,1)
+  real(kind_phys) :: qrl(2,1)
+  real(kind_phys) :: qrs_prime(2,1)
+  real(kind_phys) :: qrl_prime(2,1)
+  integer :: errflg
+  character(len=512) :: errmsg
+
+  qrs(1,:) = 1._kind_phys
+  qrs(2,:) = 2._kind_phys
+
+  qrl(1,:) = 2._kind_phys
+  qrl(2,:) = 1._kind_phys
+
+  pdel = 1e-2_kind_phys
+  qrl_prime = 0._kind_phys
+
+  call rrtmgp_dry_static_energy_tendency_run(pdel, .true., .false., qrs, qrl, &
+    qrs_prime, qrl_prime, errmsg, errflg)
+
+  @assertEqual(0, errflg)
+  @assertEqual('', errmsg)
+  @assertEqual(100._kind_phys, qrs_prime(1,1))
+  @assertEqual(200._kind_phys, qrs_prime(2,1))
+  @assertEqual(0._kind_phys, qrl_prime(1,1))
+  @assertEqual(0._kind_phys, qrl_prime(2,1))
+
+end subroutine dry_static_energy_no_lw
+
+@test
+subroutine dry_static_energy_no_sw_or_lw()
+  use funit
+  use rrtmgp_dry_static_energy_tendency, only: rrtmgp_dry_static_energy_tendency_run
+  use ccpp_kinds, only: kind_phys
+
+  real(kind_phys) :: pdel(2,1)
+  real(kind_phys) :: qrs(2,1)
+  real(kind_phys) :: qrl(2,1)
+  real(kind_phys) :: qrs_prime(2,1)
+  real(kind_phys) :: qrl_prime(2,1)
+  integer :: errflg
+  character(len=512) :: errmsg
+
+  qrs(1,:) = 1._kind_phys
+  qrs(2,:) = 2._kind_phys
+
+  qrl(1,:) = 2._kind_phys
+  qrl(2,:) = 1._kind_phys
+
+  pdel = 1e-2_kind_phys
+  qrl_prime = 0._kind_phys
+  qrs_prime = 1._kind_phys
+
+  call rrtmgp_dry_static_energy_tendency_run(pdel, .false., .false., qrs, qrl, &
+    qrs_prime, qrl_prime, errmsg, errflg)
+
+  @assertEqual(0, errflg)
+  @assertEqual('', errmsg)
+  @assertEqual(1._kind_phys, qrs_prime(1,1))
+  @assertEqual(1._kind_phys, qrs_prime(2,1))
+  @assertEqual(0._kind_phys, qrl_prime(1,1))
+  @assertEqual(0._kind_phys, qrl_prime(2,1))
+
+end subroutine dry_static_energy_no_sw_or_lw
