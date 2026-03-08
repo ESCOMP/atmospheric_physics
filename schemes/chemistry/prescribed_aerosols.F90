@@ -282,6 +282,7 @@ contains
 
       call aerosol_constituents(i)%instantiate( &
            std_name          = trim(aero_map_list(i)%constituent_name), &
+           diag_name         = trim(aero_map_list(i)%constituent_name), &
            long_name         = 'prescribed aerosol '//trim(aero_map_list(i)%constituent_name), &
            units             = unit_name, &
            vertical_dim      = 'vertical_layer_dimension', &

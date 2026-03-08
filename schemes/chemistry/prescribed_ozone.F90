@@ -78,6 +78,7 @@ contains
 
     call ozone_constituents(1)%instantiate( &
          std_name          = trim(ozone_name), &
+         diag_name         = trim(ozone_name), &
          long_name         = 'prescribed ozone (O3)', &
          units             = 'kg kg-1', &
          vertical_dim      = 'vertical_layer_dimension', &
