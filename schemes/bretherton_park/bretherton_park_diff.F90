@@ -248,7 +248,7 @@ contains
     logical,         intent(in)    :: wstarent            ! .true. means use the 'wstar' entrainment closure [flag]
     real(kind_phys), intent(in)    :: ksrftms(:)          ! Surface drag coefficient of turbulent mountain stress [kg m-2 s-1]
     real(kind_phys), intent(in)    :: dragblj(:, :)       ! Drag profile from Beljaars SGO form drag [s-1]
-    real(kind_phys), intent(in)    :: qrl(:, :)           ! LW radiative cooling rate [K s-1]
+    real(kind_phys), intent(in)    :: qrl(:, :)           ! LW radiative cooling rate adj. by pressure thickness [J Pa kg-1 s-1]
     real(kind_phys), intent(in)    :: wsedl(:, :)         ! Sedimentation velocity of stratiform liquid cloud droplet [m s-1]
 
     ! Input/output variables
