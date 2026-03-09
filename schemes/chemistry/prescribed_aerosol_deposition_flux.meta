@@ -1,0 +1,215 @@
+[ccpp-table-properties]
+  name = prescribed_aerosol_deposition_flux
+  type = scheme
+
+[ccpp-arg-table]
+  name  = prescribed_aerosol_deposition_flux_init
+  type  = scheme
+[ amIRoot ]
+  standard_name = flag_for_mpi_root
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ iulog ]
+  standard_name = log_output_unit
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ specifier ]
+  standard_name = specifier_for_prescribed_aerosol_deposition_fluxes
+  units = none
+  type = character | kind = len=*
+  dimensions = (aerodep_flx_specifier_dimension)
+  intent = in
+[ filename ]
+  standard_name = filename_for_prescribed_aerosol_deposition_fluxes
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ filelist ]
+  standard_name = filename_of_file_list_for_prescribed_aerosol_deposition_fluxes
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ datapath ]
+  standard_name = datapath_for_prescribed_aerosol_deposition_fluxes
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ data_type ]
+  standard_name = time_interpolation_method_for_prescribed_aerosol_deposition_fluxes
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ cycle_yr ]
+  standard_name = cycle_year_for_prescribed_aerosol_deposition_fluxes
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ fixed_ymd ]
+  standard_name = fixed_date_for_prescribed_aerosol_deposition_fluxes
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ fixed_tod ]
+  standard_name = fixed_time_of_day_for_prescribed_aerosol_deposition_fluxes
+  units = s
+  type = integer
+  dimensions = ()
+  intent = in
+[ prescribed_aero_model ]
+  standard_name = representation_type_for_prescribed_aerosols
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = prescribed_aerosol_deposition_flux_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pmid ]
+  standard_name = air_pressure
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ pint ]
+  standard_name = air_pressure_at_interface
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ phis ]
+  standard_name = surface_geopotential
+  units = m2 s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ zi ]
+  standard_name = geopotential_height_wrt_surface_at_interface
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ bcphiwet ]
+  standard_name = wet_deposition_flux_of_hydrophilic_black_carbon_at_surface_to_coupler
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ bcphidry ]
+  standard_name = dry_deposition_flux_of_hydrophilic_black_carbon_at_surface_to_coupler
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ bcphodry ]
+  standard_name = dry_deposition_flux_of_hydrophobic_black_carbon_at_surface_to_coupler
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ ocphiwet ]
+  standard_name = wet_deposition_flux_of_hydrophilic_organic_carbon_at_surface_to_coupler
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ ocphidry ]
+  standard_name = dry_deposition_flux_of_hydrophilic_organic_carbon_at_surface_to_coupler
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ ocphodry ]
+  standard_name = dry_deposition_flux_of_hydrophobic_organic_carbon_at_surface_to_coupler
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ dst1dry ]
+  standard_name = dry_deposition_of_dust_bin1_at_surface_to_coupler
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ dst2dry ]
+  standard_name = dry_deposition_of_dust_bin2_at_surface_to_coupler
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ dst3dry ]
+  standard_name = dry_deposition_of_dust_bin3_at_surface_to_coupler
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ dst4dry ]
+  standard_name = dry_deposition_of_dust_bin4_at_surface_to_coupler
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ dst1wet ]
+  standard_name = wet_deposition_of_dust_bin1_at_surface_to_coupler
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ dst2wet ]
+  standard_name = wet_deposition_of_dust_bin2_at_surface_to_coupler
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ dst3wet ]
+  standard_name = wet_deposition_of_dust_bin3_at_surface_to_coupler
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ dst4wet ]
+  standard_name = wet_deposition_of_dust_bin4_at_surface_to_coupler
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
