@@ -181,13 +181,13 @@
   standard_name = air_pressure_thickness
   units = Pa
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ zm ]
   standard_name = geopotential_height_wrt_surface
   units = m
   type = real | kind = kind_phys
-  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ pmid ]
   standard_name = air_pressure

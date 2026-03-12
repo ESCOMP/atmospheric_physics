@@ -85,7 +85,7 @@
       Full pathname of the directory that contains the files specified in prescribed_volcaero_filelist.
     </desc>
     <values>
-      <value></value>
+      <value>UNSET</value>
       <value phys_suite="cam4">${DIN_LOC_ROOT}/atm/cam/volc</value>
       <value phys_suite="cam5">${DIN_LOC_ROOT}/atm/cam/volc</value>
     </values>
@@ -101,7 +101,7 @@
       Filename of dataset for prescribed volcanic aerosols.
     </desc>
     <values>
-      <value></value>
+      <value>UNSET</value>
       <value phys_suite="cam4">CCSM4_volcanic_1850-2008_prototype1.nc</value>
       <value phys_suite="cam5">CCSM4_volcanic_1850-2008_prototype1.nc</value>
     </values>
@@ -118,7 +118,7 @@
       The filenames in this file are relative to the directory specified by prescribed_volcaero_datapath.
     </desc>
     <values>
-      <value></value>
+      <value>UNSET</value>
     </values>
   </entry>
 

@@ -73,7 +73,7 @@ contains
     errflg = 0
 
     ! Check if prescribed volcanic aerosols are enabled
-    if (prescribed_volcaero_file == 'NONE' .or. &
+    if (prescribed_volcaero_file == 'UNSET' .or. &
         len_trim(prescribed_volcaero_file) == 0) then
       has_prescribed_volcaero = .false.
       if (amIRoot) then
@@ -250,7 +250,7 @@ contains
     use ccpp_const_utils,          only: ccpp_const_get_idx
 
     ! dependency for unit string handling
-    use string_utils,              only: to_lower, GLC
+    use string_utils,              only: to_lower, get_last_significant_char
 
     integer,            intent(in)    :: ncol
     integer,            intent(in)    :: pver
@@ -305,7 +305,7 @@ contains
     if (errflg /= 0) return
 
     ! Determine unit conversion factor based on units in the input file
-    select case ( to_lower(trim(tracer_data_fields(1)%units(:GLC(tracer_data_fields(1)%units)))) )
+    select case ( to_lower(trim(tracer_data_fields(1)%units(:get_last_significant_char(tracer_data_fields(1)%units)))) )
     case ("molec/cm3", "/cm3", "molecules/cm3", "cm^-3", "cm**-3")
       ! Number density [molecules cm-3] -> MMR [kg kg-1]
       ! mmr = (M * 1e6 * k_B * T) / (M_air * p_dry)
