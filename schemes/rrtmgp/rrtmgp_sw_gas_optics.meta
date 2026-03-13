@@ -1,8 +1,14 @@
 [ccpp-table-properties]
   name = rrtmgp_sw_gas_optics
   type = scheme
+  # Host model must choose the appropriate module to build
+  # IF CPUS:
+  dependencies = ext/rte-kernels/mo_optical_props_kernels.F90
+  dependencies = ext/rrtmgp-kernels/mo_gas_optics_rrtmgp_kernels.F90
+  # ELSE IF GPUS:
   dependencies = ext/rte-kernels/accel/mo_optical_props_kernels.F90
   dependencies = ext/rrtmgp-kernels/accel/mo_gas_optics_rrtmgp_kernels.F90
+  # END IF
 
 [ccpp-arg-table]
   name  = rrtmgp_sw_gas_optics_init

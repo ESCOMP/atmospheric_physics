@@ -14,21 +14,19 @@ contains
     !! \htmlinclude cu_ntiedtke_compat_pre_run.html
     subroutine cu_ntiedtke_compat_pre_run( &
             cflx, exner, landfrac, &
-            lhf, shf, &
             rthdynten, rthblten, rthratenlw, rthratensw, &
             rqvdynten, rqvblten, &
             lndj, &
-            ptf, pqvf, hfx, evap, &
+            ptf, pqvf, evap, &
             errmsg, errflg)
         use ccpp_kinds, only: kind_phys
         use ccpp_scheme_utils, only: ccpp_constituent_index
 
         real(kind_phys), intent(in) :: cflx(:, :), exner(:, :), landfrac(:), &
-                                       lhf(:), shf(:), &
                                        rthdynten(:, :), rthblten(:, :), rthratenlw(:, :), rthratensw(:, :), &
                                        rqvdynten(:, :), rqvblten(:, :)
         integer, intent(out) :: lndj(:)
-        real(kind_phys), intent(out) :: ptf(:, :), pqvf(:, :), hfx(:), evap(:)
+        real(kind_phys), intent(out) :: ptf(:, :), pqvf(:, :), evap(:)
         character(*), intent(out) :: errmsg
         integer, intent(out) :: errflg
 
@@ -42,7 +40,6 @@ contains
 
         ptf(:, :) = (rthdynten(:, :) + rthblten(:, :) + rthratenlw(:, :) + rthratensw(:, :)) * exner(:, :)
         pqvf(:, :) = rqvdynten(:, :) + rqvblten(:, :)
-        hfx(:) = lhf(:) + shf(:)
         evap(:) = 0.0_kind_phys
 
         call ccpp_constituent_index( &
@@ -50,7 +47,7 @@ contains
 
         if (errflg /= 0 .or. &
             water_vapor_mixing_ratio_index < lbound(cflx, 2) .or. water_vapor_mixing_ratio_index > ubound(cflx, 2)) then
-            errmsg = 'Failed to find desired constituent flux from cflx'
+            errmsg = 'cu_ntiedtke_compat_pre_run: Failed to find desired constituent flux from cflx'
             errflg = 1
 
             return
@@ -126,36 +123,54 @@ contains
         allocate(pu_local, source=pu, errmsg=errmsg, stat=errflg)
 
         if (errflg /= 0) then
+            errmsg = 'cu_ntiedtke_compat_run: Failed to allocate "pu_local"' // new_line('') // &
+                'Allocation returned with error: ' // trim(adjustl(errmsg))
+
             return
         end if
 
         allocate(pv_local, source=pv, errmsg=errmsg, stat=errflg)
 
         if (errflg /= 0) then
+            errmsg = 'cu_ntiedtke_compat_run: Failed to allocate "pv_local"' // new_line('') // &
+                'Allocation returned with error: ' // trim(adjustl(errmsg))
+
             return
         end if
 
         allocate(pt_local, source=pt, errmsg=errmsg, stat=errflg)
 
         if (errflg /= 0) then
+            errmsg = 'cu_ntiedtke_compat_run: Failed to allocate "pt_local"' // new_line('') // &
+                'Allocation returned with error: ' // trim(adjustl(errmsg))
+
             return
         end if
 
         allocate(pqv_local, source=pqv, errmsg=errmsg, stat=errflg)
 
         if (errflg /= 0) then
+            errmsg = 'cu_ntiedtke_compat_run: Failed to allocate "pqv_local"' // new_line('') // &
+                'Allocation returned with error: ' // trim(adjustl(errmsg))
+
             return
         end if
 
         allocate(pqc_local, source=pqc, errmsg=errmsg, stat=errflg)
 
         if (errflg /= 0) then
+            errmsg = 'cu_ntiedtke_compat_run: Failed to allocate "pqc_local"' // new_line('') // &
+                'Allocation returned with error: ' // trim(adjustl(errmsg))
+
             return
         end if
 
         allocate(pqi_local, source=pqi, errmsg=errmsg, stat=errflg)
 
         if (errflg /= 0) then
+            errmsg = 'cu_ntiedtke_compat_run: Failed to allocate "pqi_local"' // new_line('') // &
+                'Allocation returned with error: ' // trim(adjustl(errmsg))
+
             return
         end if
 
