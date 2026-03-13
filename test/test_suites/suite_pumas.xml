@@ -2,15 +2,21 @@
 
 <suite name="pumas" version="1.0">
   <group name="physics_before_coupler">
+
+    <scheme>initialize_constituents</scheme>
+    <scheme>to_be_ccppized_temporary</scheme>
+    <scheme>clubb_stub</scheme>
+
     <!-- Read in PUMAS namelist variables (init only) -->
     <scheme>pumas_pre_main</scheme>
-    <!-- Temporary creation of microphysics_process_rates until finished making it -->
-    <scheme>micro_pumas_tempfix</scheme>
     <!-- Convert variables from host grid to PUMAS grid -->
     <scheme>micro_pumas_ccpp_dimensions_pre</scheme>
     <!-- core PUMAS (cloud microphysics) scheme -->
     <scheme>micro_pumas_ccpp</scheme>
     <!-- Convert variables from PUMAS grid to host grid -->
     <scheme>micro_pumas_ccpp_dimensions_post</scheme>
+    <!-- Apply tendencies -->
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>apply_heating_rate</scheme>
   </group>
 </suite>

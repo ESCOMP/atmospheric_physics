@@ -20,13 +20,14 @@ module pumas_pre_main
    !steps needed before the core
    !PUMAS calls.
 
-
   !> \section arg_table_pumas_pre_main_init Argument Table
   !! \htmlinclude pumas_pre_main_init.html
-   subroutine pumas_pre_main_init(spat_vary_accre_enhan_in, errmsg, errcode)
+   subroutine pumas_pre_main_init(do_clubb_sgs, remove_supersat, spat_vary_accre_enhan_in, errmsg, errcode)
 
 
+     logical,            intent(in)  :: do_clubb_sgs
      real(kind_phys), dimension (:,:) , intent(out) :: spat_vary_accre_enhan_in
+     logical,            intent(out) :: remove_supersat
      character(len=512), intent(out) :: errmsg
      integer,            intent(out) :: errcode
 
@@ -36,6 +37,26 @@ module pumas_pre_main
      ! Inside CAM, the pbuf accre_enhan variable is hardwired to 1.
      spat_vary_accre_enhan_in(:,:) = 1._kind_phys
 
+     ! set remove_supersat dependent on whether CLUBB is being run or not
+     if (do_clubb_sgs) then
+       remove_supersat = .false.
+     else
+       remove_supersat = .true.
+     endif
+
    end subroutine pumas_pre_main_init
+
+  !> \section arg_table_pumas_pre_main_timestep_init Argument Table
+  !! \htmlinclude pumas_pre_main_timestep_init.html
+   subroutine pumas_pre_main_timestep_init( errmsg, errcode)
+
+
+     character(len=512), intent(out) :: errmsg
+     integer,            intent(out) :: errcode
+
+     errmsg = ' '
+     errcode = 0
+
+   end subroutine pumas_pre_main_timestep_init
 
 end module pumas_pre_main

@@ -5,6 +5,13 @@
 [ccpp-arg-table]
   name = pumas_pre_main_init
   type = scheme
+[ do_clubb_sgs ]
+  standard_name = do_clubb
+  long_name = Flag indicating whether CLUBB is being used in the suite or not
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
 [spat_vary_accre_enhan_in]
   standard_name = spatial_varying_accretion_enhancement_factor
   long_name = spatial varying accretion enhancement factor
@@ -13,6 +20,31 @@
   type = real
   kind = kind_phys
   intent = out
+[remove_supersat]
+  standard_name = remove_supersaturation_after_sedimentation
+  long_name = remove supersaturation after sedimentation
+  units = flag
+  dimensions = ()
+  type = logical
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errcode ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name = pumas_pre_main_timestep_init
+  type = scheme
 [ errmsg ]
   standard_name = ccpp_error_message
   long_name = Error message for error handling in CCPP

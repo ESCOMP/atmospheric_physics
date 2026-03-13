@@ -4,20 +4,6 @@
 
 <entry_id_pg version="2.0">
 
-<entry id="rhmini">
-  <category>microphys</category>
-  <group>micro_mg_nl</group>
-  <standard_name>relative_humidity_threshold_for_ice_nucleation</standard_name>
-  <units>fraction</units>
-  <type>real</type>
-  <kind>kind_phys</kind>
-  <desc> relative humidity threshold parameter for nucleating ice for PUMAS microphysics </desc>
-  <!-- FIXME: Fix default value(s) -->
-  <values>
-    <value>0</value>
-  </values>
-</entry>
-
 <entry id="do_hail">
   <category>microphys</category>
   <group>micro_mg_nl</group>
@@ -25,7 +11,6 @@
   <units>flag</units>
   <type>logical</type>
   <desc>flag for hail for PUMAS microphysics (graupel possible if false)</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
     <value>.false.</value>
   </values>
@@ -38,9 +23,8 @@
   <units>flag</units>
   <type>logical</type>
   <desc>flag for graupel for PUMAS microphysics (hail possible if false)</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
-    <value>.false.</value>
+    <value>.true.</value>
   </values>
 </entry>
 
@@ -51,7 +35,6 @@
   <units>flag</units>
   <type>logical</type>
   <desc>flag for uniform subcolumns for PUMAS microphysics</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
     <value>.false.</value>
   </values>
@@ -64,9 +47,8 @@
   <units>flag</units>
   <type>logical</type>
   <desc>do cloud ice processes for PUMAS microphysics (skip all cloud ice processes if false)</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
-    <value>.false.</value>
+    <value>.true.</value>
   </values>
 </entry>
 
@@ -77,35 +59,8 @@
   <units>count</units>
   <type>integer</type>
   <desc>number of substeps for the microphysics</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
     <value>1</value>
-  </values>
-</entry>
-
-<entry id="use_hetfrz_classnuc">
-  <category>microphys</category>
-  <group>micro_mg_nl</group>
-  <standard_name>do_heterogeneous_ice_nucleation</standard_name>
-  <units>flag</units>
-  <type>logical</type>
-  <desc>flag for heterogeneous freezing for MG microphysics</desc>
-  <!-- FIXME: Fix default value(s) -->
-  <values>
-    <value>.false.</value>
-  </values>
-</entry>
-
-<entry id="remove_supersat">
-  <category>microphys</category>
-  <group>micro_mg_nl</group>
-  <standard_name>remove_supersaturation_after_sedimentation</standard_name>
-  <units>flag</units>
-  <type>logical</type>
-  <desc>Remove supersaturation after sedimentation in PUMAS?</desc>
-  <!-- FIXME: Fix default value(s) -->
-  <values>
-    <value>.false.</value>
   </values>
 </entry>
 
@@ -116,7 +71,6 @@
   <units>flag</units>
   <type>logical</type>
   <desc>true means sedimenting condensate does not evaporate for PUMAS microphysics</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
     <value>.false.</value>
   </values>
@@ -129,7 +83,6 @@
   <units>flag</units>
   <type>logical</type>
   <desc>If .true., remove RH threshold from ice nucelation calculation for PUMAS microphysics</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
     <value>.false.</value>
   </values>
@@ -142,7 +95,6 @@
   <units>flag</units>
   <type>logical</type>
   <desc>use temperature dependent ice nucleation from Meyers 1992 for PUMAS microphysics</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
     <value>.false.</value>
   </values>
@@ -155,7 +107,6 @@
   <units>flag</units>
   <type>logical</type>
   <desc>if True Apply 0.3 scaling factor to evaporation of precipitation for PUMAS microphysics</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
     <value>.false.</value>
   </values>
@@ -168,7 +119,6 @@
   <units>flag</units>
   <type>logical</type>
   <desc>Do not evaporate precipitation until RH below 90% in PUMAS microphysics</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
     <value>.false.</value>
   </values>
@@ -181,7 +131,6 @@
   <units>flag</units>
   <type>logical</type>
   <desc>Freeze rain at 0C for PUMAS microphysics</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
     <value>.false.</value>
   </values>
@@ -194,7 +143,6 @@
   <units>flag</units>
   <type>logical</type>
   <desc>Use constant sedimentation fall speed for all species in PUMAS microphysics</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
     <value>.false.</value>
   </values>
@@ -207,7 +155,6 @@
   <units>flag</units>
   <type>logical</type>
   <desc>ensure non-zero precipitation fallspeed for PUMAS microphysics</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
     <value>.false.</value>
   </values>
@@ -220,9 +167,8 @@
   <units>flag</units>
   <type>logical</type>
   <desc>KK200 accretion sees newely formed rain for PUMAS microphysics</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
-    <value>.false.</value>
+    <value>.true.</value>
   </values>
 </entry>
 
@@ -233,9 +179,8 @@
   <units>flag</units>
   <type>logical</type>
   <desc>use implicit calculation for fall speed for PUMAS microphysics</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
-    <value>.false.</value>
+    <value>.true.</value>
   </values>
 </entry>
 
@@ -246,9 +191,8 @@
   <units>flag</units>
   <type>logical</type>
   <desc>flag for constant droplet concentration for PUMAS microphysics</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
-    <value>.false.</value>
+    <value>.true.</value>
   </values>
 </entry>
 
@@ -259,9 +203,8 @@
   <units>flag</units>
   <type>logical</type>
   <desc>flag for constant ice concentration for PUMAS microphysics</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
-    <value>.false.</value>
+    <value>.true.</value>
   </values>
 </entry>
 
@@ -272,9 +215,8 @@
   <units>flag</units>
   <type>logical</type>
   <desc>flag for constant graupel concentration for PUMAS microphysics</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
-    <value>.false.</value>
+    <value>.true.</value>
   </values>
 </entry>
 
@@ -285,7 +227,6 @@
   <units>flag</units>
   <type>logical</type>
   <desc>flag for constant rain concentration for PUMAS microphysics</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
     <value>.false.</value>
   </values>
@@ -298,7 +239,6 @@
   <units>flag</units>
   <type>logical</type>
   <desc>flag for constant snow concentration for PUMAS microphysics</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
     <value>.false.</value>
   </values>
@@ -311,9 +251,8 @@
   <units>none</units>
   <type>char*256</type>
   <desc>type of precip fraction method for MG microphysics (in_cloud or max_overlap)</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
-    <value>" "</value>
+    <value>"in_cloud"</value>
   </values>
 </entry>
 
@@ -324,9 +263,8 @@
   <units>none</units>
   <type>char*256</type>
   <desc>warm rain method (KK2000,sb2001,tau,emulated)</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
-    <value>" "</value>
+    <value>"kk2000"</value>
   </values>
 </entry>
 
@@ -337,9 +275,8 @@
   <units>none</units>
   <type>char*256</type>
   <desc>emulated stochastic collection filename for quantiles</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
-    <value>" "</value>
+    <value>"${SRCROOT}2/src/atmos_phys/schemes/pumas/pumas/KBARF_tau_kernel.dat"</value>
   </values>
 </entry>
 
@@ -377,9 +314,8 @@
   <type>real</type>
   <kind>kind_phys</kind>
   <desc>autoconversion size threshold for cloud ice to snow for MG microphysics</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
-    <value>0</value>
+    <value>600.D-6</value>
   </values>
 </entry>
 
@@ -391,9 +327,8 @@
   <type>real</type>
   <kind>kind_phys</kind>
   <desc>bergeron efficiency factor for MG microphysics</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
-    <value>0</value>
+    <value>1.D0</value>
   </values>
 </entry>
 
@@ -405,9 +340,8 @@
   <type>real</type>
   <kind>kind_phys</kind>
   <desc>KK2000 accretion enhancement factor for MG microphysics</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
-    <value>0</value>
+    <value>1.D0</value>
   </values>
 </entry>
 
@@ -419,9 +353,8 @@
   <type>real</type>
   <kind>kind_phys</kind>
   <desc>KK2000 autonconverion enhancement factor for MG microphysics</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
-    <value>0</value>
+    <value>0.01D0</value>
   </values>
 </entry>
 
@@ -433,9 +366,8 @@
   <type>real</type>
   <kind>kind_phys</kind>
   <desc>KK2000 autonconverion nd exponent in MG microphysics</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
-    <value>0</value>
+    <value>-1.1D0</value>
   </values>
 </entry>
 
@@ -447,9 +379,8 @@
   <type>real</type>
   <kind>kind_phys</kind>
   <desc>KK2000 autonconverion lwp (qc) exponent in MG microphysics</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
-    <value>0</value>
+    <value>2.47D0</value>
   </values>
 </entry>
 
@@ -461,9 +392,8 @@
   <type>real</type>
   <kind>kind_phys</kind>
   <desc>radius of drops homogeneously frozen in MG microphysics</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
-    <value>0</value>
+    <value> 25.D-6</value>
   </values>
 </entry>
 
@@ -475,9 +405,8 @@
   <type>real</type>
   <kind>kind_phys</kind>
   <desc>scaling factor for cloud ice fall speed in MG microphysics</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
-    <value>0</value>
+    <value>1.D0</value>
   </values>
 </entry>
 
@@ -489,9 +418,8 @@
   <type>real</type>
   <kind>kind_phys</kind>
   <desc>scaling factor for snow fall speed in MG microphysics</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
-    <value>0</value>
+    <value>1.D0</value>
   </values>
 </entry>
 
@@ -503,9 +431,8 @@
   <type>real</type>
   <kind>kind_phys</kind>
   <desc>scaling factor for ice effective radition used by radiation</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
-    <value>0</value>
+    <value>1.D0</value>
   </values>
 </entry>
 
@@ -517,9 +444,8 @@
   <type>real</type>
   <kind>kind_phys</kind>
   <desc>scaling factor for ice accretion in MG microphysics</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
-    <value>0</value>
+    <value>1.D0</value>
   </values>
 </entry>
 
@@ -531,9 +457,8 @@
   <type>real</type>
   <kind>kind_phys</kind>
   <desc>maximum allowed ice number concentration for MG microphysics</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
-    <value>0</value>
+    <value>1.D8</value>
   </values>
 </entry>
 
@@ -545,9 +470,9 @@
   <type>real</type>
   <kind>kind_phys</kind>
   <desc>droplet concentration constant for MG microphysics</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
-    <value>0</value>
+    <value>10</value>
+    <value micro_mg_version="2">8</value>
   </values>
 </entry>
 
@@ -559,9 +484,8 @@
   <type>real</type>
   <kind>kind_phys</kind>
   <desc>ice concentration constant for MG microphysics</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
-    <value>0</value>
+    <value>0.05D6</value>
   </values>
 </entry>
 
@@ -573,9 +497,8 @@
   <type>real</type>
   <kind>kind_phys</kind>
   <desc>graupel concentration constant for MG microphysics</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
-    <value>0</value>
+    <value>0.0005D6</value>
   </values>
 </entry>
 
@@ -587,9 +510,8 @@
   <type>real</type>
   <kind>kind_phys</kind>
   <desc>rain concentration constant for MG microphysics</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
-    <value>0</value>
+    <value>0.2D6</value>
   </values>
 </entry>
 
@@ -601,9 +523,8 @@
   <type>real</type>
   <kind>kind_phys</kind>
   <desc>snow concentration constant for MG microphysics</desc>
-  <!-- FIXME: Fix default value(s) -->
   <values>
-    <value>0</value>
+    <value>0.005D6</value>
   </values>
 </entry>
 
