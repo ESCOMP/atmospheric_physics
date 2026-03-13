@@ -155,7 +155,7 @@
   intent = in
 [ boltz ]
   standard_name = boltzmann_constant
-  units = J K-1
+  units = J K-1 molecule-1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
