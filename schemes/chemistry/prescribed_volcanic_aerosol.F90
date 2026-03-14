@@ -203,13 +203,9 @@ contains
       return
     end if
 
-    ! Register history fields
-    call history_add_field(volcaero_const_name, &
-         'prescribed volcanic aerosol dry mass mixing ratio', &
-         'lev', 'inst', 'kg kg-1')
-    call history_add_field(volcrad_const_name, &
-         'volcanic aerosol geometric-mean radius', &
-         'lev', 'inst', 'm')
+    ! Register history fields.
+    ! No longer need history output for the constituents because, well,
+    ! they are constituents.
     call history_add_field('VOLC_MASS', &
          'volcanic aerosol vertical mass path in layer', &
          'lev', 'inst', 'kg m-2')
@@ -352,8 +348,6 @@ contains
     columnmass(:ncol) = sum(volcmass(:ncol, :pver), 2)
 
     ! History output
-    call history_out_field(volcaero_const_name, constituents(:, :, mmr_idx))
-    call history_out_field(volcrad_const_name,  constituents(:, :, rad_idx))
     call history_out_field('VOLC_MASS',   volcmass(:, :))
     call history_out_field('VOLC_MASS_C', columnmass(:))
 
