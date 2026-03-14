@@ -1,0 +1,251 @@
+[ccpp-table-properties]
+  name = aerosol_optics_diagnostics
+  type = scheme
+
+[ccpp-arg-table]
+  name  = aerosol_optics_diagnostics_init
+  type  = scheme
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = aerosol_optics_diagnostics_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ nswbands ]
+  standard_name = number_of_bands_for_shortwave_radiation
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ nlwbands ]
+  standard_name = number_of_bands_for_longwave_radiation
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ aer_tau ]
+  standard_name = shortwave_aerosol_extinction_optical_depth
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_bands_for_shortwave_radiation)
+  intent = in
+[ aer_tau_w ]
+  standard_name = shortwave_aerosol_single_scattering_albedo_times_optical_depth
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_bands_for_shortwave_radiation)
+  intent = in
+[ aer_lw_abs ]
+  standard_name = longwave_aerosol_absorption_optical_depth
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_bands_for_longwave_radiation)
+  intent = in
+[ idx_sw_diag ]
+  standard_name = index_of_shortwave_band
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
+[ idx_uv_diag ]
+  standard_name = index_of_UV_band
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
+[ idx_nir_diag ]
+  standard_name = index_of_near_IR_band
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
+[ idx_lw_diag ]
+  standard_name = index_of_longwave_band
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
+[ pdeldry ]
+  standard_name = air_pressure_thickness_of_dry_air
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ pmid ]
+  standard_name = air_pressure
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ t ]
+  standard_name = air_temperature
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ rga ]
+  standard_name = reciprocal_of_gravitational_acceleration
+  units = s2 m-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ rair ]
+  standard_name = gas_constant_of_dry_air
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ nnite ]
+  standard_name = nighttime_columns_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ idxnite ]
+  standard_name = nighttime_columns
+  units = index
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ troplev ]
+  standard_name = tropopause_vertical_layer_index_from_chemical_method
+  units = index
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ dustaod ]
+  standard_name = aerosol_optical_depth_from_dust
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ sulfaod ]
+  standard_name = aerosol_optical_depth_from_sulfate
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ bcaod ]
+  standard_name = aerosol_optical_depth_from_black_carbon
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ pomaod ]
+  standard_name = aerosol_optical_depth_from_primary_organic_matter
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ soaaod ]
+  standard_name = aerosol_optical_depth_from_secondary_organic_aerosol
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ ssltaod ]
+  standard_name = aerosol_optical_depth_from_seasalt
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ aodabsbc ]
+  standard_name = absorption_aerosol_optical_depth_from_black_carbon
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ burdendust ]
+  standard_name = column_burden_from_dust
+  units = kg m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ burdenso4 ]
+  standard_name = column_burden_from_sulfate
+  units = kg m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ burdenbc ]
+  standard_name = column_burden_from_black_carbon
+  units = kg m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ burdenpom ]
+  standard_name = column_burden_from_primary_organic_matter
+  units = kg m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ burdensoa ]
+  standard_name = column_burden_from_secondary_organic_aerosol
+  units = kg m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ burdenseasalt ]
+  standard_name = column_burden_from_seasalt
+  units = kg m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ ssavis ]
+  standard_name = aerosol_single_scatter_albedo_at_vis
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ aodvis ]
+  standard_name = aerosol_optical_depth_at_vis
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ num_bulk_aer ]
+  standard_name = number_of_bulk_aerosol_constituents_in_climate_radiative_aerosol_list
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ odv_col_aod ]
+  standard_name = column_visible_optical_depth_per_bulk_aerosol
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, number_of_bulk_aerosol_constituents_in_climate_radiative_aerosol_list)
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

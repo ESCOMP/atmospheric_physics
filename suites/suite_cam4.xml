@@ -9,6 +9,8 @@
       Microphysics            RK
       Radiation               RRTMGP
       Chemistry               None       (not implemented)
+      Aerosol Model           BAM (bulk)
+      Aerosol Source          Prescribed
       Vertical Diffusion      HB
       Gravity Wave Drag       Orographic
   -->
@@ -19,6 +21,13 @@
 
     <!-- INITIALIZE ZM NAMELIST (init phase only) -->
     <scheme>zm_conv_options</scheme>
+
+    <!-- Prescribe ozone and aerosol for radiation. -->
+    <scheme>prescribed_ozone</scheme>
+    <scheme>prescribed_aerosols</scheme>
+    <scheme>prescribed_aerosol_deposition_flux</scheme>
+    <scheme>tropopause_find</scheme>
+    <scheme>prescribed_volcanic_aerosol</scheme>
 
     <!-- Compute global means of physics input and output total energy -->
     <scheme>check_energy_gmean</scheme>
@@ -214,8 +223,17 @@
     <!-- State diagnostics -->
     <scheme>sima_state_diagnostics</scheme>
 
-    <!-- Radiation (RRTMGP) -->
+    <!-- Run rrtmgp pre-interstitial first to get night column information
+         for aerosol_optics_diagnostics. -->
     <scheme>rrtmgp_pre</scheme>
+
+    <!-- Calculate aerosol optical properties for radiation.
+         This has to be after the cloud fraction parameterization for the
+         relative humidity field to be available. -->
+    <scheme>aerosol_optics</scheme>
+    <scheme>aerosol_optics_diagnostics</scheme>
+
+    <!-- Radiation (RRTMGP) -->
     <scheme>rrtmgp_cloud_optics_setup</scheme>
     <scheme>tropopause_find</scheme>
     <scheme>rrtmgp_variables</scheme>
