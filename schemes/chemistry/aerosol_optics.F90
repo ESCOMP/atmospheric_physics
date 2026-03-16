@@ -367,23 +367,25 @@ contains
                            hygrodust_d(icol) + hygrosslt_d(icol)
 
               ! Partition water contribution proportionally to hygroscopicity
-              scatdust_d(icol) = (scatdust_d(icol) + scath2o_d*hygrodust_d(icol)/sumhygro_d)/sumscat_d
-              absdust_d(icol)  = (absdust_d(icol) + absh2o_d*hygrodust_d(icol)/sumhygro_d)/sumabs_d
+              if (sumscat_d>0._kind_phys .and. sumabs_d>0._kind_phys .and. sumhygro_d>0._kind_phys) then
+                scatdust_d(icol) = (scatdust_d(icol) + scath2o_d*hygrodust_d(icol)/sumhygro_d)/sumscat_d
+                absdust_d(icol)  = (absdust_d(icol) + absh2o_d*hygrodust_d(icol)/sumhygro_d)/sumabs_d
 
-              scatsulf_d(icol) = (scatsulf_d(icol) + scath2o_d*hygrosulf_d(icol)/sumhygro_d)/sumscat_d
-              abssulf_d(icol)  = (abssulf_d(icol) + absh2o_d*hygrosulf_d(icol)/sumhygro_d)/sumabs_d
+                scatsulf_d(icol) = (scatsulf_d(icol) + scath2o_d*hygrosulf_d(icol)/sumhygro_d)/sumscat_d
+                abssulf_d(icol)  = (abssulf_d(icol) + absh2o_d*hygrosulf_d(icol)/sumhygro_d)/sumabs_d
 
-              scatpom_d(icol) = (scatpom_d(icol) + scath2o_d*hygropom_d(icol)/sumhygro_d)/sumscat_d
-              abspom_d(icol)  = (abspom_d(icol) + absh2o_d*hygropom_d(icol)/sumhygro_d)/sumabs_d
+                scatpom_d(icol) = (scatpom_d(icol) + scath2o_d*hygropom_d(icol)/sumhygro_d)/sumscat_d
+                abspom_d(icol)  = (abspom_d(icol) + absh2o_d*hygropom_d(icol)/sumhygro_d)/sumabs_d
 
-              scatsoa_d(icol) = (scatsoa_d(icol) + scath2o_d*hygrosoa_d(icol)/sumhygro_d)/sumscat_d
-              abssoa_d(icol)  = (abssoa_d(icol) + absh2o_d*hygrosoa_d(icol)/sumhygro_d)/sumabs_d
+                scatsoa_d(icol) = (scatsoa_d(icol) + scath2o_d*hygrosoa_d(icol)/sumhygro_d)/sumscat_d
+                abssoa_d(icol)  = (abssoa_d(icol) + absh2o_d*hygrosoa_d(icol)/sumhygro_d)/sumabs_d
 
-              scatbc_d(icol) = (scatbc_d(icol) + scath2o_d*hygrobc_d(icol)/sumhygro_d)/sumscat_d
-              absbc_d(icol)  = (absbc_d(icol) + absh2o_d*hygrobc_d(icol)/sumhygro_d)/sumabs_d
+                scatbc_d(icol) = (scatbc_d(icol) + scath2o_d*hygrobc_d(icol)/sumhygro_d)/sumscat_d
+                absbc_d(icol)  = (absbc_d(icol) + absh2o_d*hygrobc_d(icol)/sumhygro_d)/sumabs_d
 
-              scatsslt_d(icol) = (scatsslt_d(icol) + scath2o_d*hygrosslt_d(icol)/sumhygro_d)/sumscat_d
-              abssslt_d(icol)  = (abssslt_d(icol) + absh2o_d*hygrosslt_d(icol)/sumhygro_d)/sumabs_d
+                scatsslt_d(icol) = (scatsslt_d(icol) + scath2o_d*hygrosslt_d(icol)/sumhygro_d)/sumscat_d
+                abssslt_d(icol)  = (abssslt_d(icol) + absh2o_d*hygrosslt_d(icol)/sumhygro_d)/sumabs_d
+              end if
 
               dopaer_d = tau_bin(icol, ilev, idx_sw_diag)
               palb_d   = ssa_bin(icol, ilev, idx_sw_diag)
