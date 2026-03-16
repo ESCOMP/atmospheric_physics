@@ -29,6 +29,9 @@
     <scheme>tropopause_find</scheme>
     <scheme>prescribed_volcanic_aerosol</scheme>
 
+    <!-- Rebin seasalt from 4bin prescribed to 2bin -->
+    <scheme>rebin_seasalt</scheme>
+
     <!-- Compute global means of physics input and output total energy -->
     <scheme>check_energy_gmean</scheme>
     <!-- After gmean, output global mean energy diagnostics -->
