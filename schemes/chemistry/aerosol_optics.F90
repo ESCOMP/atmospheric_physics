@@ -70,65 +70,65 @@ contains
     use ccpp_kinds, only: kind_phys
 
     ! framework dependency for const_props
-    use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
+    use ccpp_constituent_prop_mod,   only: ccpp_constituent_prop_ptr_t
 
     ! dependency to get constituent index
-    use ccpp_const_utils,          only: ccpp_const_get_idx
+    use ccpp_const_utils,            only: ccpp_const_get_idx
+
+    ! portable optics core:
+    use aerosol_optics_core,         only: aerosol_optics_sw_bin, aerosol_optics_lw_bin
 
     ! host-model dependency for aerosol objects:
-    use aerosol_physical_properties,     only: nrh
-    use aerosol_optics_core,             only: aerosol_optics_sw_bin, aerosol_optics_lw_bin
-    use aerosol_instances_mod,           only: aerosol_instances_get_props, &
-                                               aerosol_instances_get_state, &
-                                               aerosol_instances_get_num_models
-    use aerosol_properties_mod,          only: aerosol_properties
-    use aerosol_state_mod,               only: aerosol_state
-    use aerosol_physical_properties,     only: ot_length
-    use aerosol_mmr_ccpp,                only: rad_aer_diag_out
-    use radiative_aerosol_definitions,   only: N_DIAG, active_calls, bulk_aerosol_list
+    use aerosol_physical_properties, only: nrh ! # of relative humidity bins for table lookup
+    use aerosol_instances_mod,       only: aerosol_instances_get_props, &
+                                           aerosol_instances_get_state, &
+                                           aerosol_instances_get_num_models
+    use aerosol_properties_mod,      only: aerosol_properties
+    use aerosol_state_mod,           only: aerosol_state
+    use aerosol_physical_properties, only: ot_length
 
     ! Input arguments
-    integer,          intent(in)  :: ncol                  ! number of columns [count]
-    integer,          intent(in)  :: pver                  ! number of vertical layers [count]
+    integer,            intent(in)  :: ncol
+    integer,            intent(in)  :: pver
     type(ccpp_constituent_prop_ptr_t), &
-                      intent(in)  :: const_props(:)        ! ccpp constituent properties pointer
-    integer,          intent(in)  :: nswbands              ! number of SW bands [count]
-    integer,          intent(in)  :: nlwbands              ! number of LW bands [count]
-    integer,          intent(in)  :: top_lev               ! top level for aerosol model [index]
-    real(kind_phys),  intent(in)  :: rga
-    integer,          intent(in)  :: idx_sw_diag           ! index of SW diagnostic band [index]
-    integer,          intent(in)  :: num_bulk_aer          ! number of bulk aerosol constituents in climate list [count]
-    real(kind_phys),  intent(in)  :: relh(:, :)            ! relative humidity [fraction]
-    real(kind_phys),  intent(in)  :: pdeldry(:, :)         ! dry air pressure thickness [Pa]
-    real(kind_phys),  intent(in)  :: constituents(:, :, :)
-    complex(kind_phys), intent(in) :: crefwsw(:)           ! water refractive idx for SW rad [1]
-    complex(kind_phys), intent(in) :: crefwlw(:)           ! water refractive idx for LW rad [1]
+                        intent(in)  :: const_props(:)  ! ccpp constituent properties pointer
+    integer,            intent(in)  :: nswbands        ! number of SW bands [count]
+    integer,            intent(in)  :: nlwbands        ! number of LW bands [count]
+    integer,            intent(in)  :: top_lev         ! top level for aerosol model [index]
+    real(kind_phys),    intent(in)  :: rga
+    integer,            intent(in)  :: idx_sw_diag     ! index of SW diagnostic band [index]
+    integer,            intent(in)  :: num_bulk_aer    ! number of bulk aerosol constituents in climate list [count]
+    real(kind_phys),    intent(in)  :: relh(:, :)      ! relative humidity [fraction]
+    real(kind_phys),    intent(in)  :: pdeldry(:, :)   ! dry air pressure thickness [Pa]
+    real(kind_phys),    intent(in)  :: constituents(:, :, :)
+    complex(kind_phys), intent(in)  :: crefwsw(:)      ! water refractive idx for SW rad [1]
+    complex(kind_phys), intent(in)  :: crefwlw(:)      ! water refractive idx for LW rad [1]
 
     ! Output arguments
-    real(kind_phys),  intent(out) :: aer_tau(:, :, :)      ! SW extinction optical depth [1]
-    real(kind_phys),  intent(out) :: aer_tau_w(:, :, :)    ! SW ssa * tau [1]
-    real(kind_phys),  intent(out) :: aer_tau_w_g(:, :, :)  ! SW asy * ssa * tau [1]
-    real(kind_phys),  intent(out) :: aer_lw_abs(:, :, :)   ! LW absorption optical depth [1]
+    real(kind_phys),    intent(out) :: aer_tau(:, :, :)      ! SW extinction optical depth [1]
+    real(kind_phys),    intent(out) :: aer_tau_w(:, :, :)    ! SW ssa * tau [1]
+    real(kind_phys),    intent(out) :: aer_tau_w_g(:, :, :)  ! SW asy * ssa * tau [1]
+    real(kind_phys),    intent(out) :: aer_lw_abs(:, :, :)   ! LW absorption optical depth [1]
 
-    ! Per-species diagnostic outputs (all ncol)
-    real(kind_phys),  intent(out) :: dustaod(:)             ! Dust AOD at vis [1]
-    real(kind_phys),  intent(out) :: sulfaod(:)             ! Sulfate AOD at vis [1]
-    real(kind_phys),  intent(out) :: bcaod(:)               ! BC AOD at vis [1]
-    real(kind_phys),  intent(out) :: pomaod(:)              ! POM AOD at vis [1]
-    real(kind_phys),  intent(out) :: soaaod(:)              ! SOA AOD at vis [1]
-    real(kind_phys),  intent(out) :: ssltaod(:)             ! Seasalt AOD at vis [1]
-    real(kind_phys),  intent(out) :: aodabsbc(:)            ! BC absorption OD at vis [1]
-    real(kind_phys),  intent(out) :: burdendust(:)          ! Dust column burden [kg m-2]
-    real(kind_phys),  intent(out) :: burdenso4(:)           ! Sulfate column burden [kg m-2]
-    real(kind_phys),  intent(out) :: burdenbc(:)            ! BC column burden [kg m-2]
-    real(kind_phys),  intent(out) :: burdenpom(:)           ! POM column burden [kg m-2]
-    real(kind_phys),  intent(out) :: burdensoa(:)           ! SOA column burden [kg m-2]
-    real(kind_phys),  intent(out) :: burdenseasalt(:)       ! Seasalt column burden [kg m-2]
-    real(kind_phys),  intent(out) :: ssavis(:)              ! Column SSA at vis [1]
-    real(kind_phys),  intent(out) :: aodvis(:)              ! Column AOD at vis [1]
+    ! Per-species diagnostic outputs:
+    real(kind_phys),    intent(out) :: dustaod(:)       ! Dust AOD at vis [1]
+    real(kind_phys),    intent(out) :: sulfaod(:)       ! Sulfate AOD at vis [1]
+    real(kind_phys),    intent(out) :: bcaod(:)         ! BC AOD at vis [1]
+    real(kind_phys),    intent(out) :: pomaod(:)        ! POM AOD at vis [1]
+    real(kind_phys),    intent(out) :: soaaod(:)        ! SOA AOD at vis [1]
+    real(kind_phys),    intent(out) :: ssltaod(:)       ! Seasalt AOD at vis [1]
+    real(kind_phys),    intent(out) :: aodabsbc(:)      ! BC absorption OD at vis [1]
+    real(kind_phys),    intent(out) :: burdendust(:)    ! Dust column burden [kg m-2]
+    real(kind_phys),    intent(out) :: burdenso4(:)     ! Sulfate column burden [kg m-2]
+    real(kind_phys),    intent(out) :: burdenbc(:)      ! BC column burden [kg m-2]
+    real(kind_phys),    intent(out) :: burdenpom(:)     ! POM column burden [kg m-2]
+    real(kind_phys),    intent(out) :: burdensoa(:)     ! SOA column burden [kg m-2]
+    real(kind_phys),    intent(out) :: burdenseasalt(:) ! Seasalt column burden [kg m-2]
+    real(kind_phys),    intent(out) :: ssavis(:)        ! Column SSA at vis [1]
+    real(kind_phys),    intent(out) :: aodvis(:)        ! Column AOD at vis [1]
 
     ! Per-constituent column visible OD for bulk aerosol (ncol, num_bulk_aer)
-    real(kind_phys),  intent(out) :: odv_col_aod(:,:)
+    real(kind_phys),    intent(out) :: odv_col_aod(:,:)
 
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errflg
@@ -164,7 +164,6 @@ contains
     logical :: has_volc_rad_geom
 
     character(len=ot_length) :: opticstype
-    character(len=*), parameter :: subname = 'aerosol_optics_run'
 
     ! Per-species diagnostic locals
     integer :: ispec
@@ -172,7 +171,7 @@ contains
     real(kind_phys) :: vol_d(ncol)
     real(kind_phys) :: specdens_d, hygro_aer_d
     character(len=32) :: spectype_d
-    real(kind_phys), pointer :: specmmr_d(:, :)
+    real(kind_phys),    pointer :: specmmr_d(:, :)
     complex(kind_phys), pointer :: specrefindex_d(:)
     real(kind_phys) :: scatdust_d(ncol), absdust_d(ncol), hygrodust_d(ncol)
     real(kind_phys) :: scatbc_d(ncol), absbc_d(ncol), hygrobc_d(ncol)
@@ -216,9 +215,6 @@ contains
     ! Layer mass [kg/m2]
     mass(:ncol, :) = pdeldry(:ncol, :) * rga
 
-    ! Number of relative humidity bins for table lookup
-    numrh = nrh
-
     ! Check if VOLC_RAD_GEOM is available
     call ccpp_const_get_idx(const_props, &
                             'VOLC_RAD_GEOM', idx_volc_rad_geom, errmsg, errflg)
@@ -260,7 +256,7 @@ contains
         ! Call the portable core for shortwave optics calculation per-bin:
         !-------------------------------------------------
         call aerosol_optics_sw_bin(aeroprops, aerostate, ibin, &
-                                   ncol, pver, top_lev, nswbands, nlwbands, numrh, &
+                                   ncol, pver, top_lev, nswbands, nlwbands, nrh, &
                                    idx_sw_diag, &
                                    relh, sulfwtpct, mass, crefwsw, crefwlw, &
                                    geometric_radius, &
@@ -432,7 +428,7 @@ contains
         ! Call the portable core for longwave optics calculation per-bin:
         !-------------------------------------------------
         call aerosol_optics_lw_bin(aeroprops, aerostate, ibin, &
-                                   ncol, pver, nswbands, nlwbands, numrh, &
+                                   ncol, pver, nswbands, nlwbands, nrh, &
                                    relh, sulfwtpct, mass, crefwsw, crefwlw, &
                                    geometric_radius, &
                                    tau_lw_bin, absorp_bin, &
@@ -458,14 +454,8 @@ contains
       if (aodvis(icol) > 1.e-10_kind_phys) then
         ssavis(icol) = sum(aer_tau_w(icol, :, idx_sw_diag)) / aodvis(icol)
       else
+        ! magic number from CAM aerosol_optics_cam.F90.
         ssavis(icol) = 0.925_kind_phys
-      end if
-    end do
-
-    ! Output diagnostics for active climate and diagnostic lists
-    do ilist = 0, N_DIAG
-      if (active_calls(ilist)) then
-        call rad_aer_diag_out(ilist, constituents, pdeldry, ncol)
       end if
     end do
 

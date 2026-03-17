@@ -2,8 +2,8 @@
 ! Outputs aggregate SW/LW optical property diagnostics and per-species
 ! AODs/burdens from the aerosol_optics CCPP scheme.
 !
-! Follows rrtmgp_lw_diagnostics.F90 pattern. Day-only fields use fillvalue
-! for night columns; day+night (dn) fields carry data for all columns.
+! Day-only fields use fillvalue for night columns;
+! day+night (dn) fields carry data for all columns.
 !
 ! Author: Haipeng Lin, NSF-NCAR/CGD/AMP, March 2026
 module aerosol_optics_diagnostics
@@ -24,8 +24,8 @@ contains
    !> \section arg_table_aerosol_optics_diagnostics_init  Argument Table
    !! \htmlinclude aerosol_optics_diagnostics_init.html
    subroutine aerosol_optics_diagnostics_init(errmsg, errflg)
-      use cam_history,                  only: history_add_field
-      use cam_history_support,          only: horiz_only
+      use cam_history,                   only: history_add_field
+      use cam_history_support,           only: horiz_only
       use radiative_aerosol_definitions, only: bulk_aerosol_list
 
       character(len=512), intent(out) :: errmsg
@@ -135,6 +135,7 @@ contains
    !! \htmlinclude aerosol_optics_diagnostics_run.html
    subroutine aerosol_optics_diagnostics_run( &
       ncol, pver, nswbands, nlwbands, &
+      N_DIAG, active_calls, &
       aer_tau, aer_tau_w, aer_lw_abs, &
       idx_sw_diag, idx_uv_diag, idx_nir_diag, idx_lw_diag, &
       pdeldry, pmid, t, rga, rair, &
@@ -148,6 +149,9 @@ contains
       use cam_history,         only: history_out_field
       use cam_history_support, only: fillvalue
 
+      ! host-dependent diagnostic output subroutine for radiatively active aerosol:
+      use aerosol_mmr_ccpp,    only: rad_aer_diag_out
+
       !-----------------------------------------------------------------
       ! Input arguments
       !-----------------------------------------------------------------
@@ -155,6 +159,9 @@ contains
       integer,         intent(in) :: pver
       integer,         intent(in) :: nswbands
       integer,         intent(in) :: nlwbands
+      integer,         intent(in) :: N_DIAG                ! max number of diagnostic lists
+      logical,         intent(in) :: active_calls(:)       ! flag for active diagnostic list calls
+
       real(kind_phys), intent(in) :: aer_tau(:,:,:)        ! SW extinction OD (ncol,pver,nswbands)
       real(kind_phys), intent(in) :: aer_tau_w(:,:,:)      ! SW ssa*tau (ncol,pver,nswbands)
       real(kind_phys), intent(in) :: aer_lw_abs(:,:,:)     ! LW absorption OD (ncol,pver,nlwbands)
@@ -428,6 +435,13 @@ contains
           odv_tmp(idxnite(i)) = fillvalue
         end do
         call history_out_field(trim(odv_names(iaer)), odv_tmp)
+      end do
+
+      ! Output diagnostics for active climate and diagnostic lists
+      do ilist = 0, N_DIAG
+        if (active_calls(ilist)) then
+          call rad_aer_diag_out(ilist, constituents, pdeldry, ncol)
+        end if
       end do
 
    end subroutine aerosol_optics_diagnostics_run
