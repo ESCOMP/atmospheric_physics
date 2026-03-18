@@ -17,6 +17,24 @@
   type = logical
   dimensions = (index_of_climate_radiative_aerosol_list:number_of_radiative_aerosol_diagnostic_lists)
   intent = in
+[ water_refindex_file ]
+  standard_name = filename_of_water_refractive_index_data
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = in
+[ nswbands ]
+  standard_name = number_of_bands_for_shortwave_radiation
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ nlwbands ]
+  standard_name = number_of_bands_for_longwave_radiation
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
 [ num_bulk_aer ]
   standard_name = number_of_bulk_aerosol_constituents_in_climate_radiative_aerosol_list
   units = count
@@ -110,18 +128,6 @@
   units = none
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
-  intent = in
-[ crefwsw ]
-  standard_name = water_refractive_index_for_shortwave_radiation
-  units = 1
-  type = complex | kind = kind_phys
-  dimensions = (number_of_bands_for_shortwave_radiation)
-  intent = in
-[ crefwlw ]
-  standard_name = water_refractive_index_for_longwave_radiation
-  units = 1
-  type = complex | kind = kind_phys
-  dimensions = (number_of_bands_for_longwave_radiation)
   intent = in
 [ aer_tau ]
   standard_name = shortwave_aerosol_extinction_optical_depth

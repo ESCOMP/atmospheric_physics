@@ -3,19 +3,29 @@
 !
 ! Author: Haipeng Lin, NSF-NCAR/CGD/AMP, March 2026
 module aerosol_optics
+  use ccpp_kinds, only: kind_phys
+
   implicit none
   private
 
   public :: aerosol_optics_init
   public :: aerosol_optics_run
 
+  ! Water refractive indices (read in init, used in run)
+  complex(kind_phys), allocatable :: crefwsw(:)
+  complex(kind_phys), allocatable :: crefwlw(:)
+
 contains
 
 !> \section arg_table_aerosol_optics_init Argument Table
 !! \htmlinclude aerosol_optics_init.html
   subroutine aerosol_optics_init(N_DIAG, active_calls, &
+                                 water_refindex_file, &
+                                 nswbands, nlwbands, &
                                  num_bulk_aer, &
                                  errmsg, errflg)
+    use ccpp_io_reader,                  only: create_netcdf_reader_t
+    use ccpp_io_reader,                  only: abstract_netcdf_reader_t
     use aerosol_mmr_ccpp,                only: rad_aer_diag_init
     use radiative_aerosol_definitions,   only: aerlist_t
     use radiative_aerosol_definitions,   only: bulk_aerosol_list
@@ -26,11 +36,19 @@ contains
     ! does not work: errors with
     ! parse_source.CCPPError: No ddt_lib or ddt aerlist_t not in ddt_lib
 
+    character(len=512), intent(in)  :: water_refindex_file
+    integer,            intent(in)  :: nswbands
+    integer,            intent(in)  :: nlwbands
+
     integer,            intent(out) :: num_bulk_aer
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     integer :: i
+
+    ! Locals for reading water refractive index
+    class(abstract_netcdf_reader_t), pointer :: file_reader
+    real(kind_phys), allocatable :: refr(:), refi(:)
 
     errmsg = ''
     errflg = 0
@@ -45,6 +63,59 @@ contains
       end if
     end do
 
+    !-------------------------------------------------
+    ! Read water refractive index data
+    !-------------------------------------------------
+    if (len_trim(water_refindex_file) == 0 .or. &
+        trim(water_refindex_file) == 'UNSET' .or. &
+        trim(water_refindex_file) == 'UNSET_PATH') then
+      return
+    end if
+
+    file_reader => create_netcdf_reader_t()
+
+    call file_reader%open_file(trim(water_refindex_file), errmsg, errflg)
+    if (errflg /= 0) return
+
+    ! Read shortwave refractive indices
+    call file_reader%get_var('refindex_real_water_sw', refr, errmsg, errflg)
+    if (errflg /= 0) return
+    call file_reader%get_var('refindex_im_water_sw', refi, errmsg, errflg)
+    if (errflg /= 0) return
+
+    if (size(refr) /= nswbands) then
+      errflg = 1
+      errmsg = 'aerosol_optics_init: nswbands mismatch in water refindex file'
+      return
+    end if
+
+    allocate(crefwsw(nswbands))
+    crefwsw(:) = cmplx(refr(:), refi(:), kind=kind_phys)
+
+    deallocate(refr, refi)
+
+    ! Read longwave refractive indices
+    call file_reader%get_var('refindex_real_water_lw', refr, errmsg, errflg)
+    if (errflg /= 0) return
+    call file_reader%get_var('refindex_im_water_lw', refi, errmsg, errflg)
+    if (errflg /= 0) return
+
+    if (size(refr) /= nlwbands) then
+      errflg = 1
+      errmsg = 'aerosol_optics_init: nlwbands mismatch in water refindex file'
+      return
+    end if
+
+    allocate(crefwlw(nlwbands))
+    crefwlw(:) = cmplx(refr(:), refi(:), kind=kind_phys)
+
+    deallocate(refr, refi)
+
+    call file_reader%close_file(errmsg, errflg)
+    if (errflg /= 0) return
+
+    deallocate(file_reader)
+
   end subroutine aerosol_optics_init
 
 !> \section arg_table_aerosol_optics_run Argument Table
@@ -58,7 +129,6 @@ contains
     idx_sw_diag, &
     num_bulk_aer, &
     relh, pdeldry, constituents, &
-    crefwsw, crefwlw, &
     aer_tau, aer_tau_w, aer_tau_w_g, aer_lw_abs, &
     dustaod, sulfaod, bcaod, pomaod, soaaod, ssltaod, &
     aodabsbc, &
@@ -66,8 +136,6 @@ contains
     ssavis, aodvis, &
     odv_col_aod, &
     errmsg, errflg)
-
-    use ccpp_kinds, only: kind_phys
 
     ! framework dependency for const_props
     use ccpp_constituent_prop_mod,   only: ccpp_constituent_prop_ptr_t
@@ -101,8 +169,6 @@ contains
     real(kind_phys),    intent(in)  :: relh(:, :)      ! relative humidity [fraction]
     real(kind_phys),    intent(in)  :: pdeldry(:, :)   ! dry air pressure thickness [Pa]
     real(kind_phys),    intent(in)  :: constituents(:, :, :)
-    complex(kind_phys), intent(in)  :: crefwsw(:)      ! water refractive idx for SW rad [1]
-    complex(kind_phys), intent(in)  :: crefwlw(:)      ! water refractive idx for LW rad [1]
 
     ! Output arguments
     real(kind_phys),    intent(out) :: aer_tau(:, :, :)      ! SW extinction optical depth [1]
