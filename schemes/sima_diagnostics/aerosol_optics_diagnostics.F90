@@ -136,6 +136,7 @@ contains
    subroutine aerosol_optics_diagnostics_run( &
       ncol, pver, nswbands, nlwbands, &
       N_DIAG, active_calls, &
+      constituents, &
       aer_tau, aer_tau_w, aer_lw_abs, &
       idx_sw_diag, idx_uv_diag, idx_nir_diag, idx_lw_diag, &
       pdeldry, pmid, t, rga, rair, &
@@ -161,6 +162,8 @@ contains
       integer,         intent(in) :: nlwbands
       integer,         intent(in) :: N_DIAG                ! max number of diagnostic lists
       logical,         intent(in) :: active_calls(:)       ! flag for active diagnostic list calls
+
+      real(kind_phys), intent(in) :: constituents(:, :, :)
 
       real(kind_phys), intent(in) :: aer_tau(:,:,:)        ! SW extinction OD (ncol,pver,nswbands)
       real(kind_phys), intent(in) :: aer_tau_w(:,:,:)      ! SW ssa*tau (ncol,pver,nswbands)
@@ -207,6 +210,7 @@ contains
       ! Local variables
       !-----------------------------------------------------------------
       integer :: icol, i, iaer
+      integer :: ilist
 
       ! Derived column quantities
       real(kind_phys) :: aodvis_l(ncol)

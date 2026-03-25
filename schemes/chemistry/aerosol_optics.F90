@@ -200,7 +200,7 @@ contains
     integer,            intent(out) :: errflg
 
     ! Local variables
-    integer  :: iaermod, ibin, nbins, iwav, ilev, icol, ilist
+    integer  :: iaermod, ibin, nbins, iwav, ilev, icol
     integer  :: num_aero_models, numrh
     integer  :: bam_cnt
     real(kind_phys) :: mass(ncol, pver)
