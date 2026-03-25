@@ -1,0 +1,43 @@
+[ccpp-table-properties]
+  name = aerosol_optics_zero_stub
+  type = scheme
+
+[ccpp-arg-table]
+  name  = aerosol_optics_zero_stub_run
+  type  = scheme
+[ aer_tau ]
+  standard_name = shortwave_aerosol_extinction_optical_depth
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_bands_for_shortwave_radiation)
+  intent = out
+[ aer_tau_w ]
+  standard_name = shortwave_aerosol_single_scattering_albedo_times_optical_depth
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_bands_for_shortwave_radiation)
+  intent = out
+[ aer_tau_w_g ]
+  standard_name = shortwave_aerosol_asymmetry_parameter_times_single_scattering_albedo_times_optical_depth
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_bands_for_shortwave_radiation)
+  intent = out
+[ aer_lw_abs ]
+  standard_name = longwave_aerosol_absorption_optical_depth
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_bands_for_longwave_radiation)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

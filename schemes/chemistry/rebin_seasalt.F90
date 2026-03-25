@@ -124,8 +124,8 @@ contains
        idx_sslt3 < 0 .or. idx_sslt4 < 0) then
       if(amIRoot) then
         write(iulog,*) subname//': did not find sslt1/2/3/4 and will not rebin seasalt to SSLTA/SSLTC'
-        return
       end if
+      return
     end if
 
     ! Look up the output rebinned constituent indices (registered by this scheme)

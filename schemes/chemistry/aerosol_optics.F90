@@ -30,6 +30,8 @@ contains
     use radiative_aerosol_definitions,   only: aerlist_t
     use radiative_aerosol_definitions,   only: bulk_aerosol_list
 
+    use aerosol_instances_mod,           only: aerosol_instances_is_active
+
     integer,            intent(in)  :: N_DIAG
     logical,            intent(in)  :: active_calls(0:)
     ! n.b.: the lower bound of the active_calls array has to be set here.
@@ -75,52 +77,58 @@ contains
     if (len_trim(water_refindex_file) == 0 .or. &
         trim(water_refindex_file) == 'UNSET' .or. &
         trim(water_refindex_file) == 'UNSET_PATH') then
-      return
+      ! if modal or carma aerosol are active this is a fatal error
+      if(aerosol_instances_is_active('modal') .or. &
+         aerosol_instances_is_active('carma')) then
+        errmsg = 'water_refindex_file must be specified when modal or carma aerosol models are active.'
+        errflg = 1
+        return
+      end if
+    else
+      file_reader => create_netcdf_reader_t()
+
+      call file_reader%open_file(trim(water_refindex_file), errmsg, errflg)
+      if (errflg /= 0) return
+
+      ! Read shortwave refractive indices
+      call file_reader%get_var('refindex_real_water_sw', refr, errmsg, errflg)
+      if (errflg /= 0) return
+      call file_reader%get_var('refindex_im_water_sw', refi, errmsg, errflg)
+      if (errflg /= 0) return
+
+      if (size(refr) /= nswbands) then
+        errflg = 1
+        errmsg = 'aerosol_optics_init: nswbands mismatch in water refindex file'
+        return
+      end if
+
+      allocate(crefwsw(nswbands))
+      crefwsw(:) = cmplx(refr(:), refi(:), kind=kind_phys)
+
+      deallocate(refr, refi)
+
+      ! Read longwave refractive indices
+      call file_reader%get_var('refindex_real_water_lw', refr, errmsg, errflg)
+      if (errflg /= 0) return
+      call file_reader%get_var('refindex_im_water_lw', refi, errmsg, errflg)
+      if (errflg /= 0) return
+
+      if (size(refr) /= nlwbands) then
+        errflg = 1
+        errmsg = 'aerosol_optics_init: nlwbands mismatch in water refindex file'
+        return
+      end if
+
+      allocate(crefwlw(nlwbands))
+      crefwlw(:) = cmplx(refr(:), refi(:), kind=kind_phys)
+
+      deallocate(refr, refi)
+
+      call file_reader%close_file(errmsg, errflg)
+      if (errflg /= 0) return
+
+      deallocate(file_reader)
     end if
-
-    file_reader => create_netcdf_reader_t()
-
-    call file_reader%open_file(trim(water_refindex_file), errmsg, errflg)
-    if (errflg /= 0) return
-
-    ! Read shortwave refractive indices
-    call file_reader%get_var('refindex_real_water_sw', refr, errmsg, errflg)
-    if (errflg /= 0) return
-    call file_reader%get_var('refindex_im_water_sw', refi, errmsg, errflg)
-    if (errflg /= 0) return
-
-    if (size(refr) /= nswbands) then
-      errflg = 1
-      errmsg = 'aerosol_optics_init: nswbands mismatch in water refindex file'
-      return
-    end if
-
-    allocate(crefwsw(nswbands))
-    crefwsw(:) = cmplx(refr(:), refi(:), kind=kind_phys)
-
-    deallocate(refr, refi)
-
-    ! Read longwave refractive indices
-    call file_reader%get_var('refindex_real_water_lw', refr, errmsg, errflg)
-    if (errflg /= 0) return
-    call file_reader%get_var('refindex_im_water_lw', refi, errmsg, errflg)
-    if (errflg /= 0) return
-
-    if (size(refr) /= nlwbands) then
-      errflg = 1
-      errmsg = 'aerosol_optics_init: nlwbands mismatch in water refindex file'
-      return
-    end if
-
-    allocate(crefwlw(nlwbands))
-    crefwlw(:) = cmplx(refr(:), refi(:), kind=kind_phys)
-
-    deallocate(refr, refi)
-
-    call file_reader%close_file(errmsg, errflg)
-    if (errflg /= 0) return
-
-    deallocate(file_reader)
 
   end subroutine aerosol_optics_init
 
