@@ -161,7 +161,12 @@ contains
       integer,         intent(in) :: nswbands
       integer,         intent(in) :: nlwbands
       integer,         intent(in) :: N_DIAG                ! max number of diagnostic lists
-      logical,         intent(in) :: active_calls(:)       ! flag for active diagnostic list calls
+      logical,         intent(in) :: active_calls(0:)      ! flag for active diagnostic list calls
+      ! n.b.: the lower bound of the active_calls array has to be set here.
+      ! in radiative_aerosol_definitions, active_calls is 0-indexed because
+      ! 0 is the climate list index.
+      ! The Fortran 90 standard (and higher) states assumed-shape arrays
+      ! lower bound default to 1 unless specified (ISO/IEC 1539 5.1.2.4.2)
 
       real(kind_phys), intent(in) :: constituents(:, :, :)
 

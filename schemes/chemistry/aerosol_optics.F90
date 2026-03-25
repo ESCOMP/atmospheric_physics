@@ -31,7 +31,13 @@ contains
     use radiative_aerosol_definitions,   only: bulk_aerosol_list
 
     integer,            intent(in)  :: N_DIAG
-    logical,            intent(in)  :: active_calls(:)
+    logical,            intent(in)  :: active_calls(0:)
+    ! n.b.: the lower bound of the active_calls array has to be set here.
+    ! in radiative_aerosol_definitions, active_calls is 0-indexed because
+    ! 0 is the climate list index.
+    ! The Fortran 90 standard (and higher) states assumed-shape arrays
+    ! lower bound default to 1 unless specified (ISO/IEC 1539 5.1.2.4.2)
+
     !type(aerlist_t),    intent(in)  :: bulk_aerosol_list(:)
     ! does not work: errors with
     ! parse_source.CCPPError: No ddt_lib or ddt aerlist_t not in ddt_lib
