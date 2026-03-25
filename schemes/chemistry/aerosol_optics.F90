@@ -212,7 +212,7 @@ contains
     real(kind_phys) :: mass(ncol, pver)
 
     ! Index into constituents array for VOLC_RAD_GEOM
-    integer :: idx_volc_rad_geom = -1
+    integer :: idx_volc_rad_geom
 
     ! Aerosol object pointers
     class(aerosol_properties), pointer :: aeroprops
@@ -288,6 +288,7 @@ contains
     mass(:ncol, :) = pdeldry(:ncol, :) * rga
 
     ! Check if VOLC_RAD_GEOM is available
+    idx_volc_rad_geom = -1
     call ccpp_const_get_idx(const_props, &
                             'VOLC_RAD_GEOM', idx_volc_rad_geom, errmsg, errflg)
     if(errflg /= 0) return
