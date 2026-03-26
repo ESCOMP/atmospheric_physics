@@ -32,6 +32,7 @@
     </desc>
     <values>
       <value>2.5D0</value>
+      <value phys_suite="cam4">0.D0</value>
     </values>
   </entry>
 
@@ -47,6 +48,7 @@
     <values>
       <value>10</value>
       <!-- 0 for simple physics -->
+      <value phys_suite="cam4">0</value>
     </values>
   </entry>
 
@@ -63,6 +65,7 @@
     <values>
       <value>2.0D0</value>
       <!-- 0 for simple physics -->
+      <value phys_suite="cam4">0.D0</value>
     </values>
   </entry>
 
@@ -94,6 +97,7 @@
     </desc>
     <values>
       <value>.true.</value>
+      <value phys_suite="cam4">.false.</value>
     </values>
   </entry>
 

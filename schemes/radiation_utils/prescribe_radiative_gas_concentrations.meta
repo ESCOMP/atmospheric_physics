@@ -1,0 +1,56 @@
+[ccpp-table-properties]
+  name = prescribe_radiative_gas_concentrations
+  type = scheme
+  dependencies = ../rrtmgp/utils/radiation_utils.F90
+
+[ccpp-arg-table]
+  name  = prescribe_radiative_gas_concentrations_init
+  type  = scheme
+[ ch4_vmr ]
+  standard_name = prescribed_volume_mixing_ratio_of_ch4
+  units = mol mol-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ co2_vmr ]
+  standard_name = prescribed_volume_mixing_ratio_of_co2
+  units = mol mol-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ cfc11_vmr ]
+  standard_name = prescribed_volume_mixing_ratio_of_cfc11
+  units = mol mol-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ cfc12_vmr ]
+  standard_name = prescribed_volume_mixing_ratio_of_cfc12
+  units = mol mol-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ n2o_vmr ]
+  standard_name = prescribed_volume_mixing_ratio_of_n2o
+  units = mol mol-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ const_array ]
+  standard_name = ccpp_constituents
+  units = none
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension,vertical_layer_dimension,number_of_ccpp_constituents)
+  intent = inout
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errcode ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
