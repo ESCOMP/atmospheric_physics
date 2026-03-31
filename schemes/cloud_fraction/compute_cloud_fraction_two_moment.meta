@@ -1,0 +1,86 @@
+[ccpp-table-properties]
+  name = compute_cloud_fraction_two_moment
+  type = scheme
+  dependencies = ../../to_be_ccppized/wv_saturation.F90
+
+[ccpp-arg-table]
+  name  = compute_cloud_fraction_two_moment_init
+  type  = scheme
+[ amIRoot ]
+  standard_name = flag_for_mpi_root
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ iulog ]
+  standard_name = log_output_unit
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ premit_in ]
+  standard_name = tunable_parameter_for_top_pressure_bound_for_mid_level_clouds_for_cloud_fraction
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ premib_in ]
+  standard_name = tunable_parameter_for_bottom_pressure_bound_for_mid_level_liquid_stratus_for_cloud_fraction
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ iceopt_in ]
+  standard_name = control_for_ice_cloud_fraction
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ icecrit_in ]
+  standard_name = tunable_parameter_for_critical_relative_humidity_for_ice_clouds_for_cloud_fraction_using_wilson_and_ballard_scheme
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ qist_min_in ]
+  standard_name = tunable_parameter_for_minimum_in_stratus_ice_water_content_for_two_moment_cloud_fraction
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ qist_max_in ]
+  standard_name = tunable_parameter_for_maximum_in_stratus_ice_water_content_for_two_moment_cloud_fraction
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ do_subgrid_growth_in ]
+  standard_name = do_subgrid_growth_for_two_moment_cloud_fraction
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ do_avg_aist_algs_in ]
+  standard_name = do_average_ice_stratus_algorithms_for_two_moment_cloud_fraction
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ rair_in ]
+  standard_name = gas_constant_of_dry_air
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
