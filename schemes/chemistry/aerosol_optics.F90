@@ -152,22 +152,22 @@ contains
     errmsg, errflg)
 
     ! framework dependency for const_props
-    use ccpp_constituent_prop_mod,   only: ccpp_constituent_prop_ptr_t
+    use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
 
     ! dependency to get constituent index
-    use ccpp_const_utils,            only: ccpp_const_get_idx
+    use ccpp_const_utils,          only: ccpp_const_get_idx
 
     ! portable optics core:
-    use aerosol_optics_core,         only: aerosol_optics_sw_bin, aerosol_optics_lw_bin
+    use aerosol_optics_core,       only: aerosol_optics_sw_bin, aerosol_optics_lw_bin
 
     ! host-model dependency for aerosol objects:
-    use aerosol_physical_properties, only: nrh ! # of relative humidity bins for table lookup
-    use aerosol_instances_mod,       only: aerosol_instances_get_props, &
-                                           aerosol_instances_get_state, &
-                                           aerosol_instances_get_num_models
-    use aerosol_properties_mod,      only: aerosol_properties
-    use aerosol_state_mod,           only: aerosol_state
-    use aerosol_physical_properties, only: ot_length
+    use phys_prop,                 only: nrh ! # of relative humidity bins for table lookup
+    use aerosol_instances_mod,     only: aerosol_instances_get_props, &
+                                         aerosol_instances_get_state, &
+                                         aerosol_instances_get_num_models
+    use aerosol_properties_mod,    only: aerosol_properties
+    use aerosol_state_mod,         only: aerosol_state
+    use phys_prop,                 only: ot_length
 
     ! Input arguments
     integer,            intent(in)  :: ncol
