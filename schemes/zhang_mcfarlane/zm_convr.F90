@@ -161,11 +161,11 @@ subroutine zm_convr_run(     ncol    ,pver    , &
                     pblh    ,zm      ,geos    ,zi      ,qtnd    , &
                     heat    ,pap     ,paph    ,dpp     , &
                     delt    ,mcon    ,cme     ,cape    , &
-                    tpert   ,dlf     ,dif     ,zdu     ,rprd    , &
+                    tpert   ,dlf     ,zdu     ,rprd    , &
                     mu      ,md      ,du      ,eu      ,ed      , &
                     dp      ,dsubcld ,jt      ,maxg    ,ideep   , &
                     ql      ,rliq    ,landfrac,                   &
-                    rice    ,lengath ,scheme_name, errmsg  ,errflg)
+                    lengath ,scheme_name, errmsg  ,errflg)
 !-----------------------------------------------------------------------
 !
 ! Purpose:
@@ -308,7 +308,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
    real(kind_phys), intent(out) :: qtnd(:,:)           ! specific humidity tendency (kg/kg/s)             (ncol,pver)
    real(kind_phys), intent(out) :: heat(:,:)           ! heating rate (dry static energy tendency, W/kg)  (ncol,pver)
    real(kind_phys), intent(out) :: mcon(:,:)  !   (ncol,pverp)
-   real(kind_phys), intent(out) :: dif(:,:)
    real(kind_phys), intent(out) :: dlf(:,:)    ! scattrd version of the detraining cld h2o tend (ncol,pver)
    real(kind_phys), intent(out) :: cme(:,:)    !                                                          (ncol,pver)
    real(kind_phys), intent(out) :: cape(:)        ! w  convective available potential energy.             (ncol)
@@ -326,7 +325,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
    real(kind_phys), intent(out) :: dsubcld(:)       ! wg layer thickness in mbs between lcl and maxi.         (ncol)
    real(kind_phys), intent(out) :: prec(:)  !                                                                 (ncol)
    real(kind_phys), intent(out) :: rliq(:) ! reserved liquid (not yet in cldliq) for energy integrals         (ncol)
-   real(kind_phys), intent(out) :: rice(:) ! reserved ice (not yet in cldce) for energy integrals             (ncol)
 
    integer,  intent(out) :: ideep(:)  ! column indices of gathered points                              (ncol)
 
@@ -466,7 +464,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
    heat(:,:) = 0._kind_phys
    mcon(:,:) = 0._kind_phys
    rliq(:ncol)   = 0._kind_phys
-   rice(:ncol)   = 0._kind_phys
 
 !
 ! initialize convective tendencies
@@ -486,8 +483,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
          dlf(i,k)   = 0._kind_phys
          dlg(i,k)   = 0._kind_phys
          qldeg(i,k) = 0._kind_phys
-
-         dif(i,k)   = 0._kind_phys
 
       end do
    end do
@@ -762,7 +757,7 @@ subroutine zm_convr_run(     ncol    ,pver    , &
 ! Compute precip by integrating change in water vapor minus detrained cloud water
    do k = pver,msg + 1,-1
       do i = 1,ncol
-          prec(i) = prec(i) - dpp(i,k)* (q(i,k)-qh(i,k)) - dpp(i,k)*(dlf(i,k)+dif(i,k))*delt
+          prec(i) = prec(i) - dpp(i,k)* (q(i,k)-qh(i,k)) - dpp(i,k)*dlf(i,k)*delt
       end do
    end do
 
@@ -775,12 +770,10 @@ subroutine zm_convr_run(     ncol    ,pver    , &
 ! Treat rliq as flux out bottom, to be added back later.
    do k = 1, pver
       do i = 1, ncol
-          rliq(i) = rliq(i) + (dlf(i,k)+dif(i,k))*dpp(i,k)/gravit
-          rice(i) = rice(i) + dif(i,k)*dpp(i,k)/gravit
+          rliq(i) = rliq(i) + dlf(i,k)*dpp(i,k)/gravit
       end do
    end do
    rliq(:ncol) = rliq(:ncol) /1000._kind_phys  ! Converted to precip units m s-1
-   rice(:ncol) = rice(:ncol) /1000._kind_phys  ! Converted to precip units m s-1
 
 ! Convert mass flux from reported mb s-1 to kg m-2 s-1
    mcon(:ncol,:pverp) = mcon(:ncol,:pverp) * 100._kind_phys / gravit
