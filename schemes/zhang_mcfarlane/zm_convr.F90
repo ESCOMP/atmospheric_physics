@@ -197,8 +197,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
 !  wg * dp       layer thickness in mbs (between upper/lower interface).
 !  wg * dqdt     mixing ratio tendency at gathered points.
 !  wg * dsdt     dry static energy ("temp") tendency at gathered points.
-!  wg * dudt     u-wind tendency at gathered points.
-!  wg * dvdt     v-wind tendency at gathered points.
 !  wg * dsubcld  layer thickness in mbs between lcl and maxi.
 !  ic  * grav     acceleration due to gravity in m/sec2.
 !  wg * du       detrainment in updraft. specified in mid-layer
@@ -348,7 +346,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
    real(kind_phys) cug(ncol,pver)    ! gathered condensation rate
 
    real(kind_phys) evpg(ncol,pver)   ! gathered evap rate of rain in downdraft
-   real(kind_phys) dptot(ncol)
 
    real(kind_phys) mumax(ncol)
 
@@ -379,7 +376,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
    integer lon(ncol)                  ! w  index of onset level for deep convection.
    integer maxi(ncol)                 ! w  index of level with largest moist static energy.
 
-   real(kind_phys) precip
 !
 ! gathered work fields:
 !
@@ -418,8 +414,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
    real(kind_phys) hmn(ncol,pver)            ! wg moist static energy.
    real(kind_phys) hsat(ncol,pver)           ! wg saturated moist static energy.
    real(kind_phys) qlg(ncol,pver)
-   real(kind_phys) dudt(ncol,pver)           ! wg u-wind tendency at gathered points.
-   real(kind_phys) dvdt(ncol,pver)           ! wg v-wind tendency at gathered points.
 
    real(kind_phys) qldeg(ncol,pver)        ! cloud liquid water mixing ratio for detrainment (kg/kg)
    real(kind_phys) mb(ncol)                ! wg cloud base mass flux.
@@ -431,8 +425,7 @@ subroutine zm_convr_run(     ncol    ,pver    , &
    real(kind_phys),intent(in):: delt                     ! length of model time-step in seconds.
 
    integer i
-   integer ii
-   integer k, kk, l, m
+   integer k, l, m
 
    integer msg                      !  ic number of missing moisture levels at the top of model.
    real(kind_phys) qdifr
@@ -440,8 +433,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
 
    real(kind_phys), parameter :: dcon  = 25.e-6_kind_phys
    real(kind_phys), parameter :: mucon = 5.3_kind_phys
-   real(kind_phys) negadq
-   logical doliq
 
 
 !
@@ -473,8 +464,6 @@ subroutine zm_convr_run(     ncol    ,pver    , &
       do i = 1,ncol
          dqdt(i,k)  = 0._kind_phys
          dsdt(i,k)  = 0._kind_phys
-         dudt(i,k)  = 0._kind_phys
-         dvdt(i,k)  = 0._kind_phys
          cme(i,k)   = 0._kind_phys
          rprd(i,k)  = 0._kind_phys
          zdu(i,k)   = 0._kind_phys
@@ -871,14 +860,9 @@ subroutine buoyan_dilute(  ncol   ,pver    , &
    real(kind_phys) tpv(ncol,pver)      !
    real(kind_phys) buoy(ncol,pver)
 
-   real(kind_phys) a1(ncol)
-   real(kind_phys) a2(ncol)
-   real(kind_phys) estp(ncol)
    real(kind_phys) pl(ncol)
-   real(kind_phys) plexp(ncol)
    real(kind_phys) hmax(ncol)
    real(kind_phys) hmn(ncol)
-   real(kind_phys) y(ncol)
 
    logical plge600(ncol)
    integer knt(ncol)
@@ -909,7 +893,6 @@ subroutine buoyan_dilute(  ncol   ,pver    , &
 
 
    real(kind_phys) cp
-   real(kind_phys) e
    real(kind_phys) grav
 
    integer i
@@ -1206,7 +1189,6 @@ real(kind_phys) smix(ncol,pver)        ! Entropy of the entraining parcel.
 real(kind_phys) xsh2o(ncol,pver)       ! Precipitate lost from parcel.
 real(kind_phys) ds_xsh2o(ncol,pver)    ! Entropy change due to loss of condensate.
 real(kind_phys) ds_freeze(ncol,pver)   ! Entropy change sue to freezing of precip.
-real(kind_phys) dmpdz2d(ncol,pver)     ! variable detrainment rate
 
 real(kind_phys) mp(ncol)    ! Parcel mass flux.
 real(kind_phys) qtp(ncol)   ! Parcel total water.
@@ -1233,7 +1215,6 @@ real(kind_phys) tscool     ! Super cooled temperature offset (in degC) (eg -35).
 real(kind_phys) qxsk, qxskp1        ! LCL excess water (k, k+1)
 real(kind_phys) dsdp, dqtdp, dqxsdp ! LCL s, qt, p gradients (k, k+1)
 real(kind_phys) slcl,qtlcl,qslcl    ! LCL s, qt, qs values.
-real(kind_phys) dmpdz_lnd, dmpdz_mask
 
 integer rcall       ! Number of ientropy call for errors recording
 integer nit_lheat     ! Number of iterations for condensation/freezing loop.
@@ -1254,7 +1235,6 @@ integer i,k,ii   ! Loop counters.
 
 nit_lheat = 2 ! iterations for ds,dq changes from condensation freezing.
 dmpdz=dmpdz_param       ! Entrainment rate. (-ve for /m)
-dmpdz_lnd=-1.e-3_kind_phys
 lwmax = 1.e-3_kind_phys    ! Need to put formula in for this.
 tscool = 0.0_kind_phys   ! Temp at which water loading freezes in the cloud.
 
@@ -1757,13 +1737,9 @@ subroutine cldprp(ncol   ,pver    ,pverp   ,cpliq   , &
    real(kind_phys) small
    real(kind_phys) mdt
 
-   real(kind_phys) tug(ncol,pver)
 
-   real(kind_phys) tvuo(ncol,pver)        ! updraft virtual T w/o freezing heating
-   real(kind_phys) tvu(ncol,pver)         ! updraft virtual T with freezing heating
    real(kind_phys) totfrz(ncol)
    real(kind_phys) frz (ncol,pver)        ! rate of freezing
-   integer  jto(ncol)              ! updraft plume old top
    integer  tmplel(ncol)
 
    integer  iter, itnum
@@ -1834,10 +1810,7 @@ subroutine cldprp(ncol   ,pver    ,pverp   ,cpliq   , &
          hd(i,k) = hmn(i,k)
          rprd(i,k) = 0._kind_phys
 
-         tug(i,k)  = 0._kind_phys
          qcde(i,k)   = 0._kind_phys
-         tvuo(i,k) = (shat(i,k) - grav/cp*zf(i,k))*(1._kind_phys + 0.608_kind_phys*qhat(i,k))
-         tvu(i,k) = tvuo(i,k)
          frz(i,k)  = 0._kind_phys
 
       end do
@@ -2097,8 +2070,6 @@ subroutine cldprp(ncol   ,pver    ,pverp   ,cpliq   , &
             end if
          end do
       end do
-
-      if (iter == 1)  jto(:) = jt(:)
 
       do k = pver,msg + 1,-1
          do i = 1,il2g
