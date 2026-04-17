@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<suite name="microp_aero_bam" version="1.0">
+  <group name="physics_after_coupler">
+    <!--
+      microp_aero - microphysics bindings to aerosol
+
+      This is the BAM variant.
+      Due to differences in aerosol activation between BAM and
+      MAM/CARMA, the SDF for them is slightly different.
+
+! NOTE hplin 4/7/26 4/17/26
+! The scheme order in CAM-SIMA replacing microp_aero is:
+!   0.  chemical_tropopause
+!   1.  compute_subgrid_vertical_velocity (TKE or KVH variant)
+!   2.  scale_subgrid_vertical_velocity
+!   3.  nucleate_ice_ccpp           this scheme
+!   4a. dropmixnuc (MAM/CARMA)      future
+!   4b. ndrop_bam (BAM)             already done
+!   5.  contact_freezing_modal      future
+!   6.  hetfrz_classnuc_ccpp        future
+    -->
+
+    <!-- Helper to read all possible constituents from file -->
+    <scheme>initialize_constituents</scheme>
+
+    <scheme>tropopause_find</scheme>
+
+    <!--
+      Compute and scale subgrid vertical velocity
+      UW/CLUBB uses the tke variant
+      HB uses the kvh variant as it does not have tke
+    -->
+    <scheme>compute_subgrid_vertical_velocity_tke</scheme>
+    <scheme>scale_subgrid_vertical_velocity</scheme>
+
+    <!--
+      Ice nucleation
+      Runs even without aerosol models when microp_aero is active
+      for Meyers 1992 deposition.
+      Updates NAAI, NAAI_HOM etc. for PUMAS
+
+      Has constituent tendencies only in MAM/CARMA
+    -->
+    <scheme>nucleate_ice_ccpp</scheme>
+    <!-- <scheme>apply_constituent_tendencies</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+    <scheme>update_dry_static_energy</scheme> -->
+
+    <!--
+      Droplet activation (BAM)
+      Computes NAAI, ... for microphysical schemes
+    -->
+    <scheme>ndrop_bam</scheme>
+
+    <!--
+      BAM microp_aero diagnostics
+    -->
+  </group>
+</suite>
