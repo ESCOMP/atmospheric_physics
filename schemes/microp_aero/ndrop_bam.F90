@@ -6,7 +6,7 @@ module ndrop_bam
   private
 
   public :: ndrop_bam_init
-  public :: ndrop_bam_run
+  public :: ndrop_bam_calc
 
   ! these are currently public parameters for use by CAM.
   public :: naer_all, aername, psat, ccn_name
@@ -201,8 +201,8 @@ contains
 
 !===============================================================================
 
-  subroutine ndrop_bam_run( &
-    aero_state, &
+  subroutine ndrop_bam_calc( &
+    aero_state, aero_props, &
     ncol, pver, top_lev, &
     gravit, rair, tmelt, cpair, rh2o, rhoh2o, latvap, &
     rho, tair, wsub, qcld, qsmall_in, ast, numliq, deltatin, &
@@ -219,6 +219,7 @@ contains
     !-------------------------------------------------------------------------------
 
     class(aerosol_state), intent(in) :: aero_state
+    class(aerosol_properties), intent(in) :: aero_props
     integer, intent(in)  :: ncol
     integer, intent(in)  :: pver
     integer, intent(in)  :: top_lev
@@ -270,7 +271,7 @@ contains
         call bam%get_bulk_num_and_mass(m, ncol, rho, naer2(:, :, m), maerosol(:, :, m))
       end do
     class default
-      errmsg = 'ndrop_bam_run: aero_state must be bulk_aerosol_state'
+      errmsg = 'ndrop_bam_calc: aero_state must be bulk_aerosol_state'
       errflg = 1
       return
     end select
@@ -318,7 +319,7 @@ contains
 
     deallocate (naer2, maerosol)
 
-  end subroutine ndrop_bam_run
+  end subroutine ndrop_bam_calc
 
 !===============================================================================
 

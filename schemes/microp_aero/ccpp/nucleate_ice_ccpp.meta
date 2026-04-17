@@ -253,7 +253,8 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ trop_pd ]
-  standard_name = tropopause_from_chemical_method_probability
+  # in A flag is accummulated to be a probability distribution
+  standard_name = vertical_layer_indicator_of_chemical_tropopause
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
