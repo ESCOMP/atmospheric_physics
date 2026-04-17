@@ -199,8 +199,8 @@ contains
 
   end subroutine ndrop_bam_init
 
-!===============================================================================
-
+  ! BAM droplet activation, contact freezing dust, and CCN diagnostics.
+  ! Computes naer2/maerosol from aerosol state internally via get_bulk_num_and_mass.
   subroutine ndrop_bam_calc( &
     aero_state, aero_props, &
     ncol, pver, top_lev, &
@@ -212,11 +212,6 @@ contains
     use aerosol_properties_mod, only: aerosol_properties
     use aerosol_state_mod, only: aerosol_state
     use bulk_aerosol_state_mod, only: bulk_aerosol_state
-
-    !-------------------------------------------------------------------------------
-    ! BAM droplet activation, contact freezing dust, and CCN diagnostics.
-    ! Computes naer2/maerosol from aerosol state internally via get_bulk_num_and_mass.
-    !-------------------------------------------------------------------------------
 
     class(aerosol_state), intent(in) :: aero_state
     class(aerosol_properties), intent(in) :: aero_props
@@ -234,10 +229,10 @@ contains
     real(kind_phys), intent(in)  :: tair(:, :)         ! temperature (K)
     real(kind_phys), intent(in)  :: wsub(:, :)         ! sub-grid vertical velocity (m/s)
     real(kind_phys), intent(in)  :: qcld(:, :)         ! cloud liquid mmr (kg/kg)
-    real(kind_phys), intent(in)  :: qsmall_in         ! minimum cloud liquid threshold
+    real(kind_phys), intent(in)  :: qsmall_in          ! minimum cloud liquid threshold
     real(kind_phys), intent(in)  :: ast(:, :)          ! stratiform_cloud_area_fraction [fraction]
     real(kind_phys), intent(in)  :: numliq(:, :)       ! droplet number (#/kg)
-    real(kind_phys), intent(in)  :: deltatin          ! timestep (s)
+    real(kind_phys), intent(in)  :: deltatin           ! timestep (s)
     real(kind_phys), intent(out) :: npccn(:, :)        ! droplet number tendency (#/kg/s)
     real(kind_phys), intent(out) :: nacon(:, :, :)      ! contact freezing dust (#/m3), (ncol,pver,4)
     real(kind_phys), intent(out) :: ccn(:, :, :)        ! CCN at 6 supersaturations (#/cm3), (ncol,pver,psat)

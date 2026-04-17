@@ -9,16 +9,16 @@
       Due to differences in aerosol activation between BAM and
       MAM/CARMA, the SDF for them is slightly different.
 
-! NOTE hplin 4/7/26 4/17/26
-! The scheme order in CAM-SIMA replacing microp_aero is:
-!   0.  chemical_tropopause
-!   1.  compute_subgrid_vertical_velocity (TKE or KVH variant)
-!   2.  scale_subgrid_vertical_velocity
-!   3.  nucleate_ice_ccpp           this scheme
-!   4a. dropmixnuc (MAM/CARMA)      future
-!   4b. ndrop_bam (BAM)             already done
-!   5.  contact_freezing_modal      future
-!   6.  hetfrz_classnuc_ccpp        future
+      ! NOTE hplin 4/7/26 4/17/26
+      ! The scheme order in CAM-SIMA replacing microp_aero is:
+      !   0.  chemical_tropopause
+      !   1.  compute_subgrid_vertical_velocity (TKE or KVH variant)
+      !   2.  scale_subgrid_vertical_velocity
+      !   3.  nucleate_ice_ccpp           this scheme
+      !   4a. dropmixnuc (MAM/CARMA)      future
+      !   4b. ndrop_bam (BAM)             already done
+      !   5.  contact_freezing_modal      future
+      !   6.  hetfrz_classnuc_ccpp        future
     -->
 
     <!-- Helper to read all possible constituents from file -->
@@ -43,17 +43,12 @@
       Has constituent tendencies only in MAM/CARMA
     -->
     <scheme>nucleate_ice_ccpp</scheme>
-    <!-- <scheme>apply_constituent_tendencies</scheme>
-    <scheme>apply_heating_rate</scheme>
-    <scheme>qneg</scheme>
-    <scheme>geopotential_temp</scheme>
-    <scheme>update_dry_static_energy</scheme> -->
 
     <!--
       Droplet activation (BAM)
-      Computes NAAI, ... for microphysical schemes
+      Computes npccn, nacon for microphysical schemes, ccn, naer2_diag for diag
     -->
-    <scheme>ndrop_bam</scheme>
+    <scheme>ndrop_bam_ccpp</scheme>
 
     <!--
       BAM microp_aero diagnostics

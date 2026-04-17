@@ -10,6 +10,9 @@ module ndrop_bam_ccpp
   public :: ndrop_bam_ccpp_init
   public :: ndrop_bam_ccpp_run
 
+  ! smallest mixing ratio considered in microphysics
+  real(kind_phys), parameter :: qsmall = 1.e-18_r8
+
 contains
 
 !> \section arg_table_ndrop_bam_ccpp_init Argument Table
@@ -34,7 +37,7 @@ contains
   subroutine ndrop_bam_ccpp_run( &
     ncol, pver, top_lev, &
     gravit, rair, tmelt, cpair, rh2o, rhoh2o, latvap, &
-    rho, tair, wsub, qcld, qsmall_in, ast, numliq, deltatin, &
+    rho, tair, wsub, qcld, ast, numliq, deltatin, &
     npccn, nacon, ccn, naer2_diag, &
     errmsg, errflg)
 
@@ -59,7 +62,6 @@ contains
     real(kind_phys), intent(in)  :: tair(:, :)
     real(kind_phys), intent(in)  :: wsub(:, :)
     real(kind_phys), intent(in)  :: qcld(:, :)
-    real(kind_phys), intent(in)  :: qsmall_in
     real(kind_phys), intent(in)  :: ast(:, :)
     real(kind_phys), intent(in)  :: numliq(:, :)
     real(kind_phys), intent(in)  :: deltatin
@@ -120,10 +122,10 @@ contains
       tair       = tair,           &
       wsub       = wsub,           &
       qcld       = qcld,           &
-      qsmall_in  = qsmall_in,     &
+      qsmall_in  = qsmall,         &
       ast        = ast,            &
       numliq     = numliq,         &
-      deltatin   = deltatin,       &
+      deltatin   = deltatin,       & ! below output:
       npccn      = npccn,          &
       nacon      = nacon,          &
       ccn        = ccn,            &
