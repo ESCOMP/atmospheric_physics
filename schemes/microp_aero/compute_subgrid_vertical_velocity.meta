@@ -1,0 +1,99 @@
+[ccpp-table-properties]
+  name = compute_subgrid_vertical_velocity_tke
+  type = scheme
+
+[ccpp-arg-table]
+  name  = compute_subgrid_vertical_velocity_tke_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ top_lev ]
+  standard_name = vertical_layer_index_of_cloud_fraction_top
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
+[ tke ]
+  standard_name = specific_turbulent_kinetic_energy_at_interfaces
+  units = m2 s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ wsub ]
+  standard_name = subgrid_scale_vertical_velocity_for_droplet_nucleation
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-table-properties]
+  name = compute_subgrid_vertical_velocity_kvh
+  type = scheme
+
+[ccpp-arg-table]
+  name  = compute_subgrid_vertical_velocity_kvh_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ top_lev ]
+  standard_name = vertical_layer_index_of_cloud_fraction_top
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
+[ kvh ]
+  standard_name = eddy_heat_diffusivity_at_interfaces
+  units = m2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ wsub ]
+  standard_name = subgrid_scale_vertical_velocity_for_droplet_nucleation
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

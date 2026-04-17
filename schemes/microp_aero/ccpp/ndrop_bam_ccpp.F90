@@ -11,13 +11,14 @@ module ndrop_bam_ccpp
   public :: ndrop_bam_ccpp_run
 
   ! smallest mixing ratio considered in microphysics
-  real(kind_phys), parameter :: qsmall = 1.e-18_r8
+  real(kind_phys), parameter :: qsmall = 1.e-18_kind_phys
 
 contains
 
 !> \section arg_table_ndrop_bam_ccpp_init Argument Table
 !! \htmlinclude ndrop_bam_ccpp_init.html
-  subroutine ndrop_bam_ccpp_init(amIRoot, iulog, mwh2o, r_universal, tmelt, rhoh2o)
+  subroutine ndrop_bam_ccpp_init(amIRoot, iulog, mwh2o, r_universal, tmelt, rhoh2o, &
+    errmsg, errflg)
 
     use ndrop_bam, only: ndrop_bam_init
 
@@ -27,6 +28,12 @@ contains
     real(kind_phys), intent(in) :: r_universal
     real(kind_phys), intent(in) :: tmelt
     real(kind_phys), intent(in) :: rhoh2o
+
+    character(len=512), intent(out) :: errmsg
+    integer,            intent(out) :: errflg
+
+    errmsg = ''
+    errflg = 0
 
     call ndrop_bam_init(amIRoot, iulog, mwh2o, r_universal, tmelt, rhoh2o)
 
@@ -59,7 +66,7 @@ contains
     real(kind_phys), intent(in)  :: rhoh2o
     real(kind_phys), intent(in)  :: latvap
     real(kind_phys), intent(in)  :: rho(:, :)
-    real(kind_phys), intent(in)  :: tair(:, :)
+    real(kind_phys), intent(in)  :: t(:, :)
     real(kind_phys), intent(in)  :: wsub(:, :)
     real(kind_phys), intent(in)  :: qcld(:, :)
     real(kind_phys), intent(in)  :: ast(:, :)
@@ -95,7 +102,8 @@ contains
       aero_props_bam => null()
     end do
 
-    ! No BAM model found (e.g., aquaplanet) — zero outputs and return
+    ! No BAM model found but microp_aero is active (i.e., aquaplanet).
+    ! Zero outputs and return.
     if (.not. associated(aero_props_bam) .or. &
         .not. associated(aero_state_bam)) then
       npccn(:, :)      = 0._kind_phys
@@ -104,6 +112,14 @@ contains
       naer2_diag(:, :, :) = 0._kind_phys
       return
     end if
+
+    ! TODO for Claude: newly added to pass rho to ndrop_bam_calc
+    ! need to add pmid to args, rho to local vars (ncol,pver)
+    do k = top_lev, pver
+      do i = 1, ncol
+        rho(i,k) = pmid(i,k)/(rair*t(i,k))
+      end do
+    end do
 
     call ndrop_bam_calc( &
       aero_state = aero_state_bam, &
@@ -119,7 +135,7 @@ contains
       rhoh2o     = rhoh2o,         &
       latvap     = latvap,         &
       rho        = rho,            &
-      tair       = tair,           &
+      tair       = t,              &
       wsub       = wsub,           &
       qcld       = qcld,           &
       qsmall_in  = qsmall,         &

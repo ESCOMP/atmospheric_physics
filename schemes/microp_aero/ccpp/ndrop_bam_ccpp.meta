@@ -1,0 +1,197 @@
+[ccpp-table-properties]
+  name = ndrop_bam_ccpp
+  type = scheme
+
+[ccpp-arg-table]
+  name  = ndrop_bam_ccpp_init
+  type  = scheme
+[ amIRoot ]
+  standard_name = enter_standard_name_1
+  units = enter_units
+  type = logical
+  dimensions = ()
+  intent = in
+[ iulog ]
+  standard_name = enter_standard_name_2
+  units = enter_units
+  type = integer
+  dimensions = ()
+  intent = in
+[ mwh2o ]
+  standard_name = enter_standard_name_3
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ r_universal ]
+  standard_name = enter_standard_name_4
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ tmelt ]
+  standard_name = enter_standard_name_5
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ rhoh2o ]
+  standard_name = enter_standard_name_6
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = ndrop_bam_ccpp_run
+  type  = scheme
+[ ncol ]
+  standard_name = enter_standard_name_7
+  units = enter_units
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = enter_standard_name_8
+  units = enter_units
+  type = integer
+  dimensions = ()
+  intent = in
+[ top_lev ]
+  standard_name = enter_standard_name_9
+  units = enter_units
+  type = integer
+  dimensions = ()
+  intent = in
+[ gravit ]
+  standard_name = enter_standard_name_10
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ rair ]
+  standard_name = enter_standard_name_11
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ tmelt ]
+  standard_name = enter_standard_name_12
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ cpair ]
+  standard_name = enter_standard_name_13
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ rh2o ]
+  standard_name = enter_standard_name_14
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ rhoh2o ]
+  standard_name = enter_standard_name_15
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ latvap ]
+  standard_name = enter_standard_name_16
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ rho ]
+  standard_name = enter_standard_name_17
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = (enter_standard_name_30:enter_standard_name_31,enter_standard_name_32:enter_standard_name_33)
+  intent = in
+[ t ]
+  standard_name = enter_standard_name_18
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = (enter_standard_name_34:enter_standard_name_35,enter_standard_name_36:enter_standard_name_37)
+  intent = in
+[ wsub ]
+  standard_name = enter_standard_name_19
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = (enter_standard_name_38:enter_standard_name_39,enter_standard_name_40:enter_standard_name_41)
+  intent = in
+[ qcld ]
+  standard_name = cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (enter_standard_name_42:enter_standard_name_43,enter_standard_name_44:enter_standard_name_45)
+  intent = in
+[ ast ]
+  standard_name = stratiform_cloud_area_fraction
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (enter_standard_name_46:enter_standard_name_47,enter_standard_name_48:enter_standard_name_49)
+  intent = in
+[ numliq ]
+  standard_name = mass_number_concentration_of_cloud_liquid_wrt_moist_air_and_condensed_water
+  units = kg-1
+  type = real | kind = kind_phys
+  dimensions = (enter_standard_name_50:enter_standard_name_51,enter_standard_name_52:enter_standard_name_53)
+  intent = in
+[ deltatin ]
+  standard_name = enter_standard_name_23
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ npccn ]
+  standard_name = enter_standard_name_24
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = (enter_standard_name_54:enter_standard_name_55,enter_standard_name_56:enter_standard_name_57)
+  intent = out
+[ nacon ]
+  standard_name = enter_standard_name_25
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = (enter_standard_name_58:enter_standard_name_59,enter_standard_name_60:enter_standard_name_61,enter_standard_name_62:enter_standard_name_63)
+  intent = out
+[ ccn ]
+  standard_name = enter_standard_name_26
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = (enter_standard_name_64:enter_standard_name_65,enter_standard_name_66:enter_standard_name_67,enter_standard_name_68:enter_standard_name_69)
+  intent = out
+[ naer2_diag ]
+  standard_name = enter_standard_name_27
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = (enter_standard_name_70:enter_standard_name_71,enter_standard_name_72:enter_standard_name_73,enter_standard_name_74:enter_standard_name_75)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
