@@ -1,0 +1,43 @@
+[ccpp-table-properties]
+  name = dust_default_radii
+  type = scheme
+
+[ccpp-arg-table]
+  name  = dust_default_radii_timestep_init
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ ndust ]
+  standard_name = dust_size_bin_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ rndst ]
+  standard_name = dust_radii_by_size_bin
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension, vertical_layer_dimension, dust_size_bin_dimension)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

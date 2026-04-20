@@ -34,6 +34,9 @@
     <scheme>compute_subgrid_vertical_velocity_tke</scheme>
     <scheme>scale_subgrid_vertical_velocity</scheme>
 
+    <!-- Set default dust size radii for microphysics -->
+    <scheme>dust_default_radii</scheme>
+
     <!--
       Ice nucleation
       Runs even without aerosol models when microp_aero is active
