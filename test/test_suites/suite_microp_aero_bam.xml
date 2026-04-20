@@ -24,6 +24,16 @@
     <!-- Helper to read all possible constituents from file -->
     <scheme>initialize_constituents</scheme>
 
+    <!-- Register BAM aerosol pbuf fields as constituents for snapshot testing -->
+    <scheme>initialize_pbuf_aerosols</scheme>
+
+    <!-- Temporary initialization for to_be_ccppized: wv_saturation -->
+    <scheme>to_be_ccppized_temporary</scheme>
+
+    <!-- Rebin seasalt from 4bin prescribed (or snapshot) to 2bin -->
+    <scheme>rebin_seasalt</scheme>
+
+    <!-- Find chemical tropopause: -->
     <scheme>tropopause_find</scheme>
 
     <!--
