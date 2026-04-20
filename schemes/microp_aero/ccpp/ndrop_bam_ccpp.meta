@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = ndrop_bam_ccpp
   type = scheme
+  dependencies = ../ndrop_bam.F90
 
 [ccpp-arg-table]
   name  = ndrop_bam_ccpp_init
@@ -153,6 +154,7 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
+  advected = True
 [ ast ]
   standard_name = stratiform_cloud_area_fraction
   units = fraction
@@ -165,6 +167,7 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
+  advected = True
 [ deltatin ]
   standard_name = timestep_for_physics
   units = s

@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = nucleate_ice_ccpp
   type = scheme
+  dependencies = ../nucleate_ice.F90
 
 [ccpp-arg-table]
   name  = nucleate_ice_ccpp_init
@@ -135,24 +136,28 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
+  advected = True
 [ qc ]
   standard_name = cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water
   units = kg kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
+  advected = True
 [ qi ]
   standard_name = cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water
   units = kg kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
+  advected = True
 [ ni ]
   standard_name = mass_number_concentration_of_ice_wrt_moist_air_and_condensed_water
   units = kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
+  advected = True
 [ rair ]
   standard_name = gas_constant_of_dry_air
   units = J kg-1 K-1

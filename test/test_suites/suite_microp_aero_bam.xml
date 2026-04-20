@@ -53,5 +53,9 @@
     <!--
       BAM microp_aero diagnostics
     -->
+
+    <!-- Stub for hetfrz: used to pass the namelist option to other schemes
+         since it alters behavior in other microphysical schemes. -->
+    <scheme>hetfrz_classnuc_stub</scheme>
   </group>
 </suite>
