@@ -17,17 +17,23 @@ contains
 
 !> \section arg_table_ndrop_bam_ccpp_init Argument Table
 !! \htmlinclude ndrop_bam_ccpp_init.html
-  subroutine ndrop_bam_ccpp_init(amIRoot, iulog, mwh2o, r_universal, tmelt, rhoh2o, &
+  subroutine ndrop_bam_ccpp_init(&
+    amIRoot, iulog, &
+    mwh2o, r_universal, tmelt, rhoh2o, &
+    naer_all, psat, &
     errmsg, errflg)
 
     use ndrop_bam, only: ndrop_bam_init
+    use ndrop_bam, only: psat_driver => psat
 
-    logical,         intent(in) :: amIRoot
-    integer,         intent(in) :: iulog
-    real(kind_phys), intent(in) :: mwh2o
-    real(kind_phys), intent(in) :: r_universal
-    real(kind_phys), intent(in) :: tmelt
-    real(kind_phys), intent(in) :: rhoh2o
+    logical,         intent(in)  :: amIRoot
+    integer,         intent(in)  :: iulog
+    real(kind_phys), intent(in)  :: mwh2o
+    real(kind_phys), intent(in)  :: r_universal
+    real(kind_phys), intent(in)  :: tmelt
+    real(kind_phys), intent(in)  :: rhoh2o
+    integer,         intent(out) :: naer_all
+    integer,         intent(out) :: psat
 
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errflg
@@ -35,7 +41,10 @@ contains
     errmsg = ''
     errflg = 0
 
-    call ndrop_bam_init(amIRoot, iulog, mwh2o, r_universal, tmelt, rhoh2o)
+    call ndrop_bam_init(amIRoot, iulog, mwh2o, r_universal, tmelt, rhoh2o, &
+      naer_all)
+
+    psat = psat_driver
 
   end subroutine ndrop_bam_ccpp_init
 
@@ -44,11 +53,11 @@ contains
   subroutine ndrop_bam_ccpp_run( &
     ncol, pver, top_lev, &
     gravit, rair, tmelt, cpair, rh2o, rhoh2o, latvap, &
-    rho, tair, wsub, qcld, ast, numliq, deltatin, &
+    pmid, t, wsub, qcld, ast, numliq, deltatin, &
     npccn, nacon, ccn, naer2_diag, &
     errmsg, errflg)
 
-    use ndrop_bam,              only: ndrop_bam_calc, naer_all, psat
+    use ndrop_bam,              only: ndrop_bam_calc
     use aerosol_instances_mod,  only: aerosol_instances_get_props, &
                                       aerosol_instances_get_state, &
                                       aerosol_instances_get_num_models
@@ -65,7 +74,7 @@ contains
     real(kind_phys), intent(in)  :: rh2o
     real(kind_phys), intent(in)  :: rhoh2o
     real(kind_phys), intent(in)  :: latvap
-    real(kind_phys), intent(in)  :: rho(:, :)
+    real(kind_phys), intent(in)  :: pmid(:, :)
     real(kind_phys), intent(in)  :: t(:, :)
     real(kind_phys), intent(in)  :: wsub(:, :)
     real(kind_phys), intent(in)  :: qcld(:, :)
@@ -73,15 +82,16 @@ contains
     real(kind_phys), intent(in)  :: numliq(:, :)
     real(kind_phys), intent(in)  :: deltatin
     real(kind_phys), intent(out) :: npccn(:, :)
-    real(kind_phys), intent(out) :: nacon(:, :, :)
-    real(kind_phys), intent(out) :: ccn(:, :, :)
-    real(kind_phys), intent(out) :: naer2_diag(:, :, :)
+    real(kind_phys), intent(out) :: nacon(:, :, :) ! ncol, pver, num_dust=4
+    real(kind_phys), intent(out) :: ccn(:, :, :) ! ncol, pver, psat
+    real(kind_phys), intent(out) :: naer2_diag(:, :, :) ! ncol, pver, naer_all
 
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     ! Local variables
-    integer :: iaermod
+    integer :: i, k, iaermod
+    real(kind_phys) :: rho(ncol, pver)
     class(aerosol_properties), pointer :: aero_props_bam
     class(aerosol_state),      pointer :: aero_state_bam
 
@@ -113,8 +123,6 @@ contains
       return
     end if
 
-    ! TODO for Claude: newly added to pass rho to ndrop_bam_calc
-    ! need to add pmid to args, rho to local vars (ncol,pver)
     do k = top_lev, pver
       do i = 1, ncol
         rho(i,k) = pmid(i,k)/(rair*t(i,k))
@@ -148,6 +156,7 @@ contains
       naer2_diag = naer2_diag,     &
       errmsg     = errmsg,         &
       errflg     = errflg)
+    if(errflg /= 0) return
 
   end subroutine ndrop_bam_ccpp_run
 

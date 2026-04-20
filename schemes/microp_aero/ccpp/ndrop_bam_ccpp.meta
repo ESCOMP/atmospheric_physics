@@ -6,41 +6,53 @@
   name  = ndrop_bam_ccpp_init
   type  = scheme
 [ amIRoot ]
-  standard_name = enter_standard_name_1
-  units = enter_units
+  standard_name = flag_for_mpi_root
+  units = flag
   type = logical
   dimensions = ()
   intent = in
 [ iulog ]
-  standard_name = enter_standard_name_2
-  units = enter_units
+  standard_name = log_output_unit
+  units = 1
   type = integer
   dimensions = ()
   intent = in
 [ mwh2o ]
-  standard_name = enter_standard_name_3
-  units = enter_units
+  standard_name = molecular_weight_of_h2o
+  units = g mol-1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ r_universal ]
-  standard_name = enter_standard_name_4
-  units = enter_units
+  standard_name = universal_gas_constant
+  units = J K-1 kmol-1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ tmelt ]
-  standard_name = enter_standard_name_5
-  units = enter_units
+  standard_name = freezing_point_of_water
+  units = K
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ rhoh2o ]
-  standard_name = enter_standard_name_6
-  units = enter_units
+  standard_name = fresh_liquid_water_density_at_0c
+  units = kg m-3
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
+[ naer_all ]
+  standard_name = number_of_bulk_aerosol_types
+  units = count
+  type = integer
+  dimensions = ()
+  intent = out
+[ psat ]
+  standard_name = number_of_ccn_supersaturation_levels
+  units = count
+  type = integer
+  dimensions = ()
+  intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
@@ -58,130 +70,134 @@
   name  = ndrop_bam_ccpp_run
   type  = scheme
 [ ncol ]
-  standard_name = enter_standard_name_7
-  units = enter_units
+  standard_name = horizontal_loop_extent
+  units = count
   type = integer
   dimensions = ()
   intent = in
 [ pver ]
-  standard_name = enter_standard_name_8
-  units = enter_units
+  standard_name = vertical_layer_dimension
+  units = count
   type = integer
   dimensions = ()
   intent = in
 [ top_lev ]
-  standard_name = enter_standard_name_9
-  units = enter_units
+  standard_name = vertical_layer_index_of_cloud_fraction_top
+  units = index
   type = integer
   dimensions = ()
   intent = in
 [ gravit ]
-  standard_name = enter_standard_name_10
-  units = enter_units
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ rair ]
-  standard_name = enter_standard_name_11
-  units = enter_units
+  standard_name = gas_constant_of_dry_air
+  units = J kg-1 K-1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ tmelt ]
-  standard_name = enter_standard_name_12
-  units = enter_units
+  standard_name = freezing_point_of_water
+  units = K
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ cpair ]
-  standard_name = enter_standard_name_13
-  units = enter_units
+  standard_name = specific_heat_of_dry_air_at_constant_pressure
+  units = J kg-1 K-1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ rh2o ]
-  standard_name = enter_standard_name_14
-  units = enter_units
+  standard_name = gas_constant_of_water_vapor
+  units = J kg-1 K-1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ rhoh2o ]
-  standard_name = enter_standard_name_15
-  units = enter_units
+  standard_name = fresh_liquid_water_density_at_0c
+  units = kg m-3
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ latvap ]
-  standard_name = enter_standard_name_16
-  units = enter_units
+  standard_name = latent_heat_of_vaporization_of_water_at_0c
+  units = J kg-1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
-[ rho ]
-  standard_name = enter_standard_name_17
-  units = enter_units
+[ pmid ]
+  standard_name = air_pressure
+  units = Pa
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_30:enter_standard_name_31,enter_standard_name_32:enter_standard_name_33)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ t ]
-  standard_name = enter_standard_name_18
-  units = enter_units
+  standard_name = air_temperature
+  units = K
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_34:enter_standard_name_35,enter_standard_name_36:enter_standard_name_37)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ wsub ]
-  standard_name = enter_standard_name_19
-  units = enter_units
+  standard_name = subgrid_scale_vertical_velocity_for_droplet_nucleation
+  units = m s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_38:enter_standard_name_39,enter_standard_name_40:enter_standard_name_41)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ qcld ]
   standard_name = cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water
   units = kg kg-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_42:enter_standard_name_43,enter_standard_name_44:enter_standard_name_45)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ ast ]
   standard_name = stratiform_cloud_area_fraction
   units = fraction
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_46:enter_standard_name_47,enter_standard_name_48:enter_standard_name_49)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ numliq ]
   standard_name = mass_number_concentration_of_cloud_liquid_wrt_moist_air_and_condensed_water
   units = kg-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_50:enter_standard_name_51,enter_standard_name_52:enter_standard_name_53)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ deltatin ]
-  standard_name = enter_standard_name_23
-  units = enter_units
+  standard_name = timestep_for_physics
+  units = s
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ npccn ]
-  standard_name = enter_standard_name_24
-  units = enter_units
+  # tendency of cloud droplet number from aerosol activation (#/kg/s)
+  standard_name = tendency_of_cloud_droplet_number_from_aerosol_activation
+  units = kg-1 s-1
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_54:enter_standard_name_55,enter_standard_name_56:enter_standard_name_57)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ nacon ]
-  standard_name = enter_standard_name_25
-  units = enter_units
+  # contact freezing dust number concentration by bin (#/m3), 4 dust bins
+  standard_name = number_concentration_of_contact_freezing_dust_by_bin
+  units = m-3
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_58:enter_standard_name_59,enter_standard_name_60:enter_standard_name_61,enter_standard_name_62:enter_standard_name_63)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, dust_size_bin_dimension)
   intent = out
 [ ccn ]
-  standard_name = enter_standard_name_26
-  units = enter_units
+  # CCN number concentration at fixed supersaturation levels (#/cm3), psat=6 levels
+  standard_name = cloud_condensation_nuclei_number_concentration_at_supersaturation
+  units = cm-3
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_64:enter_standard_name_65,enter_standard_name_66:enter_standard_name_67,enter_standard_name_68:enter_standard_name_69)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccn_supersaturation_levels)
   intent = out
 [ naer2_diag ]
-  standard_name = enter_standard_name_27
-  units = enter_units
+  # bulk aerosol number concentration diagnostic (#/m3), naer_all types
+  standard_name = bulk_aerosol_number_concentration_diagnostic
+  units = m-3
   type = real | kind = kind_phys
-  dimensions = (enter_standard_name_70:enter_standard_name_71,enter_standard_name_72:enter_standard_name_73,enter_standard_name_74:enter_standard_name_75)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_bulk_aerosol_types)
   intent = out
 [ errmsg ]
   standard_name = ccpp_error_message

@@ -9,7 +9,7 @@ module ndrop_bam
   public :: ndrop_bam_calc
 
   ! these are currently public parameters for use by CAM.
-  public :: naer_all, aername, psat, ccn_name
+  public :: aername, psat, ccn_name
 
   ! module parameters:
 
@@ -57,7 +57,8 @@ module ndrop_bam
 contains
 
   ! Initialize constants for droplet activation by bulk aerosols
-  subroutine ndrop_bam_init(amIRoot, iulog, mwh2o, r_universal, tmelt, rhoh2o)
+  subroutine ndrop_bam_init(amIRoot, iulog, mwh2o, r_universal, tmelt, rhoh2o, &
+    naer_all_out)
 
     use shr_spfn_mod, only: erf => shr_spfn_erf
 
@@ -70,6 +71,7 @@ contains
     real(kind_phys), intent(in) :: r_universal  ! universal gas constant (J/K/kmol)
     real(kind_phys), intent(in) :: tmelt       ! freezing point of water (K)
     real(kind_phys), intent(in) :: rhoh2o      ! density of liquid water (kg/m3)
+    integer, intent(out) :: naer_all_out
 
     integer  :: l, m, iaer, iaermod
     real(kind_phys) :: surften       ! surface tension of water w/respect to air (N/m)
@@ -196,6 +198,8 @@ contains
       end do
 
     end do
+
+    naer_all_out = naer_all
 
   end subroutine ndrop_bam_init
 
