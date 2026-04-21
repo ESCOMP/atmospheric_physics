@@ -176,14 +176,14 @@
   intent = in
 [ npccn ]
   # tendency of cloud droplet number from aerosol activation (#/kg/s)
-  standard_name = tendency_of_cloud_droplet_number_from_aerosol_activation
+  standard_name = tendency_of_activated_cloud_condensation_nuclei_mass_number_concentration
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ nacon ]
   # contact freezing dust number concentration by bin (#/m3), 4 dust bins
-  standard_name = number_concentration_of_contact_freezing_dust_by_bin
+  standard_name = dust_number_concentration_by_size_bin_for_contact_freezing
   units = m-3
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension, dust_size_bin_dimension)

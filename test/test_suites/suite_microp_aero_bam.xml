@@ -38,10 +38,11 @@
 
     <!--
       Compute and scale subgrid vertical velocity
-      UW/CLUBB uses the tke variant
-      HB uses the kvh variant as it does not have tke
+      CAM7/CAM6: use the clubb variant that derives tke from WP2_nadv
+      CAM5: UW uses the tke variant
+      CAM4: HB uses the kvh variant
     -->
-    <scheme>compute_subgrid_vertical_velocity_tke</scheme>
+    <scheme>compute_subgrid_vertical_velocity_clubb</scheme>
     <scheme>scale_subgrid_vertical_velocity</scheme>
 
     <!-- Set default dust size radii for microphysics -->

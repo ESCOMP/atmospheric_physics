@@ -1,4 +1,4 @@
-! Compute raw subgrid-scale vertical velocity from TKE or KVH.
+! Compute raw subgrid-scale vertical velocity from TKE, KVH, or CLUBB WP2.
 module compute_subgrid_vertical_velocity
 
   use ccpp_kinds, only: kind_phys
@@ -8,11 +8,17 @@ module compute_subgrid_vertical_velocity
 
   public :: compute_subgrid_vertical_velocity_tke_run
   public :: compute_subgrid_vertical_velocity_kvh_run
+  public :: compute_subgrid_vertical_velocity_clubb_run
 
 contains
 
 !> \section arg_table_compute_subgrid_vertical_velocity_tke_run Argument Table
 !! \htmlinclude compute_subgrid_vertical_velocity_tke_run.html
+
+  ! Note: despite the tke name, the "tke" used here is the CAM5 diag_TKE scheme TKE
+  ! and is not the TKE originating from CLUBB, and thus this scheme is not used for
+  ! CAM6+, it is used for CAM5 only.
+  ! For CAM6+ do not use TKE, derive from WP2_nadv - see the clubb variant. hplin 4/20/26
   subroutine compute_subgrid_vertical_velocity_tke_run( &
     ncol, pver, top_lev, &
     tke,                 &
@@ -20,14 +26,14 @@ contains
     errmsg, errflg)
 
     ! Input arguments
-    integer,          intent(in)  :: ncol    ! number of columns
-    integer,          intent(in)  :: pver    ! number of vertical levels
+    integer,          intent(in)  :: ncol
+    integer,          intent(in)  :: pver
     integer,          intent(in)  :: top_lev ! top vertical level for cloud physics
 
-    real(kind_phys),  intent(in)  :: tke(:, :)  ! turbulent kinetic energy at interfaces [m2/s2] (ncol, pver+1)
+    real(kind_phys),  intent(in)  :: tke(:, :)  ! turbulent kinetic energy at interfaces [m2 s-2]
 
     ! Output arguments
-    real(kind_phys),  intent(out) :: wsub(:, :) ! subgrid vertical velocity [m/s] (ncol, pver)
+    real(kind_phys),  intent(out) :: wsub(:, :) ! subgrid vertical velocity [m s-1]
 
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errflg
@@ -58,14 +64,14 @@ contains
     errmsg, errflg)
 
     ! Input arguments
-    integer,          intent(in)  :: ncol    ! number of columns
-    integer,          intent(in)  :: pver    ! number of vertical levels
+    integer,          intent(in)  :: ncol
+    integer,          intent(in)  :: pver
     integer,          intent(in)  :: top_lev ! top vertical level for cloud physics
 
-    real(kind_phys),  intent(in)  :: kvh(:, :)  ! eddy diffusivity for heat at interfaces [m2/s] (ncol, pver+1)
+    real(kind_phys),  intent(in)  :: kvh(:, :)  ! eddy diffusivity for heat at interfaces [m2 s-1]
 
     ! Output arguments
-    real(kind_phys),  intent(out) :: wsub(:, :) ! subgrid vertical velocity [m/s] (ncol, pver)
+    real(kind_phys),  intent(out) :: wsub(:, :) ! subgrid vertical velocity [m s-1]
 
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errflg
@@ -90,5 +96,48 @@ contains
     end do
 
   end subroutine compute_subgrid_vertical_velocity_kvh_run
+
+!> \section arg_table_compute_subgrid_vertical_velocity_clubb_run Argument Table
+!! \htmlinclude compute_subgrid_vertical_velocity_clubb_run.html
+  subroutine compute_subgrid_vertical_velocity_clubb_run( &
+    ncol, pver, top_lev, &
+    wp2,                 &
+    wsub,                &
+    errmsg, errflg)
+
+    ! Input arguments
+    integer,          intent(in)  :: ncol    ! number of columns
+    integer,          intent(in)  :: pver    ! number of vertical levels
+    integer,          intent(in)  :: top_lev ! top vertical level for cloud physics
+
+    real(kind_phys),  intent(in)  :: wp2(:, :)  ! CLUBB variance of vertical velocity at interfaces [m2 s-2]
+
+    ! Output arguments
+    real(kind_phys),  intent(out) :: wsub(:, :) ! subgrid vertical velocity [m s-1]
+
+    character(len=512), intent(out) :: errmsg
+    integer,            intent(out) :: errflg
+
+    ! Local variables
+    integer :: i, k
+    real(kind_phys) :: tke(ncol, pver+1)
+
+    errmsg = ''
+    errflg = 0
+
+    ! Convert wp2 to TKE: tke = (3/2) * wp2
+    ! This matches CAM microp_aero.F90 CLUBB_SGS branch exactly.
+    tke(:ncol,:) = (3._kind_phys / 2._kind_phys) * wp2(:ncol,:)
+
+    wsub(:, :top_lev-1) = 0._kind_phys
+
+    do k = top_lev, pver
+      do i = 1, ncol
+        wsub(i,k) = sqrt(0.5_kind_phys * (tke(i,k) + tke(i,k+1)) * (2._kind_phys / 3._kind_phys))
+        wsub(i,k) = min(wsub(i,k), 10._kind_phys)
+      end do
+    end do
+
+  end subroutine compute_subgrid_vertical_velocity_clubb_run
 
 end module compute_subgrid_vertical_velocity
