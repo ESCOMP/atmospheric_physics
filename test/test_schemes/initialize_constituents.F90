@@ -29,6 +29,8 @@ subroutine initialize_constituents_register(constituents, errmsg, errcode)
     integer :: known_const_index
     integer :: found_const_count
     logical :: known_constituent
+    real(kind_phys) :: qmin_value
+    character(len=256) :: cnst_stdname
     character(len=256) :: variable_name
     character(len=512) :: alloc_err_msg
     character(len=256), allocatable :: constituent_names(:)
@@ -53,6 +55,12 @@ subroutine initialize_constituents_register(constituents, errmsg, errcode)
                                         'cnst_NUMICE', &
                                         'cnst_NUMSNO', &
                                         'cnst_NUMGRA'/)
+    character(len=75), parameter :: water_species_number_std_names(5) = &
+      (/'mass_number_concentration_of_cloud_liquid_wrt_moist_air_and_condensed_water', &
+        'mass_number_concentration_of_rain_wrt_moist_air_and_condensed_water        ', &
+        'mass_number_concentration_of_ice_wrt_moist_air_and_condensed_water         ', &
+        'mass_number_concentration_of_snow_wrt_moist_air_and_condensed_water        ', &
+        'mass_number_concentration_of_graupel_wrt_moist_air_and_condensed_water     '/)
 
     errcode = 0
     errmsg = ''
@@ -95,6 +103,16 @@ subroutine initialize_constituents_register(constituents, errmsg, errcode)
                 end if
              end do
           end if
+          ! Also check number concentration species
+          if (.not. known_constituent) then
+             do known_const_index = 1, size(water_species_number_concentrations)
+                if (trim(water_species_number_concentrations(known_const_index)) == trim(variable_name)) then
+                   constituent_names(constituent_index) = water_species_number_std_names(known_const_index)
+                   known_constituent = .true.
+                   exit
+                end if
+             end do
+          end if
           if (.not. known_constituent) then
              constituent_names(constituent_index) = variable_name
           end if
@@ -109,7 +127,10 @@ subroutine initialize_constituents_register(constituents, errmsg, errcode)
     end if
 
     do var_index = 1, size(constituents)
-       if (any(water_species_number_concentrations == trim(constituent_names(var_index)))) then
+       if (any(water_species_number_std_names == trim(constituent_names(var_index)))) then
+          ! Do not set water_species = .true. for water species number concentrations
+          !   Avoiding mismatch in properties vs. metadata-specified constituents
+          !   Water species properties are set in air_composition.F90 in CAM-SIMA
           call constituents(var_index)%instantiate(     &
              std_name = constituent_names(var_index),   &
              long_name = constituent_names(var_index),  &
@@ -118,7 +139,6 @@ subroutine initialize_constituents_register(constituents, errmsg, errcode)
              min_value = 0.0_kind_phys,                 &
              advected = .true.,                         &
              diag_name = const_diag_names(var_index),   &
-             water_species = .true.,                    &
              mixing_ratio_type = 'wet',                 &
              errcode = errcode,                         &
              errmsg = errmsg)
@@ -133,17 +153,42 @@ subroutine initialize_constituents_register(constituents, errmsg, errcode)
              vertical_dim = 'vertical_layer_dimension', &
              min_value = 0.0_kind_phys,                 &
              advected = .true.,                         &
-             diag_name = const_diag_names(var_index),   & 
+             diag_name = const_diag_names(var_index),   &
              mixing_ratio_type = 'wet',                 &
              errcode = errcode,                         &
              errmsg = errmsg)
        else
+          ! For chemistry species some special handling is necessary for qmin_value;
+          ! this logic is replicated from chem_register in src/chemistry/mozart.
+          qmin_value = 0.0_kind_phys
+          cnst_stdname = trim(constituent_names(var_index))
+          ! Special handling for specific chemical species
+          ! Aerosol number density species
+          if (index(cnst_stdname, 'num_a') > 0) then
+             qmin_value = 1.e-5_kind_phys
+          else if (index(cnst_stdname, 'O3') > 0) then
+             qmin_value = 1.e-12_kind_phys
+          else if (index(cnst_stdname, 'CH4') > 0) then
+             qmin_value = 1.e-12_kind_phys
+          else if (index(cnst_stdname, 'N2O') > 0) then
+             qmin_value = 1.e-15_kind_phys
+          ! CFCs
+          else if (index(cnst_stdname, 'CFC11') > 0 .or. &
+                   index(cnst_stdname, 'CFC12') > 0 .or. &
+                   index(cnst_stdname, 'cfc11') > 0 .or. &
+                   index(cnst_stdname, 'cfc12') > 0) then
+             qmin_value = 1.e-20_kind_phys
+          end if
+          ! Note: other chemistry species should be 1e-36 but we have no way
+          ! of currently distinguishing between these and other non-chem
+          ! constituents, so leaving as 0.0_kind_phys for now. (hplin, 11/20/25)
+
           call constituents(var_index)%instantiate(     &
              std_name = constituent_names(var_index),   &
              long_name = constituent_names(var_index),  &
              units = 'kg kg-1',                         &
              vertical_dim = 'vertical_layer_dimension', &
-             min_value = 0.0_kind_phys,                 &
+             min_value = qmin_value,                    &
              advected = .true.,                         &
              diag_name = const_diag_names(var_index),   &
              errcode = errcode,                         &
