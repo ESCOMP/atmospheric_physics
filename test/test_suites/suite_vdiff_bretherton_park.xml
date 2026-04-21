@@ -38,8 +38,7 @@
     <scheme>vertical_diffusion_interpolate_to_interfaces</scheme>
 
     <!-- vdiff pre-interstitial 3: calculate total surface stresses
-         used for surface momentum flux diagnostic.
-         here, also used for HB. -->
+         used for surface momentum flux diagnostic. -->
     <scheme>vertical_diffusion_set_total_surface_stress</scheme>
 
     <!-- UW eddy diffusivity scheme -->
@@ -59,7 +58,6 @@
 
     <!-- vdiff pre-interstitial 5: calculate damping rate from drag coef. -->
     <scheme>vertical_diffusion_wind_damping_rate</scheme>
-    <!--<scheme>beljaars_add_wind_damping_rate</scheme>-->
 
     <!-- vdiff compute 1: horizontal momentum diffusion; dissipate KE -->
     <!-- note: vdiff compute schemes calculate "provisional" updates,

@@ -42,7 +42,7 @@ contains
 !! \htmlinclude bretherton_park_diff_init.html
   subroutine bretherton_park_diff_init( &
              amIRoot, iulog, &
-             pver, pverp, &
+             pver, &
              gravit, cpair, rair, zvir, latvap, latice, karman, &
              ntop_eddy_in, &
              pref_mid, &
@@ -59,7 +59,6 @@ contains
     logical,         intent(in)  :: amIRoot
     integer,         intent(in)  :: iulog
     integer,         intent(in)  :: pver
-    integer,         intent(in)  :: pverp
     real(kind_phys), intent(in)  :: gravit
     real(kind_phys), intent(in)  :: cpair
     real(kind_phys), intent(in)  :: rair
@@ -257,7 +256,7 @@ contains
     real(kind_phys), intent(inout) :: kvh(:, :)           ! Eddy diffusivity for heat [m2 s-1]
                                                           ! (in from previous timestep, output to current timestep)
     real(kind_phys), intent(inout) :: tauresx(:)          ! Residual stress to be added in vdiff to correct for turb [N m-2]
-    real(kind_phys), intent(inout) :: tauresy(:)          ! Stress mismatch between sfc and atm accumulated in prior timesteps [N m-2]
+    real(kind_phys), intent(inout) :: tauresy(:)          ! (in from previous timestep; output to current timestep)
 
     ! Output variables, including those for diagnostic output
     real(kind_phys), intent(out)   :: s2(:, :)            ! Shear squared, defined at interfaces except surface [s-2]
@@ -337,35 +336,32 @@ contains
     integer :: i, k, iturb
     integer :: const_wv_idx
     integer :: ipbl(ncol)     ! If 1, PBL is CL, while if 0, PBL is STL.
-    integer :: kpblh(ncol)    ! Layer index containing PBL top within or at the base interface (NOT USED)
 
     character(2048) :: warnstring                ! Warning messages from driver routine
 
-    real(kind_phys) :: went(ncol)                ! Entrainment rate at the PBL top interface [ m/s ] (NOT USED)
-
-    real(kind_phys) :: kvf(ncol, pverp)          ! Free atmospheric eddy diffusivity [ m2/s ]
+    real(kind_phys) :: kvf(ncol, pverp)          ! Free atmospheric eddy diffusivity [m2 s-1]
     real(kind_phys) :: kvm_in(ncol, pverp)       ! Eddy diffusivity for momentum [m2 s-1], previous timestep
     real(kind_phys) :: kvh_in(ncol, pverp)       ! Eddy diffusivity for heat [m2 s-1], previous timestep
     real(kind_phys) :: kvm_ce(ncol, pverp)       ! Eddy diffusivity for momentum [m2 s-1], input into caleddy
     real(kind_phys) :: kvh_ce(ncol, pverp)       ! Eddy diffusivity for heat [m2 s-1], input into caleddy
 
-    real(kind_phys) :: qt(ncol, pver)            ! Total specific humidity [ kg/kg ]
-    real(kind_phys) :: sl(ncol, pver)            ! Liquid water static energy [ J/kg ]
-    real(kind_phys) :: slv(ncol, pver)           ! Liquid water virtual static energy [ J/kg ]
+    real(kind_phys) :: qt(ncol, pver)            ! Total specific humidity [kg kg-1]
+    real(kind_phys) :: sl(ncol, pver)            ! Liquid water static energy [J kg-1]
+    real(kind_phys) :: slv(ncol, pver)           ! Liquid water virtual static energy [J kg-1]
     real(kind_phys) :: slslope(ncol, pver)       ! Slope of 'sl' in each layer
     real(kind_phys) :: qtslope(ncol, pver)       ! Slope of 'qt' in each layer
-    real(kind_phys) :: qvfd(ncol, pver)          ! Specific humidity for diffusion [ kg/kg ]
-    real(kind_phys) :: tfd(ncol, pver)           ! Temperature for diffusion [ K ]
-    real(kind_phys) :: slfd(ncol, pver)          ! Liquid static energy [ J/kg ]
-    real(kind_phys) :: qtfd(ncol, pver, 1)       ! Total specific humidity [ kg/kg ]
-    real(kind_phys) :: ufd(ncol, pver)           ! U-wind for diffusion [ m/s ]
-    real(kind_phys) :: vfd(ncol, pver)           ! V-wind for diffusion [ m/s ]
+    real(kind_phys) :: qvfd(ncol, pver)          ! Specific humidity for diffusion [kg kg-1]
+    real(kind_phys) :: tfd(ncol, pver)           ! Temperature for diffusion [K]
+    real(kind_phys) :: slfd(ncol, pver)          ! Liquid static energy [J kg-1]
+    real(kind_phys) :: qtfd(ncol, pver, 1)       ! Total specific humidity [kg kg-1]
+    real(kind_phys) :: ufd(ncol, pver)           ! U-wind for diffusion [m s-1]
+    real(kind_phys) :: vfd(ncol, pver)           ! V-wind for diffusion [m s-1]
 
     ! Output arguments from iterative calls of diffusion solver
-    real(kind_phys) :: ufd_out(ncol, pver)       ! U-wind for diffusion [ m/s ]
-    real(kind_phys) :: vfd_out(ncol, pver)       ! V-wind for diffusion [ m/s ]
-    real(kind_phys) :: slfd_out(ncol, pver)      ! Liquid static energy [ J/kg ]
-    real(kind_phys) :: qtfd_out(ncol, pver, 1)   ! Total specific humidity [ kg/kg ]
+    real(kind_phys) :: ufd_out(ncol, pver)       ! U-wind for diffusion [m s-1]
+    real(kind_phys) :: vfd_out(ncol, pver)       ! V-wind for diffusion [m s-1]
+    real(kind_phys) :: slfd_out(ncol, pver)      ! Liquid static energy [J kg-1]
+    real(kind_phys) :: qtfd_out(ncol, pver, 1)   ! Total specific humidity [kg kg-1]
 
     ! Input arguments for CCPPized diffusion solver
     real(kind_phys) :: ksrf(ncol)
@@ -379,7 +375,7 @@ contains
     real(kind_phys) :: zero2d(ncol, pverp)
     real(kind_phys) :: es                         ! Saturation vapor pressure
     real(kind_phys) :: qs                         ! Saturation specific humidity
-    real(kind_phys) :: ep2, templ, temps
+    real(kind_phys) :: templ, temps
 
     errmsg = ''
     errflg = 0
@@ -502,7 +498,7 @@ contains
       ! caleddy driver subroutine:
       !
       ! Calculate eddy diffusivity (kvh,kvm) and (tke,bprod,sprod) using
-      ! a given (kvh,kvm) which are used only for initializing (bprod,sprod)  at
+      ! a given (kvh,kvm) which are used only for initializing (bprod,sprod) at
       ! the first part of caleddy. (bprod,sprod) are fully updated at the end of
       ! caleddy after calculating (kvh,kvm)
       !
@@ -530,7 +526,7 @@ contains
                    kvh_ce, kvm_ce, kvh, kvm, &
                    tpert, qpert, qrl, kvf, tke, &
                    wstarent, bprod, sprod, minpblh, wpert, &
-                   tkes, went, turbtype, &
+                   tkes, turbtype, &
                    kbase_o, ktop_o, ncvfin_o, &
                    kbase_mg, ktop_mg, ncvfin_mg, &
                    kbase_f, ktop_f, ncvfin_f, &
@@ -541,7 +537,7 @@ contains
                    ebrk, wbrk, lbrk, ricl, ghcl, &
                    shcl, smcl, ghi, shi, smi, &
                    rii, lengi, wcap, pblhp, cldn, &
-                   ipbl, kpblh, wsedl, wsed, &
+                   ipbl, wsedl, wsed, &
                    warnstring, errmsg)
 
       if (trim(warnstring) /= "") then
@@ -590,7 +586,7 @@ contains
         ! Diffuse initial profile of each time step using a given (kvh_out,kvm_out)
         ! Call the CCPPized subroutines for the diffusion solver
         ! in iteration. This is not specified in the SDF but instead
-        ! called internally because it is a iterative process.
+        ! called internally because it is an iterative process.
         ! Notes:
         ! - there is no molecular diffusion used here.
         ! - in tracers, only water vapor is diffused (ncnst = 1)
@@ -700,9 +696,6 @@ contains
         ! update q with after in iterative process.
         qtfd(:ncol, :pver, :1) = qtfd_out(:ncol, :pver, :1)
 
-        ! TODO (hplin, 5/9/2025): after these are subset to ncol check if we
-        ! need to initialize some outs to 0; compute_vdiff did not do this before
-
         ! Retrieve (tfd,qvfd,qlfd) from (slfd,qtfd) in order to
         ! use 'trbintd' at the next iteration.
 
@@ -717,7 +710,6 @@ contains
             !                I should understand why the variation of ice, qi is neglected during diffusion.
             templ = (slfd(i, k) - gravit*z(i, k))/cpair
             call qsat(templ, pmid(i, k), es, qs)
-            ep2 = .622_kind_phys
             temps = templ + (qtfd(i, k, 1) - qs)/(cpair/latvap + latvap*qs/(rair*templ**2))
             call qsat(temps, pmid(i, k), es, qs)
             qlfd(i, k) = max(qtfd(i, k, 1) - qi(i, k) - qs, 0._kind_phys)

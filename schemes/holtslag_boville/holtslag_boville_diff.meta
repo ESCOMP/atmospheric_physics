@@ -127,7 +127,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ th ]
-  standard_name = potential_temperature_wrt_surface_pressure_at_bottom_layer
+  standard_name = potential_temperature_wrt_surface_pressure
   units = K
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -176,7 +176,7 @@
   dimensions = (horizontal_loop_extent)
   intent = in
 [ thv ]
-  standard_name = virtual_potential_temperature_wrt_surface_pressure_at_bottom_layer
+  standard_name = virtual_potential_temperature_wrt_surface_pressure
   units = K
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -188,13 +188,13 @@
   dimensions = (horizontal_loop_extent)
   intent = out
 [ rrho ]
-  standard_name = reciprocal_of_density_of_bottom_layer
+  standard_name = reciprocal_of_dry_air_density_of_bottom_layer
   units = m3 kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
 [ s2 ]
-  standard_name = square_of_wind_shear
+  standard_name = square_of_vertical_wind_shear
   units = s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -280,7 +280,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ thv ]
-  standard_name = virtual_potential_temperature_wrt_surface_pressure_at_bottom_layer
+  standard_name = virtual_potential_temperature_wrt_surface_pressure
   units = K
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -416,7 +416,7 @@
   dimensions = (horizontal_loop_extent)
   intent = in
 [ s2 ]
-  standard_name = square_of_wind_shear
+  standard_name = square_of_vertical_wind_shear
   units = s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -488,7 +488,8 @@
   dimensions = (horizontal_loop_extent)
   intent = out
 [ tke ]
-  standard_name = specific_turbulent_kinetic_energy_at_interfaces
+  standard_name = tke_at_interfaces
+  long_name = specific Turbulent Kinetic Energy (TKE) at vertical interfaces
   units = m2 s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
@@ -532,7 +533,7 @@
   dimensions = ()
   intent = in
 [ s2 ]
-  standard_name = square_of_wind_shear
+  standard_name = square_of_vertical_wind_shear
   units = s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

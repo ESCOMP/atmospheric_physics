@@ -732,7 +732,7 @@
   intent = in
 [ do_diffusion_const ]
   # this is for all CCPP constituents.
-  # if a subset call is desired (i.e., in iterative calls from UW PBL)
+  # if a subset call is desired (i.e., in iterative calls from UW/Bretherton-Park PBL)
   # the CCPPized subroutine should be called directly.
   standard_name = flag_for_ccpp_constituent_vertical_diffusion
   units = flag

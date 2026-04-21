@@ -1,5 +1,6 @@
 ! Interstitial scheme to prepare inputs for vertical diffusion solver
-! common to all PBL schemes.
+! common to the Holtslag-Boville (HB) and Bretherton-Park (UW/diag_TKE)
+! PBL schemes.
 !
 ! These include:
 !   - the p vertical coordinate (coords1d), including destroying this object at end of timestep.

@@ -48,7 +48,7 @@
   type = coords1d
   intent = out
 [ th ]
-  standard_name = potential_temperature_wrt_surface_pressure_at_bottom_layer
+  standard_name = potential_temperature_wrt_surface_pressure
   units = K
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -163,13 +163,13 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ th ]
-  standard_name = potential_temperature_wrt_surface_pressure_at_bottom_layer
+  standard_name = potential_temperature_wrt_surface_pressure
   units = K
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ rrho ]
-  standard_name = reciprocal_of_density_of_bottom_layer
+  standard_name = reciprocal_of_dry_air_density_of_bottom_layer
   units = m3 kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)

@@ -24,12 +24,6 @@
   type = integer
   dimensions = ()
   intent = in
-[ pverp ]
-  standard_name = vertical_interface_dimension
-  units = count
-  type = integer
-  dimensions = ()
-  intent = in
 [ gravit ]
   standard_name = standard_gravitational_acceleration
   units = m s-2
@@ -380,7 +374,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ wsedl ]
-  standard_name = sedimentation_velocity_of_liquid_stratus_cloud_droplet_tbd
+  standard_name = sedimentation_velocity_of_liquid_stratus_cloud_droplet
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -410,13 +404,14 @@
   dimensions = (horizontal_loop_extent)
   intent = inout
 [ s2 ]
-  standard_name = square_of_wind_shear
+  standard_name = square_of_vertical_wind_shear
   units = s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ n2 ]
-  standard_name = buoyancy_brequency
+  standard_name = squared_buoyancy_frequency
+  long_name = Square of Brunt-Vaisala frequency
   units = s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -434,7 +429,7 @@
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ rrho ]
-  standard_name = reciprocal_of_density_of_bottom_layer
+  standard_name = reciprocal_of_dry_air_density_of_bottom_layer
   units = m3 kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
@@ -488,25 +483,28 @@
   dimensions = (horizontal_loop_extent)
   intent = out
 [ wpert ]
-  standard_name = turbulent_velocity_excess
+  standard_name = turbulent_vertical_velocity_excess
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
 [ tke ]
-  standard_name = specific_turbulent_kinetic_energy_at_interfaces
+  standard_name = tke_at_interfaces
+  long_name = specific Turbulent Kinetic Energy (TKE) at vertical interfaces
   units = m2 s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ tkes ]
-  standard_name = specific_turbulent_kinetic_energy_at_surface
+  standard_name = tke_at_surface
+  long_name = specific Turbulent Kinetic Energy (TKE) at surface
   units = m2 s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
 [ wcap ]
-  standard_name = normalized_turbulent_kinetic_energy_at_interfaces
+  standard_name = normalized_tke_at_interfaces
+  long_name = normalized specific Turbulent Kinetic Energy (TKE) at vertical interfaces
   units = m2 s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
@@ -524,31 +522,31 @@
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ bprod ]
-  standard_name = buoyancy_production
+  standard_name = tke_production_due_to_buoyancy
   units = m2 s-3
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ sprod ]
-  standard_name = shear_production
+  standard_name = tke_production_due_to_vertical_shear
   units = m2 s-3
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ sfi ]
-  standard_name = saturation_fraction_at_interfaces
+  standard_name = water_vapor_saturation_fraction_at_interfaces
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ sfuh ]
-  standard_name = saturation_fraction_at_upper_half_convective_layer
+  standard_name = water_vapor_saturation_fraction_at_upper_half_convective_layer
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ sflh ]
-  standard_name = saturation_fraction_at_lower_half_convective_layer
+  standard_name = water_vapor_saturation_fraction_at_lower_half_convective_layer
   units = fraction
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -676,13 +674,15 @@
   dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
   intent = out
 [ n2ht ]
-  standard_name = squared_brunt_vaisalla_frequency_at_top_of_convective_layer
+  standard_name = squared_buoyancy_frequency_at_top_of_convective_layer
+  long_name = squared Brunt-Vaisala frequency at top of convective layer
   units = s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
   intent = out
 [ n2hb ]
-  standard_name = squared_brunt_vaisalla_frequency_at_bottom_of_convective_layer
+  standard_name =   standard_name = squared_buoyancy_frequency_at_bottom_of_convective_layer
+  long_name = squared Brunt-Vaisala frequency at bottom of convective layer
   units = s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
@@ -694,7 +694,7 @@
   dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
   intent = out
 [ opt_depth ]
-  standard_name = atmosphere_optical_thickness_at_top_of_convective_layer
+  standard_name = atmosphere_optical_depth_at_top_of_convective_layer
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
@@ -724,13 +724,15 @@
   dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
   intent = out
 [ ebrk ]
-  standard_name = turbulent_kinetic_energy_in_convective_layer
+  standard_name = tke_in_convective_layer
+  long_name = specific Turbulent Kinetic Energy (TKE) in convective layer
   units = m2 s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
   intent = out
 [ wbrk ]
-  standard_name = normalized_turbulent_kinetic_energy_in_convective_layer
+  standard_name = normalized_tke_in_convective_layer
+  long_name = normalized specific Turbulent Kinetic Energy (TKE) in convective layer
   units = m2 s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
@@ -742,13 +744,13 @@
   dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
   intent = out
 [ ricl ]
-  standard_name = richardson_number_in_convective_layer
+  standard_name = bulk_richardson_number_in_convective_layer
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
   intent = out
 [ ghcl ]
-  standard_name = normalized_buoyancy_production_in_convective_layer
+  standard_name = normalized_tke_production_due_to_buoyancy_in_convective_layer
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
@@ -766,7 +768,7 @@
   dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
   intent = out
 [ ghi ]
-  standard_name = normalized_buoyancy_production_at_interfaces
+  standard_name = normalized_tke_production_due_to_buoyancy_at_interfaces
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
@@ -784,7 +786,7 @@
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ rii ]
-  standard_name = richardson_number_at_interfaces
+  standard_name = gradient_richardson_number_at_interfaces
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)

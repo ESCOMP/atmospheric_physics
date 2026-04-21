@@ -156,7 +156,7 @@
   intent = in
 [ tautotx ]
   # these are the taux input to the underlying boundary layer scheme providing the inputs
-  # to the diffusion solver. Here used to output the surface momentum flux diagnostics.
+  # to the diffusion solver. The surface momentum flux diagnostics are derived from these:
   standard_name = eastward_total_stress_at_surface_including_turbulent_orographic_form_drag_stress
   units = N m-2
   type = real | kind = kind_phys
@@ -164,7 +164,7 @@
   intent = in
 [ tautoty ]
   # these are the tauy input to the underlying boundary layer scheme providing the inputs
-  # to the diffusion solver. Here used to output the surface momentum flux diagnostics.
+  # to the diffusion solver. The surface momentum flux diagnostics are derived from these:
   standard_name = northward_total_stress_at_surface_including_turbulent_orographic_form_drag_stress
   units = N m-2
   type = real | kind = kind_phys

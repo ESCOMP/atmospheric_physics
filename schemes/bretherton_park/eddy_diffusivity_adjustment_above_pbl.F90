@@ -1,8 +1,7 @@
 ! Adjusts eddy diffusivities above the planetary boundary layer
 ! to address potentially excessive values in the free troposphere and upper atmosphere
-! in the UW PBL scheme.
+! in the UW (Bretherton-Park) PBL scheme.
 module eddy_diffusivity_adjustment_above_pbl
-  use ccpp_kinds, only: kind_phys
 
   implicit none
   private
@@ -15,11 +14,12 @@ contains
   ! Adjust eddy diffusivities above the PBL to prevent excessive values
   ! in the free troposphere and upper atmosphere.
   !
-  ! The diffusivities from diag_TKE (UW) can be much larger than from HB in the free
+  ! The diffusivities from diag_TKE (UW/Bretherton-Park) can be much larger than
+  ! from HB (Holtslag-Boville) in the free
   ! troposphere and upper atmosphere. These seem to be larger than observations,
-  ! and in WACCM the gw_drag code is already applying an eddy diffusivity in the
-  ! upper atmosphere. Optionally, adjust the diffusivities in the free troposphere
-  ! or the upper atmosphere.
+  ! and in WACCM the gravity_wave_drag code is already applying an eddy diffusivity
+  ! in the upper atmosphere. Optionally, adjust the diffusivities in the free
+  ! troposphere or the upper atmosphere.
   !
   ! NOTE: Further investigation should be done as to why the diffusivities are
   ! larger in diag_TKE.
@@ -33,6 +33,8 @@ contains
     zi, pint, pblh, &
     kvh, kvm, kvq, &
     errmsg, errflg)
+
+    use ccpp_kinds, only: kind_phys
 
     ! Input arguments
     integer,          intent(in)    :: ncol
@@ -77,8 +79,6 @@ contains
               kvm(i, k) = kvm(i, k) * kv_freetrop_scale
               kvq(i, k) = kvq(i, k) * kv_freetrop_scale
             end if
-          else ! within PBL.
-            exit
           end if
         end do
       end do

@@ -1,6 +1,5 @@
 ! Diagnostics for Bretherton-Park (UW) PBL scheme
 module bretherton_park_diff_diagnostics
-   use ccpp_kinds, only: kind_phys
 
    implicit none
    private
@@ -31,7 +30,7 @@ contains
       call history_add_field('UW_qpert', 'Convective moisture excess', horiz_only, 'avg', 'kg kg-1')
       call history_add_field('UW_wpert', 'Convective velocity excess', horiz_only, 'avg', 'm s-1')
       call history_add_field('UW_ustar', 'Surface friction velocity', horiz_only, 'avg', 'm s-1')
-      call history_add_field('UW_tkes', 'Surface TKE', horiz_only, 'avg', 'm2 s-2')
+      call history_add_field('UW_tkes', 'Surface TKE per unit mass', horiz_only, 'avg', 'm2 s-2')
       call history_add_field('UW_minpblh', 'Minimum PBL height', horiz_only, 'avg', 'm')
       call history_add_field('UW_ncvfin_o', 'Initial total number of CL regimes', horiz_only, 'avg', '1')
       call history_add_field('UW_ncvfin_mg', 'Number of CLs after merging', horiz_only, 'avg', '1')
@@ -40,33 +39,31 @@ contains
       ! Level-based (midpoint) fields
       call history_add_field('UW_n2', 'Buoyancy frequency', 'lev', 'avg', 's-2')
       call history_add_field('UW_s2', 'Shear frequency', 'lev', 'avg', 's-2')
-      call history_add_field('UW_ri', 'Interface Richardson number', 'lev', 'avg', '1')
+      call history_add_field('UW_ri', 'Gradient Richardson number', 'lev', 'avg', '1')
       call history_add_field('UW_sfuh', 'Upper-half saturation fraction', 'lev', 'avg', '1')
       call history_add_field('UW_sflh', 'Lower-half saturation fraction', 'lev', 'avg', '1')
       call history_add_field('UW_cldn', 'Cloud fraction', 'lev', 'avg', '1')
-      call history_add_field('UW_qrl', 'LW cooling rate', 'lev', 'avg', 'K s-1')
-      call history_add_field('UW_ql', 'Liquid water content', 'lev', 'avg', 'kg kg-1')
+      call history_add_field('UW_qrl', 'tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_longwave_radiation_adjusted_by_air_pressure_thickness', 'lev', 'avg', 'K s-1')
+      call history_add_field('UW_ql', 'cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water_for_eddy_diffusion', 'lev', 'avg', 'kg kg-1')
 
       ! Interface-based fields
-      call history_add_field('BPROD', 'Buoyancy production', 'ilev', 'avg', 'm2 s-3')
+      call history_add_field('BPROD', 'TKE production due to buoyancy', 'ilev', 'avg', 'm2 s-3')
       call history_add_field('SFI', 'Interface-layer saturation fraction', 'ilev', 'avg', '1')
-      call history_add_field('SPROD', 'Shear production', 'ilev', 'avg', 'm2 s-3')
+      call history_add_field('SPROD', 'TKE production due to vertical shear', 'ilev', 'avg', 'm2 s-3')
       call history_add_field('UW_sfi', 'Interface saturation fraction', 'ilev', 'avg', '1')
       call history_add_field('UW_chu', 'Buoyancy coefficient chu', 'ilev', 'avg', 'm s-2 kg J-1')
       call history_add_field('UW_chs', 'Buoyancy coefficient chs', 'ilev', 'avg', 'm s-2 kg J-1')
       call history_add_field('UW_cmu', 'Buoyancy coefficient cmu', 'ilev', 'avg', 'm s-2 kg-1 kg')
       call history_add_field('UW_cms', 'Buoyancy coefficient cms', 'ilev', 'avg', 'm s-2 kg-1 kg')
-      call history_add_field('UW_tke', 'Turbulent kinetic energy', 'ilev', 'avg', 'm2 s-2')
-      call history_add_field('UW_wcap', 'Normalized TKE', 'ilev', 'avg', 'm2 s-2')
-      call history_add_field('UW_bprod', 'Buoyancy production', 'ilev', 'avg', 'm2 s-3')
-      call history_add_field('UW_sprod', 'Shear production', 'ilev', 'avg', 'm2 s-3')
+      call history_add_field('UW_tke', 'Turbulent kinetic energy (TKE) per unit mass', 'ilev', 'avg', 'm2 s-2')
+      call history_add_field('UW_wcap', 'Normalized TKE per unit mass', 'ilev', 'avg', 'm2 s-2')
       call history_add_field('UW_kvh', 'Eddy diffusivity of heat', 'ilev', 'avg', 'm2 s-1')
       call history_add_field('UW_kvm', 'Eddy diffusivity of momentum', 'ilev', 'avg', 'm2 s-1')
       call history_add_field('UW_turbtype', 'Interface turbulence type identifier', 'ilev', 'avg', '1')
       call history_add_field('UW_gh', 'Normalized buoyancy production at all interfaces', 'ilev', 'avg', '1')
       call history_add_field('UW_sh', 'Galperin instability function for heat-moisture at all interfaces', 'ilev', 'avg', '1')
       call history_add_field('UW_sm', 'Galperin instability function for momentum at all interfaces', 'ilev', 'avg', '1')
-      call history_add_field('UW_ria', 'Richardson number at all interfaces', 'ilev', 'avg', '1')
+      call history_add_field('UW_ria', 'Gradient Richardson number at all interfaces', 'ilev', 'avg', '1')
       call history_add_field('UW_leng', 'Turbulence length scale at all interfaces', 'ilev', 'avg', 'm')
 
       ! Convective layer (CL) regime fields - these have dimension ncvmax
@@ -142,6 +139,8 @@ contains
       ricl, ghcl, shcl, smcl, &
       wsed, &
       errmsg, errflg)
+
+      use ccpp_kinds,  only: kind_phys
 
       use cam_history, only: history_out_field
 
@@ -273,8 +272,6 @@ contains
       call history_out_field('UW_cms', cms)
       call history_out_field('UW_tke', tke)
       call history_out_field('UW_wcap', wcap)
-      call history_out_field('UW_bprod', bprod)
-      call history_out_field('UW_sprod', sprod)
       call history_out_field('UW_kvh', kvh)
       call history_out_field('UW_kvm', kvm)
       call history_out_field('UW_turbtype', turbtype_real)

@@ -627,7 +627,7 @@ contains
                         kvh_in       , kvm_in       , kvh         , kvm        ,                &
                         tpert        , qpert        , qrlin       , kvf        , tke          , & 
                         wstarent     , bprod        , sprod       , minpblh    , wpert        , &
-                        tkes         , went         , turbtype    ,                             &
+                        tkes         , turbtype    ,                                            &
                         kbase_o      , ktop_o       , ncvfin_o    ,                             & 
                         kbase_mg     , ktop_mg      , ncvfin_mg   ,                             & 
                         kbase_f      , ktop_f       , ncvfin_f    ,                             & 
@@ -637,7 +637,7 @@ contains
                         ebrk         , wbrk         , lbrk        , ricl       , ghcl         , & 
                         shcl         , smcl         ,                                           &
                         gh_a         , sh_a         , sm_a        , ri_a       , leng         , & 
-                        wcap         , pblhp        , cld         , ipbl       , kpblh        , &
+                        wcap         , pblhp        , cld         , ipbl       ,                &
                         wsedl        , wsed_CL      , warnstring  , errstring)
 
     !--------------------------------------------------------------------------------- !
@@ -678,44 +678,44 @@ contains
     ! Inputs variables !
     ! ---------------- !
 
-    integer,  intent(in) :: ncol                     ! Number of atmospheric columns
-    integer,  intent(in) :: pver                     ! Number of atmospheric layers
-    real(kind_phys), intent(in) :: u(ncol,pver)             ! U wind [ m/s ]
-    real(kind_phys), intent(in) :: v(ncol,pver)             ! V wind [ m/s ]
-    real(kind_phys), intent(in) :: sl(ncol,pver)            ! Liquid water static energy, cp * T + g * z - Lv * ql - Ls * qi [ J/kg ]
-    real(kind_phys), intent(in) :: slv(ncol,pver)           ! Liquid water virtual static energy, sl * ( 1 + 0.608 * qt ) [ J/kg ]
-    real(kind_phys), intent(in) :: qt(ncol,pver)            ! Total speccific humidity  qv + ql + qi [ kg/kg ]
-    real(kind_phys), intent(in) :: ql(ncol,pver)            ! Liquid water specific humidity [ kg/kg ]
-    real(kind_phys), intent(in) :: pi(ncol,pver+1)          ! Interface pressures [ Pa ]
+    integer,  intent(in) :: ncol
+    integer,  intent(in) :: pver
+    real(kind_phys), intent(in) :: u(ncol,pver)             ! U wind [m s-1]
+    real(kind_phys), intent(in) :: v(ncol,pver)             ! V wind [m s-1]
+    real(kind_phys), intent(in) :: sl(ncol,pver)            ! Liquid water static energy, cp * T + g * z - Lv * ql - Ls * qi [J kg-1]
+    real(kind_phys), intent(in) :: slv(ncol,pver)           ! Liquid water virtual static energy, sl * ( 1 + 0.608 * qt ) [J kg-1]
+    real(kind_phys), intent(in) :: qt(ncol,pver)            ! Total speccific humidity  qv + ql + qi [kg kg-1]
+    real(kind_phys), intent(in) :: ql(ncol,pver)            ! Liquid water specific humidity [kg kg-1]
+    real(kind_phys), intent(in) :: pi(ncol,pver+1)          ! Interface pressures [Pa]
     real(kind_phys), intent(in) :: z(ncol,pver)             ! Layer midpoint height above surface [ m ]
     real(kind_phys), intent(in) :: zi(ncol,pver+1)          ! Interface height above surface, i.e., zi(pver+1) = 0 all over the globe
                                                       ! [ m ]
     real(kind_phys), intent(in) :: chu(ncol,pver+1)         ! Buoyancy coeffi. unsaturated sl (heat) coef. at all interfaces.
-                                                      ! [ unit ? ]
+                                                      ! [m s-2 kg J-1]
     real(kind_phys), intent(in) :: chs(ncol,pver+1)         ! Buoyancy coeffi. saturated sl (heat) coef. at all interfaces.
-                                                      ! [ unit ? ]
+                                                      ! [m s-2 kg J-1]
     real(kind_phys), intent(in) :: cmu(ncol,pver+1)         ! Buoyancy coeffi. unsaturated qt (moisture) coef. at all interfaces
-                                                      ! [ unit ? ]
+                                                      ! [m s-2 kg kg-1]
     real(kind_phys), intent(in) :: cms(ncol,pver+1)         ! Buoyancy coeffi. saturated qt (moisture) coef. at all interfaces
-                                                      ! [ unit ? ]
+                                                      ! [m s-2 kg kg-1]
     real(kind_phys), intent(in) :: sfuh(ncol,pver)          ! Saturation fraction in upper half-layer [ fraction ]
     real(kind_phys), intent(in) :: sflh(ncol,pver)          ! Saturation fraction in lower half-layer [ fraction ]
     real(kind_phys), intent(in) :: n2(ncol,pver)            ! Interfacial (except surface) moist buoyancy frequency [ s-2 ]
     real(kind_phys), intent(in) :: s2(ncol,pver)            ! Interfacial (except surface) shear frequency [ s-2 ]
     real(kind_phys), intent(in) :: ri(ncol,pver)            ! Interfacial (except surface) Richardson number
-    real(kind_phys), intent(in) :: qflx(ncol)               ! Kinematic surface constituent ( water vapor ) flux [ kg/m2/s ]
-    real(kind_phys), intent(in) :: shflx(ncol)              ! Kinematic surface heat flux [ unit ? ]
-    real(kind_phys), intent(in) :: slslope(ncol,pver)       ! Slope of 'sl' in each layer [ J/kg/Pa ]
-    real(kind_phys), intent(in) :: qtslope(ncol,pver)       ! Slope of 'qt' in each layer [ kg/kg/Pa ]
+    real(kind_phys), intent(in) :: qflx(ncol)               ! Kinematic surface constituent ( water vapor ) flux [kg m-2 s-1]
+    real(kind_phys), intent(in) :: shflx(ncol)              ! Kinematic surface heat flux [W m-2]
+    real(kind_phys), intent(in) :: slslope(ncol,pver)       ! Slope of 'sl' in each layer [J kg-1 Pa-1]
+    real(kind_phys), intent(in) :: qtslope(ncol,pver)       ! Slope of 'qt' in each layer [kg kg-1 Pa-1]
     real(kind_phys), intent(in) :: qrlin(ncol,pver)         ! Input grid-mean LW heating rate : [ K/s ] * cpair * dp = [ W/kg*Pa ]
-    real(kind_phys), intent(in) :: wsedl(ncol,pver)         ! Sedimentation velocity of liquid stratus cloud droplet [ m/s ]
-    real(kind_phys), intent(in) :: ustar(ncol)              ! Surface friction velocity [ m/s ]
-    real(kind_phys), intent(in) :: rrho(ncol)               ! 1./bottom mid-point density. Specific volume [ m3/kg ]
-    real(kind_phys), intent(in) :: kvf(ncol,pver+1)         ! Free atmosphere eddy diffusivity [ m2/s ]
+    real(kind_phys), intent(in) :: wsedl(ncol,pver)         ! Sedimentation velocity of liquid stratus cloud droplet [m s-1]
+    real(kind_phys), intent(in) :: ustar(ncol)              ! Surface friction velocity [m s-1]
+    real(kind_phys), intent(in) :: rrho(ncol)               ! 1./bottom mid-point density. Specific volume [m3 kg-1]
+    real(kind_phys), intent(in) :: kvf(ncol,pver+1)         ! Free atmosphere eddy diffusivity [m2 s-1]
     logical,  intent(in) :: wstarent                  ! Switch for choosing wstar3 entrainment parameterization
     real(kind_phys), intent(in) :: minpblh(ncol)            ! Minimum PBL height based on surface stress [ m ]
-    real(kind_phys), intent(in) :: kvh_in(ncol,pver+1)      ! kvh saved from last timestep or last iterative step [ m2/s ]
-    real(kind_phys), intent(in) :: kvm_in(ncol,pver+1)      ! kvm saved from last timestep or last iterative step [ m2/s ]
+    real(kind_phys), intent(in) :: kvh_in(ncol,pver+1)      ! kvh saved from last timestep or last iterative step [m2 s-1]
+    real(kind_phys), intent(in) :: kvm_in(ncol,pver+1)      ! kvm saved from last timestep or last iterative step [m2 s-1]
     real(kind_phys), intent(in) :: cld(ncol,pver)           ! Stratus Cloud Fraction [ fraction ]
 
     ! ---------------- !
@@ -730,7 +730,6 @@ contains
     real(kind_phys), intent(out) :: qpert(ncol)             ! Convective humidity excess [ kg/kg ]
     real(kind_phys), intent(out) :: wpert(ncol)             ! Turbulent velocity excess [ m/s ]
     real(kind_phys), intent(out) :: tkes(ncol)              ! TKE at surface [ m2/s2 ]
-    real(kind_phys), intent(out) :: went(ncol)              ! Entrainment rate at the PBL top interface [ m/s ]
     real(kind_phys), intent(out) :: tke(ncol,pver+1)        ! Turbulent kinetic energy [ m2/s2 ], 'tkes' at surface, pver+1.
     real(kind_phys), intent(out) :: bprod(ncol,pver+1)      ! Buoyancy production [ m2/s3 ],     'bflxs' at surface, pver+1.
     real(kind_phys), intent(out) :: sprod(ncol,pver+1)      ! Shear production [ m2/s3 ], (ustar(i)**3)/(vk*z(i,pver))
@@ -743,7 +742,6 @@ contains
                                                       ! 4. = Top external interface of CL.
                                                       ! 5. = Double entraining CL external interface 
     integer(i4), intent(out) :: ipbl(ncol)           ! If 1, PBL is CL, while if 0, PBL is STL.
-    integer(i4), intent(out) :: kpblh(ncol)          ! Layer index containing PBL within or at the base interface
     real(kind_phys), intent(out) :: wsed_CL(ncol,ncvmax)    ! Sedimentation velocity at the top of each CL [ m/s ]
 
     character(len=*), intent(out) :: warnstring
@@ -964,7 +962,6 @@ contains
     !
 
     do i = 1, ncol
-       went(i)                  = 0._kind_phys
        wet_CL(i,:ncvmax)        = 0._kind_phys
        web_CL(i,:ncvmax)        = 0._kind_phys
        jtbu_CL(i,:ncvmax)       = 0._kind_phys
@@ -991,7 +988,6 @@ contains
        sm_a(i,:pver+1)          = 0._kind_phys
        ri_a(i,:pver+1)          = 0._kind_phys
        ipbl(i)                  = 0
-       kpblh(i)                 = pver
        wsed_CL(i,:ncvmax)       = 0._kind_phys
     end do  
 
@@ -1962,8 +1958,6 @@ contains
            endif
 
            ipbl(i)  = 1
-           kpblh(i) = max(ktopbl(i)-1, 1)
-           went(i)  = wet_CL(i,ncvsurf)
        end if ! End of the calculationf of te properties of surface-based CL.
 
        ! -------------------------------------------- !
@@ -2061,7 +2055,6 @@ contains
            qpert(i) = max(qflx(i)*rrho(i)*fak/ustar(i),0._kind_phys)
 
            ipbl(i)  = 0
-           kpblh(i) = ktopbl(i)
 
        end if
 
@@ -2271,8 +2264,6 @@ contains
 
     end do   ! End of column index loop, i 
 
-    return
-
     end subroutine caleddy
 
     !============================================================================== !
@@ -2389,8 +2380,6 @@ contains
        ncvfin(i) = ncv    
 
     end do  ! End of atmospheric column do loop
-
-    return 
 
     end subroutine exacol
 
@@ -3249,8 +3238,6 @@ contains
        end do
     end do
 
-    return
-
     end subroutine zisocl
 
     real(kind_phys) function compute_cubic(a,b,c)
@@ -3272,8 +3259,7 @@ contains
         x1 = -2._kind_phys*sqrt(qq)*cos(theta/3._kind_phys) - a/3._kind_phys
         x2 = -2._kind_phys*sqrt(qq)*cos((theta+2._kind_phys*3.141592_kind_phys)/3._kind_phys) - a/3._kind_phys
         x3 = -2._kind_phys*sqrt(qq)*cos((theta-2._kind_phys*3.141592_kind_phys)/3._kind_phys) - a/3._kind_phys
-        compute_cubic = max(max(max(x1,x2),x3),xmin)        
-        return
+        compute_cubic = max(max(max(x1,x2),x3),xmin)
     else
         if( rr .ge. 0._kind_phys ) then
             aa = -(sqrt(rr**2-qq**3)+rr)**(1._kind_phys/3._kind_phys)
@@ -3286,10 +3272,8 @@ contains
             bb = qq/aa
         endif
         compute_cubic = max((aa+bb)-a/3._kind_phys,xmin)
-        return
     endif
 
-    return
     end function compute_cubic
 
     subroutine compute_radf( choice_radf, i, ncol, pver, ncvmax, ncvfin, ktop, qmin, &

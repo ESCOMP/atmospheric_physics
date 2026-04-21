@@ -141,7 +141,7 @@ subroutine initialize_constituents_register(constituents, errmsg, errcode)
              errmsg = errmsg)
        else
           ! For chemistry species some special handling is necessary for qmin_value;
-          ! this logic is replicated from chem_register in src/chemistry/mozart.
+          ! this logic is replicated from chem_register in src/chemistry/mozart in CAM.
           qmin_value = 0.0_kind_phys
           cnst_stdname = trim(constituent_names(var_index))
           ! Special handling for specific chemical species
