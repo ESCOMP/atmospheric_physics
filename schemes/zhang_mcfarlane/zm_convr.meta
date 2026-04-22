@@ -344,12 +344,6 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = out
-[ dif ]
-  standard_name = detrainment_of_cloud_ice_wrt_moist_air_and_condensed_water_due_to_deep_convection
-  units = kg kg-1 s-1
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
-  intent = out
 [ zdu ]
   standard_name = detrainment_mass_flux_due_to_deep_convection
   units = s-1
@@ -440,12 +434,6 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
-[ rice ]
-  standard_name = vertically_integrated_cloud_ice_tendency_due_to_all_convection_to_be_applied_later_in_time_loop
-  units = m s-1
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent)
-  intent = out
 [ lengath ]
   standard_name = index_of_last_column_of_gathered_deep_convection_arrays
   units = index
