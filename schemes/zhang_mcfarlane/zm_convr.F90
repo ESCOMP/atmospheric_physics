@@ -57,7 +57,7 @@ contains
 subroutine zm_convr_init(plev, plevp, cpair, epsilo, gravit, latvap, tmelt, rair, &
                     pref_edge, zmconv_c0_lnd, zmconv_c0_ocn, zmconv_ke, zmconv_ke_lnd, &
                     zmconv_momcu, zmconv_momcd, zmconv_num_cin, &
-                    no_deep_pbl_in, zmconv_tiedke_add, &
+                    no_deep_pbl_in, zmconv_tiedtke_add, &
                     zmconv_capelmt, zmconv_dmpdz, zmconv_parcel_pbl, zmconv_parcel_hscale, zmconv_tau, &
                     masterproc, iulog, errmsg, errflg)
 
@@ -80,7 +80,7 @@ subroutine zm_convr_init(plev, plevp, cpair, epsilo, gravit, latvap, tmelt, rair
    real(kind_phys),intent(in)           :: zmconv_momcu
    real(kind_phys),intent(in)           :: zmconv_momcd
    logical, intent(in)           :: no_deep_pbl_in  ! no_deep_pbl = .true. eliminates ZM convection entirely within PBL
-   real(kind_phys),intent(in)           :: zmconv_tiedke_add
+   real(kind_phys),intent(in)           :: zmconv_tiedtke_add
    real(kind_phys),intent(in)           :: zmconv_capelmt
    real(kind_phys),intent(in)           :: zmconv_dmpdz
    logical, intent(in)                  :: zmconv_parcel_pbl ! Should the parcel properties include PBL mixing?
@@ -114,7 +114,7 @@ subroutine zm_convr_init(plev, plevp, cpair, epsilo, gravit, latvap, tmelt, rair
    momcu   = zmconv_momcu
    momcd   = zmconv_momcd
 
-   tiedke_add = zmconv_tiedke_add
+   tiedke_add = zmconv_tiedtke_add
    capelmt = zmconv_capelmt
    dmpdz_param = zmconv_dmpdz
    no_deep_pbl = no_deep_pbl_in
