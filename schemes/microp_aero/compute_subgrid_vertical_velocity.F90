@@ -100,14 +100,15 @@ contains
 !> \section arg_table_compute_subgrid_vertical_velocity_clubb_run Argument Table
 !! \htmlinclude compute_subgrid_vertical_velocity_clubb_run.html
   subroutine compute_subgrid_vertical_velocity_clubb_run( &
-    ncol, pver, top_lev, &
+    ncol, pver, pverp, top_lev, &
     wp2,                 &
     wsub,                &
     errmsg, errflg)
 
     ! Input arguments
-    integer,          intent(in)  :: ncol    ! number of columns
-    integer,          intent(in)  :: pver    ! number of vertical levels
+    integer,          intent(in)  :: ncol
+    integer,          intent(in)  :: pver
+    integer,          intent(in)  :: pverp
     integer,          intent(in)  :: top_lev ! top vertical level for cloud physics
 
     real(kind_phys),  intent(in)  :: wp2(:, :)  ! CLUBB variance of vertical velocity at interfaces [m2 s-2]
@@ -125,9 +126,10 @@ contains
     errmsg = ''
     errflg = 0
 
-    ! Convert wp2 to TKE: tke = (3/2) * wp2
+    ! Convert wp2 to TKE: tke = (3/2) * wp2 from [pver+1, top_lev]
     ! This matches CAM microp_aero.F90 CLUBB_SGS branch exactly.
-    tke(:ncol,:) = (3._kind_phys / 2._kind_phys) * wp2(:ncol,:)
+    tke(:ncol,top_lev:pverp) = (3._kind_phys/2._kind_phys)*wp2(:ncol,1:pverp-top_lev+1)
+    tke(:ncol,1:top_lev-1) = 0._kind_phys
 
     wsub(:, :top_lev-1) = 0._kind_phys
 
