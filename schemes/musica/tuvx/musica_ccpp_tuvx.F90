@@ -558,7 +558,7 @@ contains
     real(kind_phys) :: reciprocal_of_gravitational_acceleration ! s2 m-1
     real(kind_phys) :: solar_zenith_angle_degrees
     type(error_t)   :: error
-    integer         :: i_col, i_level
+    integer         :: i_col, i_level, index
 
     reciprocal_of_gravitational_acceleration = 1.0_kind_phys / standard_gravitational_acceleration
 
@@ -629,8 +629,9 @@ contains
 
       ! map photolysis rate constants to the host model's rate parameters and vertical grid
       do i_level = 1, size(rate_parameters, dim=2)
+        index = size(rate_parameters, dim=2) - i_level + 2
         call photolysis_rate_constants_mapping%copy_data( &
-            photolysis_rate_constants(size(rate_parameters, dim=2)-i_level+2,:), &
+            photolysis_rate_constants(index,:), &
             rate_parameters(i_col,i_level,:) )
       end do
     end do
