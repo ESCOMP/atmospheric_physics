@@ -75,7 +75,7 @@ contains
 
     ! Output arguments
     integer,         intent(out) :: ncvmax                 ! maximum number of convective layers (CLs) [count]
-    character(len=512), intent(out) :: errmsg
+    character(len=*), intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     integer :: k
@@ -329,7 +329,7 @@ contains
     real(kind_phys), intent(out)   :: rii(:, :)           ! Interfacial Richardson number defined at all interfaces [1]
     real(kind_phys), intent(out)   :: lengi(:, :)         ! Turbulence length scale at all interfaces [m]
     real(kind_phys), intent(out)   :: errorPBL(:)         ! Error function showing whether PBL produced convergent solution or not [m2 s-1]
-    character(len=512), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     ! Local variables

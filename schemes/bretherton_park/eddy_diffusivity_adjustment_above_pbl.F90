@@ -52,7 +52,7 @@ contains
     real(kind_phys),  intent(inout) :: kvq(:, :)  ! Eddy diffusivity for constituents at interfaces [m2 s-1]
 
     ! Output arguments
-    character(len=512), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     ! Local variables

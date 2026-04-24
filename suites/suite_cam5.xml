@@ -10,7 +10,7 @@
           * note - original was MG1.
       Radiation               RRTMGP
       Chemistry               None       (not implemented)
-      Vertical Diffusion      UW
+      Vertical Diffusion      UW (Bretherton-Park)
         Orographic Stress     Beljaars   (not implemented)
           * note - original was TMS but decided to skip port.
       Gravity Wave Drag       Orographic
@@ -158,7 +158,7 @@
     -->
 
     <!--
-      Vertical diffusion (UW/Bretherton-Park)
+      Vertical diffusion (UW/Bretherton-Park; formerly diag_TKE)
     -->
     <!-- read namelist options -->
     <scheme>vertical_diffusion_options</scheme>
