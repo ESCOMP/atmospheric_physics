@@ -43,7 +43,7 @@ contains
       call history_add_field('UW_sfuh', 'Upper-half saturation fraction', 'lev', 'avg', '1')
       call history_add_field('UW_sflh', 'Lower-half saturation fraction', 'lev', 'avg', '1')
       call history_add_field('UW_cldn', 'Cloud fraction', 'lev', 'avg', '1')
-      call history_add_field('UW_qrl', 'tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_longwave_radiation_adjusted_by_air_pressure_thickness', 'lev', 'avg', 'K s-1')
+      call history_add_field('UW_qrl', 'tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_longwave_radiation_adjusted_by_air_pressure_thickness', 'lev', 'avg', 'J Pa kg-1 s-1')
       call history_add_field('UW_ql', 'cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water_for_eddy_diffusion', 'lev', 'avg', 'kg kg-1')
 
       ! Interface-based fields
