@@ -83,7 +83,7 @@
     <standard_name>air_pressure_threshold_for_eddy_diffusivity_adjustment</standard_name>
     <units>Pa</units>
     <desc>
-      Pressure (Pa) that defined the upper atmosphere for adjustment of eddy diffusivities from diag_TKE (the Bretherton-Park PBL scheme) using kv_top_scale.
+      Pressure (Pa) that defines the upper atmosphere for adjustment of eddy diffusivities from diag_TKE (the Bretherton-Park PBL scheme) using kv_top_scale.
       Default: 0
     </desc>
     <values>
