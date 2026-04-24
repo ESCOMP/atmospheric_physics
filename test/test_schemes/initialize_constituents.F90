@@ -36,31 +36,32 @@ subroutine initialize_constituents_register(constituents, errmsg, errcode)
     character(len=256), allocatable :: constituent_names(:)
     character(len=256), allocatable :: const_diag_names(:)
     character(len=65), parameter :: water_species_std_names(6) = &
-      (/'water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water       ', &
+       ['water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water       ', &
         'cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water', &
         'rain_mixing_ratio_wrt_moist_air_and_condensed_water              ', &
         'cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water         ', &
         'snow_mixing_ratio_wrt_moist_air_and_condensed_water              ', &
-        'graupel_water_mixing_ratio_wrt_moist_air_and_condensed_water     '/)
+        'graupel_water_mixing_ratio_wrt_moist_air_and_condensed_water     ']
 
-    character(len=11), parameter :: const_file_names(6) = (/'cnst_Q     ', &
+    character(len=11), parameter :: const_file_names(6) = &
+                                                ['cnst_Q     ', &
                                                  'cnst_CLDLIQ', &
                                                  'cnst_RAINQM', &
                                                  'cnst_CLDICE', &
                                                  'cnst_SNOWQM', &
-                                                 'cnst_GRAUQM'/)
+                                                 'cnst_GRAUQM']
     character(len=11), parameter :: water_species_number_concentrations(5) = &
-                                      (/'cnst_NUMLIQ', &
+                                       ['cnst_NUMLIQ', &
                                         'cnst_NUMRAI', &
                                         'cnst_NUMICE', &
                                         'cnst_NUMSNO', &
-                                        'cnst_NUMGRA'/)
+                                        'cnst_NUMGRA']
     character(len=75), parameter :: water_species_number_std_names(5) = &
-      (/'mass_number_concentration_of_cloud_liquid_wrt_moist_air_and_condensed_water', &
+       ['mass_number_concentration_of_cloud_liquid_wrt_moist_air_and_condensed_water', &
         'mass_number_concentration_of_rain_wrt_moist_air_and_condensed_water        ', &
         'mass_number_concentration_of_ice_wrt_moist_air_and_condensed_water         ', &
         'mass_number_concentration_of_snow_wrt_moist_air_and_condensed_water        ', &
-        'mass_number_concentration_of_graupel_wrt_moist_air_and_condensed_water     '/)
+        'mass_number_concentration_of_graupel_wrt_moist_air_and_condensed_water     ']
 
     errcode = 0
     errmsg = ''
@@ -159,7 +160,7 @@ subroutine initialize_constituents_register(constituents, errmsg, errcode)
              errmsg = errmsg)
        else
           ! For chemistry species some special handling is necessary for qmin_value;
-          ! this logic is replicated from chem_register in src/chemistry/mozart.
+          ! this logic is replicated from chem_register in src/chemistry/mozart in CAM.
           qmin_value = 0.0_kind_phys
           cnst_stdname = trim(constituent_names(var_index))
           ! Special handling for specific chemical species
