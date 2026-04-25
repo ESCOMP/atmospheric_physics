@@ -1,10 +1,9 @@
 [ccpp-table-properties]
-  name = prescribed_ozone
+  name = prescribed_volcanic_aerosol
   type = scheme
-  dependencies = ../../to_be_ccppized/ccpp_chem_utils.F90
 
 [ccpp-arg-table]
-  name  = prescribed_ozone_register
+  name  = prescribed_volcanic_aerosol_register
   type  = scheme
 [ amIRoot ]
   standard_name = flag_for_mpi_root
@@ -18,15 +17,15 @@
   type = integer
   dimensions = ()
   intent = in
-[ filename ]
-  standard_name = filename_of_prescribed_ozone
+[ prescribed_volcaero_file ]
+  standard_name = filename_for_prescribed_volcanic_aerosol
   units = none
   type = character | kind = len=*
   dimensions = ()
   intent = in
-[ ozone_constituents ]
+[ volcaero_constituents ]
   # or can this just be the ccpp_constituent_properties?
-  standard_name = prescribed_ozone_constituents
+  standard_name = prescribed_volcanic_aerosol_constituents
   units = none
   type = ccpp_constituent_properties_t
   allocatable = True
@@ -46,7 +45,7 @@
   intent = out
 
 [ccpp-arg-table]
-  name  = prescribed_ozone_init
+  name  = prescribed_volcanic_aerosol_init
   type  = scheme
 [ amIRoot ]
   standard_name = flag_for_mpi_root
@@ -60,50 +59,50 @@
   type = integer
   dimensions = ()
   intent = in
-[ fld_name ]
-  standard_name = variable_name_of_ozone_in_file_for_prescribed_ozone
+[ prescribed_volcaero_name ]
+  standard_name = variable_name_of_volcanic_aerosol_in_file_for_prescribed_volcanic_aerosol
   units = none
   type = character | kind = len=*
   dimensions = ()
   intent = in
-[ filename ]
-  standard_name = filename_of_prescribed_ozone
+[ prescribed_volcaero_file ]
+  standard_name = filename_for_prescribed_volcanic_aerosol
   units = none
   type = character | kind = len=*
   dimensions = ()
   intent = in
-[ filelist ]
-  standard_name = filename_of_file_list_for_prescribed_ozone
+[ prescribed_volcaero_filelist ]
+  standard_name = filename_of_file_list_for_prescribed_volcanic_aerosol
   units = none
   type = character | kind = len=*
   dimensions = ()
   intent = in
-[ datapath ]
-  standard_name = datapath_for_prescribed_ozone
+[ prescribed_volcaero_datapath ]
+  standard_name = datapath_for_prescribed_volcanic_aerosol
   units = none
   type = character | kind = len=*
   dimensions = ()
   intent = in
-[ data_type ]
-  standard_name = time_interpolation_method_for_prescribed_ozone
+[ prescribed_volcaero_type ]
+  standard_name = time_interpolation_method_for_prescribed_volcanic_aerosol
   units = none
   type = character | kind = len=*
   dimensions = ()
   intent = in
-[ cycle_yr ]
-  standard_name = cycle_year_for_prescribed_ozone
+[ prescribed_volcaero_cycle_yr ]
+  standard_name = cycle_year_for_prescribed_volcanic_aerosol
   units = 1
   type = integer
   dimensions = ()
   intent = in
-[ fixed_ymd ]
-  standard_name = fixed_date_for_prescribed_ozone
+[ prescribed_volcaero_fixed_ymd ]
+  standard_name = fixed_date_for_prescribed_volcanic_aerosol
   units = 1
   type = integer
   dimensions = ()
   intent = in
-[ fixed_tod ]
-  standard_name = fixed_time_of_day_for_prescribed_ozone
+[ prescribed_volcaero_fixed_tod ]
+  standard_name = fixed_time_of_day_for_prescribed_volcanic_aerosol
   units = s
   type = integer
   dimensions = ()
@@ -122,7 +121,7 @@
   intent = out
 
 [ccpp-arg-table]
-  name  = prescribed_ozone_run
+  name  = prescribed_volcanic_aerosol_run
   type  = scheme
 [ ncol ]
   standard_name = horizontal_loop_extent
@@ -132,6 +131,12 @@
   intent = in
 [ pver ]
   standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pcnst ]
+  standard_name = number_of_ccpp_constituents
   units = count
   type = integer
   dimensions = ()
@@ -154,7 +159,13 @@
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
-[ t ]
+[ gravit ]
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ T ]
   standard_name = air_temperature
   units = K
   type = real | kind = kind_phys
@@ -163,6 +174,18 @@
 [ pmiddry ]
   standard_name = air_pressure_of_dry_air
   units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ pdel ]
+  standard_name = air_pressure_thickness
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ zm ]
+  standard_name = geopotential_height_wrt_surface
+  units = m
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
@@ -189,6 +212,12 @@
   units = m
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ tropLev ]
+  standard_name = tropopause_vertical_layer_index
+  units = index
+  type = integer
+  dimensions = (horizontal_loop_extent)
   intent = in
 [ constituents ]
   standard_name = ccpp_constituents

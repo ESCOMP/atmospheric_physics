@@ -10,5 +10,12 @@
 
     <!-- prescribed aerosol deposition flux (requires prescribed_aerosols) -->
     <scheme>prescribed_aerosol_deposition_flux</scheme>
+
+    <!-- prescribed volcanic aerosol (simpler, like prescribed_ozone) (CAM4, CAM5) -->
+    <scheme>tropopause_find</scheme>
+    <scheme>prescribed_volcanic_aerosol</scheme>
+
+    <!-- constituent diagnostics (VOLC_MMR) -->
+    <scheme>sima_state_diagnostics</scheme>
   </group>
 </suite>
