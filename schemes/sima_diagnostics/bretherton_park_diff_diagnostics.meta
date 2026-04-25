@@ -1,0 +1,449 @@
+[ccpp-table-properties]
+  name = bretherton_park_diff_diagnostics
+  type = scheme
+
+[ccpp-arg-table]
+  name  = bretherton_park_diff_diagnostics_init
+  type  = scheme
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = bretherton_park_diff_diagnostics_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pverp ]
+  standard_name = vertical_interface_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ ncvmax ]
+  standard_name = maximum_number_of_convective_layers_in_eddy_diffusion
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ errorPBL ]
+  standard_name = atmosphere_boundary_layer_convergence_indicator
+  units = m2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ pblh ]
+  standard_name = atmosphere_boundary_layer_thickness
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ pblhp ]
+  standard_name = air_pressure_at_top_of_atmosphere_boundary_layer
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ tpert ]
+  standard_name = convective_temperature_perturbation_due_to_pbl_eddies
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ qpert ]
+  standard_name = convective_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_perturbation_due_to_pbl_eddies
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ wpert ]
+  standard_name = turbulent_vertical_velocity_excess
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ ustar ]
+  standard_name = surface_friction_velocity
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ tkes ]
+  standard_name = tke_at_surface
+  units = m2 s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ minpblh ]
+  standard_name = minimum_atmosphere_boundary_layer_thickness
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ ncvfin_o ]
+  standard_name = number_of_initial_convective_layer_regimes
+  units = count
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ ncvfin_mg ]
+  standard_name = number_of_merged_convective_layer_regimes
+  units = count
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ ncvfin_f ]
+  standard_name = number_of_final_convective_layer_regimes
+  units = count
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ n2 ]
+  standard_name = squared_buoyancy_frequency
+  units = s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ s2 ]
+  standard_name = square_of_vertical_wind_shear
+  units = s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ ri ]
+  standard_name = gradient_richardson_number
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ sfuh ]
+  standard_name = water_vapor_saturation_fraction_at_upper_half_convective_layer
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ sflh ]
+  standard_name = water_vapor_saturation_fraction_at_lower_half_convective_layer
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ cldn ]
+  standard_name = stratiform_cloud_area_fraction
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ qrl ]
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_longwave_radiation_adjusted_by_air_pressure_thickness
+  units = J Pa kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ qlfd ]
+  standard_name = cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water_for_eddy_diffusion
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ bprod ]
+  standard_name = tke_production_due_to_buoyancy
+  units = m2 s-3
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ sprod ]
+  standard_name = tke_production_due_to_vertical_shear
+  units = m2 s-3
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ sfi ]
+  standard_name = water_vapor_saturation_fraction_at_interfaces
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ chu ]
+  standard_name = heat_buoyancy_coefficient_for_unsaturated_air
+  units = m s-2 kg J-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ chs ]
+  standard_name = heat_buoyancy_coefficient_for_saturated_air
+  units = m s-2 kg J-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ cmu ]
+  standard_name = moisture_buoyancy_coefficient_for_unsaturated_air
+  units = m s-2 kg-1 kg
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ cms ]
+  standard_name = moisture_buoyancy_coefficient_for_saturated_air
+  units = m s-2 kg-1 kg
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ tke ]
+  standard_name = tke_at_interfaces
+  units = m2 s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ wcap ]
+  standard_name = normalized_tke_at_interfaces
+  units = m2 s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ kvh ]
+  standard_name = eddy_heat_diffusivity_at_interfaces
+  units = m2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ kvm ]
+  standard_name = eddy_momentum_diffusivity_at_interfaces
+  units = m2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ turbtype ]
+  standard_name = atmosphere_turbulence_type_at_interfaces
+  units = 1
+  type = integer
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ ghi ]
+  standard_name = normalized_tke_production_due_to_buoyancy_at_interfaces
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ shi ]
+  standard_name = galperin_instability_function_for_heat_and_moisture_at_interfaces
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ smi ]
+  standard_name = galperin_instability_function_for_momentum_at_interfaces
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ rii ]
+  standard_name = gradient_richardson_number_at_interfaces
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ lengi ]
+  standard_name = turbulent_mixing_length_at_interfaces
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ kbase_o ]
+  standard_name = vertical_index_at_bottom_of_initial_convective_layer
+  units = index
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
+  intent = in
+[ ktop_o ]
+  standard_name = vertical_index_at_top_of_initial_convective_layer
+  units = index
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
+  intent = in
+[ kbase_mg ]
+  standard_name = vertical_index_at_bottom_of_merged_convective_layer
+  units = index
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
+  intent = in
+[ ktop_mg ]
+  standard_name = vertical_index_at_top_of_merged_convective_layer
+  units = index
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
+  intent = in
+[ kbase_f ]
+  standard_name = vertical_index_at_bottom_of_final_convective_layer
+  units = index
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
+  intent = in
+[ ktop_f ]
+  standard_name = vertical_index_at_top_of_final_convective_layer
+  units = index
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
+  intent = in
+[ wet ]
+  standard_name = entrainment_rate_at_top_of_convective_layer
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
+  intent = in
+[ web ]
+  standard_name = entrainment_rate_at_bottom_of_convective_layer
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
+  intent = in
+[ jtbu ]
+  standard_name = buoyancy_jump_at_top_of_convective_layer
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
+  intent = in
+[ jbbu ]
+  standard_name = buoyancy_jump_at_bottom_of_convective_layer
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
+  intent = in
+[ evhc ]
+  standard_name = evaporative_enhancement_factor_at_top_of_convective_layer
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
+  intent = in
+[ jt2slv ]
+  standard_name = liquid_water_virtual_static_energy_jump_at_top_of_convective_layer
+  units = J kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
+  intent = in
+[ n2ht ]
+  standard_name = squared_buoyancy_frequency_at_top_of_convective_layer
+  units = s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
+  intent = in
+[ n2hb ]
+  standard_name = squared_buoyancy_frequency_at_bottom_of_convective_layer
+  units = s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
+  intent = in
+[ lwp ]
+  standard_name = liquid_water_path_at_top_of_convective_layer
+  units = kg m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
+  intent = in
+[ opt_depth ]
+  standard_name = atmosphere_optical_depth_at_top_of_convective_layer
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
+  intent = in
+[ radinvfrac ]
+  standard_name = fraction_of_longwave_radiative_cooling_at_top_of_convective_layer
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
+  intent = in
+[ radf ]
+  standard_name = specific_eddy_kinetic_energy_buoyancy_production_due_to_longwave_radiative_cooling_at_top_of_convective_layer
+  units = m2 s-3
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
+  intent = in
+[ wstar ]
+  standard_name = convective_velocity_scale_in_convective_layer
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
+  intent = in
+[ wstar3fact ]
+  standard_name = reciprocal_of_entrainment_enhancement_factor_of_convective_velocity_scale_cubed_in_convective_layer
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
+  intent = in
+[ ebrk ]
+  standard_name = tke_in_convective_layer
+  units = m2 s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
+  intent = in
+[ wbrk ]
+  standard_name = normalized_tke_in_convective_layer
+  units = m2 s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
+  intent = in
+[ lbrk ]
+  standard_name = energetic_thickness_of_convective_layer
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
+  intent = in
+[ ricl ]
+  standard_name = bulk_richardson_number_in_convective_layer
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
+  intent = in
+[ ghcl ]
+  standard_name = normalized_tke_production_due_to_buoyancy_in_convective_layer
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
+  intent = in
+[ shcl ]
+  standard_name = galperin_instability_function_for_heat_and_moisture_in_convective_layer
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
+  intent = in
+[ smcl ]
+  standard_name = galperin_instability_function_for_momentum_in_convective_layer
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
+  intent = in
+[ wsed ]
+  standard_name = sedimentation_velocity_of_liquid_stratus_cloud_droplet_at_top_of_convective_layer
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

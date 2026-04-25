@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<suite name="cam4" version="1.0">
+<suite name="cam5" version="1.0">
   <!--
-      CAM4 PHYSICS SUITE
+      CAM5 PHYSICS SUITE
       Deep convection         ZM
-      Shallow convection      Hack
-      Macrophysics            RK
-      Microphysics            RK
+      Shallow convection      UW         (not implemented)
+      Macrophysics            Park       (not implemented)
+      Microphysics            PUMAS      (not implemented)
+          * note - original was MG1.
       Radiation               RRTMGP
       Chemistry               None       (not implemented)
-      Vertical Diffusion      HB
+      Vertical Diffusion      UW (Bretherton-Park)
+        Orographic Stress     Beljaars   (not implemented)
+          * note - original was TMS but decided to skip port.
       Gravity Wave Drag       Orographic
   -->
   <group name="physics_before_coupler">
@@ -78,138 +81,9 @@
     <scheme>check_energy_chng</scheme>
 
     <!--
-      Hack shallow convection.
-      There are several nuances to the convect_shallow calling routine.
-      convect_shallow takes in total (from deep) convective cmfmc, qc, rliq and adds shallow convective tendencies
-      from Hack to them, also computing freqsh.
-      rliq is "reserved" liquid to be later added in macrophysics.
-
-      Tendencies are applied, then zm_conv_evap is ran to evaporate some of the precip directly into the environment to apply another set of tendencies.
-
-      This zm_conv_evap call takes as input some of the shallow convective quantities and adds to them, including
-      - precc -> prec (lwe_precipitation_rate_at_surface_due_to_..._convection)
-
-      Thus, an interstitial scheme to simply "convert" the shallow tendencies to the general tendencies in preparation for the zm_conv_evap call is also needed.
-      (hplin, 10/29/24)
+      UW shallow convection. (uwshcu)
+      Not implemented yet.
     -->
-
-    <!-- INITIALIZE DIAGNOSTICS (has init phase only) -->
-    <scheme>convect_shallow_diagnostics</scheme>
-
-    <!-- SHALLOW CONVECTION: HACK SCHEME -->
-    <scheme>check_energy_zero_fluxes</scheme>
-    <scheme>hack_convect_shallow</scheme>
-    <scheme>convect_shallow_diagnostics_after_shallow_scheme</scheme>
-    <scheme>apply_heating_rate</scheme>
-    <scheme>apply_constituent_tendencies</scheme>
-    <scheme>qneg</scheme>
-    <scheme>geopotential_temp</scheme>
-
-    <!-- SUBCLOUD EVAPORATION -->
-    <scheme>cloud_fraction_fice</scheme>
-    <!-- prepare state for zm_conv_evap (rename shallow outputs to generic inputs) -->
-    <!-- also zero out quantities going in/out -->
-    <scheme>set_shallow_conv_fluxes_to_general</scheme>
-    <scheme>zm_conv_evap</scheme>
-    <scheme>set_general_conv_fluxes_to_shallow</scheme>
-    <scheme>convect_shallow_diagnostics_after_convective_evaporation</scheme>
-    <scheme>apply_heating_rate</scheme>
-    <scheme>apply_constituent_tendencies</scheme>
-    <scheme>qneg</scheme>
-    <scheme>geopotential_temp</scheme>
-
-    <!-- DIAGNOSTIC QUANTITY UPDATES -->
-    <!-- sum deep convective quantities with shallow including total convective rainout -->
-    <scheme>convect_shallow_sum_to_deep</scheme>
-    <scheme>convect_shallow_diagnostics_after_sum_to_deep</scheme>
-
-    <!-- Check that energy and water change matches the boundary fluxes -->
-    <scheme>check_energy_scaling</scheme>
-    <scheme>check_energy_chng</scheme>
-
-    <!--
-      Rasch-Kristjansson Stratiform Microphysics/CAM4 Macrophysics
-    -->
-    <!-- Find tropopause -->
-    <scheme>tropopause_find</scheme>
-
-    <!-- Initialize all RK diagnostics. -->
-    <scheme>rk_stratiform_diagnostics</scheme>
-
-    <!-- Initialize QCWAT, TCWAT, LCWAT if not read from snapshot. -->
-    <scheme>rk_stratiform_check_qtlcwat</scheme>
-
-    <!-- RK1: cloud sedimentation (pcwsediment) -->
-    <scheme>cloud_particle_sedimentation</scheme>
-    <scheme>cloud_particle_sedimentation_diagnostics</scheme>
-    <scheme>apply_constituent_tendencies</scheme>
-    <scheme>apply_heating_rate</scheme>
-    <scheme>qneg</scheme>
-    <scheme>geopotential_temp</scheme>
-    <scheme>rk_stratiform_sedimentation</scheme>
-
-    <!-- RK2: detrain reserved liquid (dlf = detrainment_of_cloud_liquid_water_wrt_moist_air_and_condensed_water_due_to_all_convection) into cloud liquid (pcwdetrain) -->
-    <scheme>rk_stratiform_detrain_convective_condensate</scheme>
-    <scheme>apply_constituent_tendencies</scheme>
-    <scheme>qneg</scheme>
-    <scheme>geopotential_temp</scheme>
-
-    <!-- RK3a: computation of various cloud fractions (CAM4 version)
-         two calls to compute_cloud_fraction here embedded. the first one has to update cloud_area_fraction;
-         the second is used to compute perturbations of RH to cloud fraction deltas later used in prognostic cloud water.
-
-         for clarity, we call cloud_fraction_run explicitly once here,
-         then call the second compute_cloud_fraction in rk_stratiform_cloud_fraction_perturbation_run, to compute the
-         relative humidity derivative used in the prognostic_cloud_water scheme.
-    -->
-    <scheme>convective_cloud_cover</scheme>
-    <scheme>convective_cloud_cover_diagnostics</scheme>
-    <scheme>compute_cloud_fraction</scheme>
-    <scheme>rk_stratiform_cloud_fraction_perturbation</scheme>
-    <scheme>rk_stratiform_cloud_fraction_perturbation_diagnostics</scheme>
-
-    <!-- RK3b: compute external forcings from non-macro/microphysics
-         for use by prognostic_cloud_water -->
-    <scheme>rk_stratiform_external_forcings</scheme>
-
-    <!-- Compute fractional amount of stratus condensate and precipitation in ice phase. -->
-    <scheme>cloud_fraction_fice</scheme>
-
-    <!-- RK3c1: prognostic cloud water (cldwat) part one:
-         compute prognostic cloud water using pre-repartitioning values (for bit-for-bitness).
-         tendencies from prognostic_cloud_water, as well as heating from condensate repartitioning,
-         are computed later in rk_stratiform_prognostic_cloud_water_tendencies. -->
-    <scheme>prognostic_cloud_water</scheme>
-
-    <!-- RK3d1: stratiform condensate repartitioning (cldwat-repartition).
-          repartition heating from change in cloud ice is determined here,
-          but only the constituent tendencies are applied in the repartitioning step. -->
-    <scheme>rk_stratiform_condensate_repartioning</scheme>
-    <scheme>rk_stratiform_condensate_repartioning_diagnostics</scheme>
-    <scheme>apply_constituent_tendencies</scheme>
-    <scheme>qneg</scheme>
-    <scheme>geopotential_temp</scheme>
-
-    <!-- RK3c2 + RK3d2: prognostic cloud water (cldwat) part two:
-          repartition heating determined in condensate_repartitioning scheme is applied here,
-          together with other heating fluxes from prognostic_cloud_water. -->
-    <scheme>rk_stratiform_prognostic_cloud_water_tendencies</scheme>
-    <scheme>rk_stratiform_prognostic_cloud_water_tendencies_diagnostics</scheme>
-    <scheme>apply_constituent_tendencies</scheme>
-    <scheme>apply_heating_rate</scheme>
-    <scheme>qneg</scheme>
-    <scheme>geopotential_temp</scheme>
-
-    <!-- RK4: cloud fractions (including third call to cldfrc) -->
-    <scheme>compute_cloud_fraction</scheme>
-    <scheme>compute_cloud_fraction_diagnostics</scheme>
-
-    <!-- RK5: cloud water and ice particle sizes for radiation -->
-    <scheme>rk_stratiform_cloud_optical_properties</scheme>
-    <scheme>rk_stratiform_cloud_optical_properties_diagnostics</scheme>
-
-    <!-- RK6: save non-micro and non-macrophysical external advective forcings -->
-    <scheme>rk_stratiform_save_qtlcwat</scheme>
 
     <!-- State diagnostics -->
     <scheme>sima_state_diagnostics</scheme>
@@ -284,10 +158,9 @@
     -->
 
     <!--
-      Vertical diffusion
+      Vertical diffusion (UW/Bretherton-Park; formerly diag_TKE)
     -->
     <!-- read namelist options -->
-    <scheme>holtslag_boville_diff_options</scheme>
     <scheme>vertical_diffusion_options</scheme>
 
     <!-- stub: zero UBC -->
@@ -296,13 +169,15 @@
     <!-- init phase only: for setting vertical diffusion top -->
     <scheme>hb_diff_set_vertical_diffusion_top</scheme>
 
-    <!-- stub as TMS/Beljaars not used in CAM4 -->
-    <scheme>tms_beljaars_zero_stub</scheme>
+    <!-- stub: Beljaars is zero (not enabled for CAM5/not implemented) -->
+    <scheme>beljaars_zero_stub</scheme>
 
     <!-- vdiff pre-interstitial 0: create p coords1d and potential temp. -->
     <scheme>vertical_diffusion_prepare_inputs</scheme>
 
-    <!-- vdiff pre-interstitial 1: copy surface fluxes from coupler (cam_in) -->
+    <!-- vdiff pre-interstitial 1: copy surface fluxes from coupler (cam_in)
+         wsx and wsy from coupler are needed for implicit surface stress
+         calculations later on in the diffusion solver. -->
     <scheme>hb_diff_prepare_vertical_diffusion_inputs</scheme>
 
     <!-- vdiff pre-interstitial 2: interpolate t, rho, p to interfaces -->
@@ -312,30 +187,23 @@
     <scheme>vertical_diffusion_interpolate_to_interfaces</scheme>
 
     <!-- vdiff pre-interstitial 3: calculate total surface stresses
-         used for surface momentum flux diagnostic.
-         here, also used for HB. -->
+         used for surface momentum flux diagnostic. -->
     <scheme>vertical_diffusion_set_total_surface_stress</scheme>
 
-    <!-- Initialize Holtslag-Boville boundary layer scheme (no run phase) -->
-    <scheme>holtslag_boville_diff</scheme>
-
-    <!-- Holtslag-Boville boundary layer scheme 1 -->
-    <scheme>hb_pbl_independent_coefficients</scheme>
+    <!-- UW eddy diffusivity scheme -->
+    <scheme>bretherton_park_diff</scheme>
+    <scheme>bretherton_park_diff_diagnostics</scheme>
     <scheme>compute_kinematic_fluxes_and_obklen</scheme>
-
-    <!-- Holtslag-Boville boundary layer scheme 2 -->
-    <scheme>hb_pbl_dependent_coefficients</scheme>
-    <scheme>hb_diff_exchange_coefficients</scheme>
+    <scheme>eddy_diffusivity_adjustment_above_pbl</scheme>
 
     <!-- sponge layer vertical diffusion (mutate kvm) -->
     <scheme>vertical_diffusion_sponge_layer</scheme>
 
-    <!-- HB scheme diagnostics (after KVM changed by sponge layer scheme) -->
-    <scheme>holtslag_boville_diff_diagnostics</scheme>
+    <!-- diagnostics -->
 
     <!-- vdiff pre-interstitial 4: calculate drag coefficient -->
     <scheme>implicit_surface_stress_add_drag_coefficient</scheme>
-    <!--<scheme>turbulent_mountain_stress_add_drag_coefficient</scheme>-->
+    <scheme>turbulent_mountain_stress_add_drag_coefficient</scheme>
 
     <!-- vdiff pre-interstitial 5: calculate damping rate from drag coef. -->
     <scheme>vertical_diffusion_wind_damping_rate</scheme>
@@ -356,6 +224,11 @@
 
     <!-- vdiff compute 3: tracer diffusion -->
     <scheme>vertical_diffusion_diffuse_tracers</scheme>
+
+    <!-- vdiff post-interstitial 0: for non-diffused tracers, apply constituent flux.
+         this is necessary for tracers handled by ndrop activation vertical mixing,
+         i.e., modal aerosol species. -->
+    <scheme>dropmixnuc_apply_surface_fluxes</scheme>
 
     <!-- vdiff post-interstitial 1: convert provisional updates to tendencies -->
     <scheme>vertical_diffusion_tendencies</scheme>
@@ -388,7 +261,6 @@
 
     <!-- Orographic gravity wave drag -->
     <scheme>gravity_wave_drag_orographic</scheme>
-    <scheme>gravity_wave_drag_orographic_diagnostics</scheme>
 
     <!-- Interstitial: Convert tendencies for dry constituents to dry air basis -->
     <scheme>convert_dry_constituent_tendencies_to_dry_air_basis</scheme>
