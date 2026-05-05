@@ -216,7 +216,7 @@
   <type>logical</type>
   <desc>flag for constant graupel concentration for PUMAS microphysics</desc>
   <values>
-    <value>.true.</value>
+    <value>.false.</value>
   </values>
 </entry>
 
