@@ -82,32 +82,28 @@ contains
         use bl_gwdo, only: bl_gwdo_run
         use ccpp_kinds, only: kind_phys
 
-        integer, intent(in) :: &
-            its, ite, kte, kme
-        real(kind_phys), intent(in) :: &
-            sina(:), cosa(:), &
-            uproj(:, :), vproj(:, :), &
-            t1(:, :), q1(:, :), &
-            prsi(:, :), prsl(:, :), prslk(:, :), zl(:, :), &
-            var(:), oc1(:), &
-            oa2d1(:), oa2d2(:), &
-            oa2d3(:), oa2d4(:), &
-            ol2d1(:), ol2d2(:), &
-            ol2d3(:), ol2d4(:), &
-            g_, cp_, rd_, rv_, fv_, pi_, &
-            dxmeter(:), deltim
-        real(kind_phys), intent(inout) :: &
-            rublten(:, :), rvblten(:, :)
-        real(kind_phys), intent(out) :: &
-            dtaux3d(:, :), dtauy3d(:, :), &
-            dusfcg(:), dvsfcg(:)
+        integer, intent(in) :: its, ite, kte, kme
+        real(kind_phys), intent(in) :: sina(:), cosa(:), &
+                                       uproj(:, :), vproj(:, :), &
+                                       t1(:, :), q1(:, :), &
+                                       prsi(:, :), prsl(:, :), prslk(:, :), zl(:, :), &
+                                       var(:), oc1(:), &
+                                       oa2d1(:), oa2d2(:), &
+                                       oa2d3(:), oa2d4(:), &
+                                       ol2d1(:), ol2d2(:), &
+                                       ol2d3(:), ol2d4(:), &
+                                       g_, cp_, rd_, rv_, fv_, pi_, &
+                                       dxmeter(:), deltim
+        real(kind_phys), intent(inout) :: rublten(:, :), rvblten(:, :)
+        real(kind_phys), intent(out) :: dtaux3d(:, :), dtauy3d(:, :), &
+                                        dusfcg(:), dvsfcg(:)
         character(*), intent(out) :: errmsg
         integer, intent(out) :: errflg
 
         errmsg = ''
         errflg = 0
 
-        ! All members of MMM physics expect vertical indexes to be in ascending order from bottom to top of atmosphere,
+        ! Some schemes of MMM physics expect vertical indexes to be in ascending order from bottom to top of atmosphere,
         ! which is the exact opposite to CAM-SIMA.
         !
         ! For all variables with a vertical dimension, they must be flipped upside down.
