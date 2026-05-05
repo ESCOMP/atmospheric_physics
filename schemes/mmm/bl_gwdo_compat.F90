@@ -4,37 +4,12 @@ module bl_gwdo_compat
     implicit none
 
     private
-    public :: bl_gwdo_compat_pre_init
     public :: bl_gwdo_compat_pre_run
+    public :: bl_gwdo_compat_init
     public :: bl_gwdo_compat_run
     public :: bl_gwdo_diagnostics_init
     public :: bl_gwdo_diagnostics_run
 contains
-    !> \section arg_table_bl_gwdo_compat_pre_init Argument Table
-    !! \htmlinclude bl_gwdo_compat_pre_init.html
-    pure subroutine bl_gwdo_compat_pre_init( &
-            sina, cosa, &
-            errmsg, errflg)
-        use ccpp_kinds, only: kind_phys
-
-        real(kind_phys), intent(out) :: sina(:), cosa(:)
-        character(*), intent(out) :: errmsg
-        integer, intent(out) :: errflg
-
-        errmsg = ''
-        errflg = 0
-
-        ! These variables do not change with time. Set them just once at model initialization for better performance.
-
-        ! The "bl_gwdo" physics scheme was originally designed to be used with regional models like WRF, where the positive X and
-        ! Y directions may not always point to the east and north, respectively. This is no longer the case for global models like
-        ! CAM-SIMA.
-
-        ! The angle of rotation from east to X is zero.
-        sina(:) = 0.0_kind_phys
-        cosa(:) = 1.0_kind_phys
-    end subroutine bl_gwdo_compat_pre_init
-
     !> \section arg_table_bl_gwdo_compat_pre_run Argument Table
     !! \htmlinclude bl_gwdo_compat_pre_run.html
     pure subroutine bl_gwdo_compat_pre_run( &
@@ -59,6 +34,31 @@ contains
         uproj(:, :) = u(:, :)
         vproj(:, :) = v(:, :)
     end subroutine bl_gwdo_compat_pre_run
+
+    !> \section arg_table_bl_gwdo_compat_init Argument Table
+    !! \htmlinclude bl_gwdo_compat_init.html
+    pure subroutine bl_gwdo_compat_init( &
+            sina, cosa, &
+            errmsg, errflg)
+        use ccpp_kinds, only: kind_phys
+
+        real(kind_phys), intent(out) :: sina(:), cosa(:)
+        character(*), intent(out) :: errmsg
+        integer, intent(out) :: errflg
+
+        errmsg = ''
+        errflg = 0
+
+        ! These variables do not change with time. Set them just once at model initialization for better performance.
+
+        ! The "bl_gwdo" physics scheme was originally designed to be used with regional models like WRF, where the positive X and
+        ! Y directions may not always point to the east and north, respectively. This is no longer the case for global models like
+        ! CAM-SIMA.
+
+        ! The angle of rotation from east to X is zero.
+        sina(:) = 0.0_kind_phys
+        cosa(:) = 1.0_kind_phys
+    end subroutine bl_gwdo_compat_init
 
     !> \section arg_table_bl_gwdo_compat_run Argument Table
     !! \htmlinclude bl_gwdo_compat_run.html
