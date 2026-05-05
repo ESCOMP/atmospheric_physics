@@ -331,19 +331,6 @@ contains
                 return
             end if
 
-            u10_sea(:) = u10(:)
-            v10_sea(:) = v10(:)
-            th2_sea(:) = th2(:)
-            t2_sea(:) = t2(:)
-            q2_sea(:) = q2(:)
-            wstar_sea(:) = wstar(:)
-            qstar_sea(:) = qstar(:)
-            ustm_sea(:) = ustm(:)
-            ck_sea(:) = ck(:)
-            cka_sea(:) = cka(:)
-            cd_sea(:) = cd(:)
-            cda_sea(:) = cda(:)
-
             where (mask_sea_ice_cell)
                 ! Set surface moisture availability to maximum.
                 mavail_sea = 1.0_kind_phys
