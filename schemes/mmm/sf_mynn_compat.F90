@@ -14,7 +14,7 @@ module sf_mynn_compat
 contains
     !> \section arg_table_sf_mynn_compat_pre_run Argument Table
     !! \htmlinclude sf_mynn_compat_pre_run.html
-    subroutine sf_mynn_compat_pre_run( &
+    pure subroutine sf_mynn_compat_pre_run( &
             itimestep, &
             spp_pbl, &
             u, v, t, qv, p, dz, rho, &
@@ -25,8 +25,8 @@ contains
             znt, ust, zol, mol, regime, psim, &
             psih, qfx, &
             flhc, flqc, snowh, qgh, qsfc, &
-            gz1oz0, wspd, br, svp1, svp2, &
-            svp3, svpt0, qcg, &
+            gz1oz0, wspd, br, &
+            qcg, &
             rstoch1d, &
             errmsg, errflg)
         use ccpp_kinds, only: kind_phys
@@ -41,8 +41,8 @@ contains
                                         znt(:), ust(:), zol(:), mol(:), regime(:), psim(:), &
                                         psih(:), qfx(:), &
                                         flhc(:), flqc(:), snowh(:), qgh(:), qsfc(:), &
-                                        gz1oz0(:), wspd(:), br(:), svp1, svp2, &
-                                        svp3, svpt0, qcg(:), &
+                                        gz1oz0(:), wspd(:), br(:), &
+                                        qcg(:), &
                                         rstoch1d(:)
         character(*), intent(out) :: errmsg
         integer, intent(out) :: errflg
@@ -101,13 +101,6 @@ contains
         wspd(:) = 0.0_kind_phys
         br(:) = 0.0_kind_phys
 
-        ! Constants in equation 10 from Bolton (1980). See
-        ! doi:10.1175/1520-0493(1980)108<1046:TCOEPT>2.0.CO;2.
-        svp1 = 6.112_kind_phys
-        svp2 = 17.67_kind_phys
-        svp3 = 29.65_kind_phys
-        svpt0 = 273.15_kind_phys
-
         qcg(:) = 0.0_kind_phys ! Not used but still appear in the argument list...
 
         if (spp_pbl) then
@@ -126,12 +119,14 @@ contains
     !> \section arg_table_sf_mynn_compat_init Argument Table
     !! \htmlinclude sf_mynn_compat_init.html
     subroutine sf_mynn_compat_init( &
+            svp1, svp2, svp3, svpt0, &
             ust, mol, qsfc, &
             errmsg, errflg)
         use ccpp_kinds, only: kind_phys
         use sf_mynn, only: sf_mynn_init
 
-        real(kind_phys), intent(out) :: ust(:), mol(:), qsfc(:)
+        real(kind_phys), intent(out) :: svp1, svp2, svp3, svpt0, &
+                                        ust(:), mol(:), qsfc(:)
         character(*), intent(out) :: errmsg
         integer, intent(out) :: errflg
 
@@ -141,6 +136,13 @@ contains
         if (errflg /= 0) then
             return
         end if
+
+        ! Constants in equation 10 from Bolton (1980). Set them just once at model initialization for better performance.
+        ! See doi:10.1175/1520-0493(1980)108<1046:TCOEPT>2.0.CO;2.
+        svp1 = 0.6112_kind_phys ! The unit is hPa in Bolton (1980), but here it is kPa!
+        svp2 = 17.67_kind_phys
+        svp3 = 29.65_kind_phys
+        svpt0 = 273.15_kind_phys
 
         ! MYNN surface layer scheme takes time averages of these variables internally.
         ! As a result, they must be able to persist across time steps.
