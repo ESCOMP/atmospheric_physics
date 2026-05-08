@@ -195,6 +195,7 @@ contains
 
     pumas_timestep = dtime/micro_mg_num_steps
 
+
 !+ IH
 ! For now we just use ncols = micro_ncol, but we need to constrain the vertical extent for the microphysical fields.
 ! Therefore micro_xxx(:ncol,:) = xxx(:,::)
@@ -230,6 +231,9 @@ contains
     pumas_frzcnt(:ncol,:) = real(frzcnt_in(:,:), pumas_r8)
     pumas_frzdep(:ncol,:) = real(frzdep_in(:,:), pumas_r8)
 
+    pumas_naai(:,:)    = 0._pumas_r8
+    pumas_npccn(:,:)   = 0._pumas_r8
+    pumas_qsatfac(:,:) = 0._pumas_r8
 
   end subroutine micro_pumas_ccpp_dimensions_pre_run
 

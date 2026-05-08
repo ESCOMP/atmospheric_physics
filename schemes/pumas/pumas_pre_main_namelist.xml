@@ -471,7 +471,7 @@
   <kind>kind_phys</kind>
   <desc>droplet concentration constant for MG microphysics</desc>
   <values>
-    <value>10</value>
+    <value>50000000.</value>
     <value micro_mg_version="2">8</value>
   </values>
 </entry>
