@@ -15,6 +15,9 @@ module atmos_phys_pbl_utils
     public :: calc_virtual_temperature
     public :: calc_eddy_flux_coefficient
     public :: calc_free_atm_eddy_flux_coefficient
+    public :: calc_brunt_vaisala_frequency_squared
+    public :: calc_bulk_richardson_number
+    public :: calc_vertical_shear_squared
 
     real(kind_phys), parameter :: minimum_friction_velocity     = 0.01_kind_phys ! Assuming minimum for coarse grids
 
@@ -212,4 +215,58 @@ contains
 
         neutral_k = mixing_length_squared * sqrt(shear_squared)
     end function neutral_exchange_coefficient
+
+    pure elemental function calc_brunt_vaisala_frequency_squared(thv1, thv2, z1, z2, g) result(n2)
+        ! Vallis, G. K. (2006).
+        ! Atmospheric and Oceanic Fluid Dynamics.  Cambridge University Press.
+        ! https://doi.org/10.1017/CBO9780511790447
+        ! Page 94, equation 2.225
+        !
+        ! Note:  The brunt-vaisala frequency is the same as the "buoyancy frequency" in the atmosphere.
+        real(kind_phys), intent(in) :: thv1 ! (virtual) potential temperature of top layer [K]
+        real(kind_phys), intent(in) :: thv2 ! (virtual) potential temperature of bottom layer [K]
+        real(kind_phys), intent(in) :: z1   ! height of top layer [m]
+        real(kind_phys), intent(in) :: z2   ! height of bottom layer [m]
+        real(kind_phys), intent(in) :: g    ! gravitational acceleration [m s-2]
+        real(kind_phys) :: n2               ! Brunt-Vaisala frequency squared [s-2]
+
+        n2 = g*2.0_kind_phys*(thv1-thv2)/((thv1+thv2)*(z1-z2))
+    end function calc_brunt_vaisala_frequency_squared
+
+    pure elemental function calc_bulk_richardson_number(thv1, thv2, z1, z2, s2, g) result(ri)
+        ! https://glossary.ametsoc.org/wiki/bulk-richardson-number/
+        !
+        ! Also found in:
+        ! Stull, Roland B. An Introduction to Boundary Layer Meteorology. Springer Kluwer Academic Publishers, 1988. Print.
+        ! DOI: https://doi.org/10.1007/978-94-009-3027-8
+        ! Equation 5.6.3, page 177
+        real(kind_phys), intent(in) :: thv1  ! (virtual) potential temperature of top layer [K]
+        real(kind_phys), intent(in) :: thv2  ! (virtual) potential temperature of bottom layer [K]
+        real(kind_phys), intent(in) :: z1    ! height of top layer [m]
+        real(kind_phys), intent(in) :: z2    ! height of bottom layer [m]
+        real(kind_phys), intent(in) :: s2    ! vertical shear squared [s-2]
+        real(kind_phys), intent(in) :: g     ! gravitational acceleration [m s-2]
+        real(kind_phys)             :: ri    ! bulk Richardson number [1]
+        real(kind_phys)             :: n2    ! Brunt-Vaisala frequency [s-2]
+
+        n2 = calc_brunt_vaisala_frequency_squared(thv1, thv2, z1, z2, g)
+        ri = n2/s2
+    end function calc_bulk_richardson_number
+
+    pure elemental function calc_vertical_shear_squared(u1, u2, v1, v2, z1, z2, minimum_velocity_shear_squared) result(s2)
+        ! Hack, J., Boville, B., Briegleb, B., Kiehl, J., & Williamson, D. (1993).
+        ! Description of the NCAR Community Climate Model (CCM2). University Corporation for Atmospheric Research.
+        ! https://doi.org/10.5065/D6QZ27XV (Original work published 1993)
+        ! Page 71, Equation 4.e.10
+        real(kind_phys), intent(in) :: u1
+        real(kind_phys), intent(in) :: u2
+        real(kind_phys), intent(in) :: v1
+        real(kind_phys), intent(in) :: v2
+        real(kind_phys), intent(in) :: z1
+        real(kind_phys), intent(in) :: z2
+        real(kind_phys), intent(in) :: minimum_velocity_shear_squared
+        real(kind_phys) :: s2
+
+        s2 = max((u1-u2)**2 + (v1-v2)**2, minimum_velocity_shear_squared)/((z1-z2)**2)
+    end function calc_vertical_shear_squared
 end module atmos_phys_pbl_utils
