@@ -7,12 +7,15 @@
     <scheme>calc_exner</scheme>
     <scheme>calc_hydrostatic_air_density</scheme>
     <scheme>compute_characteristic_grid_length_scale</scheme>
-    <scheme>geopotential_height_wrt_sfc_at_if_to_msl</scheme>
+    <scheme>compute_hydrostatic_upward_air_velocity</scheme>
+    <scheme>compute_hydrostatic_upward_air_velocity_at_if</scheme>
     <scheme>geopotential_height_wrt_sfc_to_msl</scheme>
+    <scheme>geopotential_height_wrt_sfc_at_if_to_msl</scheme>
     <scheme>temp_to_potential_temp</scheme>
     <scheme>wet_to_dry_water_vapor</scheme>
     <scheme>wet_to_dry_cloud_liquid_water</scheme>
     <scheme>wet_to_dry_cloud_ice</scheme>
+    <scheme>wet_to_dry_snow</scheme>
 
     <scheme>mmm_physics_compat</scheme>
 
@@ -21,24 +24,32 @@
     <scheme>sf_mynn_compat</scheme>
     <scheme>sf_mynn_diagnostics</scheme>
 
+    <!-- MYNN PBL scheme -->
+    <scheme>bl_mynn_compat_pre</scheme>
+    <scheme>bl_mynn_compat</scheme>
+    <scheme>bl_mynn_diagnostics</scheme>
+    <scheme>mmm_physics_accumulate_tendencies</scheme>
+
     <!-- YSU orographic gravity wave drag scheme -->
     <scheme>bl_gwdo_compat_pre</scheme>
     <scheme>bl_gwdo_compat</scheme>
     <scheme>bl_gwdo_diagnostics</scheme>
+    <scheme>mmm_physics_accumulate_tendencies</scheme>
 
     <!-- New Tiedtke convection scheme -->
     <scheme>cu_ntiedtke_compat_pre</scheme>
     <scheme>cu_ntiedtke_compat</scheme>
     <scheme>cu_ntiedtke_diagnostics</scheme>
+    <scheme>mmm_physics_accumulate_tendencies</scheme>
 
     <!-- Feed modified states back to the model -->
-    <scheme>mmm_physics_accumulate_tendencies</scheme>
     <scheme>apply_tendency_of_eastward_wind</scheme>
     <scheme>apply_tendency_of_northward_wind</scheme>
     <scheme>apply_tendency_of_air_temperature</scheme>
     <scheme>dry_to_wet_water_vapor</scheme>
     <scheme>dry_to_wet_cloud_liquid_water</scheme>
     <scheme>dry_to_wet_cloud_ice</scheme>
+    <scheme>dry_to_wet_snow</scheme>
     <scheme>qneg</scheme>
     <scheme>geopotential_temp</scheme>
 
