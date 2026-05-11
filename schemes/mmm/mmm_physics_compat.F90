@@ -10,20 +10,26 @@ module mmm_physics_compat
     public :: mmm_physics_persist_states_init
     public :: mmm_physics_persist_states_timestep_final
     public :: compute_characteristic_grid_length_scale_init
+    public :: compute_hydrostatic_upward_air_velocity_at_if_run
+    public :: compute_hydrostatic_upward_air_velocity_run
     public :: geopotential_height_wrt_sfc_at_if_to_msl_run
     public :: geopotential_height_wrt_sfc_to_msl_run
 contains
     !> \section arg_table_mmm_physics_compat_init Argument Table
     !! \htmlinclude mmm_physics_compat_init.html
     pure subroutine mmm_physics_compat_init( &
-            isfflx, isftcflx, iz0tlnd, &
-            spp_pbl, &
+            initial_run, &
+            scheme_name, &
+            icloud_bl, isfflx, isftcflx, iz0tlnd, spp_pbl, &
+            cycling, restart, &
             xice_threshold, &
             errmsg, errflg)
         use ccpp_kinds, only: kind_phys
 
-        integer, intent(out) :: isfflx, isftcflx, iz0tlnd
-        logical, intent(out) :: spp_pbl
+        logical, intent(in) :: initial_run
+        character(256), intent(out) :: scheme_name
+        integer, intent(out) :: icloud_bl, isfflx, isftcflx, iz0tlnd, spp_pbl
+        logical, intent(out) :: cycling, restart
         real(kind_phys), intent(out) :: xice_threshold
         character(*), intent(out) :: errmsg
         integer, intent(out) :: errflg
@@ -31,12 +37,19 @@ contains
         errmsg = ''
         errflg = 0
 
-        ! These options are hardcoded to the same values as in the MPAS physics driver.
-        ! There are other possible values for them in WRF, but the following combination is the only supported one in MPAS.
+        scheme_name = 'mmm_physics_compat'
+
+        ! TODO:
+        ! Should convert some of the following to namelist options after the convection-permitting
+        ! physics suite is completed.
+
+        icloud_bl = 0
         isfflx = 1
         isftcflx = 0
         iz0tlnd = 0
-        spp_pbl = .false.
+        spp_pbl = 0
+        cycling = .false. ! There is no such thing as DA cycling in CAM-SIMA. Always false.
+        restart = (.not. initial_run) ! Branch and restart runs are translated to restart runs for MMM physics.
         xice_threshold = 0.02_kind_phys
     end subroutine mmm_physics_compat_init
 
@@ -47,7 +60,6 @@ contains
             dt, &
             theta_curr, theta_prev, qv_curr, qv_prev, &
             icefrac, xice_threshold, landfrac, &
-            scheme_name, &
             rthdynten, rqvdynten, &
             xland, &
             errmsg, errflg)
@@ -57,7 +69,6 @@ contains
         real(kind_phys), intent(in) :: dt, &
                                        theta_curr(:, :), theta_prev(:, :), qv_curr(:, :), qv_prev(:, :), &
                                        icefrac(:), xice_threshold, landfrac(:)
-        character(256), intent(out) :: scheme_name
         real(kind_phys), intent(out) :: rthdynten(:, :), rqvdynten(:, :), &
                                         xland(:)
         character(*), intent(out) :: errmsg
@@ -65,8 +76,6 @@ contains
 
         errmsg = ''
         errflg = 0
-
-        scheme_name = 'mmm_physics_compat_run'
 
         if (nstep == 0) then
             rthdynten(:, :) = 0.0_kind_phys
@@ -94,8 +103,11 @@ contains
             rublten, rucuten, rvblten, rvcuten, &
             rthblten, rthcuten, rthratenlw, rthratensw, &
             rqvblten, rqvcuten, &
-            rqccuten, &
-            rqicuten, &
+            rqcblten, rncblten, rqccuten, &
+            rqiblten, rniblten, rqicuten, &
+            rqsblten, &
+            rozblten, &
+            rnwfablten, rnifablten, rnbcablten, &
             errmsg, errflg)
         use ccpp_kinds, only: kind_phys
 
@@ -103,8 +115,11 @@ contains
                                         rublten(:, :), rucuten(:, :), rvblten(:, :), rvcuten(:, :), &
                                         rthblten(:, :), rthcuten(:, :), rthratenlw(:, :), rthratensw(:, :), &
                                         rqvblten(:, :), rqvcuten(:, :), &
-                                        rqccuten(:, :), &
-                                        rqicuten(:, :)
+                                        rqcblten(:, :), rncblten(:, :), rqccuten(:, :), &
+                                        rqiblten(:, :), rniblten(:, :), rqicuten(:, :), &
+                                        rqsblten(:, :), &
+                                        rozblten(:, :), &
+                                        rnwfablten(:, :), rnifablten(:, :), rnbcablten(:, :)
         character(*), intent(out) :: errmsg
         integer, intent(out) :: errflg
 
@@ -132,9 +147,21 @@ contains
         rqvblten(:, :) = 0.0_kind_phys
         rqvcuten(:, :) = 0.0_kind_phys
 
+        rqcblten(:, :) = 0.0_kind_phys
+        rncblten(:, :) = 0.0_kind_phys
         rqccuten(:, :) = 0.0_kind_phys
 
+        rqiblten(:, :) = 0.0_kind_phys
+        rniblten(:, :) = 0.0_kind_phys
         rqicuten(:, :) = 0.0_kind_phys
+
+        rqsblten(:, :) = 0.0_kind_phys
+
+        rozblten(:, :) = 0.0_kind_phys
+
+        rnwfablten(:, :) = 0.0_kind_phys
+        rnifablten(:, :) = 0.0_kind_phys
+        rnbcablten(:, :) = 0.0_kind_phys
     end subroutine mmm_physics_accumulate_tendencies_timestep_init
 
     !> \section arg_table_mmm_physics_accumulate_tendencies_run Argument Table
@@ -142,23 +169,31 @@ contains
     pure subroutine mmm_physics_accumulate_tendencies_run( &
             dt, exner, &
             dudt, dvdt, dtdt, &
-            theta, qv, qc, qi, &
+            theta, qv, qc, qi, qs, ozone, &
+            nc, ni, nwfa, nifa, nbca, &
             rublten, rucuten, rvblten, rvcuten, &
             rthblten, rthcuten, rthratenlw, rthratensw, &
             rqvblten, rqvcuten, &
-            rqccuten, &
-            rqicuten, &
+            rqcblten, rncblten, rqccuten, &
+            rqiblten, rniblten, rqicuten, &
+            rqsblten, &
+            rozblten, &
+            rnwfablten, rnifablten, rnbcablten, &
             errmsg, errflg)
         use ccpp_kinds, only: kind_phys
 
         real(kind_phys), intent(in) :: dt, exner(:, :)
         real(kind_phys), intent(inout) :: dudt(:, :), dvdt(:, :), dtdt(:, :), &
-                                          theta(:, :), qv(:, :), qc(:, :), qi(:, :), &
+                                          theta(:, :), qv(:, :), qc(:, :), qi(:, :), qs(:, :), ozone(:, :), &
+                                          nc(:, :), ni(:, :), nwfa(:, :), nifa(:, :), nbca(:, :), &
                                           rublten(:, :), rucuten(:, :), rvblten(:, :), rvcuten(:, :), &
                                           rthblten(:, :), rthcuten(:, :), rthratenlw(:, :), rthratensw(:, :), &
                                           rqvblten(:, :), rqvcuten(:, :), &
-                                          rqccuten(:, :), &
-                                          rqicuten(:, :)
+                                          rqcblten(:, :), rncblten(:, :), rqccuten(:, :), &
+                                          rqiblten(:, :), rniblten(:, :), rqicuten(:, :), &
+                                          rqsblten(:, :), &
+                                          rozblten(:, :), &
+                                          rnwfablten(:, :), rnifablten(:, :), rnbcablten(:, :)
         character(*), intent(out) :: errmsg
         integer, intent(out) :: errflg
 
@@ -172,8 +207,16 @@ contains
 
         theta(:, :) = theta(:, :) + (rthblten(:, :) + rthcuten(:, :) + rthratenlw(:, :) + rthratensw(:, :)) * dt
         qv(:, :) = qv(:, :) + (rqvblten(:, :) + rqvcuten(:, :)) * dt
-        qc(:, :) = qc(:, :) + rqccuten(:, :) * dt
-        qi(:, :) = qi(:, :) + rqicuten(:, :) * dt
+        qc(:, :) = qc(:, :) + (rqcblten(:, :) + rqccuten(:, :)) * dt
+        qi(:, :) = qi(:, :) + (rqiblten(:, :) + rqicuten(:, :)) * dt
+        qs(:, :) = qs(:, :) + rqsblten(:, :) * dt
+        ozone(:, :) = ozone(:, :) + rozblten(:, :) * dt
+
+        nc(:, :) = nc(:, :) + rncblten(:, :) * dt
+        ni(:, :) = ni(:, :) + rniblten(:, :) * dt
+        nwfa(:, :) = nwfa(:, :) + rnwfablten(:, :) * dt
+        nifa(:, :) = nifa(:, :) + rnifablten(:, :) * dt
+        nbca(:, :) = nbca(:, :) + rnbcablten(:, :) * dt
 
         ! After the accumulation, zero out tendencies generated by MMM physics so that this subroutine is idempotent.
         rublten(:, :) = 0.0_kind_phys
@@ -189,9 +232,21 @@ contains
         rqvblten(:, :) = 0.0_kind_phys
         rqvcuten(:, :) = 0.0_kind_phys
 
+        rqcblten(:, :) = 0.0_kind_phys
+        rncblten(:, :) = 0.0_kind_phys
         rqccuten(:, :) = 0.0_kind_phys
 
+        rqiblten(:, :) = 0.0_kind_phys
+        rniblten(:, :) = 0.0_kind_phys
         rqicuten(:, :) = 0.0_kind_phys
+
+        rqsblten(:, :) = 0.0_kind_phys
+
+        rozblten(:, :) = 0.0_kind_phys
+
+        rnwfablten(:, :) = 0.0_kind_phys
+        rnifablten(:, :) = 0.0_kind_phys
+        rnbcablten(:, :) = 0.0_kind_phys
     end subroutine mmm_physics_accumulate_tendencies_run
 
     !> \section arg_table_mmm_physics_persist_states_init Argument Table
@@ -257,6 +312,57 @@ contains
         ! but not so straightforward for models with unstructured grids like CAM-SIMA. Here, the square root of cell area is used.
         dx(:) = sqrt(omega(:) * (rearth ** 2))
     end subroutine compute_characteristic_grid_length_scale_init
+
+    !> \section arg_table_compute_hydrostatic_upward_air_velocity_at_if_run Argument Table
+    !! \htmlinclude compute_hydrostatic_upward_air_velocity_at_if_run.html
+    pure subroutine compute_hydrostatic_upward_air_velocity_at_if_run( &
+            gravit, omega, rho, &
+            wint, &
+            errmsg, errflg)
+        use ccpp_kinds, only: kind_phys
+
+        real(kind_phys), intent(in) :: gravit, omega(:, :), rho(:, :)
+        real(kind_phys), intent(out) :: wint(:, :)
+        character(*), intent(out) :: errmsg
+        integer, intent(out) :: errflg
+
+        integer :: k
+        real(kind_phys) :: wmid(size(omega, 1), size(omega, 2))
+
+        ! Compute upward air velocity by hydrostatic equation.
+        wmid(:, :) = -omega(:, :) / (rho(:, :) * gravit)
+
+        ! Values at upper and lower boundaries are assumed to be zero.
+        wint(:, :) = 0.0_kind_phys
+
+        ! Compute upward air velocity at interface.
+        do k = 2, size(omega, 2)
+            wint(:, k) = 0.5_kind_phys * (wmid(:, k - 1) + wmid(:, k))
+        end do
+
+        errmsg = ''
+        errflg = 0
+    end subroutine compute_hydrostatic_upward_air_velocity_at_if_run
+
+    !> \section arg_table_compute_hydrostatic_upward_air_velocity_run Argument Table
+    !! \htmlinclude compute_hydrostatic_upward_air_velocity_run.html
+    pure subroutine compute_hydrostatic_upward_air_velocity_run( &
+            gravit, omega, rho, &
+            wmid, &
+            errmsg, errflg)
+        use ccpp_kinds, only: kind_phys
+
+        real(kind_phys), intent(in) :: gravit, omega(:, :), rho(:, :)
+        real(kind_phys), intent(out) :: wmid(:, :)
+        character(*), intent(out) :: errmsg
+        integer, intent(out) :: errflg
+
+        ! Compute upward air velocity by hydrostatic equation.
+        wmid(:, :) = -omega(:, :) / (rho(:, :) * gravit)
+
+        errmsg = ''
+        errflg = 0
+    end subroutine compute_hydrostatic_upward_air_velocity_run
 
     !> \section arg_table_geopotential_height_wrt_sfc_at_if_to_msl_run Argument Table
     !! \htmlinclude geopotential_height_wrt_sfc_at_if_to_msl_run.html
