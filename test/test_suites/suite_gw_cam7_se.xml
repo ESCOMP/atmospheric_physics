@@ -37,16 +37,20 @@
 
     <!-- Moving mountain gravity wave drag (SE dycore only) -->
     <scheme>gravity_wave_drag_moving_mountain</scheme>
+    <scheme>gravity_wave_drag_moving_mountain_diagnostics</scheme>
 
     <!-- Convective gravity wave drag (Beres et al.) - deep convection -->
     <scheme>gravity_wave_drag_convection_deep</scheme>
+    <scheme>gravity_wave_drag_convection_deep_diagnostics</scheme>
 
     <!-- Frontally generated gravity wave drag -->
     <scheme>gravity_wave_drag_frontogenesis</scheme>
+    <scheme>gravity_wave_drag_frontogenesis_diagnostics</scheme>
 
     <!-- Ridge gravity wave drag -->
     <scheme>gravity_wave_drag_ridge</scheme>
     <scheme>gravity_wave_drag_ridge_beta</scheme>
+    <scheme>gravity_wave_drag_ridge_beta_diagnostics</scheme>
 
     <!-- Interstitial: Convert tendencies for dry constituents to dry air basis -->
     <scheme>convert_dry_constituent_tendencies_to_dry_air_basis</scheme>
