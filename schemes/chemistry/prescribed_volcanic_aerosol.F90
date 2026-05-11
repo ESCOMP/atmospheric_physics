@@ -75,7 +75,6 @@ contains
     ! Check if prescribed volcanic aerosols are enabled
     if (prescribed_volcaero_file == 'UNSET' .or. &
         len_trim(prescribed_volcaero_file) == 0) then
-      has_prescribed_volcaero = .false.
       if (amIRoot) then
         write(iulog,*) subname//': No prescribed volcanic aerosols specified'
       end if
@@ -204,8 +203,6 @@ contains
     end if
 
     ! Register history fields.
-    ! No longer need history output for the constituents because, well,
-    ! they are constituents.
     call history_add_field('VOLC_MASS', &
          'volcanic aerosol vertical mass path in layer', &
          'lev', 'inst', 'kg m-2')
@@ -225,7 +222,6 @@ contains
 !! \htmlinclude prescribed_volcanic_aerosol_run.html
   subroutine prescribed_volcanic_aerosol_run( &
     ncol, pver, pcnst, &
-    const_props, &
     mwdry, boltz, gravit, &
     T, pmiddry, pdel, zm, &
     pmid, pint, phis, zi, &
@@ -239,11 +235,8 @@ contains
     ! host model dependency for history output
     use cam_history,               only: history_out_field
 
-    ! framework dependency for const_props
-    use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
-
-    ! dependency to get constituent index
-    use ccpp_const_utils,          only: ccpp_const_get_idx
+    ! framework dependency to get constituent index
+    use ccpp_scheme_utils,         only: ccpp_constituent_index
 
     ! dependency for unit string handling
     use string_utils,              only: to_lower, get_last_significant_char
@@ -251,10 +244,8 @@ contains
     integer,            intent(in)    :: ncol
     integer,            intent(in)    :: pver
     integer,            intent(in)    :: pcnst
-    type(ccpp_constituent_prop_ptr_t), &
-                        intent(in)    :: const_props(:)
     real(kind_phys),    intent(in)    :: mwdry             ! molecular weight of dry air [g mol-1]
-    real(kind_phys),    intent(in)    :: boltz             ! Boltzmann constant [J K-1 molecule-1]
+    real(kind_phys),    intent(in)    :: boltz             ! Boltzmann constant [J K-1]
     real(kind_phys),    intent(in)    :: gravit            ! gravitational acceleration [m s-2]
     real(kind_phys),    intent(in)    :: T(:,:)            ! air temperature [K] (layer centers)
     real(kind_phys),    intent(in)    :: pmiddry(:,:)      ! dry air pressure [Pa] (layer centers)
@@ -292,12 +283,12 @@ contains
                          pmid, pint, phis, zi)
 
     ! Get constituent indices for MMR and radius
-    call ccpp_const_get_idx(const_props, volcaero_const_name, &
-         mmr_idx, errmsg, errflg)
+    call ccpp_constituent_index(volcaero_const_name, &
+         mmr_idx, errmsg=errmsg, errcode=errflg)
     if (errflg /= 0) return
 
-    call ccpp_const_get_idx(const_props, volcrad_const_name, &
-         rad_idx, errmsg, errflg)
+    call ccpp_constituent_index(volcrad_const_name, &
+         rad_idx, errmsg=errmsg, errcode=errflg)
     if (errflg /= 0) return
 
     ! Determine unit conversion factor based on units in the input file

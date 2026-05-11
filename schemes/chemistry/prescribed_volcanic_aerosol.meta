@@ -24,7 +24,6 @@
   dimensions = ()
   intent = in
 [ volcaero_constituents ]
-  # or can this just be the ccpp_constituent_properties?
   standard_name = prescribed_volcanic_aerosol_constituents
   units = none
   type = ccpp_constituent_properties_t
@@ -155,7 +154,7 @@
   intent = in
 [ boltz ]
   standard_name = boltzmann_constant
-  units = J K-1 molecule-1
+  units = J K-1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
