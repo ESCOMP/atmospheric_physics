@@ -12,25 +12,22 @@ module cu_ntiedtke_compat
 contains
     !> \section arg_table_cu_ntiedtke_compat_pre_run Argument Table
     !! \htmlinclude cu_ntiedtke_compat_pre_run.html
-    subroutine cu_ntiedtke_compat_pre_run( &
-            cflx, exner, landfrac, &
+    pure subroutine cu_ntiedtke_compat_pre_run( &
+            exner, landfrac, &
             rthdynten, rthblten, rthratenlw, rthratensw, &
             rqvdynten, rqvblten, &
             lndj, &
-            ptf, pqvf, evap, &
+            ptf, pqvf, &
             errmsg, errflg)
         use ccpp_kinds, only: kind_phys
-        use ccpp_scheme_utils, only: ccpp_constituent_index
 
-        real(kind_phys), intent(in) :: cflx(:, :), exner(:, :), landfrac(:), &
+        real(kind_phys), intent(in) :: exner(:, :), landfrac(:), &
                                        rthdynten(:, :), rthblten(:, :), rthratenlw(:, :), rthratensw(:, :), &
                                        rqvdynten(:, :), rqvblten(:, :)
         integer, intent(out) :: lndj(:)
-        real(kind_phys), intent(out) :: ptf(:, :), pqvf(:, :), evap(:)
+        real(kind_phys), intent(out) :: ptf(:, :), pqvf(:, :)
         character(*), intent(out) :: errmsg
         integer, intent(out) :: errflg
-
-        integer :: water_vapor_mixing_ratio_index
 
         where (landfrac >= 0.5_kind_phys)
             lndj = 1
@@ -40,20 +37,6 @@ contains
 
         ptf(:, :) = (rthdynten(:, :) + rthblten(:, :) + rthratenlw(:, :) + rthratensw(:, :)) * exner(:, :)
         pqvf(:, :) = rqvdynten(:, :) + rqvblten(:, :)
-        evap(:) = 0.0_kind_phys
-
-        call ccpp_constituent_index( &
-            'water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water', water_vapor_mixing_ratio_index, errflg, errmsg)
-
-        if (errflg /= 0 .or. &
-            water_vapor_mixing_ratio_index < lbound(cflx, 2) .or. water_vapor_mixing_ratio_index > ubound(cflx, 2)) then
-            errmsg = 'cu_ntiedtke_compat_pre_run: Failed to find desired constituent flux from cflx'
-            errflg = 1
-
-            return
-        end if
-
-        evap(:) = cflx(:, water_vapor_mixing_ratio_index)
 
         errmsg = ''
         errflg = 0
