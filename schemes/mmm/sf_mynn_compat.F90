@@ -15,8 +15,7 @@ contains
     !> \section arg_table_sf_mynn_compat_pre_run Argument Table
     !! \htmlinclude sf_mynn_compat_pre_run.html
     pure subroutine sf_mynn_compat_pre_run( &
-            itimestep, &
-            spp_pbl, &
+            itimestep, spp_pbl, &
             u, v, t, qv, p, dz, rho, &
             icefrac, xice_threshold, landfrac, snowhice, snowhland, &
             u1d, v1d, t1d, qv1d, p1d, dz8w1d, rho1d, &
@@ -31,8 +30,7 @@ contains
             errmsg, errflg)
         use ccpp_kinds, only: kind_phys
 
-        integer, intent(in) :: itimestep
-        logical, intent(in) :: spp_pbl
+        integer, intent(in) :: itimestep, spp_pbl
         real(kind_phys), intent(in) :: u(:, :), v(:, :), t(:, :), qv(:, :), p(:, :), dz(:, :), rho(:, :), &
                                        icefrac(:), xice_threshold, landfrac(:), snowhice(:), snowhland(:)
         real(kind_phys), intent(out) :: u1d(:), v1d(:), t1d(:), qv1d(:), p1d(:), dz8w1d(:), rho1d(:), &
@@ -103,7 +101,7 @@ contains
 
         qcg(:) = 0.0_kind_phys ! Not used but still appear in the argument list...
 
-        if (spp_pbl) then
+        if (spp_pbl /= 0) then
             errmsg = 'sf_mynn_compat_pre_run: Stochastically perturbed parameterization is not supported'
             errflg = 1
 
@@ -182,9 +180,8 @@ contains
         integer, intent(in) :: ncol, &
                                isfflx, &
                                itimestep, &
-                               isftcflx, &
+                               spp_pbl, isftcflx, &
                                iz0tlnd, its, ite
-        logical, intent(in) :: spp_pbl
         real(kind_phys), intent(in) :: icefrac(:), xice_threshold, sst(:), &
                                        u1d(:), v1d(:), t1d(:), qv1d(:), p1d(:), dz8w1d(:), rho1d(:), &
                                        u1d2(:), v1d2(:), dz2w1d(:), cp, g, rovcp, r, xlv, &
@@ -209,6 +206,7 @@ contains
         integer, intent(out) :: errflg
 
         integer :: water_vapor_mixing_ratio_index
+        logical :: spp_pbl_l
         real(kind_phys), allocatable :: ch(:)
 
         ! Special handling for sea ice cells like in MMM physics.
@@ -225,6 +223,8 @@ contains
                                         t2_sea(:), q2_sea(:), &
                                         wstar_sea(:), qstar_sea(:), ustm_sea(:), ck_sea(:), cka_sea(:), &
                                         cd_sea(:), cda_sea(:)
+
+        spp_pbl_l = (spp_pbl /= 0)
 
         ! `ch` is duplicate of `chs`, but for unknown reasons it is passed separately in the argument list
         ! to MYNN surface layer scheme.
@@ -359,7 +359,7 @@ contains
             gz1oz0, wspd, br, isfflx, dx, svp1, svp2, &
             svp3, svpt0, ep1, ep2, karman, ch, qcg, &
             itimestep, wstar, qstar, ustm, ck, cka, &
-            cd, cda, spp_pbl, rstoch1d, isftcflx, &
+            cd, cda, spp_pbl_l, rstoch1d, isftcflx, &
             iz0tlnd, its, ite, &
             errmsg, errflg)
 
@@ -381,7 +381,7 @@ contains
                 gz1oz0_sea, wspd_sea, br_sea, isfflx, dx, svp1, svp2, &
                 svp3, svpt0, ep1, ep2, karman, ch_sea, qcg, &
                 itimestep, wstar_sea, qstar_sea, ustm_sea, ck_sea, cka_sea, &
-                cd_sea, cda_sea, spp_pbl, rstoch1d, isftcflx, &
+                cd_sea, cda_sea, spp_pbl_l, rstoch1d, isftcflx, &
                 iz0tlnd, its, ite, &
                 errmsg, errflg)
 

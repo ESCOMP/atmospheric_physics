@@ -12,9 +12,9 @@
   dimensions = ()
   intent = in
 [ spp_pbl ]
-  standard_name = flag_for_stochastically_perturbed_parameterization_for_mynn_scheme
-  units = flag
-  type = logical
+  standard_name = control_for_stochastically_perturbed_parameterization_in_mynn_scheme
+  units = 1
+  type = integer
   dimensions = ()
   intent = in
 [ u ]
@@ -282,7 +282,7 @@
   dimensions = (horizontal_loop_extent)
   intent = out
 [ rstoch1d ]
-  standard_name = stochastically_perturbed_weights_for_mynn_scheme
+  standard_name = stochastically_perturbed_weights_for_mynn_surface_layer_scheme
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
@@ -799,13 +799,13 @@
   dimensions = (horizontal_loop_extent)
   intent = out
 [ spp_pbl ]
-  standard_name = flag_for_stochastically_perturbed_parameterization_for_mynn_scheme
-  units = flag
-  type = logical
+  standard_name = control_for_stochastically_perturbed_parameterization_in_mynn_scheme
+  units = 1
+  type = integer
   dimensions = ()
   intent = in
 [ rstoch1d ]
-  standard_name = stochastically_perturbed_weights_for_mynn_scheme
+  standard_name = stochastically_perturbed_weights_for_mynn_surface_layer_scheme
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
