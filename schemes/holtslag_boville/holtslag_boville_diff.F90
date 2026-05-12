@@ -145,7 +145,7 @@ contains
                                     calc_kinematic_heat_flux, &
                                     calc_kinematic_water_vapor_flux, &
                                     calc_kinematic_buoyancy_flux, &
-                                    calc_bulk_richardson_number, &
+                                    calc_gradient_richardson_number, &
                                     calc_vertical_shear_squared
 
     ! Input arguments
@@ -214,9 +214,9 @@ contains
                                               v(i,k), v(i,k+1), &
                                               z(i,k), z(i,k+1), &
                                               minimum_velocity_shear_squared)
-        ri(i,k) = calc_bulk_richardson_number(thv(i,k), thv(i,k+1), &
-                                              z(i,k),   z(i,k+1),   &
-                                              s2(i,k),  gravit)
+        ri(i,k) = calc_gradient_richardson_number(thv(i,k), thv(i,k+1), &
+                                                  z(i,k),   z(i,k+1),   &
+                                                  s2(i,k),  gravit)
       end do
     end do
   end subroutine hb_pbl_independent_coefficients_run
@@ -303,12 +303,12 @@ contains
     do k=pver-1,pver-npbl+1,-1
        do i=1,ncol
           if (check(i)) then
-             rino(i,k) = calc_modified_bulk_richardson_number_at_height(u(i,k), u(i,pver), &
-                                                          v(i,k), v(i,pver), &
-                                                          z(i,k), z(i,pver), &
-                                                          thv(i,k), thv(i,pver), ustar(i), gravit)
+             rino(i,k) = calc_bulk_richardson_number_at_height(u(i,k), u(i,pver), &
+                                                               v(i,k), v(i,pver), &
+                                                               z(i,k), z(i,pver), &
+                                                               thv(i,k), thv(i,pver), ustar(i), gravit)
              ! Modified for boundary layer height diagnosis: Bert Holtslag, June 1994
-             ! >>>>>>>>>  (Use ricr = 0.3 in this formulation)
+             ! (Use ricr = 0.3 in this formulation)
              if (rino(i,k) >= ricr) then
                 pblh(i) = linear_interpolate_pbl_height_wrt_richardson(z(i,k:k+1), rino(i,k:k+1))
                 check(i) = .false.
@@ -336,10 +336,10 @@ contains
     do k=pver-1,pver-npbl+1,-1
       do i=1,ncol
         if (check(i)) then
-          rino(i,k) = calc_modified_richardson_number_at_height(u(i,k), u(i,pver), &
-                                                                v(i,k), v(i,pver), &
-                                                                z(i,k), z(i,pver), &
-                                                                thv(i,k), thv(i,pver), tlv(i), ustar(i), gravit)
+          rino(i,k) = calc_modified_bulk_richardson_number_at_height(u(i,k), u(i,pver), &
+                                                                     v(i,k), v(i,pver), &
+                                                                     z(i,k), z(i,pver), &
+                                                                     thv(i,k), thv(i,pver), tlv(i), ustar(i), gravit)
 
           if (rino(i,k) >= ricr) then
             pblh(i) = linear_interpolate_pbl_height_wrt_richardson(z(i,k:k+1), rino(i,k:k+1))
@@ -699,7 +699,7 @@ contains
     wstar = (kbfs*gravity*pblh/thv)**(1._kind_phys/3._kind_phys)
   end function comp_wstar
 
-  pure elemental function calc_modified_richardson_number_at_height(uh, us, vh, vs, h, zs, thvh, thvs, tlv, ustar, g) result(rih)
+  pure elemental function calc_modified_bulk_richardson_number_at_height(uh, us, vh, vs, h, zs, thvh, thvs, tlv, ustar, g) result(rih)
     ! Modified version of base richardson number equation that incorporates reference level potential temperature
     real(kind_phys), intent(in) :: uh, us, vh, vs, h, zs, thvh, thvs, tlv, ustar, g
     real(kind_phys) :: rih
@@ -708,9 +708,9 @@ contains
 
     rih = g * (thvh-tlv)*(h-zs) / &
           (thvs * max((uh-us)**2 + (vh-vs)**2 + b*ustar**2, tiny))
-  end function calc_modified_richardson_number_at_height
+  end function calc_modified_bulk_richardson_number_at_height
 
-  pure elemental function calc_modified_bulk_richardson_number_at_height(uh, us, vh, vs, h, zs, thvh, thvs, ustar, g) result(rih)
+  pure elemental function calc_bulk_richardson_number_at_height(uh, us, vh, vs, h, zs, thvh, thvs, ustar, g) result(rih)
     ! Vogelezang, D.H.P., Holtslag, A.A.M. Evaluation and model impacts of alternative
     ! boundary-layer height formulations. Boundary-Layer Meteorol 81, 245–269 (1996).
     ! https://doi.org/10.1007/BF02430331
@@ -722,7 +722,7 @@ contains
 
     rih = g * (thvh-thvs)*(h-zs) / &
           (thvs * max((uh-us)**2 + (vh-vs)**2 + b*ustar**2, tiny))
-  end function calc_modified_bulk_richardson_number_at_height
+  end function calc_bulk_richardson_number_at_height
 
   pure function linear_interpolate_pbl_height_wrt_richardson(z, rino) result(pblh)
     real(kind_phys), intent(in) :: z(2)

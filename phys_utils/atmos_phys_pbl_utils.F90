@@ -16,7 +16,7 @@ module atmos_phys_pbl_utils
     public :: calc_eddy_flux_coefficient
     public :: calc_free_atm_eddy_flux_coefficient
     public :: calc_brunt_vaisala_frequency_squared
-    public :: calc_bulk_richardson_number
+    public :: calc_gradient_richardson_number
     public :: calc_vertical_shear_squared
 
     real(kind_phys), parameter :: minimum_friction_velocity     = 0.01_kind_phys ! Assuming minimum for coarse grids
@@ -233,8 +233,8 @@ contains
         n2 = g*2.0_kind_phys*(thv1-thv2)/((thv1+thv2)*(z1-z2))
     end function calc_brunt_vaisala_frequency_squared
 
-    pure elemental function calc_bulk_richardson_number(thv1, thv2, z1, z2, s2, g) result(ri)
-        ! https://glossary.ametsoc.org/wiki/bulk-richardson-number/
+    pure elemental function calc_gradient_richardson_number(thv1, thv2, z1, z2, s2, g) result(ri)
+        ! https://glossary.ametsoc.org/wiki/gradient-richardson-number/
         !
         ! Also found in:
         ! Stull, Roland B. An Introduction to Boundary Layer Meteorology. Springer Kluwer Academic Publishers, 1988. Print.
@@ -251,7 +251,7 @@ contains
 
         n2 = calc_brunt_vaisala_frequency_squared(thv1, thv2, z1, z2, g)
         ri = n2/s2
-    end function calc_bulk_richardson_number
+    end function calc_gradient_richardson_number
 
     pure elemental function calc_vertical_shear_squared(u1, u2, v1, v2, z1, z2, minimum_velocity_shear_squared) result(s2)
         ! Hack, J., Boville, B., Briegleb, B., Kiehl, J., & Williamson, D. (1993).
