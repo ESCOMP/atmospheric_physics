@@ -10,7 +10,7 @@ List all files eliminated and why:
 List all files added and what they do:
 
 List all existing files that have been modified, and describe the changes:
-(Helpful git command: `git diff --name-status development...<your_branch_name>`)
+(Helpful git command: `git diff --name-status main...<your_branch_name>`)
 
 List all automated tests that failed, as well as an explanation for why they weren't fixed:
 
