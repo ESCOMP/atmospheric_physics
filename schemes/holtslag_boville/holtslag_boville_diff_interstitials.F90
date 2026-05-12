@@ -110,8 +110,6 @@ contains
     itaures, &
     errmsg, errflg)
 
-    use coords_1d,  only: Coords1D
-
     ! framework dependency for const_props
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
 

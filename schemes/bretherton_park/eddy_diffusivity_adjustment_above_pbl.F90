@@ -47,13 +47,13 @@ contains
     real(kind_phys),  intent(in)    :: pblh(:)              ! Planetary boundary layer height [m]
 
     ! Input/Output arguments
-    real(kind_phys),  intent(inout) :: kvh(:, :)  ! Eddy diffusivity for heat at interfaces [m2 s-1]
-    real(kind_phys),  intent(inout) :: kvm(:, :)  ! Eddy diffusivity for momentum at interfaces [m2 s-1]
-    real(kind_phys),  intent(inout) :: kvq(:, :)  ! Eddy diffusivity for constituents at interfaces [m2 s-1]
+    real(kind_phys),  intent(inout) :: kvh(:, :)            ! Eddy diffusivity for heat at interfaces [m2 s-1]
+    real(kind_phys),  intent(inout) :: kvm(:, :)            ! Eddy diffusivity for momentum at interfaces [m2 s-1]
+    real(kind_phys),  intent(inout) :: kvq(:, :)            ! Eddy diffusivity for constituents at interfaces [m2 s-1]
 
     ! Output arguments
-    character(len=*),   intent(out) :: errmsg
-    integer,            intent(out) :: errflg
+    character(len=*), intent(out)   :: errmsg
+    integer,          intent(out)   :: errflg
 
     ! Local variables
     integer :: i, k

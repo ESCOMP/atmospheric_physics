@@ -56,26 +56,27 @@ contains
     use eddy_diff, only: init_eddy_diff
 
     ! Input arguments
-    logical,         intent(in)  :: amIRoot
-    integer,         intent(in)  :: iulog
-    integer,         intent(in)  :: pver
-    real(kind_phys), intent(in)  :: gravit
-    real(kind_phys), intent(in)  :: cpair
-    real(kind_phys), intent(in)  :: rair
-    real(kind_phys), intent(in)  :: zvir
-    real(kind_phys), intent(in)  :: latvap
-    real(kind_phys), intent(in)  :: latice
-    real(kind_phys), intent(in)  :: karman
-    integer,         intent(in)  :: ntop_eddy_in           ! Top interface level to which eddy vertical diffusivity is applied [index]
-    real(kind_phys), intent(in)  :: pref_mid(:)            ! reference_pressure [Pa]
-    real(kind_phys), intent(in)  :: eddy_lbulk_max         ! Maximum master length [m]
-    real(kind_phys), intent(in)  :: eddy_leng_max          ! Maximum dissipation length [m]
-    real(kind_phys), intent(in)  :: eddy_max_bot_pressure  ! Bottom pressure level for eddy_leng_max [hPa]
-    real(kind_phys), intent(in)  :: eddy_moist_entrain_a2l ! Moist entrainment enhancement parameter [1]
+    logical,            intent(in)  :: amIRoot
+    integer,            intent(in)  :: iulog
+    integer,            intent(in)  :: pver
+    real(kind_phys),    intent(in)  :: gravit
+    real(kind_phys),    intent(in)  :: cpair
+    real(kind_phys),    intent(in)  :: rair
+    real(kind_phys),    intent(in)  :: zvir
+    real(kind_phys),    intent(in)  :: latvap
+    real(kind_phys),    intent(in)  :: latice
+    real(kind_phys),    intent(in)  :: karman
+    integer,            intent(in)  :: ntop_eddy_in           ! Top interface level to which eddy vertical diffusivity is applied [index]
+    real(kind_phys),    intent(in)  :: pref_mid(:)            ! reference_pressure [Pa]
+    real(kind_phys),    intent(in)  :: eddy_lbulk_max         ! Maximum master length [m]
+    real(kind_phys),    intent(in)  :: eddy_leng_max          ! Maximum dissipation length [m]
+    real(kind_phys),    intent(in)  :: eddy_max_bot_pressure  ! Bottom pressure level for eddy_leng_max [hPa]
+    real(kind_phys),    intent(in)  :: eddy_moist_entrain_a2l ! Moist entrainment enhancement parameter [1]
 
     ! Output arguments
-    integer,         intent(out) :: ncvmax                 ! maximum number of convective layers (CLs) [count]
-    character(len=*), intent(out) :: errmsg
+    integer,            intent(out) :: ncvmax                 ! maximum number of convective layers (CLs) [count]
+
+    character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     integer :: k
@@ -261,7 +262,7 @@ contains
     ! Output variables, including those for diagnostic output
     real(kind_phys), intent(out)   :: s2(:, :)            ! Shear squared, defined at interfaces except surface [s-2]
     real(kind_phys), intent(out)   :: n2(:, :)            ! Buoyancy frequency, defined at interfaces except surface [s-2]
-    real(kind_phys), intent(out)   :: ri(:, :)            ! Richardson number, 'n2/s2', defined at interfaces except surface [s-2]
+    real(kind_phys), intent(out)   :: ri(:, :)            ! Richardson number, 'n2/s2', defined at interfaces except surface [1]
     real(kind_phys), intent(out)   :: kvq(:, :)           ! Eddy diffusivity for constituents, moisture and tracers [m2 s-1]
     real(kind_phys), intent(out)   :: rrho(:)             ! Reciprocal of density at the lowest layer [m3 kg-1]
     real(kind_phys), intent(out)   :: ustar(:)            ! Surface friction velocity [m s-1]
@@ -269,7 +270,7 @@ contains
     real(kind_phys), intent(out)   :: pblhp(:)            ! PBL top pressure [Pa]
     real(kind_phys), intent(out)   :: minpblh(:)          ! Minimum PBL height based on surface stress [m]
     real(kind_phys), intent(out)   :: cgh(:, :)           ! Counter-gradient term for heat [J kg-1 m-1]
-    real(kind_phys), intent(out)   :: cgs(:, :)           ! Counter-gradient star [cg flux-1]
+    real(kind_phys), intent(out)   :: cgs(:, :)           ! Counter-gradient star [s m-2]
     real(kind_phys), intent(out)   :: tpert(:)            ! Convective temperature excess [K]
     real(kind_phys), intent(out)   :: qpert(:)            ! Convective humidity excess [kg kg-1]
     real(kind_phys), intent(out)   :: wpert(:)            ! Turbulent velocity excess [m s-1]
@@ -322,15 +323,15 @@ contains
     real(kind_phys), intent(out)   :: ricl(:, :)          ! CL internal mean Richardson number, ncvmax [1]
     real(kind_phys), intent(out)   :: ghcl(:, :)          ! Half of normalized buoyancy production of CL, ncvmax [1]
     real(kind_phys), intent(out)   :: shcl(:, :)          ! Galperin instability function of heat-moisture of CL, ncvmax [1]
-    real(kind_phys), intent(out)   :: smcl(:, :)          ! Galperin instability function of mementum of CL, ncvmax [1]
+    real(kind_phys), intent(out)   :: smcl(:, :)          ! Galperin instability function of momentum of CL, ncvmax [1]
     real(kind_phys), intent(out)   :: ghi(:, :)           ! Half of normalized buoyancy production at all interfaces [1]
     real(kind_phys), intent(out)   :: shi(:, :)           ! Galperin instability function of heat-moisture at all interfaces [1]
-    real(kind_phys), intent(out)   :: smi(:, :)           ! Galperin instability function of heat-moisture at all interfaces [1]
+    real(kind_phys), intent(out)   :: smi(:, :)           ! Galperin instability function of momentum at all interfaces [1]
     real(kind_phys), intent(out)   :: rii(:, :)           ! Interfacial Richardson number defined at all interfaces [1]
     real(kind_phys), intent(out)   :: lengi(:, :)         ! Turbulence length scale at all interfaces [m]
     real(kind_phys), intent(out)   :: errorPBL(:)         ! Error function showing whether PBL produced convergent solution or not [m2 s-1]
-    character(len=*),   intent(out) :: errmsg
-    integer,            intent(out) :: errflg
+    character(len=*),intent(out)   :: errmsg
+    integer,         intent(out)   :: errflg
 
     ! Local variables
     integer :: i, k, iturb
@@ -372,7 +373,6 @@ contains
     real(kind_phys) :: jnk1d(ncol)
     real(kind_phys) :: jnk2d(ncol, pverp)
     real(kind_phys) :: zero(ncol)
-    real(kind_phys) :: zero2d(ncol, pverp)
     real(kind_phys) :: es                         ! Saturation vapor pressure
     real(kind_phys) :: qs                         ! Saturation specific humidity
     real(kind_phys) :: templ, temps
@@ -389,7 +389,6 @@ contains
 
     ! Initialize dummy variables to pass into diffusion solver.
     zero(:) = 0._kind_phys
-    zero2d(:, :) = 0._kind_phys
 
     ! Set initial state
     ufd(:ncol, :) = u(:ncol, :)
@@ -559,6 +558,7 @@ contains
           end do
           errorPBL(i) = sqrt(errorPBL(i)/pver)
         end do
+        exit iturb_loop
       end if
 
       ! Eddy diffusivities which will be used for the initialization of (bprod,
@@ -566,7 +566,7 @@ contains
       !
       ! This is updated from the values from the output of caleddy
       ! and from the initial input to caleddy
-      if (iturb > 1 .and. iturb < nturb) then
+      if (iturb > 1) then
         kvm(:ncol, :) = lambda*kvm(:ncol, :) + (1._kind_phys - lambda)*kvm_ce(:ncol, :)
         kvh(:ncol, :) = lambda*kvh(:ncol, :) + (1._kind_phys - lambda)*kvh_ce(:ncol, :)
       end if
@@ -575,155 +575,152 @@ contains
       cgh(:ncol, :) = 0._kind_phys
       cgs(:ncol, :) = 0._kind_phys
 
-      if (iturb < nturb) then
+      ! Each time we diffuse the original state
+      slfd(:ncol, :) = sl(:ncol, :)
+      qtfd(:ncol, :, 1) = qt(:ncol, :)
+      ufd(:ncol, :) = u(:ncol, :)
+      vfd(:ncol, :) = v(:ncol, :)
 
-        ! Each time we diffuse the original state
-        slfd(:ncol, :) = sl(:ncol, :)
-        qtfd(:ncol, :, 1) = qt(:ncol, :)
-        ufd(:ncol, :) = u(:ncol, :)
-        vfd(:ncol, :) = v(:ncol, :)
+      ! Diffuse initial profile of each time step using a given (kvh_out,kvm_out)
+      ! Call the CCPPized subroutines for the diffusion solver
+      ! in iteration. This is not specified in the SDF but instead
+      ! called internally because it is an iterative process.
+      ! Notes:
+      ! - there is no molecular diffusion used here.
+      ! - in tracers, only water vapor is diffused (ncnst = 1)
+      ufd_out(:, :) = 0._kind_phys
+      vfd_out(:, :) = 0._kind_phys
+      slfd_out(:, :) = 0._kind_phys
+      call vertical_diffusion_diffuse_horizontal_momentum_run( &
+        ncol=ncol, &
+        pver=pver, &
+        pverp=pverp, &
+        dt=dt, &
+        rair=rair, &
+        gravit=gravit, &
+        do_iss=do_iss, &
+        am_correction=am_correction, &
+        itaures=.false., &
+        t=t(:ncol, :pver), &
+        p=p, & ! Coords1D, pressure coordinates [Pa]
+        rhoi=rhoi(:ncol, :pverp), &
+        taux=taux(:ncol), &
+        tauy=tauy(:ncol), &
+        tau_damp_rate=tau_damp_rate(:ncol, :pver), & ! tau damp rate from above
+        kvm=kvm(:ncol, :pverp), &
+        ksrftms=ksrftms(:ncol), &
+        dragblj=dragblj(:ncol, :pver), &
+        dpidz_sq=dpidz_sq(:ncol, :pverp), & ! moist
+        u0=ufd(:ncol, :pver), &
+        v0=vfd(:ncol, :pver), &
+        dse0=slfd(:ncol, :pver), &
+        ! input/output
+        ! (not actually updated since itaures = .false. in this internal call.)
+        tauresx=tauresx(:ncol), &
+        tauresy=tauresy(:ncol), &
+        ! below output
+        u1=ufd_out(:ncol, :pver), &
+        v1=vfd_out(:ncol, :pver), &
+        dse1=slfd_out(:ncol, :pver), &
+        dtk=jnk2d(:ncol, :), & ! unused dummy.
+        tautmsx=jnk1d(:ncol), & ! unused dummy.
+        tautmsy=jnk1d(:ncol), & ! unused dummy.
+        ! arguments for Beljaars
+        do_beljaars=do_beljaars, &
+        errmsg=errmsg, &
+        errflg=errflg)
 
-        ! Diffuse initial profile of each time step using a given (kvh_out,kvm_out)
-        ! Call the CCPPized subroutines for the diffusion solver
-        ! in iteration. This is not specified in the SDF but instead
-        ! called internally because it is an iterative process.
-        ! Notes:
-        ! - there is no molecular diffusion used here.
-        ! - in tracers, only water vapor is diffused (ncnst = 1)
-        ufd_out(:, :) = 0._kind_phys
-        vfd_out(:, :) = 0._kind_phys
-        slfd_out(:, :) = 0._kind_phys
-        call vertical_diffusion_diffuse_horizontal_momentum_run( &
-          ncol=ncol, &
-          pver=pver, &
-          pverp=pverp, &
-          dt=dt, &
-          rair=rair, &
-          gravit=gravit, &
-          do_iss=do_iss, &
-          am_correction=am_correction, &
-          itaures=.false., &
-          t=t(:ncol, :pver), &
-          p=p, & ! Coords1D, pressure coordinates [Pa]
-          rhoi=rhoi(:ncol, :pverp), &
-          taux=taux(:ncol), &
-          tauy=tauy(:ncol), &
-          tau_damp_rate=tau_damp_rate(:ncol, :pver), & ! tau damp rate from above
-          kvm=kvm(:ncol, :pverp), &
-          ksrftms=ksrftms(:ncol), &
-          dragblj=dragblj(:ncol, :pver), &
-          dpidz_sq=dpidz_sq(:ncol, :pverp), & ! moist
-          u0=ufd(:ncol, :pver), &
-          v0=vfd(:ncol, :pver), &
-          dse0=slfd(:ncol, :pver), &
-          ! input/output
-          ! (not actually updated since itaures = .false. in this internal call.)
-          tauresx=tauresx(:ncol), &
-          tauresy=tauresy(:ncol), &
-          ! below output
-          u1=ufd_out(:ncol, :pver), &
-          v1=vfd_out(:ncol, :pver), &
-          dse1=slfd_out(:ncol, :pver), &
-          dtk=jnk2d(:ncol, :), & ! unused dummy.
-          tautmsx=jnk1d(:ncol), & ! unused dummy.
-          tautmsy=jnk1d(:ncol), & ! unused dummy.
-          ! arguments for Beljaars
-          do_beljaars=do_beljaars, &
-          errmsg=errmsg, &
-          errflg=errflg)
+      if (errflg /= 0) return
 
-        if (errflg /= 0) return
+      ! Update u, v, dse with updated iterative values after diffusion solver
+      ufd(:, :pver) = ufd_out(:, :pver)
+      vfd(:, :pver) = vfd_out(:, :pver)
+      slfd(:, :pver) = slfd_out(:, :pver)
 
-        ! Update u, v, dse with updated iterative values after diffusion solver
-        ufd(:, :pver) = ufd_out(:, :pver)
-        vfd(:, :pver) = vfd_out(:, :pver)
-        slfd(:, :pver) = slfd_out(:, :pver)
+      ! Diffuse dry static energy
+      call vertical_diffusion_diffuse_dry_static_energy_run( &
+        ncol=ncol, &
+        pver=pver, &
+        dt=dt, &
+        gravit=gravit, &
+        p=p, & ! Coords1D, pressure coordinates [Pa]
+        rhoi=rhoi(:ncol, :pverp), &
+        shflx=shflx(:ncol), &
+        dse_top=zero(:ncol), & ! = zero
+        kvh=kvh(:ncol, :pverp), &
+        cgh=cgh(:ncol, :pverp), &
+        dpidz_sq=dpidz_sq(:ncol, :pverp), & ! moist
+        ! input/output
+        dse=slfd(:ncol, :pver), &
+        errmsg=errmsg, &
+        errflg=errflg)
 
-        ! Diffuse dry static energy
-        call vertical_diffusion_diffuse_dry_static_energy_run( &
-          ncol=ncol, &
-          pver=pver, &
-          dt=dt, &
-          gravit=gravit, &
-          p=p, & ! Coords1D, pressure coordinates [Pa]
-          rhoi=rhoi(:ncol, :pverp), &
-          shflx=shflx(:ncol), &
-          dse_top=zero(:ncol), & ! = zero
-          kvh=kvh(:ncol, :pverp), &
-          cgh=cgh(:ncol, :pverp), &
-          dpidz_sq=dpidz_sq(:ncol, :pverp), & ! moist
-          ! input/output
-          dse=slfd(:ncol, :pver), &
-          errmsg=errmsg, &
-          errflg=errflg)
+      if (errflg /= 0) return
 
-        if (errflg /= 0) return
+      ! Diffuse tracers
+      ! Only water vapor is actually diffused here; all constituent indices are subset to just water vapor,
+      ! or sized 1, in order to be compatible with the underlying CCPPized subroutine.
+      ubc_mmr_dummy(:ncol, :1) = 0._kind_phys
+      cnst_fixed_ubc(:1) = .false.
 
-        ! Diffuse tracers
-        ! Only water vapor is actually diffused here; all constituent indices are subset to just water vapor,
-        ! or sized 1, in order to be compatible with the underlying CCPPized subroutine.
-        ubc_mmr_dummy(:ncol, :1) = 0._kind_phys
-        cnst_fixed_ubc(:1) = .false.
+      qtfd_out(:, :, :) = 0._kind_phys
+      call vertical_diffusion_diffuse_tracers_run( &
+        ncol = ncol, &
+        pver = pver, &
+        ncnst = 1, & ! only water vapor is diffused here.
+        dt = dt, &
+        rair = rair, &
+        gravit = gravit, &
+        do_diffusion_const = do_diffusion_const_wet, & ! moist constituents to diffuse
+        p = p, & ! Coords1D, pressure coordinates [Pa]
+        t = t(:ncol, :pver), &
+        rhoi = rhoi(:ncol, :pverp), &
+        cflx = qflx(:ncol, const_wv_idx:const_wv_idx), & ! subset to water vapor only.
+        kvh = kvh(:ncol, :pverp), &
+        kvq = kvh(:ncol, :pverp), & ! [sic] kvh used for kvq here.
+        cgs = cgs(:ncol, :pverp), &
+        qmincg = zero(:ncol), &
+        dpidz_sq = dpidz_sq(:ncol, :pverp), & ! moist
+        ! upper boundary conditions from ubc module
+        ubc_mmr = ubc_mmr_dummy(:ncol, :1), &
+        cnst_fixed_ubc = cnst_fixed_ubc(:1), & ! = .false.
+        q0 = qtfd(:ncol, :pver, :1), &
+        q1 = qtfd_out(:ncol, :pver, :1), &
+        errmsg = errmsg, &
+        errflg = errflg)
 
-        qtfd_out(:, :, :) = 0._kind_phys
-        call vertical_diffusion_diffuse_tracers_run( &
-          ncol = ncol, &
-          pver = pver, &
-          ncnst = 1, & ! only water vapor is diffused here.
-          dt = dt, &
-          rair = rair, &
-          gravit = gravit, &
-          do_diffusion_const = do_diffusion_const_wet, & ! moist constituents to diffuse
-          p = p, & ! Coords1D, pressure coordinates [Pa]
-          t = t(:ncol, :pver), &
-          rhoi = rhoi(:ncol, :pverp), &
-          cflx = qflx(:ncol, const_wv_idx:const_wv_idx), & ! subset to water vapor only.
-          kvh = kvh(:ncol, :pverp), &
-          kvq = kvh(:ncol, :pverp), & ! [sic] kvh used for kvq here.
-          cgs = cgs(:ncol, :pverp), &
-          qmincg = zero(:ncol), &
-          dpidz_sq = dpidz_sq(:ncol, :pverp), & ! moist
-          ! upper boundary conditions from ubc module
-          ubc_mmr = ubc_mmr_dummy(:ncol, :1), &
-          cnst_fixed_ubc = cnst_fixed_ubc(:1), & ! = .false.
-          q0 = qtfd(:ncol, :pver, :1), &
-          q1 = qtfd_out(:ncol, :pver, :1), &
-          errmsg = errmsg, &
-          errflg = errflg)
+      if (errflg /= 0) return
 
-        if (errflg /= 0) return
+      ! update q with after in iterative process.
+      qtfd(:ncol, :pver, :1) = qtfd_out(:ncol, :pver, :1)
 
-        ! update q with after in iterative process.
-        qtfd(:ncol, :pver, :1) = qtfd_out(:ncol, :pver, :1)
+      ! Retrieve (tfd,qvfd,qlfd) from (slfd,qtfd) in order to
+      ! use 'trbintd' at the next iteration.
 
-        ! Retrieve (tfd,qvfd,qlfd) from (slfd,qtfd) in order to
-        ! use 'trbintd' at the next iteration.
-
-        do k = 1, pver
-          do i = 1, ncol
-            ! ----------------------------------------------------- !
-            ! Compute the condensate 'qlfd' in the updated profiles !
-            ! ----------------------------------------------------- !
-            ! Option.1 : Assume grid-mean condensate is homogeneously diffused by the moist turbulence scheme.
-            !            This should be used if 'pseudodiff = .false.' in vertical_diffusion.F90.
-            ! Modification : Need to be check whether below is correct in the presence of ice, qi.
-            !                I should understand why the variation of ice, qi is neglected during diffusion.
-            templ = (slfd(i, k) - gravit*z(i, k))/cpair
-            call qsat(templ, pmid(i, k), es, qs)
-            temps = templ + (qtfd(i, k, 1) - qs)/(cpair/latvap + latvap*qs/(rair*templ**2))
-            call qsat(temps, pmid(i, k), es, qs)
-            qlfd(i, k) = max(qtfd(i, k, 1) - qi(i, k) - qs, 0._kind_phys)
-            ! Option.2 : Assume condensate is not diffused by the moist turbulence scheme.
-            !            This should bs used if 'pseudodiff = .true.'  in vertical_diffusion.F90.
-            ! qlfd(i,k) = ql(i,k)
-            ! ----------------------------- !
-            ! Compute the other 'qvfd, tfd' !
-            ! ----------------------------- !
-            qvfd(i, k) = max(0._kind_phys, qtfd(i, k, 1) - qi(i, k) - qlfd(i, k))
-            tfd(i, k) = (slfd(i, k) + latvap*qlfd(i, k) + (latvap + latice)*qi(i, k) - gravit*z(i, k))/cpair
-          end do
+      do k = 1, pver
+        do i = 1, ncol
+          ! ----------------------------------------------------- !
+          ! Compute the condensate 'qlfd' in the updated profiles !
+          ! ----------------------------------------------------- !
+          ! Option.1 : Assume grid-mean condensate is homogeneously diffused by the moist turbulence scheme.
+          !            This should be used if 'pseudodiff = .false.' in vertical_diffusion.F90.
+          ! Modification : Need to be check whether below is correct in the presence of ice, qi.
+          !                I should understand why the variation of ice, qi is neglected during diffusion.
+          templ = (slfd(i, k) - gravit*z(i, k))/cpair
+          call qsat(templ, pmid(i, k), es, qs)
+          temps = templ + (qtfd(i, k, 1) - qs)/(cpair/latvap + latvap*qs/(rair*templ**2))
+          call qsat(temps, pmid(i, k), es, qs)
+          qlfd(i, k) = max(qtfd(i, k, 1) - qi(i, k) - qs, 0._kind_phys)
+          ! Option.2 : Assume condensate is not diffused by the moist turbulence scheme.
+          !            This should bs used if 'pseudodiff = .true.'  in vertical_diffusion.F90.
+          ! qlfd(i,k) = ql(i,k)
+          ! ----------------------------- !
+          ! Compute the other 'qvfd, tfd' !
+          ! ----------------------------- !
+          qvfd(i, k) = max(0._kind_phys, qtfd(i, k, 1) - qi(i, k) - qlfd(i, k))
+          tfd(i, k) = (slfd(i, k) + latvap*qlfd(i, k) + (latvap + latice)*qi(i, k) - gravit*z(i, k))/cpair
         end do
-      end if
+      end do
 
     end do iturb_loop  ! End of 'iturb' iteration
 

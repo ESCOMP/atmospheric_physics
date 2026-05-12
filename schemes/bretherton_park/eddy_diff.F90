@@ -72,27 +72,26 @@ module eddy_diff
   ! --------------------------------------------------------------------------------------------------- !
 
   real(kind_phys),         parameter :: a1l            =   0.10_kind_phys     ! Dry entrainment efficiency for TKE closure
-                                                                ! a1l = 0.2*tunl*erat^-1.5,
-                                                                ! where erat = <e>/wstar^2 for dry CBL =  0.3.
+                                                                              ! a1l = 0.2*tunl*erat^-1.5,
+                                                                              ! where erat = <e>/wstar^2 for dry CBL =  0.3.
 
   real(kind_phys),         parameter :: a1i            =   0.2_kind_phys      ! Dry entrainment efficiency for wstar closure
   real(kind_phys),         parameter :: ccrit          =   0.5_kind_phys      ! Minimum allowable sqrt(tke)/wstar.
-                                                                ! Used in solving cubic equation for 'ebrk'
+                                                                              ! Used in solving cubic equation for 'ebrk'
   real(kind_phys),         parameter :: wstar3factcrit =   0.5_kind_phys      ! 1/wstar3factcrit is the maximally allowed enhancement of
-                                                                ! 'wstar3' due to entrainment.
-
-  real(kind_phys)                    :: a2l                            ! Moist entrainment enhancement param (recommended range : 10~30 )
+                                                                              ! 'wstar3' due to entrainment.
+  real(kind_phys)                    :: a2l                                   ! Moist entrainment enhancement param (recommended range: 10~30)
   real(kind_phys),         parameter :: a3l            =   0.8_kind_phys      ! Approximation to a complicated thermodynamic parameters
 
-  real(kind_phys),         parameter :: jbumin         =   .001_kind_phys     ! Minimum buoyancy jump at an entrainment jump, [m/s2]
+  real(kind_phys),         parameter :: jbumin         =   .001_kind_phys     ! Minimum buoyancy jump at an entrainment jump [m s-2]
   real(kind_phys),         parameter :: evhcmax        =   10._kind_phys      ! Upper limit of evaporative enhancement factor
 
-  real(kind_phys),         parameter :: onet           =   1._kind_phys/3._kind_phys ! 1/3 power in wind gradient expression [ no unit ]
-  integer                     :: ncvmax                         ! Max numbers of CLs (good to set to 'pver')
+  real(kind_phys),         parameter :: onet           =   1._kind_phys/3._kind_phys ! 1/3 power in wind gradient expression [unitless]
+  integer                            :: ncvmax                                ! Max numbers of CLs (good to set to 'pver')
   real(kind_phys),         parameter :: qmin           =   1.e-5_kind_phys    ! Minimum grid-mean LWC counted as clouds [kg/kg]
   real(kind_phys),         parameter :: ntzero         =   1.e-12_kind_phys   ! Not zero (small positive number used in 's2')
   real(kind_phys),         parameter :: b1             =   5.8_kind_phys      ! TKE dissipation D = e^3/(b1*leng), e = b1*W.
-  real(kind_phys)                    :: b123                           ! b1**(2/3)
+  real(kind_phys)                    :: b123                                  ! b1**(2/3)
   real(kind_phys),         parameter :: tunl           =   0.085_kind_phys    ! Asympt leng = tunl*(turb lay depth)
   real(kind_phys),         parameter :: alph1          =   0.5562_kind_phys   ! alph1~alph5 : Galperin instability function parameters
   real(kind_phys),         parameter :: alph2          =  -4.3640_kind_phys   !               These coefficients are used to calculate
@@ -100,18 +99,17 @@ module eddy_diff
   real(kind_phys),         parameter :: alph4          =  -6.1272_kind_phys   !
   real(kind_phys),         parameter :: alph5          =   0.6986_kind_phys   !
   real(kind_phys),         parameter :: ricrit         =   0.19_kind_phys     ! Critical Richardson number for turbulence.
-                                                                ! Can be any value >= 0.19.
+                                                                              ! Can be any value >= 0.19.
   real(kind_phys),         parameter :: ae             =   1._kind_phys       ! TKE transport efficiency [no unit]
   real(kind_phys),         parameter :: rinc           =  -0.04_kind_phys     ! Minimum W/<W> used for CL merging test
   real(kind_phys),         parameter :: wpertmin       =   1.e-6_kind_phys    ! Minimum PBL eddy vertical velocity perturbation
   real(kind_phys),         parameter :: wfac           =   1._kind_phys       ! Ratio of 'wpert' to sqrt(tke) for CL.
   real(kind_phys),         parameter :: tfac           =   1._kind_phys       ! Ratio of 'tpert' to (w't')/wpert for CL.
-                                                                ! Same ratio also used for q
-  real(kind_phys),         parameter :: fak            =   8.5_kind_phys      ! Constant in surface temperature excess for stable STL.
-                                                                ! [ no unit ]
+                                                                              ! Same ratio also used for q
+  real(kind_phys),         parameter :: fak            =   8.5_kind_phys      ! Constant in surface temperature excess for stable STL [unitless]
   real(kind_phys),         parameter :: rcapmin        =   0.1_kind_phys      ! Minimum allowable e/<e> in a CL
   real(kind_phys),         parameter :: rcapmax        =   2.0_kind_phys      ! Maximum allowable e/<e> in a CL
-  real(kind_phys),         parameter :: tkemax         =  20._kind_phys       ! TKE is capped at tkemax [m2/s2]
+  real(kind_phys),         parameter :: tkemax         =   20._kind_phys      ! TKE is capped at tkemax [m2/s2]
 
   logical,          parameter :: use_dw_surf    =  .true.       ! Used in 'zisocl'. Default is 'true'
                                                                 ! If 'true', surface interfacial energy does not contribute
@@ -777,10 +775,10 @@ contains
     real(kind_phys) :: wstar_CL(ncol,ncvmax)                ! Convective velocity of CL including entrainment contribution finally [ m/s ]
     real(kind_phys) :: wstar3fact_CL(ncol,ncvmax)           ! "wstar3fact" of CL. Entrainment enhancement of wstar3 (inverse)
 
-    real(kind_phys) :: gh_a(ncol,pver+1)                    ! Half of normalized buoyancy production, -l2n2/2e. [ no unit ]
-    real(kind_phys) :: sh_a(ncol,pver+1)                    ! Galperin instability function of heat-moisture at all interfaces [ no unit ]
-    real(kind_phys) :: sm_a(ncol,pver+1)                    ! Galperin instability function of momentum      at all interfaces [ no unit ]
-    real(kind_phys) :: ri_a(ncol,pver+1)                    ! Interfacial Richardson number                  at all interfaces [ no unit ]
+    real(kind_phys) :: gh_a(ncol,pver+1)                    ! Half of normalized buoyancy production, -l2n2/2e. [unitless]
+    real(kind_phys) :: sh_a(ncol,pver+1)                    ! Galperin instability function of heat-moisture at all interfaces [unitless]
+    real(kind_phys) :: sm_a(ncol,pver+1)                    ! Galperin instability function of momentum      at all interfaces [unitless]
+    real(kind_phys) :: ri_a(ncol,pver+1)                    ! Interfacial Richardson number                  at all interfaces [unitless]
 
     real(kind_phys) :: ebrk(ncol,ncvmax)                    ! Net CL mean TKE [ m2/s2 ]
     real(kind_phys) :: wbrk(ncol,ncvmax)                    ! Net CL mean normalized TKE [ m2/s2 ]
