@@ -25,7 +25,7 @@
   dimensions = (prescribed_aero_specifier_dimension)
   intent = in
 [ prescribed_aero_file ]
-  standard_name = filename_for_prescribed_aerosols
+  standard_name = filename_of_prescribed_aerosols
   units = none
   type = character | kind = len=*
   dimensions = ()
@@ -115,7 +115,7 @@
   dimensions = (prescribed_aero_specifier_dimension)
   intent = in
 [ prescribed_aero_file ]
-  standard_name = filename_for_prescribed_aerosols
+  standard_name = filename_of_prescribed_aerosols
   units = none
   type = character | kind = len=*
   dimensions = ()
