@@ -18,7 +18,7 @@
   dimensions = ()
   intent = in
 [ prescribed_volcaero_file ]
-  standard_name = filename_for_prescribed_volcanic_aerosol
+  standard_name = filename_of_prescribed_volcanic_aerosol
   units = none
   type = character | kind = len=*
   dimensions = ()
@@ -65,7 +65,7 @@
   dimensions = ()
   intent = in
 [ prescribed_volcaero_file ]
-  standard_name = filename_for_prescribed_volcanic_aerosol
+  standard_name = filename_of_prescribed_volcanic_aerosol
   units = none
   type = character | kind = len=*
   dimensions = ()

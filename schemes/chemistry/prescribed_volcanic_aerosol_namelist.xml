@@ -95,7 +95,7 @@
     <type>char*256</type>
     <category>chemistry</category>
     <group>prescribed_volcaero_nl</group>
-    <standard_name>filename_for_prescribed_volcanic_aerosol</standard_name>
+    <standard_name>filename_of_prescribed_volcanic_aerosol</standard_name>
     <units>none</units>
     <desc>
       Filename of dataset for prescribed volcanic aerosols.

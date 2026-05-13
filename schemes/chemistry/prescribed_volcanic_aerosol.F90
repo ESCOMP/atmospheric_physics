@@ -121,7 +121,9 @@ contains
     if (errflg /= 0) return
 
     if (amIRoot) then
-      write(iulog,*) trim(subname)//': Registered 2 prescribed volcanic aerosol constituents'
+      write(iulog,*) trim(subname)//&
+        ': Registered 2 prescribed volcanic aerosol constituents: '//&
+        volcaero_const_name//', '//volcrad_const_name
     end if
 
   end subroutine prescribed_volcanic_aerosol_register
