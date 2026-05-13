@@ -24,17 +24,30 @@
     <scheme>apply_tendency_of_northward_wind</scheme>
     <scheme>qneg</scheme>
 
-    <!-- Update cp/cv for energy computation based in updated water variables -->
-    <scheme>thermo_water_update</scheme>
+    <!-- thermo_water_update prepares cp_or_cv_dycore for post-physics
+         total-energy diagnostics (i.e., tot_energy_phys in CAM).
+         COMMENTED OUT: CAM-SIMA does not have tot_energy_phys diagnostics
+         yet, thus cp_or_cv_dycore does not need to be updated mid-physics
+         at this time.
+
+         check_energy_scaling reads cp_or_cv_dycore_at_start_of_physics_timestep
+         (computed in d_p_coupling/dyn_coupling_impl) instead
+         and should not use mid-physics timestep updated values (see CAM#1554).
+         Re-enable once dme_adjust is enabled and tot_energy_physics diagnostics
+         are implemented. -->
+    <!-- <scheme>thermo_water_update</scheme> -->
 
     <!-- COMMENTED OUT until qini/liqini/iceini have initialization routines -->
     <!-- See https://github.com/ESCOMP/atmospheric_physics/issues/222 -->
     <!-- <scheme>dme_adjust</scheme> -->
 
     <!-- MPAS and SE specific scaling of temperature for enforcing energy consistency:
-         First, calculate the scaling based off cp_or_cv_dycore (from cam_thermo_water_update)
-         Then, perform the temperature and temperature tendency scaling,
-         and apply tendencies resulting from such adjustment -->
+         First, calculate the scaling based off the start-of-physics snapshot
+         cp_or_cv_dycore_at_start_of_physics_timestep (computed in d_p_coupling/
+         dyn_coupling_impl).
+         Any mid-physics mutation of cp_or_cv_dycore by thermo_water_update
+         should not be used.
+         Then, perform the temperature and temperature tendency scaling -->
     <scheme>check_energy_scaling</scheme>
     <scheme>dycore_energy_consistency_adjust</scheme>
     <scheme>apply_tendency_of_air_temperature</scheme>
