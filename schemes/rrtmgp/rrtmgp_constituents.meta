@@ -1,0 +1,65 @@
+[ccpp-table-properties]
+  name = rrtmgp_constituents
+  type = scheme
+
+[ccpp-arg-table]
+  name  = rrtmgp_constituents_register
+  type  = scheme
+[ rad_climate ]
+  standard_name = sources_of_radiatively_active_gases_for_climate_calculation
+  units = none
+  type = character | kind = len=256
+  dimensions = (rad_climate_dimension)
+  intent = in
+[ rrtmgp_dyn_consts ]
+  standard_name = rrtmgp_constituents_dyn_consts
+  units = none
+  type = ccpp_constituent_properties_t
+  allocatable = True
+  dimensions = (:)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+[ccpp-arg-table]
+  name  = rrtmgp_constituents_run
+  type  = scheme
+[ gaslist ]
+  standard_name = list_of_active_gases_for_RRTMGP
+  units = none
+  type = character | kind = len=*
+  dimensions = (gaslist_dimension)
+  intent = in
+[ const_array ]
+  standard_name = ccpp_constituents
+  units = none
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension,number_of_ccpp_constituents)
+  intent = in
+[ rad_const_array ]
+  standard_name = radiatively_active_gas_mass_mixing_ratios_wrt_dry_air
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension,number_of_active_gases_for_RRTMGP)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

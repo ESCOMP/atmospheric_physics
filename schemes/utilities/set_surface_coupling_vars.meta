@@ -1,0 +1,240 @@
+[ccpp-table-properties]
+  name = set_surface_coupling_vars
+  type = scheme
+
+[ccpp-arg-table]
+  name  = set_surface_coupling_vars_run
+  type  = scheme
+
+#----------------
+#Input Arguments
+#----------------
+
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ ncnst ]
+  standard_name = number_of_ccpp_constituents
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ gravit ]
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ rair ]
+  standard_name = gas_constant_of_dry_air
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ phis ]
+  standard_name = surface_geopotential
+  type = real | kind = kind_phys
+  units = m2 s-2
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ surf_pres ]
+  standard_name = surface_air_pressure
+  type = real | kind = kind_phys
+  units = Pa
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ air_temp ]
+  standard_name = air_temperature
+  type = real | kind = kind_phys
+  units = K
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ inv_ps_exner ]
+  standard_name = reciprocal_of_dimensionless_exner_function_wrt_surface_air_pressure
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ zm ]
+  standard_name = geopotential_height_wrt_surface
+  type = real | kind = kind_phys
+  units = m
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ rho ]
+  standard_name = dry_air_density
+  units = kg m-3
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  type = real | kind = kind_phys
+  intent = in
+[ uwnd ]
+  standard_name = eastward_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ vwnd ]
+  standard_name = northward_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ air_pres ]
+  standard_name = air_pressure
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ cnst_array ]
+  standard_name = ccpp_constituents
+  units = none
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
+  type = real | kind = kind_phys
+  intent = in
+[ prec_dp ]
+  standard_name = lwe_precipitation_rate_at_surface_due_to_deep_convection
+  units =  m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ snow_dp ]
+  standard_name = lwe_frozen_precipitation_rate_at_surface_due_to_deep_convection
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ prec_sh ]
+  standard_name = lwe_precipitation_rate_at_surface_due_to_shallow_convection
+  units =  m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ snow_sh ]
+  standard_name = lwe_frozen_precipitation_rate_at_surface_due_to_shallow_convection
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ prec_str ]
+  standard_name = lwe_large_scale_precipitation_rate_at_surface
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ snow_str ]
+  standard_name = lwe_snow_and_cloud_ice_precipitation_rate_at_surface_due_to_microphysics
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+
+#----------------
+#Output Arguments
+#----------------
+
+[ air_temp_bot ]
+  standard_name = air_temperature_at_bottom_layer_to_coupler
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ pot_temp_bot ]
+  standard_name = potential_temperature_wrt_surface_pressure_at_bottom_layer_to_coupler
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ zm_bot ]
+  standard_name = geopotential_height_wrt_surface_at_bottom_layer_to_coupler
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ rho_bot ]
+  standard_name = dry_air_density_at_bottom_layer_to_coupler
+  units = kg m-3
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ uwnd_bot ]
+  standard_name = eastward_wind_at_bottom_layer_to_coupler
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ vwnd_bot ]
+  standard_name = northward_wind_at_bottom_layer_to_coupler
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ air_pres_bot ]
+  standard_name = air_pressure_at_bottom_layer_to_coupler
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ topo_height ]
+  standard_name = surface_topographic_height_to_coupler
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ sea_lev_pres ]
+  standard_name = air_pressure_at_sea_level_to_coupler
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ cnst_bot ]
+  standard_name = constituent_mixing_ratio_at_bottom_layer_to_coupler
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, number_of_ccpp_constituents)
+  intent = out
+[ conv_prec ]
+  standard_name = lwe_convective_precipitation_rate_at_surface_to_coupler
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ conv_snow ]
+  standard_name = lwe_convective_snowfall_rate_at_surface_to_coupler
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ strat_prec ]
+  standard_name = lwe_large_scale_precipitation_rate_at_surface_to_coupler
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ strat_snow ]
+  standard_name = lwe_large_scale_snowfall_rate_at_surface_to_coupler
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errcode ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+

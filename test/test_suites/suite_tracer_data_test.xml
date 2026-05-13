@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<suite name="tracer_data_test" version="1.0">
+  <group name="physics_before_coupler">
+    <!-- tracer_data test scheme via prescribed_ozone -->
+    <scheme>prescribed_ozone</scheme>
+
+    <!-- more advanced tracer_data test scheme via prescribed_aerosols -->
+    <scheme>prescribed_aerosols</scheme>
+
+    <!-- prescribed aerosol deposition flux (requires prescribed_aerosols) -->
+    <scheme>prescribed_aerosol_deposition_flux</scheme>
+  </group>
+</suite>

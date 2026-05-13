@@ -1,3 +1,5 @@
+! Updates dry static energy from updated temperature and geopotential height.
+! If ran, must be after geopotential_temp scheme.
 module static_energy
 
   use ccpp_kinds, only: kind_phys

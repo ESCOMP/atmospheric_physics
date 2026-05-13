@@ -35,7 +35,7 @@ jobs:
       - name: Build atmospheric_physics
         run: |
           cmake \
-            -DCMAKE_PREFIX_PATH=/home/runner/work/atmospheric_physics/atmospheric_physics/pFUnit/build/installed \
+            -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/pFUnit/build/installed \
             -DATMOSPHERIC_PHYSICS_ENABLE_CODE_COVERAGE=ON \
             -B./build \
             -S./test/unit-test

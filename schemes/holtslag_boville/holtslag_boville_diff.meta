@@ -1,0 +1,638 @@
+[ccpp-table-properties]
+  name = holtslag_boville_diff
+  type = scheme
+
+[ccpp-arg-table]
+  name  = holtslag_boville_diff_init
+  type  = scheme
+[ amIRoot ]
+  standard_name = flag_for_mpi_root
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ iulog ]
+  standard_name = log_output_unit
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pverp ]
+  standard_name = vertical_interface_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ karman ]
+  standard_name = von_karman_constant
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ pref_mid ]
+  standard_name = reference_pressure_in_atmosphere_layer
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (vertical_layer_dimension)
+  intent = in
+[ is_hbr_pbl_scheme ]
+  standard_name = flag_for_hbr_configuration_of_holtslag_boville_mixing_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ ntop_turb_in ]
+  standard_name = vertical_layer_index_of_eddy_vertical_diffusion_top
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = holtslag_boville_diff_finalize
+  type  = scheme
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+
+[ccpp-table-properties]
+  name = hb_pbl_independent_coefficients
+  type = scheme
+
+[ccpp-arg-table]
+  name  = hb_pbl_independent_coefficients_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ zvir ]
+  standard_name = ratio_of_water_vapor_to_dry_air_gas_constants_minus_one
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ rair ]
+  standard_name = gas_constant_of_dry_air
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ cpair ]
+  standard_name = specific_heat_of_dry_air_at_constant_pressure
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ gravit ]
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ karman ]
+  standard_name = von_karman_constant
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ exner ]
+  standard_name = reciprocal_of_dimensionless_exner_function_wrt_surface_air_pressure
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ t ]
+  standard_name = air_temperature
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ q_wv ]
+  standard_name = water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
+  units = kg kg-1
+  advected = True
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ z ]
+  standard_name = geopotential_height_wrt_surface
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ pmid ]
+  standard_name = air_pressure
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ u ]
+  standard_name = eastward_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ v ]
+  standard_name = northward_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ taux ]
+  standard_name = eastward_total_stress_at_surface_for_holtslag_boville_boundary_layer_scheme
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ tauy ]
+  standard_name = northward_total_stress_at_surface_for_holtslag_boville_boundary_layer_scheme
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ shflx ]
+  standard_name = surface_upward_sensible_heat_flux_from_coupler
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ q_wv_flx ]
+  standard_name = surface_upward_water_vapor_flux
+  # surface_upward_ccpp_constituent_fluxes but only for water vapor.
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ thv ]
+  standard_name = virtual_potential_temperature_wrt_surface_pressure_at_bottom_layer
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ ustar ]
+  standard_name = surface_friction_velocity
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ khfs ]
+  standard_name = kinematic_sensible_heat_flux_at_surface
+  units = K m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ kqfs ]
+  standard_name = kinematic_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_flux_at_surface
+  units = kg kg-1 m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ kbfs ]
+  standard_name = kinematic_buoyancy_flux_at_surface
+  # m s-2 m s-1
+  units = m2 s-3
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ obklen ]
+  standard_name = obukhov_length
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ s2 ]
+  standard_name = square_of_wind_shear
+  units = s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ ri ]
+  standard_name = gradient_richardson_number
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-table-properties]
+  name = hb_pbl_dependent_coefficients
+  type = scheme
+
+[ccpp-arg-table]
+  name  = hb_pbl_dependent_coefficients_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pverp ]
+  standard_name = vertical_interface_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ gravit ]
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ z ]
+  standard_name = geopotential_height_wrt_surface
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ zi ]
+  standard_name = geopotential_height_wrt_surface_at_interface
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ u ]
+  standard_name = eastward_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ v ]
+  standard_name = northward_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ cldn ]
+  standard_name = stratiform_cloud_area_fraction
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ thv ]
+  standard_name = virtual_potential_temperature_wrt_surface_pressure_at_bottom_layer
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ ustar ]
+  standard_name = surface_friction_velocity
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ kbfs ]
+  standard_name = kinematic_buoyancy_flux_at_surface
+  # m s-2 m s-1
+  units = m2 s-3
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ obklen ]
+  standard_name = obukhov_length
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ pblh ]
+  standard_name = atmosphere_boundary_layer_thickness
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ wstar ]
+  standard_name = atmosphere_boundary_layer_convective_velocity_scale
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ bge ]
+  standard_name = atmosphere_boundary_layer_buoyancy_gradient_enhancement_for_holtslag_boville_mixing_scheme
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-table-properties]
+  name = hb_diff_exchange_coefficients
+  type = scheme
+
+[ccpp-arg-table]
+  name  = hb_diff_exchange_coefficients_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pverp ]
+  standard_name = vertical_interface_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ karman ]
+  standard_name = von_karman_constant
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ cpair ]
+  standard_name = specific_heat_of_dry_air_at_constant_pressure
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ z ]
+  standard_name = geopotential_height_wrt_surface
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ is_hbr_pbl_scheme ]
+  standard_name = flag_for_hbr_configuration_of_holtslag_boville_mixing_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ kqfs ]
+  standard_name = kinematic_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_flux_at_surface
+  units = kg kg-1 m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ khfs ]
+  standard_name = kinematic_sensible_heat_flux_at_surface
+  units = K m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ kbfs ]
+  standard_name = kinematic_buoyancy_flux_at_surface
+  # m s-2 m s-1
+  units = m2 s-3
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ ustar ]
+  standard_name = surface_friction_velocity
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ obklen ]
+  standard_name = obukhov_length
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ s2 ]
+  standard_name = square_of_wind_shear
+  units = s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ ri ]
+  standard_name = gradient_richardson_number
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ pblh ]
+  standard_name = atmosphere_boundary_layer_thickness
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ wstar ]
+  standard_name = atmosphere_boundary_layer_convective_velocity_scale
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ bge ]
+  standard_name = atmosphere_boundary_layer_buoyancy_gradient_enhancement_for_holtslag_boville_mixing_scheme
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ kvm ]
+  standard_name = eddy_momentum_diffusivity_at_interfaces
+  units = m2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ kvh ]
+  standard_name = eddy_heat_diffusivity_at_interfaces
+  units = m2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ kvq ]
+  standard_name = eddy_constituent_diffusivity_at_interfaces
+  units = m2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ cgh ]
+  standard_name = counter_gradient_coefficient_for_vertical_diffusion_of_heat_at_interfaces
+  units = J kg-1 m-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ cgs ]
+  standard_name = counter_gradient_coefficient_for_vertical_diffusion_of_constituents_at_interfaces
+  units = s m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ tpert ]
+  standard_name = convective_temperature_perturbation_due_to_pbl_eddies
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ qpert ]
+  standard_name = convective_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_perturbation_due_to_pbl_eddies
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tke ]
+  standard_name = specific_turbulent_kinetic_energy_at_interfaces
+  units = m2 s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-table-properties]
+  name = hb_diff_free_atm_exchange_coefficients
+  type = scheme
+
+[ccpp-arg-table]
+  name  = hb_diff_free_atm_exchange_coefficients_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pverp ]
+  standard_name = vertical_interface_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ s2 ]
+  standard_name = square_of_wind_shear
+  units = s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ ri ]
+  standard_name = gradient_richardson_number
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ bottom_boundary ]
+  standard_name = vertical_layer_index_of_clubb_top_tbd
+  units = index
+  #REMOVECAM: change to integer after CAM snapshots are no longer used
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ kvm ]
+  standard_name = eddy_momentum_diffusivity_at_interfaces
+  units = m2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ kvh ]
+  standard_name = eddy_heat_diffusivity_at_interfaces
+  units = m2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ kvq ]
+  standard_name = eddy_constituent_diffusivity_at_interfaces
+  units = m2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ cgh ]
+  standard_name = counter_gradient_coefficient_for_vertical_diffusion_of_heat_at_interfaces
+  units = J kg-1 m-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ cgs ]
+  standard_name = counter_gradient_coefficient_for_vertical_diffusion_of_constituents_at_interfaces
+  units = s m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

@@ -21,7 +21,6 @@ module SCHEME_diagnostics
 
    implicit none
    private
-   save
 
    public :: SCHEME_diagnostics_init ! init routine
    public :: SCHEME_diagnostics_run  ! main routine

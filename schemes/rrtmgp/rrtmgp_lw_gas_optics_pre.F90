@@ -1,5 +1,4 @@
 module rrtmgp_lw_gas_optics_pre
-
   implicit none
   private
 
@@ -10,20 +9,20 @@ contains
 !> \section arg_table_rrtmgp_lw_gas_optics_pre_run Argument Table
 !! \htmlinclude rrtmgp_lw_gas_optics_pre_run.html
 !!
-  subroutine rrtmgp_lw_gas_optics_pre_run(rad_const_array, pmid, pint, nlay, ncol, gaslist, idxday, &
+  subroutine rrtmgp_lw_gas_optics_pre_run(rad_const_array, pmid, pint, nlay, ncol, gaslist, &
                   pverp, ktoprad, ktopcam, dolw, nradgas, gas_concs, errmsg, errflg)
     use ccpp_kinds,              only: kind_phys
     use ccpp_gas_concentrations, only: ty_gas_concs_ccpp
+    use radiation_utils,         only: get_molar_mass_ratio
 
     ! Set gas vmr for the gases in the radconstants module's gaslist.
 
-    character(len=*),            intent(in) :: gaslist(:)             ! Radiatively active gases
+    character(len=5),            intent(in) :: gaslist(:)             ! Radiatively active gases
     integer,                     intent(in) :: nlay                   ! Number of layers in radiation calculation
     integer,                     intent(in) :: ncol                   ! Total number of columns
     integer,                     intent(in) :: pverp                  ! Total number of layer interfaces
-    integer,                     intent(in) :: idxday(:)              ! Indices of daylight columns
-    integer,                     intent(in) :: ktoprad                ! Index in RRTMGP array corresponding to top layer or interface of CAM arrays
-    integer,                     intent(in) :: ktopcam                ! Index in CAM arrays of top level (layer or interface) at which RRTMGP is active
+    integer,                     intent(in) :: ktoprad                ! Index in RRTMGP array corresponding to top layer or interface of host model arrays
+    integer,                     intent(in) :: ktopcam                ! Index in host model arrays of top level (layer or interface) at which RRTMGP is active
     integer,                     intent(in) :: nradgas                ! Number of radiatively active gases
     logical,                     intent(in) :: dolw                   ! Flag for whether to perform longwave calculaion
     real(kind_phys),             intent(in) :: pmid(:,:)              ! Air pressure at midpoints [Pa]
@@ -125,58 +124,5 @@ contains
     end do
 
   end subroutine rrtmgp_lw_gas_optics_pre_run
-
-!=========================================================================================
-
-  subroutine get_molar_mass_ratio(gas_name, massratio, errmsg, errflg)
-    use ccpp_kinds,              only: kind_phys
-
-    ! return the molar mass ratio of dry air to gas based on gas_name
-
-    character(len=*), intent(in)  :: gas_name
-    real(kind_phys),  intent(out) :: massratio
-    character(len=*), intent(out) :: errmsg
-    integer,          intent(out) :: errflg
-
-    ! local variables
-    real(kind_phys), parameter :: amdw = 1.607793_kind_phys    ! Molecular weight of dry air / water vapor
-    real(kind_phys), parameter :: amdc = 0.658114_kind_phys    ! Molecular weight of dry air / carbon dioxide
-    real(kind_phys), parameter :: amdo = 0.603428_kind_phys    ! Molecular weight of dry air / ozone
-    real(kind_phys), parameter :: amdm = 1.805423_kind_phys    ! Molecular weight of dry air / methane
-    real(kind_phys), parameter :: amdn = 0.658090_kind_phys    ! Molecular weight of dry air / nitrous oxide
-    real(kind_phys), parameter :: amdo2 = 0.905140_kind_phys   ! Molecular weight of dry air / oxygen
-    real(kind_phys), parameter :: amdc1 = 0.210852_kind_phys   ! Molecular weight of dry air / CFC11
-    real(kind_phys), parameter :: amdc2 = 0.239546_kind_phys   ! Molecular weight of dry air / CFC12
-
-    character(len=*), parameter :: sub='get_molar_mass_ratio'
-    !----------------------------------------------------------------------------
-    ! Set error variables
-    errmsg = ''
-    errflg = 0
-
-    select case (trim(gas_name)) 
-       case ('H2O') 
-          massratio = amdw
-       case ('CO2')
-          massratio = amdc
-       case ('O3')
-          massratio = amdo
-       case ('CH4')
-          massratio = amdm
-       case ('N2O')
-          massratio = amdn
-       case ('O2')
-          massratio = amdo2
-       case ('CFC11')
-          massratio = amdc1
-       case ('CFC12')
-          massratio = amdc2
-       case default
-          write(errmsg, '(a,a,a)') sub, ': Invalid gas: ', trim(gas_name)
-          errflg = 1
-    end select
-
-end subroutine get_molar_mass_ratio
-
 
 end module rrtmgp_lw_gas_optics_pre

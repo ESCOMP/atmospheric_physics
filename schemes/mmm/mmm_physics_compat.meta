@@ -3,6 +3,54 @@
   type = scheme
 
 [ccpp-arg-table]
+  name = mmm_physics_compat_init
+  type = scheme
+[ isfflx ]
+  standard_name = control_for_surface_flux_for_mmm_scheme
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+[ isftcflx ]
+  standard_name = control_for_surface_roughness_length_over_water_for_mmm_scheme
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+[ iz0tlnd ]
+  standard_name = control_for_surface_roughness_length_over_land_for_mmm_scheme
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+[ spp_pbl ]
+  standard_name = flag_for_stochastically_perturbed_parameterization_for_mynn_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ xice_threshold ]
+  standard_name = sea_ice_area_fraction_threshold_for_mmm_scheme
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
   name = mmm_physics_compat_run
   type = scheme
 [ nstep ]
@@ -41,6 +89,24 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
+[ icefrac ]
+  standard_name = sea_ice_area_fraction_from_coupler
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ xice_threshold ]
+  standard_name = sea_ice_area_fraction_threshold_for_mmm_scheme
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ landfrac ]
+  standard_name = land_area_fraction_from_coupler
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
 [ scheme_name ]
   standard_name = scheme_name
   units = none
@@ -58,6 +124,12 @@
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ xland ]
+  standard_name = land_binary_mask_for_mmm_scheme
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
   intent = out
 [ errmsg ]
   standard_name = ccpp_error_message

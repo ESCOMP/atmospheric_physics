@@ -127,6 +127,7 @@ contains
       call constituent_props(species_index)%instantiate( &
         std_name = species_name, &
         long_name = species_name, &
+        diag_name = species_name, &
         units = 'kg kg-1', &
         vertical_dim = 'vertical_layer_dimension', &
         default_value = default_value, &

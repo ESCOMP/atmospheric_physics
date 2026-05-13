@@ -113,29 +113,34 @@ contains
   subroutine rayleigh_friction_run(pver, ztodt, u, v, dudt, dvdt, dsdt, errmsg, errflg)
 
     !------------------------------Arguments--------------------------------
-    integer,             intent(in) :: pver
-    real(kind_phys),     intent(in) :: ztodt   !physics timestep
-    real(kind_phys),     intent(in) :: u(:,:)     
-    real(kind_phys),     intent(in) :: v(:,:)     
-    real(kind_phys),    intent(out) :: dudt(:,:) !tendency_of_eastward_wind    
-    real(kind_phys),    intent(out) :: dvdt(:,:) !tendency_of_northward_wind    
-    real(kind_phys),    intent(out) :: dsdt(:,:)  !heating_rate 
+    integer,            intent(in) :: pver
+    real(kind_phys),    intent(in) :: ztodt      !physics timestep
+    real(kind_phys),    intent(in) :: u(:,:)     !eastward wind 
+    real(kind_phys),    intent(in) :: v(:,:)     !northward wind
+    real(kind_phys),    intent(out) :: dudt(:,:) !tendency of eastward wind    
+    real(kind_phys),    intent(out) :: dvdt(:,:) !tendency of northward wind    
+    real(kind_phys),    intent(out) :: dsdt(:,:) !heating rate (tendency of dry air enthalpy at constant pressure) 
       
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errflg
    
     !---------------------------Local storage-------------------------------
-    character(len=*),     parameter :: subname = 'rayleigh_friction_run'
-    integer :: k                                   ! level
-    real(kind_phys) :: rztodt                      ! 1./ztodt
-    real(kind_phys) :: c1, c2, c3                  ! temporary variables
+    integer :: k                                 ! level
+    real(kind_phys) :: rztodt                    ! 1./ztodt
+    real(kind_phys) :: c1, c2, c3                ! temporary variables
     !-----------------------------------------------------------------------
     
     ! initialize values
     errmsg = ''
     errflg = 0
 
-    if (raytau0 .eq. 0._kind_phys) return
+    if (raytau0 == 0._kind_phys) then
+       ! Rayleigh friction not enabled, return zero tendencies
+       dudt = 0._kind_phys
+       dvdt = 0._kind_phys
+       dsdt = 0._kind_phys
+       return
+    end if
 
     rztodt = 1._kind_phys/ztodt
 

@@ -1,0 +1,67 @@
+[ccpp-table-properties]
+  name = rrtmgp_sw_calculate_heating_rate
+  type = scheme
+
+[ccpp-arg-table]
+  name  = rrtmgp_sw_calculate_heating_rate_run
+  type  = scheme
+[ ktopcam ]
+  standard_name = vertical_index_at_top_level_where_RRTMGP_is_active
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ gravit ]
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ rpdel ]
+  standard_name = reciprocal_of_air_pressure_thickness
+  units = Pa-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ flux_net ]
+  standard_name = shortwave_net_radiative_flux
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_interface_dimension)
+  intent = in
+[ flux_net_clrsky ]
+  standard_name = shortwave_net_radiative_clear_sky_flux
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_interface_dimension)
+  intent = in
+[ hrate ]
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_shortwave_radiation
+  units = J kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+[ hrate_clrsky ]
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_clear_sky_shortwave_radiation
+  units = J kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

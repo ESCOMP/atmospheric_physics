@@ -5,7 +5,6 @@
   <!-- **********Physics before the coupler************  -->
   <group name="physics_before_coupler">
     <!-- (temporary) Initialize all constituents and to_be_ccppized modules -->
-    <scheme>initialize_constituents</scheme>
     <scheme>to_be_ccppized_temporary</scheme>
 
     <!-- Set top level for cloud fraction calculations -->
@@ -42,6 +41,7 @@
     <scheme>zm_conv_options</scheme>
     <scheme>zm_convr</scheme>
     <scheme>zm_convr_tendency_diagnostics</scheme>
+    <scheme>save_ttend_from_convect_deep</scheme>
     <scheme>apply_heating_rate</scheme>
     <scheme>apply_constituent_tendencies</scheme>
     <scheme>qneg</scheme>
@@ -51,6 +51,7 @@
     <scheme>zm_conv_evap</scheme>
     <scheme>set_general_conv_fluxes_to_deep</scheme>
     <scheme>zm_evap_tendency_diagnostics</scheme>
+    <scheme>save_ttend_from_convect_deep</scheme>
     <scheme>apply_heating_rate</scheme>
     <scheme>apply_constituent_tendencies</scheme>
     <scheme>qneg</scheme>
@@ -58,6 +59,7 @@
     <scheme>cloud_fraction_fice</scheme>
     <scheme>zm_conv_momtran</scheme>
     <scheme>zm_momtran_tendency_diagnostics</scheme>
+    <scheme>save_ttend_from_convect_deep</scheme>
     <scheme>apply_heating_rate</scheme>
     <scheme>apply_tendency_of_eastward_wind</scheme>
     <scheme>apply_tendency_of_northward_wind</scheme>
@@ -74,6 +76,13 @@
     <scheme>check_energy_scaling</scheme>
     <scheme>check_energy_chng</scheme>
 
+    <!-- Calculate surface variables -->
+    <!-- This must be done at the end
+         of the "before_coupler" group. -->
+    <!-- UNCOMMENT ONCE ALL OTHER CAM7 SCHEMES ARE PRESENT -->
+    <!-- <scheme>calc_dry_air_ideal_gas_density</scheme>
+    <scheme>set_surface_coupling_vars</scheme> -->
+
   </group>
 
   <!-- **********Physics after the coupler************  -->
@@ -82,11 +91,58 @@
     <!-- State diagnostics -->
     <scheme>sima_state_diagnostics</scheme>
 
+    <!-- Radiation -->
+
     <!-- Find tropopause -->
     <!-- Tropopause find has to make history output at the end of convective adjustment -->
     <!-- so supersaturated cells are not written to the tape. -->
     <scheme>tropopause_find</scheme>
     <scheme>tropopause_diagnostics</scheme>
+
+    <!-- Vertical diffusion -->
+
+
+    <!--
+      Gravity wave drag.
+    -->
+    <!-- Initialize all gravity wave parameterizations and read namelist -->
+    <scheme>gravity_wave_drag_common</scheme>
+
+    <!-- Interstitial: Prepare vertical profiles and accumulated quantities -->
+    <scheme>check_energy_zero_fluxes</scheme>
+    <scheme>gravity_wave_drag_prepare_profiles</scheme>
+
+    <!-- Prepare vertical ramp coefficients to taper drag at top of model -->
+    <scheme>gravity_wave_drag_top_taper</scheme>
+
+    <!-- Moving mountain gravity wave drag (SE dycore only) -->
+    <scheme>gravity_wave_drag_moving_mountain</scheme>
+    <scheme>gravity_wave_drag_moving_mountain_diagnostics</scheme>
+
+    <!-- Convective gravity wave drag (Beres et al.) - deep convection -->
+    <scheme>gravity_wave_drag_convection_deep</scheme>
+    <scheme>gravity_wave_drag_convection_deep_diagnostics</scheme>
+
+    <!-- Frontally generated gravity wave drag -->
+    <scheme>gravity_wave_drag_frontogenesis</scheme>
+    <scheme>gravity_wave_drag_frontogenesis_diagnostics</scheme>
+
+    <!-- Ridge gravity wave drag -->
+    <scheme>gravity_wave_drag_ridge</scheme>
+    <scheme>gravity_wave_drag_ridge_beta</scheme>
+    <scheme>gravity_wave_drag_ridge_beta_diagnostics</scheme>
+
+    <!-- Interstitial: Convert tendencies for dry constituents to dry air basis -->
+    <scheme>convert_dry_constituent_tendencies_to_dry_air_basis</scheme>
+
+    <!-- Apply tendencies from gravity wave parameterizations -->
+    <scheme>apply_tendency_of_eastward_wind</scheme>
+    <scheme>apply_tendency_of_northward_wind</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+    <scheme>update_dry_static_energy</scheme>
 
     <!-- Save current total energy from dycore for energy fixer in time step. Total energy in current state is updated by the last check_energy_chng call. -->
     <scheme>check_energy_save_teout</scheme>

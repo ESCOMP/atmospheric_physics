@@ -63,7 +63,7 @@
   standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure
   units = J kg-1 s-1
   type = real | kind = kind_phys
-  dimensions = (1:horizontal_loop_extent,1:vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ errmsg ]
   standard_name = ccpp_error_message

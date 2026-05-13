@@ -1,0 +1,1045 @@
+[ccpp-table-properties]
+  name = vertical_diffusion_set_temperature_at_toa_default
+  type = scheme
+
+[ccpp-arg-table]
+  name  = vertical_diffusion_set_temperature_at_toa_default_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ t ]
+  standard_name = air_temperature
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ t_toai ]
+  standard_name = air_temperature_at_interface_above_top_of_atmosphere_for_vertical_diffusion
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-table-properties]
+  name = vertical_diffusion_interpolate_to_interfaces
+  type = scheme
+
+[ccpp-arg-table]
+  name  = vertical_diffusion_interpolate_to_interfaces_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pverp ]
+  standard_name = vertical_interface_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ gravit ]
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ rair ]
+  standard_name = gas_constant_of_dry_air
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ rairv ]
+  standard_name = composition_dependent_gas_constant_of_dry_air
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ flag_for_constituent_dependent_gas_constant ]
+  standard_name = use_composition_dependent_gas_constant_in_vertical_diffusion
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ t ]
+  standard_name = air_temperature
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ t_toai ]
+  standard_name = air_temperature_at_interface_above_top_of_atmosphere_for_vertical_diffusion
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ pint ]
+  standard_name = air_pressure_at_interface
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ pintdry ]
+  standard_name = air_pressure_of_dry_air_at_interface
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ ti ]
+  standard_name = air_temperature_at_interfaces_for_vertical_diffusion
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ rairi ]
+  standard_name = gas_constant_of_dry_air_at_interfaces_for_vertical_diffusion
+  units = J K-1 kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ rhoi ]
+  standard_name = air_density_at_interfaces_for_vertical_diffusion
+  units = kg m-3
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ rhoi_dry ]
+  standard_name = dry_air_density_at_interfaces_for_vertical_diffusion
+  units = kg m-3
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ dpidz_sq ]
+  standard_name = square_of_derivative_of_air_pressure_with_respect_to_height_at_interfaces_for_vertical_diffusion
+  units = kg2 m-4 s-4
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-table-properties]
+  name = implicit_surface_stress_add_drag_coefficient
+  type = scheme
+
+[ccpp-arg-table]
+  name  = implicit_surface_stress_add_drag_coefficient_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ do_iss ]
+  standard_name = do_implicit_total_surface_stress_in_vertical_diffusion
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ taux ]
+  standard_name = eastward_stress_at_surface_for_vertical_diffusion
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ tauy ]
+  standard_name = northward_stress_at_surface_for_vertical_diffusion
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ u0 ]
+  standard_name = eastward_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ v0 ]
+  standard_name = northward_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ ksrf ]
+  standard_name = total_drag_coefficient_at_surface
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = inout
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-table-properties]
+  name = vertical_diffusion_wind_damping_rate
+  type = scheme
+
+[ccpp-arg-table]
+  name  = vertical_diffusion_wind_damping_rate_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ gravit ]
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ p ]
+  standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion
+  units = none
+  type = coords1d
+  dimensions = ()
+  intent = in
+[ ksrf ]
+  standard_name = total_drag_coefficient_at_surface
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ tau_damp_rate ]
+  standard_name = horizontal_wind_damping_rate_due_to_total_surface_drag
+  units = s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-table-properties]
+  name = vertical_diffusion_diffuse_horizontal_momentum
+  type = scheme
+
+[ccpp-arg-table]
+  name  = vertical_diffusion_diffuse_horizontal_momentum_timestep_init
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ ksrf ]
+  standard_name = total_drag_coefficient_at_surface
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension)
+  intent = out
+[ tau_damp_rate ]
+  standard_name = horizontal_wind_damping_rate_due_to_total_surface_drag
+  units = s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = vertical_diffusion_diffuse_horizontal_momentum_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pverp ]
+  standard_name = vertical_interface_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ dt ]
+  standard_name = timestep_for_physics
+  units = s
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ rair ]
+  standard_name = gas_constant_of_dry_air
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ gravit ]
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ do_iss ]
+  standard_name = do_implicit_total_surface_stress_in_vertical_diffusion
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ am_correction ]
+  standard_name = do_angular_momentum_correction_in_vertical_diffusion
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ itaures ]
+  standard_name = update_residual_stress_at_surface_in_vertical_diffusion
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ do_beljaars ]
+  standard_name = do_beljaars_drag_in_vertical_diffusion_tbd
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ p ]
+  standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion
+  units = none
+  type = coords1d
+  dimensions = ()
+  intent = in
+[ t ]
+  standard_name = air_temperature
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ rhoi ]
+  standard_name = air_density_at_interfaces_for_vertical_diffusion
+  units = kg m-3
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ taux ]
+  standard_name = eastward_stress_at_surface_for_vertical_diffusion
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ tauy ]
+  standard_name = northward_stress_at_surface_for_vertical_diffusion
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ tau_damp_rate ]
+  standard_name = horizontal_wind_damping_rate_due_to_total_surface_drag
+  units = s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ ksrftms ]
+  standard_name = turbulent_orographic_form_drag_coefficent_at_surface
+  units = kg s-1 m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ dragblj ]
+  standard_name = turbulent_orographic_form_drag_coefficent
+  units = s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ kvm ]
+  standard_name = eddy_momentum_diffusivity_at_interfaces
+  units = m2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ dpidz_sq ]
+  standard_name = square_of_derivative_of_air_pressure_with_respect_to_height_at_interfaces_for_vertical_diffusion
+  units = kg2 m-4 s-4
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ u0 ]
+  standard_name = eastward_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ v0 ]
+  standard_name = northward_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ dse0 ]
+  standard_name = dry_static_energy
+  units = J kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ tauresx ]
+  standard_name = eastward_reserved_stress_at_surface_on_previous_timestep
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = inout
+[ tauresy ]
+  standard_name = northward_reserved_stress_at_surface_on_previous_timestep
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = inout
+[ dtk ]
+  standard_name = kinetic_energy_dissipation_in_atmosphere_boundary_layer
+  units = J kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ tautmsx ]
+  standard_name = eastward_turbulent_mountain_surface_stress_tbd
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tautmsy ]
+  standard_name = northward_turbulent_mountain_surface_stress_tbd
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ u1 ]
+  standard_name = eastward_wind_after_vertical_diffusion
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ v1 ]
+  standard_name = northward_wind_after_vertical_diffusion
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ dse1 ]
+  standard_name = dry_static_energy_after_vertical_diffusion
+  units = J kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-table-properties]
+  name = vertical_diffusion_set_dry_static_energy_at_toa_zero
+  type = scheme
+
+[ccpp-arg-table]
+  name  = vertical_diffusion_set_dry_static_energy_at_toa_zero_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ dse_top ]
+  standard_name = dry_static_energy_at_top_of_atmosphere_tbd
+  units = J kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-table-properties]
+  name = vertical_diffusion_set_dry_static_energy_at_toa_molecdiff
+  type = scheme
+
+[ccpp-arg-table]
+  name  = vertical_diffusion_set_dry_static_energy_at_toa_molecdiff_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ gravit ]
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ cpairv ]
+  standard_name = composition_dependent_specific_heat_of_dry_air_at_constant_pressure
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ zi ]
+  standard_name = geopotential_height_wrt_surface_at_interface
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ tint ]
+  standard_name = air_temperature_at_interfaces_for_vertical_diffusion
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ dse_top ]
+  standard_name = dry_static_energy_at_top_of_atmosphere_tbd
+  units = J kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-table-properties]
+  name = vertical_diffusion_diffuse_dry_static_energy
+  type = scheme
+
+[ccpp-arg-table]
+  name  = vertical_diffusion_diffuse_dry_static_energy_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ dt ]
+  standard_name = timestep_for_physics
+  units = s
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ gravit ]
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ p ]
+  standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion
+  units = none
+  type = coords1d
+  dimensions = ()
+  intent = in
+[ rhoi ]
+  standard_name = air_density_at_interfaces_for_vertical_diffusion
+  units = kg m-3
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ shflx ]
+  standard_name = surface_upward_sensible_heat_flux_for_vertical_diffusion
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ dse_top ]
+  standard_name = dry_static_energy_at_top_of_atmosphere_tbd
+  units = J kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ kvh ]
+  standard_name = eddy_heat_diffusivity_at_interfaces
+  units = m2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ cgh ]
+  standard_name = counter_gradient_coefficient_for_vertical_diffusion_of_heat_at_interfaces
+  units = J kg-1 m-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ dpidz_sq ]
+  standard_name = square_of_derivative_of_air_pressure_with_respect_to_height_at_interfaces_for_vertical_diffusion
+  units = kg2 m-4 s-4
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ dse ]
+  # this is inout as previously horizontal momentum diffusion already
+  # modified the provisional after-vdiff dse.
+  standard_name = dry_static_energy_after_vertical_diffusion
+  units = J kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-table-properties]
+  name = vertical_diffusion_diffuse_tracers
+  type = scheme
+
+
+[ccpp-arg-table]
+  name  = vertical_diffusion_diffuse_tracers_init
+  type  = scheme
+[ ncnst ]
+  # note: this is set to ccpp_constituents for now because
+  # q is sized number_of_ccpp_constituents as well, and cannot
+  # yet be a custom dimension. when CAM5 is ported, ncnst = 1,
+  # and q would have to have a custom dimension of, e.g.,
+  # number_of_ccpp_constituents_for_vertical_diffusion_solver.
+  # but this is not yet supported, so ncnst is all constituents for now.
+  standard_name = number_of_ccpp_constituents
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ do_diffusion_const ]
+  # only dimension should be ncnst, not pcnst.
+  standard_name = flag_for_ccpp_constituent_vertical_diffusion
+  units = flag
+  type = logical
+  dimensions = (number_of_ccpp_constituents)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = vertical_diffusion_diffuse_tracers_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ ncnst ]
+  # note: this is set to ccpp_constituents for now because
+  # q is sized number_of_ccpp_constituents as well, and cannot
+  # yet be a custom dimension. when CAM5 is ported, ncnst = 1,
+  # and q would have to have a custom dimension of, e.g.,
+  # number_of_ccpp_constituents_for_vertical_diffusion_solver.
+  # but this is not yet supported, so ncnst is all constituents for now.
+  standard_name = number_of_ccpp_constituents
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ dt ]
+  standard_name = timestep_for_physics
+  units = s
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ rair ]
+  standard_name = gas_constant_of_dry_air
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ gravit ]
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ do_diffusion_const ]
+  # only dimension should be ncnst, not pcnst.
+  standard_name = flag_for_ccpp_constituent_vertical_diffusion
+  units = flag
+  type = logical
+  dimensions = (number_of_ccpp_constituents)
+  intent = in
+[ p ]
+  standard_name = vertical_moist_pressure_coordinates_for_vertical_diffusion
+  units = none
+  type = coords1d
+  dimensions = ()
+  intent = in
+[ t ]
+  standard_name = air_temperature
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ rhoi ]
+  standard_name = air_density_at_interfaces_for_vertical_diffusion
+  units = kg m-3
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ cflx ]
+  # same note applies for the ncnst argument above that the second dimension
+  # is actually ncnst, not pcnst.
+  #
+  # when this is made ncnst, the standard name could be changed to
+  # surface_upward_ccpp_constituent_fluxes_for_vertical_diffusion
+  standard_name = surface_upward_ccpp_constituent_fluxes_from_coupler
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, number_of_ccpp_constituents)
+  intent = in
+[ kvh ]
+  standard_name = eddy_heat_diffusivity_at_interfaces
+  units = m2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ kvq ]
+  standard_name = eddy_constituent_diffusivity_at_interfaces
+  units = m2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ cgs ]
+  standard_name = counter_gradient_coefficient_for_vertical_diffusion_of_constituents_at_interfaces
+  units = s m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ qmincg ]
+  # same note applies for the ncnst argument above that the only dimension
+  # is actually ncnst, not pcnst.
+  standard_name = ccpp_constituent_minimum_values
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (number_of_ccpp_constituents)
+  intent = in
+[ dpidz_sq ]
+  standard_name = square_of_derivative_of_air_pressure_with_respect_to_height_at_interfaces_for_vertical_diffusion
+  units = kg2 m-4 s-4
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ ubc_mmr ]
+  # same note applies for the ncnst argument above that the second dimension
+  # is actually ncnst, not pcnst.
+  standard_name = upper_boundary_condition_of_ccpp_constituents
+  units = none
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, number_of_ccpp_constituents)
+  intent = in
+[ cnst_fixed_ubc ]
+  # same note applies for the ncnst argument above that the only dimension
+  # is actually ncnst, not pcnst.
+  standard_name = use_fixed_upper_boundary_condition_of_ccpp_constituents_tbd
+  units = flag
+  type = logical
+  dimensions = (number_of_ccpp_constituents)
+  intent = in
+[ q0 ]
+  standard_name = ccpp_constituents
+  units = none
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
+  intent = in
+[ q1 ]
+  standard_name = ccpp_constituents_after_vertical_diffusion
+  units = none
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-table-properties]
+  name = vertical_diffusion_tendencies
+  type = scheme
+
+[ccpp-arg-table]
+  name  = vertical_diffusion_tendencies_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pcnst ]
+  standard_name = number_of_ccpp_constituents
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ const_props ]
+  standard_name = ccpp_constituent_properties
+  units = none
+  type = ccpp_constituent_prop_ptr_t
+  dimensions = (number_of_ccpp_constituents)
+  intent = in
+[ dt ]
+  standard_name = timestep_for_physics
+  units = s
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ pdel ]
+  standard_name = air_pressure_thickness
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ pdeldry ]
+  standard_name = air_pressure_thickness_of_dry_air
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ u0 ]
+  standard_name = eastward_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ v0 ]
+  standard_name = northward_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ s0 ]
+  standard_name = dry_static_energy
+  units = J kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ q0 ]
+  standard_name = ccpp_constituents
+  units = none
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
+  intent = in
+[ u1 ]
+  standard_name = eastward_wind_after_vertical_diffusion
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ v1 ]
+  standard_name = northward_wind_after_vertical_diffusion
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ s1 ]
+  standard_name = dry_static_energy_after_vertical_diffusion
+  units = J kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ q1 ]
+  standard_name = ccpp_constituents_after_vertical_diffusion
+  units = none
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
+  intent = in
+[ tend_s ]
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure
+  units = J kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ tend_u ]
+  standard_name = tendency_of_eastward_wind
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ tend_v ]
+  standard_name = tendency_of_northward_wind
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ tend_q ]
+  standard_name = ccpp_constituent_tendencies
+  units = none
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
+  intent = out
+[ scheme_name ]
+  standard_name = scheme_name
+  units = none
+  type = character | kind = len=64
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
