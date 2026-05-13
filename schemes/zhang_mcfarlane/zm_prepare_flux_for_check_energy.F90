@@ -5,11 +5,8 @@
 ! The resulting net liquid and (lwe) ice fluxes are combined and provided to
 ! the check_energy_chng CCPPized scheme.
 module zm_prepare_flux_for_check_energy
-  use ccpp_kinds, only: kind_phys
-
   implicit none
   private
-  save
 
   public :: zm_prepare_flux_for_check_energy_run
 
@@ -23,6 +20,8 @@ contains
     scheme_name, &
     flx_cnd, flx_ice, &
     errmsg, errflg)
+
+    use ccpp_kinds, only: kind_phys
 
     ! Input arguments
     integer,            intent(in)  :: ncol
