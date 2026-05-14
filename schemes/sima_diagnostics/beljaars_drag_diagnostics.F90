@@ -14,7 +14,7 @@ contains
     use cam_history,         only: history_add_field
     use cam_history_support, only: horiz_only
 
-    character(len=512), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     errmsg = ''
@@ -43,7 +43,7 @@ contains
     real(kind_phys),    intent(in)  :: drag(:, :)   ! SGO drag profile [s-1]
     real(kind_phys),    intent(in)  :: taux(:)      ! surface zonal wind stress [N m-2]
     real(kind_phys),    intent(in)  :: tauy(:)      ! surface meridional wind stress [N m-2]
-    character(len=512), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     errmsg = ''
