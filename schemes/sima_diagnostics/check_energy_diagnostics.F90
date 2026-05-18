@@ -27,8 +27,8 @@ CONTAINS
       errflg = 0
 
       ! History add field calls
-      call history_add_field('cp_or_cv_dycore', 'specific_heat_of_air_used_in_dycore', 'lev', 'inst', 'J kg-1 K-1')
-      call history_add_field('scaling_dycore', 'ratio_of_specific_heat_of_air_used_in_physics_energy_formula_to_specific_heat_of_air_used_in_dycore_energy_formula', 'lev', 'inst', '1')
+      call history_add_field('cp_or_cv_dycore', 'specific_heat_of_air_used_in_dycore_at_start_of_physics_timestep', 'lev', 'inst', 'J kg-1 K-1')
+      call history_add_field('scaling_dycore', 'ratio_of_specific_heat_of_air_used_in_physics_energy_formula_to_specific_heat_of_air_used_in_dycore_energy_formula_at_start_of_physics_timestep', 'lev', 'inst', '1')
 
       call history_add_field('te_cur_phys', 'vertically_integrated_total_energy_using_physics_energy_formula', horiz_only, 'inst', 'J m-2')
       call history_add_field('tw_cur', 'vertically_integrated_total_water', horiz_only, 'inst', 'kg m-2')
