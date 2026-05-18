@@ -24,7 +24,7 @@
   dimensions = (aerodep_flx_specifier_dimension)
   intent = in
 [ filename ]
-  standard_name = filename_for_prescribed_aerosol_deposition_fluxes
+  standard_name = filename_of_prescribed_aerosol_deposition_fluxes
   units = none
   type = character | kind = len=*
   dimensions = ()
