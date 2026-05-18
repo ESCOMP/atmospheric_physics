@@ -28,7 +28,7 @@ contains
     integer,            intent(in)  :: iulog
     logical,            intent(in)  :: use_hetfrz_classnuc
 
-    character(len=512), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     errmsg = ''
@@ -42,6 +42,9 @@ contains
         write(iulog, '(A)') 'WARNING: hetfrz_classnuc_stub: The flag is still propagated to ' // &
                             'downstream schemes (e.g. nucleate_ice_ccpp) via its CCPP standard ' // &
                             'name, but no hetfrz_classnuc computation will occur.'
+
+        ! this is not intended to error out for now as the flag needs to be passed to downstream schemes
+        ! (e.g., PUMAS) and modifies their behavior
       else
         write(iulog, '(A)') 'hetfrz_classnuc_stub: use_hetfrz_classnuc=.false. (stub scheme, ' // &
                             'no-op).'

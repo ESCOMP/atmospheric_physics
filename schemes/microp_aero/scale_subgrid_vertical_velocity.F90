@@ -38,7 +38,7 @@ contains
     ! Output arguments
     real(kind_phys),  intent(out)   :: wsubi(:, :)         ! subgrid vertical velocity for ice nucleation [m s-1] (ncol, pver)
 
-    character(len=512), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     ! Local variables

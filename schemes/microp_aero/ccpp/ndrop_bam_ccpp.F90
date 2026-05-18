@@ -35,7 +35,7 @@ contains
     integer,         intent(out) :: naer_all
     integer,         intent(out) :: psat
 
-    character(len=512), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     errmsg = ''
@@ -86,7 +86,7 @@ contains
     real(kind_phys), intent(out) :: ccn(:, :, :) ! ncol, pver, psat
     real(kind_phys), intent(out) :: naer2_diag(:, :, :) ! ncol, pver, naer_all
 
-    character(len=512), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     ! Local variables

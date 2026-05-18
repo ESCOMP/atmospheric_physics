@@ -44,6 +44,7 @@
     -->
     <scheme>compute_subgrid_vertical_velocity_clubb</scheme>
     <scheme>scale_subgrid_vertical_velocity</scheme>
+    <scheme>scale_subgrid_vertical_velocity_diagnostics</scheme>
 
     <!-- Set default dust size radii for microphysics -->
     <scheme>dust_default_radii</scheme>
@@ -57,16 +58,14 @@
       Has constituent tendencies only in MAM/CARMA
     -->
     <scheme>nucleate_ice_ccpp</scheme>
+    <scheme>nucleate_ice_diagnostics</scheme>
 
     <!--
       Droplet activation (BAM)
       Computes npccn, nacon for microphysical schemes, ccn, naer2_diag for diag
     -->
     <scheme>ndrop_bam_ccpp</scheme>
-
-    <!--
-      BAM microp_aero diagnostics
-    -->
+    <scheme>ndrop_bam_diagnostics</scheme>
 
     <!-- Stub for hetfrz: used to pass the namelist option to other schemes
          since it alters behavior in other microphysical schemes. -->

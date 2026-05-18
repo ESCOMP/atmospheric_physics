@@ -75,7 +75,7 @@
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = out
 [ errflg ]
@@ -282,6 +282,54 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
+[ INnso4 ]
+  standard_name = tendency_of_sulfate_number_concentration_input_to_ice_nucleation
+  units = m-3 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ INnbc ]
+  standard_name = tendency_of_black_carbon_number_concentration_input_to_ice_nucleation
+  units = m-3 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ INndust ]
+  standard_name = tendency_of_dust_number_concentration_input_to_ice_nucleation
+  units = m-3 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ INondust ]
+  standard_name = tendency_of_dust_number_concentration_output_from_ice_nucleation
+  units = m-3 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ INhet ]
+  standard_name = tendency_of_heterogeneous_ice_nuclei_number_concentration
+  units = m-3 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ INhom ]
+  standard_name = tendency_of_homogeneous_ice_nuclei_number_concentration
+  units = m-3 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ INFrehom ]
+  standard_name = frequency_of_homogeneous_ice_nucleation
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ INFreIN ]
+  standard_name = frequency_of_ice_nucleation
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
 [ ptend_q ]
   standard_name = ccpp_constituent_tendencies
   units = none
@@ -291,7 +339,7 @@
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = out
 [ errflg ]

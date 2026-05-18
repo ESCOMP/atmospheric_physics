@@ -24,7 +24,7 @@ contains
     integer,            intent(in)  :: ndust
 
     real(kind_phys),    intent(out) :: rndst(:,:,:)
-    character(len=512), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     errmsg = ''

@@ -39,7 +39,7 @@ contains
 
     ! Output arguments:
     type(ccpp_constituent_properties_t), allocatable, intent(out) :: seasalt_constituents(:)
-    character(len=512), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     character(len=*), parameter :: subname = 'rebin_seasalt_register'
@@ -101,7 +101,7 @@ contains
     integer,            intent(in)  :: pcnst
     type(ccpp_constituent_prop_ptr_t), &
                         intent(in)  :: const_props(:)
-    character(len=512), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     character(len=*), parameter :: subname = 'rebin_seasalt_init'
@@ -156,7 +156,7 @@ contains
     integer,            intent(in)    :: pver
     integer,            intent(in)    :: pcnst
     real(kind_phys),    intent(inout) :: constituents(:,:,:) ! constituent mixing ratios [kg kg-1]
-    character(len=512), intent(out)   :: errmsg
+    character(len=*),   intent(out)   :: errmsg
     integer,            intent(out)   :: errflg
 
     ! Local variables

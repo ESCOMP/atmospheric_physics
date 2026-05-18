@@ -95,7 +95,7 @@ contains
     logical,          intent(in)  :: nucleate_ice_use_troplev
     logical,          intent(in)  :: prog_modal_aero
 
-    character(len=512), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     ! Local variables
@@ -205,6 +205,8 @@ contains
     nihf, niimm, nidep, nimey,           &
     regm, subgrid_diag, trop_pd,         &
     fhom, wice, weff,                    &
+    INnso4, INnbc, INndust, INondust,    &
+    INhet, INhom, INFrehom, INFreIN,     &
     ptend_q,                             &
     errmsg, errflg)
 
@@ -227,22 +229,22 @@ contains
     integer,          intent(in)  :: pcnst
     integer,          intent(in)  :: top_lev        ! top vertical level for cloud physics [index]
     real(kind_phys),  intent(in)  :: dtime          ! timestep [s]
-    real(kind_phys),  intent(in)  :: t(:, :)        ! temperature [K] (ncol, pver)
-    real(kind_phys),  intent(in)  :: pmid(:, :)     ! pressure at layer midpoints [Pa] (ncol, pver)
-    real(kind_phys),  intent(in)  :: qv(:, :)       ! water vapor mixing ratio [kg/kg] (ncol, pver)
-    real(kind_phys),  intent(in)  :: qc(:, :)       ! cloud liquid mixing ratio [kg/kg] (ncol, pver)
-    real(kind_phys),  intent(in)  :: qi(:, :)       ! cloud ice mixing ratio [kg/kg] (ncol, pver)
-    real(kind_phys),  intent(in)  :: ni(:, :)       ! cloud ice number concentration [1/kg] (ncol, pver)
+    real(kind_phys),  intent(in)  :: t(:, :)        ! temperature [K]
+    real(kind_phys),  intent(in)  :: pmid(:, :)     ! pressure at layer midpoints [Pa]
+    real(kind_phys),  intent(in)  :: qv(:, :)       ! water vapor mixing ratio [kg kg-1]
+    real(kind_phys),  intent(in)  :: qc(:, :)       ! cloud liquid mixing ratio [kg kg-1]
+    real(kind_phys),  intent(in)  :: qi(:, :)       ! cloud ice mixing ratio [kg kg-1]
+    real(kind_phys),  intent(in)  :: ni(:, :)       ! cloud ice number concentration [1 kg-1]
 
     real(kind_phys),  intent(in)  :: rair           ! gas constant for dry air [J kg-1 K-1]
     real(kind_phys),  intent(in)  :: tmelt          ! freezing point of water [K]
     real(kind_phys),  intent(in)  :: pi             ! pi
 
-    real(kind_phys),  intent(in)  :: wsubi(:, :)    ! subgrid vertical velocity for ice nucleation [m/s] (ncol, pver)
-    real(kind_phys),  intent(in)  :: aist(:, :)     ! ice cloud fraction [fraction] (ncol, pver)
-    integer,          intent(in)  :: tropLev_chem(:)   ! chemical tropopause level [index] (ncol)
-    real(kind_phys),  intent(in)  :: qsatfac(:, :)  ! subgrid saturation scaling factor [1] (ncol, pver)
-    real(kind_phys),  intent(in)  :: lat(:)         ! latitude [radians] (ncol)
+    real(kind_phys),  intent(in)  :: wsubi(:, :)    ! subgrid vertical velocity for ice nucleation [m s-1]
+    real(kind_phys),  intent(in)  :: aist(:, :)     ! ice cloud fraction [fraction]
+    integer,          intent(in)  :: tropLev_chem(:)! chemical tropopause level [index]
+    real(kind_phys),  intent(in)  :: qsatfac(:, :)  ! subgrid saturation scaling factor [1]
+    real(kind_phys),  intent(in)  :: lat(:)         ! latitude [radians]
 
     ! Note: below units for naai...nimey are tendencies (with s-1)
     ! as is convention for CAM7 PUMASv1.21+
@@ -251,31 +253,39 @@ contains
     ! divided by /dtime in this run phase.
 
     ! Output arguments
-    real(kind_phys),  intent(out) :: naai(:, :)      ! nucleated ice number [kg-1 s-1] (ncol, pver)
-    real(kind_phys),  intent(out) :: naai_hom(:, :)  ! nucleated ice number, hom. freezing only [kg-1 s-1] (ncol, pver)
+    real(kind_phys),  intent(out) :: naai(:, :)      ! nucleated ice number [kg-1 s-1]
+    real(kind_phys),  intent(out) :: naai_hom(:, :)  ! nucleated ice number, hom. freezing only [kg-1 s-1]
 
     ! Diagnostic outputs
-    real(kind_phys),  intent(out) :: nihf(:, :)     ! ice nuclei from hom. freezing [m-3 s-1] (ncol, pver)
-    real(kind_phys),  intent(out) :: niimm(:, :)    ! ice nuclei from immersion freezing [m-3 s-1] (ncol, pver)
-    real(kind_phys),  intent(out) :: nidep(:, :)    ! ice nuclei from deposition nucleation [m-3 s-1] (ncol, pver)
-    real(kind_phys),  intent(out) :: nimey(:, :)    ! ice nuclei from Meyers deposition [m-3 s-1] (ncol, pver)
-    real(kind_phys),  intent(out) :: regm(:, :)     ! nucleation regime temperature threshold [C] (ncol, pver)
-    real(kind_phys),  intent(out) :: subgrid_diag(:, :) ! ice nucleation subgrid saturation factor [1] (ncol, pver)
-    real(kind_phys),  intent(out) :: trop_pd(:, :)  ! chemical tropopause probability [1] (ncol, pver)
+    real(kind_phys),  intent(out) :: nihf(:, :)     ! ice nuclei from hom. freezing [m-3 s-1]
+    real(kind_phys),  intent(out) :: niimm(:, :)    ! ice nuclei from immersion freezing [m-3 s-1]
+    real(kind_phys),  intent(out) :: nidep(:, :)    ! ice nuclei from deposition nucleation [m-3 s-1]
+    real(kind_phys),  intent(out) :: nimey(:, :)    ! ice nuclei from Meyers deposition [m-3 s-1]
+    real(kind_phys),  intent(out) :: regm(:, :)     ! nucleation regime temperature threshold [C]
+    real(kind_phys),  intent(out) :: subgrid_diag(:, :) ! ice nucleation subgrid saturation factor [1]
+    real(kind_phys),  intent(out) :: trop_pd(:, :)  ! chemical tropopause probability [1]
 
     ! Pre-existing ice diagnostics (output regardless, zeroed if not use_preexisting_ice_)
-    real(kind_phys),  intent(out) :: fhom(:, :)     ! fraction of cirrus with hom. freezing [fraction] (ncol, pver)
-    real(kind_phys),  intent(out) :: wice(:, :)     ! vertical velocity reduction from preexisting ice [m/s] (ncol, pver)
-    real(kind_phys),  intent(out) :: weff(:, :)     ! effective vertical velocity for ice nucleation [m/s] (ncol, pver)
+    real(kind_phys),  intent(out) :: fhom(:, :)     ! fraction of cirrus with hom. freezing [fraction]
+    real(kind_phys),  intent(out) :: wice(:, :)     ! vertical velocity reduction from preexisting ice [m/s]
+    real(kind_phys),  intent(out) :: weff(:, :)     ! effective vertical velocity for ice nucleation [m/s]
 
-    ! todo: INnso4, INnbc, INndust, INondust, INhet, INhom, INfrehom, INFreIN
+    ! Pre-existing ice aerosol diagnostics (zeroed if not use_preexisting_ice_)
+    real(kind_phys),  intent(out) :: INnso4(:, :)   ! so4 number conc. tendency to ice nucleation [m-3 s-1]
+    real(kind_phys),  intent(out) :: INnbc(:, :)    ! bc number conc. tendency to ice nucleation [m-3 s-1]
+    real(kind_phys),  intent(out) :: INndust(:, :)  ! dust number conc. tendency to ice nucleation [m-3 s-1]
+    real(kind_phys),  intent(out) :: INondust(:, :) ! dust number conc. tendency from ice nucleation [m-3 s-1]
+    real(kind_phys),  intent(out) :: INhet(:, :)    ! heterogeneous IN number tendency [m-3 s-1]
+    real(kind_phys),  intent(out) :: INhom(:, :)    ! homogeneous IN number tendency [m-3 s-1]
+    real(kind_phys),  intent(out) :: INFrehom(:, :) ! homogeneous ice nucleation frequency [1]
+    real(kind_phys),  intent(out) :: INFreIN(:, :)  ! ice nucleation frequency [1]
 
     ! Constituent tendencies: CCPP framework applies these via tendency updater.
     ! For MAM/CARMA + use_preexisting_ice: interstitial-to-cloud-borne transfer.
     ! For BAM and aquaplanet: zeroed (no constituent tendencies).
-    real(kind_phys),  intent(out) :: ptend_q(:, :, :)  ! constituent tendencies [kg/kg/s] (ncol, pver, pcnst)
+    real(kind_phys),  intent(out) :: ptend_q(:, :, :)  ! constituent tendencies [kg kg-1 s-1] (ncol, pver, pcnst)
 
-    character(len=512), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     ! Local variables
@@ -302,16 +312,6 @@ contains
     real(kind_phys) :: oso4_num, odst_num, osoot_num
     real(kind_phys) :: so4_num_st_cr_tot
     real(kind_phys) :: dso4_num, ramp
-
-    ! Pre-existing ice diagnostics (local, for history output in future)
-    real(kind_phys) :: INnso4(ncol,pver)
-    real(kind_phys) :: INnbc(ncol,pver)
-    real(kind_phys) :: INndust(ncol,pver)
-    real(kind_phys) :: INondust(ncol,pver)
-    real(kind_phys) :: INhet(ncol,pver)
-    real(kind_phys) :: INhom(ncol,pver)
-    real(kind_phys) :: INFrehom(ncol,pver)
-    real(kind_phys) :: INFreIN(ncol,pver)
 
     ! Aerosol transfer working arrays (allocated only for MAM/CARMA)
     real(kind_phys), allocatable :: size_wght(:,:,:,:)  ! (ncol,pver,nbins,nmaxspc)
@@ -349,16 +349,14 @@ contains
     weff(:,:)     = 0._kind_phys
     ptend_q(:,:,:) = 0._kind_phys
 
-    if (use_preexisting_ice_) then
-      INnso4(:,:)   = 0.0_kind_phys
-      INnbc(:,:)    = 0.0_kind_phys
-      INndust(:,:)  = 0.0_kind_phys
-      INondust(:,:) = 0.0_kind_phys
-      INhet(:,:)    = 0.0_kind_phys
-      INhom(:,:)    = 0.0_kind_phys
-      INFrehom(:,:) = 0.0_kind_phys
-      INFreIN(:,:)  = 0.0_kind_phys
-    end if
+    INnso4(:,:)   = 0.0_kind_phys
+    INnbc(:,:)    = 0.0_kind_phys
+    INndust(:,:)  = 0.0_kind_phys
+    INondust(:,:) = 0.0_kind_phys
+    INhet(:,:)    = 0.0_kind_phys
+    INhom(:,:)    = 0.0_kind_phys
+    INFrehom(:,:) = 0.0_kind_phys
+    INFreIN(:,:)  = 0.0_kind_phys
 
     !---------------------------------------------------------------------------
     ! Prepare abstract aerosol properties and state object.
@@ -667,11 +665,6 @@ contains
     ! Clean up
     if (allocated(size_wght)) deallocate(size_wght)
     if (allocated(amb_num_bins)) deallocate(amb_num_bins)
-
-    ! History output is handled externally via CCPP standard name I/O.
-    ! When this scheme moves to atmospheric_physics, diagnostics
-    ! (NIHF/NIHFTEN, NIIMM/NIIMMTEN, INnso4TEN, etc.) will be output
-    ! via history_out_field calls.
 
   end subroutine nucleate_ice_ccpp_run
 

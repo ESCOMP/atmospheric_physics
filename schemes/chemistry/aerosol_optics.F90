@@ -49,7 +49,7 @@ contains
     integer,            intent(in)  :: nlwbands
 
     integer,            intent(out) :: num_bulk_aer
-    character(len=512), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     integer :: i
@@ -210,7 +210,7 @@ contains
     ! Per-constituent column visible OD for bulk aerosol (ncol, num_bulk_aer)
     real(kind_phys),    intent(out) :: odv_col_aod(:,:)
 
-    character(len=512), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     ! Local variables

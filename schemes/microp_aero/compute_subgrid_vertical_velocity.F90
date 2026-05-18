@@ -35,7 +35,7 @@ contains
     ! Output arguments
     real(kind_phys),  intent(out) :: wsub(:, :) ! subgrid vertical velocity [m s-1]
 
-    character(len=512), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     ! Local variables
@@ -73,7 +73,7 @@ contains
     ! Output arguments
     real(kind_phys),  intent(out) :: wsub(:, :) ! subgrid vertical velocity [m s-1]
 
-    character(len=512), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     ! Local variables
@@ -116,7 +116,7 @@ contains
     ! Output arguments
     real(kind_phys),  intent(out) :: wsub(:, :) ! subgrid vertical velocity [m s-1]
 
-    character(len=512), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     ! Local variables
