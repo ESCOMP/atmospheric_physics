@@ -432,6 +432,13 @@ contains
           end do ! ispec
 
           ! Volume-based partitioning and per-species AOD accumulation
+
+          ! FIXME: vol_d holds last species only (matches CAM behavior);
+          ! should be fixed to accumulate over all species
+          ! a corresponding change has to be made in aerosol_optics_cam.F90 in CAM.
+          ! This will all be revisited in the future in CAM as we move to runtime
+          ! configurability of which species are included in the optics calculation.
+          ! (hplin, 5/18/26)
           do icol = 1, ncol
             if (wetvol_d(icol, ilev) > 1.e-40_kind_phys .and. vol_d(icol) > 0._kind_phys) then
               scath2o_d  = watervol_d(icol, ilev)*crefwsw(idx_sw_diag)%re
