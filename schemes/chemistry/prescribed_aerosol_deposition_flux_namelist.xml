@@ -161,10 +161,10 @@
     <desc>
       The cycle year of the prescribed aerosol deposition flux data if aerodep_flx_type is 'CYCLICAL'.
       Format: YYYY
-      Default: 2000
+      Default: 0
     </desc>
     <values>
-      <value>2000</value>
+      <value>0</value>
     </values>
   </entry>
 
