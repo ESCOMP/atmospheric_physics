@@ -139,51 +139,39 @@ contains
 !! \htmlinclude arg_table_hb_pbl_independent_coefficients_run.html
   pure subroutine hb_pbl_independent_coefficients_run( &
     ncol, pver, &
-    zvir, rair, cpair, gravit, karman, &
-    exner, t, &
+    zvir, rair, gravit, &
+    t, th, &
     q_wv, &
     z, &
     pmid, &
     u, v, &
     taux, tauy, &
-    shflx, q_wv_flx, &
     ! below output
-    thv, ustar, &
-    khfs, kqfs, kbfs, &
-    obklen, s2, ri, &
+    thv, ustar, rrho, &
+    s2, ri, &
     errmsg, errflg)
-    use atmos_phys_pbl_utils, only: calc_virtual_temperature, calc_friction_velocity, calc_obukhov_length, &
-                                    calc_ideal_gas_rrho, &
-                                    calc_kinematic_heat_flux, calc_kinematic_water_vapor_flux, &
-                                    calc_kinematic_buoyancy_flux
+    use atmos_phys_pbl_utils, only: calc_virtual_temperature, calc_friction_velocity, calc_ideal_gas_rrho
 
     ! Input arguments
     integer,         intent(in)  :: ncol                     ! # of atmospheric columns
     integer,         intent(in)  :: pver                     ! # of vertical levels
     real(kind_phys), intent(in)  :: zvir
     real(kind_phys), intent(in)  :: rair
-    real(kind_phys), intent(in)  :: cpair
     real(kind_phys), intent(in)  :: gravit
-    real(kind_phys), intent(in)  :: karman
-    real(kind_phys), intent(in)  :: exner(:,:)               ! exner [1]
     real(kind_phys), intent(in)  :: t   (:,:)                ! temperature [K]
+    real(kind_phys), intent(in)  :: th  (:,:)                ! potential temperature [K]
     real(kind_phys), intent(in)  :: q_wv(:,:)                ! specific humidity [kg kg-1]
     real(kind_phys), intent(in)  :: z   (:,:)                ! height above surface [m]
     real(kind_phys), intent(in)  :: u   (:,:)                ! zonal velocity [m s-1]
     real(kind_phys), intent(in)  :: v   (:,:)                ! meridional velocity [m s-1]
     real(kind_phys), intent(in)  :: taux (:)                 ! zonal stress [N m-2]
     real(kind_phys), intent(in)  :: tauy (:)                 ! meridional stress [N m-2]
-    real(kind_phys), intent(in)  :: shflx(:)                 ! sensible heat flux [W m-2]
-    real(kind_phys), intent(in)  :: q_wv_flx(:)              ! upward water vapor flux at surface [kg m-2 s-1]
     real(kind_phys), intent(in)  :: pmid(:,:)                ! midpoint pressures
 
     ! Output arguments
     real(kind_phys), intent(out) :: thv(:,:)                 ! virtual potential temperature [K]
     real(kind_phys), intent(out) :: ustar(:)                 ! surface friction velocity [m s-1]
-    real(kind_phys), intent(out) :: khfs(:)                  ! kinematic surface heat flux [K m s-1]
-    real(kind_phys), intent(out) :: kqfs(:)                  ! kinematic surface water vapor flux [kg kg-1 m s-1]
-    real(kind_phys), intent(out) :: kbfs(:)                  ! surface kinematic buoyancy flux [m^2 s-3]
-    real(kind_phys), intent(out) :: obklen(:)                ! Obukhov length [m]
+    real(kind_phys), intent(out) :: rrho(:)                  ! 1 / bottom level density [m3 kg-1]
     real(kind_phys), intent(out) :: s2(:,:)                  ! shear squared [s-2]
     real(kind_phys), intent(out) :: ri(:,:)                  ! richardson number: n2/s2 [1]
     character(len=512), intent(out)   :: errmsg              ! error message
@@ -192,15 +180,10 @@ contains
     integer :: i, k
     real(kind_phys) :: dvdz2                                 ! velocity shear squared [m^2 s-2]
     real(kind_phys) :: dz                                    ! delta z between midpoints [m]
-    real(kind_phys) :: rrho(ncol)                            ! 1 / bottom level density [m^3 kg-1]
     real(kind_phys) :: n2(ncol, pver)                        ! brunt vaisaila frequency [s-2]
-    real(kind_phys) :: th(ncol, pver)                        ! potential temperature [K]
 
     errmsg = ''
     errflg = 0
-
-    ! calculate potential temperature [K]
-    th(:ncol,:) = t(:ncol,:) * exner(:ncol,:)
 
     ! virtual temperature
     thv(:,:) = 0._kind_phys
@@ -209,10 +192,6 @@ contains
     ! Compute ustar, Obukhov length, and kinematic surface fluxes.
     rrho(:ncol)   = calc_ideal_gas_rrho(rair, t(:ncol,pver), pmid(:ncol,pver))
     ustar(:ncol)  = calc_friction_velocity(taux(:ncol),tauy(:ncol), rrho(:ncol))
-    khfs(:ncol)   = calc_kinematic_heat_flux(shflx(:ncol), rrho(:ncol), cpair)
-    kqfs(:ncol)   = calc_kinematic_water_vapor_flux(q_wv_flx(:ncol), rrho(:ncol))
-    kbfs(:ncol)   = calc_kinematic_buoyancy_flux(khfs(:ncol), zvir, th(:ncol,pver), kqfs(:ncol))
-    obklen(:ncol) = calc_obukhov_length(thv(:ncol,pver), ustar(:ncol), gravit, karman, kbfs(:ncol))
 
     ! Initialize output arrays outside of turbulence region to zeroes
     s2(:,:) = 0._kind_phys

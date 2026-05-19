@@ -114,32 +114,20 @@
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
-[ cpair ]
-  standard_name = specific_heat_of_dry_air_at_constant_pressure
-  units = J kg-1 K-1
-  type = real | kind = kind_phys
-  dimensions = ()
-  intent = in
 [ gravit ]
   standard_name = standard_gravitational_acceleration
   units = m s-2
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
-[ karman ]
-  standard_name = von_karman_constant
-  units = 1
-  type = real | kind = kind_phys
-  dimensions = ()
-  intent = in
-[ exner ]
-  standard_name = reciprocal_of_dimensionless_exner_function_wrt_surface_air_pressure
-  units = 1
+[ t ]
+  standard_name = air_temperature
+  units = K
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
-[ t ]
-  standard_name = air_temperature
+[ th ]
+  standard_name = potential_temperature_wrt_surface_pressure
   units = K
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -176,32 +164,19 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ taux ]
-  standard_name = eastward_total_stress_at_surface_for_holtslag_boville_boundary_layer_scheme
+  standard_name = eastward_total_stress_at_surface_including_turbulent_orographic_form_drag_stress
   units = N m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
 [ tauy ]
-  standard_name = northward_total_stress_at_surface_for_holtslag_boville_boundary_layer_scheme
+  standard_name = northward_total_stress_at_surface_including_turbulent_orographic_form_drag_stress
   units = N m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
-[ shflx ]
-  standard_name = surface_upward_sensible_heat_flux_from_coupler
-  units = W m-2
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent)
-  intent = in
-[ q_wv_flx ]
-  standard_name = surface_upward_water_vapor_flux
-  # surface_upward_ccpp_constituent_fluxes but only for water vapor.
-  units = kg m-2 s-1
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent)
-  intent = in
 [ thv ]
-  standard_name = virtual_potential_temperature_wrt_surface_pressure_at_bottom_layer
+  standard_name = virtual_potential_temperature_wrt_surface_pressure
   units = K
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -212,33 +187,14 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
-[ khfs ]
-  standard_name = kinematic_sensible_heat_flux_at_surface
-  units = K m s-1
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent)
-  intent = out
-[ kqfs ]
-  standard_name = kinematic_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_flux_at_surface
-  units = kg kg-1 m s-1
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent)
-  intent = out
-[ kbfs ]
-  standard_name = kinematic_buoyancy_flux_at_surface
-  # m s-2 m s-1
-  units = m2 s-3
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent)
-  intent = out
-[ obklen ]
-  standard_name = obukhov_length
-  units = m
+[ rrho ]
+  standard_name = reciprocal_of_dry_air_density_of_bottom_layer
+  units = m3 kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
 [ s2 ]
-  standard_name = square_of_wind_shear
+  standard_name = square_of_vertical_wind_shear
   units = s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -324,7 +280,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ thv ]
-  standard_name = virtual_potential_temperature_wrt_surface_pressure_at_bottom_layer
+  standard_name = virtual_potential_temperature_wrt_surface_pressure
   units = K
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -460,7 +416,7 @@
   dimensions = (horizontal_loop_extent)
   intent = in
 [ s2 ]
-  standard_name = square_of_wind_shear
+  standard_name = square_of_vertical_wind_shear
   units = s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -532,7 +488,8 @@
   dimensions = (horizontal_loop_extent)
   intent = out
 [ tke ]
-  standard_name = specific_turbulent_kinetic_energy_at_interfaces
+  standard_name = tke_at_interfaces
+  long_name = specific Turbulent Kinetic Energy (TKE) at vertical interfaces
   units = m2 s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
@@ -576,7 +533,7 @@
   dimensions = ()
   intent = in
 [ s2 ]
-  standard_name = square_of_wind_shear
+  standard_name = square_of_vertical_wind_shear
   units = s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
