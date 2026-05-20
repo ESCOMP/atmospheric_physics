@@ -65,6 +65,7 @@ contains
         write(iulog,*) 'prescribed_ozone_register: ozone is prescribed in: ' // trim(filename)
       end if
     else
+      allocate(ozone_constituents(0))
       return
     end if
 
