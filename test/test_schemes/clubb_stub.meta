@@ -1,0 +1,27 @@
+[ccpp-table-properties]
+  name = clubb_stub
+  type = scheme
+[ccpp-arg-table]
+  name = clubb_stub_register
+  type = scheme
+[ do_clubb_sgs ]
+  standard_name = do_clubb
+  long_name = Flag indicating whether CLUBB is being used in the suite or not
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errcode ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
