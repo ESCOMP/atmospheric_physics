@@ -78,8 +78,8 @@ contains
 
       ! Convert namelist-provided number/mole fraction to
       ! mass mixing ratio w.r.t. dry air, and set constituents
-      ! array to new coonverted value:
-      const_array(:,:,const_idx) = ch4_vmr*dry_air_to_const_molar_mass_ratio
+      ! array to new converted value:
+      const_array(:,:,const_idx) = ch4_vmr/dry_air_to_const_molar_mass_ratio
 
     end if
 
@@ -101,8 +101,8 @@ contains
 
       ! Convert namelist-provided number/mole fraction to
       ! mass mixing ratio w.r.t. dry air, and set constituents
-      ! array to new coonverted value:
-      const_array(:,:,const_idx) = co2_vmr*dry_air_to_const_molar_mass_ratio
+      ! array to new converted value:
+      const_array(:,:,const_idx) = co2_vmr/dry_air_to_const_molar_mass_ratio
 
     end if
 
@@ -124,8 +124,8 @@ contains
 
       ! Convert namelist-provided number/mole fraction to
       ! mass mixing ratio w.r.t. dry air, and set constituents
-      ! array to new coonverted value:
-      const_array(:,:,const_idx) = cfc11_vmr*dry_air_to_const_molar_mass_ratio
+      ! array to new converted value:
+      const_array(:,:,const_idx) = cfc11_vmr/dry_air_to_const_molar_mass_ratio
 
     end if
 
@@ -147,8 +147,8 @@ contains
 
       ! Convert namelist-provided number/mole fraction to
       ! mass mixing ratio w.r.t. dry air, and set constituents
-      ! array to new coonverted value:
-      const_array(:,:,const_idx) = cfc12_vmr*dry_air_to_const_molar_mass_ratio
+      ! array to new converted value:
+      const_array(:,:,const_idx) = cfc12_vmr/dry_air_to_const_molar_mass_ratio
 
     end if
 
@@ -170,8 +170,8 @@ contains
 
       ! Convert namelist-provided number/mole fraction to
       ! mass mixing ratio w.r.t. dry air, and set constituents
-      ! array to new coonverted value:
-      const_array(:,:,const_idx) = n2o_vmr*dry_air_to_const_molar_mass_ratio
+      ! array to new converted value:
+      const_array(:,:,const_idx) = n2o_vmr/dry_air_to_const_molar_mass_ratio
 
     end if
 
