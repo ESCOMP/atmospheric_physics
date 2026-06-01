@@ -107,7 +107,7 @@
   intent = in
 [ calday ]
   standard_name = fractional_calendar_days_on_end_of_current_timestep
-  units = 1
+  units = days
   type = real | kind = kind_phys
   dimensions = ()
   intent = in

@@ -93,7 +93,6 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
 
     real(kind_phys) :: kemask
     real(kind_phys) :: evplimit               ! temp variable for evaporation limits
-    real(kind_phys) :: rlat(ncol)
     real(kind_phys) :: dum
     real(kind_phys) :: omsm
 

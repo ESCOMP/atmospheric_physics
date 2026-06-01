@@ -57,6 +57,19 @@ contains
 
     if (.not. doLWrad) return
 
+    !$acc data copyin(lw_optical_props_clrsky%optical_props,lw_optical_props_clrsky%optical_props%tau,   &
+    !$acc             aerlw%optical_props,aerlw%optical_props%tau,          &
+    !$acc             lw_optical_props_clouds%optical_props, lw_optical_props_clouds%optical_props%tau,        &
+    !$acc             sources%sources,sources%sources%lay_source,     &
+    !$acc             sources%sources%sfc_source,     &
+    !$acc             sources%sources%lev_source,     &
+    !$acc             sources%sources%sfc_source_jac, &
+    !$acc             sfc_emiss_byband)                          &
+    !$acc        copy(flux_clrsky%fluxes, flux_clrsky%fluxes%flux_net, flux_clrsky%fluxes%flux_up, &
+    !$acc             flux_clrsky%fluxes%flux_dn, flux_allsky%fluxes, flux_allsky%fluxes%flux_net,  &
+    !$acc             flux_allsky%fluxes%flux_up, flux_allsky%fluxes%flux_dn,    &
+    !$acc             lw_Ds)
+
     ! ###################################################################################
     !
     ! Compute clear-sky fluxes (gaseous+aerosol) (optional)
@@ -67,19 +80,18 @@ contains
     call check_error_msg('rrtmgp_lw_rte_increment_aerosol_to_clrsky', errmsg)
     if (len_trim(errmsg) /= 0) then
         errflg = 1
-        return
+        ! Can't return from within a top-level acc block
     end if
 
     ! Call RTE solver
-    if (doLWclrsky) then
+    if (errflg == 0 .and. doLWclrsky) then
        if (use_lw_optimal_angles) then
           errmsg = lw_gas_props%gas_props%compute_optimal_angles(lw_optical_props_clrsky%optical_props,lw_Ds)
           call check_error_msg('rrtmgp_lw_rte_opt_angle', errmsg)
           if (len_trim(errmsg) /= 0) then
              errflg = 1
-             return
           end if
-          if (nGauss_angles > 1) then
+          if (nGauss_angles > 1 .and. errflg == 0) then
              errmsg = rte_lw(           &
                   lw_optical_props_clrsky%optical_props, & ! IN  - optical-properties
                   sources%sources,                       & ! IN  - source function
@@ -87,7 +99,7 @@ contains
                   flux_clrsky%fluxes,                    & ! OUT - Fluxes
                   n_gauss_angles = nGauss_angles,        & ! IN  - Number of angles in Gaussian quadrature
                   lw_Ds = lw_Ds)                           ! IN  - 1/cos of transport angle per column and g-point
-          else
+          else if (errflg == 0) then
              errmsg = rte_lw(           &
                   lw_optical_props_clrsky%optical_props, & ! IN  - optical-properties
                   sources%sources,                       & ! IN  - source function
@@ -96,14 +108,14 @@ contains
                   lw_Ds = lw_Ds)                           ! IN  - 1/cos of transport angle per column and g-point
           end if
        else
-          if (nGauss_angles > 1) then
+          if (nGauss_angles > 1 .and. errflg == 0) then
              errmsg = rte_lw(           &
                   lw_optical_props_clrsky%optical_props, & ! IN  - optical-properties
                   sources%sources,                       & ! IN  - source function
                   sfc_emiss_byband,                      & ! IN  - surface emissivity in each LW band
                   flux_clrsky%fluxes,                    & ! OUT - Fluxes
                   n_gauss_angles = nGauss_angles)          ! IN  - Number of angles in Gaussian quadrature
-          else
+          else if (errflg == 0) then
              errmsg = rte_lw(           &
                   lw_optical_props_clrsky%optical_props, & ! IN  - optical-properties
                   sources%sources,                       & ! IN  - source function
@@ -114,7 +126,6 @@ contains
        call check_error_msg('rrtmgp_lw_rte_lw_rte_clrsky', errmsg)
        if (len_trim(errmsg) /= 0) then
           errflg = 1
-          return
        end if
     end if
 
@@ -134,15 +145,14 @@ contains
     ! ###################################################################################
 
     ! Include LW cloud-scattering?
-    if (doGP_lwscat) then 
+    if (doGP_lwscat .and. errflg == 0) then
        ! Increment
        errmsg = lw_optical_props_clrsky%optical_props%increment(lw_optical_props_clouds%optical_props)
        call check_error_msg('rrtmgp_lw_rte_increment_clrsky_to_clouds', errmsg)
        if (len_trim(errmsg) /= 0) then
            errflg = 1
-           return
        end if
-       if (use_LW_jacobian) then
+       if (use_LW_jacobian .and. errflg == 0) then
           if (nGauss_angles > 1) then
              errmsg = rte_lw(           &
                   lw_optical_props_clouds%optical_props, & ! IN  - optical-properties
@@ -159,7 +169,7 @@ contains
                   flux_allsky%fluxes,                    & ! OUT - Fluxes
                   flux_up_Jac    = fluxlwUP_jac)           ! OUT - surface temperature flux (upward) Jacobian (W m-2 K-1)
           end if
-       else
+       else if (errflg == 0) then
           if (nGauss_angles > 1) then
              errmsg = rte_lw(           &
                   lw_optical_props_clouds%optical_props, & ! IN  - optical-properties
@@ -182,10 +192,9 @@ contains
        call check_error_msg('rrtmgp_lw_rte_increment_clouds_to_clrsky', errmsg)
        if (len_trim(errmsg) /= 0) then
            errflg = 1
-           return
        end if
  
-       if (use_LW_jacobian) then
+       if (use_LW_jacobian .and. errflg == 0) then
           if (nGauss_angles > 1) then
              errmsg = rte_lw(           &
                   lw_optical_props_clrsky%optical_props, & ! IN  - optical-properties
@@ -202,7 +211,7 @@ contains
                   flux_allsky%fluxes,                    & ! OUT - Fluxes
                   flux_up_Jac    = fluxlwUP_jac)           ! OUT - surface temperature flux (upward) Jacobian (W m-2 K-1)
           end if
-       else
+       else if (errflg == 0) then
           if (nGauss_angles > 1) then
              errmsg = rte_lw(           &
                   lw_optical_props_clrsky%optical_props, & ! IN  - optical-properties
@@ -223,6 +232,7 @@ contains
     if (len_trim(errmsg) /= 0) then
        errflg = 1
     end if
+    !$acc end data
 
   end subroutine rrtmgp_lw_rte_run
 end module rrtmgp_lw_rte
