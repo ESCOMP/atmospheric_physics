@@ -702,11 +702,11 @@
 # ----------
 
 [ccpp-table-properties]
-  name = compute_hydrostatic_upward_air_velocity_at_if
+  name = compute_hydrostatic_upward_air_velocity_at_interface
   type = scheme
 
 [ccpp-arg-table]
-  name = compute_hydrostatic_upward_air_velocity_at_if_run
+  name = compute_hydrostatic_upward_air_velocity_at_interface_run
   type = scheme
 [ gravit ]
   standard_name = standard_gravitational_acceleration
@@ -798,11 +798,11 @@
 # ----------
 
 [ccpp-table-properties]
-  name = geopotential_height_wrt_sfc_at_if_to_msl
+  name = geopotential_height_wrt_sfc_at_interface_to_msl
   type = scheme
 
 [ccpp-arg-table]
-  name = geopotential_height_wrt_sfc_at_if_to_msl_run
+  name = geopotential_height_wrt_sfc_at_interface_to_msl_run
   type = scheme
 [ ncol ]
   standard_name = horizontal_loop_extent

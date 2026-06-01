@@ -10,9 +10,9 @@ module mmm_physics_compat
     public :: mmm_physics_persist_states_init
     public :: mmm_physics_persist_states_timestep_final
     public :: compute_characteristic_grid_length_scale_init
-    public :: compute_hydrostatic_upward_air_velocity_at_if_run
+    public :: compute_hydrostatic_upward_air_velocity_at_interface_run
     public :: compute_hydrostatic_upward_air_velocity_run
-    public :: geopotential_height_wrt_sfc_at_if_to_msl_run
+    public :: geopotential_height_wrt_sfc_at_interface_to_msl_run
     public :: geopotential_height_wrt_sfc_to_msl_run
 contains
     !> \section arg_table_mmm_physics_compat_init Argument Table
@@ -313,9 +313,9 @@ contains
         dx(:) = sqrt(omega(:) * (rearth ** 2))
     end subroutine compute_characteristic_grid_length_scale_init
 
-    !> \section arg_table_compute_hydrostatic_upward_air_velocity_at_if_run Argument Table
-    !! \htmlinclude compute_hydrostatic_upward_air_velocity_at_if_run.html
-    pure subroutine compute_hydrostatic_upward_air_velocity_at_if_run( &
+    !> \section arg_table_compute_hydrostatic_upward_air_velocity_at_interface_run Argument Table
+    !! \htmlinclude compute_hydrostatic_upward_air_velocity_at_interface_run.html
+    pure subroutine compute_hydrostatic_upward_air_velocity_at_interface_run( &
             gravit, omega, rho, &
             wint, &
             errmsg, errflg)
@@ -342,7 +342,7 @@ contains
 
         errmsg = ''
         errflg = 0
-    end subroutine compute_hydrostatic_upward_air_velocity_at_if_run
+    end subroutine compute_hydrostatic_upward_air_velocity_at_interface_run
 
     !> \section arg_table_compute_hydrostatic_upward_air_velocity_run Argument Table
     !! \htmlinclude compute_hydrostatic_upward_air_velocity_run.html
@@ -364,9 +364,9 @@ contains
         errflg = 0
     end subroutine compute_hydrostatic_upward_air_velocity_run
 
-    !> \section arg_table_geopotential_height_wrt_sfc_at_if_to_msl_run Argument Table
-    !! \htmlinclude geopotential_height_wrt_sfc_at_if_to_msl_run.html
-    pure subroutine geopotential_height_wrt_sfc_at_if_to_msl_run( &
+    !> \section arg_table_geopotential_height_wrt_sfc_at_interface_to_msl_run Argument Table
+    !! \htmlinclude geopotential_height_wrt_sfc_at_interface_to_msl_run.html
+    pure subroutine geopotential_height_wrt_sfc_at_interface_to_msl_run( &
             ncol, &
             gravit, phis, zisfc, &
             zimsl, &
@@ -389,7 +389,7 @@ contains
         do i = 1, ncol
             zimsl(i, :) = phis(i) / gravit + zisfc(i, :)
         end do
-    end subroutine geopotential_height_wrt_sfc_at_if_to_msl_run
+    end subroutine geopotential_height_wrt_sfc_at_interface_to_msl_run
 
     !> \section arg_table_geopotential_height_wrt_sfc_to_msl_run Argument Table
     !! \htmlinclude geopotential_height_wrt_sfc_to_msl_run.html
