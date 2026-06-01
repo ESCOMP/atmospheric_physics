@@ -1,0 +1,53 @@
+@before
+subroutine setup_rrtmgp_solar_var_setup_test()
+    use radiation_utils, only: radiation_utils_init
+    use ccpp_kinds,      only : kind_phys
+    integer :: nswbands, nlwbands, errflg
+    real(kind_phys) :: low_shortwave(2) = (/ 1e-4_kind_phys, 1e-3_kind_phys /)
+    real(kind_phys) :: high_shortwave(2) = (/ 2e-4_kind_phys, 2e-3_kind_phys /)
+    real(kind_phys) :: low_longwave(1) = (/ 1e-2_kind_phys /)
+    real(kind_phys) :: high_longwave(1) = (/ 2e-3_kind_phys /)
+    character(len=512) :: errmsg
+
+    nswbands = 2
+    nlwbands = 1
+
+    call radiation_utils_init(nswbands, nlwbands, low_shortwave, high_shortwave, &
+                  low_longwave, high_longwave, errmsg, errflg)
+end subroutine setup_rrtmgp_solar_var_setup_test
+
+@test
+subroutine rrtmgp_sw_solar_var_setup_init_invalid()
+    use funit
+    use rrtmgp_sw_solar_var_setup, only: rrtmgp_sw_solar_var_setup_init
+    use ccpp_kinds,      only : kind_phys
+    integer :: nswbands, errflg
+    character(len=512) :: errmsg
+
+    nswbands = 2
+
+    call rrtmgp_sw_solar_var_setup_init(nswbands, .true., .false., errmsg, errflg)
+
+    @assertEqual(1, errflg)
+    @assertEqual('rrtmgp_sw_solar_var_setup_init: solar input fil must have irradiance spectrum', errmsg)
+
+end subroutine rrtmgp_sw_solar_var_setup_init_invalid
+
+@test
+subroutine rrtmgp_sw_solar_var_setup_init_valid()
+    use funit
+    use rrtmgp_sw_solar_var_setup, only: rrtmgp_sw_solar_var_setup_init
+    use rrtmgp_sw_solar_var_setup, only: irrad, radbinmax, radbinmin
+    use ccpp_kinds,      only : kind_phys
+    integer :: nswbands, errflg
+    character(len=512) :: errmsg
+
+    nswbands = 2
+
+    call rrtmgp_sw_solar_var_setup_init(nswbands, .true., .true., errmsg, errflg)
+    @assertEqual(1e11_kind_phys, radbinmax(1))
+    @assertEqual(1e10_kind_phys, radbinmax(2))
+    @assertEqual(5e10_kind_phys, radbinmin(1))
+    @assertEqual(5e9_kind_phys, radbinmin(2))
+
+end subroutine rrtmgp_sw_solar_var_setup_init_valid
