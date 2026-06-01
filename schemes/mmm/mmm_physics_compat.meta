@@ -11,12 +11,6 @@
   type = logical
   dimensions = ()
   intent = in
-[ scheme_name ]
-  standard_name = scheme_name
-  units = none
-  type = character | kind = len=256
-  dimensions = ()
-  intent = out
 [ icloud_bl ]
   standard_name = control_for_subgrid_scale_cloud_radiation_coupling_in_mynn_pbl_scheme
   units = 1
@@ -137,6 +131,12 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
+[ scheme_name ]
+  standard_name = scheme_name
+  units = none
+  type = character | kind = len=256
+  dimensions = ()
+  intent = out
 [ rthdynten ]
   standard_name = tendency_of_air_potential_temperature_due_to_dynamics
   units = K s-1

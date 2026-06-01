@@ -19,7 +19,6 @@ contains
     !! \htmlinclude mmm_physics_compat_init.html
     pure subroutine mmm_physics_compat_init( &
             initial_run, &
-            scheme_name, &
             icloud_bl, isfflx, isftcflx, iz0tlnd, spp_pbl, &
             cycling, restart, &
             xice_threshold, &
@@ -27,7 +26,6 @@ contains
         use ccpp_kinds, only: kind_phys
 
         logical, intent(in) :: initial_run
-        character(256), intent(out) :: scheme_name
         integer, intent(out) :: icloud_bl, isfflx, isftcflx, iz0tlnd, spp_pbl
         logical, intent(out) :: cycling, restart
         real(kind_phys), intent(out) :: xice_threshold
@@ -36,8 +34,6 @@ contains
 
         errmsg = ''
         errflg = 0
-
-        scheme_name = 'mmm_physics_compat'
 
         ! TODO:
         ! Should convert some of the following to namelist options after the convection-permitting
@@ -60,6 +56,7 @@ contains
             dt, &
             theta_curr, theta_prev, qv_curr, qv_prev, &
             icefrac, xice_threshold, landfrac, &
+            scheme_name, &
             rthdynten, rqvdynten, &
             xland, &
             errmsg, errflg)
@@ -69,6 +66,7 @@ contains
         real(kind_phys), intent(in) :: dt, &
                                        theta_curr(:, :), theta_prev(:, :), qv_curr(:, :), qv_prev(:, :), &
                                        icefrac(:), xice_threshold, landfrac(:)
+        character(256), intent(out) :: scheme_name
         real(kind_phys), intent(out) :: rthdynten(:, :), rqvdynten(:, :), &
                                         xland(:)
         character(*), intent(out) :: errmsg
@@ -76,6 +74,8 @@ contains
 
         errmsg = ''
         errflg = 0
+
+        scheme_name = 'mmm_physics_compat'
 
         if (nstep == 0) then
             rthdynten(:, :) = 0.0_kind_phys
