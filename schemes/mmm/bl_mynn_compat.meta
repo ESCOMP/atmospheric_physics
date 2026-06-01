@@ -1,0 +1,1571 @@
+[ccpp-table-properties]
+  name = bl_mynn_compat_pre
+  type = scheme
+  dependencies = ccpp_kind_types.F90, mmm_physics/mynn_shared.F90, mmm_physics/bl_mynn_subroutines.F90, mmm_physics/bl_mynn.F90
+
+[ccpp-arg-table]
+  name = bl_mynn_compat_pre_run
+  type = scheme
+[ itimestep ]
+  standard_name = current_timestep_number
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ spp_pbl ]
+  standard_name = control_for_stochastically_perturbed_parameterization_in_mynn_scheme
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ restart ]
+  standard_name = is_restart_for_mmm_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ rthratenlw ]
+  standard_name = tendency_of_air_potential_temperature_due_to_longwave_heating
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ rthratensw ]
+  standard_name = tendency_of_air_potential_temperature_due_to_shortwave_heating
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ initflag ]
+  standard_name = control_for_initialization_in_mynn_pbl_scheme
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+[ kpbl ]
+  standard_name = vertical_index_at_top_of_atmosphere_boundary_layer
+  units = count
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ ktop_plume ]
+  standard_name = vertical_index_at_top_of_highest_plume_for_mynn_pbl_scheme
+  units = count
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ edmf_a ]
+  standard_name = updraft_area_fraction_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ edmf_w ]
+  standard_name = updraft_vertical_velocity_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ edmf_qt ]
+  standard_name = updraft_total_water_mixing_ratio_wrt_moist_air_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ edmf_thl ]
+  standard_name = updraft_liquid_water_potential_temperature_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ edmf_ent ]
+  standard_name = updraft_entrainment_rate_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = m-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ edmf_qc ]
+  standard_name = updraft_cloud_liquid_water_mixing_ratio_wrt_moist_air_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ sub_thl ]
+  standard_name = tendency_of_liquid_water_potential_temperature_due_to_subsidence_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ sub_sqv ]
+  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_moist_air_due_to_subsidence_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ det_thl ]
+  standard_name = tendency_of_liquid_water_potential_temperature_due_to_detrainment_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ det_sqv ]
+  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_moist_air_due_to_detrainment_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ edmf_a_dd ]
+  standard_name = downdraft_area_fraction_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ edmf_w_dd ]
+  standard_name = downdraft_vertical_velocity_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ edmf_qt_dd ]
+  standard_name = downdraft_total_water_mixing_ratio_wrt_moist_air_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ edmf_thl_dd ]
+  standard_name = downdraft_liquid_water_potential_temperature_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ edmf_ent_dd ]
+  standard_name = downdraft_entrainment_rate_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = m-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ edmf_qc_dd ]
+  standard_name = downdraft_cloud_liquid_water_mixing_ratio_wrt_moist_air_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ pattern_spp_pbl ]
+  standard_name = stochastically_perturbed_weights_for_mynn_pbl_scheme
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ rthraten ]
+  standard_name = tendency_of_air_potential_temperature_due_to_radiative_heating
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+# ----------
+
+[ccpp-table-properties]
+  name = bl_mynn_compat
+  type = scheme
+  dependencies = ccpp_kind_types.F90, mmm_physics/mynn_shared.F90, mmm_physics/bl_mynn_subroutines.F90, mmm_physics/bl_mynn.F90
+
+[ccpp-arg-table]
+  name = bl_mynn_compat_init
+  type = scheme
+[ con_cp ]
+  standard_name = specific_heat_of_dry_air_at_constant_pressure
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ con_cpv ]
+  standard_name = specific_heat_of_water_vapor_at_constant_pressure
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ con_cice ]
+  standard_name = specific_heat_of_fresh_ice
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ con_cliq ]
+  standard_name = specific_heat_of_liquid_water_at_constant_pressure
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ con_ep1 ]
+  standard_name = ratio_of_water_vapor_to_dry_air_gas_constants_minus_one
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ con_ep2 ]
+  standard_name = ratio_of_water_vapor_to_dry_air_molecular_weights
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ con_grav ]
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ con_karman ]
+  standard_name = von_karman_constant
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ con_p0 ]
+  standard_name = surface_reference_pressure
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ con_rd ]
+  standard_name = gas_constant_of_dry_air
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ con_rv ]
+  standard_name = gas_constant_of_water_vapor
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ con_svp1 ]
+  standard_name = constant_1_in_formula_for_water_vapor_partial_pressure_assuming_saturation
+  units = kPa
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ con_svp2 ]
+  standard_name = constant_2_in_formula_for_water_vapor_partial_pressure_assuming_saturation
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ con_svp3 ]
+  standard_name = constant_3_in_formula_for_water_vapor_partial_pressure_assuming_saturation
+  units = K
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ con_svpt0 ]
+  standard_name = constant_4_in_formula_for_water_vapor_partial_pressure_assuming_saturation
+  units = K
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ con_xlf ]
+  standard_name = latent_heat_of_fusion_of_water_at_0c
+  units = J kg-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ con_xls ]
+  standard_name = latent_heat_of_sublimation_of_water_at_0c
+  units = J kg-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ con_xlv ]
+  standard_name = latent_heat_of_vaporization_of_water_at_0c
+  units = J kg-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ bl_mynn_cloudpdf ]
+  standard_name = control_for_cloud_pdf_in_mynn_pbl_scheme
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+[ bl_mynn_mixlength ]
+  standard_name = control_for_mixing_length_in_mynn_pbl_scheme
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+[ bl_mynn_stfunc ]
+  standard_name = control_for_stability_function_in_mynn_pbl_scheme
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+[ bl_mynn_tkeadvect ]
+  standard_name = flag_for_tke_advection_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ bl_mynn_tkebudget ]
+  standard_name = flag_for_tke_budget_output_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ bl_mynn_topdown ]
+  standard_name = flag_for_topdown_mixing_due_to_radiative_cooling_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ bl_mynn_edmf ]
+  standard_name = flag_for_edmf_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ bl_mynn_edmf_dd ]
+  standard_name = flag_for_edmf_downdraft_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ bl_mynn_edmf_mom ]
+  standard_name = flag_for_edmf_momentum_transport_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ bl_mynn_edmf_tke ]
+  standard_name = flag_for_edmf_tke_transport_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ bl_mynn_mixscalars ]
+  standard_name = flag_for_constituent_mixing_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ bl_mynn_output ]
+  standard_name = flag_for_additional_diagnostics_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ bl_mynn_cloudmix ]
+  standard_name = flag_for_cloud_species_mixing_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ bl_mynn_mixqt ]
+  standard_name = flag_for_total_water_mixing_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ bl_mynn_scaleaware ]
+  standard_name = flag_for_scale_aware_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ bl_mynn_dheatopt ]
+  standard_name = flag_for_tke_dissipation_heating_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ bl_mynn_closure ]
+  standard_name = control_for_closure_level_in_mynn_pbl_scheme
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = out
+[ flag_qc ]
+  standard_name = flag_for_cloud_liquid_water_mixing_ratio_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ flag_qi ]
+  standard_name = flag_for_cloud_ice_mixing_ratio_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ flag_qs ]
+  standard_name = flag_for_snow_mixing_ratio_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ flag_qoz ]
+  standard_name = flag_for_ozone_mixing_ratio_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ flag_qnc ]
+  standard_name = flag_for_mass_number_concentration_of_cloud_liquid_water_particles_in_air_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ flag_qni ]
+  standard_name = flag_for_mass_number_concentration_of_cloud_ice_water_crystals_in_air_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ flag_qnwfa ]
+  standard_name = flag_for_mass_number_concentration_of_hygroscopic_aerosols_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ flag_qnifa ]
+  standard_name = flag_for_mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ flag_qnbca ]
+  standard_name = flag_for_mass_number_concentration_of_black_carbon_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ qke ]
+  standard_name = tke_multiplied_by_two
+  units = m2 s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  intent = out
+[ qke_adv ]
+  standard_name = tke_multiplied_by_two_due_to_advection
+  units = m2 s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  intent = out
+[ tsq ]
+  standard_name = variance_of_liquid_water_potential_temperature
+  units = K2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  intent = out
+[ qsq ]
+  standard_name = variance_of_water_vapor_mixing_ratio_wrt_moist_air
+  units = kg2 kg-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  intent = out
+[ cov ]
+  standard_name = covariance_of_liquid_water_potential_temperature_and_water_vapor_mixing_ratio_wrt_moist_air
+  units = K kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  intent = out
+[ el_pbl ]
+  standard_name = turbulent_mixing_length
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  intent = out
+[ sh ]
+  standard_name = stability_function_for_heat
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  intent = out
+[ sm ]
+  standard_name = stability_function_for_momentum
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  intent = out
+[ qc_bl ]
+  standard_name = subgrid_scale_cloud_liquid_water_mixing_ratio_wrt_moist_air
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  intent = out
+[ qi_bl ]
+  standard_name = subgrid_scale_cloud_ice_mixing_ratio_wrt_moist_air
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  intent = out
+[ cldfra_bl ]
+  standard_name = subgrid_scale_cloud_area_fraction_in_atmosphere_layer
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension, vertical_layer_dimension)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name = bl_mynn_compat_run
+  type = scheme
+[ initflag ]
+  standard_name = control_for_initialization_in_mynn_pbl_scheme
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ restart ]
+  standard_name = is_restart_for_mmm_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ cycling ]
+  standard_name = is_data_assimilation_cycling_for_mmm_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ delt ]
+  standard_name = timestep_for_physics
+  units = s
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ dz ]
+  standard_name = atmosphere_layer_thickness
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ dx ]
+  standard_name = characteristic_grid_lengthscale
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ znt ]
+  standard_name = surface_roughness_length
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ u ]
+  standard_name = eastward_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ v ]
+  standard_name = northward_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ w ]
+  standard_name = upward_air_velocity_at_interface
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ th ]
+  standard_name = air_potential_temperature
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ sqv_dry ]
+  standard_name = water_vapor_mixing_ratio_wrt_dry_air
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ sqc_dry ]
+  standard_name = cloud_liquid_water_mixing_ratio_wrt_dry_air
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ sqi_dry ]
+  standard_name = cloud_ice_mixing_ratio_wrt_dry_air
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ sqs_dry ]
+  standard_name = snow_mixing_ratio_wrt_dry_air
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ qnc ]
+  standard_name = mass_number_concentration_of_cloud_liquid_water_particles_in_air
+  units = kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+  advected = True
+[ qni ]
+  standard_name = mass_number_concentration_of_cloud_ice_water_crystals_in_air
+  units = kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+  advected = True
+[ qnwfa ]
+  standard_name = mass_number_concentration_of_hygroscopic_aerosols
+  units = kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+  advected = True
+[ qnifa ]
+  standard_name = mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols
+  units = kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+  advected = True
+[ qnbca ]
+  standard_name = mass_number_concentration_of_hydrophobic_black_carbon
+  units = kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+  advected = True
+[ qozone ]
+  standard_name = ozone_mixing_ratio_wrt_moist_air_and_condensed_water
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+  advected = True
+[ p ]
+  standard_name = air_pressure
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ exner ]
+  standard_name = dimensionless_exner_function
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ rho ]
+  standard_name = air_density
+  units = kg m-3
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ tt ]
+  standard_name = air_temperature
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ xland ]
+  standard_name = land_binary_mask_for_mmm_scheme
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ ts ]
+  standard_name = skin_temperature_at_surface
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ qsfc ]
+  standard_name = water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_at_surface
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ ps ]
+  standard_name = surface_air_pressure
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ ust ]
+  standard_name = surface_friction_velocity
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ ch ]
+  standard_name = exchange_coefficient_for_heat_at_surface_adjacent_layer
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ hfx ]
+  standard_name = surface_upward_sensible_heat_flux_from_coupler
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ qfx ]
+  standard_name = surface_upward_water_vapor_flux
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ rmol ]
+  standard_name = reciprocal_of_monin_obukhov_length
+  units = m-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ wspd ]
+  standard_name = wind_speed_at_surface_adjacent_layer
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ uoce ]
+  standard_name = surface_eastward_sea_water_velocity
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ voce ]
+  standard_name = surface_northward_sea_water_velocity
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ qke ]
+  standard_name = tke_multiplied_by_two
+  units = m2 s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ qke_adv ]
+  standard_name = tke_multiplied_by_two_due_to_advection
+  units = m2 s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ tsq ]
+  standard_name = variance_of_liquid_water_potential_temperature
+  units = K2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ qsq ]
+  standard_name = variance_of_water_vapor_mixing_ratio_wrt_moist_air
+  units = kg2 kg-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ cov ]
+  standard_name = covariance_of_liquid_water_potential_temperature_and_water_vapor_mixing_ratio_wrt_moist_air
+  units = K kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ rublten ]
+  standard_name = tendency_of_eastward_wind_due_to_pbl_processes
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ rvblten ]
+  standard_name = tendency_of_northward_wind_due_to_pbl_processes
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ rthblten ]
+  standard_name = tendency_of_air_potential_temperature_due_to_pbl_processes
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ rqvblten ]
+  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_dry_air_due_to_pbl_processes
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ rqcblten ]
+  standard_name = tendency_of_cloud_liquid_water_mixing_ratio_wrt_dry_air_due_to_pbl_processes
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ rqiblten ]
+  standard_name = tendency_of_cloud_ice_mixing_ratio_wrt_dry_air_due_to_pbl_processes
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ rqsblten ]
+  standard_name = tendency_of_snow_mixing_ratio_wrt_dry_air_due_to_pbl_processes
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ rqncblten ]
+  standard_name = tendency_of_mass_number_concentration_of_cloud_liquid_water_particles_in_air_due_to_pbl_processes
+  units = kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ rqniblten ]
+  standard_name = tendency_of_mass_number_concentration_of_cloud_ice_water_crystals_in_air_due_to_pbl_processes
+  units = kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ rqnwfablten ]
+  standard_name = tendency_of_mass_number_concentration_of_hygroscopic_aerosols_due_to_pbl_processes
+  units = kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ rqnifablten ]
+  standard_name = tendency_of_mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols_due_to_pbl_processes
+  units = kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ rqnbcablten ]
+  standard_name = tendency_of_mass_number_concentration_of_black_carbon_due_to_pbl_processes
+  units = kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ rqozblten ]
+  standard_name = tendency_of_ozone_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_pbl_processes
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ exch_h ]
+  standard_name = atmosphere_heat_diffusivity
+  units = m2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ exch_m ]
+  standard_name = atmosphere_momentum_diffusivity
+  units = m2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ pblh ]
+  standard_name = atmosphere_boundary_layer_thickness
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = inout
+[ kpbl ]
+  standard_name = vertical_index_at_top_of_atmosphere_boundary_layer
+  units = count
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = inout
+[ el_pbl ]
+  standard_name = turbulent_mixing_length
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ dqke ]
+  standard_name = total_tendency_of_tke
+  units = m2 s-3
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ qwt ]
+  standard_name = tendency_of_tke_due_to_vertical_transport
+  units = m2 s-3
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ qshear ]
+  standard_name = tendency_of_tke_due_to_shear
+  units = m2 s-3
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ qbuoy ]
+  standard_name = tendency_of_tke_due_to_buoyancy
+  units = m2 s-3
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ qdiss ]
+  standard_name = tendency_of_tke_due_to_dissipation
+  units = m2 s-3
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ sh ]
+  standard_name = stability_function_for_heat
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ sm ]
+  standard_name = stability_function_for_momentum
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ qc_bl ]
+  standard_name = subgrid_scale_cloud_liquid_water_mixing_ratio_wrt_moist_air
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ qi_bl ]
+  standard_name = subgrid_scale_cloud_ice_mixing_ratio_wrt_moist_air
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ cldfra_bl ]
+  standard_name = subgrid_scale_cloud_area_fraction_in_atmosphere_layer
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ icloud_bl ]
+  standard_name = control_for_subgrid_scale_cloud_radiation_coupling_in_mynn_pbl_scheme
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ bl_mynn_tkeadvect ]
+  standard_name = flag_for_tke_advection_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ bl_mynn_tkebudget ]
+  standard_name = flag_for_tke_budget_output_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ bl_mynn_cloudpdf ]
+  standard_name = control_for_cloud_pdf_in_mynn_pbl_scheme
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ bl_mynn_mixlength ]
+  standard_name = control_for_mixing_length_in_mynn_pbl_scheme
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ bl_mynn_closure ]
+  standard_name = control_for_closure_level_in_mynn_pbl_scheme
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ bl_mynn_stfunc ]
+  standard_name = control_for_stability_function_in_mynn_pbl_scheme
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ bl_mynn_topdown ]
+  standard_name = flag_for_topdown_mixing_due_to_radiative_cooling_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ bl_mynn_edmf ]
+  standard_name = flag_for_edmf_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ bl_mynn_edmf_dd ]
+  standard_name = flag_for_edmf_downdraft_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ bl_mynn_edmf_mom ]
+  standard_name = flag_for_edmf_momentum_transport_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ bl_mynn_edmf_tke ]
+  standard_name = flag_for_edmf_tke_transport_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ bl_mynn_mixscalars ]
+  standard_name = flag_for_constituent_mixing_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ bl_mynn_output ]
+  standard_name = flag_for_additional_diagnostics_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ bl_mynn_cloudmix ]
+  standard_name = flag_for_cloud_species_mixing_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ bl_mynn_mixqt ]
+  standard_name = flag_for_total_water_mixing_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ bl_mynn_scaleaware ]
+  standard_name = flag_for_scale_aware_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ bl_mynn_dheatopt ]
+  standard_name = flag_for_tke_dissipation_heating_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ edmf_a ]
+  standard_name = updraft_area_fraction_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ edmf_w ]
+  standard_name = updraft_vertical_velocity_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ edmf_qt ]
+  standard_name = updraft_total_water_mixing_ratio_wrt_moist_air_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ edmf_thl ]
+  standard_name = updraft_liquid_water_potential_temperature_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ edmf_ent ]
+  standard_name = updraft_entrainment_rate_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = m-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ edmf_qc ]
+  standard_name = updraft_cloud_liquid_water_mixing_ratio_wrt_moist_air_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ sub_thl ]
+  standard_name = tendency_of_liquid_water_potential_temperature_due_to_subsidence_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ sub_sqv ]
+  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_moist_air_due_to_subsidence_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ det_thl ]
+  standard_name = tendency_of_liquid_water_potential_temperature_due_to_detrainment_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ det_sqv ]
+  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_moist_air_due_to_detrainment_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ edmf_a_dd ]
+  standard_name = downdraft_area_fraction_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ edmf_w_dd ]
+  standard_name = downdraft_vertical_velocity_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ edmf_qt_dd ]
+  standard_name = downdraft_total_water_mixing_ratio_wrt_moist_air_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ edmf_thl_dd ]
+  standard_name = downdraft_liquid_water_potential_temperature_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ edmf_ent_dd ]
+  standard_name = downdraft_entrainment_rate_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = m-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ edmf_qc_dd ]
+  standard_name = downdraft_cloud_liquid_water_mixing_ratio_wrt_moist_air_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = inout
+[ maxwidth ]
+  standard_name = maximum_plume_width_for_mynn_pbl_scheme
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ maxmf ]
+  standard_name = maximum_mass_flux_for_mynn_pbl_scheme
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ ztop_plume ]
+  standard_name = height_of_highest_plume_for_mynn_pbl_scheme
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ ktop_plume ]
+  standard_name = vertical_index_at_top_of_highest_plume_for_mynn_pbl_scheme
+  units = count
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = inout
+[ spp_pbl ]
+  standard_name = control_for_stochastically_perturbed_parameterization_in_mynn_scheme
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ pattern_spp_pbl ]
+  standard_name = stochastically_perturbed_weights_for_mynn_pbl_scheme
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ rthraten ]
+  standard_name = tendency_of_air_potential_temperature_due_to_radiative_heating
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ flag_qc ]
+  standard_name = flag_for_cloud_liquid_water_mixing_ratio_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ flag_qi ]
+  standard_name = flag_for_cloud_ice_mixing_ratio_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ flag_qs ]
+  standard_name = flag_for_snow_mixing_ratio_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ flag_qnc ]
+  standard_name = flag_for_mass_number_concentration_of_cloud_liquid_water_particles_in_air_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ flag_qni ]
+  standard_name = flag_for_mass_number_concentration_of_cloud_ice_water_crystals_in_air_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ flag_qnwfa ]
+  standard_name = flag_for_mass_number_concentration_of_hygroscopic_aerosols_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ flag_qnifa ]
+  standard_name = flag_for_mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ flag_qnbca ]
+  standard_name = flag_for_mass_number_concentration_of_black_carbon_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ flag_qoz ]
+  standard_name = flag_for_ozone_mixing_ratio_in_mynn_pbl_scheme
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ its ]
+  standard_name = horizontal_loop_begin
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ ite ]
+  standard_name = horizontal_loop_end
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ kte ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ kme ]
+  standard_name = vertical_interface_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+# ----------
+
+[ccpp-table-properties]
+  name = bl_mynn_diagnostics
+  type = scheme
+
+[ccpp-arg-table]
+  name = bl_mynn_diagnostics_init
+  type = scheme
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name = bl_mynn_diagnostics_run
+  type = scheme
+[ qke ]
+  standard_name = tke_multiplied_by_two
+  units = m2 s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ qke_adv ]
+  standard_name = tke_multiplied_by_two_due_to_advection
+  units = m2 s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ tsq ]
+  standard_name = variance_of_liquid_water_potential_temperature
+  units = K2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ qsq ]
+  standard_name = variance_of_water_vapor_mixing_ratio_wrt_moist_air
+  units = kg2 kg-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ cov ]
+  standard_name = covariance_of_liquid_water_potential_temperature_and_water_vapor_mixing_ratio_wrt_moist_air
+  units = K kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ pblh ]
+  standard_name = atmosphere_boundary_layer_thickness
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ el_pbl ]
+  standard_name = turbulent_mixing_length
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ sh ]
+  standard_name = stability_function_for_heat
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ sm ]
+  standard_name = stability_function_for_momentum
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ qc_bl ]
+  standard_name = subgrid_scale_cloud_liquid_water_mixing_ratio_wrt_moist_air
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ qi_bl ]
+  standard_name = subgrid_scale_cloud_ice_mixing_ratio_wrt_moist_air
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ cldfra_bl ]
+  standard_name = subgrid_scale_cloud_area_fraction_in_atmosphere_layer
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ edmf_a ]
+  standard_name = updraft_area_fraction_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ edmf_w ]
+  standard_name = updraft_vertical_velocity_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ edmf_qt ]
+  standard_name = updraft_total_water_mixing_ratio_wrt_moist_air_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ edmf_thl ]
+  standard_name = updraft_liquid_water_potential_temperature_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ edmf_ent ]
+  standard_name = updraft_entrainment_rate_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = m-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ edmf_qc ]
+  standard_name = updraft_cloud_liquid_water_mixing_ratio_wrt_moist_air_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ sub_thl ]
+  standard_name = tendency_of_liquid_water_potential_temperature_due_to_subsidence_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ sub_sqv ]
+  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_moist_air_due_to_subsidence_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ det_thl ]
+  standard_name = tendency_of_liquid_water_potential_temperature_due_to_detrainment_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ det_sqv ]
+  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_moist_air_due_to_detrainment_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ edmf_a_dd ]
+  standard_name = downdraft_area_fraction_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ edmf_w_dd ]
+  standard_name = downdraft_vertical_velocity_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ edmf_qt_dd ]
+  standard_name = downdraft_total_water_mixing_ratio_wrt_moist_air_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ edmf_thl_dd ]
+  standard_name = downdraft_liquid_water_potential_temperature_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ edmf_ent_dd ]
+  standard_name = downdraft_entrainment_rate_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = m-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ edmf_qc_dd ]
+  standard_name = downdraft_cloud_liquid_water_mixing_ratio_wrt_moist_air_in_scale_aware_tke_moist_edmf_pbl_scheme
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ exch_h ]
+  standard_name = atmosphere_heat_diffusivity
+  units = m2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ exch_m ]
+  standard_name = atmosphere_momentum_diffusivity
+  units = m2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ dqke ]
+  standard_name = total_tendency_of_tke
+  units = m2 s-3
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ qwt ]
+  standard_name = tendency_of_tke_due_to_vertical_transport
+  units = m2 s-3
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ qshear ]
+  standard_name = tendency_of_tke_due_to_shear
+  units = m2 s-3
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ qbuoy ]
+  standard_name = tendency_of_tke_due_to_buoyancy
+  units = m2 s-3
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ qdiss ]
+  standard_name = tendency_of_tke_due_to_dissipation
+  units = m2 s-3
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ maxwidth ]
+  standard_name = maximum_plume_width_for_mynn_pbl_scheme
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ maxmf ]
+  standard_name = maximum_mass_flux_for_mynn_pbl_scheme
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ ztop_plume ]
+  standard_name = height_of_highest_plume_for_mynn_pbl_scheme
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

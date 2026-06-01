@@ -27,10 +27,12 @@ module state_converters
   public :: wet_to_dry_cloud_liquid_water_run
   public :: wet_to_dry_cloud_ice_run
   public :: wet_to_dry_rain_run
+  public :: wet_to_dry_snow_run
   public :: dry_to_wet_water_vapor_run
   public :: dry_to_wet_cloud_liquid_water_run
   public :: dry_to_wet_cloud_ice_run
   public :: dry_to_wet_rain_run
+  public :: dry_to_wet_snow_run
 
 CONTAINS
 
@@ -272,6 +274,29 @@ CONTAINS
 
   end subroutine wet_to_dry_rain_run
 
+  !> \section arg_table_wet_to_dry_snow_run Argument Table
+  !! \htmlinclude wet_to_dry_snow_run.html
+  pure subroutine wet_to_dry_snow_run(ncol, nz, pdel, pdeldry, &
+      qs, qs_dry, errmsg, errflg)
+    integer,          intent(in)  :: ncol
+    integer,          intent(in)  :: nz
+    real(kind_phys),  intent(in)  :: pdel(:, :)    ! pressure thickness of layer (Pa)
+    real(kind_phys),  intent(in)  :: pdeldry(:, :) ! dry air pressure thickness of layer (Pa)
+    real(kind_phys),  intent(in)  :: qs(:, :)      ! snow mixing ratio wrt moist air (kg/kg)
+    real(kind_phys),  intent(out) :: qs_dry(:, :)  ! snow mixing ratio wrt dry air (kg/kg)
+    character(len=*), intent(out) :: errmsg
+    integer,          intent(out) :: errflg
+
+    integer :: k
+
+    errflg = 0
+    errmsg = ''
+
+    do k = 1, nz
+      qs_dry(:ncol, k) = qs(:ncol, k) * (pdel(:ncol, k) / pdeldry(:ncol, k))
+    end do
+  end subroutine wet_to_dry_snow_run
+
 !> \section arg_table_dry_to_wet_water_vapor_run  Argument Table
 !! \htmlinclude dry_to_wet_water_vapor_run.html
   subroutine dry_to_wet_water_vapor_run(ncol, nz, pdel, pdeldry, qv_dry, qv,  &
@@ -372,4 +397,26 @@ CONTAINS
 
   end subroutine dry_to_wet_rain_run
 
+  !> \section arg_table_dry_to_wet_snow_run Argument Table
+  !! \htmlinclude dry_to_wet_snow_run.html
+  pure subroutine dry_to_wet_snow_run(ncol, nz, pdel, pdeldry, &
+      qs_dry, qs, errmsg, errflg)
+    integer,          intent(in)  :: ncol
+    integer,          intent(in)  :: nz
+    real(kind_phys),  intent(in)  :: pdel(:, :)    ! pressure thickness of layer (Pa)
+    real(kind_phys),  intent(in)  :: pdeldry(:, :) ! dry air pressure thickness of layer (Pa)
+    real(kind_phys),  intent(in)  :: qs_dry(:, :)  ! snow mixing ratio wrt dry air (kg/kg)
+    real(kind_phys),  intent(out) :: qs(:, :)      ! snow mixing ratio wrt moist air (kg/kg)
+    character(len=*), intent(out) :: errmsg
+    integer,          intent(out) :: errflg
+
+    integer :: k
+
+    errflg = 0
+    errmsg = ''
+
+    do k = 1, nz
+      qs(:ncol, k) = qs_dry(:ncol, k) * (pdeldry(:ncol, k) / pdel(:ncol, k))
+    end do
+  end subroutine dry_to_wet_snow_run
 end module state_converters

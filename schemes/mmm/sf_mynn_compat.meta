@@ -12,9 +12,9 @@
   dimensions = ()
   intent = in
 [ spp_pbl ]
-  standard_name = flag_for_stochastically_perturbed_parameterization_for_mynn_scheme
-  units = flag
-  type = logical
+  standard_name = control_for_stochastically_perturbed_parameterization_in_mynn_scheme
+  units = 1
+  type = integer
   dimensions = ()
   intent = in
 [ u ]
@@ -275,30 +275,6 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
-[ svp1 ]
-  standard_name = constant_1_in_formula_for_water_vapor_partial_pressure_assuming_saturation
-  units = 1
-  type = real | kind = kind_phys
-  dimensions = ()
-  intent = out
-[ svp2 ]
-  standard_name = constant_2_in_formula_for_water_vapor_partial_pressure_assuming_saturation
-  units = 1
-  type = real | kind = kind_phys
-  dimensions = ()
-  intent = out
-[ svp3 ]
-  standard_name = constant_3_in_formula_for_water_vapor_partial_pressure_assuming_saturation
-  units = 1
-  type = real | kind = kind_phys
-  dimensions = ()
-  intent = out
-[ svpt0 ]
-  standard_name = constant_4_in_formula_for_water_vapor_partial_pressure_assuming_saturation
-  units = 1
-  type = real | kind = kind_phys
-  dimensions = ()
-  intent = out
 [ qcg ]
   standard_name = cloud_liquid_water_mixing_ratio_wrt_dry_air_at_surface
   units = kg kg-1
@@ -306,7 +282,7 @@
   dimensions = (horizontal_loop_extent)
   intent = out
 [ rstoch1d ]
-  standard_name = stochastically_perturbed_weights_for_mynn_scheme
+  standard_name = stochastically_perturbed_weights_for_mynn_surface_layer_scheme
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
@@ -336,6 +312,30 @@
 [ccpp-arg-table]
   name  = sf_mynn_compat_init
   type  = scheme
+[ svp1 ]
+  standard_name = constant_1_in_formula_for_water_vapor_partial_pressure_assuming_saturation
+  units = kPa
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = out
+[ svp2 ]
+  standard_name = constant_2_in_formula_for_water_vapor_partial_pressure_assuming_saturation
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = out
+[ svp3 ]
+  standard_name = constant_3_in_formula_for_water_vapor_partial_pressure_assuming_saturation
+  units = K
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = out
+[ svpt0 ]
+  standard_name = constant_4_in_formula_for_water_vapor_partial_pressure_assuming_saturation
+  units = K
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = out
 [ ust ]
   standard_name = surface_friction_velocity
   units = m s-1
@@ -704,7 +704,7 @@
   intent = in
 [ svp1 ]
   standard_name = constant_1_in_formula_for_water_vapor_partial_pressure_assuming_saturation
-  units = 1
+  units = kPa
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
@@ -716,13 +716,13 @@
   intent = in
 [ svp3 ]
   standard_name = constant_3_in_formula_for_water_vapor_partial_pressure_assuming_saturation
-  units = 1
+  units = K
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ svpt0 ]
   standard_name = constant_4_in_formula_for_water_vapor_partial_pressure_assuming_saturation
-  units = 1
+  units = K
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
@@ -799,13 +799,13 @@
   dimensions = (horizontal_loop_extent)
   intent = out
 [ spp_pbl ]
-  standard_name = flag_for_stochastically_perturbed_parameterization_for_mynn_scheme
-  units = flag
-  type = logical
+  standard_name = control_for_stochastically_perturbed_parameterization_in_mynn_scheme
+  units = 1
+  type = integer
   dimensions = ()
   intent = in
 [ rstoch1d ]
-  standard_name = stochastically_perturbed_weights_for_mynn_scheme
+  standard_name = stochastically_perturbed_weights_for_mynn_surface_layer_scheme
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
