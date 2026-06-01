@@ -177,8 +177,6 @@ contains
 
     ! Local variables:
     integer :: i, k
-    real(kind_phys) :: rrho(ncol)                            ! 1 / bottom level density [m^3 kg-1]
-    real(kind_phys) :: th(ncol, pver)                        ! potential temperature [K]
 
     errmsg = ''
     errflg = 0
