@@ -107,6 +107,7 @@ contains
             qc_bl, qi_bl, cldfra_bl, &
             errmsg, errflg)
         use bl_mynn, only: bl_mynn_init
+        use ccpp_constituent_prop_mod, only: int_unassigned
         use ccpp_kinds, only: kind_phys
         use ccpp_scheme_utils, only: ccpp_constituent_index
 
@@ -176,28 +177,28 @@ contains
         call ccpp_constituent_index( &
             'cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water', i, errflg, errmsg)
 
-        if (errflg == 0) then
+        if (errflg == 0 .and. i /= int_unassigned) then
             flag_qc = .true.
         end if
 
         call ccpp_constituent_index( &
             'cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water', i, errflg, errmsg)
 
-        if (errflg == 0) then
+        if (errflg == 0 .and. i /= int_unassigned) then
             flag_qi = .true.
         end if
 
         call ccpp_constituent_index( &
             'snow_mixing_ratio_wrt_moist_air_and_condensed_water', i, errflg, errmsg)
 
-        if (errflg == 0) then
+        if (errflg == 0 .and. i /= int_unassigned) then
             flag_qs = .true.
         end if
 
         call ccpp_constituent_index( &
             'ozone_mixing_ratio_wrt_moist_air_and_condensed_water', i, errflg, errmsg)
 
-        if (errflg == 0) then
+        if (errflg == 0 .and. i /= int_unassigned) then
             flag_qoz = .true.
         end if
 
@@ -210,35 +211,35 @@ contains
         call ccpp_constituent_index( &
             'mass_number_concentration_of_cloud_liquid_water_particles_in_air', i, errflg, errmsg)
 
-        if (errflg == 0) then
+        if (errflg == 0 .and. i /= int_unassigned) then
             flag_qnc = .true.
         end if
 
         call ccpp_constituent_index( &
             'mass_number_concentration_of_cloud_ice_water_crystals_in_air', i, errflg, errmsg)
 
-        if (errflg == 0) then
+        if (errflg == 0 .and. i /= int_unassigned) then
             flag_qni = .true.
         end if
 
         call ccpp_constituent_index( &
             'mass_number_concentration_of_hygroscopic_aerosols_in_air', i, errflg, errmsg)
 
-        if (errflg == 0) then
+        if (errflg == 0 .and. i /= int_unassigned) then
             flag_qnwfa = .true.
         end if
 
         call ccpp_constituent_index( &
             'mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols_in_air', i, errflg, errmsg)
 
-        if (errflg == 0) then
+        if (errflg == 0 .and. i /= int_unassigned) then
             flag_qnifa = .true.
         end if
 
         call ccpp_constituent_index( &
             'mass_number_concentration_of_hydrophobic_black_carbon_in_air', i, errflg, errmsg)
 
-        if (errflg == 0) then
+        if (errflg == 0 .and. i /= int_unassigned) then
             flag_qnbca = .true.
         end if
 
