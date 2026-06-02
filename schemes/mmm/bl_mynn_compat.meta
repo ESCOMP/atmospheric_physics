@@ -1,7 +1,6 @@
 [ccpp-table-properties]
   name = bl_mynn_compat_pre
   type = scheme
-  dependencies = ccpp_kind_types.F90, mmm_physics/mynn_shared.F90, mmm_physics/bl_mynn_subroutines.F90, mmm_physics/bl_mynn.F90
 
 [ccpp-arg-table]
   name = bl_mynn_compat_pre_run
