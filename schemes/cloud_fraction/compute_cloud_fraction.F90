@@ -2,8 +2,9 @@
 ! CCPP-ized: Haipeng Lin, February 2025
 module compute_cloud_fraction
   use ccpp_kinds, only: kind_phys
+
+  implicit none
   private
-  save
 
   public :: compute_cloud_fraction_init
   public :: compute_cloud_fraction_timestep_init
