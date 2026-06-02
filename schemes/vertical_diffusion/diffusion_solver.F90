@@ -794,18 +794,27 @@ contains
   ! Set tracers to diffuse using vertical diffusion.
 !> \section arg_table_vertical_diffusion_diffuse_tracers_init Argument Table
 !! \htmlinclude arg_table_vertical_diffusion_diffuse_tracers_init.html
-  pure subroutine vertical_diffusion_diffuse_tracers_init( &
+  subroutine vertical_diffusion_diffuse_tracers_init( &
     ncnst, &
+    const_props, &
     do_diffusion_const, &
     errmsg, errflg)
 
+    ! framework dependency for const_props
+    use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
+
     ! Input arguments
-    integer,            intent(in)    :: ncnst                 ! # of constituents to diffuse. In eddy_diff, only wv. Others, all advected CCPP constituents.
+    integer,            intent(in)    :: ncnst                 ! # of constituents
+    type(ccpp_constituent_prop_ptr_t), &
+                        intent(in)    :: const_props(:)        ! CCPP constituent properties pointer
 
     ! Output arguments
     logical,            intent(out)   :: do_diffusion_const(:) ! diffuse constituents (size ncnst) [flag]
     character(len=512), intent(out)   :: errmsg  ! error message
     integer,            intent(out)   :: errflg  ! error flag
+
+    integer :: m
+    character(len=256) :: cnst_name
 
     errmsg = ''
     errflg = 0
@@ -821,10 +830,29 @@ contains
     ! Diffuse all constituents using moist coordinates.
     do_diffusion_const(:ncnst) = .true.
 
-    ! TODO: in the future (when dropmixnuc is implemented),
-    ! handle that if constituent is treated in dropmixnuc
-    ! (vertically mixed by ndrop activation process) then
-    ! do not handle vertical diffusion in this module.
+    ! FIXME: when dropmixnuc is CCPPized, it should flag if a constituent
+    ! is treated there (i.e., vertically mixed by ndrop activation process)
+    ! and use this flag to skip handling of vertical diffusion in this module.
+    !
+    ! For now, we replicate the chemistry.F90 code that skips modal aerosol
+    ! species (which undergo ndrop activation mixing) but we do not want to
+    ! do this specific handling here...
+    do m = 1, ncnst
+      call const_props(m)%standard_name(cnst_name, errflg, errmsg)
+      if(errflg /= 0) return
+
+      ! cannot match just _a because it would match something like
+      ! moist_air_and_condensed_water ...
+      if(index(cnst_name, '_a1') > 0 .or. &     ! MAM modal species.
+         index(cnst_name, '_a2') > 0 .or. &     ! MAM modal species.
+         index(cnst_name, '_a3') > 0 .or. &     ! MAM modal species.
+         index(cnst_name, '_a4') > 0 .or. &     ! MAM modal species.
+         index(cnst_name, 'NUMLIQ') > 0) then   ! micro_pumas_cam if modal/trop_strat carma
+        ! is a modal aerosol species undergoing ndrop activation mixing.
+        ! in this case, vertical diffusion does not diffuse it.
+        do_diffusion_const(m) = .false.
+      end if
+    end do
 
   end subroutine vertical_diffusion_diffuse_tracers_init
 

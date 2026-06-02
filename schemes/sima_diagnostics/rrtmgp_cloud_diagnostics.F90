@@ -78,19 +78,16 @@ CONTAINS
          return
       end if
 
+      call history_out_field('TOT_CLD_VISTAU', tot_cld_vistau)
+      call history_out_field('TOT_ICLD_VISTAU', tot_icld_vistau)
+      call history_out_field('LIQ_ICLD_VISTAU', liq_icld_vistau)
+      call history_out_field('ICE_ICLD_VISTAU', ice_icld_vistau)
       if (has_snow) then
          call history_out_field('SNOW_ICLD_VISTAU', snow_icld_vistau)
       end if
       if (has_graupel .and. graupel_in_rad) then
          call history_out_field('GRAU_ICLD_VISTAU', grau_icld_vistau)
       end if
-
-      call history_out_field('TOT_CLD_VISTAU', tot_cld_vistau)
-      call history_out_field('TOT_ICLD_VISTAU', tot_icld_vistau)
-      call history_out_field('LIQ_ICLD_VISTAU', liq_icld_vistau)
-      call history_out_field('ICE_ICLD_VISTAU', ice_icld_vistau)
-      call history_out_field('SNOW_ICLD_VISTAU', snow_icld_vistau)
-      call history_out_field('GRAU_ICLD_VISTAU', grau_icld_vistau)
 
    end subroutine rrtmgp_cloud_diagnostics_run
 
