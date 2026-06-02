@@ -269,27 +269,26 @@
 
 #########################################################
 [ccpp-table-properties]
-  name = calc_hydrostatic_air_density
+  name = calc_air_density
   type = scheme
-
 [ccpp-arg-table]
-  name = calc_hydrostatic_air_density_run
+  name = calc_air_density_run
   type = scheme
-[ pdel ]
-  standard_name = air_pressure_thickness
+[ pmid ]
+  standard_name = air_pressure
   units = Pa
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
-[ gravit ]
-  standard_name = standard_gravitational_acceleration
-  units = m s-2
+[ rairv ]
+  standard_name = composition_dependent_gas_constant_of_dry_air
+  units = J kg-1 K-1
   type = real | kind = kind_phys
-  dimensions = ()
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
-[ dz ]
-  standard_name = atmosphere_layer_thickness
-  units = m
+[ virtual_temp ]
+  standard_name = virtual_temperature
+  units = K
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in

@@ -17,8 +17,8 @@ module state_converters
   ! Calculate dry air density by equation of state/ideal gas law
   public :: calc_dry_air_ideal_gas_density_run
 
-  ! Calculate air density by hydrostatic equation
-  public :: calc_hydrostatic_air_density_run
+  ! Calculate air density by equation of state/ideal gas law
+  public :: calc_air_density_run
 
   ! Calculate atmosphere layer thickness
   public :: calc_atmosphere_layer_thickness_run
@@ -143,25 +143,23 @@ CONTAINS
 
   end subroutine calc_dry_air_ideal_gas_density_run
 
-  !> \section arg_table_calc_hydrostatic_air_density_run Argument Table
-  !! \htmlinclude calc_hydrostatic_air_density_run.html
-  pure subroutine calc_hydrostatic_air_density_run( &
-      pdel, gravit, dz, &
-      rho, &
-      errmsg, errflg)
+  !> \section arg_table_calc_air_density_run Argument Table
+  !! \htmlinclude calc_air_density_run.html
+  pure subroutine calc_air_density_run(pmid, rairv, virtual_temp, rho, errmsg, errflg)
     use ccpp_kinds, only: kind_phys
 
-    real(kind_phys), intent(in) :: pdel(:, :), gravit, dz(:, :)
-    real(kind_phys), intent(out) :: rho(:, :)
-    character(*), intent(out) :: errmsg
+    real(kind_phys), intent(in) :: pmid(:, :)         ! air pressure (Pa)
+    real(kind_phys), intent(in) :: rairv(:, :)        ! composition-dependent gas constant of dry air (J kg-1 K-1)
+    real(kind_phys), intent(in) :: virtual_temp(:, :) ! virtual temperature (K)
+    real(kind_phys), intent(out) :: rho(:, :)         ! air density (kg m-3)
+    character(len=*), intent(out) :: errmsg
     integer, intent(out) :: errflg
 
-    ! Calculate air density by hydrostatic equation.
-    rho(:, :) = pdel(:, :) / (gravit * dz(:, :))
+    rho(:, :) = pmid(:, :) / (rairv(:, :) * virtual_temp(:, :))
 
     errmsg = ''
     errflg = 0
-  end subroutine calc_hydrostatic_air_density_run
+  end subroutine calc_air_density_run
 
   !> \section arg_table_calc_atmosphere_layer_thickness_run Argument Table
   !! \htmlinclude calc_atmosphere_layer_thickness_run.html
