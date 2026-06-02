@@ -4,7 +4,6 @@ subroutine test_mmm_physics_compat_init()
     use funit
     use mmm_physics_compat, only: mmm_physics_compat_init
 
-    character(256) :: scheme_name
     integer :: icloud_bl, isfflx, isftcflx, iz0tlnd, spp_pbl
     logical :: initial_run, cycling, restart
     real(kind_phys) :: xice_threshold
@@ -13,7 +12,6 @@ subroutine test_mmm_physics_compat_init()
 
     initial_run = .true.
 
-    scheme_name = ''
     icloud_bl = huge(0)
     isfflx = huge(0)
     isftcflx = huge(0)
@@ -25,14 +23,11 @@ subroutine test_mmm_physics_compat_init()
 
     call mmm_physics_compat_init( &
         initial_run, &
-        scheme_name, &
         icloud_bl, isfflx, isftcflx, iz0tlnd, spp_pbl, &
         cycling, restart, &
         xice_threshold, &
         errmsg, errflg)
 
-    ! Should set scheme name.
-    @assertEqual('mmm_physics_compat', scheme_name)
     ! Should set options to the same values as in the MPAS physics driver.
     @assertEqual(0, icloud_bl)
     @assertEqual(1, isfflx)
@@ -48,7 +43,6 @@ subroutine test_mmm_physics_compat_init()
 
     initial_run = .false.
 
-    scheme_name = ''
     icloud_bl = huge(0)
     isfflx = huge(0)
     isftcflx = huge(0)
@@ -60,14 +54,11 @@ subroutine test_mmm_physics_compat_init()
 
     call mmm_physics_compat_init( &
         initial_run, &
-        scheme_name, &
         icloud_bl, isfflx, isftcflx, iz0tlnd, spp_pbl, &
         cycling, restart, &
         xice_threshold, &
         errmsg, errflg)
 
-    ! Should set scheme name.
-    @assertEqual('mmm_physics_compat', scheme_name)
     ! Should set options to the same values as in the MPAS physics driver.
     @assertEqual(0, icloud_bl)
     @assertEqual(1, isfflx)
@@ -93,6 +84,7 @@ subroutine test_mmm_physics_compat_run()
     real(kind_phys) :: dt
     real(kind_phys) :: theta_curr(ncol, pver), theta_prev(ncol, pver), qv_curr(ncol, pver), qv_prev(ncol, pver)
     real(kind_phys) :: icefrac(ncol), xice_threshold, landfrac(ncol)
+    character(256) :: scheme_name
     real(kind_phys) :: rthdynten(ncol, pver), rqvdynten(ncol, pver)
     real(kind_phys) :: xland(ncol)
     character(100) :: errmsg
@@ -112,6 +104,8 @@ subroutine test_mmm_physics_compat_run()
     xice_threshold = 0.02_kind_phys
     landfrac(1:50) = [(0.01_kind_phys + real(i - 1, kind_phys) * 0.02_kind_phys, i = 1, 50)]
     landfrac(51:100) = 0.0_kind_phys
+
+    scheme_name = ''
     rthdynten(:, :) = huge(0.0_kind_phys)
     rqvdynten(:, :) = huge(0.0_kind_phys)
     xland(:) = huge(0.0_kind_phys)
@@ -121,10 +115,13 @@ subroutine test_mmm_physics_compat_run()
         dt, &
         theta_curr, theta_prev, qv_curr, qv_prev, &
         icefrac, xice_threshold, landfrac, &
+        scheme_name, &
         rthdynten, rqvdynten, &
         xland, &
         errmsg, errflg)
 
+    ! Should set scheme name.
+    @assertEqual('mmm_physics_compat', scheme_name)
     ! Tendencies should be zero at start (nstep = 0).
     @assertEqual(0.0_kind_phys, rthdynten)
     @assertEqual(0.0_kind_phys, rqvdynten)
@@ -138,6 +135,7 @@ subroutine test_mmm_physics_compat_run()
 
     nstep = 1
 
+    scheme_name = ''
     rthdynten(:, :) = huge(0.0_kind_phys)
     rqvdynten(:, :) = huge(0.0_kind_phys)
     xland(:) = huge(0.0_kind_phys)
@@ -147,10 +145,13 @@ subroutine test_mmm_physics_compat_run()
         dt, &
         theta_curr, theta_prev, qv_curr, qv_prev, &
         icefrac, xice_threshold, landfrac, &
+        scheme_name, &
         rthdynten, rqvdynten, &
         xland, &
         errmsg, errflg)
 
+    ! Should set scheme name.
+    @assertEqual('mmm_physics_compat', scheme_name)
     ! Should compute tendencies correctly afterwards (nstep > 0).
     @assertEqual(1.0_kind_phys, rthdynten, spacing(1.0_kind_phys))
     @assertEqual(0.001_kind_phys, rqvdynten, spacing(0.001_kind_phys))
@@ -662,10 +663,10 @@ subroutine test_compute_characteristic_grid_length_scale_init()
 end subroutine test_compute_characteristic_grid_length_scale_init
 
 @test
-subroutine test_compute_hydrostatic_upward_air_velocity_at_if_run()
+subroutine test_compute_hydrostatic_upward_air_velocity_at_interface_run()
     use ccpp_kinds, only: kind_phys
     use funit
-    use mmm_physics_compat, only: compute_hydrostatic_upward_air_velocity_at_if_run
+    use mmm_physics_compat, only: compute_hydrostatic_upward_air_velocity_at_interface_run
 
     integer, parameter :: ncol = 100, pver = 10, pverp = 11
     real(kind_phys) :: gravit, omega(ncol, pver), rho(ncol, pver)
@@ -696,7 +697,7 @@ subroutine test_compute_hydrostatic_upward_air_velocity_at_if_run()
 
     wint(:, :) = huge(0.0_kind_phys)
 
-    call compute_hydrostatic_upward_air_velocity_at_if_run( &
+    call compute_hydrostatic_upward_air_velocity_at_interface_run( &
         gravit, omega, rho, &
         wint, &
         errmsg, errflg)
@@ -712,7 +713,7 @@ subroutine test_compute_hydrostatic_upward_air_velocity_at_if_run()
 
     wint(:, :) = huge(0.0_kind_phys)
 
-    call compute_hydrostatic_upward_air_velocity_at_if_run( &
+    call compute_hydrostatic_upward_air_velocity_at_interface_run( &
         gravit, omega, rho, &
         wint, &
         errmsg, errflg)
@@ -721,7 +722,7 @@ subroutine test_compute_hydrostatic_upward_air_velocity_at_if_run()
     @assertEqual(-wint_expected, wint, spacing(maxval(wint_expected)))
     @assertEqual('', errmsg)
     @assertEqual(0, errflg)
-end subroutine test_compute_hydrostatic_upward_air_velocity_at_if_run
+end subroutine test_compute_hydrostatic_upward_air_velocity_at_interface_run
 
 @test
 subroutine test_compute_hydrostatic_upward_air_velocity_run()
@@ -766,10 +767,10 @@ subroutine test_compute_hydrostatic_upward_air_velocity_run()
 end subroutine test_compute_hydrostatic_upward_air_velocity_run
 
 @test
-subroutine test_geopotential_height_wrt_sfc_at_if_to_msl_run()
+subroutine test_geopotential_height_wrt_sfc_at_interface_to_msl_run()
     use ccpp_kinds, only: kind_phys
     use funit
-    use mmm_physics_compat, only: geopotential_height_wrt_sfc_at_if_to_msl_run
+    use mmm_physics_compat, only: geopotential_height_wrt_sfc_at_interface_to_msl_run
 
     integer, parameter :: ncol = 100, pverp = 11
     real(kind_phys) :: gravit, phis(ncol), zisfc(ncol, pverp)
@@ -782,7 +783,7 @@ subroutine test_geopotential_height_wrt_sfc_at_if_to_msl_run()
     zisfc(:, :) = 10.0_kind_phys
     zimsl(:, :) = huge(0.0_kind_phys)
 
-    call geopotential_height_wrt_sfc_at_if_to_msl_run( &
+    call geopotential_height_wrt_sfc_at_interface_to_msl_run( &
         ncol, &
         gravit, phis, zisfc, &
         zimsl, &
@@ -792,7 +793,7 @@ subroutine test_geopotential_height_wrt_sfc_at_if_to_msl_run()
     @assertEqual(20.0_kind_phys, zimsl, spacing(20.0_kind_phys))
     @assertEqual('', errmsg)
     @assertEqual(0, errflg)
-end subroutine test_geopotential_height_wrt_sfc_at_if_to_msl_run
+end subroutine test_geopotential_height_wrt_sfc_at_interface_to_msl_run
 
 @test
 subroutine test_geopotential_height_wrt_sfc_to_msl_run()

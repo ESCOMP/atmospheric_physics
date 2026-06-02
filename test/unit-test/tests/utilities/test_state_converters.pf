@@ -27,32 +27,77 @@ subroutine test_temp_to_potential_temp()
 end subroutine test_temp_to_potential_temp
 
 @test
-subroutine test_calc_hydrostatic_air_density_run()
+subroutine test_temp_to_virtual_temp_run()
     use ccpp_kinds, only: kind_phys
     use funit
-    use state_converters, only: calc_hydrostatic_air_density_run
+    use state_converters, only: temp_to_virtual_temp_run, virtual_temp_to_temp_run
 
     integer, parameter :: ncol = 100, pver = 10
-    real(kind_phys) :: pdel(ncol, pver), gravit, dz(ncol, pver)
-    real(kind_phys) :: rho(ncol, pver)
+    real(kind_phys), parameter :: rd = 287.04_kind_phys
+    real(kind_phys), parameter :: rv = 461.52_kind_phys
+
+    real(kind_phys) :: temp(ncol, pver), zvirv(ncol, pver), qv_dry(ncol, pver), qv_wet(ncol, pver), &
+                       virtual_temp(ncol, pver)
+    real(kind_phys) :: expected_temp(ncol, pver), expected_virtual_temp(ncol, pver)
     character(100) :: errmsg
     integer :: errflg
 
-    pdel(:, :) = 98.0_kind_phys
-    gravit = 9.8_kind_phys
-    dz(:, :) = 10.0_kind_phys
-    rho(:, :) = huge(0.0_kind_phys)
+    temp(:, :) = 273.15_kind_phys
+    zvirv(:, :) = rv / rd - 1.0_kind_phys
+    qv_dry(:, :) = 0.02_kind_phys
+    qv_wet(:, :) = qv_dry(:, :) / (1.0_kind_phys + qv_dry(:, :))
+    virtual_temp(:, :) = huge(0.0_kind_phys)
 
-    call calc_hydrostatic_air_density_run( &
-        pdel, gravit, dz, &
-        rho, &
-        errmsg, errflg)
+    expected_temp(:, :) = temp(:, :)
+    ! Use an alternative but equivalent formula for virtual temperature to verify the implementation here.
+    expected_virtual_temp(:, :) = temp(:, :) * &
+        (1.0_kind_phys + rv / rd * qv_dry(:, :)) / (1.0_kind_phys + qv_dry(:, :))
 
-    ! Should compute air density correctly.
-    @assertEqual(1.0_kind_phys, rho, spacing(1.0_kind_phys))
+    call temp_to_virtual_temp_run(temp, zvirv, qv_wet, virtual_temp, errmsg, errflg)
+
+    ! Should compute virtual temperature correctly.
+    @assertEqual(expected_virtual_temp, virtual_temp, maxval(spacing(expected_virtual_temp)))
     @assertEqual('', errmsg)
     @assertEqual(0, errflg)
-end subroutine test_calc_hydrostatic_air_density_run
+
+    temp(:, :) = huge(0.0_kind_phys)
+
+    call virtual_temp_to_temp_run(virtual_temp, zvirv, qv_wet, temp, errmsg, errflg)
+
+    ! Should get back original temperature correctly.
+    @assertEqual(expected_temp, temp, maxval(spacing(expected_temp)))
+    @assertEqual('', errmsg)
+    @assertEqual(0, errflg)
+end subroutine test_temp_to_virtual_temp_run
+
+@test
+subroutine test_calc_air_density_run()
+    use ccpp_kinds, only: kind_phys
+    use funit
+    use state_converters, only: calc_air_density_run
+
+    integer, parameter :: ncol = 100, pver = 10
+    real(kind_phys), parameter :: rd = 287.04_kind_phys
+
+    real(kind_phys) :: pmid(ncol, pver), rairv(ncol, pver), virtual_temp(ncol, pver), rho(ncol, pver)
+    real(kind_phys) :: expected_rho(ncol, pver)
+    character(100) :: errmsg
+    integer :: errflg
+
+    pmid(:, :) = 101325.0_kind_phys
+    rairv(:, :) = rd
+    virtual_temp(:, :) = 273.15_kind_phys
+    rho(:, :) = huge(0.0_kind_phys)
+
+    expected_rho(:, :) = pmid(:, :) / (rd * virtual_temp(:, :))
+
+    call calc_air_density_run(pmid, rairv, virtual_temp, rho, errmsg, errflg)
+
+    ! Should compute air density correctly.
+    @assertEqual(expected_rho, rho, maxval(spacing(expected_rho)))
+    @assertEqual('', errmsg)
+    @assertEqual(0, errflg)
+end subroutine test_calc_air_density_run
 
 @test
 subroutine test_calc_atmosphere_layer_thickness_run()
