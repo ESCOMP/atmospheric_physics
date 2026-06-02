@@ -311,10 +311,6 @@ contains
       endif
     end do
 
-    if (ierror > 0) then
-      write (iulog, *) 'COLDSST: encountered in cldfrc:', ierror, ocnfrac(ierror), sst(ierror)
-    end if
-
     do k = top_lev_cloudphys, pver - 1
       rpdeli(:ncol, k) = 1._kind_phys/(pmid(:ncol, k + 1) - pmid(:ncol, k))
     end do
