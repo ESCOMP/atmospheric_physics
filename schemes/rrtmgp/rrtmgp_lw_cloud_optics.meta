@@ -126,13 +126,13 @@
   dimensions = ()
   intent = in
 [ do_snow ]
-  standard_name = include_liquid_plus_snow_stratiform_cloud_area_fraction
+  standard_name = include_snow_in_radiation_calculation
   units = flag
   type = logical
   dimensions = ()
   intent = in
 [ do_graupel ]
-  standard_name = include_liquid_plus_graupel_stratiform_cloud_area_fraction
+  standard_name = include_graupel_in_radiation_calculation
   units = flag
   type = logical
   dimensions = ()
