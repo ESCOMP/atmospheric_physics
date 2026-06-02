@@ -1,8 +1,6 @@
 !> This module contains interstitial schemes that are specific to MYNN PBL scheme,
 !> which is part of MMM physics.
 module bl_mynn_compat
-    use ccpp_kinds, only: kind_phys
-
     implicit none
 
     private
@@ -28,6 +26,8 @@ contains
             edmf_qt_dd, edmf_thl_dd, edmf_ent_dd, edmf_qc_dd, &
             pattern_spp_pbl, rthraten, &
             errmsg, errflg)
+        use ccpp_kinds, only: kind_phys
+
         integer, intent(in) :: itimestep, spp_pbl
         logical, intent(in) :: restart
         real(kind_phys), intent(in) :: rthratenlw(:, :), rthratensw(:, :)

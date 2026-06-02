@@ -1,8 +1,6 @@
 !> This module contains interstitial schemes that are specific to MYNN surface layer scheme,
 !> which is part of MMM physics.
 module sf_mynn_compat
-    use ccpp_kinds, only: kind_phys
-
     implicit none
 
     private
