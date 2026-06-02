@@ -43,13 +43,13 @@
   intent = out
 [ kpbl ]
   standard_name = vertical_index_at_top_of_atmosphere_boundary_layer
-  units = count
+  units = index
   type = integer
   dimensions = (horizontal_loop_extent)
   intent = out
 [ ktop_plume ]
   standard_name = vertical_index_at_top_of_highest_plume_for_mynn_pbl_scheme
-  units = count
+  units = index
   type = integer
   dimensions = (horizontal_loop_extent)
   intent = out
@@ -890,7 +890,7 @@
   intent = inout
 [ kpbl ]
   standard_name = vertical_index_at_top_of_atmosphere_boundary_layer
-  units = count
+  units = index
   type = integer
   dimensions = (horizontal_loop_extent)
   intent = inout
@@ -1184,7 +1184,7 @@
   intent = out
 [ ktop_plume ]
   standard_name = vertical_index_at_top_of_highest_plume_for_mynn_pbl_scheme
-  units = count
+  units = index
   type = integer
   dimensions = (horizontal_loop_extent)
   intent = inout
