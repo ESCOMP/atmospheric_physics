@@ -47,9 +47,9 @@ contains
 
         ! Provide first guess at the first time step.
         if (itimestep == 1) then
-            ust(:) = max(0.04_kind_phys * sqrt(u(:, 1) ** 2 + v(:, 1) ** 2), 0.001_kind_phys)
+            ust(:) = max(0.04_kind_phys * sqrt(u(:, size(u, 2)) ** 2 + v(:, size(v, 2)) ** 2), 0.001_kind_phys)
             mol(:) = 0.0_kind_phys
-            qsfc(:) = qv(:, 1) ! Note that this `qv` is wet.
+            qsfc(:) = qv(:, size(qv, 2)) ! Note that this `qv` is wet.
         end if
 
         ! In CAM-SIMA, the first vertical index is at top of atmosphere.
