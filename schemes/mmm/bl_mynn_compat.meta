@@ -313,79 +313,79 @@
   dimensions = ()
   intent = out
 [ bl_mynn_tkeadvect ]
-  standard_name = flag_for_tke_advection_in_mynn_pbl_scheme
+  standard_name = do_tke_advection_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
   intent = out
 [ bl_mynn_tkebudget ]
-  standard_name = flag_for_tke_budget_output_in_mynn_pbl_scheme
+  standard_name = do_tke_budget_output_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
   intent = out
 [ bl_mynn_topdown ]
-  standard_name = flag_for_topdown_mixing_due_to_radiative_cooling_in_mynn_pbl_scheme
+  standard_name = do_topdown_mixing_due_to_radiative_cooling_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
   intent = out
 [ bl_mynn_edmf ]
-  standard_name = flag_for_edmf_in_mynn_pbl_scheme
+  standard_name = do_edmf_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
   intent = out
 [ bl_mynn_edmf_dd ]
-  standard_name = flag_for_edmf_downdraft_in_mynn_pbl_scheme
+  standard_name = do_edmf_downdraft_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
   intent = out
 [ bl_mynn_edmf_mom ]
-  standard_name = flag_for_edmf_momentum_transport_in_mynn_pbl_scheme
+  standard_name = do_edmf_momentum_transport_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
   intent = out
 [ bl_mynn_edmf_tke ]
-  standard_name = flag_for_edmf_tke_transport_in_mynn_pbl_scheme
+  standard_name = do_edmf_tke_transport_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
   intent = out
 [ bl_mynn_mixscalars ]
-  standard_name = flag_for_constituent_mixing_in_mynn_pbl_scheme
+  standard_name = do_constituent_mixing_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
   intent = out
 [ bl_mynn_output ]
-  standard_name = flag_for_additional_diagnostics_in_mynn_pbl_scheme
+  standard_name = do_additional_diagnostics_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
   intent = out
 [ bl_mynn_cloudmix ]
-  standard_name = flag_for_cloud_species_mixing_in_mynn_pbl_scheme
+  standard_name = do_cloud_species_mixing_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
   intent = out
 [ bl_mynn_mixqt ]
-  standard_name = flag_for_total_water_mixing_in_mynn_pbl_scheme
+  standard_name = do_total_water_mixing_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
   intent = out
 [ bl_mynn_scaleaware ]
-  standard_name = flag_for_scale_aware_mynn_pbl_scheme
+  standard_name = do_scale_aware_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
   intent = out
 [ bl_mynn_dheatopt ]
-  standard_name = flag_for_tke_dissipation_heating_in_mynn_pbl_scheme
+  standard_name = do_tke_dissipation_heating_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
@@ -967,13 +967,13 @@
   dimensions = ()
   intent = in
 [ bl_mynn_tkeadvect ]
-  standard_name = flag_for_tke_advection_in_mynn_pbl_scheme
+  standard_name = do_tke_advection_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
   intent = in
 [ bl_mynn_tkebudget ]
-  standard_name = flag_for_tke_budget_output_in_mynn_pbl_scheme
+  standard_name = do_tke_budget_output_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
@@ -1003,67 +1003,67 @@
   dimensions = ()
   intent = in
 [ bl_mynn_topdown ]
-  standard_name = flag_for_topdown_mixing_due_to_radiative_cooling_in_mynn_pbl_scheme
+  standard_name = do_topdown_mixing_due_to_radiative_cooling_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
   intent = in
 [ bl_mynn_edmf ]
-  standard_name = flag_for_edmf_in_mynn_pbl_scheme
+  standard_name = do_edmf_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
   intent = in
 [ bl_mynn_edmf_dd ]
-  standard_name = flag_for_edmf_downdraft_in_mynn_pbl_scheme
+  standard_name = do_edmf_downdraft_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
   intent = in
 [ bl_mynn_edmf_mom ]
-  standard_name = flag_for_edmf_momentum_transport_in_mynn_pbl_scheme
+  standard_name = do_edmf_momentum_transport_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
   intent = in
 [ bl_mynn_edmf_tke ]
-  standard_name = flag_for_edmf_tke_transport_in_mynn_pbl_scheme
+  standard_name = do_edmf_tke_transport_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
   intent = in
 [ bl_mynn_mixscalars ]
-  standard_name = flag_for_constituent_mixing_in_mynn_pbl_scheme
+  standard_name = do_constituent_mixing_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
   intent = in
 [ bl_mynn_output ]
-  standard_name = flag_for_additional_diagnostics_in_mynn_pbl_scheme
+  standard_name = do_additional_diagnostics_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
   intent = in
 [ bl_mynn_cloudmix ]
-  standard_name = flag_for_cloud_species_mixing_in_mynn_pbl_scheme
+  standard_name = do_cloud_species_mixing_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
   intent = in
 [ bl_mynn_mixqt ]
-  standard_name = flag_for_total_water_mixing_in_mynn_pbl_scheme
+  standard_name = do_total_water_mixing_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
   intent = in
 [ bl_mynn_scaleaware ]
-  standard_name = flag_for_scale_aware_mynn_pbl_scheme
+  standard_name = do_scale_aware_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
   intent = in
 [ bl_mynn_dheatopt ]
-  standard_name = flag_for_tke_dissipation_heating_in_mynn_pbl_scheme
+  standard_name = do_tke_dissipation_heating_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
