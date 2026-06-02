@@ -10,6 +10,10 @@ module state_converters
   public :: temp_to_potential_temp_run
   public :: potential_temp_to_temp_run
 
+  ! Convert temperature to virtual temperature and back
+  public :: temp_to_virtual_temp_run
+  public :: virtual_temp_to_temp_run
+
   ! Calculate dry air density by equation of state/ideal gas law
   public :: calc_dry_air_ideal_gas_density_run
 
@@ -77,6 +81,44 @@ CONTAINS
     errflg = 0
     errmsg = ''
   end subroutine potential_temp_to_temp_run
+
+  !> \section arg_table_temp_to_virtual_temp_run Argument Table
+  !! \htmlinclude temp_to_virtual_temp_run.html
+  pure subroutine temp_to_virtual_temp_run(temp, zvirv, qv, virtual_temp, errmsg, errflg)
+    use ccpp_kinds, only: kind_phys
+
+    real(kind_phys), intent(in) :: temp(:, :)          ! temperature (K)
+    real(kind_phys), intent(in) :: zvirv(:, :)         ! ratio of water vapor gas constant to composition-dependent
+                                                       ! dry air gas constant minus one (1)
+    real(kind_phys), intent(in) :: qv(:, :)            ! water vapor mixing ratio wrt moist air and condensed water (kg kg-1)
+    real(kind_phys), intent(out) :: virtual_temp(:, :) ! virtual temperature (K)
+    character(len=*), intent(out) :: errmsg
+    integer, intent(out) :: errflg
+
+    virtual_temp(:, :) = temp(:, :) * (1.0_kind_phys + zvirv(:, :) * qv(:, :))
+
+    errmsg = ''
+    errflg = 0
+  end subroutine temp_to_virtual_temp_run
+
+  !> \section arg_table_virtual_temp_to_temp_run Argument Table
+  !! \htmlinclude virtual_temp_to_temp_run.html
+  pure subroutine virtual_temp_to_temp_run(virtual_temp, zvirv, qv, temp, errmsg, errflg)
+    use ccpp_kinds, only: kind_phys
+
+    real(kind_phys), intent(in) :: virtual_temp(:, :) ! virtual temperature (K)
+    real(kind_phys), intent(in) :: zvirv(:, :)        ! ratio of water vapor gas constant to composition-dependent
+                                                      ! dry air gas constant minus one (1)
+    real(kind_phys), intent(in) :: qv(:, :)           ! water vapor mixing ratio wrt moist air and condensed water (kg kg-1)
+    real(kind_phys), intent(out) :: temp(:, :)        ! temperature (K)
+    character(len=*), intent(out) :: errmsg
+    integer, intent(out) :: errflg
+
+    temp(:, :) = virtual_temp(:, :) / (1.0_kind_phys + zvirv(:, :) * qv(:, :))
+
+    errmsg = ''
+    errflg = 0
+  end subroutine virtual_temp_to_temp_run
 
 !> \section arg_table_calc_dry_air_ideal_gas_density_run  Argument Table
 !! \htmlinclude calc_dry_air_ideal_gas_density_run.html
