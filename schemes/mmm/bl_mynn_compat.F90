@@ -222,21 +222,21 @@ contains
         end if
 
         call ccpp_constituent_index( &
-            'mass_number_concentration_of_hygroscopic_aerosols', i, errflg, errmsg)
+            'mass_number_concentration_of_hygroscopic_aerosols_in_air', i, errflg, errmsg)
 
         if (errflg == 0) then
             flag_qnwfa = .true.
         end if
 
         call ccpp_constituent_index( &
-            'mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols', i, errflg, errmsg)
+            'mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols_in_air', i, errflg, errmsg)
 
         if (errflg == 0) then
             flag_qnifa = .true.
         end if
 
         call ccpp_constituent_index( &
-            'mass_number_concentration_of_hydrophobic_black_carbon', i, errflg, errmsg)
+            'mass_number_concentration_of_hydrophobic_black_carbon_in_air', i, errflg, errmsg)
 
         if (errflg == 0) then
             flag_qnbca = .true.

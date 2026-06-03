@@ -434,19 +434,19 @@
   dimensions = ()
   intent = out
 [ flag_qnwfa ]
-  standard_name = flag_for_mass_number_concentration_of_hygroscopic_aerosols_in_mynn_pbl_scheme
+  standard_name = flag_for_mass_number_concentration_of_hygroscopic_aerosols_in_air_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
   intent = out
 [ flag_qnifa ]
-  standard_name = flag_for_mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols_in_mynn_pbl_scheme
+  standard_name = flag_for_mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols_in_air_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
   intent = out
 [ flag_qnbca ]
-  standard_name = flag_for_mass_number_concentration_of_black_carbon_in_mynn_pbl_scheme
+  standard_name = flag_for_mass_number_concentration_of_hydrophobic_black_carbon_in_air_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
@@ -640,21 +640,21 @@
   intent = in
   advected = True
 [ qnwfa ]
-  standard_name = mass_number_concentration_of_hygroscopic_aerosols
+  standard_name = mass_number_concentration_of_hygroscopic_aerosols_in_air
   units = kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
   advected = True
 [ qnifa ]
-  standard_name = mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols
+  standard_name = mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols_in_air
   units = kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
   advected = True
 [ qnbca ]
-  standard_name = mass_number_concentration_of_hydrophobic_black_carbon
+  standard_name = mass_number_concentration_of_hydrophobic_black_carbon_in_air
   units = kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -848,19 +848,19 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rqnwfablten ]
-  standard_name = tendency_of_mass_number_concentration_of_hygroscopic_aerosols_due_to_pbl_processes
+  standard_name = tendency_of_mass_number_concentration_of_hygroscopic_aerosols_in_air_due_to_pbl_processes
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rqnifablten ]
-  standard_name = tendency_of_mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols_due_to_pbl_processes
+  standard_name = tendency_of_mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols_in_air_due_to_pbl_processes
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rqnbcablten ]
-  standard_name = tendency_of_mass_number_concentration_of_black_carbon_due_to_pbl_processes
+  standard_name = tendency_of_mass_number_concentration_of_hydrophobic_black_carbon_in_air_due_to_pbl_processes
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -1238,19 +1238,19 @@
   dimensions = ()
   intent = in
 [ flag_qnwfa ]
-  standard_name = flag_for_mass_number_concentration_of_hygroscopic_aerosols_in_mynn_pbl_scheme
+  standard_name = flag_for_mass_number_concentration_of_hygroscopic_aerosols_in_air_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
   intent = in
 [ flag_qnifa ]
-  standard_name = flag_for_mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols_in_mynn_pbl_scheme
+  standard_name = flag_for_mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols_in_air_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
   intent = in
 [ flag_qnbca ]
-  standard_name = flag_for_mass_number_concentration_of_black_carbon_in_mynn_pbl_scheme
+  standard_name = flag_for_mass_number_concentration_of_hydrophobic_black_carbon_in_air_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
