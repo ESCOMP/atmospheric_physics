@@ -1,0 +1,63 @@
+[ccpp-table-properties]
+  name = bl_gwdo_diagnostics
+  type = scheme
+
+[ccpp-arg-table]
+  name = bl_gwdo_diagnostics_init
+  type = scheme
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name = bl_gwdo_diagnostics_run
+  type = scheme
+[ dtaux3d ]
+  standard_name = tendency_of_x_wind_due_to_orographic_gwd
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ dtauy3d ]
+  standard_name = tendency_of_y_wind_due_to_orographic_gwd
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ dusfcg ]
+  standard_name = atmosphere_x_stress_due_to_orographic_gwd
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ dvsfcg ]
+  standard_name = atmosphere_y_stress_due_to_orographic_gwd
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
