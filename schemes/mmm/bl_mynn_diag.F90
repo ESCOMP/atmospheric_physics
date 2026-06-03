@@ -167,7 +167,7 @@ contains
             horiz_only, 'avg', 'm s-1')
         call history_add_field( &
             'bl_mynn_ztop_plume', &
-            'height_of_highest_plume_for_mynn_pbl_scheme', &
+            'height_of_tallest_plume_for_mynn_pbl_scheme', &
             horiz_only, 'avg', 'm')
 
         errmsg = ''

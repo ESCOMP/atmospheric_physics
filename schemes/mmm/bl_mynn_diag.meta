@@ -246,7 +246,7 @@
   dimensions = (horizontal_loop_extent)
   intent = in
 [ ztop_plume ]
-  standard_name = height_of_highest_plume_for_mynn_pbl_scheme
+  standard_name = height_of_tallest_plume_for_mynn_pbl_scheme
   units = m
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)

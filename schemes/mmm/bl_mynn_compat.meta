@@ -48,7 +48,7 @@
   dimensions = (horizontal_loop_extent)
   intent = out
 [ ktop_plume ]
-  standard_name = vertical_index_at_top_of_highest_plume_for_mynn_pbl_scheme
+  standard_name = vertical_index_at_top_of_tallest_plume_for_mynn_pbl_scheme
   units = index
   type = integer
   dimensions = (horizontal_loop_extent)
@@ -1177,13 +1177,13 @@
   dimensions = (horizontal_loop_extent)
   intent = out
 [ ztop_plume ]
-  standard_name = height_of_highest_plume_for_mynn_pbl_scheme
+  standard_name = height_of_tallest_plume_for_mynn_pbl_scheme
   units = m
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
 [ ktop_plume ]
-  standard_name = vertical_index_at_top_of_highest_plume_for_mynn_pbl_scheme
+  standard_name = vertical_index_at_top_of_tallest_plume_for_mynn_pbl_scheme
   units = index
   type = integer
   dimensions = (horizontal_loop_extent)
