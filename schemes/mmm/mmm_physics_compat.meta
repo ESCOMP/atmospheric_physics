@@ -6,7 +6,8 @@
   name = mmm_physics_compat_init
   type = scheme
 [ initial_run ]
-  standard_name = is_initial
+  standard_name = is_initial_run
+  long_name = Flag indicating whether this model simulation is an initial run
   units = flag
   type = logical
   dimensions = ()
@@ -48,7 +49,7 @@
   dimensions = ()
   intent = out
 [ restart ]
-  standard_name = is_restart_for_mmm_scheme
+  standard_name = is_restart_run_for_mmm_scheme
   units = flag
   type = logical
   dimensions = ()

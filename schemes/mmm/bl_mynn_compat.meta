@@ -19,7 +19,7 @@
   dimensions = ()
   intent = in
 [ restart ]
-  standard_name = is_restart_for_mmm_scheme
+  standard_name = is_restart_run_for_mmm_scheme
   units = flag
   type = logical
   dimensions = ()
@@ -542,7 +542,7 @@
   dimensions = ()
   intent = in
 [ restart ]
-  standard_name = is_restart_for_mmm_scheme
+  standard_name = is_restart_run_for_mmm_scheme
   units = flag
   type = logical
   dimensions = ()
