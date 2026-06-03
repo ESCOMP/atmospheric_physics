@@ -1,4 +1,4 @@
-!> This module contains interstitial schemes that are specific to MMM physics.
+!> This module contains interstitial schemes that are specific to the MMM physics.
 module mmm_physics_compat
     implicit none
 

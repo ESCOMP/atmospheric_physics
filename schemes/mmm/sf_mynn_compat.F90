@@ -1,5 +1,5 @@
-!> This module contains interstitial schemes that are specific to MYNN surface layer scheme,
-!> which is part of MMM physics.
+!> This module contains interstitial schemes that are specific to the MYNN surface layer scheme,
+!> which is part of the MMM physics.
 module sf_mynn_compat
     implicit none
 

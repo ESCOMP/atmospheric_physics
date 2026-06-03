@@ -1,5 +1,5 @@
-!> This module contains interstitial schemes that are specific to new Tiedtke cumulus scheme,
-!> which is part of MMM physics.
+!> This module contains interstitial schemes that are specific to the new Tiedtke cumulus scheme,
+!> which is part of the MMM physics.
 module cu_ntiedtke_compat
     implicit none
 

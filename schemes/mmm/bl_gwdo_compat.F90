@@ -1,5 +1,5 @@
-!> This module contains interstitial schemes that are specific to YSU orographic gravity wave drag scheme,
-!> which is part of MMM physics.
+!> This module contains interstitial schemes that are specific to the YSU orographic gravity wave drag scheme,
+!> which is part of the MMM physics.
 module bl_gwdo_compat
     implicit none
 

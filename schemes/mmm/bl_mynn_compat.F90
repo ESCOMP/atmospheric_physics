@@ -1,5 +1,5 @@
-!> This module contains interstitial schemes that are specific to MYNN PBL scheme,
-!> which is part of MMM physics.
+!> This module contains interstitial schemes that are specific to the MYNN PBL scheme,
+!> which is part of the MMM physics.
 module bl_mynn_compat
     implicit none
 
