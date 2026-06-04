@@ -13,8 +13,9 @@ module diffusion_stubs
   ! CCPP-compliant subroutines
   public :: zero_upper_boundary_condition_init
 
-  public :: tms_beljaars_zero_stub_run
-  public :: beljaars_zero_stub_run
+  public :: tms_beljaars_zero_stub_run           ! Stub out both TMS and Beljaars (do_beljaars set to false)
+  public :: beljaars_zero_stub_run               ! Stub out Beljaars only and allows TMS to be read from snapshot (do_beljaars set to false)
+  public :: tms_zero_stub_run                    ! Stub out TMS only and allow Beljaars to be read from snapshot (do_beljaars set to true)
   public :: turbulent_mountain_stress_add_drag_coefficient_run
   public :: beljaars_add_wind_damping_rate_run
 
@@ -157,6 +158,44 @@ contains
     do_beljaars = .false.
 
   end subroutine beljaars_zero_stub_run
+
+  ! Stub for TMS to be set to zero while not implemented
+  ! but allow CAM7 Beljaars to be tested from snapshot.
+!> \section arg_table_tms_zero_stub_run Argument Table
+!! \htmlinclude tms_zero_stub_run.html
+  subroutine tms_zero_stub_run( &
+    ncol, pver, &
+    ksrftms, &
+    tautmsx, tautmsy, &
+    do_beljaars, &
+    errmsg, errflg)
+
+    ! Input arguments
+    integer,            intent(in)  :: ncol
+    integer,            intent(in)  :: pver
+
+    ! Output arguments
+    real(kind_phys),    intent(out) :: ksrftms(:)  ! Surface drag coefficient for turbulent mountain stress. > 0. [kg m-2 s-1]
+    real(kind_phys),    intent(out) :: tautmsx(:)  ! Eastward turbulent mountain surface stress [N m-2]
+    real(kind_phys),    intent(out) :: tautmsy(:)  ! Northward turbulent mountain surface stress [N m-2]
+    logical,            intent(out) :: do_beljaars
+    character(len=512), intent(out) :: errmsg      ! Error message
+    integer,            intent(out) :: errflg      ! Error flag
+
+    errmsg = ''
+    errflg = 0
+
+    ! Set TMS drag coefficient to zero (stub implementation)
+    ksrftms(:ncol) = 0._kind_phys
+
+    ! Set all TMS and Beljaars stresses to zero (stub implementation)
+    tautmsx(:ncol) = 0._kind_phys
+    tautmsy(:ncol) = 0._kind_phys
+
+    ! Set do_beljaars flag to true as it is being read from snapshot.
+    do_beljaars = .true.
+
+  end subroutine tms_zero_stub_run
 
   ! Add turbulent mountain stress to the total surface drag coefficient
 !> \section arg_table_turbulent_mountain_stress_add_drag_coefficient_run Argument Table
