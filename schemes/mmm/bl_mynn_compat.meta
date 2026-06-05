@@ -421,31 +421,31 @@
   dimensions = ()
   intent = out
 [ flag_qnc ]
-  standard_name = flag_for_mass_number_concentration_of_cloud_liquid_water_particles_in_air_in_mynn_pbl_scheme
+  standard_name = flag_for_mass_number_concentration_of_cloud_liquid_water_particles_in_dry_air_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
   intent = out
 [ flag_qni ]
-  standard_name = flag_for_mass_number_concentration_of_cloud_ice_water_crystals_in_air_in_mynn_pbl_scheme
+  standard_name = flag_for_mass_number_concentration_of_cloud_ice_water_crystals_in_dry_air_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
   intent = out
 [ flag_qnwfa ]
-  standard_name = flag_for_mass_number_concentration_of_hygroscopic_aerosols_in_air_in_mynn_pbl_scheme
+  standard_name = flag_for_mass_number_concentration_of_hygroscopic_aerosols_in_dry_air_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
   intent = out
 [ flag_qnifa ]
-  standard_name = flag_for_mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols_in_air_in_mynn_pbl_scheme
+  standard_name = flag_for_mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols_in_dry_air_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
   intent = out
 [ flag_qnbca ]
-  standard_name = flag_for_mass_number_concentration_of_hydrophobic_black_carbon_in_air_in_mynn_pbl_scheme
+  standard_name = flag_for_mass_number_concentration_of_hydrophobic_black_carbon_in_dry_air_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
@@ -625,35 +625,35 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ qnc ]
-  standard_name = mass_number_concentration_of_cloud_liquid_water_particles_in_air
+  standard_name = mass_number_concentration_of_cloud_liquid_water_particles_in_dry_air
   units = kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
   advected = True
 [ qni ]
-  standard_name = mass_number_concentration_of_cloud_ice_water_crystals_in_air
+  standard_name = mass_number_concentration_of_cloud_ice_water_crystals_in_dry_air
   units = kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
   advected = True
 [ qnwfa ]
-  standard_name = mass_number_concentration_of_hygroscopic_aerosols_in_air
+  standard_name = mass_number_concentration_of_hygroscopic_aerosols_in_dry_air
   units = kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
   advected = True
 [ qnifa ]
-  standard_name = mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols_in_air
+  standard_name = mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols_in_dry_air
   units = kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
   advected = True
 [ qnbca ]
-  standard_name = mass_number_concentration_of_hydrophobic_black_carbon_in_air
+  standard_name = mass_number_concentration_of_hydrophobic_black_carbon_in_dry_air
   units = kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -835,31 +835,31 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rqncblten ]
-  standard_name = tendency_of_mass_number_concentration_of_cloud_liquid_water_particles_in_air_due_to_pbl_processes
+  standard_name = tendency_of_mass_number_concentration_of_cloud_liquid_water_particles_in_dry_air_due_to_pbl_processes
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rqniblten ]
-  standard_name = tendency_of_mass_number_concentration_of_cloud_ice_water_crystals_in_air_due_to_pbl_processes
+  standard_name = tendency_of_mass_number_concentration_of_cloud_ice_water_crystals_in_dry_air_due_to_pbl_processes
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rqnwfablten ]
-  standard_name = tendency_of_mass_number_concentration_of_hygroscopic_aerosols_in_air_due_to_pbl_processes
+  standard_name = tendency_of_mass_number_concentration_of_hygroscopic_aerosols_in_dry_air_due_to_pbl_processes
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rqnifablten ]
-  standard_name = tendency_of_mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols_in_air_due_to_pbl_processes
+  standard_name = tendency_of_mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols_in_dry_air_due_to_pbl_processes
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rqnbcablten ]
-  standard_name = tendency_of_mass_number_concentration_of_hydrophobic_black_carbon_in_air_due_to_pbl_processes
+  standard_name = tendency_of_mass_number_concentration_of_hydrophobic_black_carbon_in_dry_air_due_to_pbl_processes
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -1225,31 +1225,31 @@
   dimensions = ()
   intent = in
 [ flag_qnc ]
-  standard_name = flag_for_mass_number_concentration_of_cloud_liquid_water_particles_in_air_in_mynn_pbl_scheme
+  standard_name = flag_for_mass_number_concentration_of_cloud_liquid_water_particles_in_dry_air_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
   intent = in
 [ flag_qni ]
-  standard_name = flag_for_mass_number_concentration_of_cloud_ice_water_crystals_in_air_in_mynn_pbl_scheme
+  standard_name = flag_for_mass_number_concentration_of_cloud_ice_water_crystals_in_dry_air_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
   intent = in
 [ flag_qnwfa ]
-  standard_name = flag_for_mass_number_concentration_of_hygroscopic_aerosols_in_air_in_mynn_pbl_scheme
+  standard_name = flag_for_mass_number_concentration_of_hygroscopic_aerosols_in_dry_air_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
   intent = in
 [ flag_qnifa ]
-  standard_name = flag_for_mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols_in_air_in_mynn_pbl_scheme
+  standard_name = flag_for_mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols_in_dry_air_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
   intent = in
 [ flag_qnbca ]
-  standard_name = flag_for_mass_number_concentration_of_hydrophobic_black_carbon_in_air_in_mynn_pbl_scheme
+  standard_name = flag_for_mass_number_concentration_of_hydrophobic_black_carbon_in_dry_air_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()

@@ -207,35 +207,35 @@ contains
         flag_qnbca = .false.
 
         call ccpp_constituent_index( &
-            'mass_number_concentration_of_cloud_liquid_water_particles_in_air', i, errflg, errmsg)
+            'mass_number_concentration_of_cloud_liquid_water_particles_in_dry_air', i, errflg, errmsg)
 
         if (errflg == 0 .and. i /= int_unassigned) then
             flag_qnc = .true.
         end if
 
         call ccpp_constituent_index( &
-            'mass_number_concentration_of_cloud_ice_water_crystals_in_air', i, errflg, errmsg)
+            'mass_number_concentration_of_cloud_ice_water_crystals_in_dry_air', i, errflg, errmsg)
 
         if (errflg == 0 .and. i /= int_unassigned) then
             flag_qni = .true.
         end if
 
         call ccpp_constituent_index( &
-            'mass_number_concentration_of_hygroscopic_aerosols_in_air', i, errflg, errmsg)
+            'mass_number_concentration_of_hygroscopic_aerosols_in_dry_air', i, errflg, errmsg)
 
         if (errflg == 0 .and. i /= int_unassigned) then
             flag_qnwfa = .true.
         end if
 
         call ccpp_constituent_index( &
-            'mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols_in_air', i, errflg, errmsg)
+            'mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols_in_dry_air', i, errflg, errmsg)
 
         if (errflg == 0 .and. i /= int_unassigned) then
             flag_qnifa = .true.
         end if
 
         call ccpp_constituent_index( &
-            'mass_number_concentration_of_hydrophobic_black_carbon_in_air', i, errflg, errmsg)
+            'mass_number_concentration_of_hydrophobic_black_carbon_in_dry_air', i, errflg, errmsg)
 
         if (errflg == 0 .and. i /= int_unassigned) then
             flag_qnbca = .true.

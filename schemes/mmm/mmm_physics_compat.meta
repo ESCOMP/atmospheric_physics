@@ -265,7 +265,7 @@
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = out
 [ rncblten ]
-  standard_name = tendency_of_mass_number_concentration_of_cloud_liquid_water_particles_in_air_due_to_pbl_processes
+  standard_name = tendency_of_mass_number_concentration_of_cloud_liquid_water_particles_in_dry_air_due_to_pbl_processes
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_dimension, vertical_layer_dimension)
@@ -283,7 +283,7 @@
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = out
 [ rniblten ]
-  standard_name = tendency_of_mass_number_concentration_of_cloud_ice_water_crystals_in_air_due_to_pbl_processes
+  standard_name = tendency_of_mass_number_concentration_of_cloud_ice_water_crystals_in_dry_air_due_to_pbl_processes
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_dimension, vertical_layer_dimension)
@@ -307,19 +307,19 @@
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = out
 [ rnwfablten ]
-  standard_name = tendency_of_mass_number_concentration_of_hygroscopic_aerosols_in_air_due_to_pbl_processes
+  standard_name = tendency_of_mass_number_concentration_of_hygroscopic_aerosols_in_dry_air_due_to_pbl_processes
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = out
 [ rnifablten ]
-  standard_name = tendency_of_mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols_in_air_due_to_pbl_processes
+  standard_name = tendency_of_mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols_in_dry_air_due_to_pbl_processes
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = out
 [ rnbcablten ]
-  standard_name = tendency_of_mass_number_concentration_of_hydrophobic_black_carbon_in_air_due_to_pbl_processes
+  standard_name = tendency_of_mass_number_concentration_of_hydrophobic_black_carbon_in_dry_air_due_to_pbl_processes
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_dimension, vertical_layer_dimension)
@@ -410,31 +410,31 @@
   intent = inout
   advected = True
 [ nc ]
-  standard_name = mass_number_concentration_of_cloud_liquid_water_particles_in_air
+  standard_name = mass_number_concentration_of_cloud_liquid_water_particles_in_dry_air
   units = kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ ni ]
-  standard_name = mass_number_concentration_of_cloud_ice_water_crystals_in_air
+  standard_name = mass_number_concentration_of_cloud_ice_water_crystals_in_dry_air
   units = kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ nwfa ]
-  standard_name = mass_number_concentration_of_hygroscopic_aerosols_in_air
+  standard_name = mass_number_concentration_of_hygroscopic_aerosols_in_dry_air
   units = kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ nifa ]
-  standard_name = mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols_in_air
+  standard_name = mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols_in_dry_air
   units = kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ nbca ]
-  standard_name = mass_number_concentration_of_hydrophobic_black_carbon_in_air
+  standard_name = mass_number_concentration_of_hydrophobic_black_carbon_in_dry_air
   units = kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -506,7 +506,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rncblten ]
-  standard_name = tendency_of_mass_number_concentration_of_cloud_liquid_water_particles_in_air_due_to_pbl_processes
+  standard_name = tendency_of_mass_number_concentration_of_cloud_liquid_water_particles_in_dry_air_due_to_pbl_processes
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -524,7 +524,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rniblten ]
-  standard_name = tendency_of_mass_number_concentration_of_cloud_ice_water_crystals_in_air_due_to_pbl_processes
+  standard_name = tendency_of_mass_number_concentration_of_cloud_ice_water_crystals_in_dry_air_due_to_pbl_processes
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -548,19 +548,19 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rnwfablten ]
-  standard_name = tendency_of_mass_number_concentration_of_hygroscopic_aerosols_in_air_due_to_pbl_processes
+  standard_name = tendency_of_mass_number_concentration_of_hygroscopic_aerosols_in_dry_air_due_to_pbl_processes
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rnifablten ]
-  standard_name = tendency_of_mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols_in_air_due_to_pbl_processes
+  standard_name = tendency_of_mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols_in_dry_air_due_to_pbl_processes
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rnbcablten ]
-  standard_name = tendency_of_mass_number_concentration_of_hydrophobic_black_carbon_in_air_due_to_pbl_processes
+  standard_name = tendency_of_mass_number_concentration_of_hydrophobic_black_carbon_in_dry_air_due_to_pbl_processes
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
