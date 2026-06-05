@@ -105,8 +105,8 @@ module clubb
     integer, intent(inout) :: edsclr_dim, nzt_clubb, nzm_clubb
     integer, intent(in) :: sclr_dim, hydromet_dim
     logical, intent(in) :: masterproc, l_implemented
-    logical, dimension(pcnst), intent(in) :: cnst_ndropmixed
-    logical, dimension(pcnst), intent(inout) :: lq
+    logical, intent(in) :: cnst_ndropmixed(:)
+    logical, intent(inout) :: lq(:)
     character(len=16), intent(in) :: subcol_scheme
 
     real(kind=time_precision) :: dum1, dum2, dum3
@@ -126,18 +126,18 @@ module clubb
     type (hm_metadata_type), intent(inout) :: &
       hm_metadata
 
-    real(kind=kind_phys), dimension(1,nparams), intent(inout) :: &
-      clubb_params_single_col    ! Adjustable CLUBB parameters (C1, C2 ...)
+    real(kind=kind_phys), intent(inout) :: &
+      clubb_params_single_col(:,:)    ! Adjustable CLUBB parameters (C1, C2 ...)
 
     integer, intent(in) :: pcols, pver, pverp, begchunk, endchunk
 
     ! Variables that contains all the statistics
     type (stats), intent(inout) :: &
-      stats_zt(pcols),      & ! stats_zt grid
-      stats_zm(pcols),      & ! stats_zm grid
-      stats_rad_zt(pcols),  & ! stats_rad_zt grid
-      stats_rad_zm(pcols),  & ! stats_rad_zm grid
-      stats_sfc(pcols)        ! stats_sfc
+      stats_zt(:),      & ! stats_zt grid
+      stats_zm(:),      & ! stats_zm grid
+      stats_rad_zt(:),  & ! stats_rad_zt grid
+      stats_rad_zm(:),  & ! stats_rad_zm grid
+      stats_sfc(:)        ! stats_sfc
 
     type(pdf_parameter), allocatable, intent(inout) :: &
       pdf_params_chnk(:)                ! PDF parameters (thermo. levs.) [units vary]
@@ -148,13 +148,14 @@ module clubb
     type(implicit_coefs_terms), allocatable, intent(inout) :: &
       pdf_implicit_coefs_terms_chnk(:)  ! PDF impl. coefs. & expl. terms      [units vary]
 
-    character(len=var_length), dimension(nvarmax_zt), intent(in)     ::   clubb_vars_zt      ! Variables on the thermodynamic levels
-    character(len=var_length), dimension(nvarmax_zm), intent(in)     ::   clubb_vars_zm      ! Variables on the momentum levels
-    character(len=var_length), dimension(nvarmax_rad_zt), intent(in) ::   clubb_vars_rad_zt  ! Variables on the radiation levels
-    character(len=var_length), dimension(nvarmax_rad_zm), intent(in) ::   clubb_vars_rad_zm  ! Variables on the radiation levels
-    character(len=var_length), dimension(nvarmax_sfc), intent(in)    ::   clubb_vars_sfc     ! Variables at the model surface
+    character(len=var_length), intent(in) :: clubb_vars_zt(:)      ! Variables on the thermodynamic levels
+    character(len=var_length), intent(in) :: clubb_vars_zm(:)      ! Variables on the momentum levels
+    character(len=var_length), intent(in) :: clubb_vars_rad_zt(:)  ! Variables on the radiation levels
+    character(len=var_length), intent(in) :: clubb_vars_rad_zm(:)  ! Variables on the radiation levels
+    character(len=var_length), intent(in) :: clubb_vars_sfc(:)     ! Variables at the model surface
  
-    real(kind=kind_phys), allocatable, dimension(:,:,:), intent(inout) :: out_zt, out_zm, out_radzt, out_radzm, out_sfc
+    real(kind=kind_phys), allocatable, intent(inout) :: &
+      out_zt(:,:,:), out_zm(:,:,:), out_radzt(:,:,:), out_radzm(:,:,:), out_sfc(:,:,:)
 
     logical, intent(in) :: clubb_l_do_expldiff_rtm_thlm
 
@@ -540,23 +541,23 @@ module clubb
     real(kind=time_precision), intent(in) ::   delt         ! Timestep (dtmain in CLUBB)         [s]
 
     !----------------------- Output Variables -----------------------
-    type (stats), intent(out), dimension(pcols) :: &
-      stats_zt,      & ! stats_zt grid
-      stats_zm,      & ! stats_zm grid
-      stats_rad_zt,  & ! stats_rad_zt grid
-      stats_rad_zm,  & ! stats_rad_zm grid
-      stats_sfc        ! stats_sfc
+    type (stats), intent(out) :: &
+      stats_zt(:),      & ! stats_zt grid
+      stats_zm(:),      & ! stats_zm grid
+      stats_rad_zt(:),  & ! stats_rad_zt grid
+      stats_rad_zm(:),  & ! stats_rad_zm grid
+      stats_sfc(:)        ! stats_sfc
 
 
     !----------------------- Local Variables -----------------------
 
     !  Namelist Variables
 
-    character(len=var_length), dimension(nvarmax_zt), intent(in)     ::   clubb_vars_zt      ! Variables on the thermodynamic levels
-    character(len=var_length), dimension(nvarmax_zm), intent(in)     ::   clubb_vars_zm      ! Variables on the momentum levels
-    character(len=var_length), dimension(nvarmax_rad_zt), intent(in) ::   clubb_vars_rad_zt  ! Variables on the radiation levels
-    character(len=var_length), dimension(nvarmax_rad_zm), intent(in) ::   clubb_vars_rad_zm  ! Variables on the radiation levels
-    character(len=var_length), dimension(nvarmax_sfc), intent(in)    ::   clubb_vars_sfc     ! Variables at the model surface
+    character(len=var_length), intent(in)     ::   clubb_vars_zt(:)      ! Variables on the thermodynamic levels
+    character(len=var_length), intent(in)     ::   clubb_vars_zm(:)      ! Variables on the momentum levels
+    character(len=var_length), intent(in) ::   clubb_vars_rad_zt(:)  ! Variables on the radiation levels
+    character(len=var_length), intent(in) ::   clubb_vars_rad_zm(:)  ! Variables on the radiation levels
+    character(len=var_length), intent(in)    ::   clubb_vars_sfc(:)     ! Variables at the model surface
 
     logical :: l_error
 
@@ -933,9 +934,9 @@ module clubb
     integer, intent(in) :: kk, num_output_fields
 
     !  Output
-    real(kind=stat_rknd), dimension(1,1,kk,num_output_fields), intent(out)    :: x
-    integer(kind=stat_nknd), dimension(1,1,kk,num_output_fields), intent(out) :: n
-    logical, dimension(1,1,kk,num_output_fields), intent(out)                 :: l_in_update
+    real(kind=stat_rknd), intent(out) :: x(:,:,:,:)
+    integer(kind=stat_nknd), intent(out) :: n(:,:,:,:)
+    logical, intent(out)                 :: l_in_update(:,:,:,:)
 
     !  Zero out arrays
 
