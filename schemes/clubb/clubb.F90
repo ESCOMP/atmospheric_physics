@@ -36,7 +36,8 @@ module clubb
                         clubb_C_invrs_tau_N2_wp2, clubb_C_invrs_tau_N2_xp2, clubb_C_invrs_tau_N2_wpxp, &
                         clubb_C_invrs_tau_N2_clear_wp3, clubb_bv_efold, clubb_wpxp_Ri_exp, clubb_z_displace, &
                         edsclr_dim, sclr_dim, hydromet_dim, &
-                        nzm_clubb, nzt_clubb, hm_metadata, clubb_params_single_col, & 
+                        nzm_clubb, nzt_clubb, hm_metadata, clubb_params_single_col, &
+                        clubb_vars_zt, clubb_vars_zm, clubb_vars_sfc, clubb_vars_rad_zt, clubb_vars_rad_zm, & 
                         stats_zt, stats_zm, stats_sfc, stats_rad_zt, stats_rad_zm, &
                         pdf_params_chnk, pdf_params_zm_chnk, pdf_implicit_coefs_terms_chnk, &
                         out_zt, out_zm, out_sfc, out_radzt, out_radzm, &
@@ -67,6 +68,12 @@ module clubb
          params_list
 
     use clubb_api_module, only: &
+         nvarmax_zm, &
+         nvarmax_zt, &
+         nvarmax_rad_zt, &
+         nvarmax_rad_zm, &
+         nvarmax_sfc, &
+         var_length, &
          print_clubb_config_flags_api, &
          check_clubb_settings_api, &
          init_pdf_params_api, &
@@ -140,6 +147,12 @@ module clubb
  
     type(implicit_coefs_terms), allocatable, intent(inout) :: &
       pdf_implicit_coefs_terms_chnk(:)  ! PDF impl. coefs. & expl. terms      [units vary]
+
+    character(len=var_length), dimension(nvarmax_zt), intent(in)     ::   clubb_vars_zt      ! Variables on the thermodynamic levels
+    character(len=var_length), dimension(nvarmax_zm), intent(in)     ::   clubb_vars_zm      ! Variables on the momentum levels
+    character(len=var_length), dimension(nvarmax_rad_zt), intent(in) ::   clubb_vars_rad_zt  ! Variables on the radiation levels
+    character(len=var_length), dimension(nvarmax_rad_zm), intent(in) ::   clubb_vars_rad_zm  ! Variables on the radiation levels
+    character(len=var_length), dimension(nvarmax_sfc), intent(in)    ::   clubb_vars_sfc     ! Variables at the model surface
  
     real(kind=kind_phys), allocatable, dimension(:,:,:), intent(inout) :: out_zt, out_zm, out_radzt, out_radzm, out_sfc
 
@@ -419,6 +432,8 @@ module clubb
                              nzm_clubb, nzt_clubb, nzm_clubb, dum3, &
                              edsclr_dim, sclr_dim, hydromet_dim, &
                              hm_metadata, stats_metadata, &
+                             clubb_vars_zt, clubb_vars_zm, clubb_vars_sfc, &
+                             clubb_vars_rad_zt, clubb_vars_rad_zm, &
                              stats_zt(:), stats_zm(:), stats_sfc(:), &
                              stats_rad_zt(:), stats_rad_zm(:), &
                              error_message, clubb_init_errcode)
@@ -471,6 +486,8 @@ module clubb
                                nnzp, nnrad_zt,nnrad_zm, delt, &
                                edsclr_dim, sclr_dim, hydromet_dim, &
                                hm_metadata, stats_metadata, &
+                               clubb_vars_zt, clubb_vars_zm, clubb_vars_sfc, &
+                               clubb_vars_rad_zt, clubb_vars_rad_zm, &
                                stats_zt, stats_zm, stats_sfc, &
                                stats_rad_zt, stats_rad_zm, &
                                error_message, clubb_init_errcode )
@@ -490,8 +507,6 @@ module clubb
                                        nvarmax_sfc, stats_init_sfc_api, & !
                                        fstderr, var_length !
     use cam_history,            only: addfld, horiz_only
-    use namelist_utils,         only: find_group_name
-    use units,                  only: getunit, freeunit
 
     implicit none
 
@@ -537,27 +552,18 @@ module clubb
 
     !  Namelist Variables
 
-    character(len=*), parameter :: subr = 'stats_init_clubb'
-
-    character(len=var_length), dimension(nvarmax_zt)     ::   clubb_vars_zt      ! Variables on the thermodynamic levels
-    character(len=var_length), dimension(nvarmax_zm)     ::   clubb_vars_zm      ! Variables on the momentum levels
-    character(len=var_length), dimension(nvarmax_rad_zt) ::   clubb_vars_rad_zt  ! Variables on the radiation levels
-    character(len=var_length), dimension(nvarmax_rad_zm) ::   clubb_vars_rad_zm  ! Variables on the radiation levels
-    character(len=var_length), dimension(nvarmax_sfc)    ::   clubb_vars_sfc     ! Variables at the model surface
-
-    namelist /clubb_stats_nl/ &
-      clubb_vars_zt, &
-      clubb_vars_zm, &
-      clubb_vars_rad_zt, &
-      clubb_vars_rad_zm, &
-      clubb_vars_sfc
+    character(len=var_length), dimension(nvarmax_zt), intent(in)     ::   clubb_vars_zt      ! Variables on the thermodynamic levels
+    character(len=var_length), dimension(nvarmax_zm), intent(in)     ::   clubb_vars_zm      ! Variables on the momentum levels
+    character(len=var_length), dimension(nvarmax_rad_zt), intent(in) ::   clubb_vars_rad_zt  ! Variables on the radiation levels
+    character(len=var_length), dimension(nvarmax_rad_zm), intent(in) ::   clubb_vars_rad_zm  ! Variables on the radiation levels
+    character(len=var_length), dimension(nvarmax_sfc), intent(in)    ::   clubb_vars_sfc     ! Variables at the model surface
 
     logical :: l_error
 
     character(len=200) :: temp1, sub
 
-    integer :: i, ntot, read_status, j
-    integer :: iunit, ierr
+    integer :: i, ntot, j
+    integer :: ierr
 
     !----------------------- Begin Code -----------------------
 
@@ -575,64 +581,6 @@ module clubb
        stats_metadata%l_stats_last  = .false.
        return
     end if
-
-    !  Initialize namelist variables
-
-    clubb_vars_zt     = ''
-    clubb_vars_zm     = ''
-    clubb_vars_rad_zt = ''
-    clubb_vars_rad_zm = ''
-    clubb_vars_sfc    = ''
-
-    !  Read variables to compute from the namelist
-    if (masterproc) then
-       iunit= getunit()
-       open(unit=iunit,file="atm_in",status='old')
-       call find_group_name(iunit, 'clubb_stats_nl', status=read_status)
-       if (read_status == 0) then
-          read(unit=iunit, nml=clubb_stats_nl, iostat=read_status)
-          if (read_status /= 0) then
-             error_message = 'stats_init_clubb:  error reading namelist'
-             clubb_init_errcode = 1
-             return
-          end if
-       end if
-       close(unit=iunit)
-       call freeunit(iunit)
-    end if
-
-    ! Broadcast namelist variables
-    call mpi_bcast(clubb_vars_zt,      var_length*nvarmax_zt,       mpi_character, mstrid, mpicom, ierr)
-    if (ierr /= 0) then
-      error_message = subr//": FATAL: mpi_bcast: clubb_vars_zt"
-      clubb_init_errcode = 1
-      return
-    end if
-    call mpi_bcast(clubb_vars_zm,      var_length*nvarmax_zm,       mpi_character, mstrid, mpicom, ierr)
-    if (ierr /= 0) then
-      error_message = subr//": FATAL: mpi_bcast: clubb_vars_zz"
-      clubb_init_errcode = 1
-      return
-    end if
-    call mpi_bcast(clubb_vars_rad_zt,  var_length*nvarmax_rad_zt,   mpi_character, mstrid, mpicom, ierr)
-    if (ierr /= 0) then
-      error_message = subr//": FATAL: mpi_bcast: clubb_vars_rad_zt"
-      clubb_init_errcode = 1
-      return
-    end if
-    call mpi_bcast(clubb_vars_rad_zm,  var_length*nvarmax_rad_zm,   mpi_character, mstrid, mpicom, ierr)
-    if (ierr /= 0) then
-      error_message = subr//": FATAL: mpi_bcast: clubb_vars_rad_zm"
-      clubb_init_errcode = 1
-      return
-    end if
-    call mpi_bcast(clubb_vars_sfc,     var_length*nvarmax_sfc,      mpi_character, mstrid, mpicom, ierr)
-    if (ierr /= 0) then
-      error_message = subr//": FATAL: mpi_bcast: clubb_vars_sfc"
-      clubb_init_errcode = 1
-      return
-    end if
-
 
     !  Hardcode these for use in CAM-CLUBB, don't want either
     stats_metadata%l_netcdf = .false.
