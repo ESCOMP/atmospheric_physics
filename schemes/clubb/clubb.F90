@@ -9,7 +9,7 @@ module clubb
   save
 
   ! Subroutines to make public
-  public :: clubb_init, stats_zero
+  public :: clubb_init, clubb2_run, stats_zero
 
   contains
 
@@ -479,6 +479,90 @@ module clubb
 
     end subroutine clubb_init
 
+
+  subroutine clubb2_run(ncol, pver, meltpt_temp, latice, rga, &
+                        ixcldliq, ixcldice, ixnumliq, ixnumice, &
+                        dlf, dlf_liq_out, dlf_ice_out, &
+                        clubb_detliq_rad, clubb_detice_rad, clubb_detphase_lowtemp, &
+                        pdel, pdeldry, &
+                        s, t, q, det_s, det_ice )
+
+    ! Incoming variables
+    integer, intent(in) :: ncol, pver, ixcldliq, ixcldice, ixnumliq, ixnumice
+    real(kind_phys), intent(in) :: clubb_detliq_rad, clubb_detice_rad, clubb_detphase_lowtemp
+    real(kind_phys), intent(in) :: meltpt_temp, latice, rga
+    real(kind_phys), intent(in) :: dlf(:,:)
+    real(kind_phys), intent(in) :: t(:,:), pdel(:,:), pdeldry(:,:)
+    real(kind_phys), intent(inout) :: q(:,:,:)
+    real(kind_phys), intent(inout) :: s(:,:)
+    real(kind_phys), intent(inout) :: det_s(:), det_ice(:)
+    real(kind_phys), intent(out) :: dlf_liq_out(:,:), dlf_ice_out(:,:)
+
+    ! Local variables
+    integer :: i, k
+    real(kind_phys) :: dlf2, dum1, dl_rad, di_rad, dt_low
+
+    ! ------------------------------------------------------------ !
+    ! The rest of the code deals with diagnosing variables         !
+    ! for microphysics/radiation computation and macrophysics      !
+    ! ------------------------------------------------------------ !
+
+    ! --------------------------------------------------------------------------------- !
+    !  COMPUTE THE ICE CLOUD DETRAINMENT                                                !
+    !  Detrainment of convective condensate into the environment or stratiform cloud    !
+    ! --------------------------------------------------------------------------------- !
+
+    !  Initialize the shallow convective detrainment rate, will always be zero
+    dlf2 = 0.0_kind_phys
+    dlf_liq_out(:,:) = 0.0_kind_phys
+    dlf_ice_out(:,:) = 0.0_kind_phys
+
+    dl_rad = clubb_detliq_rad
+    di_rad = clubb_detice_rad
+    dt_low = clubb_detphase_lowtemp
+
+    do k = 1, pver
+      do i = 1, ncol
+
+        if( t(i,k) > meltpt_temp ) then
+          dum1 = 0.0_kind_phys
+        elseif ( t(i,k) < dt_low ) then
+          dum1 = 1.0_kind_phys
+        else
+          dum1 = ( meltpt_temp - t(i,k) ) / ( meltpt_temp - dt_low )
+        endif
+
+        q(i,k,ixcldliq) = dlf(i,k) * ( 1._kind_phys - dum1 )
+        q(i,k,ixcldice) = dlf(i,k) * dum1
+        q(i,k,ixnumliq) = 3._kind_phys * ( max(0._kind_phys, ( dlf(i,k) - dlf2 )) * ( 1._kind_phys - dum1 ) ) &
+                                   / (4._kind_phys*3.14_kind_phys*dl_rad**3*997._kind_phys) + & ! Deep    Convection
+                                   3._kind_phys * (                         dlf2    * ( 1._kind_phys - dum1 ) ) &
+                                   / (4._kind_phys*3.14_kind_phys*10.e-6_kind_phys**3*997._kind_phys)     ! Shallow Convection
+        q(i,k,ixnumice) = 3._kind_phys * ( max(0._kind_phys, ( dlf(i,k) - dlf2 )) *  dum1 ) &
+                                   / (4._kind_phys*3.14_kind_phys*di_rad**3*500._kind_phys) + & ! Deep    Convection
+                                   3._kind_phys * (                         dlf2    *  dum1 ) &
+                                   / (4._kind_phys*3.14_kind_phys*50.e-6_kind_phys**3*500._kind_phys)     ! Shallow Convection
+        s(i,k)          = dlf(i,k) * dum1 * latice
+
+        dlf_liq_out(i,k) = dlf(i,k) * ( 1._kind_phys - dum1 )
+        dlf_ice_out(i,k) = dlf(i,k) * dum1
+
+        ! convert moist dlf tendencies to dry
+        q(i,k,ixcldliq) = q(i,k,ixcldliq)*pdel(i,k)/pdeldry(i,k)
+        q(i,k,ixcldice) = q(i,k,ixcldice)*pdel(i,k)/pdeldry(i,k)
+
+        ! Only rliq is saved from deep convection, which is the reserved liquid.  We need to keep
+        !   track of the integrals of ice and static energy that is effected from conversion to ice
+        !   so that the energy checker doesn't complain.
+        det_s(i)                  = det_s(i)   + s(i,k)          * pdel(i,k)    * rga
+        det_ice(i)                = det_ice(i) - q(i,k,ixcldice) * pdeldry(i,k) * rga
+      enddo
+    enddo
+
+    det_ice(:ncol) = det_ice(:ncol) / 1000._kind_phys  ! divide by density of water
+
+
+  end subroutine clubb2_run
 
 #ifdef CLUBB_SGS
 
