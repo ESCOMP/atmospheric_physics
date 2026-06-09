@@ -9,7 +9,7 @@ module clubb
   save
 
   ! Subroutines to make public
-  public :: clubb_init, clubb2_run, stats_zero
+  public :: clubb_init, clubb2_run, clubb3_run, stats_zero
 
   contains
 
@@ -563,6 +563,280 @@ module clubb
 
 
   end subroutine clubb2_run
+
+
+  subroutine clubb3_run(ncol, pver, pverp, pcnst, top_lev, zvir, rair, cpair, gravit, karman, &
+                        ixq, ixcldice, ixcldliq, ixnumice, calday, tropp_days, tropLev, &
+                        rhminis_const, rhmaxis_const, rhmini_const, rhmaxi_const, &
+                        single_column, scm_cambfb_mode, scm_clubb_iop_name, subcol_scheme, &
+                        dp1, dp2, cmfmc, cmfmc_sh_pbuf, dp_icwmr_pbuf, concld_pbuf, &
+                        aist_pbuf, qsatfac_pbuf, ast_pbuf, qist_pbuf, cld_pbuf, &
+                        pblh_pbuf, deepcu_pbuf, shalcu_pbuf, &
+                        lq, cnst_type, &
+                        alst_pbuf, qlst_pbuf, rcm, cloud_frac, exner, &
+                        t, state_q, ptend_q, pmid, landfrac, snowhland, pdel, pdeldry, &
+                        wsx, wsy, shf, cflx, zm, zi, u, v, lat, pint, phis, &
+                        errmsg, errflg )
+
+!    use tropopause_find,       only: tropopause_findChemTrop
+    use holtslag_boville_diff, only: hb_pbl_dependent_coefficients_run
+!    use cldfrc2m,              only: aist_vector
+    use atmos_phys_pbl_utils,  only: calc_friction_velocity, calc_obukhov_length, calc_ideal_gas_rrho, &
+                                     calc_kinematic_heat_flux, calc_kinematic_water_vapor_flux, &
+                                     calc_kinematic_buoyancy_flux
+
+    ! Incoming variables
+    integer, intent(in) :: ncol, pver, pverp, pcnst, top_lev, ixq, ixcldice, ixcldliq, ixnumice
+    logical, intent(in) :: single_column, scm_cambfb_mode
+    logical, intent(in) :: lq(:)
+    character(len=3), intent(in) :: cnst_type(:)
+    real(kind_phys), intent(in) :: dp1, dp2, zvir, rair, cpair, gravit, karman, calday
+    real(kind_phys), intent(in) :: rhminis_const, rhmaxis_const, rhmini_const, rhmaxi_const
+    real(kind_phys), intent(in) :: lat(:), phis(:)
+    real(kind_phys), intent(in) :: pint(:,:)
+    real(kind_phys), intent(in) :: pmid(:,:)
+    real(kind_phys), intent(in) :: landfrac(:), snowhland(:)
+    real(kind_phys), intent(in) :: pdel(:,:), pdeldry(:,:), rcm(:,:), cloud_frac(:,:), &
+                                   t(:,:), exner(:,:), zm(:,:), zi(:,:), u(:,:), v(:,:), cmfmc(:,:)
+    real(kind_phys), intent(in) :: state_q(:,:,:)
+    real(kind_phys), intent(in) :: wsx(:), wsy(:), shf(:)
+    real(kind_phys), intent(in) :: cflx(:,:)
+    real(kind_phys), intent(inout) :: ptend_q(:,:,:)
+    real(kind_phys), intent(inout) :: pblh_pbuf(:)
+    real(kind_phys), intent(inout) :: alst_pbuf(:,:), qlst_pbuf(:,:), deepcu_pbuf(:,:), shalcu_pbuf(:,:), &
+                                      cmfmc_sh_pbuf(:,:), dp_icwmr_pbuf(:,:), concld_pbuf(:,:), &
+                                      aist_pbuf(:,:), qsatfac_pbuf(:,:), ast_pbuf(:,:), qist_pbuf(:,:), &
+                                      cld_pbuf(:,:)
+    ! Climatological tropopause pressures (Pa), (ncol,ntimes=12).
+    !real(kind_phys), intent(in)         :: tropp_p_loc(:,:)
+    real(kind_phys), intent(in)         :: tropp_days(:) ! Day-of-year for climo data, 12
+    character(len=20), intent(in) :: scm_clubb_iop_name
+    character(len=16), intent(in) :: subcol_scheme
+    character(len=512), intent(out) :: errmsg
+    integer, intent(out) :: errflg
+
+    ! Local variables
+    integer :: i, k, ixind, k_clubb, rhmini, rhmaxi
+    real(kind_phys) :: frac_limit, ic_limit
+    real(kind_phys) :: rrho(ncol), ustar2(ncol), kinheat(ncol), kinwat(ncol), kbfs(ncol), obklen(ncol), &
+                       dummy2(ncol), dummy3(ncol)
+    real(kind_phys) :: th(ncol,pver), thv(ncol,pver)
+    integer, intent(in) :: tropLev(:)
+
+    ! ---------------------------------------------------------
+
+    errmsg = ''
+    errflg = 0
+
+    ! ptend_all now has all accumulated tendencies.  Convert the tendencies for the
+    ! wet constituents to wet air basis.
+    do ixind = 1, pcnst
+      if (lq(ixind) .and. cnst_type(ixind) == 'wet') then
+        do k = 1, pver
+          do i = 1, ncol
+            ptend_q(i,k,ixind) = ptend_q(i,k,ixind)*pdeldry(i,k)/pdel(i,k)
+          end do
+        end do
+      end if
+    end do
+
+    ! --------------------------------------------------------------------------------- !
+    !  Diagnose some quantities that are computed in macrop_tend here.                  !
+    !  These are inputs required for the microphysics calculation.                      !
+    !                                                                                   !
+    !  FIRST PART COMPUTES THE STRATIFORM CLOUD FRACTION FROM CLUBB CLOUD FRACTION      !
+    ! --------------------------------------------------------------------------------- !
+
+    !  initialize variables
+    alst_pbuf(:,:) = 0.0_kind_phys
+    qlst_pbuf(:,:) = 0.0_kind_phys
+
+    do k = top_lev, pver
+      do i = 1, ncol
+        k_clubb     = k + 1 - top_lev
+        alst_pbuf(i,k)    = cloud_frac(i,k_clubb)
+        qlst_pbuf(i,k)    = rcm(i,k_clubb) / max( 0.01_kind_phys, alst_pbuf(i,k) )  ! Incloud stratus condensate mixing ratio
+      enddo
+    enddo
+
+    ! --------------------------------------------------------------------------------- !
+    !  THIS PART COMPUTES CONVECTIVE AND DEEP CONVECTIVE CLOUD FRACTION                 !
+    ! --------------------------------------------------------------------------------- !
+
+    frac_limit = 0.01_kind_phys
+    ic_limit   = 1.e-12_kind_phys
+    deepcu_pbuf(:,:) = 0.0_kind_phys
+    shalcu_pbuf(:,:) = 0.0_kind_phys
+
+    do k = 1, pver-1
+      do i = 1, ncol
+        !  diagnose the deep convective cloud fraction, as done in macrophysics based on the
+        !  deep convective mass flux, read in from pbuf.  Since shallow convection is never
+        !  called, the shallow convective mass flux will ALWAYS be zero, ensuring that this cloud
+        !  fraction is purely from deep convection scheme.
+        deepcu_pbuf(i,k) = max(0.0_kind_phys,min(dp1*log(1.0_kind_phys+dp2*(cmfmc(i,k+1)-cmfmc_sh_pbuf(i,k+1))),0.6_kind_phys))
+
+        if (deepcu_pbuf(i,k) <= frac_limit .or. dp_icwmr_pbuf(i,k) < ic_limit) then
+          deepcu_pbuf(i,k) = 0._kind_phys
+        endif
+
+        !  using the deep convective cloud fraction, and CLUBB cloud fraction (variable
+        !  "cloud_frac"), compute the convective cloud fraction.  This follows the formulation
+        !  found in macrophysics code.  Assumes that convective cloud is all nonstratiform cloud
+        !  from CLUBB plus the deep convective cloud fraction
+        ! NOTE: concld_pbuf used to be calculated in the commented-out version below, but since we
+        ! set alst_pbuf=cloud_frac_pbuf, this simplifies to only using deepcu_pbuf.
+        ! This is potentially a bug, but there's not really a "right" way to combine the different
+        ! cloud factions, so it has been left to only use deepcu_pbuf for now
+        !concld_pbuf(i,k) = min(cloud_frac_pbuf(i,k)-alst_pbuf(i,k)+deepcu_pbuf(i,k),0.80_kind_phys)
+        concld_pbuf(i,k) = min(deepcu_pbuf(i,k),0.80_kind_phys)
+      enddo
+    enddo
+
+    if (single_column .and. .not. scm_cambfb_mode) then
+      if (trim(scm_clubb_iop_name)  ==  'ATEX_48hr'       .or. &
+          trim(scm_clubb_iop_name)  ==  'BOMEX_5day'      .or. &
+          trim(scm_clubb_iop_name)  ==  'DYCOMSrf01_4day' .or. &
+          trim(scm_clubb_iop_name)  ==  'DYCOMSrf02_06hr' .or. &
+          trim(scm_clubb_iop_name)  ==  'RICO_3day'       .or. &
+          trim(scm_clubb_iop_name)  ==  'ARM_CC') then
+
+         deepcu_pbuf(:,:) = 0.0_kind_phys
+         concld_pbuf(:,:) = 0.0_kind_phys
+
+      endif
+    endif
+
+    ! --------------------------------------------------------------------------------- !
+    !  COMPUTE THE ICE CLOUD FRACTION PORTION                                           !
+    !  use the aist_vector function to compute the ice cloud fraction                   !
+    ! --------------------------------------------------------------------------------- !
+
+    !REMOVECAM - no longer need this when CAM is retired and pcols no longer exists
+!    troplev(:) = 0
+    !REMOVECAM_END
+!    call tropopause_findChemTrop( state, troplev )
+!    call tropopause_findChemTrop(ncol, pver, lat, pint, pmid, t, zi, zm, phis, &
+!                                 calday, tropp_p_loc, tropp_days, &
+!                                 tropLev, & 
+!                                 errmsg, errflg)
+
+    if (errflg /= 0) return
+
+    aist_pbuf(:,:top_lev-1) = 0._kind_phys
+    qsatfac_pbuf(:, :) = 0._kind_phys ! Zero out entire profile in case qsatfac is left undefined in aist_vector below
+
+!    do k = top_lev, pver
+!
+!      ! For Type II PSC and for thin cirrus, the clouds can be thin, but
+!      ! extensive and they should start forming when the gridbox mean saturation
+!      ! reaches 1.0.
+!      !
+!      ! For now, use the tropopause diagnostic to determine where the Type II
+!      ! PSC should be, but in the future wold like a better metric that can also
+!      ! identify the level for thin cirrus. Include the tropopause level so that
+!      ! the cold point tropopause will use the stratospheric values.
+!      where (k <= troplev)
+!        rhmini = rhminis_const
+!        rhmaxi = rhmaxis_const
+!      elsewhere
+!        rhmini = rhmini_const
+!        rhmaxi = rhmaxi_const
+!      end where
+!
+!      if ( trim(subcol_scheme) == 'SILHS' ) then
+!        call aist_vector(state_q(:,k,ixq),t(:,k),pmid(:,k),state_q(:,k,ixcldice), &
+!             state_q(:,k,ixnumice), landfrac(:),snowhland(:),aist_pbuf(:,k),ncol )
+!      else
+!        call aist_vector(state_q(:,k,ixq),t(:,k),pmid(:,k),state_q(:,k,ixcldice), &
+!              state_q(:,k,ixnumice), landfrac(:),snowhland(:),aist_pbuf(:,k),ncol,&
+!              qsatfac_out=qsatfac_pbuf(:,k), rhmini_in=rhmini, rhmaxi_in=rhmaxi)
+!      endif
+!    enddo
+
+    ! --------------------------------------------------------------------------------- !
+    !  THIS PART COMPUTES THE LIQUID STRATUS FRACTION                                   !
+    !                                                                                   !
+    !  For now leave the computation of ice stratus fraction from macrop_driver intact  !
+    !  because CLUBB does nothing with ice.  Here I simply overwrite the liquid stratus !
+    !  fraction that was coded in macrop_driver                                         !
+    ! --------------------------------------------------------------------------------- !
+
+    do k = 1, pver
+      do i = 1, ncol
+
+        !  Recompute net stratus fraction using maximum over-lapping assumption, as done
+        !  in macrophysics code, using alst computed above and aist read in from physics buffer
+        ast_pbuf(i,k) = max(alst_pbuf(i,k),aist_pbuf(i,k))
+        qist_pbuf(i,k) = state_q(i,k,ixcldice)/max(0.01_kind_phys,aist_pbuf(i,k))
+
+        !  Probably need to add deepcu cloud fraction to the cloud fraction array, else would just
+        !  be outputting the shallow convective cloud fraction
+        cld_pbuf(i,k) = min(ast_pbuf(i,k)+deepcu_pbuf(i,k),1.0_kind_phys)
+
+      enddo
+    enddo
+
+    ! --------------------------------------------------------------------------------- !
+    !  DIAGNOSE THE PBL DEPTH                                                           !
+    !  this is needed for aerosol code                                                  !
+    ! --------------------------------------------------------------------------------- !
+    do k = 1, pver
+      do i = 1, ncol
+         !subroutine pblind expects "Stull" definition of Exner
+         th(i,k) = t(i,k)*exner(i,k)
+         !thv should have condensate loading to be consistent with earlier def's in this module
+         thv(i,k) = th(i,k)*(1.0_kind_phys+zvir*state_q(i,k,ixq) - state_q(i,k,ixcldliq))
+      enddo
+    enddo
+
+    ! diagnose surface friction and obukhov length (inputs to diagnose PBL depth)
+    rrho   (1:ncol) = calc_ideal_gas_rrho(rair, t(1:ncol,pver), pmid(1:ncol,pver))
+    ustar2 (1:ncol) = calc_friction_velocity(wsx(1:ncol), wsy(1:ncol), rrho(1:ncol))
+    ! use correct qflux from coupler
+    kinheat(1:ncol) = calc_kinematic_heat_flux(shf(1:ncol), rrho(1:ncol), cpair)
+    kinwat (1:ncol) = calc_kinematic_water_vapor_flux(cflx(1:ncol,1), rrho(1:ncol))
+    kbfs   (1:ncol) = calc_kinematic_buoyancy_flux(kinheat(1:ncol), zvir, th(1:ncol,pver), kinwat(1:ncol))
+    obklen (1:ncol) = calc_obukhov_length(thv(1:ncol,pver), ustar2(1:ncol), gravit, karman, kbfs(1:ncol))
+
+    where (kbfs(:ncol)  ==  -0.0_kind_phys) kbfs(:ncol) = 0.0_kind_phys
+
+    ! Compute PBL depth according to Holtslag-Boville Scheme -- only pblh is needed here
+    ! and other outputs are discarded
+    !REMOVECAM - no longer need this when CAM is retired and pcols no longer exists
+    pblh_pbuf(:) = 0._kind_phys
+    dummy2(:) = 0._kind_phys
+    dummy3(:) = 0._kind_phys
+    !REMOVECAM_END
+    call hb_pbl_dependent_coefficients_run( &
+      ncol      = ncol,                                      &
+      pver      = pver,                                      &
+      pverp     = pverp,                                     &
+      gravit    = gravit,                                    &
+      z         = zm(:ncol,:pver),                    &
+      zi        = zi(:ncol,:pverp),                   &
+      u         = u(:ncol,:pver),                     &
+      v         = v(:ncol,:pver),                     &
+      cldn      = cld_pbuf(:ncol,:pver),                   &
+      ! Inputs from CLUBB (not HB coefficients)
+      thv       = thv(:ncol,:pver),                          &
+      ustar     = ustar2(:ncol),                             &
+      kbfs      = kbfs(:ncol),                               &
+      obklen    = obklen(:ncol),                             &
+      ! Output variables
+      pblh      = pblh_pbuf(:ncol),                               &
+      wstar     = dummy2(:ncol),                             &
+      bge       = dummy3(:ncol),                             &
+      errmsg    = errmsg,                                    &
+      errflg    = errflg)
+
+    if (errflg /= 0) return
+    ! --------------------------------------------------------------------------------- !
+    !                              END CLOUD FRACTION DIAGNOSIS                         !
+    ! --------------------------------------------------------------------------------- !
+
+  end subroutine clubb3_run
+
 
 #ifdef CLUBB_SGS
 
