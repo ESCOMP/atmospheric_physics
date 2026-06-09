@@ -1,0 +1,879 @@
+[ccpp-table-properties]
+  name = uw_convect_shallow
+  type = scheme
+
+[ccpp-arg-table]
+  name  = uw_convect_shallow_init
+  type  = scheme
+[ amIRoot ]
+  standard_name = flag_for_mpi_root
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ iulog ]
+  standard_name = log_output_unit
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ rpen_in ]
+  standard_name = tunable_parameter_for_penetrative_entrainment_efficiency
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ xlv_in ]
+  standard_name = latent_heat_of_vaporization_of_water_at_0c
+  units = J kg-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ cp_in ]
+  standard_name = specific_heat_of_dry_air_at_constant_pressure
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ xlf_in ]
+  standard_name = latent_heat_of_fusion_of_water_at_0c
+  units = J kg-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ zvir_in ]
+  standard_name = ratio_of_water_vapor_to_dry_air_gas_constants_minus_one
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ r_in ]
+  standard_name = gas_constant_of_dry_air
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ g_in ]
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ mwh2o_in ]
+  standard_name = molecular_weight_of_h2o
+  units = g mol-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ mwdry_in ]
+  standard_name = molecular_weight_of_dry_air
+  units = g mol-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ use_shfrc ]
+  standard_name = flag_for_cloud_area_fraction_to_use_shallow_convection_calculated_cloud_area_fraction
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = uw_convect_shallow_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ ncnst ]
+  standard_name = number_of_ccpp_constituents
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ dt ]
+  standard_name = timestep_for_physics
+  units = s
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ const_props ]
+  standard_name = ccpp_constituent_properties
+  units = none
+  type = ccpp_constituent_prop_ptr_t
+  dimensions = (number_of_ccpp_constituents)
+  intent = in
+[ qmin ]
+  standard_name = ccpp_constituent_minimum_values
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (number_of_ccpp_constituents)
+  intent = in
+[ pint ]
+  standard_name = air_pressure_at_interface
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ zi ]
+  standard_name = geopotential_height_wrt_surface_at_interface
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ pmid ]
+  standard_name = air_pressure
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ zm ]
+  standard_name = geopotential_height_wrt_surface
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ pdel ]
+  standard_name = air_pressure_thickness
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ pdeldry ]
+  standard_name = air_pressure_thickness_of_dry_air
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ u ]
+  standard_name = eastward_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ v ]
+  standard_name = northward_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ qv0 ]
+  standard_name = water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
+  units = kg kg-1
+  advected = True
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ ql0 ]
+  standard_name = cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water
+  units = kg kg-1
+  advected = True
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ qi0 ]
+  standard_name = cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water
+  units = kg kg-1
+  advected = True
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ t ]
+  standard_name = air_temperature
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ s ]
+  standard_name = dry_static_energy
+  units = J kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ tr0 ]
+  standard_name = ccpp_constituents
+  units = none
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
+  intent = in
+[ tke ]
+  standard_name = specific_turbulent_kinetic_energy_at_interfaces
+  units = m2 s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ pblh ]
+  standard_name = atmosphere_boundary_layer_thickness
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ cush ]
+  standard_name = shallow_convective_scale_height
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = inout
+[ cmfmc_sh ]
+  standard_name = atmosphere_convective_mass_flux_due_to_shallow_convection
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ cmfsl ]
+  standard_name = liquid_water_static_energy_flux_due_to_shallow_convection
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ cmflq ]
+  standard_name = total_water_flux_due_to_shallow_convection
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ flxprc_sh ]
+  # based on existing standard names for pbuf_dp_flxprc and dp_flxsnw: if this needs to be edited
+  # during code review we need to update the spreadsheet deep variants for consistency
+  standard_name = precipitation_mass_flux_at_interfaces_due_to_shallow_convection
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ flxsnw_sh ]
+  standard_name = frozen_precipitation_mass_flux_at_interfaces_due_to_shallow_convection
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ sten ]
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure
+  units = J kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ uten ]
+  standard_name = tendency_of_eastward_wind
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ vten ]
+  standard_name = tendency_of_northward_wind
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ trten ]
+  standard_name = ccpp_constituent_tendencies
+  units = none
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
+  intent = out
+[ cmfdqr ]
+  # UW shallow actually does not need subcloud evaporation,
+  # so the quantity for _excluding is the same as not having
+  # the suffix.
+  #
+  # cmfdqr (rprdsh) in CAM = qrten + qsten (cmfdqs)
+  standard_name = tendency_of_precipitation_wrt_moist_air_and_condensed_water_due_to_shallow_convection_excluding_subcloud_evaporation
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ qrten ]
+  # qrten_Cu diag only.
+  standard_name = tendency_of_rain_wrt_moist_air_and_condensed_water_due_to_shallow_convection
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ qsten ]
+  # qsten_Cu diag only.
+  standard_name = tendency_of_snow_wrt_moist_air_and_condensed_water_due_to_shallow_convection
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ precip_sh ]
+  # pbuf_prec_sh
+  standard_name = lwe_precipitation_rate_at_surface_due_to_shallow_convection
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ snow_sh ]
+  # pbuf_snow_sh
+  standard_name = lwe_frozen_precipitation_rate_at_surface_due_to_shallow_convection
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ evapc_sh ]
+  # pbuf_nevapr_shcu
+  standard_name = precipitation_evaporation_due_to_shallow_convection
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ shfrc ]
+  # provided to convective_cloud_cover for CAM5 only via use_shfrc = .true.
+  standard_name = shallow_convective_cloud_area_fraction_from_shallow_convection
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ qcu ]
+  # = icwmr. Includes both liquid and ice.
+  standard_name = in_cloud_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_shallow_convection
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ qlu ]
+  # in-cloud liquid water within cumulus updraft
+  standard_name = in_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_shallow_convection
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ qiu ]
+  # in-cloud liquid ice within cumulus updraft
+  standard_name = in_cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_shallow_convection
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ cbmf ]
+  # diagnostic: cloud base mass flux
+  standard_name = shallow_convective_cloud_base_mass_flux
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ qc ]
+  standard_name = detrainment_of_cloud_liquid_water_wrt_moist_air_and_condensed_water_due_to_shallow_convection
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ rliq ]
+  standard_name = vertically_integrated_cloud_liquid_water_tendency_due_to_shallow_convection_to_be_applied_later_in_time_loop
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ cnt ]
+  standard_name = vertical_index_at_cloud_top_for_shallow_convection
+  units = index
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ cnb ]
+  standard_name = vertical_index_at_cloud_base_for_shallow_convection
+  units = index
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ sh_e_ed_ratio ]
+  standard_name = ratio_of_entrainment_to_entrainment_plus_detrainment_due_to_shallow_convection
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ uflx_diag ]
+  standard_name = zonal_momentum_flux_due_to_shallow_convection
+  units = kg m-1 s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ vflx_diag ]
+  standard_name = meridional_momentum_flux_due_to_shallow_convection
+  units = kg m-1 s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ qvten_diag ]
+  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_shallow_convection
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ qlten_diag ]
+  standard_name = tendency_of_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_shallow_convection
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ qiten_diag ]
+  standard_name = tendency_of_cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_shallow_convection
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ qtten_diag ]
+  standard_name = tendency_of_total_water_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_shallow_convection
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ slten_diag ]
+  standard_name = tendency_of_liquid_water_static_energy_due_to_shallow_convection
+  units = J kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ ufrc_diag ]
+  standard_name = updraft_area_fraction_due_to_shallow_convection
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ cinh_diag ]
+  standard_name = convective_inhibition_to_level_of_free_convection_due_to_shallow_convection
+  units = J kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ cinlclh_diag ]
+  standard_name = convective_inhibition_to_lifting_condensation_level_due_to_shallow_convection
+  units = J kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ ufrcinvbase_diag ]
+  standard_name = updraft_area_fraction_at_pbl_top_due_to_shallow_convection
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ ufrclcl_diag ]
+  standard_name = updraft_area_fraction_at_lifting_condensation_level_due_to_shallow_convection
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ winvbase_diag ]
+  standard_name = updraft_vertical_velocity_at_pbl_top_due_to_shallow_convection
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ wlcl_diag ]
+  standard_name = updraft_vertical_velocity_at_lifting_condensation_level_due_to_shallow_convection
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ plcl_diag ]
+  standard_name = air_pressure_at_lifting_condensation_level_due_to_shallow_convection
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ pinv_diag ]
+  standard_name = air_pressure_at_inversion_base_for_shallow_convection
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ plfc_diag ]
+  standard_name = air_pressure_at_level_of_free_convection_due_to_shallow_convection
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ pbup_diag ]
+  standard_name = air_pressure_at_positive_buoyancy_top_due_to_shallow_convection
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ ppen_diag ]
+  standard_name = air_pressure_at_cumulus_top_due_to_shallow_convection
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ qtsrc_diag ]
+  standard_name = source_air_total_water_mixing_ratio_due_to_shallow_convection
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ thlsrc_diag ]
+  standard_name = source_air_liquid_water_potential_temperature_due_to_shallow_convection
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ thvlsrc_diag ]
+  standard_name = source_air_liquid_virtual_potential_temperature_due_to_shallow_convection
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ emfkbup_diag ]
+  standard_name = penetrative_entrainment_mass_flux_at_top_level_of_positive_cloud_buoyancy_due_to_shallow_convection
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ cbmflimit_diag ]
+  standard_name = cloud_base_mass_flux_limiter_due_to_shallow_convection
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ tkeavg_diag ]
+  standard_name = pbl_averaged_tke_due_to_shallow_convection
+  units = m2 s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ zinv_diag ]
+  standard_name = inversion_base_height_for_shallow_convection
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ rcwp_diag ]
+  standard_name = cumulus_cloud_water_path_due_to_shallow_convection
+  units = kg m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ rlwp_diag ]
+  standard_name = cumulus_liquid_water_path_due_to_shallow_convection
+  units = kg m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ riwp_diag ]
+  standard_name = cumulus_ice_water_path_due_to_shallow_convection
+  units = kg m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ wu_diag ]
+  standard_name = updraft_vertical_velocity_due_to_shallow_convection
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ qtu_diag ]
+  standard_name = updraft_total_water_mixing_ratio_due_to_shallow_convection
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ thlu_diag ]
+  standard_name = updraft_liquid_water_potential_temperature_due_to_shallow_convection
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ thvu_diag ]
+  standard_name = updraft_virtual_potential_temperature_due_to_shallow_convection
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ uu_diag ]
+  standard_name = updraft_eastward_wind_due_to_shallow_convection
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ vu_diag ]
+  standard_name = updraft_northward_wind_due_to_shallow_convection
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ qtu_emf_diag ]
+  standard_name = penetrative_entrainment_total_water_mixing_ratio_due_to_shallow_convection
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ thlu_emf_diag ]
+  standard_name = penetrative_entrainment_liquid_water_potential_temperature_due_to_shallow_convection
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ uu_emf_diag ]
+  standard_name = penetrative_entrainment_eastward_wind_due_to_shallow_convection
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ vu_emf_diag ]
+  standard_name = penetrative_entrainment_northward_wind_due_to_shallow_convection
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ uemf_diag ]
+  standard_name = net_upward_mass_flux_due_to_shallow_convection
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ dwten_diag ]
+  standard_name = expelled_cloud_liquid_water_tendency_due_to_shallow_convection
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ diten_diag ]
+  standard_name = expelled_cloud_ice_tendency_due_to_shallow_convection
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ flxrain_diag ]
+  standard_name = rain_flux_at_interface_due_to_shallow_convection
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ flxsnow_diag ]
+  standard_name = snow_flux_at_interface_due_to_shallow_convection
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ ntraprd_diag ]
+  standard_name = tendency_of_precipitation_wrt_moist_air_and_condensed_water_due_to_shallow_convection
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ ntsnprd_diag ]
+  standard_name = tendency_of_frozen_precipitation_wrt_moist_air_and_condensed_water_due_to_shallow_convection
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ excessu_arr_diag ]
+  standard_name = updraft_saturation_excess_due_to_shallow_convection
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ excess0_arr_diag ]
+  standard_name = environmental_saturation_excess_due_to_shallow_convection
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ xc_arr_diag ]
+  standard_name = critical_mixing_fraction_due_to_shallow_convection
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ aquad_arr_diag ]
+  standard_name = buoyancy_sorting_quadratic_coefficient_a_due_to_shallow_convection
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ bquad_arr_diag ]
+  standard_name = buoyancy_sorting_quadratic_coefficient_b_due_to_shallow_convection
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ cquad_arr_diag ]
+  standard_name = buoyancy_sorting_quadratic_coefficient_c_due_to_shallow_convection
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ bogbot_arr_diag ]
+  standard_name = shallow_convective_cloud_buoyancy_at_base_interface
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ bogtop_arr_diag ]
+  standard_name = shallow_convective_cloud_buoyancy_at_top_interface
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+# the below are flags internal to uwshcu and output for diagnostics
+# the "standard names" below are more abbreviated than usual:
+[ exit_UWCu_diag ]
+  standard_name = exit_flag_for_uwshcu_no_convection
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ exit_conden_diag ]
+  standard_name = exit_flag_for_uwshcu_condensation_failure
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ exit_klclmkx_diag ]
+  standard_name = exit_flag_for_uwshcu_lcl_at_model_top
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ exit_klfcmkx_diag ]
+  standard_name = exit_flag_for_uwshcu_lfc_at_model_top
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ exit_ufrc_diag ]
+  standard_name = exit_flag_for_uwshcu_updraft_fraction
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ exit_wtw_diag ]
+  standard_name = exit_flag_for_uwshcu_vertical_velocity_squared
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ exit_drycore_diag ]
+  standard_name = exit_flag_for_uwshcu_dry_core
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ exit_wu_diag ]
+  standard_name = exit_flag_for_uwshcu_excessive_vertical_velocity
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ exit_cufilter_diag ]
+  standard_name = exit_flag_for_uwshcu_cumulus_filter
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ exit_kinv1_diag ]
+  standard_name = exit_flag_for_uwshcu_inversion_base_at_surface
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ exit_rei_diag ]
+  standard_name = exit_flag_for_uwshcu_mixing_rate
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ limit_shcu_diag ]
+  standard_name = limit_flag_for_uwshcu_forced_shallow_convection
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ limit_negcon_diag ]
+  standard_name = limit_flag_for_uwshcu_negative_condensate
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ limit_ufrc_diag ]
+  standard_name = limit_flag_for_uwshcu_updraft_fraction
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ limit_ppen_diag ]
+  standard_name = limit_flag_for_uwshcu_penetration_depth
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ limit_emf_diag ]
+  standard_name = limit_flag_for_uwshcu_entrainment_mass_flux
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ limit_cinlcl_diag ]
+  standard_name = limit_flag_for_uwshcu_cin_to_lcl
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ limit_cin_diag ]
+  standard_name = limit_flag_for_uwshcu_cin
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ limit_cbmf_diag ]
+  standard_name = limit_flag_for_uwshcu_cloud_base_mass_flux
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ limit_rei_diag ]
+  standard_name = limit_flag_for_uwshcu_mixing_rate
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ ind_delcin_diag ]
+  standard_name = indicator_for_uwshcu_explicit_cin_used
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ fer_out ]
+  standard_name = fractional_lateral_entrainment_rate_due_to_shallow_convection
+  units = Pa-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ fdr_out ]
+  standard_name = fractional_lateral_detrainment_rate_due_to_shallow_convection
+  units = Pa-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
