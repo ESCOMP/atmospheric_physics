@@ -1,0 +1,92 @@
+name: XML schema validation
+
+# Validate the hand-written XML files in this repository against their
+# XML schemas (.xsd files) using xmllint.
+# See: https://github.com/ESCOMP/atmospheric_physics/issues/59
+#
+# There are two kinds of XML files in this repository:
+#
+#  1. Suite definition files (SDFs) in suites/ and test/test_suites/.
+#     These define which physics schemes run, and in what order.
+#     Schema: schema/suite_v1_0.xsd in the ccpp-framework repository.
+#
+#  2. Scheme namelist definition files (schemes/**/*_namelist.xml).
+#     These define the runtime configuration options of each scheme.
+#     Schema: CIME/ParamGen/xml_schema/entry_id_pg.xsd in the CIME
+#     repository (these files are processed by CIME's ParamGen when
+#     the host model builds its namelist).
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate-xml:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout atmospheric_physics
+        uses: actions/checkout@v4
+
+      - name: Install xmllint
+        run: sudo apt-get update && sudo apt-get install -y libxml2-utils
+
+      # The suite schema lives in the ccpp-framework repository.
+      # Pin the same tag that CAM-SIMA pins (see CAM-SIMA/.gitmodules)
+      # so we validate against the schema version actually in use.
+      - name: Checkout ccpp-framework (for the suite schema)
+        run: |
+          git clone --depth 1 --branch sima_2026-04-13 \
+            https://github.com/NCAR/ccpp-framework.git ccpp-framework
+
+      # The namelist schema lives in the (large) CIME repository, so do
+      # a sparse checkout to fetch only the schema directory instead of
+      # the whole repo. Again pinned to the tag CAM-SIMA uses.
+      - name: Sparse checkout CIME (for the namelist schema)
+        run: |
+          git clone --depth 1 --branch cime6.1.145 --filter=blob:none \
+            --sparse https://github.com/ESMCI/cime.git cime
+          cd cime
+          git sparse-checkout set CIME/ParamGen/xml_schema
+
+      - name: Validate suite definition files
+        run: |
+          xmllint --noout \
+            --schema ccpp-framework/schema/suite_v1_0.xsd \
+            suites/*.xml test/test_suites/*.xml
+
+      # Worked example: validate ONE namelist definition file against the
+      # ParamGen schema, so you can see the moving parts before doing all 33.
+      #
+      # How CI decides pass/fail: xmllint exits with code 0 when the file
+      # validates, and non-zero when it does not (or can't be read). GitHub
+      # Actions runs each `run` block with `bash -e`, so the first command
+      # that exits non-zero aborts the step and marks the job as failed.
+      # The "... validates" text printed by xmllint is just for humans --
+      # the exit code is what turns the check green or red. Try running
+      # xmllint in your terminal and then `echo $?` to see the code.
+      - name: Validate one namelist file (worked example)
+        run: |
+          xmllint --noout \
+            --schema cime/CIME/ParamGen/xml_schema/entry_id_pg.xsd \
+            schemes/dry_adiabatic_adjust/dadadj_namelist.xml
+
+      # TODO for Rosio: validate ALL the scheme namelist definition files,
+      # generalizing the worked example above.
+      #
+      # The files are schemes/**/*_namelist.xml (33 of them at the time
+      # of writing -- try `find schemes -name '*_namelist.xml'`).
+      # The schema is the same one used in the worked example.
+      #
+      # Hints:
+      #  - The shell glob schemes/*/*_namelist.xml works for the current
+      #    layout, but `find ... -exec xmllint ... +` is robust to schemes
+      #    nested at any depth. Try both; pick one and explain why.
+      #  - Whatever construction you use, make sure a failing file still
+      #    fails the step! Some shell constructions swallow exit codes
+      #    (e.g. piping xmllint's output into another command, or a `for`
+      #    loop that doesn't track failures). `find -exec ... +` does
+      #    propagate xmllint's exit code; verify this yourself.
+      #  - Test both directions: deliberately break one namelist file in
+      #    your branch (e.g. delete a closing tag), confirm the workflow
+      #    goes red, then fix it and confirm green. A check that can
+      #    never fail is worse than no check at all.
