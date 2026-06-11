@@ -1,0 +1,114 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet type="text/xsl"?>
+
+<entry_id_pg version="2.0">
+
+  <entry id="use_preexisting_ice">
+    <type>logical</type>
+    <category>microphys</category>
+    <group>nucleate_ice_nl</group>
+    <standard_name>do_preexisting_ice_treatment_in_ice_nucleation</standard_name>
+    <units>flag</units>
+    <desc>
+      Switch to turn on treatment of pre-existing ice in the ice nucleation code.
+      Default: TRUE (CAM6 and CAM7)
+    </desc>
+    <values>
+      <value>.true.</value>
+      <value phys_suite="cam5">.false.</value>
+    </values>
+  </entry>
+
+  <entry id="nucleate_ice_incloud">
+    <type>logical</type>
+    <category>microphys</category>
+    <group>nucleate_ice_nl</group>
+    <standard_name>do_incloud_ice_nucleation</standard_name>
+    <units>flag</units>
+    <desc>
+      Switch to determine whether ice nucleation happens using the incloud (true) or
+      the gridbox average (false) relative humidity. When true, it is assumed that
+      the incloud relative humidity for nucleation is 1.
+      Default: false.
+    </desc>
+    <values>
+      <value>.false.</value>
+      <value phys_suite="cam5">.true.</value>
+    </values>
+  </entry>
+
+  <entry id="nucleate_ice_subgrid">
+    <type>real</type>
+    <category>microphys</category>
+    <group>nucleate_ice_nl</group>
+    <standard_name>tunable_parameter_for_subgrid_saturation_scaling_for_ice_nucleation</standard_name>
+    <units>1</units>
+    <desc>
+      Subgrid scaling factor for relative humidity in ice nucleation code. If it has
+      a value of -1, then indicates that the subgrid scaling factor will be
+      calculated on the fly as 1 / qsatfac (i.e. the saturation scaling factor).
+      Default: 1.2 (MG1/MG2/MG3)
+    </desc>
+    <values>
+      <value>1.2D0</value>
+    </values>
+  </entry>
+
+  <entry id="nucleate_ice_subgrid_strat">
+    <type>real</type>
+    <category>microphys</category>
+    <group>nucleate_ice_nl</group>
+    <standard_name>tunable_parameter_for_subgrid_saturation_scaling_in_stratosphere_for_ice_nucleation</standard_name>
+    <units>1</units>
+    <desc>
+      Subgrid scaling factor for relative humidity in ice nucleation code in the
+      stratosphere. If it has a value of -1, then indicates that the subgrid
+      scaling factor will be calculated on the fly as 1 / qsatfac (i.e. the
+      saturation scaling factor).
+      Default: 1.2 (MG1/MG2/MG3)
+    </desc>
+    <values>
+      <value>1.2D0</value>
+    </values>
+  </entry>
+
+  <entry id="nucleate_ice_strat">
+    <type>real</type>
+    <category>microphys</category>
+    <group>nucleate_ice_nl</group>
+    <standard_name>tunable_parameter_for_polar_stratospheric_sulfate_nucleation_fraction_for_ice_nucleation</standard_name>
+    <units>1</units>
+    <desc>
+      Fraction of Aitken mode sulfate particles assumed to nucleate ice in the polar
+      stratosphere. Provides an increase in homogeneous freezing over the Liu and Penner
+      method.
+
+      Temporary solution to adjust ice surface area density and dehydration in
+      the polar stratosphere where there doesn't seem to be enough nucleation. A value
+      of 1.0 disables the effect.
+      Default: 1.0
+    </desc>
+    <values>
+      <value>1.0D0</value>
+    </values>
+  </entry>
+
+  <entry id="nucleate_ice_use_troplev">
+    <type>logical</type>
+    <category>microphys</category>
+    <group>nucleate_ice_nl</group>
+    <standard_name>do_tropopause_level_based_stratospheric_adjustment_for_ice_nucleation</standard_name>
+    <units>flag</units>
+    <desc>
+      Indicates whether to use the tropopause level to determine where to adjust
+      nucleation for the stratosphere (true) or whether to use a hard coded transition
+      level from 100 to 125 hPa applied only in the polar regions (false).
+      Default: true
+    </desc>
+    <values>
+      <value>.true.</value>
+    </values>
+  </entry>
+
+</entry_id_pg>

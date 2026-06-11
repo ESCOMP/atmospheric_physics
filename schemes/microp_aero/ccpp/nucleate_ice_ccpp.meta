@@ -1,0 +1,350 @@
+[ccpp-table-properties]
+  name = nucleate_ice_ccpp
+  type = scheme
+  dependencies = ../nucleate_ice.F90
+
+[ccpp-arg-table]
+  name  = nucleate_ice_ccpp_init
+  type  = scheme
+[ iulog ]
+  standard_name = log_output_unit
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ const_props ]
+  standard_name = ccpp_constituent_properties
+  units = none
+  type = ccpp_constituent_prop_ptr_t
+  dimensions = (number_of_ccpp_constituents)
+  intent = in
+[ use_preexisting_ice ]
+  standard_name = do_preexisting_ice_treatment_in_ice_nucleation
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ use_hetfrz_classnuc ]
+  standard_name = do_heterogeneous_freezing_by_classical_nucleation_theory
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ nucleate_ice_incloud ]
+  standard_name = do_incloud_ice_nucleation
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ pi ]
+  standard_name = pi_constant
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ nucleate_ice_subgrid ]
+  standard_name = tunable_parameter_for_subgrid_saturation_scaling_for_ice_nucleation
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ nucleate_ice_subgrid_strat ]
+  standard_name = tunable_parameter_for_subgrid_saturation_scaling_in_stratosphere_for_ice_nucleation
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ nucleate_ice_strat ]
+  standard_name = tunable_parameter_for_polar_stratospheric_sulfate_nucleation_fraction_for_ice_nucleation
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ nucleate_ice_use_troplev ]
+  standard_name = do_tropopause_level_based_stratospheric_adjustment_for_ice_nucleation
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ prog_modal_aero ]
+  standard_name = do_prognostic_modal_aerosol
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = nucleate_ice_ccpp_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pcnst ]
+  standard_name = number_of_ccpp_constituents
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ top_lev ]
+  standard_name = vertical_layer_index_of_cloud_fraction_top
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
+[ dtime ]
+  standard_name = timestep_for_physics
+  units = s
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ t ]
+  standard_name = air_temperature
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ pmid ]
+  standard_name = air_pressure
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ qv ]
+  standard_name = water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+  advected = True
+[ qc ]
+  standard_name = cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+  advected = True
+[ qi ]
+  standard_name = cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+  advected = True
+[ ni ]
+  standard_name = mass_number_concentration_of_ice_wrt_moist_air_and_condensed_water
+  units = kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+  advected = True
+[ rair ]
+  standard_name = gas_constant_of_dry_air
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ tmelt ]
+  standard_name = freezing_point_of_water
+  units = K
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ pi ]
+  standard_name = pi_constant
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ wsubi ]
+  standard_name = subgrid_scale_vertical_velocity_for_ice_nucleation
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ aist ]
+  standard_name = stratiform_cloud_ice_area_fraction
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ tropLev_chem ]
+  standard_name = tropopause_vertical_layer_index_from_chemical_method
+  units = index
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ qsatfac ]
+  # pbuf qsatfac
+  standard_name = subgrid_cloud_water_saturation_scaling_factor_for_microphysics
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ lat ]
+  standard_name = latitude
+  units = rad
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ naai ]
+  # these are tendencies for PUMAS v1.21+ (CAM7+) which I assume is the only supported path for SIMA.
+  standard_name = tendency_of_number_concentration_of_activated_ice_nuclei
+  units = kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ naai_hom ]
+  # these are tendencies for PUMAS v1.21+ (CAM7+) which I assume is the only supported path for SIMA.
+  standard_name = tendency_of_number_concentration_of_activated_ice_nuclei_due_to_homogenous_freezing
+  units = kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ nihf ]
+  standard_name = tendency_of_ice_nucleation_number_concentration_from_homogeneous_freezing
+  units = m-3 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ niimm ]
+  standard_name = tendency_of_ice_nucleation_number_concentration_from_immersion_freezing
+  units = m-3 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ nidep ]
+  standard_name = tendency_of_ice_nucleation_number_concentration_from_deposition_nucleation
+  units = m-3 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ nimey ]
+  standard_name = tendency_of_ice_nucleation_number_concentration_from_meyers_nucleation
+  units = m-3 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ regm ]
+  standard_name = ice_nucleation_regime_temperature_threshold
+  units = degC
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ subgrid_diag ]
+  standard_name = subgrid_saturation_scaling_factor_diagnostic_for_ice_nucleation
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ trop_pd ]
+  # in A flag is accummulated to be a probability distribution
+  standard_name = vertical_layer_indicator_of_chemical_tropopause
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ fhom ]
+  standard_name = fraction_of_cirrus_with_homogeneous_freezing
+  units = fraction
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ wice ]
+  standard_name = vertical_velocity_reduction_from_preexisting_ice_for_ice_nucleation
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ weff ]
+  standard_name = effective_vertical_velocity_for_ice_nucleation
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ INnso4 ]
+  standard_name = tendency_of_sulfate_number_concentration_input_to_ice_nucleation
+  units = m-3 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ INnbc ]
+  standard_name = tendency_of_black_carbon_number_concentration_input_to_ice_nucleation
+  units = m-3 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ INndust ]
+  standard_name = tendency_of_dust_number_concentration_input_to_ice_nucleation
+  units = m-3 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ INondust ]
+  standard_name = tendency_of_dust_number_concentration_output_from_ice_nucleation
+  units = m-3 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ INhet ]
+  standard_name = tendency_of_heterogeneous_ice_nuclei_number_concentration
+  units = m-3 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ INhom ]
+  standard_name = tendency_of_homogeneous_ice_nuclei_number_concentration
+  units = m-3 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ INFrehom ]
+  standard_name = frequency_of_homogeneous_ice_nucleation
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ INFreIN ]
+  standard_name = frequency_of_ice_nucleation
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ ptend_q ]
+  standard_name = ccpp_constituent_tendencies
+  units = none
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
