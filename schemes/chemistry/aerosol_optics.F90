@@ -26,7 +26,7 @@ contains
                                  errmsg, errflg)
     use ccpp_io_reader,                  only: create_netcdf_reader_t
     use ccpp_io_reader,                  only: abstract_netcdf_reader_t
-    use aerosol_mmr_ccpp,                only: rad_aer_diag_init
+    use aerosol_mmr_host,                only: rad_aer_diag_init
     use radiative_aerosol_definitions,   only: aerlist_t
     use radiative_aerosol_definitions,   only: bulk_aerosol_list
 

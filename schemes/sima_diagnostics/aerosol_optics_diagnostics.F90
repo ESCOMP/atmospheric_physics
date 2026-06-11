@@ -151,7 +151,7 @@ contains
       use cam_history_support, only: fillvalue
 
       ! host-dependent diagnostic output subroutine for radiatively active aerosol:
-      use aerosol_mmr_ccpp,    only: rad_aer_diag_out
+      use aerosol_mmr_host,    only: rad_aer_diag_out
 
       !-----------------------------------------------------------------
       ! Input arguments
