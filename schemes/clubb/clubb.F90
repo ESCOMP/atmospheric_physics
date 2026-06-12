@@ -485,7 +485,7 @@ module clubb
                         dlf, dlf_liq_out, dlf_ice_out, &
                         clubb_detliq_rad, clubb_detice_rad, clubb_detphase_lowtemp, &
                         pdel, pdeldry, &
-                        s, t, q, det_s, det_ice )
+                        t, s, q, det_s, det_ice )
 
     ! Incoming variables
     integer, intent(in) :: ncol, pver, ixcldliq, ixcldice, ixnumliq, ixnumice
