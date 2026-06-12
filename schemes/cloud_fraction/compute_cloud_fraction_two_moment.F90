@@ -397,7 +397,7 @@ contains
 
     ! ---------------------------------------------------------
     ! Compute 'stratus fraction(a)' and Gs=(dU/da) from the
-    ! CAM35 cloud fraction formula.
+    ! CAM3.5 cloud fraction formula.
     ! Below is valid only for CAMUW at 1.9x2.5 fv dynamics core
     ! For the other cases, I should re-define 'rhminl,rhminh' &
     ! 'premib,premit'.
