@@ -36,10 +36,31 @@ module compute_cloud_fraction_two_moment
   real(kind_phys) :: premib            ! Bottom pressure bound for mid-level clouds [Pa]
 
   ! Ice cloud closure option
-  ! 1=wang & sassen 2=schiller (iciwc)
-  ! 3=wood & field, 4=Wilson (based on smith)
-  ! 5=modified slingo (ssat & empty cloud)
+  ! 1 = Wang and Sassen
+  ! 2 = Schiller (iciwc)
+  ! 3 = Wood and Field
+  ! 4 = Wilson (based on Smith)
+  ! 5 = modified Slingo (ssat & empty cloud)
   integer         :: iceopt
+
+  ! Ice cloud fraction fit parameters (used by aist_single and aist_vector)
+  ! Wang and Sassen IWC parameters (iceopt=1)
+  ! DOI: 10.1175/1520-0469(2002)059<2291:CCMPRU>2.0.CO;2
+  real(kind_phys), parameter :: wang_sassen_a  = 26.87_kind_phys
+  real(kind_phys), parameter :: wang_sassen_b  = 0.569_kind_phys
+  real(kind_phys), parameter :: wang_sassen_c  = 0.002892_kind_phys
+  ! Schiller parameters (iceopt=2)
+  ! DOI: 10.1029/2008JD010342
+  real(kind_phys), parameter :: schiller_a     = -68.4202_kind_phys
+  real(kind_phys), parameter :: schiller_b     = 0.983917_kind_phys
+  real(kind_phys), parameter :: schiller_c     = 2.81795_kind_phys
+  ! Wood and Field parameters (iceopt=3)
+  ! DOI: 10.1175/1520-0469(2000)057<1888:RBTWCW>2.0.CO;2
+  real(kind_phys), parameter :: wood_field_Kc  = 75._kind_phys
+  ! Minimum grid box avg ice for having a 'cloud'
+  real(kind_phys), parameter :: minice         = 1.e-12_kind_phys
+  ! Minimum ice cloud fraction threshold
+  real(kind_phys), parameter :: mincld         = 1.e-4_kind_phys
 
   real(kind_phys) :: icecrit           ! Critical RH for ice clouds in Wilson & Ballard closure
                                        ! (smaller = more ice clouds)
@@ -104,7 +125,7 @@ contains
 
   end subroutine compute_cloud_fraction_two_moment_init
 
-  subroutine astG_PDF_single(U, p, qv, landfrac, snowh, a, Ga, rhminl, rhminl_adj_land, rhminh, orhmin)
+  pure subroutine astG_PDF_single(U, p, qv, landfrac, snowh, a, Ga, rhminl, rhminl_adj_land, rhminh, orhmin)
     ! ---------------------------------------------------------
     ! Compute 'stratus fraction(a)' and Gs=(dU/da) from the
     ! analytical formulation of triangular PDF.
@@ -224,8 +245,8 @@ contains
 
   end subroutine astG_PDF_single
 
-  subroutine astG_PDF(U_in, p_in, qv_in, landfrac_in, snowh_in, a_out, Ga_out, ncol, &
-                      rhminl_in, rhminl_adj_land_in, rhminh_in)
+  pure subroutine astG_PDF(U_in, p_in, qv_in, landfrac_in, snowh_in, a_out, Ga_out, ncol, &
+                           rhminl_in, rhminl_adj_land_in, rhminh_in)
     ! ---------------------------------------------------------
     ! Compute 'stratus fraction(a)' and Gs=(dU/da) from the
     ! analytical formulation of triangular PDF.
@@ -372,7 +393,7 @@ contains
 
   end subroutine astG_PDF
 
-  subroutine astG_RHU_single(U, p, qv, landfrac, snowh, a, Ga, rhminl, rhminl_adj_land, rhminh, orhmin)
+  pure subroutine astG_RHU_single(U, p, qv, landfrac, snowh, a, Ga, rhminl, rhminl_adj_land, rhminh, orhmin)
 
     ! ---------------------------------------------------------
     ! Compute 'stratus fraction(a)' and Gs=(dU/da) from the
@@ -457,8 +478,8 @@ contains
 
   end subroutine astG_RHU_single
 
-  subroutine astG_RHU(U_in, p_in, qv_in, landfrac_in, snowh_in, a_out, Ga_out, ncol, &
-                      rhminl_in, rhminl_adj_land_in, rhminh_in)
+  pure subroutine astG_RHU(U_in, p_in, qv_in, landfrac_in, snowh_in, a_out, Ga_out, ncol, &
+                           rhminl_in, rhminl_adj_land_in, rhminh_in)
 
     ! ---------------------------------------------------------
     ! Compute 'stratus fraction(a)' and Gs=(dU/da) from the
@@ -600,8 +621,6 @@ contains
     real(kind_phys) :: rhmin               ! Critical RH
     real(kind_phys) :: rhwght
 
-    real(kind_phys) :: a, b, c, as, bs, cs ! Fit parameters
-    real(kind_phys) :: Kc                  ! Constant for ice cloud calc (wood & field)
     real(kind_phys) :: ttmp                ! Limited temperature
     real(kind_phys) :: icicval             ! Empirical IWC value [ kg kg-1 ]
     real(kind_phys) :: rho                 ! Local air density
@@ -611,37 +630,12 @@ contains
     real(kind_phys) :: es, qs
 
     real(kind_phys) :: rhi                 ! grid box averaged relative humidity over ice
-    real(kind_phys) :: minice              ! minimum grid box avg ice for having a 'cloud'
-    real(kind_phys) :: mincld              ! minimum ice cloud fraction threshold
     real(kind_phys) :: icimr               ! in cloud ice mixing ratio
     real(kind_phys) :: rhdif               ! working variable for slingo scheme
 
     ! Statement functions
     logical land
     land = nint(landfrac) == 1
-
-    ! --------- !
-    ! Constants !
-    ! --------- !
-
-    ! Wang and Sassen IWC paramters ( Option.1 )
-    ! DOI: 10.1175/1520-0469(2002)059<2291:CCMPRU>2.0.CO;2
-    a = 26.87_kind_phys
-    b = 0.569_kind_phys
-    c = 0.002892_kind_phys
-    ! Schiller parameters ( Option.2 )
-    ! DOI: 10.1029/2008JD010342
-    as = -68.4202_kind_phys
-    bs = 0.983917_kind_phys
-    cs = 2.81795_kind_phys
-    ! Wood and Field parameters ( Option.3 )
-    ! DOI: 10.1175/1520-0469(2000)057<1888:RBTWCW>2.0.CO;2
-    Kc = 75._kind_phys
-    ! Wilson & Ballard closure ( Option.4. smaller = more ice clouds)
-    ! DOI: 10.1002/qj.49712555707
-    ! Slingo modified (option 5)
-    minice = 1.e-12_kind_phys
-    mincld = 1.e-4_kind_phys
 
     if (present(qsatfac_out)) qsatfac_out = 1.0_kind_phys
 
@@ -656,17 +650,17 @@ contains
     if (iceopt < 3) then
       if (iceopt == 1) then
         ttmp = max(195._kind_phys, min(T, 253._kind_phys)) - 273.16_kind_phys
-        icicval = a + b*ttmp + c*ttmp**2._kind_phys
+        icicval = wang_sassen_a + wang_sassen_b*ttmp + wang_sassen_c*ttmp**2._kind_phys
         rho = p/(rair*T)
         icicval = icicval*1.e-6_kind_phys/rho
       else
         ttmp = max(190._kind_phys, min(T, 273.16_kind_phys))
-        icicval = 10._kind_phys**(as*bs**ttmp + cs)
+        icicval = 10._kind_phys**(schiller_a*schiller_b**ttmp + schiller_c)
         icicval = icicval*1.e-6_kind_phys*18._kind_phys/28.97_kind_phys
       end if
       aist = max(0._kind_phys, min(qi/icicval, 1._kind_phys))
     elseif (iceopt == 3) then
-      aist = 1._kind_phys - exp(-Kc*qi/(qs*(esi/esl)))
+      aist = 1._kind_phys - exp(-wood_field_Kc*qi/(qs*(esi/esl)))
       aist = max(0._kind_phys, min(aist, 1._kind_phys))
     elseif (iceopt == 4) then
       if (p >= premib) then
@@ -805,9 +799,6 @@ contains
     real(kind_phys) :: rhmin                           ! Critical RH
     real(kind_phys) :: rhwght
 
-    real(kind_phys) :: a, b, c, as, bs, cs, ah, bh, ch ! Fit parameters
-    real(kind_phys) :: nil
-    real(kind_phys) :: Kc                              ! Constant for ice cloud calc (wood & field)
     real(kind_phys) :: ttmp                            ! Limited temperature
     real(kind_phys) :: icicval                         ! Empirical IWC value [ kg kg-1 ]
     real(kind_phys) :: rho                             ! Local air density
@@ -819,35 +810,21 @@ contains
     real(kind_phys) :: qsat_in(ncol)
 
     real(kind_phys) :: rhi                             ! grid box averaged relative humidity over ice
-    real(kind_phys) :: minice                          ! minimum grid box avg ice for having a 'cloud'
-    real(kind_phys) :: mincld                          ! minimum ice cloud fraction threshold
     real(kind_phys) :: icimr                           ! in cloud ice mixing ratio
     real(kind_phys) :: rhdif                           ! working variable for slingo scheme
+    real(kind_phys) :: nil                             ! Ice number concentration [#/L]
+
+    ! Heymsfield/Boudala fit parameters (iceopt=6)
+    ! Boudala et al. (2002), Heymsfield et al. (2012)
+    real(kind_phys), parameter :: heymsfield_a = 6.73834e-08_kind_phys
+    real(kind_phys), parameter :: heymsfield_b = 0.0533110_kind_phys
+    real(kind_phys), parameter :: heymsfield_c = 0.3493813_kind_phys
 
     integer         :: i
 
     ! Statement functions
     logical land
     land(i) = nint(landfrac_in(i)) == 1
-
-    ! --------- !
-    ! Constants !
-    ! --------- !
-
-    ! Wang and Sassen IWC paramters ( Option.1 )
-    a = 26.87_kind_phys
-    b = 0.569_kind_phys
-    c = 0.002892_kind_phys
-    ! Schiller parameters ( Option.2 )
-    as = -68.4202_kind_phys
-    bs = 0.983917_kind_phys
-    cs = 2.81795_kind_phys
-    ! Wood and Field parameters ( Option.3 )
-    Kc = 75._kind_phys
-    ! Wilson & Ballard closure ( Option.4. smaller = more ice clouds)
-    ! Slingo modified (option 5)
-    minice = 1.e-12_kind_phys
-    mincld = 1.e-4_kind_phys
 
     if (present(qsatfac_out)) qsatfac_out = 1.0_kind_phys
 
@@ -883,17 +860,17 @@ contains
       if (iceopt < 3) then
         if (iceopt == 1) then
           ttmp = max(195._kind_phys, min(T, 253._kind_phys)) - 273.16_kind_phys
-          icicval = a + b*ttmp + c*ttmp**2._kind_phys
+          icicval = wang_sassen_a + wang_sassen_b*ttmp + wang_sassen_c*ttmp**2._kind_phys
           rho = p/(rair*T)
           icicval = icicval*1.e-6_kind_phys/rho
         else
           ttmp = max(190._kind_phys, min(T, 273.16_kind_phys))
-          icicval = 10._kind_phys**(as*bs**ttmp + cs)
+          icicval = 10._kind_phys**(schiller_a*schiller_b**ttmp + schiller_c)
           icicval = icicval*1.e-6_kind_phys*18._kind_phys/28.97_kind_phys
         end if
         aist = max(0._kind_phys, min(qi/icicval, 1._kind_phys))
       elseif (iceopt == 3) then
-        aist = 1._kind_phys - exp(-Kc*qi/(qs*(esi(i)/esl(i))))
+        aist = 1._kind_phys - exp(-wood_field_Kc*qi/(qs*(esi(i)/esl(i))))
         aist = max(0._kind_phys, min(aist, 1._kind_phys))
       elseif (iceopt == 4) then
         if (p >= premib) then
@@ -937,17 +914,16 @@ contains
 
       elseif (iceopt == 6) then
         !----- ICE CLOUD OPTION 6: fit based on T and Number (Gettelman: based on Heymsfield obs)
-        ! Use observations from Heymsfield et al 2012 of IWC and Ni v. Temp
-        ! Multivariate fit follows form of Boudala 2002: ICIWC = a * exp(b*T) * N^c
+        ! Use observations from
+        ! Heymsfield et al. 2013 (https://doi.org/10.1175/JAS-D-12-0124.1) of IWC and Ni v. Temp
+        ! Multivariate fit follows form of
+        ! Boudala 2002 (https://doi.org/10.1002/joc.774): ICIWC = a * exp(b*T) * N^c
         ! a=6.73e-8, b=0.05, c=0.349
         ! N is #/L, so need to convert Ni_L=N*rhoa/1000.
-        ah = 6.73834e-08_kind_phys
-        bh = 0.0533110_kind_phys
-        ch = 0.3493813_kind_phys
         rho = p/(rair*T)
         nil = ni*rho/1000._kind_phys
-        icicval = ah*exp(bh*T)*nil**ch
-        !result is in g m-3, convert to kg H2O / kg air (icimr...)
+        icicval = heymsfield_a*exp(heymsfield_b*T)*nil**heymsfield_c
+        ! result is in g m-3, convert to kg H2O / kg air (icimr...)
         icicval = icicval/rho/1000._kind_phys
         aist = max(0._kind_phys, min(qi/icicval, 1._kind_phys))
         aist = min(aist, 1._kind_phys)
@@ -955,10 +931,10 @@ contains
       end if
 
       if (iceopt == 5 .or. iceopt == 6) then
-
         ! Similar to alpha in Wilson & Ballard (1999), determine a
         ! scaling factor for saturation vapor pressure that reflects
         ! the cloud fraction, rhmini, and rhmaxi.
+        ! https://doi.org/10.1002/qj.49712555707
         !
         ! NOTE: Limit qsatfac so that adjusted RHliq would be 1. or less.
         if (present(qsatfac_out) .and. do_subgrid_growth) then
@@ -967,7 +943,6 @@ contains
 
         ! limiter to remove empty cloud and ice with no cloud
         ! and set icecld fraction to mincld if ice exists
-
         if (qi < minice) then
           aist = 0._kind_phys
         else
@@ -978,15 +953,13 @@ contains
         if (qi >= minice) then
           icimr = qi/aist
 
-          !minimum
+          ! minimum:
           if (icimr < qist_min) then
             if (do_avg_aist_algs) then
-              !
               ! Take the geometric mean of the iceopt=4 and iceopt=5 values.
               ! Mods developed by Thomas Toniazzo for NorESM.
               aist = max(0._kind_phys, min(1._kind_phys, sqrt(aist*qi/qist_min)))
             else
-              !
               ! Default for iceopt=5
               aist = max(0._kind_phys, min(1._kind_phys, qi/qist_min))
             end if
