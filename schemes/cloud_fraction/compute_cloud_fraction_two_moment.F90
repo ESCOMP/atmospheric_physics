@@ -71,6 +71,12 @@ module compute_cloud_fraction_two_moment
   real(kind_phys) :: rair              ! Gas constant of dry air [J kg-1 K-1]
 
 contains
+
+  pure elemental logical function is_land(landfrac)
+    real(kind_phys), intent(in) :: landfrac
+    is_land = nint(landfrac) == 1
+  end function is_land
+
 !> \section arg_table_compute_cloud_fraction_two_moment_init Argument Table
 !! \htmlinclude compute_cloud_fraction_two_moment_init.html
   subroutine compute_cloud_fraction_two_moment_init( &
@@ -162,16 +168,13 @@ contains
     real(kind_phys) :: rhmin  ! Critical RH
     real(kind_phys) :: rhwght
 
-    ! Statement functions
-    logical land
-    land = nint(landfrac) == 1
 
     ! ---------------- !
     ! Main computation !
     ! ---------------- !
 
     if (p >= premib) then
-      if (land .and. (snowh <= 0.000001_kind_phys)) then
+      if (is_land(landfrac) .and. (snowh <= 0.000001_kind_phys)) then
         rhmin = rhminl - rhminl_adj_land
       else
         rhmin = rhminl
@@ -295,9 +298,6 @@ contains
     real(kind_phys) :: rhmin           ! Critical RH
     real(kind_phys) :: rhwght
 
-    ! Statement functions
-    logical land
-    land(i) = nint(landfrac_in(i)) == 1
 
     ! ---------------- !
     ! Main computation !
@@ -318,7 +318,7 @@ contains
       rhminh = rhminh_in(i)
 
       if (p >= premib) then
-        if (land(i) .and. (snowh <= 0.000001_kind_phys)) then
+        if (is_land(landfrac_in(i)) .and. (snowh <= 0.000001_kind_phys)) then
           rhmin = rhminl - rhminl_adj_land
         else
           rhmin = rhminl
@@ -425,9 +425,6 @@ contains
     real(kind_phys) rhdif                      ! Factor for stratus fraction
     real(kind_phys) rhwght
 
-    ! Statement functions
-    logical land
-    land = nint(landfrac) == 1
 
     ! ---------------- !
     ! Main computation !
@@ -435,7 +432,7 @@ contains
 
     if (p >= premib) then
 
-      if (land .and. (snowh <= 0.000001_kind_phys)) then
+      if (is_land(landfrac) .and. (snowh <= 0.000001_kind_phys)) then
         rhmin = rhminl - rhminl_adj_land
       else
         rhmin = rhminl
@@ -524,9 +521,6 @@ contains
     real(kind_phys) :: rhdif                      ! Factor for stratus fraction
     real(kind_phys) :: rhwght
 
-    ! Statement functions
-    logical land
-    land(i) = nint(landfrac_in(i)) == 1
 
     ! ---------------- !
     ! Main computation !
@@ -547,7 +541,7 @@ contains
       rhminh = rhminh_in(i)
 
       if (p >= premib) then
-        if (land(i) .and. (snowh <= 0.000001_kind_phys)) then
+        if (is_land(landfrac_in(i)) .and. (snowh <= 0.000001_kind_phys)) then
           rhmin = rhminl - rhminl_adj_land
         else
           rhmin = rhminl
@@ -633,9 +627,6 @@ contains
     real(kind_phys) :: icimr               ! in cloud ice mixing ratio
     real(kind_phys) :: rhdif               ! working variable for slingo scheme
 
-    ! Statement functions
-    logical land
-    land = nint(landfrac) == 1
 
     if (present(qsatfac_out)) qsatfac_out = 1.0_kind_phys
 
@@ -664,7 +655,7 @@ contains
       aist = max(0._kind_phys, min(aist, 1._kind_phys))
     elseif (iceopt == 4) then
       if (p >= premib) then
-        if (land .and. (snowh <= 0.000001_kind_phys)) then
+        if (is_land(landfrac) .and. (snowh <= 0.000001_kind_phys)) then
           rhmin = rhminl - rhminl_adj_land
         else
           rhmin = rhminl
@@ -822,9 +813,6 @@ contains
 
     integer         :: i
 
-    ! Statement functions
-    logical land
-    land(i) = nint(landfrac_in(i)) == 1
 
     if (present(qsatfac_out)) qsatfac_out = 1.0_kind_phys
 
@@ -874,7 +862,7 @@ contains
         aist = max(0._kind_phys, min(aist, 1._kind_phys))
       elseif (iceopt == 4) then
         if (p >= premib) then
-          if (land(i) .and. (snowh <= 0.000001_kind_phys)) then
+          if (is_land(landfrac_in(i)) .and. (snowh <= 0.000001_kind_phys)) then
             rhmin = rhminl - rhminl_adj_land
           else
             rhmin = rhminl
