@@ -219,8 +219,6 @@ CONTAINS
                call history_out_field(trim(const_diag_names(name_idx)), const_array(:,:,const_idx))
                const_num_found = const_num_found + 1
                const_found(const_idx) = .true.
-            else
-               call history_out_field(trim(standard_name), const_array(:,:,const_idx))
             end if
          end do
          if (const_num_found == size(const_std_names)) then

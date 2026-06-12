@@ -74,6 +74,7 @@
     <scheme>zm_diagnostics</scheme>
 
     <!-- Check that energy and water change matches the boundary fluxes -->
+    <scheme>zm_prepare_flux_for_check_energy</scheme>
     <scheme>check_energy_scaling</scheme>
     <scheme>check_energy_chng</scheme>
 
@@ -296,18 +297,34 @@
     <!-- init phase only: for setting vertical diffusion top -->
     <scheme>hb_diff_set_vertical_diffusion_top</scheme>
 
-    <!-- hb pre-interstitial: tautotx/y -->
-    <scheme>tms_beljaars_zero_stub</scheme> <!-- stub as TMS/Beljaars not implemented -->
-    <scheme>hb_diff_set_total_surface_stress</scheme>
+    <!-- stub as TMS/Beljaars not used in CAM4 -->
+    <scheme>tms_beljaars_zero_stub</scheme>
 
-    <!-- vdiff pre-interstitial 0: create p coords1d, copy surface fluxes from coupler (cam_in) incl. wv fluxes for hb kinematic wv flx. -->
+    <!-- vdiff pre-interstitial 0: create p coords1d and potential temp. -->
+    <scheme>vertical_diffusion_prepare_inputs</scheme>
+
+    <!-- vdiff pre-interstitial 1: copy surface fluxes from coupler (cam_in) -->
     <scheme>hb_diff_prepare_vertical_diffusion_inputs</scheme>
+
+    <!-- vdiff pre-interstitial 2: interpolate t, rho, p to interfaces -->
+    <!-- not in WACCM-X mode so do not use rairv in vdiff. -->
+    <scheme>vertical_diffusion_not_use_rairv</scheme>
+    <scheme>vertical_diffusion_set_temperature_at_toa_default</scheme>
+    <scheme>vertical_diffusion_interpolate_to_interfaces</scheme>
+
+    <!-- vdiff pre-interstitial 3: calculate total surface stresses
+         used for surface momentum flux diagnostic.
+         here, also used for HB. -->
+    <scheme>vertical_diffusion_set_total_surface_stress</scheme>
 
     <!-- Initialize Holtslag-Boville boundary layer scheme (no run phase) -->
     <scheme>holtslag_boville_diff</scheme>
 
-    <!-- Holtslag-Boville boundary layer scheme -->
+    <!-- Holtslag-Boville boundary layer scheme 1 -->
     <scheme>hb_pbl_independent_coefficients</scheme>
+    <scheme>compute_kinematic_fluxes_and_obklen</scheme>
+
+    <!-- Holtslag-Boville boundary layer scheme 2 -->
     <scheme>hb_pbl_dependent_coefficients</scheme>
     <scheme>hb_diff_exchange_coefficients</scheme>
 
@@ -317,17 +334,11 @@
     <!-- HB scheme diagnostics (after KVM changed by sponge layer scheme) -->
     <scheme>holtslag_boville_diff_diagnostics</scheme>
 
-    <!-- vdiff pre-interstitial 1: interpolate t, rho, p to interfaces -->
-    <!-- not in WACCM-X mode so do not use rairv in vdiff. -->
-    <scheme>vertical_diffusion_not_use_rairv</scheme>
-    <scheme>vertical_diffusion_set_temperature_at_toa_default</scheme>
-    <scheme>vertical_diffusion_interpolate_to_interfaces</scheme>
-
-    <!-- vdiff pre-interstitial 2: calculate drag coefficient -->
+    <!-- vdiff pre-interstitial 4: calculate drag coefficient -->
     <scheme>implicit_surface_stress_add_drag_coefficient</scheme>
     <!--<scheme>turbulent_mountain_stress_add_drag_coefficient</scheme>-->
 
-    <!-- vdiff pre-interstitial 3: calculate damping rate from drag coef. -->
+    <!-- vdiff pre-interstitial 5: calculate damping rate from drag coef. -->
     <scheme>vertical_diffusion_wind_damping_rate</scheme>
     <!--<scheme>beljaars_add_wind_damping_rate</scheme>-->
 
@@ -378,6 +389,7 @@
 
     <!-- Orographic gravity wave drag -->
     <scheme>gravity_wave_drag_orographic</scheme>
+    <scheme>gravity_wave_drag_orographic_diagnostics</scheme>
 
     <!-- Interstitial: Convert tendencies for dry constituents to dry air basis -->
     <scheme>convert_dry_constituent_tendencies_to_dry_air_basis</scheme>
@@ -405,13 +417,30 @@
     <!-- Save current total energy from dycore for energy fixer in time step. Total energy in current state is updated by the last check_energy_chng call. -->
     <scheme>check_energy_save_teout</scheme>
 
+    <!-- thermo_water_update prepares cp_or_cv_dycore for post-physics
+         total-energy diagnostics (i.e., tot_energy_phys in CAM).
+         COMMENTED OUT: CAM-SIMA does not have tot_energy_phys diagnostics
+         yet, thus cp_or_cv_dycore does not need to be updated mid-physics
+         at this time.
+
+         check_energy_scaling reads cp_or_cv_dycore_at_start_of_physics_timestep
+         (computed in d_p_coupling/dyn_coupling_impl) instead
+         and should not use mid-physics timestep updated values (see CAM#1554).
+         Re-enable once dme_adjust is enabled and tot_energy_physics diagnostics
+         are implemented. -->
+    <!-- <scheme>thermo_water_update</scheme> -->
+
     <!-- Dry Mass and Energy adjust -->
     <!-- COMMENTED OUT until qini/liqini/iceini have initialization routines -->
     <!-- See https://github.com/ESCOMP/atmospheric_physics/issues/222 -->
     <!-- <scheme>dme_adjust</scheme> -->
 
     <!-- MPAS and SE specific scaling of temperature for enforcing energy consistency:
-         First, calculate the scaling based off cp_or_cv_dycore (from cam_thermo_water_update)
+         First, calculate the scaling based off the start-of-physics snapshot
+         cp_or_cv_dycore_at_start_of_physics_timestep (computed in d_p_coupling/
+         dyn_coupling_impl).
+         Any mid-physics mutation of cp_or_cv_dycore by thermo_water_update
+         should not be used.
          Then, perform the temperature and temperature tendency scaling -->
     <scheme>check_energy_scaling</scheme>
     <scheme>dycore_energy_consistency_adjust</scheme>

@@ -1,0 +1,137 @@
+[ccpp-table-properties]
+  name = gravity_wave_drag_frontogenesis_diagnostics
+  type = scheme
+
+[ccpp-arg-table]
+  name  = gravity_wave_drag_frontogenesis_diagnostics_init
+  type  = scheme
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = gravity_wave_drag_frontogenesis_diagnostics_run
+  type  = scheme
+[ cpair ]
+  standard_name = specific_heat_of_dry_air_at_constant_pressure
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ frontgf ]
+  standard_name = frontogenesis_function
+  units = K2 m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ frontga ]
+  standard_name = frontogenesis_angle
+  units = radians
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ utend1 ]
+  standard_name = wind_tendency_in_first_speed_bin_due_to_frontogenesis_gravity_wave_drag
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ utend2 ]
+  standard_name = wind_tendency_in_second_speed_bin_due_to_frontogenesis_gravity_wave_drag
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ utend3 ]
+  standard_name = wind_tendency_in_third_speed_bin_due_to_frontogenesis_gravity_wave_drag
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ utend4 ]
+  standard_name = wind_tendency_in_fourth_speed_bin_due_to_frontogenesis_gravity_wave_drag
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ utend5 ]
+  standard_name = wind_tendency_in_fifth_speed_bin_due_to_frontogenesis_gravity_wave_drag
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ dttdf ]
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_diffusion_due_to_frontogenesis_gravity_wave_drag
+  units = J kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ dttke ]
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_kinetic_energy_dissipation_due_to_frontogenesis_gravity_wave_drag
+  units = J kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ utgw ]
+  standard_name = tendency_of_eastward_wind_due_to_frontogenesis_gravity_wave_drag
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ vtgw ]
+  standard_name = tendency_of_northward_wind_due_to_frontogenesis_gravity_wave_drag
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ ttgw ]
+  standard_name = tendency_of_air_temperature_due_to_frontogenesis_gravity_wave_drag
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ taucd_east ]
+  standard_name = eastward_reynolds_stress_due_to_frontogenesis_gravity_wave_drag
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ taucd_west ]
+  standard_name = westward_reynolds_stress_due_to_frontogenesis_gravity_wave_drag
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ taucd_north ]
+  standard_name = northward_reynolds_stress_due_to_frontogenesis_gravity_wave_drag
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ taucd_south ]
+  standard_name = southward_reynolds_stress_due_to_frontogenesis_gravity_wave_drag
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

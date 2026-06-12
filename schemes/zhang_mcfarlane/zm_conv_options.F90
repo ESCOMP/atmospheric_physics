@@ -12,7 +12,7 @@ contains
   subroutine zm_conv_options_init(masterproc, iulog, &
     zmconv_c0_lnd, zmconv_c0_ocn, zmconv_ke, zmconv_ke_lnd, &
     zmconv_momcu, zmconv_momcd, zmconv_num_cin, &
-    no_deep_pbl_in, zmconv_tiedke_add, &
+    no_deep_pbl_in, zmconv_tiedtke_add, &
     zmconv_capelmt, zmconv_dmpdz, zmconv_parcel_pbl, &
     zmconv_parcel_hscale, zmconv_tau)
 
@@ -25,7 +25,7 @@ contains
     real(kind_phys),intent(in)           :: zmconv_momcu
     real(kind_phys),intent(in)           :: zmconv_momcd
     logical, intent(in)                  :: no_deep_pbl_in  ! no_deep_pbl = .true. eliminates ZM convection entirely within PBL
-    real(kind_phys),intent(in)           :: zmconv_tiedke_add
+    real(kind_phys),intent(in)           :: zmconv_tiedtke_add
     real(kind_phys),intent(in)           :: zmconv_capelmt
     real(kind_phys),intent(in)           :: zmconv_dmpdz
     logical, intent(in)                  :: zmconv_parcel_pbl ! Should the parcel properties include PBL mixing?
@@ -42,7 +42,7 @@ contains
       write(iulog,*) 'tuning parameters zm_conv_options_init: no_deep_pbl',no_deep_pbl_in
       write(iulog,*) 'tuning parameters zm_conv_options_init: zm_capelmt', zmconv_capelmt
       write(iulog,*) 'tuning parameters zm_conv_options_init: zm_dmpdz', zmconv_dmpdz
-      write(iulog,*) 'tuning parameters zm_conv_options_init: zm_tiedke_add', zmconv_tiedke_add
+      write(iulog,*) 'tuning parameters zm_conv_options_init: zm_tiedke_add', zmconv_tiedtke_add
       write(iulog,*) 'tuning parameters zm_conv_options_init: zm_parcel_pbl', zmconv_parcel_pbl
       write(iulog,*) 'tuning parameters zm_conv_options_init: zm_parcel_hscale', zmconv_parcel_hscale
     endif
