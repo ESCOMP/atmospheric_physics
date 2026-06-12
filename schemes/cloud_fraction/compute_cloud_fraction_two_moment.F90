@@ -21,7 +21,7 @@ module compute_cloud_fraction_two_moment
   public :: aist_single, aist_vector
 
   !REMOVECAM: this public parameter is used by CAM code and this public declaration can be removed
-  ! after CAM is retired and all code uses this parameter is migrated to receive this via
+  ! after CAM is retired and all code that uses this parameter is migrated to receive this via
   ! the CCPP framework.
   public :: CAMstfrac
   !REMOVECAM_END
@@ -40,8 +40,8 @@ module compute_cloud_fraction_two_moment
                                                 ! 5=modified slingo (ssat & empty cloud)
   real(kind_phys) :: icecrit                    ! Critical RH for ice clouds in Wilson & Ballard closure
                                                 ! ( smaller = more ice clouds )
-  real(kind_phys) :: qist_min                   ! Minimum in-stratus IWC constraint [ kg/kg ]
-  real(kind_phys) :: qist_max                   ! Maximum in-stratus IWC constraint [ kg/kg ]
+  real(kind_phys) :: qist_min                   ! Minimum in-stratus IWC constraint [ kg kg-1 ]
+  real(kind_phys) :: qist_max                   ! Maximum in-stratus IWC constraint [ kg kg-1 ]
   logical         :: do_subgrid_growth
   logical         :: do_avg_aist_algs
   real(kind_phys) :: rair                       ! Gas constant of dry air [J kg-1 K-1]
@@ -157,7 +157,7 @@ subroutine astG_PDF_single(U, p, qv, landfrac, snowh, a, Ga, rhminl, rhminl_adj_
    ! Main computation !
    ! ---------------- !
 
-   if( p .ge. premib ) then
+   if( p >= premib ) then
 
        if( land .and. (snowh.le.0.000001_kind_phys) ) then
            rhmin = rhminl - rhminl_adj_land
@@ -510,7 +510,7 @@ subroutine astG_RHU(U_in, p_in, qv_in, landfrac_in, snowh_in, a_out, Ga_out, nco
 
    ! --------------------------------------------------------- !
    ! Compute 'stratus fraction(a)' and Gs=(dU/da) from the     !
-   ! CAM35 cloud fraction formula.                             !
+   ! CAM3.5 cloud fraction formula.                             !
    ! Below is valid only for CAMUW at 1.9x2.5 fv dynamics core !
    ! For the other cases, I should re-define 'rhminl,rhminh' & !
    ! 'premib,premit'.                                          !
@@ -688,16 +688,20 @@ subroutine aist_single(qv, T, p, qi, landfrac, snowh, aist, &
    ! --------- !
 
    ! Wang and Sassen IWC paramters ( Option.1 )
+   ! DOI: 10.1175/1520-0469(2002)059<2291:CCMPRU>2.0.CO;2
      a = 26.87_kind_phys
      b = 0.569_kind_phys
      c = 0.002892_kind_phys
    ! Schiller parameters ( Option.2 )
+   ! DOI: 10.1029/2008JD010342
      as = -68.4202_kind_phys
      bs = 0.983917_kind_phys
      cs = 2.81795_kind_phys
    ! Wood and Field parameters ( Option.3 )
+   ! DOI: 10.1175/1520-0469(2000)057<1888:RBTWCW>2.0.CO;2
      Kc = 75._kind_phys
    ! Wilson & Ballard closure ( Option.4. smaller = more ice clouds)
+   ! DOI: 10.1002/qj.49712555707
    ! Slingo modified (option 5)
      minice = 1.e-12_kind_phys
      mincld = 1.e-4_kind_phys
