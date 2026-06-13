@@ -565,7 +565,7 @@ module clubb
   end subroutine clubb2_run
 
 
-  subroutine clubb3_run(ncol, pver, pverp, pcnst, top_lev, zvir, rair, cpair, gravit, karman, &
+  subroutine clubb3_run(pcols, ncol, pver, pverp, pcnst, top_lev, zvir, rair, cpair, gravit, karman, &
                         ixq, ixcldice, ixcldliq, ixnumice, calday, tropp_days, tropLev, &
                         rhminis_const, rhmaxis_const, rhmini_const, rhmaxi_const, &
                         single_column, scm_cambfb_mode, scm_clubb_iop_name, subcol_scheme, &
@@ -573,12 +573,12 @@ module clubb
                         aist_pbuf, qsatfac_pbuf, ast_pbuf, qist_pbuf, cld_pbuf, &
                         pblh_pbuf, deepcu_pbuf, shalcu_pbuf, &
                         lq, cnst_type, &
-                        alst_pbuf, qlst_pbuf, rcm, cloud_frac, exner, &
+                        alst_pbuf, qlst_pbuf, rcm, cloud_frac, exner, state_exner, &
                         t, state_q, ptend_q, pmid, landfrac, snowhland, pdel, pdeldry, &
                         wsx, wsy, shf, cflx, zm, zi, u, v, lat, pint, phis, &
                         errmsg, errflg )
 
-!    use tropopause_find,       only: tropopause_findChemTrop
+!    use tropopause,       only: tropopause_findChemTrop
     use holtslag_boville_diff, only: hb_pbl_dependent_coefficients_run
 !    use cldfrc2m,              only: aist_vector
     use atmos_phys_pbl_utils,  only: calc_friction_velocity, calc_obukhov_length, calc_ideal_gas_rrho, &
@@ -586,7 +586,7 @@ module clubb
                                      calc_kinematic_buoyancy_flux
 
     ! Incoming variables
-    integer, intent(in) :: ncol, pver, pverp, pcnst, top_lev, ixq, ixcldice, ixcldliq, ixnumice
+    integer, intent(in) :: ncol, pcols, pver, pverp, pcnst, top_lev, ixq, ixcldice, ixcldliq, ixnumice
     logical, intent(in) :: single_column, scm_cambfb_mode
     logical, intent(in) :: lq(:)
     character(len=3), intent(in) :: cnst_type(:)
@@ -597,7 +597,8 @@ module clubb
     real(kind_phys), intent(in) :: pmid(:,:)
     real(kind_phys), intent(in) :: landfrac(:), snowhland(:)
     real(kind_phys), intent(in) :: pdel(:,:), pdeldry(:,:), rcm(:,:), cloud_frac(:,:), &
-                                   t(:,:), exner(:,:), zm(:,:), zi(:,:), u(:,:), v(:,:), cmfmc(:,:)
+                                   t(:,:), exner(:,:), state_exner(:,:), &
+                                   zm(:,:), zi(:,:), u(:,:), v(:,:), cmfmc(:,:)
     real(kind_phys), intent(in) :: state_q(:,:,:)
     real(kind_phys), intent(in) :: wsx(:), wsy(:), shf(:)
     real(kind_phys), intent(in) :: cflx(:,:)
@@ -616,12 +617,13 @@ module clubb
     integer, intent(out) :: errflg
 
     ! Local variables
-    integer :: i, k, ixind, k_clubb, rhmini, rhmaxi
+    integer :: i, k, ixind, k_clubb
+    real(kind_phys) :: rhmini(pcols), rhmaxi(pcols)
     real(kind_phys) :: frac_limit, ic_limit
     real(kind_phys) :: rrho(ncol), ustar2(ncol), kinheat(ncol), kinwat(ncol), kbfs(ncol), obklen(ncol), &
                        dummy2(ncol), dummy3(ncol)
     real(kind_phys) :: th(ncol,pver), thv(ncol,pver)
-    integer, intent(in) :: tropLev(:)
+    integer, intent(inout) :: tropLev(:)
 
     ! ---------------------------------------------------------
 
@@ -721,11 +723,11 @@ module clubb
 !                                 tropLev, & 
 !                                 errmsg, errflg)
 
-    if (errflg /= 0) return
+!    if (errflg /= 0) return
 
-    aist_pbuf(:,:top_lev-1) = 0._kind_phys
-    qsatfac_pbuf(:, :) = 0._kind_phys ! Zero out entire profile in case qsatfac is left undefined in aist_vector below
-
+!    aist_pbuf(:,:top_lev-1) = 0._kind_phys
+!    qsatfac_pbuf(:, :) = 0._kind_phys ! Zero out entire profile in case qsatfac is left undefined in aist_vector below
+!
 !    do k = top_lev, pver
 !
 !      ! For Type II PSC and for thin cirrus, the clouds can be thin, but
@@ -784,7 +786,7 @@ module clubb
     do k = 1, pver
       do i = 1, ncol
          !subroutine pblind expects "Stull" definition of Exner
-         th(i,k) = t(i,k)*exner(i,k)
+         th(i,k) = t(i,k)*state_exner(i,k)
          !thv should have condensate loading to be consistent with earlier def's in this module
          thv(i,k) = th(i,k)*(1.0_kind_phys+zvir*state_q(i,k,ixq) - state_q(i,k,ixcldliq))
       enddo
