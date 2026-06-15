@@ -41,6 +41,8 @@ module compute_cloud_fraction_two_moment
   ! 3 = Wood and Field
   ! 4 = Wilson (based on Smith)
   ! 5 = modified Slingo (ssat & empty cloud)
+  ! 6 = fit based on T and Number
+  !     using observations from Heymsfield et al. (2013), Boudala (2002)
   integer         :: iceopt
 
   ! Ice cloud fraction fit parameters (used by aist_single and aist_vector)
@@ -71,11 +73,6 @@ module compute_cloud_fraction_two_moment
   real(kind_phys) :: rair              ! Gas constant of dry air [J kg-1 K-1]
 
 contains
-
-  pure elemental logical function is_land(landfrac)
-    real(kind_phys), intent(in) :: landfrac
-    is_land = nint(landfrac) == 1
-  end function is_land
 
 !> \section arg_table_compute_cloud_fraction_two_moment_init Argument Table
 !! \htmlinclude compute_cloud_fraction_two_moment_init.html
@@ -130,6 +127,11 @@ contains
     end if
 
   end subroutine compute_cloud_fraction_two_moment_init
+
+  pure elemental logical function is_land(landfrac)
+    real(kind_phys), intent(in) :: landfrac
+    is_land = nint(landfrac) == 1
+  end function is_land
 
   pure subroutine astG_PDF_single(U, p, qv, landfrac, snowh, a, Ga, rhminl, rhminl_adj_land, rhminh, orhmin)
     ! ---------------------------------------------------------
@@ -421,9 +423,9 @@ contains
     real(kind_phys), optional, intent(out) :: orhmin ! Critical RH
 
     ! Local variables
-    real(kind_phys) rhmin                      ! Critical RH
-    real(kind_phys) rhdif                      ! Factor for stratus fraction
-    real(kind_phys) rhwght
+    real(kind_phys) :: rhmin                      ! Critical RH
+    real(kind_phys) :: rhdif                      ! Factor for stratus fraction
+    real(kind_phys) :: rhwght
 
 
     ! ---------------- !
@@ -806,7 +808,9 @@ contains
     real(kind_phys) :: nil                             ! Ice number concentration [#/L]
 
     ! Heymsfield/Boudala fit parameters (iceopt=6)
-    ! Boudala et al. (2002), Heymsfield et al. (2012)
+    ! Boudala et al. (2002), Heymsfield et al. (2013)
+    ! https://doi.org/10.1002/joc.774
+    ! https://doi.org/10.1175/JAS-D-12-0124.1
     real(kind_phys), parameter :: heymsfield_a = 6.73834e-08_kind_phys
     real(kind_phys), parameter :: heymsfield_b = 0.0533110_kind_phys
     real(kind_phys), parameter :: heymsfield_c = 0.3493813_kind_phys

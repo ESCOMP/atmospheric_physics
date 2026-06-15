@@ -99,7 +99,16 @@
     <scheme>tropopause_find</scheme>
     <scheme>tropopause_diagnostics</scheme>
 
-    <!-- Vertical diffusion -->
+    <!--
+      Initialize cloud fraction for two-moment microphysics (init phase only)
+      also depends on the namelist parameters of the original cloud fraction scheme
+    -->
+    <scheme>compute_cloud_fraction</scheme>
+    <scheme>compute_cloud_fraction_two_moment</scheme>
+
+    <!-- Vertical diffusion (CLUBB) -->
+
+
 
 
     <!--
