@@ -91,7 +91,7 @@ contains
     ! solver runs after the orographic drag.
     ! the actual provisionally updated winds are actually used to recompute taubljx/y
     ! which are added to the updated residual stress. see the physics scheme
-    ! beljaars_add_updated_residual_stress. (hplin, 5/13/26)
+    ! beljaars_add_updated_residual_stress.
     taux(:) = 0.0_kind_phys
     tauy(:) = 0.0_kind_phys
     do k = 1, pver

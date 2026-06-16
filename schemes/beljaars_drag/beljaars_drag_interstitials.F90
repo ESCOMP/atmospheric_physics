@@ -101,14 +101,7 @@ contains
     do i = 1, ncol
       ! Add vertically-integrated Beljaars drag to residual stress
       ! these are calculated using provisionally-updated winds.
-      !
-      ! A previous FIXME (predating CAM6) in beljaars_drag notes:
-      ! "uses 'state' u and v. Should updated u and v's be used?"
-      !
-      ! It may be possible to write back these provisionally updated taubljx/y
-      ! to the model state instead of a local variable (and pbuf in former CAM)
-      ! but it would introduce answer changes, so moving that FIXME to here for now.
-      ! (hplin 5/22/25, 5/13/26)
+      ! These are used only locally and not written back to model state.
       taubljx(i) = 0._kind_phys
       taubljy(i) = 0._kind_phys
       do k = 1, pver
