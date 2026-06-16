@@ -165,24 +165,28 @@
 [ cldliq ]
   standard_name = cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water
   units = kg kg-1
+  advected = True
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ cldice ]
   standard_name = cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water
   units = kg kg-1
+  advected = True
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ numliq ]
   standard_name = mass_number_concentration_of_cloud_liquid_wrt_moist_air_and_condensed_water
   units = kg-1
+  advected = True
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ numice ]
   standard_name = mass_number_concentration_of_ice_wrt_moist_air_and_condensed_water
   units = kg-1
+  advected = True
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
