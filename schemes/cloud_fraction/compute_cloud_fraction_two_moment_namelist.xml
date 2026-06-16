@@ -135,7 +135,7 @@
     <standard_name>tunable_parameter_for_minimum_in_stratus_ice_water_content_for_two_moment_cloud_fraction</standard_name>
     <units>kg kg-1</units>
     <desc>
-      Minimum in-stratus IWC constraint for iceopt=5.
+      Minimum in-stratus IWC constraint for iceopt=5 greater than 0.
     </desc>
     <values>
       <value>1.0D-7</value>

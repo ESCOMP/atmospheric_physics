@@ -280,16 +280,6 @@ contains
     real(kind_phys), intent(in)  :: rhminl_adj_land_in(:) ! Adjustment drop of rhminl over the land
     real(kind_phys), intent(in)  :: rhminh_in(:)          ! Critical relative humidity for high-level liquid stratus
 
-    real(kind_phys) :: rhminl          ! Critical relative humidity for low-level  liquid stratus
-    real(kind_phys) :: rhminl_adj_land ! Adjustment drop of rhminl over the land
-    real(kind_phys) :: rhminh          ! Critical relative humidity for high-level liquid stratus
-
-    real(kind_phys) :: U               ! Relative humidity
-    real(kind_phys) :: p               ! Pressure [Pa]
-    real(kind_phys) :: qv              ! Grid-mean water vapor specific humidity [kg kg-1]
-    real(kind_phys) :: landfrac        ! Land fraction
-    real(kind_phys) :: snowh           ! Snow depth (liquid water equivalent)
-
     real(kind_phys) :: a               ! Stratus fraction
     real(kind_phys) :: Ga              ! dU/da
 
@@ -309,81 +299,71 @@ contains
     Ga_out(:) = 0._kind_phys
 
     do i = 1, ncol
-      U = U_in(i)
-      p = p_in(i)
-      qv = qv_in(i)
-      landfrac = landfrac_in(i)
-      snowh = snowh_in(i)
-
-      rhminl = rhminl_in(i)
-      rhminl_adj_land = rhminl_adj_land_in(i)
-      rhminh = rhminh_in(i)
-
-      if (p >= premib) then
-        if (is_land(landfrac_in(i)) .and. (snowh <= 0.000001_kind_phys)) then
-          rhmin = rhminl - rhminl_adj_land
+      if (p_in(i) >= premib) then
+        if (is_land(landfrac_in(i)) .and. (snowh_in(i) <= 0.000001_kind_phys)) then
+          rhmin = rhminl_in(i) - rhminl_adj_land_in(i)
         else
-          rhmin = rhminl
+          rhmin = rhminl_in(i)
         end if
 
         dV = cldrh - rhmin
 
-        if (U >= 1._kind_phys) then
+        if (U_in(i) >= 1._kind_phys) then
           a = 1._kind_phys
           Ga = 1.e10_kind_phys
-        elseif (U > (cldrh - dV/6._kind_phys) .and. U < 1._kind_phys) then
-          a = 1._kind_phys - (-3._kind_phys/sqrt(2._kind_phys)*(U - cldrh)/dV)**(2._kind_phys/3._kind_phys)
+        elseif (U_in(i) > (cldrh - dV/6._kind_phys) .and. U_in(i) < 1._kind_phys) then
+          a = 1._kind_phys - (-3._kind_phys/sqrt(2._kind_phys)*(U_in(i) - cldrh)/dV)**(2._kind_phys/3._kind_phys)
           Ga = dV/sqrt(2._kind_phys)*sqrt(1._kind_phys - a)
-        elseif (U > (cldrh - dV) .and. U <= (cldrh - dV/6._kind_phys)) then
+        elseif (U_in(i) > (cldrh - dV) .and. U_in(i) <= (cldrh - dV/6._kind_phys)) then
           a = 4._kind_phys*(cos((1._kind_phys/3._kind_phys)*&
               (acos((3._kind_phys/2._kind_phys/sqrt(2._kind_phys))* &
-               (1._kind_phys + (U - cldrh)/dV)) - 2._kind_phys*3.141592_kind_phys)))**2._kind_phys
+               (1._kind_phys + (U_in(i) - cldrh)/dV)) - 2._kind_phys*3.141592_kind_phys)))**2._kind_phys
           Ga = dV/sqrt(2._kind_phys)*(1._kind_phys/sqrt(a) - sqrt(a))
-        elseif (U <= (cldrh - dV)) then
+        elseif (U_in(i) <= (cldrh - dV)) then
           a = 0._kind_phys
           Ga = 1.e10_kind_phys
         end if
 
         if (freeze_dry) then
-          a = a*max(0.15_kind_phys, min(1.0_kind_phys, qv/0.0030_kind_phys))
-          Ga = Ga/max(0.15_kind_phys, min(1.0_kind_phys, qv/0.0030_kind_phys))
+          a = a*max(0.15_kind_phys, min(1.0_kind_phys, qv_in(i)/0.0030_kind_phys))
+          Ga = Ga/max(0.15_kind_phys, min(1.0_kind_phys, qv_in(i)/0.0030_kind_phys))
         end if
-      elseif (p < premit) then
-        rhmin = rhminh
+      elseif (p_in(i) < premit) then
+        rhmin = rhminh_in(i)
         dV = cldrh - rhmin
 
-        if (U >= 1._kind_phys) then
+        if (U_in(i) >= 1._kind_phys) then
           a = 1._kind_phys
           Ga = 1.e10_kind_phys
-        elseif (U > (cldrh - dV/6._kind_phys) .and. U < 1._kind_phys) then
-          a = 1._kind_phys - (-3._kind_phys/sqrt(2._kind_phys)*(U - cldrh)/dV)**(2._kind_phys/3._kind_phys)
+        elseif (U_in(i) > (cldrh - dV/6._kind_phys) .and. U_in(i) < 1._kind_phys) then
+          a = 1._kind_phys - (-3._kind_phys/sqrt(2._kind_phys)*(U_in(i) - cldrh)/dV)**(2._kind_phys/3._kind_phys)
           Ga = dV/sqrt(2._kind_phys)*sqrt(1._kind_phys - a)
-        elseif (U > (cldrh - dV) .and. U <= (cldrh - dV/6._kind_phys)) then
+        elseif (U_in(i) > (cldrh - dV) .and. U_in(i) <= (cldrh - dV/6._kind_phys)) then
           a = 4._kind_phys*(cos((1._kind_phys/3._kind_phys)*&
              (acos((3._kind_phys/2._kind_phys/sqrt(2._kind_phys))* &
-              (1._kind_phys + (U - cldrh)/dV)) - 2._kind_phys*3.141592_kind_phys)))**2._kind_phys
+              (1._kind_phys + (U_in(i) - cldrh)/dV)) - 2._kind_phys*3.141592_kind_phys)))**2._kind_phys
           Ga = dV/sqrt(2._kind_phys)*(1._kind_phys/sqrt(a) - sqrt(a))
-        elseif (U <= (cldrh - dV)) then
+        elseif (U_in(i) <= (cldrh - dV)) then
           a = 0._kind_phys
           Ga = 1.e10_kind_phys
         end if
       else
-        rhwght = (premib - (max(p, premit)))/(premib - premit)
-        rhmin = rhminh*rhwght + rhminl*(1.0_kind_phys - rhwght)
+        rhwght = (premib - (max(p_in(i), premit)))/(premib - premit)
+        rhmin = rhminh_in(i)*rhwght + rhminl_in(i)*(1.0_kind_phys - rhwght)
         dV = cldrh - rhmin
 
-        if (U >= 1._kind_phys) then
+        if (U_in(i) >= 1._kind_phys) then
           a = 1._kind_phys
           Ga = 1.e10_kind_phys
-        elseif (U > (cldrh - dV/6._kind_phys) .and. U < 1._kind_phys) then
-          a = 1._kind_phys - (-3._kind_phys/sqrt(2._kind_phys)*(U - cldrh)/dV)**(2._kind_phys/3._kind_phys)
+        elseif (U_in(i) > (cldrh - dV/6._kind_phys) .and. U_in(i) < 1._kind_phys) then
+          a = 1._kind_phys - (-3._kind_phys/sqrt(2._kind_phys)*(U_in(i) - cldrh)/dV)**(2._kind_phys/3._kind_phys)
           Ga = dV/sqrt(2._kind_phys)*sqrt(1._kind_phys - a)
-        elseif (U > (cldrh - dV) .and. U <= (cldrh - dV/6._kind_phys)) then
+        elseif (U_in(i) > (cldrh - dV) .and. U_in(i) <= (cldrh - dV/6._kind_phys)) then
           a = 4._kind_phys*(cos((1._kind_phys/3._kind_phys)*&
               (acos((3._kind_phys/2._kind_phys/sqrt(2._kind_phys))* &
-               (1._kind_phys + (U - cldrh)/dV)) - 2._kind_phys*3.141592_kind_phys)))**2._kind_phys
+               (1._kind_phys + (U_in(i) - cldrh)/dV)) - 2._kind_phys*3.141592_kind_phys)))**2._kind_phys
           Ga = dV/sqrt(2._kind_phys)*(1._kind_phys/sqrt(a) - sqrt(a))
-        elseif (U <= (cldrh - dV)) then
+        elseif (U_in(i) <= (cldrh - dV)) then
           a = 0._kind_phys
           Ga = 1.e10_kind_phys
         end if
@@ -504,16 +484,6 @@ contains
     real(kind_phys), intent(in)  :: rhminl_adj_land_in(:) ! Adjustment drop of rhminl over the land
     real(kind_phys), intent(in)  :: rhminh_in(:)          ! Critical relative humidity for high-level liquid stratus
 
-    real(kind_phys) :: U               ! Relative humidity
-    real(kind_phys) :: p               ! Pressure [Pa]
-    real(kind_phys) :: qv              ! Grid-mean water vapor specific humidity [kg kg-1]
-    real(kind_phys) :: landfrac        ! Land fraction
-    real(kind_phys) :: snowh           ! Snow depth (liquid water equivalent)
-
-    real(kind_phys) :: rhminl          ! Critical relative humidity for low-level  liquid stratus
-    real(kind_phys) :: rhminl_adj_land ! Adjustment drop of rhminl over the land
-    real(kind_phys) :: rhminh          ! Critical relative humidity for high-level liquid stratus
-
     real(kind_phys) :: a               ! Stratus fraction
     real(kind_phys) :: Ga              ! dU/da
 
@@ -532,52 +502,42 @@ contains
     Ga_out(:) = 0._kind_phys
 
     do i = 1, ncol
-      U = U_in(i)
-      p = p_in(i)
-      qv = qv_in(i)
-      landfrac = landfrac_in(i)
-      snowh = snowh_in(i)
-
-      rhminl = rhminl_in(i)
-      rhminl_adj_land = rhminl_adj_land_in(i)
-      rhminh = rhminh_in(i)
-
-      if (p >= premib) then
-        if (is_land(landfrac_in(i)) .and. (snowh <= 0.000001_kind_phys)) then
-          rhmin = rhminl - rhminl_adj_land
+      if (p_in(i) >= premib) then
+        if (is_land(landfrac_in(i)) .and. (snowh_in(i) <= 0.000001_kind_phys)) then
+          rhmin = rhminl_in(i) - rhminl_adj_land_in(i)
         else
-          rhmin = rhminl
+          rhmin = rhminl_in(i)
         end if
-        rhdif = (U - rhmin)/(1.0_kind_phys - rhmin)
+        rhdif = (U_in(i) - rhmin)/(1.0_kind_phys - rhmin)
         a = min(1._kind_phys, (max(rhdif, 0.0_kind_phys))**2)
-        if ((U >= 1._kind_phys) .or. (U <= rhmin)) then
+        if ((U_in(i) >= 1._kind_phys) .or. (U_in(i) <= rhmin)) then
           Ga = 1.e20_kind_phys
         else
-          Ga = 0.5_kind_phys*(1._kind_phys - rhmin)*((1._kind_phys - rhmin)/(U - rhmin))
+          Ga = 0.5_kind_phys*(1._kind_phys - rhmin)*((1._kind_phys - rhmin)/(U_in(i) - rhmin))
         end if
         if (freeze_dry) then
-          a = a*max(0.15_kind_phys, min(1.0_kind_phys, qv/0.0030_kind_phys))
-          Ga = Ga/max(0.15_kind_phys, min(1.0_kind_phys, qv/0.0030_kind_phys))
+          a = a*max(0.15_kind_phys, min(1.0_kind_phys, qv_in(i)/0.0030_kind_phys))
+          Ga = Ga/max(0.15_kind_phys, min(1.0_kind_phys, qv_in(i)/0.0030_kind_phys))
         end if
-      else if (p < premit) then
-        rhmin = rhminh
-        rhdif = (U - rhmin)/(1.0_kind_phys - rhmin)
+      else if (p_in(i) < premit) then
+        rhmin = rhminh_in(i)
+        rhdif = (U_in(i) - rhmin)/(1.0_kind_phys - rhmin)
         a = min(1._kind_phys, (max(rhdif, 0._kind_phys))**2)
-        if ((U >= 1._kind_phys) .or. (U <= rhmin)) then
+        if ((U_in(i) >= 1._kind_phys) .or. (U_in(i) <= rhmin)) then
           Ga = 1.e20_kind_phys
         else
-          Ga = 0.5_kind_phys*(1._kind_phys - rhmin)*((1._kind_phys - rhmin)/(U - rhmin))
+          Ga = 0.5_kind_phys*(1._kind_phys - rhmin)*((1._kind_phys - rhmin)/(U_in(i) - rhmin))
         end if
       else
-        rhwght = (premib - (max(p, premit)))/(premib - premit)
-        rhmin = rhminh*rhwght + rhminl*(1.0_kind_phys - rhwght)
+        rhwght = (premib - (max(p_in(i), premit)))/(premib - premit)
+        rhmin = rhminh_in(i)*rhwght + rhminl_in(i)*(1.0_kind_phys - rhwght)
 
-        rhdif = (U - rhmin)/(1.0_kind_phys - rhmin)
+        rhdif = (U_in(i) - rhmin)/(1.0_kind_phys - rhmin)
         a = min(1._kind_phys, (max(rhdif, 0._kind_phys))**2)
-        if ((U >= 1._kind_phys) .or. (U <= rhmin)) then
+        if ((U_in(i) >= 1._kind_phys) .or. (U_in(i) <= rhmin)) then
           Ga = 1.e10_kind_phys
         else
-          Ga = 0.5_kind_phys*(1._kind_phys - rhmin)*((1._kind_phys - rhmin)/(U - rhmin))
+          Ga = 0.5_kind_phys*(1._kind_phys - rhmin)*((1._kind_phys - rhmin)/(U_in(i) - rhmin))
         end if
       end if
 
@@ -773,20 +733,6 @@ contains
 
     ! Local variables
 
-    real(kind_phys) :: qv                              ! Grid-mean water vapor [kg kg-1]
-    real(kind_phys) :: T                               ! Temperature
-    real(kind_phys) :: p                               ! Pressure [Pa]
-    real(kind_phys) :: qi                              ! Grid-mean ice water content [kg kg-1]
-    real(kind_phys) :: ni
-    real(kind_phys) :: landfrac                        ! Land fraction
-    real(kind_phys) :: snowh                           ! Snow depth (liquid water equivalent)
-
-    real(kind_phys) :: rhmaxi                          ! Critical relative humidity for ice stratus
-    real(kind_phys) :: rhmini                          ! Critical relative humidity for ice stratus
-    real(kind_phys) :: rhminl                          ! Critical relative humidity for low-level  liquid stratus
-    real(kind_phys) :: rhminl_adj_land                 ! Adjustment drop of rhminl over the land
-    real(kind_phys) :: rhminh                          ! Critical relative humidity for high-level liquid stratus
-
     real(kind_phys) :: aist                            ! Non-physical ice stratus fraction ( 0<= aist <= 1 )
 
     real(kind_phys) :: rhmin                           ! Critical RH
@@ -798,7 +744,6 @@ contains
     real(kind_phys) :: esl(ncol)                       ! Liq sat vapor pressure
     real(kind_phys) :: esi(ncol)                       ! Ice sat vapor pressure
     real(kind_phys) :: ncf, phi                        ! Wilson and Ballard parameters
-    real(kind_phys) :: qs
     real(kind_phys) :: esat_in(ncol)
     real(kind_phys) :: qsat_in(ncol)
 
@@ -834,50 +779,35 @@ contains
 
     do i = 1, ncol
 
-      landfrac = landfrac_in(i)
-      snowh = snowh_in(i)
-      T = T_in(i)
-      qv = qv_in(i)
-      p = p_in(i)
-      qi = qi_in(i)
-      ni = ni_in(i)
-      qs = qsat_in(i)
-
-      rhmaxi = rhmaxi_in(i)
-      rhmini = rhmini_in(i)
-      rhminl = rhminl_in(i)
-      rhminl_adj_land = rhminl_adj_land_in(i)
-      rhminh = rhminh_in(i)
-
       if (iceopt < 3) then
         if (iceopt == 1) then
-          ttmp = max(195._kind_phys, min(T, 253._kind_phys)) - 273.16_kind_phys
+          ttmp = max(195._kind_phys, min(T_in(i), 253._kind_phys)) - 273.16_kind_phys
           icicval = wang_sassen_a + wang_sassen_b*ttmp + wang_sassen_c*ttmp**2._kind_phys
-          rho = p/(rair*T)
+          rho = p_in(i)/(rair*T_in(i))
           icicval = icicval*1.e-6_kind_phys/rho
         else
-          ttmp = max(190._kind_phys, min(T, 273.16_kind_phys))
+          ttmp = max(190._kind_phys, min(T_in(i), 273.16_kind_phys))
           icicval = 10._kind_phys**(schiller_a*schiller_b**ttmp + schiller_c)
           icicval = icicval*1.e-6_kind_phys*18._kind_phys/28.97_kind_phys
         end if
-        aist = max(0._kind_phys, min(qi/icicval, 1._kind_phys))
+        aist = max(0._kind_phys, min(qi_in(i)/icicval, 1._kind_phys))
       elseif (iceopt == 3) then
-        aist = 1._kind_phys - exp(-wood_field_Kc*qi/(qs*(esi(i)/esl(i))))
+        aist = 1._kind_phys - exp(-wood_field_Kc*qi_in(i)/(qsat_in(i)*(esi(i)/esl(i))))
         aist = max(0._kind_phys, min(aist, 1._kind_phys))
       elseif (iceopt == 4) then
-        if (p >= premib) then
-          if (is_land(landfrac_in(i)) .and. (snowh <= 0.000001_kind_phys)) then
-            rhmin = rhminl - rhminl_adj_land
+        if (p_in(i) >= premib) then
+          if (is_land(landfrac_in(i)) .and. (snowh_in(i) <= 0.000001_kind_phys)) then
+            rhmin = rhminl_in(i) - rhminl_adj_land_in(i)
           else
-            rhmin = rhminl
+            rhmin = rhminl_in(i)
           end if
-        elseif (p < premit) then
-          rhmin = rhminh
+        elseif (p_in(i) < premit) then
+          rhmin = rhminh_in(i)
         else
-          rhwght = (premib - (max(p, premit)))/(premib - premit)
-          rhmin = rhminh*rhwght + rhminl*(1.0_kind_phys - rhwght)
+          rhwght = (premib - (max(p_in(i), premit)))/(premib - premit)
+          rhmin = rhminh_in(i)*rhwght + rhminl_in(i)*(1.0_kind_phys - rhwght)
         end if
-        ncf = qi/((1._kind_phys - icecrit)*qs)
+        ncf = qi_in(i)/((1._kind_phys - icecrit)*qsat_in(i))
         if (ncf <= 0._kind_phys) then
           aist = 0._kind_phys
         elseif (ncf > 0._kind_phys .and. ncf <= 1._kind_phys/6._kind_phys) then
@@ -892,15 +822,15 @@ contains
         aist = max(0._kind_phys, min(aist, 1._kind_phys))
       elseif (iceopt == 5) then
         ! set rh ice cloud fraction
-        rhi = (qv + qi)/qs*(esl(i)/esi(i))
-        if (rhmaxi == rhmini) then
-          if (rhi > rhmini) then
+        rhi = (qv_in(i) + qi_in(i))/qsat_in(i)*(esl(i)/esi(i))
+        if (rhmaxi_in(i) == rhmini_in(i)) then
+          if (rhi > rhmini_in(i)) then
             rhdif = 1._kind_phys
           else
             rhdif = 0._kind_phys
           end if
         else
-          rhdif = (rhi - rhmini)/(rhmaxi - rhmini)
+          rhdif = (rhi - rhmini_in(i))/(rhmaxi_in(i) - rhmini_in(i))
         end if
         aist = min(1.0_kind_phys, max(rhdif, 0._kind_phys)**2)
 
@@ -912,12 +842,12 @@ contains
         ! Boudala 2002 (https://doi.org/10.1002/joc.774): ICIWC = a * exp(b*T) * N^c
         ! a=6.73e-8, b=0.05, c=0.349
         ! N is #/L, so need to convert Ni_L=N*rhoa/1000.
-        rho = p/(rair*T)
-        nil = ni*rho/1000._kind_phys
-        icicval = heymsfield_a*exp(heymsfield_b*T)*nil**heymsfield_c
+        rho = p_in(i)/(rair*T_in(i))
+        nil = ni_in(i)*rho/1000._kind_phys
+        icicval = heymsfield_a*exp(heymsfield_b*T_in(i))*nil**heymsfield_c
         ! result is in g m-3, convert to kg H2O / kg air (icimr...)
         icicval = icicval/rho/1000._kind_phys
-        aist = max(0._kind_phys, min(qi/icicval, 1._kind_phys))
+        aist = max(0._kind_phys, min(qi_in(i)/icicval, 1._kind_phys))
         aist = min(aist, 1._kind_phys)
 
       end if
@@ -930,35 +860,36 @@ contains
         !
         ! NOTE: Limit qsatfac so that adjusted RHliq would be 1. or less.
         if (present(qsatfac_out) .and. do_subgrid_growth) then
-          qsatfac_out(i) = max(min(qv/qs, 1._kind_phys), (1._kind_phys - aist)*rhmini + aist*rhmaxi)
+          qsatfac_out(i) = max(min(qv_in(i)/qsat_in(i), 1._kind_phys), &
+                               (1._kind_phys - aist)*rhmini_in(i) + aist*rhmaxi_in(i))
         end if
 
         ! limiter to remove empty cloud and ice with no cloud
         ! and set icecld fraction to mincld if ice exists
-        if (qi < minice) then
+        if (qi_in(i) < minice) then
           aist = 0._kind_phys
         else
           aist = max(mincld, aist)
         end if
 
         ! enforce limits on icimr
-        if (qi >= minice) then
-          icimr = qi/aist
+        if (qi_in(i) >= minice) then
+          icimr = qi_in(i)/aist
 
           ! minimum:
           if (icimr < qist_min) then
             if (do_avg_aist_algs) then
               ! Take the geometric mean of the iceopt=4 and iceopt=5 values.
               ! Mods developed by Thomas Toniazzo for NorESM.
-              aist = max(0._kind_phys, min(1._kind_phys, sqrt(aist*qi/qist_min)))
+              aist = max(0._kind_phys, min(1._kind_phys, sqrt(aist*qi_in(i)/qist_min)))
             else
               ! Default for iceopt=5
-              aist = max(0._kind_phys, min(1._kind_phys, qi/qist_min))
+              aist = max(0._kind_phys, min(1._kind_phys, qi_in(i)/qist_min))
             end if
           end if
           !maximum
           if (icimr > qist_max) then
-            aist = max(0._kind_phys, min(1._kind_phys, qi/qist_max))
+            aist = max(0._kind_phys, min(1._kind_phys, qi_in(i)/qist_max))
           end if
 
         end if
