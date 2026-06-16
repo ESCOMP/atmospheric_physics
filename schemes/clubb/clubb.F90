@@ -76,7 +76,6 @@ module clubb
          var_length, &
          print_clubb_config_flags_api, &
          check_clubb_settings_api, &
-         init_pdf_params_api, &
          time_precision, &
          stats_metadata_type, &
          clubb_config_flags_type, &
@@ -100,19 +99,24 @@ module clubb
 
     !  Input Variables
 
-    integer, intent(in) :: iulog, pcnst, max_fieldname_len
+    integer, intent(in) :: pcols, pver, pverp, begchunk, endchunk
     integer, intent(in) :: mpicom, mpi_character, mstrid
-    integer, intent(inout) :: edsclr_dim, nzt_clubb, nzm_clubb
-    integer, intent(in) :: sclr_dim, hydromet_dim
+    integer, intent(in) :: iulog, pcnst, max_fieldname_len
+    integer, intent(in) :: sclr_dim, hydromet_dim, nzt_clubb, nzm_clubb
     logical, intent(in) :: masterproc, l_implemented
     logical, intent(in) :: cnst_ndropmixed(:)
+    logical, intent(in) :: clubb_l_do_expldiff_rtm_thlm
+    logical, intent(in) :: l_input_fields
+
+    character(len=16),         intent(in) :: subcol_scheme
+    character(len=var_length), intent(in) :: clubb_vars_zt(:)      ! Variables on the thermodynamic levels
+    character(len=var_length), intent(in) :: clubb_vars_zm(:)      ! Variables on the momentum levels
+    character(len=var_length), intent(in) :: clubb_vars_rad_zt(:)  ! Variables on the radiation levels
+    character(len=var_length), intent(in) :: clubb_vars_rad_zm(:)  ! Variables on the radiation levels
+    character(len=var_length), intent(in) :: clubb_vars_sfc(:)     ! Variables at the model surface
+
+    integer, intent(inout) :: edsclr_dim
     logical, intent(inout) :: lq(:)
-    character(len=16), intent(in) :: subcol_scheme
-
-    real(kind=time_precision) :: dum1, dum2, dum3
-
-    type(err_info_type) :: &
-      err_info          ! err_info struct used in CLUBB containing err_code and err_header
 
     type (stats_metadata_type), intent(inout) :: &
       stats_metadata
@@ -128,8 +132,6 @@ module clubb
 
     real(kind=kind_phys), intent(inout) :: &
       clubb_params_single_col(:,:)    ! Adjustable CLUBB parameters (C1, C2 ...)
-
-    integer, intent(in) :: pcols, pver, pverp, begchunk, endchunk
 
     ! Variables that contains all the statistics
     type (stats), intent(inout) :: &
@@ -148,25 +150,8 @@ module clubb
     type(implicit_coefs_terms), allocatable, intent(inout) :: &
       pdf_implicit_coefs_terms_chnk(:)  ! PDF impl. coefs. & expl. terms      [units vary]
 
-    character(len=var_length), intent(in) :: clubb_vars_zt(:)      ! Variables on the thermodynamic levels
-    character(len=var_length), intent(in) :: clubb_vars_zm(:)      ! Variables on the momentum levels
-    character(len=var_length), intent(in) :: clubb_vars_rad_zt(:)  ! Variables on the radiation levels
-    character(len=var_length), intent(in) :: clubb_vars_rad_zm(:)  ! Variables on the radiation levels
-    character(len=var_length), intent(in) :: clubb_vars_sfc(:)     ! Variables at the model surface
- 
     real(kind=kind_phys), allocatable, intent(inout) :: &
       out_zt(:,:,:), out_zm(:,:,:), out_radzt(:,:,:), out_radzm(:,:,:), out_sfc(:,:,:)
-
-    logical, intent(in) :: clubb_l_do_expldiff_rtm_thlm
-
-    integer :: j, m
-
-    logical, intent(in) :: l_input_fields
-
-    integer :: ierr = 0
- 
-    integer, intent(out) :: clubb_init_errcode
-    character(len=200), intent(inout) :: error_message 
 
     real(kind=kind_phys), intent(inout) :: clubb_C2rtthl
     real(kind=kind_phys), intent(inout) :: clubb_C8
@@ -221,8 +206,22 @@ module clubb
     real(kind=kind_phys), intent(inout) :: clubb_wpxp_Ri_exp
     real(kind=kind_phys), intent(inout) :: clubb_z_displace
 
+    integer, intent(out) :: clubb_init_errcode
+    character(len=200), intent(out) :: error_message
+
+    ! Local variables
+    real(kind=time_precision) :: dum1, dum2, dum3
+
+    type(err_info_type) :: &
+      err_info          ! err_info struct used in CLUBB containing err_code and err_header
+
+    integer :: j, m
+    integer :: ierr = 0
+
+
     !----- Begin Code -----
 
+    error_message = ''
     clubb_init_errcode = 0 
 
     if (core_rknd /= kind_phys) then
@@ -558,15 +557,11 @@ module clubb
       calculate_thlp2_rad_api, update_xp2_mc_api, &
       fstderr, &
       ipdf_post_advance_fields, &
-      init_pdf_params_api, &
-      init_pdf_implicit_coefs_terms_api, &
       grid, &
       stats, &
       setup_grid_api, &
       cleanup_grid_api, &
-      nu_vertical_res_dep, &
-      iiPDF_new, &
-      iiPDF_new_hybrid
+      nu_vertical_res_dep
 
     ! Import setup for CLUBB error messaging
     use clubb_api_module, only: &
@@ -578,9 +573,7 @@ module clubb
       err_info_type,        &
       pdf_parameter,        &
       init_err_info_api,    &
-      implicit_coefs_terms, &
-      cleanup_err_info_api
-
+      implicit_coefs_terms
 
     ! ---------- Incoming variables --------------
     integer, intent(in) :: ncol, pcols, lchnk, iam, ixq, ixcldliq, ixcldice, ixrtpthlp, ixwpthlp, &
@@ -600,17 +593,31 @@ module clubb
 
     logical, intent(in) :: lq(:)
 
+    real(kind_phys), intent(in) :: state_q(:,:,:)
+    real(kind_phys), intent(in) :: wsx(:), wsy(:), shf(:)
+    real(kind_phys), intent(in) :: cflx(:,:)
+
     character(len=20), intent(in) :: scm_clubb_iop_name
     character(len=16), intent(in) :: deep_scheme
+
+    real(kind_phys), intent(in) :: &
+      clubb_params_single_col(:,:)
+
+    real(kind_phys), intent(in) :: lat(:), lon(:), phis(:)
+    real(kind_phys), intent(in) :: pint(:,:)
+    real(kind_phys), intent(in) :: pmid(:,:)
+    real(kind_phys), intent(in) :: landfrac(:)
+    real(kind_phys), intent(in) :: pdel(:,:), pdeldry(:,:), omega(:,:), &
+                                   t(:,:), zm(:,:), zi(:,:)
 
     type (sclr_idx_type), intent(in) :: &
       sclr_idx
 
-    type (stats_metadata_type), intent(inout) :: &
-      stats_metadata
-
     type(clubb_config_flags_type), intent(in) :: &
       clubb_config_flags
+
+    type (stats_metadata_type), intent(inout) :: &
+      stats_metadata
 
     type(pdf_parameter), intent(inout) :: &
       pdf_params_chnk(:), &                ! PDF parameters (thermo. levs.) [units vary]
@@ -623,24 +630,11 @@ module clubb
       hm_metadata
 
     real(kind_phys), intent(inout) :: invrs_cpairv(:,:)
-
-    real(kind_phys), intent(in) :: &
-      clubb_params_single_col(:,:)
-
-    real(kind_phys), intent(in) :: lat(:), lon(:), phis(:)
-    real(kind_phys), intent(in) :: pint(:,:)
-    real(kind_phys), intent(in) :: pmid(:,:)
-    real(kind_phys), intent(in) :: landfrac(:)
-    real(kind_phys), intent(in) :: pdel(:,:), pdeldry(:,:), omega(:,:), &
-                                   t(:,:), zm(:,:), zi(:,:) 
     real(kind_phys), intent(inout) :: zi_g(:,:), wprcp(:,:), rho_zm(:,:), rho_zt(:,:)
     real(kind_phys), intent(inout) :: ptend_u(:,:), ptend_v(:,:), ptend_s(:,:)
-    real(kind_phys), intent(in) :: state_q(:,:,:)
     real(kind_phys), intent(inout) :: eleak(:), se_dis(:)
     real(kind_phys), intent(inout) :: s(:,:), u(:,:), v(:,:)
     real(kind_phys), intent(inout) :: ptend_q(:,:,:)
-    real(kind_phys), intent(in) :: wsx(:), wsy(:), shf(:)
-    real(kind_phys), intent(in) :: cflx(:,:)
 
     ! Variables that contains all the statistics
     type (stats), intent(inout) :: &
@@ -733,6 +727,18 @@ module clubb
     real(kind_phys), intent(inout) :: &
       grid_dx(:), grid_dy(:)                    ! CAM grid [m]
 
+    real(kind_phys), intent(inout) :: &
+      rtm(:,:),                            & ! mean moisture mixing ratio                                  [kg/kg]
+      thlm(:,:),                           & ! mean temperature                                                    [K]
+      rcm(:,:),                            & ! CLUBB cloud water mixing ratio                [kg/kg]
+      um(:,:),                             & ! mean east-west wind                                               [m/s]
+      vm(:,:),                             & ! mean north-south wind                                     [m/s]
+      rcm_in_layer(:,:), &
+      wm_zt(:,:), &
+      exner(:,:), &
+      cloud_frac(:,:), &
+      zt_g(:,:)
+
     real(kind_phys), intent(inout) :: &  ! MF plume
       mf_dry_a(:,:),   mf_moist_a(:,:),    &
       mf_dry_w(:,:),   mf_moist_w(:,:),    &
@@ -753,11 +759,11 @@ module clubb
 
     real(kind_phys), intent(inout) :: ztodtptr
 
-    character(len=512), intent(out) :: errmsg
-    integer, intent(out) :: errflg
-
     type(grid), intent(inout) :: &
       gr
+
+    character(len=512), intent(out) :: errmsg
+    integer, intent(out) :: errflg
 
     ! ------------- Local variables --------------
     real(kind_phys) :: rad2deg
@@ -786,14 +792,6 @@ module clubb
 
     real(kind_phys), dimension(ncol,edsclr_dim) :: &
       wpedsclrp_sfc        ! Eddy-scalar flux at surface                   [{units vary} m/s]
-
-    real(kind_phys), intent(inout) :: &
-      rtm(:,:),                            & ! mean moisture mixing ratio                                  [kg/kg]
-      thlm(:,:),                           & ! mean temperature                                                    [K]
-      rcm(:,:),                            & ! CLUBB cloud water mixing ratio                [kg/kg]
-      um(:,:),                             & ! mean east-west wind                                               [m/s]
-      vm(:,:),                             & ! mean north-south wind                                     [m/s]
-      rcm_in_layer(:,:), wm_zt(:,:), exner(:,:), cloud_frac(:,:), zt_g(:,:)
 
     real(kind_phys), dimension(ncol,nzt_clubb) :: &
       thlm_forcing,                   & ! theta_l forcing (thermodynamic levels)        [K/s]
@@ -911,7 +909,6 @@ module clubb
     integer :: &
       i, j, k, tt, ixind, nadv, n,      & ! Loop variables
       k_cam, k_clubb, sclr, iedsclr, & ! Loop variables
-      itim_old, &
       icnt, &
       stats_nsamp, stats_nout         ! Stats sampling and output intervals for CLUBB [timestep]
 
@@ -2584,7 +2581,7 @@ module clubb
 
 
   subroutine clubb3_run(pcols, ncol, pver, pverp, pcnst, top_lev, zvir, rair, cpair, gravit, karman, &
-                        ixq, ixcldice, ixcldliq, ixnumice, calday, tropp_days, tropLev, &
+                        ixq, ixcldice, ixcldliq, ixnumice, calday, tropp_days, troplev, &
                         rhminis_const, rhmaxis_const, rhmini_const, rhmaxi_const, &
                         single_column, scm_cambfb_mode, scm_clubb_iop_name, subcol_scheme, &
                         dp1, dp2, cmfmc, cmfmc_sh_pbuf, dp_icwmr_pbuf, concld_pbuf, &
@@ -2620,17 +2617,19 @@ module clubb
     real(kind_phys), intent(in) :: state_q(:,:,:)
     real(kind_phys), intent(in) :: wsx(:), wsy(:), shf(:)
     real(kind_phys), intent(in) :: cflx(:,:)
+   ! Climatological tropopause pressures (Pa), (ncol,ntimes=12).
+    !real(kind_phys), intent(in)         :: tropp_p_loc(:,:)
+    real(kind_phys), intent(in)         :: tropp_days(:) ! Day-of-year for climo data, 12
+    character(len=20), intent(in) :: scm_clubb_iop_name
+    character(len=16), intent(in) :: subcol_scheme
+
     real(kind_phys), intent(inout) :: ptend_q(:,:,:)
     real(kind_phys), intent(inout) :: pblh_pbuf(:)
     real(kind_phys), intent(inout) :: alst_pbuf(:,:), qlst_pbuf(:,:), deepcu_pbuf(:,:), shalcu_pbuf(:,:), &
                                       cmfmc_sh_pbuf(:,:), dp_icwmr_pbuf(:,:), concld_pbuf(:,:), &
                                       aist_pbuf(:,:), qsatfac_pbuf(:,:), ast_pbuf(:,:), qist_pbuf(:,:), &
                                       cld_pbuf(:,:)
-    ! Climatological tropopause pressures (Pa), (ncol,ntimes=12).
-    !real(kind_phys), intent(in)         :: tropp_p_loc(:,:)
-    real(kind_phys), intent(in)         :: tropp_days(:) ! Day-of-year for climo data, 12
-    character(len=20), intent(in) :: scm_clubb_iop_name
-    character(len=16), intent(in) :: subcol_scheme
+
     character(len=512), intent(out) :: errmsg
     integer, intent(out) :: errflg
 
@@ -2641,7 +2640,8 @@ module clubb
     real(kind_phys) :: rrho(ncol), ustar2(ncol), kinheat(ncol), kinwat(ncol), kbfs(ncol), obklen(ncol), &
                        dummy2(ncol), dummy3(ncol)
     real(kind_phys) :: th(ncol,pver), thv(ncol,pver)
-    integer, intent(inout) :: tropLev(:)
+!BAS troplev is inout right now, but ultimately could be local
+    integer, intent(inout) :: troplev(:)
 
     ! ---------------------------------------------------------
 
