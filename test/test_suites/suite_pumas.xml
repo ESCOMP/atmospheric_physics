@@ -6,6 +6,7 @@
     <scheme>initialize_constituents</scheme>
     <scheme>to_be_ccppized_temporary</scheme>
     <scheme>clubb_stub</scheme>
+    <scheme>hetfrz_classnuc_stub</scheme>
 
     <!-- Read in PUMAS namelist variables (init only) -->
     <scheme>pumas_pre_main</scheme>
@@ -17,7 +18,11 @@
     <scheme>micro_pumas_ccpp_dimensions_post</scheme>
     <!-- Apply tendencies -->
     <scheme>apply_constituent_tendencies</scheme>
-    <scheme>apply_heating_rate</scheme>
     <scheme>clamp_number_concentrations</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <!--<scheme>qneg</scheme>-->
+    <scheme>geopotential_temp</scheme>
+    <!-- Post PUMAS for REI - needs updated numice, numliq -->
+    <scheme>pumas_post_main</scheme>
   </group>
 </suite>

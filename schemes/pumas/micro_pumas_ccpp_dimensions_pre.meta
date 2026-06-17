@@ -221,7 +221,7 @@
   kind = pumas_r8
   intent = out
 [numliq_in]
-  standard_name = mass_number_concentration_of_cloud_liquid_water_wrt_moist_air_and_condensed_water
+  standard_name = mass_number_concentration_of_cloud_liquid_wrt_moist_air_and_condensed_water
   long_name = mass number concentration of cloud liquid wrt moist air and condensed water of new state
   units = kg-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -238,7 +238,7 @@
   kind = pumas_r8
   intent = out
 [numice_in]
-  standard_name = mass_number_concentration_of_cloud_ice_wrt_moist_air_and_condensed_water
+  standard_name = mass_number_concentration_of_ice_wrt_moist_air_and_condensed_water
   long_name = mass number concentration of cloud ice wrt moist air and condensed water of new state
   units = kg-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -452,14 +452,6 @@
   type = real
   kind = pumas_r8
   intent = out
-[strat_liq_cldfrc_in]
-  standard_name = stratiform_cloud_liquid_area_fraction
-  long_name = stratiform cloud liquid area fraction
-  units = fraction
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  type = real
-  kind = kind_phys
-  intent = in
 [pumas_strat_liq_cldfrc]
   standard_name = pumas_stratiform_cloud_liquid_area_fraction
   long_name = microphysics stratiform cloud liquid area fraction
@@ -468,14 +460,6 @@
   type = real
   kind = pumas_r8
   intent = out
-[strat_ice_cldfrc_in]
-  standard_name = stratiform_cloud_ice_area_fraction
-  long_name = stratiform cloud ice area fraction
-  units = fraction
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  type = real
-  kind = kind_phys
-  intent = in
 [pumas_strat_ice_cldfrc]
   standard_name = pumas_stratiform_cloud_ice_area_fraction
   long_name = microphysics stratiform cloud ice area fraction

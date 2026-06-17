@@ -152,7 +152,7 @@
   kind = pumas_r8
   intent = in
 [numliq_tend]
-  standard_name = tendency_of_mass_number_concentration_of_cloud_liquid_water_wrt_moist_air_and_condensed_water
+  standard_name = tendency_of_mass_number_concentration_of_cloud_liquid_wrt_moist_air_and_condensed_water
   long_name = mass number concentration of cloud liquid water wrt moist air and condensed water
   units = kg-1 s-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -169,7 +169,7 @@
   kind = pumas_r8
   intent = in
 [numice_tend]
-  standard_name = tendency_of_mass_number_concentration_of_cloud_ice_wrt_moist_air_and_condensed_water
+  standard_name = tendency_of_mass_number_concentration_of_ice_wrt_moist_air_and_condensed_water
   long_name = mass number concentration of cloud ice wrt moist air and condensed water
   units = kg-1 s-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

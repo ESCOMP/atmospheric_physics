@@ -62,8 +62,8 @@ contains
                              pdel_in, pumas_pdel,                                   &
                              pint_in, pumas_pint,                                   &
                              strat_cldfrc_in, pumas_strat_cldfrc,                   &
-                             strat_liq_cldfrc_in, pumas_strat_liq_cldfrc,           &
-                             strat_ice_cldfrc_in, pumas_strat_ice_cldfrc,           &
+                             pumas_strat_liq_cldfrc,                                &
+                             pumas_strat_ice_cldfrc,                                &
                              qsatfac_in, pumas_qsatfac,                             &
                              naai_in, pumas_naai,                                   &
                              npccn_in, pumas_npccn,                                 &
@@ -147,10 +147,8 @@ contains
     real(kind_phys), intent(in)  :: strat_cldfrc_in(:, :)
     real(pumas_r8), intent(out) :: pumas_strat_cldfrc(:, :)
     ! Stratiform cloud liquid area fraction (fraction)
-    real(kind_phys), intent(in)  :: strat_liq_cldfrc_in(:, :)
     real(pumas_r8), intent(out) :: pumas_strat_liq_cldfrc(:, :)
     ! Stratiform cloud ice area fraction (fraction)
-    real(kind_phys), intent(in)  :: strat_ice_cldfrc_in(:, :)
     real(pumas_r8), intent(out) :: pumas_strat_ice_cldfrc(:, :)
     ! Subgrid cloud water saturation scaling factor (1)
     real(kind_phys), intent(in)  :: qsatfac_in(:, :)
@@ -218,8 +216,10 @@ contains
     pumas_pdel(:ncol,:) = real(pdel_in(:,:), pumas_r8)
     pumas_pint(:ncol,:) = real(pint_in(:,:micro_nlevp1), pumas_r8)
     pumas_strat_cldfrc(:ncol,:) = real(strat_cldfrc_in(:,:), pumas_r8)
-    pumas_strat_liq_cldfrc(:ncol,:) = real(strat_liq_cldfrc_in(:,:), pumas_r8)
-    pumas_strat_ice_cldfrc(:ncol,:) = real(strat_ice_cldfrc_in(:,:), pumas_r8)
+    ! PUMAS uses total stratiform fraction for both liquid and ice stratus.
+    ! Mirrors CAM micro_pumas_cam.F90: alst_mic => ast; aist_mic => ast.
+    pumas_strat_liq_cldfrc(:ncol,:) = real(strat_cldfrc_in(:,:), pumas_r8)
+    pumas_strat_ice_cldfrc(:ncol,:) = real(strat_cldfrc_in(:,:), pumas_r8)
     pumas_qsatfac(:ncol,:) = real(qsatfac_in(:,:), pumas_r8)
     pumas_naai(:ncol,:) = real(naai_in(:,:), pumas_r8)
     pumas_npccn(:ncol,:) = real(npccn_in(:,:), pumas_r8)
@@ -230,10 +230,7 @@ contains
     pumas_effi_external(:ncol,:) = real(effi_external_in(:,:), pumas_r8)
     pumas_frzcnt(:ncol,:) = real(frzcnt_in(:,:), pumas_r8)
     pumas_frzdep(:ncol,:) = real(frzdep_in(:,:), pumas_r8)
-
-    pumas_naai(:,:)    = 0._pumas_r8
-    pumas_npccn(:,:)   = 0._pumas_r8
-    pumas_qsatfac(:,:) = 0._pumas_r8
+    pumas_frzimm(:ncol,:) = real(frzimm_in(:,:), pumas_r8)
 
   end subroutine micro_pumas_ccpp_dimensions_pre_run
 
