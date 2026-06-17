@@ -40,7 +40,7 @@ contains
 !! \htmlinclude park_macrophysics_save_qtlcwat_run.html
   subroutine park_macrophysics_save_qtlcwat_run( &
     ncol, pver, top_lev, &
-    t, q_wv, cldice, cldliq, numliq, numice, &
+    t, q_wv, cldice, cldliq, nlwat_bfb, numice, &
     tcwat, qcwat, lcwat, iccwat, nlwat, niwat, &
     errmsg, errflg)
 
@@ -54,7 +54,7 @@ contains
     real(kind_phys),    intent(in)    :: q_wv(:, :)     ! Water vapor mixing ratio [kg kg-1]
     real(kind_phys),    intent(in)    :: cldice(:, :)   ! Cloud ice mixing ratio [kg kg-1]
     real(kind_phys),    intent(in)    :: cldliq(:, :)   ! Cloud liquid water mixing ratio [kg kg-1]
-    real(kind_phys),    intent(in)    :: numliq(:, :)   ! Cloud liquid droplet number concentration [kg-1]
+    real(kind_phys),    intent(in)    :: nlwat_bfb(:, :) ! Sequential (collapsed) liquid droplet number for reproducible nlwat [kg-1]
     real(kind_phys),    intent(in)    :: numice(:, :)   ! Cloud ice crystal number concentration [kg-1]
 
     ! Output arguments (saved equilibrium reference state for the next timestep)
@@ -78,7 +78,11 @@ contains
       qcwat(:ncol, k)  = q_wv(:ncol, k)
       lcwat(:ncol, k)  = cldliq(:ncol, k) + cldice(:ncol, k)
       iccwat(:ncol, k) = cldice(:ncol, k)
-      nlwat(:ncol, k)  = numliq(:ncol, k)
+      ! NLWAT is saved from the sequential (cancellation-collapsed) droplet number, not the
+      ! prognostic: CAM derives its equilibrium nlwat from the collapsed state_loc, so this
+      ! keeps the reference state bit-for-bit with CAM while the prognostic carries the
+      ! accurate combined-tendency value. See park_macrophysics_run / nlwat_bfb.
+      nlwat(:ncol, k)  = nlwat_bfb(:ncol, k)
       niwat(:ncol, k)  = numice(:ncol, k)
     end do
 

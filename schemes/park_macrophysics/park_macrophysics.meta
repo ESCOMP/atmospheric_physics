@@ -316,6 +316,12 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
+[ numliq_tend_detrain ]
+  standard_name = tendency_of_mass_number_concentration_of_cloud_liquid_wrt_moist_air_and_condensed_water_due_to_park_macrophysics_detrainment
+  units = kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
 [ concld_old ]
   standard_name = convective_cloud_area_fraction_on_previous_timestep
   units = fraction
@@ -387,6 +393,12 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
   constituent = true
+[ nlwat_bfb ]
+  standard_name = mass_number_concentration_of_cloud_liquid_wrt_moist_air_and_condensed_water_on_previous_timestep_for_reproducible_park_macrophysics
+  units = kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
 [ cmeliq ]
   standard_name = rate_of_condensation_minus_evaporation_for_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water
   units = kg kg-1 s-1

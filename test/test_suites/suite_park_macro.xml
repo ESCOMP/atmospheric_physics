@@ -9,6 +9,10 @@
    - do_cldice / do_cldliq guard (macrop_driver.F90:1037-1055): CAM endruns if the
      macro run produced nonzero ice/liquid tendencies while the corresponding flag is
      off. Pure guard (no state change), so b4b-neutral; wire as an interstitial later.
+     NOTE: with the NUMLIQ operator-split, park_macrophysics_run's ncten output is now the
+     COMBINED detrain+macro number tendency, so a future do_cldliq guard on ncten would test
+     the combined value rather than the macro-only one. Abort domain only (no answer impact;
+     never fires at do_cldliq=.true.).
    - Park diagnostics (outfld): DPDLFLIQ/DPDLFICE/SHDLFLIQ/SHDLFICE/DPDLFT/SHDLFT/ZMDLF
      after detrain, and MACPDT/MACPDQ/MACPDLIQ/MACPDICE/CLDVAPADJ/.../CMELIQ/RHMIN_*
      after the macro run. No park_macrophysics_*_diagnostics scheme exists yet.
@@ -30,7 +34,15 @@
     <!-- ===================== Detrainment of convective condensate ===================== -->
     <!-- macrop_driver_tend lines 710-762: detrain dlf/dlf2 into cloud liquid/ice; produce
          the targeted-stratus detrainment forcings dlf_T/dlf_qv/dlf_ql/dlf_qi/dlf_nl/dlf_ni
-         consumed by park_macrophysics_run below. -->
+         consumed by park_macrophysics_run below.
+         NUMLIQ operator-split: the detrainment droplet-number tendency is deliberately NOT
+         applied here (park_macrophysics_detrain emits it under a dedicated standard name,
+         ..._due_to_park_macrophysics_detrainment, so apply_constituent_tendencies skips it).
+         The cloud-liquid number constituent therefore stays at its pre-detrainment value
+         through this apply; park_macrophysics_run sums the detrainment and macrophysics
+         number tendencies into a single combined tendency to avoid catastrophic cancellation
+         at cloud edges, and emits the collapsed sequential value (nlwat_bfb) for the NLWAT
+         save. All other detrained species (cldliq/cldice/NUMICE) are applied normally. -->
     <scheme>park_macrophysics_detrain</scheme>
     <scheme>apply_constituent_tendencies</scheme>
     <scheme>clamp_number_concentrations</scheme>

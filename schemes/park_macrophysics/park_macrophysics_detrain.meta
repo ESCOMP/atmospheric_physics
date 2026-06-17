@@ -87,12 +87,14 @@
   intent = out
   constituent = true
 [ tend_numliq ]
-  standard_name = tendency_of_mass_number_concentration_of_cloud_liquid_wrt_moist_air_and_condensed_water
+  # NOT applied to the prognostic as a constituent tendency: this detrainment number
+  # tendency is delivered to park_macrophysics_run, which sums it with the macrophysics
+  # tendency into a single update to avoid catastrophic cancellation at cloud edges.
+  standard_name = tendency_of_mass_number_concentration_of_cloud_liquid_wrt_moist_air_and_condensed_water_due_to_park_macrophysics_detrainment
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
-  constituent = true
 [ tend_numice ]
   standard_name = tendency_of_mass_number_concentration_of_ice_wrt_moist_air_and_condensed_water
   units = kg-1 s-1

@@ -158,10 +158,11 @@ contains
     tcwat, qcwat, lcwat, iccwat, nlwat, niwat, &
     CC_T, CC_qv, CC_ql, CC_qi, CC_nl, CC_ni, CC_qlst, &
     dlf_T, dlf_qv, dlf_ql, dlf_qi, dlf_nl, dlf_ni, &
+    numliq_tend_detrain, &
     concld_old, concld, &
     landfrac, snowh, &
     do_cldice, &
-    tlat, qvlat, qcten, qiten, ncten, niten, &
+    tlat, qvlat, qcten, qiten, ncten, niten, nlwat_bfb, &
     cmeliq, qvadj, qladj, qiadj, qllim, qilim, &
     cld, alst, aist, qlst, qist, ast, &
     rhmin_liq, rhmin_ice, &
@@ -211,6 +212,7 @@ contains
     real(kind_phys),                   intent(in)    :: dlf_qi(:, :)       ! Detrainment forcing of cloud ice [kg kg-1 s-1]
     real(kind_phys),                   intent(in)    :: dlf_nl(:, :)       ! Detrainment forcing of liquid droplet number [# kg-1 s-1]
     real(kind_phys),                   intent(in)    :: dlf_ni(:, :)       ! Detrainment forcing of ice crystal number [# kg-1 s-1]
+    real(kind_phys),                   intent(in)    :: numliq_tend_detrain(:, :)  ! Detrainment tendency of cloud liquid droplet number [# kg-1 s-1]
 
     real(kind_phys),                   intent(in)    :: concld_old(:, :)   ! Convective cloud fraction from previous timestep [fraction]
     real(kind_phys),                   intent(in)    :: concld(:, :)       ! Convective cloud fraction [fraction]
@@ -226,6 +228,7 @@ contains
     real(kind_phys),                   intent(out)   :: qiten(:, :)        ! Macrophysical cloud ice tendency [kg kg-1 s-1]
     real(kind_phys),                   intent(out)   :: ncten(:, :)        ! Macrophysical liquid droplet number tendency [# kg-1 s-1]
     real(kind_phys),                   intent(out)   :: niten(:, :)        ! Macrophysical ice crystal number tendency [# kg-1 s-1]
+    real(kind_phys),                   intent(out)   :: nlwat_bfb(:, :)    ! Sequential post-macrophysics liquid droplet number for reproducible nlwat save [# kg-1]
     real(kind_phys),                   intent(out)   :: cmeliq(:, :)       ! Net condensation rate (liquid + ice) [kg kg-1 s-1]
     real(kind_phys),                   intent(out)   :: qvadj(:, :)        ! Water vapor tendency from positive moisture adjustment [kg kg-1 s-1]
     real(kind_phys),                   intent(out)   :: qladj(:, :)        ! Cloud liquid tendency from positive moisture adjustment [kg kg-1 s-1]
@@ -495,7 +498,7 @@ contains
 
     if(ixcldliq < 0 .or. ixcldice < 0 .or. ixq < 0) then
       errflg = 1
-      errmsg = 'Park macrophysics reuqires cloud liquid, cloud ice, and water vapor.'
+      errmsg = 'Park macrophysics requires cloud liquid, cloud ice, and water vapor.'
     end if
 
     ! ----------------------------------------
@@ -507,7 +510,16 @@ contains
     zeros(:ncol, top_lev:pver) = 0._kind_phys
     qc(:ncol, top_lev:pver) = cldliq(:ncol, top_lev:pver)
     qi_loc(:ncol, top_lev:pver) = cldice(:ncol, top_lev:pver)
-    nc(:ncol, top_lev:pver) = numliq(:ncol, top_lev:pver)
+    ! Operator-split reconstruction of the post-detrainment working droplet number.
+    ! The prognostic numliq passed in carries only the pre-detrainment value: the
+    ! detrainment number tendency is delivered separately (numliq_tend_detrain) instead
+    ! of being applied to the prognostic, so that it can be summed with the macrophysics
+    ! tendency below into a single update. This avoids the catastrophic cancellation of
+    ! two large, nearly equal-and-opposite tendencies (detrainment injection vs. macro
+    ! removal) that a sequential detrain-then-macro update suffers at cloud edges. The
+    ! floor here matches physics_update so nc is bit-for-bit with CAM's detrained state_loc.
+    nc(:ncol, top_lev:pver) = min(1.e10_kind_phys, max(1.e-12_kind_phys, &
+         numliq(:ncol, top_lev:pver) + numliq_tend_detrain(:ncol, top_lev:pver) * dtime))
     ni_loc(:ncol, top_lev:pver) = numice(:ncol, top_lev:pver)
 
     ! In CAM5, 'microphysical forcing' ( CC_... ) and 'the other advective forcings' ( ttend, ... )
@@ -593,6 +605,7 @@ contains
     qiten(:ncol, :) = 0._kind_phys
     ncten(:ncol, :) = 0._kind_phys
     niten(:ncol, :) = 0._kind_phys
+    nlwat_bfb(:ncol, :) = 0._kind_phys
 
     cmeliq(:ncol, :) = 0._kind_phys
 
@@ -1285,6 +1298,21 @@ contains
                              (nltend(:ncol, top_lev:) + CC_nl_loc(:ncol, top_lev:))
     niten(:ncol, top_lev:) = (ni_star(:ncol, top_lev:) - ni_inout(:ncol, top_lev:))/dtime - &
                              (nitend(:ncol, top_lev:) + CC_ni_loc(:ncol, top_lev:))
+
+    ! Sequential (cancellation-collapsed) post-macrophysics droplet number, reproducing
+    ! CAM's state_loc after the macro physics_update: the detrained working number nc plus
+    ! the macro-only tendency, floored as in physics_update. This feeds the equilibrium
+    ! nlwat save so the reference state stays bit-for-bit with CAM, which derives nlwat from
+    ! this collapsed value. Must use the macro-only ncten, i.e. evaluated before the
+    ! combine below.
+    nlwat_bfb(:ncol, top_lev:) = min(1.e10_kind_phys, max(1.e-12_kind_phys, &
+         nc(:ncol, top_lev:) + ncten(:ncol, top_lev:) * dtime))
+
+    ! Combine the detrainment and macrophysics number tendencies into the single tendency
+    ! that is applied to the pre-detrainment prognostic. Summing the two near-canceling
+    ! tendencies before applying preserves the small net that the sequential update loses
+    ! to round-off at cloud edges (see the nc reconstruction above).
+    ncten(:ncol, top_lev:) = numliq_tend_detrain(:ncol, top_lev:) + ncten(:ncol, top_lev:)
 
     if (.not. do_cldice) then
       do k = top_lev, pver
