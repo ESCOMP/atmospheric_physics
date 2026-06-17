@@ -488,67 +488,6 @@ module clubb
   !-----------------------------------------------------------------------------------------
   !-----------------------------------------------------------------------------------------
 
-!  subroutine clubb1_run(ncol, pcols, lchnk, iam, nstep, lat, lon, hdtime, ztodtptr, &
-!                        pver, pverp, pcnst, clubb_timestep, gr, apply_const, &
-!                        nzt_clubb, nzm_clubb, sclr_dim, edsclr_dim, hydromet_dim, &
-!                        stats_metadata, hm_metadata, clubb_do_adv, first_step, first_restart_step, &
-!                        single_column, scm_cambfb_mode, scm_clubb_iop_name, &
-!                        shr_const_karman, shr_const_pi, shr_const_g, omega_const, theta0, &
-!                        macmic_it, top_lev, rtpthlp_const, wpthlp_const, wprtp_const, sclr_tol, &
-!                        ts_nudge, rtm_min, rtm_nudge_max_altitude, &
-!                        wp3_const, cld_macmic_num_steps, clubb_params_single_col, &
-!                        cpair, cpairv, invrs_cpairv, rair, rga, inv_p0_clubb, rairv, zvir, latvap, latice, &
-!                        gravit, clubb_rnevap_effic, do_cldcool, do_rainturb, &
-!                        do_clubb_mf, l_implemented, grid_type, lq, deep_scheme, &
-!                        state_q, u, v, t, pmid, &
-!                        zm, phis, pdel, pdeldry, s, &
-!                        pint, zi, omega, wprcp, &
-!                        wsx, wsy, cflx, shf, landfrac, &
-!                        ptend_q, ptend_u, ptend_v, ptend_s, &
-!                        sclr_idx, clubb_l_ascending_grid, clubb_do_energyfix, &
-!                        ixq, ixcldliq, ixcldice, ixrtpthlp, ixwpthlp, &
-!                        ixwprtp, ixwp3, ixwp2, ixthlp2, ixrtp2, ixup2, ixvp2, & 
-!                        clubbtop_pbuf, clubb_l_intr_sfc_flux_smooth, &
-!                        pdf_params_chnk, pdf_params_zm_chnk, pdf_implicit_coefs_terms_chnk, &
-!                        clubb_config_flags, &
-!                        eleak, se_dis, rho_zm, rho_zt, exner, cloud_frac, &
-!                        zi_g, zt_g, &
-!                        grid_dx, grid_dy, &
-!                        ! MF Plume
-!                        mf_dry_a,   mf_moist_a,    &
-!                        mf_dry_w,   mf_moist_w,    &
-!                        mf_dry_qt,  mf_moist_qt,   &
-!                        mf_dry_thl, mf_moist_thl,  &
-!                        mf_dry_u,   mf_moist_u,    &
-!                        mf_dry_v,   mf_moist_v,    &
-!                        mf_moist_qc,   &
-!                        s_ae,       s_aw,          &
-!                        s_awthl,    s_awqt,        &
-!                        s_awql,     s_awqi,        &
-!                        s_awu,      s_awv,         &
-!                        mf_thlflx,  mf_qtflx, &
-!                        thlm, rtm, um, vm, wm_zt, rcm, rcm_in_layer, &
-!                        wp2_pbuf, wp3_pbuf, wpthlp_pbuf, wprtp_pbuf, &
-!                        rtpthlp_pbuf, rtp2_pbuf, thlp2_pbuf, rtp3_pbuf, &
-!                        thlp3_pbuf, up2_pbuf, vp2_pbuf, up3_pbuf, vp3_pbuf, &
-!                        upwp_pbuf, vpwp_pbuf, wpthvp_pbuf, wp2thvp_pbuf, wp2up_pbuf, &
-!                        rtpthvp_pbuf, thlpthvp_pbuf, pdf_zm_w_1_pbuf, pdf_zm_w_2_pbuf, &
-!                        pdf_zm_varnce_w_1_pbuf, pdf_zm_varnce_w_2_pbuf, pdf_zm_mixt_frac_pbuf, &
-!                        wp2rtp_pbuf, wp2thlp_pbuf, uprcp_pbuf, vprcp_pbuf, rc_coef_zm_pbuf, &
-!                        wp4_pbuf, wpup2_pbuf, wpvp2_pbuf, wp2up2_pbuf, wp2vp2_pbuf, cld_pbuf, &
-!                        concld_pbuf, ast_pbuf, alst_pbuf, aist_pbuf, qlst_pbuf, qist_pbuf, &
-!                        deepcu_pbuf, shalcu_pbuf, khzm_pbuf, pblh_pbuf, tke_pbuf, dp_icwmr_pbuf, &
-!                        ice_supersat_frac_pbuf, relvar_pbuf, naai_pbuf, cmeliq_pbuf, &
-!                        cmfmc_sh_pbuf, qsatfac_pbuf, npccn_pbuf, prer_evap_pbuf, qrl_pbuf, &
-!                        rtp2_mc_zt_pbuf, thlp2_mc_zt_pbuf, wprtp_mc_zt_pbuf, &
-!                        wpthlp_mc_zt_pbuf, rtpthlp_mc_zt_pbuf, ttend_clubb_pbuf, &
-!                        upwp_clubb_gw_pbuf, vpwp_clubb_gw_pbuf, thlp2_clubb_gw_pbuf, &
-!                        wpthlp_clubb_gw_pbuf, ttend_clubb_mc_pbuf, upwp_clubb_gw_mc_pbuf, &
-!                        vpwp_clubb_gw_mc_pbuf, thlp2_clubb_gw_mc_pbuf, wpthlp_clubb_gw_mc_pbuf, &
-!                        stats_zt, stats_zm, stats_sfc, stats_rad_zt, stats_rad_zm, &
-!                        out_zt, out_zm, out_sfc, out_radzt, out_radzm, &
-!                        errmsg, errflg )
-
  subroutine clubb1_run( ncol, pcols, lchnk, iam, nstep, lat, lon, hdtime, & ! in
                         pver, pverp, pcnst, clubb_timestep, & ! in
                         nzt_clubb, nzm_clubb, sclr_dim, edsclr_dim, hydromet_dim, & ! in
