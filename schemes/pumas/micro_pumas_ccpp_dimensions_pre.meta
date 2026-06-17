@@ -323,7 +323,7 @@
   kind = pumas_r8
   intent = out
 [graupice_in]
-  standard_name = graupel_mixing_ratio_wrt_moist_air_and_condensed_water
+  standard_name = graupel_water_mixing_ratio_wrt_moist_air_and_condensed_water
   long_name = graupel mixing ratio wrt moist air and condensed water of new state
   units = kg kg-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -332,7 +332,7 @@
   intent = in
   advected = true
 [pumas_graupice]
-  standard_name = pumas_graupel_mixing_ratio_wrt_moist_air_and_condensed_water
+  standard_name = pumas_graupel_water_mixing_ratio_wrt_moist_air_and_condensed_water
   long_name = microphysics graupel mixing ratio wrt moist air and condensed water of new state
   units = kg kg-1
   dimensions = (microphysics_horizontal_loop_extent, microphysics_vertical_layer_dimension)

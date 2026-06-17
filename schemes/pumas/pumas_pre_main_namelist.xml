@@ -315,7 +315,7 @@
   <kind>kind_phys</kind>
   <desc>autoconversion size threshold for cloud ice to snow for MG microphysics</desc>
   <values>
-    <value>600.D-6</value>
+    <value>450.D-6</value>
   </values>
 </entry>
 
@@ -341,7 +341,7 @@
   <kind>kind_phys</kind>
   <desc>KK2000 accretion enhancement factor for MG microphysics</desc>
   <values>
-    <value>1.D0</value>
+    <value>0.731D0</value>
   </values>
 </entry>
 
@@ -380,7 +380,7 @@
   <kind>kind_phys</kind>
   <desc>KK2000 autonconverion lwp (qc) exponent in MG microphysics</desc>
   <values>
-    <value>2.47D0</value>
+    <value>2.37D0</value>
   </values>
 </entry>
 
@@ -406,7 +406,7 @@
   <kind>kind_phys</kind>
   <desc>scaling factor for cloud ice fall speed in MG microphysics</desc>
   <values>
-    <value>1.D0</value>
+    <value>1.39D0</value>
   </values>
 </entry>
 

@@ -18,5 +18,6 @@
     <!-- Apply tendencies -->
     <scheme>apply_constituent_tendencies</scheme>
     <scheme>apply_heating_rate</scheme>
+    <scheme>clamp_number_concentrations</scheme>
   </group>
 </suite>
