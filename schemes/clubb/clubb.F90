@@ -17,31 +17,33 @@ module clubb
   !                                                                                 !
   ! =============================================================================== !
 
-  subroutine clubb_init(pcols, pver, pverp, begchunk, endchunk, masterproc, &
-                        mpicom, mstrid, mpi_character, max_fieldname_len, &
-                        iulog, subcol_scheme, pcnst, cnst_ndropmixed, lq, &
-                        stats_metadata, l_input_fields, clubb_config_flags, &
-                        clubb_l_do_expldiff_rtm_thlm, l_implemented, sclr_idx, &
-                        clubb_C2rtthl, clubb_C8, clubb_c11, clubb_c11b, clubb_c14, &
-                        clubb_C_wp3_pr_turb, clubb_c_K10, clubb_mult_coef, &
-                        clubb_Skw_denom_coef, clubb_C2rt, clubb_C2thl, clubb_beta, &
-                        clubb_c6rt, clubb_c6rtb, clubb_c6rtc, clubb_c6thl, clubb_c6thlb, &
-                        clubb_c6thlc, clubb_wpxp_L_thresh, clubb_C7, clubb_C7b, &
-                        clubb_gamma_coef, clubb_c_K10h, clubb_lambda0_stability_coef, &
-                        clubb_lmin_coef, clubb_C8b, clubb_skw_max_mag, clubb_C1, clubb_C1b, &
-                        clubb_gamma_coefb, clubb_up2_sfc_coef, clubb_C4, clubb_C_uu_shr, &
-                        clubb_C_uu_buoy, clubb_c_K1, clubb_c_K2, clubb_nu2, clubb_c_K8, &
-                        clubb_c_K9, clubb_nu9, clubb_C_wp2_splat, clubb_C_invrs_tau_bkgnd, &
-                        clubb_C_invrs_tau_sfc, clubb_C_invrs_tau_shear, clubb_C_invrs_tau_N2, &
-                        clubb_C_invrs_tau_N2_wp2, clubb_C_invrs_tau_N2_xp2, clubb_C_invrs_tau_N2_wpxp, &
-                        clubb_C_invrs_tau_N2_clear_wp3, clubb_bv_efold, clubb_wpxp_Ri_exp, clubb_z_displace, &
-                        edsclr_dim, sclr_dim, hydromet_dim, &
-                        nzm_clubb, nzt_clubb, hm_metadata, clubb_params_single_col, &
-                        clubb_vars_zt, clubb_vars_zm, clubb_vars_sfc, clubb_vars_rad_zt, clubb_vars_rad_zm, & 
-                        stats_zt, stats_zm, stats_sfc, stats_rad_zt, stats_rad_zm, &
-                        pdf_params_chnk, pdf_params_zm_chnk, pdf_implicit_coefs_terms_chnk, &
-                        out_zt, out_zm, out_sfc, out_radzt, out_radzm, &
-                        error_message, clubb_init_errcode )
+  subroutine clubb_init(pcols, pver, pverp, pcnst, begchunk, endchunk, & ! in
+                        masterproc, mpicom, mstrid, mpi_character, & ! in
+                        iulog, max_fieldname_len, & ! in
+                        sclr_dim, hydromet_dim, nzt_clubb, nzm_clubb, & ! in
+                        l_implemented, l_input_fields, clubb_l_do_expldiff_rtm_thlm, & ! in
+                        cnst_ndropmixed, subcol_scheme, & ! in
+                        clubb_vars_zt, clubb_vars_zm, clubb_vars_sfc, & ! in
+                        clubb_vars_rad_zt, clubb_vars_rad_zm, & ! in
+                        edsclr_dim, clubb_params_single_col, & ! inout
+                        out_zt, out_zm, out_sfc, out_radzt, out_radzm, & ! inout
+                        clubb_C2rtthl, clubb_C8, clubb_c11, clubb_c11b, clubb_c14, & ! inout
+                        clubb_C_wp3_pr_turb, clubb_c_K10, clubb_mult_coef, & ! inout
+                        clubb_Skw_denom_coef, clubb_C2rt, clubb_C2thl, clubb_beta, & ! inout
+                        clubb_c6rt, clubb_c6rtb, clubb_c6rtc, clubb_c6thl, clubb_c6thlb, & ! inout
+                        clubb_c6thlc, clubb_wpxp_L_thresh, clubb_C7, clubb_C7b, & ! inout
+                        clubb_gamma_coef, clubb_c_K10h, clubb_lambda0_stability_coef, & ! inout
+                        clubb_lmin_coef, clubb_C8b, clubb_skw_max_mag, clubb_C1, clubb_C1b, & ! inout
+                        clubb_gamma_coefb, clubb_up2_sfc_coef, clubb_C4, clubb_C_uu_shr, & ! inout
+                        clubb_C_uu_buoy, clubb_c_K1, clubb_c_K2, clubb_nu2, clubb_c_K8, & ! inout
+                        clubb_c_K9, clubb_nu9, clubb_C_wp2_splat, clubb_C_invrs_tau_bkgnd, & ! inout
+                        clubb_C_invrs_tau_sfc, clubb_C_invrs_tau_shear, clubb_C_invrs_tau_N2, & ! inout
+                        clubb_C_invrs_tau_N2_wp2, clubb_C_invrs_tau_N2_xp2, clubb_C_invrs_tau_N2_wpxp, & ! inout
+                        clubb_C_invrs_tau_N2_clear_wp3, clubb_bv_efold, clubb_wpxp_Ri_exp, clubb_z_displace, & ! inout
+                        lq, stats_zt, stats_zm, stats_sfc, stats_rad_zt, stats_rad_zm, & ! inout
+                        pdf_params_chnk, pdf_params_zm_chnk, pdf_implicit_coefs_terms_chnk, & ! inout
+                        stats_metadata, hm_metadata, clubb_config_flags, sclr_idx, & ! inout
+                        errmsg, errflg ) ! out
 
 !-------------------------------------------------------------------------------
 ! Description:
@@ -97,8 +99,7 @@ module clubb
 
     implicit none
 
-    !  Input Variables
-
+    !  Input variables, intent(in)
     integer, intent(in) :: pcols, pver, pverp, begchunk, endchunk
     integer, intent(in) :: mpicom, mpi_character, mstrid
     integer, intent(in) :: iulog, pcnst, max_fieldname_len
@@ -115,40 +116,12 @@ module clubb
     character(len=var_length), intent(in) :: clubb_vars_rad_zm(:)  ! Variables on the radiation levels
     character(len=var_length), intent(in) :: clubb_vars_sfc(:)     ! Variables at the model surface
 
+
+    ! Input variables, intent(inout)
     integer, intent(inout) :: edsclr_dim
-    logical, intent(inout) :: lq(:)
-
-    type (stats_metadata_type), intent(inout) :: &
-      stats_metadata
-
-    type(clubb_config_flags_type), intent(inout) :: &
-      clubb_config_flags
-
-    type (sclr_idx_type), intent(inout) :: &
-      sclr_idx
-
-    type (hm_metadata_type), intent(inout) :: &
-      hm_metadata
 
     real(kind=kind_phys), intent(inout) :: &
       clubb_params_single_col(:,:)    ! Adjustable CLUBB parameters (C1, C2 ...)
-
-    ! Variables that contains all the statistics
-    type (stats), intent(inout) :: &
-      stats_zt(:),      & ! stats_zt grid
-      stats_zm(:),      & ! stats_zm grid
-      stats_rad_zt(:),  & ! stats_rad_zt grid
-      stats_rad_zm(:),  & ! stats_rad_zm grid
-      stats_sfc(:)        ! stats_sfc
-
-    type(pdf_parameter), allocatable, intent(inout) :: &
-      pdf_params_chnk(:)                ! PDF parameters (thermo. levs.) [units vary]
-  
-    type(pdf_parameter), allocatable, intent(inout) :: &
-      pdf_params_zm_chnk(:)             ! PDF parameters on momentum levs. [units vary]
- 
-    type(implicit_coefs_terms), allocatable, intent(inout) :: &
-      pdf_implicit_coefs_terms_chnk(:)  ! PDF impl. coefs. & expl. terms      [units vary]
 
     real(kind=kind_phys), allocatable, intent(inout) :: &
       out_zt(:,:,:), out_zm(:,:,:), out_radzt(:,:,:), out_radzm(:,:,:), out_sfc(:,:,:)
@@ -206,8 +179,42 @@ module clubb
     real(kind=kind_phys), intent(inout) :: clubb_wpxp_Ri_exp
     real(kind=kind_phys), intent(inout) :: clubb_z_displace
 
-    integer, intent(out) :: clubb_init_errcode
-    character(len=200), intent(out) :: error_message
+    logical, intent(inout) :: lq(:)
+
+    ! Variables that contains all the statistics
+    type (stats), intent(inout) :: &
+      stats_zt(:),      & ! stats_zt grid
+      stats_zm(:),      & ! stats_zm grid
+      stats_rad_zt(:),  & ! stats_rad_zt grid
+      stats_rad_zm(:),  & ! stats_rad_zm grid
+      stats_sfc(:)        ! stats_sfc
+
+    type(pdf_parameter), allocatable, intent(inout) :: &
+      pdf_params_chnk(:)                ! PDF parameters (thermo. levs.) [units vary]
+
+    type(pdf_parameter), allocatable, intent(inout) :: &
+      pdf_params_zm_chnk(:)             ! PDF parameters on momentum levs. [units vary]
+
+    type(implicit_coefs_terms), allocatable, intent(inout) :: &
+      pdf_implicit_coefs_terms_chnk(:)  ! PDF impl. coefs. & expl. terms      [units vary]
+
+    type (stats_metadata_type), intent(inout) :: &
+      stats_metadata
+
+    type (hm_metadata_type), intent(inout) :: &
+      hm_metadata
+
+    type(clubb_config_flags_type), intent(inout) :: &
+      clubb_config_flags
+
+    type (sclr_idx_type), intent(inout) :: &
+      sclr_idx
+
+
+    ! Input variables, intent(out)
+    integer, intent(out) :: errflg
+    character(len=200), intent(out) :: errmsg
+
 
     ! Local variables
     real(kind=time_precision) :: dum1, dum2, dum3
@@ -221,12 +228,12 @@ module clubb
 
     !----- Begin Code -----
 
-    error_message = ''
-    clubb_init_errcode = 0 
+    errmsg = ''
+    errflg = 0 
 
     if (core_rknd /= kind_phys) then
-      error_message = 'clubb_ini_cam:  CLUBB library core_rknd must match CAM kind_phys and it does not'
-      clubb_init_errcode = 1
+      errmsg = 'clubb_ini_cam:  CLUBB library core_rknd must match CAM kind_phys and it does not'
+      errflg = 1
       return
     end if
 
@@ -236,8 +243,8 @@ module clubb
        pdf_params_zm_chnk(begchunk:endchunk), &
        pdf_implicit_coefs_terms_chnk(begchunk:endchunk), stat=ierr )
     if( ierr /= 0 ) then
-      error_message = ' clubb_ini_cam: failed to allocate pdf_params'
-      clubb_init_errcode = 1
+      errmsg = ' clubb_ini_cam: failed to allocate pdf_params'
+      errflg = 1
       return
     end if
 
@@ -380,8 +387,8 @@ module clubb
                                    err_info )                     ! Intent(inout)
 
     if ( any(err_info%err_code == clubb_fatal_error) ) then
-       error_message = 'clubb_ini_cam: FATAL ERROR CALLING CHECK_CLUBB_SETTINGS_API'
-       clubb_init_errcode = 1
+       errmsg = 'clubb_ini_cam: FATAL ERROR CALLING CHECK_CLUBB_SETTINGS_API'
+       errflg = 1
        return
     end if
 !$OMP END PARALLEL
@@ -408,14 +415,14 @@ module clubb
        ! in order to making intel debug tests happy.
        allocate( hm_metadata%hydromet_list(1), stat=ierr)
        if( ierr /= 0 ) then
-         error_message = 'clubb_ini_cam: Unable to allocate hm_metadata%hydromet_list'
-         clubb_init_errcode = 1
+         errmsg = 'clubb_ini_cam: Unable to allocate hm_metadata%hydromet_list'
+         errflg = 1
          return
        end if
        allocate( hm_metadata%l_mix_rat_hm(1), stat=ierr)
        if( ierr /= 0 ) then
-         error_message = 'clubb_ini_cam: Unable to allocate hm_metadata%l_mix_rat_hm'
-         clubb_init_errcode = 1
+         errmsg = 'clubb_ini_cam: Unable to allocate hm_metadata%l_mix_rat_hm'
+         errflg = 1
          return
        end if
     end if
@@ -436,40 +443,40 @@ module clubb
                              clubb_vars_rad_zt, clubb_vars_rad_zm, &
                              stats_zt(:), stats_zm(:), stats_sfc(:), &
                              stats_rad_zt(:), stats_rad_zm(:), &
-                             error_message, clubb_init_errcode)
+                             errmsg, errflg)
 
-      if (clubb_init_errcode /= 0) return 
+      if (errflg /= 0) return 
 
        allocate(out_zt(pcols,pver,stats_zt(1)%num_output_fields), stat=ierr)
        if( ierr /= 0 ) then 
-         error_message = 'clubb_ini_cam: Unable to allocate out_zt'
-         clubb_init_errcode = 1
+         errmsg = 'clubb_ini_cam: Unable to allocate out_zt'
+         errflg = 1
          return
        end if
        allocate(out_zm(pcols,pverp,stats_zm(1)%num_output_fields), stat=ierr)
        if( ierr /= 0 ) then 
-         error_message = 'clubb_ini_cam: Unable to allocate out_zm'
-         clubb_init_errcode = 1
+         errmsg = 'clubb_ini_cam: Unable to allocate out_zm'
+         errflg = 1
          return
        end if
        allocate(out_sfc(pcols,1,stats_sfc(1)%num_output_fields), stat=ierr)
        if( ierr /= 0 ) then
-         error_message = 'clubb_ini_cam: Unable to allocate out_sfc'
-         clubb_init_errcode = 1
+         errmsg = 'clubb_ini_cam: Unable to allocate out_sfc'
+         errflg = 1
          return
        end if
 
        if ( stats_metadata%l_output_rad_files ) then
           allocate(out_radzt(pcols,pver,stats_rad_zt(1)%num_output_fields), stat=ierr)
           if( ierr /= 0 ) then
-            error_message = 'clubb_ini_cam: Unable to allocate out_radzt'
-            clubb_init_errcode = 1
+            errmsg = 'clubb_ini_cam: Unable to allocate out_radzt'
+            errflg = 1
             return
           end if
           allocate(out_radzm(pcols,pverp,stats_rad_zm(1)%num_output_fields), stat=ierr)
           if( ierr /= 0 ) then
-            error_message = 'clubb_ini_cam: Unable to allocate out_radzm'
-            clubb_init_errcode = 1
+            errmsg = 'clubb_ini_cam: Unable to allocate out_radzm'
+            errflg = 1
             return
           end if
        end if
@@ -2495,22 +2502,25 @@ module clubb
   !------------------------------------------------------------------------------
   !------------------------------------------------------------------------------
 
-  subroutine clubb2_run(ncol, pver, meltpt_temp, latice, rga, &
-                        ixcldliq, ixcldice, ixnumliq, ixnumice, &
-                        dlf, dlf_liq_out, dlf_ice_out, &
-                        clubb_detliq_rad, clubb_detice_rad, clubb_detphase_lowtemp, &
-                        pdel, pdeldry, &
-                        t, s, q, det_s, det_ice )
+  subroutine clubb2_run(ncol, pver, ixcldliq, ixcldice, ixnumliq, ixnumice, & ! in
+                        clubb_detliq_rad, clubb_detice_rad, clubb_detphase_lowtemp, &! in
+                        meltpt_temp, latice, rga, & ! in
+                        dlf, t, pdel, pdeldry, & ! in
+                        q, s, det_s, det_ice, & ! inout
+                        dlf_liq_out, dlf_ice_out ) ! out
 
-    ! Incoming variables
+    ! Input variables, intent(in)
     integer, intent(in) :: ncol, pver, ixcldliq, ixcldice, ixnumliq, ixnumice
     real(kind_phys), intent(in) :: clubb_detliq_rad, clubb_detice_rad, clubb_detphase_lowtemp
     real(kind_phys), intent(in) :: meltpt_temp, latice, rga
-    real(kind_phys), intent(in) :: dlf(:,:)
-    real(kind_phys), intent(in) :: t(:,:), pdel(:,:), pdeldry(:,:)
+    real(kind_phys), intent(in) :: dlf(:,:), t(:,:), pdel(:,:), pdeldry(:,:)
+
+    ! Input variables, intent(inout)
     real(kind_phys), intent(inout) :: q(:,:,:)
     real(kind_phys), intent(inout) :: s(:,:)
     real(kind_phys), intent(inout) :: det_s(:), det_ice(:)
+ 
+    ! Input variables, intent(out)
     real(kind_phys), intent(out) :: dlf_liq_out(:,:), dlf_ice_out(:,:)
 
     ! Local variables
@@ -2580,18 +2590,23 @@ module clubb
   end subroutine clubb2_run
 
 
-  subroutine clubb3_run(pcols, ncol, pver, pverp, pcnst, top_lev, zvir, rair, cpair, gravit, karman, &
-                        ixq, ixcldice, ixcldliq, ixnumice, calday, tropp_days, troplev, &
-                        rhminis_const, rhmaxis_const, rhmini_const, rhmaxi_const, &
-                        single_column, scm_cambfb_mode, scm_clubb_iop_name, subcol_scheme, &
-                        dp1, dp2, cmfmc, cmfmc_sh_pbuf, dp_icwmr_pbuf, concld_pbuf, &
-                        aist_pbuf, qsatfac_pbuf, ast_pbuf, qist_pbuf, cld_pbuf, &
-                        pblh_pbuf, deepcu_pbuf, shalcu_pbuf, &
-                        lq, cnst_type, &
-                        alst_pbuf, qlst_pbuf, rcm, cloud_frac, exner, state_exner, &
-                        t, state_q, ptend_q, pmid, landfrac, snowhland, pdel, pdeldry, &
-                        wsx, wsy, shf, cflx, zm, zi, u, v, lat, pint, phis, &
-                        errmsg, errflg )
+  subroutine clubb3_run(pcols, ncol, pver, pverp, pcnst, top_lev, & ! in
+                        ixq, ixcldice, ixcldliq, ixnumice, & ! in
+                        rhminis_const, rhmaxis_const, rhmini_const, rhmaxi_const, & ! in
+                        dp1, dp2, zvir, rair, cpair, gravit, karman, & ! in
+                        calday, tropp_days, & ! in
+                        lat, phis, landfrac, snowhland, & ! in
+                        wsx, wsy, shf, & ! in
+                        pint, pmid, pdel, pdeldry, & ! in
+                        rcm, cloud_frac, t, exner, & ! in
+                        state_exner, zm, zi, u, & ! in
+                        v, cmfmc, cflx, state_q, & ! in
+                        single_column, scm_cambfb_mode, lq, & ! in
+                        cnst_type, scm_clubb_iop_name, subcol_scheme, & ! in
+                        pblh_pbuf, alst_pbuf, qlst_pbuf, deepcu_pbuf, shalcu_pbuf, & ! inout
+                        cmfmc_sh_pbuf, dp_icwmr_pbuf, concld_pbuf, aist_pbuf,  & ! inout
+                        qsatfac_pbuf, ast_pbuf, qist_pbuf, cld_pbuf, ptend_q, troplev, & ! inout
+                        errmsg, errflg ) ! out
 
 !    use tropopause_find,       only: tropopause_findChemTrop
     use holtslag_boville_diff, only: hb_pbl_dependent_coefficients_run
@@ -2600,36 +2615,36 @@ module clubb
                                      calc_kinematic_heat_flux, calc_kinematic_water_vapor_flux, &
                                      calc_kinematic_buoyancy_flux
 
-    ! Incoming variables
-    integer, intent(in) :: ncol, pcols, pver, pverp, pcnst, top_lev, ixq, ixcldice, ixcldliq, ixnumice
+    ! Input variables, intent(in)
+    integer, intent(in) :: pcols, ncol, pver, pverp, pcnst, top_lev 
+    integer, intent(in) :: ixq, ixcldice, ixcldliq, ixnumice
+    real(kind_phys), intent(in) :: rhminis_const, rhmaxis_const, rhmini_const, rhmaxi_const
+    real(kind_phys), intent(in) :: dp1, dp2, zvir, rair, cpair, gravit, karman
+    real(kind_phys), intent(in) :: calday
+    real(kind_phys), intent(in) :: tropp_days(:)
+    real(kind_phys), intent(in) :: lat(:), phis(:), landfrac(:), snowhland(:), &
+                                   wsx(:), wsy(:), shf(:)
+    real(kind_phys), intent(in) :: pint(:,:), pmid(:,:), pdel(:,:), pdeldry(:,:), rcm(:,:), &
+                                   cloud_frac(:,:), t(:,:), exner(:,:), state_exner(:,:), &
+                                   zm(:,:), zi(:,:), u(:,:), v(:,:), cmfmc(:,:), cflx(:,:)
+    real(kind_phys), intent(in) :: state_q(:,:,:)
+   ! Climatological tropopause pressures (Pa), (ncol,ntimes=12).
+    !real(kind_phys), intent(in)         :: tropp_p_loc(:,:)
     logical, intent(in) :: single_column, scm_cambfb_mode
     logical, intent(in) :: lq(:)
     character(len=3), intent(in) :: cnst_type(:)
-    real(kind_phys), intent(in) :: dp1, dp2, zvir, rair, cpair, gravit, karman, calday
-    real(kind_phys), intent(in) :: rhminis_const, rhmaxis_const, rhmini_const, rhmaxi_const
-    real(kind_phys), intent(in) :: lat(:), phis(:)
-    real(kind_phys), intent(in) :: pint(:,:)
-    real(kind_phys), intent(in) :: pmid(:,:)
-    real(kind_phys), intent(in) :: landfrac(:), snowhland(:)
-    real(kind_phys), intent(in) :: pdel(:,:), pdeldry(:,:), rcm(:,:), cloud_frac(:,:), &
-                                   t(:,:), exner(:,:), state_exner(:,:), &
-                                   zm(:,:), zi(:,:), u(:,:), v(:,:), cmfmc(:,:)
-    real(kind_phys), intent(in) :: state_q(:,:,:)
-    real(kind_phys), intent(in) :: wsx(:), wsy(:), shf(:)
-    real(kind_phys), intent(in) :: cflx(:,:)
-   ! Climatological tropopause pressures (Pa), (ncol,ntimes=12).
-    !real(kind_phys), intent(in)         :: tropp_p_loc(:,:)
-    real(kind_phys), intent(in)         :: tropp_days(:) ! Day-of-year for climo data, 12
     character(len=20), intent(in) :: scm_clubb_iop_name
     character(len=16), intent(in) :: subcol_scheme
 
-    real(kind_phys), intent(inout) :: ptend_q(:,:,:)
+    ! Input variables, intent(inout)
     real(kind_phys), intent(inout) :: pblh_pbuf(:)
     real(kind_phys), intent(inout) :: alst_pbuf(:,:), qlst_pbuf(:,:), deepcu_pbuf(:,:), shalcu_pbuf(:,:), &
                                       cmfmc_sh_pbuf(:,:), dp_icwmr_pbuf(:,:), concld_pbuf(:,:), &
                                       aist_pbuf(:,:), qsatfac_pbuf(:,:), ast_pbuf(:,:), qist_pbuf(:,:), &
                                       cld_pbuf(:,:)
+    real(kind_phys), intent(inout) :: ptend_q(:,:,:)
 
+    ! Input variables, intent(out)
     character(len=512), intent(out) :: errmsg
     integer, intent(out) :: errflg
 
@@ -2869,7 +2884,7 @@ module clubb
                                clubb_vars_rad_zt, clubb_vars_rad_zm, &
                                stats_zt, stats_zm, stats_sfc, &
                                stats_rad_zt, stats_rad_zm, &
-                               error_message, clubb_init_errcode )
+                               errmsg, errflg )
     !
     ! Description: Initializes the statistics saving functionality of
     !   the CLUBB model.  This is for purpose of CAM-CLUBB interface.  Here
@@ -2899,8 +2914,8 @@ module clubb
 
     integer, intent(in) :: sclr_dim, edsclr_dim, hydromet_dim
 
-    integer, intent(inout) :: clubb_init_errcode
-    character(len=200), intent(inout) :: error_message
+    integer, intent(inout) :: errflg
+    character(len=200), intent(inout) :: errmsg
 
     type (stats_metadata_type), intent(inout) :: &
       stats_metadata
@@ -2976,8 +2991,8 @@ module clubb
                           'the clubb time step (delt below)'
          write(fstderr,*) 'stats_tsamp = ', stats_metadata%stats_tsamp
          write(fstderr,*) 'delt = ', delt
-         error_message = "stats_init_clubb:  CLUBB stats_tsamp must be an even multiple of the timestep"
-         clubb_init_errcode = 1
+         errmsg = "stats_init_clubb:  CLUBB stats_tsamp must be an even multiple of the timestep"
+         errflg = 1
          return
       endif
 
@@ -2997,8 +3012,8 @@ module clubb
          write(fstderr,*) "Check the number of variables listed for clubb_vars_zt ",  &
                           "in the stats namelist, or change nvarmax_zt."
          write(fstderr,*) "nvarmax_zt = ", nvarmax_zt
-         error_message = "stats_init_clubb:  number of zt statistical variables exceeds limit"
-         clubb_init_errcode = 1
+         errmsg = "stats_init_clubb:  number of zt statistical variables exceeds limit"
+         errflg = 1
          return
       endif
 
@@ -3007,27 +3022,27 @@ module clubb
 
       allocate( stats_zt(j)%z( stats_zt(j)%kk ), stat=ierr )
       if( ierr /= 0 ) then
-      error_message = "stats_init_clubb: Failed to allocate stats_zt%z"
-      clubb_init_errcode = 1
+      errmsg = "stats_init_clubb: Failed to allocate stats_zt%z"
+      errflg = 1
       return
     end if
 
       allocate( stats_zt(j)%accum_field_values( 1, 1, stats_zt(j)%kk, stats_zt(j)%num_output_fields ), stat=ierr )
       if( ierr /= 0 ) then
-        error_message = "stats_init_clubb: Failed to allocate stats_zt%accum_field_values"
-        clubb_init_errcode = 1
+        errmsg = "stats_init_clubb: Failed to allocate stats_zt%accum_field_values"
+        errflg = 1
         return
       end if
       allocate( stats_zt(j)%accum_num_samples( 1, 1, stats_zt(j)%kk, stats_zt(j)%num_output_fields ), stat=ierr )
       if( ierr /= 0 ) then
-        error_message = "stats_init_clubb: Failed to allocate stats_zt%accum_num_samples"
-        clubb_init_errcode = 1
+        errmsg = "stats_init_clubb: Failed to allocate stats_zt%accum_num_samples"
+        errflg = 1
         return
       end if
       allocate( stats_zt(j)%l_in_update( 1, 1, stats_zt(j)%kk, stats_zt(j)%num_output_fields ), stat=ierr )
       if( ierr /= 0 ) then
-        error_message = "stats_init_clubb: Failed to allocate stats_zt%l_in_update"
-        clubb_init_errcode = 1
+        errmsg = "stats_init_clubb: Failed to allocate stats_zt%l_in_update"
+        errflg = 1
         return
       end if
       call stats_zero( stats_zt(j)%kk, stats_zt(j)%num_output_fields, stats_zt(j)%accum_field_values, &
@@ -3035,14 +3050,14 @@ module clubb
 
       allocate( stats_zt(j)%file%grid_avg_var( stats_zt(j)%num_output_fields ), stat=ierr )
       if( ierr /= 0 ) then
-        error_message = "stats_init_clubb: Failed to allocate stats_zt%file%grid_avg_var"
-        clubb_init_errcode = 1
+        errmsg = "stats_init_clubb: Failed to allocate stats_zt%file%grid_avg_var"
+        errflg = 1
         return
       end if
       allocate( stats_zt(j)%file%z( stats_zt(j)%kk ), stat=ierr )
       if( ierr /= 0 ) then
-        error_message = "stats_init_clubb: Failed to allocate stats_zt%file%z"
-        clubb_init_errcode = 1
+        errmsg = "stats_init_clubb: Failed to allocate stats_zt%file%z"
+        errflg = 1
         return
       end if
 
@@ -3069,8 +3084,8 @@ module clubb
          write(fstderr,*) "Check the number of variables listed for clubb_vars_zm ",  &
                           "in the stats namelist, or change nvarmax_zm."
          write(fstderr,*) "nvarmax_zm = ", nvarmax_zm
-         error_message = "stats_init_clubb:  number of zm statistical variables exceeds limit"
-         clubb_init_errcode = 1
+         errmsg = "stats_init_clubb:  number of zm statistical variables exceeds limit"
+         errflg = 1
          return
       endif
 
@@ -3111,8 +3126,8 @@ module clubb
             write(fstderr,*) "Check the number of variables listed for clubb_vars_rad_zt ",  &
                              "in the stats namelist, or change nvarmax_rad_zt."
             write(fstderr,*) "nvarmax_rad_zt = ", nvarmax_rad_zt
-            error_message = "stats_init_clubb:  number of rad_zt statistical variables exceeds limit"
-            clubb_init_errcode = 1
+            errmsg = "stats_init_clubb:  number of rad_zt statistical variables exceeds limit"
+            errflg = 1
             return
          endif
 
@@ -3151,8 +3166,8 @@ module clubb
             write(fstderr,*) "Check the number of variables listed for clubb_vars_rad_zm ",  &
                              "in the stats namelist, or change nvarmax_rad_zm."
             write(fstderr,*) "nvarmax_rad_zm = ", nvarmax_rad_zm
-            error_message = "stats_init_clubb:  number of rad_zm statistical variables exceeds limit"
-            clubb_init_errcode = 1
+            errmsg = "stats_init_clubb:  number of rad_zm statistical variables exceeds limit"
+            errflg = 1
             return
          endif
 
@@ -3192,8 +3207,8 @@ module clubb
          write(fstderr,*) "Check the number of variables listed for clubb_vars_sfc ",  &
                           "in the stats namelist, or change nvarmax_sfc."
          write(fstderr,*) "nvarmax_sfc = ", nvarmax_sfc
-         error_message = "stats_init_clubb:  number of sfc statistical variables exceeds limit"
-         clubb_init_errcode = 1
+         errmsg = "stats_init_clubb:  number of sfc statistical variables exceeds limit"
+         errflg = 1
          return
       endif
 
@@ -3220,8 +3235,8 @@ module clubb
     ! Check for errors
 
     if ( l_error ) then
-       error_message = 'stats_init:  errors found'
-       clubb_init_errcode = 1
+       errmsg = 'stats_init:  errors found'
+       errflg = 1
        return
     endif
 
