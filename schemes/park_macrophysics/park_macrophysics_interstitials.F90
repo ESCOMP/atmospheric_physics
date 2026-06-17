@@ -6,9 +6,31 @@ module park_macrophysics_interstitials
   implicit none
   private
 
+  public :: park_macrophysics_set_use_shfrc_init
   public :: park_macrophysics_save_qtlcwat_run
 
 contains
+
+  ! Snapshot-test stub for the macrophysics suite, which runs without a shallow
+  ! convection scheme. CAM's UW shallow scheme sets use_shfrc = .true. in its init
+  ! (convect_shallow.F90), telling convective_cloud_cover to take the shallow cloud
+  ! area fraction directly from the shfrc pbuf field. shfrc itself is read from the
+  ! snapshot; here we reproduce only the flag that the absent shallow scheme would set.
+!> \section arg_table_park_macrophysics_set_use_shfrc_init Argument Table
+!! \htmlinclude park_macrophysics_set_use_shfrc_init.html
+  subroutine park_macrophysics_set_use_shfrc_init(use_shfrc, errmsg, errflg)
+
+    ! Output arguments
+    logical,            intent(out)   :: use_shfrc
+    character(len=512), intent(out)   :: errmsg
+    integer,            intent(out)   :: errflg
+
+    errmsg = ''
+    errflg = 0
+
+    use_shfrc = .true.
+
+  end subroutine park_macrophysics_set_use_shfrc_init
 
   ! Save the post-macrophysics equilibrium state for use as the "previous timestep"
   ! reference state at the next step (CAM macrop_driver.F90).

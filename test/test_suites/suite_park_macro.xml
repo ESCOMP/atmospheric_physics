@@ -23,6 +23,10 @@
     <scheme>set_cloud_fraction_top</scheme>
     <scheme>compute_cloud_fraction_two_moment</scheme>
 
+    <!-- Snapshot stub: CAM's UW shallow scheme (absent from this macro-only suite) sets
+         use_shfrc=.true. in its init. Init-phase only; shfrc data is read from the snapshot. -->
+    <scheme>park_macrophysics_set_use_shfrc</scheme>
+
     <!-- ===================== Detrainment of convective condensate ===================== -->
     <!-- macrop_driver_tend lines 710-762: detrain dlf/dlf2 into cloud liquid/ice; produce
          the targeted-stratus detrainment forcings dlf_T/dlf_qv/dlf_ql/dlf_qi/dlf_nl/dlf_ni

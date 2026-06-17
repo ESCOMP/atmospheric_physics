@@ -1,4 +1,30 @@
 [ccpp-table-properties]
+  name = park_macrophysics_set_use_shfrc
+  type = scheme
+
+[ccpp-arg-table]
+  name  = park_macrophysics_set_use_shfrc_init
+  type  = scheme
+[ use_shfrc ]
+  standard_name = flag_for_cloud_area_fraction_to_use_shallow_convection_calculated_cloud_area_fraction
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-table-properties]
   name = park_macrophysics_save_qtlcwat
   type = scheme
 
