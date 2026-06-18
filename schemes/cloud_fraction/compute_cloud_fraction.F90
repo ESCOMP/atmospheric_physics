@@ -2,8 +2,9 @@
 ! CCPP-ized: Haipeng Lin, February 2025
 module compute_cloud_fraction
   use ccpp_kinds, only: kind_phys
+
+  implicit none
   private
-  save
 
   public :: compute_cloud_fraction_init
   public :: compute_cloud_fraction_timestep_init
@@ -309,10 +310,6 @@ contains
         ierror = i
       endif
     end do
-
-    if (ierror > 0) then
-      write (iulog, *) 'COLDSST: encountered in cldfrc:', ierror, ocnfrac(ierror), sst(ierror)
-    end if
 
     do k = top_lev_cloudphys, pver - 1
       rpdeli(:ncol, k) = 1._kind_phys/(pmid(:ncol, k + 1) - pmid(:ncol, k))

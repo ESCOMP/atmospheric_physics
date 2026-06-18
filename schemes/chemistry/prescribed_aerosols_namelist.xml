@@ -117,7 +117,7 @@
     <type>char*256</type>
     <category>chemistry</category>
     <group>prescribed_aero_nl</group>
-    <standard_name>filename_for_prescribed_aerosols</standard_name>
+    <standard_name>filename_of_prescribed_aerosols</standard_name>
     <units>none</units>
     <desc>
       Filename of dataset for prescribed aerosols.

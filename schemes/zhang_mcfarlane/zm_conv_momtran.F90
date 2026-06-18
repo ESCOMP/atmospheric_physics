@@ -279,7 +279,7 @@ subroutine zm_conv_momtran_run(ncol, pver, pverp, &
                conu(i,kk) = (+eu(i,kk)*const(i,kk)*dp(i,kk)+pgu(i,kk)*dp(i,kk))/mupdudp
             endif
             if (md(i,k) < -mbsth) then
-               cond(i,k) =  (-ed(i,km1)*const(i,km1)*dp(i,km1))-pgd(i,km1)*dp(i,km1)/md(i,k)
+               cond(i,k) =  ((-ed(i,km1)*const(i,km1)*dp(i,km1))-pgd(i,km1)*dp(i,km1))/md(i,k)
             endif
 
 
@@ -420,7 +420,7 @@ subroutine zm_conv_momtran_run(ncol, pver, pverp, &
           ketend_cons = (fket-fkeb)/dp(i,k)
 
           ! tendency in kinetic energy resulting from the momentum transport
-          ketend = ((windf(i,k,1)**2 + windf(i,k,2)**2) - (wind0(i,k,1)**2 + wind0(i,k,2)**2))/dt
+          ketend = 0.5_kind_phys * ((windf(i,k,1)**2 + windf(i,k,2)**2) - (wind0(i,k,1)**2 + wind0(i,k,2)**2))/dt
 
           ! the difference should be the dissipation
           gset2 = ketend_cons - ketend
