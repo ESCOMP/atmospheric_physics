@@ -1,0 +1,64 @@
+[ccpp-table-properties]
+  name = pumas_post_main
+  type = scheme
+  dependencies = pumas/micro_pumas_utils.F90
+
+[ccpp-arg-table]
+  name = pumas_post_main_run
+  type = scheme
+[ncol]
+  standard_name = horizontal_loop_extent
+  long_name = number of horizontal columns
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[cldice]
+  standard_name = cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water
+  long_name = cloud ice mixing ratio wrt moist air and condensed water
+  units = kg kg-1
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  type = real
+  kind = kind_phys
+  intent = in
+  advected = true
+[numice]
+  standard_name = mass_number_concentration_of_ice_wrt_moist_air_and_condensed_water
+  long_name = mass number concentration of cloud ice wrt moist air and condensed water
+  units = kg-1
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  type = real
+  kind = kind_phys
+  intent = in
+  advected = true
+[strat_cldfrc]
+  standard_name = stratiform_cloud_area_fraction
+  long_name = stratiform cloud area fraction
+  units = fraction
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  type = real
+  kind = kind_phys
+  intent = in
+[effi]
+  standard_name = effective_radius_of_stratiform_cloud_ice_particle
+  long_name = effective radius of stratiform cloud ice particle
+  units = micron
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  type = real
+  kind = kind_phys
+  intent = out
+[errmsg]
+  standard_name = ccpp_error_message
+  long_name = error message for error handling in CCPP
+  units = none
+  dimensions = ()
+  type = character
+  kind = len=512
+  intent = out
+[errcode]
+  standard_name = ccpp_error_code
+  long_name = error code for error handling in CCPP
+  units = 1
+  dimensions = ()
+  type = integer
+  intent = out
