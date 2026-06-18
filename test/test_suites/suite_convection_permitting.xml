@@ -7,7 +7,7 @@
     <scheme>calc_exner</scheme>
     <scheme>temp_to_potential_temp</scheme>
     <scheme>temp_to_virtual_temp</scheme>
-    <scheme>calc_air_density</scheme>
+    <scheme>calc_air_ideal_gas_density</scheme>
     <scheme>compute_characteristic_grid_length_scale</scheme>
     <scheme>compute_hydrostatic_upward_air_velocity</scheme>
     <scheme>compute_hydrostatic_upward_air_velocity_at_interface</scheme>

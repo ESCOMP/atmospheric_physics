@@ -18,7 +18,7 @@ module state_converters
   public :: calc_dry_air_ideal_gas_density_run
 
   ! Calculate air density by equation of state/ideal gas law
-  public :: calc_air_density_run
+  public :: calc_air_ideal_gas_density_run
 
   ! Calculate atmosphere layer thickness
   public :: calc_atmosphere_layer_thickness_run
@@ -143,9 +143,9 @@ CONTAINS
 
   end subroutine calc_dry_air_ideal_gas_density_run
 
-  !> \section arg_table_calc_air_density_run Argument Table
-  !! \htmlinclude calc_air_density_run.html
-  pure subroutine calc_air_density_run(pmid, rairv, virtual_temp, rho, errmsg, errflg)
+  !> \section arg_table_calc_air_ideal_gas_density_run Argument Table
+  !! \htmlinclude calc_air_ideal_gas_density_run.html
+  pure subroutine calc_air_ideal_gas_density_run(pmid, rairv, virtual_temp, rho, errmsg, errflg)
     use ccpp_kinds, only: kind_phys
 
     real(kind_phys), intent(in) :: pmid(:, :)         ! air pressure (Pa)
@@ -159,7 +159,7 @@ CONTAINS
 
     errmsg = ''
     errflg = 0
-  end subroutine calc_air_density_run
+  end subroutine calc_air_ideal_gas_density_run
 
   !> \section arg_table_calc_atmosphere_layer_thickness_run Argument Table
   !! \htmlinclude calc_atmosphere_layer_thickness_run.html

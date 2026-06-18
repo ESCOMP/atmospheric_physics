@@ -269,10 +269,10 @@
 
 #########################################################
 [ccpp-table-properties]
-  name = calc_air_density
+  name = calc_air_ideal_gas_density
   type = scheme
 [ccpp-arg-table]
-  name = calc_air_density_run
+  name = calc_air_ideal_gas_density_run
   type = scheme
 [ pmid ]
   standard_name = air_pressure

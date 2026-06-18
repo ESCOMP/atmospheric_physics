@@ -71,10 +71,10 @@ subroutine test_temp_to_virtual_temp_run()
 end subroutine test_temp_to_virtual_temp_run
 
 @test
-subroutine test_calc_air_density_run()
+subroutine test_calc_air_ideal_gas_density_run()
     use ccpp_kinds, only: kind_phys
     use funit
-    use state_converters, only: calc_air_density_run
+    use state_converters, only: calc_air_ideal_gas_density_run
 
     integer, parameter :: ncol = 100, pver = 10
     real(kind_phys), parameter :: rd = 287.04_kind_phys
@@ -91,13 +91,13 @@ subroutine test_calc_air_density_run()
 
     expected_rho(:, :) = pmid(:, :) / (rd * virtual_temp(:, :))
 
-    call calc_air_density_run(pmid, rairv, virtual_temp, rho, errmsg, errflg)
+    call calc_air_ideal_gas_density_run(pmid, rairv, virtual_temp, rho, errmsg, errflg)
 
     ! Should compute air density correctly.
     @assertEqual(expected_rho, rho, maxval(spacing(expected_rho)))
     @assertEqual('', errmsg)
     @assertEqual(0, errflg)
-end subroutine test_calc_air_density_run
+end subroutine test_calc_air_ideal_gas_density_run
 
 @test
 subroutine test_calc_atmosphere_layer_thickness_run()
