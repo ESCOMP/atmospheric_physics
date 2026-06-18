@@ -366,24 +366,13 @@ contains
         integer, intent(out) :: errflg
 
         integer, parameter :: kts = 1
-        real(kind_phys), allocatable :: sqv(:, :), sqc(:, :), sqi(:, :), sqs(:, :)
+        real(kind_phys) :: sqv(size(sqv_dry, 1), size(sqv_dry, 2)), &
+                           sqc(size(sqc_dry, 1), size(sqc_dry, 2)), &
+                           sqi(size(sqi_dry, 1), size(sqi_dry, 2)), &
+                           sqs(size(sqs_dry, 1), size(sqs_dry, 2))
 
         errmsg = ''
         errflg = 0
-
-        allocate( &
-            sqv(size(sqv_dry, 1), size(sqv_dry, 2)), &
-            sqc(size(sqc_dry, 1), size(sqc_dry, 2)), &
-            sqi(size(sqi_dry, 1), size(sqi_dry, 2)), &
-            sqs(size(sqs_dry, 1), size(sqs_dry, 2)), &
-            errmsg=errmsg, stat=errflg)
-
-        if (errflg /= 0) then
-            errmsg = 'bl_mynn_compat_run: Failed to allocate "sqv", "sqc", "sqi", "sqs"' // new_line('') // &
-                'Allocation returned with error: ' // trim(adjustl(errmsg))
-
-            return
-        end if
 
         ! Convert constituents from dry to moist basis. These are what MYNN PBL scheme wants.
         sqv(:, :) = sqv_dry(:, :) / (1.0_kind_phys + sqv_dry(:, :))
