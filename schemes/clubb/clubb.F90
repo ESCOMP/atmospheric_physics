@@ -17,6 +17,8 @@ module clubb
   !                                                                                 !
   ! =============================================================================== !
 
+!BAS pcols still used here...
+!BAS what about begchunk, endchunk?
   subroutine clubb_init(pcols, pver, pverp, pcnst, begchunk, endchunk, & ! in
                         masterproc, mpicom, mstrid, mpi_character, & ! in
                         iulog, max_fieldname_len, & ! in
@@ -434,6 +436,7 @@ module clubb
 
     if (stats_metadata%l_stats) then
 
+!BAS also uses pcols and allocate statements below
       call stats_init_clubb( pcols, masterproc, mpicom, mstrid, mpi_character, &
                              .true., dum1, dum2, max_fieldname_len, &
                              nzm_clubb, nzt_clubb, nzm_clubb, dum3, &
@@ -488,6 +491,7 @@ module clubb
   !-----------------------------------------------------------------------------------------
   !-----------------------------------------------------------------------------------------
 
+!BAS pcols and lchnk here
  subroutine clubb1_run( ncol, pcols, lchnk, iam, nstep, lat, lon, hdtime, & ! in
                         pver, pverp, pcnst, clubb_timestep, & ! in
                         nzt_clubb, nzm_clubb, sclr_dim, edsclr_dim, hydromet_dim, & ! in
@@ -2585,6 +2589,7 @@ module clubb
   ! ----------------------------------------------------------------------------------------
   ! ----------------------------------------------------------------------------------------
 
+!BAS pcols here...
   subroutine clubb3_run(pcols, ncol, pver, pverp, pcnst, top_lev, & ! in
                         ixq, ixcldice, ixcldliq, ixnumice, & ! in
                         rhminis_const, rhmaxis_const, rhmini_const, rhmaxi_const, & ! in
@@ -2603,8 +2608,11 @@ module clubb
                         qsatfac_pbuf, ast_pbuf, qist_pbuf, cld_pbuf, ptend_q, troplev, & ! inout
                         errmsg, errflg ) ! out
 
-!    use tropopause_find,       only: tropopause_findChemTrop
+!BAS prob need to switch to:
+!    use tropopause_find,       only: tropopause_find_run
+!but I need to calculate tropp_p_loc
     use holtslag_boville_diff, only: hb_pbl_dependent_coefficients_run
+!BAS I need to figure out what to do about aist_vector
 !    use cldfrc2m,              only: aist_vector
     use atmos_phys_pbl_utils,  only: calc_friction_velocity, calc_obukhov_length, calc_ideal_gas_rrho, &
                                      calc_kinematic_heat_flux, calc_kinematic_water_vapor_flux, &
@@ -2645,13 +2653,13 @@ module clubb
 
     ! Local variables
     integer :: i, k, ixind, k_clubb
+    !BAS troplev is inout right now, but ultimately could be local
+    integer, intent(inout) :: troplev(:)
     real(kind_phys) :: rhmini(pcols), rhmaxi(pcols)
     real(kind_phys) :: frac_limit, ic_limit
     real(kind_phys) :: rrho(ncol), ustar2(ncol), kinheat(ncol), kinwat(ncol), kbfs(ncol), obklen(ncol), &
                        dummy2(ncol), dummy3(ncol)
     real(kind_phys) :: th(ncol,pver), thv(ncol,pver)
-    !BAS troplev is inout right now, but ultimately could be local
-    integer, intent(inout) :: troplev(:)
 
     ! ---------------------------------------------------------
 
@@ -2868,7 +2876,7 @@ module clubb
   ! ----------------------------------------------------------------------------------------
 
 #ifdef CLUBB_SGS
-
+!BAS pcols here...
   subroutine stats_init_clubb( pcols, masterproc, mpicom, mstrid, mpi_character, &
                                l_stats_in, stats_tsamp_in, stats_tout_in, max_fieldname_len, &
                                nnzp, nnrad_zt,nnrad_zm, delt, &
@@ -2887,14 +2895,15 @@ module clubb
 
     !-----------------------------------------------------------------------
 
-    use clubb_api_module, only:        time_precision, stats, stats_metadata_type, hm_metadata_type, &   !
-                                       nvarmax_zm, stats_init_zm_api, & !
-                                       nvarmax_zt, stats_init_zt_api, & !
-                                       nvarmax_rad_zt, stats_init_rad_zt_api, & !
-                                       nvarmax_rad_zm, stats_init_rad_zm_api, & !
-                                       nvarmax_sfc, stats_init_sfc_api, & !
-                                       fstderr, var_length !
-    use cam_history,            only: addfld, horiz_only
+    use clubb_api_module, only: time_precision, stats, stats_metadata_type, hm_metadata_type, &   !
+                                nvarmax_zm, stats_init_zm_api, & !
+                                nvarmax_zt, stats_init_zt_api, & !
+                                nvarmax_rad_zt, stats_init_rad_zt_api, & !
+                                nvarmax_rad_zm, stats_init_rad_zm_api, & !
+                                nvarmax_sfc, stats_init_sfc_api, & !
+                                fstderr, var_length !
+!BAS addfld here? 
+    use cam_history,      only: addfld, horiz_only
 
     implicit none
 
@@ -3383,11 +3392,11 @@ module clubb
       stats_metadata
 
     ! Inout variables
-    real(kind_phys), intent(inout) :: out_zt(:,:,:)     ! (pcols,pver,stats_zt%num_output_fields)
-    real(kind_phys), intent(inout) :: out_zm(:,:,:)     ! (pcols,pverp,stats_zt%num_output_fields)
-    real(kind_phys), intent(inout) :: out_radzt(:,:,:)  ! (pcols,pver,stats_rad_zt%num_output_fields)
-    real(kind_phys), intent(inout) :: out_radzm(:,:,:)  ! (pcols,pverp,rad_zm%num_output_fields)
-    real(kind_phys), intent(inout) :: out_sfc(:,:,:)    ! (pcols,1,sfc%num_output_fields)
+    real(kind_phys), intent(inout) :: out_zt(:,:,:)
+    real(kind_phys), intent(inout) :: out_zm(:,:,:)
+    real(kind_phys), intent(inout) :: out_radzt(:,:,:)
+    real(kind_phys), intent(inout) :: out_radzm(:,:,:)
+    real(kind_phys), intent(inout) :: out_sfc(:,:,:)
 
     ! Out variables
     character(len=512), intent(out) :: errmsg
