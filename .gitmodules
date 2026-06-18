@@ -8,7 +8,7 @@
 	path = schemes/pumas/pumas
 	url = https://github.com/nusbaume/PUMAS
         fxrequired = AlwaysRequired
-        fxtag = e3073ea
+        fxtag = c4aec4a
         fxDONOTUSEurl = https://github.com/ESCOMP/PUMAS
 [submodule "rte-rrtmgp"]
 	path = schemes/rrtmgp/ext

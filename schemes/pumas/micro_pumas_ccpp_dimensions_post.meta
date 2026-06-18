@@ -161,7 +161,7 @@
   intent = out
   constituent = true
 [pumas_numliq_tend]
-  standard_name = tendency_of_pumas_mass_number_concentration_of_cloud_liquid_water_wrt_moist_air_and_condensed_water
+  standard_name = tendency_of_pumas_mass_number_concentration_of_cloud_liquid_wrt_moist_air_and_condensed_water
   long_name = microphysics mass number concentration of cloud liquid water wrt moist air and condensed water
   units = kg-1 s-1
   dimensions = (microphysics_horizontal_loop_extent, microphysics_vertical_layer_dimension)
