@@ -1,7 +1,7 @@
 [ccpp-table-properties]
   name = bretherton_park_diff
   type = scheme
-  dependencies = eddy_diff.F90, ../phys_utils/atmos_phys_pbl_utils, ../to_be_ccppized/coords_1d.F90, ../to_be_ccppized/wv_saturation.F90
+  dependencies = eddy_diff.F90, ../../phys_utils/atmos_phys_pbl_utils.F90, ../../to_be_ccppized/coords_1d.F90, ../../to_be_ccppized/wv_saturation.F90
 
 [ccpp-arg-table]
   name  = bretherton_park_diff_init
@@ -681,7 +681,7 @@
   dimensions = (horizontal_loop_extent, maximum_number_of_convective_layers_in_eddy_diffusion)
   intent = out
 [ n2hb ]
-  standard_name =   standard_name = squared_buoyancy_frequency_at_bottom_of_convective_layer
+  standard_name = squared_buoyancy_frequency_at_bottom_of_convective_layer
   long_name = squared Brunt-Vaisala frequency at bottom of convective layer
   units = s-2
   type = real | kind = kind_phys
