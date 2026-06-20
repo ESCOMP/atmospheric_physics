@@ -974,13 +974,9 @@ module clubb
     ! with using OpenACC, see the "ifdef _OPENACC" section above for restriction examples
 
     !$acc data copyin( pdf_params_chnk, pdf_params_zm_chnk, sclr_idx, &
-!BAS the line below has state_loc in it, which won't be in this subroutine---problem?
-!                 state_loc, 
     !$acc              state_q, u, v, t, pmid, &
     !$acc              zm, phis, pdel, pdeldry, s, &
     !$acc              pint, zi, omega, lat, &
-!BAS the line below has cam_in in it, which won't be in this subroutine---problem?
-!                 cam_in, 
     !$acc              wsx, wsy, cflx, shf, &
     !$acc              err_info, err_info%err_header, &
     !$acc              cpairv, rairv, se_dis, eleak, cld_pbuf, clubb_params_single_col, grid_dx, grid_dy ) &
