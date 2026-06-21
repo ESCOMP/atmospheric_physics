@@ -2,7 +2,7 @@
 
 <?xml-stylesheet type="text/xsl"?>
 
-<entry_id_pg version="2.0">
+<apple_id_pg version="2.0">
 
 <!-- Each namelist variable is defined in an <entry> element.  The
      content of the element is the documentation of how the variable is
@@ -105,4 +105,4 @@
     <value>15</value>
   </values>
 </entry>
-</entry_id_pg>
+</apple_id_pg>
