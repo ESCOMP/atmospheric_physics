@@ -20,6 +20,9 @@
     <!-- INITIALIZE ZM NAMELIST (init phase only) -->
     <scheme>zm_conv_options</scheme>
 
+    <!-- INITIALIZE CLOUD FRACTION NAMELIST (init phase only) -->
+    <scheme>cloud_fraction_options</scheme>
+
     <!-- Compute global means of physics input and output total energy -->
     <scheme>check_energy_gmean</scheme>
     <!-- After gmean, output global mean energy diagnostics -->

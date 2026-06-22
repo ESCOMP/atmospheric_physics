@@ -12,6 +12,9 @@
   <group name="physics_before_coupler">
     <scheme>to_be_ccppized_temporary</scheme>
 
+    <!-- INITIALIZE CLOUD FRACTION NAMELIST (init phase only) -->
+    <scheme>cloud_fraction_options</scheme>
+
     <!-- Find tropopause -->
     <scheme>tropopause_find</scheme>
 
