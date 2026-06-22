@@ -64,7 +64,7 @@
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ tke ]
-  standard_name = specific_turbulent_kinetic_energy_at_interfaces
+  standard_name = tke_at_interfaces
   units = m2 s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)

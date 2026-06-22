@@ -279,7 +279,7 @@ subroutine zm_conv_momtran_run(ncol, pver, pverp, &
                conu(i,kk) = (+eu(i,kk)*const(i,kk)*dp(i,kk)+pgu(i,kk)*dp(i,kk))/mupdudp
             endif
             if (md(i,k) < -mbsth) then
-               cond(i,k) =  (-ed(i,km1)*const(i,km1)*dp(i,km1))-pgd(i,km1)*dp(i,km1)/md(i,k)
+               cond(i,k) =  ((-ed(i,km1)*const(i,km1)*dp(i,km1))-pgd(i,km1)*dp(i,km1))/md(i,k)
             endif
 
 
