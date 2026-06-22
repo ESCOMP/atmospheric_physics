@@ -14,7 +14,7 @@ contains
 !> \section arg_table_beljaars_drag_run Argument Table
 !! \htmlinclude beljaars_drag_run.html
   ! Compute Beljaars SGO form drag profile and surface stresses
-  subroutine beljaars_drag_run( &
+  pure subroutine beljaars_drag_run( &
     do_beljaars, &
     ncol, pver, &
     u, v, delp, zm, sgh30, &
@@ -45,7 +45,15 @@ contains
 
     real(kind_phys) :: vmag                         ! velocity magnitude [m s-1]
 
-    real(kind_phys) :: alpha, beta, Cmd, Ccorr, n1, n2, k1, kflt, IH
+    real(kind_phys), parameter :: alpha = 12.0_kind_phys
+    real(kind_phys), parameter :: beta  = 1.0_kind_phys
+    real(kind_phys), parameter :: n1    = -1.9_kind_phys
+    real(kind_phys), parameter :: n2    = -2.8_kind_phys
+    real(kind_phys), parameter :: Cmd   = 0.005_kind_phys
+    real(kind_phys), parameter :: Ccorr = 0.6_kind_phys * 5.0_kind_phys
+    real(kind_phys), parameter :: kflt  = 0.00035_kind_phys   ! m-1
+    real(kind_phys), parameter :: k1    = 0.003_kind_phys     ! m-1
+    real(kind_phys), parameter :: IH    = 0.00102_kind_phys   ! m-1
     real(kind_phys) :: a1(ncol), a2(ncol)
 
     errmsg = ''
@@ -58,18 +66,6 @@ contains
       tauy(:)   = 0._kind_phys
       return
     end if
-
-    alpha =  12.0_kind_phys
-    beta  =  1.0_kind_phys
-    n1    = -1.9_kind_phys
-    n2    = -2.8_kind_phys
-
-    Cmd   = 0.005_kind_phys
-    Ccorr = 0.6_kind_phys * 5.0_kind_phys
-
-    kflt  = 0.00035_kind_phys   ! m-1
-    k1    = 0.003_kind_phys     ! m-1
-    IH    = 0.00102_kind_phys   ! m-1
 
     a1(1:ncol) = (sgh30(1:ncol) * sgh30(1:ncol)) / (IH * (kflt**n1))
     a2(1:ncol) = a1(1:ncol) * k1**(n1 - n2)

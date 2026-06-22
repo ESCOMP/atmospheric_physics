@@ -16,7 +16,7 @@ contains
   ! Has to run after vertical_diffusion_wind_damping_rate
 !> \section arg_table_beljaars_add_wind_damping_rate_run Argument Table
 !! \htmlinclude arg_table_beljaars_add_wind_damping_rate_run.html
-  subroutine beljaars_add_wind_damping_rate_run( &
+  pure subroutine beljaars_add_wind_damping_rate_run( &
     ncol, pver, &
     dragblj, &
     tau_damp_rate, &
