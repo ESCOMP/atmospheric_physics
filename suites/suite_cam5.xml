@@ -11,7 +11,7 @@
       Radiation               RRTMGP
       Chemistry               None       (not implemented)
       Vertical Diffusion      UW (Bretherton-Park)
-        Orographic Stress     Beljaars   (not implemented)
+        Orographic Stress     Beljaars
           * note - original was TMS but decided to skip port.
       Gravity Wave Drag       Orographic
   -->
@@ -158,8 +158,15 @@
     -->
 
     <!--
+      Orographic form drag: Beljaars SGO
+    -->
+    <scheme>beljaars_drag</scheme>
+    <scheme>beljaars_drag_diagnostics</scheme>
+
+    <!--
       Vertical diffusion (UW/Bretherton-Park; formerly diag_TKE)
     -->
+
     <!-- read namelist options -->
     <scheme>vertical_diffusion_options</scheme>
 
@@ -168,9 +175,6 @@
 
     <!-- init phase only: for setting vertical diffusion top -->
     <scheme>hb_diff_set_vertical_diffusion_top</scheme>
-
-    <!-- stub: Beljaars is zero (not enabled for CAM5/not implemented) -->
-    <scheme>beljaars_zero_stub</scheme>
 
     <!-- vdiff pre-interstitial 0: create p coords1d and potential temp. -->
     <scheme>vertical_diffusion_prepare_inputs</scheme>

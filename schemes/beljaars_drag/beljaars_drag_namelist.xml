@@ -85,6 +85,7 @@
     </desc>
     <values>
       <value>.false.</value>
+      <value phys_suite="cam5">.true.</value>
       <value phys_suite="cam6">.true.</value>
       <value phys_suite="cam7">.true.</value>
     </values>
