@@ -218,6 +218,7 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
+  advected = true
 [ phis ]
   standard_name = surface_geopotential
   units = m2 s-2

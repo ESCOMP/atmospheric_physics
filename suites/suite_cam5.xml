@@ -23,6 +23,9 @@
     <!-- INITIALIZE ZM NAMELIST (init phase only) -->
     <scheme>zm_conv_options</scheme>
 
+    <!-- INITIALIZE CLOUD FRACTION NAMELIST (init phase only) -->
+    <scheme>cloud_fraction_options</scheme>
+
     <!-- Initialize cloud fraction for two-moment microphysics (init phase only) -->
     <scheme>compute_cloud_fraction_two_moment</scheme>
 
