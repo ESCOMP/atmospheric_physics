@@ -17,7 +17,6 @@ module clubb
   !                                                                                 !
   ! =============================================================================== !
 
-!BAS pcols still used here...
   subroutine clubb_init(pcols, pver, pverp, pcnst, & ! in
                         masterproc, mpicom, mstrid, mpi_character, & ! in
                         iulog, max_fieldname_len, & ! in
@@ -412,7 +411,6 @@ module clubb
 
     if (stats_metadata%l_stats) then
 
-!BAS also uses pcols and allocate statements below
       call stats_init_clubb( pcols, masterproc, mpicom, mstrid, mpi_character, &
                              .true., dum1, dum2, max_fieldname_len, &
                              nzm_clubb, nzt_clubb, nzm_clubb, dum3, &
@@ -467,8 +465,7 @@ module clubb
   !-----------------------------------------------------------------------------------------
   !-----------------------------------------------------------------------------------------
 
-!BAS pcols
- subroutine clubb1_run( ncol, pcols, iam, nstep, lat, lon, hdtime, & ! in
+ subroutine clubb1_run( ncol, iam, nstep, lat, lon, hdtime, & ! in
                         pver, pverp, pcnst, clubb_timestep, & ! in
                         nzt_clubb, nzm_clubb, sclr_dim, edsclr_dim, hydromet_dim, & ! in
                         stats_metadata, hm_metadata, clubb_do_adv, first_step, first_restart_step, & ! in
@@ -557,7 +554,7 @@ module clubb
 
 
     ! Input variables, intent(in)
-    integer, intent(in) :: ncol, pcols, iam, ixq, ixcldliq, ixcldice, ixrtpthlp, ixwpthlp, &
+    integer, intent(in) :: ncol, iam, ixq, ixcldliq, ixcldice, ixrtpthlp, ixwpthlp, &
                            ixwprtp, ixwp3, ixwp2, ixthlp2, ixrtp2, ixup2, ixvp2, sclr_dim, edsclr_dim, &
                            macmic_it, top_lev, cld_macmic_num_steps, grid_type, hydromet_dim, nstep, &
                            nzt_clubb, nzm_clubb, pver, pverp, pcnst
@@ -861,7 +858,7 @@ module clubb
     real(kind_phys), dimension(ncol,nzm_clubb,hydromet_dim) :: &
       wphydrometp
 
-    real(kind_phys) :: clubb_s(pcols,nzt_clubb)         ! diagnosed dry static energy from clubb
+    real(kind_phys) :: clubb_s(ncol,nzt_clubb)         ! diagnosed dry static energy from clubb
 
     real(kind_phys) :: &
       dum1,                     & ! dummy variable                                [units vary]
@@ -1422,15 +1419,11 @@ module clubb
     rtpthlp_forcing = zt2zm_api( nzm_clubb, nzt_clubb, ncol, gr, rtpthlp_mc_zt_pbuf(1:ncol,:) )
 
     ! Zero out SILHS covariance contribution terms
-    do k = 1, nzt_clubb
-      do i = 1, pcols
-        rtp2_mc_zt_pbuf(i,k)     = 0.0_kind_phys
-        thlp2_mc_zt_pbuf(i,k)    = 0.0_kind_phys
-        wprtp_mc_zt_pbuf(i,k)    = 0.0_kind_phys
-        wpthlp_mc_zt_pbuf(i,k)   = 0.0_kind_phys
-        rtpthlp_mc_zt_pbuf(i,k)  = 0.0_kind_phys
-      end do
-    end do
+    rtp2_mc_zt_pbuf     = 0.0_kind_phys
+    thlp2_mc_zt_pbuf    = 0.0_kind_phys
+    wprtp_mc_zt_pbuf    = 0.0_kind_phys
+    wpthlp_mc_zt_pbuf   = 0.0_kind_phys
+    rtpthlp_mc_zt_pbuf  = 0.0_kind_phys
 #else
     ! Set forcings to zero if not using SILHS
     !$acc parallel loop gang vector collapse(2) default(present)
@@ -2564,8 +2557,7 @@ module clubb
   ! ----------------------------------------------------------------------------------------
   ! ----------------------------------------------------------------------------------------
 
-!BAS pcols here...
-  subroutine clubb3_run(pcols, ncol, pver, pverp, pcnst, top_lev, & ! in
+  subroutine clubb3_run(ncol, pver, pverp, pcnst, top_lev, & ! in
                         ixq, ixcldice, ixcldliq, ixnumice, & ! in
                         rhminis_const, rhmaxis_const, rhmini_const, rhmaxi_const, & ! in
                         dp1, dp2, zvir, rair, cpair, gravit, karman, & ! in
@@ -2594,7 +2586,7 @@ module clubb
                                      calc_kinematic_buoyancy_flux
 
     ! Input variables, intent(in)
-    integer, intent(in) :: pcols, ncol, pver, pverp, pcnst, top_lev 
+    integer, intent(in) :: ncol, pver, pverp, pcnst, top_lev 
     integer, intent(in) :: ixq, ixcldice, ixcldliq, ixnumice
     real(kind_phys), intent(in) :: rhminis_const, rhmaxis_const, rhmini_const, rhmaxi_const
     real(kind_phys), intent(in) :: dp1, dp2, zvir, rair, cpair, gravit, karman
@@ -2630,7 +2622,7 @@ module clubb
     integer :: i, k, ixind, k_clubb
     !BAS troplev is inout right now, but ultimately could be local
     integer, intent(inout) :: troplev(:)
-    real(kind_phys) :: rhmini(pcols), rhmaxi(pcols)
+    real(kind_phys) :: rhmini(ncol), rhmaxi(ncol)
     real(kind_phys) :: frac_limit, ic_limit
     real(kind_phys) :: rrho(ncol), ustar2(ncol), kinheat(ncol), kinwat(ncol), kbfs(ncol), obklen(ncol), &
                        dummy2(ncol), dummy3(ncol)
@@ -2851,7 +2843,6 @@ module clubb
   ! ----------------------------------------------------------------------------------------
 
 #ifdef CLUBB_SGS
-!BAS pcols here...
   subroutine stats_init_clubb( pcols, masterproc, mpicom, mstrid, mpi_character, &
                                l_stats_in, stats_tsamp_in, stats_tout_in, max_fieldname_len, &
                                nnzp, nnrad_zt,nnrad_zm, delt, &
