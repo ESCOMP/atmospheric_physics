@@ -163,6 +163,12 @@ contains
       lnsm(naer_all), &
       ccnfact(psat, naer_all))
 
+    ! Initialize to inert values so that any mode skipped below
+    ! (dispersion_aer == 0) contributes zero in maxsat and ccn_diag.
+    f1(:) = 0._kind_phys
+    f2(:) = 0._kind_phys
+    ccnfact(:, :) = 0._kind_phys
+
     do m = 1, naer_all
 
       ! Skip aerosols that don't have a dispersion defined.
@@ -409,6 +415,8 @@ contains
       lnsmloc(maxmodes), &
       stat=errflg, errmsg=errmsg)
     if (errflg /= 0) return
+
+    eta(:) = 0._kind_phys
 
     if (maxmodes < pmode) then
       write (errmsg, *) 'ndrop_bam activate: maxmodes,pmode=', maxmodes, pmode
