@@ -106,7 +106,7 @@ contains
       if ( ret .ne. NF90_NOERR ) then
          if(present(line)) then
             write(iulog,*) mes, line
-         else	
+         else
             write(iulog,*) mes
          end if
          write(iulog,*) nf90_strerror( ret )
