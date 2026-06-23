@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet type="text/xsl"?>
+
+<entry_id_pg version="2.0">
+
+  <entry id="microp_aero_wsub_min">
+    <type>real</type>
+    <category>microphys</category>
+    <group>wsub_scale_nl</group>
+    <standard_name>minimum_subgrid_scale_vertical_velocity_for_droplet_nucleation</standard_name>
+    <units>m s-1</units>
+    <desc>
+      Minimum subgrid vertical velocity (before scale factor) for liquid droplet
+      nucleation during aerosol activation.
+      Default: 0.2 (CAM6), 0.1 (CAM7)
+    </desc>
+    <values>
+      <value>0.2D0</value>
+      <value phys_suite="cam7">0.1D0</value>
+    </values>
+  </entry>
+
+  <entry id="microp_aero_wsubi_min">
+    <type>real</type>
+    <category>microphys</category>
+    <group>wsub_scale_nl</group>
+    <standard_name>minimum_subgrid_scale_vertical_velocity_for_ice_nucleation</standard_name>
+    <units>m s-1</units>
+    <desc>
+      Minimum subgrid vertical velocity for ice nucleation during aerosol activation.
+      Default: 0.001
+    </desc>
+    <values>
+      <value>0.001D0</value>
+    </values>
+  </entry>
+
+  <entry id="microp_aero_wsub_scale">
+    <type>real</type>
+    <category>microphys</category>
+    <group>wsub_scale_nl</group>
+    <standard_name>tunable_parameter_for_subgrid_vertical_velocity_scaling_for_droplet_nucleation</standard_name>
+    <units>1</units>
+    <desc>
+      Unitless scaling factor for the liquid droplet subgrid scale vertical velocity
+      during aerosol activation.
+      Default: 1.0 (CAM6), 0.9 (CAM7)
+    </desc>
+    <values>
+      <value>1.D0</value>
+      <value phys_suite="cam7">0.9D0</value>
+    </values>
+  </entry>
+
+  <entry id="microp_aero_wsubi_scale">
+    <type>real</type>
+    <category>microphys</category>
+    <group>wsub_scale_nl</group>
+    <standard_name>tunable_parameter_for_subgrid_vertical_velocity_scaling_for_ice_nucleation</standard_name>
+    <units>1</units>
+    <desc>
+      Unitless scaling factor for the ice droplet subgrid scale vertical velocity
+      during aerosol activation.
+      Default: 1.0 (CAM6), 1.5 (CAM7)
+    </desc>
+    <values>
+      <value>1.D0</value>
+      <value phys_suite="cam7">1.5D0</value>
+    </values>
+  </entry>
+
+</entry_id_pg>
