@@ -64,11 +64,12 @@ jobs:
       # The "... validates" text printed by xmllint is just for humans --
       # the exit code is what turns the check green or red. Try running
       # xmllint in your terminal and then `echo $?` to see the code.
-      - name: Validate one namelist file (worked example)
+            - name: Validate all scheme namelist files
         run: |
-          xmllint --noout \
+          find schemes -name "*_namelist.xml" -print
+          find schemes -name "*_namelist.xml" -exec xmllint --noout \
             --schema cime/CIME/ParamGen/xml_schema/entry_id_pg.xsd \
-            schemes/dry_adiabatic_adjust/dadadj_namelist.xml
+            {} +
 
       # TODO for Rosio: validate ALL the scheme namelist definition files,
       # generalizing the worked example above.
