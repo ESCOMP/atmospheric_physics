@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet type="text/xsl"?>
+
+<entry_id_pg version="2.0">
+
+  <entry id="use_hetfrz_classnuc">
+    <type>logical</type>
+    <category>microphys</category>
+    <group>hetfrz_classnuc_nl</group>
+    <standard_name>do_heterogeneous_ice_nucleation</standard_name>
+    <units>flag</units>
+    <desc>
+      Switch to turn on heterogeneous freezing by classical nucleation theory.
+      Currently a stub in CAM-SIMA: the flag is propagated to downstream schemes
+      (nucleate_ice_ccpp, eventually PUMAS) but no hetfrz computation is performed.
+      Setting this to TRUE is supported for snapshot-testing flows where the flag
+      must match CAM; a warning is emitted at init time.
+      Default: FALSE; TRUE for CAM6 and CAM7.
+    </desc>
+    <values>
+      <value>.false.</value>
+      <value phys_suite="cam6">.true.</value>
+      <value phys_suite="cam7">.true.</value>
+    </values>
+  </entry>
+
+</entry_id_pg>
