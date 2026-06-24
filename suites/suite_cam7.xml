@@ -99,8 +99,22 @@
     <scheme>tropopause_find</scheme>
     <scheme>tropopause_diagnostics</scheme>
 
-    <!-- Vertical diffusion -->
+    <!--
+      Orographic form drag: Beljaars SGO
+    -->
+    <scheme>beljaars_drag</scheme>
+    <scheme>beljaars_drag_diagnostics</scheme>
 
+    <!--
+      Initialize cloud fraction for two-moment microphysics (init phase only).
+      cloud_fraction_options reads the cldfrc_nl namelist parameters that
+      compute_cloud_fraction_two_moment depends on; compute_cloud_fraction
+      itself is not run in CAM7.
+    -->
+    <scheme>cloud_fraction_options</scheme>
+    <scheme>compute_cloud_fraction_two_moment</scheme>
+
+    <!-- Vertical diffusion (CLUBB) -->
 
     <!--
       Gravity wave drag.

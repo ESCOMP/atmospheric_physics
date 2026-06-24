@@ -79,7 +79,7 @@
   dimensions = ()
   intent = in
 [ premib_in ]
-  standard_name = tunable_parameter_for_bottom_pressure_bound_for_mid_level_liquid_stratus_for_cloud_fraction
+  standard_name = tunable_parameter_for_bottom_pressure_bound_for_mid_level_clouds_for_cloud_fraction
   units = Pa
   type = real | kind = kind_phys
   dimensions = ()
@@ -218,6 +218,7 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
+  advected = true
 [ phis ]
   standard_name = surface_geopotential
   units = m2 s-2
