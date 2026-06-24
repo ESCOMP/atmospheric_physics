@@ -22,6 +22,9 @@
     <!-- INITIALIZE ZM NAMELIST (init phase only) -->
     <scheme>zm_conv_options</scheme>
 
+    <!-- INITIALIZE CLOUD FRACTION NAMELIST (init phase only) -->
+    <scheme>cloud_fraction_options</scheme>
+
     <!-- Prescribe ozone and aerosol for radiation. -->
     <scheme>prescribed_ozone</scheme>
     <scheme>prescribed_aerosols</scheme>
