@@ -518,6 +518,10 @@ contains
         rqiblten(:, :) = (sqi(:, :) / (1.0_kind_phys - sqv(:, :)) - sqi_dry(:, :)) / delt
         rqsblten(:, :) = (sqs(:, :) / (1.0_kind_phys - sqv(:, :)) - sqs_dry(:, :)) / delt
 
+        ! Vertical indexes output by `bl_mynn_run` are also vertically inverted. Flip them back.
+        kpbl(:) = kte - kpbl(:) + 1
+        ktop_plume(:) = kte - ktop_plume(:) + 1
+
         errmsg = ''
         errflg = 0
     end subroutine bl_mynn_compat_run
