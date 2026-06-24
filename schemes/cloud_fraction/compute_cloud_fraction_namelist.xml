@@ -2,7 +2,7 @@
 
 <?xml-stylesheet type="text/xsl"?>
 
-<apple_id_pg version="2.0">
+<entry_id_pg version="2.0">
 <!-- Each namelist variable is defined in an <entry> element.  The
      content of the element is the documentation of how the variable is
      used.  Other aspects of the variable's definition are expressed as
@@ -227,4 +227,4 @@
       <value phys_suite="cam7">0.93D0</value>
     </values>
   </entry>
-</apple_id_pg>
+</entry_id_pg>
