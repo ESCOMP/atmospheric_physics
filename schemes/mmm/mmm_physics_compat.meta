@@ -301,7 +301,7 @@
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = out
 [ rozblten ]
-  standard_name = tendency_of_ozone_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_pbl_processes
+  standard_name = tendency_of_o3_due_to_pbl_processes
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_dimension, vertical_layer_dimension)
@@ -403,7 +403,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ ozone ]
-  standard_name = ozone_mixing_ratio_wrt_moist_air_and_condensed_water
+  standard_name = o3
   units = kg kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -542,7 +542,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rozblten ]
-  standard_name = tendency_of_ozone_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_pbl_processes
+  standard_name = tendency_of_o3_due_to_pbl_processes
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

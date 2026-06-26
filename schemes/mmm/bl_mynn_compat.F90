@@ -194,7 +194,7 @@ contains
         end if
 
         call ccpp_constituent_index( &
-            'ozone_mixing_ratio_wrt_moist_air_and_condensed_water', i, errflg, errmsg)
+            'o3', i, errflg, errmsg)
 
         if (errflg == 0 .and. i /= int_unassigned) then
             flag_qoz = .true.
