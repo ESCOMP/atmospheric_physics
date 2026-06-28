@@ -54,39 +54,10 @@ jobs:
             --schema ccpp-framework/schema/suite_v1_0.xsd \
             suites/*.xml test/test_suites/*.xml
 
-      # Worked example: validate ONE namelist definition file against the
-      # ParamGen schema, so you can see the moving parts before doing all 33.
-      #
-      # How CI decides pass/fail: xmllint exits with code 0 when the file
-      # validates, and non-zero when it does not (or can't be read). GitHub
-      # Actions runs each `run` block with `bash -e`, so the first command
-      # that exits non-zero aborts the step and marks the job as failed.
-      # The "... validates" text printed by xmllint is just for humans --
-      # the exit code is what turns the check green or red. Try running
-      # xmllint in your terminal and then `echo $?` to see the code.
       - name: Validate all scheme namelist files
         run: |
           find schemes -name "*_namelist.xml" -print
           find schemes -name "*_namelist.xml" -exec xmllint --noout \
             --schema cime/CIME/ParamGen/xml_schema/entry_id_pg.xsd \
             {} +
-      # TODO for Rosio: validate ALL the scheme namelist definition files,
-      # generalizing the worked example above.
-      #
-      # The files are schemes/**/*_namelist.xml (33 of them at the time
-      # of writing -- try `find schemes -name '*_namelist.xml'`).
-      # The schema is the same one used in the worked example.
-      #
-      # Hints:
-      #  - The shell glob schemes/*/*_namelist.xml works for the current
-      #    layout, but `find ... -exec xmllint ... +` is robust to schemes
-      #    nested at any depth. Try both; pick one and explain why.
-      #  - Whatever construction you use, make sure a failing file still
-      #    fails the step! Some shell constructions swallow exit codes
-      #    (e.g. piping xmllint's output into another command, or a `for`
-      #    loop that doesn't track failures). `find -exec ... +` does
-      #    propagate xmllint's exit code; verify this yourself.
-      #  - Test both directions: deliberately break one namelist file in
-      #    your branch (e.g. delete a closing tag), confirm the workflow
-      #    goes red, then fix it and confirm green. A check that can
-      #    never fail is worse than no check at all.
+
