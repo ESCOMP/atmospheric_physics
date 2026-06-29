@@ -421,7 +421,7 @@
   dimensions = ()
   intent = out
 [ flag_qnc ]
-  standard_name = flag_for_mass_number_concentration_of_cloud_liquid_water_particles_in_dry_air_in_mynn_pbl_scheme
+  standard_name = flag_for_mass_number_concentration_of_cloud_liquid_water_droplets_in_dry_air_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
@@ -625,7 +625,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ qnc ]
-  standard_name = mass_number_concentration_of_cloud_liquid_water_particles_in_dry_air
+  standard_name = mass_number_concentration_of_cloud_liquid_water_droplets_in_dry_air
   units = kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -835,7 +835,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rqncblten ]
-  standard_name = tendency_of_mass_number_concentration_of_cloud_liquid_water_particles_in_dry_air_due_to_pbl_processes
+  standard_name = tendency_of_mass_number_concentration_of_cloud_liquid_water_droplets_in_dry_air_due_to_pbl_processes
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -1225,7 +1225,7 @@
   dimensions = ()
   intent = in
 [ flag_qnc ]
-  standard_name = flag_for_mass_number_concentration_of_cloud_liquid_water_particles_in_dry_air_in_mynn_pbl_scheme
+  standard_name = flag_for_mass_number_concentration_of_cloud_liquid_water_droplets_in_dry_air_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()

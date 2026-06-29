@@ -207,7 +207,7 @@ contains
         flag_qnbca = .false.
 
         call ccpp_constituent_index( &
-            'mass_number_concentration_of_cloud_liquid_water_particles_in_dry_air', i, errflg, errmsg)
+            'mass_number_concentration_of_cloud_liquid_water_droplets_in_dry_air', i, errflg, errmsg)
 
         if (errflg == 0 .and. i /= int_unassigned) then
             flag_qnc = .true.

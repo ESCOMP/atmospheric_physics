@@ -265,7 +265,7 @@
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = out
 [ rncblten ]
-  standard_name = tendency_of_mass_number_concentration_of_cloud_liquid_water_particles_in_dry_air_due_to_pbl_processes
+  standard_name = tendency_of_mass_number_concentration_of_cloud_liquid_water_droplets_in_dry_air_due_to_pbl_processes
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_dimension, vertical_layer_dimension)
@@ -410,7 +410,7 @@
   intent = inout
   advected = True
 [ nc ]
-  standard_name = mass_number_concentration_of_cloud_liquid_water_particles_in_dry_air
+  standard_name = mass_number_concentration_of_cloud_liquid_water_droplets_in_dry_air
   units = kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -506,7 +506,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rncblten ]
-  standard_name = tendency_of_mass_number_concentration_of_cloud_liquid_water_particles_in_dry_air_due_to_pbl_processes
+  standard_name = tendency_of_mass_number_concentration_of_cloud_liquid_water_droplets_in_dry_air_due_to_pbl_processes
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
