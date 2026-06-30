@@ -194,7 +194,7 @@ contains
         end if
 
         call ccpp_constituent_index( &
-            'o3', i, errflg, errmsg)
+            'O3', i, errflg, errmsg)
 
         if (errflg == 0 .and. i /= int_unassigned) then
             flag_qoz = .true.

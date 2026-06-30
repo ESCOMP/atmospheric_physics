@@ -660,7 +660,7 @@
   intent = in
   advected = True
 [ qozone ]
-  standard_name = o3
+  standard_name = O3
   units = kg kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -865,7 +865,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rqozblten ]
-  standard_name = tendency_of_o3_due_to_pbl_processes
+  standard_name = tendency_of_O3_due_to_pbl_processes
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
