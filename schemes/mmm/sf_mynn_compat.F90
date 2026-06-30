@@ -1,22 +1,17 @@
-!> This module contains interstitial schemes that are specific to MYNN surface layer scheme,
-!> which is part of MMM physics.
+!> This module contains interstitial schemes that are specific to the MYNN surface layer scheme,
+!> which is part of the MMM physics.
 module sf_mynn_compat
-    use ccpp_kinds, only: kind_phys
-
     implicit none
 
     private
     public :: sf_mynn_compat_pre_run
     public :: sf_mynn_compat_init
     public :: sf_mynn_compat_run
-    public :: sf_mynn_diagnostics_init
-    public :: sf_mynn_diagnostics_run
 contains
     !> \section arg_table_sf_mynn_compat_pre_run Argument Table
     !! \htmlinclude sf_mynn_compat_pre_run.html
-    subroutine sf_mynn_compat_pre_run( &
-            itimestep, &
-            spp_pbl, &
+    pure subroutine sf_mynn_compat_pre_run( &
+            itimestep, spp_pbl, &
             u, v, t, qv, p, dz, rho, &
             icefrac, xice_threshold, landfrac, snowhice, snowhland, &
             u1d, v1d, t1d, qv1d, p1d, dz8w1d, rho1d, &
@@ -25,14 +20,13 @@ contains
             znt, ust, zol, mol, regime, psim, &
             psih, qfx, &
             flhc, flqc, snowh, qgh, qsfc, &
-            gz1oz0, wspd, br, svp1, svp2, &
-            svp3, svpt0, qcg, &
+            gz1oz0, wspd, br, &
+            qcg, &
             rstoch1d, &
             errmsg, errflg)
         use ccpp_kinds, only: kind_phys
 
-        integer, intent(in) :: itimestep
-        logical, intent(in) :: spp_pbl
+        integer, intent(in) :: itimestep, spp_pbl
         real(kind_phys), intent(in) :: u(:, :), v(:, :), t(:, :), qv(:, :), p(:, :), dz(:, :), rho(:, :), &
                                        icefrac(:), xice_threshold, landfrac(:), snowhice(:), snowhland(:)
         real(kind_phys), intent(out) :: u1d(:), v1d(:), t1d(:), qv1d(:), p1d(:), dz8w1d(:), rho1d(:), &
@@ -41,17 +35,17 @@ contains
                                         znt(:), ust(:), zol(:), mol(:), regime(:), psim(:), &
                                         psih(:), qfx(:), &
                                         flhc(:), flqc(:), snowh(:), qgh(:), qsfc(:), &
-                                        gz1oz0(:), wspd(:), br(:), svp1, svp2, &
-                                        svp3, svpt0, qcg(:), &
+                                        gz1oz0(:), wspd(:), br(:), &
+                                        qcg(:), &
                                         rstoch1d(:)
         character(*), intent(out) :: errmsg
         integer, intent(out) :: errflg
 
         ! Provide first guess at the first time step.
         if (itimestep == 1) then
-            ust(:) = max(0.04_kind_phys * sqrt(u(:, 1) ** 2 + v(:, 1) ** 2), 0.001_kind_phys)
+            ust(:) = max(0.04_kind_phys * sqrt(u(:, size(u, 2)) ** 2 + v(:, size(v, 2)) ** 2), 0.001_kind_phys)
             mol(:) = 0.0_kind_phys
-            qsfc(:) = qv(:, 1) ! Note that this `qv` is wet.
+            qsfc(:) = qv(:, size(qv, 2)) ! Note that this `qv` is wet.
         end if
 
         ! In CAM-SIMA, the first vertical index is at top of atmosphere.
@@ -101,16 +95,9 @@ contains
         wspd(:) = 0.0_kind_phys
         br(:) = 0.0_kind_phys
 
-        ! Constants in equation 10 from Bolton (1980). See
-        ! doi:10.1175/1520-0493(1980)108<1046:TCOEPT>2.0.CO;2.
-        svp1 = 6.112_kind_phys
-        svp2 = 17.67_kind_phys
-        svp3 = 29.65_kind_phys
-        svpt0 = 273.15_kind_phys
-
         qcg(:) = 0.0_kind_phys ! Not used but still appear in the argument list...
 
-        if (spp_pbl) then
+        if (spp_pbl /= 0) then
             errmsg = 'sf_mynn_compat_pre_run: Stochastically perturbed parameterization is not supported'
             errflg = 1
 
@@ -126,12 +113,14 @@ contains
     !> \section arg_table_sf_mynn_compat_init Argument Table
     !! \htmlinclude sf_mynn_compat_init.html
     subroutine sf_mynn_compat_init( &
+            svp1, svp2, svp3, svpt0, &
             ust, mol, qsfc, &
             errmsg, errflg)
         use ccpp_kinds, only: kind_phys
         use sf_mynn, only: sf_mynn_init
 
-        real(kind_phys), intent(out) :: ust(:), mol(:), qsfc(:)
+        real(kind_phys), intent(out) :: svp1, svp2, svp3, svpt0, &
+                                        ust(:), mol(:), qsfc(:)
         character(*), intent(out) :: errmsg
         integer, intent(out) :: errflg
 
@@ -141,6 +130,13 @@ contains
         if (errflg /= 0) then
             return
         end if
+
+        ! Constants in equation 10 from Bolton (1980). Set them just once at model initialization for better performance.
+        ! See doi:10.1175/1520-0493(1980)108<1046:TCOEPT>2.0.CO;2.
+        svp1 = 0.6112_kind_phys ! The unit is hPa in Bolton (1980), but here it is kPa!
+        svp2 = 17.67_kind_phys
+        svp3 = 29.65_kind_phys
+        svpt0 = 273.15_kind_phys
 
         ! MYNN surface layer scheme takes time averages of these variables internally.
         ! As a result, they must be able to persist across time steps.
@@ -180,9 +176,8 @@ contains
         integer, intent(in) :: ncol, &
                                isfflx, &
                                itimestep, &
-                               isftcflx, &
+                               spp_pbl, isftcflx, &
                                iz0tlnd, its, ite
-        logical, intent(in) :: spp_pbl
         real(kind_phys), intent(in) :: icefrac(:), xice_threshold, sst(:), &
                                        u1d(:), v1d(:), t1d(:), qv1d(:), p1d(:), dz8w1d(:), rho1d(:), &
                                        u1d2(:), v1d2(:), dz2w1d(:), cp, g, rovcp, r, xlv, &
@@ -207,6 +202,7 @@ contains
         integer, intent(out) :: errflg
 
         integer :: water_vapor_mixing_ratio_index
+        logical :: spp_pbl_l
         real(kind_phys), allocatable :: ch(:)
 
         ! Special handling for sea ice cells like in MMM physics.
@@ -223,6 +219,8 @@ contains
                                         t2_sea(:), q2_sea(:), &
                                         wstar_sea(:), qstar_sea(:), ustm_sea(:), ck_sea(:), cka_sea(:), &
                                         cd_sea(:), cda_sea(:)
+
+        spp_pbl_l = (spp_pbl /= 0)
 
         ! `ch` is duplicate of `chs`, but for unknown reasons it is passed separately in the argument list
         ! to MYNN surface layer scheme.
@@ -331,19 +329,6 @@ contains
                 return
             end if
 
-            u10_sea(:) = u10(:)
-            v10_sea(:) = v10(:)
-            th2_sea(:) = th2(:)
-            t2_sea(:) = t2(:)
-            q2_sea(:) = q2(:)
-            wstar_sea(:) = wstar(:)
-            qstar_sea(:) = qstar(:)
-            ustm_sea(:) = ustm(:)
-            ck_sea(:) = ck(:)
-            cka_sea(:) = cka(:)
-            cd_sea(:) = cd(:)
-            cda_sea(:) = cda(:)
-
             where (mask_sea_ice_cell)
                 ! Set surface moisture availability to maximum.
                 mavail_sea = 1.0_kind_phys
@@ -370,7 +355,7 @@ contains
             gz1oz0, wspd, br, isfflx, dx, svp1, svp2, &
             svp3, svpt0, ep1, ep2, karman, ch, qcg, &
             itimestep, wstar, qstar, ustm, ck, cka, &
-            cd, cda, spp_pbl, rstoch1d, isftcflx, &
+            cd, cda, spp_pbl_l, rstoch1d, isftcflx, &
             iz0tlnd, its, ite, &
             errmsg, errflg)
 
@@ -392,7 +377,7 @@ contains
                 gz1oz0_sea, wspd_sea, br_sea, isfflx, dx, svp1, svp2, &
                 svp3, svpt0, ep1, ep2, karman, ch_sea, qcg, &
                 itimestep, wstar_sea, qstar_sea, ustm_sea, ck_sea, cka_sea, &
-                cd_sea, cda_sea, spp_pbl, rstoch1d, isftcflx, &
+                cd_sea, cda_sea, spp_pbl_l, rstoch1d, isftcflx, &
                 iz0tlnd, its, ite, &
                 errmsg, errflg)
 
@@ -449,93 +434,4 @@ contains
         errmsg = ''
         errflg = 0
     end subroutine sf_mynn_compat_run
-
-    !> \section arg_table_sf_mynn_diagnostics_init Argument Table
-    !! \htmlinclude sf_mynn_diagnostics_init.html
-    subroutine sf_mynn_diagnostics_init( &
-            errmsg, errflg)
-        use cam_history, only: history_add_field
-        use cam_history_support, only: horiz_only
-
-        character(*), intent(out) :: errmsg
-        integer, intent(out) :: errflg
-
-        call history_add_field('sf_mynn_lh', &
-            'surface_upward_latent_heat_flux_from_coupler', horiz_only, 'avg', 'W m-2')
-        call history_add_field('sf_mynn_hfx', &
-            'surface_upward_sensible_heat_flux_from_coupler', horiz_only, 'avg', 'W m-2')
-        call history_add_field('sf_mynn_qfx', &
-            'surface_upward_water_vapor_flux', horiz_only, 'avg', 'kg m-2 s-1')
-
-        call history_add_field('sf_mynn_cd', &
-            'drag_coefficient_for_momentum_at_10m', horiz_only, 'avg', '1')
-        call history_add_field('sf_mynn_cda', &
-            'drag_coefficient_for_momentum_at_surface_adjacent_layer', horiz_only, 'avg', '1')
-        call history_add_field('sf_mynn_ck', &
-            'bulk_exchange_coefficient_for_enthalpy_at_2m', horiz_only, 'avg', '1')
-        call history_add_field('sf_mynn_cka', &
-            'bulk_exchange_coefficient_for_enthalpy_at_surface_adjacent_layer', horiz_only, 'avg', '1')
-
-        call history_add_field('sf_mynn_q2', &
-            'water_vapor_mixing_ratio_wrt_dry_air_at_2m', horiz_only, 'avg', 'kg kg-1')
-        call history_add_field('sf_mynn_t2', &
-            'air_temperature_at_2m', horiz_only, 'avg', 'K')
-        call history_add_field('sf_mynn_th2', &
-            'air_potential_temperature_at_2m', horiz_only, 'avg', 'K')
-        call history_add_field('sf_mynn_u10', &
-            'eastward_wind_at_10m', horiz_only, 'avg', 'm s-1')
-        call history_add_field('sf_mynn_v10', &
-            'northward_wind_at_10m', horiz_only, 'avg', 'm s-1')
-
-        call history_add_field('sf_mynn_ustm', &
-            'surface_friction_velocity_assuming_no_correction_for_surface_convective_velocity_scale', horiz_only, 'avg', 'm s-1')
-        call history_add_field('sf_mynn_wstar', &
-            'surface_convective_velocity_scale', horiz_only, 'avg', 'm s-1')
-        call history_add_field('sf_mynn_qstar', &
-            'surface_moisture_scale', horiz_only, 'avg', 'g kg-1')
-
-        errmsg = ''
-        errflg = 0
-    end subroutine sf_mynn_diagnostics_init
-
-    !> \section arg_table_sf_mynn_diagnostics_run Argument Table
-    !! \htmlinclude sf_mynn_diagnostics_run.html
-    subroutine sf_mynn_diagnostics_run( &
-            lh, hfx, qfx, &
-            cd, cda, ck, cka, &
-            q2, t2, th2, u10, v10, &
-            ustm, wstar, qstar, &
-            errmsg, errflg)
-        use cam_history, only: history_out_field
-        use ccpp_kinds, only: kind_phys
-
-        real(kind_phys), intent(in) :: lh(:), hfx(:), qfx(:), &
-                                       cd(:), cda(:), ck(:), cka(:), &
-                                       q2(:), t2(:), th2(:), u10(:), v10(:), &
-                                       ustm(:), wstar(:), qstar(:)
-        character(*), intent(out) :: errmsg
-        integer, intent(out) :: errflg
-
-        call history_out_field('sf_mynn_lh', lh)
-        call history_out_field('sf_mynn_hfx', hfx)
-        call history_out_field('sf_mynn_qfx', qfx)
-
-        call history_out_field('sf_mynn_cd', cd)
-        call history_out_field('sf_mynn_cda', cda)
-        call history_out_field('sf_mynn_ck', ck)
-        call history_out_field('sf_mynn_cka', cka)
-
-        call history_out_field('sf_mynn_q2', q2)
-        call history_out_field('sf_mynn_t2', t2)
-        call history_out_field('sf_mynn_th2', th2)
-        call history_out_field('sf_mynn_u10', u10)
-        call history_out_field('sf_mynn_v10', v10)
-
-        call history_out_field('sf_mynn_ustm', ustm)
-        call history_out_field('sf_mynn_wstar', wstar)
-        call history_out_field('sf_mynn_qstar', qstar)
-
-        errmsg = ''
-        errflg = 0
-    end subroutine sf_mynn_diagnostics_run
 end module sf_mynn_compat

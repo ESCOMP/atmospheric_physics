@@ -5,12 +5,6 @@
 [ccpp-arg-table]
   name = cu_ntiedtke_compat_pre_run
   type = scheme
-[ cflx ]
-  standard_name = surface_upward_ccpp_constituent_fluxes_from_coupler
-  units = kg m-2 s-1
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, number_of_ccpp_constituents)
-  intent = in
 [ exner ]
   standard_name = dimensionless_exner_function
   units = 1
@@ -76,12 +70,6 @@
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = out
-[ evap ]
-  standard_name = surface_upward_water_vapor_flux
-  units = kg m-2 s-1
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent)
   intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
@@ -342,90 +330,6 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
-[ errmsg ]
-  standard_name = ccpp_error_message
-  long_name = Error message for error handling in CCPP
-  units = none
-  type = character | kind = len=*
-  dimensions = ()
-  intent = out
-[ errflg ]
-  standard_name = ccpp_error_code
-  long_name = Error flag for error handling in CCPP
-  units = 1
-  type = integer
-  dimensions = ()
-  intent = out
-
-# ----------
-
-[ccpp-table-properties]
-  name = cu_ntiedtke_diagnostics
-  type = scheme
-
-[ccpp-arg-table]
-  name = cu_ntiedtke_diagnostics_init
-  type = scheme
-[ errmsg ]
-  standard_name = ccpp_error_message
-  long_name = Error message for error handling in CCPP
-  units = none
-  type = character | kind = len=*
-  dimensions = ()
-  intent = out
-[ errflg ]
-  standard_name = ccpp_error_code
-  long_name = Error flag for error handling in CCPP
-  units = 1
-  type = integer
-  dimensions = ()
-  intent = out
-
-[ccpp-arg-table]
-  name = cu_ntiedtke_diagnostics_run
-  type = scheme
-[ zprecc ]
-  standard_name = lwe_thickness_of_convective_precipitation_amount
-  units = m
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent)
-  intent = in
-[ rucuten ]
-  standard_name = tendency_of_eastward_wind_due_to_convection
-  units = m s-2
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = in
-[ rvcuten ]
-  standard_name = tendency_of_northward_wind_due_to_convection
-  units = m s-2
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = in
-[ rthcuten ]
-  standard_name = tendency_of_air_potential_temperature_due_to_convection
-  units = K s-1
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = in
-[ rqvcuten ]
-  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_dry_air_due_to_convection
-  units = kg kg-1 s-1
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = in
-[ rqccuten ]
-  standard_name = tendency_of_cloud_liquid_water_mixing_ratio_wrt_dry_air_due_to_convection
-  units = kg kg-1 s-1
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = in
-[ rqicuten ]
-  standard_name = tendency_of_cloud_ice_mixing_ratio_wrt_dry_air_due_to_convection
-  units = kg kg-1 s-1
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = in
 [ errmsg ]
   standard_name = ccpp_error_message
   long_name = Error message for error handling in CCPP

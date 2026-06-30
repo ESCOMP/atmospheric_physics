@@ -3,36 +3,6 @@
   type = scheme
 
 [ccpp-arg-table]
-  name = bl_gwdo_compat_pre_init
-  type = scheme
-[ sina ]
-  standard_name = sine_of_angle_of_rotation_from_east_to_x
-  units = 1
-  type = real | kind = kind_phys
-  dimensions = (horizontal_dimension)
-  intent = out
-[ cosa ]
-  standard_name = cosine_of_angle_of_rotation_from_east_to_x
-  units = 1
-  type = real | kind = kind_phys
-  dimensions = (horizontal_dimension)
-  intent = out
-[ errmsg ]
-  standard_name = ccpp_error_message
-  long_name = Error message for error handling in CCPP
-  units = none
-  type = character | kind = len=*
-  dimensions = ()
-  intent = out
-[ errflg ]
-  standard_name = ccpp_error_code
-  long_name = Error flag for error handling in CCPP
-  units = 1
-  type = integer
-  dimensions = ()
-  intent = out
-
-[ccpp-arg-table]
   name = bl_gwdo_compat_pre_run
   type = scheme
 [ u ]
@@ -80,6 +50,36 @@
   name = bl_gwdo_compat
   type = scheme
   dependencies = ccpp_kind_types.F90, mmm_physics/bl_gwdo.F90
+
+[ccpp-arg-table]
+  name = bl_gwdo_compat_init
+  type = scheme
+[ sina ]
+  standard_name = sine_of_angle_of_rotation_from_east_to_x
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension)
+  intent = out
+[ cosa ]
+  standard_name = cosine_of_angle_of_rotation_from_east_to_x
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
 
 [ccpp-arg-table]
   name = bl_gwdo_compat_run
@@ -311,72 +311,6 @@
   units = count
   type = integer
   dimensions = ()
-  intent = in
-[ errmsg ]
-  standard_name = ccpp_error_message
-  long_name = Error message for error handling in CCPP
-  units = none
-  type = character | kind = len=*
-  dimensions = ()
-  intent = out
-[ errflg ]
-  standard_name = ccpp_error_code
-  long_name = Error flag for error handling in CCPP
-  units = 1
-  type = integer
-  dimensions = ()
-  intent = out
-
-# ----------
-
-[ccpp-table-properties]
-  name = bl_gwdo_diagnostics
-  type = scheme
-
-[ccpp-arg-table]
-  name = bl_gwdo_diagnostics_init
-  type = scheme
-[ errmsg ]
-  standard_name = ccpp_error_message
-  long_name = Error message for error handling in CCPP
-  units = none
-  type = character | kind = len=*
-  dimensions = ()
-  intent = out
-[ errflg ]
-  standard_name = ccpp_error_code
-  long_name = Error flag for error handling in CCPP
-  units = 1
-  type = integer
-  dimensions = ()
-  intent = out
-
-[ccpp-arg-table]
-  name = bl_gwdo_diagnostics_run
-  type = scheme
-[ dtaux3d ]
-  standard_name = tendency_of_x_wind_due_to_orographic_gwd
-  units = m s-2
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = in
-[ dtauy3d ]
-  standard_name = tendency_of_y_wind_due_to_orographic_gwd
-  units = m s-2
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = in
-[ dusfcg ]
-  standard_name = atmosphere_x_stress_due_to_orographic_gwd
-  units = Pa
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent)
-  intent = in
-[ dvsfcg ]
-  standard_name = atmosphere_y_stress_due_to_orographic_gwd
-  units = Pa
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent)
   intent = in
 [ errmsg ]
   standard_name = ccpp_error_message
