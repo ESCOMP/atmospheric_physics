@@ -1,0 +1,63 @@
+name: XML schema validation
+
+# Validate the hand-written XML files in this repository against their
+# XML schemas (.xsd files) using xmllint.
+# See: https://github.com/ESCOMP/atmospheric_physics/issues/59
+#
+# There are two kinds of XML files in this repository:
+#
+#  1. Suite definition files (SDFs) in suites/ and test/test_suites/.
+#     These define which physics schemes run, and in what order.
+#     Schema: schema/suite_v1_0.xsd in the ccpp-framework repository.
+#
+#  2. Scheme namelist definition files (schemes/**/*_namelist.xml).
+#     These define the runtime configuration options of each scheme.
+#     Schema: CIME/ParamGen/xml_schema/entry_id_pg.xsd in the CIME
+#     repository (these files are processed by CIME's ParamGen when
+#     the host model builds its namelist).
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate-xml:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout atmospheric_physics
+        uses: actions/checkout@v4
+
+      - name: Install xmllint
+        run: sudo apt-get update && sudo apt-get install -y libxml2-utils
+
+      # The suite schema lives in the ccpp-framework repository.
+      # Pin the same tag that CAM-SIMA pins (see CAM-SIMA/.gitmodules)
+      # so we validate against the schema version actually in use.
+      - name: Checkout ccpp-framework (for the suite schema)
+        run: |
+          git clone --depth 1 --branch sima_2026-04-13 \
+            https://github.com/NCAR/ccpp-framework.git ccpp-framework
+
+      # The namelist schema lives in the (large) CIME repository, so do
+      # a sparse checkout to fetch only the schema directory instead of
+      # the whole repo. Again pinned to the tag CAM-SIMA uses.
+      - name: Sparse checkout CIME (for the namelist schema)
+        run: |
+          git clone --depth 1 --branch cime6.1.145 --filter=blob:none \
+            --sparse https://github.com/ESMCI/cime.git cime
+          cd cime
+          git sparse-checkout set CIME/ParamGen/xml_schema
+
+      - name: Validate suite definition files
+        run: |
+          xmllint --noout \
+            --schema ccpp-framework/schema/suite_v1_0.xsd \
+            suites/*.xml test/test_suites/*.xml
+
+      - name: Validate all scheme namelist files
+        run: |
+          find schemes -name "*_namelist.xml" -print
+          find schemes -name "*_namelist.xml" -exec xmllint --noout \
+            --schema cime/CIME/ParamGen/xml_schema/entry_id_pg.xsd \
+            {} +
+
