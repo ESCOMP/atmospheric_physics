@@ -13,12 +13,8 @@
      COMBINED detrain+macro number tendency, so a future do_cldliq guard on ncten would test
      the combined value rather than the macro-only one. Abort domain only (no answer impact;
      never fires at do_cldliq=.true.).
-   - Park diagnostics (outfld): DPDLFLIQ/DPDLFICE/SHDLFLIQ/SHDLFICE/DPDLFT/SHDLFT/ZMDLF
-     after detrain, and MACPDT/MACPDQ/MACPDLIQ/MACPDICE/CLDVAPADJ/.../CMELIQ/RHMIN_*
-     after the macro run. No park_macrophysics_*_diagnostics scheme exists yet.
-
-  Assisted-by: claude-opus:4.8[1m]
-  6/16/26 hplin
+  Assisted-by: claude-opus:4.8[1m], claude-opus:4.6[1m]
+  6/16/26 6/30/26 hplin
 -->
 <suite name="park_macro" version="1.0">
   <group name="physics_before_coupler">
@@ -31,8 +27,8 @@
          use_shfrc=.true. in its init. Init-phase only; shfrc data is read from the snapshot. -->
     <scheme>park_macrophysics_set_use_shfrc</scheme>
 
-    <!-- ===================== Detrainment of convective condensate ===================== -->
-    <!-- macrop_driver_tend lines 710-762: detrain dlf/dlf2 into cloud liquid/ice; produce
+    <!-- Park macro 1: Detrainment of convective condensate -->
+    <!-- Detrain dlf/dlf2 into cloud liquid/ice; produce
          the targeted-stratus detrainment forcings dlf_T/dlf_qv/dlf_ql/dlf_qi/dlf_nl/dlf_ni
          consumed by park_macrophysics_run below.
          NUMLIQ operator-split: the detrainment droplet-number tendency is deliberately NOT
@@ -50,8 +46,8 @@
     <scheme>qneg</scheme>
     <scheme>geopotential_temp</scheme>
 
-    <!-- ========================= Computation of cloud fractions ========================= -->
-    <!-- macrop_driver_tend lines 784-901. The cloud-fraction schemes read the post-detrain
+    <!-- Park macro interstitial: Computation of cloud fractions -->
+    <!-- The cloud-fraction schemes read the post-detrain
          state, so they must follow the apply step above.
          NOTE: concld_old (convective_cloud_area_fraction_on_previous_timestep) is set in CAM
          (line 784) from the current concld before convective_cloud_cover updates it; in the
@@ -62,21 +58,22 @@
     <scheme>compute_cloud_fraction_diagnostics</scheme>
     <scheme>cloud_fraction_fice</scheme>
 
-    <!-- ================ Stratiform liquid/ice macrophysics (mmacro_pcond) ================ -->
-    <!-- macrop_driver_tend lines 950-1063. Computes advective tendencies from the
+    <!-- Park macro 2: Stratiform liquid/ice macrophysics (mmacro_pcond) -->
+    <!-- Computes advective tendencies from the
          on-previous-timestep equilibrium state (tcwat/qcwat/lcwat/iccwat/nlwat/niwat),
          then the macrophysical condensation/evaporation tendencies. -->
     <scheme>park_macrophysics</scheme>
+    <scheme>park_macrophysics_diagnostics</scheme>
     <scheme>apply_constituent_tendencies</scheme>
     <scheme>clamp_number_concentrations</scheme>
     <scheme>apply_heating_rate</scheme>
     <scheme>qneg</scheme>
     <scheme>geopotential_temp</scheme>
 
-    <!-- ================= Save equilibrium state for the next timestep ================= -->
-    <!-- macrop_driver_tend lines 1115-1128: tcwat=T, qcwat=qv, lcwat=qc+qi, iccwat=qi,
-         nlwat=nc, niwat=ni from the post-update state (levels top_lev:pver only). This is why
-         the six *wat fields are inout in park_macrophysics_run. -->
+    <!-- Save equilibrium state for the next timestep -->
+    <!-- tcwat=T, qcwat=qv, lcwat=qc+qi, iccwat=qi, nlwat=nc, niwat=ni
+         from the post-update state (levels top_lev:pver only).
+         This is why the six *wat fields are inout in park_macrophysics_run. -->
     <scheme>park_macrophysics_save_qtlcwat</scheme>
 
   </group>
