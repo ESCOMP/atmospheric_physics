@@ -3,6 +3,8 @@
 <suite name="convection_permitting" version="1.0">
   <group name="physics_before_coupler">
     <!-- Prepare input needed by the suite -->
+    <scheme>prescribe_radiative_gas_concentrations</scheme>
+    <scheme>to_be_ccppized_temporary</scheme>
     <scheme>calc_atmosphere_layer_thickness</scheme>
     <scheme>calc_exner</scheme>
     <scheme>temp_to_potential_temp</scheme>
@@ -19,6 +21,53 @@
     <scheme>wet_to_dry_snow</scheme>
 
     <scheme>mmm_physics_compat</scheme>
+
+    <!-- Begin section RRTMGP -->
+    <scheme>rrtmgp_pre</scheme>
+    <scheme>rrtmgp_cloud_optics_setup</scheme>
+    <scheme>tropopause_find</scheme>
+    <scheme>rrtmgp_variables</scheme>
+    <scheme>rrtmgp_inputs</scheme>
+    <scheme>rrtmgp_sw_cloud_optics</scheme>
+    <scheme>rrtmgp_sw_mcica_subcol_gen</scheme>
+    <scheme>rrtmgp_cloud_diagnostics</scheme>
+    <!-- Shortwave subcycle - last iteration is climate calculation -->
+    <subcycle loop="number_of_diagnostic_subcycles">
+      <scheme>rrtmgp_constituents</scheme>
+      <scheme>rrtmgp_sw_gas_optics_pre</scheme>
+      <scheme>rrtmgp_sw_gas_optics</scheme>
+      <scheme>solar_irradiance_data</scheme>
+      <scheme>rrtmgp_sw_solar_var</scheme>
+      <scheme>rrtmgp_sw_aerosols</scheme>
+      <scheme>rrtmgp_sw_rte</scheme>
+      <scheme>rrtmgp_sw_calculate_fluxes</scheme>
+      <scheme>rrtmgp_sw_calculate_heating_rate</scheme>
+      <scheme>rrtmgp_sw_diagnostics</scheme>
+      <scheme>rrtmgp_subcycle</scheme>
+    </subcycle>
+    <!-- End shortwave subcycle -->
+    <scheme>rrtmgp_lw_cloud_optics</scheme>
+    <scheme>rrtmgp_lw_mcica_subcol_gen</scheme>
+    <!-- Longwave subcycle - last iteration is climate calculation -->
+    <subcycle loop="number_of_diagnostic_subcycles">
+      <scheme>rrtmgp_constituents</scheme>
+      <scheme>rrtmgp_lw_gas_optics_pre</scheme>
+      <scheme>rrtmgp_lw_gas_optics</scheme>
+      <scheme>rrtmgp_lw_aerosols</scheme>
+      <scheme>rrtmgp_lw_rte</scheme>
+      <scheme>rrtmgp_lw_calculate_fluxes</scheme>
+      <scheme>rrtmgp_lw_calculate_heating_rate</scheme>
+      <scheme>rrtmgp_lw_diagnostics</scheme>
+      <scheme>rrtmgp_subcycle</scheme>
+    </subcycle>
+    <!-- End longwave subcycle -->
+    <scheme>rrtmgp_inputs_setup</scheme> <!-- Must come after both gas optics schemes -->
+    <scheme>rrtmgp_sw_solar_var_setup</scheme>
+    <scheme>rrtmgp_dry_static_energy_tendency</scheme>
+    <scheme>calculate_net_heating</scheme>
+    <scheme>rrtmgp_post</scheme>
+    <scheme>rrtmgp_diagnostics</scheme>
+    <!-- End section RRTMGP -->
 
     <!-- MYNN surface layer scheme -->
     <scheme>sf_mynn_compat_pre</scheme>
