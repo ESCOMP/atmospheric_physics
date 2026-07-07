@@ -141,7 +141,7 @@ contains
     third = 1._kind_phys/3._kind_phys
     sixth = 1._kind_phys/6._kind_phys
     sq2 = sqrt(2._kind_phys)
-    pi = 4._kind_phys*atan(1.0_kind_phys)     ! note: this should probably use physconst pi but here for b4b
+    pi = 4._kind_phys*atan(1.0_kind_phys) ! note: should use physconst pi in future cleanup.
     sqpi = sqrt(pi)
     surften = 0.076_kind_phys
     aten = 2._kind_phys*mwh2o*surften/(r_universal*tmelt*rhoh2o)

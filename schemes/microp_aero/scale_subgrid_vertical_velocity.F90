@@ -1,4 +1,8 @@
-! Apply min/max/scale to subgrid vertical velocity and derive wsubi.
+! Apply minimum, maximum, and scaling to the subgrid vertical velocity.
+! wsub is the subgrid vertical velocity for droplet (liquid) nucleation.
+! wsubi is the subgrid vertical velocity for ice nucleation,
+! derived here from the raw wsub before wsub is scaled
+! (and capped at 0.2 m s-1 when preexisting ice is not used).
 module scale_subgrid_vertical_velocity
 
   use ccpp_kinds, only: kind_phys

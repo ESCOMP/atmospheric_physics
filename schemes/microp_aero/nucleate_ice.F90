@@ -47,12 +47,14 @@ real(r8) :: pi
 real(r8) :: mincld
 
 real(r8), parameter :: Shet   = 1.3_r8     ! het freezing threshold
-real(r8), parameter :: rhoice = 0.5e3_r8   ! kg/m3, Wpice is not sensitive to rhoice
-real(r8), parameter :: minweff= 0.001_r8   ! m/s
-real(r8), parameter :: gamma1=1.0_r8
-real(r8), parameter :: gamma2=1.0_r8
-real(r8), parameter :: gamma3=2.0_r8
-real(r8), parameter :: gamma4=6.0_r8
+real(r8), parameter :: rhoice = 0.5e3_r8   ! assumed cloud ice density (kg/m3); Wpice is not sensitive to rhoice
+real(r8), parameter :: minweff= 0.001_r8   ! minimum effective vertical velocity for ice nucleation (m/s)
+! Gamma-function values Gamma(n) for the assumed exponential (mu=0) ice size
+! distribution. Only gamma4 is currently used (in the lami calculation below).
+real(r8), parameter :: gamma1=1.0_r8       ! Gamma(1) = 0!
+real(r8), parameter :: gamma2=1.0_r8       ! Gamma(2) = 1!
+real(r8), parameter :: gamma3=2.0_r8       ! Gamma(3) = 2!
+real(r8), parameter :: gamma4=6.0_r8       ! Gamma(4) = 3!
 
 real(r8) :: ci
 
@@ -388,20 +390,19 @@ subroutine hetero(T,ww,Ns,Nis,Nid)
     real(r8), intent(in)  :: T, ww, Ns
     real(r8), intent(out) :: Nis, Nid
 
-    real(r8) A11,A12,A21,A22,B11,B12,B21,B22
-    real(r8) B,C
+    ! Empirical fit coefficients for immersion freezing on dust, Liu & Penner (2005), p. 509
+    real(r8), parameter :: A11 = 0.0263_r8
+    real(r8), parameter :: A12 = -0.0185_r8
+    real(r8), parameter :: A21 = 2.758_r8
+    real(r8), parameter :: A22 = 1.3221_r8
+    real(r8), parameter :: B11 = -0.008_r8
+    real(r8), parameter :: B12 = -0.0468_r8
+    real(r8), parameter :: B21 = -0.2667_r8
+    real(r8), parameter :: B22 = -1.4588_r8
+
+    real(r8) :: B,C
 
 !---------------------------------------------------------------------
-! parameters
-
-      A11 = 0.0263_r8
-      A12 = -0.0185_r8
-      A21 = 2.758_r8
-      A22 = 1.3221_r8
-      B11 = -0.008_r8
-      B12 = -0.0468_r8
-      B21 = -0.2667_r8
-      B22 = -1.4588_r8
 
 !     ice from immersion nucleation (cm^-3)
 
@@ -422,34 +423,31 @@ subroutine hf(T,ww,RH,Na,Ni)
       real(r8), intent(in)  :: T, ww, RH, Na
       real(r8), intent(out) :: Ni
 
-      real(r8)    A1_fast,A21_fast,A22_fast,B1_fast,B21_fast,B22_fast
-      real(r8)    A2_fast,B2_fast
-      real(r8)    C1_fast,C2_fast,k1_fast,k2_fast
-      real(r8)    A1_slow,A2_slow,B1_slow,B2_slow,B3_slow
-      real(r8)    C1_slow,C2_slow,k1_slow,k2_slow
-      real(r8)    regm
-      real(r8)    A,B,C
-      real(r8)    RHw
+      ! Empirical fit coefficients for homogeneous freezing, Liu & Penner (2005), p. 504
+      real(r8), parameter :: A1_fast  = 0.0231_r8
+      real(r8), parameter :: A21_fast = -1.6387_r8  !(T>-64 deg)
+      real(r8), parameter :: A22_fast = -6.045_r8   !(T<=-64 deg)
+      real(r8), parameter :: B1_fast  = -0.008_r8
+      real(r8), parameter :: B21_fast = -0.042_r8   !(T>-64 deg)
+      real(r8), parameter :: B22_fast = -0.112_r8   !(T<=-64 deg)
+      real(r8), parameter :: C1_fast  = 0.0739_r8
+      real(r8), parameter :: C2_fast  = 1.2372_r8
+      real(r8), parameter :: A1_slow  = -0.3949_r8
+      real(r8), parameter :: A2_slow  = 1.282_r8
+      real(r8), parameter :: B1_slow  = -0.0156_r8
+      real(r8), parameter :: B2_slow  = 0.0111_r8
+      real(r8), parameter :: B3_slow  = 0.0217_r8
+      real(r8), parameter :: C1_slow  = 0.120_r8
+      real(r8), parameter :: C2_slow  = 2.312_r8
+
+      real(r8) :: A2_fast,B2_fast
+      real(r8) :: k1_fast,k2_fast
+      real(r8) :: k1_slow,k2_slow
+      real(r8) :: regm
+      real(r8) :: A,B,C
+      real(r8) :: RHw
 
 !---------------------------------------------------------------------
-! parameters
-
-      A1_fast  =0.0231_r8
-      A21_fast =-1.6387_r8  !(T>-64 deg)
-      A22_fast =-6.045_r8   !(T<=-64 deg)
-      B1_fast  =-0.008_r8
-      B21_fast =-0.042_r8   !(T>-64 deg)
-      B22_fast =-0.112_r8   !(T<=-64 deg)
-      C1_fast  =0.0739_r8
-      C2_fast  =1.2372_r8
-
-      A1_slow  =-0.3949_r8
-      A2_slow  =1.282_r8
-      B1_slow  =-0.0156_r8
-      B2_slow  =0.0111_r8
-      B3_slow  =0.0217_r8
-      C1_slow  =0.120_r8
-      C2_slow  =2.312_r8
 
       Ni = 0.0_r8
 
@@ -555,7 +553,7 @@ END SUBROUTINE Vpreice
 subroutine frachom(Tmean,RHimean,detaT,fhom)
    ! How much fraction of cirrus might reach Shom
    ! base on "A cirrus cloud scheme for general circulation models",
-   ! B. Karcher and U. Burkhardt 2008
+   ! B. Karcher and U. Burkhardt 2008, https://doi.org/10.1002/qj.301
 
    real(r8), intent(in)  :: Tmean, RHimean, detaT
    real(r8), intent(out) :: fhom
