@@ -185,7 +185,7 @@
   dimensions = ()
   intent = in
 [ do_beljaars ]
-  standard_name = do_beljaars_drag_in_vertical_diffusion_tbd
+  standard_name = do_beljaars_drag_in_vertical_diffusion
   units = flag
   type = logical
   dimensions = ()

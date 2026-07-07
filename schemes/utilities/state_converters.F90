@@ -10,11 +10,15 @@ module state_converters
   public :: temp_to_potential_temp_run
   public :: potential_temp_to_temp_run
 
+  ! Convert temperature to virtual temperature and back
+  public :: temp_to_virtual_temp_run
+  public :: virtual_temp_to_temp_run
+
   ! Calculate dry air density by equation of state/ideal gas law
   public :: calc_dry_air_ideal_gas_density_run
 
-  ! Calculate air density by hydrostatic equation
-  public :: calc_hydrostatic_air_density_run
+  ! Calculate air density by equation of state/ideal gas law
+  public :: calc_air_ideal_gas_density_run
 
   ! Calculate atmosphere layer thickness
   public :: calc_atmosphere_layer_thickness_run
@@ -27,10 +31,12 @@ module state_converters
   public :: wet_to_dry_cloud_liquid_water_run
   public :: wet_to_dry_cloud_ice_run
   public :: wet_to_dry_rain_run
+  public :: wet_to_dry_snow_run
   public :: dry_to_wet_water_vapor_run
   public :: dry_to_wet_cloud_liquid_water_run
   public :: dry_to_wet_cloud_ice_run
   public :: dry_to_wet_rain_run
+  public :: dry_to_wet_snow_run
 
 CONTAINS
 
@@ -76,6 +82,44 @@ CONTAINS
     errmsg = ''
   end subroutine potential_temp_to_temp_run
 
+  !> \section arg_table_temp_to_virtual_temp_run Argument Table
+  !! \htmlinclude temp_to_virtual_temp_run.html
+  pure subroutine temp_to_virtual_temp_run(temp, zvirv, qv, virtual_temp, errmsg, errflg)
+    use ccpp_kinds, only: kind_phys
+
+    real(kind_phys), intent(in) :: temp(:, :)          ! temperature (K)
+    real(kind_phys), intent(in) :: zvirv(:, :)         ! ratio of water vapor gas constant to composition-dependent
+                                                       ! dry air gas constant minus one (1)
+    real(kind_phys), intent(in) :: qv(:, :)            ! water vapor mixing ratio wrt moist air and condensed water (kg kg-1)
+    real(kind_phys), intent(out) :: virtual_temp(:, :) ! virtual temperature (K)
+    character(len=*), intent(out) :: errmsg
+    integer, intent(out) :: errflg
+
+    virtual_temp(:, :) = temp(:, :) * (1.0_kind_phys + zvirv(:, :) * qv(:, :))
+
+    errmsg = ''
+    errflg = 0
+  end subroutine temp_to_virtual_temp_run
+
+  !> \section arg_table_virtual_temp_to_temp_run Argument Table
+  !! \htmlinclude virtual_temp_to_temp_run.html
+  pure subroutine virtual_temp_to_temp_run(virtual_temp, zvirv, qv, temp, errmsg, errflg)
+    use ccpp_kinds, only: kind_phys
+
+    real(kind_phys), intent(in) :: virtual_temp(:, :) ! virtual temperature (K)
+    real(kind_phys), intent(in) :: zvirv(:, :)        ! ratio of water vapor gas constant to composition-dependent
+                                                      ! dry air gas constant minus one (1)
+    real(kind_phys), intent(in) :: qv(:, :)           ! water vapor mixing ratio wrt moist air and condensed water (kg kg-1)
+    real(kind_phys), intent(out) :: temp(:, :)        ! temperature (K)
+    character(len=*), intent(out) :: errmsg
+    integer, intent(out) :: errflg
+
+    temp(:, :) = virtual_temp(:, :) / (1.0_kind_phys + zvirv(:, :) * qv(:, :))
+
+    errmsg = ''
+    errflg = 0
+  end subroutine virtual_temp_to_temp_run
+
 !> \section arg_table_calc_dry_air_ideal_gas_density_run  Argument Table
 !! \htmlinclude calc_dry_air_ideal_gas_density_run.html
   subroutine calc_dry_air_ideal_gas_density_run(ncol, nz, rair, pmiddry, temp, rho, errmsg, errflg)
@@ -99,25 +143,23 @@ CONTAINS
 
   end subroutine calc_dry_air_ideal_gas_density_run
 
-  !> \section arg_table_calc_hydrostatic_air_density_run Argument Table
-  !! \htmlinclude calc_hydrostatic_air_density_run.html
-  pure subroutine calc_hydrostatic_air_density_run( &
-      pdel, gravit, dz, &
-      rho, &
-      errmsg, errflg)
+  !> \section arg_table_calc_air_ideal_gas_density_run Argument Table
+  !! \htmlinclude calc_air_ideal_gas_density_run.html
+  pure subroutine calc_air_ideal_gas_density_run(pmid, rairv, virtual_temp, rho, errmsg, errflg)
     use ccpp_kinds, only: kind_phys
 
-    real(kind_phys), intent(in) :: pdel(:, :), gravit, dz(:, :)
-    real(kind_phys), intent(out) :: rho(:, :)
-    character(*), intent(out) :: errmsg
+    real(kind_phys), intent(in) :: pmid(:, :)         ! air pressure (Pa)
+    real(kind_phys), intent(in) :: rairv(:, :)        ! composition-dependent gas constant of dry air (J kg-1 K-1)
+    real(kind_phys), intent(in) :: virtual_temp(:, :) ! virtual temperature (K)
+    real(kind_phys), intent(out) :: rho(:, :)         ! air density (kg m-3)
+    character(len=*), intent(out) :: errmsg
     integer, intent(out) :: errflg
 
-    ! Calculate air density by hydrostatic equation.
-    rho(:, :) = pdel(:, :) / (gravit * dz(:, :))
+    rho(:, :) = pmid(:, :) / (rairv(:, :) * virtual_temp(:, :))
 
     errmsg = ''
     errflg = 0
-  end subroutine calc_hydrostatic_air_density_run
+  end subroutine calc_air_ideal_gas_density_run
 
   !> \section arg_table_calc_atmosphere_layer_thickness_run Argument Table
   !! \htmlinclude calc_atmosphere_layer_thickness_run.html
@@ -272,6 +314,29 @@ CONTAINS
 
   end subroutine wet_to_dry_rain_run
 
+  !> \section arg_table_wet_to_dry_snow_run Argument Table
+  !! \htmlinclude wet_to_dry_snow_run.html
+  pure subroutine wet_to_dry_snow_run(ncol, nz, pdel, pdeldry, &
+      qs, qs_dry, errmsg, errflg)
+    integer,          intent(in)  :: ncol
+    integer,          intent(in)  :: nz
+    real(kind_phys),  intent(in)  :: pdel(:, :)    ! pressure thickness of layer (Pa)
+    real(kind_phys),  intent(in)  :: pdeldry(:, :) ! dry air pressure thickness of layer (Pa)
+    real(kind_phys),  intent(in)  :: qs(:, :)      ! snow mixing ratio wrt moist air (kg/kg)
+    real(kind_phys),  intent(out) :: qs_dry(:, :)  ! snow mixing ratio wrt dry air (kg/kg)
+    character(len=*), intent(out) :: errmsg
+    integer,          intent(out) :: errflg
+
+    integer :: k
+
+    errflg = 0
+    errmsg = ''
+
+    do k = 1, nz
+      qs_dry(:ncol, k) = qs(:ncol, k) * (pdel(:ncol, k) / pdeldry(:ncol, k))
+    end do
+  end subroutine wet_to_dry_snow_run
+
 !> \section arg_table_dry_to_wet_water_vapor_run  Argument Table
 !! \htmlinclude dry_to_wet_water_vapor_run.html
   subroutine dry_to_wet_water_vapor_run(ncol, nz, pdel, pdeldry, qv_dry, qv,  &
@@ -372,4 +437,26 @@ CONTAINS
 
   end subroutine dry_to_wet_rain_run
 
+  !> \section arg_table_dry_to_wet_snow_run Argument Table
+  !! \htmlinclude dry_to_wet_snow_run.html
+  pure subroutine dry_to_wet_snow_run(ncol, nz, pdel, pdeldry, &
+      qs_dry, qs, errmsg, errflg)
+    integer,          intent(in)  :: ncol
+    integer,          intent(in)  :: nz
+    real(kind_phys),  intent(in)  :: pdel(:, :)    ! pressure thickness of layer (Pa)
+    real(kind_phys),  intent(in)  :: pdeldry(:, :) ! dry air pressure thickness of layer (Pa)
+    real(kind_phys),  intent(in)  :: qs_dry(:, :)  ! snow mixing ratio wrt dry air (kg/kg)
+    real(kind_phys),  intent(out) :: qs(:, :)      ! snow mixing ratio wrt moist air (kg/kg)
+    character(len=*), intent(out) :: errmsg
+    integer,          intent(out) :: errflg
+
+    integer :: k
+
+    errflg = 0
+    errmsg = ''
+
+    do k = 1, nz
+      qs(:ncol, k) = qs_dry(:ncol, k) * (pdeldry(:ncol, k) / pdel(:ncol, k))
+    end do
+  end subroutine dry_to_wet_snow_run
 end module state_converters
