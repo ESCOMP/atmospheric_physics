@@ -67,6 +67,10 @@
     <scheme>calculate_net_heating</scheme>
     <scheme>rrtmgp_post</scheme>
     <scheme>rrtmgp_diagnostics</scheme>
+    <!-- Convert results to air potential temperature tendency -->
+    <scheme>lw_heating_rate_to_air_potential_temperature_tendency</scheme>
+    <scheme>sw_heating_rate_to_air_potential_temperature_tendency</scheme>
+    <scheme>mmm_physics_accumulate_tendencies</scheme>
     <!-- End section RRTMGP -->
 
     <!-- MYNN surface layer scheme -->

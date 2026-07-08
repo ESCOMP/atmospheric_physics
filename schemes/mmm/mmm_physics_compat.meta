@@ -235,13 +235,13 @@
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = out
 [ rthratenlw ]
-  standard_name = tendency_of_air_potential_temperature_due_to_longwave_heating
+  standard_name = tendency_of_air_potential_temperature_due_to_longwave_radiation
   units = K s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_dimension, vertical_layer_dimension)
   intent = out
 [ rthratensw ]
-  standard_name = tendency_of_air_potential_temperature_due_to_shortwave_heating
+  standard_name = tendency_of_air_potential_temperature_due_to_shortwave_radiation
   units = K s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_dimension, vertical_layer_dimension)
@@ -476,13 +476,13 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rthratenlw ]
-  standard_name = tendency_of_air_potential_temperature_due_to_longwave_heating
+  standard_name = tendency_of_air_potential_temperature_due_to_longwave_radiation
   units = K s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rthratensw ]
-  standard_name = tendency_of_air_potential_temperature_due_to_shortwave_heating
+  standard_name = tendency_of_air_potential_temperature_due_to_shortwave_radiation
   units = K s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -886,6 +886,104 @@
 [ zmmsl ]
   standard_name = geopotential_height
   units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+# ----------
+
+[ccpp-table-properties]
+  name = lw_heating_rate_to_air_potential_temperature_tendency
+  type = scheme
+
+[ccpp-arg-table]
+  name = lw_heating_rate_to_air_potential_temperature_tendency_run
+  type = scheme
+[ cpairv ]
+  standard_name = composition_dependent_specific_heat_of_dry_air_at_constant_pressure
+  units = J kg-1 K-1
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  type = real | kind = kind_phys
+  intent = in
+[ exner ]
+  standard_name = dimensionless_exner_function
+  long_name = exner function
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ lw_heating_rate ]
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_longwave_radiation
+  units = J kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ rthratenlw ]
+  standard_name = tendency_of_air_potential_temperature_due_to_longwave_radiation
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+# ----------
+
+[ccpp-table-properties]
+  name = sw_heating_rate_to_air_potential_temperature_tendency
+  type = scheme
+
+[ccpp-arg-table]
+  name = sw_heating_rate_to_air_potential_temperature_tendency_run
+  type = scheme
+[ cpairv ]
+  standard_name = composition_dependent_specific_heat_of_dry_air_at_constant_pressure
+  units = J kg-1 K-1
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  type = real | kind = kind_phys
+  intent = in
+[ exner ]
+  standard_name = dimensionless_exner_function
+  long_name = exner function
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ sw_heating_rate ]
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_shortwave_radiation
+  units = J kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ rthratensw ]
+  standard_name = tendency_of_air_potential_temperature_due_to_shortwave_radiation
+  units = K s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out

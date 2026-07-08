@@ -14,6 +14,8 @@ module mmm_physics_compat
     public :: compute_hydrostatic_upward_air_velocity_run
     public :: geopotential_height_wrt_sfc_at_interface_to_msl_run
     public :: geopotential_height_wrt_sfc_to_msl_run
+    public :: lw_heating_rate_to_air_potential_temperature_tendency_run
+    public :: sw_heating_rate_to_air_potential_temperature_tendency_run
 contains
     !> \section arg_table_mmm_physics_compat_init Argument Table
     !! \htmlinclude mmm_physics_compat_init.html
@@ -417,4 +419,42 @@ contains
             zmmsl(i, :) = phis(i) / gravit + zmsfc(i, :)
         end do
     end subroutine geopotential_height_wrt_sfc_to_msl_run
+
+    !> \section arg_table_lw_heating_rate_to_air_potential_temperature_tendency_run Argument Table
+    !! \htmlinclude lw_heating_rate_to_air_potential_temperature_tendency_run.html
+    pure subroutine lw_heating_rate_to_air_potential_temperature_tendency_run( &
+            cpairv, exner, lw_heating_rate, &
+            rthratenlw, &
+            errmsg, errflg)
+        use ccpp_kinds, only: kind_phys
+
+        real(kind_phys), intent(in) :: cpairv(:, :), exner(:, :), lw_heating_rate(:, :)
+        real(kind_phys), intent(out) :: rthratenlw(:, :)
+        character(*), intent(out) :: errmsg
+        integer, intent(out) :: errflg
+
+        errmsg = ''
+        errflg = 0
+
+        rthratenlw(:, :) = lw_heating_rate(:, :) / cpairv(:, :) / exner(:, :)
+    end subroutine lw_heating_rate_to_air_potential_temperature_tendency_run
+
+    !> \section arg_table_sw_heating_rate_to_air_potential_temperature_tendency_run Argument Table
+    !! \htmlinclude sw_heating_rate_to_air_potential_temperature_tendency_run.html
+    pure subroutine sw_heating_rate_to_air_potential_temperature_tendency_run( &
+            cpairv, exner, sw_heating_rate, &
+            rthratensw, &
+            errmsg, errflg)
+        use ccpp_kinds, only: kind_phys
+
+        real(kind_phys), intent(in) :: cpairv(:, :), exner(:, :), sw_heating_rate(:, :)
+        real(kind_phys), intent(out) :: rthratensw(:, :)
+        character(*), intent(out) :: errmsg
+        integer, intent(out) :: errflg
+
+        errmsg = ''
+        errflg = 0
+
+        rthratensw(:, :) = sw_heating_rate(:, :) / cpairv(:, :) / exner(:, :)
+    end subroutine sw_heating_rate_to_air_potential_temperature_tendency_run
 end module mmm_physics_compat

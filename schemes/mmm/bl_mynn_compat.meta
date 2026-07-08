@@ -24,13 +24,13 @@
   dimensions = ()
   intent = in
 [ rthratenlw ]
-  standard_name = tendency_of_air_potential_temperature_due_to_longwave_heating
+  standard_name = tendency_of_air_potential_temperature_due_to_longwave_radiation
   units = K s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ rthratensw ]
-  standard_name = tendency_of_air_potential_temperature_due_to_shortwave_heating
+  standard_name = tendency_of_air_potential_temperature_due_to_shortwave_radiation
   units = K s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -156,7 +156,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ rthraten ]
-  standard_name = tendency_of_air_potential_temperature_due_to_radiative_heating
+  standard_name = tendency_of_air_potential_temperature_due_to_radiation
   units = K s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -1201,7 +1201,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ rthraten ]
-  standard_name = tendency_of_air_potential_temperature_due_to_radiative_heating
+  standard_name = tendency_of_air_potential_temperature_due_to_radiation
   units = K s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
