@@ -110,6 +110,10 @@
     <scheme>mmm_physics_persist_states</scheme>
 
     <scheme>sima_state_diagnostics</scheme>
+
+    <!-- Feed modified states back to the coupler -->
+    <scheme>calc_dry_air_ideal_gas_density</scheme>
+    <scheme>set_surface_coupling_vars</scheme>
   </group>
   <group name="physics_after_coupler">
     <scheme>sima_tend_diagnostics</scheme>
