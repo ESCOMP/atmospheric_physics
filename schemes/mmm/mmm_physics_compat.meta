@@ -415,30 +415,35 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
+  advected = True
 [ ni ]
   standard_name = mass_number_concentration_of_cloud_ice_water_crystals_in_dry_air
   units = kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
+  advected = True
 [ nwfa ]
   standard_name = mass_number_concentration_of_hygroscopic_aerosols_in_dry_air
   units = kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
+  advected = True
 [ nifa ]
   standard_name = mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols_in_dry_air
   units = kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
+  advected = True
 [ nbca ]
   standard_name = mass_number_concentration_of_hydrophobic_black_carbon_in_dry_air
   units = kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
+  advected = True
 [ rublten ]
   standard_name = tendency_of_eastward_wind_due_to_pbl_processes
   units = m s-2
