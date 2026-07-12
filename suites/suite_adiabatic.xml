@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<broken_suite_test>
 
 <suite name="adiabatic" version="1.0">
   <group name="physics_before_coupler">
