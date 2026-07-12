@@ -232,9 +232,9 @@ subroutine nucleati(  &
 
    if ((so4_num >= 1.0e-10_kind_phys .or. (soot_num+dst_num) >= 1.0e-10_kind_phys) .and. cldn > 0._kind_phys) then
 
-      if (RHimean.ge.1.2_kind_phys) then
+      if (RHimean >= 1.2_kind_phys) then
 
-         if ( ((tc.le.0.0_kind_phys).and.(tc.ge.-37.0_kind_phys).and.(qc.lt.1.e-12_kind_phys)).or.(tc.le.-37.0_kind_phys)) then
+         if ( ((tc <= 0.0_kind_phys).and.(tc >= -37.0_kind_phys).and.(qc < 1.e-12_kind_phys)).or.(tc <= -37.0_kind_phys)) then
 
             if ( (soot_num+dst_num) > 0._kind_phys)   then
                A = -1.4938_kind_phys * log(soot_num+dst_num) + 12.884_kind_phys
@@ -243,17 +243,17 @@ subroutine nucleati(  &
             end if
 
             ! heterogeneous nucleation only
-            if (tc .gt. regm .or. so4_num < 1.0e-10_kind_phys) then
+            if (tc > regm .or. so4_num < 1.0e-10_kind_phys) then
 
-               if(tc.lt.-40._kind_phys .and. wbar1.gt.1._kind_phys .and. so4_num >= 1.0e-10_kind_phys) then ! exclude T<-40 & W>1m/s from hetero. nucleation
+               if(tc < -40._kind_phys .and. wbar1 > 1._kind_phys .and. so4_num >= 1.0e-10_kind_phys) then ! exclude T<-40 & W>1m/s from hetero. nucleation
 
-                  call hf(tc,wbar1,relhum*subgrid,so4_num,nihf)
+                  call homogeneous_freezing(tc,wbar1,relhum*subgrid,so4_num,nihf)
                   niimm=0._kind_phys
                   nidep=0._kind_phys
 
                   ! If some homogeneous nucleation happened, assume all of the heterogeneous
                   ! and coarse mode sulfate particles nucleated.
-                  if (nihf.gt.1e-3_kind_phys) then ! hom occur,  add preexisting ice
+                  if (nihf > 1e-3_kind_phys) then ! hom occur,  add preexisting ice
                      niimm     = dst_num + soot_num       ! assuming dst_num freeze firstly
                      odst_num  = dst_num
                      osoot_num = soot_num
@@ -267,7 +267,7 @@ subroutine nucleati(  &
                   n1        = nihf + niimm
                else
 
-                  call hetero(tc,wbar2,soot_num+dst_num,niimm,nidep)
+                  call heterogeneous_freezing(tc,wbar2,soot_num+dst_num,niimm,nidep)
 
                   nihf = 0._kind_phys
                   n1   = niimm + nidep
@@ -280,15 +280,15 @@ subroutine nucleati(  &
                end if
 
             ! homogeneous nucleation only
-            else if (tc.lt.regm-5._kind_phys .or. (soot_num+dst_num) < 1.0e-10_kind_phys) then
+            else if (tc < regm-5._kind_phys .or. (soot_num+dst_num) < 1.0e-10_kind_phys) then
 
-               call hf(tc,wbar1,relhum*subgrid,so4_num,nihf)
+               call homogeneous_freezing(tc,wbar1,relhum*subgrid,so4_num,nihf)
                niimm=0._kind_phys
                nidep=0._kind_phys
 
                ! If some homogeneous nucleation happened, assume all of the
                ! heterogeneous and coarse mode sulfate particles nucleated.
-               if (nihf.gt.1e-3_kind_phys) then !  hom occur,  add preexisting ice
+               if (nihf > 1e-3_kind_phys) then !  hom occur,  add preexisting ice
                   niimm     = dst_num + soot_num       ! assuming dst_num freeze firstly
                   odst_num  = dst_num
                   osoot_num = soot_num
@@ -304,15 +304,15 @@ subroutine nucleati(  &
             ! transition between homogeneous and heterogeneous: interpolate in-between
             else
 
-               if (tc.lt.-40._kind_phys .and. wbar1.gt.1._kind_phys) then ! exclude T<-40 & W>1m/s from hetero. nucleation
+               if (tc < -40._kind_phys .and. wbar1 > 1._kind_phys) then ! exclude T<-40 & W>1m/s from hetero. nucleation
 
-                  call hf(tc, wbar1, relhum*subgrid, so4_num, nihf)
+                  call homogeneous_freezing(tc, wbar1, relhum*subgrid, so4_num, nihf)
                   niimm = 0._kind_phys
                   nidep = 0._kind_phys
 
                   ! If some homogeneous nucleation happened, assume all of the
                   ! heterogeneous and coarse mode sulfate particles nucleated.
-                  if (nihf.gt.1e-3_kind_phys) then ! hom occur,  add preexisting ice
+                  if (nihf > 1e-3_kind_phys) then ! hom occur,  add preexisting ice
                      niimm     = dst_num + soot_num       ! assuming dst_num freeze firstly
                      odst_num  = dst_num
                      osoot_num = soot_num
@@ -327,13 +327,13 @@ subroutine nucleati(  &
 
                else
 
-                  call hf(regm-5._kind_phys,wbar1,relhum*subgrid,so4_num,nihf)
-                  call hetero(regm,wbar2,soot_num+dst_num,niimm,nidep)
+                  call homogeneous_freezing(regm-5._kind_phys,wbar1,relhum*subgrid,so4_num,nihf)
+                  call heterogeneous_freezing(regm,wbar2,soot_num+dst_num,niimm,nidep)
 
                   ! If some homogeneous nucleation happened, assume all of the
                   ! heterogeneous particles nucleated and add in a fraction of
                   ! the homogeneous freezing.
-                  if (nihf.gt.1e-3_kind_phys) then ! hom occur,  add preexisting ice
+                  if (nihf > 1e-3_kind_phys) then ! hom occur,  add preexisting ice
                      oso4_num  = nihf
                   end if
 
@@ -365,7 +365,7 @@ subroutine nucleati(  &
    end if
 
    ! deposition/condensation nucleation in mixed clouds (-37<T<0C) (Meyers, 1992)
-   if(tc.lt.0._kind_phys .and. tc.gt.-37._kind_phys .and. qc.gt.1.e-12_kind_phys) then
+   if(tc < 0._kind_phys .and. tc > -37._kind_phys .and. qc > 1.e-12_kind_phys) then
       esl = svp_water(tair)     ! over water in mixed clouds
       esi = svp_ice(tair)     ! over ice
       deles = (esl - esi)
@@ -378,7 +378,7 @@ subroutine nucleati(  &
 
    nuci=ni + nimey
 
-   if(nuci.gt.9999._kind_phys.or.nuci.lt.0._kind_phys) then
+   if(nuci > 9999._kind_phys.or.nuci < 0._kind_phys) then
       write(iulog, *) 'Warning: incorrect ice nucleation number (nuci reset =0)'
       write(iulog, *) ni, tair, relhum, wbar, nihf, niimm, nidep,deles,esi,dst_num,so4_num
       nuci=0._kind_phys
@@ -393,7 +393,7 @@ end subroutine nucleati
 
 !===============================================================================
 
-pure subroutine hetero(T,ww,Ns,Nis,Nid)
+pure subroutine heterogeneous_freezing(T,ww,Ns,Nis,Nid)
 
     real(kind_phys), intent(in)  :: T, ww, Ns
     real(kind_phys), intent(out) :: Nis, Nid
@@ -422,11 +422,11 @@ pure subroutine hetero(T,ww,Ns,Nis,Nid)
 
       Nid = 0.0_kind_phys    ! don't include deposition nucleation for cirrus clouds when T<-37C
 
-end subroutine hetero
+end subroutine heterogeneous_freezing
 
 !===============================================================================
 
-pure subroutine hf(T,ww,RH,Na,Ni)
+pure subroutine homogeneous_freezing(T,ww,RH,Na,Ni)
 
       real(kind_phys), intent(in)  :: T, ww, RH, Na
       real(kind_phys), intent(out) :: Ni
@@ -466,13 +466,13 @@ pure subroutine hf(T,ww,RH,Na,Ni)
       C = 1.68_kind_phys  *log(ww)+129.35_kind_phys
       RHw=(A*T*T+B*T+C)*0.01_kind_phys
 
-      if((T.le.-37.0_kind_phys) .and. ((RH).ge.RHw)) then
+      if((T<=-37.0_kind_phys) .and. ((RH) >= RHw)) then
 
         regm = 6.07_kind_phys*log(ww)-55.0_kind_phys
 
-        if(T.ge.regm) then    ! fast-growth regime
+        if(T >= regm) then    ! fast-growth regime
 
-          if(T.gt.-64.0_kind_phys) then
+          if(T > -64.0_kind_phys) then
             A2_fast=A21_fast
             B2_fast=B21_fast
           else
@@ -498,7 +498,7 @@ pure subroutine hf(T,ww,RH,Na,Ni)
 
       end if
 
-end subroutine hf
+end subroutine homogeneous_freezing
 
 !===============================================================================
 
@@ -583,7 +583,7 @@ pure subroutine frachom(Tmean,RHimean,detaT,fhom)
       PDF_T(i) = exp(-deta**2.0_kind_phys/2.0_kind_phys)*6.0_kind_phys/(sqrt(2.0_kind_phys*Pi)*Nbin)
 
 
-      if (Sbin(i).ge.Sihom) then
+      if (Sbin(i) >= Sihom) then
          fhom = fhom + PDF_T(i)
       else
          exit
