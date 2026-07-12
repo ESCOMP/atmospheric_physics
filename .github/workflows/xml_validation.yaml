@@ -31,19 +31,20 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y libxml2-utils
 
       # The suite schema lives in the ccpp-framework repository.
-      # Pin the same tag that CAM-SIMA pins (see CAM-SIMA/.gitmodules)
-      # so we validate against the schema version actually in use.
+      # Check out current repository head so this workflow can catch
+      # upstream schema changes
       - name: Checkout ccpp-framework (for the suite schema)
         run: |
-          git clone --depth 1 --branch sima_2026-04-13 \
+          git clone --depth 1 \
             https://github.com/NCAR/ccpp-framework.git ccpp-framework
 
       # The namelist schema lives in the (large) CIME repository, so do
       # a sparse checkout to fetch only the schema directory instead of
-      # the whole repo. Again pinned to the tag CAM-SIMA uses.
+      # the whole repo. Check out current repository head so this
+      # workflow can catch schema changes
       - name: Sparse checkout CIME (for the namelist schema)
         run: |
-          git clone --depth 1 --branch cime6.1.145 --filter=blob:none \
+          git clone --depth 1 --filter=blob:none \
             --sparse https://github.com/ESMCI/cime.git cime
           cd cime
           git sparse-checkout set CIME/ParamGen/xml_schema
