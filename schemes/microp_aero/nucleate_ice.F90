@@ -22,6 +22,14 @@ module nucleate_ice
 !  Ice nucleation in mixed-phase clouds now uses classical nucleation theory (CNT),
 !  follows Y. Wang et al. ACP (2014), Hoose et al. (2010).
 !
+! References:
+!  Liu & Penner, 2005: https://doi.org/10.1127/0941-2948/2005/0059
+!  Liu et al., 2007:   https://doi.org/10.1175/JCLI4264.1
+!  Shi et al., 2014:   https://doi.org/10.5194/acp-15-1503-2015
+!  Wang et al., 2014:  https://doi.org/10.5194/acp-14-10411-2014
+!  Hoose et al., 2010: https://doi.org/10.1175/2010JAS3425.1
+!  Meyers et al., 1992: https://doi.org/10.1175/1520-0450(1992)031<0708:NPINPI>2.0.CO;2
+!
 ! Authors:
 !  Xiaohong Liu, 01/2005, modifications by A. Gettelman 2009-2010
 !  Xiangjun Shi & Xiaohong Liu, 01/2014.
@@ -29,12 +37,10 @@ module nucleate_ice
 !  With help from C. C. Chen and B. Eaton (2014)
 !-------------------------------------------------------------------------------
 
-use wv_saturation,  only: svp_water, svp_ice
 use ccpp_kinds,     only: kind_phys
 
 implicit none
 private
-save
 
 public :: nucleati_init
 public :: nucleati
@@ -94,6 +100,8 @@ subroutine nucleati(  &
    wpice, weff, fhom, regm, &
    oso4_num, odst_num, osoot_num, &
    call_frm_zm_in, add_preexisting_ice_in)
+
+   use wv_saturation, only: svp_water, svp_ice
 
    ! Input Arguments
    real(kind_phys), intent(in) :: wbar        ! grid cell mean vertical velocity (m/s)
@@ -180,7 +188,7 @@ subroutine nucleati(  &
       Ni_preice = Ni_preice / max(mincld,cldn)   ! in-cloud ice number density
 
       if (Ni_preice > 10.0_kind_phys .and. qi > 1.e-10_kind_phys) then    ! > 0.01/L = 10/m3
-         Shom = -1.5_kind_phys   ! if Shom<1 , Shom will be recalculated in SUBROUTINE Vpreice, according to Ren & McKenzie, 2005
+         Shom = -1.5_kind_phys   ! if Shom<1 , Shom will be recalculated in SUBROUTINE Vpreice, according to Ren & McKenzie, 2005, https://doi.org/10.1256/qj.04.126
          lami = (gamma4*ci*ni_in/qi)**(1._kind_phys/3._kind_phys)
          Ri_preice = 0.5_kind_phys/lami                  ! radius
          Ri_preice = max(Ri_preice, 1e-8_kind_phys)       ! >0.01micron
@@ -189,7 +197,7 @@ subroutine nucleati(  &
       else
          wpice    = 0.0_kind_phys
          wpicehet = 0.0_kind_phys
-      endif
+      end if
 
       weff     = max(wbar-wpice, minweff)
       wpice    = min(wpice, wbar)
@@ -243,7 +251,7 @@ subroutine nucleati(  &
                   niimm=0._kind_phys
                   nidep=0._kind_phys
 
-                  ! If some homogeneous nucleation happened, assume all of the that heterogeneous
+                  ! If some homogeneous nucleation happened, assume all of the heterogeneous
                   ! and coarse mode sulfate particles nucleated.
                   if (nihf.gt.1e-3_kind_phys) then ! hom occur,  add preexisting ice
                      niimm     = dst_num + soot_num       ! assuming dst_num freeze firstly
@@ -251,7 +259,7 @@ subroutine nucleati(  &
                      osoot_num = soot_num
 
                      oso4_num  = nihf
-                  endif
+                  end if
 
                   nihf      = nihf * fhom
                   oso4_num  = oso4_num * fhom
@@ -269,7 +277,7 @@ subroutine nucleati(  &
                      odst_num  = dst_num  * (niimm + nidep) / (soot_num + dst_num)
                   end if
 
-               endif
+               end if
 
             ! homogeneous nucleation only
             else if (tc.lt.regm-5._kind_phys .or. (soot_num+dst_num) < 1.0e-10_kind_phys) then
@@ -278,7 +286,7 @@ subroutine nucleati(  &
                niimm=0._kind_phys
                nidep=0._kind_phys
 
-               ! If some homogeneous nucleation happened, assume all of the that
+               ! If some homogeneous nucleation happened, assume all of the
                ! heterogeneous and coarse mode sulfate particles nucleated.
                if (nihf.gt.1e-3_kind_phys) then !  hom occur,  add preexisting ice
                   niimm     = dst_num + soot_num       ! assuming dst_num freeze firstly
@@ -286,7 +294,7 @@ subroutine nucleati(  &
                   osoot_num = soot_num
 
                   oso4_num  = nihf
-               endif
+               end if
 
                nihf      = nihf * fhom
                oso4_num  = oso4_num * fhom
@@ -303,14 +311,14 @@ subroutine nucleati(  &
                   nidep = 0._kind_phys
 
                   ! If some homogeneous nucleation happened, assume all of the
-                  ! that heterogeneous and coarse mode sulfate particles nucleated.
+                  ! heterogeneous and coarse mode sulfate particles nucleated.
                   if (nihf.gt.1e-3_kind_phys) then ! hom occur,  add preexisting ice
                      niimm     = dst_num + soot_num       ! assuming dst_num freeze firstly
                      odst_num  = dst_num
                      osoot_num = soot_num
 
                      oso4_num  = nihf
-                  endif
+                  end if
 
                   nihf      = nihf * fhom
                   oso4_num  = oso4_num * fhom
@@ -327,7 +335,7 @@ subroutine nucleati(  &
                   ! the homogeneous freezing.
                   if (nihf.gt.1e-3_kind_phys) then ! hom occur,  add preexisting ice
                      oso4_num  = nihf
-                  endif
+                  end if
 
                   if ( (soot_num+dst_num) > 0._kind_phys)   then
                      osoot_num = soot_num * (niimm + nidep) / (soot_num + dst_num)
@@ -364,7 +372,7 @@ subroutine nucleati(  &
       nimey=1.e-3_kind_phys*exp(12.96_kind_phys*deles/esi - 0.639_kind_phys)
    else
       nimey=0._kind_phys
-   endif
+   end if
 
    if (use_hetfrz_classnuc) nimey = 0._kind_phys
 
@@ -374,7 +382,7 @@ subroutine nucleati(  &
       write(iulog, *) 'Warning: incorrect ice nucleation number (nuci reset =0)'
       write(iulog, *) ni, tair, relhum, wbar, nihf, niimm, nidep,deles,esi,dst_num,so4_num
       nuci=0._kind_phys
-   endif
+   end if
 
    nuci   = nuci*1.e+6_kind_phys/rhoair    ! change unit from #/cm3 to #/kg
    onimey = nimey*1.e+6_kind_phys/rhoair
@@ -385,7 +393,7 @@ end subroutine nucleati
 
 !===============================================================================
 
-subroutine hetero(T,ww,Ns,Nis,Nid)
+pure subroutine hetero(T,ww,Ns,Nis,Nid)
 
     real(kind_phys), intent(in)  :: T, ww, Ns
     real(kind_phys), intent(out) :: Nis, Nid
@@ -418,7 +426,7 @@ end subroutine hetero
 
 !===============================================================================
 
-subroutine hf(T,ww,RH,Na,Ni)
+pure subroutine hf(T,ww,RH,Na,Ni)
 
       real(kind_phys), intent(in)  :: T, ww, RH, Na
       real(kind_phys), intent(out) :: Ni
@@ -470,7 +478,7 @@ subroutine hf(T,ww,RH,Na,Ni)
           else
             A2_fast=A22_fast
             B2_fast=B22_fast
-          endif
+          end if
 
           k1_fast = exp(A2_fast + B2_fast*T + C2_fast*log(ww))
           k2_fast = A1_fast+B1_fast*T+C1_fast*log(ww)
@@ -486,7 +494,7 @@ subroutine hf(T,ww,RH,Na,Ni)
           Ni = k1_slow*Na**(k2_slow)
           Ni = min(Ni,Na)
 
-        endif
+        end if
 
       end if
 
@@ -494,12 +502,11 @@ end subroutine hf
 
 !===============================================================================
 
-SUBROUTINE Vpreice(P_in, T_in, R_in, C_in, S_in, V_out)
+pure subroutine Vpreice(P_in, T_in, R_in, C_in, S_in, V_out)
 
-   !  based on  Karcher et al. (2006)
+   !  based on  Karcher et al. (2006), https://doi.org/10.1029/2005JD006219
    !  VERTICAL VELOCITY CALCULATED FROM DEPOSITIONAL LOSS TERM
 
-   ! SUBROUTINE arguments
    REAL(kind_phys), INTENT(in)  :: P_in       ! [Pa],INITIAL AIR pressure
    REAL(kind_phys), INTENT(in)  :: T_in       ! [K] ,INITIAL AIR temperature
    REAL(kind_phys), INTENT(in)  :: R_in       ! [m],INITIAL MEAN  ICE CRYSTAL NUMBER RADIUS
@@ -526,11 +533,11 @@ SUBROUTINE Vpreice(P_in, T_in, R_in, C_in, S_in, V_out)
    T = T_in          ! K  , K
    P = P_in*1e-2_kind_phys  ! Pa , hpa
 
-   IF (S_in.LT.1.0_kind_phys) THEN
+   if (s_in < 1.0_kind_phys) then
       S = 2.349_kind_phys - (T/259.0_kind_phys) ! homogeneous freezing threshold, according to Ren & McKenzie, 2005
-   ELSE
+   else
       S = S_in                    ! INPUT ICE SATURATION RATIO, -,  >1
-   ENDIF
+   end if
 
    R     = R_in*1e2_kind_phys   ! m  => cm
    C     = C_in*1e-6_kind_phys  ! m-3 => cm-3
@@ -548,9 +555,9 @@ SUBROUTINE Vpreice(P_in, T_in, R_in, C_in, S_in, V_out)
    VICE  = ( A2 + A3 * S ) * DLOSS / ( A1 * S )  ! 2006,(19)
    V_out = VICE*1e-2_kind_phys  ! cm/s => m/s
 
-END SUBROUTINE Vpreice
+end subroutine Vpreice
 
-subroutine frachom(Tmean,RHimean,detaT,fhom)
+pure subroutine frachom(Tmean,RHimean,detaT,fhom)
    ! How much fraction of cirrus might reach Shom
    ! base on "A cirrus cloud scheme for general circulation models",
    ! B. Karcher and U. Burkhardt 2008, https://doi.org/10.1002/qj.301

@@ -1,8 +1,6 @@
 ! Compute raw subgrid-scale vertical velocity from TKE, KVH, or CLUBB WP2.
 module compute_subgrid_vertical_velocity
 
-  use ccpp_kinds, only: kind_phys
-
   implicit none
   private
 
@@ -19,11 +17,13 @@ contains
   ! and is not the TKE originating from CLUBB, and thus this scheme is not used for
   ! CAM6+, it is used for CAM5 only.
   ! For CAM6+ do not use TKE, derive from WP2_nadv - see the clubb variant. hplin 4/20/26
-  subroutine compute_subgrid_vertical_velocity_tke_run( &
+  pure subroutine compute_subgrid_vertical_velocity_tke_run( &
     ncol, pver, top_lev, &
     tke,                 &
     wsub,                &
     errmsg, errflg)
+
+    use ccpp_kinds, only: kind_phys
 
     ! Input arguments
     integer,          intent(in)  :: ncol
@@ -46,6 +46,8 @@ contains
 
     wsub(:, :top_lev-1) = 0._kind_phys
 
+    ! Assuming isotropic turbulent motion, the vertical velocity variance is
+    ! two thirds of the TKE. Cap the sub-grid vertical velocity at 10 m s-1.
     do k = top_lev, pver
       do i = 1, ncol
         wsub(i,k) = sqrt(0.5_kind_phys * (tke(i,k) + tke(i,k+1)) * (2._kind_phys / 3._kind_phys))
@@ -57,11 +59,13 @@ contains
 
 !> \section arg_table_compute_subgrid_vertical_velocity_kvh_run Argument Table
 !! \htmlinclude compute_subgrid_vertical_velocity_kvh_run.html
-  subroutine compute_subgrid_vertical_velocity_kvh_run( &
+  pure subroutine compute_subgrid_vertical_velocity_kvh_run( &
     ncol, pver, top_lev, &
     kvh,                 &
     wsub,                &
     errmsg, errflg)
+
+    use ccpp_kinds, only: kind_phys
 
     ! Input arguments
     integer,          intent(in)  :: ncol
@@ -85,7 +89,7 @@ contains
     wsub(:, :top_lev-1) = 0._kind_phys
 
     ! Get sub-grid vertical velocity from diffusion coefficient.
-    ! Following Morrison et al. 2005, JAS.
+    ! Following equation 24 in Morrison et al. 2005, JAS, https://doi.org/10.1175/JAS3446.1
     ! Assume mixing length of 30 m.
     ! Use maximum sub-grid vertical vel of 10 m/s.
     do k = top_lev, pver
@@ -99,11 +103,13 @@ contains
 
 !> \section arg_table_compute_subgrid_vertical_velocity_clubb_run Argument Table
 !! \htmlinclude compute_subgrid_vertical_velocity_clubb_run.html
-  subroutine compute_subgrid_vertical_velocity_clubb_run( &
+  pure subroutine compute_subgrid_vertical_velocity_clubb_run( &
     ncol, pver, pverp, top_lev, &
     wp2,                 &
     wsub,                &
     errmsg, errflg)
+
+    use ccpp_kinds, only: kind_phys
 
     ! Input arguments
     integer,          intent(in)  :: ncol
@@ -111,6 +117,9 @@ contains
     integer,          intent(in)  :: pverp
     integer,          intent(in)  :: top_lev ! top vertical level for cloud physics
 
+    ! wp2 is indexed on the full interface grid (1:pverp). CLUBB may compute it
+    ! on a shorter subgrid that only spans interfaces top_lev:pverp; it is the
+    ! caller's responsibility to expand it to the full grid before calling here.
     real(kind_phys),  intent(in)  :: wp2(:, :)  ! CLUBB variance of vertical velocity at interfaces [m2 s-2]
 
     ! Output arguments
@@ -126,13 +135,15 @@ contains
     errmsg = ''
     errflg = 0
 
-    ! Convert wp2 to TKE: tke = (3/2) * wp2 from [pver+1, top_lev]
-    ! This matches CAM microp_aero.F90 CLUBB_SGS branch exactly.
-    tke(:ncol,top_lev:pverp) = (3._kind_phys/2._kind_phys)*wp2(:ncol,1:pverp-top_lev+1)
+    ! Convert wp2 to TKE assuming isotropic turbulent motion: tke = (3/2) * wp2.
+    ! Only interfaces at and below top_lev are used by the cloud physics.
+    tke(:ncol,top_lev:pverp) = (3._kind_phys/2._kind_phys)*wp2(:ncol,top_lev:pverp)
     tke(:ncol,1:top_lev-1) = 0._kind_phys
 
     wsub(:, :top_lev-1) = 0._kind_phys
 
+    ! Assuming isotropic turbulent motion, the vertical velocity variance is
+    ! two thirds of the TKE. Cap the sub-grid vertical velocity at 10 m s-1.
     do k = top_lev, pver
       do i = 1, ncol
         wsub(i,k) = sqrt(0.5_kind_phys * (tke(i,k) + tke(i,k+1)) * (2._kind_phys / 3._kind_phys))

@@ -5,8 +5,6 @@
 ! (and capped at 0.2 m s-1 when preexisting ice is not used).
 module scale_subgrid_vertical_velocity
 
-  use ccpp_kinds, only: kind_phys
-
   implicit none
   private
 
@@ -16,13 +14,15 @@ contains
 
 !> \section arg_table_scale_subgrid_vertical_velocity_run Argument Table
 !! \htmlinclude scale_subgrid_vertical_velocity_run.html
-  subroutine scale_subgrid_vertical_velocity_run( &
+  pure subroutine scale_subgrid_vertical_velocity_run( &
     ncol, pver, top_lev,                          &
     wsub_min, wsubi_min,                          &
     wsub_scale, wsubi_scale,                      &
     use_preexisting_ice,                          &
     wsub, wsubi,                                  &
     errmsg, errflg)
+
+    use ccpp_kinds, only: kind_phys
 
     ! Input arguments
     integer,          intent(in)    :: ncol
