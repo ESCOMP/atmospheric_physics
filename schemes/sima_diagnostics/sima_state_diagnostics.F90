@@ -101,12 +101,10 @@ CONTAINS
       ! Add fields for all other constituents
       do const_idx = 1, size(const_props)
          if (.not. const_found(const_idx)) then
-            call const_props(const_idx)%standard_name(standard_name, errflg, errmsg)
+            call const_props(const_idx)%diagnostic_name(diagnostic_name, errflg, errmsg)
             if (errflg /= 0) then
                return
             end if
-            ! truncate the standard name if necessary
-            diagnostic_name = standard_name
             call const_props(const_idx)%units(units, errflg, errmsg)
             if (errflg /= 0) then
                return
