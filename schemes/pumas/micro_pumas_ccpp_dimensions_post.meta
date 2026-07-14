@@ -464,7 +464,7 @@
   kind = pumas_r8
   intent = in
 [deffi]
-  standard_name = effective_diameter_of_stratiform_cloud_ice_particles_for_radiation
+  standard_name = effective_diameter_of_stratiform_cloud_ice_particle_for_radiation
   long_name = effective diameter of stratiform cloud ice particles for radiation
   units = um
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -480,7 +480,7 @@
   kind = pumas_r8
   intent = in
 [pgamrad]
-  standard_name = cloud_particle_size_distribution_shape_parameter
+  standard_name = size_distribution_shape_parameter_for_microphysics
   long_name = cloud particle size distribution shape (gamma) parameter
   units = 1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -496,7 +496,7 @@
   kind = pumas_r8
   intent = in
 [lamcrad]
-  standard_name = cloud_particle_size_distribution_slope_parameter
+  standard_name = slope_of_droplet_distribution_for_optics
   long_name = cloud particle size distribution slope (lambda) parameter
   units = 1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -528,8 +528,9 @@
   kind = pumas_r8
   intent = in
 [scaled_diam_snow]
-  standard_name = snow_scaled_diameter
+  standard_name = effective_diameter_of_stratiform_snow_particle_for_radiation
   long_name = snow scaled diameter
+  #rrtmgp takes um and the CCPP framework will convert from m
   units = m
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real
@@ -576,7 +577,7 @@
   kind = pumas_r8
   intent = in
 [scaled_diam_graup]
-  standard_name = graupel_scaled_diameter
+  standard_name = effective_diameter_of_stratiform_cloud_graupel_particle_for_radiation
   long_name = graupel diameter
   units = m
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
