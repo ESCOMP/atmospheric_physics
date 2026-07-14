@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- suite is named beljaars_form_drag
+     as it cannot be the same as the scheme name beljaars_drag -->
+<suite name="beljaars_form_drag" version="1.0">
+  <group name="physics_before_coupler">
+    <!-- Beljaars SGO form drag -->
+    <scheme>beljaars_drag</scheme>
+    <scheme>beljaars_drag_diagnostics</scheme>
+  </group>
+</suite>
