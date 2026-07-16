@@ -485,7 +485,7 @@
   kind = pumas_r8
   intent = out
 [naai_in]
-  standard_name = tendency_of_activated_ice_nuclei_mass_number_concentration
+  standard_name = tendency_of_number_concentration_of_activated_ice_nuclei
   long_name = tendency of activated ice nuclei mass number concentration
   units = kg-1 s-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -520,7 +520,7 @@
   standard_name = dust_radii_by_size_bin
   long_name = dust bin radii
   units = m
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension, dust_size_bins_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, dust_size_bin_dimension)
   type = real
   kind = kind_phys
   intent = in
@@ -536,7 +536,7 @@
   standard_name = dust_number_concentration_by_size_bin_for_contact_freezing
   long_name = dust number concentration by size bin
   units = m-3
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension, dust_size_bins_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, dust_size_bin_dimension)
   type = real
   kind = kind_phys
   intent = in
