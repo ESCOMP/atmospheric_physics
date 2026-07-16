@@ -53,7 +53,7 @@
   kind = kind_phys
   intent = inout
 [deffi]
-  standard_name = effective_diameter_of_stratiform_cloud_ice_particle_for_radiation
+  standard_name = effective_diameter_of_stratiform_cloud_ice_crystal_for_radiation
   long_name = effective diameter of stratiform cloud ice particles for radiation
   units = um
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
