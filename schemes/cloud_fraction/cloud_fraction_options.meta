@@ -1,0 +1,91 @@
+[ccpp-table-properties]
+  name = cloud_fraction_options
+  type = scheme
+
+[ccpp-arg-table]
+  name  = cloud_fraction_options_init
+  type  = scheme
+[ amIRoot ]
+  standard_name = flag_for_mpi_root
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ iulog ]
+  standard_name = log_output_unit
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ inversion_cld_off ]
+  standard_name = do_no_stratification_based_cloud_fraction
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ cldfrc_freeze_dry ]
+  standard_name = do_vavrus_freeze_dry_adjustment_for_cloud_fraction
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ cldfrc_ice ]
+  standard_name = do_ice_cloud_fraction_for_cloud_fraction
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ iceopt ]
+  standard_name = control_for_ice_cloud_fraction
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ rhminl ]
+  standard_name = tunable_parameter_for_minimum_relative_humidity_for_low_stable_clouds_for_cloud_fraction
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ rhminl_adj_land ]
+  standard_name = tunable_parameter_for_adjustment_to_minimum_relative_humidity_for_low_stable_clouds_for_land_without_snow_cover_for_cloud_fraction
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ rhminh ]
+  standard_name = tunable_parameter_for_minimum_relative_humidity_for_high_stable_clouds_for_cloud_fraction
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ premit ]
+  standard_name = tunable_parameter_for_top_pressure_bound_for_mid_level_clouds_for_cloud_fraction
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ premib ]
+  standard_name = tunable_parameter_for_bottom_pressure_bound_for_mid_level_clouds_for_cloud_fraction
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ icecrit ]
+  standard_name = tunable_parameter_for_critical_relative_humidity_for_ice_clouds_for_cloud_fraction_using_wilson_and_ballard_scheme
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
