@@ -87,6 +87,24 @@
   kind = kind_phys
   intent = in
   advected = true
+[snow]
+  standard_name = snow_mixing_ratio_wrt_moist_air_and_condensed_water
+  long_name = snow mixing ratio wrt moist air and condensed water
+  units = kg kg-1
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  type = real
+  kind = kind_phys
+  intent = in
+  advected = true
+[numsnow]
+  standard_name = mass_number_concentration_of_snow_crystals_in_moist_air_and_condensed_water
+  long_name = mass number concentration of snow wrt moist air and condensed water
+  units = kg-1
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  type = real
+  kind = kind_phys
+  intent = in
+  advected = true
 [graupel]
   standard_name = graupel_water_mixing_ratio_wrt_moist_air_and_condensed_water
   long_name = graupel mixing ratio wrt moist air and condensed water
@@ -141,6 +159,14 @@
   standard_name = slope_of_droplet_distribution_for_optics
   long_name = cloud particle size distribution slope (lambda) parameter
   units = 1
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  type = real
+  kind = kind_phys
+  intent = out
+[des]
+  standard_name = effective_diameter_of_stratiform_snow_crystal_for_radiation
+  long_name = effective diameter of stratiform snow particles for radiation
+  units = um
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real
   kind = kind_phys

@@ -528,7 +528,7 @@
   kind = pumas_r8
   intent = in
 [scaled_diam_snow]
-  standard_name = effective_diameter_of_stratiform_snow_particle_for_radiation
+  standard_name = effective_diameter_of_stratiform_snow_crystal_for_radiation
   long_name = snow scaled diameter
   #rrtmgp takes um and the CCPP framework will convert from m
   units = m
