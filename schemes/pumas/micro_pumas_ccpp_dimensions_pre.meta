@@ -127,7 +127,7 @@
   type = integer
   intent = in
 [micro_dust_nbins]
-  standard_name = dust_size_bins_dimension
+  standard_name = dust_size_bin_dimension
   long_name = number of dust bins
   units = count
   dimensions = ()
@@ -485,7 +485,7 @@
   kind = pumas_r8
   intent = out
 [naai_in]
-  standard_name = tendency_of_number_concentration_of_activated_ice_nuclei
+  standard_name = tendency_of_mass_number_concentration_of_activated_ice_nuclei
   long_name = tendency of activated ice nuclei mass number concentration
   units = kg-1 s-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -493,7 +493,7 @@
   kind = kind_phys
   intent = in
 [pumas_naai]
-  standard_name = tendency_of_pumas_activated_ice_nuclei_mass_number_concentration
+  standard_name = tendency_of_pumas_mass_number_concentration_of_activated_ice_nuclei
   long_name = microphysics tendency of activated ice nuclei mass number concentration
   units = kg-1 s-1
   dimensions = (microphysics_horizontal_loop_extent, microphysics_vertical_layer_dimension)
@@ -501,7 +501,7 @@
   kind = pumas_r8
   intent = out
 [npccn_in]
-  standard_name = tendency_of_activated_cloud_condensation_nuclei_mass_number_concentration
+  standard_name = tendency_of_mass_number_concentration_of_activated_cloud_condensation_nuclei
   long_name = tendency of activated cloud condensation nuclei mass number concentration
   units = kg-1 s-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -509,7 +509,7 @@
   kind = kind_phys
   intent = in
 [pumas_npccn]
-  standard_name = tendency_of_pumas_activated_cloud_condensation_nuclei_mass_number_concentration
+  standard_name = tendency_of_pumas_mass_number_concentration_of_activated_cloud_condensation_nuclei
   long_name = microphysics tendency of activated cloud condensation nuclei mass number concentration
   units = kg-1 s-1
   dimensions = (microphysics_horizontal_loop_extent, microphysics_vertical_layer_dimension)
@@ -528,7 +528,7 @@
   standard_name = pumas_dust_radii_by_size_bin
   long_name = microphysics dust bin radii
   units = m
-  dimensions = (microphysics_horizontal_loop_extent, microphysics_vertical_layer_dimension, dust_size_bins_dimension)
+  dimensions = (microphysics_horizontal_loop_extent, microphysics_vertical_layer_dimension, dust_size_bin_dimension)
   type = real
   kind = pumas_r8
   intent = out
@@ -541,10 +541,10 @@
   kind = kind_phys
   intent = in
 [pumas_nacon]
-  standard_name = pumas_dust_number_concentration_by_size_bin
+  standard_name = pumas_dust_number_concentration_by_size_bin_for_contact_freezing
   long_name = microphysics dust number concentration by size bin
   units = m-3
-  dimensions = (microphysics_horizontal_loop_extent, microphysics_vertical_layer_dimension, dust_size_bins_dimension)
+  dimensions = (microphysics_horizontal_loop_extent, microphysics_vertical_layer_dimension, dust_size_bin_dimension)
   type = real
   kind = pumas_r8
   intent = out
