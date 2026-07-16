@@ -4,6 +4,8 @@
   <group name="physics_before_coupler">
 
     <scheme>initialize_constituents</scheme>
+    <scheme>cloud_fraction_options</scheme>
+    <scheme>compute_cloud_fraction_two_moment</scheme>
     <scheme>to_be_ccppized_temporary</scheme>
     <scheme>clubb_stub</scheme>
     <scheme>hetfrz_classnuc_stub</scheme>
