@@ -531,8 +531,8 @@ contains
     real(kind_phys),    intent(in)    :: pmid(:,:)      ! air_pressure [Pa]
 
     ! Output arguments
-    real(kind_phys),    intent(out)   :: rel(:,:)       ! effective_radius_of_stratiform_cloud_liquid_water_particle [um]
-    real(kind_phys),    intent(out)   :: rei(:,:)       ! effective_radius_of_stratiform_cloud_ice_particle [um]
+    real(kind_phys),    intent(out)   :: rel(:,:)       ! effective_radius_of_stratiform_cloud_liquid_water_droplet [um]
+    real(kind_phys),    intent(out)   :: rei(:,:)       ! effective_radius_of_stratiform_cloud_ice_crystal [um]
     character(len=512), intent(out)   :: errmsg         ! error message
     integer,            intent(out)   :: errflg         ! error flag
 

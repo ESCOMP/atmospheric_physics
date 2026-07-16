@@ -40,9 +40,9 @@
   kind = kind_phys
   intent = in
 [effi]
-  standard_name = effective_radius_of_stratiform_cloud_ice_particle
+  standard_name = effective_radius_of_stratiform_cloud_ice_crystal
   long_name = effective radius of stratiform cloud ice particle
-  units = micron
+  units = um
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real
   kind = kind_phys

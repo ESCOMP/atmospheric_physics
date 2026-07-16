@@ -784,7 +784,7 @@ Non-dictionary standard names found in the following metadata files:
     - convective_temperature_perturbation_due_to_pbl_eddies
     - deep_convective_adjustment_timescale_for_zhang_mcfarlane_deep_convection_scheme
     - detrainment_mass_flux_due_to_deep_convection
-    - detrainment_of_cloud_ice_wrt_moist_air_and_condensed_water_due_to_deep_convection
+    - detrainment_of_cloud_ice_crystals_in_moist_air_and_condensed_water_due_to_deep_convection
     - detrainment_of_cloud_liquid_water_wrt_moist_air_and_condensed_water_due_to_deep_convection
     - entrainment_rate_for_cape_for_zhang_mcfarlane_deep_convection_scheme
     - flag_for_no_deep_convection_in_pbl
@@ -1064,7 +1064,7 @@ Non-dictionary standard names found in the following metadata files:
     - available_ice_nuclei_number_concentration_of_new_state
     - average_diameter_of_stratiform_graupel_particle
     - average_diameter_of_stratiform_rain_particle
-    - average_diameter_of_stratiform_snow_particle
+    - average_diameter_of_stratiform_snow_crystal
     - ccpp_error_code
     - ccpp_error_message
     - cloud_ice_sedimentation_flux
@@ -1072,14 +1072,14 @@ Non-dictionary standard names found in the following metadata files:
     - cloud_liquid_sedimentation_flux
     - cloud_particle_size_distribution_shape_parameter
     - cloud_particle_size_distribution_slope_parameter
-    - condensation_minus_evaporation_rate_of_in_cloud_ice_wrt_moist_air_and_condensed_water
+    - condensation_minus_evaporation_rate_of_in_cloud_ice_crystals_in_moist_air_and_condensed_water
     - direct_conversion_rate_of_stratiform_cloud_water_to_precipitation_for_scavenging
-    - effective_diameter_of_stratiform_cloud_ice_particles_for_radiation
-    - effective_radius_of_stratiform_cloud_liquid_plus_rain_particles
-    - effective_radius_of_stratiform_cloud_liquid_water_particle_assuming_cloud_water_number_concentration_of_1e8_per_kg_air
+    - effective_diameter_of_stratiform_cloud_ice_crystals_for_radiation
+    - effective_radius_of_stratiform_cloud_liquid_plus_rain_drops
+    - effective_radius_of_stratiform_cloud_liquid_water_droplet_assuming_cloud_water_number_concentration_of_1e8_per_kg_air
     - effective_radius_of_stratiform_graupel_particle
     - effective_radius_of_stratiform_rain_particle
-    - effective_radius_of_stratiform_snow_particle
+    - effective_radius_of_stratiform_snow_crystal
     - fraction_of_cloud_liquid_tendency_applied_to_state
     - fraction_of_frozen_water_to_total_condensed_water
     - fraction_of_gridcell_with_graupel
@@ -1106,22 +1106,22 @@ Non-dictionary standard names found in the following metadata files:
     - microphysics_available_ice_nuclei_number_concentration_of_new_state
     - microphysics_average_diameter_of_stratiform_graupel_particle
     - microphysics_average_diameter_of_stratiform_rain_particle
-    - microphysics_average_diameter_of_stratiform_snow_particle
+    - microphysics_average_diameter_of_stratiform_snow_crystal
     - microphysics_cloud_ice_sedimentation_flux
     - microphysics_cloud_ice_surface_area_density
     - microphysics_cloud_liquid_sedimentation_flux
     - microphysics_cloud_particle_size_distribution_shape_parameter
     - microphysics_cloud_particle_size_distribution_slope_parameter
-    - microphysics_condensation_minus_evaporation_rate_of_in_cloud_ice_wrt_moist_air_and_condensed_water
+    - microphysics_condensation_minus_evaporation_rate_of_in_cloud_ice_crystals_in_moist_air_and_condensed_water
     - microphysics_direct_conversion_rate_of_stratiform_cloud_water_to_precipitation_for_scavenging
-    - microphysics_effective_diameter_of_stratiform_cloud_ice_particles_for_radiation
-    - microphysics_effective_radius_of_stratiform_cloud_ice_particle
-    - microphysics_effective_radius_of_stratiform_cloud_liquid_plus_rain_particles
-    - microphysics_effective_radius_of_stratiform_cloud_liquid_water_particle
-    - microphysics_effective_radius_of_stratiform_cloud_liquid_water_particle_assuming_cloud_water_number_concentration_of_1e8_per_kg_air
+    - microphysics_effective_diameter_of_stratiform_cloud_ice_crystals_for_radiation
+    - microphysics_effective_radius_of_stratiform_cloud_ice_crystal
+    - microphysics_effective_radius_of_stratiform_cloud_liquid_plus_rain_drops
+    - microphysics_effective_radius_of_stratiform_cloud_liquid_water_droplet
+    - microphysics_effective_radius_of_stratiform_cloud_liquid_water_droplet_assuming_cloud_water_number_concentration_of_1e8_per_kg_air
     - microphysics_effective_radius_of_stratiform_graupel_particle
     - microphysics_effective_radius_of_stratiform_rain_particle
-    - microphysics_effective_radius_of_stratiform_snow_particle
+    - microphysics_effective_radius_of_stratiform_snow_crystal
     - microphysics_fraction_of_cloud_liquid_tendency_applied_to_state
     - microphysics_fraction_of_frozen_water_to_total_condensed_water
     - microphysics_fraction_of_gridcell_with_graupel
@@ -1158,11 +1158,11 @@ Non-dictionary standard names found in the following metadata files:
     - microphysics_tendency_of_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water
     - microphysics_tendency_of_dry_air_enthalpy_at_constant_pressure
     - microphysics_tendency_of_graupel_mixing_ratio_wrt_moist_air_and_condensed_water
-    - microphysics_tendency_of_mass_number_concentration_of_cloud_ice_wrt_moist_air_and_condensed_water
+    - microphysics_tendency_of_mass_number_concentration_of_cloud_ice_water_crystals_in_moist_air_and_condensed_water
     - microphysics_tendency_of_mass_number_concentration_of_cloud_liquid_water_wrt_moist_air_and_condensed_water
-    - microphysics_tendency_of_mass_number_concentration_of_graupel_wrt_moist_air_and_condensed_water
-    - microphysics_tendency_of_mass_number_concentration_of_rain_wrt_moist_air_and_condensed_water
-    - microphysics_tendency_of_mass_number_concentration_of_snow_wrt_moist_air_and_condensed_water
+    - microphysics_tendency_of_mass_number_concentration_of_graupel_particles_in_moist_air_and_condensed_water
+    - microphysics_tendency_of_mass_number_concentration_of_rain_drops_in_moist_air_and_condensed_water
+    - microphysics_tendency_of_mass_number_concentration_of_snow_crystals_in_moist_air_and_condensed_water
     - microphysics_tendency_of_rain_mixing_ratio_wrt_moist_air_and_condensed_water
     - microphysics_tendency_of_snow_mixing_ratio_wrt_moist_air_and_condensed_water
     - microphysics_tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
@@ -1187,11 +1187,11 @@ Non-dictionary standard names found in the following metadata files:
     - tendency_of_cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water
     - tendency_of_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water
     - tendency_of_graupel_mixing_ratio_wrt_moist_air_and_condensed_water
-    - tendency_of_mass_number_concentration_of_cloud_ice_wrt_moist_air_and_condensed_water
+    - tendency_of_mass_number_concentration_of_cloud_ice_water_crystals_in_moist_air_and_condensed_water
     - tendency_of_mass_number_concentration_of_cloud_liquid_water_wrt_moist_air_and_condensed_water
-    - tendency_of_mass_number_concentration_of_graupel_wrt_moist_air_and_condensed_water
-    - tendency_of_mass_number_concentration_of_rain_wrt_moist_air_and_condensed_water
-    - tendency_of_mass_number_concentration_of_snow_wrt_moist_air_and_condensed_water
+    - tendency_of_mass_number_concentration_of_graupel_particles_in_moist_air_and_condensed_water
+    - tendency_of_mass_number_concentration_of_rain_drops_in_moist_air_and_condensed_water
+    - tendency_of_mass_number_concentration_of_snow_crystals_in_moist_air_and_condensed_water
     - tendency_of_rain_mixing_ratio_wrt_moist_air_and_condensed_water
     - tendency_of_snow_mixing_ratio_wrt_moist_air_and_condensed_water
     - tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
@@ -1205,13 +1205,13 @@ Non-dictionary standard names found in the following metadata files:
     - ccpp_error_message
     - dust_number_concentration_by_size_bin
     - dust_radii_by_size_bin
-    - effective_radius_of_stratiform_cloud_ice_particle_from_external_microphysics
+    - effective_radius_of_stratiform_cloud_ice_crystal_from_external_microphysics
     - graupel_mixing_ratio_wrt_moist_air_and_condensed_water
-    - mass_number_concentration_of_cloud_ice_wrt_moist_air_and_condensed_water
+    - mass_number_concentration_of_cloud_ice_water_crystals_in_moist_air_and_condensed_water
     - mass_number_concentration_of_cloud_liquid_water_wrt_moist_air_and_condensed_water
-    - mass_number_concentration_of_graupel_wrt_moist_air_and_condensed_water
-    - mass_number_concentration_of_rain_wrt_moist_air_and_condensed_water
-    - mass_number_concentration_of_snow_wrt_moist_air_and_condensed_water
+    - mass_number_concentration_of_graupel_particles_in_moist_air_and_condensed_water
+    - mass_number_concentration_of_rain_drops_in_moist_air_and_condensed_water
+    - mass_number_concentration_of_snow_crystals_in_moist_air_and_condensed_water
     - microphysics_accretion_enhancement_factor
     - microphysics_air_pressure
     - microphysics_air_pressure_at_interfaces
@@ -1221,14 +1221,14 @@ Non-dictionary standard names found in the following metadata files:
     - microphysics_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water
     - microphysics_dust_number_concentration_by_size_bin
     - microphysics_dust_radii_by_size_bin
-    - microphysics_effective_radius_of_stratiform_cloud_ice_particle_from_external_microphysics
+    - microphysics_effective_radius_of_stratiform_cloud_ice_crystal_from_external_microphysics
     - microphysics_graupel_mixing_ratio_wrt_moist_air_and_condensed_water
     - microphysics_horizontal_loop_extent
-    - microphysics_mass_number_concentration_of_cloud_ice_wrt_moist_air_and_condensed_water
+    - microphysics_mass_number_concentration_of_cloud_ice_water_crystals_in_moist_air_and_condensed_water
     - microphysics_mass_number_concentration_of_cloud_liquid_water_wrt_moist_air_and_condensed_water
-    - microphysics_mass_number_concentration_of_graupel_wrt_moist_air_and_condensed_water
-    - microphysics_mass_number_concentration_of_rain_wrt_moist_air_and_condensed_water
-    - microphysics_mass_number_concentration_of_snow_wrt_moist_air_and_condensed_water
+    - microphysics_mass_number_concentration_of_graupel_particles_in_moist_air_and_condensed_water
+    - microphysics_mass_number_concentration_of_rain_drops_in_moist_air_and_condensed_water
+    - microphysics_mass_number_concentration_of_snow_crystals_in_moist_air_and_condensed_water
     - microphysics_rain_mixing_ratio_wrt_moist_air_and_condensed_water
     - microphysics_relative_variance_of_cloud_water
     - microphysics_snow_mixing_ratio_wrt_moist_air_and_condensed_water
@@ -1241,7 +1241,7 @@ Non-dictionary standard names found in the following metadata files:
     - microphysics_tendency_of_cloud_ice_number_concentration_due_to_deposition_nucleation
     - microphysics_tendency_of_cloud_liquid_droplet_number_concentration_due_to_contact_freezing
     - microphysics_tendency_of_cloud_liquid_droplet_number_concentration_due_to_immersion_freezing
-    - microphysics_tendency_of_mass_number_concentration_of_snow_wrt_moist_air_and_condensed_water_from_external_microphysics
+    - microphysics_tendency_of_mass_number_concentration_of_snow_crystals_in_moist_air_and_condensed_water_from_external_microphysics
     - microphysics_tendency_of_snow_mixing_ratio_wrt_moist_air_and_condensed_water_from_external_microphysics
     - microphysics_vertical_interface_dimension
     - microphysics_vertical_layer_dimension
@@ -1257,7 +1257,7 @@ Non-dictionary standard names found in the following metadata files:
     - tendency_of_cloud_ice_number_concentration_due_to_deposition_nucleation
     - tendency_of_cloud_liquid_droplet_number_concentration_due_to_contact_freezing
     - tendency_of_cloud_liquid_droplet_number_concentration_due_to_immersion_freezing
-    - tendency_of_mass_number_concentration_of_snow_wrt_moist_air_and_condensed_water_from_external_microphysics
+    - tendency_of_mass_number_concentration_of_snow_crystals_in_moist_air_and_condensed_water_from_external_microphysics
     - tendency_of_snow_mixing_ratio_wrt_moist_air_and_condensed_water_from_external_microphysics
 
 --------------------------
