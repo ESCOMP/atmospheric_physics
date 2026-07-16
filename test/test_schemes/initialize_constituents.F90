@@ -56,7 +56,7 @@ subroutine initialize_constituents_register(constituents, errmsg, errcode)
                                         'cnst_NUMICE', &
                                         'cnst_NUMSNO', &
                                         'cnst_NUMGRA']
-    character(len=75), parameter :: water_species_number_std_names(5) = &
+    character(len=128), parameter :: water_species_number_std_names(5) = &
        ['mass_number_concentration_of_cloud_liquid_water_droplets_in_moist_air_and_condensed_water', &
         'mass_number_concentration_of_rain_drops_in_moist_air_and_condensed_water        ', &
         'mass_number_concentration_of_ice_wrt_moist_air_and_condensed_water         ', &
