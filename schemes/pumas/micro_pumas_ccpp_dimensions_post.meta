@@ -520,8 +520,7 @@
 [scaled_diam_snow]
   standard_name = effective_diameter_of_stratiform_snow_crystal_for_radiation
   long_name = snow scaled diameter
-  #rrtmgp takes um and the CCPP framework will convert from m
-  units = m
+  units = um
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real
   kind = kind_phys

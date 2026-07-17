@@ -372,7 +372,7 @@ contains
     pgamrad(:,trop_cloud_top_lev:)              = pumas_pgamrad(:ncol,:)
     lamcrad(:,trop_cloud_top_lev:)              = pumas_lamcrad(:ncol,:)
     snowice_in_prec(:,trop_cloud_top_lev:)      = pumas_snowice_in_prec(:ncol,:)
-    scaled_diam_snow(:,trop_cloud_top_lev:)     = pumas_scaled_diam_snow(:ncol,:)
+    scaled_diam_snow(:,trop_cloud_top_lev:)     = pumas_scaled_diam_snow(:ncol,:)*1.0e6_kind_phys
     graupice_in_prec(:,trop_cloud_top_lev:)     = pumas_graupice_in_prec(:ncol,:)
     numgraup_vol_in_prec(:,trop_cloud_top_lev:) = pumas_numgraup_vol_in_prec(:ncol,:)
     scaled_diam_graup(:,trop_cloud_top_lev:)    = pumas_scaled_diam_graup(:ncol,:)
@@ -415,9 +415,7 @@ contains
     frac_cldliq_tend(:,trop_cloud_top_lev:)     = pumas_frac_cldliq_tend(:ncol,:)
     rain_evap(:,trop_cloud_top_lev:)            = pumas_rain_evap(:ncol,:)
 
-    ! Zero the levels above the microphysics range (1:trop_cloud_top_lev-1), which PUMAS
-    ! never writes. Mirrors CAM micro_pumas_cam.F90. When trop_cloud_top_lev == 1 these
-    ! are empty-slice assignments (no-ops).
+    ! Zero the levels above the microphysics range (1:trop_cloud_top_lev-1)
     qcsinksum_rate1ord(:,:trop_cloud_top_lev-1)   = 0._kind_phys
     airT_tend(:,:trop_cloud_top_lev-1)            = 0._kind_phys
     airq_tend(:,:trop_cloud_top_lev-1)            = 0._kind_phys
