@@ -581,9 +581,9 @@
   intent = out
 
 [effi_external_in]
-  standard_name = effective_radius_of_stratiform_cloud_ice_crystal
+  standard_name = effective_radius_of_stratiform_cloud_ice_crystal_from_external_microphysics
   long_name = effective radius of stratiform cloud ice particle from external microphysics
-  units = um
+  units = m
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real
   kind = kind_phys
@@ -591,7 +591,7 @@
 [pumas_effi_external]
   standard_name = pumas_effective_radius_of_stratiform_cloud_ice_crystal_from_external_microphysics
   long_name = microphysics effective radius of stratiform cloud ice particle from external microphysics
-  units = um
+  units = m
   dimensions = (microphysics_horizontal_loop_extent, microphysics_vertical_layer_dimension)
   type = real
   kind = pumas_r8
