@@ -11,7 +11,7 @@ contains
   !> \section arg_table_micro_pumas_ccpp_dimensions_post_run Argument Table
   !! \htmlinclude micro_pumas_ccpp_dimensions_post_run.html
   subroutine micro_pumas_ccpp_dimensions_post_run(ncol, micro_ncol, nlev, micro_nlev,                   &
-                   nlevp1, micro_nlevp1, pint, pumas_pint, qcsinksum_rate1ord, pumas_qcsinksum_rate1ord, airT_tend,       &
+                   nlevp1, micro_nlevp1, trop_cloud_top_lev, qcsinksum_rate1ord, pumas_qcsinksum_rate1ord, airT_tend,       &
                    pumas_airT_tend, airq_tend, pumas_airq_tend,                                         &
                    cldliq_tend, pumas_cldliq_tend, cldice_tend, pumas_cldice_tend, numliq_tend,         &
                    pumas_numliq_tend, numice_tend, pumas_numice_tend, rainliq_tend, pumas_rainliq_tend, &
@@ -51,8 +51,9 @@ contains
     integer, intent(in) :: nlevp1
     ! microphysics vertical interface dimension
     integer, intent(in) :: micro_nlevp1
+    ! index of the top model level for which cloud physics is applied (1 to nlev)
+    integer, intent(in) :: trop_cloud_top_lev
 
-    real(pumas_r8), intent(in) :: pumas_pint(:,:)
     !microphysics direct conversion rate of stratiform cloud water to precipitation (s-1)
     real(pumas_r8), intent(in) :: pumas_qcsinksum_rate1ord(:, :)
     !microphysics tendency of dry air enthalpy at constant pressure (J kg-1 s-1)
@@ -194,7 +195,6 @@ contains
     !microphysics rain evaporation rate wrt moist air and condensed water (kg kg-1 s-1)
     real(pumas_r8), intent(in) :: pumas_rain_evap(:, :)
 
-    real(kind_phys), intent(out ) :: pint(:,:)
     !direct conversion rate of stratiform cloud water to precipitation (s-1)
     real(kind_phys), intent(out) :: qcsinksum_rate1ord(:, :)
     !tendency of dry air enthalpy at constant pressure (J kg-1 s-1)
@@ -343,79 +343,149 @@ contains
     errcode = 0
     errmsg = ''
 
-    pint(:,:micro_nlevp1)               = pumas_pint(:ncol,:)
-    qcsinksum_rate1ord(:,:micro_nlev)   = pumas_qcsinksum_rate1ord(:ncol,:)
-    airT_tend(:,:micro_nlev)            = pumas_airT_tend(:ncol,:)
-    airq_tend(:,:micro_nlev)            = pumas_airq_tend(:ncol,:)
-    cldliq_tend(:,:micro_nlev)          = pumas_cldliq_tend(:ncol,:)
-    cldice_tend(:,:micro_nlev)          = pumas_cldice_tend(:ncol,:)
-    numliq_tend(:,:micro_nlev)          = pumas_numliq_tend(:ncol,:)
-    numice_tend(:,:micro_nlev)          = pumas_numice_tend(:ncol,:)
-    rainliq_tend(:,:micro_nlev)         = pumas_rainliq_tend(:ncol,:)
-    snowice_tend(:,:micro_nlev)         = pumas_snowice_tend(:ncol,:)
-    numliq_tend(:,:micro_nlev)          = pumas_numliq_tend(:ncol,:)
-    numice_tend(:,:micro_nlev)          = pumas_numice_tend(:ncol,:)
-    numrain_tend(:,:micro_nlev)         = pumas_numrain_tend(:ncol,:)
-    numsnow_tend(:,:micro_nlev)         = pumas_numsnow_tend(:ncol,:)
-    graupice_tend(:,:micro_nlev)        = pumas_graupice_tend(:ncol,:)
-    numgraup_tend(:,:micro_nlev)        = pumas_numgraup_tend(:ncol,:)
-    effc(:,:micro_nlev)                 = pumas_effc(:ncol,:)
-    effc_fn(:,:micro_nlev)              = pumas_effc_fn(:ncol,:)
-    effi(:,:micro_nlev)                 = pumas_effi(:ncol,:)
-    sadice(:,:micro_nlev)               = pumas_sadice(:ncol,:)
-    sadsnow(:,:micro_nlev)              = pumas_sadsnow(:ncol,:)
+    ! Copy PUMAS outputs (levels 1:micro_nlev) back onto host levels trop_cloud_top_lev:nlev.
+    qcsinksum_rate1ord(:,trop_cloud_top_lev:)   = pumas_qcsinksum_rate1ord(:ncol,:)
+    airT_tend(:,trop_cloud_top_lev:)            = pumas_airT_tend(:ncol,:)
+    airq_tend(:,trop_cloud_top_lev:)            = pumas_airq_tend(:ncol,:)
+    cldliq_tend(:,trop_cloud_top_lev:)          = pumas_cldliq_tend(:ncol,:)
+    cldice_tend(:,trop_cloud_top_lev:)          = pumas_cldice_tend(:ncol,:)
+    numliq_tend(:,trop_cloud_top_lev:)          = pumas_numliq_tend(:ncol,:)
+    numice_tend(:,trop_cloud_top_lev:)          = pumas_numice_tend(:ncol,:)
+    rainliq_tend(:,trop_cloud_top_lev:)         = pumas_rainliq_tend(:ncol,:)
+    snowice_tend(:,trop_cloud_top_lev:)         = pumas_snowice_tend(:ncol,:)
+    numrain_tend(:,trop_cloud_top_lev:)         = pumas_numrain_tend(:ncol,:)
+    numsnow_tend(:,trop_cloud_top_lev:)         = pumas_numsnow_tend(:ncol,:)
+    graupice_tend(:,trop_cloud_top_lev:)        = pumas_graupice_tend(:ncol,:)
+    numgraup_tend(:,trop_cloud_top_lev:)        = pumas_numgraup_tend(:ncol,:)
+    effc(:,trop_cloud_top_lev:)                 = pumas_effc(:ncol,:)
+    effc_fn(:,trop_cloud_top_lev:)              = pumas_effc_fn(:ncol,:)
+    effi(:,trop_cloud_top_lev:)                 = pumas_effi(:ncol,:)
+    sadice(:,trop_cloud_top_lev:)               = pumas_sadice(:ncol,:)
+    sadsnow(:,trop_cloud_top_lev:)              = pumas_sadsnow(:ncol,:)
     prect(:)                            = pumas_prect(:ncol)
     preci(:)                            = pumas_preci(:ncol)
-    prec_evap(:,:micro_nlev)            = pumas_prec_evap(:ncol,:)
-    am_evap_st(:,:micro_nlev)           = pumas_am_evap_st(:ncol,:)
-    prec_prod(:,:micro_nlev)            = pumas_prec_prod(:ncol,:)
-    cmeice(:,:micro_nlev)               = pumas_cmeice(:ncol,:)
-    deffi(:,:micro_nlev)                = pumas_deffi(:ncol,:)
-    pgamrad(:,:micro_nlev)              = pumas_pgamrad(:ncol,:)
-    lamcrad(:,:micro_nlev)              = pumas_lamcrad(:ncol,:)
-    snowice_in_prec(:,:micro_nlev)      = pumas_snowice_in_prec(:ncol,:)
-    scaled_diam_snow(:,:micro_nlev)     = pumas_scaled_diam_snow(:ncol,:)
-    graupice_in_prec(:,:micro_nlev)     = pumas_graupice_in_prec(:ncol,:)
-    numgraup_vol_in_prec(:,:micro_nlev) = pumas_numgraup_vol_in_prec(:ncol,:)
-    scaled_diam_graup(:,:micro_nlev)    = pumas_scaled_diam_graup(:ncol,:)
-    lflx(:,:micro_nlevp1)               = pumas_lflx(:ncol,:)
-    iflx(:,:micro_nlevp1)               = pumas_iflx(:ncol,:)
-    gflx(:,:micro_nlevp1)               = pumas_gflx(:ncol,:)
-    rflx(:,:micro_nlevp1)               = pumas_rflx(:ncol,:)
-    sflx(:,:micro_nlevp1)               = pumas_sflx(:ncol,:)
-    rainliq_in_prec(:,:micro_nlev)      = pumas_rainliq_in_prec(:ncol,:)
-    reff_rain(:,:micro_nlev)            = pumas_reff_rain(:ncol,:)
-    reff_snow(:,:micro_nlev)            = pumas_reff_snow(:ncol,:)
-    reff_grau(:,:micro_nlev)            = pumas_reff_grau(:ncol,:)
-    numrain_vol_in_prec(:,:micro_nlev)  = pumas_numrain_vol_in_prec(:ncol,:)
-    numsnow_vol_in_prec(:,:micro_nlev)  = pumas_numsnow_vol_in_prec(:ncol,:)
-    refl(:,:micro_nlev)                 = pumas_refl(:ncol,:)
-    arefl(:,:micro_nlev)                = pumas_arefl(:ncol,:)
-    areflz(:,:micro_nlev)               = pumas_areflz(:ncol,:)
-    frefl(:,:micro_nlev)                = pumas_frefl(:ncol,:)
-    csrfl(:,:micro_nlev)                = pumas_csrfl(:ncol,:)
-    acsrfl(:,:micro_nlev)               = pumas_acsrfl(:ncol,:)
-    fcsrfl(:,:micro_nlev)               = pumas_fcsrfl(:ncol,:)
-    refl10cm(:,:micro_nlev)             = pumas_refl10cm(:ncol,:)
-    reflz10cm(:,:micro_nlev)            = pumas_reflz10cm(:ncol,:)
-    rercld(:,:micro_nlev)               = pumas_rercld(:ncol,:)
-    ncai(:,:micro_nlev)                 = pumas_ncai(:ncol,:)
-    ncal(:,:micro_nlev)                 = pumas_ncal(:ncol,:)
-    rainliq(:,:micro_nlev)              = pumas_rainliq(:ncol,:)
-    snowice(:,:micro_nlev)              = pumas_snowice(:ncol,:)
-    numrain_vol(:,:micro_nlev)          = pumas_numrain_vol(:ncol,:)
-    numsnow_vol(:,:micro_nlev)          = pumas_numsnow_vol(:ncol,:)
-    diam_rain(:,:micro_nlev)            = pumas_diam_rain(:ncol,:)
-    diam_snow(:,:micro_nlev)            = pumas_diam_snow(:ncol,:)
-    graupice(:,:micro_nlev)             = pumas_graupice(:ncol,:)
-    numgraup_vol(:,:micro_nlev)         = pumas_numgraup_vol(:ncol,:)
-    diam_graup(:,:micro_nlev)           = pumas_diam_graup(:ncol,:)
-    freq_graup(:,:micro_nlev)           = pumas_freq_graup(:ncol,:)
-    freq_snow(:,:micro_nlev)            = pumas_freq_graup(:ncol,:)
-    freq_rain(:,:micro_nlev)            = pumas_freq_rain(:ncol,:)
-    frac_ice(:,:micro_nlev)             = pumas_frac_ice(:ncol,:)
-    frac_cldliq_tend(:,:micro_nlev)     = pumas_frac_cldliq_tend(:ncol,:)
-    rain_evap(:,:micro_nlev)            = pumas_rain_evap(:ncol,:)
+    prec_evap(:,trop_cloud_top_lev:)            = pumas_prec_evap(:ncol,:)
+    am_evap_st(:,trop_cloud_top_lev:)           = pumas_am_evap_st(:ncol,:)
+    prec_prod(:,trop_cloud_top_lev:)            = pumas_prec_prod(:ncol,:)
+    cmeice(:,trop_cloud_top_lev:)               = pumas_cmeice(:ncol,:)
+    deffi(:,trop_cloud_top_lev:)                = pumas_deffi(:ncol,:)
+    pgamrad(:,trop_cloud_top_lev:)              = pumas_pgamrad(:ncol,:)
+    lamcrad(:,trop_cloud_top_lev:)              = pumas_lamcrad(:ncol,:)
+    snowice_in_prec(:,trop_cloud_top_lev:)      = pumas_snowice_in_prec(:ncol,:)
+    scaled_diam_snow(:,trop_cloud_top_lev:)     = pumas_scaled_diam_snow(:ncol,:)
+    graupice_in_prec(:,trop_cloud_top_lev:)     = pumas_graupice_in_prec(:ncol,:)
+    numgraup_vol_in_prec(:,trop_cloud_top_lev:) = pumas_numgraup_vol_in_prec(:ncol,:)
+    scaled_diam_graup(:,trop_cloud_top_lev:)    = pumas_scaled_diam_graup(:ncol,:)
+    lflx(:,trop_cloud_top_lev:)               = pumas_lflx(:ncol,:)
+    iflx(:,trop_cloud_top_lev:)               = pumas_iflx(:ncol,:)
+    gflx(:,trop_cloud_top_lev:)               = pumas_gflx(:ncol,:)
+    rflx(:,trop_cloud_top_lev:)               = pumas_rflx(:ncol,:)
+    sflx(:,trop_cloud_top_lev:)               = pumas_sflx(:ncol,:)
+    rainliq_in_prec(:,trop_cloud_top_lev:)      = pumas_rainliq_in_prec(:ncol,:)
+    reff_rain(:,trop_cloud_top_lev:)            = pumas_reff_rain(:ncol,:)
+    reff_snow(:,trop_cloud_top_lev:)            = pumas_reff_snow(:ncol,:)
+    reff_grau(:,trop_cloud_top_lev:)            = pumas_reff_grau(:ncol,:)
+    numrain_vol_in_prec(:,trop_cloud_top_lev:)  = pumas_numrain_vol_in_prec(:ncol,:)
+    numsnow_vol_in_prec(:,trop_cloud_top_lev:)  = pumas_numsnow_vol_in_prec(:ncol,:)
+    refl(:,trop_cloud_top_lev:)                 = pumas_refl(:ncol,:)
+    arefl(:,trop_cloud_top_lev:)                = pumas_arefl(:ncol,:)
+    areflz(:,trop_cloud_top_lev:)               = pumas_areflz(:ncol,:)
+    frefl(:,trop_cloud_top_lev:)                = pumas_frefl(:ncol,:)
+    csrfl(:,trop_cloud_top_lev:)                = pumas_csrfl(:ncol,:)
+    acsrfl(:,trop_cloud_top_lev:)               = pumas_acsrfl(:ncol,:)
+    fcsrfl(:,trop_cloud_top_lev:)               = pumas_fcsrfl(:ncol,:)
+    refl10cm(:,trop_cloud_top_lev:)             = pumas_refl10cm(:ncol,:)
+    reflz10cm(:,trop_cloud_top_lev:)            = pumas_reflz10cm(:ncol,:)
+    rercld(:,trop_cloud_top_lev:)               = pumas_rercld(:ncol,:)
+    ncai(:,trop_cloud_top_lev:)                 = pumas_ncai(:ncol,:)
+    ncal(:,trop_cloud_top_lev:)                 = pumas_ncal(:ncol,:)
+    rainliq(:,trop_cloud_top_lev:)              = pumas_rainliq(:ncol,:)
+    snowice(:,trop_cloud_top_lev:)              = pumas_snowice(:ncol,:)
+    numrain_vol(:,trop_cloud_top_lev:)          = pumas_numrain_vol(:ncol,:)
+    numsnow_vol(:,trop_cloud_top_lev:)          = pumas_numsnow_vol(:ncol,:)
+    diam_rain(:,trop_cloud_top_lev:)            = pumas_diam_rain(:ncol,:)
+    diam_snow(:,trop_cloud_top_lev:)            = pumas_diam_snow(:ncol,:)
+    graupice(:,trop_cloud_top_lev:)             = pumas_graupice(:ncol,:)
+    numgraup_vol(:,trop_cloud_top_lev:)         = pumas_numgraup_vol(:ncol,:)
+    diam_graup(:,trop_cloud_top_lev:)           = pumas_diam_graup(:ncol,:)
+    freq_graup(:,trop_cloud_top_lev:)           = pumas_freq_graup(:ncol,:)
+    freq_snow(:,trop_cloud_top_lev:)            = pumas_freq_snow(:ncol,:)
+    freq_rain(:,trop_cloud_top_lev:)            = pumas_freq_rain(:ncol,:)
+    frac_ice(:,trop_cloud_top_lev:)             = pumas_frac_ice(:ncol,:)
+    frac_cldliq_tend(:,trop_cloud_top_lev:)     = pumas_frac_cldliq_tend(:ncol,:)
+    rain_evap(:,trop_cloud_top_lev:)            = pumas_rain_evap(:ncol,:)
+
+    ! Zero the levels above the microphysics range (1:trop_cloud_top_lev-1), which PUMAS
+    ! never writes. Mirrors CAM micro_pumas_cam.F90. When trop_cloud_top_lev == 1 these
+    ! are empty-slice assignments (no-ops).
+    qcsinksum_rate1ord(:,:trop_cloud_top_lev-1)   = 0._kind_phys
+    airT_tend(:,:trop_cloud_top_lev-1)            = 0._kind_phys
+    airq_tend(:,:trop_cloud_top_lev-1)            = 0._kind_phys
+    cldliq_tend(:,:trop_cloud_top_lev-1)          = 0._kind_phys
+    cldice_tend(:,:trop_cloud_top_lev-1)          = 0._kind_phys
+    numliq_tend(:,:trop_cloud_top_lev-1)          = 0._kind_phys
+    numice_tend(:,:trop_cloud_top_lev-1)          = 0._kind_phys
+    rainliq_tend(:,:trop_cloud_top_lev-1)         = 0._kind_phys
+    snowice_tend(:,:trop_cloud_top_lev-1)         = 0._kind_phys
+    numrain_tend(:,:trop_cloud_top_lev-1)         = 0._kind_phys
+    numsnow_tend(:,:trop_cloud_top_lev-1)         = 0._kind_phys
+    graupice_tend(:,:trop_cloud_top_lev-1)        = 0._kind_phys
+    numgraup_tend(:,:trop_cloud_top_lev-1)        = 0._kind_phys
+    effc(:,:trop_cloud_top_lev-1)                 = 0._kind_phys
+    effc_fn(:,:trop_cloud_top_lev-1)              = 0._kind_phys
+    effi(:,:trop_cloud_top_lev-1)                 = 0._kind_phys
+    sadice(:,:trop_cloud_top_lev-1)               = 0._kind_phys
+    sadsnow(:,:trop_cloud_top_lev-1)              = 0._kind_phys
+    prec_evap(:,:trop_cloud_top_lev-1)            = 0._kind_phys
+    am_evap_st(:,:trop_cloud_top_lev-1)           = 0._kind_phys
+    prec_prod(:,:trop_cloud_top_lev-1)            = 0._kind_phys
+    cmeice(:,:trop_cloud_top_lev-1)               = 0._kind_phys
+    deffi(:,:trop_cloud_top_lev-1)                = 0._kind_phys
+    pgamrad(:,:trop_cloud_top_lev-1)              = 0._kind_phys
+    lamcrad(:,:trop_cloud_top_lev-1)              = 0._kind_phys
+    snowice_in_prec(:,:trop_cloud_top_lev-1)      = 0._kind_phys
+    scaled_diam_snow(:,:trop_cloud_top_lev-1)     = 0._kind_phys
+    graupice_in_prec(:,:trop_cloud_top_lev-1)     = 0._kind_phys
+    numgraup_vol_in_prec(:,:trop_cloud_top_lev-1) = 0._kind_phys
+    scaled_diam_graup(:,:trop_cloud_top_lev-1)    = 0._kind_phys
+    lflx(:,:trop_cloud_top_lev-1)                 = 0._kind_phys
+    iflx(:,:trop_cloud_top_lev-1)                 = 0._kind_phys
+    gflx(:,:trop_cloud_top_lev-1)                 = 0._kind_phys
+    rflx(:,:trop_cloud_top_lev-1)                 = 0._kind_phys
+    sflx(:,:trop_cloud_top_lev-1)                 = 0._kind_phys
+    rainliq_in_prec(:,:trop_cloud_top_lev-1)      = 0._kind_phys
+    reff_rain(:,:trop_cloud_top_lev-1)            = 0._kind_phys
+    reff_snow(:,:trop_cloud_top_lev-1)            = 0._kind_phys
+    reff_grau(:,:trop_cloud_top_lev-1)            = 0._kind_phys
+    numrain_vol_in_prec(:,:trop_cloud_top_lev-1)  = 0._kind_phys
+    numsnow_vol_in_prec(:,:trop_cloud_top_lev-1)  = 0._kind_phys
+    refl(:,:trop_cloud_top_lev-1)                 = 0._kind_phys
+    arefl(:,:trop_cloud_top_lev-1)                = 0._kind_phys
+    areflz(:,:trop_cloud_top_lev-1)               = 0._kind_phys
+    frefl(:,:trop_cloud_top_lev-1)                = 0._kind_phys
+    csrfl(:,:trop_cloud_top_lev-1)                = 0._kind_phys
+    acsrfl(:,:trop_cloud_top_lev-1)               = 0._kind_phys
+    fcsrfl(:,:trop_cloud_top_lev-1)               = 0._kind_phys
+    refl10cm(:,:trop_cloud_top_lev-1)             = 0._kind_phys
+    reflz10cm(:,:trop_cloud_top_lev-1)            = 0._kind_phys
+    rercld(:,:trop_cloud_top_lev-1)               = 0._kind_phys
+    ncai(:,:trop_cloud_top_lev-1)                 = 0._kind_phys
+    ncal(:,:trop_cloud_top_lev-1)                 = 0._kind_phys
+    rainliq(:,:trop_cloud_top_lev-1)              = 0._kind_phys
+    snowice(:,:trop_cloud_top_lev-1)              = 0._kind_phys
+    numrain_vol(:,:trop_cloud_top_lev-1)          = 0._kind_phys
+    numsnow_vol(:,:trop_cloud_top_lev-1)          = 0._kind_phys
+    diam_rain(:,:trop_cloud_top_lev-1)            = 0._kind_phys
+    diam_snow(:,:trop_cloud_top_lev-1)            = 0._kind_phys
+    graupice(:,:trop_cloud_top_lev-1)             = 0._kind_phys
+    numgraup_vol(:,:trop_cloud_top_lev-1)         = 0._kind_phys
+    diam_graup(:,:trop_cloud_top_lev-1)           = 0._kind_phys
+    freq_graup(:,:trop_cloud_top_lev-1)           = 0._kind_phys
+    freq_snow(:,:trop_cloud_top_lev-1)            = 0._kind_phys
+    freq_rain(:,:trop_cloud_top_lev-1)            = 0._kind_phys
+    frac_ice(:,:trop_cloud_top_lev-1)             = 0._kind_phys
+    frac_cldliq_tend(:,:trop_cloud_top_lev-1)     = 0._kind_phys
+    rain_evap(:,:trop_cloud_top_lev-1)            = 0._kind_phys
 
   end subroutine micro_pumas_ccpp_dimensions_post_run
 

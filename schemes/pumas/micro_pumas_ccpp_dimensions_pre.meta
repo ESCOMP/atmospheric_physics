@@ -102,6 +102,12 @@
   dimensions = ()
   type = integer
   intent = in
+[trop_cloud_top_lev]
+  standard_name = vertical_layer_index_of_troposphere_cloud_physics_top
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
 [micro_ncol]
   #Equivalent to "horizontal_loop_extent" unless subcolumns is enabled
   standard_name = microphysics_horizontal_loop_extent
