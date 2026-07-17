@@ -27,7 +27,7 @@
     <scheme>pumas_post_main</scheme>
     <scheme>micro_pumas_ccpp_optics_limiter</scheme>
     <scheme>apply_heating_rate</scheme>
-    <!--<scheme>qneg</scheme>-->
+    <scheme>qneg</scheme>
     <scheme>geopotential_temp</scheme>
   </group>
 </suite>
