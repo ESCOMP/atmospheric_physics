@@ -24,7 +24,7 @@ module ndrop_bam
   real(kind_phys)              :: super(psat)
 
   real(kind_phys), allocatable :: ccnfact(:, :)
-  real(kind_phys), allocatable :: alogsig(:)       ! natl log of geometric standard dev of aerosol
+  real(kind_phys), allocatable :: alogsig(:)       ! natural log of geometric standard dev of aerosol
   real(kind_phys), allocatable :: exp45logsig(:)
   real(kind_phys), allocatable :: argfactor(:)
   real(kind_phys), allocatable :: amcube(:)        ! cube of dry mode radius (m)
@@ -197,7 +197,7 @@ contains
       smcritfactor(m) = 2._kind_phys*aten*sqrt(aten/(27._kind_phys*max(1.e-10_kind_phys, hygro_aer(m))))
       amcube(m) = amcubefactor(m)/num_to_mass_aer(m)
 
-      if (hygro_aer(m) .gt. 1.e-10_kind_phys) then
+      if (hygro_aer(m) > 1.e-10_kind_phys) then
         smcrit(m) = smcritfactor(m)/sqrt(amcube(m))
       else
         smcrit(m) = 100._kind_phys
@@ -438,9 +438,9 @@ contains
 
     nact = 0._kind_phys
 
-    if (nmode .eq. 1 .and. na(1) .lt. 1.e-20_kind_phys) return
+    if (nmode == 1 .and. na(1) < 1.e-20_kind_phys) return
 
-    if (wbar .le. 0._kind_phys) return
+    if (wbar <= 0._kind_phys) return
 
     pres = rair*rhoair*tair
     diff0 = 0.211e-4_kind_phys*(pref/pres)*(tair/tmelt)**1.94_kind_phys
@@ -614,7 +614,7 @@ contains
 
     weak_forcing = .true.
     do m = 1, nmode
-      if (.not. (zeta .gt. 1.e5_kind_phys*eta(m) .or. smc(m)*smc(m) .gt. 1.e5_kind_phys*eta(m))) then
+      if (.not. (zeta > 1.e5_kind_phys*eta(m) .or. smc(m)*smc(m) > 1.e5_kind_phys*eta(m))) then
         ! significant activation of this mode. calc activation all modes.
         weak_forcing = .false.
         exit
@@ -629,7 +629,7 @@ contains
 
     sum = 0
     do m = 1, nmode
-      if (eta(m) .gt. 1.e-20_kind_phys) then
+      if (eta(m) > 1.e-20_kind_phys) then
         g1 = sqrt(zeta/eta(m))
         g1 = g1*g1*g1
         g2 = smc(m)/sqrt(eta(m) + 3*zeta)
