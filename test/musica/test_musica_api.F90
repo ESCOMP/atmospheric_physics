@@ -63,6 +63,10 @@ contains
   subroutine test_chapman()
     use ccpp_constituent_prop_mod,     only: ccpp_constituent_prop_ptr_t
     use ccpp_constituent_prop_mod,     only: ccpp_constituent_properties_t
+    use ccpp_constituent_prop_mod,     only: to_lower
+    ! this dependency cannot yet be replaced by ccpp_scheme_utils because
+    ! the test itself constructs the constituent properties and does not initialize
+    ! the version contained within the framework:
     use ccpp_const_utils,              only: ccpp_const_get_idx
     use musica_ccpp_namelist,          only: filename_of_micm_configuration, &
                                              filename_of_tuvx_configuration, &
@@ -160,14 +164,14 @@ contains
       ASSERT(errcode == 0)
       call constituent_props(i)%default_value(default_mixing_ratio, errcode, errmsg)
       ASSERT(errcode == 0)
-      tmp_bool = (trim(species_name) == "O2" .and. molar_mass == 0.0319988_kind_phys .and. default_mixing_ratio == 0.22474_kind_phys .and. is_advected) .or.  &
-                (trim(species_name) == "O" .and. molar_mass == 0.0159994_kind_phys .and. default_mixing_ratio == 5.3509e-10_kind_phys .and. .not. is_advected) .or.   &
-                (trim(species_name) == "O1D" .and. molar_mass == 0.0159994_kind_phys .and. default_mixing_ratio == 5.3509e-10_kind_phys .and. .not. is_advected) .or. &
-                (trim(species_name) == "O3" .and. molar_mass == 0.0479982_kind_phys .and. default_mixing_ratio == 0.00016_kind_phys .and. is_advected) .or. &
-                (trim(species_name) == "N2" .and. molar_mass == 0.0280134_kind_phys .and. default_mixing_ratio == 0.74015_kind_phys .and. is_advected) .or. &
-                (trim(species_name) == "cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water" .and. &
+      tmp_bool = (to_lower(trim(species_name)) == "o2" .and. molar_mass == 0.0319988_kind_phys .and. default_mixing_ratio == 0.22474_kind_phys .and. is_advected) .or.  &
+                (to_lower(trim(species_name)) == "o" .and. molar_mass == 0.0159994_kind_phys .and. default_mixing_ratio == 5.3509e-10_kind_phys .and. .not. is_advected) .or.   &
+                (to_lower(trim(species_name)) == "o1d" .and. molar_mass == 0.0159994_kind_phys .and. default_mixing_ratio == 5.3509e-10_kind_phys .and. .not. is_advected) .or. &
+                (to_lower(trim(species_name)) == "o3" .and. molar_mass == 0.0479982_kind_phys .and. default_mixing_ratio == 0.00016_kind_phys .and. is_advected) .or. &
+                (to_lower(trim(species_name)) == "n2" .and. molar_mass == 0.0280134_kind_phys .and. default_mixing_ratio == 0.74015_kind_phys .and. is_advected) .or. &
+                (to_lower(trim(species_name)) == "cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water" .and. &
                  molar_mass == 0.018_kind_phys .and. is_advected) .or. &
-                (trim(species_name) == "air" .and. molar_mass == 0.0289644_kind_phys .and. default_mixing_ratio == 0.0_kind_phys .and. .not. is_advected)
+                (to_lower(trim(species_name)) == "air" .and. molar_mass == 0.0289644_kind_phys .and. default_mixing_ratio == 0.0_kind_phys .and. .not. is_advected)
       ASSERT(tmp_bool)
       call constituent_props(i)%units(units, errcode, errmsg)
       if (errcode /= 0) then
@@ -313,6 +317,10 @@ contains
   subroutine test_terminator()
     use ccpp_constituent_prop_mod,     only: ccpp_constituent_prop_ptr_t
     use ccpp_constituent_prop_mod,     only: ccpp_constituent_properties_t
+    use ccpp_constituent_prop_mod,     only: to_lower
+    ! this dependency cannot yet be replaced by ccpp_scheme_utils because
+    ! the test itself constructs the constituent properties and does not initialize
+    ! the version contained within the framework:
     use ccpp_const_utils,              only: ccpp_const_get_idx
     use musica_ccpp_namelist,          only: filename_of_micm_configuration, &
                                              filename_of_tuvx_configuration, &
@@ -408,13 +416,13 @@ contains
       ASSERT(errcode == 0)
       call constituent_props(i)%is_advected(is_advected, errcode, errmsg)
       ASSERT(errcode == 0)
-      tmp_bool = (trim(species_name) == "Cl" .and. molar_mass == 0.035453_kind_phys .and. is_advected) .or.  &
-                 (trim(species_name) == "Cl2" .and. molar_mass == 0.070906_kind_phys .and. is_advected) .or. &
-                 (trim(species_name) == "cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water" &
+      tmp_bool = (to_lower(trim(species_name)) == "cl" .and. molar_mass == 0.035453_kind_phys .and. is_advected) .or.  &
+                 (to_lower(trim(species_name)) == "cl2" .and. molar_mass == 0.070906_kind_phys .and. is_advected) .or. &
+                 (to_lower(trim(species_name)) == "cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water" &
                                         .and. molar_mass == 0.018_kind_phys .and. is_advected) .or. &
-                 (trim(species_name) == "air" .and. molar_mass == 0.0289644_kind_phys .and. .not. is_advected) .or. &
-                 (trim(species_name) == "O2" .and. molar_mass == 0.0319988_kind_phys .and. .not. is_advected) .or. &
-                 (trim(species_name) == "O3" .and. molar_mass == 0.0479982_kind_phys .and. .not. is_advected)
+                 (to_lower(trim(species_name)) == "air" .and. molar_mass == 0.0289644_kind_phys .and. .not. is_advected) .or. &
+                 (to_lower(trim(species_name)) == "o2" .and. molar_mass == 0.0319988_kind_phys .and. .not. is_advected) .or. &
+                 (to_lower(trim(species_name)) == "o3" .and. molar_mass == 0.0479982_kind_phys .and. .not. is_advected)
       ASSERT(tmp_bool)
       call constituent_props(i)%units(units, errcode, errmsg)
       if (errcode /= 0) then
@@ -578,6 +586,9 @@ contains
   subroutine test_analytical(number_of_columns, number_of_layers, test_accuracy)
     use ccpp_constituent_prop_mod,     only: ccpp_constituent_prop_ptr_t, &
                                              ccpp_constituent_properties_t
+    ! this dependency cannot yet be replaced by ccpp_scheme_utils because
+    ! the test itself constructs the constituent properties and does not initialize
+    ! the version contained within the framework:
     use ccpp_const_utils,              only: ccpp_const_get_idx
     use musica_ccpp_namelist,          only: filename_of_micm_configuration, &
                                              filename_of_tuvx_configuration, &
