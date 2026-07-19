@@ -18,7 +18,7 @@ contains
 
 !> \section arg_table_dust_default_radii_timestep_init Argument Table
 !! \htmlinclude dust_default_radii_timestep_init.html
-  subroutine dust_default_radii_timestep_init(ncol, pver, ndust, rndst, errmsg, errflg)
+  pure subroutine dust_default_radii_timestep_init(ncol, pver, ndust, rndst, errmsg, errflg)
     integer,            intent(in)  :: ncol
     integer,            intent(in)  :: pver
     integer,            intent(in)  :: ndust

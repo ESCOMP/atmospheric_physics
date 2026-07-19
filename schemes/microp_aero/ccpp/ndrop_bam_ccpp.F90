@@ -42,7 +42,8 @@ contains
     errflg = 0
 
     call ndrop_bam_init(amIRoot, iulog, mwh2o, r_universal, tmelt, rhoh2o, &
-      naer_all)
+      naer_all, errmsg, errflg)
+    if (errflg /= 0) return
 
     psat = psat_driver
 

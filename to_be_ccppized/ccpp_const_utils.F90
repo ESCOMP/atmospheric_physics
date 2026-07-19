@@ -39,12 +39,34 @@ contains
           return
        end if
 
-       if (trim(t_const_name) == trim(name)) then
+       ! Constituent standard names are case-insensitive.
+       if (to_lower(trim(t_const_name)) == to_lower(trim(name))) then
           cindex = t_cindex
           exit const_props_loop
        end if
     enddo const_props_loop
 
   end subroutine ccpp_const_get_idx
+
+  ! Return a copy of <str> with ASCII upper-case letters folded to lower case.
+  ! This is inlined here to avoid host dependencies and should be retired together with the rest
+  ! of this module once it is replaced by ccpp_scheme_utils.
+  pure function to_lower(str) result(lower_str)
+    character(len=*), intent(in) :: str
+    character(len=len(str))      :: lower_str
+
+    integer :: i, ascii_code
+    integer, parameter :: upper_to_lower = iachar('a') - iachar('A')
+
+    do i = 1, len(str)
+      ascii_code = iachar(str(i:i))
+      if (ascii_code >= iachar('A') .and. ascii_code <= iachar('Z')) then
+        lower_str(i:i) = achar(ascii_code + upper_to_lower)
+      else
+        lower_str(i:i) = str(i:i)
+      end if
+    end do
+
+  end function to_lower
 
 end module ccpp_const_utils
