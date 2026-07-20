@@ -52,21 +52,11 @@
   dimensions = ()
   type = integer
   intent = in
-[pint]
-  standard_name = air_pressure_at_interface
-  long_name = air pressure at interface
-  units = Pa
-  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
-  type = real
-  kind = kind_phys
-  intent = out
-[pumas_pint]
-  standard_name = pumas_air_pressure_at_interface
-  long_name = pumas air pressure at interface
-  units = Pa
-  dimensions = (microphysics_horizontal_loop_extent, microphysics_vertical_interface_dimension)
-  type = real
-  kind = pumas_r8
+[trop_cloud_top_lev]
+  standard_name = vertical_layer_index_of_troposphere_cloud_physics_top
+  units = index
+  type = integer
+  dimensions = ()
   intent = in
 [qcsinksum_rate1ord]
   standard_name = direct_conversion_rate_of_stratiform_cloud_water_to_precipitation_for_scavenging
@@ -464,7 +454,7 @@
   kind = pumas_r8
   intent = in
 [deffi]
-  standard_name = effective_diameter_of_stratiform_cloud_ice_crystals_for_radiation
+  standard_name = effective_diameter_of_stratiform_cloud_ice_crystal_for_radiation
   long_name = effective diameter of stratiform cloud ice particles for radiation
   units = um
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -528,10 +518,9 @@
   kind = pumas_r8
   intent = in
 [scaled_diam_snow]
-  standard_name = effective_diameter_of_stratiform_snow_particle_for_radiation
+  standard_name = effective_diameter_of_stratiform_snow_crystal_for_radiation
   long_name = snow scaled diameter
-  #rrtmgp takes um and the CCPP framework will convert from m
-  units = m
+  units = um
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real
   kind = kind_phys

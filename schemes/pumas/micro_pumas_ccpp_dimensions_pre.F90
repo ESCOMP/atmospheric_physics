@@ -43,6 +43,7 @@ contains
   !> \section arg_table_micro_pumas_ccpp_dimensions_pre_run Argument Table
   !! \htmlinclude micro_pumas_ccpp_dimensions_pre_run.html
   subroutine micro_pumas_ccpp_dimensions_pre_run(ncol, nlev, nlevp1,                &
+                             trop_cloud_top_lev,                                     &
                              micro_ncol, micro_nlev, micro_nlevp1, micro_dust_nbins,&
                              airT_in, pumas_airT, airq_in, pumas_airq,              &
                              cldliq_in, pumas_cldliq,                               &
@@ -81,6 +82,8 @@ contains
     integer,         intent(in) :: ncol
     integer,         intent(in) :: nlev
     integer,         intent(in) :: nlevp1
+    integer,         intent(in) :: trop_cloud_top_lev  !Index of the top model level for which
+                                                       !cloud physics is applied (1 to nlev)
 
     !PUMAS dimensions/parameters:
     integer,         intent(in) :: micro_ncol          !Number of horizontal microphysics columns (count)
@@ -194,43 +197,43 @@ contains
     pumas_timestep = dtime/micro_mg_num_steps
 
 
-!+ IH
-! For now we just use ncols = micro_ncol, but we need to constrain the vertical extent for the microphysical fields.
-! Therefore micro_xxx(:ncol,:) = xxx(:,::)
-!- IH
-    pumas_airT(:ncol,:) = real(airT_in(:,:), pumas_r8)
-    pumas_airq(:ncol,:) = real(airq_in(:,:), pumas_r8)
-    pumas_cldliq(:ncol,:) = real(cldliq_in(:,:), pumas_r8)
-    pumas_cldice(:ncol,:) = real(cldice_in(:,:), pumas_r8)
-    pumas_numliq(:ncol,:) = real(numliq_in(:,:), pumas_r8)
-    pumas_numice(:ncol,:) = real(numice_in(:,:), pumas_r8)
-    pumas_rainliq(:ncol,:) = real(rainliq_in(:,:), pumas_r8)
-    pumas_snowice(:ncol,:) = real(snowice_in(:,:), pumas_r8)
-    pumas_numrain(:ncol,:) = real(numrain_in(:,:), pumas_r8)
-    pumas_numsnow(:ncol,:) = real(numsnow_in(:,:), pumas_r8)
-    pumas_graupice(:ncol,:) = real(graupice_in(:,:), pumas_r8)
-    pumas_numgraup(:ncol,:) = real(numgraup_in(:,:), pumas_r8)
-    pumas_relvar(:ncol,:) = real(relvar_in(:,:), pumas_r8)
-    pumas_accre_enhan(:ncol,:) = real(accre_enhan_in(:,:), pumas_r8)
-    pumas_pmid(:ncol,:) = real(pmid_in(:,:), pumas_r8)
-    pumas_pdel(:ncol,:) = real(pdel_in(:,:), pumas_r8)
-    pumas_pint(:ncol,:) = real(pint_in(:,:micro_nlevp1), pumas_r8)
-    pumas_strat_cldfrc(:ncol,:) = real(strat_cldfrc_in(:,:), pumas_r8)
+! Microphysics runs only over levels trop_cloud_top_lev:nlev (the bottom micro_nlev
+! layers of the top-down indexed column). Slice each host input onto that range, so
+! pumas_xxx(:ncol,:) receives host levels trop_cloud_top_lev:nlev. Mirrors CAM
+! micro_pumas_cam.F90, which passes every field as xxx(:ncol,top_lev:).
+    pumas_airT(:ncol,:) = real(airT_in(:,trop_cloud_top_lev:), pumas_r8)
+    pumas_airq(:ncol,:) = real(airq_in(:,trop_cloud_top_lev:), pumas_r8)
+    pumas_cldliq(:ncol,:) = real(cldliq_in(:,trop_cloud_top_lev:), pumas_r8)
+    pumas_cldice(:ncol,:) = real(cldice_in(:,trop_cloud_top_lev:), pumas_r8)
+    pumas_numliq(:ncol,:) = real(numliq_in(:,trop_cloud_top_lev:), pumas_r8)
+    pumas_numice(:ncol,:) = real(numice_in(:,trop_cloud_top_lev:), pumas_r8)
+    pumas_rainliq(:ncol,:) = real(rainliq_in(:,trop_cloud_top_lev:), pumas_r8)
+    pumas_snowice(:ncol,:) = real(snowice_in(:,trop_cloud_top_lev:), pumas_r8)
+    pumas_numrain(:ncol,:) = real(numrain_in(:,trop_cloud_top_lev:), pumas_r8)
+    pumas_numsnow(:ncol,:) = real(numsnow_in(:,trop_cloud_top_lev:), pumas_r8)
+    pumas_graupice(:ncol,:) = real(graupice_in(:,trop_cloud_top_lev:), pumas_r8)
+    pumas_numgraup(:ncol,:) = real(numgraup_in(:,trop_cloud_top_lev:), pumas_r8)
+    pumas_relvar(:ncol,:) = real(relvar_in(:,trop_cloud_top_lev:), pumas_r8)
+    pumas_accre_enhan(:ncol,:) = real(accre_enhan_in(:,trop_cloud_top_lev:), pumas_r8)
+    pumas_pmid(:ncol,:) = real(pmid_in(:,trop_cloud_top_lev:), pumas_r8)
+    pumas_pdel(:ncol,:) = real(pdel_in(:,trop_cloud_top_lev:), pumas_r8)
+    pumas_pint(:ncol,:) = real(pint_in(:,trop_cloud_top_lev:), pumas_r8)
+    pumas_strat_cldfrc(:ncol,:) = real(strat_cldfrc_in(:,trop_cloud_top_lev:), pumas_r8)
     ! PUMAS uses total stratiform fraction for both liquid and ice stratus.
     ! Mirrors CAM micro_pumas_cam.F90: alst_mic => ast; aist_mic => ast.
-    pumas_strat_liq_cldfrc(:ncol,:) = real(strat_cldfrc_in(:,:), pumas_r8)
-    pumas_strat_ice_cldfrc(:ncol,:) = real(strat_cldfrc_in(:,:), pumas_r8)
-    pumas_qsatfac(:ncol,:) = real(qsatfac_in(:,:), pumas_r8)
-    pumas_naai(:ncol,:) = real(naai_in(:,:), pumas_r8)
-    pumas_npccn(:ncol,:) = real(npccn_in(:,:), pumas_r8)
-    pumas_rndst(:ncol,:,:) = real(rndst_in(:,:micro_nlev,:), pumas_r8)
-    pumas_nacon(:ncol,:,:) = real(nacon_in(:,:micro_nlev,:), pumas_r8)
-    pumas_snowice_tend_external(:ncol,:) = real(snowice_tend_external_in(:,:), pumas_r8)
-    pumas_numsnow_tend_external(:ncol,:) = real(numsnow_tend_external_in(:,:), pumas_r8)
-    pumas_effi_external(:ncol,:) = real(effi_external_in(:,:), pumas_r8)
-    pumas_frzcnt(:ncol,:) = real(frzcnt_in(:,:), pumas_r8)
-    pumas_frzdep(:ncol,:) = real(frzdep_in(:,:), pumas_r8)
-    pumas_frzimm(:ncol,:) = real(frzimm_in(:,:), pumas_r8)
+    pumas_strat_liq_cldfrc(:ncol,:) = real(strat_cldfrc_in(:,trop_cloud_top_lev:), pumas_r8)
+    pumas_strat_ice_cldfrc(:ncol,:) = real(strat_cldfrc_in(:,trop_cloud_top_lev:), pumas_r8)
+    pumas_qsatfac(:ncol,:) = real(qsatfac_in(:,trop_cloud_top_lev:), pumas_r8)
+    pumas_naai(:ncol,:) = real(naai_in(:,trop_cloud_top_lev:), pumas_r8)
+    pumas_npccn(:ncol,:) = real(npccn_in(:,trop_cloud_top_lev:), pumas_r8)
+    pumas_rndst(:ncol,:,:) = real(rndst_in(:,trop_cloud_top_lev:,:), pumas_r8)
+    pumas_nacon(:ncol,:,:) = real(nacon_in(:,trop_cloud_top_lev:,:), pumas_r8)
+    pumas_snowice_tend_external(:ncol,:) = real(snowice_tend_external_in(:,trop_cloud_top_lev:), pumas_r8)
+    pumas_numsnow_tend_external(:ncol,:) = real(numsnow_tend_external_in(:,trop_cloud_top_lev:), pumas_r8)
+    pumas_effi_external(:ncol,:) = real(effi_external_in(:,trop_cloud_top_lev:), pumas_r8)
+    pumas_frzcnt(:ncol,:) = real(frzcnt_in(:,trop_cloud_top_lev:), pumas_r8)
+    pumas_frzdep(:ncol,:) = real(frzdep_in(:,trop_cloud_top_lev:), pumas_r8)
+    pumas_frzimm(:ncol,:) = real(frzimm_in(:,trop_cloud_top_lev:), pumas_r8)
 
   end subroutine micro_pumas_ccpp_dimensions_pre_run
 
