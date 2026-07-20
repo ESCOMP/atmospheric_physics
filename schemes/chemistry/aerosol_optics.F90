@@ -241,7 +241,8 @@ contains
 
     ! Volcanic geometric radius (pointer into constituents)
     real(kind_phys), target  :: geometric_radius(ncol, pver)
-    logical :: has_volc_rad_geom
+    ! Name of the radius constituent of the bin being processed
+    character(len=16) :: volc_rad_name
 
     character(len=ot_length) :: opticstype
 
@@ -295,17 +296,6 @@ contains
     ! Layer mass [kg/m2]
     mass(:ncol, :) = pdeldry(:ncol, :) * rga
 
-    ! Check if VOLC_RAD_GEOM is available
-    idx_volc_rad_geom = -1
-    call ccpp_const_get_idx(const_props, &
-                            'VOLC_RAD_GEOM', idx_volc_rad_geom, errmsg, errflg)
-    if(errflg /= 0) return
-
-    has_volc_rad_geom = (idx_volc_rad_geom > 0)
-    if (has_volc_rad_geom) then
-      geometric_radius(:ncol, :pver) = constituents(:ncol, :pver, idx_volc_rad_geom)
-    end if
-
     num_aero_models = aerosol_instances_get_num_models()
 
     ! Loop over aerosol models in the climate list.
@@ -325,13 +315,33 @@ contains
       ! Loop over aerosol bins/species
       bin_loop: do ibin = 1, nbins
 
-        ! Check if volcanic_radius optics needs geometric_radius
+        ! Only for volcanic_radius, get the per-mode geometric radius
+        ! from the constituent array:
         call aeroprops%optics_params(bin_ndx=ibin, opticstype=opticstype)
-        if (index(opticstype, 'volcanic_radius') > 0 .and. .not. has_volc_rad_geom) then
-          errflg = 1
-          errmsg = 'VOLC_RAD_GEOM constituent required for volcanic_radius optics but not found'
-          return
-        end if
+        select case (trim(opticstype))
+        case('volcanic_radius', 'volcanic_radius1', 'volcanic_radius2', &
+             'volcanic_radius3', 'volcanic_radius5')
+          ! construct name of radius constituent.
+          ! for bulk the opticstype is exactly volcanic_radius (no number suffix)
+          ! so it uses VOLC_RAD_GEOM:
+          volc_rad_name = 'VOLC_RAD_GEOM '
+          if (len_trim(opticstype) > 15) then
+            volc_rad_name = trim(volc_rad_name)//opticstype(16:16)
+          end if
+
+          idx_volc_rad_geom = -1
+          call ccpp_const_get_idx(const_props, trim(volc_rad_name), &
+                                  idx_volc_rad_geom, errmsg, errflg)
+          if (errflg /= 0) return
+          if (idx_volc_rad_geom < 1) then
+            errflg = 1
+            errmsg = trim(volc_rad_name)//' constituent required for '// &
+                     trim(opticstype)//' optics but not found'
+            return
+          end if
+
+          geometric_radius(:ncol, :pver) = constituents(:ncol, :pver, idx_volc_rad_geom)
+        end select
 
         !-------------------------------------------------
         ! Call the portable core for shortwave optics calculation per-bin:
