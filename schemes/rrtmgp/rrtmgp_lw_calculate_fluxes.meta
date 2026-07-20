@@ -78,7 +78,7 @@
   dimensions = (horizontal_loop_extent)
   intent = out
 [ flwds ]
-  standard_name = longwave_downward_radiative_flux_at_surface
+  standard_name = longwave_downward_radiative_flux_at_surface_to_coupler
   units = W m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
