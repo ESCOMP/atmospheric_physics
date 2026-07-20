@@ -160,6 +160,8 @@
          of the "before_coupler" group. -->
     <scheme>calc_dry_air_ideal_gas_density</scheme>
     <scheme>set_surface_coupling_vars</scheme>
+    <!-- Write CO2 concentration for surface model (Sa_co2diag) diagnostic CO2 mode -->
+    <scheme>co2_diagnostic_export</scheme>
 
   </group>
 
