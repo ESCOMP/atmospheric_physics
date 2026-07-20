@@ -515,7 +515,7 @@ contains
       ! used as a negative array subscript below.
       if (const_idx < 0) then
         errflg = 1
-        errmsg = subname // ': could not find constituent ' // trim(aero_map_list(i)%constituent_name)
+        errmsg = subname // ': could not find constituent "' // trim(aero_map_list(i)%constituent_name)//'"'
         return
       end if
 
