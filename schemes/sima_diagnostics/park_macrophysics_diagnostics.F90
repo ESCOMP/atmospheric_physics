@@ -34,8 +34,6 @@ contains
                              'lev', 'avg', 'K s-1')
       call history_add_field('SHDLFT', 'T-tendency due to shallow convective detrainment', &
                              'lev', 'avg', 'K s-1')
-      call history_add_field('ZMDLF', 'Detrained liquid water from ZM convection', &
-                             'lev', 'avg', 'kg kg-1 s-1')
 
       ! Macrophysics tendency diagnostics
       call history_add_field('MACPDT', 'Heating tendency - Park macrophysics', &
@@ -143,7 +141,6 @@ contains
       call history_out_field('SHDLFICE', shdlfice)
       call history_out_field('DPDLFT', dpdlft)
       call history_out_field('SHDLFT', shdlft)
-      call history_out_field('ZMDLF', dlf)
 
       ! Macrophysics tendency diagnostics
       call history_out_field('MACPDT', tlat)
