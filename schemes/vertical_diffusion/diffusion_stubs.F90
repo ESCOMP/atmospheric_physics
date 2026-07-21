@@ -50,7 +50,7 @@ contains
     ! Output arguments
     real(kind_phys),    intent(out) :: ubc_mmr(:,:)             ! Upper boundary condition mass mixing ratios [none]
     logical,            intent(out) :: cnst_fixed_ubc(:)        ! Flag for fixed upper boundary condition of constituents [flag]
-    character(len=512), intent(out) :: errmsg                   ! Error message
+    character(len=*)  , intent(out) :: errmsg                   ! Error message
     integer,            intent(out) :: errflg                   ! Error flag
 
     errmsg = ''
@@ -88,7 +88,7 @@ contains
     real(kind_phys),    intent(out) :: dragblj(:,:)! Drag profile from Beljaars SGO form drag > 0. [s-1]
     real(kind_phys),    intent(out) :: taubljx(:)  ! Eastward Beljaars surface stress [N m-2]
     real(kind_phys),    intent(out) :: taubljy(:)  ! Northward Beljaars surface stress [N m-2]
-    character(len=512), intent(out) :: errmsg      ! Error message
+    character(len=*)  , intent(out) :: errmsg      ! Error message
     integer,            intent(out) :: errflg      ! Error flag
 
     errmsg = ''
@@ -134,7 +134,7 @@ contains
     real(kind_phys),    intent(out) :: dragblj(:,:)! Drag profile from Beljaars SGO form drag > 0. [s-1]
     real(kind_phys),    intent(out) :: taubljx(:)  ! Eastward Beljaars surface stress [N m-2]
     real(kind_phys),    intent(out) :: taubljy(:)  ! Northward Beljaars surface stress [N m-2]
-    character(len=512), intent(out) :: errmsg      ! Error message
+    character(len=*)  , intent(out) :: errmsg      ! Error message
     integer,            intent(out) :: errflg      ! Error flag
 
     errmsg = ''
@@ -176,7 +176,7 @@ contains
     real(kind_phys),    intent(out) :: tautmsx(:)  ! Eastward turbulent mountain surface stress [N m-2]
     real(kind_phys),    intent(out) :: tautmsy(:)  ! Northward turbulent mountain surface stress [N m-2]
     logical,            intent(out) :: do_beljaars
-    character(len=512), intent(out) :: errmsg      ! Error message
+    character(len=*)  , intent(out) :: errmsg      ! Error message
     integer,            intent(out) :: errflg      ! Error flag
 
     errmsg = ''
@@ -212,7 +212,7 @@ contains
     real(kind_phys),    intent(inout) :: ksrf(:)          ! total surface drag coefficient [kg m-2 s-1]
 
     ! Output arguments
-    character(len=512), intent(out)   :: errmsg  ! error message
+    character(len=*)  , intent(out)   :: errmsg  ! error message
     integer,            intent(out)   :: errflg  ! error flag
 
     errmsg = ''
@@ -256,7 +256,7 @@ contains
     ! Output arguments
     real(kind_phys), intent(out)      :: tautmsx(:)       ! Implicit zonal turbulent mountain surface stress [N m-2]
     real(kind_phys), intent(out)      :: tautmsy(:)       ! Implicit meridional turbulent mountain surface stress [N m-2]
-    character(len=512), intent(out)   :: errmsg  ! error message
+    character(len=*)  , intent(out)   :: errmsg  ! error message
     integer,            intent(out)   :: errflg  ! error flag
 
     errmsg = ''
@@ -297,7 +297,7 @@ contains
 
     ! Output arguments
     logical,            intent(out) :: use_rairv ! Flag for constituent-dependent gas constant [flag]
-    character(len=512), intent(out) :: errmsg
+    character(len=*)  , intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     errmsg = ''
@@ -342,7 +342,7 @@ contains
     real(kind_phys),    intent(inout) :: q1(:, :, :)               ! Constituent array after "vertical diffusion" [kg kg-1]
 
     ! Output arguments
-    character(len=512), intent(out)   :: errmsg
+    character(len=*)  , intent(out)   :: errmsg
     integer,            intent(out)   :: errflg
 
     ! Local variables
