@@ -17,7 +17,7 @@ contains
       use cam_history,         only: history_add_field
       use cam_history_support, only: horiz_only
 
-      character(len=512), intent(out) :: errmsg
+      character(len=*),   intent(out) :: errmsg
       integer,            intent(out) :: errflg
 
       errmsg = ''
@@ -312,7 +312,7 @@ contains
       real(kind_phys),    intent(in)  :: latvap                 ! latent heat of vaporization [J kg-1]
 
       ! CCPP error handling
-      character(len=512), intent(out) :: errmsg
+      character(len=*),   intent(out) :: errmsg
       integer,            intent(out) :: errflg
 
       errmsg = ''

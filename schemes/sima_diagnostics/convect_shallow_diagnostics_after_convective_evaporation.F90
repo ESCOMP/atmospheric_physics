@@ -25,7 +25,7 @@ contains
     use cam_history,         only: history_add_field
     use cam_history_support, only: horiz_only
 
-    character(len=512), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     errmsg = ''
@@ -86,7 +86,7 @@ contains
     real(kind_phys),     intent(in)  :: precc(:)             ! Shallow precipitation rate [m s-1]
 
     ! Output arguments
-    character(len=512),  intent(out) :: errmsg
+    character(len=*),    intent(out) :: errmsg
     integer,             intent(out) :: errflg
 
     errmsg = ''

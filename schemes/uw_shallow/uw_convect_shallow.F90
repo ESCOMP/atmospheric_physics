@@ -54,7 +54,7 @@ contains
     real(kind_phys), intent(in) :: mwdry_in   ! mol wgt dry air
     logical,         intent(out) :: use_shfrc
 
-    character(len=512), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer, intent(out) :: errflg
 
     errflg = 0
@@ -305,7 +305,7 @@ contains
     real(kind_phys),    intent(out)   :: limit_rei_diag(:)
     real(kind_phys),    intent(out)   :: ind_delcin_diag(:)
 
-    character(len=512), intent(out)   :: errmsg
+    character(len=*),   intent(out)   :: errmsg
     integer,            intent(out)   :: errflg
 
     !--------------------------------------------------------------------------
@@ -796,7 +796,7 @@ contains
     real(kind_phys), intent(out) :: limit_rei(mix)
     real(kind_phys), intent(out) :: ind_delcin(mix)
 
-    character(len=512), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer, intent(out) :: errflg
 
     ! output from wv_saturation::findsp_vc
@@ -1363,7 +1363,7 @@ contains
         thl0bot = thl0(k) + ssthl0(k)*(ps0(k - 1) - p0(k))
         qt0bot = qt0(k) + ssqt0(k)*(ps0(k - 1) - p0(k))
         call conden(ps0(k - 1), thl0bot, qt0bot, thj, qvj, qlj, qij, qse, id_check)
-        if (id_check .eq. 1) then
+        if (id_check == 1) then
           exit_conden(i) = 1._kind_phys
           id_exit = .true.
           go to 333
@@ -1374,7 +1374,7 @@ contains
         thl0top = thl0(k) + ssthl0(k)*(ps0(k) - p0(k))
         qt0top = qt0(k) + ssqt0(k)*(ps0(k) - p0(k))
         call conden(ps0(k), thl0top, qt0top, thj, qvj, qlj, qij, qse, id_check)
-        if (id_check .eq. 1) then
+        if (id_check == 1) then
           exit_conden(i) = 1._kind_phys
           id_exit = .true.
           go to 333
@@ -1539,13 +1539,13 @@ contains
 
         kinv = 1
         find_kinv: do k = mkx - 1, 1, -1
-          if ((pblh + 5._kind_phys - zs0(k))*(pblh + 5._kind_phys - zs0(k + 1)) .lt. 0._kind_phys) then
+          if ((pblh + 5._kind_phys - zs0(k))*(pblh + 5._kind_phys - zs0(k + 1)) < 0._kind_phys) then
             kinv = k + 1
             exit find_kinv
           end if
         end do find_kinv
 
-        if (kinv .le. 1) then
+        if (kinv <= 1) then
           exit_kinv1(i) = 1._kind_phys
           id_exit = .true.
           go to 333
@@ -1569,16 +1569,16 @@ contains
         tkeavg = 0._kind_phys
         thvlmin = 1000._kind_phys
         do k = 0, kinv - 1   ! Here, 'k' is an interfacial layer index.
-          if (k .eq. 0) then
+          if (k == 0) then
             dpi = ps0(0) - p0(1)
-          elseif (k .eq. (kinv - 1)) then
+          elseif (k == (kinv - 1)) then
             dpi = p0(kinv - 1) - ps0(kinv - 1)
           else
             dpi = p0(k) - p0(k + 1)
           end if
           dpsum = dpsum + dpi
           tkeavg = tkeavg + dpi*tke(k)
-          if (k .ne. 0) thvlmin = min(thvlmin, min(thvl0bot(k), thvl0top(k)))
+          if (k /= 0) thvlmin = min(thvlmin, min(thvl0bot(k), thvl0top(k)))
         end do
         tkeavg = tkeavg/dpsum
 
@@ -1617,14 +1617,14 @@ contains
         plcl = qsinvert(qtsrc, thlsrc, ps0(0))
         klcl = mkx
         find_klcl: do k = 0, mkx
-          if (ps0(k) .lt. plcl) then
+          if (ps0(k) < plcl) then
             klcl = k
             exit find_klcl
           end if
         end do find_klcl
         klcl = max(1, klcl)
 
-        if (plcl .lt. 30000._kind_phys) then
+        if (plcl < 30000._kind_phys) then
           ! if( klcl .eq. mkx ) then
           exit_klclmkx(i) = 1._kind_phys
           id_exit = .true.
@@ -1642,7 +1642,7 @@ contains
         thl0lcl = thl0(klcl) + ssthl0(klcl)*(plcl - p0(klcl))
         qt0lcl = qt0(klcl) + ssqt0(klcl)*(plcl - p0(klcl))
         call conden(plcl, thl0lcl, qt0lcl, thj, qvj, qlj, qij, qse, id_check)
-        if (id_check .eq. 1) then
+        if (id_check == 1) then
           exit_conden(i) = 1._kind_phys
           id_exit = .true.
           go to 333
@@ -1681,46 +1681,46 @@ contains
         ! Case 1. LCL height is higher than PBL interface ( 'pLCL <= ps0(kinv-1)' ) !
         ! ------------------------------------------------------------------------- !
 
-        if (klcl .ge. kinv) then
+        if (klcl >= kinv) then
           find_klfc_case1: do k = kinv, mkx - 1
-            if (k .lt. klcl) then
+            if (k < klcl) then
               ! accumulate cin
               thvubot = thvlsrc
               thvutop = thvlsrc
               cin = cin + single_cin(ps0(k - 1), thv0bot(k), ps0(k), thv0top(k), thvubot, thvutop)
-            elseif (k .eq. klcl) then
+            elseif (k == klcl) then
               !----- Bottom to LCL
               thvubot = thvlsrc
               thvutop = thvlsrc
               cin = cin + single_cin(ps0(k - 1), thv0bot(k), plcl, thv0lcl, thvubot, thvutop)
-              if (cin .lt. 0._kind_phys) limit_cinlcl(i) = 1._kind_phys
+              if (cin < 0._kind_phys) limit_cinlcl(i) = 1._kind_phys
               cinlcl = max(cin, 0._kind_phys)
               cin = cinlcl
               !----- LCL to Top
               thvubot = thvlsrc
               call conden(ps0(k), thlsrc, qtsrc, thj, qvj, qlj, qij, qse, id_check)
-              if (id_check .eq. 1) then
+              if (id_check == 1) then
                 exit_conden(i) = 1._kind_phys
                 id_exit = .true.
                 go to 333
               end if
               thvutop = thj*(1._kind_phys + zvir*qvj - qlj - qij)
               call getbuoy(plcl, thv0lcl, ps0(k), thv0top(k), thvubot, thvutop, plfc, cin)
-              if (plfc .gt. 0._kind_phys) then
+              if (plfc > 0._kind_phys) then
                 klfc = k
                 exit find_klfc_case1
               end if
             else
               thvubot = thvutop
               call conden(ps0(k), thlsrc, qtsrc, thj, qvj, qlj, qij, qse, id_check)
-              if (id_check .eq. 1) then
+              if (id_check == 1) then
                 exit_conden(i) = 1._kind_phys
                 id_exit = .true.
                 go to 333
               end if
               thvutop = thj*(1._kind_phys + zvir*qvj - qlj - qij)
               call getbuoy(ps0(k - 1), thv0bot(k), ps0(k), thv0top(k), thvubot, thvutop, plfc, cin)
-              if (plfc .gt. 0._kind_phys) then
+              if (plfc > 0._kind_phys) then
                 klfc = k
                 exit find_klfc_case1
               end if
@@ -1735,30 +1735,30 @@ contains
           cinlcl = 0._kind_phys
           find_klfc_case2: do k = kinv, mkx - 1
             call conden(ps0(k - 1), thlsrc, qtsrc, thj, qvj, qlj, qij, qse, id_check)
-            if (id_check .eq. 1) then
+            if (id_check == 1) then
               exit_conden(i) = 1._kind_phys
               id_exit = .true.
               go to 333
             end if
             thvubot = thj*(1._kind_phys + zvir*qvj - qlj - qij)
             call conden(ps0(k), thlsrc, qtsrc, thj, qvj, qlj, qij, qse, id_check)
-            if (id_check .eq. 1) then
+            if (id_check == 1) then
               exit_conden(i) = 1._kind_phys
               id_exit = .true.
               go to 333
             end if
             thvutop = thj*(1._kind_phys + zvir*qvj - qlj - qij)
             call getbuoy(ps0(k - 1), thv0bot(k), ps0(k), thv0top(k), thvubot, thvutop, plfc, cin)
-            if (plfc .gt. 0._kind_phys) then
+            if (plfc > 0._kind_phys) then
               klfc = k
               exit find_klfc_case2
             end if
           end do find_klfc_case2
         end if  ! End of CIN case selection
 
-        if (cin .lt. 0._kind_phys) limit_cin(i) = 1._kind_phys
+        if (cin < 0._kind_phys) limit_cin(i) = 1._kind_phys
         cin = max(0._kind_phys, cin)
-        if (klfc .ge. mkx) then
+        if (klfc >= mkx) then
           klfc = mkx
           ! write(iulog,*) 'klfc >= mkx'
           exit_klfcmkx(i) = 1._kind_phys
@@ -1772,7 +1772,7 @@ contains
         ! be restored after calculating implicit CIN.                            !
         ! ---------------------------------------------------------------------- !
 
-        if (iter .eq. 1) then
+        if (iter == 1) then
           cin_i = cin
           cinlcl_i = cinlcl
           ke = rbuoy/(rkfre*tkeavg + epsvarw)
@@ -1815,12 +1815,12 @@ contains
         ! are good when using explicit CIN.                                          !
         ! -------------------------------------------------------------------------- !
 
-        if (iter .ne. 1) then
+        if (iter /= 1) then
 
           cin_f = cin
           del_CIN = cin_f - cin_i
 
-          if (del_CIN .gt. 0._kind_phys) then
+          if (del_CIN > 0._kind_phys) then
 
             ! -------------------------------------------------------------- !
             ! Calculate implicit 'cin' and 'cinlcl'. Note that when we chose !
@@ -2095,7 +2095,7 @@ contains
         ! we simply assume that no lateral mixing occurs in this range.      !
         ! ------------------------------------------------------------------ !
 
-        if (klcl .lt. kinv) then
+        if (klcl < kinv) then
           krel = kinv
           prel = ps0(krel - 1)
           thv0rel = thv0bot(krel)
@@ -2155,7 +2155,7 @@ contains
         wcrit = sqrt(2._kind_phys*cin*rbuoy)
         sigmaw = sqrt(rkfre*tkeavg + epsvarw)
         mu = wcrit/sigmaw/1.4142_kind_phys
-        if (mu .ge. 3._kind_phys) then
+        if (mu >= 3._kind_phys) then
           ! write(iulog,*) 'mu >= 3'
           id_exit = .true.
           go to 333
@@ -2165,23 +2165,23 @@ contains
         ! 1. 'cbmf' constraint
         cbmflimit = 0.9_kind_phys*dp0(kinv - 1)/g/dt
         mumin0 = 0._kind_phys
-        if (cbmf .gt. cbmflimit) mumin0 = sqrt(-log(2.5066_kind_phys*cbmflimit/rho0inv/sigmaw))
+        if (cbmf > cbmflimit) mumin0 = sqrt(-log(2.5066_kind_phys*cbmflimit/rho0inv/sigmaw))
         ! 2. 'ufrcinv' constraint
         mu = max(max(mu, mumin0), mumin1)
         ! 3. 'ufrclcl' constraint
         mulcl = sqrt(2._kind_phys*cinlcl*rbuoy)/1.4142_kind_phys/sigmaw
        mulclstar = sqrt(max(0._kind_phys,2._kind_phys*(exp(-mu**2)/2.5066_kind_phys)**2*(1._kind_phys/erfc(mu)**2-0.25_kind_phys/rmaxfrac**2)))
-        if (mulcl .gt. 1.e-8_kind_phys .and. mulcl .gt. mulclstar) then
+        if (mulcl > 1.e-8_kind_phys .and. mulcl > mulclstar) then
           mumin2 = compute_mumin2(mulcl, rmaxfrac, mu)
-          if (mu .gt. mumin2) then
+          if (mu > mumin2) then
             errmsg = 'Critical error in mu calculation in UW_ShCu'
             errflg = 1
           end if
           mu = max(mu, mumin2)
-          if (mu .eq. mumin2) limit_ufrc(i) = 1._kind_phys
+          if (mu == mumin2) limit_ufrc(i) = 1._kind_phys
         end if
-        if (mu .eq. mumin0) limit_cbmf(i) = 1._kind_phys
-        if (mu .eq. mumin1) limit_ufrc(i) = 1._kind_phys
+        if (mu == mumin0) limit_cbmf(i) = 1._kind_phys
+        if (mu == mumin1) limit_ufrc(i) = 1._kind_phys
 
         ! ------------------------------------------------------------------- !
         ! Calculate final ['cbmf','ufrcinv','winv'] at the PBL top interface. !
@@ -2205,7 +2205,7 @@ contains
         ! ------------------------------------------------------------------- !
 
         wtw = winv*winv - 2._kind_phys*cinlcl*rbuoy
-        if (wtw .le. 0._kind_phys) then
+        if (wtw <= 0._kind_phys) then
           ! write(iulog,*) 'wlcl < 0 at the LCL'
           exit_wtw(i) = 1._kind_phys
           id_exit = .true.
@@ -2214,7 +2214,7 @@ contains
         wlcl = sqrt(wtw)
         ufrclcl = cbmf/wlcl/rho0inv
         wrel = wlcl
-        if (ufrclcl .le. 0.0001_kind_phys) then
+        if (ufrclcl <= 0.0001_kind_phys) then
           ! write(iulog,*) 'ufrclcl <= 0.0001'
           exit_ufrc(i) = 1._kind_phys
           id_exit = .true.
@@ -2256,7 +2256,7 @@ contains
         thlu(krel - 1) = thlsrc
         qtu(krel - 1) = qtsrc
         call conden(prel, thlsrc, qtsrc, thj, qvj, qlj, qij, qse, id_check)
-        if (id_check .eq. 1) then
+        if (id_check == 1) then
           exit_conden(i) = 1._kind_phys
           id_exit = .true.
           go to 333
@@ -2265,7 +2265,7 @@ contains
 
         uplus = 0._kind_phys
         vplus = 0._kind_phys
-        if (krel .eq. kinv) then
+        if (krel == kinv) then
           uplus = PGFc*ssu0(kinv)*(prel - ps0(kinv - 1))
           vplus = PGFc*ssv0(kinv)*(prel - ps0(kinv - 1))
         else
@@ -2342,7 +2342,7 @@ contains
         ! ------------------------------------------------------------------------ !
 
         scaleh = tscaleh
-        if (tscaleh .lt. 0.0_kind_phys) scaleh = 1000._kind_phys
+        if (tscaleh < 0.0_kind_phys) scaleh = 1000._kind_phys
 
         ! Save time : Set iter_scaleh = 1. This will automatically use 'cush' from the previous time step
         !             at the first implicit iteration. At the second implicit iteration, it will use
@@ -2462,7 +2462,7 @@ contains
               ! ---------------------------------------------------------------- !
 
               call conden(pe, thle, qte, thj, qvj, qlj, qij, qse, id_check)
-              if (id_check .eq. 1) then
+              if (id_check == 1) then
                 exit_conden(i) = 1._kind_phys
                 id_exit = .true.
                 go to 333
@@ -2474,7 +2474,7 @@ contains
               excess0 = qte - qs
 
               call conden(pe, thlue, qtue, thj, qvj, qlj, qij, qse, id_check)
-              if (id_check .eq. 1) then
+              if (id_check == 1) then
                 exit_conden(i) = 1._kind_phys
                 id_exit = .true.
                 go to 333
@@ -2488,14 +2488,14 @@ contains
               ! 'niter_xc >= 2',  detraining excessive condensate before buoyancy !
               ! sorting has negligible influence on the buoyancy sorting results. !
               ! ----------------------------------------------------------------- !
-              if ((qlj + qij) .gt. criqc) then
+              if ((qlj + qij) > criqc) then
                 exql = ((qlj + qij) - criqc)*qlj/(qlj + qij)
                 exqi = ((qlj + qij) - criqc)*qij/(qlj + qij)
                 qtue = qtue - exql - exqi
                 thlue = thlue + (xlv/cp/exne)*exql + (xls/cp/exne)*exqi
               end if
               call conden(pe, thlue, qtue, thj, qvj, qlj, qij, qse, id_check)
-              if (id_check .eq. 1) then
+              if (id_check == 1) then
                 exit_conden(i) = 1._kind_phys
                 id_exit = .true.
                 go to 333
@@ -2533,8 +2533,8 @@ contains
               ! Case 1 : When both cumulus and env. are unsaturated or saturated. !
               ! ----------------------------------------------------------------- !
 
-              if( ( excessu .le. 0._kind_phys .and. excess0 .le. 0._kind_phys ) .or. &
-                  ( excessu .ge. 0._kind_phys .and. excess0 .ge. 0._kind_phys ) ) then
+              if( ( excessu <= 0._kind_phys .and. excess0 <= 0._kind_phys ) .or. &
+                  ( excessu >= 0._kind_phys .and. excess0 >= 0._kind_phys ) ) then
                 xc = min(1._kind_phys, &
                          max(0._kind_phys, &
                              1._kind_phys - &
@@ -2555,7 +2555,7 @@ contains
                 thlxsat = thlue + xsat*(thle - thlue); 
                 qtxsat = qtue + xsat*(qte - qtue); 
                 call conden(pe, thlxsat, qtxsat, thj, qvj, qlj, qij, qse, id_check)
-                if (id_check .eq. 1) then
+                if (id_check == 1) then
                   exit_conden(i) = 1._kind_phys
                   id_exit = .true.
                   go to 333
@@ -2565,7 +2565,7 @@ contains
                 ! kk=1 : Cumulus Segment, kk=2 : Environment Segment !
                 ! -------------------------------------------------- !
                 do kk = 1, 2
-                  if (kk .eq. 1) then
+                  if (kk == 1) then
                     thv_x0 = thvj; 
                     thv_x1 = (1._kind_phys - 1._kind_phys/xsat)*thvj + (1._kind_phys/xsat)*thvxsat; 
                   else
@@ -2575,15 +2575,15 @@ contains
                   aquad = wue**2; 
                   bquad = 2._kind_phys*rbuoy*g*cridis*(thv_x1 - thv_x0)/thv0j - 2._kind_phys*wue**2; 
                   cquad = 2._kind_phys*rbuoy*g*cridis*(thv_x0 - thv0j)/thv0j + wue**2; 
-                  if (kk .eq. 1) then
-                    if ((bquad**2 - 4._kind_phys*aquad*cquad) .ge. 0._kind_phys) then
+                  if (kk == 1) then
+                    if ((bquad**2 - 4._kind_phys*aquad*cquad) >= 0._kind_phys) then
                       call roots(aquad, bquad, cquad, xs1, xs2, status)
                       x_cu = min(1._kind_phys, max(0._kind_phys, min(xsat, min(xs1, xs2))))
                     else
                       x_cu = xsat; 
                     end if
                   else
-                    if ((bquad**2 - 4._kind_phys*aquad*cquad) .ge. 0._kind_phys) then
+                    if ((bquad**2 - 4._kind_phys*aquad*cquad) >= 0._kind_phys) then
                       call roots(aquad, bquad, cquad, xs1, xs2, status)
                       x_en = min(1._kind_phys, max(0._kind_phys, max(xsat, min(xs1, xs2))))
                     else
@@ -2591,7 +2591,7 @@ contains
                     end if
                   end if
                 end do
-                if (x_cu .eq. xsat) then
+                if (x_cu == xsat) then
                   xc = max(x_cu, x_en); 
                 else
                   xc = x_cu; 
@@ -2616,7 +2616,7 @@ contains
               ! rei(k) = ( rkm / scaleh / g / rho0j )        ! Default.
               rei(k) = (0.5_kind_phys*rkm/z0(k)/g/rho0j) ! Alternative.
 
-              if( xc .gt. 0.5_kind_phys ) then
+              if( xc > 0.5_kind_phys ) then
                 rei(k) = min(rei(k),0.9_kind_phys*log(dp0(k)/g/dt/umf(km1) + 1._kind_phys)/dpe/(2._kind_phys*xc-1._kind_phys))
               end if
 
@@ -2642,7 +2642,7 @@ contains
               ! Also use Tayler expansion in order to treat limiting case !
               ! --------------------------------------------------------- !
 
-              if (fer(k)*dpe .lt. 1.e-4_kind_phys) then
+              if (fer(k)*dpe < 1.e-4_kind_phys) then
                 thlu(k) = thlu(km1) + (thle + ssthl0(k)*dpe/2._kind_phys - thlu(km1))*fer(k)*dpe
                 qtu(k) = qtu(km1) + (qte + ssqt0(k)*dpe/2._kind_phys - qtu(km1))*fer(k)*dpe
                 uu(k) = uu(km1) + (ue + ssu0(k)*dpe/2._kind_phys - uu(km1))*fer(k)*dpe - PGFc*ssu0(k)*dpe
@@ -2690,12 +2690,12 @@ contains
               ! ------------------------------------------------------------------ !
 
               call conden(ps0(k), thlu(k), qtu(k), thj, qvj, qlj, qij, qse, id_check)
-              if (id_check .eq. 1) then
+              if (id_check == 1) then
                 exit_conden(i) = 1._kind_phys
                 id_exit = .true.
                 go to 333
               end if
-              if ((qlj + qij) .gt. criqc) then
+              if ((qlj + qij) > criqc) then
                 exql = ((qlj + qij) - criqc)*qlj/(qlj + qij)
                 exqi = ((qlj + qij) - criqc)*qij/(qlj + qij)
                 ! ---------------------------------------------------------------- !
@@ -2726,7 +2726,7 @@ contains
               ! Update 'thvu(k)' after detraining condensate from cumulus updraft.!
               ! ----------------------------------------------------------------- !
               call conden(ps0(k), thlu(k), qtu(k), thj, qvj, qlj, qij, qse, id_check)
-              if (id_check .eq. 1) then
+              if (id_check == 1) then
                 exit_conden(i) = 1._kind_phys
                 id_exit = .true.
                 go to 333
@@ -2748,7 +2748,7 @@ contains
               expfac = exp(-2._kind_phys*drage*dpe)
 
               wtwb = wtw
-              if (drage*dpe .gt. 1.e-3_kind_phys) then
+              if (drage*dpe > 1.e-3_kind_phys) then
                 wtw = wtw*expfac + (delbog + (1._kind_phys - expfac)*(bogbot + delbog/(-2._kind_phys*drage*dpe)))/(rho0j*drage)
               else
                 wtw = wtw + dpe*(bogbot + bogtop)/rho0j
@@ -2766,7 +2766,7 @@ contains
               ! Also treat the case even when wtw < 0 at the 'kpen' interface. !
               ! -------------------------------------------------------------- !
 
-              if (wtw .gt. 0._kind_phys) then
+              if (wtw > 0._kind_phys) then
                 thlue = 0.5_kind_phys*(thlu(km1) + thlu(k))
                 qtue = 0.5_kind_phys*(qtu(km1) + qtu(k))
                 wue = 0.5_kind_phys*sqrt(max(wtwb + wtw, 0._kind_phys))
@@ -2798,7 +2798,7 @@ contains
               autodet = min(0.5_kind_phys*g*(bogbot + bogtop)/(max(wtw, 0._kind_phys) + 1.e-4_kind_phys), 0._kind_phys)
               umf(k) = umf(k)*exp(0.637_kind_phys*(dpe/rho0j/g)*autodet)
             end if
-            if (umf(k) .eq. 0._kind_phys) wtw = -1._kind_phys
+            if (umf(k) == 0._kind_phys) wtw = -1._kind_phys
 
             ! -------------------------------------- !
             ! Below block is just a dignostic output !
@@ -2827,17 +2827,17 @@ contains
 
             ! if( bogbot .gt. 0._kind_phys .and. bogtop .gt. 0._kind_phys ) then
             ! if( bogtop .gt. 0._kind_phys ) then
-            if (bogtop .gt. 0._kind_phys .and. wtw .gt. 0._kind_phys) then
+            if (bogtop > 0._kind_phys .and. wtw > 0._kind_phys) then
               kbup = k
             end if
 
-            if (wtw .le. 0._kind_phys) then
+            if (wtw <= 0._kind_phys) then
               kpen = k
               exit updraft_loop
             end if
 
             wu(k) = sqrt(wtw)
-            if (wu(k) .gt. 100._kind_phys) then
+            if (wu(k) > 100._kind_phys) then
               exit_wu(i) = 1._kind_phys
               id_exit = .true.
               go to 333
@@ -2865,7 +2865,7 @@ contains
 
             rhos0j = ps0(k)/(r*0.5_kind_phys*(thv0bot(k + 1) + thv0top(k))*exns0(k))
             ufrc(k) = umf(k)/(rhos0j*wu(k))
-            if (ufrc(k) .gt. rmaxfrac) then
+            if (ufrc(k) > rmaxfrac) then
               limit_ufrc(i) = 1._kind_phys
               ufrc(k) = rmaxfrac
               umf(k) = rmaxfrac*rhos0j*wu(k)
@@ -2931,16 +2931,16 @@ contains
           ! Below solving equation is clearly wrong ! I should revise this !               !
           ! ------------------------------------------------------------------------------ !
 
-          if (drage .eq. 0._kind_phys) then
+          if (drage == 0._kind_phys) then
             aquad = (bogtop - bogbot)/(ps0(kpen) - ps0(kpen - 1))
             bquad = 2._kind_phys*bogbot
             cquad = -wu(kpen - 1)**2*rho0j
             call roots(aquad, bquad, cquad, xc1, xc2, status)
-            if (status .eq. 0) then
-              if (xc1 .le. 0._kind_phys .and. xc2 .le. 0._kind_phys) then
+            if (status == 0) then
+              if (xc1 <= 0._kind_phys .and. xc2 <= 0._kind_phys) then
                 ppen = max(xc1, xc2)
                 ppen = min(0._kind_phys, max(-dp0(kpen), ppen))
-              elseif (xc1 .gt. 0._kind_phys .and. xc2 .gt. 0._kind_phys) then
+              elseif (xc1 > 0._kind_phys .and. xc2 > 0._kind_phys) then
                 ppen = -dp0(kpen)
                 ! write(iulog,*) 'Warning : UW-Cumulus penetrates up to kpen interface'
               else
@@ -2954,7 +2954,7 @@ contains
           else
             ppen = compute_ppen(wtwb, drage, bogbot, bogtop, rho0j, dp0(kpen))
           end if
-          if (ppen .eq. -dp0(kpen) .or. ppen .eq. 0._kind_phys) limit_ppen(i) = 1._kind_phys
+          if (ppen == -dp0(kpen) .or. ppen == 0._kind_phys) limit_ppen(i) = 1._kind_phys
 
           ! -------------------------------------------------------------------- !
           ! Re-calculate the amount of expelled condensate from cloud updraft    !
@@ -2964,7 +2964,7 @@ contains
           ! using non-zero 'fer(kpen)'.                                          !
           ! -------------------------------------------------------------------- !
 
-          if (fer(kpen)*(-ppen) .lt. 1.e-4_kind_phys) then
+          if (fer(kpen)*(-ppen) < 1.e-4_kind_phys) then
             thlu_top = thlu(kpen - 1) + (thl0(kpen) + ssthl0(kpen)*(-ppen)/2._kind_phys - thlu(kpen - 1))*fer(kpen)*(-ppen)
             qtu_top = qtu(kpen - 1) + (qt0(kpen) + ssqt0(kpen)*(-ppen)/2._kind_phys - qtu(kpen - 1))*fer(kpen)*(-ppen)
           else
@@ -2977,13 +2977,13 @@ contains
           end if
 
           call conden(ps0(kpen - 1) + ppen, thlu_top, qtu_top, thj, qvj, qlj, qij, qse, id_check)
-          if (id_check .eq. 1) then
+          if (id_check == 1) then
             exit_conden(i) = 1._kind_phys
             id_exit = .true.
             go to 333
           end if
           exntop = ((ps0(kpen - 1) + ppen)/p00)**rovcp
-          if ((qlj + qij) .gt. criqc) then
+          if ((qlj + qij) > criqc) then
             dwten(kpen) = ((qlj + qij) - criqc)*qlj/(qlj + qij)
             diten(kpen) = ((qlj + qij) - criqc)*qij/(qlj + qij)
             qtu_top = qtu_top - dwten(kpen) - diten(kpen)
@@ -3013,7 +3013,7 @@ contains
         ! will be set up in a different ways, as will be shown later.          !
         ! -------------------------------------------------------------------- !
 
-        if (kbup .eq. krel) then
+        if (kbup == krel) then
           forcedCu = .true.
           limit_shcu(i) = 1._kind_phys
         else
@@ -3119,7 +3119,7 @@ contains
 
           rhos0j = ps0(k)/(r*0.5_kind_phys*(thv0bot(k + 1) + thv0top(k))*exns0(k))
 
-          if (k .eq. kpen - 1) then
+          if (k == kpen - 1) then
 
             ! ------------------------------------------------------------------------ !
             ! Note that 'ppen' has already been calculated in the above 'iter_scaleh'  !
@@ -3145,8 +3145,8 @@ contains
             ! penetratively entraining interface.                                  !
             ! -------------------------------------------------------------------- !
 
-            if ((umf(k)*ppen*rei(kpen)*rpen) .lt. -0.1_kind_phys*rhos0j) limit_emf(i) = 1._kind_phys
-            if ((umf(k)*ppen*rei(kpen)*rpen) .lt. -0.9_kind_phys*dp0(kpen)/g/dt) limit_emf(i) = 1._kind_phys
+            if ((umf(k)*ppen*rei(kpen)*rpen) < -0.1_kind_phys*rhos0j) limit_emf(i) = 1._kind_phys
+            if ((umf(k)*ppen*rei(kpen)*rpen) < -0.9_kind_phys*dp0(kpen)/g/dt) limit_emf(i) = 1._kind_phys
 
             emf(k) = max(max(umf(k)*ppen*rei(kpen)*rpen, -0.1_kind_phys*rhos0j), -0.9_kind_phys*dp0(kpen)/g/dt)
             thlu_emf(k) = thl0(kpen) + ssthl0(kpen)*(ps0(k) - p0(kpen))
@@ -3168,10 +3168,10 @@ contains
 
             if (use_cumpenent) then  ! Original Cumulative Penetrative Entrainment
 
-              if ((emf(k + 1) - umf(k)*dp0(k + 1)*rei(k + 1)*rpen) .lt. -0.1_kind_phys*rhos0j) limit_emf(i) = 1
-              if ((emf(k + 1) - umf(k)*dp0(k + 1)*rei(k + 1)*rpen) .lt. -0.9_kind_phys*dp0(k + 1)/g/dt) limit_emf(i) = 1
+              if ((emf(k + 1) - umf(k)*dp0(k + 1)*rei(k + 1)*rpen) < -0.1_kind_phys*rhos0j) limit_emf(i) = 1
+              if ((emf(k + 1) - umf(k)*dp0(k + 1)*rei(k + 1)*rpen) < -0.9_kind_phys*dp0(k + 1)/g/dt) limit_emf(i) = 1
             emf(k) = max(max(emf(k + 1) - umf(k)*dp0(k + 1)*rei(k + 1)*rpen, -0.1_kind_phys*rhos0j), -0.9_kind_phys*dp0(k + 1)/g/dt)
-              if (abs(emf(k)) .gt. abs(emf(k + 1))) then
+              if (abs(emf(k)) > abs(emf(k + 1))) then
                 thlu_emf(k) = (thlu_emf(k + 1)*emf(k + 1) + thl0(k + 1)*(emf(k) - emf(k + 1)))/emf(k)
                 qtu_emf(k) = (qtu_emf(k + 1)*emf(k + 1) + qt0(k + 1)*(emf(k) - emf(k + 1)))/emf(k)
                 uu_emf(k) = (uu_emf(k + 1)*emf(k + 1) + u0(k + 1)*(emf(k) - emf(k + 1)))/emf(k)
@@ -3191,8 +3191,8 @@ contains
 
             else ! Alternative Non-Cumulative Penetrative Entrainment
 
-              if ((-umf(k)*dp0(k + 1)*rei(k + 1)*rpen) .lt. -0.1_kind_phys*rhos0j) limit_emf(i) = 1
-              if ((-umf(k)*dp0(k + 1)*rei(k + 1)*rpen) .lt. -0.9_kind_phys*dp0(k + 1)/g/dt) limit_emf(i) = 1
+              if ((-umf(k)*dp0(k + 1)*rei(k + 1)*rpen) < -0.1_kind_phys*rhos0j) limit_emf(i) = 1
+              if ((-umf(k)*dp0(k + 1)*rei(k + 1)*rpen) < -0.9_kind_phys*dp0(k + 1)/g/dt) limit_emf(i) = 1
               emf(k) = max(max(-umf(k)*dp0(k + 1)*rei(k + 1)*rpen, -0.1_kind_phys*rhos0j), -0.9_kind_phys*dp0(k + 1)/g/dt)
               thlu_emf(k) = thl0(k + 1)
               qtu_emf(k) = qt0(k + 1)
@@ -3479,8 +3479,8 @@ contains
         end do
 
         do k = 1, kpen
-          if (comsub(k) .ge. 0._kind_phys) then
-            if (k .eq. mkx) then
+          if (comsub(k) >= 0._kind_phys) then
+            if (k == mkx) then
               thlten_sub = 0._kind_phys
               qtten_sub = 0._kind_phys
               qlten_sub = 0._kind_phys
@@ -3496,7 +3496,7 @@ contains
               niten_sub = g*comsub(k)*(tr0(k + 1, ixnumice) - tr0(k, ixnumice))/(p0(k) - p0(k + 1))
             end if
           else
-            if (k .eq. 1) then
+            if (k == 1) then
               thlten_sub = 0._kind_phys
               qtten_sub = 0._kind_phys
               qlten_sub = 0._kind_phys
@@ -3515,7 +3515,7 @@ contains
           thl_prog = thl0(k) + thlten_sub*dt
           qt_prog = max(qt0(k) + qtten_sub*dt, 1.e-12_kind_phys)
           call conden(p0(k), thl_prog, qt_prog, thj, qvj, qlj, qij, qse, id_check)
-          if (id_check .eq. 1) then
+          if (id_check == 1) then
             id_exit = .true.
             go to 333
           end if
@@ -3657,17 +3657,17 @@ contains
           ! ------------------------------------------------------------------------ !
 
           slten(k) = (slflx(km1) - slflx(k))*g/dp0(k)
-          if (k .eq. 1) then
+          if (k == 1) then
             slten(k) = slten(k) - g/4._kind_phys/dp0(k)*( &
                        uflx(k)*(uf(k + 1) - uf(k) + u0(k + 1) - u0(k)) + &
                        vflx(k)*(vf(k + 1) - vf(k) + v0(k + 1) - v0(k)))
-          elseif (k .ge. 2 .and. k .le. kpen - 1) then
+          elseif (k >= 2 .and. k <= kpen - 1) then
             slten(k) = slten(k) - g/4._kind_phys/dp0(k)*( &
                        uflx(k)*(uf(k + 1) - uf(k) + u0(k + 1) - u0(k)) + &
                        uflx(k - 1)*(uf(k) - uf(k - 1) + u0(k) - u0(k - 1)) + &
                        vflx(k)*(vf(k + 1) - vf(k) + v0(k + 1) - v0(k)) + &
                        vflx(k - 1)*(vf(k) - vf(k - 1) + v0(k) - v0(k - 1)))
-          elseif (k .eq. kpen) then
+          elseif (k == kpen) then
             slten(k) = slten(k) - g/4._kind_phys/dp0(k)*( &
                        uflx(k - 1)*(uf(k) - uf(k - 1) + u0(k) - u0(k - 1)) + &
                        vflx(k - 1)*(vf(k) - vf(k - 1) + v0(k) - v0(k - 1)))
@@ -3684,14 +3684,14 @@ contains
 
           ! Compute in-cumulus condensate at the layer mid-point.
 
-          if (k .lt. krel .or. k .gt. kpen) then
+          if (k < krel .or. k > kpen) then
             qlu_mid = 0._kind_phys
             qiu_mid = 0._kind_phys
             qlj = 0._kind_phys
             qij = 0._kind_phys
-          elseif (k .eq. krel) then
+          elseif (k == krel) then
             call conden(prel, thlu(krel - 1), qtu(krel - 1), thj, qvj, qlj, qij, qse, id_check)
-            if (id_check .eq. 1) then
+            if (id_check == 1) then
               exit_conden(i) = 1._kind_phys
               id_exit = .true.
               go to 333
@@ -3699,16 +3699,16 @@ contains
             qlubelow = qlj
             qiubelow = qij
             call conden(ps0(k), thlu(k), qtu(k), thj, qvj, qlj, qij, qse, id_check)
-            if (id_check .eq. 1) then
+            if (id_check == 1) then
               exit_conden(i) = 1._kind_phys
               id_exit = .true.
               go to 333
             end if
             qlu_mid = 0.5_kind_phys*(qlubelow + qlj)*(prel - ps0(k))/(ps0(k - 1) - ps0(k))
             qiu_mid = 0.5_kind_phys*(qiubelow + qij)*(prel - ps0(k))/(ps0(k - 1) - ps0(k))
-          elseif (k .eq. kpen) then
+          elseif (k == kpen) then
             call conden(ps0(k - 1) + ppen, thlu_top, qtu_top, thj, qvj, qlj, qij, qse, id_check)
-            if (id_check .eq. 1) then
+            if (id_check == 1) then
               exit_conden(i) = 1._kind_phys
               id_exit = .true.
               go to 333
@@ -3717,7 +3717,7 @@ contains
             qiu_mid = 0.5_kind_phys*(qiubelow + qij)*(-ppen)/(ps0(k - 1) - ps0(k))
           else
             call conden(ps0(k), thlu(k), qtu(k), thj, qvj, qlj, qij, qse, id_check)
-            if (id_check .eq. 1) then
+            if (id_check == 1) then
               exit_conden(i) = 1._kind_phys
               id_exit = .true.
               go to 333
@@ -3735,7 +3735,7 @@ contains
 
           ! 2. Detrained Condensate
 
-          if (k .le. kbup) then
+          if (k <= kbup) then
             qc_l(k) = qc_l(k) + g*0.5_kind_phys*(umf(k - 1) + umf(k))*fdr(k)*qlu_mid ! [ kg/kg/s ]
             qc_i(k) = qc_i(k) + g*0.5_kind_phys*(umf(k - 1) + umf(k))*fdr(k)*qiu_mid ! [ kg/kg/s ]
             qc_lm = -g*0.5_kind_phys*(umf(k - 1) + umf(k))*fdr(k)*ql0(k)
@@ -3752,7 +3752,7 @@ contains
 
           ! 3. Detached Updraft
 
-          if (k .eq. kbup) then
+          if (k == kbup) then
             qc_l(k) = qc_l(k) + g*umf(k)*qlj/(ps0(k - 1) - ps0(k)) ! [ kg/kg/s ]
             qc_i(k) = qc_i(k) + g*umf(k)*qij/(ps0(k - 1) - ps0(k)) ! [ kg/kg/s ]
             qc_lm = qc_lm - g*umf(k)*ql0(k)/(ps0(k - 1) - ps0(k)) ! [ kg/kg/s ]
@@ -3764,18 +3764,18 @@ contains
           ! 4. Cumulative Penetrative entrainment detrained in the 'kbup' layer
           !    Explicitly compute the properties detrained penetrative entrained airs in k = kbup layer.
 
-          if (k .eq. kbup) then
+          if (k == kbup) then
             call conden(p0(k), thlu_emf(k), qtu_emf(k), thj, qvj, ql_emf_kbup, qi_emf_kbup, qse, id_check)
-            if (id_check .eq. 1) then
+            if (id_check == 1) then
               id_exit = .true.
               go to 333
             end if
-            if (ql_emf_kbup .gt. 0._kind_phys) then
+            if (ql_emf_kbup > 0._kind_phys) then
               nl_emf_kbup = tru_emf(k, ixnumliq)
             else
               nl_emf_kbup = 0._kind_phys
             end if
-            if (qi_emf_kbup .gt. 0._kind_phys) then
+            if (qi_emf_kbup > 0._kind_phys) then
               ni_emf_kbup = tru_emf(k, ixnumice)
             else
               ni_emf_kbup = 0._kind_phys
@@ -3869,7 +3869,7 @@ contains
           ! Below allows melting of snow when it goes down into the warm layer below.     !
           ! ----------------------------------------------------------------------------- !
 
-          if (t0(k) .gt. 273.16_kind_phys) then
+          if (t0(k) > 273.16_kind_phys) then
             snowmlt = max(0._kind_phys, flxsnow(k)*g/dp0(k))
           else
             snowmlt = 0._kind_phys
@@ -3891,7 +3891,7 @@ contains
           call qsat(t0(k), p0(k), es, qs)
           subsat = max((1._kind_phys - qv0(k)/qs), 0._kind_phys)
           if (noevap_krelkpen) then
-            if (k .ge. krel) subsat = 0._kind_phys
+            if (k >= krel) subsat = 0._kind_phys
           end if
 
           evprain = kevp*subsat*sqrt(flxrain(k) + snowmlt*dp0(k)/g)
@@ -3907,7 +3907,7 @@ contains
           evplimit_snow = min(evplimit_snow, (snowflx - evpint_snow)*g/dp0(k))
           evpsnow = max(0._kind_phys, min(evplimit_snow, evpsnow))
 
-          if ((evprain + evpsnow) .gt. evplimit) then
+          if ((evprain + evpsnow) > evplimit) then
             tmp1 = evprain*evplimit/(evprain + evpsnow)
             tmp2 = evpsnow*evplimit/(evprain + evpsnow)
             evprain = tmp1
@@ -3938,9 +3938,9 @@ contains
           flxrain(k - 1) = flxrain(k) + ntraprd(k)*dp0(k)/g
           flxsnow(k - 1) = flxsnow(k) + ntsnprd(k)*dp0(k)/g
           flxrain(k - 1) = max(flxrain(k - 1), 0._kind_phys)
-          if (flxrain(k - 1) .eq. 0._kind_phys) ntraprd(k) = -flxrain(k)*g/dp0(k)
+          if (flxrain(k - 1) == 0._kind_phys) ntraprd(k) = -flxrain(k)*g/dp0(k)
           flxsnow(k - 1) = max(flxsnow(k - 1), 0._kind_phys)
-          if (flxsnow(k - 1) .eq. 0._kind_phys) ntsnprd(k) = -flxsnow(k)*g/dp0(k)
+          if (flxsnow(k - 1) == 0._kind_phys) ntsnprd(k) = -flxsnow(k)*g/dp0(k)
 
           ! ---------------------------------- !
           ! Calculate thermodynamic tendencies !
@@ -3961,9 +3961,9 @@ contains
           qiten(k) = qiten(k) - qsten(k)
           qvten(k) = qvten(k) + evprain + evpsnow
           qtten(k) = qlten(k) + qiten(k) + qvten(k)
-          if ((qv0(k) + qvten(k)*dt) .lt. qmin(1) .or. &
-              (ql0(k) + qlten(k)*dt) .lt. qmin(ixcldliq) .or. &
-              (qi0(k) + qiten(k)*dt) .lt. qmin(ixcldice)) then
+          if ((qv0(k) + qvten(k)*dt) < qmin(1) .or. &
+              (ql0(k) + qlten(k)*dt) < qmin(ixcldliq) .or. &
+              (qi0(k) + qiten(k)*dt) < qmin(ixcldice)) then
             limit_negcon(i) = 1._kind_phys
           end if
           sten(k) = sten(k) - xlv*evprain - xls*evpsnow - (xls - xlv)*snowmlt
@@ -4114,7 +4114,7 @@ contains
         ! ---------------------------------------------------------------- !
 
         call conden(prel, thlu(krel - 1), qtu(krel - 1), thj, qvj, qlj, qij, qse, id_check)
-        if (id_check .eq. 1) then
+        if (id_check == 1) then
           exit_conden(i) = 1._kind_phys
           id_exit = .true.
           go to 333
@@ -4136,12 +4136,12 @@ contains
           ! Note 'ppen < 0' and at 'k=kpen' layer, I used 'thlu_top'&'qtu_top' !
           ! which explicitly considered zero or non-zero 'fer(kpen)'.          !
           ! ------------------------------------------------------------------ !
-          if (k .eq. kpen) then
+          if (k == kpen) then
             call conden(ps0(k - 1) + ppen, thlu_top, qtu_top, thj, qvj, qlj, qij, qse, id_check)
           else
             call conden(ps0(k), thlu(k), qtu(k), thj, qvj, qlj, qij, qse, id_check)
           end if
-          if (id_check .eq. 1) then
+          if (id_check == 1) then
             exit_conden(i) = 1._kind_phys
             id_exit = .true.
             go to 333
@@ -4158,11 +4158,11 @@ contains
           qlu(k) = 0.5_kind_phys*(qlubelow + qlj)
           qiu(k) = 0.5_kind_phys*(qiubelow + qij)
           cufrc(k) = (ufrc(k - 1) + ufrc(k))
-          if (k .eq. krel) then
+          if (k == krel) then
             cufrc(k) = (ufrclcl + ufrc(k))*(prel - ps0(k))/(ps0(k - 1) - ps0(k))
-          else if (k .eq. kpen) then
+          else if (k == kpen) then
             cufrc(k) = (ufrc(k - 1) + 0._kind_phys)*(-ppen)/(ps0(k - 1) - ps0(k))
-            if ((qlj + qij) .gt. criqc) then
+            if ((qlj + qij) > criqc) then
               qcu(k) = 0.5_kind_phys*(qcubelow + criqc)
               qlu(k) = 0.5_kind_phys*(qlubelow + criqc*qlj/(qlj + qij))
               qiu(k) = 0.5_kind_phys*(qiubelow + criqc*qij/(qlj + qij))
@@ -4190,7 +4190,7 @@ contains
         ! Adjust the original input profiles for implicit CIN calculation !
         ! --------------------------------------------------------------- !
 
-        if (iter .ne. iter_cin) then
+        if (iter /= iter_cin) then
 
           ! ------------------------------------------------------------------- !
           ! Save the output from "iter_cin = 1"                                 !
@@ -4320,7 +4320,7 @@ contains
             thl0bot = thl0(k) + ssthl0(k)*(ps0(k - 1) - p0(k))
             qt0bot = qt0(k) + ssqt0(k)*(ps0(k - 1) - p0(k))
             call conden(ps0(k - 1), thl0bot, qt0bot, thj, qvj, qlj, qij, qse, id_check)
-            if (id_check .eq. 1) then
+            if (id_check == 1) then
               exit_conden(i) = 1._kind_phys
               id_exit = .true.
               go to 333
@@ -4331,7 +4331,7 @@ contains
             thl0top = thl0(k) + ssthl0(k)*(ps0(k) - p0(k))
             qt0top = qt0(k) + ssqt0(k)*(ps0(k) - p0(k))
             call conden(ps0(k), thl0top, qt0top, thj, qvj, qlj, qij, qse, id_check)
-            if (id_check .eq. 1) then
+            if (id_check == 1) then
               exit_conden(i) = 1._kind_phys
               id_exit = .true.
               go to 333
@@ -4575,13 +4575,13 @@ contains
     real(kind_phys), intent(out) :: cin
     real(kind_phys) :: frc
 
-    if (thvubot .gt. thv0bot .and. thvutop .gt. thv0top) then
+    if (thvubot > thv0bot .and. thvutop > thv0top) then
       plfc = pbot
       return
-    elseif (thvubot .le. thv0bot .and. thvutop .le. thv0top) then
+    elseif (thvubot <= thv0bot .and. thvutop <= thv0top) then
       cin = cin - ((thvubot/thv0bot - 1._kind_phys) + (thvutop/thv0top - 1._kind_phys))*(pbot - ptop)/ &
             (pbot/(r*thv0bot*exnf(pbot)) + ptop/(r*thv0top*exnf(ptop)))
-    elseif (thvubot .gt. thv0bot .and. thvutop .le. thv0top) then
+    elseif (thvubot > thv0bot .and. thvutop <= thv0top) then
       frc = (thvutop/thv0top - 1._kind_phys)/((thvutop/thv0top - 1._kind_phys) - (thvubot/thv0bot - 1._kind_phys))
       cin = cin - (thvutop/thv0top - 1._kind_phys)*((ptop + frc*(pbot - ptop)) - ptop)/ &
             (pbot/(r*thv0bot*exnf(pbot)) + ptop/(r*thv0top*exnf(ptop)))
@@ -4642,7 +4642,7 @@ contains
     call qsat(temps, p, es, qs)
     rvls = qs
 
-    if (qs .ge. qt) then
+    if (qs >= qt) then
       id_check = 0
       qv = qt
       qc = 0._kind_phys
@@ -4660,7 +4660,7 @@ contains
       ql = qc*(1._kind_phys - nu)
       qi = nu*qc
       th = temps/exnf(p)
-      if (abs((temps - (leff/cp)*qc) - tc) .ge. 1._kind_phys) then
+      if (abs((temps - (leff/cp)*qc) - tc) >= 1._kind_phys) then
         id_check = 1
       else
         id_check = 0
@@ -4683,23 +4683,23 @@ contains
 
     status = 0
 
-    if (a .eq. 0._kind_phys) then                            ! Form b*x + c = 0
-      if (b .eq. 0._kind_phys) then                        ! Failure: c = 0
+    if (a == 0._kind_phys) then                            ! Form b*x + c = 0
+      if (b == 0._kind_phys) then                        ! Failure: c = 0
         status = 1
       else                                           ! b*x + c = 0
         r1 = -c/b
       end if
       r2 = r1
     else
-      if (b .eq. 0._kind_phys) then                        ! Form a*x**2 + c = 0
-        if (a*c .gt. 0._kind_phys) then                  ! Failure: x**2 = -c/a < 0
+      if (b == 0._kind_phys) then                        ! Form a*x**2 + c = 0
+        if (a*c > 0._kind_phys) then                  ! Failure: x**2 = -c/a < 0
           status = 2
         else                                       ! x**2 = -c/a
           r1 = sqrt(-c/a)
         end if
         r2 = -r1
       else                                            ! Form a*x**2 + b*x + c = 0
-        if ((b**2 - 4._kind_phys*a*c) .lt. 0._kind_phys) then   ! Failure, no real roots
+        if ((b**2 - 4._kind_phys*a*c) < 0._kind_phys) then   ! Failure, no real roots
           status = 3
         else
           q = -0.5_kind_phys*(b + sign(1.0_kind_phys, b)*sqrt(b**2 - 4._kind_phys*a*c))
@@ -4728,7 +4728,7 @@ contains
     below = (field(2) - field(1))/(p0(2) - p0(1))
     do k = 2, mkx
       above = (field(k) - field(k - 1))/(p0(k) - p0(k - 1))
-      if (above .gt. 0._kind_phys) then
+      if (above > 0._kind_phys) then
         slope(k - 1) = max(0._kind_phys, min(above, below))
       else
         slope(k - 1) = min(0._kind_phys, max(above, below))
@@ -4766,7 +4766,7 @@ contains
     Ti = thl*(psfc/p00)**rovcp
     call qsat(Ti, psfc, es, qs)
     rhi = qt/qs
-    if (rhi .le. 0.01_kind_phys) then
+    if (rhi <= 0.01_kind_phys) then
       ! write(iulog,*) 'Source air is too dry and pLCL is set to psmin in uwshcu.F90'
       qsinvert = psmin
       return
@@ -4789,12 +4789,12 @@ contains
       derrdps = -qs*(dlnqsdT*dTdPis*dPisdps + dlnqsdps)
       dps = -err/derrdps
       ps = ps + dps
-      if (ps .lt. 0._kind_phys) then
+      if (ps < 0._kind_phys) then
         ! write(iulog,*) 'pLCL iteration is negative and set to psmin in uwshcu.F90', qt, thl, psfc
         qsinvert = psmin
         return
       end if
-      if (abs(dps) .le. dpsmax) then
+      if (abs(dps) <= dpsmax) then
         qsinvert = ps
         return
       end if
@@ -4862,14 +4862,14 @@ contains
     ! If 's00>0', 'w' increases with height.
     s00 = bogbot/rho0j - D*wtwb
 
-    if (D*dpen .lt. 1.e-8_kind_phys) then
-      if (s00 .ge. 0._kind_phys) then
+    if (D*dpen < 1.e-8_kind_phys) then
+      if (s00 >= 0._kind_phys) then
         x0 = dpen
       else
         x0 = max(0._kind_phys, min(dpen, -0.5_kind_phys*wtwb/s00))
       end if
     else
-      if (s00 .ge. 0._kind_phys) then
+      if (s00 >= 0._kind_phys) then
         x0 = dpen
       else
         x0 = 0._kind_phys
@@ -4879,7 +4879,7 @@ contains
             (SB*x0 + bogbot - SB/(2._kind_phys*D))/(D*rho0j)
         fs = -2._kind_phys*D*exp(-2._kind_phys*D*x0)*(wtwb - (bogbot - SB/(2._kind_phys*D))/(D*rho0j)) + &
              (SB)/(D*rho0j)
-        if (fs .ge. 0._kind_phys) then
+        if (fs >= 0._kind_phys) then
           fs = max(fs, 1.e-10_kind_phys)
         else
           fs = min(fs, -1.e-10_kind_phys)
@@ -4928,14 +4928,14 @@ contains
     xbot_ori = xbot
     rcbmf = (cbmf*g*dt)/dp                  ! Can be larger than 1 : 'OK'
 
-    if (xbot .ge. xtop) then
+    if (xbot >= xtop) then
       rpeff = (xmean - xtop)/max(1.e-20_kind_phys, xbot - xtop)
     else
       rpeff = (xmean - xtop)/min(-1.e-20_kind_phys, xbot - xtop)
     end if
 
     rpeff = min(max(0._kind_phys, rpeff), 1._kind_phys)          ! As of this, 0<= rpeff <= 1
-    if (rpeff .eq. 0._kind_phys .or. rpeff .eq. 1._kind_phys) then
+    if (rpeff == 0._kind_phys .or. rpeff == 1._kind_phys) then
       xbot = xmean
       xtop = xmean
     end if
@@ -4952,7 +4952,7 @@ contains
     do k = 0, kinv - 1
       xflx(k) = cbmf*(xsrc - xbot)*(ps0(0) - ps0(k))/(ps0(0) - pinv)
     end do
-    if (rr .le. 1._kind_phys) then
+    if (rr <= 1._kind_phys) then
       xflx(kinv - 1) = xflx(kinv - 1) - (1._kind_phys - rr)*cbmf*(xtop_ori - xbot_ori)
     end if
   end subroutine fluxbelowinv
@@ -4989,7 +4989,7 @@ contains
       dqv = max(0._kind_phys, 1._kind_phys*qvmin - qv(k))
       qvten(k) = qvten(k) + dqv/dt
       qv(k) = qv(k) + dqv
-      if (k .ne. 1) then
+      if (k /= 1) then
         qv(k - 1) = qv(k - 1) - dqv*dp(k)/dp(k - 1)
         qvten(k - 1) = qvten(k - 1) - dqv*dp(k)/dp(k - 1)/dt
       end if
@@ -5000,15 +5000,15 @@ contains
     ! Extra moisture used to satisfy 'qv(i,1)=qvmin' is proportionally
     ! extracted from all the layers that has 'qv > 2*qvmin'. This fully
     ! preserves column moisture.
-    if (dqv .gt. 1.e-20_kind_phys) then
+    if (dqv > 1.e-20_kind_phys) then
       sum = 0._kind_phys
       do k = 1, mkx
-        if (qv(k) .gt. 2._kind_phys*qvmin) sum = sum + qv(k)*dp(k)
+        if (qv(k) > 2._kind_phys*qvmin) sum = sum + qv(k)*dp(k)
       end do
       aa = dqv*dp(1)/max(1.e-20_kind_phys, sum)
-      if (aa .lt. 0.5_kind_phys) then
+      if (aa < 0.5_kind_phys) then
         do k = 1, mkx
-          if (qv(k) .gt. 2._kind_phys*qvmin) then
+          if (qv(k) > 2._kind_phys*qvmin) then
             dum = aa*qv(k)
             qv(k) = qv(k) - dum
             qvten(k) = qvten(k) - dum/dt
