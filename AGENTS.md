@@ -58,6 +58,10 @@ The standard name is the interface: the CCPP framework connects producers and co
 
 Read `Code-style.md` before writing or modifying Fortran.
 
+## Code reviews
+
+Read `Code-review.md` for specific guidelines on code reviews when performing a code review task on pull requests within this repository.
+
 ## Testing
 
 Build and run the pFUnit unit tests (also run by CI with coverage on every PR):
