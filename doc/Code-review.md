@@ -26,3 +26,14 @@ In addition to existing rules outlined in AGENTS.md and Code-style.md, the follo
 11. Make sure all character-type subroutine arguments are `len=*`, unless they are declared as an allocatable or pointer in the subroutine itself.
 
 12. Make sure all `goto` and `go to` statements have been removed.
+
+13. Request the removal of any lines of code that are commented out
+    unless that code is explicity part of a larger comment block
+    describing currently working code.  If the comments aren't clear
+    then simply flag it for human review.
+
+14.  Check all variables in modified `*.meta` files and flag any variables
+     where the `standard_name` attribute is the same, but the `units` attribute
+     is different.  While it may not be incorrect, it could indicate the
+     possibility of a science bug, and thus should be flagged so that
+     a human can look it over.

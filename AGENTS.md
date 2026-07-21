@@ -56,11 +56,11 @@ The standard name is the interface: the CCPP framework connects producers and co
 
 ## Code style
 
-Read `Code-style.md` before writing or modifying Fortran.
+Read `doc/Code-style.md` before writing or modifying Fortran.
 
 ## Code reviews
 
-Read `Code-review.md` for specific guidelines on code reviews when performing a code review task on pull requests within this repository.
+Read `doc/Code-review.md` for specific guidelines on code reviews when performing a code review task on pull requests within this repository.
 
 ## Testing
 
