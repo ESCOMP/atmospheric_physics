@@ -147,7 +147,7 @@ contains
   ! Rebin 4 sea salt bins into accumulation and coarse modes.
 !> \section arg_table_rebin_seasalt_run Argument Table
 !! \htmlinclude rebin_seasalt_run.html
-  subroutine rebin_seasalt_run( &
+  pure subroutine rebin_seasalt_run( &
     ncol, pver, pcnst, &
     constituents, &
     errmsg, errflg)

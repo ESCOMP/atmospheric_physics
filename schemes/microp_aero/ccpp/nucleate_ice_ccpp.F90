@@ -368,8 +368,10 @@ contains
 
     ! Allocate aerosol transfer arrays if needed
     if (associated(aeroprops) .and. nbins_ > 0) then
-      allocate(size_wght(ncol, pver, nbins_, nmaxspc_))
-      allocate(amb_num_bins(ncol, pver, nbins_))
+      allocate(size_wght(ncol, pver, nbins_, nmaxspc_), stat=errflg, errmsg=errmsg)
+      if(errflg /= 0) return
+      allocate(amb_num_bins(ncol, pver, nbins_), stat=errflg, errmsg=errmsg)
+      if(errflg /= 0) return
     end if
 
     !---------------------------------------------------------------------------
@@ -571,7 +573,7 @@ contains
           ! participate in nucleation, because it doesn't include STS and NAT
           ! particles. It may not represent the proper saturation threshold for
           ! nucleation, and wsubi from CLUBB is probably not representative of
-          ! wave driven varaibility in the polar stratosphere.
+          ! wave driven variability in the polar stratosphere.
           if (nucleate_ice_use_troplev_ .and. clim_modal_carma_) then
             if ((k < tropLev_chem(i)) .and. &
                 (nucleate_ice_strat_ > 0._kind_phys) .and. &

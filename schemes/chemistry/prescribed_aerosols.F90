@@ -138,7 +138,11 @@ contains
     if (prescribed_aero_file == 'UNSET' .or. &
         len_trim(prescribed_aero_file) == 0) then
       has_prescribed_aerosols = .false.
-      allocate(aerosol_constituents(0))
+      allocate(aerosol_constituents(0), stat=errflg, errmsg=errmsg)
+      if(errflg /= 0) then
+        errmsg = subname // ": " // trim(errmsg)
+        return
+      end if
       if (amIRoot) then
         write(iulog,*) subname//': No prescribed aerosols specified'
       end if
@@ -180,7 +184,10 @@ contains
 
     if(aero_count == 0) then
       has_prescribed_aerosols = .false.
-      allocate(aerosol_constituents(0))
+      allocate(aerosol_constituents(0), stat=errflg, errmsg=errmsg)
+      if(errflg /= 0) then
+        errmsg = subname // ": " // trim(errmsg)
+      end if
       return
     end if
 

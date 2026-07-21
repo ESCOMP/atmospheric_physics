@@ -28,7 +28,7 @@ contains
       use cam_history_support,           only: horiz_only
       use radiative_aerosol_definitions, only: bulk_aerosol_list
 
-      character(len=512), intent(out) :: errmsg
+      character(len=*),   intent(out) :: errmsg
       integer,            intent(out) :: errflg
 
       integer :: i
@@ -120,7 +120,11 @@ contains
       !-----------------------------------------------------------------
       num_odv = bulk_aerosol_list(0)%numaerosols
       if (num_odv > 0) then
-        allocate(odv_names(num_odv))
+        allocate(odv_names(num_odv), stat=errflg, errmsg=errmsg)
+        if (errflg /= 0) then
+          errmsg = 'aerosol_optics_diagnostics_init: ' // trim(errmsg)
+          return
+        end if
         do i = 1, num_odv
           odv_names(i) = 'ODV_' // trim(bulk_aerosol_list(0)%aer(i)%camname)
           call history_add_field(trim(odv_names(i)), &
@@ -208,7 +212,7 @@ contains
       real(kind_phys), intent(in) :: odv_col_aod(:,:)      ! (ncol, num_bulk_aer)
 
       ! CCPP error handling
-      character(len=512), intent(out) :: errmsg
+      character(len=*),   intent(out) :: errmsg
       integer,            intent(out) :: errflg
 
       !-----------------------------------------------------------------

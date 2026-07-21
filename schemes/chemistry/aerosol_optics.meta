@@ -20,7 +20,7 @@
 [ water_refindex_file ]
   standard_name = filename_of_water_refractive_index_data
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = in
 [ nswbands ]

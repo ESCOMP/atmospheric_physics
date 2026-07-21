@@ -14,7 +14,7 @@ contains
 !> \section arg_table_aerosol_optics_zero_stub_run Argument Table
 !! \htmlinclude aerosol_optics_zero_stub_run.html
 !!
-  subroutine aerosol_optics_zero_stub_run( &
+  pure subroutine aerosol_optics_zero_stub_run( &
     aer_tau, aer_tau_w, aer_tau_w_g, aer_lw_abs, &
     errmsg, errflg)
 

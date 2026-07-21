@@ -46,7 +46,7 @@ contains
 
     ! Dummy variables
     type(ccpp_constituent_properties_t), allocatable, intent(out) :: constituents(:)
-    character(len=512), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     ! Local variables
@@ -91,11 +91,21 @@ contains
     ! Build species list based on detected mode (MAM takes priority)
     if (is_mam) then
       nspecies = num_mam_species
-      allocate(species_list(nspecies))
+      allocate(species_list(nspecies), stat=ierr, errmsg=errmsg)
+      if (ierr /= 0) then
+        errflg = 1
+        errmsg = subname // ': Failed to allocate species_list: ' // trim(errmsg)
+        return
+      end if
       species_list(:) = mam_species(:)
     else
       nspecies = num_bam_species
-      allocate(species_list(nspecies))
+      allocate(species_list(nspecies), stat=ierr, errmsg=errmsg)
+      if (ierr /= 0) then
+        errflg = 1
+        errmsg = subname // ': Failed to allocate species_list: ' // trim(errmsg)
+        return
+      end if
       species_list(:) = bam_species(:)
     end if
 

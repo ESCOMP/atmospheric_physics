@@ -75,7 +75,11 @@ contains
     ! Check if prescribed volcanic aerosols are enabled
     if (prescribed_volcaero_file == 'UNSET' .or. &
         len_trim(prescribed_volcaero_file) == 0) then
-      allocate(volcaero_constituents(0))
+      allocate(volcaero_constituents(0), stat=errflg, errmsg=errmsg)
+      if (errflg /= 0) then
+        errmsg = subname // ": " // trim(errmsg)
+        return
+      end if
       if (amIRoot) then
         write(iulog,*) subname//': No prescribed volcanic aerosols specified'
       end if

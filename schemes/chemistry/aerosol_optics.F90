@@ -44,7 +44,7 @@ contains
     ! does not work: errors with
     ! parse_source.CCPPError: No ddt_lib or ddt aerlist_t not in ddt_lib
 
-    character(len=512), intent(in)  :: water_refindex_file
+    character(len=*),   intent(in)  :: water_refindex_file
     integer,            intent(in)  :: nswbands
     integer,            intent(in)  :: nlwbands
 
@@ -102,7 +102,11 @@ contains
         return
       end if
 
-      allocate(crefwsw(nswbands))
+      allocate(crefwsw(nswbands), stat=errflg, errmsg=errmsg)
+      if (errflg /= 0) then
+        errmsg = 'aerosol_optics_init: ' // trim(errmsg)
+        return
+      end if
       crefwsw(:) = cmplx(refr(:), refi(:), kind=kind_phys)
 
       deallocate(refr, refi)
@@ -119,7 +123,11 @@ contains
         return
       end if
 
-      allocate(crefwlw(nlwbands))
+      allocate(crefwlw(nlwbands), stat=errflg, errmsg=errmsg)
+      if (errflg /= 0) then
+        errmsg = 'aerosol_optics_init: ' // trim(errmsg)
+        return
+      end if
       crefwlw(:) = cmplx(refr(:), refi(:), kind=kind_phys)
 
       deallocate(refr, refi)
