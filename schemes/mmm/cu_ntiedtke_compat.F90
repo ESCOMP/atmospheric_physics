@@ -1,5 +1,5 @@
-!> This module contains interstitial schemes that are specific to new Tiedtke cumulus scheme,
-!> which is part of MMM physics.
+!> This module contains interstitial schemes that are specific to the new Tiedtke cumulus scheme,
+!> which is part of the MMM physics.
 module cu_ntiedtke_compat
     implicit none
 
@@ -7,30 +7,25 @@ module cu_ntiedtke_compat
     public :: cu_ntiedtke_compat_pre_run
     public :: cu_ntiedtke_compat_init
     public :: cu_ntiedtke_compat_run
-    public :: cu_ntiedtke_diagnostics_init
-    public :: cu_ntiedtke_diagnostics_run
 contains
     !> \section arg_table_cu_ntiedtke_compat_pre_run Argument Table
     !! \htmlinclude cu_ntiedtke_compat_pre_run.html
-    subroutine cu_ntiedtke_compat_pre_run( &
-            cflx, exner, landfrac, &
+    pure subroutine cu_ntiedtke_compat_pre_run( &
+            exner, landfrac, &
             rthdynten, rthblten, rthratenlw, rthratensw, &
             rqvdynten, rqvblten, &
             lndj, &
-            ptf, pqvf, evap, &
+            ptf, pqvf, &
             errmsg, errflg)
         use ccpp_kinds, only: kind_phys
-        use ccpp_scheme_utils, only: ccpp_constituent_index
 
-        real(kind_phys), intent(in) :: cflx(:, :), exner(:, :), landfrac(:), &
+        real(kind_phys), intent(in) :: exner(:, :), landfrac(:), &
                                        rthdynten(:, :), rthblten(:, :), rthratenlw(:, :), rthratensw(:, :), &
                                        rqvdynten(:, :), rqvblten(:, :)
         integer, intent(out) :: lndj(:)
-        real(kind_phys), intent(out) :: ptf(:, :), pqvf(:, :), evap(:)
+        real(kind_phys), intent(out) :: ptf(:, :), pqvf(:, :)
         character(*), intent(out) :: errmsg
         integer, intent(out) :: errflg
-
-        integer :: water_vapor_mixing_ratio_index
 
         where (landfrac >= 0.5_kind_phys)
             lndj = 1
@@ -40,20 +35,6 @@ contains
 
         ptf(:, :) = (rthdynten(:, :) + rthblten(:, :) + rthratenlw(:, :) + rthratensw(:, :)) * exner(:, :)
         pqvf(:, :) = rqvdynten(:, :) + rqvblten(:, :)
-        evap(:) = 0.0_kind_phys
-
-        call ccpp_constituent_index( &
-            'water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water', water_vapor_mixing_ratio_index, errflg, errmsg)
-
-        if (errflg /= 0 .or. &
-            water_vapor_mixing_ratio_index < lbound(cflx, 2) .or. water_vapor_mixing_ratio_index > ubound(cflx, 2)) then
-            errmsg = 'cu_ntiedtke_compat_pre_run: Failed to find desired constituent flux from cflx'
-            errflg = 1
-
-            return
-        end if
-
-        evap(:) = cflx(:, water_vapor_mixing_ratio_index)
 
         errmsg = ''
         errflg = 0
@@ -192,61 +173,4 @@ contains
         errmsg = ''
         errflg = 0
     end subroutine cu_ntiedtke_compat_run
-
-    !> \section arg_table_cu_ntiedtke_diagnostics_init Argument Table
-    !! \htmlinclude cu_ntiedtke_diagnostics_init.html
-    subroutine cu_ntiedtke_diagnostics_init( &
-            errmsg, errflg)
-        use cam_history, only: history_add_field
-        use cam_history_support, only: horiz_only
-
-        character(*), intent(out) :: errmsg
-        integer, intent(out) :: errflg
-
-        call history_add_field('cu_ntiedtke_zprecc', &
-            'lwe_thickness_of_convective_precipitation_amount', horiz_only, 'avg', 'm')
-        call history_add_field('cu_ntiedtke_rucuten', &
-            'tendency_of_eastward_wind_due_to_convection', 'lev', 'avg', 'm s-2')
-        call history_add_field('cu_ntiedtke_rvcuten', &
-            'tendency_of_northward_wind_due_to_convection', 'lev', 'avg', 'm s-2')
-        call history_add_field('cu_ntiedtke_rthcuten', &
-            'tendency_of_air_potential_temperature_due_to_convection', 'lev', 'avg', 'K s-1')
-        call history_add_field('cu_ntiedtke_rqvcuten', &
-            'tendency_of_water_vapor_mixing_ratio_wrt_dry_air_due_to_convection', 'lev', 'avg', 'kg kg-1 s-1')
-        call history_add_field('cu_ntiedtke_rqccuten', &
-            'tendency_of_cloud_liquid_water_mixing_ratio_wrt_dry_air_due_to_convection', 'lev', 'avg', 'kg kg-1 s-1')
-        call history_add_field('cu_ntiedtke_rqicuten', &
-            'tendency_of_cloud_ice_mixing_ratio_wrt_dry_air_due_to_convection', 'lev', 'avg', 'kg kg-1 s-1')
-
-        errmsg = ''
-        errflg = 0
-    end subroutine cu_ntiedtke_diagnostics_init
-
-    !> \section arg_table_cu_ntiedtke_diagnostics_run Argument Table
-    !! \htmlinclude cu_ntiedtke_diagnostics_run.html
-    subroutine cu_ntiedtke_diagnostics_run( &
-            zprecc, &
-            rucuten, rvcuten, rthcuten, rqvcuten, rqccuten, rqicuten, &
-            errmsg, errflg)
-        use cam_history, only: history_out_field
-        use ccpp_kinds, only: kind_phys
-
-        real(kind_phys), intent(in) :: zprecc(:), &
-                                       rucuten(:, :), rvcuten(:, :), &
-                                       rthcuten(:, :), &
-                                       rqvcuten(:, :), rqccuten(:, :), rqicuten(:, :)
-        character(*), intent(out) :: errmsg
-        integer, intent(out) :: errflg
-
-        call history_out_field('cu_ntiedtke_zprecc', zprecc)
-        call history_out_field('cu_ntiedtke_rucuten', rucuten)
-        call history_out_field('cu_ntiedtke_rvcuten', rvcuten)
-        call history_out_field('cu_ntiedtke_rthcuten', rthcuten)
-        call history_out_field('cu_ntiedtke_rqvcuten', rqvcuten)
-        call history_out_field('cu_ntiedtke_rqccuten', rqccuten)
-        call history_out_field('cu_ntiedtke_rqicuten', rqicuten)
-
-        errmsg = ''
-        errflg = 0
-    end subroutine cu_ntiedtke_diagnostics_run
 end module cu_ntiedtke_compat
