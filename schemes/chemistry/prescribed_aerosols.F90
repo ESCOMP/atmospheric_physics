@@ -457,7 +457,6 @@ contains
 !! \htmlinclude prescribed_aerosols_run.html
   subroutine prescribed_aerosols_run( &
     ncol, pver, pcnst, &
-    const_props, &
     pi, &
     pmid, pint, phis, zi, & ! necessary fields for trcdata read.
     constituents, &
@@ -469,17 +468,12 @@ contains
     ! host model dependency for history output
     use cam_history,               only: history_out_field
 
-    ! framework dependency for const_props
-    use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
-
-    ! dependency to get constituent index
-    use ccpp_const_utils,          only: ccpp_const_get_idx
+    ! framework dependency to get constituent index
+    use ccpp_scheme_utils,         only: ccpp_constituent_index
 
     integer,            intent(in)    :: ncol
     integer,            intent(in)    :: pver
     integer,            intent(in)    :: pcnst            ! # of CCPP constituents [count]
-    type(ccpp_constituent_prop_ptr_t), &
-                        intent(in)    :: const_props(:)   ! CCPP constituent properties pointer
     real(kind_phys),    intent(in)    :: pi
     real(kind_phys),    intent(in)    :: pmid(:,:)        ! air pressure [Pa]
     real(kind_phys),    intent(in)    :: pint(:,:)        ! air pressure at interfaces [Pa]
@@ -513,10 +507,17 @@ contains
     ! the logv and logm values read from tracer_data (port of rand_sample_prescribed_aero)
     do i = 1, aero_count
       ! Get constituent index
-      call ccpp_const_get_idx(const_props, &
-           trim(aero_map_list(i)%constituent_name), &
-           const_idx, errmsg, errflg)
+      call ccpp_constituent_index(trim(aero_map_list(i)%constituent_name), &
+           const_idx, errmsg=errmsg, errcode=errflg)
       if (errflg /= 0) return
+
+      ! Guard against an unresolved constituent index, which would otherwise be
+      ! used as a negative array subscript below.
+      if (const_idx < 0) then
+        errflg = 1
+        errmsg = subname // ': could not find constituent "' // trim(aero_map_list(i)%constituent_name)//'"'
+        return
+      end if
 
       if (.not. aero_map_list(i)%is_modal_aero_interstitial) then
         ! For non-interstitial species (cloud-borne or bulk aerosols),
