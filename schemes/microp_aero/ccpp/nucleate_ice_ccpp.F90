@@ -208,7 +208,7 @@ contains
     INnso4, INnbc, INndust, INondust,    &
     INhet, INhom, INFrehom, INFreIN,     &
     ptend_q,                             &
-    errmsg, errflg)
+    scheme_name, errmsg, errflg)
 
     ! portable core science code:
     use nucleate_ice,           only: nucleati
@@ -285,6 +285,9 @@ contains
     ! For BAM and aquaplanet: zeroed (no constituent tendencies).
     real(kind_phys),  intent(out) :: ptend_q(:, :, :)  ! constituent tendencies [kg kg-1 s-1] (ncol, pver, pcnst)
 
+    ! Scheme name for the following qneg (CAM ptend name for nucleate_ice,
+    ! mirroring physics_update's qneg3 label)
+    character(len=64),  intent(out) :: scheme_name
     character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
@@ -331,6 +334,7 @@ contains
 
     errmsg = ''
     errflg = 0
+    scheme_name = 'nucleatei'
 
     nullify(aeroprops)
     nullify(aerostate)
