@@ -81,7 +81,8 @@
          of the "before_coupler" group. -->
     <!-- UNCOMMENT ONCE ALL OTHER CAM7 SCHEMES ARE PRESENT -->
     <!-- <scheme>calc_dry_air_ideal_gas_density</scheme>
-    <scheme>set_surface_coupling_vars</scheme> -->
+    <scheme>set_surface_coupling_vars</scheme>
+    <scheme>co2_diagnostic_export</scheme> -->
 
   </group>
 
