@@ -151,7 +151,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
   advected = True
-[ ni ]
+[ num_ice ]
   standard_name = mass_number_concentration_of_ice_wrt_moist_air_and_condensed_water
   units = kg-1
   type = real | kind = kind_phys

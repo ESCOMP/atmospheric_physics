@@ -194,7 +194,7 @@ contains
 !! \htmlinclude nucleate_ice_ccpp_run.html
   subroutine nucleate_ice_ccpp_run( &
     ncol, pver, pcnst, top_lev, dtime,   &
-    t, pmid, qv, qc, qi, ni,             &
+    t, pmid, qv, qc, qi, num_ice,        &
     rair, tmelt, pi,                     &
     wsubi,                               &
     aist,                             &
@@ -234,7 +234,7 @@ contains
     real(kind_phys),  intent(in)  :: qv(:, :)       ! water vapor mixing ratio [kg kg-1]
     real(kind_phys),  intent(in)  :: qc(:, :)       ! cloud liquid mixing ratio [kg kg-1]
     real(kind_phys),  intent(in)  :: qi(:, :)       ! cloud ice mixing ratio [kg kg-1]
-    real(kind_phys),  intent(in)  :: ni(:, :)       ! cloud ice number concentration [1 kg-1]
+    real(kind_phys),  intent(in)  :: num_ice(:, :)  ! cloud ice number concentration [1 kg-1]
 
     real(kind_phys),  intent(in)  :: rair           ! gas constant for dry air [J kg-1 K-1]
     real(kind_phys),  intent(in)  :: tmelt          ! freezing point of water [K]
@@ -463,7 +463,7 @@ contains
             ! PUMAS v1.21+ path (CAM7+)
             call nucleati( &
               wsubi(i,k), t(i,k), pmid(i,k), relhum(i,k), icldm(i,k), &
-              qc(i,k), qi(i,k), ni(i,k), rho(i,k), &
+              qc(i,k), qi(i,k), num_ice(i,k), rho(i,k), &
               so4_num, dst_num, soot_num, subgrid(i,k), &
               naai(i,k), nihf(i,k), niimm(i,k), nidep(i,k), nimey(i,k), &
               wice(i,k), weff(i,k), fhom(i,k), regm(i,k), &
@@ -476,7 +476,7 @@ contains
             ! this path is unsupported in CAM-SIMA (see below) (hplin, 4/7/26)
             call nucleati( &
               wsubi(i,k), t(i,k), pmid(i,k), relhum(i,k), icldm(i,k), &
-              qc(i,k), qi(i,k), ni(i,k), rho(i,k), &
+              qc(i,k), qi(i,k), num_ice(i,k), rho(i,k), &
               so4_num, dst_num, soot_num, subgrid(i,k), &
               naai(i,k), nihf(i,k), niimm(i,k), nidep(i,k), nimey(i,k), &
               wice(i,k), weff(i,k), fhom(i,k), regm(i,k), &
