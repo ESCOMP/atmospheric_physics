@@ -5,6 +5,10 @@
 ! 1) volcanic aerosol mass mixing ratio (from prescribed dataset)
 ! 2) geometric-mean wet aerosol radius (derived from mass)
 !
+! This scheme is mutually exclusive with the prescribed_stratospheric_aerosol,
+! which also reads volcanic aerosol data for MAM-configurations only.
+! This scheme is used for BAM-configurations only.
+!
 ! Based on original CAM version from: Francis Vitt
 module prescribed_volcanic_aerosol
   use ccpp_kinds, only: kind_phys
