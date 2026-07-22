@@ -34,7 +34,7 @@ contains
     real(kind_phys),    intent(inout) :: pgamrad(:, :)      !Size distribution shape parameter (1)
     real(kind_phys),    intent(inout) :: lamcrad(:, :)      !Slope of droplet distribution (m-1)
     real(kind_phys),    intent(inout) :: deffi(:, :)        !Effective diameter of cloud ice particle (um)
-    character(len=512), intent(out)   :: errmsg             !CCPP error message (none)
+    character(len=*),   intent(out)   :: errmsg             !CCPP error message (none)
     integer,            intent(out)   :: errcode            !CCPP error code (1)
 
     integer :: i, k

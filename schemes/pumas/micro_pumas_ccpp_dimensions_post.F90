@@ -3,9 +3,12 @@ module micro_pumas_ccpp_dimensions_post
   use pumas_kinds,       only: pumas_r8=>kind_r8
   use ccpp_kinds,        only: kind_phys
 
-! This will be replaced by subcolumn averaging when subcolumns are enabled
+  implicit none
+  private
 
-   public :: micro_pumas_ccpp_dimensions_post_run
+  public :: micro_pumas_ccpp_dimensions_post_run
+
+! This will be replaced by subcolumn averaging when subcolumns are enabled
 
 contains
   !> \section arg_table_micro_pumas_ccpp_dimensions_post_run Argument Table
@@ -336,7 +339,7 @@ contains
     !rain evaporation rate wrt moist air and condensed water (kg kg-1 s-1)
     real(kind_phys), intent(out) :: rain_evap(:, :)
 
-    character(len=512), intent(out) :: errmsg  !PUMAS/CCPP error message (none)
+    character(len=*), intent(out) :: errmsg  !PUMAS/CCPP error message (none)
     integer,            intent(out) :: errcode !CCPP error code (1)
 
     ! Set error variables

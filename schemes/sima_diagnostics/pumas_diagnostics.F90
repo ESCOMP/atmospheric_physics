@@ -13,7 +13,6 @@ module pumas_diagnostics
 
    implicit none
    private
-   save
 
    public :: pumas_diagnostics_init ! init routine
 

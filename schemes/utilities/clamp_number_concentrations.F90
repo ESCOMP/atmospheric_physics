@@ -1,6 +1,9 @@
 ! Clamp number concentration constituent tendencies
 ! so that after tendency application, values remain within [qmin, qmax].
 !
+! this subroutine updates const_q directly because const_q >> qmin
+! using tendencies in this subroutine would result in catastrophic cancellation
+!
 ! This scheme must be placed immediately after apply_constituent_tendencies
 ! in the SDF to replicate the same behavior as in physics_types.F90 in CAM.
 module clamp_number_concentrations
@@ -9,7 +12,6 @@ module clamp_number_concentrations
 
   implicit none
   private
-  save
 
   public :: clamp_number_concentrations_init
   public :: clamp_number_concentrations_run
@@ -101,7 +103,7 @@ contains
     errmsg = ''
     errflg = 0
 
-    ix_species = (/ix_numliq, ix_numrai, ix_numice, ix_numsno/)
+    ix_species = [ix_numliq, ix_numrai, ix_numice, ix_numsno]
 
     do n = 1, num_species
       ix = ix_species(n)
@@ -119,49 +121,6 @@ contains
         end do
       end do
     end do
-
-    ! The below alternative is a formulation based on the principle that we do not alter
-    ! the constituent tendencies themselves.
-    !
-    ! However, the (qmin - q) / dt will cause floating point errors and introduce
-    ! more harm than good (this is unfortunately because qmin and q may often have
-    ! a large difference)
-    !
-    ! e.g.,
-    ! (gdb) p const_q(356,23,1)
-    ! $15 = 1826.1689801273931            <-- q >> qmin.
-    ! (gdb) p const_tend(356,23,1)
-    ! $16 = -1.0145383222929962
-    ! (gdb) p dt
-    ! $17 = 1800
-    ! (gdb) p const_tend(356,23,1)*dt
-    ! $18 = -1826.1689801273933
-    ! (gdb) p const_q(356,23,1)+const_tend(356,23,1)*dt
-    ! $19 = -2.2737367544323206e-13      <-- projected fall below qmin
-    !                                        which triggers the clamp
-    ! yet because q >> qmin, q + (qmin - q)/dt*dt will be far from qmin
-    ! introducing numerical noise. (hplin, 3/18/26)
-    !
-    ! do n = 1, num_species
-    !   ix = ix_species(n)
-    !   if (ix <= 0) cycle
-
-    !   do k = 1, pver
-    !     do i = 1, ncol
-    !       ! Project what the value would be after tendency application
-    !       q_projected = const_q(i, k, ix) + const_tend(i, k, ix) * dt
-
-    !       if (q_projected < qmin) then
-    !         ! Rewrite tendency so the updater lands exactly on qmin
-    !         const_tend(i, k, ix) = (qmin - const_q(i, k, ix)) / dt
-    !       else if (q_projected > qmax) then
-    !         ! Rewrite tendency so the updater lands exactly on qmax
-    !         const_tend(i, k, ix) = (qmax - const_q(i, k, ix)) / dt
-    !       end if
-    !     end do
-    !   end do
-    ! end do
-
   end subroutine clamp_number_concentrations_run
 
 end module clamp_number_concentrations

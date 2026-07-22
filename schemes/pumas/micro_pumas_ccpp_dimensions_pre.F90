@@ -4,6 +4,10 @@ module micro_pumas_ccpp_dimensions_pre
   use ccpp_kinds,        only: kind_phys
 
   implicit none
+  private
+
+  public :: micro_pumas_ccpp_dimensions_pre_init
+  public :: micro_pumas_ccpp_dimensions_pre_run
 
 contains
 
@@ -26,7 +30,7 @@ contains
     integer,         intent(out) :: micro_nlevp1       !Number of microphysics vertical interfaces (count)
 
     !CCPP error handling:
-    character(len=512), intent(out) :: errmsg
+    character(len=*), intent(out) :: errmsg
     integer,            intent(out) :: errcode
 
     !Initialize error message and error code:
@@ -187,7 +191,7 @@ contains
     real(kind_phys), intent(in)  :: frzdep_in(:, :)
     real(pumas_r8), intent(out) :: pumas_frzdep(:, :)
 
-    character(len=512), intent(out) :: errmsg
+    character(len=*), intent(out) :: errmsg
     integer,            intent(out) :: errcode
 
     !Initialize error message and error code:

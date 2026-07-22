@@ -1,11 +1,7 @@
-!This is just a placeholder for the eventual CCPP
-!interstitial schemes needed for the PUMAS cloud
-!microphysics package.
+! CCPP interstitial schemes needed for the PUMAS cloud microphysics package.
 
-!The hope that there will eventually be one set of
-!portable interstitials and possibly another set
-!of host-specific intersititals (if needed) above
-!the portable layer.
+!The hope is that there will eventually be one set of portable interstitials and possibly another set
+!of host-specific interstitials (if needed) above the portable layer.
 
 module pumas_pre_main
 
@@ -13,12 +9,12 @@ module pumas_pre_main
 
    implicit none
 
-   contains
+   private
 
-   !Add subroutines here
-   !for any pre-processing
-   !steps needed before the core
-   !PUMAS calls.
+   public :: pumas_pre_main_init
+   public :: pumas_pre_main_timestep_init
+
+   contains
 
   !> \section arg_table_pumas_pre_main_init Argument Table
   !! \htmlinclude pumas_pre_main_init.html
@@ -28,7 +24,7 @@ module pumas_pre_main
      logical,            intent(in)  :: do_clubb_sgs
      real(kind_phys), dimension (:,:) , intent(out) :: spat_vary_accre_enhan_in
      logical,            intent(out) :: remove_supersat
-     character(len=512), intent(out) :: errmsg
+     character(len=*),   intent(out) :: errmsg
      integer,            intent(out) :: errcode
 
      errmsg = ' '
@@ -42,7 +38,7 @@ module pumas_pre_main
        remove_supersat = .false.
      else
        remove_supersat = .true.
-     endif
+     end if
 
    end subroutine pumas_pre_main_init
 
@@ -51,7 +47,7 @@ module pumas_pre_main
    subroutine pumas_pre_main_timestep_init( errmsg, errcode)
 
 
-     character(len=512), intent(out) :: errmsg
+     character(len=*),   intent(out) :: errmsg
      integer,            intent(out) :: errcode
 
      errmsg = ' '

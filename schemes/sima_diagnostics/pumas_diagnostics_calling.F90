@@ -6,7 +6,6 @@ module pumas_diagnostics_calling
 
    implicit none
    private
-   save
 
    public :: pumas_diagnostics_init ! init routine
    public :: pumas_diagnostics_run  ! main routine

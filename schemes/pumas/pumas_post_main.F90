@@ -40,7 +40,7 @@ contains
     real(kind_phys), dimension(:,:), intent(out) :: lamc       ! droplet size distribution slope for radiation (1)
     real(kind_phys), dimension(:,:), intent(out) :: des        ! snow effective diameter for radiation (micron)
     real(kind_phys), dimension(:,:), intent(out) :: degrau     ! graupel effective diameter for radiation (m)
-    character(len=512),          intent(out) :: errmsg
+    character(len=*),          intent(out) :: errmsg
     integer,                 intent(out) :: errcode
 
     integer        :: k
