@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet type="text/xsl"?>
+
+<entry_id_pg version="2.0">
+
+  <!-- conv_water_nl: convective cloud water in radiation.
+       Group and variable names match CAM's conv_water_nl so existing
+       user_nl_cam settings carry over. CAM defaults: conv_water_in_rad = 1
+       for cam5/cam6/cam7 physics (0 otherwise); conv_water_frac_limit =
+       0.01. The defaults below are the two-moment (cam5+) values, since
+       SIMA radiation implements only the two-moment path. -->
+
+  <entry id="conv_water_in_rad">
+    <type>integer</type>
+    <category>conv_water</category>
+    <group>conv_water_nl</group>
+    <standard_name>control_for_convective_water_in_radiation</standard_name>
+    <units>1</units>
+    <desc>
+      Controls the use of convective in-cloud water in the radiation
+      computation: 0 = no convective water (stratiform condensate only),
+      1 = area-weighted arithmetic average of convective and stratiform
+      in-cloud water, 2 = average in emissivity.
+    </desc>
+    <values>
+      <value>1</value>
+    </values>
+  </entry>
+
+  <entry id="conv_water_frac_limit">
+    <type>real</type>
+    <category>conv_water</category>
+    <group>conv_water_nl</group>
+    <standard_name>minimum_cloud_fraction_for_convective_water_in_radiation</standard_name>
+    <units>fraction</units>
+    <desc>
+      Minimum cloud fraction below which a (convective or stratiform)
+      cloud contribution is treated as zero when blending convective
+      in-cloud water for radiation.
+    </desc>
+    <values>
+      <value>0.01D0</value>
+    </values>
+  </entry>
+
+</entry_id_pg>
