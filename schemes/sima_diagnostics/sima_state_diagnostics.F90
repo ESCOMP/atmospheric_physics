@@ -227,11 +227,11 @@ CONTAINS
       ! Capture all other constituent fields
       do const_idx = 1, size(const_props)
          if (.not. const_found(const_idx)) then
-            call const_props(const_idx)%standard_name(standard_name, errflg, errmsg)
+            ! Must match the name registered in sima_state_diagnostics_init.
+            call const_props(const_idx)%diagnostic_name(diagnostic_name, errflg, errmsg)
             if (errflg /= 0) then
                return
             end if
-            diagnostic_name = standard_name
             call history_out_field(trim(diagnostic_name), const_array(:,:,const_idx))
          end if
       end do
