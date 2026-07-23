@@ -75,7 +75,7 @@ contains
     real(kind_phys) :: tot_icwmr                                     ! Large-scale water for this grid-box.
     real(kind_phys) :: ls_frac                                       ! Large-scale cloud frac for this grid-box.
     real(kind_phys) :: tot0_frac, cu0_frac, dp0_frac, sh0_frac
-    real(kind_phys) :: kabs, kabsi, kabsl, alpha, dp0, sh0, ic_limit
+    real(kind_phys) :: kabs, kabsi, alpha, dp0, sh0
     real(kind_phys) :: wrk1
 
     real(kind_phys), parameter   :: kabsl = 0.090361_kind_phys

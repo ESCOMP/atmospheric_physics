@@ -93,7 +93,7 @@
   intent = in
 [ rei ]
   standard_name = effective_radius_of_stratiform_cloud_ice_particle
-  units = micron
+  units = um
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
