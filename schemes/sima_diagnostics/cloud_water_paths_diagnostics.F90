@@ -7,8 +7,6 @@
 !   CAM does not output the in-cloud snow/graupel water paths (icswp,
 !   icgrauwp), so they are not output here either.
 module cloud_water_paths_diagnostics
-   use ccpp_kinds, only: kind_phys
-
    implicit none
    private
 
@@ -56,6 +54,7 @@ contains
       cldfsnow, cldfgrau, &
       errmsg, errflg)
 
+      use ccpp_kinds, only: kind_phys
       use cam_history, only: history_out_field
 
       ! Input parameters

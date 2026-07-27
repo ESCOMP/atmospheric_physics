@@ -2,8 +2,6 @@
 ! (in-cloud and grid-mean convective/total cloud water and ice, and the
 ! fractional occurrence of cloud with condensate).
 module convective_cloud_water_diagnostics
-   use ccpp_kinds, only: kind_phys
-
    implicit none
    private
 
@@ -47,6 +45,7 @@ contains
       fresh, fredp, frecu, fretot, &
       errmsg, errflg)
 
+      use ccpp_kinds, only: kind_phys
       use cam_history, only: history_out_field
 
       ! Input parameters
