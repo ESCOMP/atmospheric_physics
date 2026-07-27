@@ -134,13 +134,13 @@ contains
         ! ------------------------------
         cldfsnow(i, k) = cld(i, k)
         ! If cloud and only ice (no convective cloud or ice), then set to 0.
-        if ((cldfsnow(i, k) .gt. 1.e-4_kind_phys) .and. &
-            (concld(i, k) .lt. 1.e-4_kind_phys) .and. &
-            (ls_liq(i, k) .lt. 1.e-10_kind_phys)) then
+        if ((cldfsnow(i, k) > 1.e-4_kind_phys) .and. &
+            (concld(i, k) < 1.e-4_kind_phys) .and. &
+            (ls_liq(i, k) < 1.e-10_kind_phys)) then
           cldfsnow(i, k) = 0._kind_phys
         end if
         ! If no cloud and snow, then set to 0.25
-        if ((cldfsnow(i, k) .le. 1.e-4_kind_phys) .and. (qsout(i, k) .gt. 1.e-6_kind_phys)) then
+        if ((cldfsnow(i, k) <= 1.e-4_kind_phys) .and. (qsout(i, k) > 1.e-6_kind_phys)) then
           cldfsnow(i, k) = 0.25_kind_phys
         end if
         ! Calculate in-cloud snow water path
@@ -151,13 +151,13 @@ contains
         ! ---------------------------------
         cldfgrau(i, k) = cld(i, k)
         ! If cloud and only ice (no convective cloud or ice), then set to 0.
-        if ((cldfgrau(i, k) .gt. 1.e-4_kind_phys) .and. &
-            (concld(i, k) .lt. 1.e-4_kind_phys) .and. &
-            (ls_liq(i, k) .lt. 1.e-10_kind_phys)) then
+        if ((cldfgrau(i, k) > 1.e-4_kind_phys) .and. &
+            (concld(i, k) < 1.e-4_kind_phys) .and. &
+            (ls_liq(i, k) < 1.e-10_kind_phys)) then
           cldfgrau(i, k) = 0._kind_phys
         end if
         ! If no cloud and graupel, then set to 0.25
-        if ((cldfgrau(i, k) .le. 1.e-4_kind_phys) .and. (qgout(i, k) .gt. 1.e-9_kind_phys)) then
+        if ((cldfgrau(i, k) <= 1.e-4_kind_phys) .and. (qgout(i, k) > 1.e-9_kind_phys)) then
           cldfgrau(i, k) = 0.25_kind_phys
         end if
 
