@@ -252,6 +252,7 @@ contains
     ! All configured components are added to the constituent properties.
     use ccpp_kinds,                only: kind_phys
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t
+    use ccpp_constituent_prop_mod, only: to_lower
     use musica_ccpp_species,       only: musica_species_t, MUSICA_INT_UNASSIGNED
     use musica_util,               only: error_t
 
@@ -315,11 +316,11 @@ contains
       ASSERT(errcode == 0)
       call tuvx_constituent_props(i_species)%is_advected(is_advected, errcode, errmsg)
       ASSERT(errcode == 0)
-      tmp_bool = (trim(species_name) == 'cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water' .and. &
+      tmp_bool = (to_lower(trim(species_name)) == 'cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water' .and. &
                   molar_mass == 0.018_kind_phys .and. is_advected) .or. &
-                 (trim(species_name) == 'air' .and. molar_mass == 0.0289644_kind_phys .and. .not. is_advected) .or. &
-                 (trim(species_name) == 'O2' .and. molar_mass == 0.0319988_kind_phys .and. .not. is_advected) .or. &
-                 (trim(species_name) == 'O3' .and. molar_mass == 0.0479982_kind_phys .and. .not. is_advected)
+                 (to_lower(trim(species_name)) == 'air' .and. molar_mass == 0.0289644_kind_phys .and. .not. is_advected) .or. &
+                 (to_lower(trim(species_name)) == 'o2' .and. molar_mass == 0.0319988_kind_phys .and. .not. is_advected) .or. &
+                 (to_lower(trim(species_name)) == 'o3' .and. molar_mass == 0.0479982_kind_phys .and. .not. is_advected)
       ASSERT(tmp_bool)
     end do
 
