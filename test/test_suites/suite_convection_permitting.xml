@@ -22,7 +22,7 @@
 
     <scheme>mmm_physics_compat</scheme>
 
-    <!-- Begin section RRTMGP -->
+    <!-- Begin section RRTMGP radiation scheme -->
     <scheme>rrtmgp_pre</scheme>
     <scheme>rrtmgp_cloud_optics_setup</scheme>
     <scheme>tropopause_find</scheme>
@@ -70,7 +70,7 @@
     <!-- Convert results to air potential temperature tendency -->
     <scheme>lw_heating_rate_to_air_potential_temperature_tendency</scheme>
     <scheme>sw_heating_rate_to_air_potential_temperature_tendency</scheme>
-    <!-- End section RRTMGP -->
+    <!-- End section RRTMGP radiation scheme -->
 
     <!-- MYNN surface layer scheme -->
     <scheme>sf_mynn_compat_pre</scheme>
