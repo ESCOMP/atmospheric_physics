@@ -13,7 +13,7 @@ contains
 subroutine clubb_stub_register(do_clubb_sgs, errmsg, errcode)
     ! Dummy variables
     logical, intent(out)            :: do_clubb_sgs
-    character(len=512), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer, intent(out)            :: errcode
 
     do_clubb_sgs = .true.

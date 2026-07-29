@@ -1,8 +1,5 @@
 module micro_pumas_ccpp_dimensions_pre
 
-  use pumas_kinds,       only: pumas_r8=>kind_r8
-  use ccpp_kinds,        only: kind_phys
-
   implicit none
   private
 
@@ -31,7 +28,7 @@ contains
 
     !CCPP error handling:
     character(len=*), intent(out) :: errmsg
-    integer,            intent(out) :: errcode
+    integer,          intent(out) :: errcode
 
     !Initialize error message and error code:
     errmsg  = ''
@@ -46,9 +43,8 @@ contains
 
   !> \section arg_table_micro_pumas_ccpp_dimensions_pre_run Argument Table
   !! \htmlinclude micro_pumas_ccpp_dimensions_pre_run.html
-  subroutine micro_pumas_ccpp_dimensions_pre_run(ncol, nlev, nlevp1,                &
+  subroutine micro_pumas_ccpp_dimensions_pre_run(ncol,                &
                              trop_cloud_top_lev,                                     &
-                             micro_ncol, micro_nlev, micro_nlevp1, micro_dust_nbins,&
                              airT_in, pumas_airT, airq_in, pumas_airq,              &
                              cldliq_in, pumas_cldliq,                               &
                              cldice_in, pumas_cldice,                               &
@@ -82,18 +78,13 @@ contains
                              frzdep_in, pumas_frzdep,                               &
                              errmsg, errcode)
 
+    use pumas_kinds,       only: pumas_r8=>kind_r8
+    use ccpp_kinds,        only: kind_phys
+
     !Host model dimensions/parameters:
     integer,         intent(in) :: ncol
-    integer,         intent(in) :: nlev
-    integer,         intent(in) :: nlevp1
     integer,         intent(in) :: trop_cloud_top_lev  !Index of the top model level for which
                                                        !cloud physics is applied (1 to nlev)
-
-    !PUMAS dimensions/parameters:
-    integer,         intent(in) :: micro_ncol          !Number of horizontal microphysics columns (count)
-    integer,         intent(in) :: micro_nlev          !Number of microphysics vertical layers (count)
-    integer,         intent(in) :: micro_nlevp1        !Number of microphysics vertical interfaces (count)
-    integer,         intent(in) :: micro_dust_nbins    !Number of dust bins
 
     ! Air temperature (K)
     real(kind_phys), intent(in)  :: airT_in(:, :)

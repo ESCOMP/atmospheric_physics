@@ -5,14 +5,11 @@
 
 module pumas_pre_main
 
-   use ccpp_kinds,        only: kind_phys
-
    implicit none
 
    private
 
    public :: pumas_pre_main_init
-   public :: pumas_pre_main_timestep_init
 
    contains
 
@@ -20,6 +17,8 @@ module pumas_pre_main
   !! \htmlinclude pumas_pre_main_init.html
    subroutine pumas_pre_main_init(do_clubb_sgs, remove_supersat, spat_vary_accre_enhan_in, errmsg, errcode)
 
+
+     use ccpp_kinds,        only: kind_phys
 
      logical,            intent(in)  :: do_clubb_sgs
      real(kind_phys), dimension (:,:) , intent(out) :: spat_vary_accre_enhan_in
@@ -42,17 +41,5 @@ module pumas_pre_main
 
    end subroutine pumas_pre_main_init
 
-  !> \section arg_table_pumas_pre_main_timestep_init Argument Table
-  !! \htmlinclude pumas_pre_main_timestep_init.html
-   subroutine pumas_pre_main_timestep_init( errmsg, errcode)
-
-
-     character(len=*),   intent(out) :: errmsg
-     integer,            intent(out) :: errcode
-
-     errmsg = ' '
-     errcode = 0
-
-   end subroutine pumas_pre_main_timestep_init
-
 end module pumas_pre_main
+

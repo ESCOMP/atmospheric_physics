@@ -87,7 +87,7 @@
     <desc>
       Switch to turn on heterogeneous freezing by classical nucleation theory.
       Currently a stub in CAM-SIMA: the flag is propagated to downstream schemes
-      (nucleate_ice_ccpp, eventually PUMAS) but no hetfrz computation is performed.
+      (nucleate_ice_ccpp, PUMAS) but no hetfrz computation is performed.
       Setting this to TRUE is supported for snapshot-testing flows where the flag
       must match CAM; a warning is emitted at init time.
       Default: FALSE; TRUE for CAM6 and CAM7.

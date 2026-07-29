@@ -2,7 +2,7 @@
 !
 ! This scheme exists to read the use_hetfrz_classnuc namelist flag and expose it
 ! via its CCPP standard name so downstream schemes (e.g. nucleate_ice_ccpp,
-! eventually PUMAS) can see the flag. It performs no heterogeneous-freezing
+! PUMAS) can see the flag. It performs no heterogeneous-freezing
 ! computation -- the real hetfrz_classnuc_ccpp is not yet ported to CAM-SIMA.
 !
 ! Safe to use with use_hetfrz_classnuc=.true. for snapshot-testing flows where

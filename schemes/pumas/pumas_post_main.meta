@@ -79,7 +79,7 @@
   intent = in
   advected = true
 [numice]
-  standard_name = mass_number_concentration_of_ice_wrt_moist_air_and_condensed_water
+  standard_name = mass_number_concentration_of_cloud_ice_water_crystals_in_moist_air_and_condensed_water
   long_name = mass number concentration of cloud ice wrt moist air and condensed water
   units = kg-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

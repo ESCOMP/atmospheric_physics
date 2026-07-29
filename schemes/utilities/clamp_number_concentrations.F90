@@ -33,7 +33,7 @@ module clamp_number_concentrations
   character(len=*), parameter :: std_names(num_species) = &
     [character(len=128) :: 'mass_number_concentration_of_cloud_liquid_water_droplets_in_moist_air_and_condensed_water', &
                            'mass_number_concentration_of_rain_drops_in_moist_air_and_condensed_water', &
-                           'mass_number_concentration_of_ice_wrt_moist_air_and_condensed_water', &
+                           'mass_number_concentration_of_cloud_ice_water_crystals_in_moist_air_and_condensed_water', &
                            'mass_number_concentration_of_snow_crystals_in_moist_air_and_condensed_water']
 
 contains

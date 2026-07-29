@@ -347,7 +347,7 @@
   <type>char*256</type>
   <desc>emulated stochastic collection filename for quantiles</desc>
   <values>
-    <value>"${SRCROOT}2/src/atmos_phys/schemes/pumas/pumas/KBARF_tau_kernel.dat"</value>
+    <value>"${SRCROOT}/src/atmos_phys/schemes/pumas/pumas/KBARF_tau_kernel.dat"</value>
   </values>
 </entry>
 
@@ -543,7 +543,6 @@
   <desc>droplet concentration constant for MG microphysics</desc>
   <values>
     <value>50000000.</value>
-    <value micro_mg_version="2">8</value>
   </values>
 </entry>
 
