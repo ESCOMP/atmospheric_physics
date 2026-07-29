@@ -253,7 +253,7 @@ contains
       end if
 
       ! Update the mixing ratios with the results
-      call extract_mixing_ratios_from_state( state, offset, mixing_ratios)
+      call extract_mixing_ratios_from_state( state, offset, dry_air_density, mixing_ratios)
 
     end do
 

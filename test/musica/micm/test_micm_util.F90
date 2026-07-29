@@ -64,11 +64,21 @@ contains
 
     ccpp_constituents(:,:,:) = constituents(:,:,:)
     
-    ! Set the expected values for the constituents in mol m-3
-    micm_constituents(:,:,1) = ccpp_constituents(:,:,1) * dry_air_mass_density(:,:) / ( MOLAR_MASS_DRY_AIR * micm_molar_mass_array(1) )
-    micm_constituents(:,:,2) = ccpp_constituents(:,:,2) * dry_air_mass_density(:,:) / ( MOLAR_MASS_DRY_AIR * micm_molar_mass_array(2) )
-    micm_constituents(:,:,3) = ccpp_constituents(:,:,3) * dry_air_mass_density(:,:) / ( MOLAR_MASS_DRY_AIR * micm_molar_mass_array(3) )
-    micm_constituents(:,:,4) = ccpp_constituents(:,:,4) * dry_air_mass_density(:,:) / ( MOLAR_MASS_DRY_AIR * micm_molar_mass_array(4) )
+    ! Set the expected values for the constituents in mol m-3:
+    ! MMR (kg kg-1) * dry air mass density (kg m-3) / species molar mass (kg mol-1)
+    micm_constituents(:,:,1) = ccpp_constituents(:,:,1) * dry_air_mass_density(:,:) / micm_molar_mass_array(1)
+    micm_constituents(:,:,2) = ccpp_constituents(:,:,2) * dry_air_mass_density(:,:) / micm_molar_mass_array(2)
+    micm_constituents(:,:,3) = ccpp_constituents(:,:,3) * dry_air_mass_density(:,:) / micm_molar_mass_array(3)
+    micm_constituents(:,:,4) = ccpp_constituents(:,:,4) * dry_air_mass_density(:,:) / micm_molar_mass_array(4)
+
+    ! Hand-computed known-answer checks pin the conversion formula itself: the
+    ! stray division by the dry air molar mass (a ~34.5x error in every
+    ! second-order reaction rate) is invisible to the round-trip and
+    ! conservation checks below because the extraction path inverts it exactly.
+    ! cell (1,1) species 1: 0.1 kg/kg * 3.5 kg/m3 / 200 kg/mol = 1.75e-3 mol/m3
+    ! cell (2,2) species 4: 0.34 kg/kg * 6.5 kg/m3 / 250 kg/mol = 8.84e-3 mol/m3
+    ASSERT_NEAR(micm_constituents(1,1,1), 1.75e-3_kind_phys, 1.0e-12_kind_phys)
+    ASSERT_NEAR(micm_constituents(2,2,4), 8.84e-3_kind_phys, 1.0e-12_kind_phys)
 
     call update_micm_state(state, 0, temperature, pressure, dry_air_mass_density, constituents, rate_parameters)
 
@@ -88,7 +98,7 @@ contains
     end do
 
     constituents(:,:,:) = -HUGE(1.0_kind_phys)
-    call extract_mixing_ratios_from_state(state, 0, constituents)
+    call extract_mixing_ratios_from_state(state, 0, dry_air_mass_density, constituents)
 
     do i_column = 1, NUM_COLUMNS
       do i_layer = 1, NUM_LAYERS
