@@ -18,7 +18,8 @@ contains
   subroutine calculate_gas_species_interfaces_and_densities( &
       molar_mass, dry_air_density, constituents, height_deltas, &
       is_O3, interfaces, densities)
-    use ccpp_kinds, only: kind_phys
+    use ccpp_kinds,       only: kind_phys
+    use musica_ccpp_util, only: AVOGADRO
 
     real(kind_phys), intent(in)    :: molar_mass
     real(kind_phys), intent(in)    :: dry_air_density(:)
@@ -29,15 +30,16 @@ contains
     real(kind_phys), intent(inout) :: densities(size(constituents) + 1)
 
     ! local variables
-    real(kind_phys) :: constituent_mol_per_cm_3(size(constituents)) ! mol cm-3
+    real(kind_phys) :: constituent_molec_per_cm_3(size(constituents)) ! molecule cm-3
     integer         :: num_vertical_levels
 
-    constituent_mol_per_cm_3(:) = constituents(:) * dry_air_density(:) / molar_mass / m_3_to_cm_3
+    constituent_molec_per_cm_3(:) = constituents(:) * dry_air_density(:) / molar_mass &
+                                    * AVOGADRO / m_3_to_cm_3
 
     num_vertical_levels = size(constituents)
-    interfaces(1) = constituent_mol_per_cm_3(num_vertical_levels)
-    interfaces(2:num_vertical_levels+1) = constituent_mol_per_cm_3(num_vertical_levels:1:-1)
-    interfaces(num_vertical_levels+2) = constituent_mol_per_cm_3(1)
+    interfaces(1) = constituent_molec_per_cm_3(num_vertical_levels)
+    interfaces(2:num_vertical_levels+1) = constituent_molec_per_cm_3(num_vertical_levels:1:-1)
+    interfaces(num_vertical_levels+2) = constituent_molec_per_cm_3(1)
 
     if ( is_O3 ) then
       densities(:) = height_deltas(:) * km_to_cm           &
@@ -65,6 +67,7 @@ contains
     use musica_ccpp_tuvx_load_species, only: index_dry_air, index_O2, index_O3, &
                                              SCALE_HEIGHT_DRY_AIR, SCALE_HEIGHT_O2, SCALE_HEIGHT_O3, &
                                              MOLAR_MASS_DRY_AIR, MOLAR_MASS_O2, MOLAR_MASS_O3
+    use musica_ccpp_util,              only: AVOGADRO
     use musica_ccpp_species,           only: tuvx_species_set, MUSICA_INT_UNASSIGNED
 
     integer,         parameter          :: NUM_COLUMNS = 2
@@ -183,6 +186,16 @@ contains
       do i = 1, size(dry_air_interfaces)
         ASSERT(dry_air_interfaces(i) == expected_dry_air_interfaces(i_col, i))
       end do
+      ! Hand-computed known-answer checks pin the conversion to number density
+      ! (molecule cm-3): omitting Avogadro's number (a ~6.0e23x underestimate
+      ! of all gas optical depths) is invisible to the mirrored-formula checks
+      ! above. Column 1 dry air, MW 0.0289644 kg mol-1:
+      !   layer 2: 0.5 kg/kg * 5.5 kg/m3 -> 5.71767e19 molecule cm-3 (interface 1)
+      !   layer 1: 0.4 kg/kg * 3.5 kg/m3 -> 2.91081e19 molecule cm-3 (interface 3)
+      if (i_col == 1) then
+        ASSERT_NEAR(dry_air_interfaces(1), 5.71767e19_kind_phys, 1.0e15_kind_phys)
+        ASSERT_NEAR(dry_air_interfaces(3), 2.91081e19_kind_phys, 1.0e15_kind_phys)
+      end if
       call dry_air_profile%get_layer_densities( dry_air_densities, error )
       ASSERT(error%is_success())
       do i = 1, size(dry_air_densities) - 1
@@ -190,11 +203,11 @@ contains
       end do
       ! the calculate_exo_layer_density call uses the scale height and the density of the uppermost
       ! layer to estimate the density above the column top, which affects the uppermost top value
-      ASSERT_NEAR(dry_air_densities(size(dry_air_densities)), expected_dry_air_densities(i_col, size(dry_air_densities)) * SCALE_HEIGHT_DRY_AIR * m_to_cm, ABS_ERROR)
+      ASSERT_NEAR(dry_air_densities(size(dry_air_densities)), expected_dry_air_densities(i_col, size(dry_air_densities)) * SCALE_HEIGHT_DRY_AIR * m_to_cm, ABS_ERROR * AVOGADRO)
       dry_air_exo_layer_density = dry_air_profile%get_exo_layer_density( error )
       ASSERT(error%is_success())
       expected_dry_air_exo_layer_density = expected_dry_air_densities(i_col, size(dry_air_densities)) * SCALE_HEIGHT_DRY_AIR * m_to_cm
-      ASSERT_NEAR(dry_air_exo_layer_density, expected_dry_air_exo_layer_density, ABS_ERROR)
+      ASSERT_NEAR(dry_air_exo_layer_density, expected_dry_air_exo_layer_density, ABS_ERROR * AVOGADRO)
 
       ! O2
       call O2_profile%get_edge_values( O2_interfaces, error )
@@ -207,11 +220,11 @@ contains
       do i = 1, size(O2_densities) - 1
         ASSERT(O2_densities(i) == expected_O2_densities(i_col, i))
       end do
-      ASSERT_NEAR(O2_densities(size(O2_densities)), expected_O2_densities(i_col, size(O2_densities)) * SCALE_HEIGHT_O2 * m_to_cm, ABS_ERROR)
+      ASSERT_NEAR(O2_densities(size(O2_densities)), expected_O2_densities(i_col, size(O2_densities)) * SCALE_HEIGHT_O2 * m_to_cm, ABS_ERROR * AVOGADRO)
       O2_exo_layer_density = O2_profile%get_exo_layer_density( error )
       ASSERT(error%is_success())
       expected_O2_exo_layer_density = expected_O2_densities(i_col, size(O2_densities)) * SCALE_HEIGHT_O2 * m_to_cm
-      ASSERT_NEAR(O2_exo_layer_density, expected_O2_exo_layer_density, ABS_ERROR)
+      ASSERT_NEAR(O2_exo_layer_density, expected_O2_exo_layer_density, ABS_ERROR * AVOGADRO)
 
       ! O3
       call O3_profile%get_edge_values( O3_interfaces, error )
@@ -224,11 +237,11 @@ contains
       do i = 1, size(O3_densities) - 1
         ASSERT(O3_densities(i) == expected_O3_densities(i_col, i))
       end do
-      ASSERT_NEAR(O3_densities(size(O3_densities)), expected_O3_densities(i_col, size(O3_densities)) * SCALE_HEIGHT_O3 * m_to_cm, ABS_ERROR)
+      ASSERT_NEAR(O3_densities(size(O3_densities)), expected_O3_densities(i_col, size(O3_densities)) * SCALE_HEIGHT_O3 * m_to_cm, ABS_ERROR * AVOGADRO)
       O3_exo_layer_density = O3_profile%get_exo_layer_density( error )
       ASSERT(error%is_success())
       expected_O3_exo_layer_density = expected_O3_densities(i_col, size(O3_densities)) * SCALE_HEIGHT_O3 * m_to_cm
-      ASSERT_NEAR(O3_exo_layer_density, expected_O3_exo_layer_density, ABS_ERROR)
+      ASSERT_NEAR(O3_exo_layer_density, expected_O3_exo_layer_density, ABS_ERROR * AVOGADRO)
     end do
 
     ! The gas species index starts at 2 because index 1 is reserved for cloud liquid

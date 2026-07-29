@@ -11,6 +11,7 @@ module musica_ccpp_util
 
   real(kind_phys), parameter, public :: PI = 3.14159265358979323846_kind_phys
   real(kind_phys), parameter, public :: DEGREE_TO_RADIAN = PI / 180.0_kind_phys
+  real(kind_phys), parameter, public :: AVOGADRO = 6.02214179e23_kind_phys ! molecules mol-1
   real(kind_phys), public, protected :: MOLAR_MASS_DRY_AIR = -HUGE(1.0_kind_phys) ! kg mol-1
 
   !> Conversion factor for wavelength interfaces from meters (CAM-SIMA) to nanometers (TUV-x)
