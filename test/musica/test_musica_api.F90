@@ -3,6 +3,8 @@
 program run_test_musica_ccpp
 
   use musica_ccpp
+  use musica_ccpp_chemistry,  only: musica_ccpp_chemistry_run
+  use musica_ccpp_photolysis, only: musica_ccpp_photolysis_run
   use musica_test_data, only: get_wavelength_edges, get_extrarterrestrial_fluxes
   use ccpp_kinds,       only: kind_phys
 
@@ -115,6 +117,8 @@ contains
     type(ccpp_constituent_prop_ptr_t),   allocatable                 :: constituent_props_ptr(:)
     type(ccpp_constituent_properties_t), allocatable, target         :: constituent_props(:)
     type(ccpp_constituent_properties_t), pointer                     :: const_prop
+    integer                                                          :: number_of_micm_rate_parameters
+    real(kind_phys), allocatable                                     :: rate_parameters(:,:,:) ! various units
     real(kind_phys)                                                  :: molar_mass, base_conc, default_mixing_ratio
     character(len=512)                                               :: species_name, units
     character(len=:), allocatable                                    :: micm_species_name
@@ -155,7 +159,8 @@ contains
     ! solver selection
     micm_solver_type = 'Rosenbrock'
 
-    call musica_ccpp_register(constituent_props, errmsg, errcode)
+    call musica_ccpp_register(constituent_props, number_of_micm_rate_parameters, &
+                              errmsg, errcode)
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
@@ -267,13 +272,24 @@ contains
     write(*,*) "[MUSICA INFO] Initial Concentrations"
     write(*,fmt="(4(3x,e13.6))") constituents
 
-    call musica_ccpp_run( time_step, temperature, pressure, dry_air_density, constituent_props_ptr, &
-                          constituents, geopotential_height_wrt_surface_at_midpoint,                &
-                          geopotential_height_wrt_surface_at_interface, surface_geopotential,       &
-                          surface_temperature, surface_albedo, extraterrestrial_radiation_flux,     &
-                          standard_gravitational_acceleration, cloud_area_fraction,                 &
-                          air_pressure_thickness, solar_zenith_angle, earth_sun_distance, STDOUT,   &
-                          errmsg, errcode )
+    ! The framework allocates micm_rate_parameters from the register-phase
+    ! count; the test mirrors that here
+    allocate(rate_parameters(NUM_COLUMNS, NUM_LAYERS, number_of_micm_rate_parameters))
+    call musica_ccpp_photolysis_run( temperature, dry_air_density, constituents,       &
+                          geopotential_height_wrt_surface_at_midpoint,                 &
+                          geopotential_height_wrt_surface_at_interface,                &
+                          surface_geopotential, surface_temperature, surface_albedo,   &
+                          extraterrestrial_radiation_flux,                             &
+                          standard_gravitational_acceleration, cloud_area_fraction,    &
+                          air_pressure_thickness, solar_zenith_angle,                  &
+                          earth_sun_distance, rate_parameters, errmsg, errcode )
+    if (errcode /= 0) then
+      write(*,*) trim(errmsg)
+      stop 3
+    endif
+    call musica_ccpp_chemistry_run( time_step, temperature, pressure, dry_air_density, &
+                          rate_parameters, constituents, STDOUT, errmsg, errcode )
+    deallocate(rate_parameters)
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
@@ -374,6 +390,8 @@ contains
     type(ccpp_constituent_prop_ptr_t),   allocatable               :: constituent_props_ptr(:)
     type(ccpp_constituent_properties_t), allocatable, target       :: constituent_props(:)
     type(ccpp_constituent_properties_t), pointer                   :: const_prop
+    integer                                                        :: number_of_micm_rate_parameters
+    real(kind_phys), allocatable                                   :: rate_parameters(:,:,:) ! various units
     real(kind_phys)                                                :: molar_mass, base_conc
     character(len=512)                                             :: species_name, units
     character(len=:), allocatable                                  :: micm_species_name
@@ -412,7 +430,8 @@ contains
     ! set explicitly: see note in test_chapman
     micm_solver_type = 'Rosenbrock'
 
-    call musica_ccpp_register(constituent_props, errmsg, errcode)
+    call musica_ccpp_register(constituent_props, number_of_micm_rate_parameters, &
+                              errmsg, errcode)
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
@@ -515,13 +534,24 @@ contains
     write(*,*) "[MUSICA INFO] Initial Concentrations"
     write(*,fmt="(4(3x,e13.6))") constituents
 
-    call musica_ccpp_run( time_step, temperature, pressure, dry_air_density, constituent_props_ptr, &
-                          constituents, geopotential_height_wrt_surface_at_midpoint,                &
-                          geopotential_height_wrt_surface_at_interface, surface_geopotential,       &
-                          surface_temperature, surface_albedo, extraterrestrial_radiation_flux,     &
-                          standard_gravitational_acceleration, cloud_area_fraction,                 &
-                          air_pressure_thickness, solar_zenith_angle, earth_sun_distance, STDOUT,   &
-                          errmsg, errcode )
+    ! The framework allocates micm_rate_parameters from the register-phase
+    ! count; the test mirrors that here
+    allocate(rate_parameters(NUM_COLUMNS, NUM_LAYERS, number_of_micm_rate_parameters))
+    call musica_ccpp_photolysis_run( temperature, dry_air_density, constituents,       &
+                          geopotential_height_wrt_surface_at_midpoint,                 &
+                          geopotential_height_wrt_surface_at_interface,                &
+                          surface_geopotential, surface_temperature, surface_albedo,   &
+                          extraterrestrial_radiation_flux,                             &
+                          standard_gravitational_acceleration, cloud_area_fraction,    &
+                          air_pressure_thickness, solar_zenith_angle,                  &
+                          earth_sun_distance, rate_parameters, errmsg, errcode )
+    if (errcode /= 0) then
+      write(*,*) trim(errmsg)
+      stop 3
+    endif
+    call musica_ccpp_chemistry_run( time_step, temperature, pressure, dry_air_density, &
+                          rate_parameters, constituents, STDOUT, errmsg, errcode )
+    deallocate(rate_parameters)
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
@@ -637,6 +667,9 @@ contains
     real(kind_phys)                                                :: k1, k2, k3, k4
     real(kind_phys)                                                :: dummy_array_1D(1), dummy_array_2D(1,1)
 
+    integer                       :: number_of_micm_rate_parameters
+    real(kind_phys), allocatable  :: rate_parameters(:,:,:) ! various units
+
     NUM_GRID_CELLS = number_of_columns * number_of_layers
     dummy_array_1D = -HUGE(0.0_kind_phys)
     dummy_array_2D = -HUGE(0.0_kind_phys)
@@ -646,7 +679,8 @@ contains
     filename_of_tuvx_micm_mapping_configuration = 'none'
 
     ! MUSICA registration
-    call musica_ccpp_register(constituent_props, errmsg, errcode)
+    call musica_ccpp_register(constituent_props, number_of_micm_rate_parameters, &
+                              errmsg, errcode)
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
@@ -713,10 +747,19 @@ contains
     end do
 
     ! MUSICA run for one time step
-    call musica_ccpp_run( time_step, temperature, pressure, dry_air_mass_density, constituent_props_ptr, &
-                          constituents, dummy_array_2D, dummy_array_2D, dummy_array_1D, dummy_array_1D, &
+    allocate(rate_parameters(number_of_columns, number_of_layers, number_of_micm_rate_parameters))
+    call musica_ccpp_photolysis_run( temperature, dry_air_mass_density, constituents, &
+                          dummy_array_2D, dummy_array_2D, dummy_array_1D, dummy_array_1D, &
                           dummy_array_1D, dummy_array_1D, -HUGE(0.0_kind_phys), dummy_array_2D, &
-                          dummy_array_2D, dummy_array_1D, -HUGE(0.0_kind_phys), STDOUT, errmsg, errcode )
+                          dummy_array_2D, dummy_array_1D, -HUGE(0.0_kind_phys), rate_parameters, &
+                          errmsg, errcode )
+    if (errcode /= 0) then
+      write(*,*) trim(errmsg)
+      stop 3
+    endif
+    call musica_ccpp_chemistry_run( time_step, temperature, pressure, dry_air_mass_density, &
+                          rate_parameters, constituents, STDOUT, errmsg, errcode )
+    deallocate(rate_parameters)
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3

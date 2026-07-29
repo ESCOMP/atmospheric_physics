@@ -106,6 +106,8 @@ contains
     real(kind_phys)                     :: O3_exo_layer_density
     real(kind_phys)                     :: expected_O3_exo_layer_density = SCALE_HEIGHT_O3
 
+    integer                             :: number_of_micm_rate_parameters
+
     filename_of_micm_configuration = 'musica_configurations/chapman/micm/config.json'
     filename_of_tuvx_configuration = 'musica_configurations/chapman/tuvx/config.json'
     filename_of_tuvx_micm_mapping_configuration = 'musica_configurations/chapman/tuvx_micm_mapping.json'
@@ -123,7 +125,8 @@ contains
       end do
     end do
 
-    call musica_ccpp_register(constituent_props, errmsg, errcode)
+    call musica_ccpp_register(constituent_props, number_of_micm_rate_parameters, &
+                              errmsg, errcode)
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
@@ -308,6 +311,8 @@ contains
     logical                                          :: tmp_bool, has_profile
     integer                                          :: i_elem, i_col, i, j, k
 
+    integer                             :: number_of_micm_rate_parameters
+
     filename_of_micm_configuration = 'musica_configurations/chapman/micm/config.json'
     filename_of_tuvx_configuration = 'musica_configurations/chapman/tuvx/config.json'
     filename_of_tuvx_micm_mapping_configuration = 'musica_configurations/chapman/tuvx_micm_mapping.json'
@@ -323,7 +328,8 @@ contains
       end do
     end do
 
-    call musica_ccpp_register( constituent_props, errmsg, errcode )
+    call musica_ccpp_register( constituent_props, number_of_micm_rate_parameters, &
+                               errmsg, errcode )
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3

@@ -103,11 +103,14 @@ contains
     integer                          							           :: errcode
     integer                                                  :: i
 
+    integer                                                  :: number_of_micm_rate_parameters
+
     filename_of_micm_configuration = 'musica_configurations/chapman/micm/config.json'
     filename_of_tuvx_configuration = 'musica_configurations/chapman/tuvx/config.json'
     filename_of_tuvx_micm_mapping_configuration = 'musica_configurations/chapman/tuvx_micm_mapping.json'
 
-    call musica_ccpp_register( constituent_props, errmsg, errcode )
+    call musica_ccpp_register( constituent_props, number_of_micm_rate_parameters, &
+                               errmsg, errcode )
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
