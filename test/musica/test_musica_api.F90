@@ -30,14 +30,10 @@ program run_test_musica_ccpp
     real(kind_phys) :: E_ = 0.0
   end type ArrheniusReaction
 
-  write(*,*) "[MUSICA Test] Running the Chapman test"
-  call test_chapman()
-  write(*,*) "[MUSICA Test] Ends the Chapman test"
-
-  write(*,*) "[MUSICA Test] Running the Terminator test"
-  call test_terminator()
-  write(*,*) "[MUSICA Test] Ends the Terminator test"
-
+  ! The analytical tests disable TUV-x (filename_of_tuvx_configuration =
+  ! 'none') and must run FIRST: the TUV-x species indices are module state
+  ! that is never reset, so running a TUV-x-enabled test before them would
+  ! mask a missing do_tuvx guard in the register phase
   write(*,*) "[MUSICA Test] Running the Analytical test with Rosenbrock solver"
   call test_rosenbrock()
   write(*,*) "[MUSICA Test] Ends the Analytical test with Rosenbrock solver"
@@ -45,6 +41,14 @@ program run_test_musica_ccpp
   write(*,*) "[MUSICA Test] Running the Analytical test with Backward Euler solver"
   call test_backward_euler()
   write(*,*) "[MUSICA Test] Ends the Analytical test with Backward Euler solver"
+
+  write(*,*) "[MUSICA Test] Running the Chapman test"
+  call test_chapman()
+  write(*,*) "[MUSICA Test] Ends the Chapman test"
+
+  write(*,*) "[MUSICA Test] Running the Terminator test"
+  call test_terminator()
+  write(*,*) "[MUSICA Test] Ends the Terminator test"
 
 contains
 
@@ -70,7 +74,8 @@ contains
     use ccpp_const_utils,              only: ccpp_const_get_idx
     use musica_ccpp_namelist,          only: filename_of_micm_configuration, &
                                              filename_of_tuvx_configuration, &
-                                             filename_of_tuvx_micm_mapping_configuration
+                                             filename_of_tuvx_micm_mapping_configuration, &
+                                             micm_solver_type
     use musica_ccpp_tuvx_load_species, only: index_dry_air, index_O2, index_O3
 
     implicit none
@@ -145,6 +150,10 @@ contains
     filename_of_micm_configuration = 'musica_configurations/chapman/micm/config.json'
     filename_of_tuvx_configuration = 'musica_configurations/chapman/tuvx/config.json'
     filename_of_tuvx_micm_mapping_configuration = 'musica_configurations/chapman/tuvx_micm_mapping.json'
+    ! set explicitly: the namelist variables are module state shared across the
+    ! sub-tests, so relying on the default would inherit the previous sub-test's
+    ! solver selection
+    micm_solver_type = 'Rosenbrock'
 
     call musica_ccpp_register(constituent_props, errmsg, errcode)
     if (errcode /= 0) then
@@ -324,7 +333,8 @@ contains
     use ccpp_const_utils,              only: ccpp_const_get_idx
     use musica_ccpp_namelist,          only: filename_of_micm_configuration, &
                                              filename_of_tuvx_configuration, &
-                                             filename_of_tuvx_micm_mapping_configuration
+                                             filename_of_tuvx_micm_mapping_configuration, &
+                                             micm_solver_type
     use musica_ccpp_tuvx_load_species, only: index_dry_air, index_O2, index_O3
 
     implicit none
@@ -399,6 +409,8 @@ contains
     filename_of_micm_configuration = 'musica_configurations/terminator/micm/config.json'
     filename_of_tuvx_configuration = 'musica_configurations/terminator/tuvx/config.json'
     filename_of_tuvx_micm_mapping_configuration = 'musica_configurations/terminator/tuvx_micm_mapping.json'
+    ! set explicitly: see note in test_chapman
+    micm_solver_type = 'Rosenbrock'
 
     call musica_ccpp_register(constituent_props, errmsg, errcode)
     if (errcode /= 0) then

@@ -55,8 +55,12 @@ contains
     end if
 
     call register_musica_species(micm_species, tuvx_species)
-    call check_tuvx_species_initialization(errmsg, errcode)
-    if (errcode /= 0) return
+    ! The TUV-x species indices are only assigned by tuvx_register, so they
+    ! can only be validated when TUV-x is enabled
+    if (do_tuvx) then
+      call check_tuvx_species_initialization(errmsg, errcode)
+      if (errcode /= 0) return
+    end if
 
   end subroutine musica_ccpp_register
 
@@ -179,6 +183,11 @@ contains
     call extract_subset_constituents(tuvx_indices_constituent_props, constituents, &
                                      constituents_tuvx_species, errmsg, errcode)
     if (errcode /= 0) return
+
+    ! Zero all rate parameters: TUV-x only writes the mapped photolysis slots,
+    ! so unmapped slots (and every slot when TUV-x is disabled) would otherwise
+    ! be uninitialized memory. Zero means the corresponding reaction is off.
+    rate_parameters(:,:,:) = 0.0_kind_phys
 
     ! Calculate photolysis rate constants using TUV-x
     if (do_tuvx) then
