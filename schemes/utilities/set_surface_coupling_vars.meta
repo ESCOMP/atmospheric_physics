@@ -1,7 +1,6 @@
 [ccpp-table-properties]
   name = set_surface_coupling_vars
   type = scheme
-  dependencies = ../rrtmgp/utils/radiation_utils.F90
 
 [ccpp-arg-table]
   name  = set_surface_coupling_vars_run

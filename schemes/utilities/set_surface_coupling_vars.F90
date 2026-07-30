@@ -1,7 +1,7 @@
 !-----------------------------------------------------------------------
 ! Module to handle data that is exchanged between the atmosphere
 ! model and the surface models (land, sea-ice, ocean, etc.).
-
+!
 ! Please note that currently this is a SIMA-specific module,
 ! but could be made more host model-independent in the future.
 !-----------------------------------------------------------------------
@@ -38,12 +38,6 @@ subroutine set_surface_coupling_vars_run(ncol, pver, ncnst, gravit, rair, phis, 
    ! Use statements
    use ccpp_kinds,        only: kind_phys
    use ccpp_scheme_utils, only: ccpp_constituent_index
-
-   ! Use statement from RRTMGP,
-   ! which should hopefully be replaced once
-   ! molar masses for these species are included
-   ! in the constituents properties themselves:
-   use radiation_utils,   only: get_molar_mass_ratio
 
    ! Input arguments
    integer, intent(in) :: ncol
@@ -99,8 +93,11 @@ subroutine set_surface_coupling_vars_run(ncol, pver, ncnst, gravit, rair, phis, 
    integer :: i              ! column index
    integer :: m              ! constituent index
 
-   integer         :: co2_idx                         ! CO2 constituent index
-   real(kind_phys) :: dry_air_to_co2_molar_mass_ratio ! Ratio of dry air molar mass to CO2 molar mass
+   integer         :: co2_idx   ! CO2 constituent index
+
+   ! Ratio of dry air molar mass to CO2 molar mass.
+   ! Duplicated from radiation_utils rather than used from there to avoid a build dependency.
+   real(kind_phys), parameter :: dry_air_to_co2_molar_mass_ratio = 0.658114_kind_phys
 
    !-----------------------------------------------------------------------
 
@@ -139,10 +136,6 @@ subroutine set_surface_coupling_vars_run(ncol, pver, ncnst, gravit, rair, phis, 
    if (errcode /= 0) return
 
    if (co2_idx > 0) then
-     ! Get ratio of molar mass of dry air / CO2 molar mass
-     call get_molar_mass_ratio('CO2', dry_air_to_co2_molar_mass_ratio, errmsg, errcode)
-     if (errcode /= 0) return
-
      ! Convert bottom-layer dry mass mixing ratio to ppmv expected by the coupler:
      if (do_diagnostic_co2) then
        do i = 1, ncol
