@@ -1,7 +1,7 @@
 !-----------------------------------------------------------------------
 ! Module to handle data that is exchanged between the atmosphere
 ! model and the surface models (land, sea-ice, ocean, etc.).
-
+!
 ! Please note that currently this is a SIMA-specific module,
 ! but could be made more host model-independent in the future.
 !-----------------------------------------------------------------------
@@ -24,17 +24,20 @@ subroutine set_surface_coupling_vars_run(ncol, pver, ncnst, gravit, rair, phis, 
                                          surf_pres, air_temp, inv_ps_exner, zm,     &
                                          rho, uwnd, vwnd, air_pres, cnst_array,     &
                                          prec_dp, snow_dp, prec_sh, snow_sh,        &
-                                         prec_str, snow_str, air_temp_bot,          &
+                                         prec_str, snow_str, do_diagnostic_co2,     &
+                                         air_temp_bot,                              &
                                          pot_temp_bot, zm_bot, rho_bot,             &
                                          uwnd_bot, vwnd_bot, air_pres_bot,          &
                                          topo_height, sea_lev_pres, cnst_bot,       &
                                          conv_prec, conv_snow, strat_prec,          &
-                                         strat_snow, errmsg, errcode)
+                                         strat_snow, co2diag, co2prog,              &
+                                         errmsg, errcode)
 
    ! Set surface variables needed for atmosphere-surface coupling.
 
    ! Use statements
-   use ccpp_kinds,       only: kind_phys
+   use ccpp_kinds,        only: kind_phys
+   use ccpp_scheme_utils, only: ccpp_constituent_index
 
    ! Input arguments
    integer, intent(in) :: ncol
@@ -61,6 +64,8 @@ subroutine set_surface_coupling_vars_run(ncol, pver, ncnst, gravit, rair, phis, 
    real(kind_phys), intent(in) :: prec_str(:)       ! LWE stratiform precipitation (all phases) [m s-1]
    real(kind_phys), intent(in) :: snow_str(:)       ! LWE stratiform frozen precipitation (e.g. snow) [m s-1]
 
+   logical, intent(in) :: do_diagnostic_co2         ! Export CO2 in the diagnostic (T) or prognostic (F) coupler field [flag]
+
    ! Output arguments
    real(kind_phys), intent(out) :: air_temp_bot(:) ! Air temperature at bottom of atmosphere for coupling [K]
    real(kind_phys), intent(out) :: pot_temp_bot(:) ! Potential air temprature at bottom of atmosphere for coupling [K]
@@ -78,13 +83,21 @@ subroutine set_surface_coupling_vars_run(ncol, pver, ncnst, gravit, rair, phis, 
    real(kind_phys), intent(out) :: strat_prec(:)   ! LWE Stratiform (large-scale) precipitation (all phases) [m s-1]
    real(kind_phys), intent(out) :: strat_snow(:)   ! LWE Frozen stratiform (large-scale)precipitation (e.g. snow) [m s-1]
 
+   real(kind_phys), intent(out) :: co2diag(:)      ! Diagnostic CO2 volume mixing ratio for coupler [ppmv]
+   real(kind_phys), intent(out) :: co2prog(:)      ! Prognostic CO2 volume mixing ratio for coupler [ppmv]
+
    character(len=512), intent(out) :: errmsg       ! CCPP error message
    integer,            intent(out) :: errcode      ! CCPP error code
 
    ! Local variables
-
    integer :: i              ! column index
    integer :: m              ! constituent index
+
+   integer         :: co2_idx   ! CO2 constituent index
+
+   ! Ratio of dry air molar mass to CO2 molar mass.
+   ! Duplicated from radiation_utils rather than used from there to avoid a build dependency.
+   real(kind_phys), parameter :: dry_air_to_co2_molar_mass_ratio = 0.658114_kind_phys
 
    !-----------------------------------------------------------------------
 
@@ -113,6 +126,27 @@ subroutine set_surface_coupling_vars_run(ncol, pver, ncnst, gravit, rair, phis, 
        cnst_bot(i,m) = cnst_array(i,pver,m)
      end do
    end do
+
+   ! Export the CO2 volume mixing ratio for surface models.
+   ! do_diagnostic_co2 selects whether it is sent in the diagnostic
+   ! or prognostic coupler field (for surface model).
+   co2diag(:) = 0._kind_phys
+   co2prog(:) = 0._kind_phys
+   call ccpp_constituent_index('CO2', co2_idx, errcode, errmsg)
+   if (errcode /= 0) return
+
+   if (co2_idx > 0) then
+     ! Convert bottom-layer dry mass mixing ratio to ppmv expected by the coupler:
+     if (do_diagnostic_co2) then
+       do i = 1, ncol
+         co2diag(i) = cnst_array(i,pver,co2_idx) * dry_air_to_co2_molar_mass_ratio * 1.0e+6_kind_phys
+       end do
+     else
+       do i = 1, ncol
+         co2prog(i) = cnst_array(i,pver,co2_idx) * dry_air_to_co2_molar_mass_ratio * 1.0e+6_kind_phys
+       end do
+     end if
+   end if
 
    !
    ! Precipation and snow rates from shallow convection, deep convection and stratiform processes.
