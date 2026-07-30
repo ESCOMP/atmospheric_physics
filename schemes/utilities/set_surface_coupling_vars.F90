@@ -133,8 +133,8 @@ subroutine set_surface_coupling_vars_run(ncol, pver, ncnst, gravit, rair, phis, 
    ! Export the CO2 volume mixing ratio for surface models.
    ! do_diagnostic_co2 selects whether it is sent in the diagnostic
    ! or prognostic coupler field (for surface model).
-   co2diag(:) = -1._kind_phys
-   co2prog(:) = -1._kind_phys
+   co2diag(:) = 0._kind_phys
+   co2prog(:) = 0._kind_phys
    call ccpp_constituent_index('CO2', co2_idx, errcode, errmsg)
    if (errcode /= 0) return
 
