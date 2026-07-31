@@ -1,0 +1,107 @@
+[ccpp-table-properties]
+  name = convective_cloud_water_diagnostics
+  type = scheme
+
+[ccpp-arg-table]
+  name  = convective_cloud_water_diagnostics_init
+  type  = scheme
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = convective_cloud_water_diagnostics_run
+  type  = scheme
+[ conv_liq ]
+  standard_name = in_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_all_convection
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ conv_ice ]
+  standard_name = in_cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_all_convection
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ tot_liq ]
+  standard_name = total_in_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ tot_ice ]
+  standard_name = total_in_cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ totg_liq_sh ]
+  standard_name = gridbox_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_shallow_convection
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ totg_liq_dp ]
+  standard_name = gridbox_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_deep_convection
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ totg_ice_sh ]
+  standard_name = gridbox_cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_shallow_convection
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ totg_ice_dp ]
+  standard_name = gridbox_cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_deep_convection
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ fresh ]
+  standard_name = frequency_of_occurrence_of_shallow_convection_with_condensate
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ fredp ]
+  standard_name = frequency_of_occurrence_of_deep_convection_with_condensate
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ frecu ]
+  standard_name = frequency_of_occurrence_of_convection_with_condensate
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ fretot ]
+  standard_name = frequency_of_occurrence_of_cloud_with_condensate
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

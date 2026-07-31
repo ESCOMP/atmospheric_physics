@@ -91,6 +91,14 @@
     <!-- State diagnostics -->
     <scheme>sima_state_diagnostics</scheme>
 
+    <!--
+      Cloud water inputs for radiation (after_coupler for CAM7 instead of before_coupler)
+    -->
+    <scheme>convective_cloud_water</scheme>
+    <scheme>convective_cloud_water_diagnostics</scheme>
+    <scheme>cloud_water_paths</scheme>
+    <scheme>cloud_water_paths_diagnostics</scheme>
+
     <!-- Radiation -->
 
     <!-- Find tropopause -->
