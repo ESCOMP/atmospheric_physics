@@ -12,7 +12,7 @@ CONTAINS
    !> \section arg_table_rrtmgp_sw_calculate_fluxes_run  Argument Table
    !! \htmlinclude rrtmgp_sw_calculate_fluxes_run.html
    subroutine rrtmgp_sw_calculate_fluxes_run(num_diag_subcycles, icall, ncol, pverp, nlay, nday, idxday, ktopcam, ktoprad, &
-      active_calls, fsw, fswc, fns, fcns, fsns, fsnt, soll, sols, solld, solsd, errmsg, errflg)
+      active_calls, dosw, fsw, fswc, fns, fcns, fsns, fsnt, soll, sols, solld, solsd, errmsg, errflg)
 
       use ccpp_fluxes,        only: ty_fluxes_broadband_ccpp
       use ccpp_fluxes_byband, only: ty_fluxes_byband_ccpp
@@ -29,17 +29,18 @@ CONTAINS
       integer,                        intent(in) :: ktoprad             ! Index in RRTMGP array corresponding to top layer or interface of host model arrays
       integer,                        intent(in) :: idxday(:)           ! Daytime points indices
       logical,                        intent(in) :: active_calls(:)     ! Logical array of flags for whether a specified subcycle is active
+      logical,                        intent(in) :: dosw                ! Flag for whether to perform shortwave calculation
       type(ty_fluxes_byband_ccpp),    intent(in) :: fsw                 ! Shortwave all-sky flux object
       type(ty_fluxes_broadband_ccpp), intent(in) :: fswc                ! Shortwave clear-sky flux object
       ! Output variables
-      real(kind_phys),               intent(out) :: fns(:,:)            ! Shortwave net radiative flux [W m-2]
-      real(kind_phys),               intent(out) :: fcns(:,:)           ! Shortwave net radiative clear-sky flux [W m-2]
-      real(kind_phys),               intent(out) :: fsns(:)             ! Shortwave net upward flux at surface [W m-2]
-      real(kind_phys),               intent(out) :: fsnt(:)             ! Shortwave net outgoing flux at model top [W m-2]
-      real(kind_phys),               intent(out) :: soll(:)             ! Direct solar radiative flux at surface >= 700nm [W m-2]
-      real(kind_phys),               intent(out) :: sols(:)             ! Direct solar radiative flux at surface < 700nm [W m-2]
-      real(kind_phys),               intent(out) :: solld(:)            ! Diffuse solar radiative flux at surface >= 700nm [W m-2]
-      real(kind_phys),               intent(out) :: solsd(:)            ! Diffuse solar radiative flux at surface < 700nm [W m-2]
+      real(kind_phys),             intent(inout) :: fns(:,:)            ! Shortwave net radiative flux [W m-2]
+      real(kind_phys),             intent(inout) :: fcns(:,:)           ! Shortwave net radiative clear-sky flux [W m-2]
+      real(kind_phys),             intent(inout) :: fsns(:)             ! Shortwave net upward flux at surface [W m-2]
+      real(kind_phys),             intent(inout) :: fsnt(:)             ! Shortwave net outgoing flux at model top [W m-2]
+      real(kind_phys),             intent(inout) :: soll(:)             ! Direct solar radiative flux at surface >= 700nm [W m-2]
+      real(kind_phys),             intent(inout) :: sols(:)             ! Direct solar radiative flux at surface < 700nm [W m-2]
+      real(kind_phys),             intent(inout) :: solld(:)            ! Diffuse solar radiative flux at surface >= 700nm [W m-2]
+      real(kind_phys),             intent(inout) :: solsd(:)            ! Diffuse solar radiative flux at surface < 700nm [W m-2]
 
       
       ! CCPP error handling variables
@@ -54,6 +55,11 @@ CONTAINS
 
       errmsg = ''
       errflg = 0
+
+      ! Persist fluxes from the last radiation timestep in non-radiation timesteps:
+      if (.not. dosw) then
+         return
+      end if
 
       diag_index = num_diag_subcycles - icall + 1
 
