@@ -1,0 +1,64 @@
+[ccpp-table-properties]
+  name = mcsp_options
+  type = scheme
+
+[ccpp-arg-table]
+  name  = mcsp_options_init
+  type  = scheme
+[ masterproc ]
+  standard_name = flag_for_mpi_root
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ iulog ]
+  standard_name = log_output_unit
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ MCSP_heat_coeff ]
+  standard_name = heating_coefficient_for_mcsp
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ MCSP_moisture_coeff ]
+  standard_name = moisture_coefficient_for_mcsp
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ MCSP_uwind_coeff ]
+  standard_name = uwind_coefficient_for_mcsp
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ MCSP_vwind_coeff ]
+  standard_name = vwind_coefficient_for_mcsp
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ MCSP_storm_speed_pref ]
+  standard_name = reference_presure_for_uwind_shear_for_MCSP
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ MCSP_conv_depth_min ]
+  standard_name = convection_depth_min_for_MCSP
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ mcsp_shear_min ]
+  standard_name = minimum_uwind_shear_for_MCSP
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+
+
+

@@ -1,0 +1,293 @@
+[ccpp-table-properties]
+  name = MCSP
+  type = schemea
+
+[ccpp-arg-table]
+  name  = MCSP_init
+  type  = scheme
+[ MCSP_heat_coeff ]
+  standard_name = tunable_heating_coefficient_for_MCSP
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ MCSP_moisture_coeff ]
+  standard_name = tunable_moisture_coefficient_for_MCSP
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ MCSP_uwind_coeff ]
+  standard_name = tunable_uwind_coefficient_for_MCSP
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ MCSP_vwind_coeff ]
+  standard_name = tunable_vwind_coefficient_for_MCSP
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ MCSP_storm_speef_pref ]
+  standard_name = tunable_reference_presure_for_uwind_shear_for_MCSP
+  units = hPa
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ MCSP_conv_depth_min ]
+  standard_name = tunable_convection_depth_min_for_MCSP
+  units = hPa
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ mcsp_shear_min ]
+  standard_name = tunable_minimum_uwind_wind_shear_for_MCSP
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = ()
+[ masterproc ]
+  standard_name = flag_for_mpi_root
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ iulog ]
+  standard_name = log_output_unit
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+
+[ccpp-arg-table]
+  name  = MCSP_run
+  type  = scheme
+[ pcols ]
+  standard_name = maximum_horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pverp ]
+  standard_name = vertical_interface_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ cpair ]
+  standard_name = specific_heat_of_dry_air_at_constant_pressure
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ pi    ]
+  standard_name = ratio_of_circumference_of_circle
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ ztodt ]
+  standard_name = physics_time_step
+  units = s
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ jctop ]
+  standard_name = vertical_interface_dimension
+  units = count
+  type = integer
+  dimensions = (maximum_horizontal_loop_extent)
+  intent = in
+[ pmid ]
+  standard_name = air_pressure
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (maximum_horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ pint ]
+  standard_name = air_pressure_at_interfaces
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (maximum_horizontal_loop_extent,vertical_interface_dimension)
+  intent = in
+[ pdel ]
+  standard_name = air_pressure_thickness
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (maximum_horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ s ]
+  standard_name = dry_air_enthalpy_at_constant_pressure
+  units = J kg-1 
+  type = real | kind = kind_phys
+  dimensions = (maximum_horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ q ]
+  standard_name = water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
+  units = kg kg-1
+  type = real | kind = kind_phys
+  dimensions = (maximum_horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ u ]
+  standard_name = zonal_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (maximum_horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ v ]
+  standard_name = meridional_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (maximum_horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ tend_t ]
+  standard_name = tendency_of_atmospheric_temperature
+  units = K s-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (maximum_horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ tend_q ]
+  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (maximum_horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ ptend_s ]
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure
+  units = J kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (maximum_horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+[ ptend_u ]
+  standard_name = tendency_of_zonal_wind
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (maximum_horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+[ ptend_v ]
+  standard_name = tendency_of_meridional_wind
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (maximum_horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+[ mcsp_dt_out ]
+  standard_name = tendency_of_temperature_by_MCSP
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (maximum_horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+[ mcsp_dq_out ]
+  standard_name = tendency_of_water_vapor_by_MCSP
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (maximum_horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+[ mcsp_du_out ]
+  standard_name = tendency_of_zonal_wind_by_MCSP
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (maximum_horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+[ mcsp_dv_out ]
+  standard_name = tendency_of_meridional_wind_by_MCSP
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (maximum_horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+[ mcsp_freq ]
+  standard_name = frequency_of_MCSP
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (maximum_horizontal_loop_extent)
+  intent = out
+[ mcsp_shear ]
+  standard_name = low_level_uwind_shear_of_MCSP
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (maximum_horizontal_loop_extent)
+  intent = out
+[ conv_depth ]
+  standard_name = pressure_depth_of_deep_convection
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (maximum_horizontal_loop_extent)
+  intent = out
+[ mcsp_tend_s_max ]
+  standard_name = maximum_temperature_tendency_of_MCSP
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (maximum_horizontal_loop_extent)
+  intent = out
+
+[ccpp-arg-table]
+  name  = mcsp_calculate_shear
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pcols ]
+  standard_name = maximum_horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pmid ]
+  standard_name = air_pressure
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (maximum_horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ u ]
+  standard_name = zonal_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (maximum_horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ mcsp_shear ]
+  standard_name = low_level_uwind_shear_of_MCSP
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (maximum_horizontal_loop_extent)
+  intent = out
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
