@@ -222,7 +222,8 @@ contains
         nifa(:, :) = nifa(:, :) + rnifablten(:, :) * dt
         nbca(:, :) = nbca(:, :) + rnbcablten(:, :) * dt
 
-        ! After accumulating, zero out the tendencies collected from MMM physics schemes to make this subroutine idempotent.
+        ! After accumulating, zero out the tendencies collected from MMM physics schemes to make this subroutine idempotent,
+        ! preventing repeated application of the same tendencies.
         rublten(:, :) = 0.0_kind_phys
         rucuten(:, :) = 0.0_kind_phys
         rvblten(:, :) = 0.0_kind_phys
@@ -439,7 +440,8 @@ contains
         rnifablten(:, :) = rnifablten(:, :) + rnifablten_p(:, :)
         rnbcablten(:, :) = rnbcablten(:, :) + rnbcablten_p(:, :)
 
-        ! After saving, zero out pending tendencies to make this subroutine idempotent.
+        ! After saving, zero out pending tendencies to make this subroutine idempotent,
+        ! preventing repeated application of the same tendencies.
         rublten_p(:, :) = 0.0_kind_phys
         rucuten_p(:, :) = 0.0_kind_phys
         rvblten_p(:, :) = 0.0_kind_phys
