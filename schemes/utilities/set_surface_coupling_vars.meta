@@ -136,6 +136,12 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
+[ do_diagnostic_co2 ]
+  standard_name = do_diagnostic_co2_export_to_coupler
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
 
 #----------------
 #Output Arguments
@@ -222,6 +228,18 @@
 [ strat_snow ]
   standard_name = lwe_large_scale_snowfall_rate_at_surface_to_coupler
   units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ co2diag ]
+  standard_name = diagnostic_volume_mixing_ratio_of_co2_to_coupler
+  units = ppmv
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ co2prog ]
+  standard_name = prognostic_volume_mixing_ratio_of_co2_to_coupler
+  units = ppmv
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
