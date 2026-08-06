@@ -8,7 +8,7 @@
 	path = schemes/pumas/pumas
 	url = https://github.com/ESCOMP/PUMAS
         fxrequired = AlwaysRequired
-        fxtag = pumas_cam-release_v1.39
+        fxtag = pumas_cam-release_v1.40
         fxDONOTUSEurl = https://github.com/ESCOMP/PUMAS
 [submodule "rte-rrtmgp"]
 	path = schemes/rrtmgp/ext

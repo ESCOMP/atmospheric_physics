@@ -1,0 +1,77 @@
+[ccpp-table-properties]
+  name = micro_pumas_ccpp_optics_limiter
+  type = scheme
+########################################################################
+[ccpp-arg-table]
+  name = micro_pumas_ccpp_optics_limiter_run
+  type = scheme
+
+##### Run Arguments
+[ncol]
+  standard_name = horizontal_loop_extent
+  long_name = number of horizontal columns
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[nlev]
+  standard_name = vertical_layer_dimension
+  long_name = vertical layer dimension
+  units = count
+  dimensions = ()
+  type = integer
+  intent = in
+[trop_cloud_top_lev]
+  standard_name = vertical_layer_index_of_troposphere_cloud_physics_top
+  long_name = vertical layer index of troposphere cloud physics top
+  units = index
+  dimensions = ()
+  type = integer
+  intent = in
+[strat_cldfrc]
+  standard_name = stratiform_cloud_area_fraction
+  long_name = stratiform cloud area fraction
+  units = fraction
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  type = real
+  kind = kind_phys
+  intent = in
+[pgamrad]
+  standard_name = size_distribution_shape_parameter_for_microphysics
+  long_name = cloud particle size distribution shape (gamma) parameter
+  units = 1
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  type = real
+  kind = kind_phys
+  intent = inout
+[lamcrad]
+  standard_name = slope_of_droplet_distribution_for_optics
+  long_name = cloud particle size distribution slope (lambda) parameter
+  units = 1
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  type = real
+  kind = kind_phys
+  intent = inout
+[deffi]
+  standard_name = effective_diameter_of_stratiform_cloud_ice_crystal_for_radiation
+  long_name = effective diameter of stratiform cloud ice particles for radiation
+  units = um
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  type = real
+  kind = kind_phys
+  intent = inout
+[errmsg]
+  standard_name = ccpp_error_message
+  long_name = error message for error handling in CCPP
+  units = none
+  dimensions = ()
+  type = character
+  kind = len=*
+  intent = out
+[errcode]
+  standard_name = ccpp_error_code
+  long_name = error code for error handling in CCPP
+  units = 1
+  dimensions = ()
+  type = integer
+  intent = out
