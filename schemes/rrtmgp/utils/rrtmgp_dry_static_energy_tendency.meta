@@ -40,13 +40,13 @@
   units = J kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = out
+  intent = inout
 [ qrl_prime ]
   standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure_due_to_longwave_radiation
   units = J kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = out
+  intent = inout
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
