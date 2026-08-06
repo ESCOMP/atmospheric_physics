@@ -1,6 +1,9 @@
 [ccpp-table-properties]
   name = micro_pumas_ccpp_dimensions_post
   type = scheme
+  dependencies = pumas/pumas_kinds.F90
+  kind_spec = pumas_kinds:pumas_r8=>kind_r8
+
 ########################################################################
 [ccpp-arg-table]
   name = micro_pumas_ccpp_dimensions_post_run
@@ -10,44 +13,6 @@
 [ncol]
   standard_name = horizontal_loop_extent
   long_name = number of horizontal columns
-  units = count
-  dimensions = ()
-  type = integer
-  intent = in
-[micro_ncol]
-  #Equivalent to "horizontal_loop_extent" unless subcolumns is enabled
-  standard_name = microphysics_horizontal_loop_extent
-  long_name = number of horizontal columns used by microphysics
-  units = count
-  dimensions = ()
-  type = integer
-  intent = in
-[nlev]
-  standard_name = vertical_layer_dimension
-  long_name = vertical layer dimension
-  units = count
-  dimensions = ()
-  type = integer
-  intent = in
-[micro_nlev]
-  #Vertical levels from surface to highest level with tropospheric clouds
-  standard_name = microphysics_vertical_layer_dimension
-  long_name = vertical layer dimension used by microphysics
-  units = count
-  dimensions = ()
-  type = integer
-  intent = in
-[nlevp1]
-  standard_name = vertical_interface_dimension
-  long_name = vertical interface dimension
-  units = count
-  dimensions = ()
-  type = integer
-  intent = in
-[micro_nlevp1]
-  #Vertical interfaces from surface to highest level with tropospheric clouds
-  standard_name = microphysics_vertical_interface_dimension
-  long_name = vertical interface dimension used by microphysics
   units = count
   dimensions = ()
   type = integer

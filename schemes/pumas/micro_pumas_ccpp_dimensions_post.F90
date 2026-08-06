@@ -1,8 +1,5 @@
 module micro_pumas_ccpp_dimensions_post
 
-  use pumas_kinds,       only: pumas_r8=>kind_r8
-  use ccpp_kinds,        only: kind_phys
-
   implicit none
   private
 
@@ -13,8 +10,8 @@ module micro_pumas_ccpp_dimensions_post
 contains
   !> \section arg_table_micro_pumas_ccpp_dimensions_post_run Argument Table
   !! \htmlinclude micro_pumas_ccpp_dimensions_post_run.html
-  subroutine micro_pumas_ccpp_dimensions_post_run(ncol, micro_ncol, nlev, micro_nlev,                   &
-                   nlevp1, micro_nlevp1, trop_cloud_top_lev, qcsinksum_rate1ord, pumas_qcsinksum_rate1ord, airT_tend,       &
+  subroutine micro_pumas_ccpp_dimensions_post_run(ncol, &
+                   trop_cloud_top_lev, qcsinksum_rate1ord, pumas_qcsinksum_rate1ord, airT_tend,       &
                    pumas_airT_tend, airq_tend, pumas_airq_tend,                                         &
                    cldliq_tend, pumas_cldliq_tend, cldice_tend, pumas_cldice_tend, numliq_tend,         &
                    pumas_numliq_tend, numice_tend, pumas_numice_tend, rainliq_tend, pumas_rainliq_tend, &
@@ -42,18 +39,12 @@ contains
                    frac_cldliq_tend, pumas_frac_cldliq_tend, rain_evap, pumas_rain_evap,                &
                    errmsg, errcode)
 
+    use pumas_kinds,       only: pumas_r8=>kind_r8
+    use ccpp_kinds,        only: kind_phys
+
     ! horizontal dimension
     integer, intent(in) :: ncol
-    ! microphysics_horizontal_dimension
-    integer, intent(in) :: micro_ncol
     ! vertical layer dimension
-    integer, intent(in) :: nlev
-    ! microphysics vertical layer dimension
-    integer, intent(in) :: micro_nlev
-    ! vertical interface dimension
-    integer, intent(in) :: nlevp1
-    ! microphysics vertical interface dimension
-    integer, intent(in) :: micro_nlevp1
     ! index of the top model level for which cloud physics is applied (1 to nlev)
     integer, intent(in) :: trop_cloud_top_lev
 
