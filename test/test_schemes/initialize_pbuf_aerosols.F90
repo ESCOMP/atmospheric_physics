@@ -91,18 +91,16 @@ contains
     ! Build species list based on detected mode (MAM takes priority)
     if (is_mam) then
       nspecies = num_mam_species
-      allocate(species_list(nspecies), stat=ierr, errmsg=errmsg)
-      if (ierr /= 0) then
-        errflg = 1
+      allocate(species_list(nspecies), stat=errflg, errmsg=errmsg)
+      if (errflg /= 0) then
         errmsg = subname // ': Failed to allocate species_list: ' // trim(errmsg)
         return
       end if
       species_list(:) = mam_species(:)
     else
       nspecies = num_bam_species
-      allocate(species_list(nspecies), stat=ierr, errmsg=errmsg)
-      if (ierr /= 0) then
-        errflg = 1
+      allocate(species_list(nspecies), stat=errflg, errmsg=errmsg)
+      if (errflg /= 0) then
         errmsg = subname // ': Failed to allocate species_list: ' // trim(errmsg)
         return
       end if
@@ -110,9 +108,8 @@ contains
     end if
 
     ! Register constituents
-    allocate(constituents(nspecies), stat=ierr, errmsg=errmsg)
-    if (ierr /= 0) then
-      errflg = 1
+    allocate(constituents(nspecies), stat=errflg, errmsg=errmsg)
+    if (errflg /= 0) then
       errmsg = subname // ': Failed to allocate constituents: ' // trim(errmsg)
       return
     end if

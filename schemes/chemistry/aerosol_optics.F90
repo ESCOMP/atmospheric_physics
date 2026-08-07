@@ -15,6 +15,11 @@ module aerosol_optics
   complex(kind_phys), allocatable :: crefwsw(:)
   complex(kind_phys), allocatable :: crefwlw(:)
 
+  ! Column single scattering albedo reported where the visible AOD is too small to divide by:
+  ! original values from CAM aerosol_optics_cam.F90.
+  real(kind_phys), parameter :: aodvis_min     = 1.e-10_kind_phys
+  real(kind_phys), parameter :: ssavis_default = 0.925_kind_phys
+
 contains
 
 !> \section arg_table_aerosol_optics_init Argument Table
@@ -28,7 +33,7 @@ contains
     use ccpp_io_reader,                  only: abstract_netcdf_reader_t
     use aerosol_mmr_host,                only: rad_aer_diag_init
     use radiative_aerosol_definitions,   only: aerlist_t
-    use radiative_aerosol_definitions,   only: bulk_aerosol_list
+    use radiative_aerosol_definitions,   only: bulk_aerosol_list, id_climate
 
     use aerosol_instances_mod,           only: aerosol_instances_is_active
 
@@ -62,10 +67,11 @@ contains
     errflg = 0
 
     ! Set number of bulk aerosol constituents in climate list
-    num_bulk_aer = bulk_aerosol_list(0)%numaerosols
+    num_bulk_aer = bulk_aerosol_list(id_climate)%numaerosols
 
-    ! Register aerosol diagnostic history fields for active lists
-    do i = 1, N_DIAG
+    ! Register aerosol diagnostic history fields for the climate list and all
+    ! active diagnostic lists.
+    do i = id_climate, N_DIAG
       if (active_calls(i)) then
         call rad_aer_diag_init(bulk_aerosol_list(i))
       end if
@@ -144,7 +150,6 @@ contains
 !! \htmlinclude aerosol_optics_run.html
   subroutine aerosol_optics_run( &
     ncol, pver, &
-    const_props, &
     nswbands, nlwbands, &
     top_lev, &
     rga, &
@@ -159,11 +164,8 @@ contains
     odv_col_aod, &
     errmsg, errflg)
 
-    ! framework dependency for const_props
-    use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
-
-    ! dependency to get constituent index
-    use ccpp_const_utils,          only: ccpp_const_get_idx
+    ! framework dependency to get constituent index
+    use ccpp_scheme_utils,         only: ccpp_constituent_index
 
     ! portable optics core:
     use aerosol_optics_core,       only: aerosol_optics_sw_bin, aerosol_optics_lw_bin
@@ -180,8 +182,6 @@ contains
     ! Input arguments
     integer,            intent(in)  :: ncol
     integer,            intent(in)  :: pver
-    type(ccpp_constituent_prop_ptr_t), &
-                        intent(in)  :: const_props(:)  ! ccpp constituent properties pointer
     integer,            intent(in)  :: nswbands        ! number of SW bands [count]
     integer,            intent(in)  :: nlwbands        ! number of LW bands [count]
     integer,            intent(in)  :: top_lev         ! top level for aerosol model [index]
@@ -342,8 +342,8 @@ contains
           end if
 
           idx_volc_rad_geom = -1
-          call ccpp_const_get_idx(const_props, trim(volc_rad_name), &
-                                  idx_volc_rad_geom, errmsg, errflg)
+          call ccpp_constituent_index(trim(volc_rad_name), &
+                                      idx_volc_rad_geom, errflg, errmsg)
           if (errflg /= 0) return
           if (idx_volc_rad_geom < 1) then
             errflg = 1
@@ -565,11 +565,10 @@ contains
     ! Compute column-level SSA and AOD at vis from total aer_tau/aer_tau_w
     do icol = 1, ncol
       aodvis(icol) = sum(aer_tau(icol, :, idx_sw_diag))
-      if (aodvis(icol) > 1.e-10_kind_phys) then
+      if (aodvis(icol) > aodvis_min) then
         ssavis(icol) = sum(aer_tau_w(icol, :, idx_sw_diag)) / aodvis(icol)
       else
-        ! magic number from CAM aerosol_optics_cam.F90.
-        ssavis(icol) = 0.925_kind_phys
+        ssavis(icol) = ssavis_default
       end if
     end do
 

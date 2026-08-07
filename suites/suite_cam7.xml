@@ -208,10 +208,7 @@
 
     <!-- Calculate aerosol optical properties for radiation.
          compute_relative_humidity provides the relative humidity for the
-         optics table lookup (in CAM it is computed inline in
-         aerosol_optics_cam; no cam7 scheme provides it otherwise).
-         In CAM, this is called inside radiation_tend -> rrtmgp_inputs_cam;
-         in CAM-SIMA it is a standalone CCPP scheme. -->
+         optics table lookup. -->
     <scheme>compute_relative_humidity</scheme>
     <scheme>aerosol_optics</scheme>
     <scheme>aerosol_optics_diagnostics</scheme>

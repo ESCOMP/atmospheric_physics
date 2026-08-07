@@ -5,8 +5,6 @@
 ! cam4/cam5, but is not part of cam7).
 module compute_relative_humidity
 
-  use ccpp_kinds, only: kind_phys
-
   implicit none
   private
 
@@ -18,6 +16,7 @@ CONTAINS
   !! \htmlinclude compute_relative_humidity_run.html
   subroutine compute_relative_humidity_run(ncol, pver, t, pmid, qv, relh, &
        errmsg, errflg)
+    use ccpp_kinds,    only: kind_phys
     use wv_saturation, only: qsat
 
     integer,            intent(in)  :: ncol       ! number of columns
@@ -26,7 +25,7 @@ CONTAINS
     real(kind_phys),    intent(in)  :: pmid(:,:)  ! air pressure [Pa]
     real(kind_phys),    intent(in)  :: qv(:,:)    ! water vapor mixing ratio wrt moist air [kg kg-1]
     real(kind_phys),    intent(out) :: relh(:,:)  ! relative humidity [fraction]
-    character(len=512), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     real(kind_phys) :: sate(ncol, pver)  ! saturation vapor pressure [Pa]
@@ -36,11 +35,9 @@ CONTAINS
     errflg = 0
 
     ! calculate relative humidity for table lookup into rh grid
-    ! (from CAM aerosol_optics_cam; the water vapor constituent is resolved
-    !  by standard name rather than CAM's fixed constituent index 1)
-    call qsat(t(:ncol,:), pmid(:ncol,:), sate(:ncol,:), satq(:ncol,:), ncol, pver)
-    relh(:ncol,:) = qv(:ncol,:) / satq(:ncol,:)
-    relh(:ncol,:) = max(1.e-20_kind_phys, relh(:ncol,:))
+    call qsat(t, pmid, sate, satq, ncol, pver)
+    relh = qv / satq
+    relh = max(1.e-20_kind_phys, relh)
 
   end subroutine compute_relative_humidity_run
 

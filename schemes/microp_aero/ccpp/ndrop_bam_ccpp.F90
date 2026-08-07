@@ -103,7 +103,7 @@ contains
     aero_props_bam => null()
     aero_state_bam => null()
     do iaermod = 1, aerosol_instances_get_num_models()
-      aero_props_bam => aerosol_instances_get_props(iaermod, 0)
+      aero_props_bam => aerosol_instances_get_props(iaermod, list_idx=0)
       if (associated(aero_props_bam)) then
         if (aero_props_bam%model_is('BAM')) then
           aero_state_bam => aerosol_instances_get_state(iaermod, list_idx=0)

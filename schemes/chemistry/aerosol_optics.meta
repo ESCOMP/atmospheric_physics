@@ -69,12 +69,6 @@
   type = integer
   dimensions = ()
   intent = in
-[ const_props ]
-  standard_name = ccpp_constituent_properties
-  units = none
-  type = ccpp_constituent_prop_ptr_t
-  dimensions = (number_of_ccpp_constituents)
-  intent = in
 [ nswbands ]
   standard_name = number_of_bands_for_shortwave_radiation
   units = count
@@ -88,7 +82,7 @@
   dimensions = ()
   intent = in
 [ top_lev ]
-  standard_name = index_of_air_pressure_at_top_of_aerosol_model
+  standard_name = vertical_layer_index_of_aerosol_model_top
   units = index
   type = integer
   dimensions = ()

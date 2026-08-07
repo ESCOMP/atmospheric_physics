@@ -20,23 +20,29 @@ contains
    !! \htmlinclude ndrop_bam_diagnostics_init.html
    subroutine ndrop_bam_diagnostics_init(errmsg, errflg)
       use cam_history, only: history_add_field
-      use ndrop_bam,   only: aername
+      use ndrop_bam,   only: aername, psat, ccn_name
 
       character(len=*),   intent(out) :: errmsg
       integer,            intent(out) :: errflg
 
       integer :: l
 
+      ! Long names for the CCN fields, ordered to match ndrop_bam's supersat
+      character(len=*), parameter :: ccn_long_name(psat) = (/ character(len=59) :: &
+           'cloud_condensation_nuclei_number_concentration_at_S_0.02pct', &
+           'cloud_condensation_nuclei_number_concentration_at_S_0.05pct', &
+           'cloud_condensation_nuclei_number_concentration_at_S_0.1pct',  &
+           'cloud_condensation_nuclei_number_concentration_at_S_0.2pct',  &
+           'cloud_condensation_nuclei_number_concentration_at_S_0.5pct',  &
+           'cloud_condensation_nuclei_number_concentration_at_S_1.0pct'   /)
+
       errmsg = ''
       errflg = 0
 
       ! CCN concentrations at fixed supersaturation levels
-      call history_add_field('CCN1', 'cloud_condensation_nuclei_number_concentration_at_S_0.02pct', 'lev', 'avg', 'cm-3')
-      call history_add_field('CCN2', 'cloud_condensation_nuclei_number_concentration_at_S_0.05pct', 'lev', 'avg', 'cm-3')
-      call history_add_field('CCN3', 'cloud_condensation_nuclei_number_concentration_at_S_0.1pct',  'lev', 'avg', 'cm-3')
-      call history_add_field('CCN4', 'cloud_condensation_nuclei_number_concentration_at_S_0.2pct',  'lev', 'avg', 'cm-3')
-      call history_add_field('CCN5', 'cloud_condensation_nuclei_number_concentration_at_S_0.5pct',  'lev', 'avg', 'cm-3')
-      call history_add_field('CCN6', 'cloud_condensation_nuclei_number_concentration_at_S_1.0pct',  'lev', 'avg', 'cm-3')
+      do l = 1, psat
+         call history_add_field(ccn_name(l), trim(ccn_long_name(l)), 'lev', 'avg', 'cm-3')
+      end do
 
       ! Per-aerosol number concentration diagnostics (dynamic names from ndrop_bam)
       if (allocated(aername)) then

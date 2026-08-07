@@ -33,18 +33,6 @@
   type = integer
   dimensions = ()
   intent = in
-[ nswbands ]
-  standard_name = number_of_bands_for_shortwave_radiation
-  units = count
-  type = integer
-  dimensions = ()
-  intent = in
-[ nlwbands ]
-  standard_name = number_of_bands_for_longwave_radiation
-  units = count
-  type = integer
-  dimensions = ()
-  intent = in
 [ N_DIAG ]
   standard_name = number_of_radiative_aerosol_diagnostic_lists
   units = count

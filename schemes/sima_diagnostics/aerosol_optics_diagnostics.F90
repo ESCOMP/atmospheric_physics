@@ -26,7 +26,7 @@ contains
    subroutine aerosol_optics_diagnostics_init(errmsg, errflg)
       use cam_history,                   only: history_add_field
       use cam_history_support,           only: horiz_only
-      use radiative_aerosol_definitions, only: bulk_aerosol_list
+      use radiative_aerosol_definitions, only: bulk_aerosol_list, id_climate
 
       character(len=*),   intent(out) :: errmsg
       integer,            intent(out) :: errflg
@@ -118,7 +118,7 @@ contains
       !-----------------------------------------------------------------
       ! Per-aerosol visible OD diagnostics (ODV_<name>) for bulk aerosols
       !-----------------------------------------------------------------
-      num_odv = bulk_aerosol_list(0)%numaerosols
+      num_odv = bulk_aerosol_list(id_climate)%numaerosols
       if (num_odv > 0) then
         allocate(odv_names(num_odv), stat=errflg, errmsg=errmsg)
         if (errflg /= 0) then
@@ -126,9 +126,9 @@ contains
           return
         end if
         do i = 1, num_odv
-          odv_names(i) = 'ODV_' // trim(bulk_aerosol_list(0)%aer(i)%camname)
+          odv_names(i) = 'ODV_' // trim(bulk_aerosol_list(id_climate)%aer(i)%camname)
           call history_add_field(trim(odv_names(i)), &
-               trim(bulk_aerosol_list(0)%aer(i)%camname)//' optical depth in visible band', &
+               trim(bulk_aerosol_list(id_climate)%aer(i)%camname)//' optical depth in visible band', &
                horiz_only, 'avg', '1', flag_xyfill=.true.)
         end do
       end if
@@ -138,7 +138,7 @@ contains
    !> \section arg_table_aerosol_optics_diagnostics_run  Argument Table
    !! \htmlinclude aerosol_optics_diagnostics_run.html
    subroutine aerosol_optics_diagnostics_run( &
-      ncol, pver, nswbands, nlwbands, &
+      ncol, pver, &
       N_DIAG, active_calls, &
       constituents, &
       aer_tau, aer_tau_w, aer_lw_abs, &
@@ -162,8 +162,6 @@ contains
       !-----------------------------------------------------------------
       integer,         intent(in) :: ncol
       integer,         intent(in) :: pver
-      integer,         intent(in) :: nswbands
-      integer,         intent(in) :: nlwbands
       integer,         intent(in) :: N_DIAG                ! max number of diagnostic lists
       logical,         intent(in) :: active_calls(0:)      ! flag for active diagnostic list calls
       ! n.b.: the lower bound of the active_calls array has to be set here.

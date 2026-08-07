@@ -62,7 +62,6 @@ contains
 !! \htmlinclude nucleate_ice_ccpp_init.html
   subroutine nucleate_ice_ccpp_init( &
     iulog, &
-    const_props, &
     use_preexisting_ice, use_hetfrz_classnuc, &
     nucleate_ice_incloud, &
     pi, &
@@ -77,14 +76,11 @@ contains
                                       aerosol_instances_get_num_models
     use aerosol_properties_mod, only: aerosol_properties
 
-    ! framework dependency for const_props
-    use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
-    use ccpp_const_utils,          only: ccpp_const_get_idx
+    ! framework dependency to get constituent index
+    use ccpp_scheme_utils,      only: ccpp_constituent_index
 
     ! Input arguments
     integer,          intent(in)  :: iulog
-    type(ccpp_constituent_prop_ptr_t), &
-                      intent(in)  :: const_props(:)
     logical,          intent(in)  :: use_preexisting_ice
     logical,          intent(in)  :: use_hetfrz_classnuc
     logical,          intent(in)  :: nucleate_ice_incloud
@@ -119,7 +115,10 @@ contains
     clim_modal_aero_ = aerosol_instances_is_active('modal')
     clim_carma_aero_ = aerosol_instances_is_active('carma')
 
-    ! Select aerosol model (modal > CARMA > BAM > none)
+    ! Select aerosol model (modal > CARMA > BAM > none).
+    ! aprops is nullified first so that it has a defined association status
+    ! when no aerosol model is present (e.g. aquaplanet).
+    nullify(aprops)
     iaermod_selected_ = -1
     do iaermod = 1, aerosol_instances_get_num_models()
       aprops => aerosol_instances_get_props(iaermod, list_idx=0)
@@ -139,15 +138,12 @@ contains
     nmaxspc_ = 0
     if (iaermod_selected_ > 0) then
       aprops => aerosol_instances_get_props(iaermod_selected_, list_idx=0)
-      if (associated(aprops)) then
-        nbins_ = aprops%nbins()
-        nmaxspc_ = maxval(aprops%nspecies())
-      end if
+      nbins_ = aprops%nbins()
+      nmaxspc_ = maxval(aprops%nspecies())
     end if
 
     ! Set up constituent tendency indices for interstitial-to-cloud-borne
     ! aerosol transfer (MAM/CARMA + use_preexisting_ice only).
-    ! Replaces nucleate_ice_cam_init L178-222.
     if (clim_modal_carma_ .and. use_preexisting_ice_ .and. associated(aprops)) then
 
       allocate(aer_cnst_idx_(nbins_, 0:nmaxspc_), stat=errflg, errmsg=errmsg)
@@ -157,15 +153,17 @@ contains
       do ibin = 1, nbins_
         if (aprops%icenuc_updates_num(ibin)) then
 
-          ! Get constituent name for this bin (number or bin MMR)
+          ! Get constituent name for this bin (species index 0 indicates bin MMR)
           if (aprops%icenuc_updates_mmr(ibin, 0)) then
             call aprops%amb_mmr_name(ibin, 0, tmpname)
           else
             call aprops%amb_num_name(ibin, tmpname)
           end if
 
-          ! Look up CCPP constituent index by name (standard_name = constituent name)
-          call ccpp_const_get_idx(const_props, trim(tmpname), idxtmp, errmsg, errflg)
+          ! Look up CCPP constituent index by name (standard_name = constituent name).
+          ! A species that is not a constituent returns a negative index, which is
+          ! not an error: it is updated in place instead of via a tendency below.
+          call ccpp_constituent_index(trim(tmpname), idxtmp, errflg, errmsg)
           if (errflg /= 0) return
           aer_cnst_idx_(ibin, 0) = idxtmp
 
@@ -173,7 +171,7 @@ contains
           do ispc = 1, aprops%nspecies(ibin)
             if (aprops%icenuc_updates_mmr(ibin, ispc)) then
               call aprops%amb_mmr_name(ibin, ispc, tmpname)
-              call ccpp_const_get_idx(const_props, trim(tmpname), idxtmp, errmsg, errflg)
+              call ccpp_constituent_index(trim(tmpname), idxtmp, errflg, errmsg)
               if (errflg /= 0) return
               aer_cnst_idx_(ibin, ispc) = idxtmp
             end if
@@ -193,7 +191,7 @@ contains
 !> \section arg_table_nucleate_ice_ccpp_run Argument Table
 !! \htmlinclude nucleate_ice_ccpp_run.html
   subroutine nucleate_ice_ccpp_run( &
-    ncol, pver, pcnst, top_lev, dtime,   &
+    ncol, pver, top_lev, dtime,          &
     t, pmid, qv, qc, qi, num_ice,        &
     rair, tmelt, pi,                     &
     wsubi,                               &
@@ -203,7 +201,7 @@ contains
     lat,                                 &
     naai, naai_hom,                      &
     nihf, niimm, nidep, nimey,           &
-    regm, subgrid_diag, trop_pd,         &
+    regm, subgrid, trop_pd,              &
     fhom, wice, weff,                    &
     INnso4, INnbc, INndust, INondust,    &
     INhet, INhom, INFrehom, INFreIN,     &
@@ -226,7 +224,6 @@ contains
     ! Input arguments
     integer,          intent(in)  :: ncol
     integer,          intent(in)  :: pver
-    integer,          intent(in)  :: pcnst
     integer,          intent(in)  :: top_lev        ! top vertical level for cloud physics [index]
     real(kind_phys),  intent(in)  :: dtime          ! timestep [s]
     real(kind_phys),  intent(in)  :: t(:, :)        ! temperature [K]
@@ -262,7 +259,7 @@ contains
     real(kind_phys),  intent(out) :: nidep(:, :)    ! ice nuclei from deposition nucleation [m-3 s-1]
     real(kind_phys),  intent(out) :: nimey(:, :)    ! ice nuclei from Meyers deposition [m-3 s-1]
     real(kind_phys),  intent(out) :: regm(:, :)     ! nucleation regime temperature threshold [C]
-    real(kind_phys),  intent(out) :: subgrid_diag(:, :) ! ice nucleation subgrid saturation factor [1]
+    real(kind_phys),  intent(out) :: subgrid(:, :)  ! ice nucleation subgrid saturation factor [1]
     real(kind_phys),  intent(out) :: trop_pd(:, :)  ! chemical tropopause probability [1]
 
     ! Pre-existing ice diagnostics (output regardless, zeroed if not use_preexisting_ice_)
@@ -273,8 +270,8 @@ contains
     ! Pre-existing ice aerosol diagnostics (zeroed if not use_preexisting_ice_)
     real(kind_phys),  intent(out) :: INnso4(:, :)   ! so4 number conc. tendency to ice nucleation [m-3 s-1]
     real(kind_phys),  intent(out) :: INnbc(:, :)    ! bc number conc. tendency to ice nucleation [m-3 s-1]
-    real(kind_phys),  intent(out) :: INndust(:, :)  ! dust number conc. tendency to ice nucleation [m-3 s-1]
-    real(kind_phys),  intent(out) :: INondust(:, :) ! dust number conc. tendency from ice nucleation [m-3 s-1]
+    real(kind_phys),  intent(out) :: INndust(:, :)  ! dust number conc. tendency available for ice nucleation [m-3 s-1]
+    real(kind_phys),  intent(out) :: INondust(:, :) ! dust number conc. tendency output from ice nucleation [m-3 s-1]
     real(kind_phys),  intent(out) :: INhet(:, :)    ! heterogeneous IN number tendency [m-3 s-1]
     real(kind_phys),  intent(out) :: INhom(:, :)    ! homogeneous IN number tendency [m-3 s-1]
     real(kind_phys),  intent(out) :: INFrehom(:, :) ! homogeneous ice nucleation frequency [1]
@@ -304,7 +301,6 @@ contains
     real(kind_phys) :: gammas(ncol)
     real(kind_phys) :: relhum(ncol,pver)
     real(kind_phys) :: icldm(ncol,pver)
-    real(kind_phys) :: subgrid(ncol,pver)
 
     real(kind_phys) :: dust_num_col(ncol,pver)
     real(kind_phys) :: sulf_num_col(ncol,pver)
@@ -329,6 +325,7 @@ contains
     real(kind_phys) :: delnum, delnum_sum
 
     real(kind_phys), parameter :: per_cm3 = 1.e-6_kind_phys  ! m-3 to cm-3
+    real(kind_phys), parameter :: per_m3  = 1.e6_kind_phys   ! cm-3 to m-3
 
     !-------------------------------------------------------------------------------
 
@@ -404,7 +401,6 @@ contains
         end if
       end do
     end do
-    subgrid_diag(:ncol,:pver) = subgrid(:ncol,:pver)
 
     ! Compute relative humidity and ice cloud fraction
     do k = top_lev, pver
@@ -434,9 +430,9 @@ contains
         call aerostate%get_ambient_num(m, num_col)
         amb_num_bins(:ncol,:,m) = num_col(:ncol,:)
         do l = 1, aeroprops%nspecies(m)
-          call aeroprops%species_type(m, l, spectype)
-          call aerostate%icenuc_size_wght(m, ncol, pver, spectype, &
-                                          use_preexisting_ice_, size_wght(:,:,m,l))
+          call aeroprops%species_type(bin_ndx=m, species_ndx=l, spectype=spectype)
+          call aerostate%icenuc_size_wght(bin_ndx=m, ncol=ncol, nlev=pver, species_type=spectype, &
+                                          use_preexisting_ice=use_preexisting_ice_, wght=size_wght(:,:,m,l))
         end do
       end do
     end if
@@ -488,11 +484,10 @@ contains
           ! Move aerosol used for nucleation from interstitial to cloud-borne,
           ! otherwise the same coarse mode aerosols will be available again in
           ! the next timestep and will suppress homogeneous freezing.
-          ! Replaces nucleate_ice_cam L620-692.
           !---------------------------------------------------------------------
           if (clim_modal_carma_ .and. use_preexisting_ice_) then
 
-            do m = 1, nbins_
+            bin_loop: do m = 1, nbins_
 
               if (aeroprops%icenuc_updates_num(m)) then
 
@@ -501,10 +496,10 @@ contains
                   delnum_sum = 0._kind_phys
 
                   ! iterate over the species within the bin
-                  do l = 1, aeroprops%nspecies(m)
-                    if (aeroprops%icenuc_updates_mmr(m, l)) then
+                  species_loop: do l = 1, aeroprops%nspecies(m)
+                    if (aeroprops%icenuc_updates_mmr(bin_ndx=m, species_ndx=l)) then
 
-                      call aeroprops%species_type(m, l, spectype)
+                      call aeroprops%species_type(bin_ndx=m, species_ndx=l, spectype=spectype)
 
                       wght = size_wght(i,k,m,l)
 
@@ -541,20 +536,21 @@ contains
 
                         delmmr_sum = delmmr_sum + delmmr
                         delnum_sum = delnum_sum + delnum
-                      end if
-                    end if
-                  end do
+                      end if ! wght > 0
+                    end if ! icenuc_updates_mmr
+                  end do species_loop
 
+                  ! species index 0 indicates the bin number/MMR constituent
                   idxtmp = aer_cnst_idx_(m, 0)
 
                   ! update aerosol state bin and tendency for grid box i,k
                   call aerostate%update_bin(m, i, k, delmmr_sum, delnum_sum, &
                                             idxtmp, dtime, ptend_q)
 
-                end if
+                end if ! amb_num_bins > 0
 
-              end if
-            end do
+              end if ! icenuc_updates_num
+            end do bin_loop
 
           end if ! clim_modal_carma_ .and. use_preexisting_ice_
 
@@ -584,7 +580,7 @@ contains
                 (oso4_num > 0._kind_phys)) then
               dso4_num = max(0._kind_phys, &
                 (nucleate_ice_strat_ * so4_num_st_cr_tot - oso4_num) &
-                * 1e6_kind_phys / rho(i,k))
+                * per_m3 / rho(i,k))
               naai(i,k) = naai(i,k) + dso4_num
               nihf(i,k) = nihf(i,k) + dso4_num
             end if
@@ -598,7 +594,7 @@ contains
 
               if (oso4_num > 0._kind_phys) then
                 dso4_num = (max(oso4_num, ramp * nucleate_ice_strat_ * so4_num) &
-                  - oso4_num) * 1e6_kind_phys / rho(i,k)
+                  - oso4_num) * per_m3 / rho(i,k)
                 naai(i,k) = naai(i,k) + dso4_num
                 nihf(i,k) = nihf(i,k) + dso4_num
               end if
@@ -622,10 +618,10 @@ contains
             nimey(i,k) = nimey(i,k) * rho(i,k) / dtime
 
             if (use_preexisting_ice_) then
-              INnso4(i,k)  = so4_num  * 1e6_kind_phys / dtime  ! # cm-3 -> # m-3 s-1
-              INnbc(i,k)   = soot_num * 1e6_kind_phys / dtime
-              INndust(i,k) = dst_num  * 1e6_kind_phys / dtime
-              INondust(i,k)= odst_num * 1e6_kind_phys / dtime
+              INnso4(i,k)  = so4_num  * per_m3 / dtime  ! # cm-3 -> # m-3 s-1
+              INnbc(i,k)   = soot_num * per_m3 / dtime
+              INndust(i,k) = dst_num  * per_m3 / dtime
+              INondust(i,k)= odst_num * per_m3 / dtime
               INFreIN(i,k) = 1.0_kind_phys        ! 1, ice nucleation occurred
               INhet(i,k) = (niimm(i,k) + nidep(i,k))  ! # m-3 s-1, nimey not in cirrus
               INhom(i,k) = nihf(i,k)                   ! # m-3 s-1

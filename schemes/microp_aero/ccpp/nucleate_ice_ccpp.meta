@@ -1,7 +1,7 @@
 [ccpp-table-properties]
   name = nucleate_ice_ccpp
   type = scheme
-  dependencies = ../nucleate_ice.F90
+  dependencies = ../nucleate_ice.F90, ../../../to_be_ccppized/wv_saturation.F90
 
 [ccpp-arg-table]
   name  = nucleate_ice_ccpp_init
@@ -11,12 +11,6 @@
   units = 1
   type = integer
   dimensions = ()
-  intent = in
-[ const_props ]
-  standard_name = ccpp_constituent_properties
-  units = none
-  type = ccpp_constituent_prop_ptr_t
-  dimensions = (number_of_ccpp_constituents)
   intent = in
 [ use_preexisting_ice ]
   standard_name = do_preexisting_ice_treatment_in_ice_nucleation
@@ -96,12 +90,6 @@
   intent = in
 [ pver ]
   standard_name = vertical_layer_dimension
-  units = count
-  type = integer
-  dimensions = ()
-  intent = in
-[ pcnst ]
-  standard_name = number_of_ccpp_constituents
   units = count
   type = integer
   dimensions = ()
@@ -251,14 +239,14 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
-[ subgrid_diag ]
+[ subgrid ]
   standard_name = subgrid_saturation_scaling_factor_diagnostic_for_ice_nucleation
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ trop_pd ]
-  # in A flag is accummulated to be a probability distribution
+  # In accumulated history output this is a probability distribution
   standard_name = vertical_layer_indicator_of_chemical_tropopause
   units = 1
   type = real | kind = kind_phys
