@@ -60,12 +60,6 @@
   type = logical
   dimensions = ()
   intent = in
-[ prog_modal_aero ]
-  standard_name = do_prognostic_modal_aerosol
-  units = flag
-  type = logical
-  dimensions = ()
-  intent = in
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none

@@ -43,7 +43,6 @@ module nucleate_ice_ccpp
 
   ! Modal/CARMA-specific: whether cloud-borne tendencies are needed
   logical :: clim_modal_carma_ = .false.
-  logical :: prog_modal_aero_  = .false.
 
   ! Aerosol bins/species dimensions (set in init, used in run for transfer)
   integer :: nbins_   = 0
@@ -53,7 +52,8 @@ module nucleate_ice_ccpp
   ! Allocated in init if clim_modal_carma_ .and. use_preexisting_ice_.
   ! aer_cnst_idx_(ibin, 0)    = index for bin number/MMR (species 0)
   ! aer_cnst_idx_(ibin, ispc) = index for species ispc MMR
-  ! Index is into CCPP constituent array; -1 means not transported.
+  integer, parameter   :: aer_cnst_idx_unset_ = -1
+  ! Index is into the CCPP constituent array: -1 means not updated by ice nucleation.
   integer, allocatable :: aer_cnst_idx_(:,:)
 
 contains
@@ -67,7 +67,6 @@ contains
     pi, &
     nucleate_ice_subgrid, nucleate_ice_subgrid_strat, &
     nucleate_ice_strat, nucleate_ice_use_troplev, &
-    prog_modal_aero, &
     errmsg, errflg)
 
     use nucleate_ice,           only: nucleati_init
@@ -89,7 +88,6 @@ contains
     real(kind_phys),  intent(in)  :: nucleate_ice_subgrid_strat
     real(kind_phys),  intent(in)  :: nucleate_ice_strat
     logical,          intent(in)  :: nucleate_ice_use_troplev
-    logical,          intent(in)  :: prog_modal_aero
 
     character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
@@ -100,6 +98,8 @@ contains
     class(aerosol_properties), pointer :: aprops
     character(len=32) :: tmpname
 
+    character(len=*), parameter :: subname = 'nucleate_ice_ccpp_init'
+
     errmsg = ''
     errflg = 0
 
@@ -109,7 +109,6 @@ contains
     nucleate_ice_subgrid_       = nucleate_ice_subgrid
     nucleate_ice_subgrid_strat_ = nucleate_ice_subgrid_strat
     nucleate_ice_strat_         = nucleate_ice_strat
-    prog_modal_aero_            = prog_modal_aero
 
     ! Query aerosol model availability
     clim_modal_aero_ = aerosol_instances_is_active('modal')
@@ -148,7 +147,7 @@ contains
 
       allocate(aer_cnst_idx_(nbins_, 0:nmaxspc_), stat=errflg, errmsg=errmsg)
       if(errflg /= 0) return
-      aer_cnst_idx_ = -1
+      aer_cnst_idx_ = aer_cnst_idx_unset_
 
       do ibin = 1, nbins_
         if (aprops%icenuc_updates_num(ibin)) then
@@ -161,18 +160,31 @@ contains
           end if
 
           ! Look up CCPP constituent index by name (standard_name = constituent name).
-          ! A species that is not a constituent returns a negative index, which is
-          ! not an error: it is updated in place instead of via a tendency below.
+          ! Interstitial aerosol is always a constituent in CAM-SIMA, so a miss
+          ! here means the aerosol model is misconfigured rather than that the
+          ! species is untransported.
           call ccpp_constituent_index(trim(tmpname), idxtmp, errflg, errmsg)
           if (errflg /= 0) return
+          if (idxtmp <= 0) then
+            errmsg = subname//': interstitial aerosol '//trim(tmpname)// &
+                     ' is not a registered constituent (prognostic modal aerosol required)'
+            errflg = 1
+            return
+          end if
           aer_cnst_idx_(ibin, 0) = idxtmp
 
           ! Iterate over species within the bin
           do ispc = 1, aprops%nspecies(ibin)
-            if (aprops%icenuc_updates_mmr(ibin, ispc)) then
-              call aprops%amb_mmr_name(ibin, ispc, tmpname)
+            if (aprops%icenuc_updates_mmr(bin_ndx=ibin, species_ndx=ispc)) then
+              call aprops%amb_mmr_name(bin_ndx=ibin, species_ndx=ispc, name=tmpname)
               call ccpp_constituent_index(trim(tmpname), idxtmp, errflg, errmsg)
               if (errflg /= 0) return
+              if (idxtmp <= 0) then
+                errmsg = subname//': interstitial aerosol '//trim(tmpname)// &
+                         ' is not a registered constituent (prognostic modal aerosol required)'
+                errflg = 1
+                return
+              end if
               aer_cnst_idx_(ibin, ispc) = idxtmp
             end if
           end do
@@ -525,13 +537,11 @@ contains
                           end if
                         end if
 
-                        if (idxtmp > 0) then
-                          ! constituent tendency for transported species
-                          ptend_q(i,k,idxtmp) = -delmmr / dtime
-                        else
-                          ! apply change of mass to not-transported species directly
-                          amb_mmr(i,k) = amb_mmr(i,k) - delmmr
-                        end if
+                        ! Interstitial aerosol is always a constituent (checked
+                        ! in init), so the loss is applied as a tendency.
+                        ptend_q(i,k,idxtmp) = -delmmr / dtime
+
+                        ! Cloud-borne aerosol is updated in place.
                         cld_mmr(i,k) = cld_mmr(i,k) + delmmr
 
                         delmmr_sum = delmmr_sum + delmmr
