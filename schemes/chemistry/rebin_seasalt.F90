@@ -90,17 +90,12 @@ contains
 !! \htmlinclude rebin_seasalt_init.html
   subroutine rebin_seasalt_init( &
     amIRoot, iulog, &
-    pcnst, const_props, &
     errmsg, errflg)
 
-    use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
-    use ccpp_const_utils,          only: ccpp_const_get_idx
+    use ccpp_scheme_utils, only: ccpp_constituent_index
 
     logical,            intent(in)  :: amIRoot
     integer,            intent(in)  :: iulog
-    integer,            intent(in)  :: pcnst
-    type(ccpp_constituent_prop_ptr_t), &
-                        intent(in)  :: const_props(:)
     character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
@@ -111,13 +106,13 @@ contains
 
     ! Look up the 4 input sea salt bin constituent indices.
     ! These are registered by prescribed_aerosols (bulk aerosol specifier).
-    call ccpp_const_get_idx(const_props, 'sslt1', idx_sslt1, errmsg, errflg)
+    call ccpp_constituent_index('sslt1', idx_sslt1, errflg, errmsg)
     if (errflg /= 0) return
-    call ccpp_const_get_idx(const_props, 'sslt2', idx_sslt2, errmsg, errflg)
+    call ccpp_constituent_index('sslt2', idx_sslt2, errflg, errmsg)
     if (errflg /= 0) return
-    call ccpp_const_get_idx(const_props, 'sslt3', idx_sslt3, errmsg, errflg)
+    call ccpp_constituent_index('sslt3', idx_sslt3, errflg, errmsg)
     if (errflg /= 0) return
-    call ccpp_const_get_idx(const_props, 'sslt4', idx_sslt4, errmsg, errflg)
+    call ccpp_constituent_index('sslt4', idx_sslt4, errflg, errmsg)
     if (errflg /= 0) return
 
     if(idx_sslt1 < 0 .or. idx_sslt2 < 0 .or. &
@@ -129,11 +124,9 @@ contains
     end if
 
     ! Look up the output rebinned constituent indices (registered by this scheme)
-    call ccpp_const_get_idx(const_props, &
-         'SSLTA', idx_sslta, errmsg, errflg)
+    call ccpp_constituent_index('SSLTA', idx_sslta, errflg, errmsg)
     if (errflg /= 0) return
-    call ccpp_const_get_idx(const_props, &
-         'SSLTC', idx_ssltc, errmsg, errflg)
+    call ccpp_constituent_index('SSLTC', idx_ssltc, errflg, errmsg)
     if (errflg /= 0) return
 
     has_sslt = .true.
@@ -148,13 +141,12 @@ contains
 !> \section arg_table_rebin_seasalt_run Argument Table
 !! \htmlinclude rebin_seasalt_run.html
   pure subroutine rebin_seasalt_run( &
-    ncol, pver, pcnst, &
+    ncol, pver, &
     constituents, &
     errmsg, errflg)
 
     integer,            intent(in)    :: ncol
     integer,            intent(in)    :: pver
-    integer,            intent(in)    :: pcnst
     real(kind_phys),    intent(inout) :: constituents(:,:,:) ! constituent mixing ratios [kg kg-1]
     character(len=*),   intent(out)   :: errmsg
     integer,            intent(out)   :: errflg
