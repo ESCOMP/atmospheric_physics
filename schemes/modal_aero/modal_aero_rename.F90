@@ -168,7 +168,7 @@ contains
   write(lunout,9310)
   write(lunout,'(a,1x,i12)') 'method_optbb_renamexf', method_optbb_renamexf
 
-  do 2900 ipair = 1, npair_renamexf
+  do ipair = 1, npair_renamexf
   mfrm = modefrm_renamexf(ipair)
   mtoo = modetoo_renamexf(ipair)
   write(lunout,9320) ipair, mfrm, mtoo, &
@@ -214,7 +214,7 @@ contains
   write(lunout,'(5x,a,1p,2e12.3)') 'dp_xferall_thresh   ', &
     dp_xferall_thresh(ipair)
 
-2900  continue
+  end do
   write(lunout,*)
 
   end if ! ( masterproc )

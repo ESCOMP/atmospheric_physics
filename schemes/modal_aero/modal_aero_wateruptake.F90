@@ -305,7 +305,7 @@ subroutine modal_aero_kohler(rdry_in, hygro, s, rwet_out, im)
    end do
 
 
-    do 100 i=1,im
+    do i=1,im
 
 !       if(vol(i).le.1.e-20)then
      if(vol(i)<=1.e-12_kind_phys)then
@@ -380,7 +380,7 @@ subroutine modal_aero_kohler(rdry_in, hygro, s, rwet_out, im)
         r(i)=(r4*(1._kind_phys-s(i))+r3*(s(i)-1._kind_phys+eps))/eps
      end if
 
-100 continue
+    end do
 
    ! bound and convert from microns to m
    do i=1,im
@@ -458,7 +458,7 @@ subroutine makoh_quartic(cx, p3, p2, p1, p0, im)
 
       czero=cmplx(0.0_kind_phys,0.0_kind_phys,kind_phys)
 
-      do 10 i=1,im
+      do i=1,im
 
       q(i)=-p2(i)*p2(i)/36._kind_phys+(p3(i)*p1(i)-4*p0(i))/12._kind_phys
       r(i)=-(p2(i)/6)**3+p2(i)*(p3(i)*p1(i)-4*p0(i))/48._kind_phys   &
@@ -494,7 +494,7 @@ subroutine makoh_quartic(cx, p3, p2, p1, p0, im)
          cx(3,i)=(-cb(i)+crad(i))/2._kind_phys
          cx(4,i)=(-cb(i)-crad(i))/2._kind_phys
       end if
-   10 continue
+      end do
 
 end subroutine makoh_quartic
 
