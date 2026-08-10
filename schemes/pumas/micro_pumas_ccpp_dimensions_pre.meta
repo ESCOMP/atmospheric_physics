@@ -138,7 +138,7 @@
   advected = true
 [pumas_cldliq]
   standard_name = pumas_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water
-  long_name = microphysics liquid mixing ration wrt moist air and condensed water of new state
+  long_name = microphysics cloud liquid mixing ratio wrt moist air and condensed water of new state
   units = kg kg-1
   dimensions = (microphysics_horizontal_loop_extent, microphysics_vertical_layer_dimension)
   type = real

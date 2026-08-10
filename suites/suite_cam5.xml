@@ -6,12 +6,12 @@
       Deep convection         ZM
       Shallow convection      UW         (not implemented)
       Macrophysics            Park       (not implemented)
-      Microphysics            PUMAS      (not implemented)
+      Microphysics            PUMAS
           * note - original was MG1.
       Radiation               RRTMGP
       Chemistry               None       (not implemented)
       Vertical Diffusion      UW (Bretherton-Park)
-        Orographic Stress     Beljaars
+      Orographic Stress       Beljaars
           * note - original was TMS but decided to skip port.
       Gravity Wave Drag       Orographic
   -->
@@ -97,9 +97,6 @@
     -->
     <scheme>compute_cloud_fraction</scheme>
 
-    <!-- State diagnostics -->
-    <scheme>sima_state_diagnostics</scheme>
-
     <!-- cloud microphysics (PUMAS) -->
 
     <scheme>initialize_constituents</scheme>
@@ -127,6 +124,9 @@
     <scheme>micro_pumas_ccpp_optics_limiter</scheme>
     <scheme>apply_heating_rate</scheme>
     <scheme>geopotential_temp</scheme>
+
+    <!-- State diagnostics -->
+    <scheme>sima_state_diagnostics</scheme>
 
     <!-- Radiation (RRTMGP) -->
     <scheme>rrtmgp_pre</scheme>
