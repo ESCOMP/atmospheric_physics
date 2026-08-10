@@ -4,7 +4,6 @@ module modal_aero_rename
 
   implicit none
   private
-  save
 
   public :: modal_aero_rename_init
   public :: modal_aero_rename_run
@@ -52,7 +51,7 @@ contains
        igrow_shrink_renamexf, ixferable_all_renamexf,            &
        cnst_name_in,       cnst_name_cw_in,                      &
        pi,                 amRoot,            iulog_in,          &
-       errmsg,             errflg                                )
+       errmsg,             errflg)
 
     ! arguments
     logical,  intent(in) :: modal_accum_coarse_exch
@@ -95,8 +94,10 @@ contains
 
     iulog = iulog_in
     ! stored only for the (disabled) per-column diagnostic + one-time log
-    allocate(cnst_name(size(cnst_name_in)));       cnst_name(:)    = cnst_name_in(:)
-    allocate(cnst_name_cw(size(cnst_name_cw_in))); cnst_name_cw(:) = cnst_name_cw_in(:)
+    allocate(cnst_name(size(cnst_name_in)))
+    cnst_name(:)    = cnst_name_in(:)
+    allocate(cnst_name_cw(size(cnst_name_cw_in)))
+    cnst_name_cw(:) = cnst_name_cw_in(:)
 
     allocate(ido_mode_calcaa(ntot_amode))
     allocate(dryvol_smallest(ntot_amode))
@@ -105,7 +106,7 @@ contains
     allocate(v2nhirlx(ntot_amode), v2nlorlx(ntot_amode))
 
     ! nothing to precompute unless there are renaming pairs
-    if (npair_renamexf .le. 0) return
+    if (npair_renamexf <= 0) return
 
     lunout    = iulog
     masterproc = amRoot
@@ -127,7 +128,7 @@ contains
 
       factoraa(mfrm) = (pi/6._kind_phys)*exp(4.5_kind_phys*(alnsg_amode(mfrm)**2))
       factoraa(mtoo) = (pi/6._kind_phys)*exp(4.5_kind_phys*(alnsg_amode(mtoo)**2))
-      factoryy(mfrm) = sqrt( 0.5_kind_phys )/alnsg_amode(mfrm)
+      factoryy(mfrm) = sqrt(0.5_kind_phys)/alnsg_amode(mfrm)
 
 !   dryvol_smallest is a very small volume mixing ratio (m3-AP/kmol-air)
 !   used for avoiding overflow.  it corresponds to dp = 1 nm
@@ -140,7 +141,7 @@ contains
 
       dp_cut(ipair) = sqrt( &
                  dgnum_amode(mfrm)*exp(1.5_kind_phys*(alnsg_amode(mfrm)**2)) *   &
-                 dgnum_amode(mtoo)*exp(1.5_kind_phys*(alnsg_amode(mtoo)**2)) )
+                 dgnum_amode(mtoo)*exp(1.5_kind_phys*(alnsg_amode(mtoo)**2)))
       dp_xferall_thresh(ipair) = dgnum_amode(mtoo)
       dp_xfernone_threshaa(ipair) = dgnum_amode(mfrm)
       if (((mfrm == modeptr_accum) .and. (mtoo == modeptr_coarse)).or.&
@@ -155,14 +156,14 @@ contains
                dp_xferall_thresh(ipair)    = 4.1e-7_kind_phys
             end if
 
-      lndp_cut(ipair) = log( dp_cut(ipair) )
+      lndp_cut(ipair) = log(dp_cut(ipair))
       dp_belowcut(ipair) = 0.99_kind_phys*dp_cut(ipair)
          end do
 
 !
 !   output results
 !
-  if ( masterproc ) then
+  if (masterproc) then
 
   write(lunout,9310)
   write(lunout,'(a,1x,i12)') 'method_optbb_renamexf', method_optbb_renamexf
@@ -178,16 +179,16 @@ contains
       lstooa = lspectooa_renamexf(iq,ipair)
       lsfrmc = lspecfrmc_renamexf(iq,ipair)
       lstooc = lspectooc_renamexf(iq,ipair)
-      if (lstooa .gt. 0) then
+      if (lstooa > 0) then
     write(lunout,9330) lsfrma, cnst_name(lsfrma),   &
            lstooa, cnst_name(lstooa)
       else
     write(lunout,9340) lsfrma, cnst_name(lsfrma)
       end if
-      if (lstooc .gt. 0) then
+      if (lstooc > 0) then
     write(lunout,9330) lsfrmc, cnst_name_cw(lsfrmc),   &
            lstooc, cnst_name_cw(lstooc)
-      else if (lsfrmc .gt. 0) then
+      else if (lsfrmc > 0) then
     write(lunout,9340) lsfrmc, cnst_name_cw(lsfrmc)
       else
     write(lunout,9350)
@@ -221,12 +222,12 @@ contains
 
     return
 
-9310  format( / 'subr. modal_aero_rename_acc_crs_init' )
-9320  format( / 'pair', i3, 5x, 'mode', i3, ' ---> mode', i3, &
-          5x, 'igrow_shrink', i3, 5x, 'ixferable_all', i3 )
-9330  format( 5x, 'spec', i3, '=', a, ' ---> spec', i3, '=', a )
-9340  format( 5x, 'spec', i3, '=', a, ' ---> LOSS' )
-9350  format( 5x, 'no corresponding activated species' )
+9310  format(/ 'subr. modal_aero_rename_acc_crs_init')
+9320  format(/ 'pair', i3, 5x, 'mode', i3, ' ---> mode', i3, &
+          5x, 'igrow_shrink', i3, 5x, 'ixferable_all', i3)
+9330  format(5x, 'spec', i3, '=', a, ' ---> spec', i3, '=', a)
+9340  format(5x, 'spec', i3, '=', a, ' ---> LOSS')
+9350  format(5x, 'no corresponding activated species')
 
   end subroutine modal_aero_rename_init
 
@@ -261,7 +262,7 @@ contains
        strat_only_renamexf,                    &
        modal_accum_coarse_exch,                &
        pver,              gravit,              &
-       errmsg,            errflg               )
+       errmsg,            errflg)
     integer,  intent(in)    :: ncol                 ! number of atmospheric column
     integer,  intent(in)    :: loffset              ! offset applied to modal aero "ptrs"
     real(kind_phys), intent(in)    :: deltat               ! time step (s)
@@ -353,7 +354,7 @@ contains
             ixferable_a_renamexf, ixferable_c_renamexf, &
             strat_only_renamexf,                    &
             pver,              gravit,              &
-            errmsg,            errflg               )
+            errmsg,            errflg)
     else
        ! no_acc path does not produce dqdt_rnpos; define the required output here.
        dqdt_rnpos(:,:,:) = 0.0_kind_phys
@@ -380,7 +381,7 @@ contains
             lmassptrcw_amode,  numptr_amode,        &
             numptrcw_amode,    pi,                  &
             pver,              gravit,              &
-            errmsg,            errflg               )
+            errmsg,            errflg)
     end if
   end subroutine modal_aero_rename_run
 
@@ -410,7 +411,7 @@ contains
                         lmassptrcw_amode,  numptr_amode,        &
                         numptrcw_amode,    pi,                  &
                         pver,              gravit,              &
-                        errmsg,            errflg               )
+                        errmsg,            errflg)
    use shr_spfn_mod, only: erfc => shr_spfn_erfc
 
    integer,  intent(in)    :: ncol                 ! number of atmospheric column
@@ -547,7 +548,7 @@ contains
 !
 !   check if any renaming pairs exist
 !
-  if (npair_renamexf .le. 0) return
+  if (npair_renamexf <= 0) return
 !   if (ncol .ne. -123456789) return
 ! if (fromwhere .eq. 'aqchem') return
 
@@ -566,14 +567,14 @@ contains
   end do
 
   do ipair = 1, npair_renamexf
-      if (ipair .gt. 1) goto 8100
+      if (ipair > 1) goto 8100
       idomode(modefrm_renamexf(ipair)) = 1
 
       mfrm = modefrm_renamexf(ipair)
       mtoo = modetoo_renamexf(ipair)
       factoraa(mfrm) = (pi/6._kind_phys)*exp(4.5_kind_phys*(alnsg_amode(mfrm)**2))
       factoraa(mtoo) = (pi/6._kind_phys)*exp(4.5_kind_phys*(alnsg_amode(mtoo)**2))
-      factoryy(mfrm) = sqrt( 0.5_kind_phys )/alnsg_amode(mfrm)
+      factoryy(mfrm) = sqrt(0.5_kind_phys)/alnsg_amode(mfrm)
 !   dryvol_smallest is a very small volume mixing ratio (m3-AP/kmol-air)
 !   used for avoiding overflow.  it corresponds to dp = 1 nm
 !   and number = 1e-5 #/mg-air ~= 1e-5 #/cm3-air
@@ -584,13 +585,13 @@ contains
       dum3alnsg2(ipair) = 3.0_kind_phys * (alnsg_amode(mfrm)**2)
       dp_cut(ipair) = sqrt(   &
     dgnum_amode(mfrm)*exp(1.5_kind_phys*(alnsg_amode(mfrm)**2)) *   &
-    dgnum_amode(mtoo)*exp(1.5_kind_phys*(alnsg_amode(mtoo)**2)) )
-      lndp_cut(ipair) = log( dp_cut(ipair) )
+    dgnum_amode(mtoo)*exp(1.5_kind_phys*(alnsg_amode(mtoo)**2)))
+      lndp_cut(ipair) = log(dp_cut(ipair))
       dp_belowcut(ipair) = 0.99_kind_phys*dp_cut(ipair)
   end do
 
   do n = 1, ntot_amode
-      if (idomode(n) .gt. 0) then
+      if (idomode(n) > 0) then
     dryvol_a(1:ncol,:,n) = 0.0_kind_phys
     dryvol_c(1:ncol,:,n) = 0.0_kind_phys
     deldryvol_a(1:ncol,:,n) = 0.0_kind_phys
@@ -603,8 +604,8 @@ contains
         la = lmassptr_amode(l1,n)-loffset
         if (la > 0) then
         dryvol_a(1:ncol,:,n) = dryvol_a(1:ncol,:,n)    &
-      + dum_m2v*max( 0.0_kind_phys,   &
-                          q(1:ncol,:,la)-deltat*dqdt_other(1:ncol,:,la) )
+      + dum_m2v*max(0.0_kind_phys,   &
+                          q(1:ncol,:,la)-deltat*dqdt_other(1:ncol,:,la))
         deldryvol_a(1:ncol,:,n) = deldryvol_a(1:ncol,:,n)    &
       + (dqdt_other(1:ncol,:,la) + dqdt(1:ncol,:,la))*dum_m2vdt
         end if
@@ -612,8 +613,8 @@ contains
         lc = lmassptrcw_amode(l1,n)-loffset
         if (lc > 0) then
         dryvol_c(1:ncol,:,n) = dryvol_c(1:ncol,:,n)    &
-      + dum_m2v*max( 0.0_kind_phys,   &
-                          qqcw(1:ncol,:,lc)-deltat*dqqcwdt_other(1:ncol,:,lc) )
+      + dum_m2v*max(0.0_kind_phys,   &
+                          qqcw(1:ncol,:,lc)-deltat*dqqcwdt_other(1:ncol,:,lc))
         deldryvol_c(1:ncol,:,n) = deldryvol_c(1:ncol,:,n)    &
       + (dqqcwdt_other(1:ncol,:,lc) +   &
                dqqcwdt(1:ncol,:,lc))*dum_m2vdt
@@ -651,56 +652,56 @@ mainloop1_ipair:  do ipair = 1, npair_renamexf
   dryvol_t_old = dryvol_a(i,k,mfrm) + dryvol_c(i,k,mfrm)
   dryvol_t_del = deldryvol_a(i,k,mfrm) + deldryvol_c(i,k,mfrm)
   dryvol_t_new = dryvol_t_old + dryvol_t_del
-  dryvol_t_oldbnd = max( dryvol_t_old, dryvol_smallest(mfrm) )
+  dryvol_t_oldbnd = max(dryvol_t_old, dryvol_smallest(mfrm))
 
 !   no renaming if dryvol_t_new ~ 0 or dryvol_t_del ~ 0
-  if (dryvol_t_new .le. dryvol_smallest(mfrm)) cycle mainloop1_ipair
-  if (dryvol_t_del .le. 1.0e-6_kind_phys*dryvol_t_oldbnd) cycle mainloop1_ipair
+  if (dryvol_t_new <= dryvol_smallest(mfrm)) cycle mainloop1_ipair
+  if (dryvol_t_del <= 1.0e-6_kind_phys*dryvol_t_oldbnd) cycle mainloop1_ipair
 
 !   num_t_old is total number in particles/kmol-air
   num_t_old = q(i,k,numptr_amode(mfrm)-loffset)
   num_t_old = num_t_old + qqcw(i,k,numptrcw_amode(mfrm)-loffset)
-  num_t_old = max( 0.0_kind_phys, num_t_old )
-  dryvol_t_oldbnd = max( dryvol_t_old, dryvol_smallest(mfrm) )
-  num_t_oldbnd = min( dryvol_t_oldbnd*v2nlorlx(mfrm), num_t_old )
-  num_t_oldbnd = max( dryvol_t_oldbnd*v2nhirlx(mfrm), num_t_oldbnd )
+  num_t_old = max(0.0_kind_phys, num_t_old)
+  dryvol_t_oldbnd = max(dryvol_t_old, dryvol_smallest(mfrm))
+  num_t_oldbnd = min(dryvol_t_oldbnd*v2nlorlx(mfrm), num_t_old)
+  num_t_oldbnd = max(dryvol_t_oldbnd*v2nhirlx(mfrm), num_t_oldbnd)
 
 !   no renaming if dgnum < "base" dgnum,
   dgn_t_new = (dryvol_t_new/(num_t_oldbnd*factoraa(mfrm)))**onethird
-  if (dgn_t_new .le. dgnum_amode(mfrm)) cycle mainloop1_ipair
+  if (dgn_t_new <= dgnum_amode(mfrm)) cycle mainloop1_ipair
 
 !   compute new fraction of number and mass in the tail (dp > dp_cut)
-  lndgn_new = log( dgn_t_new )
+  lndgn_new = log(dgn_t_new)
   lndgv_new = lndgn_new + dum3alnsg2(ipair)
   yn_tail = (lndp_cut(ipair) - lndgn_new)*factoryy(mfrm)
   yv_tail = (lndp_cut(ipair) - lndgv_new)*factoryy(mfrm)
-  tailfr_numnew = 0.5_kind_phys*erfc( yn_tail )
-  tailfr_volnew = 0.5_kind_phys*erfc( yv_tail )
+  tailfr_numnew = 0.5_kind_phys*erfc(yn_tail)
+  tailfr_volnew = 0.5_kind_phys*erfc(yv_tail)
 
 !   compute old fraction of number and mass in the tail (dp > dp_cut)
   dgn_t_old =   &
     (dryvol_t_oldbnd/(num_t_oldbnd*factoraa(mfrm)))**onethird
 !   if dgn_t_new exceeds dp_cut, use the minimum of dgn_t_old and
 !   dp_belowcut to guarantee some transfer
-  if (dgn_t_new .ge. dp_cut(ipair)) then
-      dgn_t_old = min( dgn_t_old, dp_belowcut(ipair) )
+  if (dgn_t_new >= dp_cut(ipair)) then
+      dgn_t_old = min(dgn_t_old, dp_belowcut(ipair))
   end if
-  lndgn_old = log( dgn_t_old )
+  lndgn_old = log(dgn_t_old)
   lndgv_old = lndgn_old + dum3alnsg2(ipair)
   yn_tail = (lndp_cut(ipair) - lndgn_old)*factoryy(mfrm)
   yv_tail = (lndp_cut(ipair) - lndgv_old)*factoryy(mfrm)
-  tailfr_numold = 0.5_kind_phys*erfc( yn_tail )
-  tailfr_volold = 0.5_kind_phys*erfc( yv_tail )
+  tailfr_numold = 0.5_kind_phys*erfc(yn_tail)
+  tailfr_volold = 0.5_kind_phys*erfc(yv_tail)
 
 !   transfer fraction is difference between new and old tail-fractions
 !   transfer fraction for number cannot exceed that of mass
   dum = tailfr_volnew*dryvol_t_new - tailfr_volold*dryvol_t_old
-  if (dum .le. 0.0_kind_phys) cycle mainloop1_ipair
+  if (dum <= 0.0_kind_phys) cycle mainloop1_ipair
 
-  xferfrac_vol = min( dum, dryvol_t_new )/dryvol_t_new
-  xferfrac_vol = min( xferfrac_vol, xferfrac_max )
+  xferfrac_vol = min(dum, dryvol_t_new)/dryvol_t_new
+  xferfrac_vol = min(xferfrac_vol, xferfrac_max)
   xferfrac_num = tailfr_numnew - tailfr_numold
-  xferfrac_num = max( 0.0_kind_phys, min( xferfrac_num, xferfrac_vol ) )
+  xferfrac_num = max(0.0_kind_phys, min(xferfrac_num, xferfrac_vol))
 
 !
 !   compute tendencies for the renaming transfer
@@ -708,21 +709,21 @@ mainloop1_ipair:  do ipair = 1, npair_renamexf
   j = jsrflx_rename
   do iq = 1, nspecfrm_renamexf(ipair)
       xfercoef = xferfrac_vol*deltatinv
-      if (iq .eq. 1) xfercoef = xferfrac_num*deltatinv
+      if (iq == 1) xfercoef = xferfrac_num*deltatinv
 
       lsfrma = lspecfrma_renamexf(iq,ipair)-loffset
       lsfrmc = lspecfrmc_renamexf(iq,ipair)-loffset
       lstooa = lspectooa_renamexf(iq,ipair)-loffset
       lstooc = lspectooc_renamexf(iq,ipair)-loffset
 
-      if (lsfrma .gt. 0) then
-    xfertend = xfercoef*max( 0.0_kind_phys,   &
-          (q(i,k,lsfrma)+dqdt(i,k,lsfrma)*deltat) )
+      if (lsfrma > 0) then
+    xfertend = xfercoef*max(0.0_kind_phys,   &
+          (q(i,k,lsfrma)+dqdt(i,k,lsfrma)*deltat))
 
 !   diagnostic output start ----------------------------------------
                 if (ldiag1 > 0) then
                 if ((i == icol_diag) .and. (mod(k-1,5) == 0)) then
-                  if (lstooa .gt. 0) then
+                  if (lstooa > 0) then
                     write(*,'(a,i4,2(2x,a),1p,10e14.6)') 'RENAME qdels', iq,   &
                         cnst_name(lsfrma+loffset), cnst_name(lstooa+loffset),   &
                         deltat*dqdt(i,k,lsfrma), deltat*(dqdt(i,k,lsfrma) - xfertend),   &
@@ -739,18 +740,18 @@ mainloop1_ipair:  do ipair = 1, npair_renamexf
 
     dqdt(i,k,lsfrma) = dqdt(i,k,lsfrma) - xfertend
     qsrflx(i,lsfrma,j) = qsrflx(i,lsfrma,j) - xfertend*pdel_fac
-    if (lstooa .gt. 0) then
+    if (lstooa > 0) then
         dqdt(i,k,lstooa) = dqdt(i,k,lstooa) + xfertend
         qsrflx(i,lstooa,j) = qsrflx(i,lstooa,j) + xfertend*pdel_fac
     end if
       end if
 
-      if (lsfrmc .gt. 0) then
-    xfertend = xfercoef*max( 0.0_kind_phys,   &
-          (qqcw(i,k,lsfrmc)+dqqcwdt(i,k,lsfrmc)*deltat) )
+      if (lsfrmc > 0) then
+    xfertend = xfercoef*max(0.0_kind_phys,   &
+          (qqcw(i,k,lsfrmc)+dqqcwdt(i,k,lsfrmc)*deltat))
     dqqcwdt(i,k,lsfrmc) = dqqcwdt(i,k,lsfrmc) - xfertend
     qqcwsrflx(i,lsfrmc,j) = qqcwsrflx(i,lsfrmc,j) - xfertend*pdel_fac
-    if (lstooc .gt. 0) then
+    if (lstooc > 0) then
         dqqcwdt(i,k,lstooc) = dqqcwdt(i,k,lstooc) + xfertend
         qqcwsrflx(i,lstooc,j) = qqcwsrflx(i,lstooc,j) + xfertend*pdel_fac
     end if
@@ -776,13 +777,13 @@ mainloop1_ipair:  do ipair = 1, npair_renamexf
       lsfrmc = lspecfrmc_renamexf(iq,ipair) - loffset
       lstooa = lspectooa_renamexf(iq,ipair) - loffset
       lstooc = lspectooc_renamexf(iq,ipair) - loffset
-      if (lsfrma .gt. 0) then
+      if (lsfrma > 0) then
     dotendrn(lsfrma) = .true.
-    if (lstooa .gt. 0) dotendrn(lstooa) = .true.
+    if (lstooa > 0) dotendrn(lstooa) = .true.
       end if
-      if (lsfrmc .gt. 0) then
+      if (lsfrmc > 0) then
     dotendqqcwrn(lsfrmc) = .true.
-    if (lstooc .gt. 0) dotendqqcwrn(lstooc) = .true.
+    if (lstooc > 0) dotendqqcwrn(lstooc) = .true.
       end if
   end do
   end do
@@ -798,8 +799,8 @@ mainloop1_ipair:  do ipair = 1, npair_renamexf
   errflg = 1
   errmsg = 'modal_aero_rename_no_acc_crs_sub error'
   return
-9050  format( / '*** subr. modal_aero_rename_no_acc_crs_sub ***' /   &
-            4x, 'aerosol renaming not implemented for ipair =', i5 )
+9050  format(/ '*** subr. modal_aero_rename_no_acc_crs_sub ***' /   &
+            4x, 'aerosol renaming not implemented for ipair =', i5)
 
 !EOC
   end subroutine modal_aero_rename_no_acc_crs_sub
@@ -836,7 +837,7 @@ mainloop1_ipair:  do ipair = 1, npair_renamexf
                         ixferable_a_renamexf, ixferable_c_renamexf, &
                         strat_only_renamexf,                    &
                         pver,              gravit,              &
-                        errmsg,            errflg               )
+                        errmsg,            errflg)
 
 ! !USES:
 
@@ -987,7 +988,7 @@ mainloop1_ipair:  do ipair = 1, npair_renamexf
 !
 !   check if any renaming pairs exist
 !
-  if (npair_renamexf .le. 0) return
+  if (npair_renamexf <= 0) return
 !   if (ncol .ne. -123456789) return
 ! if (fromwhere .eq. 'aqchem') return
 
@@ -1037,31 +1038,31 @@ mainloop1_ipair:  do ipair = 1, npair_renamexf
       la = lmassptr_amode(l1,n)-loffset
       if (la > 0) then
     dryvol_a(1:ncol,:) = dryvol_a(1:ncol,:)    &
-        + tmp_m2v*max( 0.0_kind_phys,   &
-          q(1:ncol,:,la)-deltat*dqdt_other(1:ncol,:,la) )
+        + tmp_m2v*max(0.0_kind_phys,   &
+          q(1:ncol,:,la)-deltat*dqdt_other(1:ncol,:,la))
     deldryvol_a(1:ncol,:) = deldryvol_a(1:ncol,:)    &
         + (dqdt_other(1:ncol,:,la) + dqdt(1:ncol,:,la))*tmp_m2vdt
-    if ( (ixferable_all_renamexf(ipair) <= 0) .and. &
-         (ixferable_a_renamexf(l1,ipair) > 0) ) then
+    if ((ixferable_all_renamexf(ipair) <= 0) .and. &
+         (ixferable_a_renamexf(l1,ipair) > 0)) then
         dryvol_a_xfab(1:ncol,:) = dryvol_a_xfab(1:ncol,:)    &
-      + tmp_m2v*max( 0.0_kind_phys,   &
-      q(1:ncol,:,la)+deltat*dqdt(1:ncol,:,la) )
+      + tmp_m2v*max(0.0_kind_phys,   &
+      q(1:ncol,:,la)+deltat*dqdt(1:ncol,:,la))
     end if
       end if
 
       lc = lmassptrcw_amode(l1,n)-loffset
       if (lc > 0) then
     dryvol_c(1:ncol,:) = dryvol_c(1:ncol,:)    &
-        + tmp_m2v*max( 0.0_kind_phys,   &
-          qqcw(1:ncol,:,lc)-deltat*dqqcwdt_other(1:ncol,:,lc) )
+        + tmp_m2v*max(0.0_kind_phys,   &
+          qqcw(1:ncol,:,lc)-deltat*dqqcwdt_other(1:ncol,:,lc))
     deldryvol_c(1:ncol,:) = deldryvol_c(1:ncol,:)    &
         + (dqqcwdt_other(1:ncol,:,lc) +   &
                  dqqcwdt(1:ncol,:,lc))*tmp_m2vdt
-    if ( (ixferable_all_renamexf(ipair) <= 0) .and. &
-         (ixferable_c_renamexf(l1,ipair) > 0) ) then
+    if ((ixferable_all_renamexf(ipair) <= 0) .and. &
+         (ixferable_c_renamexf(l1,ipair) > 0)) then
         dryvol_c_xfab(1:ncol,:) = dryvol_c_xfab(1:ncol,:)    &
-      + tmp_m2v*max( 0.0_kind_phys,   &
-        qqcw(1:ncol,:,lc)+deltat*dqqcwdt(1:ncol,:,lc) )
+      + tmp_m2v*max(0.0_kind_phys,   &
+        qqcw(1:ncol,:,lc)+deltat*dqqcwdt(1:ncol,:,lc))
     end if
       end if
   end do
@@ -1080,8 +1081,8 @@ mainloop1_i:  do i = 1, ncol
   end if
 
 !   if strat_only_renamexf is true, then cycle when at or below the tropopause level
-        if ( strat_only_renamexf(ipair) ) then
-            if ( k >= troplev(i) ) cycle mainloop1_i
+        if (strat_only_renamexf(ipair)) then
+            if (k >= troplev(i)) cycle mainloop1_i
         end if
 
 
@@ -1092,99 +1093,99 @@ mainloop1_i:  do i = 1, ncol
   dryvol_t_old = dryvol_a(i,k) + dryvol_c(i,k)
   dryvol_t_del = deldryvol_a(i,k) + deldryvol_c(i,k)
   dryvol_t_new = dryvol_t_old + dryvol_t_del
-  dryvol_t_oldbnd = max( dryvol_t_old, dryvol_smallest(mfrm) )
+  dryvol_t_oldbnd = max(dryvol_t_old, dryvol_smallest(mfrm))
 
 grow_shrink_conditional1: &
   if (igrow_shrink_renamexf(ipair) > 0) then
 !   do renaming for growing particles
 
 !   no renaming if dryvol_t_new ~ 0
-  if (dryvol_t_new .le. dryvol_smallest(mfrm)) cycle mainloop1_i
+  if (dryvol_t_new <= dryvol_smallest(mfrm)) cycle mainloop1_i
 !   no renaming if delta_dryvol is very small or negative
-  if ( (method_optbb_renamexf /= 2) .and. &
-       (dryvol_t_del .le. 1.0e-6_kind_phys*dryvol_t_oldbnd) ) cycle mainloop1_i
+  if ((method_optbb_renamexf /= 2) .and. &
+       (dryvol_t_del <= 1.0e-6_kind_phys*dryvol_t_oldbnd)) cycle mainloop1_i
 
 !   num_t_old is total number in particles/kmol-air
   num_t_old = q(i,k,numptr_amode(mfrm)-loffset)
   num_t_old = num_t_old + qqcw(i,k,numptrcw_amode(mfrm)-loffset)
-  num_t_old = max( 0.0_kind_phys, num_t_old )
-  dryvol_t_oldbnd = max( dryvol_t_old, dryvol_smallest(mfrm) )
-  num_t_oldbnd = min( dryvol_t_oldbnd*v2nlorlx(mfrm), num_t_old )
-  num_t_oldbnd = max( dryvol_t_oldbnd*v2nhirlx(mfrm), num_t_oldbnd )
+  num_t_old = max(0.0_kind_phys, num_t_old)
+  dryvol_t_oldbnd = max(dryvol_t_old, dryvol_smallest(mfrm))
+  num_t_oldbnd = min(dryvol_t_oldbnd*v2nlorlx(mfrm), num_t_old)
+  num_t_oldbnd = max(dryvol_t_oldbnd*v2nhirlx(mfrm), num_t_oldbnd)
 
 !   compute new dgnum
   dgn_t_new = (dryvol_t_new/(num_t_oldbnd*factoraa(mfrm)))**onethird
 !   no renaming if dgn_t_new < threshold value
-  if (dgn_t_new .le. dp_xfernone_threshaa(ipair)) cycle mainloop1_i
+  if (dgn_t_new <= dp_xfernone_threshaa(ipair)) cycle mainloop1_i
 
 !   compute old dgnum and possibly a smaller value to get more renaming transfer
   dgn_t_old =   &
     (dryvol_t_oldbnd/(num_t_oldbnd*factoraa(mfrm)))**onethird
   dgn_t_oldb = dgn_t_old
   dryvol_t_oldb = dryvol_t_old
-  if ( method_optbb_renamexf == 2) then
-      if (dgn_t_old .ge. dp_cut(ipair)) then
+  if (method_optbb_renamexf == 2) then
+      if (dgn_t_old >= dp_cut(ipair)) then
     ! this revised volume corresponds to dgn_t_old == dp_belowcut, and same number conc
     dryvol_t_oldb = dryvol_t_old * (dp_belowcut(ipair)/dgn_t_old)**3
     dgn_t_oldb = dp_belowcut(ipair)
       end if
-      if (dgn_t_new .lt. dp_xferall_thresh(ipair)) then
+      if (dgn_t_new < dp_xferall_thresh(ipair)) then
     !   no renaming if delta_dryvol is very small or negative
-    if ((dryvol_t_new-dryvol_t_oldb) .le. 1.0e-6_kind_phys*dryvol_t_oldbnd) cycle mainloop1_i
+    if ((dryvol_t_new-dryvol_t_oldb) <= 1.0e-6_kind_phys*dryvol_t_oldbnd) cycle mainloop1_i
       end if
 
-  else if (dgn_t_new .ge. dp_cut(ipair)) then
+  else if (dgn_t_new >= dp_cut(ipair)) then
 !   if dgn_t_new exceeds dp_cut, use the minimum of dgn_t_oldb and
 !   dp_belowcut to guarantee some transfer
-      dgn_t_oldb = min( dgn_t_oldb, dp_belowcut(ipair) )
+      dgn_t_oldb = min(dgn_t_oldb, dp_belowcut(ipair))
   end if
 
 !   compute new fraction of number and mass in the tail (dp > dp_cut)
-  lndgn_new = log( dgn_t_new )
+  lndgn_new = log(dgn_t_new)
   lndgv_new = lndgn_new + factor_3alnsg2(ipair)
   yn_tail = (lndp_cut(ipair) - lndgn_new)*factoryy(mfrm)
   yv_tail = (lndp_cut(ipair) - lndgv_new)*factoryy(mfrm)
-  tailfr_numnew = 0.5_kind_phys*erfc( yn_tail )
-  tailfr_volnew = 0.5_kind_phys*erfc( yv_tail )
+  tailfr_numnew = 0.5_kind_phys*erfc(yn_tail)
+  tailfr_volnew = 0.5_kind_phys*erfc(yv_tail)
 
 !   compute old fraction of number and mass in the tail (dp > dp_cut)
-  lndgn_old = log( dgn_t_oldb )
+  lndgn_old = log(dgn_t_oldb)
   lndgv_old = lndgn_old + factor_3alnsg2(ipair)
   yn_tail = (lndp_cut(ipair) - lndgn_old)*factoryy(mfrm)
   yv_tail = (lndp_cut(ipair) - lndgv_old)*factoryy(mfrm)
-  tailfr_numold = 0.5_kind_phys*erfc( yn_tail )
-  tailfr_volold = 0.5_kind_phys*erfc( yv_tail )
+  tailfr_numold = 0.5_kind_phys*erfc(yn_tail)
+  tailfr_volold = 0.5_kind_phys*erfc(yv_tail)
 
 !   transfer fraction is difference between new and old tail-fractions
 !   transfer fraction for number cannot exceed that of mass
-  if ( (method_optbb_renamexf == 2) .and. &
-       (dgn_t_new .ge. dp_xferall_thresh(ipair)) ) then
+  if ((method_optbb_renamexf == 2) .and. &
+       (dgn_t_new >= dp_xferall_thresh(ipair))) then
       dryvol_xferamt = dryvol_t_new
   else
       dryvol_xferamt = tailfr_volnew*dryvol_t_new - tailfr_volold*dryvol_t_oldb
   end if
-  if (dryvol_xferamt .le. 0.0_kind_phys) cycle mainloop1_i
+  if (dryvol_xferamt <= 0.0_kind_phys) cycle mainloop1_i
 
-  xferfrac_vol = max( 0.0_kind_phys, (dryvol_xferamt/dryvol_t_new) )
-  if ( method_optbb_renamexf == 2 .and. &
-       (xferfrac_vol >= xferfrac_max) ) then
+  xferfrac_vol = max(0.0_kind_phys, (dryvol_xferamt/dryvol_t_new))
+  if (method_optbb_renamexf == 2 .and. &
+       (xferfrac_vol >= xferfrac_max)) then
       ! transfer entire contents of mode
       xferfrac_vol = 1.0_kind_phys
       xferfrac_num = 1.0_kind_phys
   else
-      xferfrac_vol = min( xferfrac_vol, xferfrac_max )
+      xferfrac_vol = min(xferfrac_vol, xferfrac_max)
       xferfrac_num = tailfr_numnew - tailfr_numold
-      xferfrac_num = max( 0.0_kind_phys, min( xferfrac_num, xferfrac_vol ) )
+      xferfrac_num = max(0.0_kind_phys, min(xferfrac_num, xferfrac_vol))
   end if
 
   if (ixferable_all_renamexf(ipair) <= 0) then
       ! not all species are xferable
-      dryvol_t_new_xfab = max( 0.0_kind_phys, (dryvol_a_xfab(i,k) + dryvol_c_xfab(i,k)) )
+      dryvol_t_new_xfab = max(0.0_kind_phys, (dryvol_a_xfab(i,k) + dryvol_c_xfab(i,k)))
       dryvol_xferamt = xferfrac_vol*dryvol_t_new
       if (dryvol_t_new_xfab >= 0.999999_kind_phys*dryvol_xferamt) then
     ! xferable dryvol can supply the needed dryvol_xferamt
     ! but xferfrac_vol must be increased
-    xferfrac_vol = min( 1.0_kind_phys, (dryvol_xferamt/dryvol_t_new_xfab) )
+    xferfrac_vol = min(1.0_kind_phys, (dryvol_xferamt/dryvol_t_new_xfab))
       else if (dryvol_t_new_xfab >= 1.0e-7_kind_phys*dryvol_xferamt) then
     ! xferable dryvol cannot supply the needed dryvol_xferamt
     ! so transfer all of it, and reduce the number transfer
@@ -1200,14 +1201,14 @@ grow_shrink_conditional1: &
 !   do renaming for shrinking particles
 
 !   no renaming if (dryvol_t_old ~ 0)
-  if (dryvol_t_old .le. dryvol_smallest(mfrm)) cycle mainloop1_i
+  if (dryvol_t_old <= dryvol_smallest(mfrm)) cycle mainloop1_i
 
 !   when (delta_dryvol is very small or positive),
 !      which means particles are not evaporating,
 !      only do renaming if [(flagaa_shrink true) and (in stratosphere)]],
 !   and set flagbb_shrink true to identify this special case
-  if (dryvol_t_del .ge. -1.0e-6_kind_phys*dryvol_t_oldbnd) then
-      if ( ( flagaa_shrink ) .and. ( k < troplev(i) ) ) then
+  if (dryvol_t_del >= -1.0e-6_kind_phys*dryvol_t_oldbnd) then
+      if ((flagaa_shrink) .and. (k < troplev(i))) then
     flagbb_shrink = .true.
       else
     cycle mainloop1_i
@@ -1219,32 +1220,32 @@ grow_shrink_conditional1: &
 !   num_t_old is total number in particles/kmol-air
   num_t_old = q(i,k,numptr_amode(mfrm)-loffset)
   num_t_old = num_t_old + qqcw(i,k,numptrcw_amode(mfrm)-loffset)
-  num_t_old = max( 0.0_kind_phys, num_t_old )
-  dryvol_t_oldbnd = max( dryvol_t_old, dryvol_smallest(mfrm) )
-  num_t_oldbnd = min( dryvol_t_oldbnd*v2nlorlx(mfrm), num_t_old )
-  num_t_oldbnd = max( dryvol_t_oldbnd*v2nhirlx(mfrm), num_t_oldbnd )
+  num_t_old = max(0.0_kind_phys, num_t_old)
+  dryvol_t_oldbnd = max(dryvol_t_old, dryvol_smallest(mfrm))
+  num_t_oldbnd = min(dryvol_t_oldbnd*v2nlorlx(mfrm), num_t_old)
+  num_t_oldbnd = max(dryvol_t_oldbnd*v2nhirlx(mfrm), num_t_oldbnd)
 
 !   compute new dgnum
   dgn_t_new = (dryvol_t_new/(num_t_oldbnd*factoraa(mfrm)))**onethird
 !   no renaming if (dgn_t_new > xfernone threshold value)
-  if (dgn_t_new .ge. dp_xfernone_threshaa(ipair)) cycle mainloop1_i
+  if (dgn_t_new >= dp_xfernone_threshaa(ipair)) cycle mainloop1_i
 !   if (flagbb_shrink true), renaming only when (dgn_t_new <= dp_cut value)
-  if ( flagbb_shrink ) then
-      if (dgn_t_new .gt. dp_cut(ipair)) cycle mainloop1_i
+  if (flagbb_shrink) then
+      if (dgn_t_new > dp_cut(ipair)) cycle mainloop1_i
   end if
 
-  if ( dgn_t_new .le. dp_xferall_thresh(ipair) ) then
+  if (dgn_t_new <= dp_xferall_thresh(ipair)) then
 !   special case of (dgn_t_new <= xferall threshold value)
       tailfr_numnew = 1.0_kind_phys
       tailfr_volnew = 1.0_kind_phys
   else
 !   compute new fraction of number and mass in the tail (dp < dp_cut)
-      lndgn_new = log( dgn_t_new )
+      lndgn_new = log(dgn_t_new)
       lndgv_new = lndgn_new + factor_3alnsg2(ipair)
       yn_tail = (lndp_cut(ipair) - lndgn_new)*factoryy(mfrm)
       yv_tail = (lndp_cut(ipair) - lndgv_new)*factoryy(mfrm)
-      tailfr_numnew = 1.0_kind_phys - 0.5_kind_phys*erfc( yn_tail )
-      tailfr_volnew = 1.0_kind_phys - 0.5_kind_phys*erfc( yv_tail )
+      tailfr_numnew = 1.0_kind_phys - 0.5_kind_phys*erfc(yn_tail)
+      tailfr_volnew = 1.0_kind_phys - 0.5_kind_phys*erfc(yv_tail)
   end if
 
 !   compute old dgnum
@@ -1259,7 +1260,7 @@ grow_shrink_conditional1: &
 
 !   transfer fraction is new tail-fraction
   xferfrac_vol = tailfr_volnew
-  if (xferfrac_vol .le. 0.0_kind_phys) cycle mainloop1_i
+  if (xferfrac_vol <= 0.0_kind_phys) cycle mainloop1_i
   xferfrac_num = tailfr_numnew
 
   if (xferfrac_vol >= xferfrac_max) then
@@ -1267,20 +1268,20 @@ grow_shrink_conditional1: &
       xferfrac_vol = 1.0_kind_phys
       xferfrac_num = 1.0_kind_phys
   else
-      xferfrac_vol = min( xferfrac_vol, xferfrac_max )
+      xferfrac_vol = min(xferfrac_vol, xferfrac_max)
 !   transfer fraction for number cannot be less than that of volume
-      xferfrac_num = max( xferfrac_num, xferfrac_vol )
-      xferfrac_num = min( xferfrac_max, xferfrac_num )
+      xferfrac_num = max(xferfrac_num, xferfrac_vol)
+      xferfrac_num = min(xferfrac_max, xferfrac_num)
   end if
 
   if (ixferable_all_renamexf(ipair) <= 0) then
       ! not all species are xferable
-      dryvol_t_new_xfab = max( 0.0_kind_phys, (dryvol_a_xfab(i,k) + dryvol_c_xfab(i,k)) )
+      dryvol_t_new_xfab = max(0.0_kind_phys, (dryvol_a_xfab(i,k) + dryvol_c_xfab(i,k)))
       dryvol_xferamt = xferfrac_vol*dryvol_t_new
       if (dryvol_t_new_xfab >= 0.999999_kind_phys*dryvol_xferamt) then
     ! xferable dryvol can supply the needed dryvol_xferamt
     ! but xferfrac_vol must be increased
-    xferfrac_vol = min( 1.0_kind_phys, (dryvol_xferamt/dryvol_t_new_xfab) )
+    xferfrac_vol = min(1.0_kind_phys, (dryvol_xferamt/dryvol_t_new_xfab))
       else if (dryvol_t_new_xfab >= 1.0e-7_kind_phys*dryvol_xferamt) then
     ! xferable dryvol cannot supply the needed dryvol_xferamt
     ! so transfer all of it, and reduce the number transfer
@@ -1292,7 +1293,7 @@ grow_shrink_conditional1: &
       end if
   end if
 
-  endif grow_shrink_conditional1
+  end if grow_shrink_conditional1
 
 !
 !   compute tendencies for the renaming transfer
@@ -1301,21 +1302,21 @@ grow_shrink_conditional1: &
   j = jsrflx_rename
   do iq = 1, nspecfrm_renamexf(ipair)
       xfercoef = xferfrac_vol*deltatinv
-      if (iq .eq. 1) xfercoef = xferfrac_num*deltatinv
+      if (iq == 1) xfercoef = xferfrac_num*deltatinv
 
       lsfrma = lspecfrma_renamexf(iq,ipair)-loffset
       lsfrmc = lspecfrmc_renamexf(iq,ipair)-loffset
       lstooa = lspectooa_renamexf(iq,ipair)-loffset
       lstooc = lspectooc_renamexf(iq,ipair)-loffset
 
-      if (lsfrma .gt. 0) then
-    xfertend = xfercoef*max( 0.0_kind_phys,   &
-          (q(i,k,lsfrma)+dqdt(i,k,lsfrma)*deltat) )
+      if (lsfrma > 0) then
+    xfertend = xfercoef*max(0.0_kind_phys,   &
+          (q(i,k,lsfrma)+dqdt(i,k,lsfrma)*deltat))
 
 !   diagnostic output start ----------------------------------------
                 if (ldiag1 > 0) then
                 if ((i == icol_diag) .and. (mod(k-1,5) == 0)) then
-                  if (lstooa .gt. 0) then
+                  if (lstooa > 0) then
                     write(iulog,'(a,i4,2(2x,a),1p,10e14.6)') 'RENAME qdels', iq,   &
                         cnst_name(lsfrma+loffset), cnst_name(lstooa+loffset),   &
                         deltat*dqdt(i,k,lsfrma), deltat*(dqdt(i,k,lsfrma) - xfertend),   &
@@ -1332,20 +1333,21 @@ grow_shrink_conditional1: &
 
     dqdt(i,k,lsfrma) = dqdt(i,k,lsfrma) - xfertend
     qsrflx(i,lsfrma,j) = qsrflx(i,lsfrma,j) - xfertend*pdel_fac
-    if (lstooa .gt. 0) then
+    if (lstooa > 0) then
         dqdt(i,k,lstooa) = dqdt(i,k,lstooa) + xfertend
         qsrflx(i,lstooa,j) = qsrflx(i,lstooa,j) + xfertend*pdel_fac
-        if ( l_dqdt_rnpos ) &
-      dqdt_rnpos(i,k,lstooa) = dqdt_rnpos(i,k,lstooa) + xfertend
+        if (l_dqdt_rnpos) then
+          dqdt_rnpos(i,k,lstooa) = dqdt_rnpos(i,k,lstooa) + xfertend
+        end if
     end if
       end if
 
-      if (lsfrmc .gt. 0) then
-    xfertend = xfercoef*max( 0.0_kind_phys,   &
-          (qqcw(i,k,lsfrmc)+dqqcwdt(i,k,lsfrmc)*deltat) )
+      if (lsfrmc > 0) then
+    xfertend = xfercoef*max(0.0_kind_phys,   &
+          (qqcw(i,k,lsfrmc)+dqqcwdt(i,k,lsfrmc)*deltat))
     dqqcwdt(i,k,lsfrmc) = dqqcwdt(i,k,lsfrmc) - xfertend
     qqcwsrflx(i,lsfrmc,j) = qqcwsrflx(i,lsfrmc,j) - xfertend*pdel_fac
-    if (lstooc .gt. 0) then
+    if (lstooc > 0) then
         dqqcwdt(i,k,lstooc) = dqqcwdt(i,k,lstooc) + xfertend
         qqcwsrflx(i,lstooc,j) = qqcwsrflx(i,lstooc,j) + xfertend*pdel_fac
     end if
@@ -1371,13 +1373,13 @@ grow_shrink_conditional1: &
       lsfrmc = lspecfrmc_renamexf(iq,ipair) - loffset
       lstooa = lspectooa_renamexf(iq,ipair) - loffset
       lstooc = lspectooc_renamexf(iq,ipair) - loffset
-      if (lsfrma .gt. 0) then
+      if (lsfrma > 0) then
     dotendrn(lsfrma) = .true.
-    if (lstooa .gt. 0) dotendrn(lstooa) = .true.
+    if (lstooa > 0) dotendrn(lstooa) = .true.
       end if
-      if (lsfrmc .gt. 0) then
+      if (lsfrmc > 0) then
     dotendqqcwrn(lsfrmc) = .true.
-    if (lstooc .gt. 0) dotendqqcwrn(lstooc) = .true.
+    if (lstooc > 0) dotendqqcwrn(lstooc) = .true.
       end if
   end do
   end do
@@ -1393,8 +1395,8 @@ grow_shrink_conditional1: &
   errflg = 1
   errmsg = 'modal_aero_rename_acc_crs_sub error'
   return
-9050  format( / '*** subr. modal_aero_rename_acc_crs_sub ***' /   &
-            4x, 'aerosol renaming not implemented for ipair =', i5 )
+9050  format(/ '*** subr. modal_aero_rename_acc_crs_sub ***' /   &
+            4x, 'aerosol renaming not implemented for ipair =', i5)
 
   end subroutine modal_aero_rename_acc_crs_sub
 end module modal_aero_rename

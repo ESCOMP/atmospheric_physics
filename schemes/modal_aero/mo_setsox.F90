@@ -31,7 +31,7 @@ contains
 
 !-----------------------------------------------------------------------
 !-----------------------------------------------------------------------
-  subroutine setsox_init( cloud_borne_in, &
+  subroutine setsox_init(cloud_borne_in, &
        id_so2_in,   inv_so2_in,  &
        id_nh3_in,   inv_nh3_in,  &
        id_hno3_in,  inv_hno3_in, &
@@ -40,9 +40,9 @@ contains
        id_o3_in,    inv_o3_in,   &
        id_h2so4_in, id_so4_in,   id_msa_in, &
        heff_id_hno3_in, heff_id_so2_in,  heff_id_nh3_in, &
-       heff_id_co2_in,  heff_id_h2o2_in, heff_id_o3_in )
+       heff_id_co2_in,  heff_id_h2o2_in, heff_id_o3_in)
     !-----------------------------------------------------------------------
-    !	... initialize the hetero sox routine
+    !   ... initialize the hetero sox routine
     !
     ! Store the species indices / invariant flags and the Henry's Law
     ! constant table indices resolved by the host (CAM: sox_inti in
@@ -98,7 +98,7 @@ contains
 
 !-----------------------------------------------------------------------
 !-----------------------------------------------------------------------
-  subroutine setsox_sub( aero_state, &
+  subroutine setsox_sub(aero_state, &
        ncol,   &
        pver,   &
        dtime,  &
@@ -314,7 +314,7 @@ contains
             * 1.e-3_kind_phys                       ! Kg(a)/L(a)
     end do
 
-    cldconc => sox_cldaero_create_obj( cldfrc,qcw,lwc, cfact, ncol, pver )
+    cldconc => sox_cldaero_create_obj(cldfrc,qcw,lwc, cfact, ncol, pver)
     xso4c => cldconc%so4c
     xnh4c => cldconc%nh4c
     xno3c => cldconc%no3c
@@ -330,46 +330,46 @@ contains
        xco2(:ncol,k) = co2_mass_mixing_ratio(:ncol,k) &
                    * (MOLECULAR_WEIGHT_DRY_AIR / MOLECULAR_WEIGHT_CO2)  ! mixing ratio
 
-       if ( inv_so2 ) then
+       if (inv_so2) then
           xso2 (:,k) = invariants(:,k,id_so2)/xhnm(:,k)  ! mixing ratio
        else
           xso2 (:,k) = qin(:,k,id_so2)                   ! mixing ratio
-       endif
+       end if
 
        if (id_hno3 > 0) then
           xhno3(:,k) = qin(:,k,id_hno3)
        else
           xhno3(:,k) = 0.0_kind_phys
-       endif
+       end if
 
-       if ( inv_h2o2 ) then
+       if (inv_h2o2) then
           xh2o2 (:,k) = invariants(:,k,id_h2o2)/xhnm(:,k)  ! mixing ratio
        else
           xh2o2 (:,k) = qin(:,k,id_h2o2)                   ! mixing ratio
-       endif
+       end if
 
        if (id_nh3  > 0) then
           xnh3 (:,k) = qin(:,k,id_nh3)
        else
           xnh3 (:,k) = 0.0_kind_phys
-       endif
+       end if
 
-       if ( inv_o3 ) then
+       if (inv_o3) then
           xo3  (:,k) = invariants(:,k,id_o3)/xhnm(:,k) ! mixing ratio
        else
           xo3  (:,k) = qin(:,k,id_o3)                  ! mixing ratio
-       endif
-       if ( inv_ho2 ) then
+       end if
+       if (inv_ho2) then
           xho2 (:,k) = invariants(:,k,id_ho2)/xhnm(:,k)! mixing ratio
        else
           xho2 (:,k) = qin(:,k,id_ho2)                 ! mixing ratio
-       endif
+       end if
 
        if (cloud_borne) then
           xh2so4(:,k) = qin(:,k,id_h2so4)
        else
           xso4  (:,k) = qin(:,k,id_so4) ! mixing ratio
-       endif
+       end if
        if (id_msa > 0) xmsa (:,k) = qin(:,k,id_msa)
 
     end do
@@ -384,10 +384,10 @@ contains
              xso4(i,k) = xso4c(i,k) / cldfrc(i,k)
              xnh4(i,k) = xnh4c(i,k) / cldfrc(i,k)
              xno3(i,k) = xno3c(i,k) / cldfrc(i,k)
-          endif
+          end if
           xl = cldconc%xlwc(i,k)
 
-          if( xl >= 1.e-8_kind_phys ) then
+          if(xl >= 1.e-8_kind_phys) then
              work1(i) = 1._kind_phys / tfld(i,k) - 1._kind_phys / 298._kind_phys
 
              !-----------------------------------------------------------------
@@ -425,8 +425,8 @@ contains
              !          = xk*xe*patm*xhno3/(1 + xk*ra*tz*xl*(1 + xe/hplus)
              !          = ( fact1_hno3    )/(1 + fact2_hno3 *(1 + fact3_hno3/hplus)
              !    [hno3-] = ehno3/hplus
-             xk = dheff(1,heff_id_hno3) * exp( dheff(2,heff_id_hno3) * work1(i) )
-             xe = dheff(3,heff_id_hno3) * exp( dheff(4,heff_id_hno3) * work1(i) )
+             xk = dheff(1,heff_id_hno3) * exp(dheff(2,heff_id_hno3) * work1(i))
+             xe = dheff(3,heff_id_hno3) * exp(dheff(4,heff_id_hno3) * work1(i))
              fact1_hno3 = xk*xe*patm*xhno3(i,k)
              fact2_hno3 = xk*ra*tz*xl
              fact3_hno3 = xe
@@ -448,9 +448,9 @@ contains
              !          = xk*xe*patm*xso2/(1 + xk*ra*tz*xl*(1 + (xe/hplus)*(1 + x2/hplus))
              !          = ( fact1_so2    )/(1 + fact2_so2 *(1 + (fact3_so2/hplus)*(1 + fact4_so2/hplus)
              !    [hso3-] + 2*[so3--] = (eso2/hplus)*(1 + 2*x2/hplus)
-             xk = dheff(1,heff_id_so2) * exp( dheff(2,heff_id_so2) * work1(i) )
-             xe = dheff(3,heff_id_so2) * exp( dheff(4,heff_id_so2) * work1(i) )
-             x2 = dheff(5,heff_id_so2) * exp( dheff(6,heff_id_so2) * work1(i) )
+             xk = dheff(1,heff_id_so2) * exp(dheff(2,heff_id_so2) * work1(i))
+             xe = dheff(3,heff_id_so2) * exp(dheff(4,heff_id_so2) * work1(i))
+             x2 = dheff(5,heff_id_so2) * exp(dheff(6,heff_id_so2) * work1(i))
              fact1_so2 = xk*xe*patm*xso2(i,k)
              fact2_so2 = xk*ra*tz*xl
              fact3_so2 = xe
@@ -476,9 +476,9 @@ contains
              ! NOTE: Algorithm modified to follow that used in wet deposition.
              !       This essentially replaces xkw (1.0e-14) with a temperature
              !       dependent value for the water dissociation constant, x2.
-             xk = dheff(1,heff_id_nh3) * exp( dheff(2,heff_id_nh3) * work1(i) )
-             xe = dheff(3,heff_id_nh3) * exp( dheff(4,heff_id_nh3) * work1(i) )
-             x2 = dheff(5,heff_id_nh3) * exp( dheff(6,heff_id_nh3) * work1(i) )
+             xk = dheff(1,heff_id_nh3) * exp(dheff(2,heff_id_nh3) * work1(i))
+             xe = dheff(3,heff_id_nh3) * exp(dheff(4,heff_id_nh3) * work1(i))
+             x2 = dheff(5,heff_id_nh3) * exp(dheff(6,heff_id_nh3) * work1(i))
              fact1_nh3 = (xk*xe*patm/x2)*(xnh3(i,k)+xnh4(i,k))
              fact2_nh3 = xk*ra*tz*xl
              fact3_nh3 = xe/x2
@@ -498,9 +498,9 @@ contains
              !       This now applies the same algorithm for diprotic acids used
              !       for SO2.
              !-----------------------------------------------------------------
-             xk = dheff(1,heff_id_co2) * exp( dheff(2,heff_id_co2) * work1(i) )
-             xe = dheff(3,heff_id_co2) * exp( dheff(4,heff_id_co2) * work1(i) )
-             x2 = dheff(5,heff_id_co2) * exp( dheff(6,heff_id_co2) * work1(i) )
+             xk = dheff(1,heff_id_co2) * exp(dheff(2,heff_id_co2) * work1(i))
+             xe = dheff(3,heff_id_co2) * exp(dheff(4,heff_id_co2) * work1(i))
+             x2 = dheff(5,heff_id_co2) * exp(dheff(6,heff_id_co2) * work1(i))
              fact1_co2 = xk*xe*patm*xco2(i,k)
              fact2_co2 = xk*ra*tz*xl
              fact3_co2 = xe
@@ -592,7 +592,8 @@ contains
                       tmp_hp = xph(i,k)
                       converged = .true.
                       exit
-                   else if (ynetpos >= 0.0_kind_phys) then
+                   end if
+                   if (ynetpos >= 0.0_kind_phys) then
                       ! net positive ions are >= 0 for both yph and yph_lo
                       !    so replace yph_lo with yph
                       yph_lo = yph
@@ -604,7 +605,7 @@ contains
                       ynetpos_hi = ynetpos
                    end if
 
-                   if (abs(yph_hi - yph_lo) .le. 0.005_kind_phys) then
+                   if (abs(yph_hi - yph_lo) <= 0.005_kind_phys) then
                       ! |yph_hi - yph_lo| <= convergence criterion, so set
                       !    final ph to their midpoint and exit
                       ! (.005 absolute error in pH gives .01 relative error in H+)
@@ -613,10 +614,10 @@ contains
                       xph(i,k) = 10.0_kind_phys**(-yph)
                       converged = .true.
                       exit
-                   else
-                      ! do another iteration
-                      converged = .false.
                    end if
+
+                   ! do another iteration
+                   converged = .false.
 
                 else if (iter == 1) then
                    if (ynetpos <= 0.0_kind_phys) then
@@ -641,7 +642,7 @@ contains
 
              end do ! iter
 
-             if( .not. converged ) then
+             if(.not. converged) then
                 write(*,*) 'setsox: pH failed to converge @ (',i,',',k,'), % change=', &
                      100._kind_phys*delta !!! What should delta be set to ????
              end if
@@ -667,23 +668,23 @@ contains
           !-----------------------------------------------------------------------
           !        ... hno3
           !-----------------------------------------------------------------------
-          xk = dheff(1,heff_id_hno3) * exp( dheff(2,heff_id_hno3) * work1(i) )
-          xe = dheff(3,heff_id_hno3) * exp( dheff(4,heff_id_hno3) * work1(i) )
+          xk = dheff(1,heff_id_hno3) * exp(dheff(2,heff_id_hno3) * work1(i))
+          xe = dheff(3,heff_id_hno3) * exp(dheff(4,heff_id_hno3) * work1(i))
           hehno3(i,k)  = xk*(1._kind_phys + xe/xph(i,k))
 
           !-----------------------------------------------------------------
           !        ... h2o2
           !-----------------------------------------------------------------
-          xk = dheff(1,heff_id_h2o2) * exp( dheff(2,heff_id_h2o2) * work1(i) )
-          xe = dheff(3,heff_id_h2o2) * exp( dheff(4,heff_id_h2o2) * work1(i) )
+          xk = dheff(1,heff_id_h2o2) * exp(dheff(2,heff_id_h2o2) * work1(i))
+          xe = dheff(3,heff_id_h2o2) * exp(dheff(4,heff_id_h2o2) * work1(i))
           heh2o2(i,k)  = xk*(1._kind_phys + xe/xph(i,k))
 
           !-----------------------------------------------------------------
           !         ... so2
           !-----------------------------------------------------------------
-          xk = dheff(1,heff_id_so2) * exp( dheff(2,heff_id_so2) * work1(i) )
-          xe = dheff(3,heff_id_so2) * exp( dheff(4,heff_id_so2) * work1(i) )
-          x2 = dheff(5,heff_id_so2) * exp( dheff(6,heff_id_so2) * work1(i) )
+          xk = dheff(1,heff_id_so2) * exp(dheff(2,heff_id_so2) * work1(i))
+          xe = dheff(3,heff_id_so2) * exp(dheff(4,heff_id_so2) * work1(i))
+          x2 = dheff(5,heff_id_so2) * exp(dheff(6,heff_id_so2) * work1(i))
 
           wrk = xe/xph(i,k)
           heso2(i,k)  = xk*(1._kind_phys + wrk*(1._kind_phys + x2/xph(i,k)))
@@ -696,15 +697,15 @@ contains
           !-----------------------------------------------------------------
           !          ... nh3
           !-----------------------------------------------------------------
-          xk = dheff(1,heff_id_nh3) * exp( dheff(2,heff_id_nh3) * work1(i) )
-          xe = dheff(3,heff_id_nh3) * exp( dheff(4,heff_id_nh3) * work1(i) )
-          x2 = dheff(5,heff_id_nh3) * exp( dheff(6,heff_id_nh3) * work1(i) )
+          xk = dheff(1,heff_id_nh3) * exp(dheff(2,heff_id_nh3) * work1(i))
+          xe = dheff(3,heff_id_nh3) * exp(dheff(4,heff_id_nh3) * work1(i))
+          x2 = dheff(5,heff_id_nh3) * exp(dheff(6,heff_id_nh3) * work1(i))
           henh3(i,k)  = xk*(1._kind_phys + xe*xph(i,k)/x2)
 
           !-----------------------------------------------------------------
           !        ... o3
           !-----------------------------------------------------------------
-          xk = dheff(1,heff_id_o3) * exp( dheff(2,heff_id_o3) * work1(i) )
+          xk = dheff(1,heff_id_o3) * exp(dheff(2,heff_id_o3) * work1(i))
           heo3(i,k) = xk
 
           !------------------------------------------------------------------------
@@ -757,7 +758,7 @@ contains
              nh3g(i,k) = (xnh3(i,k)+xnh4(i,k))/(1._kind_phys+ px)
           else
              nh3g(i,k) = 0._kind_phys
-          endif
+          end if
 
           !-----------------------------------------------
           !       ... Aqueous phase reaction rates
@@ -770,7 +771,7 @@ contains
           ! Reference: Seinfeld and Pandis textbook (chapter 6);
           !            original source: Hoffmann and Calvert (1985)
           !------------------------------------------------------------------------
-          rah2o2 = 7.45e7_kind_phys * EXP( -4430.0_kind_phys*work1(i) ) * xph(i,k) &
+          rah2o2 = 7.45e7_kind_phys * EXP(-4430.0_kind_phys*work1(i)) * xph(i,k) &
                    / (1.0_kind_phys + 13.0_kind_phys*xph(i,k)) * f_hso3
 
           !------------------------------------------------------------------------
@@ -798,7 +799,7 @@ contains
           !       S(IV) + H2O2 = S(VI)
           !............................
 
-          IF (XL .ge. 1.e-8_kind_phys) THEN    !! WHEN CLOUD IS PRESENTED
+          if (XL >= 1.e-8_kind_phys) then    !! WHEN CLOUD IS PRESENTED
 
              pso4 = rah2o2 * heh2o2(i,k) * h2o2g * patm  &
                     * heso2(i,k)  * so2g  * patm  ! [M/s]
@@ -833,7 +834,7 @@ contains
              xso4(i,k)      = xso4(i,k) + ccc
              xso2(i,k)      = xso2(i,k) - ccc
 
-          END IF !! WHEN CLOUD IS PRESENTED
+          end if !! WHEN CLOUD IS PRESENTED
 
        end do col_loop1
     end do ver_loop1
@@ -845,27 +846,27 @@ contains
 
     if (cloud_borne) then
        ! update cloud-borne aerosols
-       call sox_cldaero_update( aero_state, &
+       call sox_cldaero_update(aero_state, &
             ncol, pver, dtime, mbar, pdel, press, tfld, cldnum, cldfrc, cfact, cldconc%xlwc, &
             gravit, &
             xdelso4hp, xh2so4, xso4, xso4_init, nh3g, xnh3, xnh4c, xmsa, xso2, xh2o2, qcw, qin, &
-            aqso4, aqh2so4, aqso4_h2o2, aqso4_o3, aqso4_h2o2_3d=aqso4_h2o2_3d, aqso4_o3_3d=aqso4_o3_3d )
+            aqso4, aqh2so4, aqso4_h2o2, aqso4_o3, aqso4_h2o2_3d=aqso4_h2o2_3d, aqso4_o3_3d=aqso4_o3_3d)
     else
        if (id_so2>0) then
-          qin(:ncol,:,id_so2) = max( xso2(:ncol,:), small_value )
-       endif
+          qin(:ncol,:,id_so2) = max(xso2(:ncol,:), small_value)
+       end if
        if (id_h2o2>0) then
-          qin(:ncol,:,id_h2o2) = max( xh2o2(:ncol,:), small_value )
-       endif
-       qin(:ncol,:,id_so4) = max( xso4(:ncol,:), small_value )
-    endif
+          qin(:ncol,:,id_h2o2) = max(xh2o2(:ncol,:), small_value)
+       end if
+       qin(:ncol,:,id_so4) = max(xso4(:ncol,:), small_value)
+    end if
 
     xphlwc(:,:) = 0._kind_phys
     do k = 1, pver
        do i = 1, ncol
           if (cldfrc(i,k)>=1.e-5_kind_phys .and. lwc(i,k)>=1.e-8_kind_phys) then
              xphlwc(i,k) = -1._kind_phys*log10(xph(i,k)) * lwc(i,k)
-          endif
+          end if
        end do
     end do
 

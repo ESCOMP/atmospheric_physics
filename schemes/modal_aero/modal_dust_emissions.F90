@@ -21,8 +21,8 @@ contains
   ! Set the emitted dust size distribution (per-bin mass fractions) and the
   ! bin mass-weighted diameters used for the number flux conversion.
   !=============================================================================
-  subroutine modal_dust_emissions_init( ntot_amode, dust_nbin, pi, rair, gravit, &
-                                        dust_emis_sclfctr, dust_dmt_vwr, errmsg, errflg )
+  subroutine modal_dust_emissions_init(ntot_amode, dust_nbin, pi, rair, gravit, &
+                                        dust_emis_sclfctr, dust_dmt_vwr, errmsg, errflg)
     use dust_common, only: dust_set_params
 
     integer,  intent(in)  :: ntot_amode            ! number of aerosol modes
@@ -50,22 +50,22 @@ contains
     ! Distributing more mass to accumulation mode allows a longer lifetime of dust, reducing
     ! low dust biases over remote oceans and reducing high dust biases over the Sahara.
     ! This change impacts both Zender_2003 dust and Leung_2023 dust.
-    if ( ntot_amode == 3 ) then
-       dust_dmt_grd(:) = (/ 0.1e-6_kind_phys, 1.0e-6_kind_phys, 10.0e-6_kind_phys/)
-       dust_emis_sclfctr(:) = (/ 0.021_kind_phys,0.979_kind_phys /)
-    elseif ( ntot_amode == 4 .or. ntot_amode == 5 ) then
-       dust_dmt_grd(:) = (/ 0.01e-6_kind_phys, 0.1e-6_kind_phys, 1.0e-6_kind_phys, 10.0e-6_kind_phys /)
-       dust_emis_sclfctr(:) = (/ 1.65E-05_kind_phys, 0.021_kind_phys, 0.979_kind_phys /)
-    else if( ntot_amode == 7 ) then
-       dust_dmt_grd(:) = (/ 0.1e-6_kind_phys, 2.0e-6_kind_phys, 10.0e-6_kind_phys/)
-       dust_emis_sclfctr(:) = (/ 0.12_kind_phys, 0.88_kind_phys /)
-    endif
+    if (ntot_amode == 3) then
+       dust_dmt_grd(:) = [0.1e-6_kind_phys, 1.0e-6_kind_phys, 10.0e-6_kind_phys]
+       dust_emis_sclfctr(:) = [0.021_kind_phys,0.979_kind_phys]
+    else if (ntot_amode == 4 .or. ntot_amode == 5) then
+       dust_dmt_grd(:) = [0.01e-6_kind_phys, 0.1e-6_kind_phys, 1.0e-6_kind_phys, 10.0e-6_kind_phys]
+       dust_emis_sclfctr(:) = [1.65E-05_kind_phys, 0.021_kind_phys, 0.979_kind_phys]
+    else if(ntot_amode == 7) then
+       dust_dmt_grd(:) = [0.1e-6_kind_phys, 2.0e-6_kind_phys, 10.0e-6_kind_phys]
+       dust_emis_sclfctr(:) = [0.12_kind_phys, 0.88_kind_phys]
+    end if
     ! dmleung --
 
-    call dust_set_params( nbin=dust_nbin, dmt_grd=dust_dmt_grd,      &
+    call dust_set_params(nbin=dust_nbin, dmt_grd=dust_dmt_grd,      &
                           dmt_vwr=dust_dmt_vwr, stk_crc=dust_stk_crc, &
                           pi=pi, rair=rair, gravit=gravit,            &
-                          errmsg=errmsg, errflg=errflg )
+                          errmsg=errmsg, errflg=errflg)
 
   end subroutine modal_dust_emissions_init
 
@@ -73,10 +73,10 @@ contains
   ! Rebin and adjust the incoming coupler dust flux into per-bin mass and
   ! number surface fluxes.
   !===============================================================================
-  subroutine modal_dust_emissions_run( ncol, dust_nbin, dust_indices, dust_emis_sclfctr, &
+  subroutine modal_dust_emissions_run(ncol, dust_nbin, dust_indices, dust_emis_sclfctr, &
                                        dust_dmt_vwr, dust_emis_fact,                     &
                                        zender_soil_erod_from_atm, soil_erodibility,      &
-                                       dust_flux_in, pi, cflx, soil_erod )
+                                       dust_flux_in, pi, cflx, soil_erod)
     use dust_common, only: dust_density
 
   ! args
@@ -105,18 +105,18 @@ contains
     if (zender_soil_erod_from_atm) then   ! Zender_2003 dust emissions
        col_loop1: do i = 1,ncol
           soil_erod(i) = soil_erodibility(i)
-          if( soil_erod(i) .lt. soil_erod_threshold ) soil_erod(i) = 0._kind_phys
+          if(soil_erod(i) < soil_erod_threshold) soil_erod(i) = 0._kind_phys
 
           ! rebin and adjust dust emissons.
           do m = 1,dust_nbin
              idst = dust_indices(m)
-             cflx(i,idst) = sum( -dust_flux_in(i,:) ) &
+             cflx(i,idst) = sum(-dust_flux_in(i,:)) &
                   * dust_emis_sclfctr(m)*soil_erod(i)/dust_emis_fact*1.15_kind_phys
              x_mton = 6._kind_phys / (pi * dust_density * (dust_dmt_vwr(m)**3._kind_phys))
              inum = dust_indices(m+dust_nbin)
              cflx(i,inum) = cflx(i,idst)*x_mton
-          enddo
-       enddo col_loop1
+          end do
+       end do col_loop1
     else ! Leung_2023 dust emissions
 
        col_loop2: do i = 1,ncol
@@ -124,13 +124,13 @@ contains
           do m = 1,dust_nbin
              idst = dust_indices(m)
 
-             cflx(i,idst) = sum( -dust_flux_in(i,:) ) &
+             cflx(i,idst) = sum(-dust_flux_in(i,:)) &
                   * dust_emis_sclfctr(m) / dust_emis_fact
              x_mton = 6._kind_phys / (pi * dust_density * (dust_dmt_vwr(m)**3._kind_phys))
              inum = dust_indices(m+dust_nbin)
              cflx(i,inum) = cflx(i,idst)*x_mton
-          enddo
-       enddo col_loop2
+          end do
+       end do col_loop2
     end if
 
   end subroutine modal_dust_emissions_run

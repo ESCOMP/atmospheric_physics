@@ -119,41 +119,41 @@ subroutine activate_aerosol(wbar, sigw, wdiab, wminf, wmaxf, tair, rhoair,  &
 
    !      local
 
-   integer, parameter:: nx=200
-   real(kind_phys) integ,integf
+   integer, parameter :: nx=200
+   real(kind_phys) :: integ,integf
    real(kind_phys), parameter :: p0 = 1013.25e2_kind_phys    ! reference pressure (Pa)
-   real(kind_phys) pres ! pressure (Pa)
-   real(kind_phys) diff0,conduct0
-   real(kind_phys) es ! saturation vapor pressure
-   real(kind_phys) qs ! water vapor saturation mixing ratio
-   real(kind_phys) dqsdt ! change in qs with temperature
-   real(kind_phys) g ! thermodynamic function (m2/s)
-   real(kind_phys) zeta(nbins), eta(nbins)
-   real(kind_phys) alpha
-   real(kind_phys) gamma
-   real(kind_phys) beta
-   real(kind_phys) sqrtg
+   real(kind_phys) :: pres ! pressure (Pa)
+   real(kind_phys) :: diff0,conduct0
+   real(kind_phys) :: es ! saturation vapor pressure
+   real(kind_phys) :: qs ! water vapor saturation mixing ratio
+   real(kind_phys) :: dqsdt ! change in qs with temperature
+   real(kind_phys) :: g ! thermodynamic function (m2/s)
+   real(kind_phys) :: zeta(nbins), eta(nbins)
+   real(kind_phys) :: alpha
+   real(kind_phys) :: gamma
+   real(kind_phys) :: beta
+   real(kind_phys) :: sqrtg
    real(kind_phys) :: amcube(nbins) ! cube of dry bin radius (m)
-   real(kind_phys) smc(nbins) ! critical supersaturation for number bin radius
-   real(kind_phys) sumflx_fullact
-   real(kind_phys) sumflxn(nbins)
-   real(kind_phys) sumflxm(nbins)
-   real(kind_phys) sumfn(nbins)
-   real(kind_phys) sumfm(nbins)
-   real(kind_phys) fnold(nbins)   ! number fraction activated
-   real(kind_phys) fmold(nbins)   ! mass fraction activated
-   real(kind_phys) wold,gold
-   real(kind_phys) wmin,wmax,w,dw,dwmax,dwmin,wnuc,dwnew,wb
-   real(kind_phys) dfmin,dfmax,fnew,fold,fnmin,fnbar,fmbar
-   real(kind_phys) alw,sqrtalw
-   real(kind_phys) smax
-   real(kind_phys) z,z1,z2,wf1,wf2,zf1,zf2,gf1,gf2,gf
-   real(kind_phys) etafactor1,etafactor2(nbins),etafactor2max
-   real(kind_phys) grow
+   real(kind_phys) :: smc(nbins) ! critical supersaturation for number bin radius
+   real(kind_phys) :: sumflx_fullact
+   real(kind_phys) :: sumflxn(nbins)
+   real(kind_phys) :: sumflxm(nbins)
+   real(kind_phys) :: sumfn(nbins)
+   real(kind_phys) :: sumfm(nbins)
+   real(kind_phys) :: fnold(nbins)   ! number fraction activated
+   real(kind_phys) :: fmold(nbins)   ! mass fraction activated
+   real(kind_phys) :: wold,gold
+   real(kind_phys) :: wmin,wmax,w,dw,dwmax,dwmin,wnuc,dwnew,wb
+   real(kind_phys) :: dfmin,dfmax,fnew,fold,fnmin,fnbar,fmbar
+   real(kind_phys) :: alw,sqrtalw
+   real(kind_phys) :: smax
+   real(kind_phys) :: z,z1,z2,wf1,wf2,zf1,zf2,gf1,gf2,gf
+   real(kind_phys) :: etafactor1,etafactor2(nbins),etafactor2max
+   real(kind_phys) :: grow
    character(len=*), parameter :: subname='activate_aerosol'
 
    logical :: in_cloud
-   integer m,n
+   integer :: m,n
    !      numerical integration parameters
    real(kind_phys), parameter :: eps=0.3_kind_phys,fmax=0.99_kind_phys,sds=3._kind_phys
 
@@ -179,11 +179,11 @@ subroutine activate_aerosol(wbar, sigw, wdiab, wminf, wmaxf, tair, rhoair,  &
    fluxm(:)=0._kind_phys
    flux_fullact=0._kind_phys
 
-   if(nbins.eq.1.and.na(1).lt.1.e-20_kind_phys)return
+   if(nbins==1.and.na(1)<1.e-20_kind_phys)return
 
-   if(sigw.le.1.e-5_kind_phys.and.wbar.le.0._kind_phys)return
+   if(sigw<=1.e-5_kind_phys.and.wbar<=0._kind_phys)return
 
-   if ( present( smax_prescribed ) ) then
+   if (present(smax_prescribed)) then
       if (smax_prescribed <= 0.0_kind_phys) return
    end if
 
@@ -203,7 +203,7 @@ subroutine activate_aerosol(wbar, sigw, wdiab, wminf, wmaxf, tair, rhoair,  &
 
    do m=1,nbins
 
-      if(volume(m).gt.1.e-39_kind_phys.and.na(m).gt.1.e-39_kind_phys)then
+      if(volume(m)>1.e-39_kind_phys.and.na(m)>1.e-39_kind_phys)then
          ! number mode radius (m)
          amcube(m)=aero_props%amcube(m, volume(m),na(m))
          ! growth coefficent Abdul-Razzak & Ghan 1998 eqn 16
@@ -211,19 +211,19 @@ subroutine activate_aerosol(wbar, sigw, wdiab, wminf, wmaxf, tair, rhoair,  &
          ! see Fountoukis and Nenes, JGR2005 and Meskhidze et al., JGR2006
          ! for approriate size to use for effective diffusivity.
          etafactor2(m)=1._kind_phys/(na(m)*beta*sqrtg)
-         if(hygro(m).gt.1.e-10_kind_phys)then
+         if(hygro(m)>1.e-10_kind_phys)then
             smc(m)=2._kind_phys*aten*sqrt(aten/(27._kind_phys*hygro(m)*amcube(m))) ! only if variable size dist
          else
             smc(m)=100._kind_phys
-         endif
+         end if
       else
          smc(m)=1._kind_phys
          etafactor2(m)=etafactor2max ! this should make eta big if na is very small.
-      endif
+      end if
 
-   enddo
+   end do
 
-   if(sigw.gt.1.e-5_kind_phys)then ! spectrum of updrafts
+   if(sigw>1.e-5_kind_phys)then ! spectrum of updrafts
 
       wmax=min(wmaxf,wbar+sds*sigw)
       wmin=max(wminf,-wdiab)
@@ -241,14 +241,14 @@ subroutine activate_aerosol(wbar, sigw, wdiab, wminf, wmaxf, tair, rhoair,  &
          sumflxm(m)=0._kind_phys
          sumfm(m)=0._kind_phys
          fmold(m)=0._kind_phys
-      enddo
+      end do
       sumflx_fullact=0._kind_phys
 
       fold=0._kind_phys
       wold=0._kind_phys
       gold=0._kind_phys
 
-      dwmin = min( dwmax, 0.01_kind_phys )
+      dwmin = min(dwmax, 0.01_kind_phys)
       do n = 1, nx
 
 100      wnuc=w+wdiab
@@ -260,33 +260,33 @@ subroutine activate_aerosol(wbar, sigw, wdiab, wminf, wmaxf, tair, rhoair,  &
          do m=1,nbins
             eta(m)=etafactor1*etafactor2(m)
             zeta(m)=twothird*sqrtalw*aten/sqrtg
-         enddo
+         end do
 
-         if ( present( smax_prescribed ) ) then
+         if (present(smax_prescribed)) then
             smax = smax_prescribed
          else
             smax = aero_props%maxsat(zeta,eta,smc)
-         endif
+         end if
 
-         call aero_props%actfracs( nbins, smc(nbins), smax, fnew, fm(nbins) )
+         call aero_props%actfracs(nbins, smc(nbins), smax, fnew, fm(nbins))
 
          dwnew = dw
-         if(fnew-fold.gt.dfmax.and.n.gt.1)then
+         if(fnew-fold>dfmax.and.n>1)then
             !              reduce updraft increment for greater accuracy in integration
-            if (dw .gt. 1.01_kind_phys*dwmin) then
+            if (dw > 1.01_kind_phys*dwmin) then
                dw=0.7_kind_phys*dw
                dw=max(dw,dwmin)
                w=wold+dw
-               go to 100
+               goto 100
             else
                dwnew = dwmin
-            endif
-         endif
+            end if
+         end if
 
-         if(fnew-fold.lt.dfmin)then
+         if(fnew-fold<dfmin)then
             !              increase updraft increment to accelerate integration
             dwnew=min(1.5_kind_phys*dw,dwmax)
-         endif
+         end if
          fold=fnew
 
          z=(w-wbar)/(sigw*sq2)
@@ -295,24 +295,24 @@ subroutine activate_aerosol(wbar, sigw, wdiab, wminf, wmaxf, tair, rhoair,  &
 
          do m=1,nbins
             !              modal
-            call aero_props%actfracs( m, smc(m), smax, fn(m), fm(m) )
+            call aero_props%actfracs(m, smc(m), smax, fn(m), fm(m))
             fnmin=min(fn(m),fnmin)
             !               integration is second order accurate
             !               assumes linear variation of f*g with w
             fnbar=(fn(m)*g+fnold(m)*gold)
             fmbar=(fm(m)*g+fmold(m)*gold)
             wb=(w+wold)
-            if(w.gt.0._kind_phys)then
+            if(w>0._kind_phys)then
                sumflxn(m)=sumflxn(m)+sixth*(wb*fnbar           &
                   +(fn(m)*g*w+fnold(m)*gold*wold))*dw
                sumflxm(m)=sumflxm(m)+sixth*(wb*fmbar           &
                   +(fm(m)*g*w+fmold(m)*gold*wold))*dw
-            endif
+            end if
             sumfn(m)=sumfn(m)+0.5_kind_phys*fnbar*dw
             fnold(m)=fn(m)
             sumfm(m)=sumfm(m)+0.5_kind_phys*fmbar*dw
             fmold(m)=fm(m)
-         enddo
+         end do
          !           same form as sumflxm but replace the fm with 1.0
          sumflx_fullact = sumflx_fullact &
             + sixth*(wb*(g+gold) + (g*w+gold*wold))*dw
@@ -327,9 +327,9 @@ subroutine activate_aerosol(wbar, sigw, wdiab, wminf, wmaxf, tair, rhoair,  &
             return
          end if
 
-      enddo
+      end do
 
-      if(w.lt.wmaxf)then
+      if(w<wmaxf)then
 
          !            contribution from all updrafts stronger than wmax
          !            assuming constant f (close to fmax)
@@ -354,26 +354,26 @@ subroutine activate_aerosol(wbar, sigw, wdiab, wminf, wmaxf, tair, rhoair,  &
             sumfn(m)=sumfn(m)+fn(m)*integ
             sumflxm(m)=sumflxm(m)+integf*fm(m)
             sumfm(m)=sumfm(m)+fm(m)*integ
-         enddo
+         end do
          !           same form as sumflxm but replace the fm with 1.0
          sumflx_fullact = sumflx_fullact + integf
          !            sumg=sumg+integ
-      endif
+      end if
 
 
       do m=1,nbins
          fn(m)=sumfn(m)/(sq2*sqpi*sigw)
          !            fn(m)=sumfn(m)/(sumg)
-         if(fn(m).gt.1.01_kind_phys)then
+         if(fn(m)>1.01_kind_phys)then
             errmsg = 'activate -- fn > 1'
             errflg = 1
             return
-         endif
+         end if
          fluxn(m)=sumflxn(m)/(sq2*sqpi*sigw)
          fm(m)=sumfm(m)/(sq2*sqpi*sigw)
          !            fm(m)=sumfm(m)/(sumg)
          fluxm(m)=sumflxm(m)/(sq2*sqpi*sigw)
-      enddo
+      end do
       !        same form as fluxm
       flux_fullact = sumflx_fullact/(sq2*sqpi*sigw)
 
@@ -382,7 +382,7 @@ subroutine activate_aerosol(wbar, sigw, wdiab, wminf, wmaxf, tair, rhoair,  &
       !        single updraft
       wnuc=wbar+wdiab
 
-      if(wnuc.gt.0._kind_phys)then
+      if(wnuc>0._kind_phys)then
 
          w=wbar
 
@@ -403,7 +403,7 @@ subroutine activate_aerosol(wbar, sigw, wdiab, wminf, wmaxf, tair, rhoair,  &
                eta(m)  = etafactor1*etafactor2(m)
                zeta(m) = twothird*sqrtalw*aten/sqrtg
             end do
-            if ( present(smax_prescribed) ) then
+            if (present(smax_prescribed)) then
                smax = smax_prescribed
             else
                smax = aero_props%maxsat(zeta,eta,smc)
@@ -412,17 +412,17 @@ subroutine activate_aerosol(wbar, sigw, wdiab, wminf, wmaxf, tair, rhoair,  &
 
          do m=1,nbins
 
-            call aero_props%actfracs( m, smc(m), smax, fn(m), fm(m) )
+            call aero_props%actfracs(m, smc(m), smax, fn(m), fm(m))
 
-            if(wbar.gt.0._kind_phys)then
+            if(wbar>0._kind_phys)then
                fluxn(m)=fn(m)*w
                fluxm(m)=fm(m)*w
-            endif
-         enddo
+            end if
+         end do
          flux_fullact = w
-      endif
+      end if
 
-   endif
+   end if
 
 end subroutine activate_aerosol
 

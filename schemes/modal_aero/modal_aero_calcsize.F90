@@ -214,10 +214,10 @@ subroutine modal_aero_calcsize_run( &
    !           currently set to deltat
    tadj = deltat
    tadj = 86400
-   tadj = max( tadj, deltat )
+   tadj = max(tadj, deltat)
    tadjinv = 1.0_kind_phys/(tadj*(1.0_kind_phys + 1.0e-15_kind_phys))
    fracadj = deltat*tadjinv
-   fracadj = max( 0.0_kind_phys, min( 1.0_kind_phys, fracadj ) )
+   fracadj = max(0.0_kind_phys, min(1.0_kind_phys, fracadj))
 
 
    !
@@ -337,7 +337,7 @@ subroutine modal_aero_calcsize_run( &
       v2nyyrl = v2nyy*frelaxadj
       dgnxx = dgnumhi_amode(n)
       dgnyy = dgnumlo_amode(n)
-      if ( do_aitacc_transfer ) then
+      if (do_aitacc_transfer) then
          if (n == nait) v2nxx = v2nxx/1.0e6_kind_phys
          if (n == nacc) v2nyy = v2nyy*1.0e6_kind_phys
          v2nxxrl = v2nxx/frelaxadj   ! NEW
@@ -354,10 +354,10 @@ subroutine modal_aero_calcsize_run( &
 
             drv_a = dryvol_a(i,k)
             num_a0 = q(i,k,lna)
-            num_a = max( 0.0_kind_phys, num_a0 )
+            num_a = max(0.0_kind_phys, num_a0)
             drv_c = dryvol_c(i,k)
             num_c0 = q_cw(i,k,lnc)
-            num_c = max( 0.0_kind_phys, num_c0 )
+            num_c = max(0.0_kind_phys, num_c0)
 
             if (do_adjust) then
 
@@ -381,7 +381,7 @@ subroutine modal_aero_calcsize_run( &
                   num_c = 0.0_kind_phys
                   dqdt_cw(i,k,lnc) = -num_c0*deltatinv
                   num_a1 = num_a
-                  numbnd = max( drv_a*v2nxx, min( drv_a*v2nyy, num_a1 ) )
+                  numbnd = max(drv_a*v2nxx, min(drv_a*v2nyy, num_a1))
                   num_a  = num_a1 + (numbnd - num_a1)*fracadj
                   dqdt(i,k,lna) = (num_a - num_a0)*deltatinv
 
@@ -390,7 +390,7 @@ subroutine modal_aero_calcsize_run( &
                   num_a = 0.0_kind_phys
                   dqdt(i,k,lna) = -num_a0*deltatinv
                   num_c1 = num_c
-                  numbnd = max( drv_c*v2nxx, min( drv_c*v2nyy, num_c1 ) )
+                  numbnd = max(drv_c*v2nxx, min(drv_c*v2nyy, num_c1))
                   num_c  = num_c1 + (numbnd - num_c1)*fracadj
                   dqdt_cw(i,k,lnc) = (num_c - num_c0)*deltatinv
                else
@@ -403,18 +403,18 @@ subroutine modal_aero_calcsize_run( &
                   !    and activated number (individually)
                   !    if only only a or c changes, adjust the other in the opposite direction
                   !    as much as possible to conserve a+c
-                  numbnd = max( drv_a*v2nxxrl, min( drv_a*v2nyyrl, num_a1 ) )
+                  numbnd = max(drv_a*v2nxxrl, min(drv_a*v2nyyrl, num_a1))
                   delnum_a2 = (numbnd - num_a1)*fracadj
                   num_a2 = num_a1 + delnum_a2
-                  numbnd = max( drv_c*v2nxxrl, min( drv_c*v2nyyrl, num_c1 ) )
+                  numbnd = max(drv_c*v2nxxrl, min(drv_c*v2nyyrl, num_c1))
                   delnum_c2 = (numbnd - num_c1)*fracadj
                   num_c2 = num_c1 + delnum_c2
                   if ((delnum_a2 == 0.0_kind_phys) .and. (delnum_c2 /= 0.0_kind_phys)) then
-                     num_a2 = max( drv_a*v2nxxrl, min( drv_a*v2nyyrl,   &
-                        num_a1-delnum_c2 ) )
+                     num_a2 = max(drv_a*v2nxxrl, min(drv_a*v2nyyrl,   &
+                        num_a1-delnum_c2))
                   else if ((delnum_a2 /= 0.0_kind_phys) .and. (delnum_c2 == 0.0_kind_phys)) then
-                     num_c2 = max( drv_c*v2nxxrl, min( drv_c*v2nyyrl,   &
-                        num_c1-delnum_a2 ) )
+                     num_c2 = max(drv_c*v2nxxrl, min(drv_c*v2nyyrl,   &
+                        num_c1-delnum_a2))
                   end if
                   ! step3:  num_a,c2 --> num_a,c3 applies stricter bounds to the
                   !    combined/total number
@@ -493,7 +493,7 @@ subroutine modal_aero_calcsize_run( &
 
 
             ! save number and dryvol for aitken <--> accum renaming
-            if ( do_aitacc_transfer ) then
+            if (do_aitacc_transfer) then
                if (n == nait) then
                   drv_a_aitsv(i,k) = drv_a
                   num_a_aitsv(i,k) = num_a
@@ -537,9 +537,9 @@ subroutine modal_aero_calcsize_run( &
    !
    ixfer_ait2acc_sv(:,:) = 0
    ixfer_acc2ait_sv(:,:) = 0
-   if ( do_aitacc_transfer ) then
+   if (do_aitacc_transfer) then
 
-      if (npair_renamexf .le. 0) then
+      if (npair_renamexf <= 0) then
          errmsg = 'modal_aero_calcsize_run error -- npair_renamexf <= 0'
          errflg = 1
          return
@@ -547,8 +547,8 @@ subroutine modal_aero_calcsize_run( &
 
       ! check that renaming ipair=1 is aitken-->accum
       ipair = 1
-      if ((modefrm_renamexf(ipair) .ne. nait) .or.   &
-         (modetoo_renamexf(ipair) .ne. nacc)) then
+      if ((modefrm_renamexf(ipair) /= nait) .or.   &
+         (modetoo_renamexf(ipair) /= nacc)) then
          errmsg = 'modal_aero_calcsize_run error -- modefrm/too_renamexf(1) are wrong'
          errflg = 1
          return
@@ -645,7 +645,7 @@ subroutine modal_aero_calcsize_run( &
                if (num_t > drv_t*v2nzz) then
                   do l1 = 1, nspec_amode(nacc)
 
-                     if ( noxf_acc2ait(l1) ) then
+                     if (noxf_acc2ait(l1)) then
                         ! need qmass*dummwdens = (kg/kg-air) * [1/(kg/m3)] = m3/kg-air
                         dummwdens = 1.0_kind_phys / specdens_amode(l1,nacc)
                         la = lmassptr_amode(l1,nacc)
@@ -661,8 +661,8 @@ subroutine modal_aero_calcsize_run( &
                   num_t_noxf = drv_t_noxf*voltonumblo_amode(nacc)
                   num_t0 = num_t
                   drv_t0 = drv_t
-                  num_t = max( 0.0_kind_phys, num_t - num_t_noxf )
-                  drv_t = max( 0.0_kind_phys, drv_t - drv_t_noxf )
+                  num_t = max(0.0_kind_phys, num_t - num_t_noxf)
+                  drv_t = max(0.0_kind_phys, drv_t - drv_t_noxf)
                end if
             end if
 
@@ -689,7 +689,7 @@ subroutine modal_aero_calcsize_run( &
                   end if
                   duma = 1.0e-37_kind_phys
                   xferfrac_num_acc2ait = xferfrac_num_acc2ait*   &
-                     num_t/max( duma, num_t0 )
+                     num_t/max(duma, num_t0)
                   xfercoef_num_acc2ait = xferfrac_num_acc2ait*tadjinv
                   xfercoef_vol_acc2ait = xferfrac_vol_acc2ait*tadjinv
                   xfertend_num(2,1) = num_a_accsv(i,k)*xfercoef_num_acc2ait
@@ -707,21 +707,21 @@ subroutine modal_aero_calcsize_run( &
                !
                ! currently inactive
                do n = nait, nacc, (nacc-nait)
-                  if (n .eq. nait) then
+                  if (n == nait) then
                      duma = (xfertend_num(1,1) - xfertend_num(2,1))*deltat
-                     num_a     = max( 0.0_kind_phys, num_a_aitsv(i,k) - duma )
-                     num_a_acc = max( 0.0_kind_phys, num_a_accsv(i,k) + duma )
+                     num_a     = max(0.0_kind_phys, num_a_aitsv(i,k) - duma)
+                     num_a_acc = max(0.0_kind_phys, num_a_accsv(i,k) + duma)
                      duma = (drv_a_aitsv(i,k)*xfercoef_vol_ait2acc -   &
                         (drv_a_accsv(i,k)-drv_a_noxf)*xfercoef_vol_acc2ait)*deltat
-                     drv_a     = max( 0.0_kind_phys, drv_a_aitsv(i,k) - duma )
-                     drv_a_acc = max( 0.0_kind_phys, drv_a_accsv(i,k) + duma )
+                     drv_a     = max(0.0_kind_phys, drv_a_aitsv(i,k) - duma)
+                     drv_a_acc = max(0.0_kind_phys, drv_a_accsv(i,k) + duma)
                      duma = (xfertend_num(1,2) - xfertend_num(2,2))*deltat
-                     num_c     = max( 0.0_kind_phys, num_c_aitsv(i,k) - duma )
-                     num_c_acc = max( 0.0_kind_phys, num_c_accsv(i,k) + duma )
+                     num_c     = max(0.0_kind_phys, num_c_aitsv(i,k) - duma)
+                     num_c_acc = max(0.0_kind_phys, num_c_accsv(i,k) + duma)
                      duma = (drv_c_aitsv(i,k)*xfercoef_vol_ait2acc -   &
                         (drv_c_accsv(i,k)-drv_c_noxf)*xfercoef_vol_acc2ait)*deltat
-                     drv_c     = max( 0.0_kind_phys, drv_c_aitsv(i,k) - duma )
-                     drv_c_acc = max( 0.0_kind_phys, drv_c_accsv(i,k) + duma )
+                     drv_c     = max(0.0_kind_phys, drv_c_aitsv(i,k) - duma)
+                     drv_c_acc = max(0.0_kind_phys, drv_c_accsv(i,k) + duma)
                   else
                      num_a = num_a_acc
                      drv_a = drv_a_acc
@@ -771,11 +771,11 @@ subroutine modal_aero_calcsize_run( &
                ! j=1 does aitken-->accum; j=2 does accum-->aitken
                do  j = 1, 2
 
-                  if ((j .eq. 1 .and. ixfer_ait2acc > 0) .or. &
-                     (j .eq. 2 .and. ixfer_acc2ait > 0)) then
+                  if ((j == 1 .and. ixfer_ait2acc > 0) .or. &
+                     (j == 2 .and. ixfer_acc2ait > 0)) then
 
                      jsrflx = j+2
-                     if (j .eq. 1) then
+                     if (j == 1) then
                         xfercoef = xfercoef_vol_ait2acc
                      else
                         xfercoef = xfercoef_vol_acc2ait
@@ -790,8 +790,8 @@ subroutine modal_aero_calcsize_run( &
                            ! the lspectooa_renamexf (and lspectooc_renamexf) are accum  species
                            ! for j=1, want lsfrm=aitken species, lstoo=accum  species
                            ! for j=2, want lsfrm=accum  species,  lstoo=aitken species
-                           if (j .eq. 1) then
-                              if (jac .eq. 1) then
+                           if (j == 1) then
+                              if (jac == 1) then
                                  lsfrm = lspecfrma_renamexf(iq,ipair)
                                  lstoo = lspectooa_renamexf(iq,ipair)
                               else
@@ -799,7 +799,7 @@ subroutine modal_aero_calcsize_run( &
                                  lstoo = lspectooc_renamexf(iq,ipair)
                               end if
                            else
-                              if (jac .eq. 1) then
+                              if (jac == 1) then
                                  lsfrm = lspectooa_renamexf(iq,ipair)
                                  lstoo = lspecfrma_renamexf(iq,ipair)
                               else
@@ -809,8 +809,8 @@ subroutine modal_aero_calcsize_run( &
                            end if
 
                            if ((lsfrm > 0) .and. (lstoo > 0)) then
-                              if (jac .eq. 1) then
-                                 if (iq .eq. 1) then
+                              if (jac == 1) then
+                                 if (iq == 1) then
                                     xfertend = xfertend_num(j,jac)
                                  else
                                     xfertend = max(0.0_kind_phys,q(i,k,lsfrm))*xfercoef
@@ -818,7 +818,7 @@ subroutine modal_aero_calcsize_run( &
                                  dqdt(i,k,lsfrm) = dqdt(i,k,lsfrm) - xfertend
                                  dqdt(i,k,lstoo) = dqdt(i,k,lstoo) + xfertend
                               else
-                                 if (iq .eq. 1) then
+                                 if (iq == 1) then
                                     xfertend = xfertend_num(j,jac)
                                  else
                                     xfertend = max(0.0_kind_phys,q_cw(i,k,lsfrm))*xfercoef
@@ -950,7 +950,7 @@ subroutine modal_aero_calcdry_run( &
                maer(i,k)     = maer(i,k) + duma
                dumb          = duma/specdens ! m3/kg air
                dryvolmr(i,k) = dryvolmr(i,k) + dumb
-               if (do_strat_sulfate .and. (trim(spectype).eq.'sulfate')) then
+               if (do_strat_sulfate .and. (trim(spectype)=='sulfate')) then
                   so4dryvolmr(i,k) = so4dryvolmr(i,k) + dumb
                end if
                hygro(i,k,m)  = hygro(i,k,m) + dumb*spechygro
@@ -971,12 +971,12 @@ subroutine modal_aero_calcdry_run( &
 
             ! dry aerosol properties
 
-            v2ncur_a = 1._kind_phys / ( (pi/6._kind_phys)*(dgncur_a(i,k,m)**3._kind_phys)*exp(4.5_kind_phys*alnsg**2._kind_phys) )
+            v2ncur_a = 1._kind_phys / ((pi/6._kind_phys)*(dgncur_a(i,k,m)**3._kind_phys)*exp(4.5_kind_phys*alnsg**2._kind_phys))
             ! naer = aerosol number (#/kg)
             naer(i,k,m) = dryvolmr(i,k)*v2ncur_a
 
             ! compute mean (1 particle) dry volume and mass for each mode
-            if (maer(i,k) .gt. 1.0e-31_kind_phys) then
+            if (maer(i,k) > 1.0e-31_kind_phys) then
                drydens = maer(i,k)/dryvolmr(i,k)        ! kg/m3 aerosol
             else
                drydens = 1.0_kind_phys
@@ -991,7 +991,7 @@ subroutine modal_aero_calcdry_run( &
       if (do_strat_sulfate) then
          do k = top_lev, pver
             do i = 1, ncol
-               if (so4dryvolmr(i,k) .gt. 1.0e-31_kind_phys) then
+               if (so4dryvolmr(i,k) > 1.0e-31_kind_phys) then
                   so4dryvol(i,k,m) = dryvol(i,k,m)*so4dryvolmr(i,k)/dryvolmr(i,k)
                else
                   so4dryvol(i,k,m) = 0.0_kind_phys
@@ -1098,10 +1098,10 @@ subroutine modal_aero_calcsize_diag_run( &
          end do
       end do
 
-      alnsg  = log( sigmag )
+      alnsg  = log(sigmag)
       dumfac = exp(4.5_kind_phys*alnsg**2)*pi/6.0_kind_phys
-      voltonumblo = 1._kind_phys / ( (pi/6._kind_phys)*(dgnumlo**3)*exp(4.5_kind_phys*alnsg**2) )
-      voltonumbhi = 1._kind_phys / ( (pi/6._kind_phys)*(dgnumhi**3)*exp(4.5_kind_phys*alnsg**2) )
+      voltonumblo = 1._kind_phys / ((pi/6._kind_phys)*(dgnumlo**3)*exp(4.5_kind_phys*alnsg**2))
+      voltonumbhi = 1._kind_phys / ((pi/6._kind_phys)*(dgnumhi**3)*exp(4.5_kind_phys*alnsg**2))
       v2nxx = voltonumbhi
       v2nyy = voltonumblo
       dgnxx = dgnumhi
@@ -1112,7 +1112,7 @@ subroutine modal_aero_calcsize_diag_run( &
 
             drv_a = dryvol_a(i,k)
             num_a0 = mode_num(i,k)
-            num_a = max( 0.0_kind_phys, num_a0 )
+            num_a = max(0.0_kind_phys, num_a0)
 
             if (drv_a > 0.0_kind_phys) then
                if (num_a <= drv_a*v2nxx) then

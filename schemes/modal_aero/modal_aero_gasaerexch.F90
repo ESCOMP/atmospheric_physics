@@ -5,7 +5,6 @@ module modal_aero_gasaerexch
 
   implicit none
   private
-  save
 
   public :: modal_aero_gasaerexch_init
   public :: modal_aero_gasaerexch_run
@@ -253,7 +252,7 @@ subroutine modal_aero_gasaerexch_init( &
       l = idx_so4_a(n)
       if ((l > 0) .and. (l <= pcnst_in)) then
          ido_so4a_m(n) = 1
-         if ( do_nh4g_m ) then
+         if (do_nh4g_m) then
             l = idx_nh4_a(n)
             if ((l > 0) .and. (l <= pcnst_in)) then
                ido_nh4a_m(n) = 1
@@ -262,7 +261,7 @@ subroutine modal_aero_gasaerexch_init( &
       end if
 
       do jsoa = 1, nsoa
-         if ( do_soag_m(jsoa) ) then
+         if (do_soag_m(jsoa)) then
             l = idx_soa_a(n,jsoa)
             if ((l > 0) .and. (l <= pcnst_in)) then
                ido_soaa_m(n,jsoa) = 1
@@ -304,7 +303,7 @@ subroutine modal_aero_gasaerexch_init( &
       end if
    end if
 
-   if ( do_soag_any_m ) ntot_soamode_m = max( ntot_soamode_m, modefrm_pcage )
+   if (do_soag_any_m) ntot_soamode_m = max(ntot_soamode_m, modefrm_pcage)
 
   ! Modify ido arrays for pcage mode
    if (modefrm_pcage > 0) then
@@ -362,7 +361,7 @@ subroutine modal_aero_gasaerexch_init( &
       do jsoa = 1, nsoa
          l2 = -1
          if (idx_soa_a(n,jsoa) <= 0) then
-            write( errmsg, '(a,i4)') 'modal_aero_gasaerexch_init error a001 finding accum. jsoa =', jsoa
+            write(errmsg, '(a,i4)') 'modal_aero_gasaerexch_init error a001 finding accum. jsoa =', jsoa
             errflg = 1
             return
          end if
@@ -377,7 +376,7 @@ subroutine modal_aero_gasaerexch_init( &
             end if
          end do
          if (l2 <= 0) then
-            write( errmsg, '(a,i4)') 'modal_aero_gasaerexch_init error a002 finding accum. jsoa =', jsoa
+            write(errmsg, '(a,i4)') 'modal_aero_gasaerexch_init error a002 finding accum. jsoa =', jsoa
             errflg = 1
             return
          end if
@@ -555,17 +554,17 @@ subroutine modal_aero_gasaerexch_run(                            &
    dotend(:) = .false.
 
    dotend(l_so4g) = .true.
-   if ( do_nh4g ) dotend(l_nh4g) = .true.
-   if ( do_msag ) dotend(l_msag) = .true.
+   if (do_nh4g) dotend(l_nh4g) = .true.
+   if (do_msag) dotend(l_msag) = .true.
    do jsoa = 1, nsoa_m
-      if ( do_soag(jsoa) ) dotend(l_soag(jsoa)) = .true.
+      if (do_soag(jsoa)) dotend(l_soag(jsoa)) = .true.
    end do
 
    do n = 1, ntot_amode_m
       if (ido_so4a(n) == 1) then
          l = idx_so4_a_q(n)
          dotend(l) = .true.
-         if ( do_nh4g ) then
+         if (do_nh4g) then
             if (ido_nh4a(n) == 1) then
                l = idx_nh4_a_q(n)
                dotend(l) = .true.
@@ -574,7 +573,7 @@ subroutine modal_aero_gasaerexch_run(                            &
       end if
 
       do jsoa = 1, nsoa_m
-         if ( do_soag(jsoa) ) then
+         if (do_soag(jsoa)) then
             if (ido_soaa(n,jsoa) == 1) then
                l = idx_soa_a_q(n,jsoa)
                dotend(l) = .true.
@@ -598,7 +597,7 @@ subroutine modal_aero_gasaerexch_run(                            &
 
 
       n = modeptr_pcarbon_m
-      fac_volsfc_pcarbon = exp( 2.5_kind_phys*(alnsg_amode_m(n)**2) )
+      fac_volsfc_pcarbon = exp(2.5_kind_phys*(alnsg_amode_m(n)**2))
       xferfrac_max = 1.0_kind_phys - 10.0_kind_phys*epsilon(1.0_kind_phys)   ! 1-eps
    end if
 
@@ -608,10 +607,10 @@ subroutine modal_aero_gasaerexch_run(                            &
    qsrflx_gaexch(:,:) = 0.0_kind_phys
 
 ! compute gas-to-aerosol mass transfer rates
-   call gas_aer_uptkrates( ncol,       pver,       top_lev,    &
+   call gas_aer_uptkrates(ncol,       pver,       top_lev,    &
                            loffset,                            &
                            q,          t,          pmid,       &
-                           dgncur_awet,            uptkrate    )
+                           dgncur_awet,            uptkrate)
 
 
 ! use this for tendency calcs to avoid generating very small negative values
@@ -726,26 +725,26 @@ subroutine modal_aero_gasaerexch_run(                            &
 !   sum_dqdt_nh4 = nh4_a tendency from nh3   gas uptake (mol/mol/s)
 !   sum_dqdt_soa = soa_a tendency from soa   gas uptake (mol/mol/s)
          sum_dqdt_so4 = q(i,k,l_so4g) * avg_uprt_so4
-         if ( do_msag ) then
+         if (do_msag) then
             sum_dqdt_msa = q(i,k,l_msag) * avg_uprt_so4
          else
             sum_dqdt_msa = 0.0_kind_phys
          end if
-         if ( do_nh4g ) then
+         if (do_nh4g) then
             sum_dqdt_nh4 = q(i,k,l_nh4g) * avg_uprt_nh4
          else
             sum_dqdt_nh4 = 0.0_kind_phys
          end if
 
          do jsoa = 1, nsoa_m
-            if ( do_soag(jsoa) ) then
+            if (do_soag(jsoa)) then
                sum_dqdt_soa(jsoa) = q(i,k,l_soag(jsoa)) * avg_uprt_soa(jsoa)
             else
                sum_dqdt_soa(jsoa) = 0.0_kind_phys
             end if
          end do
 
-         if ( use_sulfeq .and. (k <= troplev(i)) ) then
+         if (use_sulfeq .and. (k <= troplev(i))) then
             !   compute TMR tendencies for so4 interstial aerosol due to reversible gas uptake
             !   only above the tropopause
 
@@ -755,7 +754,7 @@ subroutine modal_aero_gasaerexch_run(                            &
                if (ido_so4a(n) <= 0) cycle
                tmp_pxt = tmp_pxt + uptkratebb(n)*sulfeq(i,k,n)
             end do
-            tmp_pxt = max( 0.0_kind_phys, tmp_pxt*deltatxx )  ! sum over modes of uptake_rate*sulfeq*deltat
+            tmp_pxt = max(0.0_kind_phys, tmp_pxt*deltatxx)  ! sum over modes of uptake_rate*sulfeq*deltat
             tmp_so4g_bgn = q(i,k,l_so4g)
             ! calc avg h2so4(g) over deltat
             if (tmp_kxt >= 1.0e-5_kind_phys) then
@@ -777,7 +776,7 @@ subroutine modal_aero_gasaerexch_run(                            &
                   tmp_so4a_bgn = 0.0_kind_phys
                end if
                tmp_so4a_end = tmp_so4a_bgn + deltatxx*uptkratebb(n)*(tmp_so4g_avg-sulfeq(i,k,n))
-               tmp_so4a_end = max( 0.0_kind_phys, tmp_so4a_end )
+               tmp_so4a_end = max(0.0_kind_phys, tmp_so4a_end)
                dqdt_so4(n) = (tmp_so4a_end - tmp_so4a_bgn)/deltatxx
                sum_dqdt_so4 = sum_dqdt_so4 + dqdt_so4(n)
             end do
@@ -785,7 +784,7 @@ subroutine modal_aero_gasaerexch_run(                            &
             ! ( Note that the code for msa has never been used.
             !   The plan was to simulate msa(g), treat it as non-volatile (like h2so4(g)),
             !   and treat condensed msa as sulfate, so just one additional tracer. )
-            if ( do_msag ) sum_dqdt_msa = 0.0_kind_phys
+            if (do_msag) sum_dqdt_msa = 0.0_kind_phys
 
          else
             !   compute TMR tendencies for so4 interstial aerosol due to simple gas uptake
@@ -798,7 +797,7 @@ subroutine modal_aero_gasaerexch_run(                            &
          !   but force nh4/so4 molar ratio <= 2
          sum_dqdt_nh4_b = 0.0_kind_phys
          dqdt_nh4(:) = 0._kind_phys
-         if ( do_nh4g ) then
+         if (do_nh4g) then
             do n = 1, ntot_amode_m
                dqdt_nh4(n) = fgain_nh4(n)*sum_dqdt_nh4
                qnew_nh4 = qold_nh4(n) + dqdt_nh4(n)*deltat
@@ -811,7 +810,7 @@ subroutine modal_aero_gasaerexch_run(                            &
             end do
          end if
 
-         if (( do_soag_any ) .and. (method_soa > 1)) then
+         if ((do_soag_any) .and. (method_soa > 1)) then
 !   compute TMR tendencies for soag and soa interstial aerosol
 !   using soa parameterization
             niter_max = 1000
@@ -821,14 +820,14 @@ subroutine modal_aero_gasaerexch_run(                            &
                qold_soag(jsoa) = q(i,k,l_soag(jsoa))
             end do
 
-            call modal_aero_soaexch( deltat, t(i,k), pmid(i,k), &
+            call modal_aero_soaexch(deltat, t(i,k), pmid(i,k), &
                  niter, niter_max, ntot_amode_m, ntot_soamode, npoa_m, nsoa_m, &
                  mw_poa_host, mw_soa_host, &
                  qold_soag, qold_soa, qold_poa, uptkrate_soa, &
-                 dqdt_soag, dqdt_soa )
+                 dqdt_soag, dqdt_soa)
             sum_dqdt_soa(:) = -dqdt_soag(:)
 
-         else if ( do_soag_any ) then
+         else if (do_soag_any) then
 !   compute TMR tendencies for soa interstial aerosol
 !   due to simple gas uptake
 
@@ -849,7 +848,7 @@ subroutine modal_aero_gasaerexch_run(                            &
                qsrflx_gaexch(i,l) = qsrflx_gaexch(i,l) + dqdt_so4(n)*pdel_fac
             end if
 
-            if ( do_nh4g ) then
+            if (do_nh4g) then
                if (ido_nh4a(n) == 1) then
                   l = idx_nh4_a_q(n)
                   dqdt(i,k,l) = dqdt_nh4(n)
@@ -858,7 +857,7 @@ subroutine modal_aero_gasaerexch_run(                            &
             end if
 
             do jsoa = 1, nsoa_m
-               if ( do_soag(jsoa) ) then
+               if (do_soag(jsoa)) then
                   if (ido_soaa(n,jsoa) == 1) then
                      l = idx_soa_a_q(n,jsoa)
                      dqdt(i,k,l) = dqdt_soa(n,jsoa) !calculated by  modal_aero_soaexch for method_soa=2
@@ -874,20 +873,20 @@ subroutine modal_aero_gasaerexch_run(                            &
          dqdt(i,k,l) = -sum_dqdt_so4
          qsrflx_gaexch(i,l) = qsrflx_gaexch(i,l) + dqdt(i,k,l)*pdel_fac
 
-         if ( do_msag ) then
+         if (do_msag) then
             l = l_msag
             dqdt(i,k,l) = -sum_dqdt_msa
             qsrflx_gaexch(i,l) = qsrflx_gaexch(i,l) + dqdt(i,k,l)*pdel_fac
          end if
 
-         if ( do_nh4g ) then
+         if (do_nh4g) then
             l = l_nh4g
             dqdt(i,k,l) = -sum_dqdt_nh4_b
             qsrflx_gaexch(i,l) = qsrflx_gaexch(i,l) + dqdt(i,k,l)*pdel_fac
          end if
 
          do jsoa = 1, nsoa_m
-            if ( do_soag(jsoa) ) then
+            if (do_soag(jsoa)) then
                l = l_soag(jsoa)
                dqdt(i,k,l) = -sum_dqdt_soa(jsoa)
 ! dqdt for gas is negative of the sum of dqdt for aerosol soa species in each mode: Manish
@@ -903,7 +902,7 @@ subroutine modal_aero_gasaerexch_run(                            &
                tmpa = tmpa + dqdt_soa(n,jsoa)*fac_m2v_soa(jsoa)*soa_equivso4_factor(jsoa)
             end do
             vol_shell = deltat *   &
-                 ( dqdt_so4(n)*fac_m2v_so4 + dqdt_nh4(n)*fac_m2v_nh4 + tmpa )
+                 (dqdt_so4(n)*fac_m2v_so4 + dqdt_nh4(n)*fac_m2v_nh4 + tmpa)
             vol_core = 0.0_kind_phys
             do l = 1, nspec_amode_m(n)
                vol_core = vol_core + &
@@ -921,11 +920,11 @@ subroutine modal_aero_gasaerexch_run(                            &
 !   But ratio1/ratio2 == tmp1/tmp2, and coding below avoids possible overflow
 !
             tmp1 = vol_shell*dgncur_a(i,k,n)*fac_volsfc_pcarbon
-            tmp2 = max( 6.0_kind_phys*dr_so4_monolayers_pcage*vol_core, 0.0_kind_phys )
+            tmp2 = max(6.0_kind_phys*dr_so4_monolayers_pcage*vol_core, 0.0_kind_phys)
             if (tmp1 >= tmp2) then
                xferfrac_pcage = xferfrac_max
             else
-               xferfrac_pcage = min( tmp1/tmp2, xferfrac_max )
+               xferfrac_pcage = min(tmp1/tmp2, xferfrac_max)
             end if
 
             if (xferfrac_pcage > 0.0_kind_phys) then
@@ -971,10 +970,10 @@ subroutine modal_aero_gasaerexch_run(                            &
 end subroutine modal_aero_gasaerexch_run
 
 
-subroutine gas_aer_uptkrates( ncol,       pver,       top_lev,    &
+subroutine gas_aer_uptkrates(ncol,       pver,       top_lev,    &
                               loffset,                            &
                               q,          t,          pmid,       &
-                              dgncur_awet,            uptkrate    )
+                              dgncur_awet,            uptkrate)
    !
    !                         /
    !   computes   uptkrate = | dx  dN/dx  gas_conden_rate(Dp(x))
@@ -1070,8 +1069,8 @@ subroutine gas_aer_uptkrates( ncol,       pver,       top_lev,    &
 !   freepathx2 = 2 * (h2so4 mean free path)  (m)
          freepathx2 = 6.0_kind_phys*gasdiffus/gasspeed
 
-         lnsg   = log( sigmag_amode_m(n) )
-         lndpgn = log( dgncur_awet(i,k,n) )   ! (m)
+         lnsg   = log(sigmag_amode_m(n))
+         lndpgn = log(dgncur_awet(i,k,n))   ! (m)
          const  = tworootpi * num_a * exp(beta*lndpgn + 0.5_kind_phys*(beta*lnsg)**2)
 
 !   sum over gauss-hermite quadrature points
@@ -1102,11 +1101,11 @@ end subroutine gas_aer_uptkrates
 
 !----------------------------------------------------------------------
 
-subroutine modal_aero_soaexch( dtfull, temp, pres, &
+subroutine modal_aero_soaexch(dtfull, temp, pres, &
           niter, niter_max, ntot_amode, ntot_soamode, ntot_poaspec, ntot_soaspec, &
           mw_poa_host, mw_soa_host, &
           g_soa_in, a_soa_in, a_poa_in, xferrate_in, &
-          g_soa_tend, a_soa_tend )
+          g_soa_tend, a_soa_tend)
 !         g_soa_tend, a_soa_tend, g0_soa, idiagss )
 
 !-----------------------------------------------------------------------
@@ -1129,7 +1128,6 @@ subroutine modal_aero_soaexch( dtfull, temp, pres, &
 ! Additions to run with multiple BC, SOA and POM's: Shrivastava et al., 2015
 !-----------------------------------------------------------------------
 
-      implicit none
 
       real(kind_phys), intent(in)  :: dtfull                     ! full integration time step (s)
       real(kind_phys), intent(in)  :: temp                       ! air temperature (K)
@@ -1199,12 +1197,12 @@ subroutine modal_aero_soaexch( dtfull, temp, pres, &
          p0_soa_298(:) = 9.7831E-11_kind_phys
          delh_vap_soa(:) = 131.0e3_kind_phys
          opoa_frac(:) = 0.0_kind_phys
-      elseif (ntot_soaspec ==2) then
+      else if (ntot_soaspec ==2) then
          ! same for anthropogenic and biomass burning species
          p0_soa_298 (1) = 1.0e-10_kind_phys
          p0_soa_298 (2) = 1.0e-10_kind_phys
          delh_vap_soa(:) = 156.0e3_kind_phys
-      elseif(ntot_soaspec ==5) then
+      else if(ntot_soaspec ==5) then
          ! 5 volatility bins for each of the a combined SOA classes ( including biomass burning, fossil fuel, biogenic)
          p0_soa_298 (1) = 9.7831E-13_kind_phys !soaff0 C*=0.01ug/m3
          p0_soa_298 (2) = 9.7831E-12_kind_phys !soaff1 C*=0.10ug/m3
@@ -1217,7 +1215,7 @@ subroutine modal_aero_soaexch( dtfull, temp, pres, &
          delh_vap_soa(3) = 131.0e3_kind_phys
          delh_vap_soa(4) = 120.0e3_kind_phys
          delh_vap_soa(5) = 109.0e3_kind_phys
-      elseif(ntot_soaspec ==15) then
+      else if(ntot_soaspec ==15) then
          !
          ! 5 volatility bins for each of the 3 SOA classes ( biomass burning, fossil fuel, biogenic)
          ! SOA species 1-5 are for anthropogenic while 6-10 are for biomass burning SOA
@@ -1257,7 +1255,7 @@ subroutine modal_aero_soaexch( dtfull, temp, pres, &
          delh_vap_soa(13) = 131.0e3_kind_phys
          delh_vap_soa(14) = 120.0e3_kind_phys
          delh_vap_soa(15) = 109.0e3_kind_phys
-      endif
+      end if
 
       !BSINGH - Initialized g_soa_tend and a_soa_tend to circumvent the undefined behavior (04/16/12)
       g_soa_tend(:)   = 0.0_kind_phys
@@ -1282,17 +1280,17 @@ subroutine modal_aero_soaexch( dtfull, temp, pres, &
       !    calc a_opoa (always slightly >0)
       do ll = 1, ntot_soaspec
          tmpf = mw_soa_host(ll)/mw_soa(ll)
-         g_soa(ll) = max( g_soa_in(ll), 0.0_kind_phys ) * tmpf
+         g_soa(ll) = max(g_soa_in(ll), 0.0_kind_phys) * tmpf
          tot_soa(ll) = g_soa(ll)
          do m = 1, ntot_soamode
-            if ( skip_soamode(m) ) cycle
-            a_soa(m,ll) = max( a_soa_in(m,ll), 0.0_kind_phys ) * tmpf
+            if (skip_soamode(m)) cycle
+            a_soa(m,ll) = max(a_soa_in(m,ll), 0.0_kind_phys) * tmpf
             tot_soa(ll) = tot_soa(ll) + a_soa(m,ll)
          end do
       end do
 
       do m = 1, ntot_soamode
-         if ( skip_soamode(m) ) cycle
+         if (skip_soamode(m)) cycle
          a_opoa(m) = 0.0_kind_phys
          do ll = 1, ntot_poaspec
             a_opoa(m) = opoa_frac(ll)*a_poa_in(m,ll)
@@ -1302,7 +1300,7 @@ subroutine modal_aero_soaexch( dtfull, temp, pres, &
       ! calc ambient equilibrium soa gas
       do ll = 1, ntot_soaspec
          p0_soa(ll) = p0_soa_298(ll) * &
-              exp( -(delh_vap_soa(ll)/rgas)*((1.0_kind_phys/temp)-(1.0_kind_phys/298.0_kind_phys)) )
+              exp(-(delh_vap_soa(ll)/rgas)*((1.0_kind_phys/temp)-(1.0_kind_phys/298.0_kind_phys)))
          g0_soa(ll) = 1.01325e5_kind_phys*p0_soa(ll)/pres
       end do
 
@@ -1329,26 +1327,26 @@ subroutine modal_aero_soaexch( dtfull, temp, pres, &
 
 ! integration loop -- does multiple substeps to reach dtfull
 time_loop: &
-      do while (tcur < dtfull-1.0e-3_kind_phys )
+      do while (tcur < dtfull-1.0e-3_kind_phys)
 
       niter = niter + 1
       if (niter > niter_max) exit
 
       tmpa = 0.0_kind_phys  ! time integration parameter for all soa species
       do m = 1, ntot_soamode
-         if ( skip_soamode(m) ) cycle
-         a_ooa_sum_tmp(m) = a_opoa(m) + sum( a_soa(m,1:ntot_soaspec) )
+         if (skip_soamode(m)) cycle
+         a_ooa_sum_tmp(m) = a_opoa(m) + sum(a_soa(m,1:ntot_soaspec))
       end do
       do ll = 1, ntot_soaspec
          tmpb = 0.0_kind_phys  ! time integration parameter for a single soa species
          do m = 1, ntot_soamode
-            if ( skip_soamode(m) ) cycle
-            sat(m,ll) = g0_soa(ll)/max( a_ooa_sum_tmp(m), a_min1 )
+            if (skip_soamode(m)) cycle
+            sat(m,ll) = g0_soa(ll)/max(a_ooa_sum_tmp(m), a_min1)
             g_star(m,ll) = sat(m,ll)*a_soa(m,ll)
-            phi(m,ll) = (g_soa(ll) - g_star(m,ll))/max( g_soa(ll), g_star(m,ll), g_min1 )
+            phi(m,ll) = (g_soa(ll) - g_star(m,ll))/max(g_soa(ll), g_star(m,ll), g_min1)
             tmpb = tmpb + xferrate(m,ll)*abs(phi(m,ll))
          end do
-         tmpa = max( tmpa, tmpb )
+         tmpa = max(tmpa, tmpb)
       end do
 
       if (dtsub_fixed > 0.0_kind_phys) then
@@ -1371,7 +1369,7 @@ time_loop: &
 !    and g_star(m,ll) calculated using "old" a_soa(m,ll)
 ! do this to get better estimate of "new" a_soa(m,ll) and sat(m,ll)
       do m = 1, ntot_soamode
-         if ( skip_soamode(m) ) cycle
+         if (skip_soamode(m)) cycle
          do ll = 1, ntot_soaspec
             ! first ll loop calcs a_soa_tmp(m,ll) & a_ooa_sum_tmp
             a_soa_tmp(m,ll) = a_soa(m,ll)
@@ -1381,11 +1379,11 @@ time_loop: &
                a_soa_tmp(m,ll) = a_soa(m,ll) + beta(m,ll)*del_g_soa_tmp(ll)
             end if
          end do
-         a_ooa_sum_tmp(m) = a_opoa(m) + sum( a_soa_tmp(m,1:ntot_soaspec) )
+         a_ooa_sum_tmp(m) = a_opoa(m) + sum(a_soa_tmp(m,1:ntot_soaspec))
          do ll = 1, ntot_soaspec
             ! second ll loop calcs sat & g_star
             if (del_g_soa_tmp(ll) > 0.0_kind_phys) then
-               sat(m,ll) = g0_soa(ll)/max( a_ooa_sum_tmp(m), a_min1 )
+               sat(m,ll) = g0_soa(ll)/max(a_ooa_sum_tmp(m), a_min1)
                g_star(m,ll) = sat(m,ll)*a_soa_tmp(m,ll)   ! this just needed for diagnostics
             end if
          end do
@@ -1397,15 +1395,15 @@ time_loop: &
          tmpa = 0.0_kind_phys
          tmpb = 0.0_kind_phys
          do m = 1, ntot_soamode
-            if ( skip_soamode(m) ) cycle
+            if (skip_soamode(m)) cycle
             tmpa = tmpa + a_soa(m,ll)/(1.0_kind_phys + beta(m,ll)*sat(m,ll))
             tmpb = tmpb + beta(m,ll)/(1.0_kind_phys + beta(m,ll)*sat(m,ll))
          end do
 
          g_soa(ll) = (tot_soa(ll) - tmpa)/(1.0_kind_phys + tmpb)
-         g_soa(ll) = max( 0.0_kind_phys, g_soa(ll) )
+         g_soa(ll) = max(0.0_kind_phys, g_soa(ll))
          do m = 1, ntot_soamode
-            if ( skip_soamode(m) ) cycle
+            if (skip_soamode(m)) cycle
             a_soa(m,ll) = (a_soa(m,ll) + beta(m,ll)*g_soa(ll))/   &
                        (1.0_kind_phys + beta(m,ll)*sat(m,ll))
          end do
@@ -1432,7 +1430,7 @@ time_loop: &
          tmpf = mw_soa(ll)/mw_soa_host(ll)
          g_soa_tend(ll) = (g_soa(ll)*tmpf - g_soa_in(ll))/dtfull
          do m = 1, ntot_soamode
-            if ( skip_soamode(m) ) cycle
+            if (skip_soamode(m)) cycle
             a_soa_tend(m,ll) = (a_soa(m,ll)*tmpf - a_soa_in(m,ll))/dtfull
          end do
       end do

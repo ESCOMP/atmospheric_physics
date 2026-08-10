@@ -23,9 +23,9 @@ contains
 
   !=============================================================================
   !=============================================================================
-  subroutine modal_seasalt_emissions_run( ncol, nslt, seasalt_indices, emis_scale, &
+  subroutine modal_seasalt_emissions_run(ncol, nslt, seasalt_indices, emis_scale, &
                                           u_bottom, v_bottom, zmid_bottom,         &
-                                          srf_temp, ocnfrc, pi, cflx )
+                                          srf_temp, ocnfrc, pi, cflx)
 
     use sslt_sections, only: nsections, fluxes, Dg, rdry
 
@@ -62,14 +62,14 @@ contains
     u10cubed(:ncol)=u10cubed(:ncol)**3.41_kind_phys
 
     if (nslt==4) then
-       sst_sz_range_lo (:) = (/ 0.08e-6_kind_phys, 0.02e-6_kind_phys, 0.3e-6_kind_phys,  1.0e-6_kind_phys /) ! accu, aitken, fine, coarse
-       sst_sz_range_hi (:) = (/ 0.3e-6_kind_phys,  0.08e-6_kind_phys, 1.0e-6_kind_phys, 10.0e-6_kind_phys /)
+       sst_sz_range_lo (:) = [0.08e-6_kind_phys, 0.02e-6_kind_phys, 0.3e-6_kind_phys,  1.0e-6_kind_phys] ! accu, aitken, fine, coarse
+       sst_sz_range_hi (:) = [0.3e-6_kind_phys,  0.08e-6_kind_phys, 1.0e-6_kind_phys, 10.0e-6_kind_phys]
     else if (nslt==3) then
-       sst_sz_range_lo (:) =  (/ 0.08e-6_kind_phys,  0.02e-6_kind_phys,  1.0e-6_kind_phys /)  ! accu, aitken, coarse
-       sst_sz_range_hi (:) =  (/ 1.0e-6_kind_phys,   0.08e-6_kind_phys, 10.0e-6_kind_phys /)
-    endif
+       sst_sz_range_lo (:) =  [0.08e-6_kind_phys,  0.02e-6_kind_phys,  1.0e-6_kind_phys]  ! accu, aitken, coarse
+       sst_sz_range_hi (:) =  [1.0e-6_kind_phys,   0.08e-6_kind_phys, 10.0e-6_kind_phys]
+    end if
 
-    fi(:ncol,:nsections) = fluxes( srf_temp, u10cubed, ncol )
+    fi(:ncol,:nsections) = fluxes(srf_temp, u10cubed, ncol)
 
     do ibin = 1,nslt
        mm = seasalt_indices(ibin)
@@ -77,21 +77,21 @@ contains
 
        if (mn>0) then
           do i=1, nsections
-             if (Dg(i).ge.sst_sz_range_lo(ibin) .and. Dg(i).lt.sst_sz_range_hi(ibin)) then
+             if (Dg(i)>=sst_sz_range_lo(ibin) .and. Dg(i)<sst_sz_range_hi(ibin)) then
                 cflx(:ncol,mn)=cflx(:ncol,mn)+fi(:ncol,i)*ocnfrc(:ncol)*emis_scale  !++ ag: scale sea-salt
-             endif
-          enddo
-       endif
+             end if
+          end do
+       end if
 
        cflx(:ncol,mm)=0.0_kind_phys
        do i=1, nsections
-          if (Dg(i).ge.sst_sz_range_lo(ibin) .and. Dg(i).lt.sst_sz_range_hi(ibin)) then
+          if (Dg(i)>=sst_sz_range_lo(ibin) .and. Dg(i)<sst_sz_range_hi(ibin)) then
              cflx(:ncol,mm)=cflx(:ncol,mm)+fi(:ncol,i)*ocnfrc(:ncol)*emis_scale  &   !++ ag: scale sea-salt
                   *4._kind_phys/3._kind_phys*pi*rdry(i)**3*seasalt_density  ! should use dry size, convert from number to mass flux (kg/m2/s)
-          endif
-       enddo
+          end if
+       end do
 
-    enddo
+    end do
 
   end subroutine modal_seasalt_emissions_run
 

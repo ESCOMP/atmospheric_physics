@@ -24,7 +24,6 @@ use aero_activate,    only: aero_activate_init, activate_aerosol
 
 implicit none
 private
-save
 
 public ndrop_init, dropmixnuc
 public psat   ! needed by the CAM interface to size the ccn diagnostic
@@ -39,7 +38,7 @@ real(kind_phys), parameter :: surften  = 0.076_kind_phys
 ! CCN diagnostic fields
 integer,  parameter :: psat=6    ! number of supersaturations to calc ccn concentration
 real(kind_phys), parameter :: supersat(psat)= & ! supersaturation (%) to determine ccn concentration
-                       (/ 0.02_kind_phys, 0.05_kind_phys, 0.1_kind_phys, 0.2_kind_phys, 0.5_kind_phys, 1.0_kind_phys /)
+                       [0.02_kind_phys, 0.05_kind_phys, 0.1_kind_phys, 0.2_kind_phys, 0.5_kind_phys, 1.0_kind_phys]
 
 ! host physical constants (set by ndrop_init)
 real(kind_phys) :: pi           ! pi
@@ -98,7 +97,7 @@ end subroutine ndrop_init
 
 !===============================================================================
 
-subroutine dropmixnuc( aero_props, aero_state, &
+subroutine dropmixnuc(aero_props, aero_state, &
    ncol, pver, top_lev, dtmicro, &
    temp, pmid, pint, pdel, rpdel, zm, kvh, ncldwtr, &
    wsub, wmixmin, cldn, cldo, cldliqf, &
@@ -256,13 +255,13 @@ subroutine dropmixnuc( aero_props, aero_state, &
       write(errmsg,*) 'dropmixnuc: Error function error, erf(1.0) = ',ERF(arg)
       errflg = 1
       return
-   endif
+   end if
    arg = 0.0_kind_phys
    if (erf(arg) /= 0.0_kind_phys) then
       write(errmsg,*) 'dropmixnuc: Error function error, erf(0.0) = ',erf(arg)
       errflg = 1
       return
-   endif
+   end if
 
    dtinv = 1._kind_phys/dtmicro
 
@@ -279,11 +278,11 @@ subroutine dropmixnuc( aero_props, aero_state, &
       fn(nbin),                    &
       fm(nbin),                    &
       fluxn(nbin),                 &
-      fluxm(nbin)               )
+      fluxm(nbin))
 
    ! Init pointers to mode number and specie mass mixing ratios in
    ! intersitial and cloud borne phases.
-   call aero_state%get_states( aero_props, raer, qqcw )
+   call aero_state%get_states(aero_props, raer, qqcw)
 
    factnum = 0._kind_phys
    wtke = 0._kind_phys
@@ -298,7 +297,7 @@ subroutine dropmixnuc( aero_props, aero_state, &
 
    phase = 1 ! interstitial
    do m = 1, nbin
-      call aero_state%loadaer( aero_props, &
+      call aero_state%loadaer(aero_props, &
            ncol, pver, &
            m, cs, phase, na(:,:,m), va(:,:,m), &
            hy(:,:,m), errnum, errstr)
@@ -406,7 +405,7 @@ subroutine dropmixnuc( aero_props, aero_state, &
          !    treat the reduction of cloud fraction from when cldn(i,k) < cldo(i,k)
          !    and also dissipate the portion of the cloud that will be regenerated
          cldo_tmp = lcldo(i,k)
-         cldn_tmp = lcldn(i,k) * exp( -dtmicro/tau_cld_regenerate )
+         cldn_tmp = lcldn(i,k) * exp(-dtmicro/tau_cld_regenerate)
          !    alternate formulation
          !    cldn_tmp = cldn(i,k) * max( 0.0_kind_phys, (1.0_kind_phys-dtmicro/tau_cld_regenerate) )
 
@@ -478,12 +477,12 @@ subroutine dropmixnuc( aero_props, aero_state, &
                   dact    = dum*raer(mm)%fld(i,k) ! interstitial only
                   raercol_cw(k,mm,nsav) = raercol_cw(k,mm,nsav) + dact  ! cloud-borne aerosol
                   raercol(k,mm,nsav)    = raercol(k,mm,nsav) - dact
-               enddo
-            enddo
+               end do
+            end do
 
-         endif
+         end if
 
-      enddo  ! grow_shrink_main_k_loop
+      end do  ! grow_shrink_main_k_loop
       ! end of k-loop for growing/shrinking cloud calcs ......................
 
       ! ......................................................................
@@ -553,7 +552,7 @@ subroutine dropmixnuc( aero_props, aero_state, &
                   dumc = lcldn(i,k) - lcldn(i,kp1)
                else
                   dumc = lcldn(i,k)
-               endif
+               end if
 
                fluxntot = 0
 
@@ -618,7 +617,7 @@ subroutine dropmixnuc( aero_props, aero_state, &
                srcn(k)      = srcn(k) + fluxntot/(cs(i,k)*dz(i,k))
                nsource(i,k) = nsource(i,k) + fluxntot/(cs(i,k)*dz(i,k))
 
-            endif  ! (cldn(i,k) - cldn(i,kp1) > 0.01 .or. k == pver)
+            end if  ! (cldn(i,k) - cldn(i,kp1) > 0.01 .or. k == pver)
 
          else
 
@@ -677,7 +676,7 @@ subroutine dropmixnuc( aero_props, aero_state, &
          !    artificial source.
          if (k == pver) tinv = tinv + taumix_internal_pver_inv
 
-         if (tinv .gt. 1.e-6_kind_phys) then
+         if (tinv > 1.e-6_kind_phys) then
             dtt   = 1._kind_phys/tinv
             dtmin = min(dtmin, dtt)
          end if
@@ -718,8 +717,8 @@ subroutine dropmixnuc( aero_props, aero_state, &
       !    the following is a safety measure to avoid negatives in explmix
       do k = top_lev, pver-1
          do m = 1, nbin
-            nact(k,m) = min( nact(k,m), ekkp(k) )
-            mact(k,m) = min( mact(k,m), ekkp(k) )
+            nact(k,m) = min(nact(k,m), ekkp(k))
+            mact(k,m) = min(mact(k,m), ekkp(k))
          end do
       end do
 
@@ -738,7 +737,7 @@ subroutine dropmixnuc( aero_props, aero_state, &
 
             ! update droplet source
             ! rce-comment- activation source in layer k involves particles from k+1
-            !	       srcn(:)=srcn(:)+nact(:,m)*(raercol(:,mm,nsav))
+            !          srcn(:)=srcn(:)+nact(:,m)*(raercol(:,mm,nsav))
             srcn(top_lev:pver-1) = srcn(top_lev:pver-1) + nact(top_lev:pver-1,m)*(raercol(top_lev+1:pver,mm,nsav))
 
             ! rce-comment- new formulation for k=pver
@@ -762,7 +761,7 @@ subroutine dropmixnuc( aero_props, aero_state, &
          do m = 1, nbin
             mm = aero_props%indexer(m,0)
             ! rce-comment -   activation source in layer k involves particles from k+1
-            !	              source(:)= nact(:,m)*(raercol(:,mm,nsav))
+            !                 source(:)= nact(:,m)*(raercol(:,mm,nsav))
             source(top_lev:pver-1) = nact(top_lev:pver-1,m)*(raercol(top_lev+1:pver,mm,nsav))
             ! rce-comment - new formulation for k=pver
             !               source(  pver  )= nact(  pver,  m)*(raercol(  pver,mm,nsav))
@@ -784,7 +783,7 @@ subroutine dropmixnuc( aero_props, aero_state, &
             do l = 1,aero_props%nmasses(m)
                mm = aero_props%indexer(m,l)
                ! rce-comment -   activation source in layer k involves particles from k+1
-               !	          source(:)= mact(:,m)*(raercol(:,mm,nsav))
+               !                  source(:)= mact(:,m)*(raercol(:,mm,nsav))
                source(top_lev:pver-1) = mact(top_lev:pver-1,m)*(raercol(top_lev+1:pver,mm,nsav))
                ! rce-comment- new formulation for k=pver
                !                 source(  pver  )= mact(  pver  ,m)*(raercol(  pver,mm,nsav))
@@ -845,8 +844,8 @@ subroutine dropmixnuc( aero_props, aero_state, &
             raertend(top_lev:pver) = (raercol(top_lev:pver,mm,nnew) - raer(mm)%fld(i,top_lev:pver))*dtinv
             qqcwtend(top_lev:pver) = (raercol_cw(top_lev:pver,mm,nnew) - qqcw(mm)%fld(i,top_lev:pver))*dtinv
 
-            coltend(i,mm)    = sum( pdel(i,:)*raertend )/gravit
-            coltend_cw(i,mm) = sum( pdel(i,:)*qqcwtend )/gravit
+            coltend(i,mm)    = sum(pdel(i,:)*raertend)/gravit
+            coltend_cw(i,mm) = sum(pdel(i,:)*qqcwtend)/gravit
 
             ! check for advected aerosol constituents
             if (dotend(mm)) then ! advected aerosol parts
@@ -882,14 +881,14 @@ subroutine dropmixnuc( aero_props, aero_state, &
       fn,         &
       fm,         &
       fluxn,      &
-      fluxm       )
+      fluxm)
 
 end subroutine dropmixnuc
 
 !===============================================================================
 
-subroutine explmix( q, src, ekkp, ekkm, overlapp, overlapm, &
-   qold, surfrate, flxconv, pver, top_lev, dt, is_unact, qactold )
+subroutine explmix(q, src, ekkp, ekkm, overlapp, overlapm, &
+   qold, surfrate, flxconv, pver, top_lev, dt, is_unact, qactold)
 
    !  explicit integration of droplet/aerosol mixing
    !     with source due to activation/nucleation
@@ -915,17 +914,17 @@ subroutine explmix( q, src, ekkp, ekkm, overlapp, overlapm, &
    ! *** this should only be present
    !     if the current species is unactivated number/sfc/mass
 
-   integer k,kp1,km1
+   integer :: k,kp1,km1
 
-   if ( is_unact ) then
+   if (is_unact) then
       !     the qactold*(1-overlap) terms are resuspension of activated material
       do k=top_lev,pver
          kp1=min(k+1,pver)
          km1=max(k-1,top_lev)
-         q(k) = qold(k) + dt*( - src(k) + ekkp(k)*(qold(kp1) - qold(k) +       &
+         q(k) = qold(k) + dt*(- src(k) + ekkp(k)*(qold(kp1) - qold(k) +       &
             qactold(kp1)*(1.0_kind_phys-overlapp(k)))               &
             + ekkm(k)*(qold(km1) - qold(k) +     &
-            qactold(km1)*(1.0_kind_phys-overlapm(k))) )
+            qactold(km1)*(1.0_kind_phys-overlapm(k))))
          !        force to non-negative
          !        if(q(k)<-1.e-30)then
          !           write(iulog,*)'q=',q(k),' in explmix'
@@ -945,7 +944,7 @@ subroutine explmix( q, src, ekkp, ekkm, overlapp, overlapm, &
          kp1=min(k+1,pver)
          km1=max(k-1,top_lev)
          q(k) = qold(k) + dt*(src(k) + ekkp(k)*(overlapp(k)*qold(kp1)-qold(k)) +      &
-            ekkm(k)*(overlapm(k)*qold(km1)-qold(k)) )
+            ekkm(k)*(overlapm(k)*qold(km1)-qold(k)))
          !        force to non-negative
          !        if(q(k)<-1.e-30)then
          !           write(iulog,*)'q=',q(k),' in explmix'
@@ -989,19 +988,19 @@ subroutine ccncalc(aero_state, aero_props, ncol, pver, top_lev, tair, cs, ccn, e
 
    ! local
 
-   real(kind_phys) naerosol(ncol,pver,nbin) ! interstit+activated aerosol number conc (/m3)
-   real(kind_phys) vaerosol(ncol,pver,nbin) ! interstit+activated aerosol volume conc (m3/m3)
+   real(kind_phys) :: naerosol(ncol,pver,nbin) ! interstit+activated aerosol number conc (/m3)
+   real(kind_phys) :: vaerosol(ncol,pver,nbin) ! interstit+activated aerosol volume conc (m3/m3)
 
-   real(kind_phys) amcube(ncol)
+   real(kind_phys) :: amcube(ncol)
    real(kind_phys), allocatable :: argfactor(:)
-   real(kind_phys) surften_coef
-   real(kind_phys) a(ncol) ! surface tension parameter
-   real(kind_phys) hygro(ncol,pver,nbin)  ! aerosol hygroscopicity
-   real(kind_phys) sm(ncol)  ! critical supersaturation at mode radius
-   real(kind_phys) arg(ncol)
-   integer l,m,i,k, astat
-   real(kind_phys) smcoef(ncol)
-   integer phase ! phase of aerosol
+   real(kind_phys) :: surften_coef
+   real(kind_phys) :: a(ncol) ! surface tension parameter
+   real(kind_phys) :: hygro(ncol,pver,nbin)  ! aerosol hygroscopicity
+   real(kind_phys) :: sm(ncol)  ! critical supersaturation at mode radius
+   real(kind_phys) :: arg(ncol)
+   integer :: l,m,i,k, astat
+   real(kind_phys) :: smcoef(ncol)
+   integer :: phase ! phase of aerosol
 
    integer :: errnum
    character(len=shr_kind_cs) :: errstr
@@ -1015,7 +1014,7 @@ subroutine ccncalc(aero_state, aero_props, ncol, pver, top_lev, tair, cs, ccn, e
    errmsg = ''
    errflg = 0
 
-   allocate( argfactor(nbin), stat=astat )
+   allocate(argfactor(nbin), stat=astat)
    if (astat/=0) then
       errmsg = 'ndrop::ccncalc : not able to allocate argfactor'
       errflg = 1
@@ -1031,7 +1030,7 @@ subroutine ccncalc(aero_state, aero_props, ncol, pver, top_lev, tair, cs, ccn, e
    phase=3 ! interstitial+cloudborne
 
    do m = 1, nbin
-      call aero_state%loadaer( aero_props, &
+      call aero_state%loadaer(aero_props, &
            ncol, pver, &
            m, cs, phase, naerosol(:,:,m), vaerosol(:,:,m), &
            hygro(:,:,m), errnum, errstr)
@@ -1053,22 +1052,22 @@ subroutine ccncalc(aero_state, aero_props, ncol, pver, top_lev, tair, cs, ccn, e
       do m=1,nbin
 
          where(naerosol(:ncol,k,m)>1.e-3_kind_phys .and. hygro(:ncol,k,m)>1.e-10_kind_phys)
-            amcube(:ncol)=aero_props%amcube(m, vaerosol(:ncol,k,m), naerosol(:ncol,k,m) )
+            amcube(:ncol)=aero_props%amcube(m, vaerosol(:ncol,k,m), naerosol(:ncol,k,m))
             sm(:ncol)=smcoef(:ncol)/sqrt(hygro(:ncol,k,m)*amcube(:ncol)) ! critical supersaturation
-         elsewhere
+         else where
             sm(:ncol)=1._kind_phys ! value shouldn't matter much since naerosol is small
-         endwhere
+         end where
          do l=1,psat
             do i=1,ncol
                arg(i)=argfactor(m)*log(sm(i)/super(l))
                ccn(i,k,l)=ccn(i,k,l)+naerosol(i,k,m)*0.5_kind_phys*(1._kind_phys-erf(arg(i)))
-            enddo
-         enddo
-      enddo
-   enddo
+            end do
+         end do
+      end do
+   end do
    ccn(:ncol,:,:)=ccn(:ncol,:,:)*1.e-6_kind_phys ! convert from #/m3 to #/cm3
 
-   deallocate( argfactor )
+   deallocate(argfactor)
 
 end subroutine ccncalc
 

@@ -68,11 +68,11 @@ contains
     pi = pi_in
     do_aqueous_sulfur_chemistry_aerosol_update = do_aqueous_sulfur_chemistry_aerosol_update_in
 
-    if ( id_so2<1 ) then
+    if (id_so2<1) then
        errflg = 1
        errmsg = 'sox_cldaero_init: SO2 is not included in chemistry -- should not invoke sox_cldaero_mod...'
        return
-    endif
+    end if
 
     aero_props => aero_props_in
 
@@ -83,7 +83,7 @@ contains
 
 !----------------------------------------------------------------------------------
 !----------------------------------------------------------------------------------
-  function sox_cldaero_create_obj(cldfrc, qcw, lwc, cfact, ncol, pver) result( conc_obj )
+  function sox_cldaero_create_obj(cldfrc, qcw, lwc, cfact, ncol, pver) result(conc_obj)
 
     real(kind_phys), intent(in) :: cldfrc(:,:)
     real(kind_phys), intent(in) :: qcw(:,:,:)
@@ -121,9 +121,9 @@ contains
              conc_obj%xlwc(i,k) = conc_obj%xlwc(i,k) / cldfrc(i,k) ! liquid water in the cloudy fraction of cell
           else
              conc_obj%xlwc(i,k) = 0._kind_phys
-          endif
-       enddo
-    enddo
+          end if
+       end do
+    end do
 
     conc_obj%no3c(:,:) = 0._kind_phys
     conc_obj%nh4c(:,:) = 0._kind_phys
@@ -151,7 +151,7 @@ contains
 !----------------------------------------------------------------------------------
 ! Update the mixing ratios
 !----------------------------------------------------------------------------------
-  subroutine sox_cldaero_update( aero_state, &
+  subroutine sox_cldaero_update(aero_state, &
        ncol, pver, dtime, mbar, pdel, press, tfld, cldnum, cldfrc, cfact, xlwc, &
        gravit, &
        delso4_hprxn, xh2so4, xso4, xso4_init, nh3g, xnh3, xnh4c, xmsa, xso2, xh2o2, qcw, qin, &
@@ -240,7 +240,7 @@ contains
     ! is performed internally to GEOS-Chem. Here, we just return to the
     ! parent routine and thus we do not apply tendencies calculated by MAM.
     ! (The host sets this flag; CAM passes .not. cam_chempkg_is('geoschem_mam4').)
-    if ( .not. do_aqueous_sulfur_chemistry_aerosol_update ) return
+    if (.not. do_aqueous_sulfur_chemistry_aerosol_update) return
 
     where (cldfrc(:ncol,:) >= 1.0e-5_kind_phys)
        delso4_ox(:ncol,:) = xso4(:ncol,:) - xso4_init(:ncol,:)
@@ -260,16 +260,16 @@ contains
           cloud: if (cldfrc(i,k) >= 1.0e-5_kind_phys) then
              xl = xlwc(i,k)
 
-             if (xl .ge. 1.e-8_kind_phys) then !! when cloud is present
+             if (xl >= 1.e-8_kind_phys) then !! when cloud is present
 
                 if (id_nh3>0) then
                    delnh3 = nh3g(i,k) - xnh3(i,k)
                    delnh4 = - delnh3
-                endif
+                end if
 
                 ! faqgain_msa(n) = fraction of total msa_c gain going to mode n
 
-                uptkrate = cldaero_uptakerate( xl, cldnum(i,k), cfact(i,k), cldfrc(i,k), tfld(i,k),  press(i,k), pi )
+                uptkrate = cldaero_uptakerate(xl, cldnum(i,k), cfact(i,k), cldfrc(i,k), tfld(i,k),  press(i,k), pi)
                 ! average uptake rate over dtime
                 uptkrate = (1.0_kind_phys - exp(-min(100._kind_phys,dtime*uptkrate))) / dtime
 
@@ -337,7 +337,7 @@ contains
                             dqdt = (qcw(i,k,mm)/max(xnh4c(i,k),1.0e-35_kind_phys)) &
                                  *delnh4/dtime*cldfrc(i,k)
                             qcw(i,k,mm) = qcw(i,k,mm) + dqdt*dtime
-                         endif
+                         end if
                       end if
                    end do
                 end do
@@ -376,16 +376,16 @@ contains
                    dqdt_aq = delnh3/dtime*cldfrc(i,k)
                    dqdt = dqdt_aq
                    qin(i,k,id_nh3) = qin(i,k,id_nh3) + dqdt * dtime
-                endif
+                end if
 
                 ! for SO4 from H2O2/O3 budgets
                 dqdt_aqhprxn(i,k) = dso4dt_hprxn*cldfrc(i,k)
                 dqdt_aqo3rxn(i,k) = (dso4dt_aqrxn - dso4dt_hprxn)*cldfrc(i,k)
 
-             endif !! when cloud is present
-          endif cloud
-       enddo col_loop
-    enddo lev_loop
+             end if !! when cloud is present
+          end if cloud
+       end do col_loop
+    end do lev_loop
 
     !==============================================================
     ! ... Update the mixing ratios
@@ -397,22 +397,22 @@ contains
              mm = aero_props%indexer(n,l)
              call  aero_props%get(n,l, spectype=spectype)
              if (trim(spectype) == 'sulfate') then
-                qcw(:ncol,k,mm) = MAX(qcw(:ncol,k,mm), small_value )
+                qcw(:ncol,k,mm) = MAX(qcw(:ncol,k,mm), small_value)
              end if
              if (trim(spectype) == 'msa') then
-                qcw(:ncol,k,mm) = MAX(qcw(:ncol,k,mm), small_value )
+                qcw(:ncol,k,mm) = MAX(qcw(:ncol,k,mm), small_value)
              end if
              if (trim(spectype) == 'ammonium') then
-                qcw(:ncol,k,mm) = MAX(qcw(:ncol,k,mm), small_value )
+                qcw(:ncol,k,mm) = MAX(qcw(:ncol,k,mm), small_value)
              end if
           end do
        end do
 
-       qin(:ncol,k,id_so2)   = MAX( qin(:ncol,k,id_so2),   small_value )
-       qin(:ncol,k,id_h2o2)  = MAX( qin(:ncol,k,id_h2o2),  small_value )
-       qin(:ncol,k,id_h2so4) = MAX( qin(:ncol,k,id_h2so4), small_value )
-       if ( id_msa > 0 ) qin(:ncol,k,id_msa) = MAX( qin(:ncol,k,id_msa), small_value )
-       if ( id_nh3 > 0 ) qin(:ncol,k,id_nh3) = MAX( qin(:ncol,k,id_nh3), small_value )
+       qin(:ncol,k,id_so2)   = MAX(qin(:ncol,k,id_so2),   small_value)
+       qin(:ncol,k,id_h2o2)  = MAX(qin(:ncol,k,id_h2o2),  small_value)
+       qin(:ncol,k,id_h2so4) = MAX(qin(:ncol,k,id_h2so4), small_value)
+       if (id_msa > 0) qin(:ncol,k,id_msa) = MAX(qin(:ncol,k,id_msa), small_value)
+       if (id_nh3 > 0) qin(:ncol,k,id_nh3) = MAX(qin(:ncol,k,id_nh3), small_value)
 
     end do
 
@@ -431,15 +431,15 @@ contains
                 do i=1,ncol
                    aqso4(i,n)=aqso4(i,n)+dqdt_aqso4(i,k,mm)*mw_so4/mbar(i,k) &
                         *pdel(i,k)/gravit ! kg/m2/s
-                enddo
-             enddo
+                end do
+             end do
              aqh2so4(:,n)=0._kind_phys
              do k=1,pver
                 do i=1,ncol
                    aqh2so4(i,n)=aqh2so4(i,n)+dqdt_aqh2so4(i,k,mm)*mw_so4/mbar(i,k) &
                         *pdel(i,k)/gravit ! kg/m2/s
-                enddo
-             enddo
+                end do
+             end do
           end if
        end do
     end do
@@ -449,8 +449,8 @@ contains
        do i=1,ncol
           aqso4_h2o2(i)=aqso4_h2o2(i)+dqdt_aqhprxn(i,k)*mw_so4/mbar(i,k) &
                *pdel(i,k)/gravit ! kg SO4 /m2/s
-       enddo
-    enddo
+       end do
+    end do
 
     if (present(aqso4_h2o2_3d)) then
        aqso4_h2o2_3d(:,:) = 0._kind_phys
@@ -458,8 +458,8 @@ contains
           do i=1,ncol
              aqso4_h2o2_3d(i,k)=dqdt_aqhprxn(i,k)*mw_so4/mbar(i,k) &
                   *pdel(i,k)/gravit ! kg SO4 /m2/s
-          enddo
-       enddo
+          end do
+       end do
     end if
 
     aqso4_o3(:)=0._kind_phys
@@ -467,8 +467,8 @@ contains
        do i=1,ncol
           aqso4_o3(i)=aqso4_o3(i)+dqdt_aqo3rxn(i,k)*mw_so4/mbar(i,k) &
                *pdel(i,k)/gravit ! kg SO4 /m2/s
-       enddo
-    enddo
+       end do
+    end do
 
     if (present(aqso4_o3_3d)) then
        aqso4_o3_3d(:,:)=0._kind_phys
@@ -476,18 +476,18 @@ contains
           do i=1,ncol
              aqso4_o3_3d(i,k)=dqdt_aqo3rxn(i,k)*mw_so4/mbar(i,k) &
                   *pdel(i,k)/gravit ! kg SO4 /m2/s
-          enddo
-       enddo
+          end do
+       end do
     end if
 
   end subroutine sox_cldaero_update
 
   !----------------------------------------------------------------------------------
   !----------------------------------------------------------------------------------
-  subroutine sox_cldaero_destroy_obj( conc_obj )
+  subroutine sox_cldaero_destroy_obj(conc_obj)
     type(cldaero_conc_t), pointer :: conc_obj
 
-    call cldaero_deallocate( conc_obj )
+    call cldaero_deallocate(conc_obj)
 
   end subroutine sox_cldaero_destroy_obj
 

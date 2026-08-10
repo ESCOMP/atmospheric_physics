@@ -9,7 +9,6 @@ use ccpp_kinds, only: kind_phys
 
 implicit none
 private
-save
 
 public :: &
    modal_aero_wateruptake_init,  &
@@ -143,7 +142,7 @@ subroutine modal_aero_wateruptake_sub( &
          call aero_props%get(m, l, density=specdens, &
                                      spectype=spectype)
 
-         if (do_strat_sulfate .and. (trim(spectype).eq.'sulfate')) then
+         if (do_strat_sulfate .and. (trim(spectype)=='sulfate')) then
             so4specdens=specdens
          end if
 
@@ -159,9 +158,9 @@ subroutine modal_aero_wateruptake_sub( &
          do k = top_lev, pver
             do i = 1, ncol
                dmean = dgncur_awet(i,k,m)*exp(1.5_kind_phys*alnsg_out(m)**2)
-               call calc_h2so4_equilib_mixrat( t(i,k), pmid(i,k), h2ommr(i,k), dmean, &
+               call calc_h2so4_equilib_mixrat(t(i,k), pmid(i,k), h2ommr(i,k), dmean, &
                                                qh2so4_equilib, wtpct_mode, sulden_mode, &
-                                               errmsg, errflg )
+                                               errmsg, errflg)
                if (errflg /= 0) then
                   deallocate(rhcrystal, rhdeliques)
                   return
@@ -183,10 +182,10 @@ subroutine modal_aero_wateruptake_sub( &
             rh(i,k) = h2ommr(i,k)/qs(i)
          else
             rh(i,k) = 0.98_kind_phys
-         endif
+         end if
          rh(i,k) = max(rh(i,k), 0.0_kind_phys)
          rh(i,k) = min(rh(i,k), 0.98_kind_phys)
-         if (cldn(i,k) .lt. 1.0_kind_phys) then
+         if (cldn(i,k) < 1.0_kind_phys) then
             rh(i,k) = (rh(i,k) - cldn(i,k)) / (1.0_kind_phys - cldn(i,k))  ! clear portion
          end if
          rh(i,k) = max(rh(i,k), 0.0_kind_phys)
@@ -201,7 +200,7 @@ subroutine modal_aero_wateruptake_sub( &
       do k = top_lev, pver
          do i = 1, ncol
 
-            if ( do_strat_sulfate .and. (k<troplev(i))) then
+            if (do_strat_sulfate .and. (k<troplev(i))) then
                wetvol(i,k,m) = dryvol(i,k,m)-so4dryvol(i,k,m)
                wetvol(i,k,m) = wetvol(i,k,m)+so4dryvol(i,k,m)*so4specdens/sulden(i,k,m)/wtpct(i,k,m)/10._kind_phys
                wetvol(i,k,m) = max(wetvol(i,k,m), dryvol(i,k,m))
@@ -309,13 +308,13 @@ subroutine modal_aero_kohler(rdry_in, hygro, s, rwet_out, im)
     do 100 i=1,im
 
 !       if(vol(i).le.1.e-20)then
-     if(vol(i).le.1.e-12_kind_phys)then
+     if(vol(i)<=1.e-12_kind_phys)then
         r(i)=rdry(i)
-        go to 100
-     endif
+        cycle
+     end if
 
      p=abs(p31(i))/(rdry(i)*rdry(i))
-     if(p.lt.eps)then
+     if(p<eps)then
 !          approximate solution for small particles
         r(i)=rdry(i)*(1._kind_phys+p*third/(1._kind_phys-slog(i)*rdry(i)/a))
      else
@@ -326,14 +325,14 @@ subroutine modal_aero_kohler(rdry_in, hygro, s, rwet_out, im)
         do n=1,4
            xr=real(cx4(n,i))
            xi=aimag(cx4(n,i))
-           if(abs(xi).gt.abs(xr)*eps) cycle
-           if(xr.gt.r(i)) cycle
-           if(xr.lt.rdry(i)*(1._kind_phys-eps)) cycle
-           if(xr.ne.xr) cycle
+           if(abs(xi)>abs(xr)*eps) cycle
+           if(xr>r(i)) cycle
+           if(xr<rdry(i)*(1._kind_phys-eps)) cycle
+           if(xr/=xr) cycle
            r(i)=xr
            nsol=n
         end do
-        if(nsol.eq.0)then
+        if(nsol==0)then
            write(*,*)   &
             'ccm kohlerc - no real(kind_phys) solution found (quartic)'
            write(*,*)'roots =', (cx4(n,i),n=1,4)
@@ -341,15 +340,15 @@ subroutine modal_aero_kohler(rdry_in, hygro, s, rwet_out, im)
            write(*,*)'rh=',s(i)
            write(*,*)'setting radius to dry radius=',rdry(i)
            r(i)=rdry(i)
-        endif
-     endif
+        end if
+     end if
 
-     if(s(i).gt.1._kind_phys-eps)then
+     if(s(i)>1._kind_phys-eps)then
 !          save quartic solution at s=1-eps
         r4=r(i)
 !          cubic for rh=1
         p=abs(p31(i))/(rdry(i)*rdry(i))
-        if(p.lt.eps)then
+        if(p<eps)then
            r(i)=rdry(i)*(1._kind_phys+p*third)
         else
            call makoh_cubic(cx3,p32,p31,p30,im)
@@ -359,14 +358,14 @@ subroutine modal_aero_kohler(rdry_in, hygro, s, rwet_out, im)
            do n=1,3
               xr=real(cx3(n,i))
               xi=aimag(cx3(n,i))
-              if(abs(xi).gt.abs(xr)*eps) cycle
-              if(xr.gt.r(i)) cycle
-              if(xr.lt.rdry(i)*(1._kind_phys-eps)) cycle
-              if(xr.ne.xr) cycle
+              if(abs(xi)>abs(xr)*eps) cycle
+              if(xr>r(i)) cycle
+              if(xr<rdry(i)*(1._kind_phys-eps)) cycle
+              if(xr/=xr) cycle
               r(i)=xr
               nsol=n
            end do
-           if(nsol.eq.0)then
+           if(nsol==0)then
               write(*,*)   &
                'ccm kohlerc - no real(kind_phys) solution found (cubic)'
               write(*,*)'roots =', (cx3(n,i),n=1,3)
@@ -374,12 +373,12 @@ subroutine modal_aero_kohler(rdry_in, hygro, s, rwet_out, im)
               write(*,*)'rh=',s(i)
               write(*,*)'setting radius to dry radius=',rdry(i)
               r(i)=rdry(i)
-           endif
-        endif
+           end if
+        end if
         r3=r(i)
 !          now interpolate between quartic, cubic solutions
         r(i)=(r4*(1._kind_phys-s(i))+r3*(s(i)-1._kind_phys+eps))/eps
-     endif
+     end if
 
 100 continue
 
@@ -393,7 +392,7 @@ end subroutine modal_aero_kohler
 
 
 !-----------------------------------------------------------------------
-subroutine makoh_cubic( cx, p2, p1, p0, im )
+subroutine makoh_cubic(cx, p2, p1, p0, im)
 !
 !     solves  x**3 + p2 x**2 + p1 x + p0 = 0
 !     where p0, p1, p2 are real
@@ -415,7 +414,7 @@ subroutine makoh_cubic( cx, p2, p1, p0, im )
       cwsq=0.5_kind_phys*(-1-ci*sqrt3)
 
       do i=1,im
-      if(p1(i).eq.0._kind_phys)then
+      if(p1(i)==0._kind_phys)then
 !        completely insoluble particle
          cx(1,i)=(-p0(i))**third
          cx(2,i)=cx(1,i)
@@ -427,21 +426,21 @@ subroutine makoh_cubic( cx, p2, p1, p0, im )
          crad(i)=sqrt(crad(i))
 
          cy(i)=r(i)-crad(i)
-         if (abs(cy(i)).gt.eps) cy(i)=cy(i)**third
+         if (abs(cy(i))>eps) cy(i)=cy(i)**third
          cq=q(i)
          cz(i)=-cq/cy(i)
 
          cx(1,i)=-cy(i)-cz(i)
          cx(2,i)=-cw*cy(i)-cwsq*cz(i)
          cx(3,i)=-cwsq*cy(i)-cw*cz(i)
-      endif
-      enddo
+      end if
+      end do
 
 end subroutine makoh_cubic
 
 
 !-----------------------------------------------------------------------
-subroutine makoh_quartic( cx, p3, p2, p1, p0, im )
+subroutine makoh_quartic(cx, p3, p2, p1, p0, im)
 
 !     solves x**4 + p3 x**3 + p2 x**2 + p1 x + p0 = 0
 !     where p0, p1, p2, p3 are real
@@ -469,7 +468,7 @@ subroutine makoh_quartic( cx, p3, p2, p1, p0, im )
       crad(i)=sqrt(crad(i))
 
       cb(i)=r(i)-crad(i)
-      if(cb(i).eq.czero)then
+      if(cb(i)==czero)then
 !        insoluble particle
          cx(1,i)=(-p1(i))**third
          cx(2,i)=cx(1,i)
@@ -494,15 +493,15 @@ subroutine makoh_quartic( cx, p3, p2, p1, p0, im )
          crad(i)=sqrt(crad(i))
          cx(3,i)=(-cb(i)+crad(i))/2._kind_phys
          cx(4,i)=(-cb(i)-crad(i))/2._kind_phys
-      endif
+      end if
    10 continue
 
 end subroutine makoh_quartic
 
 !----------------------------------------------------------------------
-subroutine calc_h2so4_equilib_mixrat( temp, pres, qh2o, dmean, &
+subroutine calc_h2so4_equilib_mixrat(temp, pres, qh2o, dmean, &
                                       qh2so4_equilib, wtpct, sulden, &
-                                      errmsg, errflg )
+                                      errmsg, errflg)
 
       real(kind_phys), intent(in)  :: temp            ! temperature (K)
       real(kind_phys), intent(in)  :: pres            ! pressure (Pa)
@@ -592,7 +591,7 @@ subroutine calc_h2so4_equilib_mixrat( temp, pres, qh2o, dmean, &
       !!  Calculate surface tension (erg/cm2) of sulfate of
       !!  different compositions as a linear function of temperature.
       i = 2 ! minimum wt% is 29.517
-      do while (wtpct_flat.gt.stwtp(i))
+      do while (wtpct_flat>stwtp(i))
        i = i + 1
       end do
       sig1 = stc0(i-1) + stc1(i-1) * t
@@ -604,7 +603,7 @@ subroutine calc_h2so4_equilib_mixrat( temp, pres, qh2o, dmean, &
       !!  Calculate density (g/cm3) of sulfate of
       !!  different compositions as a linear function of temperature.
       i = 6 ! minimum wt% is 29.517
-      do while (wtpct_flat .gt. dnwtp(i))
+      do while (wtpct_flat > dnwtp(i))
         i = i + 1
       end do
       den1 = dnc0(i-1) + dnc1(i-1) * t
@@ -638,7 +637,7 @@ subroutine calc_h2so4_equilib_mixrat( temp, pres, qh2o, dmean, &
       !!  Calculate surface tension (erg/cm2) of sulfate of
       !!  different compositions as a linear function of temperature.
       i = 2 ! minimum wt% is 29.517
-      do while (wtpct.gt.stwtp(i))
+      do while (wtpct>stwtp(i))
        i=i+1
       end do
       sig1=stc0(i-1)+stc1(i-1)*t
@@ -649,7 +648,7 @@ subroutine calc_h2so4_equilib_mixrat( temp, pres, qh2o, dmean, &
       !!  Calculate density (g/cm3) of sulfate of
       !!  different compositions as a linear function of temperature.
       i = 6 ! minimum wt% is 29.517
-      do while (wtpct .gt. dnwtp(i))
+      do while (wtpct > dnwtp(i))
         i=i+1
       end do
       den1=dnc0(i-1)+dnc1(i-1)*t
@@ -690,13 +689,13 @@ subroutine calc_h2so4_equilib_mixrat( temp, pres, qh2o, dmean, &
       expon = akelvin / r  ! divide by mode radius (cm)
       expon = max(-100._kind_phys, expon)
       expon = min(100._kind_phys, expon)
-      akas = exp( expon )
+      akas = exp(expon)
       qh2so4_equilib = sulfequil * akas ! reduce H2SO4 equilibrium mixing ratio by Kelvin curvature factor
 
 end subroutine calc_h2so4_equilib_mixrat
 
 !----------------------------------------------------------------------
-subroutine calc_h2so4_wtpct( temp, pres, qh2o, wtpct, errmsg, errflg )
+subroutine calc_h2so4_wtpct(temp, pres, qh2o, wtpct, errmsg, errflg)
 
   !!  This function calculates the weight % H2SO4 composition of
   !!  sulfate aerosol, using Tabazadeh et. al. (GRL, 1931, 1997).
@@ -738,41 +737,41 @@ subroutine calc_h2so4_wtpct( temp, pres, qh2o, wtpct, errmsg, errflg )
       !  Activity = water specific humidity (kg/kg) / equilibrium water (kg/kg)
       activ = qh2o/qs
 
-      if (activ.lt.0.05_kind_phys) then
+      if (activ<0.05_kind_phys) then
         activ = max(activ,1.e-6_kind_phys)    ! restrict minimum activity
-        atab1 	= 12.37208932_kind_phys
-        btab1 	= -0.16125516114_kind_phys
-        ctab1 	= -30.490657554_kind_phys
-        dtab1 	= -2.1133114241_kind_phys
-        atab2 	= 13.455394705_kind_phys
-        btab2 	= -0.1921312255_kind_phys
-        ctab2 	= -34.285174607_kind_phys
-        dtab2 	= -1.7620073078_kind_phys
-      elseif (activ.ge.0.05_kind_phys.and.activ.le.0.85_kind_phys) then
-        atab1 	= 11.820654354_kind_phys
-        btab1 	= -0.20786404244_kind_phys
-        ctab1 	= -4.807306373_kind_phys
-        dtab1 	= -5.1727540348_kind_phys
-        atab2 	= 12.891938068_kind_phys
-        btab2 	= -0.23233847708_kind_phys
-        ctab2 	= -6.4261237757_kind_phys
-        dtab2 	= -4.9005471319_kind_phys
-      elseif (activ.gt.0.85_kind_phys) then
+        atab1   = 12.37208932_kind_phys
+        btab1   = -0.16125516114_kind_phys
+        ctab1   = -30.490657554_kind_phys
+        dtab1   = -2.1133114241_kind_phys
+        atab2   = 13.455394705_kind_phys
+        btab2   = -0.1921312255_kind_phys
+        ctab2   = -34.285174607_kind_phys
+        dtab2   = -1.7620073078_kind_phys
+      else if (activ>=0.05_kind_phys.and.activ<=0.85_kind_phys) then
+        atab1   = 11.820654354_kind_phys
+        btab1   = -0.20786404244_kind_phys
+        ctab1   = -4.807306373_kind_phys
+        dtab1   = -5.1727540348_kind_phys
+        atab2   = 12.891938068_kind_phys
+        btab2   = -0.23233847708_kind_phys
+        ctab2   = -6.4261237757_kind_phys
+        dtab2   = -4.9005471319_kind_phys
+      else if (activ>0.85_kind_phys) then
         activ = min(activ,1._kind_phys)      ! restrict maximum activity
-        atab1 	= -180.06541028_kind_phys
-        btab1 	= -0.38601102592_kind_phys
-        ctab1 	= -93.317846778_kind_phys
-        dtab1 	= 273.88132245_kind_phys
-        atab2 	= -176.95814097_kind_phys
-        btab2 	= -0.36257048154_kind_phys
-        ctab2 	= -90.469744201_kind_phys
-        dtab2 	= 267.45509988_kind_phys
+        atab1   = -180.06541028_kind_phys
+        btab1   = -0.38601102592_kind_phys
+        ctab1   = -93.317846778_kind_phys
+        dtab1   = 273.88132245_kind_phys
+        atab2   = -176.95814097_kind_phys
+        btab2   = -0.36257048154_kind_phys
+        ctab2   = -90.469744201_kind_phys
+        dtab2   = 267.45509988_kind_phys
       else
         write(*,*) 'calc_h2so4_wtpct: invalid activity: activ,qh2o,qs,temp,pres=',activ,qh2o,qs,temp,pres
         errmsg = 'calc_h2so4_wtpct: invalid activity'
         errflg = 1
         return
-      endif
+      end if
 
       contl = atab1*(activ**btab1)+ctab1*activ+dtab1
       conth = atab2*(activ**btab2)+ctab2*activ+dtab2

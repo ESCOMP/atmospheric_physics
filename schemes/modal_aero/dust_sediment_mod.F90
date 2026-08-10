@@ -23,7 +23,7 @@ contains
   subroutine dust_sediment_tend ( &
        ncol,   dtime,  pint,     pdel,  &
        dustmr ,pvdust, dusttend, sfdust, &
-       pver,   gravit, errmsg,   errflg )
+       pver,   gravit, errmsg,   errflg)
 
 !----------------------------------------------------------------------
 !     Apply Particle Gravitational Sedimentation
@@ -86,12 +86,12 @@ contains
 ! ***Requires simple treatment of cloud overlap, already included below.
     do k = 1,pver
        do i = 1,ncol
-          fxdust(i,k+1) = min( fxdust(i,k+1), mxsedfac * dustmr(i,k) * pdel(i,k) )
+          fxdust(i,k+1) = min(fxdust(i,k+1), mxsedfac * dustmr(i,k) * pdel(i,k))
 !!$        fxdust(i,k+1) = min( fxdust(i,k+1), dustmr(i,k) * pdel(i,k) + fxdust(i,k))
        end do
     end do
 
-! Now calculate the tendencies 
+! Now calculate the tendencies
     do k = 1,pver
        do i = 1,ncol
 ! net flux into cloud changes cloud dust/ice (all flux is out of cloud)
@@ -102,7 +102,6 @@ contains
 ! convert flux out the bottom to mass units Pa -> kg/m2/s
     sfdust(:ncol) = fxdust(:ncol,pver+1) / (dtime*gravit)
 
-    return
   end subroutine dust_sediment_tend
 
 !===============================================================================
@@ -116,30 +115,30 @@ contains
 
     implicit none
 
-    integer ncol                      ! number of colums to process
+    integer :: ncol                      ! number of colums to process
 
-    integer i
-    integer k
+    integer :: i
+    integer :: k
 
-    real (kind_phys) vel(:,:)
-    real (kind_phys) flux(:,:)
-    real (kind_phys) xw(:,:)
-    real (kind_phys) phi(:,:)
-    real (kind_phys) deltat
+    real (kind_phys) :: vel(:,:)
+    real (kind_phys) :: flux(:,:)
+    real (kind_phys) :: xw(:,:)
+    real (kind_phys) :: phi(:,:)
+    real (kind_phys) :: deltat
 
     integer, intent(in) :: pver       ! number of vertical levels
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
 
-    real (kind_phys) psi(ncol,pver+1)
-    real (kind_phys) fdot(ncol,pver+1)
-    real (kind_phys) xx(ncol)
-    real (kind_phys) fxdot(ncol)
-    real (kind_phys) fxdd(ncol)
+    real (kind_phys) :: psi(ncol,pver+1)
+    real (kind_phys) :: fdot(ncol,pver+1)
+    real (kind_phys) :: xx(ncol)
+    real (kind_phys) :: fxdot(ncol)
+    real (kind_phys) :: fxdd(ncol)
 
-    real (kind_phys) psistar(ncol)
+    real (kind_phys) :: psistar(ncol)
 
-    real (kind_phys) xxk(ncol,pver)
+    real (kind_phys) :: xxk(ncol,pver)
 
     errmsg = ''
     errflg = 0
@@ -179,7 +178,6 @@ contains
     end do
 
 
-    return
   end subroutine getflx
 
 
@@ -192,41 +190,41 @@ contains
     implicit none
 
 ! input
-    integer ncol                      ! number of colums to process
+    integer :: ncol                      ! number of colums to process
 
-    real (kind_phys) x(:,:)
-    real (kind_phys) f(:,:)
-    real (kind_phys) fdot(:,:)
-    real (kind_phys) xin(:)
+    real (kind_phys) :: x(:,:)
+    real (kind_phys) :: f(:,:)
+    real (kind_phys) :: fdot(:,:)
+    real (kind_phys) :: xin(:)
 
     integer, intent(in) :: pver       ! number of vertical levels
 
 ! output
-    real (kind_phys) fxdot(:)
-    real (kind_phys) fxdd(:)
-    real (kind_phys) psistar(:)
+    real (kind_phys) :: fxdot(:)
+    real (kind_phys) :: fxdd(:)
+    real (kind_phys) :: psistar(:)
 
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
 
-    integer i
-    integer k
-    integer intz(ncol)
-    real (kind_phys) dx
-    real (kind_phys) s
-    real (kind_phys) c2
-    real (kind_phys) c3
-    real (kind_phys) xx
-    real (kind_phys) xinf
-    real (kind_phys) psi1, psi2, psi3, psim
-    real (kind_phys) cfint
-    real (kind_phys) cfnew
-    real (kind_phys) xins(ncol)
+    integer :: i
+    integer :: k
+    integer :: intz(ncol)
+    real (kind_phys) :: dx
+    real (kind_phys) :: s
+    real (kind_phys) :: c2
+    real (kind_phys) :: c3
+    real (kind_phys) :: xx
+    real (kind_phys) :: xinf
+    real (kind_phys) :: psi1, psi2, psi3, psim
+    real (kind_phys) :: cfint
+    real (kind_phys) :: cfnew
+    real (kind_phys) :: xins(ncol)
 
-!     the minmod function 
-    real (kind_phys) a, b, c
-    real (kind_phys) minmod
-    real (kind_phys) medan
+!     the minmod function
+    real (kind_phys) :: a, b, c
+    real (kind_phys) :: minmod
+    real (kind_phys) :: medan
     minmod(a,b) = 0.5_kind_phys*(sign(1._kind_phys,a) + sign(1._kind_phys,b))*min(abs(a),abs(b))
     medan(a,b,c) = a + minmod(b-a,c-a)
 
@@ -241,18 +239,18 @@ contains
 ! first find the interval
     do k =  1,pver
        do i = 1,ncol
-          if ((xins(i)-x(i,k))*(x(i,k+1)-xins(i)).ge.0._kind_phys) then
+          if ((xins(i)-x(i,k))*(x(i,k+1)-xins(i))>=0._kind_phys) then
              intz(i) = k
-          endif
+          end if
        end do
     end do
 
     do i = 1,ncol
-       if (intz(i).eq.0) then
+       if (intz(i)==0) then
           write(errmsg,*) 'DUST_SEDIMENT_MOD:cfint2 -- interval was not found for col i ', i
           errflg = 1
           return
-       endif
+       end if
     end do
 
 ! now interpolate
@@ -269,19 +267,19 @@ contains
 
 !        limit the interpolant
        psi1 = f(i,k)+(f(i,k+1)-f(i,k))*xx/dx
-       if (k.eq.1) then
+       if (k==1) then
           psi2 = f(i,1)
        else
           psi2 = f(i,k) + (f(i,k)-f(i,k-1))*xx/(x(i,k)-x(i,k-1))
-       endif
-       if (k+1.eq.pver+1) then
+       end if
+       if (k+1==pver+1) then
           psi3 = f(i,pver+1)
        else
           psi3 = f(i,k+1) - (f(i,k+2)-f(i,k+1))*(dx-xx)/(x(i,k+2)-x(i,k+1))
-       endif
+       end if
        psim = medan(psi1, psi2, psi3)
        cfnew = medan(cfint, psi1, psim)
-       if (abs(cfnew-cfint)/(abs(cfnew)+abs(cfint)+1.e-36_kind_phys)  .gt..03_kind_phys) then
+       if (abs(cfnew-cfint)/(abs(cfnew)+abs(cfint)+1.e-36_kind_phys)  >.03_kind_phys) then
 !     CHANGE THIS BACK LATER!!!
 !     $        .gt..1) then
 
@@ -290,11 +288,10 @@ contains
 !            write(iulog,*) ' cfint2 limiting important ', cfint, cfnew
 
 
-       endif
+       end if
        psistar(i) = cfnew
     end do
 
-    return
   end subroutine cfint2
 
 
@@ -312,13 +309,13 @@ contains
     implicit none
 
 ! input
-    integer ncol                      ! number of colums to process
+    integer :: ncol                      ! number of colums to process
 
-    real (kind_phys) x(:,:)
-    real (kind_phys) f(:,:)
+    real (kind_phys) :: x(:,:)
+    real (kind_phys) :: f(:,:)
     integer, intent(in) :: pver       ! number of vertical levels
 ! output
-    real (kind_phys) fdot(:,:)          ! derivative at nodes
+    real (kind_phys) :: fdot(:,:)          ! derivative at nodes
 
 ! assumed variable distribution
 !     x1.......x2.......x3.......x4.......x5.......x6     1,pverp points
@@ -338,33 +335,33 @@ contains
 ! work variables
 
 
-    integer i
-    integer k
+    integer :: i
+    integer :: k
 
-    real (kind_phys) a                    ! work var
-    real (kind_phys) b                    ! work var
-    real (kind_phys) c                    ! work var
-    real (kind_phys) s(ncol,pver+1)             ! first divided differences at nodes
-    real (kind_phys) sh(ncol,pver+1)            ! first divided differences between nodes
-    real (kind_phys) d(ncol,pver+1)             ! second divided differences at nodes
-    real (kind_phys) dh(ncol,pver+1)            ! second divided differences between nodes
-    real (kind_phys) e(ncol,pver+1)             ! third divided differences at nodes
-    real (kind_phys) eh(ncol,pver+1)            ! third divided differences between nodes
-    real (kind_phys) pp                   ! p prime
-    real (kind_phys) ppl(ncol,pver+1)           ! p prime on left
-    real (kind_phys) ppr(ncol,pver+1)           ! p prime on right
-    real (kind_phys) qpl
-    real (kind_phys) qpr
-    real (kind_phys) ttt
-    real (kind_phys) t
-    real (kind_phys) tmin
-    real (kind_phys) tmax
-    real (kind_phys) delxh(ncol,pver+1)
+    real (kind_phys) :: a                    ! work var
+    real (kind_phys) :: b                    ! work var
+    real (kind_phys) :: c                    ! work var
+    real (kind_phys) :: s(ncol,pver+1)             ! first divided differences at nodes
+    real (kind_phys) :: sh(ncol,pver+1)            ! first divided differences between nodes
+    real (kind_phys) :: d(ncol,pver+1)             ! second divided differences at nodes
+    real (kind_phys) :: dh(ncol,pver+1)            ! second divided differences between nodes
+    real (kind_phys) :: e(ncol,pver+1)             ! third divided differences at nodes
+    real (kind_phys) :: eh(ncol,pver+1)            ! third divided differences between nodes
+    real (kind_phys) :: pp                   ! p prime
+    real (kind_phys) :: ppl(ncol,pver+1)           ! p prime on left
+    real (kind_phys) :: ppr(ncol,pver+1)           ! p prime on right
+    real (kind_phys) :: qpl
+    real (kind_phys) :: qpr
+    real (kind_phys) :: ttt
+    real (kind_phys) :: t
+    real (kind_phys) :: tmin
+    real (kind_phys) :: tmax
+    real (kind_phys) :: delxh(ncol,pver+1)
 
 
-!     the minmod function 
-    real (kind_phys) minmod
-    real (kind_phys) medan
+!     the minmod function
+    real (kind_phys) :: minmod
+    real (kind_phys) :: medan
     minmod(a,b) = 0.5_kind_phys*(sign(1._kind_phys,a) + sign(1._kind_phys,b))*min(abs(a),abs(b))
     medan(a,b,c) = a + minmod(b-a,c-a)
 
@@ -378,12 +375,12 @@ contains
        end do
 
 !        first and second divided differences at nodes
-       if (k.ge.2) then
+       if (k>=2) then
           do i = 1,ncol
              d(i,k) = (sh(i,k)-sh(i,k-1))/(x(i,k+1)-x(i,k-1))
              s(i,k) = minmod(sh(i,k),sh(i,k-1))
           end do
-       endif
+       end if
     end do
 
 !     second and third divided diffs between nodes
@@ -427,20 +424,20 @@ contains
        do i = 1,ncol
 
 !           p prime at k-0.5
-          ppl(i,k)=sh(i,k-1) + dh(i,k-1)*delxh(i,k-1)  
+          ppl(i,k)=sh(i,k-1) + dh(i,k-1)*delxh(i,k-1)
 !           p prime at k+0.5
           ppr(i,k)=sh(i,k)   - dh(i,k)  *delxh(i,k)
 
           t = minmod(ppl(i,k),ppr(i,k))
 
 !           derivate from parabola thru f(i,k-1), f(i,k), and f(i,k+1)
-          pp = sh(i,k-1) + d(i,k)*delxh(i,k-1) 
+          pp = sh(i,k-1) + d(i,k)*delxh(i,k-1)
 
 !           quartic estimate of fdot
           fdot(i,k) = pp                            &
                - delxh(i,k-1)*delxh(i,k)            &
-               *(  eh(i,k-1)*(x(i,k+2)-x(i,k  ))    &
-               + eh(i,k  )*(x(i,k  )-x(i,k-2))      &
+               *(eh(i,k-1)*(x(i,k+2)-x(i,k))    &
+               + eh(i,k)*(x(i,k)-x(i,k-2))      &
                )/(x(i,k+2)-x(i,k-2))
 
 !           now limit it
@@ -448,7 +445,7 @@ contains
                + delxh(i,k-1)*minmod(d(i,k-1)+e(i,k-1)*(x(i,k)-x(i,k-2)), &
                d(i,k)  -e(i,k)*delxh(i,k))
           qpr = sh(i,k)         &
-               + delxh(i,k  )*minmod(d(i,k)  +e(i,k)*delxh(i,k-1),        &
+               + delxh(i,k)*minmod(d(i,k)  +e(i,k)*delxh(i,k-1),        &
                d(i,k+1)+e(i,k+1)*(x(i,k)-x(i,k+2)))
 
           fdot(i,k) = medan(fdot(i,k), qpl, qpr)
@@ -463,6 +460,5 @@ contains
 
     end do
 
-    return
   end subroutine cfdotmc_pro
 end module dust_sediment_mod

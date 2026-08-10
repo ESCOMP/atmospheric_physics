@@ -20,10 +20,10 @@ contains
 
   !=============================================================================
   !=============================================================================
-  subroutine modal_aero_depvel_part( ncol, t, pmid, ram1, fv, vlc_dry, vlc_trb, vlc_grv,  &
+  subroutine modal_aero_depvel_part(ncol, t, pmid, ram1, fv, vlc_dry, vlc_trb, vlc_grv,  &
                                      radius_part, density_part, sig_part, moment, &
                                      pver, top_lev, n_land_type, fraction_landuse, &
-                                     pi, boltz, gravit, rair, aspherical )   ! dmleung added aspherical flag 20 Oct 2025
+                                     pi, boltz, gravit, rair, aspherical)   ! dmleung added aspherical flag 20 Oct 2025
 
 !    calculates surface deposition velocity of particles
 !    L. Zhang, S. Gong, J. Padro, and L. Barrie
@@ -34,7 +34,6 @@ contains
 
     ! !ARGUMENTS:
     !
-    implicit none
     !
     real(kind_phys), intent(in) :: t(:,:)       !atm temperature (K)
     real(kind_phys), intent(in) :: pmid(:,:)    !atm pressure (Pa)
@@ -57,7 +56,7 @@ contains
     real(kind_phys), intent(out) :: vlc_trb(:)       !Turbulent deposn velocity (m/s)
     real(kind_phys), intent(out) :: vlc_grv(:,:)       !grav deposn velocity (m/s)
     real(kind_phys), intent(out) :: vlc_dry(:,:)       !dry deposn velocity (m/s)
-    logical,  intent(in), OPTIONAL :: aspherical   ! dmleung: asphericity is strong for coarse-mode interstitial
+    logical,  intent(in), optional :: aspherical   ! dmleung: asphericity is strong for coarse-mode interstitial
     ! aerosols only, mostly dust and seasalt. For coarse mode aerosols, asphericity reduces coarse-mode gravitational
     ! settling velocity by 20 % following Fig. 4 of Yue Huang et al. (2020).
     !------------------------------------------------------------------------
@@ -94,7 +93,7 @@ contains
      ! gravitational settling velocity by 15-20 %. Yue Huang et al. (2020)
      ! Climate Models and Remote Sensing Retrievals Neglect Substantial Desert Dust Asphericity
 
-    real(kind_phys) gamma(11)      ! exponent of schmidt number
+    real(kind_phys) :: gamma(11)      ! exponent of schmidt number
 !   data gamma/0.54d+00,  0.56d+00,  0.57d+00,  0.54d+00,  0.54d+00, &
 !              0.56d+00,  0.54d+00,  0.54d+00,  0.54d+00,  0.56d+00, &
 !              0.50d+00/
@@ -103,7 +102,7 @@ contains
                0.54e+00_kind_phys/
     save gamma
 
-    real(kind_phys) alpha(11)      ! parameter for impaction
+    real(kind_phys) :: alpha(11)      ! parameter for impaction
 !   data alpha/50.00d+00,  0.95d+00,  0.80d+00,  1.20d+00,  1.30d+00, &
 !               0.80d+00, 50.00d+00, 50.00d+00,  2.00d+00,  1.50d+00, &
 !             100.00d+00/
@@ -112,7 +111,7 @@ contains
               50.00e+00_kind_phys/
     save alpha
 
-    real(kind_phys) radius_collector(11) ! radius (m) of surface collectors
+    real(kind_phys) :: radius_collector(11) ! radius (m) of surface collectors
 !   data radius_collector/-1.00d+00,  5.10d-03,  3.50d-03,  3.20d-03, 10.00d-03, &
 !                          5.00d-03, -1.00d+00, -1.00d+00, 10.00d-03, 10.00d-03, &
 !                         -1.00d+00/
@@ -173,8 +172,8 @@ contains
           ! dmleung --
 
           vlc_dry(i,k)=vlc_grv(i,k)
-       enddo
-    enddo
+       end do
+    end do
     k=pver  ! only look at bottom level for next part
     do i=1,ncol
        dff_aer = boltz * t(i,k) * slp_crc(i,k) / &    ![m2 s-1]
@@ -185,7 +184,7 @@ contains
        wrk3 = 0._kind_phys
        do lt = 1,n_land_type
           lnd_frc = fraction_landuse(i,lt)
-          if ( lnd_frc /= 0._kind_phys ) then
+          if (lnd_frc /= 0._kind_phys) then
              brownian = shm_nbr**(-gamma(lt))
              if (radius_collector(lt) > 0.0_kind_phys) then
 !       vegetated surface
@@ -195,7 +194,7 @@ contains
 !       non-vegetated surface
                 stk_nbr = vlc_grv(i,k) * fv(i) * fv(i) / (gravit*vsc_knm_atm(i,k))  ![frc] SeP97 p.965
                 interception = 0.0_kind_phys
-             endif
+             end if
              impaction = (stk_nbr/(alpha(lt)+stk_nbr))**2.0_kind_phys
 
              if (iwet(lt) > 0) then
@@ -203,20 +202,19 @@ contains
              else
                 stickfrac = exp(-sqrt(stk_nbr))
                 if (stickfrac < 1.0e-10_kind_phys) stickfrac = 1.0e-10_kind_phys
-             endif
+             end if
              rss_lmn = 1.0_kind_phys / (3.0_kind_phys * fv(i) * stickfrac * (brownian+interception+impaction))
              rss_trb = ram1(i) + rss_lmn + ram1(i)*rss_lmn*vlc_grv(i,k)
 
              wrk1 = 1.0_kind_phys / rss_trb
-             wrk2 = wrk2 + lnd_frc*( wrk1 )
-             wrk3 = wrk3 + lnd_frc*( wrk1 + vlc_grv(i,k) )
-          endif
-       enddo  ! n_land_type
+             wrk2 = wrk2 + lnd_frc*(wrk1)
+             wrk3 = wrk3 + lnd_frc*(wrk1 + vlc_grv(i,k))
+          end if
+       end do  ! n_land_type
        vlc_trb(i) = wrk2
        vlc_dry(i,k) = wrk3
-    enddo !ncol
+    end do !ncol
 
-    return
   end subroutine modal_aero_depvel_part
 
 !------------------------------------------------------------------------
@@ -238,7 +236,6 @@ contains
         !
         ! Author: Natalie Mahowald
         !
-        implicit none
         integer, intent(in) :: ncol
         real(kind_phys),intent(in) :: ram1in(:)         !aerodynamical resistance (s/m)
         real(kind_phys),intent(in) :: fvin(:)                 ! sfc frc vel from land
@@ -266,54 +263,53 @@ contains
 
         do i=1,ncol
            z=pdel(i)*rair*t(i)/pmid(i)/gravit/2.0_kind_phys   !use half the layer height like Ganzefeld and Lelieveld, 1995
-           if(obklen(i).eq.0) then
+           if(obklen(i)==0) then
               psi=0._kind_phys
               psi0=0._kind_phys
            else
               psi=min(max(z/obklen(i),-1.0_kind_phys),1.0_kind_phys)
               psi0=min(max(zzocen/obklen(i),-1.0_kind_phys),1.0_kind_phys)
-           endif
+           end if
            temp=z/zzocen
-           if(icefrac(i) > 0.5_kind_phys) then 
-              if(obklen(i).gt.0) then 
+           if(icefrac(i) > 0.5_kind_phys) then
+              if(obklen(i)>0) then
                  psi0=min(max(zzsice/obklen(i),-1.0_kind_phys),1.0_kind_phys)
               else
                  psi0=0.0_kind_phys
-              endif
+              end if
               temp=z/zzsice
-	   endif
+           end if
            if(psi> 0._kind_phys) then
               ram=1/xkar/ustar(i)*(log(temp)+4.7_kind_phys*(psi-psi0))
            else
               nu=(1.00_kind_phys-15.000_kind_phys*psi)**(.25_kind_phys)
               nu0=(1.000_kind_phys-15.000_kind_phys*psi0)**(.25_kind_phys)
-              if(ustar(i).ne.0._kind_phys) then
+              if(ustar(i)/=0._kind_phys) then
                  ram=1/xkar/ustar(i)*(log(temp) &
                       +log(((nu0**2+1.00_kind_phys)*(nu0+1.0_kind_phys)**2)/((nu**2+1.0_kind_phys)*(nu+1.00_kind_phys)**2)) &
                       +2.0_kind_phys*(atan(nu)-atan(nu0)))
               else
-	         ram=0._kind_phys
-              endif
-           endif
+                 ram=0._kind_phys
+              end if
+           end if
            if(landfrac(i) < 0.000000001_kind_phys) then
               fv(i)=ustar(i)
               ram1(i)=ram
            else
               fv(i)=fvin(i)
               ram1(i)=ram1in(i)
-           endif
+           end if
            !          write(iulog,*) i,pdel(i),t(i),pmid(i),gravit,obklen(i),psi,psi0,icefrac(i),nu,nu0,ram,ustar(i),&
            !             log(((nu0**2+1.00)*(nu0+1.0)**2)/((nu**2+1.0)*(nu+1.00)**2)),2.0*(atan(nu)-atan(nu0))
 
-        enddo
+        end do
 
-        ! fvitt -- fv == 0 causes a floating point exception in 
+        ! fvitt -- fv == 0 causes a floating point exception in
         ! dry dep of sea salts and dust
-        where ( fv(:ncol) == 0._kind_phys ) 
+        where (fv(:ncol) == 0._kind_phys)
            fv(:ncol) = 1.e-12_kind_phys
-        endwhere
+        end where
 
-        return
       end subroutine calcram
 
 end module aero_drydep_core

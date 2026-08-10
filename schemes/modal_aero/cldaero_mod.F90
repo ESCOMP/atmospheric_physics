@@ -30,17 +30,17 @@ contains
 
 !----------------------------------------------------------------------------------
 !----------------------------------------------------------------------------------
-  function cldaero_allocate( ncol, pver ) result( cldconc )
+  function cldaero_allocate(ncol, pver) result(cldconc)
     integer, intent(in) :: ncol  ! number of columns in chunk
     integer, intent(in) :: pver  ! number of vertical levels
 
-    type(cldaero_conc_t), pointer:: cldconc
+    type(cldaero_conc_t), pointer :: cldconc
 
-    allocate( cldconc )
-    allocate( cldconc%so4c(ncol,pver) )
-    allocate( cldconc%nh4c(ncol,pver) )
-    allocate( cldconc%no3c(ncol,pver) )
-    allocate( cldconc%xlwc(ncol,pver) )
+    allocate(cldconc)
+    allocate(cldconc%so4c(ncol,pver))
+    allocate(cldconc%nh4c(ncol,pver))
+    allocate(cldconc%no3c(ncol,pver))
+    allocate(cldconc%xlwc(ncol,pver))
 
     cldconc%so4c(:,:) = 0._kind_phys
     cldconc%nh4c(:,:) = 0._kind_phys
@@ -52,31 +52,31 @@ contains
 
 !----------------------------------------------------------------------------------
 !----------------------------------------------------------------------------------
-  subroutine cldaero_deallocate( cldconc )
+  subroutine cldaero_deallocate(cldconc)
     type(cldaero_conc_t), pointer :: cldconc
 
-    if ( associated(cldconc%so4c) ) then
+    if (associated(cldconc%so4c)) then
        deallocate(cldconc%so4c)
        nullify(cldconc%so4c)
-    endif
+    end if
 
-    if ( associated(cldconc%nh4c) ) then
+    if (associated(cldconc%nh4c)) then
        deallocate(cldconc%nh4c)
        nullify(cldconc%nh4c)
-    endif
-    
-    if ( associated(cldconc%no3c) ) then
+    end if
+
+    if (associated(cldconc%no3c)) then
        deallocate(cldconc%no3c)
        nullify(cldconc%no3c)
-    endif
+    end if
 
-    if ( associated(cldconc%xlwc) ) then
+    if (associated(cldconc%xlwc)) then
        deallocate(cldconc%xlwc)
        nullify(cldconc%xlwc)
-    endif
+    end if
 
-    deallocate( cldconc )
-    nullify( cldconc )
+    deallocate(cldconc)
+    nullify(cldconc)
 
   end subroutine cldaero_deallocate
 
@@ -84,7 +84,7 @@ contains
 ! utility function for cloud-borne aerosols
 !----------------------------------------------------------------------------------
 
-  function cldaero_uptakerate( xl, cldnum, cfact, cldfrc, tfld,  press, pi ) result( uptkrate )
+  function cldaero_uptakerate(xl, cldnum, cfact, cldfrc, tfld,  press, pi) result(uptkrate)
 
     real(kind_phys), intent(in) :: xl, cldnum, cfact, cldfrc, tfld,  press
     real(kind_phys), intent(in) :: pi   ! host value of pi (passed for bit-for-bit consistency)
@@ -105,7 +105,7 @@ contains
 
 ! num_cd = (drop number conc in 1/cm^3)
         num_cd = 1.0e-3_kind_phys*cldnum*cfact/cldfrc
-        num_cd = max( num_cd, 0.0_kind_phys )
+        num_cd = max(num_cd, 0.0_kind_phys)
 
 ! rad_cd = (drop radius in cm), computed from liquid water and drop number,
 ! then bounded by 0.5 and 50.0 micrometers
@@ -118,10 +118,10 @@ contains
         radxnum_cd = (volx34pi_cd*num_cd*num_cd)**0.3333333_kind_phys
 
 ! apply bounds to rad_cd to avoid the occasional unphysical value
-        if (radxnum_cd .le. volx34pi_cd*4.0e4_kind_phys) then
+        if (radxnum_cd <= volx34pi_cd*4.0e4_kind_phys) then
             radxnum_cd = volx34pi_cd*4.0e4_kind_phys
             rad_cd = 50.0e-4_kind_phys
-        else if (radxnum_cd .ge. volx34pi_cd*4.0e8_kind_phys) then
+        else if (radxnum_cd >= volx34pi_cd*4.0e8_kind_phys) then
             radxnum_cd = volx34pi_cd*4.0e8_kind_phys
             rad_cd = 0.5e-4_kind_phys
         else

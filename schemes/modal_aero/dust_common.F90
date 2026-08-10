@@ -20,7 +20,7 @@ contains
 
   !=============================================================================
   !
-  ! !DESCRIPTION: 
+  ! !DESCRIPTION:
   !
   ! Compute source efficiency factor from topography
   ! Initialize other variables used in subroutine Dust:
@@ -31,7 +31,7 @@ contains
   ! Modifications by C. Zender and later by S. Levis
   ! Rest of subroutine from C. Zender's dust model
   !=============================================================================
-  subroutine dust_set_params( nbin, dmt_grd, dmt_vwr, stk_crc, pi, rair, gravit, errmsg, errflg )
+  subroutine dust_set_params(nbin, dmt_grd, dmt_vwr, stk_crc, pi, rair, gravit, errmsg, errflg)
 
     !
     ! !USES
@@ -60,8 +60,8 @@ contains
 
     !------------------------------------------------------------------------
     !Local Variables
-    integer, parameter:: dst_src_nbr =3
-    integer, parameter:: sz_nbr =200
+    integer, parameter :: dst_src_nbr =3
+    integer, parameter :: sz_nbr =200
 
     integer  :: m,n                     !indices
     real(kind_phys) :: dmt_min(nbin)      ![m] Size grid minimum
@@ -74,7 +74,7 @@ contains
     real(kind_phys) :: vlc_grv(nbin)      ![m s-1] Settling velocity
     real(kind_phys) :: ryn_nbr_grv(nbin)  ![frc] Reynolds number at terminal velocity
     real(kind_phys) :: cff_drg_grv(nbin)  ![frc] Drag coefficient at terminal velocity
-    real(kind_phys) :: tmp                     !temporary 
+    real(kind_phys) :: tmp                     !temporary
     real(kind_phys) :: ln_gsd                  ![frc] ln(gsd)
     real(kind_phys) :: gsd_anl                 ![frc] Geometric standard deviation
     real(kind_phys) :: dmt_vma                 ![m] Mass median diameter analytic She84 p.75 Tabl.1
@@ -232,23 +232,23 @@ contains
                   'Dustini error: Reynolds number too large in stk_crc_get(): ryn_nbr_grv(m) = ', ryn_nbr_grv(m)
              errflg = 1
              return
-          endif
+          end if
 
           ! Update terminal velocity based on new Reynolds number and drag coeff
           ! [m s-1] Terminal veloc SeP97 p.467 (8.44)
           vlc_grv(m) = sqrt(4.0_kind_phys * gravit * dmt_vwr(m) * slp_crc(m) * dust_density / &
-               (3.0_kind_phys*cff_drg_grv(m)*dns_mdp))   
+               (3.0_kind_phys*cff_drg_grv(m)*dns_mdp))
           eps_crr = abs((vlc_grv(m)-vlc_grv_old)/vlc_grv(m)) !Relative convergence
           if (itr_idx == 12) then
              ! Numerical pingpong may occur when Re = 0.1, 2.0, or 500.0
              ! due to discontinuities in derivative of drag coefficient
              vlc_grv(m) = 0.5_kind_phys * (vlc_grv(m)+vlc_grv_old)  ! [m s-1]
-          endif
+          end if
           if (itr_idx > 20) then
              ! Dustini error: terminal velocity not converging in stk_crc_get();
              ! break the loop and accept the current value (was an iulog warning)
              exit eps_loop
-          endif
+          end if
           itr_idx = itr_idx + 1
        end do eps_loop  !end while
     end do   !end loop over size
@@ -258,7 +258,7 @@ contains
     do m = 1, nbin
        stk_crc(m) = vlc_grv(m) / vlc_stk(m)
     end do
-    
+
   end subroutine dust_set_params
 
 end module dust_common

@@ -11,7 +11,6 @@ use aerosol_properties_mod, only: aerosol_properties
 use shr_infnan_mod, only: nan => shr_infnan_nan, assignment(=)
 
 implicit none
-save
 private
 
 public :: wetdepa_v1  ! scavenging codes for very soluble aerosols -- CAM4 version
@@ -73,25 +72,25 @@ subroutine clddiag(t, pmid, pdel, cmfdqr, evapc, &
    real(kind_phys), intent(out) :: rain(:,:)     ! mixing ratio of rain (kg/kg)
 
    ! Local variables:
-   integer  i, k
-   real(kind_phys) convfw         ! used in fallspeed calculation; taken from findmcnew
-   real(kind_phys) sumppr(ncol)        ! precipitation rate (kg/m2-s)
-   real(kind_phys) sumpppr(ncol)       ! sum of positive precips from above
-   real(kind_phys) cldv1(ncol)         ! precip weighted cloud fraction from above
-   real(kind_phys) lprec                ! local production rate of precip (kg/m2/s)
-   real(kind_phys) lprecp               ! local production rate of precip (kg/m2/s) if positive
-   real(kind_phys) rho                  ! air density
-   real(kind_phys) vfall
-   real(kind_phys) sumppr_cu(ncol)     ! Convective precipitation rate (kg/m2-s)
-   real(kind_phys) sumpppr_cu(ncol)    ! Sum of positive convective precips from above
-   real(kind_phys) cldv1_cu(ncol)      ! Convective precip weighted convective cloud fraction from above
-   real(kind_phys) lprec_cu             ! Local production rate of convective precip (kg/m2/s)
-   real(kind_phys) lprecp_cu            ! Local production rate of convective precip (kg/m2/s) if positive
-   real(kind_phys) sumppr_st(ncol)     ! Stratiform precipitation rate (kg/m2-s)
-   real(kind_phys) sumpppr_st(ncol)    ! Sum of positive stratiform precips from above
-   real(kind_phys) cldv1_st(ncol)      ! Stratiform precip weighted stratiform cloud fraction from above
-   real(kind_phys) lprec_st             ! Local production rate of stratiform precip (kg/m2/s)
-   real(kind_phys) lprecp_st            ! Local production rate of stratiform precip (kg/m2/s) if positive
+   integer  :: i, k
+   real(kind_phys) :: convfw         ! used in fallspeed calculation; taken from findmcnew
+   real(kind_phys) :: sumppr(ncol)        ! precipitation rate (kg/m2-s)
+   real(kind_phys) :: sumpppr(ncol)       ! sum of positive precips from above
+   real(kind_phys) :: cldv1(ncol)         ! precip weighted cloud fraction from above
+   real(kind_phys) :: lprec                ! local production rate of precip (kg/m2/s)
+   real(kind_phys) :: lprecp               ! local production rate of precip (kg/m2/s) if positive
+   real(kind_phys) :: rho                  ! air density
+   real(kind_phys) :: vfall
+   real(kind_phys) :: sumppr_cu(ncol)     ! Convective precipitation rate (kg/m2-s)
+   real(kind_phys) :: sumpppr_cu(ncol)    ! Sum of positive convective precips from above
+   real(kind_phys) :: cldv1_cu(ncol)      ! Convective precip weighted convective cloud fraction from above
+   real(kind_phys) :: lprec_cu             ! Local production rate of convective precip (kg/m2/s)
+   real(kind_phys) :: lprecp_cu            ! Local production rate of convective precip (kg/m2/s) if positive
+   real(kind_phys) :: sumppr_st(ncol)     ! Stratiform precipitation rate (kg/m2-s)
+   real(kind_phys) :: sumpppr_st(ncol)    ! Sum of positive stratiform precips from above
+   real(kind_phys) :: cldv1_st(ncol)      ! Stratiform precip weighted stratiform cloud fraction from above
+   real(kind_phys) :: lprec_st             ! Local production rate of stratiform precip (kg/m2/s)
+   real(kind_phys) :: lprecp_st            ! Local production rate of stratiform precip (kg/m2/s) if positive
    ! -----------------------------------------------------------------------
 
    convfw = 1.94_kind_phys*2.13_kind_phys*sqrt(rhoh2o*gravit*2.7e-4_kind_phys)
@@ -144,7 +143,7 @@ subroutine clddiag(t, pmid, pdel, cmfdqr, evapc, &
             vfall = convfw/sqrt(rho)
             rain(i,k) = sumppr(i)/(rho*vfall)
             if (rain(i,k) < 1.e-14_kind_phys) rain(i,k) = 0._kind_phys
-         endif
+         end if
       end do
    end do
 
@@ -163,7 +162,7 @@ subroutine wetdepa_v2(                                  &
    is_strat_cloudborne, qqcw,                            &
    f_act_conv, icscavt, isscavt, bcscavt, bsscavt,      &
    convproc_do_aer, rcscavt, rsscavt,                   &
-   sol_facti_in, sol_factic_in, convproc_do_evaprain_atonce_in, bergso_in )
+   sol_facti_in, sol_factic_in, convproc_do_evaprain_atonce_in, bergso_in)
 
    !-----------------------------------------------------------------------
    !
@@ -171,7 +170,7 @@ subroutine wetdepa_v2(                                  &
    !
    !-----------------------------------------------------------------------
 
-   real(kind_phys), intent(in) ::&
+   real(kind_phys), intent(in) :: &
       pdel(:,:),     &! pressure thikness
       cldt(:,:),     &! total cloud fraction
       cldc(:,:),     &! convective cloud fraction
@@ -200,7 +199,7 @@ subroutine wetdepa_v2(                                  &
    integer,  intent(in)  :: pver
    character(len=*), intent(out) :: errmsg
    integer,          intent(out) :: errflg
-   real(kind_phys), intent(out) ::&
+   real(kind_phys), intent(out) :: &
       scavt(:,:),   &! scavenging tend
       iscavt(:,:),  &! incloud scavenging tends
       fracis(:,:)    ! fraction of species not scavenged
@@ -288,23 +287,23 @@ subroutine wetdepa_v2(                                  &
       convproc_do_evaprain_atonce = convproc_do_evaprain_atonce_in
    else
       convproc_do_evaprain_atonce = .false.
-   endif
+   end if
 
    ! default (if other sol_facts aren't in call, set all to required sol_fact)
    sol_facti = sol_fact
    sol_factb = sol_fact
 
-   if ( present(sol_facti_in) )  sol_facti = sol_facti_in
+   if (present(sol_facti_in))  sol_facti = sol_facti_in
 
    sol_factic  = sol_facti
-   if ( present(sol_factic_in ) )  sol_factic  = sol_factic_in
+   if (present(sol_factic_in))  sol_factic  = sol_factic_in
 
    ! Determine whether resuspension fields are output.
    out_resuspension = .false.
    if (present(convproc_do_aer)) then
       if (convproc_do_aer) then
          if (present(bcscavt) .and. present(bsscavt) .and. &
-             present(rcscavt) .and. present(rsscavt) ) then
+             present(rcscavt) .and. present(rsscavt)) then
             out_resuspension = .true.
          else
             errmsg = 'wetdepa_v2: bcscavt, bsscavt, rcscavt, rsscavt'// &
@@ -375,12 +374,12 @@ subroutine wetdepa_v2(                                  &
          !     precipitated out, i.e., conicw does not contain precipitation
 
          fracp(i) = cmfdqr(i,k)*deltat / &
-                    max( 1.e-12_kind_phys, cldc(i,k)*conicw(i,k) + (cmfdqr(i,k)+dlf(i,k))*deltat )
-         fracp(i) = max( min( 1._kind_phys, fracp(i)), 0._kind_phys )
+                    max(1.e-12_kind_phys, cldc(i,k)*conicw(i,k) + (cmfdqr(i,k)+dlf(i,k))*deltat)
+         fracp(i) = max(min(1._kind_phys, fracp(i)), 0._kind_phys)
 
-         if ( present(is_strat_cloudborne) ) then
+         if (present(is_strat_cloudborne)) then
 
-            if ( is_strat_cloudborne ) then
+            if (is_strat_cloudborne) then
 
                ! convective scavenging
 
@@ -391,13 +390,13 @@ subroutine wetdepa_v2(                                  &
                ! stratiform scavenging
                if (convproc_do_evaprain_atonce .and. present(bergso_in)) then
                   fracp(i) = (precs(i,k)-bergso_in(i,k))*deltat / &
-                       max( 1.e-12_kind_phys, cwat(i,k) + precs(i,k)*deltat )
+                       max(1.e-12_kind_phys, cwat(i,k) + precs(i,k)*deltat)
                else
                   fracp(i) = precs(i,k)*deltat / &
-                       max( 1.e-12_kind_phys, cwat(i,k) + precs(i,k)*deltat )
-               endif
+                       max(1.e-12_kind_phys, cwat(i,k) + precs(i,k)*deltat)
+               end if
 
-               fracp(i) = max( 0._kind_phys, min(1._kind_phys, fracp(i)) )
+               fracp(i) = max(0._kind_phys, min(1._kind_phys, fracp(i)))
 
                st_scav_ic(i) = sol_facti(i,k) *fracp(i)*tracer(i,k)*rdeltat
 
@@ -408,7 +407,7 @@ subroutine wetdepa_v2(                                  &
                ! convective scavenging
 
                trac_qqcw(i) = min(qqcw(i,k), &
-                                  tracer(i,k)*( clds(i)/max( 0.01_kind_phys, 1._kind_phys-clds(i) ) ) )
+                                  tracer(i,k)*(clds(i)/max(0.01_kind_phys, 1._kind_phys-clds(i))))
 
                tracer_incu(i) = f_act_conv(i,k)*(tracer(i,k) + trac_qqcw(i))
 
@@ -440,7 +439,7 @@ subroutine wetdepa_v2(                                  &
             conv_scav_ic(i) = sol_factic(i,k)*cldc(i,k)*fracp(i)*tracer(i,k)*rdeltat
 
             odds(i) = precabc(i)/max(cldvcu(i,k), 1.e-5_kind_phys)*scavcoef(i,k)*deltat
-            odds(i) = max( min(1._kind_phys, odds(i)), 0._kind_phys)
+            odds(i) = max(min(1._kind_phys, odds(i)), 0._kind_phys)
             conv_scav_bc(i) = sol_factb(i,k)*cldvcu(i,k)*odds(i)*tracer(i,k)*rdeltat
 
             ! stratiform scavenging
@@ -449,8 +448,8 @@ subroutine wetdepa_v2(                                  &
             ! NB: In below formula for fracp cwat is a LWC/IWC that has already
             !     precipitated out, i.e., cwat does not contain precipitation
             fracp(i) = precs(i,k)*deltat / &
-                       max( 1.e-12_kind_phys, cwat(i,k) + precs(i,k)*deltat )
-            fracp(i) = max( 0._kind_phys, min( 1._kind_phys, fracp(i) ) )
+                       max(1.e-12_kind_phys, cwat(i,k) + precs(i,k)*deltat)
+            fracp(i) = max(0._kind_phys, min(1._kind_phys, fracp(i)))
 
             ! assume the corresponding amnt of tracer is removed
             st_scav_ic(i) = sol_facti(i,k)*clds(i)*fracp(i)*tracer(i,k)*rdeltat
@@ -475,7 +474,7 @@ subroutine wetdepa_v2(                                  &
          if (rat(i)<1._kind_phys) then
             srcs(i) = srcs(i)*rat(i)
             srcc(i) = srcc(i)*rat(i)
-         endif
+         end if
          srct(i) = (srcc(i)+srcs(i))*omsm
 
 
@@ -490,8 +489,8 @@ subroutine wetdepa_v2(                                  &
          scavt(i,k) = -srct(i) + (fracev(i)*scavab(i)+fracev_cu(i)*scavabc(i))*rpdog(i)
          iscavt(i,k) = -(srcc(i)*finc(i) + srcs(i)*fins(i))*omsm
 
-         if ( present(icscavt) ) icscavt(i,k) = -(srcc(i)*finc(i)) * omsm
-         if ( present(isscavt) ) isscavt(i,k) = -(srcs(i)*fins(i)) * omsm
+         if (present(icscavt)) icscavt(i,k) = -(srcc(i)*finc(i)) * omsm
+         if (present(isscavt)) isscavt(i,k) = -(srcs(i)*fins(i)) * omsm
 
          if (.not. out_resuspension) then
             if (present(bcscavt)) bcscavt(i,k) = -(srcc(i) * (1-finc(i))) * omsm +  &
@@ -524,7 +523,7 @@ subroutine wetdepa_v2(                                  &
          ! catch the larger negative values, ignore insignificant small negaive values
          if (dblchek(i) < -1.e-10_kind_phys) then
             found = .true.
-         endif
+         end if
       end do
 
       if (found) then
@@ -544,14 +543,14 @@ end subroutine wetdepa_v2
 ! This is the frozen CAM4 version of wetdepa.
 
 
-   subroutine wetdepa_v1( t, pdel, &
+   subroutine wetdepa_v1(t, pdel, &
                        cldt, cmfdqr, conicw, precs, &
                        evaps, cwat, tracer, deltat, &
                        scavt, iscavt, cldv, fracis, sol_fact, ncol, &
                        scavcoef, tmelt, gravit, pver, errmsg, errflg, &
                        icscavt, isscavt, bcscavt, bsscavt, &
                        sol_facti_in, sol_factbi_in, sol_factii_in, &
-                       sol_factic_in, sol_factiic_in )
+                       sol_factic_in, sol_factiic_in)
 
       !-----------------------------------------------------------------------
       ! Purpose:
@@ -561,9 +560,8 @@ end subroutine wetdepa_v2
       ! Modified by T. Bond 3/2003 to track different removals
       !-----------------------------------------------------------------------
 
-      implicit none
 
-      real(kind_phys), intent(in) ::&
+      real(kind_phys), intent(in) :: &
          t(:,:),        &! temperature
          pdel(:,:),     &! pressure thikness
          cldt(:,:),     &! total cloud fraction
@@ -595,7 +593,7 @@ end subroutine wetdepa_v2
       character(len=*), intent(out) :: errmsg
       integer,          intent(out) :: errflg
 
-      real(kind_phys), intent(out) ::&
+      real(kind_phys), intent(out) :: &
          scavt(:,:),    &! scavenging tend
          iscavt(:,:),   &! incloud scavenging tends
          fracis(:,:)     ! fraction of species not scavenged
@@ -607,37 +605,37 @@ end subroutine wetdepa_v2
 
       ! local variables
 
-      integer i                 ! x index
-      integer k                 ! z index
+      integer :: i                 ! x index
+      integer :: k                 ! z index
 
-      real(kind_phys) fracev(ncol)        ! fraction of precip from above that is evaporating
-      real(kind_phys) fracp                ! fraction of cloud water converted to precip
-      real(kind_phys) precabc(ncol)       ! conv precip from above (work array)
-      real(kind_phys) precabs(ncol)       ! strat precip from above (work array)
-      real(kind_phys) rat(ncol)           ! ratio of amount available to amount removed
-      real(kind_phys) scavab(ncol)        ! scavenged tracer flux from above (work array)
-      real(kind_phys) scavabc(ncol)       ! scavenged tracer flux from above (work array)
-      real(kind_phys) srcc                 ! tend for convective rain
-      real(kind_phys) srcs                 ! tend for stratiform rain
-      real(kind_phys) srct(ncol)          ! work variable
-      real(kind_phys) tracab(ncol)        ! column integrated tracer amount
+      real(kind_phys) :: fracev(ncol)        ! fraction of precip from above that is evaporating
+      real(kind_phys) :: fracp                ! fraction of cloud water converted to precip
+      real(kind_phys) :: precabc(ncol)       ! conv precip from above (work array)
+      real(kind_phys) :: precabs(ncol)       ! strat precip from above (work array)
+      real(kind_phys) :: rat(ncol)           ! ratio of amount available to amount removed
+      real(kind_phys) :: scavab(ncol)        ! scavenged tracer flux from above (work array)
+      real(kind_phys) :: scavabc(ncol)       ! scavenged tracer flux from above (work array)
+      real(kind_phys) :: srcc                 ! tend for convective rain
+      real(kind_phys) :: srcs                 ! tend for stratiform rain
+      real(kind_phys) :: srct(ncol)          ! work variable
+      real(kind_phys) :: tracab(ncol)        ! column integrated tracer amount
 
-      real(kind_phys) fins                 ! fraction of rem. rate by strat rain
-      real(kind_phys) finc                 ! fraction of rem. rate by conv. rain
-      real(kind_phys) srcs1                ! work variable
-      real(kind_phys) srcs2                ! work variable
-      real(kind_phys) tc                   ! temp in celcius
-      real(kind_phys) weight               ! fraction of condensate which is ice
-      real(kind_phys) cldmabs(ncol)       ! maximum cloud at or above this level
-      real(kind_phys) cldmabc(ncol)       ! maximum cloud at or above this level
-      real(kind_phys) odds                 ! limit on removal rate (proportional to prec)
-      real(kind_phys) dblchek(ncol)
+      real(kind_phys) :: fins                 ! fraction of rem. rate by strat rain
+      real(kind_phys) :: finc                 ! fraction of rem. rate by conv. rain
+      real(kind_phys) :: srcs1                ! work variable
+      real(kind_phys) :: srcs2                ! work variable
+      real(kind_phys) :: tc                   ! temp in celcius
+      real(kind_phys) :: weight               ! fraction of condensate which is ice
+      real(kind_phys) :: cldmabs(ncol)       ! maximum cloud at or above this level
+      real(kind_phys) :: cldmabc(ncol)       ! maximum cloud at or above this level
+      real(kind_phys) :: odds                 ! limit on removal rate (proportional to prec)
+      real(kind_phys) :: dblchek(ncol)
       logical :: found
 
-      real(kind_phys) sol_facti,  sol_factb  ! in cloud and below cloud fraction of aerosol scavenged
-      real(kind_phys) sol_factii, sol_factbi ! in cloud and below cloud fraction of aerosol scavenged by ice
-      real(kind_phys) sol_factic(ncol,pver)             ! sol_facti for convective clouds
-      real(kind_phys) sol_factiic            ! sol_factii for convective clouds
+      real(kind_phys) :: sol_facti,  sol_factb  ! in cloud and below cloud fraction of aerosol scavenged
+      real(kind_phys) :: sol_factii, sol_factbi ! in cloud and below cloud fraction of aerosol scavenged by ice
+      real(kind_phys) :: sol_factic(ncol,pver)             ! sol_facti for convective clouds
+      real(kind_phys) :: sol_factiic            ! sol_factii for convective clouds
       ! sol_factic & solfact_iic added for MODAL_AERO.
       ! For stratiform cloud, cloudborne aerosol is treated explicitly,
       !    and sol_facti is 1.0 for cloudborne, 0.0 for interstitial.
@@ -654,14 +652,14 @@ end subroutine wetdepa_v2
       sol_factii = sol_fact
       sol_factbi = sol_fact
 
-      if ( present(sol_facti_in) )  sol_facti = sol_facti_in
-      if ( present(sol_factii_in) )  sol_factii = sol_factii_in
-      if ( present(sol_factbi_in) )  sol_factbi = sol_factbi_in
+      if (present(sol_facti_in))  sol_facti = sol_facti_in
+      if (present(sol_factii_in))  sol_factii = sol_factii_in
+      if (present(sol_factbi_in))  sol_factbi = sol_factbi_in
 
       sol_factic  = sol_facti
       sol_factiic = sol_factii
-      if ( present(sol_factic_in ) )  sol_factic  = sol_factic_in
-      if ( present(sol_factiic_in) )  sol_factiic = sol_factiic_in
+      if (present(sol_factic_in))  sol_factic  = sol_factic_in
+      if (present(sol_factiic_in))  sol_factiic = sol_factiic_in
 
       ! this section of code is for highly soluble aerosols,
       ! the assumption is that within the cloud that
@@ -791,7 +789,7 @@ end subroutine wetdepa_v2
             if (rat(i) < 1._kind_phys) then
                srcs = srcs*rat(i)
                srcc = srcc*rat(i)
-            endif
+            end if
             srct(i) = (srcc+srcs)*omsm
 
 
@@ -805,10 +803,10 @@ end subroutine wetdepa_v2
             scavt(i,k) = -srct(i) + fracev(i)*scavab(i)*gravit/pdel(i,k)
             iscavt(i,k) = -(srcc*finc + srcs*fins)*omsm
 
-            if ( present(icscavt) ) icscavt(i,k) = -(srcc*finc) * omsm
-            if ( present(isscavt) ) isscavt(i,k) = -(srcs*fins) * omsm
-            if ( present(bcscavt) ) bcscavt(i,k) = -(srcc * (1-finc)) * omsm
-            if ( present(bsscavt) ) bsscavt(i,k) = -(srcs * (1-fins)) * omsm +  &
+            if (present(icscavt)) icscavt(i,k) = -(srcc*finc) * omsm
+            if (present(isscavt)) isscavt(i,k) = -(srcs*fins) * omsm
+            if (present(bcscavt)) bcscavt(i,k) = -(srcc * (1-finc)) * omsm
+            if (present(bsscavt)) bsscavt(i,k) = -(srcs * (1-fins)) * omsm +  &
                  fracev(i)*scavab(i)*gravit/pdel(i,k)
 
             dblchek(i) = tracer(i,k) + deltat*scavt(i,k)
@@ -829,7 +827,7 @@ end subroutine wetdepa_v2
             ! catch the larger negative values, ignore insignificant small negaive values
             if (dblchek(i) < -1.e-10_kind_phys) then
                found = .true.
-            endif
+            end if
          end do
 
          if (found) then
@@ -849,22 +847,22 @@ end subroutine wetdepa_v2
 !##############################################################################
 
 ! below cloud impaction scavenging coefs
-subroutine get_bcscavcoefs( m, ncol, pver, isprx, diam_wet, scavcoefnum, scavcoefvol, aero_props )
+subroutine get_bcscavcoefs(m, ncol, pver, isprx, diam_wet, scavcoefnum, scavcoefvol, aero_props)
 
   integer,intent(in) :: m, ncol, pver
-  logical,intent(in):: isprx(:,:)
+  logical,intent(in) :: isprx(:,:)
   real(kind_phys), intent(in) :: diam_wet(:,:)
   real(kind_phys), intent(out) :: scavcoefnum(:,:), scavcoefvol(:,:)
   class(aerosol_properties), intent(in) :: aero_props
 
-  integer i, k, jgrow
-  real(kind_phys) dumdgratio, xgrow, dumfhi, dumflo, scavimpvol, scavimpnum
+  integer :: i, k, jgrow
+  real(kind_phys) :: dumdgratio, xgrow, dumfhi, dumflo, scavimpvol, scavimpnum
 
   do k = 1, pver
      do i = 1, ncol
 
         ! do only if no precip
-        if ( isprx(i,k) .and. diam_wet(i,k)>0.0_kind_phys) then
+        if (isprx(i,k) .and. diam_wet(i,k)>0.0_kind_phys) then
            !
            ! interpolate table values using log of (actual-wet-size)/(base-dry-size)
 
@@ -873,14 +871,14 @@ subroutine get_bcscavcoefs( m, ncol, pver, isprx, diam_wet, scavcoefnum, scavcoe
               scavimpvol = scavimptblvol(0,m)
               scavimpnum = scavimptblnum(0,m)
            else
-              xgrow = log( dumdgratio ) / dlndg_nimptblgrow
-              jgrow = int( xgrow )
+              xgrow = log(dumdgratio) / dlndg_nimptblgrow
+              jgrow = int(xgrow)
               if (xgrow < 0._kind_phys) jgrow = jgrow - 1
               if (jgrow < nimptblgrow_mind) then
                  jgrow = nimptblgrow_mind
                  xgrow = jgrow
               else
-                 jgrow = min( jgrow, nimptblgrow_maxd-1 )
+                 jgrow = min(jgrow, nimptblgrow_maxd-1)
               end if
 
               dumfhi = xgrow - jgrow
@@ -894,9 +892,9 @@ subroutine get_bcscavcoefs( m, ncol, pver, isprx, diam_wet, scavcoefnum, scavcoe
            end if
 
            ! impaction scavenging removal amount for volume
-           scavcoefvol(i,k) = exp( scavimpvol )
+           scavcoefvol(i,k) = exp(scavimpvol)
            ! impaction scavenging removal amount to number
-           scavcoefnum(i,k) = exp( scavimpnum )
+           scavcoefnum(i,k) = exp(scavimpnum)
 
         else
            scavcoefvol(i,k) = 0._kind_phys
@@ -912,8 +910,8 @@ end subroutine get_bcscavcoefs
 
 !------------------------------------------------------------------------------
 !------------------------------------------------------------------------------
-subroutine init_bcscavcoef( aero_props, pi, boltz_cgs, rgas_cgs, &
-                            errmsg, errflg )
+subroutine init_bcscavcoef(aero_props, pi, boltz_cgs, rgas_cgs, &
+                            errmsg, errflg)
   !-----------------------------------------------------------------------
   !
   ! Purpose:
@@ -933,13 +931,13 @@ subroutine init_bcscavcoef( aero_props, pi, boltz_cgs, rgas_cgs, &
   integer,          intent(out) :: errflg
 
   !   local variables
-  integer nnfit_maxd
+  integer :: nnfit_maxd
   parameter (nnfit_maxd=27)
 
-  integer m, jgrow, nnfit
-  integer astat
+  integer :: m, jgrow, nnfit
+  integer :: astat
 
-  real(kind_phys) dg0, dg0_cgs, press, dg0_base, &
+  real(kind_phys) :: dg0, dg0_cgs, press, dg0_base, &
        rhodryaero, rhowetaero, rhowetaero_cgs, &
        scavratenum, scavratevol, logsig,                &
        temp, wetdiaratio, wetvolratio
@@ -967,7 +965,7 @@ subroutine init_bcscavcoef( aero_props, pi, boltz_cgs, rgas_cgs, &
   scavimptblnum = nan
   scavimptblvol = nan
 
-  dlndg_nimptblgrow = log( 1.25_kind_phys )
+  dlndg_nimptblgrow = log(1.25_kind_phys)
 
   ! bin model: main loop over aerosol bins
 
@@ -983,12 +981,12 @@ subroutine init_bcscavcoef( aero_props, pi, boltz_cgs, rgas_cgs, &
 
      growloop: do jgrow = nimptblgrow_mind, nimptblgrow_maxd
 
-        wetdiaratio = exp( jgrow*dlndg_nimptblgrow )
+        wetdiaratio = exp(jgrow*dlndg_nimptblgrow)
         dg0 = dg0_base*wetdiaratio
 
-        wetvolratio = exp( jgrow*dlndg_nimptblgrow*3._kind_phys )
+        wetvolratio = exp(jgrow*dlndg_nimptblgrow*3._kind_phys)
         rhowetaero = 1.0_kind_phys + (rhodryaero-1.0_kind_phys)/wetvolratio
-        rhowetaero = min( rhowetaero, rhodryaero )
+        rhowetaero = min(rhowetaero, rhodryaero)
 
         !
         !   compute impaction scavenging rates at 1 temp-press pair and save
@@ -1006,7 +1004,7 @@ subroutine init_bcscavcoef( aero_props, pi, boltz_cgs, rgas_cgs, &
         call calc_1_impact_rate( &
              dg0_cgs, logsig, rhowetaero_cgs, temp, press, &
              scavratenum, scavratevol, &
-             pi, boltz_cgs, rgas_cgs, errmsg, errflg )
+             pi, boltz_cgs, rgas_cgs, errmsg, errflg)
         if (errflg /= 0) return
 
         nnfit = nnfit + 1
@@ -1017,17 +1015,17 @@ subroutine init_bcscavcoef( aero_props, pi, boltz_cgs, rgas_cgs, &
         end if
 
         xxfitnum(1,nnfit) = 1._kind_phys
-        yyfitnum(nnfit) = log( scavratenum )
+        yyfitnum(nnfit) = log(scavratenum)
 
         xxfitvol(1,nnfit) = 1._kind_phys
-        yyfitvol(nnfit) = log( scavratevol )
+        yyfitvol(nnfit) = log(scavratevol)
 
        !depends on both bins and different species
         scavimptblnum(jgrow,m) = yyfitnum(1)
         scavimptblvol(jgrow,m) = yyfitvol(1)
 
-     enddo growloop
-  enddo modeloop
+     end do growloop
+  end do modeloop
 
 contains
 
@@ -1035,10 +1033,10 @@ contains
   subroutine calc_1_impact_rate(          &
        dg0, logsig, rhoaero, temp, press, &
        scavratenum, scavratevol, &
-       pi, boltz_cgs, rgas, errmsg, errflg )
+       pi, boltz_cgs, rgas, errmsg, errflg)
     !
     !   routine computes a single impaction scavenging rate
-    !	for precipitation rate of 1 mm/h
+    !   for precipitation rate of 1 mm/h
     !
     !   dg0 = geometric mean diameter of aerosol number size distrib. (cm)
     !   sigmag = geometric standard deviation of size distrib.
@@ -1050,7 +1048,6 @@ contains
     !   errmsg/errflg = error message and flag (returned on error)
     !
 
-    implicit none
 
     !   subr. parameters
     real(kind_phys), intent(in) :: dg0, logsig, rhoaero, temp, press
@@ -1062,28 +1059,28 @@ contains
     integer,          intent(out) :: errflg
 
     !   local variables
-    integer nrainsvmax
+    integer :: nrainsvmax
     parameter (nrainsvmax=50)
-    real(kind_phys) rrainsv(nrainsvmax), xnumrainsv(nrainsvmax),&
+    real(kind_phys) :: rrainsv(nrainsvmax), xnumrainsv(nrainsvmax),&
          vfallrainsv(nrainsvmax)
 
-    integer naerosvmax
+    integer :: naerosvmax
     parameter (naerosvmax=51)
-    real(kind_phys) aaerosv(naerosvmax), &
+    real(kind_phys) :: aaerosv(naerosvmax), &
          ynumaerosv(naerosvmax), yvolaerosv(naerosvmax)
 
-    integer i, ja, jr, na, nr
-    real(kind_phys) a, aerodiffus, aeromass, ag0, airdynvisc, airkinvisc
-    real(kind_phys) anumsum, avolsum, cair, chi
-    real(kind_phys) d, dr, dum, dumfuchs, dx
-    real(kind_phys) ebrown, eimpact, eintercept, etotal, freepath
-    real(kind_phys) precip, precipmmhr, precipsum
-    real(kind_phys) r, rainsweepout, reynolds, rhi, rhoair, rlo, rnumsum
-    real(kind_phys) scavsumnum, scavsumnumbb
-    real(kind_phys) scavsumvol, scavsumvolbb
-    real(kind_phys) schmidt, sqrtreynolds, sstar, stokes, sx
-    real(kind_phys) taurelax, vfall, vfallstp
-    real(kind_phys) x, xg0, xg3, xhi, xlo, xmuwaterair
+    integer :: i, ja, jr, na, nr
+    real(kind_phys) :: a, aerodiffus, aeromass, ag0, airdynvisc, airkinvisc
+    real(kind_phys) :: anumsum, avolsum, cair, chi
+    real(kind_phys) :: d, dr, dum, dumfuchs, dx
+    real(kind_phys) :: ebrown, eimpact, eintercept, etotal, freepath
+    real(kind_phys) :: precip, precipmmhr, precipsum
+    real(kind_phys) :: r, rainsweepout, reynolds, rhi, rhoair, rlo, rnumsum
+    real(kind_phys) :: scavsumnum, scavsumnumbb
+    real(kind_phys) :: scavsumvol, scavsumvolbb
+    real(kind_phys) :: schmidt, sqrtreynolds, sstar, stokes, sx
+    real(kind_phys) :: taurelax, vfall, vfallstp
+    real(kind_phys) :: x, xg0, xg3, xhi, xlo, xmuwaterair
 
     errmsg = ''
     errflg = 0
@@ -1091,7 +1088,7 @@ contains
     rlo = .005_kind_phys
     rhi = .250_kind_phys
     dr = 0.005_kind_phys
-    nr = 1 + nint( (rhi-rlo)/dr )
+    nr = 1 + nint((rhi-rlo)/dr)
     if (nr > nrainsvmax) then
        errmsg = subname//' : nr > nrainsvmax'
        errflg = 1
@@ -1103,18 +1100,18 @@ contains
 
     ag0 = dg0/2._kind_phys
     sx = logsig
-    xg0 = log( ag0 )
+    xg0 = log(ag0)
     xg3 = xg0 + 3._kind_phys*sx*sx
 
     xlo = xg3 - 4._kind_phys*sx
     xhi = xg3 + 4._kind_phys*sx
     dx = 0.2_kind_phys*sx
 
-    dx = max( 0.2_kind_phys*sx, 0.01_kind_phys )
-    xlo = xg3 - max( 4._kind_phys*sx, 2._kind_phys*dx )
-    xhi = xg3 + max( 4._kind_phys*sx, 2._kind_phys*dx )
+    dx = max(0.2_kind_phys*sx, 0.01_kind_phys)
+    xlo = xg3 - max(4._kind_phys*sx, 2._kind_phys*dx)
+    xhi = xg3 + max(4._kind_phys*sx, 2._kind_phys*dx)
 
-    na = 1 + nint( (xhi-xlo)/dx )
+    na = 1 + nint((xhi-xlo)/dx)
     if (na > naerosvmax) then
        errmsg = subname//' : na > naerosvmax'
        errflg = 1
@@ -1137,16 +1134,16 @@ contains
 
     !
     !   compute rain drop number concentrations
-    !	rrainsv = raindrop radius (cm)
-    !	xnumrainsv = raindrop number concentration (#/cm^3)
-    !		(number in the bin, not number density)
-    !	vfallrainsv = fall velocity (cm/s)
+    !   rrainsv = raindrop radius (cm)
+    !   xnumrainsv = raindrop number concentration (#/cm^3)
+    !           (number in the bin, not number density)
+    !   vfallrainsv = fall velocity (cm/s)
     !
     precipsum = 0._kind_phys
     do i = 1, nr
        r = rlo + (i-1)*dr
        rrainsv(i) = r
-       xnumrainsv(i) = exp( -r/2.7e-2_kind_phys )
+       xnumrainsv(i) = exp(-r/2.7e-2_kind_phys)
 
        d = 2._kind_phys*r
        if (d <= 0.007_kind_phys) then
@@ -1175,18 +1172,18 @@ contains
 
     !
     !   compute aerosol concentrations
-    !	aaerosv = particle radius (cm)
-    !	fnumaerosv = fraction of total number in the bin (--)
-    !	fvolaerosv = fraction of total volume in the bin (--)
+    !   aaerosv = particle radius (cm)
+    !   fnumaerosv = fraction of total number in the bin (--)
+    !   fvolaerosv = fraction of total volume in the bin (--)
     !
     anumsum = 0._kind_phys
     avolsum = 0._kind_phys
     do i = 1, na
        x = xlo + (i-1)*dx
-       a = exp( x )
+       a = exp(x)
        aaerosv(i) = a
        dum = (x - xg0)/sx
-       ynumaerosv(i) = exp( -0.5_kind_phys*dum*dum )
+       ynumaerosv(i) = exp(-0.5_kind_phys*dum*dum)
        yvolaerosv(i) = ynumaerosv(i)*1.3333_kind_phys*pi*a*a*a
        anumsum = anumsum + ynumaerosv(i)
        avolsum = avolsum + yvolaerosv(i)
@@ -1211,7 +1208,7 @@ contains
        vfall = vfallrainsv(jr)
 
        reynolds = r * vfall / airkinvisc
-       sqrtreynolds = sqrt( reynolds )
+       sqrtreynolds = sqrt(reynolds)
 
        !
        !   inner loop for aerosol particle radius
@@ -1242,7 +1239,7 @@ contains
                (1._kind_phys + xmuwaterair/sqrtreynolds)
           eintercept = 4._kind_phys*chi*(chi + dum)
 
-          dum = log( 1._kind_phys + reynolds )
+          dum = log(1._kind_phys + reynolds)
           sstar = (1.2_kind_phys + dum/12._kind_phys) / (1._kind_phys + dum)
           eimpact = 0._kind_phys
           if (stokes > sstar) then
@@ -1251,19 +1248,19 @@ contains
           end if
 
           etotal = ebrown + eintercept + eimpact
-          etotal = min( etotal, 1.0_kind_phys )
+          etotal = min(etotal, 1.0_kind_phys)
 
           rainsweepout = xnumrainsv(jr)*4._kind_phys*pi*r*r*vfall
 
           scavsumnumbb = scavsumnumbb + rainsweepout*etotal*ynumaerosv(ja)
           scavsumvolbb = scavsumvolbb + rainsweepout*etotal*yvolaerosv(ja)
 
-       enddo ja_loop
+       end do ja_loop
 
        scavsumnum = scavsumnum + scavsumnumbb
        scavsumvol = scavsumvol + scavsumvolbb
 
-    enddo jr_loop
+    end do jr_loop
 
     scavratenum = scavsumnum*3600._kind_phys
     scavratevol = scavsumvol*3600._kind_phys

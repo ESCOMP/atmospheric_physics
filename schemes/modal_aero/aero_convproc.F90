@@ -44,7 +44,7 @@ integer, parameter, public :: convproc_method_activate = 2
 
 contains
 
-subroutine aero_convproc_run( aero_props, convtype, lchnk, dt,  &
+subroutine aero_convproc_run(aero_props, convtype, lchnk, dt,  &
                      t,          pmid,       q,  du,     eu,         &
                      ed,         dp,         dpdry,      jt,         &
                      mx,         ideep,      il1g,       il2g,       &
@@ -57,7 +57,7 @@ subroutine aero_convproc_run( aero_props, convtype, lchnk, dt,  &
                      latvap,     cpair,      rair,                   &
                      convproc_do_evaprain_atonce,                    &
                      convproc_pom_spechygro,                         &
-                     errmsg,     errflg )
+                     errmsg,     errflg)
 
 !-----------------------------------------------------------------------
 !
@@ -141,9 +141,9 @@ subroutine aero_convproc_run( aero_props, convtype, lchnk, dt,  &
    real(kind_phys), intent(in) :: evapc(:,:)        ! Convective precipitation evaporation rate
    real(kind_phys), intent(in) :: fracice(:,:)      ! Ice fraction of cloud droplets
 
-   real(kind_phys), intent(out):: dqdt(:,:,:)       ! Tracer tendency array
+   real(kind_phys), intent(out) :: dqdt(:,:,:)       ! Tracer tendency array
    integer,  intent(in) :: nsrflx            ! last dimension of qsrflx
-   real(kind_phys), intent(out):: qsrflx(:,:,:)
+   real(kind_phys), intent(out) :: qsrflx(:,:,:)
                               ! process-specific column tracer tendencies
                               ! (1=activation,  2=resuspension, 3=aqueous rxn,
                               !  4=wet removal, 5=renaming)
@@ -184,86 +184,86 @@ subroutine aero_convproc_run( aero_props, convtype, lchnk, dt,  &
    integer :: npass_calc_updraft
    integer :: ntsub           !
 
-   logical  do_act_this_lev             ! flag for doing activation at current level
+   logical  :: do_act_this_lev             ! flag for doing activation at current level
 
-   real(kind_phys) aqfrac(2,ncnstaer)       ! aqueous fraction of constituent in updraft
-   real(kind_phys) cldfrac_i(pver)          ! cldfrac at current i (with adjustments)
+   real(kind_phys) :: aqfrac(2,ncnstaer)       ! aqueous fraction of constituent in updraft
+   real(kind_phys) :: cldfrac_i(pver)          ! cldfrac at current i (with adjustments)
 
-   real(kind_phys) chat(2,ncnstaer,pver+1)   ! mix ratio in env at interfaces
-   real(kind_phys) cond(2,ncnstaer,pver+1)   ! mix ratio in downdraft at interfaces
-   real(kind_phys) const(2,ncnstaer,pver)   ! gathered tracer array
-   real(kind_phys) conu(2,ncnstaer,pver+1)   ! mix ratio in updraft at interfaces
+   real(kind_phys) :: chat(2,ncnstaer,pver+1)   ! mix ratio in env at interfaces
+   real(kind_phys) :: cond(2,ncnstaer,pver+1)   ! mix ratio in downdraft at interfaces
+   real(kind_phys) :: const(2,ncnstaer,pver)   ! gathered tracer array
+   real(kind_phys) :: conu(2,ncnstaer,pver+1)   ! mix ratio in updraft at interfaces
 
-   real(kind_phys) dcondt(2,ncnstaer,pver)  ! grid-average TMR tendency for current column
-   real(kind_phys) dcondt_prevap(2,ncnstaer,pver) ! portion of dcondt from precip evaporation
-   real(kind_phys) dcondt_resusp(2,ncnstaer,pver) ! portion of dcondt from resuspension
+   real(kind_phys) :: dcondt(2,ncnstaer,pver)  ! grid-average TMR tendency for current column
+   real(kind_phys) :: dcondt_prevap(2,ncnstaer,pver) ! portion of dcondt from precip evaporation
+   real(kind_phys) :: dcondt_resusp(2,ncnstaer,pver) ! portion of dcondt from resuspension
 
-   real(kind_phys) dcondt_wetdep(2,ncnstaer,pver) ! portion of dcondt from wet deposition
-   real(kind_phys) dconudt_activa(2,ncnstaer,pver+1) ! d(conu)/dt by activation
-   real(kind_phys) dconudt_aqchem(2,ncnstaer,pver+1) ! d(conu)/dt by aqueous chem
-   real(kind_phys) dconudt_wetdep(2,ncnstaer,pver+1) ! d(conu)/dt by wet removal
+   real(kind_phys) :: dcondt_wetdep(2,ncnstaer,pver) ! portion of dcondt from wet deposition
+   real(kind_phys) :: dconudt_activa(2,ncnstaer,pver+1) ! d(conu)/dt by activation
+   real(kind_phys) :: dconudt_aqchem(2,ncnstaer,pver+1) ! d(conu)/dt by aqueous chem
+   real(kind_phys) :: dconudt_wetdep(2,ncnstaer,pver+1) ! d(conu)/dt by wet removal
 
-   real(kind_phys) maxflux(2,ncnstaer)      ! maximum (over layers) of fluxin and fluxout
-   real(kind_phys) maxflux2(2,ncnstaer)     ! ditto but computed using method-2 fluxes
-   real(kind_phys) maxprevap(2,ncnstaer)    ! maximum (over layers) of dcondt_prevap*dp
-   real(kind_phys) maxresusp(2,ncnstaer)    ! maximum (over layers) of dcondt_resusp*dp
-   real(kind_phys) maxsrce(2,ncnstaer)      ! maximum (over layers) of netsrce
+   real(kind_phys) :: maxflux(2,ncnstaer)      ! maximum (over layers) of fluxin and fluxout
+   real(kind_phys) :: maxflux2(2,ncnstaer)     ! ditto but computed using method-2 fluxes
+   real(kind_phys) :: maxprevap(2,ncnstaer)    ! maximum (over layers) of dcondt_prevap*dp
+   real(kind_phys) :: maxresusp(2,ncnstaer)    ! maximum (over layers) of dcondt_resusp*dp
+   real(kind_phys) :: maxsrce(2,ncnstaer)      ! maximum (over layers) of netsrce
 
-   real(kind_phys) sumflux(2,ncnstaer)      ! sum (over layers) of netflux
-   real(kind_phys) sumflux2(2,ncnstaer)     ! ditto but computed using method-2 fluxes
-   real(kind_phys) sumsrce(2,ncnstaer)      ! sum (over layers) of dp*netsrce
-   real(kind_phys) sumchng(2,ncnstaer)      ! sum (over layers) of dp*dcondt
-   real(kind_phys) sumchng3(2,ncnstaer)     ! ditto but after call to resusp_conv
-   real(kind_phys) sumprevap(2,ncnstaer)    ! sum (over layers) of dp*dcondt_prevap
-   real(kind_phys) sumwetdep(2,ncnstaer)    ! sum (over layers) of dp*dconudt_wetdep
+   real(kind_phys) :: sumflux(2,ncnstaer)      ! sum (over layers) of netflux
+   real(kind_phys) :: sumflux2(2,ncnstaer)     ! ditto but computed using method-2 fluxes
+   real(kind_phys) :: sumsrce(2,ncnstaer)      ! sum (over layers) of dp*netsrce
+   real(kind_phys) :: sumchng(2,ncnstaer)      ! sum (over layers) of dp*dcondt
+   real(kind_phys) :: sumchng3(2,ncnstaer)     ! ditto but after call to resusp_conv
+   real(kind_phys) :: sumprevap(2,ncnstaer)    ! sum (over layers) of dp*dcondt_prevap
+   real(kind_phys) :: sumwetdep(2,ncnstaer)    ! sum (over layers) of dp*dconudt_wetdep
 
-   real(kind_phys) cabv                 ! mix ratio of constituent above
-   real(kind_phys) cbel                 ! mix ratio of constituent below
-   real(kind_phys) cdifr                ! normalized diff between cabv and cbel
-   real(kind_phys) cdt(pver)            ! (in-updraft first order wet removal rate) * dt
-   real(kind_phys) clw_cut              ! threshold clw value for doing updraft
+   real(kind_phys) :: cabv                 ! mix ratio of constituent above
+   real(kind_phys) :: cbel                 ! mix ratio of constituent below
+   real(kind_phys) :: cdifr                ! normalized diff between cabv and cbel
+   real(kind_phys) :: cdt(pver)            ! (in-updraft first order wet removal rate) * dt
+   real(kind_phys) :: clw_cut              ! threshold clw value for doing updraft
                                  ! transformation and removal
-   real(kind_phys) courantmax           ! maximum courant no.
-   real(kind_phys) dddp(pver)           ! dd(i,k)*dp(i,k) at current i
-   real(kind_phys) dp_i(pver)           ! dp(i,k) at current i
-   real(kind_phys) dt_u(pver)           ! lagrangian transport time in the updraft
-   real(kind_phys) dudp(pver)           ! du(i,k)*dp(i,k) at current i
-   real(kind_phys) dqdt_i(pver,ncnstaer)   ! dqdt(i,k,m) at current i
-   real(kind_phys) dtsub                ! dt/ntsub
-   real(kind_phys) dz                   ! working layer thickness (m)
-   real(kind_phys) eddp(pver)           ! ed(i,k)*dp(i,k) at current i
-   real(kind_phys) eudp(pver)           ! eu(i,k)*dp(i,k) at current i
-   real(kind_phys) expcdtm1             ! a work variable
-   real(kind_phys) fa_u(pver)           ! fractional area of in the updraft
-   real(kind_phys) fa_u_dp              ! current fa_u(k)*dp_i(k)
-   real(kind_phys) f_ent                ! fraction of the "before-detrainment" updraft
+   real(kind_phys) :: courantmax           ! maximum courant no.
+   real(kind_phys) :: dddp(pver)           ! dd(i,k)*dp(i,k) at current i
+   real(kind_phys) :: dp_i(pver)           ! dp(i,k) at current i
+   real(kind_phys) :: dt_u(pver)           ! lagrangian transport time in the updraft
+   real(kind_phys) :: dudp(pver)           ! du(i,k)*dp(i,k) at current i
+   real(kind_phys) :: dqdt_i(pver,ncnstaer)   ! dqdt(i,k,m) at current i
+   real(kind_phys) :: dtsub                ! dt/ntsub
+   real(kind_phys) :: dz                   ! working layer thickness (m)
+   real(kind_phys) :: eddp(pver)           ! ed(i,k)*dp(i,k) at current i
+   real(kind_phys) :: eudp(pver)           ! eu(i,k)*dp(i,k) at current i
+   real(kind_phys) :: expcdtm1             ! a work variable
+   real(kind_phys) :: fa_u(pver)           ! fractional area of in the updraft
+   real(kind_phys) :: fa_u_dp              ! current fa_u(k)*dp_i(k)
+   real(kind_phys) :: f_ent                ! fraction of the "before-detrainment" updraft
                                  ! massflux at k/k-1 interface resulting from
                                  ! entrainment of level k air
-   real(kind_phys) fluxin               ! a work variable
-   real(kind_phys) fluxout              ! a work variable
-   real(kind_phys) maxc                 ! a work variable
-   real(kind_phys) mbsth                ! Threshold for mass fluxes
-   real(kind_phys) minc                 ! a work variable
-   real(kind_phys) md_m_eddp            ! a work variable
-   real(kind_phys) md_i(pver+1)         ! md(i,k) at current i (note pverp dimension)
-   real(kind_phys) md_x(pver+1)         ! md(i,k) at current i (note pverp dimension)
-   real(kind_phys) mu_i(pver+1)         ! mu(i,k) at current i (note pverp dimension)
-   real(kind_phys) mu_x(pver+1)         ! mu(i,k) at current i (note pverp dimension)
+   real(kind_phys) :: fluxin               ! a work variable
+   real(kind_phys) :: fluxout              ! a work variable
+   real(kind_phys) :: maxc                 ! a work variable
+   real(kind_phys) :: mbsth                ! Threshold for mass fluxes
+   real(kind_phys) :: minc                 ! a work variable
+   real(kind_phys) :: md_m_eddp            ! a work variable
+   real(kind_phys) :: md_i(pver+1)         ! md(i,k) at current i (note pverp dimension)
+   real(kind_phys) :: md_x(pver+1)         ! md(i,k) at current i (note pverp dimension)
+   real(kind_phys) :: mu_i(pver+1)         ! mu(i,k) at current i (note pverp dimension)
+   real(kind_phys) :: mu_x(pver+1)         ! mu(i,k) at current i (note pverp dimension)
    ! md_i, md_x, mu_i, mu_x are all "dry" mass fluxes
    ! the mu_x/md_x are initially calculated from the incoming mu/md by applying dp/dpdry
    ! the mu_i/md_i are next calculated by applying the mbsth threshold
-   real(kind_phys) mu_p_eudp(pver)      ! = mu_i(kp1) + eudp(k)
-   real(kind_phys) netflux              ! a work variable
-   real(kind_phys) netsrce              ! a work variable
-   real(kind_phys) q_i(pver,ncnstaer)      ! q(i,k,m) at current i
-   real(kind_phys) qsrflx_i(ncnstaer,nsrflx) ! qsrflx(i,m,n) at current i
-   real(kind_phys) rhoair_i(pver)       ! air density at current i
-   real(kind_phys) small                ! a small number
-   real(kind_phys) tmpa                 ! work variables
-   real(kind_phys) tmpf                 ! work variables
-   real(kind_phys) xinv_ntsub           ! 1.0/ntsub
-   real(kind_phys) wup(pver)            ! working updraft velocity (m/s)
-   real(kind_phys) hund_ovr_g           ! = 100.0_kind_phys/gravit
+   real(kind_phys) :: mu_p_eudp(pver)      ! = mu_i(kp1) + eudp(k)
+   real(kind_phys) :: netflux              ! a work variable
+   real(kind_phys) :: netsrce              ! a work variable
+   real(kind_phys) :: q_i(pver,ncnstaer)      ! q(i,k,m) at current i
+   real(kind_phys) :: qsrflx_i(ncnstaer,nsrflx) ! qsrflx(i,m,n) at current i
+   real(kind_phys) :: rhoair_i(pver)       ! air density at current i
+   real(kind_phys) :: small                ! a small number
+   real(kind_phys) :: tmpa                 ! work variables
+   real(kind_phys) :: tmpf                 ! work variables
+   real(kind_phys) :: xinv_ntsub           ! 1.0/ntsub
+   real(kind_phys) :: wup(pver)            ! working updraft velocity (m/s)
+   real(kind_phys) :: hund_ovr_g           ! = 100.0_kind_phys/gravit
 !  used with zm_conv mass fluxes and delta-p
 !     for mu = [mbar/s],   mu*hund_ovr_g = [kg/m2/s]
 !     for dp = [mbar] and q = [kg/kg],   q*dp*hund_ovr_g = [kg/m2]
@@ -320,8 +320,8 @@ subroutine aero_convproc_run( aero_props, convtype, lchnk, dt,  &
       do l = 0, aero_props%nmasses(m)
          mm = aero_props%indexer(m,l)
          aqfrac(2,mm) = 1.0_kind_phys
-      enddo
-   enddo
+      end do
+   end do
 
 ! Loop ever each column that has convection
 ! *** i is index to gathered arrays; ideep(i) is index to "normal" chunk arrays
@@ -330,20 +330,22 @@ i_loop_main_aa: &
    icol = ideep(i)
 
 
-   if ( (jt(i) <= 0) .and. (mx(i) <= 0) .and. (iconvtype /= 1) ) then
+   if ((jt(i) <= 0) .and. (mx(i) <= 0) .and. (iconvtype /= 1)) then
 ! shallow conv case with jt,mx <= 0, which means there is no shallow conv
 ! in this column -- skip this column
       cycle i_loop_main_aa
 
-   else if ( (jt(i) < 1) .or. (mx(i) > pver) .or. (jt(i) > mx(i)) ) then
+   end if
+   if ((jt(i) < 1) .or. (mx(i) > pver) .or. (jt(i) > mx(i))) then
 ! invalid cloudtop and cloudbase indices -- skip this column
       write(*,9010) 'illegal jt, mx', convtype, lchnk, icol, i,    &
                                       jt(i), mx(i)
-9010  format( '*** aero_convproc_run error -- ', a, 5x, 'convtype = ', a /   &
-              '*** lchnk, icol, il, jt, mx = ', 5(1x,i10) )
+9010  format('*** aero_convproc_run error -- ', a, 5x, 'convtype = ', a /   &
+              '*** lchnk, icol, il, jt, mx = ', 5(1x,i10))
       cycle i_loop_main_aa
 
-   else if (jt(i) == mx(i)) then
+   end if
+   if (jt(i) == mx(i)) then
 ! cloudtop = cloudbase (1 layer cloud) -- skip this column
       write(*,9010) 'jt == mx', convtype, lchnk, icol, i, jt(i), mx(i)
       cycle i_loop_main_aa
@@ -370,7 +372,7 @@ i_loop_main_aa: &
 ! (eu-du) = d(mu)/dp -- integrate upwards, multiplying by dpdry
       do k = pver, 1, -1
          mu_x(k) = mu_x(k+1) + (eu(i,k)-du(i,k))*dp_i(k)
-         xx_mfup_max(icol) = max( xx_mfup_max(icol), mu_x(k) )
+         xx_mfup_max(icol) = max(xx_mfup_max(icol), mu_x(k))
       end do
 ! (ed) = d(md)/dp -- integrate downwards, multiplying by dpdry
       do k = 2, pver
@@ -412,7 +414,7 @@ i_loop_main_aa: &
             if (du(i,k) <= 0.0_kind_phys) then
                eudp(k) = mu_i(k) - mu_i(k+1)
             else
-               eudp(k) = max( eu(i,k)*dp_i(k), 0.0_kind_phys )
+               eudp(k) = max(eu(i,k)*dp_i(k), 0.0_kind_phys)
                dudp(k) = (mu_i(k+1) + eudp(k)) - mu_i(k)
                if (dudp(k) < 1.0e-12_kind_phys*eudp(k)) then
                   eudp(k) = mu_i(k) - mu_i(k+1)
@@ -421,20 +423,20 @@ i_loop_main_aa: &
             end if
          end if
          if ((md_i(k) < 0) .or. (md_i(k+1) < 0)) then
-            eddp(k) = max( ed(i,k)*dp_i(k), 0.0_kind_phys )
+            eddp(k) = max(ed(i,k)*dp_i(k), 0.0_kind_phys)
             dddp(k) = (md_i(k+1) + eddp(k)) - md_i(k)
             if (dddp(k) < 1.0e-12_kind_phys*eddp(k)) then
                eddp(k) = md_i(k) - md_i(k+1)
                dddp(k) = 0.0_kind_phys
             end if
          end if
-         courantmax = max( courantmax, ( mu_i(k+1)+eudp(k)-md_i(k)+eddp(k) )*dt/dp_i(k) )
+         courantmax = max(courantmax, (mu_i(k+1)+eudp(k)-md_i(k)+eddp(k))*dt/dp_i(k))
       end do ! k
 
 ! number of time substeps needed to maintain "courant number" <= 1
       ntsub = 1
       if (courantmax > (1.0_kind_phys + 1.0e-6_kind_phys)) then
-         ntsub = 1 + int( courantmax )
+         ntsub = 1 + int(courantmax)
       end if
       xinv_ntsub = 1.0_kind_phys/ntsub
       dtsub = dt*xinv_ntsub
@@ -453,9 +455,9 @@ i_loop_main_aa: &
 !   when method_reduce_actfrac = 2, need to do the updraft calc twice
 !   (1st to get non-adjusted activation amount, 2nd to apply reduction factor)
       npass_calc_updraft = 1
-      if ( (method_reduce_actfrac == 2)      .and. &
+      if ((method_reduce_actfrac == 2)      .and. &
            (factor_reduce_actfrac >= 0.0_kind_phys) .and. &
-           (factor_reduce_actfrac <= 1.0_kind_phys) ) npass_calc_updraft = 2
+           (factor_reduce_actfrac <= 1.0_kind_phys)) npass_calc_updraft = 2
 
 
 jtsub_loop_main_aa: &
@@ -500,7 +502,7 @@ ipass_calc_updraft_loop: &
                   cdifr = 0._kind_phys
                else
                   cdifr = abs(const(1,mm,k)-const(1,mm,km1))/max(maxc,small)
-               endif
+               end if
 
                ! If the two layers differ significantly use a geometric averaging procedure
                ! But only do that for deep convection.  For shallow, use the simple
@@ -538,14 +540,16 @@ ipass_calc_updraft_loop: &
 !    Detrainment from the updraft uses this final conu(m,k).
 ! Note that different time-split approaches would give somewhat different
 !    results
-      kactcnt = 0 ; kactcntb = 0 ; kactfirst = 1
+      kactcnt = 0
+      kactcntb = 0
+      kactfirst = 1
 k_loop_main_bb: &
       do k = kbot, ktop, -1
          kp1 = k+1
 
 ! cldfrac = conv cloud fractional area.  This could represent anvil cirrus area,
 !    and may not useful for aqueous chem and wet removal calculations
-         cldfrac_i(k) = max( cldfrac_i(k), 0.005_kind_phys )
+         cldfrac_i(k) = max(cldfrac_i(k), 0.005_kind_phys)
 ! mu_p_eudp(k) = updraft massflux at k, without detrainment between kp1,k
          mu_p_eudp(k) = mu_i(kp1) + eudp(k)
 
@@ -558,7 +562,7 @@ k_loop_main_bb: &
 
 ! First apply changes from entrainment
             f_ent = eudp(k)/mu_p_eudp(k)
-            f_ent = max( 0.0_kind_phys, min( 1.0_kind_phys, f_ent ) )
+            f_ent = max(0.0_kind_phys, min(1.0_kind_phys, f_ent))
             tmpa = 1.0_kind_phys - f_ent
             do n = 1,2 ! phase
                do m = 1, aero_props%nbins()
@@ -584,7 +588,7 @@ k_loop_main_bb: &
 ! *** these must obey    dt_u(k)*mu_p_eudp(k) = dp_i(k)*fa_u(k)
             dz = dp_i(k)*hund_ovr_g/rhoair_i(k)
             dt_u(k) = dz/wup(k)
-            dt_u(k) = min( dt_u(k), dt )
+            dt_u(k) = min(dt_u(k), dt)
             fa_u(k) = dt_u(k)*(mu_p_eudp(k)/dp_i(k))
 
 
@@ -616,25 +620,25 @@ k_loop_main_bb: &
 
                      kactfirst = k
                      tmpa = 1.0_kind_phys
-                     call activate_convproc( aero_props, &
+                     call activate_convproc(aero_props, &
                         conu(:,:,k), dconudt_activa(:,:,k), conu(:,:,k),  &
                         tmpa,       dt_u(k),            wup(k),           &
                         t(icol,k),  rhoair_i(k), ipass_calc_updraft,     &
                         ncnstaer,   nbins,                               &
                         pi, rhoh2o, rh2o, gravit, latvap, cpair, rair,   &
-                        errmsg,     errflg )
+                        errmsg,     errflg)
                      if (errflg /= 0) return
                   else if (f_ent > 0.0_kind_phys) then
                      ! current layer is above cloud base (=first layer with activation)
                      !    only allow activation at k = kactfirst thru kactfirst-(method1_activate_nlayers-1)
                      if (k >= kactfirst-(method1_activate_nlayers-1)) then
-                        call activate_convproc( aero_props, &
+                        call activate_convproc(aero_props, &
                            conu(:,:,k),  dconudt_activa(:,:,k), const(:,:,k), &
                            f_ent,      dt_u(k),             wup(k),           &
                            t(icol,k),  rhoair_i(k), ipass_calc_updraft,      &
                            ncnstaer,   nbins,                                &
                            pi, rhoh2o, rh2o, gravit, latvap, cpair, rair,    &
-                           errmsg,     errflg )
+                           errmsg,     errflg)
                         if (errflg /= 0) return
                      end if
                   end if
@@ -676,17 +680,17 @@ k_loop_main_bb: &
 !                 end if
                end if
 
-               if ( do_act_this_lev ) then
+               if (do_act_this_lev) then
                   kactcntb = kactcntb + 1
 
-                  call activate_convproc_method2( aero_props, &
+                  call activate_convproc_method2(aero_props, &
                      conu(:,:,k),  dconudt_activa(:,:,k),     &
                      f_ent,      dt_u(k),   wup(k),           &
                      t(icol,k),  rhoair_i(k), k,              &
                      kactfirst,  ipass_calc_updraft,          &
                      ncnstaer,   nbins,      convproc_pom_spechygro, &
                      pi, rhoh2o, rh2o, gravit, latvap, cpair, rair,  &
-                     errmsg,     errflg )
+                     errmsg,     errflg)
                   if (errflg /= 0) return
 
                end if
@@ -762,9 +766,9 @@ k_loop_main_bb: &
                         conu(n,mm,k) = conu(n,mm,k) + dconudt_wetdep(n,mm,k)
                         dconudt_wetdep(n,mm,k) = dconudt_wetdep(n,mm,k) / dt_u(k)
                         conu2(icol,k,n,mm) = conu(n,mm,k)
-                     enddo
-                  enddo
-               enddo
+                     end do
+                  end do
+               end do
 
             end if
 
@@ -772,8 +776,8 @@ k_loop_main_bb: &
       end do k_loop_main_bb ! "k = kbot, ktop, -1"
 
 ! when doing updraft calcs twice, only need to go this far on the first pass
-      if ( (ipass_calc_updraft == 1) .and. &
-           (npass_calc_updraft == 2) ) cycle ipass_calc_updraft_loop
+      if ((ipass_calc_updraft == 1) .and. &
+           (npass_calc_updraft == 2)) cycle ipass_calc_updraft_loop
 
 
 ! Compute downdraft mixing ratios from cloudtop to cloudbase
@@ -789,8 +793,8 @@ k_loop_main_bb: &
                do l = 0, aero_props%nmasses(m)
                   mm = aero_props%indexer(m,l)
                   do n = 1,2
-                     cond(n,mm,kp1) = ( md_i(k)*cond(n,mm,k) &
-                                      - eddp(k)*const(n,mm,k) ) / md_m_eddp
+                     cond(n,mm,kp1) = (md_i(k)*cond(n,mm,k) &
+                                      - eddp(k)*const(n,mm,k)) / md_m_eddp
                   end do
                end do
             end do
@@ -819,8 +823,8 @@ k_loop_main_cc: &
       do k = ktop, kbot
          kp1 = k+1
          km1 = k-1
-         kp1x = min( kp1, pver )
-         km1x = max( km1, 1 )
+         kp1x = min(kp1, pver)
+         km1x = max(km1, 1)
          fa_u_dp = fa_u(k)*dp_i(k)
 
          do m = 1, aero_props%nbins()
@@ -842,7 +846,7 @@ k_loop_main_cc: &
                   netflux = fluxin - fluxout
 
                   sumflux2(n,mm) = sumflux2(n,mm) + netflux
-                  maxflux2(n,mm) = max( maxflux2(n,mm), abs(fluxin), abs(fluxout) )
+                  maxflux2(n,mm) = max(maxflux2(n,mm), abs(fluxin), abs(fluxout))
 
                   ! Now compute fluxes as in convtran, and also source/sink terms
                   ! (version 3 limit fluxes outside convection to mass in appropriate layer
@@ -850,33 +854,33 @@ k_loop_main_cc: &
                   ! (it assumes that mu and md already satify a courant number limit of 1)
                   if (iflux_method /= 2) then
                      fluxin  =     mu_i(kp1)*conu(n,mm,kp1)                     &
-                                 + mu_i(k  )*min(chat(n,mm,k  ),const(n,mm,km1x))  &
-                               - ( md_i(k  )*cond(n,mm,k)                       &
-                                 + md_i(kp1)*min(chat(n,mm,kp1),const(n,mm,kp1x)) )
-                     fluxout =     mu_i(k  )*conu(n,mm,k)                       &
-                                 + mu_i(kp1)*min(chat(n,mm,kp1),const(n,mm,k   ))  &
-                               - ( md_i(kp1)*cond(n,mm,kp1)                     &
-                                 + md_i(k  )*min(chat(n,mm,k  ),const(n,mm,k   )) )
+                                 + mu_i(k)*min(chat(n,mm,k),const(n,mm,km1x))  &
+                               - (md_i(k)*cond(n,mm,k)                       &
+                                 + md_i(kp1)*min(chat(n,mm,kp1),const(n,mm,kp1x)))
+                     fluxout =     mu_i(k)*conu(n,mm,k)                       &
+                                 + mu_i(kp1)*min(chat(n,mm,kp1),const(n,mm,k))  &
+                               - (md_i(kp1)*cond(n,mm,kp1)                     &
+                                 + md_i(k)*min(chat(n,mm,k),const(n,mm,k)))
                   else
                      fluxin  =     mu_i(kp1)*conu(n,mm,kp1)                     &
-                               - ( md_i(k  )*cond(n,mm,k) )
-                     fluxout =     mu_i(k  )*conu(n,mm,k)                       &
-                               - ( md_i(kp1)*cond(n,mm,kp1) )
+                               - (md_i(k)*cond(n,mm,k))
+                     fluxout =     mu_i(k)*conu(n,mm,k)                       &
+                               - (md_i(kp1)*cond(n,mm,kp1))
 
                      ! new method -- simple upstream method for the env subsidence
                      ! tmpa = net env mass flux (positive up) at top of layer k
-                     tmpa = -( mu_i(k  ) + md_i(k  ) )
+                     tmpa = -(mu_i(k) + md_i(k))
                      if (tmpa <= 0.0_kind_phys) then
                         fluxin  = fluxin  - tmpa*const(n,mm,km1x)
                      else
-                        fluxout = fluxout + tmpa*const(n,mm,k   )
+                        fluxout = fluxout + tmpa*const(n,mm,k)
                      end if
                      ! tmpa = net env mass flux (positive up) at base of layer k
-                     tmpa = -( mu_i(kp1) + md_i(kp1) )
+                     tmpa = -(mu_i(kp1) + md_i(kp1))
                      if (tmpa >= 0.0_kind_phys) then
                         fluxin  = fluxin  + tmpa*const(n,mm,kp1x)
                      else
-                        fluxout = fluxout - tmpa*const(n,mm,k   )
+                        fluxout = fluxout - tmpa*const(n,mm,k)
                      end if
                   end if
 
@@ -897,15 +901,15 @@ k_loop_main_cc: &
       end do k_loop_main_cc ! "k = ktop, kbot"
 
 ! calculate effects of precipitation evaporation
-      call precpevap_convproc( aero_props, dcondt, dcondt_wetdep,  dcondt_prevap,   &
+      call precpevap_convproc(aero_props, dcondt, dcondt_wetdep,  dcondt_prevap,   &
                                   rprd,   evapc,          dp_i,            &
                                   icol,   ktop,   pver,   ncnstaer,        &
-                                  convproc_do_evaprain_atonce )
+                                  convproc_do_evaprain_atonce)
 
 ! make adjustments to dcondt for activated & unactivated aerosol species
 !    pairs to account any (or total) resuspension of convective-cloudborne aerosol
-      call resuspend_convproc( aero_props, dcondt, dcondt_resusp, ktop, kbot_prevap, &
-                                  pver,   ncnstaer,   convproc_do_evaprain_atonce )
+      call resuspend_convproc(aero_props, dcondt, dcondt_resusp, ktop, kbot_prevap, &
+                                  pver,   ncnstaer,   convproc_do_evaprain_atonce)
 
       ! Do resuspension of aerosols from rain only when the rain has
       ! totally evaporated.
@@ -956,8 +960,8 @@ k_loop_main_cc: &
             mm = aero_props%indexer(m,l)
             sumwetdep(1,mm) = sumwetdep(1,mm) + sumwetdep(2,mm)
             sumprevap(1,mm) = sumprevap(1,mm) + sumprevap(2,mm)
-         enddo
-      enddo
+         end do
+      end do
 
 !
 ! scatter overall tendency back to full array
@@ -989,7 +993,7 @@ k_loop_main_cc: &
             do l = 0, aero_props%nmasses(m)
                mm = aero_props%indexer(m,l)
                do k = ktop, kbot_prevap
-                  q_i(k,mm) = max( (q_i(k,mm) + dqdt_i(k,mm)*dtsub), 0.0_kind_phys )
+                  q_i(k,mm) = max((q_i(k,mm) + dqdt_i(k,mm)*dtsub), 0.0_kind_phys)
                end do
             end do
          end do
@@ -1008,11 +1012,11 @@ k_loop_main_cc: &
 end subroutine aero_convproc_run
 
 !=========================================================================================
-   subroutine precpevap_convproc(  aero_props,      &
+   subroutine precpevap_convproc(aero_props,      &
               dcondt,  dcondt_wetdep, dcondt_prevap,           &
               rprd,    evapc,         dp_i,                    &
               icol,    ktop,          pver,      ncnstaer,     &
-              convproc_do_evaprain_atonce )
+              convproc_do_evaprain_atonce)
 !-----------------------------------------------------------------------
 !
 ! Purpose:
@@ -1070,12 +1074,12 @@ end subroutine aero_convproc_run
       del_pr_flux_prod = tmpdp*max(0.0_kind_phys, rprd(icol,k))
       pr_flux = pr_flux_old + del_pr_flux_prod
 
-      del_pr_flux_evap = min( pr_flux, tmpdp*max(0.0_kind_phys, evapc(icol,k)) )
+      del_pr_flux_evap = min(pr_flux, tmpdp*max(0.0_kind_phys, evapc(icol,k)))
 
       ! Do resuspension of aerosols from rain only when the rain has
       ! totally evaporated in one layer.
       if (convproc_do_evaprain_atonce .and. &
-          (del_pr_flux_evap.ne.pr_flux)) del_pr_flux_evap = 0._kind_phys
+          (del_pr_flux_evap/=pr_flux)) del_pr_flux_evap = 0._kind_phys
 
       fdel_pr_flux_evap = del_pr_flux_evap / max(pr_flux, 1.0e-35_kind_phys)
 
@@ -1096,8 +1100,8 @@ end subroutine aero_convproc_run
 
       ! resuspension --> create larger aerosols
       if (convproc_do_evaprain_atonce) then
-         call aero_props%resuspension_resize( dcondt_prevap(1,:,k) )
-      endif
+         call aero_props%resuspension_resize(dcondt_prevap(1,:,k))
+      end if
 
       do m = 1, aero_props%nbins()
          do l = 0, aero_props%nmasses(m)
@@ -1108,20 +1112,20 @@ end subroutine aero_convproc_run
          end do
       end do
 
-      pr_flux = max( 0.0_kind_phys, pr_flux-del_pr_flux_evap )
+      pr_flux = max(0.0_kind_phys, pr_flux-del_pr_flux_evap)
 
    end do ! k
 
    end subroutine precpevap_convproc
 
 !=========================================================================================
-   subroutine activate_convproc( aero_props,    &
+   subroutine activate_convproc(aero_props,    &
               conu,       dconudt,   conent,    &
               f_ent,      dt_u,      wup,       &
               tair,       rhoair, ipass_calc_updraft, &
               ncnstaer,   nbins,                 &
               pi, rhoh2o, rh2o, gravit, latvap, cpair, rair, &
-              errmsg,     errflg )
+              errmsg,     errflg)
 !-----------------------------------------------------------------------
 !
 ! Purpose:
@@ -1250,8 +1254,8 @@ end subroutine aero_convproc_run
             mm = aero_props%indexer(m,l)
 
             delact = dconudt(2,mm)*dt_u * factor_reduce_actfrac
-            delact = min( delact, conu(1,mm) )
-            delact = max( delact, 0.0_kind_phys )
+            delact = min(delact, conu(1,mm))
+            delact = max(delact, 0.0_kind_phys)
             conu(1,mm) = conu(1,mm) - delact
             conu(2,mm) = conu(2,mm) + delact
             dconudt(1,mm) = -delact*dt_u_inv
@@ -1281,9 +1285,10 @@ end subroutine aero_convproc_run
 
          call aero_props%get(m, l, spectype=spec_type, density=spec_dens, hygro=spec_hygro)
 
-         tmpc = max( conent(1,mm), 0.0_kind_phys )
-         if ( use_cwaer_for_activate_maxsat ) &
-         tmpc = tmpc + max( conent(2,mm), 0.0_kind_phys )
+         tmpc = max(conent(1,mm), 0.0_kind_phys)
+         if (use_cwaer_for_activate_maxsat) then
+           tmpc = tmpc + max(conent(2,mm), 0.0_kind_phys)
+         end if
          tmpc = tmpc / spec_dens
          tmpa = tmpa + tmpc
          tmpb = tmpb + tmpc * spec_hygro
@@ -1296,21 +1301,22 @@ end subroutine aero_convproc_run
       end if
 
 ! load a (or a+cw) number and bound it
-      tmpa = max( conent(1,mm), 0.0_kind_phys )
-      if ( use_cwaer_for_activate_maxsat ) &
-      tmpa = tmpa + max( conent(2,mm), 0.0_kind_phys )
+      tmpa = max(conent(1,mm), 0.0_kind_phys)
+      if (use_cwaer_for_activate_maxsat) then
+        tmpa = tmpa + max(conent(2,mm), 0.0_kind_phys)
+      end if
       naerosol(m) = tmpa * rhoair
 
       naerosol_a(1,1) = naerosol(m)
       vaerosol_a(1,1) = vaerosol(m)
 
-      call aero_props%apply_number_limits( naerosol_a, vaerosol_a, 1, 1, m )
+      call aero_props%apply_number_limits(naerosol_a, vaerosol_a, 1, 1, m)
 
       naerosol(m) = naerosol_a(1,1)
    end do
 
 ! call Razzak-Ghan activation routine with single updraft
-   wbar = max( wup, 0.5_kind_phys )  ! force wbar >= 0.5 m/s for now
+   wbar = max(wup, 0.5_kind_phys)  ! force wbar >= 0.5 m/s for now
    sigw = 0.0_kind_phys
    wdiab = 0.0_kind_phys
    wminf = wbar
@@ -1320,7 +1326,7 @@ end subroutine aero_convproc_run
          wbar, sigw, wdiab, wminf, wmaxf, tair, rhoair,                    &
          naerosol, nbins, vaerosol, hygro, aero_props,            &
          fn, fm, fluxn, fluxm, flux_fullact,                              &
-         pi, rhoh2o, rh2o, gravit, latvap, cpair, rair, errmsg, errflg    )
+         pi, rhoh2o, rh2o, gravit, latvap, cpair, rair, errmsg, errflg)
    if (errflg /= 0) return
 
 ! apply the activation fractions to the updraft aerosol mixing ratios
@@ -1330,13 +1336,14 @@ end subroutine aero_convproc_run
       do l = 0, aero_props%nmasses(m)
          mm = aero_props%indexer(m,l)
 
-         if ( (method_reduce_actfrac == 1)      .and. &
+         if ((method_reduce_actfrac == 1)      .and. &
               (factor_reduce_actfrac >= 0.0_kind_phys) .and. &
-              (factor_reduce_actfrac <  1.0_kind_phys) )     &
-              tmp_fact = tmp_fact * factor_reduce_actfrac
+              (factor_reduce_actfrac <  1.0_kind_phys)) then
+           tmp_fact = tmp_fact * factor_reduce_actfrac
+         end if
 
-         delact = min( conent(1,mm)*tmp_fact*f_ent, conu(1,mm) )
-         delact = max( delact, 0.0_kind_phys )
+         delact = min(conent(1,mm)*tmp_fact*f_ent, conu(1,mm))
+         delact = max(delact, 0.0_kind_phys)
          conu(1,mm) = conu(1,mm) - delact
          conu(2,mm) = conu(2,mm) + delact
          dconudt(1,mm) = -delact*dt_u_inv
@@ -1347,14 +1354,14 @@ end subroutine aero_convproc_run
    end subroutine activate_convproc
 
 !=========================================================================================
-   subroutine activate_convproc_method2( aero_props, &
+   subroutine activate_convproc_method2(aero_props, &
               conu,       dconudt,             &
               f_ent,      dt_u,     wup,       &
               tair,       rhoair,   k,         &
               kactfirst,  ipass_calc_updraft,  &
               ncnstaer,   nbins,    convproc_pom_spechygro, &
               pi, rhoh2o, rh2o, gravit, latvap, cpair, rair, &
-              errmsg,     errflg )
+              errmsg,     errflg)
 !-----------------------------------------------------------------------
 !
 ! Purpose:
@@ -1480,8 +1487,8 @@ end subroutine aero_convproc_run
             mm = aero_props%indexer(m,l)
 
             delact = dconudt(2,mm)*dt_u * factor_reduce_actfrac
-            delact = min( delact, conu(1,mm) )
-            delact = max( delact, 0.0_kind_phys )
+            delact = min(delact, conu(1,mm))
+            delact = max(delact, 0.0_kind_phys)
             conu(1,mm) = conu(1,mm) - delact
             conu(2,mm) = conu(2,mm) + delact
             dconudt(1,mm) = -delact*dt_u_inv
@@ -1509,9 +1516,10 @@ end subroutine aero_convproc_run
 
          call aero_props%get(m, l, spectype=spec_type, density=spec_dens, hygro=spec_hygro)
 
-         tmpc = max( conu(1,mm), 0.0_kind_phys )
-         if ( use_cwaer_for_activate_maxsat ) &
-         tmpc = tmpc + max( conu(2,mm), 0.0_kind_phys )
+         tmpc = max(conu(1,mm), 0.0_kind_phys)
+         if (use_cwaer_for_activate_maxsat) then
+           tmpc = tmpc + max(conu(2,mm), 0.0_kind_phys)
+         end if
          tmpc = tmpc / spec_dens
          tmpa = tmpa + tmpc
 
@@ -1538,22 +1546,23 @@ end subroutine aero_convproc_run
       mm = aero_props%indexer(m,0)
 
 ! load a (or a+cw) number and bound it
-      tmpa = max( conu(1,mm), 0.0_kind_phys )
-      if ( use_cwaer_for_activate_maxsat ) &
-      tmpa = tmpa + max( conu(2,mm), 0.0_kind_phys )
+      tmpa = max(conu(1,mm), 0.0_kind_phys)
+      if (use_cwaer_for_activate_maxsat) then
+        tmpa = tmpa + max(conu(2,mm), 0.0_kind_phys)
+      end if
       naerosol(m) = tmpa * rhoair
 
       naerosol_a(1,1) = naerosol(m)
       vaerosol_a(1,1) = vaerosol(m)
 
-      call aero_props%apply_number_limits( naerosol_a, vaerosol_a, 1, 1, m )
+      call aero_props%apply_number_limits(naerosol_a, vaerosol_a, 1, 1, m)
 
       naerosol(m) = naerosol_a(1,1)
 
    end do
 
 ! call Razzak-Ghan activation routine with single updraft
-   wbar = max( wup, 0.5_kind_phys )  ! force wbar >= 0.5 m/s for now
+   wbar = max(wup, 0.5_kind_phys)  ! force wbar >= 0.5 m/s for now
    sigw = 0.0_kind_phys
    wdiab = 0.0_kind_phys
    wminf = wbar
@@ -1565,7 +1574,7 @@ end subroutine aero_convproc_run
          wbar, sigw, wdiab, wminf, wmaxf, tair, rhoair,                    &
          naerosol, nbins, vaerosol, hygro, aero_props,            &
          fn, fm, fluxn, fluxm, flux_fullact,                              &
-         pi, rhoh2o, rh2o, gravit, latvap, cpair, rair, errmsg, errflg    )
+         pi, rhoh2o, rh2o, gravit, latvap, cpair, rair, errmsg, errflg)
       if (errflg /= 0) return
 
    else
@@ -1577,7 +1586,7 @@ end subroutine aero_convproc_run
          naerosol, nbins, vaerosol, hygro, aero_props,            &
          fn, fm, fluxn, fluxm, flux_fullact,                              &
          pi, rhoh2o, rh2o, gravit, latvap, cpair, rair, errmsg, errflg,   &
-         smax_prescribed                                                  )
+         smax_prescribed)
       if (errflg /= 0) return
    end if
 
@@ -1593,13 +1602,14 @@ end subroutine aero_convproc_run
             tmp_fact = fm(m)
          end if
 
-         if ( (method_reduce_actfrac == 1)      .and. &
+         if ((method_reduce_actfrac == 1)      .and. &
               (factor_reduce_actfrac >= 0.0_kind_phys) .and. &
-              (factor_reduce_actfrac <  1.0_kind_phys) )     &
-              tmp_fact = tmp_fact * factor_reduce_actfrac
+              (factor_reduce_actfrac <  1.0_kind_phys)) then
+           tmp_fact = tmp_fact * factor_reduce_actfrac
+         end if
 
-         delact = min( conu(1,mm)*tmp_fact, conu(1,mm) )
-         delact = max( delact, 0.0_kind_phys )
+         delact = min(conu(1,mm)*tmp_fact, conu(1,mm))
+         delact = max(delact, 0.0_kind_phys)
          conu(1,mm) = conu(1,mm) - delact
          conu(2,mm) = conu(2,mm) + delact
          dconudt(1,mm) = -delact*dt_u_inv
@@ -1610,9 +1620,9 @@ end subroutine aero_convproc_run
    end subroutine activate_convproc_method2
 
 !=========================================================================================
-   subroutine resuspend_convproc( aero_props, &
+   subroutine resuspend_convproc(aero_props, &
               dcondt,  dcondt_resusp, ktop,  kbot_prevap, &
-              pver,    ncnstaer,      convproc_do_evaprain_atonce )
+              pver,    ncnstaer,      convproc_do_evaprain_atonce)
 !-----------------------------------------------------------------------
 !
 ! Purpose:
