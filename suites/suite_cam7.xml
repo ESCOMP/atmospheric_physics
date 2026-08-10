@@ -116,7 +116,7 @@
 
     <!-- Vertical diffusion (CLUBB) -->
 
-    <- cloud microphysics (PUMAS) -->
+    <!-- cloud microphysics (PUMAS) -->
 
     <scheme>initialize_constituents</scheme>
     <scheme>cloud_fraction_options</scheme>
