@@ -2,6 +2,8 @@
   name = pumas_post_main
   type = scheme
   dependencies = pumas/micro_pumas_utils.F90
+  dependencies = pumas/pumas_kinds.F90
+  kind_spec = pumas_kinds:pumas_r8=>kind_r8
 
 [ccpp-arg-table]
   name = pumas_post_main_run
