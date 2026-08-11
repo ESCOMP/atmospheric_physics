@@ -14,6 +14,16 @@ module modal_aero_calcsize
 
 contains
 
+  ! Calculates aerosol size distribution parameters
+  !    mprognum_amode >  0
+  !       calculate Dgnum from mass, number, and fixed sigmag
+  !    mprognum_amode <= 0
+  !       calculate number from mass, fixed Dgnum, and fixed sigmag
+  !
+  ! Also (optionally) adjusts prognostic number to
+  !    be within bounds determined by mass, Dgnum bounds, and sigma bounds
+  !
+  ! Author: R. Easter
   subroutine modal_aero_calcsize_run( &
     ncol, pver, deltat, top_lev, &
     ntot_amode, nspec_amode, nspec_max, &
@@ -39,21 +49,6 @@ contains
     dotend, dotend_cw, &
     qsrflx, &
     errmsg, errflg)
-
-    !-----------------------------------------------------------------------
-    !
-    ! Calculates aerosol size distribution parameters
-    !    mprognum_amode >  0
-    !       calculate Dgnum from mass, number, and fixed sigmag
-    !    mprognum_amode <= 0
-    !       calculate number from mass, fixed Dgnum, and fixed sigmag
-    !
-    ! Also (optionally) adjusts prognostic number to
-    !    be within bounds determined by mass, Dgnum bounds, and sigma bounds
-    !
-    ! Author: R. Easter
-    !
-    !-----------------------------------------------------------------------
 
     ! Grid and time arguments
     integer, intent(in) :: ncol              ! number of columns
@@ -838,8 +833,8 @@ contains
 
   end subroutine modal_aero_calcsize_run
 
-!===============================================================================
-
+  ! Compute derived dry aerosol properties from mixing ratios and
+  ! adjusted number mode diameter. Called after calcsize_run.
   subroutine modal_aero_calcdry_run( &
     aero_props, aero_state, &
     ncol, pver, top_lev, &
@@ -848,14 +843,6 @@ contains
     dgncur_a, &
     hygro, dryvol, dryrad, drymass, so4dryvol, naer, &
     errmsg, errflg)
-
-!-----------------------------------------------------------------------
-!
-! Compute derived dry aerosol properties from mixing ratios and
-! adjusted number mode diameter. Called after calcsize_run.
-!
-!-----------------------------------------------------------------------
-
     use aerosol_properties_mod, only: aerosol_properties
     use aerosol_state_mod, only: aerosol_state
 
@@ -998,22 +985,16 @@ contains
 
   end subroutine modal_aero_calcdry_run
 
+  ! Calculate aerosol size distribution parameters for a diagnostic
+  ! radiation list, using only the abstract aerosol interfaces.
+  ! Number is diagnosed from mass, Dgnum bounds, and fixed sigmag
+  ! (the mprognum <= 0 branch of the prognostic calculation).
   subroutine modal_aero_calcsize_diag_run( &
     aero_props, aero_state, &
     ncol, pver, top_lev, &
     pi, &
     dgncur_a, &
     errmsg, errflg)
-
-    !-----------------------------------------------------------------------
-    !
-    ! Calculate aerosol size distribution parameters for a diagnostic
-    ! radiation list, using only the abstract aerosol interfaces.
-    ! Number is diagnosed from mass, Dgnum bounds, and fixed sigmag
-    ! (the mprognum <= 0 branch of the prognostic calculation).
-    !
-    !-----------------------------------------------------------------------
-
     use aerosol_properties_mod, only: aerosol_properties
     use aerosol_state_mod, only: aerosol_state
 

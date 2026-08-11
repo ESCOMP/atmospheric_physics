@@ -1,10 +1,5 @@
-!=============================================================================
 ! Common dust module
-!   Portable: host constants are passed as arguments; errors are reported
-!   through errmsg/errflg for the caller to handle.
-!=============================================================================
 module dust_common
-
   use ccpp_kinds, only: kind_phys
 
   implicit none
@@ -18,10 +13,6 @@ module dust_common
 
 contains
 
-  !=============================================================================
-  !
-  ! !DESCRIPTION:
-  !
   ! Compute source efficiency factor from topography
   ! Initialize other variables used in subroutine Dust:
   ! ovr_src_snk_mss(m,n) and tmp1.
@@ -30,17 +21,10 @@ contains
   ! Source: Paul Ginoux (for source efficiency factor)
   ! Modifications by C. Zender and later by S. Levis
   ! Rest of subroutine from C. Zender's dust model
-  !=============================================================================
+  ! Revised for CAM by Natalie Nahowald
   subroutine dust_set_params(nbin, dmt_grd, dmt_vwr, stk_crc, pi, rair, gravit, errmsg, errflg)
-
-    !
-    ! !USES
-    !
     use shr_infnan_mod, only: nan => shr_infnan_nan, assignment(=)
 
-    !
-    ! !ARGUMENTS:
-    !
     integer, intent(in)  :: nbin
     real(kind_phys), intent(in)  :: dmt_grd(:)
     real(kind_phys), intent(out) :: dmt_vwr(:)
@@ -51,15 +35,7 @@ contains
     character(len=*), intent(out) :: errmsg
     integer, intent(out) :: errflg
 
-    !
-    ! !REVISION HISTORY
-    ! Created by Samual Levis
-    ! Revised for CAM by Natalie Mahowald
-    !EOP
-    !------------------------------------------------------------------------
-
-    !------------------------------------------------------------------------
-    !Local Variables
+    ! Local variables:
     integer, parameter :: dst_src_nbr = 3
     integer, parameter :: sz_nbr = 200
 

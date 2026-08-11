@@ -1,18 +1,10 @@
+! Portable aqueous sulfur chemistry (setsox)
 module mo_setsox
-
-  ! Portable (CCPP-ready) aqueous sulfur chemistry (setsox).
-  ! Species indices / invariant flags, the Henry's Law table indices and the
-  ! host physical constants are provided by the host through setsox_init /
-  ! setsox_sub arguments (CAM wrapper: mo_setsox_cam).  The polymorphic
-  ! aerosol_state abstraction is deliberately host-portable.
-
-  use ccpp_kinds, only: kind_phys
-  use aerosol_state_mod, only: aerosol_state
-
   implicit none
-
   private
-  public :: setsox_init, setsox_sub
+
+  public :: setsox_init
+  public :: setsox_sub
 
   logical            ::  inv_o3
   integer            ::  id_msa
@@ -28,9 +20,11 @@ module mo_setsox
   integer :: heff_id_hno3, heff_id_so2, heff_id_nh3, heff_id_co2, heff_id_h2o2, heff_id_o3
 
 contains
-
-!-----------------------------------------------------------------------
-!-----------------------------------------------------------------------
+  ! Initialize the heterogeneous sox routine
+  !
+  ! Store the species indices / invariant flags and the Henry's Law
+  ! constant table indices resolved by the host.
+  ! An id <= 0 marks the species as absent.
   subroutine setsox_init(cloud_borne_in, &
                          id_so2_in, inv_so2_in, &
                          id_nh3_in, inv_nh3_in, &
@@ -41,13 +35,6 @@ contains
                          id_h2so4_in, id_so4_in, id_msa_in, &
                          heff_id_hno3_in, heff_id_so2_in, heff_id_nh3_in, &
                          heff_id_co2_in, heff_id_h2o2_in, heff_id_o3_in)
-    !-----------------------------------------------------------------------
-    !   ... initialize the hetero sox routine
-    !
-    ! Store the species indices / invariant flags and the Henry's Law
-    ! constant table indices resolved by the host (CAM: sox_inti in
-    ! mo_setsox_cam).  An id <= 0 marks the species as absent.
-    !-----------------------------------------------------------------------
 
     logical, intent(in) :: cloud_borne_in  ! aqueous sulfate goes to cloud-borne aerosol
     integer, intent(in) :: id_so2_in       ! index in invariants (if inv flag) or solution array
@@ -96,8 +83,20 @@ contains
 
   end subroutine setsox_init
 
-!-----------------------------------------------------------------------
-!-----------------------------------------------------------------------
+  !    ... Compute heterogeneous reactions of SOX
+  !
+  ! (0) using initial PH to calculate PH
+  !     (a) HENRYs law constants
+  !     (b) PARTIONING
+  !     (c) PH values
+  !
+  ! (1) using new PH to repeat
+  !     (a) HENRYs law constants
+  !     (b) PARTIONING
+  !     (c) REACTION rates
+  !     (d) PREDICTION
+  !
+  ! NOTE: This routine assumes an Ideal gas.
   subroutine setsox_sub(aero_state, &
                         ncol, &
                         pver, &
@@ -129,33 +128,14 @@ contains
                         errflg, &
                         yph_in, &
                         aqso4_h2o2_3d, &
-                        aqso4_o3_3d &
-                        )
+                        aqso4_o3_3d)
 
-    !-----------------------------------------------------------------------
-    !          ... Compute heterogeneous reactions of SOX
-    !
-    !       (0) using initial PH to calculate PH
-    !           (a) HENRYs law constants
-    !           (b) PARTIONING
-    !           (c) PH values
-    !
-    !       (1) using new PH to repeat
-    !           (a) HENRYs law constants
-    !           (b) PARTIONING
-    !           (c) REACTION rates
-    !           (d) PREDICTION
-    !
-    ! NOTE: This routine assumes an Ideal Gas.
-    !-----------------------------------------------------------------------
-    !
     use sox_cldaero_mod, only: sox_cldaero_update, sox_cldaero_create_obj, sox_cldaero_destroy_obj
     use cldaero_mod, only: cldaero_conc_t
 
-    !
-    !-----------------------------------------------------------------------
-    !      ... Dummy arguments
-    !-----------------------------------------------------------------------
+    use ccpp_kinds, only: kind_phys
+    use aerosol_state_mod, only: aerosol_state
+
     class(aerosol_state), intent(in) :: aero_state
     integer, intent(in)    :: ncol              ! num of columns in chunk
     integer, intent(in)    :: pver              ! num of vertical levels
@@ -225,7 +205,6 @@ contains
     real(kind_phys)            :: Ra ! universal constant   (atm)/(M-K) (assigned below; formerly a parameter)
     real(kind_phys), parameter :: small_value = 1.e-20_kind_phys
 
-    !
     real(kind_phys) :: xdelso4hp(ncol, pver)
     real(kind_phys) :: xhnm(ncol, pver) ! air number density (molecules cm-3)
 
@@ -243,7 +222,8 @@ contains
     !
     !-----------------------------------------------------------------------
     !            for Ho2(g) -> H2o2(a) formation
-    !            schwartz JGR, 1984, 11589
+    !            Schwartz JGR, 1984, 11589
+    ! https://doi.org/10.1029/JD089iD07p11589
     !-----------------------------------------------------------------------
     real(kind_phys) :: kh4    ! kh2+kh3
     real(kind_phys) :: xam    ! air density /cm3

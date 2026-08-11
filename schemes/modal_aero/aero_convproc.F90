@@ -9,7 +9,6 @@
 ! Author: R. C. Easter
 module aero_convproc
   use ccpp_kinds, only: kind_phys
-  use aerosol_properties_mod, only: aerosol_properties
 
   implicit none
   private
@@ -79,6 +78,8 @@ contains
                                convproc_do_evaprain_atonce, &
                                convproc_pom_spechygro, &
                                errmsg, errflg)
+    use aerosol_properties_mod, only: aerosol_properties
+
     class(aerosol_properties), intent(in) :: aero_props
 
     integer, intent(in) :: ncol             ! number of atmospheric columns
@@ -95,8 +96,7 @@ contains
     logical, intent(in) :: convproc_do_evaprain_atonce ! resuspend only when rain fully evaporates in a layer
     real(kind_phys), intent(in) :: convproc_pom_spechygro      ! prescribed p-organic hygroscopicity (<0 = use default)
 
-    character(len=*), intent(in) :: convtype  ! identifies the type of
-    ! convection ("deep", "shcu")
+    character(len=*), intent(in) :: convtype  ! identifies the type of convection ("deep", "shcu")
     integer, intent(in) :: lchnk             ! chunk identifier
     real(kind_phys), intent(in) :: dt                ! Model timestep
     real(kind_phys), intent(in) :: t(:, :)            ! Temperature
@@ -106,10 +106,10 @@ contains
     real(kind_phys), intent(in) :: du(:, :)           ! Mass detrain rate from updraft
     real(kind_phys), intent(in) :: eu(:, :)           ! Mass entrain rate into updraft
     real(kind_phys), intent(in) :: ed(:, :)           ! Mass entrain rate into downdraft
-! *** note1 - mu, md, eu, ed, du, dp, dpdry are GATHERED ARRAYS ***
-! *** note2 - mu and md units are (mb/s), which is used in the zm_conv code
-!           - eventually these should be changed to (kg/m2/s)
-! *** note3 - eu, ed, du are "d(massflux)/dp" (with dp units = mb), and are all >= 0
+    ! *** note1 - mu, md, eu, ed, du, dp, dpdry are GATHERED ARRAYS ***
+    ! *** note2 - mu and md units are (mb/s), which is used in the zm_conv code
+    !           - eventually these should be changed to (kg/m2/s)
+    ! *** note3 - eu, ed, du are "d(massflux)/dp" (with dp units = mb), and are all >= 0
 
     real(kind_phys), intent(in) :: dp(:, :)           ! Delta pressure between interfaces (mb)
     real(kind_phys), intent(in) :: dpdry(:, :)        ! Delta dry-pressure (mb)
@@ -118,7 +118,7 @@ contains
     integer, intent(in) :: ideep(:)          ! Gathering array indices
     integer, intent(in) :: il1g              ! Gathered min lon indices over which to operate
     integer, intent(in) :: il2g              ! Gathered max lon indices over which to operate
-! *** note4 -- for il1g <= i <= il2g,  icol = ideep(i) is the "normal" chunk column index
+    ! *** note4 -- for il1g <= i <= il2g,  icol = ideep(i) is the "normal" chunk column index
 
     real(kind_phys), intent(in) :: cldfrac(:, :)      ! Convective cloud fractional area
     real(kind_phys), intent(in) :: icwmr(:, :)        ! Convective cloud water from zhang
@@ -141,10 +141,9 @@ contains
     character(len=*), intent(out) :: errmsg
     integer, intent(out) :: errflg
 
-!--------------------------Local Variables------------------------------
 
-! cloudborne aerosol, so the arrays are dimensioned with pcnst_extd = pcnst*2
-
+    ! Local variables:
+    ! cloudborne aerosol, so the arrays are dimensioned with pcnst_extd = pcnst*2
     integer :: i, icol         ! Work index
     integer :: iconvtype       ! 1=deep, 2=uw shallow
     integer :: iflux_method    ! 1=as in convtran (deep), 2=simpler
@@ -167,7 +166,7 @@ contains
     integer :: nerr            ! number of errors for entire run
     integer :: nerrmax         ! maximum number of errors to report
     integer :: npass_calc_updraft
-    integer :: ntsub           !
+    integer :: ntsub
 
     logical  :: do_act_this_lev             ! flag for doing activation at current level
 
@@ -227,7 +226,6 @@ contains
     real(kind_phys) :: fluxin               ! a work variable
     real(kind_phys) :: fluxout              ! a work variable
     real(kind_phys) :: maxc                 ! a work variable
-    real(kind_phys) :: mbsth                ! Threshold for mass fluxes
     real(kind_phys) :: minc                 ! a work variable
     real(kind_phys) :: md_m_eddp            ! a work variable
     real(kind_phys) :: md_i(pver + 1)         ! md(i,k) at current i (note pverp dimension)
@@ -243,22 +241,24 @@ contains
     real(kind_phys) :: q_i(pver, ncnstaer)      ! q(i,k,m) at current i
     real(kind_phys) :: qsrflx_i(ncnstaer, nsrflx) ! qsrflx(i,m,n) at current i
     real(kind_phys) :: rhoair_i(pver)       ! air density at current i
-    real(kind_phys) :: small                ! a small number
     real(kind_phys) :: tmpa                 ! work variables
     real(kind_phys) :: tmpf                 ! work variables
     real(kind_phys) :: xinv_ntsub           ! 1.0/ntsub
     real(kind_phys) :: wup(pver)            ! working updraft velocity (m/s)
     real(kind_phys) :: hund_ovr_g           ! = 100.0_kind_phys/gravit
-!  used with zm_conv mass fluxes and delta-p
-!     for mu = [mbar/s],   mu*hund_ovr_g = [kg/m2/s]
-!     for dp = [mbar] and q = [kg/kg],   q*dp*hund_ovr_g = [kg/m2]
+    !  used with zm_conv mass fluxes and delta-p
+    !     for mu = [mbar/s],   mu*hund_ovr_g = [kg/m2/s]
+    !     for dp = [mbar] and q = [kg/kg],   q*dp*hund_ovr_g = [kg/m2]
 
-    !Fractional area of ensemble mean updrafts in ZM scheme set to 0.01
-    !Chosen to reproduce vertical velocities in GATEIII GIGALES (Khairoutdinov etal 2009, JAMES)
+    ! Fractional area of ensemble mean updrafts in ZM scheme set to 0.01
+    ! Chosen to reproduce vertical velocities in GATEIII GIGALES (Khairoutdinov et al. 2009, JAMES)
+    ! https://doi.org/10.3894/JAMES.2009.1.15
     real(kind_phys), parameter :: zm_areafrac = 0.01_kind_phys
 
-!-----------------------------------------------------------------------
-!
+    real(kind_phys), parameter :: small = 1.e-36_kind_phys
+    ! Threshold below which we treat the mass fluxes as zero [mbar s-1]
+    real(kind_phys), parameter :: mbsth =  1.e-15_kind_phys
+
     errmsg = ''
     errflg = 0
 
@@ -284,10 +284,6 @@ contains
 
     dcondt_resusp3d(:, :, :) = 0._kind_phys
 
-    small = 1.e-36_kind_phys
-! mbsth is the threshold below which we treat the mass fluxes as zero (in mb/s)
-    mbsth = 1.e-15_kind_phys
-
     qsrflx(:, :, :) = 0.0_kind_phys
     dqdt(:, :, :) = 0.0_kind_phys
     xx_mfup_max(:) = 0.0_kind_phys
@@ -300,7 +296,7 @@ contains
     conu2 = 0.0_kind_phys
     aqfrac = 0.0_kind_phys
 
-! inititialize aqfrac to 1.0 for activated aerosol species, 0.0 otherwise
+    ! inititialize aqfrac to 1.0 for activated aerosol species, 0.0 otherwise
     do m = 1, aero_props%nbins()
       do l = 0, aero_props%nmasses(m)
         mm = aero_props%indexer(m, l)
@@ -308,56 +304,50 @@ contains
       end do
     end do
 
-! Loop ever each column that has convection
-! *** i is index to gathered arrays; ideep(i) is index to "normal" chunk arrays
-    i_loop_main_aa: &
-      do i = il1g, il2g
+    ! Loop ever each column that has convection
+    ! *** i is index to gathered arrays; ideep(i) is index to "normal" chunk arrays
+    i_loop_main_aa: do i = il1g, il2g
       icol = ideep(i)
-
       if ((jt(i) <= 0) .and. (mx(i) <= 0) .and. (iconvtype /= 1)) then
-! shallow conv case with jt,mx <= 0, which means there is no shallow conv
-! in this column -- skip this column
+        ! shallow conv case with jt,mx <= 0, which means there is no shallow conv
+        ! in this column -- skip this column
         cycle i_loop_main_aa
-
       end if
       if ((jt(i) < 1) .or. (mx(i) > pver) .or. (jt(i) > mx(i))) then
-! invalid cloudtop and cloudbase indices -- skip this column
-        write (*, 9010) 'illegal jt, mx', convtype, lchnk, icol, i, &
-          jt(i), mx(i)
+        ! invalid cloudtop and cloudbase indices -- skip this column
+        write (*, 9010) 'illegal jt, mx', convtype, lchnk, icol, i, jt(i), mx(i)
 9010    format('*** aero_convproc_run error -- ', a, 5x, 'convtype = ', a/ &
                '*** lchnk, icol, il, jt, mx = ', 5(1x, i10))
         cycle i_loop_main_aa
-
       end if
       if (jt(i) == mx(i)) then
-! cloudtop = cloudbase (1 layer cloud) -- skip this column
+        ! cloudtop = cloudbase (1 layer cloud) -- skip this column
         write (*, 9010) 'jt == mx', convtype, lchnk, icol, i, jt(i), mx(i)
         cycle i_loop_main_aa
-
       end if
 
-!
-! cloudtop and cloudbase indices are valid so proceed with calculations
-!
+      !
+      ! cloudtop and cloudbase indices are valid so proceed with calculations
+      !
 
-! Load dp_i and cldfrac_i, and calc rhoair_i
+      ! Load dp_i and cldfrac_i, and calc rhoair_i
       do k = 1, pver
         dp_i(k) = dpdry(i, k)
         cldfrac_i(k) = cldfrac(icol, k)
         rhoair_i(k) = pmid(icol, k)/(rair*t(icol, k))
       end do
 
-! Calc dry mass fluxes
-!    This is approximate because the updraft air is has different temp and qv than
-!    the grid mean, but the whole convective parameterization is highly approximate
+      ! Calc dry mass fluxes
+      !    This is approximate because the updraft air is has different temp and qv than
+      !    the grid mean, but the whole convective parameterization is highly approximate
       mu_x(:) = 0.0_kind_phys
       md_x(:) = 0.0_kind_phys
-! (eu-du) = d(mu)/dp -- integrate upwards, multiplying by dpdry
+      ! (eu-du) = d(mu)/dp -- integrate upwards, multiplying by dpdry
       do k = pver, 1, -1
         mu_x(k) = mu_x(k + 1) + (eu(i, k) - du(i, k))*dp_i(k)
         xx_mfup_max(icol) = max(xx_mfup_max(icol), mu_x(k))
       end do
-! (ed) = d(md)/dp -- integrate downwards, multiplying by dpdry
+      ! (ed) = d(md)/dp -- integrate downwards, multiplying by dpdry
       do k = 2, pver
         md_x(k) = md_x(k - 1) - ed(i, k - 1)*dp_i(k - 1)
       end do
@@ -975,42 +965,24 @@ contains
           end if
 
         end do ipass_calc_updraft_loop
-
       end do jtsub_loop_main_aa  ! of the main "do jtsub = 1, ntsub" loop
-
     end do i_loop_main_aa  ! of the main "do i = il1g, il2g" loop
-
-! conu2/dcondt2 are returned as out-args; the WETC/CONU history diagnostics
-!    are written by the CAM host layer (aero_convproc_cam)
-
   end subroutine aero_convproc_run
 
-!=========================================================================================
+  ! Calculate resuspension of wet-removed aerosol species resulting from precip evaporation
   subroutine precpevap_convproc(aero_props, &
                                 dcondt, dcondt_wetdep, dcondt_prevap, &
                                 rprd, evapc, dp_i, &
                                 icol, ktop, pver, ncnstaer, &
                                 convproc_do_evaprain_atonce)
-!-----------------------------------------------------------------------
-!
-! Purpose:
-! Calculate resuspension of wet-removed aerosol species resulting
-!    from precip evaporation
-!
-! Author: R. Easter
-!
-!-----------------------------------------------------------------------
-
-!-----------------------------------------------------------------------
-! arguments
-! (note:  TMR = tracer mixing ratio)
+    use aerosol_properties_mod, only: aerosol_properties
 
     class(aerosol_properties), intent(in) :: aero_props
     integer, intent(in)    :: pver              ! number of vertical layers
     integer, intent(in)    :: ncnstaer          ! number of aerosol constituents (extended)
     logical, intent(in)    :: convproc_do_evaprain_atonce
     real(kind_phys), intent(inout) :: dcondt(2, ncnstaer, pver)
-    ! overall TMR tendency from convection
+    ! overall TMR (tracer mixing ratio) tendency from convection
     real(kind_phys), intent(in)    :: dcondt_wetdep(2, ncnstaer, pver)
     ! portion of TMR tendency due to wet removal
     real(kind_phys), intent(inout) :: dcondt_prevap(2, ncnstaer, pver)
@@ -1092,7 +1064,45 @@ contains
 
   end subroutine precpevap_convproc
 
-!=========================================================================================
+  ! Purpose:
+  ! Calculate activation of aerosol species in convective updraft
+  ! for a single column and level
+  !
+  ! Method:
+  ! conu(l)    = Updraft TMR (tracer mixing ratio) at k/k-1 interface
+  ! conent(l)  = TMR of air that is entrained into the updraft from level k
+  ! f_ent      = Fraction of the "before-detrainment" updraft massflux at
+  !              k/k-1 interface" resulting from entrainment of level k air
+  !              (where k is the current level in subr aero_convproc_run)
+  !
+  ! On entry to this routine, the conu(l) represents the updraft TMR
+  ! after entrainment, but before chemistry/physics and detrainment,
+  ! and is equal to
+  !    conu(l) = f_ent*conent(l) + (1.0-f_ent)*conu_below(l)
+  ! where
+  !    conu_below(l) = updraft TMR at the k+1/k interface, and
+  !    f_ent   = (eudp/mu_p_eudp) is the fraction of the updraft massflux
+  !              from level k entrainment
+  !
+  ! This routine applies aerosol activation to the entrained tracer,
+  ! then adjusts the conu so that on exit,
+  !   conu(la) = conu_incoming(la) - f_ent*conent(la)*f_act(la)
+  !   conu(lc) = conu_incoming(lc) + f_ent*conent(la)*f_act(la)
+  ! where
+  !   la, lc   = indices for an unactivated/activated aerosol component pair
+  !   f_act    = fraction of conent(la) that is activated.  The f_act are
+  !              calculated with the Razzak-Ghan activation parameterization.
+  !              The f_act differ for each mode, and for number/surface/mass.
+  !
+  ! Note:  At the lowest layer with cloud water, subr convproc calls this
+  ! routine with conent==conu and f_ent==1.0, with the result that
+  ! activation is applied to the entire updraft tracer flux
+  !
+  ! *** The updraft velocity used for activation calculations is rather
+  !     uncertain and needs more work.  However, an updraft of 1-3 m/s
+  !     will activate essentially all of accumulation and coarse mode particles.
+  !
+  ! Author: R. Easter
   subroutine activate_convproc(aero_props, &
                                conu, dconudt, conent, &
                                f_ent, dt_u, wup, &
@@ -1100,54 +1110,9 @@ contains
                                ncnstaer, nbins, &
                                pi, rhoh2o, rh2o, gravit, latvap, cpair, rair, &
                                errmsg, errflg)
-!-----------------------------------------------------------------------
-!
-! Purpose:
-! Calculate activation of aerosol species in convective updraft
-! for a single column and level
-!
-! Method:
-! conu(l)    = Updraft TMR (tracer mixing ratio) at k/k-1 interface
-! conent(l)  = TMR of air that is entrained into the updraft from level k
-! f_ent      = Fraction of the "before-detrainment" updraft massflux at
-!              k/k-1 interface" resulting from entrainment of level k air
-!              (where k is the current level in subr aero_convproc_run)
-!
-! On entry to this routine, the conu(l) represents the updraft TMR
-! after entrainment, but before chemistry/physics and detrainment,
-! and is equal to
-!    conu(l) = f_ent*conent(l) + (1.0-f_ent)*conu_below(l)
-! where
-!    conu_below(l) = updraft TMR at the k+1/k interface, and
-!    f_ent   = (eudp/mu_p_eudp) is the fraction of the updraft massflux
-!              from level k entrainment
-!
-! This routine applies aerosol activation to the entrained tracer,
-! then adjusts the conu so that on exit,
-!   conu(la) = conu_incoming(la) - f_ent*conent(la)*f_act(la)
-!   conu(lc) = conu_incoming(lc) + f_ent*conent(la)*f_act(la)
-! where
-!   la, lc   = indices for an unactivated/activated aerosol component pair
-!   f_act    = fraction of conent(la) that is activated.  The f_act are
-!              calculated with the Razzak-Ghan activation parameterization.
-!              The f_act differ for each mode, and for number/surface/mass.
-!
-! Note:  At the lowest layer with cloud water, subr convproc calls this
-! routine with conent==conu and f_ent==1.0, with the result that
-! activation is applied to the entire updraft tracer flux
-!
-! *** The updraft velocity used for activation calculations is rather
-!     uncertain and needs more work.  However, an updraft of 1-3 m/s
-!     will activate essentially all of accumulation and coarse mode particles.
-!
-! Author: R. Easter
-!
-!-----------------------------------------------------------------------
 
     use aero_activate, only: activate_aerosol
-
-!-----------------------------------------------------------------------
-! arguments  (note:  TMR = tracer mixing ratio)
+    use aerosol_properties_mod, only: aerosol_properties
 
     class(aerosol_properties), intent(in) :: aero_props
 
@@ -1180,8 +1145,7 @@ contains
 
     integer, intent(in)    :: ipass_calc_updraft
 
-!-----------------------------------------------------------------------
-! local variables
+    ! Local variables:
     integer  :: l, m, mm
 
     real(kind_phys) :: delact           ! working variable
@@ -1208,19 +1172,16 @@ contains
     real(kind_phys) :: naerosol_a(1, 1)    ! number conc (1/m3)
     real(kind_phys) :: vaerosol_a(1, 1)    ! volume conc (m3/m3)
 
-    character(len=*), intent(out) :: errmsg   ! error message from activate_aerosol
-    integer, intent(out) :: errflg   ! error flag from activate_aerosol
-
-!-----------------------------------------------------------------------
+    character(len=*), intent(out) :: errmsg
+    integer, intent(out) :: errflg
 
     errmsg = ''
     errflg = 0
 
-! when ipass_calc_updraft == 2, apply the activation tendencies
-!    from pass 1, but multiplied by factor_reduce_actfrac
-! (can only have ipass_calc_updraft == 2 when method_reduce_actfrac = 2)
+    ! when ipass_calc_updraft == 2, apply the activation tendencies
+    !    from pass 1, but multiplied by factor_reduce_actfrac
+    ! (can only have ipass_calc_updraft == 2 when method_reduce_actfrac = 2)
     if (ipass_calc_updraft == 2) then
-
       dt_u_inv = 1.0_kind_phys/dt_u
 
       do m = 1, aero_props%nbins()
@@ -1239,10 +1200,9 @@ contains
       end do
 
       return
-
     end if ! (ipass_calc_updraft == 2)
 
-! check f_ent > 0
+    ! check f_ent > 0
     if (f_ent <= 0.0_kind_phys) return
 
     hygro = 0.0_kind_phys
@@ -1250,7 +1210,7 @@ contains
     naerosol = 0.0_kind_phys
 
     do m = 1, nbins
-! compute a (or a+cw) volume and hygroscopicity
+      ! compute a (or a+cw) volume and hygroscopicity
       tmpa = 0.0_kind_phys
       tmpb = 0.0_kind_phys
       do l = 1, aero_props%nmasses(m)
@@ -1274,7 +1234,7 @@ contains
         hygro(m) = tmpb/tmpa
       end if
 
-! load a (or a+cw) number and bound it
+      ! load a (or a+cw) number and bound it
       tmpa = max(conent(1, mm), 0.0_kind_phys)
       if (use_cwaer_for_activate_maxsat) then
         tmpa = tmpa + max(conent(2, mm), 0.0_kind_phys)
@@ -1289,7 +1249,7 @@ contains
       naerosol(m) = naerosol_a(1, 1)
     end do
 
-! call Razzak-Ghan activation routine with single updraft
+    ! call Razzak-Ghan activation routine with single updraft
     wbar = max(wup, 0.5_kind_phys)  ! force wbar >= 0.5 m/s for now
     sigw = 0.0_kind_phys
     wdiab = 0.0_kind_phys
@@ -1303,7 +1263,7 @@ contains
       pi, rhoh2o, rh2o, gravit, latvap, cpair, rair, errmsg, errflg)
     if (errflg /= 0) return
 
-! apply the activation fractions to the updraft aerosol mixing ratios
+    ! apply the activation fractions to the updraft aerosol mixing ratios
     dt_u_inv = 1.0_kind_phys/dt_u
 
     do m = 1, aero_props%nbins()
@@ -1327,7 +1287,39 @@ contains
 
   end subroutine activate_convproc
 
-!=========================================================================================
+  ! Purpose:
+  ! Calculate activation of aerosol species in convective updraft
+  ! for a single column and level
+  !
+  ! Method:
+  ! conu(l)    = Updraft TMR (tracer mixing ratio) at k/k-1 interface
+  ! f_ent      = Fraction of the "before-detrainment" updraft massflux at
+  !              k/k-1 interface" resulting from entrainment of level k air
+  !              (where k is the current level in subr aero_convproc_run)
+  !
+  ! On entry to this routine, the conu(l) represents the updraft TMR
+  ! after entrainment, but before chemistry/physics and detrainment.
+  !
+  ! This routine applies aerosol activation to the conu tracer mixing ratios,
+  ! then adjusts the conu so that on exit,
+  !   conu(la) = conu_incoming(la) - conu(la)*f_act(la)
+  !   conu(lc) = conu_incoming(lc) + conu(la)*f_act(la)
+  ! where
+  !   la, lc   = indices for an unactivated/activated aerosol component pair
+  !   f_act    = fraction of conu(la) that is activated.  The f_act are
+  !              calculated with the Razzak-Ghan activation parameterization.
+  !              The f_act differ for each mode, and for number/surface/mass.
+  !
+  ! At cloud base (k==kactfirst), primary activation is done using the
+  ! "standard" code in subr activate do diagnose maximum supersaturation.
+  ! Above cloud base, secondary activation is done using a
+  ! prescribed supersaturation.
+  !
+  ! *** The updraft velocity used for activation calculations is rather
+  !     uncertain and needs more work.  However, an updraft of 1-3 m/s
+  !     will activate essentially all of accumulation and coarse mode particles.
+  !
+  ! Author: R. Easter
   subroutine activate_convproc_method2(aero_props, &
                                        conu, dconudt, &
                                        f_ent, dt_u, wup, &
@@ -1336,48 +1328,8 @@ contains
                                        ncnstaer, nbins, convproc_pom_spechygro, &
                                        pi, rhoh2o, rh2o, gravit, latvap, cpair, rair, &
                                        errmsg, errflg)
-!-----------------------------------------------------------------------
-!
-! Purpose:
-! Calculate activation of aerosol species in convective updraft
-! for a single column and level
-!
-! Method:
-! conu(l)    = Updraft TMR (tracer mixing ratio) at k/k-1 interface
-! f_ent      = Fraction of the "before-detrainment" updraft massflux at
-!              k/k-1 interface" resulting from entrainment of level k air
-!              (where k is the current level in subr aero_convproc_run)
-!
-! On entry to this routine, the conu(l) represents the updraft TMR
-! after entrainment, but before chemistry/physics and detrainment.
-!
-! This routine applies aerosol activation to the conu tracer mixing ratios,
-! then adjusts the conu so that on exit,
-!   conu(la) = conu_incoming(la) - conu(la)*f_act(la)
-!   conu(lc) = conu_incoming(lc) + conu(la)*f_act(la)
-! where
-!   la, lc   = indices for an unactivated/activated aerosol component pair
-!   f_act    = fraction of conu(la) that is activated.  The f_act are
-!              calculated with the Razzak-Ghan activation parameterization.
-!              The f_act differ for each mode, and for number/surface/mass.
-!
-! At cloud base (k==kactfirst), primary activation is done using the
-! "standard" code in subr activate do diagnose maximum supersaturation.
-! Above cloud base, secondary activation is done using a
-! prescribed supersaturation.
-!
-! *** The updraft velocity used for activation calculations is rather
-!     uncertain and needs more work.  However, an updraft of 1-3 m/s
-!     will activate essentially all of accumulation and coarse mode particles.
-!
-! Author: R. Easter
-!
-!-----------------------------------------------------------------------
-
     use aero_activate, only: activate_aerosol
-
-!-----------------------------------------------------------------------
-! arguments  (note:  TMR = tracer mixing ratio)
+    use aerosol_properties_mod, only: aerosol_properties
 
     class(aerosol_properties), intent(in) :: aero_props
 
@@ -1411,8 +1363,7 @@ contains
     integer, intent(in)    :: kactfirst ! k at cloud base
     integer, intent(in)    :: ipass_calc_updraft
 
-!-----------------------------------------------------------------------
-! local variables
+    ! Local variables:
     integer  :: l, m, mm
 
     real(kind_phys) :: delact           ! working variable
@@ -1443,17 +1394,14 @@ contains
     character(len=*), intent(out) :: errmsg   ! error message from activate_aerosol
     integer, intent(out) :: errflg   ! error flag from activate_aerosol
 
-!-----------------------------------------------------------------------
-
     errmsg = ''
     errflg = 0
 
-! when ipass_calc_updraft == 2, apply the activation tendencies
-!    from pass 1, but multiplied by factor_reduce_actfrac
-! (can only have ipass_calc_updraft == 2 when method_reduce_actfrac = 2)
+    ! when ipass_calc_updraft == 2, apply the activation tendencies
+    !    from pass 1, but multiplied by factor_reduce_actfrac
+    ! (can only have ipass_calc_updraft == 2 when method_reduce_actfrac = 2)
 
     if (ipass_calc_updraft == 2) then
-
       dt_u_inv = 1.0_kind_phys/dt_u
 
       do m = 1, aero_props%nbins()
@@ -1470,10 +1418,9 @@ contains
         end do
       end do   ! "n = 1, ntot_amode"
       return
-
     end if ! (ipass_calc_updraft == 2)
 
-! check f_ent > 0
+    ! check f_ent > 0
     if (f_ent <= 0.0_kind_phys) return
 
     hygro = 0.0_kind_phys
@@ -1481,7 +1428,7 @@ contains
     naerosol = 0.0_kind_phys
 
     do m = 1, nbins
-! compute a (or a+cw) volume and hygroscopicity
+      ! compute a (or a+cw) volume and hygroscopicity
       tmpa = 0.0_kind_phys
       tmpb = 0.0_kind_phys
       do l = 1, aero_props%nspecies(m)
@@ -1593,44 +1540,36 @@ contains
 
   end subroutine activate_convproc_method2
 
-!=========================================================================================
+  ! Purpose:
+  ! Calculate resuspension of activated aerosol species resulting from both
+  !    detrainment from updraft and downdraft into environment
+  !    subsidence and lifting of environment, which may move air from
+  !       levels with large-scale cloud to levels with no large-scale cloud
+  !
+  ! Method:
+  ! Three possible approaches were considered:
+  !
+  ! 1. Ad-hoc #1 approach.  At each level, adjust dcondt for the activated
+  !    and unactivated portions of a particular aerosol species so that the
+  !    ratio of dcondt (activated/unactivate) is equal to the ratio of the
+  !    mixing ratios before convection.
+  !    THIS WAS IMPLEMENTED IN MIRAGE2
+  !
+  ! 2. Ad-hoc #2 approach.  At each level, adjust dcondt for the activated
+  !    and unactivated portions of a particular aerosol species so that the
+  !    change to the activated portion is minimized (zero if possible).  The
+  !    would minimize effects of convection on the large-scale cloud.
+  !    THIS IS CURRENTLY IMPLEMENTED IN CAM5 where we assume that convective
+  !    clouds have no impact on the stratiform-cloudborne aerosol
+  !
+  ! 3. Mechanistic approach that treats the details of interactions between
+  !    the large-scale and convective clouds.  (Something for the future.)
+  !
+  ! Author: R. Easter
   subroutine resuspend_convproc(aero_props, &
                                 dcondt, dcondt_resusp, ktop, kbot_prevap, &
                                 pver, ncnstaer, convproc_do_evaprain_atonce)
-!-----------------------------------------------------------------------
-!
-! Purpose:
-! Calculate resuspension of activated aerosol species resulting from both
-!    detrainment from updraft and downdraft into environment
-!    subsidence and lifting of environment, which may move air from
-!       levels with large-scale cloud to levels with no large-scale cloud
-!
-! Method:
-! Three possible approaches were considered:
-!
-! 1. Ad-hoc #1 approach.  At each level, adjust dcondt for the activated
-!    and unactivated portions of a particular aerosol species so that the
-!    ratio of dcondt (activated/unactivate) is equal to the ratio of the
-!    mixing ratios before convection.
-!    THIS WAS IMPLEMENTED IN MIRAGE2
-!
-! 2. Ad-hoc #2 approach.  At each level, adjust dcondt for the activated
-!    and unactivated portions of a particular aerosol species so that the
-!    change to the activated portion is minimized (zero if possible).  The
-!    would minimize effects of convection on the large-scale cloud.
-!    THIS IS CURRENTLY IMPLEMENTED IN CAM5 where we assume that convective
-!    clouds have no impact on the stratiform-cloudborne aerosol
-!
-! 3. Mechanistic approach that treats the details of interactions between
-!    the large-scale and convective clouds.  (Something for the future.)
-!
-! Author: R. Easter
-!
-!-----------------------------------------------------------------------
-
-!-----------------------------------------------------------------------
-! arguments
-! (note:  TMR = tracer mixing ratio)
+    use aerosol_properties_mod, only: aerosol_properties
 
     class(aerosol_properties), intent(in) :: aero_props
     integer, intent(in)    :: pver              ! number of vertical layers
@@ -1643,11 +1582,8 @@ contains
     ! (actually, due to the adjustments made here)
     integer, intent(in)    :: ktop, kbot_prevap ! indices of top and bottom cloud levels
 
-!-----------------------------------------------------------------------
-! local variables
     integer  :: k, l, m, mm
     real(kind_phys) :: qdota, qdotc, qdotac  ! working variables (MR tendencies)
-    !-----------------------------------------------------------------------
 
     ! apply adjustments to dcondt for pairs of unactivated and
     ! activated aerosol species
@@ -1671,9 +1607,7 @@ contains
             dcondt_resusp(2, mm, k) = (dcondt(2, mm, k) - qdotc)
           end if
         end do
-
       end do
     end do
-
   end subroutine resuspend_convproc
 end module aero_convproc

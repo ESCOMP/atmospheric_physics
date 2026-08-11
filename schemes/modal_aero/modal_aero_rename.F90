@@ -31,12 +31,8 @@ module modal_aero_rename
   real(kind_phys), allocatable :: v2nhirlx(:), v2nlorlx(:)
 contains
 
-  !------------------------------------------------------------------
   ! Precompute rename's own accum-coarse-exchange physics coefficients from the
-  ! host-provided mode metadata + resolved pair tables (passed as arguments),
-  ! and store cnst_name/iulog for diagnostics.  The shared tables/metadata are
-  ! NOT retained; modal_aero_rename_run receives them as arguments each call.
-  !------------------------------------------------------------------
+  ! host-provided mode metadata + resolved pair tables (passed as arguments)
   subroutine modal_aero_rename_init( &
     modal_accum_coarse_exch, &
     ntot_amode, &
@@ -112,12 +108,7 @@ contains
     masterproc = amRoot
 
     if (modal_accum_coarse_exch) then
-
-!
-!
-!   initialize some working variables
-!
-!
+      !   initialize some working variables
       ido_mode_calcaa(:) = 0
       frelax = 27.0_kind_phys
 
@@ -130,9 +121,9 @@ contains
         factoraa(mtoo) = (pi/6._kind_phys)*exp(4.5_kind_phys*(alnsg_amode(mtoo)**2))
         factoryy(mfrm) = sqrt(0.5_kind_phys)/alnsg_amode(mfrm)
 
-!   dryvol_smallest is a very small volume mixing ratio (m3-AP/kmol-air)
-!   used for avoiding overflow.  it corresponds to dp = 1 nm
-!   and number = 1e-5 #/mg-air ~= 1e-5 #/cm3-air
+        !   dryvol_smallest is a very small volume mixing ratio (m3-AP/kmol-air)
+        !   used for avoiding overflow.  it corresponds to dp = 1 nm
+        !   and number = 1e-5 #/mg-air ~= 1e-5 #/cm3-air
         dryvol_smallest(mfrm) = 1.0e-25_kind_phys
         v2nlorlx(mfrm) = voltonumblo_amode(mfrm)*frelax
         v2nhirlx(mfrm) = voltonumbhi_amode(mfrm)/frelax
@@ -160,11 +151,7 @@ contains
         dp_belowcut(ipair) = 0.99_kind_phys*dp_cut(ipair)
       end do
 
-!
-!   output results
-!
       if (masterproc) then
-
         write (lunout, 9310)
         write (lunout, '(a,1x,i12)') 'method_optbb_renamexf', method_optbb_renamexf
 
@@ -385,9 +372,15 @@ contains
     end if
   end subroutine modal_aero_rename_run
 
-  !----------------------------------------------------------------------
-  ! private methods
-
+  ! computes TMR (tracer mixing ratio) tendencies for "mode renaming"
+  !    during a continuous growth process
+  ! currently this transfers number and mass (and surface) from the aitken
+  !    to accumulation mode after gas condensation or stratiform-cloud
+  !    aqueous chemistry
+  ! (convective cloud aqueous chemistry not yet implemented)
+  !
+  ! !REVISION HISTORY:
+  !   RCE 07.04.13:  Adapted from MIRAGE2 code
   subroutine modal_aero_rename_no_acc_crs_sub( &
     ncol, &
     loffset, deltat, &
@@ -473,21 +466,7 @@ contains
     integer, intent(in)    :: lmassptrcw_amode(:, :) ! cloud-borne mass pointer
     integer, intent(in)    :: numptr_amode(:)      ! interstitial number pointer
     integer, intent(in)    :: numptrcw_amode(:)    ! cloud-borne number pointer
-    real(kind_phys), intent(in)    :: pi                   ! pi
-! !DESCRIPTION:
-! computes TMR (tracer mixing ratio) tendencies for "mode renaming"
-!    during a continuous growth process
-! currently this transfers number and mass (and surface) from the aitken
-!    to accumulation mode after gas condensation or stratiform-cloud
-!    aqueous chemistry
-! (convective cloud aqueous chemistry not yet implemented)
-!
-! !REVISION HISTORY:
-!   RCE 07.04.13:  Adapted from MIRAGE2 code
-!
-!EOP
-!----------------------------------------------------------------------
-!BOC
+    real(kind_phys), intent(in)    :: pi
 
 ! local variables
     integer, parameter :: ldiag1 = -1
@@ -528,7 +507,6 @@ contains
 
     real(kind_phys) :: yn_tail, yv_tail
 
-! begin
     lunout = iulog
     errmsg = ''
     errflg = 0
@@ -536,27 +514,12 @@ contains
     qsrflx(:, :, :) = 0.0_kind_phys
     qqcwsrflx(:, :, :) = 0.0_kind_phys
 
-!
-!   calculations done once on initial entry
-!
-!   "init" is now done through chem_init (and things under it)
-! if (npair_renamexf .eq. -123456789) then
-!     npair_renamexf = 0
-!     call modal_aero_rename_init
-! end if
-
-!
-!   check if any renaming pairs exist
-!
+    ! check if any renaming pairs exist
     if (npair_renamexf <= 0) return
-!   if (ncol .ne. -123456789) return
-! if (fromwhere .eq. 'aqchem') return
 
-!
-!   compute aerosol dry-volume for the "from mode" of each renaming pair
-!   also compute dry-volume change during the continuous growth process
-! using the incoming dqdt*deltat
-!
+    !   compute aerosol dry-volume for the "from mode" of each renaming pair
+    !   also compute dry-volume change during the continuous growth process
+    ! using the incoming dqdt*deltat
     deltatinv = 1.0_kind_phys/(deltat*(1.0_kind_phys + 1.0e-15_kind_phys))
     onethird = 1.0_kind_phys/3.0_kind_phys
     frelax = 27.0_kind_phys
@@ -575,9 +538,9 @@ contains
       factoraa(mfrm) = (pi/6._kind_phys)*exp(4.5_kind_phys*(alnsg_amode(mfrm)**2))
       factoraa(mtoo) = (pi/6._kind_phys)*exp(4.5_kind_phys*(alnsg_amode(mtoo)**2))
       factoryy(mfrm) = sqrt(0.5_kind_phys)/alnsg_amode(mfrm)
-!   dryvol_smallest is a very small volume mixing ratio (m3-AP/kmol-air)
-!   used for avoiding overflow.  it corresponds to dp = 1 nm
-!   and number = 1e-5 #/mg-air ~= 1e-5 #/cm3-air
+      !   dryvol_smallest is a very small volume mixing ratio (m3-AP/kmol-air)
+      !   used for avoiding overflow.  it corresponds to dp = 1 nm
+      !   and number = 1e-5 #/mg-air ~= 1e-5 #/cm3-air
       dryvol_smallest(mfrm) = 1.0e-25_kind_phys
       v2nlorlx(mfrm) = voltonumblo_amode(mfrm)*frelax
       v2nhirlx(mfrm) = voltonumbhi_amode(mfrm)/frelax
@@ -597,8 +560,8 @@ contains
         deldryvol_a(1:ncol, :, n) = 0.0_kind_phys
         deldryvol_c(1:ncol, :, n) = 0.0_kind_phys
         do l1 = 1, nspec_amode(n)
-!   dum_m2v converts (kmol-AP/kmol-air) to (m3-AP/kmol-air)
-!            [m3-AP/kmol-AP]= [kg-AP/kmol-AP]  / [kg-AP/m3-AP]
+          !   dum_m2v converts (kmol-AP/kmol-air) to (m3-AP/kmol-air)
+          !            [m3-AP/kmol-AP]= [kg-AP/kmol-AP]  / [kg-AP/m3-AP]
           dum_m2v = specmw_amode(l1, n)/specdens_amode(l1, n)
           dum_m2vdt = dum_m2v*deltat
           la = lmassptr_amode(l1, n) - loffset
@@ -794,10 +757,15 @@ contains
     return
 9050 format(/'*** subr. modal_aero_rename_no_acc_crs_sub ***'/ &
             4x, 'aerosol renaming not implemented for ipair =', i5)
-
-!EOC
   end subroutine modal_aero_rename_no_acc_crs_sub
 
+  ! computes TMR (tracer mixing ratio) tendencies for "mode renaming"
+  !    during a continuous growth process
+  ! currently this transfers number and mass (and surface) from the aitken
+  !    to accumulation mode after gas condensation or stratiform-cloud
+  !    aqueous chemistry
+  ! (convective cloud aqueous chemistry not yet implemented)
+  !   RCE 07.04.13:  Adapted from MIRAGE2 code
   subroutine modal_aero_rename_acc_crs_sub( &
     ncol, &
     loffset, deltat, &
@@ -830,11 +798,8 @@ contains
     pver, gravit, &
     errmsg, errflg)
 
-! !USES:
-
     use shr_spfn_mod, only: erfc => shr_spfn_erfc
 
-! !PARAMETERS:
     integer, intent(in)    :: ncol                 ! number of atmospheric column
     integer, intent(in)    :: loffset              ! offset applied to modal aero "ptrs"
     real(kind_phys), intent(in)    :: deltat               ! time step (s)
@@ -907,22 +872,7 @@ contains
     integer, intent(in)    :: ixferable_a_renamexf(:, :) ! per-species interstitial transferable flag
     integer, intent(in)    :: ixferable_c_renamexf(:, :) ! per-species cloud-borne transferable flag
     logical, intent(in)    :: strat_only_renamexf(:)    ! restrict renaming to the stratosphere
-! !DESCRIPTION:
-! computes TMR (tracer mixing ratio) tendencies for "mode renaming"
-!    during a continuous growth process
-! currently this transfers number and mass (and surface) from the aitken
-!    to accumulation mode after gas condensation or stratiform-cloud
-!    aqueous chemistry
-! (convective cloud aqueous chemistry not yet implemented)
-!
-! !REVISION HISTORY:
-!   RCE 07.04.13:  Adapted from MIRAGE2 code
-!
-!EOP
-!----------------------------------------------------------------------
-!BOC
 
-! local variables
     integer, parameter :: ldiag1 = -1
     integer :: i, icol_diag, ipair, iq
     integer :: j, k

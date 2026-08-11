@@ -6,9 +6,8 @@ module modal_aero_coag
   implicit none
   private
 
-! !PUBLIC MEMBER FUNCTIONS:
-  public :: modal_aero_coag_run
   public :: modal_aero_coag_init
+  public :: modal_aero_coag_run
 
   integer, protected, public :: pair_option_acoag = 0
   ! specifies pairs of modes for which coagulation is calculated
@@ -45,7 +44,116 @@ module modal_aero_coag
   real(kind_phys) :: p0            ! standard pressure (Pa)
   real(kind_phys) :: tmelt         ! freezing point of water (K)
   real(kind_phys) :: boltz         ! Boltzmann constant (J/K)
+
 contains
+
+  subroutine modal_aero_coag_init(pair_option_acoag_in, &
+                                  npair_acoag_in, modefrm_acoag_in, modetoo_acoag_in, &
+                                  modetooeff_acoag_in, nspecfrm_acoag_in, &
+                                  lspecfrm_acoag_in, lspectoo_acoag_in, &
+                                  ip_aitacc_in, ip_aitpca_in, ip_pcaacc_in, &
+                                  fac_m2v_aitage_in, fac_m2v_pcarbon_in, &
+                                  nspec_max_in, ntot_amode_in, &
+                                  modeptr_accum_in, modeptr_aitken_in, modeptr_pcarbon_in, &
+                                  numptr_amode_in, mprognum_amode_in, nspec_amode_in, &
+                                  lmassptr_amode_in, alnsg_amode_in, sigmag_amode_in, &
+                                  r_universal_in, pstd_in, tmelt_in, boltz_in, &
+                                  errmsg, errflg)
+    !   store the resolved coagulation-pair tables, mode metadata, and host
+    !   physical constants used by modal_aero_coag_run
+    !   pair/species resolution and history-field registration are host
+    !   responsibilities (see modal_aero_coag_cam)
+    integer, intent(in) :: pair_option_acoag_in     ! pair selection (see module header)
+    integer, intent(in) :: npair_acoag_in           ! number of coagulation pairs
+    integer, intent(in) :: modefrm_acoag_in(:)      ! (maxpair_acoag) "from" mode of each pair
+    integer, intent(in) :: modetoo_acoag_in(:)      ! (maxpair_acoag) "too" mode of each pair
+    integer, intent(in) :: modetooeff_acoag_in(:)   ! (maxpair_acoag) effective "too" mode of each pair
+    integer, intent(in) :: nspecfrm_acoag_in(:)     ! (maxpair_acoag) species count of each pair
+    integer, intent(in) :: lspecfrm_acoag_in(:, :)   ! (nspec_max,maxpair_acoag) "from" species
+    ! indices (host constituent space)
+    integer, intent(in) :: lspectoo_acoag_in(:, :)   ! (nspec_max,maxpair_acoag) "too" species
+    ! indices (host constituent space)
+    integer, intent(in) :: ip_aitacc_in             ! pair index of [aitken-->accum]
+    integer, intent(in) :: ip_aitpca_in             ! pair index of [aitken-->pcarbon]
+    integer, intent(in) :: ip_pcaacc_in             ! pair index of [pcarbon-->accum]
+    real(kind_phys), intent(in) :: fac_m2v_aitage_in(:)     ! (nspec_max) mixing-ratio to volume factors
+    real(kind_phys), intent(in) :: fac_m2v_pcarbon_in(:)    ! (nspec_max) for aging shell/core calcs
+    integer, intent(in) :: nspec_max_in             ! max number of species in a mode
+    integer, intent(in) :: ntot_amode_in            ! number of aerosol modes
+    integer, intent(in) :: modeptr_accum_in         ! accumulation mode index
+    integer, intent(in) :: modeptr_aitken_in        ! aitken mode index
+    integer, intent(in) :: modeptr_pcarbon_in       ! primary carbon mode index
+    integer, intent(in) :: numptr_amode_in(:)       ! (ntot_amode) number indices (host constituent space)
+    integer, intent(in) :: mprognum_amode_in(:)     ! (ntot_amode) prognostic-number flags
+    integer, intent(in) :: nspec_amode_in(:)        ! (ntot_amode) species counts
+    integer, intent(in) :: lmassptr_amode_in(:, :)   ! (nspec_max,ntot_amode) mass indices
+    ! (host constituent space)
+    real(kind_phys), intent(in) :: alnsg_amode_in(:)        ! (ntot_amode) ln(sigmag)
+    real(kind_phys), intent(in) :: sigmag_amode_in(:)       ! (ntot_amode) geometric standard deviation
+    real(kind_phys), intent(in) :: r_universal_in           ! universal gas constant (J/K/kmol)
+    real(kind_phys), intent(in) :: pstd_in                  ! standard pressure (Pa)
+    real(kind_phys), intent(in) :: tmelt_in                 ! freezing point of water (K)
+    real(kind_phys), intent(in) :: boltz_in                 ! Boltzmann constant (J/K)
+    character(len=*), intent(out) :: errmsg
+    integer, intent(out) :: errflg
+
+    errmsg = ' '
+    errflg = 0
+
+    pair_option_acoag = pair_option_acoag_in
+
+    maxspec_acoag = nspec_max_in
+    allocate (lspecfrm_acoag(maxspec_acoag, maxpair_acoag))
+    allocate (lspectoo_acoag(maxspec_acoag, maxpair_acoag))
+    allocate (fac_m2v_aitage(nspec_max_in), fac_m2v_pcarbon(nspec_max_in))
+
+    npair_acoag = npair_acoag_in
+    modefrm_acoag(:) = modefrm_acoag_in(:)
+    modetoo_acoag(:) = modetoo_acoag_in(:)
+    modetooeff_acoag(:) = modetooeff_acoag_in(:)
+    nspecfrm_acoag(:) = nspecfrm_acoag_in(:)
+    lspecfrm_acoag(:, :) = lspecfrm_acoag_in(:, :)
+    lspectoo_acoag(:, :) = lspectoo_acoag_in(:, :)
+
+    ip_aitacc = ip_aitacc_in
+    ip_aitpca = ip_aitpca_in
+    ip_pcaacc = ip_pcaacc_in
+
+    fac_m2v_aitage(:) = fac_m2v_aitage_in(:)
+    fac_m2v_pcarbon(:) = fac_m2v_pcarbon_in(:)
+
+    ntot_amode = ntot_amode_in
+    modeptr_accum = modeptr_accum_in
+    modeptr_aitken = modeptr_aitken_in
+    modeptr_pcarbon = modeptr_pcarbon_in
+
+    allocate (numptr_amode(ntot_amode_in), mprognum_amode(ntot_amode_in), &
+              nspec_amode(ntot_amode_in))
+    allocate (lmassptr_amode(nspec_max_in, ntot_amode_in))
+    allocate (alnsg_amode(ntot_amode_in), sigmag_amode(ntot_amode_in))
+    numptr_amode(:) = numptr_amode_in(:)
+    mprognum_amode(:) = mprognum_amode_in(:)
+    nspec_amode(:) = nspec_amode_in(:)
+    lmassptr_amode(:, :) = lmassptr_amode_in(:, :)
+    alnsg_amode(:) = alnsg_amode_in(:)
+    sigmag_amode(:) = sigmag_amode_in(:)
+
+    r_universal = r_universal_in
+    p0 = pstd_in
+    tmelt = tmelt_in
+    boltz = boltz_in
+
+  end subroutine modal_aero_coag_init
+
+  !   computes changes due to coagulation involving
+  !       aitken mode (modeptr_aitken) with accumulation mode (modeptr_accum)
+  !   this version will
+  !       compute changes to mass and number, but not to surface area
+  !       calculates coagulation rate coefficients using either
+  !           new CMAQ V4.6 fast method
+  !           older cmaq slow method (direct gauss-hermite quadrature)
+  ! Authors: R. Easter
+  ! RCE 07.04.15:  Adapted from MIRAGE2 code and CMAQ V4.6 code
   subroutine modal_aero_coag_run( &
     ncol, pver, top_lev, &
     num_q, loffset, nstep, &
@@ -56,15 +164,6 @@ contains
     wetdens_a, &
     dqdt, dotend, &
     errmsg, errflg)
-    !   computes changes due to coagulation involving
-    !       aitken mode (modeptr_aitken) with accumulation mode (modeptr_accum)
-    !   this version will
-    !       compute changes to mass and number, but not to surface area
-    !       calculates coagulation rate coefficients using either
-    !           new CMAQ V4.6 fast method
-    !           older cmaq slow method (direct gauss-hermite quadrature)
-    ! Authors: R. Easter
-    ! RCE 07.04.15:  Adapted from MIRAGE2 code and CMAQ V4.6 code
     use modal_aero_gasaerexch, only: n_so4_monolayers_pcage
 
     integer, intent(in)  :: ncol
@@ -488,106 +587,6 @@ contains
 
   end subroutine modal_aero_coag_run
 
-  subroutine modal_aero_coag_init(pair_option_acoag_in, &
-                                  npair_acoag_in, modefrm_acoag_in, modetoo_acoag_in, &
-                                  modetooeff_acoag_in, nspecfrm_acoag_in, &
-                                  lspecfrm_acoag_in, lspectoo_acoag_in, &
-                                  ip_aitacc_in, ip_aitpca_in, ip_pcaacc_in, &
-                                  fac_m2v_aitage_in, fac_m2v_pcarbon_in, &
-                                  nspec_max_in, ntot_amode_in, &
-                                  modeptr_accum_in, modeptr_aitken_in, modeptr_pcarbon_in, &
-                                  numptr_amode_in, mprognum_amode_in, nspec_amode_in, &
-                                  lmassptr_amode_in, alnsg_amode_in, sigmag_amode_in, &
-                                  r_universal_in, pstd_in, tmelt_in, boltz_in, &
-                                  errmsg, errflg)
-    !   store the resolved coagulation-pair tables, mode metadata, and host
-    !   physical constants used by modal_aero_coag_run
-    !   pair/species resolution and history-field registration are host
-    !   responsibilities (see modal_aero_coag_cam)
-    integer, intent(in) :: pair_option_acoag_in     ! pair selection (see module header)
-    integer, intent(in) :: npair_acoag_in           ! number of coagulation pairs
-    integer, intent(in) :: modefrm_acoag_in(:)      ! (maxpair_acoag) "from" mode of each pair
-    integer, intent(in) :: modetoo_acoag_in(:)      ! (maxpair_acoag) "too" mode of each pair
-    integer, intent(in) :: modetooeff_acoag_in(:)   ! (maxpair_acoag) effective "too" mode of each pair
-    integer, intent(in) :: nspecfrm_acoag_in(:)     ! (maxpair_acoag) species count of each pair
-    integer, intent(in) :: lspecfrm_acoag_in(:, :)   ! (nspec_max,maxpair_acoag) "from" species
-    ! indices (host constituent space)
-    integer, intent(in) :: lspectoo_acoag_in(:, :)   ! (nspec_max,maxpair_acoag) "too" species
-    ! indices (host constituent space)
-    integer, intent(in) :: ip_aitacc_in             ! pair index of [aitken-->accum]
-    integer, intent(in) :: ip_aitpca_in             ! pair index of [aitken-->pcarbon]
-    integer, intent(in) :: ip_pcaacc_in             ! pair index of [pcarbon-->accum]
-    real(kind_phys), intent(in) :: fac_m2v_aitage_in(:)     ! (nspec_max) mixing-ratio to volume factors
-    real(kind_phys), intent(in) :: fac_m2v_pcarbon_in(:)    ! (nspec_max) for aging shell/core calcs
-    integer, intent(in) :: nspec_max_in             ! max number of species in a mode
-    integer, intent(in) :: ntot_amode_in            ! number of aerosol modes
-    integer, intent(in) :: modeptr_accum_in         ! accumulation mode index
-    integer, intent(in) :: modeptr_aitken_in        ! aitken mode index
-    integer, intent(in) :: modeptr_pcarbon_in       ! primary carbon mode index
-    integer, intent(in) :: numptr_amode_in(:)       ! (ntot_amode) number indices (host constituent space)
-    integer, intent(in) :: mprognum_amode_in(:)     ! (ntot_amode) prognostic-number flags
-    integer, intent(in) :: nspec_amode_in(:)        ! (ntot_amode) species counts
-    integer, intent(in) :: lmassptr_amode_in(:, :)   ! (nspec_max,ntot_amode) mass indices
-    ! (host constituent space)
-    real(kind_phys), intent(in) :: alnsg_amode_in(:)        ! (ntot_amode) ln(sigmag)
-    real(kind_phys), intent(in) :: sigmag_amode_in(:)       ! (ntot_amode) geometric standard deviation
-    real(kind_phys), intent(in) :: r_universal_in           ! universal gas constant (J/K/kmol)
-    real(kind_phys), intent(in) :: pstd_in                  ! standard pressure (Pa)
-    real(kind_phys), intent(in) :: tmelt_in                 ! freezing point of water (K)
-    real(kind_phys), intent(in) :: boltz_in                 ! Boltzmann constant (J/K)
-    character(len=*), intent(out) :: errmsg
-    integer, intent(out) :: errflg
-
-    errmsg = ' '
-    errflg = 0
-
-    pair_option_acoag = pair_option_acoag_in
-
-    maxspec_acoag = nspec_max_in
-    allocate (lspecfrm_acoag(maxspec_acoag, maxpair_acoag))
-    allocate (lspectoo_acoag(maxspec_acoag, maxpair_acoag))
-    allocate (fac_m2v_aitage(nspec_max_in), fac_m2v_pcarbon(nspec_max_in))
-
-    npair_acoag = npair_acoag_in
-    modefrm_acoag(:) = modefrm_acoag_in(:)
-    modetoo_acoag(:) = modetoo_acoag_in(:)
-    modetooeff_acoag(:) = modetooeff_acoag_in(:)
-    nspecfrm_acoag(:) = nspecfrm_acoag_in(:)
-    lspecfrm_acoag(:, :) = lspecfrm_acoag_in(:, :)
-    lspectoo_acoag(:, :) = lspectoo_acoag_in(:, :)
-
-    ip_aitacc = ip_aitacc_in
-    ip_aitpca = ip_aitpca_in
-    ip_pcaacc = ip_pcaacc_in
-
-    fac_m2v_aitage(:) = fac_m2v_aitage_in(:)
-    fac_m2v_pcarbon(:) = fac_m2v_pcarbon_in(:)
-
-    ntot_amode = ntot_amode_in
-    modeptr_accum = modeptr_accum_in
-    modeptr_aitken = modeptr_aitken_in
-    modeptr_pcarbon = modeptr_pcarbon_in
-
-    allocate (numptr_amode(ntot_amode_in), mprognum_amode(ntot_amode_in), &
-              nspec_amode(ntot_amode_in))
-    allocate (lmassptr_amode(nspec_max_in, ntot_amode_in))
-    allocate (alnsg_amode(ntot_amode_in), sigmag_amode(ntot_amode_in))
-    numptr_amode(:) = numptr_amode_in(:)
-    mprognum_amode(:) = mprognum_amode_in(:)
-    nspec_amode(:) = nspec_amode_in(:)
-    lmassptr_amode(:, :) = lmassptr_amode_in(:, :)
-    alnsg_amode(:) = alnsg_amode_in(:)
-    sigmag_amode(:) = sigmag_amode_in(:)
-
-    r_universal = r_universal_in
-    p0 = pstd_in
-    tmelt = tmelt_in
-    boltz = boltz_in
-
-  end subroutine modal_aero_coag_init
-
-!----------------------------------------------------------------------
-!----------------------------------------------------------------------
   subroutine getcoags_wrapper_f( &
     airtemp, airprs, &
     dgatk, dgacc, &

@@ -1,38 +1,28 @@
-! modal_aero_newnuc.F90
-
-!----------------------------------------------------------------------
-!BOP
-!
-! !MODULE: modal_aero_newnuc --- modal aerosol new-particle nucleation
-!
-! !INTERFACE:
+! Portable science code for modal aerosol new particle nucleation.
+! R.Easter 2007.09.14:  Adapted from MIRAGE2 code
 module modal_aero_newnuc
-
-! !USES:
   use ccpp_kinds, only: kind_phys
 
   implicit none
   private
 
-! !PUBLIC MEMBER FUNCTIONS:
-  public modal_aero_newnuc_run, modal_aero_newnuc_init
+  public :: modal_aero_newnuc_init
+  public :: modal_aero_newnuc_run
 
-! !PUBLIC DATA MEMBERS:
-! species indices in the host constituent space, set by modal_aero_newnuc_init;
-! default 0 = bypass (host found no h2so4 or no aitken so4/num species)
+  ! species indices in the host constituent space, set by modal_aero_newnuc_init;
+  ! default 0 = bypass (host found no h2so4 or no aitken so4/num species)
   integer  :: l_h2so4_sv = 0, l_nh3_sv = 0, lnumait_sv = 0, lnh4ait_sv = 0, lso4ait_sv = 0
 
-! min h2so4 vapor for nuc calcs = 4.0e-16 mol/mol-air ~= 1.0e4 molecules/cm3,
+  ! min h2so4 vapor for nuc calcs = 4.0e-16 mol/mol-air ~= 1.0e4 molecules/cm3,
   real(kind_phys), parameter :: qh2so4_cutoff = 4.0e-16_kind_phys
 
   real(kind_phys) :: dens_so4a_host
   real(kind_phys) :: mw_nh4a_host, mw_so4a_host
 
-! aitken-mode geometry (nominal size + dry-diameter limits) from host mode metadata
+  ! aitken-mode geometry (nominal size + dry-diameter limits) from host mode metadata
   real(kind_phys) :: dgnum_aitken, dgnumhi_aitken, dgnumlo_aitken
 
-! host physical constants, set by modal_aero_newnuc_init (passed from the host
-! rather than hardcoded so the values stay bit-identical with the host's)
+  ! host physical constants, set by modal_aero_newnuc_init
   real(kind_phys) :: pi
   real(kind_phys) :: rgas              ! gas constant (J/K/mol)
   real(kind_phys) :: avogad            ! Avogadro's number (1/mol)
@@ -40,29 +30,71 @@ module modal_aero_newnuc
   real(kind_phys) :: mw_nh4a           ! molecular weight of ammonium (g/mol)
   real(kind_phys) :: r_universal       ! universal gas constant (J/K/kmol)
 
-! !DESCRIPTION: This module implements ...
-!
-! !REVISION HISTORY:
-!
-!   R.Easter 2007.09.14:  Adapted from MIRAGE2 code
-!
-!EOP
-!----------------------------------------------------------------------
-!BOC
-
-! list private module data here
-
-!EOC
-!----------------------------------------------------------------------
-
 contains
 
-!----------------------------------------------------------------------
-!----------------------------------------------------------------------
-!BOP
-! !ROUTINE:  modal_aero_newnuc_run --- ...
-!
-! !INTERFACE:
+  ! store the resolved species indices, aitken-mode so4/nh4 properties,
+  !    and host physical constants used by modal_aero_newnuc_run
+  ! index resolution and history-field registration are handled by the host model.
+  subroutine modal_aero_newnuc_init(l_h2so4_in, l_nh3_in, &
+                                    lnumait_in, lnh4ait_in, lso4ait_in, &
+                                    mw_so4a_host_in, mw_nh4a_host_in, dens_so4a_host_in, &
+                                    dgnum_aitken_in, dgnumhi_aitken_in, dgnumlo_aitken_in, &
+                                    pi_in, rgas_in, avogad_in, mw_so4a_in, mw_nh4a_in, &
+                                    r_universal_in, errmsg, errflg)
+
+    integer, intent(in) :: l_h2so4_in          ! h2so4 gas index (host constituent space)
+    integer, intent(in) :: l_nh3_in            ! nh3 gas index (host constituent space)
+    integer, intent(in) :: lnumait_in          ! aitken number index (host constituent space)
+    integer, intent(in) :: lnh4ait_in          ! aitken nh4 index (host constituent space)
+    integer, intent(in) :: lso4ait_in          ! aitken so4 index (host constituent space)
+    real(kind_phys), intent(in) :: mw_so4a_host_in     ! mw of so4 aerosol in host code (g/mol)
+    real(kind_phys), intent(in) :: mw_nh4a_host_in     ! mw of nh4 aerosol in host code (g/mol)
+    real(kind_phys), intent(in) :: dens_so4a_host_in   ! dry density of so4 aerosol in host code (kg/m3)
+    real(kind_phys), intent(in) :: dgnum_aitken_in     ! aitken mode nominal dry diameter (m)
+    real(kind_phys), intent(in) :: dgnumhi_aitken_in   ! aitken mode upper dry-diameter limit (m)
+    real(kind_phys), intent(in) :: dgnumlo_aitken_in   ! aitken mode lower dry-diameter limit (m)
+    real(kind_phys), intent(in) :: pi_in
+    real(kind_phys), intent(in) :: rgas_in             ! gas constant (J/K/mol)
+    real(kind_phys), intent(in) :: avogad_in           ! Avogadro's number (1/mol)
+    real(kind_phys), intent(in) :: mw_so4a_in          ! molecular weight of sulfate (g/mol)
+    real(kind_phys), intent(in) :: mw_nh4a_in          ! molecular weight of ammonium (g/mol)
+    real(kind_phys), intent(in) :: r_universal_in      ! universal gas constant (J/K/kmol)
+    character(len=*), intent(out) :: errmsg
+    integer, intent(out) :: errflg
+
+    errmsg = ' '
+    errflg = 0
+
+    l_h2so4_sv = l_h2so4_in
+    l_nh3_sv = l_nh3_in
+    lnumait_sv = lnumait_in
+    lnh4ait_sv = lnh4ait_in
+    lso4ait_sv = lso4ait_in
+
+    mw_so4a_host = mw_so4a_host_in
+    mw_nh4a_host = mw_nh4a_host_in
+    dens_so4a_host = dens_so4a_host_in
+
+    dgnum_aitken = dgnum_aitken_in
+    dgnumhi_aitken = dgnumhi_aitken_in
+    dgnumlo_aitken = dgnumlo_aitken_in
+
+    pi = pi_in
+    rgas = rgas_in
+    avogad = avogad_in
+    mw_so4a = mw_so4a_in
+    mw_nh4a = mw_nh4a_in
+    r_universal = r_universal_in
+
+  end subroutine modal_aero_newnuc_init
+
+  ! computes changes due to aerosol nucleation (new particle formation)
+  !     treats both nucleation and subsequent growth of new particles
+  !         to aitken mode size
+  ! vehkamaki et al. (2002) https://doi.org/10.1029/2002JD002184
+  !     parameterization for binary homogeneous nucleation (h2so4-h2o) plus
+  ! kerminen and kulmala (2002) https://doi.org/10.1016/S0021-8502(01)00194-X
+  !     parameterization for new particle loss during growth to aitken size
   subroutine modal_aero_newnuc_run( &
     ncol, pver, top_lev, &
     num_q, loffset, deltat, &
@@ -74,10 +106,8 @@ contains
     dqdt, dotend, qsrflx, &
     errmsg, errflg)
 
-! !USES:
     use wv_saturation, only: qsat
 
-! !PARAMETERS:
     integer, intent(in)  :: ncol             ! number of columns in chunk
     integer, intent(in)  :: pver             ! number of vertical levels
     integer, intent(in)  :: top_lev          ! top level for modal aerosol calculations
@@ -110,31 +140,13 @@ contains
     character(len=*), intent(out) :: errmsg
     integer, intent(out) :: errflg
 
-! !DESCRIPTION:
-!   computes changes due to aerosol nucleation (new particle formation)
-!       treats both nucleation and subsequent growth of new particles
-!           to aitken mode size
-!   uses the following parameterizations
-!       vehkamaki et al. (2002) parameterization for binary
-!           homogeneous nucleation (h2so4-h2o) plus
-!       kerminen and kulmala (2002) parameterization for
-!           new particle loss during growth to aitken size
-!
-! !REVISION HISTORY:
-!   R.Easter 2007.09.14:  Adapted from MIRAGE2 code and CMAQ V4.6 code
-!
-!EOP
-!----------------------------------------------------------------------
-!BOC
-
-!   local variables
+    !   local variables
     integer :: i, itmp, k, lun
     integer :: lnumait, lso4ait, lnh4ait
     integer :: l_h2so4, l_nh3
     integer :: ldiagveh02
     integer, parameter :: ldiag1 = -1, ldiag2 = -1, ldiag3 = -1, ldiag4 = -1
     integer, parameter :: newnuc_method_flagaa = 11
-!       integer, parameter :: newnuc_method_flagaa = 12
     !  1=merikanto et al (2007) ternary   2=vehkamaki et al (2002) binary
     ! 11=merikanto ternary + first-order boundary layer
     ! 12=merikanto ternary + second-order boundary layer
@@ -168,30 +180,14 @@ contains
 
     character(len=1) :: tmpch1, tmpch2, tmpch3
 
-! begin
     errmsg = ' '
     errflg = 0
 
     lun = 6
 
-!--------------------------------------------------------------------------------
-!!$   if (ldiag1 > 0) then
-!!$   do i = 1, ncol
-!!$   if (lonndx(i) /= 37) cycle
-!!$   if (latndx(i) /= 23) cycle
-!!$   if (nstep > 3)       cycle
-!!$   write( lun, '(/a,i7,3i5,f10.2)' )   &
-!!$         '*** modal_aero_newnuc_sub -- nstep, iam, lat, lon =',   &
-!!$         nstep, iam, latndx(i), lonndx(i)
-!!$   end do
-!!$   if (nstep > 3) call endrun( '*** modal_aero_newnuc_sub -- testing halt after step 3' )
-!!$!  if (ncol /= -999888777) return
-!!$   end if
-!--------------------------------------------------------------------------------
-
-!-----------------------------------------------------------------------
-!   zero the tendency outputs up front: they are intent(out) and the caller
-!   applies/outputs them unconditionally, including on the bypass path below
+    !-----------------------------------------------------------------------
+    !   zero the tendency outputs up front: they are intent(out) and the caller
+    !   applies/outputs them unconditionally, including on the bypass path below
     dotend(:) = .false.
     dqdt(1:ncol, :, :) = 0.0_kind_phys
     qsrflx(1:ncol, :, :) = 0.0_kind_phys
@@ -203,10 +199,10 @@ contains
     lnh4ait = lnh4ait_sv - loffset
     lso4ait = lso4ait_sv - loffset
 
-!   skip if no aitken mode OR if no h2so4 species
+    !   skip if no aitken mode OR if no h2so4 species
     if ((l_h2so4 <= 0) .or. (lso4ait <= 0) .or. (lnumait <= 0)) return
 
-!   set dotend
+    !   set dotend
     dotend(lnumait) = .true.
     dotend(lso4ait) = .true.
     dotend(l_h2so4) = .true.
@@ -220,52 +216,54 @@ contains
       do_nh3 = .false.
     end if
 
-!   dry-diameter limits for "grown" new particles
+    !   dry-diameter limits for "grown" new particles
     dplom_mode(1) = exp(0.67_kind_phys*log(dgnumlo_aitken) &
                         + 0.33_kind_phys*log(dgnum_aitken))
     dphim_mode(1) = dgnumhi_aitken
 
-!   mass1p_... = mass (kg) of so4 & nh4 in a single particle of diameter ...
-!                (assuming same dry density for so4 & nh4)
-!       mass1p_aitlo - dp = dplom_mode(1)
-!       mass1p_aithi - dp = dphim_mode(1)
+    !   mass1p_... = mass (kg) of so4 & nh4 in a single particle of diameter ...
+    !                (assuming same dry density for so4 & nh4)
+    !       mass1p_aitlo - dp = dplom_mode(1)
+    !       mass1p_aithi - dp = dphim_mode(1)
     tmpa = dens_so4a_host*pi/6.0_kind_phys
     mass1p_aitlo = tmpa*(dplom_mode(1)**3)
     mass1p_aithi = tmpa*(dphim_mode(1)**3)
 
-!   compute qv_sat = saturation specific humidity
+    !   compute qv_sat = saturation specific humidity
     do k = 1, pver
       call qsat(t(1:ncol, k), pmid(1:ncol, k), ev_sat(1:ncol, k), qv_sat(1:ncol, k), ncol)
     end do
-!
-!   loop over levels and columns to calc the renaming
-!
+
+    !
+    !   loop over levels and columns to calc the renaming
+    !
     main_k: do k = top_lev, pver
     main_i: do i = 1, ncol
 
-!   skip if completely cloudy,
-!   because all h2so4 vapor should be cloud-borne
+      !   skip if completely cloudy,
+      !   because all h2so4 vapor should be cloud-borne
       if (cld(i, k) >= 0.99_kind_phys) cycle main_i
 
-!   qh2so4_cur = current qh2so4, after aeruptk
+      !   qh2so4_cur = current qh2so4, after aeruptk
       qh2so4_cur = q(i, k, l_h2so4)
-!   skip if h2so4 vapor < qh2so4_cutoff
+
+      !   skip if h2so4 vapor < qh2so4_cutoff
       if (qh2so4_cur <= qh2so4_cutoff) cycle main_i
 
       tmpa = max(0.0_kind_phys, del_h2so4_gasprod(i, k))
       tmp_q3 = qh2so4_cur
-!   tmp_q2 = qh2so4 before aeruptk
-!   (note tmp_q3, tmp_q2 both >= 0.0)
+      !   tmp_q2 = qh2so4 before aeruptk
+      !   (note tmp_q3, tmp_q2 both >= 0.0)
       tmp_q2 = tmp_q3 + max(0.0_kind_phys, -del_h2so4_aeruptk(i, k))
 
-!   *** temporary -- in order to get more nucleation
-!       qh2so4_cur = qh2so4_cur*1.0e1
-!       tmp_q3 = tmp_q3*1.0e1
-!       tmp_q2 = tmp_q2*1.0e1
-!       tmpa   = tmpa  *1.0e1
+      !   *** temporary -- in order to get more nucleation
+      !       qh2so4_cur = qh2so4_cur*1.0e1
+      !       tmp_q3 = tmp_q3*1.0e1
+      !       tmp_q2 = tmp_q2*1.0e1
+      !       tmpa   = tmpa  *1.0e1
 
-!   tmpb = log( tmp_q2/tmp_q3 ) BUT with some checks added
-!       tmp_uptkrate = tmpb/deltat
+      !   tmpb = log( tmp_q2/tmp_q3 ) BUT with some checks added
+      !       tmp_uptkrate = tmpb/deltat
       if (tmp_q2 <= tmp_q3) then
         tmpb = 0.0_kind_phys
       else
@@ -277,11 +275,11 @@ contains
           tmpb = log(tmp_q2/tmp_q3)
         end if
       end if
-!   d[ln(qh2so4)]/dt (1/s) from uptake (condensation) to aerosol
+      !   d[ln(qh2so4)]/dt (1/s) from uptake (condensation) to aerosol
       tmp_uptkrate = tmpb/deltat
 
-!   qh2so4_avg = estimated average qh2so4
-!   when production & loss are done simultaneously
+      !   qh2so4_avg = estimated average qh2so4
+      !   when production & loss are done simultaneously
       if (tmpb <= 0.1_kind_phys) then
         qh2so4_avg = tmp_q3*(1.0_kind_phys + 0.5_kind_phys*tmpb) - 0.5_kind_phys*tmpa
       else
@@ -312,19 +310,9 @@ contains
 !   aircon = air concentration (mol-air/m3)
       aircon = 1.0e3_kind_phys*pmid(i, k)/(r_universal*t(i, k))
 
-!   call ... routine to get nucleation rates
+      !   call ... routine to get nucleation rates
       ldiagveh02 = -1
-!!$     if (ldiag2 > 0) then
-!!$     if ((lonndx(i) == 37) .and. (latndx(i) == 23)) then
-!!$     if ((k >= 24) .or. (mod(k,4) == 0)) then
-!!$         ldiagveh02 = +1
-!!$            write(lun,'(/a,i8,3i4,f8.2,1p,4e10.2)')   &
-!!$             'veh02 call - nstep,lat,lon,k; tk,rh,p,cair',   &
-!!$             nstep, latndx(i), lonndx(i), k,   &
-!!$             t(i,k), relhumnn, pmid(k,k), aircon
-!!$     end if
-!!$     end if
-!!$     end if
+
       call mer07_veh02_nuc_mosaic_1box( &
         newnuc_method_flagaa, &
         deltat, t(i, k), relhumnn, pmid(i, k), &
@@ -334,45 +322,6 @@ contains
         1, 1, dplom_mode, dphim_mode, &
         itmp, qnuma_del, qso4a_del, qnh4a_del, &
         qh2so4_del, qnh3_del, dens_nh4so4a, ldiagveh02)
-!          qh2so4_del, qnh3_del, dens_nh4so4a )
-!----------------------------------------------------------------------
-!       subr mer07_veh02_nuc_mosaic_1box(   &
-!          newnuc_method_flagaa,   &
-!          dtnuc, temp_in, rh_in, press_in,   &
-!          qh2so4_cur, qh2so4_avg, qnh3_cur, h2so4_uptkrate,   &
-!          nsize, maxd_asize, dplom_sect, dphim_sect,   &
-!          isize_nuc, qnuma_del, qso4a_del, qnh4a_del,   &
-!          qh2so4_del, qnh3_del, dens_nh4so4a )
-!
-!! subr arguments (in)
-!        real(kind_phys), intent(in) :: dtnuc             ! nucleation time step (s)
-!        real(kind_phys), intent(in) :: temp_in           ! temperature, in k
-!        real(kind_phys), intent(in) :: rh_in             ! relative humidity, as fraction
-!        real(kind_phys), intent(in) :: press_in          ! air pressure (pa)
-!
-!        real(kind_phys), intent(in) :: qh2so4_cur, qh2so4_avg
-!                                                  ! gas h2so4 mixing ratios (mol/mol-air)
-!        real(kind_phys), intent(in) :: qnh3_cur          ! gas nh3 mixing ratios (mol/mol-air)
-!             ! qxxx_cur = current value (after gas chem and condensation)
-!             ! qxxx_avg = estimated average value (for simultaneous source/sink calcs)
-!        real(kind_phys), intent(in) :: h2so4_uptkrate    ! h2so4 uptake rate to aerosol (1/s)
-
-!
-!        integer, intent(in) :: nsize                    ! number of aerosol size bins
-!        integer, intent(in) :: maxd_asize               ! dimension for dplom_sect, ...
-!        real(kind_phys), intent(in) :: dplom_sect(maxd_asize)  ! dry diameter at lower bnd of bin (m)
-!        real(kind_phys), intent(in) :: dphim_sect(maxd_asize)  ! dry diameter at upper bnd of bin (m)
-!
-!! subr arguments (out)
-!        integer, intent(out) :: isize_nuc         ! size bin into which new particles go
-!        real(kind_phys), intent(out) :: qnuma_del        ! change to aerosol number mixing ratio (#/mol-air)
-!        real(kind_phys), intent(out) :: qso4a_del        ! change to aerosol so4 mixing ratio (mol/mol-air)
-!        real(kind_phys), intent(out) :: qnh4a_del        ! change to aerosol nh4 mixing ratio (mol/mol-air)
-!        real(kind_phys), intent(out) :: qh2so4_del       ! change to gas h2so4 mixing ratio (mol/mol-air)
-!        real(kind_phys), intent(out) :: qnh3_del         ! change to gas nh3 mixing ratio (mol/mol-air)
-!                                                  ! aerosol changes are > 0; gas changes are < 0
-!        real(kind_phys), intent(out) :: dens_nh4so4a     ! dry-density of the new nh4-so4 aerosol mass (kg/m3)
-!----------------------------------------------------------------------
 
 !   convert qnuma_del from (#/mol-air) to (#/kmol-air)
       qnuma_del = qnuma_del*1.0e3_kind_phys
@@ -458,82 +407,51 @@ contains
         qsrflx(i, lnh4ait, 1) = qsrflx(i, lnh4ait, 1) + dqdt(i, k, lnh4ait)*pdel_fac
       end if
 
-!!   temporary diagnostic
-!        if (ldiag3 > 0) then
-!        if ((dndt_ait /= 0.0_kind_phys) .or. (dmdt_ait /= 0.0_kind_phys)) then
-!           write(lun,'(3a,1x,i7,3i5,1p,5e12.4)')   &
-!              'newnucxx', tmpch1, tmpch2, nstep, lchnk, i, k,   &
-!              dndt_ait, dmdt_ait, cldx
-!!          call endrun( 'modal_aero_newnuc_sub' )
-!        end if
-!        end if
-
-!   diagnostic output start ----------------------------------------
-!!$     if (ldiag4 > 0) then
-!!$     if ((lonndx(i) == 37) .and. (latndx(i) == 23)) then
-!!$     if ((k >= 24) .or. (mod(k,4) == 0)) then
-!!$        write(lun,97010) nstep, latndx(i), lonndx(i), k, t(i,k), aircon
-!!$        write(lun,97020) 'pmid, pdel                   ',   &
-!!$                pmid(i,k), pdel(i,k)
-!!$        write(lun,97030) 'qv,qvsw, cld, rh_av, rh_clr  ',   &
-!!$                qv(i,k), qvswtr, cldx, relhumav, relhum
-!!$        write(lun,97020) 'h2so4_cur, _pre, _av, nh3_cur',   &
-!!$             qh2so4_cur, tmp_q2, qh2so4_avg, qnh3_cur
-!!$        write(lun,97020) 'del_h2so4_gasprod, _aeruptk  ',   &
-!!$             del_h2so4_gasprod(i,k), del_h2so4_aeruptk(i,k),   &
-!!$             tmp_uptkrate*3600.0_kind_phys
-!!$        write(lun,97020) ' '
-!!$        write(lun,97050) 'tmpch1, tmpch2               ', tmpch1, tmpch2
-!!$        write(lun,97020) 'dndt_, dmdt_aitsv1           ',   &
-!!$                              dndt_aitsv1, dmdt_aitsv1
-!!$        write(lun,97020) 'dndt_, dmdt_aitsv2           ',   &
-!!$                              dndt_aitsv2, dmdt_aitsv2
-!!$        write(lun,97020) 'dndt_, dmdt_aitsv3           ',   &
-!!$                              dndt_aitsv3, dmdt_aitsv3
-!!$        write(lun,97020) 'dndt_, dmdt_ait              ',   &
-!!$                              dndt_ait, dmdt_ait
-!!$        write(lun,97020) 'dso4dt_, dnh4dt_ait          ',   &
-!!$                              dso4dt_ait, dnh4dt_ait
-!!$        write(lun,97020) 'qso4a_del, qh2so4_del        ',   &
-!!$                              qso4a_del, qh2so4_del
-!!$        write(lun,97020) 'qnh4a_del, qnh3_del          ',   &
-!!$                              qnh4a_del, qnh3_del
-!!$        write(lun,97020) 'dqdt(h2so4), (nh3)           ',   &
-!!$              dqdt(i,k,l_h2so4), dqdt(i,k,l_nh3)
-!!$        write(lun,97020) 'dqdt(so4a), (nh4a), (numa)   ',   &
-!!$              dqdt(i,k,lso4ait), dqdt(i,k,lnh4ait), dqdt(i,k,lnumait)
-!!$
-!!$     dpnuc = 0.0_kind_phys
-!!$     if (dndt_aitsv1 > 1.0e-5_kind_phys) dpnuc = (6.0_kind_phys*dmdt_aitsv1/   &
-!!$                     (pi*dens_so4a_host*dndt_aitsv1))**0.3333333_kind_phys
-!!$        if (dpnuc > 0.0_kind_phys) then
-!!$        write(lun,97020) 'dpnuc,      dp_aitlo, _aithi ',   &
-!!$                      dpnuc, dplom_mode(1), dphim_mode(1)
-!!$        write(lun,97020) 'mass1p, mass1p_aitlo, _aithi ',   &
-!!$                      mass1p, mass1p_aitlo, mass1p_aithi
-!!$        end if
-!!$
-!!$ 97010  format( / 'NEWNUC nstep,lat,lon,k,tk,cair', i8, 3i4, f8.2, 1pe12.4 )
-!!$ 97020  format( a, 1p, 6e12.4 )
-!!$ 97030  format( a, 1p, 2e12.4, 0p, 5f10.6 )
-!!$ 97040  format( 29x, 1p, 6e12.4 )
-!!$ 97050  format( a, 2(3x,a) )
-!!$        end if
-!!$        end if
-!!$        end if
-!   diagnostic output end   ------------------------------------------
-
     end do main_i
     end do main_k
-
-!   history file column-tendency fields (adv_mass/mwdry scaling + outfld of
-!   qsrflx) are done by the caller, which owns the host constituent metadata
-
-!EOC
   end subroutine modal_aero_newnuc_run
 
-!----------------------------------------------------------------------
-!-----------------------------------------------------------------------
+  ! calculates new particle production from homogeneous nucleation
+  !    over timestep dtnuc, using nucleation rates from either
+  !    merikanto et al. (2007) h2so4-nh3-h2o ternary parameterization
+  !    https://doi.org/10.1029/2006JD007977
+  !    vehkamaki et al. (2002) h2so4-h2o binary parameterization
+  !    https://doi.org/10.1029/2002JD002184
+  !
+  ! the new particles are "grown" to the lower-bound size of the host code's
+  !    smallest size bin.  (this "growth" is somewhat ad hoc, and would not be
+  !    necessary if the host code's size bins extend down to ~1 nm.)
+  !
+  !    if the h2so4 and nh3 mass mixing ratios (mixrats) of the grown new
+  !    particles exceed the current gas mixrats, the new particle production
+  !    is reduced so that the new particle mass mixrats match the gas mixrats.
+  !
+  !    the correction of kerminen and kulmala (2002) is applied to account
+  !    for loss of the new particles by coagulation as they are
+  !    growing to the "host code mininum size"
+  !
+  ! revision history
+  !    coded by rc easter, pnnl, xx-apr-2007
+  !
+  ! key routines called: subr ternary_nuc_napari
+  !
+  ! references:
+  !    merikanto, j., i. napari, h. vehkamaki, t. anttila,
+  !     and m. kulmala, 2007, new parameterization of
+  !     sulfuric acid-ammonia-water ternary nucleation
+  !     rates at tropospheric conditions,
+  !       j. geophys. res., 112, d15207, doi:10.1029/2006jd0027977
+  !
+  !    vehkamäki, h., m. kulmala, i. napari, k.e.j. lehtinen,
+  !       c. timmreck, m. noppel and a. laaksonen, 2002,
+  !       an improved parameterization for sulfuric acid-water nucleation
+  !       rates for tropospheric and stratospheric conditions,
+  !       j. geophys. res., 107, 4622, doi:10.1029/2002jd002184
+  !
+  !    kerminen, v., and m. kulmala, 2002,
+  !       analytical formulae connecting the "real" and the "apparent"
+  !       nucleation rate and the nuclei number concentration
+  !       for atmospheric nucleation events, https://doi.org/10.1016/S0021-8502(01)00194-X
   subroutine mer07_veh02_nuc_mosaic_1box( &
     newnuc_method_flagaa, dtnuc, temp_in, rh_in, press_in, &
     zm_in, pblh_in, &
@@ -542,54 +460,7 @@ contains
     nsize, maxd_asize, dplom_sect, dphim_sect, &
     isize_nuc, qnuma_del, qso4a_del, qnh4a_del, &
     qh2so4_del, qnh3_del, dens_nh4so4a, ldiagaa)
-!          qh2so4_del, qnh3_del, dens_nh4so4a )
-!   (rgas, avogad, mw_so4a, mw_nh4a are module-level host constants
-!    set by modal_aero_newnuc_init)
-!.......................................................................
-!
-! calculates new particle production from homogeneous nucleation
-!    over timestep dtnuc, using nucleation rates from either
-!    merikanto et al. (2007) h2so4-nh3-h2o ternary parameterization
-!    vehkamaki et al. (2002) h2so4-h2o binary parameterization
-!
-! the new particles are "grown" to the lower-bound size of the host code's
-!    smallest size bin.  (this "growth" is somewhat ad hoc, and would not be
-!    necessary if the host code's size bins extend down to ~1 nm.)
-!
-!    if the h2so4 and nh3 mass mixing ratios (mixrats) of the grown new
-!    particles exceed the current gas mixrats, the new particle production
-!    is reduced so that the new particle mass mixrats match the gas mixrats.
-!
-!    the correction of kerminen and kulmala (2002) is applied to account
-!    for loss of the new particles by coagulation as they are
-!    growing to the "host code mininum size"
-!
-! revision history
-!    coded by rc easter, pnnl, xx-apr-2007
-!
-! key routines called: subr ternary_nuc_napari
-!
-! references:
-!    merikanto, j., i. napari, h. vehkamaki, t. anttila,
-!     and m. kulmala, 2007, new parameterization of
-!     sulfuric acid-ammonia-water ternary nucleation
-!     rates at tropospheric conditions,
-!       j. geophys. res., 112, d15207, doi:10.1029/2006jd0027977
-!
-!    vehkamäki, h., m. kulmala, i. napari, k.e.j. lehtinen,
-!       c. timmreck, m. noppel and a. laaksonen, 2002,
-!       an improved parameterization for sulfuric acid-water nucleation
-!       rates for tropospheric and stratospheric conditions,
-!       j. geophys. res., 107, 4622, doi:10.1029/2002jd002184
-!
-!    kerminen, v., and m. kulmala, 2002,
-!       analytical formulae connecting the "real" and the "apparent"
-!       nucleation rate and the nuclei number concentration
-!       for atmospheric nucleation events
-!
-!.......................................................................
 
-! subr arguments (in)
     real(kind_phys), intent(in) :: dtnuc             ! nucleation time step (s)
     real(kind_phys), intent(in) :: temp_in           ! temperature, in k
     real(kind_phys), intent(in) :: rh_in             ! relative humidity, as fraction
@@ -1084,26 +955,21 @@ contains
 
   end subroutine mer07_veh02_nuc_mosaic_1box
 
-!-----------------------------------------------------------------------
-!-----------------------------------------------------------------------
+
+  ! calculates boundary nucleation nucleation rate
+  ! using the first or second-order parameterization in
+  ! Wang, M. and Penner, J. E.: Aerosol indirect forcing in a global model with particle nucleation,
+  ! Atmos. Chem. Phys., 9, 239–260, https://doi.org/10.5194/acp-9-239-2009, 2009.
   subroutine pbl_nuc_wang2008(so4vol, &
                               newnuc_method_flagaa, newnuc_method_flagaa2, &
                               ratenucl, rateloge, &
                               cnum_tot, cnum_h2so4, cnum_nh3, radius_cluster)
-!
-! calculates boundary nucleation nucleation rate
-! using the first or second-order parameterization in
-!     wang, m., and j.e. penner, 2008,
-!        aerosol indirect forcing in a global model with particle nucleation,
-!        atmos. chem. phys. discuss., 8, 13943-13998
-!
 
-! subr arguments (in)
+
     real(kind_phys), intent(in) :: so4vol            ! concentration of h2so4 (molecules cm-3)
     integer, intent(in)  :: newnuc_method_flagaa
     ! [11,12] value selects [first,second]-order parameterization
 
-! subr arguments (inout)
     integer, intent(inout)  :: newnuc_method_flagaa2
     real(kind_phys), intent(inout) :: ratenucl         ! binary nucleation rate, j (# cm-3 s-1)
     real(kind_phys), intent(inout) :: rateloge         ! log( ratenucl )
@@ -1114,13 +980,10 @@ contains
     real(kind_phys), intent(inout) :: cnum_nh3         ! number of nh3 molecules
     real(kind_phys), intent(inout) :: radius_cluster   ! the radius of cluster (nm)
 
-! local variables
     real(kind_phys) :: tmp_diam, tmp_mass, tmp_volu
     real(kind_phys) :: tmp_rateloge, tmp_ratenucl
 
-! executable
-
-! nucleation rate
+    ! nucleation rate
     if (newnuc_method_flagaa == 11) then
       tmp_ratenucl = 1.0e-6_kind_phys*so4vol
     else if (newnuc_method_flagaa == 12) then
@@ -1153,21 +1016,16 @@ contains
 
   end subroutine pbl_nuc_wang2008
 
-!-----------------------------------------------------------------------
-!-----------------------------------------------------------------------
+  ! calculates binary nucleation rate and critical cluster size
+  ! using the parameterization in
+  !     vehkamäki, h., m. kulmala, i. napari, k.e.j. lehtinen,
+  !        c. timmreck, m. noppel and a. laaksonen, 2002,
+  !        an improved parameterization for sulfuric acid-water nucleation
+  !        rates for tropospheric and stratospheric conditions,
+  !        j. geophys. res., 107, 4622, doi:10.1029/2002jd002184
   subroutine binary_nuc_vehk2002(temp, rh, so4vol, &
                                  ratenucl, rateloge, &
                                  cnum_h2so4, cnum_tot, radius_cluster)
-!
-! calculates binary nucleation rate and critical cluster size
-! using the parameterization in
-!     vehkamäki, h., m. kulmala, i. napari, k.e.j. lehtinen,
-!        c. timmreck, m. noppel and a. laaksonen, 2002,
-!        an improved parameterization for sulfuric acid-water nucleation
-!        rates for tropospheric and stratospheric conditions,
-!        j. geophys. res., 107, 4622, doi:10.1029/2002jd002184
-!
-
 ! subr arguments (in)
     real(kind_phys), intent(in) :: temp              ! temperature (k)
     real(kind_phys), intent(in) :: rh                ! relative humidity (0-1)
@@ -1341,101 +1199,29 @@ contains
 
   end subroutine binary_nuc_vehk2002
 
-!----------------------------------------------------------------------
-!----------------------------------------------------------------------
-  subroutine modal_aero_newnuc_init(l_h2so4_in, l_nh3_in, &
-                                    lnumait_in, lnh4ait_in, lso4ait_in, &
-                                    mw_so4a_host_in, mw_nh4a_host_in, dens_so4a_host_in, &
-                                    dgnum_aitken_in, dgnumhi_aitken_in, dgnumlo_aitken_in, &
-                                    pi_in, rgas_in, avogad_in, mw_so4a_in, mw_nh4a_in, &
-                                    r_universal_in, errmsg, errflg)
-
-!-----------------------------------------------------------------------
-!
-! Purpose:
-!    store the resolved species indices, aitken-mode so4/nh4 properties,
-!       and host physical constants used by modal_aero_newnuc_run
-!    index resolution and history-field registration are host
-!       responsibilities (see modal_aero_newnuc_cam)
-!
-!-----------------------------------------------------------------------
-
-!-----------------------------------------------------------------------
-! arguments
-    integer, intent(in) :: l_h2so4_in          ! h2so4 gas index (host constituent space)
-    integer, intent(in) :: l_nh3_in            ! nh3 gas index (host constituent space)
-    integer, intent(in) :: lnumait_in          ! aitken number index (host constituent space)
-    integer, intent(in) :: lnh4ait_in          ! aitken nh4 index (host constituent space)
-    integer, intent(in) :: lso4ait_in          ! aitken so4 index (host constituent space)
-    real(kind_phys), intent(in) :: mw_so4a_host_in     ! mw of so4 aerosol in host code (g/mol)
-    real(kind_phys), intent(in) :: mw_nh4a_host_in     ! mw of nh4 aerosol in host code (g/mol)
-    real(kind_phys), intent(in) :: dens_so4a_host_in   ! dry density of so4 aerosol in host code (kg/m3)
-    real(kind_phys), intent(in) :: dgnum_aitken_in     ! aitken mode nominal dry diameter (m)
-    real(kind_phys), intent(in) :: dgnumhi_aitken_in   ! aitken mode upper dry-diameter limit (m)
-    real(kind_phys), intent(in) :: dgnumlo_aitken_in   ! aitken mode lower dry-diameter limit (m)
-    real(kind_phys), intent(in) :: pi_in
-    real(kind_phys), intent(in) :: rgas_in             ! gas constant (J/K/mol)
-    real(kind_phys), intent(in) :: avogad_in           ! Avogadro's number (1/mol)
-    real(kind_phys), intent(in) :: mw_so4a_in          ! molecular weight of sulfate (g/mol)
-    real(kind_phys), intent(in) :: mw_nh4a_in          ! molecular weight of ammonium (g/mol)
-    real(kind_phys), intent(in) :: r_universal_in      ! universal gas constant (J/K/kmol)
-    character(len=*), intent(out) :: errmsg
-    integer, intent(out) :: errflg
-
-    !-----------------------------------------------------------------------
-
-    errmsg = ' '
-    errflg = 0
-
-    l_h2so4_sv = l_h2so4_in
-    l_nh3_sv = l_nh3_in
-    lnumait_sv = lnumait_in
-    lnh4ait_sv = lnh4ait_in
-    lso4ait_sv = lso4ait_in
-
-    mw_so4a_host = mw_so4a_host_in
-    mw_nh4a_host = mw_nh4a_host_in
-    dens_so4a_host = dens_so4a_host_in
-
-    dgnum_aitken = dgnum_aitken_in
-    dgnumhi_aitken = dgnumhi_aitken_in
-    dgnumlo_aitken = dgnumlo_aitken_in
-
-    pi = pi_in
-    rgas = rgas_in
-    avogad = avogad_in
-    mw_so4a = mw_so4a_in
-    mw_nh4a = mw_nh4a_in
-    r_universal = r_universal_in
-
-  end subroutine modal_aero_newnuc_init
-
-!----------------------------------------------------------------------
-!----------------------------------------------------------------------
+  ! *************************** ternary_fit.f90 ********************************
+  ! joonas merikanto, 2006
+  !
+  ! fortran 90 subroutine that calculates the parameterized composition
+  ! and nucleation rate of critical clusters in h2o-h2so4-nh3 vapor
+  !
+  ! warning: the fit should not be used outside its limits of validity
+  ! (limits indicated below)
+  !
+  ! in:
+  ! t:     temperature (k), limits 235-295 k
+  ! rh:    relative humidity as fraction (eg. 0.5=50%) limits 0.05-0.95
+  ! c2:    sulfuric acid concentration (molecules/cm3) limits 5x10^4 - 10^9 molecules/cm3
+  ! c3:    ammonia mixing ratio (ppt) limits 0.1 - 1000 ppt
+  !
+  ! out:
+  ! j_log: logarithm of nucleation rate (1/(s cm3))
+  ! ntot:  total number of molecules in the critical cluster
+  ! nacid: number of sulfuric acid molecules in the critical cluster
+  ! namm:  number of ammonia molecules in the critical cluster
+  ! r:     radius of the critical cluster (nm)
+  !  ****************************************************************************
   subroutine ternary_nuc_merik2007(t, rh, c2, c3, j_log, ntot, nacid, namm, r)
-!subroutine ternary_fit(          t, rh, c2, c3, j_log, ntot, nacid, namm, r )
-! *************************** ternary_fit.f90 ********************************
-! joonas merikanto, 2006
-!
-! fortran 90 subroutine that calculates the parameterized composition
-! and nucleation rate of critical clusters in h2o-h2so4-nh3 vapor
-!
-! warning: the fit should not be used outside its limits of validity
-! (limits indicated below)
-!
-! in:
-! t:     temperature (k), limits 235-295 k
-! rh:    relative humidity as fraction (eg. 0.5=50%) limits 0.05-0.95
-! c2:    sulfuric acid concentration (molecules/cm3) limits 5x10^4 - 10^9 molecules/cm3
-! c3:    ammonia mixing ratio (ppt) limits 0.1 - 1000 ppt
-!
-! out:
-! j_log: logarithm of nucleation rate (1/(s cm3))
-! ntot:  total number of molecules in the critical cluster
-! nacid: number of sulfuric acid molecules in the critical cluster
-! namm:  number of ammonia molecules in the critical cluster
-! r:     radius of the critical cluster (nm)
-!  ****************************************************************************
 
     real(kind_phys), intent(in) :: t, rh, c2, c3
     real(kind_phys), intent(out) :: j_log, ntot, nacid, namm, r
@@ -1554,12 +1340,11 @@ contains
              0.0003021586030317366_kind_phys*t*log(c3)*log(j) + 0.0046977006608603395_kind_phys*log(j)**2
 
     else
-! nucleation rate less that 5e-6, setting j_log arbitrary small
+      ! nucleation rate less than 5e-6, setting j_log arbitrary small
       j_log = -300._kind_phys
     end if
 
   end subroutine ternary_nuc_merik2007
 
-!----------------------------------------------------------------------
 end module modal_aero_newnuc
 

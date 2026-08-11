@@ -1,14 +1,7 @@
-!===============================================================================
-! Dust emissions for the Modal Aerosol Model
-!   Portable science routines split from modal_aero/dust_model.F90: selection
-!   of the emitted dust size distribution, and rebinning of the coupler dust
-!   flux into modal mass and number surface fluxes.
-!   Host constants and index maps are passed as arguments; array sizing is by
-!   runtime ncol.
-!===============================================================================
+! Dust emissions for modal aerosol model
+! Selection of the emitted dust size distribution and rebinning of the coupler dust flux
+! into modal mass and number surface fluxes.
 module modal_dust_emissions
-  use ccpp_kinds, only: kind_phys
-
   implicit none
   private
 
@@ -23,6 +16,7 @@ contains
   !=============================================================================
   subroutine modal_dust_emissions_init(ntot_amode, dust_nbin, pi, rair, gravit, &
                                        dust_emis_sclfctr, dust_dmt_vwr, errmsg, errflg)
+    use ccpp_kinds,  only: kind_phys
     use dust_common, only: dust_set_params
 
     integer, intent(in)  :: ntot_amode            ! number of aerosol modes
@@ -60,7 +54,6 @@ contains
       dust_dmt_grd(:) = [0.1e-6_kind_phys, 2.0e-6_kind_phys, 10.0e-6_kind_phys]
       dust_emis_sclfctr(:) = [0.12_kind_phys, 0.88_kind_phys]
     end if
-    ! dmleung --
 
     call dust_set_params(nbin=dust_nbin, dmt_grd=dust_dmt_grd, &
                          dmt_vwr=dust_dmt_vwr, stk_crc=dust_stk_crc, &
@@ -69,14 +62,13 @@ contains
 
   end subroutine modal_dust_emissions_init
 
-  !===============================================================================
   ! Rebin and adjust the incoming coupler dust flux into per-bin mass and
   ! number surface fluxes.
-  !===============================================================================
   subroutine modal_dust_emissions_run(ncol, dust_nbin, dust_indices, dust_emis_sclfctr, &
                                       dust_dmt_vwr, dust_emis_fact, &
                                       zender_soil_erod_from_atm, soil_erodibility, &
                                       dust_flux_in, pi, cflx, soil_erod)
+    use ccpp_kinds, only: kind_phys
     use dust_common, only: dust_density
 
     ! args
@@ -101,7 +93,6 @@ contains
     real(kind_phys), parameter :: soil_erod_threshold = 0.1_kind_phys
 
     ! set dust emissions
-
     if (zender_soil_erod_from_atm) then   ! Zender_2003 dust emissions
       col_loop1: do i = 1, ncol
         soil_erod(i) = soil_erodibility(i)
@@ -118,7 +109,6 @@ contains
         end do
       end do col_loop1
     else ! Leung_2023 dust emissions
-
       col_loop2: do i = 1, ncol
         ! rebin and adjust dust emissons.
         do m = 1, dust_nbin

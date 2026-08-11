@@ -5,7 +5,6 @@ module sslt_sections
   use ccpp_kinds, only: kind_phys
 
   implicit none
-
   private
 
   public :: sslt_sections_init
@@ -35,8 +34,6 @@ module sslt_sections
 
 contains
 
-  !===========================================================================
-  !===========================================================================
   subroutine sslt_sections_init()
 
     integer :: m
@@ -80,8 +77,6 @@ contains
     end do
   end subroutine sslt_sections_init
 
-  !===========================================================================
-  !===========================================================================
   function fluxes(sst, u10cubed, ncol) result(fi)
 
     real(kind_phys), intent(in) :: sst(:)

@@ -1,15 +1,14 @@
-!===============================================================================
-! Aerosol dry deposition
-!   Portable science routines split from modal_aero/aero_model.F90 and
-!   aer_drydep_mod.F90: surface deposition velocities of particles
-!   (Zhang et al. 2001) and the aerodynamic resistance / friction velocity
-!   patch over ocean and sea ice. Host constants and the landuse fractions
-!   are passed as arguments; array sizing is by ncol/pver runtime arguments.
-!===============================================================================
+! Portable science core for aerosol dry deposition
+! Surface deposition velocities of particles
+! Zhang et al., 2001 https://doi.org/10.1016/S1352-2310(00)00326-5
+! A size-segregated particle dry deposition scheme for an atmospheric aerosol module
+! Atmospheric Environment, 35(3), 549-560.
+!
+! and aerodynamic resistance/friction velocity patching over ocean and sea ice
+! (since the land model does not provide them)
+!
+! Authors: X. Liu
 module aero_drydep_core
-
-  use ccpp_kinds, only: kind_phys
-
   implicit none
   private
 
@@ -17,24 +16,13 @@ module aero_drydep_core
   public :: calcram
 
 contains
-
-  !=============================================================================
-  !=============================================================================
   subroutine modal_aero_depvel_part(ncol, t, pmid, ram1, fv, vlc_dry, vlc_trb, vlc_grv, &
                                     radius_part, density_part, sig_part, moment, &
                                     pver, top_lev, n_land_type, fraction_landuse, &
-                                    pi, boltz, gravit, rair, aspherical)   ! dmleung added aspherical flag 20 Oct 2025
+                                    pi, boltz, gravit, rair, aspherical)
 
-!    calculates surface deposition velocity of particles
-!    L. Zhang, S. Gong, J. Padro, and L. Barrie
-!    A size-seggregated particle dry deposition scheme for an atmospheric aerosol module
-!    Atmospheric Environment, 35, 549-560, 2001.
-!
-!    Authors: X. Liu
+    use ccpp_kinds, only: kind_phys
 
-    ! !ARGUMENTS:
-    !
-    !
     real(kind_phys), intent(in) :: t(:, :)       !atm temperature (K)
     real(kind_phys), intent(in) :: pmid(:, :)    !atm pressure (Pa)
     real(kind_phys), intent(in) :: fv(:)           !friction velocity (m/s)
@@ -56,7 +44,8 @@ contains
     real(kind_phys), intent(out) :: vlc_trb(:)       !Turbulent deposn velocity (m/s)
     real(kind_phys), intent(out) :: vlc_grv(:, :)       !grav deposn velocity (m/s)
     real(kind_phys), intent(out) :: vlc_dry(:, :)       !dry deposn velocity (m/s)
-    logical, intent(in), optional :: aspherical   ! dmleung: asphericity is strong for coarse-mode interstitial
+    logical, intent(in), optional :: aspherical
+    ! dmleung: asphericity is strong for coarse-mode interstitial
     ! aerosols only, mostly dust and seasalt. For coarse mode aerosols, asphericity reduces coarse-mode gravitational
     ! settling velocity by 20 % following Fig. 4 of Yue Huang et al. (2020).
     !------------------------------------------------------------------------
@@ -88,57 +77,43 @@ contains
     real(kind_phys) :: wrk1, wrk2, wrk3
 
     ! constants
-
-    real(kind_phys), parameter :: asphericaldust_drydep = 0.8_kind_phys ! dmleung added 20 Oct 2025: aspherical dust reduces
+    real(kind_phys), parameter :: asphericaldust_drydep = 0.8_kind_phys
+    ! dmleung added 20 Oct 2025: aspherical dust reduces
     ! gravitational settling velocity by 15-20 %. Yue Huang et al. (2020)
     ! Climate Models and Remote Sensing Retrievals Neglect Substantial Desert Dust Asphericity
+    ! https://doi.org/10.1029/2019GL086592
 
     real(kind_phys) :: gamma(11)      ! exponent of schmidt number
-!   data gamma/0.54d+00,  0.56d+00,  0.57d+00,  0.54d+00,  0.54d+00, &
-!              0.56d+00,  0.54d+00,  0.54d+00,  0.54d+00,  0.56d+00, &
-!              0.50d+00/
     data gamma/0.56e+00_kind_phys, 0.54e+00_kind_phys, 0.54e+00_kind_phys, 0.56e+00_kind_phys, 0.56e+00_kind_phys, &
       0.56e+00_kind_phys, 0.50e+00_kind_phys, 0.54e+00_kind_phys, 0.54e+00_kind_phys, 0.54e+00_kind_phys, &
       0.54e+00_kind_phys/
     save gamma
 
     real(kind_phys) :: alpha(11)      ! parameter for impaction
-!   data alpha/50.00d+00,  0.95d+00,  0.80d+00,  1.20d+00,  1.30d+00, &
-!               0.80d+00, 50.00d+00, 50.00d+00,  2.00d+00,  1.50d+00, &
-!             100.00d+00/
     data alpha/1.50e+00_kind_phys, 1.20e+00_kind_phys, 1.20e+00_kind_phys, 0.80e+00_kind_phys, 1.00e+00_kind_phys, &
       0.80e+00_kind_phys, 100.00e+00_kind_phys, 50.00e+00_kind_phys, 2.00e+00_kind_phys, 1.20e+00_kind_phys, &
       50.00e+00_kind_phys/
     save alpha
 
     real(kind_phys) :: radius_collector(11) ! radius (m) of surface collectors
-!   data radius_collector/-1.00d+00,  5.10d-03,  3.50d-03,  3.20d-03, 10.00d-03, &
-!                          5.00d-03, -1.00d+00, -1.00d+00, 10.00d-03, 10.00d-03, &
-!                         -1.00d+00/
     data radius_collector/10.00e-03_kind_phys, 3.50e-03_kind_phys, 3.50e-03_kind_phys, 5.10e-03_kind_phys, 2.00e-03_kind_phys, &
       5.00e-03_kind_phys, -1.00e+00_kind_phys, -1.00e+00_kind_phys, 10.00e-03_kind_phys, 3.50e-03_kind_phys, &
       -1.00e+00_kind_phys/
     save radius_collector
 
     integer            :: iwet(11) ! flag for wet surface = 1, otherwise = -1
-!   data iwet/1,   -1,   -1,   -1,   -1,  &
-!            -1,   -1,   -1,    1,   -1,  &
-!             1/
-    data iwet/-1, -1, -1, -1, -1, &
-      -1, 1, -1, 1, -1, &
-      -1/
+    data iwet/-1, -1, -1, -1, -1, -1, 1, -1, 1, -1, -1/
     save iwet
 
     vlc_trb = 0._kind_phys
     vlc_grv = 0._kind_phys
     vlc_dry = 0._kind_phys
 
-    !------------------------------------------------------------------------
     do k = top_lev, pver ! radius_part is not defined above top_lev
       do i = 1, ncol
 
         lnsig = log(sig_part(i, k))
-! use a maximum radius of 50 microns when calculating deposition velocity
+        ! use a maximum radius of 50 microns when calculating deposition velocity
         radius_moment(i, k) = min(50.0e-6_kind_phys, radius_part(i, k))* &
                               exp((float(moment) - 1.5_kind_phys)*lnsig*lnsig)
         dispersion = exp(2._kind_phys*lnsig*lnsig)
@@ -216,25 +191,16 @@ contains
 
   end subroutine modal_aero_depvel_part
 
-!------------------------------------------------------------------------
-!BOP
-!
-! !IROUTINE: subroutine Calcram
-!
-! !INTERFACE:
-!
-
+  ! Calc aerodynamic resistance over oceans and sea ice (comes in from land model)
+  ! from Seinfeld and Pandis, p. 963.
+  !
+  ! Author: Natalie Mahowald
   subroutine calcram(ncol, landfrac, icefrac, ocnfrac, obklen, &
                      ustar, ram1in, ram1, t, pmid, &
                      pdel, fvin, fv, rair, gravit)
-    !
-    ! !DESCRIPTION:
-    !
-    ! Calc aerodynamic resistance over oceans and sea ice (comes in from land model)
-    ! from Seinfeld and Pandis, p.963.
-    !
-    ! Author: Natalie Mahowald
-    !
+
+    use ccpp_kinds, only: kind_phys
+
     integer, intent(in) :: ncol
     real(kind_phys), intent(in) :: ram1in(:)         !aerodynamical resistance (s/m)
     real(kind_phys), intent(in) :: fvin(:)                 ! sfc frc vel from land
@@ -257,10 +223,11 @@ contains
     ! local variables
     real(kind_phys) :: z, psi, psi0, nu, nu0, temp, ram
     integer :: i
-    !    write(iulog,*) rair,zzsice,zzocen,gravit,xkar
 
     do i = 1, ncol
-      z = pdel(i)*rair*t(i)/pmid(i)/gravit/2.0_kind_phys   !use half the layer height like Ganzefeld and Lelieveld, 1995
+      ! use half the layer height like Ganzefeld and Lelieveld, 1995
+      ! https://doi.org/10.1029/95JD02266
+      z = pdel(i)*rair*t(i)/pmid(i)/gravit/2.0_kind_phys
       if (obklen(i) == 0) then
         psi = 0._kind_phys
         psi0 = 0._kind_phys
@@ -297,9 +264,6 @@ contains
         fv(i) = fvin(i)
         ram1(i) = ram1in(i)
       end if
-      !          write(iulog,*) i,pdel(i),t(i),pmid(i),gravit,obklen(i),psi,psi0,icefrac(i),nu,nu0,ram,ustar(i),&
-      !             log(((nu0**2+1.00)*(nu0+1.0)**2)/((nu**2+1.0)*(nu+1.00)**2)),2.0*(atan(nu)-atan(nu0))
-
     end do
 
     ! fvitt -- fv == 0 causes a floating point exception in

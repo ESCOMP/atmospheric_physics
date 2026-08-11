@@ -1,45 +1,30 @@
-module dust_sediment_mod
-
-!---------------------------------------------------------------------------------
-! Purpose:
-!
 ! Contains routines to compute tendencies from sedimentation of dust
-!
 ! Author: Phil Rasch
-!
-!---------------------------------------------------------------------------------
-
+module dust_sediment_mod
   use ccpp_kinds, only: kind_phys
 
+  implicit none
   private
+
   public :: dust_sediment_tend
 
   real(kind_phys), parameter :: mxsedfac = 0.99_kind_phys       ! maximum sedimentation flux factor
 
 contains
 
-!===============================================================================
+  ! Apply Particle Gravitational Sedimentation
   subroutine dust_sediment_tend( &
     ncol, dtime, pint, pdel, &
     dustmr, pvdust, dusttend, sfdust, &
     pver, gravit, errmsg, errflg)
 
-!----------------------------------------------------------------------
-!     Apply Particle Gravitational Sedimentation
-!----------------------------------------------------------------------
-
-    implicit none
-
-! Arguments
-    integer, intent(in)  :: ncol                      ! number of colums to process
-
+    integer, intent(in)  :: ncol
     real(kind_phys), intent(in)  :: dtime                     ! time step
     real(kind_phys), intent(in)  :: pint(:, :)               ! interfaces pressure (Pa)
     real(kind_phys), intent(in)  :: pdel(:, :)               ! pressure diff across layer (Pa)
     real(kind_phys), intent(in)  :: dustmr(:, :)               ! dust (kg/kg)
     real(kind_phys), intent(in)  :: pvdust(:, :)              ! vertical velocity of dust drops  (Pa/s)
-! -> note that pvel is at the interfaces (loss from cell is based on pvel(k+1))
-
+    ! -> note that pvel is at the interfaces (loss from cell is based on pvel(k+1))
     real(kind_phys), intent(out) :: dusttend(:, :)             ! dust tend
     real(kind_phys), intent(out) :: sfdust(:)               ! surface flux of dust (rain, kg/m/s)
 
@@ -48,71 +33,64 @@ contains
     character(len=*), intent(out) :: errmsg
     integer, intent(out) :: errflg
 
-! Local variables
+    ! Local variables
     real(kind_phys) :: fxdust(ncol, pver + 1)                     ! fluxes at the interfaces, dust (positive = down)
-
     integer :: i, k
-!----------------------------------------------------------------------
 
     errmsg = ''
     errflg = 0
 
-! initialize variables
+    ! initialize variables
     fxdust(:ncol, :) = 0._kind_phys ! flux at interfaces (dust)
     dusttend(:ncol, :) = 0._kind_phys ! tend (dust)
     sfdust(:ncol) = 0._kind_phys ! sedimentation flux out bot of column (dust)
 
-! fluxes at interior points
+    ! fluxes at interior points
     call getflx(ncol, pint, dustmr, pvdust, dtime, fxdust, pver, errmsg, errflg)
     if (errflg /= 0) return
 
-! calculate fluxes at boundaries
+    ! calculate fluxes at boundaries
     do i = 1, ncol
       fxdust(i, 1) = 0
-! surface flux by upstream scheme
+      ! surface flux by upstream scheme
       fxdust(i, pver + 1) = dustmr(i, pver)*pvdust(i, pver + 1)*dtime
     end do
 
-! filter out any negative fluxes from the getflx routine
+    ! filter out any negative fluxes from the getflx routine
     do k = 2, pver
       fxdust(:ncol, k) = max(0._kind_phys, fxdust(:ncol, k))
     end do
 
-! Limit the flux out of the bottom of each cell to the water content in each phase.
-! Apply mxsedfac to prevent generating very small negative cloud water/ice
-! NOTE, REMOVED CLOUD FACTOR FROM AVAILABLE WATER. ALL CLOUD WATER IS IN CLOUDS.
-! ***Should we include the flux in the top, to allow for thin surface layers?
-! ***Requires simple treatment of cloud overlap, already included below.
+    ! Limit the flux out of the bottom of each cell to the water content in each phase.
+    ! Apply mxsedfac to prevent generating very small negative cloud water/ice
+    ! NOTE, REMOVED CLOUD FACTOR FROM AVAILABLE WATER. ALL CLOUD WATER IS IN CLOUDS.
+    ! ***Should we include the flux in the top, to allow for thin surface layers?
+    ! ***Requires simple treatment of cloud overlap, already included below.
     do k = 1, pver
       do i = 1, ncol
         fxdust(i, k + 1) = min(fxdust(i, k + 1), mxsedfac*dustmr(i, k)*pdel(i, k))
-!!$        fxdust(i,k+1) = min( fxdust(i,k+1), dustmr(i,k) * pdel(i,k) + fxdust(i,k))
       end do
     end do
 
-! Now calculate the tendencies
+    ! Now calculate the tendencies
     do k = 1, pver
       do i = 1, ncol
-! net flux into cloud changes cloud dust/ice (all flux is out of cloud)
+        ! net flux into cloud changes cloud dust/ice (all flux is out of cloud)
         dusttend(i, k) = (fxdust(i, k) - fxdust(i, k + 1))/(dtime*pdel(i, k))
       end do
     end do
 
-! convert flux out the bottom to mass units Pa -> kg/m2/s
+    ! convert flux out the bottom to mass units Pa -> kg/m2/s
     sfdust(:ncol) = fxdust(:ncol, pver + 1)/(dtime*gravit)
 
   end subroutine dust_sediment_tend
 
-!===============================================================================
+
   subroutine getflx(ncol, xw, phi, vel, deltat, flux, pver, errmsg, errflg)
-
-!.....xw1.......xw2.......xw3.......xw4.......xw5.......xw6
-!....psiw1.....psiw2.....psiw3.....psiw4.....psiw5.....psiw6
-!....velw1.....velw2.....velw3.....velw4.....velw5.....velw6
-!.........phi1......phi2.......phi3.....phi4.......phi5.......
-
-    implicit none
-
+    !.....xw1.......xw2.......xw3.......xw4.......xw5.......xw6
+    !....psiw1.....psiw2.....psiw3.....psiw4.....psiw5.....psiw6
+    !....velw1.....velw2.....velw3.....velw4.....velw5.....velw6
+    !.........phi1......phi2.......phi3.....phi4.......phi5.......
     integer :: ncol                      ! number of colums to process
 
     integer :: i
@@ -176,13 +154,9 @@ contains
 
   end subroutine getflx
 
-!##############################################################################
 
   subroutine cfint2(ncol, x, f, fdot, xin, fxdot, fxdd, psistar, pver, errmsg, errflg)
-
-    implicit none
-
-! input
+    ! input
     integer :: ncol                      ! number of colums to process
 
     real(kind_phys) :: x(:, :)
@@ -192,7 +166,7 @@ contains
 
     integer, intent(in) :: pver       ! number of vertical levels
 
-! output
+    ! output
     real(kind_phys) :: fxdot(:)
     real(kind_phys) :: fxdd(:)
     real(kind_phys) :: psistar(:)
@@ -285,39 +259,35 @@ contains
 
   end subroutine cfint2
 
-!##############################################################################
-
   subroutine cfdotmc_pro(ncol, x, f, fdot, pver)
 
-!     prototype version; eventually replace with final SPITFIRE scheme
+    !     prototype version; eventually replace with final SPITFIRE scheme
 
-!     calculate the derivative for the interpolating polynomial
-!     multi column version
+    !     calculate the derivative for the interpolating polynomial
+    !     multi column version
 
-    implicit none
-
-! input
+    ! input
     integer :: ncol                      ! number of colums to process
 
     real(kind_phys) :: x(:, :)
     real(kind_phys) :: f(:, :)
     integer, intent(in) :: pver       ! number of vertical levels
-! output
+    ! output
     real(kind_phys) :: fdot(:, :)          ! derivative at nodes
 
-! assumed variable distribution
-!     x1.......x2.......x3.......x4.......x5.......x6     1,pverp points
-!     f1.......f2.......f3.......f4.......f5.......f6     1,pverp points
-!     ...sh1.......sh2......sh3......sh4......sh5....     1,pver points
-!     .........d2.......d3.......d4.......d5.........     2,pver points
-!     .........s2.......s3.......s4.......s5.........     2,pver points
-!     .............dh2......dh3......dh4.............     2,pver-1 points
-!     .............eh2......eh3......eh4.............     2,pver-1 points
-!     ..................e3.......e4..................     3,pver-1 points
-!     .................ppl3......ppl4................     3,pver-1 points
-!     .................ppr3......ppr4................     3,pver-1 points
-!     .................t3........t4..................     3,pver-1 points
-!     ................fdot3.....fdot4................     3,pver-1 points
+    ! assumed variable distribution
+    !     x1.......x2.......x3.......x4.......x5.......x6     1,pverp points
+    !     f1.......f2.......f3.......f4.......f5.......f6     1,pverp points
+    !     ...sh1.......sh2......sh3......sh4......sh5....     1,pver points
+    !     .........d2.......d3.......d4.......d5.........     2,pver points
+    !     .........s2.......s3.......s4.......s5.........     2,pver points
+    !     .............dh2......dh3......dh4.............     2,pver-1 points
+    !     .............eh2......eh3......eh4.............     2,pver-1 points
+    !     ..................e3.......e4..................     3,pver-1 points
+    !     .................ppl3......ppl4................     3,pver-1 points
+    !     .................ppr3......ppr4................     3,pver-1 points
+    !     .................t3........t4..................     3,pver-1 points
+    !     ................fdot3.....fdot4................     3,pver-1 points
 
 ! work variables
 

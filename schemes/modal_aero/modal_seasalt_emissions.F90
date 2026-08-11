@@ -1,12 +1,6 @@
-!===============================================================================
-! Sea salt emissions for the Modal Aerosol Model
-!   Portable science routine split from modal_aero/seasalt_model.F90, plus the
-!   10 m wind extrapolation moved from modal_aero/aero_model.F90: sea salt
-!   section number fluxes accumulated into modal number and mass surface
-!   fluxes over the ocean fraction.
-!   Host constants and index maps are passed as arguments; array sizing is by
-!   runtime ncol.
-!===============================================================================
+! Seasalt emissions for modal aerosol model
+! Seasalt section number fluxes accumulated into modal number and mass surface fluxes
+! over the ocean fraction.
 module modal_seasalt_emissions
   use ccpp_kinds, only: kind_phys
 
@@ -21,18 +15,15 @@ module modal_seasalt_emissions
 
 contains
 
-  !=============================================================================
-  !=============================================================================
   subroutine modal_seasalt_emissions_run(ncol, nslt, seasalt_indices, emis_scale, &
                                          u_bottom, v_bottom, zmid_bottom, &
                                          srf_temp, ocnfrc, pi, cflx)
 
     use sslt_sections, only: nsections, fluxes, Dg, rdry
 
-    ! dummy arguments
     integer, intent(in) :: ncol
-    integer, intent(in) :: nslt                ! number of seasalt bins (mass species)
-    integer, intent(in) :: seasalt_indices(:)  ! constituent indices: mass bins, then number bins
+    integer, intent(in) :: nslt                        ! number of seasalt bins (mass species)
+    integer, intent(in) :: seasalt_indices(:)          ! constituent indices: mass bins, then number bins
     real(kind_phys), intent(in) :: emis_scale          ! sea salt emission tuning factor
     real(kind_phys), intent(in) :: u_bottom(:)         ! bottom layer zonal wind (m/s)
     real(kind_phys), intent(in) :: v_bottom(:)         ! bottom layer meridional wind (m/s)

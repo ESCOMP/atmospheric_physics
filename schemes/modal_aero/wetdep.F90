@@ -1,11 +1,5 @@
-module wetdep
-
-!-----------------------------------------------------------------------
-!
 ! Wet deposition routines for both aerosols and gas phase constituents.
-!
-!-----------------------------------------------------------------------
-
+module wetdep
   use ccpp_kinds, only: kind_phys
   use aerosol_properties_mod, only: aerosol_properties
   use shr_infnan_mod, only: nan => shr_infnan_nan, assignment(=)
@@ -13,9 +7,9 @@ module wetdep
   implicit none
   private
 
-  public :: wetdepa_v1  ! scavenging codes for very soluble aerosols -- CAM4 version
-  public :: wetdepa_v2  ! scavenging codes for very soluble aerosols -- CAM5 version
-  public :: clddiag     ! calc of cloudy volume and rain mixing ratio
+  public :: wetdepa_v1       ! scavenging codes for very soluble aerosols -- CAM4 version
+  public :: wetdepa_v2       ! scavenging codes for very soluble aerosols -- CAM5 version
+  public :: clddiag          ! calc of cloudy volume and rain mixing ratio
   public :: init_bcscavcoef  ! build below-cloud impaction scavenging lookup table
   public :: get_bcscavcoefs  ! interpolate below-cloud impaction scavenging coefs
 
@@ -23,31 +17,25 @@ module wetdep
   real(kind_phys), parameter :: rhoh2o = 1000._kind_phys            ! density of water
   real(kind_phys), parameter :: omsm = 1._kind_phys - 2*epsilon(1._kind_phys) ! used to prevent roundoff errors below zero
 
-! variables for table lookup of aerosol impaction/interception scavenging rates
+  ! variables for table lookup of aerosol impaction/interception scavenging rates
   integer, parameter :: nimptblgrow_mind = -7, nimptblgrow_maxd = 12
   real(kind_phys) :: dlndg_nimptblgrow
   real(kind_phys), allocatable :: scavimptblnum(:, :)
   real(kind_phys), allocatable :: scavimptblvol(:, :)
 
-!==============================================================================
 contains
-!==============================================================================
 
+  ! Estimate the cloudy volume which is occupied by rain or cloud water as
+  ! the max between the local cloud amount or the
+  ! sum above of (cloud*positive precip production)      sum total precip from above
+  !              ----------------------------------   x ------------------------
+  ! sum above of     (positive precip           )        sum positive precip from above
+  ! Author: P. Rasch
+  !         Sungsu Park. Mar.2010
   subroutine clddiag(t, pmid, pdel, cmfdqr, evapc, &
                      cldt, cldcu, cldst, evapr, &
                      prain, cldv, cldvcu, cldvst, rain, &
                      ncol, pver, gravit, tmelt, rair)
-
-    ! ------------------------------------------------------------------------------------
-    ! Estimate the cloudy volume which is occupied by rain or cloud water as
-    ! the max between the local cloud amount or the
-    ! sum above of (cloud*positive precip production)      sum total precip from above
-    !              ----------------------------------   x ------------------------
-    ! sum above of     (positive precip           )        sum positive precip from above
-    ! Author: P. Rasch
-    !         Sungsu Park. Mar.2010
-    ! ------------------------------------------------------------------------------------
-
     ! Input arguments:
     real(kind_phys), intent(in) :: t(:, :)        ! temperature (K)
     real(kind_phys), intent(in) :: pmid(:, :)     ! pressure at layer midpoints
@@ -1255,7 +1243,5 @@ contains
     end subroutine calc_1_impact_rate
 
   end subroutine init_bcscavcoef
-
-!##############################################################################
 
 end module wetdep

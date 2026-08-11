@@ -1,11 +1,4 @@
-!----------------------------------------------------------------------------------
-! Generic aerosol implementation
-!
-! Portable (CCPP-ready): species indices, host constants and configuration are
-! passed in through sox_cldaero_init; no CAM infrastructure dependencies.
-!----------------------------------------------------------------------------------
 module sox_cldaero_mod
-
   use ccpp_kinds, only: kind_phys
   use cldaero_mod, only: cldaero_conc_t, cldaero_allocate, cldaero_deallocate
   use cldaero_mod, only: cldaero_uptakerate
@@ -40,9 +33,6 @@ module sox_cldaero_mod
   logical :: do_aqueous_sulfur_chemistry_aerosol_update = .true.
 
 contains
-
-!----------------------------------------------------------------------------------
-!----------------------------------------------------------------------------------
 
   subroutine sox_cldaero_init(aero_props_in, id_msa_in, id_h2so4_in, id_so2_in, &
                               id_h2o2_in, id_nh3_in, pi_in, do_aqueous_sulfur_chemistry_aerosol_update_in, &
@@ -81,8 +71,6 @@ contains
 
   end subroutine sox_cldaero_init
 
-!----------------------------------------------------------------------------------
-!----------------------------------------------------------------------------------
   function sox_cldaero_create_obj(cldfrc, qcw, lwc, cfact, ncol, pver) result(conc_obj)
 
     real(kind_phys), intent(in) :: cldfrc(:, :)
@@ -148,16 +136,12 @@ contains
 
   end function sox_cldaero_create_obj
 
-!----------------------------------------------------------------------------------
-! Update the mixing ratios
-!----------------------------------------------------------------------------------
+  ! Update the mixing ratios
   subroutine sox_cldaero_update(aero_state, &
                                 ncol, pver, dtime, mbar, pdel, press, tfld, cldnum, cldfrc, cfact, xlwc, &
                                 gravit, &
                                 delso4_hprxn, xh2so4, xso4, xso4_init, nh3g, xnh3, xnh4c, xmsa, xso2, xh2o2, qcw, qin, &
                                 aqso4, aqh2so4, aqso4_h2o2, aqso4_o3, aqso4_h2o2_3d, aqso4_o3_3d)
-
-    ! args
 
     class(aerosol_state), intent(in) :: aero_state
 
@@ -482,8 +466,6 @@ contains
 
   end subroutine sox_cldaero_update
 
-  !----------------------------------------------------------------------------------
-  !----------------------------------------------------------------------------------
   subroutine sox_cldaero_destroy_obj(conc_obj)
     type(cldaero_conc_t), pointer :: conc_obj
 

@@ -79,6 +79,11 @@ module modal_aero_gasaerexch
 
 contains
 
+  ! initialize gas-aerosol exchange module
+  ! store species indices and mode metadata
+  ! compute aging/MW conversion factors
+  !
+  ! Author: R. Easter
   subroutine modal_aero_gasaerexch_init( &
     ntot_amode, nsoa, npoa, nspec_max, &
     nspec_amode, &
@@ -95,17 +100,6 @@ contains
     mw_soa_host, mw_poa_host, &
     rair, mwdry, r_universal, &
     errmsg, errflg)
-
-    !-----------------------------------------------------------------------
-    !
-    ! Purpose:
-    !    initialize gas-aerosol exchange module
-    !    store species indices and mode metadata
-    !    compute aging/MW conversion factors
-    !
-    ! Author: R. Easter
-    !
-    !-----------------------------------------------------------------------
 
     ! arguments
     integer, intent(in) :: ntot_amode
@@ -145,8 +139,6 @@ contains
     ! local
     integer :: jsoa, l, l1, l2, n
     real(kind_phys) :: tmp2
-
-!-----------------------------------------------------------------------
 
     errmsg = ''
     errflg = 0
@@ -408,9 +400,9 @@ contains
     q, &
     dqdt, dotend, qsrflx_gaexch, &
     errmsg, errflg)
-    integer, intent(in)    :: ncol                 ! # of atmospheric columns
-    integer, intent(in)    :: pver                 ! # of vertical levels
-    real(kind_phys), intent(in)    :: deltat               ! time step [s]
+    integer, intent(in)    :: ncol
+    integer, intent(in)    :: pver
+    real(kind_phys), intent(in)    :: deltat       ! time step [s]
     integer, intent(in)    :: top_lev              ! top level for aerosol processes
     integer, intent(in)    :: loffset              ! offset to convert pcnst-space to vmr-space [index]
     integer, intent(in)    :: troplev(:)           ! (ncol) tropopause vertical index [index]
@@ -805,8 +797,8 @@ contains
         end if
 
         if ((do_soag_any) .and. (method_soa > 1)) then
-!   compute TMR tendencies for soag and soa interstial aerosol
-!   using soa parameterization
+          !   compute TMR tendencies for soag and soa interstial aerosol
+          !   using soa parameterization
           niter_max = 1000
           dqdt_soa(:, :) = 0.0_kind_phys
           dqdt_soag(:) = 0.0_kind_phys
@@ -822,9 +814,8 @@ contains
           sum_dqdt_soa(:) = -dqdt_soag(:)
 
         else if (do_soag_any) then
-!   compute TMR tendencies for soa interstial aerosol
-!   due to simple gas uptake
-
+          !   compute TMR tendencies for soa interstial aerosol
+          !   due to simple gas uptake
           do jsoa = 1, nsoa_m
             do n = 1, ntot_amode_m
               dqdt_soa(n, jsoa) = fgain_soa(n, jsoa)*sum_dqdt_soa(jsoa)
@@ -861,8 +852,8 @@ contains
           end do
         end do ! n
 
-!   compute TMR tendencies for h2so4, nh3, and msa gas
-!   due to simple gas uptake
+        !   compute TMR tendencies for h2so4, nh3, and msa gas
+        !   due to simple gas uptake
         l = l_so4g
         dqdt(i, k, l) = -sum_dqdt_so4
         qsrflx_gaexch(i, l) = qsrflx_gaexch(i, l) + dqdt(i, k, l)*pdel_fac
@@ -902,17 +893,18 @@ contains
             vol_core = vol_core + &
                        q(i, k, idx_mass_q(l, n))*fac_m2v_pcarbon(l)
           end do
-!   ratio1 = vol_shell/vol_core =
-!      actual hygroscopic-shell-volume/carbon-core-volume after gas uptake
-!   ratio2 = 6.0_kind_phys*dr_so4_monolayers_pcage/(dgncur_a*fac_volsfc_pcarbon)
-!      = (shell-volume corresponding to n_so4_monolayers_pcage)/core-volume
-!      The 6.0/(dgncur_a*fac_volsfc_pcarbon) = (mode-surface-area/mode-volume)
-!   Note that vol_shell includes both so4+nh4 AND soa as "equivalent so4",
-!      The soa_equivso4_factor accounts for the lower hygroscopicity of soa.
-!
-!   Define xferfrac_pcage = min( 1.0, ratio1/ratio2)
-!   But ratio1/ratio2 == tmp1/tmp2, and coding below avoids possible overflow
-!
+
+          !   ratio1 = vol_shell/vol_core =
+          !      actual hygroscopic-shell-volume/carbon-core-volume after gas uptake
+          !   ratio2 = 6.0_kind_phys*dr_so4_monolayers_pcage/(dgncur_a*fac_volsfc_pcarbon)
+          !      = (shell-volume corresponding to n_so4_monolayers_pcage)/core-volume
+          !      The 6.0/(dgncur_a*fac_volsfc_pcarbon) = (mode-surface-area/mode-volume)
+          !   Note that vol_shell includes both so4+nh4 AND soa as "equivalent so4",
+          !      The soa_equivso4_factor accounts for the lower hygroscopicity of soa.
+          !
+          !   Define xferfrac_pcage = min( 1.0, ratio1/ratio2)
+          !   But ratio1/ratio2 == tmp1/tmp2, and coding below avoids possible overflow
+
           tmp1 = vol_shell*dgncur_a(i, k, n)*fac_volsfc_pcarbon
           tmp2 = max(6.0_kind_phys*dr_so4_monolayers_pcage*vol_core, 0.0_kind_phys)
           if (tmp1 >= tmp2) then
@@ -1018,65 +1010,47 @@ contains
     data xghq/0.70710678_kind_phys, -0.70710678_kind_phys/
     data wghq/0.88622693_kind_phys, 0.88622693_kind_phys/
 
-! outermost loop over all modes
+    ! outermost loop over all modes
     do n = 1, ntot_amode_m
 
-! 22-aug-2007 rc easter - get number from q array rather
-!    than computing a "bounded" number conc.
-!! compute dry volume = sum_over_components{ component_mass / density }
-!!    (m3-AP/mol-air)
-!! compute it for all i,k to improve accessing q array
-!      dryvol_a(1:ncol,:) = 0.0_kind_phys
-!      do l1 = 1, nspec_amode(n)
-!         l2 = lspectype_amode(l1,n)
-!! dum_m2v converts (kmol-AP/kmol-air) to (m3-AP/kmol-air)
-!! [m3-AP/kmol-AP]= [kg-AP/kmol-AP]  / [kg-AP/m3-AP]
-!         dum_m2v = specmw_amode(l2) / specdens_amode(l2)
-!         la = lmassptr_amode(l1,n)
-!         dryvol_a(1:ncol,:) = dryvol_a(1:ncol,:)    &
-!                            + max(0.0_kind_phys,q(1:ncol,:,la))*dum_m2v
-!      end do
+    ! 22-aug-2007 rc easter - get number from q array rather
+    !    than computing a "bounded" number conc.
 
-! loops k and i
+    ! loops k and i
       do k = top_lev, pver
       do i = 1, ncol
 
         rhoair = pmid(i, k)/(rair_m*t(i, k))   ! (kg-air/m3)
-!        aircon = 1.0e3*rhoair/mwdry        ! (mol-air/m3)
-
-!!   "bounded" number conc. (#/m3)
-!        num_a = dryvol_a(i,k)*v2ncur_a(i,k,n)*aircon
-
-!   number conc. (#/m3) -- note q(i,k,numptr) is (#/kmol-air)
-!   so need aircon in (kmol-air/m3)
+        !   number conc. (#/m3) -- note q(i,k,numptr) is (#/kmol-air)
+        !   so need aircon in (kmol-air/m3)
         aircon = rhoair/mwdry_m            ! (kmol-air/m3)
         num_a = q(i, k, idx_num_m(n) - loffset)*aircon
 
-!   gasdiffus = h2so4 gas diffusivity from mosaic code (m^2/s)
-!               (pmid must be Pa)
+        !   gasdiffus = h2so4 gas diffusivity from mosaic code (m^2/s)
+        !               (pmid must be Pa)
         gasdiffus = 0.557e-4_kind_phys*(t(i, k)**1.75_kind_phys)/pmid(i, k)
-!   gasspeed = h2so4 gas mean molecular speed from mosaic code (m/s)
+        !   gasspeed = h2so4 gas mean molecular speed from mosaic code (m/s)
         gasspeed = 1.470e1_kind_phys*sqrt(t(i, k))
-!   freepathx2 = 2 * (h2so4 mean free path)  (m)
+        !   freepathx2 = 2 * (h2so4 mean free path)  (m)
         freepathx2 = 6.0_kind_phys*gasdiffus/gasspeed
 
         lnsg = log(sigmag_amode_m(n))
         lndpgn = log(dgncur_awet(i, k, n))   ! (m)
         const = tworootpi*num_a*exp(beta*lndpgn + 0.5_kind_phys*(beta*lnsg)**2)
 
-!   sum over gauss-hermite quadrature points
+        !   sum over gauss-hermite quadrature points
         sumghq = 0.0_kind_phys
         do iq = 1, nghq
           lndp = lndpgn + beta*lnsg**2 + root2*lnsg*xghq(iq)
           dp = exp(lndp)
 
-!   knudsen number
+          !   knudsen number
           knudsen = freepathx2/dp
-!  Changed by Manish Shrivastava on 7/17/2013 to use accom=1; because we do not know better
-!   following assumes accomodation coefficient = ac = 1. instead 0.65 ! answer change needs to be tested
-!   (Adams & Seinfeld, 2002, JGR, and references therein)
-!           fuchs_sutugin = (0.75*ac*(1. + knudsen)) /
-!                           (knudsen*(1.0 + knudsen + 0.283*ac) + 0.75*ac)
+          !  Changed by Manish Shrivastava on 7/17/2013 to use accom=1; because we do not know better
+          !   following assumes accomodation coefficient = ac = 1. instead 0.65 ! answer change needs to be tested
+          !   (Adams & Seinfeld, 2002, JGR, and references therein)
+          !           fuchs_sutugin = (0.75*ac*(1. + knudsen)) /
+          !                           (knudsen*(1.0 + knudsen + 0.283*ac) + 0.75*ac)
           fuchs_sutugin = (0.4875_kind_phys*(1._kind_phys + knudsen))/ &
                           (knudsen*(1.184_kind_phys + knudsen) + 0.4875_kind_phys)
           sumghq = sumghq + wghq(iq)*dp*fuchs_sutugin/(dp**beta)
@@ -1090,35 +1064,26 @@ contains
 
   end subroutine gas_aer_uptkrates
 
-!----------------------------------------------------------------------
-
+  ! calculates condensation/evaporation of "soa gas"
+  ! to/from multiple aerosol modes in 1 grid cell
+  !
+  ! key assumptions
+  ! (1) ambient equilibrium vapor pressure of soa gas
+  !     is given by p0_soa_298 and delh_vap_soa
+  ! (2) equilibrium vapor pressure of soa gas at aerosol
+  !     particle surface is given by raoults law in the form
+  !     g_star = g0_soa*[a_soa/(a_soa + a_opoa)]
+  ! (3) (oxidized poa)/(total poa) is equal to frac_opoa (constant)
+  !
+  !
+  ! Author: R. Easter and R. Zaveri
+  ! Additions to run with multiple BC, SOA and POM's: Shrivastava et al., 2015
+  ! 10.1002/2014JD022563
   subroutine modal_aero_soaexch(dtfull, temp, pres, &
                                 niter, niter_max, ntot_amode, ntot_soamode, ntot_poaspec, ntot_soaspec, &
                                 mw_poa_host, mw_soa_host, &
                                 g_soa_in, a_soa_in, a_poa_in, xferrate_in, &
                                 g_soa_tend, a_soa_tend)
-!         g_soa_tend, a_soa_tend, g0_soa, idiagss )
-
-!-----------------------------------------------------------------------
-!
-! Purpose:
-!
-! calculates condensation/evaporation of "soa gas"
-! to/from multiple aerosol modes in 1 grid cell
-!
-! key assumptions
-! (1) ambient equilibrium vapor pressure of soa gas
-!     is given by p0_soa_298 and delh_vap_soa
-! (2) equilibrium vapor pressure of soa gas at aerosol
-!     particle surface is given by raoults law in the form
-!     g_star = g0_soa*[a_soa/(a_soa + a_opoa)]
-! (3) (oxidized poa)/(total poa) is equal to frac_opoa (constant)
-!
-!
-! Author: R. Easter and R. Zaveri
-! Additions to run with multiple BC, SOA and POM's: Shrivastava et al., 2015
-!-----------------------------------------------------------------------
-
     real(kind_phys), intent(in)  :: dtfull                     ! full integration time step (s)
     real(kind_phys), intent(in)  :: temp                       ! air temperature (K)
     real(kind_phys), intent(in)  :: pres                       ! air pressure (Pa)
@@ -1160,8 +1125,8 @@ contains
     real(kind_phys) :: dtmax                                ! = (dtfull-tcur)
     real(kind_phys) :: g0_soa(ntot_soaspec)                 ! ambient soa gas equilib mixrat (mol/mol at actual mw)
     real(kind_phys) :: g_soa(ntot_soaspec)                  ! soa gas mixrat (mol/mol at actual mw)
-    real(kind_phys) :: g_star(ntot_soamode, ntot_soaspec)    ! soa gas mixrat that is in equilib
-    ! with each aerosol mode (mol/mol)
+    ! soa gas mixrat that is in equilib with each aerosol mode (mol/mol)
+    real(kind_phys) :: g_star(ntot_soamode, ntot_soaspec)
     real(kind_phys) :: mw_poa(ntot_poaspec)                 ! actual molec wght of poa
     real(kind_phys) :: mw_soa(ntot_soaspec)                 ! actual molec wght of soa
     real(kind_phys) :: opoa_frac(ntot_poaspec)              ! fraction of poa that is opoa
@@ -1300,21 +1265,7 @@ contains
     phi(:, :) = 0.0_kind_phys
     g_star(:, :) = 0.0_kind_phys
 
-!     if (idiagss > 0) then
-!        write(luna,'(a,1p,10e11.3)') 'p0, g0_soa', p0_soa, g0_soa
-!        write(luna,'(3a)') &
-!           'niter, tcur,   dtcur,    phi(:),                       ', &
-!           'g_star(:),                    ', &
-!           'a_soa(:),                     g_soa'
-!        write(luna,'(3a)') &
-!           '                         sat(:),                       ', &
-!           'sat(:)*a_soa(:)               ', &
-!           'a_opoa(:)'
-!        write(luna,'(i3,1p,20e10.2)') niter, tcur, dtcur, &
-!           phi(:), g_star(:), a_soa(:), g_soa
-!     end if
-
-! integration loop -- does multiple substeps to reach dtfull
+    ! integration loop -- does multiple substeps to reach dtfull
     time_loop: &
       do while (tcur < dtfull - 1.0e-3_kind_phys)
 
@@ -1344,7 +1295,7 @@ contains
       else
         dtmax = dtfull - tcur
         if (dtmax*tmpa <= alpha) then
-! here alpha/tmpa >= dtmax, so this is final substep
+          ! here alpha/tmpa >= dtmax, so this is final substep
           dtcur = dtmax
           tcur = dtfull
         else
@@ -1353,10 +1304,10 @@ contains
         end if
       end if
 
-! step 1 - for modes where soa is condensing, estimate "new" a_soa(m,ll)
-!    using an explicit calculation with "old" g_soa
-!    and g_star(m,ll) calculated using "old" a_soa(m,ll)
-! do this to get better estimate of "new" a_soa(m,ll) and sat(m,ll)
+      ! step 1 - for modes where soa is condensing, estimate "new" a_soa(m,ll)
+      !    using an explicit calculation with "old" g_soa
+      !    and g_star(m,ll) calculated using "old" a_soa(m,ll)
+      ! do this to get better estimate of "new" a_soa(m,ll) and sat(m,ll)
       do m = 1, ntot_soamode
         if (skip_soamode(m)) cycle
         do ll = 1, ntot_soaspec
@@ -1378,8 +1329,8 @@ contains
         end do
       end do
 
-! step 2 - implicit in g_soa and semi-implicit in a_soa,
-!    with g_star(m,ll) calculated semi-implicitly
+      ! step 2 - implicit in g_soa and semi-implicit in a_soa,
+      !    with g_star(m,ll) calculated semi-implicitly
       do ll = 1, ntot_soaspec
         tmpa = 0.0_kind_phys
         tmpb = 0.0_kind_phys
@@ -1397,18 +1348,6 @@ contains
                          (1.0_kind_phys + beta(m, ll)*sat(m, ll))
         end do
       end do
-
-!     if (idiagss > 0) then
-!        write(luna,'(i3,1p,20e10.2)') niter, tcur, dtcur, &
-!           phi(:), g_star(:), a_soa(:), g_soa
-!        write(luna,'(23x,1p,20e10.2)') &
-!           sat(:), sat(:)*a_soa(:), a_opoa(:)
-!     end if
-
-!     if (niter > 9992000) then
-!        write(luna,'(a)') '*** to many iterations'
-!        exit
-!     end if
 
     end do time_loop
 
