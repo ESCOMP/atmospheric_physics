@@ -22,20 +22,20 @@ contains
   ! bin mass-weighted diameters used for the number flux conversion.
   !=============================================================================
   subroutine modal_dust_emissions_init(ntot_amode, dust_nbin, pi, rair, gravit, &
-                                        dust_emis_sclfctr, dust_dmt_vwr, errmsg, errflg)
+                                       dust_emis_sclfctr, dust_dmt_vwr, errmsg, errflg)
     use dust_common, only: dust_set_params
 
-    integer,  intent(in)  :: ntot_amode            ! number of aerosol modes
-    integer,  intent(in)  :: dust_nbin             ! number of dust bins (mass species)
+    integer, intent(in)  :: ntot_amode            ! number of aerosol modes
+    integer, intent(in)  :: dust_nbin             ! number of dust bins (mass species)
     real(kind_phys), intent(in)  :: pi                    ! host model constants
     real(kind_phys), intent(in)  :: rair                  ! gas constant for dry air (J/K/kg)
     real(kind_phys), intent(in)  :: gravit                ! gravitational acceleration (m/s2)
     real(kind_phys), intent(out) :: dust_emis_sclfctr(:)  ! mass fraction of emissions per bin
     real(kind_phys), intent(out) :: dust_dmt_vwr(:)       ! mass-weighted diameter per bin (m)
     character(len=*), intent(out) :: errmsg
-    integer,          intent(out) :: errflg
+    integer, intent(out) :: errflg
 
-    real(kind_phys) :: dust_dmt_grd(dust_nbin+1)  ! bin diameter edges (m)
+    real(kind_phys) :: dust_dmt_grd(dust_nbin + 1)  ! bin diameter edges (m)
     real(kind_phys) :: dust_stk_crc(dust_nbin)    ! Stokes correction from dust_set_params; unused by emissions
 
     errmsg = ''
@@ -51,21 +51,21 @@ contains
     ! low dust biases over remote oceans and reducing high dust biases over the Sahara.
     ! This change impacts both Zender_2003 dust and Leung_2023 dust.
     if (ntot_amode == 3) then
-       dust_dmt_grd(:) = [0.1e-6_kind_phys, 1.0e-6_kind_phys, 10.0e-6_kind_phys]
-       dust_emis_sclfctr(:) = [0.021_kind_phys,0.979_kind_phys]
+      dust_dmt_grd(:) = [0.1e-6_kind_phys, 1.0e-6_kind_phys, 10.0e-6_kind_phys]
+      dust_emis_sclfctr(:) = [0.021_kind_phys, 0.979_kind_phys]
     else if (ntot_amode == 4 .or. ntot_amode == 5) then
-       dust_dmt_grd(:) = [0.01e-6_kind_phys, 0.1e-6_kind_phys, 1.0e-6_kind_phys, 10.0e-6_kind_phys]
-       dust_emis_sclfctr(:) = [1.65E-05_kind_phys, 0.021_kind_phys, 0.979_kind_phys]
-    else if(ntot_amode == 7) then
-       dust_dmt_grd(:) = [0.1e-6_kind_phys, 2.0e-6_kind_phys, 10.0e-6_kind_phys]
-       dust_emis_sclfctr(:) = [0.12_kind_phys, 0.88_kind_phys]
+      dust_dmt_grd(:) = [0.01e-6_kind_phys, 0.1e-6_kind_phys, 1.0e-6_kind_phys, 10.0e-6_kind_phys]
+      dust_emis_sclfctr(:) = [1.65E-05_kind_phys, 0.021_kind_phys, 0.979_kind_phys]
+    else if (ntot_amode == 7) then
+      dust_dmt_grd(:) = [0.1e-6_kind_phys, 2.0e-6_kind_phys, 10.0e-6_kind_phys]
+      dust_emis_sclfctr(:) = [0.12_kind_phys, 0.88_kind_phys]
     end if
     ! dmleung --
 
-    call dust_set_params(nbin=dust_nbin, dmt_grd=dust_dmt_grd,      &
-                          dmt_vwr=dust_dmt_vwr, stk_crc=dust_stk_crc, &
-                          pi=pi, rair=rair, gravit=gravit,            &
-                          errmsg=errmsg, errflg=errflg)
+    call dust_set_params(nbin=dust_nbin, dmt_grd=dust_dmt_grd, &
+                         dmt_vwr=dust_dmt_vwr, stk_crc=dust_stk_crc, &
+                         pi=pi, rair=rair, gravit=gravit, &
+                         errmsg=errmsg, errflg=errflg)
 
   end subroutine modal_dust_emissions_init
 
@@ -74,63 +74,63 @@ contains
   ! number surface fluxes.
   !===============================================================================
   subroutine modal_dust_emissions_run(ncol, dust_nbin, dust_indices, dust_emis_sclfctr, &
-                                       dust_dmt_vwr, dust_emis_fact,                     &
-                                       zender_soil_erod_from_atm, soil_erodibility,      &
-                                       dust_flux_in, pi, cflx, soil_erod)
+                                      dust_dmt_vwr, dust_emis_fact, &
+                                      zender_soil_erod_from_atm, soil_erodibility, &
+                                      dust_flux_in, pi, cflx, soil_erod)
     use dust_common, only: dust_density
 
-  ! args
-    integer,  intent(in)    :: ncol
-    integer,  intent(in)    :: dust_nbin             ! number of dust bins (mass species)
-    integer,  intent(in)    :: dust_indices(:)       ! constituent indices: mass bins, then number bins
+    ! args
+    integer, intent(in)    :: ncol
+    integer, intent(in)    :: dust_nbin             ! number of dust bins (mass species)
+    integer, intent(in)    :: dust_indices(:)       ! constituent indices: mass bins, then number bins
     real(kind_phys), intent(in)    :: dust_emis_sclfctr(:)  ! mass fraction of emissions per bin
     real(kind_phys), intent(in)    :: dust_dmt_vwr(:)       ! mass-weighted diameter per bin (m)
     real(kind_phys), intent(in)    :: dust_emis_fact        ! tuning parameter for dust emissions
-    logical,  intent(in)    :: zender_soil_erod_from_atm ! Zender_2003 with soil erodibility applied in atm
+    logical, intent(in)    :: zender_soil_erod_from_atm ! Zender_2003 with soil erodibility applied in atm
     real(kind_phys), intent(in)    :: soil_erodibility(:)   ! soil erodibility factor (used only when
-                                                     ! zender_soil_erod_from_atm)
-    real(kind_phys), intent(in)    :: dust_flux_in(:,:)     ! dust fluxes from the coupler (kg/m2/s, negative down)
+    ! zender_soil_erod_from_atm)
+    real(kind_phys), intent(in)    :: dust_flux_in(:, :)     ! dust fluxes from the coupler (kg/m2/s, negative down)
     real(kind_phys), intent(in)    :: pi
-    real(kind_phys), intent(inout) :: cflx(:,:)             ! constituent surface fluxes (kg/m2/s)
+    real(kind_phys), intent(inout) :: cflx(:, :)             ! constituent surface fluxes (kg/m2/s)
     real(kind_phys), intent(out)   :: soil_erod(:)          ! thresholded soil erodibility
-                                                     ! (not set on the Leung_2023 branch)
+    ! (not set on the Leung_2023 branch)
 
-  ! local vars
+    ! local vars
     integer :: i, m, idst, inum
     real(kind_phys) :: x_mton
-    real(kind_phys),parameter :: soil_erod_threshold = 0.1_kind_phys
+    real(kind_phys), parameter :: soil_erod_threshold = 0.1_kind_phys
 
     ! set dust emissions
 
     if (zender_soil_erod_from_atm) then   ! Zender_2003 dust emissions
-       col_loop1: do i = 1,ncol
-          soil_erod(i) = soil_erodibility(i)
-          if(soil_erod(i) < soil_erod_threshold) soil_erod(i) = 0._kind_phys
+      col_loop1: do i = 1, ncol
+        soil_erod(i) = soil_erodibility(i)
+        if (soil_erod(i) < soil_erod_threshold) soil_erod(i) = 0._kind_phys
 
-          ! rebin and adjust dust emissons.
-          do m = 1,dust_nbin
-             idst = dust_indices(m)
-             cflx(i,idst) = sum(-dust_flux_in(i,:)) &
-                  * dust_emis_sclfctr(m)*soil_erod(i)/dust_emis_fact*1.15_kind_phys
-             x_mton = 6._kind_phys / (pi * dust_density * (dust_dmt_vwr(m)**3._kind_phys))
-             inum = dust_indices(m+dust_nbin)
-             cflx(i,inum) = cflx(i,idst)*x_mton
-          end do
-       end do col_loop1
+        ! rebin and adjust dust emissons.
+        do m = 1, dust_nbin
+          idst = dust_indices(m)
+          cflx(i, idst) = sum(-dust_flux_in(i, :)) &
+                          *dust_emis_sclfctr(m)*soil_erod(i)/dust_emis_fact*1.15_kind_phys
+          x_mton = 6._kind_phys/(pi*dust_density*(dust_dmt_vwr(m)**3._kind_phys))
+          inum = dust_indices(m + dust_nbin)
+          cflx(i, inum) = cflx(i, idst)*x_mton
+        end do
+      end do col_loop1
     else ! Leung_2023 dust emissions
 
-       col_loop2: do i = 1,ncol
-          ! rebin and adjust dust emissons.
-          do m = 1,dust_nbin
-             idst = dust_indices(m)
+      col_loop2: do i = 1, ncol
+        ! rebin and adjust dust emissons.
+        do m = 1, dust_nbin
+          idst = dust_indices(m)
 
-             cflx(i,idst) = sum(-dust_flux_in(i,:)) &
-                  * dust_emis_sclfctr(m) / dust_emis_fact
-             x_mton = 6._kind_phys / (pi * dust_density * (dust_dmt_vwr(m)**3._kind_phys))
-             inum = dust_indices(m+dust_nbin)
-             cflx(i,inum) = cflx(i,idst)*x_mton
-          end do
-       end do col_loop2
+          cflx(i, idst) = sum(-dust_flux_in(i, :)) &
+                          *dust_emis_sclfctr(m)/dust_emis_fact
+          x_mton = 6._kind_phys/(pi*dust_density*(dust_dmt_vwr(m)**3._kind_phys))
+          inum = dust_indices(m + dust_nbin)
+          cflx(i, inum) = cflx(i, idst)*x_mton
+        end do
+      end do col_loop2
     end if
 
   end subroutine modal_dust_emissions_run
