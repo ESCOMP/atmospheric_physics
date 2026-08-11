@@ -1,9 +1,7 @@
 module sox_cldaero_mod
   use ccpp_kinds, only: kind_phys
-  use cldaero_mod, only: cldaero_conc_t, cldaero_allocate, cldaero_deallocate
-  use cldaero_mod, only: cldaero_uptakerate
+  use cldaero_mod, only: cldaero_conc_t
   use aerosol_properties_mod, only: aerosol_properties
-  use aerosol_state_mod, only: aerosol_state
 
   implicit none
   private
@@ -72,6 +70,8 @@ contains
   end subroutine sox_cldaero_init
 
   function sox_cldaero_create_obj(cldfrc, qcw, lwc, cfact, ncol, pver) result(conc_obj)
+
+    use cldaero_mod, only: cldaero_allocate
 
     real(kind_phys), intent(in) :: cldfrc(:, :)
     real(kind_phys), intent(in) :: qcw(:, :, :)
@@ -142,6 +142,9 @@ contains
                                 gravit, &
                                 delso4_hprxn, xh2so4, xso4, xso4_init, nh3g, xnh3, xnh4c, xmsa, xso2, xh2o2, qcw, qin, &
                                 aqso4, aqh2so4, aqso4_h2o2, aqso4_o3, aqso4_h2o2_3d, aqso4_o3_3d)
+
+    use cldaero_mod, only: cldaero_uptakerate
+    use aerosol_state_mod, only: aerosol_state
 
     class(aerosol_state), intent(in) :: aero_state
 
@@ -467,6 +470,8 @@ contains
   end subroutine sox_cldaero_update
 
   subroutine sox_cldaero_destroy_obj(conc_obj)
+    use cldaero_mod, only: cldaero_deallocate
+
     type(cldaero_conc_t), pointer :: conc_obj
 
     call cldaero_deallocate(conc_obj)

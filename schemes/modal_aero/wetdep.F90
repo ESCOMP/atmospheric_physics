@@ -139,8 +139,8 @@ contains
 
 !==============================================================================
 
-! This is the CAM5 version of wetdepa.
-
+  ! This is the CAM5 version of wetdepa.
+  ! scavenging code for very soluble aerosols
   subroutine wetdepa_v2( &
     pdel, cldt, cldc, &
     cmfdqr, evapc, conicw, precs, &
@@ -151,12 +151,6 @@ contains
     f_act_conv, icscavt, isscavt, bcscavt, bsscavt, &
     convproc_do_aer, rcscavt, rsscavt, &
     sol_facti_in, sol_factic_in, convproc_do_evaprain_atonce_in, bergso_in)
-
-    !-----------------------------------------------------------------------
-    !
-    ! scavenging code for very soluble aerosols
-    !
-    !-----------------------------------------------------------------------
 
     real(kind_phys), intent(in) :: &
       pdel(:, :), &! pressure thikness
@@ -524,8 +518,10 @@ contains
 
 !==============================================================================
 
-! This is the frozen CAM4 version of wetdepa.
-
+  ! This is the frozen CAM4 version of wetdepa.
+  ! scavenging code for very soluble aerosols
+  ! Author: P. Rasch
+  ! Modified by T. Bond 3/2003 to track different removals
   subroutine wetdepa_v1(t, pdel, &
                         cldt, cmfdqr, conicw, precs, &
                         evaps, cwat, tracer, deltat, &
@@ -534,14 +530,6 @@ contains
                         icscavt, isscavt, bcscavt, bsscavt, &
                         sol_facti_in, sol_factbi_in, sol_factii_in, &
                         sol_factic_in, sol_factiic_in)
-
-    !-----------------------------------------------------------------------
-    ! Purpose:
-    ! scavenging code for very soluble aerosols
-    !
-    ! Author: P. Rasch
-    ! Modified by T. Bond 3/2003 to track different removals
-    !-----------------------------------------------------------------------
 
     real(kind_phys), intent(in) :: &
       t(:, :), &! temperature
@@ -576,8 +564,8 @@ contains
     integer, intent(out) :: errflg
 
     real(kind_phys), intent(out) :: &
-      scavt(:, :), &! scavenging tend
-      iscavt(:, :), &! incloud scavenging tends
+      scavt(:, :), &   ! scavenging tend
+      iscavt(:, :), &  ! incloud scavenging tends
       fracis(:, :)     ! fraction of species not scavenged
 
     real(kind_phys), intent(out), optional ::    icscavt(:, :)     ! incloud, convective
@@ -586,21 +574,20 @@ contains
     real(kind_phys), intent(out), optional ::    bsscavt(:, :)     ! below cloud, stratiform
 
     ! local variables
-
     integer :: i                 ! x index
     integer :: k                 ! z index
 
-    real(kind_phys) :: fracev(ncol)        ! fraction of precip from above that is evaporating
+    real(kind_phys) :: fracev(ncol)         ! fraction of precip from above that is evaporating
     real(kind_phys) :: fracp                ! fraction of cloud water converted to precip
-    real(kind_phys) :: precabc(ncol)       ! conv precip from above (work array)
-    real(kind_phys) :: precabs(ncol)       ! strat precip from above (work array)
-    real(kind_phys) :: rat(ncol)           ! ratio of amount available to amount removed
-    real(kind_phys) :: scavab(ncol)        ! scavenged tracer flux from above (work array)
-    real(kind_phys) :: scavabc(ncol)       ! scavenged tracer flux from above (work array)
+    real(kind_phys) :: precabc(ncol)        ! conv precip from above (work array)
+    real(kind_phys) :: precabs(ncol)        ! strat precip from above (work array)
+    real(kind_phys) :: rat(ncol)            ! ratio of amount available to amount removed
+    real(kind_phys) :: scavab(ncol)         ! scavenged tracer flux from above (work array)
+    real(kind_phys) :: scavabc(ncol)        ! scavenged tracer flux from above (work array)
     real(kind_phys) :: srcc                 ! tend for convective rain
     real(kind_phys) :: srcs                 ! tend for stratiform rain
-    real(kind_phys) :: srct(ncol)          ! work variable
-    real(kind_phys) :: tracab(ncol)        ! column integrated tracer amount
+    real(kind_phys) :: srct(ncol)           ! work variable
+    real(kind_phys) :: tracab(ncol)         ! column integrated tracer amount
 
     real(kind_phys) :: fins                 ! fraction of rem. rate by strat rain
     real(kind_phys) :: finc                 ! fraction of rem. rate by conv. rain
@@ -608,15 +595,15 @@ contains
     real(kind_phys) :: srcs2                ! work variable
     real(kind_phys) :: tc                   ! temp in celcius
     real(kind_phys) :: weight               ! fraction of condensate which is ice
-    real(kind_phys) :: cldmabs(ncol)       ! maximum cloud at or above this level
-    real(kind_phys) :: cldmabc(ncol)       ! maximum cloud at or above this level
+    real(kind_phys) :: cldmabs(ncol)        ! maximum cloud at or above this level
+    real(kind_phys) :: cldmabc(ncol)        ! maximum cloud at or above this level
     real(kind_phys) :: odds                 ! limit on removal rate (proportional to prec)
     real(kind_phys) :: dblchek(ncol)
     logical :: found
 
-    real(kind_phys) :: sol_facti, sol_factb  ! in cloud and below cloud fraction of aerosol scavenged
+    real(kind_phys) :: sol_facti, sol_factb   ! in cloud and below cloud fraction of aerosol scavenged
     real(kind_phys) :: sol_factii, sol_factbi ! in cloud and below cloud fraction of aerosol scavenged by ice
-    real(kind_phys) :: sol_factic(ncol, pver)             ! sol_facti for convective clouds
+    real(kind_phys) :: sol_factic(ncol, pver) ! sol_facti for convective clouds
     real(kind_phys) :: sol_factiic            ! sol_factii for convective clouds
     ! sol_factic & solfact_iic added for MODAL_AERO.
     ! For stratiform cloud, cloudborne aerosol is treated explicitly,
@@ -624,7 +611,6 @@ contains
     ! For convective cloud, cloudborne aerosol is not treated explicitly,
     !    and sol_factic is 1.0 for both cloudborne and interstitial.
 
-    ! ------------------------------------------------------------------------
     errmsg = ''
     errflg = 0
 
@@ -703,9 +689,6 @@ contains
         ! note cmfdrq can be negative from evap of rain, so constrain it
         fracp = max(min(1._kind_phys, fracp), 0._kind_phys)
         ! remove that amount from within the convective area
-!           srcs1 = cldc(i,k)*fracp*tracer(i,k)*(1._kind_phys-weight)/deltat ! liquid only
-!           srcs1 = cldc(i,k)*fracp*tracer(i,k)/deltat             ! any condensation
-!           srcs1 = 0.
         srcs1 = sol_factic(i, k)*cldt(i, k)*fracp*tracer(i, k)*(1._kind_phys - weight)/deltat &  ! liquid
                 + sol_factiic*cldt(i, k)*fracp*tracer(i, k)*(weight)/deltat      ! ice
 
@@ -736,27 +719,21 @@ contains
         ! fracp is the fraction of cloud water converted to precip
         fracp = precs(i, k)*deltat/max(cwat(i, k), 1.e-12_kind_phys)
         fracp = max(0._kind_phys, min(1._kind_phys, fracp))
-!           fracp = 0.     ! for debug
 
         ! assume the corresponding amnt of tracer is removed
-        !++mcb -- remove cldc; change cldt to cldv
-        !            srcs1 = (cldt(i,k)-cldc(i,k))*fracp*tracer(i,k)/deltat
-        !            srcs1 = cldv(i,k)*fracp*tracer(i,k)/deltat &
-!           srcs1 = cldt(i,k)*fracp*tracer(i,k)/deltat            ! all condensate
         srcs1 = sol_facti*cldt(i, k)*fracp*tracer(i, k)/deltat*(1._kind_phys - weight) &  ! liquid
                 + sol_factii*cldt(i, k)*fracp*tracer(i, k)/deltat*(weight)       ! ice
 
         ! below cloud scavenging
-
-!           volume undergoing below cloud scavenging
+        ! volume undergoing below cloud scavenging
         cldmabs(i) = cldv(i, k)   ! precipitating volume
-!           cldmabs(i) = cldt(i,k)   ! local cloud volume
+        ! cldmabs(i) = cldt(i,k)   ! local cloud volume
 
         odds = precabs(i)/max(cldmabs(i), 1.e-5_kind_phys)*scavcoef(i, k)*deltat
         odds = max(min(1._kind_phys, odds), 0._kind_phys)
         srcs2 = sol_factb*(cldmabs(i)*odds)*tracer(i, k)*(1._kind_phys - weight)/deltat & ! liquid
                 + sol_factbi*(cldmabs(i)*odds)*tracer(i, k)*(weight)/deltat       ! ice
-        !Note that using the temperature-determined weight doesn't make much sense here
+        ! Note that using the temperature-determined weight doesn't make much sense here
 
         srcs = srcs1 + srcs2             ! total stratiform scavenging
         fins = srcs1/(srcs + 1.e-36_kind_phys)    ! fraction taken by incloud processes
@@ -818,11 +795,7 @@ contains
 
   end subroutine wetdepa_v1
 
-!##############################################################################
-
-!##############################################################################
-
-! below cloud impaction scavenging coefs
+  ! below cloud impaction scavenging coefs
   subroutine get_bcscavcoefs(m, ncol, pver, isprx, diam_wet, scavcoefnum, scavcoefvol, aero_props)
 
     integer, intent(in) :: m, ncol, pver
@@ -882,22 +855,13 @@ contains
 
   end subroutine get_bcscavcoefs
 
-!##############################################################################
-
-!------------------------------------------------------------------------------
-!------------------------------------------------------------------------------
+  ! Computes lookup table for aerosol impaction/interception scavenging rates
+  !
+  ! Authors: R. Easter
+  ! Simone Tilmes Nov 2021
+  ! added modifications for bin model, assuming sigma = 1.
   subroutine init_bcscavcoef(aero_props, pi, boltz_cgs, rgas_cgs, &
                              errmsg, errflg)
-    !-----------------------------------------------------------------------
-    !
-    ! Purpose:
-    ! Computes lookup table for aerosol impaction/interception scavenging rates
-    !
-    ! Authors: R. Easter
-    ! Simone Tilmes Nov 2021
-    ! added modifications for bin model, assuming sigma = 1.
-    !
-    !-----------------------------------------------------------------------
 
     class(aerosol_properties), intent(in) :: aero_props
     real(kind_phys), intent(in)  :: pi           ! ratio of circle circumference to diameter
@@ -906,9 +870,7 @@ contains
     character(len=*), intent(out) :: errmsg
     integer, intent(out) :: errflg
 
-    !   local variables
-    integer :: nnfit_maxd
-    parameter(nnfit_maxd=27)
+    integer, parameter :: nnfit_maxd = 27
 
     integer :: m, jgrow, nnfit
     integer :: astat
@@ -944,7 +906,6 @@ contains
     dlndg_nimptblgrow = log(1.25_kind_phys)
 
     ! bin model: main loop over aerosol bins
-
     modeloop: do m = 1, aero_props%nbins()
 
       ! for setting up the lookup table, use the dry density of the first species
@@ -1005,7 +966,6 @@ contains
 
   contains
 
-    !===============================================================================
     subroutine calc_1_impact_rate( &
       dg0, logsig, rhoaero, temp, press, &
       scavratenum, scavratevol, &

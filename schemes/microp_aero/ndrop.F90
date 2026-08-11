@@ -1,19 +1,11 @@
-! Purpose:
-!   Droplet activation and vertical mixing by modal (or bin) aerosols
-!   (dropmixnuc).
+! Droplet activation and vertical mixing by modal (or bin) aerosols (dropmixnuc)
 !
 ! ***N.B.*** This module is currently hardcoded to recognize only the modes that
 !            affect the climate calculation.  This is implemented by using list
 !            index 0 (climate) in all the calls to the radiative aerosol modules.
 module ndrop
   use ccpp_kinds, only: kind_phys
-  use shr_kind_mod, only: shr_kind_cs
   use shr_spfn_mod, only: erf => shr_spfn_erf
-
-  use aerosol_properties_mod, only: aerosol_properties
-  use aerosol_state_mod, only: aerosol_state, ptr2d_t
-
-  use aero_activate, only: aero_activate_init, activate_aerosol
 
   implicit none
   private
@@ -52,6 +44,9 @@ contains
   subroutine ndrop_init(aero_props, pi_in, rhoh2o_in, mwh2o_in, r_universal_in, &
                         rh2o_in, gravit_in, latvap_in, cpair_in, rair_in)
 
+    use aero_activate, only: aero_activate_init
+    use aerosol_properties_mod, only: aerosol_properties
+
     class(aerosol_properties), intent(in) :: aero_props
 
     ! host physical constants
@@ -85,7 +80,9 @@ contains
 
   end subroutine ndrop_init
 
-
+  ! vertical diffusion and nucleation of cloud droplets
+  ! assume cloud presence controlled by cloud fraction
+  ! doesn't distinguish between warm, cold clouds
   subroutine dropmixnuc(aero_props, aero_state, &
                         ncol, pver, top_lev, dtmicro, &
                         temp, pmid, pint, pdel, rpdel, zm, kvh, ncldwtr, &
@@ -95,9 +92,10 @@ contains
                         ccn, coltend, coltend_cw, &
                         errmsg, errflg)
 
-    ! vertical diffusion and nucleation of cloud droplets
-    ! assume cloud presence controlled by cloud fraction
-    ! doesn't distinguish between warm, cold clouds
+    use aero_activate, only: activate_aerosol
+    use aerosol_state_mod, only: ptr2d_t
+    use aerosol_state_mod, only: aerosol_state
+    use aerosol_properties_mod, only: aerosol_properties
 
     ! arguments
     class(aerosol_properties), intent(in) :: aero_props
@@ -120,10 +118,11 @@ contains
     real(kind_phys), intent(in)    :: cldn(:, :)   ! cloud fraction
     real(kind_phys), intent(in)    :: cldo(:, :)   ! cloud fraction on previous time step
     real(kind_phys), intent(in)    :: cldliqf(:, :)! liquid cloud fraction (liquid / (liquid + ice))
-    logical, intent(in)    :: dotend(:)   ! (nele_tot) true for aerosol elements resolving to
+    ! (nele_tot) true for aerosol elements resolving to
     ! advected constituents: tendency returned in raertend_out.
     ! false elements are updated in place through the
     ! aero_state interstitial pointers.
+    logical, intent(in)    :: dotend(:)
 
     ! output arguments
     real(kind_phys), intent(out) :: raertend_out(:, :, :) ! (ncol,pver,nele_tot) tendency of interstitial aerosol
@@ -220,7 +219,7 @@ contains
     !           / [aero. number conc. in updraft, just below cloudbase (#/cm3)]
 
     integer :: errnum
-    character(len=shr_kind_cs) :: errstr
+    character(len=80) :: errstr
     !-------------------------------------------------------------------------------
 
     errmsg = ''
@@ -944,14 +943,16 @@ contains
 
   end subroutine explmix
 
+  ! calculates number concentration of aerosols activated as CCN at
+  ! supersaturation supersat.
+  ! assumes an internal mixture of a multiple externally-mixed aerosol modes
+  ! cgs units
+
+  ! Ghan et al., Atmos. Res., 1993, 198-221. https://doi.org/10.1016/0169-8095(93)90024-I
   subroutine ccncalc(aero_state, aero_props, ncol, pver, top_lev, tair, cs, ccn, errmsg, errflg)
 
-    ! calculates number concentration of aerosols activated as CCN at
-    ! supersaturation supersat.
-    ! assumes an internal mixture of a multiple externally-mixed aerosol modes
-    ! cgs units
-
-    ! Ghan et al., Atmos. Res., 1993, 198-221. https://doi.org/10.1016/0169-8095(93)90024-I
+    use aerosol_state_mod, only: aerosol_state
+    use aerosol_properties_mod, only: aerosol_properties
 
     ! arguments
     class(aerosol_state), intent(in) :: aero_state
@@ -983,7 +984,7 @@ contains
     integer :: phase ! phase of aerosol
 
     integer :: errnum
-    character(len=shr_kind_cs) :: errstr
+    character(len=80) :: errstr
 
     !     mathematical constants
     real(kind_phys), parameter :: super(psat) = supersat(:psat)*0.01_kind_phys
