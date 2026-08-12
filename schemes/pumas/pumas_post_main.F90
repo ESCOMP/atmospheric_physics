@@ -72,7 +72,7 @@ contains
                 max(mincld, real(strat_cldfrc(:ncol,:), pumas_r8))
 
     rei(:,:) = 25._pumas_r8
-    do k = 1, nlev
+    do k = trop_cloud_top_lev, nlev
       call size_dist_param_basic(mg_ice_props, icimrst(:,k), niic(:,k), rei(:,k), ncol)
     end do
 

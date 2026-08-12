@@ -227,7 +227,8 @@
   <type>logical</type>
   <desc>ensure non-zero precipitation fallspeed for PUMAS microphysics</desc>
   <values>
-    <value>.false.</value>
+    <value>                   .false. </value>
+    <value phys_suite="cam7"> .true.  </value>
   </values>
 </entry>
 
