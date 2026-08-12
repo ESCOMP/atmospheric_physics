@@ -11,7 +11,7 @@
       Radiation               RRTMGP
       Chemistry               None       (not implemented)
       Vertical Diffusion      UW (Bretherton-Park)
-      Orographic Stress       Beljaars
+         Orographic Stress    Beljaars
           * note - original was TMS but decided to skip port.
       Gravity Wave Drag       Orographic
   -->
