@@ -18,7 +18,7 @@
   dimensions = ()
   intent = in
 [ use_hetfrz_classnuc ]
-  standard_name = do_heterogeneous_freezing_by_classical_nucleation_theory
+  standard_name = do_heterogeneous_ice_nucleation
   units = flag
   type = logical
   dimensions = ()
