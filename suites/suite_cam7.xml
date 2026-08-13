@@ -137,7 +137,10 @@
 
       <!--
         CLUBB (macrophysics, not implemented)
+        clubb_stub only provides the do_clubb_sgs flag consumed by
+        pumas_pre_main until CLUBB is ported (register phase only).
       -->
+      <scheme>clubb_stub</scheme>
 
       <!--
         microp_aero: microphysics-aerosol coupling
@@ -183,8 +186,30 @@
       <scheme>hetfrz_classnuc_stub</scheme>
 
       <!--
-        PUMAS (microphysics, not implemented)
+        PUMAS (microphysics)
+        Runs inside the macro/micro substepping loop after microp_aero,
+        matching the canonical ordering in CAM7 physpkg.F90
+        (clubb_tend -> microp_aero_run -> microp_driver_tend).
       -->
+      <!-- Read in PUMAS namelist variables (init only) -->
+      <scheme>pumas_pre_main</scheme>
+      <!-- Convert variables from host grid to PUMAS grid -->
+      <scheme>micro_pumas_ccpp_dimensions_pre</scheme>
+      <!-- core PUMAS (cloud microphysics) scheme -->
+      <scheme>micro_pumas_ccpp</scheme>
+      <!-- Convert variables from PUMAS grid to host grid -->
+      <scheme>micro_pumas_ccpp_dimensions_post</scheme>
+      <!-- Apply tendencies -->
+      <scheme>apply_constituent_tendencies</scheme>
+      <scheme>clamp_number_concentrations</scheme>
+      <scheme>qneg</scheme>
+      <!-- Recompute size distribution quantities for radiation from the updated
+           constituents; needs the pre-heating air temperature, so it must run
+           before apply_heating_rate -->
+      <scheme>pumas_post_main</scheme>
+      <scheme>micro_pumas_ccpp_optics_limiter</scheme>
+      <scheme>apply_heating_rate</scheme>
+      <scheme>geopotential_temp</scheme>
 
     <!-- </subcycle> -->
 
@@ -298,35 +323,6 @@
     <scheme>compute_cloud_fraction_two_moment</scheme>
 
     <!-- Vertical diffusion (CLUBB) -->
-
-    <!-- cloud microphysics (PUMAS) -->
-
-    <scheme>initialize_constituents</scheme>
-    <scheme>cloud_fraction_options</scheme>
-    <scheme>compute_cloud_fraction_two_moment</scheme>
-    <scheme>to_be_ccppized_temporary</scheme>
-    <scheme>clubb_stub</scheme>
-    <scheme>hetfrz_classnuc_stub</scheme>
-    <!-- Read in PUMAS namelist variables (init only) -->
-    <scheme>pumas_pre_main</scheme>
-    <!-- Convert variables from host grid to PUMAS grid -->
-    <scheme>micro_pumas_ccpp_dimensions_pre</scheme>
-    <!-- core PUMAS (cloud microphysics) scheme -->
-    <scheme>micro_pumas_ccpp</scheme>
-    <!-- Convert variables from PUMAS grid to host grid -->
-    <scheme>micro_pumas_ccpp_dimensions_post</scheme>
-    <!-- Apply tendencies -->
-    <scheme>apply_constituent_tendencies</scheme>
-    <scheme>clamp_number_concentrations</scheme>
-    <scheme>qneg</scheme>
-    <!-- Recompute size distribution quantities for radiation from the updated
-         constituents; needs the pre-heating air temperature, so it must run
-         before apply_heating_rate -->
-    <scheme>pumas_post_main</scheme>
-    <scheme>micro_pumas_ccpp_optics_limiter</scheme>
-    <scheme>apply_heating_rate</scheme>
-    <scheme>geopotential_temp</scheme>
-
 
     <!--
       Gravity wave drag.
