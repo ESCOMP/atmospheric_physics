@@ -19,7 +19,7 @@
   dimensions = ()
   intent = in
 [ use_hetfrz_classnuc ]
-  standard_name = do_heterogeneous_freezing_by_classical_nucleation_theory
+  standard_name = do_heterogeneous_ice_nucleation
   units = flag
   type = logical
   dimensions = ()
@@ -134,7 +134,7 @@
   intent = in
   advected = True
 [ num_ice ]
-  standard_name = mass_number_concentration_of_ice_wrt_moist_air_and_condensed_water
+  standard_name = mass_number_concentration_of_cloud_ice_water_crystals_in_moist_air_and_condensed_water
   units = kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -191,14 +191,14 @@
   intent = in
 [ naai ]
   # these are tendencies for PUMAS v1.21+ (CAM7+) which I assume is the only supported path for SIMA.
-  standard_name = tendency_of_number_concentration_of_activated_ice_nuclei
+  standard_name = tendency_of_mass_number_concentration_of_activated_ice_nuclei
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ naai_hom ]
   # these are tendencies for PUMAS v1.21+ (CAM7+) which I assume is the only supported path for SIMA.
-  standard_name = tendency_of_number_concentration_of_activated_ice_nuclei_due_to_homogenous_freezing
+  standard_name = tendency_of_mass_number_concentration_of_activated_ice_nuclei_due_to_homogeneous_freezing
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

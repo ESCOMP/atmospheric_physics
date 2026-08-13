@@ -852,7 +852,7 @@ contains
          index(cnst_name, '_c3') > 0 .or. &     ! MAM cloud-borne species.
          index(cnst_name, '_c4') > 0 .or. &     ! MAM cloud-borne species.
          index(cnst_name, 'NUMLIQ') > 0 .or. &  ! micro_pumas_cam if modal/trop_strat carma
-         index(cnst_name, 'mass_number_concentration_of_cloud_liquid_wrt_moist_air_and_condensed_water') > 0) then
+         index(cnst_name, 'mass_number_concentration_of_cloud_liquid_water_droplets_in_moist_air_and_condensed_water') > 0) then
          ! micro_pumas_cam (including MG1) if modal/trop_strat carma
 
         ! is a modal aerosol species (or numliq) undergoing ndrop activation mixing.
