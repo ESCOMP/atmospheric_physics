@@ -126,13 +126,13 @@
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ dei ]
-  standard_name = effective_diameter_of_stratiform_cloud_ice_particle_for_radiation
+  standard_name = effective_diameter_of_stratiform_cloud_ice_crystal_for_radiation
   units = um
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ des ]
-  standard_name = effective_diameter_of_stratiform_snow_particle_for_radiation
+  standard_name = effective_diameter_of_stratiform_snow_crystal_for_radiation
   units = um
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
