@@ -20,6 +20,12 @@
     <scheme>to_be_ccppized_temporary</scheme>
     <scheme>prescribe_radiative_gas_concentrations</scheme>
 
+    <!-- Prescribe aerosols for microphysics (nochem BAM) -->
+    <scheme>prescribed_aerosols</scheme>
+
+    <!-- Rebin seasalt from 4bin prescribed to 2bin -->
+    <scheme>rebin_seasalt</scheme>
+
     <!-- INITIALIZE ZM NAMELIST (init phase only) -->
     <scheme>zm_conv_options</scheme>
 
@@ -96,6 +102,42 @@
       Not implemented yet.
     -->
     <scheme>compute_cloud_fraction</scheme>
+
+    <!--
+      microp_aero: microphysics-aerosol coupling
+      In nochem BAM mode, per CAM5 physpkg.F90 microp_aero_run runs
+      immediately before the microphysics driver:
+        0.  tropopause_find (chemical tropopause)
+        1.  compute_subgrid_vertical_velocity (TKE variant)
+        2.  scale_subgrid_vertical_velocity
+        3.  nucleate_ice_ccpp
+        4b. ndrop_bam (BAM droplet activation)
+    -->
+
+    <!-- Find chemical tropopause -->
+    <scheme>tropopause_find</scheme>
+
+    <!-- Compute and scale subgrid vertical velocity
+         CAM5: use the TKE variant; tke_at_interfaces is provided by the
+         UW PBL (bretherton_park_diff) from the previous timestep -->
+    <scheme>compute_subgrid_vertical_velocity_tke</scheme>
+    <scheme>scale_subgrid_vertical_velocity</scheme>
+    <scheme>scale_subgrid_vertical_velocity_diagnostics</scheme>
+
+    <!-- Set default dust size radii for microphysics -->
+    <scheme>dust_default_radii</scheme>
+
+    <!-- Ice nucleation
+         Runs even without aerosol models when microp_aero is active
+         for Meyers 1992 deposition.
+         Updates NAAI, NAAI_HOM etc. for PUMAS -->
+    <scheme>nucleate_ice_ccpp</scheme>
+    <scheme>nucleate_ice_diagnostics</scheme>
+
+    <!-- Droplet activation (BAM)
+         Computes npccn, nacon for microphysical schemes, ccn, naer2_diag for diag. -->
+    <scheme>ndrop_bam_ccpp</scheme>
+    <scheme>ndrop_bam_diagnostics</scheme>
 
     <!-- cloud microphysics (PUMAS) -->
 
