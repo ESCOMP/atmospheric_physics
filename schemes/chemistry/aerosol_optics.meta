@@ -5,18 +5,6 @@
 [ccpp-arg-table]
   name  = aerosol_optics_init
   type  = scheme
-[ N_DIAG ]
-  standard_name = number_of_radiative_aerosol_diagnostic_lists
-  units = count
-  type = integer
-  dimensions = ()
-  intent = in
-[ active_calls ]
-  standard_name = flag_for_active_radiative_aerosol_diagnostic_list
-  units = flag
-  type = logical
-  dimensions = (index_of_climate_radiative_aerosol_list:number_of_radiative_aerosol_diagnostic_lists)
-  intent = in
 [ water_refindex_file ]
   standard_name = filename_of_water_refractive_index_data
   units = none

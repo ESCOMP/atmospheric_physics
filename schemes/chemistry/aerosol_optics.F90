@@ -24,30 +24,17 @@ contains
 
 !> \section arg_table_aerosol_optics_init Argument Table
 !! \htmlinclude aerosol_optics_init.html
-  subroutine aerosol_optics_init(N_DIAG, active_calls, &
-                                 water_refindex_file, &
+  subroutine aerosol_optics_init(water_refindex_file, &
                                  nswbands, nlwbands, &
                                  num_bulk_aer, &
                                  errmsg, errflg)
     use ccpp_io_reader,                  only: create_netcdf_reader_t
     use ccpp_io_reader,                  only: abstract_netcdf_reader_t
-    use aerosol_mmr_host,                only: rad_aer_diag_init
-    use radiative_aerosol_definitions,   only: aerlist_t
+    ! bulk_aerosol_list is currently used from the host module rather
+    ! than threaded through as arguments through the CCPP but should in the future
     use radiative_aerosol_definitions,   only: bulk_aerosol_list, id_climate
 
     use aerosol_instances_mod,           only: aerosol_instances_is_active
-
-    integer,            intent(in)  :: N_DIAG
-    logical,            intent(in)  :: active_calls(0:)
-    ! n.b.: the lower bound of the active_calls array has to be set here.
-    ! in radiative_aerosol_definitions, active_calls is 0-indexed because
-    ! 0 is the climate list index.
-    ! The Fortran 90 standard (and higher) states assumed-shape arrays
-    ! lower bound default to 1 unless specified (ISO/IEC 1539 5.1.2.4.2)
-
-    !type(aerlist_t),    intent(in)  :: bulk_aerosol_list(:)
-    ! does not work: errors with
-    ! parse_source.CCPPError: No ddt_lib or ddt aerlist_t not in ddt_lib
 
     character(len=*),   intent(in)  :: water_refindex_file
     integer,            intent(in)  :: nswbands
@@ -56,8 +43,6 @@ contains
     integer,            intent(out) :: num_bulk_aer
     character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
-
-    integer :: i
 
     ! Locals for reading water refractive index
     class(abstract_netcdf_reader_t), pointer :: file_reader
@@ -68,14 +53,6 @@ contains
 
     ! Set number of bulk aerosol constituents in climate list
     num_bulk_aer = bulk_aerosol_list(id_climate)%numaerosols
-
-    ! Register aerosol diagnostic history fields for the climate list and all
-    ! active diagnostic lists.
-    do i = id_climate, N_DIAG
-      if (active_calls(i)) then
-        call rad_aer_diag_init(bulk_aerosol_list(i))
-      end if
-    end do
 
     !-------------------------------------------------
     ! Read water refractive index data
@@ -194,7 +171,8 @@ contains
     real(kind_phys),    intent(in)  :: pmid(:, :)      ! air pressure at layer midpoint [Pa]
     real(kind_phys),    intent(in)  :: h2ommr(:, :)    ! water vapor mixing ratio [kg kg-1]
     real(kind_phys),    intent(in)  :: cldn(:, :)      ! layer cloud fraction [fraction]
-    real(kind_phys),    intent(in)  :: constituents(:, :, :)
+    ! target so the volcanic geometric radius (a constituent) can be pointed at
+    real(kind_phys),    intent(in), target :: constituents(:, :, :)
 
     ! Output arguments
     real(kind_phys),    intent(out) :: aer_tau(:, :, :)      ! SW extinction optical depth [1]
@@ -227,7 +205,7 @@ contains
 
     ! Local variables
     integer  :: iaermod, ibin, nbins, iwav, ilev, icol
-    integer  :: num_aero_models, numrh
+    integer  :: num_aero_models
     integer  :: bam_cnt
     real(kind_phys) :: mass(ncol, pver)
 
@@ -251,8 +229,8 @@ contains
     real(kind_phys) :: tau_lw_bin(ncol, pver, nlwbands)
     real(kind_phys) :: absorp_bin(ncol, pver, nlwbands)
 
-    ! Volcanic geometric radius (pointer into constituents)
-    real(kind_phys), target  :: geometric_radius(ncol, pver)
+    ! Volcanic geometric radius pointer only when looped bin is a volcanic radius bin
+    real(kind_phys), pointer :: geo_rad(:, :)
     ! Name of the radius constituent of the bin being processed
     character(len=16) :: volc_rad_name
 
@@ -302,7 +280,7 @@ contains
     burdenpom(:ncol)     = 0._kind_phys
     burdensoa(:ncol)     = 0._kind_phys
     burdenseasalt(:ncol) = 0._kind_phys
-    ssavis(:ncol)        = 0._kind_phys
+    ssavis(:ncol)        = ssavis_default
     aodvis(:ncol)        = 0._kind_phys
 
     ! Layer mass [kg/m2]
@@ -322,10 +300,12 @@ contains
       nbins = aeroprops%nbins()
 
       ! Sulfate weight percent for hygroscopic_wtp optics
-      sulfwtpct(:ncol, :pver) = aerostate%wgtpct(ncol, pver)
+      sulfwtpct = aerostate%wgtpct(ncol, pver)
 
       ! Loop over aerosol bins/species
       bin_loop: do ibin = 1, nbins
+
+        nullify(geo_rad)
 
         ! Only for volcanic_radius, get the per-mode geometric radius
         ! from the constituent array:
@@ -352,7 +332,7 @@ contains
             return
           end if
 
-          geometric_radius(:ncol, :pver) = constituents(:ncol, :pver, idx_volc_rad_geom)
+          geo_rad => constituents(:ncol, :pver, idx_volc_rad_geom)
         end select
 
         !-------------------------------------------------
@@ -363,7 +343,7 @@ contains
                                    idx_sw_diag, &
                                    relh, sulfwtpct, t, pmid, h2ommr, cldn, &
                                    mass, crefwsw, crefwlw, &
-                                   geometric_radius, &
+                                   geo_rad, &
                                    tau_bin, ssa_bin, asm_bin, &
                                    pabs_vis, dopaer0_vis, &
                                    errmsg, errflg)
@@ -544,7 +524,7 @@ contains
                                    ncol, pver, top_lev, nswbands, nlwbands, nrh, &
                                    relh, sulfwtpct, t, pmid, h2ommr, cldn, &
                                    mass, crefwsw, crefwlw, &
-                                   geometric_radius, &
+                                   geo_rad, &
                                    tau_lw_bin, absorp_bin, &
                                    errmsg, errflg)
         if (errflg /= 0) return
@@ -563,12 +543,11 @@ contains
     end do aerosol_model_loop ! iaermod
 
     ! Compute column-level SSA and AOD at vis from total aer_tau/aer_tau_w
+    ! When the visible AOD is too small ssavis stays at ssavis_default value set above
     do icol = 1, ncol
       aodvis(icol) = sum(aer_tau(icol, :, idx_sw_diag))
       if (aodvis(icol) > aodvis_min) then
         ssavis(icol) = sum(aer_tau_w(icol, :, idx_sw_diag)) / aodvis(icol)
-      else
-        ssavis(icol) = ssavis_default
       end if
     end do
 
