@@ -294,8 +294,8 @@ contains
       aeroprops => aerosol_instances_get_props(iaermod, list_idx=0)
       aerostate => aerosol_instances_get_state(iaermod, list_idx=0)
 
-      if (.not. associated(aeroprops)) cycle
-      if (.not. associated(aerostate)) cycle
+      if (.not. associated(aeroprops)) cycle aerosol_model_loop
+      if (.not. associated(aerostate)) cycle aerosol_model_loop
 
       nbins = aeroprops%nbins()
 

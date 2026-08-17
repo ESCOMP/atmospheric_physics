@@ -18,18 +18,18 @@ module initialize_pbuf_aerosols
 
   integer, parameter :: num_bam_species = 13
   character(len=5), parameter :: bam_species(num_bam_species) = &
-    (/'sulf ', 'bcar1', 'bcar2', 'ocar1', 'ocar2', &
+    ['sulf ', 'bcar1', 'bcar2', 'ocar1', 'ocar2', &
       'sslt1', 'sslt2', 'sslt3', 'sslt4', &
-      'dust1', 'dust2', 'dust3', 'dust4'/)
+      'dust1', 'dust2', 'dust3', 'dust4']
 
   integer, parameter :: num_mam_species = 30
   character(len=6), parameter :: mam_species(num_mam_species) = &
-    (/'num_a1', 'bc_a1 ', 'dst_a1', 'ncl_a1', 'pom_a1', 'so4_a1', 'soa_a1', &
+    ['num_a1', 'bc_a1 ', 'dst_a1', 'ncl_a1', 'pom_a1', 'so4_a1', 'soa_a1', &
       'num_a2', 'ncl_a2', 'so4_a2', 'soa_a2', &
       'num_a3', 'dst_a3', 'ncl_a3', 'so4_a3', &
       'num_c1', 'bc_c1 ', 'dst_c1', 'ncl_c1', 'pom_c1', 'so4_c1', 'soa_c1', &
       'num_c2', 'ncl_c2', 'so4_c2', 'soa_c2', &
-      'num_c3', 'dst_c3', 'ncl_c3', 'so4_c3'/)
+      'num_c3', 'dst_c3', 'ncl_c3', 'so4_c3']
 
 contains
 

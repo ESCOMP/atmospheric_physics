@@ -10,7 +10,7 @@ module compute_relative_humidity
 
   public :: compute_relative_humidity_run
 
-CONTAINS
+contains
 
   !> \section arg_table_compute_relative_humidity_run  Argument Table
   !! \htmlinclude compute_relative_humidity_run.html

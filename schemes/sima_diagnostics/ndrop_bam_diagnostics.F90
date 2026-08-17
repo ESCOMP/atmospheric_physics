@@ -28,13 +28,13 @@ contains
       integer :: l
 
       ! Long names for the CCN fields, ordered to match ndrop_bam's supersat
-      character(len=*), parameter :: ccn_long_name(psat) = (/ character(len=59) :: &
+      character(len=*), parameter :: ccn_long_name(psat) = [ character(len=59) :: &
            'cloud_condensation_nuclei_number_concentration_at_S_0.02pct', &
            'cloud_condensation_nuclei_number_concentration_at_S_0.05pct', &
            'cloud_condensation_nuclei_number_concentration_at_S_0.1pct',  &
            'cloud_condensation_nuclei_number_concentration_at_S_0.2pct',  &
            'cloud_condensation_nuclei_number_concentration_at_S_0.5pct',  &
-           'cloud_condensation_nuclei_number_concentration_at_S_1.0pct'   /)
+           'cloud_condensation_nuclei_number_concentration_at_S_1.0pct'   ]
 
       errmsg = ''
       errflg = 0
