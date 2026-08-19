@@ -65,6 +65,12 @@
   type = logical
   dimensions = (number_of_diagnostic_subcycles)
   intent = in
+[ dosw ]
+  standard_name = do_shortwave_radiation
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
 [ fsw ]
   standard_name = shortwave_all_sky_flux_object_for_RRTMGP
   units = none
@@ -82,49 +88,49 @@
   units = W m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
-  intent = out
+  intent = inout
 [ fcns ]
   standard_name = shortwave_net_radiative_clear_sky_flux
   units = W m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
-  intent = out
+  intent = inout
 [ fsns ]
   standard_name = shortwave_net_upward_flux_at_surface
   units = W m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
-  intent = out
+  intent = inout
 [ fsnt ]
   standard_name = shortwave_net_outgoing_flux_at_model_top
   units = W m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
-  intent = out
+  intent = inout
 [ soll ]
   standard_name = direct_solar_radiative_flux_at_surface_ge_700nm_to_coupler
   units = W m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
-  intent = out
+  intent = inout
 [ sols ]
   standard_name = direct_solar_radiative_flux_at_surface_lt_700nm_to_coupler
   units = W m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
-  intent = out
+  intent = inout
 [ solld ]
   standard_name = diffuse_solar_radiative_flux_at_surface_ge_700nm_to_coupler
   units = W m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
-  intent = out
+  intent = inout
 [ solsd ]
   standard_name = diffuse_solar_radiative_flux_at_surface_lt_700nm_to_coupler
   units = W m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
-  intent = out
+  intent = inout
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none

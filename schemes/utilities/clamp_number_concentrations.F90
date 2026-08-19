@@ -1,6 +1,9 @@
 ! Clamp number concentration constituent tendencies
 ! so that after tendency application, values remain within [qmin, qmax].
 !
+! this subroutine updates const_q directly because const_q >> qmin
+! using tendencies in this subroutine would result in catastrophic cancellation
+!
 ! This scheme must be placed immediately after apply_constituent_tendencies
 ! in the SDF to replicate the same behavior as in physics_types.F90 in CAM.
 module clamp_number_concentrations
@@ -9,7 +12,6 @@ module clamp_number_concentrations
 
   implicit none
   private
-  save
 
   public :: clamp_number_concentrations_init
   public :: clamp_number_concentrations_run
@@ -31,28 +33,22 @@ module clamp_number_concentrations
   character(len=*), parameter :: std_names(num_species) = &
     [character(len=128) :: 'mass_number_concentration_of_cloud_liquid_water_droplets_in_moist_air_and_condensed_water', &
                            'mass_number_concentration_of_rain_drops_in_moist_air_and_condensed_water', &
-                           'mass_number_concentration_of_ice_wrt_moist_air_and_condensed_water', &
+                           'mass_number_concentration_of_cloud_ice_water_crystals_in_moist_air_and_condensed_water', &
                            'mass_number_concentration_of_snow_crystals_in_moist_air_and_condensed_water']
 
 contains
 
 !> \section arg_table_clamp_number_concentrations_init Argument Table
 !! \htmlinclude clamp_number_concentrations_init.html
-  subroutine clamp_number_concentrations_init(const_props, errmsg, errflg)
+  subroutine clamp_number_concentrations_init(errmsg, errflg)
+    use ccpp_scheme_utils, only: ccpp_constituent_index
 
-    use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
-    use ccpp_const_utils,          only: ccpp_const_get_idx
-
-    type(ccpp_constituent_prop_ptr_t), &
-                        intent(in)  :: const_props(:)
-    character(len=*),   intent(out) :: errmsg
-    integer,            intent(out) :: errflg
+    character(len=*), intent(out) :: errmsg
+    integer,          intent(out) :: errflg
 
     ! Local variables
     integer :: ix_species(num_species)
     integer :: n
-    character(len=512) :: local_errmsg
-    integer            :: local_errflg
 
     errmsg = ''
     errflg = 0
@@ -60,13 +56,11 @@ contains
     ix_species(:) = -1
     ! Look up constituent indices. A missing species is skipped
     do n = 1, num_species
-      call ccpp_const_get_idx(const_props, trim(std_names(n)), &
-                              ix_species(n), local_errmsg, local_errflg)
-      if (local_errflg /= 0) then
-        ! Constituent not found — mark as inactive, reset error
+      call ccpp_constituent_index(trim(std_names(n)), ix_species(n), errmsg=errmsg, errcode=errflg)
+      if(errflg /= 0) return
+      if (ix_species(n) < 0) then
+        ! Constituent not found — mark as inactive
         ix_species(n) = -1
-        local_errflg  = 0
-        local_errmsg  = ''
       end if
     end do
 
@@ -81,13 +75,12 @@ contains
 !> \section arg_table_clamp_number_concentrations_run Argument Table
 !! \htmlinclude clamp_number_concentrations_run.html
   subroutine clamp_number_concentrations_run( &
-    ncol, pver, dt, &
+    ncol, pver, &
     const_q, const_tend, &
     errmsg, errflg)
 
     integer,            intent(in)    :: ncol
     integer,            intent(in)    :: pver
-    real(kind_phys),    intent(in)    :: dt                  ! physics timestep [s]
     real(kind_phys),    intent(inout) :: const_q(:, :, :)    ! constituent mixing ratios
     real(kind_phys),    intent(inout) :: const_tend(:, :, :) ! constituent tendencies
     character(len=*),   intent(out)   :: errmsg
@@ -101,7 +94,7 @@ contains
     errmsg = ''
     errflg = 0
 
-    ix_species = (/ix_numliq, ix_numrai, ix_numice, ix_numsno/)
+    ix_species = [ix_numliq, ix_numrai, ix_numice, ix_numsno]
 
     do n = 1, num_species
       ix = ix_species(n)

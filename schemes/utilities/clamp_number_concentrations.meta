@@ -5,12 +5,6 @@
 [ccpp-arg-table]
   name  = clamp_number_concentrations_init
   type  = scheme
-[ const_props ]
-  standard_name = ccpp_constituent_properties
-  units = none
-  type = ccpp_constituent_prop_ptr_t
-  dimensions = (number_of_ccpp_constituents)
-  intent = in
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
@@ -37,12 +31,6 @@
   standard_name = vertical_layer_dimension
   units = count
   type = integer
-  dimensions = ()
-  intent = in
-[ dt ]
-  standard_name = timestep_for_physics
-  units = s
-  type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ const_q ]
