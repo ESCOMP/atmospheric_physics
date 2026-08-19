@@ -1170,11 +1170,11 @@ contains
          ixcldice, errmsg, errflg)
 
     call ccpp_const_get_idx(const_props, &
-         'mass_number_concentration_of_cloud_liquid_wrt_moist_air_and_condensed_water', &
+         'mass_number_concentration_of_cloud_liquid_water_droplets_in_moist_air_and_condensed_water', &
          ixnumliq, errmsg, errflg)
 
     call ccpp_const_get_idx(const_props, &
-         'mass_number_concentration_of_ice_wrt_moist_air_and_condensed_water', &
+         'mass_number_concentration_of_cloud_ice_water_crystals_in_moist_air_and_condensed_water', &
          ixnumice, errmsg, errflg)
 
     ! ------------------------------------------------------- !
