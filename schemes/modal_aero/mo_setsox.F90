@@ -209,7 +209,7 @@ contains
     real(kind_phys) :: xhnm(ncol, pver) ! air number density (molecules cm-3)
 
     integer  :: k, i, iter
-    real(kind_phys) :: wrk, delta
+    real(kind_phys) :: wrk
     real(kind_phys) :: xph0, xk, xe, x2
     real(kind_phys) :: tz, xl, px, patm
     real(kind_phys) :: Eso2, Eso4, Ehno3, Eco2, Eh2o, Enh3
@@ -620,8 +620,7 @@ contains
           end do ! iter
 
           if (.not. converged) then
-            write (*, *) 'setsox: pH failed to converge @ (', i, ',', k, '), % change=', &
-              100._kind_phys*delta !!! What should delta be set to ????
+            write (*, *) 'setsox: pH failed to converge @ (', i, ',', k, '), % change=', 100._kind_phys
           end if
         else
           xph(i, k) = 1.e-7_kind_phys

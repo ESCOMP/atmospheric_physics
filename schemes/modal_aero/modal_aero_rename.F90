@@ -470,7 +470,7 @@ contains
 
 ! local variables
     integer, parameter :: ldiag1 = -1
-    integer :: i, icol_diag, ipair, iq, j, k, l, l1, la, lc, lunout
+    integer :: i, ipair, iq, j, k, l, l1, la, lc, lunout
     integer :: lsfrma, lsfrmc, lstooa, lstooc
     integer :: mfrm, mtoo, n, n1, n2, ntot_msa_a
     integer :: idomode(ntot_amode)
@@ -681,23 +681,6 @@ contains
             xfertend = xfercoef*max(0.0_kind_phys, &
                                     (q(i, k, lsfrma) + dqdt(i, k, lsfrma)*deltat))
 
-!   diagnostic output start ----------------------------------------
-            if (ldiag1 > 0) then
-            if ((i == icol_diag) .and. (mod(k - 1, 5) == 0)) then
-              if (lstooa > 0) then
-                write (*, '(a,i4,2(2x,a),1p,10e14.6)') 'RENAME qdels', iq, &
-                  cnst_name(lsfrma + loffset), cnst_name(lstooa + loffset), &
-                  deltat*dqdt(i, k, lsfrma), deltat*(dqdt(i, k, lsfrma) - xfertend), &
-                  deltat*dqdt(i, k, lstooa), deltat*(dqdt(i, k, lstooa) + xfertend)
-              else
-                write (*, '(a,i4,2(2x,a),1p,10e14.6)') 'RENAME qdels', iq, &
-                  cnst_name(lsfrma + loffset), cnst_name(lstooa + loffset), &
-                  deltat*dqdt(i, k, lsfrma), deltat*(dqdt(i, k, lsfrma) - xfertend)
-              end if
-            end if
-            end if
-!   diagnostic output end   ------------------------------------------
-
             dqdt(i, k, lsfrma) = dqdt(i, k, lsfrma) - xfertend
             qsrflx(i, lsfrma, j) = qsrflx(i, lsfrma, j) - xfertend*pdel_fac
             if (lstooa > 0) then
@@ -874,7 +857,7 @@ contains
     logical, intent(in)    :: strat_only_renamexf(:)    ! restrict renaming to the stratosphere
 
     integer, parameter :: ldiag1 = -1
-    integer :: i, icol_diag, ipair, iq
+    integer :: i, ipair, iq
     integer :: j, k
     integer :: l, l1, la, lc, lunout
     integer :: lsfrma, lsfrmc, lstooa, lstooc
@@ -1249,23 +1232,6 @@ contains
           if (lsfrma > 0) then
             xfertend = xfercoef*max(0.0_kind_phys, &
                                     (q(i, k, lsfrma) + dqdt(i, k, lsfrma)*deltat))
-
-!   diagnostic output start ----------------------------------------
-            if (ldiag1 > 0) then
-            if ((i == icol_diag) .and. (mod(k - 1, 5) == 0)) then
-              if (lstooa > 0) then
-                write (iulog, '(a,i4,2(2x,a),1p,10e14.6)') 'RENAME qdels', iq, &
-                  cnst_name(lsfrma + loffset), cnst_name(lstooa + loffset), &
-                  deltat*dqdt(i, k, lsfrma), deltat*(dqdt(i, k, lsfrma) - xfertend), &
-                  deltat*dqdt(i, k, lstooa), deltat*(dqdt(i, k, lstooa) + xfertend)
-              else
-                write (iulog, '(a,i4,2(2x,a),1p,10e14.6)') 'RENAME qdels', iq, &
-                  cnst_name(lsfrma + loffset), cnst_name(lstooa + loffset), &
-                  deltat*dqdt(i, k, lsfrma), deltat*(dqdt(i, k, lsfrma) - xfertend)
-              end if
-            end if
-            end if
-!   diagnostic output end   ------------------------------------------
 
             dqdt(i, k, lsfrma) = dqdt(i, k, lsfrma) - xfertend
             qsrflx(i, lsfrma, j) = qsrflx(i, lsfrma, j) - xfertend*pdel_fac

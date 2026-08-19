@@ -155,8 +155,8 @@ contains
     real(kind_phys) :: aircon
     real(kind_phys) :: cldx
     real(kind_phys) :: dens_nh4so4a
-    real(kind_phys) :: dmdt_ait, dmdt_aitsv1, dmdt_aitsv2, dmdt_aitsv3
-    real(kind_phys) :: dndt_ait, dndt_aitsv1, dndt_aitsv2, dndt_aitsv3
+    real(kind_phys) :: dmdt_ait
+    real(kind_phys) :: dndt_ait
     real(kind_phys) :: dndt(ncol, pver) ! nucleation rate (#/m3/s)
     real(kind_phys) :: dnh4dt_ait, dso4dt_ait
     real(kind_phys) :: dpnuc
@@ -177,8 +177,6 @@ contains
     real(kind_phys) :: tmp_frso4, tmp_uptkrate
 
     logical  :: do_nh3                   ! flag for doing nh3/nh4
-
-    character(len=1) :: tmpch1, tmpch2, tmpch3
 
     errmsg = ' '
     errflg = 0
@@ -334,41 +332,22 @@ contains
 !   mass nuc rate (kg/kmol-air/s or g/mol...) hhfrom mass nuc amts
       dmdt_ait = max(0.0_kind_phys, (tmpb/deltat))
 
-      dndt_aitsv1 = dndt_ait
-      dmdt_aitsv1 = dmdt_ait
-      dndt_aitsv2 = 0.0_kind_phys
-      dmdt_aitsv2 = 0.0_kind_phys
-      dndt_aitsv3 = 0.0_kind_phys
-      dmdt_aitsv3 = 0.0_kind_phys
-      tmpch1 = ' '
-      tmpch2 = ' '
-
       if (dndt_ait < 1.0e2_kind_phys) then
-!   ignore newnuc if number rate < 100 #/kmol-air/s ~= 0.3 #/mg-air/d
+        !   ignore newnuc if number rate < 100 #/kmol-air/s ~= 0.3 #/mg-air/d
         dndt_ait = 0.0_kind_phys
         dmdt_ait = 0.0_kind_phys
-        tmpch1 = 'A'
-
       else
-        dndt_aitsv2 = dndt_ait
-        dmdt_aitsv2 = dmdt_ait
-        tmpch1 = 'B'
-
-!   mirage2 code checked for complete h2so4 depletion here,
-!   but this is now done in mer07_veh02_nuc_mosaic_1box
+        !   mirage2 code checked for complete h2so4 depletion here,
+        !   but this is now done in mer07_veh02_nuc_mosaic_1box
         mass1p = dmdt_ait/dndt_ait
-        dndt_aitsv3 = dndt_ait
-        dmdt_aitsv3 = dmdt_ait
 
 !   apply particle size constraints
         if (mass1p < mass1p_aitlo) then
 !   reduce dndt to increase new particle size
           dndt_ait = dmdt_ait/mass1p_aitlo
-          tmpch1 = 'C'
         else if (mass1p > mass1p_aithi) then
 !   reduce dmdt to decrease new particle size
           dmdt_ait = dndt_ait*mass1p_aithi
-          tmpch1 = 'E'
         end if
       end if
 
@@ -863,18 +842,15 @@ contains
       reldiffmax = tmpc
       icase_reldiffmax = icase
     end if
-!       do lun = 41, 51, 10
-    do lun = 6, 6
-!          write(lun,'(/)')
-      write (lun, '(a,2i9,1p,e10.2)') &
-        'vehkam bin-nuc icase, icase_rdmax =', &
-        icase, icase_reldiffmax, reldiffmax
-      if (freduceb < freducea) then
-        if (abs(freducea - freduceb) > &
-            3.0e-7_kind_phys*max(freduceb, freducea)) write (lun, '(a,1p,2e15.7)') &
-          'freducea, b =', freducea, freduceb
-      end if
-    end do
+
+    write (lun, '(a,2i9,1p,e10.2)') &
+      'vehkam bin-nuc icase, icase_rdmax =', &
+      icase, icase_reldiffmax, reldiffmax
+    if (freduceb < freducea) then
+      if (abs(freducea - freduceb) > &
+          3.0e-7_kind_phys*max(freduceb, freducea)) write (lun, '(a,1p,2e15.7)') &
+        'freducea, b =', freducea, freduceb
+    end if
 
 ! output factors so that output matches that of ternucl03
 !       fogas  = 1.0e6                     ! convert mol/mol-air to ppm
@@ -886,33 +862,26 @@ contains
     fonh4a = 1.0_kind_phys
     fonuma = 1.0_kind_phys
 
-!       do lun = 41, 51, 10
-    do lun = 6, 6
+    write (lun, '(a,2i5)') 'newnuc_method_flagaa/aa2', &
+      newnuc_method_flagaa, newnuc_method_flagaa2
 
-      write (lun, '(a,2i5)') 'newnuc_method_flagaa/aa2', &
-        newnuc_method_flagaa, newnuc_method_flagaa2
+    write (lun, 9210)
+    write (lun, 9201) temp_in, rh_in, &
+      ratenuclt, 2.0_kind_phys*radius_cluster*1.0e-7_kind_phys, dpdry_part*1.0e2_kind_phys, &
+      voldry_part*1.0e6_kind_phys, float(igrow)
+    write (lun, 9215)
+    write (lun, 9201) &
+      qh2so4_avg*fogas, 0.0_kind_phys, &
+      qh2so4_cur*fogas, qnh3_cur*fogas, &
+      qh2so4_del*fogas, qnh3_del*fogas, &
+      qso4a_del*foso4a, qnh4a_del*fonh4a
 
-      write (lun, 9210)
-      write (lun, 9201) temp_in, rh_in, &
-        ratenuclt, 2.0_kind_phys*radius_cluster*1.0e-7_kind_phys, dpdry_part*1.0e2_kind_phys, &
-        voldry_part*1.0e6_kind_phys, float(igrow)
-      write (lun, 9215)
-      write (lun, 9201) &
-        qh2so4_avg*fogas, 0.0_kind_phys, &
-        qh2so4_cur*fogas, qnh3_cur*fogas, &
-        qh2so4_del*fogas, qnh3_del*fogas, &
-        qso4a_del*foso4a, qnh4a_del*fonh4a
+    write (lun, 9220)
+    write (lun, 9201) &
+      dtnuc, dens_nh4so4a*1.0e-3_kind_phys, &
+      (qnh3_cur/qh2so4_cur), molenh4a_per_moleso4a, &
+      qnuma_del*fonuma, tmpb*fonuma, tmpc, freduce
 
-      write (lun, 9220)
-      write (lun, 9201) &
-        dtnuc, dens_nh4so4a*1.0e-3_kind_phys, &
-        (qnh3_cur/qh2so4_cur), molenh4a_per_moleso4a, &
-        qnuma_del*fonuma, tmpb*fonuma, tmpc, freduce
-
-    end do
-
-!       lun = 51
-    lun = 6
     write (lun, 9230)
     write (lun, 9201) &
       press_in, cair*1.0e-6_kind_phys, so4vol_in, &

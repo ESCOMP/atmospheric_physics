@@ -880,8 +880,8 @@ contains
                        scavratenum, scavratevol, logsig, &
                        temp, wetdiaratio, wetvolratio
 
-    real(kind_phys) :: xxfitnum(1, nnfit_maxd), yyfitnum(nnfit_maxd)
-    real(kind_phys) :: xxfitvol(1, nnfit_maxd), yyfitvol(nnfit_maxd)
+    real(kind_phys) :: yyfitnum(nnfit_maxd)
+    real(kind_phys) :: yyfitvol(nnfit_maxd)
 
     character(len=*), parameter :: subname = 'wetdep::init_bcscavcoef'
 
@@ -951,10 +951,7 @@ contains
           return
         end if
 
-        xxfitnum(1, nnfit) = 1._kind_phys
         yyfitnum(nnfit) = log(scavratenum)
-
-        xxfitvol(1, nnfit) = 1._kind_phys
         yyfitvol(nnfit) = log(scavratevol)
 
         !depends on both bins and different species

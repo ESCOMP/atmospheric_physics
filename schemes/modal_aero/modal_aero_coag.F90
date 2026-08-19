@@ -203,9 +203,9 @@ contains
 
     integer :: i, ipair, iq
     integer :: idomode(ntot_amode), iselfcoagdone(ntot_amode)
-    integer :: jfreqcoag, jsoa
+    integer :: jfreqcoag
     integer :: k
-    integer :: l, l2, lsfrm, lstoo, lunout
+    integer :: l, lsfrm, lstoo, lunout
     integer :: modefrm, modetoo, mait, macc, mpca
     integer ::  n, nfreqcoag
 
@@ -226,9 +226,7 @@ contains
     real(kind_phys) :: sg_frm, sg_too
     real(kind_phys) :: tmpa, tmpb, tmpc, tmpf, tmpg, tmph, tmpn
     real(kind_phys) :: tmp1, tmp2
-    real(kind_phys) :: tmp_qold
     real(kind_phys) :: vol_core, vol_shell
-    real(kind_phys) :: wetdens_frm, wetdens_too, wetdgnum_frm, wetdgnum_too
     real(kind_phys) :: xbetaij0, xbetaij2i, xbetaij2j, xbetaij3, &
                        xbetaii0, xbetaii2, xbetajj0, xbetajj2
     real(kind_phys) :: xferamt, xferfracvol, xferfrac_pcage, xferfrac_max

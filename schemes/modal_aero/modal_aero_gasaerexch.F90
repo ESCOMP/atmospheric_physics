@@ -459,7 +459,7 @@ contains
     ! Local offset-adjusted index arrays (pcnst-space - loffset = vmr space)
     integer :: idx_so4_a_q(ntot_amode_m), idx_nh4_a_q(ntot_amode_m)
     integer :: idx_soa_a_q(ntot_amode_m, nsoa_m), idx_pom_a_q(ntot_amode_m, npoa_m)
-    integer :: idx_num_q(ntot_amode_m), idx_mass_q(nspec_max_m, ntot_amode_m)
+    integer :: idx_mass_q(nspec_max_m, ntot_amode_m)
     integer :: lspecfrm_q(maxspec_pcage), lspectoo_q(maxspec_pcage)
 
     real(kind_phys) :: avg_uprt_nh4, avg_uprt_so4, avg_uprt_soa(nsoa_m)
@@ -523,7 +523,6 @@ contains
     idx_nh4_a_q(:) = idx_nh4_a_m(:) - loffset
     idx_soa_a_q(:, :) = idx_soa_a_m(:, :) - loffset
     idx_pom_a_q(:, :) = idx_pom_a_m(:, :) - loffset
-    idx_num_q(:) = idx_num_m(:) - loffset
     idx_mass_q(:, :) = idx_mass_m(:, :) - loffset
     do iq = 1, nspecfrm_pcage
       lspecfrm_q(iq) = lspecfrm_pcage(iq) - loffset
