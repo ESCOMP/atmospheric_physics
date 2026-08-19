@@ -156,9 +156,9 @@ contains
   ! RCE 07.04.15:  Adapted from MIRAGE2 code and CMAQ V4.6 code
   subroutine modal_aero_coag_run( &
     ncol, pver, top_lev, &
-    num_q, loffset, nstep, &
+    loffset, nstep, &
     deltat_main, &
-    t, pmid, pdel, &
+    t, pmid, &
     q, &
     dgncur_a, dgncur_awet, &
     wetdens_a, &
@@ -169,7 +169,6 @@ contains
     integer, intent(in)  :: ncol
     integer, intent(in)  :: pver
     integer, intent(in)  :: top_lev          ! top level for modal aerosol calculations
-    integer, intent(in)  :: num_q            ! number of species in q/dqdt (= gas_pcnst)
     integer, intent(in)  :: loffset          ! offset applied to modal aero "pointers"
     integer, intent(in)  :: nstep            ! model step (for coagulation sub-cycling)
 
@@ -177,9 +176,8 @@ contains
 
     real(kind_phys), intent(in) :: t(:, :)           ! (ncol,pver) temperature (K)
     real(kind_phys), intent(in) :: pmid(:, :)        ! (ncol,pver) pressure at model levels (Pa)
-    real(kind_phys), intent(in) :: pdel(:, :)        ! (ncol,pver) pressure thickness of levels (Pa)
 
-    real(kind_phys), intent(inout) :: q(:, :, :)      ! (ncol,pver,num_q)
+    real(kind_phys), intent(inout) :: q(:, :, :)      ! (ncol,pver,:)
     ! tracer mixing ratio (TMR) array
     ! *** MUST BE mol/mol-air or #/mol-air
     ! *** updated in place: number changes are
@@ -194,9 +192,9 @@ contains
     ! wet geo. mean dia. (m) of number distrib.
     real(kind_phys), intent(in) :: wetdens_a(:, :, :) ! (ncol,pver,ntot_amode)
     ! density of wet aerosol (kg/m3)
-    real(kind_phys), intent(out) :: dqdt(:, :, :)     ! (ncol,pver,num_q) TMR "dq/dt" array
+    real(kind_phys), intent(out) :: dqdt(:, :, :)     ! (ncol,pver,:) TMR "dq/dt" array
     ! (diagnostic only; q is updated in place)
-    logical, intent(out) :: dotend(:)       ! (num_q) identifies the species that
+    logical, intent(out) :: dotend(:)       ! identifies the species that
     ! tendencies are computed for
     character(len=*), intent(out) :: errmsg
     integer, intent(out) :: errflg

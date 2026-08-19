@@ -227,7 +227,7 @@ contains
     dotendqqcwrn, qqcw, &
     dqqcwdt, dqqcwdt_other, &
     is_dorename_atik, dorename_atik, &
-    jsrflx_rename, nsrflx, &
+    jsrflx_rename, &
     qsrflx, qqcwsrflx, &
     dqdt_rnpos, &
     ntot_amode, npair_renamexf, &
@@ -266,7 +266,6 @@ contains
     logical, intent(in)    :: is_dorename_atik     ! true if dorename_atik is provided
     logical, intent(in)    :: dorename_atik(:, :)   ! true if renaming should be done at i,k
     integer, intent(in)    :: jsrflx_rename        ! qsrflx index for renaming
-    integer, intent(in)    :: nsrflx               ! last dimension of qsrflx
     real(kind_phys), intent(out)   :: qsrflx(:, :, :)        ! process-specific column tracer tendencies
     real(kind_phys), intent(out)   :: qqcwsrflx(:, :, :)
     real(kind_phys), intent(out)   :: dqdt_rnpos(:, :, :)  ! positive (production) part of renaming tendency
@@ -320,7 +319,7 @@ contains
         dotendqqcwrn, qqcw, &
         dqqcwdt, dqqcwdt_other, &
         is_dorename_atik, dorename_atik, &
-        jsrflx_rename, nsrflx, &
+        jsrflx_rename, &
         qsrflx, qqcwsrflx, &
         dqdt_rnpos, &
         ntot_amode, npair_renamexf, &
@@ -354,7 +353,7 @@ contains
         dotendqqcwrn, qqcw, &
         dqqcwdt, dqqcwdt_other, &
         is_dorename_atik, dorename_atik, &
-        jsrflx_rename, nsrflx, &
+        jsrflx_rename, &
         qsrflx, qqcwsrflx, &
         ntot_amode, npair_renamexf, &
         modefrm_renamexf, modetoo_renamexf, &
@@ -390,7 +389,7 @@ contains
     dotendqqcwrn, qqcw, &
     dqqcwdt, dqqcwdt_other, &
     is_dorename_atik, dorename_atik, &
-    jsrflx_rename, nsrflx, &
+    jsrflx_rename, &
     qsrflx, qqcwsrflx, &
     ntot_amode, npair_renamexf, &
     modefrm_renamexf, modetoo_renamexf, &
@@ -435,7 +434,6 @@ contains
     logical, intent(in)    :: dorename_atik(:, :) ! true if renaming should
     ! be done at i,k
     integer, intent(in)    :: jsrflx_rename        ! qsrflx index for renaming
-    integer, intent(in)    :: nsrflx               ! last dimension of qsrflx
 
     real(kind_phys), intent(out)   :: qsrflx(:, :, :)
     ! process-specific column tracer tendencies
@@ -758,7 +756,7 @@ contains
     dotendqqcwrn, qqcw, &
     dqqcwdt, dqqcwdt_other, &
     is_dorename_atik, dorename_atik, &
-    jsrflx_rename, nsrflx, &
+    jsrflx_rename, &
     qsrflx, qqcwsrflx, &
     dqdt_rnpos, &
     ntot_amode, npair_renamexf, &
@@ -812,7 +810,6 @@ contains
     logical, intent(in)    :: dorename_atik(:, :) ! true if renaming should
     ! be done at i,k
     integer, intent(in)    :: jsrflx_rename        ! qsrflx index for renaming
-    integer, intent(in)    :: nsrflx               ! last dimension of qsrflx
 
     real(kind_phys), intent(out)   :: qsrflx(:, :, :)
     ! process-specific column tracer tendencies

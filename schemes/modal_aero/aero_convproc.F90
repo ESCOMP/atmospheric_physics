@@ -72,7 +72,7 @@ contains
                                fracice, dqdt, nsrflx, qsrflx, &
                                xx_mfup_max, xx_wcldbase, xx_kcldbase, &
                                dcondt_resusp3d, conu2, dcondt2, &
-                               ncol, pver, ncnstaer, nbins, &
+                               pver, ncnstaer, nbins, &
                                pi, rhoh2o, rh2o, gravit, &
                                latvap, cpair, rair, &
                                convproc_do_evaprain_atonce, &
@@ -82,7 +82,6 @@ contains
 
     class(aerosol_properties), intent(in) :: aero_props
 
-    integer, intent(in) :: ncol             ! number of atmospheric columns
     integer, intent(in) :: pver             ! number of vertical layers
     integer, intent(in) :: ncnstaer         ! number of aerosol constituents (extended, = 2*ncnst)
     integer, intent(in) :: nbins            ! number of aerosol bins/modes

@@ -36,7 +36,6 @@ contains
     lmassptrcw_amode, numptrcw_amode, &
     pdel, &
     gravit, pi, &
-    num_q, &
     q, q_cw, &
     do_adjust, do_aitacc_transfer, &
     npair_renamexf, &
@@ -98,9 +97,8 @@ contains
     real(kind_phys), intent(in) :: pi                ! pi
 
     ! Species arrays
-    integer, intent(in) :: num_q             ! number of species (dimension of q/q_cw)
-    real(kind_phys), intent(in) :: q(:, :, :)          ! interstitial species (ncol,pver,num_q)
-    real(kind_phys), intent(in) :: q_cw(:, :, :)       ! cloud-borne species (ncol,pver,num_q)
+    real(kind_phys), intent(in) :: q(:, :, :)          ! interstitial species (ncol,pver,:)
+    real(kind_phys), intent(in) :: q_cw(:, :, :)       ! cloud-borne species (ncol,pver,:)
 
     ! Control flags
     logical, intent(in) :: do_adjust         ! adjust number to size bounds
@@ -118,11 +116,11 @@ contains
 
     ! Outputs
     real(kind_phys), intent(inout) :: dgncur_a(:, :, :)  ! dry diameter (ncol,pver,ntot_amode)
-    real(kind_phys), intent(out)   :: dqdt(:, :, :)      ! interstitial tendencies (ncol,pver,num_q)
-    real(kind_phys), intent(out)   :: dqdt_cw(:, :, :)   ! cloud-borne tendencies (ncol,pver,num_q)
-    logical, intent(out)   :: dotend(:)        ! which species have interstitial tendencies (num_q)
-    logical, intent(out)   :: dotend_cw(:)     ! which species have cloud-borne tendencies (num_q)
-    real(kind_phys), intent(out)   :: qsrflx(:, :, :, :)  ! diagnostic flux (ncol,num_q,calcsize_nsrflx,2)
+    real(kind_phys), intent(out)   :: dqdt(:, :, :)      ! interstitial tendencies (ncol,pver,:)
+    real(kind_phys), intent(out)   :: dqdt_cw(:, :, :)   ! cloud-borne tendencies (ncol,pver,:)
+    logical, intent(out)   :: dotend(:)        ! which species have interstitial tendencies
+    logical, intent(out)   :: dotend_cw(:)     ! which species have cloud-borne tendencies
+    real(kind_phys), intent(out)   :: qsrflx(:, :, :, :)  ! diagnostic flux (ncol,:,calcsize_nsrflx,2)
 
     ! CCPP error reporting
     character(len=*), intent(out) :: errmsg
