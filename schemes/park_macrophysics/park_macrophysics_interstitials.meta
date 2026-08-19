@@ -74,7 +74,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ nlwat_bfb ]
-  standard_name = mass_number_concentration_of_cloud_liquid_wrt_moist_air_and_condensed_water_on_previous_timestep_for_reproducible_park_macrophysics
+  standard_name = mass_number_concentration_of_cloud_liquid_water_droplets_in_moist_air_and_condensed_water_on_previous_timestep_for_reproducible_park_macrophysics
   units = kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -110,13 +110,13 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ nlwat ]
-  standard_name = mass_number_concentration_of_cloud_liquid_wrt_moist_air_and_condensed_water_on_previous_timestep
+  standard_name = mass_number_concentration_of_cloud_liquid_water_droplets_in_moist_air_and_condensed_water_on_previous_timestep
   units = kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ niwat ]
-  standard_name = mass_number_concentration_of_ice_wrt_moist_air_and_condensed_water_on_previous_timestep
+  standard_name = mass_number_concentration_of_cloud_ice_water_crystals_in_moist_air_and_condensed_water_on_previous_timestep
   units = kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

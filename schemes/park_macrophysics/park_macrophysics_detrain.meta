@@ -90,7 +90,7 @@
   # NOT applied to the prognostic as a constituent tendency: this detrainment number
   # tendency is delivered to park_macrophysics_run, which sums it with the macrophysics
   # tendency into a single update to avoid catastrophic cancellation at cloud edges.
-  standard_name = tendency_of_mass_number_concentration_of_cloud_liquid_wrt_moist_air_and_condensed_water_due_to_park_macrophysics_detrainment
+  standard_name = tendency_of_mass_number_concentration_of_cloud_liquid_water_droplets_in_moist_air_and_condensed_water_due_to_park_macrophysics_detrainment
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -181,13 +181,13 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ dlf_nl ]
-  standard_name = tendency_of_mass_number_concentration_of_cloud_liquid_wrt_moist_air_and_condensed_water_due_to_convective_detrainment_to_stratiform_cloud_tbd
+  standard_name = tendency_of_mass_number_concentration_of_cloud_liquid_water_droplets_in_moist_air_and_condensed_water_due_to_convective_detrainment_to_stratiform_cloud_tbd
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ dlf_ni ]
-  standard_name = tendency_of_mass_number_concentration_of_ice_wrt_moist_air_and_condensed_water_due_to_convective_detrainment_to_stratiform_cloud_tbd
+  standard_name = tendency_of_mass_number_concentration_of_cloud_ice_water_crystals_in_moist_air_and_condensed_water_due_to_convective_detrainment_to_stratiform_cloud_tbd
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
