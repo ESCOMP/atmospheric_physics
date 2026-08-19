@@ -177,14 +177,14 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ numliq ]
-  standard_name = mass_number_concentration_of_cloud_liquid_wrt_moist_air_and_condensed_water
+  standard_name = mass_number_concentration_of_cloud_liquid_water_droplets_in_moist_air_and_condensed_water
   units = kg-1
   advected = True
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ numice ]
-  standard_name = mass_number_concentration_of_ice_wrt_moist_air_and_condensed_water
+  standard_name = mass_number_concentration_of_cloud_ice_water_crystals_in_moist_air_and_condensed_water
   units = kg-1
   advected = True
   type = real | kind = kind_phys
@@ -380,14 +380,14 @@
   intent = out
   constituent = true
 [ ncten ]
-  standard_name = tendency_of_mass_number_concentration_of_cloud_liquid_wrt_moist_air_and_condensed_water
+  standard_name = tendency_of_mass_number_concentration_of_cloud_liquid_water_droplets_in_moist_air_and_condensed_water
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
   constituent = true
 [ niten ]
-  standard_name = tendency_of_mass_number_concentration_of_ice_wrt_moist_air_and_condensed_water
+  standard_name = tendency_of_mass_number_concentration_of_cloud_ice_water_crystals_in_moist_air_and_condensed_water
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

@@ -96,7 +96,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ tend_numice ]
-  standard_name = tendency_of_mass_number_concentration_of_ice_wrt_moist_air_and_condensed_water
+  standard_name = tendency_of_mass_number_concentration_of_cloud_ice_water_crystals_in_moist_air_and_condensed_water
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
