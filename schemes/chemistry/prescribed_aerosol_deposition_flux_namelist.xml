@@ -100,6 +100,8 @@
     </desc>
     <values>
       <value>aerosoldep_monthly_1849-2006_1.9x2.5_c090803.nc</value>
+      <!-- aquaplanet runs without aerosols -->
+      <value aquaplanet="1">''</value>
     </values>
   </entry>
 
@@ -145,10 +147,10 @@
     <desc>
       Type of time interpolation for data in aerodep_flx files.
       Can be set to 'CYCLICAL', 'SERIAL', 'INTERP_MISSING_MONTHS', or 'FIXED'.
-      Default: 'SERIAL'
+      Default: 'CYCLICAL'
     </desc>
     <values>
-      <value>SERIAL</value>
+      <value>CYCLICAL</value>
     </values>
   </entry>
 

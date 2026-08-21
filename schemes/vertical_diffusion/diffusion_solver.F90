@@ -847,9 +847,19 @@ contains
          index(cnst_name, '_a2') > 0 .or. &     ! MAM modal species.
          index(cnst_name, '_a3') > 0 .or. &     ! MAM modal species.
          index(cnst_name, '_a4') > 0 .or. &     ! MAM modal species.
-         index(cnst_name, 'NUMLIQ') > 0) then   ! micro_pumas_cam if modal/trop_strat carma
-        ! is a modal aerosol species undergoing ndrop activation mixing.
+         index(cnst_name, '_c1') > 0 .or. &     ! MAM cloud-borne species.
+         index(cnst_name, '_c2') > 0 .or. &     ! MAM cloud-borne species.
+         index(cnst_name, '_c3') > 0 .or. &     ! MAM cloud-borne species.
+         index(cnst_name, '_c4') > 0 .or. &     ! MAM cloud-borne species.
+         index(cnst_name, 'NUMLIQ') > 0 .or. &  ! micro_pumas_cam if modal/trop_strat carma
+         index(cnst_name, 'mass_number_concentration_of_cloud_liquid_water_droplets_in_moist_air_and_condensed_water') > 0) then
+         ! micro_pumas_cam (including MG1) if modal/trop_strat carma
+
+        ! is a modal aerosol species (or numliq) undergoing ndrop activation mixing.
         ! in this case, vertical diffusion does not diffuse it.
+        ! cloud-borne (_c) modal species are excluded as well: in CAM they are
+        ! pbuf fields (qqcw), not constituents, so vertical diffusion never
+        ! sees them; in CAM-SIMA they are registered as constituents.
         do_diffusion_const(m) = .false.
       end if
     end do

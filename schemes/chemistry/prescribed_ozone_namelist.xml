@@ -100,6 +100,8 @@
     </desc>
     <values>
       <value>ozone_1.9x2.5_L26_2000clim_c091112.nc</value>
+      <!-- aquaplanet uses the zonally symmetric APE ozone file -->
+      <value aquaplanet="1">apeozone_cam3_5_54.nc</value>
     </values>
   </entry>
 
@@ -128,6 +130,8 @@
     </desc>
     <values>
       <value>O3</value>
+      <!-- variable name in the APE ozone file -->
+      <value aquaplanet="1">OZONE</value>
     </values>
   </entry>
 
@@ -158,6 +162,8 @@
     </desc>
     <values>
       <value>2000</value>
+      <!-- cycle year of the APE ozone file -->
+      <value aquaplanet="1">1990</value>
     </values>
   </entry>
 
