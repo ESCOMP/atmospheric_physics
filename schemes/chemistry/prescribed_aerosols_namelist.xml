@@ -124,7 +124,10 @@
     </desc>
     <values>
       <value>aero_1.9x2.5_L26_2000clim_c091112.nc</value>
+      <value sim_year="1850">aero_1.9x2.5_L26_1850clim_c091112.nc</value>
       <!-- mam: mam3_1.9x2.5_L30_2000clim_c130319.nc -->
+      <!-- aquaplanet runs without aerosols -->
+      <value aquaplanet="1">''</value>
     </values>
   </entry>
 
@@ -158,6 +161,8 @@
     </desc>
     <values>
       <value>'sulf:SO4','bcar1:CB1','bcar2:CB2','ocar1:OC1','ocar2:OC2','sslt1:SSLT01','sslt2:SSLT02','sslt3:SSLT03','sslt4:SSLT04','dust1:DST01','dust2:DST02','dust3:DST03','dust4:DST04'</value>
+      <!-- aquaplanet runs without aerosols -->
+      <value aquaplanet="1">''</value>
       <!-- mam:
       <value>'num_c1','bc_c1','dst_c1','ncl_c1','pom_c1','so4_c1','soa_c1','num_c2','ncl_c2','so4_c2','soa_c2','num_c3','dst_c3','ncl_c3','so4_c3','num_a1_logm','bc_a1_logm', 'dst_a1_logm','ncl_a1_logm','pom_a1_logm','so4_a1_logm','soa_a1_logm','num_a2_logm','ncl_a2_logm','so4_a2_logm','soa_a2_logm','num_a3_logm','dst_a3_logm','ncl_a3_logm','so4_a3_logm','num_a1_logv','bc_a1_logv', 'dst_a1_logv','ncl_a1_logv','pom_a1_logv','so4_a1_logv','soa_a1_logv','num_a2_logv','ncl_a2_logv','so4_a2_logv','soa_a2_logv','num_a3_logv','dst_a3_logv','ncl_a3_logv','so4_a3_logv'</value>
       -->
@@ -194,6 +199,7 @@
     </desc>
     <values>
       <value>2000</value>
+      <value sim_year="1850">1850</value>
     </values>
   </entry>
 
