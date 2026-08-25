@@ -387,8 +387,6 @@ contains
 
   end subroutine modal_aero_gasaerexch_init
 
-!> \section arg_table_modal_aero_gasaerexch_run Argument Table
-!! \htmlinclude modal_aero_gasaerexch_run.html
   subroutine modal_aero_gasaerexch_run( &
     ncol, pver, deltat, top_lev, &
     loffset, &
