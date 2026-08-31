@@ -289,18 +289,6 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
-[ shallowcu ]
-  standard_name = shallow_convective_cloud_area_fraction
-  units = fraction
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = in
-[ deepcu ]
-  standard_name = deep_convective_cloud_area_fraction
-  units = fraction
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = in
 [ concld ]
   standard_name = convective_cloud_area_fraction
   units = fraction

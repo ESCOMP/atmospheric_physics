@@ -95,7 +95,7 @@ contains
     if(amIRoot) then
       write(iulog,*) 'tuning parameters hack_convect_shallow: cmftau',cmftau
       write(iulog,*) 'tuning parameters hack_convect_shallow: c0',c0
-    endif
+    end if
 
     ! host model physical constants
     cp      = cpair
@@ -119,12 +119,12 @@ contains
           limcnv = k
         endif
       enddo
-    endif
+    end if
 
     if(amIRoot) then
       write(iulog,*) "hack_convect_shallow_init: convection will be capped at interface ", limcnv, &
                      "which is ", pref_edge(limcnv), " pascals"
-    endif
+    end if
 
     ! flags for whether this shallow convection scheme
     ! calculates and provides convective cloud fractions
@@ -243,12 +243,9 @@ contains
     ! Local variables
     real(kind_phys)                 :: tpert(ncol)        ! PBL perturbation temperature (convective temperature excess) [K]
 
-    character(len=256) :: const_standard_name ! temp: constituent standard name
     logical            :: const_is_dry        ! temp: constituent is dry flag
     integer            :: const_wv_idx        ! temp: index of water vapor
 
-    real(kind_phys) :: pm(ncol,pver)       ! pressure [Pa]
-    real(kind_phys) :: pd(ncol,pver)       ! delta-p [Pa]
     real(kind_phys) :: rpd(ncol,pver)      ! 1./pdel [Pa-1]
     real(kind_phys) :: cmfdq(ncol,pver)    ! dq(wv)/dt due to moist convection (later copied to dq(:,:,const_wv_idx)) [kg kg-1 s-1]
     real(kind_phys) :: gam(ncol,pver)      ! 1/cp (d(qsat)/dT) change in saturation mixing ratio with temp
@@ -766,13 +763,9 @@ contains
         ! assign pd, rpd, pm temporary properties based on constituent dry/moist mixing ratio
         call const_props(m)%is_dry(const_is_dry, errflg, errmsg)
         if(const_is_dry) then
-          pd (:ncol,:) = pdeldry (:ncol,:)
           rpd(:ncol,:) = rpdeldry(:ncol,:)
-          pm (:ncol,:) = pmiddry (:ncol,:)
         else
-          pd (:ncol,:) = pdel    (:ncol,:)
           rpd(:ncol,:) = rpdel   (:ncol,:)
-          pm (:ncol,:) = pmid    (:ncol,:)
         endif
 
         pcl1loop: do ii=1,len1
