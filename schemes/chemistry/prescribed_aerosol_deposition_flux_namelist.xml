@@ -100,6 +100,10 @@
     </desc>
     <values>
       <value>aerosoldep_monthly_1849-2006_1.9x2.5_c090803.nc</value>
+      <!-- pre-industrial (1850) climatology -->
+      <value sim_year="1850">aerosoldep_monthly_1850_mean_1.9x2.5_c090421.nc</value>
+      <!-- aquaplanet runs without aerosols -->
+      <value aquaplanet="1">''</value>
     </values>
   </entry>
 
@@ -145,10 +149,10 @@
     <desc>
       Type of time interpolation for data in aerodep_flx files.
       Can be set to 'CYCLICAL', 'SERIAL', 'INTERP_MISSING_MONTHS', or 'FIXED'.
-      Default: 'SERIAL'
+      Default: 'CYCLICAL'
     </desc>
     <values>
-      <value>SERIAL</value>
+      <value>CYCLICAL</value>
     </values>
   </entry>
 
@@ -165,6 +169,7 @@
     </desc>
     <values>
       <value>2000</value>
+      <value sim_year="1850">1850</value>
     </values>
   </entry>
 

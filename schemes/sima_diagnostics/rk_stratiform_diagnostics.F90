@@ -80,8 +80,8 @@ contains
       call history_add_field('ICIMR', 'in_cloud_cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water', 'lev', 'avg', 'kg kg-1')
       call history_add_field('ICWMR', 'in_cloud_cloud_liquid_mixing_ratio_wrt_moist_air_and_condensed_water', 'lev', 'avg', 'kg kg-1')
 
-      call history_add_field('REI', 'effective_radius_of_stratiform_cloud_ice_particle', 'lev', 'avg', 'um')
-      call history_add_field('REL', 'effective_radius_of_stratiform_cloud_liquid_water_particle', 'lev', 'avg', 'um')
+      call history_add_field('REI', 'effective_radius_of_stratiform_cloud_ice_crystal', 'lev', 'avg', 'um')
+      call history_add_field('REL', 'effective_radius_of_stratiform_cloud_liquid_water_droplet', 'lev', 'avg', 'um')
 
 
    end subroutine rk_stratiform_diagnostics_init
@@ -285,8 +285,8 @@ contains
       real(kind_phys),    intent(in)    :: cldliq(:,:)    ! adv: cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water [kg kg-1]
       real(kind_phys),    intent(in)    :: cldice(:,:)    ! adv: cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water [kg kg-1]
       real(kind_phys),    intent(in)    :: rhcloud(:,:)   ! cloud_area_fraction_from_relative_humidity_method [fraction]
-      real(kind_phys),    intent(in)    :: rel(:,:)       ! effective_radius_of_stratiform_cloud_liquid_water_particle [um]
-      real(kind_phys),    intent(in)    :: rei(:,:)       ! effective_radius_of_stratiform_cloud_ice_particle [um]
+      real(kind_phys),    intent(in)    :: rel(:,:)       ! effective_radius_of_stratiform_cloud_liquid_water_droplet [um]
+      real(kind_phys),    intent(in)    :: rei(:,:)       ! effective_radius_of_stratiform_cloud_ice_crystal [um]
 
       ! Output arguments
       character(len=512), intent(out)   :: errmsg         ! error message

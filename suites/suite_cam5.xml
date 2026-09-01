@@ -6,12 +6,12 @@
       Deep convection         ZM
       Shallow convection      UW         (not implemented)
       Macrophysics            Park       (not implemented)
-      Microphysics            PUMAS      (not implemented)
+      Microphysics            PUMAS
           * note - original was MG1.
       Radiation               RRTMGP
       Chemistry               None       (not implemented)
       Vertical Diffusion      UW (Bretherton-Park)
-        Orographic Stress     Beljaars
+         Orographic Stress    Beljaars
           * note - original was TMS but decided to skip port.
       Gravity Wave Drag       Orographic
   -->
@@ -19,6 +19,12 @@
     <!-- Helper schemes to read all possible constituents from file and/or namelist -->
     <scheme>to_be_ccppized_temporary</scheme>
     <scheme>prescribe_radiative_gas_concentrations</scheme>
+
+    <!-- Prescribe aerosols for microphysics (nochem BAM) -->
+    <scheme>prescribed_aerosols</scheme>
+
+    <!-- Rebin seasalt from 4bin prescribed to 2bin -->
+    <scheme>rebin_seasalt</scheme>
 
     <!-- INITIALIZE ZM NAMELIST (init phase only) -->
     <scheme>zm_conv_options</scheme>
@@ -96,6 +102,65 @@
       Not implemented yet.
     -->
     <scheme>compute_cloud_fraction</scheme>
+
+    <!--
+      microp_aero: microphysics-aerosol coupling
+      In nochem BAM mode, per CAM5 physpkg.F90 microp_aero_run runs
+      immediately before the microphysics driver:
+        0.  tropopause_find (chemical tropopause)
+        1.  compute_subgrid_vertical_velocity (TKE variant)
+        2.  scale_subgrid_vertical_velocity
+        3.  nucleate_ice_ccpp
+        4b. ndrop_bam (BAM droplet activation)
+    -->
+
+    <!-- Find chemical tropopause -->
+    <scheme>tropopause_find</scheme>
+
+    <!-- Compute and scale subgrid vertical velocity
+         CAM5: use the TKE variant; tke_at_interfaces is provided by the
+         UW PBL (bretherton_park_diff) from the previous timestep -->
+    <scheme>compute_subgrid_vertical_velocity_tke</scheme>
+    <scheme>scale_subgrid_vertical_velocity</scheme>
+    <scheme>scale_subgrid_vertical_velocity_diagnostics</scheme>
+
+    <!-- Set default dust size radii for microphysics -->
+    <scheme>dust_default_radii</scheme>
+
+    <!-- Ice nucleation
+         Runs even without aerosol models when microp_aero is active
+         for Meyers 1992 deposition.
+         Updates NAAI, NAAI_HOM etc. for PUMAS -->
+    <scheme>nucleate_ice_ccpp</scheme>
+    <scheme>nucleate_ice_diagnostics</scheme>
+
+    <!-- Droplet activation (BAM)
+         Computes npccn, nacon for microphysical schemes, ccn, naer2_diag for diag. -->
+    <scheme>ndrop_bam_ccpp</scheme>
+    <scheme>ndrop_bam_diagnostics</scheme>
+
+    <!-- cloud microphysics (PUMAS) -->
+
+    <scheme>hetfrz_classnuc_stub</scheme>
+    <!-- Read in PUMAS namelist variables (init only) -->
+    <scheme>pumas_pre_main</scheme>
+    <!-- Convert variables from host grid to PUMAS grid -->
+    <scheme>micro_pumas_ccpp_dimensions_pre</scheme>
+    <!-- core PUMAS (cloud microphysics) scheme -->
+    <scheme>micro_pumas_ccpp</scheme>
+    <!-- Convert variables from PUMAS grid to host grid -->
+    <scheme>micro_pumas_ccpp_dimensions_post</scheme>
+    <!-- Apply tendencies -->
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>clamp_number_concentrations</scheme>
+    <scheme>qneg</scheme>
+    <!-- Recompute size distribution quantities for radiation from the updated
+         constituents; needs the pre-heating air temperature, so it must run
+         before apply_heating_rate -->
+    <scheme>pumas_post_main</scheme>
+    <scheme>micro_pumas_ccpp_optics_limiter</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>geopotential_temp</scheme>
 
     <!-- State diagnostics -->
     <scheme>sima_state_diagnostics</scheme>
