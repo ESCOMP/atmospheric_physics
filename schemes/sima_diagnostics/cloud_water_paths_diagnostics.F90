@@ -17,10 +17,11 @@ contains
 
    !> \section arg_table_cloud_water_paths_diagnostics_init  Argument Table
    !! \htmlinclude cloud_water_paths_diagnostics_init.html
-   subroutine cloud_water_paths_diagnostics_init(errmsg, errflg)
+   subroutine cloud_water_paths_diagnostics_init(one_mom_clouds, errmsg, errflg)
       use cam_history,         only: history_add_field
       use cam_history_support, only: horiz_only
 
+      logical,            intent(in)  :: one_mom_clouds ! flag_for_one_moment_cloud_microphysics [flag]
       character(len=*),   intent(out) :: errmsg
       integer,            intent(out) :: errflg
 
@@ -28,10 +29,17 @@ contains
       errflg = 0
 
       ! History add field calls (CAM cloud_diagnostics field names)
-      call history_add_field('ICWMR',    'in_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water', 'lev', 'avg', 'kg kg-1')
-      call history_add_field('ICIMR',    'in_cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water', 'lev', 'avg', 'kg kg-1')
-      call history_add_field('IWC',      'gridbox_mean_ice_water_content', 'lev', 'avg', 'kg m-3')
-      call history_add_field('LWC',      'gridbox_mean_liquid_water_content', 'lev', 'avg', 'kg m-3')
+      ! The in-cloud mixing ratios and water contents here are the two-moment
+      ! estimators (CAM cloud_diagnostics registers them only when
+      ! two_mom_clouds); with a one-moment (RK) microphysics the same history
+      ! names are owned by rk_stratiform_diagnostics (CAM rk_stratiform_cam),
+      ! so skip them to avoid duplicate registration.
+      if (.not. one_mom_clouds) then
+         call history_add_field('ICWMR',    'in_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water', 'lev', 'avg', 'kg kg-1')
+         call history_add_field('ICIMR',    'in_cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water', 'lev', 'avg', 'kg kg-1')
+         call history_add_field('IWC',      'gridbox_mean_ice_water_content', 'lev', 'avg', 'kg m-3')
+         call history_add_field('LWC',      'gridbox_mean_liquid_water_content', 'lev', 'avg', 'kg m-3')
+      end if
       call history_add_field('ICLDIWP',  'in_cloud_ice_water_path', 'lev', 'avg', 'kg m-2')
       call history_add_field('ICLDTWP',  'in_cloud_total_water_path', 'lev', 'avg', 'kg m-2')
       call history_add_field('GCLDLWP',  'gridbox_total_water_path', 'lev', 'avg', 'kg m-2')
@@ -52,6 +60,7 @@ contains
       cld, iclwp, iciwp, &
       icimr, icwmr, iwc, lwc, &
       cldfsnow, cldfgrau, &
+      one_mom_clouds, &
       errmsg, errflg)
 
       use ccpp_kinds, only: kind_phys
@@ -69,6 +78,7 @@ contains
       real(kind_phys),    intent(in)  :: lwc(:,:)        ! Grid box average liquid water content [kg m-3]
       real(kind_phys),    intent(in)  :: cldfsnow(:,:)   ! Cloud fraction adjusted for snow [1]
       real(kind_phys),    intent(in)  :: cldfgrau(:,:)   ! Cloud fraction adjusted for graupel [1]
+      logical,            intent(in)  :: one_mom_clouds  ! flag_for_one_moment_cloud_microphysics [flag]
 
       ! CCPP error handling variables
       character(len=*),   intent(out) :: errmsg
@@ -107,10 +117,13 @@ contains
       cwp(:ncol,:pver) = iciwp(:ncol,:pver) + iclwp(:ncol,:pver)
 
       ! History out field calls
-      call history_out_field('IWC',      iwc)
-      call history_out_field('LWC',      lwc)
-      call history_out_field('ICIMR',    icimr)
-      call history_out_field('ICWMR',    icwmr)
+      ! (one-moment: ICWMR/ICIMR/IWC/LWC are owned by rk_stratiform_diagnostics)
+      if (.not. one_mom_clouds) then
+         call history_out_field('IWC',      iwc)
+         call history_out_field('LWC',      lwc)
+         call history_out_field('ICIMR',    icimr)
+         call history_out_field('ICWMR',    icwmr)
+      end if
       call history_out_field('GCLDLWP',  gwp)
       call history_out_field('TGCLDCWP', tgwp)
       call history_out_field('TGCLDLWP', tgliqwp)

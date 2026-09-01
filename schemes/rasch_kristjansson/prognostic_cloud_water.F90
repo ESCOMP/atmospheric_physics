@@ -75,6 +75,7 @@ contains
     icritc_in, icritw_in, &
     conke_in, r3lcrit_in, &
     do_psrhmin_in, psrhmin_in, &
+    one_mom_clouds, &
     errmsg, errflg)
 
     ! Input arguments
@@ -93,11 +94,18 @@ contains
     real(kind_phys),    intent(in)    :: psrhmin_in
 
     ! Output arguments
+    logical,            intent(out)   :: one_mom_clouds ! flag_for_one_moment_cloud_microphysics [flag]
     character(len=512), intent(out)   :: errmsg         ! error message
     integer,            intent(out)   :: errflg         ! error flag
 
     errmsg = ''
     errflg = 0
+
+    ! RK prognostic cloud water is a one-moment cloud microphysics: declare
+    ! it so downstream consumers (convective_cloud_water emissivity averaging,
+    ! cloud_water_paths_diagnostics one-moment/two-moment history split) can
+    ! branch without querying which microphysics scheme is active.
+    one_mom_clouds = .true.
 
     ! First populate tuning parameters in-module
     icritc = icritc_in

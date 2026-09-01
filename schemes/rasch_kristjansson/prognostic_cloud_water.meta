@@ -71,6 +71,12 @@
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
+[ one_mom_clouds ]
+  standard_name = flag_for_one_moment_cloud_microphysics
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = out
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
