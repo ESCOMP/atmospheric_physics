@@ -739,7 +739,7 @@ contains
         end if ! heating depth above min and not at the pole
       else
         !  ----  Assign source momentum flux for gw_drag_prof.
-        tau(i,0,topi(i)+1 ) = xpwp_src(i) 
+        tau(i,0,topi(i)+1 ) = xpwp_src(i)
       end if
 
     end do
@@ -793,7 +793,7 @@ contains
     steering_level(:ncol) = pverx - 20
     launch_level(:ncol) = steering_level - 10
 
-    scale_factor = 1.e4 ! scales vorticity amp to u'w' in CLUBB
+    scale_factor = 1.e4_r8 ! scales vorticity amp to u'w' in CLUBB
     !-----------------------------------
     ! Simple average over layers.
     ! Probably can do better
