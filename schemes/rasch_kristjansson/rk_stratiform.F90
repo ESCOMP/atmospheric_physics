@@ -117,18 +117,12 @@ contains
   subroutine rk_stratiform_detrain_convective_condensate_run( &
     ncol, &
     dlf, &
-    rliq, &
-    prec_str, &
     tend_cldliq, &
     errmsg, errflg)
 
     ! Input arguments
     integer,            intent(in)    :: ncol
     real(kind_phys),    intent(in)    :: dlf(:,:)       ! detrainment_of_cloud_liquid_water_wrt_moist_air_and_condensed_water_due_to_all_convection [kg kg-1 s-1]
-    real(kind_phys),    intent(in)    :: rliq(:)        ! vertically_integrated_cloud_liquid_water_tendency_due_to_all_convection_to_be_applied_later_in_time_loop [m s-1]
-
-    ! Input/output arguments
-    real(kind_phys),    intent(inout) :: prec_str(:)     ! lwe_large_scale_precipitation_rate_at_surface [m s-1]
 
     ! Output arguments
     real(kind_phys),    intent(out)   :: tend_cldliq(:,:) ! tendency_of_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water [kg kg-1 s-1]
@@ -141,10 +135,10 @@ contains
     ! Apply detrainment tendency to cloud liquid water
     tend_cldliq(:ncol,:) = dlf(:ncol,:)
 
-    ! Accumulate precipitation and snow after
-    ! reserved liquid (vertical integral) has now been used
-    ! (snow contribution is zero)
-    prec_str(:ncol) = prec_str(:ncol) - rliq(:ncol)
+    ! The reserved convective liquid (rliq) entering the column here is
+    ! accounted for in the energy-check water flux by
+    ! rk_stratiform_prepare_flux_for_check_energy; the large-scale
+    ! precipitation rate is left as the physical quantity.
 
   end subroutine rk_stratiform_detrain_convective_condensate_run
 
@@ -462,7 +456,8 @@ contains
    ! RK can occassionally produce negative precipitation fluxes, so force
    ! it to be greater than or equal to zero.  Also ensure that snow is not
    ! greater than the total precipitation. This is a non-physical adjustment,
-   ! but is the same technique that the original CAM4 model used:
+   ! matching the floor CAM applies to the precipitation it sends to the
+   ! coupler (camsrfexch):
    do i = 1, ncol
       if (prec_str(i) < 0._kind_phys) prec_str(i) = 0._kind_phys
       if (snow_str(i) > prec_str(i))  snow_str(i) = prec_str(i)
