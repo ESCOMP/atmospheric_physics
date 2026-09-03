@@ -1,13 +1,7 @@
-! Prepare flux variables for the energy checker after the RK stratiform block
-! (cloud sedimentation, detrainment of convective condensate, prognostic
-! cloud water).
-! The reserved convective liquid (rliq) was counted by the convection schemes
-! as a flux out of the column (zm_prepare_flux_for_check_energy adds it to
-! their precipitation) and re-enters the column here as cloud liquid through
-! the detrainment tendency, so it is removed from the water flux the energy
-! check sees. The large-scale precipitation rate itself stays physical.
-! The resulting net liquid and (lwe) ice fluxes are provided to the
-! check_energy_chng CCPPized scheme.
+! Prepare flux variables for the energy checker after the RK stratiform block:
+! - cloud sedimentation
+! - detrainment of convective condensate
+! - prognostic cloud water
 module rk_stratiform_prepare_flux_for_check_energy
   implicit none
   private
@@ -43,11 +37,11 @@ contains
     errmsg = ''
     errflg = 0
 
-    ! Set scheme name for energy checking (CAM's name for this check)
-    scheme_name = "cldwat_tend"
+    ! Set scheme name for energy checking:
+    scheme_name = "rk_stratiform"
 
-    ! Water leaving the column as large-scale precipitation, less the reserved
-    ! convective liquid that entered it through detrainment
+    ! Water leaving the column as large-scale precipitation,
+    ! less the reserved convective liquid that entered it through detrainment
     flx_cnd(:ncol) = prec_str(:ncol) - rliq(:ncol)
 
     ! Frozen precipitation represents net ice fluxes through column boundaries

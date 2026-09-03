@@ -135,11 +135,6 @@ contains
     ! Apply detrainment tendency to cloud liquid water
     tend_cldliq(:ncol,:) = dlf(:ncol,:)
 
-    ! The reserved convective liquid (rliq) entering the column here is
-    ! accounted for in the energy-check water flux by
-    ! rk_stratiform_prepare_flux_for_check_energy; the large-scale
-    ! precipitation rate is left as the physical quantity.
-
   end subroutine rk_stratiform_detrain_convective_condensate_run
 
   ! Call perturbed cloud fraction and compute perturbation threshold criteria
