@@ -1,0 +1,63 @@
+[ccpp-table-properties]
+  name = musica_ccpp_chemistry
+  type = scheme
+  dependencies = micm/musica_ccpp_micm_util.F90,micm/musica_ccpp_micm.F90
+  dependencies = util/musica_ccpp_grid.F90,util/musica_ccpp_species.F90,util/musica_ccpp_util.F90
+
+[ccpp-arg-table]
+  name  = musica_ccpp_chemistry_run
+  type  = scheme
+[ time_step ]
+  standard_name = timestep_for_physics
+  units = s
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ temperature ]
+  standard_name = air_temperature
+  units = K
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ pressure ]
+  standard_name = air_pressure
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
+[ dry_air_density ]
+  standard_name = dry_air_density
+  units = kg m-3
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  type = real | kind = kind_phys
+  intent = in
+[ rate_parameters ]
+  standard_name = micm_rate_parameters
+  units = none
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension,number_of_micm_rate_parameters)
+  intent = in
+[ constituents ]
+  standard_name = ccpp_constituents
+  units = none
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension,number_of_ccpp_constituents)
+  intent = inout
+[ log_output_unit ]
+  standard_name = log_output_unit
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errcode ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
