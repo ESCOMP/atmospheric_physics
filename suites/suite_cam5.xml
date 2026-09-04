@@ -165,6 +165,14 @@
     <!-- State diagnostics -->
     <scheme>sima_state_diagnostics</scheme>
 
+    <!--
+      Cloud water inputs for radiation
+    -->
+    <scheme>convective_cloud_water</scheme>
+    <scheme>convective_cloud_water_diagnostics</scheme>
+    <scheme>cloud_water_paths</scheme>
+    <scheme>cloud_water_paths_diagnostics</scheme>
+
     <!-- Radiation (RRTMGP) -->
     <scheme>rrtmgp_pre</scheme>
     <scheme>rrtmgp_cloud_optics_setup</scheme>

@@ -221,12 +221,22 @@
     -->
 
     <!--
-      Cloud diagnostics (not implemented)
+      Cloud diagnostics part 1: (not implemented)
     -->
 
     <!-- State diagnostics -->
     <scheme>sima_state_diagnostics</scheme>
 
+    <!--
+      Cloud diagnostics part 2:
+      Cloud water inputs for radiation (after_coupler for CAM7 instead of before_coupler)
+    -->
+    <scheme>convective_cloud_water</scheme>
+    <scheme>convective_cloud_water_diagnostics</scheme>
+    <scheme>cloud_water_paths</scheme>
+    <scheme>cloud_water_paths_diagnostics</scheme>
+
+    <!-- Radiation -->
     <!-- Run rrtmgp pre-interstitial first to get night column information
          for aerosol_optics_diagnostics. -->
     <scheme>rrtmgp_pre</scheme>

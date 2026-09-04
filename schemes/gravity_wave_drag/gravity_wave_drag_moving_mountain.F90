@@ -793,7 +793,7 @@ contains
     steering_level(:ncol) = pverx - 20
     launch_level(:ncol) = steering_level - 10
 
-    scale_factor = 1.e4_r8 ! scales vorticity amp to u'w' in CLUBB
+    scale_factor = 1.e4_kind_phys ! scales vorticity amp to u'w' in CLUBB
     !-----------------------------------
     ! Simple average over layers.
     ! Probably can do better
