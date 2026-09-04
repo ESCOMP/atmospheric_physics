@@ -32,9 +32,10 @@ program run_test_musica_ccpp
     real(kind_phys) :: E_ = 0.0
   end type ArrheniusReaction
 
-  ! The analytical tests disable TUV-x (filename_of_tuvx_configuration =
-  ! 'none') and must run FIRST: the TUV-x species indices are module state
-  ! that is never reset, so running a TUV-x-enabled test before them would
+  ! The analytical tests disable TUV-x and must run FIRST:
+  ! (filename_of_tuvx_configuration = 'none')
+  ! the TUV-x species indices are module state that is never reset,
+  ! so running a TUV-x-enabled test before them would
   ! mask a missing do_tuvx guard in the register phase
   write(*,*) "[MUSICA Test] Running the Analytical test with Rosenbrock solver"
   call test_rosenbrock()

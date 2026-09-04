@@ -58,10 +58,12 @@ contains
     errmsg = ''
     errcode = 0
 
-    ! Zero all rate parameters: TUV-x only writes the mapped photolysis slots,
-    ! so unmapped slots (USER./EMIS./LOSS./SURF. reactions, and every slot when
-    ! TUV-x is disabled) would otherwise be uninitialized memory. Zero means the
-    ! corresponding reaction is off. Schemes ordered between this scheme and
+    ! Zero all rate parameters at initialization.
+    ! TUV-x only writes the mapped photolysis slots, so unmapped slots
+    ! (USER./EMIS./LOSS./SURF. reactions)
+    ! would otherwise be uninitialized memory.
+    !
+    ! Schemes ordered between this scheme and
     ! musica_ccpp_chemistry may fill non-photolysis slots.
     rate_parameters(:,:,:) = 0.0_kind_phys
 

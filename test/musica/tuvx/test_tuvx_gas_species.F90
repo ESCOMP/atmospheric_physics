@@ -189,10 +189,8 @@ contains
       do i = 1, size(dry_air_interfaces)
         ASSERT(dry_air_interfaces(i) == expected_dry_air_interfaces(i_col, i))
       end do
-      ! Hand-computed known-answer checks pin the conversion to number density
-      ! (molecule cm-3): omitting Avogadro's number (a ~6.0e23x underestimate
-      ! of all gas optical depths) is invisible to the mirrored-formula checks
-      ! above. Column 1 dry air, MW 0.0289644 kg mol-1:
+
+      ! Column 1 dry air, MW 0.0289644 kg mol-1:
       !   layer 2: 0.5 kg/kg * 5.5 kg/m3 -> 5.71767e19 molecule cm-3 (interface 1)
       !   layer 1: 0.4 kg/kg * 3.5 kg/m3 -> 2.91081e19 molecule cm-3 (interface 3)
       if (i_col == 1) then

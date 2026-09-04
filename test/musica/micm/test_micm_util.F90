@@ -71,10 +71,6 @@ contains
     micm_constituents(:,:,3) = ccpp_constituents(:,:,3) * dry_air_mass_density(:,:) / micm_molar_mass_array(3)
     micm_constituents(:,:,4) = ccpp_constituents(:,:,4) * dry_air_mass_density(:,:) / micm_molar_mass_array(4)
 
-    ! Hand-computed known-answer checks pin the conversion formula itself: the
-    ! stray division by the dry air molar mass (a ~34.5x error in every
-    ! second-order reaction rate) is invisible to the round-trip and
-    ! conservation checks below because the extraction path inverts it exactly.
     ! cell (1,1) species 1: 0.1 kg/kg * 3.5 kg/m3 / 200 kg/mol = 1.75e-3 mol/m3
     ! cell (2,2) species 4: 0.34 kg/kg * 6.5 kg/m3 / 250 kg/mol = 8.84e-3 mol/m3
     ASSERT_NEAR(micm_constituents(1,1,1), 1.75e-3_kind_phys, 1.0e-12_kind_phys)
