@@ -1,4 +1,4 @@
-! Copyright (C) 2024-2025 University Corporation for Atmospheric Research
+! Copyright (C) 2024-2026 University Corporation for Atmospheric Research
 ! SPDX-License-Identifier: Apache-2.0
 
 !> Photolysis rate constant calculation using TUV-x for MUSICA chemistry
@@ -47,7 +47,7 @@ contains
     real(kind_phys),         intent(in)  :: solar_zenith_angle(:)                             ! radians (column)
     real(kind_phys),         intent(in)  :: earth_sun_distance                                ! AU
     real(kind_phys),         intent(out) :: rate_parameters(:,:,:)                            ! various units (column, layer, parameter)
-    character(len=512),      intent(out) :: errmsg
+    character(len=*),        intent(out) :: errmsg
     integer,                 intent(out) :: errcode
 
     ! local variables

@@ -1,4 +1,4 @@
-! Copyright (C) 2024-2025 University Corporation for Atmospheric Research
+! Copyright (C) 2024-2026 University Corporation for Atmospheric Research
 ! SPDX-License-Identifier: Apache-2.0
 
 !> Gas-phase chemistry solve using MICM for MUSICA chemistry
@@ -26,8 +26,11 @@ contains
     real(kind_phys), target, intent(in)    :: rate_parameters(:,:,:) ! various units (column, layer, parameter)
     real(kind_phys), target, intent(inout) :: constituents(:,:,:)  ! kg kg-1 (column, layer, constituent)
     integer,                 intent(in)    :: log_output_unit      ! file unit number for logging
-    character(len=512),      intent(out)   :: errmsg
+    character(len=*),        intent(out)   :: errmsg
     integer,                 intent(out)   :: errcode
+
+    errcode = 0
+    errmsg = ''
 
     call micm_run(time_step, temperature, pressure, dry_air_density, rate_parameters, &
                   constituents, log_output_unit, errmsg, errcode)
