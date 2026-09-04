@@ -88,7 +88,7 @@
       0 = no convective water (stratiform condensate only),
       1 = area-weighted arithmetic average of convective and stratiform
       in-cloud water
-      2 = average in emissivity.
+      2 = area-weighted arithmetic average of in-cloud water emissivities.
       Default: 1
     </desc>
     <values>

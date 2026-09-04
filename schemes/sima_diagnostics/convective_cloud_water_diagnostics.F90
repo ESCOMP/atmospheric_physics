@@ -33,7 +33,7 @@ contains
       call history_add_field('FRESH',    'frequency_of_occurrence_of_shallow_convection_with_condensate', 'lev', 'avg', '1')
       call history_add_field('FREDP',    'frequency_of_occurrence_of_deep_convection_with_condensate', 'lev', 'avg', '1')
       call history_add_field('FRECU',    'frequency_of_occurrence_of_convection_with_condensate', 'lev', 'avg', '1')
-      call history_add_field('FRETOT',   'frequency_of_occurrence_of_cloud_with_condensate', 'lev', 'avg', '1')
+      call history_add_field('FRETOT',   'frequency_of_occurrence_of_cloud_with_condensate_above_threshold', 'lev', 'avg', '1')
 
    end subroutine convective_cloud_water_diagnostics_init
 

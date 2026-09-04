@@ -88,7 +88,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ fretot ]
-  standard_name = frequency_of_occurrence_of_cloud_with_condensate
+  standard_name = frequency_of_occurrence_of_cloud_with_condensate_above_threshold
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

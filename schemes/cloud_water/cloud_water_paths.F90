@@ -13,6 +13,9 @@ module cloud_water_paths
 
   ! Minimum cloud fraction floor for in-cloud conversions [fraction]
   real(kind_phys), parameter :: mincld = 0.0001_kind_phys
+  ! Graupel uses a larger cloud fraction floor [fraction]
+  ! than the other hydrometeors when converting to an in-cloud graupel water path
+  real(kind_phys), parameter :: mincld_grau = 1.e-2_kind_phys
 
 contains
 
@@ -36,7 +39,7 @@ contains
     integer,         intent(in)  :: ncol
     integer,         intent(in)  :: pver
     integer,         intent(in)  :: top_lev           ! troposphere cloud physics top level [index]
-    integer,         intent(in)  :: conv_water_in_rad ! Use convective water in radiation? [flag]
+    integer,         intent(in)  :: conv_water_in_rad ! control variable, with zero meaning no convective water used [1]
 
     real(kind_phys), intent(in)  :: gravit            ! gravitational acceleration [m s-2]
     real(kind_phys), intent(in)  :: rair              ! dry air gas constant [J kg-1 K-1]
@@ -108,8 +111,8 @@ contains
       do i = 1, ncol
         ! Limits for in-cloud mixing ratios consistent with MG microphysics
         ! in-cloud mixing ratio maximum limit of 0.005 kg/kg
-        icimr(i, k) = min(allcld_ice(i, k)/max(0.0001_kind_phys, cld(i, k)), 0.005_kind_phys)
-        icwmr(i, k) = min(allcld_liq(i, k)/max(0.0001_kind_phys, cld(i, k)), 0.005_kind_phys)
+        icimr(i, k) = min(allcld_ice(i, k)/max(mincld, cld(i, k)), 0.005_kind_phys)
+        icwmr(i, k) = min(allcld_liq(i, k)/max(mincld, cld(i, k)), 0.005_kind_phys)
         iwc(i, k) = allcld_ice(i, k)*pmid(i, k)/(rair*t(i, k))
         lwc(i, k) = allcld_liq(i, k)*pmid(i, k)/(rair*t(i, k))
         ! Calculate total cloud water paths in each layer
@@ -162,7 +165,7 @@ contains
         end if
 
         ! Calculate in-cloud graupel water path
-        icgrauwp(i, k) = qgout(i, k)/max(1.e-2_kind_phys, cldfgrau(i, k))*pdel(i, k)/gravit
+        icgrauwp(i, k) = qgout(i, k)/max(mincld_grau, cldfgrau(i, k))*pdel(i, k)/gravit
       end do
     end do
 

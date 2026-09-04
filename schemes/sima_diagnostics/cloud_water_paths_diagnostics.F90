@@ -1,11 +1,11 @@
-! Diagnostics for cloud_water_paths: the CAM cloud water path history fields.
-! - The in-cloud mixing ratios, water contents and water paths come from
-!   CAM cloud_diagnostics_calc (two-moment branch). The grid-box and
-!   vertically integrated paths are derived here from the in-cloud paths
-!   exactly as CAM does, since they are diagnostic-only quantities.
-! - The snow/graupel adjusted cloud fractions come from CAM micro_pumas_cam.
-!   CAM does not output the in-cloud snow/graupel water paths (icswp,
-!   icgrauwp), so they are not output here either.
+! Diagnostics for cloud_water_paths: the cloud water path history fields.
+! - The in-cloud mixing ratios, water contents and water paths are the
+!   cloud_water_paths outputs. The grid-box and vertically integrated
+!   paths are diagnostic-only quantities derived here from the in-cloud
+!   paths weighted by cloud fraction.
+! - The snow/graupel adjusted cloud fractions are output. The in-cloud
+!   snow/graupel water paths (icswp, icgrauwp) are radiation inputs only
+!   and have no history field.
 module cloud_water_paths_diagnostics
    implicit none
    private
@@ -21,19 +21,18 @@ contains
       use cam_history,         only: history_add_field
       use cam_history_support, only: horiz_only
 
-      logical,            intent(in)  :: one_mom_clouds ! flag_for_one_moment_cloud_microphysics [flag]
+      logical,            intent(in)  :: one_mom_clouds ! is_one_moment_cloud_microphysics [flag]
       character(len=*),   intent(out) :: errmsg
       integer,            intent(out) :: errflg
 
       errmsg = ''
       errflg = 0
 
-      ! History add field calls (CAM cloud_diagnostics field names)
+      ! History add field calls
       ! The in-cloud mixing ratios and water contents here are the two-moment
-      ! estimators (CAM cloud_diagnostics registers them only when
-      ! two_mom_clouds); with a one-moment (RK) microphysics the same history
-      ! names are owned by rk_stratiform_diagnostics (CAM rk_stratiform_cam),
-      ! so skip them to avoid duplicate registration.
+      ! estimators; with a one-moment (RK) microphysics the same history
+      ! names are owned by rk_stratiform_diagnostics, so skip them to avoid
+      ! duplicate registration.
       if (.not. one_mom_clouds) then
          call history_add_field('ICWMR',    'in_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water', 'lev', 'avg', 'kg kg-1')
          call history_add_field('ICIMR',    'in_cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water', 'lev', 'avg', 'kg kg-1')
@@ -47,9 +46,9 @@ contains
       call history_add_field('TGCLDLWP', 'vertically_integrated_gridbox_liquid_water_path', horiz_only, 'avg', 'kg m-2')
       call history_add_field('TGCLDCWP', 'vertically_integrated_gridbox_total_water_path', horiz_only, 'avg', 'kg m-2')
 
-      ! History add field calls (CAM micro_pumas_cam field names)
-      call history_add_field('CLDFSNOW', 'liquid_plus_snow_stratiform_cloud_area_fraction', 'lev', 'avg', '1')
-      call history_add_field('CLDFGRAU', 'liquid_plus_graupel_stratiform_cloud_area_fraction', 'lev', 'avg', '1')
+      ! Snow/graupel adjusted cloud fractions
+      call history_add_field('CLDFSNOW', 'liquid_plus_snow_stratiform_cloud_area_fraction', 'lev', 'avg', 'fraction')
+      call history_add_field('CLDFGRAU', 'liquid_plus_graupel_stratiform_cloud_area_fraction', 'lev', 'avg', 'fraction')
 
    end subroutine cloud_water_paths_diagnostics_init
 
@@ -76,9 +75,9 @@ contains
       real(kind_phys),    intent(in)  :: icwmr(:,:)      ! In-cloud water mixing ratio [kg kg-1]
       real(kind_phys),    intent(in)  :: iwc(:,:)        ! Grid box average ice water content [kg m-3]
       real(kind_phys),    intent(in)  :: lwc(:,:)        ! Grid box average liquid water content [kg m-3]
-      real(kind_phys),    intent(in)  :: cldfsnow(:,:)   ! Cloud fraction adjusted for snow [1]
-      real(kind_phys),    intent(in)  :: cldfgrau(:,:)   ! Cloud fraction adjusted for graupel [1]
-      logical,            intent(in)  :: one_mom_clouds  ! flag_for_one_moment_cloud_microphysics [flag]
+      real(kind_phys),    intent(in)  :: cldfsnow(:,:)   ! Cloud fraction adjusted for snow [fraction]
+      real(kind_phys),    intent(in)  :: cldfgrau(:,:)   ! Cloud fraction adjusted for graupel [fraction]
+      logical,            intent(in)  :: one_mom_clouds  ! is_one_moment_cloud_microphysics [flag]
 
       ! CCPP error handling variables
       character(len=*),   intent(out) :: errmsg
@@ -98,9 +97,8 @@ contains
       errmsg = ''
       errflg = 0
 
-      ! In the two-moment branch the in-cloud paths are the radiation inputs
-      ! themselves, so the in-cloud ice/liquid paths (CAM cicewp/cliqwp) are
-      ! iciwp/iclwp and the grid-box paths are those weighted by cloud fraction.
+      ! The in-cloud ice/liquid paths are the radiation inputs iciwp/iclwp;
+      ! the grid-box paths are those weighted by cloud fraction.
       gicewp(:ncol,:pver) = iciwp(:ncol,:pver)*cld(:ncol,:pver)
       gliqwp(:ncol,:pver) = iclwp(:ncol,:pver)*cld(:ncol,:pver)
 

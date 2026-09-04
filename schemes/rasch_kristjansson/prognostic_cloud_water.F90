@@ -94,7 +94,7 @@ contains
     real(kind_phys),    intent(in)    :: psrhmin_in
 
     ! Output arguments
-    logical,            intent(out)   :: one_mom_clouds ! flag_for_one_moment_cloud_microphysics [flag]
+    logical,            intent(out)   :: one_mom_clouds ! is_one_moment_cloud_microphysics [flag]
     character(len=512), intent(out)   :: errmsg         ! error message
     integer,            intent(out)   :: errflg         ! error flag
 

@@ -30,7 +30,7 @@
   dimensions = ()
   intent = in
 [ one_mom_clouds ]
-  standard_name = flag_for_one_moment_cloud_microphysics
+  standard_name = is_one_moment_cloud_microphysics
   units = flag
   type = logical
   dimensions = ()
@@ -176,7 +176,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ fretot ]
-  standard_name = frequency_of_occurrence_of_cloud_with_condensate
+  standard_name = frequency_of_occurrence_of_cloud_with_condensate_above_threshold
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
