@@ -136,7 +136,7 @@ contains
         ! Adjust cloud fraction for snow
         ! ------------------------------
         cldfsnow(i, k) = cld(i, k)
-        ! If cloud and only ice (no convective cloud or ice), then set to 0.
+        ! If cloud and only ice (no convective cloud or liquid), then set to 0.
         if ((cldfsnow(i, k) > 1.e-4_kind_phys) .and. &
             (concld(i, k) < 1.e-4_kind_phys) .and. &
             (ls_liq(i, k) < 1.e-10_kind_phys)) then
