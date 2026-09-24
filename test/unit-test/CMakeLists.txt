@@ -43,6 +43,20 @@ add_library(phys_utils ${PHYS_UTILS_SRC})
 target_compile_options(phys_utils PRIVATE -ffree-line-length-none)
 target_include_directories(phys_utils PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
+set(RRTMGP_SRC
+    ../../schemes/rrtmgp/utils/radiation_utils.F90
+    ../../schemes/rrtmgp/utils/radiation_tools.F90
+    ../../schemes/rrtmgp/rrtmgp_sw_solar_var_setup.F90
+    ../../schemes/rrtmgp/utils/rrtmgp_dry_static_energy_tendency.F90
+    ../../schemes/rrtmgp/utils/calculate_net_heating.F90
+    include/interpolate_stub.F90
+    include/ccpp_kinds.F90
+)
+
+add_library(rrtmgp ${RRTMGP_SRC})
+target_compile_options(rrtmgp PRIVATE -ffree-line-length-none)
+target_include_directories(rrtmgp PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+
 add_subdirectory(../../schemes/mmm mmm)
 
 if(ATMOSPHERIC_PHYSICS_ENABLE_TESTS OR ATMOSPHERIC_PHYSICS_ENABLE_CODE_COVERAGE)

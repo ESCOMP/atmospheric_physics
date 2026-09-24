@@ -1,0 +1,72 @@
+@test
+subroutine calculate_net_heating()
+  use funit
+  use ccpp_kinds, only: kind_phys
+  use calculate_net_heating, only: calculate_net_heating_run
+
+  integer :: errflg, ncol
+  character(len=512) :: errmsg
+  real(kind_phys) :: qrl(1,2), qrs(1,2)
+  real(kind_phys) :: qrl_prime(1,2), qrs_prime(1,2)
+  real(kind_phys) :: fsns(1), fsnt(1), flns(1), flnt(1)
+  real(kind_phys) :: rad_heat(1,2)
+  real(kind_phys) :: net_flx(1)
+
+  qrl_prime(1,1) = 10._kind_phys
+  qrl_prime(1,2) = 20._kind_phys
+  qrs_prime(1,1) = 30._kind_phys
+  qrs_prime(1,2) = 40._kind_phys
+  fsns(1) = 1._kind_phys
+  fsnt(1) = 2._kind_phys
+  flns(1) = 3._kind_phys
+  flnt(1) = 4._kind_phys
+  ncol = 1
+
+  call calculate_net_heating_run(ncol, qrl_prime, qrs_prime,  &
+                .false., fsns, fsnt, flns, flnt, rad_heat, &
+                net_flx, errmsg, errflg)
+
+  @assertEqual('', errmsg)
+  @assertEqual(0, errflg)
+  @assertEqual(40._kind_phys, rad_heat(1,1))
+  @assertEqual(60._kind_phys, rad_heat(1,2))
+  @assertEqual(0._kind_phys, net_flx(1))
+  
+end subroutine calculate_net_heating
+
+@test
+subroutine calculate_net_heating_offline()
+  use funit
+  use ccpp_kinds, only: kind_phys
+  use calculate_net_heating, only: calculate_net_heating_run
+
+  integer :: errflg, ncol
+  character(len=512) :: errmsg
+  real(kind_phys) :: qrl(1,2), qrs(1,2)
+  real(kind_phys) :: qrl_prime(1,2), qrs_prime(1,2)
+  real(kind_phys) :: fsns(1), fsnt(1), flns(1), flnt(1)
+  real(kind_phys) :: rad_heat(1,2)
+  real(kind_phys) :: net_flx(1)
+
+  qrl_prime(1,1) = 10._kind_phys
+  qrl_prime(1,2) = 20._kind_phys
+  qrs_prime(1,1) = 30._kind_phys
+  qrs_prime(1,2) = 40._kind_phys
+  fsns(1) = 1._kind_phys
+  fsnt(1) = 2._kind_phys
+  flns(1) = 3._kind_phys
+  flnt(1) = 4._kind_phys
+  ncol = 1
+  rad_heat = 0._kind_phys
+
+  call calculate_net_heating_run(ncol, qrl_prime, qrs_prime,  &
+                .true., fsns, fsnt, flns, flnt, rad_heat, &
+                net_flx, errmsg, errflg)
+
+  @assertEqual('', errmsg)
+  @assertEqual(0, errflg)
+  @assertEqual(0._kind_phys, rad_heat(1,1))
+  @assertEqual(0._kind_phys, rad_heat(1,2))
+  @assertEqual(0._kind_phys, net_flx(1))
+  
+end subroutine calculate_net_heating_offline
