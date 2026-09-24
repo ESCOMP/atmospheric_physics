@@ -221,6 +221,12 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
+[ prect ]
+  standard_name = lwe_precipitation_rate_at_surface
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
 [ alpha_gw_movmtn ]
   standard_name = tunable_parameter_for_amplitude_of_moving_mountain_gravity_wave_drag
   units = 1
@@ -391,9 +397,51 @@
   intent = out
 [ xpwp_src ]
   standard_name = momentum_flux_source_for_moving_mountain_gravity_wave_drag
-  units = m2 s-2
+  units = Pa
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
+  intent = out
+[ tilt ]
+  standard_name = vortex_tilting_magnitude_for_moving_mountain_gravity_wave_drag
+  units = s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ p_steer ]
+  standard_name = air_pressure_at_steering_level_due_to_moving_mountain_gravity_wave_drag
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ p_launch ]
+  standard_name = air_pressure_at_launch_level_due_to_moving_mountain_gravity_wave_drag
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ taucd_west ]
+  standard_name = westward_reynolds_stress_due_to_moving_mountain_gravity_wave_drag
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ taucd_east ]
+  standard_name = eastward_reynolds_stress_due_to_moving_mountain_gravity_wave_drag
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ taucd_south ]
+  standard_name = southward_reynolds_stress_due_to_moving_mountain_gravity_wave_drag
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = out
+[ taucd_north ]
+  standard_name = northward_reynolds_stress_due_to_moving_mountain_gravity_wave_drag
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = out
 [ errmsg ]
   standard_name = ccpp_error_message

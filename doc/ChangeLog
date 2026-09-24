@@ -1,5 +1,61 @@
 ===============================================================
 
+Tag name: TBD (assigned at merge)
+Originator(s): juliob
+Date: September 24, 2026
+One-line Summary: Moving-mountain GW source: flow-dependent tilt/precip
+  source options, plus directional Reynolds-stress diagnostics
+Github PR URL: TBD
+
+This PR fixes the following NCAR/atmospheric_physics Github issues:
+ - N/A (not opened against a tracked issue; companion CAM PR adds context)
+
+Code reviewed by: TBD
+
+List all existing files that have been added (A), modified (M), or deleted (D),
+and describe the changes:
+
+M  schemes/gravity_wave_drag/gravity_wave_drag_moving_mountain.F90
+     - Adds three new, opt-in moving-mountain source formulations,
+       selected via the existing `movmtn_source` namelist parameter
+       (default unchanged at 1=vorticity):
+         3 = tilt layer mean (flow-dependent steering/launch levels)
+         4 = tilt + precipitation, six-parameter fit
+         5 = tilt + precipitation, PySR cx17 fit
+       New helper subroutines/functions: compute_tilt, weighted_centroid,
+       vorticity_centroid_levels, tilt_centroid_levels, tilt_dyn_src,
+       tilt_precip_6param_src, tilt_precip_cx17_src.
+     - New `prect` (total precipitation rate) input, used only by the
+       new precip-dependent source options.
+     - Exposes the four directional Reynolds-stress components already
+       computed internally via `calc_taucd` as new intent(out) arguments
+       (taucd_west/east/south/north), for the new MMTAUE/W/S/N history
+       diagnostics added in the companion CAM PR.
+     - New diagnostic-only outputs threaded through as new intent(out)
+       arguments: tilt, p_steer, p_launch (vortex tilt magnitude,
+       steering-level pressure, launch-level pressure).
+
+M  schemes/gravity_wave_drag/gravity_wave_drag_moving_mountain.meta
+     - Adds .meta entries for the new prect input and the new
+       tilt/p_steer/p_launch/taucd_west/taucd_east/taucd_south/taucd_north
+       outputs listed above.
+
+List and Describe any test failures: none observed. Tested by compiling
+CAM (QPC7 compset, ne3pg3_ne3pg3_mt232 grid) against this branch; build
+completed with 0 warnings/errors in the modified files. The full aux_cam
+regression suite (derecho/intel, derecho/nvhpc, izumi/nag, izumi/gnu) has
+not yet been run against this change.
+
+Summarize any changes to answers: none for any existing configuration.
+`movmtn_source` defaults to 1 (vorticity), which uses the pre-existing,
+functionally unchanged `vorticity_flux_src`/`shcu_flux_src` code paths.
+The new source_type=3/4/5 pathways are only reached if a user explicitly
+sets `movmtn_source` to one of those values; the new taucd/tilt/p_steer/
+p_launch outputs are purely diagnostic (written via CAM-side addfld/outfld)
+and do not feed back into the tendencies applied to the model state.
+
+===============================================================
+
 Tag name: atmos_phys0_07_000
 Originator(s): jimmielin
 Date: November 18, 2024
