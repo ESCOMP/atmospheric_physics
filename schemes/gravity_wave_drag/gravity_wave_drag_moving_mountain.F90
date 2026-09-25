@@ -428,51 +428,93 @@ contains
     use gw_utils, only: get_unit_vector, dot_2d, midpoint_interp, index_of_nearest
 
     integer,         intent(in)  :: ncol, pver
+    ! Midpoint zonal/meridional winds.
     real(kind_phys), intent(in)  :: u(:,:), v(:,:)
+    ! Heating rate due to convection (from deep scheme).
     real(kind_phys), intent(in)  :: netdt(:,:)
+    ! Higher order flux from ShCu/PBL.
     real(kind_phys), intent(in)  :: xpwp_shcu(:,:)
+    ! Relative vorticity from the dycore.
     real(kind_phys), intent(in)  :: vorticity(:,:)
+    ! Midpoint altitudes.
     real(kind_phys), intent(in)  :: zm(:,:)
+    ! Midpoint pressure and pressure-thickness (exposed from the "p"
+    ! coords1D structure), needed by the source_type=3/4/5 branches.
     real(kind_phys), intent(in)  :: pmid(:,:)
     real(kind_phys), intent(in)  :: delp(:,:)
-    real(kind_phys), intent(in)  :: prect(:)     ! total precipitation rate [m s-1]
+    ! Total (convective + large-scale) precipitation rate [m s-1].
+    real(kind_phys), intent(in)  :: prect(:)
+    ! Tunable parameter controlling proportion of PBL momentum flux emitted as GW.
     real(kind_phys), intent(in)  :: alpha_gw_movmtn
+    ! Indices of top gravity wave source level and lowest level where wind
+    ! tendencies are allowed.
     integer,         intent(out) :: src_level(:)
     integer,         intent(out) :: tend_level(:)
+    ! Wave Reynolds stress: momentum flux (m2/s2) at interface level, per
+    ! phase-speed bin in -ngwv:ngwv.
     real(kind_phys), intent(out) :: tau(ncol,-band%ngwv:band%ngwv,pver+1)
+    ! Projection of wind at midpoints and interfaces.
     real(kind_phys), intent(out) :: ubm(:,:), ubi(:,:)
+    ! Unit vectors of source wind (zonal and meridional components),
+    ! determined by vector direction of wind at source.
     real(kind_phys), intent(out) :: xv(:), yv(:)
+    ! Phase speeds.
     real(kind_phys), intent(out) :: c(ncol,-band%ngwv:band%ngwv)
+    ! Heating depth [m], calculated here.
     real(kind_phys), intent(out) :: hdepth(:)
     logical,         intent(in)  :: use_gw_movmtn_pbl
     real(kind_phys), intent(in)  :: rair, gravit
+    ! Zonal/meridional wind at steering level, i.e., 'cell speed'.
+    ! May be later modified by retrograde motion.
     real(kind_phys), intent(out) :: usteer(:), vsteer(:)
+    ! Steering level (integer converted to real*8).
     real(kind_phys), intent(out) :: steer_level(:)
+    ! Speed of convective cells relative to storm.
     real(kind_phys), intent(out) :: CS(:)
+    ! GW flux source.
     real(kind_phys), intent(out) :: xpwp_src(:)
+    ! Vortex tilting magnitude |zeta|*|dV/dz| [s-2].
     real(kind_phys), intent(out) :: tilt(:,:)
+    ! Pressure at steering/launch level [Pa]; only set by source_type=3/4/5,
+    ! zero otherwise.
     real(kind_phys), intent(out) :: p_steer(:), p_launch(:)
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     !------------------------ Local Storage --------------------------------
+    ! Column and (vertical) level indices.
     integer          :: i, k
     real(kind_phys)  :: uwavef(ncol,pver), vwavef(ncol,pver)
+    ! Retrograde motion of cell.
     real(kind_phys)  :: Cell_Retro_Speed(ncol)
+    ! Maximum heating rate.
     real(kind_phys)  :: q0(ncol), qj(ncol)
+    ! Unit vector components at steering level and magnitude.
     real(kind_phys)  :: xv_steer(ncol), yv_steer(ncol), umag_steer(ncol)
+    ! Bottom/top heating range index.
     integer          :: boti(ncol), topi(ncol)
+    ! Index for looking up heating depth dimension in the table.
     integer          :: hd_idx(ncol)
+    ! Mean wind in heating region.
     real(kind_phys)  :: uh(ncol)
+    ! Source level tau for a column.
     real(kind_phys)  :: tau0(-band%ngwv:band%ngwv)
+    ! Speed of convective cells relative to storm.
     real(kind_phys)  :: CS1(ncol)
+    ! Wind speeds in wave direction.
     real(kind_phys)  :: udiff(ncol), vdiff(ncol)
+    ! "On-crest" source level wind.
     real(kind_phys)  :: ubmsrc(ncol), ubisrc(ncol)
+    ! Other wind quantities.
     real(kind_phys)  :: ut(ncol)
+    ! Tau from moving mountain lookup table.
     real(kind_phys)  :: taumm(ncol)
+    ! Index for moving mountain lookup table.
     integer          :: hdmm_idx(ncol), uhmm_idx(ncol)
+    ! Index for ground based phase speed bin.
     real(kind_phys)  :: c0(ncol,-band%ngwv:band%ngwv)
     integer          :: c_idx(ncol,-band%ngwv:band%ngwv)
+    ! Manual steering/launch level override (source_type<3 only).
     integer          :: Steer_k(ncol), Launch_k(ncol)
 
     ! Heating rate conversion factor (1 / 5% convective area fraction).
