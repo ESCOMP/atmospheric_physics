@@ -143,7 +143,7 @@
   intent = in
 [ xpwp_src ]
   standard_name = momentum_flux_source_for_moving_mountain_gravity_wave_drag
-  units = m2 s-2
+  units = Pa
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in

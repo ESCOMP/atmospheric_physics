@@ -47,7 +47,7 @@ contains
     call history_add_field('UCELL_MOVMTN', 'eastward_wind_at_steering_level_due_to_moving_mountain_gravity_wave_drag', horiz_only, 'inst', 'm s-1')
     call history_add_field('VCELL_MOVMTN', 'northward_wind_at_steering_level_due_to_moving_mountain_gravity_wave_drag', horiz_only, 'inst', 'm s-1')
     call history_add_field('CS_MOVMTN', 'gravity_wave_phase_speed_in_source_direction_due_to_moving_mountain_gravity_wave_drag', horiz_only, 'inst', 'm s-1')
-    call history_add_field('XPWP_SRC_MOVMTN', 'momentum_flux_source_for_moving_mountain_gravity_wave_drag', horiz_only, 'inst', 'm2 s-2')
+    call history_add_field('XPWP_SRC_MOVMTN', 'momentum_flux_source_for_moving_mountain_gravity_wave_drag', horiz_only, 'inst', 'Pa')
 
   end subroutine gravity_wave_drag_moving_mountain_diagnostics_init
 
@@ -92,7 +92,7 @@ contains
     real(kind_phys), intent(in) :: usteer(:)   ! [m s-1]
     real(kind_phys), intent(in) :: vsteer(:)   ! [m s-1]
     real(kind_phys), intent(in) :: CS(:)       ! [m s-1]
-    real(kind_phys), intent(in) :: xpwp_src(:) ! [m2 s-2]
+    real(kind_phys), intent(in) :: xpwp_src(:) ! [Pa]
 
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errflg

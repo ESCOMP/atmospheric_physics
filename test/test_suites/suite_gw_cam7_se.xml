@@ -36,6 +36,7 @@
     <scheme>gravity_wave_drag_top_taper</scheme>
 
     <!-- Moving mountain gravity wave drag (SE dycore only) -->
+    <scheme>compute_total_precipitation_rate</scheme>
     <scheme>gravity_wave_drag_moving_mountain</scheme>
     <scheme>gravity_wave_drag_moving_mountain_diagnostics</scheme>
 
