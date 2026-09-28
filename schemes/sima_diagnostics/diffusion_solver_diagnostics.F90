@@ -14,18 +14,11 @@ contains
 
 !> \section arg_table_vertical_diffusion_tendencies_diagnostics_init Argument Table
 !! \htmlinclude vertical_diffusion_tendencies_diagnostics_init.html
-  subroutine vertical_diffusion_tendencies_diagnostics_init(const_props, errmsg, errflg)
-
-      ! framework dependency for const_props
-      use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
-
-      ! dependency to get constituent index
-      use ccpp_const_utils,          only: ccpp_const_get_idx
+  subroutine vertical_diffusion_tendencies_diagnostics_init(errmsg, errflg)
 
       use cam_history,         only: history_add_field
       use cam_history_support, only: horiz_only
 
-      type(ccpp_constituent_prop_ptr_t), intent(in) :: const_props(:)
       character(len=512), intent(out) :: errmsg
       integer,            intent(out) :: errflg
 
@@ -108,7 +101,6 @@ contains
 !! \htmlinclude vertical_diffusion_tendencies_diagnostics_run.html
   subroutine vertical_diffusion_tendencies_diagnostics_run( &
              ncol, pver, pverp, dt, &
-             const_props, &
              latvap, latice, zvir, cpair, gravit, rair, &
              pmid, pint, zi, zm, &
              kvh, kvm, cgh, cgs, &
@@ -124,11 +116,8 @@ contains
       use cam_history, only: history_out_field
       use runtime_obj, only: wv_stdname
 
-      ! framework dependency for const_props
-      use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
-
       ! dependency to get constituent index
-      use ccpp_const_utils,          only: ccpp_const_get_idx
+      use ccpp_scheme_utils,         only: ccpp_constituent_index
 
       ! utility subroutine for calculating diagnostics based on outputs
       ! from the vertical diffusion solver.
@@ -139,7 +128,6 @@ contains
       integer,          intent(in) :: pver
       integer,          intent(in) :: pverp
       real(kind_phys),  intent(in) :: dt
-      type(ccpp_constituent_prop_ptr_t), intent(in) :: const_props(:)
       real(kind_phys),  intent(in) :: latvap                  ! Latent heat of vaporization [J kg-1]
       real(kind_phys),  intent(in) :: latice                  ! Latent heat of fusion [J kg-1]
       real(kind_phys),  intent(in) :: zvir                    ! rh2o/rair - 1 [1]
@@ -244,19 +232,16 @@ contains
       errflg = 0
 
       ! Get constituent indices for wv, cldliq, cldice
-      call ccpp_const_get_idx(const_props, &
-           wv_stdname, &
-           const_wv_idx, errmsg, errflg)
+      call ccpp_constituent_index(wv_stdname, &
+           const_wv_idx, errflg, errmsg)
       if (errflg /= 0) return
 
-      call ccpp_const_get_idx(const_props, &
-           'cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water', &
-           const_cldliq_idx, errmsg, errflg)
+      call ccpp_constituent_index('cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water', &
+           const_cldliq_idx, errflg, errmsg)
       if (errflg /= 0) return
 
-      call ccpp_const_get_idx(const_props, &
-           'cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water', &
-           const_cldice_idx, errmsg, errflg)
+      call ccpp_constituent_index('cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water', &
+           const_cldice_idx, errflg, errmsg)
       if (errflg /= 0) return
 
       ! Extract constituent fluxes from coupler upward constituent fluxes
