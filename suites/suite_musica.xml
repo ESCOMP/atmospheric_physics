@@ -3,7 +3,14 @@
 <suite name="musica" version="1.0">
   <group name="physics_after_coupler">
     <scheme>calc_dry_air_ideal_gas_density</scheme>
+    <!-- musica_ccpp handles the register/init/final phases shared by the
+         photolysis and chemistry run schemes. Schemes that provide additional
+         rate parameters (e.g. heterogeneous or user-defined reaction rates)
+         may be placed between musica_ccpp_photolysis and
+         musica_ccpp_chemistry to write into micm_rate_parameters. -->
     <scheme>musica_ccpp</scheme>
+    <scheme>musica_ccpp_photolysis</scheme>
+    <scheme>musica_ccpp_chemistry</scheme>
 
     <!-- State diagnostics -->
     <scheme>sima_state_diagnostics</scheme>

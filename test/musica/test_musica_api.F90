@@ -3,6 +3,8 @@
 program run_test_musica_ccpp
 
   use musica_ccpp
+  use musica_ccpp_chemistry,  only: musica_ccpp_chemistry_run
+  use musica_ccpp_photolysis, only: musica_ccpp_photolysis_run
   use musica_test_data, only: get_wavelength_edges, get_extrarterrestrial_fluxes
   use ccpp_kinds,       only: kind_phys
 
@@ -30,14 +32,11 @@ program run_test_musica_ccpp
     real(kind_phys) :: E_ = 0.0
   end type ArrheniusReaction
 
-  write(*,*) "[MUSICA Test] Running the Chapman test"
-  call test_chapman()
-  write(*,*) "[MUSICA Test] Ends the Chapman test"
-
-  write(*,*) "[MUSICA Test] Running the Terminator test"
-  call test_terminator()
-  write(*,*) "[MUSICA Test] Ends the Terminator test"
-
+  ! The analytical tests disable TUV-x and must run FIRST:
+  ! (filename_of_tuvx_configuration = 'none')
+  ! the TUV-x species indices are module state that is never reset,
+  ! so running a TUV-x-enabled test before them would
+  ! mask a missing do_tuvx guard in the register phase
   write(*,*) "[MUSICA Test] Running the Analytical test with Rosenbrock solver"
   call test_rosenbrock()
   write(*,*) "[MUSICA Test] Ends the Analytical test with Rosenbrock solver"
@@ -45,6 +44,14 @@ program run_test_musica_ccpp
   write(*,*) "[MUSICA Test] Running the Analytical test with Backward Euler solver"
   call test_backward_euler()
   write(*,*) "[MUSICA Test] Ends the Analytical test with Backward Euler solver"
+
+  write(*,*) "[MUSICA Test] Running the Chapman test"
+  call test_chapman()
+  write(*,*) "[MUSICA Test] Ends the Chapman test"
+
+  write(*,*) "[MUSICA Test] Running the Terminator test"
+  call test_terminator()
+  write(*,*) "[MUSICA Test] Ends the Terminator test"
 
 contains
 
@@ -70,7 +77,8 @@ contains
     use ccpp_const_utils,              only: ccpp_const_get_idx
     use musica_ccpp_namelist,          only: filename_of_micm_configuration, &
                                              filename_of_tuvx_configuration, &
-                                             filename_of_tuvx_micm_mapping_configuration
+                                             filename_of_tuvx_micm_mapping_configuration, &
+                                             micm_solver_type
     use musica_ccpp_tuvx_load_species, only: index_dry_air, index_O2, index_O3
 
     implicit none
@@ -110,6 +118,8 @@ contains
     type(ccpp_constituent_prop_ptr_t),   allocatable                 :: constituent_props_ptr(:)
     type(ccpp_constituent_properties_t), allocatable, target         :: constituent_props(:)
     type(ccpp_constituent_properties_t), pointer                     :: const_prop
+    integer                                                          :: number_of_micm_rate_parameters
+    real(kind_phys), allocatable                                     :: rate_parameters(:,:,:) ! various units
     real(kind_phys)                                                  :: molar_mass, base_conc, default_mixing_ratio
     character(len=512)                                               :: species_name, units
     character(len=:), allocatable                                    :: micm_species_name
@@ -145,8 +155,13 @@ contains
     filename_of_micm_configuration = 'musica_configurations/chapman/micm/config.json'
     filename_of_tuvx_configuration = 'musica_configurations/chapman/tuvx/config.json'
     filename_of_tuvx_micm_mapping_configuration = 'musica_configurations/chapman/tuvx_micm_mapping.json'
+    ! set explicitly: the namelist variables are module state shared across the
+    ! sub-tests, so relying on the default would inherit the previous sub-test's
+    ! solver selection
+    micm_solver_type = 'Rosenbrock'
 
-    call musica_ccpp_register(constituent_props, errmsg, errcode)
+    call musica_ccpp_register(constituent_props, number_of_micm_rate_parameters, &
+                              errmsg, errcode)
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
@@ -258,13 +273,24 @@ contains
     write(*,*) "[MUSICA INFO] Initial Concentrations"
     write(*,fmt="(4(3x,e13.6))") constituents
 
-    call musica_ccpp_run( time_step, temperature, pressure, dry_air_density, constituent_props_ptr, &
-                          constituents, geopotential_height_wrt_surface_at_midpoint,                &
-                          geopotential_height_wrt_surface_at_interface, surface_geopotential,       &
-                          surface_temperature, surface_albedo, extraterrestrial_radiation_flux,     &
-                          standard_gravitational_acceleration, cloud_area_fraction,                 &
-                          air_pressure_thickness, solar_zenith_angle, earth_sun_distance, STDOUT,   &
-                          errmsg, errcode )
+    ! The framework allocates micm_rate_parameters from the register-phase
+    ! count; the test mirrors that here
+    allocate(rate_parameters(NUM_COLUMNS, NUM_LAYERS, number_of_micm_rate_parameters))
+    call musica_ccpp_photolysis_run( temperature, dry_air_density, constituents,       &
+                          geopotential_height_wrt_surface_at_midpoint,                 &
+                          geopotential_height_wrt_surface_at_interface,                &
+                          surface_geopotential, surface_temperature, surface_albedo,   &
+                          extraterrestrial_radiation_flux,                             &
+                          standard_gravitational_acceleration, cloud_area_fraction,    &
+                          air_pressure_thickness, solar_zenith_angle,                  &
+                          earth_sun_distance, rate_parameters, errmsg, errcode )
+    if (errcode /= 0) then
+      write(*,*) trim(errmsg)
+      stop 3
+    endif
+    call musica_ccpp_chemistry_run( time_step, temperature, pressure, dry_air_density, &
+                          rate_parameters, constituents, STDOUT, errmsg, errcode )
+    deallocate(rate_parameters)
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
@@ -324,7 +350,8 @@ contains
     use ccpp_const_utils,              only: ccpp_const_get_idx
     use musica_ccpp_namelist,          only: filename_of_micm_configuration, &
                                              filename_of_tuvx_configuration, &
-                                             filename_of_tuvx_micm_mapping_configuration
+                                             filename_of_tuvx_micm_mapping_configuration, &
+                                             micm_solver_type
     use musica_ccpp_tuvx_load_species, only: index_dry_air, index_O2, index_O3
 
     implicit none
@@ -364,6 +391,8 @@ contains
     type(ccpp_constituent_prop_ptr_t),   allocatable               :: constituent_props_ptr(:)
     type(ccpp_constituent_properties_t), allocatable, target       :: constituent_props(:)
     type(ccpp_constituent_properties_t), pointer                   :: const_prop
+    integer                                                        :: number_of_micm_rate_parameters
+    real(kind_phys), allocatable                                   :: rate_parameters(:,:,:) ! various units
     real(kind_phys)                                                :: molar_mass, base_conc
     character(len=512)                                             :: species_name, units
     character(len=:), allocatable                                  :: micm_species_name
@@ -399,8 +428,11 @@ contains
     filename_of_micm_configuration = 'musica_configurations/terminator/micm/config.json'
     filename_of_tuvx_configuration = 'musica_configurations/terminator/tuvx/config.json'
     filename_of_tuvx_micm_mapping_configuration = 'musica_configurations/terminator/tuvx_micm_mapping.json'
+    ! set explicitly: see note in test_chapman
+    micm_solver_type = 'Rosenbrock'
 
-    call musica_ccpp_register(constituent_props, errmsg, errcode)
+    call musica_ccpp_register(constituent_props, number_of_micm_rate_parameters, &
+                              errmsg, errcode)
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
@@ -503,13 +535,24 @@ contains
     write(*,*) "[MUSICA INFO] Initial Concentrations"
     write(*,fmt="(4(3x,e13.6))") constituents
 
-    call musica_ccpp_run( time_step, temperature, pressure, dry_air_density, constituent_props_ptr, &
-                          constituents, geopotential_height_wrt_surface_at_midpoint,                &
-                          geopotential_height_wrt_surface_at_interface, surface_geopotential,       &
-                          surface_temperature, surface_albedo, extraterrestrial_radiation_flux,     &
-                          standard_gravitational_acceleration, cloud_area_fraction,                 &
-                          air_pressure_thickness, solar_zenith_angle, earth_sun_distance, STDOUT,   &
-                          errmsg, errcode )
+    ! The framework allocates micm_rate_parameters from the register-phase
+    ! count; the test mirrors that here
+    allocate(rate_parameters(NUM_COLUMNS, NUM_LAYERS, number_of_micm_rate_parameters))
+    call musica_ccpp_photolysis_run( temperature, dry_air_density, constituents,       &
+                          geopotential_height_wrt_surface_at_midpoint,                 &
+                          geopotential_height_wrt_surface_at_interface,                &
+                          surface_geopotential, surface_temperature, surface_albedo,   &
+                          extraterrestrial_radiation_flux,                             &
+                          standard_gravitational_acceleration, cloud_area_fraction,    &
+                          air_pressure_thickness, solar_zenith_angle,                  &
+                          earth_sun_distance, rate_parameters, errmsg, errcode )
+    if (errcode /= 0) then
+      write(*,*) trim(errmsg)
+      stop 3
+    endif
+    call musica_ccpp_chemistry_run( time_step, temperature, pressure, dry_air_density, &
+                          rate_parameters, constituents, STDOUT, errmsg, errcode )
+    deallocate(rate_parameters)
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
@@ -625,6 +668,9 @@ contains
     real(kind_phys)                                                :: k1, k2, k3, k4
     real(kind_phys)                                                :: dummy_array_1D(1), dummy_array_2D(1,1)
 
+    integer                       :: number_of_micm_rate_parameters
+    real(kind_phys), allocatable  :: rate_parameters(:,:,:) ! various units
+
     NUM_GRID_CELLS = number_of_columns * number_of_layers
     dummy_array_1D = -HUGE(0.0_kind_phys)
     dummy_array_2D = -HUGE(0.0_kind_phys)
@@ -634,7 +680,8 @@ contains
     filename_of_tuvx_micm_mapping_configuration = 'none'
 
     ! MUSICA registration
-    call musica_ccpp_register(constituent_props, errmsg, errcode)
+    call musica_ccpp_register(constituent_props, number_of_micm_rate_parameters, &
+                              errmsg, errcode)
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
@@ -701,10 +748,19 @@ contains
     end do
 
     ! MUSICA run for one time step
-    call musica_ccpp_run( time_step, temperature, pressure, dry_air_mass_density, constituent_props_ptr, &
-                          constituents, dummy_array_2D, dummy_array_2D, dummy_array_1D, dummy_array_1D, &
+    allocate(rate_parameters(number_of_columns, number_of_layers, number_of_micm_rate_parameters))
+    call musica_ccpp_photolysis_run( temperature, dry_air_mass_density, constituents, &
+                          dummy_array_2D, dummy_array_2D, dummy_array_1D, dummy_array_1D, &
                           dummy_array_1D, dummy_array_1D, -HUGE(0.0_kind_phys), dummy_array_2D, &
-                          dummy_array_2D, dummy_array_1D, -HUGE(0.0_kind_phys), STDOUT, errmsg, errcode )
+                          dummy_array_2D, dummy_array_1D, -HUGE(0.0_kind_phys), rate_parameters, &
+                          errmsg, errcode )
+    if (errcode /= 0) then
+      write(*,*) trim(errmsg)
+      stop 3
+    endif
+    call musica_ccpp_chemistry_run( time_step, temperature, pressure, dry_air_mass_density, &
+                          rate_parameters, constituents, STDOUT, errmsg, errcode )
+    deallocate(rate_parameters)
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3

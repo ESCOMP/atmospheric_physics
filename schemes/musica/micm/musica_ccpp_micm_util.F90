@@ -59,8 +59,10 @@ contains
     do i_var = 1, state%number_of_species
       species_1D(1:n_cells_total) => mixing_ratios(:,:,micm_indices_constituent_props(i_var))
       do i_cell = 1, n_cells
+        ! MMR (kg kg-1) -> concentration (mol m-3): multiply by the dry air *mass*
+        ! density (kg m-3), not the molar density stored in conditions%air_density
         state%concentrations( 1 + ( i_cell - 1 ) * cell_stride + ( i_var - 1 ) * var_stride ) = &
-          species_1D(i_cell + state_data_offset) * state%conditions(i_cell)%air_density &
+          species_1D(i_cell + state_data_offset) * air_density_1D(i_cell + state_data_offset) &
               / micm_molar_mass_array(i_var)
       end do
     end do
@@ -86,21 +88,25 @@ contains
   !! CCPP constituent ordering. The concentrations are converted to mass mixing
   !! ratios (kg kg-1) using the dry air density and molecular weights of the
   !! species.
-  subroutine extract_mixing_ratios_from_state(state, state_data_offset, mixing_ratios)
+  subroutine extract_mixing_ratios_from_state(state, state_data_offset, dry_air_mass_density, &
+                                              mixing_ratios)
 
     use musica_ccpp_species, only: micm_indices_constituent_props, micm_molar_mass_array
     use musica_state,        only: state_t
 
     type(state_t),                       intent(in)    :: state
-    integer,                             intent(in)    :: state_data_offset    ! number of grid cells already updated
-    real(kind_phys), target, contiguous, intent(inout) :: mixing_ratios(:,:,:) ! kg kg-1 (column, layer, species)
+    integer,                             intent(in)    :: state_data_offset         ! number of grid cells already updated
+    real(kind_phys), target, contiguous, intent(in)    :: dry_air_mass_density(:,:) ! kg m-3 (column, layer)
+    real(kind_phys), target, contiguous, intent(inout) :: mixing_ratios(:,:,:)      ! kg kg-1 (column, layer, species)
 
     integer :: i_cell, i_var, state_offset, n_cells, n_cells_total
-    real(kind_phys), pointer :: species_1D(:)
+    real(kind_phys), pointer :: species_1D(:), air_density_1D(:)
 
     ! get grid cell dimensions
     n_cells = state%number_of_grid_cells
     n_cells_total = size(mixing_ratios, 1) * size(mixing_ratios, 2)
+
+    air_density_1D(1:n_cells_total) => dry_air_mass_density(:,:)
 
     ! Update species mass mixing ratios
     associate(cell_stride => state%species_strides%grid_cell, &
@@ -108,9 +114,11 @@ contains
     do i_var = 1, state%number_of_species
       species_1D(1:n_cells_total) => mixing_ratios(:,:,micm_indices_constituent_props(i_var))
       do i_cell = 1, n_cells
+        ! concentration (mol m-3) -> MMR (kg kg-1): divide by the dry air *mass*
+        ! density (kg m-3); exact inverse of the conversion in update_micm_state
         species_1D(i_cell + state_data_offset) = &
           state%concentrations( 1 + ( i_cell - 1 ) * cell_stride + ( i_var - 1 ) * var_stride ) &
-          * micm_molar_mass_array(i_var) / state%conditions(i_cell)%air_density
+          * micm_molar_mass_array(i_var) / air_density_1D(i_cell + state_data_offset)
       end do
     end do
     end associate
