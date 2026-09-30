@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl"?>
+
+<entry_id_pg version="2.0">
+  <entry id="num_subcyc">
+    <type>integer</type>
+    <category>mp_tempo</category>
+    <group>mp_tempo_nl</group>
+    <standard_name>number_of_timestep_subcycles_for_tempo_microphysics</standard_name>
+    <units>count</units>
+    <desc>
+      Number of timestep subcycles for TEMPO microphysics.
+    </desc>
+    <values>
+      <value>1</value>
+    </values>
+  </entry>
+  <entry id="aerosol_aware">
+    <type>logical</type>
+    <category>mp_tempo</category>
+    <group>mp_tempo_nl</group>
+    <standard_name>do_aerosol_aware_microphysics</standard_name>
+    <units>flag</units>
+    <desc>
+       Flag to run aerosol-aware microphysics, with prognostic aerosol number and cloud droplet concentrations.
+    </desc>
+    <values>
+      <value>.true.</value>
+    </values>
+  </entry>
+  <entry id="hail_aware">
+    <type>logical</type>
+    <category>mp_tempo</category>
+    <group>mp_tempo_nl</group>
+    <standard_name>do_hail_aware_microphysics</standard_name>
+    <units>flag</units>
+    <desc>
+       Flag to run hail-aware microphysics, with prognostic graupel number concentration and rime density.
+    </desc>
+    <values>
+      <value>.true.</value>
+    </values>
+  </entry>
+  <entry id="refl_incl_melt">
+    <type>logical</type>
+    <category>mp_tempo</category>
+    <group>mp_tempo_nl</group>
+    <standard_name>do_radar_reflectivity_with_melting_hydrometeors</standard_name>
+    <units>flag</units>
+    <desc>
+       Flag to include contributions from melting hydrometeors (e.g., snow and graupel) in radar reflectivity.
+    </desc>
+    <values>
+      <value>.false.</value>
+    </values>
+  </entry>
+  <entry id="sat_adj">
+    <type>logical</type>
+    <category>mp_tempo</category>
+    <group>mp_tempo_nl</group>
+    <standard_name>do_saturation_adjustment</standard_name>
+    <units>flag</units>
+    <desc>
+       Flag to run saturation adjustment. sat_adj=.true. should only be run with aerosol_aware=.false. and hail_aware=.false.
+    </desc>
+    <values>
+      <value>.false.</value>
+    </values>
+  </entry>
+  <entry id="semi_lagr_sedi">
+    <type>logical</type>
+    <category>mp_tempo</category>
+    <group>mp_tempo_nl</group>
+    <standard_name>do_semi_lagrangian_sedimentation_of_hydrometeors</standard_name>
+    <units>flag</units>
+    <desc>
+       Flag to run semi-Lagrangian sedimentation of hydrometeors (e.g., rain and graupel).
+    </desc>
+    <values>
+      <value>.false.</value>
+    </values>
+  </entry>
+</entry_id_pg>
