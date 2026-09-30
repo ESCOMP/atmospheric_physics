@@ -70,7 +70,7 @@ contains
         real(kind_phys), intent(in) :: dt, &
                                        theta_curr(:, :), theta_prev(:, :), qv_curr(:, :), qv_prev(:, :), &
                                        icefrac(:), xice_threshold, landfrac(:)
-        character(256), intent(out) :: scheme_name
+        character(*), intent(out) :: scheme_name
         real(kind_phys), intent(out) :: rthdynten(:, :), rqvdynten(:, :), &
                                         xland(:)
         character(*), intent(out) :: errmsg
@@ -105,25 +105,29 @@ contains
     pure subroutine mmm_physics_accumulate_tendencies_timestep_init( &
             dudt, dvdt, dtdt, &
             rublten, rucuten, rvblten, rvcuten, &
-            rthblten, rthcuten, rthratenlw, rthratensw, &
-            rqvblten, rqvcuten, &
-            rqcblten, rncblten, rqccuten, &
-            rqiblten, rniblten, rqicuten, &
-            rqsblten, &
+            rthblten, rthcuten, rthmpten, rthratenlw, rthratensw, &
+            rqvblten, rqvcuten, rqvmpten, &
+            rqcblten, rncblten, rqccuten, rqcmpten, rncmpten, &
+            rqrmpten, rnrmpten, &
+            rqiblten, rniblten, rqicuten, rqimpten, rnimpten, &
+            rqsblten, rqsmpten, &
+            rqgmpten, rngmpten, rvolgmpten, &
             rozblten, &
-            rnwfablten, rnifablten, rnbcablten, &
+            rnwfablten, rnwfampten, rnifablten, rnifampten, rnbcablten, &
             errmsg, errflg)
         use ccpp_kinds, only: kind_phys
 
         real(kind_phys), intent(out) :: dudt(:, :), dvdt(:, :), dtdt(:, :), &
                                         rublten(:, :), rucuten(:, :), rvblten(:, :), rvcuten(:, :), &
-                                        rthblten(:, :), rthcuten(:, :), rthratenlw(:, :), rthratensw(:, :), &
-                                        rqvblten(:, :), rqvcuten(:, :), &
-                                        rqcblten(:, :), rncblten(:, :), rqccuten(:, :), &
-                                        rqiblten(:, :), rniblten(:, :), rqicuten(:, :), &
-                                        rqsblten(:, :), &
+                                        rthblten(:, :), rthcuten(:, :), rthmpten(:, :), rthratenlw(:, :), rthratensw(:, :), &
+                                        rqvblten(:, :), rqvcuten(:, :), rqvmpten(:, :), &
+                                        rqcblten(:, :), rncblten(:, :), rqccuten(:, :), rqcmpten(:, :), rncmpten(:, :), &
+                                        rqrmpten(:, :), rnrmpten(:, :), &
+                                        rqiblten(:, :), rniblten(:, :), rqicuten(:, :), rqimpten(:, :), rnimpten(:, :), &
+                                        rqsblten(:, :), rqsmpten(:, :), &
+                                        rqgmpten(:, :), rngmpten(:, :), rvolgmpten(:, :), &
                                         rozblten(:, :), &
-                                        rnwfablten(:, :), rnifablten(:, :), rnbcablten(:, :)
+                                        rnwfablten(:, :), rnwfampten(:, :), rnifablten(:, :), rnifampten(:, :), rnbcablten(:, :)
         character(*), intent(out) :: errmsg
         integer, intent(out) :: errflg
 
@@ -145,26 +149,42 @@ contains
 
         rthblten(:, :) = 0.0_kind_phys
         rthcuten(:, :) = 0.0_kind_phys
+        rthmpten(:, :) = 0.0_kind_phys
         rthratenlw(:, :) = 0.0_kind_phys
         rthratensw(:, :) = 0.0_kind_phys
 
         rqvblten(:, :) = 0.0_kind_phys
         rqvcuten(:, :) = 0.0_kind_phys
+        rqvmpten(:, :) = 0.0_kind_phys
 
         rqcblten(:, :) = 0.0_kind_phys
         rncblten(:, :) = 0.0_kind_phys
         rqccuten(:, :) = 0.0_kind_phys
+        rqcmpten(:, :) = 0.0_kind_phys
+        rncmpten(:, :) = 0.0_kind_phys
+
+        rqrmpten(:, :) = 0.0_kind_phys
+        rnrmpten(:, :) = 0.0_kind_phys
 
         rqiblten(:, :) = 0.0_kind_phys
         rniblten(:, :) = 0.0_kind_phys
         rqicuten(:, :) = 0.0_kind_phys
+        rqimpten(:, :) = 0.0_kind_phys
+        rnimpten(:, :) = 0.0_kind_phys
 
         rqsblten(:, :) = 0.0_kind_phys
+        rqsmpten(:, :) = 0.0_kind_phys
+
+        rqgmpten(:, :) = 0.0_kind_phys
+        rngmpten(:, :) = 0.0_kind_phys
+        rvolgmpten(:, :) = 0.0_kind_phys
 
         rozblten(:, :) = 0.0_kind_phys
 
         rnwfablten(:, :) = 0.0_kind_phys
+        rnwfampten(:, :) = 0.0_kind_phys
         rnifablten(:, :) = 0.0_kind_phys
+        rnifampten(:, :) = 0.0_kind_phys
         rnbcablten(:, :) = 0.0_kind_phys
     end subroutine mmm_physics_accumulate_tendencies_timestep_init
 
@@ -173,31 +193,37 @@ contains
     pure subroutine mmm_physics_accumulate_tendencies_run( &
             dt, exner, &
             dudt, dvdt, dtdt, &
-            theta, qv, qc, qi, qs, ozone, &
-            nc, ni, nwfa, nifa, nbca, &
+            theta, qv, qc, qr, qi, qs, qg, ozone, &
+            nc, nr, ni, ng, nwfa, nifa, nbca, &
+            volg, &
             rublten, rucuten, rvblten, rvcuten, &
-            rthblten, rthcuten, rthratenlw, rthratensw, &
-            rqvblten, rqvcuten, &
-            rqcblten, rncblten, rqccuten, &
-            rqiblten, rniblten, rqicuten, &
-            rqsblten, &
+            rthblten, rthcuten, rthmpten, rthratenlw, rthratensw, &
+            rqvblten, rqvcuten, rqvmpten, &
+            rqcblten, rncblten, rqccuten, rqcmpten, rncmpten, &
+            rqrmpten, rnrmpten, &
+            rqiblten, rniblten, rqicuten, rqimpten, rnimpten, &
+            rqsblten, rqsmpten, &
+            rqgmpten, rngmpten, rvolgmpten, &
             rozblten, &
-            rnwfablten, rnifablten, rnbcablten, &
+            rnwfablten, rnwfampten, rnifablten, rnifampten, rnbcablten, &
             errmsg, errflg)
         use ccpp_kinds, only: kind_phys
 
         real(kind_phys), intent(in) :: dt, exner(:, :)
         real(kind_phys), intent(inout) :: dudt(:, :), dvdt(:, :), dtdt(:, :), &
-                                          theta(:, :), qv(:, :), qc(:, :), qi(:, :), qs(:, :), ozone(:, :), &
-                                          nc(:, :), ni(:, :), nwfa(:, :), nifa(:, :), nbca(:, :), &
+                                          theta(:, :), qv(:, :), qc(:, :), qr(:, :), qi(:, :), qs(:, :), qg(:, :), ozone(:, :), &
+                                          nc(:, :), nr(:, :), ni(:, :), ng(:, :), nwfa(:, :), nifa(:, :), nbca(:, :), &
+                                          volg(:, :), &
                                           rublten(:, :), rucuten(:, :), rvblten(:, :), rvcuten(:, :), &
-                                          rthblten(:, :), rthcuten(:, :), rthratenlw(:, :), rthratensw(:, :), &
-                                          rqvblten(:, :), rqvcuten(:, :), &
-                                          rqcblten(:, :), rncblten(:, :), rqccuten(:, :), &
-                                          rqiblten(:, :), rniblten(:, :), rqicuten(:, :), &
-                                          rqsblten(:, :), &
+                                          rthblten(:, :), rthcuten(:, :), rthmpten(:, :), rthratenlw(:, :), rthratensw(:, :), &
+                                          rqvblten(:, :), rqvcuten(:, :), rqvmpten(:, :), &
+                                          rqcblten(:, :), rncblten(:, :), rqccuten(:, :), rqcmpten(:, :), rncmpten(:, :), &
+                                          rqrmpten(:, :), rnrmpten(:, :), &
+                                          rqiblten(:, :), rniblten(:, :), rqicuten(:, :), rqimpten(:, :), rnimpten(:, :), &
+                                          rqsblten(:, :), rqsmpten(:, :), &
+                                          rqgmpten(:, :), rngmpten(:, :), rvolgmpten(:, :), &
                                           rozblten(:, :), &
-                                          rnwfablten(:, :), rnifablten(:, :), rnbcablten(:, :)
+                                          rnwfablten(:, :), rnwfampten(:, :), rnifablten(:, :), rnifampten(:, :), rnbcablten(:, :)
         character(*), intent(out) :: errmsg
         integer, intent(out) :: errflg
 
@@ -207,20 +233,27 @@ contains
         ! Accumulate the states and tendencies for feeding back to CAM-SIMA.
         dudt(:, :) = dudt(:, :) + (rublten(:, :) + rucuten(:, :))
         dvdt(:, :) = dvdt(:, :) + (rvblten(:, :) + rvcuten(:, :))
-        dtdt(:, :) = dtdt(:, :) + (rthblten(:, :) + rthcuten(:, :) + rthratenlw(:, :) + rthratensw(:, :)) * exner(:, :)
+        dtdt(:, :) = dtdt(:, :) + (rthblten(:, :) + rthcuten(:, :) + rthmpten(:, :) + rthratenlw(:, :) + rthratensw(:, :)) * &
+            exner(:, :)
 
-        theta(:, :) = theta(:, :) + (rthblten(:, :) + rthcuten(:, :) + rthratenlw(:, :) + rthratensw(:, :)) * dt
-        qv(:, :) = qv(:, :) + (rqvblten(:, :) + rqvcuten(:, :)) * dt
-        qc(:, :) = qc(:, :) + (rqcblten(:, :) + rqccuten(:, :)) * dt
-        qi(:, :) = qi(:, :) + (rqiblten(:, :) + rqicuten(:, :)) * dt
-        qs(:, :) = qs(:, :) + rqsblten(:, :) * dt
+        theta(:, :) = theta(:, :) + (rthblten(:, :) + rthcuten(:, :) + rthmpten(:, :) + rthratenlw(:, :) + rthratensw(:, :)) * dt
+        qv(:, :) = qv(:, :) + (rqvblten(:, :) + rqvcuten(:, :) + rqvmpten(:, :)) * dt
+        qc(:, :) = qc(:, :) + (rqcblten(:, :) + rqccuten(:, :) + rqcmpten(:, :)) * dt
+        qr(:, :) = qr(:, :) + rqrmpten(:, :) * dt
+        qi(:, :) = qi(:, :) + (rqiblten(:, :) + rqicuten(:, :) + rqimpten(:, :)) * dt
+        qs(:, :) = qs(:, :) + (rqsblten(:, :) + rqsmpten(:, :)) * dt
+        qg(:, :) = qg(:, :) + rqgmpten(:, :) * dt
         ozone(:, :) = ozone(:, :) + rozblten(:, :) * dt
 
-        nc(:, :) = nc(:, :) + rncblten(:, :) * dt
-        ni(:, :) = ni(:, :) + rniblten(:, :) * dt
-        nwfa(:, :) = nwfa(:, :) + rnwfablten(:, :) * dt
-        nifa(:, :) = nifa(:, :) + rnifablten(:, :) * dt
+        nc(:, :) = nc(:, :) + (rncblten(:, :) + rncmpten(:, :)) * dt
+        nr(:, :) = nr(:, :) + rnrmpten(:, :) * dt
+        ni(:, :) = ni(:, :) + (rniblten(:, :) + rnimpten(:, :)) * dt
+        ng(:, :) = ng(:, :) + rngmpten(:, :) * dt
+        nwfa(:, :) = nwfa(:, :) + (rnwfablten(:, :) + rnwfampten(:, :)) * dt
+        nifa(:, :) = nifa(:, :) + (rnifablten(:, :) + rnifampten(:, :)) * dt
         nbca(:, :) = nbca(:, :) + rnbcablten(:, :) * dt
+
+        volg(:, :) = volg(:, :) + rvolgmpten(:, :) * dt
 
         ! After accumulating, zero out the tendencies collected from MMM physics schemes to make this subroutine idempotent,
         ! preventing repeated application of the same tendencies.
@@ -231,26 +264,42 @@ contains
 
         rthblten(:, :) = 0.0_kind_phys
         rthcuten(:, :) = 0.0_kind_phys
+        rthmpten(:, :) = 0.0_kind_phys
         rthratenlw(:, :) = 0.0_kind_phys
         rthratensw(:, :) = 0.0_kind_phys
 
         rqvblten(:, :) = 0.0_kind_phys
         rqvcuten(:, :) = 0.0_kind_phys
+        rqvmpten(:, :) = 0.0_kind_phys
 
         rqcblten(:, :) = 0.0_kind_phys
         rncblten(:, :) = 0.0_kind_phys
         rqccuten(:, :) = 0.0_kind_phys
+        rqcmpten(:, :) = 0.0_kind_phys
+        rncmpten(:, :) = 0.0_kind_phys
+
+        rqrmpten(:, :) = 0.0_kind_phys
+        rnrmpten(:, :) = 0.0_kind_phys
 
         rqiblten(:, :) = 0.0_kind_phys
         rniblten(:, :) = 0.0_kind_phys
         rqicuten(:, :) = 0.0_kind_phys
+        rqimpten(:, :) = 0.0_kind_phys
+        rnimpten(:, :) = 0.0_kind_phys
 
         rqsblten(:, :) = 0.0_kind_phys
+        rqsmpten(:, :) = 0.0_kind_phys
+
+        rqgmpten(:, :) = 0.0_kind_phys
+        rngmpten(:, :) = 0.0_kind_phys
+        rvolgmpten(:, :) = 0.0_kind_phys
 
         rozblten(:, :) = 0.0_kind_phys
 
         rnwfablten(:, :) = 0.0_kind_phys
+        rnwfampten(:, :) = 0.0_kind_phys
         rnifablten(:, :) = 0.0_kind_phys
+        rnifampten(:, :) = 0.0_kind_phys
         rnbcablten(:, :) = 0.0_kind_phys
     end subroutine mmm_physics_accumulate_tendencies_run
 
