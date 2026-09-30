@@ -488,10 +488,6 @@ contains
     integer          :: hd_idx(ncol)
     ! Mean wind in heating region.
     real(kind_phys)  :: uh(ncol)
-    ! Source level tau for a column.
-    real(kind_phys)  :: tau0(-band%ngwv:band%ngwv)
-    ! Speed of convective cells relative to storm.
-    real(kind_phys)  :: CS1(ncol)
     ! Wind speeds in wave direction.
     real(kind_phys)  :: udiff(ncol), vdiff(ncol)
     ! "On-crest" source level wind.
@@ -501,7 +497,7 @@ contains
     ! Tau from moving mountain lookup table.
     real(kind_phys)  :: taumm(ncol)
     ! Index for moving mountain lookup table.
-    integer          :: hdmm_idx(ncol), uhmm_idx(ncol)
+    integer          :: uhmm_idx(ncol)
     ! Index for ground based phase speed bin.
     real(kind_phys)  :: c0(ncol,-band%ngwv:band%ngwv)
     integer          :: c_idx(ncol,-band%ngwv:band%ngwv)
@@ -522,7 +518,6 @@ contains
     tau        = 0._kind_phys
     hdepth     = 0._kind_phys
     q0         = 0._kind_phys
-    tau0       = 0._kind_phys
     p_steer    = 0._kind_phys
     p_launch   = 0._kind_phys
 
@@ -664,8 +659,7 @@ contains
     !----------------------------------------------------------------------
     ! Cell speed and wave-relative winds.
     !----------------------------------------------------------------------
-    CS1 = sqrt(usteer**2 + vsteer**2)
-    CS  = CS1
+    CS = sqrt(usteer**2 + vsteer**2)
 
     ! -----------------------------------------------------------
     ! Calculate winds in reference frame of wave (uwavef,vwavef).
@@ -787,13 +781,11 @@ contains
     real(kind_phys), parameter :: p_min_centroid = 0._kind_phys
     real(kind_phys), parameter :: p_max_centroid = 80000._kind_phys
 
-    real(kind_phys) :: z_steer(ncol), z_launch(ncol)
     integer         :: i
 
     call vorticity_centroid_levels(tilt, pmid, ncol, pver, &
          p_min_centroid, p_max_centroid, &
-         steering_level, launch_level, &
-         z_steer, z_launch)
+         steering_level, launch_level)
 
     do i = 1, ncol
       valid(i) = steering_level(i) >= 2 .and. launch_level(i) >= 2 .and. &
@@ -1008,8 +1000,7 @@ contains
 
   subroutine vorticity_centroid_levels(weight, p, ncol, pver, &
        p_min, p_max, &
-       steering_level, launch_level, &
-       z_steer, z_launch)
+       steering_level, launch_level)
   !------------------------------------------------------------------------
   ! Derive steering and launch level indices from a weight profile
   ! (typically |vorticity| or tilt) via two successive centroid passes.
@@ -1026,7 +1017,6 @@ contains
     real(kind_phys), intent(in)  :: p(ncol,pver)
     real(kind_phys), intent(in)  :: p_min, p_max
     integer,         intent(out) :: steering_level(ncol), launch_level(ncol)
-    real(kind_phys), intent(out) :: z_steer(ncol), z_launch(ncol)
 
     real(kind_phys) :: abswgt(ncol,pver), w_top(ncol,pver)
     real(kind_phys) :: z_cent(ncol), z_top(ncol)
@@ -1051,9 +1041,6 @@ contains
     call weighted_centroid(w_top, p, ncol, pver, &
                             -huge(1._kind_phys), huge(1._kind_phys), &
                             z_top, launch_level)
-
-    z_steer  = z_cent
-    z_launch = z_top
 
   end subroutine vorticity_centroid_levels
 
