@@ -1,7 +1,5 @@
-! Compute the total surface precipitation rate (deep + shallow convective + stratiform).
-! Called by both CAM (gw_drag_cam) and CAM-SIMA so that the sum order is identical.
+! Compute the total surface precipitation rate (deep + shallow convective + stratiform)
 module compute_total_precipitation_rate
-
   implicit none
   private
 
