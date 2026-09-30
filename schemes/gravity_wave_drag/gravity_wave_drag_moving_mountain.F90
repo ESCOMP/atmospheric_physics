@@ -297,8 +297,6 @@ contains
     ! Local variables
     integer                     :: stat, k, m
     real(kind_phys)             :: xpwp_clubb(ncol, pver + 1)
-    real(kind_phys)             :: pmid(ncol, pver)
-    real(kind_phys)             :: delp(ncol, pver)
 
     ! Reynolds stress for waves propagating in each cardinal direction.
     real(kind_phys) :: taucd(ncol, pver + 1, 4)
@@ -333,17 +331,10 @@ contains
     phase_speeds = 0._kind_phys
 
     xpwp_clubb(:ncol, :) = sqrt(upwp_clubb(:ncol, :)**2 + vpwp_clubb(:ncol, :)**2)
-
-    !------------------------------------------
-    ! Expose contents of "P" coords1D structure
-    ! for improved clarity
-    !------------------------------------------
-    pmid(:ncol,:) = p%mid(:ncol,:)
-    delp(:ncol,:) = p%del(:ncol,:)
     
     call gw_movmtn_src(ncol, pver, &
                        u, v, ttend_dp(:ncol,:), xpwp_clubb(:ncol,:), &
-                       vorticity(:ncol,:), zm, pmid, delp, prect(:ncol), alpha_gw_movmtn, &
+                       vorticity(:ncol,:), zm, p%mid(:ncol,:), p%del(:ncol,:), prect(:ncol), alpha_gw_movmtn, &
                        src_level, tend_level, &
                        tau, ubm, ubi, xv, yv, &
                        phase_speeds, hdepth, use_gw_movmtn_pbl, rair, gravit, &
