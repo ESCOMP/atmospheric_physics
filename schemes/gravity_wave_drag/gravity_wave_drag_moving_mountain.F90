@@ -40,8 +40,7 @@ module gravity_wave_drag_moving_mountain
   !   3 = tilt layer mean,                  flow-dependent levels
   !   4 = tilt + precip, six-parameter fit, flow-dependent levels
   !   5 = tilt + precip, PySR cx17,         flow-dependent levels
-  integer :: source_type
-  integer  :: movmtn_source = -1
+  integer  :: source_type
 
 contains
 
@@ -295,7 +294,7 @@ contains
     integer, intent(out)           :: errflg
 
     ! Local variables
-    integer                     :: stat, k, m
+    integer                     :: k, m
     real(kind_phys)             :: xpwp_clubb(ncol, pver + 1)
 
     ! Reynolds stress for waves propagating in each cardinal direction.
