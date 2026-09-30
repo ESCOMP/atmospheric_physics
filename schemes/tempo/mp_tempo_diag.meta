@@ -1,0 +1,100 @@
+[ccpp-table-properties]
+  name = mp_tempo_diagnostics
+  type = scheme
+
+[ccpp-arg-table]
+  name = mp_tempo_diagnostics_init
+  type = scheme
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name = mp_tempo_diagnostics_run
+  type = scheme
+[ rain ]
+  standard_name = lwe_thickness_of_rainfall_amount
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ ice ]
+  standard_name = lwe_thickness_of_ice_amount
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ snow ]
+  standard_name = lwe_thickness_of_snowfall_amount
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ graupel ]
+  standard_name = lwe_thickness_of_graupel_amount
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ prcp ]
+  standard_name = lwe_thickness_of_precipitation_amount
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ frozen_fraction ]
+  standard_name = ratio_of_snowfall_to_rainfall
+  units = fraction
+  type = real
+  kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ refl10cm ]
+  standard_name = radar_reflectivity_at_10cm_wavelength
+  units = dBZ
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ re_cloud ]
+  standard_name = effective_radius_of_stratiform_cloud_liquid_water_droplet
+  units = um
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ re_ice ]
+  standard_name = effective_radius_of_stratiform_cloud_ice_crystal
+  units = um
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ re_snow ]
+  standard_name = effective_radius_of_stratiform_cloud_snow_crystal
+  units = um
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

@@ -32,11 +32,13 @@ module state_converters
   public :: wet_to_dry_cloud_ice_run
   public :: wet_to_dry_rain_run
   public :: wet_to_dry_snow_run
+  public :: wet_to_dry_graupel_run
   public :: dry_to_wet_water_vapor_run
   public :: dry_to_wet_cloud_liquid_water_run
   public :: dry_to_wet_cloud_ice_run
   public :: dry_to_wet_rain_run
   public :: dry_to_wet_snow_run
+  public :: dry_to_wet_graupel_run
 
 CONTAINS
 
@@ -337,6 +339,29 @@ CONTAINS
     end do
   end subroutine wet_to_dry_snow_run
 
+  !> \section arg_table_wet_to_dry_graupel_run Argument Table
+  !! \htmlinclude wet_to_dry_graupel_run.html
+  pure subroutine wet_to_dry_graupel_run(ncol, nz, pdel, pdeldry, &
+      qg, qg_dry, errmsg, errflg)
+    integer,          intent(in)  :: ncol
+    integer,          intent(in)  :: nz
+    real(kind_phys),  intent(in)  :: pdel(:, :)    ! pressure thickness of layer (Pa)
+    real(kind_phys),  intent(in)  :: pdeldry(:, :) ! dry air pressure thickness of layer (Pa)
+    real(kind_phys),  intent(in)  :: qg(:, :)      ! graupel mixing ratio wrt moist air (kg/kg)
+    real(kind_phys),  intent(out) :: qg_dry(:, :)  ! graupel mixing ratio wrt dry air (kg/kg)
+    character(len=*), intent(out) :: errmsg
+    integer,          intent(out) :: errflg
+
+    integer :: k
+
+    errflg = 0
+    errmsg = ''
+
+    do k = 1, nz
+      qg_dry(:ncol, k) = qg(:ncol, k) * (pdel(:ncol, k) / pdeldry(:ncol, k))
+    end do
+  end subroutine wet_to_dry_graupel_run
+
 !> \section arg_table_dry_to_wet_water_vapor_run  Argument Table
 !! \htmlinclude dry_to_wet_water_vapor_run.html
   subroutine dry_to_wet_water_vapor_run(ncol, nz, pdel, pdeldry, qv_dry, qv,  &
@@ -459,4 +484,27 @@ CONTAINS
       qs(:ncol, k) = qs_dry(:ncol, k) * (pdeldry(:ncol, k) / pdel(:ncol, k))
     end do
   end subroutine dry_to_wet_snow_run
+
+  !> \section arg_table_dry_to_wet_graupel_run Argument Table
+  !! \htmlinclude dry_to_wet_graupel_run.html
+  pure subroutine dry_to_wet_graupel_run(ncol, nz, pdel, pdeldry, &
+      qg_dry, qg, errmsg, errflg)
+    integer,          intent(in)  :: ncol
+    integer,          intent(in)  :: nz
+    real(kind_phys),  intent(in)  :: pdel(:, :)    ! pressure thickness of layer (Pa)
+    real(kind_phys),  intent(in)  :: pdeldry(:, :) ! dry air pressure thickness of layer (Pa)
+    real(kind_phys),  intent(in)  :: qg_dry(:, :)  ! graupel mixing ratio wrt dry air (kg/kg)
+    real(kind_phys),  intent(out) :: qg(:, :)      ! graupel mixing ratio wrt moist air (kg/kg)
+    character(len=*), intent(out) :: errmsg
+    integer,          intent(out) :: errflg
+
+    integer :: k
+
+    errflg = 0
+    errmsg = ''
+
+    do k = 1, nz
+      qg(:ncol, k) = qg_dry(:ncol, k) * (pdeldry(:ncol, k) / pdel(:ncol, k))
+    end do
+  end subroutine dry_to_wet_graupel_run
 end module state_converters
