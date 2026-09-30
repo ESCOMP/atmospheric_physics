@@ -465,8 +465,7 @@ contains
     real(kind_phys), intent(out) :: xpwp_src(:)
     ! Vortex tilting magnitude |zeta|*|dV/dz| [s-2].
     real(kind_phys), intent(out) :: tilt(:,:)
-    ! Pressure at steering/launch level [Pa]; only set by source_type=3/4/5,
-    ! zero otherwise.
+    ! Pressure at steering/launch level [Pa].
     real(kind_phys), intent(out) :: p_steer(:), p_launch(:)
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errflg
