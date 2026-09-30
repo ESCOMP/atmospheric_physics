@@ -6,9 +6,7 @@
 ! variable: it registers a non-advected constituent for each and fills it at
 ! initialization with a spatially uniform value from the corresponding
 ! prescribed_*_vmr namelist variable.  A gas provided by another scheme
-! (e.g. a prognostic chemistry constituent) must not be listed: the
-! conflicting registration (advected vs. non-advected) aborts the run.
-! Which gases radiation actually uses is configured separately (rad_climate).
+! (e.g. a prognostic chemistry constituent) should not be listed.
 
 ! Eventually this module should be replaced with a more comprehensive atmospheric
 ! composition/chemistry system, but is fine to use for now when running low-top,
@@ -46,7 +44,7 @@ contains
 
     ! Output arguments
     type(ccpp_constituent_properties_t), allocatable, intent(out) :: dyn_consts(:) ! Runtime constituent properties
-    character(len=512), intent(out) :: errmsg
+    character(len=*), intent(out) :: errmsg
     integer,            intent(out) :: errcode
 
     ! Local variables
@@ -130,7 +128,7 @@ contains
     real(kind_phys), intent(inout) :: const_array(:,:,:) ! Constituents array
 
     ! Output arguments
-    character(len=512), intent(out) :: errmsg
+    character(len=*), intent(out) :: errmsg
     integer,            intent(out) :: errcode
 
     errmsg = ''
@@ -201,7 +199,7 @@ contains
     real(kind_phys), intent(inout) :: const_array(:,:,:) ! Constituents array
 
     ! Output arguments
-    character(len=512), intent(out) :: errmsg
+    character(len=*), intent(out) :: errmsg
     integer,            intent(out) :: errcode
 
     ! Local variables

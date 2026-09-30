@@ -1,4 +1,4 @@
-! Derive the MG-convention cloud optics inputs (dei, pgam, lamc)
+! Derive the PUMAS-convention cloud optics inputs (dei, pgam, lamc)
 ! for RRTMGP gammadist liquid / Mitchell ice cloud optics
 ! from the RK (CAM4 cldefr) climatological effective radii rel/rei.
 !
@@ -6,23 +6,23 @@
 ! distribution shape parameter pgam is fixed and the slope lamc is chosen to
 ! reproduce the RK liquid effective radius
 !                           re = (pgam+3)/(2*lamc)
-! Points without condensate are left at zero which are skipped by the optics/
-module rk_stratiform_mg_optics_inputs
+! Points without condensate are left at zero and are skipped by the optics.
+module rk_stratiform_pumas_optics_inputs
   use ccpp_kinds, only: kind_phys
 
   implicit none
   private
 
-  public :: rk_stratiform_mg_optics_inputs_run
+  public :: rk_stratiform_pumas_optics_inputs_run
 
-  ! Fixed gamma distribution shape parameter. The MG (Rotstayn & Liu 2003)
+  ! Fixed gamma distribution shape parameter. The PUMAS (Rotstayn & Liu 2003)
   ! https://doi.org/10.1175/1520-0442(2003)016<3476:SOTFIA>2.0.CO;2
   ! pgam fit floors at 2 for droplet numbers > 60 cm-3 so we use this value
-  ! as it is used for the optics tables by MG for nearly all clouds.
+  ! as it is used for the optics tables by PUMAS for nearly all clouds.
   ! Optical properties at fixed effective radius are only weakly shape dependent.
   real(kind_phys), parameter :: pgam_fixed = 2._kind_phys
 
-  ! Bulk ice densities used by MG/PUMAS to convert effective radius to the
+  ! Bulk ice densities used by PUMAS to convert effective radius to the
   ! generalized effective diameter the ice optics tables were built for
   ! (dei = rei * rhoi/rhows * 2, as in PUMAS post-interstitial).
   real(kind_phys), parameter :: rhoi  = 500._kind_phys ! bulk density ice [kg m-3]
@@ -30,9 +30,9 @@ module rk_stratiform_mg_optics_inputs
 
 contains
 
-!> \section arg_table_rk_stratiform_mg_optics_inputs_run Argument Table
-!! \htmlinclude arg_table_rk_stratiform_mg_optics_inputs_run.html
-  subroutine rk_stratiform_mg_optics_inputs_run( &
+!> \section arg_table_rk_stratiform_pumas_optics_inputs_run Argument Table
+!! \htmlinclude arg_table_rk_stratiform_pumas_optics_inputs_run.html
+  subroutine rk_stratiform_pumas_optics_inputs_run( &
     ncol, pver, &
     rel, rei, &
     iclwp, iciwp, &
@@ -79,6 +79,6 @@ contains
       end do
     end do
 
-  end subroutine rk_stratiform_mg_optics_inputs_run
+  end subroutine rk_stratiform_pumas_optics_inputs_run
 
-end module rk_stratiform_mg_optics_inputs
+end module rk_stratiform_pumas_optics_inputs

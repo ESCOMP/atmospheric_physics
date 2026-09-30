@@ -110,7 +110,7 @@ contains
 
     select case (trim(ice_cld_optics))
     case ('ebertcurry')
-       ! Ebert and Curry (1992) (https://doi.org/10.1029/91JD02472) ice optics
+       ! Ebert and Curry (1992) ice optics
        call ec_ice_get_rad_props_lw(ncol, pver, nlwbands, rei, iclwpth, iciwpth, ice_lw_abs)
     case ('mitchell')
        ! Mitchell ice optics
@@ -325,9 +325,8 @@ contains
 !==============================================================================
 
   subroutine slingo_liq_get_rad_props_lw(ncol, pver, nlwbands, iclwpth, iciwpth, abs_od)
-    ! Slingo longwave liquid absorption (broadband, CAM4).
-    ! Ported from CAM slingo_liq_optics.F90 (slingo_liq_get_rad_props_lw),
-    ! using the in-cloud water paths.
+    ! Kiehl et al. (1998) (https://doi.org/10.1175/1520-0442(1998)011<1131:TNCFAR>2.0.CO;2) longwave liquid
+    ! absorption (broadband, CAM4), using the in-cloud water paths.
 
     use ccpp_kinds, only: kind_phys
     ! Inputs
@@ -371,8 +370,7 @@ contains
 !==============================================================================
 
   subroutine ec_ice_get_rad_props_lw(ncol, pver, nlwbands, rei, iclwpth, iciwpth, abs_od)
-    ! Ebert and Curry (1992) (https://doi.org/10.1029/91JD02472) longwave ice absorption (broadband, CAM4).
-    ! Ported from CAM ebert_curry_ice_optics.F90 (ec_ice_get_rad_props_lw),
+    ! Ebert and Curry (1992) (https://doi.org/10.1029/91JD02472) longwave ice absorption (broadband, CAM4),
     ! using the in-cloud water paths.
 
     use ccpp_kinds, only: kind_phys
@@ -393,7 +391,7 @@ contains
     real(kind_phys) :: kabs, kabsi
     integer :: lwband, i, k
 
-    real(kind_phys), parameter :: scalefactor = 1._kind_phys !500._r8/917._r8
+    real(kind_phys), parameter :: scalefactor = 1._kind_phys
 
     do k=1,pver
        do i = 1,ncol

@@ -27,10 +27,9 @@
     <!-- Prescribe fixed GHG concentrations -->
     <scheme>prescribe_radiative_gas_concentrations</scheme>
 
-    <!-- Prescribe time-varying lower boundary concentrations
-         only active when flbc_file is set.
-         Overrides the GHG values for the species in flbc_list over
-         prescribe_radiative_gas_concentrations -->
+    <!-- Prescribe time-varying lower boundary concentrations.
+         Note that this can overwrite previously-set constituents
+         like GHGs -->
     <scheme>prescribe_lower_boundary_conditions</scheme>
 
     <!-- Prescribe ozone and aerosol for radiation. -->
@@ -251,22 +250,15 @@
     <!-- State diagnostics -->
     <scheme>sima_state_diagnostics</scheme>
 
-    <!--
-      Cloud water inputs for radiation (in-cloud water paths).
-      For parity with CAM4, conv_water_in_rad = 0 option is used;
-      convective_cloud_water provides outputs as zeros
-      and cloud_water_paths uses stratiform condensate only.
-      qsout/qgout are host-registry zeros since RK has no prognostic snow/graupel.
-    -->
+    <!-- Cloud water inputs for radiation (in-cloud water paths) -->
     <scheme>convective_cloud_water</scheme>
     <scheme>convective_cloud_water_diagnostics</scheme>
     <scheme>cloud_water_paths</scheme>
     <scheme>cloud_water_paths_diagnostics</scheme>
 
-    <!-- Derive MG-convention optics inputs (dei, pgam, lamc) from the RK
-         effective radii so the gammadist liquid / Mitchell ice RRTMGP
-         cloud optics see the RK clouds. -->
-    <scheme>rk_stratiform_mg_optics_inputs</scheme>
+    <!-- Derive PUMAS-convention optics inputs (dei, pgam, lamc) from the RK
+         effective radii -->
+    <scheme>rk_stratiform_pumas_optics_inputs</scheme>
 
     <!-- Run rrtmgp pre-interstitial first to get night column information
          for aerosol_optics_diagnostics. -->

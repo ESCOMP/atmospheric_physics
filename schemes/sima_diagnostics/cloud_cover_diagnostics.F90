@@ -1,7 +1,5 @@
 ! Cloud cover diagnostics
 ! total/low/mid/high cloud cover assuming maximum-random overlap and 3D cloud fraction.
-!
-! Based on cldsav, cloud_cover_diags from CAM: W. Collins
 module cloud_cover_diagnostics
    use ccpp_kinds, only: kind_phys
 
@@ -12,12 +10,12 @@ module cloud_cover_diagnostics
    public :: cloud_cover_diagnostics_run
 
    ! Pressure bounds of the low/mid/high cloud cover ranges [Pa]
-   real(kind_phys), parameter :: plowmax = 120000._kind_phys ! Max prs for low cloud cover range
-   real(kind_phys), parameter :: plowmin =  70000._kind_phys ! Min prs for low cloud cover range
-   real(kind_phys), parameter :: pmedmax =  70000._kind_phys ! Max prs for mid cloud cover range
-   real(kind_phys), parameter :: pmedmin =  40000._kind_phys ! Min prs for mid cloud cover range
-   real(kind_phys), parameter :: phghmax =  40000._kind_phys ! Max prs for hgh cloud cover range
-   real(kind_phys), parameter :: phghmin =   5000._kind_phys ! Min prs for hgh cloud cover range
+   real(kind_phys), parameter :: plowmax = 120000._kind_phys ! Max pressure for low cloud cover range
+   real(kind_phys), parameter :: plowmin =  70000._kind_phys ! Min pressure for low cloud cover range
+   real(kind_phys), parameter :: pmedmax =  70000._kind_phys ! Max pressure for mid cloud cover range
+   real(kind_phys), parameter :: pmedmin =  40000._kind_phys ! Min pressure for mid cloud cover range
+   real(kind_phys), parameter :: phghmax =  40000._kind_phys ! Max pressure for hgh cloud cover range
+   real(kind_phys), parameter :: phghmin =   5000._kind_phys ! Min pressure for hgh cloud cover range
 
 contains
 

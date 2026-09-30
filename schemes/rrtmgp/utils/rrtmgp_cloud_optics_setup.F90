@@ -64,12 +64,12 @@ contains
     liq_cld_optics = liq_cld_optics_nl
     ice_cld_optics = ice_cld_optics_nl
     if (trim(liq_cld_optics) /= 'gammadist' .and. trim(liq_cld_optics) /= 'slingo') then
-       write(errmsg,'(a,a,a)') sub, ': liq_cld_optics must be either slingo or gammadist, got ', trim(liq_cld_optics)
+       write(errmsg,'(a,a,a,a)') sub, ': liq_cld_optics must be either slingo or gammadist, got "', trim(liq_cld_optics), '"'
        errflg = 1
        return
     end if
     if (trim(ice_cld_optics) /= 'mitchell' .and. trim(ice_cld_optics) /= 'ebertcurry') then
-       write(errmsg,'(a,a,a)') sub, ': ice_cld_optics must be either ebertcurry or mitchell, got ', trim(ice_cld_optics)
+       write(errmsg,'(a,a,a,a)') sub, ': ice_cld_optics must be either ebertcurry or mitchell, got "', trim(ice_cld_optics), '"'
        errflg = 1
        return
     end if

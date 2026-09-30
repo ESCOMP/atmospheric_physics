@@ -2,6 +2,7 @@
   name = prescribe_lower_boundary_conditions
   type = scheme
   dependencies = ../rrtmgp/utils/radiation_utils.F90
+  dependencies = ../../phys_utils/atmos_phys_string_utils.F90
 
 [ccpp-arg-table]
   name  = prescribe_lower_boundary_conditions_init
@@ -130,6 +131,22 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_dimension,vertical_layer_dimension,number_of_ccpp_constituents)
   intent = inout
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = prescribe_lower_boundary_conditions_final
+  type  = scheme
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none

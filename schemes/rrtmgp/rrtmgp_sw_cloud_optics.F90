@@ -148,7 +148,7 @@ subroutine rrtmgp_sw_cloud_optics_run(dosw, ncol, pver, ktopcam, ktoprad,  nswgp
 
    select case (trim(liq_cld_optics))
    case ('slingo')
-      ! Slingo (1989) (https://doi.org/10.1175/1520-0469(1989)046<1419:AGPFTS>2.0.CO;2) liquid optics
+      ! Slingo (1989) liquid optics
       call slingo_liq_optics_sw(ncol, pver, nswbands, cld, rel, iclwpth, liq_tau, liq_tau_w, liq_tau_w_g, sw_tau_w_f, errmsg, errflg)
    case ('gammadist')
       ! gammadist liquid optics
@@ -163,7 +163,7 @@ subroutine rrtmgp_sw_cloud_optics_run(dosw, ncol, pver, ktopcam, ktoprad,  nswgp
 
    select case (trim(ice_cld_optics))
    case ('ebertcurry')
-      ! Ebert and Curry (1992) (https://doi.org/10.1029/91JD02472) ice optics
+      ! Ebert and Curry (1992) ice optics
       call ec_ice_optics_sw(ncol, pver, nswbands, cld, rei, iciwpth, ice_tau, ice_tau_w, ice_tau_w_g, sw_tau_w_f, errmsg, errflg)
    case ('mitchell')
       ! Mitchell ice optics
@@ -500,9 +500,8 @@ end subroutine gam_liquid_sw
 !==============================================================================
 
 subroutine slingo_liq_optics_sw(ncol, pver, nswbands, cldn, rel, iclwpth, liq_tau, liq_tau_w, liq_tau_w_g, liq_tau_w_f, errmsg, errflg)
-   ! Slingo (1989) (https://doi.org/10.1029/91JD02472) shortwave liquid cloud optics.
-   ! Ported from CAM slingo_liq_optics.F90 (slingo_liq_optics_sw), using the
-   ! in-cloud liquid water path.
+   ! Slingo (1989) (https://doi.org/10.1175/1520-0469(1989)046<1419:AGPFTS>2.0.CO;2) shortwave liquid cloud optics,
+   ! using the in-cloud liquid water path.
    use radiation_utils, only: get_sw_spectral_boundaries_ccpp
    use ccpp_kinds,      only: kind_phys
 
@@ -537,17 +536,17 @@ subroutine slingo_liq_optics_sw(ncol, pver, nswbands, cldn, rel, iclwpth, liq_ta
    ! Parameterization for the Shortwave Properties of Water Clouds' JAS
    ! vol. 46 may 1989 pp 1419-1427)
    real(kind_phys) :: abarl(4) = &  ! A coefficient for extinction optical depth
-      (/ 2.817e-02_kind_phys, 2.682e-02_kind_phys,2.264e-02_kind_phys,1.281e-02_kind_phys/)
+      [ 2.817e-02_kind_phys, 2.682e-02_kind_phys,2.264e-02_kind_phys,1.281e-02_kind_phys]
    real(kind_phys) :: bbarl(4) = &  ! B coefficient for extinction optical depth
-      (/ 1.305_kind_phys    , 1.346_kind_phys    ,1.454_kind_phys    ,1.641_kind_phys    /)
+      [ 1.305_kind_phys    , 1.346_kind_phys    ,1.454_kind_phys    ,1.641_kind_phys    ]
    real(kind_phys) :: cbarl(4) = &  ! C coefficient for single scat albedo
-      (/-5.62e-08_kind_phys ,-6.94e-06_kind_phys ,4.64e-04_kind_phys ,0.201_kind_phys    /)
+      [-5.62e-08_kind_phys ,-6.94e-06_kind_phys ,4.64e-04_kind_phys ,0.201_kind_phys    ]
    real(kind_phys) :: dbarl(4) = &  ! D coefficient for single  scat albedo
-      (/ 1.63e-07_kind_phys , 2.35e-05_kind_phys ,1.24e-03_kind_phys ,7.56e-03_kind_phys /)
+      [ 1.63e-07_kind_phys , 2.35e-05_kind_phys ,1.24e-03_kind_phys ,7.56e-03_kind_phys ]
    real(kind_phys) :: ebarl(4) = &  ! E coefficient for asymmetry parameter
-      (/ 0.829_kind_phys    , 0.794_kind_phys    ,0.754_kind_phys    ,0.826_kind_phys    /)
+      [ 0.829_kind_phys    , 0.794_kind_phys    ,0.754_kind_phys    ,0.826_kind_phys    ]
    real(kind_phys) :: fbarl(4) = &  ! F coefficient for asymmetry parameter
-      (/ 2.482e-03_kind_phys, 4.226e-03_kind_phys,6.560e-03_kind_phys,4.353e-03_kind_phys/)
+      [ 2.482e-03_kind_phys, 4.226e-03_kind_phys,6.560e-03_kind_phys,4.353e-03_kind_phys]
 
    real(kind_phys) :: abarli        ! A coefficient for current spectral band
    real(kind_phys) :: bbarli        ! B coefficient for current spectral band
@@ -620,7 +619,7 @@ subroutine slingo_liq_optics_sw(ncol, pver, nswbands, cldn, rel, iclwpth, liq_ta
             ! Do not let single scatter albedo be 1.  Delta-eddington solution
             ! for non-conservative case has different analytic form from solution
             ! for conservative case, and raddedmx is written for non-conservative case.
-            liq_tau_w(ns,i,k) = liq_tau(ns,i,k) * min(tmp2l,.999999_kind_phys)
+            liq_tau_w(ns,i,k) = liq_tau(ns,i,k) * min(tmp2l,0.999999_kind_phys)
             g = ebarli + tmp3l
             liq_tau_w_g(ns,i,k) = liq_tau_w(ns,i,k) * g
             liq_tau_w_f(ns,i,k) = liq_tau_w(ns,i,k) * g * g
@@ -634,9 +633,8 @@ end subroutine slingo_liq_optics_sw
 !==============================================================================
 
 subroutine ec_ice_optics_sw(ncol, pver, nswbands, cldn, rei, iciwpth, ice_tau, ice_tau_w, ice_tau_w_g, ice_tau_w_f, errmsg, errflg)
-   ! Ebert and Curry (1992) shortwave ice cloud optics.
-   ! Ported from CAM ebert_curry_ice_optics.F90 (ec_ice_optics_sw), using the
-   ! in-cloud ice water path (the oldicewp=.false. branch) instead of pbuf.
+   ! Ebert and Curry (1992) (https://doi.org/10.1029/91JD02472) shortwave ice cloud optics,
+   ! using the in-cloud ice water path.
    use radiation_utils, only: get_sw_spectral_boundaries_ccpp
    use ccpp_kinds,      only: kind_phys
 
@@ -654,7 +652,7 @@ subroutine ec_ice_optics_sw(ncol, pver, nswbands, cldn, rei, iciwpth, ice_tau, i
    character(len=*), intent(out) :: errmsg
    integer,          intent(out) :: errflg
 
-   real(kind_phys), parameter :: scalefactor = 1._kind_phys !500._r8/917._r8
+   real(kind_phys), parameter :: scalefactor = 1._kind_phys
 
    ! Minimum cloud amount (as a fraction of the grid-box area) to
    ! distinguish from clear sky
@@ -671,17 +669,17 @@ subroutine ec_ice_optics_sw(ncol, pver, nswbands, cldn, rei, iciwpth, ice_tau, i
 
    ! ice water coefficients (Ebert and Curry,1992, JGR, 97, 3831-3836)
    real(kind_phys) :: abari(4) = &     ! a coefficient for extinction optical depth
-      (/ 3.448e-03_kind_phys, 3.448e-03_kind_phys,3.448e-03_kind_phys,3.448e-03_kind_phys/)
+      [ 3.448e-03_kind_phys, 3.448e-03_kind_phys,3.448e-03_kind_phys,3.448e-03_kind_phys]
    real(kind_phys) :: bbari(4) = &     ! b coefficient for extinction optical depth
-      (/ 2.431_kind_phys    , 2.431_kind_phys    ,2.431_kind_phys    ,2.431_kind_phys    /)
+      [ 2.431_kind_phys    , 2.431_kind_phys    ,2.431_kind_phys    ,2.431_kind_phys    ]
    real(kind_phys) :: cbari(4) = &     ! c coefficient for single scat albedo
-      (/ 1.00e-05_kind_phys , 1.10e-04_kind_phys ,1.861e-02_kind_phys,.46658_kind_phys   /)
+      [ 1.00e-05_kind_phys , 1.10e-04_kind_phys ,1.861e-02_kind_phys,.46658_kind_phys   ]
    real(kind_phys) :: dbari(4) = &     ! d coefficient for single scat albedo
-      (/ 0.0_kind_phys      , 1.405e-05_kind_phys,8.328e-04_kind_phys,2.05e-05_kind_phys /)
+      [ 0.0_kind_phys      , 1.405e-05_kind_phys,8.328e-04_kind_phys,2.05e-05_kind_phys ]
    real(kind_phys) :: ebari(4) = &     ! e coefficient for asymmetry parameter
-      (/ 0.7661_kind_phys   , 0.7730_kind_phys   ,0.794_kind_phys    ,0.9595_kind_phys   /)
+      [ 0.7661_kind_phys   , 0.7730_kind_phys   ,0.794_kind_phys    ,0.9595_kind_phys   ]
    real(kind_phys) :: fbari(4) = &     ! f coefficient for asymmetry parameter
-      (/ 5.851e-04_kind_phys, 5.665e-04_kind_phys,7.267e-04_kind_phys,1.076e-04_kind_phys/)
+      [ 5.851e-04_kind_phys, 5.665e-04_kind_phys,7.267e-04_kind_phys,1.076e-04_kind_phys]
 
    real(kind_phys) :: abarii           ! A coefficient for current spectral band
    real(kind_phys) :: bbarii           ! B coefficient for current spectral band
@@ -744,7 +742,7 @@ subroutine ec_ice_optics_sw(ncol, pver, nswbands, cldn, rei, iciwpth, ice_tau, i
             ! Do not let single scatter albedo be 1.  Delta-eddington solution
             ! for non-conservative case has different analytic form from solution
             ! for conservative case, and raddedmx is written for non-conservative case.
-            ice_tau_w(ns,i,k) = ice_tau(ns,i,k) * min(tmp2i,.999999_kind_phys)
+            ice_tau_w(ns,i,k) = ice_tau(ns,i,k) * min(tmp2i,0.999999_kind_phys)
             g = ebarii + tmp3i
             ice_tau_w_g(ns,i,k) = ice_tau_w(ns,i,k) * g
             ice_tau_w_f(ns,i,k) = ice_tau_w(ns,i,k) * g * g

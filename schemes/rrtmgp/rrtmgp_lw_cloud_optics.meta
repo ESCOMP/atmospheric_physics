@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = rrtmgp_lw_cloud_optics
   type = scheme
+  dependencies = utils/radiation_utils.F90
   # Host model must choose the appropriate module to build
   # IF CPUS:
   dependencies = ext/rte-kernels/mo_optical_props_kernels.F90

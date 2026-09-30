@@ -118,7 +118,7 @@ CONTAINS
       !  radiation was not run this timestep.
       !
       ! The flux objects are zeroed on non-radiation timesteps so they should not be
-      ! written to average accumulation on non-radiation timesteps.
+      ! written to accumulated history fields on non-radiation timesteps.
       if ((.not. dolw) .or. (.not. active_calls(diag_index+1)) .or. (.not. write_output)) then
          return
       end if

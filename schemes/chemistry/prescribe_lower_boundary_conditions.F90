@@ -1,18 +1,14 @@
-! Prescribe time-varying chemical lower boundary conditions.
-! This is the CCPP equivalent of CAM mo_flbc.F90.
+! Prescribe time-varying chemical lower boundary (or total column) conditions.
 !
 ! Reads a CHEM_LBC_FILE dataset of surface mole fractions
-! on a zonal-mean or global-mean (lat x time) or (lon x lat x time) grid
-! (e.g. LBC_1750-2015_CMIP6_GlobAnnAvg_c180926.nc) and, every timestep,
-! updates each species in flbc_list based on its constituent's advected flag:
-!  - non-advected: the time-interpolated global-mean volume mixing ratio is
-!    written as a whole-column uniform mass mixing ratio
-!    (equiv. to CAM scenario_ghg='CHEM_LBC_FILE' where
-!     chem_surfvals provides flbc global means to radiation);
+! on a zonal-mean (lat x time) or longitude-latitude (lon x lat x time) grid
+! and, every timestep, updates each species in flbc_list based on its
+! constituent's advected flag:
+!  - non-advected: the time-interpolated global-mean volume mixing ratio (vmr)
+!    is written as a whole-column uniform mass mixing ratio.
+!
 !  - advected (prognostic chemistry): the time-interpolated per-column value
-!    is pinned into the bottom two levels as a dry mass mixing ratio
-!    (equiv. to mo_flbc::flbc_set pins the bottom level and
-!     mo_ghg_chem::ghg_chem_set_flbc copies into the level above).
+!    is pinned into the bottom two vertical levels as a dry mass mixing ratio.
 !
 ! The scheme is inactive unless flbc_file is set.
 !
@@ -21,14 +17,18 @@ module prescribe_lower_boundary_conditions
   use ccpp_kinds,     only: kind_phys
   use ccpp_io_reader, only: abstract_netcdf_reader_t
 
+  ! Host model dependency for interpolation:
+  use interpolate_data, only: interp_type
+
   implicit none
   private
 
   ! public CCPP-compliant subroutines
   public :: prescribe_lower_boundary_conditions_init
   public :: prescribe_lower_boundary_conditions_timestep_init
+  public :: prescribe_lower_boundary_conditions_final
 
-  ! per-species lower boundary condition state (mo_flbc: type flbc)
+  ! per-species lower boundary condition state
   type :: flbc
      character(len=16)            :: species = ' '   ! species name as given in flbc_list
      character(len=32)            :: fldname = ' '   ! netCDF variable name in flbc_file
@@ -43,7 +43,7 @@ module prescribe_lower_boundary_conditions
   ! number of time samples to read ahead of the current time (SERIAL)
   integer, parameter :: time_span = 1
 
-  ! greenhouse gas species accepted in flbc_list, mirroring mo_flbc's ghg_names.
+  ! greenhouse gas species accepted in flbc_list.
   ! CFC11eq is the CMIP CFC11-equivalent (all other halogens expressed as
   ! CFC11) and fills the CFC11 constituent.
   integer, parameter :: nghg = 6
@@ -71,6 +71,15 @@ module prescribe_lower_boundary_conditions
   integer :: log_unit = -1
   real(kind_phys) :: pi_const = 0._kind_phys
 
+  ! dataset grid sizes and horizontal interpolation weights to the physics columns.
+  ! The columns and the dataset grid do not change, so the weights are built once.
+  integer           :: nlat = 0
+  integer           :: nlon = 0
+  type(interp_type) :: lat_wgts
+  type(interp_type) :: lon_wgts
+  logical           :: lat_wgts_built = .false.
+  logical           :: lon_wgts_built = .false. ! only (lon, lat, time) fields need lon weights
+
   ! netCDF reader for the flbc_file, created at init
   class(abstract_netcdf_reader_t), pointer :: file_reader => null()
 
@@ -91,6 +100,9 @@ contains
 
     ! portable netCDF reader for the dataset
     use ccpp_io_reader, only: create_netcdf_reader_t
+
+    ! Host model dependency for interpolation:
+    use interpolate_data, only: lininterp_init
 
     ! CAM-SIMA host model dependency for the model date
     use time_manager,   only: get_curr_date, set_time_float_from_date
@@ -130,6 +142,9 @@ contains
     character(len=32)  :: mw_species
     logical            :: is_mass_mmr, is_dry_mmr
     character(len=256) :: diag_name
+    real(kind_phys), allocatable :: file_lat(:)
+    real(kind_phys)    :: d2r
+    character(len=512) :: read_errmsg
     character(len=*), parameter :: subname = 'prescribe_lower_boundary_conditions_init'
 
     errmsg = ''
@@ -154,8 +169,8 @@ contains
     lbc_fixed_tod = flbc_fixed_tod
 
     if (lbc_type /= 'SERIAL' .and. lbc_type /= 'CYCLICAL' .and. lbc_type /= 'FIXED') then
-      errmsg = subname // ': flbc_type ' // trim(flbc_type) // &
-               ' is not SERIAL, CYCLICAL, or FIXED'
+      errmsg = subname // ': flbc_type "' // trim(flbc_type) // &
+               '" is not SERIAL, CYCLICAL, or FIXED'
       errflg = 1
       return
     end if
@@ -213,8 +228,8 @@ contains
     species_loop: do m = 1, flbc_cnt
 
       if (.not. any(ghg_names == flbc_list(m))) then
-        errmsg = subname // ': flbc_list member ' // trim(flbc_list(m)) // &
-                 ' is not allowed (only greenhouse gas species are supported: molar masses' // &
+        errmsg = subname // ': flbc_list member "' // trim(flbc_list(m)) // &
+                 '" is not allowed (only greenhouse gas species are supported: molar masses' // &
                  ' are resolved through radiation_utils)'
         errflg = 1
         return
@@ -222,7 +237,7 @@ contains
 
       flbcs(m)%species = trim(flbc_list(m))
 
-      ! netCDF variable naming follows CAM (mo_flbc): CFC11 and CFC12 are
+      ! netCDF variable naming: CFC11 and CFC12 are
       ! stored under their chemical formulas.
       if (trim(flbcs(m)%species) == 'CFC11') then
         flbcs(m)%fldname = 'CFCL3_LBC'
@@ -270,8 +285,8 @@ contains
       end do const_loop
 
       if (flbcs(m)%const_idx < 0) then
-        errmsg = subname // ': no constituent found for flbc_list member ' // &
-                 trim(flbcs(m)%species)
+        errmsg = subname // ': no constituent found for flbc_list member "' // &
+                 trim(flbcs(m)%species) // '"'
         errflg = 1
         return
       end if
@@ -279,16 +294,16 @@ contains
       ! Bottom-boundary pinning writes the constituent as a dry mass mixing ratio;
       ! require consistency:
       if (flbcs(m)%is_advected .and. .not. (is_mass_mmr .and. is_dry_mmr)) then
-        errmsg = subname // ': advected constituent for flbc_list member ' // &
-                 trim(flbcs(m)%species) // ' is not a dry mass mixing ratio;' // &
+        errmsg = subname // ': advected constituent for flbc_list member "' // &
+                 trim(flbcs(m)%species) // '" is not a dry mass mixing ratio;' // &
                  ' lower-boundary pinning is only implemented for that convention'
         errflg = 1
         return
       end if
 
       if (any(flbcs(1:m - 1)%const_idx == flbcs(m)%const_idx)) then
-        errmsg = subname // ': flbc_list members ' // trim(flbcs(m)%species) // &
-                 ' and another entry (CFC11 and CFC11eq?) fill the same constituent'
+        errmsg = subname // ': flbc_list members "' // trim(flbcs(m)%species) // &
+                 '" and another entry (CFC11 and CFC11eq?) fill the same constituent'
         errflg = 1
         return
       end if
@@ -345,7 +360,7 @@ contains
 
     if (lbc_type /= 'CYCLICAL') then
       if (wrk_time < times(1) .or. wrk_time > times(ntimes)) then
-        errmsg = subname // ': time out of bounds for dataset ' // trim(filename)
+        errmsg = subname // ': time out of bounds for dataset "' // trim(filename) // '"'
         errflg = 1
         return
       end if
@@ -363,7 +378,7 @@ contains
         end if
       end do
       if (n >= ntimes) then
-        errmsg = subname // ': cycle year out of bounds for dataset ' // trim(filename)
+        errmsg = subname // ': cycle year out of bounds for dataset "' // trim(filename) // '"'
         errflg = 1
         return
       end if
@@ -388,6 +403,20 @@ contains
     case ('SERIAL')
       tim_ndx(2) = min(ntimes, tim_ndx(1) + time_span)
     end select
+
+    ! Get the latitude coordinate from the file and build the latitude weights
+    call file_reader%get_var('lat', file_lat, read_errmsg, errflg)
+    if (errflg /= 0) then
+      errmsg = subname // ': cannot read lat coordinate of "' // &
+               trim(filename) // '": ' // trim(read_errmsg)
+      return
+    end if
+    nlat = size(file_lat)
+    d2r = pi_const/180._kind_phys
+    file_lat(:nlat) = file_lat(:nlat)*d2r
+
+    call lininterp_init(file_lat, nlat, lat, ncol, 1, lat_wgts)
+    lat_wgts_built = .true.
 
     ! Read in the flbc vmr for the current time window
     do m = 1, flbc_cnt
@@ -486,14 +515,55 @@ contains
 
   end subroutine prescribe_lower_boundary_conditions_timestep_init
 
-  ! Private helpers from mo_flbc.F90:
+!> \section arg_table_prescribe_lower_boundary_conditions_final  Argument Table
+!! \htmlinclude prescribe_lower_boundary_conditions_final.html
+  subroutine prescribe_lower_boundary_conditions_final(errmsg, errflg)
+
+    ! Host model dependency for interpolation:
+    use interpolate_data, only: lininterp_finish
+
+    character(len=*),   intent(out)   :: errmsg
+    integer,            intent(out)   :: errflg
+
+    errmsg = ''
+    errflg = 0
+
+    if (lat_wgts_built) then
+      call lininterp_finish(lat_wgts)
+      lat_wgts_built = .false.
+    end if
+    if (lon_wgts_built) then
+      call lininterp_finish(lon_wgts)
+      lon_wgts_built = .false.
+    end if
+
+    if (allocated(flbcs)) then
+      deallocate (flbcs)
+    end if
+    flbc_cnt = 0
+    if (allocated(dates)) then
+      deallocate (dates)
+    end if
+    if (allocated(times)) then
+      deallocate (times)
+    end if
+
+    ! Deallocate the module-level file reader object
+    if (associated(file_reader)) then
+      deallocate (file_reader)
+      nullify (file_reader)
+    end if
+
+  end subroutine prescribe_lower_boundary_conditions_final
+
+  ! Private helpers:
 
   ! Read one species' lower bndy values for the current time window and
   ! interpolate horizontally to the physics columns.
   subroutine flbc_get(lbcs, ncol, to_lats, to_lons, errmsg, errflg)
 
     ! Host model dependency for interpolation:
-    use interpolate_data, only: interp_type, lininterp_init, lininterp, lininterp_finish
+    use interpolate_data, only: lininterp_init, lininterp
 
     type(flbc),        intent(inout) :: lbcs
     integer,           intent(in)    :: ncol       ! number of columns [count]
@@ -505,11 +575,8 @@ contains
     ! local variables
     integer :: m
     integer :: t1, t2, tcnt
-    integer :: nlat, nlon
-    real(kind_phys), allocatable :: lat(:)
     real(kind_phys), allocatable :: lon(:)
     real(kind_phys), allocatable :: wrk(:, :, :), wrk_zonal(:, :)
-    type(interp_type)  :: lon_wgts, lat_wgts
     logical            :: zonal_field
     character(len=512) :: read_errmsg
     real(kind_phys)    :: d2r, twopi
@@ -525,27 +592,20 @@ contains
     t2 = tim_ndx(2)
     tcnt = t2 - t1 + 1
 
+    ! Reallocate only when the read window size changes (e.g. at the end of a SERIAL dataset)
     if (allocated(lbcs%vmr)) then
-      deallocate (lbcs%vmr)
+      if (size(lbcs%vmr, 2) /= tcnt) then
+        deallocate (lbcs%vmr)
+      end if
     end if
-    allocate (lbcs%vmr(ncol, tcnt), stat=errflg, errmsg=errmsg)
-    if (errflg /= 0) then
-      errmsg = 'prescribe_lower_boundary_conditions (flbc_get): failed to allocate vmr: ' // trim(errmsg)
-      return
+    if (.not. allocated(lbcs%vmr)) then
+      allocate (lbcs%vmr(ncol, tcnt), stat=errflg, errmsg=errmsg)
+      if (errflg /= 0) then
+        errmsg = 'prescribe_lower_boundary_conditions (flbc_get): failed to allocate vmr: ' // trim(errmsg)
+        return
+      end if
     end if
     lbcs%vmr(:, :) = 0._kind_phys
-
-    !-----------------------------------------------------------------------
-    ! ... get the latitude coordinate from the file
-    !-----------------------------------------------------------------------
-    call file_reader%get_var('lat', lat, read_errmsg, errflg)
-    if (errflg /= 0) then
-      errmsg = 'prescribe_lower_boundary_conditions (flbc_get): cannot read lat coordinate of ' // &
-               trim(filename) // ': ' // trim(read_errmsg)
-      return
-    end if
-    nlat = size(lat)
-    lat(:nlat) = lat(:nlat)*d2r
 
     !-----------------------------------------------------------------------
     ! ... read the current time window of the field.  Try the zonal mean
@@ -553,64 +613,63 @@ contains
     !     the variable turns out to have a different rank.
     !-----------------------------------------------------------------------
     call file_reader%get_var(trim(lbcs%fldname), wrk_zonal, read_errmsg, errflg, &
-         start=(/1, t1/), count=(/nlat, tcnt/))
+         start=[1, t1], count=[nlat, tcnt])
     zonal_field = (errflg == 0)
 
     if (errflg == wrong_rank_error_code) then
       errflg = 0
-      call file_reader%get_var('lon', lon, read_errmsg, errflg)
-      if (errflg /= 0) then
-        errmsg = 'prescribe_lower_boundary_conditions (flbc_get): cannot read lon coordinate of ' // &
-                 trim(filename) // ': ' // trim(read_errmsg)
-        return
+      ! Build the longitude weights on the first (lon, lat, time) field;
+      ! this happens during init, where every species is first read.
+      if (.not. lon_wgts_built) then
+        call file_reader%get_var('lon', lon, read_errmsg, errflg)
+        if (errflg /= 0) then
+          errmsg = 'prescribe_lower_boundary_conditions (flbc_get): cannot read lon coordinate of "' // &
+                   trim(filename) // '": ' // trim(read_errmsg)
+          return
+        end if
+        nlon = size(lon)
+        lon(:nlon) = lon(:nlon)*d2r
+
+        call lininterp_init(lon, nlon, to_lons, ncol, 2, lon_wgts, zero, twopi)
+        lon_wgts_built = .true.
       end if
-      nlon = size(lon)
-      lon(:nlon) = lon(:nlon)*d2r
 
       call file_reader%get_var(trim(lbcs%fldname), wrk, read_errmsg, errflg, &
-           start=(/1, 1, t1/), count=(/nlon, nlat, tcnt/))
+           start=[1, 1, t1], count=[nlon, nlat, tcnt])
     end if
 
     if (errflg /= 0) then
-      errmsg = 'prescribe_lower_boundary_conditions (flbc_get): failed to read ' // &
-               trim(lbcs%fldname) // ' from file ' // trim(filename) // ': ' // trim(read_errmsg)
+      errmsg = 'prescribe_lower_boundary_conditions (flbc_get): failed to read "' // &
+               trim(lbcs%fldname) // '" from file "' // trim(filename) // '": ' // trim(read_errmsg)
       return
     end if
 
     !-----------------------------------------------------------------------
     ! ... interpolate to the physics columns
     !-----------------------------------------------------------------------
-    call lininterp_init(lat, nlat, to_lats, ncol, 1, lat_wgts)
-
     if (zonal_field) then
       do m = 1, tcnt
         call lininterp(wrk_zonal(:, m), nlat, lbcs%vmr(:, m), ncol, lat_wgts)
       end do
     else
-      call lininterp_init(lon, nlon, to_lons, ncol, 2, lon_wgts, zero, twopi)
-
       do m = 1, tcnt
         call lininterp(wrk(:, :, m), nlon, nlat, lbcs%vmr(:, m), ncol, lon_wgts, lat_wgts)
       end do
-
-      call lininterp_finish(lon_wgts)
     end if
-
-    call lininterp_finish(lat_wgts)
 
     !-----------------------------------------------------------------------
     ! ... read the global mean directly if the file provides it
     !-----------------------------------------------------------------------
     call file_reader%get_var(trim(lbcs%fldname)//'_mean', lbcs%vmr_mean, read_errmsg, errflg, &
-         start=(/t1/), count=(/tcnt/))
+         start=[t1], count=[tcnt])
     if (errflg == 0) then
       lbcs%has_mean = .true.
     else if (errflg == missing_variable_error_code) then
       lbcs%has_mean = .false.
       errflg = 0
     else
-      errmsg = 'prescribe_lower_boundary_conditions (flbc_get): failed to read ' // &
-               trim(lbcs%fldname) // '_mean from file ' // trim(filename) // ': ' // trim(read_errmsg)
+      errmsg = 'prescribe_lower_boundary_conditions (flbc_get): failed to read "' // &
+               trim(lbcs%fldname) // '_mean" from file "' // trim(filename) // '": ' // trim(read_errmsg)
       return
     end if
 
@@ -706,7 +765,7 @@ contains
 
   end subroutine get_dels
 
-  ! Time-interpolated global mean vmr of one species (mo_flbc: global_mean_vmr):
+  ! Time-interpolated global mean vmr of one species:
   ! from the file's global mean variable when present, otherwise a global
   ! mean over the horizontally interpolated columns.
   subroutine global_mean_vmr(lbcs, ncol, dels, last, next, vmr_out)

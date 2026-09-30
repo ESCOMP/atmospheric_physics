@@ -72,6 +72,17 @@ contains
             if (errflg /= 0) then
                return
             end if
+            if (rad_gas_indices(gas_idx) == int_unassigned) then
+               write(errmsg, *) 'rrtmgp_constituents_init: water vapor constituent', &
+                    ' (water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water) not found for radiatively active gas "H2O"'
+               errflg = 1
+               return
+            end if
+            ! Tolerated for CAM namelist compatibility; the water vapor constituent is always used for H2O.
+            if (amIRoot) then
+               write(iulog, *) 'rrtmgp_constituents_init: H2O is taken from the water vapor constituent;', &
+                    ' any rad_climate entry for H2O is ignored'
+            end if
             cycle gas_loop
          end if
 
@@ -150,35 +161,6 @@ contains
          end if
 
       end do gas_loop
-
-      ! Reject entries for gases radiation does not know, catching misspelled
-      ! gas names that would otherwise silently leave a gas unconfigured.
-      validate_loop: do entry_idx = 1, size(rad_climate)
-         if (len_trim(rad_climate(entry_idx)) == 0) then
-            exit validate_loop
-         end if
-
-         call parse_rad_climate_entry(rad_climate(entry_idx), source, identifier, gas_name, errmsg, errflg)
-         if (errflg /= 0) then
-            return
-         end if
-
-         if (trim(gas_name) == 'H2O') then
-            ! Tolerated for CAM namelist compatibility; the water vapor constituent is always used for H2O.
-            if (amIRoot) then
-               write(iulog, *) 'rrtmgp_constituents_init: ignoring rad_climate entry for H2O', &
-                    ' (the water vapor constituent is always used)'
-            end if
-            cycle validate_loop
-         end if
-
-         if (.not. any(gaslist == gas_name)) then
-            write(errmsg, *) 'rrtmgp_constituents_init: rad_climate entry "', trim(rad_climate(entry_idx)), &
-                 '" names a gas unknown to the radiation code'
-            errflg = 1
-            return
-         end if
-      end do validate_loop
 
    end subroutine rrtmgp_constituents_init
 

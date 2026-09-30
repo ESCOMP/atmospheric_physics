@@ -16,7 +16,7 @@ contains
     use ccpp_chem_utils,           only: chem_constituent_qmin
 
     type(ccpp_constituent_properties_t), allocatable, intent(out) :: constituents(:)
-    character(len=512), intent(out) :: errmsg
+    character(len=*), intent(out) :: errmsg
     integer,            intent(out) :: errcode
 
     errmsg = ''
@@ -46,7 +46,7 @@ contains
 !> \section arg_table_ozone_constituent_stub_run  Argument Table
 !! \htmlinclude ozone_constituent_stub_run.html
   subroutine ozone_constituent_stub_run(errmsg, errcode)
-    character(len=512), intent(out) :: errmsg
+    character(len=*), intent(out) :: errmsg
     integer,            intent(out) :: errcode
 
     errcode = 0

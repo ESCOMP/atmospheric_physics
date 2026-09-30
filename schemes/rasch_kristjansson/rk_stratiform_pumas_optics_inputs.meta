@@ -1,9 +1,9 @@
 [ccpp-table-properties]
-  name = rk_stratiform_mg_optics_inputs
+  name = rk_stratiform_pumas_optics_inputs
   type = scheme
 
 [ccpp-arg-table]
-  name  = rk_stratiform_mg_optics_inputs_run
+  name  = rk_stratiform_pumas_optics_inputs_run
   type  = scheme
 [ ncol ]
   standard_name = horizontal_loop_extent
