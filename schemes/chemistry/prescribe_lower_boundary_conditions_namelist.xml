@@ -91,7 +91,7 @@
     </desc>
     <values>
       <value>UNSET</value>
-      <value sim_year="1850-2015">${DIN_LOC_ROOT}/atm/waccm/lb/LBC_1750-2015_CMIP6_GlobAnnAvg_c180926.nc</value>
+      <value sim_type="historical">${DIN_LOC_ROOT}/atm/waccm/lb/LBC_1750-2015_CMIP6_GlobAnnAvg_c180926.nc</value>
     </values>
   </entry>
 
@@ -111,7 +111,7 @@
     </desc>
     <values>
       <value>''</value>
-      <value sim_year="1850-2015">'CO2','CH4','N2O','CFC11eq','CFC12'</value>
+      <value sim_type="historical">'CO2','CH4','N2O','CFC11eq','CFC12'</value>
     </values>
   </entry>
 
