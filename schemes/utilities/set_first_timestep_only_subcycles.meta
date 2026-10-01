@@ -1,0 +1,31 @@
+[ccpp-table-properties]
+  name = set_first_timestep_only_subcycles
+  type = scheme
+
+[ccpp-arg-table]
+  name  = set_first_timestep_only_subcycles_run
+  type  = scheme
+[ is_first_timestep ]
+  standard_name = is_first_timestep
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ num_first_timestep_subcycles ]
+  standard_name = number_of_first_timestep_only_subcycles
+  units = count
+  type = integer
+  dimensions = ()
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

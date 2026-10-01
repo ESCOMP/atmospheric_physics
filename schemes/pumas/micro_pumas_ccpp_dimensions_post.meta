@@ -339,8 +339,8 @@
   kind = pumas_r8
   intent = in
 [preci]
-  standard_name = lwe_large_scale_snowfall_rate_at_surface
-  long_name = LWE large scale snowfall rate at surface
+  standard_name = lwe_snow_and_cloud_ice_precipitation_rate_at_surface_due_to_microphysics
+  long_name = LWE snow and cloud ice precipitation rate at surface due to microphysics
   units = m s-1
   dimensions = (horizontal_loop_extent)
   type = real
