@@ -8,7 +8,7 @@
       Macrophysics            RK
       Microphysics            RK
       Radiation               RRTMGP
-      Chemistry               None       (not implemented)
+      Chemistry               None
       Aerosol Model           BAM (bulk)
       Aerosol Source          Prescribed
       Vertical Diffusion      HB
@@ -17,13 +17,20 @@
   <group name="physics_before_coupler">
     <!-- Helper schemes to read all possible constituents from file and/or namelist -->
     <scheme>to_be_ccppized_temporary</scheme>
-    <scheme>prescribe_radiative_gas_concentrations</scheme>
 
     <!-- INITIALIZE ZM NAMELIST (init phase only) -->
     <scheme>zm_conv_options</scheme>
 
     <!-- INITIALIZE CLOUD FRACTION NAMELIST (init phase only) -->
     <scheme>cloud_fraction_options</scheme>
+
+    <!-- Prescribe fixed GHG concentrations -->
+    <scheme>prescribe_radiative_gas_concentrations</scheme>
+
+    <!-- Prescribe time-varying lower boundary concentrations.
+         Note that this can overwrite previously-set constituents
+         like GHGs -->
+    <scheme>prescribe_lower_boundary_conditions</scheme>
 
     <!-- Prescribe ozone and aerosol for radiation. -->
     <scheme>prescribed_ozone</scheme>
@@ -231,6 +238,7 @@
     <!-- RK4: cloud fractions (including third call to cldfrc) -->
     <scheme>compute_cloud_fraction</scheme>
     <scheme>compute_cloud_fraction_diagnostics</scheme>
+    <scheme>cloud_cover_diagnostics</scheme>
 
     <!-- RK5: cloud water and ice particle sizes for radiation -->
     <scheme>rk_stratiform_cloud_optical_properties</scheme>
@@ -241,6 +249,16 @@
 
     <!-- State diagnostics -->
     <scheme>sima_state_diagnostics</scheme>
+
+    <!-- Cloud water inputs for radiation (in-cloud water paths) -->
+    <scheme>convective_cloud_water</scheme>
+    <scheme>convective_cloud_water_diagnostics</scheme>
+    <scheme>cloud_water_paths</scheme>
+    <scheme>cloud_water_paths_diagnostics</scheme>
+
+    <!-- Derive PUMAS-convention optics inputs (dei, pgam, lamc) from the RK
+         effective radii -->
+    <scheme>rk_stratiform_pumas_optics_inputs</scheme>
 
     <!-- Run rrtmgp pre-interstitial first to get night column information
          for aerosol_optics_diagnostics. -->
@@ -311,6 +329,7 @@
          of the "before_coupler" group. -->
     <scheme>calc_dry_air_ideal_gas_density</scheme>
     <scheme>set_surface_coupling_vars</scheme>
+    <scheme>precipitation_diagnostics</scheme>
 
   </group>
 

@@ -1,0 +1,77 @@
+[ccpp-table-properties]
+  name = precipitation_diagnostics
+  type = scheme
+
+[ccpp-arg-table]
+  name  = precipitation_diagnostics_init
+  type  = scheme
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = precipitation_diagnostics_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ prec_dp ]
+  standard_name = lwe_precipitation_rate_at_surface_due_to_deep_convection
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ snow_dp ]
+  standard_name = lwe_frozen_precipitation_rate_at_surface_due_to_deep_convection
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ prec_sh ]
+  standard_name = lwe_precipitation_rate_at_surface_due_to_shallow_convection
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ snow_sh ]
+  standard_name = lwe_frozen_precipitation_rate_at_surface_due_to_shallow_convection
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ prec_str ]
+  standard_name = lwe_large_scale_precipitation_rate_at_surface
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ snow_str ]
+  standard_name = lwe_snow_and_cloud_ice_precipitation_rate_at_surface_due_to_microphysics
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

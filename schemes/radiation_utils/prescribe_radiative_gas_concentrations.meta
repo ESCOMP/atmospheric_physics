@@ -4,8 +4,43 @@
   dependencies = ../rrtmgp/utils/radiation_utils.F90
 
 [ccpp-arg-table]
+  name  = prescribe_radiative_gas_concentrations_register
+  type  = scheme
+[ prescribed_ghg_list ]
+  standard_name = list_of_greenhouse_gases_with_prescribed_concentrations
+  units = none
+  type = character | kind = len=*
+  dimensions = (prescribed_ghg_list_dimension)
+  intent = in
+[ dyn_consts ]
+  standard_name = prescribe_radiative_gas_concentrations_constituents
+  units = none
+  type = ccpp_constituent_properties_t
+  allocatable = True
+  dimensions = (:)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errcode ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
   name  = prescribe_radiative_gas_concentrations_init
   type  = scheme
+[ prescribed_ghg_list ]
+  standard_name = list_of_greenhouse_gases_with_prescribed_concentrations
+  units = none
+  type = character | kind = len=*
+  dimensions = (prescribed_ghg_list_dimension)
+  intent = in
 [ ch4_vmr ]
   standard_name = prescribed_volume_mixing_ratio_of_ch4
   units = mol mol-1
@@ -32,6 +67,12 @@
   intent = in
 [ n2o_vmr ]
   standard_name = prescribed_volume_mixing_ratio_of_n2o
+  units = mol mol-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ o2_vmr ]
+  standard_name = prescribed_volume_mixing_ratio_of_o2
   units = mol mol-1
   type = real | kind = kind_phys
   dimensions = ()

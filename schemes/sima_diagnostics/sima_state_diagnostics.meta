@@ -165,6 +165,42 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
+[ shf ]
+  standard_name = surface_upward_sensible_heat_flux_from_coupler
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ lhf ]
+  standard_name = surface_upward_latent_heat_flux_from_coupler
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ cflx ]
+  standard_name = surface_upward_ccpp_constituent_fluxes_from_coupler
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, number_of_ccpp_constituents)
+  intent = in
+[ wsx ]
+  standard_name = surface_eastward_wind_stress_from_coupler
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ wsy ]
+  standard_name = surface_northward_wind_stress_from_coupler
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ gravit ]
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
 [ const_array ]
   standard_name = ccpp_constituents
   units = none

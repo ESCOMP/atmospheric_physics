@@ -1,0 +1,45 @@
+[ccpp-table-properties]
+  name = ozone_constituent_stub
+  type = scheme
+  dependencies = ../../to_be_ccppized/ccpp_chem_utils.F90
+[ccpp-arg-table]
+  name = ozone_constituent_stub_register
+  type = scheme
+[ constituents ]
+  standard_name = dynamic_constituents_for_ozone_constituent_stub
+  units = none
+  dimensions = (:)
+  allocatable = True
+  type = ccpp_constituent_properties_t
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errcode ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+[ccpp-arg-table]
+  name = ozone_constituent_stub_run
+  type = scheme
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errcode ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

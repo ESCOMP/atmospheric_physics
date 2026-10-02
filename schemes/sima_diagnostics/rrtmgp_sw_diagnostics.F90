@@ -70,7 +70,7 @@ CONTAINS
    !! \htmlinclude rrtmgp_sw_diagnostics_run.html
    subroutine rrtmgp_sw_diagnostics_run(num_diag_subcycles, icall, active_calls, fsw, fswc, rpdel, ncol, nday, idxday, &
                   nlay, pver, pverp, pint, gravit, cpair, p_trop, fns, fcns, qrs, qrsc, fsnt, fsns, sols, soll, solsd, &
-                  solld, ktopcam, ktoprad, write_output, errmsg, errflg)
+                  solld, ktopcam, ktoprad, write_output, dosw, errmsg, errflg)
 
       use cam_history,        only: history_out_field
       use ccpp_fluxes,        only: ty_fluxes_broadband_ccpp
@@ -91,6 +91,7 @@ CONTAINS
       integer,                        intent(in) :: ktoprad             ! Index in RRTMGP array corresponding to top layer or interface of CAM arrays
       logical,                        intent(in) :: active_calls(:)     ! Logical array of flags for whether a specified subcycle is active
       logical,                        intent(in) :: write_output        ! Flag to write output for radiation
+      logical,                        intent(in) :: dosw                ! Flag for whether shortwave radiation was calculated this timestep
       real(kind_phys),                intent(in) :: gravit              ! Standard gravitiational acceleration
       real(kind_phys),                intent(in) :: cpair
       real(kind_phys),                intent(in) :: pint(:,:)           ! Air pressure at layer interfaces [Pa]
@@ -137,8 +138,13 @@ CONTAINS
       ! Diagnostic indices are reversed
       diag_index = num_diag_subcycles - icall
 
-      ! Don't do anything if this subcycle is inactive or we're not configured to write radiation output
-      if ((.not. active_calls(diag_index+1)) .or. (.not. write_output)) then
+      ! Don't do anything if this subcycle is inactive,
+      !  we're not configured to write radiation output, or
+      !  radiation was not run this timestep.
+      !
+      ! The flux objects are zeroed on non-radiation timesteps so they should not be
+      ! written to accumulated history fields on non-radiation timesteps.
+      if ((.not. dosw) .or. (.not. active_calls(diag_index+1)) .or. (.not. write_output)) then
          return
       end if
 

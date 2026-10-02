@@ -9,6 +9,7 @@ module radiation_utils
   public :: get_lw_spectral_boundaries_ccpp
   public :: get_mu_lambda_weights_ccpp
   public :: get_molar_mass_ratio
+  public :: parse_rad_climate_entry
 
   real(kind_phys), allocatable :: wavenumber_low_shortwave(:)
   real(kind_phys), allocatable :: wavenumber_high_shortwave(:)
@@ -252,5 +253,60 @@ subroutine get_molar_mass_ratio(gas_name, massratio, errmsg, errflg)
   end select
 
 end subroutine get_molar_mass_ratio
+
+subroutine parse_rad_climate_entry(rad_climate_entry, source, identifier, gas_name, errmsg, errflg)
+
+  ! Parse one entry of the rad_climate namelist variable, of the form
+  ! "flag:identifier:gas_name", where flag is the gas source ('A' advected,
+  ! 'N' non-advected, 'Z' zero), identifier is the constituent identifier
+  ! (matched against the constituents' diagnostic names), and gas_name is
+  ! the radiation gas ("standard") name.
+
+  character(len=*), intent(in)  :: rad_climate_entry
+  character(len=*), intent(out) :: source
+  character(len=*), intent(out) :: identifier
+  character(len=*), intent(out) :: gas_name
+  character(len=*), intent(out) :: errmsg
+  integer,          intent(out) :: errflg
+
+  ! local variables
+  character(len=len(rad_climate_entry)) :: tmpstr
+  integer :: strlen, ipos, idx
+
+  errmsg = ''
+  errflg = 0
+
+  ! There are no fields in the input strings in which a blank character is allowed.
+  ! To simplify the parsing go through the input strings and remove blanks.
+  tmpstr = adjustl(rad_climate_entry)
+  do
+     strlen = len_trim(tmpstr)
+     ipos = index(tmpstr, ' ')
+     if (ipos == 0 .or. ipos > strlen) exit
+     tmpstr = tmpstr(:ipos-1) // tmpstr(ipos+1:strlen)
+  end do
+
+  ! Locate the ':' separating source from the constituent identifier.
+  idx = index(tmpstr, ':')
+  if (idx == 0) then
+     errmsg = 'rad_climate namelist variable error: all entries must be of the format "flag:identifier:gas_name". Failed to parse "'//trim(tmpstr)//'"'
+     errflg = 1
+     return
+  end if
+  source = tmpstr(:idx-1)
+  tmpstr = tmpstr(idx+1:)
+
+  ! Locate the ':' separating the constituent identifier from the rad gas ("standard") name.
+  idx = scan(tmpstr, ':')
+  if (idx == 0) then
+     errmsg = 'rad_climate namelist variable error: all entries must be of the format "flag:identifier:gas_name". Failed to parse "'//trim(tmpstr)//'"'
+     errflg = 1
+     return
+  end if
+
+  identifier = tmpstr(:idx-1)
+  gas_name = tmpstr(idx+1:)
+
+end subroutine parse_rad_climate_entry
 
 end module radiation_utils

@@ -20,9 +20,9 @@
 	  Valid declarations are:
 
           char*n
-	  integer
-	  logical
-	  real
+          integer
+          logical
+          real
 
 	  Any of these types may be followed by a comma separated list of
 	  integers enclosed in parenthesis to indicate an array.
@@ -88,17 +88,8 @@
     <values>
       <value>
         'N:O2:O2',
-        'A:CO2:CO2',
-        'N:ozone:O3',
-        'A:N2O:N2O',
-        'A:CH4:CH4',
-        'N:CFC11STAR:CFC11',
-        'A:CFC12:CFC12'
-      </value>
-      <value phys_suite="cam4">
-        'N:O2:O2',
         'N:CO2:CO2',
-        'N:ozone:O3',
+        'N:O3:O3',
         'N:N2O:N2O',
         'N:CH4:CH4',
         'N:CFC11:CFC11',

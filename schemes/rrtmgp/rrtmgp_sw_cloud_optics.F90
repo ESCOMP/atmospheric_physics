@@ -30,7 +30,7 @@ contains
 !! \htmlinclude rrtmgp_sw_cloud_optics_run.html
 !!
 subroutine rrtmgp_sw_cloud_optics_run(dosw, ncol, pver, ktopcam, ktoprad,  nswgpts, nday, idxday, fillvalue, &
-   nswbands, iulog, pgam, lamc, nnite, idxnite, cld, cldfsnow, cldfgrau, cldfprime, &
+   nswbands, iulog, pgam, lamc, rel, rei, nnite, idxnite, cld, cldfsnow, cldfgrau, cldfprime, &
    degrau, dei, des, iclwpth, iciwpth, icswpth, icgrauwpth, tiny_in, idx_sw_diag, do_graupel, &
    do_snow, kdist_sw, cld_tau, grau_tau, snow_tau, c_cld_tau, c_cld_tau_w, c_cld_tau_w_g, tot_cld_vistau,    &
    tot_icld_vistau, liq_icld_vistau, ice_icld_vistau, snow_icld_vistau, grau_icld_vistau, errmsg, errflg)
@@ -39,6 +39,7 @@ subroutine rrtmgp_sw_cloud_optics_run(dosw, ncol, pver, ktopcam, ktoprad,  nswgp
    use rrtmgp_cloud_optics_setup, only: g_mu, g_lambda, nmu, nlambda, g_d_eff, n_g_d
    use rrtmgp_cloud_optics_setup, only: ext_sw_liq, asm_sw_liq, ssa_sw_liq
    use rrtmgp_cloud_optics_setup, only: ext_sw_ice, asm_sw_ice, ssa_sw_ice
+   use rrtmgp_cloud_optics_setup, only: liq_cld_optics, ice_cld_optics
    use ccpp_kinds,                only: kind_phys
 
    ! Compute combined cloud optical properties.
@@ -66,6 +67,8 @@ subroutine rrtmgp_sw_cloud_optics_run(dosw, ncol, pver, ktopcam, ktoprad,  nswgp
 
    real(kind_phys), intent(in) :: lamc(:,:)          ! Prognosed value of lambda for cloud [1]
    real(kind_phys), intent(in) :: pgam(:,:)          ! Prognosed value of mu for cloud [1]
+   real(kind_phys), intent(in) :: rel(:,:)           ! Effective radius of stratiform cloud liquid water droplet [um]
+   real(kind_phys), intent(in) :: rei(:,:)           ! Effective radius of stratiform cloud ice crystal [um]
    real(kind_phys), intent(in) :: dei(:,:)           ! Mean effective radius for ice cloud [um]
    real(kind_phys), intent(in) :: des(:,:)           ! Mean effective radius for snow [um]
    real(kind_phys), intent(in) :: degrau(:,:)        ! Mean effective radius for graupel [um]
@@ -143,13 +146,35 @@ subroutine rrtmgp_sw_cloud_optics_run(dosw, ncol, pver, ktopcam, ktoprad,  nswgp
 
    ! Combine the cloud optical properties.
 
-   ! gammadist liquid optics
-   call get_liquid_optics_sw(ncol, pver, nswbands, tiny_in, ext_sw_liq, asm_sw_liq, ssa_sw_liq, lamc, pgam, g_lambda, g_mu, iclwpth, liq_tau, liq_tau_w, liq_tau_w_g, sw_tau_w_f, errmsg, errflg)
+   select case (trim(liq_cld_optics))
+   case ('slingo')
+      ! Slingo (1989) liquid optics
+      call slingo_liq_optics_sw(ncol, pver, nswbands, cld, rel, iclwpth, liq_tau, liq_tau_w, liq_tau_w_g, sw_tau_w_f, errmsg, errflg)
+   case ('gammadist')
+      ! gammadist liquid optics
+      call get_liquid_optics_sw(ncol, pver, nswbands, tiny_in, ext_sw_liq, asm_sw_liq, ssa_sw_liq, lamc, pgam, g_lambda, g_mu, iclwpth, liq_tau, liq_tau_w, liq_tau_w_g, sw_tau_w_f, errmsg, errflg)
+   case default
+      write(errmsg,'(a,a)') sub, ': liq_cld_optics must be either slingo or gammadist'
+      errflg = 1
+   end select
    if (errflg /= 0) then
       return
    end if
-   ! Mitchell ice optics
-   call interpolate_ice_optics_sw(ncol, pver, nswbands, tiny_in, ext_sw_ice, asm_sw_ice, ssa_sw_ice, iciwpth, dei, g_d_eff, ice_tau, ice_tau_w, ice_tau_w_g, sw_tau_w_f)
+
+   select case (trim(ice_cld_optics))
+   case ('ebertcurry')
+      ! Ebert and Curry (1992) ice optics
+      call ec_ice_optics_sw(ncol, pver, nswbands, cld, rei, iciwpth, ice_tau, ice_tau_w, ice_tau_w_g, sw_tau_w_f, errmsg, errflg)
+   case ('mitchell')
+      ! Mitchell ice optics
+      call interpolate_ice_optics_sw(ncol, pver, nswbands, tiny_in, ext_sw_ice, asm_sw_ice, ssa_sw_ice, iciwpth, dei, g_d_eff, ice_tau, ice_tau_w, ice_tau_w_g, sw_tau_w_f)
+   case default
+      write(errmsg,'(a,a)') sub, ': ice_cld_optics must be either ebertcurry or mitchell'
+      errflg = 1
+   end select
+   if (errflg /= 0) then
+      return
+   end if
 
    cld_tau(:,:ncol,:)     =  liq_tau(:,:ncol,:)     + ice_tau(:,:ncol,:)
    cld_tau_w(:,:ncol,:)   =  liq_tau_w(:,:ncol,:)   + ice_tau_w(:,:ncol,:)
@@ -471,5 +496,261 @@ subroutine gam_liquid_sw(nswbands, tiny_in, g_lambda, g_mu, ext_sw_liq, asm_sw_l
 end subroutine gam_liquid_sw
 
 !==============================================================================
+
+!==============================================================================
+
+subroutine slingo_liq_optics_sw(ncol, pver, nswbands, cldn, rel, iclwpth, liq_tau, liq_tau_w, liq_tau_w_g, liq_tau_w_f, errmsg, errflg)
+   ! Slingo (1989) (https://doi.org/10.1175/1520-0469(1989)046<1419:AGPFTS>2.0.CO;2) shortwave liquid cloud optics,
+   ! using the in-cloud liquid water path.
+   use radiation_utils, only: get_sw_spectral_boundaries_ccpp
+   use ccpp_kinds,      only: kind_phys
+
+   integer, intent(in)  :: ncol
+   integer, intent(in)  :: pver
+   integer, intent(in)  :: nswbands
+   real(kind_phys), intent(in) :: cldn(:,:)          ! cloud fraction [fraction]
+   real(kind_phys), intent(in) :: rel(:,:)           ! liquid effective drop radius [um]
+   real(kind_phys), intent(in) :: iclwpth(:,:)       ! in-cloud liquid water path [kg m-2]
+
+   real(kind_phys), intent(out) :: liq_tau    (:,:,:) ! extinction optical depth
+   real(kind_phys), intent(out) :: liq_tau_w  (:,:,:) ! single scattering albedo * tau
+   real(kind_phys), intent(out) :: liq_tau_w_g(:,:,:) ! asymmetry parameter * tau * w
+   real(kind_phys), intent(out) :: liq_tau_w_f(:,:,:) ! forward scattered fraction * tau * w
+   character(len=*), intent(out) :: errmsg
+   integer,          intent(out) :: errflg
+
+   ! Minimum cloud amount (as a fraction of the grid-box area) to
+   ! distinguish from clear sky
+   real(kind_phys), parameter :: cldmin = 1.0e-80_kind_phys
+
+   ! Decimal precision of cloud amount (0 -> preserve full resolution;
+   ! 10^-n -> preserve n digits of cloud amount)
+   real(kind_phys), parameter :: cldeps = 0.0_kind_phys
+
+   real(kind_phys), dimension(nswbands) :: wavmin_gp  ! boundaries in RRTMGP band order
+   real(kind_phys), dimension(nswbands) :: wavmax_gp  ! boundaries in RRTMGP band order
+   real(kind_phys), dimension(nswbands) :: wavmin     ! boundaries in RRTMG band order
+   real(kind_phys), dimension(nswbands) :: wavmax     ! boundaries in RRTMG band order
+
+   ! A. Slingo's data for cloud particle radiative properties (from 'A GCM
+   ! Parameterization for the Shortwave Properties of Water Clouds' JAS
+   ! vol. 46 may 1989 pp 1419-1427)
+   real(kind_phys) :: abarl(4) = &  ! A coefficient for extinction optical depth
+      [ 2.817e-02_kind_phys, 2.682e-02_kind_phys,2.264e-02_kind_phys,1.281e-02_kind_phys]
+   real(kind_phys) :: bbarl(4) = &  ! B coefficient for extinction optical depth
+      [ 1.305_kind_phys    , 1.346_kind_phys    ,1.454_kind_phys    ,1.641_kind_phys    ]
+   real(kind_phys) :: cbarl(4) = &  ! C coefficient for single scat albedo
+      [-5.62e-08_kind_phys ,-6.94e-06_kind_phys ,4.64e-04_kind_phys ,0.201_kind_phys    ]
+   real(kind_phys) :: dbarl(4) = &  ! D coefficient for single  scat albedo
+      [ 1.63e-07_kind_phys , 2.35e-05_kind_phys ,1.24e-03_kind_phys ,7.56e-03_kind_phys ]
+   real(kind_phys) :: ebarl(4) = &  ! E coefficient for asymmetry parameter
+      [ 0.829_kind_phys    , 0.794_kind_phys    ,0.754_kind_phys    ,0.826_kind_phys    ]
+   real(kind_phys) :: fbarl(4) = &  ! F coefficient for asymmetry parameter
+      [ 2.482e-03_kind_phys, 4.226e-03_kind_phys,6.560e-03_kind_phys,4.353e-03_kind_phys]
+
+   real(kind_phys) :: abarli        ! A coefficient for current spectral band
+   real(kind_phys) :: bbarli        ! B coefficient for current spectral band
+   real(kind_phys) :: cbarli        ! C coefficient for current spectral band
+   real(kind_phys) :: dbarli        ! D coefficient for current spectral band
+   real(kind_phys) :: ebarli        ! E coefficient for current spectral band
+   real(kind_phys) :: fbarli        ! F coefficient for current spectral band
+
+   ! Caution... A. Slingo recommends no less than 4.0 micro-meters nor
+   ! greater than 20 micro-meters
+
+   integer :: ns, i, k, indxsl
+   real(kind_phys) :: tmp1l, tmp2l, tmp3l, g
+
+   ! Set error variables
+   errmsg = ''
+   errflg = 0
+
+   ! get_sw_spectral_boundaries_ccpp returns the boundaries in RRTMGP band
+   ! order; the optics in this scheme are computed in RRTMG band order and
+   ! reordered afterwards (see rrtmg_to_rrtmgp_swbands), so permute the
+   ! boundaries into RRTMG band order here.
+   call get_sw_spectral_boundaries_ccpp(wavmin_gp, wavmax_gp, 'microns', errmsg, errflg)
+   if (errflg /= 0) then
+      return
+   end if
+   wavmin(rrtmg_to_rrtmgp_swbands) = wavmin_gp
+   wavmax(rrtmg_to_rrtmgp_swbands) = wavmax_gp
+
+   do ns = 1, nswbands
+      ! Set index for cloud particle properties based on the wavelength,
+      ! according to A. Slingo (1989) equations 1-3:
+      ! Use index 1 (0.25 to 0.69 micrometers) for visible
+      ! Use index 2 (0.69 - 1.19 micrometers) for near-infrared
+      ! Use index 3 (1.19 to 2.38 micrometers) for near-infrared
+      ! Use index 4 (2.38 to 4.00 micrometers) for near-infrared
+      if(wavmax(ns) <= 0.7_kind_phys) then
+         indxsl = 1
+      else if(wavmax(ns) <= 1.25_kind_phys) then
+         indxsl = 2
+      else if(wavmax(ns) <= 2.38_kind_phys) then
+         indxsl = 3
+      else if(wavmax(ns) > 2.38_kind_phys) then
+         indxsl = 4
+      end if
+
+      ! Set cloud extinction optical depth, single scatter albedo,
+      ! asymmetry parameter, and forward scattered fraction:
+      abarli = abarl(indxsl)
+      bbarli = bbarl(indxsl)
+      cbarli = cbarl(indxsl)
+      dbarli = dbarl(indxsl)
+      ebarli = ebarl(indxsl)
+      fbarli = fbarl(indxsl)
+
+      do k=1,pver
+         do i=1,ncol
+
+            ! note that optical properties for liquid valid only
+            ! in range of 4.2 > rel > 16 micron (Slingo 89)
+            if (cldn(i,k) >= cldmin .and. cldn(i,k) >= cldeps) then
+               tmp1l = abarli + bbarli/min(max(4.2_kind_phys,rel(i,k)),16._kind_phys)
+               liq_tau(ns,i,k) = 1000._kind_phys*iclwpth(i,k)*tmp1l
+            else
+               liq_tau(ns,i,k) = 0.0_kind_phys
+            end if
+
+            tmp2l = 1._kind_phys - cbarli - dbarli*min(max(4.2_kind_phys,rel(i,k)),16._kind_phys)
+            tmp3l = fbarli*min(max(4.2_kind_phys,rel(i,k)),16._kind_phys)
+            ! Do not let single scatter albedo be 1.  Delta-eddington solution
+            ! for non-conservative case has different analytic form from solution
+            ! for conservative case, and raddedmx is written for non-conservative case.
+            liq_tau_w(ns,i,k) = liq_tau(ns,i,k) * min(tmp2l,0.999999_kind_phys)
+            g = ebarli + tmp3l
+            liq_tau_w_g(ns,i,k) = liq_tau_w(ns,i,k) * g
+            liq_tau_w_f(ns,i,k) = liq_tau_w(ns,i,k) * g * g
+
+         end do ! End do i=1,ncol
+      end do    ! End do k=1,pver
+   end do ! nswbands
+
+end subroutine slingo_liq_optics_sw
+
+!==============================================================================
+
+subroutine ec_ice_optics_sw(ncol, pver, nswbands, cldn, rei, iciwpth, ice_tau, ice_tau_w, ice_tau_w_g, ice_tau_w_f, errmsg, errflg)
+   ! Ebert and Curry (1992) (https://doi.org/10.1029/91JD02472) shortwave ice cloud optics,
+   ! using the in-cloud ice water path.
+   use radiation_utils, only: get_sw_spectral_boundaries_ccpp
+   use ccpp_kinds,      only: kind_phys
+
+   integer, intent(in)  :: ncol
+   integer, intent(in)  :: pver
+   integer, intent(in)  :: nswbands
+   real(kind_phys), intent(in) :: cldn(:,:)          ! cloud fraction [fraction]
+   real(kind_phys), intent(in) :: rei(:,:)           ! ice effective drop size [um]
+   real(kind_phys), intent(in) :: iciwpth(:,:)       ! in-cloud ice water path [kg m-2]
+
+   real(kind_phys), intent(out) :: ice_tau    (:,:,:) ! extinction optical depth
+   real(kind_phys), intent(out) :: ice_tau_w  (:,:,:) ! single scattering albedo * tau
+   real(kind_phys), intent(out) :: ice_tau_w_g(:,:,:) ! asymmetry parameter * tau * w
+   real(kind_phys), intent(out) :: ice_tau_w_f(:,:,:) ! forward scattered fraction * tau * w
+   character(len=*), intent(out) :: errmsg
+   integer,          intent(out) :: errflg
+
+   real(kind_phys), parameter :: scalefactor = 1._kind_phys
+
+   ! Minimum cloud amount (as a fraction of the grid-box area) to
+   ! distinguish from clear sky
+   real(kind_phys), parameter :: cldmin = 1.0e-80_kind_phys
+
+   ! Decimal precision of cloud amount (0 -> preserve full resolution;
+   ! 10^-n -> preserve n digits of cloud amount)
+   real(kind_phys), parameter :: cldeps = 0.0_kind_phys
+
+   real(kind_phys), dimension(nswbands) :: wavmin_gp  ! boundaries in RRTMGP band order
+   real(kind_phys), dimension(nswbands) :: wavmax_gp  ! boundaries in RRTMGP band order
+   real(kind_phys), dimension(nswbands) :: wavmin     ! boundaries in RRTMG band order
+   real(kind_phys), dimension(nswbands) :: wavmax     ! boundaries in RRTMG band order
+
+   ! ice water coefficients (Ebert and Curry,1992, JGR, 97, 3831-3836)
+   real(kind_phys) :: abari(4) = &     ! a coefficient for extinction optical depth
+      [ 3.448e-03_kind_phys, 3.448e-03_kind_phys,3.448e-03_kind_phys,3.448e-03_kind_phys]
+   real(kind_phys) :: bbari(4) = &     ! b coefficient for extinction optical depth
+      [ 2.431_kind_phys    , 2.431_kind_phys    ,2.431_kind_phys    ,2.431_kind_phys    ]
+   real(kind_phys) :: cbari(4) = &     ! c coefficient for single scat albedo
+      [ 1.00e-05_kind_phys , 1.10e-04_kind_phys ,1.861e-02_kind_phys,.46658_kind_phys   ]
+   real(kind_phys) :: dbari(4) = &     ! d coefficient for single scat albedo
+      [ 0.0_kind_phys      , 1.405e-05_kind_phys,8.328e-04_kind_phys,2.05e-05_kind_phys ]
+   real(kind_phys) :: ebari(4) = &     ! e coefficient for asymmetry parameter
+      [ 0.7661_kind_phys   , 0.7730_kind_phys   ,0.794_kind_phys    ,0.9595_kind_phys   ]
+   real(kind_phys) :: fbari(4) = &     ! f coefficient for asymmetry parameter
+      [ 5.851e-04_kind_phys, 5.665e-04_kind_phys,7.267e-04_kind_phys,1.076e-04_kind_phys]
+
+   real(kind_phys) :: abarii           ! A coefficient for current spectral band
+   real(kind_phys) :: bbarii           ! B coefficient for current spectral band
+   real(kind_phys) :: cbarii           ! C coefficient for current spectral band
+   real(kind_phys) :: dbarii           ! D coefficient for current spectral band
+   real(kind_phys) :: ebarii           ! E coefficient for current spectral band
+   real(kind_phys) :: fbarii           ! F coefficient for current spectral band
+
+   integer :: ns, i, k, indxsl
+   real(kind_phys) :: tmp1i, tmp2i, tmp3i, g
+
+   ! Set error variables
+   errmsg = ''
+   errflg = 0
+
+   ! get_sw_spectral_boundaries_ccpp returns the boundaries in RRTMGP band
+   ! order; the optics in this scheme are computed in RRTMG band order and
+   ! reordered afterwards (see rrtmg_to_rrtmgp_swbands), so permute the
+   ! boundaries into RRTMG band order here.
+   call get_sw_spectral_boundaries_ccpp(wavmin_gp, wavmax_gp, 'microns', errmsg, errflg)
+   if (errflg /= 0) then
+      return
+   end if
+   wavmin(rrtmg_to_rrtmgp_swbands) = wavmin_gp
+   wavmax(rrtmg_to_rrtmgp_swbands) = wavmax_gp
+
+   do ns = 1, nswbands
+
+      if(wavmax(ns) <= 0.7_kind_phys) then
+         indxsl = 1
+      else if(wavmax(ns) <= 1.25_kind_phys) then
+         indxsl = 2
+      else if(wavmax(ns) <= 2.38_kind_phys) then
+         indxsl = 3
+      else if(wavmax(ns) > 2.38_kind_phys) then
+         indxsl = 4
+      end if
+
+      abarii = abari(indxsl)
+      bbarii = bbari(indxsl)
+      cbarii = cbari(indxsl)
+      dbarii = dbari(indxsl)
+      ebarii = ebari(indxsl)
+      fbarii = fbari(indxsl)
+
+      do k=1,pver
+         do i=1,ncol
+
+            ! note that optical properties for ice valid only
+            ! in range of 13 > rei > 130 micron (Ebert and Curry 92)
+            if (cldn(i,k) >= cldmin .and. cldn(i,k) >= cldeps) then
+               tmp1i = abarii + bbarii/max(13._kind_phys,min(scalefactor*rei(i,k),130._kind_phys))
+               ice_tau(ns,i,k) = 1000.0_kind_phys*iciwpth(i,k)*tmp1i
+            else
+               ice_tau(ns,i,k) = 0.0_kind_phys
+            end if
+
+            tmp2i = 1._kind_phys - cbarii - dbarii*min(max(13._kind_phys,scalefactor*rei(i,k)),130._kind_phys)
+            tmp3i = fbarii*min(max(13._kind_phys,scalefactor*rei(i,k)),130._kind_phys)
+            ! Do not let single scatter albedo be 1.  Delta-eddington solution
+            ! for non-conservative case has different analytic form from solution
+            ! for conservative case, and raddedmx is written for non-conservative case.
+            ice_tau_w(ns,i,k) = ice_tau(ns,i,k) * min(tmp2i,0.999999_kind_phys)
+            g = ebarii + tmp3i
+            ice_tau_w_g(ns,i,k) = ice_tau_w(ns,i,k) * g
+            ice_tau_w_f(ns,i,k) = ice_tau_w(ns,i,k) * g * g
+
+         end do ! End do i=1,ncol
+      end do    ! End do k=1,pver
+   end do ! nswbands
+
+end subroutine ec_ice_optics_sw
 
 end module rrtmgp_sw_cloud_optics

@@ -88,6 +88,7 @@
     </desc>
     <values>
       <value>${DIN_LOC_ROOT}/atm/cam/solar/SolarForcingCMIP7piControl_c20250103.nc</value>
+      <value sim_type="historical">${DIN_LOC_ROOT}/atm/cam/solar/SolarForcingCMIP7-4.6_18491230-20240101_sumEPP_c20250630.nc</value>
       <value aquaplanet="1" phys_suite="cam4">NONE</value>
     </values>
   </entry>
@@ -102,6 +103,7 @@
     </desc>
     <values>
       <value>FIXED</value>
+      <value sim_type="historical">SERIAL</value>
     </values>
   </entry>
   <entry id="solar_htng_spctrl_scl">

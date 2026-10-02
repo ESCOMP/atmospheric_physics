@@ -26,6 +26,9 @@ module solar_irradiance_data
   real(kind_phys), allocatable :: irrad_fac(:)
   real(kind_phys), allocatable :: etf_fac(:)
   real(kind_phys), allocatable :: lambda(:)
+  ! Bracketing time slices of irradiance read from the file, interpolated every timestep.
+  real(kind_phys), allocatable :: irradi(:,:)
+  real(kind_phys), allocatable :: itsi(:)
   logical, protected :: has_ref_spectrum = .false.
   logical, protected :: has_tsi = .false.
   logical, protected :: initialized = .false.
@@ -191,8 +194,9 @@ contains
        return
     end if
 
-    ! Check what the file contains
-    call file_reader%get_var('ssi', ssi, errmsg, errflg)
+    ! Check what the file contains.
+    ! Use a single-element read instead of reading the full variable on every task/thread:
+    call file_reader%get_var('ssi', ssi, errmsg, errflg, [1, 1], [1, 1])
     if (errflg /= 0 .and. errflg /= missing_variable_error_code) then
        errmsg = subname // errmsg
        return
@@ -321,8 +325,6 @@ contains
      ! Local variables
      integer  :: idx, index, nt
      integer  :: offset(2), count(2)
-     integer, allocatable :: itsi(:)
-     real(kind_phys), allocatable :: irradi(:,:)
      logical  :: read_data
      real(kind_phys) :: data(nbins)
      integer  :: ierr
@@ -353,8 +355,8 @@ contains
         index = time_coord%indxs(1)
 
         ! get the surrounding time slices
-        offset = (/ 1, index /)
-        count =  (/ nbins, nt /)
+        offset = [1, index]
+        count =  [nbins, nt]
 
         if (has_spectrum) then
            call file_reader%get_var('ssi', irradi, errmsg, errflg, offset, count)
@@ -364,7 +366,7 @@ contains
            end if
         end if
         if (has_tsi .and. (.not. do_spectral_scaling)) then
-           call file_reader%get_var('tsi', itsi, errmsg, errflg, (/index/), (/nt/))
+           call file_reader%get_var('tsi', itsi, errmsg, errflg, [index], [nt])
            if (errflg /= 0) then
               errmsg = subname // errmsg
               return

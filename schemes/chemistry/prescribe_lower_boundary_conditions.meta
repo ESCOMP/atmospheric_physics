@@ -1,0 +1,161 @@
+[ccpp-table-properties]
+  name = prescribe_lower_boundary_conditions
+  type = scheme
+  dependencies = ../rrtmgp/utils/radiation_utils.F90
+  dependencies = ../../phys_utils/atmos_phys_string_utils.F90
+
+[ccpp-arg-table]
+  name  = prescribe_lower_boundary_conditions_init
+  type  = scheme
+[ amIRoot ]
+  standard_name = flag_for_mpi_root
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ iulog ]
+  standard_name = log_output_unit
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ pi ]
+  standard_name = pi_constant
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ ncol ]
+  standard_name = horizontal_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ lat ]
+  standard_name = latitude
+  units = rad
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension)
+  intent = in
+[ lon ]
+  standard_name = longitude
+  units = rad
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension)
+  intent = in
+[ flbc_file ]
+  standard_name = filename_of_lower_boundary_conditions
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ flbc_list ]
+  standard_name = list_of_species_for_lower_boundary_conditions
+  units = none
+  type = character | kind = len=*
+  dimensions = (flbc_list_dimension)
+  intent = in
+[ flbc_type ]
+  standard_name = time_interpolation_method_for_lower_boundary_conditions
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ flbc_cycle_yr ]
+  standard_name = cycle_year_for_lower_boundary_conditions
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ flbc_fixed_ymd ]
+  standard_name = fixed_date_for_lower_boundary_conditions
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ flbc_fixed_tod ]
+  standard_name = fixed_time_of_day_for_lower_boundary_conditions
+  units = s
+  type = integer
+  dimensions = ()
+  intent = in
+[ const_props ]
+  standard_name = ccpp_constituent_properties
+  units = none
+  type = ccpp_constituent_prop_ptr_t
+  dimensions = (number_of_ccpp_constituents)
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = prescribe_lower_boundary_conditions_timestep_init
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ lat ]
+  standard_name = latitude
+  units = rad
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension)
+  intent = in
+[ lon ]
+  standard_name = longitude
+  units = rad
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension)
+  intent = in
+[ constituents ]
+  standard_name = ccpp_constituents
+  units = none
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension,vertical_layer_dimension,number_of_ccpp_constituents)
+  intent = inout
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = prescribe_lower_boundary_conditions_final
+  type  = scheme
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

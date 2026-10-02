@@ -20,6 +20,9 @@
     <scheme>to_be_ccppized_temporary</scheme>
     <scheme>prescribe_radiative_gas_concentrations</scheme>
 
+    <!-- Prescribe ozone for radiation. -->
+    <scheme>prescribed_ozone</scheme>
+
     <!-- Prescribe aerosols for microphysics (nochem BAM) -->
     <scheme>prescribed_aerosols</scheme>
 
