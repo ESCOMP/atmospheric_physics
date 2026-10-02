@@ -71,8 +71,9 @@ target_sources(test_musica_api
     ${MUSICA_CCPP_SOURCES}
     ${CMAKE_CURRENT_SOURCE_DIR}/musica_ccpp_namelist.F90
     ${CMAKE_CURRENT_SOURCE_DIR}/musica_test_data.F90
+    ${CMAKE_CURRENT_SOURCE_DIR}/musica_test_constituents.F90
     ${TO_BE_CCPPIZED_SRC_PATH}/ccpp_tuvx_utils.F90
-    ${TO_BE_CCPPIZED_SRC_PATH}/ccpp_const_utils.F90
+    ${CCPP_SRC_PATH}/ccpp_scheme_utils.F90
     ${CCPP_SRC_PATH}/ccpp_constituent_prop_mod.F90
     ${CCPP_SRC_PATH}/ccpp_hash_table.F90
     ${CCPP_SRC_PATH}/ccpp_hashable.F90
@@ -94,12 +95,12 @@ add_test(
 add_memory_check_test(test_musica_api $<TARGET_FILE:test_musica_api> "" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 # MUSICA species test
-add_executable(test_musica_species test_musica_species.F90 musica_ccpp_namelist.F90)
+add_executable(test_musica_species test_musica_species.F90 musica_ccpp_namelist.F90 musica_test_constituents.F90)
 
 target_sources(test_musica_species
   PUBLIC
     ${MUSICA_CCPP_SOURCES}
-    ${TO_BE_CCPPIZED_SRC_PATH}/ccpp_const_utils.F90
+    ${CCPP_SRC_PATH}/ccpp_scheme_utils.F90
     ${TO_BE_CCPPIZED_SRC_PATH}/ccpp_tuvx_utils.F90
     ${CCPP_SRC_PATH}/ccpp_constituent_prop_mod.F90
     ${CCPP_SRC_PATH}/ccpp_hash_table.F90

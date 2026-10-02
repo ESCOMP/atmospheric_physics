@@ -273,6 +273,7 @@ contains
     use musica_ccpp_tuvx_load_species, only: index_dry_air, index_O2, index_O3, MOLAR_MASS_DRY_AIR
     use musica_ccpp_species,           only: tuvx_species_set, MUSICA_INT_UNASSIGNED
     use musica_test_data,              only: get_wavelength_edges
+    use musica_test_constituents,      only: register_test_constituents, cleanup_test_constituents
 
     real(kind_phys), parameter                       :: MOLAR_MASS_DRY_AIR__G_MOL = MOLAR_MASS_DRY_AIR * 1.0e3_kind_phys ! g mol-1
     integer,         parameter                       :: NUM_COLUMNS = 2
@@ -283,7 +284,6 @@ contains
     type(ccpp_constituent_properties_t), allocatable, &
                                               target :: constituent_props(:)
     type(ccpp_constituent_prop_ptr_t),   allocatable :: constituent_props_ptr(:)
-    type(ccpp_constituent_properties_t), pointer     :: const_prop
     real(kind_phys)                                  :: dry_air_density(NUM_COLUMNS,NUM_LAYERS) ! kg m-3
     real(kind_phys)                                  :: constituents(NUM_COLUMNS,NUM_LAYERS, NUM_TUVX_SPECIES)
     integer                                          :: errcode
@@ -316,11 +316,11 @@ contains
       stop 3
     endif
 
-    allocate(constituent_props_ptr(size(constituent_props)))
-    do i = 1, size(constituent_props)
-      const_prop => constituent_props(i)
-      call constituent_props_ptr(i)%set( const_prop, errcode, errmsg )
-    end do
+    call register_test_constituents(constituent_props, constituent_props_ptr, errmsg, errcode)
+    if (errcode /= 0) then
+      write(*,*) trim(errmsg)
+      stop 3
+    endif
 
     call musica_ccpp_init( NUM_COLUMNS, NUM_LAYERS, NUM_LAYERS+1, photolysis_wavelength_grid_interfaces, &
                           constituent_props_ptr, MOLAR_MASS_DRY_AIR__G_MOL, errmsg, errcode )
@@ -355,6 +355,7 @@ contains
       write(*,*) trim(errmsg)
       stop 3
     endif
+    call cleanup_test_constituents()
 
   end subroutine  test_initialize_tuvx_species
 
