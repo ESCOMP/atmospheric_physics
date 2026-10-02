@@ -216,6 +216,50 @@ CONTAINS
 
   end subroutine calc_exner_run
 
+  elemental subroutine generic_wet_to_dry_mass_mixing_ratio_run(pdel, pdeldry, mmr, mmrdry)
+    use ccpp_kinds, only: kind_phys
+
+    real(kind_phys), intent(in)  :: pdel    ! Air pressure thickness (Pa)
+    real(kind_phys), intent(in)  :: pdeldry ! Air pressure thickness of dry air (Pa)
+    real(kind_phys), intent(in)  :: mmr     ! Constituent mixing ratio wrt moist air and condensed water (kg kg-1)
+    real(kind_phys), intent(out) :: mmrdry  ! Constituent mixing ratio wrt dry air (kg kg-1)
+
+    mmrdry = mmr * (pdel / pdeldry)
+  end subroutine generic_wet_to_dry_mass_mixing_ratio_run
+
+  elemental subroutine generic_dry_to_wet_mass_mixing_ratio_run(pdel, pdeldry, mmrdry, mmr)
+    use ccpp_kinds, only: kind_phys
+
+    real(kind_phys), intent(in)  :: pdel    ! Air pressure thickness (Pa)
+    real(kind_phys), intent(in)  :: pdeldry ! Air pressure thickness of dry air (Pa)
+    real(kind_phys), intent(in)  :: mmrdry  ! Constituent mixing ratio wrt dry air (kg kg-1)
+    real(kind_phys), intent(out) :: mmr     ! Constituent mixing ratio wrt moist air and condensed water (kg kg-1)
+
+    mmr = mmrdry * (pdeldry / pdel)
+  end subroutine generic_dry_to_wet_mass_mixing_ratio_run
+
+  elemental subroutine generic_wet_to_dry_mass_number_concentration_run(pdel, pdeldry, num, numdry)
+    use ccpp_kinds, only: kind_phys
+
+    real(kind_phys), intent(in)  :: pdel    ! Air pressure thickness (Pa)
+    real(kind_phys), intent(in)  :: pdeldry ! Air pressure thickness of dry air (Pa)
+    real(kind_phys), intent(in)  :: num     ! Constituent mass number concentration in moist air and condensed water (kg-1)
+    real(kind_phys), intent(out) :: numdry  ! Constituent mass number concentration in dry air (kg-1)
+
+    numdry = num * (pdel / pdeldry)
+  end subroutine generic_wet_to_dry_mass_number_concentration_run
+
+  elemental subroutine generic_dry_to_wet_mass_number_concentration_run(pdel, pdeldry, numdry, num)
+    use ccpp_kinds, only: kind_phys
+
+    real(kind_phys), intent(in)  :: pdel    ! Air pressure thickness (Pa)
+    real(kind_phys), intent(in)  :: pdeldry ! Air pressure thickness of dry air (Pa)
+    real(kind_phys), intent(in)  :: numdry  ! Constituent mass number concentration in dry air (kg-1)
+    real(kind_phys), intent(out) :: num     ! Constituent mass number concentration in moist air and condensed water (kg-1)
+
+    num = numdry * (pdeldry / pdel)
+  end subroutine generic_dry_to_wet_mass_number_concentration_run
+
 !> \section arg_table_wet_to_dry_water_vapor_run  Argument Table
 !! \htmlinclude wet_to_dry_water_vapor_run.html
   subroutine wet_to_dry_water_vapor_run(ncol, nz, pdel, pdeldry, qv, qv_dry,  &
