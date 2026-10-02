@@ -40,6 +40,18 @@ module state_converters
   public :: dry_to_wet_snow_run
   public :: dry_to_wet_graupel_run
 
+  ! Convert between wet and dry mass number concentrations
+  public :: wet_to_dry_cloud_liquid_water_number_concentration_run
+  public :: wet_to_dry_cloud_ice_number_concentration_run
+  public :: wet_to_dry_rain_number_concentration_run
+  public :: wet_to_dry_snow_number_concentration_run
+  public :: wet_to_dry_graupel_number_concentration_run
+  public :: dry_to_wet_cloud_liquid_water_number_concentration_run
+  public :: dry_to_wet_cloud_ice_number_concentration_run
+  public :: dry_to_wet_rain_number_concentration_run
+  public :: dry_to_wet_snow_number_concentration_run
+  public :: dry_to_wet_graupel_number_concentration_run
+
 CONTAINS
 
 !> \section arg_table_temp_to_potential_temp_run  Argument Table
@@ -523,4 +535,244 @@ CONTAINS
     errmsg = ''
     errflg = 0
   end subroutine dry_to_wet_graupel_run
+
+  !> \section arg_table_wet_to_dry_cloud_liquid_water_number_concentration_run Argument Table
+  !! \htmlinclude wet_to_dry_cloud_liquid_water_number_concentration_run.html
+  pure subroutine wet_to_dry_cloud_liquid_water_number_concentration_run(ncol, nz, pdel, pdeldry, nc, nc_dry, &
+      errmsg, errflg)
+    use ccpp_kinds, only: kind_phys
+
+    integer,          intent(in)  :: ncol
+    integer,          intent(in)  :: nz
+    real(kind_phys),  intent(in)  :: pdel(:, :)    ! Air pressure thickness (Pa)
+    real(kind_phys),  intent(in)  :: pdeldry(:, :) ! Air pressure thickness of dry air (Pa)
+    real(kind_phys),  intent(in)  :: nc(:, :)      ! Cloud liquid water mass number concentration
+                                                   ! in moist air and condensed water (kg-1)
+    real(kind_phys),  intent(out) :: nc_dry(:, :)  ! Cloud liquid water mass number concentration
+                                                   ! in dry air (kg-1)
+    character(len=*), intent(out) :: errmsg
+    integer,          intent(out) :: errflg
+
+    call generic_wet_to_dry_mass_number_concentration_run( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), nc(:ncol, :nz), nc_dry(:ncol, :nz))
+
+    errmsg = ''
+    errflg = 0
+  end subroutine wet_to_dry_cloud_liquid_water_number_concentration_run
+
+  !> \section arg_table_wet_to_dry_cloud_ice_number_concentration_run Argument Table
+  !! \htmlinclude wet_to_dry_cloud_ice_number_concentration_run.html
+  pure subroutine wet_to_dry_cloud_ice_number_concentration_run(ncol, nz, pdel, pdeldry, ni, ni_dry, &
+      errmsg, errflg)
+    use ccpp_kinds, only: kind_phys
+
+    integer,          intent(in)  :: ncol
+    integer,          intent(in)  :: nz
+    real(kind_phys),  intent(in)  :: pdel(:, :)    ! Air pressure thickness (Pa)
+    real(kind_phys),  intent(in)  :: pdeldry(:, :) ! Air pressure thickness of dry air (Pa)
+    real(kind_phys),  intent(in)  :: ni(:, :)      ! Cloud ice mass number concentration
+                                                   ! in moist air and condensed water (kg-1)
+    real(kind_phys),  intent(out) :: ni_dry(:, :)  ! Cloud ice mass number concentration
+                                                   ! in dry air (kg-1)
+    character(len=*), intent(out) :: errmsg
+    integer,          intent(out) :: errflg
+
+    call generic_wet_to_dry_mass_number_concentration_run( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), ni(:ncol, :nz), ni_dry(:ncol, :nz))
+
+    errmsg = ''
+    errflg = 0
+  end subroutine wet_to_dry_cloud_ice_number_concentration_run
+
+  !> \section arg_table_wet_to_dry_rain_number_concentration_run Argument Table
+  !! \htmlinclude wet_to_dry_rain_number_concentration_run.html
+  pure subroutine wet_to_dry_rain_number_concentration_run(ncol, nz, pdel, pdeldry, nr, nr_dry, &
+      errmsg, errflg)
+    use ccpp_kinds, only: kind_phys
+
+    integer,          intent(in)  :: ncol
+    integer,          intent(in)  :: nz
+    real(kind_phys),  intent(in)  :: pdel(:, :)    ! Air pressure thickness (Pa)
+    real(kind_phys),  intent(in)  :: pdeldry(:, :) ! Air pressure thickness of dry air (Pa)
+    real(kind_phys),  intent(in)  :: nr(:, :)      ! Rain mass number concentration
+                                                   ! in moist air and condensed water (kg-1)
+    real(kind_phys),  intent(out) :: nr_dry(:, :)  ! Rain mass number concentration
+                                                   ! in dry air (kg-1)
+    character(len=*), intent(out) :: errmsg
+    integer,          intent(out) :: errflg
+
+    call generic_wet_to_dry_mass_number_concentration_run( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), nr(:ncol, :nz), nr_dry(:ncol, :nz))
+
+    errmsg = ''
+    errflg = 0
+  end subroutine wet_to_dry_rain_number_concentration_run
+
+  !> \section arg_table_wet_to_dry_snow_number_concentration_run Argument Table
+  !! \htmlinclude wet_to_dry_snow_number_concentration_run.html
+  pure subroutine wet_to_dry_snow_number_concentration_run(ncol, nz, pdel, pdeldry, ns, ns_dry, &
+      errmsg, errflg)
+    use ccpp_kinds, only: kind_phys
+
+    integer,          intent(in)  :: ncol
+    integer,          intent(in)  :: nz
+    real(kind_phys),  intent(in)  :: pdel(:, :)    ! Air pressure thickness (Pa)
+    real(kind_phys),  intent(in)  :: pdeldry(:, :) ! Air pressure thickness of dry air (Pa)
+    real(kind_phys),  intent(in)  :: ns(:, :)      ! Snow mass number concentration
+                                                   ! in moist air and condensed water (kg-1)
+    real(kind_phys),  intent(out) :: ns_dry(:, :)  ! Snow mass number concentration
+                                                   ! in dry air (kg-1)
+    character(len=*), intent(out) :: errmsg
+    integer,          intent(out) :: errflg
+
+    call generic_wet_to_dry_mass_number_concentration_run( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), ns(:ncol, :nz), ns_dry(:ncol, :nz))
+
+    errmsg = ''
+    errflg = 0
+  end subroutine wet_to_dry_snow_number_concentration_run
+
+  !> \section arg_table_wet_to_dry_graupel_number_concentration_run Argument Table
+  !! \htmlinclude wet_to_dry_graupel_number_concentration_run.html
+  pure subroutine wet_to_dry_graupel_number_concentration_run(ncol, nz, pdel, pdeldry, ng, ng_dry, &
+      errmsg, errflg)
+    use ccpp_kinds, only: kind_phys
+
+    integer,          intent(in)  :: ncol
+    integer,          intent(in)  :: nz
+    real(kind_phys),  intent(in)  :: pdel(:, :)    ! Air pressure thickness (Pa)
+    real(kind_phys),  intent(in)  :: pdeldry(:, :) ! Air pressure thickness of dry air (Pa)
+    real(kind_phys),  intent(in)  :: ng(:, :)      ! Graupel mass number concentration
+                                                   ! in moist air and condensed water (kg-1)
+    real(kind_phys),  intent(out) :: ng_dry(:, :)  ! Graupel mass number concentration
+                                                   ! in dry air (kg-1)
+    character(len=*), intent(out) :: errmsg
+    integer,          intent(out) :: errflg
+
+    call generic_wet_to_dry_mass_number_concentration_run( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), ng(:ncol, :nz), ng_dry(:ncol, :nz))
+
+    errmsg = ''
+    errflg = 0
+  end subroutine wet_to_dry_graupel_number_concentration_run
+
+  !> \section arg_table_dry_to_wet_cloud_liquid_water_number_concentration_run Argument Table
+  !! \htmlinclude dry_to_wet_cloud_liquid_water_number_concentration_run.html
+  pure subroutine dry_to_wet_cloud_liquid_water_number_concentration_run(ncol, nz, pdel, pdeldry, nc_dry, nc, &
+      errmsg, errflg)
+    use ccpp_kinds, only: kind_phys
+
+    integer,          intent(in)  :: ncol
+    integer,          intent(in)  :: nz
+    real(kind_phys),  intent(in)  :: pdel(:, :)    ! Air pressure thickness (Pa)
+    real(kind_phys),  intent(in)  :: pdeldry(:, :) ! Air pressure thickness of dry air (Pa)
+    real(kind_phys),  intent(in)  :: nc_dry(:, :)  ! Cloud liquid water mass number concentration
+                                                   ! in dry air (kg-1)
+    real(kind_phys),  intent(out) :: nc(:, :)      ! Cloud liquid water mass number concentration
+                                                   ! in moist air and condensed water (kg-1)
+    character(len=*), intent(out) :: errmsg
+    integer,          intent(out) :: errflg
+
+    call generic_dry_to_wet_mass_number_concentration_run( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), nc_dry(:ncol, :nz), nc(:ncol, :nz))
+
+    errmsg = ''
+    errflg = 0
+  end subroutine dry_to_wet_cloud_liquid_water_number_concentration_run
+
+  !> \section arg_table_dry_to_wet_cloud_ice_number_concentration_run Argument Table
+  !! \htmlinclude dry_to_wet_cloud_ice_number_concentration_run.html
+  pure subroutine dry_to_wet_cloud_ice_number_concentration_run(ncol, nz, pdel, pdeldry, ni_dry, ni, &
+      errmsg, errflg)
+    use ccpp_kinds, only: kind_phys
+
+    integer,          intent(in)  :: ncol
+    integer,          intent(in)  :: nz
+    real(kind_phys),  intent(in)  :: pdel(:, :)    ! Air pressure thickness (Pa)
+    real(kind_phys),  intent(in)  :: pdeldry(:, :) ! Air pressure thickness of dry air (Pa)
+    real(kind_phys),  intent(in)  :: ni_dry(:, :)  ! Cloud ice mass number concentration
+                                                   ! in dry air (kg-1)
+    real(kind_phys),  intent(out) :: ni(:, :)      ! Cloud ice mass number concentration
+                                                   ! in moist air and condensed water (kg-1)
+    character(len=*), intent(out) :: errmsg
+    integer,          intent(out) :: errflg
+
+    call generic_dry_to_wet_mass_number_concentration_run( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), ni_dry(:ncol, :nz), ni(:ncol, :nz))
+
+    errmsg = ''
+    errflg = 0
+  end subroutine dry_to_wet_cloud_ice_number_concentration_run
+
+  !> \section arg_table_dry_to_wet_rain_number_concentration_run Argument Table
+  !! \htmlinclude dry_to_wet_rain_number_concentration_run.html
+  pure subroutine dry_to_wet_rain_number_concentration_run(ncol, nz, pdel, pdeldry, nr_dry, nr, &
+      errmsg, errflg)
+    use ccpp_kinds, only: kind_phys
+
+    integer,          intent(in)  :: ncol
+    integer,          intent(in)  :: nz
+    real(kind_phys),  intent(in)  :: pdel(:, :)    ! Air pressure thickness (Pa)
+    real(kind_phys),  intent(in)  :: pdeldry(:, :) ! Air pressure thickness of dry air (Pa)
+    real(kind_phys),  intent(in)  :: nr_dry(:, :)  ! Rain mass number concentration
+                                                   ! in dry air (kg-1)
+    real(kind_phys),  intent(out) :: nr(:, :)      ! Rain mass number concentration
+                                                   ! in moist air and condensed water (kg-1)
+    character(len=*), intent(out) :: errmsg
+    integer,          intent(out) :: errflg
+
+    call generic_dry_to_wet_mass_number_concentration_run( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), nr_dry(:ncol, :nz), nr(:ncol, :nz))
+
+    errmsg = ''
+    errflg = 0
+  end subroutine dry_to_wet_rain_number_concentration_run
+
+  !> \section arg_table_dry_to_wet_snow_number_concentration_run Argument Table
+  !! \htmlinclude dry_to_wet_snow_number_concentration_run.html
+  pure subroutine dry_to_wet_snow_number_concentration_run(ncol, nz, pdel, pdeldry, ns_dry, ns, &
+      errmsg, errflg)
+    use ccpp_kinds, only: kind_phys
+
+    integer,          intent(in)  :: ncol
+    integer,          intent(in)  :: nz
+    real(kind_phys),  intent(in)  :: pdel(:, :)    ! Air pressure thickness (Pa)
+    real(kind_phys),  intent(in)  :: pdeldry(:, :) ! Air pressure thickness of dry air (Pa)
+    real(kind_phys),  intent(in)  :: ns_dry(:, :)  ! Snow mass number concentration
+                                                   ! in dry air (kg-1)
+    real(kind_phys),  intent(out) :: ns(:, :)      ! Snow mass number concentration
+                                                   ! in moist air and condensed water (kg-1)
+    character(len=*), intent(out) :: errmsg
+    integer,          intent(out) :: errflg
+
+    call generic_dry_to_wet_mass_number_concentration_run( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), ns_dry(:ncol, :nz), ns(:ncol, :nz))
+
+    errmsg = ''
+    errflg = 0
+  end subroutine dry_to_wet_snow_number_concentration_run
+
+  !> \section arg_table_dry_to_wet_graupel_number_concentration_run Argument Table
+  !! \htmlinclude dry_to_wet_graupel_number_concentration_run.html
+  pure subroutine dry_to_wet_graupel_number_concentration_run(ncol, nz, pdel, pdeldry, ng_dry, ng, &
+      errmsg, errflg)
+    use ccpp_kinds, only: kind_phys
+
+    integer,          intent(in)  :: ncol
+    integer,          intent(in)  :: nz
+    real(kind_phys),  intent(in)  :: pdel(:, :)    ! Air pressure thickness (Pa)
+    real(kind_phys),  intent(in)  :: pdeldry(:, :) ! Air pressure thickness of dry air (Pa)
+    real(kind_phys),  intent(in)  :: ng_dry(:, :)  ! Graupel mass number concentration
+                                                   ! in dry air (kg-1)
+    real(kind_phys),  intent(out) :: ng(:, :)      ! Graupel mass number concentration
+                                                   ! in moist air and condensed water (kg-1)
+    character(len=*), intent(out) :: errmsg
+    integer,          intent(out) :: errflg
+
+    call generic_dry_to_wet_mass_number_concentration_run( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), ng_dry(:ncol, :nz), ng(:ncol, :nz))
+
+    errmsg = ''
+    errflg = 0
+  end subroutine dry_to_wet_graupel_number_concentration_run
 end module state_converters
