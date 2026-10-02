@@ -26,7 +26,7 @@ module state_converters
   ! Calculate exner
   public :: calc_exner_run
 
-  ! Convert between wet and dry
+  ! Convert between wet and dry mass mixing ratios
   public :: wet_to_dry_water_vapor_run
   public :: wet_to_dry_cloud_liquid_water_run
   public :: wet_to_dry_cloud_ice_run
@@ -260,295 +260,267 @@ CONTAINS
     num = numdry * (pdeldry / pdel)
   end subroutine generic_dry_to_wet_mass_number_concentration_run
 
-!> \section arg_table_wet_to_dry_water_vapor_run  Argument Table
-!! \htmlinclude wet_to_dry_water_vapor_run.html
-  subroutine wet_to_dry_water_vapor_run(ncol, nz, pdel, pdeldry, qv, qv_dry,  &
-       errmsg, errflg)
+  !> \section arg_table_wet_to_dry_water_vapor_run Argument Table
+  !! \htmlinclude wet_to_dry_water_vapor_run.html
+  pure subroutine wet_to_dry_water_vapor_run(ncol, nz, pdel, pdeldry, qv, qv_dry, &
+      errmsg, errflg)
+    use ccpp_kinds, only: kind_phys
 
-     integer,          intent(in)  :: ncol
-     integer,          intent(in)  :: nz
-     real(kind_phys),  intent(in)  :: pdel(:,:)    ! pressure thickness of layer (Pa)
-     real(kind_phys),  intent(in)  :: pdeldry(:,:) ! dry air pressure thickness of layer (Pa)
-     real(kind_phys),  intent(in)  :: qv(:,:)      ! water vapor mixing ratio wrt moist air + condensates (kg/kg)
-     real(kind_phys),  intent(out) :: qv_dry(:,:)  ! water vapor mixing ratio wrt dry air (kg/kg)
-     character(len=*), intent(out) :: errmsg
-     integer,          intent(out) :: errflg
+    integer,          intent(in)  :: ncol
+    integer,          intent(in)  :: nz
+    real(kind_phys),  intent(in)  :: pdel(:, :)    ! Air pressure thickness (Pa)
+    real(kind_phys),  intent(in)  :: pdeldry(:, :) ! Air pressure thickness of dry air (Pa)
+    real(kind_phys),  intent(in)  :: qv(:, :)      ! Water vapor mixing ratio wrt moist air and condensed water (kg kg-1)
+    real(kind_phys),  intent(out) :: qv_dry(:, :)  ! Water vapor mixing ratio wrt dry air (kg kg-1)
+    character(len=*), intent(out) :: errmsg
+    integer,          intent(out) :: errflg
 
-     integer :: k
+    call generic_wet_to_dry_mass_mixing_ratio_run( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), qv(:ncol, :nz), qv_dry(:ncol, :nz))
 
-     errflg = 0
-     errmsg = ''
-
-     do k = 1, nz
-       qv_dry(:ncol,k) = qv(:ncol,k) * (pdel(:ncol,k) / pdeldry(:ncol,k))
-     end do
-
+    errmsg = ''
+    errflg = 0
   end subroutine wet_to_dry_water_vapor_run
 
-!> \section arg_table_wet_to_dry_cloud_liquid_water_run  Argument Table
-!! \htmlinclude wet_to_dry_cloud_liquid_water_run.html
-  subroutine wet_to_dry_cloud_liquid_water_run(ncol, nz, pdel, pdeldry,       &
-       qc, qc_dry, errmsg, errflg)
+  !> \section arg_table_wet_to_dry_cloud_liquid_water_run Argument Table
+  !! \htmlinclude wet_to_dry_cloud_liquid_water_run.html
+  pure subroutine wet_to_dry_cloud_liquid_water_run(ncol, nz, pdel, pdeldry, qc, qc_dry, &
+      errmsg, errflg)
+    use ccpp_kinds, only: kind_phys
 
-     integer,          intent(in)  :: ncol
-     integer,          intent(in)  :: nz
-     real(kind_phys),  intent(in)  :: pdel(:,:)    ! pressure thickness of layer (Pa)
-     real(kind_phys),  intent(in)  :: pdeldry(:,:) ! dry air pressure thickness of layer (Pa)
-     real(kind_phys),  intent(in)  :: qc(:,:)      ! cloud liquid mixing ratio wrt moist air (kg/kg)
-     real(kind_phys),  intent(out) :: qc_dry(:,:)  ! cloud liquid mixing ratio wrt dry air (kg/kg)
-     character(len=*), intent(out) :: errmsg
-     integer,          intent(out) :: errflg
+    integer,          intent(in)  :: ncol
+    integer,          intent(in)  :: nz
+    real(kind_phys),  intent(in)  :: pdel(:, :)    ! Air pressure thickness (Pa)
+    real(kind_phys),  intent(in)  :: pdeldry(:, :) ! Air pressure thickness of dry air (Pa)
+    real(kind_phys),  intent(in)  :: qc(:, :)      ! Cloud liquid water mixing ratio wrt moist air and condensed water (kg kg-1)
+    real(kind_phys),  intent(out) :: qc_dry(:, :)  ! Cloud liquid water mixing ratio wrt dry air (kg kg-1)
+    character(len=*), intent(out) :: errmsg
+    integer,          intent(out) :: errflg
 
-     integer :: k
+    call generic_wet_to_dry_mass_mixing_ratio_run( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), qc(:ncol, :nz), qc_dry(:ncol, :nz))
 
-     errflg = 0
-     errmsg = ''
-
-     do k = 1, nz
-       qc_dry(:ncol,k) = qc(:ncol,k) * (pdel(:ncol,k) / pdeldry(:ncol,k))
-     end do
-
+    errmsg = ''
+    errflg = 0
   end subroutine wet_to_dry_cloud_liquid_water_run
 
-!> \section arg_table_wet_to_dry_cloud_ice_run Argument Table
-!! \htmlinclude wet_to_dry_cloud_ice_run.html
-  subroutine wet_to_dry_cloud_ice_run(ncol, nz, pdel, pdeldry, &
-       qi, qi_dry, errmsg, errflg)
+  !> \section arg_table_wet_to_dry_cloud_ice_run Argument Table
+  !! \htmlinclude wet_to_dry_cloud_ice_run.html
+  pure subroutine wet_to_dry_cloud_ice_run(ncol, nz, pdel, pdeldry, qi, qi_dry, &
+      errmsg, errflg)
+    use ccpp_kinds, only: kind_phys
 
-     integer,          intent(in)  :: ncol
-     integer,          intent(in)  :: nz
-     real(kind_phys),  intent(in)  :: pdel(:,:)    ! pressure thickness of layer (Pa)
-     real(kind_phys),  intent(in)  :: pdeldry(:,:) ! dry air pressure thickness of layer (Pa)
-     real(kind_phys),  intent(in)  :: qi(:,:)      ! cloud ice mixing ratio wrt moist air (kg/kg)
-     real(kind_phys),  intent(out) :: qi_dry(:,:)  ! cloud ice mixing ratio wrt dry air (kg/kg)
-     character(len=*), intent(out) :: errmsg
-     integer,          intent(out) :: errflg
+    integer,          intent(in)  :: ncol
+    integer,          intent(in)  :: nz
+    real(kind_phys),  intent(in)  :: pdel(:, :)    ! Air pressure thickness (Pa)
+    real(kind_phys),  intent(in)  :: pdeldry(:, :) ! Air pressure thickness of dry air (Pa)
+    real(kind_phys),  intent(in)  :: qi(:, :)      ! Cloud ice mixing ratio wrt moist air and condensed water (kg kg-1)
+    real(kind_phys),  intent(out) :: qi_dry(:, :)  ! Cloud ice mixing ratio wrt dry air (kg kg-1)
+    character(len=*), intent(out) :: errmsg
+    integer,          intent(out) :: errflg
 
-     integer :: k
+    call generic_wet_to_dry_mass_mixing_ratio_run( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), qi(:ncol, :nz), qi_dry(:ncol, :nz))
 
-     errflg = 0
-     errmsg = ''
-
-     do k = 1, nz
-       qi_dry(:ncol,k) = qi(:ncol,k) * (pdel(:ncol,k) / pdeldry(:ncol,k))
-     end do
-
+    errmsg = ''
+    errflg = 0
   end subroutine wet_to_dry_cloud_ice_run
 
-!> \section arg_table_wet_to_dry_rain_run  Argument Table
-!! \htmlinclude wet_to_dry_rain_run.html
-  subroutine wet_to_dry_rain_run(ncol, nz, pdel, pdeldry, qr, qr_dry,         &
-       errmsg, errflg)
+  !> \section arg_table_wet_to_dry_rain_run Argument Table
+  !! \htmlinclude wet_to_dry_rain_run.html
+  pure subroutine wet_to_dry_rain_run(ncol, nz, pdel, pdeldry, qr, qr_dry, &
+      errmsg, errflg)
+    use ccpp_kinds, only: kind_phys
 
-     integer,          intent(in)  :: ncol
-     integer,          intent(in)  :: nz
-     real(kind_phys),  intent(in)  :: pdel(:,:)     ! pressure thickness of layer (Pa)
-     real(kind_phys),  intent(in)  :: pdeldry(:,:)  ! dry air pressure thickness of layer (Pa)
-     real(kind_phys),  intent(in)  :: qr(:,:)       ! rain mixing ratio wrt moist air (kg/kg)
-     real(kind_phys),  intent(out) :: qr_dry(:,:)   ! rain mixing ratio wrt dry air (kg/kg)
-     character(len=*), intent(out) :: errmsg
-     integer,          intent(out) :: errflg
+    integer,          intent(in)  :: ncol
+    integer,          intent(in)  :: nz
+    real(kind_phys),  intent(in)  :: pdel(:, :)    ! Air pressure thickness (Pa)
+    real(kind_phys),  intent(in)  :: pdeldry(:, :) ! Air pressure thickness of dry air (Pa)
+    real(kind_phys),  intent(in)  :: qr(:, :)      ! Rain mixing ratio wrt moist air and condensed water (kg kg-1)
+    real(kind_phys),  intent(out) :: qr_dry(:, :)  ! Rain mixing ratio wrt dry air (kg kg-1)
+    character(len=*), intent(out) :: errmsg
+    integer,          intent(out) :: errflg
 
-     integer :: k
+    call generic_wet_to_dry_mass_mixing_ratio_run( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), qr(:ncol, :nz), qr_dry(:ncol, :nz))
 
-     errflg = 0
-     errmsg = ''
-
-     do k = 1, nz
-       qr_dry(:ncol,k) = qr(:ncol,k) * (pdel(:ncol,k) / pdeldry(:ncol,k))
-     end do
-
+    errmsg = ''
+    errflg = 0
   end subroutine wet_to_dry_rain_run
 
   !> \section arg_table_wet_to_dry_snow_run Argument Table
   !! \htmlinclude wet_to_dry_snow_run.html
-  pure subroutine wet_to_dry_snow_run(ncol, nz, pdel, pdeldry, &
-      qs, qs_dry, errmsg, errflg)
+  pure subroutine wet_to_dry_snow_run(ncol, nz, pdel, pdeldry, qs, qs_dry, &
+      errmsg, errflg)
+    use ccpp_kinds, only: kind_phys
+
     integer,          intent(in)  :: ncol
     integer,          intent(in)  :: nz
-    real(kind_phys),  intent(in)  :: pdel(:, :)    ! pressure thickness of layer (Pa)
-    real(kind_phys),  intent(in)  :: pdeldry(:, :) ! dry air pressure thickness of layer (Pa)
-    real(kind_phys),  intent(in)  :: qs(:, :)      ! snow mixing ratio wrt moist air (kg/kg)
-    real(kind_phys),  intent(out) :: qs_dry(:, :)  ! snow mixing ratio wrt dry air (kg/kg)
+    real(kind_phys),  intent(in)  :: pdel(:, :)    ! Air pressure thickness (Pa)
+    real(kind_phys),  intent(in)  :: pdeldry(:, :) ! Air pressure thickness of dry air (Pa)
+    real(kind_phys),  intent(in)  :: qs(:, :)      ! Snow mixing ratio wrt moist air and condensed water (kg kg-1)
+    real(kind_phys),  intent(out) :: qs_dry(:, :)  ! Snow mixing ratio wrt dry air (kg kg-1)
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
 
-    integer :: k
+    call generic_wet_to_dry_mass_mixing_ratio_run( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), qs(:ncol, :nz), qs_dry(:ncol, :nz))
 
-    errflg = 0
     errmsg = ''
-
-    do k = 1, nz
-      qs_dry(:ncol, k) = qs(:ncol, k) * (pdel(:ncol, k) / pdeldry(:ncol, k))
-    end do
+    errflg = 0
   end subroutine wet_to_dry_snow_run
 
   !> \section arg_table_wet_to_dry_graupel_run Argument Table
   !! \htmlinclude wet_to_dry_graupel_run.html
-  pure subroutine wet_to_dry_graupel_run(ncol, nz, pdel, pdeldry, &
-      qg, qg_dry, errmsg, errflg)
+  pure subroutine wet_to_dry_graupel_run(ncol, nz, pdel, pdeldry, qg, qg_dry, &
+      errmsg, errflg)
+    use ccpp_kinds, only: kind_phys
+
     integer,          intent(in)  :: ncol
     integer,          intent(in)  :: nz
-    real(kind_phys),  intent(in)  :: pdel(:, :)    ! pressure thickness of layer (Pa)
-    real(kind_phys),  intent(in)  :: pdeldry(:, :) ! dry air pressure thickness of layer (Pa)
-    real(kind_phys),  intent(in)  :: qg(:, :)      ! graupel mixing ratio wrt moist air (kg/kg)
-    real(kind_phys),  intent(out) :: qg_dry(:, :)  ! graupel mixing ratio wrt dry air (kg/kg)
+    real(kind_phys),  intent(in)  :: pdel(:, :)    ! Air pressure thickness (Pa)
+    real(kind_phys),  intent(in)  :: pdeldry(:, :) ! Air pressure thickness of dry air (Pa)
+    real(kind_phys),  intent(in)  :: qg(:, :)      ! Graupel mixing ratio wrt moist air and condensed water (kg kg-1)
+    real(kind_phys),  intent(out) :: qg_dry(:, :)  ! Graupel mixing ratio wrt dry air (kg kg-1)
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
 
-    integer :: k
+    call generic_wet_to_dry_mass_mixing_ratio_run( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), qg(:ncol, :nz), qg_dry(:ncol, :nz))
 
-    errflg = 0
     errmsg = ''
-
-    do k = 1, nz
-      qg_dry(:ncol, k) = qg(:ncol, k) * (pdel(:ncol, k) / pdeldry(:ncol, k))
-    end do
+    errflg = 0
   end subroutine wet_to_dry_graupel_run
 
-!> \section arg_table_dry_to_wet_water_vapor_run  Argument Table
-!! \htmlinclude dry_to_wet_water_vapor_run.html
-  subroutine dry_to_wet_water_vapor_run(ncol, nz, pdel, pdeldry, qv_dry, qv,  &
-       errmsg, errflg)
+  !> \section arg_table_dry_to_wet_water_vapor_run Argument Table
+  !! \htmlinclude dry_to_wet_water_vapor_run.html
+  pure subroutine dry_to_wet_water_vapor_run(ncol, nz, pdel, pdeldry, qv_dry, qv, &
+      errmsg, errflg)
+    use ccpp_kinds, only: kind_phys
 
-     integer,          intent(in)  :: ncol
-     integer,          intent(in)  :: nz
-     real(kind_phys),  intent(in)  :: pdel(:,:)     ! pressure thickness of layer (Pa)
-     real(kind_phys),  intent(in)  :: pdeldry(:,:)  ! dry air pressure thickness of layer (Pa)
-     real(kind_phys),  intent(in)  :: qv_dry(:,:)   ! water vapor mixing ratio wrt dry air (kg/kg)
-     real(kind_phys),  intent(out) :: qv(:,:)       ! water vapor mixing ratio wrt moist air + condensates (kg/kg)
-     character(len=*), intent(out) :: errmsg
-     integer,          intent(out) :: errflg
+    integer,          intent(in)  :: ncol
+    integer,          intent(in)  :: nz
+    real(kind_phys),  intent(in)  :: pdel(:, :)    ! Air pressure thickness (Pa)
+    real(kind_phys),  intent(in)  :: pdeldry(:, :) ! Air pressure thickness of dry air (Pa)
+    real(kind_phys),  intent(in)  :: qv_dry(:, :)  ! Water vapor mixing ratio wrt dry air (kg kg-1)
+    real(kind_phys),  intent(out) :: qv(:, :)      ! Water vapor mixing ratio wrt moist air and condensed water (kg kg-1)
+    character(len=*), intent(out) :: errmsg
+    integer,          intent(out) :: errflg
 
-     integer :: k
+    call generic_dry_to_wet_mass_mixing_ratio_run( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), qv_dry(:ncol, :nz), qv(:ncol, :nz))
 
-     errflg = 0
-     errmsg = ''
-
-     do k = 1, nz
-       qv(:ncol,k) = qv_dry(:ncol,k) * (pdeldry(:ncol,k) / pdel(:ncol,k))
-     end do
-
+    errmsg = ''
+    errflg = 0
   end subroutine dry_to_wet_water_vapor_run
 
-!> \section arg_table_dry_to_wet_cloud_liquid_water_run  Argument Table
-!! \htmlinclude dry_to_wet_cloud_liquid_water_run.html
-  subroutine dry_to_wet_cloud_liquid_water_run(ncol, nz, pdel, pdeldry,       &
-       qc_dry, qc, errmsg, errflg)
+  !> \section arg_table_dry_to_wet_cloud_liquid_water_run Argument Table
+  !! \htmlinclude dry_to_wet_cloud_liquid_water_run.html
+  pure subroutine dry_to_wet_cloud_liquid_water_run(ncol, nz, pdel, pdeldry, qc_dry, qc, &
+      errmsg, errflg)
+    use ccpp_kinds, only: kind_phys
 
-     integer,          intent(in)  :: ncol
-     integer,          intent(in)  :: nz
-     real(kind_phys),  intent(in)  :: pdel(:,:)    ! pressure thickness of layer (Pa)
-     real(kind_phys),  intent(in)  :: pdeldry(:,:) ! dry air pressure thickness of layer (Pa)
-     real(kind_phys),  intent(in)  :: qc_dry(:,:)  ! cloud liquid mixing ratio wrt dry air (kg/kg)
-     real(kind_phys),  intent(out) :: qc(:,:)      ! cloud liquid mixing ratio wrt moist air (kg/kg)
-     character(len=*), intent(out) :: errmsg
-     integer,          intent(out) :: errflg
+    integer,          intent(in)  :: ncol
+    integer,          intent(in)  :: nz
+    real(kind_phys),  intent(in)  :: pdel(:, :)    ! Air pressure thickness (Pa)
+    real(kind_phys),  intent(in)  :: pdeldry(:, :) ! Air pressure thickness of dry air (Pa)
+    real(kind_phys),  intent(in)  :: qc_dry(:, :)  ! Cloud liquid water mixing ratio wrt dry air (kg kg-1)
+    real(kind_phys),  intent(out) :: qc(:, :)      ! Cloud liquid water mixing ratio wrt moist air and condensed water (kg kg-1)
+    character(len=*), intent(out) :: errmsg
+    integer,          intent(out) :: errflg
 
-     integer  :: k
+    call generic_dry_to_wet_mass_mixing_ratio_run( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), qc_dry(:ncol, :nz), qc(:ncol, :nz))
 
-     errflg = 0
-     errmsg = ''
-
-     do k = 1, nz
-       qc(:ncol,k) = qc_dry(:ncol,k) * (pdeldry(:ncol,k) / pdel(:ncol,k))
-     end do
-
+    errmsg = ''
+    errflg = 0
   end subroutine dry_to_wet_cloud_liquid_water_run
 
-!> \section arg_table_dry_to_wet_cloud_ice_run Argument Table
-!! \htmlinclude dry_to_wet_cloud_ice_run.html
-  subroutine dry_to_wet_cloud_ice_run(ncol, nz, pdel, pdeldry, &
-       qi_dry, qi, errmsg, errflg)
+  !> \section arg_table_dry_to_wet_cloud_ice_run Argument Table
+  !! \htmlinclude dry_to_wet_cloud_ice_run.html
+  pure subroutine dry_to_wet_cloud_ice_run(ncol, nz, pdel, pdeldry, qi_dry, qi, &
+      errmsg, errflg)
+    use ccpp_kinds, only: kind_phys
 
-     integer,          intent(in)  :: ncol
-     integer,          intent(in)  :: nz
-     real(kind_phys),  intent(in)  :: pdel(:,:)    ! pressure thickness of layer (Pa)
-     real(kind_phys),  intent(in)  :: pdeldry(:,:) ! dry air pressure thickness of layer (Pa)
-     real(kind_phys),  intent(in)  :: qi_dry(:,:)  ! cloud ice mixing ratio wrt dry air (kg/kg)
-     real(kind_phys),  intent(out) :: qi(:,:)      ! cloud ice mixing ratio wrt moist air (kg/kg)
-     character(len=*), intent(out) :: errmsg
-     integer,          intent(out) :: errflg
+    integer,          intent(in)  :: ncol
+    integer,          intent(in)  :: nz
+    real(kind_phys),  intent(in)  :: pdel(:, :)    ! Air pressure thickness (Pa)
+    real(kind_phys),  intent(in)  :: pdeldry(:, :) ! Air pressure thickness of dry air (Pa)
+    real(kind_phys),  intent(in)  :: qi_dry(:, :)  ! Cloud ice mixing ratio wrt dry air (kg kg-1)
+    real(kind_phys),  intent(out) :: qi(:, :)      ! Cloud ice mixing ratio wrt moist air and condensed water (kg kg-1)
+    character(len=*), intent(out) :: errmsg
+    integer,          intent(out) :: errflg
 
-     integer :: k
+    call generic_dry_to_wet_mass_mixing_ratio_run( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), qi_dry(:ncol, :nz), qi(:ncol, :nz))
 
-     errflg = 0
-     errmsg = ''
-
-     do k = 1, nz
-       qi(:ncol,k) = qi_dry(:ncol,k) * (pdeldry(:ncol,k) / pdel(:ncol,k))
-     end do
-
+    errmsg = ''
+    errflg = 0
   end subroutine dry_to_wet_cloud_ice_run
 
-!> \section arg_table_dry_to_wet_rain_run  Argument Table
-!! \htmlinclude dry_to_wet_rain_run.html
-  subroutine dry_to_wet_rain_run(ncol, nz, pdel, pdeldry, qr_dry, qr,         &
-       errmsg, errflg)
+  !> \section arg_table_dry_to_wet_rain_run Argument Table
+  !! \htmlinclude dry_to_wet_rain_run.html
+  pure subroutine dry_to_wet_rain_run(ncol, nz, pdel, pdeldry, qr_dry, qr, &
+      errmsg, errflg)
+    use ccpp_kinds, only: kind_phys
 
-     integer,          intent(in)  :: ncol
-     integer,          intent(in)  :: nz
-     real(kind_phys),  intent(in)  :: pdel(:,:)    ! pressure thickness of layer (Pa)
-     real(kind_phys),  intent(in)  :: pdeldry(:,:) ! dry air pressure thickness of layer (Pa)
-     real(kind_phys),  intent(in)  :: qr_dry(:,:)  ! rain mixing ratio wrt dry air (kg/kg)
-     real(kind_phys),  intent(out) :: qr(:,:)      ! rain mixing ratio wrt moist air (kg/kg)
-     character(len=*), intent(out) :: errmsg
-     integer,          intent(out) :: errflg
+    integer,          intent(in)  :: ncol
+    integer,          intent(in)  :: nz
+    real(kind_phys),  intent(in)  :: pdel(:, :)    ! Air pressure thickness (Pa)
+    real(kind_phys),  intent(in)  :: pdeldry(:, :) ! Air pressure thickness of dry air (Pa)
+    real(kind_phys),  intent(in)  :: qr_dry(:, :)  ! Rain mixing ratio wrt dry air (kg kg-1)
+    real(kind_phys),  intent(out) :: qr(:, :)      ! Rain mixing ratio wrt moist air and condensed water (kg kg-1)
+    character(len=*), intent(out) :: errmsg
+    integer,          intent(out) :: errflg
 
-     integer  :: k
+    call generic_dry_to_wet_mass_mixing_ratio_run( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), qr_dry(:ncol, :nz), qr(:ncol, :nz))
 
-     errflg = 0
-     errmsg = ''
-
-     do k = 1, nz
-       qr(:ncol,k) = qr_dry(:ncol,k) * (pdeldry(:ncol,k) / pdel(:ncol,k))
-     end do
-
+    errmsg = ''
+    errflg = 0
   end subroutine dry_to_wet_rain_run
 
   !> \section arg_table_dry_to_wet_snow_run Argument Table
   !! \htmlinclude dry_to_wet_snow_run.html
-  pure subroutine dry_to_wet_snow_run(ncol, nz, pdel, pdeldry, &
-      qs_dry, qs, errmsg, errflg)
+  pure subroutine dry_to_wet_snow_run(ncol, nz, pdel, pdeldry, qs_dry, qs, &
+      errmsg, errflg)
+    use ccpp_kinds, only: kind_phys
+
     integer,          intent(in)  :: ncol
     integer,          intent(in)  :: nz
-    real(kind_phys),  intent(in)  :: pdel(:, :)    ! pressure thickness of layer (Pa)
-    real(kind_phys),  intent(in)  :: pdeldry(:, :) ! dry air pressure thickness of layer (Pa)
-    real(kind_phys),  intent(in)  :: qs_dry(:, :)  ! snow mixing ratio wrt dry air (kg/kg)
-    real(kind_phys),  intent(out) :: qs(:, :)      ! snow mixing ratio wrt moist air (kg/kg)
+    real(kind_phys),  intent(in)  :: pdel(:, :)    ! Air pressure thickness (Pa)
+    real(kind_phys),  intent(in)  :: pdeldry(:, :) ! Air pressure thickness of dry air (Pa)
+    real(kind_phys),  intent(in)  :: qs_dry(:, :)  ! Snow mixing ratio wrt dry air (kg kg-1)
+    real(kind_phys),  intent(out) :: qs(:, :)      ! Snow mixing ratio wrt moist air and condensed water (kg kg-1)
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
 
-    integer :: k
+    call generic_dry_to_wet_mass_mixing_ratio_run( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), qs_dry(:ncol, :nz), qs(:ncol, :nz))
 
-    errflg = 0
     errmsg = ''
-
-    do k = 1, nz
-      qs(:ncol, k) = qs_dry(:ncol, k) * (pdeldry(:ncol, k) / pdel(:ncol, k))
-    end do
+    errflg = 0
   end subroutine dry_to_wet_snow_run
 
   !> \section arg_table_dry_to_wet_graupel_run Argument Table
   !! \htmlinclude dry_to_wet_graupel_run.html
-  pure subroutine dry_to_wet_graupel_run(ncol, nz, pdel, pdeldry, &
-      qg_dry, qg, errmsg, errflg)
+  pure subroutine dry_to_wet_graupel_run(ncol, nz, pdel, pdeldry, qg_dry, qg, &
+      errmsg, errflg)
+    use ccpp_kinds, only: kind_phys
+
     integer,          intent(in)  :: ncol
     integer,          intent(in)  :: nz
-    real(kind_phys),  intent(in)  :: pdel(:, :)    ! pressure thickness of layer (Pa)
-    real(kind_phys),  intent(in)  :: pdeldry(:, :) ! dry air pressure thickness of layer (Pa)
-    real(kind_phys),  intent(in)  :: qg_dry(:, :)  ! graupel mixing ratio wrt dry air (kg/kg)
-    real(kind_phys),  intent(out) :: qg(:, :)      ! graupel mixing ratio wrt moist air (kg/kg)
+    real(kind_phys),  intent(in)  :: pdel(:, :)    ! Air pressure thickness (Pa)
+    real(kind_phys),  intent(in)  :: pdeldry(:, :) ! Air pressure thickness of dry air (Pa)
+    real(kind_phys),  intent(in)  :: qg_dry(:, :)  ! Graupel mixing ratio wrt dry air (kg kg-1)
+    real(kind_phys),  intent(out) :: qg(:, :)      ! Graupel mixing ratio wrt moist air and condensed water (kg kg-1)
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
 
-    integer :: k
+    call generic_dry_to_wet_mass_mixing_ratio_run( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), qg_dry(:ncol, :nz), qg(:ncol, :nz))
 
-    errflg = 0
     errmsg = ''
-
-    do k = 1, nz
-      qg(:ncol, k) = qg_dry(:ncol, k) * (pdeldry(:ncol, k) / pdel(:ncol, k))
-    end do
+    errflg = 0
   end subroutine dry_to_wet_graupel_run
 end module state_converters
