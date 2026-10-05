@@ -370,9 +370,36 @@ contains
                            sqc(size(sqc_dry, 1), size(sqc_dry, 2)), &
                            sqi(size(sqi_dry, 1), size(sqi_dry, 2)), &
                            sqs(size(sqs_dry, 1), size(sqs_dry, 2))
+        real(kind_phys) :: rublten_p(size(rublten, 1), size(rublten, 2)), &
+                           rvblten_p(size(rvblten, 1), size(rvblten, 2)), &
+                           rthblten_p(size(rthblten, 1), size(rthblten, 2)), &
+                           rqvblten_p(size(rqvblten, 1), size(rqvblten, 2)), &
+                           rqcblten_p(size(rqcblten, 1), size(rqcblten, 2)), &
+                           rqiblten_p(size(rqiblten, 1), size(rqiblten, 2)), &
+                           rqsblten_p(size(rqsblten, 1), size(rqsblten, 2)), &
+                           rqncblten_p(size(rqncblten, 1), size(rqncblten, 2)), &
+                           rqniblten_p(size(rqniblten, 1), size(rqniblten, 2)), &
+                           rqnwfablten_p(size(rqnwfablten, 1), size(rqnwfablten, 2)), &
+                           rqnifablten_p(size(rqnifablten, 1), size(rqnifablten, 2)), &
+                           rqnbcablten_p(size(rqnbcablten, 1), size(rqnbcablten, 2)), &
+                           rqozblten_p(size(rqozblten, 1), size(rqozblten, 2))
 
         errmsg = ''
         errflg = 0
+
+        rublten_p(:, :) = 0.0_kind_phys
+        rvblten_p(:, :) = 0.0_kind_phys
+        rthblten_p(:, :) = 0.0_kind_phys
+        rqvblten_p(:, :) = 0.0_kind_phys
+        rqcblten_p(:, :) = 0.0_kind_phys
+        rqiblten_p(:, :) = 0.0_kind_phys
+        rqsblten_p(:, :) = 0.0_kind_phys
+        rqncblten_p(:, :) = 0.0_kind_phys
+        rqniblten_p(:, :) = 0.0_kind_phys
+        rqnwfablten_p(:, :) = 0.0_kind_phys
+        rqnifablten_p(:, :) = 0.0_kind_phys
+        rqnbcablten_p(:, :) = 0.0_kind_phys
+        rqozblten_p(:, :) = 0.0_kind_phys
 
         ! Convert constituents from dry to moist basis. These are what MYNN PBL scheme wants.
         sqv(:, :) = sqv_dry(:, :) / (1.0_kind_phys + sqv_dry(:, :))
@@ -411,19 +438,19 @@ contains
             tsq_r => tsq(:, size(tsq, 2):1:-1), &
             qsq_r => qsq(:, size(qsq, 2):1:-1), &
             cov_r => cov(:, size(cov, 2):1:-1), &
-            rublten_r => rublten(:, size(rublten, 2):1:-1), &
-            rvblten_r => rvblten(:, size(rvblten, 2):1:-1), &
-            rthblten_r => rthblten(:, size(rthblten, 2):1:-1), &
-            rqvblten_r => rqvblten(:, size(rqvblten, 2):1:-1), &
-            rqcblten_r => rqcblten(:, size(rqcblten, 2):1:-1), &
-            rqiblten_r => rqiblten(:, size(rqiblten, 2):1:-1), &
-            rqsblten_r => rqsblten(:, size(rqsblten, 2):1:-1), &
-            rqncblten_r => rqncblten(:, size(rqncblten, 2):1:-1), &
-            rqniblten_r => rqniblten(:, size(rqniblten, 2):1:-1), &
-            rqnwfablten_r => rqnwfablten(:, size(rqnwfablten, 2):1:-1), &
-            rqnifablten_r => rqnifablten(:, size(rqnifablten, 2):1:-1), &
-            rqnbcablten_r => rqnbcablten(:, size(rqnbcablten, 2):1:-1), &
-            rqozblten_r => rqozblten(:, size(rqozblten, 2):1:-1), &
+            rublten_r => rublten_p(:, size(rublten_p, 2):1:-1), &
+            rvblten_r => rvblten_p(:, size(rvblten_p, 2):1:-1), &
+            rthblten_r => rthblten_p(:, size(rthblten_p, 2):1:-1), &
+            rqvblten_r => rqvblten_p(:, size(rqvblten_p, 2):1:-1), &
+            rqcblten_r => rqcblten_p(:, size(rqcblten_p, 2):1:-1), &
+            rqiblten_r => rqiblten_p(:, size(rqiblten_p, 2):1:-1), &
+            rqsblten_r => rqsblten_p(:, size(rqsblten_p, 2):1:-1), &
+            rqncblten_r => rqncblten_p(:, size(rqncblten_p, 2):1:-1), &
+            rqniblten_r => rqniblten_p(:, size(rqniblten_p, 2):1:-1), &
+            rqnwfablten_r => rqnwfablten_p(:, size(rqnwfablten_p, 2):1:-1), &
+            rqnifablten_r => rqnifablten_p(:, size(rqnifablten_p, 2):1:-1), &
+            rqnbcablten_r => rqnbcablten_p(:, size(rqnbcablten_p, 2):1:-1), &
+            rqozblten_r => rqozblten_p(:, size(rqozblten_p, 2):1:-1), &
             exch_h_r => exch_h(:, size(exch_h, 2):1:-1), &
             exch_m_r => exch_m(:, size(exch_m, 2):1:-1), &
             el_pbl_r => el_pbl(:, size(el_pbl, 2):1:-1), &
@@ -507,16 +534,30 @@ contains
             return
         end if
 
-        sqv(:, :) = sqv(:, :) + rqvblten(:, :) * delt
-        sqc(:, :) = sqc(:, :) + rqcblten(:, :) * delt
-        sqi(:, :) = sqi(:, :) + rqiblten(:, :) * delt
-        sqs(:, :) = sqs(:, :) + rqsblten(:, :) * delt
+        sqv(:, :) = sqv(:, :) + rqvblten_p(:, :) * delt
+        sqc(:, :) = sqc(:, :) + rqcblten_p(:, :) * delt
+        sqi(:, :) = sqi(:, :) + rqiblten_p(:, :) * delt
+        sqs(:, :) = sqs(:, :) + rqsblten_p(:, :) * delt
 
         ! Convert tendencies from moist to dry basis.
-        rqvblten(:, :) = (sqv(:, :) / (1.0_kind_phys - sqv(:, :)) - sqv_dry(:, :)) / delt
-        rqcblten(:, :) = (sqc(:, :) / (1.0_kind_phys - sqv(:, :)) - sqc_dry(:, :)) / delt
-        rqiblten(:, :) = (sqi(:, :) / (1.0_kind_phys - sqv(:, :)) - sqi_dry(:, :)) / delt
-        rqsblten(:, :) = (sqs(:, :) / (1.0_kind_phys - sqv(:, :)) - sqs_dry(:, :)) / delt
+        rqvblten_p(:, :) = (sqv(:, :) / (1.0_kind_phys - sqv(:, :)) - sqv_dry(:, :)) / delt
+        rqcblten_p(:, :) = (sqc(:, :) / (1.0_kind_phys - sqv(:, :)) - sqc_dry(:, :)) / delt
+        rqiblten_p(:, :) = (sqi(:, :) / (1.0_kind_phys - sqv(:, :)) - sqi_dry(:, :)) / delt
+        rqsblten_p(:, :) = (sqs(:, :) / (1.0_kind_phys - sqv(:, :)) - sqs_dry(:, :)) / delt
+
+        rublten(:, :) = rublten(:, :) + rublten_p(:, :)
+        rvblten(:, :) = rvblten(:, :) + rvblten_p(:, :)
+        rthblten(:, :) = rthblten(:, :) + rthblten_p(:, :)
+        rqvblten(:, :) = rqvblten(:, :) + rqvblten_p(:, :)
+        rqcblten(:, :) = rqcblten(:, :) + rqcblten_p(:, :)
+        rqiblten(:, :) = rqiblten(:, :) + rqiblten_p(:, :)
+        rqsblten(:, :) = rqsblten(:, :) + rqsblten_p(:, :)
+        rqncblten(:, :) = rqncblten(:, :) + rqncblten_p(:, :)
+        rqniblten(:, :) = rqniblten(:, :) + rqniblten_p(:, :)
+        rqnwfablten(:, :) = rqnwfablten(:, :) + rqnwfablten_p(:, :)
+        rqnifablten(:, :) = rqnifablten(:, :) + rqnifablten_p(:, :)
+        rqnbcablten(:, :) = rqnbcablten(:, :) + rqnbcablten_p(:, :)
+        rqozblten(:, :) = rqozblten(:, :) + rqozblten_p(:, :)
 
         ! Vertical indexes output by `bl_mynn_run` are also vertically inverted. Flip them back.
         kpbl(:) = merge(kte - kpbl + 1, kpbl, kpbl > 0)

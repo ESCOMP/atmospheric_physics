@@ -98,8 +98,14 @@ contains
         character(*), intent(out) :: errmsg
         integer, intent(out) :: errflg
 
+        real(kind_phys) :: rublten_p(size(rublten, 1), size(rublten, 2)), &
+                           rvblten_p(size(rvblten, 1), size(rvblten, 2))
+
         errmsg = ''
         errflg = 0
+
+        rublten_p(:, :) = 0.0_kind_phys
+        rvblten_p(:, :) = 0.0_kind_phys
 
         ! Some schemes of MMM physics expect vertical indexes to be in ascending order from bottom to top of atmosphere,
         ! which is the exact opposite to CAM-SIMA.
@@ -108,8 +114,8 @@ contains
         ! This can be achieved by the `associate` construct with array bounds remapping so that the actual array bounds
         ! stays intact elsewhere.
         associate ( &
-                rublten_r => rublten(:, size(rublten, 2):1:-1), &
-                rvblten_r => rvblten(:, size(rvblten, 2):1:-1), &
+                rublten_r => rublten_p(:, size(rublten_p, 2):1:-1), &
+                rvblten_r => rvblten_p(:, size(rvblten_p, 2):1:-1), &
                 dtaux3d_r => dtaux3d(:, size(dtaux3d, 2):1:-1), &
                 dtauy3d_r => dtauy3d(:, size(dtauy3d, 2):1:-1), &
                 uproj_r => uproj(:, size(uproj, 2):1:-1), &
@@ -138,5 +144,8 @@ contains
                 its, ite, kte, kme, &
                 errmsg, errflg)
         end associate
+
+        rublten(:, :) = rublten(:, :) + rublten_p(:, :)
+        rvblten(:, :) = rvblten(:, :) + rvblten_p(:, :)
     end subroutine bl_gwdo_compat_run
 end module bl_gwdo_compat
