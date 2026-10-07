@@ -16,3 +16,9 @@
         fxrequired = AlwaysRequired
         fxtag = v1.9.2
         fxDONOTUSEurl = https://github.com/earth-system-radiation/rte-rrtmgp.git
+[submodule "tempo"]
+	path = schemes/tempo/tempo
+	url = https://github.com/NCAR/TEMPO.git
+	fxtag = tempo_v3.1.2
+	fxrequired = AlwaysRequired
+	fxDONOTUSEurl = https://github.com/NCAR/TEMPO.git
