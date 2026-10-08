@@ -171,6 +171,7 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
+  constituent = true
 [ ptend_u ]
   standard_name = tendency_of_eastward_wind
   units = m s-2
@@ -230,6 +231,12 @@
   units = K s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
+  intent = out
+[ scheme_name ]
+  standard_name = scheme_name
+  units = none
+  type = character | kind = len=40
+  dimensions = ()
   intent = out
 [ errmsg ]
   standard_name = ccpp_error_message

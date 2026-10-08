@@ -68,6 +68,9 @@
     <scheme>zm_conv_options</scheme>
     <scheme>zm_convr</scheme>
     <scheme>zm_convr_tendency_diagnostics</scheme>
+    <!-- Core (pre-evaporation) ZM tendencies and the ungathered cloud top, for MCSP -->
+    <scheme>save_core_tend_from_convect_deep</scheme>
+    <scheme>zm_conv_cloud_top</scheme>
     <scheme>save_ttend_from_convect_deep</scheme>
     <scheme>apply_heating_rate</scheme>
     <scheme>apply_constituent_tendencies</scheme>
@@ -100,6 +103,22 @@
 
     <!-- Check that energy and water change matches the boundary fluxes -->
     <scheme>zm_prepare_flux_for_check_energy</scheme>
+    <scheme>check_energy_scaling</scheme>
+    <scheme>check_energy_chng</scheme>
+
+    <!-- Mesoscale coherent structure parameterization (MCSP)
+         Redistributes the core ZM heating and moistening vertically.
+         Inactive while all mcsp_nl coefficients are zero (the default). -->
+    <scheme>check_energy_zero_fluxes</scheme>
+    <scheme>mcsp</scheme>
+    <scheme>mcsp_diagnostics</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>apply_tendency_of_eastward_wind</scheme>
+    <scheme>apply_tendency_of_northward_wind</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+    <!-- MCSP conserves column energy and water, so the boundary fluxes stay zero -->
     <scheme>check_energy_scaling</scheme>
     <scheme>check_energy_chng</scheme>
 

@@ -1,0 +1,55 @@
+[ccpp-table-properties]
+  name = zm_conv_cloud_top
+  type = scheme
+
+[ccpp-arg-table]
+  name  = zm_conv_cloud_top_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ lengath ]
+  standard_name = index_of_last_column_of_gathered_deep_convection_arrays
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
+[ jt ]
+  standard_name = vertical_index_at_top_of_deep_convection_for_convective_columns
+  units = index
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ ideep ]
+  standard_name = horizontal_index_of_convective_columns_for_deep_convection_for_convective_columns
+  units = index
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ jctop ]
+  standard_name = vertical_index_at_cloud_top_for_deep_convection
+  units = index
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

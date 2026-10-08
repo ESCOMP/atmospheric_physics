@@ -103,7 +103,7 @@ contains
                       ptend_s, ptend_q, ptend_u, ptend_v, &
                       mcsp_dt_out, mcsp_dq_out, mcsp_du_out, mcsp_dv_out, &
                       mcsp_freq, mcsp_shear, conv_depth, mcsp_dt_max, &
-                      errmsg, errflg)
+                      scheme_name, errmsg, errflg)
 
     ! Arguments
     integer,            intent(in)  :: ncol              ! number of atmospheric columns
@@ -132,6 +132,7 @@ contains
     real(kind_phys),    intent(out) :: mcsp_shear(:)     ! low-level zonal wind shear [m s-1]
     real(kind_phys),    intent(out) :: conv_depth(:)     ! pressure depth of deep convection [Pa]
     real(kind_phys),    intent(out) :: mcsp_dt_max(:)    ! heating amplitude, column mean deep heating times coefficient [K s-1]
+    character(len=40),  intent(out) :: scheme_name       ! scheme name for the energy check
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
@@ -162,6 +163,7 @@ contains
 
     errmsg = ''
     errflg = 0
+    scheme_name = 'mcsp'
 
     do i = 1, ncol
        if (jctop(i) < 1 .or. jctop(i) > pver) then
