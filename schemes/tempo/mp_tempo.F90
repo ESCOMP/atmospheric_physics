@@ -109,15 +109,15 @@ contains
         type(ty_tempo_cfgs), intent(in) :: tempo_cfgs
 
         real(kind_phys), intent(out) :: rain(:), ice(:), snow(:), graupel(:), prcp(:)
-        real(kind_phys), intent(out) :: tend_th(:, :)
-        real(kind_phys), intent(out) :: tend_qv(:, :), tend_qc(:, :), tend_qr(:, :)
-        real(kind_phys), intent(out) :: tend_qi(:, :), tend_qs(:, :), tend_qg(:, :)
-        real(kind_phys), intent(out) :: tend_nr(:, :), tend_ni(:, :)
+        real(kind_phys), intent(inout) :: tend_th(:, :)
+        real(kind_phys), intent(inout) :: tend_qv(:, :), tend_qc(:, :), tend_qr(:, :)
+        real(kind_phys), intent(inout) :: tend_qi(:, :), tend_qs(:, :), tend_qg(:, :)
+        real(kind_phys), intent(inout) :: tend_nr(:, :), tend_ni(:, :)
         real(kind_phys), intent(out) :: frozen_fraction(:), refl10cm(:, :), re_cloud(:, :), re_ice(:, :), re_snow(:, :)
         ! Only used when aerosol-aware.
-        real(kind_phys), intent(out) :: tend_nc(:, :), tend_nwfa(:, :), tend_nifa(:, :)
+        real(kind_phys), intent(inout) :: tend_nc(:, :), tend_nwfa(:, :), tend_nifa(:, :)
         ! Only used when hail-aware.
-        real(kind_phys), intent(out) :: tend_ng(:, :), tend_volg(:, :)
+        real(kind_phys), intent(inout) :: tend_ng(:, :), tend_volg(:, :)
         character(*), intent(out) :: errmsg
         integer, intent(out) :: errflg
 
@@ -154,23 +154,6 @@ contains
         snow(:) = 0.0_kind_phys
         graupel(:) = 0.0_kind_phys
         prcp(:) = 0.0_kind_phys
-
-        tend_th(:, :) = 0.0_kind_phys
-        tend_qv(:, :) = 0.0_kind_phys
-        tend_qc(:, :) = 0.0_kind_phys
-        tend_qr(:, :) = 0.0_kind_phys
-        tend_qi(:, :) = 0.0_kind_phys
-        tend_qs(:, :) = 0.0_kind_phys
-        tend_qg(:, :) = 0.0_kind_phys
-        tend_nr(:, :) = 0.0_kind_phys
-        tend_ni(:, :) = 0.0_kind_phys
-
-        tend_nc(:, :) = 0.0_kind_phys
-        tend_nwfa(:, :) = 0.0_kind_phys
-        tend_nifa(:, :) = 0.0_kind_phys
-
-        tend_ng(:, :) = 0.0_kind_phys
-        tend_volg(:, :) = 0.0_kind_phys
 
         dz_r1(:, :, 1) = dz(:, pver:1:-1)
         w_r1(:, :, 1) = w(:, pver:1:-1)
@@ -341,20 +324,20 @@ contains
                 ) / 1000.0_kind_phys
         end do
 
-        tend_th(:, :) = (new_th_r1(:, pver:1:-1, 1) - th(:, :)) / dtime_phys
-        tend_qv(:, :) = (new_qv_r1(:, pver:1:-1, 1) - qv(:, :)) / dtime_phys
-        tend_qc(:, :) = (new_qc_r1(:, pver:1:-1, 1) - qc(:, :)) / dtime_phys
-        tend_qr(:, :) = (new_qr_r1(:, pver:1:-1, 1) - qr(:, :)) / dtime_phys
-        tend_qi(:, :) = (new_qi_r1(:, pver:1:-1, 1) - qi(:, :)) / dtime_phys
-        tend_qs(:, :) = (new_qs_r1(:, pver:1:-1, 1) - qs(:, :)) / dtime_phys
-        tend_qg(:, :) = (new_qg_r1(:, pver:1:-1, 1) - qg(:, :)) / dtime_phys
-        tend_nr(:, :) = (new_nr_r1(:, pver:1:-1, 1) - nr(:, :)) / dtime_phys
-        tend_ni(:, :) = (new_ni_r1(:, pver:1:-1, 1) - ni(:, :)) / dtime_phys
+        tend_th(:, :) = tend_th(:, :) + (new_th_r1(:, pver:1:-1, 1) - th(:, :)) / dtime_phys
+        tend_qv(:, :) = tend_qv(:, :) + (new_qv_r1(:, pver:1:-1, 1) - qv(:, :)) / dtime_phys
+        tend_qc(:, :) = tend_qc(:, :) + (new_qc_r1(:, pver:1:-1, 1) - qc(:, :)) / dtime_phys
+        tend_qr(:, :) = tend_qr(:, :) + (new_qr_r1(:, pver:1:-1, 1) - qr(:, :)) / dtime_phys
+        tend_qi(:, :) = tend_qi(:, :) + (new_qi_r1(:, pver:1:-1, 1) - qi(:, :)) / dtime_phys
+        tend_qs(:, :) = tend_qs(:, :) + (new_qs_r1(:, pver:1:-1, 1) - qs(:, :)) / dtime_phys
+        tend_qg(:, :) = tend_qg(:, :) + (new_qg_r1(:, pver:1:-1, 1) - qg(:, :)) / dtime_phys
+        tend_nr(:, :) = tend_nr(:, :) + (new_nr_r1(:, pver:1:-1, 1) - nr(:, :)) / dtime_phys
+        tend_ni(:, :) = tend_ni(:, :) + (new_ni_r1(:, pver:1:-1, 1) - ni(:, :)) / dtime_phys
 
         if (tempo_cfgs % aerosolaware_flag) then
-            tend_nc(:, :) = (new_nc_r1(:, pver:1:-1, 1) - nc(:, :)) / dtime_phys
-            tend_nwfa(:, :) = (new_nwfa_r1(:, pver:1:-1, 1) - nwfa(:, :)) / dtime_phys
-            tend_nifa(:, :) = (new_nifa_r1(:, pver:1:-1, 1) - nifa(:, :)) / dtime_phys
+            tend_nc(:, :) = tend_nc(:, :) + (new_nc_r1(:, pver:1:-1, 1) - nc(:, :)) / dtime_phys
+            tend_nwfa(:, :) = tend_nwfa(:, :) + (new_nwfa_r1(:, pver:1:-1, 1) - nwfa(:, :)) / dtime_phys
+            tend_nifa(:, :) = tend_nifa(:, :) + (new_nifa_r1(:, pver:1:-1, 1) - nifa(:, :)) / dtime_phys
 
             deallocate(nwfa_r1)
             deallocate(nwfa2d_1)
@@ -364,8 +347,8 @@ contains
         end if
 
         if (tempo_cfgs % hailaware_flag) then
-            tend_ng(:, :) = (new_ng_r1(:, pver:1:-1, 1) - ng(:, :)) / dtime_phys
-            tend_volg(:, :) = (new_volg_r1(:, pver:1:-1, 1) - volg(:, :)) / dtime_phys
+            tend_ng(:, :) = tend_ng(:, :) + (new_ng_r1(:, pver:1:-1, 1) - ng(:, :)) / dtime_phys
+            tend_volg(:, :) = tend_volg(:, :) + (new_volg_r1(:, pver:1:-1, 1) - volg(:, :)) / dtime_phys
 
             deallocate(new_ng_r1)
             deallocate(new_volg_r1)

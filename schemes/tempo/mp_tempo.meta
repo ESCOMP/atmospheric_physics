@@ -332,55 +332,55 @@
   units = K s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = out
+  intent = inout
 [ tend_qv ]
   standard_name = tendency_of_water_vapor_mixing_ratio_wrt_dry_air_due_to_microphysics
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = out
+  intent = inout
 [ tend_qc ]
   standard_name = tendency_of_cloud_liquid_water_mixing_ratio_wrt_dry_air_due_to_microphysics
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = out
+  intent = inout
 [ tend_qr ]
   standard_name = tendency_of_rain_mixing_ratio_wrt_dry_air_due_to_microphysics
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = out
+  intent = inout
 [ tend_qi ]
   standard_name = tendency_of_cloud_ice_mixing_ratio_wrt_dry_air_due_to_microphysics
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = out
+  intent = inout
 [ tend_qs ]
   standard_name = tendency_of_snow_mixing_ratio_wrt_dry_air_due_to_microphysics
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = out
+  intent = inout
 [ tend_qg ]
   standard_name = tendency_of_graupel_mixing_ratio_wrt_dry_air_due_to_microphysics
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = out
+  intent = inout
 [ tend_nr ]
   standard_name = tendency_of_mass_number_concentration_of_rain_drops_in_dry_air_due_to_microphysics
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = out
+  intent = inout
 [ tend_ni ]
   standard_name = tendency_of_mass_number_concentration_of_cloud_ice_water_crystals_in_dry_air_due_to_microphysics
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = out
+  intent = inout
 [ frozen_fraction ]
   standard_name = ratio_of_snowfall_to_rainfall
   units = fraction
@@ -417,31 +417,31 @@
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = out
+  intent = inout
 [ tend_nwfa ]
   standard_name = tendency_of_mass_number_concentration_of_hygroscopic_aerosols_in_dry_air_due_to_microphysics
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = out
+  intent = inout
 [ tend_nifa ]
   standard_name = tendency_of_mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols_in_dry_air_due_to_microphysics
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = out
+  intent = inout
 [ tend_ng ]
   standard_name = tendency_of_mass_number_concentration_of_graupel_particles_in_dry_air_due_to_microphysics
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = out
+  intent = inout
 [ tend_volg ]
   standard_name = tendency_of_graupel_volume_in_dry_air_due_to_microphysics
   units = m3 kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = out
+  intent = inout
 [ errmsg ]
   standard_name = ccpp_error_message
   long_name = Error message for error handling in CCPP
