@@ -1,10 +1,7 @@
 module state_converters
 
-  use ccpp_kinds, only: kind_phys
-
   implicit none
   private
-  save
 
   ! Convert temperature to potential temperature and back
   public :: temp_to_potential_temp_run
@@ -23,7 +20,7 @@ module state_converters
   ! Calculate atmosphere layer thickness
   public :: calc_atmosphere_layer_thickness_run
 
-  ! Calculate exner
+  ! Calculate exner function
   public :: calc_exner_run
 
   ! Convert between wet and dry mass mixing ratios
@@ -52,64 +49,77 @@ module state_converters
   public :: dry_to_wet_snow_number_concentration_run
   public :: dry_to_wet_graupel_number_concentration_run
 
-CONTAINS
+contains
 
   !> \section arg_table_temp_to_potential_temp_run Argument Table
   !! \htmlinclude temp_to_potential_temp_run.html
-  subroutine temp_to_potential_temp_run(ncol, nz, temp, exner, theta, errmsg, errflg)
-    ! Dummy arguments
+  pure subroutine temp_to_potential_temp_run(ncol, nz, temp, exner, theta, &
+      errmsg, errflg)
+    use ccpp_kinds, only: kind_phys
+
     integer,          intent(in)  :: ncol        ! Number of columns
-    integer,          intent(in)  :: nz                ! Number of vertical levels
-    real(kind_phys),         intent(in)  :: temp(:,:)  ! temperature (K)
-    real(kind_phys),         intent(in)  :: exner(:,:) ! exner function
-    real(kind_phys),         intent(out) :: theta(:,:) ! potential temperature (K)
+    integer,          intent(in)  :: nz          ! Number of vertical layers
+    real(kind_phys),  intent(in)  :: temp(:, :)  ! Temperature (K)
+    real(kind_phys),  intent(in)  :: exner(:, :) ! Exner function (1)
+    real(kind_phys),  intent(out) :: theta(:, :) ! Potential temperature (K)
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
-    ! Local variable
-    integer                       :: col
 
-    do col = 1, nz
-      theta(:ncol, col) = temp(:ncol, col) / exner(:ncol, col)
+    integer :: k
+
+    do k = 1, nz
+      theta(:ncol, k) = temp(:ncol, k) / exner(:ncol, k)
     end do
-    errflg = 0
+
     errmsg = ''
+    errflg = 0
   end subroutine temp_to_potential_temp_run
 
   !> \section arg_table_potential_temp_to_temp_run Argument Table
   !! \htmlinclude potential_temp_to_temp_run.html
-  subroutine potential_temp_to_temp_run(ncol, nz, theta, exner, temp, errmsg, errflg)
-    ! Dummy arguments
+  pure subroutine potential_temp_to_temp_run(ncol, nz, theta, exner, temp, &
+      errmsg, errflg)
+    use ccpp_kinds, only: kind_phys
+
     integer,          intent(in)  :: ncol        ! Number of columns
-    integer,          intent(in)  :: nz                 ! Number of vertical levels
-    real(kind_phys),         intent(in)  :: theta(:,:)  ! potential temperature (K)
-    real(kind_phys),         intent(in)  :: exner(:,:)  ! exner function
-    real(kind_phys),         intent(inout) :: temp(:,:) ! temperature (K)
+    integer,          intent(in)  :: nz          ! Number of vertical layers
+    real(kind_phys),  intent(in)  :: theta(:, :) ! Potential temperature (K)
+    real(kind_phys),  intent(in)  :: exner(:, :) ! Exner function (1)
+    real(kind_phys),  intent(out) :: temp(:, :)  ! Temperature (K)
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
-    ! Local variable
-    integer                       :: col
 
-    do col = 1, nz
-      temp(:ncol, col) = theta(:ncol, col) * exner(:ncol, col)
+    integer :: k
+
+    do k = 1, nz
+      temp(:ncol, k) = theta(:ncol, k) * exner(:ncol, k)
     end do
-    errflg = 0
+
     errmsg = ''
+    errflg = 0
   end subroutine potential_temp_to_temp_run
 
   !> \section arg_table_temp_to_virtual_temp_run Argument Table
   !! \htmlinclude temp_to_virtual_temp_run.html
-  pure subroutine temp_to_virtual_temp_run(temp, zvirv, qv, virtual_temp, errmsg, errflg)
+  pure subroutine temp_to_virtual_temp_run(ncol, nz, temp, zvirv, qv, virtual_temp, &
+      errmsg, errflg)
     use ccpp_kinds, only: kind_phys
 
-    real(kind_phys), intent(in) :: temp(:, :)          ! temperature (K)
-    real(kind_phys), intent(in) :: zvirv(:, :)         ! ratio of water vapor gas constant to composition-dependent
+    integer,          intent(in)  :: ncol               ! Number of columns
+    integer,          intent(in)  :: nz                 ! Number of vertical layers
+    real(kind_phys),  intent(in)  :: temp(:, :)         ! Temperature (K)
+    real(kind_phys),  intent(in)  :: zvirv(:, :)        ! Ratio of water vapor gas constant to composition-dependent
                                                         ! dry air gas constant minus one (1)
-    real(kind_phys), intent(in) :: qv(:, :)            ! water vapor mixing ratio wrt moist air and condensed water (kg kg-1)
-    real(kind_phys), intent(out) :: virtual_temp(:, :) ! virtual temperature (K)
+    real(kind_phys),  intent(in)  :: qv(:, :)           ! Water vapor mixing ratio wrt moist air and condensed water (kg kg-1)
+    real(kind_phys),  intent(out) :: virtual_temp(:, :) ! Virtual temperature (K)
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
 
-    virtual_temp(:, :) = temp(:, :) * (1.0_kind_phys + zvirv(:, :) * qv(:, :))
+    integer :: k
+
+    do k = 1, nz
+      virtual_temp(:ncol, k) = temp(:ncol, k) * (1.0_kind_phys + zvirv(:ncol, k) * qv(:ncol, k))
+    end do
 
     errmsg = ''
     errflg = 0
@@ -117,18 +127,25 @@ CONTAINS
 
   !> \section arg_table_virtual_temp_to_temp_run Argument Table
   !! \htmlinclude virtual_temp_to_temp_run.html
-  pure subroutine virtual_temp_to_temp_run(virtual_temp, zvirv, qv, temp, errmsg, errflg)
+  pure subroutine virtual_temp_to_temp_run(ncol, nz, virtual_temp, zvirv, qv, temp, &
+      errmsg, errflg)
     use ccpp_kinds, only: kind_phys
 
-    real(kind_phys), intent(in) :: virtual_temp(:, :) ! virtual temperature (K)
-    real(kind_phys), intent(in) :: zvirv(:, :)        ! ratio of water vapor gas constant to composition-dependent
+    integer,          intent(in)  :: ncol               ! Number of columns
+    integer,          intent(in)  :: nz                 ! Number of vertical layers
+    real(kind_phys),  intent(in)  :: virtual_temp(:, :) ! Virtual temperature (K)
+    real(kind_phys),  intent(in)  :: zvirv(:, :)        ! Ratio of water vapor gas constant to composition-dependent
                                                         ! dry air gas constant minus one (1)
-    real(kind_phys), intent(in) :: qv(:, :)           ! water vapor mixing ratio wrt moist air and condensed water (kg kg-1)
-    real(kind_phys), intent(out) :: temp(:, :)        ! temperature (K)
+    real(kind_phys),  intent(in)  :: qv(:, :)           ! Water vapor mixing ratio wrt moist air and condensed water (kg kg-1)
+    real(kind_phys),  intent(out) :: temp(:, :)         ! Temperature (K)
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
 
-    temp(:, :) = virtual_temp(:, :) / (1.0_kind_phys + zvirv(:, :) * qv(:, :))
+    integer :: k
+
+    do k = 1, nz
+      temp(:ncol, k) = virtual_temp(:ncol, k) / (1.0_kind_phys + zvirv(:ncol, k) * qv(:ncol, k))
+    end do
 
     errmsg = ''
     errflg = 0
@@ -136,10 +153,13 @@ CONTAINS
 
   !> \section arg_table_calc_dry_air_ideal_gas_density_run Argument Table
   !! \htmlinclude calc_dry_air_ideal_gas_density_run.html
-  subroutine calc_dry_air_ideal_gas_density_run(ncol, nz, rair, pmiddry, temp, rho, errmsg, errflg)
+  pure subroutine calc_dry_air_ideal_gas_density_run(ncol, nz, rairv, pmiddry, temp, rho, &
+      errmsg, errflg)
+    use ccpp_kinds, only: kind_phys
+
     integer,          intent(in)  :: ncol          ! Number of columns
-    integer,          intent(in)    :: nz           ! Number of vertical levels
-    real(kind_phys),  intent(in)    :: rair(:,:)    ! Gas constant of dry air (J kg-1 K-1)
+    integer,          intent(in)  :: nz            ! Number of vertical layers
+    real(kind_phys),  intent(in)  :: rairv(:, :)   ! Composition-dependent gas constant of dry air (J kg-1 K-1)
     real(kind_phys),  intent(in)  :: pmiddry(:, :) ! Air pressure of dry air (Pa)
     real(kind_phys),  intent(in)  :: temp(:, :)    ! Air temperature (K)
     real(kind_phys),  intent(out) :: rho(:, :)     ! Dry air density (kg m-3)
@@ -149,7 +169,7 @@ CONTAINS
     integer :: k
 
     do k = 1, nz
-      rho(:ncol,k) = pmiddry(:ncol,k)/(rair(:ncol,k)*temp(:ncol,k))
+      rho(:ncol, k) = pmiddry(:ncol, k) / (rairv(:ncol, k) * temp(:ncol, k))
     end do
 
     errmsg = ''
@@ -158,17 +178,24 @@ CONTAINS
 
   !> \section arg_table_calc_air_ideal_gas_density_run Argument Table
   !! \htmlinclude calc_air_ideal_gas_density_run.html
-  pure subroutine calc_air_ideal_gas_density_run(pmid, rairv, virtual_temp, rho, errmsg, errflg)
+  pure subroutine calc_air_ideal_gas_density_run(ncol, nz, rairv, pmid, virtual_temp, rho, &
+      errmsg, errflg)
     use ccpp_kinds, only: kind_phys
 
-    real(kind_phys), intent(in) :: pmid(:, :)         ! air pressure (Pa)
-    real(kind_phys), intent(in) :: rairv(:, :)        ! composition-dependent gas constant of dry air (J kg-1 K-1)
-    real(kind_phys), intent(in) :: virtual_temp(:, :) ! virtual temperature (K)
-    real(kind_phys), intent(out) :: rho(:, :)         ! air density (kg m-3)
+    integer,          intent(in)  :: ncol               ! Number of columns
+    integer,          intent(in)  :: nz                 ! Number of vertical layers
+    real(kind_phys),  intent(in)  :: rairv(:, :)        ! Composition-dependent gas constant of dry air (J kg-1 K-1)
+    real(kind_phys),  intent(in)  :: pmid(:, :)         ! Air pressure (Pa)
+    real(kind_phys),  intent(in)  :: virtual_temp(:, :) ! Virtual temperature (K)
+    real(kind_phys),  intent(out) :: rho(:, :)          ! Air density (kg m-3)
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
 
-    rho(:, :) = pmid(:, :) / (rairv(:, :) * virtual_temp(:, :))
+    integer :: k
+
+    do k = 1, nz
+      rho(:ncol, k) = pmid(:ncol, k) / (rairv(:ncol, k) * virtual_temp(:ncol, k))
+    end do
 
     errmsg = ''
     errflg = 0
@@ -176,17 +203,14 @@ CONTAINS
 
   !> \section arg_table_calc_atmosphere_layer_thickness_run Argument Table
   !! \htmlinclude calc_atmosphere_layer_thickness_run.html
-  pure subroutine calc_atmosphere_layer_thickness_run( &
-      ncol, &
-      zisfc, &
-      dz, &
+  pure subroutine calc_atmosphere_layer_thickness_run(ncol, zi, dz, &
       errmsg, errflg)
     use ccpp_kinds, only: kind_phys
 
     integer,          intent(in)  :: ncol
-    real(kind_phys), intent(in) :: zisfc(:, :)
+    real(kind_phys),  intent(in)  :: zi(:, :)
     real(kind_phys),  intent(out) :: dz(:, :)
-    character(*), intent(out) :: errmsg
+    character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
 
     integer :: i
@@ -194,7 +218,7 @@ CONTAINS
     ! In CAM-SIMA, the first vertical index is at top of atmosphere.
     ! The last one is at bottom of atmosphere. The resulting `dz` is positive.
     do i = 1, ncol
-        dz(i, :) = zisfc(i, 1:size(zisfc, 2) - 1) - zisfc(i, 2:size(zisfc, 2))
+      dz(i, :) = zi(i, 1:size(zi, 2) - 1) - zi(i, 2:size(zi, 2))
     end do
 
     errmsg = ''
@@ -203,28 +227,29 @@ CONTAINS
 
   !> \section arg_table_calc_exner_run Argument Table
   !! \htmlinclude calc_exner_run.html
-  subroutine calc_exner_run(ncol, nz, cpair, rair, ref_pres, pmid, exner,     &
+  pure subroutine calc_exner_run(ncol, nz, cpairv, rairv, pref, pmid, exner, &
       errmsg, errflg)
+    use ccpp_kinds, only: kind_phys
 
     integer,          intent(in)  :: ncol         ! Number of columns
-    integer,          intent(in)  :: nz         ! Number of vertical levels
-    real(kind_phys),  intent(in)  :: rair(:,:)  ! Gas constant for dry air (J kg-1 K-1)
-    real(kind_phys),  intent(in)  :: cpair(:,:) ! Heat capacity at constant pressure (J kg-1 K-1)
-    real(kind_phys),  intent(in)  :: ref_pres   ! Reference pressure (Pa)
+    integer,          intent(in)  :: nz           ! Number of vertical layers
+    real(kind_phys),  intent(in)  :: cpairv(:, :) ! Composition-dependent specific heat of dry air at
+                                                  ! constant pressure (J kg-1 K-1)
+    real(kind_phys),  intent(in)  :: rairv(:, :)  ! Composition-dependent gas constant of dry air (J kg-1 K-1)
+    real(kind_phys),  intent(in)  :: pref         ! Reference pressure (Pa)
     real(kind_phys),  intent(in)  :: pmid(:, :)   ! Mid-point air pressure (Pa)
     real(kind_phys),  intent(out) :: exner(:, :)  ! Exner function
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
 
-    integer :: i
+    integer :: k
 
-    do i=1,nz
-      exner(:ncol,i) = (pmid(:ncol,i)/ref_pres)**(rair(:ncol,i)/cpair(:ncol,i))
+    do k = 1, nz
+      exner(:ncol, k) = (pmid(:ncol, k) / pref) ** (rairv(:ncol, k) / cpairv(:ncol, k))
     end do
 
-    errflg = 0
     errmsg = ''
-
+    errflg = 0
   end subroutine calc_exner_run
 
   elemental subroutine generic_wet_to_dry_mass_mixing_ratio_run(pdel, pdeldry, mmr, mmrdry)
