@@ -54,11 +54,11 @@ module state_converters
 
 CONTAINS
 
-!> \section arg_table_temp_to_potential_temp_run  Argument Table
-!! \htmlinclude temp_to_potential_temp_run.html
+  !> \section arg_table_temp_to_potential_temp_run Argument Table
+  !! \htmlinclude temp_to_potential_temp_run.html
   subroutine temp_to_potential_temp_run(ncol, nz, temp, exner, theta, errmsg, errflg)
     ! Dummy arguments
-    integer,          intent(in)  :: ncol              ! Number of columns
+    integer,          intent(in)  :: ncol        ! Number of columns
     integer,          intent(in)  :: nz                ! Number of vertical levels
     real(kind_phys),         intent(in)  :: temp(:,:)  ! temperature (K)
     real(kind_phys),         intent(in)  :: exner(:,:) ! exner function
@@ -75,11 +75,11 @@ CONTAINS
     errmsg = ''
   end subroutine temp_to_potential_temp_run
 
-!> \section arg_table_potential_temp_to_temp_run  Argument Table
-!! \htmlinclude potential_temp_to_temp_run.html
+  !> \section arg_table_potential_temp_to_temp_run Argument Table
+  !! \htmlinclude potential_temp_to_temp_run.html
   subroutine potential_temp_to_temp_run(ncol, nz, theta, exner, temp, errmsg, errflg)
     ! Dummy arguments
-    integer,          intent(in)  :: ncol               ! Number of columns
+    integer,          intent(in)  :: ncol        ! Number of columns
     integer,          intent(in)  :: nz                 ! Number of vertical levels
     real(kind_phys),         intent(in)  :: theta(:,:)  ! potential temperature (K)
     real(kind_phys),         intent(in)  :: exner(:,:)  ! exner function
@@ -103,11 +103,11 @@ CONTAINS
 
     real(kind_phys), intent(in) :: temp(:, :)          ! temperature (K)
     real(kind_phys), intent(in) :: zvirv(:, :)         ! ratio of water vapor gas constant to composition-dependent
-                                                       ! dry air gas constant minus one (1)
+                                                        ! dry air gas constant minus one (1)
     real(kind_phys), intent(in) :: qv(:, :)            ! water vapor mixing ratio wrt moist air and condensed water (kg kg-1)
     real(kind_phys), intent(out) :: virtual_temp(:, :) ! virtual temperature (K)
     character(len=*), intent(out) :: errmsg
-    integer, intent(out) :: errflg
+    integer,          intent(out) :: errflg
 
     virtual_temp(:, :) = temp(:, :) * (1.0_kind_phys + zvirv(:, :) * qv(:, :))
 
@@ -122,11 +122,11 @@ CONTAINS
 
     real(kind_phys), intent(in) :: virtual_temp(:, :) ! virtual temperature (K)
     real(kind_phys), intent(in) :: zvirv(:, :)        ! ratio of water vapor gas constant to composition-dependent
-                                                      ! dry air gas constant minus one (1)
+                                                        ! dry air gas constant minus one (1)
     real(kind_phys), intent(in) :: qv(:, :)           ! water vapor mixing ratio wrt moist air and condensed water (kg kg-1)
     real(kind_phys), intent(out) :: temp(:, :)        ! temperature (K)
     character(len=*), intent(out) :: errmsg
-    integer, intent(out) :: errflg
+    integer,          intent(out) :: errflg
 
     temp(:, :) = virtual_temp(:, :) / (1.0_kind_phys + zvirv(:, :) * qv(:, :))
 
@@ -134,17 +134,17 @@ CONTAINS
     errflg = 0
   end subroutine virtual_temp_to_temp_run
 
-!> \section arg_table_calc_dry_air_ideal_gas_density_run  Argument Table
-!! \htmlinclude calc_dry_air_ideal_gas_density_run.html
+  !> \section arg_table_calc_dry_air_ideal_gas_density_run Argument Table
+  !! \htmlinclude calc_dry_air_ideal_gas_density_run.html
   subroutine calc_dry_air_ideal_gas_density_run(ncol, nz, rair, pmiddry, temp, rho, errmsg, errflg)
-    integer,          intent(in)    :: ncol         ! Number of columns
+    integer,          intent(in)  :: ncol          ! Number of columns
     integer,          intent(in)    :: nz           ! Number of vertical levels
     real(kind_phys),  intent(in)    :: rair(:,:)    ! Gas constant of dry air (J kg-1 K-1)
-    real(kind_phys),  intent(in)    :: pmiddry(:,:) ! Air pressure of dry air (Pa)
-    real(kind_phys),  intent(in)    :: temp(:,:)    ! Air temperature (K)
-    real(kind_phys),  intent(out)   :: rho(:,:)     ! Dry air density (kg m-3)
-    character(len=*), intent(out)   :: errmsg
-    integer,          intent(out)   :: errflg
+    real(kind_phys),  intent(in)  :: pmiddry(:, :) ! Air pressure of dry air (Pa)
+    real(kind_phys),  intent(in)  :: temp(:, :)    ! Air temperature (K)
+    real(kind_phys),  intent(out) :: rho(:, :)     ! Dry air density (kg m-3)
+    character(len=*), intent(out) :: errmsg
+    integer,          intent(out) :: errflg
 
     integer :: k
 
@@ -154,7 +154,6 @@ CONTAINS
 
     errmsg = ''
     errflg = 0
-
   end subroutine calc_dry_air_ideal_gas_density_run
 
   !> \section arg_table_calc_air_ideal_gas_density_run Argument Table
@@ -167,7 +166,7 @@ CONTAINS
     real(kind_phys), intent(in) :: virtual_temp(:, :) ! virtual temperature (K)
     real(kind_phys), intent(out) :: rho(:, :)         ! air density (kg m-3)
     character(len=*), intent(out) :: errmsg
-    integer, intent(out) :: errflg
+    integer,          intent(out) :: errflg
 
     rho(:, :) = pmid(:, :) / (rairv(:, :) * virtual_temp(:, :))
 
@@ -184,11 +183,11 @@ CONTAINS
       errmsg, errflg)
     use ccpp_kinds, only: kind_phys
 
-    integer, intent(in) :: ncol
+    integer,          intent(in)  :: ncol
     real(kind_phys), intent(in) :: zisfc(:, :)
-    real(kind_phys), intent(out) :: dz(:, :)
+    real(kind_phys),  intent(out) :: dz(:, :)
     character(*), intent(out) :: errmsg
-    integer, intent(out) :: errflg
+    integer,          intent(out) :: errflg
 
     integer :: i
 
@@ -202,18 +201,18 @@ CONTAINS
     errflg = 0
   end subroutine calc_atmosphere_layer_thickness_run
 
-!> \section arg_table_calc_exner_run  Argument Table
-!! \htmlinclude calc_exner_run.html
+  !> \section arg_table_calc_exner_run Argument Table
+  !! \htmlinclude calc_exner_run.html
   subroutine calc_exner_run(ncol, nz, cpair, rair, ref_pres, pmid, exner,     &
-       errmsg, errflg)
+      errmsg, errflg)
 
-    integer,          intent(in)  :: ncol       ! Number of columns
+    integer,          intent(in)  :: ncol         ! Number of columns
     integer,          intent(in)  :: nz         ! Number of vertical levels
     real(kind_phys),  intent(in)  :: rair(:,:)  ! Gas constant for dry air (J kg-1 K-1)
     real(kind_phys),  intent(in)  :: cpair(:,:) ! Heat capacity at constant pressure (J kg-1 K-1)
     real(kind_phys),  intent(in)  :: ref_pres   ! Reference pressure (Pa)
-    real(kind_phys),  intent(in)  :: pmid(:,:)  ! Mid-point air pressure (Pa)
-    real(kind_phys),  intent(out) :: exner(:,:) ! Exner function
+    real(kind_phys),  intent(in)  :: pmid(:, :)   ! Mid-point air pressure (Pa)
+    real(kind_phys),  intent(out) :: exner(:, :)  ! Exner function
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
 

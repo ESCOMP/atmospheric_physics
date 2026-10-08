@@ -55,6 +55,7 @@
   intent = out
 
 #####################################################################
+
 [ccpp-table-properties]
   name = potential_temp_to_temp
   type = scheme
@@ -111,6 +112,7 @@
   intent = out
 
 #####################################################################
+
 [ccpp-table-properties]
   name = temp_to_virtual_temp
   type = scheme
@@ -158,6 +160,7 @@
   intent = out
 
 #####################################################################
+
 [ccpp-table-properties]
   name = virtual_temp_to_temp
   type = scheme
@@ -205,6 +208,7 @@
   intent = out
 
 #########################################################
+
 [ccpp-table-properties]
   name = calc_dry_air_ideal_gas_density
   type = scheme
@@ -246,28 +250,29 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ rho ]
-   standard_name = dry_air_density
+  standard_name = dry_air_density
    long_name = dry air density
-   units = kg m-3
+  units = kg m-3
    dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-   type = real | kind = kind_phys
-   intent = out
+  type = real | kind = kind_phys
+  intent = out
 [ errmsg ]
-   standard_name = ccpp_error_message
-   long_name = Error message for error handling in CCPP
-   units = none
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
    dimensions = ()
-   type = character | kind = len=*
-   intent = out
+  type = character | kind = len=*
+  intent = out
 [ errflg ]
-   standard_name = ccpp_error_code
-   long_name = Error flag for error handling in CCPP
-   units = 1
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
    dimensions = ()
-   type = integer
-   intent = out
+  type = integer
+  intent = out
 
 #########################################################
+
 [ccpp-table-properties]
   name = calc_air_ideal_gas_density
   type = scheme
@@ -314,10 +319,10 @@
   intent = out
 
 #########################################################
+
 [ccpp-table-properties]
   name = calc_atmosphere_layer_thickness
   type = scheme
-
 [ccpp-arg-table]
   name = calc_atmosphere_layer_thickness_run
   type = scheme
@@ -355,6 +360,7 @@
   intent = out
 
 #########################################################
+
 [ccpp-table-properties]
   name = calc_exner
   type = scheme
@@ -408,19 +414,19 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ errmsg ]
-   standard_name = ccpp_error_message
-   long_name = Error message for error handling in CCPP
-   units = none
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
    dimensions = ()
-   type = character | kind = len=*
-   intent = out
+  type = character | kind = len=*
+  intent = out
 [ errflg ]
-   standard_name = ccpp_error_code
-   long_name = Error flag for error handling in CCPP
-   units = 1
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
    dimensions = ()
-   type = integer
-   intent = out
+  type = integer
+  intent = out
 
 ############################################################
 
