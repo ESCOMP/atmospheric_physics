@@ -1,0 +1,245 @@
+[ccpp-table-properties]
+  name = mcsp
+  type = scheme
+
+[ccpp-arg-table]
+  name  = mcsp_init
+  type  = scheme
+[ amIRoot ]
+  standard_name = flag_for_mpi_root
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ iulog ]
+  standard_name = log_output_unit
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
+[ mcsp_heat_coeff ]
+  standard_name = tunable_heating_coefficient_for_mesoscale_coherent_structure_parameterization
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ mcsp_moisture_coeff ]
+  standard_name = tunable_moistening_coefficient_for_mesoscale_coherent_structure_parameterization
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ mcsp_uwind_coeff ]
+  standard_name = tunable_eastward_wind_coefficient_for_mesoscale_coherent_structure_parameterization
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ mcsp_vwind_coeff ]
+  standard_name = tunable_northward_wind_coefficient_for_mesoscale_coherent_structure_parameterization
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ mcsp_storm_speed_pref ]
+  standard_name = reference_air_pressure_for_storm_level_wind_for_mesoscale_coherent_structure_parameterization
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ mcsp_conv_depth_min ]
+  standard_name = minimum_pressure_depth_of_deep_convection_for_mesoscale_coherent_structure_parameterization
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ mcsp_shear_min ]
+  standard_name = minimum_low_level_eastward_wind_shear_for_mesoscale_coherent_structure_parameterization
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = mcsp_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pver ]
+  standard_name = vertical_layer_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ pverp ]
+  standard_name = vertical_interface_dimension
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ cpair ]
+  standard_name = specific_heat_of_dry_air_at_constant_pressure
+  units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ pi ]
+  standard_name = pi_constant
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ dt ]
+  standard_name = timestep_for_physics
+  units = s
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ jctop ]
+  standard_name = vertical_index_at_cloud_top_for_deep_convection
+  units = index
+  type = integer
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ pmid ]
+  standard_name = air_pressure
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ pint ]
+  standard_name = air_pressure_at_interface
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ pdel ]
+  standard_name = air_pressure_thickness
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ u ]
+  standard_name = eastward_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ v ]
+  standard_name = northward_wind
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ ttend_dp ]
+  standard_name = tendency_of_air_temperature_due_to_deep_convection_before_precipitation_evaporation
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ qtend_dp ]
+  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_deep_convection_before_precipitation_evaporation
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ ptend_s ]
+  standard_name = tendency_of_dry_air_enthalpy_at_constant_pressure
+  units = J kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ ptend_q ]
+  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ ptend_u ]
+  standard_name = tendency_of_eastward_wind
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ ptend_v ]
+  standard_name = tendency_of_northward_wind
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ mcsp_dt_out ]
+  standard_name = tendency_of_air_temperature_due_to_mesoscale_coherent_structure_parameterization
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ mcsp_dq_out ]
+  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_mesoscale_coherent_structure_parameterization
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ mcsp_du_out ]
+  standard_name = tendency_of_eastward_wind_due_to_mesoscale_coherent_structure_parameterization
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ mcsp_dv_out ]
+  standard_name = tendency_of_northward_wind_due_to_mesoscale_coherent_structure_parameterization
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = out
+[ mcsp_freq ]
+  standard_name = frequency_of_activation_of_mesoscale_coherent_structure_parameterization
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ mcsp_shear ]
+  standard_name = low_level_eastward_wind_shear_for_mesoscale_coherent_structure_parameterization
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ conv_depth ]
+  standard_name = pressure_depth_of_deep_convection
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ mcsp_dt_max ]
+  standard_name = heating_amplitude_of_mesoscale_coherent_structure_parameterization
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
