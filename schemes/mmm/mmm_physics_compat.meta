@@ -180,6 +180,12 @@
 [ccpp-arg-table]
   name = mmm_physics_accumulate_tendencies_timestep_init
   type = scheme
+[ index_o3 ]
+  standard_name = index_of_O3_in_ccpp_constituents
+  units = index
+  type = integer
+  dimensions = ()
+  intent = out
 [ dudt ]
   standard_name = tendency_of_eastward_wind
   units = m s-2
@@ -426,6 +432,12 @@
 [ccpp-arg-table]
   name = mmm_physics_accumulate_tendencies_run
   type = scheme
+[ index_o3 ]
+  standard_name = index_of_O3_in_ccpp_constituents
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
 [ dt ]
   standard_name = timestep_for_physics
   units = s
@@ -498,41 +510,36 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
-[ ozone ]
-  standard_name = O3
-  units = kg kg-1
+[ constituents ]
+  standard_name = ccpp_constituents
+  units = none
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
   intent = inout
-  advected = True
 [ nc ]
   standard_name = mass_number_concentration_of_cloud_liquid_water_droplets_in_dry_air
   units = kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
-  advected = True
 [ nr ]
   standard_name = mass_number_concentration_of_rain_drops_in_dry_air
   units = kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
-  advected = True
 [ ni ]
   standard_name = mass_number_concentration_of_cloud_ice_water_crystals_in_dry_air
   units = kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
-  advected = True
 [ ng ]
   standard_name = mass_number_concentration_of_graupel_particles_in_dry_air
   units = kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
-  advected = True
 [ nwfa ]
   standard_name = mass_number_concentration_of_hygroscopic_aerosols_in_dry_air
   units = kg-1
@@ -848,6 +855,126 @@
   units = kg kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_dimension, vertical_layer_dimension)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+# ----------
+
+[ccpp-table-properties]
+  name = mmm_physics_to_coupler
+  type = scheme
+
+[ccpp-arg-table]
+  name = mmm_physics_to_coupler_run
+  type = scheme
+[ dt ]
+  standard_name = timestep_for_physics
+  units = s
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ re_ice ]
+  standard_name = effective_radius_of_stratiform_cloud_ice_crystal
+  units = um
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ re_snow ]
+  standard_name = effective_radius_of_stratiform_cloud_snow_crystal
+  units = um
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ zprecc ]
+  standard_name = lwe_thickness_of_convective_precipitation_amount
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ rain ]
+  standard_name = lwe_thickness_of_rainfall_amount
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ ice ]
+  standard_name = lwe_thickness_of_ice_amount
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ snow ]
+  standard_name = lwe_thickness_of_snowfall_amount
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ graupel ]
+  standard_name = lwe_thickness_of_graupel_amount
+  units = m
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ dei ]
+  standard_name = effective_diameter_of_stratiform_cloud_ice_crystal_for_radiation
+  units = um
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+[ des ]
+  standard_name = effective_diameter_of_stratiform_snow_crystal_for_radiation
+  units = um
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = out
+[ prec_dp ]
+  standard_name = lwe_precipitation_rate_at_surface_due_to_deep_convection
+  units =  m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ snow_dp ]
+  standard_name = lwe_frozen_precipitation_rate_at_surface_due_to_deep_convection
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ prec_sh ]
+  standard_name = lwe_precipitation_rate_at_surface_due_to_shallow_convection
+  units =  m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ snow_sh ]
+  standard_name = lwe_frozen_precipitation_rate_at_surface_due_to_shallow_convection
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ prec_str ]
+  standard_name = lwe_large_scale_precipitation_rate_at_surface
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = out
+[ snow_str ]
+  standard_name = lwe_snow_and_cloud_ice_precipitation_rate_at_surface_due_to_microphysics
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
   intent = out
 [ errmsg ]
   standard_name = ccpp_error_message

@@ -415,7 +415,7 @@
   dimensions = ()
   intent = out
 [ flag_qoz ]
-  standard_name = flag_for_ozone_mixing_ratio_in_mynn_pbl_scheme
+  standard_name = flag_for_O3_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
@@ -630,14 +630,12 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
-  advected = True
 [ qni ]
   standard_name = mass_number_concentration_of_cloud_ice_water_crystals_in_dry_air
   units = kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
-  advected = True
 [ qnwfa ]
   standard_name = mass_number_concentration_of_hygroscopic_aerosols_in_dry_air
   units = kg-1
@@ -659,13 +657,12 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
   advected = True
-[ qozone ]
-  standard_name = O3
-  units = kg kg-1
+[ constituents ]
+  standard_name = ccpp_constituents
+  units = none
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
   intent = in
-  advected = True
 [ p ]
   standard_name = air_pressure
   units = Pa
@@ -697,7 +694,7 @@
   dimensions = (horizontal_loop_extent)
   intent = in
 [ ts ]
-  standard_name = skin_temperature_at_surface
+  standard_name = blackbody_temperature_at_surface_from_coupler
   units = K
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
@@ -1255,9 +1252,15 @@
   dimensions = ()
   intent = in
 [ flag_qoz ]
-  standard_name = flag_for_ozone_mixing_ratio_in_mynn_pbl_scheme
+  standard_name = flag_for_O3_in_mynn_pbl_scheme
   units = flag
   type = logical
+  dimensions = ()
+  intent = in
+[ index_qoz ]
+  standard_name = index_of_O3_in_ccpp_constituents
+  units = index
+  type = integer
   dimensions = ()
   intent = in
 [ its ]

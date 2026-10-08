@@ -181,7 +181,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ var ]
-  standard_name = standard_deviation_of_subgrid_orography
+  standard_name = standard_deviation_of_subgrid_orography_for_orographic_gravity_wave_drag
   units = m
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)

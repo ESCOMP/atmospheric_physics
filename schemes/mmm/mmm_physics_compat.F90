@@ -9,6 +9,7 @@ module mmm_physics_compat
     public :: mmm_physics_accumulate_tendencies_run
     public :: mmm_physics_persist_states_init
     public :: mmm_physics_persist_states_timestep_final
+    public :: mmm_physics_to_coupler_run
     public :: compute_characteristic_grid_length_scale_init
     public :: compute_hydrostatic_upward_air_velocity_at_interface_run
     public :: compute_hydrostatic_upward_air_velocity_run
@@ -100,7 +101,8 @@ contains
 
     !> \section arg_table_mmm_physics_accumulate_tendencies_timestep_init Argument Table
     !! \htmlinclude mmm_physics_accumulate_tendencies_timestep_init.html
-    pure subroutine mmm_physics_accumulate_tendencies_timestep_init( &
+    subroutine mmm_physics_accumulate_tendencies_timestep_init( &
+            index_o3, &
             dudt, dvdt, dtdt, &
             rublten, rucuten, rvblten, rvcuten, &
             rthblten, rthcuten, rthmpten, rthratenlw, rthratensw, &
@@ -113,8 +115,11 @@ contains
             rozblten, &
             rnwfablten, rnwfampten, rnifablten, rnifampten, rnbcablten, &
             errmsg, errflg)
+        use ccpp_constituent_prop_mod, only: int_unassigned
         use ccpp_kinds, only: kind_phys
+        use ccpp_scheme_utils, only: ccpp_constituent_index
 
+        integer, intent(out) :: index_o3
         real(kind_phys), intent(out) :: dudt(:, :), dvdt(:, :), dtdt(:, :), &
                                         rublten(:, :), rucuten(:, :), rvblten(:, :), rvcuten(:, :), &
                                         rthblten(:, :), rthcuten(:, :), rthmpten(:, :), rthratenlw(:, :), rthratensw(:, :), &
@@ -128,6 +133,16 @@ contains
                                         rnwfablten(:, :), rnwfampten(:, :), rnifablten(:, :), rnifampten(:, :), rnbcablten(:, :)
         character(*), intent(out) :: errmsg
         integer, intent(out) :: errflg
+
+        ! O3 is a run-time constituent registered by a chemistry scheme. Whether it is advected or not is also determined at
+        ! run-time. Therefore, it cannot be requested as a procedure argument because the CCPP framework does not know about
+        ! it at build-time.
+        call ccpp_constituent_index( &
+            'O3', index_o3, errflg, errmsg)
+
+        if (errflg /= 0 .or. index_o3 == int_unassigned) then
+            return
+        end if
 
         ! Zero out tendencies at the beginning of each time step.
 
@@ -189,9 +204,11 @@ contains
     !> \section arg_table_mmm_physics_accumulate_tendencies_run Argument Table
     !! \htmlinclude mmm_physics_accumulate_tendencies_run.html
     pure subroutine mmm_physics_accumulate_tendencies_run( &
+            index_o3, &
             dt, exner, &
             dudt, dvdt, dtdt, &
-            theta, qv, qc, qr, qi, qs, qg, ozone, &
+            theta, qv, qc, qr, qi, qs, qg, &
+            constituents, &
             nc, nr, ni, ng, nwfa, nifa, nbca, &
             volg, &
             rublten, rucuten, rvblten, rvcuten, &
@@ -207,9 +224,11 @@ contains
             errmsg, errflg)
         use ccpp_kinds, only: kind_phys
 
+        integer, intent(in) :: index_o3
         real(kind_phys), intent(in) :: dt, exner(:, :)
         real(kind_phys), intent(inout) :: dudt(:, :), dvdt(:, :), dtdt(:, :), &
-                                          theta(:, :), qv(:, :), qc(:, :), qr(:, :), qi(:, :), qs(:, :), qg(:, :), ozone(:, :), &
+                                          theta(:, :), qv(:, :), qc(:, :), qr(:, :), qi(:, :), qs(:, :), qg(:, :), &
+                                          constituents(:, :, :), &
                                           nc(:, :), nr(:, :), ni(:, :), ng(:, :), nwfa(:, :), nifa(:, :), nbca(:, :), &
                                           volg(:, :), &
                                           rublten(:, :), rucuten(:, :), rvblten(:, :), rvcuten(:, :), &
@@ -238,7 +257,8 @@ contains
         qi(:, :) = qi(:, :) + (rqiblten(:, :) + rqicuten(:, :) + rqimpten(:, :)) * dt
         qs(:, :) = qs(:, :) + (rqsblten(:, :) + rqsmpten(:, :)) * dt
         qg(:, :) = qg(:, :) + rqgmpten(:, :) * dt
-        ozone(:, :) = ozone(:, :) + rozblten(:, :) * dt
+
+        constituents(:, :, index_o3) = constituents(:, :, index_o3) + rozblten(:, :) * dt
 
         nc(:, :) = nc(:, :) + (rncblten(:, :) + rncmpten(:, :)) * dt
         nr(:, :) = nr(:, :) + rnrmpten(:, :) * dt
@@ -341,6 +361,39 @@ contains
         errmsg = ''
         errflg = 0
     end subroutine mmm_physics_persist_states_timestep_final
+
+    !> \section arg_table_mmm_physics_to_coupler_run Argument Table
+    !! \htmlinclude mmm_physics_to_coupler_run.html
+    pure subroutine mmm_physics_to_coupler_run( &
+            dt, &
+            re_ice, re_snow, &
+            zprecc, rain, ice, snow, graupel, &
+            dei, des, &
+            prec_dp, snow_dp, prec_sh, snow_sh, prec_str, snow_str, &
+            errmsg, errflg)
+        use ccpp_kinds, only: kind_phys
+
+        real(kind_phys), intent(in) :: dt, &
+                                       re_ice(:, :), re_snow(:, :), &
+                                       zprecc(:), rain(:), ice(:), snow(:), graupel(:)
+        real(kind_phys), intent(out) :: dei(:, :), des(:, :), &
+                                        prec_dp(:), snow_dp(:), prec_sh(:), snow_sh(:), prec_str(:), snow_str(:)
+        character(*), intent(out) :: errmsg
+        integer, intent(out) :: errflg
+
+        dei(:, :) = re_ice(:, :) * 2.0_kind_phys
+        des(:, :) = re_snow(:, :) * 2.0_kind_phys
+
+        prec_dp(:) = zprecc(:) / dt
+        snow_dp(:) = 0.0_kind_phys
+        prec_sh(:) = 0.0_kind_phys
+        snow_sh(:) = 0.0_kind_phys
+        prec_str(:) = (rain(:) + ice(:)) / dt
+        snow_str(:) = (snow(:) + graupel(:)) / dt
+
+        errmsg = ''
+        errflg = 0
+    end subroutine mmm_physics_to_coupler_run
 
     !> \section arg_table_compute_characteristic_grid_length_scale_init Argument Table
     !! \htmlinclude compute_characteristic_grid_length_scale_init.html
