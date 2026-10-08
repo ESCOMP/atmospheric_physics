@@ -37,8 +37,8 @@ module mcsp
   ! Namelist parameters, set in mcsp_init
   real(kind_phys) :: heat_coeff        ! heating coefficient [1]
   real(kind_phys) :: moisture_coeff    ! moistening coefficient [1]
-  real(kind_phys) :: uwind_coeff       ! zonal wind coefficient [1]
-  real(kind_phys) :: vwind_coeff       ! meridional wind coefficient [1]
+  real(kind_phys) :: uwind_coeff       ! zonal wind coefficient [m s-2]
+  real(kind_phys) :: vwind_coeff       ! meridional wind coefficient [m s-2]
   real(kind_phys) :: storm_speed_pref  ! reference pressure of the storm-level zonal wind [Pa]
   real(kind_phys) :: conv_depth_min    ! minimum pressure depth of deep convection for activation [Pa]
   real(kind_phys) :: shear_min         ! minimum low-level zonal wind shear magnitude for activation [m s-1]
@@ -64,12 +64,12 @@ contains
     integer,            intent(in)  :: iulog
     real(kind_phys),    intent(in)  :: mcsp_heat_coeff        ! heating coefficient [1]
     real(kind_phys),    intent(in)  :: mcsp_moisture_coeff    ! moistening coefficient [1]
-    real(kind_phys),    intent(in)  :: mcsp_uwind_coeff       ! zonal wind coefficient [1]
-    real(kind_phys),    intent(in)  :: mcsp_vwind_coeff       ! meridional wind coefficient [1]
+    real(kind_phys),    intent(in)  :: mcsp_uwind_coeff       ! zonal wind coefficient [m s-2]
+    real(kind_phys),    intent(in)  :: mcsp_vwind_coeff       ! meridional wind coefficient [m s-2]
     real(kind_phys),    intent(in)  :: mcsp_storm_speed_pref  ! reference pressure of the storm-level zonal wind [Pa]
     real(kind_phys),    intent(in)  :: mcsp_conv_depth_min    ! minimum pressure depth of deep convection [Pa]
     real(kind_phys),    intent(in)  :: mcsp_shear_min         ! minimum low-level zonal wind shear magnitude [m s-1]
-    character(len=512), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     errmsg = ''
@@ -133,7 +133,7 @@ contains
     real(kind_phys),    intent(out) :: conv_depth(:)     ! pressure depth of deep convection [Pa]
     real(kind_phys),    intent(out) :: mcsp_dt_max(:)    ! heating amplitude, column mean deep heating times coefficient [K s-1]
     character(len=40),  intent(out) :: scheme_name       ! scheme name for the energy check
-    character(len=512), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     ! Local variables
@@ -164,14 +164,6 @@ contains
     errmsg = ''
     errflg = 0
     scheme_name = 'mcsp'
-
-    do i = 1, ncol
-       if (jctop(i) < 1 .or. jctop(i) > pver) then
-          errflg = 1
-          write(errmsg, '(a,i0,a,i0)') 'mcsp_run: deep convective top index out of range in column ', i, ': ', jctop(i)
-          return
-       end if
-    end do
 
     !----------------------------------------------------------------------------
     ! initialize variables
@@ -204,6 +196,20 @@ contains
     conv_depth(:)  = 0._kind_phys
     mcsp_dt_max(:) = 0._kind_phys
 
+    mcsp_dt_out(:,:) = 0._kind_phys
+    mcsp_dq_out(:,:) = 0._kind_phys
+    mcsp_du_out(:,:) = 0._kind_phys
+    mcsp_dv_out(:,:) = 0._kind_phys
+    mcsp_freq(:)     = 0._kind_phys
+
+    do i = 1, ncol
+       if (jctop(i) < 1 .or. jctop(i) > pver) then
+          errflg = 1
+          write(errmsg, '(a,i0,a,i0)') 'mcsp_run: deep convective top index out of range in column ', i, ': ', jctop(i)
+          return
+       end if
+    end do
+
     if (do_mcsp_t .or. do_mcsp_q .or. do_mcsp_u .or. do_mcsp_v) then
 
        !----------------------------------------------------------------------------
@@ -226,7 +232,7 @@ contains
              avg_tend_s(i) = avg_tend_s(i) / pdel_sum(i)
              avg_tend_q(i) = avg_tend_q(i) / pdel_sum(i)
              ! calculate diagnostic deep convective depth
-             conv_depth(i) = pint(i,pver+1) - pmid(i,jctop(i))
+             conv_depth(i) = pint(i,pverp) - pmid(i,jctop(i))
           else
              avg_tend_s(i) = 0._kind_phys
              avg_tend_q(i) = 0._kind_phys
@@ -262,8 +268,8 @@ contains
                    do k = jctop(i), pver
 
                       ! See eq 7-8 of Moncrieff et al. (2017) - also eq (5) of Moncrieff & Liu (2006)
-                      pdepth_mid_k = pint(i,pver+1) - pmid(i,k)
-                      pdepth_total = pint(i,pver+1) - pmid(i,jctop(i))
+                      pdepth_mid_k = pint(i,pverp) - pmid(i,k)
+                      pdepth_total = pint(i,pverp) - pmid(i,jctop(i))
 
                       ! specify the assumed vertical structure
                       if (do_mcsp_t) mcsp_tend_s(i,k) = -1._kind_phys*heat_coeff * sin(2.0_kind_phys*pi*(pdepth_mid_k/pdepth_total))
@@ -297,13 +303,6 @@ contains
 
     !----------------------------------------------------------------------------
     ! calculate final output tendencies
-
-    mcsp_dt_out(:,:) = 0._kind_phys
-    mcsp_dq_out(:,:) = 0._kind_phys
-    mcsp_du_out(:,:) = 0._kind_phys
-    mcsp_dv_out(:,:) = 0._kind_phys
-
-    mcsp_freq(:) = 0._kind_phys
 
     do i = 1, ncol
        do k = jctop(i), pver

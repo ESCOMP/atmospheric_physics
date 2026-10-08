@@ -20,7 +20,7 @@ contains
     integer,            intent(in)  :: jt(:)       ! top layer of deep convection, gathered [index]
     integer,            intent(in)  :: ideep(:)    ! column index of each convective column [index]
     integer,            intent(out) :: jctop(:)    ! top layer of deep convection, all columns [index]
-    character(len=512), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     integer :: i

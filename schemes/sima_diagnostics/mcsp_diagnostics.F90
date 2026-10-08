@@ -16,7 +16,7 @@ contains
     use cam_history,         only: history_add_field
     use cam_history_support, only: horiz_only
 
-    character(len=512), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     errmsg = ''
@@ -56,7 +56,7 @@ contains
     real(kind_phys),    intent(in)  :: mcsp_freq(:)      ! MCSP frequency of activation [1]
     real(kind_phys),    intent(in)  :: mcsp_shear(:)     ! low-level zonal wind shear [m s-1]
     real(kind_phys),    intent(in)  :: conv_depth(:)     ! pressure depth of deep convection [Pa]
-    character(len=512), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     errmsg = ''

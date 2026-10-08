@@ -26,7 +26,7 @@ contains
     real(kind_phys),    intent(in)  :: qtend(:,:)           ! deep convective water vapor tendency [kg kg-1 s-1]
     real(kind_phys),    intent(out) :: ttend_dp_core(:,:)   ! core deep convective temperature tendency [K s-1]
     real(kind_phys),    intent(out) :: qtend_dp_core(:,:)   ! core deep convective water vapor tendency [kg kg-1 s-1]
-    character(len=512), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
     integer :: i, k
