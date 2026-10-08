@@ -132,9 +132,6 @@ contains
 
         integer :: i
 
-        errmsg = ''
-        errflg = 0
-
         ! Initialize constants in MYNN PBL scheme.
         call bl_mynn_init( &
             con_cp, con_cpv, con_cice, con_cliq, con_ep1, con_ep2, con_grav, con_karman, con_p0, &
@@ -383,9 +380,6 @@ contains
                            rqnifablten_p(size(rqnifablten, 1), size(rqnifablten, 2)), &
                            rqnbcablten_p(size(rqnbcablten, 1), size(rqnbcablten, 2)), &
                            rqozblten_p(size(rqozblten, 1), size(rqozblten, 2))
-
-        errmsg = ''
-        errflg = 0
 
         rublten_p(:, :) = 0.0_kind_phys
         rvblten_p(:, :) = 0.0_kind_phys

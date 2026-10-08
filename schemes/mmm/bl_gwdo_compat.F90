@@ -44,9 +44,6 @@ contains
         character(*), intent(out) :: errmsg
         integer, intent(out) :: errflg
 
-        errmsg = ''
-        errflg = 0
-
         ! These variables do not change with time. Set them just once at model initialization for better performance.
 
         ! The "bl_gwdo" physics scheme was originally designed to be used with regional models like WRF, where the positive X and
@@ -56,6 +53,9 @@ contains
         ! The angle of rotation from east to X is zero.
         sina(:) = 0.0_kind_phys
         cosa(:) = 1.0_kind_phys
+
+        errmsg = ''
+        errflg = 0
     end subroutine bl_gwdo_compat_init
 
     !> \section arg_table_bl_gwdo_compat_run Argument Table
@@ -101,9 +101,6 @@ contains
         real(kind_phys) :: rublten_p(size(rublten, 1), size(rublten, 2)), &
                            rvblten_p(size(rvblten, 1), size(rvblten, 2))
 
-        errmsg = ''
-        errflg = 0
-
         rublten_p(:, :) = 0.0_kind_phys
         rvblten_p(:, :) = 0.0_kind_phys
 
@@ -147,5 +144,8 @@ contains
 
         rublten(:, :) = rublten(:, :) + rublten_p(:, :)
         rvblten(:, :) = rvblten(:, :) + rvblten_p(:, :)
+
+        errmsg = ''
+        errflg = 0
     end subroutine bl_gwdo_compat_run
 end module bl_gwdo_compat
