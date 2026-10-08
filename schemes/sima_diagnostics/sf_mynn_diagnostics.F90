@@ -1,6 +1,6 @@
 !> This module contains diagnostic schemes that are specific to the MYNN surface layer scheme,
 !> which is part of the MMM physics.
-module sf_mynn_diag
+module sf_mynn_diagnostics
     implicit none
 
     private
@@ -95,4 +95,4 @@ contains
         errmsg = ''
         errflg = 0
     end subroutine sf_mynn_diagnostics_run
-end module sf_mynn_diag
+end module sf_mynn_diagnostics
