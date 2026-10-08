@@ -98,6 +98,10 @@
     <scheme>zm_tendency_diagnostics</scheme>
     <scheme>apply_constituent_tendencies</scheme>
     <scheme>qneg</scheme>
+    <!-- Limits CAM's physics_update applies after the deep convection update:
+         number concentrations in [1e-12, 1e10], cloud condensate below 1e-36 zeroed with its number -->
+    <scheme>clamp_number_concentrations</scheme>
+    <scheme>cloud_condensate_floor</scheme>
     <scheme>geopotential_temp</scheme>
     <scheme>zm_diagnostics</scheme>
 

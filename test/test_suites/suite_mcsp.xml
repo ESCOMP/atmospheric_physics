@@ -37,6 +37,8 @@
        <scheme>zm_tendency_diagnostics</scheme>
        <scheme>apply_constituent_tendencies</scheme>
        <scheme>qneg</scheme>
+       <scheme>clamp_number_concentrations</scheme>
+       <scheme>cloud_condensate_floor</scheme>
        <scheme>geopotential_temp</scheme>
        <scheme>zm_diagnostics</scheme>
        <!-- MCSP -->
