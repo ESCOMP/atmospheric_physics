@@ -1,29 +1,43 @@
 @test
 subroutine test_temp_to_potential_temp()
-    use funit
-    use state_converters, only : temp_to_potential_temp_run
     use ccpp_kinds, only: kind_phys
+    use funit
+    use state_converters, only: temp_to_potential_temp_run, potential_temp_to_temp_run
 
-    integer, parameter :: ncol = 5
-    integer, parameter :: nz   = 5
+    integer, parameter :: ncol = 100, pver = 10
 
-    real(kind_phys) :: temp(ncol, nz)
-    real(kind_phys) :: exner(ncol, nz)
-    real(kind_phys) :: theta(ncol, nz)
-    character(len=512) :: errmsg
+    real(kind_phys) :: temp(ncol, pver), exner(ncol, pver), theta(ncol, pver)
+    real(kind_phys) :: expected_temp(ncol, pver), expected_theta(ncol, pver)
+    character(100) :: errmsg
     integer :: errflg
 
-    temp = 1
-    exner = 1
-    theta = 1
+    integer :: k
 
-    errmsg = ""
-    errflg = 0
+    do k = 1, pver
+        temp(:, k) = 200.0_kind_phys + real(k, kind_phys) * 10.0_kind_phys
+        exner(:, k) = 0.5_kind_phys + real(k, kind_phys) * 0.05_kind_phys
+    end do
 
-    call temp_to_potential_temp_run(ncol, nz, temp, exner, theta, errmsg, errflg)
+    theta(:, :) = huge(0.0_kind_phys)
 
+    expected_temp(:, :) = temp(:, :)
+    expected_theta(:, :) = temp(:, :) / exner(:, :)
+
+    call temp_to_potential_temp_run(ncol, pver, temp, exner, theta, errmsg, errflg)
+
+    ! Should compute potential temperature correctly.
+    @assertEqual(expected_theta, theta, maxval(spacing(expected_theta)))
+    @assertEqual('', errmsg)
     @assertEqual(0, errflg)
 
+    temp(:, :) = huge(0.0_kind_phys)
+
+    call potential_temp_to_temp_run(ncol, pver, theta, exner, temp, errmsg, errflg)
+
+    ! Should get back original temperature correctly.
+    @assertEqual(expected_temp, temp, maxval(spacing(expected_temp)))
+    @assertEqual('', errmsg)
+    @assertEqual(0, errflg)
 end subroutine test_temp_to_potential_temp
 
 @test
@@ -71,6 +85,41 @@ subroutine test_temp_to_virtual_temp_run()
 end subroutine test_temp_to_virtual_temp_run
 
 @test
+subroutine test_calc_dry_air_ideal_gas_density_run()
+    use ccpp_kinds, only: kind_phys
+    use funit
+    use state_converters, only: calc_dry_air_ideal_gas_density_run
+
+    integer, parameter :: ncol = 100, pver = 10
+    real(kind_phys), parameter :: rd = 287.04_kind_phys
+
+    real(kind_phys) :: rairv(ncol, pver), pmiddry(ncol, pver), temp(ncol, pver), rho(ncol, pver)
+    real(kind_phys) :: expected_rho(ncol, pver)
+    character(100) :: errmsg
+    integer :: errflg
+
+    integer :: k
+
+    rairv(:, :) = rd
+
+    do k = 1, pver
+        pmiddry(:, k) = real(k, kind_phys) * 10000.0_kind_phys
+        temp(:, k) = 200.0_kind_phys + real(k, kind_phys) * 10.0_kind_phys
+    end do
+
+    rho(:, :) = huge(0.0_kind_phys)
+
+    expected_rho(:, :) = pmiddry(:, :) / (rd * temp(:, :))
+
+    call calc_dry_air_ideal_gas_density_run(ncol, pver, rairv, pmiddry, temp, rho, errmsg, errflg)
+
+    ! Should compute dry air density correctly.
+    @assertEqual(expected_rho, rho, maxval(spacing(expected_rho)))
+    @assertEqual('', errmsg)
+    @assertEqual(0, errflg)
+end subroutine test_calc_dry_air_ideal_gas_density_run
+
+@test
 subroutine test_calc_air_ideal_gas_density_run()
     use ccpp_kinds, only: kind_phys
     use funit
@@ -79,19 +128,19 @@ subroutine test_calc_air_ideal_gas_density_run()
     integer, parameter :: ncol = 100, pver = 10
     real(kind_phys), parameter :: rd = 287.04_kind_phys
 
-    real(kind_phys) :: pmid(ncol, pver), rairv(ncol, pver), virtual_temp(ncol, pver), rho(ncol, pver)
+    real(kind_phys) :: rairv(ncol, pver), pmid(ncol, pver), virtual_temp(ncol, pver), rho(ncol, pver)
     real(kind_phys) :: expected_rho(ncol, pver)
     character(100) :: errmsg
     integer :: errflg
 
-    pmid(:, :) = 101325.0_kind_phys
     rairv(:, :) = rd
+    pmid(:, :) = 101325.0_kind_phys
     virtual_temp(:, :) = 273.15_kind_phys
     rho(:, :) = huge(0.0_kind_phys)
 
     expected_rho(:, :) = pmid(:, :) / (rd * virtual_temp(:, :))
 
-    call calc_air_ideal_gas_density_run(ncol, pver, pmid, rairv, virtual_temp, rho, errmsg, errflg)
+    call calc_air_ideal_gas_density_run(ncol, pver, rairv, pmid, virtual_temp, rho, errmsg, errflg)
 
     ! Should compute air density correctly.
     @assertEqual(expected_rho, rho, maxval(spacing(expected_rho)))
@@ -130,3 +179,41 @@ subroutine test_calc_atmosphere_layer_thickness_run()
     @assertEqual('', errmsg)
     @assertEqual(0, errflg)
 end subroutine test_calc_atmosphere_layer_thickness_run
+
+@test
+subroutine test_calc_exner_run()
+    use ccpp_kinds, only: kind_phys
+    use funit
+    use state_converters, only: calc_exner_run
+
+    integer, parameter :: ncol = 100, pver = 10
+    real(kind_phys), parameter :: cpd = 1004.64_kind_phys
+    real(kind_phys), parameter :: pref = 100000.0_kind_phys
+    real(kind_phys), parameter :: rd = 287.04_kind_phys
+
+    real(kind_phys) :: cpairv(ncol, pver), rairv(ncol, pver), pmid(ncol, pver), exner(ncol, pver)
+    real(kind_phys) :: expected_exner(ncol, pver)
+    character(100) :: errmsg
+    integer :: errflg
+
+    integer :: k
+
+    cpairv(:, :) = cpd
+    rairv(:, :) = rd
+
+    do k = 1, pver
+        pmid(:, k) = real(k, kind_phys) * 10000.0_kind_phys
+    end do
+
+    exner(:, :) = huge(0.0_kind_phys)
+
+    expected_exner(:, :) = (pmid(:, :) / pref) ** (rairv(:, :) / cpairv(:, :))
+
+    call calc_exner_run(ncol, pver, cpairv, rairv, pref, pmid, exner, errmsg, errflg)
+
+    ! Should compute Exner function correctly.
+    @assertEqual(1.0_kind_phys, exner(:, pver), spacing(1.0_kind_phys))
+    @assertEqual(expected_exner, exner, maxval(spacing(expected_exner)))
+    @assertEqual('', errmsg)
+    @assertEqual(0, errflg)
+end subroutine test_calc_exner_run
