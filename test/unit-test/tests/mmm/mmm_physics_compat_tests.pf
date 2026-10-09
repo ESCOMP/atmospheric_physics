@@ -171,6 +171,7 @@ subroutine test_mmm_physics_accumulate_tendencies_timestep_init()
     use mmm_physics_compat, only: mmm_physics_accumulate_tendencies_timestep_init
 
     integer, parameter :: ncol = 100, pver = 10
+    integer :: index_o3
     real(kind_phys) :: dudt(ncol, pver), dvdt(ncol, pver), dtdt(ncol, pver)
     real(kind_phys) :: rublten(ncol, pver), rucuten(ncol, pver), rvblten(ncol, pver), rvcuten(ncol, pver)
     real(kind_phys) :: rthblten(ncol, pver), rthcuten(ncol, pver), rthmpten(ncol, pver), &
@@ -237,6 +238,7 @@ subroutine test_mmm_physics_accumulate_tendencies_timestep_init()
     rnbcablten(:, :) = huge(0.0_kind_phys)
 
     call mmm_physics_accumulate_tendencies_timestep_init( &
+        index_o3, &
         dudt, dvdt, dtdt, &
         rublten, rucuten, rvblten, rvcuten, &
         rthblten, rthcuten, rthmpten, rthratenlw, rthratensw, &
@@ -311,10 +313,12 @@ subroutine test_mmm_physics_accumulate_tendencies_run()
     use mmm_physics_compat, only: mmm_physics_accumulate_tendencies_run
 
     integer, parameter :: ncol = 100, pver = 10
+    integer, parameter :: index_o3 = 1
     real(kind_phys) :: dt, exner(ncol, pver)
     real(kind_phys) :: dudt(ncol, pver), dvdt(ncol, pver), dtdt(ncol, pver)
     real(kind_phys) :: theta(ncol, pver), qv(ncol, pver), qc(ncol, pver), qr(ncol, pver), &
-                       qi(ncol, pver), qs(ncol, pver), qg(ncol, pver), ozone(ncol, pver)
+                       qi(ncol, pver), qs(ncol, pver), qg(ncol, pver)
+    real(kind_phys) :: constituents(ncol, pver, 2)
     real(kind_phys) :: nc(ncol, pver), nr(ncol, pver), ni(ncol, pver), ng(ncol, pver), &
                        nwfa(ncol, pver), nifa(ncol, pver), nbca(ncol, pver)
     real(kind_phys) :: volg(ncol, pver)
@@ -347,7 +351,9 @@ subroutine test_mmm_physics_accumulate_tendencies_run()
     qi(:, :) = 0.01_kind_phys
     qs(:, :) = 0.01_kind_phys
     qg(:, :) = 0.01_kind_phys
-    ozone(:, :) = 1.0E-8_kind_phys
+
+    constituents(:, :, :) = huge(0.0_kind_phys)
+    constituents(:, :, index_o3) = 1.0E-8_kind_phys
 
     nc(:, :) = 1.0E8_kind_phys
     nr(:, :) = 1.0E8_kind_phys
@@ -405,9 +411,11 @@ subroutine test_mmm_physics_accumulate_tendencies_run()
     rnbcablten(:, :) = 25000.0_kind_phys
 
     call mmm_physics_accumulate_tendencies_run( &
+        index_o3, &
         dt, exner, &
         dudt, dvdt, dtdt, &
-        theta, qv, qc, qr, qi, qs, qg, ozone, &
+        theta, qv, qc, qr, qi, qs, qg, &
+        constituents, &
         nc, nr, ni, ng, nwfa, nifa, nbca, &
         volg, &
         rublten, rucuten, rvblten, rvcuten, &
@@ -434,7 +442,7 @@ subroutine test_mmm_physics_accumulate_tendencies_run()
     @assertEqual(0.025_kind_phys, qi, spacing(0.025_kind_phys))
     @assertEqual(0.02_kind_phys, qs, spacing(0.02_kind_phys))
     @assertEqual(0.015_kind_phys, qg, spacing(0.015_kind_phys))
-    @assertEqual(1.5E-8_kind_phys, ozone, spacing(1.5E-8_kind_phys))
+    @assertEqual(1.5E-8_kind_phys, constituents(:, :, index_o3), spacing(1.5E-8_kind_phys))
 
     @assertEqual(1.01E8_kind_phys, nc, spacing(1.01E8_kind_phys))
     @assertEqual(1.005E8_kind_phys, nr, spacing(1.005E8_kind_phys))
@@ -541,9 +549,11 @@ subroutine test_mmm_physics_accumulate_tendencies_run()
     rnbcablten(:, :) = 25000.0_kind_phys
 
     call mmm_physics_accumulate_tendencies_run( &
+        index_o3, &
         dt, exner, &
         dudt, dvdt, dtdt, &
-        theta, qv, qc, qr, qi, qs, qg, ozone, &
+        theta, qv, qc, qr, qi, qs, qg, &
+        constituents, &
         nc, nr, ni, ng, nwfa, nifa, nbca, &
         volg, &
         rublten, rucuten, rvblten, rvcuten, &
@@ -570,7 +580,7 @@ subroutine test_mmm_physics_accumulate_tendencies_run()
     @assertEqual(0.04_kind_phys, qi, spacing(0.04_kind_phys))
     @assertEqual(0.03_kind_phys, qs, spacing(0.03_kind_phys))
     @assertEqual(0.02_kind_phys, qg, spacing(0.02_kind_phys))
-    @assertEqual(2.0E-8_kind_phys, ozone, spacing(2.0E-8_kind_phys))
+    @assertEqual(2.0E-8_kind_phys, constituents(:, :, index_o3), spacing(2.0E-8_kind_phys))
 
     @assertEqual(1.02E8_kind_phys, nc, spacing(1.02E8_kind_phys))
     @assertEqual(1.01E8_kind_phys, nr, spacing(1.01E8_kind_phys))
@@ -632,9 +642,11 @@ subroutine test_mmm_physics_accumulate_tendencies_run()
     @assertEqual(0, errflg)
 
     call mmm_physics_accumulate_tendencies_run( &
+        index_o3, &
         dt, exner, &
         dudt, dvdt, dtdt, &
-        theta, qv, qc, qr, qi, qs, qg, ozone, &
+        theta, qv, qc, qr, qi, qs, qg, &
+        constituents, &
         nc, nr, ni, ng, nwfa, nifa, nbca, &
         volg, &
         rublten, rucuten, rvblten, rvcuten, &
@@ -650,9 +662,11 @@ subroutine test_mmm_physics_accumulate_tendencies_run()
         errmsg, errflg)
 
     call mmm_physics_accumulate_tendencies_run( &
+        index_o3, &
         dt, exner, &
         dudt, dvdt, dtdt, &
-        theta, qv, qc, qr, qi, qs, qg, ozone, &
+        theta, qv, qc, qr, qi, qs, qg, &
+        constituents, &
         nc, nr, ni, ng, nwfa, nifa, nbca, &
         volg, &
         rublten, rucuten, rvblten, rvcuten, &
@@ -679,7 +693,7 @@ subroutine test_mmm_physics_accumulate_tendencies_run()
     @assertEqual(0.04_kind_phys, qi, spacing(0.04_kind_phys))
     @assertEqual(0.03_kind_phys, qs, spacing(0.03_kind_phys))
     @assertEqual(0.02_kind_phys, qg, spacing(0.02_kind_phys))
-    @assertEqual(2.0E-8_kind_phys, ozone, spacing(2.0E-8_kind_phys))
+    @assertEqual(2.0E-8_kind_phys, constituents(:, :, index_o3), spacing(2.0E-8_kind_phys))
 
     @assertEqual(1.02E8_kind_phys, nc, spacing(1.02E8_kind_phys))
     @assertEqual(1.01E8_kind_phys, nr, spacing(1.01E8_kind_phys))

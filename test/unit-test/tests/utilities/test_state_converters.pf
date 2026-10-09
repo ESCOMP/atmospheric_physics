@@ -53,7 +53,7 @@ subroutine test_temp_to_virtual_temp_run()
     expected_virtual_temp(:, :) = temp(:, :) * &
         (1.0_kind_phys + rv / rd * qv_dry(:, :)) / (1.0_kind_phys + qv_dry(:, :))
 
-    call temp_to_virtual_temp_run(temp, zvirv, qv_wet, virtual_temp, errmsg, errflg)
+    call temp_to_virtual_temp_run(ncol, pver, temp, zvirv, qv_wet, virtual_temp, errmsg, errflg)
 
     ! Should compute virtual temperature correctly.
     @assertEqual(expected_virtual_temp, virtual_temp, maxval(spacing(expected_virtual_temp)))
@@ -62,7 +62,7 @@ subroutine test_temp_to_virtual_temp_run()
 
     temp(:, :) = huge(0.0_kind_phys)
 
-    call virtual_temp_to_temp_run(virtual_temp, zvirv, qv_wet, temp, errmsg, errflg)
+    call virtual_temp_to_temp_run(ncol, pver, virtual_temp, zvirv, qv_wet, temp, errmsg, errflg)
 
     ! Should get back original temperature correctly.
     @assertEqual(expected_temp, temp, maxval(spacing(expected_temp)))
@@ -91,7 +91,7 @@ subroutine test_calc_air_ideal_gas_density_run()
 
     expected_rho(:, :) = pmid(:, :) / (rd * virtual_temp(:, :))
 
-    call calc_air_ideal_gas_density_run(pmid, rairv, virtual_temp, rho, errmsg, errflg)
+    call calc_air_ideal_gas_density_run(ncol, pver, pmid, rairv, virtual_temp, rho, errmsg, errflg)
 
     ! Should compute air density correctly.
     @assertEqual(expected_rho, rho, maxval(spacing(expected_rho)))

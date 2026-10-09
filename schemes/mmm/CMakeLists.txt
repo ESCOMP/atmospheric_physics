@@ -12,12 +12,36 @@ project(mmm_physics_compat
         Fortran
 )
 
+# Build the actual MMM physics code.
+add_library(mmm_physics)
+target_sources(mmm_physics
+    PRIVATE
+        ccpp_kind_types.F90
+        mmm_physics/bl_gwdo.F90
+        mmm_physics/bl_mynn.F90
+        mmm_physics/bl_mynn_subroutines.F90
+        mmm_physics/cu_ntiedtke.F90
+        mmm_physics/mynn_shared.F90
+        mmm_physics/sf_mynn.F90
+)
+target_include_directories(mmm_physics
+    INTERFACE
+        ${CMAKE_CURRENT_BINARY_DIR}
+)
+target_link_libraries(mmm_physics
+    PUBLIC
+        ccpp_framework_stub
+)
+
 add_library(mmm_physics_compat)
 target_sources(mmm_physics_compat
     PRIVATE
-        ../../test/unit-test/include/ccpp_kinds.F90
-        ccpp_kind_types.F90
+        bl_gwdo_compat.F90
+        bl_mynn_compat.F90
+        cldfra_xu_randall.F90
+        cu_ntiedtke_compat.F90
         mmm_physics_compat.F90
+        sf_mynn_compat.F90
 )
 target_include_directories(mmm_physics_compat
     INTERFACE
@@ -28,4 +52,10 @@ target_compile_options(mmm_physics_compat
         $<$<AND:$<CONFIG:Debug>,$<Fortran_COMPILER_ID:GNU>>:-fbacktrace -fcheck=all -ffpe-trap=invalid,overflow,zero -fno-unsafe-math-optimizations -frounding-math -fsignaling-nans -std=f2018 -Wall -Wextra -Wpedantic>
         $<$<AND:$<CONFIG:Debug>,$<Fortran_COMPILER_ID:Intel>>:-check all -fp-model=precise -stand f18 -traceback -warn all>
         $<$<AND:$<CONFIG:Debug>,$<Fortran_COMPILER_ID:IntelLLVM>>:-check all -fp-model=precise -stand f18 -traceback -warn all>
+)
+target_link_libraries(mmm_physics_compat
+    PRIVATE
+        mmm_physics
+    PUBLIC
+        ccpp_framework_stub
 )
