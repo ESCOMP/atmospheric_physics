@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Park (CAM5) prognostic cloud macrophysics.
+
+  TODO:
+   - Energy checker: CAM balances det_s / det_ice (detrained ice freezing energy and
+     water) and the macrophysics heating against the energy budget. A check_energy_chng
+     -style interstitial is likely needed around the detrain and macro steps. Deferred.
+   - do_cldice / do_cldliq guard (macrop_driver.F90:1037-1055): CAM endruns if the
+     macro run produced nonzero ice/liquid tendencies while the corresponding flag is
+     off. Pure guard (no state change), so b4b-neutral; wire as an interstitial later.
+     NOTE: with the NUMLIQ operator-split, park_macrophysics_run's ncten output is now the
+     COMBINED detrain+macro number tendency, so a future do_cldliq guard on ncten would test
+     the combined value rather than the macro-only one. Abort domain only (no answer impact;
+     never fires at do_cldliq=.true.).
+  Assisted-by: claude-opus:4.8[1m], claude-opus:4.6[1m]
+  6/16/26 6/30/26 hplin
+-->
+<suite name="park_macro" version="1.0">
+  <group name="physics_before_coupler">
+    <scheme>initialize_constituents</scheme>
+    <scheme>to_be_ccppized_temporary</scheme>
+    <scheme>set_cloud_fraction_top</scheme>
+    <scheme>compute_cloud_fraction_two_moment</scheme>
+
+    <!-- Snapshot stub: CAM's UW shallow scheme (absent from this macro-only suite) sets
+         use_shfrc=.true. in its init. Init-phase only; shfrc data is read from the snapshot. -->
+    <scheme>park_macrophysics_set_use_shfrc</scheme>
+
+    <!-- Park macro 1: Detrainment of convective condensate -->
+    <!-- Detrain dlf/dlf2 into cloud liquid/ice; produce
+         the targeted-stratus detrainment forcings dlf_T/dlf_qv/dlf_ql/dlf_qi/dlf_nl/dlf_ni
+         consumed by park_macrophysics_run below.
+         NUMLIQ operator-split: the detrainment droplet-number tendency is deliberately NOT
+         applied here (park_macrophysics_detrain emits it under a dedicated standard name,
+         ..._due_to_park_macrophysics_detrainment, so apply_constituent_tendencies skips it).
+         The cloud-liquid number constituent therefore stays at its pre-detrainment value
+         through this apply; park_macrophysics_run sums the detrainment and macrophysics
+         number tendencies into a single combined tendency to avoid catastrophic cancellation
+         at cloud edges, and emits the collapsed sequential value (nlwat_bfb) for the NLWAT
+         save. All other detrained species (cldliq/cldice/NUMICE) are applied normally. -->
+    <scheme>park_macrophysics_detrain</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>clamp_number_concentrations</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+
+    <!-- Park macro interstitial: Computation of cloud fractions -->
+    <!-- The cloud-fraction schemes read the post-detrain
+         state, so they must follow the apply step above.
+         NOTE: concld_old (convective_cloud_area_fraction_on_previous_timestep) is set in CAM
+         (line 784) from the current concld before convective_cloud_cover updates it; in the
+         snapshot test it is expected to be provided as input. -->
+    <scheme>convective_cloud_cover</scheme>
+    <scheme>convective_cloud_cover_diagnostics</scheme>
+    <scheme>compute_cloud_fraction</scheme>
+    <scheme>compute_cloud_fraction_diagnostics</scheme>
+    <scheme>cloud_fraction_fice</scheme>
+
+    <!-- Park macro 2: Stratiform liquid/ice macrophysics (mmacro_pcond) -->
+    <!-- Computes advective tendencies from the
+         on-previous-timestep equilibrium state (tcwat/qcwat/lcwat/iccwat/nlwat/niwat),
+         then the macrophysical condensation/evaporation tendencies. -->
+    <scheme>park_macrophysics</scheme>
+    <scheme>park_macrophysics_diagnostics</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>clamp_number_concentrations</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+
+    <!-- Save equilibrium state for the next timestep -->
+    <!-- tcwat=T, qcwat=qv, lcwat=qc+qi, iccwat=qi, nlwat=nc, niwat=ni
+         from the post-update state (levels top_lev:pver only).
+         This is why the six *wat fields are inout in park_macrophysics_run. -->
+    <scheme>park_macrophysics_save_qtlcwat</scheme>
+
+  </group>
+</suite>
