@@ -33,7 +33,7 @@
   standard_name = ccpp_error_message
   units = none
   dimensions = ()
-  type = character | kind = len=512
+  type = character | kind = len=*
   intent = out
 [ errflg ]
   standard_name = ccpp_error_code
@@ -107,7 +107,7 @@
   standard_name = ccpp_error_message
   units = none
   dimensions = ()
-  type = character | kind = len=512
+  type = character | kind = len=*
   intent = out
 [ errflg ]
   standard_name = ccpp_error_code
@@ -164,7 +164,7 @@
   standard_name = ccpp_error_message
   units = none
   dimensions = ()
-  type = character | kind = len=512
+  type = character | kind = len=*
   intent = out
 [ errflg ]
   standard_name = ccpp_error_code
@@ -208,7 +208,7 @@
   standard_name = ccpp_error_message
   units = none
   dimensions = ()
-  type = character | kind = len=512
+  type = character | kind = len=*
   intent = out
 [ errflg ]
   standard_name = ccpp_error_code
@@ -305,7 +305,7 @@
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = out
 [ errflg ]
@@ -331,7 +331,7 @@
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = out
 [ errflg ]
@@ -407,7 +407,7 @@
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = out
 [ errflg ]
