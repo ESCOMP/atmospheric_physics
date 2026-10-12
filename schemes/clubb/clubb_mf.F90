@@ -4,12 +4,8 @@ module clubb_mf
 ! Mass-flux module for use with CLUBB                                             !
 ! Together (CLUBB+MF) they comprise a eddy-diffusivity mass-flux approach (EDMF)  !
 ! =============================================================================== !
-  use shr_kind_mod,  only: r8=>shr_kind_r8
-  use spmd_utils,    only: masterproc
-  use cam_logfile,   only: iulog
+  use ccpp_kinds,    only: kind_phys
   use cam_abortutils,only: endrun
-  use time_manager,  only: is_first_step, get_nstep
-  use spmd_utils,    only: iam
   use physconst,     only: cpair, epsilo, gravit, latice, latvap, tmelt, rair, &
                            cpwv, cpliq, rh2o, zvir, pi
 
@@ -40,20 +36,20 @@ module clubb_mf
   !      7 = rel.hum. at 500 hPa
   !      8 = column int. rel.hum.
   integer  :: clubb_mf_Lopt    = 6
-  real(r8) :: clubb_mf_a0      = 0.15_r8
-  real(r8) :: clubb_mf_b0      = 1.0_r8
-  real(r8) :: clubb_mf_L0      = 200._r8
-  real(r8) :: clubb_mf_ent0    = 0.2_r8
-  real(r8) :: clubb_mf_alphturb= 3.0_r8
-  real(r8) :: clubb_mf_max_L0  = 1.e3_r8
-  real(r8) :: clubb_mf_fdd     = 0.5_r8
-  real(r8) :: clubb_mf_ddalph  = 12.0_r8
-  real(r8) :: clubb_mf_ddbeta  = 1.0_r8
-  real(r8) :: clubb_mf_pwfac   = 1.0_r8
-  real(r8) :: clubb_mf_ddexp   = 3.0_r8
-  real(r8) :: clubb_mf_pwmin   = 1.5_r8
-  real(r8) :: clubb_mf_pwmax   = 3.0_r8
-  real(r8) :: clubb_mf_cldfrac_fac = 10._r8
+  real(kind_phys) :: clubb_mf_a0      = 0.15_kind_phys
+  real(kind_phys) :: clubb_mf_b0      = 1.0_kind_phys
+  real(kind_phys) :: clubb_mf_L0      = 200._kind_phys
+  real(kind_phys) :: clubb_mf_ent0    = 0.2_kind_phys
+  real(kind_phys) :: clubb_mf_alphturb= 3.0_kind_phys
+  real(kind_phys) :: clubb_mf_max_L0  = 1.e3_kind_phys
+  real(kind_phys) :: clubb_mf_fdd     = 0.5_kind_phys
+  real(kind_phys) :: clubb_mf_ddalph  = 12.0_kind_phys
+  real(kind_phys) :: clubb_mf_ddbeta  = 1.0_kind_phys
+  real(kind_phys) :: clubb_mf_pwfac   = 1.0_kind_phys
+  real(kind_phys) :: clubb_mf_ddexp   = 3.0_kind_phys
+  real(kind_phys) :: clubb_mf_pwmin   = 1.5_kind_phys
+  real(kind_phys) :: clubb_mf_pwmax   = 3.0_kind_phys
+  real(kind_phys) :: clubb_mf_cldfrac_fac = 10._kind_phys
   integer  :: clubb_mf_up_ndt  = 1
   integer  :: clubb_mf_cp_ndt  = 1
   integer  :: clubb_mf_kseed = 1
@@ -90,7 +86,7 @@ module clubb_mf
 
   contains
 
-  subroutine clubb_mf_readnl(nlfile)
+  subroutine clubb_mf_readnl(nlfile, masterproc)
 
   ! =============================================================================== !
   ! MF namelists                                                                    !
@@ -99,6 +95,8 @@ module clubb_mf
     use namelist_utils,  only: find_group_name
     use spmd_utils,      only: mpicom, mstrid=>masterprocid, mpi_real8, mpi_integer, mpi_logical
     use phys_control,    only: phys_getopts
+
+    logical, intent(in) :: masterproc
 
     character(len=*), intent(in) :: nlfile  ! filepath for file containing namelist input
 
@@ -294,8 +292,8 @@ module clubb_mf
      use wv_saturation,      only : qsat
 
      integer,  intent(in)                 :: nzm, nzt
-     real(r8), intent(in)                 :: dtime                   ! host-model physics timestep [s]
-     real(r8), dimension(nzt), intent(in) :: u,      v,            & ! thermodynamic grid
+     real(kind_phys), intent(in)                 :: dtime                   ! host-model physics timestep [s]
+     real(kind_phys), dimension(nzt), intent(in) :: u,      v,            & ! thermodynamic grid
                                              thl,    thv,          & ! thermodynamic grid
                                              th,     qv,           & ! thermodynamic grid
                                              qt,     qc,           & ! thermodynamic grid
@@ -303,7 +301,7 @@ module clubb_mf
                                              dzt,    rho_zt,       & ! thermodynamic grid
                                              zt
 
-     real(r8), dimension(nzm), intent(in) :: thl_zm, thv_zm,       & ! momentum grid
+     real(kind_phys), dimension(nzm), intent(in) :: thl_zm, thv_zm,       & ! momentum grid
                                              w,                    &
                                              th_zm,  qv_zm,        &
                                              qt_zm,  qc_zm,        & ! momentum grid
@@ -313,24 +311,24 @@ module clubb_mf
                                              tke,    wpthlp_env,   & ! momentum grid
                                              wpthvp_env, wpqtp_env
 
-     real(r8), intent(in)                :: wthl_sfc,wqt_sfc
-     real(r8), intent(in)                :: pblh,tpert
+     real(kind_phys), intent(in)                :: wthl_sfc,wqt_sfc
+     real(kind_phys), intent(in)                :: pblh,tpert
      ! lower-tropospheric stability thl(700 hPa) - thl(1000 hPa) (K),
      ! computed in clubb_intr (kept there verbatim for bit-for-bit
      ! reproducibility of the trigger; see the note at the computation site)
-     real(r8), intent(in)                :: lts
+     real(kind_phys), intent(in)                :: lts
      ! the rhinv predictor is computed locally from the column inputs
      ! (previously preprocessed in clubb_intr)
-     real(r8)                            :: rhinv, rhlev
-     real(r8), dimension(nzt)            :: rhprof
-     real(r8)                            :: tmpt_rh, es_rh, qs_rh, tmpmq, tmpmqs
+     real(kind_phys)                            :: rhinv, rhlev
+     real(kind_phys), dimension(nzt)            :: rhprof
+     real(kind_phys)                            :: tmpt_rh, es_rh, qs_rh, tmpmq, tmpmqs
      integer                             :: k_rh
-     real(r8), intent(in)                :: ths,ustar
-     real(r8), intent(inout)             :: cbm1
+     real(kind_phys), intent(in)                :: ths,ustar
+     real(kind_phys), intent(inout)             :: cbm1
 
-     real(r8),dimension(clubb_mf_nup), intent(inout)  :: ztopm1,ddcp
+     real(kind_phys),dimension(clubb_mf_nup), intent(inout)  :: ztopm1,ddcp
 
-     real(r8),dimension(nzm,clubb_mf_nup), intent(out) :: upa,     & ! momentum grid
+     real(kind_phys),dimension(nzm,clubb_mf_nup), intent(out) :: upa,     & ! momentum grid
                                                           upw,     & ! momentum grid
                                                           upmf,    & ! momentum grid
                                                           upqt,    & ! momentum grid
@@ -342,7 +340,7 @@ module clubb_mf
                                                           upent,   & ! momentum grid
                                                           updet
 
-     real(r8),dimension(nzm,clubb_mf_nup), intent(out) :: dna,     & ! momentum grid
+     real(kind_phys),dimension(nzm,clubb_mf_nup), intent(out) :: dna,     & ! momentum grid
                                                           dnw,     & ! momentum grid
                                                           dnqt,    & ! momentum grid
                                                           dnthl,   & ! momentum grid
@@ -350,7 +348,7 @@ module clubb_mf
                                                           dnth,    & ! momentum grid
                                                           dnqc
 
-     real(r8),dimension(nzm), intent(out) :: dry_a,   moist_a,     & ! momentum grid
+     real(kind_phys),dimension(nzm), intent(out) :: dry_a,   moist_a,     & ! momentum grid
                                              dry_w,   moist_w,     & ! momentum grid
                                              dry_qt,  moist_qt,    & ! momentum grid
                                              dry_thl, moist_thl,   & ! momentum grid
@@ -358,7 +356,7 @@ module clubb_mf
                                              dry_v,   moist_v,     & ! momentum grid
                                                       moist_qc       ! momentum grid
 
-     real(r8),dimension(nzm), intent(out) :: ae,                                &
+     real(kind_phys),dimension(nzm), intent(out) :: ae,                                &
                                              ac,      aup,     adn,              &
                                              aw,      awup,    awdn,             &
                                              aww,     awwup,  awwdn,             &
@@ -371,7 +369,7 @@ module clubb_mf
                                              thlflx,  qtflx,   uflx,   vflx,     & ! momentum grid
                                              thvflx,  precc
 
-     real(r8),dimension(nzt), intent(out) :: sqtup,   sthlup,                   & ! thermodynamic grid
+     real(kind_phys),dimension(nzt), intent(out) :: sqtup,   sthlup,                   & ! thermodynamic grid
                                              sqtdn,   sthldn,                    & ! thermodynamic grid
                                              sqt,     sthl,                      & ! thermodynamic grid
                                              sac,     sev                          ! thermodynamic grid
@@ -380,11 +378,11 @@ module clubb_mf
      ! for updrafts/downdrafts (momentum grid), and ensemble plume-top index
      ! (counted in momentum interfaces from the surface, orientation independent)
      ! needed to populate deep pbuf variables for use by convtran2 and convproc_aer
-     real(r8),dimension(nzm), intent(out) :: mfup, entup, detup, &
+     real(kind_phys),dimension(nzm), intent(out) :: mfup, entup, detup, &
                                              mfdn, entdn, detdn
-     real(r8), intent(out)                :: kctop
+     real(kind_phys), intent(out)                :: kctop
 
-     real(r8),dimension(clubb_mf_nup), intent(out) :: ztop, dynamic_L0, mcape
+     real(kind_phys),dimension(clubb_mf_nup), intent(out) :: ztop, dynamic_L0, mcape
 
      ! =============================================================================== !
      ! INTERNAL VARIABLES
@@ -422,29 +420,29 @@ module clubb_mf
      integer :: ksfcm, ktopm, ksfct, ktopt, kdir, kt, kn, kt_up, kt_dn
 
      ! sums over all plumes
-     real(r8), dimension(nzm)              :: moist_th,   dry_th,      &
+     real(kind_phys), dimension(nzm)              :: moist_th,   dry_th,      &
                                               thl_env,    qt_env,      &
                                               thv_env,                 &
                                               thvflxup,   thvflxdn,    &
                                               awthvup,    awthvdn
      ! updraft properties
-     real(r8), dimension(nzm,clubb_mf_nup) :: upqv,     upqs,          & ! momentum grid
+     real(kind_phys), dimension(nzm,clubb_mf_nup) :: upqv,     upqs,          & ! momentum grid
                                               upql,     upqi,          & ! momentum grid
                                               upu,      upv,           & ! momentum grid
                                               uplmix                     ! momentum grid
      ! downdraft properties
-     real(r8), dimension(nzm,clubb_mf_nup) ::           dnqs,          & ! momentum grid
+     real(kind_phys), dimension(nzm,clubb_mf_nup) ::           dnqs,          & ! momentum grid
                                               dnql,     dnqi,          & ! momentum grid
                                               dnu,      dnv,           & ! momentum grid
                                               dnlmix                     ! momentum grid
      ! microphyiscs terms
-     real(r8), dimension(nzt,clubb_mf_nup) :: supqt,    supthl,        & ! thermodynamic grid
+     real(kind_phys), dimension(nzt,clubb_mf_nup) :: supqt,    supthl,        & ! thermodynamic grid
                                               sdnqt,    sdnthl,        & ! thermodynamic grid
                                               upauto,   upevap           ! thermodynamic grid
      ! ensemble updraft rain evaporation (area-weighted sum over plumes)
-     real(r8), dimension(nzt)              :: sevup                      ! thermodynamic grid
+     real(kind_phys), dimension(nzt)              :: sevup                      ! thermodynamic grid
      ! precipitation rates
-     real(r8), dimension(nzm,clubb_mf_nup) :: uprr,     dnrr             ! momentum grid
+     real(kind_phys), dimension(nzm,clubb_mf_nup) :: uprr,     dnrr             ! momentum grid
      !
      ! grid-mean (area-weighted) rain reservoirs. uprr/dnrr above are
      ! per-unit-plume-area and drive the local evaporation physics; uprg/dnrg carry
@@ -452,19 +450,19 @@ module clubb_mf
      ! sqtup/sqtdn accumulations) so that the area-weighted evaporation can never
      ! exceed the area-weighted rain supply. This guarantees the column integral of
      ! sqt (and hence surface precc / PRECC) is non-negative.
-     real(r8), dimension(nzm,clubb_mf_nup) :: uprg,     dnrg             ! momentum grid
-     real(r8)                              :: drytot,   lamk,   sdnmax
-     real(r8), parameter                   :: mf_dry_frac_max = 0.9_r8   ! max fractional total water removable per timestep
+     real(kind_phys), dimension(nzm,clubb_mf_nup) :: uprg,     dnrg             ! momentum grid
+     real(kind_phys)                              :: drytot,   lamk,   sdnmax
+     real(kind_phys), parameter                   :: mf_dry_frac_max = 0.9_kind_phys   ! max fractional total water removable per timestep
      !
      ! entrainment profiles
-     real(r8), dimension(nzt,clubb_mf_nup) :: entf,     mix              ! thermodynamic grid
+     real(kind_phys), dimension(nzt,clubb_mf_nup) :: entf,     mix              ! thermodynamic grid
      integer,  dimension(nzt,clubb_mf_nup) :: enti                       ! thermodynamic grid
      !
      ! other variables
      integer                              :: k,i,kstart,ddtopm,kcb,kpbl,kmid,nbot
      integer,  dimension(clubb_mf_nup)    :: ddbotm,kcbarr
-     real(r8), dimension(clubb_mf_nup)    :: zcb,cpfac
-     real(r8)                             :: zcb_unset,                &
+     real(kind_phys), dimension(clubb_mf_nup)    :: zcb,cpfac
+     real(kind_phys)                             :: zcb_unset,                &
                                              wthv_sfc, wthv,   wqt,    &
                                              ddint,   iddcp,   &
                                              wstar,  qstar,   thvstar, &
@@ -491,15 +489,15 @@ module clubb_mf
 
      ! limit convective area
      logical                                :: limarea = .false.
-     real(r8),parameter                     :: amax = 0.6_r8
+     real(kind_phys),parameter                     :: amax = 0.6_kind_phys
 
      ! buoyancy sorting variables
      logical                                :: bsort = .false.
-     real(r8),parameter                     :: rle = 0.1_r8
+     real(kind_phys),parameter                     :: rle = 0.1_kind_phys
      integer                                :: niter_xc = 1
      integer                                :: iter_xc
-     real(r8)                               :: es, entn, detn, mfn, ee2, ud2
-     real(r8)                               :: thln0,   qtn0,    wn0
+     real(kind_phys)                               :: es, entn, detn, mfn, ee2, ud2
+     real(kind_phys)                               :: thln0,   qtn0,    wn0
 
 
      ! aloft trigger flag
@@ -508,44 +506,44 @@ module clubb_mf
      ! strong-inversion (marine-Sc) plume inhibition (do_clubb_mf_invswitch)
      logical                                :: mf_inhibit
      ! rng seed
-     real(r8), dimension(4)                 :: u_seed
+     real(kind_phys), dimension(4)                 :: u_seed
 
      ! alpha relates star quantities to stddev Suselj etal 2019 DOI: 10.1175/JAS-D-18-0239.1
-     real(r8),parameter                     :: alphw   = 0.572_r8,        &
-                                               alphqt  = 2.890_r8,        &
-                                               alphthv = 2.890_r8
+     real(kind_phys),parameter                     :: alphw   = 0.572_kind_phys,        &
+                                               alphqt  = 2.890_kind_phys,        &
+                                               alphthv = 2.890_kind_phys
      ! w' covariance Suselj etal 2019 2019 DOI: 10.1175/JAS-D-18-0239.1
-     real(r8),parameter                     :: cwqt  = 0.32_r8,           &
-                                               cwthv = 0.58_r8
+     real(kind_phys),parameter                     :: cwqt  = 0.32_kind_phys,           &
+                                               cwthv = 0.58_kind_phys
      ! virtual mass coefficients for w-eqn Suselj etal 2019 DOI: 10.1175/JAS-D-18-0239.1
-     real(r8),parameter                     :: wa = 1.0_r8,               &
-                                               wb = 1.5_r8
+     real(kind_phys),parameter                     :: wa = 1.0_kind_phys,               &
+                                               wb = 1.5_kind_phys
      ! min values to avoid singularities
-     real(r8),parameter                     :: wstarmin = 1.e-3_r8,       &
-                                               pblhmin  = 100._r8
+     real(kind_phys),parameter                     :: wstarmin = 1.e-3_kind_phys,       &
+                                               pblhmin  = 100._kind_phys
      ! evaporation efficiency Suselj etal 2019 DOI: 10.1175/JAS-D-18-0239.1
-     real(r8),parameter                     :: ke = 2.5e-4_r8
+     real(kind_phys),parameter                     :: ke = 2.5e-4_kind_phys
      !
      ! height where downdrafts feel the surface
-     real(r8),parameter                     :: z00dn = 1.e3_r8, &
-                                               tinynum = 1.e-7_r8
+     real(kind_phys),parameter                     :: z00dn = 1.e3_kind_phys, &
+                                               tinynum = 1.e-7_kind_phys
      ! to fix entrainmnet rate
      logical                                :: fixent = .false.
      !
      ! fixed entrainment rate
-     real(r8),parameter                     :: fixent_ent = 2.e-4_r8
+     real(kind_phys),parameter                     :: fixent_ent = 2.e-4_kind_phys
      !
      ! Lower limit on entrainment length scale
-     real(r8),parameter                     :: min_L0 = 0.5_r8
+     real(kind_phys),parameter                     :: min_L0 = 0.5_kind_phys
      !
      ! limiter for tke enahnced fractional entrainment
-     real(r8),parameter                     :: max_eturb = 10._r8
+     real(kind_phys),parameter                     :: max_eturb = 10._kind_phys
      !
      ! floor on the ensemble mass flux for the deep-hookup ratio
      ! diagnostics (entup/detup/entdn/detdn): near plume tops the
      ! mass-flux-weighted entrainment divides by a vanishing mfup while
      ! upent ~ 1/upw diverges, producing immense (finite) ratios
-     real(r8),parameter                     :: mf_tiny = 1.e-12_r8
+     real(kind_phys),parameter                     :: mf_tiny = 1.e-12_kind_phys
      !
      ! use implicit method for plume updraft velocity
      logical, parameter                     :: do_implicit = .false.
@@ -554,59 +552,59 @@ module clubb_mf
      logical, parameter                     :: scalesrf = .false.
      !
      ! minimum downdraft speed
-     real(r8),parameter                     :: mindnw = 1.E-2_r8
+     real(kind_phys),parameter                     :: mindnw = 1.E-2_kind_phys
      !
      ! limiter on cold pool effects
-     real(r8),parameter                     :: max_cpfac = 5._r8
+     real(kind_phys),parameter                     :: max_cpfac = 5._kind_phys
      !
      ! max limiter on cold pool init effects
-     real(r8),parameter                     :: max_cpinit = 0.5_r8
+     real(kind_phys),parameter                     :: max_cpinit = 0.5_kind_phys
      !
      ! minimum depth of plume expressed as number of levels
      integer,parameter                      :: kspan_min = 4
      !
      ! threshold on surface buoyancy flux below which elevated ("aloft")
      ! convection triggering is used instead of surface-based
-     real(r8), parameter :: aloft_wthv_thresh = 0.01_r8
+     real(kind_phys), parameter :: aloft_wthv_thresh = 0.01_kind_phys
 
      ! reference pressure (Pa) used to locate the mid-troposphere level
      ! for the aloft-triggering search, and as
      ! the target level for RH interpolation in the rhinv predictor
-     real(r8), parameter :: p_midtrop = 50000._r8
+     real(kind_phys), parameter :: p_midtrop = 50000._kind_phys
      !
      ! floor on the RH-interpolation denominator (qsat)
-     real(r8), parameter :: qsat_floor = 1.e-30_r8
+     real(kind_phys), parameter :: qsat_floor = 1.e-30_kind_phys
      !
      ! cap on interpolated relative humidity before inverting it into rhinv,
      ! to avoid a singularity as RH -> 1
-     real(r8), parameter :: rh_cap = 0.990_r8
+     real(kind_phys), parameter :: rh_cap = 0.990_kind_phys
      !
      ! lower-tropospheric-stability threshold (K) above which the marine-Sc
      ! inversion is judged strong enough to inhibit the MF plume ensemble
      ! entirely (mirrors the CLUBB-core expldiff criterion)
-     real(r8), parameter :: lts_inhibit_thresh = 20._r8
+     real(kind_phys), parameter :: lts_inhibit_thresh = 20._kind_phys
      !
      ! vertical extension depth (m) used to stretch an aloft-triggered plume
      ! back down toward the surface when its launch level is within this
      ! depth of the surface
-     real(r8), parameter :: aloft_ext_depth = 1000._r8
+     real(kind_phys), parameter :: aloft_ext_depth = 1000._kind_phys
      !
      ! coefficient and exponent in the RH-based dynamic entrainment-length
      ! diagnostic: rh_L0 = rh_L0_coef * rhinv**rh_L0_exp
-     real(r8), parameter :: rh_L0_coef = 50._r8
-     real(r8), parameter :: rh_L0_exp  = 3._r8
+     real(kind_phys), parameter :: rh_L0_coef = 50._kind_phys
+     real(kind_phys), parameter :: rh_L0_exp  = 3._kind_phys
      !
      ! rh_L0 threshold above which do_clubb_mf_rhtke forces eturb to 1
      ! (TKE-entrainment enhancement switched off)
-     real(r8), parameter :: rh_L0_thresh = 733.34_r8
+     real(kind_phys), parameter :: rh_L0_thresh = 733.34_kind_phys
      !
      ! momentum entrains at a reduced rate relative to the thermodynamic
      ! entrainment rate entn -- classic mass-flux assumption
-     real(r8), parameter :: ent_mom_reduction = 3._r8
+     real(kind_phys), parameter :: ent_mom_reduction = 3._kind_phys
      !
      ! sentinel "not yet reached" value for zcb (cloud-base height);
      ! must be far above any physically possible height
-     real(r8), parameter :: zcb_unset_val = 9999999._r8
+     real(kind_phys), parameter :: zcb_unset_val = 9999999._kind_phys
 
      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
      !!!!!!!!!!!!!!!!!!!!!! BEGIN CODE !!!!!!!!!!!!!!!!!!!!!!!
@@ -634,133 +632,133 @@ module clubb_mf
      end if
 
      ! INITIALIZE OUTPUT VARIABLES
-     dry_a     = 0._r8
-     moist_a   = 0._r8
-     dry_w     = 0._r8
-     moist_w   = 0._r8
-     dry_qt    = 0._r8
-     moist_qt  = 0._r8
-     dry_thl   = 0._r8
-     moist_thl = 0._r8
-     dry_u     = 0._r8
-     moist_u   = 0._r8
-     dry_v     = 0._r8
-     moist_v   = 0._r8
-     moist_qc  = 0._r8
+     dry_a     = 0._kind_phys
+     moist_a   = 0._kind_phys
+     dry_w     = 0._kind_phys
+     moist_w   = 0._kind_phys
+     dry_qt    = 0._kind_phys
+     moist_qt  = 0._kind_phys
+     dry_thl   = 0._kind_phys
+     moist_thl = 0._kind_phys
+     dry_u     = 0._kind_phys
+     moist_u   = 0._kind_phys
+     dry_v     = 0._kind_phys
+     moist_v   = 0._kind_phys
+     moist_qc  = 0._kind_phys
 
      ! this is the environmental area - by default 1.
-     ae        = 1._r8
-     ac        = 0._r8
-     aup       = 0._r8
-     adn       = 0._r8
-     aw        = 0._r8
-     awup      = 0._r8
-     awdn      = 0._r8
-     aww       = 0._r8
-     awwup     = 0._r8
-     awwdn     = 0._r8
-     awuup     = 0._r8
-     awvup     = 0._r8
-     awudn     = 0._r8
-     awvdn     = 0._r8
-     awthvup   = 0._r8
-     awthvdn   = 0._r8
-     awthlup   = 0._r8
-     awqtup    = 0._r8
-     awthldn   = 0._r8
-     awqtdn    = 0._r8
-     awthl     = 0._r8
-     awqt      = 0._r8
-     awu       = 0._r8
-     awv       = 0._r8
-     thvflxup  = 0._r8
-     thlflxup  = 0._r8
-     qtflxup   = 0._r8
-     thvflxdn  = 0._r8
-     thlflxdn  = 0._r8
-     qtflxdn   = 0._r8
-     thvflx    = 0._r8
-     thlflx    = 0._r8
-     uflxup    = 0._r8
-     vflxup    = 0._r8
-     uflxdn    = 0._r8
-     vflxdn    = 0._r8
-     uflx      = 0._r8
-     vflx      = 0._r8
-     qtflx     = 0._r8
-     sqtup     = 0._r8
-     sthlup    = 0._r8
-     sqtdn     = 0._r8
-     sthldn    = 0._r8
-     sqt       = 0._r8
-     sthl      = 0._r8
-     precc     = 0._r8
+     ae        = 1._kind_phys
+     ac        = 0._kind_phys
+     aup       = 0._kind_phys
+     adn       = 0._kind_phys
+     aw        = 0._kind_phys
+     awup      = 0._kind_phys
+     awdn      = 0._kind_phys
+     aww       = 0._kind_phys
+     awwup     = 0._kind_phys
+     awwdn     = 0._kind_phys
+     awuup     = 0._kind_phys
+     awvup     = 0._kind_phys
+     awudn     = 0._kind_phys
+     awvdn     = 0._kind_phys
+     awthvup   = 0._kind_phys
+     awthvdn   = 0._kind_phys
+     awthlup   = 0._kind_phys
+     awqtup    = 0._kind_phys
+     awthldn   = 0._kind_phys
+     awqtdn    = 0._kind_phys
+     awthl     = 0._kind_phys
+     awqt      = 0._kind_phys
+     awu       = 0._kind_phys
+     awv       = 0._kind_phys
+     thvflxup  = 0._kind_phys
+     thlflxup  = 0._kind_phys
+     qtflxup   = 0._kind_phys
+     thvflxdn  = 0._kind_phys
+     thlflxdn  = 0._kind_phys
+     qtflxdn   = 0._kind_phys
+     thvflx    = 0._kind_phys
+     thlflx    = 0._kind_phys
+     uflxup    = 0._kind_phys
+     vflxup    = 0._kind_phys
+     uflxdn    = 0._kind_phys
+     vflxdn    = 0._kind_phys
+     uflx      = 0._kind_phys
+     vflx      = 0._kind_phys
+     qtflx     = 0._kind_phys
+     sqtup     = 0._kind_phys
+     sthlup    = 0._kind_phys
+     sqtdn     = 0._kind_phys
+     sthldn    = 0._kind_phys
+     sqt       = 0._kind_phys
+     sthl      = 0._kind_phys
+     precc     = 0._kind_phys
 
-     sac       = 0._r8
-     sev       = 0._r8
-     sevup     = 0._r8
+     sac       = 0._kind_phys
+     sev       = 0._kind_phys
+     sevup     = 0._kind_phys
 
-     mfup      = 0._r8
-     entup     = 0._r8
-     detup     = 0._r8
-     mfdn      = 0._r8
-     entdn     = 0._r8
-     detdn     = 0._r8
-     kctop     = 1._r8
+     mfup      = 0._kind_phys
+     entup     = 0._kind_phys
+     detup     = 0._kind_phys
+     mfdn      = 0._kind_phys
+     entdn     = 0._kind_phys
+     detdn     = 0._kind_phys
+     kctop     = 1._kind_phys
 
-     mix       = 0._r8
-     entf      = 0._r8
+     mix       = 0._kind_phys
+     entf      = 0._kind_phys
      enti      = 0
-     det       = 0._r8
+     det       = 0._kind_phys
 
      ! START MAIN COMPUTATION
-     upw   = 0._r8
-     upth  = 0._r8
-     upthl = 0._r8
-     upthv = 0._r8
-     upqt  = 0._r8
-     upa   = 0._r8
-     upmf  = 0._r8
-     upu   = 0._r8
-     upv   = 0._r8
-     upqc  = 0._r8
-     upth  = 0._r8
-     upql  = 0._r8
-     upqi  = 0._r8
-     upqv  = 0._r8
-     upqs  = 0._r8
-     upbuoy= 0._r8
-     uplmix= 0._r8
-     uprr  = 0._r8
-     uprg  = 0._r8
-     supqt = 0._r8
-     supthl= 0._r8
-     upent = 0._r8
-     updet = 0._r8
-     upauto= 0._r8
-     upevap= 0._r8
+     upw   = 0._kind_phys
+     upth  = 0._kind_phys
+     upthl = 0._kind_phys
+     upthv = 0._kind_phys
+     upqt  = 0._kind_phys
+     upa   = 0._kind_phys
+     upmf  = 0._kind_phys
+     upu   = 0._kind_phys
+     upv   = 0._kind_phys
+     upqc  = 0._kind_phys
+     upth  = 0._kind_phys
+     upql  = 0._kind_phys
+     upqi  = 0._kind_phys
+     upqv  = 0._kind_phys
+     upqs  = 0._kind_phys
+     upbuoy= 0._kind_phys
+     uplmix= 0._kind_phys
+     uprr  = 0._kind_phys
+     uprg  = 0._kind_phys
+     supqt = 0._kind_phys
+     supthl= 0._kind_phys
+     upent = 0._kind_phys
+     updet = 0._kind_phys
+     upauto= 0._kind_phys
+     upevap= 0._kind_phys
 
-     dnw   = 0._r8
-     dna   = 0._r8
-     dnu   = 0._r8
-     dnv   = 0._r8
-     dnqt  = 0._r8
-     dnthl = 0._r8
-     dnthv = 0._r8
-     dnrr  = 0._r8
-     dnrg  = 0._r8
-     dnth  = 0._r8
-     dnqc  = 0._r8
-     dnql  = 0._r8
-     dnqi  = 0._r8
-     dnqs  = 0._r8
-     dnlmix= 0._r8
-     sdnqt = 0._r8
-     sdnthl= 0._r8
+     dnw   = 0._kind_phys
+     dna   = 0._kind_phys
+     dnu   = 0._kind_phys
+     dnv   = 0._kind_phys
+     dnqt  = 0._kind_phys
+     dnthl = 0._kind_phys
+     dnthv = 0._kind_phys
+     dnrr  = 0._kind_phys
+     dnrg  = 0._kind_phys
+     dnth  = 0._kind_phys
+     dnqc  = 0._kind_phys
+     dnql  = 0._kind_phys
+     dnqi  = 0._kind_phys
+     dnqs  = 0._kind_phys
+     dnlmix= 0._kind_phys
+     sdnqt = 0._kind_phys
+     sdnthl= 0._kind_phys
 
-     dynamic_L0 = 0._r8
-     ztop = 0._r8
-     mcape = 0._r8
+     dynamic_L0 = 0._kind_phys
+     ztop = 0._kind_phys
+     mcape = 0._kind_phys
      ddbotm = 0
 
      if (bsort) then
@@ -774,7 +772,7 @@ module clubb_mf
      if (do_clubb_mf_aspd) limarea = .true.
 
      ! unique identifier
-     zcb_unset = zcb_unset_val !zcb_unset_val = 9999999._r8
+     zcb_unset = zcb_unset_val !zcb_unset_val = 9999999._kind_phys
      zcb       = zcb_unset
 
      ! surface buoyancy flux
@@ -787,12 +785,12 @@ module clubb_mf
        kpbl = kpbl + kdir
      end do
 
-     if (do_clubb_mf_aloft .and. wthv_sfc < aloft_wthv_thresh) then ! aloft_wthv_thresh = 0.01_r8
+     if (do_clubb_mf_aloft .and. wthv_sfc < aloft_wthv_thresh) then ! aloft_wthv_thresh = 0.01_kind_phys
        aloft = .true.
 
        kmid = ksfcm
        ! Use a pressure-based criterion to locate the mid-level within the troposphere
-       do while (p_zm(kmid) > p_midtrop) !p_midtrop = 50000._r8
+       do while (p_zm(kmid) > p_midtrop) !p_midtrop = 50000._kind_phys
          kmid = kmid + kdir
        end do
 
@@ -804,8 +802,8 @@ module clubb_mf
        wqt = wpqtp_env(kstart)
 
        if (kstart == ktopm) then
-         wthv = 0._r8
-         wqt  = 0._r8
+         wthv = 0._kind_phys
+         wqt  = 0._kind_phys
        end if
 
      else
@@ -830,11 +828,11 @@ module clubb_mf
      !     passed in as lts -- exactly the CLUBB-core expldiff criterion    !
      !     (advance_clubb_core_module).                                     !
      ! ------------------------------------------------------------------- !
-     rhinv = 0._r8
+     rhinv = 0._kind_phys
      if (do_clubb_mf_rhtke .or. clubb_mf_Lopt==7 .or. clubb_mf_Lopt==8) then
        if (clubb_mf_Lopt == 8) then
-         tmpmq  = 0._r8
-         tmpmqs = 0._r8
+         tmpmq  = 0._kind_phys
+         tmpmqs = 0._kind_phys
          do k_rh = 1, nzt
            ! T from the full potential temperature (matches the state%t the
            ! previous clubb_intr preprocessing used)
@@ -843,17 +841,17 @@ module clubb_mf
            tmpmq  = tmpmq  + rho_zt(k_rh)*dzt(k_rh)*qv(k_rh)
            tmpmqs = tmpmqs + rho_zt(k_rh)*dzt(k_rh)*qs_rh
          end do
-         rhlev = tmpmq/max(tmpmqs, qsat_floor) !qsat_floor = 1.e-30_r8
+         rhlev = tmpmq/max(tmpmqs, qsat_floor) !qsat_floor = 1.e-30_kind_phys
        else
          do k_rh = 1, nzt
            tmpt_rh = th(k_rh)/iexner_zt(k_rh)
            call qsat(tmpt_rh, p_zt(k_rh), es_rh, qs_rh)
-           rhprof(k_rh) = qv(k_rh)/max(qs_rh, qsat_floor) !qsat_floor = 1.e-30_r8
+           rhprof(k_rh) = qv(k_rh)/max(qs_rh, qsat_floor) !qsat_floor = 1.e-30_kind_phys
          end do
-         rhlev = mf_pinterp(nzt, p_zt, rhprof, p_midtrop)  !p_midtrop = 50000._r8
+         rhlev = mf_pinterp(nzt, p_zt, rhprof, p_midtrop)  !p_midtrop = 50000._kind_phys
        end if
-       if (rhlev >= 1._r8) rhlev = rh_cap ! rh_cap = 0.990_r8
-       if (rhlev > 0._r8) rhinv = 1._r8/((1._r8/rhlev) - 1._r8)
+       if (rhlev >= 1._kind_phys) rhlev = rh_cap ! rh_cap = 0.990_kind_phys
+       if (rhlev > 0._kind_phys) rhinv = 1._kind_phys/((1._kind_phys/rhlev) - 1._kind_phys)
      end if
 
      ! marine-Sc inhibition: mirror the CLUBB-core expldiff
@@ -863,12 +861,12 @@ module clubb_mf
      ! ensemble is shut off entirely and CLUBB owns the boundary layer.  All
      ! plume outputs were zeroed above, so the inhibited column follows the
      ! same code path as a negatively buoyant (no-convection) one.
-     mf_inhibit = do_clubb_mf_invswitch .and. (lts >= lts_inhibit_thresh) ! lts_inhibit_thresh = 20._r8
+     mf_inhibit = do_clubb_mf_invswitch .and. (lts >= lts_inhibit_thresh) ! lts_inhibit_thresh = 20._kind_phys
 
      ! Early return if no positive buoyancy and no moisture flux
-     if (.not. (wthv > 0._r8 .and. wqt > 0._r8 .and. (.not. mf_inhibit) ) ) then
+     if (.not. (wthv > 0._kind_phys .and. wqt > 0._kind_phys .and. (.not. mf_inhibit) ) ) then
 
-       ddcp(:) = 0._r8
+       ddcp(:) = 0._kind_phys
        ztopm1(:) = zm(ksfcm)
        cbm1 = zm(ksfcm)
        return
@@ -886,16 +884,16 @@ module clubb_mf
        ! --------------------------------------------------------- !
        ! Initialize using Deardorff convective velocity scale      !
        ! --------------------------------------------------------- !
-       wstar = max( wstarmin, (gravit/thv(kstart - (1-kdir)/2)*wthv*convh)**(1._r8/3._r8) )
+       wstar = max( wstarmin, (gravit/thv(kstart - (1-kdir)/2)*wthv*convh)**(1._kind_phys/3._kind_phys) )
 
        ! --------------------------------------------------------- !
        ! Compute cold pool feedback parameter                      !
        ! --------------------------------------------------------- !
 
-       cpfac(:) = 1._r8
+       cpfac(:) = 1._kind_phys
        if (do_clubb_mf_coldpool) then
          do i=1,clubb_mf_nup
-           cpfac(i) = min( (max(ddcp(i)/wstar,1._r8))**clubb_mf_ddbeta, max_cpfac )
+           cpfac(i) = min( (max(ddcp(i)/wstar,1._kind_phys))**clubb_mf_ddbeta, max_cpfac )
          end do
        end if
 
@@ -915,9 +913,9 @@ module clubb_mf
        do i=1,clubb_mf_nup
 
          if (do_clubb_mf_coldpool_init) then
-           sigmaw   = alphw * wstar * (1._r8 + max_cpinit*cpfac(i)/max_cpfac)
-           sigmaqt  = alphqt * abs(qstar) * (1._r8 + max_cpinit*cpfac(i)/max_cpfac)
-           sigmathv = alphthv * abs(thvstar) * (1._r8 + max_cpinit*cpfac(i)/max_cpfac)
+           sigmaw   = alphw * wstar * (1._kind_phys + max_cpinit*cpfac(i)/max_cpfac)
+           sigmaqt  = alphqt * abs(qstar) * (1._kind_phys + max_cpinit*cpfac(i)/max_cpfac)
+           sigmathv = alphthv * abs(thvstar) * (1._kind_phys + max_cpinit*cpfac(i)/max_cpfac)
          else
            sigmaw   = alphw * wstar
            sigmaqt  = alphqt * abs(qstar)
@@ -927,12 +925,12 @@ module clubb_mf
          wmin = sigmaw * clubb_mf_pwmin
          wmax = sigmaw * clubb_mf_pwmax
 
-         wlv = wmin + (wmax-wmin) / (real(clubb_mf_nup,r8)) * (real(i-1, r8))
-         wtv = wmin + (wmax-wmin) / (real(clubb_mf_nup,r8)) * real(i,r8)
+         wlv = wmin + (wmax-wmin) / (real(clubb_mf_nup,kind_phys)) * (real(i-1, kind_phys))
+         wtv = wmin + (wmax-wmin) / (real(clubb_mf_nup,kind_phys)) * real(i,kind_phys)
 
-         upw(kstart,i) = 0.5_r8 * (wlv+wtv)
-         upa(kstart,i) = 0.5_r8 * erf( wtv/(sqrt(2._r8)*sigmaw) ) &
-                    - 0.5_r8 * erf( wlv/(sqrt(2._r8)*sigmaw) )
+         upw(kstart,i) = 0.5_kind_phys * (wlv+wtv)
+         upa(kstart,i) = 0.5_kind_phys * erf( wtv/(sqrt(2._kind_phys)*sigmaw) ) &
+                    - 0.5_kind_phys * erf( wlv/(sqrt(2._kind_phys)*sigmaw) )
 
          upu(kstart,i) = u(kstart - (1-kdir)/2)
          upv(kstart,i) = v(kstart - (1-kdir)/2)
@@ -941,14 +939,14 @@ module clubb_mf
          upthv(kstart,i) = cwthv * upw(kstart,i) * sigmathv/sigmaw
        enddo
 
-       facqtu=1._r8
-       facthvu=1._r8
+       facqtu=1._kind_phys
+       facthvu=1._kind_phys
        if (scalesrf) then
          ! scale surface fluxes
          ! (req'd for conservation if not running with zero-flux b.c.'s)
-         srfwqtu = 0._r8
-         srfwthvu = 0._r8
-         srfarea = 0._r8
+         srfwqtu = 0._kind_phys
+         srfwthvu = 0._kind_phys
+         srfarea = 0._kind_phys
          do i=1,clubb_mf_nup
              srfwqtu=srfwqtu+upqt(kstart,i)*upw(kstart,i)*upa(kstart,i)
              srfwthvu=srfwthvu+upthv(kstart,i)*upw(kstart,i)*upa(kstart,i)
@@ -963,8 +961,8 @@ module clubb_mf
          kt = kstart - (1-kdir)/2
          kn = kstart + kdir
 
-         betaqt = (qt(kt+2*kdir)-qt(kt))/(0.5_r8*(dzt(kt+2*kdir)+2._r8*dzt(kt+kdir)+dzt(kt)))
-         betathl = (thv(kt+2*kdir)-thv(kt))/(0.5_r8*(dzt(kt+2*kdir)+2._r8*dzt(kt+kdir)+dzt(kt)))
+         betaqt = (qt(kt+2*kdir)-qt(kt))/(0.5_kind_phys*(dzt(kt+2*kdir)+2._kind_phys*dzt(kt+kdir)+dzt(kt)))
+         betathl = (thv(kt+2*kdir)-thv(kt))/(0.5_kind_phys*(dzt(kt+2*kdir)+2._kind_phys*dzt(kt+kdir)+dzt(kt)))
 
          if (.not.aloft) then
            upqt(kstart,i)= qt(kt)-betaqt*dzt(kt)+facqtu*upqt(kstart,i)
@@ -972,10 +970,10 @@ module clubb_mf
          else
            upqt(kstart,i)= qt(kt)+upqt(kstart,i)
            upthv(kstart,i)= thv(kt)+upthv(kstart,i)
-           if (w(kstart) > 0._r8) upw(kstart,i)= w(kstart)+upw(kstart,i)
+           if (w(kstart) > 0._kind_phys) upw(kstart,i)= w(kstart)+upw(kstart,i)
          end if
 
-         upthl(kstart,i) = upthv(kstart,i) / (1._r8+zvir*upqt(kstart,i))
+         upthl(kstart,i) = upthv(kstart,i) / (1._kind_phys+zvir*upqt(kstart,i))
          upth(kstart,i)  = upthl(kstart,i)
          upmf(kstart,i) = rho_zm(kstart)*upa(kstart,i)*upw(kstart,i)
 
@@ -988,13 +986,13 @@ module clubb_mf
          upqi(kstart,i)  = qin
          upqs(kstart,i)  = qsn
          upth(kstart,i)  = thn
-         if (qcn > 0._r8) zcb(i) = zm(kstart)
+         if (qcn > 0._kind_phys) zcb(i) = zm(kstart)
        end do
 
        ! if aloft extend the mass flux plume below kstart nbot levels
        if (aloft) then
          zsub = zm(kstart)
-         dzext = aloft_ext_depth ! aloft_ext_depth = 1000._r8
+         dzext = aloft_ext_depth ! aloft_ext_depth = 1000._kind_phys
          !if greater than dzext above the surface
          if (zsub > dzext) then
              ! find nbot levs below kstart
@@ -1081,12 +1079,12 @@ module clubb_mf
            kn = k + kdir
 
            ! get microphysics, autoconversion
-           if (do_clubb_mf_precip .and. upqc(k,i) > 0._r8) then
+           if (do_clubb_mf_precip .and. upqc(k,i) > 0._kind_phys) then
              call precip_mf(upqs(k,i),upqt(k,i),upw(k,i),dzt(kt),abs(zm(kn)-zcb(i)),supqt(kt,i))
-             supthl(kt,i) = -1._r8*lmixn*supqt(kt,i)*iexner_zt(kt)/cpair
+             supthl(kt,i) = -1._kind_phys*lmixn*supqt(kt,i)*iexner_zt(kt)/cpair
            else
-             supqt(kt,i)  = 0._r8
-             supthl(kt,i) = 0._r8
+             supqt(kt,i)  = 0._kind_phys
+             supthl(kt,i) = 0._kind_phys
            end if
 
            ! compute mixing rate
@@ -1094,7 +1092,7 @@ module clubb_mf
              mix(kt,i) = fixent_ent
            else
              ! get entrainment, ent=ent0/dz*P(dz/L0)
-             mix(kt,i) = real( enti(kt,i),r8)*clubb_mf_ent0/dzt(kt)
+             mix(kt,i) = real( enti(kt,i),kind_phys)*clubb_mf_ent0/dzt(kt)
            end if
 
            !ee2 and the plume's post-entrainment state are mutually dependent
@@ -1106,9 +1104,9 @@ module clubb_mf
                thln = upthl(k,i)
                wn   = upw(k,i)
              else
-               qtn  = 0.5_r8*(qtn + qtn0)
-               thln = 0.5_r8*(thln + thln0)
-               wn = 0.5_r8*(wn + wn0)
+               qtn  = 0.5_kind_phys*(qtn + qtn0)
+               thln = 0.5_kind_phys*(thln + thln0)
+               wn = 0.5_kind_phys*(wn + wn0)
              end if
 
              qtn0  = qtn
@@ -1124,8 +1122,8 @@ module clubb_mf
                                            ee2, ud2 )
                detn  = mix(kt,i) * ud2
              else !simple closure, mixing fractions are constants.
-               ee2 = 1._r8
-               ud2 = 1._r8
+               ee2 = 1._kind_phys
+               ud2 = 1._kind_phys
              end if
 
              ! entrainment rate
@@ -1135,23 +1133,23 @@ module clubb_mf
              ! TKE enhanced entrainment                                  !
              ! switches off when dynamic_L0 > max_L0                     !
              ! --------------------------------------------------------- !
-             eturb = (1._r8 + clubb_mf_alphturb*sqrt(tke(k))/upw(k,i))
+             eturb = (1._kind_phys + clubb_mf_alphturb*sqrt(tke(k))/upw(k,i))
              if (do_clubb_mf_rhtke) then
-               rh_L0 = rh_L0_coef * (rhinv**rh_L0_exp) ! rh_L0_coef = 50._r8, rh_L0_exp  = 3._r8
-               if (rh_L0 >= rh_L0_thresh) eturb = 1._r8 ! rh_L0_thresh = 733.34_r8
+               rh_L0 = rh_L0_coef * (rhinv**rh_L0_exp) ! rh_L0_coef = 50._kind_phys, rh_L0_exp  = 3._kind_phys
+               if (rh_L0 >= rh_L0_thresh) eturb = 1._kind_phys ! rh_L0_thresh = 733.34_kind_phys
              else
-               if (dynamic_L0(i) >= clubb_mf_max_L0) eturb = 1._r8
+               if (dynamic_L0(i) >= clubb_mf_max_L0) eturb = 1._kind_phys
              end if
              entn = entn * eturb
 
              ! integrate updraft
              entexp  = exp(-entn*eturb*dzt(kt))
-             entexpu = exp(-entn*dzt(kt)/ent_mom_reduction) ! ent_mom_reduction = 3._r8
+             entexpu = exp(-entn*dzt(kt)/ent_mom_reduction) ! ent_mom_reduction = 3._kind_phys
 
-             qtn  = qt(kt) *(1._r8-entexp ) + upqt (k,i)*entexp + supqt(kt,i)
-             thln = thl(kt)*(1._r8-entexp ) + upthl(k,i)*entexp + supthl(kt,i)
-             un   = u(kt)  *(1._r8-entexpu) + upu  (k,i)*entexpu
-             vn   = v(kt)  *(1._r8-entexpu) + upv  (k,i)*entexpu
+             qtn  = qt(kt) *(1._kind_phys-entexp ) + upqt (k,i)*entexp + supqt(kt,i)
+             thln = thl(kt)*(1._kind_phys-entexp ) + upthl(k,i)*entexp + supthl(kt,i)
+             un   = u(kt)  *(1._kind_phys-entexpu) + upu  (k,i)*entexpu
+             vn   = v(kt)  *(1._kind_phys-entexpu) + upv  (k,i)*entexpu
 
              ! convert source terms to a tendency (convert from S*dz/w to S)
              supqt(kt,i) = supqt(kt,i)*upw(k,i)/dzt(kt)
@@ -1161,30 +1159,30 @@ module clubb_mf
              ! get cloud, momentum levels
              call condensation_mf(qtn, thln, p_zm(kn), iexner_zm(kn), &
                                   thvn, qcn, thn, qln, qin, qsn, lmixn)
-             if (zcb(i)==zcb_unset .and. qcn > 0._r8) zcb(i) = zm(kn)
+             if (zcb(i)==zcb_unset .and. qcn > 0._kind_phys) zcb(i) = zm(kn)
 
              ! get buoyancy
-             B=gravit*(0.5_r8*(thvn + upthv(k,i))/thv(kt)-1._r8)
+             B=gravit*(0.5_kind_phys*(thvn + upthv(k,i))/thv(kt)-1._kind_phys)
 
              if (do_implicit) then
-               wp = clubb_mf_alphturb*wb*entn*sqrt(0.5_r8*(tke(kn)+tke(k)))*dzt(kt)
-               wn = (-wp + sqrt(wp**2._r8 + (1._r8 + 2._r8*wb*entn*dzt(kt))* &
-                     (upw(k,i)**2._r8 + 2._r8*wa*B*dzt(kt))) )/(1._r8 + 2._r8*wb*entn*dzt(kt))
+               wp = clubb_mf_alphturb*wb*entn*sqrt(0.5_kind_phys*(tke(kn)+tke(k)))*dzt(kt)
+               wn = (-wp + sqrt(wp**2._kind_phys + (1._kind_phys + 2._kind_phys*wb*entn*dzt(kt))* &
+                     (upw(k,i)**2._kind_phys + 2._kind_phys*wa*B*dzt(kt))) )/(1._kind_phys + 2._kind_phys*wb*entn*dzt(kt))
              else
                ! get wn2
                wp = wb*entn*eturb
-               if (wp==0._r8) then
-                 wn2 = upw(k,i)**2._r8+2._r8*wa*B*dzt(kt)
+               if (wp==0._kind_phys) then
+                 wn2 = upw(k,i)**2._kind_phys+2._kind_phys*wa*B*dzt(kt)
                else
-                 entw = exp(-2._r8*wp*dzt(kt))
-                 wn2 = entw*upw(k,i)**2._r8+(1._r8-entw)*wa*B/wp
+                 entw = exp(-2._kind_phys*wp*dzt(kt))
+                 wn2 = entw*upw(k,i)**2._kind_phys+(1._kind_phys-entw)*wa*B/wp
                end if
-               wn = sqrt(max(wn2, 0._r8))
+               wn = sqrt(max(wn2, 0._kind_phys))
              end if
 
            end do !iter_xc
 
-           if (wn>0._r8) then
+           if (wn>0._kind_phys) then
 
              upthv(kn,i) = thvn
              upthl(kn,i) = thln
@@ -1219,27 +1217,27 @@ module clubb_mf
              ! cull plumes terminating at/below the PBL top (do_clubb_mf_pblcull),
              if ( abs(k-kstart+kdir)<kspan_min .or. &
                   (do_clubb_mf_pblcull .and. (k - kpbl)*kdir <= 0) ) then
-               supqt(:,i) = 0._r8
-               upauto(:,i)= 0._r8
-               supthl(:,i)= 0._r8
-               upa(:,i)   = 0._r8
-               upbuoy(:,i)= 0._r8
-               upw(:,i)   = 0._r8
-               upmf(:,i)  = 0._r8
-               upent(:,i) = 0._r8
-               updet(:,i) = 0._r8
-               upthv(:,i) = 0._r8
-               upthl(:,i) = 0._r8
-               upqt(:,i)  = 0._r8
-               upqc(:,i)  = 0._r8
-               upqs(:,i)  = 0._r8
-               upu(:,i)   = 0._r8
-               upv(:,i)   = 0._r8
-               upql(:,i)  = 0._r8
-               upqi(:,i)  = 0._r8
-               upqv(:,i)  = 0._r8
-               uplmix(:,i)= 0._r8
-               upth(:,i)  = 0._r8
+               supqt(:,i) = 0._kind_phys
+               upauto(:,i)= 0._kind_phys
+               supthl(:,i)= 0._kind_phys
+               upa(:,i)   = 0._kind_phys
+               upbuoy(:,i)= 0._kind_phys
+               upw(:,i)   = 0._kind_phys
+               upmf(:,i)  = 0._kind_phys
+               upent(:,i) = 0._kind_phys
+               updet(:,i) = 0._kind_phys
+               upthv(:,i) = 0._kind_phys
+               upthl(:,i) = 0._kind_phys
+               upqt(:,i)  = 0._kind_phys
+               upqc(:,i)  = 0._kind_phys
+               upqs(:,i)  = 0._kind_phys
+               upu(:,i)   = 0._kind_phys
+               upv(:,i)   = 0._kind_phys
+               upql(:,i)  = 0._kind_phys
+               upqi(:,i)  = 0._kind_phys
+               upqv(:,i)  = 0._kind_phys
+               uplmix(:,i)= 0._kind_phys
+               upth(:,i)  = 0._kind_phys
              end if
              ! exit updraft integration
              exit
@@ -1266,14 +1264,14 @@ module clubb_mf
          do k = ksfcm+kdir, ktopm, kdir
            kt = k - (1+kdir)/2
            kn = k - kdir
-           drytot = 0._r8
+           drytot = 0._kind_phys
            do i=1,clubb_mf_nup
-             drytot = drytot + upa(kn,i)*max(-1._r8*supqt(kt,i), 0._r8)
+             drytot = drytot + upa(kn,i)*max(-1._kind_phys*supqt(kt,i), 0._kind_phys)
            end do
-           if (drytot*dtime > mf_dry_frac_max*max(qt(kt),0._r8)) then
-             lamk = mf_dry_frac_max*max(qt(kt),0._r8)/(drytot*dtime)
+           if (drytot*dtime > mf_dry_frac_max*max(qt(kt),0._kind_phys)) then
+             lamk = mf_dry_frac_max*max(qt(kt),0._kind_phys)/(drytot*dtime)
              do i=1,clubb_mf_nup
-               if (supqt(kt,i) < 0._r8) then
+               if (supqt(kt,i) < 0._kind_phys) then
                  supqt(kt,i)  = lamk*supqt(kt,i)
                  supthl(kt,i) = lamk*supthl(kt,i)
                  upauto(kt,i) = lamk*upauto(kt,i)
@@ -1293,37 +1291,37 @@ module clubb_mf
              kn = k - kdir
 
              ! get rain evaporation
-             if ((upqs(k,i) + upqs(kn,i)) <=0._r8) then
-               qtovqs = 0._r8
+             if ((upqs(k,i) + upqs(kn,i)) <=0._kind_phys) then
+               qtovqs = 0._kind_phys
              else
                qtovqs = (upqt(k,i) + upqt(kn,i))/(upqs(k,i) + upqs(kn,i))
              end if
-             qtovqs = min(1._r8,qtovqs)
-             sevap = ke*(1._r8 - qtovqs)*sqrt(max(uprr(k,i),0._r8))
+             qtovqs = min(1._kind_phys,qtovqs)
+             sevap = ke*(1._kind_phys - qtovqs)*sqrt(max(uprr(k,i),0._kind_phys))
 
              ! limit evaporation to available precip
-             sevap = min(sevap,( uprr(k,i)/(rho_zt(kt)*dzt(kt)) - supqt(kt,i)*(1._r8-clubb_mf_fdd) ))
+             sevap = min(sevap,( uprr(k,i)/(rho_zt(kt)*dzt(kt)) - supqt(kt,i)*(1._kind_phys-clubb_mf_fdd) ))
 
              ! further limit the area-weighted evaporation to the
              ! area-weighted (grid-mean) rain supply. Weight is upa
              ! at the interface below the cell, matching the sqtup accumulation
-             if (upa(kn,i) > 0._r8) then
+             if (upa(kn,i) > 0._kind_phys) then
                sevap = min(sevap, uprg(k,i)/(rho_zt(kt)*dzt(kt)*upa(kn,i)) &
-                                  - supqt(kt,i)*(1._r8-clubb_mf_fdd) )
+                                  - supqt(kt,i)*(1._kind_phys-clubb_mf_fdd) )
              end if
-             sevap = max(sevap, 0._r8)
+             sevap = max(sevap, 0._kind_phys)
 
              ! get rain rate
              uprr(kn,i) = uprr(k,i) &
-                         - rho_zt(kt)*dzt(kt)*( supqt(kt,i)*(1._r8-clubb_mf_fdd) + sevap )
+                         - rho_zt(kt)*dzt(kt)*( supqt(kt,i)*(1._kind_phys-clubb_mf_fdd) + sevap )
 
              ! grid-mean rain reservoir (max() only guards roundoff;
              ! the cap above keeps this non-negative by construction)
              uprg(kn,i) = max( uprg(k,i) &
-                         - rho_zt(kt)*dzt(kt)*upa(kn,i)*( supqt(kt,i)*(1._r8-clubb_mf_fdd) + sevap ), 0._r8 )
+                         - rho_zt(kt)*dzt(kt)*upa(kn,i)*( supqt(kt,i)*(1._kind_phys-clubb_mf_fdd) + sevap ), 0._kind_phys )
 
              ! update source terms
-             lmixt = 0.5_r8*(uplmix(k,i)+uplmix(kn,i))
+             lmixt = 0.5_kind_phys*(uplmix(k,i)+uplmix(kn,i))
              supqt(kt,i) = supqt(kt,i) + sevap
              supthl(kt,i) = supthl(kt,i) - lmixt*sevap*iexner_zt(kt)/cpair
              upevap(kt,i) = sevap
@@ -1334,13 +1332,13 @@ module clubb_mf
        ! --------------------------------------------------------- !
        ! begin computing downdrafts                                !
        ! --------------------------------------------------------- !
-       if (do_clubb_mf_precip .and. clubb_mf_fdd > 0._r8) then
+       if (do_clubb_mf_precip .and. clubb_mf_fdd > 0._kind_phys) then
 
          do i=1,clubb_mf_nup
 
            ! find cloud base
            do k = ksfcm, ktopm, kdir
-             if (upqc(k,i) > 0._r8) then
+             if (upqc(k,i) > 0._kind_phys) then
                ddbotm(i) = k
                exit
              end if
@@ -1349,7 +1347,7 @@ module clubb_mf
            ! find cloud top
            ddtopm = 0
            do k = ksfcm, ktopm, kdir
-             if (uprr(k,i) > 0._r8) ddtopm = k
+             if (uprr(k,i) > 0._kind_phys) ddtopm = k
            end do
 
            if (ddtopm /= 0) then
@@ -1358,10 +1356,10 @@ module clubb_mf
              ! Kay initializes using negative of the updraft velocity
              ! this causes anomalouly large downdrafts at the initializaiton level
              ! I am intializing with zero velocity as that is more physically defensible
-             dnw(ddtopm,i)   = -1._r8*mindnw
+             dnw(ddtopm,i)   = -1._kind_phys*mindnw
              dna(ddtopm,i)   = upa(ddtopm,i)
-             dnu(ddtopm,i)   = 0.5_r8*(u(ddtopm - (1-kdir)/2)+u(ddtopm - (1+kdir)/2))
-             dnv(ddtopm,i)   = 0.5_r8*(v(ddtopm - (1-kdir)/2)+v(ddtopm - (1+kdir)/2))
+             dnu(ddtopm,i)   = 0.5_kind_phys*(u(ddtopm - (1-kdir)/2)+u(ddtopm - (1+kdir)/2))
+             dnv(ddtopm,i)   = 0.5_kind_phys*(v(ddtopm - (1-kdir)/2)+v(ddtopm - (1+kdir)/2))
              dnqt(ddtopm,i)  = qt_zm(ddtopm)
 
              ! no cloud in downdrafts, set to cloud free thl
@@ -1370,13 +1368,13 @@ module clubb_mf
 
              ! get rain generated in the updraft, appropriate it to the downdraft
              ! (we are using an upward sweep notation to be consistent with how uprr(ddtop) was computed)
-             dnrr(ddtopm,i)  = -1._r8*dzt(ddtopm - (1-kdir)/2)*rho_zt(ddtopm - (1-kdir)/2)*upauto(ddtopm - (1-kdir)/2,i)*clubb_mf_fdd
+             dnrr(ddtopm,i)  = -1._kind_phys*dzt(ddtopm - (1-kdir)/2)*rho_zt(ddtopm - (1-kdir)/2)*upauto(ddtopm - (1-kdir)/2,i)*clubb_mf_fdd
 
              ! grid-mean downdraft rain reservoir seed. area weight is
              ! upa at the interface below the generating cell, which is ddtopm
              ! itself (matching the sqtup accumulation weighting of the
              ! production that this rain came from).
-             dnrg(ddtopm,i)  = -1._r8*dzt(ddtopm - (1-kdir)/2)*rho_zt(ddtopm - (1-kdir)/2) &
+             dnrg(ddtopm,i)  = -1._kind_phys*dzt(ddtopm - (1-kdir)/2)*rho_zt(ddtopm - (1-kdir)/2) &
                                *upa(ddtopm,i)*upauto(ddtopm - (1-kdir)/2,i)*clubb_mf_fdd
 
              if (fixent) then
@@ -1400,49 +1398,49 @@ module clubb_mf
                ! get rain evaporation in integrated form
                taum1 = ke*sqrt(dnrr(k,i))/dnqs(k,i)
                alphint = exp(dzt(kt)*taum1/dnw(k,i))
-               sqtint = max( (dnqs(k,i) - dnqt(k,i))*(1._r8 - alphint) ,0._r8)
+               sqtint = max( (dnqs(k,i) - dnqt(k,i))*(1._kind_phys - alphint) ,0._kind_phys)
 
                ! limit to available rain
-               sqtint = min( sqtint, -1._r8*dnrr(k,i) / (rho_zt(kt)*dzt(kt)*dnw(k,i)) )
-               sthlint = -1._r8*latvap*sqtint*iexner_zt(kt)/cpair
+               sqtint = min( sqtint, -1._kind_phys*dnrr(k,i) / (rho_zt(kt)*dzt(kt)*dnw(k,i)) )
+               sthlint = -1._kind_phys*latvap*sqtint*iexner_zt(kt)/cpair
 
                ! get rain evaporation in tendency form
-               sdnqt(kt,i) = max( (dnqs(k,i) - dnqt(k,i))*taum1, 0._r8 )
+               sdnqt(kt,i) = max( (dnqs(k,i) - dnqt(k,i))*taum1, 0._kind_phys )
 
                ! cap the tendency-form downdraft evaporation by the
                ! area-weighted rain actually available to the downdraft.
                ! weights: dna at the interface above the cell
                ! (matching the sqtdn accumulation), upa at the interface below
                ! (matching sqtup).
-               if (dna(k,i) > 0._r8) then
+               if (dna(k,i) > 0._kind_phys) then
                  sdnmax = ( dnrg(k,i)/(rho_zt(kt)*dzt(kt)) &
                             - upa(kn,i)*upauto(kt,i)*clubb_mf_fdd ) / dna(k,i)
-                 sdnqt(kt,i) = min( sdnqt(kt,i), max(sdnmax, 0._r8) )
+                 sdnqt(kt,i) = min( sdnqt(kt,i), max(sdnmax, 0._kind_phys) )
                end if
-               sdnthl(kt,i) = -1._r8*latvap*sdnqt(kt,i)*iexner_zt(kt)/cpair
+               sdnthl(kt,i) = -1._kind_phys*latvap*sdnqt(kt,i)*iexner_zt(kt)/cpair
 
                ! compute rain rate (rain above - evaporation + appropriate updraft rain)
                dnrr(kn,i) = max( dnrr(k,i) &
-                                - rho_zt(kt)*dzt(kt)*(sdnqt(kt,i) + upauto(kt,i)*clubb_mf_fdd) , 0._r8 )
+                                - rho_zt(kt)*dzt(kt)*(sdnqt(kt,i) + upauto(kt,i)*clubb_mf_fdd) , 0._kind_phys )
 
                ! compute the TKE entrainment enhancement locally for the downdraft.
-               eturb = 1._r8 + clubb_mf_alphturb*sqrt(tke(k))/abs(dnw(k,i))
+               eturb = 1._kind_phys + clubb_mf_alphturb*sqrt(tke(k))/abs(dnw(k,i))
                if (do_clubb_mf_rhtke) then
-                 rh_L0 = rh_L0_coef*(rhinv**rh_L0_exp)  ! rh_L0_coef = 50._r8, rh_L0_exp  = 3._r8
-                 if (rh_L0 >= rh_L0_thresh) eturb = 1._r8 ! rh_L0_thresh = 733.34_r8
+                 rh_L0 = rh_L0_coef*(rhinv**rh_L0_exp)  ! rh_L0_coef = 50._kind_phys, rh_L0_exp  = 3._kind_phys
+                 if (rh_L0 >= rh_L0_thresh) eturb = 1._kind_phys ! rh_L0_thresh = 733.34_kind_phys
                else
-                 if (dynamic_L0(i) >= clubb_mf_max_L0) eturb = 1._r8
+                 if (dynamic_L0(i) >= clubb_mf_max_L0) eturb = 1._kind_phys
                end if
                eturb = min(eturb, max_eturb)
 
-               entexp  = exp(-1._r8*entn*eturb*dzt(kt))
-               entexpu = exp(-1._r8*entn*dzt(kt)/ent_mom_reduction) ! ent_mom_reduction = 3._r8
+               entexp  = exp(-1._kind_phys*entn*eturb*dzt(kt))
+               entexpu = exp(-1._kind_phys*entn*dzt(kt)/ent_mom_reduction) ! ent_mom_reduction = 3._kind_phys
 
                ! integrate downward
-               dnu(kn,i)   = u(kt)  *(1._r8-entexpu) + dnu  (k,i)*entexpu
-               dnv(kn,i)   = v(kt)  *(1._r8-entexpu) + dnv  (k,i)*entexpu
-               dnqt(kn,i)  = qt(kt) *(1._r8-entexp ) + dnqt (k,i)*entexp + sqtint
-               dnthl(kn,i) = thl(kt)*(1._r8-entexp ) + dnthl(k,i)*entexp + sthlint
+               dnu(kn,i)   = u(kt)  *(1._kind_phys-entexpu) + dnu  (k,i)*entexpu
+               dnv(kn,i)   = v(kt)  *(1._kind_phys-entexpu) + dnv  (k,i)*entexpu
+               dnqt(kn,i)  = qt(kt) *(1._kind_phys-entexp ) + dnqt (k,i)*entexp + sqtint
+               dnthl(kn,i) = thl(kt)*(1._kind_phys-entexp ) + dnthl(k,i)*entexp + sthlint
 
                ! get qsat
                call qsat(dnthl(kn,i)/iexner_zm(kn),p_zm(kn),es,dnqs(kn,i))
@@ -1453,35 +1451,35 @@ module clubb_mf
                  dnqt(kn,i) = dnqs(kn,i)
 
                  ! find evaporation that gives saturation vapor pressure
-                 sqtint = dnqt(kn,i) - (qt(kt) *(1._r8-entexp ) + dnqt (k,i)*entexp)
+                 sqtint = dnqt(kn,i) - (qt(kt) *(1._kind_phys-entexp ) + dnqt (k,i)*entexp)
 
                  ! limit to available rain
-                 sqtint = min( sqtint, -1._r8*dnrr(k,i) / (rho_zt(kt)*dzt(kt)*dnw(k,i)) )
-                 sthlint = -1._r8*latvap*sqtint*iexner_zt(kt)/cpair
+                 sqtint = min( sqtint, -1._kind_phys*dnrr(k,i) / (rho_zt(kt)*dzt(kt)*dnw(k,i)) )
+                 sthlint = -1._kind_phys*latvap*sqtint*iexner_zt(kt)/cpair
 
                  ! find new evap tendency
-                 if ((alphint - 1._r8) /= 0._r8) then
-                   qtmp = dnqs(k,i) + sqtint/(alphint - 1._r8)
-                   sdnqt(kt,i) = max( (dnqs(k,i) - qtmp)*taum1, 0._r8 )
+                 if ((alphint - 1._kind_phys) /= 0._kind_phys) then
+                   qtmp = dnqs(k,i) + sqtint/(alphint - 1._kind_phys)
+                   sdnqt(kt,i) = max( (dnqs(k,i) - qtmp)*taum1, 0._kind_phys )
                  else
-                   sdnqt(kt,i) = 0._r8
+                   sdnqt(kt,i) = 0._kind_phys
                  end if
 
                  ! apply the same area-weighted available-rain cap to
                  ! the recomputed (saturation-adjusted) evaporation tendency
-                 if (dna(k,i) > 0._r8) then
+                 if (dna(k,i) > 0._kind_phys) then
                    sdnmax = ( dnrg(k,i)/(rho_zt(kt)*dzt(kt)) &
                               - upa(kn,i)*upauto(kt,i)*clubb_mf_fdd ) / dna(k,i)
-                   sdnqt(kt,i) = min( sdnqt(kt,i), max(sdnmax, 0._r8) )
+                   sdnqt(kt,i) = min( sdnqt(kt,i), max(sdnmax, 0._kind_phys) )
                  end if
-                 sdnthl(kt,i) = -1._r8*latvap*sdnqt(kt,i)*iexner_zt(kt)/cpair
+                 sdnthl(kt,i) = -1._kind_phys*latvap*sdnqt(kt,i)*iexner_zt(kt)/cpair
 
                  ! re-compute thl with new evaporation rate
-                 dnthl(kn,i) = thl(kt)*(1._r8-entexp ) + dnthl(k,i)*entexp + sthlint
+                 dnthl(kn,i) = thl(kt)*(1._kind_phys-entexp ) + dnthl(k,i)*entexp + sthlint
 
                  ! adjust rain
                  dnrr(kn,i) = max( dnrr(k,i) &
-                                  - rho_zt(kt)*dzt(kt)*(sdnqt(kt,i) + upauto(kt,i)*clubb_mf_fdd) , 0._r8 )
+                                  - rho_zt(kt)*dzt(kt)*(sdnqt(kt,i) + upauto(kt,i)*clubb_mf_fdd) , 0._kind_phys )
                end if
 
                ! grid-mean downdraft rain reservoir, using the final
@@ -1489,42 +1487,42 @@ module clubb_mf
                ! sdnqt cap keeps this non-negative by construction.
                dnrg(kn,i) = max( dnrg(k,i) &
                     - rho_zt(kt)*dzt(kt)*( dna(k,i)*sdnqt(kt,i) &
-                                           + upa(kn,i)*upauto(kt,i)*clubb_mf_fdd ), 0._r8 )
+                                           + upa(kn,i)*upauto(kt,i)*clubb_mf_fdd ), 0._kind_phys )
 
                ! get virtual temperature
-               dnthv(kn,i) = dnthl(kn,i)*(1._r8+zvir*dnqt(kn,i))
+               dnthv(kn,i) = dnthl(kn,i)*(1._kind_phys+zvir*dnqt(kn,i))
 
                if ((kn - ddbotm(i))*kdir > 0) then
                  ! get virtual temperature
-                 dnthv(kn,i) = dnthl(kn,i)*(1._r8+zvir*dnqt(kn,i))
+                 dnthv(kn,i) = dnthl(kn,i)*(1._kind_phys+zvir*dnqt(kn,i))
 
                  ! get buoyancy
                  ! (midpoint k is surrounded by interface k and k-1,
                  ! and therefore we can't compute B at the midpoint properly)
-                 B = gravit*(dnthv(kn,i)/thv(kt)-1._r8)
+                 B = gravit*(dnthv(kn,i)/thv(kt)-1._kind_phys)
 
                  ! get wn2
                  wp = wb*entn*eturb  &
-                      + clubb_mf_pwfac/( 2._r8*zm(kn + kdir)+tinynum ) * max( 1._r8 - exp( zm(kn + kdir)/z00dn-1._r8), 0._r8 )
-                 if (wp==0._r8) then
-                   wn2 = dnw(k,i)**2._r8-2._r8*wa*B*dzt(kt)
+                      + clubb_mf_pwfac/( 2._kind_phys*zm(kn + kdir)+tinynum ) * max( 1._kind_phys - exp( zm(kn + kdir)/z00dn-1._kind_phys), 0._kind_phys )
+                 if (wp==0._kind_phys) then
+                   wn2 = dnw(k,i)**2._kind_phys-2._kind_phys*wa*B*dzt(kt)
                  else
-                   entw = exp(-2._r8*wp*dzt(kt))
-                   wn2 = entw*dnw(k,i)**2._r8-(1._r8-entw)*wa*B/wp
+                   entw = exp(-2._kind_phys*wp*dzt(kt))
+                   wn2 = entw*dnw(k,i)**2._kind_phys-(1._kind_phys-entw)*wa*B/wp
                  end if
-                 wn2 = max(wn2,mindnw**2._r8)
-                 dnw(kn,i) = -1._r8*sqrt(wn2)
+                 wn2 = max(wn2,mindnw**2._kind_phys)
+                 dnw(kn,i) = -1._kind_phys*sqrt(wn2)
                else
                  ! analytical taper in sub-cloud layer to
                  ! avoid unphysical flux divergence near surface
                  zsub = zm(ddbotm(i)+kdir)
                  wcb  = dnw(ddbotm(i)+kdir,i)
                  dnw(kn,i) = wcb - (wcb/(zsub**clubb_mf_ddexp))*(zsub - zm(kn))**clubb_mf_ddexp
-                 if (dnw(kn,i) >= -1._r8*mindnw) then
+                 if (dnw(kn,i) >= -1._kind_phys*mindnw) then
                    ! sub-cloud profile has decayed to the velocity floor: the downdraft
                    ! ends here. Levels below keep their zero initialization.
-                   dnw(kn,i) = 0._r8
-                   dna(kn,i) = 0._r8
+                   dnw(kn,i) = 0._kind_phys
+                   dna(kn,i) = 0._kind_phys
                    exit
                  end if
                end if
@@ -1562,24 +1560,24 @@ module clubb_mf
            kt = k - (1-kdir)/2
            kn = k + kdir
            do i=1,clubb_mf_nup
-             if (upw(kn,i)>0._r8 .and. upa(k,i)*upw(k,i)>0._r8) then
+             if (upw(kn,i)>0._kind_phys .and. upa(k,i)*upw(k,i)>0._kind_phys) then
                ! capped effective entrainment for mass continuity
                entn = min(upent(kn,i), mix(kt,i)*max_eturb)
                ! diagnose detrainment
                Mn = rho_zm(k)*upa(k,i)*upw(k,i)
                det = entn - (rho_zm(kn)*upa(kn,i)*upw(kn,i) - Mn) &
                              /(Mn*dzt(kt))
-               if (det < 0._r8) then
+               if (det < 0._kind_phys) then
                  ! eliminate negative detrainment: grow M by pure entrainment
                  ! and absorb the change into the plume area.
                  ! cap the per-layer growth exponent: where dynamic_L0 is small the capped
                  ! entrainment mix*max_eturb can still reach O(1) m^-1 and exp(entn*dz)
                  ! overflows, producing runaway plume areas (found as area >> 1 in the
                  ! edmf_S_AE diagnostics of the first ASPD test runs)
-                 Mn = Mn*exp(min(entn*dzt(kt), 0.5_r8))
+                 Mn = Mn*exp(min(entn*dzt(kt), 0.5_kind_phys))
                  upa(kn,i)   = Mn/(rho_zm(kn)*upw(kn,i))
                  upmf(kn,i)  = Mn
-                 updet(kn,i) = 0._r8
+                 updet(kn,i) = 0._kind_phys
                end if
              end if
            end do
@@ -1600,11 +1598,11 @@ module clubb_mf
          ! gentler.  Do NOT restrict this loop to the in-cloud region: that
          ! would strand reduced in-cloud dna against the unmodified sub-cloud
          ! constant and reintroduce a cloud-base flux-gradient discontinuity.
-         if (do_clubb_mf_precip .and. clubb_mf_fdd > 0._r8) then
+         if (do_clubb_mf_precip .and. clubb_mf_fdd > 0._kind_phys) then
            do i=1,clubb_mf_nup
              if (fixent) then
                entn = fixent_ent
-             else if (dynamic_L0(i) > 0._r8) then
+             else if (dynamic_L0(i) > 0._kind_phys) then
                entn = clubb_mf_ent0/dynamic_L0(i)
              else
                cycle
@@ -1612,15 +1610,15 @@ module clubb_mf
              do k = ktopm, ksfcm+kdir, -kdir
                kt = k - (1+kdir)/2
                kn = k - kdir
-               if (dna(kn,i)*abs(dnw(kn,i))>0._r8 .and. &
-                   dna(k,i)*abs(dnw(k,i))>0._r8) then
+               if (dna(kn,i)*abs(dnw(kn,i))>0._kind_phys .and. &
+                   dna(k,i)*abs(dnw(k,i))>0._kind_phys) then
                  ! mass flux magnitude above (k) and below (kn)
                  Mn = rho_zm(k)*dna(k,i)*abs(dnw(k,i))
                  det = entn - (rho_zm(kn)*dna(kn,i)*abs(dnw(kn,i)) - Mn) &
                                /(Mn*dzt(kt))
-                 if (det < 0._r8) then
+                 if (det < 0._kind_phys) then
                    ! same per-layer growth cap as the updraft limiter
-                   Mn = Mn*exp(min(entn*dzt(kt), 0.5_r8))
+                   Mn = Mn*exp(min(entn*dzt(kt), 0.5_kind_phys))
                    dna(kn,i) = Mn/(rho_zm(kn)*abs(dnw(kn,i)))
                  end if
                end if
@@ -1652,7 +1650,7 @@ module clubb_mf
 
          ! first sum over all i-updrafts
          do i=1,clubb_mf_nup
-           if (upqc(k,i)>0._r8) then
+           if (upqc(k,i)>0._kind_phys) then
              moist_a(k)   = moist_a(k)   + upa(k,i)
              moist_w(k)   = moist_w(k)   + upa(k,i)*upw(k,i)
              moist_qt(k)  = moist_qt(k)  + upa(k,i)*upqt(k,i)
@@ -1670,21 +1668,21 @@ module clubb_mf
            endif
          enddo
 
-         if ( dry_a(k) > 0._r8 ) then
+         if ( dry_a(k) > 0._kind_phys ) then
            dry_w(k)   = dry_w(k)   / dry_a(k)
            dry_qt(k)  = dry_qt(k)  / dry_a(k)
            dry_thl(k) = dry_thl(k) / dry_a(k)
            dry_u(k)   = dry_u(k)   / dry_a(k)
            dry_v(k)   = dry_v(k)   / dry_a(k)
          else
-           dry_w(k)   = 0._r8
-           dry_qt(k)  = 0._r8
-           dry_thl(k) = 0._r8
-           dry_u(k)   = 0._r8
-           dry_v(k)   = 0._r8
+           dry_w(k)   = 0._kind_phys
+           dry_qt(k)  = 0._kind_phys
+           dry_thl(k) = 0._kind_phys
+           dry_u(k)   = 0._kind_phys
+           dry_v(k)   = 0._kind_phys
          endif
 
-         if ( moist_a(k) > 0._r8 ) then
+         if ( moist_a(k) > 0._kind_phys ) then
            moist_w(k)   = moist_w(k)   / moist_a(k)
            moist_qt(k)  = moist_qt(k)  / moist_a(k)
            moist_thl(k) = moist_thl(k) / moist_a(k)
@@ -1692,12 +1690,12 @@ module clubb_mf
            moist_v(k)   = moist_v(k)   / moist_a(k)
            moist_qc(k)  = moist_qc(k)  / moist_a(k)
          else
-           moist_w(k)   = 0._r8
-           moist_qt(k)  = 0._r8
-           moist_thl(k) = 0._r8
-           moist_u(k)   = 0._r8
-           moist_v(k)   = 0._r8
-           moist_qc(k)  = 0._r8
+           moist_w(k)   = 0._kind_phys
+           moist_qt(k)  = 0._kind_phys
+           moist_thl(k) = 0._kind_phys
+           moist_u(k)   = 0._kind_phys
+           moist_v(k)   = 0._kind_phys
+           moist_qc(k)  = 0._kind_phys
          endif
 
        enddo
@@ -1783,7 +1781,7 @@ module clubb_mf
          if (mfup(k) > mf_tiny) then
            entup(k) = entup(k)/mfup(k)
          else
-           entup(k) = 0._r8
+           entup(k) = 0._kind_phys
          end if
        enddo
        do k = ksfcm+kdir, ktopm, kdir
@@ -1792,7 +1790,7 @@ module clubb_mf
          ! updraft: det = ent - d(ln mf)/dz, clipped >= 0
          if (mfup(kn) > mf_tiny .and. mfup(k) > mf_tiny) then
            detup(k) = entup(k) - (mfup(k) - mfup(kn))/(mfup(kn)*dzt(kt_dn))
-           if (detup(k) < 0._r8) detup(k) = 0._r8
+           if (detup(k) < 0._kind_phys) detup(k) = 0._kind_phys
          end if
        enddo
        do k = ktopm, ksfcm+kdir, -kdir
@@ -1801,16 +1799,16 @@ module clubb_mf
          ! downdraft grows downward: ent from d(|mf|)/dz descending, det clipped
          if (abs(mfdn(k)) > mf_tiny .and. abs(mfdn(kn)) > mf_tiny) then
            entdn(kn) = (abs(mfdn(kn)) - abs(mfdn(k)))/(abs(mfdn(k))*dzt(kt))
-           if (entdn(kn) < 0._r8) then
+           if (entdn(kn) < 0._kind_phys) then
              detdn(kn) = -entdn(kn)
-             entdn(kn) = 0._r8
+             entdn(kn) = 0._kind_phys
            end if
          end if
        enddo
        ! ensemble plume-top index, counted in momentum interfaces from the
        ! surface (1 = surface interface); orientation independent
        do k = ksfcm, ktopm-kdir, kdir
-         if (ac(k) > 0._r8) kctop = real(abs(k-ksfcm)+1, r8)
+         if (ac(k) > 0._kind_phys) kctop = real(abs(k-ksfcm)+1, kind_phys)
        enddo
        ! --------------------------------------------------------- !
        ! ztopm1 calculation                                        !
@@ -1818,19 +1816,19 @@ module clubb_mf
        do i=1,clubb_mf_nup
          do k=kstart, ktopm, kdir
            ! return if no convection at first level above surface
-           if (k == (ksfcm+kdir) .and. ac(k) == 0._r8 .and. .not.aloft) then
-             sqt(k) = 0._r8
-             sthl(k) = 0._r8
+           if (k == (ksfcm+kdir) .and. ac(k) == 0._kind_phys .and. .not.aloft) then
+             sqt(k) = 0._kind_phys
+             sthl(k) = 0._kind_phys
              ztopm1(:) = zm(ksfcm)
-             ddcp(:) = 0._r8
+             ddcp(:) = 0._kind_phys
              cbm1 = zm(ksfcm)
              return
            end if
            ! height of the plume ensemble
            if (do_clubb_mf_lscale_perplume) then
-             if ((upa(k,i)+dna(k,i)) > 0._r8) ztopm1(i) = zm(k)
+             if ((upa(k,i)+dna(k,i)) > 0._kind_phys) ztopm1(i) = zm(k)
            else
-             if (ac(k) > 0._r8) ztopm1(:) = zm(k)
+             if (ac(k) > 0._kind_phys) ztopm1(:) = zm(k)
            end if
          end do
        end do
@@ -1846,11 +1844,11 @@ module clubb_mf
        ! --------------------------------------------------------- !
        ! cloud base / mixing depth calculation                     !
        ! --------------------------------------------------------- !
-       cbm1 = 0._r8
+       cbm1 = 0._kind_phys
        do i=1,clubb_mf_nup
          kcbarr(i) = 0
          do k=kstart, ktopm, kdir
-           if (upqc(k,i) > 0._r8) then
+           if (upqc(k,i) > 0._kind_phys) then
              kcbarr(i) = k
              exit
            end if
@@ -1859,7 +1857,7 @@ module clubb_mf
          ! find height of dry plumes
          if (kcbarr(i) == 0) then
            do k=kstart, ktopm, kdir
-             if (upw(k,i) <= 0._r8) then
+             if (upw(k,i) <= 0._kind_phys) then
                kcbarr(i) = k
                exit
              end if
@@ -1874,15 +1872,15 @@ module clubb_mf
          cbm1 = cbm1 + zm(kcbarr(i))
 
        end do
-       cbm1 = cbm1/REAL(clubb_mf_nup,r8)
+       cbm1 = cbm1/REAL(clubb_mf_nup,kind_phys)
 
        ! --------------------------------------------------------- !
        ! bulk downdraft velocity for coldpool parameterization     !
        ! --------------------------------------------------------- !
 
        ! reset ddcp
-       ddcp(:) = 0._r8
-       if (do_clubb_mf_coldpool .and. clubb_mf_fdd > 0._r8) then
+       ddcp(:) = 0._kind_phys
+       if (do_clubb_mf_coldpool .and. clubb_mf_fdd > 0._kind_phys) then
          ! use single level for cold pool param. note this differs from the sub-cloud mean
          ! in the original implementation (Suselj et al. 2019; DOI: 10.1175/JAS-D-18-0239.1)
          ! because we've implemented a different boundary condition for the downdrafts
@@ -1892,9 +1890,9 @@ module clubb_mf
              continue
            else
              if (do_clubb_mf_coldpool_perplume) then
-               ddcp(i) = -1._r8*dnw(ddbotm(i)+kdir,i)
+               ddcp(i) = -1._kind_phys*dnw(ddbotm(i)+kdir,i)
              else
-               ddcp(:) = -1._r8*dna(ddbotm(i)+kdir,i)*dnw(ddbotm(i)+kdir,i) + ddcp(:)
+               ddcp(:) = -1._kind_phys*dna(ddbotm(i)+kdir,i)*dnw(ddbotm(i)+kdir,i) + ddcp(:)
              end if
            end if
          end do
@@ -1909,7 +1907,7 @@ module clubb_mf
        end do
 
        ! this clamp only removes roundoff (upstream limiters conserve mass)
-       precc(ksfcm) = max( precc(ksfcm), 0._r8 )
+       precc(ksfcm) = max( precc(ksfcm), 0._kind_phys )
 
        ! --------------------------------------------------------- !
        ! get turbulent fluxes                                      !
@@ -1963,21 +1961,21 @@ module clubb_mf
 
     use wv_saturation, only: qsat
 
-    real(r8), intent(in)  :: qtn, thln, wn   ! this iteration's trial plume state -- caller's job to pick it
-    real(r8), intent(in)  :: thl_zm_kn, qt_zm_kn, thv_zm_kn
-    real(r8), intent(in)  :: iexner_zm_kn, p_zm_kn
-    real(r8), intent(in)  :: ztopm1_i
-    real(r8), intent(in)  :: rle, wa
+    real(kind_phys), intent(in)  :: qtn, thln, wn   ! this iteration's trial plume state -- caller's job to pick it
+    real(kind_phys), intent(in)  :: thl_zm_kn, qt_zm_kn, thv_zm_kn
+    real(kind_phys), intent(in)  :: iexner_zm_kn, p_zm_kn
+    real(kind_phys), intent(in)  :: ztopm1_i
+    real(kind_phys), intent(in)  :: rle, wa
 
-    real(r8), intent(out) :: ee2, ud2
+    real(kind_phys), intent(out) :: ee2, ud2
 
     ! local variables
     integer  :: kk, status
-    real(r8) :: qtn0, thln0, wn0, xc
-    real(r8) :: tlm, es, qsm, excessm, tln, qsn, excessn
-    real(r8) :: thvn, qcn, thn, qln, qin, lmixn
-    real(r8) :: cridis, xsat, thlxsat, qtxsat, thvxsat
-    real(r8) :: thv_x0, thv_x1, aquad, bquad, cquad, xs1, xs2, x_cu, x_en
+    real(kind_phys) :: qtn0, thln0, wn0, xc
+    real(kind_phys) :: tlm, es, qsm, excessm, tln, qsn, excessn
+    real(kind_phys) :: thvn, qcn, thn, qln, qin, lmixn
+    real(kind_phys) :: cridis, xsat, thlxsat, qtxsat, thvxsat
+    real(kind_phys) :: thv_x0, thv_x1, aquad, bquad, cquad, xs1, xs2, x_cu, x_en
 
 
     ! --------------------------------------------------------- !
@@ -2005,8 +2003,8 @@ module clubb_mf
     ! ----------------------------------------------------------------- !
     ! Case 1 : When both cumulus and env. are unsaturated or saturated. !
     ! ----------------------------------------------------------------- !
-    if (excessm*excessn > 0._r8) then
-      xc = min(1._r8,max(0._r8,1._r8-2._r8*wa*gravit*cridis/wn**2._r8*(1._r8-thvn/thv_zm_kn)))
+    if (excessm*excessn > 0._kind_phys) then
+      xc = min(1._kind_phys,max(0._kind_phys,1._kind_phys-2._kind_phys*wa*gravit*cridis/wn**2._kind_phys*(1._kind_phys-thvn/thv_zm_kn)))
     else
       ! -------------------------------------------------- !
       ! Case 2 : When either cumulus or env. is saturated. !
@@ -2022,27 +2020,27 @@ module clubb_mf
       do kk = 1, 2
         if( kk == 1 ) then
           thv_x0 = thvn
-          thv_x1 = ( 1._r8 - 1._r8/xsat ) * thvn + ( 1._r8/xsat ) * thvxsat
+          thv_x1 = ( 1._kind_phys - 1._kind_phys/xsat ) * thvn + ( 1._kind_phys/xsat ) * thvxsat
         else
           thv_x1 = thv_zm_kn
-          thv_x0 = ( xsat / ( xsat - 1._r8 ) ) * thv_zm_kn + ( 1._r8/( 1._r8 - xsat ) ) * thvxsat
+          thv_x0 = ( xsat / ( xsat - 1._kind_phys ) ) * thv_zm_kn + ( 1._kind_phys/( 1._kind_phys - xsat ) ) * thvxsat
         endif
         aquad =  wn**2
-        bquad =  2._r8*wa*gravit*cridis*(thv_x1 - thv_x0)/thv_zm_kn - 2._r8*wn**2
-        cquad =  2._r8*wa*gravit*cridis*(thv_x0 - thv_zm_kn)/thv_zm_kn  + wn**2
+        bquad =  2._kind_phys*wa*gravit*cridis*(thv_x1 - thv_x0)/thv_zm_kn - 2._kind_phys*wn**2
+        cquad =  2._kind_phys*wa*gravit*cridis*(thv_x0 - thv_zm_kn)/thv_zm_kn  + wn**2
         if( kk == 1 ) then
-          if( ( bquad**2-4._r8*aquad*cquad ) >= 0._r8 ) then
+          if( ( bquad**2-4._kind_phys*aquad*cquad ) >= 0._kind_phys ) then
             call roots(aquad,bquad,cquad,xs1,xs2,status)
-            x_cu = min(1._r8,max(0._r8,min(xsat,min(xs1,xs2))))
+            x_cu = min(1._kind_phys,max(0._kind_phys,min(xsat,min(xs1,xs2))))
           else
             x_cu = xsat
           endif
         else
-          if( ( bquad**2-4._r8*aquad*cquad) >= 0._r8 ) then
+          if( ( bquad**2-4._kind_phys*aquad*cquad) >= 0._kind_phys ) then
             call roots(aquad,bquad,cquad,xs1,xs2,status)
-            x_en = min(1._r8,max(0._r8,max(xsat,min(xs1,xs2))))
+            x_en = min(1._kind_phys,max(0._kind_phys,max(xsat,min(xs1,xs2))))
           else
-            x_en = 1._r8
+            x_en = 1._kind_phys
           endif
         endif
       enddo
@@ -2054,7 +2052,7 @@ module clubb_mf
     endif
 
     ee2 = xc**2
-    ud2 = 1._r8 - 2._r8*xc + xc**2
+    ud2 = 1._kind_phys - 2._kind_phys*xc + xc**2
 
   end subroutine buoyancy_sort_mixfrac
 
@@ -2066,13 +2064,13 @@ module clubb_mf
   ! pressure array itself), so it works for either vertical index convention.
   function mf_pinterp(nz, p, fld, pout) result(val)
     integer,  intent(in) :: nz
-    real(r8), intent(in) :: p(nz)     ! level pressures (Pa)
-    real(r8), intent(in) :: fld(nz)   ! field on the same levels
-    real(r8), intent(in) :: pout      ! target pressure (Pa)
-    real(r8)             :: val
+    real(kind_phys), intent(in) :: p(nz)     ! level pressures (Pa)
+    real(kind_phys), intent(in) :: fld(nz)   ! field on the same levels
+    real(kind_phys), intent(in) :: pout      ! target pressure (Pa)
+    real(kind_phys)             :: val
 
     integer  :: k, kbot(1), ktop(1)
-    real(r8) :: wgt
+    real(kind_phys) :: wgt
 
     kbot = maxloc(p)
     ktop = minloc(p)
@@ -2083,9 +2081,9 @@ module clubb_mf
     else
       val = fld(kbot(1))
       do k = 1, nz-1
-        if ((pout - p(k))*(pout - p(k+1)) <= 0._r8 .and. p(k) /= p(k+1)) then
+        if ((pout - p(k))*(pout - p(k+1)) <= 0._kind_phys .and. p(k) /= p(k+1)) then
           wgt = (pout - p(k+1))/(p(k) - p(k+1))
-          val = wgt*fld(k) + (1._r8 - wgt)*fld(k+1)
+          val = wgt*fld(k) + (1._kind_phys - wgt)*fld(k+1)
           exit
         end if
       end do
@@ -2100,22 +2098,22 @@ module clubb_mf
   ! Calculate ztop and dynamic_L based on value of namelist   !
   ! --------------------------------------------------------- !
      integer,  intent(in)                 :: nzt, nzm
-     real(r8), dimension(nzt), intent(in) :: thl,    thv,          &
+     real(kind_phys), dimension(nzt), intent(in) :: thl,    thv,          &
                                              th,                   &
                                              qt,     qv,           &
                                              p_zt,   iexner_zt,    &
                                              dzt,    zt
 
-     real(r8), dimension(nzm), intent(in) :: p_zm,   iexner_zm,    &
+     real(kind_phys), dimension(nzm), intent(in) :: p_zm,   iexner_zm,    &
                                              zm,     tke,    wpthlp_env
 
-     real(r8), intent(in) ::                wmax,   wmin,       tpert, &
+     real(kind_phys), intent(in) ::                wmax,   wmin,       tpert, &
                                             sigmaw, sigmaqt, sigmathv, &
                                             cwqt,   cwthv,  zcb_unset, &
                                             wa,     wb,        ztopm1, &
                                             pblh,   convh,     rhinv
 
-     real(r8), intent(out) ::               dynamic_L0, ztop, mcape
+     real(kind_phys), intent(out) ::               dynamic_L0, ztop, mcape
 
      ! local variables
      ! =============================================================================== !
@@ -2150,34 +2148,34 @@ module clubb_mf
      integer :: ksfc, ktop, kdir
 
 
-     real(r8), dimension(nzt)               :: t_zt
-     real(r8), dimension(nzt)               :: tp,       qstp
-     real(r8), dimension(nzt,1)             :: dmpdz
-     real(r8), dimension(1)                 :: tl,                     &
+     real(kind_phys), dimension(nzt)               :: t_zt
+     real(kind_phys), dimension(nzt)               :: tp,       qstp
+     real(kind_phys), dimension(nzt,1)             :: dmpdz
+     real(kind_phys), dimension(1)                 :: tl,                     &
                                                cape,     cin
      integer,  dimension(1)                 :: lcl,      lel
-     real(r8)                               :: landfrac
+     real(kind_phys)                               :: landfrac
      integer                                :: kpbl,     msg,          &
                                                lon,      mx,           &
                                                k
 
      ! upper search bound (m) for locating the TKE-gradient or heat-flux-
      ! gradient based L0 diagnostic
-     real(r8), parameter :: Lscale_search_top = 20000._r8
+     real(kind_phys), parameter :: Lscale_search_top = 20000._kind_phys
      !
      ! TKE vertical-gradient threshold (clubb_mf_Lopt==1) marking the
      ! diagnosed top of the turbulent layer
-     real(r8), parameter :: tke_grad_thresh = 1.e-5_r8
+     real(kind_phys), parameter :: tke_grad_thresh = 1.e-5_kind_phys
      !
      ! heat-flux vertical-gradient threshold (clubb_mf_Lopt==2), same role
      ! as tke_grad_thresh but for the heat-flux-based diagnostic
-     real(r8), parameter :: hflux_grad_thresh = 1.e-4_r8
+     real(kind_phys), parameter :: hflux_grad_thresh = 1.e-4_kind_phys
      !
      ! intialize local variables
-     cape      = 0._r8
-     mcape     = 0._r8
-     ztop      = 0._r8
-     dmpdz     = 0._r8
+     cape      = 0._kind_phys
+     mcape     = 0._kind_phys
+     ztop      = 0._kind_phys
+     dmpdz     = 0._kind_phys
 
      if (zt(1) < zt(nzt)) then
         ksfc = 1
@@ -2196,7 +2194,7 @@ module clubb_mf
      else if (clubb_mf_Lopt == 1) then
        !TKE
        do k = ktop-2*kdir, ksfc+kdir, -kdir
-         if (zm(k) < Lscale_search_top .and. tke(k) - tke(k+kdir) > tke_grad_thresh) then ! Lscale_search_top = 20000._r8,tke_grad_thresh = 1.e-5_r8
+         if (zm(k) < Lscale_search_top .and. tke(k) - tke(k+kdir) > tke_grad_thresh) then ! Lscale_search_top = 20000._kind_phys,tke_grad_thresh = 1.e-5_kind_phys
            ztop = zm(k)
            exit
          endif
@@ -2206,7 +2204,7 @@ module clubb_mf
      else if (clubb_mf_Lopt == 2) then
        !Heat flux
        do k = ktop-2*kdir, ksfc+kdir, -kdir
-         if (zm(k) < Lscale_search_top .and. abs(abs(wpthlp_env(k))-abs(wpthlp_env(k-kdir))) > hflux_grad_thresh) then !hflux_grad_thresh = 1.e-4_r8
+         if (zm(k) < Lscale_search_top .and. abs(abs(wpthlp_env(k))-abs(wpthlp_env(k-kdir))) > hflux_grad_thresh) then !hflux_grad_thresh = 1.e-4_kind_phys
            ztop = zm(k)
            exit
          endif
@@ -2238,12 +2236,12 @@ module clubb_mf
      use physconst,          only: cpair, zvir, h2otrip
      use wv_saturation,      only : qsat
 
-     real(r8),intent(in) :: qt,thl,p,iex
-     real(r8),intent(out):: thv,qc,th,ql,qi,qs,lmix
+     real(kind_phys),intent(in) :: qt,thl,p,iex
+     real(kind_phys),intent(out):: thv,qc,th,ql,qi,qs,lmix
 
      !local variables
      integer  :: niter,i
-     real(r8) :: diff,t,qstmp,qcold,es,wf
+     real(kind_phys) :: diff,t,qstmp,qcold,es,wf
      logical  :: noice = .true.
 
      !
@@ -2251,14 +2249,14 @@ module clubb_mf
      integer,  parameter :: condensation_max_iter = 50
      !
      ! convergence tolerance on successive qc iterates
-     real(r8), parameter :: condensation_tol = 2.e-5_r8
+     real(kind_phys), parameter :: condensation_tol = 2.e-5_kind_phys
 
      ! max number of iterations
      niter = condensation_max_iter  ! condensation_max_iter = 50
      ! minimum difference
-     diff = condensation_tol ! condensation_tol = 2.e-5_r8
+     diff = condensation_tol ! condensation_tol = 2.e-5_kind_phys
 
-     qc=0._r8
+     qc=0._kind_phys
      t=thl/iex
 
      !by definition:
@@ -2271,7 +2269,7 @@ module clubb_mf
      do i=1,niter
 
        if (noice) then
-         wf = 1._r8
+         wf = 1._kind_phys
        else
          wf = get_watf(t)
        end if
@@ -2280,39 +2278,39 @@ module clubb_mf
        ! qsat, p is in pascal
        call qsat(t,p,es,qstmp)
        qcold = qc
-       qc = max(0.5_r8*qc+0.5_r8*(qt-qstmp),0._r8)
+       qc = max(0.5_kind_phys*qc+0.5_kind_phys*(qt-qstmp),0._kind_phys)
        if (abs(qc-qcold)<diff) exit
      enddo
 
      if (noice) then
-       wf = 1._r8
+       wf = 1._kind_phys
      else
        wf = get_watf(t)
      end if
      t = thl/iex+get_alhl(wf)/cpair*qc
 
      call qsat(t,p,es,qs)
-     qc = max(qt-qs,0._r8)
-     thv = (thl+get_alhl(wf)/cpair*iex*qc)*(1._r8+zvir*(qt-qc)-qc)
+     qc = max(qt-qs,0._kind_phys)
+     thv = (thl+get_alhl(wf)/cpair*iex*qc)*(1._kind_phys+zvir*(qt-qc)-qc)
      lmix = get_alhl(wf)
      th = t*iex
-     qi = qc*(1._r8-wf)
+     qi = qc*(1._kind_phys-wf)
      ql = qc*wf
 
      contains
 
      function get_watf(t)
-       real(r8)            :: t,get_watf,tc
-       real(r8), parameter :: &
-                              tmax=-10._r8, &
-                              tmin=-40._r8
+       real(kind_phys)            :: t,get_watf,tc
+       real(kind_phys), parameter :: &
+                              tmax=-10._kind_phys, &
+                              tmin=-40._kind_phys
 
        tc=t-h2otrip
 
        if (tc>tmax) then
-         get_watf=1._r8
+         get_watf=1._kind_phys
        else if (tc<tmin) then
-         get_watf=0._r8
+         get_watf=0._kind_phys
        else
          get_watf=(tc-tmin)/(tmax-tmin);
        end if
@@ -2323,9 +2321,9 @@ module clubb_mf
      function get_alhl(wf)
      !latent heat of the mixture based on water fraction
        use physconst,        only : latvap , latice
-       real(r8) :: get_alhl,wf
+       real(kind_phys) :: get_alhl,wf
 
-       get_alhl = wf*latvap+(1._r8-wf)*(latvap+latice)
+       get_alhl = wf*latvap+(1._kind_phys-wf)*(latvap+latice)
 
      end function get_alhl
 
@@ -2338,29 +2336,29 @@ module clubb_mf
   ! By Adam Herrington, algorithm from Kay Suselj DOI: 10.1175/JAS-D-18-0239.1
   !**********************************************************************
 
-       real(r8),intent(in)  :: qs,qt,w,dz,dzcld
-       real(r8),intent(out) :: Supqt
+       real(kind_phys),intent(in)  :: qs,qt,w,dz,dzcld
+       real(kind_phys),intent(out) :: Supqt
        ! ! local vars
-       real(r8)            :: tauwgt, tau,       & ! time-scale vars
+       real(kind_phys)            :: tauwgt, tau,       & ! time-scale vars
                               qstar                ! excess cloud liquid
 
-       real(r8),parameter  :: tau0  = 15._r8,    & ! base time-scale
-                              zmin  = 300._r8,   & ! small cloud thick
-                              zmax  = 3000._r8,  & ! large cloud thick
-                              qcmin = 0.00125_r8   ! supersat threshold
+       real(kind_phys),parameter  :: tau0  = 15._kind_phys,    & ! base time-scale
+                              zmin  = 300._kind_phys,   & ! small cloud thick
+                              zmax  = 3000._kind_phys,  & ! large cloud thick
+                              qcmin = 0.00125_kind_phys   ! supersat threshold
 
        qstar = qs+qcmin
 
        if (qt > qstar) then
          ! get precip efficiency
          tauwgt = (dzcld-zmin)/(zmax-zmin)
-         tauwgt = min(max(tauwgt,0._r8),1._r8)
+         tauwgt = min(max(tauwgt,0._kind_phys),1._kind_phys)
          tau    = tauwgt/tau0
 
          ! get source for updraft
-         Supqt = (qstar-qt)*(1._r8 - exp(-1._r8*tau*dz/w))
+         Supqt = (qstar-qt)*(1._kind_phys - exp(-1._kind_phys*tau*dz/w))
        else
-         Supqt = 0._r8
+         Supqt = 0._kind_phys
        end if
 
   end subroutine precip_mf
@@ -2374,18 +2372,18 @@ module clubb_mf
    use shr_RandNum_mod, only: ShrKissRandGen
 
        integer,                     intent(in)  :: nz, nup, ksfc, ktop, kdir
-       real(r8), dimension(4),      intent(in)  :: state
-       real(r8), dimension(nz,nup), intent(in)  :: lambda
+       real(kind_phys), dimension(4),      intent(in)  :: state
+       real(kind_phys), dimension(nz,nup), intent(in)  :: lambda
        integer,  dimension(nz,nup), intent(out) :: poi
        integer,  dimension(1,4)                 :: tmpseed
        integer                                  :: i,j
        type(ShrKissRandGen)                     :: kiss_gen
 
        ! Compute seed
-       tmpseed(1,1) = int((state(1) - int(state(1))) * 1000000000._r8)
-       tmpseed(1,2) = int((state(2) - int(state(2))) * 1000000000._r8)
-       tmpseed(1,3) = int((state(3) - int(state(3))) * 1000000000._r8)
-       tmpseed(1,4) = int((state(4) - int(state(4))) * 1000000000._r8)
+       tmpseed(1,1) = int((state(1) - int(state(1))) * 1000000000._kind_phys)
+       tmpseed(1,2) = int((state(2) - int(state(2))) * 1000000000._kind_phys)
+       tmpseed(1,3) = int((state(3) - int(state(3))) * 1000000000._kind_phys)
+       tmpseed(1,4) = int((state(4) - int(state(4))) * 1000000000._kind_phys)
 
        ! Set seed
        kiss_gen = ShrKissRandGen(tmpseed)
@@ -2408,10 +2406,10 @@ module clubb_mf
    use shr_RandNum_mod, only: ShrKissRandGen
 
        type(ShrKissRandGen), intent(inout) :: kiss_gen
-       real(r8),             intent(in)    :: lambda
+       real(kind_phys),             intent(in)    :: lambda
        integer,              intent(out)   :: kout
 
-       if (lambda < 10._r8) then
+       if (lambda < 10._kind_phys) then
           call knuth(kiss_gen,lambda,kout)
        else
           call hormann(kiss_gen,lambda,kout)
@@ -2429,17 +2427,17 @@ module clubb_mf
    use shr_RandNum_mod, only: ShrKissRandGen
 
        type(ShrKissRandGen), intent(inout) :: kiss_gen
-       real(r8),             intent(in)    :: lambda
+       real(kind_phys),             intent(in)    :: lambda
        integer,              intent(out)   :: kout
 
        ! Local variables
-       real(r8), dimension(1,1) :: tmpuni
-       real(r8)                 :: puni, explam
+       real(kind_phys), dimension(1,1) :: tmpuni
+       real(kind_phys)                 :: puni, explam
        integer                  :: k
 
        k = 0
-       explam = exp(-1._r8*lambda)
-       puni = 1._r8
+       explam = exp(-1._kind_phys*lambda)
+       puni = 1._kind_phys
        do while (puni > explam)
          k = k + 1
          call kiss_gen%random(tmpuni)
@@ -2461,42 +2459,42 @@ module clubb_mf
   use shr_RandNum_mod, only: ShrKissRandGen
 
       type(ShrKissRandGen), intent(inout) :: kiss_gen
-      real(r8),             intent(in)    :: lambda
+      real(kind_phys),             intent(in)    :: lambda
       integer,              intent(out)   :: kout
 
       ! Local variables
-      real(r8), dimension(1,1) :: U,V
-      real(r8)                 :: a,b,vr,alphinv,us,loggam
+      real(kind_phys), dimension(1,1) :: U,V
+      real(kind_phys)                 :: a,b,vr,alphinv,us,loggam
       integer                  :: k,i
 
-      b = 0.931_r8 + 2.53_r8*sqrt(lambda)
-      a = -0.059_r8 + 0.02483_r8*b
-      vr = 0.9277_r8 - 3.6224_r8/(b - 2._r8)
-      alphinv = 1.1239_r8 + 1.1328_r8/(b - 3.4_r8)
+      b = 0.931_kind_phys + 2.53_kind_phys*sqrt(lambda)
+      a = -0.059_kind_phys + 0.02483_kind_phys*b
+      vr = 0.9277_kind_phys - 3.6224_kind_phys/(b - 2._kind_phys)
+      alphinv = 1.1239_kind_phys + 1.1328_kind_phys/(b - 3.4_kind_phys)
 
       do
          call kiss_gen%random(U)
          call kiss_gen%random(V)
-         U(1,1) = U(1,1) - 0.5_r8
-         us = 0.5_r8 - abs(U(1,1))
-         k = floor( (2._r8*a/us + b)*U(1,1) + lambda + 0.43_r8 )
-         if (us >= 0.07_r8 .and.  V(1,1) <= vr) then
+         U(1,1) = U(1,1) - 0.5_kind_phys
+         us = 0.5_kind_phys - abs(U(1,1))
+         k = floor( (2._kind_phys*a/us + b)*U(1,1) + lambda + 0.43_kind_phys )
+         if (us >= 0.07_kind_phys .and.  V(1,1) <= vr) then
             kout = k
             exit
          end if
-         if (k <= 0 .or. (us < 0.013_r8 .and. V(1,1) > us)) then
+         if (k <= 0 .or. (us < 0.013_kind_phys .and. V(1,1) > us)) then
             cycle
          end if
          ! compute log(k!). If k >=10 use stirling's approximation
          if (k < 10) then
-            loggam = 0._r8
+            loggam = 0._kind_phys
             do i = 1, k
-               loggam = loggam + log(1._r8*i)
+               loggam = loggam + log(1._kind_phys*i)
             end do
          else
-            loggam = log(sqrt(2._r8*pi)) + (k + 0.5_r8)*log(1._r8*k) - k + (1._r8/12._r8 - 1._r8/(360._r8*k*k))/k
+            loggam = log(sqrt(2._kind_phys*pi)) + (k + 0.5_kind_phys)*log(1._kind_phys*k) - k + (1._kind_phys/12._kind_phys - 1._kind_phys/(360._kind_phys*k*k))/k
          end if
-         if (log( V(1,1)*alphinv/(a/(us*us) + b) ) <= -1._r8*lambda + k*log(lambda) - loggam) then
+         if (log( V(1,1)*alphinv/(a/(us*us) + b) ) <= -1._kind_phys*lambda + k*log(lambda) - loggam) then
             kout = k
             exit
          end if
@@ -2509,36 +2507,36 @@ module clubb_mf
   ! Subroutine to solve the second order polynomial equation. !
   ! after uwshcu.F90                                          !
   ! --------------------------------------------------------- !
-    real(r8), intent(in)  :: a
-    real(r8), intent(in)  :: b
-    real(r8), intent(in)  :: c
-    real(r8), intent(out) :: r1
-    real(r8), intent(out) :: r2
+    real(kind_phys), intent(in)  :: a
+    real(kind_phys), intent(in)  :: b
+    real(kind_phys), intent(in)  :: c
+    real(kind_phys), intent(out) :: r1
+    real(kind_phys), intent(out) :: r2
     integer , intent(out) :: status
-    real(r8)              :: q
+    real(kind_phys)              :: q
 
     status = 0
 
-    if( a == 0._r8 ) then                              ! Form b*x + c = 0
-        if( b == 0._r8 ) then                          ! Failure: c = 0
+    if( a == 0._kind_phys ) then                              ! Form b*x + c = 0
+        if( b == 0._kind_phys ) then                          ! Failure: c = 0
             status = 1
         else                                           ! b*x + c = 0
             r1 = -c/b
         endif
         r2 = r1
     else
-        if( b == 0._r8 ) then                          ! Form a*x**2 + c = 0
-            if( a*c > 0._r8 ) then                     ! Failure: x**2 = -c/a < 0
+        if( b == 0._kind_phys ) then                          ! Form a*x**2 + c = 0
+            if( a*c > 0._kind_phys ) then                     ! Failure: x**2 = -c/a < 0
                 status = 2
             else                                       ! x**2 = -c/a
                 r1 = sqrt(-c/a)
             endif
             r2 = -r1
        else                                            ! Form a*x**2 + b*x + c = 0
-            if( (b**2 - 4._r8*a*c) < 0._r8 ) then      ! Failure, no real roots
+            if( (b**2 - 4._kind_phys*a*c) < 0._kind_phys ) then      ! Failure, no real roots
                  status = 3
             else
-                 q  = -0.5_r8*(b + sign(1.0_r8,b)*sqrt(b**2 - 4._r8*a*c))
+                 q  = -0.5_kind_phys*(b + sign(1.0_kind_phys,b)*sqrt(b**2 - 4._kind_phys*a*c))
                  r1 =  q/a
                  r2 =  c/q
             endif
@@ -2561,15 +2559,15 @@ module clubb_mf
     use physconst,          only: cpair, gravit, zvir
 
     integer,  intent(in)                 :: nzm, nzt
-    real(r8), dimension(nzt), intent(in) :: dzt, iexner_zt,  &
+    real(kind_phys), dimension(nzt), intent(in) :: dzt, iexner_zt,  &
                                             qt, thv, thl
-    real(r8), dimension(nzm), intent(in) :: zm, p_zm, iexner_zm, tke
+    real(kind_phys), dimension(nzm), intent(in) :: zm, p_zm, iexner_zm, tke
 
-    real(r8), intent(in)                :: wmax, wmin, sigmaw, sigmaqt, sigmathv, cwqt, &
+    real(kind_phys), intent(in)                :: wmax, wmin, sigmaw, sigmaqt, sigmathv, cwqt, &
                                            cwthv, zcb_unset, wa, wb
     logical, intent(in)                 :: do_precip
 
-    real(r8), intent(inout)             :: plumeheight
+    real(kind_phys), intent(inout)             :: plumeheight
 
     !local variables
 
@@ -2604,12 +2602,12 @@ module clubb_mf
     ! =============================================================================== !
     integer :: ksfcm, ktopm, kdir, kt, kn
     integer                     :: k
-    real(r8)                    :: thvn, qtn, thln, qcn, thn, qln, qin, qsn, lmixn, zcb, B, wn2, pentexp, pturb, pentw, wp
-    real(r8), dimension(nzm)     :: upw, upa, upqt, upthv, upthl, upth, upqs, &
+    real(kind_phys)                    :: thvn, qtn, thln, qcn, thn, qln, qin, qsn, lmixn, zcb, B, wn2, pentexp, pturb, pentw, wp
+    real(kind_phys), dimension(nzm)     :: upw, upa, upqt, upthv, upthl, upth, upqs, &
                                    upqc, upql, upqi
-    real(r8), dimension(nzt)     :: supqt, supthl
+    real(kind_phys), dimension(nzt)     :: supqt, supthl
     ! ! fractional entrainment rate
-    real(r8), parameter         :: pent = 1.E-3_r8
+    real(kind_phys), parameter         :: pent = 1.E-3_kind_phys
     ! ! use tke enhanced entrainment
     logical                     :: do_tptke = .false.
 
@@ -2625,15 +2623,15 @@ module clubb_mf
 
     zcb = zcb_unset
 
-    upw(ksfcm) = 0.5_r8 * wmax
-    upa(ksfcm) = 0.5_r8 * erf( wmax/(sqrt(2._r8)*sigmaw) )
+    upw(ksfcm) = 0.5_kind_phys * wmax
+    upa(ksfcm) = 0.5_kind_phys * erf( wmax/(sqrt(2._kind_phys)*sigmaw) )
 
     upqt(ksfcm)  = cwqt * upw(ksfcm) * sigmaqt/sigmaw
     upthv(ksfcm) = cwthv * upw(ksfcm) * sigmathv/sigmaw
 
     upqt(ksfcm) = qt(ksfcm)+upqt(ksfcm)
     upthv(ksfcm) = thv(ksfcm)+upthv(ksfcm)
-    upthl(ksfcm) = upthv(ksfcm) / (1._r8+zvir*upqt(ksfcm))
+    upthl(ksfcm) = upthv(ksfcm) / (1._kind_phys+zvir*upqt(ksfcm))
     upth(ksfcm)  = upthl(ksfcm)
 
     ! get cloud, lowest momentum level
@@ -2645,29 +2643,29 @@ module clubb_mf
     upqi(ksfcm)  = qin
     upqs(ksfcm)  = qsn
     upth(ksfcm)  = thn
-    if (qcn > 0._r8) zcb = zm(ksfcm)
+    if (qcn > 0._kind_phys) zcb = zm(ksfcm)
 
     do k = ksfcm, ktopm-kdir, kdir
       kt = k - (1-kdir)/2
       kn = k + kdir
 
       ! get microphysics, autoconversion
-      if (do_precip .and. upqc(k) > 0._r8) then
+      if (do_precip .and. upqc(k) > 0._kind_phys) then
         call precip_mf(upqs(k),upqt(k),upw(k),dzt(kt),abs(zm(kn)-zcb),supqt(kt))
-        supthl(kt) = -1._r8*lmixn*supqt(kt)*iexner_zt(kt)/cpair
+        supthl(kt) = -1._kind_phys*lmixn*supqt(kt)*iexner_zt(kt)/cpair
       else
-        supqt(kt)  = 0._r8
-        supthl(kt) = 0._r8
+        supqt(kt)  = 0._kind_phys
+        supthl(kt) = 0._kind_phys
       end if
       ! integrate updraft
       if (do_tptke) then
-        pturb = (1._r8 + clubb_mf_alphturb*sqrt(tke(k))/upw(k))
+        pturb = (1._kind_phys + clubb_mf_alphturb*sqrt(tke(k))/upw(k))
       else
-        pturb = 1._r8
+        pturb = 1._kind_phys
       end if
       pentexp  = exp(-pent*pturb*dzt(kt))
-      qtn  = qt(kt) *(1._r8-pentexp ) + upqt (k)*pentexp + supqt(kt)
-      thln = thl(kt)*(1._r8-pentexp ) + upthl(k)*pentexp + supthl(kt)
+      qtn  = qt(kt) *(1._kind_phys-pentexp ) + upqt (k)*pentexp + supqt(kt)
+      thln = thl(kt)*(1._kind_phys-pentexp ) + upthl(k)*pentexp + supthl(kt)
 
       ! convert source terms to a tendency
       supqt(kt) = supqt(kt)*upw(k)/dzt(kt)
@@ -2676,20 +2674,20 @@ module clubb_mf
       ! get cloud, momentum levels
       call condensation_mf(qtn, thln, p_zm(kn), iexner_zm(kn), &
                            thvn, qcn, thn, qln, qin, qsn, lmixn)
-      if (zcb == zcb_unset .and. qcn > 0._r8) zcb = zm(kn)
+      if (zcb == zcb_unset .and. qcn > 0._kind_phys) zcb = zm(kn)
       ! get buoyancy
-      B=gravit*(0.5_r8*(thvn + upthv(k))/thv(kt)-1._r8)
+      B=gravit*(0.5_kind_phys*(thvn + upthv(k))/thv(kt)-1._kind_phys)
 
       ! get wn^2
       wp = wb*pent*pturb
-      if (wp==0._r8) then
-         wn2 = upw(k)**2._r8+2._r8*wa*B*dzt(kt)
+      if (wp==0._kind_phys) then
+         wn2 = upw(k)**2._kind_phys+2._kind_phys*wa*B*dzt(kt)
       else
-         pentw = exp(-2._r8*wp*dzt(kt))
-         wn2 = pentw*upw(k)**2._r8+(1._r8-pentw)*wa*B/wp
+         pentw = exp(-2._kind_phys*wp*dzt(kt))
+         wn2 = pentw*upw(k)**2._kind_phys+(1._kind_phys-pentw)*wa*B/wp
       end if
 
-      if (wn2>0._r8) then
+      if (wn2>0._kind_phys) then
         upw(kn)   = sqrt(wn2)
         upthv(kn) = thvn
         upthl(kn) = thln
