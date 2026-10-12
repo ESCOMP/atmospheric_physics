@@ -1,8 +1,8 @@
-! Zero cloud liquid and cloud ice, together with their number concentrations,
-! where the condensate mass is below a floor. This mirrors the cloud limits
-! CAM's physics_update applies after the deep convection update (the
-! cldlim_names list, 1e-36 kg kg-1), so it belongs right after the constituent
-! tendencies of deep convection are applied.
+! Zero cloud liquid and cloud ice (including number concentrations)
+! when the condensate mass is below a floor.
+!
+! Used for cloud limits after deep convection updates.
+!REMOVECAM: see state_cnst_min_nz or cldlim_names in physics_types.F90
 module cloud_condensate_floor
   use ccpp_kinds, only: kind_phys
 

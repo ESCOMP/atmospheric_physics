@@ -47,8 +47,8 @@ module mcsp
   real(kind_phys), parameter :: shear_undefined = -999._kind_phys
 
   ! E3SM additionally rejects shear magnitudes at or above this bound, which also
-  ! excludes columns flagged with shear_undefined. Disabled pending evaluation in CAM;
-  ! see the commented-out condition in mcsp_run.
+  ! excludes columns flagged with shear_undefined.
+  ! See the commented-out condition in mcsp_run.
   ! real(kind_phys), parameter :: shear_max = 200._kind_phys
 
 contains
@@ -343,7 +343,7 @@ contains
   ! lowest model layer. Columns whose lowest layer is above the reference level get
   ! shear_undefined.
   subroutine mcsp_calculate_shear(ncol, pver, pmid, u, mcsp_shear)
-
+    ! Host model dependency for interpolation
     use interpolate_data, only: vertinterp
 
     integer,         intent(in)  :: ncol

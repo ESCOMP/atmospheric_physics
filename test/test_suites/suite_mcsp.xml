@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Zhang-McFarlane deep convection followed by the
+     mesoscale coherent structure parameterization (MCSP).
 
-<!-- Zhang-McFarlane deep convection followed by the mesoscale coherent structure
-     parameterization (MCSP), matching the CAM snapshot bracket from
-     convect_deep_tend (before) to mcsp_cam_tend (after). -->
+     MCSP requires inputs from deep convection, so this test suite includes both ZM and MCSP. -->
 <suite name="mcsp" version="1.0">
    <group name="physics_before_coupler">
        <scheme>initialize_constituents</scheme>
