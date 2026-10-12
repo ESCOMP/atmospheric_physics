@@ -77,7 +77,7 @@ contains
                                latvap, cpair, rair, &
                                convproc_do_evaprain_atonce, &
                                convproc_pom_spechygro, &
-                               errmsg, errflg)
+                               errmsg, errflg, wup_in)
     use aerosol_properties_mod, only: aerosol_properties
 
     class(aerosol_properties), intent(in) :: aero_props
@@ -139,6 +139,7 @@ contains
     real(kind_phys), intent(out) :: dcondt2(:, :, :, :) ! wet-deposition TMR tendency diagnostic (WETC/CONU history)
     character(len=*), intent(out) :: errmsg
     integer, intent(out) :: errflg
+    real(kind_phys), intent(in), optional :: wup_in(:, :) ! Gathered plume-ensemble updraft speed (m/s)
 
 
     ! Local variables:
@@ -168,6 +169,7 @@ contains
     integer :: ntsub
 
     logical  :: do_act_this_lev             ! flag for doing activation at current level
+    logical  :: do_wup_in                   ! use the plume-ensemble updraft speed
 
     real(kind_phys) :: aqfrac(2, ncnstaer)       ! aqueous fraction of constituent in updraft
     real(kind_phys) :: cldfrac_i(pver)          ! cldfrac at current i (with adjustments)
@@ -244,6 +246,7 @@ contains
     real(kind_phys) :: tmpf                 ! work variables
     real(kind_phys) :: xinv_ntsub           ! 1.0/ntsub
     real(kind_phys) :: wup(pver)            ! working updraft velocity (m/s)
+    real(kind_phys) :: tmpwup               ! layer-mean plume updraft speed (m/s)
     real(kind_phys) :: hund_ovr_g           ! = 100.0_kind_phys/gravit
     !  used with zm_conv mass fluxes and delta-p
     !     for mu = [mbar/s],   mu*hund_ovr_g = [kg/m2/s]
@@ -277,6 +280,9 @@ contains
       errflg = 1
       return
     end if
+
+    ! use the plume-ensemble updraft speed if supplied (deep only)
+    do_wup_in = present(wup_in) .and. (iconvtype == 1)
 
     nerr = 0
     nerrmax = 99
@@ -546,6 +552,16 @@ contains
 ! shallow - wup = (mup in kg/m2/s) / [rhoair * (updraft area)]
                 wup(k) = (mu_i(kp1) + mu_i(k))*0.5_kind_phys*hund_ovr_g &
                          /(rhoair_i(k)*(cldfrac_i(k)*0.5_kind_phys))
+              else if (do_wup_in) then
+! CLUBB_MF: layer-mean of the plume-ensemble mass-flux-weighted updraft speed
+                tmpwup = wup_in(i, k)
+                if (k < pver) tmpwup = 0.5_kind_phys*(wup_in(i, k) + wup_in(i, k + 1))
+                if (tmpwup > 0.01_kind_phys) then
+                  wup(k) = tmpwup
+                else
+                  wup(k) = (mu_i(kp1) + mu_i(k))*0.5_kind_phys*hund_ovr_g &
+                           /(rhoair_i(k)*zm_areafrac)
+                end if
               else
 ! deep - as in shallow, but assumed constant updraft_area with height zm_areafrac
                 wup(k) = (mu_i(kp1) + mu_i(k))*0.5_kind_phys*hund_ovr_g &
