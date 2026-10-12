@@ -23,3 +23,9 @@
         fxsparse = ../.clubb_sparse_checkout
         fxtag = clubb_4ncar_20260109_ddf5110
         fxDONOTUSEurl = https://github.com/larson-group/clubb_release
+[submodule "tempo"]
+	path = schemes/tempo/tempo
+	url = https://github.com/NCAR/TEMPO.git
+	fxtag = tempo_v3.1.2
+	fxrequired = AlwaysRequired
+	fxDONOTUSEurl = https://github.com/NCAR/TEMPO.git

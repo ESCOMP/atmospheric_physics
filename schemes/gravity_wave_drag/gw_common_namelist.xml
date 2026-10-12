@@ -632,7 +632,11 @@
     <standard_name>source_type_for_moving_mountain_gravity_wave_drag</standard_name>
     <units>1</units>
     <desc>
-      Integer code for movmtn source: 1=vorticity, 2=upwp
+      Integer code for movmtn source:
+      1=vorticity (fixed levels), 2=PBL momentum fluxes (fixed levels),
+      3=tilt layer mean (flow-dependent levels),
+      4=tilt + precip, six-parameter fit (flow-dependent levels),
+      5=tilt + precip, PySR cx17 (flow-dependent levels).
     </desc>
     <values>
       <value>1</value>

@@ -123,6 +123,12 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
+[ tilt ]
+  standard_name = vortex_tilting_magnitude_for_moving_mountain_gravity_wave_drag
+  units = s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
 [ usteer ]
   standard_name = eastward_wind_at_steering_level_due_to_moving_mountain_gravity_wave_drag
   units = m s-1
@@ -143,9 +149,45 @@
   intent = in
 [ xpwp_src ]
   standard_name = momentum_flux_source_for_moving_mountain_gravity_wave_drag
-  units = m2 s-2
+  units = Pa
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
+  intent = in
+[ p_steer ]
+  standard_name = air_pressure_at_steering_level_due_to_moving_mountain_gravity_wave_drag
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ p_launch ]
+  standard_name = air_pressure_at_launch_level_due_to_moving_mountain_gravity_wave_drag
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ taucd_west ]
+  standard_name = westward_reynolds_stress_due_to_moving_mountain_gravity_wave_drag
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ taucd_east ]
+  standard_name = eastward_reynolds_stress_due_to_moving_mountain_gravity_wave_drag
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ taucd_south ]
+  standard_name = southward_reynolds_stress_due_to_moving_mountain_gravity_wave_drag
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  intent = in
+[ taucd_north ]
+  standard_name = northward_reynolds_stress_due_to_moving_mountain_gravity_wave_drag
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
 [ errmsg ]
   standard_name = ccpp_error_message
