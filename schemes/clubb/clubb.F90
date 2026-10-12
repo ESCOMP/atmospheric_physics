@@ -1390,7 +1390,7 @@ module clubb
         !  Note that some of the moments below can be positive or negative.
         !    Remove a constant that was added to prevent dynamics from clipping
         !    them to prevent dynamics from making them positive.
-        do k = 1, nzm_clubb
+        do k = 1, nzt_clubb
           do i = 1, ncol
             k_cam = top_lev - 1 + k  
             rtpthlp_pbuf(i,k) = state_q(i,k_cam,ixrtpthlp) - ( rtpthlp_const * apply_const )
@@ -2696,7 +2696,7 @@ module clubb
           end do
           do i=1, ncol
             rprddp(i,kcam)  = -1._kind_phys*mf_sqtac(i,k_clubb)
-            evapcdp(i,kcam) = -1._kind_phys*mf_sqtev(i,k_clubb)
+            evapcdp(i,kcam) = mf_sqtev(i,k_clubb)
           end do
         end do
 
