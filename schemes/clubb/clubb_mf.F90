@@ -5,7 +5,6 @@ module clubb_mf
 ! Together (CLUBB+MF) they comprise a eddy-diffusivity mass-flux approach (EDMF)  !
 ! =============================================================================== !
   use ccpp_kinds,    only: kind_phys
-  use cam_abortutils,only: endrun
   use physconst,     only: cpair, epsilo, gravit, latice, latvap, tmelt, rair, &
                            cpwv, cpliq, rh2o, zvir, pi
 
@@ -13,8 +12,8 @@ module clubb_mf
   private
   save
 
-  public :: integrate_mf, &
-            clubb_mf_readnl, &
+  public :: clubb_mf_init, &
+            integrate_mf, &
             do_clubb_mf, &
             do_clubb_mf_diag, &
             clubb_mf_nup, &
@@ -86,132 +85,101 @@ module clubb_mf
 
   contains
 
-  subroutine clubb_mf_readnl(nlfile, masterproc)
+  subroutine clubb_mf_init( &
+       clubb_mf_Lopt_in, clubb_mf_a0_in, clubb_mf_b0_in, clubb_mf_L0_in,            &
+       clubb_mf_ent0_in, clubb_mf_alphturb_in, clubb_mf_nup_in, clubb_mf_max_L0_in, &
+       clubb_mf_fdd_in, clubb_mf_ddalph_in, clubb_mf_ddbeta_in, clubb_mf_pwfac_in,  &
+       clubb_mf_ddexp_in, clubb_mf_up_ndt_in, clubb_mf_cp_ndt_in, clubb_mf_kseed_in,&
+       clubb_mf_pwmin_in, clubb_mf_pwmax_in, clubb_mf_cldfrac_fac_in,               &
+       do_clubb_mf_in, do_clubb_mf_diag_in, do_clubb_mf_precip_in, do_clubb_mf_rad_in, &
+       do_clubb_mf_coldpool_in, do_clubb_mf_coldpool_init_in,                       &
+       do_clubb_mf_coldpool_perplume_in, do_clubb_mf_lscale_perplume_in,            &
+       do_clubb_mf_ustar_in, do_clubb_mf_mixd_in, do_clubb_mf_rhtke_in,             &
+       do_clubb_mf_cmt_in, do_clubb_mf_addtke_in, do_clubb_mf_aloft_in,             &
+       do_clubb_mf_aspd_in, do_clubb_mf_pblcull_in, do_clubb_mf_invswitch_in,       &
+       errmsg, errflg)
 
-  ! =============================================================================== !
-  ! MF namelists                                                                    !
-  ! =============================================================================== !
+    use ccpp_kinds, only: kind_phys
 
-    use namelist_utils,  only: find_group_name
-    use spmd_utils,      only: mpicom, mstrid=>masterprocid, mpi_real8, mpi_integer, mpi_logical
-    use phys_control,    only: phys_getopts
+    ! Real-valued namelist parameters
+    real(kind_phys), intent(in) :: clubb_mf_a0_in, clubb_mf_b0_in, clubb_mf_L0_in
+    real(kind_phys), intent(in) :: clubb_mf_ent0_in, clubb_mf_alphturb_in, clubb_mf_max_L0_in
+    real(kind_phys), intent(in) :: clubb_mf_fdd_in, clubb_mf_ddalph_in, clubb_mf_ddbeta_in
+    real(kind_phys), intent(in) :: clubb_mf_pwfac_in, clubb_mf_ddexp_in
+    real(kind_phys), intent(in) :: clubb_mf_pwmin_in, clubb_mf_pwmax_in, clubb_mf_cldfrac_fac_in
 
-    logical, intent(in) :: masterproc
+    ! Integer-valued namelist parameters
+    integer, intent(in) :: clubb_mf_Lopt_in, clubb_mf_nup_in, clubb_mf_up_ndt_in
+    integer, intent(in) :: clubb_mf_cp_ndt_in, clubb_mf_kseed_in
 
-    character(len=*), intent(in) :: nlfile  ! filepath for file containing namelist input
+    ! Logical switches (do_clubb_mf_in is derived on the CAM side from deep_scheme)
+    logical, intent(in) :: do_clubb_mf_in, do_clubb_mf_diag_in, do_clubb_mf_precip_in
+    logical, intent(in) :: do_clubb_mf_rad_in, do_clubb_mf_coldpool_in, do_clubb_mf_coldpool_init_in
+    logical, intent(in) :: do_clubb_mf_coldpool_perplume_in, do_clubb_mf_lscale_perplume_in
+    logical, intent(in) :: do_clubb_mf_ustar_in, do_clubb_mf_mixd_in, do_clubb_mf_rhtke_in
+    logical, intent(in) :: do_clubb_mf_cmt_in, do_clubb_mf_addtke_in, do_clubb_mf_aloft_in
+    logical, intent(in) :: do_clubb_mf_aspd_in, do_clubb_mf_pblcull_in, do_clubb_mf_invswitch_in
 
-    character(len=*), parameter :: sub = 'clubb_mf_readnl'
+    character(len=*), intent(out) :: errmsg
+    integer,          intent(out) :: errflg
 
-    integer :: iunit, read_status, ierr
-    character(len=16) :: deep_scheme
+    errmsg = ''
+    errflg = 0
 
-
-    namelist /clubb_mf_nl/ clubb_mf_Lopt, clubb_mf_a0, clubb_mf_b0, clubb_mf_L0, clubb_mf_ent0, clubb_mf_alphturb, &
-                           clubb_mf_nup, clubb_mf_max_L0, do_clubb_mf_diag, do_clubb_mf_precip, do_clubb_mf_rad, &
-                           clubb_mf_fdd, do_clubb_mf_coldpool, clubb_mf_ddalph, clubb_mf_ddbeta, clubb_mf_pwfac, do_clubb_mf_ustar, &
-                           clubb_mf_ddexp, do_clubb_mf_mixd, clubb_mf_up_ndt, clubb_mf_cp_ndt, do_clubb_mf_rhtke, do_clubb_mf_cmt, &
-                           do_clubb_mf_coldpool_init, do_clubb_mf_coldpool_perplume, do_clubb_mf_lscale_perplume, clubb_mf_kseed, &
-                           do_clubb_mf_addtke, do_clubb_mf_aloft, clubb_mf_pwmin, clubb_mf_pwmax, clubb_mf_cldfrac_fac, &
-                           do_clubb_mf_aspd, do_clubb_mf_pblcull, do_clubb_mf_invswitch
-
-    if (masterproc) then
-      open( newunit=iunit, file=trim(nlfile), status='old' )
-      call find_group_name(iunit, 'clubb_mf_nl', status=read_status)
-      if (read_status == 0) then
-         read(iunit, clubb_mf_nl, iostat=ierr)
-         if (ierr /= 0) then
-            call endrun('clubb_mf_readnl: ERROR reading namelist')
-         end if
-      end if
-      close(iunit)
+    ! ---- Validation (formerly endrun calls in clubb_mf_readnl) ----
+    if (clubb_mf_Lopt_in < 0 .or. clubb_mf_Lopt_in == 4 .or. &
+        clubb_mf_Lopt_in == 5 .or. clubb_mf_Lopt_in > 8) then
+       errmsg = 'clubb_mf_init: clubb_mf_Lopt value must be one of 0,1,2,3,6,7,8'
+       errflg = 1
+       return
     end if
 
-    if (clubb_mf_Lopt < 0 .or. clubb_mf_Lopt == 4 .or. clubb_mf_Lopt ==5 .or. clubb_mf_Lopt > 8 ) &
-         call endrun('clubb_mf_readnl: clubb_mf_Lopt value must be one of 0,1,2,3,6,7,8')
-
-    call mpi_bcast(clubb_mf_Lopt, 1, mpi_integer, mstrid, mpicom, ierr)
-    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: clubb_mf_Lopt")
-    call mpi_bcast(clubb_mf_a0,   1, mpi_real8,   mstrid, mpicom, ierr)
-    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: clubb_mf_a0")
-    call mpi_bcast(clubb_mf_b0,   1, mpi_real8,   mstrid, mpicom, ierr)
-    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: clubb_mf_b0")
-    call mpi_bcast(clubb_mf_L0,   1, mpi_real8,   mstrid, mpicom, ierr)
-    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: clubb_mf_L0")
-    call mpi_bcast(clubb_mf_ent0, 1, mpi_real8,   mstrid, mpicom, ierr)
-    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: clubb_mf_ent0")
-    call mpi_bcast(clubb_mf_alphturb,1, mpi_real8,   mstrid, mpicom, ierr)
-    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: clubb_mf_alphturb")
-    call mpi_bcast(clubb_mf_nup,  1, mpi_integer, mstrid, mpicom, ierr)
-    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: clubb_mf_nup")
-    call mpi_bcast(clubb_mf_max_L0,  1, mpi_real8,   mstrid, mpicom, ierr)
-    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: clubb_mf_max_L0")
-    call mpi_bcast(do_clubb_mf_diag, 1, mpi_logical, mstrid, mpicom, ierr)
-    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: do_clubb_mf_diag")
-    call mpi_bcast(do_clubb_mf_precip, 1, mpi_logical, mstrid, mpicom, ierr)
-    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: do_clubb_mf_precip")
-    call mpi_bcast(do_clubb_mf_rad, 1, mpi_logical, mstrid, mpicom, ierr)
-    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: do_clubb_mf_rad")
-    call mpi_bcast(clubb_mf_fdd,  1, mpi_real8,   mstrid, mpicom, ierr)
-    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: clubb_mf_fdd")
-    call mpi_bcast(do_clubb_mf_coldpool, 1, mpi_logical, mstrid, mpicom, ierr)
-    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: do_clubb_mf_coldpool")
-    call mpi_bcast(clubb_mf_ddalph,  1, mpi_real8,   mstrid, mpicom, ierr)
-    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: clubb_mf_ddalph")
-    call mpi_bcast(clubb_mf_ddbeta,  1, mpi_real8,   mstrid, mpicom, ierr)
-    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: clubb_mf_ddbeta")
-    call mpi_bcast(clubb_mf_pwfac,  1, mpi_real8,   mstrid, mpicom, ierr)
-    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: clubb_mf_pwfac")
-    call mpi_bcast(clubb_mf_up_ndt, 1, mpi_integer, mstrid, mpicom, ierr)
-    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: clubb_mf_up_ndt")
-    call mpi_bcast(clubb_mf_cp_ndt, 1, mpi_integer, mstrid, mpicom, ierr)
-    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: clubb_mf_cp_ndt")
-    call mpi_bcast(do_clubb_mf_ustar, 1, mpi_logical, mstrid, mpicom, ierr)
-    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: do_clubb_mf_ustar")
-    call mpi_bcast(clubb_mf_ddexp,  1, mpi_real8,   mstrid, mpicom, ierr)
-    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: clubb_mf_ddexp")
-    call mpi_bcast(do_clubb_mf_mixd, 1, mpi_logical, mstrid, mpicom, ierr)
-    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: do_clubb_mf_mixd")
-    call mpi_bcast(do_clubb_mf_rhtke, 1, mpi_logical, mstrid, mpicom, ierr)
-    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: do_clubb_mf_rhtke")
-    call mpi_bcast(do_clubb_mf_cmt, 1, mpi_logical, mstrid, mpicom, ierr)
-    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: do_clubb_mf_cmt")
-    call mpi_bcast(clubb_mf_kseed, 1, mpi_integer, mstrid, mpicom, ierr)
-    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: clubb_mf_kseed")
-    call mpi_bcast(do_clubb_mf_coldpool_init, 1, mpi_logical, mstrid, mpicom, ierr)
-    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: do_clubb_mf_coldpool_init")
-    call mpi_bcast(do_clubb_mf_coldpool_perplume, 1, mpi_logical, mstrid, mpicom, ierr)
-    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: do_clubb_mf_coldpool_perplume")
-    call mpi_bcast(do_clubb_mf_lscale_perplume, 1, mpi_logical, mstrid, mpicom, ierr)
-    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: do_clubb_mf_lscale_perplume")
-    call mpi_bcast(do_clubb_mf_addtke, 1, mpi_logical, mstrid, mpicom, ierr)
-    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: do_clubb_mf_addtke")
-    call mpi_bcast(do_clubb_mf_aloft, 1, mpi_logical, mstrid, mpicom, ierr)
-    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: do_clubb_mf_aloft")
-    call mpi_bcast(do_clubb_mf_aspd, 1, mpi_logical, mstrid, mpicom, ierr)
-    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: do_clubb_mf_aspd")
-    call mpi_bcast(do_clubb_mf_pblcull, 1, mpi_logical, mstrid, mpicom, ierr)
-    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: do_clubb_mf_pblcull")
-    call mpi_bcast(do_clubb_mf_invswitch, 1, mpi_logical, mstrid, mpicom, ierr)
-    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: do_clubb_mf_invswitch")
-    call mpi_bcast(clubb_mf_pwmin,  1, mpi_real8,   mstrid, mpicom, ierr)
-    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: clubb_mf_pwmin")
-    call mpi_bcast(clubb_mf_pwmax,  1, mpi_real8,   mstrid, mpicom, ierr)
-    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: clubb_mf_pwmax")
-    call mpi_bcast(clubb_mf_cldfrac_fac,  1, mpi_real8,   mstrid, mpicom, ierr)
-    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: clubb_mf_cldfrac_fac")
-
-    ! CLUBB-MF is selected with deep_scheme='CLUBB_MF'; deriving the
-    ! switch here (on all ranks) removes any possibility of an
-    ! inconsistent do_clubb_mf / deep_scheme combination
-    call phys_getopts(deep_scheme_out = deep_scheme)
-    do_clubb_mf = (trim(deep_scheme) == 'CLUBB_MF')
-
-    if ((.not. do_clubb_mf) .and. do_clubb_mf_diag ) then
-       call endrun('clubb_mf_readnl: Error - cannot turn on do_clubb_mf_diag without also turning on do_clubb_mf')
+    if ((.not. do_clubb_mf_in) .and. do_clubb_mf_diag_in) then
+       errmsg = 'clubb_mf_init: cannot turn on do_clubb_mf_diag without also turning on do_clubb_mf'
+       errflg = 1
+       return
     end if
 
-  end subroutine clubb_mf_readnl
+    ! ---- Set module variables ----
+    clubb_mf_Lopt     = clubb_mf_Lopt_in
+    clubb_mf_a0       = clubb_mf_a0_in
+    clubb_mf_b0       = clubb_mf_b0_in
+    clubb_mf_L0       = clubb_mf_L0_in
+    clubb_mf_ent0     = clubb_mf_ent0_in
+    clubb_mf_alphturb = clubb_mf_alphturb_in
+    clubb_mf_nup      = clubb_mf_nup_in
+    clubb_mf_max_L0   = clubb_mf_max_L0_in
+    clubb_mf_fdd      = clubb_mf_fdd_in
+    clubb_mf_ddalph   = clubb_mf_ddalph_in
+    clubb_mf_ddbeta   = clubb_mf_ddbeta_in
+    clubb_mf_pwfac    = clubb_mf_pwfac_in
+    clubb_mf_ddexp    = clubb_mf_ddexp_in
+    clubb_mf_up_ndt   = clubb_mf_up_ndt_in
+    clubb_mf_cp_ndt   = clubb_mf_cp_ndt_in
+    clubb_mf_kseed    = clubb_mf_kseed_in
+    clubb_mf_pwmin    = clubb_mf_pwmin_in
+    clubb_mf_pwmax    = clubb_mf_pwmax_in
+    clubb_mf_cldfrac_fac = clubb_mf_cldfrac_fac_in
 
+    do_clubb_mf                   = do_clubb_mf_in
+    do_clubb_mf_diag              = do_clubb_mf_diag_in
+    do_clubb_mf_precip            = do_clubb_mf_precip_in
+    do_clubb_mf_rad               = do_clubb_mf_rad_in
+    do_clubb_mf_coldpool          = do_clubb_mf_coldpool_in
+    do_clubb_mf_coldpool_init     = do_clubb_mf_coldpool_init_in
+    do_clubb_mf_coldpool_perplume = do_clubb_mf_coldpool_perplume_in
+    do_clubb_mf_lscale_perplume   = do_clubb_mf_lscale_perplume_in
+    do_clubb_mf_ustar             = do_clubb_mf_ustar_in
+    do_clubb_mf_mixd              = do_clubb_mf_mixd_in
+    do_clubb_mf_rhtke             = do_clubb_mf_rhtke_in
+    do_clubb_mf_cmt               = do_clubb_mf_cmt_in
+    do_clubb_mf_addtke            = do_clubb_mf_addtke_in
+    do_clubb_mf_aloft             = do_clubb_mf_aloft_in
+    do_clubb_mf_aspd              = do_clubb_mf_aspd_in
+    do_clubb_mf_pblcull           = do_clubb_mf_pblcull_in
+    do_clubb_mf_invswitch         = do_clubb_mf_invswitch_in
+
+  end subroutine clubb_mf_init
 
   subroutine integrate_mf( nzm,     nzt,     dtime,                                 & ! input
                            rho_zm,           zm,      p_zm,      iexner_zm,         & ! input
