@@ -18,8 +18,7 @@ module clubb
   ! =============================================================================== !
 
   subroutine clubb_init(pcols, pver, pverp, pcnst, & ! in
-                        masterproc, mpicom, mstrid, mpi_character, & ! in
-                        iulog, max_fieldname_len, & ! in
+                        masterproc, mpicom, mstrid, mpi_character, iulog, & ! in
                         sclr_dim, hydromet_dim, nzt_clubb, nzm_clubb, & ! in
                         l_implemented, l_input_fields, clubb_l_do_expldiff_rtm_thlm, & ! in
                         cnst_ndropmixed, subcol_scheme, & ! in
@@ -99,7 +98,7 @@ module clubb
     !  Input variables, intent(in)
     integer, intent(in) :: pcols, pver, pverp
     integer, intent(in) :: mpicom, mpi_character, mstrid
-    integer, intent(in) :: iulog, pcnst, max_fieldname_len
+    integer, intent(in) :: iulog, pcnst
     integer, intent(in) :: sclr_dim, hydromet_dim, nzt_clubb, nzm_clubb
     logical, intent(in) :: masterproc, l_implemented
     logical, intent(in) :: cnst_ndropmixed(:)
@@ -412,7 +411,7 @@ module clubb
     if (stats_metadata%l_stats) then
 
       call stats_init_clubb( pcols, masterproc, mpicom, mstrid, mpi_character, &
-                             .true., dum1, dum2, max_fieldname_len, &
+                             .true., dum1, dum2, &
                              nzm_clubb, nzt_clubb, nzm_clubb, dum3, &
                              edsclr_dim, sclr_dim, hydromet_dim, &
                              hm_metadata, stats_metadata, &
@@ -3699,7 +3698,7 @@ module clubb
 
 #ifdef CLUBB_SGS
   subroutine stats_init_clubb( pcols, masterproc, mpicom, mstrid, mpi_character, &
-                               l_stats_in, stats_tsamp_in, stats_tout_in, max_fieldname_len, &
+                               l_stats_in, stats_tsamp_in, stats_tout_in, &
                                nnzp, nnrad_zt,nnrad_zm, delt, &
                                edsclr_dim, sclr_dim, hydromet_dim, &
                                hm_metadata, stats_metadata, &
@@ -3723,8 +3722,6 @@ module clubb
                                 nvarmax_rad_zm, stats_init_rad_zm_api, & !
                                 nvarmax_sfc, stats_init_sfc_api, & !
                                 fstderr, var_length !
-!BAS addfld here? 
-    use cam_history,      only: addfld, horiz_only
 
     implicit none
 
@@ -3734,7 +3731,7 @@ module clubb
   
     logical, intent(in) :: masterproc
 
-    integer, intent(in) :: mpicom, mpi_character, mstrid, pcols, max_fieldname_len
+    integer, intent(in) :: mpicom, mpi_character, mstrid, pcols
 
     integer, intent(in) :: sclr_dim, edsclr_dim, hydromet_dim
 
@@ -3777,8 +3774,6 @@ module clubb
     character(len=var_length), intent(in)    ::   clubb_vars_sfc(:)     ! Variables at the model surface
 
     logical :: l_error
-
-    character(len=200) :: temp1, sub
 
     integer :: i, ntot, j
     integer :: ierr
@@ -4063,66 +4058,6 @@ module clubb
        errflg = 1
        return
     endif
-
-    ! Now call add fields
-
-    do i = 1, stats_zt(1)%num_output_fields
-
-      temp1 = trim(stats_zt(1)%file%grid_avg_var(i)%name)
-      sub   = temp1
-      if (len(temp1) > max_fieldname_len) sub = temp1(1:max_fieldname_len)
-
-        call addfld( trim(sub), (/ 'ilev' /), 'A', &
-                     trim(stats_zt(1)%file%grid_avg_var(i)%units), &
-                     trim(stats_zt(1)%file%grid_avg_var(i)%description), &
-                     sampled_on_subcycle=.true. )
-    enddo
-
-    do i = 1, stats_zm(1)%num_output_fields
-
-      temp1 = trim(stats_zm(1)%file%grid_avg_var(i)%name)
-      sub   = temp1
-      if (len(temp1) > max_fieldname_len) sub = temp1(1:max_fieldname_len)
-
-       call addfld( trim(sub), (/ 'ilev' /), 'A', &
-                    trim(stats_zm(1)%file%grid_avg_var(i)%units), &
-                    trim(stats_zm(1)%file%grid_avg_var(i)%description), &
-                    sampled_on_subcycle=.true. )
-    enddo
-
-    if (stats_metadata%l_output_rad_files) then
-
-       do i = 1, stats_rad_zt(1)%num_output_fields
-          temp1 = trim(stats_rad_zt(1)%file%grid_avg_var(i)%name)
-          sub   = temp1
-          if (len(temp1) > max_fieldname_len) sub = temp1(1:max_fieldname_len)
-          call addfld( trim(sub), (/ 'ilev' /), 'A', &
-                       trim(stats_rad_zt(1)%file%grid_avg_var(i)%units), &
-                       trim(stats_rad_zt(1)%file%grid_avg_var(i)%description), &
-                       sampled_on_subcycle=.true. )
-       enddo
-
-       do i = 1, stats_rad_zm(1)%num_output_fields
-          temp1 = trim(stats_rad_zm(1)%file%grid_avg_var(i)%name)
-          sub   = temp1
-          if (len(temp1) > max_fieldname_len) sub = temp1(1:max_fieldname_len)
-          call addfld( trim(sub), (/ 'ilev' /), 'A', &
-                       trim(stats_rad_zm(1)%file%grid_avg_var(i)%units), &
-                       trim(stats_rad_zm(1)%file%grid_avg_var(i)%description), &
-                       sampled_on_subcycle=.true. )
-       enddo
-    endif
-
-    do i = 1, stats_sfc(1)%num_output_fields
-       temp1 = trim(stats_sfc(1)%file%grid_avg_var(i)%name)
-       sub   = temp1
-       if (len(temp1) > max_fieldname_len) sub = temp1(1:max_fieldname_len)
-       call addfld( trim(sub), horiz_only, 'A', &
-                    trim(stats_sfc(1)%file%grid_avg_var(i)%units), &
-                    trim(stats_sfc(1)%file%grid_avg_var(i)%description), &
-                    sampled_on_subcycle=.true. )
-    enddo
-
 
     return
 
