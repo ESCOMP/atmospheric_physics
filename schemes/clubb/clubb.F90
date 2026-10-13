@@ -3151,8 +3151,7 @@ module clubb
             if ((-1._kind_phys*mf_sqt(i,k)*dtime) > rtm(i,k)) then
                lambda = -1._kind_phys*rtm(i,k)/(mf_sqt(i,k)*dtime)
                write(lambda_errmsg,'(a,3i6,4es16.8)') &
-                    'MF drying exceeds rtm. lchnk,i,k,lambda,mf_sqt,rtm,dtime = ', &
-  !BAS                  lchnk, 
+                    'MF drying exceeds rtm. i,k,lambda,mf_sqt,rtm,dtime = ', &
                      i, k, lambda, mf_sqt(i,k), rtm(i,k), dtime
                errmsg = 'clubb_tend_cam: '//trim(lambda_errmsg)
                errflg = 0
