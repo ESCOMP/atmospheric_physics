@@ -100,7 +100,6 @@ contains
 !! \htmlinclude hb_free_atm_diff_prepare_vertical_diffusion_inputs_run.html
   subroutine hb_free_atm_diff_prepare_vertical_diffusion_inputs_run( &
     ncol, pverp, pcnst, &
-    const_props, &
     apply_nonwv_cflx, &
     cflx_from_coupler, &
     ! below output
@@ -110,18 +109,13 @@ contains
     itaures, &
     errmsg, errflg)
 
-    ! framework dependency for const_props
-    use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
-
     ! dependency to get constituent index
-    use ccpp_const_utils,          only: ccpp_const_get_idx
+    use ccpp_scheme_utils,         only: ccpp_constituent_index
 
     ! Input arguments
     integer,            intent(in)  :: ncol       ! Number of atmospheric columns [count]
     integer,            intent(in)  :: pverp      ! Number of vertical interfaces [count]
     integer,            intent(in)  :: pcnst      ! Number of CCPP constituents [count]
-    type(ccpp_constituent_prop_ptr_t), &
-                        intent(in)  :: const_props(:)           ! CCPP constituent properties pointer
     logical,            intent(in)  :: apply_nonwv_cflx         ! Flag for applying constituent fluxes excluding water vapor [flag]
     real(kind_phys),    intent(in)  :: cflx_from_coupler(:,:)   ! Surface upward constituent fluxes from coupler [kg m-2 s-1]
 
@@ -142,9 +136,8 @@ contains
 
     ! Check constituents list and locate water vapor index
     ! (not assumed to be 1)
-    call ccpp_const_get_idx(const_props, &
-         'water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water', &
-         const_wv_idx, errmsg, errflg)
+    call ccpp_constituent_index('water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water', &
+         const_wv_idx, errflg, errmsg)
     if (errflg /= 0) return
 
     ! CLUBB applies some fluxes itself, but we still want constituent
