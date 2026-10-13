@@ -1,7 +1,4 @@
-! Ungather the Zhang-McFarlane deep convective cloud top from the gathered
-! convective-column arrays (jt, ideep, lengath) onto the full column list.
-! Columns without deep convection get the index of the lowest layer (pver),
-! matching the CLDTOP field CAM's convect_deep_tend fills.
+! Ungather ZM deep convective cloud top from the gathered arrays for MCSP
 module zm_conv_cloud_top
   implicit none
   private
@@ -9,7 +6,6 @@ module zm_conv_cloud_top
   public :: zm_conv_cloud_top_run
 
 contains
-
 !> \section arg_table_zm_conv_cloud_top_run Argument Table
 !! \htmlinclude zm_conv_cloud_top_run.html
   subroutine zm_conv_cloud_top_run(ncol, pver, lengath, jt, ideep, jctop, errmsg, errflg)

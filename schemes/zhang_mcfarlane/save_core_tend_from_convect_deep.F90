@@ -1,12 +1,6 @@
-! Save the core deep convective temperature and water vapor tendencies, i.e.
-! the tendencies pending at the point in the suite where this scheme runs.
-! Placed directly after the convective core (zm_convr) and before the
-! precipitation evaporation and momentum transport sub-schemes, it captures
-! what the mesoscale coherent structure parameterization (MCSP) redistributes.
-! Unlike save_ttend_from_convect_deep this is a copy, not an accumulation.
+! Copy ZM tendencies (core, i.e., before evap and momentum transport)
+! to capture T and Q tendencies that MCSP redistributes.
 module save_core_tend_from_convect_deep
-  use ccpp_kinds, only: kind_phys
-
   implicit none
   private
 
@@ -18,6 +12,7 @@ contains
 !! \htmlinclude save_core_tend_from_convect_deep_run.html
   subroutine save_core_tend_from_convect_deep_run(ncol, pver, cpair, tend_s, qtend, &
                                                   ttend_dp_core, qtend_dp_core, errmsg, errflg)
+    use ccpp_kinds, only: kind_phys
 
     integer,            intent(in)  :: ncol
     integer,            intent(in)  :: pver

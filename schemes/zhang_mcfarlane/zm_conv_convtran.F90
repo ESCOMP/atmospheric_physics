@@ -1,18 +1,9 @@
 module zm_conv_convtran
-
-  use ccpp_kinds, only:  kind_phys
-
   implicit none
-
-  save
   private                         ! Make default type private to the module
-!
-! PUBLIC: interfaces
-!
-  public zm_conv_convtran_init
-  public zm_conv_convtran_run     ! convective transport
 
-
+  public :: zm_conv_convtran_init
+  public :: zm_conv_convtran_run     ! convective transport
 contains
 
 !===============================================================================
@@ -20,10 +11,8 @@ contains
 !! \htmlinclude zm_conv_convtran_init.html
 !!
 subroutine zm_conv_convtran_init(qprops, ncnst, doconvtran, errmsg, errflg)
-
-use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
-
-   implicit none
+   use ccpp_kinds, only: kind_phys
+   use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
 
    type(ccpp_constituent_prop_ptr_t), intent(in)  :: qprops(:)
    integer,             intent(in) :: ncnst          ! number of tracers to transport
@@ -39,11 +28,8 @@ use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
    errmsg = ''
    errflg = 0
 
-   ! Convectively transport the water species and the hydrometeor number
-   ! concentrations, matching the constituents CAM's microphysics registers with
-   ! is_convtran1. Number concentrations are not water species, so they are
-   ! selected by standard name until a constituent property for convective
-   ! transport exists.
+   ! Mark water species and hydrometeor number concentrations as transported by convtran.
+   ! The former are not water species and need to be matched by standard name.
    do q_index=1,ncnst
        call qprops(q_index)%is_water_species(doconvtran(q_index), errflg, errmsg)
        if (errflg /= 0) return
@@ -87,10 +73,9 @@ subroutine zm_conv_convtran_run(ncol, pver, &
 ! Author: P. Rasch
 !
 !-----------------------------------------------------------------------
+   use ccpp_kinds, only: kind_phys
    use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
 
-
-   implicit none
 !-----------------------------------------------------------------------
 !
 ! Input arguments
@@ -352,8 +337,6 @@ subroutine zm_conv_convtran_run(ncol, pver, &
       end if      ! for doconvtran
 
    end do
-
-   return
 end subroutine zm_conv_convtran_run
 
 
