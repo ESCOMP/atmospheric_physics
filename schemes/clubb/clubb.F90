@@ -475,7 +475,7 @@ module clubb
                         ts_nudge, rtm_min, rtm_nudge_max_altitude, & ! in
                         wp3_const, cld_macmic_num_steps, clubb_params_single_col, & ! in
                         cpair, cpairv, rair, inv_p0_clubb, rairv, zvir, latvap, latice, & ! in
-                        rga, gravit, clubb_rnevap_effic, do_cldcool, do_rainturb, & ! in
+                        h2otrip, rga, gravit, clubb_rnevap_effic, do_cldcool, do_rainturb, & ! in
                         l_implemented, grid_type, lq, deep_scheme, & ! in
                         state_q, state_t, state_pmid, state_zm, & ! in
                         state_phis, state_pdel, state_pdeldry, state_exner, & ! in
@@ -581,7 +581,7 @@ module clubb
     real(kind_phys), intent(in) :: hdtime, clubb_timestep
     real(kind_phys), intent(in) :: sclr_tol(:)
     real(kind_phys), intent(in) :: shr_const_karman, shr_const_pi, shr_const_g, omega_const, cpair, &
-                                   rga, inv_p0_clubb, rair, zvir, latvap, latice, gravit, theta0, &
+                                   h2otrip, rga, inv_p0_clubb, rair, zvir, latvap, latice, gravit, theta0, &
                                    ts_nudge, rtm_min, rtm_nudge_max_altitude, clubb_rnevap_effic
     real(kind_phys), intent(in) :: cpairv(:,:), rairv(:,:)
     real(kind_phys), intent(in) :: rtpthlp_const, wpthlp_const, wprtp_const, wp3_const
@@ -3073,7 +3073,9 @@ module clubb
 
       do i = 1, ncol
 
-         call integrate_mf( nzm_clubb,      nzt_clubb,       dtime,                                                 & ! input
+         call integrate_mf( nzm_clubb,      nzt_clubb,       dtime,                                   & ! input
+              cpair,          gravit,          latvap,          latice,          zvir,                & ! input
+              h2otrip,                         shr_const_pi,                                          & ! input
               rho_zm(i,:),    zi_g(i,:),                        p_in_Pa_zm(i,:), invrs_exner_zm(i,:), & ! input
               rho_zt(i,:),    dz_g(i,:),       zt_g(i,:),       p_in_Pa(i,:),    invrs_exner_zt(i,:), & ! input
               um(i,:),        vm(i,:),         thlm(i,:),       rtm(i,:),        thv_ds_zt(i,:),      & ! input

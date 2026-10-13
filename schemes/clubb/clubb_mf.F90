@@ -5,8 +5,6 @@ module clubb_mf
 ! Together (CLUBB+MF) they comprise a eddy-diffusivity mass-flux approach (EDMF)  !
 ! =============================================================================== !
   use ccpp_kinds,    only: kind_phys
-  use physconst,     only: cpair, epsilo, gravit, latice, latvap, tmelt, rair, &
-                           cpwv, cpliq, rh2o, zvir, pi
 
   implicit none
   private
@@ -99,8 +97,6 @@ module clubb_mf
        do_clubb_mf_aspd_in, do_clubb_mf_pblcull_in, do_clubb_mf_invswitch_in,       &
        errmsg, errflg)
 
-    use ccpp_kinds, only: kind_phys
-
     ! Real-valued namelist parameters
     real(kind_phys), intent(in) :: clubb_mf_a0_in, clubb_mf_b0_in, clubb_mf_L0_in
     real(kind_phys), intent(in) :: clubb_mf_ent0_in, clubb_mf_alphturb_in, clubb_mf_max_L0_in
@@ -182,6 +178,8 @@ module clubb_mf
   end subroutine clubb_mf_init
 
   subroutine integrate_mf( nzm,     nzt,     dtime,                                 & ! input
+                           cpair,   gravit,  latvap,  latice,    zvir,              & ! input
+                           h2otrip,          pi,                                    & ! input
                            rho_zm,           zm,      p_zm,      iexner_zm,         & ! input
                            rho_zt,  dzt,     zt,      p_zt,      iexner_zt,         & ! input
                            u,       v,       thl,     qt,        thv,               & ! input
@@ -261,6 +259,15 @@ module clubb_mf
 
      integer,  intent(in)                 :: nzm, nzt
      real(kind_phys), intent(in)                 :: dtime                   ! host-model physics timestep [s]
+
+     real(kind_phys), intent(in)          :: cpair                   ! specific heat of dry air at constant pressure [J kg-1 K-1]
+     real(kind_phys), intent(in)          :: gravit                  ! gravitational acceleration [m s-2]
+     real(kind_phys), intent(in)          :: latvap                  ! latent heat of vaporization [J kg-1]
+     real(kind_phys), intent(in)          :: latice                  ! latent heat of fusion of water [J kg-1]
+     real(kind_phys), intent(in)          :: zvir                    ! rh2o/rair - 1 [1]
+     real(kind_phys), intent(in)          :: h2otrip                 ! triple point temperature of water [K]
+     real(kind_phys), intent(in)          :: pi                      ! pi [1]
+
      real(kind_phys), dimension(nzt), intent(in) :: u,      v,            & ! thermodynamic grid
                                              thl,    thv,          & ! thermodynamic grid
                                              th,     qv,           & ! thermodynamic grid
@@ -946,7 +953,8 @@ module clubb_mf
          upmf(kstart,i) = rho_zm(kstart)*upa(kstart,i)*upw(kstart,i)
 
          ! get cloud, lowest momentum level
-         call condensation_mf(upqt(kstart,i), upthl(kstart,i), p_zm(kstart), iexner_zm(kstart), &
+         call condensation_mf(cpair, zvir, h2otrip, latvap, latice, &
+                              upqt(kstart,i), upthl(kstart,i), p_zm(kstart), iexner_zm(kstart), &
                               thvn, qcn, thn, qln, qin, qsn, lmixn)
          upthv(kstart,i) = thvn
          upqc(kstart,i)  = qcn
@@ -1002,7 +1010,8 @@ module clubb_mf
          ! --------------------------------------------------------- !
          ! Calculate ztop and dynamic_L based on value of namelist   !
          ! --------------------------------------------------------- !
-         call get_Lscale (nzt, nzm, zm, tke, wpthlp_env, dzt, iexner_zm, iexner_zt, p_zm, qt, thv, thl, th, &
+         call get_Lscale (cpair, gravit, zvir, h2otrip, latvap, latice, &
+                          nzt, nzm, zm, tke, wpthlp_env, dzt, iexner_zm, iexner_zt, p_zm, qt, thv, thl, th, &
                           wmax, wmin, sigmaw, sigmaqt, sigmathv, cwqt, cwthv, zcb_unset, wa, wb,  &
                           qv, p_zt, zt, tpert, pblh, convh, rhinv, ztopm1(i), dynamic_L0(i), ztop(i), mcape(i))
 
@@ -1034,7 +1043,7 @@ module clubb_mf
        ! get poisson, P(dz/L0)
        ! Ideally we would not fill the enti array above plume tops,
        ! but plume tops have not yet been determined.
-       call poisson( nzt, clubb_mf_nup, ksfct, ktopt, kdir, entf, enti, u_seed )
+       call poisson( nzt, clubb_mf_nup, ksfct, ktopt, kdir, entf, enti, u_seed, pi )
 
        ! --------------------------------------------------------- !
        ! Main upward sweep to compute updraft properties           !
@@ -1083,7 +1092,8 @@ module clubb_mf
 
              if (bsort) then
                !calculate mixing fractions (ee2, ud2) given a plumes thermodynamic state
-               call buoyancy_sort_mixfrac( qtn, thln, wn,                      &
+               call buoyancy_sort_mixfrac( gravit, cpair, zvir, h2otrip, latvap, latice, &
+                                           qtn, thln, wn,                      &
                                            thl_zm(kn), qt_zm(kn), thv_zm(kn),  &
                                            iexner_zm(kn), p_zm(kn), ztopm1(i), &
                                            rle, wa,                            &
@@ -1125,7 +1135,8 @@ module clubb_mf
              supthl(kt,i) = supthl(kt,i)*upw(k,i)/dzt(kt)
 
              ! get cloud, momentum levels
-             call condensation_mf(qtn, thln, p_zm(kn), iexner_zm(kn), &
+             call condensation_mf(cpair, zvir, h2otrip, latvap, latice, &
+                                  qtn, thln, p_zm(kn), iexner_zm(kn), &
                                   thvn, qcn, thn, qln, qin, qsn, lmixn)
              if (zcb(i)==zcb_unset .and. qcn > 0._kind_phys) zcb(i) = zm(kn)
 
@@ -1915,7 +1926,8 @@ module clubb_mf
 
   end subroutine integrate_mf
 
-  subroutine buoyancy_sort_mixfrac( qtn, thln, wn,                     &
+  subroutine buoyancy_sort_mixfrac( gravit, cpair, zvir, h2otrip, latvap, latice, &
+                                    qtn, thln, wn,                     &
                                     thl_zm_kn, qt_zm_kn, thv_zm_kn,    &
                                     iexner_zm_kn, p_zm_kn, ztopm1_i,   &
                                     rle, wa,                           &
@@ -1929,6 +1941,7 @@ module clubb_mf
 
     use wv_saturation, only: qsat
 
+    real(kind_phys), intent(in)  :: gravit, cpair, zvir, h2otrip, latvap, latice
     real(kind_phys), intent(in)  :: qtn, thln, wn   ! this iteration's trial plume state -- caller's job to pick it
     real(kind_phys), intent(in)  :: thl_zm_kn, qt_zm_kn, thv_zm_kn
     real(kind_phys), intent(in)  :: iexner_zm_kn, p_zm_kn
@@ -1962,7 +1975,8 @@ module clubb_mf
     call qsat(tln,p_zm_kn,es,qsn)
     excessn = qtn - qsn
 
-    call condensation_mf(qtn, thln, p_zm_kn, iexner_zm_kn, &
+    call condensation_mf(cpair, zvir, h2otrip, latvap, latice, &
+                         qtn, thln, p_zm_kn, iexner_zm_kn, &
                          thvn, qcn, thn, qln, qin, qsn, lmixn)
 
     ! critical stopping distance
@@ -1980,7 +1994,8 @@ module clubb_mf
       xsat    = excessn / ( excessn - excessm );
       thlxsat = thln + xsat * ( thl_zm_kn - thln );
       qtxsat  = qtn  + xsat * ( qt_zm_kn - qtn );
-      call condensation_mf(qtxsat, thlxsat, p_zm_kn, iexner_zm_kn, &
+      call condensation_mf(cpair, zvir, h2otrip, latvap, latice, &
+                           qtxsat, thlxsat, p_zm_kn, iexner_zm_kn, &
                            thvxsat, qcn, thn, qln, qin, qsn, lmixn)
       ! -------------------------------------------------- !
       ! kk=1 : Cumulus Segment, kk=2 : Environment Segment !
@@ -2059,9 +2074,10 @@ module clubb_mf
 
   end function mf_pinterp
 
-  subroutine get_Lscale(nzt, nzm, zm, tke, wpthlp_env, dzt, iexner_zm, iexner_zt, p_zm, qt, thv, thl, th, &
+  subroutine get_Lscale(cpair, gravit, zvir, h2otrip, latvap, latice, &
+                        nzt, nzm, zm, tke, wpthlp_env, dzt, iexner_zm, iexner_zt, p_zm, qt, thv, thl, th, &
                         wmax, wmin, sigmaw, sigmaqt, sigmathv, cwqt, cwthv, zcb_unset, wa, wb,  &
-                        qv, p_zt, zt, tpert, pblh, convh, rhinv, ztopm1, dynamic_L0, ztop, mcape)
+                        qv, p_zt, zt, tpert, pblh, convh, rhinv, ztopm1, dynamic_L0, ztop, mcape )
   ! --------------------------------------------------------- !
   ! Calculate ztop and dynamic_L based on value of namelist   !
   ! --------------------------------------------------------- !
@@ -2080,6 +2096,8 @@ module clubb_mf
                                             cwqt,   cwthv,  zcb_unset, &
                                             wa,     wb,        ztopm1, &
                                             pblh,   convh,     rhinv
+
+     real(kind_phys), intent(in) :: cpair, gravit, zvir, h2otrip, latvap, latice
 
      real(kind_phys), intent(out) ::               dynamic_L0, ztop, mcape
 
@@ -2181,7 +2199,8 @@ module clubb_mf
 
      else if (clubb_mf_Lopt == 3) then
        !Test plume
-       call oneplume( nzm, nzt, zm, dzt, iexner_zm, iexner_zt, p_zm, qt, thv, thl, &
+       call oneplume( cpair, gravit, zvir, h2otrip, latvap, latice, &
+                      nzm, nzt, zm, dzt, iexner_zm, iexner_zt, p_zm, qt, thv, thl, &
                       wmax, wmin, sigmaw, sigmaqt, sigmathv, cwqt, cwthv, zcb_unset, &
                       wa, wb, tke, do_clubb_mf_precip, ztop )
 
@@ -2197,13 +2216,14 @@ module clubb_mf
 
   end subroutine get_Lscale
 
-  subroutine condensation_mf( qt, thl, p, iex, thv, qc, th, ql, qi, qs, lmix )
+  subroutine condensation_mf( cpair, zvir, h2otrip, latvap, latice, &
+                              qt, thl, p, iex, thv, qc, th, ql, qi, qs, lmix )
   ! =============================================================================== !
   ! zero or one condensation for edmf: calculates thv and qc                        !
   ! =============================================================================== !
-     use physconst,          only: cpair, zvir, h2otrip
      use wv_saturation,      only : qsat
 
+     real(kind_phys),intent(in):: cpair,zvir,h2otrip,latvap,latice
      real(kind_phys),intent(in) :: qt,thl,p,iex
      real(kind_phys),intent(out):: thv,qc,th,ql,qi,qs,lmix
 
@@ -2239,9 +2259,9 @@ module clubb_mf
        if (noice) then
          wf = 1._kind_phys
        else
-         wf = get_watf(t)
+         wf = get_watf(h2otrip,t)
        end if
-       t = thl/iex+get_alhl(wf)/cpair*qc   !as in (4)
+       t = thl/iex+get_alhl(latvap,latice,wf)/cpair*qc   !as in (4)
 
        ! qsat, p is in pascal
        call qsat(t,p,es,qstmp)
@@ -2253,21 +2273,22 @@ module clubb_mf
      if (noice) then
        wf = 1._kind_phys
      else
-       wf = get_watf(t)
+       wf = get_watf(h2otrip,t)
      end if
-     t = thl/iex+get_alhl(wf)/cpair*qc
+     t = thl/iex+get_alhl(latvap,latice,wf)/cpair*qc
 
      call qsat(t,p,es,qs)
      qc = max(qt-qs,0._kind_phys)
-     thv = (thl+get_alhl(wf)/cpair*iex*qc)*(1._kind_phys+zvir*(qt-qc)-qc)
-     lmix = get_alhl(wf)
+     thv = (thl+get_alhl(latvap,latice,wf)/cpair*iex*qc)*(1._kind_phys+zvir*(qt-qc)-qc)
+     lmix = get_alhl(latvap,latice,wf)
      th = t*iex
      qi = qc*(1._kind_phys-wf)
      ql = qc*wf
 
      contains
 
-     function get_watf(t)
+     function get_watf(h2otrip,t)
+       real(kind_phys), intent(in) :: h2otrip
        real(kind_phys)            :: t,get_watf,tc
        real(kind_phys), parameter :: &
                               tmax=-10._kind_phys, &
@@ -2286,9 +2307,9 @@ module clubb_mf
      end function get_watf
 
 
-     function get_alhl(wf)
+     function get_alhl(latvap,latice,wf)
      !latent heat of the mixture based on water fraction
-       use physconst,        only : latvap , latice
+       real(kind_phys), intent(in) :: latvap, latice
        real(kind_phys) :: get_alhl,wf
 
        get_alhl = wf*latvap+(1._kind_phys-wf)*(latvap+latice)
@@ -2331,7 +2352,7 @@ module clubb_mf
 
   end subroutine precip_mf
 
-  subroutine poisson(nz, nup, ksfc, ktop, kdir, lambda, poi, state)
+  subroutine poisson(nz, nup, ksfc, ktop, kdir, lambda, poi, state, pi)
   !**********************************************************************
   ! Set a unique (but reproducible) seed for the kiss RNG
   ! Call Poisson deviate
@@ -2342,6 +2363,7 @@ module clubb_mf
        integer,                     intent(in)  :: nz, nup, ksfc, ktop, kdir
        real(kind_phys), dimension(4),      intent(in)  :: state
        real(kind_phys), dimension(nz,nup), intent(in)  :: lambda
+       real(kind_phys), intent(in) :: pi
        integer,  dimension(nz,nup), intent(out) :: poi
        integer,  dimension(1,4)                 :: tmpseed
        integer                                  :: i,j
@@ -2359,14 +2381,14 @@ module clubb_mf
        ! Loop from the SURFACE to the TOP to preserve the exact PRNG sequence
        do i = ksfc, ktop, kdir
          do j = 1, nup
-           call hybridRNG(kiss_gen, lambda(i,j), poi(i,j))
+           call hybridRNG(kiss_gen, lambda(i,j), poi(i,j), pi)
          enddo
        enddo
 
   end subroutine poisson
 
 
-  subroutine hybridRNG(kiss_gen,lambda,kout)
+  subroutine hybridRNG(kiss_gen,lambda,kout,pi)
   !**********************************************************************
   ! Interface for the two poisson rng subroutines
   ! chooses the appropriate subroutine based on the value of lambda
@@ -2376,11 +2398,12 @@ module clubb_mf
        type(ShrKissRandGen), intent(inout) :: kiss_gen
        real(kind_phys),             intent(in)    :: lambda
        integer,              intent(out)   :: kout
+       real(kind_phys), intent(in) :: pi
 
        if (lambda < 10._kind_phys) then
           call knuth(kiss_gen,lambda,kout)
        else
-          call hormann(kiss_gen,lambda,kout)
+          call hormann(kiss_gen,lambda,kout,pi)
        end if
 
   end subroutine hybridRNG
@@ -2416,7 +2439,7 @@ module clubb_mf
   end subroutine knuth
 
 
-  subroutine hormann(kiss_gen,lambda,kout)
+  subroutine hormann(kiss_gen,lambda,kout,pi)
   !**********************************************************************
   ! Discrete random poisson
   ! Implements Poisson Transformed Rejection with Squeeze (PTRS)
@@ -2429,6 +2452,7 @@ module clubb_mf
       type(ShrKissRandGen), intent(inout) :: kiss_gen
       real(kind_phys),             intent(in)    :: lambda
       integer,              intent(out)   :: kout
+      real(kind_phys), intent(in) :: pi
 
       ! Local variables
       real(kind_phys), dimension(1,1) :: U,V
@@ -2516,7 +2540,8 @@ module clubb_mf
   end subroutine roots
 
 
-  subroutine oneplume( nzm, nzt, zm, dzt, iexner_zm, iexner_zt, p_zm, qt, thv, thl, &
+  subroutine oneplume( cpair, gravit, zvir, h2otrip, latvap, latice, &
+                       nzm, nzt, zm, dzt, iexner_zm, iexner_zt, p_zm, qt, thv, thl, &
                        wmax, wmin, sigmaw, sigmaqt, sigmathv, cwqt, cwthv, zcb_unset, &
                        wa, wb, tke, do_precip, plumeheight )
   !**********************************************************************
@@ -2524,8 +2549,8 @@ module clubb_mf
   ! to be used for a dynamic mixing length calculation
   ! By Rachel Storer
   !**********************************************************************
-    use physconst,          only: cpair, gravit, zvir
 
+    real(kind_phys), intent(in)   :: cpair, gravit, zvir, h2otrip, latvap, latice
     integer,  intent(in)                 :: nzm, nzt
     real(kind_phys), dimension(nzt), intent(in) :: dzt, iexner_zt,  &
                                             qt, thv, thl
@@ -2603,7 +2628,8 @@ module clubb_mf
     upth(ksfcm)  = upthl(ksfcm)
 
     ! get cloud, lowest momentum level
-    call condensation_mf(upqt(ksfcm), upthl(ksfcm), p_zm(ksfcm), iexner_zm(ksfcm), &
+    call condensation_mf(cpair, zvir, h2otrip, latvap, latice, &
+                         upqt(ksfcm), upthl(ksfcm), p_zm(ksfcm), iexner_zm(ksfcm), &
                          thvn, qcn, thn, qln, qin, qsn, lmixn)
     upthv(ksfcm) = thvn
     upqc(ksfcm)  = qcn
@@ -2640,7 +2666,8 @@ module clubb_mf
       supthl(kt) = supthl(kt)*upw(k)/dzt(kt)
 
       ! get cloud, momentum levels
-      call condensation_mf(qtn, thln, p_zm(kn), iexner_zm(kn), &
+      call condensation_mf(cpair, zvir, h2otrip, latvap, latice, &
+                           qtn, thln, p_zm(kn), iexner_zm(kn), &
                            thvn, qcn, thn, qln, qin, qsn, lmixn)
       if (zcb == zcb_unset .and. qcn > 0._kind_phys) zcb = zm(kn)
       ! get buoyancy
