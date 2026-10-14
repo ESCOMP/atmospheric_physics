@@ -1,0 +1,101 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet type="text/xsl" href="namelist_definition.xsl"?>
+
+<entry_id_pg version="2.0">
+
+<entry id="MCSP_heat_coeff">
+  <category>conv</category>
+  <group>mcsp_nl</group>
+  <standard_name>heating_coefficient_for_mcsp</standard_name>
+  <units>1</units>
+  <type>real</type>
+  <kind>kind_phys</kind>
+  <desc> Heat coefficient in MCSP. </desc>
+  <values>
+     <value>0.0D0</value>
+  </values>
+</entry>
+
+<entry id="MCSP_moisture_coeff">
+  <category>conv</category>
+  <group>mcsp_nl</group>
+  <standard_name>moisture_coefficient_for_mcsp</standard_name>
+  <units>1</units>
+  <type>real</type>
+  <kind>kind_phys</kind>
+  <desc>Moisture coefficient in MCSP.</desc>
+  <values>
+     <value>0.0D0</value>
+  </values>
+</entry>
+
+<entry id="MCSP_uwind_coeff">
+  <category>conv</category>
+  <group>mcsp_nl</group>
+  <standard_name>uwind_coefficient_for_mcsp</standard_name>
+  <units>1</units>
+  <type>real</type>
+  <kind>kind_phys</kind>
+  <desc>Uwind coefficient in MCSP.</desc>
+  <values>
+     <value>0.0D0</value>
+  </values>
+</entry>
+
+<entry id="MCSP_vwind_coeff">
+  <category>conv</category>
+  <group>mcsp_nl</group>
+  <standard_name>vwind_coefficient_for_mcsp</standard_name>
+  <units>1</units>
+  <type>real</type>
+  <kind>kind_phys</kind>
+  <desc>Vwind coefficient in MCSP.</desc>
+  <values>
+     <value>0.0D0</value>
+  </values>
+</entry>
+
+<entry id="MCSP_storm_speed_pref">
+  <category>conv</category>
+  <group>mcsp_nl</group>
+  <standard_name>reference_presure_for_uwind_shear_for_MCSP</standard_name>
+  <units>m s-1</units>
+  <type>real</type>
+  <kind>kind_phys</kind>
+  <desc>reference pressure level for low level zonal wind shear for MCSP</desc>
+  <values>
+     <value>600.0D0</value>
+  </values>
+</entry>
+
+<entry id="MCSP_conv_depth_min">
+  <category>conv</category>
+  <group>mcsp_nl</group>
+  <standard_name>convection_depth_min_for_MCSP</standard_name>
+  <units>hPa</units>
+  <type>real</type>
+  <kind>kind_phys</kind>
+  <desc>minimum convection depth for MCSP to be activated</desc>
+  <values>
+     <value>500.0D0</value>
+  </values>
+</entry>
+
+<entry id="mcsp_shear_min">
+  <category>conv</category>
+  <group>mcsp_nl</group>
+  <standard_name>minmum_uwind_shear_for_MCSP</standard_name>
+  <units>m s-1</units>
+  <type>real</type>
+  <kind>kind_phys</kind>
+  <desc>zonal wind difference/shear between reference pressure level and surface for MCSP</desc>
+  <values>
+     <value>3.0D0</value>
+  </values>
+</entry>
+
+
+
+
+</entry_id_pg>
