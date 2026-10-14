@@ -17,7 +17,7 @@
         fxtag = v1.9.2
         fxDONOTUSEurl = https://github.com/earth-system-radiation/rte-rrtmgp.git
 [submodule "clubb"]
-        path = schemes/clubb/clubb/
+        path = schemes/clubb/clubb
         url = https://github.com/larson-group/clubb_release
         fxrequired = AlwaysRequired
         fxsparse = ../.clubb_sparse_checkout
