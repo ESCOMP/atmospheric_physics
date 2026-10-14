@@ -1,0 +1,82 @@
+name: New standard names comment
+
+# Post, or update in place, one sticky pull request comment with the
+# report produced by new_standard_names.yaml.
+# This is a separate workflow because pull requests from forks run with
+# a read-only token and cannot comment, whereas workflow_run jobs run in
+# the base repository with write access.
+# Only the default branch's copy of this file and of the script is used,
+# and the downloaded report is validated before any of it is rendered,
+# so nothing from the pull request is ever executed here.
+# The comment is found again through a hidden HTML marker, so a pull
+# request carries exactly one such comment however often it is pushed.
+
+on:
+  workflow_run:
+    workflows: ["New standard names"]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+  pull-requests: write
+
+jobs:
+  comment:
+    if: >-
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout atmospheric_physics
+        uses: actions/checkout@v4
+
+      - name: Download the report from the triggering run
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          gh run download "${RUN_ID}" \
+            --name new-standard-names-report --dir stdnames_report
+
+      - name: Render and post the comment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          # Validates the report and refuses anything malformed.
+          python3 .github/scripts/new_standard_names.py render --comment \
+            --out body.md stdnames_report/report.json
+
+          pr=$(jq -r '.pr' stdnames_report/report.json)
+          report_head=$(jq -r '.head_sha' stdnames_report/report.json)
+          if ! [[ "${pr}" =~ ^[0-9]+$ ]]; then
+            echo "The report carries no pull request number; nothing to do."
+            exit 0
+          fi
+          if [ "${report_head}" != "${HEAD_SHA}" ]; then
+            echo "The report is for ${report_head} but this run is for ${HEAD_SHA}; skipping."
+            exit 0
+          fi
+          # Only the pull request whose current head produced the report may
+          # receive it; this also skips stale runs after a quick re-push.
+          current_head=$(gh api "repos/${GITHUB_REPOSITORY}/pulls/${pr}" --jq .head.sha)
+          if [ "${current_head}" != "${HEAD_SHA}" ]; then
+            echo "Pull request #${pr} has moved on to ${current_head}; a newer run will comment."
+            exit 0
+          fi
+
+          ids=$(gh api --paginate "repos/${GITHUB_REPOSITORY}/issues/${pr}/comments" \
+            --jq '.[] | select(.user.login == "github-actions[bot]")
+                      | select(.body | contains("<!-- new-standard-names-report -->"))
+                      | .id')
+          existing=$(printf '%s\n' "${ids}" | head -n 1)
+          if [ -n "${existing}" ]; then
+            echo "Updating comment ${existing} on pull request #${pr}"
+            gh api --silent --method PATCH \
+              "repos/${GITHUB_REPOSITORY}/issues/comments/${existing}" -F body=@body.md
+          else
+            echo "Creating the comment on pull request #${pr}"
+            gh api --silent --method POST \
+              "repos/${GITHUB_REPOSITORY}/issues/${pr}/comments" -F body=@body.md
+          fi

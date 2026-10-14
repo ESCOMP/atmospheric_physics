@@ -1,0 +1,73 @@
+name: New standard names
+
+# Flag the CCPP standard names a pull request introduces or removes,
+# relative to the base branch, as a non-blocking review aid.
+# Standard names are read from every tracked *.meta and *.xml file by
+# .github/scripts/new_standard_names.py, which needs only git and Python.
+# The results are surfaced three ways:
+#  1. inline "notice" annotations in the Files changed view of the pull
+#     request, one per new name, anchored at its first .meta occurrence;
+#  2. a markdown job summary on the workflow run page with the full list;
+#  3. a report artifact, which new_standard_names_comment.yaml turns into
+#     one sticky pull request comment.
+# GitHub keeps at most 10 annotations per step and 50 per job, hence the
+# chunked annotation steps below; the summary always has the full list.
+# Everything here runs with the read-only default token so it also works
+# for pull requests from forks.
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  new-standard-names:
+    runs-on: ubuntu-latest
+    steps:
+      # Full history is needed for the merge base; the repository is small
+      # and submodules are not fetched.
+      - name: Checkout atmospheric_physics
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Compare standard names with the base branch
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          python3 .github/scripts/new_standard_names.py report \
+            --base "origin/${BASE_REF}" --base-ref "${BASE_REF}" \
+            --head "${HEAD_SHA}" \
+            --repo "${GITHUB_REPOSITORY}" --pr "${PR_NUMBER}" \
+            --out-dir stdnames_report
+
+      - name: Write the job summary
+        run: cat stdnames_report/report.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Annotate new standard names (1-10)
+        run: sed -n '1,10p' stdnames_report/annotations.txt
+
+      - name: Annotate new standard names (11-20)
+        run: sed -n '11,20p' stdnames_report/annotations.txt
+
+      - name: Annotate new standard names (21-30)
+        run: sed -n '21,30p' stdnames_report/annotations.txt
+
+      - name: Annotate new standard names (31-40)
+        run: sed -n '31,40p' stdnames_report/annotations.txt
+
+      - name: Annotate new standard names (41-50)
+        run: sed -n '41,50p' stdnames_report/annotations.txt
+
+      - name: Upload the report
+        uses: actions/upload-artifact@v4
+        with:
+          name: new-standard-names-report
+          path: stdnames_report/
