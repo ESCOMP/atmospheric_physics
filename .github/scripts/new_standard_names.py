@@ -15,8 +15,8 @@ The units declared with each occurrence are reported too, so reviewers
 can spot one name declared with different units.
 
 Subcommands:
-  report   compare two revisions and write report.json, report.md and
-           annotations.txt into --out-dir
+  report   compare two revisions and write report.json and report.md
+           into --out-dir
   render   re-create the markdown from an existing report.json after
            validating it; used by the comment workflow, which must treat
            the downloaded report as untrusted input
@@ -283,8 +283,8 @@ def build_report(args: argparse.Namespace) -> dict:
     new_entries = []
     for name in sorted(new_names):
         occurrences = head_names[name]
-        # Anchor the inline annotation at the first .meta occurrence, as
-        # that is where reviewers judge the name; fall back to the XML.
+        # Report the first .meta occurrence as where the name is introduced,
+        # as that is where reviewers judge it; fall back to the XML.
         anchor = next((o for o in occurrences if o[0].endswith(".meta")), occurrences[0])
         old_name = renames.get(name)
         similar = similar_names(name, existing)
@@ -415,7 +415,7 @@ def validate_report(report: dict) -> None:
 
 
 # ---------------------------------------------------------------------------
-# output: markdown (job summary and sticky comment) and annotations
+# output: markdown (job summary and sticky comment)
 # ---------------------------------------------------------------------------
 def short(sha: str) -> str:
     return sha[:8]
@@ -556,71 +556,6 @@ def render_markdown(report: dict, with_marker: bool = False) -> str:
     return "\n".join(lines) + "\n"
 
 
-def escape_property(value: str) -> str:
-    return (value.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
-            .replace(":", "%3A").replace(",", "%2C"))
-
-
-def escape_message(value: str) -> str:
-    return value.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
-
-
-def render_annotations(report: dict, limit: int) -> str:
-    """One "::notice" workflow command per new name, anchored in the diff.
-
-    GitHub caps annotations per step and per job, so at most <limit>
-    lines are written and the last one points at the summary instead
-    when the list is longer.
-    """
-    base_ref = report["base_ref"]
-    entries = report["new"]
-    overflow = len(entries) > limit
-    shown = entries[:limit - 1] if overflow else entries
-    out = []
-    for entry in shown:
-        anchor = entry["anchor"]
-        others = [o for o in entry["occurrences"] if o != anchor]
-        differ = units_differ(entry)
-        message = ["New standard name {} is not present on {}.".format(entry["name"], base_ref)]
-        if differ:
-            message.append("Declared with different units: {}. Here: {}.".format(
-                ", ".join(entry["units"]), anchor.get("units", "?")))
-        elif entry.get("units"):
-            message.append("Units: {}.".format(entry["units"][0]))
-        if others:
-            message.append("Also seen in:")
-            message.extend(
-                "- {}:{}".format(o["path"], o["line"])
-                + (" ({})".format(o.get("units", "?")) if differ else "")
-                for o in others[:10])
-            if len(others) > 10:
-                message.append("- and {} more".format(len(others) - 10))
-        else:
-            message.append("This is its only occurrence.")
-        if entry["likely_rename_of"]:
-            message.append("Likely a rename of {}, which this pull request removes.".format(
-                entry["likely_rename_of"]))
-        if entry["on_base_tip"]:
-            message.append("Already present at the tip of {}, added after this branch diverged.".format(
-                base_ref))
-        if entry["similar_existing"]:
-            message.append("Similar existing names: " + ", ".join(entry["similar_existing"]))
-        out.append("::notice file={},line={},title={}::{}".format(
-            escape_property(anchor["path"]), anchor["line"],
-            escape_property("New standard name: " + entry["name"]),
-            escape_message("\n".join(message)),
-        ))
-    if overflow:
-        out.append("::notice title={}::{}".format(
-            escape_property("New standard names"),
-            escape_message(
-                "{} more new standard names are not annotated inline because GitHub "
-                "caps annotations; see the job summary or the report artifact.".format(
-                    len(entries) - len(shown))),
-        ))
-    return "".join(line + "\n" for line in out)
-
-
 # ---------------------------------------------------------------------------
 # command line
 # ---------------------------------------------------------------------------
@@ -633,8 +568,6 @@ def cmd_report(args: argparse.Namespace) -> int:
         handle.write("\n")
     with open(os.path.join(args.out_dir, "report.md"), "w") as handle:
         handle.write(render_markdown(report))
-    with open(os.path.join(args.out_dir, "annotations.txt"), "w") as handle:
-        handle.write(render_annotations(report, args.max_annotations))
     print("{} new and {} removed standard names (head {} vs merge base {}); "
           "report written to {}".format(
               len(report["new"]), len(report["removed"]),
@@ -667,8 +600,6 @@ def main(argv: list[str]) -> int:
     rep.add_argument("--repo", help="owner/name, enables links to the head commit")
     rep.add_argument("--pr", type=int, help="pull request number, recorded in report.json")
     rep.add_argument("--out-dir", default="stdnames_report")
-    rep.add_argument("--max-annotations", type=int, default=50,
-                     help="GitHub keeps at most 50 annotations per job")
     rep.set_defaults(func=cmd_report)
 
     ren = sub.add_parser("render", help="validate report.json and print its markdown")
