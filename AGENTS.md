@@ -22,7 +22,7 @@ atmospheric_physics **requires** disclosure of AI-assisted contributions:
 
 ## Portability
 
-- Schemes may `use` only `ccpp_kinds`, `ccpp_constituent_prop_mod`, intra-package dependencies (i.e., a scheme `use`ing variables in its own subdirectory), utilities under `phys_utils`, and legacy utilities under `to_be_ccppized/` (excluding `ppgrid`).
+- Schemes may `use` only `ccpp_kinds`, `ccpp_constituent_prop_mod`, intra-package dependencies (i.e., a scheme `use`ing variables in its own subdirectory), utilities under `phys_utils`, and legacy utilities under `to_be_ccppized/`. `ppgrid` is a host model module used only by legacy code.
 - Real kind is `kind_phys` from `ccpp_kinds`, never `r8`/`shr_kind_mod`.
 - Anything host-side a scheme needs (physical constants, fields, the log unit) arrives as a subroutine argument threaded by standard name, not via a `use` of a host module.
 - Dummy arguments are assumed-shape (`(:,:)`), never sized with host parameters like `pcols`.
@@ -30,6 +30,7 @@ atmospheric_physics **requires** disclosure of AI-assisted contributions:
 - Logging: never `write` to a hardcoded or host-provided unit directly; thread the `log_output_unit` standard name as an integer argument if a scheme must print.
 - I/O: use the CCPP I/O reader for reading files. An example is in `schemes/radiation_utils/solar_irradiance_data.F90`.
 - **Exception:** `schemes/sima_diagnostics/` is a non-portable directory centralizing CAM-SIMA-specific history output. Code outside `sima_diagnostics/` that calls `cam_history` routines is a bug.
+- **Exception:** SIMA-only chemistry and aerosol schemes use the `tracer_data` host module for reading stream data and may use `cam_history`. These schemes may serve as examples of constituent handling and chemistry/aerosol science, but not of portability.
 - `to_be_ccppized/` holds shared legacy utilities pending full CCPPization; do not add new code there without discussion.
 - `phys_utils/`: Generic (pure) functions or routines that can potentially be used across many different physics schemes, or are known atmospheric science equations, can be placed in `phys_utils`. However, do not do so without human confirmation. If a function is placed in `phys_utils`, try to write unit tests for it as described in the Testing section.
 
@@ -48,7 +49,7 @@ atmospheric_physics **requires** disclosure of AI-assisted contributions:
 - Every CCPP scheme subroutine argument must have a corresponding entry in the companion `.meta` file with a valid standard name. A mismatch between the Fortran arguments and the `.meta` entries is the most common source of capgen errors.
 - Constituent registration (declaring advected or non-advected constituents) happens in the `_register` phase, not `_init`. The `_register` phase runs before `_init` and before constituent indices are available. Index lookup at runtime uses `ccpp_constituent_index`, which can be accessed via `use ccpp_scheme_utils, only: ccpp_constituent_index`.
   - Note that adding entries to `CAM-SIMA/src/data/registry.xml` does not register constituents and only specifies IC input variable names.
-  - See `schemes/chemistry/prescribed_ozone.F90` for an example for dynamic constituent registration and use of `tracer_data.F90`.
+  - See `schemes/chemistry/rebin_seasalt.F90` for an example of dynamic constituent registration.
 
 ## Standard names
 
@@ -58,6 +59,7 @@ The standard name is the interface: the CCPP framework connects producers and co
 - If a new name is unavoidable, follow the naming patterns of existing names and **flag it explicitly in the PR description** for SE review. Units must be consistent with existing usage.
 - The horizontal dimension standard name depends on phase: `horizontal_dimension` in non-`run` phases (`init`, `timestep_init`, ...), `horizontal_loop_extent` in the `run` phase.
 - Vertical dimensions: `vertical_layer_dimension` (layers) and `vertical_interface_dimension` (interfaces).
+- `doc/NamesNotInDictionary.txt` is auto-generated. Do not read in full or treat as authoritative.
 
 ## Code style
 

@@ -22,13 +22,13 @@ In addition to existing rules outlined in AGENTS.md and Code-style.md, the follo
 
 9. Check that all full-sentence comments are grammatically correct.
 
-10. Convert any subroutines that have only a single output variable to functions.
+10. Convert any subroutines that have only a single output variable and no side effects to functions.
 
 11. Make sure all character-type subroutine arguments are `len=*`, unless they are declared as an allocatable or pointer in the subroutine itself.
 
 12. Make sure all `goto` and `go to` statements have been removed.
 
-13. Request the removal of any lines of code that are commented out unless that code is explicity part of a larger comment block
+13. Request the removal of any lines of code that are commented out unless that code is explicitly part of a larger comment block
     describing currently working code.  If the comments aren't clear then simply flag it for human review.
 
 14. Check all variables in modified `*.meta` files and flag any variables
@@ -37,5 +37,4 @@ In addition to existing rules outlined in AGENTS.md and Code-style.md, the follo
     possibility of a science bug, and thus should be flagged so that
     a human can look it over.
 
-15. If the review is for a module in the a scheme directory, make sure that any `use` statements which refer to modules outside the scheme directory
-    not enumerated in the `AGENTS.md` exceptions is flagged for manual review.
+15. If the review is for a module in a scheme directory, flag for manual review any `use` statements referring to modules outside the scheme directory that are not enumerated in the AGENTS.md exceptions.
