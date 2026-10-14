@@ -22,12 +22,13 @@ atmospheric_physics **requires** disclosure of AI-assisted contributions:
 
 ## Portability
 
-- Schemes may `use` only `ccpp_kinds`, `ccpp_constituent_prop_mod`, `ccpp_const_utils`, intra-package dependencies (i.e., a scheme `use`ing variables in its own subdirectory), and legacy utilities under `to_be_ccppized/` (excluding `ppgrid`).
+- Schemes may `use` only `ccpp_kinds`, `ccpp_constituent_prop_mod`, intra-package dependencies (i.e., a scheme `use`ing variables in its own subdirectory), utilities under `phys_utils`, and legacy utilities under `to_be_ccppized/` (excluding `ppgrid`).
 - Real kind is `kind_phys` from `ccpp_kinds`, never `r8`/`shr_kind_mod`.
 - Anything host-side a scheme needs (physical constants, fields, the log unit) arrives as a subroutine argument threaded by standard name, not via a `use` of a host module.
 - Dummy arguments are assumed-shape (`(:,:)`), never sized with host parameters like `pcols`.
 - Module-level state: minimal; prefer arguments. Module-level vertically-dimensioned arrays cannot be statically sized (the vertical dimension is a runtime value in CAM-SIMA): make them allocatable and allocate in `_init`.
 - Logging: never `write` to a hardcoded or host-provided unit directly; thread the `log_output_unit` standard name as an integer argument if a scheme must print.
+- I/O: use the CCPP I/O reader for reading files. An example is in `schemes/radiation_utils/solar_irradiance_data.F90`.
 - **Exception:** `schemes/sima_diagnostics/` is a non-portable directory centralizing CAM-SIMA-specific history output. Code outside `sima_diagnostics/` that calls `cam_history` routines is a bug.
 - `to_be_ccppized/` holds shared legacy utilities pending full CCPPization; do not add new code there without discussion.
 - `phys_utils/`: Generic (pure) functions or routines that can potentially be used across many different physics schemes, or are known atmospheric science equations, can be placed in `phys_utils`. However, do not do so without human confirmation. If a function is placed in `phys_utils`, try to write unit tests for it as described in the Testing section.
