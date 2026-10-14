@@ -47,6 +47,8 @@ atmospheric_physics **requires** disclosure of AI-assisted contributions:
   Older schemes omit the `arg_table_` prefix on the html file but you should use the new convention.
 - Every CCPP scheme subroutine argument must have a corresponding entry in the companion `.meta` file with a valid standard name. A mismatch between the Fortran arguments and the `.meta` entries is the most common source of capgen errors.
 - Constituent registration (declaring advected or non-advected constituents) happens in the `_register` phase, not `_init`. The `_register` phase runs before `_init` and before constituent indices are available. Index lookup at runtime uses `ccpp_constituent_index`, which can be accessed via `use ccpp_scheme_utils, only: ccpp_constituent_index`.
+  - Note that adding entries to `CAM-SIMA/src/data/registry.xml` does not register constituents and only specifies IC input variable names.
+  - See `schemes/chemistry/prescribed_ozone.F90` for an example for dynamic constituent registration and use of `tracer_data.F90`.
 
 ## Standard names
 
