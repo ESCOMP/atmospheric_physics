@@ -1,7 +1,7 @@
 [ccpp-table-properties]
   name = nucleate_ice_ccpp
   type = scheme
-  dependencies = ../nucleate_ice.F90, ../../../to_be_ccppized/wv_saturation.F90
+  dependencies = core/nucleate_ice.F90, ../../to_be_ccppized/wv_saturation.F90
 
 [ccpp-arg-table]
   name  = nucleate_ice_ccpp_init
