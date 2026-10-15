@@ -23,20 +23,19 @@ contains
 
       logical,            intent(in)  :: amIRoot         ! are we on the MPI root task?
       integer,            intent(in)  :: iulog           ! log output unit
-      character(len=256), intent(in)  :: rad_climate(:)  ! (namelist) list of radiatively active gases and sources
+      character(len=256), intent(in)  :: rad_climate(:)  ! (namelist) list of radiatively active gases
       character(len=*),   intent(in)  :: gaslist(:)      ! Radiatively active gas list
       type(ccpp_constituent_prop_ptr_t), intent(in) :: const_props(:) ! Constituent properties
       character(len=*),   intent(out) :: errmsg
       integer,            intent(out) :: errflg
 
       ! Local variables
-      character(len=8)   :: source
-      character(len=32)  :: identifier
       character(len=32)  :: gas_name
+      character(len=256) :: provider
       character(len=256) :: diag_name
       character(len=256) :: alloc_errmsg
       logical            :: entry_found
-      logical            :: is_advected
+      logical            :: zero_gas
       integer            :: gas_idx, entry_idx, const_idx, ierr
 
       errmsg = ''
@@ -58,10 +57,12 @@ contains
       ! Map each radiatively active gas to the constituent that provides it.
       !
       ! H2O is always taken from the water vapor constituent (it needs no rad_climate entry);
-      ! every other gas must have a rad_climate entry ("flag:identifier:gas_name"):
-      ! 'A'/'N' entries are resolved by matching the identifier against the constituent
-      ! diagnostic names (unresolved is fatal)
-      ! 'Z' entries give the gas zero concentration in radiation.
+      ! every other gas must have a rad_climate entry:
+      ! "<gas_name>" entries are resolved by matching the gas name against the
+      ! constituent diagnostic names (unresolved is fatal);
+      ! "<gas_name>:<provider>" entries resolve a constituent whose diagnostic name
+      ! differs from the gas name (e.g. 'CFC11:CFC11STAR');
+      ! "<gas_name>:zero" entries give the gas zero concentration in radiation.
       !
       ! A gas with no entry at all is an error.
       gas_loop: do gas_idx = 1, size(gaslist)
@@ -92,7 +93,7 @@ contains
                exit entry_loop
             end if
 
-            call parse_rad_climate_entry(rad_climate(entry_idx), source, identifier, gas_name, errmsg, errflg)
+            call parse_rad_climate_entry(rad_climate(entry_idx), gas_name, provider, zero_gas, errmsg, errflg)
             if (errflg /= 0) then
                return
             end if
@@ -102,52 +103,36 @@ contains
             end if
             entry_found = .true.
 
-            if (source == 'Z') then
+            if (zero_gas) then
                ! Zero concentration: leave the gas unresolved; the run phase
                ! fills unresolved gases with zero.
                if (amIRoot) then
                   write(iulog, *) 'rrtmgp_constituents_init: gas "', trim(gaslist(gas_idx)), &
-                       '" has a "Z" rad_climate entry; it will have zero concentration in radiation'
+                       '" has a "zero" rad_climate entry; it will have zero concentration in radiation'
                end if
-            else if (source == 'A' .or. source == 'N') then
-               ! Find the constituent whose diagnostic name matches the identifier.
+            else
+               ! Find the constituent whose diagnostic name matches the provider
+               ! (the gas name itself, unless the entry named a different provider).
                const_loop: do const_idx = 1, size(const_props)
                   call const_props(const_idx)%diagnostic_name(diag_name, errcode=errflg, errmsg=errmsg)
                   if (errflg /= 0) then
                      return
                   end if
-                  if (trim(diag_name) == trim(identifier)) then
+                  if (trim(diag_name) == trim(provider)) then
                      call const_props(const_idx)%const_index(rad_gas_indices(gas_idx), errflg, errmsg)
                      if (errflg /= 0) then
                         return
-                     end if
-
-                     ! The A/N flag does not affect behavior (everything in SIMA is a constituent)
-                     ! but warn if the flag is inconsistent w/ the constituent that actually provides the gas.
-                     call const_props(const_idx)%is_advected(is_advected, errflg, errmsg)
-                     if (errflg /= 0) then
-                        return
-                     end if
-                     if (amIRoot .and. (is_advected .neqv. (source == 'A'))) then
-                        write(iulog, *) 'rrtmgp_constituents_init: WARNING: rad_climate flag "', trim(source), &
-                             '" for gas "', trim(gaslist(gas_idx)), '" does not match constituent "', &
-                             trim(identifier), '" (advected: ', is_advected, ')'
                      end if
                      exit const_loop
                   end if
                end do const_loop
                if (rad_gas_indices(gas_idx) == int_unassigned) then
                   write(errmsg, *) 'rrtmgp_constituents_init: no constituent with diagnostic name "', &
-                       trim(identifier), '" found for radiatively active gas "', trim(gaslist(gas_idx)), &
+                       trim(provider), '" found for radiatively active gas "', trim(gaslist(gas_idx)), &
                        '" (rad_climate entry "', trim(rad_climate(entry_idx)), '")'
                   errflg = 1
                   return
                end if
-            else
-               write(errmsg, *) 'rrtmgp_constituents_init: invalid gas source flag "', trim(source), &
-                    '" in rad_climate entry "', trim(rad_climate(entry_idx)), '" (must be A, N, or Z)'
-               errflg = 1
-               return
             end if
             exit entry_loop
          end do entry_loop
@@ -155,7 +140,7 @@ contains
          if (.not. entry_found) then
             write(errmsg, *) 'rrtmgp_constituents_init: radiatively active gas "', trim(gaslist(gas_idx)), &
                  '" has no rad_climate entry; all radiation gases must be specified', &
-                 ' (use a "Z" entry to give a gas zero concentration)'
+                 ' (use a "<gas_name>:zero" entry to give a gas zero concentration)'
             errflg = 1
             return
          end if

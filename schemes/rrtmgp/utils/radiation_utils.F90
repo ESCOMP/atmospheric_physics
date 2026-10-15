@@ -254,18 +254,22 @@ subroutine get_molar_mass_ratio(gas_name, massratio, errmsg, errflg)
 
 end subroutine get_molar_mass_ratio
 
-subroutine parse_rad_climate_entry(rad_climate_entry, source, identifier, gas_name, errmsg, errflg)
+subroutine parse_rad_climate_entry(rad_climate_entry, gas_name, provider, zero_gas, errmsg, errflg)
 
-  ! Parse one entry of the rad_climate namelist variable, of the form
-  ! "flag:identifier:gas_name", where flag is the gas source ('A' advected,
-  ! 'N' non-advected, 'Z' zero), identifier is the constituent identifier
-  ! (matched against the constituents' diagnostic names), and gas_name is
-  ! the radiation gas ("standard") name.
+  ! Parse one entry of the rad_climate namelist variable.
+  ! An entry is a radiation gas ("standard") name, optionally followed by its provider:
+  !   "<gas_name>"            - the gas is provided by the constituent whose
+  !                             diagnostic name matches the gas name.
+  !   "<gas_name>:<provider>" - the gas is provided by the constituent whose
+  !                             diagnostic name is <provider>, when that differs
+  !                             from the gas name (e.g. 'CFC11:CFC11STAR').
+  !   "<gas_name>:zero"       - the gas has zero concentration in radiation
+  !                             ('zero' is reserved and cannot name a provider).
 
   character(len=*), intent(in)  :: rad_climate_entry
-  character(len=*), intent(out) :: source
-  character(len=*), intent(out) :: identifier
   character(len=*), intent(out) :: gas_name
+  character(len=*), intent(out) :: provider ! constituent diagnostic name providing the gas (unset if zero_gas)
+  logical,          intent(out) :: zero_gas
   character(len=*), intent(out) :: errmsg
   integer,          intent(out) :: errflg
 
@@ -275,6 +279,8 @@ subroutine parse_rad_climate_entry(rad_climate_entry, source, identifier, gas_na
 
   errmsg = ''
   errflg = 0
+  zero_gas = .false.
+  provider = ''
 
   ! There are no fields in the input strings in which a blank character is allowed.
   ! To simplify the parsing go through the input strings and remove blanks.
@@ -286,26 +292,33 @@ subroutine parse_rad_climate_entry(rad_climate_entry, source, identifier, gas_na
      tmpstr = tmpstr(:ipos-1) // tmpstr(ipos+1:strlen)
   end do
 
-  ! Locate the ':' separating source from the constituent identifier.
   idx = index(tmpstr, ':')
   if (idx == 0) then
-     errmsg = 'rad_climate namelist variable error: all entries must be of the format "flag:identifier:gas_name". Failed to parse "'//trim(tmpstr)//'"'
-     errflg = 1
-     return
+     gas_name = tmpstr
+     provider = tmpstr
+  else
+     gas_name = tmpstr(:idx-1)
+     provider = tmpstr(idx+1:)
+     ! A second ':' means the old CAM three-field format was given.
+     if (index(provider, ':') /= 0) then
+        errmsg = 'rad_climate namelist variable error: entries must be "<gas_name>",' // &
+                 ' "<gas_name>:<provider>", or "<gas_name>:zero"' // &
+                 ' (the CAM "flag:identifier:gas_name" format with A/N/Z source flags is not supported).' // &
+                 ' Failed to parse "' // trim(tmpstr) // '"'
+        errflg = 1
+        return
+     end if
+     if (trim(provider) == 'zero') then
+        zero_gas = .true.
+        provider = ''
+     end if
   end if
-  source = tmpstr(:idx-1)
-  tmpstr = tmpstr(idx+1:)
 
-  ! Locate the ':' separating the constituent identifier from the rad gas ("standard") name.
-  idx = scan(tmpstr, ':')
-  if (idx == 0) then
-     errmsg = 'rad_climate namelist variable error: all entries must be of the format "flag:identifier:gas_name". Failed to parse "'//trim(tmpstr)//'"'
+  if (len_trim(gas_name) == 0 .or. (.not. zero_gas .and. len_trim(provider) == 0)) then
+     errmsg = 'rad_climate namelist variable error: entry "' // trim(tmpstr) // &
+              '" has an empty gas or provider name'
      errflg = 1
-     return
   end if
-
-  identifier = tmpstr(:idx-1)
-  gas_name = tmpstr(idx+1:)
 
 end subroutine parse_rad_climate_entry
 

@@ -82,18 +82,22 @@
     <standard_name>sources_of_radiatively_active_gases_for_climate_calculation</standard_name>
     <units>none</units>
     <desc>
-       List of radiatively active gases and whether they are advected or not for the climate
-       calculation in RRTMGP (H2O not included because it is assumed to be advected if present).
+       List of radiatively active gases for the climate calculation in RRTMGP.
+       Each gas is provided by the constituent whose diagnostic name matches the gas name;
+       'gas_name:provider' instead names a providing constituent that differs from the
+       gas name (e.g. 'CFC11:CFC11STAR'), and 'gas_name:zero' gives the gas zero
+       concentration in radiation.
+       H2O is always taken from the water vapor constituent and needs no entry.
     </desc>
     <values>
       <value>
-        'N:O2:O2',
-        'N:CO2:CO2',
-        'N:O3:O3',
-        'N:N2O:N2O',
-        'N:CH4:CH4',
-        'N:CFC11:CFC11',
-        'N:CFC12:CFC12'
+        'O2',
+        'CO2',
+        'O3',
+        'N2O',
+        'CH4',
+        'CFC11',
+        'CFC12'
       </value>
     </values>
   </entry>
