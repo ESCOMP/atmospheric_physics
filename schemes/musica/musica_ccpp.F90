@@ -117,7 +117,7 @@ contains
       if (errcode /= 0) return
     end if
 
-    call initialize_musica_species_indices(constituent_props_ptr, errmsg, errcode)
+    call initialize_musica_species_indices(errmsg, errcode)
     if (errcode /= 0) return
 
     call initialize_molar_mass_array(constituent_props_ptr, errmsg, errcode)
