@@ -7,7 +7,7 @@ name: New standard names
 # The results are surfaced two ways:
 #  1. a markdown job summary on the workflow run page with the full list;
 #  2. a report artifact, which new_standard_names_comment.yaml turns into
-#     one sticky pull request comment.
+#     one sticky pull request comment once any standard name changes.
 # Inline annotations were dropped because they cannot be dismissed and
 # crowded the Files changed view; the sticky comment carries the same detail.
 # Everything here runs with the read-only default token so it also works

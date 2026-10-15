@@ -465,27 +465,21 @@ def render_markdown(report: dict, with_marker: bool = False) -> str:
     lines = []
     if with_marker:
         lines.append(COMMENT_MARKER)
-    lines.append("## Standard names introduced by this pull request")
+    if new or removed:
+        renamed = sum(1 for e in new if e["likely_rename_of"])
+        summary = "{} new standard name{}".format(len(new), "" if len(new) == 1 else "s")
+        if renamed:
+            summary += " ({} likely rename{})".format(renamed, "" if renamed == 1 else "s")
+        summary += " and {} removed".format(len(removed))
+    else:
+        summary = "no standard names added or removed"
+    lines.append("## This PR: " + summary)
     lines.append("")
-    lines.append(
-        "Non-blocking review aid, refreshed on every push. "
-        "Names in every tracked `*.meta` and `*.xml` file (submodules excluded) "
-        "at head {} are compared with `{}` at the merge base {}.".format(
-            short(report["head_sha"]), base_ref, short(report["merge_base_sha"])
-        )
-    )
+    lines.append("Updated every push. Comparing head {} with `{}` at merge-base {}.".format(
+        short(report["head_sha"]), base_ref, short(report["merge_base_sha"])))
     lines.append("")
     if not new and not removed:
-        lines.append("No standard names were added or removed.")
         return "\n".join(lines) + "\n"
-
-    renamed = sum(1 for e in new if e["likely_rename_of"])
-    summary = "**{} new standard name{}**".format(len(new), "" if len(new) == 1 else "s")
-    if renamed:
-        summary += " ({} likely rename{})".format(renamed, "" if renamed == 1 else "s")
-    summary += " and **{} removed**.".format(len(removed))
-    lines.append(summary)
-    lines.append("")
 
     if new:
         lines.append("| New standard name | Units | Introduced in | Also seen in | Notes |")
