@@ -93,6 +93,7 @@ contains
 !! \htmlinclude prescribe_lower_boundary_conditions_init.html
   subroutine prescribe_lower_boundary_conditions_init( &
     amIRoot, iulog, pi, ncol, lat, lon, &
+    curr_date, curr_sec, &
     flbc_file, flbc_list, flbc_type, &
     flbc_cycle_yr, flbc_fixed_ymd, flbc_fixed_tod, &
     const_props, &
@@ -103,9 +104,6 @@ contains
 
     ! Host model dependency for interpolation:
     use interpolate_data, only: lininterp_init
-
-    ! CAM-SIMA host model dependency for the model date
-    use time_manager,   only: get_curr_date, set_time_float_from_date
 
     ! framework dependencies to look up and describe constituents
     use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t, int_unassigned
@@ -121,6 +119,8 @@ contains
     integer,            intent(in)  :: ncol   ! number of columns [count]
     real(kind_phys),    intent(in)  :: lat(:) ! latitude of columns [rad]
     real(kind_phys),    intent(in)  :: lon(:) ! longitude of columns [rad]
+    integer,            intent(in)  :: curr_date ! current model date [YYYYMMDD]
+    integer,            intent(in)  :: curr_sec  ! elapsed seconds of current date [s]
 
     ! input fields from namelist
     character(len=*),   intent(in)  :: flbc_file      ! dataset filename ('UNSET' disables the scheme)
@@ -137,7 +137,7 @@ contains
 
     ! local variables
     integer            :: m, n
-    integer            :: yr, mon, day, ncsec, ncdate
+    integer            :: yr, mon, day
     integer            :: wrk_date, wrk_sec
     real(kind_phys)    :: wrk_time
     character(len=32)  :: mw_species
@@ -159,8 +159,8 @@ contains
       return
     end if
 
-    call get_curr_date(yr, mon, day, ncsec)
-    ncdate = yr*10000 + mon*100 + day
+    mon = mod(curr_date, 10000)/100
+    day = mod(curr_date, 100)
 
     ! Check timing
     lbc_type = to_upper(flbc_type)
@@ -186,20 +186,20 @@ contains
       return
     end if
 
-    wrk_sec = ncsec
+    wrk_sec = curr_sec
     if (lbc_type == 'SERIAL') then
-      wrk_date = ncdate
+      wrk_date = curr_date
     else if (lbc_type == 'CYCLICAL') then
+      wrk_date = lbc_cycle_yr*10000 + mod(curr_date, 10000)
       ! If this is a leap-day, we have to avoid asking for a non-leap-year
       ! on a cyclical dataset. When this happens, just use Feb 28 instead
       if ((mon == 2) .and. (day == 29)) then
-        ncdate = yr*10000 + mon*100 + (day - 1)
+        wrk_date = wrk_date - 1
         if (is_root) then
           write(iulog, *) subname // ' WARNING: using ' // &
                           'Feb 28 instead of Feb 29 for cyclical dataset'
         end if
       end if
-      wrk_date = lbc_cycle_yr*10000 + mod(ncdate, 10000)
     else
       wrk_date = lbc_fixed_ymd
       wrk_sec = lbc_fixed_tod
@@ -426,16 +426,15 @@ contains
 !> \section arg_table_prescribe_lower_boundary_conditions_timestep_init  Argument Table
 !! \htmlinclude prescribe_lower_boundary_conditions_timestep_init.html
   subroutine prescribe_lower_boundary_conditions_timestep_init( &
-    ncol, pver, lat, lon, constituents, &
+    ncol, pver, lat, lon, curr_date, curr_sec, constituents, &
     errmsg, errflg)
-
-    ! CAM-SIMA host model dependency for the model date
-    use time_manager,  only: get_curr_date
 
     integer,            intent(in)    :: ncol   ! number of columns [count]
     integer,            intent(in)    :: pver   ! number of vertical layers [count]
     real(kind_phys),    intent(in)    :: lat(:) ! latitude of columns [rad]
     real(kind_phys),    intent(in)    :: lon(:) ! longitude of columns [rad]
+    integer,            intent(in)    :: curr_date ! current model date [YYYYMMDD]
+    integer,            intent(in)    :: curr_sec  ! elapsed seconds of current date [s]
     real(kind_phys),    intent(inout) :: constituents(:,:,:) ! constituent array (ncol, pver, pcnst)
 
     character(len=*),   intent(out)   :: errmsg
@@ -443,7 +442,6 @@ contains
 
     ! local variables
     integer           :: m
-    integer           :: yr, mon, day, ncsec, ncdate
     integer           :: last, next
     real(kind_phys)   :: dels
     real(kind_phys)   :: wrk_time
@@ -456,12 +454,9 @@ contains
       return
     end if
 
-    call get_curr_date(yr, mon, day, ncsec)
-    ncdate = yr*10000 + mon*100 + day
-
     ! Advance the SERIAL read window when current time passes it
     if (lbc_type == 'SERIAL') then
-      call flt_date(ncdate, ncsec, wrk_time)
+      call flt_date(curr_date, curr_sec, wrk_time)
       if (wrk_time > times(tim_ndx(2))) then
         tim_ndx(1) = tim_ndx(2)
         tim_ndx(2) = min(ntimes, tim_ndx(1) + time_span)
@@ -486,7 +481,7 @@ contains
     ! Update each species' constituent converted to a dry mass mixing ratio:
     ! non-advected constituents get a whole-column uniform fill with the global mean vmr;
     ! advected constituents get the per-column value pinned into the bottom two levels.
-    call get_dels(ncdate, ncsec, dels, last, next, errmsg, errflg)
+    call get_dels(curr_date, curr_sec, dels, last, next, errmsg, errflg)
     if (errflg /= 0) then
       return
     end if
@@ -788,7 +783,11 @@ contains
   ! consistent with the model calendar.
   subroutine flt_date(ncdate, ncsec, time)
 
-    ! Host model time dependency...
+    ! Host model dependency for calendar math, applied to dataset dates as well
+    ! as the current date, so it cannot be threaded as data by standard name.
+    ! A portable replacement needs the calendar type and the reference date
+    ! threaded as arguments to stay bit-for-bit; until such a utility exists
+    ! this stays a host dependency like tracer_data and interpolate_data.
     use time_manager, only: set_time_float_from_date
 
     integer,         intent(in)  :: ncdate ! date YYYYMMDD
