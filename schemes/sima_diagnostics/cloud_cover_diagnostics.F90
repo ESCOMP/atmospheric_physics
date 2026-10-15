@@ -28,14 +28,23 @@ contains
       character(len=*),   intent(out) :: errmsg
       integer,            intent(out) :: errflg
 
+      ! Local variables
+      character(len=128) :: long_name
+      character(len=*), parameter :: range_fmt = '(a, f7.0, a, f7.0, a)'
+
       errmsg = ''
       errflg = 0
 
-      call history_add_field('CLOUD',  'cloud_area_fraction', 'lev', 'avg', 'fraction') ! Cloud fraction
-      call history_add_field('CLDTOT', 'vertically_integrated_total_cloud_cover', horiz_only, 'avg', 'fraction') ! Vertically-integrated total cloud
-      call history_add_field('CLDLOW', 'vertically_integrated_low_cloud_cover', horiz_only, 'avg', 'fraction') ! Vertically-integrated low cloud (700-1200 hPa)
-      call history_add_field('CLDMED', 'vertically_integrated_mid_cloud_cover', horiz_only, 'avg', 'fraction') ! Vertically-integrated mid-level cloud (400-700 hPa)
-      call history_add_field('CLDHGH', 'vertically_integrated_high_cloud_cover', horiz_only, 'avg', 'fraction') ! Vertically-integrated high cloud (50-400 hPa)
+      call history_add_field('CLOUD',  'Cloud fraction', 'lev', 'avg', 'fraction')
+      call history_add_field('CLDTOT', 'Vertically-integrated total cloud', horiz_only, 'avg', 'fraction')
+
+      ! Long names carry the pressure ranges from the module parameters so the history file stays self-describing.
+      write(long_name, range_fmt) 'Vertically-integrated low cloud from ', plowmin, ' to ', plowmax, ' Pa'
+      call history_add_field('CLDLOW', trim(long_name), horiz_only, 'avg', 'fraction')
+      write(long_name, range_fmt) 'Vertically-integrated mid-level cloud from ', pmedmin, ' to ', pmedmax, ' Pa'
+      call history_add_field('CLDMED', trim(long_name), horiz_only, 'avg', 'fraction')
+      write(long_name, range_fmt) 'Vertically-integrated high cloud from ', phghmin, ' to ', phghmax, ' Pa'
+      call history_add_field('CLDHGH', trim(long_name), horiz_only, 'avg', 'fraction')
 
    end subroutine cloud_cover_diagnostics_init
 

@@ -107,8 +107,9 @@ contains
     ! CAM-SIMA host model dependency for the model date
     use time_manager,   only: get_curr_date, set_time_float_from_date
 
-    ! framework dependency to describe constituents
-    use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
+    ! framework dependencies to look up and describe constituents
+    use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t, int_unassigned
+    use ccpp_scheme_utils,         only: ccpp_constituent_index
 
     ! portable dependencies
     use atmos_phys_string_utils, only: to_upper
@@ -141,7 +142,6 @@ contains
     real(kind_phys)    :: wrk_time
     character(len=32)  :: mw_species
     logical            :: is_mass_mmr, is_dry_mmr
-    character(len=256) :: diag_name
     real(kind_phys), allocatable :: file_lat(:)
     real(kind_phys)    :: d2r
     character(len=512) :: read_errmsg
@@ -256,38 +256,28 @@ contains
         mw_species = trim(flbcs(m)%species)
       end if
 
-      ! find the constituent whose diagnostic name matches the species
-      flbcs(m)%const_idx = -1
-      const_loop: do n = 1, size(const_props)
-        call const_props(n)%diagnostic_name(diag_name, errcode=errflg, errmsg=errmsg)
-        if (errflg /= 0) then
-          return
-        end if
-        if (trim(diag_name) == trim(mw_species)) then
-          call const_props(n)%const_index(flbcs(m)%const_idx, errflg, errmsg)
-          if (errflg /= 0) then
-            return
-          end if
-          call const_props(n)%is_advected(flbcs(m)%is_advected, errflg, errmsg)
-          if (errflg /= 0) then
-            return
-          end if
-          call const_props(n)%is_mass_mixing_ratio(is_mass_mmr, errflg, errmsg)
-          if (errflg /= 0) then
-            return
-          end if
-          call const_props(n)%is_dry(is_dry_mmr, errflg, errmsg)
-          if (errflg /= 0) then
-            return
-          end if
-          exit const_loop
-        end if
-      end do const_loop
-
-      if (flbcs(m)%const_idx < 0) then
+      ! find the constituent whose standard name is the species name
+      call ccpp_constituent_index(trim(mw_species), flbcs(m)%const_idx, errflg, errmsg)
+      if (errflg /= 0) then
+        return
+      end if
+      if (flbcs(m)%const_idx == int_unassigned) then
         errmsg = subname // ': no constituent found for flbc_list member "' // &
                  trim(flbcs(m)%species) // '"'
         errflg = 1
+        return
+      end if
+
+      call const_props(flbcs(m)%const_idx)%is_advected(flbcs(m)%is_advected, errflg, errmsg)
+      if (errflg /= 0) then
+        return
+      end if
+      call const_props(flbcs(m)%const_idx)%is_mass_mixing_ratio(is_mass_mmr, errflg, errmsg)
+      if (errflg /= 0) then
+        return
+      end if
+      call const_props(flbcs(m)%const_idx)%is_dry(is_dry_mmr, errflg, errmsg)
+      if (errflg /= 0) then
         return
       end if
 

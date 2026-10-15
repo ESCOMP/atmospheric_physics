@@ -28,7 +28,7 @@ module sima_state_diagnostics
                                                'GRAUQM']
 
    ! Index of water vapor in the constituent array (0 if absent)
-   ! QFLX and TMQ are only written when it is present.
+   ! TMQ is only written when it is present.
    integer :: wv_idx = 0
 
 CONTAINS
@@ -83,12 +83,6 @@ CONTAINS
       call history_add_field('LNPINTDRY', 'ln_air_pressure_of_dry_air_at_interfaces',                           'ilev', 'avg', '1')
       call history_add_field('ZI',        'geopotential_height_wrt_surface_at_interfaces',                      'ilev', 'avg', 'm')
 
-      ! Add surface fluxes received from the coupler
-      call history_add_field('SHFLX',     'surface_upward_sensible_heat_flux_from_coupler',                     horiz_only, 'avg', 'W m-2')
-      call history_add_field('LHFLX',     'surface_upward_latent_heat_flux_from_coupler',                       horiz_only, 'avg', 'W m-2')
-      call history_add_field('TAUX',      'surface_eastward_wind_stress_from_coupler',                          horiz_only, 'avg', 'N m-2')
-      call history_add_field('TAUY',      'surface_northward_wind_stress_from_coupler',                         horiz_only, 'avg', 'N m-2')
-
       ! Add expected constituent fields
       const_num_found = 0
       const_found = .false.
@@ -99,10 +93,9 @@ CONTAINS
             return
          end if
          if (trim(standard_name) == wv_std_name) then
-            ! Water vapor: also its surface flux and column integral
+            ! Water vapor: also its column integral
             wv_idx = const_idx
-            call history_add_field('QFLX', 'surface_upward_water_vapor_flux_from_coupler', horiz_only, 'avg', 'kg m-2 s-1')
-            call history_add_field('TMQ',  'vertically_integrated_water_vapor',            horiz_only, 'avg', 'kg m-2')
+            call history_add_field('TMQ', 'vertically_integrated_water_vapor', horiz_only, 'avg', 'kg m-2')
          end if
          do name_idx = 1, size(const_std_names)
             if (trim(standard_name) == trim(const_std_names(name_idx))) then
@@ -150,8 +143,8 @@ CONTAINS
    !! \htmlinclude sima_state_diagnostics_run.html
    subroutine sima_state_diagnostics_run(ps, psdry, phis, T, u, v, dse, omega, &
         pmid, pmiddry, pdel, pdeldry, rpdel, rpdeldry, lnpmid, lnpmiddry,     &
-        inv_exner, zm, pint, pintdry, lnpint, lnpintdry, zi,                  &
-        shf, lhf, cflx, wsx, wsy, gravit, const_array,                        &
+        inv_exner, zm, pint, pintdry, lnpint, lnpintdry, zi, gravit,          &
+        const_array,                                                          &
         const_props, errmsg, errflg)
 
       use cam_history, only: history_out_field
@@ -182,12 +175,6 @@ CONTAINS
       real(kind_phys), intent(in) :: lnpint(:,:)    ! ln air pressure at interfaces
       real(kind_phys), intent(in) :: lnpintdry(:,:) ! ln air pressure of dry air at interfaces
       real(kind_phys), intent(in) :: zi(:,:)        ! geopotential height wrt surface at interfaces
-      ! Surface fluxes from the coupler
-      real(kind_phys), intent(in) :: shf(:)         ! surface upward sensible heat flux
-      real(kind_phys), intent(in) :: lhf(:)         ! surface upward latent heat flux
-      real(kind_phys), intent(in) :: cflx(:,:)      ! surface upward constituent fluxes
-      real(kind_phys), intent(in) :: wsx(:)         ! surface eastward wind stress
-      real(kind_phys), intent(in) :: wsy(:)         ! surface northward wind stress
       real(kind_phys), intent(in) :: gravit         ! gravitational acceleration
       ! Constituent variables
       real(kind_phys), intent(in) :: const_array(:,:,:)
@@ -232,13 +219,7 @@ CONTAINS
       call history_out_field('LNPINTDRY', lnpintdry)
       call history_out_field('ZI'       , zi)
 
-      ! Capture surface fluxes from the coupler
-      call history_out_field('SHFLX'    , shf)
-      call history_out_field('LHFLX'    , lhf)
-      call history_out_field('TAUX'     , wsx)
-      call history_out_field('TAUY'     , wsy)
       if (wv_idx > 0) then
-         call history_out_field('QFLX', cflx(:, wv_idx))
          ! Column water vapor, as in CAM: sum of q * pdel / g over the layers
          tmq(:) = 0._kind_phys
          do k = 1, size(pdel, 2)

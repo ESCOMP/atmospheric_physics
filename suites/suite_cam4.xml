@@ -329,7 +329,7 @@
          of the "before_coupler" group. -->
     <scheme>calc_dry_air_ideal_gas_density</scheme>
     <scheme>set_surface_coupling_vars</scheme>
-    <scheme>precipitation_diagnostics</scheme>
+    <scheme>surface_coupling_diagnostics</scheme>
 
   </group>
 
