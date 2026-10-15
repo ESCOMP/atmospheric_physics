@@ -9,12 +9,16 @@ module musica_ccpp_tuvx
   use musica_ccpp_util,     only: has_error_occurred
   use musica_tuvx,          only: tuvx_t, grid_t, profile_t, radiator_t
   use musica_util,          only: mappings_t, index_mappings_t
+  use musica_ccpp_aerosol_model, only: aerosol_model_t
+  use musica_ccpp_aerosol_state, only: aerosol_state_t
+  use musica_ccpp_grid,          only: ccpp_grid_t => grid_t
 
   implicit none
   private
   save
 
   public :: tuvx_register, tuvx_init, tuvx_run, tuvx_final
+  public :: tuvx_set_aerosol, tuvx_clear_aerosol
 
   real(kind_phys), parameter :: MAX_SOLAR_ZENITH_ANGLE = 110.0_kind_phys ! degrees
   real(kind_phys), parameter :: MIN_SOLAR_ZENITH_ANGLE = 0.0_kind_phys  ! degrees
@@ -30,6 +34,11 @@ module musica_ccpp_tuvx
   type(profile_t),         pointer :: O3_profile => null()
   type(radiator_t),        pointer :: cloud_optics => null()
   type(radiator_t),        pointer :: aerosol_optics => null()
+  ! Optional aerosol model (e.g. SCRAM) providing the aerosol optics; set by the host or an
+  ! aerosol scheme before tuvx_run (tuvx_set_aerosol), none = no aerosol
+  class(aerosol_model_t),  pointer :: aerosol_model => null()
+  class(aerosol_state_t),  pointer :: aerosol_state => null()
+  type(ccpp_grid_t)                :: aerosol_wavelength_grid ! nm, same sections as TUV-x
   type(index_mappings_t),  pointer :: photolysis_rate_constants_mapping => null( )
   integer,               parameter :: DEFAULT_NUM_PHOTOLYSIS_RATE_CONSTANTS = 0
   integer,               protected :: number_of_photolysis_rate_constants = DEFAULT_NUM_PHOTOLYSIS_RATE_CONSTANTS
@@ -98,6 +107,9 @@ contains
       cloud_optics => null()
     end if
 
+    ! the aerosol model and state belong to the caller of tuvx_set_aerosol
+    aerosol_model => null()
+    aerosol_state => null()
     if (associated( aerosol_optics )) then
       deallocate( aerosol_optics )
       aerosol_optics => null()
@@ -173,6 +185,11 @@ contains
     type(configuration_t)          :: config
     type(mappings_t),      pointer :: photolysis_rate_constants_ordering
     type(error_t)                  :: error
+
+    ! wavelength sections for an aerosol model (same as the TUV-x wavelength grid)
+    aerosol_wavelength_grid = ccpp_grid_t( photolysis_wavelength_grid_interfaces_nm, &
+                                           errmsg, errcode )
+    if (errcode /= 0) return
 
     grids => grid_map_t( error )
     if (has_error_occurred( error, errmsg, errcode )) return
@@ -559,8 +576,28 @@ contains
     real(kind_phys) :: solar_zenith_angle_degrees
     type(error_t)   :: error
     integer         :: i_col, i_level, index
+    logical         :: use_aerosol_model
+    real(kind_phys), allocatable :: aerosol_extinction(:,:,:)  ! m2 per kg air (column, layer, wavelength)
+    real(kind_phys), allocatable :: aerosol_single_scattering_albedo(:,:,:)
+    real(kind_phys), allocatable :: aerosol_asymmetry_factor(:,:,:)
 
     reciprocal_of_gravitational_acceleration = 1.0_kind_phys / standard_gravitational_acceleration
+
+    ! aerosol optics of all columns from the aerosol model, if one is set
+    use_aerosol_model = associated( aerosol_model ) .and. associated( aerosol_state )
+    if ( use_aerosol_model ) then
+      allocate( aerosol_extinction( size(temperature, dim=1), size(temperature, dim=2), &
+                                    aerosol_wavelength_grid%number_of_sections() ), &
+                aerosol_single_scattering_albedo( size(temperature, dim=1), &
+                  size(temperature, dim=2), aerosol_wavelength_grid%number_of_sections() ), &
+                aerosol_asymmetry_factor( size(temperature, dim=1), &
+                  size(temperature, dim=2), aerosol_wavelength_grid%number_of_sections() ) )
+      call aerosol_model%optical_properties( aerosol_state, aerosol_wavelength_grid, &
+          errmsg, errcode, extinction = aerosol_extinction, &
+          scattering = aerosol_single_scattering_albedo, &
+          asymmetry_factor = aerosol_asymmetry_factor )
+      if (errcode /= 0) return
+    end if
 
     call set_extraterrestrial_flux_values( extraterrestrial_flux_profile,            &
                                            extraterrestrial_flux, errmsg, errcode )
@@ -613,7 +650,16 @@ contains
               errmsg, errcode )
         if (errcode /= 0) return
 
-        call set_aerosol_optics_values( aerosol_optics, errmsg, errcode )
+        if ( use_aerosol_model ) then
+          call set_aerosol_optics_values( aerosol_optics, errmsg, errcode,              &
+              extinction = aerosol_extinction(i_col,:,:),                                &
+              single_scattering_albedo = aerosol_single_scattering_albedo(i_col,:,:),    &
+              asymmetry_factor = aerosol_asymmetry_factor(i_col,:,:),                    &
+              delta_pressure = air_pressure_thickness(i_col,:),                          &
+              reciprocal_of_gravitational_acceleration = reciprocal_of_gravitational_acceleration )
+        else
+          call set_aerosol_optics_values( aerosol_optics, errmsg, errcode )
+        end if
         if (errcode /= 0) return
 
         ! calculate photolysis rate constants and heating rates
@@ -658,5 +704,20 @@ contains
     end if
 
   end subroutine tuvx_final
+
+  !> Sets the aerosol model and state whose optical properties TUV-x uses in tuvx_run
+  !! (the caller keeps ownership; the state must cover the columns and layers of tuvx_run)
+  subroutine tuvx_set_aerosol(model, state)
+    class(aerosol_model_t), target, intent(in) :: model
+    class(aerosol_state_t), target, intent(in) :: state
+    aerosol_model => model
+    aerosol_state => state
+  end subroutine tuvx_set_aerosol
+
+  !> Removes the aerosol model: aerosol optical properties are zero again
+  subroutine tuvx_clear_aerosol()
+    aerosol_model => null()
+    aerosol_state => null()
+  end subroutine tuvx_clear_aerosol
 
 end module musica_ccpp_tuvx
