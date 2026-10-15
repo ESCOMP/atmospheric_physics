@@ -3,6 +3,9 @@
 <suite name="rrtmgp" version="1.0">
   <group name="physics_after_coupler">
     <scheme>initialize_constituents</scheme>
+    <!-- Register the radiation gas constituents for snapshot testing: -->
+    <scheme>prescribe_radiative_gas_concentrations</scheme>
+    <scheme>ozone_constituent_stub</scheme>
     <scheme>rrtmgp_pre</scheme>
     <scheme>rrtmgp_cloud_optics_setup</scheme>
     <scheme>tropopause_find</scheme>
