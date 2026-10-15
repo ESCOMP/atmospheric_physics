@@ -13,10 +13,9 @@
 ! non-exoplanet CAM-SIMA configurations with minimal chemistry.
 !-------------------------------------------------------------------------------
 module prescribe_radiative_gas_concentrations
-
   implicit none
-
   private
+
   public :: prescribe_radiative_gas_concentrations_register
   public :: prescribe_radiative_gas_concentrations_init
 
@@ -44,7 +43,7 @@ contains
 
     ! Output arguments
     type(ccpp_constituent_properties_t), allocatable, intent(out) :: dyn_consts(:) ! Runtime constituent properties
-    character(len=*), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errcode
 
     ! Local variables
@@ -117,18 +116,18 @@ contains
 
     ! Input arguments
     character(len=*), intent(in) :: prescribed_ghg_list(:) ! (namelist) gases this scheme prescribes
-    real(kind_phys), intent(in) :: ch4_vmr
-    real(kind_phys), intent(in) :: co2_vmr
-    real(kind_phys), intent(in) :: cfc11_vmr
-    real(kind_phys), intent(in) :: cfc12_vmr
-    real(kind_phys), intent(in) :: n2o_vmr
-    real(kind_phys), intent(in) :: o2_vmr
+    real(kind_phys),  intent(in) :: ch4_vmr
+    real(kind_phys),  intent(in) :: co2_vmr
+    real(kind_phys),  intent(in) :: cfc11_vmr
+    real(kind_phys),  intent(in) :: cfc12_vmr
+    real(kind_phys),  intent(in) :: n2o_vmr
+    real(kind_phys),  intent(in) :: o2_vmr
 
     ! Input/output arguments
     real(kind_phys), intent(inout) :: const_array(:,:,:) ! Constituents array
 
     ! Output arguments
-    character(len=*), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errcode
 
     errmsg = ''
@@ -199,7 +198,7 @@ contains
     real(kind_phys), intent(inout) :: const_array(:,:,:) ! Constituents array
 
     ! Output arguments
-    character(len=*), intent(out) :: errmsg
+    character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errcode
 
     ! Local variables
