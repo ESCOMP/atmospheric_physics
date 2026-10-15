@@ -11,10 +11,12 @@ shows as added.
 A name is "removed" when the opposite holds.
 Adjacent removed/added standard_name lines in one diff hunk are reported
 as a likely rename.
+The units declared with each occurrence are reported too, so reviewers
+can spot one name declared with different units.
 
 Subcommands:
-  report   compare two revisions and write report.json, report.md and
-           annotations.txt into --out-dir
+  report   compare two revisions and write report.json and report.md
+           into --out-dir
   render   re-create the markdown from an existing report.json after
            validating it; used by the comment workflow, which must treat
            the downloaded report as untrusted input
@@ -41,6 +43,10 @@ SCHEMA_VERSION = 1
 # key must come first, and a trailing comment is cut off by the class.
 META_NAME_RE = re.compile(r"^\s*standard_name\s*=\s*([^\s#]+)")
 XML_NAME_RE = re.compile(r"<standard_name>\s*([^<\s]+)\s*</standard_name>")
+META_UNITS_RE = re.compile(r"^\s*units\s*=\s*([^#]*?)\s*(?:#.*)?$")
+META_SECTION_RE = re.compile(r"^\s*\[")
+XML_ENTRY_RE = re.compile(r"<entry\b.*?</entry>", re.DOTALL)
+XML_UNITS_RE = re.compile(r"<units>\s*([^<]*?)\s*</units>")
 SCANNED_SUFFIXES = (".meta", ".xml")
 
 # Validation of report.json contents (see validate_report).
@@ -49,6 +55,9 @@ PATH_RE = re.compile(r"^[A-Za-z0-9_][A-Za-z0-9_./-]{0,511}$")
 REPO_RE = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
 SHA_RE = re.compile(r"^[0-9a-f]{40}$")
 REF_RE = re.compile(r"^[A-Za-z0-9_./-]{1,256}$")
+# Units end up inside markdown code spans, so backticks, pipes and angle
+# brackets are never accepted.
+UNITS_RE = re.compile(r"^[A-Za-z0-9 _.+*/^()%-]{1,64}$")
 MAX_ENTRIES = 5000
 MAX_OCCURRENCES = 10000
 # A pull request comment may hold 65536 characters; keep the markdown under that.
@@ -110,24 +119,72 @@ def read_blobs(rev: str, paths: list[str]) -> dict[str, str]:
 # ---------------------------------------------------------------------------
 # standard name extraction
 # ---------------------------------------------------------------------------
+def normalize_units(units: str | None) -> str | None:
+    """Collapse internal whitespace so "m  s-1" and "m s-1" compare equal."""
+    if units is None:
+        return None
+    units = " ".join(units.split())
+    return units or None
+
+
+def meta_names(text: str):
+    """Yield (name, line_number, units) for each "[ var ]" entry of a .meta file.
+
+    The units line may come before or after standard_name, so each entry is
+    collected whole and emitted when the next section header begins.
+    """
+    pending: list[tuple[str, int]] = []
+    units = None
+
+    def flush():
+        for name, number in pending:
+            yield name, number, units
+
+    for number, line in enumerate(text.splitlines(), 1):
+        if META_SECTION_RE.match(line):
+            yield from flush()
+            pending, units = [], None
+            continue
+        match = META_NAME_RE.match(line)
+        if match:
+            pending.append((match.group(1), number))
+            continue
+        match = META_UNITS_RE.match(line)
+        if match:
+            units = normalize_units(match.group(1))
+    yield from flush()
+
+
+def xml_names(text: str):
+    """Yield (name, line_number, units) for each <standard_name> in a namelist XML.
+
+    Units come from the <units> element of the enclosing <entry>.
+    """
+    entries = [(m.start(), m.end(), m.group(0)) for m in XML_ENTRY_RE.finditer(text)]
+    for match in XML_NAME_RE.finditer(text):
+        units = None
+        for start, end, body in entries:
+            if start <= match.start() < end:
+                found = XML_UNITS_RE.search(body)
+                units = normalize_units(found.group(1)) if found else None
+                break
+        yield match.group(1), text.count("\n", 0, match.start()) + 1, units
+
+
 def names_in_text(path: str, text: str):
-    """Yield (name, line_number) for every standard name in one file."""
+    """Yield (name, line_number, units) for every standard name in one file."""
     if path.endswith(".meta"):
-        for number, line in enumerate(text.splitlines(), 1):
-            match = META_NAME_RE.match(line)
-            if match:
-                yield match.group(1), number
+        yield from meta_names(text)
     else:
-        for match in XML_NAME_RE.finditer(text):
-            yield match.group(1), text.count("\n", 0, match.start()) + 1
+        yield from xml_names(text)
 
 
-def scan_tree(rev: str) -> dict[str, list[tuple[str, int]]]:
-    """Map every standard name in <rev> to its sorted (path, line) occurrences."""
-    occurrences: dict[str, list[tuple[str, int]]] = defaultdict(list)
+def scan_tree(rev: str) -> dict[str, list[tuple[str, int, str | None]]]:
+    """Map every standard name in <rev> to its sorted (path, line, units) occurrences."""
+    occurrences: dict[str, list[tuple[str, int, str | None]]] = defaultdict(list)
     for path, text in read_blobs(rev, scanned_paths(rev)).items():
-        for name, line in names_in_text(path, text):
-            occurrences[name].append((path, line))
+        for name, line, units in names_in_text(path, text):
+            occurrences[name].append((path, line, units))
     for locations in occurrences.values():
         locations.sort()
     return occurrences
@@ -136,6 +193,15 @@ def scan_tree(rev: str) -> dict[str, list[tuple[str, int]]]:
 def name_in_diff_line(content: str) -> str | None:
     match = META_NAME_RE.match(content) or XML_NAME_RE.search(content)
     return match.group(1) if match else None
+
+
+def distinct_units(occurrences) -> list[str]:
+    """Distinct declared units, most common first; "?" marks a missing units line."""
+    counts: dict[str, int] = {}
+    for occurrence in occurrences:
+        units = occurrence[2] or "?"
+        counts[units] = counts.get(units, 0) + 1
+    return sorted(counts, key=lambda u: (-counts[u], u))
 
 
 def detect_renames(merge_base: str, head: str, removed: set[str]) -> dict[str, str]:
@@ -189,8 +255,11 @@ def similar_names(name: str, candidates: list[str]) -> list[str]:
 # ---------------------------------------------------------------------------
 # report construction
 # ---------------------------------------------------------------------------
-def location(path: str, line: int) -> dict:
-    return {"path": path, "line": line}
+def location(path: str, line: int, units: str | None = None) -> dict:
+    loc = {"path": path, "line": line}
+    if units is not None:
+        loc["units"] = units
+    return loc
 
 
 def build_report(args: argparse.Namespace) -> dict:
@@ -214,16 +283,23 @@ def build_report(args: argparse.Namespace) -> dict:
     new_entries = []
     for name in sorted(new_names):
         occurrences = head_names[name]
-        # Anchor the inline annotation at the first .meta occurrence, as
-        # that is where reviewers judge the name; fall back to the XML.
+        # Report the first .meta occurrence as where the name is introduced,
+        # as that is where reviewers judge it; fall back to the XML.
         anchor = next((o for o in occurrences if o[0].endswith(".meta")), occurrences[0])
+        old_name = renames.get(name)
+        similar = similar_names(name, existing)
         new_entries.append({
             "name": name,
             "anchor": location(*anchor),
             "occurrences": [location(*o) for o in occurrences],
-            "likely_rename_of": renames.get(name),
+            "units": distinct_units(occurrences),
+            "likely_rename_of": old_name,
+            "likely_rename_of_units":
+                distinct_units(merge_base_names[old_name]) if old_name else None,
             "on_base_tip": name in base_tip_names,
-            "similar_existing": similar_names(name, existing),
+            "similar_existing": similar,
+            "similar_existing_units":
+                {other: distinct_units(merge_base_names[other]) for other in similar},
         })
     new_entries.sort(key=lambda e: (e["anchor"]["path"], e["anchor"]["line"]))
 
@@ -231,6 +307,7 @@ def build_report(args: argparse.Namespace) -> dict:
         {
             "name": name,
             "occurrences": [location(*o) for o in merge_base_names[name]],
+            "units": distinct_units(merge_base_names[name]),
             "likely_renamed_to": replaced_by.get(name),
         }
         for name in sorted(removed_names)
@@ -266,10 +343,25 @@ def validate_location(loc) -> None:
     check(isinstance(path, str) and PATH_RE.match(path) is not None, "bad path")
     check(".." not in path.split("/"), "path escapes the repository")
     check(isinstance(line, int) and 0 < line < 10_000_000, "bad line number")
+    if "units" in loc:
+        validate_units(loc["units"])
 
 
 def validate_name(name) -> None:
     check(isinstance(name, str) and NAME_RE.match(name) is not None, "bad standard name")
+
+
+def validate_units(units) -> None:
+    check(isinstance(units, str) and UNITS_RE.match(units) is not None, "bad units")
+
+
+def validate_units_list(units_list) -> None:
+    """Units lists are optional so reports written before units existed still render."""
+    if units_list is None:
+        return
+    check(isinstance(units_list, list) and 0 < len(units_list) <= 50, "bad units list")
+    for units in units_list:
+        validate_units(units)
 
 
 def validate_report(report: dict) -> None:
@@ -298,16 +390,24 @@ def validate_report(report: dict) -> None:
             check(occurrences_seen <= MAX_OCCURRENCES, "too many occurrences")
             for loc in occurrences:
                 validate_location(loc)
+            validate_units_list(entry.get("units"))
             if key == "new":
                 validate_location(entry.get("anchor"))
                 check(entry.get("on_base_tip") in (True, False), "bad on_base_tip")
                 rename = entry.get("likely_rename_of")
                 if rename is not None:
                     validate_name(rename)
+                validate_units_list(entry.get("likely_rename_of_units"))
                 similar = entry.get("similar_existing")
                 check(isinstance(similar, list) and len(similar) <= 3, "bad similar_existing")
                 for other in similar:
                     validate_name(other)
+                similar_units = entry.get("similar_existing_units")
+                if similar_units is not None:
+                    check(isinstance(similar_units, dict)
+                          and set(similar_units) <= set(similar), "bad similar_existing_units")
+                    for units_list in similar_units.values():
+                        validate_units_list(units_list)
             else:
                 rename = entry.get("likely_renamed_to")
                 if rename is not None:
@@ -315,7 +415,7 @@ def validate_report(report: dict) -> None:
 
 
 # ---------------------------------------------------------------------------
-# output: markdown (job summary and sticky comment) and annotations
+# output: markdown (job summary and sticky comment)
 # ---------------------------------------------------------------------------
 def short(sha: str) -> str:
     return sha[:8]
@@ -331,8 +431,29 @@ def link(report: dict, loc: dict) -> str:
     return text
 
 
-def location_list(report: dict, locations: list[dict], limit: int = 6) -> str:
-    shown = [link(report, loc) for loc in locations[:limit]]
+def code_list(values: list[str]) -> str:
+    return ", ".join("`{}`".format(v) for v in values)
+
+
+def units_cell(entry: dict) -> str:
+    """Units column text; blank for reports written before units were recorded."""
+    return "<br>".join("`{}`".format(u) for u in entry.get("units") or [])
+
+
+def units_differ(entry: dict) -> bool:
+    return len(entry.get("units") or []) > 1
+
+
+def location_list(report: dict, locations: list[dict], limit: int = 6,
+                  with_units: bool = False) -> str:
+    """Linked locations; with_units appends each one's units, used when they disagree."""
+    def one(loc):
+        text = link(report, loc)
+        if with_units:
+            text += " (`{}`)".format(loc.get("units", "?"))
+        return text
+
+    shown = [one(loc) for loc in locations[:limit]]
     if len(locations) > limit:
         shown.append("and {} more".format(len(locations) - limit))
     return "<br>".join(shown)
@@ -344,46 +465,54 @@ def render_markdown(report: dict, with_marker: bool = False) -> str:
     lines = []
     if with_marker:
         lines.append(COMMENT_MARKER)
-    lines.append("## Standard names introduced by this pull request")
+    if new or removed:
+        renamed = sum(1 for e in new if e["likely_rename_of"])
+        summary = "{} new standard name{}".format(len(new), "" if len(new) == 1 else "s")
+        if renamed:
+            summary += " ({} likely rename{})".format(renamed, "" if renamed == 1 else "s")
+        summary += " and {} removed".format(len(removed))
+    else:
+        summary = "no standard names added or removed"
+    lines.append("## This PR: " + summary)
     lines.append("")
-    lines.append(
-        "Non-blocking review aid, refreshed on every push. "
-        "Names in every tracked `*.meta` and `*.xml` file (submodules excluded) "
-        "at head {} are compared with `{}` at the merge base {}.".format(
-            short(report["head_sha"]), base_ref, short(report["merge_base_sha"])
-        )
-    )
+    lines.append("Updated every push. Comparing head {} with `{}` at merge-base {}.".format(
+        short(report["head_sha"]), base_ref, short(report["merge_base_sha"])))
     lines.append("")
     if not new and not removed:
-        lines.append("No standard names were added or removed.")
         return "\n".join(lines) + "\n"
 
-    renamed = sum(1 for e in new if e["likely_rename_of"])
-    summary = "**{} new standard name{}**".format(len(new), "" if len(new) == 1 else "s")
-    if renamed:
-        summary += " ({} likely rename{})".format(renamed, "" if renamed == 1 else "s")
-    summary += " and **{} removed**.".format(len(removed))
-    lines.append(summary)
-    lines.append("")
-
     if new:
-        lines.append("| New standard name | Introduced in | Also seen in | Notes |")
-        lines.append("|---|---|---|---|")
+        lines.append("| New standard name | Units | Introduced in | Also seen in | Notes |")
+        lines.append("|---|---|---|---|---|")
         table_start = len(lines)
         for entry in new:
             anchor = entry["anchor"]
             others = [o for o in entry["occurrences"] if o != anchor]
+            differ = units_differ(entry)
             notes = []
+            if differ:
+                notes.append("**declared with different units**")
             if entry["likely_rename_of"]:
-                notes.append("likely rename of `{}`".format(entry["likely_rename_of"]))
+                note = "likely rename of `{}`".format(entry["likely_rename_of"])
+                old_units = entry.get("likely_rename_of_units")
+                if old_units and old_units != entry.get("units"):
+                    note += ", which had units " + code_list(old_units)
+                notes.append(note)
             if entry["on_base_tip"]:
                 notes.append("already at the tip of `{}`".format(base_ref))
             if entry["similar_existing"]:
+                similar_units = entry.get("similar_existing_units") or {}
                 notes.append("similar existing: " + ", ".join(
-                    "`{}`".format(s) for s in entry["similar_existing"]))
-            lines.append("| `{}` | {} | {} | {} |".format(
-                entry["name"], link(report, anchor),
-                location_list(report, others) or "",
+                    "`{}`".format(s) + (" ({})".format(code_list(similar_units[s]))
+                                        if similar_units.get(s) else "")
+                    for s in entry["similar_existing"]))
+            anchor_text = link(report, anchor)
+            if differ:
+                anchor_text += " (`{}`)".format(anchor.get("units", "?"))
+            lines.append("| `{}` | {} | {} | {} | {} |".format(
+                entry["name"], units_cell(entry),
+                anchor_text,
+                location_list(report, others, with_units=differ) or "",
                 "; ".join(notes),
             ))
         # Drop rows from the end until the comment fits; the job summary
@@ -392,14 +521,14 @@ def render_markdown(report: dict, with_marker: bool = False) -> str:
             lines.pop()
         hidden = len(new) - (len(lines) - table_start)
         if hidden > 0:
-            lines.append("| and {} more | | | see the workflow job summary |".format(hidden))
+            lines.append("| and {} more | | | | see the workflow job summary |".format(hidden))
         lines.append("")
 
     if removed:
         lines.append("<details><summary>Removed standard names ({})</summary>".format(len(removed)))
         lines.append("")
-        lines.append("| Removed standard name | Was in | Notes |")
-        lines.append("|---|---|---|")
+        lines.append("| Removed standard name | Units | Was in | Notes |")
+        lines.append("|---|---|---|---|")
         new_set = {entry["name"] for entry in new}
         for entry in removed:
             where = "<br>".join(
@@ -412,67 +541,13 @@ def render_markdown(report: dict, with_marker: bool = False) -> str:
                 note = "likely renamed to `{}`".format(replacement)
             elif replacement:
                 note = "likely replaced by the existing name `{}`".format(replacement)
-            lines.append("| `{}` | {} | {} |".format(entry["name"], where, note))
+            lines.append("| `{}` | {} | {} | {} |".format(
+                entry["name"], units_cell(entry),
+                where, note))
         lines.append("")
         lines.append("</details>")
         lines.append("")
     return "\n".join(lines) + "\n"
-
-
-def escape_property(value: str) -> str:
-    return (value.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
-            .replace(":", "%3A").replace(",", "%2C"))
-
-
-def escape_message(value: str) -> str:
-    return value.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
-
-
-def render_annotations(report: dict, limit: int) -> str:
-    """One "::notice" workflow command per new name, anchored in the diff.
-
-    GitHub caps annotations per step and per job, so at most <limit>
-    lines are written and the last one points at the summary instead
-    when the list is longer.
-    """
-    base_ref = report["base_ref"]
-    entries = report["new"]
-    overflow = len(entries) > limit
-    shown = entries[:limit - 1] if overflow else entries
-    out = []
-    for entry in shown:
-        anchor = entry["anchor"]
-        others = [o for o in entry["occurrences"] if o != anchor]
-        message = ["New standard name {} is not present on {}.".format(entry["name"], base_ref)]
-        if others:
-            message.append("Also seen in:")
-            message.extend("- {}:{}".format(o["path"], o["line"]) for o in others[:10])
-            if len(others) > 10:
-                message.append("- and {} more".format(len(others) - 10))
-        else:
-            message.append("This is its only occurrence.")
-        if entry["likely_rename_of"]:
-            message.append("Likely a rename of {}, which this pull request removes.".format(
-                entry["likely_rename_of"]))
-        if entry["on_base_tip"]:
-            message.append("Already present at the tip of {}, added after this branch diverged.".format(
-                base_ref))
-        if entry["similar_existing"]:
-            message.append("Similar existing names: " + ", ".join(entry["similar_existing"]))
-        out.append("::notice file={},line={},title={}::{}".format(
-            escape_property(anchor["path"]), anchor["line"],
-            escape_property("New standard name: " + entry["name"]),
-            escape_message("\n".join(message)),
-        ))
-    if overflow:
-        out.append("::notice title={}::{}".format(
-            escape_property("New standard names"),
-            escape_message(
-                "{} more new standard names are not annotated inline because GitHub "
-                "caps annotations; see the job summary or the report artifact.".format(
-                    len(entries) - len(shown))),
-        ))
-    return "".join(line + "\n" for line in out)
 
 
 # ---------------------------------------------------------------------------
@@ -487,8 +562,6 @@ def cmd_report(args: argparse.Namespace) -> int:
         handle.write("\n")
     with open(os.path.join(args.out_dir, "report.md"), "w") as handle:
         handle.write(render_markdown(report))
-    with open(os.path.join(args.out_dir, "annotations.txt"), "w") as handle:
-        handle.write(render_annotations(report, args.max_annotations))
     print("{} new and {} removed standard names (head {} vs merge base {}); "
           "report written to {}".format(
               len(report["new"]), len(report["removed"]),
@@ -521,8 +594,6 @@ def main(argv: list[str]) -> int:
     rep.add_argument("--repo", help="owner/name, enables links to the head commit")
     rep.add_argument("--pr", type=int, help="pull request number, recorded in report.json")
     rep.add_argument("--out-dir", default="stdnames_report")
-    rep.add_argument("--max-annotations", type=int, default=50,
-                     help="GitHub keeps at most 50 annotations per job")
     rep.set_defaults(func=cmd_report)
 
     ren = sub.add_parser("render", help="validate report.json and print its markdown")
