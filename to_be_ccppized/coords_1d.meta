@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = coords1d
   type = ddt
+  module_name = coords_1d
 
 [ccpp-arg-table]
   name = coords1d

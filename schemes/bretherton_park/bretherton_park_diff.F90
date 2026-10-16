@@ -18,6 +18,7 @@ module bretherton_park_diff
   private
 
   ! public CCPP-compliant interfaces
+  public :: bretherton_park_diff_register
   public :: bretherton_park_diff_init
   public :: bretherton_park_diff_run
 
@@ -37,6 +38,27 @@ module bretherton_park_diff
   integer         :: nbot_eddy
 
 contains
+
+!> \section arg_table_bretherton_park_diff_register Argument Table
+!! \htmlinclude bretherton_park_diff_register.html
+  subroutine bretherton_park_diff_register(pver, ncvmax, errmsg, errflg)
+
+    ! Input arguments
+    integer,          intent(in)  :: pver
+
+    ! Output arguments
+    integer,          intent(out) :: ncvmax    ! maximum number of convective layers (CLs) [count]
+    character(len=*), intent(out) :: errmsg
+    integer,          intent(out) :: errflg
+
+    errmsg = ''
+    errflg = 0
+
+    ! Set maximum number of convective layers (CLs) in the UW scheme, based
+    ! on the total number of host model vertical layers (pver).
+    ncvmax = pver
+
+  end subroutine bretherton_park_diff_register
 
 !> \section arg_table_bretherton_park_diff_init Argument Table
 !! \htmlinclude bretherton_park_diff_init.html
@@ -73,9 +95,10 @@ contains
     real(kind_phys),    intent(in)  :: eddy_max_bot_pressure  ! Bottom pressure level for eddy_leng_max [hPa]
     real(kind_phys),    intent(in)  :: eddy_moist_entrain_a2l ! Moist entrainment enhancement parameter [1]
 
-    ! Output arguments
-    integer,            intent(out) :: ncvmax                 ! maximum number of convective layers (CLs) [count]
+    ! Input arguments (set in the register phase)
+    integer,            intent(in)  :: ncvmax                 ! maximum number of convective layers (CLs) [count]
 
+    ! Output arguments
     character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
@@ -93,11 +116,6 @@ contains
 
     ! hardcoded to be surface layer:
     nbot_eddy = pver
-
-    ! Set maximum number of convective layers (CLs) in the UW scheme
-    ! this was hardcoded to pver at the time of CCPPization, but could be made a parameter if needed.
-    ! this is used as a dimension for many of the CL diagnostic variables in the run phase.
-    ncvmax = pver
 
     do k = 1, pver
       if (pref_mid(k) <= eddy_max_bot_pressure*1.e2_kind_phys) then ! hPa to Pa

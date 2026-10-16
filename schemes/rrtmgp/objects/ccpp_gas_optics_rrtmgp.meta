@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = ty_gas_optics_rrtmgp_ccpp
   type = ddt
+  module_name = ccpp_gas_optics_rrtmgp
   dependencies = ../ext/rrtmgp-frontend/mo_gas_optics_rrtmgp.F90
   # Host model must choose the appropriate module to build
   # IF CPUS:

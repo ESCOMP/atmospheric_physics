@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = hb_diff_set_vertical_diffusion_top
   type = scheme
+  module_name = holtslag_boville_diff_interstitials
   dependencies = ../../../../data/ref_pres.F90
 
 [ccpp-arg-table]
@@ -28,6 +29,7 @@
 [ccpp-table-properties]
   name = hb_diff_prepare_vertical_diffusion_inputs
   type = scheme
+  module_name = holtslag_boville_diff_interstitials
   dependencies = ../../to_be_ccppized/coords_1d.F90
 
 [ccpp-arg-table]
@@ -121,6 +123,7 @@
 [ccpp-table-properties]
   name = hb_free_atm_diff_prepare_vertical_diffusion_inputs
   type = scheme
+  module_name = holtslag_boville_diff_interstitials
   dependencies = ../../to_be_ccppized/coords_1d.F90
 
 [ccpp-arg-table]

@@ -75,7 +75,7 @@ subroutine zm_conv_momtran_run(ncol, pver, pverp, &
 
    character(len=512), intent(out) :: errmsg
    integer,            intent(out) :: errflg
-   character(len=40),  intent(out) :: scheme_name
+   character(len=64),  intent(out) :: scheme_name
 
 !--------------------------Local Variables------------------------------
 

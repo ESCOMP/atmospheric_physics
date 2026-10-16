@@ -11,7 +11,6 @@ module qneg
 
    implicit none
    private
-   save
 
    ! Public interface.
 

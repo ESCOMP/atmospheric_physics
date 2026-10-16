@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = gravity_wave_drag_convection_deep
   type = scheme
+  module_name = gravity_wave_drag_convection
   dependencies = gw_utils.F90,gw_common.F90,../../to_be_ccppized/coords_1d.F90
 
 [ccpp-arg-table]
@@ -368,6 +369,7 @@
 [ccpp-table-properties]
   name = gravity_wave_drag_convection_shallow
   type = scheme
+  module_name = gravity_wave_drag_convection
   dependencies = gw_utils.F90,gw_common.F90,../../to_be_ccppized/coords_1d.F90
 
 [ccpp-arg-table]
