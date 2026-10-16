@@ -24,8 +24,6 @@ contains
 
     ! This scheme is non-portable due to dependency: Global mean module gmean from src/utils
     use gmean_mod, only: gmean
-    use cam_logfile, only: iulog        !DEBUG-FWAUT
-    use spmd_utils,  only: masterproc   !DEBUG-FWAUT
 
     ! Input arguments
     integer,            intent(in)    :: ncol           ! number of atmospheric columns
@@ -74,9 +72,6 @@ contains
     ! Compute global mean total energy difference for check_energy_fix
     tedif_glob = teinp_glob - teout_glob
     heat_glob  = -tedif_glob/dtime * gravit / (psurf_glob - ptopb_glob)    ! [J kg-1 s-1]
-
-    if (masterproc) write(iulog,'(a,3es26.17)') &                            !DEBUG-FWAUT
-       ' DEBUG-FWAUT gmean teinp/teout/heat=', teinp_glob, teout_glob, heat_glob
   end subroutine check_energy_gmean_run
 
 end module check_energy_gmean

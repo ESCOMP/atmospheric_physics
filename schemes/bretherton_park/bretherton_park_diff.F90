@@ -54,12 +54,8 @@ contains
     errmsg = ''
     errflg = 0
 
-    ! Set maximum number of convective layers (CLs) in the UW scheme.
-    ! This was hardcoded to pver at the time of CCPPization, but could be made a
-    ! parameter if needed.  It is used as a dimension for many of the CL diagnostic
-    ! variables in the run phase, so it must be set in the register phase: the
-    ! framework sizes the suite-owned arrays that depend on it before any init-phase
-    ! scheme code runs.
+    ! Set maximum number of convective layers (CLs) in the UW scheme, based
+    ! on the total number of host model vertical layers (pver).
     ncvmax = pver
 
   end subroutine bretherton_park_diff_register

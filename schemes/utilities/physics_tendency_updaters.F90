@@ -1,7 +1,5 @@
 module physics_tendency_updaters
 
-  use ccpp_kinds, only: kind_phys
-
   implicit none
   private
 
@@ -17,6 +15,8 @@ CONTAINS
    !! \htmlinclude apply_tendency_of_eastward_wind_run.html
    subroutine apply_tendency_of_eastward_wind_run(nz, dudt, u, dudt_total, dt,             &
         errcode, errmsg)
+      use ccpp_kinds, only: kind_phys
+
       ! Dummy arguments
       integer,            intent(in)    :: nz              ! Num vertical  layers
       real(kind_phys),    intent(inout) :: dudt(:,:)       ! tendency of eastward wind
@@ -24,7 +24,7 @@ CONTAINS
       real(kind_phys),    intent(inout) :: dudt_total(:,:) ! total tendency of eastward wind
       real(kind_phys),    intent(in)    :: dt              ! physics time step
       integer,            intent(out)   :: errcode
-      character(len=512), intent(out)   :: errmsg
+      character(len=*),   intent(out)   :: errmsg
 
       ! Local variable
       integer :: klev
@@ -45,6 +45,8 @@ CONTAINS
    !! \htmlinclude apply_tendency_of_northward_wind_run.html
    subroutine apply_tendency_of_northward_wind_run(nz, dvdt, v, dvdt_total, dt,             &
         errcode, errmsg)
+      use ccpp_kinds, only: kind_phys
+
       ! Dummy arguments
       integer,            intent(in)    :: nz              ! Num vertical layers
       real(kind_phys),    intent(inout) :: dvdt(:,:)       ! tendency of northward wind
@@ -52,7 +54,7 @@ CONTAINS
       real(kind_phys),    intent(inout) :: dvdt_total(:,:) ! total tendency of northward wind
       real(kind_phys),    intent(in)    :: dt              ! physics time step
       integer,            intent(out)   :: errcode
-      character(len=512), intent(out)   :: errmsg
+      character(len=*),   intent(out)   :: errmsg
 
       ! Local variable
       integer :: klev
@@ -73,6 +75,8 @@ CONTAINS
    !! \htmlinclude apply_heating_rate_run.html
    subroutine apply_heating_rate_run(nz, heating_rate, temp, dTdt_total, dt, cpair,  &
         errcode, errmsg)
+      use ccpp_kinds, only: kind_phys
+
       ! Dummy arguments
       integer,            intent(in)    :: nz                ! Num vertical  layers
       real(kind_phys),    intent(inout) :: heating_rate(:,:) ! heating rate
@@ -81,7 +85,7 @@ CONTAINS
       real(kind_phys),    intent(in)    :: dt                ! physics time step
       real(kind_phys),    intent(in)    :: cpair(:,:)        ! specific heat, dry air
       integer,            intent(out)   :: errcode
-      character(len=512), intent(out)   :: errmsg
+      character(len=*),   intent(out)   :: errmsg
 
       ! Local variable
       integer :: klev
@@ -102,6 +106,8 @@ CONTAINS
    !! \htmlinclude apply_tendency_of_air_temperature_run.html
    subroutine apply_tendency_of_air_temperature_run(nz, t_tend, temp, dtdT_total,   &
         dt, errcode, errmsg)
+      use ccpp_kinds, only: kind_phys
+
       ! Dummy arguments
       integer,            intent(in)    :: nz              ! Num vertical  layers
       real(kind_phys),    intent(inout) :: t_tend(:,:)     ! temperature tendency
@@ -109,7 +115,7 @@ CONTAINS
       real(kind_phys),    intent(inout) :: dTdt_total(:,:) ! total temp. tendency
       real(kind_phys),    intent(in)    :: dt              ! physics time step
       integer,            intent(out)   :: errcode
-      character(len=512), intent(out)   :: errmsg
+      character(len=*),   intent(out)   :: errmsg
 
       ! Local variable
       integer :: klev
@@ -129,14 +135,15 @@ CONTAINS
    !> \section arg_table_apply_constituent_tendencies_run Argument Table
    !!! \htmlinclude apply_constituent_tendencies_run.html
    subroutine apply_constituent_tendencies_run(nz, const_tend, const, dt, errcode, errmsg)
-      use debug_fingerprint, only: dbg_fp   !DEBUG-FP
+      use ccpp_kinds, only: kind_phys
+
       ! Dummy arguments
       integer,            intent(in)    :: nz                 ! Num vertical layers
       real(kind_phys),    intent(inout) :: const_tend(:,:,:)  ! constituent tendency array
       real(kind_phys),    intent(inout) :: const(:,:,:)       ! constituent state array
       real(kind_phys),    intent(in)    :: dt                 ! physics time step
       integer,            intent(out)   :: errcode
-      character(len=512), intent(out)   :: errmsg
+      character(len=*),   intent(out)   :: errmsg
 
       ! Local variables
       integer :: klev
@@ -144,14 +151,9 @@ CONTAINS
       errcode = 0
       errmsg = ''
 
-      call dbg_fp('act:const_in', const)        !DEBUG-FP
-      call dbg_fp('act:tend_in', const_tend)    !DEBUG-FP
-
       do klev = 1, nz
          const(:, klev, :) = const(:, klev, :) + (const_tend(:, klev, :) * dt)
       end do
-
-      call dbg_fp('act:const_out', const)       !DEBUG-FP
 
       const_tend = 0._kind_phys
 

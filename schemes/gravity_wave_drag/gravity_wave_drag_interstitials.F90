@@ -72,11 +72,11 @@ contains
     real(kind_phys), intent(out) :: kvt_gw(:,:)! scaled_molecular_kinematic_temperature_conductivity_at_interfaces_for_gravity_wave_drag [m2 s-1]
 
     ! for energy checker:
-    real(kind_phys), intent(out) :: flx_heat(:) ! net_sensible_heat_flux_through_top_and_bottom_of_atmosphere_column [W m-2]
-    character(len=64), intent(out):: scheme_name
+    real(kind_phys), intent(out)  :: flx_heat(:) ! net_sensible_heat_flux_through_top_and_bottom_of_atmosphere_column [W m-2]
+    character(len=*), intent(out) :: scheme_name
 
-    character(len=512), intent(out) :: errmsg
-    integer, intent(out)            :: errflg
+    character(len=*), intent(out) :: errmsg
+    integer, intent(out)          :: errflg
 
     ! Local variables
     integer :: i, k

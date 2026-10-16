@@ -50,8 +50,6 @@ contains
     ! for hydrostatic energy calculation (physics and dycore formulas)
     use cam_thermo,         only: get_hydrostatic_energy
     use cam_thermo_formula, only: ENERGY_FORMULA_DYCORE_SE, ENERGY_FORMULA_DYCORE_MPAS
-    use cam_logfile, only: iulog        !DEBUG-FWAUT
-    use spmd_utils,  only: masterproc   !DEBUG-FWAUT
 
     ! Input arguments
     integer,            intent(in)    :: ncol           ! number of atmospheric columns
@@ -155,10 +153,6 @@ contains
       ! FV dycore: dycore energy is the same as physics
       te_ini_dyn(:ncol) = te_ini_phys(:ncol)
     endif
-
-    if (is_first_timestep .and. masterproc) &                                !DEBUG-FWAUT
-       write(iulog,'(a,3es26.17)') ' DEBUG-FWAUT te_ini col1 phys/dyn/tw=', &
-          te_ini_phys(1), te_ini_dyn(1), tw_ini(1)
 
     ! Set current state to be the same as initial
     te_cur_phys(:ncol) = te_ini_phys(:ncol)
