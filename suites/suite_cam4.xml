@@ -155,6 +155,11 @@
     <!-- Initialize QCWAT, TCWAT, LCWAT if not read from snapshot. -->
     <scheme>rk_stratiform_check_qtlcwat</scheme>
 
+    <!-- Zero the energy-check boundary fluxes. The RK block below (sedimentation
+         through prognostic cloud water) is checked as one unit, as CAM's
+         cldwat_tend check does. -->
+    <scheme>check_energy_zero_fluxes</scheme>
+
     <!-- RK1: cloud sedimentation (pcwsediment) -->
     <scheme>cloud_particle_sedimentation</scheme>
     <scheme>cloud_particle_sedimentation_diagnostics</scheme>
@@ -215,6 +220,13 @@
     <scheme>apply_heating_rate</scheme>
     <scheme>qneg</scheme>
     <scheme>geopotential_temp</scheme>
+
+    <!-- Check that energy and water change matches the boundary fluxes.
+         The reserved convective liquid detrained into the column (rliq) is
+         removed from the water flux the check sees. -->
+    <scheme>rk_stratiform_prepare_flux_for_check_energy</scheme>
+    <scheme>check_energy_scaling</scheme>
+    <scheme>check_energy_chng</scheme>
 
     <!-- RK4: cloud fractions (including third call to cldfrc) -->
     <scheme>compute_cloud_fraction</scheme>

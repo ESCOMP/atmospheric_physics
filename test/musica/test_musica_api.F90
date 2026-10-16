@@ -71,10 +71,8 @@ contains
     use ccpp_constituent_prop_mod,     only: ccpp_constituent_prop_ptr_t
     use ccpp_constituent_prop_mod,     only: ccpp_constituent_properties_t
     use ccpp_constituent_prop_mod,     only: to_lower
-    ! this dependency cannot yet be replaced by ccpp_scheme_utils because
-    ! the test itself constructs the constituent properties and does not initialize
-    ! the version contained within the framework:
-    use ccpp_const_utils,              only: ccpp_const_get_idx
+    use ccpp_scheme_utils,             only: ccpp_constituent_index
+    use musica_test_constituents,      only: register_test_constituents, cleanup_test_constituents
     use musica_ccpp_namelist,          only: filename_of_micm_configuration, &
                                              filename_of_tuvx_configuration, &
                                              filename_of_tuvx_micm_mapping_configuration, &
@@ -117,7 +115,6 @@ contains
     real(kind_phys)                                                  :: earth_sun_distance                           ! AU
     type(ccpp_constituent_prop_ptr_t),   allocatable                 :: constituent_props_ptr(:)
     type(ccpp_constituent_properties_t), allocatable, target         :: constituent_props(:)
-    type(ccpp_constituent_properties_t), pointer                     :: const_prop
     integer                                                          :: number_of_micm_rate_parameters
     real(kind_phys), allocatable                                     :: rate_parameters(:,:,:) ! various units
     real(kind_phys)                                                  :: molar_mass, base_conc, default_mixing_ratio
@@ -200,11 +197,11 @@ contains
       stop 3
     end if
 
-    allocate(constituent_props_ptr(size(constituent_props)))
-    do i = 1, size(constituent_props)
-      const_prop => constituent_props(i)
-      call constituent_props_ptr(i)%set(const_prop, errcode, errmsg)
-    end do
+    call register_test_constituents(constituent_props, constituent_props_ptr, errmsg, errcode)
+    if (errcode /= 0) then
+      write(*,*) trim(errmsg)
+      stop 3
+    endif
 
     call musica_ccpp_init(NUM_COLUMNS, NUM_LAYERS, NUM_LAYERS+1, photolysis_wavelength_grid_interfaces, &
                           constituent_props_ptr, MOLAR_MASS_DRY_AIR__G_MOL, errmsg, errcode)
@@ -213,38 +210,38 @@ contains
       stop 3
     endif
 
-    call ccpp_const_get_idx( constituent_props_ptr, "N2", N2_index, errmsg, errcode )
+    call ccpp_constituent_index( "N2", N2_index, errcode, errmsg )
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
     endif
-    call ccpp_const_get_idx( constituent_props_ptr, "O", O_index, errmsg, errcode )
+    call ccpp_constituent_index( "O", O_index, errcode, errmsg )
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
     endif
-    call ccpp_const_get_idx( constituent_props_ptr, "O1D", O1D_index, errmsg, errcode )
+    call ccpp_constituent_index( "O1D", O1D_index, errcode, errmsg )
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
     endif
-    call ccpp_const_get_idx( constituent_props_ptr, "O2", O2_index, errmsg, errcode )
+    call ccpp_constituent_index( "O2", O2_index, errcode, errmsg )
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
     endif
-    call ccpp_const_get_idx( constituent_props_ptr, "O3", O3_index, errmsg, errcode )
+    call ccpp_constituent_index( "O3", O3_index, errcode, errmsg )
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
     endif
-    call ccpp_const_get_idx( constituent_props_ptr, "cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water", &
-                             cloud_index, errmsg, errcode )
+    call ccpp_constituent_index( "cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water", &
+                                 cloud_index, errcode, errmsg )
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
     endif
-    call ccpp_const_get_idx( constituent_props_ptr, "air", air_index, errmsg, errcode )
+    call ccpp_constituent_index( "air", air_index, errcode, errmsg )
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
@@ -336,6 +333,7 @@ contains
     end do
 
     deallocate(constituent_props_ptr)
+    call cleanup_test_constituents()
 
   end subroutine test_chapman
 
@@ -344,10 +342,8 @@ contains
     use ccpp_constituent_prop_mod,     only: ccpp_constituent_prop_ptr_t
     use ccpp_constituent_prop_mod,     only: ccpp_constituent_properties_t
     use ccpp_constituent_prop_mod,     only: to_lower
-    ! this dependency cannot yet be replaced by ccpp_scheme_utils because
-    ! the test itself constructs the constituent properties and does not initialize
-    ! the version contained within the framework:
-    use ccpp_const_utils,              only: ccpp_const_get_idx
+    use ccpp_scheme_utils,             only: ccpp_constituent_index
+    use musica_test_constituents,      only: register_test_constituents, cleanup_test_constituents
     use musica_ccpp_namelist,          only: filename_of_micm_configuration, &
                                              filename_of_tuvx_configuration, &
                                              filename_of_tuvx_micm_mapping_configuration, &
@@ -390,7 +386,6 @@ contains
     real(kind_phys)                                                :: earth_sun_distance                           ! AU
     type(ccpp_constituent_prop_ptr_t),   allocatable               :: constituent_props_ptr(:)
     type(ccpp_constituent_properties_t), allocatable, target       :: constituent_props(:)
-    type(ccpp_constituent_properties_t), pointer                   :: const_prop
     integer                                                        :: number_of_micm_rate_parameters
     real(kind_phys), allocatable                                   :: rate_parameters(:,:,:) ! various units
     real(kind_phys)                                                :: molar_mass, base_conc
@@ -468,11 +463,11 @@ contains
       stop 3
     end if
 
-    allocate(constituent_props_ptr(size(constituent_props)))
-    do i = 1, size(constituent_props)
-      const_prop => constituent_props(i)
-      call constituent_props_ptr(i)%set(const_prop, errcode, errmsg)
-    end do
+    call register_test_constituents(constituent_props, constituent_props_ptr, errmsg, errcode)
+    if (errcode /= 0) then
+      write(*,*) trim(errmsg)
+      stop 3
+    endif
 
     call musica_ccpp_init(NUM_COLUMNS, NUM_LAYERS, NUM_LAYERS+1, photolysis_wavelength_grid_interfaces, &
                           constituent_props_ptr, MOLAR_MASS_DRY_AIR__G_MOL, errmsg, errcode)
@@ -481,33 +476,33 @@ contains
       stop 3
     endif
 
-    call ccpp_const_get_idx( constituent_props_ptr, "Cl", Cl_index, errmsg, errcode )
+    call ccpp_constituent_index( "Cl", Cl_index, errcode, errmsg )
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
     endif
-    call ccpp_const_get_idx( constituent_props_ptr, "Cl2", Cl2_index, errmsg, errcode )
+    call ccpp_constituent_index( "Cl2", Cl2_index, errcode, errmsg )
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
     endif
-    call ccpp_const_get_idx( constituent_props_ptr, "cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water", &
-                             cloud_index, errmsg, errcode )
+    call ccpp_constituent_index( "cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water", &
+                                 cloud_index, errcode, errmsg )
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
     endif
-    call ccpp_const_get_idx( constituent_props_ptr, "air", air_index, errmsg, errcode )
+    call ccpp_constituent_index( "air", air_index, errcode, errmsg )
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
     endif
-    call ccpp_const_get_idx( constituent_props_ptr, "O2", O2_index, errmsg, errcode )
+    call ccpp_constituent_index( "O2", O2_index, errcode, errmsg )
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
     endif
-    call ccpp_const_get_idx( constituent_props_ptr, "O3", O3_index, errmsg, errcode )
+    call ccpp_constituent_index( "O3", O3_index, errcode, errmsg )
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
@@ -597,13 +592,14 @@ contains
     end do
 
     deallocate(constituent_props_ptr)
+    call cleanup_test_constituents()
 
   end subroutine test_terminator
 
   subroutine get_index_and_molar_mass(constituent_props, species_name, index, molar_mass)
     use ccpp_constituent_prop_mod,     only: ccpp_constituent_prop_ptr_t
     use ccpp_constituent_prop_mod,     only: ccpp_constituent_properties_t
-    use ccpp_const_utils,              only: ccpp_const_get_idx
+    use ccpp_scheme_utils,             only: ccpp_constituent_index
 
     type(ccpp_constituent_prop_ptr_t), intent(in)  :: constituent_props(:)
     character(len=*),                  intent(in)  :: species_name
@@ -613,7 +609,7 @@ contains
     character(len=512) :: errmsg
     integer            :: errcode
 
-    call ccpp_const_get_idx( constituent_props, species_name, index, errmsg, errcode )
+    call ccpp_constituent_index( species_name, index, errcode, errmsg )
     if (errcode /= 0) then
       write(*,*) trim(errmsg)
       stop 3
@@ -629,10 +625,7 @@ contains
   subroutine test_analytical(number_of_columns, number_of_layers, test_accuracy)
     use ccpp_constituent_prop_mod,     only: ccpp_constituent_prop_ptr_t, &
                                              ccpp_constituent_properties_t
-    ! this dependency cannot yet be replaced by ccpp_scheme_utils because
-    ! the test itself constructs the constituent properties and does not initialize
-    ! the version contained within the framework:
-    use ccpp_const_utils,              only: ccpp_const_get_idx
+    use musica_test_constituents,      only: register_test_constituents, cleanup_test_constituents
     use musica_ccpp_namelist,          only: filename_of_micm_configuration, &
                                              filename_of_tuvx_configuration, &
                                              filename_of_tuvx_micm_mapping_configuration
@@ -656,7 +649,6 @@ contains
     real(kind_phys), dimension(number_of_columns,number_of_layers,NUM_SPECIES) :: initial_constituents ! kg kg-1
     type(ccpp_constituent_prop_ptr_t),   allocatable               :: constituent_props_ptr(:)
     type(ccpp_constituent_properties_t), allocatable, target       :: constituent_props(:)
-    type(ccpp_constituent_properties_t), pointer                   :: const_prop
     character(len=512)                                             :: species_name, units
     character(len=:), allocatable                                  :: micm_species_name
     integer                                                        :: i, j
@@ -688,11 +680,11 @@ contains
     endif
     ASSERT(allocated(constituent_props))
     ASSERT(size(constituent_props) == NUM_SPECIES)
-    allocate(constituent_props_ptr(size(constituent_props)))
-    do i = 1, size(constituent_props)
-      const_prop => constituent_props(i)
-      call constituent_props_ptr(i)%set(const_prop, errcode, errmsg)
-    end do
+    call register_test_constituents(constituent_props, constituent_props_ptr, errmsg, errcode)
+    if (errcode /= 0) then
+      write(*,*) trim(errmsg)
+      stop 3
+    endif
 
     ! Get indices and molar masses for chemical species
     call get_index_and_molar_mass(constituent_props_ptr, "A", A_index, A_MW)
@@ -826,6 +818,7 @@ contains
       write(*,*) trim(errmsg)
       stop 3
     endif
+    call cleanup_test_constituents()
 
   end subroutine test_analytical
 

@@ -166,7 +166,7 @@ subroutine rrtmgp_inputs_run(dosw, dolw, do_snow, do_graupel, trick_rrtmgp,    &
            pint_rad(:,2) = 1.02_kind_phys
            ! set the highest pmid (in the "extra layer") to the midpoint (guarantees > 1Pa)
            pmid_rad(:,1)   = 1.015_kind_phys ! pint_rad(:,1) + 0.5_kind_phys * (pint_rad(:,2) - pint_rad(:,1))
-           pmid_rad(:,2)   = 0.5*(pint_rad(:,2) + pint_rad(:,3))
+           pmid_rad(:,2)   = 0.5_kind_phys*(pint_rad(:,2) + pint_rad(:,3))
         else
            ! The top reference pressure from the RRTMGP coefficients datasets is 1.005183574463 Pa
            ! Set the top of the extra layer just below that.

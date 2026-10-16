@@ -5,6 +5,12 @@
     <!-- Prepare input needed by the suite -->
     <scheme>prescribe_radiative_gas_concentrations</scheme>
     <scheme>to_be_ccppized_temporary</scheme>
+
+    <scheme>prescribed_aerosols</scheme>
+    <scheme>prescribed_aerosol_deposition_flux</scheme>
+    <scheme>tropopause_find</scheme>
+    <scheme>prescribed_volcanic_aerosol</scheme>
+
     <scheme>calc_atmosphere_layer_thickness</scheme>
     <scheme>calc_exner</scheme>
     <scheme>temp_to_potential_temp</scheme>
@@ -17,13 +23,27 @@
     <scheme>geopotential_height_wrt_sfc_at_interface_to_msl</scheme>
     <scheme>wet_to_dry_water_vapor</scheme>
     <scheme>wet_to_dry_cloud_liquid_water</scheme>
+    <scheme>wet_to_dry_rain</scheme>
     <scheme>wet_to_dry_cloud_ice</scheme>
     <scheme>wet_to_dry_snow</scheme>
+    <scheme>wet_to_dry_graupel</scheme>
 
     <scheme>mmm_physics_compat</scheme>
 
+    <!-- TEMPO Microphysics -->
+    <scheme>mp_tempo</scheme>
+    <scheme>mp_tempo_diagnostics</scheme>
+
+    <!-- Xu-Randall cloud fraction -->
+    <scheme>cldfra_xu_randall</scheme>
+    <scheme>cldfra_xu_randall_diagnostics</scheme>
+
     <!-- Begin section RRTMGP radiation scheme -->
     <scheme>rrtmgp_pre</scheme>
+
+    <scheme>aerosol_optics</scheme>
+    <scheme>aerosol_optics_diagnostics</scheme>
+
     <scheme>rrtmgp_cloud_optics_setup</scheme>
     <scheme>tropopause_find</scheme>
     <scheme>rrtmgp_variables</scheme>
@@ -102,8 +122,10 @@
     <scheme>apply_tendency_of_air_temperature</scheme>
     <scheme>dry_to_wet_water_vapor</scheme>
     <scheme>dry_to_wet_cloud_liquid_water</scheme>
+    <scheme>dry_to_wet_rain</scheme>
     <scheme>dry_to_wet_cloud_ice</scheme>
     <scheme>dry_to_wet_snow</scheme>
+    <scheme>dry_to_wet_graupel</scheme>
     <scheme>qneg</scheme>
     <scheme>geopotential_temp</scheme>
 

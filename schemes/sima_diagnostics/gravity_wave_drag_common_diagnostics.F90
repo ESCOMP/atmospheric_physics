@@ -37,7 +37,6 @@ contains
    !> \section arg_table_gravity_wave_drag_common_diagnostics_run  Argument Table
    !! \htmlinclude gravity_wave_drag_common_diagnostics_run.html
    subroutine gravity_wave_drag_common_diagnostics_run( &
-      const_props, &
       cpairv, &
       egwdffi_tot, &
       tend_q, & ! all ccpp constituent tendencies
@@ -50,13 +49,9 @@ contains
 
       use runtime_obj, only: wv_stdname
 
-      use ccpp_const_utils,     only: ccpp_const_get_idx
-
-      ! framework dependency for const_props
-      use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
+      use ccpp_scheme_utils,    only: ccpp_constituent_index
 
       ! Input parameters
-      type(ccpp_constituent_prop_ptr_t), intent(in) :: const_props(:)
       real(kind_phys),    intent(in)  :: cpairv(:,:)
       real(kind_phys),    intent(in)  :: egwdffi_tot(:,:)
       real(kind_phys),    intent(in)  :: tend_q(:,:,:)
@@ -75,19 +70,16 @@ contains
       errflg = 0
 
       ! Get constituent indices for wv, cldliq, cldice
-      call ccpp_const_get_idx(const_props, &
-           wv_stdname, &
-           const_wv_idx, errmsg, errflg)
+      call ccpp_constituent_index(wv_stdname, &
+           const_wv_idx, errflg, errmsg)
       if (errflg /= 0) return
 
-      call ccpp_const_get_idx(const_props, &
-           'cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water', &
-           const_cldliq_idx, errmsg, errflg)
+      call ccpp_constituent_index('cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water', &
+           const_cldliq_idx, errflg, errmsg)
       if (errflg /= 0) return
 
-      call ccpp_const_get_idx(const_props, &
-           'cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water', &
-           const_cldice_idx, errmsg, errflg)
+      call ccpp_constituent_index('cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water', &
+           const_cldice_idx, errflg, errmsg)
       if (errflg /= 0) return
 
       ! History out field calls
