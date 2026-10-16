@@ -1,15 +1,11 @@
 module clubb
 
-  use ccpp_kinds, only: kind_phys
-
   implicit none
 
   private
 
-  save
-
   ! Subroutines to make public
-  public :: clubb_init, clubb1_run, clubb2_run, clubb3_run, stats_zero
+  public :: clubb_setup_init, clubb1_run, clubb2_run, clubb3_run
 
   contains
 
@@ -17,31 +13,31 @@ module clubb
   !                                                                                 !
   ! =============================================================================== !
 
-  subroutine clubb_init(pcols, pver, pverp, pcnst, & ! in
-                        masterproc, mpicom, mstrid, mpi_character, iulog, & ! in
-                        sclr_dim, hydromet_dim, nzt_clubb, nzm_clubb, & ! in
-                        l_implemented, l_input_fields, clubb_l_do_expldiff_rtm_thlm, & ! in
-                        cnst_ndropmixed, subcol_scheme, & ! in
-                        clubb_vars_zt, clubb_vars_zm, clubb_vars_sfc, & ! in
-                        clubb_vars_rad_zt, clubb_vars_rad_zm, & ! in
-                        edsclr_dim, clubb_params_single_col, & ! inout
-                        out_zt, out_zm, out_sfc, out_radzt, out_radzm, & ! inout
-                        clubb_C2rtthl, clubb_C8, clubb_c11, clubb_c11b, clubb_c14, & ! inout
-                        clubb_C_wp3_pr_turb, clubb_c_K10, clubb_mult_coef, & ! inout
-                        clubb_Skw_denom_coef, clubb_C2rt, clubb_C2thl, clubb_beta, & ! inout
-                        clubb_c6rt, clubb_c6rtb, clubb_c6rtc, clubb_c6thl, clubb_c6thlb, & ! inout
-                        clubb_c6thlc, clubb_wpxp_L_thresh, clubb_C7, clubb_C7b, & ! inout
-                        clubb_gamma_coef, clubb_c_K10h, clubb_lambda0_stability_coef, & ! inout
-                        clubb_lmin_coef, clubb_C8b, clubb_skw_max_mag, clubb_C1, clubb_C1b, & ! inout
-                        clubb_gamma_coefb, clubb_up2_sfc_coef, clubb_C4, clubb_C_uu_shr, & ! inout
-                        clubb_C_uu_buoy, clubb_c_K1, clubb_c_K2, clubb_nu2, clubb_c_K8, & ! inout
-                        clubb_c_K9, clubb_nu9, clubb_C_wp2_splat, clubb_C_invrs_tau_bkgnd, & ! inout
-                        clubb_C_invrs_tau_sfc, clubb_C_invrs_tau_shear, clubb_C_invrs_tau_N2, & ! inout
-                        clubb_C_invrs_tau_N2_wp2, clubb_C_invrs_tau_N2_xp2, clubb_C_invrs_tau_N2_wpxp, & ! inout
-                        clubb_C_invrs_tau_N2_clear_wp3, clubb_bv_efold, clubb_wpxp_Ri_exp, clubb_z_displace, & ! inout
-                        lq, stats_zt, stats_zm, stats_sfc, stats_rad_zt, stats_rad_zm, & ! inout
-                        stats_metadata, hm_metadata, clubb_config_flags, sclr_idx, & ! inout
-                        errmsg, errflg ) ! out
+  subroutine clubb_setup_init(pcols, pver, pverp, pcnst, & ! in
+                              masterproc, mpicom, mstrid, mpi_character, iulog, & ! in
+                              sclr_dim, hydromet_dim, nzt_clubb, nzm_clubb, & ! in
+                              l_implemented, l_input_fields, clubb_l_do_expldiff_rtm_thlm, & ! in
+                              cnst_ndropmixed, subcol_scheme, & ! in
+                              clubb_vars_zt, clubb_vars_zm, clubb_vars_sfc, & ! in
+                              clubb_vars_rad_zt, clubb_vars_rad_zm, & ! in
+                              edsclr_dim, clubb_params_single_col, & ! inout
+                              out_zt, out_zm, out_sfc, out_radzt, out_radzm, & ! inout
+                              clubb_C2rtthl, clubb_C8, clubb_c11, clubb_c11b, clubb_c14, & ! inout
+                              clubb_C_wp3_pr_turb, clubb_c_K10, clubb_mult_coef, & ! inout
+                              clubb_Skw_denom_coef, clubb_C2rt, clubb_C2thl, clubb_beta, & ! inout
+                              clubb_c6rt, clubb_c6rtb, clubb_c6rtc, clubb_c6thl, clubb_c6thlb, & ! inout
+                              clubb_c6thlc, clubb_wpxp_L_thresh, clubb_C7, clubb_C7b, & ! inout
+                              clubb_gamma_coef, clubb_c_K10h, clubb_lambda0_stability_coef, & ! inout
+                              clubb_lmin_coef, clubb_C8b, clubb_skw_max_mag, clubb_C1, clubb_C1b, & ! inout
+                              clubb_gamma_coefb, clubb_up2_sfc_coef, clubb_C4, clubb_C_uu_shr, & ! inout
+                              clubb_C_uu_buoy, clubb_c_K1, clubb_c_K2, clubb_nu2, clubb_c_K8, & ! inout
+                              clubb_c_K9, clubb_nu9, clubb_C_wp2_splat, clubb_C_invrs_tau_bkgnd, & ! inout
+                              clubb_C_invrs_tau_sfc, clubb_C_invrs_tau_shear, clubb_C_invrs_tau_N2, & ! inout
+                              clubb_C_invrs_tau_N2_wp2, clubb_C_invrs_tau_N2_xp2, clubb_C_invrs_tau_N2_wpxp, & ! inout
+                              clubb_C_invrs_tau_N2_clear_wp3, clubb_bv_efold, clubb_wpxp_Ri_exp, clubb_z_displace, & ! inout
+                              lq, stats_zt, stats_zm, stats_sfc, stats_rad_zt, stats_rad_zm, & ! inout
+                              stats_metadata, hm_metadata, clubb_config_flags, sclr_idx, & ! inout
+                              errmsg, errflg ) ! out
 
 !-------------------------------------------------------------------------------
 ! Description:
@@ -53,6 +49,9 @@ module clubb
 ! References:
 !   None
 !-------------------------------------------------------------------------------
+
+    ! Real kinds provided by the CCPP-framework
+    use ccpp_kinds, only: kind_phys
 
     ! These are needed to set parameters
     use clubb_api_module, only: &
@@ -200,7 +199,7 @@ module clubb
 
     ! Input variables, intent(out)
     integer, intent(out) :: errflg
-    character(len=200), intent(out) :: errmsg
+    character(len=*), intent(out) :: errmsg
 
 
     ! Local variables
@@ -211,12 +210,13 @@ module clubb
 
     integer :: j, m
     integer :: ierr = 0
+    character(len=256) :: alloc_errmsg
 
 
     !----- Begin Code -----
 
     errmsg = ''
-    errflg = 0 
+    errflg = 0
 
     if (core_rknd /= kind_phys) then
       errmsg = 'clubb_ini_cam:  CLUBB library core_rknd must match CAM kind_phys and it does not'
@@ -389,15 +389,15 @@ module clubb
        ! hm_metadata is set up by calling init_pdf_hydromet_arrays_api in subcol_init_SILHS.
        ! So if we are not using silhs, we allocate the parts of hm_metadata that need allocating
        ! in order to making intel debug tests happy.
-       allocate( hm_metadata%hydromet_list(1), stat=ierr)
+       allocate( hm_metadata%hydromet_list(1), stat=ierr, errmsg=alloc_errmsg )
        if( ierr /= 0 ) then
-         errmsg = 'clubb_ini_cam: Unable to allocate hm_metadata%hydromet_list'
+         errmsg = 'clubb_ini_cam: Unable to allocate hm_metadata%hydromet_list: '//trim(alloc_errmsg)
          errflg = 1
          return
        end if
-       allocate( hm_metadata%l_mix_rat_hm(1), stat=ierr)
+       allocate( hm_metadata%l_mix_rat_hm(1), stat=ierr, errmsg=alloc_errmsg )
        if( ierr /= 0 ) then
-         errmsg = 'clubb_ini_cam: Unable to allocate hm_metadata%l_mix_rat_hm'
+         errmsg = 'clubb_ini_cam: Unable to allocate hm_metadata%l_mix_rat_hm: '//trim(alloc_errmsg)
          errflg = 1
          return
        end if
@@ -421,37 +421,39 @@ module clubb
                              stats_rad_zt(:), stats_rad_zm(:), &
                              errmsg, errflg)
 
-      if (errflg /= 0) return 
+      if (errflg /= 0) return
 
-       allocate(out_zt(pcols,pver,stats_zt(1)%num_output_fields), stat=ierr)
-       if( ierr /= 0 ) then 
-         errmsg = 'clubb_ini_cam: Unable to allocate out_zt'
-         errflg = 1
-         return
-       end if
-       allocate(out_zm(pcols,pverp,stats_zm(1)%num_output_fields), stat=ierr)
-       if( ierr /= 0 ) then 
-         errmsg = 'clubb_ini_cam: Unable to allocate out_zm'
-         errflg = 1
-         return
-       end if
-       allocate(out_sfc(pcols,1,stats_sfc(1)%num_output_fields), stat=ierr)
+       allocate( out_zt(pcols,pver,stats_zt(1)%num_output_fields), stat=ierr, errmsg=alloc_errmsg )
        if( ierr /= 0 ) then
-         errmsg = 'clubb_ini_cam: Unable to allocate out_sfc'
+         errmsg = 'clubb_ini_cam: Unable to allocate out_zt: '//trim(alloc_errmsg)
+         errflg = 1
+         return
+       end if
+       allocate( out_zm(pcols,pverp,stats_zm(1)%num_output_fields), stat=ierr, errmsg=alloc_errmsg )
+       if( ierr /= 0 ) then
+         errmsg = 'clubb_ini_cam: Unable to allocate out_zm: '//trim(alloc_errmsg)
+         errflg = 1
+         return
+       end if
+       allocate( out_sfc(pcols,1,stats_sfc(1)%num_output_fields), stat=ierr, errmsg=alloc_errmsg )
+       if( ierr /= 0 ) then
+         errmsg = 'clubb_ini_cam: Unable to allocate out_sfc: '//trim(alloc_errmsg)
          errflg = 1
          return
        end if
 
        if ( stats_metadata%l_output_rad_files ) then
-          allocate(out_radzt(pcols,pver,stats_rad_zt(1)%num_output_fields), stat=ierr)
+          allocate( out_radzt(pcols,pver,stats_rad_zt(1)%num_output_fields), &
+                    stat=ierr, errmsg=alloc_errmsg )
           if( ierr /= 0 ) then
-            errmsg = 'clubb_ini_cam: Unable to allocate out_radzt'
+            errmsg = 'clubb_ini_cam: Unable to allocate out_radzt: '//trim(alloc_errmsg)
             errflg = 1
             return
           end if
-          allocate(out_radzm(pcols,pverp,stats_rad_zm(1)%num_output_fields), stat=ierr)
+          allocate( out_radzm(pcols,pverp,stats_rad_zm(1)%num_output_fields), &
+                    stat=ierr, errmsg=alloc_errmsg )
           if( ierr /= 0 ) then
-            errmsg = 'clubb_ini_cam: Unable to allocate out_radzm'
+            errmsg = 'clubb_ini_cam: Unable to allocate out_radzm: '//trim(alloc_errmsg)
             errflg = 1
             return
           end if
@@ -459,7 +461,7 @@ module clubb
 
     endif
 
-    end subroutine clubb_init
+    end subroutine clubb_setup_init
 
   !-----------------------------------------------------------------------------------------
   !-----------------------------------------------------------------------------------------
@@ -531,6 +533,7 @@ module clubb
                         rprddp, evapcdp, mu, md, du, eu, ed, dpg, dsubcld, jt, maxg, ideep, wup_gath, & ! inout
                         errmsg, errflg ) ! out
 
+    use ccpp_kinds, only: kind_phys
     use clubb_mf,              only: integrate_mf, do_clubb_mf, clubb_mf_nup, &
                                      clubb_mf_Lopt, clubb_mf_ddalph, clubb_mf_up_ndt, clubb_mf_cp_ndt, &
                                      do_clubb_mf_cmt, do_clubb_mf_addtke
@@ -597,7 +600,7 @@ module clubb
                                    state_t(:,:), state_zm(:,:), state_zi(:,:), state_exner(:,:)
 
     logical, intent(in) :: clubb_do_adv, first_step, first_restart_step, l_implemented, &
-                           !do_clubb_mf, 
+                           !do_clubb_mf,
                            single_column, scm_cambfb_mode, clubb_l_intr_sfc_flux_smooth, &
                            clubb_l_ascending_grid, clubb_do_energyfix, do_cldcool, do_rainturb
 
@@ -637,7 +640,7 @@ module clubb
     real(kind_phys), intent(inout) :: mf_ztop_nadv(:,:), mf_L0_nadv(:,:), mf_cape_nadv(:,:)
     real(kind_phys), intent(inout) :: max_cfl_nadv(:), mf_freq_nadv(:), prec_dp_pbuf(:), snow_dp_pbuf(:)
     real(kind_phys), intent(inout) :: s_aww(:,:), s_awthlup(:,:), s_awqtup(:,:), s_awuup(:,:), s_awvup(:,:), s_awthldn(:,:)
-    real(kind_phys), intent(inout) :: s_awqtdn(:,:), s_awudn(:,:), s_awvdn(:,:), mf_precc(:,:), mf_thlflxup(:,:) 
+    real(kind_phys), intent(inout) :: s_awqtdn(:,:), s_awudn(:,:), s_awvdn(:,:), mf_precc(:,:), mf_thlflxup(:,:)
     real(kind_phys), intent(inout) :: mf_qtflxup(:,:), mf_uflxup(:,:), mf_vflxup(:,:), mf_thlflxdn(:,:), mf_qtflxdn(:,:)
     real(kind_phys), intent(inout) :: mf_uflxdn(:,:), mf_vflxdn(:,:), mf_uflx(:,:), mf_vflx(:,:), mf_sqtup(:,:), mf_sqtdn(:,:)
     real(kind_phys), intent(inout) :: mf_thvflx(:,:), mf_rcm(:,:), mf_ent_nadv(:,:), mf_cloudfrac_zt(:,:), mf_qc_zt(:,:)
@@ -795,7 +798,7 @@ module clubb
       gr
 
     ! Input variables, intent(out)
-    character(len=512), intent(out) :: errmsg
+    character(len=*), intent(out) :: errmsg
     integer, intent(out) :: errflg
 
     ! ------------- Local variables --------------
@@ -1090,7 +1093,7 @@ module clubb
     endif
 
     !----------------------------------------- BEGIN GPU SECTION -----------------------------------------
-    ! everything within should be functional with the OpenACC code, or be prevented from running 
+    ! everything within should be functional with the OpenACC code, or be prevented from running
     ! with using OpenACC, see the "ifdef _OPENACC" section above for restriction examples
 
     !$acc data copyin( pdf_params_chnk, pdf_params_zm_chnk, sclr_idx, &
@@ -1137,7 +1140,7 @@ module clubb
     !$acc              pdf_params_chnk%covar_chi_eta_1,     pdf_params_chnk%covar_chi_eta_2, &
     !$acc              pdf_params_chnk%corr_w_chi_1,        pdf_params_chnk%corr_w_chi_2, &
     !$acc              pdf_params_chnk%corr_w_eta_1,        pdf_params_chnk%corr_w_eta_2, &
-    !$acc              pdf_params_chnk%corr_chi_eta_1,      pdf_params_chnk%corr_chi_eta_2, & 
+    !$acc              pdf_params_chnk%corr_chi_eta_1,      pdf_params_chnk%corr_chi_eta_2, &
     !$acc              pdf_params_chnk%rsatl_1,             pdf_params_chnk%rsatl_2, &
     !$acc              pdf_params_chnk%rc_1,                pdf_params_chnk%rc_2, &
     !$acc              pdf_params_chnk%cloud_frac_1,        pdf_params_chnk%cloud_frac_2,  &
@@ -1181,8 +1184,6 @@ module clubb
     !$acc data if( hydromet_dim > 0 ) &
     !$acc      copyin( hm_metadata, hm_metadata%l_mix_rat_hm ) &
     !$acc      create( wphydrometp, wp2hmp, rtphmp_zt, thlphmp_zt )
-    !call t_stopf('clubb_tend_cam:acc_copyin')
-    !call t_startf('clubb_tend_cam:acc_region')
 
     !----------------------------------------- Zeroing -----------------------------------------
 
@@ -1209,7 +1210,7 @@ module clubb
         vm_pert(i,k)        = 0.0_kind_phys
       end do
     end do
-    
+
     !$acc parallel loop gang vector collapse(2) default(present)
     do k = 1, nzm_clubb
       do i = 1, ncol
@@ -1385,13 +1386,13 @@ module clubb
     if ( clubb_do_adv ) then
 
       if (macmic_it  ==  1) then
-        
+
         !  Note that some of the moments below can be positive or negative.
         !    Remove a constant that was added to prevent dynamics from clipping
         !    them to prevent dynamics from making them positive.
         do k = 1, nzt_clubb
           do i = 1, ncol
-            k_cam = top_lev - 1 + k  
+            k_cam = top_lev - 1 + k
             rtpthlp_pbuf(i,k) = state_q(i,k_cam,ixrtpthlp) - ( rtpthlp_const * apply_const )
             wpthlp_pbuf(i,k)  = state_q(i,k_cam, ixwpthlp) - ( wpthlp_const  * apply_const )
             wprtp_pbuf(i,k)   = state_q(i,k_cam,  ixwprtp) - ( wprtp_const   * apply_const )
@@ -1435,7 +1436,7 @@ module clubb
     do k = 1, nzt_clubb
       do i = 1, ncol
 
-        k_cam = top_lev - 1 + k  
+        k_cam = top_lev - 1 + k
 
         ! Define the CLUBB thermodynamic grid (in units of m)
         zt_g(i,k) = state_zm(i,k_cam) - state_zi(i,pverp)
@@ -1455,10 +1456,10 @@ module clubb
     do k = 1, nzt_clubb
       do i = 1, ncol
 
-        k_cam = top_lev - 1 + k  
+        k_cam = top_lev - 1 + k
 
         p_in_Pa(i,k) = state_pmid(i,k_cam)
-        
+
         !  Compute inverse exner function consistent with CLUBB's definition, which uses a constant
         !  surface pressure.  CAM's exner (in state) does not.  Therefore, for consistent
         !  treatment with CLUBB code, anytime exner is needed to treat CLUBB variables
@@ -1486,7 +1487,7 @@ module clubb
     do k = 1, nzt_clubb
       do i = 1, ncol
 
-        k_cam = top_lev - 1 + k  
+        k_cam = top_lev - 1 + k
 
         !  Compute mean w wind on thermo grid, convert from omega to w
         wm_zt(i,k) = -1._kind_phys * ( state_omega(i,k_cam) - state_omega(i,pver) ) / ( rho_zt(i,k) * gravit )
@@ -1506,7 +1507,7 @@ module clubb
 
       deltaz(i)         = state_zi(i,pverp-1) - state_zi(i,pverp)
 
-      !  Set the surface pressure      
+      !  Set the surface pressure
       p_sfc(i)          = state_pint(i,pverp)
 
       !  Set the elevation of the surface
@@ -1518,7 +1519,7 @@ module clubb
     !$acc parallel loop gang vector collapse(2) default(present)
     do k = 1, nzm_clubb
       do i = 1, ncol
-        k_cam = top_lev - 1 + k  
+        k_cam = top_lev - 1 + k
         zi_g(i,k) = state_zi(i,k_cam) - state_zi(i,pverp)
       end do
     end do
@@ -1553,8 +1554,6 @@ module clubb
     !  IMPORTANT NOTE:  do not make any calls that use CLUBB grid-height
     !                   operators (such as zt2zm_api, etc.) until AFTER the
     !                   call to setup_grid_heights_api.
-    !call t_stopf('clubb_tend_cam:acc_region')
-    !call t_startf('clubb_tend_cam:non_acc_region')
     !$acc update host( deltaz, zi_g, zt_g, clubb_params, sfc_elevation )
 
     ! Calculate grid assuming a descending grid (cam grid), since we want to
@@ -1590,17 +1589,13 @@ module clubb
 
     ! CLUBB's grid data structure (gr) and nu_vert_res_dep contain arrays that need to
     ! be copied to the GPU
-!    !call t_stopf('clubb_tend_cam:non_acc_region')
-!    !call t_startf('clubb_tend_cam:acc_copyin')
     !$acc data copyin( gr, gr%zm, gr%zt, gr%dzm, gr%dzt, gr%invrs_dzt, gr%invrs_dzm, &
     !$acc              gr%weights_zt2zm, gr%weights_zm2zt, &
     !$acc              nu_vert_res_dep, nu_vert_res_dep%nu2, nu_vert_res_dep%nu9, &
     !$acc              nu_vert_res_dep%nu1, nu_vert_res_dep%nu8, nu_vert_res_dep%nu10, &
     !$acc              nu_vert_res_dep%nu6)
-    !call t_stopf('clubb_tend_cam:acc_copyin')
-    !call t_startf('clubb_tend_cam:acc_region')
     !----------------------------------------- END CLUBB grid initialization -----------------------------------------
-    
+
 #ifdef SILHS
     ! Add forcings for SILHS covariance contributions
     rtp2_forcing    = zt2zm_api( nzm_clubb, nzt_clubb, ncol, gr,    rtp2_mc_zt_pbuf(1:ncol,:) )
@@ -1640,7 +1635,7 @@ module clubb
     !$acc parallel loop gang vector default(present)
     do i = 1, ncol
       wpthlp_sfc(i) = shf(i) / ( cpairv(i,pver) * rho_ds_zm(i,nzm_clubb) ) & ! Sensible heat flux
-                      * invrs_exner_zt(i,nzt_clubb)                       
+                      * invrs_exner_zt(i,nzt_clubb)
       wprtp_sfc(i)  = cflx(i,1) / rho_ds_zm(i,nzm_clubb)                           ! Moisture flux
     end do
 
@@ -1694,13 +1689,11 @@ module clubb
       vpwp_sfc(1) = -vm(1,nzt_clubb)*ustar**2/ubar
 
     end if
-    
+
     ! Implementation after Thomas Toniazzo (NorESM) and Colin Zarzycki (PSU)
     !  Other Surface fluxes provided by host model
     if( (cld_macmic_num_steps > 1) .and. clubb_l_intr_sfc_flux_smooth ) then
 
-      !call t_stopf('clubb_tend_cam:acc_region')
-      !call t_startf('clubb_tend_cam:non_acc_region')
       !$acc update host( u, v, state_t, state_pmid, wsx, wsy )
 
       ! Adjust surface stresses using winds from the prior macmic iteration
@@ -1716,8 +1709,6 @@ module clubb
       end do
 
       !$acc update device( upwp_sfc, vpwp_sfc )
-      !call t_stopf('clubb_tend_cam:non_acc_region')
-      !call t_startf('clubb_tend_cam:acc_region')
 
     else
 
@@ -1729,7 +1720,7 @@ module clubb
 
     endif
 
-    ! We only need to copy pdf_params from pbuf if this is a restart, we're calling pdf_closure 
+    ! We only need to copy pdf_params from pbuf if this is a restart, we're calling pdf_closure
     ! at the end of advance_clubb_core, and calling it twice for pdf_params_zm as well
     if ( first_restart_step &
          .and. clubb_config_flags%l_call_pdf_closure_twice &
@@ -1750,7 +1741,7 @@ module clubb
 
     if ( edsclr_dim > 0 ) then
 
-      !  Copy the cam version of the tracers to the clubb version 
+      !  Copy the cam version of the tracers to the clubb version
       ! NOTE: if clubb_l_do_expldiff_rtm_thlm=.true., then the last two
       !       tracers are thlm and rtm, which are added inside clubb
       icnt=0
@@ -1783,16 +1774,14 @@ module clubb
 
       if ( clubb_l_ascending_grid ) then
 
-        ! CLUBB is to be run in ascending mode, which has the surface at k=1, which is 
+        ! CLUBB is to be run in ascending mode, which has the surface at k=1, which is
         ! the opposite of the cam grid that the rest of clubb_intr uses, so
         ! we need to flip the fields (in the vertical dimensions) before calling advance_clubb_core
         !
         ! NOTE: We do not neccesarily flip all arrays, only ones that are used within this
-        !       subroutine (advance_clubb_core). For example, only the pdf_params fields that 
+        !       subroutine (advance_clubb_core). For example, only the pdf_params fields that
         !       are used within this subroutine (or used in a subroutine we call) need to
-        !       be flipped. 
-        
-        !call t_startf('clubb_tend_cam:ascending_grid_flip')
+        !       be flipped.
 
         wm_zt                     =                     wm_zt(:,nzt_clubb:1:-1)
         rho_zt                    =                    rho_zt(:,nzt_clubb:1:-1)
@@ -1890,18 +1879,18 @@ module clubb
         end if
 
         if ( sclr_dim > 0 ) then
-            
+
           sclrm_forcing    =    sclrm_forcing(:,nzt_clubb:1:-1,:)
           sclrm            =            sclrm(:,nzt_clubb:1:-1,:)
           sclrp3           =           sclrp3(:,nzt_clubb:1:-1,:)
-  
+
           sclrp2           =           sclrp2(:,nzm_clubb:1:-1,:)
           sclrprtp         =         sclrprtp(:,nzm_clubb:1:-1,:)
           sclrpthlp        =        sclrpthlp(:,nzm_clubb:1:-1,:)
           wpsclrp          =          wpsclrp(:,nzm_clubb:1:-1,:)
           sclrpthvp        =        sclrpthvp(:,nzm_clubb:1:-1,:)
         end if
-    
+
         ! These are flipped, ensuring these are stored in descending mode, regardless of clubb_l_ascending_grid.
         ! only because these are need to be stored for restarts
         if ( clubb_config_flags%l_call_pdf_closure_twice ) then
@@ -1911,9 +1900,9 @@ module clubb
           pdf_params_zm_chnk%varnce_w_2 = pdf_params_zm_chnk%varnce_w_2(:,nzm_clubb:1:-1)
           pdf_params_zm_chnk%mixt_frac  = pdf_params_zm_chnk%mixt_frac (:,nzm_clubb:1:-1)
         end if
-        
+
         ! These are flipped, ensuring these are stored in descending mode, regardless of clubb_l_ascending_grid.
-        ! only for pdfp_rtp2_output calc 
+        ! only for pdfp_rtp2_output calc
         pdf_params_chnk%mixt_frac    = pdf_params_chnk%mixt_frac  (:,nzt_clubb:1:-1)
         pdf_params_chnk%rt_1         = pdf_params_chnk%rt_1       (:,nzt_clubb:1:-1)
         pdf_params_chnk%rt_2         = pdf_params_chnk%rt_2       (:,nzt_clubb:1:-1)
@@ -1930,7 +1919,7 @@ module clubb
         pdf_params_chnk%thl_2        = pdf_params_chnk%thl_2       (:,nzt_clubb:1:-1)
         pdf_params_chnk%varnce_thl_1 = pdf_params_chnk%varnce_thl_1(:,nzt_clubb:1:-1)
         pdf_params_chnk%varnce_thl_2 = pdf_params_chnk%varnce_thl_2(:,nzt_clubb:1:-1)
-  
+
         ! These are flipped for silhs, which uses a cam grid
         pdf_params_chnk%rc_1                 = pdf_params_chnk%rc_1               (:,nzt_clubb:1:-1)
         pdf_params_chnk%rc_2                 = pdf_params_chnk%rc_2               (:,nzt_clubb:1:-1)
@@ -1950,7 +1939,7 @@ module clubb
         pdf_params_chnk%corr_chi_eta_2       = pdf_params_chnk%corr_chi_eta_2     (:,nzt_clubb:1:-1)
         pdf_params_chnk%corr_w_chi_1         = pdf_params_chnk%corr_w_chi_1       (:,nzt_clubb:1:-1)
         pdf_params_chnk%corr_w_chi_2         = pdf_params_chnk%corr_w_chi_2       (:,nzt_clubb:1:-1)
-          
+
 
         call cleanup_grid_api( gr )
 
@@ -1960,8 +1949,6 @@ module clubb
                              deltaz, zi_g(:,1), zi_g(:,nzm_clubb),             & ! intent(in)
                              zi_g, zt_g,                                       & ! intent(in)
                              gr, err_info )                                      ! intent(inout)
-  
-        !call t_stopf('clubb_tend_cam:ascending_grid_flip')
 
       end if
 
@@ -1971,7 +1958,6 @@ module clubb
       end if
 
       !  Advance CLUBB CORE one timestep in the future
-      !call t_startf('clubb_tend_cam:advance_clubb_core_api')
 
       ! These updates are required because the pbuf variables are dimensioned with pcols, when
       ! we only need ncol. This requires us to slice the arrays when inputting to advance_clubb_core_api,
@@ -2041,15 +2027,10 @@ module clubb
       !$acc                wp2thlp_pbuf, uprcp_pbuf, vprcp_pbuf, rc_coef_zm_pbuf, wp4_pbuf, wpup2_pbuf, wpvp2_pbuf, &
       !$acc                wp2up2_pbuf, wp2vp2_pbuf, ice_supersat_frac_pbuf )
 
-      !call t_stopf('clubb_tend_cam:advance_clubb_core_api')
-          
-
       if ( clubb_l_ascending_grid ) then
 
-        !call t_startf('clubb_tend_cam:ascending_grid_flip')
-
         ! If running in ascending mode, we flip the arrays before calling advance_clubb_core
-        ! so we need to flip them back. This section should flip every array that was flipped 
+        ! so we need to flip them back. This section should flip every array that was flipped
         ! before the advance_clubb_core call.
 
         thlm_forcing               =               thlm_forcing(:,nzt_clubb:1:-1)
@@ -2171,7 +2152,7 @@ module clubb
         end if
 
         if ( sclr_dim > 0 ) then
-          
+
           sclrm_forcing   =   sclrm_forcing(:,nzt_clubb:1:-1,:)
           sclrm           =           sclrm(:,nzt_clubb:1:-1,:)
           sclrp3          =          sclrp3(:,nzt_clubb:1:-1,:)
@@ -2182,7 +2163,7 @@ module clubb
           wpsclrp         =         wpsclrp(:,nzm_clubb:1:-1,:)
           sclrpthvp       =       sclrpthvp(:,nzm_clubb:1:-1,:)
         end if
-    
+
         ! These are flipped, ensuring these are stored in descending mode, regardless of clubb_l_ascending_grid
         ! only because these are need to be stored for restarts
         if ( clubb_config_flags%l_call_pdf_closure_twice ) then
@@ -2192,16 +2173,16 @@ module clubb
           pdf_params_zm_chnk%varnce_w_2 = pdf_params_zm_chnk%varnce_w_2(:,nzm_clubb:1:-1)
           pdf_params_zm_chnk%mixt_frac  = pdf_params_zm_chnk%mixt_frac (:,nzm_clubb:1:-1)
         end if
-        
-        ! These are flipped, ensuring these are stored in descending mode, regardless of clubb_l_ascending_grid 
-        ! only for pdfp_rtp2_output calc 
+
+        ! These are flipped, ensuring these are stored in descending mode, regardless of clubb_l_ascending_grid
+        ! only for pdfp_rtp2_output calc
         pdf_params_chnk%mixt_frac    = pdf_params_chnk%mixt_frac  (:,nzt_clubb:1:-1)
         pdf_params_chnk%rt_1         = pdf_params_chnk%rt_1       (:,nzt_clubb:1:-1)
         pdf_params_chnk%rt_2         = pdf_params_chnk%rt_2       (:,nzt_clubb:1:-1)
         pdf_params_chnk%varnce_rt_1  = pdf_params_chnk%varnce_rt_1(:,nzt_clubb:1:-1)
         pdf_params_chnk%varnce_rt_2  = pdf_params_chnk%varnce_rt_2(:,nzt_clubb:1:-1)
 
-        ! These are flipped, ensuring these are stored in descending mode, regardless of clubb_l_ascending_grid 
+        ! These are flipped, ensuring these are stored in descending mode, regardless of clubb_l_ascending_grid
         ! only for update_xp2_mc_api call
         pdf_params_chnk%w_1          = pdf_params_chnk%w_1         (:,nzt_clubb:1:-1)
         pdf_params_chnk%w_2          = pdf_params_chnk%w_2         (:,nzt_clubb:1:-1)
@@ -2211,7 +2192,7 @@ module clubb
         pdf_params_chnk%thl_2        = pdf_params_chnk%thl_2       (:,nzt_clubb:1:-1)
         pdf_params_chnk%varnce_thl_1 = pdf_params_chnk%varnce_thl_1(:,nzt_clubb:1:-1)
         pdf_params_chnk%varnce_thl_2 = pdf_params_chnk%varnce_thl_2(:,nzt_clubb:1:-1)
-  
+
         ! These are flipped for silhs, which uses a cam grid
         pdf_params_chnk%rc_1                 = pdf_params_chnk%rc_1               (:,nzt_clubb:1:-1)
         pdf_params_chnk%rc_2                 = pdf_params_chnk%rc_2               (:,nzt_clubb:1:-1)
@@ -2241,8 +2222,6 @@ module clubb
                              zi_g, zt_g,                                      & ! intent(in)
                              gr, err_info )                                     ! intent(inout)
 
-        !call t_stopf('clubb_tend_cam:ascending_grid_flip')
-
       end if
 
       if ( any(err_info%err_code == clubb_fatal_error) ) then
@@ -2253,8 +2232,6 @@ module clubb
       end if
 
       if ( do_rainturb ) then
-
-!        !call t_startf('clubb_tend_cam:do_rainturb')
 
         do k = 1, nzt_clubb
           do i = 1, ncol
@@ -2283,16 +2260,12 @@ module clubb
           end do
         end do
 
-        !call t_stopf('clubb_tend_cam:do_rainturb')
-
       end if
 
       if (do_cldcool) then
 
-        !call t_startf('clubb_tend_cam:do_cldcool')
-
         thlp2_rad(:,:) = 0._kind_phys
-        
+
         do k = 1, nzt_clubb
           do i = 1, ncol
             k_cam = top_lev - 1 + k
@@ -2310,21 +2283,17 @@ module clubb
           end do
         end do
 
-        !call t_stopf('clubb_tend_cam:do_cldcool')
-
       end if
 
       !  Check to see if stats should be output, here stats are read into
       !  output arrays to make them conformable to CAM output
       if (stats_metadata%l_stats) then
-        !call t_startf('clubb_tend_cam:stats_end_timestep_clubb')
         do i = 1, ncol
           call stats_end_timestep_clubb(i, stats_zt(i), stats_zm(i), stats_rad_zt(i), stats_rad_zm(i), stats_sfc(i), &
                                         out_zt, out_zm, out_radzt, out_radzm, out_sfc, &
                                         stats_metadata, clubb_l_ascending_grid, pver, pverp, top_lev, &
                                         errmsg, errflg )
         end do
-        !call t_stopf('clubb_tend_cam:stats_end_timestep_clubb')
       end if
 
     end do  ! end time loop
@@ -2474,7 +2443,7 @@ module clubb
       end do
     end if
 
-    ! pdf_params_zm_chnk is already persistent across calls, but we 
+    ! pdf_params_zm_chnk is already persistent across calls, but we
     ! save a pbuf version for restarts
     if ( clubb_config_flags%l_call_pdf_closure_twice ) then
       !$acc parallel loop gang vector collapse(2) default(present)
@@ -2827,18 +2796,12 @@ module clubb
 
     endif
 
-    !call t_stopf('clubb_tend_cam:acc_region')
-
-    !call t_startf('clubb_tend_cam:acc_copyout')
     !$acc end data
     !$acc end data
     !$acc end data
     !$acc end data
     !$acc end data
     !$acc end data
-    !call t_stopf('clubb_tend_cam:acc_copyout')
-
-    !call t_startf('clubb_tend_cam:non_acc_region')
 
     ! ------------------------------------------------- !
     ! Diagnose relative cloud water variance            !
@@ -2871,7 +2834,7 @@ module clubb
     do k = top_lev, pverp
       do i = 1, ncol
         k_clubb     = k + 1 - top_lev
-        tke_pbuf(i,k) = 0.5_kind_phys * ( up2_pbuf(i,k_clubb) + vp2_pbuf(i,k_clubb) + wp2_pbuf(i,k_clubb) ) 
+        tke_pbuf(i,k) = 0.5_kind_phys * ( up2_pbuf(i,k_clubb) + vp2_pbuf(i,k_clubb) + wp2_pbuf(i,k_clubb) )
       enddo
     enddo
 
@@ -2997,7 +2960,7 @@ module clubb
               ptend_q(i,k,ixind) = 0._kind_phys
             end do
           end do
-          
+
           ! Copy CLUBB's edsclr values
           do k = top_lev, pver
             do i = 1, ncol
@@ -3014,8 +2977,6 @@ module clubb
     call cleanup_err_info_api(err_info)
 
   contains
-
-#ifdef CLUBB_SGS
 
     subroutine compute_mf_plumes()
       implicit none
@@ -3269,8 +3230,6 @@ module clubb
 
     end subroutine compute_mf_plumes
 
-#endif
-
   end subroutine clubb1_run
 
   !------------------------------------------------------------------------------
@@ -3283,6 +3242,8 @@ module clubb
                         ptend_q, s, det_s, det_ice, & ! inout
                         dlf_liq_out, dlf_ice_out ) ! out
 
+    use ccpp_kinds, only: kind_phys
+
     ! Input variables, intent(in)
     integer, intent(in) :: ncol, pver, ixcldliq, ixcldice, ixnumliq, ixnumice
     real(kind_phys), intent(in) :: clubb_detliq_rad, clubb_detice_rad, clubb_detphase_lowtemp
@@ -3293,7 +3254,7 @@ module clubb
     real(kind_phys), intent(inout) :: ptend_q(:,:,:)
     real(kind_phys), intent(inout) :: s(:,:)
     real(kind_phys), intent(inout) :: det_s(:), det_ice(:)
- 
+
     ! Input variables, intent(out)
     real(kind_phys), intent(out) :: dlf_liq_out(:,:), dlf_ice_out(:,:)
 
@@ -3386,10 +3347,8 @@ module clubb
                         qsatfac_pbuf, ast_pbuf, qist_pbuf, cld_pbuf, troplev, & ! inout
                         errmsg, errflg ) ! out
 
+    use ccpp_kinds, only: kind_phys
     use clubb_mf,              only: do_clubb_mf, do_clubb_mf_rad, clubb_mf_cldfrac_fac
-!BAS prob need to switch to:
-!    use tropopause_find,       only: tropopause_find_run
-!but I need to calculate tropp_p_loc
     use holtslag_boville_diff, only: hb_pbl_dependent_coefficients_run
     use compute_cloud_fraction_two_moment, only: aist_vector
     use atmos_phys_pbl_utils,  only: calc_friction_velocity, calc_obukhov_length, calc_ideal_gas_rrho, &
@@ -3397,7 +3356,7 @@ module clubb
                                      calc_kinematic_buoyancy_flux
 
     ! Input variables, intent(in)
-    integer, intent(in) :: ncol, pver, pverp, pcnst, top_lev 
+    integer, intent(in) :: ncol, pver, pverp, pcnst, top_lev
     integer, intent(in) :: ixq, ixcldice, ixcldliq, ixnumice
     real(kind_phys), intent(in) :: rhminis_const, rhmaxis_const, rhmini_const, rhmaxi_const
     real(kind_phys), intent(in) :: rhminl_const, rhminl_adj_land_const, rhminh_const
@@ -3428,13 +3387,12 @@ module clubb
     real(kind_phys), intent(inout) :: ptend_q(:,:,:)
 
     ! Input variables, intent(out)
-    character(len=512), intent(out) :: errmsg
+    character(len=*), intent(out) :: errmsg
     integer, intent(out) :: errflg
 
     ! Local variables
     integer :: i, k, ixind, k_clubb
-    !BAS troplev is inout right now, but ultimately could be local
-    integer, intent(inout) :: troplev(:)
+    integer, intent(in) :: troplev(:)
     real(kind_phys) :: rhmini(ncol), rhmaxi(ncol)
     real(kind_phys) :: frac_limit, ic_limit
     real(kind_phys) :: rrho(ncol), ustar2(ncol), kinheat(ncol), kinwat(ncol), kbfs(ncol), obklen(ncol), &
@@ -3547,17 +3505,6 @@ module clubb
     !  COMPUTE THE ICE CLOUD FRACTION PORTION                                           !
     !  use the aist_vector function to compute the ice cloud fraction                   !
     ! --------------------------------------------------------------------------------- !
-
-    !REMOVECAM - no longer need this when CAM is retired and pcols no longer exists
-!    troplev(:) = 0
-    !REMOVECAM_END
-!    call tropopause_findChemTrop( state, troplev )
-!    call tropopause_findChemTrop(ncol, pver, lat, state_pint, state_pmid, state_t, state_zi, state_zm, state_phis, &
-!                                 calday, tropp_p_loc, tropp_days, &
-!                                 tropLev, & 
-!                                 errmsg, errflg)
-
-!    if (errflg /= 0) return
 
     aist_pbuf(:,:top_lev-1) = 0._kind_phys
     qsatfac_pbuf(:, :) = 0._kind_phys ! Zero out entire profile in case qsatfac is left undefined in aist_vector below
@@ -3696,7 +3643,6 @@ module clubb
   ! ----------------------------------------------------------------------------------------
   ! ----------------------------------------------------------------------------------------
 
-#ifdef CLUBB_SGS
   subroutine stats_init_clubb( pcols, masterproc, mpicom, mstrid, mpi_character, &
                                l_stats_in, stats_tsamp_in, stats_tout_in, &
                                nnzp, nnrad_zt,nnrad_zm, delt, &
@@ -3715,6 +3661,7 @@ module clubb
 
     !-----------------------------------------------------------------------
 
+    use ccpp_kinds, only: kind_phys
     use clubb_api_module, only: time_precision, stats, stats_metadata_type, hm_metadata_type, &   !
                                 nvarmax_zm, stats_init_zm_api, & !
                                 nvarmax_zt, stats_init_zt_api, & !
@@ -3728,7 +3675,7 @@ module clubb
     !----------------------- Input Variables -----------------------
 
     logical, intent(in) :: l_stats_in ! Stats on? T/F
-  
+
     logical, intent(in) :: masterproc
 
     integer, intent(in) :: mpicom, mpi_character, mstrid, pcols
@@ -3736,7 +3683,7 @@ module clubb
     integer, intent(in) :: sclr_dim, edsclr_dim, hydromet_dim
 
     integer, intent(inout) :: errflg
-    character(len=200), intent(inout) :: errmsg
+    character(len=*), intent(inout) :: errmsg
 
     type (stats_metadata_type), intent(inout) :: &
       stats_metadata
@@ -3777,6 +3724,7 @@ module clubb
 
     integer :: i, ntot, j
     integer :: ierr
+    character(len=256) :: alloc_errmsg
 
     !----------------------- Begin Code -----------------------
 
@@ -3839,43 +3787,47 @@ module clubb
       stats_zt(j)%num_output_fields = ntot
       stats_zt(j)%kk = nnzp - 1
 
-      allocate( stats_zt(j)%z( stats_zt(j)%kk ), stat=ierr )
+      allocate( stats_zt(j)%z( stats_zt(j)%kk ), stat=ierr, errmsg=alloc_errmsg )
       if( ierr /= 0 ) then
-      errmsg = "stats_init_clubb: Failed to allocate stats_zt%z"
-      errflg = 1
-      return
-    end if
+        errmsg = "stats_init_clubb: Failed to allocate stats_zt%z: "//trim(alloc_errmsg)
+        errflg = 1
+        return
+      end if
 
-      allocate( stats_zt(j)%accum_field_values( 1, 1, stats_zt(j)%kk, stats_zt(j)%num_output_fields ), stat=ierr )
+      allocate( stats_zt(j)%accum_field_values( 1, 1, stats_zt(j)%kk, stats_zt(j)%num_output_fields ), &
+                stat=ierr, errmsg=alloc_errmsg )
       if( ierr /= 0 ) then
-        errmsg = "stats_init_clubb: Failed to allocate stats_zt%accum_field_values"
+        errmsg = "stats_init_clubb: Failed to allocate stats_zt%accum_field_values: "//trim(alloc_errmsg)
         errflg = 1
         return
       end if
-      allocate( stats_zt(j)%accum_num_samples( 1, 1, stats_zt(j)%kk, stats_zt(j)%num_output_fields ), stat=ierr )
+      allocate( stats_zt(j)%accum_num_samples( 1, 1, stats_zt(j)%kk, stats_zt(j)%num_output_fields ), &
+                stat=ierr, errmsg=alloc_errmsg )
       if( ierr /= 0 ) then
-        errmsg = "stats_init_clubb: Failed to allocate stats_zt%accum_num_samples"
+        errmsg = "stats_init_clubb: Failed to allocate stats_zt%accum_num_samples: "//trim(alloc_errmsg)
         errflg = 1
         return
       end if
-      allocate( stats_zt(j)%l_in_update( 1, 1, stats_zt(j)%kk, stats_zt(j)%num_output_fields ), stat=ierr )
+      allocate( stats_zt(j)%l_in_update( 1, 1, stats_zt(j)%kk, stats_zt(j)%num_output_fields ), &
+                stat=ierr, errmsg=alloc_errmsg )
       if( ierr /= 0 ) then
-        errmsg = "stats_init_clubb: Failed to allocate stats_zt%l_in_update"
+        errmsg = "stats_init_clubb: Failed to allocate stats_zt%l_in_update: "//trim(alloc_errmsg)
         errflg = 1
         return
       end if
       call stats_zero( stats_zt(j)%kk, stats_zt(j)%num_output_fields, stats_zt(j)%accum_field_values, &
                        stats_zt(j)%accum_num_samples, stats_zt(j)%l_in_update )
 
-      allocate( stats_zt(j)%file%grid_avg_var( stats_zt(j)%num_output_fields ), stat=ierr )
+      allocate( stats_zt(j)%file%grid_avg_var( stats_zt(j)%num_output_fields ), &
+                stat=ierr, errmsg=alloc_errmsg )
       if( ierr /= 0 ) then
-        errmsg = "stats_init_clubb: Failed to allocate stats_zt%file%grid_avg_var"
+        errmsg = "stats_init_clubb: Failed to allocate stats_zt%file%grid_avg_var: "//trim(alloc_errmsg)
         errflg = 1
         return
       end if
-      allocate( stats_zt(j)%file%z( stats_zt(j)%kk ), stat=ierr )
+      allocate( stats_zt(j)%file%z( stats_zt(j)%kk ), stat=ierr, errmsg=alloc_errmsg )
       if( ierr /= 0 ) then
-        errmsg = "stats_init_clubb: Failed to allocate stats_zt%file%z"
+        errmsg = "stats_init_clubb: Failed to allocate stats_zt%file%z: "//trim(alloc_errmsg)
         errflg = 1
         return
       end if
@@ -3911,16 +3863,50 @@ module clubb
       stats_zm(j)%num_output_fields = ntot
       stats_zm(j)%kk = nnzp
 
-      allocate( stats_zm(j)%z( stats_zm(j)%kk ) )
+      allocate( stats_zm(j)%z( stats_zm(j)%kk ), stat=ierr, errmsg=alloc_errmsg )
+      if( ierr /= 0 ) then
+        errmsg = "stats_init_clubb: Failed to allocate stats_zm%z: "//trim(alloc_errmsg)
+        errflg = 1
+        return
+      end if
 
-      allocate( stats_zm(j)%accum_field_values( 1, 1, stats_zm(j)%kk, stats_zm(j)%num_output_fields ) )
-      allocate( stats_zm(j)%accum_num_samples( 1, 1, stats_zm(j)%kk, stats_zm(j)%num_output_fields ) )
-      allocate( stats_zm(j)%l_in_update( 1, 1, stats_zm(j)%kk, stats_zm(j)%num_output_fields ) )
+      allocate( stats_zm(j)%accum_field_values( 1, 1, stats_zm(j)%kk, stats_zm(j)%num_output_fields ), &
+                stat=ierr, errmsg=alloc_errmsg )
+      if( ierr /= 0 ) then
+        errmsg = "stats_init_clubb: Failed to allocate stats_zm%accum_field_values: "//trim(alloc_errmsg)
+        errflg = 1
+        return
+      end if
+      allocate( stats_zm(j)%accum_num_samples( 1, 1, stats_zm(j)%kk, stats_zm(j)%num_output_fields ), &
+                stat=ierr, errmsg=alloc_errmsg )
+      if( ierr /= 0 ) then
+        errmsg = "stats_init_clubb: Failed to allocate stats_zm%accum_num_samples: "//trim(alloc_errmsg)
+        errflg = 1
+        return
+      end if
+      allocate( stats_zm(j)%l_in_update( 1, 1, stats_zm(j)%kk, stats_zm(j)%num_output_fields ), &
+                stat=ierr, errmsg=alloc_errmsg )
+      if( ierr /= 0 ) then
+        errmsg = "stats_init_clubb: Failed to allocate stats_zm%l_in_update: "//trim(alloc_errmsg)
+        errflg = 1
+        return
+      end if
       call stats_zero( stats_zm(j)%kk, stats_zm(j)%num_output_fields, stats_zm(j)%accum_field_values, &
                        stats_zm(j)%accum_num_samples, stats_zm(j)%l_in_update )
 
-      allocate( stats_zm(j)%file%grid_avg_var( stats_zm(j)%num_output_fields ) )
-      allocate( stats_zm(j)%file%z( stats_zm(j)%kk ) )
+      allocate( stats_zm(j)%file%grid_avg_var( stats_zm(j)%num_output_fields ), &
+                stat=ierr, errmsg=alloc_errmsg )
+      if( ierr /= 0 ) then
+        errmsg = "stats_init_clubb: Failed to allocate stats_zm%file%grid_avg_var: "//trim(alloc_errmsg)
+        errflg = 1
+        return
+      end if
+      allocate( stats_zm(j)%file%z( stats_zm(j)%kk ), stat=ierr, errmsg=alloc_errmsg )
+      if( ierr /= 0 ) then
+        errmsg = "stats_init_clubb: Failed to allocate stats_zm%file%z: "//trim(alloc_errmsg)
+        errflg = 1
+        return
+      end if
 
       call stats_init_zm_api( hydromet_dim, sclr_dim, edsclr_dim, &
                               hm_metadata%hydromet_list, hm_metadata%l_mix_rat_hm, &
@@ -3953,17 +3939,51 @@ module clubb
         stats_rad_zt(j)%num_output_fields = ntot
         stats_rad_zt(j)%kk = nnrad_zt
 
-        allocate( stats_rad_zt(j)%z( stats_rad_zt(j)%kk ) )
+        allocate( stats_rad_zt(j)%z( stats_rad_zt(j)%kk ), stat=ierr, errmsg=alloc_errmsg )
+        if( ierr /= 0 ) then
+          errmsg = "stats_init_clubb: Failed to allocate stats_rad_zt%z: "//trim(alloc_errmsg)
+          errflg = 1
+          return
+        end if
 
-        allocate( stats_rad_zt(j)%accum_field_values( 1, 1, stats_rad_zt(j)%kk, stats_rad_zt(j)%num_output_fields ) )
-        allocate( stats_rad_zt(j)%accum_num_samples( 1, 1, stats_rad_zt(j)%kk, stats_rad_zt(j)%num_output_fields ) )
-        allocate( stats_rad_zt(j)%l_in_update( 1, 1, stats_rad_zt(j)%kk, stats_rad_zt(j)%num_output_fields ) )
+        allocate( stats_rad_zt(j)%accum_field_values( 1, 1, stats_rad_zt(j)%kk, stats_rad_zt(j)%num_output_fields ), &
+                  stat=ierr, errmsg=alloc_errmsg )
+        if( ierr /= 0 ) then
+          errmsg = "stats_init_clubb: Failed to allocate stats_rad_zt%accum_field_values: "//trim(alloc_errmsg)
+          errflg = 1
+          return
+        end if
+        allocate( stats_rad_zt(j)%accum_num_samples( 1, 1, stats_rad_zt(j)%kk, stats_rad_zt(j)%num_output_fields ), &
+                  stat=ierr, errmsg=alloc_errmsg )
+        if( ierr /= 0 ) then
+          errmsg = "stats_init_clubb: Failed to allocate stats_rad_zt%accum_num_samples: "//trim(alloc_errmsg)
+          errflg = 1
+          return
+        end if
+        allocate( stats_rad_zt(j)%l_in_update( 1, 1, stats_rad_zt(j)%kk, stats_rad_zt(j)%num_output_fields ), &
+                  stat=ierr, errmsg=alloc_errmsg )
+        if( ierr /= 0 ) then
+          errmsg = "stats_init_clubb: Failed to allocate stats_rad_zt%l_in_update: "//trim(alloc_errmsg)
+          errflg = 1
+          return
+        end if
 
         call stats_zero( stats_rad_zt(j)%kk, stats_rad_zt(j)%num_output_fields, stats_rad_zt(j)%accum_field_values, &
                        stats_rad_zt(j)%accum_num_samples, stats_rad_zt(j)%l_in_update )
 
-        allocate( stats_rad_zt(j)%file%grid_avg_var( stats_rad_zt(j)%num_output_fields ) )
-        allocate( stats_rad_zt(j)%file%z( stats_rad_zt(j)%kk ) )
+        allocate( stats_rad_zt(j)%file%grid_avg_var( stats_rad_zt(j)%num_output_fields ), &
+                  stat=ierr, errmsg=alloc_errmsg )
+        if( ierr /= 0 ) then
+          errmsg = "stats_init_clubb: Failed to allocate stats_rad_zt%file%grid_avg_var: "//trim(alloc_errmsg)
+          errflg = 1
+          return
+        end if
+        allocate( stats_rad_zt(j)%file%z( stats_rad_zt(j)%kk ), stat=ierr, errmsg=alloc_errmsg )
+        if( ierr /= 0 ) then
+          errmsg = "stats_init_clubb: Failed to allocate stats_rad_zt%file%z: "//trim(alloc_errmsg)
+          errflg = 1
+          return
+        end if
 
          call stats_init_rad_zt_api( clubb_vars_rad_zt, &
                                      l_error, &
@@ -3993,17 +4013,51 @@ module clubb
          stats_rad_zm(j)%num_output_fields = ntot
          stats_rad_zm(j)%kk = nnrad_zm
 
-         allocate( stats_rad_zm(j)%z( stats_rad_zm(j)%kk ) )
+         allocate( stats_rad_zm(j)%z( stats_rad_zm(j)%kk ), stat=ierr, errmsg=alloc_errmsg )
+         if( ierr /= 0 ) then
+           errmsg = "stats_init_clubb: Failed to allocate stats_rad_zm%z: "//trim(alloc_errmsg)
+           errflg = 1
+           return
+         end if
 
-         allocate( stats_rad_zm(j)%accum_field_values( 1, 1, stats_rad_zm(j)%kk, stats_rad_zm(j)%num_output_fields ) )
-         allocate( stats_rad_zm(j)%accum_num_samples( 1, 1, stats_rad_zm(j)%kk, stats_rad_zm(j)%num_output_fields ) )
-         allocate( stats_rad_zm(j)%l_in_update( 1, 1, stats_rad_zm(j)%kk, stats_rad_zm(j)%num_output_fields ) )
+         allocate( stats_rad_zm(j)%accum_field_values( 1, 1, stats_rad_zm(j)%kk, stats_rad_zm(j)%num_output_fields ), &
+                   stat=ierr, errmsg=alloc_errmsg )
+         if( ierr /= 0 ) then
+           errmsg = "stats_init_clubb: Failed to allocate stats_rad_zm%accum_field_values: "//trim(alloc_errmsg)
+           errflg = 1
+           return
+         end if
+         allocate( stats_rad_zm(j)%accum_num_samples( 1, 1, stats_rad_zm(j)%kk, stats_rad_zm(j)%num_output_fields ), &
+                   stat=ierr, errmsg=alloc_errmsg )
+         if( ierr /= 0 ) then
+           errmsg = "stats_init_clubb: Failed to allocate stats_rad_zm%accum_num_samples: "//trim(alloc_errmsg)
+           errflg = 1
+           return
+         end if
+         allocate( stats_rad_zm(j)%l_in_update( 1, 1, stats_rad_zm(j)%kk, stats_rad_zm(j)%num_output_fields ), &
+                   stat=ierr, errmsg=alloc_errmsg )
+         if( ierr /= 0 ) then
+           errmsg = "stats_init_clubb: Failed to allocate stats_rad_zm%l_in_update: "//trim(alloc_errmsg)
+           errflg = 1
+           return
+         end if
 
          call stats_zero( stats_rad_zm(j)%kk, stats_rad_zm(j)%num_output_fields, stats_rad_zm(j)%accum_field_values, &
                        stats_rad_zm(j)%accum_num_samples, stats_rad_zm(j)%l_in_update )
 
-         allocate( stats_rad_zm(j)%file%grid_avg_var( stats_rad_zm(j)%num_output_fields ) )
-         allocate( stats_rad_zm(j)%file%z( stats_rad_zm(j)%kk ) )
+         allocate( stats_rad_zm(j)%file%grid_avg_var( stats_rad_zm(j)%num_output_fields ), &
+                   stat=ierr, errmsg=alloc_errmsg )
+         if( ierr /= 0 ) then
+           errmsg = "stats_init_clubb: Failed to allocate stats_rad_zm%file%grid_avg_var: "//trim(alloc_errmsg)
+           errflg = 1
+           return
+         end if
+         allocate( stats_rad_zm(j)%file%z( stats_rad_zm(j)%kk ), stat=ierr, errmsg=alloc_errmsg )
+         if( ierr /= 0 ) then
+           errmsg = "stats_init_clubb: Failed to allocate stats_rad_zm%file%z: "//trim(alloc_errmsg)
+           errflg = 1
+           return
+         end if
 
          call stats_init_rad_zm_api( clubb_vars_rad_zm, &
                                      l_error, &
@@ -4034,17 +4088,51 @@ module clubb
       stats_sfc(j)%num_output_fields = ntot
       stats_sfc(j)%kk = 1
 
-      allocate( stats_sfc(j)%z( stats_sfc(j)%kk ) )
+      allocate( stats_sfc(j)%z( stats_sfc(j)%kk ), stat=ierr, errmsg=alloc_errmsg )
+      if( ierr /= 0 ) then
+        errmsg = "stats_init_clubb: Failed to allocate stats_sfc%z: "//trim(alloc_errmsg)
+        errflg = 1
+        return
+      end if
 
-      allocate( stats_sfc(j)%accum_field_values( 1, 1, stats_sfc(j)%kk, stats_sfc(j)%num_output_fields ) )
-      allocate( stats_sfc(j)%accum_num_samples( 1, 1, stats_sfc(j)%kk, stats_sfc(j)%num_output_fields ) )
-      allocate( stats_sfc(j)%l_in_update( 1, 1, stats_sfc(j)%kk, stats_sfc(j)%num_output_fields ) )
+      allocate( stats_sfc(j)%accum_field_values( 1, 1, stats_sfc(j)%kk, stats_sfc(j)%num_output_fields ), &
+                stat=ierr, errmsg=alloc_errmsg )
+      if( ierr /= 0 ) then
+        errmsg = "stats_init_clubb: Failed to allocate stats_sfc%accum_field_values: "//trim(alloc_errmsg)
+        errflg = 1
+        return
+      end if
+      allocate( stats_sfc(j)%accum_num_samples( 1, 1, stats_sfc(j)%kk, stats_sfc(j)%num_output_fields ), &
+                stat=ierr, errmsg=alloc_errmsg )
+      if( ierr /= 0 ) then
+        errmsg = "stats_init_clubb: Failed to allocate stats_sfc%accum_num_samples: "//trim(alloc_errmsg)
+        errflg = 1
+        return
+      end if
+      allocate( stats_sfc(j)%l_in_update( 1, 1, stats_sfc(j)%kk, stats_sfc(j)%num_output_fields ), &
+                stat=ierr, errmsg=alloc_errmsg )
+      if( ierr /= 0 ) then
+        errmsg = "stats_init_clubb: Failed to allocate stats_sfc%l_in_update: "//trim(alloc_errmsg)
+        errflg = 1
+        return
+      end if
 
       call stats_zero( stats_sfc(j)%kk, stats_sfc(j)%num_output_fields, stats_sfc(j)%accum_field_values, &
                        stats_sfc(j)%accum_num_samples, stats_sfc(j)%l_in_update )
 
-      allocate( stats_sfc(j)%file%grid_avg_var( stats_sfc(j)%num_output_fields ) )
-      allocate( stats_sfc(j)%file%z( stats_sfc(j)%kk ) )
+      allocate( stats_sfc(j)%file%grid_avg_var( stats_sfc(j)%num_output_fields ), &
+                stat=ierr, errmsg=alloc_errmsg )
+      if( ierr /= 0 ) then
+        errmsg = "stats_init_clubb: Failed to allocate stats_sfc%file%grid_avg_var: "//trim(alloc_errmsg)
+        errflg = 1
+        return
+      end if
+      allocate( stats_sfc(j)%file%z( stats_sfc(j)%kk ), stat=ierr, errmsg=alloc_errmsg )
+      if( ierr /= 0 ) then
+        errmsg = "stats_init_clubb: Failed to allocate stats_sfc%file%z: "//trim(alloc_errmsg)
+        errflg = 1
+        return
+      end if
 
       call stats_init_sfc_api( clubb_vars_sfc, &
                                l_error, &
@@ -4059,16 +4147,10 @@ module clubb
        return
     endif
 
-    return
-
   end subroutine stats_init_clubb
 
-#endif
-
   ! ----------------------------------------------------------------------------------------
   ! ----------------------------------------------------------------------------------------
-
-#ifdef CLUBB_SGS
 
     !-----------------------------------------------------------------------
   subroutine stats_zero( kk, num_output_fields, x, n, l_in_update )
@@ -4077,6 +4159,7 @@ module clubb
     !     Initialize stats to zero
     !-----------------------------------------------------------------------
 
+    use ccpp_kinds, only: kind_phys
     use clubb_api_module, only: &
         stat_rknd,   & ! Variable(s)
         stat_nknd
@@ -4100,17 +4183,12 @@ module clubb
        l_in_update(:,:,:,:) = .false.
     end if
 
-    return
-
   end subroutine stats_zero
-
-#endif
 
   ! =============================================================================== !
   !                                                                                 !
   ! =============================================================================== !
 
-#ifdef CLUBB_SGS
   subroutine stats_end_timestep_clubb(thecol, stats_zt, stats_zm, stats_rad_zt, stats_rad_zm, stats_sfc, &
                                       out_zt, out_zm, out_radzt, out_radzm, out_sfc, &
                                       stats_metadata, clubb_l_ascending_grid, pver, pverp, top_lev, &
@@ -4121,7 +4199,9 @@ module clubb
     !     format.
     !-----------------------------------------------------------------------
 
-    use shr_infnan_mod, only: is_nan => shr_infnan_isnan
+    use, intrinsic :: ieee_arithmetic, only: is_nan => ieee_is_nan
+
+    use ccpp_kinds, only: kind_phys
 
     use clubb_api_module, only: &
         stats, &
@@ -4155,7 +4235,7 @@ module clubb
     real(kind_phys), intent(inout) :: out_sfc(:,:,:)
 
     ! Out variables
-    character(len=512), intent(out) :: errmsg
+    character(len=*), intent(out) :: errmsg
     integer, intent(out) :: errflg
 
     ! Local Variables
@@ -4275,16 +4355,12 @@ module clubb
     call stats_zero( stats_sfc%kk, stats_sfc%num_output_fields, stats_sfc%accum_field_values, &
                      stats_sfc%accum_num_samples, stats_sfc%l_in_update )
 
-    return
-
   end subroutine stats_end_timestep_clubb
-#endif
 
   ! =============================================================================== !
   !                                                                                 !
   ! =============================================================================== !
 
-#ifdef CLUBB_SGS
     !-----------------------------------------------------------------------
   subroutine stats_avg( kk, num_output_fields, x, n )
 
@@ -4320,15 +4396,11 @@ module clubb
        end do
     end do
 
-    return
-
   end subroutine stats_avg
-#endif
 
   ! ----------------------------------------------------------------------------------------
   ! ----------------------------------------------------------------------------------------
 
-#ifdef CLUBB_SGS
   ! ----------------------------------------------------------------------
   !
   ! DISCLAIMER : this code appears to be correct but has not been
@@ -4351,12 +4423,15 @@ module clubb
   ! Code writen March, 1999 by Bjorn Stevens
   !
 
-  real(kind_phys) function diag_ustar( z, bflx, wnd, z0, shr_const_karman, &
-                                       shr_const_pi, shr_const_g )
+  function diag_ustar( z, bflx, wnd, z0, shr_const_karman, &
+                       shr_const_pi, shr_const_g )
 
+    use ccpp_kinds, only: kind_phys
 !    use shr_const_mod, only : shr_const_karman, shr_const_pi, shr_const_g
 
     implicit none
+
+    real(kind_phys) :: diag_ustar
 
     real(kind_phys), parameter      :: am   =  4.8_kind_phys   !   "          "         "
     real(kind_phys), parameter      :: bm   = 19.3_kind_phys  !   "          "         "
@@ -4405,10 +4480,7 @@ module clubb
 
     diag_ustar = ustar
 
-    return
-
   end function diag_ustar
-#endif
 
   ! clamped linear-in-pressure interpolation of a midpoint
   ! field to a target pressure level, mirroring the CLUBB-core pvertinterp
@@ -4416,6 +4488,8 @@ module clubb
   ! midpoint the boundary value is used.  Kept verbatim from the first
   ! implementation for bit-for-bit reproducibility of the LTS trigger.
   subroutine mf_pinterp(ncol, pver, pmid, pout, fld, outv)
+    use ccpp_kinds, only: kind_phys
+
     integer,  intent(in)  :: ncol, pver
     real(kind_phys), intent(in)  :: pmid(:,:)   ! (ncol,pver) midpoint pressure (Pa), increasing downward
     real(kind_phys), intent(in)  :: pout        ! target pressure (Pa)

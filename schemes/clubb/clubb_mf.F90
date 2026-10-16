@@ -8,7 +8,6 @@ module clubb_mf
 
   implicit none
   private
-  save
 
   public :: clubb_mf_init, &
             integrate_mf, &
@@ -258,7 +257,7 @@ module clubb_mf
      use wv_saturation,      only : qsat
 
      integer,  intent(in)                 :: nzm, nzt
-     real(kind_phys), intent(in)                 :: dtime                   ! host-model physics timestep [s]
+     real(kind_phys), intent(in)          :: dtime                   ! host-model physics timestep [s]
 
      real(kind_phys), intent(in)          :: cpair                   ! specific heat of dry air at constant pressure [J kg-1 K-1]
      real(kind_phys), intent(in)          :: gravit                  ! gravitational acceleration [m s-2]
@@ -2534,8 +2533,6 @@ module clubb_mf
             endif
        endif
     endif
-
-    return
 
   end subroutine roots
 
