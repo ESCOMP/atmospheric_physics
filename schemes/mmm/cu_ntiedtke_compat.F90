@@ -78,10 +78,10 @@ contains
                                        pap(:, :), paph(:, :), evap(:), hfx(:), &
                                        dt, dx(:), &
                                        exner(:, :)
-        real(kind_phys), intent(out) :: zprecc(:), &
-                                        rucuten(:, :), rvcuten(:, :), &
-                                        rthcuten(:, :), &
-                                        rqvcuten(:, :), rqccuten(:, :), rqicuten(:, :)
+        real(kind_phys), intent(inout) :: rucuten(:, :), rvcuten(:, :), &
+                                          rthcuten(:, :), &
+                                          rqvcuten(:, :), rqccuten(:, :), rqicuten(:, :)
+        real(kind_phys), intent(out) :: zprecc(:)
         character(*), intent(out) :: errmsg
         integer, intent(out) :: errflg
 
@@ -90,13 +90,6 @@ contains
                                         pqv_local(:, :), pqc_local(:, :), pqi_local(:, :)
 
         zprecc(:) = 0.0_kind_phys
-
-        rucuten(:, :) = 0.0_kind_phys
-        rvcuten(:, :) = 0.0_kind_phys
-        rthcuten(:, :) = 0.0_kind_phys
-        rqvcuten(:, :) = 0.0_kind_phys
-        rqccuten(:, :) = 0.0_kind_phys
-        rqicuten(:, :) = 0.0_kind_phys
 
         ! The "cu_ntiedtke" physics scheme modifies model states directly, which is not ideal.
         ! Make local copies of the model states, pass them to the physics scheme, and compute the tendencies instead.
@@ -163,12 +156,12 @@ contains
 
         zprecc(:) = zprecc(:) * 0.001_kind_phys ! Convert from mm to m.
 
-        rucuten(:, :) = (pu_local(:, :) - pu(:, :)) / dt
-        rvcuten(:, :) = (pv_local(:, :) - pv(:, :)) / dt
-        rthcuten(:, :) = (pt_local(:, :) - pt(:, :)) / exner(:, :) / dt
-        rqvcuten(:, :) = (pqv_local(:, :) - pqv(:, :)) / dt
-        rqccuten(:, :) = (pqc_local(:, :) - pqc(:, :)) / dt
-        rqicuten(:, :) = (pqi_local(:, :) - pqi(:, :)) / dt
+        rucuten(:, :) = rucuten(:, :) + (pu_local(:, :) - pu(:, :)) / dt
+        rvcuten(:, :) = rvcuten(:, :) + (pv_local(:, :) - pv(:, :)) / dt
+        rthcuten(:, :) = rthcuten(:, :) + (pt_local(:, :) - pt(:, :)) / exner(:, :) / dt
+        rqvcuten(:, :) = rqvcuten(:, :) + (pqv_local(:, :) - pqv(:, :)) / dt
+        rqccuten(:, :) = rqccuten(:, :) + (pqc_local(:, :) - pqc(:, :)) / dt
+        rqicuten(:, :) = rqicuten(:, :) + (pqi_local(:, :) - pqi(:, :)) / dt
 
         errmsg = ''
         errflg = 0

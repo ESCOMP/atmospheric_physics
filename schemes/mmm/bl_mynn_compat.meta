@@ -415,7 +415,7 @@
   dimensions = ()
   intent = out
 [ flag_qoz ]
-  standard_name = flag_for_ozone_mixing_ratio_in_mynn_pbl_scheme
+  standard_name = flag_for_O3_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
@@ -630,14 +630,12 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
-  advected = True
 [ qni ]
   standard_name = mass_number_concentration_of_cloud_ice_water_crystals_in_dry_air
   units = kg-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
-  advected = True
 [ qnwfa ]
   standard_name = mass_number_concentration_of_hygroscopic_aerosols_in_dry_air
   units = kg-1
@@ -659,13 +657,12 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
   advected = True
-[ qozone ]
-  standard_name = O3
-  units = kg kg-1
+[ constituents ]
+  standard_name = ccpp_constituents
+  units = none
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_ccpp_constituents)
   intent = in
-  advected = True
 [ p ]
   standard_name = air_pressure
   units = Pa
@@ -697,7 +694,7 @@
   dimensions = (horizontal_loop_extent)
   intent = in
 [ ts ]
-  standard_name = skin_temperature_at_surface
+  standard_name = blackbody_temperature_at_surface_from_coupler
   units = K
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
@@ -793,79 +790,79 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rublten ]
-  standard_name = pending_tendency_of_eastward_wind_due_to_pbl_processes
+  standard_name = tendency_of_eastward_wind_due_to_pbl_processes
   units = m s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rvblten ]
-  standard_name = pending_tendency_of_northward_wind_due_to_pbl_processes
+  standard_name = tendency_of_northward_wind_due_to_pbl_processes
   units = m s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rthblten ]
-  standard_name = pending_tendency_of_air_potential_temperature_due_to_pbl_processes
+  standard_name = tendency_of_air_potential_temperature_due_to_pbl_processes
   units = K s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rqvblten ]
-  standard_name = pending_tendency_of_water_vapor_mixing_ratio_wrt_dry_air_due_to_pbl_processes
+  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_dry_air_due_to_pbl_processes
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rqcblten ]
-  standard_name = pending_tendency_of_cloud_liquid_water_mixing_ratio_wrt_dry_air_due_to_pbl_processes
+  standard_name = tendency_of_cloud_liquid_water_mixing_ratio_wrt_dry_air_due_to_pbl_processes
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rqiblten ]
-  standard_name = pending_tendency_of_cloud_ice_mixing_ratio_wrt_dry_air_due_to_pbl_processes
+  standard_name = tendency_of_cloud_ice_mixing_ratio_wrt_dry_air_due_to_pbl_processes
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rqsblten ]
-  standard_name = pending_tendency_of_snow_mixing_ratio_wrt_dry_air_due_to_pbl_processes
+  standard_name = tendency_of_snow_mixing_ratio_wrt_dry_air_due_to_pbl_processes
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rqncblten ]
-  standard_name = pending_tendency_of_mass_number_concentration_of_cloud_liquid_water_droplets_in_dry_air_due_to_pbl_processes
+  standard_name = tendency_of_mass_number_concentration_of_cloud_liquid_water_droplets_in_dry_air_due_to_pbl_processes
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rqniblten ]
-  standard_name = pending_tendency_of_mass_number_concentration_of_cloud_ice_water_crystals_in_dry_air_due_to_pbl_processes
+  standard_name = tendency_of_mass_number_concentration_of_cloud_ice_water_crystals_in_dry_air_due_to_pbl_processes
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rqnwfablten ]
-  standard_name = pending_tendency_of_mass_number_concentration_of_hygroscopic_aerosols_in_dry_air_due_to_pbl_processes
+  standard_name = tendency_of_mass_number_concentration_of_hygroscopic_aerosols_in_dry_air_due_to_pbl_processes
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rqnifablten ]
-  standard_name = pending_tendency_of_mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols_in_dry_air_due_to_pbl_processes
+  standard_name = tendency_of_mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols_in_dry_air_due_to_pbl_processes
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rqnbcablten ]
-  standard_name = pending_tendency_of_mass_number_concentration_of_hydrophobic_black_carbon_in_dry_air_due_to_pbl_processes
+  standard_name = tendency_of_mass_number_concentration_of_hydrophobic_black_carbon_in_dry_air_due_to_pbl_processes
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rqozblten ]
-  standard_name = pending_tendency_of_O3_due_to_pbl_processes
+  standard_name = tendency_of_O3_due_to_pbl_processes
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -1255,9 +1252,15 @@
   dimensions = ()
   intent = in
 [ flag_qoz ]
-  standard_name = flag_for_ozone_mixing_ratio_in_mynn_pbl_scheme
+  standard_name = flag_for_O3_in_mynn_pbl_scheme
   units = flag
   type = logical
+  dimensions = ()
+  intent = in
+[ index_qoz ]
+  standard_name = index_of_O3_in_ccpp_constituents
+  units = index
+  type = integer
   dimensions = ()
   intent = in
 [ its ]

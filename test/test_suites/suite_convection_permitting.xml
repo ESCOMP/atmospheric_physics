@@ -6,6 +6,7 @@
     <scheme>prescribe_radiative_gas_concentrations</scheme>
     <scheme>to_be_ccppized_temporary</scheme>
 
+    <scheme>prescribed_ozone</scheme>
     <scheme>prescribed_aerosols</scheme>
     <scheme>prescribed_aerosol_deposition_flux</scheme>
     <scheme>tropopause_find</scheme>
@@ -27,14 +28,19 @@
     <scheme>wet_to_dry_cloud_ice</scheme>
     <scheme>wet_to_dry_snow</scheme>
     <scheme>wet_to_dry_graupel</scheme>
+    <scheme>wet_to_dry_cloud_liquid_water_number_concentration</scheme>
+    <scheme>wet_to_dry_rain_number_concentration</scheme>
+    <scheme>wet_to_dry_cloud_ice_number_concentration</scheme>
+    <scheme>wet_to_dry_snow_number_concentration</scheme>
+    <scheme>wet_to_dry_graupel_number_concentration</scheme>
 
     <scheme>mmm_physics_compat</scheme>
 
-    <!-- TEMPO Microphysics -->
+    <!-- TEMPO microphysics scheme -->
     <scheme>mp_tempo</scheme>
     <scheme>mp_tempo_diagnostics</scheme>
 
-    <!-- Xu-Randall cloud fraction -->
+    <!-- Xu-Randall cloud fraction scheme -->
     <scheme>cldfra_xu_randall</scheme>
     <scheme>cldfra_xu_randall_diagnostics</scheme>
 
@@ -101,19 +107,16 @@
     <scheme>bl_mynn_compat_pre</scheme>
     <scheme>bl_mynn_compat</scheme>
     <scheme>bl_mynn_diagnostics</scheme>
-    <scheme>mmm_physics_save_tendencies</scheme>
 
     <!-- YSU orographic gravity wave drag scheme -->
     <scheme>bl_gwdo_compat_pre</scheme>
     <scheme>bl_gwdo_compat</scheme>
     <scheme>bl_gwdo_diagnostics</scheme>
-    <scheme>mmm_physics_save_tendencies</scheme>
 
     <!-- New Tiedtke convection scheme -->
     <scheme>cu_ntiedtke_compat_pre</scheme>
     <scheme>cu_ntiedtke_compat</scheme>
     <scheme>cu_ntiedtke_diagnostics</scheme>
-    <scheme>mmm_physics_save_tendencies</scheme>
 
     <!-- Feed modified states back to the model -->
     <scheme>mmm_physics_accumulate_tendencies</scheme>
@@ -126,6 +129,11 @@
     <scheme>dry_to_wet_cloud_ice</scheme>
     <scheme>dry_to_wet_snow</scheme>
     <scheme>dry_to_wet_graupel</scheme>
+    <scheme>dry_to_wet_cloud_liquid_water_number_concentration</scheme>
+    <scheme>dry_to_wet_rain_number_concentration</scheme>
+    <scheme>dry_to_wet_cloud_ice_number_concentration</scheme>
+    <scheme>dry_to_wet_snow_number_concentration</scheme>
+    <scheme>dry_to_wet_graupel_number_concentration</scheme>
     <scheme>qneg</scheme>
     <scheme>geopotential_temp</scheme>
 
@@ -134,6 +142,7 @@
     <scheme>sima_state_diagnostics</scheme>
 
     <!-- Feed modified states back to the coupler -->
+    <scheme>mmm_physics_to_coupler</scheme>
     <scheme>calc_dry_air_ideal_gas_density</scheme>
     <scheme>set_surface_coupling_vars</scheme>
   </group>

@@ -1,4 +1,4 @@
-module cldfra_xu_randall_diag
+module cldfra_xu_randall_diagnostics
     implicit none
 
     private
@@ -37,4 +37,4 @@ contains
         errmsg = ''
         errflg = 0
     end subroutine cldfra_xu_randall_diagnostics_run
-end module cldfra_xu_randall_diag
+end module cldfra_xu_randall_diagnostics

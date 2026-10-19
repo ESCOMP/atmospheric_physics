@@ -601,7 +601,7 @@
   dimensions = (horizontal_loop_extent)
   intent = inout
 [ tsk ]
-  standard_name = skin_temperature_at_surface
+  standard_name = blackbody_temperature_at_surface_from_coupler
   units = K
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)

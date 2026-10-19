@@ -7,10 +7,9 @@ module mmm_physics_compat
     public :: mmm_physics_compat_run
     public :: mmm_physics_accumulate_tendencies_timestep_init
     public :: mmm_physics_accumulate_tendencies_run
-    public :: mmm_physics_save_tendencies_timestep_init
-    public :: mmm_physics_save_tendencies_run
     public :: mmm_physics_persist_states_init
     public :: mmm_physics_persist_states_timestep_final
+    public :: mmm_physics_to_coupler_run
     public :: compute_characteristic_grid_length_scale_init
     public :: compute_hydrostatic_upward_air_velocity_at_interface_run
     public :: compute_hydrostatic_upward_air_velocity_run
@@ -36,9 +35,6 @@ contains
         character(*), intent(out) :: errmsg
         integer, intent(out) :: errflg
 
-        errmsg = ''
-        errflg = 0
-
         ! TODO:
         ! Should convert some of the following to namelist options after the convection-permitting
         ! physics suite is completed.
@@ -51,6 +47,9 @@ contains
         cycling = .false. ! There is no such thing as DA cycling in CAM-SIMA. Always false.
         restart = (.not. initial_run) ! Branch and restart runs are translated to restart runs for MMM physics.
         xice_threshold = 0.02_kind_phys
+
+        errmsg = ''
+        errflg = 0
     end subroutine mmm_physics_compat_init
 
     !> \section arg_table_mmm_physics_compat_run Argument Table
@@ -76,9 +75,6 @@ contains
         character(*), intent(out) :: errmsg
         integer, intent(out) :: errflg
 
-        errmsg = ''
-        errflg = 0
-
         scheme_name = 'mmm_physics_compat'
 
         if (nstep == 0) then
@@ -98,11 +94,15 @@ contains
         elsewhere
             xland = 2.0_kind_phys
         end where
+
+        errmsg = ''
+        errflg = 0
     end subroutine mmm_physics_compat_run
 
     !> \section arg_table_mmm_physics_accumulate_tendencies_timestep_init Argument Table
     !! \htmlinclude mmm_physics_accumulate_tendencies_timestep_init.html
-    pure subroutine mmm_physics_accumulate_tendencies_timestep_init( &
+    subroutine mmm_physics_accumulate_tendencies_timestep_init( &
+            index_o3, &
             dudt, dvdt, dtdt, &
             rublten, rucuten, rvblten, rvcuten, &
             rthblten, rthcuten, rthmpten, rthratenlw, rthratensw, &
@@ -115,8 +115,11 @@ contains
             rozblten, &
             rnwfablten, rnwfampten, rnifablten, rnifampten, rnbcablten, &
             errmsg, errflg)
+        use ccpp_constituent_prop_mod, only: int_unassigned
         use ccpp_kinds, only: kind_phys
+        use ccpp_scheme_utils, only: ccpp_constituent_index
 
+        integer, intent(out) :: index_o3
         real(kind_phys), intent(out) :: dudt(:, :), dvdt(:, :), dtdt(:, :), &
                                         rublten(:, :), rucuten(:, :), rvblten(:, :), rvcuten(:, :), &
                                         rthblten(:, :), rthcuten(:, :), rthmpten(:, :), rthratenlw(:, :), rthratensw(:, :), &
@@ -131,8 +134,15 @@ contains
         character(*), intent(out) :: errmsg
         integer, intent(out) :: errflg
 
-        errmsg = ''
-        errflg = 0
+        ! O3 is a run-time constituent registered by a chemistry scheme. Whether it is advected or not is also determined at
+        ! run-time. Therefore, it cannot be requested as a procedure argument because the CCPP framework does not know about
+        ! it at build-time.
+        call ccpp_constituent_index( &
+            'O3', index_o3, errflg, errmsg)
+
+        if (errflg /= 0 .or. index_o3 == int_unassigned) then
+            return
+        end if
 
         ! Zero out tendencies at the beginning of each time step.
 
@@ -186,14 +196,19 @@ contains
         rnifablten(:, :) = 0.0_kind_phys
         rnifampten(:, :) = 0.0_kind_phys
         rnbcablten(:, :) = 0.0_kind_phys
+
+        errmsg = ''
+        errflg = 0
     end subroutine mmm_physics_accumulate_tendencies_timestep_init
 
     !> \section arg_table_mmm_physics_accumulate_tendencies_run Argument Table
     !! \htmlinclude mmm_physics_accumulate_tendencies_run.html
     pure subroutine mmm_physics_accumulate_tendencies_run( &
+            index_o3, &
             dt, exner, &
             dudt, dvdt, dtdt, &
-            theta, qv, qc, qr, qi, qs, qg, ozone, &
+            theta, qv, qc, qr, qi, qs, qg, &
+            constituents, &
             nc, nr, ni, ng, nwfa, nifa, nbca, &
             volg, &
             rublten, rucuten, rvblten, rvcuten, &
@@ -209,9 +224,11 @@ contains
             errmsg, errflg)
         use ccpp_kinds, only: kind_phys
 
+        integer, intent(in) :: index_o3
         real(kind_phys), intent(in) :: dt, exner(:, :)
         real(kind_phys), intent(inout) :: dudt(:, :), dvdt(:, :), dtdt(:, :), &
-                                          theta(:, :), qv(:, :), qc(:, :), qr(:, :), qi(:, :), qs(:, :), qg(:, :), ozone(:, :), &
+                                          theta(:, :), qv(:, :), qc(:, :), qr(:, :), qi(:, :), qs(:, :), qg(:, :), &
+                                          constituents(:, :, :), &
                                           nc(:, :), nr(:, :), ni(:, :), ng(:, :), nwfa(:, :), nifa(:, :), nbca(:, :), &
                                           volg(:, :), &
                                           rublten(:, :), rucuten(:, :), rvblten(:, :), rvcuten(:, :), &
@@ -227,9 +244,6 @@ contains
         character(*), intent(out) :: errmsg
         integer, intent(out) :: errflg
 
-        errmsg = ''
-        errflg = 0
-
         ! Accumulate the states and tendencies for feeding back to CAM-SIMA.
         dudt(:, :) = dudt(:, :) + (rublten(:, :) + rucuten(:, :))
         dvdt(:, :) = dvdt(:, :) + (rvblten(:, :) + rvcuten(:, :))
@@ -243,7 +257,8 @@ contains
         qi(:, :) = qi(:, :) + (rqiblten(:, :) + rqicuten(:, :) + rqimpten(:, :)) * dt
         qs(:, :) = qs(:, :) + (rqsblten(:, :) + rqsmpten(:, :)) * dt
         qg(:, :) = qg(:, :) + rqgmpten(:, :) * dt
-        ozone(:, :) = ozone(:, :) + rozblten(:, :) * dt
+
+        constituents(:, :, index_o3) = constituents(:, :, index_o3) + rozblten(:, :) * dt
 
         nc(:, :) = nc(:, :) + (rncblten(:, :) + rncmpten(:, :)) * dt
         nr(:, :) = nr(:, :) + rnrmpten(:, :) * dt
@@ -301,225 +316,10 @@ contains
         rnifablten(:, :) = 0.0_kind_phys
         rnifampten(:, :) = 0.0_kind_phys
         rnbcablten(:, :) = 0.0_kind_phys
+
+        errmsg = ''
+        errflg = 0
     end subroutine mmm_physics_accumulate_tendencies_run
-
-    !> \section arg_table_mmm_physics_save_tendencies_timestep_init Argument Table
-    !! \htmlinclude mmm_physics_save_tendencies_timestep_init.html
-    pure subroutine mmm_physics_save_tendencies_timestep_init( &
-            rublten_p, rucuten_p, rvblten_p, rvcuten_p, &
-            rthblten_p, rthcuten_p, rthratenlw_p, rthratensw_p, &
-            rqvblten_p, rqvcuten_p, &
-            rqcblten_p, rncblten_p, rqccuten_p, &
-            rqiblten_p, rniblten_p, rqicuten_p, &
-            rqsblten_p, &
-            rozblten_p, &
-            rnwfablten_p, rnifablten_p, rnbcablten_p, &
-            rublten, rucuten, rvblten, rvcuten, &
-            rthblten, rthcuten, rthratenlw, rthratensw, &
-            rqvblten, rqvcuten, &
-            rqcblten, rncblten, rqccuten, &
-            rqiblten, rniblten, rqicuten, &
-            rqsblten, &
-            rozblten, &
-            rnwfablten, rnifablten, rnbcablten, &
-            errmsg, errflg)
-        use ccpp_kinds, only: kind_phys
-
-        real(kind_phys), intent(out) :: rublten_p(:, :), rucuten_p(:, :), rvblten_p(:, :), rvcuten_p(:, :), &
-                                        rthblten_p(:, :), rthcuten_p(:, :), rthratenlw_p(:, :), rthratensw_p(:, :), &
-                                        rqvblten_p(:, :), rqvcuten_p(:, :), &
-                                        rqcblten_p(:, :), rncblten_p(:, :), rqccuten_p(:, :), &
-                                        rqiblten_p(:, :), rniblten_p(:, :), rqicuten_p(:, :), &
-                                        rqsblten_p(:, :), &
-                                        rozblten_p(:, :), &
-                                        rnwfablten_p(:, :), rnifablten_p(:, :), rnbcablten_p(:, :)
-        real(kind_phys), intent(out) :: rublten(:, :), rucuten(:, :), rvblten(:, :), rvcuten(:, :), &
-                                        rthblten(:, :), rthcuten(:, :), rthratenlw(:, :), rthratensw(:, :), &
-                                        rqvblten(:, :), rqvcuten(:, :), &
-                                        rqcblten(:, :), rncblten(:, :), rqccuten(:, :), &
-                                        rqiblten(:, :), rniblten(:, :), rqicuten(:, :), &
-                                        rqsblten(:, :), &
-                                        rozblten(:, :), &
-                                        rnwfablten(:, :), rnifablten(:, :), rnbcablten(:, :)
-        character(*), intent(out) :: errmsg
-        integer, intent(out) :: errflg
-
-        errmsg = ''
-        errflg = 0
-
-        ! Zero out tendencies at the beginning of each time step.
-
-        ! "Pending" tendencies that serve as temporary working areas for each MMM physics scheme.
-        rublten_p(:, :) = 0.0_kind_phys
-        rucuten_p(:, :) = 0.0_kind_phys
-        rvblten_p(:, :) = 0.0_kind_phys
-        rvcuten_p(:, :) = 0.0_kind_phys
-
-        rthblten_p(:, :) = 0.0_kind_phys
-        rthcuten_p(:, :) = 0.0_kind_phys
-        rthratenlw_p(:, :) = 0.0_kind_phys
-        rthratensw_p(:, :) = 0.0_kind_phys
-
-        rqvblten_p(:, :) = 0.0_kind_phys
-        rqvcuten_p(:, :) = 0.0_kind_phys
-
-        rqcblten_p(:, :) = 0.0_kind_phys
-        rncblten_p(:, :) = 0.0_kind_phys
-        rqccuten_p(:, :) = 0.0_kind_phys
-
-        rqiblten_p(:, :) = 0.0_kind_phys
-        rniblten_p(:, :) = 0.0_kind_phys
-        rqicuten_p(:, :) = 0.0_kind_phys
-
-        rqsblten_p(:, :) = 0.0_kind_phys
-
-        rozblten_p(:, :) = 0.0_kind_phys
-
-        rnwfablten_p(:, :) = 0.0_kind_phys
-        rnifablten_p(:, :) = 0.0_kind_phys
-        rnbcablten_p(:, :) = 0.0_kind_phys
-
-        ! "Final" tendencies collected from MMM physics schemes.
-        rublten(:, :) = 0.0_kind_phys
-        rucuten(:, :) = 0.0_kind_phys
-        rvblten(:, :) = 0.0_kind_phys
-        rvcuten(:, :) = 0.0_kind_phys
-
-        rthblten(:, :) = 0.0_kind_phys
-        rthcuten(:, :) = 0.0_kind_phys
-        rthratenlw(:, :) = 0.0_kind_phys
-        rthratensw(:, :) = 0.0_kind_phys
-
-        rqvblten(:, :) = 0.0_kind_phys
-        rqvcuten(:, :) = 0.0_kind_phys
-
-        rqcblten(:, :) = 0.0_kind_phys
-        rncblten(:, :) = 0.0_kind_phys
-        rqccuten(:, :) = 0.0_kind_phys
-
-        rqiblten(:, :) = 0.0_kind_phys
-        rniblten(:, :) = 0.0_kind_phys
-        rqicuten(:, :) = 0.0_kind_phys
-
-        rqsblten(:, :) = 0.0_kind_phys
-
-        rozblten(:, :) = 0.0_kind_phys
-
-        rnwfablten(:, :) = 0.0_kind_phys
-        rnifablten(:, :) = 0.0_kind_phys
-        rnbcablten(:, :) = 0.0_kind_phys
-    end subroutine mmm_physics_save_tendencies_timestep_init
-
-    !> \section arg_table_mmm_physics_save_tendencies_run Argument Table
-    !! \htmlinclude mmm_physics_save_tendencies_run.html
-    pure subroutine mmm_physics_save_tendencies_run( &
-            rublten_p, rucuten_p, rvblten_p, rvcuten_p, &
-            rthblten_p, rthcuten_p, rthratenlw_p, rthratensw_p, &
-            rqvblten_p, rqvcuten_p, &
-            rqcblten_p, rncblten_p, rqccuten_p, &
-            rqiblten_p, rniblten_p, rqicuten_p, &
-            rqsblten_p, &
-            rozblten_p, &
-            rnwfablten_p, rnifablten_p, rnbcablten_p, &
-            rublten, rucuten, rvblten, rvcuten, &
-            rthblten, rthcuten, rthratenlw, rthratensw, &
-            rqvblten, rqvcuten, &
-            rqcblten, rncblten, rqccuten, &
-            rqiblten, rniblten, rqicuten, &
-            rqsblten, &
-            rozblten, &
-            rnwfablten, rnifablten, rnbcablten, &
-            errmsg, errflg)
-        use ccpp_kinds, only: kind_phys
-
-        real(kind_phys), intent(inout) :: rublten_p(:, :), rucuten_p(:, :), rvblten_p(:, :), rvcuten_p(:, :), &
-                                          rthblten_p(:, :), rthcuten_p(:, :), rthratenlw_p(:, :), rthratensw_p(:, :), &
-                                          rqvblten_p(:, :), rqvcuten_p(:, :), &
-                                          rqcblten_p(:, :), rncblten_p(:, :), rqccuten_p(:, :), &
-                                          rqiblten_p(:, :), rniblten_p(:, :), rqicuten_p(:, :), &
-                                          rqsblten_p(:, :), &
-                                          rozblten_p(:, :), &
-                                          rnwfablten_p(:, :), rnifablten_p(:, :), rnbcablten_p(:, :)
-        real(kind_phys), intent(inout) :: rublten(:, :), rucuten(:, :), rvblten(:, :), rvcuten(:, :), &
-                                          rthblten(:, :), rthcuten(:, :), rthratenlw(:, :), rthratensw(:, :), &
-                                          rqvblten(:, :), rqvcuten(:, :), &
-                                          rqcblten(:, :), rncblten(:, :), rqccuten(:, :), &
-                                          rqiblten(:, :), rniblten(:, :), rqicuten(:, :), &
-                                          rqsblten(:, :), &
-                                          rozblten(:, :), &
-                                          rnwfablten(:, :), rnifablten(:, :), rnbcablten(:, :)
-        character(*), intent(out) :: errmsg
-        integer, intent(out) :: errflg
-
-        errmsg = ''
-        errflg = 0
-
-        ! Save pending tendencies to final tendencies.
-        !
-        ! The reason for this mechanism is to mitigate the inconsistent tendency behaviors across various MMM physics schemes.
-        ! Although some schemes correctly accumulate their tendencies with others, there are certain schemes that outright
-        ! overwrite the tendencies from others. Instead of wrestling with the problematic schemes individually like MPAS does,
-        ! which is very error-prone, a suite-level scheme is introduced to blanketly enforce the correct behavior.
-        rublten(:, :) = rublten(:, :) + rublten_p(:, :)
-        rucuten(:, :) = rucuten(:, :) + rucuten_p(:, :)
-        rvblten(:, :) = rvblten(:, :) + rvblten_p(:, :)
-        rvcuten(:, :) = rvcuten(:, :) + rvcuten_p(:, :)
-
-        rthblten(:, :) = rthblten(:, :) + rthblten_p(:, :)
-        rthcuten(:, :) = rthcuten(:, :) + rthcuten_p(:, :)
-        rthratenlw(:, :) = rthratenlw(:, :) + rthratenlw_p(:, :)
-        rthratensw(:, :) = rthratensw(:, :) + rthratensw_p(:, :)
-
-        rqvblten(:, :) = rqvblten(:, :) + rqvblten_p(:, :)
-        rqvcuten(:, :) = rqvcuten(:, :) + rqvcuten_p(:, :)
-
-        rqcblten(:, :) = rqcblten(:, :) + rqcblten_p(:, :)
-        rncblten(:, :) = rncblten(:, :) + rncblten_p(:, :)
-        rqccuten(:, :) = rqccuten(:, :) + rqccuten_p(:, :)
-
-        rqiblten(:, :) = rqiblten(:, :) + rqiblten_p(:, :)
-        rniblten(:, :) = rniblten(:, :) + rniblten_p(:, :)
-        rqicuten(:, :) = rqicuten(:, :) + rqicuten_p(:, :)
-
-        rqsblten(:, :) = rqsblten(:, :) + rqsblten_p(:, :)
-
-        rozblten(:, :) = rozblten(:, :) + rozblten_p(:, :)
-
-        rnwfablten(:, :) = rnwfablten(:, :) + rnwfablten_p(:, :)
-        rnifablten(:, :) = rnifablten(:, :) + rnifablten_p(:, :)
-        rnbcablten(:, :) = rnbcablten(:, :) + rnbcablten_p(:, :)
-
-        ! After saving, zero out pending tendencies to make this subroutine idempotent,
-        ! preventing repeated application of the same tendencies.
-        rublten_p(:, :) = 0.0_kind_phys
-        rucuten_p(:, :) = 0.0_kind_phys
-        rvblten_p(:, :) = 0.0_kind_phys
-        rvcuten_p(:, :) = 0.0_kind_phys
-
-        rthblten_p(:, :) = 0.0_kind_phys
-        rthcuten_p(:, :) = 0.0_kind_phys
-        rthratenlw_p(:, :) = 0.0_kind_phys
-        rthratensw_p(:, :) = 0.0_kind_phys
-
-        rqvblten_p(:, :) = 0.0_kind_phys
-        rqvcuten_p(:, :) = 0.0_kind_phys
-
-        rqcblten_p(:, :) = 0.0_kind_phys
-        rncblten_p(:, :) = 0.0_kind_phys
-        rqccuten_p(:, :) = 0.0_kind_phys
-
-        rqiblten_p(:, :) = 0.0_kind_phys
-        rniblten_p(:, :) = 0.0_kind_phys
-        rqicuten_p(:, :) = 0.0_kind_phys
-
-        rqsblten_p(:, :) = 0.0_kind_phys
-
-        rozblten_p(:, :) = 0.0_kind_phys
-
-        rnwfablten_p(:, :) = 0.0_kind_phys
-        rnifablten_p(:, :) = 0.0_kind_phys
-        rnbcablten_p(:, :) = 0.0_kind_phys
-    end subroutine mmm_physics_save_tendencies_run
 
     !> \section arg_table_mmm_physics_persist_states_init Argument Table
     !! \htmlinclude mmm_physics_persist_states_init.html
@@ -532,13 +332,13 @@ contains
         character(*), intent(out) :: errmsg
         integer, intent(out) :: errflg
 
-        errmsg = ''
-        errflg = 0
-
         ! For remembering the model states from the previous time step. They must be allocated at model initialization
         ! because they need to persist across time steps.
         theta_prev(:, :) = 0.0_kind_phys
         qv_prev(:, :) = 0.0_kind_phys
+
+        errmsg = ''
+        errflg = 0
     end subroutine mmm_physics_persist_states_init
 
     !> \section arg_table_mmm_physics_persist_states_timestep_final Argument Table
@@ -553,14 +353,47 @@ contains
         character(*), intent(out) :: errmsg
         integer, intent(out) :: errflg
 
-        errmsg = ''
-        errflg = 0
-
         ! Remember the model states at this time step. When the next time step comes, they will become
         ! the model states from the previous one.
         theta_prev(:, :) = theta_curr(:, :)
         qv_prev(:, :) = qv_curr(:, :)
+
+        errmsg = ''
+        errflg = 0
     end subroutine mmm_physics_persist_states_timestep_final
+
+    !> \section arg_table_mmm_physics_to_coupler_run Argument Table
+    !! \htmlinclude mmm_physics_to_coupler_run.html
+    pure subroutine mmm_physics_to_coupler_run( &
+            dt, &
+            re_ice, re_snow, &
+            zprecc, rain, ice, snow, graupel, &
+            dei, des, &
+            prec_dp, snow_dp, prec_sh, snow_sh, prec_str, snow_str, &
+            errmsg, errflg)
+        use ccpp_kinds, only: kind_phys
+
+        real(kind_phys), intent(in) :: dt, &
+                                       re_ice(:, :), re_snow(:, :), &
+                                       zprecc(:), rain(:), ice(:), snow(:), graupel(:)
+        real(kind_phys), intent(out) :: dei(:, :), des(:, :), &
+                                        prec_dp(:), snow_dp(:), prec_sh(:), snow_sh(:), prec_str(:), snow_str(:)
+        character(*), intent(out) :: errmsg
+        integer, intent(out) :: errflg
+
+        dei(:, :) = re_ice(:, :) * 2.0_kind_phys
+        des(:, :) = re_snow(:, :) * 2.0_kind_phys
+
+        prec_dp(:) = zprecc(:) / dt
+        snow_dp(:) = 0.0_kind_phys
+        prec_sh(:) = 0.0_kind_phys
+        snow_sh(:) = 0.0_kind_phys
+        prec_str(:) = (rain(:) + ice(:)) / dt
+        snow_str(:) = (snow(:) + graupel(:)) / dt
+
+        errmsg = ''
+        errflg = 0
+    end subroutine mmm_physics_to_coupler_run
 
     !> \section arg_table_compute_characteristic_grid_length_scale_init Argument Table
     !! \htmlinclude compute_characteristic_grid_length_scale_init.html
@@ -575,14 +408,14 @@ contains
         character(*), intent(out) :: errmsg
         integer, intent(out) :: errflg
 
-        errmsg = ''
-        errflg = 0
-
         ! Grid sizes do not change with time. Set them just once at model initialization for better performance.
 
         ! Compute grid sizes in meters. This is trivial for models with regular grids like WRF,
         ! but not so straightforward for models with unstructured grids like CAM-SIMA. Here, the square root of cell area is used.
         dx(:) = sqrt(omega(:) * (rearth ** 2))
+
+        errmsg = ''
+        errflg = 0
     end subroutine compute_characteristic_grid_length_scale_init
 
     !> \section arg_table_compute_hydrostatic_upward_air_velocity_at_interface_run Argument Table
@@ -653,14 +486,14 @@ contains
 
         integer :: i
 
-        errmsg = ''
-        errflg = 0
-
         ! Convert geopotential height wrt surface at interface to geopotential height wrt mean sea level at interface,
         ! in accordance with its normal definition.
         do i = 1, ncol
             zimsl(i, :) = phis(i) / gravit + zisfc(i, :)
         end do
+
+        errmsg = ''
+        errflg = 0
     end subroutine geopotential_height_wrt_sfc_at_interface_to_msl_run
 
     !> \section arg_table_geopotential_height_wrt_sfc_to_msl_run Argument Table
@@ -680,14 +513,14 @@ contains
 
         integer :: i
 
-        errmsg = ''
-        errflg = 0
-
         ! Convert geopotential height wrt surface to geopotential height wrt mean sea level, in accordance with
         ! its normal definition.
         do i = 1, ncol
             zmmsl(i, :) = phis(i) / gravit + zmsfc(i, :)
         end do
+
+        errmsg = ''
+        errflg = 0
     end subroutine geopotential_height_wrt_sfc_to_msl_run
 
     !> \section arg_table_lw_heating_rate_to_air_potential_temperature_tendency_run Argument Table
@@ -699,14 +532,14 @@ contains
         use ccpp_kinds, only: kind_phys
 
         real(kind_phys), intent(in) :: cpairv(:, :), exner(:, :), lw_heating_rate(:, :)
-        real(kind_phys), intent(out) :: rthratenlw(:, :)
+        real(kind_phys), intent(inout) :: rthratenlw(:, :)
         character(*), intent(out) :: errmsg
         integer, intent(out) :: errflg
 
+        rthratenlw(:, :) = rthratenlw(:, :) + lw_heating_rate(:, :) / cpairv(:, :) / exner(:, :)
+
         errmsg = ''
         errflg = 0
-
-        rthratenlw(:, :) = lw_heating_rate(:, :) / cpairv(:, :) / exner(:, :)
     end subroutine lw_heating_rate_to_air_potential_temperature_tendency_run
 
     !> \section arg_table_sw_heating_rate_to_air_potential_temperature_tendency_run Argument Table
@@ -718,13 +551,13 @@ contains
         use ccpp_kinds, only: kind_phys
 
         real(kind_phys), intent(in) :: cpairv(:, :), exner(:, :), sw_heating_rate(:, :)
-        real(kind_phys), intent(out) :: rthratensw(:, :)
+        real(kind_phys), intent(inout) :: rthratensw(:, :)
         character(*), intent(out) :: errmsg
         integer, intent(out) :: errflg
 
+        rthratensw(:, :) = rthratensw(:, :) + sw_heating_rate(:, :) / cpairv(:, :) / exner(:, :)
+
         errmsg = ''
         errflg = 0
-
-        rthratensw(:, :) = sw_heating_rate(:, :) / cpairv(:, :) / exner(:, :)
     end subroutine sw_heating_rate_to_air_potential_temperature_tendency_run
 end module mmm_physics_compat

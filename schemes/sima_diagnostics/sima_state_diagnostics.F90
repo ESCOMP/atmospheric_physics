@@ -1,38 +1,48 @@
 module sima_state_diagnostics
 
-   use ccpp_kinds, only:  kind_phys
-   use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
-   use cam_history_support,       only: fieldname_len
-
    implicit none
-   private
-   save
 
+   private
    public :: sima_state_diagnostics_init ! init routine
    public :: sima_state_diagnostics_run  ! main routine
 
-   character(len=65) :: const_std_names(6) = &
-   (/'water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water       ', &
-     'cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water', &
-     'rain_mixing_ratio_wrt_moist_air_and_condensed_water              ', &
-     'cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water         ', &
-     'snow_mixing_ratio_wrt_moist_air_and_condensed_water              ', &
-     'graupel_water_mixing_ratio_wrt_moist_air_and_condensed_water     '/)
+   character(len=*), parameter :: const_std_names(*) = [character(len=128) :: &
+      'water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water', &
+      'cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water', &
+      'rain_mixing_ratio_wrt_moist_air_and_condensed_water', &
+      'cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water', &
+      'snow_mixing_ratio_wrt_moist_air_and_condensed_water', &
+      'graupel_water_mixing_ratio_wrt_moist_air_and_condensed_water', &
+      'mass_number_concentration_of_cloud_liquid_water_droplets_in_moist_air_and_condensed_water', &
+      'mass_number_concentration_of_rain_drops_in_moist_air_and_condensed_water', &
+      'mass_number_concentration_of_cloud_ice_water_crystals_in_moist_air_and_condensed_water', &
+      'mass_number_concentration_of_snow_crystals_in_moist_air_and_condensed_water', &
+      'mass_number_concentration_of_graupel_particles_in_moist_air_and_condensed_water' &
+   ]
 
-   character(len=6) :: const_diag_names(6) = (/'Q     ', &
-                                               'CLDLIQ', &
-                                               'RAINQM', &
-                                               'CLDICE', &
-                                               'SNOWQM', &
-                                               'GRAUQM'/)
+   character(len=*), parameter :: const_diag_names(*) = [character(len=32) :: &
+      'Q', &
+      'CLDLIQ', &
+      'RAINQM', &
+      'CLDICE', &
+      'SNOWQM', &
+      'GRAUQM', &
+      'NUMLIQ', &
+      'NUMRAI', &
+      'NUMICE', &
+      'NUMSNO', &
+      'NUMGRA' &
+   ]
 
-CONTAINS
+contains
 
-   !> \section arg_table_sima_state_diagnostics_init  Argument Table
+   !> \section arg_table_sima_state_diagnostics_init Argument Table
    !! \htmlinclude sima_state_diagnostics_init.html
    subroutine sima_state_diagnostics_init(const_props, errmsg, errflg)
-      use cam_history,         only: history_add_field
-      use cam_history_support, only: horiz_only
+
+      use cam_history, only: history_add_field
+      use cam_history_support, only: fieldname_len, horiz_only
+      use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
 
       type(ccpp_constituent_prop_ptr_t), intent(in) :: const_props(:)
       character(len=512), intent(out) :: errmsg
@@ -128,14 +138,18 @@ CONTAINS
 
    end subroutine sima_state_diagnostics_init
 
-   !> \section arg_table_sima_state_diagnostics_run  Argument Table
+   !> \section arg_table_sima_state_diagnostics_run Argument Table
    !! \htmlinclude sima_state_diagnostics_run.html
    subroutine sima_state_diagnostics_run(ps, psdry, phis, T, u, v, dse, omega, &
-        pmid, pmiddry, pdel, pdeldry, rpdel, rpdeldry, lnpmid, lnpmiddry,     &
-        inv_exner, zm, pint, pintdry, lnpint, lnpintdry, zi, const_array,     &
-        const_props, errmsg, errflg)
+         pmid, pmiddry, pdel, pdeldry, rpdel, rpdeldry, lnpmid, lnpmiddry,     &
+         inv_exner, zm, pint, pintdry, lnpint, lnpintdry, zi, const_array,     &
+         const_props, errmsg, errflg)
 
       use cam_history, only: history_out_field
+      use cam_history_support, only: fieldname_len
+      use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
+      use ccpp_kinds, only: kind_phys
+
       !------------------------------------------------
       !   Input / output parameters
       !------------------------------------------------
@@ -237,4 +251,5 @@ CONTAINS
       end do
 
    end subroutine sima_state_diagnostics_run
+
 end module sima_state_diagnostics

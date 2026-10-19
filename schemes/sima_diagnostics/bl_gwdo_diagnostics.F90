@@ -1,6 +1,6 @@
 !> This module contains diagnostic schemes that are specific to the YSU orographic gravity wave drag scheme,
 !> which is part of the MMM physics.
-module bl_gwdo_diag
+module bl_gwdo_diagnostics
     implicit none
 
     private
@@ -49,4 +49,4 @@ contains
         errmsg = ''
         errflg = 0
     end subroutine bl_gwdo_diagnostics_run
-end module bl_gwdo_diag
+end module bl_gwdo_diagnostics
