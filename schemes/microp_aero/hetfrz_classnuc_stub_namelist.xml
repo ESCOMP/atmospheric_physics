@@ -82,7 +82,7 @@
     <type>logical</type>
     <category>microphys</category>
     <group>hetfrz_classnuc_nl</group>
-    <standard_name>do_heterogeneous_ice_nucleation</standard_name>
+    <standard_name>do_heterogeneous_freezing_by_classical_nucleation_theory</standard_name>
     <units>flag</units>
     <desc>
       Switch to turn on heterogeneous freezing by classical nucleation theory.

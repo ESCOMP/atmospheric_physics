@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = ty_fluxes_broadband_ccpp
   type = ddt
+  module_name = ccpp_fluxes
   dependencies = ../ext/rte-frontend/mo_fluxes.F90
   dependencies = ../ext/rte-kernels/mo_fluxes_broadband_kernels.F90
 

@@ -8,6 +8,7 @@ module aerosol_optics
   implicit none
   private
 
+  public :: aerosol_optics_register
   public :: aerosol_optics_init
   public :: aerosol_optics_run
 
@@ -22,25 +23,39 @@ module aerosol_optics
 
 contains
 
+!> \section arg_table_aerosol_optics_register Argument Table
+!! \htmlinclude aerosol_optics_register.html
+  subroutine aerosol_optics_register(num_bulk_aer, errmsg, errflg)
+    ! bulk_aerosol_list is currently used from the host module rather
+    ! than threaded through as an argument via the CCPP,
+    ! but should in the future.
+    use radiative_aerosol_definitions,   only: bulk_aerosol_list, id_climate
+
+    integer,            intent(out) :: num_bulk_aer
+    character(len=*),   intent(out) :: errmsg
+    integer,            intent(out) :: errflg
+
+    errmsg = ''
+    errflg = 0
+
+    ! Set number of bulk aerosol constituents in climate list
+    num_bulk_aer = bulk_aerosol_list(id_climate)%numaerosols
+
+  end subroutine aerosol_optics_register
+
 !> \section arg_table_aerosol_optics_init Argument Table
 !! \htmlinclude aerosol_optics_init.html
   subroutine aerosol_optics_init(water_refindex_file, &
                                  nswbands, nlwbands, &
-                                 num_bulk_aer, &
                                  errmsg, errflg)
     use ccpp_io_reader,                  only: create_netcdf_reader_t
     use ccpp_io_reader,                  only: abstract_netcdf_reader_t
-    ! bulk_aerosol_list is currently used from the host module rather
-    ! than threaded through as arguments through the CCPP but should in the future
-    use radiative_aerosol_definitions,   only: bulk_aerosol_list, id_climate
-
     use aerosol_instances_mod,           only: aerosol_instances_is_active
 
     character(len=*),   intent(in)  :: water_refindex_file
     integer,            intent(in)  :: nswbands
     integer,            intent(in)  :: nlwbands
 
-    integer,            intent(out) :: num_bulk_aer
     character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
@@ -50,9 +65,6 @@ contains
 
     errmsg = ''
     errflg = 0
-
-    ! Set number of bulk aerosol constituents in climate list
-    num_bulk_aer = bulk_aerosol_list(id_climate)%numaerosols
 
     !-------------------------------------------------
     ! Read water refractive index data

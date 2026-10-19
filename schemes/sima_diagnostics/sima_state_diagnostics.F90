@@ -136,6 +136,7 @@ CONTAINS
         const_props, errmsg, errflg)
 
       use cam_history, only: history_out_field
+      use debug_fingerprint, only: dbg_fp   !DEBUG-FP
       !------------------------------------------------
       !   Input / output parameters
       !------------------------------------------------
@@ -178,6 +179,9 @@ CONTAINS
 
       errmsg = ''
       errflg = 0
+
+      call dbg_fp('T:sima_state', T)       !DEBUG-FP
+      call dbg_fp('dse:sima_state', dse)   !DEBUG-FP
 
       ! Capture state fields
       call history_out_field('PS'       , ps)

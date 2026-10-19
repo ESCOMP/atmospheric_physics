@@ -36,7 +36,7 @@ contains
      logical,            intent(in)    :: do_spectral_scaling   ! flag to do spectral scaling
      logical,            intent(in)    :: dosw                  ! flag to do shortwave radiation
      real(kind_phys),    intent(in)    :: eccf                  ! Earth-Sun distance factor
-     real(kind_phys),    intent(out)   :: sfac(:,:)             ! scaling factors (columns,gpts)
+     real(kind_phys),    allocatable, intent(out)   :: sfac(:,:)             ! scaling factors (columns,gpts)
      character(len=*),   intent(out)   :: errmsg
      integer,            intent(out)   :: errflg
 
@@ -49,6 +49,8 @@ contains
      ! Initialize error variables
      errflg = 0
      errmsg = ''
+
+     allocate(sfac(nday, size(toa_flux, 2)))
 
      if (.not. dosw .or. nday == 0) then
         return

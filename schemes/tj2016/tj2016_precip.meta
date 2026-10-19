@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = tj2016_precip
   type = scheme
+  module_name = TJ2016_precip
 
 [ccpp-arg-table]
   name  = tj2016_precip_run
@@ -123,7 +124,7 @@
 [ scheme_name ]
   standard_name = scheme_name
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=64
   dimensions = ()
   intent = out
 [ errmsg ]

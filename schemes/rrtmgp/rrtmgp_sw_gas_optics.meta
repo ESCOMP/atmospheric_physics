@@ -107,11 +107,13 @@
   type = ty_gas_optics_rrtmgp_ccpp
   dimensions = ()
   intent = inout
+# allocatable: sized by a run-phase dimension, so this scheme allocates it (the suite cannot size it at init).
 [ toa_src_sw ]
   standard_name = top_of_atmosphere_solar_radiation_flux_on_g_points
   units = W m-2
   type = real | kind = kind_phys
   dimensions = (daytime_columns_dimension, number_of_shortwave_g_point_intervals)
+  allocatable = True
   intent = out
 [ errmsg ]
   standard_name = ccpp_error_message

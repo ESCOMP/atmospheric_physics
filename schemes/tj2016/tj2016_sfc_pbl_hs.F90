@@ -73,7 +73,7 @@ contains
     real(kind_phys), intent(out)   :: Tsurf(:)            ! sea surface temperature K (varied by latitude)
     real(kind_phys), intent(out)   :: tendency_of_air_enthalpy(:,:)
 
-    character(len=512), intent(out):: scheme_name
+    character(len=64), intent(out):: scheme_name
     character(len=512), intent(out):: errmsg
     integer,            intent(out):: errflg
 

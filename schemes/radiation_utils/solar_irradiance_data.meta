@@ -122,6 +122,7 @@
   units = nm
   type = real | kind = kind_phys
   dimensions = (number_of_wavelength_samples_of_spectrum_plus_one)
+  allocatable = True
   intent = out
 [ sol_irrad ]
   standard_name = solar_irradiance

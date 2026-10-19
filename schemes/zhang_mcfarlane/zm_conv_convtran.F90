@@ -103,7 +103,7 @@ subroutine zm_conv_convtran_run(ncol, pver, &
 
 
    type(ccpp_constituent_prop_ptr_t), intent(in) :: const_metadata(:)
-   character(len=40),  intent(out) :: scheme_name
+   character(len=64),  intent(out) :: scheme_name
    character(len=512), intent(out) :: errmsg
    integer,            intent(out) :: errflg
 
