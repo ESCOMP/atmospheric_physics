@@ -10,6 +10,8 @@ name: New standard names comment
 # so nothing from the pull request is ever executed here.
 # The comment is found again through a hidden HTML marker, so a pull
 # request carries exactly one such comment however often it is pushed.
+# No comment is created while a pull request adds or removes no standard
+# names; an existing comment is still updated when they are all reverted.
 
 on:
   workflow_run:
@@ -71,6 +73,13 @@ jobs:
                       | select(.body | contains("<!-- new-standard-names-report -->"))
                       | .id')
           existing=$(printf '%s\n' "${ids}" | head -n 1)
+          # Stay silent until a push adds or removes a standard name.
+          # Once the comment exists it is always updated, so it never goes stale.
+          changed=$(jq '(.new | length) + (.removed | length)' stdnames_report/report.json)
+          if [ -z "${existing}" ] && [ "${changed}" -eq 0 ]; then
+            echo "No standard names added or removed and no earlier comment; not commenting."
+            exit 0
+          fi
           if [ -n "${existing}" ]; then
             echo "Updating comment ${existing} on pull request #${pr}"
             gh api --silent --method PATCH \

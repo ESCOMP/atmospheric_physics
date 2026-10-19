@@ -4,14 +4,12 @@ name: New standard names
 # relative to the base branch, as a non-blocking review aid.
 # Standard names are read from every tracked *.meta and *.xml file by
 # .github/scripts/new_standard_names.py, which needs only git and Python.
-# The results are surfaced three ways:
-#  1. inline "notice" annotations in the Files changed view of the pull
-#     request, one per new name, anchored at its first .meta occurrence;
-#  2. a markdown job summary on the workflow run page with the full list;
-#  3. a report artifact, which new_standard_names_comment.yaml turns into
-#     one sticky pull request comment.
-# GitHub keeps at most 10 annotations per step and 50 per job, hence the
-# chunked annotation steps below; the summary always has the full list.
+# The results are surfaced two ways:
+#  1. a markdown job summary on the workflow run page with the full list;
+#  2. a report artifact, which new_standard_names_comment.yaml turns into
+#     one sticky pull request comment once any standard name changes.
+# Inline annotations were dropped because they cannot be dismissed and
+# crowded the Files changed view; the sticky comment carries the same detail.
 # Everything here runs with the read-only default token so it also works
 # for pull requests from forks.
 
@@ -50,21 +48,6 @@ jobs:
 
       - name: Write the job summary
         run: cat stdnames_report/report.md >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Annotate new standard names (1-10)
-        run: sed -n '1,10p' stdnames_report/annotations.txt
-
-      - name: Annotate new standard names (11-20)
-        run: sed -n '11,20p' stdnames_report/annotations.txt
-
-      - name: Annotate new standard names (21-30)
-        run: sed -n '21,30p' stdnames_report/annotations.txt
-
-      - name: Annotate new standard names (31-40)
-        run: sed -n '31,40p' stdnames_report/annotations.txt
-
-      - name: Annotate new standard names (41-50)
-        run: sed -n '41,50p' stdnames_report/annotations.txt
 
       - name: Upload the report
         uses: actions/upload-artifact@v4
