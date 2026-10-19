@@ -1,8 +1,12 @@
 ! Zero cloud liquid and cloud ice (including number concentrations)
 ! when the condensate mass is below a floor.
 !
-! Used for cloud limits after deep convection updates.
-!REMOVECAM: see state_cnst_min_nz or cldlim_names in physics_types.F90
+! Replicates the cloud limits that CAM applies inside physics_update whenever
+! deep convective tendencies are applied: state_cnst_min_nz, triggered by the
+! cldlim_names process list, in CAM's physics_types.F90.
+! CAM-SIMA tendency appliers have no equivalent hook, so this scheme must run
+! in the suite after deep convective constituent updates, and must stay
+! consistent with the CAM limiter for as long as both hosts share the schemes.
 module cloud_condensate_floor
   use ccpp_kinds, only: kind_phys
 

@@ -85,7 +85,10 @@
   <kind>kind_phys</kind>
   <desc>
     Coefficient scaling the MCSP temperature tendency, which redistributes the deep
-    convective heating vertically. Zero turns the temperature tendency off.
+    convective heating vertically. Only a positive value activates the temperature
+    tendency. MCSP as a whole is active only when at least one of mcsp_heat_coeff,
+    mcsp_moisture_coeff, mcsp_uwind_coeff or mcsp_vwind_coeff is positive; all
+    default to zero, so MCSP is off by default.
   </desc>
   <values>
      <value>0.0D0</value>
@@ -101,7 +104,8 @@
   <kind>kind_phys</kind>
   <desc>
     Coefficient scaling the MCSP water vapor tendency, which redistributes the deep
-    convective moistening vertically. Zero turns the water vapor tendency off.
+    convective moistening vertically. Only a positive value activates the water
+    vapor tendency.
   </desc>
   <values>
      <value>0.0D0</value>
@@ -116,7 +120,8 @@
   <type>real</type>
   <kind>kind_phys</kind>
   <desc>
-    Coefficient scaling the MCSP eastward wind tendency. Zero turns it off.
+    Coefficient scaling the MCSP eastward wind tendency. Only a positive value
+    activates it.
   </desc>
   <values>
      <value>0.0D0</value>
@@ -131,7 +136,8 @@
   <type>real</type>
   <kind>kind_phys</kind>
   <desc>
-    Coefficient scaling the MCSP northward wind tendency. Zero turns it off.
+    Coefficient scaling the MCSP northward wind tendency. Only a positive value
+    activates it.
   </desc>
   <values>
      <value>0.0D0</value>
@@ -141,7 +147,7 @@
 <entry id="mcsp_storm_speed_pref">
   <category>conv</category>
   <group>mcsp_nl</group>
-  <standard_name>reference_air_pressure_for_storm_level_wind_for_mesoscale_coherent_structure_parameterization</standard_name>
+  <standard_name>reference_air_pressure_of_storm_level_wind_for_mesoscale_coherent_structure_parameterization</standard_name>
   <units>Pa</units>
   <type>real</type>
   <kind>kind_phys</kind>
@@ -157,7 +163,7 @@
 <entry id="mcsp_conv_depth_min">
   <category>conv</category>
   <group>mcsp_nl</group>
-  <standard_name>minimum_pressure_depth_of_deep_convection_for_mesoscale_coherent_structure_parameterization</standard_name>
+  <standard_name>pressure_depth_of_deep_convection_threshold_for_mesoscale_coherent_structure_parameterization</standard_name>
   <units>Pa</units>
   <type>real</type>
   <kind>kind_phys</kind>
@@ -172,7 +178,7 @@
 <entry id="mcsp_shear_min">
   <category>conv</category>
   <group>mcsp_nl</group>
-  <standard_name>minimum_low_level_eastward_wind_shear_for_mesoscale_coherent_structure_parameterization</standard_name>
+  <standard_name>low_level_eastward_wind_shear_threshold_for_mesoscale_coherent_structure_parameterization</standard_name>
   <units>m s-1</units>
   <type>real</type>
   <kind>kind_phys</kind>

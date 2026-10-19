@@ -25,15 +25,18 @@ contains
     call history_add_field('MCSP_DT', 'tendency_of_air_temperature_due_to_mesoscale_coherent_structure_parameterization', &
                            'lev', 'avg', 'K s-1')
     call history_add_field('MCSP_DQ', &
-                           'tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_mesoscale_coherent_structure_parameterization', &
+                           'tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water'// &
+                           '_due_to_mesoscale_coherent_structure_parameterization', &
                            'lev', 'avg', 'kg kg-1 s-1')
     call history_add_field('MCSP_DU', 'tendency_of_eastward_wind_due_to_mesoscale_coherent_structure_parameterization', &
                            'lev', 'avg', 'm s-2')
     call history_add_field('MCSP_DV', 'tendency_of_northward_wind_due_to_mesoscale_coherent_structure_parameterization', &
                            'lev', 'avg', 'm s-2')
-    call history_add_field('MCSP_DT_max', 'heating_amplitude_of_mesoscale_coherent_structure_parameterization', &
+    call history_add_field('MCSP_DT_max', &
+                           'amplitude_of_tendency_of_air_temperature_due_to_mesoscale_coherent_structure_parameterization', &
                            horiz_only, 'avg', 'K s-1')
-    call history_add_field('MCSP_freq', 'frequency_of_activation_of_mesoscale_coherent_structure_parameterization', &
+    ! the instantaneous 0/1 activation flag time-averages into an activation frequency
+    call history_add_field('MCSP_freq', 'frequency_of_mesoscale_coherent_structure_parameterization_activation', &
                            horiz_only, 'avg', '1')
     call history_add_field('MCSP_shear', 'low_level_eastward_wind_shear_for_mesoscale_coherent_structure_parameterization', &
                            horiz_only, 'avg', 'm s-1')

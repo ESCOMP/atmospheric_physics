@@ -4,8 +4,9 @@
 ! a prescribed vertical structure to represent the effect of mesoscale organization
 ! (top-heavy stratiform heating), and can also add momentum tendencies, although
 ! that capability has not been extensively tested.
-! Only the column mean deep convective tendencies are used, so the scheme conserves
-! column dry static energy, kinetic energy and water by construction.
+! Only the column mean deep convective tendencies are used, and any kinetic energy
+! source from the momentum tendencies is compensated in dry static energy,
+! so the scheme conserves column total energy and water by construction.
 !
 ! References:
 !   Moncrieff, M. W., & Liu, C. (2006). Representing convective organization in
@@ -45,11 +46,6 @@ module mcsp
 
   ! Shear diagnostic value where the reference pressure level is below the surface
   real(kind_phys), parameter :: shear_undefined = -999._kind_phys
-
-  ! E3SM additionally rejects shear magnitudes at or above this bound, which also
-  ! excludes columns flagged with shear_undefined.
-  ! See the commented-out condition in mcsp_run.
-  ! real(kind_phys), parameter :: shear_max = 200._kind_phys
 
 contains
 
@@ -97,8 +93,8 @@ contains
 
 !> \section arg_table_mcsp_run Argument Table
 !! \htmlinclude mcsp_run.html
-  subroutine mcsp_run(ncol, pver, pverp, cpair, pi, dt, jctop, &
-                      pmid, pint, pdel, u, v, &
+  subroutine mcsp_run(ncol, pver, cpair, pi, dt, jctop, &
+                      pmid, ps, pdel, u, v, &
                       ttend_dp, qtend_dp, &
                       ptend_s, ptend_q, ptend_u, ptend_v, &
                       mcsp_dt_out, mcsp_dq_out, mcsp_du_out, mcsp_dv_out, &
@@ -108,13 +104,12 @@ contains
     ! Arguments
     integer,            intent(in)  :: ncol              ! number of atmospheric columns
     integer,            intent(in)  :: pver              ! number of vertical layers
-    integer,            intent(in)  :: pverp             ! number of vertical interfaces
     real(kind_phys),    intent(in)  :: cpair             ! specific heat of dry air at constant pressure [J kg-1 K-1]
     real(kind_phys),    intent(in)  :: pi                ! pi [1]
     real(kind_phys),    intent(in)  :: dt                ! physics time step [s]
     integer,            intent(in)  :: jctop(:)          ! vertical index at top of deep convection, pver where none [index]
     real(kind_phys),    intent(in)  :: pmid(:,:)         ! mid-point pressure [Pa]
-    real(kind_phys),    intent(in)  :: pint(:,:)         ! interface pressure [Pa]
+    real(kind_phys),    intent(in)  :: ps(:)             ! surface pressure [Pa]
     real(kind_phys),    intent(in)  :: pdel(:,:)         ! pressure thickness [Pa]
     real(kind_phys),    intent(in)  :: u(:,:)            ! zonal wind [m s-1]
     real(kind_phys),    intent(in)  :: v(:,:)            ! meridional wind [m s-1]
@@ -141,7 +136,8 @@ contains
 
     real(kind_phys) :: tend_k        ! kinetic energy tendency [J kg-1 s-1]
     real(kind_phys) :: pdepth_mid_k  ! pressure depth from the surface to layer k [Pa]
-    real(kind_phys) :: pdepth_total  ! pressure depth from the surface to the convective top [Pa]
+    real(kind_phys) :: sin_struct    ! vertical structure of the heating/moistening tendencies [1]
+    real(kind_phys) :: cos_struct    ! vertical structure of the momentum tendencies [1]
 
     real(kind_phys) :: avg_tend_s(ncol)        ! mass weighted column average deep convective DSE tendency
     real(kind_phys) :: avg_tend_q(ncol)        ! mass weighted column average deep convective qv tendency
@@ -232,7 +228,7 @@ contains
              avg_tend_s(i) = avg_tend_s(i) / pdel_sum(i)
              avg_tend_q(i) = avg_tend_q(i) / pdel_sum(i)
              ! calculate diagnostic deep convective depth
-             conv_depth(i) = pint(i,pverp) - pmid(i,jctop(i))
+             conv_depth(i) = ps(i) - pmid(i,jctop(i))
           else
              avg_tend_s(i) = 0._kind_phys
              avg_tend_q(i) = 0._kind_phys
@@ -258,24 +254,24 @@ contains
           if ( conv_depth(i) >= conv_depth_min ) then
              ! check that deep convection provided a non-zero column total heating
              if ( avg_tend_s(i) > 0._kind_phys ) then
-                ! check that there is sufficient wind shear to justify coherent organization
-                ! E3SM also requires abs(mcsp_shear(i)) < shear_max (see module header):
-                ! if ( abs(mcsp_shear(i)) >= shear_min .and. abs(mcsp_shear(i)) < shear_max ) then
-                if ( abs(mcsp_shear(i)) >= shear_min ) then
+                ! check that there is sufficient wind shear to justify coherent organization,
+                ! skipping columns where the shear is undefined (reference level below the surface)
+                if ( mcsp_shear(i) /= shear_undefined .and. abs(mcsp_shear(i)) >= shear_min ) then
 
                    if (do_mcsp_t) mcsp_dt_max(i) = avg_tend_s(i) * heat_coeff / cpair
 
                    do k = jctop(i), pver
 
                       ! See eq 7-8 of Moncrieff et al. (2017) - also eq (5) of Moncrieff & Liu (2006)
-                      pdepth_mid_k = pint(i,pverp) - pmid(i,k)
-                      pdepth_total = pint(i,pverp) - pmid(i,jctop(i))
+                      pdepth_mid_k = ps(i) - pmid(i,k)
 
-                      ! specify the assumed vertical structure
-                      if (do_mcsp_t) mcsp_tend_s(i,k) = -1._kind_phys*heat_coeff * sin(2.0_kind_phys*pi*(pdepth_mid_k/pdepth_total))
-                      if (do_mcsp_q) mcsp_tend_q(i,k) = -1._kind_phys*moisture_coeff * sin(2.0_kind_phys*pi*(pdepth_mid_k/pdepth_total))
-                      if (do_mcsp_u) mcsp_tend_u(i,k) = uwind_coeff * (cos(pi*(pdepth_mid_k/pdepth_total)))
-                      if (do_mcsp_v) mcsp_tend_v(i,k) = vwind_coeff * (cos(pi*(pdepth_mid_k/pdepth_total)))
+                      ! specify the assumed vertical structure over the convective depth
+                      sin_struct = sin(2.0_kind_phys*pi*(pdepth_mid_k/conv_depth(i)))
+                      cos_struct = cos(pi*(pdepth_mid_k/conv_depth(i)))
+                      if (do_mcsp_t) mcsp_tend_s(i,k) = -1._kind_phys*heat_coeff * sin_struct
+                      if (do_mcsp_q) mcsp_tend_q(i,k) = -1._kind_phys*moisture_coeff * sin_struct
+                      if (do_mcsp_u) mcsp_tend_u(i,k) = uwind_coeff * cos_struct
+                      if (do_mcsp_v) mcsp_tend_v(i,k) = vwind_coeff * cos_struct
 
                       ! scale the vertical structure by the deep convective heating/drying tendencies
                       if (do_mcsp_t) mcsp_tend_s(i,k) = avg_tend_s(i) * mcsp_tend_s(i,k)
@@ -325,14 +321,16 @@ contains
              mcsp_dt_out(i,k) = mcsp_dt_out(i,k) - mcsp_avg_tend_k(i)
           end if
 
-          ! update output tendencies
-          if (do_mcsp_t) ptend_s(i,k) = mcsp_dt_out(i,k)
+          ! update output tendencies. ptend_s is set unconditionally so the kinetic
+          ! energy correction still compensates the momentum tendencies when the
+          ! heating part is disabled; it is zero wherever MCSP did not contribute.
+          ptend_s(i,k) = mcsp_dt_out(i,k)
           if (do_mcsp_q) ptend_q(i,k) = mcsp_dq_out(i,k)
           if (do_mcsp_u) ptend_u(i,k) = mcsp_du_out(i,k)
           if (do_mcsp_v) ptend_v(i,k) = mcsp_dv_out(i,k)
 
-          ! adjust units for diagnostic outputs
-          if (do_mcsp_t) mcsp_dt_out(i,k) = mcsp_dt_out(i,k)/cpair
+          ! convert the DSE tendency diagnostic to a temperature tendency
+          mcsp_dt_out(i,k) = mcsp_dt_out(i,k)/cpair
 
        end do
     end do

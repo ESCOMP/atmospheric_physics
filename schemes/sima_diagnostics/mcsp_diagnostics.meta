@@ -46,13 +46,13 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ mcsp_dt_max ]
-  standard_name = heating_amplitude_of_mesoscale_coherent_structure_parameterization
+  standard_name = amplitude_of_tendency_of_air_temperature_due_to_mesoscale_coherent_structure_parameterization
   units = K s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
 [ mcsp_freq ]
-  standard_name = frequency_of_activation_of_mesoscale_coherent_structure_parameterization
+  standard_name = is_mesoscale_coherent_structure_parameterization_activated
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)

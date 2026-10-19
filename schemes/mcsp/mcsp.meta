@@ -42,19 +42,19 @@
   dimensions = ()
   intent = in
 [ mcsp_storm_speed_pref ]
-  standard_name = reference_air_pressure_for_storm_level_wind_for_mesoscale_coherent_structure_parameterization
+  standard_name = reference_air_pressure_of_storm_level_wind_for_mesoscale_coherent_structure_parameterization
   units = Pa
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ mcsp_conv_depth_min ]
-  standard_name = minimum_pressure_depth_of_deep_convection_for_mesoscale_coherent_structure_parameterization
+  standard_name = pressure_depth_of_deep_convection_threshold_for_mesoscale_coherent_structure_parameterization
   units = Pa
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ mcsp_shear_min ]
-  standard_name = minimum_low_level_eastward_wind_shear_for_mesoscale_coherent_structure_parameterization
+  standard_name = low_level_eastward_wind_shear_threshold_for_mesoscale_coherent_structure_parameterization
   units = m s-1
   type = real | kind = kind_phys
   dimensions = ()
@@ -83,12 +83,6 @@
   intent = in
 [ pver ]
   standard_name = vertical_layer_dimension
-  units = count
-  type = integer
-  dimensions = ()
-  intent = in
-[ pverp ]
-  standard_name = vertical_interface_dimension
   units = count
   type = integer
   dimensions = ()
@@ -123,11 +117,11 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
-[ pint ]
-  standard_name = air_pressure_at_interface
+[ ps ]
+  standard_name = surface_air_pressure
   units = Pa
   type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent, vertical_interface_dimension)
+  dimensions = (horizontal_loop_extent)
   intent = in
 [ pdel ]
   standard_name = air_pressure_thickness
@@ -209,7 +203,9 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ mcsp_freq ]
-  standard_name = frequency_of_activation_of_mesoscale_coherent_structure_parameterization
+  standard_name = is_mesoscale_coherent_structure_parameterization_activated
+  # 0 or 1 at each timestep; time-averaging accumulates it into an
+  # activation frequency in [0, 1].
   units = 1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
@@ -227,7 +223,7 @@
   dimensions = (horizontal_loop_extent)
   intent = out
 [ mcsp_dt_max ]
-  standard_name = heating_amplitude_of_mesoscale_coherent_structure_parameterization
+  standard_name = amplitude_of_tendency_of_air_temperature_due_to_mesoscale_coherent_structure_parameterization
   units = K s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
