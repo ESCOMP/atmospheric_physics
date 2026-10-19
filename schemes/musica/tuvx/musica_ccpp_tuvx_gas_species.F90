@@ -94,7 +94,7 @@ contains
   !> Sets the species constituents in the vertical layer
   subroutine set_gas_species_values(profile, dry_air_density, constituents, &
                                 height_deltas, index_species, errmsg, errcode)
-    use musica_ccpp_util,              only: has_error_occurred
+    use musica_ccpp_util,              only: has_error_occurred, AVOGADRO
     use musica_ccpp_species,           only: tuvx_species_set
     use musica_ccpp_tuvx_load_species, only: O3_LABEL
     use musica_tuvx_profile,           only: profile_t
@@ -111,18 +111,22 @@ contains
     ! local variables
     type(error_t)   :: error
     integer         :: num_vertical_levels
-    real(kind_phys) :: constituent_mol_per_cm_3(size(constituents)) ! mol cm-3
+    real(kind_phys) :: constituent_molec_per_cm_3(size(constituents)) ! molecule cm-3
     real(kind_phys) :: interfaces(size(constituents) + 2)
     real(kind_phys) :: densities(size(constituents) + 1)
     real(kind_phys) :: molar_mass
 
     molar_mass = tuvx_species_set(index_species)%molar_mass
-    constituent_mol_per_cm_3(:) = constituents(:) * dry_air_density(:) / molar_mass / m_3_to_cm_3
+    ! TUV-x gas profiles are number densities (molecule cm-3, matching its
+    ! per-molecule cross sections), so the mole count must be scaled by
+    ! Avogadro's number
+    constituent_molec_per_cm_3(:) = constituents(:) * dry_air_density(:) / molar_mass &
+                                    * AVOGADRO / m_3_to_cm_3
 
     num_vertical_levels = size(constituents)
-    interfaces(1) = constituent_mol_per_cm_3(num_vertical_levels)
-    interfaces(2:num_vertical_levels+1) = constituent_mol_per_cm_3(num_vertical_levels:1:-1)
-    interfaces(num_vertical_levels+2) = constituent_mol_per_cm_3(1)
+    interfaces(1) = constituent_molec_per_cm_3(num_vertical_levels)
+    interfaces(2:num_vertical_levels+1) = constituent_molec_per_cm_3(num_vertical_levels:1:-1)
+    interfaces(num_vertical_levels+2) = constituent_molec_per_cm_3(1)
 
     if (tuvx_species_set(index_species)%name == O3_LABEL) then
       densities(:) = height_deltas(:) * km_to_cm * 0.5_kind_phys &
