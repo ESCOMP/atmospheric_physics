@@ -15,7 +15,6 @@ module musica_ccpp_micm_surface
   !! '<label>.effective radius [m]' and '<label>.particle number concentration [# m-3]'
   character(len=*), parameter, public :: RADIUS_SUFFIX = '.effective radius [m]'
   character(len=*), parameter, public :: NUMBER_SUFFIX = '.particle number concentration [# m-3]'
-  integer,          parameter, public :: SURFACE_LABEL_LENGTH = 256
 
 contains
 
@@ -78,35 +77,35 @@ contains
   subroutine find_surface_reactions(names, indices, labels, radius_index, &
       number_index, errmsg, errcode)
 
-    character(len=*),                                  intent(in)  :: names(:)
-    integer,                                           intent(in)  :: indices(:)
-    character(len=SURFACE_LABEL_LENGTH), allocatable,  intent(out) :: labels(:)
-    integer,                             allocatable,  intent(out) :: radius_index(:)
-    integer,                             allocatable,  intent(out) :: number_index(:)
-    character(len=*),                                  intent(out) :: errmsg
-    integer,                                           intent(out) :: errcode
+    character(len=*),              intent(in)  :: names(:)
+    integer,                       intent(in)  :: indices(:)
+    character(len=:), allocatable, intent(out) :: labels(:)
+    integer,          allocatable, intent(out) :: radius_index(:)
+    integer,          allocatable, intent(out) :: number_index(:)
+    character(len=*),              intent(out) :: errmsg
+    integer,                       intent(out) :: errcode
 
-    integer :: i_param, i_partner, i_reaction, num_reactions, label_length
+    integer :: i_param, i_partner, i_reaction, num_reactions, label_length, max_length
 
     errmsg = ''
     errcode = 0
 
+    ! size the labels to the longest one so none is truncated
     num_reactions = 0
+    max_length = 0
     do i_param = 1, size(names)
-      if (ends_with(trim(names(i_param)), RADIUS_SUFFIX)) num_reactions = num_reactions + 1
+      if (.not. ends_with(trim(names(i_param)), RADIUS_SUFFIX)) cycle
+      num_reactions = num_reactions + 1
+      max_length = max(max_length, len_trim(names(i_param)) - len(RADIUS_SUFFIX))
     end do
-    allocate(labels(num_reactions), radius_index(num_reactions), number_index(num_reactions))
+    allocate(character(len=max_length) :: labels(num_reactions))
+    allocate(radius_index(num_reactions), number_index(num_reactions))
 
     i_reaction = 0
     do i_param = 1, size(names)
       if (.not. ends_with(trim(names(i_param)), RADIUS_SUFFIX)) cycle
       i_reaction = i_reaction + 1
       label_length = len_trim(names(i_param)) - len(RADIUS_SUFFIX)
-      if (label_length > SURFACE_LABEL_LENGTH) then
-        errcode = 1
-        errmsg = '[MUSICA Error] MICM surface reaction label too long: '//trim(names(i_param))
-        return
-      end if
       labels(i_reaction) = names(i_param)(1:label_length)
       radius_index(i_reaction) = indices(i_param)
 
@@ -133,28 +132,26 @@ contains
 
     use musica_util, only: mappings_t
 
-    type(mappings_t),                                  intent(in)  :: ordering
-    character(len=SURFACE_LABEL_LENGTH), allocatable,  intent(out) :: labels(:)
-    integer,                             allocatable,  intent(out) :: radius_index(:)
-    integer,                             allocatable,  intent(out) :: number_index(:)
-    character(len=*),                                  intent(out) :: errmsg
-    integer,                                           intent(out) :: errcode
+    type(mappings_t),              intent(in)  :: ordering
+    character(len=:), allocatable, intent(out) :: labels(:)
+    integer,          allocatable, intent(out) :: radius_index(:)
+    integer,          allocatable, intent(out) :: number_index(:)
+    character(len=*),              intent(out) :: errmsg
+    integer,                       intent(out) :: errcode
 
-    ! long enough for the longest label plus the longer suffix
-    character(len=SURFACE_LABEL_LENGTH + len(NUMBER_SUFFIX)), allocatable :: names(:)
-    integer, allocatable :: indices(:)
-    character(len=:),     allocatable :: name
-    integer :: i_param
+    character(len=:), allocatable :: names(:)
+    integer,          allocatable :: indices(:)
+    integer :: i_param, max_length
 
-    allocate(names(ordering%size()), indices(ordering%size()))
+    ! size the names to the longest label so none is truncated
+    max_length = 0
+    do i_param = 1, ordering%size()
+      max_length = max(max_length, len(ordering%name(i_param)))
+    end do
+    allocate(character(len=max_length) :: names(ordering%size()))
+    allocate(indices(ordering%size()))
     do i_param = 1, size(names)
-      name = ordering%name(i_param)
-      if (len(name) > len(names)) then
-        errcode = 1
-        errmsg = '[MUSICA Error] MICM rate parameter label too long: '//name
-        return
-      end if
-      names(i_param) = name
+      names(i_param) = ordering%name(i_param)
       indices(i_param) = ordering%index(i_param)
     end do
 
