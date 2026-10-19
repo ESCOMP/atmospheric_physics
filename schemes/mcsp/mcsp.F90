@@ -47,6 +47,9 @@ module mcsp
   ! Shear diagnostic value where the reference pressure level is below the surface
   real(kind_phys), parameter :: shear_undefined = -999._kind_phys
 
+  ! Upper bound on the shear magnitude for activation:
+  real(kind_phys), parameter :: shear_max = 500._kind_phys
+
 contains
 
 !> \section arg_table_mcsp_init Argument Table
@@ -87,6 +90,20 @@ contains
        write(iulog,*) 'mcsp_init: mcsp_storm_speed_pref = ', storm_speed_pref
        write(iulog,*) 'mcsp_init: mcsp_conv_depth_min   = ', conv_depth_min
        write(iulog,*) 'mcsp_init: mcsp_shear_min        = ', shear_min
+
+       ! a negative coefficient deactivates the corresponding tendency, like zero
+       if (heat_coeff < 0._kind_phys) then
+          write(iulog,*) 'mcsp_init: WARNING: mcsp_heat_coeff is negative; the MCSP temperature tendency is turned off'
+       end if
+       if (moisture_coeff < 0._kind_phys) then
+          write(iulog,*) 'mcsp_init: WARNING: mcsp_moisture_coeff is negative; the MCSP water vapor tendency is turned off'
+       end if
+       if (uwind_coeff < 0._kind_phys) then
+          write(iulog,*) 'mcsp_init: WARNING: mcsp_uwind_coeff is negative; the MCSP eastward wind tendency is turned off'
+       end if
+       if (vwind_coeff < 0._kind_phys) then
+          write(iulog,*) 'mcsp_init: WARNING: mcsp_vwind_coeff is negative; the MCSP northward wind tendency is turned off'
+       end if
     end if
 
   end subroutine mcsp_init
@@ -148,9 +165,10 @@ contains
     real(kind_phys) :: mcsp_tend_u(ncol,pver)  ! MCSP zonal wind tendency
     real(kind_phys) :: mcsp_tend_v(ncol,pver)  ! MCSP meridional wind tendency
 
-    real(kind_phys) :: mcsp_avg_tend_s(ncol)   ! mass weighted column average MCSP DSE tendency
+    ! mass weighted column average MCSP DSE plus kinetic energy tendency,
+    ! subtracted uniformly from the DSE tendency for total energy conservation
+    real(kind_phys) :: mcsp_avg_tend_s(ncol)
     real(kind_phys) :: mcsp_avg_tend_q(ncol)   ! mass weighted column average MCSP qv tendency
-    real(kind_phys) :: mcsp_avg_tend_k(ncol)   ! mass weighted column average MCSP kinetic energy tendency
 
     logical :: do_mcsp_t   ! compute the temperature tendency
     logical :: do_mcsp_q   ! compute the water vapor tendency
@@ -181,7 +199,6 @@ contains
 
     mcsp_avg_tend_s(:) = 0._kind_phys
     mcsp_avg_tend_q(:) = 0._kind_phys
-    mcsp_avg_tend_k(:) = 0._kind_phys
 
     mcsp_tend_s(:,:) = 0._kind_phys
     mcsp_tend_q(:,:) = 0._kind_phys
@@ -254,9 +271,9 @@ contains
           if ( conv_depth(i) >= conv_depth_min ) then
              ! check that deep convection provided a non-zero column total heating
              if ( avg_tend_s(i) > 0._kind_phys ) then
-                ! check that there is sufficient wind shear to justify coherent organization,
-                ! skipping columns where the shear is undefined (reference level below the surface)
-                if ( mcsp_shear(i) /= shear_undefined .and. abs(mcsp_shear(i)) >= shear_min ) then
+                ! check that there is sufficient wind shear to justify coherent organization;
+                ! the shear_max bound also excludes columns where the shear is undefined
+                if ( abs(mcsp_shear(i)) >= shear_min .and. abs(mcsp_shear(i)) < shear_max ) then
 
                    if (do_mcsp_t) mcsp_dt_max(i) = avg_tend_s(i) * heat_coeff / cpair
 
@@ -286,7 +303,7 @@ contains
                          tend_k = ( 2.0_kind_phys*mcsp_tend_u(i,k)*dt*u(i,k) + mcsp_tend_u(i,k)*mcsp_tend_u(i,k)*dt*dt &
                                    +2.0_kind_phys*mcsp_tend_v(i,k)*dt*v(i,k) + mcsp_tend_v(i,k)*mcsp_tend_v(i,k)*dt*dt &
                                   )/2.0_kind_phys/dt
-                         mcsp_avg_tend_k(i) = mcsp_avg_tend_k(i) + tend_k*pdel(i,k) / pdel_sum(i)
+                         mcsp_avg_tend_s(i) = mcsp_avg_tend_s(i) + tend_k*pdel(i,k) / pdel_sum(i)
                       end if
 
                    end do ! k = jctop(i), pver
@@ -309,17 +326,12 @@ contains
              mcsp_freq(i) = 1._kind_phys
           end if
 
-          ! subtract mass weighted average tendencies for energy/mass conservation
+          ! subtract mass weighted average tendencies for energy/mass conservation;
+          ! mcsp_avg_tend_s includes the kinetic energy source of the momentum tendencies
           mcsp_dt_out(i,k) = mcsp_tend_s(i,k) - mcsp_avg_tend_s(i)
           mcsp_dq_out(i,k) = mcsp_tend_q(i,k) - mcsp_avg_tend_q(i)
           mcsp_du_out(i,k) = mcsp_tend_u(i,k)
           mcsp_dv_out(i,k) = mcsp_tend_v(i,k)
-
-          ! make sure kinetic energy correction is added to DSE tendency
-          ! to conserve total energy whenever momentum tendencies are calculated
-          if (do_mcsp_u .or. do_mcsp_v) then
-             mcsp_dt_out(i,k) = mcsp_dt_out(i,k) - mcsp_avg_tend_k(i)
-          end if
 
           ! update output tendencies. ptend_s is set unconditionally so the kinetic
           ! energy correction still compensates the momentum tendencies when the
