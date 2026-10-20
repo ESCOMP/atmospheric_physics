@@ -54,6 +54,9 @@ contains
     ! Set number of bulk aerosol constituents in climate list
     num_bulk_aer = bulk_aerosol_list(id_climate)%numaerosols
 
+    ! Already initialized?
+    if(allocated(crefwsw)) return
+
     !-------------------------------------------------
     ! Read water refractive index data
     !-------------------------------------------------

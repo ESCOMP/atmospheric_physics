@@ -103,12 +103,52 @@
     <scheme>check_energy_scaling</scheme>
     <scheme>check_energy_chng</scheme>
 
+    <!--
+      Only on the first timestep,
+      initialize radiation fluxes to send to coupler without changing state.
+    -->
+    <scheme>set_first_timestep_only_subcycles</scheme>
+    <subcycle loop="number_of_first_timestep_only_subcycles">
+      <scheme>rrtmgp_pre</scheme>
+      <scheme>compute_relative_humidity</scheme>
+      <scheme>aerosol_optics</scheme>
+      <scheme>tropopause_find</scheme>
+      <scheme>rrtmgp_variables</scheme>
+      <scheme>rrtmgp_inputs</scheme>
+      <scheme>rrtmgp_sw_cloud_optics</scheme>
+      <scheme>rrtmgp_sw_mcica_subcol_gen</scheme>
+      <subcycle loop="number_of_diagnostic_subcycles">
+        <scheme>rrtmgp_constituents</scheme>
+        <scheme>rrtmgp_sw_gas_optics_pre</scheme>
+        <scheme>rrtmgp_sw_gas_optics</scheme>
+        <scheme>rrtmgp_sw_solar_var</scheme>
+        <scheme>rrtmgp_sw_aerosols</scheme>
+        <scheme>rrtmgp_sw_rte</scheme>
+        <scheme>rrtmgp_sw_calculate_fluxes</scheme>
+        <scheme>rrtmgp_sw_calculate_heating_rate</scheme>
+        <scheme>rrtmgp_subcycle</scheme>
+      </subcycle>
+      <scheme>rrtmgp_lw_cloud_optics</scheme>
+      <scheme>rrtmgp_lw_mcica_subcol_gen</scheme>
+      <subcycle loop="number_of_diagnostic_subcycles">
+        <scheme>rrtmgp_constituents</scheme>
+        <scheme>rrtmgp_lw_gas_optics_pre</scheme>
+        <scheme>rrtmgp_lw_gas_optics</scheme>
+        <scheme>rrtmgp_lw_aerosols</scheme>
+        <scheme>rrtmgp_lw_rte</scheme>
+        <scheme>rrtmgp_lw_calculate_fluxes</scheme>
+        <scheme>rrtmgp_lw_calculate_heating_rate</scheme>
+        <scheme>rrtmgp_subcycle</scheme>
+      </subcycle>
+      <scheme>rrtmgp_dry_static_energy_tendency</scheme>
+      <scheme>rrtmgp_post</scheme>
+    </subcycle>
+
     <!-- Calculate surface variables -->
     <!-- This must be done at the end
          of the "before_coupler" group. -->
-    <!-- UNCOMMENT ONCE ALL OTHER CAM7 SCHEMES ARE PRESENT -->
-    <!-- <scheme>calc_dry_air_ideal_gas_density</scheme>
-    <scheme>set_surface_coupling_vars</scheme> -->
+    <scheme>calc_dry_air_ideal_gas_density</scheme>
+    <scheme>set_surface_coupling_vars</scheme>
 
   </group>
 
