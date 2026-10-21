@@ -3,6 +3,7 @@
 program test_micm_surface
 
   use ccpp_kinds,               only: kind_phys
+  use, intrinsic :: ieee_arithmetic, only: ieee_value, ieee_quiet_nan
   use musica_ccpp_micm_surface, only: surface_reaction_parameters_from_mode, &
                                       find_surface_reactions, mode_from_label
   use musica_ccpp_util,         only: PI
@@ -16,6 +17,7 @@ program test_micm_surface
   call test_identity_with_cam_rate()
   call test_tropopause_mask()
   call test_no_surface_or_diameter()
+  call test_unphysical_input()
   call test_find_surface_reactions()
   call test_find_surface_reactions_missing_partner()
   call test_mode_from_label()
@@ -29,12 +31,17 @@ contains
   subroutine test_known_answer()
     real(kind_phys) :: sad(1,1), diameter(1,1), radius(1,1), number(1,1)
     integer         :: tropopause_layer(1)
+    character(len=512) :: errmsg
+    integer            :: errcode
 
     sad(1,1) = 1.0e-6_kind_phys
     diameter(1,1) = 2.0e-5_kind_phys
     tropopause_layer(1) = 0
 
-    call surface_reaction_parameters_from_mode(sad, diameter, tropopause_layer, radius, number)
+    call surface_reaction_parameters_from_mode(sad, diameter, tropopause_layer, radius, number, &
+                                               errmsg, errcode)
+
+    ASSERT(errcode == 0)
 
     ASSERT_NEAR(radius(1,1), 1.0e-7_kind_phys, 1.0e-20_kind_phys)
     ASSERT_NEAR(number(1,1) / 7.957747154594767e8_kind_phys, 1.0_kind_phys, 1.0e-12_kind_phys)
@@ -57,6 +64,8 @@ contains
     real(kind_phys) :: number(NUM_COLUMNS,NUM_LAYERS)    ! m-3
     real(kind_phys) :: recovered_sad, recovered_radius, expected_radius, cam_rate, micm_rate
     integer         :: tropopause_layer(NUM_COLUMNS), i_column, i_layer
+    character(len=512) :: errmsg
+    integer            :: errcode
 
     ! Aitken-, accumulation- and coarse-like magnitudes
     sad(:,1) = (/ 3.2e-8_kind_phys, 4.7e-7_kind_phys, 1.1e-6_kind_phys /)
@@ -65,7 +74,10 @@ contains
     diameter(:,2) = (/ 2.4e-6_kind_phys, 3.5e-5_kind_phys, 4.9e-4_kind_phys /)
     tropopause_layer(:) = 0
 
-    call surface_reaction_parameters_from_mode(sad, diameter, tropopause_layer, radius, number)
+    call surface_reaction_parameters_from_mode(sad, diameter, tropopause_layer, radius, number, &
+                                               errmsg, errcode)
+
+    ASSERT(errcode == 0)
 
     do i_layer = 1, NUM_LAYERS
       do i_column = 1, NUM_COLUMNS
@@ -98,12 +110,17 @@ contains
     real(kind_phys) :: sad(NUM_COLUMNS,NUM_LAYERS), diameter(NUM_COLUMNS,NUM_LAYERS)
     real(kind_phys) :: radius(NUM_COLUMNS,NUM_LAYERS), number(NUM_COLUMNS,NUM_LAYERS)
     integer         :: tropopause_layer(NUM_COLUMNS), i_column, i_layer
+    character(len=512) :: errmsg
+    integer            :: errcode
 
     sad(:,:) = 1.0e-6_kind_phys
     diameter(:,:) = 2.0e-5_kind_phys
     tropopause_layer(:) = (/ 0, 2, 4 /)
 
-    call surface_reaction_parameters_from_mode(sad, diameter, tropopause_layer, radius, number)
+    call surface_reaction_parameters_from_mode(sad, diameter, tropopause_layer, radius, number, &
+                                               errmsg, errcode)
+
+    ASSERT(errcode == 0)
 
     do i_layer = 1, NUM_LAYERS
       do i_column = 1, NUM_COLUMNS
@@ -123,16 +140,76 @@ contains
   subroutine test_no_surface_or_diameter()
     real(kind_phys) :: sad(3,1), diameter(3,1), radius(3,1), number(3,1)
     integer         :: tropopause_layer(3)
+    character(len=512) :: errmsg
+    integer            :: errcode
 
     sad(:,1) = (/ 0.0_kind_phys, 1.0e-6_kind_phys, 0.0_kind_phys /)
     diameter(:,1) = (/ 2.0e-5_kind_phys, 0.0_kind_phys, 0.0_kind_phys /)
     tropopause_layer(:) = 0
 
-    call surface_reaction_parameters_from_mode(sad, diameter, tropopause_layer, radius, number)
+    call surface_reaction_parameters_from_mode(sad, diameter, tropopause_layer, radius, number, &
+                                               errmsg, errcode)
+
+    ASSERT(errcode == 0)
 
     ASSERT(all(radius(:,1) == 0.0_kind_phys))
     ASSERT(all(number(:,1) == 0.0_kind_phys))
   end subroutine test_no_surface_or_diameter
+
+  ! A negative or NaN surface area density or diameter below the tropopause is
+  ! unphysical and must be an error naming the cell. The same values at or
+  ! above the tropopause are masked and are not checked.
+  subroutine test_unphysical_input()
+    real(kind_phys) :: sad(2,2), diameter(2,2), radius(2,2), number(2,2)
+    integer         :: tropopause_layer(2)
+    character(len=512) :: errmsg
+    integer            :: errcode
+
+    tropopause_layer(:) = 0
+
+    ! negative surface area density
+    sad(:,:) = 1.0e-6_kind_phys
+    diameter(:,:) = 2.0e-5_kind_phys
+    sad(2,1) = -1.0e-12_kind_phys
+    call surface_reaction_parameters_from_mode(sad, diameter, tropopause_layer, radius, number, &
+                                               errmsg, errcode)
+    ASSERT(errcode /= 0)
+    ASSERT(index(errmsg, 'column 2, layer 1') > 0)
+
+    ! negative diameter
+    sad(:,:) = 1.0e-6_kind_phys
+    diameter(1,2) = -2.0e-5_kind_phys
+    call surface_reaction_parameters_from_mode(sad, diameter, tropopause_layer, radius, number, &
+                                               errmsg, errcode)
+    ASSERT(errcode /= 0)
+    ASSERT(index(errmsg, 'column 1, layer 2') > 0)
+
+    ! NaN surface area density
+    diameter(:,:) = 2.0e-5_kind_phys
+    sad(2,2) = ieee_value(sad(2,2), ieee_quiet_nan)
+    call surface_reaction_parameters_from_mode(sad, diameter, tropopause_layer, radius, number, &
+                                               errmsg, errcode)
+    ASSERT(errcode /= 0)
+    ASSERT(index(errmsg, 'column 2, layer 2') > 0)
+
+    ! NaN diameter
+    sad(:,:) = 1.0e-6_kind_phys
+    diameter(1,1) = ieee_value(diameter(1,1), ieee_quiet_nan)
+    call surface_reaction_parameters_from_mode(sad, diameter, tropopause_layer, radius, number, &
+                                               errmsg, errcode)
+    ASSERT(errcode /= 0)
+    ASSERT(index(errmsg, 'column 1, layer 1') > 0)
+
+    ! the same bad values at or above the tropopause are masked, not errors
+    sad(:,:) = -1.0e-6_kind_phys
+    diameter(:,:) = ieee_value(diameter(1,1), ieee_quiet_nan)
+    tropopause_layer(:) = 2
+    call surface_reaction_parameters_from_mode(sad, diameter, tropopause_layer, radius, number, &
+                                               errmsg, errcode)
+    ASSERT(errcode == 0)
+    ASSERT(all(radius(:,:) == 0.0_kind_phys))
+    ASSERT(all(number(:,:) == 0.0_kind_phys))
+  end subroutine test_unphysical_input
 
   ! Surface reactions are found from their effective radius parameter and
   ! paired with their particle number concentration, regardless of order and

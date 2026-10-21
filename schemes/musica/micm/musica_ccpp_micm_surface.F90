@@ -35,21 +35,27 @@ contains
   !!
   !! Both parameters are zero at and above the tropopause layer, where CAM does
   !! not compute tropospheric surface area density, and wherever the mode has
-  !! no surface or no diameter.
+  !! no surface or no diameter. A negative or NaN surface area density or
+  !! diameter below the tropopause is an error.
   pure subroutine surface_reaction_parameters_from_mode(surface_area_density, &
-      diameter, tropopause_layer, radius, number_concentration)
+      diameter, tropopause_layer, radius, number_concentration, errmsg, errcode)
 
     use musica_ccpp_util, only: PI
 
-    real(kind_phys), intent(in)  :: surface_area_density(:,:) ! cm2 cm-3 (column, layer)
-    real(kind_phys), intent(in)  :: diameter(:,:)             ! cm (column, layer)
-    integer,         intent(in)  :: tropopause_layer(:)       ! tropopause vertical layer index (column)
-    real(kind_phys), intent(out) :: radius(:,:)               ! m (column, layer)
-    real(kind_phys), intent(out) :: number_concentration(:,:) ! # m-3 (column, layer)
+    real(kind_phys), intent(in)   :: surface_area_density(:,:) ! cm2 cm-3 (column, layer)
+    real(kind_phys), intent(in)   :: diameter(:,:)             ! cm (column, layer)
+    integer,         intent(in)   :: tropopause_layer(:)       ! tropopause vertical layer index (column)
+    real(kind_phys), intent(out)  :: radius(:,:)               ! m (column, layer)
+    real(kind_phys), intent(out)  :: number_concentration(:,:) ! # m-3 (column, layer)
+    character(len=*), intent(out) :: errmsg
+    integer,          intent(out) :: errcode
 
     real(kind_phys), parameter :: CM_TO_M = 1.0e-2_kind_phys
     real(kind_phys), parameter :: CM2_CM3_TO_M2_M3 = 1.0e2_kind_phys
     integer :: i_column, i_layer
+
+    errmsg = ''
+    errcode = 0
 
     radius(:,:) = 0.0_kind_phys
     number_concentration(:,:) = 0.0_kind_phys
@@ -57,8 +63,20 @@ contains
     do i_layer = 1, size(surface_area_density, 2)
       do i_column = 1, size(surface_area_density, 1)
         if (i_layer <= tropopause_layer(i_column)) cycle
-        if (surface_area_density(i_column, i_layer) <= 0.0_kind_phys) cycle
-        if (diameter(i_column, i_layer) <= 0.0_kind_phys) cycle
+        ! written as .not. (x >= 0) so that NaN is caught along with negatives
+        if (.not. (surface_area_density(i_column, i_layer) >= 0.0_kind_phys) .or. &
+            .not. (diameter(i_column, i_layer) >= 0.0_kind_phys)) then
+          errcode = 1
+          write(errmsg, '(a,i0,a,i0,a,es12.4,a,es12.4)') &
+              '[MUSICA Error] Unphysical aerosol input at column ', i_column, &
+              ', layer ', i_layer, ': surface area density [cm2 cm-3] = ', &
+              surface_area_density(i_column, i_layer), ', diameter [cm] = ', &
+              diameter(i_column, i_layer)
+          return
+        end if
+        ! zero means the mode has no surface here: the reaction is off
+        if (surface_area_density(i_column, i_layer) == 0.0_kind_phys) cycle
+        if (diameter(i_column, i_layer) == 0.0_kind_phys) cycle
         radius(i_column, i_layer) = 0.5_kind_phys * diameter(i_column, i_layer) * CM_TO_M
         number_concentration(i_column, i_layer) = &
             surface_area_density(i_column, i_layer) * CM2_CM3_TO_M2_M3 &

@@ -148,7 +148,12 @@ contains
       do j = 1, size(surf_label)
          call surface_reaction_parameters_from_mode(sfc(:,:,surf_mode(j)), dm_aer(:,:,surf_mode(j)), &
               troplev(:ncol), rate_parameters(:ncol,:,surf_iradius(j)), &
-              rate_parameters(:ncol,:,surf_inumber(j)))
+              rate_parameters(:ncol,:,surf_inumber(j)), errmsg, errflg)
+         if (errflg /= 0) then
+            errmsg = 'mam_micm_surface_rates_run: MICM surface reaction "'// &
+                 trim(surf_label(j))//'": '//trim(errmsg)
+            return
+         end if
       end do
 
    end subroutine mam_micm_surface_rates_run
