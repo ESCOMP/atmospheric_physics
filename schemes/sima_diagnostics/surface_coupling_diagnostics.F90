@@ -61,8 +61,9 @@ contains
 !! \htmlinclude arg_table_surface_coupling_diagnostics_run.html
   subroutine surface_coupling_diagnostics_run(ncol, prec_dp, snow_dp, prec_sh, snow_sh, &
       prec_str, snow_str, shf, lhf, cflx, wsx, wsy, errmsg, errflg)
-    use ccpp_kinds,  only: kind_phys
-    use cam_history, only: history_out_field
+    use ccpp_kinds,                only: kind_phys
+    use cam_history,               only: history_out_field
+    use ccpp_constituent_prop_mod, only: int_unassigned
 
     integer,           intent(in)  :: ncol
     real(kind_phys),   intent(in)  :: prec_dp(:)   ! Deep convective precipitation rate at surface [m s-1]
