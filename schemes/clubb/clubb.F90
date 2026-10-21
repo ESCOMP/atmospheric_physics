@@ -13,8 +13,7 @@ module clubb
   !                                                                                 !
   ! =============================================================================== !
 
-  subroutine clubb_setup_init(pcols, pver, pverp, pcnst, & ! in
-                              masterproc, mpicom, mstrid, mpi_character, iulog, & ! in
+  subroutine clubb_setup_init(pcols, pver, pverp, pcnst, masterproc, iulog, & ! in
                               sclr_dim, hydromet_dim, nzt_clubb, nzm_clubb, & ! in
                               l_implemented, l_input_fields, clubb_l_do_expldiff_rtm_thlm, & ! in
                               cnst_ndropmixed, subcol_scheme, & ! in
@@ -96,7 +95,6 @@ module clubb
 
     !  Input variables, intent(in)
     integer, intent(in) :: pcols, pver, pverp
-    integer, intent(in) :: mpicom, mpi_character, mstrid
     integer, intent(in) :: iulog, pcnst
     integer, intent(in) :: sclr_dim, hydromet_dim, nzt_clubb, nzm_clubb
     logical, intent(in) :: masterproc, l_implemented
@@ -410,8 +408,7 @@ module clubb
 
     if (stats_metadata%l_stats) then
 
-      call stats_init_clubb( pcols, masterproc, mpicom, mstrid, mpi_character, &
-                             .true., dum1, dum2, &
+      call stats_init_clubb( pcols, .true., dum1, dum2, &
                              nzm_clubb, nzt_clubb, nzm_clubb, dum3, &
                              edsclr_dim, sclr_dim, hydromet_dim, &
                              hm_metadata, stats_metadata, &
@@ -480,7 +477,7 @@ module clubb
                         l_implemented, grid_type, lq, deep_scheme, & ! in
                         state_q, state_t, state_pmid, state_zm, & ! in
                         state_phis, state_pdel, state_pdeldry, state_exner, & ! in
-                        state_pint, state_zi, state_omega, state_ps, & ! in
+                        state_pint, state_zi, state_omega, & ! in
                         wsx, wsy, cflx, shf, landfrac, ts, tpert, & ! in
                         sclr_idx, clubb_l_ascending_grid, clubb_do_energyfix, & ! in
                         ixq, ixcldliq, ixcldice, ixrtpthlp, ixwpthlp, & ! in
@@ -494,7 +491,7 @@ module clubb
                         mf_dry_a, mf_moist_a, mf_dry_w, mf_moist_w, & ! inout
                         mf_dry_qt, mf_moist_qt, mf_dry_thl, mf_moist_thl, & ! inout
                         mf_dry_u, mf_moist_u, mf_dry_v, mf_moist_v, mf_moist_qc, & ! inout
-                        s_ae, s_aw, s_awthl, s_awqt, s_awql, s_awqi, s_awu, s_awv, & ! inout
+                        s_ae, s_aw, s_awthl, s_awqt, s_awu, s_awv, & ! inout
                         mf_thlflx, mf_qtflx, & ! inout
                         ztopm1_macmic, ddcp, ddcp_macmic, cbm1, cbm1_macmic, & ! inout
                         thlm, rtm, um, vm, wm_zt, rcm, rcm_in_layer, & ! inout
@@ -506,10 +503,8 @@ module clubb
                         pdf_zm_varnce_w_1_pbuf, pdf_zm_varnce_w_2_pbuf, pdf_zm_mixt_frac_pbuf, & ! inout
                         wp2rtp_pbuf, wp2thlp_pbuf, uprcp_pbuf, vprcp_pbuf, rc_coef_zm_pbuf, & ! inout
                         wp4_pbuf, wpup2_pbuf, wpvp2_pbuf, wp2up2_pbuf, wp2vp2_pbuf, cld_pbuf, & ! inout
-                        concld_pbuf, ast_pbuf, alst_pbuf, aist_pbuf, qlst_pbuf, qist_pbuf, & ! inout
-                        deepcu_pbuf, shalcu_pbuf, khzm_pbuf, pblh_pbuf, tke_pbuf, dp_icwmr_pbuf, & ! inout
-                        ice_supersat_frac_pbuf, relvar_pbuf, cmeliq_pbuf, & ! inout
-                        cmfmc_sh_pbuf, qsatfac_pbuf, prer_evap_pbuf, qrl_pbuf, & ! inout
+                        khzm_pbuf, pblh_pbuf, tke_pbuf, & ! inout
+                        ice_supersat_frac_pbuf, relvar_pbuf, prer_evap_pbuf, qrl_pbuf, & ! inout
                         rtp2_mc_zt_pbuf, thlp2_mc_zt_pbuf, wprtp_mc_zt_pbuf, & ! inout
                         wpthlp_mc_zt_pbuf, rtpthlp_mc_zt_pbuf, ttend_clubb_pbuf, & ! inout
                         upwp_clubb_gw_pbuf, vpwp_clubb_gw_pbuf, thlp2_clubb_gw_pbuf, & ! inout
@@ -539,7 +534,6 @@ module clubb
                                      do_clubb_mf_cmt, do_clubb_mf_addtke
     use atmos_phys_pbl_utils,  only: calc_friction_velocity, calc_ideal_gas_rrho
     use wv_saturation,         only: qsat
-    use interpolate_data,      only: vertinterp
     use clubb_api_module,      only: &
       nparams, &
       calc_derrived_params_api, &
@@ -591,7 +585,7 @@ module clubb
     real(kind_phys), intent(in) :: wsx(:), wsy(:), shf(:)
     real(kind_phys), intent(in) :: cflx(:,:)
     real(kind_phys), intent(in) :: clubb_params_single_col(:,:)
-    real(kind_phys), intent(in) :: lat(:), lon(:), state_phis(:), state_ps(:)
+    real(kind_phys), intent(in) :: lat(:), lon(:), state_phis(:)
     real(kind_phys), intent(in) :: state_pint(:,:)
     real(kind_phys), intent(in) :: state_pmid(:,:)
     real(kind_phys), intent(in) :: landfrac(:)
@@ -718,24 +712,12 @@ module clubb
     real(kind_phys), intent(inout) :: wp2up2_pbuf(:,:)
     real(kind_phys), intent(inout) :: wp2vp2_pbuf(:,:)
     real(kind_phys), intent(inout) :: cld_pbuf(:,:)
-    real(kind_phys), intent(inout) :: concld_pbuf(:,:)
-    real(kind_phys), intent(inout) :: ast_pbuf(:,:)
-    real(kind_phys), intent(inout) :: alst_pbuf(:,:)
-    real(kind_phys), intent(inout) :: aist_pbuf(:,:)
-    real(kind_phys), intent(inout) :: qlst_pbuf(:,:)
-    real(kind_phys), intent(inout) :: qist_pbuf(:,:)
-    real(kind_phys), intent(inout) :: deepcu_pbuf(:,:)
-    real(kind_phys), intent(inout) :: shalcu_pbuf(:,:)
     real(kind_phys), intent(inout) :: khzm_pbuf(:,:)
     real(kind_phys), intent(inout) :: pblh_pbuf(:)
     real(kind_phys), intent(inout) :: tke_pbuf(:,:)
-    real(kind_phys), intent(inout) :: dp_icwmr_pbuf(:,:)
     real(kind_phys), intent(inout) :: ice_supersat_frac_pbuf(:,:)
     real(kind_phys), intent(inout) :: relvar_pbuf(:,:)
-    real(kind_phys), intent(inout) :: cmeliq_pbuf(:,:)
-    real(kind_phys), intent(inout) :: cmfmc_sh_pbuf(:,:)
 
-    real(kind_phys), intent(inout) :: qsatfac_pbuf(:,:)
     real(kind_phys), intent(inout) :: prer_evap_pbuf(:,:)
     real(kind_phys), intent(inout) :: qrl_pbuf(:,:)
 
@@ -782,7 +764,6 @@ module clubb
                   mf_moist_qc(:,:),   &
       s_ae(:,:),       s_aw(:,:),          &
       s_awthl(:,:),    s_awqt(:,:),        &
-      s_awql(:,:),     s_awqi(:,:),        &
       s_awu(:,:),      s_awv(:,:),         &
       mf_thlflx(:,:),  mf_qtflx(:,:)
 
@@ -989,6 +970,9 @@ module clubb
 
     ! -------------------------------------------------
     ! ----------------- Start -------------------------
+
+    errmsg = ''
+    errflg = 0
 
     rad2deg = 180.0_kind_phys / shr_const_pi
 
@@ -1565,8 +1549,8 @@ module clubb
     if ( any(err_info%err_code == clubb_fatal_error) ) then
        errmsg = 'clubb1_run: '//err_info%err_header_global//NEW_LINE('a')// &
                    'in CLUBB setup_grid'
-       errflg = 0
-       return
+       errflg = 1
+       goto 200
     end if
 
     call calc_derrived_params_api( gr, ncol, grid_type, deltaz,                 & ! Intent(in)
@@ -1581,8 +1565,8 @@ module clubb
     if ( any(err_info%err_code == clubb_fatal_error) ) then
        errmsg = 'clubb1_run: '//err_info%err_header_global//NEW_LINE('a')// &
                    'in CLUBB check_parameters_api'
-       errflg = 0
-       return
+       errflg = 1
+       goto 200
     end if
 
     ! CLUBB's grid data structure (gr) and nu_vert_res_dep contain arrays that need to
@@ -1948,11 +1932,19 @@ module clubb
                              zi_g, zt_g,                                       & ! intent(in)
                              gr, err_info )                                      ! intent(inout)
 
+        if ( any(err_info%err_code == clubb_fatal_error) ) then
+           errmsg = 'clubb1_run: '//err_info%err_header_global//NEW_LINE('a')// &
+                       'in CLUBB setup_grid'
+           errflg = 1
+           goto 100
+        end if
+
       end if
 
       ! CALL MF DIAGNOSTIC PLUMES
       if (do_clubb_mf) then
         call compute_mf_plumes()
+        if (errflg /= 0) goto 100
       end if
 
       !  Advance CLUBB CORE one timestep in the future
@@ -2225,8 +2217,8 @@ module clubb
       if ( any(err_info%err_code == clubb_fatal_error) ) then
         write(fstderr,*) "Fatal error in CLUBB advance_clubb_core: at timestep ", nstep
         errmsg = 'clubb1_run: '//err_info%err_header_global//NEW_LINE('a')//'Fatal error in CLUBB advance_clubb_core'
-        errflg = 0
-        return
+        errflg = 1
+        goto 100
       end if
 
       if ( do_rainturb ) then
@@ -2291,6 +2283,7 @@ module clubb
                                         out_zt, out_zm, out_radzt, out_radzm, out_sfc, &
                                         stats_metadata, clubb_l_ascending_grid, pver, pverp, top_lev, &
                                         errmsg, errflg )
+          if ( errflg /= 0 ) goto 100
         end do
       end if
 
@@ -2794,12 +2787,16 @@ module clubb
 
     endif
 
+    100 continue
+    !$acc end data      ! closes gr/nu_vert_res_dep region
+    200 continue
     !$acc end data
     !$acc end data
     !$acc end data
     !$acc end data
     !$acc end data
-    !$acc end data
+
+    if (errflg /= 0) return
 
     ! ------------------------------------------------- !
     ! Diagnose relative cloud water variance            !
@@ -3112,7 +3109,7 @@ module clubb
                     'MF drying exceeds rtm. i,k,lambda,mf_sqt,rtm,dtime = ', &
                      i, k, lambda, mf_sqt(i,k), rtm(i,k), dtime
                errmsg = 'clubb_tend_cam: '//trim(lambda_errmsg)
-               errflg = 0
+               errflg = 1
                return
             end if
          end do
@@ -3336,7 +3333,7 @@ module clubb
                         state_zm, state_zi, state_u, state_v, state_exner, & ! in
                         landfrac, snowhland, wsx, & ! in
                         wsy, shf, cflx, ptend_q, & ! in
-                        rcm, cloud_frac, exner, cmfmc, & ! in
+                        rcm, cloud_frac, cmfmc, & ! in
                         single_column, scm_cambfb_mode, lq, & ! in
                         cnst_type, scm_clubb_iop_name, subcol_scheme, & ! in
                         mf_cloudfrac_output, mf_qc_output, & ! in
@@ -3364,7 +3361,7 @@ module clubb
     real(kind_phys), intent(in) :: lat(:), state_phis(:), landfrac(:), snowhland(:), &
                                    wsx(:), wsy(:), shf(:)
     real(kind_phys), intent(in) :: state_pint(:,:), state_pmid(:,:), state_pdel(:,:), state_pdeldry(:,:), rcm(:,:), &
-                                   cloud_frac(:,:), state_t(:,:), exner(:,:), state_exner(:,:), &
+                                   cloud_frac(:,:), state_t(:,:), state_exner(:,:), &
                                    state_zm(:,:), state_zi(:,:), state_u(:,:), state_v(:,:), cmfmc(:,:), cflx(:,:), &
                                    mf_cloudfrac_output(:,:), mf_qc_output(:,:)
     real(kind_phys), intent(in) :: state_q(:,:,:)
@@ -3641,8 +3638,7 @@ module clubb
   ! ----------------------------------------------------------------------------------------
   ! ----------------------------------------------------------------------------------------
 
-  subroutine stats_init_clubb( pcols, masterproc, mpicom, mstrid, mpi_character, &
-                               l_stats_in, stats_tsamp_in, stats_tout_in, &
+  subroutine stats_init_clubb( pcols, l_stats_in, stats_tsamp_in, stats_tout_in, &
                                nnzp, nnrad_zt,nnrad_zm, delt, &
                                edsclr_dim, sclr_dim, hydromet_dim, &
                                hm_metadata, stats_metadata, &
@@ -3674,9 +3670,7 @@ module clubb
 
     logical, intent(in) :: l_stats_in ! Stats on? T/F
 
-    logical, intent(in) :: masterproc
-
-    integer, intent(in) :: mpicom, mpi_character, mstrid, pcols
+    integer, intent(in) :: pcols
 
     integer, intent(in) :: sclr_dim, edsclr_dim, hydromet_dim
 
@@ -3727,6 +3721,8 @@ module clubb
     !----------------------- Begin Code -----------------------
 
     !  Initialize
+    errmsg = ''
+    errflg = 0
     l_error = .false.
 
     !  Set stats_variables variables with inputs from calling subroutine
@@ -3838,7 +3834,6 @@ module clubb
                               stats_metadata, stats_zt(j) )
 
       !  Initialize zm (momentum points)
-
       i = 1
       do while ( ichar(clubb_vars_zm(i)(1:1)) /= 0  .and. &
                  len_trim(clubb_vars_zm(i)) /= 0    .and. &
@@ -3913,7 +3908,6 @@ module clubb
                               stats_metadata, stats_zm(j) )
 
       !  Initialize rad_zt (radiation points)
-
       if (stats_metadata%l_output_rad_files) then
 
          i = 1
@@ -3988,7 +3982,6 @@ module clubb
                                      stats_metadata, stats_rad_zt(j) )
 
          !  Initialize rad_zm (radiation points)
-
          i = 1
          do while ( ichar(clubb_vars_rad_zm(i)(1:1)) /= 0 .and. &
                     len_trim(clubb_vars_rad_zm(i))   /= 0 .and. &
@@ -4061,7 +4054,6 @@ module clubb
                                      l_error, &
                                      stats_metadata, stats_rad_zm(j) )
       end if ! l_output_rad_files
-
 
       !  Initialize sfc (surface point)
       i = 1
