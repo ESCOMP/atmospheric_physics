@@ -508,8 +508,8 @@ module clubb
                         wp4_pbuf, wpup2_pbuf, wpvp2_pbuf, wp2up2_pbuf, wp2vp2_pbuf, cld_pbuf, & ! inout
                         concld_pbuf, ast_pbuf, alst_pbuf, aist_pbuf, qlst_pbuf, qist_pbuf, & ! inout
                         deepcu_pbuf, shalcu_pbuf, khzm_pbuf, pblh_pbuf, tke_pbuf, dp_icwmr_pbuf, & ! inout
-                        ice_supersat_frac_pbuf, relvar_pbuf, naai_pbuf, cmeliq_pbuf, & ! inout
-                        cmfmc_sh_pbuf, qsatfac_pbuf, npccn_pbuf, prer_evap_pbuf, qrl_pbuf, & ! inout
+                        ice_supersat_frac_pbuf, relvar_pbuf, cmeliq_pbuf, & ! inout
+                        cmfmc_sh_pbuf, qsatfac_pbuf, prer_evap_pbuf, qrl_pbuf, & ! inout
                         rtp2_mc_zt_pbuf, thlp2_mc_zt_pbuf, wprtp_mc_zt_pbuf, & ! inout
                         wpthlp_mc_zt_pbuf, rtpthlp_mc_zt_pbuf, ttend_clubb_pbuf, & ! inout
                         upwp_clubb_gw_pbuf, vpwp_clubb_gw_pbuf, thlp2_clubb_gw_pbuf, & ! inout
@@ -732,12 +732,10 @@ module clubb
     real(kind_phys), intent(inout) :: dp_icwmr_pbuf(:,:)
     real(kind_phys), intent(inout) :: ice_supersat_frac_pbuf(:,:)
     real(kind_phys), intent(inout) :: relvar_pbuf(:,:)
-    real(kind_phys), intent(inout) :: naai_pbuf(:,:)
     real(kind_phys), intent(inout) :: cmeliq_pbuf(:,:)
     real(kind_phys), intent(inout) :: cmfmc_sh_pbuf(:,:)
 
     real(kind_phys), intent(inout) :: qsatfac_pbuf(:,:)
-    real(kind_phys), intent(inout) :: npccn_pbuf(:,:)
     real(kind_phys), intent(inout) :: prer_evap_pbuf(:,:)
     real(kind_phys), intent(inout) :: qrl_pbuf(:,:)
 
