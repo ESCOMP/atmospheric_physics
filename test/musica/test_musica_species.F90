@@ -92,13 +92,13 @@ contains
   subroutine test_initialize_musica_species_indices_and_molar_mass()
     use ccpp_constituent_prop_mod, only: ccpp_constituent_properties_t, ccpp_constituent_prop_ptr_t
     use musica_ccpp, 							 only: musica_ccpp_register
+    use musica_test_constituents,  only: register_test_constituents, cleanup_test_constituents
     use musica_ccpp_namelist,      only: filename_of_micm_configuration, &
                                          filename_of_tuvx_configuration, &
                                          filename_of_tuvx_micm_mapping_configuration
 
     type(ccpp_constituent_properties_t), allocatable, target :: constituent_props(:)
     type(ccpp_constituent_prop_ptr_t),   allocatable         :: constituent_props_ptr(:)
-    type(ccpp_constituent_properties_t), pointer             :: const_prop
     character(len=512)               							           :: errmsg
     integer                          							           :: errcode
     integer                                                  :: i
@@ -114,13 +114,13 @@ contains
     endif
     ASSERT(allocated(constituent_props))
 
-    allocate(constituent_props_ptr(size(constituent_props)))
-    do i = 1, size(constituent_props)
-      const_prop => constituent_props(i)
-      call constituent_props_ptr(i)%set( const_prop, errcode, errmsg )
-    end do
+    call register_test_constituents(constituent_props, constituent_props_ptr, errmsg, errcode)
+    if (errcode /= 0) then
+      write(*,*) trim(errmsg)
+      stop 3
+    endif
 
-    call initialize_musica_species_indices( constituent_props_ptr, errmsg, errcode )
+    call initialize_musica_species_indices( errmsg, errcode )
     ASSERT(errcode == 0)
     ASSERT(allocated(micm_indices_constituent_props))
     ASSERT(allocated(tuvx_indices_constituent_props))
@@ -144,6 +144,7 @@ contains
     ASSERT(errcode == 0)
 
     call cleanup_musica_species()
+    call cleanup_test_constituents()
 
   end subroutine test_initialize_musica_species_indices_and_molar_mass
 
