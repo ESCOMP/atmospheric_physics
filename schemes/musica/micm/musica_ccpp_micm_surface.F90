@@ -134,6 +134,11 @@ contains
           exit
         end if
       end do
+      ! MICM creates both parameters of a surface reaction, so checking one of
+      ! the pair is enough to confirm the MICM configuration matches the
+      ! parameter names CAM-SIMA expects (RADIUS_SUFFIX, NUMBER_SUFFIX). The
+      ! This check also keeps an unmatched reaction from leaving number_index at -1,
+      ! an out-of-bounds slot.
       if (number_index(i_reaction) < 0) then
         errcode = 1
         errmsg = '[MUSICA Error] MICM surface reaction "'//trim(labels(i_reaction))// &
