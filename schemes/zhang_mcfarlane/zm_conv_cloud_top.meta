@@ -24,7 +24,7 @@
   dimensions = ()
   intent = in
 [ jt ]
-  standard_name = vertical_index_at_top_of_deep_convection_for_convective_columns
+  standard_name = vertical_layer_index_at_top_of_deep_convection_for_convective_columns
   units = index
   type = integer
   dimensions = (horizontal_loop_extent)
@@ -36,7 +36,7 @@
   dimensions = (horizontal_loop_extent)
   intent = in
 [ jctop ]
-  standard_name = vertical_index_at_cloud_top_for_deep_convection
+  standard_name = vertical_layer_index_at_cloud_top_for_deep_convection
   units = index
   type = integer
   dimensions = (horizontal_loop_extent)

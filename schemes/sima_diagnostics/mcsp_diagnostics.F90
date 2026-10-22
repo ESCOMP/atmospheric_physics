@@ -38,9 +38,11 @@ contains
     ! the instantaneous 0/1 activation flag time-averages into an activation frequency
     call history_add_field('MCSP_freq', 'frequency_of_mesoscale_coherent_structure_parameterization_activation', &
                            horiz_only, 'avg', '1')
-    call history_add_field('MCSP_shear', 'low_level_eastward_wind_shear_for_mesoscale_coherent_structure_parameterization', &
+    call history_add_field('MCSP_shear', &
+                           'eastward_wind_difference_between_storm_level_and_surface_adjacent_layer'// &
+                           '_for_mesoscale_coherent_structure_parameterization', &
                            horiz_only, 'avg', 'm s-1')
-    call history_add_field('MCSP_conv_depth', 'pressure_depth_of_deep_convection', &
+    call history_add_field('MCSP_conv_depth', 'pressure_thickness_from_surface_to_deep_convective_cloud_top', &
                            horiz_only, 'avg', 'Pa')
 
   end subroutine mcsp_diagnostics_init

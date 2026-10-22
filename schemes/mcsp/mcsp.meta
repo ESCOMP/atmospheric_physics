@@ -48,13 +48,13 @@
   dimensions = ()
   intent = in
 [ mcsp_conv_depth_min ]
-  standard_name = pressure_depth_of_deep_convection_threshold_for_mesoscale_coherent_structure_parameterization
+  standard_name = pressure_thickness_from_surface_to_deep_convective_cloud_top_threshold_for_mesoscale_coherent_structure_parameterization
   units = Pa
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
 [ mcsp_shear_min ]
-  standard_name = low_level_eastward_wind_shear_threshold_for_mesoscale_coherent_structure_parameterization
+  standard_name = eastward_wind_difference_between_storm_level_and_surface_adjacent_layer_threshold_for_mesoscale_coherent_structure_parameterization
   units = m s-1
   type = real | kind = kind_phys
   dimensions = ()
@@ -106,7 +106,7 @@
   dimensions = ()
   intent = in
 [ jctop ]
-  standard_name = vertical_index_at_cloud_top_for_deep_convection
+  standard_name = vertical_layer_index_at_cloud_top_for_deep_convection
   units = index
   type = integer
   dimensions = (horizontal_loop_extent)
@@ -211,13 +211,13 @@
   dimensions = (horizontal_loop_extent)
   intent = out
 [ mcsp_shear ]
-  standard_name = low_level_eastward_wind_shear_for_mesoscale_coherent_structure_parameterization
+  standard_name = eastward_wind_difference_between_storm_level_and_surface_adjacent_layer_for_mesoscale_coherent_structure_parameterization
   units = m s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
 [ conv_depth ]
-  standard_name = pressure_depth_of_deep_convection
+  standard_name = pressure_thickness_from_surface_to_deep_convective_cloud_top
   units = Pa
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
