@@ -88,6 +88,7 @@
     </desc>
     <values>
       <value>1760.0e-9</value>
+      <value sim_year="1850">791.6e-9</value>
       <value aquaplanet="1" phys_suite="cam4">1650.0e-9</value>
     </values>
   </entry>
@@ -104,6 +105,7 @@
     </desc>
     <values>
       <value>367.0e-6</value>
+      <value sim_year="1850">284.7e-6</value>
       <value aquaplanet="1" phys_suite="cam4">348.0e-6</value>
     </values>
   </entry>
@@ -120,6 +122,7 @@
     </desc>
     <values>
       <value>653.45e-12</value>
+      <value sim_year="1850">12.48e-12</value>
     </values>
   </entry>
   <entry id="prescribed_cfc12_vmr">
@@ -135,6 +138,7 @@
     </desc>
     <values>
       <value>535.0e-12</value>
+      <value sim_year="1850">0.0</value>
     </values>
   </entry>
   <entry id="prescribed_n2o_vmr">
@@ -150,6 +154,7 @@
     </desc>
     <values>
       <value>316.0e-9</value>
+      <value sim_year="1850">275.68e-9</value>
       <value aquaplanet="1" phys_suite="cam4">306.0e-9</value>
     </values>
   </entry>

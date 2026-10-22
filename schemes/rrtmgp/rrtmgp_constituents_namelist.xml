@@ -95,7 +95,7 @@
         'N:CFC11STAR:CFC11',
         'A:CFC12:CFC12'
       </value>
-      <value aquaplanet="1" phys_suite="cam4">
+      <value phys_suite="cam4">
         'N:O2:O2',
         'N:CO2:CO2',
         'N:ozone:O3',

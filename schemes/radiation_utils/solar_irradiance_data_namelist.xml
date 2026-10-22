@@ -129,6 +129,7 @@
     </desc>
     <values>
       <value>20000101</value>
+      <value sim_year="1850">18500101</value>
     </values>
   </entry>
   <entry id="solar_data_tod">

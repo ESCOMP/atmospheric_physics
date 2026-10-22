@@ -154,18 +154,6 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
-[ rliq ]
-  standard_name = vertically_integrated_cloud_liquid_water_tendency_due_to_all_convection_to_be_applied_later_in_time_loop
-  units = m s-1
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent)
-  intent = in
-[ prec_str ]
-  standard_name = lwe_large_scale_precipitation_rate_at_surface
-  units = m s-1
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent)
-  intent = inout
 [ tend_cldliq ]
   standard_name = tendency_of_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water
   units = kg kg-1 s-1

@@ -65,6 +65,10 @@ contains
         write(iulog,*) 'prescribed_ozone_register: ozone is prescribed in: ' // trim(filename)
       end if
     else
+      allocate(ozone_constituents(0), stat=errflg, errmsg=errmsg)
+      if (errflg /= 0) then
+        errmsg = "prescribed_ozone_register: " // trim(errmsg)
+      end if
       return
     end if
 

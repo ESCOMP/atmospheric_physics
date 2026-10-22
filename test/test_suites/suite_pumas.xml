@@ -29,5 +29,7 @@
     <scheme>micro_pumas_ccpp_optics_limiter</scheme>
     <scheme>apply_heating_rate</scheme>
     <scheme>geopotential_temp</scheme>
+
+    <scheme>sima_state_diagnostics</scheme>
   </group>
 </suite>
