@@ -13,7 +13,7 @@ module musica_ccpp
   private
   save
 
-  public :: musica_ccpp_register, musica_ccpp_init, musica_ccpp_final
+  public :: musica_ccpp_register, musica_ccpp_init, musica_ccpp_timestep_init, musica_ccpp_final
 
 contains
 
@@ -137,6 +137,25 @@ contains
     if (errcode /= 0) return
 
   end subroutine musica_ccpp_init
+
+  !> \section arg_table_musica_ccpp_timestep_init Argument Table
+  !! \htmlinclude musica_ccpp_timestep_init.html
+  !!
+  !! Zero every MICM rate parameter once per timestep, before any run phase.
+  !! Each rate-parameter provider writes its own slots before musica_ccpp_chemistry.
+  subroutine musica_ccpp_timestep_init(rate_parameters, errmsg, errcode)
+    use ccpp_kinds, only: kind_phys
+
+    real(kind_phys),    intent(out) :: rate_parameters(:,:,:) ! various units (column, layer, parameter)
+    character(len=512), intent(out) :: errmsg
+    integer,            intent(out) :: errcode
+
+    errmsg = ''
+    errcode = 0
+
+    rate_parameters(:,:,:) = 0.0_kind_phys
+
+  end subroutine musica_ccpp_timestep_init
 
   !> \section arg_table_musica_ccpp_final Argument Table
   !! \htmlinclude musica_ccpp_final.html

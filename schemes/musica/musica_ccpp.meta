@@ -90,6 +90,28 @@
   intent = out
 
 [ccpp-arg-table]
+  name  = musica_ccpp_timestep_init
+  type  = scheme
+[ rate_parameters ]
+  standard_name = micm_rate_parameters
+  units = none
+  type = real | kind = kind_phys
+  dimensions = (horizontal_dimension,vertical_layer_dimension,number_of_micm_rate_parameters)
+  intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errcode ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
   name  = musica_ccpp_final
   type  = scheme
 [ errmsg ]

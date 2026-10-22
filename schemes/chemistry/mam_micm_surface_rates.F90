@@ -12,10 +12,6 @@
 ! is taken from the label's '_a<mm>' suffix (CAM's per-mode naming):
 ! 'SURF.N2O5_hydrolysis_a1' reads mode 1. A surface reaction without that
 ! suffix, or naming a mode MAM does not have, is an error at init.
-!
-! It must run after musica_ccpp_photolysis (which resets every rate parameter)
-! and before musica_ccpp_chemistry. mam_surfarea_diagnostics, placed between
-! this scheme and the solve, checks the result.
 module mam_micm_surface_rates
    use ccpp_kinds, only: kind_phys
 
