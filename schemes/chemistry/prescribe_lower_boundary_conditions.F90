@@ -7,8 +7,13 @@
 !  - non-advected: the time-interpolated global-mean volume mixing ratio (vmr)
 !    is written as a whole-column uniform mass mixing ratio.
 !
-!  - advected (prognostic chemistry): the time-interpolated per-column value
-!    is pinned into the bottom two vertical levels as a dry mass mixing ratio.
+!  - advected: the time-interpolated per-column value is pinned into
+!    the bottom two vertical levels as a dry mass mixing ratio.
+!
+!  - future (prognostic chemistry): chemistry packages with their own solver
+!    need to apply the pinned LBC in the VMR space themselves based on values
+!    read in this scheme.
+!    this is not implemented yet in this version of the scheme.
 !
 ! The scheme is inactive unless flbc_file is set.
 !
