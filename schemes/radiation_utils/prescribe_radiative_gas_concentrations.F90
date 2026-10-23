@@ -1,21 +1,17 @@
 !-------------------------------------------------------------------------------
 ! This module uses namelist variables to set prescribed concentrations
 ! for radiatively-active gases.
-
-! The scheme owns the gases listed in the prescribed_ghg_list namelist
-! variable: it registers a non-advected constituent for each and fills it at
-! initialization with a spatially uniform value from the corresponding
-! prescribed_*_vmr namelist variable.  A gas provided by another scheme
-! (e.g. a prognostic chemistry constituent) should not be listed.
-
-! A gas that is also listed in flbc_list is refilled every timestep with the
-! time-interpolated global mean read by prescribe_lower_boundary_conditions,
-! overriding the time-invariant namelist value: CAM's chem_surfvals source
-! of the greenhouse gas surface values.
-
-! Eventually this module should be replaced with a more comprehensive atmospheric
-! composition/chemistry system, but is fine to use for now when running low-top,
-! non-exoplanet CAM-SIMA configurations with minimal chemistry.
+!
+! This scheme "owns" (provides) the gases listed in the prescribed_ghg_list
+! namelist variable, and thus is responsible for registering non-advected
+! constituents for each.
+!
+! at init:
+!  values for these GHGs are filled at init with a spatially uniform value
+!  from the prescribed_*_vmr namelist variable.
+! at timestep init:
+!  if these GHGs have LBCs specified in flbc_list then they are
+!  updated with time-interpolated uniform global means read by the LBC scheme.
 !-------------------------------------------------------------------------------
 module prescribe_radiative_gas_concentrations
   use ccpp_kinds, only: kind_phys
@@ -27,15 +23,11 @@ module prescribe_radiative_gas_concentrations
   public :: prescribe_radiative_gas_concentrations_init
   public :: prescribe_radiative_gas_concentrations_timestep_init
 
-  ! Gases this scheme can prescribe. Ozone is not included because its
-  ! constituent is registered by the scheme providing it (e.g. prescribed_ozone).
-  character(len=8), parameter :: provided_gases(6) = &
+  ! Gases this scheme can prescribe:
+  character(len=*), parameter :: provided_gases(*) = &
        [character(len=8) :: 'O2', 'CO2', 'N2O', 'CH4', 'CFC11', 'CFC12']
 
-  ! Binding of a prescribed gas to a chemistry lower boundary (flbc_list)
-  ! entry, resolved once at init: bound gases are refilled every timestep
-  ! from the lower boundary file; unbound gases (always O2, and every gas
-  ! when flbc_file is unset) keep the namelist value filled at init.
+  ! Binding of prescribed GHGs to a LBC entry if available.
   type :: lbc_binding
     integer         :: handle = 0                 ! species handle in prescribe_lower_boundary_conditions
     integer         :: const_idx = -1             ! constituent the gas fills
@@ -105,17 +97,17 @@ contains
 
     ! Register a non-advected constituent for each prescribed gas.
     do const_idx = 1, num_consts
-       call dyn_consts(const_idx)%instantiate(     &
+       call dyn_consts(const_idx)%instantiate(               &
           std_name = trim(prescribed_ghg_list(const_idx)),   &
           long_name = trim(prescribed_ghg_list(const_idx)),  &
-          units = 'kg kg-1',                            &
-          vertical_dim = 'vertical_layer_dimension', &
-          min_value = 0.0_kind_phys,                 &
-          advected = .false.,                         &
-          diag_name = trim(prescribed_ghg_list(const_idx)), &
-          water_species = .false.,                    &
-          mixing_ratio_type = 'dry',                 &
-          errcode = errcode,                         &
+          units = 'kg kg-1',                                 &
+          vertical_dim = 'vertical_layer_dimension',         &
+          min_value = 0.0_kind_phys,                         &
+          advected = .false.,                                &
+          diag_name = trim(prescribed_ghg_list(const_idx)),  &
+          water_species = .false.,                           &
+          mixing_ratio_type = 'dry',                         &
+          errcode = errcode,                                 &
           errmsg = errmsg)
        if (errcode /= 0) then
           return
@@ -126,7 +118,6 @@ contains
 
 !> \section arg_table_prescribe_radiative_gas_concentrations_init Argument Table
 !! \htmlinclude prescribe_radiative_gas_concentrations_init.html
-!!
   subroutine prescribe_radiative_gas_concentrations_init(prescribed_ghg_list, &
                                                ch4_vmr,   co2_vmr, cfc11_vmr,   &
                                                cfc12_vmr, n2o_vmr, o2_vmr, const_array, &
@@ -153,11 +144,6 @@ contains
 
     errmsg = ''
     errcode = 0
-
-    !+++++++++++++++++++++++++++++++++++
-    ! Convert number/mole fraction into
-    ! mass mixing ratio w.r.t dry air
-    !+++++++++++++++++++++++++++++++++++
 
     ! Gases not in prescribed_ghg_list are left untouched: they belong to
     ! another provider (e.g. prognostic chemistry).
@@ -191,9 +177,7 @@ contains
       return
     end if
 
-    ! Bind the gases the chemistry lower boundary file provides.
-    ! They are refilled every timestep in timestep_init, overriding the
-    ! time-invariant values above.
+    ! Bind to LBCs if any are provided:
     call bind_lbc_gases(prescribed_ghg_list, errmsg, errcode)
     if (errcode /= 0) then
       return
@@ -203,21 +187,15 @@ contains
 
 !> \section arg_table_prescribe_radiative_gas_concentrations_timestep_init Argument Table
 !! \htmlinclude arg_table_prescribe_radiative_gas_concentrations_timestep_init.html
-!!
   subroutine prescribe_radiative_gas_concentrations_timestep_init(ncol, const_array, &
                                                errmsg, errcode)
 
     use prescribe_lower_boundary_conditions, only: lbc_global_mean_vmr
 
-    ! Input arguments
-    integer, intent(in) :: ncol ! number of columns [count]
-
-    ! Input/output arguments
-    real(kind_phys), intent(inout) :: const_array(:,:,:) ! Constituents array
-
-    ! Output arguments
-    character(len=*),   intent(out) :: errmsg
-    integer,            intent(out) :: errcode
+    integer,            intent(in)    :: ncol
+    real(kind_phys),    intent(inout) :: const_array(:,:,:)
+    character(len=*),   intent(out)   :: errmsg
+    integer,            intent(out)   :: errcode
 
     ! Local variables
     integer         :: g
@@ -226,10 +204,7 @@ contains
     errmsg = ''
     errcode = 0
 
-    ! Fill each bound gas with the current step's global mean vmr as a
-    ! whole-column uniform dry mass mixing ratio. The weights are cached by
-    ! prescribe_lower_boundary_conditions' timestep_init, which therefore
-    ! must run earlier in the suite.
+    ! Update prescribed GHGs with global mean VMRs from the LBC module if available:
     do g = 1, n_bindings
       call lbc_global_mean_vmr(bindings(g)%handle, ncol, vmr_gmean, errmsg, errcode)
       if (errcode /= 0) then
@@ -240,17 +215,16 @@ contains
 
   end subroutine prescribe_radiative_gas_concentrations_timestep_init
 
-  ! Bind each prescribed gas with an entry of the chemistry lower boundary
-  ! file. CFC11 accepts the CMIP equivalent entry CFC11eq (all minor
-  ! halogens expressed as CFC11) when CFC11 itself is not listed, as in
-  ! CAM, where simple-chemistry configurations list CFC11eq instead of
-  ! CFC11; the conversion uses CFC11's molar mass either way.
+  ! Bind each prescribed GHG to an entry in the LBC list if available.
+  ! note on CFC11:
+  !  it accepts the CMIP equivalent entry CFC11eq (all minor halogens expressed as CFC11)
+  !  if CFC11 itself is not listed (simple chemistry configurations use CFC11eq instead of CFC11)
   subroutine bind_lbc_gases(prescribed_ghg_list, errmsg, errcode)
 
     use ccpp_constituent_prop_mod, only: int_unassigned
     use ccpp_scheme_utils,         only: ccpp_constituent_index
     use radiation_utils,           only: get_molar_mass_ratio
-    use prescribe_lower_boundary_conditions, only: lbc_find_species
+    use prescribe_lower_boundary_conditions, only: lbc_activate_species
 
     ! Input arguments
     character(len=*), intent(in)  :: prescribed_ghg_list(:)
@@ -269,7 +243,7 @@ contains
     n_bindings = 0
 
     if (allocated(bindings)) then
-      deallocate (bindings)
+      deallocate(bindings)
     end if
     allocate (bindings(size(prescribed_ghg_list)), stat=errcode, errmsg=alloc_errmsg)
     if (errcode /= 0) then
@@ -284,9 +258,10 @@ contains
         exit gas_loop
       end if
 
-      call lbc_find_species(trim(prescribed_ghg_list(g)), handle)
+      call lbc_activate_species(trim(prescribed_ghg_list(g)), handle)
       if (handle == 0 .and. trim(prescribed_ghg_list(g)) == 'CFC11') then
-        call lbc_find_species('CFC11eq', handle)
+        ! allow fallback to CFC11eq for simple chemistry configurations to match CAM.
+        call lbc_activate_species('CFC11eq', handle)
       end if
       if (handle == 0) then
         cycle gas_loop
@@ -350,8 +325,8 @@ contains
     integer,            intent(out) :: errcode
 
     ! Local variables
-    integer         :: const_idx                         !Constituents object index
-    real(kind_phys) :: dry_air_to_const_molar_mass_ratio !Ratio of dry air molar mass to constituent molar mass
+    integer         :: const_idx                         ! Constituents object index
+    real(kind_phys) :: dry_air_to_const_molar_mass_ratio ! Ratio of dry air molar mass to constituent molar mass
 
     errmsg = ''
     errcode = 0
@@ -371,6 +346,11 @@ contains
       errcode = 1
       return
     end if
+
+    !+++++++++++++++++++++++++++++++++++
+    ! Convert number/mole fraction into
+    ! mass mixing ratio w.r.t dry air
+    !+++++++++++++++++++++++++++++++++++
 
     ! Get ratio of molar mass of dry air / constituent molar mass
     call get_molar_mass_ratio(gas_name, dry_air_to_const_molar_mass_ratio, errmsg, errcode)

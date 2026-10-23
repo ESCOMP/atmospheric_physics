@@ -1,21 +1,22 @@
 ! Read time-varying chemical lower boundary conditions and serve them to the
 ! schemes that apply them.
 !
-! Reads a CHEM_LBC_FILE dataset of surface mole fractions
+! Reads a CHEM_LBC_FILE dataset of surface volume mixing ratios (VMRs)
 ! on a zonal-mean (lat x time) or longitude-latitude (lon x lat x time) grid
-! and advances its read window every timestep. This scheme never writes a
-! constituent. A consuming scheme resolves a species handle in its init phase
-! (lbc_find_species; this scheme's init must run first in the suite) and reads
-! values each step after this scheme's timestep_init:
-!  - prognostic chemistry overwrites its bottom-layer vmr workspace with
-!    lbc_column_vmr inside the chemistry step (CAM's flbc_set);
-!  - prescribe_radiative_gas_concentrations fills its non-advected radiation
-!    gases with lbc_global_mean_vmr (CAM's chem_surfvals source of the
-!    greenhouse gas surface values).
-! A listed species that no scheme looked up is an error at the first
-! timestep: a lower boundary the user asked for must not be silently unused.
+! and advances its read window every timestep.
 !
-! This scheme is inactive unless flbc_file is set.
+! This scheme is a provider of LBC data and does not write to
+! the constituents array. Instead, it provides data to other CCPP schemes
+! following this lifecycle:
+!
+! init: use lbc_activate_species to "activate" this species.
+! timestep_init/run:
+!   use lbc_column_vmr to get per-column VMRs (generally used for prognostic chem) -or-
+!   use lbc_global_mean_vmr for global mean VMRs (generally used for GHGs)
+!
+! for consistency, all species must be "active" at first timestep (LBC read)
+! this ensures that ALL flbc entries in the namelist are applied to the model
+! by another scheme and not silently unused.
 !
 ! Based on original CAM version from Francis Vitt et al.
 module prescribe_lower_boundary_conditions
@@ -37,7 +38,7 @@ module prescribe_lower_boundary_conditions
   public :: lbc_initialized
   public :: lbc_species_count
   public :: lbc_species_name
-  public :: lbc_find_species
+  public :: lbc_activate_species
   public :: lbc_column_vmr
   public :: lbc_global_mean_vmr
 
@@ -45,14 +46,11 @@ module prescribe_lower_boundary_conditions
   type :: flbc
     character(len=16)            :: species = ' '         ! species name as given in flbc_list
     character(len=32)            :: fldname = ' '         ! netCDF variable name in flbc_file
-    logical                      :: consumed = .false.    ! some scheme looked this species up at init
+    logical                      :: active = .false.      ! some scheme looked this species up at init
     real(kind_phys), allocatable :: vmr(:, :)             ! surface vmr on model columns (columns, time window)
     logical                      :: has_mean = .false.    ! file provides <species>_LBC_mean global means
     real(kind_phys), allocatable :: vmr_mean(:)           ! global mean vmr from file (time window)
   end type flbc
-
-  ! number of time samples to read ahead of the current time (SERIAL)
-  integer, parameter :: time_span = 1
 
   ! dataset time coordinate and current read window
   integer                       :: ntimes = 0
@@ -86,7 +84,7 @@ module prescribe_lower_boundary_conditions
 
   ! every listed species has been looked up by a consumer: checked once at
   ! the first timestep_init, after every consumer's init has had its chance
-  logical :: consumption_checked = .false.
+  logical :: lbc_active_check = .false.
 
   ! dataset grid sizes and horizontal interpolation weights to the physics columns.
   ! The columns and the dataset grid do not change, so the weights are built once.
@@ -103,6 +101,9 @@ module prescribe_lower_boundary_conditions
   ! ccpp_io_reader error codes tolerated by probing reads:
   integer, parameter :: missing_variable_error_code = 3
   integer, parameter :: wrong_rank_error_code = 5
+
+  ! number of time samples to read ahead of the current time (SERIAL)
+  integer, parameter :: time_span = 1
 
 contains
 
@@ -157,13 +158,16 @@ contains
     errmsg = ''
     errflg = 0
 
+    ! CCPP init phases are idempotent:
+    if(lbc_initialized) return
+
     is_root = amIRoot
     log_unit = iulog
     pi_const = pi
     lbc_initialized = .true.
     flbc_cnt = 0
     dels_valid = .false.
-    consumption_checked = .false.
+    lbc_active_check = .false.
 
     ! check if user has specified an input dataset
     if (flbc_file == 'UNSET' .or. len_trim(flbc_file) == 0) then
@@ -252,8 +256,7 @@ contains
       end if
       !REMOVECAM_END
 
-      ! Consistency check: a duplicated entry would silently shadow its twin
-      ! in every consumer's name lookup
+      ! Disallow duplicate entries:
       if (any(flbcs(1:m - 1)%species == flbcs(m)%species)) then
         errmsg = subname // ': flbc_list member "' // trim(flbcs(m)%species) // &
                  '" is listed twice'
@@ -406,22 +409,23 @@ contains
       return
     end if
 
-    ! Every listed species must have been looked up by a consuming scheme
-    ! during init (consumer inits run after this scheme's, so the earliest
-    ! this can be checked is the first timestep): a species the user listed
-    ! must not be silently unused.
-    if (.not. consumption_checked) then
+    ! Verify that all LBC entries have been activated by at least one CCPP scheme.
+    if (.not. lbc_active_check) then
       do m = 1, flbc_cnt
-        if (.not. flbcs(m)%consumed) then
+        if (.not. flbcs(m)%active) then
+          ! abort here: all flbc_list entries MUST be claimed
+          ! this is to prevent silent failures in the flbc_list where an entry is added
+          ! but it actually has no effect on the model:
           errmsg = 'prescribe_lower_boundary_conditions_timestep_init: no scheme in the suite' // &
                    ' applies flbc_list member "' // trim(flbcs(m)%species) // &
-                   '" (no lbc_find_species lookup during init)'
+                   '" (no lbc_activate_species lookup during init)'
           errflg = 1
           return
         end if
       end do
-      consumption_checked = .true.
     end if
+
+    lbc_active_check = .true.
 
     ! Advance the SERIAL read window when current time passes it
     if (lbc_type == 'SERIAL') then
@@ -487,7 +491,7 @@ contains
     flbc_cnt = 0
     dels_valid = .false.
     lbc_initialized = .false.
-    consumption_checked = .false.
+    lbc_active_check = .false.
     if (allocated(dates)) then
       deallocate (dates)
     end if
@@ -505,7 +509,7 @@ contains
 
   ! Private helpers:
 
-  ! Read one species' lower bndy values for the current time window and
+  ! Read one species' lower boundary values for the current time window and
   ! interpolate horizontally to the physics columns.
   subroutine flbc_get(lbcs, ncol, to_lats, to_lons, errmsg, errflg)
 
@@ -513,7 +517,7 @@ contains
     use interpolate_data, only: lininterp_init, lininterp
 
     type(flbc),        intent(inout) :: lbcs
-    integer,           intent(in)    :: ncol       ! number of columns [count]
+    integer,           intent(in)    :: ncol
     real(kind_phys),   intent(in)    :: to_lats(:) ! latitude of columns [rad]
     real(kind_phys),   intent(in)    :: to_lons(:) ! longitude of columns [rad]
     character(len=*),  intent(out)   :: errmsg
@@ -712,35 +716,6 @@ contains
 
   end subroutine get_dels
 
-  ! Time-interpolated global mean vmr of one species:
-  ! from the file's global mean variable when present, otherwise a global
-  ! mean over the horizontally interpolated columns.
-  subroutine global_mean_vmr(lbcs, ncol, dels, last, next, vmr_out)
-
-    ! This scheme is non-portable due to dependency: Global mean module gmean from src/utils
-    use gmean_mod,    only: gmean
-
-    type(flbc),      intent(in)  :: lbcs
-    integer,         intent(in)  :: ncol   ! number of columns [count]
-    real(kind_phys), intent(in)  :: dels
-    integer,         intent(in)  :: last
-    integer,         intent(in)  :: next
-    real(kind_phys), intent(out) :: vmr_out
-
-    ! local variables
-    real(kind_phys) :: vmr_arr(ncol)
-
-    if (lbcs%has_mean) then
-      vmr_out = lbcs%vmr_mean(last) &
-                + dels*(lbcs%vmr_mean(next) - lbcs%vmr_mean(last))
-    else
-      vmr_arr(:ncol) = lbcs%vmr(:ncol, last) &
-                       + dels*(lbcs%vmr(:ncol, next) - lbcs%vmr(:ncol, last))
-      call gmean(vmr_arr, vmr_out)
-    end if
-
-  end subroutine global_mean_vmr
-
   ! Interface for the consuming schemes that apply the lower boundary data:
 
   ! Number of listed species (zero while the scheme is idle).
@@ -755,13 +730,12 @@ contains
     name = flbcs(m)%species
   end function lbc_species_name
 
-  ! Resolve a listed species to its handle for lbc_column_vmr and
-  ! lbc_global_mean_vmr, or 0 when the name is not in flbc_list (the caller
-  ! decides whether that is an error). Called from an init phase that runs
-  ! after this scheme's. The lookup marks the species consumed, which the
-  ! first timestep_init requires of every listed species; one species may
-  ! serve several consumers.
-  subroutine lbc_find_species(name, handle)
+  ! Mark a species in the LBC list as "activated",
+  ! i.e., another CCPP scheme promises (by contract) that it will retrieve the LBC value
+  ! of that species and apply it to the constituents array.
+  ! This is a one (LBC) to many (>= 1) relationship.
+  ! If a species is not matched, the handle returns 0.
+  subroutine lbc_activate_species(name, handle)
     character(len=*), intent(in)  :: name
     integer,          intent(out) :: handle
 
@@ -770,17 +744,14 @@ contains
     handle = 0
     do m = 1, flbc_cnt
       if (trim(flbcs(m)%species) == trim(name)) then
-        flbcs(m)%consumed = .true.
+        flbcs(m)%active = .true.
         handle = m
         return
       end if
     end do
-  end subroutine lbc_find_species
+  end subroutine lbc_activate_species
 
-  ! Per-column vmr of a listed species at the current step, interpolated in
-  ! time with the weights of this step's timestep_init: CAM's flbc_set
-  ! expression, so a caller writing it into its bottom layer matches CAM.
-  ! handle comes from lbc_find_species.
+  ! Get per-column time-interpolated VMR of a LBC species at the current timestep.
   subroutine lbc_column_vmr(handle, ncol, vmr_out, errmsg, errflg)
     integer,          intent(in)  :: handle
     integer,          intent(in)  :: ncol       ! number of columns [count]
@@ -808,16 +779,20 @@ contains
                      + dels_cur*(flbcs(m)%vmr(:ncol, next_cur) - flbcs(m)%vmr(:ncol, last_cur))
   end subroutine lbc_column_vmr
 
-  ! Global mean vmr of a listed species at the current step, interpolated in
-  ! time with the weights of this step's timestep_init: CAM's flbc_gmean_vmr,
-  ! which chem_surfvals uses for the greenhouse gas surface values.
-  ! handle comes from lbc_find_species.
+  ! Get global mean time-interpolated VMR of a LBC species at the current timestep.
   subroutine lbc_global_mean_vmr(handle, ncol, vmr_out, errmsg, errflg)
+
+    ! Non-portable due to host dependency: Global mean module gmean from src/utils
+    use gmean_mod,    only: gmean
+
     integer,          intent(in)  :: handle
     integer,          intent(in)  :: ncol     ! number of columns [count]
     real(kind_phys),  intent(out) :: vmr_out  ! [mol mol-1]
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
+
+    ! local variables
+    real(kind_phys) :: vmr_arr(ncol)
 
     errmsg = ''
     errflg = 0
@@ -832,28 +807,32 @@ contains
       errflg = 1
       return
     end if
-    call global_mean_vmr(flbcs(handle), ncol, dels_cur, last_cur, next_cur, vmr_out)
+
+    if (flbcs(handle)%has_mean) then
+      ! mean is from file
+      vmr_out = flbcs(handle)%vmr_mean(last_cur) &
+                + dels_cur*(flbcs(handle)%vmr_mean(next_cur) - flbcs(handle)%vmr_mean(last_cur))
+    else
+      ! mean computed from host
+      vmr_arr(:ncol) = flbcs(handle)%vmr(:ncol, last_cur) &
+                       + dels_cur*(flbcs(handle)%vmr(:ncol, next_cur) - flbcs(handle)%vmr(:ncol, last_cur))
+      call gmean(vmr_arr, vmr_out)
+    end if
+
   end subroutine lbc_global_mean_vmr
 
   ! Convert an integer date and seconds of day to a float time coordinate
   ! consistent with the model calendar.
   subroutine flt_date(ncdate, ncsec, time)
 
-    ! Host model dependency for calendar math, applied to dataset dates as well
-    ! as the current date, so it cannot be threaded as data by standard name.
-    ! A portable replacement needs the calendar type and the reference date
-    ! threaded as arguments to stay bit-for-bit; until such a utility exists
-    ! this stays a host dependency like tracer_data and interpolate_data.
+    ! Host model dependency for calendar math on dataset and model times.
     use time_manager, only: timemgr_datediff
 
     integer,         intent(in)  :: ncdate ! date YYYYMMDD
     integer,         intent(in)  :: ncsec  ! seconds of day
     real(kind_phys), intent(out) :: time
 
-    ! Days since 0001-01-01, CAM's time_utils flt_date, which mo_flbc and
-    ! chem_surfvals use. The fixed reference keeps the fractional-day rounding,
-    ! and so the interpolation weights, bit-for-bit with CAM and independent
-    ! of the reference date of the run's clock.
+    ! Reference datetime matching CAM time_utils::flt_date for bfb:
     integer, parameter :: refymd = 00010101
     integer, parameter :: reftod = 0
 

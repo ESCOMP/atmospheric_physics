@@ -1,7 +1,6 @@
 [ccpp-table-properties]
   name = prescribe_lower_boundary_conditions
   type = scheme
-  dependencies = ../../phys_utils/atmos_phys_string_utils.F90
 
 [ccpp-arg-table]
   name  = prescribe_lower_boundary_conditions_init
