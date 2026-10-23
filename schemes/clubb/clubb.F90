@@ -3235,7 +3235,8 @@ module clubb
                         meltpt_temp, latice, rga, & ! in
                         dlf, state_t, state_pdel, state_pdeldry, & ! in
                         ptend_q, s, det_s, det_ice, & ! inout
-                        dlf_liq_out, dlf_ice_out ) ! out
+                        dlf_liq_out, dlf_ice_out, & ! out
+                        errmsg, errflg ) ! out
 
     use ccpp_kinds, only: kind_phys
 
@@ -3252,10 +3253,16 @@ module clubb
 
     ! Input variables, intent(out)
     real(kind_phys), intent(out) :: dlf_liq_out(:,:), dlf_ice_out(:,:)
+    character(len=*), intent(out) :: errmsg
+    integer, intent(out) :: errflg
 
     ! Local variables
     integer :: i, k
     real(kind_phys) :: dlf2, dum1, dl_rad, di_rad, dt_low
+
+    ! Initialize
+    errmsg = ''
+    errflg = 0
 
     ! ------------------------------------------------------------ !
     ! The rest of the code deals with diagnosing variables         !
@@ -3327,9 +3334,8 @@ module clubb
                         rhminis_const, rhmaxis_const, rhmini_const, rhmaxi_const, & ! in
                         rhminl_const, rhminl_adj_land_const, rhminh_const, & ! in
                         dp1, dp2, zvir, rair, cpair, gravit, karman, & ! in
-                        calday, tropp_days, & ! in
-                        lat, state_phis, state_t, state_q, & ! in
-                        state_pint, state_pmid, state_pdel, state_pdeldry, & ! in
+                        state_t, state_q, & ! in
+                        state_pmid, state_pdel, state_pdeldry, & ! in
                         state_zm, state_zi, state_u, state_v, state_exner, & ! in
                         landfrac, snowhland, wsx, & ! in
                         wsy, shf, cflx, ptend_q, & ! in
@@ -3356,11 +3362,9 @@ module clubb
     real(kind_phys), intent(in) :: rhminis_const, rhmaxis_const, rhmini_const, rhmaxi_const
     real(kind_phys), intent(in) :: rhminl_const, rhminl_adj_land_const, rhminh_const
     real(kind_phys), intent(in) :: dp1, dp2, zvir, rair, cpair, gravit, karman
-    real(kind_phys), intent(in) :: calday
-    real(kind_phys), intent(in) :: tropp_days(:)
-    real(kind_phys), intent(in) :: lat(:), state_phis(:), landfrac(:), snowhland(:), &
+    real(kind_phys), intent(in) :: landfrac(:), snowhland(:), &
                                    wsx(:), wsy(:), shf(:)
-    real(kind_phys), intent(in) :: state_pint(:,:), state_pmid(:,:), state_pdel(:,:), state_pdeldry(:,:), rcm(:,:), &
+    real(kind_phys), intent(in) :: state_pmid(:,:), state_pdel(:,:), state_pdeldry(:,:), rcm(:,:), &
                                    cloud_frac(:,:), state_t(:,:), state_exner(:,:), &
                                    state_zm(:,:), state_zi(:,:), state_u(:,:), state_v(:,:), cmfmc(:,:), cflx(:,:), &
                                    mf_cloudfrac_output(:,:), mf_qc_output(:,:)
