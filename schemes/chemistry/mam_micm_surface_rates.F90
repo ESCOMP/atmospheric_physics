@@ -1,17 +1,25 @@
-! MAM aerosol surface area density -> MICM surface reaction rate parameters
+! Aerosol surface area density -> MICM surface reaction rate parameters
 !
 ! Every MICM surface reaction carries two rate parameters per grid cell,
 ! '<label>.effective radius [m]' and '<label>.particle number concentration
-! [# m-3]'. This scheme fills them from one MAM mode's surface area density
-! and wet number-mode diameter (aero_state%surf_area_dens, the sfc/dm_aer pair
-! CAM's mo_usrrxt hetrxtrate consumes), so MICM's rate equals CAM's per-mode
+! [# m-3]'. This scheme fills them from one aerosol mode's surface area density
+! and wet diameter (aero_state%surf_area_dens, the sfc/dm_aer pair CAM's
+! mo_usrrxt hetrxtrate consumes), so MICM's rate equals CAM's per-mode
 ! heterogeneous rate.
 !
 ! CAM sums hetrxtrate over modes; a MICM surface reaction has one (r, N) pair.
 ! A mechanism reproduces CAM with one surface reaction per mode, and the mode
 ! is taken from the label's '_a<mm>' suffix (CAM's per-mode naming):
 ! 'SURF.N2O5_hydrolysis_a1' reads mode 1. A surface reaction without that
-! suffix, or naming a mode MAM does not have, is an error at init.
+! suffix, or naming a mode the aerosol model does not have, is an error at init.
+!
+! The aerosol model is selected as CAM does: the first MAM or CARMA model
+! (both active is an error), otherwise BAM. The mode index means:
+!   MAM   - the MAM mode.
+!   CARMA - the CARMA bin (CARMA's surf_area_dens is not implemented yet).
+!   BAM   - the n-th reactive component slot of surf_area_dens, which packs
+!           sfc/dm_aer by the components present in sad_chem_spec_types
+!           (sulfate, black carbon, organic carbon, ...), not by BAM bin.
 module mam_micm_surface_rates
    use ccpp_kinds, only: kind_phys
 
@@ -21,12 +29,12 @@ module mam_micm_surface_rates
    public :: mam_micm_surface_rates_init
    public :: mam_micm_surface_rates_run
 
-   integer :: iaermod_selected = -1 ! index of the MAM model in aerosol_instances
+   integer :: iaermod_selected = -1 ! index of the selected aerosol model in aerosol_instances
    integer :: nmodes = 0            ! number of aerosol modes (aero_props%nbins())
    character(len=:), allocatable :: surf_label(:)
    integer,          allocatable :: surf_iradius(:) ! slot of the effective radius [m]
    integer,          allocatable :: surf_inumber(:) ! slot of the particle number concentration [# m-3]
-   integer,          allocatable :: surf_mode(:)    ! MAM mode feeding the reaction
+   integer,          allocatable :: surf_mode(:)    ! aerosol mode feeding the reaction
 
 contains
 
@@ -42,7 +50,7 @@ contains
       character(len=*), intent(out) :: errmsg
       integer,          intent(out) :: errflg
 
-      integer :: iaermod, j
+      integer :: iaermod, j, iaermod_bam
       class(aerosol_properties), pointer :: aero_props
 
       errmsg = ''
@@ -55,23 +63,35 @@ contains
       if (size(surf_label) == 0) return
 
       ! Select the aerosol model once (aerosol_instances is set up before the
-      ! physics init phases) and take the mode count from its properties.
+      ! physics init phases) as CAM does: the first MAM or CARMA model, an
+      ! error if both are active, otherwise BAM. The mode count comes from the
+      ! selected model's properties.
       iaermod_selected = -1
+      iaermod_bam = -1
       do iaermod = 1, aerosol_instances_get_num_models()
          aero_props => aerosol_instances_get_props(iaermod, list_idx=0)
          if (.not. associated(aero_props)) cycle
-         if (aero_props%model_is('MAM')) then
+         if (aero_props%model_is('MAM') .or. aero_props%model_is('CARMA')) then
+            if (iaermod_selected > 0) then
+               errflg = 1
+               errmsg = 'mam_micm_surface_rates_init: MAM and CARMA are both active; '// &
+                    'only one may provide the surface area density'
+               return
+            end if
             iaermod_selected = iaermod
-            nmodes = aero_props%nbins()
-            exit
+         else if (aero_props%model_is('BAM')) then
+            if (iaermod_bam < 0) iaermod_bam = iaermod
          end if
       end do
+      if (iaermod_selected < 0) iaermod_selected = iaermod_bam
       if (iaermod_selected < 0) then
          errflg = 1
          errmsg = 'mam_micm_surface_rates_init: the mechanism has MICM surface reactions '// &
-              'but no MAM aerosol model is in aerosol_instances'
+              'but no MAM, CARMA or BAM aerosol model is in aerosol_instances'
          return
       end if
+      aero_props => aerosol_instances_get_props(iaermod_selected, list_idx=0)
+      nmodes = aero_props%nbins()
 
       allocate(surf_mode(size(surf_label)))
       do j = 1, size(surf_label)
@@ -79,7 +99,7 @@ contains
          if (surf_mode(j) < 1 .or. surf_mode(j) > nmodes) then
             errflg = 1
             write(errmsg, '(a,i0,a)') 'mam_micm_surface_rates_init: MICM surface reaction "'// &
-                 trim(surf_label(j))//'" does not name a MAM mode 1..', nmodes, &
+                 trim(surf_label(j))//'" does not name an aerosol mode 1..', nmodes, &
                  ' with an _a<mm> label suffix'
             return
          end if
@@ -89,8 +109,8 @@ contains
 
 !> \section arg_table_mam_micm_surface_rates_run Argument Table
 !! \htmlinclude mam_micm_surface_rates_run.html
-   subroutine mam_micm_surface_rates_run(ncol, pver, troplev, t, pmid, pi, rate_parameters, &
-        sad_chem_spec_types, errmsg, errflg)
+   subroutine mam_micm_surface_rates_run(ncol, pver, troplev, t, pmid, relhum, pi, &
+        rate_parameters, sad_chem_spec_types, errmsg, errflg)
       use aerosol_instances_mod,    only: aerosol_instances_get_props, &
                                           aerosol_instances_get_state
       use aerosol_properties_mod,   only: aerosol_properties
@@ -102,6 +122,7 @@ contains
       integer,          intent(in)    :: troplev(:)  ! (ncol) tropopause vertical layer index
       real(kind_phys),  intent(in)    :: t(:,:)      ! (ncol,pver) air temperature [K]
       real(kind_phys),  intent(in)    :: pmid(:,:)   ! (ncol,pver) air pressure [Pa]
+      real(kind_phys),  intent(in)    :: relhum(:,:) ! (ncol,pver) relative humidity [fraction]
       real(kind_phys),  intent(in)    :: pi
       real(kind_phys),  intent(inout) :: rate_parameters(:,:,:)  ! (ncol,pver,nparams) MICM rate parameters
       character(len=*), intent(in)    :: sad_chem_spec_types(:)  ! aerosol species types making up the reactive surface (namelist)
@@ -113,7 +134,6 @@ contains
       class(aerosol_state),      pointer :: aero_state_obj
 
       integer         :: beglev(ncol), endlev(ncol)
-      real(kind_phys) :: relhum(ncol, pver)
       real(kind_phys) :: sad(ncol, pver)             ! surface area density [cm2/cm3]
       real(kind_phys) :: reff(ncol, pver)            ! effective radius [cm]
       real(kind_phys) :: sfc(ncol, pver, nmodes)     ! per-mode surface area density [cm2/cm3]
@@ -139,14 +159,13 @@ contains
       beglev(:ncol) = troplev(:ncol) + 1
       endlev(:ncol) = pver
 
-      ! The modal implementation of surf_area_dens ignores relhum (it uses the
-      ! wet number-mode diameter from water uptake).
-      relhum(:,:) = 0.0_kind_phys
+      ! relhum sets BAM's hygroscopic growth; MAM ignores it (it uses the wet
+      ! number-mode diameter from water uptake).
       sfc(:,:,:) = 0.0_kind_phys
       dm_aer(:,:,:) = 0.0_kind_phys
 
       call aero_state_obj%surf_area_dens(aero_props, sad_chem_spec_types, ncol, pver, &
-           beglev, endlev, relhum, pmid, t, pi, sad, reff, sfc, dm_aer)
+           beglev, endlev, relhum(:ncol,:), pmid, t, pi, sad, reff, sfc, dm_aer)
 
       do j = 1, size(surf_label)
          call surface_reaction_parameters_from_mode(sfc(:,:,surf_mode(j)), dm_aer(:,:,surf_mode(j)), &
