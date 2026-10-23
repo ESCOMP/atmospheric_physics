@@ -21,7 +21,8 @@ module mam_micm_surface_rates
    public :: mam_micm_surface_rates_init
    public :: mam_micm_surface_rates_run
 
-   integer :: nmodes = 0
+   integer :: iaermod_selected = -1 ! index of the MAM model in aerosol_instances
+   integer :: nmodes = 0            ! number of aerosol modes (aero_props%nbins())
    character(len=:), allocatable :: surf_label(:)
    integer,          allocatable :: surf_iradius(:) ! slot of the effective radius [m]
    integer,          allocatable :: surf_inumber(:) ! slot of the particle number concentration [# m-3]
@@ -32,23 +33,45 @@ contains
 !> \section arg_table_mam_micm_surface_rates_init Argument Table
 !! \htmlinclude mam_micm_surface_rates_init.html
    subroutine mam_micm_surface_rates_init(errmsg, errflg)
-      use mam_mode_metadata,        only: ntot_amode_val
+      use aerosol_instances_mod,    only: aerosol_instances_get_props, &
+                                          aerosol_instances_get_num_models
+      use aerosol_properties_mod,   only: aerosol_properties
       use musica_ccpp_micm,         only: rate_parameters_ordering
       use musica_ccpp_micm_surface, only: find_surface_reactions_in_ordering, mode_from_label
 
       character(len=*), intent(out) :: errmsg
       integer,          intent(out) :: errflg
 
-      integer :: j
+      integer :: iaermod, j
+      class(aerosol_properties), pointer :: aero_props
 
       errmsg = ''
       errflg = 0
 
-      nmodes = ntot_amode_val
-
       call find_surface_reactions_in_ordering(rate_parameters_ordering, surf_label, &
            surf_iradius, surf_inumber, errmsg, errflg)
       if (errflg /= 0) return
+
+      if (size(surf_label) == 0) return
+
+      ! Select the aerosol model once (aerosol_instances is set up before the
+      ! physics init phases) and take the mode count from its properties.
+      iaermod_selected = -1
+      do iaermod = 1, aerosol_instances_get_num_models()
+         aero_props => aerosol_instances_get_props(iaermod, list_idx=0)
+         if (.not. associated(aero_props)) cycle
+         if (aero_props%model_is('MAM')) then
+            iaermod_selected = iaermod
+            nmodes = aero_props%nbins()
+            exit
+         end if
+      end do
+      if (iaermod_selected < 0) then
+         errflg = 1
+         errmsg = 'mam_micm_surface_rates_init: the mechanism has MICM surface reactions '// &
+              'but no MAM aerosol model is in aerosol_instances'
+         return
+      end if
 
       allocate(surf_mode(size(surf_label)))
       do j = 1, size(surf_label)
@@ -69,8 +92,7 @@ contains
    subroutine mam_micm_surface_rates_run(ncol, pver, troplev, t, pmid, pi, rate_parameters, &
         sad_chem_spec_types, errmsg, errflg)
       use aerosol_instances_mod,    only: aerosol_instances_get_props, &
-                                          aerosol_instances_get_state, &
-                                          aerosol_instances_get_num_models
+                                          aerosol_instances_get_state
       use aerosol_properties_mod,   only: aerosol_properties
       use aerosol_state_mod,        only: aerosol_state
       use musica_ccpp_micm_surface, only: surface_reaction_parameters_from_mode
@@ -86,7 +108,7 @@ contains
       character(len=*), intent(out)   :: errmsg
       integer,          intent(out)   :: errflg
 
-      integer :: iaermod, j
+      integer :: j
       class(aerosol_properties), pointer :: aero_props
       class(aerosol_state),      pointer :: aero_state_obj
 
@@ -102,24 +124,13 @@ contains
 
       if (size(surf_label) == 0) return
 
-      ! Find MAM properties and state from aerosol instances
-      aero_props => null()
-      aero_state_obj => null()
-      do iaermod = 1, aerosol_instances_get_num_models()
-        aero_props => aerosol_instances_get_props(iaermod, 0)
-        if (associated(aero_props)) then
-          if (aero_props%model_is('MAM')) then
-            aero_state_obj => aerosol_instances_get_state(iaermod, list_idx=0)
-            exit
-          end if
-        end if
-        aero_props => null()
-      end do
-
+      ! Aerosol model selected at init
+      aero_props => aerosol_instances_get_props(iaermod_selected, list_idx=0)
+      aero_state_obj => aerosol_instances_get_state(iaermod_selected, list_idx=0)
       if (.not. associated(aero_props) .or. &
           .not. associated(aero_state_obj)) then
          errflg = 1
-         errmsg = 'mam_micm_surface_rates_run: MAM aerosol model not found in aerosol_instances'
+         errmsg = 'mam_micm_surface_rates_run: aerosol model selected at init is not in aerosol_instances'
          return
       end if
 

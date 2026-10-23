@@ -1,7 +1,6 @@
 [ccpp-table-properties]
   name = mam_micm_surface_rates
   type = scheme
-  dependencies = ../modal_aero/ccpp/mam_mode_metadata.F90
   dependencies = ../musica/micm/musica_ccpp_micm.F90,../musica/micm/musica_ccpp_micm_surface.F90
   dependencies = ../musica/util/musica_ccpp_util.F90
 
