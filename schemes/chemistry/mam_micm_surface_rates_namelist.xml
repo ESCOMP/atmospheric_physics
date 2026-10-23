@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet type="text/xsl"?>
+
+<entry_id_pg version="2.0">
+
+  <entry id="sad_chem_spec_types">
+    <type>char*16(8)</type>
+    <category>cam_chem</category>
+    <group>mam_micm_surface_rates_nl</group>
+    <standard_name>aerosol_species_types_for_tropospheric_chemistry_surface_area_density</standard_name>
+    <units>none</units>
+    <desc>
+      Aerosol species types whose mass fraction of each MAM mode makes up
+      the reactive surface for tropospheric heterogeneous chemistry
+      (aero_state%surf_area_dens types_list), as CAM's aerosol_nl
+      sad_chem_spec_types. Valid types are those of
+      radiative_aerosol_definitions: sulfate, ammonium, nitrate, p-organic,
+      s-organic, black-c, seasalt, dust. Unused entries (blank or UNSET)
+      match no species type and are ignored.
+      Used by mam_micm_surface_rates and mam_surfarea_diagnostics.
+    </desc>
+    <values>
+      <value>'sulfate','s-organic','p-organic','black-c','ammonium'</value>
+    </values>
+  </entry>
+
+</entry_id_pg>

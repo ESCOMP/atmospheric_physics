@@ -66,6 +66,12 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension,number_of_micm_rate_parameters)
   intent = inout
+[ sad_chem_spec_types ]
+  standard_name = aerosol_species_types_for_tropospheric_chemistry_surface_area_density
+  units = none
+  type = character | kind = len=*
+  dimensions = (sad_chem_spec_types_dimension)
+  intent = in
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none

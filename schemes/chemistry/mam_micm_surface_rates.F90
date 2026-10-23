@@ -21,11 +21,6 @@ module mam_micm_surface_rates
    public :: mam_micm_surface_rates_init
    public :: mam_micm_surface_rates_run
 
-   ! CAM's default sad_chem_spec_types for MAM (aerosol_nl namelist in CAM),
-   ! the same list mam_surfarea_diagnostics uses.
-   character(len=9), parameter :: sad_chem_spec_types(5) = &
-        [ character(len=9) :: 'sulfate', 's-organic', 'p-organic', 'black-c', 'ammonium' ]
-
    integer :: nmodes = 0
    character(len=:), allocatable :: surf_label(:)
    integer,          allocatable :: surf_iradius(:) ! slot of the effective radius [m]
@@ -72,7 +67,7 @@ contains
 !> \section arg_table_mam_micm_surface_rates_run Argument Table
 !! \htmlinclude mam_micm_surface_rates_run.html
    subroutine mam_micm_surface_rates_run(ncol, pver, troplev, t, pmid, pi, rate_parameters, &
-        errmsg, errflg)
+        sad_chem_spec_types, errmsg, errflg)
       use aerosol_instances_mod,    only: aerosol_instances_get_props, &
                                           aerosol_instances_get_state, &
                                           aerosol_instances_get_num_models
@@ -87,6 +82,7 @@ contains
       real(kind_phys),  intent(in)    :: pmid(:,:)   ! (ncol,pver) air pressure [Pa]
       real(kind_phys),  intent(in)    :: pi
       real(kind_phys),  intent(inout) :: rate_parameters(:,:,:)  ! (ncol,pver,nparams) MICM rate parameters
+      character(len=*), intent(in)    :: sad_chem_spec_types(:)  ! aerosol species types making up the reactive surface (namelist)
       character(len=*), intent(out)   :: errmsg
       integer,          intent(out)   :: errflg
 
