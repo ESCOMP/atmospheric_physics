@@ -359,13 +359,13 @@ module clubb
                                    l_input_fields,              & ! Intent(in)
                                    clubb_config_flags,          & ! intent(in)
                                    err_info )                     ! Intent(inout)
+!$OMP END PARALLEL
 
     if ( any(err_info%err_code == clubb_fatal_error) ) then
        errmsg = 'clubb_ini_cam: FATAL ERROR CALLING CHECK_CLUBB_SETTINGS_API'
        errflg = 1
        return
     end if
-!$OMP END PARALLEL
 
     ! Cleanup err_info since it is not needed anymore
     call cleanup_err_info_api(err_info)
