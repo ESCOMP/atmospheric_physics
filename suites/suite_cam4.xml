@@ -24,13 +24,14 @@
     <!-- INITIALIZE CLOUD FRACTION NAMELIST (init phase only) -->
     <scheme>cloud_fraction_options</scheme>
 
-    <!-- Prescribe fixed GHG concentrations -->
-    <scheme>prescribe_radiative_gas_concentrations</scheme>
-
-    <!-- Prescribe time-varying lower boundary concentrations.
-         Note that this can overwrite previously-set constituents
-         like GHGs -->
+    <!-- Read time-varying lower boundary concentrations and serve them to
+         the consuming schemes below; never writes a constituent itself -->
     <scheme>prescribe_lower_boundary_conditions</scheme>
+
+    <!-- Prescribe GHG concentrations: time-invariant namelist values at
+         init, overridden every timestep by the lower boundary file's
+         global means for the gases it lists -->
+    <scheme>prescribe_radiative_gas_concentrations</scheme>
 
     <!-- Reshape the fixed (uniform) filled GHG concentrations in the stratosphere with profiles -->
     <scheme>prescribe_radiative_gas_vertical_profiles</scheme>

@@ -1,10 +1,19 @@
-! Prescribe time-varying chemical lower boundary (or total column) conditions.
+! Read time-varying chemical lower boundary conditions and serve them to the
+! schemes that apply them.
 !
 ! Reads a CHEM_LBC_FILE dataset of surface mole fractions
 ! on a zonal-mean (lat x time) or longitude-latitude (lon x lat x time) grid
-! and advances its read window every timestep.
-!
-! See fill mechanics below in the flbc struct.
+! and advances its read window every timestep. This scheme never writes a
+! constituent. A consuming scheme resolves a species handle in its init phase
+! (lbc_find_species; this scheme's init must run first in the suite) and reads
+! values each step after this scheme's timestep_init:
+!  - prognostic chemistry overwrites its bottom-layer vmr workspace with
+!    lbc_column_vmr inside the chemistry step (CAM's flbc_set);
+!  - prescribe_radiative_gas_concentrations fills its non-advected radiation
+!    gases with lbc_global_mean_vmr (CAM's chem_surfvals source of the
+!    greenhouse gas surface values).
+! A listed species that no scheme looked up is an error at the first
+! timestep: a lower boundary the user asked for must not be silently unused.
 !
 ! This scheme is inactive unless flbc_file is set.
 !
@@ -24,41 +33,19 @@ module prescribe_lower_boundary_conditions
   public :: prescribe_lower_boundary_conditions_timestep_init
   public :: prescribe_lower_boundary_conditions_final
 
-  ! interfaces for other CCPP schemes to retrieve LBC information read by this module
-  ! at timestep_init:
+  ! interfaces for the consuming CCPP schemes that apply the data this module reads:
   public :: lbc_initialized
   public :: lbc_species_count
   public :: lbc_species_name
-  public :: lbc_claim_species
+  public :: lbc_find_species
   public :: lbc_column_vmr
+  public :: lbc_global_mean_vmr
 
   ! per-species lower boundary condition state
   type :: flbc
     character(len=16)            :: species = ' '         ! species name as given in flbc_list
     character(len=32)            :: fldname = ' '         ! netCDF variable name in flbc_file
-    integer                      :: const_idx = -1        ! constituent array index the species fills
-
-    ! Each species in flbc_list is either "claimed" (and applied by another scheme)
-    ! or filled by this scheme.
-    !
-    !  - Advected species for prognostic chemistry (claimed = .true.).
-    !    In chemistry, the bottom-layer vmr-space is overwritten with the LBC data.
-    !    This is handled inside the chemistry step and thus this scheme only reads
-    !    the data and provides per-column values via lbc_column_vmr.
-    !    We do not write to constituents from this scheme in this case.
-    !
-    !  - Non-advected GHGs (claimed = .false.)
-    !    For GHGs only (since only GHG molar masses are known in radiation_utils)
-    !    Time-interpolated *global mean* vmrs are written as a whole-column uniform mmr
-    !    (after conversion).
-    logical                      :: is_advected = .false. ! advected constituent: must be claimed, never filled here
-    logical                      :: claimed = .false.     ! applied by a chemistry scheme, not filled here
-
-    ! greenhouse gas with a molar mass known to radiation_utils?
-    logical                      :: is_ghg = .false.
-    ! conversion factor: vmr -> mass mixing ratio w.r.t. dry air
-    real(kind_phys)              :: mmr_factor = -1._kind_phys
-
+    logical                      :: consumed = .false.    ! some scheme looked this species up at init
     real(kind_phys), allocatable :: vmr(:, :)             ! surface vmr on model columns (columns, time window)
     logical                      :: has_mean = .false.    ! file provides <species>_LBC_mean global means
     real(kind_phys), allocatable :: vmr_mean(:)           ! global mean vmr from file (time window)
@@ -97,6 +84,10 @@ module prescribe_lower_boundary_conditions
   integer         :: next_cur = -1
   logical         :: dels_valid = .false.
 
+  ! every listed species has been looked up by a consumer: checked once at
+  ! the first timestep_init, after every consumer's init has had its chance
+  logical :: consumption_checked = .false.
+
   ! dataset grid sizes and horizontal interpolation weights to the physics columns.
   ! The columns and the dataset grid do not change, so the weights are built once.
   integer           :: nlat = 0
@@ -122,7 +113,6 @@ contains
     curr_date, curr_sec, &
     flbc_file, flbc_list, flbc_type, &
     flbc_cycle_yr, flbc_fixed_ymd, flbc_fixed_tod, &
-    const_props, &
     errmsg, errflg)
 
     ! portable netCDF reader for the dataset
@@ -131,13 +121,8 @@ contains
     ! Host model dependency for interpolation:
     use interpolate_data, only: lininterp_init
 
-    ! framework dependencies to look up and describe constituents
-    use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t, int_unassigned
-    use ccpp_scheme_utils,         only: ccpp_constituent_index
-
     ! portable dependencies
     use atmos_phys_string_utils, only: to_upper
-    use radiation_utils,         only: get_molar_mass_ratio
 
     logical,            intent(in)  :: amIRoot
     integer,            intent(in)  :: iulog
@@ -156,8 +141,6 @@ contains
     integer,            intent(in)  :: flbc_fixed_ymd ! fixed date YYYYMMDD (FIXED only)
     integer,            intent(in)  :: flbc_fixed_tod ! fixed time of day [s] (FIXED only)
 
-    type(ccpp_constituent_prop_ptr_t), intent(in) :: const_props(:) ! constituent properties
-
     character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
@@ -166,18 +149,10 @@ contains
     integer            :: yr, mon, day
     integer            :: wrk_date, wrk_sec
     real(kind_phys)    :: wrk_time
-    character(len=32)  :: target_constituent_name
-    logical            :: is_mass_mmr, is_dry_mmr
     real(kind_phys), allocatable :: file_lat(:)
     real(kind_phys)    :: d2r
     character(len=512) :: read_errmsg
     character(len=*), parameter :: subname = 'prescribe_lower_boundary_conditions_init'
-
-    ! greenhouse gas species accepted in flbc_list.
-    ! CFC11eq is the CMIP CFC11-equivalent (all other halogens expressed as
-    ! CFC11) and fills the CFC11 constituent.
-    character(len=8), parameter :: ghg_names(*) = &
-         [character(len=8) :: 'CO2', 'CH4', 'N2O', 'CFC11', 'CFC12', 'CFC11eq']
 
     errmsg = ''
     errflg = 0
@@ -188,6 +163,7 @@ contains
     lbc_initialized = .true.
     flbc_cnt = 0
     dels_valid = .false.
+    consumption_checked = .false.
 
     ! check if user has specified an input dataset
     if (flbc_file == 'UNSET' .or. len_trim(flbc_file) == 0) then
@@ -263,7 +239,6 @@ contains
     species_loop: do m = 1, flbc_cnt
 
       flbcs(m)%species = trim(flbc_list(m))
-      flbcs(m)%is_ghg = any(ghg_names == flbc_list(m))
 
       ! netCDF variable naming: CFC11 and CFC12 are stored under their chemical formulas.
       !REMOVECAM: in the distant future where we have the opportunity to restructure input files
@@ -277,68 +252,11 @@ contains
       end if
       !REMOVECAM_END
 
-      ! CFC11eq fills the CFC11 constituent.
-      ! Every other species fills the constituent matching its own name.
-      ! The molar mass of the filled constituent is used for the vmr -> mmr conversion.
-      target_constituent_name = trim(flbcs(m)%species)
-      if (trim(flbcs(m)%species) == 'CFC11eq') then
-        target_constituent_name = 'CFC11'
-      end if
-
-      call ccpp_constituent_index(trim(target_constituent_name), flbcs(m)%const_idx, errflg, errmsg)
-      if (errflg /= 0) then
-        return
-      end if
-      if (flbcs(m)%const_idx == int_unassigned) then
-        errmsg = subname // ': no constituent found for flbc_list member "' // &
-                 trim(flbcs(m)%species) // '"'
-        errflg = 1
-        return
-      end if
-
-      call const_props(flbcs(m)%const_idx)%is_advected(flbcs(m)%is_advected, errflg, errmsg)
-      if (errflg /= 0) then
-        return
-      end if
-      call const_props(flbcs(m)%const_idx)%is_mass_mixing_ratio(is_mass_mmr, errflg, errmsg)
-      if (errflg /= 0) then
-        return
-      end if
-      call const_props(flbcs(m)%const_idx)%is_dry(is_dry_mmr, errflg, errmsg)
-      if (errflg /= 0) then
-        return
-      end if
-
-      ! Only the greenhouse gases have a molar mass here, so only they can be
-      ! filled by this scheme; anything else must be claimed by a chemistry
-      ! scheme before the first timestep, which is checked in timestep_init.
-      if (flbcs(m)%is_ghg) then
-        ! conversion factor from vmr to mass mixing ratio w.r.t. dry air:
-        ! get_molar_mass_ratio returns (molar mass of dry air)/(molar mass of species)
-        call get_molar_mass_ratio(trim(target_constituent_name), flbcs(m)%mmr_factor, errmsg, errflg)
-        if (errflg /= 0) then
-          return
-        end if
-        flbcs(m)%mmr_factor = 1._kind_phys/flbcs(m)%mmr_factor
-      end if
-
-      ! The global-mean fill writes the constituent as a dry mass mixing ratio (MMR).
-      ! LBCs are read as VMR, so we need to be able to convert them (i.e., mmr factor is available).
-      ! Consistency check:
-      if(.not. flbcs(m)%is_advected .and. &           ! global-mean fill (needs VMR -> MMR conversion)
-               flbcs(m)%is_ghg      .and. &           ! is a GHG (will be converted to MMR)
-          (.not. is_mass_mmr .or. .not. is_dry_mmr))  then  ! but constituent not initd as dry and MMR
-        errmsg = subname // ': non-advected constituent for flbc_list member "' // &
-                 trim(flbcs(m)%species) // '" is not a dry mass mixing ratio;' // &
-                 ' the global-mean fill is only implemented for that convention'
-        errflg = 1
-        return
-      end if
-
-      ! Consistency check: ensure we are not filling the same constituent from two LBC entries
-      if (any(flbcs(1:m - 1)%const_idx == flbcs(m)%const_idx)) then
-        errmsg = subname // ': flbc_list members "' // trim(flbcs(m)%species) // &
-                 '" and another entry (CFC11 and CFC11eq?) fill the same constituent'
+      ! Consistency check: a duplicated entry would silently shadow its twin
+      ! in every consumer's name lookup
+      if (any(flbcs(1:m - 1)%species == flbcs(m)%species)) then
+        errmsg = subname // ': flbc_list member "' // trim(flbcs(m)%species) // &
+                 '" is listed twice'
         errflg = 1
         return
       end if
@@ -463,7 +381,7 @@ contains
 !> \section arg_table_prescribe_lower_boundary_conditions_timestep_init  Argument Table
 !! \htmlinclude prescribe_lower_boundary_conditions_timestep_init.html
   subroutine prescribe_lower_boundary_conditions_timestep_init( &
-    ncol, lat, lon, curr_date, curr_sec, constituents, &
+    ncol, lat, lon, curr_date, curr_sec, &
     errmsg, errflg)
 
     integer,            intent(in)    :: ncol   ! number of columns [count]
@@ -471,7 +389,6 @@ contains
     real(kind_phys),    intent(in)    :: lon(:) ! longitude of columns [rad]
     integer,            intent(in)    :: curr_date ! current model date [YYYYMMDD]
     integer,            intent(in)    :: curr_sec  ! elapsed seconds of current date [s]
-    real(kind_phys),    intent(inout) :: constituents(:,:,:) ! constituent array (ncol, pver, pcnst)
 
     character(len=*),   intent(out)   :: errmsg
     integer,            intent(out)   :: errflg
@@ -481,13 +398,29 @@ contains
     integer           :: last, next
     real(kind_phys)   :: dels
     real(kind_phys)   :: wrk_time
-    real(kind_phys)   :: vmr_gmean
 
     errmsg = ''
     errflg = 0
 
     if (flbc_cnt < 1) then
       return
+    end if
+
+    ! Every listed species must have been looked up by a consuming scheme
+    ! during init (consumer inits run after this scheme's, so the earliest
+    ! this can be checked is the first timestep): a species the user listed
+    ! must not be silently unused.
+    if (.not. consumption_checked) then
+      do m = 1, flbc_cnt
+        if (.not. flbcs(m)%consumed) then
+          errmsg = 'prescribe_lower_boundary_conditions_timestep_init: no scheme in the suite' // &
+                   ' applies flbc_list member "' // trim(flbcs(m)%species) // &
+                   '" (no lbc_find_species lookup during init)'
+          errflg = 1
+          return
+        end if
+      end do
+      consumption_checked = .true.
     end if
 
     ! Advance the SERIAL read window when current time passes it
@@ -514,6 +447,7 @@ contains
       end if
     end if
 
+    ! Cache this step's time interpolation for the consumers' reads
     call get_dels(curr_date, curr_sec, dels, last, next, errmsg, errflg)
     if (errflg /= 0) then
       return
@@ -522,35 +456,6 @@ contains
     last_cur = last
     next_cur = next
     dels_valid = .true.
-
-    do m = 1, flbc_cnt
-      ! If this species is handled externally then we stop here.
-      if (flbcs(m)%claimed) then
-        cycle
-      end if
-
-      ! Fill each unclaimed species' non-advected constituent with the global
-      ! mean vmr converted to a whole-column uniform dry mass mixing ratio.
-      ! Species claimed by a chemistry scheme are applied there from the same weights.
-      if (.not. flbcs(m)%is_ghg) then
-        errmsg = 'prescribe_lower_boundary_conditions_timestep_init: flbc_list member "' // &
-                 trim(flbcs(m)%species) // '" is not a greenhouse gas and no chemistry' // &
-                 ' scheme claimed it (lbc_claim_species) during init'
-        errflg = 1
-        return
-      end if
-      ! CAM pins an advected species inside the chemistry step (flbc_set), so
-      ! the scheme applying it must claim it; the core never writes one.
-      if (flbcs(m)%is_advected) then
-        errmsg = 'prescribe_lower_boundary_conditions_timestep_init: flbc_list member "' // &
-                 trim(flbcs(m)%species) // '" fills an advected constituent, which must be' // &
-                 ' applied by a chemistry scheme (lbc_claim_species) instead of this fill'
-        errflg = 1
-        return
-      end if
-      call global_mean_vmr(flbcs(m), ncol, dels, last, next, vmr_gmean)
-      constituents(:, :, flbcs(m)%const_idx) = vmr_gmean*flbcs(m)%mmr_factor
-    end do
 
   end subroutine prescribe_lower_boundary_conditions_timestep_init
 
@@ -582,6 +487,7 @@ contains
     flbc_cnt = 0
     dels_valid = .false.
     lbc_initialized = .false.
+    consumption_checked = .false.
     if (allocated(dates)) then
       deallocate (dates)
     end if
@@ -835,7 +741,7 @@ contains
 
   end subroutine global_mean_vmr
 
-  ! Interface for a chemistry scheme that applies the lower boundary itself:
+  ! Interface for the consuming schemes that apply the lower boundary data:
 
   ! Number of listed species (zero while the scheme is idle).
   pure integer function lbc_species_count()
@@ -849,42 +755,32 @@ contains
     name = flbcs(m)%species
   end function lbc_species_name
 
-  ! Hand a listed species to the caller: timestep_init no longer touches its
-  ! constituent. Called from an init phase that runs after this scheme's.
-  ! handle is the species' index for lbc_column_vmr, or 0 when the name is
-  ! not in flbc_list (the caller decides whether that is an error).
-  ! Claiming an already-claimed species is an error: every species has
-  ! exactly one applier.
-  subroutine lbc_claim_species(name, handle, errmsg, errflg)
+  ! Resolve a listed species to its handle for lbc_column_vmr and
+  ! lbc_global_mean_vmr, or 0 when the name is not in flbc_list (the caller
+  ! decides whether that is an error). Called from an init phase that runs
+  ! after this scheme's. The lookup marks the species consumed, which the
+  ! first timestep_init requires of every listed species; one species may
+  ! serve several consumers.
+  subroutine lbc_find_species(name, handle)
     character(len=*), intent(in)  :: name
     integer,          intent(out) :: handle
-    character(len=*), intent(out) :: errmsg
-    integer,          intent(out) :: errflg
 
     integer :: m
 
-    errmsg = ''
-    errflg = 0
     handle = 0
     do m = 1, flbc_cnt
       if (trim(flbcs(m)%species) == trim(name)) then
-        if (flbcs(m)%claimed) then
-          errmsg = 'lbc_claim_species: species "' // trim(name) // &
-                   '" is already claimed by another scheme'
-          errflg = 1
-          return
-        end if
-        flbcs(m)%claimed = .true.
+        flbcs(m)%consumed = .true.
         handle = m
         return
       end if
     end do
-  end subroutine lbc_claim_species
+  end subroutine lbc_find_species
 
-  ! Per-column vmr of a claimed species at the current step, interpolated in
+  ! Per-column vmr of a listed species at the current step, interpolated in
   ! time with the weights of this step's timestep_init: CAM's flbc_set
   ! expression, so a caller writing it into its bottom layer matches CAM.
-  ! handle comes from lbc_claim_species.
+  ! handle comes from lbc_find_species.
   subroutine lbc_column_vmr(handle, ncol, vmr_out, errmsg, errflg)
     integer,          intent(in)  :: handle
     integer,          intent(in)  :: ncol       ! number of columns [count]
@@ -911,6 +807,33 @@ contains
     vmr_out(:ncol) = flbcs(m)%vmr(:ncol, last_cur) &
                      + dels_cur*(flbcs(m)%vmr(:ncol, next_cur) - flbcs(m)%vmr(:ncol, last_cur))
   end subroutine lbc_column_vmr
+
+  ! Global mean vmr of a listed species at the current step, interpolated in
+  ! time with the weights of this step's timestep_init: CAM's flbc_gmean_vmr,
+  ! which chem_surfvals uses for the greenhouse gas surface values.
+  ! handle comes from lbc_find_species.
+  subroutine lbc_global_mean_vmr(handle, ncol, vmr_out, errmsg, errflg)
+    integer,          intent(in)  :: handle
+    integer,          intent(in)  :: ncol     ! number of columns [count]
+    real(kind_phys),  intent(out) :: vmr_out  ! [mol mol-1]
+    character(len=*), intent(out) :: errmsg
+    integer,          intent(out) :: errflg
+
+    errmsg = ''
+    errflg = 0
+    if (handle < 1 .or. handle > flbc_cnt) then
+      write(errmsg, '(a,i0,a,i0,a)') 'lbc_global_mean_vmr: species handle ', handle, &
+           ' is outside the flbc_list of ', flbc_cnt, ' species'
+      errflg = 1
+      return
+    end if
+    if (.not. dels_valid) then
+      errmsg = 'lbc_global_mean_vmr: prescribe_lower_boundary_conditions_timestep_init has not run this step'
+      errflg = 1
+      return
+    end if
+    call global_mean_vmr(flbcs(handle), ncol, dels_cur, last_cur, next_cur, vmr_out)
+  end subroutine lbc_global_mean_vmr
 
   ! Convert an integer date and seconds of day to a float time coordinate
   ! consistent with the model calendar.

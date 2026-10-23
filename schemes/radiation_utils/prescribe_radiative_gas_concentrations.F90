@@ -8,21 +8,42 @@
 ! prescribed_*_vmr namelist variable.  A gas provided by another scheme
 ! (e.g. a prognostic chemistry constituent) should not be listed.
 
+! A gas that is also listed in flbc_list is refilled every timestep with the
+! time-interpolated global mean read by prescribe_lower_boundary_conditions,
+! overriding the time-invariant namelist value: CAM's chem_surfvals source
+! of the greenhouse gas surface values.
+
 ! Eventually this module should be replaced with a more comprehensive atmospheric
 ! composition/chemistry system, but is fine to use for now when running low-top,
 ! non-exoplanet CAM-SIMA configurations with minimal chemistry.
 !-------------------------------------------------------------------------------
 module prescribe_radiative_gas_concentrations
+  use ccpp_kinds, only: kind_phys
+
   implicit none
   private
 
   public :: prescribe_radiative_gas_concentrations_register
   public :: prescribe_radiative_gas_concentrations_init
+  public :: prescribe_radiative_gas_concentrations_timestep_init
 
   ! Gases this scheme can prescribe. Ozone is not included because its
   ! constituent is registered by the scheme providing it (e.g. prescribed_ozone).
   character(len=8), parameter :: provided_gases(6) = &
        [character(len=8) :: 'O2', 'CO2', 'N2O', 'CH4', 'CFC11', 'CFC12']
+
+  ! Binding of a prescribed gas to a chemistry lower boundary (flbc_list)
+  ! entry, resolved once at init: bound gases are refilled every timestep
+  ! from the lower boundary file; unbound gases (always O2, and every gas
+  ! when flbc_file is unset) keep the namelist value filled at init.
+  type :: lbc_binding
+    integer         :: handle = 0                 ! species handle in prescribe_lower_boundary_conditions
+    integer         :: const_idx = -1             ! constituent the gas fills
+    real(kind_phys) :: mmr_factor = -1._kind_phys ! conversion factor: vmr -> mass mixing ratio w.r.t. dry air
+  end type lbc_binding
+
+  integer                        :: n_bindings = 0
+  type(lbc_binding), allocatable :: bindings(:)
 
 !-------------------------------------------------------------------------------
 contains
@@ -170,7 +191,134 @@ contains
       return
     end if
 
+    ! Bind the gases the chemistry lower boundary file provides.
+    ! They are refilled every timestep in timestep_init, overriding the
+    ! time-invariant values above.
+    call bind_lbc_gases(prescribed_ghg_list, errmsg, errcode)
+    if (errcode /= 0) then
+      return
+    end if
+
   end subroutine prescribe_radiative_gas_concentrations_init
+
+!> \section arg_table_prescribe_radiative_gas_concentrations_timestep_init Argument Table
+!! \htmlinclude arg_table_prescribe_radiative_gas_concentrations_timestep_init.html
+!!
+  subroutine prescribe_radiative_gas_concentrations_timestep_init(ncol, const_array, &
+                                               errmsg, errcode)
+
+    use prescribe_lower_boundary_conditions, only: lbc_global_mean_vmr
+
+    ! Input arguments
+    integer, intent(in) :: ncol ! number of columns [count]
+
+    ! Input/output arguments
+    real(kind_phys), intent(inout) :: const_array(:,:,:) ! Constituents array
+
+    ! Output arguments
+    character(len=*),   intent(out) :: errmsg
+    integer,            intent(out) :: errcode
+
+    ! Local variables
+    integer         :: g
+    real(kind_phys) :: vmr_gmean
+
+    errmsg = ''
+    errcode = 0
+
+    ! Fill each bound gas with the current step's global mean vmr as a
+    ! whole-column uniform dry mass mixing ratio. The weights are cached by
+    ! prescribe_lower_boundary_conditions' timestep_init, which therefore
+    ! must run earlier in the suite.
+    do g = 1, n_bindings
+      call lbc_global_mean_vmr(bindings(g)%handle, ncol, vmr_gmean, errmsg, errcode)
+      if (errcode /= 0) then
+        return
+      end if
+      const_array(:, :, bindings(g)%const_idx) = vmr_gmean*bindings(g)%mmr_factor
+    end do
+
+  end subroutine prescribe_radiative_gas_concentrations_timestep_init
+
+  ! Bind each prescribed gas with an entry of the chemistry lower boundary
+  ! file. CFC11 accepts the CMIP equivalent entry CFC11eq (all minor
+  ! halogens expressed as CFC11) when CFC11 itself is not listed, as in
+  ! CAM, where simple-chemistry configurations list CFC11eq instead of
+  ! CFC11; the conversion uses CFC11's molar mass either way.
+  subroutine bind_lbc_gases(prescribed_ghg_list, errmsg, errcode)
+
+    use ccpp_constituent_prop_mod, only: int_unassigned
+    use ccpp_scheme_utils,         only: ccpp_constituent_index
+    use radiation_utils,           only: get_molar_mass_ratio
+    use prescribe_lower_boundary_conditions, only: lbc_find_species
+
+    ! Input arguments
+    character(len=*), intent(in)  :: prescribed_ghg_list(:)
+
+    ! Output arguments
+    character(len=*), intent(out) :: errmsg
+    integer,          intent(out) :: errcode
+
+    ! Local variables
+    character(len=256) :: alloc_errmsg
+    integer            :: g, handle, const_idx
+    real(kind_phys)    :: dry_air_to_const_molar_mass_ratio
+
+    errmsg = ''
+    errcode = 0
+    n_bindings = 0
+
+    if (allocated(bindings)) then
+      deallocate (bindings)
+    end if
+    allocate (bindings(size(prescribed_ghg_list)), stat=errcode, errmsg=alloc_errmsg)
+    if (errcode /= 0) then
+      write(errmsg, *) 'prescribe_radiative_gas_concentrations (bind_lbc_gases): ', &
+           'Unable to allocate bindings - message: ', trim(alloc_errmsg)
+      return
+    end if
+
+    gas_loop: do g = 1, size(prescribed_ghg_list)
+
+      if (len_trim(prescribed_ghg_list(g)) == 0) then
+        exit gas_loop
+      end if
+
+      call lbc_find_species(trim(prescribed_ghg_list(g)), handle)
+      if (handle == 0 .and. trim(prescribed_ghg_list(g)) == 'CFC11') then
+        call lbc_find_species('CFC11eq', handle)
+      end if
+      if (handle == 0) then
+        cycle gas_loop
+      end if
+
+      ! Find the constituent registered by this scheme's register phase:
+      call ccpp_constituent_index(trim(prescribed_ghg_list(g)), const_idx, errcode, errmsg)
+      if (errcode /= 0) then
+        return
+      end if
+      if (const_idx == int_unassigned) then
+        write(errmsg, *) 'prescribe_radiative_gas_concentrations (bind_lbc_gases): ', &
+             'no constituent registered for prescribed gas "', trim(prescribed_ghg_list(g)), '"'
+        errcode = 1
+        return
+      end if
+
+      ! Get ratio of molar mass of dry air / constituent molar mass
+      call get_molar_mass_ratio(trim(prescribed_ghg_list(g)), dry_air_to_const_molar_mass_ratio, &
+           errmsg, errcode)
+      if (errcode /= 0) then
+        return
+      end if
+
+      n_bindings = n_bindings + 1
+      bindings(n_bindings)%handle = handle
+      bindings(n_bindings)%const_idx = const_idx
+      bindings(n_bindings)%mmr_factor = 1._kind_phys/dry_air_to_const_molar_mass_ratio
+
+    end do gas_loop
+
+  end subroutine bind_lbc_gases
 
   ! If gas_name is in prescribed_ghg_list, convert its namelist-provided
   ! number/mole fraction into a mass mixing ratio w.r.t. dry air and fill
