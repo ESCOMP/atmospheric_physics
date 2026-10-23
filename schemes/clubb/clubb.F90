@@ -3333,9 +3333,8 @@ module clubb
                         rhminis_const, rhmaxis_const, rhmini_const, rhmaxi_const, & ! in
                         rhminl_const, rhminl_adj_land_const, rhminh_const, & ! in
                         dp1, dp2, zvir, rair, cpair, gravit, karman, & ! in
-                        calday, tropp_days, & ! in
-                        lat, state_phis, state_t, state_q, & ! in
-                        state_pint, state_pmid, state_pdel, state_pdeldry, & ! in
+                        state_t, state_q, & ! in
+                        state_pmid, state_pdel, state_pdeldry, & ! in
                         state_zm, state_zi, state_u, state_v, state_exner, & ! in
                         landfrac, snowhland, wsx, & ! in
                         wsy, shf, cflx, ptend_q, & ! in
@@ -3362,11 +3361,9 @@ module clubb
     real(kind_phys), intent(in) :: rhminis_const, rhmaxis_const, rhmini_const, rhmaxi_const
     real(kind_phys), intent(in) :: rhminl_const, rhminl_adj_land_const, rhminh_const
     real(kind_phys), intent(in) :: dp1, dp2, zvir, rair, cpair, gravit, karman
-    real(kind_phys), intent(in) :: calday
-    real(kind_phys), intent(in) :: tropp_days(:)
-    real(kind_phys), intent(in) :: lat(:), state_phis(:), landfrac(:), snowhland(:), &
+    real(kind_phys), intent(in) :: landfrac(:), snowhland(:), &
                                    wsx(:), wsy(:), shf(:)
-    real(kind_phys), intent(in) :: state_pint(:,:), state_pmid(:,:), state_pdel(:,:), state_pdeldry(:,:), rcm(:,:), &
+    real(kind_phys), intent(in) :: state_pmid(:,:), state_pdel(:,:), state_pdeldry(:,:), rcm(:,:), &
                                    cloud_frac(:,:), state_t(:,:), state_exner(:,:), &
                                    state_zm(:,:), state_zi(:,:), state_u(:,:), state_v(:,:), cmfmc(:,:), cflx(:,:), &
                                    mf_cloudfrac_output(:,:), mf_qc_output(:,:)
