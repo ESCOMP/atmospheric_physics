@@ -1,0 +1,107 @@
+[ccpp-table-properties]
+  name = surface_coupling_diagnostics
+  type = scheme
+
+[ccpp-arg-table]
+  name  = surface_coupling_diagnostics_init
+  type  = scheme
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = surface_coupling_diagnostics_run
+  type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ prec_dp ]
+  standard_name = lwe_precipitation_rate_at_surface_due_to_deep_convection
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ snow_dp ]
+  standard_name = lwe_frozen_precipitation_rate_at_surface_due_to_deep_convection
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ prec_sh ]
+  standard_name = lwe_precipitation_rate_at_surface_due_to_shallow_convection
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ snow_sh ]
+  standard_name = lwe_frozen_precipitation_rate_at_surface_due_to_shallow_convection
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ prec_str ]
+  standard_name = lwe_large_scale_precipitation_rate_at_surface
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ snow_str ]
+  standard_name = lwe_snow_and_cloud_ice_precipitation_rate_at_surface_due_to_microphysics
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ shf ]
+  standard_name = surface_upward_sensible_heat_flux_from_coupler
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ lhf ]
+  standard_name = surface_upward_latent_heat_flux_from_coupler
+  units = W m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ cflx ]
+  standard_name = surface_upward_ccpp_constituent_fluxes_from_coupler
+  units = kg m-2 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, number_of_ccpp_constituents)
+  intent = in
+[ wsx ]
+  standard_name = surface_eastward_wind_stress_from_coupler
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ wsy ]
+  standard_name = surface_northward_wind_stress_from_coupler
+  units = N m-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
