@@ -3235,7 +3235,8 @@ module clubb
                         meltpt_temp, latice, rga, & ! in
                         dlf, state_t, state_pdel, state_pdeldry, & ! in
                         ptend_q, s, det_s, det_ice, & ! inout
-                        dlf_liq_out, dlf_ice_out ) ! out
+                        dlf_liq_out, dlf_ice_out, & ! out
+                        errmsg, errflg ) ! out
 
     use ccpp_kinds, only: kind_phys
 
@@ -3252,10 +3253,15 @@ module clubb
 
     ! Input variables, intent(out)
     real(kind_phys), intent(out) :: dlf_liq_out(:,:), dlf_ice_out(:,:)
+    character(len=*), intent(out) :: errmsg
+    integer, intent(out) :: errflg
 
     ! Local variables
     integer :: i, k
     real(kind_phys) :: dlf2, dum1, dl_rad, di_rad, dt_low
+
+    errmsg = ''
+    errflg = 0
 
     ! ------------------------------------------------------------ !
     ! The rest of the code deals with diagnosing variables         !
