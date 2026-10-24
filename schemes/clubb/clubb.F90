@@ -2752,10 +2752,14 @@ module clubb
       !  Use correct qflux from cam_in, not lhf/latvap as was done previously
       te_b = te_b + (shf(i)+cflx(i,1)*(latvap+latice)) * hdtime
 
+#ifndef _OPENACC
+      ! CLUBB-MF is not available with OpenACC (the host aborts if do_clubb_mf is set),
+      ! and prec_dp_pbuf is then a zero-size array that must not appear in this region.
       if (do_clubb_mf) then
          ! subtract enthalpy of falling precip from tb
          te_b = te_b - prec_dp_pbuf(i)*1000._kind_phys*latice*hdtime
       end if
+#endif
 
       ! Compute the disbalance of total energy, over depth where CLUBB is active
       se_dis(i) = ( te_a - te_b ) / ( state_pint(i,pverp) - state_pint(i,clubbtop_pbuf(i)) )
