@@ -37,6 +37,10 @@ add_custom_target(
   copy_metadata_test_files ALL ${CMAKE_COMMAND} -E copy
   ${CMAKE_CURRENT_SOURCE_DIR}/../../schemes/musica/musica_ccpp.meta
   ${CMAKE_CURRENT_SOURCE_DIR}/../../schemes/musica/musica_ccpp.F90
+  ${CMAKE_CURRENT_SOURCE_DIR}/../../schemes/musica/musica_ccpp_photolysis.meta
+  ${CMAKE_CURRENT_SOURCE_DIR}/../../schemes/musica/musica_ccpp_photolysis.F90
+  ${CMAKE_CURRENT_SOURCE_DIR}/../../schemes/musica/musica_ccpp_chemistry.meta
+  ${CMAKE_CURRENT_SOURCE_DIR}/../../schemes/musica/musica_ccpp_chemistry.F90
   ${CMAKE_BINARY_DIR}/metadata_test
 )
 
