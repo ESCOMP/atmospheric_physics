@@ -157,6 +157,14 @@ contains
     errmsg = ''
     errflg = 0
 
+    ! Consistency check:
+    if (trim(solar_data_type) == 'SERIAL' .and. &
+        (solar_data_ymd > 0 .or. solar_data_tod > 0)) then
+      errflg = 1
+      errmsg = subname//'cannot set solar_data_ymd/tod with solar_data_type = SERIAL'
+      return
+    end if
+
     sol_tsi = -1.0_kind_phys
     fac = 1._kind_phys/(planck_const*speed_of_light)
 
