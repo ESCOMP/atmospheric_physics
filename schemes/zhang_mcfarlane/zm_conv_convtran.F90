@@ -1,18 +1,9 @@
 module zm_conv_convtran
-
-  use ccpp_kinds, only:  kind_phys
-
   implicit none
-
-  save
   private                         ! Make default type private to the module
-!
-! PUBLIC: interfaces
-!
-  public zm_conv_convtran_init
-  public zm_conv_convtran_run     ! convective transport
 
-
+  public :: zm_conv_convtran_init
+  public :: zm_conv_convtran_run     ! convective transport
 contains
 
 !===============================================================================
@@ -20,10 +11,8 @@ contains
 !! \htmlinclude zm_conv_convtran_init.html
 !!
 subroutine zm_conv_convtran_init(qprops, ncnst, doconvtran, errmsg, errflg)
-
-use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
-
-   implicit none
+   use ccpp_kinds, only: kind_phys
+   use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
 
    type(ccpp_constituent_prop_ptr_t), intent(in)  :: qprops(:)
    integer,             intent(in) :: ncnst          ! number of tracers to transport
@@ -34,14 +23,28 @@ use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
 
 
    integer :: q_index
+   character(len=256) :: cnst_name
 
    errmsg = ''
    errflg = 0
 
-   ! Only convectively transport constituents that are water species 
+   ! Mark water species and hydrometeor number concentrations as transported by convtran.
+   ! The former are not water species and need to be matched by standard name.
    do q_index=1,ncnst
        call qprops(q_index)%is_water_species(doconvtran(q_index), errflg, errmsg)
        if (errflg /= 0) return
+       if (.not. doconvtran(q_index)) then
+          call qprops(q_index)%standard_name(cnst_name, errflg, errmsg)
+          if (errflg /= 0) return
+          select case (trim(cnst_name))
+          case ('mass_number_concentration_of_cloud_liquid_water_droplets_in_moist_air_and_condensed_water', &
+                'mass_number_concentration_of_cloud_ice_water_crystals_in_moist_air_and_condensed_water', &
+                'mass_number_concentration_of_rain_drops_in_moist_air_and_condensed_water', &
+                'mass_number_concentration_of_snow_crystals_in_moist_air_and_condensed_water', &
+                'mass_number_concentration_of_graupel_particles_in_moist_air_and_condensed_water')
+             doconvtran(q_index) = .true.
+          end select
+       end if
    end do
 
 end subroutine zm_conv_convtran_init
@@ -70,10 +73,9 @@ subroutine zm_conv_convtran_run(ncol, pver, &
 ! Author: P. Rasch
 !
 !-----------------------------------------------------------------------
+   use ccpp_kinds, only: kind_phys
    use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
 
-
-   implicit none
 !-----------------------------------------------------------------------
 !
 ! Input arguments
@@ -335,8 +337,6 @@ subroutine zm_conv_convtran_run(ncol, pver, &
       end if      ! for doconvtran
 
    end do
-
-   return
 end subroutine zm_conv_convtran_run
 
 

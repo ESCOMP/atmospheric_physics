@@ -1,30 +1,35 @@
 module sima_state_diagnostics
 
-   use ccpp_kinds, only:  kind_phys
+   use ccpp_kinds, only: kind_phys
    use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
    use cam_history_support,       only: fieldname_len
 
    implicit none
    private
-   save
 
    public :: sima_state_diagnostics_init ! init routine
    public :: sima_state_diagnostics_run  ! main routine
 
+   character(len=*), parameter :: wv_std_name = 'water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water'
+
    character(len=65) :: const_std_names(6) = &
-   (/'water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water       ', &
+    [character(len=65) :: wv_std_name, &
      'cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water', &
      'rain_mixing_ratio_wrt_moist_air_and_condensed_water              ', &
      'cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water         ', &
      'snow_mixing_ratio_wrt_moist_air_and_condensed_water              ', &
-     'graupel_water_mixing_ratio_wrt_moist_air_and_condensed_water     '/)
+     'graupel_water_mixing_ratio_wrt_moist_air_and_condensed_water     ']
 
-   character(len=6) :: const_diag_names(6) = (/'Q     ', &
+   character(len=6) :: const_diag_names(6) =  ['Q     ', &
                                                'CLDLIQ', &
                                                'RAINQM', &
                                                'CLDICE', &
                                                'SNOWQM', &
-                                               'GRAUQM'/)
+                                               'GRAUQM']
+
+   ! Index of water vapor in the constituent array (0 if absent)
+   ! TMQ is only written when it is present.
+   integer :: wv_idx = 0
 
 CONTAINS
 
@@ -81,10 +86,16 @@ CONTAINS
       ! Add expected constituent fields
       const_num_found = 0
       const_found = .false.
+      wv_idx = 0
       do const_idx = 1, size(const_props)
          call const_props(const_idx)%standard_name(standard_name, errflg, errmsg)
          if (errflg /= 0) then
             return
+         end if
+         if (trim(standard_name) == wv_std_name) then
+            ! Water vapor: also its column integral
+            wv_idx = const_idx
+            call history_add_field('TMQ', 'vertically_integrated_water_vapor', horiz_only, 'avg', 'kg m-2')
          end if
          do name_idx = 1, size(const_std_names)
             if (trim(standard_name) == trim(const_std_names(name_idx))) then
@@ -132,7 +143,8 @@ CONTAINS
    !! \htmlinclude sima_state_diagnostics_run.html
    subroutine sima_state_diagnostics_run(ps, psdry, phis, T, u, v, dse, omega, &
         pmid, pmiddry, pdel, pdeldry, rpdel, rpdeldry, lnpmid, lnpmiddry,     &
-        inv_exner, zm, pint, pintdry, lnpint, lnpintdry, zi, const_array,     &
+        inv_exner, zm, pint, pintdry, lnpint, lnpintdry, zi, gravit,          &
+        const_array,                                                          &
         const_props, errmsg, errflg)
 
       use cam_history, only: history_out_field
@@ -163,6 +175,7 @@ CONTAINS
       real(kind_phys), intent(in) :: lnpint(:,:)    ! ln air pressure at interfaces
       real(kind_phys), intent(in) :: lnpintdry(:,:) ! ln air pressure of dry air at interfaces
       real(kind_phys), intent(in) :: zi(:,:)        ! geopotential height wrt surface at interfaces
+      real(kind_phys), intent(in) :: gravit         ! gravitational acceleration
       ! Constituent variables
       real(kind_phys), intent(in) :: const_array(:,:,:)
       type(ccpp_constituent_prop_ptr_t), intent(in) :: const_props(:)
@@ -175,6 +188,8 @@ CONTAINS
       integer :: const_idx, name_idx
       integer :: const_num_found
       logical :: const_found(size(const_props))
+      integer :: k
+      real(kind_phys) :: tmq(size(pdel, 1))         ! vertically integrated water vapor
 
       errmsg = ''
       errflg = 0
@@ -203,6 +218,16 @@ CONTAINS
       call history_out_field('LNPINT'   , lnpint)
       call history_out_field('LNPINTDRY', lnpintdry)
       call history_out_field('ZI'       , zi)
+
+      if (wv_idx > 0) then
+         ! Column water vapor, as in CAM: sum of q * pdel / g over the layers
+         tmq(:) = 0._kind_phys
+         do k = 1, size(pdel, 2)
+            tmq(:) = tmq(:) + const_array(:, k, wv_idx) * pdel(:, k)
+         end do
+         tmq(:) = tmq(:) / gravit
+         call history_out_field('TMQ', tmq)
+      end if
 
       ! Capture expected constituent fields
       const_num_found = 0

@@ -20,6 +20,9 @@
     <scheme>to_be_ccppized_temporary</scheme>
     <scheme>prescribe_radiative_gas_concentrations</scheme>
 
+    <!-- Prescribe ozone for radiation. -->
+    <scheme>prescribed_ozone</scheme>
+
     <!-- Prescribe aerosols for microphysics (nochem BAM) -->
     <scheme>prescribed_aerosols</scheme>
 
@@ -85,6 +88,8 @@
     <scheme>zm_tendency_diagnostics</scheme>
     <scheme>apply_constituent_tendencies</scheme>
     <scheme>qneg</scheme>
+    <scheme>clamp_number_concentrations</scheme>
+    <scheme>cloud_condensate_floor</scheme>
     <scheme>geopotential_temp</scheme>
     <scheme>zm_diagnostics</scheme>
 
