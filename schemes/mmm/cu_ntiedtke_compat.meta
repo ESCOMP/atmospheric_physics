@@ -295,41 +295,41 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ rucuten ]
-  standard_name = pending_tendency_of_eastward_wind_due_to_convection
+  standard_name = tendency_of_eastward_wind_due_to_convection
   units = m s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = out
+  intent = inout
 [ rvcuten ]
-  standard_name = pending_tendency_of_northward_wind_due_to_convection
+  standard_name = tendency_of_northward_wind_due_to_convection
   units = m s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = out
+  intent = inout
 [ rthcuten ]
-  standard_name = pending_tendency_of_air_potential_temperature_due_to_convection
+  standard_name = tendency_of_air_potential_temperature_due_to_convection
   units = K s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = out
+  intent = inout
 [ rqvcuten ]
-  standard_name = pending_tendency_of_water_vapor_mixing_ratio_wrt_dry_air_due_to_convection
+  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_dry_air_due_to_convection
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = out
+  intent = inout
 [ rqccuten ]
-  standard_name = pending_tendency_of_cloud_liquid_water_mixing_ratio_wrt_dry_air_due_to_convection
+  standard_name = tendency_of_cloud_liquid_water_mixing_ratio_wrt_dry_air_due_to_convection
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = out
+  intent = inout
 [ rqicuten ]
-  standard_name = pending_tendency_of_cloud_ice_mixing_ratio_wrt_dry_air_due_to_convection
+  standard_name = tendency_of_cloud_ice_mixing_ratio_wrt_dry_air_due_to_convection
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = out
+  intent = inout
 [ errmsg ]
   standard_name = ccpp_error_message
   long_name = Error message for error handling in CCPP
