@@ -24,7 +24,7 @@ module prescribe_radiative_gas_concentrations
   public :: prescribe_radiative_gas_concentrations_timestep_init
 
   ! Gases this scheme can prescribe:
-  character(len=*), parameter :: provided_gases(*) = &
+  character(len=*), parameter :: provided_gases(6) = &
        [character(len=8) :: 'O2', 'CO2', 'N2O', 'CH4', 'CFC11', 'CFC12']
 
   ! Binding of prescribed GHGs to a LBC entry if available.
