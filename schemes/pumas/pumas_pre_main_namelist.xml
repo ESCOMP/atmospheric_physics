@@ -123,6 +123,30 @@
   </values>
 </entry>
 
+<entry id="do_cldliq">
+  <category>microphys</category>
+  <group>micro_mg_nl</group>
+  <standard_name>do_cloud_liquid_processes</standard_name>
+  <units>flag</units>
+  <type>logical</type>
+  <desc>PUMAS microphysics is prognosing cloud liquid (it is an error if PUMAS produces cloud liquid tendencies when false)</desc>
+  <values>
+    <value>.true.</value>
+  </values>
+</entry>
+
+<entry id="micro_mg_adjust_cpt">
+  <category>microphys</category>
+  <group>micro_mg_nl</group>
+  <standard_name>do_cold_point_tropopause_temperature_adjustment_for_microphysics</standard_name>
+  <units>flag</units>
+  <type>logical</type>
+  <desc>adjust the temperature of the cold point tropopause level seen by PUMAS microphysics to the cold point temperature found by the cold point (parabolic fit) tropopause method</desc>
+  <values>
+    <value>.false.</value>
+  </values>
+</entry>
+
 <entry id="micro_mg_num_steps">
   <category>microphys</category>
   <group>micro_mg_nl</group>
