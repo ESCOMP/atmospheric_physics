@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = ty_source_func_lw_ccpp
   type = ddt
+  module_name = ccpp_source_functions
   dependencies = ../ext/rte-frontend/mo_source_functions.F90
 
 [ccpp-arg-table]

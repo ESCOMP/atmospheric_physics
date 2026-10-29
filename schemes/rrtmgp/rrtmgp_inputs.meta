@@ -161,6 +161,12 @@
   type = integer
   dimensions = ()
   intent = in
+[ nlayp ]
+  standard_name = number_of_vertical_interfaces_in_RRTMGP
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
 [ pverp ]
   standard_name = vertical_interface_dimension
   units = count
@@ -221,59 +227,69 @@
   type = real | kind = kind_phys
   dimensions = (number_of_bands_for_longwave_radiation,horizontal_loop_extent)
   intent = out
+# allocatable: sized by run/init-phase dimensions, so this scheme allocates them (the suite cannot size them at init).
 [ t_rad ]
   standard_name = air_temperature_for_RRTMGP
   units = K
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, number_of_vertical_layers_in_RRTMGP)
+  allocatable = True
   intent = out
 [ pmid_rad ]
   standard_name = air_pressure_for_RRTMGP
   units = Pa
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, number_of_vertical_layers_in_RRTMGP)
+  allocatable = True
   intent = out
 [ pint_rad ]
   standard_name = air_pressure_at_interface_for_RRTMGP
   units = Pa
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, number_of_vertical_interfaces_in_RRTMGP)
+  allocatable = True
   intent = out
 [ t_day ]
   standard_name = air_temperature_for_daytime_columns_for_RRTMGP
   units = K
   type = real | kind = kind_phys
   dimensions = (daytime_columns_dimension, number_of_vertical_layers_in_RRTMGP)
+  allocatable = True
   intent = out
 [ pmid_day ]
   standard_name = air_pressure_for_daytime_columns_for_RRTMGP
   units = Pa
   type = real | kind = kind_phys
   dimensions = (daytime_columns_dimension, number_of_vertical_layers_in_RRTMGP)
+  allocatable = True
   intent = out
 [ pint_day ]
   standard_name = air_pressure_at_interface_for_daytime_columns_for_RRTMGP
   units = Pa
   type = real | kind = kind_phys
   dimensions = (daytime_columns_dimension, number_of_vertical_interfaces_in_RRTMGP)
+  allocatable = True
   intent = out
 [ coszrs_day ]
   standard_name = cosine_of_solar_zenith_angle_for_daytime_columns_on_radiation_timestep
   units = rad
   type = real | kind = kind_phys
   dimensions = (daytime_columns_dimension)
+  allocatable = True
   intent = out
 [ alb_dir ]
   standard_name = albedo_direct_at_surface
   units = fraction
   type = real | kind = kind_phys
   dimensions = (number_of_bands_for_shortwave_radiation,daytime_columns_dimension)
+  allocatable = True
   intent = out
 [ alb_dif ]
   standard_name = albedo_diffused_at_surface
   units = fraction
   type = real | kind = kind_phys
   dimensions = (number_of_bands_for_shortwave_radiation,daytime_columns_dimension)
+  allocatable = True
   intent = out
 [ gas_concs_lw ]
   standard_name = longwave_gas_volume_mixing_ratios_object_for_RRTMGP

@@ -207,7 +207,7 @@
   standard_name = scheme_name
   long_name = scheme name
   units = none
-  type = character | kind = len=40
+  type = character | kind = len=64
   dimensions = ()
   intent = out
 [ errmsg ]

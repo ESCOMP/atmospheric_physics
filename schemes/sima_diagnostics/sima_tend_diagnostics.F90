@@ -20,6 +20,9 @@ CONTAINS
       character(len=512), intent(out) :: errmsg
       integer,            intent(out) :: errflg
 
+      errflg = 0
+      errmsg = ''
+
       ! Add tendency fields
       call history_add_field('TTEND', 'tendency_of_air_temperature_due_to_model_physics', 'lev', 'avg', 'K s-1')
       call history_add_field('UTEND', 'tendency_of_eastward_wind_due_to_model_physics',   'lev', 'avg', 'm s-2')
@@ -37,6 +40,9 @@ CONTAINS
       real(kind_phys), intent(in) :: dvdt_total(:,:) ! tendency of northward wind due to model physics
       character(len=512), intent(out) :: errmsg
       integer,            intent(out) :: errflg
+
+      errflg = 0
+      errmsg = ''
 
       ! Capture tendency fields
       call history_out_field('TTEND', dTdt_total)

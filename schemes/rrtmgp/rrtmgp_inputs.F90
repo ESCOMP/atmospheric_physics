@@ -12,7 +12,7 @@ module rrtmgp_inputs
 subroutine rrtmgp_inputs_run(dosw, dolw, do_snow, do_graupel, trick_rrtmgp,    &
                   pmid, pint, t, nday, idxday, coszrs, kdist_sw, kdist_lw,     &
                   lwup, stebol, ncol, ktopcam, ktoprad, nswbands, asdir, asdif,&
-                  sw_low_bounds, sw_high_bounds, aldir, aldif, nlay, pverp,    &
+                  sw_low_bounds, sw_high_bounds, aldir, aldif, nlay, nlayp, pverp, &
                   pver, cld, cldfsnow, cldfgrau, graupel_in_rad, gaslist_lc,   &
                   cldfprime, t_sfc, emis_sfc, t_rad, pmid_rad, pint_rad, t_day,&
                   pmid_day, pint_day, coszrs_day, alb_dir, alb_dif, gas_concs_lw, &
@@ -31,6 +31,7 @@ subroutine rrtmgp_inputs_run(dosw, dolw, do_snow, do_graupel, trick_rrtmgp,    &
      integer,                              intent(in) :: pver                  ! Number of vertical layers
      integer,                              intent(in) :: pverp                 ! Number of vertical interfaces
      integer,                              intent(in) :: nlay                  ! Number of vertical layers used in radiation calculation
+     integer,                              intent(in) :: nlayp                 ! Number of vertical interfaces used in radiation calculation (nlay + 1)
      integer,                              intent(in) :: nswbands              ! Number of shortwave bands
      integer,                              intent(in) :: ktopcam               ! Index in host model arrays of top level (layer or interface) at which RRTMGP is active
      integer,                              intent(in) :: ktoprad               ! Index in RRTMGP array corresponding to top layer or interface of host model arrays
@@ -60,19 +61,19 @@ subroutine rrtmgp_inputs_run(dosw, dolw, do_snow, do_graupel, trick_rrtmgp,    &
      type(ty_gas_optics_rrtmgp_ccpp),      intent(in) :: kdist_lw              ! Longwave gas optics object
      character(len=*), dimension(:),       intent(in) :: gaslist_lc            ! Radiatively active gases
      ! Outputs
-     real(kind_phys), dimension(:,:),      intent(out) :: t_rad                ! Air temperature with radiation indexing (K)
-     real(kind_phys), dimension(:,:),      intent(out) :: pmid_rad             ! Midpoint pressure with radiation indexing (Pa)
-     real(kind_phys), dimension(:,:),      intent(out) :: pint_rad             ! Interface pressure with radiation indexing (Pa)
-     real(kind_phys), dimension(:,:),      intent(out) :: t_day                ! Air temperature of daylight columns (K)
-     real(kind_phys), dimension(:,:),      intent(out) :: pint_day             ! Interface pressure of daylight columns (Pa)
-     real(kind_phys), dimension(:,:),      intent(out) :: pmid_day             ! Midpoint pressure of daylight columns (Pa)
+     real(kind_phys), dimension(:,:), allocatable, intent(out) :: t_rad        ! Air temperature with radiation indexing (K)
+     real(kind_phys), dimension(:,:), allocatable, intent(out) :: pmid_rad     ! Midpoint pressure with radiation indexing (Pa)
+     real(kind_phys), dimension(:,:), allocatable, intent(out) :: pint_rad     ! Interface pressure with radiation indexing (Pa)
+     real(kind_phys), dimension(:,:), allocatable, intent(out) :: t_day        ! Air temperature of daylight columns (K)
+     real(kind_phys), dimension(:,:), allocatable, intent(out) :: pint_day     ! Interface pressure of daylight columns (Pa)
+     real(kind_phys), dimension(:,:), allocatable, intent(out) :: pmid_day     ! Midpoint pressure of daylight columns (Pa)
      real(kind_phys), dimension(:,:),      intent(out) :: emis_sfc             ! Surface emissivity (fraction)
-     real(kind_phys), dimension(:,:),      intent(out) :: alb_dir              ! Surface albedo due to UV and VIS direct (fraction)
-     real(kind_phys), dimension(:,:),      intent(out) :: alb_dif              ! Surface albedo due to IR diffused (fraction)
+     real(kind_phys), dimension(:,:), allocatable, intent(out) :: alb_dir      ! Surface albedo due to UV and VIS direct (fraction)
+     real(kind_phys), dimension(:,:), allocatable, intent(out) :: alb_dif      ! Surface albedo due to IR diffused (fraction)
      real(kind_phys), dimension(:,:),      intent(out) :: cldfprime            ! modified cloud fraciton
 
      real(kind_phys), dimension(:),        intent(out) :: t_sfc                ! Surface temperature (K)
-     real(kind_phys), dimension(:),        intent(out) :: coszrs_day           ! Cosine of solar zenith angle for daylight columns (radians)
+     real(kind_phys), dimension(:), allocatable, intent(out) :: coszrs_day     ! Cosine of solar zenith angle for daylight columns (radians)
      type(ty_gas_concs_ccpp),              intent(out) :: gas_concs_lw         ! Gas concentrations object for longwave radiation
      type(ty_optical_props_1scl_ccpp),     intent(out) :: atm_optics_lw        ! Atmosphere optical properties object for longwave radiation
      type(ty_optical_props_1scl_ccpp),     intent(out) :: aer_lw               ! Aerosol optical properties object for longwave radiation
@@ -92,6 +93,16 @@ subroutine rrtmgp_inputs_run(dosw, dolw, do_snow, do_graupel, trick_rrtmgp,    &
      ! Set error variables
      errmsg = ''
      errflg = 0
+
+     allocate(t_rad(ncol, nlay))
+     allocate(pmid_rad(ncol, nlay))
+     allocate(pint_rad(ncol, nlayp))
+     allocate(t_day(nday, nlay))
+     allocate(pmid_day(nday, nlay))
+     allocate(pint_day(nday, nlayp))
+     allocate(coszrs_day(nday))
+     allocate(alb_dir(nswbands, nday))
+     allocate(alb_dif(nswbands, nday))
 
      if (.not. dosw .and. .not. dolw) then
         return

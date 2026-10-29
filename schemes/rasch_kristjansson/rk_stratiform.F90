@@ -120,6 +120,8 @@ contains
     tend_cldliq, &
     errmsg, errflg)
 
+    use debug_fingerprint, only: dbg_fp   !DEBUG-FP
+
     ! Input arguments
     integer,            intent(in)    :: ncol
     real(kind_phys),    intent(in)    :: dlf(:,:)       ! detrainment_of_cloud_liquid_water_wrt_moist_air_and_condensed_water_due_to_all_convection [kg kg-1 s-1]
@@ -131,6 +133,8 @@ contains
 
     errmsg = ''
     errflg = 0
+
+    call dbg_fp('dlf:detrain', dlf(1:ncol,:))   !DEBUG-FP
 
     ! Apply detrainment tendency to cloud liquid water
     tend_cldliq(:ncol,:) = dlf(:ncol,:)
@@ -447,6 +451,15 @@ contains
 
    prec_str(:ncol) = prec_str(:ncol) + prec_pcw(:ncol)
    snow_str(:ncol) = snow_str(:ncol) + snow_pcw(:ncol)
+
+   ! RK can occassionally produce negative precipitation fluxes, so force
+   ! it to be greater than or equal to zero.  Also ensure that snow is not
+   ! greater than the total precipitation. This is a non-physical adjustment,
+   ! but is the same technique that the original CAM4 model used:
+   do i = 1, ncol
+      if (prec_str(i) < 0._kind_phys) prec_str(i) = 0._kind_phys
+      if (snow_str(i) > prec_str(i))  snow_str(i) = prec_str(i)
+   end do
 
   end subroutine rk_stratiform_prognostic_cloud_water_tendencies_run
 

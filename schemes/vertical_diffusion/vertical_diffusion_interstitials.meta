@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = vertical_diffusion_prepare_inputs
   type = scheme
+  module_name = vertical_diffusion_interstitials
 
 [ccpp-arg-table]
   name  = vertical_diffusion_prepare_inputs_run
@@ -91,6 +92,7 @@
 [ccpp-table-properties]
   name = compute_kinematic_fluxes_and_obklen
   type = scheme
+  module_name = vertical_diffusion_interstitials
 
 [ccpp-arg-table]
   name  = compute_kinematic_fluxes_and_obklen_run
@@ -216,6 +218,7 @@
 [ccpp-table-properties]
   name = vertical_diffusion_set_total_surface_stress
   type = scheme
+  module_name = vertical_diffusion_interstitials
 
 [ccpp-arg-table]
   name  = vertical_diffusion_set_total_surface_stress_run

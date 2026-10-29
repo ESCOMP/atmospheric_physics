@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = sf_mynn_diagnostics
   type = scheme
+  module_name = sf_mynn_diag
 
 [ccpp-arg-table]
   name  = sf_mynn_diagnostics_init

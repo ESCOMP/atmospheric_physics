@@ -2,6 +2,7 @@
 [ccpp-table-properties]
   name = update_dry_static_energy
   type = scheme
+  module_name = static_energy
 [ccpp-arg-table]
   name = update_dry_static_energy_run
   type = scheme

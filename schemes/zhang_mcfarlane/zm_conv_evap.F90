@@ -80,7 +80,7 @@ subroutine zm_conv_evap_run(ncol, pver, pverp, &
 
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errflg
-    character(len=40),  intent(out) :: scheme_name
+    character(len=64),  intent(out) :: scheme_name
 
     real(kind_phys) :: work1                  ! temp variable (pjr)
     real(kind_phys) :: work2                  ! temp variable (pjr)

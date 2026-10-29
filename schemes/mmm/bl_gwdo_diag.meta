@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = bl_gwdo_diagnostics
   type = scheme
+  module_name = bl_gwdo_diag
 
 [ccpp-arg-table]
   name = bl_gwdo_diagnostics_init

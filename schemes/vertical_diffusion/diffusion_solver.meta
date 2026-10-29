@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = vertical_diffusion_set_temperature_at_toa_default
   type = scheme
+  module_name = diffusion_solver
 
 [ccpp-arg-table]
   name  = vertical_diffusion_set_temperature_at_toa_default_run
@@ -45,6 +46,7 @@
 [ccpp-table-properties]
   name = vertical_diffusion_interpolate_to_interfaces
   type = scheme
+  module_name = diffusion_solver
 
 [ccpp-arg-table]
   name  = vertical_diffusion_interpolate_to_interfaces_run
@@ -161,6 +163,7 @@
 [ccpp-table-properties]
   name = implicit_surface_stress_add_drag_coefficient
   type = scheme
+  module_name = diffusion_solver
 
 [ccpp-arg-table]
   name  = implicit_surface_stress_add_drag_coefficient_run
@@ -229,6 +232,7 @@
 [ccpp-table-properties]
   name = vertical_diffusion_wind_damping_rate
   type = scheme
+  module_name = diffusion_solver
 
 [ccpp-arg-table]
   name  = vertical_diffusion_wind_damping_rate_run
@@ -285,6 +289,7 @@
 [ccpp-table-properties]
   name = vertical_diffusion_diffuse_horizontal_momentum
   type = scheme
+  module_name = diffusion_solver
 
 [ccpp-arg-table]
   name  = vertical_diffusion_diffuse_horizontal_momentum_timestep_init
@@ -531,6 +536,7 @@
 [ccpp-table-properties]
   name = vertical_diffusion_set_dry_static_energy_at_toa_zero
   type = scheme
+  module_name = diffusion_solver
 
 [ccpp-arg-table]
   name  = vertical_diffusion_set_dry_static_energy_at_toa_zero_run
@@ -563,6 +569,7 @@
 [ccpp-table-properties]
   name = vertical_diffusion_set_dry_static_energy_at_toa_molecdiff
   type = scheme
+  module_name = diffusion_solver
 
 [ccpp-arg-table]
   name  = vertical_diffusion_set_dry_static_energy_at_toa_molecdiff_run
@@ -619,6 +626,7 @@
 [ccpp-table-properties]
   name = vertical_diffusion_diffuse_dry_static_energy
   type = scheme
+  module_name = diffusion_solver
 
 [ccpp-arg-table]
   name  = vertical_diffusion_diffuse_dry_static_energy_run
@@ -713,6 +721,7 @@
 [ccpp-table-properties]
   name = vertical_diffusion_diffuse_tracers
   type = scheme
+  module_name = diffusion_solver
 
 
 [ccpp-arg-table]
@@ -905,6 +914,7 @@
 [ccpp-table-properties]
   name = vertical_diffusion_tendencies
   type = scheme
+  module_name = diffusion_solver
 
 [ccpp-arg-table]
   name  = vertical_diffusion_tendencies_run
