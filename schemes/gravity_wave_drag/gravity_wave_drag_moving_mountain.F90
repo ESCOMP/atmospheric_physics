@@ -210,7 +210,7 @@ contains
                            ttgw, qtgw, egwdffi_tot, dttdf, dttke, &
                            tau0, gwut0, &
                            usteer, vsteer, CS, steer_level, xpwp_src, &
-                           tilt, p_steer, p_launch, &
+                           tilt, p_steer, p_launch, roo_block, &
                            taucd_west, taucd_east, taucd_south, taucd_north, &
                            errmsg, errflg)
 
@@ -285,6 +285,7 @@ contains
     real(kind_phys), intent(out)   :: tilt(:, :)     ! Vortex tilting magnitude |zeta|*|dV/dz| [s-2]
     real(kind_phys), intent(out)   :: p_steer(:)     ! Pressure at steering level [Pa]
     real(kind_phys), intent(out)   :: p_launch(:)    ! Pressure at launch level [Pa]
+    real(kind_phys), intent(out)   :: roo_block(:)   ! 1=column blocked by near-surface tilt-dominance (roo) criterion, 0=not blocked
     real(kind_phys), intent(out)   :: taucd_west(:, :)  ! Reynolds stress for waves in W direction, interfaces [N m-2]
     real(kind_phys), intent(out)   :: taucd_east(:, :)  ! Reynolds stress for waves in E direction, interfaces [N m-2]
     real(kind_phys), intent(out)   :: taucd_south(:, :) ! Reynolds stress for waves in S direction, interfaces [N m-2]
@@ -339,7 +340,7 @@ contains
                        tau, ubm, ubi, xv, yv, &
                        phase_speeds, hdepth, use_gw_movmtn_pbl, rair, gravit, &
                        usteer, vsteer, CS, steer_level, xpwp_src, &
-                       tilt, p_steer, p_launch, &
+                       tilt, p_steer, p_launch, roo_block, &
                        errmsg, errflg)
     if (errflg /= 0) return
 
@@ -410,7 +411,7 @@ contains
                            src_level, tend_level, tau, ubm, ubi, xv, yv, &
                            c, hdepth, use_gw_movmtn_pbl, rair, gravit, &
                            usteer, vsteer, CS, steer_level, xpwp_src, &
-                           tilt, p_steer, p_launch, &
+                           tilt, p_steer, p_launch, roo_block, &
                            errmsg, errflg)
   !------------------------------------------------------------------------
   ! Driver for gravity wave source from obstacle effects produced by
@@ -473,6 +474,11 @@ contains
     real(kind_phys), intent(out) :: tilt(:,:)
     ! Pressure at steering/launch level [Pa].
     real(kind_phys), intent(out) :: p_steer(:), p_launch(:)
+    ! Flag: 1 if this column's source was zeroed because the near-surface
+    ! tilt-dominance (roo) criterion blocked the centroid-based search (see
+    ! tilt_centroid_levels); 0 otherwise. Only ever 1 for source_type=3/4/5;
+    ! source_type=1/2 use fixed levels and never run that search.
+    real(kind_phys), intent(out) :: roo_block(:)
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
@@ -524,6 +530,7 @@ contains
     q0         = 0._kind_phys
     p_steer    = 0._kind_phys
     p_launch   = 0._kind_phys
+    roo_block  = 0._kind_phys
 
     !----------------------------------------------------------------------
     ! source_type>=3 deposits xpwp_src directly at the launch level, which
@@ -564,16 +571,16 @@ contains
       end do
 
     case (3)
-      call tilt_dyn_src(tilt, u, v, pmid, delp, ncol, pver, alpha_gw_movmtn, &
-           xpwp_src, Steer_k, Launch_k, p_steer, p_launch, usteer, vsteer)
+      call tilt_dyn_src(tilt, u, v, pmid, delp, zm, ncol, pver, alpha_gw_movmtn, &
+           xpwp_src, Steer_k, Launch_k, p_steer, p_launch, usteer, vsteer, roo_block)
 
     case (4)
-      call tilt_precip_6param_src(tilt, prect, u, v, pmid, ncol, pver, alpha_gw_movmtn, &
-           xpwp_src, Steer_k, Launch_k, p_steer, p_launch, usteer, vsteer)
+      call tilt_precip_6param_src(tilt, prect, u, v, pmid, zm, ncol, pver, alpha_gw_movmtn, &
+           xpwp_src, Steer_k, Launch_k, p_steer, p_launch, usteer, vsteer, roo_block)
 
     case (5)
-      call tilt_precip_cx17_src(tilt, prect, u, v, pmid, delp, ncol, pver, alpha_gw_movmtn, &
-           xpwp_src, Steer_k, Launch_k, p_steer, p_launch, usteer, vsteer)
+      call tilt_precip_cx17_src(tilt, prect, u, v, pmid, delp, zm, ncol, pver, alpha_gw_movmtn, &
+           xpwp_src, Steer_k, Launch_k, p_steer, p_launch, usteer, vsteer, roo_block)
 
     case default
       errflg = 1
@@ -756,8 +763,8 @@ contains
 
 !==========================================================================
 
-  subroutine tilt_centroid_levels(tilt, u, v, pmid, ncol, pver, &
-       steering_level, launch_level, p_steer, p_launch, usteer, vsteer, valid)
+  subroutine tilt_centroid_levels(tilt, u, v, pmid, zm, ncol, pver, &
+       steering_level, launch_level, p_steer, p_launch, usteer, vsteer, valid, roo_block)
   !------------------------------------------------------------------------
   ! Flow-dependent steering and launch levels shared by source_type 3-5.
   !
@@ -767,33 +774,94 @@ contains
   !    valid=.false. and levels fall back to safe values so downstream
   !    code is never handed an out-of-bounds index. Callers must zero
   !    the source where valid=.false.
+  ! 3. roo criterion: the centroid search can "succeed" (return a
+  !    well-defined in-bounds pair of levels) and still be meaningless,
+  !    when a column's tilt profile is dominated by an isolated, extreme
+  !    near-surface spike rather than a genuine free-tropospheric signal
+  !    -- the regime observed over Antarctica, the Arctic Ocean, and
+  !    Greenland. roo = max(|tilt|, 0-500 m AGL) / max(|tilt|, 500-15000 m
+  !    AGL); roo > roo_thresh means the near-surface layer so overwhelms
+  !    the layer above it that the steering/launch search cannot be
+  !    trusted, so the column is blocked (valid=.false., same safe
+  !    fallback levels as a failed centroid search) regardless of whether
+  !    the search itself returned in-bounds levels. roo_block records
+  !    which columns were blocked for this reason specifically (as
+  !    opposed to a plain centroid-search failure).
   !
   ! CAM level ordering: k=1 TOA, k=pver surface, pressure increases
   ! with k. Therefore launch_level < steering_level in index space
-  ! (launch is higher altitude = lower pressure = smaller k).
+  ! (launch is higher altitude = lower pressure = smaller k). zm is
+  ! height AGL (m), decreasing with k, consistent with its use in
+  ! compute_tilt.
   !------------------------------------------------------------------------
     integer,         intent(in)  :: ncol, pver
     real(kind_phys), intent(in)  :: tilt(ncol,pver)
     real(kind_phys), intent(in)  :: u(ncol,pver), v(ncol,pver)
     real(kind_phys), intent(in)  :: pmid(ncol,pver)
+    real(kind_phys), intent(in)  :: zm(ncol,pver)
     integer,         intent(out) :: steering_level(ncol), launch_level(ncol)
     real(kind_phys), intent(out) :: p_steer(ncol), p_launch(ncol)
     real(kind_phys), intent(out) :: usteer(ncol), vsteer(ncol)
     logical,         intent(out) :: valid(ncol)
+    real(kind_phys), intent(out) :: roo_block(ncol)
 
-    ! Pressure bounds for centroid search [Pa]: 0 (TOA) to 800 hPa (excl. BL).
-    real(kind_phys), parameter :: p_min_centroid = 0._kind_phys
-    real(kind_phys), parameter :: p_max_centroid = 80000._kind_phys
+    ! Pressure bounds for centroid search [Pa].
+    !
+    ! Top bound: fixed at TOA (unchanged).
+    !
+    ! Bottom (BL-exclusion) bound: was a single fixed 800 hPa, which is
+    ! terrain-blind. Over elevated terrain (e.g. the Antarctic plateau,
+    ! Andes, Himalaya/Tibetan Plateau, Rockies -- anywhere local surface
+    ! pressure is already below ~800 hPa) that fixed cutoff is never
+    ! reached, so no level is ever excluded and the steering-level
+    ! centroid is free to lock onto raw near-surface shear/tilt noise
+    ! (which is exactly where this parameterization's local eta-level
+    ! vorticity calc and polar grid-metric terms are most contaminated).
+    !
+    ! Fix: exclude the bottom (1 - frac_pbl_excl) of each column's own
+    ! pressure range instead, i.e. scale the cutoff by local surface
+    ! pressure (pmid(:,pver), the lowest model layer midpoint, used as
+    ! a close proxy for true surface pressure -- using the true
+    ! interface/surface pressure instead would require threading it in
+    ! from the caller, which is not done here to keep the change local).
+    real(kind_phys), parameter :: p_min_centroid    = 0._kind_phys
+    real(kind_phys), parameter :: frac_pbl_excl     = 0.8_kind_phys  ! fraction of local p_sfc
 
+    ! roo criterion bounds: a fixed, terrain-following (AGL, not
+    ! pressure) comparison, since the regimes where this fires are
+    ! precisely where a fixed-pressure near-surface layer would span
+    ! wildly different physical depths depending on surface elevation.
+    real(kind_phys), parameter :: z_low_roo     = 500._kind_phys    ! m AGL
+    real(kind_phys), parameter :: z_mid_top_roo = 15000._kind_phys  ! m AGL
+    real(kind_phys), parameter :: roo_thresh    = 5._kind_phys      ! try 10 for a stricter trigger
+    real(kind_phys), parameter :: roo_eps       = 1.e-7_kind_phys   ! ~typical tilt scale, avoids /0
+
+    real(kind_phys) :: p_min_bound(ncol), p_max_bound(ncol)
+    real(kind_phys) :: z_steer(ncol), z_launch(ncol)
+    real(kind_phys) :: max_low, max_mid, roo
+    logical         :: mask_low(pver), mask_mid(pver)
+    logical         :: blocked_roo
     integer         :: i
 
+    p_min_bound = p_min_centroid
+    p_max_bound = frac_pbl_excl * pmid(:,pver)
+
     call vorticity_centroid_levels(tilt, pmid, ncol, pver, &
-         p_min_centroid, p_max_centroid, &
-         steering_level, launch_level)
+         p_min_bound, p_max_bound, &
+         steering_level, launch_level, &
+         z_steer, z_launch)
 
     do i = 1, ncol
+      mask_low = zm(i,:) <= z_low_roo
+      mask_mid = zm(i,:) > z_low_roo .and. zm(i,:) <= z_mid_top_roo
+      max_low  = maxval(abs(tilt(i,:)), mask=mask_low)
+      max_mid  = maxval(abs(tilt(i,:)), mask=mask_mid)
+      roo      = max_low / (max_mid + roo_eps)
+      blocked_roo  = roo > roo_thresh
+      roo_block(i) = merge(1._kind_phys, 0._kind_phys, blocked_roo)
+
       valid(i) = steering_level(i) >= 2 .and. launch_level(i) >= 2 .and. &
-                 steering_level(i) > launch_level(i)
+                 steering_level(i) > launch_level(i) .and. .not. blocked_roo
       if (.not. valid(i)) then
         steering_level(i) = 2
         launch_level(i)   = 1
@@ -808,26 +876,29 @@ contains
 
 !==========================================================================
 
-  subroutine tilt_dyn_src(tilt, u, v, pmid, delp, ncol, pver, alpha_gw_movmtn, &
+  subroutine tilt_dyn_src(tilt, u, v, pmid, delp, zm, ncol, pver, alpha_gw_movmtn, &
        xpwp_src, steering_level, launch_level, p_steer, p_launch, &
-       usteer, vsteer)
+       usteer, vsteer, roo_block)
   !------------------------------------------------------------------------
   ! source_type=3: flow-dependent GW source using the tilt field.
   !
   ! Source flux = pressure-weighted mean tilt between launch and steering
   ! levels, scaled by alpha_gw_movmtn and scale_factor. Zero where the
-  ! centroid search failed.
+  ! centroid search failed or the roo criterion blocked it (see
+  ! tilt_centroid_levels).
   !------------------------------------------------------------------------
     integer,         intent(in)  :: ncol, pver
     real(kind_phys), intent(in)  :: tilt(ncol,pver)
     real(kind_phys), intent(in)  :: u(ncol,pver), v(ncol,pver)
     real(kind_phys), intent(in)  :: pmid(ncol,pver)
     real(kind_phys), intent(in)  :: delp(ncol,pver)
+    real(kind_phys), intent(in)  :: zm(ncol,pver)
     real(kind_phys), intent(in)  :: alpha_gw_movmtn
     real(kind_phys), intent(out) :: xpwp_src(ncol)
     integer,         intent(out) :: steering_level(ncol), launch_level(ncol)
     real(kind_phys), intent(out) :: p_steer(ncol), p_launch(ncol)
     real(kind_phys), intent(out) :: usteer(ncol), vsteer(ncol)
+    real(kind_phys), intent(out) :: roo_block(ncol)
 
     ! Dimensional scale factor: converts tilt [s-2] to flux [Pa].
     real(kind_phys), parameter :: scale_factor = 1.e6_kind_phys
@@ -835,8 +906,8 @@ contains
     logical :: valid(ncol)
     integer :: i, ks, kl
 
-    call tilt_centroid_levels(tilt, u, v, pmid, ncol, pver, &
-         steering_level, launch_level, p_steer, p_launch, usteer, vsteer, valid)
+    call tilt_centroid_levels(tilt, u, v, pmid, zm, ncol, pver, &
+         steering_level, launch_level, p_steer, p_launch, usteer, vsteer, valid, roo_block)
 
     xpwp_src = 0._kind_phys
     do i = 1, ncol
@@ -853,9 +924,9 @@ contains
 
 !==========================================================================
 
-  subroutine tilt_precip_6param_src(tilt, prect, u, v, pmid, ncol, pver, &
+  subroutine tilt_precip_6param_src(tilt, prect, u, v, pmid, zm, ncol, pver, &
        alpha_gw_movmtn, xpwp_src, steering_level, launch_level, p_steer, p_launch, &
-       usteer, vsteer)
+       usteer, vsteer, roo_block)
   !------------------------------------------------------------------------
   ! source_type=4: six-parameter tilt + precipitation source (Aug 2026).
   !
@@ -879,11 +950,13 @@ contains
     real(kind_phys), intent(in)  :: prect(ncol)
     real(kind_phys), intent(in)  :: u(ncol,pver), v(ncol,pver)
     real(kind_phys), intent(in)  :: pmid(ncol,pver)
+    real(kind_phys), intent(in)  :: zm(ncol,pver)
     real(kind_phys), intent(in)  :: alpha_gw_movmtn
     real(kind_phys), intent(out) :: xpwp_src(ncol)
     integer,         intent(out) :: steering_level(ncol), launch_level(ncol)
     real(kind_phys), intent(out) :: p_steer(ncol), p_launch(ncol)
     real(kind_phys), intent(out) :: usteer(ncol), vsteer(ncol)
+    real(kind_phys), intent(out) :: roo_block(ncol)
 
     ! Reference scales.
     real(kind_phys), parameter :: d_ref = 3.0e-7_kind_phys   ! [s-2]
@@ -901,8 +974,8 @@ contains
     real(kind_phys) :: d_val, dyn_term, conv_term
     integer         :: i
 
-    call tilt_centroid_levels(tilt, u, v, pmid, ncol, pver, &
-         steering_level, launch_level, p_steer, p_launch, usteer, vsteer, valid)
+    call tilt_centroid_levels(tilt, u, v, pmid, zm, ncol, pver, &
+         steering_level, launch_level, p_steer, p_launch, usteer, vsteer, valid, roo_block)
 
     xpwp_src = 0._kind_phys
     do i = 1, ncol
@@ -929,9 +1002,9 @@ contains
 
 !==========================================================================
 
-  subroutine tilt_precip_cx17_src(tilt, prect, u, v, pmid, delp, ncol, pver, &
+  subroutine tilt_precip_cx17_src(tilt, prect, u, v, pmid, delp, zm, ncol, pver, &
        alpha_gw_movmtn, xpwp_src, steering_level, launch_level, p_steer, p_launch, &
-       usteer, vsteer)
+       usteer, vsteer, roo_block)
   !------------------------------------------------------------------------
   ! source_type=5: PySR equation-discovery source, complexity 17
   ! (front_full_both.json).
@@ -957,11 +1030,13 @@ contains
     real(kind_phys), intent(in)  :: u(ncol,pver), v(ncol,pver)
     real(kind_phys), intent(in)  :: pmid(ncol,pver)
     real(kind_phys), intent(in)  :: delp(ncol,pver)
+    real(kind_phys), intent(in)  :: zm(ncol,pver)
     real(kind_phys), intent(in)  :: alpha_gw_movmtn
     real(kind_phys), intent(out) :: xpwp_src(ncol)
     integer,         intent(out) :: steering_level(ncol), launch_level(ncol)
     real(kind_phys), intent(out) :: p_steer(ncol), p_launch(ncol)
     real(kind_phys), intent(out) :: usteer(ncol), vsteer(ncol)
+    real(kind_phys), intent(out) :: roo_block(ncol)
 
     ! Reference scales (fixed before the search).
     real(kind_phys), parameter :: tau_ref = 4.68e-3_kind_phys  ! [Pa]
@@ -976,8 +1051,8 @@ contains
     real(kind_phys) :: p_s, u_s, d_g, d_l
     integer         :: i, ks, kl
 
-    call tilt_centroid_levels(tilt, u, v, pmid, ncol, pver, &
-         steering_level, launch_level, p_steer, p_launch, usteer, vsteer, valid)
+    call tilt_centroid_levels(tilt, u, v, pmid, zm, ncol, pver, &
+         steering_level, launch_level, p_steer, p_launch, usteer, vsteer, valid, roo_block)
 
     xpwp_src = 0._kind_phys
     do i = 1, ncol
@@ -1004,7 +1079,8 @@ contains
 
   subroutine vorticity_centroid_levels(weight, p, ncol, pver, &
        p_min, p_max, &
-       steering_level, launch_level)
+       steering_level, launch_level, &
+       z_steer, z_launch)
   !------------------------------------------------------------------------
   ! Derive steering and launch level indices from a weight profile
   ! (typically |vorticity| or tilt) via two successive centroid passes.
@@ -1015,15 +1091,21 @@ contains
   !           above the steering level (smaller k = higher altitude).
   !
   ! p is the vertical coordinate for the centroid; callers pass pmid [Pa].
+  !
+  ! p_min/p_max are now per-column (ncol) bounds, so the steering-level
+  ! search window can depend on local surface pressure rather than a
+  ! single fixed value (see tilt_centroid_levels).
   !------------------------------------------------------------------------
     integer,         intent(in)  :: ncol, pver
     real(kind_phys), intent(in)  :: weight(ncol,pver)
     real(kind_phys), intent(in)  :: p(ncol,pver)
-    real(kind_phys), intent(in)  :: p_min, p_max
+    real(kind_phys), intent(in)  :: p_min(ncol), p_max(ncol)
     integer,         intent(out) :: steering_level(ncol), launch_level(ncol)
+    real(kind_phys), intent(out) :: z_steer(ncol), z_launch(ncol)
 
     real(kind_phys) :: abswgt(ncol,pver), w_top(ncol,pver)
     real(kind_phys) :: z_cent(ncol), z_top(ncol)
+    real(kind_phys) :: unbound_min(ncol), unbound_max(ncol)
     integer         :: i
 
     abswgt = abs(weight)
@@ -1042,9 +1124,14 @@ contains
       end if
     end do
 
+    unbound_min = -huge(1._kind_phys)
+    unbound_max =  huge(1._kind_phys)
     call weighted_centroid(w_top, p, ncol, pver, &
-                            -huge(1._kind_phys), huge(1._kind_phys), &
+                            unbound_min, unbound_max, &
                             z_top, launch_level)
+
+    z_steer  = z_cent
+    z_launch = z_top
 
   end subroutine vorticity_centroid_levels
 
@@ -1056,12 +1143,16 @@ contains
   !
   !     z_centroid = integral( z*w dz ) / integral( w dz )
   !
-  ! restricted to z_min <= z <= z_max. Integration is trapezoidal.
+  ! restricted to z_min(i) <= z <= z_max(i). Integration is trapezoidal.
   ! Sentinel on failure: z_centroid = -1, k_centroid = -1.
+  !
+  ! z_min/z_max are now per-column (ncol) rather than scalar, so callers
+  ! can set a column-dependent bound (e.g. a fraction of local surface
+  ! pressure, instead of a fixed value that is terrain-blind).
   !------------------------------------------------------------------------
     integer,         intent(in)  :: ncol, pver
     real(kind_phys), intent(in)  :: w(ncol,pver), z(ncol,pver)
-    real(kind_phys), intent(in)  :: z_min, z_max
+    real(kind_phys), intent(in)  :: z_min(ncol), z_max(ncol)
     real(kind_phys), intent(out) :: z_centroid(ncol)
     integer,         intent(out) :: k_centroid(ncol)
 
@@ -1072,7 +1163,7 @@ contains
     do i = 1, ncol
       zi = z(i,:)
       wi = w(i,:)
-      where (zi < z_min .or. zi > z_max) wi = 0._kind_phys
+      where (zi < z_min(i) .or. zi > z_max(i)) wi = 0._kind_phys
 
       num   = 0._kind_phys
       denom = 0._kind_phys
@@ -1083,6 +1174,10 @@ contains
 
       if (denom /= 0._kind_phys) then
         z_centroid(i) = num / denom
+        ! Block centroid search from returning levels above 10_000Pa (100hPa)
+        if ( z_centroid(i) < 10000._kind_phys) then
+           z_centroid(i) = 10000._kind_phys
+        end if
         k_centroid(i) = minloc(abs(zi - z_centroid(i)), dim=1)
       else
         z_centroid(i) = -1._kind_phys
