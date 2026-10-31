@@ -294,8 +294,9 @@ contains
     integer, intent(out)           :: errflg
 
     ! Local variables
-    integer                     :: k, m
+    integer                     :: k, m, i
     real(kind_phys)             :: xpwp_clubb(ncol, pver + 1)
+    real(kind_phys)             :: ubi_src(ncol, pver + 1)
 
     ! Reynolds stress for waves propagating in each cardinal direction.
     real(kind_phys) :: taucd(ncol, pver + 1, 4)
@@ -355,8 +356,13 @@ contains
                       ttgw, qtgw, egwdffi, gwut, dttdf, dttke, &
                       lapply_effgw_in=gw_apply_tndmax)
 
+    ! Adjust ubi to yield correct directions when ubi(src)>0>ubi(src+1)
+    ubi_src(:ncol,:) = ubi(:ncol,:)
+    do i=1,ncol
+       ubi_src(i,src_level(i)+1) = ubm(i ,src_level(i))
+    end do
     ! Project stress into directional components.
-    taucd = calc_taucd(ncol, band%ngwv, tend_level, tau, phase_speeds, xv, yv, ubi)
+    taucd = calc_taucd(ncol, band%ngwv, tend_level, tau, phase_speeds, xv, yv, ubi_src)
 
     taucd_west(:,:pver+1)  = taucd(:,:pver+1,west)
     taucd_east(:,:pver+1)  = taucd(:,:pver+1,east)
