@@ -3,6 +3,7 @@
   type = scheme
   dependencies = ../pumas/pumas/pumas_kinds.F90,../pumas/pumas/micro_pumas_utils.F90
   dependencies = ../pumas/pumas/pumas_gamma_function.F90,../pumas/pumas/micro_pumas_diags.F90
+  dependencies = ../pumas/pumas/pumas_stochastic_collect_tau.F90
   dependencies = ../../to_be_ccppized/wv_saturation.F90
   kind_spec = pumas_kinds:pumas_r8=>kind_r8
 
@@ -113,6 +114,7 @@
   type = scheme
   dependencies = ../pumas/pumas/pumas_kinds.F90,../pumas/pumas/micro_pumas_utils.F90
   dependencies = ../pumas/pumas/pumas_gamma_function.F90,../pumas/pumas/micro_pumas_diags.F90
+  dependencies = ../pumas/pumas/pumas_stochastic_collect_tau.F90
   dependencies = ../../to_be_ccppized/wv_saturation.F90
   kind_spec = pumas_kinds:pumas_r8=>kind_r8
 

@@ -364,6 +364,18 @@
   </values>
 </entry>
 
+<entry id="pumas_stochastic_tau_kernel_filename">
+  <category>microphys</category>
+  <group>micro_mg_nl</group>
+  <standard_name>filename_of_stochastic_collection_kernel_for_tau</standard_name>
+  <units>none</units>
+  <type>char*256</type>
+  <desc>Coefficients for the stochastic collection kernel used by the TAU stochastic collection code (only used when warm_rain = 'tau')</desc>
+  <values>
+    <value>"${SRCROOT}/src/physics/ncar_ccpp/schemes/pumas/pumas/KBARF_tau_kernel.dat"</value>
+  </values>
+</entry>
+
 <entry id="stochastic_emulated_filename_quantile">
   <category>microphys</category>
   <group>micro_mg_nl</group>

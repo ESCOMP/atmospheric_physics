@@ -1,6 +1,8 @@
 [ccpp-table-properties]
   name = pumas_pre_main
   type = scheme
+  dependencies = pumas/pumas_kinds.F90,pumas/pumas_gamma_function.F90,pumas/micro_pumas_utils.F90
+  dependencies = pumas/pumas_stochastic_collect_tau.F90
 
 [ccpp-arg-table]
   name = pumas_pre_main_init
@@ -27,6 +29,20 @@
   dimensions = ()
   type = logical
   intent = out
+[ micro_mg_warm_rain ]
+  standard_name = control_for_warm_rain_method
+  long_name = warm rain method (KK2000,sb2001,tau,emulated)
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ pumas_stochastic_tau_kernel_filename ]
+  standard_name = filename_of_stochastic_collection_kernel_for_tau
+  long_name = filename of the collection kernel for the TAU stochastic collection code
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
 [ errmsg ]
   standard_name = ccpp_error_message
   long_name = Error message for error handling in CCPP

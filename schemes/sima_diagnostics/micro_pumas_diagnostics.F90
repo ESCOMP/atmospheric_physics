@@ -21,16 +21,9 @@
 !     cloud physics to the bottom, i.e. the PUMAS levels) is registered in
 !     micro_pumas_diagnostics_init, as CAM did in micro_pumas_cam_register.
 !   - The constituent mixing ratios are output by sima_state_diagnostics.
-!   - The binned TAU / emulated warm rain diagnostics (amk*, ank*) are not output, as the CAM-SIMA
-!     history does not yet support 3-D fields.
 !
 ! FOR_REVIEWER_FEEDBACK: The following fields from CAM's micro_pumas_cam.F90 are NOT included in
 !    this conversion.  Are any of them needed?
-!     - TAU / emulated warm rain binned diagnostics (only when micro_mg_warm_rain is 'tau' or 'emulated'):
-!         amk_c, ank_c, amk_r, ank_r, amk, ank, amk_out, ank_out
-!           These have an extra size bin dimension ('bins_ncd' in CAM), and the CAM-SIMA history does
-!           not yet support 3-D fields, so their registration and output are commented out
-!           (marked !UNCOMMENT WHEN 3D IMPLEMENTED).  The other TAU / emulated fields are output.
 !     - HPROGCLD: CAM registers this field in micro_pumas_cam.F90 but never outputs it when PUMAS
 !         is used.  If wanted, it could be output from the microphysics heating rate (as is done in
 !         rk_stratiform_diagnostics).
@@ -61,6 +54,12 @@ module micro_pumas_diagnostics
    real(kind_phys), parameter :: rb_rmin  = 1.e-6_kind_phys                                 ! Strat Rain threshold (mixing ratio)
    real(kind_phys), parameter :: rb_rcmin = 5._kind_phys/(86400._kind_phys*1000._kind_phys) ! Conv Rain Threshold (mm/d--> m/s)
    real(kind_phys), parameter :: rb_pmin  = 85000._kind_phys                                ! Minimum pressure for surface layer
+
+   ! Output of fields on the PUMAS vertical levels on the 'trop_cld_lev' history coordinate
+   interface out_pumas_trop_cld_field
+      module procedure out_pumas_trop_cld_field_2d
+      module procedure out_pumas_trop_cld_field_3d
+   end interface out_pumas_trop_cld_field
 
    ! Accumulators for the precipitation efficiency calculation which persist across
    ! timesteps (these were the ACPRECL, ACGCME and ACNUM physics buffer fields in CAM)
@@ -102,8 +101,8 @@ CONTAINS
 
       use cam_history,         only: history_add_field
       use cam_history_support, only: horiz_only, add_vert_coord, hist_coords, get_hist_coord_index
-!     use cam_history_support, only: add_hist_coord                          !UNCOMMENT WHEN 3D IMPLEMENTED
-!     use pumas_stochastic_collect_tau, only: ncd                            !UNCOMMENT WHEN 3D IMPLEMENTED
+      use cam_history_support, only: add_hist_coord
+      use pumas_stochastic_collect_tau, only: ncd
 
       integer,            intent(in)  :: pcols              ! horizontal dimension
       integer,            intent(in)  :: pver
@@ -156,303 +155,479 @@ CONTAINS
            'troposphere hybrid level at midpoints (1000*(A+B))', 'hPa', trop_cld_levs, &
            positive='down')
 
-      ! NOTE -subcyc comments below mean that the original CAM code had "sampled_on_subcycle=.true." in the old outfld call
-      !        Will use this for guidance during future development
-
-      call history_add_field ('CME',      'Rate of cond-evap within the cloud',          'lev',         'avg','kg kg-1 s-1') !subcyc
-      call history_add_field ('PRODPREC', 'Rate of conversion of condensate to precip',  'lev',         'avg','kg kg-1 s-1') !subcyc
-      call history_add_field ('EVAPPREC', 'Rate of evaporation of falling precip',       'lev',         'avg','kg kg-1 s-1') !subcyc
-      call history_add_field ('EVAPSNOW', 'Rate of evaporation of falling snow',         'trop_cld_lev','avg','kg kg-1 s-1') !subcyc
-      call history_add_field ('FICE',     'Fractional ice content within cloud',         'lev',         'avg','fraction') !subcyc
-      call history_add_field ('CLDFSNOW', 'Cloud fraction adjusted for snow',            'lev',         'avg','1') !subcyc
-      call history_add_field ('ICWMRST',  'Prognostic in-stratus water mixing ratio',    'lev',         'avg','kg kg-1') !subcyc
-      call history_add_field ('ICIMRST',  'Prognostic in-stratus ice mixing ratio',      'lev',         'avg','kg kg-1') !subcyc
+      call history_add_field ('CME',      'Rate of cond-evap within the cloud',          'lev',          'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('PRODPREC', 'Rate of conversion of condensate to precip',  'lev',          'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('EVAPPREC', 'Rate of evaporation of falling precip',       'lev',          'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('EVAPSNOW', 'Rate of evaporation of falling snow',         'trop_cld_lev', 'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('FICE',     'Fractional ice content within cloud',         'lev',          'avg', 'fraction', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('CLDFSNOW', 'Cloud fraction adjusted for snow',            'lev',          'avg', '1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('ICWMRST',  'Prognostic in-stratus water mixing ratio',    'lev',          'avg', 'kg kg-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('ICIMRST',  'Prognostic in-stratus ice mixing ratio',      'lev',          'avg', 'kg kg-1', &
+                              sampled_on_subcycle=.true.)
 
       ! MG microphysics diagnostics
-      call history_add_field ('QCSEVAP',  'Rate of evaporation of falling cloud water',  'trop_cld_lev','avg','kg kg-1 s-1') !subcyc
-      call history_add_field ('QISEVAP',  'Rate of sublimation of falling cloud ice',    'trop_cld_lev','avg','kg kg-1 s-1') !subcyc
-      call history_add_field ('QVRES',    'Rate of residual condensation term',          'trop_cld_lev','avg','kg kg-1 s-1') !subcyc
-      call history_add_field ('CMEIOUT',  'Rate of deposition/sublimation of cloud ice', 'trop_cld_lev','avg','kg kg-1 s-1') !subcyc
-      call history_add_field ('VTRMC',    'Mass-weighted cloud water fallspeed',         'trop_cld_lev','avg','m s-1') !subcyc
-      call history_add_field ('VTRMI',    'Mass-weighted cloud ice fallspeed',           'trop_cld_lev','avg','m s-1') !subcyc
+      call history_add_field ('QCSEVAP',  'Rate of evaporation of falling cloud water',  'trop_cld_lev', 'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('QISEVAP',  'Rate of sublimation of falling cloud ice',    'trop_cld_lev', 'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('QVRES',    'Rate of residual condensation term',          'trop_cld_lev', 'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('CMEIOUT',  'Rate of deposition/sublimation of cloud ice', 'trop_cld_lev', 'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('VTRMC',    'Mass-weighted cloud water fallspeed',         'trop_cld_lev', 'avg', 'm s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('VTRMI',    'Mass-weighted cloud ice fallspeed',           'trop_cld_lev', 'avg', 'm s-1', &
+                              sampled_on_subcycle=.true.)
 
       call history_add_field ('QCSEDTEN', &
-            'Cloud water mixing ratio tendency from sedimentation',                      'trop_cld_lev','avg','kg kg-1 s-1') !subcyc
+            'Cloud water mixing ratio tendency from sedimentation',                      'trop_cld_lev', 'avg', 'kg kg-1 s-1', &
+            sampled_on_subcycle=.true.)
       call history_add_field ('QISEDTEN', &
-            'Cloud ice mixing ratio tendency from sedimentation',                        'trop_cld_lev','avg','kg kg-1 s-1') !subcyc
+            'Cloud ice mixing ratio tendency from sedimentation',                        'trop_cld_lev', 'avg', 'kg kg-1 s-1', &
+            sampled_on_subcycle=.true.)
 
-      call history_add_field ('PRAO',     'Accretion of cloud water by rain',            'lev', 'avg', 'kg kg-1 s-1') !subcyc
-      call history_add_field ('PRCO',     'Autoconversion of cloud water',               'lev', 'avg', 'kg kg-1 s-1') !subcyc
-      call history_add_field ('MNUCCCO',  'Immersion freezing of cloud water',           'lev', 'avg', 'kg kg-1 s-1') !subcyc
-      call history_add_field ('MNUCCTO',  'Contact freezing of cloud water',             'lev', 'avg', 'kg kg-1 s-1') !subcyc
+      call history_add_field ('PRAO',     'Accretion of cloud water by rain',            'lev', 'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('PRCO',     'Autoconversion of cloud water',               'lev', 'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('MNUCCCO',  'Immersion freezing of cloud water',           'lev', 'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('MNUCCTO',  'Contact freezing of cloud water',             'lev', 'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
 
       call history_add_field ('MNUCCDO', &
-            'Homogeneous and heterogeneous nucleation from vapor',                       'trop_cld_lev','avg','kg kg-1 s-1') !subcyc
+            'Homogeneous and heterogeneous nucleation from vapor',                       'trop_cld_lev', 'avg', 'kg kg-1 s-1', &
+            sampled_on_subcycle=.true.)
 
-      call history_add_field ('MNUCCDOhet', 'Heterogeneous nucleation from vapor',               'lev','avg','kg kg-1 s-1') !subcyc
-      call history_add_field ('MSACWIO', 'Conversion of cloud water from rime-splintering',      'lev','avg','kg kg-1 s-1') !subcyc
-      call history_add_field ('PSACWSO', 'Accretion of cloud water by snow',                     'lev','avg','kg kg-1 s-1') !subcyc
-      call history_add_field ('BERGSO',  'Conversion of cloud water to snow from bergeron',      'lev','avg','kg kg-1 s-1') !subcyc
-      call history_add_field ('BERGO',   'Conversion of cloud water to cloud ice from bergeron', 'lev','avg','kg kg-1 s-1') !subcyc
+      call history_add_field ('MNUCCDOhet', 'Heterogeneous nucleation from vapor',               'lev', 'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('MSACWIO', 'Conversion of cloud water from rime-splintering',      'lev', 'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('PSACWSO', 'Accretion of cloud water by snow',                     'lev', 'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('BERGSO',  'Conversion of cloud water to snow from bergeron',      'lev', 'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('BERGO',   'Conversion of cloud water to cloud ice from bergeron', 'lev', 'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
 
-      call history_add_field ('MELTO',    'Melting of cloud ice',                         'lev',         'avg','kg kg-1 s-1')!subcyc
-      call history_add_field ('MELTSTOT', 'Melting of snow',                              'trop_cld_lev','avg','kg kg-1 s-1')!subcyc
-      call history_add_field ('MNUDEPO',  'Deposition Nucleation',                        'trop_cld_lev','avg','kg kg-1 s-1')!subcyc
-      call history_add_field ('HOMOO',    'Homogeneous freezing of cloud water',          'lev',         'avg','kg kg-1 s-1')!subcyc
-      call history_add_field ('QCRESO',   'Residual condensation term for cloud water',   'lev',         'avg','kg kg-1 s-1')!subcyc
-      call history_add_field ('PRCIO',    'Autoconversion of cloud ice to snow',          'lev',         'avg','kg kg-1 s-1')!subcyc
-      call history_add_field ('PRAIO',    'Accretion of cloud ice to snow',               'lev',         'avg','kg kg-1 s-1')!subcyc
-      call history_add_field ('QIRESO',   'Residual deposition term for cloud ice',       'lev',         'avg','kg kg-1 s-1')!subcyc
-      call history_add_field ('MNUCCRO',  'Heterogeneous freezing of rain to snow',       'trop_cld_lev','avg','kg kg-1 s-1')!subcyc
-      call history_add_field ('MNUCCRIO', 'Heterogeneous freezing of rain to ice',        'trop_cld_lev','avg','kg kg-1 s-1')!subcyc
-      call history_add_field ('PRACSO',   'Accretion of rain by snow',                    'trop_cld_lev','avg','kg kg-1 s-1')!subcyc
-      call history_add_field ('VAPDEPSO', 'Vapor deposition onto snow',                   'trop_cld_lev','avg','kg kg-1 s-1')!subcyc
-      call history_add_field ('MELTSDT',  'Latent heating rate due to melting of snow',   'trop_cld_lev','avg','W kg-1')!subcyc
+      call history_add_field ('MELTO',    'Melting of cloud ice',                         'lev',          'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('MELTSTOT', 'Melting of snow',                              'trop_cld_lev', 'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('MNUDEPO',  'Deposition Nucleation',                        'trop_cld_lev', 'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('HOMOO',    'Homogeneous freezing of cloud water',          'lev',          'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('QCRESO',   'Residual condensation term for cloud water',   'lev',          'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('PRCIO',    'Autoconversion of cloud ice to snow',          'lev',          'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('PRAIO',    'Accretion of cloud ice to snow',               'lev',          'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('QIRESO',   'Residual deposition term for cloud ice',       'lev',          'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('MNUCCRO',  'Heterogeneous freezing of rain to snow',       'trop_cld_lev', 'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('MNUCCRIO', 'Heterogeneous freezing of rain to ice',        'trop_cld_lev', 'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('PRACSO',   'Accretion of rain by snow',                    'trop_cld_lev', 'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('VAPDEPSO', 'Vapor deposition onto snow',                   'trop_cld_lev', 'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('MELTSDT',  'Latent heating rate due to melting of snow',   'trop_cld_lev', 'avg', 'W kg-1', &
+                              sampled_on_subcycle=.true.)
 
       call history_add_field ('FRZRDT', &
-            'Latent heating rate due to homogeneous freezing of rain',                    'trop_cld_lev','avg','W kg-1')!subcyc
+            'Latent heating rate due to homogeneous freezing of rain',                    'trop_cld_lev', 'avg', 'W kg-1', &
+            sampled_on_subcycle=.true.)
       call history_add_field ('QRSEDTEN', &
-            'Rain mixing ratio tendency from sedimentation',                              'trop_cld_lev','avg','kg kg-1 s-1')!subcyc
+            'Rain mixing ratio tendency from sedimentation',                              'trop_cld_lev', 'avg', 'kg kg-1 s-1', &
+            sampled_on_subcycle=.true.)
       call history_add_field ('QSSEDTEN', &
-            'Snow mixing ratio tendency from sedimentation',                              'trop_cld_lev','avg','kg kg-1 s-1')!subcyc
+            'Snow mixing ratio tendency from sedimentation',                              'trop_cld_lev', 'avg', 'kg kg-1 s-1', &
+            sampled_on_subcycle=.true.)
       call history_add_field ('NNUCCCO', &
-            'Number Tendency due to Immersion freezing of cloud water',                   'trop_cld_lev','avg','kg-1 s-1')!subcyc
+            'Number Tendency due to Immersion freezing of cloud water',                   'trop_cld_lev', 'avg', 'kg-1 s-1', &
+            sampled_on_subcycle=.true.)
       call history_add_field ('NNUCCTO', &
-            'Number Tendency due to Contact freezing of cloud water',                     'trop_cld_lev','avg','kg-1 s-1')!subcyc
-      call history_add_field ('NNUCCDO',  'Number Tendency due to Ice nucleation',        'trop_cld_lev','avg','kg-1 s-1')!subcyc
-      call history_add_field ('NNUDEPO',  'Number Tendency due to Deposition Nucleation', 'trop_cld_lev','avg','kg-1 s-1')!subcyc
+            'Number Tendency due to Contact freezing of cloud water',                     'trop_cld_lev', 'avg', 'kg-1 s-1', &
+            sampled_on_subcycle=.true.)
+      call history_add_field ('NNUCCDO',  'Number Tendency due to Ice nucleation',        'trop_cld_lev', 'avg', 'kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('NNUDEPO',  'Number Tendency due to Deposition Nucleation', 'trop_cld_lev', 'avg', 'kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
       call history_add_field ('NHOMO', &
-            'Number Tendency due to Homogeneous freezing of cloud water',                 'trop_cld_lev','avg','kg-1 s-1')!subcyc
+            'Number Tendency due to Homogeneous freezing of cloud water',                 'trop_cld_lev', 'avg', 'kg-1 s-1', &
+            sampled_on_subcycle=.true.)
       call history_add_field ('NNUCCRO', &
-            'Number Tendency due to heterogeneous freezing of rain to snow',              'trop_cld_lev','avg','kg-1 s-1')!subcyc
+            'Number Tendency due to heterogeneous freezing of rain to snow',              'trop_cld_lev', 'avg', 'kg-1 s-1', &
+            sampled_on_subcycle=.true.)
       call history_add_field ('NNUCCRIO', &
-            'Number Tendency due to Heterogeneous freezing of rain to ice',               'trop_cld_lev','avg','kg-1 s-1')!subcyc
+            'Number Tendency due to Heterogeneous freezing of rain to ice',               'trop_cld_lev', 'avg', 'kg-1 s-1', &
+            sampled_on_subcycle=.true.)
       call history_add_field ('NSACWIO', &
-            'Number Tendency due to Ice Multiplication- Rime-splintering',                'trop_cld_lev','avg','kg-1 s-1')!subcyc
+            'Number Tendency due to Ice Multiplication- Rime-splintering',                'trop_cld_lev', 'avg', 'kg-1 s-1', &
+            sampled_on_subcycle=.true.)
       call history_add_field ('NPRAO', &
-            'Number Tendency due to Accretion of cloud water by rain',                    'trop_cld_lev','avg','kg-1 s-1')!subcyc
+            'Number Tendency due to Accretion of cloud water by rain',                    'trop_cld_lev', 'avg', 'kg-1 s-1', &
+            sampled_on_subcycle=.true.)
       call history_add_field ('NPSACWSO', &
-            'Number Tendency due to Accretion of cloud water by snow',                    'trop_cld_lev','avg','kg-1 s-1')!subcyc
+            'Number Tendency due to Accretion of cloud water by snow',                    'trop_cld_lev', 'avg', 'kg-1 s-1', &
+            sampled_on_subcycle=.true.)
       call history_add_field ('NPRAIO', &
-            'Number Tendency due to Accretion of cloud ice to snow',                      'trop_cld_lev','avg','kg-1 s-1')!subcyc
+            'Number Tendency due to Accretion of cloud ice to snow',                      'trop_cld_lev', 'avg', 'kg-1 s-1', &
+            sampled_on_subcycle=.true.)
       call history_add_field ('NPRACSO', &
-            'Number Tendency due to Accretion of rain by snow',                           'trop_cld_lev','avg','kg-1 s-1')!subcyc
+            'Number Tendency due to Accretion of rain by snow',                           'trop_cld_lev', 'avg', 'kg-1 s-1', &
+            sampled_on_subcycle=.true.)
       call history_add_field ('NPRCO', &
-            'Number Tendency due to Autoconversion of cloud water [to rain]',             'trop_cld_lev','avg','kg-1 s-1')!subcyc
+            'Number Tendency due to Autoconversion of cloud water [to rain]',             'trop_cld_lev', 'avg', 'kg-1 s-1', &
+            sampled_on_subcycle=.true.)
       call history_add_field ('NPRCIO', &
-            'Number Tendency due to Autoconversion of cloud ice to snow',                 'trop_cld_lev','avg','kg-1 s-1')!subcyc
+            'Number Tendency due to Autoconversion of cloud ice to snow',                 'trop_cld_lev', 'avg', 'kg-1 s-1', &
+            sampled_on_subcycle=.true.)
       call history_add_field ('NCSEDTEN', &
-            'Number Tendency due to cloud liquid sedimentation',                          'trop_cld_lev','avg','kg-1 s-1')!subcyc
+            'Number Tendency due to cloud liquid sedimentation',                          'trop_cld_lev', 'avg', 'kg-1 s-1', &
+            sampled_on_subcycle=.true.)
 
-      call history_add_field ('NISEDTEN', 'Number Tendency due to cloud ice sedimentation', 'trop_cld_lev','avg','kg-1 s-1') !subcyc
+      call history_add_field ('NISEDTEN', 'Number Tendency due to cloud ice sedimentation', 'trop_cld_lev', 'avg', 'kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
 
-      call history_add_field ('NRSEDTEN', 'Number Tendency due to rain sedimentation',      'trop_cld_lev','avg','kg-1 s-1') !subcyc
-      call history_add_field ('NSSEDTEN', 'Number Tendency due to snow sedimentation',      'trop_cld_lev','avg','kg-1 s-1') !subcyc
-      call history_add_field ('NMELTO',   'Number Tendency due to Melting of cloud ice',    'trop_cld_lev','avg','kg-1 s-1') !subcyc
-      call history_add_field ('NMELTS',   'Number Tendency due to Melting of snow',         'trop_cld_lev','avg','kg-1 s-1') !subcyc
+      call history_add_field ('NRSEDTEN', 'Number Tendency due to rain sedimentation',      'trop_cld_lev', 'avg', 'kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('NSSEDTEN', 'Number Tendency due to snow sedimentation',      'trop_cld_lev', 'avg', 'kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('NMELTO',   'Number Tendency due to Melting of cloud ice',    'trop_cld_lev', 'avg', 'kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('NMELTS',   'Number Tendency due to Melting of snow',         'trop_cld_lev', 'avg', 'kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
 
       if (trim(micro_mg_warm_rain) == 'kk2000') then
          call history_add_field ('qctend_KK2000', &
-            'cloud liquid mass tendency due to autoconversion accretion from KK2000', 'trop_cld_lev', 'avg', 'kg kg-1 s-1') !subcyc
+            'cloud liquid mass tendency due to autoconversion accretion from KK2000', 'trop_cld_lev', 'avg', 'kg kg-1 s-1', &
+            sampled_on_subcycle=.true.)
          call history_add_field ('nctend_KK2000', &
-            'cloud number mass tendency due to autoconversion accretion from KK2000', 'trop_cld_lev', 'avg', 'kg-1 s-1') !subcyc
+            'cloud number mass tendency due to autoconversion accretion from KK2000', 'trop_cld_lev', 'avg', 'kg-1 s-1', &
+            sampled_on_subcycle=.true.)
          call history_add_field ('qrtend_KK2000', &
-            'rain mass tendency due to autoconversion accretion from KK2000',         'trop_cld_lev', 'avg', 'kg kg-1 s-1') !subcyc
+            'rain mass tendency due to autoconversion accretion from KK2000',         'trop_cld_lev', 'avg', 'kg kg-1 s-1', &
+            sampled_on_subcycle=.true.)
          call history_add_field ('nrtend_KK2000', &
-            'rain number tendency due to autoconversion accretion from KK2000',       'trop_cld_lev', 'avg', 'kg-1 s-1') !subcyc
+            'rain number tendency due to autoconversion accretion from KK2000',       'trop_cld_lev', 'avg', 'kg-1 s-1', &
+            sampled_on_subcycle=.true.)
       end if
 
       if (trim(micro_mg_warm_rain) == 'sb2001') then
          call history_add_field ('qctend_SB2001', &
-            'cloud liquid mass tendency due to autoconversion  accretion from SB2001',  'trop_cld_lev','avg','kg kg-1 s-1') !subcyc
+            'cloud liquid mass tendency due to autoconversion  accretion from SB2001',  'trop_cld_lev', 'avg', 'kg kg-1 s-1', &
+            sampled_on_subcycle=.true.)
          call history_add_field ('nctend_SB2001', &
-            'cloud liquid number tendency due to autoconversion accretion from SB2001', 'trop_cld_lev','avg','kg-1 s-1') !subcyc
+            'cloud liquid number tendency due to autoconversion accretion from SB2001', 'trop_cld_lev', 'avg', 'kg-1 s-1', &
+            sampled_on_subcycle=.true.)
          call history_add_field ('qrtend_SB2001', &
-            'rain mass tendency due to autoconversion accretion from SB2001',           'trop_cld_lev','avg','kg kg-1 s-1') !subcyc
+            'rain mass tendency due to autoconversion accretion from SB2001',           'trop_cld_lev', 'avg', 'kg kg-1 s-1', &
+            sampled_on_subcycle=.true.)
          call history_add_field ('nrtend_SB2001', &
-            'rain number tendency due to autoconversion accretion from SB2001',         'trop_cld_lev','avg','kg-1 s-1') !subcyc
+            'rain number tendency due to autoconversion accretion from SB2001',         'trop_cld_lev', 'avg', 'kg-1 s-1', &
+            sampled_on_subcycle=.true.)
       end if
 
       ! TAU / emulated stochastic collection (machine learning) warm rain diagnostics
       ! (registered in CAM's stochastic_tau_cam_init / stochastic_emulated_init_cam)
-      ! FOR_REVIEWER_FEEDBACK: The binned fields (amk*, ank*) have a size bin dimension, and CAM-SIMA
-      !    history does not yet support 3-D fields, so they are commented out.  CAM also registers
+      ! FOR_REVIEWER_FEEDBACK: CAM also registers
       !    qctend_TAU_diag, nctend_TAU_diag, qrtend_TAU_diag and nrtend_TAU_diag, but never outputs them,
       !    so they are not included.  The units of nc_fixer and nr_fixer are copied from CAM (kg/kg), but
       !    they are number changes (kg-1?).  Should these be corrected?
       if (trim(micro_mg_warm_rain) == 'tau' .or. trim(micro_mg_warm_rain) == 'emulated') then
-!        call add_hist_coord('bins_ncd', ncd, 'bins for TAU microphysics') !UNCOMMENT WHEN 3D IMPLEMENTED
-!        call history_add_field ('amk_c',   'cloud liquid mass from bins',                 & !UNCOMMENT WHEN 3D IMPLEMENTED
-!                                (/'trop_cld_lev', 'bins_ncd    '/), 'avg', 'kg') !UNCOMMENT WHEN 3D IMPLEMENTED
-!        call history_add_field ('ank_c',   'cloud liquid number concentration from bins', & !UNCOMMENT WHEN 3D IMPLEMENTED
-!                                (/'trop_cld_lev', 'bins_ncd    '/), 'avg', 'kg-1') !UNCOMMENT WHEN 3D IMPLEMENTED
-!        call history_add_field ('amk_r',   'rain mass from bins',                         & !UNCOMMENT WHEN 3D IMPLEMENTED
-!                                (/'trop_cld_lev', 'bins_ncd    '/), 'avg', 'kg') !UNCOMMENT WHEN 3D IMPLEMENTED
-!        call history_add_field ('ank_r',   'rain number concentration from bins',         & !UNCOMMENT WHEN 3D IMPLEMENTED
-!                                (/'trop_cld_lev', 'bins_ncd    '/), 'avg', 'kg-1') !UNCOMMENT WHEN 3D IMPLEMENTED
-!        call history_add_field ('amk',     'all liquid mass from bins',                   & !UNCOMMENT WHEN 3D IMPLEMENTED
-!                                (/'trop_cld_lev', 'bins_ncd    '/), 'avg', 'kg') !UNCOMMENT WHEN 3D IMPLEMENTED
-!        call history_add_field ('ank',     'all liquid number concentration from bins',   & !UNCOMMENT WHEN 3D IMPLEMENTED
-!                                (/'trop_cld_lev', 'bins_ncd    '/), 'avg', 'kg-1') !UNCOMMENT WHEN 3D IMPLEMENTED
-!        call history_add_field ('amk_out', 'all liquid mass from bins',                   & !UNCOMMENT WHEN 3D IMPLEMENTED
-!                                (/'trop_cld_lev', 'bins_ncd    '/), 'avg', 'kg') !UNCOMMENT WHEN 3D IMPLEMENTED
-!        call history_add_field ('ank_out', 'all liquid number concentration from bins',   & !UNCOMMENT WHEN 3D IMPLEMENTED
-!                                (/'trop_cld_lev', 'bins_ncd    '/), 'avg', 'kg-1') !UNCOMMENT WHEN 3D IMPLEMENTED
+         call add_hist_coord('bins_ncd', ncd, 'bins for TAU microphysics')
+         call history_add_field ('amk_c',   'cloud liquid mass from bins',                 &
+                                 (/'trop_cld_lev', 'bins_ncd    '/), 'avg', 'kg', &
+                                 sampled_on_subcycle=.true.)
+         call history_add_field ('ank_c',   'cloud liquid number concentration from bins', &
+                                 (/'trop_cld_lev', 'bins_ncd    '/), 'avg', 'kg-1', &
+                                 sampled_on_subcycle=.true.)
+         call history_add_field ('amk_r',   'rain mass from bins',                         &
+                                 (/'trop_cld_lev', 'bins_ncd    '/), 'avg', 'kg', &
+                                 sampled_on_subcycle=.true.)
+         call history_add_field ('ank_r',   'rain number concentration from bins',         &
+                                 (/'trop_cld_lev', 'bins_ncd    '/), 'avg', 'kg-1', &
+                                 sampled_on_subcycle=.true.)
+         call history_add_field ('amk',     'all liquid mass from bins',                   &
+                                 (/'trop_cld_lev', 'bins_ncd    '/), 'avg', 'kg', &
+                                 sampled_on_subcycle=.true.)
+         call history_add_field ('ank',     'all liquid number concentration from bins',   &
+                                 (/'trop_cld_lev', 'bins_ncd    '/), 'avg', 'kg-1', &
+                                 sampled_on_subcycle=.true.)
+         call history_add_field ('amk_out', 'all liquid mass from bins',                   &
+                                 (/'trop_cld_lev', 'bins_ncd    '/), 'avg', 'kg', &
+                                 sampled_on_subcycle=.true.)
+         call history_add_field ('ank_out', 'all liquid number concentration from bins',   &
+                                 (/'trop_cld_lev', 'bins_ncd    '/), 'avg', 'kg-1', &
+                                 sampled_on_subcycle=.true.)
 
-         call history_add_field ('scale_nc',   'scaling factor for nc',                'trop_cld_lev', 'avg', '1') !subcyc
-         call history_add_field ('scale_nr',   'scaling factor for nr',                'trop_cld_lev', 'avg', '1') !subcyc
-         call history_add_field ('scale_qc',   'scaling factor for qc',                'trop_cld_lev', 'avg', '1') !subcyc
-         call history_add_field ('scale_qr',   'scaling factor for qr',                'trop_cld_lev', 'avg', '1') !subcyc
+         call history_add_field ('scale_nc',   'scaling factor for nc',                'trop_cld_lev', 'avg', '1', &
+                                 sampled_on_subcycle=.true.)
+         call history_add_field ('scale_nr',   'scaling factor for nr',                'trop_cld_lev', 'avg', '1', &
+                                 sampled_on_subcycle=.true.)
+         call history_add_field ('scale_qc',   'scaling factor for qc',                'trop_cld_lev', 'avg', '1', &
+                                 sampled_on_subcycle=.true.)
+         call history_add_field ('scale_qr',   'scaling factor for qr',                'trop_cld_lev', 'avg', '1', &
+                                 sampled_on_subcycle=.true.)
 
-         call history_add_field ('QC_TAU_in',  'qc in TAU',                            'trop_cld_lev', 'avg', 'kg kg-1') !subcyc
-         call history_add_field ('NC_TAU_in',  'nc in TAU',                            'trop_cld_lev', 'avg', 'kg-1') !subcyc
-         call history_add_field ('QR_TAU_in',  'qr in TAU',                            'trop_cld_lev', 'avg', 'kg kg-1') !subcyc
-         call history_add_field ('NR_TAU_in',  'nr in TAU',                            'trop_cld_lev', 'avg', 'kg-1') !subcyc
-         call history_add_field ('QC_TAU_out', 'qc out TAU',                           'trop_cld_lev', 'avg', 'kg kg-1') !subcyc
-         call history_add_field ('NC_TAU_out', 'nc out TAU',                           'trop_cld_lev', 'avg', 'kg-1') !subcyc
-         call history_add_field ('QR_TAU_out', 'qr out TAU',                           'trop_cld_lev', 'avg', 'kg kg-1') !subcyc
-         call history_add_field ('NR_TAU_out', 'nr out TAU',                           'trop_cld_lev', 'avg', 'kg-1') !subcyc
+         call history_add_field ('QC_TAU_in',  'qc in TAU',                            'trop_cld_lev', 'avg', 'kg kg-1', &
+                                 sampled_on_subcycle=.true.)
+         call history_add_field ('NC_TAU_in',  'nc in TAU',                            'trop_cld_lev', 'avg', 'kg-1', &
+                                 sampled_on_subcycle=.true.)
+         call history_add_field ('QR_TAU_in',  'qr in TAU',                            'trop_cld_lev', 'avg', 'kg kg-1', &
+                                 sampled_on_subcycle=.true.)
+         call history_add_field ('NR_TAU_in',  'nr in TAU',                            'trop_cld_lev', 'avg', 'kg-1', &
+                                 sampled_on_subcycle=.true.)
+         call history_add_field ('QC_TAU_out', 'qc out TAU',                           'trop_cld_lev', 'avg', 'kg kg-1', &
+                                 sampled_on_subcycle=.true.)
+         call history_add_field ('NC_TAU_out', 'nc out TAU',                           'trop_cld_lev', 'avg', 'kg-1', &
+                                 sampled_on_subcycle=.true.)
+         call history_add_field ('QR_TAU_out', 'qr out TAU',                           'trop_cld_lev', 'avg', 'kg kg-1', &
+                                 sampled_on_subcycle=.true.)
+         call history_add_field ('NR_TAU_out', 'nr out TAU',                           'trop_cld_lev', 'avg', 'kg-1', &
+                                 sampled_on_subcycle=.true.)
 
-         call history_add_field ('qctend_TAU', 'qc tendency due to TAU bin code',      'trop_cld_lev', 'avg', 'kg kg-1 s-1') !subcyc
-         call history_add_field ('nctend_TAU', 'nc tendency due to TAU bin code',      'trop_cld_lev', 'avg', 'kg-1 s-1') !subcyc
-         call history_add_field ('qrtend_TAU', 'qr tendency due to TAU bin code',      'trop_cld_lev', 'avg', 'kg kg-1 s-1') !subcyc
-         call history_add_field ('nrtend_TAU', 'nr tendency due to TAU bin code',      'trop_cld_lev', 'avg', 'kg-1 s-1') !subcyc
+         call history_add_field ('qctend_TAU', 'qc tendency due to TAU bin code',      'trop_cld_lev', 'avg', 'kg kg-1 s-1', &
+                                 sampled_on_subcycle=.true.)
+         call history_add_field ('nctend_TAU', 'nc tendency due to TAU bin code',      'trop_cld_lev', 'avg', 'kg-1 s-1', &
+                                 sampled_on_subcycle=.true.)
+         call history_add_field ('qrtend_TAU', 'qr tendency due to TAU bin code',      'trop_cld_lev', 'avg', 'kg kg-1 s-1', &
+                                 sampled_on_subcycle=.true.)
+         call history_add_field ('nrtend_TAU', 'nr tendency due to TAU bin code',      'trop_cld_lev', 'avg', 'kg-1 s-1', &
+                                 sampled_on_subcycle=.true.)
 
          call history_add_field ('gmnnn_lmnnn_TAU', &
-            'sum of mass gain and loss from bin code',                                 'trop_cld_lev', 'avg', '1') !subcyc
-         call history_add_field ('ML_fixer',   'frequency that ML fixer is activated', 'trop_cld_lev', 'avg', '1') !subcyc
-         call history_add_field ('qc_fixer',   'delta qc due to ML fixer',             'trop_cld_lev', 'avg', 'kg kg-1') !subcyc
-         call history_add_field ('nc_fixer',   'delta nc due to ML fixer',             'trop_cld_lev', 'avg', 'kg kg-1') !subcyc
-         call history_add_field ('qr_fixer',   'delta qr due to ML fixer',             'trop_cld_lev', 'avg', 'kg kg-1') !subcyc
-         call history_add_field ('nr_fixer',   'delta nr due to ML fixer',             'trop_cld_lev', 'avg', 'kg kg-1') !subcyc
+            'sum of mass gain and loss from bin code',                                 'trop_cld_lev', 'avg', '1', &
+            sampled_on_subcycle=.true.)
+         call history_add_field ('ML_fixer',   'frequency that ML fixer is activated', 'trop_cld_lev', 'avg', '1', &
+                                 sampled_on_subcycle=.true.)
+         call history_add_field ('qc_fixer',   'delta qc due to ML fixer',             'trop_cld_lev', 'avg', 'kg kg-1', &
+                                 sampled_on_subcycle=.true.)
+         call history_add_field ('nc_fixer',   'delta nc due to ML fixer',             'trop_cld_lev', 'avg', 'kg kg-1', &
+                                 sampled_on_subcycle=.true.)
+         call history_add_field ('qr_fixer',   'delta qr due to ML fixer',             'trop_cld_lev', 'avg', 'kg kg-1', &
+                                 sampled_on_subcycle=.true.)
+         call history_add_field ('nr_fixer',   'delta nr due to ML fixer',             'trop_cld_lev', 'avg', 'kg kg-1', &
+                                 sampled_on_subcycle=.true.)
       end if
 
       ! FOR_REVIEWER_FEEDBACK: The units for LAMC, LAMR and N0R are copied from CAM ('unitless'), but these
       !    are size distribution slopes and an intercept, which in SI units would be m-1 (LAMC, LAMR) and
       !    m-4 (N0R).  PUMAS does not document the units.  Should the units be corrected here, or should the
       !    CAM units be kept so that the output matches CAM?
-      call history_add_field ('LAMC', 'Size distribution parameter lambda for liquid',    'trop_cld_lev', 'avg', '1') !subcyc
-      call history_add_field ('LAMR', 'Size distribution parameter lambda for rain',      'trop_cld_lev', 'avg', '1') !subcyc
-      call history_add_field ('PGAM', 'Size distribution parameter mu (pgam) for liquid', 'trop_cld_lev', 'avg', '1') !subcyc
-      call history_add_field ('N0R',  'Size distribution parameter n0 for rain',          'trop_cld_lev', 'avg', '1') !subcyc
+      call history_add_field ('LAMC', 'Size distribution parameter lambda for liquid',    'trop_cld_lev', 'avg', '1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('LAMR', 'Size distribution parameter lambda for rain',      'trop_cld_lev', 'avg', '1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('PGAM', 'Size distribution parameter mu (pgam) for liquid', 'trop_cld_lev', 'avg', '1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('N0R',  'Size distribution parameter n0 for rain',          'trop_cld_lev', 'avg', '1', &
+                              sampled_on_subcycle=.true.)
 
       ! Graupel/hail diagnostics (PUMAS in CAM-SIMA always carries graupel; these rates are
       ! zero if neither graupel nor hail is turned on)
-      call history_add_field ('NMELTG',   'Number Tendency due to Melting of graupel',    'trop_cld_lev','avg','kg-1 s-1')!subcyc
-      call history_add_field ('NGSEDTEN', 'Number Tendency due to graupel sedimentation', 'trop_cld_lev','avg','kg-1 s-1')!subcyc
+      call history_add_field ('NMELTG',   'Number Tendency due to Melting of graupel',    'trop_cld_lev', 'avg', 'kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('NGSEDTEN', 'Number Tendency due to graupel sedimentation', 'trop_cld_lev', 'avg', 'kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
       call history_add_field ('PSACRO', &
-            'Collisions between rain & snow (Graupel collecting snow)',                   'lev',         'avg','kg kg-1 s-1')!subcyc
-      call history_add_field ('PRACGO',   'Change in q collection rain by graupel',       'lev',         'avg','kg kg-1 s-1')!subcyc
-      call history_add_field ('PSACWGO',  'Change in q collection droplets by graupel',   'lev',         'avg','kg kg-1 s-1')!subcyc
+            'Collisions between rain & snow (Graupel collecting snow)',                   'lev',          'avg', 'kg kg-1 s-1', &
+            sampled_on_subcycle=.true.)
+      call history_add_field ('PRACGO',   'Change in q collection rain by graupel',       'lev',          'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('PSACWGO',  'Change in q collection droplets by graupel',   'lev',          'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
       call history_add_field ('PGSACWO', &
-            'Q conversion to graupel due to collection droplets by snow',                 'lev',         'avg','kg kg-1 s-1')!subcyc
+            'Q conversion to graupel due to collection droplets by snow',                 'lev',          'avg', 'kg kg-1 s-1', &
+            sampled_on_subcycle=.true.)
       call history_add_field ('PGRACSO', &
-            'Q conversion to graupel due to collection rain by snow',                     'lev',         'avg','kg kg-1 s-1')!subcyc
+            'Q conversion to graupel due to collection rain by snow',                     'lev',          'avg', 'kg kg-1 s-1', &
+            sampled_on_subcycle=.true.)
 
-      call history_add_field ('PRDGO',    'Deposition of graupel',                        'lev',         'avg','kg kg-1 s-1')!subcyc
-      call history_add_field ('QMULTGO',  'Q change due to ice mult droplets/graupel',    'lev',         'avg','kg kg-1 s-1')!subcyc
-      call history_add_field ('QMULTRGO', 'Q change due to ice mult rain/graupel',        'lev',         'avg','kg kg-1 s-1')!subcyc
+      call history_add_field ('PRDGO',    'Deposition of graupel',                        'lev',          'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('QMULTGO',  'Q change due to ice mult droplets/graupel',    'lev',          'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('QMULTRGO', 'Q change due to ice mult rain/graupel',        'lev',          'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
       call history_add_field ('QGSEDTEN', &
-            'Graupel/Hail mixing ratio tendency from sedimentation',                      'trop_cld_lev','avg','kg kg-1 s-1')!subcyc
-      call history_add_field ('NPRACGO',  'Change N collection rain by graupel',          'lev',         'avg','kg-1 s-1')!subcyc
+            'Graupel/Hail mixing ratio tendency from sedimentation',                      'trop_cld_lev', 'avg', 'kg kg-1 s-1', &
+            sampled_on_subcycle=.true.)
+      call history_add_field ('NPRACGO',  'Change N collection rain by graupel',          'lev',          'avg', 'kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
       call history_add_field ('NSCNGO', &
-            'Change N conversion to graupel due to collection droplets by snow',          'lev',         'avg','kg-1 s-1')!subcyc
+            'Change N conversion to graupel due to collection droplets by snow',          'lev',          'avg', 'kg-1 s-1', &
+            sampled_on_subcycle=.true.)
       call history_add_field ('NGRACSO', &
-            'Change N conversion to graupel due to collection rain by snow',              'lev',         'avg','kg-1 s-1')!subcyc
-      call history_add_field ('NMULTGO',  'Ice mult due to acc droplets by graupel',      'lev',         'avg','kg-1 s-1')!subcyc
-      call history_add_field ('NMULTRGO', 'Ice mult due to acc rain by graupel',          'lev',         'avg','kg-1 s-1')!subcyc
-      call history_add_field ('NPSACWGO', 'Change N collection droplets by graupel',      'lev',         'avg','kg-1 s-1')!subcyc
-      call history_add_field ('CLDFGRAU', 'Cloud fraction adjusted for graupel',          'lev',         'avg','1')!subcyc
-      call history_add_field ('MELTGTOT', 'Melting of graupel',                           'trop_cld_lev','avg','kg kg-1 s-1')!subcyc
+            'Change N conversion to graupel due to collection rain by snow',              'lev',          'avg', 'kg-1 s-1', &
+            sampled_on_subcycle=.true.)
+      call history_add_field ('NMULTGO',  'Ice mult due to acc droplets by graupel',      'lev',          'avg', 'kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('NMULTRGO', 'Ice mult due to acc rain by graupel',          'lev',          'avg', 'kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('NPSACWGO', 'Change N collection droplets by graupel',      'lev',          'avg', 'kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('CLDFGRAU', 'Cloud fraction adjusted for graupel',          'lev',          'avg', '1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('MELTGTOT', 'Melting of graupel',                           'trop_cld_lev', 'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
 
 
-      call history_add_field ('RBFRAC',  'Fraction of sky covered by a potential rainbow',     horiz_only,'avg','fraction') !subcyc
-      call history_add_field ('RBFREQ',  'Potential rainbow frequency',                        horiz_only,'avg','1') !subcyc
-      call history_add_field( 'rbSZA',   'solar zenith angle',                                 horiz_only,'inst','degrees') !subcyc
+      call history_add_field ('RBFRAC',  'Fraction of sky covered by a potential rainbow',     horiz_only, 'avg', 'fraction', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('RBFREQ',  'Potential rainbow frequency',                        horiz_only, 'avg', '1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field( 'rbSZA',   'solar zenith angle',                                 horiz_only, 'inst', 'degrees', &
+                              sampled_on_subcycle=.true.)
 
       ! History variables for CAM5 microphysics
-      call history_add_field ('MPDT',    'Heating tendency - Morrison microphysics',           'lev', 'avg', 'W kg-1') !subcyc
-      call history_add_field ('MPDQ',    'Q tendency - Morrison microphysics',                 'lev', 'avg', 'kg kg-1 s-1') !subcyc
-      call history_add_field ('MPDLIQ',  'CLDLIQ tendency - Morrison microphysics',            'lev', 'avg', 'kg kg-1 s-1') !subcyc
-      call history_add_field ('MPDICE',  'CLDICE tendency - Morrison microphysics',            'lev', 'avg', 'kg kg-1 s-1') !subcyc
-      call history_add_field ('MPDNLIQ', 'NUMLIQ tendency - Morrison microphysics',            'lev', 'avg', 'kg-1 s-1') !subcyc
-      call history_add_field ('MPDNICE', 'NUMICE tendency - Morrison microphysics',            'lev', 'avg', 'kg-1 s-1') !subcyc
-      call history_add_field ('MPDW2V',  'Water <--> Vapor tendency - Morrison microphysics',  'lev', 'avg', 'kg kg-1 s-1') !subcyc
-      call history_add_field ('MPDW2I',  'Water <--> Ice tendency - Morrison microphysics',    'lev', 'avg', 'kg kg-1 s-1') !subcyc
-      call history_add_field ('MPDW2P',  'Water <--> Precip tendency - Morrison microphysics', 'lev', 'avg', 'kg kg-1 s-1') !subcyc
-      call history_add_field ('MPDI2V',  'Ice <--> Vapor tendency - Morrison microphysics',    'lev', 'avg', 'kg kg-1 s-1') !subcyc
-      call history_add_field ('MPDI2W',  'Ice <--> Water tendency - Morrison microphysics',    'lev', 'avg', 'kg kg-1 s-1') !subcyc
-      call history_add_field ('MPDI2P',  'Ice <--> Precip tendency - Morrison microphysics',   'lev', 'avg', 'kg kg-1 s-1') !subcyc
-      call history_add_field ('ICWNC',   'Prognostic in-cloud water number conc',              'lev', 'avg', 'm-3') !subcyc
-      call history_add_field ('ICINC',   'Prognostic in-cloud ice number conc',                'lev', 'avg', 'm-3') !subcyc
+      call history_add_field ('MPDT',    'Heating tendency - Morrison microphysics',           'lev', 'avg', 'W kg-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('MPDQ',    'Q tendency - Morrison microphysics',                 'lev', 'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('MPDLIQ',  'CLDLIQ tendency - Morrison microphysics',            'lev', 'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('MPDICE',  'CLDICE tendency - Morrison microphysics',            'lev', 'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('MPDNLIQ', 'NUMLIQ tendency - Morrison microphysics',            'lev', 'avg', 'kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('MPDNICE', 'NUMICE tendency - Morrison microphysics',            'lev', 'avg', 'kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('MPDW2V',  'Water <--> Vapor tendency - Morrison microphysics',  'lev', 'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('MPDW2I',  'Water <--> Ice tendency - Morrison microphysics',    'lev', 'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('MPDW2P',  'Water <--> Precip tendency - Morrison microphysics', 'lev', 'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('MPDI2V',  'Ice <--> Vapor tendency - Morrison microphysics',    'lev', 'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('MPDI2W',  'Ice <--> Water tendency - Morrison microphysics',    'lev', 'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('MPDI2P',  'Ice <--> Precip tendency - Morrison microphysics',   'lev', 'avg', 'kg kg-1 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('ICWNC',   'Prognostic in-cloud water number conc',              'lev', 'avg', 'm-3', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('ICINC',   'Prognostic in-cloud ice number conc',                'lev', 'avg', 'm-3', &
+                              sampled_on_subcycle=.true.)
 
-      call history_add_field ('EFFLIQ_IND', 'Prognostic droplet effective radius (indirect effect)', 'lev', 'avg', 'um') !subcyc
+      call history_add_field ('EFFLIQ_IND', 'Prognostic droplet effective radius (indirect effect)', 'lev', 'avg', 'um', &
+                              sampled_on_subcycle=.true.)
 
-      call history_add_field ('CDNUMC', 'Vertically-integrated droplet concentration', horiz_only, 'avg', 'm-2') !subcyc
+      call history_add_field ('CDNUMC', 'Vertically-integrated droplet concentration', horiz_only, 'avg', 'm-2', &
+                              sampled_on_subcycle=.true.)
       call history_add_field ('MPICLWPI', &
-            'Vertically-integrated in-cloud Initial Liquid WP (Before Micro)',         horiz_only, 'avg', 'kg m-2') !subcyc
+            'Vertically-integrated in-cloud Initial Liquid WP (Before Micro)',         horiz_only, 'avg', 'kg m-2', &
+            sampled_on_subcycle=.true.)
       call history_add_field ('MPICIWPI', &
-            'Vertically-integrated in-cloud Initial Ice WP (Before Micro)',            horiz_only, 'avg', 'kg m-2') !subcyc
+            'Vertically-integrated in-cloud Initial Ice WP (Before Micro)',            horiz_only, 'avg', 'kg m-2', &
+            sampled_on_subcycle=.true.)
 
 
       ! This is only if the coldpoint temperatures are being adjusted.
       ! NOTE: Some fields related to these and output later are added in tropopause.F90.
       ! (bug fix: CAM had units of 'K' and 'Hunidity' for TROPF_RHADJ, which is in percent)
       if (micro_mg_adjust_cpt) then
-        call history_add_field ('TROPF_TADJ', 'Temperatures after cold point adjustment',      'lev',        'avg', 'K') !subcyc
-        call history_add_field ('TROPF_RHADJ','Relative Humidity after cold point adjustment', 'lev',        'avg', 'percent') !subcyc
-        call history_add_field ('TROPF_CDT',  'Cold point temperature adjustment',              horiz_only,  'avg', 'K') !subcyc
-        call history_add_field ('TROPF_CDZ',  'Distance of coldpoint from coldest model level', horiz_only,  'avg', 'm') !subcyc
+        call history_add_field ('TROPF_TADJ', 'Temperatures after cold point adjustment',      'lev',      'avg', 'K', &
+                                sampled_on_subcycle=.true.)
+        call history_add_field ('TROPF_RHADJ','Relative Humidity after cold point adjustment', 'lev',      'avg', 'percent', &
+                                sampled_on_subcycle=.true.)
+        call history_add_field ('TROPF_CDT',  'Cold point temperature adjustment',              horiz_only, 'avg', 'K', &
+                                sampled_on_subcycle=.true.)
+        call history_add_field ('TROPF_CDZ',  'Distance of coldpoint from coldest model level', horiz_only, 'avg', 'm', &
+                                sampled_on_subcycle=.true.)
       end if
 
 
       ! Averaging for cloud particle number and size
-      call history_add_field ('AWNC',   'Average cloud water number conc',             'lev', 'avg', 'm-3') !subcyc
-      call history_add_field ('AWNI',   'Average cloud ice number conc',               'lev', 'avg', 'm-3') !subcyc
-      call history_add_field ('AREL',   'Average droplet effective radius',            'lev', 'avg', 'um') !subcyc
-      call history_add_field ('AREI',   'Average ice effective radius',                'lev', 'avg', 'um') !subcyc
+      call history_add_field ('AWNC',   'Average cloud water number conc',             'lev', 'avg', 'm-3', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('AWNI',   'Average cloud ice number conc',               'lev', 'avg', 'm-3', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('AREL',   'Average droplet effective radius',            'lev', 'avg', 'um', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('AREI',   'Average ice effective radius',                'lev', 'avg', 'um', &
+                              sampled_on_subcycle=.true.)
       ! Frequency arrays for above
-      call history_add_field ('FREQL',  'Fractional occurrence of liquid',             'lev', 'avg', 'fraction') !subcyc
-      call history_add_field ('FREQI',  'Fractional occurrence of ice',                'lev', 'avg', 'fraction') !subcyc
+      call history_add_field ('FREQL',  'Fractional occurrence of liquid',             'lev', 'avg', 'fraction', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('FREQI',  'Fractional occurrence of ice',                'lev', 'avg', 'fraction', &
+                              sampled_on_subcycle=.true.)
 
 
       ! Average cloud top particle size and number (liq, ice) and frequency
-      call history_add_field ('ACTREL', 'Average Cloud Top droplet effective radius',  horiz_only, 'avg', 'um') !subcyc
-      call history_add_field ('ACTREI', 'Average Cloud Top ice effective radius',      horiz_only, 'avg', 'um') !subcyc
-      call history_add_field ('ACTNL',  'Average Cloud Top droplet number',            horiz_only, 'avg', 'm-3') !subcyc
-      call history_add_field ('ACTNI',  'Average Cloud Top ice number',                horiz_only, 'avg', 'm-3') !subcyc
+      call history_add_field ('ACTREL', 'Average Cloud Top droplet effective radius',  horiz_only, 'avg', 'um', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('ACTREI', 'Average Cloud Top ice effective radius',      horiz_only, 'avg', 'um', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('ACTNL',  'Average Cloud Top droplet number',            horiz_only, 'avg', 'm-3', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('ACTNI',  'Average Cloud Top ice number',                horiz_only, 'avg', 'm-3', &
+                              sampled_on_subcycle=.true.)
 
-      call history_add_field ('FCTL',   'Fractional occurrence of cloud top liquid',   horiz_only, 'avg', 'fraction') !subcyc
-      call history_add_field ('FCTI',   'Fractional occurrence of cloud top ice',      horiz_only, 'avg', 'fraction') !subcyc
+      call history_add_field ('FCTL',   'Fractional occurrence of cloud top liquid',   horiz_only, 'avg', 'fraction', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('FCTI',   'Fractional occurrence of cloud top ice',      horiz_only, 'avg', 'fraction', &
+                              sampled_on_subcycle=.true.)
 
       ! New frequency arrays for mixed phase and supercooled liquid (only and mixed) for (a) Cloud Top and (b) everywhere..
-      call history_add_field ('FREQM',   'Fractional occurrence of mixed phase',                  'lev', 'avg', 'fraction') !subcyc
-      call history_add_field ('FREQSL',  'Fractional occurrence of only supercooled liquid',      'lev', 'avg', 'fraction') !subcyc
-      call history_add_field ('FREQSLM', 'Fractional occurrence of super cooled liquid with ice', 'lev', 'avg', 'fraction') !subcyc
+      call history_add_field ('FREQM',   'Fractional occurrence of mixed phase',                  'lev', 'avg', 'fraction', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('FREQSL',  'Fractional occurrence of only supercooled liquid',      'lev', 'avg', 'fraction', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('FREQSLM', 'Fractional occurrence of super cooled liquid with ice', 'lev', 'avg', 'fraction', &
+                              sampled_on_subcycle=.true.)
 
-      call history_add_field ('FCTM',        'Fractional occurrence of cloud top mixed phase',  horiz_only,'avg','fraction') !subcyc
+      call history_add_field ('FCTM',        'Fractional occurrence of cloud top mixed phase',  horiz_only, 'avg', 'fraction', &
+                              sampled_on_subcycle=.true.)
       call history_add_field ('FCTSL', &
-            'Fractional occurrence of cloud top only supercooled liquid',                       horiz_only,'avg','fraction') !subcyc
+            'Fractional occurrence of cloud top only supercooled liquid',                       horiz_only, 'avg', 'fraction', &
+            sampled_on_subcycle=.true.)
       call history_add_field ('FCTSLM', &
-            'Fractional occurrence of cloud top super cooled liquid with ice',                  horiz_only,'avg','fraction') !subcyc
+            'Fractional occurrence of cloud top super cooled liquid with ice',                  horiz_only, 'avg', 'fraction', &
+            sampled_on_subcycle=.true.)
 
-      call history_add_field ('LS_FLXPRC',   'ls stratiform gbm interface rain+snow flux',      'ilev', 'avg', 'kg m-2 s-1') !subcyc
-      call history_add_field ('LS_FLXSNW',   'ls stratiform gbm interface snow flux',           'ilev', 'avg', 'kg m-2 s-1') !subcyc
+      call history_add_field ('LS_FLXPRC',   'ls stratiform gbm interface rain+snow flux',      'ilev', 'avg', 'kg m-2 s-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('LS_FLXSNW',   'ls stratiform gbm interface snow flux',           'ilev', 'avg', 'kg m-2 s-1', &
+                              sampled_on_subcycle=.true.)
 
-      call history_add_field ('REL',         'MG REL stratiform cloud effective radius liquid', 'lev', 'avg', 'um') !subcyc
-      call history_add_field ('REI',         'MG REI stratiform cloud effective radius ice',    'lev', 'avg', 'um') !subcyc
-      call history_add_field ('LS_REFFRAIN', 'ls stratiform rain effective radius',             'lev', 'avg', 'um') !subcyc
-      call history_add_field ('LS_REFFSNOW', 'ls stratiform snow effective radius',             'lev', 'avg', 'um') !subcyc
-      call history_add_field ('CV_REFFLIQ',  'convective cloud liq effective radius',           'lev', 'avg', 'um') !subcyc
-      call history_add_field ('CV_REFFICE',  'convective cloud ice effective radius',           'lev', 'avg', 'um') !subcyc
-      call history_add_field ('MG_SADICE',   'MG surface area density ice',                     'lev', 'avg', 'cm2 cm-3') !subcyc
-      call history_add_field ('MG_SADSNOW',  'MG surface area density snow',                    'lev', 'avg', 'cm2 cm-3') !subcyc
+      call history_add_field ('REL',         'MG REL stratiform cloud effective radius liquid', 'lev', 'avg', 'um', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('REI',         'MG REI stratiform cloud effective radius ice',    'lev', 'avg', 'um', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('LS_REFFRAIN', 'ls stratiform rain effective radius',             'lev', 'avg', 'um', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('LS_REFFSNOW', 'ls stratiform snow effective radius',             'lev', 'avg', 'um', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('CV_REFFLIQ',  'convective cloud liq effective radius',           'lev', 'avg', 'um', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('CV_REFFICE',  'convective cloud ice effective radius',           'lev', 'avg', 'um', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('MG_SADICE',   'MG surface area density ice',                     'lev', 'avg', 'cm2 cm-3', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('MG_SADSNOW',  'MG surface area density snow',                    'lev', 'avg', 'cm2 cm-3', &
+                              sampled_on_subcycle=.true.)
 
       ! diagnostic precip
-      call history_add_field ('QRAIN',       'Diagnostic grid-mean rain mixing ratio',          'lev', 'avg', 'kg kg-1') !subcyc
-      call history_add_field ('QSNOW',       'Diagnostic grid-mean snow mixing ratio',          'lev', 'avg', 'kg kg-1') !subcyc
-      call history_add_field ('NRAIN',       'Diagnostic grid-mean rain number conc',           'lev', 'avg', 'm-3') !subcyc
-      call history_add_field ('NSNOW',       'Diagnostic grid-mean snow number conc',           'lev', 'avg', 'm-3') !subcyc
+      call history_add_field ('QRAIN',       'Diagnostic grid-mean rain mixing ratio',          'lev', 'avg', 'kg kg-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('QSNOW',       'Diagnostic grid-mean snow mixing ratio',          'lev', 'avg', 'kg kg-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('NRAIN',       'Diagnostic grid-mean rain number conc',           'lev', 'avg', 'm-3', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('NSNOW',       'Diagnostic grid-mean snow number conc',           'lev', 'avg', 'm-3', &
+                              sampled_on_subcycle=.true.)
 
       ! size of precip
       ! FOR_REVIEWER_FEEDBACK: PUMAS computes rercld in meters (calc_rercld in micro_pumas_v1.F90), and the
@@ -461,66 +636,101 @@ CONTAINS
       !    micro_pumas_diagnostics.meta uses 'um' to match, so that the CCPP framework does not apply a
       !    unit conversion.  Should the units be fixed to 'm' in the PUMAS and dimensions_post metadata
       !    (and then here)?
-      call history_add_field ('RERCLD',    'Diagnostic effective radius of Liquid Cloud and Rain',    'lev', 'avg', 'm') !subcyc
+      call history_add_field ('RERCLD',    'Diagnostic effective radius of Liquid Cloud and Rain',    'lev', 'avg', 'm', &
+                              sampled_on_subcycle=.true.)
       ! FOR_REVIEWER_FEEDBACK: The DSNOW units are copied from CAM ('m'), but the values are in microns
       !    (CAM multiplied des by 1.e6 before output, and pumas_post_main does the same).  Should the units
       !    be corrected to 'um', or should the CAM units be kept so that the output matches CAM?
-      call history_add_field ('DSNOW',     'Diagnostic grid-mean snow diameter',                      'lev', 'avg', 'm') !subcyc
+      call history_add_field ('DSNOW',     'Diagnostic grid-mean snow diameter',                      'lev', 'avg', 'm', &
+                              sampled_on_subcycle=.true.)
 
       ! diagnostic radar reflectivity, cloud-averaged
-      call history_add_field ('REFL',      '94 GHz radar reflectivity',                               'lev','avg','dBZ')!subcyc
-      call history_add_field ('AREFL',     'Average 94 GHz radar reflectivity',                       'lev','avg','dBZ')!subcyc
-      call history_add_field ('FREFL',     'Fractional occurrence of radar reflectivity',             'lev','avg','fraction')!subcyc
+      call history_add_field ('REFL',      '94 GHz radar reflectivity',                               'lev', 'avg', 'dBZ', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('AREFL',     'Average 94 GHz radar reflectivity',                       'lev', 'avg', 'dBZ', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('FREFL',     'Fractional occurrence of radar reflectivity',             'lev', 'avg', 'fraction', &
+                              sampled_on_subcycle=.true.)
 
-      call history_add_field ('CSRFL',     '94 GHz radar reflectivity (CloudSat thresholds)',         'lev', 'avg', 'dBZ') !subcyc
-      call history_add_field ('ACSRFL',    'Average 94 GHz radar reflectivity (CloudSat thresholds)', 'lev', 'avg', 'dBZ') !subcyc
+      call history_add_field ('CSRFL',     '94 GHz radar reflectivity (CloudSat thresholds)',         'lev', 'avg', 'dBZ', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('ACSRFL',    'Average 94 GHz radar reflectivity (CloudSat thresholds)', 'lev', 'avg', 'dBZ', &
+                              sampled_on_subcycle=.true.)
 
       call history_add_field ('FCSRFL', &
-            'Fractional occurrence of radar reflectivity (CloudSat thresholds)',                      'lev','avg','fraction')!subcyc
+            'Fractional occurrence of radar reflectivity (CloudSat thresholds)',                      'lev', 'avg', 'fraction', &
+            sampled_on_subcycle=.true.)
 
-      call history_add_field ('AREFLZ',    'Average 94 GHz radar reflectivity',                       'lev','avg','mm6 m-3') !subcyc
+      call history_add_field ('AREFLZ',    'Average 94 GHz radar reflectivity',                       'lev', 'avg', 'mm6 m-3', &
+                              sampled_on_subcycle=.true.)
 
       ! 10cm (rain) radar reflectivity
-      call history_add_field ('REFL10CM',  '10cm (Rain) radar reflectivity (Dbz)',                    'lev','avg','dBZ') !subcyc
-      call history_add_field ('REFLZ10CM', '10cm (Rain) radar reflectivity (Z units)',                'lev','avg','mm6 m-3') !subcyc
+      call history_add_field ('REFL10CM',  '10cm (Rain) radar reflectivity (Dbz)',                    'lev', 'avg', 'dBZ', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('REFLZ10CM', '10cm (Rain) radar reflectivity (Z units)',                'lev', 'avg', 'mm6 m-3', &
+                              sampled_on_subcycle=.true.)
 
       ! Aerosol information
-      call history_add_field ('NCAL',      'Number Concentation Activated for Liquid',                'lev', 'avg', 'm-3') !subcyc
-      call history_add_field ('NCAI',      'Number Concentation Activated for Ice',                   'lev', 'avg', 'm-3') !subcyc
+      call history_add_field ('NCAL',      'Number Concentation Activated for Liquid',                'lev', 'avg', 'm-3', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('NCAI',      'Number Concentation Activated for Ice',                   'lev', 'avg', 'm-3', &
+                              sampled_on_subcycle=.true.)
 
       ! Average rain and snow mixing ratio (Q), number (N) and diameter (D), with frequency
-      call history_add_field ('AQRAIN',    'Average rain mixing ratio',                               'lev','avg','kg kg-1')!subcyc
-      call history_add_field ('AQSNOW',    'Average snow mixing ratio',                               'lev','avg','kg kg-1')!subcyc
-      call history_add_field ('ANRAIN',    'Average rain number conc',                                'lev','avg','m-3')!subcyc
-      call history_add_field ('ANSNOW',    'Average snow number conc',                                'lev','avg','m-3')!subcyc
-      call history_add_field ('ADRAIN',    'Average rain effective Diameter',                         'lev','avg','m')!subcyc
-      call history_add_field ('ADSNOW',    'Average snow effective Diameter',                         'lev','avg','m')!subcyc
-      call history_add_field ('FREQR',     'Fractional occurrence of rain',                           'lev','avg','fraction')!subcyc
-      call history_add_field ('FREQS',     'Fractional occurrence of snow',                           'lev','avg','fraction')!subcyc
+      call history_add_field ('AQRAIN',    'Average rain mixing ratio',                               'lev', 'avg', 'kg kg-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('AQSNOW',    'Average snow mixing ratio',                               'lev', 'avg', 'kg kg-1', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('ANRAIN',    'Average rain number conc',                                'lev', 'avg', 'm-3', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('ANSNOW',    'Average snow number conc',                                'lev', 'avg', 'm-3', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('ADRAIN',    'Average rain effective Diameter',                         'lev', 'avg', 'm', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('ADSNOW',    'Average snow effective Diameter',                         'lev', 'avg', 'm', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('FREQR',     'Fractional occurrence of rain',                           'lev', 'avg', 'fraction', &
+                              sampled_on_subcycle=.true.)
+      call history_add_field ('FREQS',     'Fractional occurrence of snow',                           'lev', 'avg', 'fraction', &
+                              sampled_on_subcycle=.true.)
 
       ! precipitation efficiency & other diagnostic fields
-      call history_add_field('PE'    , 'Stratiform Precipitation Efficiency  (precip/cmeliq)', horiz_only, 'avg', '1') !subcyc
+      call history_add_field('PE'    , 'Stratiform Precipitation Efficiency  (precip/cmeliq)', horiz_only, 'avg', '1', &
+                             sampled_on_subcycle=.true.)
       call history_add_field('APRL'  , &
-            'Average Stratiform Precip Rate over efficiency calculation',                      horiz_only, 'avg', 'm s-1') !subcyc
+            'Average Stratiform Precip Rate over efficiency calculation',                      horiz_only, 'avg', 'm s-1', &
+            sampled_on_subcycle=.true.)
 
-      call history_add_field('PEFRAC', 'Fraction of timesteps precip efficiency reported',     horiz_only, 'avg', '1') !subcyc
+      call history_add_field('PEFRAC', 'Fraction of timesteps precip efficiency reported',     horiz_only, 'avg', '1', &
+                             sampled_on_subcycle=.true.)
 
-      call history_add_field('VPRCO' , 'Vertical average of autoconversion rate',             horiz_only,'avg','kg kg-1 s-1')!subcyc
-      call history_add_field('VPRAO' , 'Vertical average of accretion rate',                  horiz_only,'avg','kg kg-1 s-1')!subcyc
-      call history_add_field('RACAU', 'Accretion/autoconversion ratio from vertical average', horiz_only,'avg','kg kg-1 s-1')!subcyc
+      call history_add_field('VPRCO' , 'Vertical average of autoconversion rate',             horiz_only, 'avg', 'kg kg-1 s-1', &
+                             sampled_on_subcycle=.true.)
+      call history_add_field('VPRAO' , 'Vertical average of accretion rate',                  horiz_only, 'avg', 'kg kg-1 s-1', &
+                             sampled_on_subcycle=.true.)
+      call history_add_field('RACAU', 'Accretion/autoconversion ratio from vertical average', horiz_only, 'avg', 'kg kg-1 s-1', &
+                             sampled_on_subcycle=.true.)
 
-      call history_add_field('UMR', 'Mass-weighted rain  fallspeed',                          'trop_cld_lev','avg','m s-1') !subcyc
-      call history_add_field('UMS', 'Mass-weighted snow fallspeed',                           'trop_cld_lev','avg','m s-1') !subcyc
+      call history_add_field('UMR', 'Mass-weighted rain  fallspeed',                          'trop_cld_lev', 'avg', 'm s-1', &
+                             sampled_on_subcycle=.true.)
+      call history_add_field('UMS', 'Mass-weighted snow fallspeed',                           'trop_cld_lev', 'avg', 'm s-1', &
+                             sampled_on_subcycle=.true.)
 
-      call history_add_field('UMG',         'Mass-weighted graupel/hail  fallspeed',       'trop_cld_lev','avg','m s-1') !subcyc
-      call history_add_field('FREQG',       'Fractional occurrence of Graupel',            'lev',         'avg','fraction') !subcyc
-      call history_add_field('LS_REFFGRAU', 'ls stratiform graupel/hail effective radius', 'lev',         'avg','um') !subcyc
-      call history_add_field('AQGRAU',      'Average graupel/hail mixing ratio',           'lev',         'avg','kg kg-1') !subcyc
-      call history_add_field('ANGRAU',      'Average graupel/hail number conc',            'lev',         'avg','m-3') !subcyc
+      call history_add_field('UMG',         'Mass-weighted graupel/hail  fallspeed',       'trop_cld_lev', 'avg', 'm s-1', &
+                             sampled_on_subcycle=.true.)
+      call history_add_field('FREQG',       'Fractional occurrence of Graupel',            'lev',          'avg', 'fraction', &
+                             sampled_on_subcycle=.true.)
+      call history_add_field('LS_REFFGRAU', 'ls stratiform graupel/hail effective radius', 'lev',          'avg', 'um', &
+                             sampled_on_subcycle=.true.)
+      call history_add_field('AQGRAU',      'Average graupel/hail mixing ratio',           'lev',          'avg', 'kg kg-1', &
+                             sampled_on_subcycle=.true.)
+      call history_add_field('ANGRAU',      'Average graupel/hail number conc',            'lev',          'avg', 'm-3', &
+                             sampled_on_subcycle=.true.)
 
 
       ! qc limiter (only output in versions 1.5 and later)
-      call history_add_field('QCRAT',       'Qc Limiter: Fraction of qc tendency applied', 'lev', 'avg', 'fraction') !subcyc
+      call history_add_field('QCRAT',       'Qc Limiter: Fraction of qc tendency applied', 'lev', 'avg', 'fraction', &
+                             sampled_on_subcycle=.true.)
 
    end subroutine micro_pumas_diagnostics_init
 
@@ -1350,20 +1560,19 @@ CONTAINS
       call out_pumas_lev_field('MPDI2P', ftem, top_lev, work)
 
       ! TAU / emulated stochastic collection (machine learning) warm rain diagnostics
-      ! (the binned fields need a 3-D version of out_pumas_trop_cld_field)
       if (trim(micro_mg_warm_rain) == 'tau' .or. trim(micro_mg_warm_rain) == 'emulated') then
          call out_pumas_trop_cld_field('scale_qc',        proc_rates%scale_qc,        ncol)
          call out_pumas_trop_cld_field('scale_nc',        proc_rates%scale_nc,        ncol)
          call out_pumas_trop_cld_field('scale_qr',        proc_rates%scale_qr,        ncol)
          call out_pumas_trop_cld_field('scale_nr',        proc_rates%scale_nr,        ncol)
-!        call out_pumas_trop_cld_field('amk_c',           proc_rates%amk_c,           ncol) !UNCOMMENT WHEN 3D IMPLEMENTED
-!        call out_pumas_trop_cld_field('ank_c',           proc_rates%ank_c,           ncol) !UNCOMMENT WHEN 3D IMPLEMENTED
-!        call out_pumas_trop_cld_field('amk_r',           proc_rates%amk_r,           ncol) !UNCOMMENT WHEN 3D IMPLEMENTED
-!        call out_pumas_trop_cld_field('ank_r',           proc_rates%ank_r,           ncol) !UNCOMMENT WHEN 3D IMPLEMENTED
-!        call out_pumas_trop_cld_field('amk',             proc_rates%amk,             ncol) !UNCOMMENT WHEN 3D IMPLEMENTED
-!        call out_pumas_trop_cld_field('ank',             proc_rates%ank,             ncol) !UNCOMMENT WHEN 3D IMPLEMENTED
-!        call out_pumas_trop_cld_field('amk_out',         proc_rates%amk_out,         ncol) !UNCOMMENT WHEN 3D IMPLEMENTED
-!        call out_pumas_trop_cld_field('ank_out',         proc_rates%ank_out,         ncol) !UNCOMMENT WHEN 3D IMPLEMENTED
+         call out_pumas_trop_cld_field('amk_c',           proc_rates%amk_c,           ncol)
+         call out_pumas_trop_cld_field('ank_c',           proc_rates%ank_c,           ncol)
+         call out_pumas_trop_cld_field('amk_r',           proc_rates%amk_r,           ncol)
+         call out_pumas_trop_cld_field('ank_r',           proc_rates%ank_r,           ncol)
+         call out_pumas_trop_cld_field('amk',             proc_rates%amk,             ncol)
+         call out_pumas_trop_cld_field('ank',             proc_rates%ank,             ncol)
+         call out_pumas_trop_cld_field('amk_out',         proc_rates%amk_out,         ncol)
+         call out_pumas_trop_cld_field('ank_out',         proc_rates%ank_out,         ncol)
          call out_pumas_trop_cld_field('QC_TAU_out',      proc_rates%qc_out_TAU,      ncol)
          call out_pumas_trop_cld_field('NC_TAU_out',      proc_rates%nc_out_TAU,      ncol)
          call out_pumas_trop_cld_field('QR_TAU_out',      proc_rates%qr_out_TAU,      ncol)
@@ -1630,7 +1839,7 @@ CONTAINS
 
    ! Output a field which is on the PUMAS vertical levels (top_lev:pver) on the
    ! 'trop_cld_lev' history coordinate
-   subroutine out_pumas_trop_cld_field(fname, field, ncol)
+   subroutine out_pumas_trop_cld_field_2d(fname, field, ncol)
 
       use cam_history, only: history_out_field
 
@@ -1640,6 +1849,20 @@ CONTAINS
 
       call history_out_field(fname, real(field(:ncol,:), kind_phys))
 
-   end subroutine out_pumas_trop_cld_field
+   end subroutine out_pumas_trop_cld_field_2d
+
+   ! Output a field which is on the PUMAS vertical levels (top_lev:pver) and has one more
+   ! dimension (e.g. the TAU size bins) on the 'trop_cld_lev' history coordinate
+   subroutine out_pumas_trop_cld_field_3d(fname, field, ncol)
+
+      use cam_history, only: history_out_field
+
+      character(len=*), intent(in)  :: fname        ! history field name
+      real(pumas_r8),   intent(in)  :: field(:,:,:) ! field on the PUMAS vertical levels
+      integer,          intent(in)  :: ncol         ! number of columns
+
+      call history_out_field(fname, real(field(:ncol,:,:), kind_phys))
+
+   end subroutine out_pumas_trop_cld_field_3d
 
 end module micro_pumas_diagnostics
