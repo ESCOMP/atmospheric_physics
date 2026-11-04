@@ -1536,6 +1536,24 @@ SUBROUTINE ientropy (rcall,icol,s,p,qt,T,qst,Tfg,cpliq,cpwv,rh2o,this_lat,this_l
   fa = entropy(a, p, qt,cpliq,cpwv,rh2o) - s
   fb = entropy(b, p, qt,cpliq,cpwv,rh2o) - s
 
+  ! Entropy increases monotonically with T, so f = entropy - s has its root
+  ! below a when fa > 0 and above b when fb < 0. Brent's method requires a
+  ! bracketing interval; if the root is outside [a,b] the loop below would
+  ! otherwise converge silently onto the nearest endpoint with
+  ! converged=.true.  Widen the offending endpoint in 10 K steps until the
+  ! bracket straddles the root.
+  bracket: do i = 1, LOOPMAX
+     if (fa <= 0.0_kind_phys .and. fb >= 0.0_kind_phys) exit bracket
+     if (fa > 0.0_kind_phys) then
+        a = a - 10.0_kind_phys
+        fa = entropy(a, p, qt,cpliq,cpwv,rh2o) - s
+     end if
+     if (fb < 0.0_kind_phys) then
+        b = b + 10.0_kind_phys
+        fb = entropy(b, p, qt,cpliq,cpwv,rh2o) - s
+     end if
+  end do bracket
+
   c=b
   fc=fb
   tol=0.001_kind_phys
