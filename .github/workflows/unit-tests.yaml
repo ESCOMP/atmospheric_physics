@@ -25,7 +25,7 @@ jobs:
 
       - name: Build pFUnit
         run: |
-          git clone --depth 1 --branch v4.10.0 https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git
+          git clone --depth 1 --branch v4.20.1 https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git
           cd pFUnit
           pwd
           cmake -B./build -S.
