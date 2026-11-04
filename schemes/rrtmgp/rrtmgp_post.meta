@@ -131,6 +131,18 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
+[ gas_concs_sw ]
+  standard_name = shortwave_gas_volume_mixing_ratios_object_for_RRTMGP
+  units = none
+  type = ty_gas_concs_ccpp
+  dimensions = ()
+  intent = inout
+[ gas_concs_lw ]
+  standard_name = longwave_gas_volume_mixing_ratios_object_for_RRTMGP
+  units = none
+  type = ty_gas_concs_ccpp
+  dimensions = ()
+  intent = inout
 [ errmsg ]
   standard_name = ccpp_error_message
   long_name = Error message for error handling in CCPP

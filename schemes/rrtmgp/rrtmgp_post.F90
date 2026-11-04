@@ -11,12 +11,13 @@ contains
 !!
 subroutine rrtmgp_post_run(nlay, dolw, qrs_prime, qrl_prime, fsns, pdel, atm_optics_sw, cloud_sw, aer_sw,  &
                   fsw, fswc, atm_optics_lw, sources_lw, cloud_lw, aer_lw, flw, flwc, flwds, qrs, qrl, &
-                  netsw, errmsg, errflg)
+                  netsw, gas_concs_sw, gas_concs_lw, errmsg, errflg)
    use ccpp_kinds,             only: kind_phys
    use ccpp_optical_props,     only: ty_optical_props_1scl_ccpp, ty_optical_props_2str_ccpp
    use ccpp_source_functions,  only: ty_source_func_lw_ccpp
    use ccpp_fluxes,            only: ty_fluxes_broadband_ccpp
    use ccpp_fluxes_byband,     only: ty_fluxes_byband_ccpp
+   use ccpp_gas_concentrations, only: ty_gas_concs_ccpp
    integer,                          intent(in)    :: nlay           ! Number of layers in radiation calculation
    logical,                          intent(in)    :: dolw           ! Flag for whether to perform longwave calculation
    real(kind_phys), dimension(:,:),  intent(in)    :: pdel           ! Layer thickness [Pa]
@@ -38,6 +39,8 @@ subroutine rrtmgp_post_run(nlay, dolw, qrs_prime, qrl_prime, fsns, pdel, atm_opt
    real(kind_phys), dimension(:,:),  intent(out)   :: qrl            ! Longwave heating rate adjusted by air pressure thickness [J Pa kg-1 s-1]
    real(kind_phys), dimension(:),    intent(out)   :: netsw          ! Net shortwave flux to be sent to coupler [W m-2]
    real(kind_phys), dimension(:),    intent(inout) :: flwds          ! Down longwave flux at surface [W m-2]
+   type(ty_gas_concs_ccpp),          intent(inout) :: gas_concs_sw   ! Gas concentrations object (shortwave)
+   type(ty_gas_concs_ccpp),          intent(inout) :: gas_concs_lw   ! Gas concentrations object (longwave)
    character(len=*),                 intent(out)   :: errmsg
    integer,                          intent(out)   :: errflg
 
@@ -70,6 +73,10 @@ subroutine rrtmgp_post_run(nlay, dolw, qrs_prime, qrl_prime, fsns, pdel, atm_opt
    end if
    call free_fluxes_byband(fsw)
    call free_fluxes_broadband(fswc)
+   ! Free the gas concentrations here, like the other objects: rrtmgp_inputs
+   ! takes them intent(out), and the compiler's deallocation on entry need not
+   ! run RRTMGP's finalizer, leaving their OpenACC device copies behind.
+   call gas_concs_sw%gas_concs%reset()
 
    call sources_lw%sources%finalize()
    call free_optics_lw(atm_optics_lw, errmsg, errflg)
@@ -86,6 +93,7 @@ subroutine rrtmgp_post_run(nlay, dolw, qrs_prime, qrl_prime, fsns, pdel, atm_opt
    end if
    call free_fluxes_byband(flw)
    call free_fluxes_broadband(flwc)
+   call gas_concs_lw%gas_concs%reset()
 
 end subroutine rrtmgp_post_run
 
