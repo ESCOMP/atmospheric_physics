@@ -387,7 +387,7 @@ contains
     pure subroutine mmm_physics_to_coupler_run( &
             dt, &
             re_ice, re_snow, &
-            zprecc, rain, ice, snow, graupel, &
+            zprecc, prcp, snow, graupel, &
             dei, des, &
             prec_dp, snow_dp, prec_sh, snow_sh, prec_str, snow_str, &
             errmsg, errflg)
@@ -395,7 +395,7 @@ contains
 
         real(kind_phys), intent(in) :: dt, &
                                        re_ice(:, :), re_snow(:, :), &
-                                       zprecc(:), rain(:), ice(:), snow(:), graupel(:)
+                                       zprecc(:), prcp(:), snow(:), graupel(:)
         real(kind_phys), intent(out) :: dei(:, :), des(:, :), &
                                         prec_dp(:), snow_dp(:), prec_sh(:), snow_sh(:), prec_str(:), snow_str(:)
         character(*), intent(out) :: errmsg
@@ -408,8 +408,9 @@ contains
         snow_dp(:) = 0.0_kind_phys
         prec_sh(:) = 0.0_kind_phys
         snow_sh(:) = 0.0_kind_phys
-        prec_str(:) = (rain(:) + ice(:)) / dt
-        snow_str(:) = (snow(:) + graupel(:)) / dt
+        prec_str(:) = prcp(:) / dt ! `prcp` is equivalent to the `rainncv` variable in MPAS and WRF.
+        snow_str(:) = (snow(:) + graupel(:)) / dt ! `snow` is equivalent to the `snowncv` variable in MPAS and WRF,
+                                                  ! and it already includes cloud ice.
 
         errmsg = ''
         errflg = 0

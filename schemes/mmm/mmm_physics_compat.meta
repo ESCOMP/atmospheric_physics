@@ -922,14 +922,8 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = in
-[ rain ]
-  standard_name = lwe_thickness_of_rainfall_amount
-  units = m
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent)
-  intent = in
-[ ice ]
-  standard_name = lwe_thickness_of_ice_amount
+[ prcp ]
+  standard_name = lwe_thickness_of_precipitation_amount
   units = m
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
