@@ -684,6 +684,7 @@ contains
     cpairv, &
     zi, &
     tint, &
+    phis, &
     dse_top, &
     errmsg, errflg)
 
@@ -693,6 +694,7 @@ contains
     real(kind_phys), intent(in)       :: cpairv(:,:)    ! specific heat of dry air at constant pressure [J kg-1 K-1]
     real(kind_phys), intent(in)       :: zi(:,:)        ! geopotential_height_wrt_surface_at_interface [m]
     real(kind_phys), intent(in)       :: tint(:,:)      ! Air temperature at interfaces [K]
+    real(kind_phys), intent(in)       :: phis(:)        ! surface geopotential [m2 s-2]
 
     ! Output arguments
     real(kind_phys),    intent(out)   :: dse_top(:)     ! Dry static energy top boundary condition.
@@ -702,7 +704,9 @@ contains
     errmsg = ''
     errflg = 0
 
-    dse_top(:ncol) = cpairv(:ncol,1) * tint(:ncol,1) + gravit * zi(:ncol,1)
+    ! The diffused dry static energy is cp*T + g*z + phis with z measured from the
+    ! surface, so the Dirichlet top value must include phis as well.
+    dse_top(:ncol) = cpairv(:ncol,1) * tint(:ncol,1) + gravit * zi(:ncol,1) + phis(:ncol)
 
   end subroutine vertical_diffusion_set_dry_static_energy_at_toa_molecdiff_run
 

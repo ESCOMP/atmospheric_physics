@@ -597,6 +597,12 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
   intent = in
+[ phis ]
+  standard_name = surface_geopotential
+  units = m2 s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
 [ dse_top ]
   standard_name = dry_static_energy_at_top_of_atmosphere_tbd
   units = J kg-1
