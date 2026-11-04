@@ -898,7 +898,7 @@ contains
             do m = 1, aero_props%nbins()
               do l = 0, aero_props%nmasses(m)
                 mm = aero_props%indexer(m, l)
-                dcondt_resusp3d(mm, icol, :) = dcondt_resusp(2, mm, :)
+                dcondt_resusp3d(mm, icol, :) = dcondt_resusp3d(mm, icol, :) + dcondt_resusp(2, mm, :)*xinv_ntsub
               end do
             end do
 
