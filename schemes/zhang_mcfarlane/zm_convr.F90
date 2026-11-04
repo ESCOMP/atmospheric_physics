@@ -849,8 +849,8 @@ subroutine buoyan_dilute(  ncol   ,pver    , &
    integer mx(ncol)         ! level of max moist static energy
 
    real(kind_phys), intent(in) :: landfrac(ncol)
-   character(len=512), intent(out)      :: errmsg
-   integer, intent(out)                 :: errflg
+   character(len=512), intent(inout)    :: errmsg
+   integer, intent(inout)               :: errflg
 
 !
 !--------------------------Local Variables------------------------------
@@ -1167,8 +1167,8 @@ integer, intent(inout), dimension(ncol) :: lcl ! Lifting condesation level (firs
 
 real(kind_phys), intent(out), dimension(ncol,pver) :: tpv   ! Define tpv within this routine.
 
-character(len=512), intent(out)      :: errmsg
-integer, intent(out)                 :: errflg
+character(len=512), intent(inout)    :: errmsg
+integer, intent(inout)               :: errflg
 
 
 
@@ -1510,8 +1510,8 @@ SUBROUTINE ientropy (rcall,icol,s,p,qt,T,qst,Tfg,cpliq,cpwv,rh2o,this_lat,this_l
   real(kind_phys), intent(in) :: this_lon
 
   real(kind_phys), intent(out) :: qst, T
-  character(len=512), intent(out)      :: errmsg
-  integer, intent(out)                 :: errflg
+  character(len=512), intent(inout)    :: errmsg
+  integer, intent(inout)               :: errflg
 
   real(kind_phys) :: est
   real(kind_phys) :: a,b,c,d,ebr,fa,fb,fc,pbr,qbr,rbr,sbr,tol1,xm,tol
