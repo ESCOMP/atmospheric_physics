@@ -165,13 +165,31 @@ subroutine test_mmm_physics_compat_run()
 end subroutine test_mmm_physics_compat_run
 
 @test
+subroutine test_mmm_physics_accumulate_tendencies_init()
+    use ccpp_constituent_prop_mod, only: int_unassigned
+    use funit
+    use mmm_physics_compat, only: mmm_physics_accumulate_tendencies_init
+
+    integer :: index_o3
+    character(100) :: errmsg
+    integer :: errflg
+
+    call mmm_physics_accumulate_tendencies_init( &
+        index_o3, &
+        errmsg, errflg)
+
+    @assertNotEqual(int_unassigned, index_o3)
+    @assertEqual('', errmsg)
+    @assertEqual(0, errflg)
+end subroutine test_mmm_physics_accumulate_tendencies_init
+
+@test
 subroutine test_mmm_physics_accumulate_tendencies_timestep_init()
     use ccpp_kinds, only: kind_phys
     use funit
     use mmm_physics_compat, only: mmm_physics_accumulate_tendencies_timestep_init
 
     integer, parameter :: ncol = 100, pver = 10
-    integer :: index_o3
     real(kind_phys) :: dudt(ncol, pver), dvdt(ncol, pver), dtdt(ncol, pver)
     real(kind_phys) :: rublten(ncol, pver), rucuten(ncol, pver), rvblten(ncol, pver), rvcuten(ncol, pver)
     real(kind_phys) :: rthblten(ncol, pver), rthcuten(ncol, pver), rthmpten(ncol, pver), &
@@ -238,7 +256,6 @@ subroutine test_mmm_physics_accumulate_tendencies_timestep_init()
     rnbcablten(:, :) = huge(0.0_kind_phys)
 
     call mmm_physics_accumulate_tendencies_timestep_init( &
-        index_o3, &
         dudt, dvdt, dtdt, &
         rublten, rucuten, rvblten, rvcuten, &
         rthblten, rthcuten, rthmpten, rthratenlw, rthratensw, &

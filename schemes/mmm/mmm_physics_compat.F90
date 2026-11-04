@@ -5,6 +5,7 @@ module mmm_physics_compat
     private
     public :: mmm_physics_compat_init
     public :: mmm_physics_compat_run
+    public :: mmm_physics_accumulate_tendencies_init
     public :: mmm_physics_accumulate_tendencies_timestep_init
     public :: mmm_physics_accumulate_tendencies_run
     public :: mmm_physics_persist_states_init
@@ -99,10 +100,42 @@ contains
         errflg = 0
     end subroutine mmm_physics_compat_run
 
+    !> \section arg_table_mmm_physics_accumulate_tendencies_init Argument Table
+    !! \htmlinclude mmm_physics_accumulate_tendencies_init.html
+    subroutine mmm_physics_accumulate_tendencies_init( &
+            index_o3, &
+            errmsg, errflg)
+        use ccpp_constituent_prop_mod, only: int_unassigned
+        use ccpp_scheme_utils, only: ccpp_constituent_index
+
+        integer, intent(out) :: index_o3
+        character(*), intent(out) :: errmsg
+        integer, intent(out) :: errflg
+
+        ! O3 is a run-time constituent registered by a chemistry scheme. Whether it is advected or not is also determined at
+        ! run-time. Therefore, it cannot be requested as a procedure argument because the CCPP framework does not know about
+        ! it at build-time.
+        call ccpp_constituent_index( &
+            'O3', index_o3, errflg, errmsg)
+
+        if (errflg /= 0) then
+            return
+        end if
+
+        if (index_o3 == int_unassigned) then
+            errmsg = 'mmm_physics_accumulate_tendencies_init: Failed to find required constituent "O3"'
+            errflg = 1
+
+            return
+        end if
+
+        errmsg = ''
+        errflg = 0
+    end subroutine mmm_physics_accumulate_tendencies_init
+
     !> \section arg_table_mmm_physics_accumulate_tendencies_timestep_init Argument Table
     !! \htmlinclude mmm_physics_accumulate_tendencies_timestep_init.html
     subroutine mmm_physics_accumulate_tendencies_timestep_init( &
-            index_o3, &
             dudt, dvdt, dtdt, &
             rublten, rucuten, rvblten, rvcuten, &
             rthblten, rthcuten, rthmpten, rthratenlw, rthratensw, &
@@ -115,11 +148,8 @@ contains
             rozblten, &
             rnwfablten, rnwfampten, rnifablten, rnifampten, rnbcablten, &
             errmsg, errflg)
-        use ccpp_constituent_prop_mod, only: int_unassigned
         use ccpp_kinds, only: kind_phys
-        use ccpp_scheme_utils, only: ccpp_constituent_index
 
-        integer, intent(out) :: index_o3
         real(kind_phys), intent(out) :: dudt(:, :), dvdt(:, :), dtdt(:, :), &
                                         rublten(:, :), rucuten(:, :), rvblten(:, :), rvcuten(:, :), &
                                         rthblten(:, :), rthcuten(:, :), rthmpten(:, :), rthratenlw(:, :), rthratensw(:, :), &
@@ -133,16 +163,6 @@ contains
                                         rnwfablten(:, :), rnwfampten(:, :), rnifablten(:, :), rnifampten(:, :), rnbcablten(:, :)
         character(*), intent(out) :: errmsg
         integer, intent(out) :: errflg
-
-        ! O3 is a run-time constituent registered by a chemistry scheme. Whether it is advected or not is also determined at
-        ! run-time. Therefore, it cannot be requested as a procedure argument because the CCPP framework does not know about
-        ! it at build-time.
-        call ccpp_constituent_index( &
-            'O3', index_o3, errflg, errmsg)
-
-        if (errflg /= 0 .or. index_o3 == int_unassigned) then
-            return
-        end if
 
         ! Zero out tendencies at the beginning of each time step.
 

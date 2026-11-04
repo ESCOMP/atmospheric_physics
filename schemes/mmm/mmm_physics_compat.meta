@@ -178,7 +178,7 @@
   type = scheme
 
 [ccpp-arg-table]
-  name = mmm_physics_accumulate_tendencies_timestep_init
+  name = mmm_physics_accumulate_tendencies_init
   type = scheme
 [ index_o3 ]
   standard_name = index_of_O3_in_ccpp_constituents
@@ -186,6 +186,24 @@
   type = integer
   dimensions = ()
   intent = out
+[ errmsg ]
+  standard_name = ccpp_error_message
+  long_name = Error message for error handling in CCPP
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  long_name = Error flag for error handling in CCPP
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name = mmm_physics_accumulate_tendencies_timestep_init
+  type = scheme
 [ dudt ]
   standard_name = tendency_of_eastward_wind
   units = m s-2
