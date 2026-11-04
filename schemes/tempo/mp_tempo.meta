@@ -14,6 +14,30 @@
 [ccpp-arg-table]
   name = mp_tempo_init
   type = scheme
+[ ccn_table_name ]
+  standard_name = ccn_activation_table_name_for_tempo_microphysics
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ qrqg_table_name ]
+  standard_name = rain_graupel_collection_table_name_for_tempo_microphysics
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ qrqs_table_name ]
+  standard_name = rain_snow_collection_table_name_for_tempo_microphysics
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ freezewater_table_name ]
+  standard_name = freeze_water_collection_table_name_for_tempo_microphysics
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
 [ num_subcyc ]
   standard_name = number_of_timestep_subcycles_for_tempo_microphysics
   units = count

@@ -9,17 +9,19 @@ contains
     !> \section arg_table_mp_tempo_init Argument Table
     !! \htmlinclude mp_tempo_init.html
     subroutine mp_tempo_init( &
+            ccn_table_name, qrqg_table_name, qrqs_table_name, freezewater_table_name, &
             num_subcyc, &
             aerosol_aware, hail_aware, refl_incl_melt, sat_adj, semi_lagr_sedi, &
             con_pi, con_hvap, con_hfus, con_rv, con_rd, con_cp, con_t0c, con_rgas, con_rhow, &
             tempo_cfgs, &
             errmsg, errflg)
         use ccpp_kinds, only: kind_phys
-        use module_mp_tempo_cfgs, only: ty_tempo_cfgs
+        use module_mp_tempo_cfgs, only: ty_tempo_cfgs, set_tempo_table_names
         use module_mp_tempo_driver, only: tempo_init
         use module_mp_tempo_params, only: pi, lvap0, lfus, lsub, rv, rdry, cp, t0, r_uni, rho_w, &
                                           initialize_parameters
 
+        character(*), intent(in) :: ccn_table_name, qrqg_table_name, qrqs_table_name, freezewater_table_name
         integer, intent(in) :: num_subcyc
         logical, intent(in) :: aerosol_aware, hail_aware, refl_incl_melt, sat_adj, semi_lagr_sedi
         real(kind_phys), intent(in) :: con_pi, con_hvap, con_hfus, con_rv, con_rd, con_cp, con_t0c, con_rgas, con_rhow
@@ -47,6 +49,15 @@ contains
 
                 return
             end if
+        end if
+
+        ! Custom TEMPO table names need to be set before calling `tempo_init`.
+        call set_tempo_table_names( &
+            ccn_table_name, qrqg_table_name, qrqs_table_name, freezewater_table_name, &
+            errmsg, errflg)
+
+        if (errflg /= 0) then
+            return
         end if
 
         call tempo_init( &

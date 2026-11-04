@@ -5,6 +5,14 @@ module module_mp_tempo_cfgs
 
     private
     public :: ty_tempo_cfgs, ty_tempo_table_cfgs
+    public :: set_tempo_table_names
+
+    integer, parameter :: table_name_len = 100
+
+    character(table_name_len), target :: ccn_table_name_target = ''
+    character(table_name_len), target :: qrqg_table_name_target = ''
+    character(table_name_len), target :: qrqs_table_name_target = ''
+    character(table_name_len), target :: freezewater_table_name_target = ''
 
     !> \section arg_table_ty_tempo_cfgs Argument Table
     !! \htmlinclude ty_tempo_cfgs.html
@@ -34,12 +42,93 @@ module module_mp_tempo_cfgs
     end type
 
     type :: ty_tempo_table_cfgs
-        character(100) :: ccn_table_name = 'ccn_activate.bin' !! ccn table name
-        character(100) :: qrqg_table_name = 'qr_acr_qg_data_tempo_v3' !! rain-graupel collection table name
-        character(100) :: qrqs_table_name = 'qr_acr_qs_data_tempo_v3' !! rain-snow collection table name
-        character(100) :: freezewater_table_name = 'freeze_water_data_tempo_v3' !! freeze water collection table name
+        !! ccn table name
+        character(table_name_len), pointer :: ccn_table_name => ccn_table_name_target
+        !! rain-graupel collection table name
+        character(table_name_len), pointer :: qrqg_table_name => qrqg_table_name_target
+        !! rain-snow collection table name
+        character(table_name_len), pointer :: qrqs_table_name => qrqs_table_name_target
+        !! freeze water collection table name
+        character(table_name_len), pointer :: freezewater_table_name => freezewater_table_name_target
     end type
 contains
+    subroutine set_tempo_table_names( &
+            ccn_table_name, qrqg_table_name, qrqs_table_name, freezewater_table_name, &
+            errmsg, errflg)
+        character(*), intent(in) :: ccn_table_name
+        character(*), intent(in) :: qrqg_table_name
+        character(*), intent(in) :: qrqs_table_name
+        character(*), intent(in) :: freezewater_table_name
+        character(*), intent(out) :: errmsg
+        integer, intent(out) :: errflg
+
+        logical :: exist
+
+        ccn_table_name_target = trim(adjustl(ccn_table_name))
+        qrqg_table_name_target = trim(adjustl(qrqg_table_name))
+        qrqs_table_name_target = trim(adjustl(qrqs_table_name))
+        freezewater_table_name_target = trim(adjustl(freezewater_table_name))
+
+        inquire(file=trim(adjustl(ccn_table_name_target)), iomsg=errmsg, iostat=errflg, exist=exist)
+
+        if (errflg /= 0) then
+            return
+        end if
+
+        if (.not. exist) then
+            errmsg = 'set_tempo_table_names: CCN activation table does not exist at ' // &
+                trim(adjustl(ccn_table_name_target))
+            errflg = 1
+
+            return
+        end if
+
+        inquire(file=trim(adjustl(qrqg_table_name_target)), iomsg=errmsg, iostat=errflg, exist=exist)
+
+        if (errflg /= 0) then
+            return
+        end if
+
+        if (.not. exist) then
+            errmsg = 'set_tempo_table_names: Rain-graupel collection table does not exist at ' // &
+                trim(adjustl(qrqg_table_name_target))
+            errflg = 1
+
+            return
+        end if
+
+        inquire(file=trim(adjustl(qrqs_table_name_target)), iomsg=errmsg, iostat=errflg, exist=exist)
+
+        if (errflg /= 0) then
+            return
+        end if
+
+        if (.not. exist) then
+            errmsg = 'set_tempo_table_names: Rain-snow collection table does not exist at ' // &
+                trim(adjustl(qrqs_table_name_target))
+            errflg = 1
+
+            return
+        end if
+
+        inquire(file=trim(adjustl(freezewater_table_name_target)), iomsg=errmsg, iostat=errflg, exist=exist)
+
+        if (errflg /= 0) then
+            return
+        end if
+
+        if (.not. exist) then
+            errmsg = 'set_tempo_table_names: Freeze water collection table does not exist at ' // &
+                trim(adjustl(freezewater_table_name_target))
+            errflg = 1
+
+            return
+        end if
+
+        errmsg = ''
+        errflg = 0
+    end subroutine set_tempo_table_names
+
     pure function resolve_nc_value(this, val_land, val_ocean)
         use ccpp_kinds, only: kind_phys
 
