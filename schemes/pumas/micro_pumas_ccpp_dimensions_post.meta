@@ -1,7 +1,7 @@
 [ccpp-table-properties]
   name = micro_pumas_ccpp_dimensions_post
   type = scheme
-  dependencies = pumas/pumas_kinds.F90
+  dependencies = pumas/pumas_kinds.F90,pumas/micro_pumas_diags.F90
   kind_spec = pumas_kinds:pumas_r8=>kind_r8
 
 ########################################################################
@@ -1154,6 +1154,35 @@
   type = real
   kind = pumas_r8
   intent = in
+[do_cldice]
+  standard_name = do_cloud_ice_processes
+  long_name = flag for PUMAS to simulate cloud ice
+  units = flag
+  dimensions = ()
+  type = logical
+  intent = in
+[do_cldliq]
+  standard_name = do_cloud_liquid_processes
+  long_name = flag for PUMAS to simulate cloud liquid
+  units = flag
+  dimensions = ()
+  type = logical
+  intent = in
+[proc_rates]
+  standard_name = microphysics_process_rates
+  long_name = microphysics process rates
+  units = none
+  dimensions = ()
+  type = proc_rates_type
+  intent = in
+[wsedl]
+  standard_name = sedimentation_velocity_of_liquid_stratus_cloud_droplet
+  long_name = sedimentation velocity of liquid stratus cloud droplet
+  units = m s-1
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  type = real
+  kind = kind_phys
+  intent = out
 [errmsg]
   standard_name = ccpp_error_message
   long_name = error message for error handling in CCPP
