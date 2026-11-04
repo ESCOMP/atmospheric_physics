@@ -172,7 +172,14 @@ contains
         call ccpp_constituent_index( &
             'cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water', i, errflg, errmsg)
 
-        if (errflg /= 0 .or. i == int_unassigned) then
+        if (errflg /= 0) then
+            return
+        end if
+
+        if (i == int_unassigned) then
+            errmsg = 'bl_mynn_compat_init: Failed to find required constituent "qc"'
+            errflg = 1
+
             return
         end if
 
@@ -181,7 +188,14 @@ contains
         call ccpp_constituent_index( &
             'cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water', i, errflg, errmsg)
 
-        if (errflg /= 0 .or. i == int_unassigned) then
+        if (errflg /= 0) then
+            return
+        end if
+
+        if (i == int_unassigned) then
+            errmsg = 'bl_mynn_compat_init: Failed to find required constituent "qi"'
+            errflg = 1
+
             return
         end if
 
@@ -190,7 +204,14 @@ contains
         call ccpp_constituent_index( &
             'snow_mixing_ratio_wrt_moist_air_and_condensed_water', i, errflg, errmsg)
 
-        if (errflg /= 0 .or. i == int_unassigned) then
+        if (errflg /= 0) then
+            return
+        end if
+
+        if (i == int_unassigned) then
+            errmsg = 'bl_mynn_compat_init: Failed to find required constituent "qs"'
+            errflg = 1
+
             return
         end if
 
@@ -199,7 +220,14 @@ contains
         call ccpp_constituent_index( &
             'O3', i, errflg, errmsg)
 
-        if (errflg /= 0 .or. i == int_unassigned) then
+        if (errflg /= 0) then
+            return
+        end if
+
+        if (i == int_unassigned) then
+            errmsg = 'bl_mynn_compat_init: Failed to find required constituent "O3"'
+            errflg = 1
+
             return
         end if
 
@@ -212,18 +240,32 @@ contains
         flag_qnbca = .false.
 
         call ccpp_constituent_index( &
-            'mass_number_concentration_of_cloud_liquid_water_droplets_in_dry_air', i, errflg, errmsg)
+            'mass_number_concentration_of_cloud_liquid_water_droplets_in_moist_air_and_condensed_water', i, errflg, errmsg)
 
-        if (errflg /= 0 .or. i == int_unassigned) then
+        if (errflg /= 0) then
+            return
+        end if
+
+        if (i == int_unassigned) then
+            errmsg = 'bl_mynn_compat_init: Failed to find required constituent "nc"'
+            errflg = 1
+
             return
         end if
 
         flag_qnc = .true.
 
         call ccpp_constituent_index( &
-            'mass_number_concentration_of_cloud_ice_water_crystals_in_dry_air', i, errflg, errmsg)
+            'mass_number_concentration_of_cloud_ice_water_crystals_in_moist_air_and_condensed_water', i, errflg, errmsg)
 
-        if (errflg /= 0 .or. i == int_unassigned) then
+        if (errflg /= 0) then
+            return
+        end if
+
+        if (i == int_unassigned) then
+            errmsg = 'bl_mynn_compat_init: Failed to find required constituent "ni"'
+            errflg = 1
+
             return
         end if
 
@@ -232,7 +274,14 @@ contains
         call ccpp_constituent_index( &
             'mass_number_concentration_of_hygroscopic_aerosols_in_dry_air', i, errflg, errmsg)
 
-        if (errflg /= 0 .or. i == int_unassigned) then
+        if (errflg /= 0) then
+            return
+        end if
+
+        if (i == int_unassigned) then
+            errmsg = 'bl_mynn_compat_init: Failed to find required constituent "nwfa"'
+            errflg = 1
+
             return
         end if
 
@@ -241,7 +290,14 @@ contains
         call ccpp_constituent_index( &
             'mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols_in_dry_air', i, errflg, errmsg)
 
-        if (errflg /= 0 .or. i == int_unassigned) then
+        if (errflg /= 0) then
+            return
+        end if
+
+        if (i == int_unassigned) then
+            errmsg = 'bl_mynn_compat_init: Failed to find required constituent "nifa"'
+            errflg = 1
+
             return
         end if
 
@@ -250,7 +306,14 @@ contains
         call ccpp_constituent_index( &
             'mass_number_concentration_of_hydrophobic_black_carbon_in_dry_air', i, errflg, errmsg)
 
-        if (errflg /= 0 .or. i == int_unassigned) then
+        if (errflg /= 0) then
+            return
+        end if
+
+        if (i == int_unassigned) then
+            errmsg = 'bl_mynn_compat_init: Failed to find required constituent "nbca"'
+            errflg = 1
+
             return
         end if
 

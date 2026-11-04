@@ -164,6 +164,7 @@ contains
             cd, cda, spp_pbl, rstoch1d, isftcflx, &
             iz0tlnd, its, ite, &
             errmsg, errflg)
+        use ccpp_constituent_prop_mod, only: int_unassigned
         use ccpp_kinds, only: kind_phys
         use ccpp_scheme_utils, only: ccpp_constituent_index
         use sf_mynn, only: sf_mynn_run
@@ -240,9 +241,12 @@ contains
         call ccpp_constituent_index( &
             'water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water', water_vapor_mixing_ratio_index, errflg, errmsg)
 
-        if (errflg /= 0 .or. &
-            water_vapor_mixing_ratio_index < lbound(cflx, 2) .or. water_vapor_mixing_ratio_index > ubound(cflx, 2)) then
-            errmsg = 'sf_mynn_compat_run: Failed to find desired constituent flux from cflx'
+        if (errflg /= 0) then
+            return
+        end if
+
+        if (water_vapor_mixing_ratio_index == int_unassigned) then
+            errmsg = 'sf_mynn_compat_run: Failed to find required constituent flux from "cflx"'
             errflg = 1
 
             return
