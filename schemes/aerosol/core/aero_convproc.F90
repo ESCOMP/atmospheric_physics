@@ -1063,6 +1063,7 @@ contains
             ! use -dcondt_wetdep(m,k) as it is negative (or zero)
             wd_flux(n, mm) = wd_flux(n, mm) + tmpdp*max(0.0_kind_phys, -dcondt_wetdep(n, mm, k))
             del_wd_flux_evap = wd_flux(n, mm)*fdel_pr_flux_evap
+            wd_flux(n, mm) = max(0.0_kind_phys, wd_flux(n, mm) - del_wd_flux_evap)
 
             dcondt_prevap(n, mm, k) = del_wd_flux_evap/tmpdp
 
