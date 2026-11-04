@@ -1038,11 +1038,22 @@ contains
       del_pr_flux_evap = min(pr_flux, tmpdp*max(0.0_kind_phys, evapc(icol, k)))
 
       ! Do resuspension of aerosols from rain only when the rain has
-      ! totally evaporated in one layer.
-      if (convproc_do_evaprain_atonce .and. &
-          (del_pr_flux_evap /= pr_flux)) del_pr_flux_evap = 0._kind_phys
-
-      fdel_pr_flux_evap = del_pr_flux_evap/max(pr_flux, 1.0e-35_kind_phys)
+      ! totally evaporated in one layer. evapc comes from the convection
+      ! scheme's moist-pressure flux balance while pr_flux is summed here
+      ! with dry pressure thicknesses, so at complete evaporation
+      ! del_pr_flux_evap falls short of pr_flux by order q; test with a
+      ! tolerance instead of exact equality. pr_flux itself is always
+      ! reduced by the physical evaporation below.
+      if (convproc_do_evaprain_atonce) then
+        if (del_pr_flux_evap > 0._kind_phys .and. &
+            del_pr_flux_evap >= pr_flux*(1.0_kind_phys - 2.0e-2_kind_phys)) then
+          fdel_pr_flux_evap = 1._kind_phys
+        else
+          fdel_pr_flux_evap = 0._kind_phys
+        end if
+      else
+        fdel_pr_flux_evap = del_pr_flux_evap/max(pr_flux, 1.0e-35_kind_phys)
+      end if
 
       do m = 1, aero_props%nbins()
         do l = 0, aero_props%nmasses(m)
