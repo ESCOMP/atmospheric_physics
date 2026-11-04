@@ -21,27 +21,29 @@ endif()
 
 set(CMAKE_BUILD_TYPE Debug)
 
+add_subdirectory(include)
+
 set(UTILITIES_SRC
-    ../../schemes/utilities/state_converters.F90
-    ../../schemes/utilities/static_energy.F90
-    ../../schemes/utilities/physics_tendency_updaters.F90
-    include/ccpp_kinds.F90
+  ../../schemes/utilities/physics_tendency_updaters.F90
+  ../../schemes/utilities/state_converters.F90
+  ../../schemes/utilities/static_energy.F90
 )
 
 add_library(utilities ${UTILITIES_SRC})
 target_compile_options(utilities PRIVATE -ffree-line-length-none)
 target_include_directories(utilities PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+target_link_libraries(utilities PUBLIC ccpp_framework_stub)
 
 set(PHYS_UTILS_SRC
-    ../../phys_utils/atmos_phys_pbl_utils.F90
-    ../../phys_utils/atmos_phys_string_utils.F90
-    ../../phys_utils/atmos_phys_rad_utils.F90
-    include/ccpp_kinds.F90
+  ../../phys_utils/atmos_phys_pbl_utils.F90
+  ../../phys_utils/atmos_phys_rad_utils.F90
+  ../../phys_utils/atmos_phys_string_utils.F90
 )
 
 add_library(phys_utils ${PHYS_UTILS_SRC})
 target_compile_options(phys_utils PRIVATE -ffree-line-length-none)
 target_include_directories(phys_utils PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+target_link_libraries(phys_utils PUBLIC ccpp_framework_stub)
 
 add_subdirectory(../../schemes/mmm mmm)
 

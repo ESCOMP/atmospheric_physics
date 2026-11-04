@@ -1,4 +1,4 @@
-module mp_tempo_diag
+module mp_tempo_diagnostics
     implicit none
 
     private
@@ -90,4 +90,4 @@ contains
         errmsg = ''
         errflg = 0
     end subroutine mp_tempo_diagnostics_run
-end module mp_tempo_diag
+end module mp_tempo_diagnostics

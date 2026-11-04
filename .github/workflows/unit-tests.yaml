@@ -34,6 +34,7 @@ jobs:
 
       - name: Build atmospheric_physics
         run: |
+          git -C "$GITHUB_WORKSPACE" submodule update --init schemes/mmm/mmm_physics
           cmake \
             -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/pFUnit/build/installed \
             -DATMOSPHERIC_PHYSICS_ENABLE_CODE_COVERAGE=ON \

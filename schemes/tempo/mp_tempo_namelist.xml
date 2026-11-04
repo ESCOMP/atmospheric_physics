@@ -10,9 +10,11 @@
     <units>count</units>
     <desc>
       Number of timestep subcycles for TEMPO microphysics.
+
+      The value should be selected such that the resulting microphysics timestep is about 1-2 minutes.
     </desc>
     <values>
-      <value>1</value>
+      <value>10</value>
     </values>
   </entry>
   <entry id="aerosol_aware">
@@ -77,7 +79,7 @@
        Flag to run semi-Lagrangian sedimentation of hydrometeors (e.g., rain and graupel).
     </desc>
     <values>
-      <value>.false.</value>
+      <value>.true.</value>
     </values>
   </entry>
 </entry_id_pg>
