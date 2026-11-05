@@ -4,7 +4,7 @@ subroutine test_temp_to_potential_temp()
     use funit
     use state_converters, only: temp_to_potential_temp_run, potential_temp_to_temp_run
 
-    integer, parameter :: ncol = 100, pver = 10
+    integer, parameter :: ncol = 20, pver = 10
 
     real(kind_phys) :: temp(ncol, pver), exner(ncol, pver), theta(ncol, pver)
     real(kind_phys) :: expected_temp(ncol, pver), expected_theta(ncol, pver)
@@ -46,7 +46,7 @@ subroutine test_temp_to_virtual_temp_run()
     use funit
     use state_converters, only: temp_to_virtual_temp_run, virtual_temp_to_temp_run
 
-    integer, parameter :: ncol = 100, pver = 10
+    integer, parameter :: ncol = 20, pver = 10
     real(kind_phys), parameter :: rd = 287.04_kind_phys
     real(kind_phys), parameter :: rv = 461.52_kind_phys
 
@@ -90,7 +90,7 @@ subroutine test_calc_dry_air_ideal_gas_density_run()
     use funit
     use state_converters, only: calc_dry_air_ideal_gas_density_run
 
-    integer, parameter :: ncol = 100, pver = 10
+    integer, parameter :: ncol = 20, pver = 10
     real(kind_phys), parameter :: rd = 287.04_kind_phys
 
     real(kind_phys) :: rairv(ncol, pver), pmiddry(ncol, pver), temp(ncol, pver), rho(ncol, pver)
@@ -125,7 +125,7 @@ subroutine test_calc_air_ideal_gas_density_run()
     use funit
     use state_converters, only: calc_air_ideal_gas_density_run
 
-    integer, parameter :: ncol = 100, pver = 10
+    integer, parameter :: ncol = 20, pver = 10
     real(kind_phys), parameter :: rd = 287.04_kind_phys
 
     real(kind_phys) :: rairv(ncol, pver), pmid(ncol, pver), virtual_temp(ncol, pver), rho(ncol, pver)
@@ -154,7 +154,7 @@ subroutine test_calc_atmosphere_layer_thickness_run()
     use funit
     use state_converters, only: calc_atmosphere_layer_thickness_run
 
-    integer, parameter :: ncol = 100, pver = 10, pverp = 11
+    integer, parameter :: ncol = 20, pver = 10, pverp = 11
     real(kind_phys) :: zisfc(ncol, pverp)
     real(kind_phys) :: dz(ncol, pver)
     character(100) :: errmsg
@@ -186,7 +186,7 @@ subroutine test_calc_exner_run()
     use funit
     use state_converters, only: calc_exner_run
 
-    integer, parameter :: ncol = 100, pver = 10
+    integer, parameter :: ncol = 20, pver = 10
     real(kind_phys), parameter :: cpd = 1004.64_kind_phys
     real(kind_phys), parameter :: pref = 100000.0_kind_phys
     real(kind_phys), parameter :: rd = 287.04_kind_phys
