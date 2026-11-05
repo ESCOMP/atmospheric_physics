@@ -252,49 +252,49 @@ contains
     errflg = 0
   end subroutine calc_exner_run
 
-  elemental subroutine generic_wet_to_dry_mass_mixing_ratio_run(pdel, pdeldry, mmr, mmrdry)
+  elemental function generic_wet_to_dry_mass_mixing_ratio(pdel, pdeldry, mmr) result(mmrdry)
     use ccpp_kinds, only: kind_phys
 
     real(kind_phys), intent(in)  :: pdel    ! Air pressure thickness (Pa)
     real(kind_phys), intent(in)  :: pdeldry ! Air pressure thickness of dry air (Pa)
     real(kind_phys), intent(in)  :: mmr     ! Constituent mixing ratio wrt moist air and condensed water (kg kg-1)
-    real(kind_phys), intent(out) :: mmrdry  ! Constituent mixing ratio wrt dry air (kg kg-1)
+    real(kind_phys)              :: mmrdry  ! Constituent mixing ratio wrt dry air (kg kg-1)
 
     mmrdry = mmr * (pdel / pdeldry)
-  end subroutine generic_wet_to_dry_mass_mixing_ratio_run
+  end function generic_wet_to_dry_mass_mixing_ratio
 
-  elemental subroutine generic_dry_to_wet_mass_mixing_ratio_run(pdel, pdeldry, mmrdry, mmr)
+  elemental function generic_dry_to_wet_mass_mixing_ratio(pdel, pdeldry, mmrdry) result(mmr)
     use ccpp_kinds, only: kind_phys
 
     real(kind_phys), intent(in)  :: pdel    ! Air pressure thickness (Pa)
     real(kind_phys), intent(in)  :: pdeldry ! Air pressure thickness of dry air (Pa)
     real(kind_phys), intent(in)  :: mmrdry  ! Constituent mixing ratio wrt dry air (kg kg-1)
-    real(kind_phys), intent(out) :: mmr     ! Constituent mixing ratio wrt moist air and condensed water (kg kg-1)
+    real(kind_phys)              :: mmr     ! Constituent mixing ratio wrt moist air and condensed water (kg kg-1)
 
     mmr = mmrdry * (pdeldry / pdel)
-  end subroutine generic_dry_to_wet_mass_mixing_ratio_run
+  end function generic_dry_to_wet_mass_mixing_ratio
 
-  elemental subroutine generic_wet_to_dry_mass_number_concentration_run(pdel, pdeldry, num, numdry)
+  elemental function generic_wet_to_dry_mass_number_concentration(pdel, pdeldry, num) result(numdry)
     use ccpp_kinds, only: kind_phys
 
     real(kind_phys), intent(in)  :: pdel    ! Air pressure thickness (Pa)
     real(kind_phys), intent(in)  :: pdeldry ! Air pressure thickness of dry air (Pa)
     real(kind_phys), intent(in)  :: num     ! Constituent mass number concentration in moist air and condensed water (kg-1)
-    real(kind_phys), intent(out) :: numdry  ! Constituent mass number concentration in dry air (kg-1)
+    real(kind_phys)              :: numdry  ! Constituent mass number concentration in dry air (kg-1)
 
     numdry = num * (pdel / pdeldry)
-  end subroutine generic_wet_to_dry_mass_number_concentration_run
+  end function generic_wet_to_dry_mass_number_concentration
 
-  elemental subroutine generic_dry_to_wet_mass_number_concentration_run(pdel, pdeldry, numdry, num)
+  elemental function generic_dry_to_wet_mass_number_concentration(pdel, pdeldry, numdry) result(num)
     use ccpp_kinds, only: kind_phys
 
     real(kind_phys), intent(in)  :: pdel    ! Air pressure thickness (Pa)
     real(kind_phys), intent(in)  :: pdeldry ! Air pressure thickness of dry air (Pa)
     real(kind_phys), intent(in)  :: numdry  ! Constituent mass number concentration in dry air (kg-1)
-    real(kind_phys), intent(out) :: num     ! Constituent mass number concentration in moist air and condensed water (kg-1)
+    real(kind_phys)              :: num     ! Constituent mass number concentration in moist air and condensed water (kg-1)
 
     num = numdry * (pdeldry / pdel)
-  end subroutine generic_dry_to_wet_mass_number_concentration_run
+  end function generic_dry_to_wet_mass_number_concentration
 
   !> \section arg_table_wet_to_dry_water_vapor_run Argument Table
   !! \htmlinclude wet_to_dry_water_vapor_run.html
@@ -311,8 +311,8 @@ contains
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
 
-    call generic_wet_to_dry_mass_mixing_ratio_run( &
-      pdel(:ncol, :nz), pdeldry(:ncol, :nz), qv(:ncol, :nz), qv_dry(:ncol, :nz))
+    qv_dry(:ncol, :nz) = generic_wet_to_dry_mass_mixing_ratio( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), qv(:ncol, :nz))
 
     errmsg = ''
     errflg = 0
@@ -333,8 +333,8 @@ contains
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
 
-    call generic_wet_to_dry_mass_mixing_ratio_run( &
-      pdel(:ncol, :nz), pdeldry(:ncol, :nz), qc(:ncol, :nz), qc_dry(:ncol, :nz))
+    qc_dry(:ncol, :nz) = generic_wet_to_dry_mass_mixing_ratio( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), qc(:ncol, :nz))
 
     errmsg = ''
     errflg = 0
@@ -355,8 +355,8 @@ contains
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
 
-    call generic_wet_to_dry_mass_mixing_ratio_run( &
-      pdel(:ncol, :nz), pdeldry(:ncol, :nz), qi(:ncol, :nz), qi_dry(:ncol, :nz))
+    qi_dry(:ncol, :nz) = generic_wet_to_dry_mass_mixing_ratio( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), qi(:ncol, :nz))
 
     errmsg = ''
     errflg = 0
@@ -377,8 +377,8 @@ contains
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
 
-    call generic_wet_to_dry_mass_mixing_ratio_run( &
-      pdel(:ncol, :nz), pdeldry(:ncol, :nz), qr(:ncol, :nz), qr_dry(:ncol, :nz))
+    qr_dry(:ncol, :nz) = generic_wet_to_dry_mass_mixing_ratio( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), qr(:ncol, :nz))
 
     errmsg = ''
     errflg = 0
@@ -399,8 +399,8 @@ contains
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
 
-    call generic_wet_to_dry_mass_mixing_ratio_run( &
-      pdel(:ncol, :nz), pdeldry(:ncol, :nz), qs(:ncol, :nz), qs_dry(:ncol, :nz))
+    qs_dry(:ncol, :nz) = generic_wet_to_dry_mass_mixing_ratio( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), qs(:ncol, :nz))
 
     errmsg = ''
     errflg = 0
@@ -421,8 +421,8 @@ contains
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
 
-    call generic_wet_to_dry_mass_mixing_ratio_run( &
-      pdel(:ncol, :nz), pdeldry(:ncol, :nz), qg(:ncol, :nz), qg_dry(:ncol, :nz))
+    qg_dry(:ncol, :nz) = generic_wet_to_dry_mass_mixing_ratio( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), qg(:ncol, :nz))
 
     errmsg = ''
     errflg = 0
@@ -443,8 +443,8 @@ contains
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
 
-    call generic_dry_to_wet_mass_mixing_ratio_run( &
-      pdel(:ncol, :nz), pdeldry(:ncol, :nz), qv_dry(:ncol, :nz), qv(:ncol, :nz))
+    qv(:ncol, :nz) = generic_dry_to_wet_mass_mixing_ratio( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), qv_dry(:ncol, :nz))
 
     errmsg = ''
     errflg = 0
@@ -465,8 +465,8 @@ contains
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
 
-    call generic_dry_to_wet_mass_mixing_ratio_run( &
-      pdel(:ncol, :nz), pdeldry(:ncol, :nz), qc_dry(:ncol, :nz), qc(:ncol, :nz))
+    qc(:ncol, :nz) = generic_dry_to_wet_mass_mixing_ratio( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), qc_dry(:ncol, :nz))
 
     errmsg = ''
     errflg = 0
@@ -487,8 +487,8 @@ contains
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
 
-    call generic_dry_to_wet_mass_mixing_ratio_run( &
-      pdel(:ncol, :nz), pdeldry(:ncol, :nz), qi_dry(:ncol, :nz), qi(:ncol, :nz))
+    qi(:ncol, :nz) = generic_dry_to_wet_mass_mixing_ratio( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), qi_dry(:ncol, :nz))
 
     errmsg = ''
     errflg = 0
@@ -509,8 +509,8 @@ contains
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
 
-    call generic_dry_to_wet_mass_mixing_ratio_run( &
-      pdel(:ncol, :nz), pdeldry(:ncol, :nz), qr_dry(:ncol, :nz), qr(:ncol, :nz))
+    qr(:ncol, :nz) = generic_dry_to_wet_mass_mixing_ratio( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), qr_dry(:ncol, :nz))
 
     errmsg = ''
     errflg = 0
@@ -531,8 +531,8 @@ contains
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
 
-    call generic_dry_to_wet_mass_mixing_ratio_run( &
-      pdel(:ncol, :nz), pdeldry(:ncol, :nz), qs_dry(:ncol, :nz), qs(:ncol, :nz))
+    qs(:ncol, :nz) = generic_dry_to_wet_mass_mixing_ratio( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), qs_dry(:ncol, :nz))
 
     errmsg = ''
     errflg = 0
@@ -553,8 +553,8 @@ contains
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
 
-    call generic_dry_to_wet_mass_mixing_ratio_run( &
-      pdel(:ncol, :nz), pdeldry(:ncol, :nz), qg_dry(:ncol, :nz), qg(:ncol, :nz))
+    qg(:ncol, :nz) = generic_dry_to_wet_mass_mixing_ratio( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), qg_dry(:ncol, :nz))
 
     errmsg = ''
     errflg = 0
@@ -577,8 +577,8 @@ contains
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
 
-    call generic_wet_to_dry_mass_number_concentration_run( &
-      pdel(:ncol, :nz), pdeldry(:ncol, :nz), nc(:ncol, :nz), nc_dry(:ncol, :nz))
+    nc_dry(:ncol, :nz) = generic_wet_to_dry_mass_number_concentration( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), nc(:ncol, :nz))
 
     errmsg = ''
     errflg = 0
@@ -601,8 +601,8 @@ contains
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
 
-    call generic_wet_to_dry_mass_number_concentration_run( &
-      pdel(:ncol, :nz), pdeldry(:ncol, :nz), ni(:ncol, :nz), ni_dry(:ncol, :nz))
+    ni_dry(:ncol, :nz) = generic_wet_to_dry_mass_number_concentration( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), ni(:ncol, :nz))
 
     errmsg = ''
     errflg = 0
@@ -625,8 +625,8 @@ contains
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
 
-    call generic_wet_to_dry_mass_number_concentration_run( &
-      pdel(:ncol, :nz), pdeldry(:ncol, :nz), nr(:ncol, :nz), nr_dry(:ncol, :nz))
+    nr_dry(:ncol, :nz) = generic_wet_to_dry_mass_number_concentration( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), nr(:ncol, :nz))
 
     errmsg = ''
     errflg = 0
@@ -649,8 +649,8 @@ contains
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
 
-    call generic_wet_to_dry_mass_number_concentration_run( &
-      pdel(:ncol, :nz), pdeldry(:ncol, :nz), ns(:ncol, :nz), ns_dry(:ncol, :nz))
+    ns_dry(:ncol, :nz) = generic_wet_to_dry_mass_number_concentration( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), ns(:ncol, :nz))
 
     errmsg = ''
     errflg = 0
@@ -673,8 +673,8 @@ contains
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
 
-    call generic_wet_to_dry_mass_number_concentration_run( &
-      pdel(:ncol, :nz), pdeldry(:ncol, :nz), ng(:ncol, :nz), ng_dry(:ncol, :nz))
+    ng_dry(:ncol, :nz) = generic_wet_to_dry_mass_number_concentration( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), ng(:ncol, :nz))
 
     errmsg = ''
     errflg = 0
@@ -697,8 +697,8 @@ contains
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
 
-    call generic_dry_to_wet_mass_number_concentration_run( &
-      pdel(:ncol, :nz), pdeldry(:ncol, :nz), nc_dry(:ncol, :nz), nc(:ncol, :nz))
+    nc(:ncol, :nz) = generic_dry_to_wet_mass_number_concentration( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), nc_dry(:ncol, :nz))
 
     errmsg = ''
     errflg = 0
@@ -721,8 +721,8 @@ contains
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
 
-    call generic_dry_to_wet_mass_number_concentration_run( &
-      pdel(:ncol, :nz), pdeldry(:ncol, :nz), ni_dry(:ncol, :nz), ni(:ncol, :nz))
+    ni(:ncol, :nz) = generic_dry_to_wet_mass_number_concentration( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), ni_dry(:ncol, :nz))
 
     errmsg = ''
     errflg = 0
@@ -745,8 +745,8 @@ contains
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
 
-    call generic_dry_to_wet_mass_number_concentration_run( &
-      pdel(:ncol, :nz), pdeldry(:ncol, :nz), nr_dry(:ncol, :nz), nr(:ncol, :nz))
+    nr(:ncol, :nz) = generic_dry_to_wet_mass_number_concentration( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), nr_dry(:ncol, :nz))
 
     errmsg = ''
     errflg = 0
@@ -769,8 +769,8 @@ contains
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
 
-    call generic_dry_to_wet_mass_number_concentration_run( &
-      pdel(:ncol, :nz), pdeldry(:ncol, :nz), ns_dry(:ncol, :nz), ns(:ncol, :nz))
+    ns(:ncol, :nz) = generic_dry_to_wet_mass_number_concentration( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), ns_dry(:ncol, :nz))
 
     errmsg = ''
     errflg = 0
@@ -793,8 +793,8 @@ contains
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
 
-    call generic_dry_to_wet_mass_number_concentration_run( &
-      pdel(:ncol, :nz), pdeldry(:ncol, :nz), ng_dry(:ncol, :nz), ng(:ncol, :nz))
+    ng(:ncol, :nz) = generic_dry_to_wet_mass_number_concentration( &
+      pdel(:ncol, :nz), pdeldry(:ncol, :nz), ng_dry(:ncol, :nz))
 
     errmsg = ''
     errflg = 0
