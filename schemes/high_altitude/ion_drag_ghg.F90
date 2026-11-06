@@ -21,11 +21,10 @@ module ion_drag_ghg
   public :: ion_drag_ghg_run
 
   integer, parameter :: plevtiod = 97
+  integer, parameter :: num_ion_species = 7
 
-  real(kind_phys) alamxx(plevtiod)
-  real(kind_phys) alamxy(plevtiod)
-
-  real(kind_phys) pshtiod(plevtiod)           ! TIME pressure scale height
+  real(kind_phys) :: alamxx(plevtiod)
+  real(kind_phys) :: alamxy(plevtiod)
 
   real(kind_phys), allocatable :: alamxxi(:)  ! alamxx interpolated to waccm grid
   real(kind_phys), allocatable :: alamxyi(:)  ! alamxy interpoalted to waccm grid
@@ -105,20 +104,23 @@ contains
     integer,            intent(out) :: errflg
 
     !-----------------local workspace---------------------------------------
-    integer k
-    integer kinv
-    integer m
-    integer const_idx
-    integer ierr
-    integer n_ions_found
+    integer :: k
+    integer :: kinv
+    integer :: m
+    integer :: const_idx
+    integer :: ierr
+    integer :: n_ions_found
 
-    real(kind_phys) rpsh                             ! ref pressure scale height
-    real(kind_phys) pshccm(pver)                     ! CCM pressure scale height
+    real(kind_phys) :: rpsh                             ! ref pressure scale height
+    real(kind_phys) :: pshccm(pver)                     ! CCM pressure scale height
 
     real(kind_phys), parameter :: preftgcm = 5.e-5_kind_phys       ! TIME GCM reference pressure (Pa)
+    real(kind_phys)            :: pshtiod(plevtiod)                ! TIME pressure scale height
+
+    character(len=256) :: alloc_errmsg
 
     ! Ion species whose joint presence selects the ions path of CAM's iondrag module
-    character(len=3), parameter :: ion_species(7) = (/ 'e  ', 'Op ', 'O2p', 'NOp', 'O  ', 'O2 ', 'N  ' /)
+    character(len=*), parameter :: ion_species(num_ion_species) = ['e  ', 'Op ', 'O2p', 'NOp', 'O  ', 'O2 ', 'N  ']
 
     !------------------------------------------------------------------------
 
@@ -151,7 +153,7 @@ contains
     !-------------------------------------------------------------------------------
     ! find lower bnd for iondrag
     !-------------------------------------------------------------------------------
-    if( pref_mid(1) < 0.1_kind_phys ) then
+    if (pref_mid(1) < 0.1_kind_phys) then
        do k = 1, pver
           if (pref_mid(k) < 50._kind_phys) nbot_lev = k
        end do
@@ -159,41 +161,40 @@ contains
 
     if (nbot_lev > 0) then
        doiodrg = .true.
-    endif
+    end if
 
-    if ( .not. doiodrg ) then
-       if ( masterproc ) then
+    if (.not. doiodrg) then
+       if (masterproc) then
           write(iulog,*) ' '
           write(iulog,*) 'ion_drag_ghg_init: Does not have waccm level. Ion drag does not apply. '
           write(iulog,*) ' '
        end if
        return
-    endif
+    end if
 
-    ! With the defualt values of nbot_lev and ntop_lev, ion drag calcualtion are NOT carried out
+    ! With the default value nbot_lev, ion drag calculations are NOT carried out
     nbot_lev=0
-    ntop_lev=1
 
     do k = 1, pver
        rpsh=log(1e5_kind_phys/pref_mid(k))
-       if (rpsh .gt. 14._kind_phys) nbot_lev  = k
+       if (rpsh > 14._kind_phys) nbot_lev  = k
     end do
-    if (nbot_lev .gt. ntop_lev) doiodrg=.true.
+    doiodrg = (nbot_lev > ntop_lev)
     if (masterproc) then
        write(iulog,fmt='(a15)') 'From IONDRAGI:'
        write(iulog,fmt='(1a12,1i10)') 'NTOP_LEV  =',ntop_lev
        write(iulog,fmt='(1a12,1i10)') 'NBOT_LEV  =',nbot_lev
        write(iulog,*) 'IONDRAG flag is',doiodrg
-    endif
+    end if
     do_ion_drag = doiodrg
     if (.not.doiodrg) return
 
     if (allocated(alamxxi)) deallocate(alamxxi)
     if (allocated(alamxyi)) deallocate(alamxyi)
-    allocate(alamxxi(pver), alamxyi(pver), stat=ierr, errmsg=errmsg)
+    allocate(alamxxi(pver), alamxyi(pver), stat=ierr, errmsg=alloc_errmsg)
     if (ierr /= 0) then
        errflg = ierr
-       errmsg = 'ion_drag_ghg_init: allocate of alamxxi, alamxyi failed: '//trim(errmsg)
+       errmsg = 'ion_drag_ghg_init: allocate of alamxxi, alamxyi failed: '//trim(alloc_errmsg)
        return
     end if
 
@@ -201,7 +202,7 @@ contains
     pshtiod(1)=-17._kind_phys
     do k=2,plevtiod
        pshtiod(k)=pshtiod(k-1)+0.25_kind_phys
-    enddo
+    end do
 
     !     map TIME-psh into CCM-psh
     pshtiod=pshtiod-log(preftgcm/1E5_kind_phys)
@@ -211,17 +212,19 @@ contains
     do k=1,pver
        kinv=pver-k+1
        pshccm(kinv)=log(1e5_kind_phys/pref_mid(k))
-    enddo
+    end do
 
     !     vertical interpolation
-    write(iulog,*) ' '
-    write(iulog,*) 'iondragi: before lininterp for alamxx'
-    write(iulog,*) '          nlatin,nlatout =',plevtiod,pver
-    write(iulog,*) '          yin'
-    write(iulog,'(1p,5g15.8)') pshtiod
-    write(iulog,*) '          yout'
-    write(iulog,'(1p,5g15.8)') pshccm
-    write(iulog,*) ' '
+    if (masterproc) then
+       write(iulog,*) ' '
+       write(iulog,*) 'iondragi: before lininterp for alamxx'
+       write(iulog,*) '          nlatin,nlatout =',plevtiod,pver
+       write(iulog,*) '          yin'
+       write(iulog,'(1p,5g15.8)') pshtiod
+       write(iulog,*) '          yout'
+       write(iulog,'(1p,5g15.8)') pshccm
+       write(iulog,*) ' '
+    end if
 
     call lininterp (alamxx  ,pshtiod,plevtiod, alamxxi   ,pshccm,pver)
 
@@ -273,11 +276,11 @@ contains
 
     !---------------------Local workspace-------------------------------------
 
-    real(kind_phys) alamyyi                          ! ALAMYY
-    real(kind_phys) dipan                            ! dip angle
+    real(kind_phys) :: alamyyi                          ! ALAMYY
+    real(kind_phys) :: dipan                            ! dip angle
 
-    integer i
-    integer k
+    integer :: i
+    integer :: k
 
     !-------------------------------------------------------------------------
 
@@ -295,8 +298,8 @@ contains
     do i=1,ncol
        do k=ntop_lev,nbot_lev
           dudt(i,k)=-alamxyi(k)*v(i,k)-alamxxi(k)*u(i,k)
-       enddo
-    enddo
+       end do
+    end do
 
     !     calculate meridional wind drag
     dvdt(:,:)=0.0_kind_phys
@@ -305,8 +308,8 @@ contains
        do k=ntop_lev,nbot_lev
           alamyyi=alamxxi(k)*(sin(dipan))**2._kind_phys
           dvdt(i,k)=+alamxyi(k)*u(i,k)-alamyyi*v(i,k)
-       enddo
-    enddo
+       end do
+    end do
 
   end subroutine ion_drag_ghg_run
 

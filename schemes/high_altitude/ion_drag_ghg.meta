@@ -30,7 +30,7 @@
   dimensions = ()
   intent = in
 [ do_ion_drag ]
-  standard_name = do_ion_drag_from_globally_uniform_tensor_TBD
+  standard_name = do_ion_drag_from_globally_uniform_tensor
   units = flag
   type = logical
   dimensions = ()
