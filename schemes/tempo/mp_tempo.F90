@@ -173,7 +173,7 @@ contains
 
         ! Check for existing CCN and IN aerosol data. If missing,
         ! fill in just a basic vertical profile that is somewhat boundary layer following.
-        if (curr_step == 1 .and. initial_run .and. tempo_cfgs % aerosolaware_flag) then
+        if (curr_step == 0 .and. initial_run .and. tempo_cfgs % aerosolaware_flag) then
             ! Potential cloud condensation nuclei (CCN).
             if (maxval(nwfa) < eps) then
                 do i = 1, ncol
@@ -305,7 +305,7 @@ contains
             end if
 
             call tempo_run( &
-                itimestep=curr_step, dt=dtime_subcyc, &
+                itimestep=curr_step + 1, dt=dtime_subcyc, &
                 dz=dz_r1, w=w_r1, p=p_r1, pii=exner_r1, th=new_th_r1, &
                 qv=new_qv_r1, qc=new_qc_r1, qr=new_qr_r1, qi=new_qi_r1, qs=new_qs_r1, qg=new_qg_r1, nr=new_nr_r1, ni=new_ni_r1, &
                 nc=new_nc_r1, nwfa=new_nwfa_r1, nifa=new_nifa_r1, &

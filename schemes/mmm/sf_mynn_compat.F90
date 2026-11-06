@@ -42,7 +42,7 @@ contains
         integer, intent(out) :: errflg
 
         ! Provide first guess at the first time step.
-        if (itimestep == 1) then
+        if (itimestep == 0) then
             ust(:) = max(0.04_kind_phys * sqrt(u(:, size(u, 2)) ** 2 + v(:, size(v, 2)) ** 2), 0.001_kind_phys)
             mol(:) = 0.0_kind_phys
             qsfc(:) = qv(:, size(qv, 2)) ! Note that this `qv` is wet.
@@ -358,7 +358,7 @@ contains
             t2, q2, flhc, flqc, snowh, qgh, qsfc, lh, &
             gz1oz0, wspd, br, isfflx, dx, svp1, svp2, &
             svp3, svpt0, ep1, ep2, karman, ch, qcg, &
-            itimestep, wstar, qstar, ustm, ck, cka, &
+            itimestep + 1, wstar, qstar, ustm, ck, cka, &
             cd, cda, spp_pbl_l, rstoch1d, isftcflx, &
             iz0tlnd, its, ite, &
             errmsg, errflg)
@@ -380,7 +380,7 @@ contains
                 t2_sea, q2_sea, flhc_sea, flqc_sea, snowh, qgh_sea, qsfc_sea, lh_sea, &
                 gz1oz0_sea, wspd_sea, br_sea, isfflx, dx, svp1, svp2, &
                 svp3, svpt0, ep1, ep2, karman, ch_sea, qcg, &
-                itimestep, wstar_sea, qstar_sea, ustm_sea, ck_sea, cka_sea, &
+                itimestep + 1, wstar_sea, qstar_sea, ustm_sea, ck_sea, cka_sea, &
                 cd_sea, cda_sea, spp_pbl_l, rstoch1d, isftcflx, &
                 iz0tlnd, its, ite, &
                 errmsg, errflg)

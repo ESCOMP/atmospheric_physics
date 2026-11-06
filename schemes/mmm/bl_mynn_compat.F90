@@ -41,7 +41,7 @@ contains
         character(*), intent(out) :: errmsg
         integer, intent(out) :: errflg
 
-        if (itimestep > 1 .or. restart) then
+        if (itimestep > 0 .or. restart) then
             initflag = 0
         else
             initflag = 1
