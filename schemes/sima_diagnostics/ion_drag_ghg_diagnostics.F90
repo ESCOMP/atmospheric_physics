@@ -23,9 +23,14 @@ CONTAINS
       errmsg = ''
       errflg = 0
 
-      ! As in CAM, the fields exist only when ion drag is active
+      ! Fields are always present
+      ! TODO: register_vector_field equivalent in CAM-SIMA?
+      call history_add_field('UTEND_IONDRG', 'Zonal wind tendency by ion drag', 'lev', 'avg', 'm s-2')
+      call history_add_field('VTEND_IONDRG', 'Meridional wind tendency by ion drag', 'lev', 'avg', 'm s-2')
+
       if (.not. do_ion_drag) return
 
+      ! These fields exist only when ion drag is active
       call history_add_field('UIONTEND', 'u-tendency due to ion drag', 'lev', 'avg', 'm s-2')
       call history_add_field('VIONTEND', 'v-tendency due to ion drag', 'lev', 'avg', 'm s-2')
 
@@ -46,8 +51,17 @@ CONTAINS
       errmsg = ''
       errflg = 0
 
+      ! Fields are always written; zeros when ion drag is not active
+      ! Note: these fields are always added/written because they're part of the history_budget
+      ! group in CAM and it could be annoying if SIMA aborted when these were part of a
+      ! history configuration, but ion drag was not active. This mimics CAM behavior
+      call history_out_field('UTEND_IONDRG', dudt)
+      call history_out_field('VTEND_IONDRG', dvdt)
+
       if (.not. do_ion_drag) return
 
+      ! These fields exist only when ion drag is active
+      ! Field values are the same as above, but use WACCM naming convention.
       call history_out_field('UIONTEND', dudt)
       call history_out_field('VIONTEND', dvdt)
 
