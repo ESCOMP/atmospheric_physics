@@ -99,7 +99,7 @@ contains
     real(kind_phys),    intent(in)  :: pref_mid(:)       ! model ref pressure at midpoint [Pa]
     logical,            intent(in)  :: masterproc
     integer,            intent(in)  :: iulog
-    logical,            intent(out) :: do_ion_drag       ! ion drag is applied
+    logical,            intent(out) :: do_ion_drag       ! ion drag is applied (needed by CAM; used by SIMA diagnostics)
     character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
