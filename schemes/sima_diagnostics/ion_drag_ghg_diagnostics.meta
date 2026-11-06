@@ -1,0 +1,59 @@
+[ccpp-table-properties]
+  name = ion_drag_ghg_diagnostics
+  type = scheme
+
+[ccpp-arg-table]
+  name  = ion_drag_ghg_diagnostics_init
+  type  = scheme
+[ do_ion_drag ]
+  standard_name = do_ion_drag_from_globally_uniform_tensor
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = ion_drag_ghg_diagnostics_run
+  type  = scheme
+[ do_ion_drag ]
+  standard_name = do_ion_drag_from_globally_uniform_tensor
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ dudt ]
+  standard_name = tendency_of_eastward_wind
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ dvdt ]
+  standard_name = tendency_of_northward_wind
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
