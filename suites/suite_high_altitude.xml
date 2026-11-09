@@ -1,0 +1,510 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<suite name="high_altitude" version="1.0">
+  <!--
+      HIGH-ALTITUDE (WACCM) PHYSICS SUITE
+      The CAM7 suite (suite_cam7.xml, -chem none variant) with the WACCM
+      processes placed where CAM7 physpkg (tphysac) calls them. Converted
+      WACCM schemes are live; the rest are commented placeholders naming the
+      CAM source, to be enabled as they are converted.
+
+      WACCM processes, in CAM7 order:
+      Radiation heating merge radheat (in radiation)            (not implemented)
+      Age-of-air tracers      aoa_tracers                       (not implemented)
+      Chemistry               WACCM chemistry, aurora, heating  (not implemented)
+      Molecular diffusion     within vertical diffusion         (not implemented)
+      Charge neutrality       charge_fix_mmr                    (not implemented)
+      QBO relaxation          qbo_relax                         (not implemented)
+      Lunar tides             lunar_tides                       (not implemented)
+      Ion drag                ion_drag_ghg (no ion chemistry)
+                              ion drag with ions                (not implemented)
+      WACCM-X ion/electron T  ion_electron_temp                 (not implemented)
+
+      Base CAM7 suite:
+      Deep convection         ZM
+      Shallow convection      CLUBB (not implemented)
+      Macrophysics            CLUBB (not implemented)
+      Microphysics            PUMAS (not implemented)
+      Radiation               RRTMGP
+      Chemistry               None  (not implemented)
+      Aerosol Model           BAM (bulk)
+      Aerosol Source          Prescribed
+      Vertical Diffusion      CLUBB (not implemented)
+                              HB free atmosphere (not implemented)
+      Gravity Wave Drag       Moving mountain, convection, frontal, ridge
+  -->
+
+  <!-- **********Physics before the coupler************  -->
+  <group name="physics_before_coupler">
+    <!-- Helper schemes to read all possible constituents from file and/or namelist -->
+    <scheme>to_be_ccppized_temporary</scheme>
+    <scheme>prescribe_radiative_gas_concentrations</scheme>
+
+    <!-- Set top level for cloud fraction calculations -->
+    <scheme>set_cloud_fraction_top</scheme>
+
+    <!-- Prescribe ozone and aerosol for radiation (nochem).
+         In true CAM7 with interactive chemistry (T4S + MAM5),
+         these would be replaced by prognostic chemistry and aerosol schemes. -->
+    <scheme>prescribed_ozone</scheme>
+    <scheme>prescribed_aerosols</scheme>
+    <scheme>prescribed_aerosol_deposition_flux</scheme>
+    <scheme>tropopause_find</scheme>
+    <scheme>prescribed_volcanic_aerosol</scheme>
+
+    <!-- Rebin seasalt from 4bin prescribed to 2bin -->
+    <scheme>rebin_seasalt</scheme>
+
+    <!-- Compute global means of physics input and output total energy -->
+    <scheme>check_energy_gmean</scheme>
+    <!-- After gmean, output global mean energy diagnostics -->
+    <scheme>check_energy_gmean_diagnostics</scheme>
+
+    <!--
+      Global energy fixer (check_energy_fix)
+      Add global mean energy difference as heating (diff between gmean and save_teout)
+    -->
+    <scheme>check_energy_zero_fluxes</scheme>
+    <scheme>check_energy_fix</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>geopotential_temp</scheme>
+    <!-- Check that energy and water change matches the boundary fluxes, update global energy -->
+    <scheme>check_energy_scaling</scheme>
+    <scheme>check_energy_chng</scheme>
+    <!-- Global energy fixer diagnostics (must run after check_energy_chng which updates global energies, but before zero_fluxes zeroes out boundary fluxes from energy fixer) -->
+    <scheme>check_energy_fix_diagnostics</scheme>
+
+    <!-- Dry Adiabatic Adjustment -->
+    <scheme>dadadj</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+
+    <!-- Zhang McFarlane (convect_deep) -->
+    <scheme>check_energy_zero_fluxes</scheme>
+    <scheme>zm_conv_options</scheme>
+    <scheme>zm_convr</scheme>
+    <scheme>zm_convr_tendency_diagnostics</scheme>
+    <!-- Core (pre-evaporation) ZM tendencies and the ungathered cloud top, for MCSP -->
+    <scheme>save_core_tend_from_convect_deep</scheme>
+    <scheme>zm_conv_cloud_top</scheme>
+    <scheme>save_ttend_from_convect_deep</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+    <scheme>cloud_fraction_fice</scheme>
+    <scheme>set_deep_conv_fluxes_to_general</scheme>
+    <scheme>zm_conv_evap</scheme>
+    <scheme>set_general_conv_fluxes_to_deep</scheme>
+    <scheme>zm_evap_tendency_diagnostics</scheme>
+    <scheme>save_ttend_from_convect_deep</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+    <scheme>cloud_fraction_fice</scheme>
+    <scheme>zm_conv_momtran</scheme>
+    <scheme>zm_momtran_tendency_diagnostics</scheme>
+    <scheme>save_ttend_from_convect_deep</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>apply_tendency_of_eastward_wind</scheme>
+    <scheme>apply_tendency_of_northward_wind</scheme>
+    <scheme>geopotential_temp</scheme>
+    <scheme>zm_conv_convtran</scheme>
+    <scheme>zm_tendency_diagnostics</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>qneg</scheme>
+    <scheme>clamp_number_concentrations</scheme>
+    <scheme>cloud_condensate_floor</scheme>
+    <scheme>geopotential_temp</scheme>
+    <scheme>zm_diagnostics</scheme>
+
+    <!-- Check that energy and water change matches the boundary fluxes -->
+    <scheme>zm_prepare_flux_for_check_energy</scheme>
+    <scheme>check_energy_scaling</scheme>
+    <scheme>check_energy_chng</scheme>
+
+    <!-- Mesoscale coherent structure parameterization (MCSP)
+         Redistributes the core ZM heating and moistening vertically.
+         Inactive while all mcsp_nl coefficients are zero (the default). -->
+    <scheme>check_energy_zero_fluxes</scheme>
+    <scheme>mcsp</scheme>
+    <scheme>mcsp_diagnostics</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>apply_tendency_of_eastward_wind</scheme>
+    <scheme>apply_tendency_of_northward_wind</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+    <!-- MCSP conserves column energy and water, so the boundary fluxes stay zero -->
+    <scheme>check_energy_scaling</scheme>
+    <scheme>check_energy_chng</scheme>
+
+    <!-- Calculate surface variables -->
+    <!-- This must be done at the end
+         of the "before_coupler" group. -->
+    <!-- UNCOMMENT ONCE ALL OTHER CAM7 SCHEMES ARE PRESENT -->
+    <!-- <scheme>calc_dry_air_ideal_gas_density</scheme>
+    <scheme>set_surface_coupling_vars</scheme> -->
+
+  </group>
+
+  <!-- **********Physics after the coupler************  -->
+  <group name="physics_after_coupler">
+
+    <!--
+      CLUBB emissions (not implemented)
+    -->
+
+    <!--
+      CARMA microphysics (not implemented)
+    -->
+
+    <!--
+      Macrophysics/Microphysics substepping loop
+      In CAM7 the macro/micro loop contains:
+        1. CLUBB (macrophysics)
+        2. microp_aero (aerosol activation for microphysics)
+        3. PUMAS (microphysics)
+      The microp_aero section replaces the following CAM subroutine:
+        microp_aero_run -> nucleate_ice + ndrop (BAM or MAM variant)
+      See suite_microp_aero_bam.xml for the standalone BAM test suite.
+    -->
+    <!-- <subcycle loop="cld_macmic_num_steps"> -->
+
+      <!--
+        CLUBB (macrophysics, not implemented)
+        clubb_stub only provides the do_clubb_sgs flag consumed by
+        pumas_pre_main until CLUBB is ported (register phase only).
+      -->
+      <scheme>clubb_stub</scheme>
+
+      <!--
+        microp_aero: microphysics-aerosol coupling
+        In nochem BAM mode, the scheme order is:
+          0.  tropopause_find (chemical tropopause)
+          1.  compute_subgrid_vertical_velocity (CLUBB variant)
+          2.  scale_subgrid_vertical_velocity
+          3.  nucleate_ice_ccpp
+          4b. ndrop_bam (BAM droplet activation)
+        In true CAM7 (MAM5), step 4b is replaced by:
+          4a. dropmixnuc (MAM/CARMA droplet activation)
+          5.  contact_freezing_modal
+          6.  hetfrz_classnuc_ccpp
+      -->
+
+      <!-- Find chemical tropopause -->
+      <scheme>tropopause_find</scheme>
+
+      <!-- Compute and scale subgrid vertical velocity
+           CAM7/CAM6: use the CLUBB variant that derives TKE from WP2_nadv -->
+      <scheme>compute_subgrid_vertical_velocity_clubb</scheme>
+      <scheme>scale_subgrid_vertical_velocity</scheme>
+      <scheme>scale_subgrid_vertical_velocity_diagnostics</scheme>
+
+      <!-- Set default dust size radii for microphysics -->
+      <scheme>dust_default_radii</scheme>
+
+      <!-- Ice nucleation
+           Runs even without aerosol models when microp_aero is active
+           for Meyers 1992 deposition.
+           Updates NAAI, NAAI_HOM etc. for PUMAS -->
+      <scheme>nucleate_ice_ccpp</scheme>
+      <scheme>nucleate_ice_diagnostics</scheme>
+
+      <!-- Droplet activation (BAM)
+           Computes npccn, nacon for microphysical schemes, ccn, naer2_diag for diag.
+           In true CAM7 (MAM5), replace with dropmixnuc + contact_freezing_modal + hetfrz_classnuc -->
+      <scheme>ndrop_bam_ccpp</scheme>
+      <scheme>ndrop_bam_diagnostics</scheme>
+
+      <!-- Stub for hetfrz: used to pass the namelist option to other schemes
+           since it alters behavior in other microphysical schemes. -->
+      <scheme>hetfrz_classnuc_stub</scheme>
+
+      <!--
+        PUMAS (microphysics)
+        Runs inside the macro/micro substepping loop after microp_aero,
+        matching the canonical ordering in CAM7 physpkg.F90
+        (clubb_tend -> microp_aero_run -> microp_driver_tend).
+      -->
+      <!-- Read in PUMAS namelist variables (init only) -->
+      <scheme>pumas_pre_main</scheme>
+      <!-- Convert variables from host grid to PUMAS grid -->
+      <scheme>micro_pumas_ccpp_dimensions_pre</scheme>
+      <!-- core PUMAS (cloud microphysics) scheme -->
+      <scheme>micro_pumas_ccpp</scheme>
+      <!-- Convert variables from PUMAS grid to host grid -->
+      <scheme>micro_pumas_ccpp_dimensions_post</scheme>
+      <!-- Apply tendencies -->
+      <scheme>apply_constituent_tendencies</scheme>
+      <scheme>clamp_number_concentrations</scheme>
+      <scheme>qneg</scheme>
+      <!-- Recompute size distribution quantities for radiation from the updated
+           constituents; needs the pre-heating air temperature, so it must run
+           before apply_heating_rate -->
+      <scheme>pumas_post_main</scheme>
+      <scheme>micro_pumas_ccpp_optics_limiter</scheme>
+      <scheme>apply_heating_rate</scheme>
+      <scheme>geopotential_temp</scheme>
+
+    <!-- </subcycle> -->
+
+    <!--
+      Aerosol wet processes (not implemented)
+      In CAM7 with MAM: modal_aero_calcsize, modal_aero_wateruptake,
+      aero_model_wetdep, convect_deep_tend_2
+      In nochem BAM: only convect_deep_tend_2 applies
+    -->
+
+    <!--
+      Cloud diagnostics part 1: (not implemented)
+    -->
+
+    <!-- State diagnostics -->
+    <scheme>sima_state_diagnostics</scheme>
+
+    <!--
+      Cloud diagnostics part 2:
+      Cloud water inputs for radiation (after_coupler for CAM7 instead of before_coupler)
+    -->
+    <scheme>convective_cloud_water</scheme>
+    <scheme>convective_cloud_water_diagnostics</scheme>
+    <scheme>cloud_water_paths</scheme>
+    <scheme>cloud_water_paths_diagnostics</scheme>
+
+    <!-- Radiation -->
+    <!-- Run rrtmgp pre-interstitial first to get night column information
+         for aerosol_optics_diagnostics. -->
+    <scheme>rrtmgp_pre</scheme>
+
+    <!-- Calculate aerosol optical properties for radiation.
+         compute_relative_humidity provides the relative humidity for the
+         optics table lookup. -->
+    <scheme>compute_relative_humidity</scheme>
+    <scheme>aerosol_optics</scheme>
+    <scheme>aerosol_optics_diagnostics</scheme>
+
+    <!-- Radiation (RRTMGP) -->
+    <scheme>rrtmgp_cloud_optics_setup</scheme>
+    <scheme>tropopause_find</scheme>
+    <scheme>rrtmgp_variables</scheme>
+    <scheme>rrtmgp_inputs</scheme>
+    <scheme>rrtmgp_sw_cloud_optics</scheme>
+    <scheme>rrtmgp_sw_mcica_subcol_gen</scheme>
+    <scheme>rrtmgp_cloud_diagnostics</scheme>
+    <!-- Shortwave subcycle - last iteration is climate calculation -->
+    <subcycle loop="number_of_diagnostic_subcycles">
+      <scheme>rrtmgp_constituents</scheme>
+      <scheme>rrtmgp_sw_gas_optics_pre</scheme>
+      <scheme>rrtmgp_sw_gas_optics</scheme>
+      <scheme>solar_irradiance_data</scheme>
+      <scheme>rrtmgp_sw_solar_var</scheme>
+      <scheme>rrtmgp_sw_aerosols</scheme>
+      <scheme>rrtmgp_sw_rte</scheme>
+      <scheme>rrtmgp_sw_calculate_fluxes</scheme>
+      <scheme>rrtmgp_sw_calculate_heating_rate</scheme>
+      <scheme>rrtmgp_sw_diagnostics</scheme>
+      <scheme>rrtmgp_subcycle</scheme>
+    </subcycle>
+    <scheme>rrtmgp_lw_cloud_optics</scheme>
+    <scheme>rrtmgp_lw_mcica_subcol_gen</scheme>
+    <!-- Longwave subcycle - last iteration is climate calculation-->
+    <subcycle loop="number_of_diagnostic_subcycles">
+      <scheme>rrtmgp_constituents</scheme>
+      <scheme>rrtmgp_lw_gas_optics_pre</scheme>
+      <scheme>rrtmgp_lw_gas_optics</scheme>
+      <scheme>rrtmgp_lw_aerosols</scheme>
+      <scheme>rrtmgp_lw_rte</scheme>
+      <scheme>rrtmgp_lw_calculate_fluxes</scheme>
+      <scheme>rrtmgp_lw_calculate_heating_rate</scheme>
+      <scheme>rrtmgp_lw_diagnostics</scheme>
+      <scheme>rrtmgp_subcycle</scheme>
+    </subcycle>
+    <!-- End longwave subcycle -->
+    <scheme>rrtmgp_inputs_setup</scheme>
+    <scheme>rrtmgp_sw_solar_var_setup</scheme>
+    <scheme>rrtmgp_dry_static_energy_tendency</scheme>
+    <!-- WACCM: radheat_tend (physics/waccm/radheat.F90, not implemented)
+         merges the upper-atmosphere heating rates with the RRTMGP rates:
+         nlte_lw (nlte_aliarms, nlte_extco2, nlte_fomichev), waccm_forcing
+         (get_solar), mo_waccm_hrates (chemical heating), tidal_diag.
+         The non-WACCM counterpart is calculate_net_heating. -->
+    <scheme>calculate_net_heating</scheme>
+    <scheme>rrtmgp_post</scheme>
+    <scheme>rrtmgp_diagnostics</scheme>
+    <!-- State updaters -->
+    <scheme>apply_heating_rate</scheme>
+    <scheme>geopotential_temp</scheme>
+    <!-- end Radiation (RRTMGP) -->
+
+    <!-- WACCM: age-of-air tracers (physics/cam/aoa_tracers.F90,
+         aoa_tracers_timestep_tend, not implemented) -->
+
+    <!--
+      Chemistry / advected tracer source-sink (not implemented)
+      WACCM: chem_timestep_tend with WACCM chemistry, including the
+      chemistry-embedded aurora ion production (physics/waccm/mo_aurora.F90
+      via mo_setext), charge_fix_vmr (chemistry/mozart/charge_neutrality.F90)
+      and chemical heating (mo_waccm_hrates)
+    -->
+
+    <!--
+      Vertical diffusion (not implemented)
+      In CAM7, CLUBB handles PBL mixing (in the macro loop above).
+      However, vertical_diffusion_tend still runs with the hb_free_atm
+      variant providing HB exchange coefficients above clubbtop, where
+      CLUBB is not active.
+
+      WACCM: molecular diffusion (do_molec_diff) within vertical
+      diffusion; WACCM-X: major species diffusion (waccmx_phys_mspd_tend).
+    -->
+
+    <!-- Find tropopause -->
+    <!-- Tropopause find has to make history output at the end of convective adjustment -->
+    <!-- so supersaturated cells are not written to the tape. -->
+    <scheme>tropopause_find</scheme>
+    <scheme>tropopause_diagnostics</scheme>
+
+    <!--
+      Orographic form drag: Beljaars SGO
+    -->
+    <scheme>beljaars_drag</scheme>
+    <scheme>beljaars_drag_diagnostics</scheme>
+
+    <!--
+      Initialize cloud fraction for two-moment microphysics (init phase only).
+      cloud_fraction_options reads the cldfrc_nl namelist parameters that
+      compute_cloud_fraction_two_moment depends on; compute_cloud_fraction
+      itself is not run in CAM7.
+    -->
+    <scheme>cloud_fraction_options</scheme>
+    <scheme>compute_cloud_fraction_two_moment</scheme>
+
+    <!-- Vertical diffusion (CLUBB) -->
+
+    <!-- WACCM: charge neutrality on mass mixing ratios
+         (chemistry/mozart/charge_neutrality.F90, charge_fix_mmr,
+         not implemented) -->
+
+    <!--
+      Gravity wave drag.
+    -->
+    <!-- Initialize all gravity wave parameterizations and read namelist -->
+    <scheme>gravity_wave_drag_common</scheme>
+
+    <!-- Interstitial: Prepare vertical profiles and accumulated quantities -->
+    <scheme>check_energy_zero_fluxes</scheme>
+    <scheme>gravity_wave_drag_prepare_profiles</scheme>
+
+    <!-- Prepare vertical ramp coefficients to taper drag at top of model -->
+    <scheme>gravity_wave_drag_top_taper</scheme>
+
+    <!-- Moving mountain gravity wave drag (SE dycore only) -->
+    <scheme>compute_total_precipitation_rate</scheme>
+    <scheme>gravity_wave_drag_moving_mountain</scheme>
+    <scheme>gravity_wave_drag_moving_mountain_diagnostics</scheme>
+
+    <!-- Convective gravity wave drag (Beres et al.) - deep convection -->
+    <scheme>gravity_wave_drag_convection_deep</scheme>
+    <scheme>gravity_wave_drag_convection_deep_diagnostics</scheme>
+
+    <!-- Frontally generated gravity wave drag -->
+    <scheme>gravity_wave_drag_frontogenesis</scheme>
+    <scheme>gravity_wave_drag_frontogenesis_diagnostics</scheme>
+
+    <!-- Ridge gravity wave drag -->
+    <scheme>gravity_wave_drag_ridge</scheme>
+    <scheme>gravity_wave_drag_ridge_beta</scheme>
+    <scheme>gravity_wave_drag_ridge_beta_diagnostics</scheme>
+
+    <!-- Interstitial: Convert tendencies for dry constituents to dry air basis -->
+    <scheme>convert_dry_constituent_tendencies_to_dry_air_basis</scheme>
+
+    <!-- Diagnostic output for common gravity wave drag -->
+    <scheme>gravity_wave_drag_common_diagnostics</scheme>
+
+    <!-- Apply tendencies from gravity wave parameterizations -->
+    <scheme>apply_tendency_of_eastward_wind</scheme>
+    <scheme>apply_tendency_of_northward_wind</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+    <scheme>update_dry_static_energy</scheme>
+
+    <!-- Check energy -->
+    <scheme>check_energy_scaling</scheme>
+    <scheme>check_energy_chng</scheme>
+
+    <!-- WACCM: QBO relaxation (physics/waccm/qbo.F90, qbo_relax,
+         not implemented) -->
+
+    <!-- WACCM: lunar tides (physics/cam/lunar_tides.F90, lunar_tides_tend,
+         not implemented) -->
+
+    <!--
+      WACCM: ion drag (physics/waccm/iondrag.F90, iondrag_calc_section).
+      ion_drag_ghg is the globally uniform tensor CAM uses without ion
+      chemistry; it stops with an error if all ion species are present.
+      With ion chemistry (WACCM-MA, WACCM-X) CAM uses iondrag_calc_ions
+      instead (not implemented; efield, exbdrift, heelis_mod, mo_apex).
+    -->
+    <scheme>check_energy_zero_fluxes</scheme>
+    <scheme>ion_drag_ghg</scheme>
+    <scheme>ion_drag_ghg_diagnostics</scheme>
+    <!-- WACCM-X: ion and electron temperatures
+         (physics/waccmx/ion_electron_temp.F90, not implemented), inside
+         the same CAM bracket as ion drag; heating only -->
+    <scheme>apply_tendency_of_eastward_wind</scheme>
+    <scheme>apply_tendency_of_northward_wind</scheme>
+    <scheme>check_energy_scaling</scheme>
+    <scheme>check_energy_chng</scheme>
+
+    <!-- WACCM-X: charge neutrality after the ionosphere update
+         (charge_fix_mmr, second call, not implemented) -->
+
+    <!--
+      Energy conservation/budget checks.
+    -->
+
+    <!-- Save current total energy from dycore for energy fixer in time step. Total energy in current state is updated by the last check_energy_chng call. -->
+    <scheme>check_energy_save_teout</scheme>
+
+    <!-- thermo_water_update prepares cp_or_cv_dycore for post-physics
+         total-energy diagnostics (i.e., tot_energy_phys in CAM).
+         COMMENTED OUT: CAM-SIMA does not have tot_energy_phys diagnostics
+         yet, thus cp_or_cv_dycore does not need to be updated mid-physics
+         at this time.
+
+         check_energy_scaling reads cp_or_cv_dycore_at_start_of_physics_timestep
+         (computed in d_p_coupling/dyn_coupling_impl) instead
+         and should not use mid-physics timestep updated values (see CAM#1554).
+         Re-enable once dme_adjust is enabled and tot_energy_physics diagnostics
+         are implemented. -->
+    <!-- <scheme>thermo_water_update</scheme> -->
+
+    <!-- Dry Mass and Energy adjust -->
+    <!-- COMMENTED OUT until qini/liqini/iceini have initialization routines -->
+    <!-- See https://github.com/ESCOMP/atmospheric_physics/issues/222 -->
+    <!-- <scheme>dme_adjust</scheme> -->
+
+    <!-- MPAS and SE specific scaling of temperature for enforcing energy consistency:
+         First, calculate the scaling based off the start-of-physics snapshot
+         cp_or_cv_dycore_at_start_of_physics_timestep (computed in d_p_coupling/
+         dyn_coupling_impl).
+         Any mid-physics mutation of cp_or_cv_dycore by thermo_water_update
+         should not be used.
+         Then, perform the temperature and temperature tendency scaling -->
+    <scheme>check_energy_scaling</scheme>
+    <scheme>dycore_energy_consistency_adjust</scheme>
+    <scheme>apply_tendency_of_air_temperature</scheme>
+
+    <!-- Tendency diagnostics -->
+    <scheme>sima_tend_diagnostics</scheme>
+
+  </group>
+
+</suite>
