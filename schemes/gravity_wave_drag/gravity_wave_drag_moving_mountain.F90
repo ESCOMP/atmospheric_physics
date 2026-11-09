@@ -357,10 +357,15 @@ contains
                       ttgw, qtgw, egwdffi, gwut, dttdf, dttke, &
                       lapply_effgw_in=gw_apply_tndmax)
 
-    ! Adjust ubi to yield correct directions when ubi(src)>0>ubi(src+1)
+    ! calc_taucd signs the stress at each interface with (c - ubi).
+    ! At the source interface src_level+1 the interpolated ubi can have the opposite sign to
+    ! ubm(src_level), the midpoint wind that sets the drag direction gw_drag_prof applies in
+    ! the source layer.
+    ! momentum_flux reads taucd at that interface, so use ubm(src_level) there to keep the
+    ! momentum fixer consistent with the applied drag. ubi itself is left unchanged.
     ubi_src(:ncol,:) = ubi(:ncol,:)
-    do i=1,ncol
-       ubi_src(i,src_level(i)+1) = ubm(i ,src_level(i))
+    do i = 1, ncol
+       ubi_src(i, src_level(i)+1) = ubm(i, src_level(i))
     end do
     ! Project stress into directional components.
     taucd = calc_taucd(ncol, band%ngwv, tend_level, tau, phase_speeds, xv, yv, ubi_src)
@@ -806,24 +811,16 @@ contains
     real(kind_phys), intent(out) :: roo_block(ncol)
 
     ! Pressure bounds for centroid search [Pa].
-    !
-    ! Top bound: fixed at TOA (unchanged).
-    !
-    ! Bottom (BL-exclusion) bound: was a single fixed 800 hPa, which is
-    ! terrain-blind. Over elevated terrain (e.g. the Antarctic plateau,
-    ! Andes, Himalaya/Tibetan Plateau, Rockies -- anywhere local surface
-    ! pressure is already below ~800 hPa) that fixed cutoff is never
-    ! reached, so no level is ever excluded and the steering-level
-    ! centroid is free to lock onto raw near-surface shear/tilt noise
-    ! (which is exactly where this parameterization's local eta-level
-    ! vorticity calc and polar grid-metric terms are most contaminated).
-    !
-    ! Fix: exclude the bottom (1 - frac_pbl_excl) of each column's own
-    ! pressure range instead, i.e. scale the cutoff by local surface
-    ! pressure (pmid(:,pver), the lowest model layer midpoint, used as
-    ! a close proxy for true surface pressure -- using the true
-    ! interface/surface pressure instead would require threading it in
-    ! from the caller, which is not done here to keep the change local).
+    ! Top bound: TOA.
+    ! Bottom (BL-exclusion) bound: the lowest (1 - frac_pbl_excl) of each column's own
+    ! pressure range is excluded, so the cutoff scales with local surface pressure.
+    ! A fixed cutoff such as 800 hPa is terrain-blind: over elevated terrain (Antarctic
+    ! plateau, Andes, Tibetan Plateau, Rockies) local surface pressure is already below it,
+    ! no level is excluded, and the steering-level centroid can lock onto raw near-surface
+    ! shear/tilt noise, exactly where the local eta-level vorticity and polar grid-metric
+    ! terms are most contaminated.
+    ! pmid(:,pver), the lowest layer midpoint, stands in for surface pressure so that the
+    ! surface pressure does not have to be threaded in from the caller.
     real(kind_phys), parameter :: p_min_centroid    = 0._kind_phys
     real(kind_phys), parameter :: frac_pbl_excl     = 0.8_kind_phys  ! fraction of local p_sfc
 
@@ -837,7 +834,6 @@ contains
     real(kind_phys), parameter :: roo_eps       = 1.e-7_kind_phys   ! ~typical tilt scale, avoids /0
 
     real(kind_phys) :: p_min_bound(ncol), p_max_bound(ncol)
-    real(kind_phys) :: z_steer(ncol), z_launch(ncol)
     real(kind_phys) :: max_low, max_mid, roo
     logical         :: mask_low(pver), mask_mid(pver)
     logical         :: blocked_roo
@@ -848,8 +844,7 @@ contains
 
     call vorticity_centroid_levels(tilt, pmid, ncol, pver, &
          p_min_bound, p_max_bound, &
-         steering_level, launch_level, &
-         z_steer, z_launch)
+         steering_level, launch_level)
 
     do i = 1, ncol
       mask_low = zm(i,:) <= z_low_roo
@@ -1079,8 +1074,7 @@ contains
 
   subroutine vorticity_centroid_levels(weight, p, ncol, pver, &
        p_min, p_max, &
-       steering_level, launch_level, &
-       z_steer, z_launch)
+       steering_level, launch_level)
   !------------------------------------------------------------------------
   ! Derive steering and launch level indices from a weight profile
   ! (typically |vorticity| or tilt) via two successive centroid passes.
@@ -1092,16 +1086,14 @@ contains
   !
   ! p is the vertical coordinate for the centroid; callers pass pmid [Pa].
   !
-  ! p_min/p_max are now per-column (ncol) bounds, so the steering-level
-  ! search window can depend on local surface pressure rather than a
-  ! single fixed value (see tilt_centroid_levels).
+  ! p_min/p_max are per-column bounds so the steering-level search window can depend
+  ! on local surface pressure (see tilt_centroid_levels).
   !------------------------------------------------------------------------
     integer,         intent(in)  :: ncol, pver
     real(kind_phys), intent(in)  :: weight(ncol,pver)
     real(kind_phys), intent(in)  :: p(ncol,pver)
     real(kind_phys), intent(in)  :: p_min(ncol), p_max(ncol)
     integer,         intent(out) :: steering_level(ncol), launch_level(ncol)
-    real(kind_phys), intent(out) :: z_steer(ncol), z_launch(ncol)
 
     real(kind_phys) :: abswgt(ncol,pver), w_top(ncol,pver)
     real(kind_phys) :: z_cent(ncol), z_top(ncol)
@@ -1130,9 +1122,6 @@ contains
                             unbound_min, unbound_max, &
                             z_top, launch_level)
 
-    z_steer  = z_cent
-    z_launch = z_top
-
   end subroutine vorticity_centroid_levels
 
 !==========================================================================
@@ -1146,15 +1135,18 @@ contains
   ! restricted to z_min(i) <= z <= z_max(i). Integration is trapezoidal.
   ! Sentinel on failure: z_centroid = -1, k_centroid = -1.
   !
-  ! z_min/z_max are now per-column (ncol) rather than scalar, so callers
-  ! can set a column-dependent bound (e.g. a fraction of local surface
-  ! pressure, instead of a fixed value that is terrain-blind).
+  ! z_min/z_max are per-column so callers can set a column-dependent bound
+  ! (e.g. a fraction of local surface pressure).
   !------------------------------------------------------------------------
     integer,         intent(in)  :: ncol, pver
     real(kind_phys), intent(in)  :: w(ncol,pver), z(ncol,pver)
     real(kind_phys), intent(in)  :: z_min(ncol), z_max(ncol)
     real(kind_phys), intent(out) :: z_centroid(ncol)
     integer,         intent(out) :: k_centroid(ncol)
+
+    ! Floor on the centroid [Pa]: callers pass pressure as z, and neither the steering nor
+    ! the launch level may be placed above 100 hPa.
+    real(kind_phys), parameter :: z_centroid_floor = 10000._kind_phys
 
     real(kind_phys) :: wi(pver), zi(pver)
     real(kind_phys) :: num, denom
@@ -1174,9 +1166,8 @@ contains
 
       if (denom /= 0._kind_phys) then
         z_centroid(i) = num / denom
-        ! Block centroid search from returning levels above 10_000Pa (100hPa)
-        if ( z_centroid(i) < 10000._kind_phys) then
-           z_centroid(i) = 10000._kind_phys
+        if (z_centroid(i) < z_centroid_floor) then
+           z_centroid(i) = z_centroid_floor
         end if
         k_centroid(i) = minloc(abs(zi - z_centroid(i)), dim=1)
       else

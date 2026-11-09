@@ -51,6 +51,8 @@ contains
     call history_add_field('XPWP_SRC_MOVMTN', 'momentum_flux_source_for_moving_mountain_gravity_wave_drag', horiz_only, 'inst', 'Pa')
     call history_add_field('PSTEER_MOVMTN', 'air_pressure_at_steering_level_due_to_moving_mountain_gravity_wave_drag', horiz_only, 'inst', 'Pa')
     call history_add_field('PLAUNCH_MOVMTN', 'air_pressure_at_launch_level_due_to_moving_mountain_gravity_wave_drag', horiz_only, 'inst', 'Pa')
+    call history_add_field('ROO_BLOCK_MOVMTN', &
+         'flag_for_near_surface_tilt_dominance_blocking_of_moving_mountain_gravity_wave_drag_source', horiz_only, 'inst', '1')
 
     call history_add_field('MMTAUE', 'eastward_reynolds_stress_due_to_moving_mountain_gravity_wave_drag', 'ilev', 'avg', 'Pa')
     call history_add_field('MMTAUW', 'westward_reynolds_stress_due_to_moving_mountain_gravity_wave_drag', 'ilev', 'avg', 'Pa')
@@ -69,7 +71,7 @@ contains
     hdepth, ttend_dp, &
     ttend_clubb, &
     upwp_clubb, vpwp_clubb, vorticity, tilt, &
-    usteer, vsteer, CS, xpwp_src, p_steer, p_launch, &
+    usteer, vsteer, CS, xpwp_src, p_steer, p_launch, roo_block, &
     taucd_west, taucd_east, taucd_south, taucd_north, &
     errmsg, errflg)
 
@@ -105,6 +107,7 @@ contains
     real(kind_phys), intent(in) :: xpwp_src(:) ! [Pa]
     real(kind_phys), intent(in) :: p_steer(:)  ! [Pa]
     real(kind_phys), intent(in) :: p_launch(:) ! [Pa]
+    real(kind_phys), intent(in) :: roo_block(:) ! 1 = source blocked by roo criterion [1]
 
     ! Reynolds stress for waves propagating in each cardinal direction [N m-2]
     real(kind_phys), intent(in) :: taucd_west(:,:)
@@ -142,6 +145,7 @@ contains
     call history_out_field('XPWP_SRC_MOVMTN', xpwp_src)
     call history_out_field('PSTEER_MOVMTN', p_steer)
     call history_out_field('PLAUNCH_MOVMTN', p_launch)
+    call history_out_field('ROO_BLOCK_MOVMTN', roo_block)
     call history_out_field('MMTAUE', taucd_east)
     call history_out_field('MMTAUW', taucd_west)
     call history_out_field('MMTAUS', taucd_south)
