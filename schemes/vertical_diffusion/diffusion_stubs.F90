@@ -161,7 +161,7 @@ contains
 !> \section arg_table_tms_zero_stub_run Argument Table
 !! \htmlinclude arg_table_tms_zero_stub_run.html
   subroutine tms_zero_stub_run( &
-    ncol, pver, &
+    ncol, &
     ksrftms, &
     tautmsx, tautmsy, &
     do_beljaars, &
@@ -169,7 +169,6 @@ contains
 
     ! Input arguments
     integer,            intent(in)  :: ncol
-    integer,            intent(in)  :: pver
 
     ! Output arguments
     real(kind_phys),    intent(out) :: ksrftms(:)  ! Surface drag coefficient for turbulent mountain stress. > 0. [kg m-2 s-1]

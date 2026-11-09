@@ -186,12 +186,6 @@
   dimensions = ()
   type = integer
   intent = in
-[ pver ]
-  standard_name = vertical_layer_dimension
-  units = count
-  type = integer
-  dimensions = ()
-  intent = in
 [ ksrftms ]
   standard_name = turbulent_orographic_form_drag_coefficent_at_surface
   units = kg s-1 m-2
