@@ -16,8 +16,9 @@
 
   The first part of this file is for HB to compute exchange coefficients
   in the free atmosphere. The second part is the vertical diffusion solver.
-  TMS and Beljaars are stubbed as zeroes for now; when CCPPized they would
-  be separate schemes providing tautmsx/y, taubljx/y, and dragblj.
+  TMS is off in CAM7 and stubbed as zeroes.
+  Beljaars drag (dragblj, taubljx/y) is read from the CAM snapshot,
+  which is taken after Beljaars runs in CAM.
 -->
 <suite name="vdiff_holtslag_boville_free_atm" version="1.0">
   <group name="physics_before_coupler">
@@ -34,8 +35,10 @@
     <!-- init phase only: for setting vertical diffusion top -->
     <scheme>hb_diff_set_vertical_diffusion_top</scheme>
 
-    <!-- hb pre-interstitial: tautotx/y from coupler + TMS + Beljaars stresses -->
-    <scheme>tms_beljaars_zero_stub</scheme>
+    <!-- hb pre-interstitial: tautotx/y from coupler + TMS + Beljaars stresses.
+         TMS is zeroed (not used in CAM7) and do_beljaars is set to true;
+         Beljaars drag and stresses are not reset so they are read from snapshot. -->
+    <scheme>tms_zero_stub</scheme>
 
     <!-- vdiff pre-interstitial 0: create p coords1d and potential temp. -->
     <scheme>vertical_diffusion_prepare_inputs</scheme>

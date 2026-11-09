@@ -159,7 +159,7 @@ contains
   ! Stub for TMS to be set to zero while not implemented
   ! but allow CAM7 Beljaars to be tested from snapshot.
 !> \section arg_table_tms_zero_stub_run Argument Table
-!! \htmlinclude tms_zero_stub_run.html
+!! \htmlinclude arg_table_tms_zero_stub_run.html
   subroutine tms_zero_stub_run( &
     ncol, pver, &
     ksrftms, &
