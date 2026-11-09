@@ -78,7 +78,6 @@ contains
 !! \htmlinclude compute_kinematic_fluxes_and_obklen_run.html
   subroutine compute_kinematic_fluxes_and_obklen_run( &
     ncol, pver, pcnst, &
-    const_props, &
     zvir, cpair, gravit, karman, &
     shf_from_coupler, cflx_from_coupler, &
     q_wv, &
@@ -90,11 +89,8 @@ contains
     obklen, &
     errmsg, errflg)
 
-    ! framework dependency for const_props
-    use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
-
     ! dependency to get constituent index
-    use ccpp_const_utils,          only: ccpp_const_get_idx
+    use ccpp_scheme_utils,         only: ccpp_constituent_index
 
     use atmos_phys_pbl_utils,      only: calc_virtual_temperature, calc_obukhov_length, &
                                          calc_kinematic_heat_flux, calc_kinematic_water_vapor_flux, &
@@ -103,8 +99,6 @@ contains
     integer,            intent(in)  :: ncol
     integer,            intent(in)  :: pver
     integer,            intent(in)  :: pcnst
-    type(ccpp_constituent_prop_ptr_t), &
-                        intent(in)  :: const_props(:)          ! CCPP constituent properties pointer
     real(kind_phys),    intent(in)  :: zvir
     real(kind_phys),    intent(in)  :: cpair
     real(kind_phys),    intent(in)  :: gravit
@@ -136,9 +130,8 @@ contains
 
     ! Check constituents list and locate water vapor index
     ! (not assumed to be 1)
-    call ccpp_const_get_idx(const_props, &
-         'water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water', &
-         const_wv_idx, errmsg, errflg)
+    call ccpp_constituent_index('water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water', &
+         const_wv_idx, errflg, errmsg)
     if (errflg /= 0) return
 
     thvs  (:ncol) = calc_virtual_temperature(th(:ncol,pver), q_wv(:ncol,pver), zvir)

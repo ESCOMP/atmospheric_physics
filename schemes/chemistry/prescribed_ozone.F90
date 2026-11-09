@@ -65,6 +65,10 @@ contains
         write(iulog,*) 'prescribed_ozone_register: ozone is prescribed in: ' // trim(filename)
       end if
     else
+      allocate(ozone_constituents(0), stat=errflg, errmsg=errmsg)
+      if (errflg /= 0) then
+        errmsg = "prescribed_ozone_register: " // trim(errmsg)
+      end if
       return
     end if
 
@@ -153,7 +157,6 @@ contains
 !! \htmlinclude prescribed_ozone_run.html
   subroutine prescribed_ozone_run( &
     ncol, pver, &
-    const_props, &
     mwdry, boltz, &
     t, pmiddry, &
     pmid, pint, phis, zi, & ! necessary fields for trcdata read.
@@ -166,16 +169,11 @@ contains
     ! host model dependency for history output
     use cam_history, only: history_out_field
 
-    ! framework dependency for const_props
-    use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
-
-    ! dependency to get constituent index
-    use ccpp_const_utils,          only: ccpp_const_get_idx
+    ! framework dependency to get constituent index
+    use ccpp_scheme_utils,         only: ccpp_constituent_index
 
     integer,            intent(in)    :: ncol
     integer,            intent(in)    :: pver
-    type(ccpp_constituent_prop_ptr_t), &
-                        intent(in)    :: const_props(:)      ! CCPP constituent properties pointer
     real(kind_phys),    intent(in)    :: mwdry               ! molecular_weight_of_dry_air [g mol-1]
     real(kind_phys),    intent(in)    :: boltz               ! boltzmann_constant [J K-1]
     real(kind_phys),    intent(in)    :: t(:,:)              ! air temperature [K]
@@ -210,9 +208,8 @@ contains
 
     ! check for 'O3' constituent where prescribed ozone will be written to
     ! which will be read by radiation.
-    call ccpp_const_get_idx(const_props, &
-         trim(ozone_name), &
-         id_o3, errmsg, errflg)
+    call ccpp_constituent_index(trim(ozone_name), &
+         id_o3, errmsg=errmsg, errcode=errflg)
     if (errflg /= 0) return
 
     ! could not find the constituent, but the specifier is active.

@@ -35,13 +35,13 @@ subroutine initialize_constituents_register(constituents, errmsg, errcode)
     character(len=512) :: alloc_err_msg
     character(len=256), allocatable :: constituent_names(:)
     character(len=256), allocatable :: const_diag_names(:)
-    character(len=65), parameter :: water_species_std_names(6) = &
-       ['water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water       ', &
-        'cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water', &
-        'rain_mixing_ratio_wrt_moist_air_and_condensed_water              ', &
-        'cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water         ', &
-        'snow_mixing_ratio_wrt_moist_air_and_condensed_water              ', &
-        'graupel_water_mixing_ratio_wrt_moist_air_and_condensed_water     ']
+    character(len=*), parameter :: water_species_std_names(*) = &
+       [character(len=128) :: 'water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water', &
+                              'cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water', &
+                              'rain_mixing_ratio_wrt_moist_air_and_condensed_water', &
+                              'cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water', &
+                              'snow_mixing_ratio_wrt_moist_air_and_condensed_water', &
+                              'graupel_water_mixing_ratio_wrt_moist_air_and_condensed_water']
 
     character(len=11), parameter :: const_file_names(6) = &
                                                 ['cnst_Q     ', &
@@ -56,12 +56,12 @@ subroutine initialize_constituents_register(constituents, errmsg, errcode)
                                         'cnst_NUMICE', &
                                         'cnst_NUMSNO', &
                                         'cnst_NUMGRA']
-    character(len=75), parameter :: water_species_number_std_names(5) = &
-       ['mass_number_concentration_of_cloud_liquid_wrt_moist_air_and_condensed_water', &
-        'mass_number_concentration_of_rain_wrt_moist_air_and_condensed_water        ', &
-        'mass_number_concentration_of_ice_wrt_moist_air_and_condensed_water         ', &
-        'mass_number_concentration_of_snow_wrt_moist_air_and_condensed_water        ', &
-        'mass_number_concentration_of_graupel_wrt_moist_air_and_condensed_water     ']
+    character(len=*), parameter :: water_species_number_std_names(*) = &
+       [character(len=128) :: 'mass_number_concentration_of_cloud_liquid_water_droplets_in_moist_air_and_condensed_water', &
+                              'mass_number_concentration_of_rain_drops_in_moist_air_and_condensed_water', &
+                              'mass_number_concentration_of_cloud_ice_water_crystals_in_moist_air_and_condensed_water', &
+                              'mass_number_concentration_of_snow_crystals_in_moist_air_and_condensed_water', &
+                              'mass_number_concentration_of_graupel_particles_in_moist_air_and_condensed_water']
 
     errcode = 0
     errmsg = ''

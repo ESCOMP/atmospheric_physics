@@ -1,0 +1,83 @@
+[ccpp-table-properties]
+  name = mcsp_diagnostics
+  type = scheme
+
+[ccpp-arg-table]
+  name  = mcsp_diagnostics_init
+  type  = scheme
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = mcsp_diagnostics_run
+  type  = scheme
+[ mcsp_dt_out ]
+  standard_name = tendency_of_air_temperature_due_to_mesoscale_coherent_structure_parameterization
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ mcsp_dq_out ]
+  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_due_to_mesoscale_coherent_structure_parameterization
+  units = kg kg-1 s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ mcsp_du_out ]
+  standard_name = tendency_of_eastward_wind_due_to_mesoscale_coherent_structure_parameterization
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ mcsp_dv_out ]
+  standard_name = tendency_of_northward_wind_due_to_mesoscale_coherent_structure_parameterization
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ mcsp_dt_max ]
+  standard_name = amplitude_of_tendency_of_air_temperature_due_to_mesoscale_coherent_structure_parameterization
+  units = K s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ mcsp_freq ]
+  standard_name = is_mesoscale_coherent_structure_parameterization_activated
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ mcsp_shear ]
+  standard_name = eastward_wind_difference_between_storm_level_and_surface_adjacent_layer_for_mesoscale_coherent_structure_parameterization
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ conv_depth ]
+  standard_name = pressure_thickness_from_surface_to_deep_convective_cloud_top
+  units = Pa
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ errmsg ]
+  standard_name = ccpp_error_message
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = ccpp_error_code
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = out

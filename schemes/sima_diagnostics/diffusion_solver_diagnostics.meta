@@ -6,12 +6,6 @@
 [ccpp-arg-table]
   name  = vertical_diffusion_tendencies_diagnostics_init
   type  = scheme
-[ const_props ]
-  standard_name = ccpp_constituent_properties
-  units = none
-  type = ccpp_constituent_prop_ptr_t
-  dimensions = (number_of_ccpp_constituents)
-  intent = in
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
@@ -51,12 +45,6 @@
   units = s
   type = real | kind = kind_phys
   dimensions = ()
-  intent = in
-[ const_props ]
-  standard_name = ccpp_constituent_properties
-  units = none
-  type = ccpp_constituent_prop_ptr_t
-  dimensions = (number_of_ccpp_constituents)
   intent = in
 [ latvap ]
   standard_name = latent_heat_of_vaporization_of_water_at_0c

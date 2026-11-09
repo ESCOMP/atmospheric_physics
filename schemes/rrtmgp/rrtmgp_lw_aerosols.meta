@@ -11,6 +11,30 @@
   type = logical
   dimensions = ()
   intent = in
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
+[ ktopcam ]
+  standard_name = vertical_index_at_top_level_where_RRTMGP_is_active
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
+[ ktoprad ]
+  standard_name = RRTMGP_vertical_index_at_top_level_where_RRTMGP_is_active
+  units = index
+  type = integer
+  dimensions = ()
+  intent = in
+[ aer_lw_abs ]
+  standard_name = longwave_aerosol_absorption_optical_depth
+  units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension, number_of_bands_for_longwave_radiation)
+  intent = in
 [ aer_lw ]
   standard_name = longwave_aerosol_optical_properties_object_for_RRTMGP
   units = none

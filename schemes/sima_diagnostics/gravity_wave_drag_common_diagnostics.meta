@@ -21,12 +21,6 @@
 [ccpp-arg-table]
   name  = gravity_wave_drag_common_diagnostics_run
   type  = scheme
-[ const_props ]
-  standard_name = ccpp_constituent_properties
-  units = none
-  type = ccpp_constituent_prop_ptr_t
-  dimensions = (number_of_ccpp_constituents)
-  intent = in
 [ cpairv ]
   standard_name = composition_dependent_specific_heat_of_dry_air_at_constant_pressure
   units = J kg-1 K-1

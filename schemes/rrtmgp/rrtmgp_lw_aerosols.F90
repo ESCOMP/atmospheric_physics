@@ -12,18 +12,27 @@ contains
 !> \section arg_table_rrtmgp_lw_aerosols_run Argument Table
 !! \htmlinclude rrtmgp_lw_aerosols_run.html
 !!
-   subroutine rrtmgp_lw_aerosols_run(dolwrad, aer_lw, errmsg, errflg)
+   subroutine rrtmgp_lw_aerosols_run( &
+     dolwrad, ncol, ktopcam, ktoprad, &
+     aer_lw_abs, &
+     aer_lw, errmsg, errflg)
+
     use ccpp_optical_props, only: ty_optical_props_1scl_ccpp
     use ccpp_kinds,         only: kind_phys
 
     ! Inputs
-    logical, intent(in) :: dolwrad                                              !< Flag to perform longwave calculation
+    logical,          intent(in)    :: dolwrad                    !< do longwave calculation
+    integer,          intent(in)    :: ncol                       !< number of columns
+    integer,          intent(in)    :: ktopcam                    !< top CAM level for RRTMGP
+    integer,          intent(in)    :: ktoprad                    !< top RRTMGP level
+
+    real(kind_phys),  intent(in)    :: aer_lw_abs(:, :, :)        !< LW absorption OD (ncol,pver,nlwbands)
 
     ! Outputs
-    class(ty_optical_props_1scl_ccpp), intent(inout) :: aer_lw                  !< Aerosol optical properties object
+    class(ty_optical_props_1scl_ccpp), intent(inout) :: aer_lw    !< Aerosol optical properties object
 
-    character(len=*), intent(out) :: errmsg                                     !< CCPP error message
-    integer,          intent(out) :: errflg                                     !< CCPP error flag
+    character(len=*), intent(out) :: errmsg                       !< CCPP error message
+    integer,          intent(out) :: errflg                       !< CCPP error flag
 
     ! Initialize CCPP error handling variables
     errmsg = ''
@@ -31,9 +40,12 @@ contains
 
     if (.not. dolwrad) return
 
-    ! REMOVECAM: scheme is just a stub for now
-    ! Set the optical properties to 0 for snapshot testing
+    ! Initialize to zero (provides zero optical depth in any extra layer)
     aer_lw%optical_props%tau = 0.0_kind_phys
+
+    ! Map CAM vertical levels to RRTMGP vertical levels
+    ! No band reorder needed for LW
+    aer_lw%optical_props%tau(:ncol, ktoprad:, :) = aer_lw_abs(:ncol, ktopcam:, :)
 
   end subroutine rrtmgp_lw_aerosols_run
 end module rrtmgp_lw_aerosols

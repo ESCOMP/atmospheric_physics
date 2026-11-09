@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = rrtmgp_lw_cloud_optics
   type = scheme
+  dependencies = utils/radiation_utils.F90
   # Host model must choose the appropriate module to build
   # IF CPUS:
   dependencies = ext/rte-kernels/mo_optical_props_kernels.F90
@@ -71,6 +72,12 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
+[ rei ]
+  standard_name = effective_radius_of_stratiform_cloud_ice_crystal
+  units = um
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  intent = in
 [ iclwpth ]
   standard_name = in_cloud_liquid_water_path_for_radiation
   units = kg m-2
@@ -90,7 +97,7 @@
   dimensions = ()
   intent = in
 [ dei ]
-  standard_name = effective_diameter_of_stratiform_cloud_ice_particle_for_radiation
+  standard_name = effective_diameter_of_stratiform_cloud_ice_crystal_for_radiation
   units = um
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
@@ -102,7 +109,7 @@
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   intent = in
 [ des ]
-  standard_name = effective_diameter_of_stratiform_snow_particle_for_radiation
+  standard_name = effective_diameter_of_stratiform_snow_crystal_for_radiation
   units = um
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)

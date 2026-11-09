@@ -97,13 +97,13 @@
   dimensions = (horizontal_loop_extent)
   intent = in
 [ rublten ]
-  standard_name = tendency_of_eastward_wind_due_to_pbl_processes
+  standard_name = pending_tendency_of_eastward_wind_due_to_pbl_processes
   units = m s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rvblten ]
-  standard_name = tendency_of_northward_wind_due_to_pbl_processes
+  standard_name = pending_tendency_of_northward_wind_due_to_pbl_processes
   units = m s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

@@ -86,8 +86,8 @@
     </desc>
     <values>
       <value>UNSET</value>
-      <value phys_suite="cam4">${DIN_LOC_ROOT}/atm/cam/volc</value>
-      <value phys_suite="cam5">${DIN_LOC_ROOT}/atm/cam/volc</value>
+      <value sim_type="historical">${DIN_LOC_ROOT}/atm/cam/volc</value>
+      <!-- only ${DIN_LOC_ROOT}/atm/cam/volc for transient historical use cases -->
     </values>
   </entry>
 
@@ -102,8 +102,13 @@
     </desc>
     <values>
       <value>UNSET</value>
-      <value phys_suite="cam4">CCSM4_volcanic_1850-2008_prototype1.nc</value>
-      <value phys_suite="cam5">CCSM4_volcanic_1850-2008_prototype1.nc</value>
+      <value sim_type="historical">CCSM4_volcanic_1850-2008_prototype1.nc</value>
+      <!--
+         in CAM, prescribed volcanic aerosol is only enabled in transient historical (1850-2005) use cases:
+         CCSM4_volcanic_1850-2008_prototype1.nc
+         when this file is set, the volcanic aerosol must also be made radiatively active by specifying
+         N:VOLC_MMR:... in rad_aer_climate.
+      -->
     </values>
   </entry>
 

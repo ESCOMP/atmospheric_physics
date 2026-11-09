@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<suite name="pumas" version="1.0">
+  <group name="physics_before_coupler">
+
+    <scheme>initialize_constituents</scheme>
+    <scheme>cloud_fraction_options</scheme>
+    <scheme>compute_cloud_fraction_two_moment</scheme>
+    <scheme>to_be_ccppized_temporary</scheme>
+    <scheme>clubb_stub</scheme>
+    <scheme>hetfrz_classnuc_stub</scheme>
+
+    <!-- Read in PUMAS namelist variables (init only) -->
+    <scheme>pumas_pre_main</scheme>
+    <!-- Convert variables from host grid to PUMAS grid -->
+    <scheme>micro_pumas_ccpp_dimensions_pre</scheme>
+    <!-- core PUMAS (cloud microphysics) scheme -->
+    <scheme>micro_pumas_ccpp</scheme>
+    <!-- Convert variables from PUMAS grid to host grid -->
+    <scheme>micro_pumas_ccpp_dimensions_post</scheme>
+    <!-- Apply tendencies -->
+    <scheme>apply_constituent_tendencies</scheme>
+    <scheme>clamp_number_concentrations</scheme>
+    <scheme>qneg</scheme>
+    <!-- Recompute size distribution quantities for radiation from the updated
+         constituents; needs the pre-heating air temperature, so it must run
+         before apply_heating_rate -->
+    <scheme>pumas_post_main</scheme>
+    <scheme>micro_pumas_ccpp_optics_limiter</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>geopotential_temp</scheme>
+
+    <scheme>sima_state_diagnostics</scheme>
+  </group>
+</suite>

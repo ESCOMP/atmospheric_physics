@@ -88,6 +88,7 @@
     </desc>
     <values>
       <value>1760.0e-9</value>
+      <value sim_year="1850">791.6e-9</value>
       <value aquaplanet="1" phys_suite="cam4">1650.0e-9</value>
     </values>
   </entry>
@@ -104,6 +105,7 @@
     </desc>
     <values>
       <value>367.0e-6</value>
+      <value sim_year="1850">284.7e-6</value>
       <value aquaplanet="1" phys_suite="cam4">348.0e-6</value>
     </values>
   </entry>
@@ -120,6 +122,7 @@
     </desc>
     <values>
       <value>653.45e-12</value>
+      <value sim_year="1850">12.48e-12</value>
     </values>
   </entry>
   <entry id="prescribed_cfc12_vmr">
@@ -135,6 +138,7 @@
     </desc>
     <values>
       <value>535.0e-12</value>
+      <value sim_year="1850">0.0</value>
     </values>
   </entry>
   <entry id="prescribed_n2o_vmr">
@@ -150,7 +154,42 @@
     </desc>
     <values>
       <value>316.0e-9</value>
+      <value sim_year="1850">275.68e-9</value>
       <value aquaplanet="1" phys_suite="cam4">306.0e-9</value>
+    </values>
+  </entry>
+
+  <entry id="prescribed_ghg_list">
+    <type>char*8(6)</type>
+    <category>ghg_cam</category>
+    <group>chem_surfvals</group>
+    <standard_name>list_of_greenhouse_gases_with_prescribed_concentrations</standard_name>
+    <units>none</units>
+    <desc>
+       Gases whose concentrations are provided by the
+       "prescribe_radiative_gas_concentrations" scheme.
+       A gas provided by another scheme must not be listed here.
+       Allowed entries: O2, CO2, N2O, CH4, CFC11, CFC12.
+    </desc>
+    <values>
+      <value>'O2','CO2','N2O','CH4','CFC11','CFC12'</value>
+    </values>
+  </entry>
+
+  <entry id="prescribed_o2_vmr">
+    <type>real</type>
+    <kind>kind_phys</kind>
+    <category>ghg_cam</category>
+    <group>chem_surfvals</group>
+    <standard_name>prescribed_volume_mixing_ratio_of_o2</standard_name>
+    <units>mol mol-1</units>
+    <desc>
+      O2 volume mixing ratio.  The default reproduces the fixed O2 mass
+      mixing ratio of 0.23143 used by CAM (chem_surfvals) through the
+      dry air/O2 molar mass ratio of 0.905140 used in radiation.
+    </desc>
+    <values>
+      <value>0.2094766</value>
     </values>
   </entry>
 

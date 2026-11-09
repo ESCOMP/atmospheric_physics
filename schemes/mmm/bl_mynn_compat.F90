@@ -519,8 +519,8 @@ contains
         rqsblten(:, :) = (sqs(:, :) / (1.0_kind_phys - sqv(:, :)) - sqs_dry(:, :)) / delt
 
         ! Vertical indexes output by `bl_mynn_run` are also vertically inverted. Flip them back.
-        kpbl(:) = kte - kpbl(:) + 1
-        ktop_plume(:) = kte - ktop_plume(:) + 1
+        kpbl(:) = merge(kte - kpbl + 1, kpbl, kpbl > 0)
+        ktop_plume(:) = merge(kte - ktop_plume + 1, ktop_plume, ktop_plume > 0)
 
         errmsg = ''
         errflg = 0

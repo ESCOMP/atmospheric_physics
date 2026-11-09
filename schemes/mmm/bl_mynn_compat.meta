@@ -24,13 +24,13 @@
   dimensions = ()
   intent = in
 [ rthratenlw ]
-  standard_name = tendency_of_air_potential_temperature_due_to_longwave_heating
+  standard_name = tendency_of_air_potential_temperature_due_to_longwave_radiation
   units = K s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ rthratensw ]
-  standard_name = tendency_of_air_potential_temperature_due_to_shortwave_heating
+  standard_name = tendency_of_air_potential_temperature_due_to_shortwave_radiation
   units = K s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -156,7 +156,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
 [ rthraten ]
-  standard_name = tendency_of_air_potential_temperature_due_to_radiative_heating
+  standard_name = tendency_of_air_potential_temperature_due_to_radiation
   units = K s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -793,79 +793,79 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rublten ]
-  standard_name = tendency_of_eastward_wind_due_to_pbl_processes
+  standard_name = pending_tendency_of_eastward_wind_due_to_pbl_processes
   units = m s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rvblten ]
-  standard_name = tendency_of_northward_wind_due_to_pbl_processes
+  standard_name = pending_tendency_of_northward_wind_due_to_pbl_processes
   units = m s-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rthblten ]
-  standard_name = tendency_of_air_potential_temperature_due_to_pbl_processes
+  standard_name = pending_tendency_of_air_potential_temperature_due_to_pbl_processes
   units = K s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rqvblten ]
-  standard_name = tendency_of_water_vapor_mixing_ratio_wrt_dry_air_due_to_pbl_processes
+  standard_name = pending_tendency_of_water_vapor_mixing_ratio_wrt_dry_air_due_to_pbl_processes
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rqcblten ]
-  standard_name = tendency_of_cloud_liquid_water_mixing_ratio_wrt_dry_air_due_to_pbl_processes
+  standard_name = pending_tendency_of_cloud_liquid_water_mixing_ratio_wrt_dry_air_due_to_pbl_processes
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rqiblten ]
-  standard_name = tendency_of_cloud_ice_mixing_ratio_wrt_dry_air_due_to_pbl_processes
+  standard_name = pending_tendency_of_cloud_ice_mixing_ratio_wrt_dry_air_due_to_pbl_processes
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rqsblten ]
-  standard_name = tendency_of_snow_mixing_ratio_wrt_dry_air_due_to_pbl_processes
+  standard_name = pending_tendency_of_snow_mixing_ratio_wrt_dry_air_due_to_pbl_processes
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rqncblten ]
-  standard_name = tendency_of_mass_number_concentration_of_cloud_liquid_water_droplets_in_dry_air_due_to_pbl_processes
+  standard_name = pending_tendency_of_mass_number_concentration_of_cloud_liquid_water_droplets_in_dry_air_due_to_pbl_processes
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rqniblten ]
-  standard_name = tendency_of_mass_number_concentration_of_cloud_ice_water_crystals_in_dry_air_due_to_pbl_processes
+  standard_name = pending_tendency_of_mass_number_concentration_of_cloud_ice_water_crystals_in_dry_air_due_to_pbl_processes
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rqnwfablten ]
-  standard_name = tendency_of_mass_number_concentration_of_hygroscopic_aerosols_in_dry_air_due_to_pbl_processes
+  standard_name = pending_tendency_of_mass_number_concentration_of_hygroscopic_aerosols_in_dry_air_due_to_pbl_processes
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rqnifablten ]
-  standard_name = tendency_of_mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols_in_dry_air_due_to_pbl_processes
+  standard_name = pending_tendency_of_mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols_in_dry_air_due_to_pbl_processes
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rqnbcablten ]
-  standard_name = tendency_of_mass_number_concentration_of_hydrophobic_black_carbon_in_dry_air_due_to_pbl_processes
+  standard_name = pending_tendency_of_mass_number_concentration_of_hydrophobic_black_carbon_in_dry_air_due_to_pbl_processes
   units = kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = inout
 [ rqozblten ]
-  standard_name = tendency_of_O3_due_to_pbl_processes
+  standard_name = pending_tendency_of_O3_due_to_pbl_processes
   units = kg kg-1 s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
@@ -1201,7 +1201,7 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ rthraten ]
-  standard_name = tendency_of_air_potential_temperature_due_to_radiative_heating
+  standard_name = tendency_of_air_potential_temperature_due_to_radiation
   units = K s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)

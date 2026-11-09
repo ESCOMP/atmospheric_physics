@@ -53,6 +53,12 @@
   type = logical
   dimensions = (number_of_diagnostic_subcycles)
   intent = in
+[ dolw ]
+  standard_name = do_longwave_radiation
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
 [ flw ]
   standard_name = longwave_all_sky_flux_object_for_RRTMGP
   units = none
@@ -70,31 +76,31 @@
   units = W m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
-  intent = out
+  intent = inout
 [ flnt ]
   standard_name = longwave_net_outgoing_flux_at_model_top
   units = W m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
-  intent = out
+  intent = inout
 [ flwds ]
-  standard_name = longwave_downward_radiative_flux_at_surface
+  standard_name = longwave_downward_radiative_flux_at_surface_to_coupler
   units = W m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
-  intent = out
+  intent = inout
 [ fnl ]
   standard_name = longwave_net_radiative_flux
   units = W m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
-  intent = out
+  intent = inout
 [ fcnl ]
   standard_name = longwave_net_radiative_clear_sky_flux
   units = W m-2
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_interface_dimension)
-  intent = out
+  intent = inout
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
