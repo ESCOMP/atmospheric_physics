@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = rrtmgp_sw_cloud_optics
   type = scheme
+  dependencies = utils/radiation_utils.F90
 
 [ccpp-arg-table]
   name  = rrtmgp_sw_cloud_optics_run
@@ -80,6 +81,18 @@
 [ lamc ]
   standard_name = slope_of_droplet_distribution_for_optics
   units = 1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ rel ]
+  standard_name = effective_radius_of_stratiform_cloud_liquid_water_droplet
+  units = um
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  intent = in
+[ rei ]
+  standard_name = effective_radius_of_stratiform_cloud_ice_crystal
+  units = um
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in

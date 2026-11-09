@@ -1,23 +1,41 @@
 [ccpp-table-properties]
   name = rrtmgp_constituents
   type = scheme
+  dependencies = utils/radiation_utils.F90
 
 [ccpp-arg-table]
-  name  = rrtmgp_constituents_register
+  name  = rrtmgp_constituents_init
   type  = scheme
+[ amIRoot ]
+  standard_name = flag_for_mpi_root
+  units = flag
+  type = logical
+  dimensions = ()
+  intent = in
+[ iulog ]
+  standard_name = log_output_unit
+  units = 1
+  type = integer
+  dimensions = ()
+  intent = in
 [ rad_climate ]
   standard_name = sources_of_radiatively_active_gases_for_climate_calculation
   units = none
   type = character | kind = len=256
   dimensions = (rad_climate_dimension)
   intent = in
-[ rrtmgp_dyn_consts ]
-  standard_name = rrtmgp_constituents_dyn_consts
+[ gaslist ]
+  standard_name = list_of_active_gases_for_RRTMGP
   units = none
-  type = ccpp_constituent_properties_t
-  allocatable = True
-  dimensions = (:)
-  intent = out
+  type = character | kind = len=*
+  dimensions = (gaslist_dimension)
+  intent = in
+[ const_props ]
+  standard_name = ccpp_constituent_properties
+  units = none
+  type = ccpp_constituent_prop_ptr_t
+  dimensions = (number_of_ccpp_constituents)
+  intent = in
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
@@ -33,12 +51,6 @@
 [ccpp-arg-table]
   name  = rrtmgp_constituents_run
   type  = scheme
-[ gaslist ]
-  standard_name = list_of_active_gases_for_RRTMGP
-  units = none
-  type = character | kind = len=*
-  dimensions = (gaslist_dimension)
-  intent = in
 [ const_array ]
   standard_name = ccpp_constituents
   units = none

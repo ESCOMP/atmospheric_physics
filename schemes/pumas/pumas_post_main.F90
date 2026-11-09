@@ -11,7 +11,7 @@ contains
   !! \htmlinclude pumas_post_main_run.html
   subroutine pumas_post_main_run(ncol, nlev, trop_cloud_top_lev, rair, pmid, temp, &
                 cldliq, numliq, cldice, numice, snow, numsnow, graupel, numgraup,  &
-                strat_cldfrc, effi, dei, pgam, lamc, des, degrau, errmsg, errcode)
+                strat_cldfrc, effi, dei, pgam, lamc, rel, des, degrau, errmsg, errcode)
     use ccpp_kinds,        only: kind_phys
     use pumas_kinds,       only: pumas_r8=>kind_r8
     use micro_pumas_utils, only: size_dist_param_basic, size_dist_param_liq, &
@@ -38,6 +38,7 @@ contains
     real(kind_phys), dimension(:,:), intent(out) :: dei        ! ice effective diameter for radiation (micron)
     real(kind_phys), dimension(:,:), intent(out) :: pgam       ! droplet size distribution shape parameter for radiation (1)
     real(kind_phys), dimension(:,:), intent(out) :: lamc       ! droplet size distribution slope for radiation (1)
+    real(kind_phys), dimension(:,:), intent(out) :: rel        ! liquid effective radius for radiation (micron)
     real(kind_phys), dimension(:,:), intent(out) :: des        ! snow effective diameter for radiation (micron)
     real(kind_phys), dimension(:,:), intent(out) :: degrau     ! graupel effective diameter for radiation (m)
     character(len=*),          intent(out) :: errmsg
@@ -116,6 +117,15 @@ contains
 
     pgam(:ncol,:) = real(mu(:,:), kind_phys)
     lamc(:ncol,:) = real(lambdac(:,:), kind_phys)
+
+    ! Derive liquid effective radius for radiation from the recomputed size
+    ! distribution and overwrite the per-substep value from PUMAS.
+    ! 10 micron where there is no cloud.
+    rel(:ncol,:) = 10._kind_phys
+    where (icwmrst(:,trop_cloud_top_lev:) >= qsmall)
+      rel(:ncol,trop_cloud_top_lev:) = real((mu(:,trop_cloud_top_lev:) + 3._pumas_r8) / &
+           lambdac(:,trop_cloud_top_lev:)/2._pumas_r8 * 1.e6_pumas_r8, kind_phys)
+    end where
 
     ! Snow effective diameter for radiation, from the post-microphysics grid-mean snow
     qs(:,:) = real(snow(:ncol,:), pumas_r8)

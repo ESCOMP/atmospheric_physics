@@ -25,6 +25,11 @@ module rrtmgp_cloud_optics_setup
   real(kind_phys), public, allocatable :: asm_sw_ice(:,:)
   real(kind_phys), public, allocatable :: ssa_sw_ice(:,:)
 
+  ! Cloud optics parameterization selectors (from namelist), branched on by
+  ! rrtmgp_sw_cloud_optics and rrtmgp_lw_cloud_optics.
+  character(len=32), public :: liq_cld_optics = 'unset' ! gammadist or slingo
+  character(len=32), public :: ice_cld_optics = 'unset' ! mitchell or ebertcurry
+
 contains
 
   ! ######################################################################################
@@ -33,11 +38,14 @@ contains
 !> \section arg_table_rrtmgp_cloud_optics_setup_init Argument Table
 !! \htmlinclude rrtmgp_cloud_optics_setup_init.html
 !!
-  subroutine rrtmgp_cloud_optics_setup_init(liq_filename, ice_filename, errmsg, errflg)
+  subroutine rrtmgp_cloud_optics_setup_init(liq_filename, ice_filename, liq_cld_optics_nl, &
+                  ice_cld_optics_nl, errmsg, errflg)
     use ccpp_io_reader, only: abstract_netcdf_reader_t, create_netcdf_reader_t
     ! Inputs
-    character(len=*),                   intent(in) :: liq_filename     ! Full file path for liquid optics file
-    character(len=*),                   intent(in) :: ice_filename     ! Full file path for ice optics file
+    character(len=*),                   intent(in) :: liq_filename      ! Full file path for liquid optics file
+    character(len=*),                   intent(in) :: ice_filename      ! Full file path for ice optics file
+    character(len=*),                   intent(in) :: liq_cld_optics_nl ! Liquid cloud optics type (namelist)
+    character(len=*),                   intent(in) :: ice_cld_optics_nl ! Ice cloud optics type (namelist)
     ! Outputs
     character(len=*),                  intent(out) :: errmsg
     integer,                           intent(out) :: errflg
@@ -51,6 +59,20 @@ contains
     ! Set error variables
     errmsg = ''
     errflg = 0
+
+    ! Validate and store the cloud optics parameterization selectors.
+    liq_cld_optics = liq_cld_optics_nl
+    ice_cld_optics = ice_cld_optics_nl
+    if (trim(liq_cld_optics) /= 'gammadist' .and. trim(liq_cld_optics) /= 'slingo') then
+       write(errmsg,'(a,a,a,a)') sub, ': liq_cld_optics must be either slingo or gammadist, got "', trim(liq_cld_optics), '"'
+       errflg = 1
+       return
+    end if
+    if (trim(ice_cld_optics) /= 'mitchell' .and. trim(ice_cld_optics) /= 'ebertcurry') then
+       write(errmsg,'(a,a,a,a)') sub, ': ice_cld_optics must be either ebertcurry or mitchell, got "', trim(ice_cld_optics), '"'
+       errflg = 1
+       return
+    end if
 
     file_reader => create_netcdf_reader_t()
 

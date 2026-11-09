@@ -17,6 +17,18 @@
   type = character | kind = len=*
   dimensions = ()
   intent = in
+[ liq_cld_optics_nl ]
+  standard_name = liquid_cloud_optics_type
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ ice_cld_optics_nl ]
+  standard_name = ice_cloud_optics_type
+  units = none
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
