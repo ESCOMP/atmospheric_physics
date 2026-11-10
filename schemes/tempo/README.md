@@ -11,6 +11,6 @@ You can download these tables from the [release assets](https://github.com/NCAR/
 
 Alternatively, you can build the standalone version of the TEMPO microphysics scheme from source, then run the resulting `run_build_tables` executable to generate the tables yourself.
 
-Once you have the tables, either set their paths with the corresponding namelist options in `user_nl_cam`, or place them in the CAM-SIMA `run` directory. See [`mp_tempo_namelist.xml`](mp_tempo_namelist.xml) for details.
+Once you have the tables, either set their paths with the corresponding namelist options in `user_nl_cam`, or place them in the CAM-SIMA `run` directory. If you are running on Derecho, the paths should be set automatically to the working copies, and no further action is required. See [`mp_tempo_namelist.xml`](mp_tempo_namelist.xml) for details.
 
 Fortran binary files are sensitive to byte order, and the release assets are in big-endian format. On supported machines defined in `ccs_config`, CAM-SIMA is built with compiler flags that enforce big-endian I/O for Fortran binary files. However, if you use custom `ccs_config` for your own machine, make sure to enable the same behavior. Otherwise, the tables may fail to load, or worse, load silently with garbage values.
