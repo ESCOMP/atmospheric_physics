@@ -285,7 +285,7 @@ contains
     real(kind_phys), intent(out)   :: tilt(:, :)     ! Vortex tilting magnitude |zeta|*|dV/dz| [s-2]
     real(kind_phys), intent(out)   :: p_steer(:)     ! Pressure at steering level [Pa]
     real(kind_phys), intent(out)   :: p_launch(:)    ! Pressure at launch level [Pa]
-    real(kind_phys), intent(out)   :: roo_block(:)   ! 1 = source blocked by near-surface tilt dominance; 0 otherwise
+    logical,         intent(out)   :: roo_block(:)   ! Source zeroed by the near-surface tilt-dominance (roo) criterion
     real(kind_phys), intent(out)   :: taucd_west(:, :)  ! Reynolds stress for waves in W direction, interfaces [N m-2]
     real(kind_phys), intent(out)   :: taucd_east(:, :)  ! Reynolds stress for waves in E direction, interfaces [N m-2]
     real(kind_phys), intent(out)   :: taucd_south(:, :) ! Reynolds stress for waves in S direction, interfaces [N m-2]
@@ -357,9 +357,14 @@ contains
                       ttgw, qtgw, egwdffi, gwut, dttdf, dttke, &
                       lapply_effgw_in=gw_apply_tndmax)
 
-    ! Use the source midpoint wind to sign calc_taucd stress at src_level+1:
-    ! interpolated ubi can have the opposite sign, making the momentum fixer
-    ! inconsistent with the drag applied by gw_drag_prof.
+    ! calc_taucd assigns stress to a cardinal direction from the sign of
+    ! c - ubi at each interface.
+    ! At the source interface src_level+1 the interpolated ubi can have the
+    ! opposite sign to ubm(src_level), the wind gw_drag_prof used to apply
+    ! the source-layer drag, so the momentum fixer would double the column
+    ! momentum change instead of cancelling it.
+    ! Pass calc_taucd a copy of ubi with that one element replaced by
+    ! ubm(src_level). Note: gw_drag_prof itself still uses the unmodified ubi.
     ubi_src(:ncol,:) = ubi(:ncol,:)
     do i = 1, ncol
        ubi_src(i, src_level(i)+1) = ubm(i, src_level(i))
@@ -476,9 +481,10 @@ contains
     real(kind_phys), intent(out) :: tilt(:,:)
     ! Pressure at steering/launch level [Pa].
     real(kind_phys), intent(out) :: p_steer(:), p_launch(:)
-    ! 1 = source blocked by near-surface tilt dominance; 0 otherwise.
-    ! Applies to source_type=3-5 only (see tilt_centroid_levels).
-    real(kind_phys), intent(out) :: roo_block(:)
+    ! True where the source was zeroed by the near-surface tilt-dominance
+    ! (roo) criterion in tilt_centroid_levels.
+    ! Always false for source_type = {1,2} since it does not run that search
+    logical,         intent(out) :: roo_block(:)
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errflg
 
@@ -530,7 +536,7 @@ contains
     q0         = 0._kind_phys
     p_steer    = 0._kind_phys
     p_launch   = 0._kind_phys
-    roo_block  = 0._kind_phys
+    roo_block  = .false.
 
     !----------------------------------------------------------------------
     ! source_type>=3 deposits xpwp_src directly at the launch level, which
@@ -769,14 +775,21 @@ contains
   ! Flow-dependent steering/launch levels from |tilt| pressure centroids
   ! (for source_type=3-5).
   !
-  ! roo = max(|tilt|, 0-500 m AGL) / (max(|tilt|, 500-15000 m AGL) + roo_eps).
-  ! roo > roo_thresh blocks sources dominated by near-surface tilt spikes.
-  ! roo_block flags this rejection only, not centroid-search failures.
-  ! Invalid columns get safe fallback indices.
+  ! The centroid search can return in-bounds levels that are still meaningless
+  ! when the column's tilt profile is dominated by an isolated near-surface
+  ! spike rather than a free-tropospheric signal, as seen over Antarctica,
+  ! the Arctic Ocean and Greenland.
+  ! The "roo" criterion rejects such columns using the ratio of the
+  ! near-surface to the free-tropospheric maximum |tilt|,
+  !   roo = max(|tilt|, 0-500 m AGL) / (max(|tilt|, 500-15000 m AGL) + roo_eps),
+  ! and blocks the source where roo > roo_thresh.
+  ! This is an empirical criterion from moving-mountain source development;
+  ! it has no published reference.
+  ! roo_block is true only for this rejection, not for centroid-search failures.
   !
-  ! If the centroid search fails (returns -1), valid=.false. and invalid
-  ! columns fall back to safe values. Callers must zero their source
-  ! where valid=.false.
+  ! If the centroid search fails (returns -1) or roo blocks the column,
+  ! valid=.false. and the levels fall back to safe in-bounds values.
+  ! Callers must zero their source where valid=.false.
   !------------------------------------------------------------------------
     integer,         intent(in)  :: ncol, pver
     real(kind_phys), intent(in)  :: tilt(ncol,pver)
@@ -787,13 +800,10 @@ contains
     real(kind_phys), intent(out) :: p_steer(ncol), p_launch(ncol)
     real(kind_phys), intent(out) :: usteer(ncol), vsteer(ncol)
     logical,         intent(out) :: valid(ncol)
-    real(kind_phys), intent(out) :: roo_block(ncol)
+    logical,         intent(out) :: roo_block(ncol)
 
-    ! Exclude near-surface tilt from the centroid search
-    ! using a fraction of local surface pressure,
-    ! approximated by pmid(:,pver).
-    ! Unlike a fixed pressure cutoff, this also excludes the
-    ! near-surface layer over elevated terrain.
+    ! Pressure bounds for the centroid search [Pa]: TOA down to a fraction
+    ! of the local surface pressure (see p_max_bound below).
     real(kind_phys), parameter :: p_min_centroid    = 0._kind_phys
     real(kind_phys), parameter :: frac_pbl_excl     = 0.8_kind_phys  ! fraction of local p_sfc
 
@@ -806,9 +816,12 @@ contains
     real(kind_phys) :: p_min_bound(ncol), p_max_bound(ncol)
     real(kind_phys) :: max_low, max_mid, roo
     logical         :: mask_low(pver), mask_mid(pver)
-    logical         :: blocked_roo
     integer         :: i
 
+    ! Exclude near-surface tilt from the centroid search by capping it at
+    ! a fraction of the local surface pressure, approximated by pmid(:,pver).
+    ! Unlike a fixed pressure cutoff, this also excludes the near-surface
+    ! layer over elevated terrain.
     p_min_bound = p_min_centroid
     p_max_bound = frac_pbl_excl * pmid(:,pver)
 
@@ -822,11 +835,10 @@ contains
       max_low  = maxval(abs(tilt(i,:)), mask=mask_low)
       max_mid  = maxval(abs(tilt(i,:)), mask=mask_mid)
       roo      = max_low / (max_mid + roo_eps)
-      blocked_roo  = roo > roo_thresh
-      roo_block(i) = merge(1._kind_phys, 0._kind_phys, blocked_roo)
+      roo_block(i) = roo > roo_thresh
 
       valid(i) = steering_level(i) >= 2 .and. launch_level(i) >= 2 .and. &
-                 steering_level(i) > launch_level(i) .and. .not. blocked_roo
+                 steering_level(i) > launch_level(i) .and. .not. roo_block(i)
       if (.not. valid(i)) then
         steering_level(i) = 2
         launch_level(i)   = 1
@@ -860,7 +872,7 @@ contains
     integer,         intent(out) :: steering_level(ncol), launch_level(ncol)
     real(kind_phys), intent(out) :: p_steer(ncol), p_launch(ncol)
     real(kind_phys), intent(out) :: usteer(ncol), vsteer(ncol)
-    real(kind_phys), intent(out) :: roo_block(ncol)
+    logical,         intent(out) :: roo_block(ncol)
 
     ! Dimensional scale factor: converts tilt [s-2] to flux [Pa].
     real(kind_phys), parameter :: scale_factor = 1.e6_kind_phys
@@ -918,7 +930,7 @@ contains
     integer,         intent(out) :: steering_level(ncol), launch_level(ncol)
     real(kind_phys), intent(out) :: p_steer(ncol), p_launch(ncol)
     real(kind_phys), intent(out) :: usteer(ncol), vsteer(ncol)
-    real(kind_phys), intent(out) :: roo_block(ncol)
+    logical,         intent(out) :: roo_block(ncol)
 
     ! Reference scales.
     real(kind_phys), parameter :: d_ref = 3.0e-7_kind_phys   ! [s-2]
@@ -998,7 +1010,7 @@ contains
     integer,         intent(out) :: steering_level(ncol), launch_level(ncol)
     real(kind_phys), intent(out) :: p_steer(ncol), p_launch(ncol)
     real(kind_phys), intent(out) :: usteer(ncol), vsteer(ncol)
-    real(kind_phys), intent(out) :: roo_block(ncol)
+    logical,         intent(out) :: roo_block(ncol)
 
     ! Reference scales (fixed before the search).
     real(kind_phys), parameter :: tau_ref = 4.68e-3_kind_phys  ! [Pa]

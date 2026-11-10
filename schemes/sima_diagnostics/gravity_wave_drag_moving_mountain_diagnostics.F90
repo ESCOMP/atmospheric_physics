@@ -64,7 +64,7 @@ contains
 !> \section arg_table_gravity_wave_drag_moving_mountain_diagnostics_run  Argument Table
 !! \htmlinclude gravity_wave_drag_moving_mountain_diagnostics_run.html
   subroutine gravity_wave_drag_moving_mountain_diagnostics_run( &
-    u, v, &
+    ncol, u, v, &
     src_level, tend_level, steer_level, &
     ubi, ubm, &
     tau0, gwut0, utgw, vtgw, &
@@ -78,6 +78,8 @@ contains
     use ccpp_kinds, only: kind_phys
 
     use cam_history, only: history_out_field
+
+    integer,         intent(in) :: ncol
 
     ! Input winds [m s-1]
     real(kind_phys), intent(in) :: u(:,:)
@@ -107,7 +109,7 @@ contains
     real(kind_phys), intent(in) :: xpwp_src(:) ! [Pa]
     real(kind_phys), intent(in) :: p_steer(:)  ! [Pa]
     real(kind_phys), intent(in) :: p_launch(:) ! [Pa]
-    real(kind_phys), intent(in) :: roo_block(:) ! 1 = source blocked by roo criterion [1]
+    logical,         intent(in) :: roo_block(:) ! source zeroed by the near-surface tilt-dominance (roo) criterion
 
     ! Reynolds stress for waves propagating in each cardinal direction [N m-2]
     real(kind_phys), intent(in) :: taucd_west(:,:)
@@ -117,6 +119,9 @@ contains
 
     character(len=512), intent(out) :: errmsg
     integer,            intent(out) :: errflg
+
+    ! history_out_field takes real fields, so roo_block is written as 1 (blocked) or 0.
+    real(kind_phys) :: roo_block_real(ncol)
 
     errmsg = ''
     errflg = 0
@@ -145,7 +150,8 @@ contains
     call history_out_field('XPWP_SRC_MOVMTN', xpwp_src)
     call history_out_field('PSTEER_MOVMTN', p_steer)
     call history_out_field('PLAUNCH_MOVMTN', p_launch)
-    call history_out_field('ROO_BLOCK_MOVMTN', roo_block)
+    roo_block_real = merge(1._kind_phys, 0._kind_phys, roo_block)
+    call history_out_field('ROO_BLOCK_MOVMTN', roo_block_real)
     call history_out_field('MMTAUE', taucd_east)
     call history_out_field('MMTAUW', taucd_west)
     call history_out_field('MMTAUS', taucd_south)
