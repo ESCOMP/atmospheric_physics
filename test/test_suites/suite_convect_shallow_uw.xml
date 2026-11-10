@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<suite name="convect_shallow_uw" version="1.0">
+  <group name="physics_before_coupler">
+    <!-- Helper to read all possible constituents from file -->
+    <scheme>initialize_constituents</scheme>
+    <scheme>to_be_ccppized_temporary</scheme>
+
+    <!--
+      University of Washington shallow convection scheme.
+    -->
+
+    <!-- Initialize diagnostics (has init phase only) -->
+    <scheme>convect_shallow_diagnostics</scheme>
+
+    <!-- Shallow convection: UW scheme -->
+    <scheme>check_energy_zero_fluxes</scheme>
+    <scheme>uw_convect_shallow</scheme>
+    <scheme>uw_convect_shallow_diagnostics</scheme>
+    <scheme>convect_shallow_diagnostics_after_shallow_scheme</scheme>
+    <scheme>apply_tendency_of_northward_wind</scheme>
+    <scheme>apply_tendency_of_eastward_wind</scheme>
+    <scheme>apply_heating_rate</scheme>
+    <scheme>apply_constituent_tendencies</scheme>
+    <!-- clamps num* tendencies to fall within [1e-12,1e10] range.
+         this replicates the physics_data.F90 behavior in CAM that skips qneg
+         for number concentrations. -->
+    <scheme>clamp_number_concentrations</scheme>
+    <scheme>qneg</scheme>
+    <scheme>geopotential_temp</scheme>
+
+    <!-- CHECK ENERGY
+    <scheme>check_energy_scaling</scheme>
+    <scheme>check_energy_chng</scheme>
+    -->
+  </group>
+</suite>
