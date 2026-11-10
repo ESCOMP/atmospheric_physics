@@ -144,13 +144,13 @@ contains
 !> \section arg_table_gravity_wave_drag_ridge_beta_init Argument Table
 !! \htmlinclude gravity_wave_drag_ridge_beta_init.html
   subroutine gravity_wave_drag_ridge_beta_init( &
-    effgw_rdg_beta, &
+    gwcli_rdg_beta, &
     errmsg, errflg)
 
     use gw_common, only: unset_kind_phys
 
     ! Input arguments
-    real(kind_phys),    intent(in)   :: effgw_rdg_beta                ! Beta ridge efficiency factor [1]
+    real(kind_phys),    intent(in)   :: gwcli_rdg_beta                ! Beta ridge efficiency factor [1]
 
     ! Output arguments
     character(len=512), intent(out)  :: errmsg
@@ -159,8 +159,8 @@ contains
     errmsg = ''
     errflg = 0
 
-    if (effgw_rdg_beta == unset_kind_phys) then
-      errmsg = "gravity_wave_drag_ridge_beta_init: Anisotropic OGW (Beta) enabled, but effgw_rdg_beta was not set."
+    if (gwcli_rdg_beta == unset_kind_phys) then
+      errmsg = "gravity_wave_drag_ridge_beta_init: Anisotropic OGW (Beta) enabled, but gwcli_rdg_beta was not set."
       errflg = 1
       return
     end if
@@ -179,7 +179,7 @@ contains
     piln, zm, zi, &
     nm, ni, rhoi, kvt_gw, &
     use_gw_rdg_resid, effgw_rdg_resid, &
-    effgw_rdg_beta, effgw_rdg_beta_max, &
+    gwcli_rdg_beta, gwcli_rdg_beta_max, &
     rdg_beta_cd_llb, trpd_leewv_rdg_beta, &
     gbxar, isovar, isowgt, &
     hwdth, clngt, mxdis, anixy, angll, &
@@ -223,8 +223,8 @@ contains
     ! Ridge scheme parameters
     logical,             intent(in)    :: use_gw_rdg_resid    ! Enable residual (non-ridge) orography GW. [flag]
     real(kind_phys),     intent(in)    :: effgw_rdg_resid     ! Efficiency scaling factor associated with residual non-ridge topo. [1]
-    real(kind_phys),     intent(in)    :: effgw_rdg_beta      ! Efficiency scaling factor associated with anisotropic OGW. [1]
-    real(kind_phys),     intent(in)    :: effgw_rdg_beta_max  ! Max efficiency associated with anisotropic OGW. [1]
+    real(kind_phys),     intent(in)    :: gwcli_rdg_beta      ! Efficiency scaling factor associated with anisotropic OGW. [1]
+    real(kind_phys),     intent(in)    :: gwcli_rdg_beta_max  ! Max efficiency associated with anisotropic OGW. [1]
     real(kind_phys),     intent(in)    :: rdg_beta_cd_llb     ! Drag coefficient for obstacles in low-level flow. [1]
     logical,             intent(in)    :: trpd_leewv_rdg_beta ! Allow trapping for meso-Beta Ridges? [flag]
 
@@ -286,8 +286,8 @@ contains
                      kvtt              = kvt_gw(:, :), &
                      q                 = q(:, :, :), &
                      dse               = dse(:, :), &
-                     effgw_rdg         = effgw_rdg_beta, &
-                     effgw_rdg_max     = effgw_rdg_beta_max, &
+                     effgw_rdg         = gwcli_rdg_beta, &
+                     effgw_rdg_max     = gwcli_rdg_beta_max, &
                      effgw_rdg_resid   = effgw_rdg_resid, &
                      luse_gw_rdg_resid = use_gw_rdg_resid, &
                      hwdth             = hwdth(:, :), &

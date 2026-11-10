@@ -122,7 +122,7 @@
 [ccpp-arg-table]
   name  = gravity_wave_drag_ridge_beta_init
   type  = scheme
-[ effgw_rdg_beta ]
+[ gwcli_rdg_beta ]
   standard_name = meso_beta_scheme_efficiency_of_gravity_wave_momentum_transfer
   units = 1
   type = real | kind = kind_phys
@@ -294,13 +294,13 @@
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
-[ effgw_rdg_beta ]
+[ gwcli_rdg_beta ]
   standard_name = meso_beta_scheme_efficiency_of_gravity_wave_momentum_transfer
   units = 1
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
-[ effgw_rdg_beta_max ]
+[ gwcli_rdg_beta_max ]
   standard_name = meso_beta_scheme_maximum_efficiency_of_gravity_wave_momentum_transfer
   units = 1
   type = real | kind = kind_phys

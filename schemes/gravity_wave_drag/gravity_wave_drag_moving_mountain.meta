@@ -233,7 +233,7 @@
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
-[ effgw_movmtn_pbl ]
+[ gwcli_movmtn ]
   standard_name = moving_mountain_scheme_efficiency_of_gravity_wave_momentum_transfer
   units = 1
   type = real | kind = kind_phys
@@ -245,7 +245,7 @@
   type = logical
   dimensions = ()
   intent = in
-[ use_gw_movmtn_pbl ]
+[ use_gw_movmtn ]
   standard_name = do_pbl_moving_mountain_gravity_wave_drag
   units = flag
   type = logical

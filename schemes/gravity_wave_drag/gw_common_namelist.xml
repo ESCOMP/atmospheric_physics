@@ -493,7 +493,7 @@
     </values>
   </entry>
 
-  <entry id="effgw_rdg_beta">
+  <entry id="gwcli_rdg_beta">
     <type>real</type>
     <category>gw_drag</category>
     <group>gw_drag_nl</group>
@@ -508,7 +508,7 @@
     </values>
   </entry>
 
-  <entry id="effgw_rdg_beta_max">
+  <entry id="gwcli_rdg_beta_max">
     <type>real</type>
     <category>gw_drag</category>
     <group>gw_drag_nl</group>
@@ -674,7 +674,7 @@
     </values>
   </entry>
 
-  <entry id="effgw_movmtn_pbl">
+  <entry id="gwcli_movmtn">
     <type>real</type>
     <category>gw_drag</category>
     <group>gw_drag_nl</group>
