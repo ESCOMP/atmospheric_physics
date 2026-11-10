@@ -13,6 +13,7 @@
     </desc>
     <values>
       <value>ccn_activate.bin</value>
+      <value MACH="derecho">/glade/campaign/cesm/amwg/soft_eng/sima_inputs/tempo/ccn_activate.bin</value>
     </values>
   </entry>
   <entry id="qrqg_table_name">
@@ -26,6 +27,7 @@
     </desc>
     <values>
       <value>qr_acr_qg_data_tempo_v3</value>
+      <value MACH="derecho">/glade/campaign/cesm/amwg/soft_eng/sima_inputs/tempo/qr_acr_qg_data_tempo_v3</value>
     </values>
   </entry>
   <entry id="qrqs_table_name">
@@ -39,6 +41,7 @@
     </desc>
     <values>
       <value>qr_acr_qs_data_tempo_v3</value>
+      <value MACH="derecho">/glade/campaign/cesm/amwg/soft_eng/sima_inputs/tempo/qr_acr_qs_data_tempo_v3</value>
     </values>
   </entry>
   <entry id="freezewater_table_name">
@@ -52,6 +55,7 @@
     </desc>
     <values>
       <value>freeze_water_data_tempo_v3</value>
+      <value MACH="derecho">/glade/campaign/cesm/amwg/soft_eng/sima_inputs/tempo/freeze_water_data_tempo_v3</value>
     </values>
   </entry>
   <entry id="num_subcyc">
