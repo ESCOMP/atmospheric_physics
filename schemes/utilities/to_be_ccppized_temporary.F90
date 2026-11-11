@@ -13,15 +13,11 @@ contains
 !!
 subroutine to_be_ccppized_temporary_init(errmsg, errflg)
 
-   use wv_saturation, only: wv_sat_init
-
-   character(len=512), intent(out)      :: errmsg
+   character(len=*), intent(out)        :: errmsg
    integer, intent(out)                 :: errflg
 
    errmsg = ' '
    errflg = 0
-
-   call wv_sat_init()
 
 end subroutine to_be_ccppized_temporary_init
 

@@ -29,6 +29,7 @@
 
     <!-- Temporary initialization for to_be_ccppized: wv_saturation -->
     <scheme>to_be_ccppized_temporary</scheme>
+    <scheme>wv_saturation</scheme>
 
     <!-- Rebin seasalt from 4bin prescribed (or snapshot) to 2bin -->
     <scheme>rebin_seasalt</scheme>

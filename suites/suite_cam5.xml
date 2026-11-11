@@ -18,6 +18,7 @@
   <group name="physics_before_coupler">
     <!-- Helper schemes to read all possible constituents from file and/or namelist -->
     <scheme>to_be_ccppized_temporary</scheme>
+    <scheme>wv_saturation</scheme>
     <scheme>prescribe_radiative_gas_concentrations</scheme>
 
     <!-- Prescribe ozone for radiation. -->

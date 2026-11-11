@@ -469,7 +469,8 @@ contains
     mp_level_loop: do k = top_lev, pver
       ! "True" means that ice will be taken into account.
       call findsp_vc(qn(:ncol,k), tn(:ncol,k), pmid(:ncol,k), .true., &
-           tsp(:ncol,k), qsp(:ncol,k))
+           tsp(:ncol,k), qsp(:ncol,k), errmsg, errflg)
+      if (errflg /= 0) return
 
       call qsat(t(1:ncol,k), pmid(1:ncol,k), es(1:ncol), qs(1:ncol), ncol, gam=gamma(1:ncol))
 
