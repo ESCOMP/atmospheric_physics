@@ -320,13 +320,13 @@ contains
 !> \section arg_table_gravity_wave_drag_ridge_gamma_init Argument Table
 !! \htmlinclude gravity_wave_drag_ridge_gamma_init.html
   subroutine gravity_wave_drag_ridge_gamma_init( &
-    effgw_rdg_gamma, &
+    gwcli_rdg_gamma, &
     errmsg, errflg)
 
     use gw_common, only: unset_kind_phys
 
     ! Input arguments
-    real(kind_phys),    intent(in)   :: effgw_rdg_gamma               ! Gamma ridge efficiency factor [1]
+    real(kind_phys),    intent(in)   :: gwcli_rdg_gamma               ! Gamma ridge efficiency factor [1]
 
     ! Output arguments
     character(len=512), intent(out)  :: errmsg
@@ -335,8 +335,8 @@ contains
     errmsg = ''
     errflg = 0
 
-    if (effgw_rdg_gamma == unset_kind_phys) then
-      errmsg = "gravity_wave_drag_ridge_gamma_init: Anisotropic OGW (Gamma) enabled, but effgw_rdg_gamma was not set."
+    if (gwcli_rdg_gamma == unset_kind_phys) then
+      errmsg = "gravity_wave_drag_ridge_gamma_init: Anisotropic OGW (Gamma) enabled, but gwcli_rdg_gamma was not set."
       errflg = 1
       return
     end if
@@ -355,7 +355,7 @@ contains
     piln, zm, zi, &
     nm, ni, rhoi, kvt_gw, &
     use_gw_rdg_resid, effgw_rdg_resid, &
-    effgw_rdg_gamma, effgw_rdg_gamma_max, &
+    gwcli_rdg_gamma, gwcli_rdg_gamma_max, &
     rdg_gamma_cd_llb, trpd_leewv_rdg_gamma, &
     gbxarg, &
     hwdthg, clngtg, mxdisg, anixyg, angllg, &
@@ -399,8 +399,8 @@ contains
     ! Ridge scheme parameters
     logical,             intent(in)    :: use_gw_rdg_resid     ! Enable residual (non-ridge) orography GW. [flag]
     real(kind_phys),     intent(in)    :: effgw_rdg_resid      ! Efficiency scaling factor associated with residual non-ridge topo. [1]
-    real(kind_phys),     intent(in)    :: effgw_rdg_gamma      ! Efficiency scaling factor associated iwth anisotropic OGW [1]
-    real(kind_phys),     intent(in)    :: effgw_rdg_gamma_max  ! Max efficiency associated with anisotropic OGW [1]
+    real(kind_phys),     intent(in)    :: gwcli_rdg_gamma      ! Efficiency scaling factor associated iwth anisotropic OGW [1]
+    real(kind_phys),     intent(in)    :: gwcli_rdg_gamma_max  ! Max efficiency associated with anisotropic OGW [1]
     real(kind_phys),     intent(in)    :: rdg_gamma_cd_llb     ! Drag coefficient for obstacles in low-level flow [1]
     logical,             intent(in)    :: trpd_leewv_rdg_gamma ! Allow trapping for meso-gamma Ridges? [flag]
 
@@ -470,8 +470,8 @@ contains
                      kvtt              = kvt_gw(:, :), &
                      q                 = q(:, :, :), &
                      dse               = dse(:, :), &
-                     effgw_rdg         = effgw_rdg_gamma, &
-                     effgw_rdg_max     = effgw_rdg_gamma_max, &
+                     effgw_rdg         = gwcli_rdg_gamma, &
+                     effgw_rdg_max     = gwcli_rdg_gamma_max, &
                      effgw_rdg_resid   = effgw_rdg_resid, &
                      luse_gw_rdg_resid = use_gw_rdg_resid, &
                      hwdth             = hwdthg(:, :), &
