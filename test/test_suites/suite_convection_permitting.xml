@@ -5,6 +5,7 @@
     <!-- Prepare input needed by the suite -->
     <scheme>prescribe_radiative_gas_concentrations</scheme>
     <scheme>to_be_ccppized_temporary</scheme>
+    <scheme>wv_saturation</scheme>
 
     <scheme>prescribed_aerosols</scheme>
     <scheme>prescribed_aerosol_deposition_flux</scheme>

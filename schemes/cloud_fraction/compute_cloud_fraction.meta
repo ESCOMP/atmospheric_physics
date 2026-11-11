@@ -1,7 +1,7 @@
 [ccpp-table-properties]
   name = compute_cloud_fraction
   type = scheme
-  dependencies = ../../to_be_ccppized/wv_saturation.F90
+  dependencies = ../utilities/wv_saturation.F90
 
 [ccpp-arg-table]
   name  = compute_cloud_fraction_init

@@ -11,6 +11,7 @@
 <suite name="rasch_kristjansson" version="1.0">
   <group name="physics_before_coupler">
     <scheme>to_be_ccppized_temporary</scheme>
+    <scheme>wv_saturation</scheme>
 
     <!-- INITIALIZE CLOUD FRACTION NAMELIST (init phase only) -->
     <scheme>cloud_fraction_options</scheme>

@@ -23,14 +23,7 @@ module wv_saturation
 !                                                                    !
 !--------------------------------------------------------------------!
 
-use shr_kind_mod, only: r8 => shr_kind_r8
-use physconst,    only: epsilo, &
-                        latvap, &
-                        latice, &
-                        rh2o,   &
-                        cpair,  &
-                        tmelt,  &
-                        h2otrip
+use ccpp_kinds, only: kind_phys, r8 => kind_phys
 
 use wv_sat_methods, only: &
      svp_to_qsat => wv_sat_svp_to_qsat, &
@@ -38,13 +31,11 @@ use wv_sat_methods, only: &
 
 implicit none
 private
-save
 
 ! Public interfaces
-! Namelist, initialization, finalization
-public wv_sat_readnl
-public wv_sat_init
-public wv_sat_final
+! CCPP initialization and finalization
+public wv_saturation_init
+public wv_saturation_final
 
 ! Saturation vapor pressure calculations
 public svp_water, svp_water_vect
@@ -100,6 +91,15 @@ real(r8), parameter :: tboil = 373.16_r8
   integer :: plenest                             ! length of estbl
   real(r8), allocatable :: estbl(:)              ! table values of saturation vapor pressure
 
+  ! Physical constants, set from the host model in wv_saturation_init.
+  real(r8) :: epsilo     ! ratio of h2o to dry air molecular weights
+  real(r8) :: latvap     ! latent heat of vaporization (J kg-1)
+  real(r8) :: latice     ! latent heat of fusion (J kg-1)
+  real(r8) :: rh2o       ! water vapor gas constant (J kg-1 K-1)
+  real(r8) :: cpair      ! specific heat of dry air at constant pressure (J kg-1 K-1)
+  real(r8) :: tmelt      ! freezing point of water (K)
+  real(r8) :: h2otrip    ! triple point temperature of water (K)
+
   real(r8) :: omeps      ! 1.0_r8 - epsilo
 
   real(r8) :: c3         ! parameter used by findsp
@@ -127,6 +127,7 @@ real(r8), parameter :: tboil = 373.16_r8
   integer, parameter :: VLENS = 128 ! vector length for a GPU kernel
 
   !$acc declare create (plenest,estbl,omeps,c3,pcf)
+  !$acc declare create (epsilo,latvap,latice,rh2o,cpair,tmelt,h2otrip)
 
 contains
 
@@ -134,75 +135,34 @@ contains
 ! ADMINISTRATIVE FUNCTIONS
 !---------------------------------------------------------------------
 
-subroutine wv_sat_readnl(nlfile)
+!> \section arg_table_wv_saturation_init Argument Table
+!! \htmlinclude arg_table_wv_saturation_init.html
+!!
+subroutine wv_saturation_init(wv_sat_scheme, tmelt_in, h2otrip_in, &
+     epsilo_in, latvap_in, latice_in, rh2o_in, cpair_in, amIRoot, iulog, &
+     errmsg, errflg)
   !------------------------------------------------------------------!
   ! Purpose:                                                         !
-  !   Get runtime options for wv_saturation.                         !
-  !------------------------------------------------------------------!
-
-  use wv_sat_methods, only: wv_sat_get_scheme_idx, &
-                            wv_sat_valid_idx, &
-                            wv_sat_set_default
-
-  use spmd_utils,      only: masterproc
-  use namelist_utils,  only: find_group_name
-
-!CACNOTE - Bring this back in along with the mpibcast call below
-!  use mpishorthand
-  use cam_abortutils,  only: endrun
-
-  character(len=*), intent(in) :: nlfile  ! filepath for file containing namelist input
-
-  ! Local variables
-  integer :: unitn, ierr
-
-  character(len=32) :: wv_sat_scheme = "GoffGratch"
-
-  character(len=*), parameter :: subname = 'wv_sat_readnl'
-
-  namelist /wv_sat_nl/ wv_sat_scheme
-  !-----------------------------------------------------------------------------
-
-  if (masterproc) then
-     open( newunit=unitn, file=trim(nlfile), status='old' )
-     call find_group_name(unitn, 'wv_sat_nl', status=ierr)
-     if (ierr == 0) then
-        read(unitn, wv_sat_nl, iostat=ierr)
-        if (ierr /= 0) then
-           call endrun(subname // ':: ERROR reading namelist')
-           return
-        end if
-     end if
-     close(unitn)
-
-  end if
-
-#ifdef SPMD
-!   call mpibcast(wv_sat_scheme, len(wv_sat_scheme) , mpichar, 0, mpicom)
-#endif
-
-  if (.not. wv_sat_set_default(wv_sat_scheme)) then
-     call endrun('wv_sat_readnl :: Invalid wv_sat_scheme.')
-     return
-  end if
-
-end subroutine wv_sat_readnl
-
-subroutine wv_sat_init
-  !------------------------------------------------------------------!
-  ! Purpose:                                                         !
-  !   Initialize module (e.g. setting parameters, initializing the   !
-  !   SVP lookup table).                                             !
+  !   Set the saturation vapor pressure method, receive the physical !
+  !   constants from the host, and initialize module parameters and  !
+  !   the SVP lookup table.                                          !
   !------------------------------------------------------------------!
 
   use wv_sat_methods, only: wv_sat_methods_init, &
-                            wv_sat_get_scheme_idx, &
-                            wv_sat_valid_idx
-  use spmd_utils,     only: masterproc
-  use cam_logfile,    only: iulog
-  use cam_abortutils, only: endrun
-  use shr_assert_mod, only: shr_assert_in_domain
-  use error_messages, only: handle_errmsg
+                            wv_sat_set_default
+
+  character(len=*), intent(in)  :: wv_sat_scheme ! SVP method name
+  real(kind_phys),  intent(in)  :: tmelt_in      ! freezing point of water (K)
+  real(kind_phys),  intent(in)  :: h2otrip_in    ! triple point of water (K)
+  real(kind_phys),  intent(in)  :: epsilo_in     ! h2o / dry air molecular weights
+  real(kind_phys),  intent(in)  :: latvap_in     ! latent heat of vaporization (J kg-1)
+  real(kind_phys),  intent(in)  :: latice_in     ! latent heat of fusion (J kg-1)
+  real(kind_phys),  intent(in)  :: rh2o_in       ! water vapor gas constant (J kg-1 K-1)
+  real(kind_phys),  intent(in)  :: cpair_in      ! cp of dry air (J kg-1 K-1)
+  logical,          intent(in)  :: amIRoot       ! .true. on the root task
+  integer,          intent(in)  :: iulog         ! log output unit
+  character(len=*), intent(out) :: errmsg
+  integer,          intent(out) :: errflg
 
   integer :: status
 
@@ -210,16 +170,37 @@ subroutine wv_sat_init
   character(len=256) :: errstring
 
   ! For generating internal SVP table.
-  real(r8) :: t         ! Temperature
   integer  :: i         ! Increment counter
+
+  errmsg = ''
+  errflg = 0
+
+  ! Default SVP method (namelist option wv_sat_scheme).
+  if (.not. wv_sat_set_default(wv_sat_scheme)) then
+     errflg = 1
+     errmsg = 'wv_saturation_init: Invalid wv_sat_scheme: '//trim(wv_sat_scheme)
+     return
+  end if
+
+  ! Physical constants from the host model.
+  epsilo  = epsilo_in
+  latvap  = latvap_in
+  latice  = latice_in
+  rh2o    = rh2o_in
+  cpair   = cpair_in
+  tmelt   = tmelt_in
+  h2otrip = h2otrip_in
 
   ! Precalculated because so frequently used.
   omeps  = 1.0_r8 - epsilo
 
   ! Transition range method is only valid for transition temperatures at:
   ! -40 deg C < T < 0 deg C
-  call shr_assert_in_domain(ttrice, ge=0._r8, le=40._r8, varname="ttrice",&
-       msg="wv_sat_init: Invalid transition temperature range.")
+  if (ttrice < 0._r8 .or. ttrice > 40._r8) then
+     errflg = 1
+     errmsg = 'wv_saturation_init: Invalid transition temperature range (ttrice).'
+     return
+  end if
 
 ! This parameter uses a hardcoded 287.04_r8?
   c3 = 287.04_r8*(7.5_r8*log(10._r8))/cpair
@@ -229,15 +210,21 @@ subroutine wv_sat_init
   call wv_sat_methods_init(r8, tmelt, h2otrip, tboil, ttrice, &
        epsilo, errstring)
 
-  call handle_errmsg(errstring, subname="wv_sat_methods_init")
+  if (len_trim(errstring) > 0) then
+     errflg = 1
+     errmsg = 'wv_saturation_init: '//trim(errstring)
+     return
+  end if
 
   ! Add two to make the table slightly too big, just in case.
   plenest = ceiling(tmax-tmin) + 2
 
   ! Allocate SVP table.
-  allocate(estbl(plenest), stat=status)
+  allocate(estbl(plenest), stat=status, errmsg=errmsg)
   if (status /= 0) then
-     call endrun('wv_sat_init :: ERROR allocating saturation vapor pressure table')
+     errflg = status
+     errmsg = 'wv_saturation_init: ERROR allocating saturation vapor pressure table: ' &
+          //trim(errmsg)
      return
   end if
 
@@ -246,34 +233,41 @@ subroutine wv_sat_init
   end do
 
   !$acc update device (plenest,estbl,omeps,c3,pcf)
+  !$acc update device (epsilo,latvap,latice,rh2o,cpair,tmelt,h2otrip)
 
-  if (masterproc) then
+  if (amIRoot) then
      write(iulog,*)' *** SATURATION VAPOR PRESSURE TABLE COMPLETED ***'
   end if
 
-end subroutine wv_sat_init
+end subroutine wv_saturation_init
 
-subroutine wv_sat_final
+!> \section arg_table_wv_saturation_final Argument Table
+!! \htmlinclude arg_table_wv_saturation_final.html
+!!
+subroutine wv_saturation_final(errmsg, errflg)
   !------------------------------------------------------------------!
   ! Purpose:                                                         !
   !   Deallocate global variables in module.                         !
   !------------------------------------------------------------------!
-  use cam_abortutils, only: endrun
 
-  integer :: status
+  character(len=*), intent(out) :: errmsg
+  integer,          intent(out) :: errflg
+
+  errmsg = ''
+  errflg = 0
 
   if (allocated(estbl)) then
 
-     deallocate(estbl, stat=status)
+     deallocate(estbl, stat=errflg, errmsg=errmsg)
 
-     if (status /= 0) then
-        call endrun('wv_sat_final :: ERROR deallocating table')
+     if (errflg /= 0) then
+        errmsg = 'wv_saturation_final: ERROR deallocating table: '//trim(errmsg)
         return
      end if
 
   end if
 
-end subroutine wv_sat_final
+end subroutine wv_saturation_final
 
 !---------------------------------------------------------------------
 ! DEFAULT SVP FUNCTIONS
@@ -1273,10 +1267,7 @@ end subroutine qsat_ice_2D
 ! FINDSP (WET BULB TEMPERATURE) PROCEDURES
 !---------------------------------------------------------------------
 
-subroutine findsp_vc(q, t, p, use_ice, tsp, qsp)
-
-  use cam_logfile,      only: iulog
-  use cam_abortutils,   only: endrun
+subroutine findsp_vc(q, t, p, use_ice, tsp, qsp, errmsg, errflg)
 
   ! Wrapper for findsp which is 1D and handles the output status.
   ! Changing findsp to elemental restricted debugging output.
@@ -1292,6 +1283,8 @@ subroutine findsp_vc(q, t, p, use_ice, tsp, qsp)
   ! output arguments
   real(r8), intent(out) :: tsp(:)     ! saturation temp (K)
   real(r8), intent(out) :: qsp(:)     ! saturation mixing ratio (kg/kg)
+  character(len=*), intent(out) :: errmsg
+  integer,          intent(out) :: errflg
 
   integer :: status(size(q))   ! flag representing state of output
                                ! 0 => Successful convergence
@@ -1303,22 +1296,25 @@ subroutine findsp_vc(q, t, p, use_ice, tsp, qsp)
 
   integer :: n, i
 
+  errmsg = ''
+  errflg = 0
+
   n = size(q)
 
   ! Currently, only 2 and 8 seem to be treated as fatal errors.
   do i = 1,n
      call findsp(q(i), t(i), p(i), use_ice, tsp(i), qsp(i), status(i))
      if (status(i) == 2) then
-        write(iulog,*) ' findsp not converging at i = ', i
-        write(iulog,*) ' t, q, p ', t(i), q(i), p(i)
-        write(iulog,*) ' tsp, qsp ', tsp(i), qsp(i)
-        call endrun ('wv_saturation::FINDSP -- not converging')
+        errflg = 1
+        write(errmsg,*) 'wv_saturation::FINDSP -- not converging at i = ', i, &
+             '; t, q, p ', t(i), q(i), p(i), '; tsp, qsp ', tsp(i), qsp(i)
+        return
      else if (status(i) == 8) then
-        write(iulog,*) ' the enthalpy is not conserved at i = ', i
-        write(iulog,*) ' t, q, p ', t(i), q(i), p(i)
-        write(iulog,*) ' tsp, qsp ', tsp(i), qsp(i)
-        call endrun ('wv_saturation::FINDSP -- enthalpy is not conserved')
-     endif
+        errflg = 1
+        write(errmsg,*) 'wv_saturation::FINDSP -- enthalpy is not conserved at i = ', i, &
+             '; t, q, p ', t(i), q(i), p(i), '; tsp, qsp ', tsp(i), qsp(i)
+        return
+     end if
   end do
 
 end subroutine findsp_vc
