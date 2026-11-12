@@ -9,7 +9,7 @@
       The correct test SDF must be used depending on the
       CAM configuration, as the use of schemes differ between CAM4/5/6/7, the model top,
       WACCM, availability of topo file, and dynamical core.
-        - use_gw_movmtn_pbl =  F
+        - use_gw_movmtn     =  F
         - use_gw_convect_dp =  F
         - use_gw_convect_sh =  F
         - use_gw_front =  F
