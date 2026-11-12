@@ -164,7 +164,7 @@ contains
         character(*), intent(out) :: errmsg
         integer, intent(out) :: errflg
 
-        ! Zero out tendencies at the beginning of each time step.
+        ! Zero out tendencies at the beginning of each timestep.
 
         ! Tendencies for feeding back to CAM-SIMA.
         dudt(:, :) = 0.0_kind_phys
@@ -278,6 +278,8 @@ contains
         qs(:, :) = qs(:, :) + (rqsblten(:, :) + rqsmpten(:, :)) * dt
         qg(:, :) = qg(:, :) + rqgmpten(:, :) * dt
 
+        ! When using prescribed ozone, the ozone state will be overwritten on every timestep, so the values will only apply to
+        ! the schemes after this one in the suite.
         constituents(:, :, index_o3) = constituents(:, :, index_o3) + rozblten(:, :) * dt
 
         nc(:, :) = nc(:, :) + (rncblten(:, :) + rncmpten(:, :)) * dt
@@ -352,8 +354,8 @@ contains
         character(*), intent(out) :: errmsg
         integer, intent(out) :: errflg
 
-        ! For remembering the model states from the previous time step. They must be allocated at model initialization
-        ! because they need to persist across time steps.
+        ! For remembering the model states from the previous timestep. They must be allocated at model initialization
+        ! because they need to persist across timesteps.
         theta_prev(:, :) = 0.0_kind_phys
         qv_prev(:, :) = 0.0_kind_phys
 
@@ -373,7 +375,7 @@ contains
         character(*), intent(out) :: errmsg
         integer, intent(out) :: errflg
 
-        ! Remember the model states at this time step. When the next time step comes, they will become
+        ! Remember the model states at this timestep. When the next timestep comes, they will become
         ! the model states from the previous one.
         theta_prev(:, :) = theta_curr(:, :)
         qv_prev(:, :) = qv_curr(:, :)
