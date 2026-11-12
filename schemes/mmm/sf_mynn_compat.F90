@@ -42,7 +42,7 @@ contains
         integer, intent(out) :: errflg
 
         ! Provide first guess at the first time step.
-        if (itimestep == 1) then
+        if (itimestep == 0) then
             ust(:) = max(0.04_kind_phys * sqrt(u(:, size(u, 2)) ** 2 + v(:, size(v, 2)) ** 2), 0.001_kind_phys)
             mol(:) = 0.0_kind_phys
             qsfc(:) = qv(:, size(qv, 2)) ! Note that this `qv` is wet.
@@ -164,6 +164,7 @@ contains
             cd, cda, spp_pbl, rstoch1d, isftcflx, &
             iz0tlnd, its, ite, &
             errmsg, errflg)
+        use ccpp_constituent_prop_mod, only: int_unassigned
         use ccpp_kinds, only: kind_phys
         use ccpp_scheme_utils, only: ccpp_constituent_index
         use sf_mynn, only: sf_mynn_run
@@ -240,9 +241,12 @@ contains
         call ccpp_constituent_index( &
             'water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water', water_vapor_mixing_ratio_index, errflg, errmsg)
 
-        if (errflg /= 0 .or. &
-            water_vapor_mixing_ratio_index < lbound(cflx, 2) .or. water_vapor_mixing_ratio_index > ubound(cflx, 2)) then
-            errmsg = 'sf_mynn_compat_run: Failed to find desired constituent flux from cflx'
+        if (errflg /= 0) then
+            return
+        end if
+
+        if (water_vapor_mixing_ratio_index == int_unassigned) then
+            errmsg = 'sf_mynn_compat_run: Failed to find required constituent flux from "cflx"'
             errflg = 1
 
             return
@@ -354,7 +358,7 @@ contains
             t2, q2, flhc, flqc, snowh, qgh, qsfc, lh, &
             gz1oz0, wspd, br, isfflx, dx, svp1, svp2, &
             svp3, svpt0, ep1, ep2, karman, ch, qcg, &
-            itimestep, wstar, qstar, ustm, ck, cka, &
+            itimestep + 1, wstar, qstar, ustm, ck, cka, &
             cd, cda, spp_pbl_l, rstoch1d, isftcflx, &
             iz0tlnd, its, ite, &
             errmsg, errflg)
@@ -376,7 +380,7 @@ contains
                 t2_sea, q2_sea, flhc_sea, flqc_sea, snowh, qgh_sea, qsfc_sea, lh_sea, &
                 gz1oz0_sea, wspd_sea, br_sea, isfflx, dx, svp1, svp2, &
                 svp3, svpt0, ep1, ep2, karman, ch_sea, qcg, &
-                itimestep, wstar_sea, qstar_sea, ustm_sea, ck_sea, cka_sea, &
+                itimestep + 1, wstar_sea, qstar_sea, ustm_sea, ck_sea, cka_sea, &
                 cd_sea, cda_sea, spp_pbl_l, rstoch1d, isftcflx, &
                 iz0tlnd, its, ite, &
                 errmsg, errflg)

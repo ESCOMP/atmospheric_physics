@@ -1,0 +1,11 @@
+add_library(ccpp_framework_stub)
+target_sources(ccpp_framework_stub
+    PRIVATE
+        ccpp_constituent_prop_mod.F90
+        ccpp_kinds.F90
+        ccpp_scheme_utils.F90
+)
+target_include_directories(ccpp_framework_stub
+    INTERFACE
+        ${CMAKE_CURRENT_BINARY_DIR}
+)

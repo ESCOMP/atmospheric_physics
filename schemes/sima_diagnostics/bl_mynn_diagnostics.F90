@@ -1,6 +1,6 @@
 !> This module contains diagnostic schemes that are specific to the MYNN PBL scheme,
 !> which is part of the MMM physics.
-module bl_mynn_diag
+module bl_mynn_diagnostics
     implicit none
 
     private
@@ -254,4 +254,4 @@ contains
         errmsg = ''
         errflg = 0
     end subroutine bl_mynn_diagnostics_run
-end module bl_mynn_diag
+end module bl_mynn_diagnostics

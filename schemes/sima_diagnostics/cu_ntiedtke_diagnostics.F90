@@ -1,6 +1,6 @@
 !> This module contains diagnostic schemes that are specific to the new Tiedtke cumulus scheme,
 !> which is part of the MMM physics.
-module cu_ntiedtke_diag
+module cu_ntiedtke_diagnostics
     implicit none
 
     private
@@ -65,4 +65,4 @@ contains
         errmsg = ''
         errflg = 0
     end subroutine cu_ntiedtke_diagnostics_run
-end module cu_ntiedtke_diag
+end module cu_ntiedtke_diagnostics

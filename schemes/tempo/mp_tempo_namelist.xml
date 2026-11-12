@@ -2,6 +2,62 @@
 <?xml-stylesheet type="text/xsl"?>
 
 <entry_id_pg version="2.0">
+  <entry id="ccn_table_name">
+    <type>char*100</type>
+    <category>mp_tempo</category>
+    <group>mp_tempo_nl</group>
+    <standard_name>ccn_activation_table_name_for_tempo_microphysics</standard_name>
+    <units>none</units>
+    <desc>
+      CCN activation table name for TEMPO microphysics.
+    </desc>
+    <values>
+      <value>ccn_activate.bin</value>
+      <value MACH="derecho">/glade/campaign/cesm/amwg/soft_eng/sima_inputs/tempo/ccn_activate.bin</value>
+    </values>
+  </entry>
+  <entry id="qrqg_table_name">
+    <type>char*100</type>
+    <category>mp_tempo</category>
+    <group>mp_tempo_nl</group>
+    <standard_name>rain_graupel_collection_table_name_for_tempo_microphysics</standard_name>
+    <units>none</units>
+    <desc>
+      Rain-graupel collection table name for TEMPO microphysics.
+    </desc>
+    <values>
+      <value>qr_acr_qg_data_tempo_v3</value>
+      <value MACH="derecho">/glade/campaign/cesm/amwg/soft_eng/sima_inputs/tempo/qr_acr_qg_data_tempo_v3</value>
+    </values>
+  </entry>
+  <entry id="qrqs_table_name">
+    <type>char*100</type>
+    <category>mp_tempo</category>
+    <group>mp_tempo_nl</group>
+    <standard_name>rain_snow_collection_table_name_for_tempo_microphysics</standard_name>
+    <units>none</units>
+    <desc>
+      Rain-snow collection table name for TEMPO microphysics.
+    </desc>
+    <values>
+      <value>qr_acr_qs_data_tempo_v3</value>
+      <value MACH="derecho">/glade/campaign/cesm/amwg/soft_eng/sima_inputs/tempo/qr_acr_qs_data_tempo_v3</value>
+    </values>
+  </entry>
+  <entry id="freezewater_table_name">
+    <type>char*100</type>
+    <category>mp_tempo</category>
+    <group>mp_tempo_nl</group>
+    <standard_name>freeze_water_collection_table_name_for_tempo_microphysics</standard_name>
+    <units>none</units>
+    <desc>
+      Freeze water collection table name for TEMPO microphysics.
+    </desc>
+    <values>
+      <value>freeze_water_data_tempo_v3</value>
+      <value MACH="derecho">/glade/campaign/cesm/amwg/soft_eng/sima_inputs/tempo/freeze_water_data_tempo_v3</value>
+    </values>
+  </entry>
   <entry id="num_subcyc">
     <type>integer</type>
     <category>mp_tempo</category>
@@ -10,9 +66,11 @@
     <units>count</units>
     <desc>
       Number of timestep subcycles for TEMPO microphysics.
+
+      The value should be selected such that the resulting microphysics timestep is about 1-2 minutes.
     </desc>
     <values>
-      <value>1</value>
+      <value>10</value>
     </values>
   </entry>
   <entry id="aerosol_aware">
@@ -22,7 +80,7 @@
     <standard_name>do_aerosol_aware_microphysics</standard_name>
     <units>flag</units>
     <desc>
-       Flag to run aerosol-aware microphysics, with prognostic aerosol number and cloud droplet concentrations.
+      Flag to run aerosol-aware microphysics, with prognostic aerosol number and cloud droplet concentrations.
     </desc>
     <values>
       <value>.true.</value>
@@ -35,7 +93,7 @@
     <standard_name>do_hail_aware_microphysics</standard_name>
     <units>flag</units>
     <desc>
-       Flag to run hail-aware microphysics, with prognostic graupel number concentration and rime density.
+      Flag to run hail-aware microphysics, with prognostic graupel number concentration and rime density.
     </desc>
     <values>
       <value>.true.</value>
@@ -48,7 +106,7 @@
     <standard_name>do_radar_reflectivity_with_melting_hydrometeors</standard_name>
     <units>flag</units>
     <desc>
-       Flag to include contributions from melting hydrometeors (e.g., snow and graupel) in radar reflectivity.
+      Flag to include contributions from melting hydrometeors (e.g., snow and graupel) in radar reflectivity.
     </desc>
     <values>
       <value>.false.</value>
@@ -61,7 +119,7 @@
     <standard_name>do_saturation_adjustment</standard_name>
     <units>flag</units>
     <desc>
-       Flag to run saturation adjustment. sat_adj=.true. should only be run with aerosol_aware=.false. and hail_aware=.false.
+      Flag to run saturation adjustment. sat_adj=.true. should only be run with aerosol_aware=.false. and hail_aware=.false.
     </desc>
     <values>
       <value>.false.</value>
@@ -74,10 +132,10 @@
     <standard_name>do_semi_lagrangian_sedimentation_of_hydrometeors</standard_name>
     <units>flag</units>
     <desc>
-       Flag to run semi-Lagrangian sedimentation of hydrometeors (e.g., rain and graupel).
+      Flag to run semi-Lagrangian sedimentation of hydrometeors (e.g., rain and graupel).
     </desc>
     <values>
-      <value>.false.</value>
+      <value>.true.</value>
     </values>
   </entry>
 </entry_id_pg>
