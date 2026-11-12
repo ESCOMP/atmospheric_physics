@@ -110,7 +110,13 @@ contains
          end if
          do name_idx = 1, size(const_std_names)
             if (trim(standard_name) == trim(const_std_names(name_idx))) then
-               call history_add_field(trim(const_diag_names(name_idx)), trim(const_std_names(name_idx)), 'lev', 'avg', 'kg kg-1', mixing_ratio='wet')
+               if (index(trim(const_std_names(name_idx)), 'mixing_ratio') > 0) then
+                  call history_add_field(trim(const_diag_names(name_idx)), trim(const_std_names(name_idx)), &
+                     'lev', 'avg', 'kg kg-1', mixing_ratio='wet')
+               else
+                  call history_add_field(trim(const_diag_names(name_idx)), trim(const_std_names(name_idx)), &
+                     'lev', 'avg', 'kg-1', mixing_ratio='wet')
+               end if
                const_num_found = const_num_found + 1
                const_found(const_idx) = .true.
             end if
