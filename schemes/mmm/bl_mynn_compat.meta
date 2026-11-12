@@ -396,56 +396,8 @@
   type = real | kind = kind_phys
   dimensions = ()
   intent = out
-[ flag_qc ]
-  standard_name = flag_for_cloud_liquid_water_mixing_ratio_in_mynn_pbl_scheme
-  units = flag
-  type = logical
-  dimensions = ()
-  intent = out
-[ flag_qi ]
-  standard_name = flag_for_cloud_ice_mixing_ratio_in_mynn_pbl_scheme
-  units = flag
-  type = logical
-  dimensions = ()
-  intent = out
-[ flag_qs ]
-  standard_name = flag_for_snow_mixing_ratio_in_mynn_pbl_scheme
-  units = flag
-  type = logical
-  dimensions = ()
-  intent = out
 [ flag_qoz ]
   standard_name = flag_for_O3_in_mynn_pbl_scheme
-  units = flag
-  type = logical
-  dimensions = ()
-  intent = out
-[ flag_qnc ]
-  standard_name = flag_for_mass_number_concentration_of_cloud_liquid_water_droplets_in_dry_air_in_mynn_pbl_scheme
-  units = flag
-  type = logical
-  dimensions = ()
-  intent = out
-[ flag_qni ]
-  standard_name = flag_for_mass_number_concentration_of_cloud_ice_water_crystals_in_dry_air_in_mynn_pbl_scheme
-  units = flag
-  type = logical
-  dimensions = ()
-  intent = out
-[ flag_qnwfa ]
-  standard_name = flag_for_mass_number_concentration_of_hygroscopic_aerosols_in_dry_air_in_mynn_pbl_scheme
-  units = flag
-  type = logical
-  dimensions = ()
-  intent = out
-[ flag_qnifa ]
-  standard_name = flag_for_mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols_in_dry_air_in_mynn_pbl_scheme
-  units = flag
-  type = logical
-  dimensions = ()
-  intent = out
-[ flag_qnbca ]
-  standard_name = flag_for_mass_number_concentration_of_hydrophobic_black_carbon_in_dry_air_in_mynn_pbl_scheme
   units = flag
   type = logical
   dimensions = ()
@@ -1202,54 +1154,6 @@
   units = K s-1
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = in
-[ flag_qc ]
-  standard_name = flag_for_cloud_liquid_water_mixing_ratio_in_mynn_pbl_scheme
-  units = flag
-  type = logical
-  dimensions = ()
-  intent = in
-[ flag_qi ]
-  standard_name = flag_for_cloud_ice_mixing_ratio_in_mynn_pbl_scheme
-  units = flag
-  type = logical
-  dimensions = ()
-  intent = in
-[ flag_qs ]
-  standard_name = flag_for_snow_mixing_ratio_in_mynn_pbl_scheme
-  units = flag
-  type = logical
-  dimensions = ()
-  intent = in
-[ flag_qnc ]
-  standard_name = flag_for_mass_number_concentration_of_cloud_liquid_water_droplets_in_dry_air_in_mynn_pbl_scheme
-  units = flag
-  type = logical
-  dimensions = ()
-  intent = in
-[ flag_qni ]
-  standard_name = flag_for_mass_number_concentration_of_cloud_ice_water_crystals_in_dry_air_in_mynn_pbl_scheme
-  units = flag
-  type = logical
-  dimensions = ()
-  intent = in
-[ flag_qnwfa ]
-  standard_name = flag_for_mass_number_concentration_of_hygroscopic_aerosols_in_dry_air_in_mynn_pbl_scheme
-  units = flag
-  type = logical
-  dimensions = ()
-  intent = in
-[ flag_qnifa ]
-  standard_name = flag_for_mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols_in_dry_air_in_mynn_pbl_scheme
-  units = flag
-  type = logical
-  dimensions = ()
-  intent = in
-[ flag_qnbca ]
-  standard_name = flag_for_mass_number_concentration_of_hydrophobic_black_carbon_in_dry_air_in_mynn_pbl_scheme
-  units = flag
-  type = logical
-  dimensions = ()
   intent = in
 [ flag_qoz ]
   standard_name = flag_for_O3_in_mynn_pbl_scheme

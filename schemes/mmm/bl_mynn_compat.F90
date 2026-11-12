@@ -96,8 +96,7 @@ contains
             bl_mynn_cloudmix, bl_mynn_mixqt, bl_mynn_scaleaware, &
             bl_mynn_dheatopt, &
             bl_mynn_closure, &
-            flag_qc, flag_qi, flag_qs, flag_qoz, &
-            flag_qnc, flag_qni, flag_qnwfa, flag_qnifa, flag_qnbca, &
+            flag_qoz, &
             qke, qke_adv, &
             tsq, qsq, cov, &
             el_pbl, &
@@ -119,8 +118,7 @@ contains
                                 bl_mynn_edmf_tke, bl_mynn_mixscalars, bl_mynn_output, &
                                 bl_mynn_cloudmix, bl_mynn_mixqt, bl_mynn_scaleaware, &
                                 bl_mynn_dheatopt, &
-                                flag_qc, flag_qi, flag_qs, flag_qoz, &
-                                flag_qnc, flag_qni, flag_qnwfa, flag_qnifa, flag_qnbca
+                                flag_qoz
         real(kind_phys), intent(out) :: bl_mynn_closure, &
                                         qke(:, :), qke_adv(:, :), &
                                         tsq(:, :), qsq(:, :), cov(:, :), &
@@ -164,58 +162,7 @@ contains
         bl_mynn_dheatopt = .true.
         bl_mynn_closure = 2.5_kind_phys
 
-        flag_qc = .false.
-        flag_qi = .false.
-        flag_qs = .false.
         flag_qoz = .false.
-
-        call ccpp_constituent_index( &
-            'cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water', i, errflg, errmsg)
-
-        if (errflg /= 0) then
-            return
-        end if
-
-        if (i == int_unassigned) then
-            errmsg = 'bl_mynn_compat_init: Failed to find required constituent "qc"'
-            errflg = 1
-
-            return
-        end if
-
-        flag_qc = .true.
-
-        call ccpp_constituent_index( &
-            'cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water', i, errflg, errmsg)
-
-        if (errflg /= 0) then
-            return
-        end if
-
-        if (i == int_unassigned) then
-            errmsg = 'bl_mynn_compat_init: Failed to find required constituent "qi"'
-            errflg = 1
-
-            return
-        end if
-
-        flag_qi = .true.
-
-        call ccpp_constituent_index( &
-            'snow_mixing_ratio_wrt_moist_air_and_condensed_water', i, errflg, errmsg)
-
-        if (errflg /= 0) then
-            return
-        end if
-
-        if (i == int_unassigned) then
-            errmsg = 'bl_mynn_compat_init: Failed to find required constituent "qs"'
-            errflg = 1
-
-            return
-        end if
-
-        flag_qs = .true.
 
         call ccpp_constituent_index( &
             'O3', i, errflg, errmsg)
@@ -232,92 +179,6 @@ contains
         end if
 
         flag_qoz = .true.
-
-        flag_qnc = .false.
-        flag_qni = .false.
-        flag_qnwfa = .false.
-        flag_qnifa = .false.
-        flag_qnbca = .false.
-
-        call ccpp_constituent_index( &
-            'mass_number_concentration_of_cloud_liquid_water_droplets_in_moist_air_and_condensed_water', i, errflg, errmsg)
-
-        if (errflg /= 0) then
-            return
-        end if
-
-        if (i == int_unassigned) then
-            errmsg = 'bl_mynn_compat_init: Failed to find required constituent "nc"'
-            errflg = 1
-
-            return
-        end if
-
-        flag_qnc = .true.
-
-        call ccpp_constituent_index( &
-            'mass_number_concentration_of_cloud_ice_water_crystals_in_moist_air_and_condensed_water', i, errflg, errmsg)
-
-        if (errflg /= 0) then
-            return
-        end if
-
-        if (i == int_unassigned) then
-            errmsg = 'bl_mynn_compat_init: Failed to find required constituent "ni"'
-            errflg = 1
-
-            return
-        end if
-
-        flag_qni = .true.
-
-        call ccpp_constituent_index( &
-            'mass_number_concentration_of_hygroscopic_aerosols_in_dry_air', i, errflg, errmsg)
-
-        if (errflg /= 0) then
-            return
-        end if
-
-        if (i == int_unassigned) then
-            errmsg = 'bl_mynn_compat_init: Failed to find required constituent "nwfa"'
-            errflg = 1
-
-            return
-        end if
-
-        flag_qnwfa = .true.
-
-        call ccpp_constituent_index( &
-            'mass_number_concentration_of_nonhygroscopic_ice_nucleating_aerosols_in_dry_air', i, errflg, errmsg)
-
-        if (errflg /= 0) then
-            return
-        end if
-
-        if (i == int_unassigned) then
-            errmsg = 'bl_mynn_compat_init: Failed to find required constituent "nifa"'
-            errflg = 1
-
-            return
-        end if
-
-        flag_qnifa = .true.
-
-        call ccpp_constituent_index( &
-            'mass_number_concentration_of_hydrophobic_black_carbon_in_dry_air', i, errflg, errmsg)
-
-        if (errflg /= 0) then
-            return
-        end if
-
-        if (i == int_unassigned) then
-            errmsg = 'bl_mynn_compat_init: Failed to find required constituent "nbca"'
-            errflg = 1
-
-            return
-        end if
-
-        flag_qnbca = .true.
 
         ! The MYNN PBL scheme reuses these variables internally.
         ! As a result, they must be able to persist across time steps.
@@ -377,9 +238,7 @@ contains
             edmf_ent_dd, edmf_qc_dd, maxwidth, &
             maxmf, ztop_plume, ktop_plume, &
             spp_pbl, pattern_spp_pbl, rthraten, &
-            flag_qc, flag_qi, flag_qs, &
-            flag_qnc, flag_qni, flag_qnwfa, &
-            flag_qnifa, flag_qnbca, flag_qoz, index_qoz, &
+            flag_qoz, index_qoz, &
             its, ite, kte, kme, &
             errmsg, errflg)
         use bl_mynn, only: bl_mynn_run
@@ -400,9 +259,7 @@ contains
                                bl_mynn_edmf_tke, bl_mynn_mixscalars, bl_mynn_output, &
                                bl_mynn_cloudmix, bl_mynn_mixqt, bl_mynn_scaleaware, &
                                bl_mynn_dheatopt, &
-                               flag_qc, flag_qi, flag_qs, &
-                               flag_qnc, flag_qni, flag_qnwfa, &
-                               flag_qnifa, flag_qnbca, flag_qoz
+                               flag_qoz
         real(kind_phys), intent(in) :: delt, dz(:, :), dx(:), &
                                        znt(:), u(:, :), v(:, :), &
                                        w(:, :), th(:, :), sqv_dry(:, :), &
@@ -446,6 +303,14 @@ contains
         integer, intent(out) :: errflg
 
         integer, parameter :: kts = 1
+        logical, parameter :: flag_qc = .true., &
+                              flag_qi = .true., &
+                              flag_qs = .true., &
+                              flag_qnc = .true., &
+                              flag_qni = .true., &
+                              flag_qnwfa = .true., &
+                              flag_qnifa = .true., &
+                              flag_qnbca = .true.
         real(kind_phys) :: sqv(size(sqv_dry, 1), size(sqv_dry, 2)), &
                            sqc(size(sqc_dry, 1), size(sqc_dry, 2)), &
                            sqi(size(sqi_dry, 1), size(sqi_dry, 2)), &
