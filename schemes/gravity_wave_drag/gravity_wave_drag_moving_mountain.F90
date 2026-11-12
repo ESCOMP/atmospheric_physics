@@ -200,9 +200,9 @@ contains
                            upwp_clubb, vpwp_clubb, vorticity, &
                            zm, prect, &
                            alpha_gw_movmtn, &
-                           effgw_movmtn_pbl, &
+                           gwcli_movmtn, &
                            gw_apply_tndmax, &
-                           use_gw_movmtn_pbl, &
+                           use_gw_movmtn, &
                            q_tend, u_tend, v_tend, s_tend, &
                            src_level, tend_level, &
                            ubm, ubi, xv, yv, hdepth, &
@@ -245,9 +245,9 @@ contains
     real(kind_phys), intent(in)    :: zm(:, :)
     real(kind_phys), intent(in)    :: prect(:)       ! Total (convective + large-scale) precipitation rate [m s-1]
     real(kind_phys), intent(in)    :: alpha_gw_movmtn
-    real(kind_phys), intent(in)    :: effgw_movmtn_pbl  ! Tendency efficiency scaling factor for moving mountain source.
+    real(kind_phys), intent(in)    :: gwcli_movmtn      ! Tendency efficiency scaling factor for moving mountain source.
     logical, intent(in)            :: gw_apply_tndmax
-    logical, intent(in)            :: use_gw_movmtn_pbl
+    logical, intent(in)            :: use_gw_movmtn
 
     ! Input/output
     real(kind_phys), intent(inout) :: q_tend(:, :, :)
@@ -318,12 +318,12 @@ contains
     errmsg = ''
     errflg = 0
 
-    if(.not. use_gw_movmtn_pbl) then
+    if(.not. use_gw_movmtn) then
       ! if moving mountain gravity source is off, do not run this scheme.
       return
     endif
 
-    effgw(:ncol) = effgw_movmtn_pbl
+    effgw(:ncol) = gwcli_movmtn
 
     tau = 0._kind_phys
     gwut = 0._kind_phys
@@ -336,7 +336,7 @@ contains
                        vorticity(:ncol,:), zm, p%mid(:ncol,:), p%del(:ncol,:), prect(:ncol), alpha_gw_movmtn, &
                        src_level, tend_level, &
                        tau, ubm, ubi, xv, yv, &
-                       phase_speeds, hdepth, use_gw_movmtn_pbl, rair, gravit, &
+                       phase_speeds, hdepth, use_gw_movmtn, rair, gravit, &
                        usteer, vsteer, CS, steer_level, xpwp_src, &
                        tilt, p_steer, p_launch, &
                        errmsg, errflg)
@@ -402,7 +402,7 @@ contains
                            u, v, netdt, xpwp_shcu, &
                            vorticity, zm, pmid, delp, prect, alpha_gw_movmtn, &
                            src_level, tend_level, tau, ubm, ubi, xv, yv, &
-                           c, hdepth, use_gw_movmtn_pbl, rair, gravit, &
+                           c, hdepth, use_gw_movmtn, rair, gravit, &
                            usteer, vsteer, CS, steer_level, xpwp_src, &
                            tilt, p_steer, p_launch, &
                            errmsg, errflg)
@@ -452,7 +452,7 @@ contains
     real(kind_phys), intent(out) :: c(ncol,-band%ngwv:band%ngwv)
     ! Heating depth [m], calculated here.
     real(kind_phys), intent(out) :: hdepth(:)
-    logical,         intent(in)  :: use_gw_movmtn_pbl
+    logical,         intent(in)  :: use_gw_movmtn
     real(kind_phys), intent(in)  :: rair, gravit
     ! Zonal/meridional wind at steering level, i.e., 'cell speed'.
     ! May be later modified by retrograde motion.
@@ -521,12 +521,12 @@ contains
 
     !----------------------------------------------------------------------
     ! source_type>=3 deposits xpwp_src directly at the launch level, which
-    ! only happens on the use_gw_movmtn_pbl=.true. path. On the heating-
+    ! only happens on the use_gw_movmtn=.true. path. On the heating-
     ! depth (lookup table) path these sources would be silently ignored.
     !----------------------------------------------------------------------
-    if (source_type >= 3 .and. .not. use_gw_movmtn_pbl) then
+    if (source_type >= 3 .and. .not. use_gw_movmtn) then
       errflg = 1
-      errmsg = 'gw_movmtn_src: source_type>=3 requires use_gw_movmtn_pbl=.true.'
+      errmsg = 'gw_movmtn_src: source_type>=3 requires use_gw_movmtn=.true.'
       return
     end if
     !----------------------------------------------------------------------
@@ -614,12 +614,12 @@ contains
 
     !----------------------------------------------------------------------
     ! Heating depth: first continuously positive heating range from surface.
-    ! For use_gw_movmtn_pbl=.true., use Launch_k directly as the top.
+    ! For use_gw_movmtn=.true., use Launch_k directly as the top.
     !----------------------------------------------------------------------
     boti = 0
     topi = 0
 
-    if (use_gw_movmtn_pbl) then
+    if (use_gw_movmtn) then
       boti = pver
       topi = Launch_k
     else
@@ -728,7 +728,7 @@ contains
     ! Assign GW momentum flux (tau) at the source level.
     !----------------------------------------------------------------------
     do i = 1, ncol
-      if (use_gw_movmtn_pbl) then
+      if (use_gw_movmtn) then
         tau(i, 0, topi(i)+1) = xpwp_src(i)
       else
         if (hd_idx(i) > 0) then
