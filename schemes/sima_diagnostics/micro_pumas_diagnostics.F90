@@ -44,7 +44,6 @@ module micro_pumas_diagnostics
    public :: micro_pumas_diagnostics_init         ! init routine
    public :: micro_pumas_pre_diagnostics_run      ! before microphysics routine
    public :: micro_pumas_diagnostics_run          ! main routine
-   public :: micro_pumas_diagnostics_final        ! finalize routine
 
    ! Value of the tropopause level index where no tropopause was found
    ! (must match NOTFOUND in tropopause_find.F90)
@@ -61,33 +60,6 @@ module micro_pumas_diagnostics
       module procedure out_pumas_trop_cld_field_3d
    end interface out_pumas_trop_cld_field
 
-   ! Accumulators for the precipitation efficiency calculation which persist across
-   ! timesteps (these were the ACPRECL, ACGCME and ACNUM physics buffer fields in CAM)
-   !
-   ! FOR_REVIEWER_FEEDBACK: In CAM, ACPRECL, ACGCME and ACNUM were 'global' physics buffer
-   !    fields, which CAM writes to and reads from the restart file, so PE, APRL and PEFRAC were
-   !    restart exact.  These module variables are NOT written to the restart file, so a restart
-   !    run will reset the accumulators to zero and PE, APRL and PEFRAC will differ from a
-   !    continuous run until each column reaches its next "end of cloud" reset.
-   !    Once restart capability is available in CAM-SIMA, these should be changed to:
-   !     1. Add three host model (registry) variables which are written to and read from the
-   !        restart file and initialized to zero for initial runs, e.g.:
-   !          accumulated_stratiform_precipitation_rate_for_precipitation_efficiency (m s-1)
-   !          accumulated_cloud_liquid_condensation_rate_for_precipitation_efficiency (m s-1)
-   !          number_of_timesteps_accumulated_for_precipitation_efficiency (count, integer)
-   !        (the standard names are suggestions and need to be added to the standard names
-   !        dictionary)
-   !     2. Pass them to micro_pumas_diagnostics_run as intent(inout) arguments with
-   !        dimensions (horizontal_loop_extent) and use them in place of acprecl, acgcme and acnum.
-   !     3. Remove these module variables, the allocation and zeroing in
-   !        micro_pumas_diagnostics_init, the deallocation in micro_pumas_diagnostics_final
-   !        (the final phase can then be removed), and the col_start/col_end arguments and the
-   !        icol indexing in micro_pumas_diagnostics_run.
-   !    Is this the right approach, and are there preferred standard names?
-   real(kind_phys), allocatable :: acprecl(:) ! accumulated precip across timesteps (m s-1)
-   real(kind_phys), allocatable :: acgcme(:)  ! accumulated condensation across timesteps (m s-1)
-   integer,         allocatable :: acnum(:)   ! counter for number of timesteps accumulated
-
    ! Values of the 'trop_cld_lev' history coordinate.  This must persist for the whole run as the
    ! history coordinate points to it, so it is intentionally not deallocated in the final phase.
    real(kind_phys), allocatable, target :: trop_cld_levs(:)
@@ -96,7 +68,7 @@ CONTAINS
 
    !> \section arg_table_micro_pumas_diagnostics_init  Argument Table
    !! \htmlinclude micro_pumas_diagnostics_init.html
-   subroutine micro_pumas_diagnostics_init(pcols, pver, top_lev, micro_mg_warm_rain, micro_mg_adjust_cpt, &
+   subroutine micro_pumas_diagnostics_init(pver, top_lev, micro_mg_warm_rain, micro_mg_adjust_cpt, &
                                            errmsg, errflg)
 
       use cam_history,         only: history_add_field
@@ -104,7 +76,6 @@ CONTAINS
       use cam_history_support, only: add_hist_coord
       use pumas_stochastic_collect_tau, only: ncd
 
-      integer,            intent(in)  :: pcols              ! horizontal dimension
       integer,            intent(in)  :: pver
       integer,            intent(in)  :: top_lev            ! top model level for cloud physics (index)
       character(len=*),   intent(in)  :: micro_mg_warm_rain ! warm rain method (kk2000, sb2001, tau, emulated)
@@ -120,20 +91,6 @@ CONTAINS
 
       errmsg = ''
       errflg = 0
-
-      ! Allocate and initialize the precipitation efficiency accumulators
-      ! FOR_REVIEWER_FEEDBACK: Zeroing here is only correct for initial runs.  When restarts are
-      !    implemented, remove this allocation and initialization (see the comment at the
-      !    acprecl, acgcme and acnum declarations at the top of this module).
-      allocate(acprecl(pcols), acgcme(pcols), acnum(pcols), stat=ierr)
-      if (ierr /= 0) then
-         errflg = 1
-         errmsg = 'micro_pumas_diagnostics_init: error allocating precipitation efficiency accumulators'
-         return
-      end if
-      acprecl(:) = 0._kind_phys
-      acgcme(:)  = 0._kind_phys
-      acnum(:)   = 0
 
       ! Add the 'trop_cld_lev' history vertical coordinate for the PUMAS levels (top_lev to pver).
       ! This coordinate is specific to the PUMAS output, so it is registered here (CAM registers it
@@ -826,7 +783,7 @@ CONTAINS
 
    !> \section arg_table_micro_pumas_diagnostics_run  Argument Table
    !! \htmlinclude micro_pumas_diagnostics_run.html
-   subroutine micro_pumas_diagnostics_run(ncol, pver, top_lev, col_start, col_end, dtime,  &
+   subroutine micro_pumas_diagnostics_run(ncol, pver, top_lev, dtime,                      &
                    gravit, rair, tmelt, pi, rhoh2o, cpairv, micro_mg_warm_rain,             &
                    pmid, pdel, temp, q, cldliq, cldice, numliq, numice, qr, nr, qs, ns, qg, &
                    ng, ast, cld, concld, cmeliq, prec_dp, prec_sh, naai, naai_hom,          &
@@ -837,7 +794,7 @@ CONTAINS
                    lflx, iflx, gflx, rflx, sflx, qrout, qsout, qgout, nrout, nsout,         &
                    refl, arefl, areflz, frefl, csrfl, acsrfl, fcsrfl, refl10cm, reflz10cm,  &
                    rercld, ncai, ncal, qrout2, qsout2, nrout2, nsout2, qgout2, ngout2,      &
-                   freqg, freqs, freqr, nfice, qcrat, errmsg, errflg)
+                   freqg, freqs, freqr, nfice, qcrat, acprecl, acgcme, acnum, errmsg, errflg)
 
       use cam_history,       only: history_out_field
       use micro_pumas_diags, only: proc_rates_type
@@ -852,8 +809,6 @@ CONTAINS
       integer,          intent(in) :: ncol
       integer,          intent(in) :: pver
       integer,          intent(in) :: top_lev            ! top model level for cloud physics (index)
-      integer,          intent(in) :: col_start          ! starting column index of this chunk
-      integer,          intent(in) :: col_end            ! ending column index of this chunk
       real(kind_phys),  intent(in) :: dtime              ! physics timestep (s)
       real(kind_phys),  intent(in) :: gravit             ! gravitational acceleration (m s-2)
       real(kind_phys),  intent(in) :: rair               ! gas constant of dry air (J kg-1 K-1)
@@ -953,6 +908,12 @@ CONTAINS
       real(kind_phys),  intent(in) :: freqr(:,:)         ! fractional occurrence of rain (fraction)
       real(kind_phys),  intent(in) :: nfice(:,:)         ! fraction of frozen water to total condensed water (fraction)
       real(kind_phys),  intent(in) :: qcrat(:,:)         ! limiter for qc process rates (1=no limit --> 0. no qc) (fraction)
+
+      ! Accumulators for the precipitation efficiency calculation, which persist across timesteps
+      ! (the ACPRECL, ACGCME and ACNUM physics buffer fields in CAM)
+      real(kind_phys),  intent(inout) :: acprecl(:)      ! accumulated precip across timesteps (m s-1)
+      real(kind_phys),  intent(inout) :: acgcme(:)       ! accumulated condensation across timesteps (m s-1)
+      real(kind_phys),  intent(inout) :: acnum(:)        ! counter for number of timesteps accumulated (count)
 
       ! CCPP error handling variables
       character(len=512), intent(out) :: errmsg
@@ -1057,16 +1018,10 @@ CONTAINS
       logical         :: rval
       integer         :: top_idx
 
-      integer :: i, k, icol
+      integer :: i, k
 
       errmsg = ''
       errflg = 0
-
-      if (col_end - col_start + 1 /= ncol) then
-         errflg = 1
-         errmsg = 'micro_pumas_diagnostics_run: column indices are inconsistent with the number of columns'
-         return
-      end if
 
       ! Merge Precipitation rates (multi-process)
       precc(:) = prec_dp(:ncol) + prec_sh(:ncol)
@@ -1324,37 +1279,32 @@ CONTAINS
 
       ! accumulate precip and condensation
       ! (the stratiform precip is the PUMAS surface precip as there is no sedimentation precip)
-      ! FOR_REVIEWER_FEEDBACK: When restarts are implemented, the accumulators will be passed in as
-      !    arguments on the horizontal_loop_extent dimension, so icol will be replaced by i (see the
-      !    comment at the acprecl, acgcme and acnum declarations at the top of this module).
       do i = 1, ncol
-         icol = col_start + i - 1
-
-         acgcme(icol)  = acgcme(icol) + tgcmeliq(i)
-         acprecl(icol) = acprecl(icol) + prect(i)
-         acnum(icol)   = acnum(icol) + 1
+         acgcme(i)  = acgcme(i) + tgcmeliq(i)
+         acprecl(i) = acprecl(i) + prect(i)
+         acnum(i)   = acnum(i) + 1
 
          ! if LWP is zero, then 'end of cloud': calculate precip efficiency
          if (tgliqwp(i) < minlwp) then
-            if (acprecl(icol) > 5.e-8_kind_phys) then
-               tpr(i) = max(acprecl(icol)/acnum(icol), 1.e-15_kind_phys)
-               if (acgcme(icol) > 1.e-10_kind_phys) then
-                  pe(i) = min(max(acprecl(icol)/acgcme(icol), 1.e-15_kind_phys), 1.e5_kind_phys)
+            if (acprecl(i) > 5.e-8_kind_phys) then
+               tpr(i) = max(acprecl(i)/acnum(i), 1.e-15_kind_phys)
+               if (acgcme(i) > 1.e-10_kind_phys) then
+                  pe(i) = min(max(acprecl(i)/acgcme(i), 1.e-15_kind_phys), 1.e5_kind_phys)
                   pefrac(i) = 1._kind_phys
                end if
             end if
 
             ! reset counters
-            acprecl(icol) = 0._kind_phys
-            acgcme(icol)  = 0._kind_phys
-            acnum(icol)   = 0
+            acprecl(i) = 0._kind_phys
+            acgcme(i)  = 0._kind_phys
+            acnum(i)   = 0
          end if
 
          ! if never find any rain....(after 10^3 timesteps...)
-         if (acnum(icol) > 1000) then
-            acnum(icol)   = 0
-            acprecl(icol) = 0._kind_phys
-            acgcme(icol)  = 0._kind_phys
+         if (acnum(i) > 1000) then
+            acnum(i)   = 0
+            acprecl(i) = 0._kind_phys
+            acgcme(i)  = 0._kind_phys
          end if
       end do
 
@@ -1797,25 +1747,6 @@ CONTAINS
       end if
 
    end subroutine micro_pumas_diagnostics_run
-
-   !> \section arg_table_micro_pumas_diagnostics_final  Argument Table
-   !! \htmlinclude micro_pumas_diagnostics_final.html
-   subroutine micro_pumas_diagnostics_final(errmsg, errflg)
-
-      ! CCPP error handling variables
-      character(len=512), intent(out) :: errmsg
-      integer,            intent(out) :: errflg
-
-      errmsg = ''
-      errflg = 0
-
-      ! FOR_REVIEWER_FEEDBACK: When restarts are implemented, this final phase can be removed
-      !    (see the comment at the acprecl, acgcme and acnum declarations at the top of this module).
-      if (allocated(acprecl)) deallocate(acprecl)
-      if (allocated(acgcme))  deallocate(acgcme)
-      if (allocated(acnum))   deallocate(acnum)
-
-   end subroutine micro_pumas_diagnostics_final
 
    !=======================================================================
 

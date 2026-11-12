@@ -121,12 +121,6 @@
 [ccpp-arg-table]
   name  = micro_pumas_diagnostics_init
   type  = scheme
-[ pcols ]
-  standard_name = horizontal_dimension
-  units = count
-  type = integer
-  dimensions = ()
-  intent = in
 [ pver ]
   standard_name = vertical_layer_dimension
   units = count
@@ -182,18 +176,6 @@
 [ top_lev ]
   standard_name = vertical_layer_index_of_troposphere_cloud_physics_top
   units = index
-  type = integer
-  dimensions = ()
-  intent = in
-[ col_start ]
-  standard_name = horizontal_loop_begin
-  units = count
-  type = integer
-  dimensions = ()
-  intent = in
-[ col_end ]
-  standard_name = horizontal_loop_end
-  units = count
   type = integer
   dimensions = ()
   intent = in
@@ -740,22 +722,24 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
-[ errmsg ]
-  standard_name = ccpp_error_message
-  units = none
-  type = character | kind = len=512
-  dimensions = ()
-  intent = out
-[ errflg ]
-  standard_name = ccpp_error_code
-  units = 1
-  type = integer
-  dimensions = ()
-  intent = out
-
-[ccpp-arg-table]
-  name  = micro_pumas_diagnostics_final
-  type  = scheme
+[ acprecl ]
+  standard_name = accumulated_stratiform_precipitation_rate_for_precipitation_efficiency
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = inout
+[ acgcme ]
+  standard_name = accumulated_cloud_liquid_condensation_rate_for_precipitation_efficiency
+  units = m s-1
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = inout
+[ acnum ]
+  standard_name = number_of_timesteps_accumulated_for_precipitation_efficiency
+  units = count
+  type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = inout
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
