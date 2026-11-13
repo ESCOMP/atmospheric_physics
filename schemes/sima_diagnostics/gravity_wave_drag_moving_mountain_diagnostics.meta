@@ -21,6 +21,12 @@
 [ccpp-arg-table]
   name  = gravity_wave_drag_moving_mountain_diagnostics_run
   type  = scheme
+[ ncol ]
+  standard_name = horizontal_loop_extent
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
 [ u ]
   standard_name = eastward_wind
   units = m s-1
@@ -163,6 +169,12 @@
   standard_name = air_pressure_at_launch_level_due_to_moving_mountain_gravity_wave_drag
   units = Pa
   type = real | kind = kind_phys
+  dimensions = (horizontal_loop_extent)
+  intent = in
+[ roo_block ]
+  standard_name = flag_for_near_surface_tilt_dominance_blocking_of_moving_mountain_gravity_wave_drag_source
+  units = flag
+  type = logical
   dimensions = (horizontal_loop_extent)
   intent = in
 [ taucd_west ]
