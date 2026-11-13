@@ -367,22 +367,26 @@ CONTAINS
          call history_add_field ('gmnnn_lmnnn_TAU', &
             'sum of mass gain and loss from bin code',                                 'trop_cld_lev', 'avg', '1', &
             sampled_on_subcycle=.true.)
-         call history_add_field ('ML_fixer',   'frequency that ML fixer is activated', 'trop_cld_lev', 'avg', '1', &
-                                 sampled_on_subcycle=.true.)
-         call history_add_field ('qc_fixer',   'delta qc due to ML fixer',             'trop_cld_lev', 'avg', 'kg kg-1', &
-                                 sampled_on_subcycle=.true.)
-         call history_add_field ('nc_fixer',   'delta nc due to ML fixer',             'trop_cld_lev', 'avg', 'kg kg-1', &
-                                 sampled_on_subcycle=.true.)
-         call history_add_field ('qr_fixer',   'delta qr due to ML fixer',             'trop_cld_lev', 'avg', 'kg kg-1', &
-                                 sampled_on_subcycle=.true.)
-         call history_add_field ('nr_fixer',   'delta nr due to ML fixer',             'trop_cld_lev', 'avg', 'kg kg-1', &
-                                 sampled_on_subcycle=.true.)
+
+         if (trim(micro_mg_warm_rain) == 'emulated') then
+            call history_add_field ('ML_fixer',   'frequency that ML fixer is activated', 'trop_cld_lev', 'avg', '1', &
+                                    sampled_on_subcycle=.true.)
+            call history_add_field ('qc_fixer',   'delta qc due to ML fixer',             'trop_cld_lev', 'avg', 'kg kg-1', &
+                                    sampled_on_subcycle=.true.)
+            call history_add_field ('nc_fixer',   'delta nc due to ML fixer',             'trop_cld_lev', 'avg', 'kg kg-1', &
+                                    sampled_on_subcycle=.true.)
+            call history_add_field ('qr_fixer',   'delta qr due to ML fixer',             'trop_cld_lev', 'avg', 'kg kg-1', &
+                                    sampled_on_subcycle=.true.)
+            call history_add_field ('nr_fixer',   'delta nr due to ML fixer',             'trop_cld_lev', 'avg', 'kg kg-1', &
+                                    sampled_on_subcycle=.true.)
+         end if
       end if
 
       ! FOR_REVIEWER_FEEDBACK: The units for LAMC, LAMR and N0R are copied from CAM ('unitless'), but these
-      !    are size distribution slopes and an intercept, which in SI units would be m-1 (LAMC, LAMR) and
-      !    m-4 (N0R).  PUMAS does not document the units.  Should the units be corrected here, or should the
-      !    CAM units be kept so that the output matches CAM?
+      !    are size distribution slopes and an intercept, which are m-1 (LAMC, LAMR) and kg-1 m-1 (N0R)
+      !    (size_dist_param_basic in micro_pumas_utils.F90: lam = (shape_coef*n/q)**(1/eff_dim) and
+      !    n0 = n*lam, with the number concentration n in kg-1).  PUMAS does not document the units.
+      !    Should the units be corrected here, or should the CAM units be kept so that the output matches CAM?
       call history_add_field ('LAMC', 'Size distribution parameter lambda for liquid',    'trop_cld_lev', 'avg', '1', &
                               sampled_on_subcycle=.true.)
       call history_add_field ('LAMR', 'Size distribution parameter lambda for rain',      'trop_cld_lev', 'avg', '1', &
@@ -1043,9 +1047,10 @@ CONTAINS
       !     3. Have an earlier scheme save the pre-heating air temperature as its own variable, so
       !        that this scheme can be placed anywhere after apply_heating_rate
       !    Which should be used?
-      !    With the cold point tropopause adjustment (micro_mg_adjust_cpt), CAM's state_loc%t also
-      !    included the adjustment of the cold point tropopause level (see
-      !    micro_pumas_pre_diagnostics_run), so it is added here before the heating.
+      !
+      ! With the cold point tropopause adjustment (micro_mg_adjust_cpt), CAM's state_loc%t also
+      ! included the adjustment of the cold point tropopause level (see
+      ! micro_pumas_pre_diagnostics_run), so it is added here before the heating.
       t_post(:,:) = temp(:ncol,:)
       if (micro_mg_adjust_cpt) then
          do i = 1, ncol
@@ -1532,11 +1537,15 @@ CONTAINS
          call out_pumas_trop_cld_field('qrtend_TAU',      proc_rates%qrtend_TAU,      ncol)
          call out_pumas_trop_cld_field('nrtend_TAU',      proc_rates%nrtend_TAU,      ncol)
          call out_pumas_trop_cld_field('gmnnn_lmnnn_TAU', proc_rates%gmnnn_lmnnn_TAU, ncol)
-         call out_pumas_trop_cld_field('ML_fixer',        proc_rates%ML_fixer,        ncol)
-         call out_pumas_trop_cld_field('qc_fixer',        proc_rates%qc_fixer,        ncol)
-         call out_pumas_trop_cld_field('nc_fixer',        proc_rates%nc_fixer,        ncol)
-         call out_pumas_trop_cld_field('qr_fixer',        proc_rates%qr_fixer,        ncol)
-         call out_pumas_trop_cld_field('nr_fixer',        proc_rates%nr_fixer,        ncol)
+
+         if (trim(micro_mg_warm_rain) == 'emulated') then
+            call out_pumas_trop_cld_field('ML_fixer',        proc_rates%ML_fixer,        ncol)
+            call out_pumas_trop_cld_field('qc_fixer',        proc_rates%qc_fixer,        ncol)
+            call out_pumas_trop_cld_field('nc_fixer',        proc_rates%nc_fixer,        ncol)
+            call out_pumas_trop_cld_field('qr_fixer',        proc_rates%qr_fixer,        ncol)
+            call out_pumas_trop_cld_field('nr_fixer',        proc_rates%nr_fixer,        ncol)
+         end if
+
          call out_pumas_trop_cld_field('QC_TAU_in',       proc_rates%qc_in_TAU,       ncol)
          call out_pumas_trop_cld_field('NC_TAU_in',       proc_rates%nc_in_TAU,       ncol)
          call out_pumas_trop_cld_field('QR_TAU_in',       proc_rates%qr_in_TAU,       ncol)
