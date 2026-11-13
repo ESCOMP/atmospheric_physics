@@ -1711,7 +1711,7 @@ contains
 
     ! Effective gravity wave diffusivity at interfaces.
     real(kind_phys) :: egwdffi(ncol, pver + 1)
-    ! SUMK: diffusivity summed over ridges + residual, (g*rho)^2, LU decomposition
+    ! diffusivity summed over ridges + residual, (g*rho)^2, LU decomposition
     real(kind_phys) :: egwdffi_sum(ncol, pver + 1), dpidz_sq(ncol, pver + 1)
     type(TriDiagDecomp) :: decomp
 
@@ -1780,7 +1780,7 @@ contains
                         kwvrdg=kwvrdg, &
                         satfac_in=1._kind_phys, lapply_vdiff=gw_rdg_do_vdiff, tau_diag=tau_diag)
 
-      ! SUMK: keep this ridge's K; drop its own diffusion of q and DSE (done once below)
+      ! keep this ridge's K but drop own diffusion of q and DSE which is done once below.
       if (gw_rdg_do_vdiff) then
         egwdffi_sum = egwdffi_sum + egwdffi
         do k = 1, pver
@@ -1839,7 +1839,7 @@ contains
                         kwvrdg=kwvrdg, &
                         satfac_in=1._kind_phys, lapply_vdiff=gw_rdg_do_vdiff, tau_diag=tau_diag)
 
-      ! SUMK: keep the residual's K; its diffusion is done once below
+      ! keep K of residual, its diffusion is done once below
       if (gw_rdg_do_vdiff) then
         egwdffi_sum = egwdffi_sum + egwdffi
         do k = 1, pver
@@ -1874,9 +1874,10 @@ contains
       end do
     end if ! end of residual variance calc
 
-    ! SUMK: one implicit diffusion of q and DSE with K summed over all ridges and
-    ! the residual (as gw_ediff already does over the wave spectrum). Summing the
-    ! per-ridge increments instead gives a 2dz factor 1-sum(1-f_n) < -1 (unstable).
+    ! do one implicit diffusion of q and DSE with K summed over all ridges
+    ! and the residual
+    ! if the per-ridge increments are summed instead it gives an unstable
+    ! 2dz factor 1-sum(1-f_n) < -1.
     if (gw_rdg_do_vdiff) then
       dpidz_sq = (rhoi(:ncol, :pver + 1)*gravit)**2
       decomp = fin_vol_lu_decomp(dt, p%section([1, ncol], [1, pver]), &
