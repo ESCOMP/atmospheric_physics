@@ -1,0 +1,415 @@
+@before
+subroutine setup_radiation_utils_test()
+    use radiation_utils, only: radiation_utils_init
+    use ccpp_kinds,      only : kind_phys
+    integer :: nswbands, nlwbands, errflg
+    real(kind_phys) :: low_shortwave(2) = (/ 1e-4_kind_phys, 1e-3_kind_phys /)
+    real(kind_phys) :: high_shortwave(2) = (/ 2e-4_kind_phys, 2e-3_kind_phys /)
+    real(kind_phys) :: low_longwave(1) = (/ 1e-2_kind_phys /)
+    real(kind_phys) :: high_longwave(1) = (/ 2e-3_kind_phys /)
+    character(len=512) :: errmsg
+
+    nswbands = 2
+    nlwbands = 1
+
+    call radiation_utils_init(nswbands, nlwbands, low_shortwave, high_shortwave, &
+                  low_longwave, high_longwave, errmsg, errflg)
+end subroutine setup_radiation_utils_test
+
+@test
+subroutine get_sw_boundaries_invcm()
+    use funit
+    use radiation_utils, only : get_sw_spectral_boundaries_ccpp
+    use ccpp_kinds,      only : kind_phys
+
+    integer :: errflg
+    real(kind_phys) :: low_shortwave(2)
+    real(kind_phys) :: high_shortwave(2)
+    character(len=512) :: errmsg
+
+    call get_sw_spectral_boundaries_ccpp(low_shortwave, high_shortwave, 'cm-1', errmsg, errflg)
+
+    @assertEqual(0, errflg)
+    @assertEqual('', errmsg)
+    @assertEqual(1e-4_kind_phys, low_shortwave(1))
+    @assertEqual(1e-3_kind_phys, low_shortwave(2))
+    @assertEqual(2e-4_kind_phys, high_shortwave(1))
+    @assertEqual(2e-3_kind_phys, high_shortwave(2))
+
+end subroutine get_sw_boundaries_invcm
+
+@test
+subroutine get_sw_boundaries_m()
+    use funit
+    use radiation_utils, only : get_sw_spectral_boundaries_ccpp
+    use ccpp_kinds,      only : kind_phys
+
+    integer :: errflg
+    real(kind_phys) :: low_shortwave(2)
+    real(kind_phys) :: high_shortwave(2)
+    character(len=512) :: errmsg
+
+    call get_sw_spectral_boundaries_ccpp(low_shortwave, high_shortwave, 'meters', errmsg, errflg)
+
+    @assertEqual(0, errflg)
+    @assertEqual('', errmsg)
+    @assertEqual(5e1_kind_phys, low_shortwave(1))
+    @assertEqual(5._kind_phys, low_shortwave(2))
+    @assertEqual(1e2_kind_phys, high_shortwave(1))
+    @assertEqual(1e1_kind_phys, high_shortwave(2))
+
+end subroutine get_sw_boundaries_m
+
+@test
+subroutine get_sw_boundaries_nm()
+    use funit
+    use radiation_utils, only : get_sw_spectral_boundaries_ccpp
+    use ccpp_kinds,      only : kind_phys
+
+    integer :: errflg
+    real(kind_phys) :: low_shortwave(2)
+    real(kind_phys) :: high_shortwave(2)
+    character(len=512) :: errmsg
+
+    call get_sw_spectral_boundaries_ccpp(low_shortwave, high_shortwave, 'nanometer', errmsg, errflg)
+
+    @assertEqual(0, errflg)
+    @assertEqual('', errmsg)
+    @assertEqual(5e10_kind_phys, low_shortwave(1))
+    @assertEqual(5e9_kind_phys, low_shortwave(2))
+    @assertEqual(1e11_kind_phys, high_shortwave(1))
+    @assertEqual(1e10_kind_phys, high_shortwave(2))
+
+end subroutine get_sw_boundaries_nm
+
+@test
+subroutine get_sw_boundaries_um()
+    use funit
+    use radiation_utils, only : get_sw_spectral_boundaries_ccpp
+    use ccpp_kinds,      only : kind_phys
+
+    integer :: errflg
+    real(kind_phys) :: low_shortwave(2)
+    real(kind_phys) :: high_shortwave(2)
+    character(len=512) :: errmsg
+
+    call get_sw_spectral_boundaries_ccpp(low_shortwave, high_shortwave, 'um', errmsg, errflg)
+
+    @assertEqual(0, errflg)
+    @assertEqual('', errmsg)
+    @assertEqual(5e7_kind_phys, low_shortwave(1))
+    @assertEqual(5e6_kind_phys, low_shortwave(2))
+    @assertEqual(1e8_kind_phys, high_shortwave(1))
+    @assertEqual(1e7_kind_phys, high_shortwave(2))
+
+end subroutine get_sw_boundaries_um
+
+@test
+subroutine get_sw_boundaries_cm()
+    use funit
+    use radiation_utils, only : get_sw_spectral_boundaries_ccpp
+    use ccpp_kinds,      only : kind_phys
+
+    integer :: errflg
+    real(kind_phys) :: low_shortwave(2)
+    real(kind_phys) :: high_shortwave(2)
+    character(len=512) :: errmsg
+
+    call get_sw_spectral_boundaries_ccpp(low_shortwave, high_shortwave, 'centimeters', errmsg, errflg)
+
+    @assertEqual(0, errflg)
+    @assertEqual('', errmsg)
+    @assertEqual(5e3_kind_phys, low_shortwave(1))
+    @assertEqual(5e2_kind_phys, low_shortwave(2))
+    @assertEqual(1e4_kind_phys, high_shortwave(1))
+    @assertEqual(1e3_kind_phys, high_shortwave(2))
+
+end subroutine get_sw_boundaries_cm
+
+@test
+subroutine get_sw_boundaries_invalid_units()
+    use funit
+    use radiation_utils, only : get_sw_spectral_boundaries_ccpp
+    use ccpp_kinds,      only : kind_phys
+
+    integer :: errflg
+    real(kind_phys) :: low_shortwave(2)
+    real(kind_phys) :: high_shortwave(2)
+    character(len=512) :: errmsg
+
+    call get_sw_spectral_boundaries_ccpp(low_shortwave, high_shortwave, 'decimeters', errmsg, errflg)
+
+    @assertEqual(1, errflg)
+    @assertEqual('get_sw_spectral_boundaries_ccpp: ERROR, requested spectral units not recognized: decimeters', trim(errmsg))
+
+end subroutine get_sw_boundaries_invalid_units
+
+@test
+subroutine get_lw_boundaries_invcm()
+    use funit
+    use radiation_utils, only : get_lw_spectral_boundaries_ccpp
+    use ccpp_kinds,      only : kind_phys
+
+    integer :: errflg
+    real(kind_phys) :: low_longwave(1)
+    real(kind_phys) :: high_longwave(1)
+    character(len=512) :: errmsg
+
+    call get_lw_spectral_boundaries_ccpp(low_longwave, high_longwave, 'cm^-1', errmsg, errflg)
+
+    @assertEqual(0, errflg)
+    @assertEqual('', errmsg)
+    @assertEqual(1e-2_kind_phys, low_longwave(1))
+    @assertEqual(2e-3_kind_phys, high_longwave(1))
+
+end subroutine get_lw_boundaries_invcm
+
+@test
+subroutine get_lw_boundaries_m()
+    use funit
+    use radiation_utils, only : get_lw_spectral_boundaries_ccpp
+    use ccpp_kinds,      only : kind_phys
+
+    integer :: errflg
+    real(kind_phys) :: low_longwave(1)
+    real(kind_phys) :: high_longwave(1)
+    character(len=512) :: errmsg
+
+    call get_lw_spectral_boundaries_ccpp(low_longwave, high_longwave, 'meters', errmsg, errflg)
+
+    @assertEqual(0, errflg)
+    @assertEqual('', errmsg)
+    @assertEqual(5._kind_phys, low_longwave(1))
+    @assertEqual(1._kind_phys, high_longwave(1))
+
+end subroutine get_lw_boundaries_m
+
+@test
+subroutine get_lw_boundaries_nm()
+    use funit
+    use radiation_utils, only : get_lw_spectral_boundaries_ccpp
+    use ccpp_kinds,      only : kind_phys
+
+    integer :: errflg
+    real(kind_phys) :: low_longwave(1)
+    real(kind_phys) :: high_longwave(1)
+    character(len=512) :: errmsg
+
+    call get_lw_spectral_boundaries_ccpp(low_longwave, high_longwave, 'nanometer', errmsg, errflg)
+
+    @assertEqual(0, errflg)
+    @assertEqual('', errmsg)
+    @assertEqual(5e9_kind_phys, low_longwave(1))
+    @assertEqual(1e9_kind_phys, high_longwave(1))
+
+end subroutine get_lw_boundaries_nm
+
+@test
+subroutine get_lw_boundaries_um()
+    use funit
+    use radiation_utils, only : get_lw_spectral_boundaries_ccpp
+    use ccpp_kinds,      only : kind_phys
+
+    integer :: errflg
+    real(kind_phys) :: low_longwave(1)
+    real(kind_phys) :: high_longwave(1)
+    character(len=512) :: errmsg
+
+    call get_lw_spectral_boundaries_ccpp(low_longwave, high_longwave, 'um', errmsg, errflg)
+
+    @assertEqual(0, errflg)
+    @assertEqual('', errmsg)
+    @assertEqual(5e6_kind_phys, low_longwave(1))
+    @assertEqual(1e6_kind_phys, high_longwave(1))
+
+end subroutine get_lw_boundaries_um
+
+@test
+subroutine get_lw_boundaries_cm()
+    use funit
+    use radiation_utils, only : get_lw_spectral_boundaries_ccpp
+    use ccpp_kinds,      only : kind_phys
+
+    integer :: errflg
+    real(kind_phys) :: low_longwave(1)
+    real(kind_phys) :: high_longwave(1)
+    character(len=512) :: errmsg
+
+    call get_lw_spectral_boundaries_ccpp(low_longwave, high_longwave, 'centimeters', errmsg, errflg)
+
+    @assertEqual(0, errflg)
+    @assertEqual('', errmsg)
+    @assertEqual(5e2_kind_phys, low_longwave(1))
+    @assertEqual(1e2_kind_phys, high_longwave(1))
+
+end subroutine get_lw_boundaries_cm
+
+@test
+subroutine get_lw_boundaries_invalid_units()
+    use funit
+    use radiation_utils, only : get_lw_spectral_boundaries_ccpp
+    use ccpp_kinds,      only : kind_phys
+
+    integer :: errflg
+    real(kind_phys) :: low_longwave(1)
+    real(kind_phys) :: high_longwave(1)
+    character(len=512) :: errmsg
+
+    call get_lw_spectral_boundaries_ccpp(low_longwave, high_longwave, 'km', errmsg, errflg)
+
+    @assertEqual(1, errflg)
+    @assertEqual('get_lw_spectral_boundaries_ccpp: ERROR, requested spectral units not recognized: km', errmsg)
+
+end subroutine get_lw_boundaries_invalid_units
+
+@test
+subroutine get_molar_mass_ratio_h2o()
+    use funit
+    use radiation_utils, only: get_molar_mass_ratio
+    use ccpp_kinds,      only: kind_phys
+
+    integer :: errflg
+    real(kind_phys) :: mass_ratio
+    character(len=512) :: errmsg
+
+    call get_molar_mass_ratio('H2O', mass_ratio, errmsg, errflg)
+
+    @assertEqual(0, errflg)
+    @assertEqual('', errmsg)
+    @assertEqual(1.607793_kind_phys, mass_ratio)
+end subroutine get_molar_mass_ratio_h2o
+
+@test
+subroutine get_molar_mass_ratio_co2()
+    use funit
+    use radiation_utils, only: get_molar_mass_ratio
+    use ccpp_kinds,      only: kind_phys
+
+    integer :: errflg
+    real(kind_phys) :: mass_ratio
+    character(len=512) :: errmsg
+
+    call get_molar_mass_ratio('CO2', mass_ratio, errmsg, errflg)
+
+    @assertEqual(0, errflg)
+    @assertEqual('', errmsg)
+    @assertEqual(0.658114_kind_phys, mass_ratio)
+end subroutine get_molar_mass_ratio_co2
+
+@test
+subroutine get_molar_mass_ratio_o3()
+    use funit
+    use radiation_utils, only: get_molar_mass_ratio
+    use ccpp_kinds,      only: kind_phys
+
+    integer :: errflg
+    real(kind_phys) :: mass_ratio
+    character(len=512) :: errmsg
+
+    call get_molar_mass_ratio('O3', mass_ratio, errmsg, errflg)
+
+    @assertEqual(0, errflg)
+    @assertEqual('', errmsg)
+    @assertEqual(0.603428_kind_phys, mass_ratio)
+end subroutine get_molar_mass_ratio_o3
+
+@test
+subroutine get_molar_mass_ratio_ch4()
+    use funit
+    use radiation_utils, only: get_molar_mass_ratio
+    use ccpp_kinds,      only: kind_phys
+
+    integer :: errflg
+    real(kind_phys) :: mass_ratio
+    character(len=512) :: errmsg
+
+    call get_molar_mass_ratio('CH4', mass_ratio, errmsg, errflg)
+
+    @assertEqual(0, errflg)
+    @assertEqual('', errmsg)
+    @assertEqual(1.805423_kind_phys, mass_ratio)
+end subroutine get_molar_mass_ratio_ch4
+
+@test
+subroutine get_molar_mass_ratio_n2o()
+    use funit
+    use radiation_utils, only: get_molar_mass_ratio
+    use ccpp_kinds,      only: kind_phys
+
+    integer :: errflg
+    real(kind_phys) :: mass_ratio
+    character(len=512) :: errmsg
+
+    call get_molar_mass_ratio('N2O', mass_ratio, errmsg, errflg)
+
+    @assertEqual(0, errflg)
+    @assertEqual('', errmsg)
+    @assertEqual(0.658090_kind_phys, mass_ratio)
+end subroutine get_molar_mass_ratio_n2o
+
+@test
+subroutine get_molar_mass_ratio_o2()
+    use funit
+    use radiation_utils, only: get_molar_mass_ratio
+    use ccpp_kinds,      only: kind_phys
+
+    integer :: errflg
+    real(kind_phys) :: mass_ratio
+    character(len=512) :: errmsg
+
+    call get_molar_mass_ratio('O2', mass_ratio, errmsg, errflg)
+
+    @assertEqual(0, errflg)
+    @assertEqual('', errmsg)
+    @assertEqual(0.905140_kind_phys, mass_ratio)
+end subroutine get_molar_mass_ratio_o2
+
+@test
+subroutine get_molar_mass_ratio_cfc11()
+    use funit
+    use radiation_utils, only: get_molar_mass_ratio
+    use ccpp_kinds,      only: kind_phys
+
+    integer :: errflg
+    real(kind_phys) :: mass_ratio
+    character(len=512) :: errmsg
+
+    call get_molar_mass_ratio('CFC11', mass_ratio, errmsg, errflg)
+
+    @assertEqual(0, errflg)
+    @assertEqual('', errmsg)
+    @assertEqual(0.210852_kind_phys, mass_ratio)
+end subroutine get_molar_mass_ratio_cfc11
+
+@test
+subroutine get_molar_mass_ratio_cfc12()
+    use funit
+    use radiation_utils, only: get_molar_mass_ratio
+    use ccpp_kinds,      only: kind_phys
+
+    integer :: errflg
+    real(kind_phys) :: mass_ratio
+    character(len=512) :: errmsg
+
+    call get_molar_mass_ratio('CFC12', mass_ratio, errmsg, errflg)
+
+    @assertEqual(0, errflg)
+    @assertEqual('', errmsg)
+    @assertEqual(0.239546_kind_phys, mass_ratio)
+end subroutine get_molar_mass_ratio_cfc12
+
+@test
+subroutine get_molar_mass_ratio_invalid()
+    use funit
+    use radiation_utils, only: get_molar_mass_ratio
+    use ccpp_kinds,      only: kind_phys
+
+    integer :: errflg
+    real(kind_phys) :: mass_ratio
+    character(len=512) :: errmsg
+
+    call get_molar_mass_ratio('N2', mass_ratio, errmsg, errflg)
+
+    @assertEqual(1, errflg)
+    @assertEqual('get_molar_mass_ratio: Invalid gas: N2', errmsg)
+end subroutine get_molar_mass_ratio_invalid
