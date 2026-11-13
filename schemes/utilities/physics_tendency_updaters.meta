@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = apply_tendency_of_eastward_wind
   type = scheme
+  module_name = physics_tendency_updaters
 [ccpp-arg-table]
   name = apply_tendency_of_eastward_wind_run
   type = scheme
@@ -47,13 +48,14 @@
   standard_name = ccpp_error_message
   long_name = Error message for error handling in CCPP
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = out
 #####################################################################
 [ccpp-table-properties]
   name = apply_tendency_of_northward_wind
   type = scheme
+  module_name = physics_tendency_updaters
 [ccpp-arg-table]
   name = apply_tendency_of_northward_wind_run
   type = scheme
@@ -100,13 +102,14 @@
   standard_name = ccpp_error_message
   long_name = Error message for error handling in CCPP
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = out
 #####################################################################
 [ccpp-table-properties]
   name = apply_heating_rate
   type = scheme
+  module_name = physics_tendency_updaters
 [ccpp-arg-table]
   name = apply_heating_rate_run
   type = scheme
@@ -159,13 +162,14 @@
   standard_name = ccpp_error_message
   long_name = Error message for error handling in CCPP
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = out
 #####################################################################
 [ccpp-table-properties]
   name = apply_tendency_of_air_temperature
   type = scheme
+  module_name = physics_tendency_updaters
 [ccpp-arg-table]
   name = apply_tendency_of_air_temperature_run
   type = scheme
@@ -212,13 +216,14 @@
   standard_name = ccpp_error_message
   long_name = Error message for error handling in CCPP
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = out
 #####################################################################
 [ccpp-table-properties]
   name = apply_constituent_tendencies
   type = scheme
+  module_name = physics_tendency_updaters
 [ccpp-arg-table]
   name = apply_constituent_tendencies_run
   type = scheme
@@ -261,7 +266,7 @@
   standard_name = ccpp_error_message
   long_name = Error message for error handling in CCPP
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = out
 #########################################################

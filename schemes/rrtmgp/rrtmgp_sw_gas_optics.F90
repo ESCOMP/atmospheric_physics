@@ -351,7 +351,7 @@ contains
    ! Outputs
    type(ty_optical_props_2str_ccpp),  intent(inout) :: sw_optical_props         !< Clearsky optical properties
    type(ty_gas_optics_rrtmgp_ccpp),   intent(inout) :: sw_gas_props             !< RRTMGP gas optics object
-   real(kind_phys),                   intent(out)   :: toa_src_sw(:,:)          !< Top of atmosphere solar radiation flux on g points [W m-2]
+   real(kind_phys),      allocatable, intent(out)   :: toa_src_sw(:,:)          !< Top of atmosphere solar radiation flux on g points [W m-2]
    character(len=*),                  intent(out)   :: errmsg
    integer,                           intent(out)   :: errflg
 
@@ -361,6 +361,8 @@ contains
    ! Set error variables
    errmsg = ''
    errflg = 0
+
+   allocate(toa_src_sw(ncol, sw_gas_props%gas_props%get_ngpt()))
 
    if (.not. dosw .or. ncol == 0) then
       return

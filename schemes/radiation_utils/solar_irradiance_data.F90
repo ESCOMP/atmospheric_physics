@@ -169,6 +169,7 @@ contains
     fac = 1._kind_phys/(planck_const*speed_of_light)
 
     has_spectrum = .false.
+    do_spectral_scaling = .false.
 
     if (solar_const>0._kind_phys) then
        sol_tsi = solar_const

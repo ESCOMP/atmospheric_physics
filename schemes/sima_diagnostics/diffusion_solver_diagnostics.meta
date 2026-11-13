@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = vertical_diffusion_tendencies_diagnostics
   type = scheme
+  module_name = diffusion_solver_diagnostics
   dependencies = ../vertical_diffusion/vertical_diffusion_diagnostic_utils.F90
 
 [ccpp-arg-table]

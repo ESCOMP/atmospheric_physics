@@ -66,9 +66,11 @@
   dimensions = ()
   intent = out
 
+
 [ccpp-table-properties]
   name = hb_pbl_independent_coefficients
   type = scheme
+  module_name = holtslag_boville_diff
 
 [ccpp-arg-table]
   name  = hb_pbl_independent_coefficients_run
@@ -204,6 +206,7 @@
 [ccpp-table-properties]
   name = hb_pbl_dependent_coefficients
   type = scheme
+  module_name = holtslag_boville_diff
 
 [ccpp-arg-table]
   name  = hb_pbl_dependent_coefficients_run
@@ -321,6 +324,7 @@
 [ccpp-table-properties]
   name = hb_diff_exchange_coefficients
   type = scheme
+  module_name = holtslag_boville_diff
 
 [ccpp-arg-table]
   name  = hb_diff_exchange_coefficients_run
@@ -493,6 +497,7 @@
 [ccpp-table-properties]
   name = hb_diff_free_atm_exchange_coefficients
   type = scheme
+  module_name = holtslag_boville_diff
 
 [ccpp-arg-table]
   name  = hb_diff_free_atm_exchange_coefficients_run

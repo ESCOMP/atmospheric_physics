@@ -398,6 +398,7 @@
 [ccpp-table-properties]
   name = gravity_wave_drag_frontogenesis_inertial
   type = scheme
+  module_name = gravity_wave_drag_frontogenesis
   dependencies = gw_utils.F90
 
 [ccpp-arg-table]

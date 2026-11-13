@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = cldfra_xu_randall_diagnostics
   type = scheme
+  module_name = cldfra_xu_randall_diag
 
 [ccpp-arg-table]
   name = cldfra_xu_randall_diagnostics_init

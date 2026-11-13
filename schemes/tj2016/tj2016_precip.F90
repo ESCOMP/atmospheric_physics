@@ -46,7 +46,7 @@ contains
         real(kind_phys), intent(out)   :: relhum(:,:)                   ! relative humidity
         real(kind_phys), intent(out)   :: precl(:)                      ! large-scale precipitation rate (m/s)
         real(kind_phys), intent(out)   :: tendency_of_air_enthalpy(:,:) ! change in air enthalpy (J/kg/s)
-        character(len=512), intent(out):: scheme_name
+        character(len=64), intent(out):: scheme_name
         character(len=512), intent(out):: errmsg
         integer,            intent(out):: errflg
 

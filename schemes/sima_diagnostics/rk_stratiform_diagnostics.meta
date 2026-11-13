@@ -21,6 +21,7 @@
 [ccpp-table-properties]
   name = rk_stratiform_cloud_fraction_perturbation_diagnostics
   type = scheme
+  module_name = rk_stratiform_diagnostics
 
 [ccpp-arg-table]
   name  = rk_stratiform_cloud_fraction_perturbation_diagnostics_run
@@ -47,6 +48,7 @@
 [ccpp-table-properties]
   name = rk_stratiform_condensate_repartioning_diagnostics
   type = scheme
+  module_name = rk_stratiform_diagnostics
 
 [ccpp-arg-table]
   name  = rk_stratiform_condensate_repartioning_diagnostics_run
@@ -91,6 +93,7 @@
 [ccpp-table-properties]
   name = rk_stratiform_prognostic_cloud_water_tendencies_diagnostics
   type = scheme
+  module_name = rk_stratiform_diagnostics
 
 [ccpp-arg-table]
   name  = rk_stratiform_prognostic_cloud_water_tendencies_diagnostics_run
@@ -293,6 +296,7 @@
 [ccpp-table-properties]
   name = rk_stratiform_cloud_optical_properties_diagnostics
   type = scheme
+  module_name = rk_stratiform_diagnostics
 
 [ccpp-arg-table]
   name  = rk_stratiform_cloud_optical_properties_diagnostics_run

@@ -7,6 +7,7 @@ module ndrop_bam_ccpp
   implicit none
   private
 
+  public :: ndrop_bam_ccpp_register
   public :: ndrop_bam_ccpp_init
   public :: ndrop_bam_ccpp_run
 
@@ -15,16 +16,41 @@ module ndrop_bam_ccpp
 
 contains
 
+!> \section arg_table_ndrop_bam_ccpp_register Argument Table
+!! \htmlinclude ndrop_bam_ccpp_register.html
+  subroutine ndrop_bam_ccpp_register(naer_all, psat, errmsg, errflg)
+    ! bulk_aerosol_list is currently used from the host module rather
+    ! than threaded through as an argument via the CCPP,
+    ! but should in the future.
+    use radiative_aerosol_definitions, only: bulk_aerosol_list, id_climate
+    use ndrop_bam,                     only: psat_driver => psat
+
+    integer,          intent(out) :: naer_all
+    integer,          intent(out) :: psat
+    character(len=*), intent(out) :: errmsg
+    integer,          intent(out) :: errflg
+
+    errmsg = ''
+    errflg = 0
+
+    ! Set number of bulk aerosols used by droplet activation.
+    ! Each bulk aerosol in the climate list is treated as a separate bin:
+    naer_all = bulk_aerosol_list(id_climate)%numaerosols
+
+   ! Set number of super-saturation levels used by BAM:
+    psat = psat_driver
+
+  end subroutine ndrop_bam_ccpp_register
+
 !> \section arg_table_ndrop_bam_ccpp_init Argument Table
 !! \htmlinclude ndrop_bam_ccpp_init.html
   subroutine ndrop_bam_ccpp_init(&
     amIRoot, iulog, &
     mwh2o, r_universal, tmelt, rhoh2o, &
-    naer_all, psat, &
+    naer_all, &
     errmsg, errflg)
 
     use ndrop_bam, only: ndrop_bam_init
-    use ndrop_bam, only: psat_driver => psat
 
     logical,         intent(in)  :: amIRoot
     integer,         intent(in)  :: iulog
@@ -32,20 +58,27 @@ contains
     real(kind_phys), intent(in)  :: r_universal
     real(kind_phys), intent(in)  :: tmelt
     real(kind_phys), intent(in)  :: rhoh2o
-    integer,         intent(out) :: naer_all
-    integer,         intent(out) :: psat
+    integer,         intent(in)  :: naer_all
 
     character(len=*),   intent(out) :: errmsg
     integer,            intent(out) :: errflg
+
+    integer :: naer_all_bam ! number of aerosols in BAM properties object
 
     errmsg = ''
     errflg = 0
 
     call ndrop_bam_init(amIRoot, iulog, mwh2o, r_universal, tmelt, rhoh2o, &
-      naer_all, errmsg, errflg)
+      naer_all_bam, errmsg, errflg)
     if (errflg /= 0) return
 
-    psat = psat_driver
+    ! Ensure the dimension set in the register phase matches the BAM properties object:
+    if (naer_all_bam /= naer_all) then
+      write(errmsg, '(a,i0,a,i0)') 'ndrop_bam_ccpp_init: number of BAM aerosols (', &
+        naer_all_bam, ') does not match registered naer_all = ', naer_all
+      errflg = 1
+      return
+    end if
 
   end subroutine ndrop_bam_ccpp_init
 

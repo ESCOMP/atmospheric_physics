@@ -72,11 +72,13 @@
   type = logical
   dimensions = ()
   intent = in
+# allocatable: sized by a run-phase dimension, so this scheme allocates it (the suite cannot size it at init).
 [ sfac ]
   standard_name = scaling_factors_for_top_of_atmosphere_solar_radiation_flux
   units = 1
   type = real | kind = kind_phys
   dimensions = (daytime_columns_dimension,number_of_shortwave_g_point_intervals)
+  allocatable = True
   intent = out
 [ eccf ]
   standard_name = earth_sun_distance

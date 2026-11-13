@@ -333,7 +333,7 @@ subroutine zm_convr_run(     ncol    ,pver    , &
 
    real(kind_phys),intent(out):: ql(:,:)                    ! wg grid slice of cloud liquid water.
 
-   character(len=40),  intent(out)      :: scheme_name
+   character(len=64),  intent(out)      :: scheme_name
    character(len=512), intent(out)      :: errmsg
    integer, intent(out)                 :: errflg
 

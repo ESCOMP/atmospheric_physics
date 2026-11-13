@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = bl_gwdo_compat_pre
   type = scheme
+  module_name = bl_gwdo_compat
 
 [ccpp-arg-table]
   name = bl_gwdo_compat_pre_run

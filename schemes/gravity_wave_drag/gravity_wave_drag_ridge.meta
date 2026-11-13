@@ -118,6 +118,7 @@
 [ccpp-table-properties]
   name = gravity_wave_drag_ridge_beta
   type = scheme
+  module_name = gravity_wave_drag_ridge
 
 [ccpp-arg-table]
   name  = gravity_wave_drag_ridge_beta_init
@@ -454,6 +455,7 @@
 [ccpp-table-properties]
   name = gravity_wave_drag_ridge_gamma
   type = scheme
+  module_name = gravity_wave_drag_ridge
 
 [ccpp-arg-table]
   name  = gravity_wave_drag_ridge_gamma_init

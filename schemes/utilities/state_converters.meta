@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = temp_to_potential_temp
   type = scheme
+  module_name = state_converters
 [ccpp-arg-table]
   name = temp_to_potential_temp_run
   type = scheme
@@ -38,7 +39,6 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = out
-  persistence = timestep
 [ errmsg ]
   standard_name = ccpp_error_message
   long_name = Error message for error handling in CCPP
@@ -58,6 +58,7 @@
 [ccpp-table-properties]
   name = potential_temp_to_temp
   type = scheme
+  module_name = state_converters
 [ccpp-arg-table]
   name = potential_temp_to_temp_run
   type = scheme
@@ -208,6 +209,7 @@
 [ccpp-table-properties]
   name = calc_dry_air_ideal_gas_density
   type = scheme
+  module_name = state_converters
 [ccpp-arg-table]
   name = calc_dry_air_ideal_gas_density_run
   type = scheme
@@ -271,6 +273,8 @@
 [ccpp-table-properties]
   name = calc_air_ideal_gas_density
   type = scheme
+  module_name = state_converters
+
 [ccpp-arg-table]
   name = calc_air_ideal_gas_density_run
   type = scheme
@@ -317,6 +321,7 @@
 [ccpp-table-properties]
   name = calc_atmosphere_layer_thickness
   type = scheme
+  module_name = state_converters
 
 [ccpp-arg-table]
   name = calc_atmosphere_layer_thickness_run
@@ -358,6 +363,7 @@
 [ccpp-table-properties]
   name = calc_exner
   type = scheme
+  module_name = state_converters
 [ccpp-arg-table]
   name = calc_exner_run
   type = scheme
@@ -426,6 +432,7 @@
 [ccpp-table-properties]
   name = wet_to_dry_water_vapor
   type = scheme
+  module_name = state_converters
 [ccpp-arg-table]
   name = wet_to_dry_water_vapor_run
   type = scheme
@@ -487,6 +494,7 @@
 [ccpp-table-properties]
   name = wet_to_dry_cloud_liquid_water
   type = scheme
+  module_name = state_converters
 [ccpp-arg-table]
   name = wet_to_dry_cloud_liquid_water_run
   type = scheme
@@ -549,6 +557,7 @@
 [ccpp-table-properties]
   name = wet_to_dry_cloud_ice
   type = scheme
+  module_name = state_converters
 [ccpp-arg-table]
   name = wet_to_dry_cloud_ice_run
   type = scheme
@@ -611,6 +620,7 @@
 [ccpp-table-properties]
   name = wet_to_dry_rain
   type = scheme
+  module_name = state_converters
 [ccpp-arg-table]
   name = wet_to_dry_rain_run
   type = scheme
@@ -797,6 +807,7 @@
 [ccpp-table-properties]
   name = dry_to_wet_water_vapor
   type = scheme
+  module_name = state_converters
 [ccpp-arg-table]
   name = dry_to_wet_water_vapor_run
   type = scheme
@@ -838,7 +849,7 @@
   type = real | kind = kind_phys
   units = kg kg-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = out
+  intent = inout
 [ errmsg ]
    standard_name = ccpp_error_message
    long_name = Error message for error handling in CCPP
@@ -858,6 +869,7 @@
 [ccpp-table-properties]
   name = dry_to_wet_cloud_liquid_water
   type = scheme
+  module_name = state_converters
 [ccpp-arg-table]
   name = dry_to_wet_cloud_liquid_water_run
   type = scheme
@@ -900,7 +912,7 @@
   type = real | kind = kind_phys
   units = kg kg-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = out
+  intent = inout
 [ errmsg ]
    standard_name = ccpp_error_message
    long_name = Error message for error handling in CCPP
@@ -920,6 +932,7 @@
 [ccpp-table-properties]
   name = dry_to_wet_cloud_ice
   type = scheme
+  module_name = state_converters
 [ccpp-arg-table]
   name = dry_to_wet_cloud_ice_run
   type = scheme
@@ -962,7 +975,7 @@
   type = real | kind = kind_phys
   units = kg kg-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = out
+  intent = inout
 [ errmsg ]
    standard_name = ccpp_error_message
    long_name = Error message for error handling in CCPP
@@ -982,6 +995,7 @@
 [ccpp-table-properties]
   name = dry_to_wet_rain
   type = scheme
+  module_name = state_converters
 [ccpp-arg-table]
   name = dry_to_wet_rain_run
   type = scheme
@@ -1024,7 +1038,7 @@
   type = real | kind = kind_phys
   units = kg kg-1
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
-  intent = out
+  intent = inout
 [ errmsg ]
    standard_name = ccpp_error_message
    long_name = Error message for error handling in CCPP

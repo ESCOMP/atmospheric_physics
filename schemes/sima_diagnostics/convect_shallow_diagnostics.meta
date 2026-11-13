@@ -21,6 +21,7 @@
 [ccpp-table-properties]
   name = convect_shallow_diagnostics_after_shallow_scheme
   type = scheme
+  module_name = convect_shallow_diagnostics
 
 [ccpp-arg-table]
   name  = convect_shallow_diagnostics_after_shallow_scheme_run
@@ -119,6 +120,7 @@
 [ccpp-table-properties]
   name = convect_shallow_diagnostics_after_convective_evaporation
   type = scheme
+  module_name = convect_shallow_diagnostics
 
 [ccpp-arg-table]
   name  = convect_shallow_diagnostics_after_convective_evaporation_run
@@ -211,6 +213,7 @@
 [ccpp-table-properties]
   name = convect_shallow_diagnostics_after_sum_to_deep
   type = scheme
+  module_name = convect_shallow_diagnostics
 
 [ccpp-arg-table]
   name  = convect_shallow_diagnostics_after_sum_to_deep_run

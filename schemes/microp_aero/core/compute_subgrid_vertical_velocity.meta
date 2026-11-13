@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = compute_subgrid_vertical_velocity_tke
   type = scheme
+  module_name = compute_subgrid_vertical_velocity
 
 [ccpp-arg-table]
   name  = compute_subgrid_vertical_velocity_tke_run
@@ -51,6 +52,7 @@
 [ccpp-table-properties]
   name = compute_subgrid_vertical_velocity_clubb
   type = scheme
+  module_name = compute_subgrid_vertical_velocity
 
 [ccpp-arg-table]
   name  = compute_subgrid_vertical_velocity_clubb_run
@@ -107,6 +109,7 @@
 [ccpp-table-properties]
   name = compute_subgrid_vertical_velocity_kvh
   type = scheme
+  module_name = compute_subgrid_vertical_velocity
 
 [ccpp-arg-table]
   name  = compute_subgrid_vertical_velocity_kvh_run

@@ -372,7 +372,7 @@ CONTAINS
      real(kind_phys),  intent(in)  :: pdel(:,:)     ! pressure thickness of layer (Pa)
      real(kind_phys),  intent(in)  :: pdeldry(:,:)  ! dry air pressure thickness of layer (Pa)
      real(kind_phys),  intent(in)  :: qv_dry(:,:)   ! water vapor mixing ratio wrt dry air (kg/kg)
-     real(kind_phys),  intent(out) :: qv(:,:)       ! water vapor mixing ratio wrt moist air + condensates (kg/kg)
+     real(kind_phys),  intent(inout) :: qv(:,:)       ! water vapor mixing ratio wrt moist air + condensates (kg/kg)
      character(len=*), intent(out) :: errmsg
      integer,          intent(out) :: errflg
 
@@ -397,7 +397,7 @@ CONTAINS
      real(kind_phys),  intent(in)  :: pdel(:,:)    ! pressure thickness of layer (Pa)
      real(kind_phys),  intent(in)  :: pdeldry(:,:) ! dry air pressure thickness of layer (Pa)
      real(kind_phys),  intent(in)  :: qc_dry(:,:)  ! cloud liquid mixing ratio wrt dry air (kg/kg)
-     real(kind_phys),  intent(out) :: qc(:,:)      ! cloud liquid mixing ratio wrt moist air (kg/kg)
+     real(kind_phys),  intent(inout) :: qc(:,:)      ! cloud liquid mixing ratio wrt moist air (kg/kg)
      character(len=*), intent(out) :: errmsg
      integer,          intent(out) :: errflg
 
@@ -422,7 +422,7 @@ CONTAINS
      real(kind_phys),  intent(in)  :: pdel(:,:)    ! pressure thickness of layer (Pa)
      real(kind_phys),  intent(in)  :: pdeldry(:,:) ! dry air pressure thickness of layer (Pa)
      real(kind_phys),  intent(in)  :: qi_dry(:,:)  ! cloud ice mixing ratio wrt dry air (kg/kg)
-     real(kind_phys),  intent(out) :: qi(:,:)      ! cloud ice mixing ratio wrt moist air (kg/kg)
+     real(kind_phys),  intent(inout) :: qi(:,:)      ! cloud ice mixing ratio wrt moist air (kg/kg)
      character(len=*), intent(out) :: errmsg
      integer,          intent(out) :: errflg
 
@@ -447,7 +447,7 @@ CONTAINS
      real(kind_phys),  intent(in)  :: pdel(:,:)    ! pressure thickness of layer (Pa)
      real(kind_phys),  intent(in)  :: pdeldry(:,:) ! dry air pressure thickness of layer (Pa)
      real(kind_phys),  intent(in)  :: qr_dry(:,:)  ! rain mixing ratio wrt dry air (kg/kg)
-     real(kind_phys),  intent(out) :: qr(:,:)      ! rain mixing ratio wrt moist air (kg/kg)
+     real(kind_phys),  intent(inout) :: qr(:,:)      ! rain mixing ratio wrt moist air (kg/kg)
      character(len=*), intent(out) :: errmsg
      integer,          intent(out) :: errflg
 

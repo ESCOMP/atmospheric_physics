@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = gravity_wave_drag_prepare_profiles
   type = scheme
+  module_name = gravity_wave_drag_interstitials
   dependencies = gw_utils.F90,../../to_be_ccppized/coords_1d.F90
 
 [ccpp-arg-table]
@@ -147,7 +148,7 @@
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = out
 [ errflg ]

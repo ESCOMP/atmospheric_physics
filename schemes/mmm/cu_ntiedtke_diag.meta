@@ -1,6 +1,7 @@
 [ccpp-table-properties]
   name = cu_ntiedtke_diagnostics
   type = scheme
+  module_name = cu_ntiedtke_diag
 
 [ccpp-arg-table]
   name = cu_ntiedtke_diagnostics_init
