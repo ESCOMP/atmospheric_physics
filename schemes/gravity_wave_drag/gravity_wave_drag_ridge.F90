@@ -1738,6 +1738,9 @@ contains
     tau_diag = -9999._kind_phys
 
     do nn = 1, n_rdg
+      ! Skip inactive ridges: gw_rdg_belowpeak zeroes tau when mxdis < orohmin.
+      if (band_oro%ngwv == 0 .and. all(mxdis(:ncol, nn) < orohmin)) cycle
+
       kwvrdg = 0.001_kind_phys/(hwdth(:, nn) + 0.001_kind_phys)
       isoflag = 0
       effgw = effgw_rdg*(hwdth(1:ncol, nn)*clngt(1:ncol, nn))/gbxar(1:ncol)
@@ -1763,6 +1766,9 @@ contains
                              src_level, tlb_level, hdspwv, hdspdw, mxdis(:, nn), &
                              tauoro, taudsw, tau, &
                              ldo_trapped_waves=trpd_leewv)
+
+      ! Zero source stress gives zero tendencies and stress; nothing to accumulate.
+      if (all(tau == 0._kind_phys)) cycle
 
       call gw_drag_prof(ncol, band_oro, p, src_level, tend_level, dt, &
                         t, vramp, &
