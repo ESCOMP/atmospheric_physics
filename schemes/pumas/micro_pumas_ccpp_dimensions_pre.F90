@@ -202,15 +202,13 @@ contains
     errmsg  = ''
     errcode = 0
 
-    ! FOR_REVIEWER_FEEDBACK: This is only correct for micro_mg_num_steps = 1 (the default).
-    !    CAM's micro_pumas_cam_tend calls PUMAS micro_mg_num_steps times, each with a timestep of
-    !    dtime/micro_mg_num_steps, updating the state after each substep.  It then divides the
-    !    summed tendencies by micro_mg_num_steps, and also divides the 'tau' warm rain bin process
-    !    rates (amk_c, ank_c, amk_r, ank_r, amk, ank, amk_out) by micro_mg_num_steps.  In CAM-SIMA
-    !    PUMAS is called only once (there is no substepping loop in the suite), so with
-    !    micro_mg_num_steps > 1 only the first substep of the timestep would be done.
-    !    Should micro_mg_num_steps > 1 be supported (e.g. with a CCPP subcycle loop in the
-    !    suite), or should an error be returned when micro_mg_num_steps /= 1?
+    ! PUMAS substepping (micro_mg_num_steps > 1) is not supported yet
+    if (micro_mg_num_steps /= 1) then
+       errcode = 1
+       write(errmsg, '(a,i0,a)') 'micro_pumas_ccpp_dimensions_pre_run: micro_mg_num_steps = ', &
+            micro_mg_num_steps, ' is not supported (only 1 is supported)'
+       return
+    end if
     pumas_timestep = dtime/micro_mg_num_steps
 
 
