@@ -774,22 +774,6 @@ contains
   !------------------------------------------------------------------------
   ! Flow-dependent steering/launch levels from |tilt| pressure centroids
   ! (for source_type=3-5).
-  !
-  ! The centroid search can return in-bounds levels that are still meaningless
-  ! when the column's tilt profile is dominated by an isolated near-surface
-  ! spike rather than a free-tropospheric signal, as seen over Antarctica,
-  ! the Arctic Ocean and Greenland.
-  ! The "roo" criterion rejects such columns using the ratio of the
-  ! near-surface to the free-tropospheric maximum |tilt|,
-  !   roo = max(|tilt|, 0-500 m AGL) / (max(|tilt|, 500-15000 m AGL) + roo_eps),
-  ! and blocks the source where roo > roo_thresh.
-  ! This is an empirical criterion from moving-mountain source development;
-  ! it has no published reference.
-  ! roo_block is true only for this rejection, not for centroid-search failures.
-  !
-  ! If the centroid search fails (returns -1) or roo blocks the column,
-  ! valid=.false. and the levels fall back to safe in-bounds values.
-  ! Callers must zero their source where valid=.false.
   !------------------------------------------------------------------------
     integer,         intent(in)  :: ncol, pver
     real(kind_phys), intent(in)  :: tilt(ncol,pver)
@@ -799,7 +783,23 @@ contains
     integer,         intent(out) :: steering_level(ncol), launch_level(ncol) ! valid launch_level < steering_level.
     real(kind_phys), intent(out) :: p_steer(ncol), p_launch(ncol)
     real(kind_phys), intent(out) :: usteer(ncol), vsteer(ncol)
+
+    ! If the centroid search fails (returns -1) or "roo" (see below) blocks the column,
+    ! valid=.false. and the levels fall back to safe in-bounds values.
+    ! Callers must zero their source where valid=.false.
     logical,         intent(out) :: valid(ncol)
+
+    ! "Roo" criterion:
+    ! The centroid search can return in-bounds levels that are still meaningless
+    ! when the column's tilt profile is dominated by an isolated near-surface
+    ! spike rather than a free-tropospheric signal, as seen over Antarctica,
+    ! the Arctic Ocean and Greenland.
+    ! This empirical criterion rejects such columns using the ratio of the
+    ! near-surface to the free-tropospheric maximum |tilt|,
+    !   roo = max(|tilt|, 0-500 m AGL) / (max(|tilt|, 500-15000 m AGL) + roo_eps),
+    ! and blocks the source where roo > roo_thresh.
+    !
+    ! roo_block is true only for this rejection, not for centroid-search failures.
     logical,         intent(out) :: roo_block(ncol)
 
     ! Pressure bounds for the centroid search [Pa]: TOA down to a fraction
