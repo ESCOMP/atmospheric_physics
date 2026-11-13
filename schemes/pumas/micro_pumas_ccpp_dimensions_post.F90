@@ -37,10 +37,12 @@ contains
                    pumas_numgraup_vol, diam_graup, pumas_diam_graup, freq_graup, pumas_freq_graup,      &
                    freq_snow, pumas_freq_snow, freq_rain, pumas_freq_rain, frac_ice, pumas_frac_ice,    &
                    frac_cldliq_tend, pumas_frac_cldliq_tend, rain_evap, pumas_rain_evap,                &
+                   do_cldice, do_cldliq, proc_rates, wsedl,                                             &
                    errmsg, errcode)
 
     use pumas_kinds,       only: pumas_r8=>kind_r8
     use ccpp_kinds,        only: kind_phys
+    use micro_pumas_diags, only: proc_rates_type
 
     ! horizontal dimension
     integer, intent(in) :: ncol
@@ -329,6 +331,14 @@ contains
     real(kind_phys), intent(out) :: frac_cldliq_tend(:, :)
     !rain evaporation rate wrt moist air and condensed water (kg kg-1 s-1)
     real(kind_phys), intent(out) :: rain_evap(:, :)
+    !flag for PUMAS to simulate cloud ice (flag)
+    logical, intent(in) :: do_cldice
+    !flag for PUMAS to simulate cloud liquid (flag)
+    logical, intent(in) :: do_cldliq
+    !PUMAS process rates (on PUMAS vertical levels)
+    type(proc_rates_type), intent(in) :: proc_rates
+    !sedimentation velocity of liquid stratus cloud droplet (m s-1)
+    real(kind_phys), intent(out) :: wsedl(:, :)
 
     character(len=*), intent(out) :: errmsg  !PUMAS/CCPP error message (none)
     integer,            intent(out) :: errcode !CCPP error code (1)
@@ -408,6 +418,7 @@ contains
     frac_ice(:,trop_cloud_top_lev:)             = real(pumas_frac_ice(:ncol,:), kind_phys)
     frac_cldliq_tend(:,trop_cloud_top_lev:)     = real(pumas_frac_cldliq_tend(:ncol,:), kind_phys)
     rain_evap(:,trop_cloud_top_lev:)            = real(pumas_rain_evap(:ncol,:), kind_phys)
+    wsedl(:,trop_cloud_top_lev:)                = real(proc_rates%vtrmc(:ncol,:), kind_phys)
 
     ! Zero the levels above the microphysics range (1:trop_cloud_top_lev-1)
     qcsinksum_rate1ord(:,:trop_cloud_top_lev-1)   = 0._kind_phys
@@ -478,6 +489,38 @@ contains
     frac_ice(:,:trop_cloud_top_lev-1)             = 0._kind_phys
     frac_cldliq_tend(:,:trop_cloud_top_lev-1)     = 0._kind_phys
     rain_evap(:,:trop_cloud_top_lev-1)            = 0._kind_phys
+    wsedl(:,:trop_cloud_top_lev-1)                = 0._kind_phys
+
+    ! Check that PUMAS did not produce tendencies for a cloud water species it is configured
+    ! not to prognose
+    if (.not. do_cldice) then
+       if (any(pumas_numice_tend(:ncol,:) /= 0.0_pumas_r8)) then
+          errcode = 1
+          errmsg = "micro_pumas_ccpp_dimensions_post_run: ERROR - PUMAS microphysics is configured"// &
+               " not to prognose cloud ice, but micro_pumas_ccpp_run has ice number tendencies."
+          return
+       end if
+       if (any(pumas_cldice_tend(:ncol,:) /= 0.0_pumas_r8)) then
+          errcode = 1
+          errmsg = "micro_pumas_ccpp_dimensions_post_run: ERROR - PUMAS microphysics is configured"// &
+               " not to prognose cloud ice, but micro_pumas_ccpp_run has ice mass tendencies."
+          return
+       end if
+    end if
+    if (.not. do_cldliq) then
+       if (any(pumas_cldliq_tend(:ncol,:) /= 0.0_pumas_r8)) then
+          errcode = 1
+          errmsg = "micro_pumas_ccpp_dimensions_post_run: ERROR - PUMAS microphysics is configured"// &
+               " not to prognose cloud liquid, but micro_pumas_ccpp_run has liquid mass tendencies."
+          return
+       end if
+       if (any(pumas_numliq_tend(:ncol,:) /= 0.0_pumas_r8)) then
+          errcode = 1
+          errmsg = "micro_pumas_ccpp_dimensions_post_run: ERROR - PUMAS microphysics is configured"// &
+               " not to prognose cloud liquid, but micro_pumas_ccpp_run has liquid number tendencies."
+          return
+       end if
+    end if
 
   end subroutine micro_pumas_ccpp_dimensions_post_run
 

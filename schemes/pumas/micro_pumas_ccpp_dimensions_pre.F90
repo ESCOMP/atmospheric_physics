@@ -76,6 +76,7 @@ contains
                              frzimm_in, pumas_frzimm,                               &
                              frzcnt_in, pumas_frzcnt,                               &
                              frzdep_in, pumas_frzdep,                               &
+                             micro_mg_adjust_cpt, tropLev_cpp, tropT_cpp,           &
                              errmsg, errcode)
 
     use pumas_kinds,       only: pumas_r8=>kind_r8
@@ -181,14 +182,33 @@ contains
     ! Tendency of cloud ice number concentration due to deposition nucleation (cm-3)
     real(kind_phys), intent(in)  :: frzdep_in(:, :)
     real(pumas_r8), intent(out) :: pumas_frzdep(:, :)
+    ! Flag for the cold point tropopause temperature adjustment of the PUMAS air temperature (flag)
+    logical,         intent(in)  :: micro_mg_adjust_cpt
+    ! Cold point tropopause vertical layer index (index)
+    integer,         intent(in)  :: tropLev_cpp(:)
+    ! Cold point tropopause air temperature (K)
+    real(kind_phys), intent(in)  :: tropT_cpp(:)
 
     character(len=*), intent(out) :: errmsg
     integer,            intent(out) :: errcode
+
+    ! Local variables
+    ! Value of tropLev_cpp where no tropopause was found (must match NOTFOUND in tropopause_find.F90)
+    integer, parameter :: NOTFOUND = -1
+    integer            :: i
+    real(kind_phys)    :: cp_dt       ! cold point temperature adjustment (K)
 
     !Initialize error message and error code:
     errmsg  = ''
     errcode = 0
 
+    ! PUMAS substepping (micro_mg_num_steps > 1) is not supported yet
+    if (micro_mg_num_steps /= 1) then
+       errcode = 1
+       write(errmsg, '(a,i0,a)') 'micro_pumas_ccpp_dimensions_pre_run: micro_mg_num_steps = ', &
+            micro_mg_num_steps, ' is not supported (only 1 is supported)'
+       return
+    end if
     pumas_timestep = dtime/micro_mg_num_steps
 
 
@@ -197,6 +217,20 @@ contains
 ! pumas_xxx(:ncol,:) receives host levels trop_cloud_top_lev:nlev. Mirrors CAM
 ! micro_pumas_cam.F90, which passes every field as xxx(:ncol,top_lev:).
     pumas_airT(:ncol,:) = real(airT_in(:,trop_cloud_top_lev:), pumas_r8)
+
+    ! Cold point tropopause adjustment: PUMAS sees the temperature of the cold point tropopause
+    ! level adjusted to the cold point temperature.  As in CAM, only the temperature passed to
+    ! PUMAS is adjusted (the host air temperature is not changed).  Levels above
+    ! trop_cloud_top_lev are not seen by PUMAS.
+    if (micro_mg_adjust_cpt) then
+       do i = 1, ncol
+          if (tropLev_cpp(i) /= NOTFOUND .and. tropLev_cpp(i) >= trop_cloud_top_lev) then
+             cp_dt = tropT_cpp(i) - airT_in(i,tropLev_cpp(i))
+             pumas_airT(i,tropLev_cpp(i)-trop_cloud_top_lev+1) = &
+                  real(airT_in(i,tropLev_cpp(i)) + cp_dt, pumas_r8)
+          end if
+       end do
+    end if
     pumas_airq(:ncol,:) = real(airq_in(:,trop_cloud_top_lev:), pumas_r8)
     pumas_cldliq(:ncol,:) = real(cldliq_in(:,trop_cloud_top_lev:), pumas_r8)
     pumas_cldice(:ncol,:) = real(cldice_in(:,trop_cloud_top_lev:), pumas_r8)
