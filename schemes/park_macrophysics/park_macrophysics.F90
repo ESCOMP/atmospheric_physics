@@ -9,8 +9,7 @@ module park_macrophysics
   use wv_saturation, only: qsat_water, findsp_vc
   use compute_cloud_fraction_two_moment, only: astG_PDF_single, astG_PDF, astG_RHU_single, &
                                                astG_RHU, aist_single, aist_vector
-  use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
-  use ccpp_const_utils, only: ccpp_const_get_idx
+  use ccpp_scheme_utils, only: ccpp_constituent_index
 
   implicit none
   private
@@ -152,7 +151,7 @@ contains
     ncol, pver, top_lev, nstep, &
     dtime, &
     cpair_in, latvap_in, latice_in, &
-    const_props, qmin, &
+    qmin, &
     t, q_wv, cldliq, cldice, numliq, numice, &
     pmid, pdel, &
     tcwat, qcwat, lcwat, iccwat, nlwat, niwat, &
@@ -178,7 +177,6 @@ contains
     real(kind_phys),                   intent(in)    :: latvap_in          ! Latent heat of vaporization [J kg-1]
     real(kind_phys),                   intent(in)    :: latice_in          ! Latent heat of fusion [J kg-1]
 
-    type(ccpp_constituent_prop_ptr_t), intent(in)    :: const_props(:)
     real(kind_phys),                   intent(in)    :: qmin(:)            ! Minimum constituent mixing ratios [kg kg-1]
 
     real(kind_phys),                   intent(in)    :: t(:, :)            ! Temperature [K]
@@ -489,11 +487,11 @@ contains
     ! Get constituent indices via CCPP constituent properties
     ! --------------------------------------------------------
 
-    call ccpp_const_get_idx(const_props, 'cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water', ixcldliq, errmsg, errflg)
+    call ccpp_constituent_index('cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water', ixcldliq, errflg, errmsg)
     if (errflg /= 0) return
-    call ccpp_const_get_idx(const_props, 'cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water', ixcldice, errmsg, errflg)
+    call ccpp_constituent_index('cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water', ixcldice, errflg, errmsg)
     if (errflg /= 0) return
-    call ccpp_const_get_idx(const_props, 'water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water', ixq, errmsg, errflg)
+    call ccpp_constituent_index('water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water', ixq, errflg, errmsg)
     if (errflg /= 0) return
 
     if(ixcldliq < 0 .or. ixcldice < 0 .or. ixq < 0) then
