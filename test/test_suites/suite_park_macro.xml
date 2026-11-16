@@ -21,6 +21,10 @@
     <scheme>initialize_constituents</scheme>
     <scheme>to_be_ccppized_temporary</scheme>
     <scheme>set_cloud_fraction_top</scheme>
+
+    <!-- Initialize cloud fraction namelist (init phase only); provides the
+         cldfrc2m tunables read by the cloud-fraction and macrophysics inits. -->
+    <scheme>cloud_fraction_options</scheme>
     <scheme>compute_cloud_fraction_two_moment</scheme>
 
     <!-- Snapshot stub: CAM's UW shallow scheme (absent from this macro-only suite) sets
