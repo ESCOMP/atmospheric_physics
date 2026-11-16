@@ -166,12 +166,6 @@
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
-[ const_props ]
-  standard_name = ccpp_constituent_properties
-  units = none
-  type = ccpp_constituent_prop_ptr_t
-  dimensions = (number_of_ccpp_constituents)
-  intent = in
 [ do_iss ]
   standard_name = do_implicit_total_surface_stress_in_vertical_diffusion
   units = flag

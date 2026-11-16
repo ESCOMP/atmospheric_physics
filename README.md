@@ -18,9 +18,13 @@ Physics packages which are CCPP_enabled (along with supporting routines) are sto
   * XXX_final -  contains any code logic which needs to be performed at the end of the run prior to the program exiting.  This is unthreaded.
 
 # Steps to adding a physics package to the repository
-  * Currently under discussion
+  * The general instructions for committing code to this repo can be [found here](https://escomp.github.io/CAM-SIMA-docs/atmospheric_physics/development_workflow/).
+  * Additional instructions for converting a CAM physics parameterization into a CCPP-compliant scheme that lives in this repo can be [found here](https://escomp.github.io/CAM-SIMA-docs/conversion/conversion-background/). 
 
 # CCPP resources
 
 * [ccpp framework repository](https://github.com/NCAR/ccpp-framework)
 
+# Acknowledgements
+
+The refactoring of the CAM4 and CAM5 physics routines into CCPP-compliant schemes was supported by [NSF award 2311276](https://www.nsf.gov/awardsearch/show-award/?AWD_ID=2311376).

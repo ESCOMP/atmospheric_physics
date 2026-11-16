@@ -144,12 +144,6 @@
   dimensions = ()
   type = integer
   intent = in
-[ const_props ]
-  standard_name = ccpp_constituent_properties
-  units = none
-  type = ccpp_constituent_prop_ptr_t
-  dimensions = (number_of_ccpp_constituents)
-  intent = in
 [ apply_nonwv_cflx ]
   standard_name = do_apply_ccpp_constituent_fluxes_excluding_water_vapor_in_vertical_diffusion
   units = flag

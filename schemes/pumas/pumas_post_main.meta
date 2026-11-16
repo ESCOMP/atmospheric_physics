@@ -165,6 +165,14 @@
   type = real
   kind = kind_phys
   intent = out
+[rel]
+  standard_name = effective_radius_of_stratiform_cloud_liquid_water_droplet
+  long_name = effective radius of stratiform cloud liquid water droplets
+  units = um
+  dimensions = (horizontal_loop_extent, vertical_layer_dimension)
+  type = real
+  kind = kind_phys
+  intent = out
 [des]
   standard_name = effective_diameter_of_stratiform_snow_crystal_for_radiation
   long_name = effective diameter of stratiform snow particles for radiation

@@ -112,6 +112,7 @@
     </desc>
     <values>
       <value>mitchell</value>
+      <value phys_suite="cam4">ebertcurry</value>
     </values>
   </entry>
   <entry id="liq_cld_optics">
@@ -125,6 +126,7 @@
     </desc>
     <values>
       <value>gammadist</value>
+      <value phys_suite="cam4">slingo</value>
     </values>
   </entry>
 </entry_id_pg>

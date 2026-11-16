@@ -116,27 +116,27 @@ contains
   end subroutine register_musica_species
 
   !> Retrieves the species indices from the constituents array and store them
-  subroutine find_musica_species_indices(constituent_props, musica_species_set, &
-      indices_constituent_props, errmsg, errcode)
-    use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
-    use ccpp_const_utils,          only: ccpp_const_get_idx
+  subroutine find_musica_species_indices(musica_species_set, indices_constituent_props, &
+      errmsg, errcode)
+    use ccpp_constituent_prop_mod, only: int_unassigned
+    use ccpp_scheme_utils,         only: ccpp_constituent_index
 
-    type(ccpp_constituent_prop_ptr_t), intent(in)    :: constituent_props(:)
-    type(musica_species_t),            intent(inout) :: musica_species_set(:)
-    integer,                           intent(inout) :: indices_constituent_props(:)
-    character(len=512),                intent(out)   :: errmsg
-    integer,                           intent(out)   :: errcode
+    type(musica_species_t), intent(inout) :: musica_species_set(:)
+    integer,                intent(inout) :: indices_constituent_props(:)
+    character(len=512),     intent(out)   :: errmsg
+    integer,                intent(out)   :: errcode
 
     ! local variables
     integer :: i_elem, index_species
 
     do i_elem = 1, size(musica_species_set)
-      call ccpp_const_get_idx( constituent_props, musica_species_set(i_elem)%name, &
-          musica_species_set(i_elem)%index_constituent_props, errmsg, errcode )
+      call ccpp_constituent_index( musica_species_set(i_elem)%name, &
+          musica_species_set(i_elem)%index_constituent_props, errcode, errmsg )
       if (errcode /= 0) return
 
       index_species = musica_species_set(i_elem)%index_constituent_props
-      if (index_species == MUSICA_INT_UNASSIGNED) then
+      if (index_species == int_unassigned) then
+        musica_species_set(i_elem)%index_constituent_props = MUSICA_INT_UNASSIGNED
         errmsg = "[MUSICA Error] Unable to find index for " // musica_species_set(i_elem)%name
         errcode = 1
         return
@@ -147,12 +147,9 @@ contains
   end subroutine find_musica_species_indices
 
   !> Initializes arrays to store the species indices of the CCPP constituents
-  subroutine initialize_musica_species_indices(constituent_props, errmsg, errcode)
-    use ccpp_constituent_prop_mod, only: ccpp_constituent_prop_ptr_t
-
-    type(ccpp_constituent_prop_ptr_t), intent(in)  :: constituent_props(:)
-    character(len=512),                intent(out) :: errmsg
-    integer,                           intent(out) :: errcode
+  subroutine initialize_musica_species_indices(errmsg, errcode)
+    character(len=512), intent(out) :: errmsg
+    integer,            intent(out) :: errcode
 
     if (.not. allocated( micm_species_set ) .or. &
         .not. allocated( tuvx_species_set )) then
@@ -162,13 +159,13 @@ contains
     end if
 
     allocate( micm_indices_constituent_props( size(micm_species_set) ) )
-    call find_musica_species_indices( constituent_props, micm_species_set, &
-                          micm_indices_constituent_props, errmsg, errcode )
+    call find_musica_species_indices( micm_species_set, micm_indices_constituent_props, &
+                                      errmsg, errcode )
     if (errcode /= 0) return
 
     allocate( tuvx_indices_constituent_props( size(tuvx_species_set) ) )
-    call find_musica_species_indices( constituent_props, tuvx_species_set, &
-                          tuvx_indices_constituent_props, errmsg, errcode )
+    call find_musica_species_indices( tuvx_species_set, tuvx_indices_constituent_props, &
+                                      errmsg, errcode )
     if (errcode /= 0) return
 
   end subroutine initialize_musica_species_indices

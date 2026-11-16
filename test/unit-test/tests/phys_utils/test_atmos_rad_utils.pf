@@ -39,3 +39,86 @@ subroutine wavenumber_is_on_the_cusp()
 
     @assertEqual(.false., output_logical)
 end subroutine wavenumber_is_on_the_cusp
+
+@test
+subroutine trace_gas_profile_equator()
+    use funit
+    use atmos_phys_rad_utils, only : stratospheric_trace_gas_profile
+    use ccpp_kinds,           only : kind_phys
+
+    real(kind_phys), parameter :: pi = 3.141592653589793_kind_phys
+    real(kind_phys), parameter :: degrees_per_radian = 180._kind_phys / pi
+    ! CH4 decay exponent coefficients from CAM's ghg_data::trcmix
+    real(kind_phys), parameter :: ch4_coefs(4) = &
+         [0.2353_kind_phys, 0.0_kind_phys, 0.2353_kind_phys, 0.0225489_kind_phys]
+    real(kind_phys), parameter :: trop_mmr = 1.e-6_kind_phys
+    ! at the equator the climatological tropopause is at its 100 hPa minimum;
+    ! the column spans below, at, and above it
+    real(kind_phys), parameter :: pmid(4) = &
+         [90000._kind_phys, 10000._kind_phys, 5000._kind_phys, 1000._kind_phys]
+    real(kind_phys)            :: q(4)
+
+    call stratospheric_trace_gas_profile(trop_mmr, 0._kind_phys, degrees_per_radian, &
+         ch4_coefs, pmid, q)
+
+    ! uniform at and below the tropopause
+    @assertEqual(trop_mmr, q(1))
+    @assertEqual(trop_mmr, q(2))
+    ! decaying above it: trop_mmr * (pmid/ptrop)**0.2353
+    @assertEqual(8.49508330479439195e-07_kind_phys, q(3), 1.e-18_kind_phys)
+    @assertEqual(5.81701253962689122e-07_kind_phys, q(4), 1.e-18_kind_phys)
+end subroutine trace_gas_profile_equator
+
+@test
+subroutine trace_gas_profile_high_latitude_and_symmetry()
+    use funit
+    use atmos_phys_rad_utils, only : stratospheric_trace_gas_profile
+    use ccpp_kinds,           only : kind_phys
+
+    real(kind_phys), parameter :: pi = 3.141592653589793_kind_phys
+    real(kind_phys), parameter :: degrees_per_radian = 180._kind_phys / pi
+    ! CFC11 decay exponent coefficients from CAM's ghg_data::trcmix
+    real(kind_phys), parameter :: cfc11_coefs(4) = &
+         [0.7273_kind_phys, 0.00606_kind_phys, 1.00_kind_phys, 0.013333_kind_phys]
+    real(kind_phys), parameter :: trop_mmr = 5.e-10_kind_phys
+    real(kind_phys), parameter :: lat_60n = 1.0471975511965976_kind_phys ! 60 deg north [rad]
+    real(kind_phys), parameter :: pmid(2) = [50000._kind_phys, 10000._kind_phys]
+    real(kind_phys)            :: q_north(2), q_south(2)
+
+    call stratospheric_trace_gas_profile(trop_mmr, lat_60n, degrees_per_radian, &
+         cfc11_coefs, pmid, q_north)
+
+    ! poleward of 45 deg the steeper second exponent branch applies;
+    ! the tropopause is at 212.5 hPa
+    @assertEqual(trop_mmr, q_north(1))
+    @assertEqual(2.02367571442218040e-10_kind_phys, q_north(2), 1.e-22_kind_phys)
+
+    ! the profile is symmetric about the equator
+    call stratospheric_trace_gas_profile(trop_mmr, -lat_60n, degrees_per_radian, &
+         cfc11_coefs, pmid, q_south)
+    @assertEqual(q_north, q_south)
+end subroutine trace_gas_profile_high_latitude_and_symmetry
+
+@test
+subroutine trace_gas_profile_low_latitude_branch()
+    use funit
+    use atmos_phys_rad_utils, only : stratospheric_trace_gas_profile
+    use ccpp_kinds,           only : kind_phys
+
+    real(kind_phys), parameter :: pi = 3.141592653589793_kind_phys
+    real(kind_phys), parameter :: degrees_per_radian = 180._kind_phys / pi
+    ! N2O decay exponent coefficients from CAM's ghg_data::trcmix
+    real(kind_phys), parameter :: n2o_coefs(4) = &
+         [0.3478_kind_phys, 0.00116_kind_phys, 0.4000_kind_phys, 0.013333_kind_phys]
+    real(kind_phys), parameter :: trop_mmr = 3.2e-7_kind_phys
+    real(kind_phys), parameter :: lat_30n = 0.5235987755982988_kind_phys ! 30 deg north [rad]
+    real(kind_phys), parameter :: pmid(1) = [7000._kind_phys]
+    real(kind_phys)            :: q(1)
+
+    call stratospheric_trace_gas_profile(trop_mmr, lat_30n, degrees_per_radian, &
+         n2o_coefs, pmid, q)
+
+    ! equatorward of 45 deg the exponent grows linearly with latitude
+    ! (0.3478 + 0.00116*30); the tropopause is at 137.5 hPa
+    @assertEqual(2.47155270521022981e-07_kind_phys, q(1), 1.e-19_kind_phys)
+end subroutine trace_gas_profile_low_latitude_branch

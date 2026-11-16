@@ -1,7 +1,7 @@
 [ccpp-table-properties]
   name = ndrop_bam_diagnostics
   type = scheme
-  dependencies = ../microp_aero/ndrop_bam.F90
+  dependencies = ../microp_aero/core/ndrop_bam.F90
 
 [ccpp-arg-table]
   name  = ndrop_bam_diagnostics_init

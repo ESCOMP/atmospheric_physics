@@ -4,7 +4,7 @@ add_executable(test_stub_aerosol_model test_stub_aerosol_model.F90)
 target_sources(test_stub_aerosol_model
   PUBLIC
     ${MUSICA_CCPP_SOURCES}
-    ${TO_BE_CCPPIZED_SRC_PATH}/ccpp_const_utils.F90
+    ${CCPP_SRC_PATH}/ccpp_scheme_utils.F90
     ${TO_BE_CCPPIZED_SRC_PATH}/ccpp_tuvx_utils.F90
     ${CCPP_SRC_PATH}/ccpp_constituent_prop_mod.F90
     ${CCPP_SRC_PATH}/ccpp_hash_table.F90

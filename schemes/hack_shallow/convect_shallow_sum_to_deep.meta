@@ -54,13 +54,13 @@
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
 [ cnt_deep ]
-  standard_name = vertical_index_at_top_of_deep_convection_for_convective_columns
+  standard_name = vertical_layer_index_at_top_of_deep_convection_for_convective_columns
   units = index
   type = integer
   dimensions = (horizontal_loop_extent)
   intent = in
 [ cnb_deep ]
-  standard_name = vertical_index_of_deep_convection_launch_level_for_convective_columns
+  standard_name = vertical_layer_index_of_deep_convection_launch_level_for_convective_columns
   units = index
   type = integer
   dimensions = (horizontal_loop_extent)

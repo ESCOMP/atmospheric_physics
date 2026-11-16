@@ -1,8 +1,8 @@
-!> The mere existence of this module is to satisfy the misdirected dependency of the MMM physics,
-!> which inexplicably depends on `ccpp_kind_types` instead of `ccpp_kinds`.
+!> The MMM physics depends on `ccpp_kind_types` for real kind parameters
+!> instead of `ccpp_kinds`.
 module ccpp_kind_types
     use ccpp_kinds, only: kind_phys
-    use iso_fortran_env, only: kind_phys8 => real64
+    use, intrinsic :: iso_fortran_env, only: kind_phys8 => real64
 
     implicit none
 

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<suite name="cloud_water" version="1.0">
+  <!--
+    Standalone validation suite for the radiation cloud-water inputs:
+    convective_cloud_water
+    (CAM conv_water_4rad: grid-mean total cloud liquid/ice)
+    followed by cloud_water_paths
+    (CAM cloud_diagnostics_calc two-moment in-cloud water paths +
+     the micro_pumas_cam snow/graupel cloud-fraction/water-path block).
+
+    All inputs are read from a CAM snapshot captured around
+    cloud_diagnostics_calc (physpkg.F90);
+    iclwpth/iciwpth and the grid-mean totals should be bit-for-bit against
+    snapshot.
+
+    The snow/graupel part runs with zero snow/graupel inputs here
+    (qsout/qgout are not in the CAM physics buffer and cannot be read from snapshot)
+    so they can only be validated via PUMAS.
+  -->
+
+  <group name="physics_before_coupler">
+    <scheme>convective_cloud_water</scheme>
+    <scheme>convective_cloud_water_diagnostics</scheme>
+
+    <scheme>cloud_water_paths</scheme>
+    <scheme>cloud_water_paths_diagnostics</scheme>
+  </group>
+
+</suite>
