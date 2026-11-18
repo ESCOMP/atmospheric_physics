@@ -387,6 +387,8 @@ contains
 
     ! Lowest tendency and source levels.
     integer :: kbot_tend, kbot_src
+    ! Active wave-breaking level bounds for vertical diffusion.
+    integer :: kfirst_diff, klast_diff, ktop_diff, kbot_diff
 
     ! "Total" and saturation diffusivity.
     real(kind_phys) :: d(ncol)
@@ -690,23 +692,46 @@ contains
     !===========================================
 
     if (do_vertical_diffusion) then
+      kfirst_diff = kbot_tend + 1
+      klast_diff = ktop - 1
+      do k = ktop, kbot_tend
+        if (any(gwut(:, k, :) /= 0._kind_phys)) then
+          if (kfirst_diff > kbot_tend) kfirst_diff = k
+          klast_diff = k
+        end if
+      end do
+      if (kfirst_diff > klast_diff) then
+        egwdffi = 0._kind_phys
+        do_vertical_diffusion = .false.
+      else
+        ! Midpoint-to-interface interpolation gives nonzero diffusivity only
+        ! on interfaces adjacent to active levels [kfirst_diff, klast_diff],
+        ! so interface diffusivities vanish outside [ktop_diff, kbot_diff]
+        ! and decouple those levels in the tridiagonal solve; qtgw and dttdf
+        ! are already zeroed above.
+        ktop_diff = max(ktop, kfirst_diff - 1)
+        kbot_diff = min(kbot_tend, klast_diff + 1)
+      end if
+    end if
+
+    if (do_vertical_diffusion) then
 
       ! Calculate effective diffusivity and LU decomposition for the
       ! vertical diffusion solver.
-      call gw_ediff(ncol, pver, pverp, band%ngwv, kbot_tend, ktop, tend_level, &
+      call gw_ediff(ncol, pver, pverp, band%ngwv, kbot_diff, ktop_diff, tend_level, &
                     gwut, ubm, nm, rhoi, dt, prndl, gravit, p, c, vramp, &
                     egwdffi, decomp, ro_adjust=ro_adjust)
 
       ! Calculate tendency on each constituent.
       do m = 1, size(q, 3)
 
-        call gw_diff_tend(ncol, pver, kbot_tend, ktop, q(:, :, m), &
+        call gw_diff_tend(ncol, pver, kbot_diff, ktop_diff, q(:, :, m), &
                           dt, decomp, qtgw(:, :, m))
 
       end do
 
       ! Calculate tendency from diffusing dry static energy (dttdf).
-      call gw_diff_tend(ncol, pver, kbot_tend, ktop, dse, dt, decomp, dttdf)
+      call gw_diff_tend(ncol, pver, kbot_diff, ktop_diff, dse, dt, decomp, dttdf)
 
     end if
 

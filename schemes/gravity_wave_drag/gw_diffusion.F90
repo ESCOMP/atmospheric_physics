@@ -76,6 +76,7 @@ contains
     ! Calculate effective diffusivity at midpoints.
     do l = -ngwv, ngwv
       do k = ktop, kbot
+        if (all(gwut(:, k, l) == 0._kind_phys)) cycle
 
         egwdff_lev = &
           prndl*0.5_kind_phys*gwut(:, k, l)*(c(:, l) - ubm(:, k))/nm(:, k)**2
@@ -154,15 +155,15 @@ contains
     real(kind_phys), intent(out) :: dq(ncol, pver)
 
     ! Temporary storage for constituent.
-    real(kind_phys) :: qnew(ncol, pver)
+    real(kind_phys) :: qnew(ncol, ktop:kbot)
 
     dq = 0.0_kind_phys
-    qnew = q
+    qnew = q(:, ktop:kbot)
 
-    call decomp%left_div(qnew(:, ktop:kbot))
+    call decomp%left_div(qnew)
 
     ! Evaluate tendency to be reported back.
-    dq = (qnew - q)/dt
+    dq(:, ktop:kbot) = (qnew - q(:, ktop:kbot))/dt
 
   end subroutine gw_diff_tend
 
