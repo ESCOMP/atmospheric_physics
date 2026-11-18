@@ -9,17 +9,19 @@ contains
     !> \section arg_table_mp_tempo_init Argument Table
     !! \htmlinclude mp_tempo_init.html
     subroutine mp_tempo_init( &
+            ccn_table_name, qrqg_table_name, qrqs_table_name, freezewater_table_name, &
             num_subcyc, &
             aerosol_aware, hail_aware, refl_incl_melt, sat_adj, semi_lagr_sedi, &
             con_pi, con_hvap, con_hfus, con_rv, con_rd, con_cp, con_t0c, con_rgas, con_rhow, &
             tempo_cfgs, &
             errmsg, errflg)
         use ccpp_kinds, only: kind_phys
-        use module_mp_tempo_cfgs, only: ty_tempo_cfgs
+        use module_mp_tempo_cfgs, only: ty_tempo_cfgs, set_tempo_table_names
         use module_mp_tempo_driver, only: tempo_init
         use module_mp_tempo_params, only: pi, lvap0, lfus, lsub, rv, rdry, cp, t0, r_uni, rho_w, &
                                           initialize_parameters
 
+        character(*), intent(in) :: ccn_table_name, qrqg_table_name, qrqs_table_name, freezewater_table_name
         integer, intent(in) :: num_subcyc
         logical, intent(in) :: aerosol_aware, hail_aware, refl_incl_melt, sat_adj, semi_lagr_sedi
         real(kind_phys), intent(in) :: con_pi, con_hvap, con_hfus, con_rv, con_rd, con_cp, con_t0c, con_rgas, con_rhow
@@ -47,6 +49,15 @@ contains
 
                 return
             end if
+        end if
+
+        ! Custom TEMPO table names need to be set before calling `tempo_init`.
+        call set_tempo_table_names( &
+            ccn_table_name, qrqg_table_name, qrqs_table_name, freezewater_table_name, &
+            errmsg, errflg)
+
+        if (errflg /= 0) then
+            return
         end if
 
         call tempo_init( &
@@ -109,15 +120,15 @@ contains
         type(ty_tempo_cfgs), intent(in) :: tempo_cfgs
 
         real(kind_phys), intent(out) :: rain(:), ice(:), snow(:), graupel(:), prcp(:)
-        real(kind_phys), intent(out) :: tend_th(:, :)
-        real(kind_phys), intent(out) :: tend_qv(:, :), tend_qc(:, :), tend_qr(:, :)
-        real(kind_phys), intent(out) :: tend_qi(:, :), tend_qs(:, :), tend_qg(:, :)
-        real(kind_phys), intent(out) :: tend_nr(:, :), tend_ni(:, :)
+        real(kind_phys), intent(inout) :: tend_th(:, :)
+        real(kind_phys), intent(inout) :: tend_qv(:, :), tend_qc(:, :), tend_qr(:, :)
+        real(kind_phys), intent(inout) :: tend_qi(:, :), tend_qs(:, :), tend_qg(:, :)
+        real(kind_phys), intent(inout) :: tend_nr(:, :), tend_ni(:, :)
         real(kind_phys), intent(out) :: frozen_fraction(:), refl10cm(:, :), re_cloud(:, :), re_ice(:, :), re_snow(:, :)
         ! Only used when aerosol-aware.
-        real(kind_phys), intent(out) :: tend_nc(:, :), tend_nwfa(:, :), tend_nifa(:, :)
+        real(kind_phys), intent(inout) :: tend_nc(:, :), tend_nwfa(:, :), tend_nifa(:, :)
         ! Only used when hail-aware.
-        real(kind_phys), intent(out) :: tend_ng(:, :), tend_volg(:, :)
+        real(kind_phys), intent(inout) :: tend_ng(:, :), tend_volg(:, :)
         character(*), intent(out) :: errmsg
         integer, intent(out) :: errflg
 
@@ -155,23 +166,6 @@ contains
         graupel(:) = 0.0_kind_phys
         prcp(:) = 0.0_kind_phys
 
-        tend_th(:, :) = 0.0_kind_phys
-        tend_qv(:, :) = 0.0_kind_phys
-        tend_qc(:, :) = 0.0_kind_phys
-        tend_qr(:, :) = 0.0_kind_phys
-        tend_qi(:, :) = 0.0_kind_phys
-        tend_qs(:, :) = 0.0_kind_phys
-        tend_qg(:, :) = 0.0_kind_phys
-        tend_nr(:, :) = 0.0_kind_phys
-        tend_ni(:, :) = 0.0_kind_phys
-
-        tend_nc(:, :) = 0.0_kind_phys
-        tend_nwfa(:, :) = 0.0_kind_phys
-        tend_nifa(:, :) = 0.0_kind_phys
-
-        tend_ng(:, :) = 0.0_kind_phys
-        tend_volg(:, :) = 0.0_kind_phys
-
         dz_r1(:, :, 1) = dz(:, pver:1:-1)
         w_r1(:, :, 1) = w(:, pver:1:-1)
         p_r1(:, :, 1) = p(:, pver:1:-1)
@@ -179,7 +173,7 @@ contains
 
         ! Check for existing CCN and IN aerosol data. If missing,
         ! fill in just a basic vertical profile that is somewhat boundary layer following.
-        if (initial_run .and. tempo_cfgs % aerosolaware_flag) then
+        if (curr_step == 0 .and. initial_run .and. tempo_cfgs % aerosolaware_flag) then
             ! Potential cloud condensation nuclei (CCN).
             if (maxval(nwfa) < eps) then
                 do i = 1, ncol
@@ -311,7 +305,7 @@ contains
             end if
 
             call tempo_run( &
-                itimestep=curr_step, dt=dtime_subcyc, &
+                itimestep=curr_step + 1, dt=dtime_subcyc, &
                 dz=dz_r1, w=w_r1, p=p_r1, pii=exner_r1, th=new_th_r1, &
                 qv=new_qv_r1, qc=new_qc_r1, qr=new_qr_r1, qi=new_qi_r1, qs=new_qs_r1, qg=new_qg_r1, nr=new_nr_r1, ni=new_ni_r1, &
                 nc=new_nc_r1, nwfa=new_nwfa_r1, nifa=new_nifa_r1, &
@@ -341,20 +335,20 @@ contains
                 ) / 1000.0_kind_phys
         end do
 
-        tend_th(:, :) = (new_th_r1(:, pver:1:-1, 1) - th(:, :)) / dtime_phys
-        tend_qv(:, :) = (new_qv_r1(:, pver:1:-1, 1) - qv(:, :)) / dtime_phys
-        tend_qc(:, :) = (new_qc_r1(:, pver:1:-1, 1) - qc(:, :)) / dtime_phys
-        tend_qr(:, :) = (new_qr_r1(:, pver:1:-1, 1) - qr(:, :)) / dtime_phys
-        tend_qi(:, :) = (new_qi_r1(:, pver:1:-1, 1) - qi(:, :)) / dtime_phys
-        tend_qs(:, :) = (new_qs_r1(:, pver:1:-1, 1) - qs(:, :)) / dtime_phys
-        tend_qg(:, :) = (new_qg_r1(:, pver:1:-1, 1) - qg(:, :)) / dtime_phys
-        tend_nr(:, :) = (new_nr_r1(:, pver:1:-1, 1) - nr(:, :)) / dtime_phys
-        tend_ni(:, :) = (new_ni_r1(:, pver:1:-1, 1) - ni(:, :)) / dtime_phys
+        tend_th(:, :) = tend_th(:, :) + (new_th_r1(:, pver:1:-1, 1) - th(:, :)) / dtime_phys
+        tend_qv(:, :) = tend_qv(:, :) + (new_qv_r1(:, pver:1:-1, 1) - qv(:, :)) / dtime_phys
+        tend_qc(:, :) = tend_qc(:, :) + (new_qc_r1(:, pver:1:-1, 1) - qc(:, :)) / dtime_phys
+        tend_qr(:, :) = tend_qr(:, :) + (new_qr_r1(:, pver:1:-1, 1) - qr(:, :)) / dtime_phys
+        tend_qi(:, :) = tend_qi(:, :) + (new_qi_r1(:, pver:1:-1, 1) - qi(:, :)) / dtime_phys
+        tend_qs(:, :) = tend_qs(:, :) + (new_qs_r1(:, pver:1:-1, 1) - qs(:, :)) / dtime_phys
+        tend_qg(:, :) = tend_qg(:, :) + (new_qg_r1(:, pver:1:-1, 1) - qg(:, :)) / dtime_phys
+        tend_nr(:, :) = tend_nr(:, :) + (new_nr_r1(:, pver:1:-1, 1) - nr(:, :)) / dtime_phys
+        tend_ni(:, :) = tend_ni(:, :) + (new_ni_r1(:, pver:1:-1, 1) - ni(:, :)) / dtime_phys
 
         if (tempo_cfgs % aerosolaware_flag) then
-            tend_nc(:, :) = (new_nc_r1(:, pver:1:-1, 1) - nc(:, :)) / dtime_phys
-            tend_nwfa(:, :) = (new_nwfa_r1(:, pver:1:-1, 1) - nwfa(:, :)) / dtime_phys
-            tend_nifa(:, :) = (new_nifa_r1(:, pver:1:-1, 1) - nifa(:, :)) / dtime_phys
+            tend_nc(:, :) = tend_nc(:, :) + (new_nc_r1(:, pver:1:-1, 1) - nc(:, :)) / dtime_phys
+            tend_nwfa(:, :) = tend_nwfa(:, :) + (new_nwfa_r1(:, pver:1:-1, 1) - nwfa(:, :)) / dtime_phys
+            tend_nifa(:, :) = tend_nifa(:, :) + (new_nifa_r1(:, pver:1:-1, 1) - nifa(:, :)) / dtime_phys
 
             deallocate(nwfa_r1)
             deallocate(nwfa2d_1)
@@ -364,8 +358,8 @@ contains
         end if
 
         if (tempo_cfgs % hailaware_flag) then
-            tend_ng(:, :) = (new_ng_r1(:, pver:1:-1, 1) - ng(:, :)) / dtime_phys
-            tend_volg(:, :) = (new_volg_r1(:, pver:1:-1, 1) - volg(:, :)) / dtime_phys
+            tend_ng(:, :) = tend_ng(:, :) + (new_ng_r1(:, pver:1:-1, 1) - ng(:, :)) / dtime_phys
+            tend_volg(:, :) = tend_volg(:, :) + (new_volg_r1(:, pver:1:-1, 1) - volg(:, :)) / dtime_phys
 
             deallocate(new_ng_r1)
             deallocate(new_volg_r1)
