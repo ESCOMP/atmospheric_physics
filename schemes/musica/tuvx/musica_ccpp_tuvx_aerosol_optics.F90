@@ -64,9 +64,20 @@ contains
   end function create_aerosol_optics_radiator
 
   !> Sets TUV-x aerosol optics values
-  ! Temporarily setting optical properties to zero until aerosol optical
-  ! property calculations are ported to CAM-SIMA.
-  subroutine set_aerosol_optics_values( radiator, errmsg, errcode )
+  !! Without the optional arguments the optical properties are zero (no aerosol model).
+  !! With them, the host-grid properties of an aerosol model (aerosol_model_t) are mapped
+  !! to the TUV-x height grid:
+  !!   optical depth = specific extinction (m2 per kg of air) * dp / g
+  !! with the vertical order reversed (TUV-x counts from the surface) and the extra TUV-x
+  !! top layer left without aerosol, as for the cloud optics.
+  !! @param extinction Specific extinction per kg of air (m2 kg-1) [host layer, wavelength]
+  !! @param single_scattering_albedo Single scattering albedo (unitless) [host layer, wavelength]
+  !! @param asymmetry_factor Asymmetry factor (unitless) [host layer, wavelength]
+  !! @param delta_pressure Pressure thickness of the host layers (Pa)
+  !! @param reciprocal_of_gravitational_acceleration (s2 m-1)
+  subroutine set_aerosol_optics_values( radiator, errmsg, errcode, extinction, &
+      single_scattering_albedo, asymmetry_factor, delta_pressure, &
+      reciprocal_of_gravitational_acceleration )
     use ccpp_kinds,           only: kind_phys
     use musica_ccpp_util,     only: has_error_occurred
     use musica_tuvx_radiator, only: radiator_t
@@ -75,9 +86,15 @@ contains
     type(radiator_t), intent(inout) :: radiator
     character(len=*), intent(out)   :: errmsg
     integer,          intent(out)   :: errcode
+    real(kind_phys), optional, intent(in) :: extinction(:,:)
+    real(kind_phys), optional, intent(in) :: single_scattering_albedo(:,:)
+    real(kind_phys), optional, intent(in) :: asymmetry_factor(:,:)
+    real(kind_phys), optional, intent(in) :: delta_pressure(:)
+    real(kind_phys), optional, intent(in) :: reciprocal_of_gravitational_acceleration
 
     ! local variables
     type(error_t)   :: error
+    integer         :: i_level, i_host, num_host_levels
     real(kind_phys) :: \
       aerosol_optical_depth(num_vertical_levels, num_wavelength_bins)
     real(kind_phys) :: \
@@ -85,9 +102,39 @@ contains
     real(kind_phys) :: \
       aerosol_asymmetry_factor(num_vertical_levels, num_wavelength_bins, num_streams)
 
+    errmsg = ''
+    errcode = 0
     aerosol_optical_depth(:,:) = 0.0_kind_phys
     aerosol_single_scattering_albedo(:,:) = 0.0_kind_phys
     aerosol_asymmetry_factor(:,:,:) = 0.0_kind_phys
+
+    if ( present( extinction ) ) then
+      if ( .not. ( present( single_scattering_albedo ) .and. present( asymmetry_factor ) .and. &
+                   present( delta_pressure ) .and. &
+                   present( reciprocal_of_gravitational_acceleration ) ) ) then
+        errmsg = "[MUSICA Error] Aerosol extinction needs single scattering albedo, " // &
+                 "asymmetry factor, pressure thickness and 1/g for TUV-x."
+        errcode = 1
+        return
+      end if
+      num_host_levels = size( extinction, dim=1 )
+      if ( num_host_levels + 1 /= num_vertical_levels .or. &
+           size( extinction, dim=2 ) /= num_wavelength_bins .or. &
+           any( shape( single_scattering_albedo ) /= shape( extinction ) ) .or. &
+           any( shape( asymmetry_factor ) /= shape( extinction ) ) .or. &
+           size( delta_pressure ) /= num_host_levels ) then
+        errmsg = "[MUSICA Error] Invalid size of aerosol optical properties for TUV-x."
+        errcode = 1
+        return
+      end if
+      do i_level = 1, num_host_levels
+        i_host = num_host_levels - i_level + 1
+        aerosol_optical_depth(i_level,:) = extinction(i_host,:) * delta_pressure(i_host) &
+                                         * reciprocal_of_gravitational_acceleration
+        aerosol_single_scattering_albedo(i_level,:) = single_scattering_albedo(i_host,:)
+        aerosol_asymmetry_factor(i_level,:,1) = asymmetry_factor(i_host,:)
+      end do
+    end if
 
     call radiator%set_optical_depths( aerosol_optical_depth, error )
     if ( has_error_occurred( error, errmsg, errcode ) ) return

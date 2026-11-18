@@ -7,6 +7,7 @@
   dependencies = tuvx/musica_ccpp_tuvx_surface_albedo.F90,tuvx/musica_ccpp_tuvx_temperature.F90,tuvx/musica_ccpp_tuvx_wavelength_grid.F90
   dependencies = tuvx/musica_ccpp_tuvx.F90
   dependencies = util/musica_ccpp_grid.F90,util/musica_ccpp_species.F90,util/musica_ccpp_util.F90
+  dependencies = aerosol/musica_ccpp_aerosol_model.F90,aerosol/musica_ccpp_aerosol_state.F90
 
 [ccpp-arg-table]
   name  = musica_ccpp_register
