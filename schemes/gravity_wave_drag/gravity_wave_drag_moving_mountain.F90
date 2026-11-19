@@ -813,7 +813,7 @@ contains
     real(kind_phys), parameter :: roo_thresh    = 5._kind_phys      ! try 10 for a stricter trigger
     real(kind_phys), parameter :: roo_eps       = 1.e-7_kind_phys   ! Tilt scale [s-2]; avoids division by zero
 
-    real(kind_phys) :: p_min_bound(ncol), p_max_bound(ncol)
+    real(kind_phys) :: p_max_bound(ncol)
     real(kind_phys) :: max_low, max_mid, roo
     logical         :: mask_low(pver), mask_mid(pver)
     integer         :: i
@@ -822,20 +822,24 @@ contains
     ! a fraction of the local surface pressure, approximated by pmid(:,pver).
     ! Unlike a fixed pressure cutoff, this also excludes the near-surface
     ! layer over elevated terrain.
-    p_min_bound = p_min_centroid
     p_max_bound = frac_pbl_excl * pmid(:,pver)
 
     call vorticity_centroid_levels(tilt, pmid, ncol, pver, &
-         p_min_bound, p_max_bound, &
+         p_min_centroid, p_max_bound, &
          steering_level, launch_level)
 
     do i = 1, ncol
       mask_low = zm(i,:) <= z_low_roo
       mask_mid = zm(i,:) > z_low_roo .and. zm(i,:) <= z_mid_top_roo
-      max_low  = maxval(abs(tilt(i,:)), mask=mask_low)
-      max_mid  = maxval(abs(tilt(i,:)), mask=mask_mid)
-      roo      = max_low / (max_mid + roo_eps)
-      roo_block(i) = roo > roo_thresh
+
+      ! Skip columns where either AGL mask is empty to avoid ratio overflow
+      roo_block(i) = .false.
+      if (any(mask_low) .and. any(mask_mid)) then
+        max_low  = maxval(abs(tilt(i,:)), mask=mask_low)
+        max_mid  = maxval(abs(tilt(i,:)), mask=mask_mid)
+        roo      = max_low / (max_mid + roo_eps)
+        roo_block(i) = roo > roo_thresh
+      end if
 
       valid(i) = steering_level(i) >= 2 .and. launch_level(i) >= 2 .and. &
                  steering_level(i) > launch_level(i) .and. .not. roo_block(i)
@@ -1055,19 +1059,19 @@ contains
        p_min, p_max, &
        steering_level, launch_level)
   !------------------------------------------------------------------------
-  ! Steering level: centroid of |weight| within per-column pressure bounds
-  ! [p_min, p_max]. Launch level: centroid above the steering level (smaller k).
+  ! Steering level: centroid of |weight| within the pressure bounds
+  ! [p_min, p_max(i)]. Launch level: centroid above the steering level (smaller k).
   ! Callers pass pmid [Pa] as the pressure coordinate p.
   !------------------------------------------------------------------------
     integer,         intent(in)  :: ncol, pver
     real(kind_phys), intent(in)  :: weight(ncol,pver)
     real(kind_phys), intent(in)  :: p(ncol,pver)
-    real(kind_phys), intent(in)  :: p_min(ncol), p_max(ncol)
+    real(kind_phys), intent(in)  :: p_min, p_max(ncol)
     integer,         intent(out) :: steering_level(ncol), launch_level(ncol)
 
     real(kind_phys) :: abswgt(ncol,pver), w_top(ncol,pver)
     real(kind_phys) :: z_cent(ncol), z_top(ncol)
-    real(kind_phys) :: unbound_min(ncol), unbound_max(ncol)
+    real(kind_phys) :: unbound_max(ncol)
     integer         :: i
 
     abswgt = abs(weight)
@@ -1086,10 +1090,9 @@ contains
       end if
     end do
 
-    unbound_min = -huge(1._kind_phys)
-    unbound_max =  huge(1._kind_phys)
+    unbound_max = huge(1._kind_phys)
     call weighted_centroid(w_top, p, ncol, pver, &
-                            unbound_min, unbound_max, &
+                            -huge(1._kind_phys), unbound_max, &
                             z_top, launch_level)
 
   end subroutine vorticity_centroid_levels
@@ -1102,12 +1105,12 @@ contains
   !
   !     z_centroid = integral( z*w dz ) / integral( w dz )
   !
-  ! restricted to z_min(i) <= z <= z_max(i). Integration is trapezoidal.
+  ! restricted to z_min <= z <= z_max(i). Integration is trapezoidal.
   ! Sentinel on failure: z_centroid = -1, k_centroid = -1.
   !------------------------------------------------------------------------
     integer,         intent(in)  :: ncol, pver
     real(kind_phys), intent(in)  :: w(ncol,pver), z(ncol,pver)
-    real(kind_phys), intent(in)  :: z_min(ncol), z_max(ncol)
+    real(kind_phys), intent(in)  :: z_min, z_max(ncol)
     real(kind_phys), intent(out) :: z_centroid(ncol)
     integer,         intent(out) :: k_centroid(ncol)
 
@@ -1122,7 +1125,7 @@ contains
     do i = 1, ncol
       zi = z(i,:)
       wi = w(i,:)
-      where (zi < z_min(i) .or. zi > z_max(i)) wi = 0._kind_phys
+      where (zi < z_min .or. zi > z_max(i)) wi = 0._kind_phys
 
       num   = 0._kind_phys
       denom = 0._kind_phys

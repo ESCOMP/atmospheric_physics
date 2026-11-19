@@ -172,7 +172,7 @@ contains
   subroutine gravity_wave_drag_ridge_beta_run( &
     ncol, pver, pcnst, &
     nrdg, &
-    dt, pi, cpair, rair, &
+    dt, pi, cpair, rair, gravit, &
     vramp, p, &
     n_rdg_beta, &
     u, v, t, q, dse, &
@@ -199,6 +199,7 @@ contains
     real(kind_phys),     intent(in)    :: pi                  ! pi_constant [1]
     real(kind_phys),     intent(in)    :: cpair               ! specific_heat_of_dry_air_at_constant_pressure [J kg-1 K-1]
     real(kind_phys),     intent(in)    :: rair                ! gas_constant_of_dry_air [J kg-1 K-1]
+    real(kind_phys),     intent(in)    :: gravit              ! standard_gravitational_acceleration [m s-2]
 
     real(kind_phys),     intent(in)    :: vramp(:)            ! Vertical tapering function [1]
     type(coords1d),      intent(in)    :: p                   ! Pressure coordinates, coords1d
@@ -273,6 +274,7 @@ contains
                      pi                = pi, &
                      cpair             = cpair, &
                      rair              = rair, &
+                     gravit            = gravit, &
                      u                 = u(:, :), &
                      v                 = v(:, :), &
                      t                 = t(:, :), &
@@ -348,7 +350,7 @@ contains
   subroutine gravity_wave_drag_ridge_gamma_run( &
     ncol, pver, pcnst, &
     nrdg, &
-    dt, pi, cpair, rair, &
+    dt, pi, cpair, rair, gravit, &
     vramp, p, &
     n_rdg_gamma, &
     u, v, t, q, dse, &
@@ -375,6 +377,7 @@ contains
     real(kind_phys),     intent(in)    :: pi                   ! pi_constant [1]
     real(kind_phys),     intent(in)    :: cpair                ! specific_heat_of_dry_air_at_constant_pressure [J kg-1 K-1]
     real(kind_phys),     intent(in)    :: rair                 ! gas_constant_of_dry_air [J kg-1 K-1]
+    real(kind_phys),     intent(in)    :: gravit               ! standard_gravitational_acceleration [m s-2]
 
     real(kind_phys),     intent(in)    :: vramp(:)             ! Vertical tapering function [1]
     type(coords1d),      intent(in)    :: p                    ! Pressure coordinates, coords1d
@@ -457,6 +460,7 @@ contains
                      pi                = pi, &
                      cpair             = cpair, &
                      rair              = rair, &
+                     gravit            = gravit, &
                      u                 = u(:, :), &
                      v                 = v(:, :), &
                      t                 = t(:, :), &
@@ -1554,7 +1558,7 @@ contains
 
   subroutine gw_rdg_calc(band_oro, &
                          vramp, &
-                         type, pver, ncol, pcnst, prdg, n_rdg, dt, pi, cpair, rair, &
+                         type, pver, ncol, pcnst, prdg, n_rdg, dt, pi, cpair, rair, gravit, &
                          u, v, t, p, piln, zm, zi, &
                          nm, ni, rhoi, kvtt, q, dse, &
                          effgw_rdg, effgw_rdg_max, &
@@ -1574,7 +1578,6 @@ contains
     use gw_diffusion, only: gw_diff_tend                  ! SUMK
     use vdiff_lu_solver, only: fin_vol_lu_decomp          ! SUMK
     use linear_1d_operators, only: TriDiagDecomp          ! SUMK
-    use physconst, only: gravit                           ! SUMK
 
     type(GWBand), intent(in) :: band_oro
     real(kind_phys), intent(in) :: vramp(:)
@@ -1589,6 +1592,7 @@ contains
     real(kind_phys), intent(in) :: pi
     real(kind_phys), intent(in) :: cpair
     real(kind_phys), intent(in) :: rair
+    real(kind_phys), intent(in) :: gravit
 
     real(kind_phys), intent(in) :: u(:, :)    ! Midpoint zonal winds. ( m s-1)
     real(kind_phys), intent(in) :: v(:, :)    ! Midpoint meridional winds. ( m s-1)
