@@ -849,8 +849,8 @@ subroutine buoyan_dilute(  ncol   ,pver    , &
    integer mx(ncol)         ! level of max moist static energy
 
    real(kind_phys), intent(in) :: landfrac(ncol)
-   character(len=512), intent(out)      :: errmsg
-   integer, intent(out)                 :: errflg
+   character(len=512), intent(inout)    :: errmsg
+   integer, intent(inout)               :: errflg
 
 !
 !--------------------------Local Variables------------------------------
@@ -1167,8 +1167,8 @@ integer, intent(inout), dimension(ncol) :: lcl ! Lifting condesation level (firs
 
 real(kind_phys), intent(out), dimension(ncol,pver) :: tpv   ! Define tpv within this routine.
 
-character(len=512), intent(out)      :: errmsg
-integer, intent(out)                 :: errflg
+character(len=512), intent(inout)    :: errmsg
+integer, intent(inout)               :: errflg
 
 
 
@@ -1510,8 +1510,8 @@ SUBROUTINE ientropy (rcall,icol,s,p,qt,T,qst,Tfg,cpliq,cpwv,rh2o,this_lat,this_l
   real(kind_phys), intent(in) :: this_lon
 
   real(kind_phys), intent(out) :: qst, T
-  character(len=512), intent(out)      :: errmsg
-  integer, intent(out)                 :: errflg
+  character(len=512), intent(inout)    :: errmsg
+  integer, intent(inout)               :: errflg
 
   real(kind_phys) :: est
   real(kind_phys) :: a,b,c,d,ebr,fa,fb,fc,pbr,qbr,rbr,sbr,tol1,xm,tol
@@ -1535,6 +1535,24 @@ SUBROUTINE ientropy (rcall,icol,s,p,qt,T,qst,Tfg,cpliq,cpwv,rh2o,this_lat,this_l
 
   fa = entropy(a, p, qt,cpliq,cpwv,rh2o) - s
   fb = entropy(b, p, qt,cpliq,cpwv,rh2o) - s
+
+  ! Entropy increases monotonically with T, so f = entropy - s has its root
+  ! below a when fa > 0 and above b when fb < 0. Brent's method requires a
+  ! bracketing interval; if the root is outside [a,b] the loop below would
+  ! otherwise converge silently onto the nearest endpoint with
+  ! converged=.true.  Widen the offending endpoint in 10 K steps until the
+  ! bracket straddles the root.
+  bracket: do i = 1, LOOPMAX
+     if (fa <= 0.0_kind_phys .and. fb >= 0.0_kind_phys) exit bracket
+     if (fa > 0.0_kind_phys) then
+        a = a - 10.0_kind_phys
+        fa = entropy(a, p, qt,cpliq,cpwv,rh2o) - s
+     end if
+     if (fb < 0.0_kind_phys) then
+        b = b + 10.0_kind_phys
+        fb = entropy(b, p, qt,cpliq,cpwv,rh2o) - s
+     end if
+  end do bracket
 
   c=b
   fc=fb
