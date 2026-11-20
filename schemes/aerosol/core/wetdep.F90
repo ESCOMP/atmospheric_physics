@@ -325,7 +325,8 @@ contains
         ! If resuspending aerosol only when all the rain has totally
         ! evaporated then zero out any aerosol tendency for partial
         ! evaporation.
-        if (convproc_do_evaprain_atonce .and. (evaps(i, k)*pdog(i) /= precabs(i))) then
+        if (convproc_do_evaprain_atonce .and. &
+            (evaps(i, k)*pdog(i) < precabs(i)*(1._kind_phys - 1.e-6_kind_phys))) then
           fracev(i) = 0._kind_phys
         end if
 
