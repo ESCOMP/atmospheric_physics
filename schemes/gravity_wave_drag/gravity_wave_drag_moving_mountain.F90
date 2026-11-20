@@ -1071,7 +1071,7 @@ contains
 
     real(kind_phys) :: abswgt(ncol,pver), w_top(ncol,pver)
     real(kind_phys) :: z_cent(ncol), z_top(ncol)
-    real(kind_phys) :: unbound_max(ncol)
+    real(kind_phys) :: unbound_min, unbound_max(ncol)
     integer         :: i
 
     abswgt = abs(weight)
@@ -1090,9 +1090,10 @@ contains
       end if
     end do
 
+    unbound_min = -huge(1._kind_phys)
     unbound_max = huge(1._kind_phys)
     call weighted_centroid(w_top, p, ncol, pver, &
-                            -huge(1._kind_phys), unbound_max, &
+                            unbound_min, unbound_max, &
                             z_top, launch_level)
 
   end subroutine vorticity_centroid_levels
