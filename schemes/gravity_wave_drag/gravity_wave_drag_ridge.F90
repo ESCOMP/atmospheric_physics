@@ -172,7 +172,7 @@ contains
   subroutine gravity_wave_drag_ridge_beta_run( &
     ncol, pver, pcnst, &
     nrdg, &
-    dt, pi, cpair, rair, &
+    dt, pi, cpair, rair, gravit, &
     vramp, p, &
     n_rdg_beta, &
     u, v, t, q, dse, &
@@ -199,6 +199,7 @@ contains
     real(kind_phys),     intent(in)    :: pi                  ! pi_constant [1]
     real(kind_phys),     intent(in)    :: cpair               ! specific_heat_of_dry_air_at_constant_pressure [J kg-1 K-1]
     real(kind_phys),     intent(in)    :: rair                ! gas_constant_of_dry_air [J kg-1 K-1]
+    real(kind_phys),     intent(in)    :: gravit              ! standard_gravitational_acceleration [m s-2]
 
     real(kind_phys),     intent(in)    :: vramp(:)            ! Vertical tapering function [1]
     type(coords1d),      intent(in)    :: p                   ! Pressure coordinates, coords1d
@@ -273,6 +274,7 @@ contains
                      pi                = pi, &
                      cpair             = cpair, &
                      rair              = rair, &
+                     gravit            = gravit, &
                      u                 = u(:, :), &
                      v                 = v(:, :), &
                      t                 = t(:, :), &
@@ -348,7 +350,7 @@ contains
   subroutine gravity_wave_drag_ridge_gamma_run( &
     ncol, pver, pcnst, &
     nrdg, &
-    dt, pi, cpair, rair, &
+    dt, pi, cpair, rair, gravit, &
     vramp, p, &
     n_rdg_gamma, &
     u, v, t, q, dse, &
@@ -375,6 +377,7 @@ contains
     real(kind_phys),     intent(in)    :: pi                   ! pi_constant [1]
     real(kind_phys),     intent(in)    :: cpair                ! specific_heat_of_dry_air_at_constant_pressure [J kg-1 K-1]
     real(kind_phys),     intent(in)    :: rair                 ! gas_constant_of_dry_air [J kg-1 K-1]
+    real(kind_phys),     intent(in)    :: gravit               ! standard_gravitational_acceleration [m s-2]
 
     real(kind_phys),     intent(in)    :: vramp(:)             ! Vertical tapering function [1]
     type(coords1d),      intent(in)    :: p                    ! Pressure coordinates, coords1d
@@ -457,6 +460,7 @@ contains
                      pi                = pi, &
                      cpair             = cpair, &
                      rair              = rair, &
+                     gravit            = gravit, &
                      u                 = u(:, :), &
                      v                 = v(:, :), &
                      t                 = t(:, :), &
@@ -1554,7 +1558,7 @@ contains
 
   subroutine gw_rdg_calc(band_oro, &
                          vramp, &
-                         type, pver, ncol, pcnst, prdg, n_rdg, dt, pi, cpair, rair, &
+                         type, pver, ncol, pcnst, prdg, n_rdg, dt, pi, cpair, rair, gravit, &
                          u, v, t, p, piln, zm, zi, &
                          nm, ni, rhoi, kvtt, q, dse, &
                          effgw_rdg, effgw_rdg_max, &
@@ -1571,6 +1575,9 @@ contains
 
     use coords_1d, only: coords1d
     use gw_common, only: GWBand, gw_drag_prof, energy_change
+    use gw_diffusion, only: gw_diff_tend                  ! SUMK
+    use vdiff_lu_solver, only: fin_vol_lu_decomp          ! SUMK
+    use linear_1d_operators, only: TriDiagDecomp          ! SUMK
 
     type(GWBand), intent(in) :: band_oro
     real(kind_phys), intent(in) :: vramp(:)
@@ -1585,6 +1592,7 @@ contains
     real(kind_phys), intent(in) :: pi
     real(kind_phys), intent(in) :: cpair
     real(kind_phys), intent(in) :: rair
+    real(kind_phys), intent(in) :: gravit
 
     real(kind_phys), intent(in) :: u(:, :)    ! Midpoint zonal winds. ( m s-1)
     real(kind_phys), intent(in) :: v(:, :)    ! Midpoint meridional winds. ( m s-1)
@@ -1707,6 +1715,9 @@ contains
 
     ! Effective gravity wave diffusivity at interfaces.
     real(kind_phys) :: egwdffi(ncol, pver + 1)
+    ! diffusivity summed over ridges + residual, (g*rho)^2, LU decomposition
+    real(kind_phys) :: egwdffi_sum(ncol, pver + 1), dpidz_sq(ncol, pver + 1)
+    type(TriDiagDecomp) :: decomp
 
     ! Temperature tendencies from diffusion and kinetic energy.
     real(kind_phys) :: dttdf(ncol, pver)
@@ -1736,6 +1747,7 @@ contains
     utrdg = 0._kind_phys
     vtrdg = 0._kind_phys
     tau_diag = -9999._kind_phys
+    egwdffi_sum = 0._kind_phys   ! SUMK
 
     do nn = 1, n_rdg
       kwvrdg = 0.001_kind_phys/(hwdth(:, nn) + 0.001_kind_phys)
@@ -1771,6 +1783,15 @@ contains
                         ttgw, qtgw, egwdffi, gwut, dttdf, dttke, &
                         kwvrdg=kwvrdg, &
                         satfac_in=1._kind_phys, lapply_vdiff=gw_rdg_do_vdiff, tau_diag=tau_diag)
+
+      ! keep this ridge's K but drop own diffusion of q and DSE which is done once below.
+      if (gw_rdg_do_vdiff) then
+        egwdffi_sum = egwdffi_sum + egwdffi
+        do k = 1, pver
+          ttgw(:, k) = ttgw(:, k) - dttdf(:, k)*vramp(k)
+        end do
+        qtgw = 0._kind_phys
+      end if
 
       ! Add the tendencies from each ridge to the totals.
       do k = 1, pver
@@ -1822,6 +1843,15 @@ contains
                         kwvrdg=kwvrdg, &
                         satfac_in=1._kind_phys, lapply_vdiff=gw_rdg_do_vdiff, tau_diag=tau_diag)
 
+      ! keep K of residual, its diffusion is done once below
+      if (gw_rdg_do_vdiff) then
+        egwdffi_sum = egwdffi_sum + egwdffi
+        do k = 1, pver
+          ttgw(:, k) = ttgw(:, k) - dttdf(:, k)*vramp(k)
+        end do
+        qtgw = 0._kind_phys
+      end if
+
       ! Add the tendencies from isotropic residual to the totals.
       do k = 1, pver
         ! diagnostics
@@ -1847,6 +1877,26 @@ contains
         taury(:, k) = taury(:, k) + taury0(:, k)
       end do
     end if ! end of residual variance calc
+
+    ! do one implicit diffusion of q and DSE with K summed over all ridges
+    ! and the residual
+    ! if the per-ridge increments are summed instead it gives an unstable
+    ! 2dz factor 1-sum(1-f_n) < -1.
+    if (gw_rdg_do_vdiff) then
+      dpidz_sq = (rhoi(:ncol, :pver + 1)*gravit)**2
+      decomp = fin_vol_lu_decomp(dt, p%section([1, ncol], [1, pver]), &
+                                 coef_q_diff=egwdffi_sum*dpidz_sq)
+      do m = 1, pcnst
+        call gw_diff_tend(ncol, pver, pver, 1, q(:, :, m), dt, decomp, qtgw(:, :, m))
+        q_tend(:ncol, :, m) = q_tend(:ncol, :, m) + qtgw(:, :, m)
+      end do
+      call gw_diff_tend(ncol, pver, pver, 1, dse, dt, decomp, dttdf)
+      do k = 1, pver
+        ttrdg(:, k) = ttrdg(:, k) + dttdf(:, k)*vramp(k)
+        s_tend(:ncol, k) = s_tend(:ncol, k) + dttdf(:, k)*vramp(k)
+      end do
+      call decomp%finalize()
+    end if
 
     ! Calculate energy change for output to CAM's energy checker.
     call energy_change(dt, p, u, v, u_tend(:ncol, :), &
