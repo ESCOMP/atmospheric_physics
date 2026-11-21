@@ -37,8 +37,8 @@ subroutine rrtmgp_dry_static_energy_tendency_run(pdel, calc_sw_heat, calc_lw_hea
    logical,                         intent(in)    :: calc_lw_heat  ! Flag to calculate net longwave heating
    real(kind_phys), dimension(:,:), intent(in)    :: qrs           ! shortwave heating rate adjusted by air pressure thickness (J Pa kg-1 s-1)
    real(kind_phys), dimension(:,:), intent(in)    :: qrl           ! longwave heating rate adjusted by air pressure thickness  (J Pa kg-1 s-1)
-   real(kind_phys), dimension(:,:), intent(out)   :: qrs_prime     ! shortwave heating rate (J kg-1 s-1)
-   real(kind_phys), dimension(:,:), intent(out)   :: qrl_prime     ! longwave heating rate  (J kg-1 s-1)
+   real(kind_phys), dimension(:,:), intent(inout) :: qrs_prime     ! shortwave heating rate (J kg-1 s-1)
+   real(kind_phys), dimension(:,:), intent(inout) :: qrl_prime     ! longwave heating rate  (J kg-1 s-1)
    character(len=*),                intent(out)   :: errmsg
    integer,                         intent(out)   :: errflg
 
@@ -48,10 +48,16 @@ subroutine rrtmgp_dry_static_energy_tendency_run(pdel, calc_sw_heat, calc_lw_hea
    errmsg = ''
    errflg = 0
 
+   ! calc_sw_heat is .true. iff dosw is .false.
+   ! If dosw is true, use that value calculated in rrtmgp_sw_calculate_heating_rate_run
+   ! If dosw is false, perform this calculation
    if (calc_sw_heat) then
       qrs_prime(:,:) = qrs(:,:) / pdel(:,:)
    end if
 
+   ! calc_lw_heat is .true. iff dolw is .false.
+   ! If dolw is true, use that value calculated in rrtmgp_lw_calculate_heating_rate_run
+   ! If dolw is false, perform this calculation
    if (calc_lw_heat) then
       qrl_prime(:,:) = qrl(:,:) / pdel(:,:)
    end if

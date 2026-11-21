@@ -1,0 +1,63 @@
+@test
+subroutine tlev_topat1()
+  use funit
+  use ccpp_kinds, only: kind_phys
+  use radiation_tools, only: cmp_tlev
+
+  integer :: ncol, nlev
+  real(kind_phys) :: minp
+  real(kind_phys) :: tsfc(1)
+  real(kind_phys) :: p_lay(1,2), t_lay(1,2)
+  real(kind_phys) :: p_lev(1,3), t_lev(1,3)
+
+  ncol = 1
+  nlev = 2
+
+  tsfc = 300._kind_phys
+  minp = 20._kind_phys
+  p_lev(1,1) = 10._kind_phys
+  p_lev(1,2) = 30._kind_phys
+  p_lev(1,3) = 50._kind_phys
+  t_lay(1,1) = 280._kind_phys
+  t_lay(1,2) = 290._kind_phys
+  p_lay(1,1) = 12._kind_phys
+  p_lay(1,2) = 35._kind_phys
+
+  call cmp_tlev(ncol,nlev,minp,p_lay,t_lay,p_lev,tsfc,t_lev)
+
+  @assertEqual(280._kind_phys, t_lev(1,1))
+  @assertEqual(288.55993351768552_kind_phys, t_lev(1,2))
+  @assertEqual(300._kind_phys, t_lev(1,3))
+end subroutine tlev_topat1
+
+@test
+subroutine tlev_bottomat1()
+  use funit
+  use ccpp_kinds, only: kind_phys
+  use radiation_tools, only: cmp_tlev
+
+  integer :: ncol, nlev
+  real(kind_phys) :: minp
+  real(kind_phys) :: tsfc(1)
+  real(kind_phys) :: p_lay(1,2), t_lay(1,2)
+  real(kind_phys) :: p_lev(1,3), t_lev(1,3)
+
+  ncol = 1
+  nlev = 2
+
+  tsfc = 300._kind_phys
+  minp = 20._kind_phys
+  p_lev(1,3) = 10._kind_phys
+  p_lev(1,2) = 30._kind_phys
+  p_lev(1,1) = 50._kind_phys
+  t_lay(1,2) = 280._kind_phys
+  t_lay(1,1) = 290._kind_phys
+  p_lay(1,2) = 12._kind_phys
+  p_lay(1,1) = 35._kind_phys
+
+  call cmp_tlev(ncol,nlev,minp,p_lay,t_lay,p_lev,tsfc,t_lev)
+
+  @assertEqual(300._kind_phys, t_lev(1,1))
+  @assertEqual(288.55993351768552_kind_phys, t_lev(1,2))
+  @assertEqual(280._kind_phys, t_lev(1,3))
+end subroutine tlev_bottomat1
