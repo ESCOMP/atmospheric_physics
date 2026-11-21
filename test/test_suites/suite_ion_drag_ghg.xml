@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<suite name="ion_drag_ghg" version="1.0">
+  <group name="physics_after_coupler">
+    <!-- Ion drag from a globally uniform tensor (CAM iondrag_calc_section, ghg path) -->
+    <scheme>ion_drag_ghg</scheme>
+    <scheme>ion_drag_ghg_diagnostics</scheme>
+    <scheme>apply_tendency_of_eastward_wind</scheme>
+    <scheme>apply_tendency_of_northward_wind</scheme>
+  </group>
+</suite>
