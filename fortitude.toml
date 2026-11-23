@@ -1,0 +1,142 @@
+# Fortitude (https://fortitude.readthedocs.io) configuration for atmospheric_physics.
+# Fortitude discovers this file automatically when run from anywhere in the repository,
+# including through its language server.
+#
+# CI lints only the lines a pull request adds or modifies (see .github/scripts/fortitude_lint.py),
+# so legacy code is not reformatted as a side effect of unrelated changes.
+# Run the same check locally with:
+#   python3 .github/scripts/fortitude_lint.py
+#
+# Every rule is enabled as a warning; warnings are reported but never fail CI.
+# Rules enforcing doc/Code-style.md, doc/Code-review.md, and AGENTS.md are promoted to errors,
+# which fail CI. Rules that conflict with CCPP or repository conventions are ignored.
+# Give a reason for every ignore and every error promotion.
+
+include = [
+    '*.F',
+    '*.f',
+    '*.F90',
+    '*.f90',
+    '*.pf'
+]
+
+[check]
+extend-exclude = [
+    # External code pulled in as git submodules, maintained in other repositories.
+    'schemes/clubb/clubb',
+    'schemes/mmm/mmm_physics',
+    'schemes/pumas/pumas',
+    'schemes/rrtmgp/ext',
+    'schemes/tempo/tempo',
+    # Untracked dependencies and build trees created by the test infrastructure.
+    'test/lib',
+    'build'
+]
+force-exclude = true
+# Never apply fixes automatically.
+# Fixes apply to whole files and would reformat legacy code that is not otherwise being changed.
+fix = false
+fixable = []
+line-length = 132
+output-rule-id-format = 'both'
+preview = true
+select = [
+    'ALL'
+]
+target-std = 'f2018'
+
+ignore = [
+    'C003',   # `implicit none (external)` is not supported by the NVIDIA HPC SDK as of version 25.11.
+    'C072',   # SIMA requires `character(len=*), intent(out) :: errmsg` in every scheme phase.
+    'C182',   # Related variables may share one `allocate` statement with a single `stat`/`errmsg` check.
+    'MOD201', # Switching to the `mpi_f08` module is planned post-CESM3. Re-enable this rule when the time comes.
+    'PORT001',# Duplicates C032 (magic-io-unit), which is an error below.
+    'S102',   # One space before an inline comment is acceptable.
+    'S104',   # Legacy code has spaces inside brackets for pretty-print
+    'S105',   # Do not flag the CCPP Doxygen argument table comments
+    'S241',   # Single and double quotes are both acceptable.
+    'S271',   # Allow `use` statements to be grouped by functionality at the discretion of developers.
+    'S291',   # Allow trailing decimal places in floating point literals
+    'S321',   # Explicit whole-array sections such as `x(:)` are common and often aid readability to distinguish scalars and vectors.
+    'S902'    # Physics schemes can have an arbitrary number of arguments.
+]
+
+# Errors fail CI; everything else selected above is reported as a warning.
+severity-default = 'warning'
+
+[check.severity-overrides]
+# Explicit real kinds (Code-style: every real variable and literal has an explicit kind).
+C021 = 'error'    # real literal missing kind suffix
+C022 = 'error'    # real declared without kind
+MOD001 = 'error'  # `double precision` declaration
+MOD002 = 'error'  # `1.0d0` literal
+PORT011 = 'error' # kind set with a number literal, e.g. `real(8)`
+PORT012 = 'error' # literal kind suffix is a number, e.g. `1.0_8`
+PORT021 = 'error' # non-standard `real*8`
+# Typing, intent, and accessibility (Code-style: implicit none, default private, intent on dummy arguments).
+C001 = 'error'    # implicit typing
+C002 = 'error'    # implicit typing in interface
+C061 = 'error'    # dummy argument missing intent
+C092 = 'error'    # procedure not contained in a module
+C131 = 'error'    # module missing default accessibility statement
+C132 = 'error'    # module has default public accessibility
+# No initialization on declaration lines (Code-style: implicit SAVE is not thread-safe).
+# Fortitude only flags procedure locals here; initialized module variables are not reported.
+C081 = 'error'    # local variable initialized in declaration
+C082 = 'error'    # local pointer initialized in declaration
+# No naked `use` (Code-style).
+C121 = 'error'    # `use` without `only`
+# Single-line `if` and semicolons (Code-style).
+C151 = 'error'    # semicolon after inline if
+C152 = 'error'    # continued inline if
+S081 = 'error'    # superfluous semicolon
+S082 = 'error'    # multiple statements per line
+# `allocate` must return both `stat` and `errmsg`, and the status must be checked (Code-review).
+C181 = 'error'    # unchecked stat
+C183 = 'error'    # stat without errmsg
+# No hardcoded I/O units (AGENTS: use standard name `log_output_unit` instead).
+C032 = 'error'    # magic I/O unit
+# Modern syntax (Code-style and Code-review).
+MOD011 = 'error'  # `(/ ... /)` array literal, prefer `[ ... ]`
+MOD021 = 'error'  # `.gt.`-style relational operator
+MOD051 = 'error'  # `save` at module level is superfluous
+OB = 'error'      # obsolescent or deleted features, including `goto` variants and labelled `do` loops
+S061 = 'error'    # unnamed end statement, e.g. `end subroutine` instead of `end subroutine foo`
+S071 = 'error'    # declaration missing `::`
+S231 = 'error'    # `enddo`/`endif`/`elseif`, prefer `end do`/`end if`/`else if`
+# Layout (Code-style).
+PORT031 = 'error' # tab character
+S001 = 'error'    # line longer than 132 characters
+S101 = 'error'    # trailing whitespace
+# Unreachable code, unreadable files, and malformed suppression comments.
+C191 = 'error'    # unreachable statement
+E000 = 'error'    # file could not be read
+E011 = 'error'    # non-ASCII character outside comments
+FORT001 = 'error' # unknown rule in a `! allow(...)` comment
+
+[check.complexity]
+max-complexity = 20
+
+[check.exit-unlabelled-loops]
+allow-unnested-loops = true
+
+[check.keyword-whitespace]
+goto-with-space = false
+inout-with-space = false
+
+[check.line-too-long]
+ignore-comments = false
+
+[check.per-file-ignores]
+# pFUnit generates a suite driver that calls every `@test` procedure by name,
+# so a test module has to export all of them, and bare test procedures outside a module are allowed.
+'*.pf' = [
+    'C092',
+    'C132'
+]
+
+[check.use-statements]
+allow-bare-use = [
+    'funit',
+    'pfunit'
+]
