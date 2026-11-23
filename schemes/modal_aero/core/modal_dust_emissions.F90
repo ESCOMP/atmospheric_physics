@@ -12,10 +12,10 @@ contains
 
   !=============================================================================
   ! Set the emitted dust size distribution (per-bin mass fractions) and the
-  ! bin mass-weighted diameters used for the number flux conversion.
+  ! bin diameters of average volume used for the number flux conversion.
   !=============================================================================
   subroutine modal_dust_emissions_init(ntot_amode, dust_nbin, pi, rair, gravit, &
-                                       dust_emis_sclfctr, dust_dmt_vwr, errmsg, errflg)
+                                       dust_emis_sclfctr, dust_dmt_av, errmsg, errflg)
     use ccpp_kinds,  only: kind_phys
     use dust_common, only: dust_set_params
 
@@ -25,12 +25,13 @@ contains
     real(kind_phys), intent(in)  :: rair                  ! gas constant for dry air (J/K/kg)
     real(kind_phys), intent(in)  :: gravit                ! gravitational acceleration (m/s2)
     real(kind_phys), intent(out) :: dust_emis_sclfctr(:)  ! mass fraction of emissions per bin
-    real(kind_phys), intent(out) :: dust_dmt_vwr(:)       ! mass-weighted diameter per bin (m)
+    real(kind_phys), intent(out) :: dust_dmt_av(:)        ! diameter of average volume per bin (m)
     character(len=*), intent(out) :: errmsg
     integer, intent(out) :: errflg
 
     real(kind_phys) :: dust_dmt_grd(dust_nbin + 1)  ! bin diameter edges (m)
     real(kind_phys) :: dust_stk_crc(dust_nbin)    ! Stokes correction from dust_set_params; unused by emissions
+    real(kind_phys) :: dust_dmt_vwr(dust_nbin)    ! mass-weighted diameter from dust_set_params; unused by emissions
 
     errmsg = ''
     errflg = 0
@@ -57,15 +58,18 @@ contains
 
     call dust_set_params(nbin=dust_nbin, dmt_grd=dust_dmt_grd, &
                          dmt_vwr=dust_dmt_vwr, stk_crc=dust_stk_crc, &
+                         dmt_av=dust_dmt_av, &
                          pi=pi, rair=rair, gravit=gravit, &
                          errmsg=errmsg, errflg=errflg)
 
   end subroutine modal_dust_emissions_init
 
   ! Rebin and adjust the incoming coupler dust flux into per-bin mass and
-  ! number surface fluxes.
+  ! number surface fluxes. The number flux conversion uses the bin diameter of
+  ! average volume, which conserves both the emitted mass and number of the
+  ! per-bin size distribution (see dust_set_params).
   subroutine modal_dust_emissions_run(ncol, dust_nbin, dust_indices, dust_emis_sclfctr, &
-                                      dust_dmt_vwr, dust_emis_fact, &
+                                      dust_dmt_av, dust_emis_fact, &
                                       zender_soil_erod_from_atm, soil_erodibility, &
                                       dust_flux_in, pi, cflx, soil_erod)
     use ccpp_kinds, only: kind_phys
@@ -76,7 +80,7 @@ contains
     integer, intent(in)    :: dust_nbin             ! number of dust bins (mass species)
     integer, intent(in)    :: dust_indices(:)       ! constituent indices: mass bins, then number bins
     real(kind_phys), intent(in)    :: dust_emis_sclfctr(:)  ! mass fraction of emissions per bin
-    real(kind_phys), intent(in)    :: dust_dmt_vwr(:)       ! mass-weighted diameter per bin (m)
+    real(kind_phys), intent(in)    :: dust_dmt_av(:)        ! diameter of average volume per bin (m)
     real(kind_phys), intent(in)    :: dust_emis_fact        ! tuning parameter for dust emissions
     logical, intent(in)    :: zender_soil_erod_from_atm ! Zender_2003 with soil erodibility applied in atm
     real(kind_phys), intent(in)    :: soil_erodibility(:)   ! soil erodibility factor (used only when
@@ -103,7 +107,7 @@ contains
           idst = dust_indices(m)
           cflx(i, idst) = sum(-dust_flux_in(i, :)) &
                           *dust_emis_sclfctr(m)*soil_erod(i)/dust_emis_fact*1.15_kind_phys
-          x_mton = 6._kind_phys/(pi*dust_density*(dust_dmt_vwr(m)**3._kind_phys))
+          x_mton = 6._kind_phys/(pi*dust_density*(dust_dmt_av(m)**3._kind_phys))
           inum = dust_indices(m + dust_nbin)
           cflx(i, inum) = cflx(i, idst)*x_mton
         end do
@@ -116,7 +120,7 @@ contains
 
           cflx(i, idst) = sum(-dust_flux_in(i, :)) &
                           *dust_emis_sclfctr(m)/dust_emis_fact
-          x_mton = 6._kind_phys/(pi*dust_density*(dust_dmt_vwr(m)**3._kind_phys))
+          x_mton = 6._kind_phys/(pi*dust_density*(dust_dmt_av(m)**3._kind_phys))
           inum = dust_indices(m + dust_nbin)
           cflx(i, inum) = cflx(i, idst)*x_mton
         end do
