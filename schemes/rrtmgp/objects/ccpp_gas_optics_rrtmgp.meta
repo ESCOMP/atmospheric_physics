@@ -12,6 +12,7 @@
   dependencies = ../ext/rte/frontend/gas-optics-template/mo_gas_optics.F90
   dependencies = ../ext/rte/kernels/mo_rte_kind.F90
   dependencies = ../ext/rte/kernels/mo_rte_util_array.F90
+  dependencies = ../ext/rte/kernels/mo_gas_optics_utils.F90
 
 [ccpp-arg-table]
   name = ty_gas_optics_rrtmgp_ccpp
