@@ -201,13 +201,6 @@ contains
     errmsg  = ''
     errcode = 0
 
-    ! PUMAS substepping (micro_mg_num_steps > 1) is not supported yet
-    if (micro_mg_num_steps /= 1) then
-       errcode = 1
-       write(errmsg, '(a,i0,a)') 'micro_pumas_ccpp_dimensions_pre_run: micro_mg_num_steps = ', &
-            micro_mg_num_steps, ' is not supported (only 1 is supported)'
-       return
-    end if
     pumas_timestep = dtime/micro_mg_num_steps
 
 

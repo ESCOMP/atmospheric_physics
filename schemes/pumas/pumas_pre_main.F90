@@ -17,7 +17,7 @@ module pumas_pre_main
   !! \htmlinclude pumas_pre_main_init.html
    subroutine pumas_pre_main_init(do_clubb_sgs, remove_supersat, spat_vary_accre_enhan_in, &
                                   micro_mg_warm_rain, pumas_stochastic_tau_kernel_filename, &
-                                  errmsg, errcode)
+                                  micro_mg_num_steps, errmsg, errcode)
 
 
      use ccpp_kinds,        only: kind_phys
@@ -28,6 +28,7 @@ module pumas_pre_main
      logical,            intent(out) :: remove_supersat
      character(len=*),   intent(in)  :: micro_mg_warm_rain                   ! warm rain method (kk2000, sb2001, tau, emulated)
      character(len=*),   intent(in)  :: pumas_stochastic_tau_kernel_filename ! TAU stochastic collection kernel file
+     integer,            intent(in)  :: micro_mg_num_steps                   ! number of microphysics substeps
      character(len=*),   intent(out) :: errmsg
      integer,            intent(out) :: errcode
 
@@ -35,6 +36,14 @@ module pumas_pre_main
 
      errmsg = ' '
      errcode = 0
+
+     ! PUMAS substepping (micro_mg_num_steps > 1) is not supported yet
+     if (micro_mg_num_steps /= 1) then
+       errcode = 1
+       write(errmsg, '(a,i0,a)') 'pumas_pre_main_init: micro_mg_num_steps = ', &
+            micro_mg_num_steps, ' is not currently supported (only 1 is supported)'
+       return
+     end if
 
      ! Inside CAM, the pbuf accre_enhan variable is hardwired to 1.
      spat_vary_accre_enhan_in(:,:) = 1._kind_phys

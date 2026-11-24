@@ -43,6 +43,13 @@
   type = character | kind = len=*
   dimensions = ()
   intent = in
+[ micro_mg_num_steps ]
+  standard_name = number_of_microphysics_substeps
+  long_name = number of substeps for the microphysics
+  units = count
+  type = integer
+  dimensions = ()
+  intent = in
 [ errmsg ]
   standard_name = ccpp_error_message
   long_name = Error message for error handling in CCPP

@@ -1177,7 +1177,7 @@ CONTAINS
       do i = 1, ncol
          acgcme(i)  = acgcme(i) + tgcmeliq(i)
          acprecl(i) = acprecl(i) + prect(i)
-         acnum(i)   = acnum(i) + 1
+         acnum(i)   = acnum(i) + 1._kind_phys
 
          ! if LWP is zero, then 'end of cloud': calculate precip efficiency
          if (tgliqwp(i) < minlwp) then
@@ -1192,12 +1192,12 @@ CONTAINS
             ! reset counters
             acprecl(i) = 0._kind_phys
             acgcme(i)  = 0._kind_phys
-            acnum(i)   = 0
+            acnum(i)   = 0._kind_phys
          end if
 
          ! if never find any rain....(after 10^3 timesteps...)
-         if (acnum(i) > 1000) then
-            acnum(i)   = 0
+         if (acnum(i) > 1000._kind_phys) then
+            acnum(i)   = 0._kind_phys
             acprecl(i) = 0._kind_phys
             acgcme(i)  = 0._kind_phys
          end if
