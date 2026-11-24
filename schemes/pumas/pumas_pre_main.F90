@@ -46,8 +46,7 @@ module pumas_pre_main
        remove_supersat = .true.
      end if
 
-     ! Read the collection kernel for the TAU stochastic collection code (micro_mg_warm_rain = 'tau')
-     ! (this is done by stochastic_tau_init_cam in CAM's micro_pumas_cam_init)
+     ! Read the collection kernel for the TAU stochastic collection code
      if (trim(micro_mg_warm_rain) == 'tau') then
        inquire(file=trim(pumas_stochastic_tau_kernel_filename), exist=file_exists)
        if (.not. file_exists) then

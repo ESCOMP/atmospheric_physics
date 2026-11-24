@@ -869,7 +869,7 @@
 [rercld]
   standard_name = effective_radius_of_stratiform_cloud_liquid_plus_rain_drops
   long_name = effective radius of stratiform cloud liquid plus rain particles
-  units = um
+  units = m
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   type = real
   kind = kind_phys
@@ -877,7 +877,7 @@
 [pumas_rercld]
   standard_name = pumas_effective_radius_of_stratiform_cloud_liquid_plus_rain_drops
   long_name = microphysics effective radius of stratiform cloud liquid plus rain particles
-  units = um
+  units = m
   dimensions = (microphysics_horizontal_loop_extent, microphysics_vertical_layer_dimension)
   type = real
   kind = pumas_r8

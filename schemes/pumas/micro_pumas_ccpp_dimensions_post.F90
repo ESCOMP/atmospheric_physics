@@ -347,6 +347,37 @@ contains
     errcode = 0
     errmsg = ''
 
+    ! Check that PUMAS did not produce tendencies for a cloud water species it is configured
+    ! not to prognose
+    if (.not. do_cldice) then
+       if (any(pumas_numice_tend(:ncol,:) /= 0.0_pumas_r8)) then
+          errcode = 1
+          errmsg = "micro_pumas_ccpp_dimensions_post_run: ERROR - PUMAS microphysics is configured"// &
+               " not to prognose cloud ice, but micro_pumas_ccpp_run has ice number tendencies."
+          return
+       end if
+       if (any(pumas_cldice_tend(:ncol,:) /= 0.0_pumas_r8)) then
+          errcode = 1
+          errmsg = "micro_pumas_ccpp_dimensions_post_run: ERROR - PUMAS microphysics is configured"// &
+               " not to prognose cloud ice, but micro_pumas_ccpp_run has ice mass tendencies."
+          return
+       end if
+    end if
+    if (.not. do_cldliq) then
+       if (any(pumas_numliq_tend(:ncol,:) /= 0.0_pumas_r8)) then
+          errcode = 1
+          errmsg = "micro_pumas_ccpp_dimensions_post_run: ERROR - PUMAS microphysics is configured"// &
+               " not to prognose cloud liquid, but micro_pumas_ccpp_run has liquid number tendencies."
+          return
+       end if
+       if (any(pumas_cldliq_tend(:ncol,:) /= 0.0_pumas_r8)) then
+          errcode = 1
+          errmsg = "micro_pumas_ccpp_dimensions_post_run: ERROR - PUMAS microphysics is configured"// &
+               " not to prognose cloud liquid, but micro_pumas_ccpp_run has liquid mass tendencies."
+          return
+       end if
+    end if
+
     ! Copy PUMAS outputs (levels 1:micro_nlev) back onto host levels trop_cloud_top_lev:nlev.
     qcsinksum_rate1ord(:,trop_cloud_top_lev:)   = real(pumas_qcsinksum_rate1ord(:ncol,:), kind_phys)
     airT_tend(:,trop_cloud_top_lev:)            = real(pumas_airT_tend(:ncol,:), kind_phys)
@@ -490,37 +521,6 @@ contains
     frac_cldliq_tend(:,:trop_cloud_top_lev-1)     = 0._kind_phys
     rain_evap(:,:trop_cloud_top_lev-1)            = 0._kind_phys
     wsedl(:,:trop_cloud_top_lev-1)                = 0._kind_phys
-
-    ! Check that PUMAS did not produce tendencies for a cloud water species it is configured
-    ! not to prognose
-    if (.not. do_cldice) then
-       if (any(pumas_numice_tend(:ncol,:) /= 0.0_pumas_r8)) then
-          errcode = 1
-          errmsg = "micro_pumas_ccpp_dimensions_post_run: ERROR - PUMAS microphysics is configured"// &
-               " not to prognose cloud ice, but micro_pumas_ccpp_run has ice number tendencies."
-          return
-       end if
-       if (any(pumas_cldice_tend(:ncol,:) /= 0.0_pumas_r8)) then
-          errcode = 1
-          errmsg = "micro_pumas_ccpp_dimensions_post_run: ERROR - PUMAS microphysics is configured"// &
-               " not to prognose cloud ice, but micro_pumas_ccpp_run has ice mass tendencies."
-          return
-       end if
-    end if
-    if (.not. do_cldliq) then
-       if (any(pumas_cldliq_tend(:ncol,:) /= 0.0_pumas_r8)) then
-          errcode = 1
-          errmsg = "micro_pumas_ccpp_dimensions_post_run: ERROR - PUMAS microphysics is configured"// &
-               " not to prognose cloud liquid, but micro_pumas_ccpp_run has liquid mass tendencies."
-          return
-       end if
-       if (any(pumas_numliq_tend(:ncol,:) /= 0.0_pumas_r8)) then
-          errcode = 1
-          errmsg = "micro_pumas_ccpp_dimensions_post_run: ERROR - PUMAS microphysics is configured"// &
-               " not to prognose cloud liquid, but micro_pumas_ccpp_run has liquid number tendencies."
-          return
-       end if
-    end if
 
   end subroutine micro_pumas_ccpp_dimensions_post_run
 

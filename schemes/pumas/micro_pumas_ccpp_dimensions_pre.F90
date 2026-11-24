@@ -81,6 +81,7 @@ contains
 
     use pumas_kinds,       only: pumas_r8=>kind_r8
     use ccpp_kinds,        only: kind_phys
+    use tropopause_find,   only: TROPOPAUSE_NOTFOUND=>NOTFOUND
 
     !Host model dimensions/parameters:
     integer,         intent(in) :: ncol
@@ -193,8 +194,6 @@ contains
     integer,            intent(out) :: errcode
 
     ! Local variables
-    ! Value of tropLev_cpp where no tropopause was found (must match NOTFOUND in tropopause_find.F90)
-    integer, parameter :: NOTFOUND = -1
     integer            :: i
     real(kind_phys)    :: cp_dt       ! cold point temperature adjustment (K)
 
@@ -218,13 +217,11 @@ contains
 ! micro_pumas_cam.F90, which passes every field as xxx(:ncol,top_lev:).
     pumas_airT(:ncol,:) = real(airT_in(:,trop_cloud_top_lev:), pumas_r8)
 
-    ! Cold point tropopause adjustment: PUMAS sees the temperature of the cold point tropopause
-    ! level adjusted to the cold point temperature.  As in CAM, only the temperature passed to
-    ! PUMAS is adjusted (the host air temperature is not changed).  Levels above
-    ! trop_cloud_top_lev are not seen by PUMAS.
+    ! Adjust PUMAS temperature at the cold-point tropopause level
+    ! to the cold point temperature.
     if (micro_mg_adjust_cpt) then
        do i = 1, ncol
-          if (tropLev_cpp(i) /= NOTFOUND .and. tropLev_cpp(i) >= trop_cloud_top_lev) then
+          if (tropLev_cpp(i) /= TROPOPAUSE_NOTFOUND .and. tropLev_cpp(i) >= trop_cloud_top_lev) then
              cp_dt = tropT_cpp(i) - airT_in(i,tropLev_cpp(i))
              pumas_airT(i,tropLev_cpp(i)-trop_cloud_top_lev+1) = &
                   real(airT_in(i,tropLev_cpp(i)) + cp_dt, pumas_r8)

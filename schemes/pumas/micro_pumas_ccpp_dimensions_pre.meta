@@ -1,7 +1,7 @@
 [ccpp-table-properties]
   name = micro_pumas_ccpp_dimensions_pre
   type = scheme
-  dependencies = pumas/pumas_kinds.F90
+  dependencies = pumas/pumas_kinds.F90,../tropopause_find/tropopause_find.F90
   kind_spec = pumas_kinds:pumas_r8=>kind_r8
 
 ########################################################################

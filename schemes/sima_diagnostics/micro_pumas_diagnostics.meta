@@ -5,6 +5,7 @@
   dependencies = ../pumas/pumas/pumas_gamma_function.F90,../pumas/pumas/micro_pumas_diags.F90
   dependencies = ../pumas/pumas/pumas_stochastic_collect_tau.F90
   dependencies = ../../to_be_ccppized/wv_saturation.F90
+  dependencies = ../tropopause_find/tropopause_find.F90
   kind_spec = pumas_kinds:pumas_r8=>kind_r8
 
 [ccpp-arg-table]
@@ -99,7 +100,7 @@
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = out
 [ errflg ]
@@ -116,6 +117,7 @@
   dependencies = ../pumas/pumas/pumas_gamma_function.F90,../pumas/pumas/micro_pumas_diags.F90
   dependencies = ../pumas/pumas/pumas_stochastic_collect_tau.F90
   dependencies = ../../to_be_ccppized/wv_saturation.F90
+  dependencies = ../tropopause_find/tropopause_find.F90
   kind_spec = pumas_kinds:pumas_r8=>kind_r8
 
 [ccpp-arg-table]
@@ -148,7 +150,7 @@
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = out
 [ errflg ]
@@ -370,47 +372,11 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
-[ calday ]
-  standard_name = fractional_calendar_days_on_end_of_current_timestep
-  units = days
-  type = real | kind = kind_phys
-  dimensions = ()
-  intent = in
-[ lat ]
-  standard_name = latitude
+[ solar_zenith_angle ]
+  standard_name = solar_zenith_angle
   units = rad
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
-  intent = in
-[ lon ]
-  standard_name = longitude
-  units = rad
-  type = real | kind = kind_phys
-  dimensions = (horizontal_loop_extent)
-  intent = in
-[ eccen ]
-  standard_name = planet_orbital_eccentricity_factor
-  units = 1
-  type = real | kind = kind_phys
-  dimensions = ()
-  intent = in
-[ obliqr ]
-  standard_name = planet_obliquity
-  units = rad
-  type = real | kind = kind_phys
-  dimensions = ()
-  intent = in
-[ lambm0 ]
-  standard_name = mean_longitude_of_perihelion_at_vernal_equinox
-  units = rad
-  type = real | kind = kind_phys
-  dimensions = ()
-  intent = in
-[ mvelpp ]
-  standard_name = moving_vernal_equinox_longitude_of_perihelion_plus_pi
-  units = rad
-  type = real | kind = kind_phys
-  dimensions = ()
   intent = in
 [ micro_mg_adjust_cpt ]
   standard_name = do_cold_point_tropopause_temperature_adjustment_for_microphysics
@@ -636,11 +602,7 @@
   intent = in
 [ rercld ]
   standard_name = effective_radius_of_stratiform_cloud_liquid_plus_rain_drops
-  # FOR_REVIEWER_FEEDBACK: the values are in meters (calc_rercld in micro_pumas_v1.F90), but
-  #    micro_pumas_ccpp.meta and micro_pumas_ccpp_dimensions_post.meta declare 'um'.  The units
-  #    here match so that the CCPP framework does not apply a unit conversion.  Should the
-  #    units be fixed to 'm' in the PUMAS and dimensions_post metadata (and then here)?
-  units = um
+  units = m
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent, vertical_layer_dimension)
   intent = in
@@ -743,7 +705,7 @@
 [ errmsg ]
   standard_name = ccpp_error_message
   units = none
-  type = character | kind = len=512
+  type = character | kind = len=*
   dimensions = ()
   intent = out
 [ errflg ]

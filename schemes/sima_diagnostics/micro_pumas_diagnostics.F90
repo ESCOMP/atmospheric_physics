@@ -1,8 +1,5 @@
 ! Diagnostics for the PUMAS cloud microphysics scheme
 !
-! This is the CAM-SIMA conversion of the history output that was done
-! in CAM's micro_pumas_cam.F90 (micro_pumas_cam_init / micro_pumas_cam_tend).
-!
 ! There are two diagnostic schemes in this module:
 !   micro_pumas_pre_diagnostics    - must be placed BEFORE PUMAS (micro_pumas_ccpp) in the SDF;
 !                                    outputs the in-cloud water paths before microphysics
@@ -15,39 +12,19 @@
 !       precipitation rate (prec_sh) are not yet calculated in CAM-SIMA for CAM7 (they come from
 !       CLUBB), so they are currently read from the snapshot (registry variables).
 !
-! Differences from CAM:
-!   - Subcolumns are not supported, so all fields are output on the grid.
-!   - The 'trop_cld_lev' history vertical coordinate (the model levels from the top level for
-!     cloud physics to the bottom, i.e. the PUMAS levels) is registered in
-!     micro_pumas_diagnostics_init, as CAM did in micro_pumas_cam_register.
-!   - The constituent mixing ratios are output by sima_state_diagnostics.
-!
-! FOR_REVIEWER_FEEDBACK: The following fields from CAM's micro_pumas_cam.F90 are NOT included in
-!    this conversion.  Are any of them needed?
-!     - HPROGCLD: CAM registers this field in micro_pumas_cam.F90 but never outputs it when PUMAS
-!         is used.  If wanted, it could be output from the microphysics heating rate (as is done in
-!         rk_stratiform_diagnostics).
-!     - The constituent surface fluxes and the "before physics"/"after physics" constituent fields
-!         (sflxnam, apcnst, bpcnst): CAM registers these in micro_pumas_cam.F90, but outputs them
-!         in cam_diagnostics.F90 (general physics diagnostics), not in the microphysics.  The
-!         constituent mixing ratios themselves are output by sima_state_diagnostics.
-!     - FICE_SCOL, MPDLIQ_SCOL, MPDICE_SCOL: subcolumns are not supported in CAM-SIMA.
+! NOTE: Subcolumns are not currently supported, so all fields are output on the grid.
 module micro_pumas_diagnostics
 
    use ccpp_kinds,  only: kind_phys
    use pumas_kinds, only: pumas_r8 => kind_r8
+   use tropopause_find, only: TROPOPAUSE_NOTFOUND => NOTFOUND
 
    implicit none
    private
-   save
 
    public :: micro_pumas_diagnostics_init         ! init routine
    public :: micro_pumas_pre_diagnostics_run      ! before microphysics routine
    public :: micro_pumas_diagnostics_run          ! main routine
-
-   ! Value of the tropopause level index where no tropopause was found
-   ! (must match NOTFOUND in tropopause_find.F90)
-   integer, parameter :: NOTFOUND = -1
 
    ! Parameters for the rainbow diagnostic
    real(kind_phys), parameter :: rb_rmin  = 1.e-6_kind_phys                                 ! Strat Rain threshold (mixing ratio)
@@ -60,8 +37,7 @@ module micro_pumas_diagnostics
       module procedure out_pumas_trop_cld_field_3d
    end interface out_pumas_trop_cld_field
 
-   ! Values of the 'trop_cld_lev' history coordinate.  This must persist for the whole run as the
-   ! history coordinate points to it, so it is intentionally not deallocated in the final phase.
+   ! Values of the 'trop_cld_lev' history coordinate (pointed to by the history coordinate)
    real(kind_phys), allocatable, target :: trop_cld_levs(:)
 
 CONTAINS
@@ -82,29 +58,28 @@ CONTAINS
       logical,            intent(in)  :: micro_mg_adjust_cpt ! flag for the cold point tropopause temperature adjustment
 
       ! CCPP error handling variables
-      character(len=512), intent(out) :: errmsg
+      character(len=*), intent(out) :: errmsg
       integer,            intent(out) :: errflg
 
       ! Local variables
       integer :: lev_idx
       integer :: ierr
+      character(len=256) :: alloc_errmsg
 
       errmsg = ''
       errflg = 0
 
-      ! Add the 'trop_cld_lev' history vertical coordinate for the PUMAS levels (top_lev to pver).
-      ! This coordinate is specific to the PUMAS output, so it is registered here (CAM registers it
-      ! in micro_pumas_cam_register).
+      ! Register the `trop_cld_lev` output coordinate used to output on PUMAS levels
       lev_idx = get_hist_coord_index('lev')
       if (lev_idx <= 0) then
          errflg = 1
          errmsg = "micro_pumas_diagnostics_init: unable to find history coordinate 'lev'"
          return
       end if
-      allocate(trop_cld_levs(pver-top_lev+1), stat=ierr)
+      allocate(trop_cld_levs(pver-top_lev+1), stat=ierr, errmsg=alloc_errmsg)
       if (ierr /= 0) then
          errflg = 1
-         errmsg = 'micro_pumas_diagnostics_init: error allocating trop_cld_levs'
+         errmsg = 'micro_pumas_diagnostics_init: error allocating trop_cld_levs with error: '//trim(alloc_errmsg)
          return
       end if
       trop_cld_levs(:) = hist_coords(lev_idx)%real_values(top_lev:pver)
@@ -297,36 +272,31 @@ CONTAINS
       end if
 
       ! TAU / emulated stochastic collection (machine learning) warm rain diagnostics
-      ! (registered in CAM's stochastic_tau_cam_init / stochastic_emulated_init_cam)
-      ! FOR_REVIEWER_FEEDBACK: CAM also registers
-      !    qctend_TAU_diag, nctend_TAU_diag, qrtend_TAU_diag and nrtend_TAU_diag, but never outputs them,
-      !    so they are not included.  The units of nc_fixer and nr_fixer are copied from CAM (kg/kg), but
-      !    they are number changes (kg-1?).  Should these be corrected?
       if (trim(micro_mg_warm_rain) == 'tau' .or. trim(micro_mg_warm_rain) == 'emulated') then
          call add_hist_coord('bins_ncd', ncd, 'bins for TAU microphysics')
          call history_add_field ('amk_c',   'cloud liquid mass from bins',                 &
-                                 (/'trop_cld_lev', 'bins_ncd    '/), 'avg', 'kg', &
+                                 ['trop_cld_lev', 'bins_ncd    '], 'avg', 'kg', &
                                  sampled_on_subcycle=.true.)
          call history_add_field ('ank_c',   'cloud liquid number concentration from bins', &
-                                 (/'trop_cld_lev', 'bins_ncd    '/), 'avg', 'kg-1', &
+                                 ['trop_cld_lev', 'bins_ncd    '], 'avg', 'kg-1', &
                                  sampled_on_subcycle=.true.)
          call history_add_field ('amk_r',   'rain mass from bins',                         &
-                                 (/'trop_cld_lev', 'bins_ncd    '/), 'avg', 'kg', &
+                                 ['trop_cld_lev', 'bins_ncd    '], 'avg', 'kg', &
                                  sampled_on_subcycle=.true.)
          call history_add_field ('ank_r',   'rain number concentration from bins',         &
-                                 (/'trop_cld_lev', 'bins_ncd    '/), 'avg', 'kg-1', &
+                                 ['trop_cld_lev', 'bins_ncd    '], 'avg', 'kg-1', &
                                  sampled_on_subcycle=.true.)
          call history_add_field ('amk',     'all liquid mass from bins',                   &
-                                 (/'trop_cld_lev', 'bins_ncd    '/), 'avg', 'kg', &
+                                 ['trop_cld_lev', 'bins_ncd    '], 'avg', 'kg', &
                                  sampled_on_subcycle=.true.)
          call history_add_field ('ank',     'all liquid number concentration from bins',   &
-                                 (/'trop_cld_lev', 'bins_ncd    '/), 'avg', 'kg-1', &
+                                 ['trop_cld_lev', 'bins_ncd    '], 'avg', 'kg-1', &
                                  sampled_on_subcycle=.true.)
          call history_add_field ('amk_out', 'all liquid mass from bins',                   &
-                                 (/'trop_cld_lev', 'bins_ncd    '/), 'avg', 'kg', &
+                                 ['trop_cld_lev', 'bins_ncd    '], 'avg', 'kg', &
                                  sampled_on_subcycle=.true.)
          call history_add_field ('ank_out', 'all liquid number concentration from bins',   &
-                                 (/'trop_cld_lev', 'bins_ncd    '/), 'avg', 'kg-1', &
+                                 ['trop_cld_lev', 'bins_ncd    '], 'avg', 'kg-1', &
                                  sampled_on_subcycle=.true.)
 
          call history_add_field ('scale_nc',   'scaling factor for nc',                'trop_cld_lev', 'avg', '1', &
@@ -373,31 +343,26 @@ CONTAINS
                                     sampled_on_subcycle=.true.)
             call history_add_field ('qc_fixer',   'delta qc due to ML fixer',             'trop_cld_lev', 'avg', 'kg kg-1', &
                                     sampled_on_subcycle=.true.)
-            call history_add_field ('nc_fixer',   'delta nc due to ML fixer',             'trop_cld_lev', 'avg', 'kg kg-1', &
+            call history_add_field ('nc_fixer',   'delta nc due to ML fixer',             'trop_cld_lev', 'avg', 'kg-1', &
                                     sampled_on_subcycle=.true.)
             call history_add_field ('qr_fixer',   'delta qr due to ML fixer',             'trop_cld_lev', 'avg', 'kg kg-1', &
                                     sampled_on_subcycle=.true.)
-            call history_add_field ('nr_fixer',   'delta nr due to ML fixer',             'trop_cld_lev', 'avg', 'kg kg-1', &
+            call history_add_field ('nr_fixer',   'delta nr due to ML fixer',             'trop_cld_lev', 'avg', 'kg-1', &
                                     sampled_on_subcycle=.true.)
          end if
       end if
 
-      ! FOR_REVIEWER_FEEDBACK: The units for LAMC, LAMR and N0R are copied from CAM ('unitless'), but these
-      !    are size distribution slopes and an intercept, which are m-1 (LAMC, LAMR) and kg-1 m-1 (N0R)
-      !    (size_dist_param_basic in micro_pumas_utils.F90: lam = (shape_coef*n/q)**(1/eff_dim) and
-      !    n0 = n*lam, with the number concentration n in kg-1).  PUMAS does not document the units.
-      !    Should the units be corrected here, or should the CAM units be kept so that the output matches CAM?
-      call history_add_field ('LAMC', 'Size distribution parameter lambda for liquid',    'trop_cld_lev', 'avg', '1', &
+      call history_add_field ('LAMC', 'Size distribution parameter lambda for liquid',    'trop_cld_lev', 'avg', 'm-1', &
                               sampled_on_subcycle=.true.)
-      call history_add_field ('LAMR', 'Size distribution parameter lambda for rain',      'trop_cld_lev', 'avg', '1', &
+      call history_add_field ('LAMR', 'Size distribution parameter lambda for rain',      'trop_cld_lev', 'avg', 'm-1', &
                               sampled_on_subcycle=.true.)
       call history_add_field ('PGAM', 'Size distribution parameter mu (pgam) for liquid', 'trop_cld_lev', 'avg', '1', &
                               sampled_on_subcycle=.true.)
-      call history_add_field ('N0R',  'Size distribution parameter n0 for rain',          'trop_cld_lev', 'avg', '1', &
+      call history_add_field ('N0R',  'Size distribution parameter n0 for rain',          'trop_cld_lev', 'avg', 'kg-1 m-1', &
                               sampled_on_subcycle=.true.)
 
-      ! Graupel/hail diagnostics (PUMAS in CAM-SIMA always carries graupel; these rates are
-      ! zero if neither graupel nor hail is turned on)
+      ! Graupel/hail diagnostics
+      ! PUMAS always carries graupel
       call history_add_field ('NMELTG',   'Number Tendency due to Melting of graupel',    'trop_cld_lev', 'avg', 'kg-1 s-1', &
                               sampled_on_subcycle=.true.)
       call history_add_field ('NGSEDTEN', 'Number Tendency due to graupel sedimentation', 'trop_cld_lev', 'avg', 'kg-1 s-1', &
@@ -452,7 +417,6 @@ CONTAINS
       call history_add_field( 'rbSZA',   'solar zenith angle',                                 horiz_only, 'inst', 'degrees', &
                               sampled_on_subcycle=.true.)
 
-      ! History variables for CAM5 microphysics
       call history_add_field ('MPDT',    'Heating tendency - Morrison microphysics',           'lev', 'avg', 'W kg-1', &
                               sampled_on_subcycle=.true.)
       call history_add_field ('MPDQ',    'Q tendency - Morrison microphysics',                 'lev', 'avg', 'kg kg-1 s-1', &
@@ -497,7 +461,6 @@ CONTAINS
 
       ! This is only if the coldpoint temperatures are being adjusted.
       ! NOTE: Some fields related to these and output later are added in tropopause.F90.
-      ! (bug fix: CAM had units of 'K' and 'Hunidity' for TROPF_RHADJ, which is in percent)
       if (micro_mg_adjust_cpt) then
         call history_add_field ('TROPF_TADJ', 'Temperatures after cold point adjustment',      'lev',      'avg', 'K', &
                                 sampled_on_subcycle=.true.)
@@ -591,18 +554,9 @@ CONTAINS
                               sampled_on_subcycle=.true.)
 
       ! size of precip
-      ! FOR_REVIEWER_FEEDBACK: PUMAS computes rercld in meters (calc_rercld in micro_pumas_v1.F90), and the
-      !    'm' units here are correct.  However, micro_pumas_ccpp.meta (PUMAS) and
-      !    micro_pumas_ccpp_dimensions_post.meta declare it in 'um'.  The rercld entry in
-      !    micro_pumas_diagnostics.meta uses 'um' to match, so that the CCPP framework does not apply a
-      !    unit conversion.  Should the units be fixed to 'm' in the PUMAS and dimensions_post metadata
-      !    (and then here)?
       call history_add_field ('RERCLD',    'Diagnostic effective radius of Liquid Cloud and Rain',    'lev', 'avg', 'm', &
                               sampled_on_subcycle=.true.)
-      ! FOR_REVIEWER_FEEDBACK: The DSNOW units are copied from CAM ('m'), but the values are in microns
-      !    (CAM multiplied des by 1.e6 before output, and pumas_post_main does the same).  Should the units
-      !    be corrected to 'um', or should the CAM units be kept so that the output matches CAM?
-      call history_add_field ('DSNOW',     'Diagnostic grid-mean snow diameter',                      'lev', 'avg', 'm', &
+      call history_add_field ('DSNOW',     'Diagnostic grid-mean snow diameter',                      'lev', 'avg', 'um', &
                               sampled_on_subcycle=.true.)
 
       ! diagnostic radar reflectivity, cloud-averaged
@@ -701,7 +655,7 @@ CONTAINS
                                               micro_mg_adjust_cpt, temp, zm, tropLev_cpp, tropT_cpp,  &
                                               tropZ_cpp, errmsg, errflg)
 
-      use cam_history,       only: history_out_field
+      use cam_history,       only: history_out_field, is_history_field_active
       use micro_pumas_utils, only: mincld
 
       integer,            intent(in)  :: ncol
@@ -720,7 +674,7 @@ CONTAINS
       real(kind_phys),    intent(in)  :: tropZ_cpp(:) ! cold point tropopause geopotential height wrt surface (m)
 
       ! CCPP error handling variables
-      character(len=512), intent(out) :: errmsg
+      character(len=*), intent(out) :: errmsg
       integer,            intent(out) :: errflg
 
       ! Local variables
@@ -737,22 +691,20 @@ CONTAINS
       iclwpi(:) = 0._kind_phys
       iciwpi(:) = 0._kind_phys
 
-      do k = top_lev, pver
-         iclwpi(:) = iclwpi(:) + &
-              min(cldliq(:ncol,k) / max(real(mincld, kind_phys), ast(:ncol,k)), 0.005_kind_phys) &
-              * pdel(:ncol,k) / gravit
-         iciwpi(:) = iciwpi(:) + &
-              min(cldice(:ncol,k) / max(real(mincld, kind_phys), ast(:ncol,k)), 0.005_kind_phys) &
-              * pdel(:ncol,k) / gravit
-      end do
+      if (is_history_field_active('MPICLWPI') .or. is_history_field_active('MPICIWPI')) then
+         do k = top_lev, pver
+            iclwpi(:) = iclwpi(:) + &
+                 min(cldliq(:ncol,k) / max(real(mincld, kind_phys), ast(:ncol,k)), 0.005_kind_phys) &
+                 * pdel(:ncol,k) / gravit
+            iciwpi(:) = iciwpi(:) + &
+                 min(cldice(:ncol,k) / max(real(mincld, kind_phys), ast(:ncol,k)), 0.005_kind_phys) &
+                 * pdel(:ncol,k) / gravit
+         end do
+      end if
 
-      ! Because of the of limited vertical resolution, there can be a signifcant
-      ! warm bias at the cold point tropopause, which can create a wet bias in the
-      ! stratosphere. For the microphysics only, update the cold point temperature, with
-      ! an estimate of the coldest point between the model layers.
-      ! (The cold point tropopause is found by tropopause_find, the adjusted temperature is
-      !  passed to PUMAS by micro_pumas_ccpp_dimensions_pre, and it is included in the
-      !  post-microphysics air temperature in micro_pumas_diagnostics_run.)
+      ! Limited vertical resolution can cause a significant warm bias at the cold point tropopause
+      ! which can create a wet bias in the stratosphere.
+      ! For PUMAS only update the cold point temperature with an estimate of the coldest point between the model layers.
       if (micro_mg_adjust_cpt) then
          cp_dt(:ncol)         = 0._kind_phys
          cp_dz(:ncol)         = 0._kind_phys
@@ -761,7 +713,7 @@ CONTAINS
          do i = 1, ncol
 
             ! Update statistics and output results.
-            if (tropLev_cpp(i) /= NOTFOUND) then
+            if (tropLev_cpp(i) /= TROPOPAUSE_NOTFOUND) then
                cp_dt(i) = tropT_cpp(i) - tadj(i,tropLev_cpp(i))
                cp_dz(i) = tropZ_cpp(i) - zm(i,tropLev_cpp(i))
 
@@ -773,8 +725,8 @@ CONTAINS
          end do
 
          ! Output all of the statistics related to the cold point
-         ! tropopause adjustment. Th cold point information itself is
-         ! output in tropopause.F90.
+         ! tropopause adjustment. The cold point information itself is
+         ! output in the tropopause_find diagnostics scheme.
          call history_out_field('TROPF_TADJ', tadj)
          call history_out_field('TROPF_CDT',  cp_dt)
          call history_out_field('TROPF_CDZ',  cp_dz)
@@ -791,7 +743,7 @@ CONTAINS
                    gravit, rair, tmelt, pi, rhoh2o, cpairv, micro_mg_warm_rain,             &
                    pmid, pdel, temp, q, cldliq, cldice, numliq, numice, qr, nr, qs, ns, qg, &
                    ng, ast, cld, concld, cmeliq, prec_dp, prec_sh, naai, naai_hom,          &
-                   calday, lat, lon, eccen, obliqr, lambm0, mvelpp,                         &
+                   solar_zenith_angle,                                                      &
                    micro_mg_adjust_cpt, tropLev_cpp, tropT_cpp,                             &
                    proc_rates, tlat, qvlat, qcten, qiten, ncten, niten,                     &
                    effi, rel, des, sadice, sadsnow, nevapr, prain, prect,                   &
@@ -800,11 +752,10 @@ CONTAINS
                    rercld, ncai, ncal, qrout2, qsout2, nrout2, nsout2, qgout2, ngout2,      &
                    freqg, freqs, freqr, nfice, qcrat, acprecl, acgcme, acnum, errmsg, errflg)
 
-      use cam_history,       only: history_out_field
+      use cam_history,       only: history_out_field, is_history_field_active
       use micro_pumas_diags, only: proc_rates_type
       use micro_pumas_utils, only: size_dist_param_liq, mg_liq_props, avg_diameter
       use micro_pumas_utils, only: rhow, rhosn, rhog, qsmall, mincld
-      use shr_orb_mod,       only: shr_orb_decl, shr_orb_cosz
       use wv_saturation,     only: qsat
 
       !------------------------------------------------
@@ -848,14 +799,7 @@ CONTAINS
       real(kind_phys),  intent(in) :: naai(:,:)          ! number of activated ice nuclei (kg-1 s-1)
       real(kind_phys),  intent(in) :: naai_hom(:,:)      ! number of activated ice nuclei from homogeneous freezing (kg-1 s-1)
 
-      ! Inputs for the solar zenith angle
-      real(kind_phys),  intent(in) :: calday             ! fractional calendar day (days)
-      real(kind_phys),  intent(in) :: lat(:)             ! latitude (rad)
-      real(kind_phys),  intent(in) :: lon(:)             ! longitude (rad)
-      real(kind_phys),  intent(in) :: eccen              ! Earth's orbital eccentricity factor (1)
-      real(kind_phys),  intent(in) :: obliqr             ! Earth's obliquity (rad)
-      real(kind_phys),  intent(in) :: lambm0             ! mean longitude of perihelion at the vernal equinox (rad)
-      real(kind_phys),  intent(in) :: mvelpp             ! moving vernal equinox longitude of perihelion plus pi (rad)
+      real(kind_phys),  intent(in) :: solar_zenith_angle(:) ! solar zenith angle (rad)
       logical,          intent(in) :: micro_mg_adjust_cpt ! flag for the cold point tropopause temperature adjustment
       integer,          intent(in) :: tropLev_cpp(:)     ! cold point tropopause vertical layer index (index)
       real(kind_phys),  intent(in) :: tropT_cpp(:)       ! cold point tropopause air temperature (K)
@@ -920,14 +864,13 @@ CONTAINS
       real(kind_phys),  intent(inout) :: acnum(:)        ! counter for number of timesteps accumulated (count)
 
       ! CCPP error handling variables
-      character(len=512), intent(out) :: errmsg
+      character(len=*), intent(out) :: errmsg
       integer,            intent(out) :: errflg
 
       !------------------------------------------------
       !   Local variables
       !------------------------------------------------
       ! Work array for outputting fields which are on the PUMAS vertical levels
-      real(kind_phys) :: work(ncol,pver)
 
       ! Process rate combinations (on PUMAS vertical levels)
       real(pumas_r8)  :: ftem(ncol,pver-top_lev+1)
@@ -972,11 +915,8 @@ CONTAINS
       real(kind_phys) :: racau(ncol)
       integer         :: cnt(ncol)
 
-      real(kind_phys) :: zen_angle(ncol)              ! daytime solar zenith angles (radians)
       real(kind_phys) :: sza(ncol)                    ! solar zenith angle (degrees)
       real(kind_phys) :: rad2deg                      ! radians to degrees conversion factor
-      real(kind_phys) :: delta                        ! solar declination angle (radians)
-      real(kind_phys) :: eccf                         ! Earth orbit eccentricity factor
 
       ! History output fields
       real(kind_phys) :: cdnumc(ncol)
@@ -1031,30 +971,13 @@ CONTAINS
       precc(:) = prec_dp(:ncol) + prec_sh(:ncol)
 
       ! The air temperature after the microphysics heating has been applied
-      ! (this was state_loc%t in CAM)
-      !
-      ! FOR_REVIEWER_FEEDBACK: CAM used both temperatures: the temperature BEFORE the microphysics
-      !    heating (state%t) for the air density in the size distribution calculations, and the
-      !    temperature AFTER the heating (state_loc%t) for the in-cloud number concentrations and the
-      !    supercooled liquid (tmelt) tests.  This scheme gets the pre-heating temperature, so it
-      !    must be placed after micro_pumas_ccpp_optics_limiter and BEFORE apply_heating_rate in the
-      !    SDF (where pumas_post_main also requires the pre-heating temperature), and the post-heating
-      !    temperature is recomputed here the same way apply_heating_rate computes it.  If this scheme
-      !    is placed after apply_heating_rate, the results will be wrong without any error.  Options:
-      !     1. Keep this approach (documented in the SDF files)
-      !     2. Place this scheme after apply_heating_rate and back out the pre-heating temperature
-      !        instead (equally placement dependent)
-      !     3. Have an earlier scheme save the pre-heating air temperature as its own variable, so
-      !        that this scheme can be placed anywhere after apply_heating_rate
-      !    Which should be used?
-      !
-      ! With the cold point tropopause adjustment (micro_mg_adjust_cpt), CAM's state_loc%t also
-      ! included the adjustment of the cold point tropopause level (see
-      ! micro_pumas_pre_diagnostics_run), so it is added here before the heating.
+      ! NOTE: temp must be the air temperature BEFORE the microphysics heating (it is also used for
+      !       the air density), so this scheme must be placed before apply_heating_rate in the SDF.
+      !       With the cold point tropopause adjustment, the adjusted cold point temperature is used.
       t_post(:,:) = temp(:ncol,:)
       if (micro_mg_adjust_cpt) then
          do i = 1, ncol
-            if (tropLev_cpp(i) /= NOTFOUND) then
+            if (tropLev_cpp(i) /= TROPOPAUSE_NOTFOUND) then
                cp_dt = tropT_cpp(i) - temp(i,tropLev_cpp(i))
                t_post(i,tropLev_cpp(i)) = t_post(i,tropLev_cpp(i)) + cp_dt
             end if
@@ -1062,36 +985,9 @@ CONTAINS
       end if
       t_post(:,:) = t_post(:,:) + tlat(:ncol,:) * dtime / cpairv(:ncol,:)
 
-      !-----------------------------------------------------------------------
-      ! Get the solar zenith angle in degrees (also used for the rainbow diagnostics below)
-      ! (this is CAM's call zenith(calday, rlats, rlons, zen_angle, ncol), with the zenith
-      !  routine from CAM's orbit.F90 written out)
-      !
-      ! FOR_REVIEWER_FEEDBACK: The CAM-SIMA host already calculates this angle every timestep
-      !    (orbital_data_advance in src/physics/utils/orbital_data.F90 sets the host variable
-      !    solar_zenith_angle (rad) to acos(shr_orb_cosz(calday, lat, lon, solar_declination)) with
-      !    the same calendar day and orbital parameters).  We suggest replacing the calculation below,
-      !    and the calday, lat, lon, eccen, obliqr, lambm0 and mvelpp arguments, with that host
-      !    variable (standard name solar_zenith_angle), i.e. sza(:) = solar_zenith_angle(:ncol) * rad2deg.
-      !    This removes the duplicate orbital calculation and the shr_orb_mod dependency.  (The
-      !    cosine_of_solar_zenith_angle_for_radiation host variable should NOT be used: it can be
-      !    averaged over the radiation timestep, and it is not computed in snapshot runs.)
-      !    Should the host variable be used?
-      !-----------------------------------------------------------------------
+      ! Solar zenith angle in degrees (also used for the rainbow diagnostics below)
       rad2deg = 180._kind_phys/pi
-
-      zen_angle(:) = 0.0_kind_phys
-      call shr_orb_decl(calday, eccen, mvelpp, lambm0, obliqr, delta, eccf)
-      do i = 1, ncol
-         zen_angle(i) = shr_orb_cosz(calday, lat(i), lon(i), delta)
-      end do
-      where (zen_angle(:) <= 1.0_kind_phys .and. zen_angle(:) >= -1.0_kind_phys)
-         zen_angle(:) = acos(zen_angle(:))
-      elsewhere
-         zen_angle(:) = 0.0_kind_phys
-      end where
-
-      sza(:) = zen_angle(:) * rad2deg
+      sza(:) = solar_zenith_angle(:ncol) * rad2deg
       call history_out_field('rbSZA', sza)
 
       ! Zero out diagnostic rainbow arrays
@@ -1102,14 +998,16 @@ CONTAINS
       ! Heterogeneous nucleation from vapor
       !-----------------------------------------------------------------------
       mnuccdohet(:,:) = 0._kind_phys
-      do k = top_lev, pver
-         do i = 1, ncol
-            if (naai(i,k) > 0._kind_phys) then
-               mnuccdohet(i,k) = real(proc_rates%mnuccdtot(i,k-top_lev+1), kind_phys) - &
-                    (naai_hom(i,k)/naai(i,k)) * real(proc_rates%mnuccdtot(i,k-top_lev+1), kind_phys)
-            end if
+      if (is_history_field_active('MNUCCDOhet')) then
+         do k = top_lev, pver
+            do i = 1, ncol
+               if (naai(i,k) > 0._kind_phys) then
+                  mnuccdohet(i,k) = real(proc_rates%mnuccdtot(i,k-top_lev+1), kind_phys) - &
+                       (naai_hom(i,k)/naai(i,k)) * real(proc_rates%mnuccdtot(i,k-top_lev+1), kind_phys)
+               end if
+            end do
          end do
-      end do
+      end if
 
       !-----------------------------------------------------------------------
       ! Stratiform precipitation fluxes (MG2 and MG3 add the condensate and graupel fluxes)
@@ -1196,7 +1094,6 @@ CONTAINS
       ! ------------------------------------- !
 
       ! Air density uses the temperature BEFORE the microphysics heating is applied
-      ! (CAM used "state instead of state_loc to preserve answers for MG1")
       rho(:,:) = 0._pumas_r8
       rho(:,top_lev:) = real(pmid(:ncol,top_lev:), pumas_r8) / &
                         (real(rair, pumas_r8) * real(temp(:ncol,top_lev:), pumas_r8))
@@ -1233,11 +1130,6 @@ CONTAINS
               real(qr(:ncol,top_lev:), pumas_r8), &
               real(nr(:ncol,top_lev:), pumas_r8) * rho(:,top_lev:), &
               rho(:,top_lev:), rhow), kind_phys)
-         ! FOR_REVIEWER_FEEDBACK: 1.5 is the correct value (PUMAS uses 1.5 in micro_pumas_v1.F90, and
-         !    CAM uses 1.5 for graupel below).  CAM's micro_pumas_cam.F90 uses shapeparam = 1.e5_r8
-         !    here, which makes CAM's LS_REFFRAIN (and the mgreffrain physics buffer field used by COSP)
-         !    about 66,667 times larger.  This appears to be a bug in CAM, so LS_REFFRAIN will not
-         !    match CAM.  Is 1.5 correct?
          reff_rain(:,top_lev:) = drout2(:,top_lev:) * 1.5_kind_phys * 1.e6_kind_phys
       end where
 
@@ -1246,8 +1138,6 @@ CONTAINS
               real(qs(:ncol,top_lev:), pumas_r8), &
               real(ns(:ncol,top_lev:), pumas_r8) * rho(:,top_lev:), &
               rho(:,top_lev:), rhosn), kind_phys)
-         ! FOR_REVIEWER_FEEDBACK: 1.5 is the correct value; CAM uses shapeparam = 1.e5_r8 here (see
-         !    the comment for reff_rain above), so LS_REFFSNOW will not match CAM.
          reff_snow(:,top_lev:) = dsout2(:,top_lev:) * 1.5_kind_phys * 1.e6_kind_phys
       end where
 
@@ -1492,27 +1382,27 @@ CONTAINS
 
       ! Output a handle of variables which are calculated on the fly
       ftem(:,:) = proc_rates%qcrestot(:ncol,:)
-      call out_pumas_lev_field('MPDW2V', ftem, top_lev, work)
+      call out_pumas_lev_field('MPDW2V', ftem, ncol, pver, top_lev)
 
       ftem(:,:) = proc_rates%melttot(:ncol,:) - proc_rates%mnuccctot(:ncol,:) - proc_rates%mnuccttot(:ncol,:) &
                 - proc_rates%bergtot(:ncol,:) - proc_rates%homotot(:ncol,:) - proc_rates%msacwitot(:ncol,:)
-      call out_pumas_lev_field('MPDW2I', ftem, top_lev, work)
+      call out_pumas_lev_field('MPDW2I', ftem, ncol, pver, top_lev)
 
       ! The graupel terms are zero if graupel is not turned on
       ftem(:,:) = -proc_rates%pratot(:ncol,:) - proc_rates%prctot(:ncol,:) - proc_rates%psacwstot(:ncol,:) &
                 - proc_rates%bergstot(:ncol,:) - proc_rates%psacwgtot(:ncol,:) - proc_rates%pgsacwtot(:ncol,:)
-      call out_pumas_lev_field('MPDW2P', ftem, top_lev, work)
+      call out_pumas_lev_field('MPDW2P', ftem, ncol, pver, top_lev)
 
       ftem(:,:) = proc_rates%cmeitot(:ncol,:) + proc_rates%qirestot(:ncol,:)
-      call out_pumas_lev_field('MPDI2V', ftem, top_lev, work)
+      call out_pumas_lev_field('MPDI2V', ftem, ncol, pver, top_lev)
 
       ftem(:,:) = -proc_rates%melttot(:ncol,:) + proc_rates%mnuccctot(:ncol,:) + proc_rates%mnuccttot(:ncol,:) &
                 + proc_rates%bergtot(:ncol,:) + proc_rates%homotot(:ncol,:) + proc_rates%msacwitot(:ncol,:)  &
                 - proc_rates%qmultgtot(:ncol,:)
-      call out_pumas_lev_field('MPDI2W', ftem, top_lev, work)
+      call out_pumas_lev_field('MPDI2W', ftem, ncol, pver, top_lev)
 
       ftem(:,:) = -proc_rates%prcitot(:ncol,:) - proc_rates%praitot(:ncol,:)
-      call out_pumas_lev_field('MPDI2P', ftem, top_lev, work)
+      call out_pumas_lev_field('MPDI2P', ftem, ncol, pver, top_lev)
 
       ! TAU / emulated stochastic collection (machine learning) warm rain diagnostics
       if (trim(micro_mg_warm_rain) == 'tau' .or. trim(micro_mg_warm_rain) == 'emulated') then
@@ -1591,11 +1481,11 @@ CONTAINS
       call history_out_field('FREQR',     freqr)
       call history_out_field('FREQS',     freqs)
       call history_out_field('MPDT',      tlat)
-      call out_pumas_lev_field('MPDQ',    qvlat, top_lev, work)
-      call out_pumas_lev_field('MPDLIQ',  qcten, top_lev, work)
-      call out_pumas_lev_field('MPDICE',  qiten, top_lev, work)
-      call out_pumas_lev_field('MPDNLIQ', ncten, top_lev, work)
-      call out_pumas_lev_field('MPDNICE', niten, top_lev, work)
+      call out_pumas_lev_field('MPDQ',    qvlat, ncol, pver, top_lev)
+      call out_pumas_lev_field('MPDLIQ',  qcten, ncol, pver, top_lev)
+      call out_pumas_lev_field('MPDICE',  qiten, ncol, pver, top_lev)
+      call out_pumas_lev_field('MPDNLIQ', ncten, ncol, pver, top_lev)
+      call out_pumas_lev_field('MPDNICE', niten, ncol, pver, top_lev)
 
       call out_pumas_trop_cld_field('EVAPSNOW', proc_rates%evapsnow,   ncol)
       call out_pumas_trop_cld_field('QCSEVAP',  proc_rates%qcsevap,    ncol)
@@ -1669,7 +1559,7 @@ CONTAINS
       call history_out_field('CME',         qme)
       call history_out_field('PRODPREC',    prain)
       call history_out_field('EVAPPREC',    nevapr)
-      call out_pumas_lev_field('QCRESO',    proc_rates%qcrestot, top_lev, work)
+      call out_pumas_lev_field('QCRESO',    proc_rates%qcrestot, ncol, pver, top_lev)
       call history_out_field('LS_REFFRAIN', reff_rain)
       call history_out_field('LS_REFFSNOW', reff_snow)
       call history_out_field('DSNOW',       des)
@@ -1704,19 +1594,19 @@ CONTAINS
       call history_out_field('ICIMRST',     icimrst_out)
       call history_out_field('ICWMRST',     icwmrst_out)
       call out_pumas_trop_cld_field('CMEIOUT',   proc_rates%cmeitot,   ncol)
-      call out_pumas_lev_field('PRAO',      proc_rates%pratot,    top_lev, work)
-      call out_pumas_lev_field('PRCO',      proc_rates%prctot,    top_lev, work)
-      call out_pumas_lev_field('MNUCCCO',   proc_rates%mnuccctot, top_lev, work)
-      call out_pumas_lev_field('MNUCCTO',   proc_rates%mnuccttot, top_lev, work)
-      call out_pumas_lev_field('MSACWIO',   proc_rates%msacwitot, top_lev, work)
-      call out_pumas_lev_field('PSACWSO',   proc_rates%psacwstot, top_lev, work)
-      call out_pumas_lev_field('BERGSO',    proc_rates%bergstot,  top_lev, work)
-      call out_pumas_lev_field('BERGO',     proc_rates%bergtot,   top_lev, work)
-      call out_pumas_lev_field('MELTO',     proc_rates%melttot,   top_lev, work)
-      call out_pumas_lev_field('HOMOO',     proc_rates%homotot,   top_lev, work)
-      call out_pumas_lev_field('PRCIO',     proc_rates%prcitot,   top_lev, work)
-      call out_pumas_lev_field('PRAIO',     proc_rates%praitot,   top_lev, work)
-      call out_pumas_lev_field('QIRESO',    proc_rates%qirestot,  top_lev, work)
+      call out_pumas_lev_field('PRAO',      proc_rates%pratot,    ncol, pver, top_lev)
+      call out_pumas_lev_field('PRCO',      proc_rates%prctot,    ncol, pver, top_lev)
+      call out_pumas_lev_field('MNUCCCO',   proc_rates%mnuccctot, ncol, pver, top_lev)
+      call out_pumas_lev_field('MNUCCTO',   proc_rates%mnuccttot, ncol, pver, top_lev)
+      call out_pumas_lev_field('MSACWIO',   proc_rates%msacwitot, ncol, pver, top_lev)
+      call out_pumas_lev_field('PSACWSO',   proc_rates%psacwstot, ncol, pver, top_lev)
+      call out_pumas_lev_field('BERGSO',    proc_rates%bergstot,  ncol, pver, top_lev)
+      call out_pumas_lev_field('BERGO',     proc_rates%bergtot,   ncol, pver, top_lev)
+      call out_pumas_lev_field('MELTO',     proc_rates%melttot,   ncol, pver, top_lev)
+      call out_pumas_lev_field('HOMOO',     proc_rates%homotot,   ncol, pver, top_lev)
+      call out_pumas_lev_field('PRCIO',     proc_rates%prcitot,   ncol, pver, top_lev)
+      call out_pumas_lev_field('PRAIO',     proc_rates%praitot,   ncol, pver, top_lev)
+      call out_pumas_lev_field('QIRESO',    proc_rates%qirestot,  ncol, pver, top_lev)
       call history_out_field('FREQM',       freqm)
       call history_out_field('FREQSL',      freqsl)
       call history_out_field('FREQSLM',     freqslm)
@@ -1724,21 +1614,21 @@ CONTAINS
       call history_out_field('FCTSL',       fctsl)
       call history_out_field('FCTSLM',      fctslm)
 
-      call out_pumas_lev_field('PRACGO',    proc_rates%pracgtot,   top_lev, work)
-      call out_pumas_lev_field('PSACRO',    proc_rates%psacrtot,   top_lev, work)
-      call out_pumas_lev_field('PSACWGO',   proc_rates%psacwgtot,  top_lev, work)
-      call out_pumas_lev_field('PGSACWO',   proc_rates%pgsacwtot,  top_lev, work)
-      call out_pumas_lev_field('PGRACSO',   proc_rates%pgracstot,  top_lev, work)
-      call out_pumas_lev_field('PRDGO',     proc_rates%prdgtot,    top_lev, work)
-      call out_pumas_lev_field('QMULTGO',   proc_rates%qmultgtot,  top_lev, work)
-      call out_pumas_lev_field('QMULTRGO',  proc_rates%qmultrgtot, top_lev, work)
+      call out_pumas_lev_field('PRACGO',    proc_rates%pracgtot,   ncol, pver, top_lev)
+      call out_pumas_lev_field('PSACRO',    proc_rates%psacrtot,   ncol, pver, top_lev)
+      call out_pumas_lev_field('PSACWGO',   proc_rates%psacwgtot,  ncol, pver, top_lev)
+      call out_pumas_lev_field('PGSACWO',   proc_rates%pgsacwtot,  ncol, pver, top_lev)
+      call out_pumas_lev_field('PGRACSO',   proc_rates%pgracstot,  ncol, pver, top_lev)
+      call out_pumas_lev_field('PRDGO',     proc_rates%prdgtot,    ncol, pver, top_lev)
+      call out_pumas_lev_field('QMULTGO',   proc_rates%qmultgtot,  ncol, pver, top_lev)
+      call out_pumas_lev_field('QMULTRGO',  proc_rates%qmultrgtot, ncol, pver, top_lev)
       call history_out_field('LS_REFFGRAU', reff_grau)
-      call out_pumas_lev_field('NPRACGO',   proc_rates%npracgtot,  top_lev, work)
-      call out_pumas_lev_field('NSCNGO',    proc_rates%nscngtot,   top_lev, work)
-      call out_pumas_lev_field('NGRACSO',   proc_rates%ngracstot,  top_lev, work)
-      call out_pumas_lev_field('NMULTGO',   proc_rates%nmultgtot,  top_lev, work)
-      call out_pumas_lev_field('NMULTRGO',  proc_rates%nmultrgtot, top_lev, work)
-      call out_pumas_lev_field('NPSACWGO',  proc_rates%npsacwgtot, top_lev, work)
+      call out_pumas_lev_field('NPRACGO',   proc_rates%npracgtot,  ncol, pver, top_lev)
+      call out_pumas_lev_field('NSCNGO',    proc_rates%nscngtot,   ncol, pver, top_lev)
+      call out_pumas_lev_field('NGRACSO',   proc_rates%ngracstot,  ncol, pver, top_lev)
+      call out_pumas_lev_field('NMULTGO',   proc_rates%nmultgtot,  ncol, pver, top_lev)
+      call out_pumas_lev_field('NMULTRGO',  proc_rates%nmultrgtot, ncol, pver, top_lev)
+      call out_pumas_lev_field('NPSACWGO',  proc_rates%npsacwgtot, ncol, pver, top_lev)
 
       if (micro_mg_adjust_cpt) then
          cp_rh(:ncol, :pver)  = 0._kind_phys
@@ -1761,17 +1651,20 @@ CONTAINS
 
    ! Output a field which is on the PUMAS vertical levels (top_lev:pver) on the
    ! host model vertical levels ('lev'), with zeros above top_lev
-   subroutine out_pumas_lev_field(fname, field, top_lev, work)
+   subroutine out_pumas_lev_field(fname, field, ncol, pver, top_lev)
 
       use cam_history, only: history_out_field
 
       character(len=*), intent(in)  :: fname       ! history field name
       real(pumas_r8),   intent(in)  :: field(:,:)  ! field on the PUMAS vertical levels
+      integer,          intent(in)  :: ncol        ! number of columns
+      integer,          intent(in)  :: pver        ! number of vertical layers
       integer,          intent(in)  :: top_lev     ! top model level for cloud physics (index)
-      real(kind_phys),  intent(out) :: work(:,:)   ! work array on the host model vertical levels
+
+      real(kind_phys) :: work(ncol,pver)           ! field on the host model vertical levels
 
       work(:,:top_lev-1) = 0._kind_phys
-      work(:,top_lev:)   = real(field(:size(work,1),:), kind_phys)
+      work(:,top_lev:)   = real(field(:ncol,:), kind_phys)
 
       call history_out_field(fname, work)
 
