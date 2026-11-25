@@ -58,7 +58,7 @@ CONTAINS
       logical,            intent(in)  :: micro_mg_adjust_cpt ! flag for the cold point tropopause temperature adjustment
 
       ! CCPP error handling variables
-      character(len=*), intent(out) :: errmsg
+      character(len=*),   intent(out) :: errmsg
       integer,            intent(out) :: errflg
 
       ! Local variables
@@ -674,7 +674,7 @@ CONTAINS
       real(kind_phys),    intent(in)  :: tropZ_cpp(:) ! cold point tropopause geopotential height wrt surface (m)
 
       ! CCPP error handling variables
-      character(len=*), intent(out) :: errmsg
+      character(len=*),   intent(out) :: errmsg
       integer,            intent(out) :: errflg
 
       ! Local variables
@@ -864,7 +864,7 @@ CONTAINS
       real(kind_phys),  intent(inout) :: acnum(:)        ! counter for number of timesteps accumulated (count)
 
       ! CCPP error handling variables
-      character(len=*), intent(out) :: errmsg
+      character(len=*),   intent(out) :: errmsg
       integer,            intent(out) :: errflg
 
       !------------------------------------------------
@@ -876,7 +876,6 @@ CONTAINS
       real(pumas_r8)  :: ftem(ncol,pver-top_lev+1)
 
       real(kind_phys) :: t_post(ncol,pver)            ! air temperature after microphysics heating (K)
-      real(kind_phys) :: cp_dt                        ! cold point temperature adjustment (K)
       real(kind_phys) :: cp_rh(ncol,pver)             ! relative humidity after cold point adjustment (percent)
       real(kind_phys) :: es                           ! saturation vapor pressure (Pa)
       real(kind_phys) :: qsat_out                     ! saturation specific humidity (kg kg-1)
@@ -978,8 +977,7 @@ CONTAINS
       if (micro_mg_adjust_cpt) then
          do i = 1, ncol
             if (tropLev_cpp(i) /= TROPOPAUSE_NOTFOUND) then
-               cp_dt = tropT_cpp(i) - temp(i,tropLev_cpp(i))
-               t_post(i,tropLev_cpp(i)) = t_post(i,tropLev_cpp(i)) + cp_dt
+               t_post(i,tropLev_cpp(i)) = tropT_cpp(i)
             end if
          end do
       end if

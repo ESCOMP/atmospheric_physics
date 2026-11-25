@@ -195,7 +195,6 @@ contains
 
     ! Local variables
     integer            :: i
-    real(kind_phys)    :: cp_dt       ! cold point temperature adjustment (K)
 
     !Initialize error message and error code:
     errmsg  = ''
@@ -215,9 +214,7 @@ contains
     if (micro_mg_adjust_cpt) then
        do i = 1, ncol
           if (tropLev_cpp(i) /= TROPOPAUSE_NOTFOUND .and. tropLev_cpp(i) >= trop_cloud_top_lev) then
-             cp_dt = tropT_cpp(i) - airT_in(i,tropLev_cpp(i))
-             pumas_airT(i,tropLev_cpp(i)-trop_cloud_top_lev+1) = &
-                  real(airT_in(i,tropLev_cpp(i)) + cp_dt, pumas_r8)
+             pumas_airT(i,tropLev_cpp(i)-trop_cloud_top_lev+1) = real(tropT_cpp(i), pumas_r8)
           end if
        end do
     end if
