@@ -192,6 +192,12 @@
   type = real | kind = kind_phys
   dimensions = ()
   intent = in
+[ gravit ]
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
 [ vramp ]
   standard_name = gravity_wave_drag_tapering_coefficients
   units = 1
@@ -525,6 +531,12 @@
 [ rair ]
   standard_name = gas_constant_of_dry_air
   units = J kg-1 K-1
+  type = real | kind = kind_phys
+  dimensions = ()
+  intent = in
+[ gravit ]
+  standard_name = standard_gravitational_acceleration
+  units = m s-2
   type = real | kind = kind_phys
   dimensions = ()
   intent = in

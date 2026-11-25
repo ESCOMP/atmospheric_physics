@@ -419,6 +419,12 @@
   type = real | kind = kind_phys
   dimensions = (horizontal_loop_extent)
   intent = out
+[ roo_block ]
+  standard_name = flag_for_near_surface_tilt_dominance_blocking_of_moving_mountain_gravity_wave_drag_source
+  units = flag
+  type = logical
+  dimensions = (horizontal_loop_extent)
+  intent = out
 [ taucd_west ]
   standard_name = westward_reynolds_stress_due_to_moving_mountain_gravity_wave_drag
   units = N m-2
