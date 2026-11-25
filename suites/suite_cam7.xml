@@ -166,7 +166,7 @@
       <!--
         microp_aero: microphysics-aerosol coupling
         In nochem BAM mode, the scheme order is:
-          0.  tropopause_find (chemical tropopause)
+          0.  tropopause_find (chemical and cold-point tropopause)
           1.  compute_subgrid_vertical_velocity (CLUBB variant)
           2.  scale_subgrid_vertical_velocity
           3.  nucleate_ice_ccpp
@@ -177,7 +177,7 @@
           6.  hetfrz_classnuc_ccpp
       -->
 
-      <!-- Find chemical tropopause -->
+      <!-- Find chemical and cold-point tropopause -->
       <scheme>tropopause_find</scheme>
 
       <!-- Compute and scale subgrid vertical velocity
@@ -214,6 +214,8 @@
       -->
       <!-- Read in PUMAS namelist variables (init only) -->
       <scheme>pumas_pre_main</scheme>
+      <!-- PUMAS diagnostics which need the state before microphysics -->
+      <scheme>micro_pumas_pre_diagnostics</scheme>
       <!-- Convert variables from host grid to PUMAS grid -->
       <scheme>micro_pumas_ccpp_dimensions_pre</scheme>
       <!-- core PUMAS (cloud microphysics) scheme -->
@@ -229,6 +231,8 @@
            before apply_heating_rate -->
       <scheme>pumas_post_main</scheme>
       <scheme>micro_pumas_ccpp_optics_limiter</scheme>
+      <!-- PUMAS diagnostics needs to run after pumas_post_main and before apply_heating_rate (which zeroes out the tendencies) -->
+      <scheme>micro_pumas_diagnostics</scheme>
       <scheme>apply_heating_rate</scheme>
       <scheme>geopotential_temp</scheme>
 

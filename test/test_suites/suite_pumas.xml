@@ -10,8 +10,13 @@
     <scheme>clubb_stub</scheme>
     <scheme>hetfrz_classnuc_stub</scheme>
 
+    <!-- Cold point tropopause is used by PUMAS -->
+    <scheme>tropopause_find</scheme>
+
     <!-- Read in PUMAS namelist variables (init only) -->
     <scheme>pumas_pre_main</scheme>
+    <!-- PUMAS diagnostics which need the state before microphysics -->
+    <scheme>micro_pumas_pre_diagnostics</scheme>
     <!-- Convert variables from host grid to PUMAS grid -->
     <scheme>micro_pumas_ccpp_dimensions_pre</scheme>
     <!-- core PUMAS (cloud microphysics) scheme -->
@@ -27,6 +32,8 @@
          before apply_heating_rate -->
     <scheme>pumas_post_main</scheme>
     <scheme>micro_pumas_ccpp_optics_limiter</scheme>
+    <!-- PUMAS diagnostics needs to run after pumas_post_main and before apply_heating_rate (which zeroes out the tendencies) -->
+    <scheme>micro_pumas_diagnostics</scheme>
     <scheme>apply_heating_rate</scheme>
     <scheme>geopotential_temp</scheme>
 

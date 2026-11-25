@@ -76,10 +76,12 @@ contains
                              frzimm_in, pumas_frzimm,                               &
                              frzcnt_in, pumas_frzcnt,                               &
                              frzdep_in, pumas_frzdep,                               &
+                             micro_mg_adjust_cpt, tropLev_cpp, tropT_cpp,           &
                              errmsg, errcode)
 
     use pumas_kinds,       only: pumas_r8=>kind_r8
     use ccpp_kinds,        only: kind_phys
+    use tropopause_find,   only: TROPOPAUSE_NOTFOUND=>NOTFOUND
 
     !Host model dimensions/parameters:
     integer,         intent(in) :: ncol
@@ -181,9 +183,18 @@ contains
     ! Tendency of cloud ice number concentration due to deposition nucleation (cm-3)
     real(kind_phys), intent(in)  :: frzdep_in(:, :)
     real(pumas_r8), intent(out) :: pumas_frzdep(:, :)
+    ! Flag for the cold point tropopause temperature adjustment of the PUMAS air temperature (flag)
+    logical,         intent(in)  :: micro_mg_adjust_cpt
+    ! Cold point tropopause vertical layer index (index)
+    integer,         intent(in)  :: tropLev_cpp(:)
+    ! Cold point tropopause air temperature (K)
+    real(kind_phys), intent(in)  :: tropT_cpp(:)
 
     character(len=*), intent(out) :: errmsg
     integer,            intent(out) :: errcode
+
+    ! Local variables
+    integer            :: i
 
     !Initialize error message and error code:
     errmsg  = ''
@@ -197,6 +208,16 @@ contains
 ! pumas_xxx(:ncol,:) receives host levels trop_cloud_top_lev:nlev. Mirrors CAM
 ! micro_pumas_cam.F90, which passes every field as xxx(:ncol,top_lev:).
     pumas_airT(:ncol,:) = real(airT_in(:,trop_cloud_top_lev:), pumas_r8)
+
+    ! Adjust PUMAS temperature at the cold-point tropopause level
+    ! to the cold point temperature.
+    if (micro_mg_adjust_cpt) then
+       do i = 1, ncol
+          if (tropLev_cpp(i) /= TROPOPAUSE_NOTFOUND .and. tropLev_cpp(i) >= trop_cloud_top_lev) then
+             pumas_airT(i,tropLev_cpp(i)-trop_cloud_top_lev+1) = real(tropT_cpp(i), pumas_r8)
+          end if
+       end do
+    end if
     pumas_airq(:ncol,:) = real(airq_in(:,trop_cloud_top_lev:), pumas_r8)
     pumas_cldliq(:ncol,:) = real(cldliq_in(:,trop_cloud_top_lev:), pumas_r8)
     pumas_cldice(:ncol,:) = real(cldice_in(:,trop_cloud_top_lev:), pumas_r8)
