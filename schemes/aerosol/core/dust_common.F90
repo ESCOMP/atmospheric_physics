@@ -22,13 +22,14 @@ contains
   ! Modifications by C. Zender and later by S. Levis
   ! Rest of subroutine from C. Zender's dust model
   ! Revised for CAM by Natalie Nahowald
-  subroutine dust_set_params(nbin, dmt_grd, dmt_vwr, stk_crc, pi, rair, gravit, errmsg, errflg)
+  subroutine dust_set_params(nbin, dmt_grd, dmt_vwr, stk_crc, dmt_av, pi, rair, gravit, errmsg, errflg)
     use shr_infnan_mod, only: nan => shr_infnan_nan, assignment(=)
 
     integer, intent(in)  :: nbin
     real(kind_phys), intent(in)  :: dmt_grd(:)
     real(kind_phys), intent(out) :: dmt_vwr(:)
     real(kind_phys), intent(out) :: stk_crc(:)
+    real(kind_phys), intent(out) :: dmt_av(:)   ![m] Diameter of average volume (for mass-to-number conversion)
     real(kind_phys), intent(in)  :: pi          ! host model constants
     real(kind_phys), intent(in)  :: rair        ! gas constant for dry air (J/K/kg)
     real(kind_phys), intent(in)  :: gravit      ! gravitational acceleration (m/s2)
@@ -46,6 +47,7 @@ contains
     real(kind_phys) :: dmt_dlt(nbin)      ![m] Width of size bin
     real(kind_phys) :: slp_crc(nbin)      ![frc] Slip correction factor
     real(kind_phys) :: vlm_rsl(nbin)      ![m3 m-3] Volume concentration resolved
+    real(kind_phys) :: num_rsl(nbin)      ![# m-3] Number concentration resolved
     real(kind_phys) :: vlc_stk(nbin)      ![m s-1] Stokes settling velocity
     real(kind_phys) :: vlc_grv(nbin)      ![m s-1] Settling velocity
     real(kind_phys) :: ryn_nbr_grv(nbin)  ![frc] Reynolds number at terminal velocity
@@ -76,6 +78,7 @@ contains
 
     stk_crc(:) = nan
     dmt_vwr(:) = nan
+    dmt_av(:) = nan
 
     ! Introducing particle diameter. Needed by atm model and by dry dep model.
     ! Taken from Charlie Zender's subroutines dst_psd_ini, dst_sz_rsl,
@@ -133,6 +136,7 @@ contains
       lngsdsqrttwopi_rcp = 1.0_kind_phys/(ln_gsd*sqrt(2.0_kind_phys*pi))
       dmt_vwr(n) = 0.0_kind_phys ! [m] Mass wgted diameter resolved
       vlm_rsl(n) = 0.0_kind_phys ! [m3 m-3] Volume concentration resolved
+      num_rsl(n) = 0.0_kind_phys ! [# m-3] Number concentration resolved
       do m = 1, sz_nbr
         ! Evaluate lognormal distribution for these sizes (call lgn_evl)
         tmp = log(sz_ctr(m)/dmt_nma)/ln_gsd
@@ -144,8 +148,16 @@ contains
         vlm_rsl(n) = vlm_rsl(n) + &
                      pi/6.0_kind_phys*(sz_ctr(m)**3.0_kind_phys)* & ![m3] Volume
                      lgn_dst*sz_dlt(m)                ![# m-3] Number concentrn
+        num_rsl(n) = num_rsl(n) + lgn_dst*sz_dlt(m)   ![# m-3] Number concentrn
       end do
       dmt_vwr(n) = dmt_vwr(n)/vlm_rsl(n) ![m] Mass weighted diameter resolved
+      ! dmt_av is the diameter of average volume: the monodisperse diameter whose particle
+      ! mass converts the bin mass to the bin number exactly, M = N*dust_density*(pi/6)*dmt_av**3.
+      ! Emissions mass-to-number conversion must use dmt_av; the mass-weighted dmt_vwr
+      ! overestimates the per-particle mass and under-counts emitted number
+      ! (~5x for a 1-10 um bin with this size distribution).
+      ! dmt_vwr is still used below for the Stokes settling correction (stk_crc).
+      dmt_av(n) = (vlm_rsl(n)/(pi/6.0_kind_phys*num_rsl(n)))**(1.0_kind_phys/3.0_kind_phys) ![m]
     end do
 
     ! sets stk_crc ...
