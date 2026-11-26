@@ -127,12 +127,12 @@ contains
 !! \htmlinclude compute_cloud_fraction_run.html
   subroutine compute_cloud_fraction_run( &
     ncol, pver, &
-    cappa, gravit, rair, tmelt, pref, lapse_rate, &
+    cappa, gravit, rair, pref, lapse_rate, &
     top_lev_cloudphys, &
     pmid, ps, temp, sst, &
     q, cldice, &
     phis, &
-    shallowcu, deepcu, concld, & ! convective cloud cover
+    concld, & ! convective cloud cover
     landfrac, ocnfrac, snowh, &
     rhpert_flag, & ! todo: decide what to do with this
     cloud, rhcloud, &
@@ -149,7 +149,6 @@ contains
     real(kind_phys), intent(in) :: cappa
     real(kind_phys), intent(in) :: gravit
     real(kind_phys), intent(in) :: rair
-    real(kind_phys), intent(in) :: tmelt
     real(kind_phys), intent(in) :: pref
     real(kind_phys), intent(in) :: lapse_rate
     integer,         intent(in) :: top_lev_cloudphys ! vertical_layer_index_of_cloud_fraction_top [index]
@@ -160,8 +159,6 @@ contains
     real(kind_phys), intent(in) :: q(:, :)           ! water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water [kg kg-1]
     real(kind_phys), intent(in) :: cldice(:, :)      ! cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water [kg kg-1]
     real(kind_phys), intent(in) :: phis(:)           ! surface_geopotential [m2 s-2]
-    real(kind_phys), intent(in) :: shallowcu(:, :)   ! shallow convective cloud fraction [fraction]
-    real(kind_phys), intent(in) :: deepcu(:, :)      ! deep convective cloud fraction [fraction]
     real(kind_phys), intent(in) :: concld(:, :)      ! convective_cloud_area_fraction [fraction]
     real(kind_phys), intent(in) :: landfrac(:)       ! land_area_fraction_from_coupler [fraction]
     real(kind_phys), intent(in) :: ocnfrac(:)        ! ocean_area_fraction_from_coupler [fraction]
@@ -180,7 +177,6 @@ contains
     integer,            intent(out) :: errflg        ! error flag
 
     ! Local variables:
-    real(kind_phys) :: cld                         ! intermediate scratch variable (low cld)
     real(kind_phys) :: dthdpmn(ncol)               ! most stable lapse rate below 750 mb
     real(kind_phys) :: dthdp                       ! lapse rate (intermediate variable)
     real(kind_phys) :: es(ncol, pver)              ! saturation vapor pressure
@@ -196,10 +192,8 @@ contains
     real(kind_phys) :: rpdeli(ncol, pver - 1)      ! 1./(pmid(k+1)-pmid(k))
     real(kind_phys) :: rhpert                      ! the specified perturbation to rh
 
-    logical  :: cldbnd(ncol)           ! region below high cloud boundary
-
     integer  :: i, ierror, k           ! column, level indices
-    integer  :: kp1, ifld
+    integer  :: kp1
     integer  :: kdthdp(ncol)
     integer  :: numkcld                ! number of levels in which to allow clouds
 
@@ -337,8 +331,6 @@ contains
       kp1 = min(k + 1, pver)
       do i = 1, ncol
         ! This is now designed to apply FOR LIQUID CLOUDS (condensation > RH water)
-        cldbnd(i) = pmid(i, k) >= pretop
-
         if (pmid(i, k) >= premib) then
           !==============================================================
           ! This is the low cloud (below premib) block
