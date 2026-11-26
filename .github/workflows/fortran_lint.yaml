@@ -1,0 +1,62 @@
+name: Fortran lint
+
+# Lint the Fortran lines a pull request adds or modifies with Fortitude.
+# Rules and their severities live in fortitude.toml at the repository root;
+# .github/scripts/fortitude_lint.py restricts the check to changed lines so
+# legacy code is not reformatted as a side effect of unrelated changes.
+# Error-severity diagnostics fail the job; warnings are reported only.
+# The workflow always runs (no path filter) so it can be a required check;
+# it finishes immediately when no Fortran file changed.
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORTITUDE_VERSION: 0.10.*
+
+jobs:
+  fortitude:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # Full history is needed for the merge base; the repository is small
+      # and submodules are not fetched.
+      - name: Checkout atmospheric_physics
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Fortitude
+        run: |
+          python3 -m pip install "fortitude-lint==${FORTITUDE_VERSION}"
+          fortitude --version
+
+      # Pull requests compare against their base branch; manual runs against main.
+      - name: Lint changed Fortran lines
+        env:
+          BASE_REF: ${{ github.base_ref || 'main' }}
+        run: |
+          python3 .github/scripts/fortitude_lint.py --base "origin/${BASE_REF}" \
+            -- --output-format full
+
+      # Repeat in the annotation format so diagnostics appear inline on the pull request diff.
+      - name: Annotate pull request
+        if: ${{ !cancelled() }}
+        env:
+          BASE_REF: ${{ github.base_ref || 'main' }}
+        run: |
+          python3 .github/scripts/fortitude_lint.py --base "origin/${BASE_REF}" \
+            -- --output-format github || true

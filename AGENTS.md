@@ -65,9 +65,21 @@ The standard name is the interface: the CCPP framework connects producers and co
 
 Read `doc/Code-style.md` before writing or modifying Fortran.
 
+The mechanical style rules are enforced by [Fortitude](https://fortitude.readthedocs.io), configured in `fortitude.toml`.
+Lint the lines you changed before committing (requires `pip install 'fortitude-lint==0.10.*'`):
+
+```
+python3 .github/scripts/fortitude_lint.py
+```
+
+It compares the working tree, including untracked files, against the merge base with `origin/main` (`--base <rev>` to override).
+Errors fail the `Fortran lint` CI check; warnings are advisory.
+Do not reformat unchanged legacy code to silence diagnostics, and do not edit `fortitude.toml` to make a change pass.
+
 ## Code reviews
 
 Read `doc/Code-review.md` for specific guidelines on code reviews when performing a code review task on pull requests within this repository.
+Rules checked by Fortitude are marked there; leave them to CI instead of verifying them by hand.
 
 ## Testing
 

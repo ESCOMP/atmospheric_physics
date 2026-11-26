@@ -5,3 +5,6 @@
 **/CMakeFiles/
 .vscode
 xcode/
+.claude
+.sashiko
+.agents
