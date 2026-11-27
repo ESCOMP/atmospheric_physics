@@ -4,9 +4,9 @@
   dependencies = utils/radiation_utils.F90
   # Host model must choose the appropriate module to build
   # IF CPUS:
-  dependencies = ext/rte-kernels/mo_optical_props_kernels.F90
+  dependencies = ext/rte/kernels/mo_optical_props_kernels.F90
   # ELSE IF GPUS:
-  dependencies = ext/rte-kernels/accel/mo_optical_props_kernels.F90
+  dependencies = ext/rte/kernels/accel/mo_optical_props_kernels.F90
   # END IF
 
 [ccpp-arg-table]

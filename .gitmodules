@@ -14,7 +14,7 @@
 	path = schemes/rrtmgp/ext
 	url = https://github.com/earth-system-radiation/rte-rrtmgp.git
         fxrequired = AlwaysRequired
-        fxtag = v1.9.2
+        fxtag = v1.10
         fxDONOTUSEurl = https://github.com/earth-system-radiation/rte-rrtmgp.git
 [submodule "clubb"]
         path = schemes/clubb/clubb
