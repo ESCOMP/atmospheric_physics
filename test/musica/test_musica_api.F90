@@ -271,8 +271,13 @@ contains
     write(*,fmt="(4(3x,e13.6))") constituents
 
     ! The framework allocates micm_rate_parameters from the register-phase
-    ! count; the test mirrors that here
+    ! count and zeroes it in musica_ccpp_timestep_init; the test mirrors that here
     allocate(rate_parameters(NUM_COLUMNS, NUM_LAYERS, number_of_micm_rate_parameters))
+    call musica_ccpp_timestep_init(rate_parameters, errmsg, errcode)
+    if (errcode /= 0) then
+      write(*,*) trim(errmsg)
+      stop 3
+    endif
     call musica_ccpp_photolysis_run( temperature, dry_air_density, constituents,       &
                           geopotential_height_wrt_surface_at_midpoint,                 &
                           geopotential_height_wrt_surface_at_interface,                &
@@ -531,8 +536,13 @@ contains
     write(*,fmt="(4(3x,e13.6))") constituents
 
     ! The framework allocates micm_rate_parameters from the register-phase
-    ! count; the test mirrors that here
+    ! count and zeroes it in musica_ccpp_timestep_init; the test mirrors that here
     allocate(rate_parameters(NUM_COLUMNS, NUM_LAYERS, number_of_micm_rate_parameters))
+    call musica_ccpp_timestep_init(rate_parameters, errmsg, errcode)
+    if (errcode /= 0) then
+      write(*,*) trim(errmsg)
+      stop 3
+    endif
     call musica_ccpp_photolysis_run( temperature, dry_air_density, constituents,       &
                           geopotential_height_wrt_surface_at_midpoint,                 &
                           geopotential_height_wrt_surface_at_interface,                &
@@ -741,6 +751,11 @@ contains
 
     ! MUSICA run for one time step
     allocate(rate_parameters(number_of_columns, number_of_layers, number_of_micm_rate_parameters))
+    call musica_ccpp_timestep_init(rate_parameters, errmsg, errcode)
+    if (errcode /= 0) then
+      write(*,*) trim(errmsg)
+      stop 3
+    endif
     call musica_ccpp_photolysis_run( temperature, dry_air_mass_density, constituents, &
                           dummy_array_2D, dummy_array_2D, dummy_array_1D, dummy_array_1D, &
                           dummy_array_1D, dummy_array_1D, -HUGE(0.0_kind_phys), dummy_array_2D, &

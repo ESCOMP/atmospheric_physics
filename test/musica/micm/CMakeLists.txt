@@ -19,3 +19,26 @@ add_test(
 )
 
 add_memory_check_test(test_micm_util $<TARGET_FILE:test_micm_util> "" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
+# MICM surface reaction rate parameters from aerosol surface area density
+add_executable(test_micm_surface test_micm_surface.F90)
+
+target_sources(test_micm_surface
+  PUBLIC
+    ${MUSICA_SRC_PATH}/micm/musica_ccpp_micm_surface.F90
+    ${MUSICA_SRC_PATH}/util/musica_ccpp_util.F90
+    ${CCPP_TEST_SRC_PATH}/ccpp_kinds.F90
+)
+
+target_link_libraries(test_micm_surface
+  PRIVATE
+    musica-fortran musica mechanism_configuration yaml-cpp stdc++ netcdff
+)
+
+add_test(
+  NAME test_micm_surface
+  COMMAND $<TARGET_FILE:test_micm_surface>
+  WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+)
+
+add_memory_check_test(test_micm_surface $<TARGET_FILE:test_micm_surface> "" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
